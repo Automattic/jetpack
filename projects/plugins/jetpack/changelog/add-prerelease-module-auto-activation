@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Modules: activate new modules on prerelease versions instead of waiting for the final release.

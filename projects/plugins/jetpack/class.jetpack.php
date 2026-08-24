@@ -2249,7 +2249,7 @@ class Jetpack {
 
 		self::state( 'message', 'modules_activated' );
 
-		self::activate_default_modules( $previous_version, self::current_version(), $reactivate_modules, $redirect );
+		self::activate_default_modules_for_upgrade( $previous_version, $reactivate_modules, $redirect );
 
 		if ( $redirect ) {
 			self::redirect_after_activation();
@@ -2268,6 +2268,171 @@ class Jetpack {
 	 */
 	private static function current_version() {
 		return Constants::get_constant( 'JETPACK__VERSION' );
+	}
+
+	/**
+	 * Option holding the module slugs this site has already auto-activated while running a
+	 * prerelease. Written only on prereleases; read on every version.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
+	const PRERELEASE_ACTIVATED_MODULES_OPTION = 'jetpack_prerelease_activated_modules';
+
+	/**
+	 * The release version a version string belongs to, with any prerelease suffix removed.
+	 *
+	 * `16.2-a.1` is 16.2 under development, but version_compare() sorts it below `16.2`, so a
+	 * module introduced in 16.2 looks like the future to every alpha of 16.2. Comparing release
+	 * versions is what puts a prerelease back in the release line it belongs to.
+	 *
+	 * Covers the whole suffix grammar in the changelogger's WordpressVersioning plugin: `-dev`,
+	 * `-alpha`, `-beta`, `-rc` with or without a number, `-a.N`, `-beta.N`, plus `+buildinfo`.
+	 *
+	 * @internal Public only so it can be exercised directly by tests. Not a plugin API.
+	 * @since $$next-version$$
+	 *
+	 * @param string $version A Jetpack version string.
+	 *
+	 * @return string The version with any prerelease or build suffix removed.
+	 */
+	public static function release_version( $version ) {
+		return preg_replace( '/[-+].*$/', '', (string) $version );
+	}
+
+	/**
+	 * Module slugs this site has already auto-activated while running a prerelease.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string[] Module slugs.
+	 */
+	private static function get_prerelease_activated_modules() {
+		$record = get_option( self::PRERELEASE_ACTIVATED_MODULES_OPTION, array() );
+
+		return is_array( $record ) ? $record : array();
+	}
+
+	/**
+	 * Record which of the offered modules actually ended up active.
+	 *
+	 * Deliberately compares against the raw `active_modules` option rather than
+	 * {@see self::get_active_modules()}: the latter applies `jetpack_active_modules`, and a module
+	 * a filter merely reports as active was never really offered to anyone. Recording it would
+	 * suppress it permanently once that filter went away.
+	 *
+	 * Modules that were already active and therefore skipped are still in the raw option, so they
+	 * are still recorded — which is the point. Recording only newly activated modules would let a
+	 * user's opt-out be undone by the next prerelease.
+	 *
+	 * @internal Public only so it can be exercised directly by tests. Not a plugin API.
+	 * @since $$next-version$$
+	 *
+	 * @param string[] $offered Module slugs that were offered for auto-activation.
+	 *
+	 * @return void
+	 */
+	public static function record_prerelease_activated_modules( array $offered ) {
+		$raw = Jetpack_Options::get_option( 'active_modules' );
+		$raw = is_array( $raw ) ? $raw : array();
+
+		$activated = array_intersect( $offered, $raw );
+		if ( ! $activated ) {
+			return;
+		}
+
+		$record = array_values(
+			array_unique( array_merge( self::get_prerelease_activated_modules(), $activated ) )
+		);
+
+		update_option( self::PRERELEASE_ACTIVATED_MODULES_OPTION, $record, false );
+	}
+
+	/**
+	 * Auto-activating modules introduced in the release line now running.
+	 *
+	 * Deliberately narrow. Selecting every module introduced at or below the running version would
+	 * be catastrophic on an established site: the record starts empty, so every module the owner
+	 * had ever switched off would read as never-offered and be switched back on. Restricting
+	 * candidates to the current line puts older modules permanently out of reach, which is what
+	 * makes the empty starting record safe and removes any need for a migration.
+	 *
+	 * @internal Public only so it can be exercised directly by tests. Not a plugin API.
+	 * @since $$next-version$$
+	 *
+	 * @return string[] Module slugs.
+	 */
+	public static function get_current_line_modules() {
+		$line    = self::release_version( self::current_version() );
+		$modules = array();
+
+		foreach ( self::get_default_modules() as $slug ) {
+			$module = self::get_module( $slug );
+
+			if ( empty( $module['introduced'] ) ) {
+				continue;
+			}
+
+			if ( self::release_version( $module['introduced'] ) === $line ) {
+				$modules[] = $slug;
+			}
+		}
+
+		return $modules;
+	}
+
+	/**
+	 * Hand off to activate_default_modules() with the prerelease adjustments applied.
+	 *
+	 * Two changes to the default module list, both made through `jetpack_get_default_modules` so
+	 * the other callers of activate_default_modules() — reconnection, multisite, the resumed admin
+	 * action — keep today's behavior:
+	 *
+	 *  - on a prerelease, add modules introduced in the release line now running, which the version
+	 *    window cannot see because a prerelease sorts below its own release;
+	 *  - on every version, subtract modules this site has already auto-activated, so an upgrade
+	 *    never offers the same module twice and a user's opt-out is not undone by the next
+	 *    prerelease or by the final release.
+	 *
+	 * The adjustment lands before `$other_modules` is merged in, so modules being reactivated after
+	 * a `Changed:` header bump are never suppressed.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string   $previous_version   Version recorded for this site, without its timestamp.
+	 * @param string[] $reactivate_modules Modules deactivated by this upgrade, to reactivate.
+	 * @param bool     $redirect           Should activation redirect when it finishes.
+	 *
+	 * @return void
+	 */
+	private static function activate_default_modules_for_upgrade( $previous_version, array $reactivate_modules, $redirect ) {
+		// Computed BEFORE the filter is added: get_current_line_modules() calls
+		// get_default_modules(), which applies the very filter added below.
+		$candidates = self::is_development_version() ? self::get_current_line_modules() : array();
+		$already    = self::get_prerelease_activated_modules();
+
+		$offered = array();
+
+		$adjust = function ( $modules ) use ( $candidates, $already, &$offered ) {
+			$modules = array_values(
+				array_diff( array_unique( array_merge( $modules, $candidates ) ), $already )
+			);
+			$offered = $modules;
+
+			return $modules;
+		};
+
+		add_filter( 'jetpack_get_default_modules', $adjust );
+
+		try {
+			self::activate_default_modules( $previous_version, self::current_version(), $reactivate_modules, $redirect );
+		} finally {
+			remove_filter( 'jetpack_get_default_modules', $adjust );
+		}
+
+		if ( self::is_development_version() ) {
+			self::record_prerelease_activated_modules( $offered );
+		}
 	}
 
 	/**
