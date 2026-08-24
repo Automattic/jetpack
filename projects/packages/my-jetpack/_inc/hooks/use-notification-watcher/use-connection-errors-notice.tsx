@@ -1,30 +1,29 @@
-import { Col, Text, getRedirectUrl } from '@automattic/jetpack-components';
+import { Col, Text } from '@automattic/jetpack-components';
 import {
+	ConnectionErrorSupportLink,
 	getReconnectErrorMessage,
 	useConnectionErrorNotice,
 	type ConnectionErrorObject,
 } from '@automattic/jetpack-connection';
-import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { useContext, useEffect, useCallback, useMemo } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import useAnalytics from '../use-analytics';
 import { assignLocation } from './assignLocation';
-import {
-	excludeOtherUsersErrors,
-	flattenConnectionErrors,
-	getConnectionErrorDetailLines,
-	getConnectionErrorTitle,
-	groupConnectionErrorsByMessage,
-	titleIncludesScope,
-} from './connection-error-details';
-import type { ConnectionErrorViewer } from './connection-error-details';
 import type { NoticeOptions, NoticeButtonAction } from '../../context/notices/types';
 
+/**
+ * Default for the optional `actionHandlers` argument.
+ *
+ * A `= {}` default would hand the connection package a new object on every
+ * render, and it memoizes the resolved CTA actions on that identity — which
+ * would then rebuild every render and re-fire the effect below.
+ */
+const NO_ACTION_HANDLERS: Record< string, ( error: ConnectionErrorObject ) => void > = {};
+
 const useConnectionErrorsNotice = (
-	actionHandlers: Record< string, ( error: ConnectionErrorObject ) => void > = {}
+	actionHandlers: Record< string, ( error: ConnectionErrorObject ) => void > = NO_ACTION_HANDLERS
 ) => {
 	const { setNotice } = useContext( NoticeContext );
 	const { recordEvent } = useAnalytics();
@@ -43,19 +42,19 @@ const useConnectionErrorsNotice = (
 		[ recordEvent ]
 	);
 
-	// Action resolution and copy are owned by the connection package; we only
-	// map the resolved actions into a My Jetpack notice and re-attach our own
+	// Detection, copy and action resolution are owned by the connection package;
+	// we only map what it derived into a My Jetpack notice and re-attach our own
 	// tracking event for the reconnect CTA.
 	const {
 		hasConnectionError,
 		connectionError,
-		connectionErrors,
+		displayableErrors,
+		errorTitle,
+		errorGroups,
+		showSupportLink,
 		actions,
 		isRestoringConnection,
 		restoreConnectionError,
-		connectionOwner,
-		isCurrentUserConnectionOwner,
-		currentUserId,
 	} = useConnectionErrorNotice( {
 		actionHandlers,
 		trackingCallback,
@@ -63,37 +62,20 @@ const useConnectionErrorsNotice = (
 		reconnectTrackingEvent: 'jetpack_my_jetpack_connection_error_notice_reconnect_cta_click',
 	} );
 
-	const ownerName = connectionOwner?.displayName;
-
-	// Show every displayable error the backend handed us, not just the first —
-	// minus the ones belonging to other users, which this viewer can neither fix
-	// nor is affected by.
-	const errorList = useMemo( () => {
-		const viewer = { currentUserId };
-		const flattened = excludeOtherUsersErrors(
-			flattenConnectionErrors( connectionErrors ),
-			viewer
-		);
-
-		if ( flattened.length ) {
-			return flattened;
-		}
-
-		return connectionError ? excludeOtherUsersErrors( [ connectionError ], viewer ) : [];
-	}, [ connectionErrors, connectionError, currentUserId ] );
-
 	// Report the error the CTA belongs to rather than whichever came first in the
-	// map — unless that error is one we filtered out, in which case reporting it
-	// would describe something the viewer was never shown. Matched by error code
-	// + user ID (the store's own keying) rather than object identity, since
-	// `errorList` isn't guaranteed to hold the same references `connectionError`
-	// came from.
+	// map — unless that error is one the package filtered out, in which case
+	// reporting it would describe something the viewer was never shown. Matched by
+	// error code + user ID (the store's own keying) rather than object identity,
+	// since `displayableErrors` isn't guaranteed to hold the same references
+	// `connectionError` came from.
 	const trackedErrorKey = `${ connectionError?.error_code }:${ connectionError?.user_id ?? '' }`;
 	const trackedError =
 		connectionError &&
-		errorList.some( error => `${ error.error_code }:${ error.user_id ?? '' }` === trackedErrorKey )
+		displayableErrors.some(
+			error => `${ error.error_code }:${ error.user_id ?? '' }` === trackedErrorKey
+		)
 			? connectionError
-			: errorList[ 0 ];
+			: displayableErrors[ 0 ];
 
 	// `GlobalNotice` fires its view event from an effect that depends on
 	// `tracksArgs` by identity, so a fresh literal on every `setNotice` would
@@ -104,83 +86,64 @@ const useConnectionErrorsNotice = (
 	// the store re-emits, and that churn must not reach this object.
 	const tracksArgs = useMemo(
 		() => ( {
-			error_count: errorList.length,
+			error_count: displayableErrors.length,
 			// The payload comes from the server, so the declared type is a promise the
 			// data cannot keep. Report a code only when it really is one, rather than
 			// sending Tracks whatever arrived.
 			error_code: typeof trackedError?.error_code === 'string' ? trackedError.error_code : null,
 			audience: trackedError?.audience ?? 'site',
 		} ),
-		[ errorList.length, trackedError?.error_code, trackedError?.audience ]
+		[ displayableErrors.length, trackedError?.error_code, trackedError?.audience ]
 	);
 
 	useEffect( () => {
-		if ( ! hasConnectionError || ! errorList.length ) {
+		if ( ! hasConnectionError || ! errorGroups.length ) {
 			return;
 		}
 
-		// Who is looking, so an error's `audience` can be phrased from their point
-		// of view.
-		const viewer: ConnectionErrorViewer = {
-			currentUserId,
-			isOwner: isCurrentUserConnectionOwner,
-			ownerName,
-		};
-
-		// A detail line only ever states the scope, so where the title already names
-		// it there is nothing left to say and no line is rendered.
-		const scopeIsInTitle = titleIncludesScope( errorList );
-
-		// Set by the backend (see `support_link` in Error_Handler::get_error_display_configs())
-		// for errors where reconnecting may not be the fix, so the viewer has somewhere else to go.
-		const showSupportLink = errorList.some( error => Boolean( error?.error_data?.support_link ) );
-
 		// Keep the backend message as the headline, then group broken-token errors under one
-		// shared description with each error's scope beneath it.
+		// shared description with each error's scope beneath it. Both the grouping and the
+		// scope lines come from the connection package.
 		const errorMessage = (
 			<Col>
 				{ restoreConnectionError && (
 					<Text mb={ 2 }>{ getReconnectErrorMessage( restoreConnectionError ) }</Text>
 				) }
-				{ groupConnectionErrorsByMessage( errorList ).map( ( group, groupIndex ) => {
-					const detailLines = scopeIsInTitle
-						? []
-						: getConnectionErrorDetailLines( group.errors, viewer );
-
-					return (
-						<div key={ group.message }>
-							<Text mt={ groupIndex > 0 ? 2 : 0 } mb={ detailLines.length ? 1 : 0 }>
-								{ group.message }
+				{ errorGroups.map( ( group, groupIndex ) => (
+					<div key={ group.message }>
+						<Text mt={ groupIndex > 0 ? 2 : 0 } mb={ group.detailLines.length ? 1 : 0 }>
+							{ group.message }
+						</Text>
+						{ group.detailLines.length > 0 && (
+							// A real list, so assistive tech announces how many scopes an error
+							// covers instead of reading loose lines. `Text` supplies the margin
+							// and padding reset; only the marker has to be turned off by hand,
+							// and one declaration does not earn a stylesheet of its own.
+							<Text component="ul" style={ { listStyle: 'none' } }>
+								{ group.detailLines.map( ( line, index ) => (
+									<Text
+										component="li"
+										key={ line.key }
+										variant="body-small"
+										mb={ index === group.detailLines.length - 1 ? 0 : 1 }
+									>
+										{ `- ${ line.text }` }
+									</Text>
+								) ) }
 							</Text>
-							{ detailLines.map( ( line, index ) => (
-								<Text
-									key={ line.key }
-									variant="body-small"
-									mb={ index === detailLines.length - 1 ? 0 : 1 }
-								>
-									{ `- ${ line.text }` }
-								</Text>
-							) ) }
-						</div>
-					);
-				} ) }
-				{ showSupportLink && (
-					<Text mt={ 1 }>
-						{ createInterpolateElement(
-							__(
-								'Still having trouble? <link>Contact Jetpack Support</link>.',
-								'jetpack-my-jetpack'
-							),
-							{
-								link: (
-									<Link
-										openInNewTab
-										href={ getRedirectUrl( 'jetpack-support' ) }
-										children={ null }
-									/>
-								),
-							}
 						) }
+						{ group.noticeLinks.map( link => (
+							<Text key={ link.url } mt={ 1 }>
+								<Link href={ link.url } children={ link.label } />
+							</Text>
+						) ) }
+					</div>
+				) ) }
+				{ showSupportLink && (
+					// The copy and the destination are the connection package's, shared with
+					// its own notice so a translator sees one string and the two cannot drift.
+					<Text mt={ 1 }>
+						<ConnectionErrorSupportLink />
 					</Text>
 				) }
 			</Col>
@@ -205,17 +168,16 @@ const useConnectionErrorsNotice = (
 
 		setNotice( {
 			message: errorMessage,
-			title: getConnectionErrorTitle( errorList, viewer ),
+			title: errorTitle,
 			options: noticeOptions,
 		} );
 	}, [
 		setNotice,
 		hasConnectionError,
 		tracksArgs,
-		errorList,
-		currentUserId,
-		isCurrentUserConnectionOwner,
-		ownerName,
+		errorGroups,
+		errorTitle,
+		showSupportLink,
 		actions,
 		isRestoringConnection,
 		restoreConnectionError,

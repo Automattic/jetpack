@@ -1,25 +1,31 @@
 import '@testing-library/jest-dom';
-import { useConnectionErrorNotice } from '@automattic/jetpack-connection';
-import { render, renderHook, waitFor } from '@testing-library/react';
+import {
+	getConnectionErrorDetails,
+	useConnectionErrorNotice,
+} from '@automattic/jetpack-connection';
+import { render, renderHook, waitFor, within } from '@testing-library/react';
 import { NoticeContext } from '../../../context/notices/noticeContext';
 import useAnalytics from '../../use-analytics';
 import { assignLocation } from '../assignLocation';
 import useConnectionErrorsNotice from '../use-connection-errors-notice';
 import type { NoticeContextType } from '../../../context/notices/types';
 import type { ConnectionErrorObject } from '@automattic/jetpack-connection';
-import type { ReactNode } from 'react';
+import type { ElementType, ReactNode } from 'react';
+
+/** The subset of `Text`'s props the mock below reproduces. */
+type TextMockProps = { children: ReactNode; component?: ElementType };
 
 // Mock the dependencies. Use a factory for the connection package so its full
 // module graph (which touches `window` at import time) isn't loaded here.
 jest.mock( '@automattic/jetpack-connection', () => {
-	// The notice's filtering, its labels and its tracking all depend on these two
-	// answers, so stub them away and the behaviour under test goes with them. Take
-	// the real implementations rather than restating them here: a hand-copied rule
-	// keeps asserting the old behaviour, and passing, after the package changes its
-	// mind. Reached by file path because the module graph this factory exists to
-	// avoid is the barrel's, not this leaf's.
-	const { getConnectionErrorUserScope, isOtherUsersConnectionError } = jest.requireActual(
-		'../../../../../../js-packages/connection/hooks/use-connection-error-notice/viewer-scope'
+	// The notice's copy, its filtering and its grouping are the package's, and this
+	// hook is only the adapter that renders them. Take the real implementation
+	// rather than restating it here: a hand-copied rule keeps asserting the old
+	// behaviour, and passing, after the package changes its mind. Reached by file
+	// path because the module graph this factory exists to avoid is the barrel's,
+	// not this leaf's.
+	const actual = jest.requireActual(
+		'../../../../../../js-packages/connection/hooks/use-connection-error-notice/error-details'
 	);
 
 	return {
@@ -27,8 +33,11 @@ jest.mock( '@automattic/jetpack-connection', () => {
 		getReconnectErrorMessage: jest.fn(
 			( error: string ) => `There was an error reconnecting Jetpack. Error: ${ error }`
 		),
-		getConnectionErrorUserScope,
-		isOtherUsersConnectionError,
+		getConnectionErrorDetails: actual.getConnectionErrorDetails,
+		// Stubbed rather than taken from the package: the real one pulls in
+		// `@wordpress/ui`, which is exactly the import-time graph this factory exists
+		// to keep out. What matters here is that the notice renders it when asked.
+		ConnectionErrorSupportLink: () => <span>Still having trouble? Contact Jetpack Support.</span>,
 	};
 } );
 
@@ -37,7 +46,11 @@ jest.mock( '../assignLocation' );
 
 jest.mock( '@automattic/jetpack-components', () => ( {
 	Col: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
-	Text: ( { children }: { children: ReactNode } ) => <span>{ children }</span>,
+	// Honours `component` the way the real Text does, so the scope lines render as
+	// the list items the notice asks for and their markup can be asserted.
+	Text: ( { children, component: Component = 'span' }: TextMockProps ) => (
+		<Component>{ children }</Component>
+	),
 } ) );
 jest.mock( '@wordpress/i18n', () => ( {
 	__: ( text: string ) => text,
@@ -58,6 +71,42 @@ const mockUseConnectionErrorNotice = useConnectionErrorNotice as jest.MockedFunc
 	typeof useConnectionErrorNotice
 >;
 const mockUseAnalytics = useAnalytics as jest.MockedFunction< typeof useAnalytics >;
+
+/**
+ * Stand the hook up as it really behaves: derive the presentation fields from the
+ * error map with the package's own helper, instead of hand-writing them here and
+ * risking a notice that passes its tests against a shape the hook never returns.
+ *
+ * A test that names only `connectionError` gets a matching one-entry map, since
+ * the real hook only ever picks that error out of the map it was given.
+ *
+ * @param {object} value - The hook fields the test is setting.
+ * @return {object} The full hook result.
+ */
+const setHookResult = ( value: Partial< ReturnType< typeof useConnectionErrorNotice > > ) => {
+	let errors = value.connectionErrors ?? {};
+
+	if ( ! Object.keys( errors ).length && value.connectionError ) {
+		errors = { [ value.connectionError.error_code ?? 'error' ]: { 0: value.connectionError } };
+	}
+
+	const viewer = {
+		currentUserId: value.currentUserId,
+		isOwner: value.isCurrentUserConnectionOwner,
+		ownerName: value.connectionOwner?.displayName,
+	};
+	const details = getConnectionErrorDetails( errors, viewer );
+
+	return mockUseConnectionErrorNotice.mockReturnValue( {
+		...( value as ReturnType< typeof useConnectionErrorNotice > ),
+		connectionErrors: errors,
+		displayableErrors: details.errors,
+		errorTitle: details.title,
+		errorGroups: details.groups,
+		showSupportLink: details.showSupportLink,
+		viewer,
+	} );
+};
 
 describe( 'useConnectionErrorsNotice', () => {
 	const mockSetNotice = jest.fn();
@@ -98,7 +147,7 @@ describe( 'useConnectionErrorsNotice', () => {
 
 	beforeEach( () => {
 		jest.clearAllMocks();
-		mockUseConnectionErrorNotice.mockReturnValue( noError );
+		setHookResult( noError );
 		mockUseAnalytics.mockReturnValue( { recordEvent: mockRecordEvent } );
 	} );
 
@@ -148,7 +197,7 @@ describe( 'useConnectionErrorsNotice', () => {
 
 	it( 'maps the resolved actions into a notice, adding noDefaultClasses', async () => {
 		const onClick = jest.fn();
-		mockUseConnectionErrorNotice.mockReturnValue( {
+		setHookResult( {
 			...noError,
 			hasConnectionError: true,
 			connectionErrorMessage: 'Connection failed',
@@ -188,7 +237,7 @@ describe( 'useConnectionErrorsNotice', () => {
 	} );
 
 	it( 'shows every displayable error, not just the effective one', async () => {
-		mockUseConnectionErrorNotice.mockReturnValue( {
+		setHookResult( {
 			...noError,
 			hasConnectionError: true,
 			connectionErrorMessage: 'The site token is broken.',
@@ -234,12 +283,86 @@ describe( 'useConnectionErrorsNotice', () => {
 		expect( noticeText ).toContain( 'Site connection' );
 		expect( noticeText ).toContain( 'Your account' );
 
+		// Marked up as a list, so assistive tech announces how many scopes an error
+		// covers rather than reading loose lines.
+		const { container } = render( mockSetNotice.mock.calls[ 0 ][ 0 ].message );
+
+		expect(
+			within( container )
+				.getAllByRole( 'listitem' )
+				.map( item => item.textContent )
+		).toEqual( [ '- Site connection', '- Your account' ] );
+
 		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe( '2 Jetpack Connection errors' );
 		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].options.tracksArgs ).toEqual( {
 			error_count: 2,
 			error_code: 'no_valid_blog_token',
 			audience: 'site',
 		} );
+	} );
+
+	// A blocked-request error's Site Health link must stay attached to its own
+	// message even when a second, unrelated error is also showing — otherwise it
+	// reads as belonging to whichever error happens to render last.
+	it( 'keeps a notice link under the error that asked for it, not detached at the end', async () => {
+		setHookResult( {
+			...noError,
+			hasConnectionError: true,
+			connectionErrorMessage: 'WordPress.com requests to your site are being blocked.',
+			connectionError: {
+				error_message: 'WordPress.com requests to your site are being blocked.',
+				error_code: 'xmlrpc_request_blocked',
+				user_id: '0',
+				audience: 'site',
+				error_data: {
+					notice_link: { label: 'Visit Site Health', url: '/wp-admin/site-health.php' },
+				},
+			},
+			connectionErrors: {
+				xmlrpc_request_blocked: {
+					0: {
+						error_message: 'WordPress.com requests to your site are being blocked.',
+						error_code: 'xmlrpc_request_blocked',
+						user_id: '0',
+						audience: 'site',
+						error_data: {
+							notice_link: { label: 'Visit Site Health', url: '/wp-admin/site-health.php' },
+						},
+					},
+				},
+				invalid_token: {
+					7: {
+						error_message: 'Your user token is broken.',
+						error_code: 'invalid_token',
+						user_id: '7',
+						audience: 'user',
+					},
+				},
+			},
+			actions: [ { label: 'Restore Connection', onClick: jest.fn() } ],
+		} );
+
+		renderWithNoticeContext();
+
+		await waitFor( () => {
+			expect( mockSetNotice ).toHaveBeenCalled();
+		} );
+
+		const { container } = render( mockSetNotice.mock.calls[ 0 ][ 0 ].message );
+		const link = within( container ).getByRole( 'link', { name: 'Visit Site Health' } );
+
+		expect( link ).toHaveAttribute( 'href', '/wp-admin/site-health.php' );
+
+		// The claim is structural — the link lives inside the blocked-request group's
+		// own subtree, not merely somewhere in the notice — and no role or text query
+		// can express containment, so walk up to the group element to make it.
+		// eslint-disable-next-line testing-library/no-node-access -- Asserting DOM containment; see above.
+		const blockedGroup = link.closest( 'div' );
+
+		expect( blockedGroup ).toHaveTextContent(
+			/^WordPress\.com requests to your site are being blocked\./
+		);
+		expect( blockedGroup ).toContainElement( link );
 	} );
 
 	// `GlobalNotice` fires its view event from an effect keyed on `tracksArgs` by
@@ -269,7 +392,7 @@ describe( 'useConnectionErrorsNotice', () => {
 			actions: [ { label: 'Restore Connection', onClick: jest.fn() } ],
 		};
 
-		mockUseConnectionErrorNotice.mockReturnValue( { ...noError, ...errors } );
+		setHookResult( { ...noError, ...errors } );
 
 		const { rerender } = renderWithNoticeContext();
 
@@ -278,7 +401,7 @@ describe( 'useConnectionErrorsNotice', () => {
 		} );
 
 		// The reconnect starts: same errors, higher priority.
-		mockUseConnectionErrorNotice.mockReturnValue( {
+		setHookResult( {
 			...noError,
 			...errors,
 			isRestoringConnection: true,
@@ -301,7 +424,7 @@ describe( 'useConnectionErrorsNotice', () => {
 		const sharedMessage =
 			"Your connection with WordPress.com seems to be broken. If you're experiencing issues, please try reconnecting.";
 
-		mockUseConnectionErrorNotice.mockReturnValue( {
+		setHookResult( {
 			...noError,
 			hasConnectionError: true,
 			connectionErrorMessage: sharedMessage,
@@ -360,7 +483,7 @@ describe( 'useConnectionErrorsNotice', () => {
 			audience: 'user',
 		};
 
-		mockUseConnectionErrorNotice.mockReturnValue( {
+		setHookResult( {
 			...noError,
 			hasConnectionError: true,
 			connectionErrorMessage: actionableError.error_message,
@@ -412,7 +535,7 @@ describe( 'useConnectionErrorsNotice', () => {
 				audience: 'site' as const,
 			};
 
-			mockUseConnectionErrorNotice.mockReturnValue( {
+			setHookResult( {
 				...noError,
 				hasConnectionError: true,
 				connectionErrorMessage: siteError.error_message,
@@ -458,7 +581,7 @@ describe( 'useConnectionErrorsNotice', () => {
 				error_data: { action: 'none' },
 			};
 
-			mockUseConnectionErrorNotice.mockReturnValue( {
+			setHookResult( {
 				...noError,
 				hasConnectionError: true,
 				connectionErrorMessage: otherUsersError.error_message,
@@ -485,7 +608,7 @@ describe( 'useConnectionErrorsNotice', () => {
 		} );
 
 		it( 'leaves no notice at all when it is the only error there is', async () => {
-			mockUseConnectionErrorNotice.mockReturnValue( {
+			setHookResult( {
 				...noError,
 				hasConnectionError: true,
 				connectionErrorMessage: otherUsersError.error_message,
@@ -502,7 +625,7 @@ describe( 'useConnectionErrorsNotice', () => {
 		// Without a viewer ID there is no basis for calling the error somebody else's,
 		// and dropping it would hide a problem the viewer may well own.
 		it( 'is kept when the viewer cannot be identified', async () => {
-			mockUseConnectionErrorNotice.mockReturnValue( {
+			setHookResult( {
 				...noError,
 				currentUserId: undefined,
 				hasConnectionError: true,
@@ -534,7 +657,7 @@ describe( 'useConnectionErrorsNotice', () => {
 			audience: 'owner' as const,
 		};
 
-		mockUseConnectionErrorNotice.mockReturnValue( {
+		setHookResult( {
 			...noError,
 			hasConnectionError: true,
 			connectionErrorMessage: ownerError.error_message,
@@ -562,7 +685,7 @@ describe( 'useConnectionErrorsNotice', () => {
 			audience: 'owner' as const,
 		};
 
-		mockUseConnectionErrorNotice.mockReturnValue( {
+		setHookResult( {
 			...noError,
 			hasConnectionError: true,
 			connectionErrorMessage: ownerError.error_message,
@@ -596,7 +719,7 @@ describe( 'useConnectionErrorsNotice', () => {
 			audience: 'owner' as const,
 		};
 
-		mockUseConnectionErrorNotice.mockReturnValue( {
+		setHookResult( {
 			...noError,
 			hasConnectionError: true,
 			connectionErrorMessage: ownerError.error_message,
@@ -621,7 +744,7 @@ describe( 'useConnectionErrorsNotice', () => {
 	} );
 
 	it( 'increases priority when a restore is in progress', async () => {
-		mockUseConnectionErrorNotice.mockReturnValue( {
+		setHookResult( {
 			...noError,
 			hasConnectionError: true,
 			connectionErrorMessage: 'Connection failed',
@@ -640,7 +763,7 @@ describe( 'useConnectionErrorsNotice', () => {
 	} );
 
 	it( 'renders the reconnect error alongside the connection error message', async () => {
-		mockUseConnectionErrorNotice.mockReturnValue( {
+		setHookResult( {
 			...noError,
 			hasConnectionError: true,
 			connectionErrorMessage: 'Connection failed',
