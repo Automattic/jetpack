@@ -240,7 +240,14 @@ class Admin_Menu_Test extends TestCase {
 	public function test_hide_core_admin_notices_css_is_scoped_to_jetpack_pages() {
 		$hook = Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'notices_scope_menu', '__return_null' );
 
-		do_action( 'load-toplevel_page_some_other_plugin' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
+		wp_set_current_user( self::$admin_user_id );
+		set_current_screen( 'plugins' );
+
+		// Fire a hook that actually runs on every admin screen so this fails if
+		// the CSS is ever attached without a page check.
+		do_action( 'admin_enqueue_scripts', 'plugins.php' );
+
+		set_current_screen( 'front' );
 
 		$this->assertFalse(
 			wp_style_is( Admin_Menu::HIDE_CORE_NOTICES_HANDLE, 'registered' ),
@@ -271,6 +278,29 @@ class Admin_Menu_Test extends TestCase {
 		$this->assertSame( 1, substr_count( $output, '<style' ) );
 		$this->assertSame( 1, substr_count( $output, '#wpbody-content > .notice' ) );
 		$this->assertStringContainsString( 'jetpack-admin-ui-hide-core-notices-inline-css', $output );
+	}
+
+	/**
+	 * The deprecated print shim still enqueues the CSS and reports the deprecation.
+	 *
+	 * @return void
+	 */
+	public function test_print_hide_core_admin_notices_style_enqueues_and_is_deprecated() {
+		$deprecated = array();
+		$capture    = static function ( $function ) use ( &$deprecated ) {
+			$deprecated[] = $function;
+		};
+
+		add_filter( 'deprecated_function_trigger_error', '__return_false' );
+		add_action( 'deprecated_function_run', $capture );
+
+		Admin_Menu::print_hide_core_admin_notices_style();
+
+		remove_action( 'deprecated_function_run', $capture );
+		remove_filter( 'deprecated_function_trigger_error', '__return_false' );
+
+		$this->assertContains( Admin_Menu::class . '::print_hide_core_admin_notices_style', $deprecated );
+		$this->assertTrue( wp_style_is( Admin_Menu::HIDE_CORE_NOTICES_HANDLE, 'enqueued' ) );
 	}
 
 	/**

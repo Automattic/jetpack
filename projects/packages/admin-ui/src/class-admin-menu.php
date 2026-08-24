@@ -261,7 +261,12 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Prints the inline style that hides WordPress core admin notices.
+	 * Enqueues the CSS that hides WordPress core admin notices.
+	 *
+	 * Callers must run this before WordPress flushes the style queue in
+	 * print_admin_styles() (admin_print_styles, priority 20). Later than that,
+	 * the handle is never printed. The previous admin_print_styles priority-10
+	 * hook still works.
 	 *
 	 * @deprecated $$next-version$$ Use hide_core_admin_notices(), which enqueues the CSS.
 	 *
