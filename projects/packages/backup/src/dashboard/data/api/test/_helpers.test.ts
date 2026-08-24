@@ -3,7 +3,10 @@ import { __ } from '@wordpress/i18n';
 import { ApiError, apiCall, isAmbiguousFailure, requireTypes, toIntRewindId } from '../_helpers';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
-jest.mock( '@wordpress/i18n', () => ( { __: jest.fn( ( text: string ) => text ) } ) );
+jest.mock( '@wordpress/i18n', () => ( {
+	...jest.requireActual( '@wordpress/i18n' ),
+	__: jest.fn( ( text: string ) => text ),
+} ) );
 
 const mockedApiFetch = apiFetch as unknown as jest.Mock;
 const mockedTranslate = __ as jest.Mock;
