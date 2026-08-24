@@ -23,19 +23,20 @@ export function getDatePart( value: unknown ): string | undefined {
 }
 
 /**
- * Format a date part and time into the Premium Analytics ISO-ish response shape.
+ * Format a date part and time into the Premium Analytics response shape: a
+ * timezone-naive stamp naming a site-local wall time.
+ *
+ * Deliberately offset-less. Stats bucket labels are site-local calendar dates,
+ * and a fabricated offset would assert an instant the bucket never named —
+ * `toLocalTZ` would then anchor it in the wrong zone, and every chart consumer
+ * would have to strip it back off.
  *
  * @param datePart - Date part, normally `YYYY-MM-DD`.
  * @param time     - Time part, normally `HH:mm:ss`.
- * @param offset   - Timezone offset suffix.
- * @return Date-time string with offset.
+ * @return Timezone-naive date-time string.
  */
-export function formatDatePartWithTime(
-	datePart: string,
-	time: string,
-	offset = '+00:00'
-): string {
-	return `${ datePart }T${ time }${ offset }`;
+export function formatDatePartWithTime( datePart: string, time: string ): string {
+	return `${ datePart }T${ time }`;
 }
 
 /**

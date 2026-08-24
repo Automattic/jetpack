@@ -63,7 +63,7 @@ export { toDay } from './to-day';
 export { defaultPeriodForInterval } from './default-period-for-interval';
 export { granularitiesForRange } from './granularities-for-range';
 export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
-export { fromChartDate } from './chart-date';
+export { fromChartDate, toChartDate } from './chart-date';
 export { dateFormatForResolution } from './tick-resolution-date-format';
 export {
 	followedGranularity,
