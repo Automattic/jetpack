@@ -404,6 +404,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'insights'    => false,
 				'subscribers' => false,
 				'store'       => true,
+				'ads'         => false,
 			),
 			array_column(
 				array_map(
