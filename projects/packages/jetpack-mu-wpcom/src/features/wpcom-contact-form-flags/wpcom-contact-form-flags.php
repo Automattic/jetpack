@@ -67,7 +67,7 @@ function wpcom_maybe_disable_central_forms_management() {
 /**
  * Pass-through kept so existing callers do not fatal.
  *
- * This set the `central-form-management` block editor feature flag. It is no longer
+ * Previously set the `central-form-management` block editor feature flag. No longer
  * hooked: the Forms package already defaults the flag to true, so filtering here only
  * ever restated the default.
  *
