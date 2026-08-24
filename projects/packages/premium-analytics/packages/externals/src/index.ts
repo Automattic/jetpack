@@ -31,6 +31,7 @@ export {
 	buildCalendarHeatmapData,
 	lightenHexColor,
 	normalizeColorToHex,
+	parseAsLocalDate,
 	useGlobalChartsContext,
 	type BaseLegendItem,
 	type ChartTheme,

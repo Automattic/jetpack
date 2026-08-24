@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { createTZDateFromParts, siteTimeZone } from '@jetpack-premium-analytics/datetime';
+import { parseAsLocalDate } from '@jetpack-premium-analytics/externals';
 
 const nominalOffset = /(?:Z|[+-]\d{2}:?\d{2})$/;
 
@@ -23,17 +24,13 @@ const nominalOffset = /(?:Z|[+-]\d{2}:?\d{2})$/;
  * @return The bucket's wall clock as a local instant.
  */
 export function toChartDate( dateStart: string ): Date {
-	const wallClock = dateStart.replace( nominalOffset, '' ).trim();
-
-	// Rebuilt from its parts rather than parsed as-is: a bare `yyyy-MM-dd` parses
-	// as UTC rather than as the local wall clock, which would reintroduce the same
-	// day shift, and a space-separated stamp does not parse at all in every engine.
-	// Most branches stamp a time via `formatDatePartWithTime`, but the
-	// `row.date_start` passthrough in `getRowIntervalFields` forwards whatever the
-	// API sent, so both shapes reach here.
-	const [ datePart, timePart = '00:00:00' ] = wallClock.split( /[T ]/ );
-
-	return new Date( `${ datePart }T${ timePart }` );
+	// Only the offset-stripping lives here: knowing the stamp's offset is nominal
+	// is Stats API knowledge the generic parser must not have — `parseAsLocalDate`
+	// rightly honours a real offset. The naive remainder is the charts library's
+	// own wall-clock reading, covering every shape `date_start` arrives in
+	// (`formatDatePartWithTime` stamps, and the bare or space-separated dates the
+	// `getRowIntervalFields` passthrough forwards from the API).
+	return parseAsLocalDate( dateStart.replace( nominalOffset, '' ).trim() );
 }
 
 /**
