@@ -22,6 +22,7 @@ export function getStatsConfig(): ProductConfig {
 		SPAM_FILTERING,
 		INSTANT_SITE_SEARCH,
 		VIDEO_HOSTING_1TB,
+		SOCIAL_TOOLS,
 		PRIORITY_SUPPORT,
 	} = getTranslatableFeatureLabels();
 
@@ -55,15 +56,22 @@ export function getStatsConfig(): ProductConfig {
 				bundle: { included: true, label: SPAM_FILTERING },
 			},
 			{
-				name: __( 'Access to upcoming advanced features', 'jetpack-my-jetpack' ),
+				/* translators: UTM refers to the Urchin Tracking Module campaign parameters appended to a URL. */
+				name: __( 'UTM tracking', 'jetpack-my-jetpack' ),
 				free: { included: false, label: NOT_INCLUDED },
 				paid: { included: true, label: INCLUDED },
 				bundle: { included: true, label: INSTANT_SITE_SEARCH },
 			},
 			{
-				name: __( 'Commercial use', 'jetpack-my-jetpack' ),
+				name: __( 'Device stats', 'jetpack-my-jetpack' ),
 				free: { included: false, label: NOT_INCLUDED },
 				paid: { included: true, label: INCLUDED },
+				bundle: { included: true, label: SOCIAL_TOOLS },
+			},
+			{
+				name: __( 'Locations', 'jetpack-my-jetpack' ),
+				free: { included: true, label: __( 'Country-level', 'jetpack-my-jetpack' ) },
+				paid: { included: true, label: __( 'Region and city', 'jetpack-my-jetpack' ) },
 				bundle: { included: true, label: VIDEO_HOSTING_1TB },
 			},
 			{
@@ -80,7 +88,8 @@ export function getStatsConfig(): ProductConfig {
 			},
 			paid: {
 				name: 'Stats',
-				cta: __( 'Get Stats', 'jetpack-my-jetpack' ),
+				/* translators: "Stats" here shouldn't be translated as it's the name of the product */
+				cta: __( 'Get Paid Stats', 'jetpack-my-jetpack' ),
 			},
 			bundle: {
 				name: COMPLETE,

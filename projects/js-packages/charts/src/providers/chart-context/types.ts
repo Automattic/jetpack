@@ -38,10 +38,7 @@ export interface GlobalChartsContextValue {
 	getChartData: ( id: string ) => ChartRegistration | undefined;
 	theme: CompleteChartTheme;
 	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles;
-	// Resolve a theme color or CSS variable to a hex string in the provider's scope.
-	// Resolves at call time so it tracks ambient theme changes (e.g. a light/dark switch).
-	resolveThemeColor: ( value: string ) => string;
-	// Series visibility management for interactive legends
+	// Series visibility management shared by charts and legends.
 	toggleSeriesVisibility: ( chartId: string, seriesLabel: string ) => void;
 	isSeriesVisible: ( chartId: string, seriesLabel: string ) => boolean;
 	getHiddenSeries: ( chartId: string ) => Set< string >;

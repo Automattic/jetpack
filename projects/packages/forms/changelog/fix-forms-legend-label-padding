@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Grouped field labels: lower the legend padding reset so themes and global styles can override it.

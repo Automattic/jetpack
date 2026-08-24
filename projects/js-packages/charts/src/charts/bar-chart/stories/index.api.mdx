@@ -114,11 +114,13 @@ type ChartOptions = {
 			orientation?: 'top' | 'bottom';
 			numTicks?: number;
 			tickFormat?: (value: any) => string;
+			tickResolution?: 'hour' | 'day' | 'week' | 'month' | 'year';
 		};
 		y?: {
 			orientation?: 'left' | 'right';
 			numTicks?: number;
 			tickFormat?: (value: number) => string;
+			tickResolution?: 'hour' | 'day' | 'week' | 'month' | 'year';
 		};
 	};
 };

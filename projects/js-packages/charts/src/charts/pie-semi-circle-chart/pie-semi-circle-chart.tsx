@@ -2,14 +2,13 @@ import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
-import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
 import {
 	useDataWithPercentages,
-	useInteractiveLegendData,
+	useLegendVisibilityData,
 	usePrefersReducedMotion,
 } from '../../hooks';
 import {
@@ -19,13 +18,14 @@ import {
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers';
+import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
 import { attachSubComponents } from '../../utils';
 import { Center } from '../private/center';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation';
-import { SingleChartContext } from '../private/single-chart-context';
-import { SvgEmptyState } from '../private/svg-empty-state';
+import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { LegendValueDisplay } from '../../components/legend';
@@ -246,11 +246,10 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	// Calculate percentages from values (single source of truth)
 	const dataWithPercentages = useDataWithPercentages( data );
 
-	// Filter and recalculate data for interactive legends
-	const { visibleData, allSegmentsHidden, legendData } = useInteractiveLegendData( {
+	// Filter and recalculate data from the shared legend visibility state.
+	const { visibleData, allSegmentsHidden, legendData } = useLegendVisibilityData( {
 		data: dataWithPercentages,
 		chartId,
-		legendInteractive,
 		isSeriesVisible,
 	} );
 
@@ -352,7 +351,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	);
 
 	return (
-		<SingleChartContext.Provider value={ { chartId } }>
+		<ChartInstanceContext.Provider value={ { chartId } }>
 			<ChartLayout
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }
@@ -375,7 +374,9 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					<>
 						{ withTooltips && tooltipOpen && tooltipData && (
 							<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-								<div role="tooltip">{ renderTooltip( { tooltipData } ) }</div>
+								<div className={ CHART_SCOPE_CLASS } role="tooltip">
+									{ renderTooltip( { tooltipData } ) }
+								</div>
 							</TooltipInPortal>
 						) }
 						{ htmlChildren }
@@ -424,10 +425,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 								>
 									{ allSegmentsHidden ? (
 										<SvgEmptyState x={ 0 } y={ -radius / 2 } width={ width } height={ height }>
-											{ __(
-												'All segments are hidden. Click legend items to show data.',
-												'jetpack-charts'
-											) }
+											{ getAllHiddenMessage( legendInteractive, 'segments' ) }
 										</SvgEmptyState>
 									) : (
 										<>
@@ -490,7 +488,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					);
 				} }
 			</ChartLayout>
-		</SingleChartContext.Provider>
+		</ChartInstanceContext.Provider>
 	);
 };
 

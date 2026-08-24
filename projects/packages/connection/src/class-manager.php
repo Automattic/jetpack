@@ -527,9 +527,12 @@ class Manager {
 			$token->add_data( $this->build_connection_error_data( $signature_details, $error_type, $error_direction ) );
 			return $token;
 		} elseif ( ! $token ) {
+			// `get_access_token()` explains itself for every case but one: it returns a bare
+			// `false` when the tokens are locked (Tokens::is_locked()). The lock is
+			// one-shot and self-healing.
 			return new \WP_Error(
-				'unknown_token',
-				sprintf( 'Token %s:%s:%d does not exist', $token_key, $version, $user_id ),
+				'tokens_locked',
+				sprintf( 'Tokens are locked; %s:%s:%d could not be verified', $token_key, $version, $user_id ),
 				$this->build_connection_error_data( $signature_details, $error_type, $error_direction )
 			);
 		}
@@ -568,6 +571,8 @@ class Manager {
 
 		$signature_details['url'] = $jetpack_signature->current_request_url;
 
+		// This path currently can't ever be true, unless a new path is added resulting
+		// in $signature 'false', null or an empty string. Leaving for additional security.
 		if ( ! $signature ) {
 			return new \WP_Error(
 				'could_not_sign',

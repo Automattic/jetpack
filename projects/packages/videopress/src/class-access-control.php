@@ -386,12 +386,136 @@ class Access_Control {
 		}
 
 		foreach ( $matches[0] as $url ) {
-			if ( $guid === Utils::extract_videopress_guid_from_url( $url ) ) {
+			$extracted_guid = Utils::extract_videopress_guid_from_url( $url );
+			if ( $extracted_guid === $guid ) {
 				return true;
 			}
 		}
 
 		return false;
+	}
+
+	/**
+	 * Build and cache the list of VideoPress GUIDs present in a post.
+	 *
+	 * Scans the post content for VideoPress blocks (including those in synced patterns),
+	 * shortcodes, and URLs, then caches the GUID list in a transient for fast lookup
+	 * during authorization checks.
+	 *
+	 * @param int $post_id The post ID to scan.
+	 * @return array Array of VideoPress GUIDs found in the post.
+	 */
+	public static function build_and_cache_post_guids( $post_id ) {
+		if ( empty( $post_id ) ) {
+			return array();
+		}
+
+		$post_id       = absint( $post_id );
+		$transient_key = "videopress_guids_{$post_id}";
+
+		// Check if already cached.
+		$cached_guids = get_transient( $transient_key );
+		if ( false !== $cached_guids ) {
+			return (array) $cached_guids;
+		}
+
+		$post = get_post( $post_id );
+		if ( ! $post instanceof WP_Post || empty( $post->post_content ) ) {
+			set_transient( $transient_key, array(), 12 * HOUR_IN_SECONDS );
+			return array();
+		}
+
+		$guids = array();
+
+		// Scan for VideoPress blocks (including those in synced patterns).
+		$guids = array_merge( $guids, self::collect_guids_from_blocks( parse_blocks( $post->post_content ) ) );
+
+		// Scan for VideoPress shortcodes and URLs (legacy embedding methods).
+		if ( preg_match_all( '#https?://[^\s"\'<>)]+#i', $post->post_content, $matches ) ) {
+			foreach ( $matches[0] as $url ) {
+				$guid = Utils::extract_videopress_guid_from_url( $url );
+				if ( $guid ) {
+					$guids[] = $guid;
+				}
+			}
+		}
+
+		// Scan for [videopress] and [wpvideo] shortcodes.
+		$pattern = get_shortcode_regex( array( 'videopress', 'wpvideo' ) );
+		$count   = preg_match_all( '/' . $pattern . '/', $post->post_content, $matches, PREG_SET_ORDER );
+		if ( false !== $count && $count > 0 ) {
+			foreach ( $matches as $match ) {
+				$atts = shortcode_parse_atts( $match[3] );
+				if ( is_array( $atts ) && isset( $atts[0] ) && is_string( $atts[0] ) ) {
+					$guids[] = $atts[0];
+				}
+			}
+		}
+
+		// Cache for 12 hours and return unique GUIDs.
+		$unique_guids = array_unique( array_filter( $guids ) );
+		set_transient( $transient_key, $unique_guids, 12 * HOUR_IN_SECONDS );
+
+		return $unique_guids;
+	}
+
+	/**
+	 * Recursively collect VideoPress GUIDs from parsed blocks.
+	 *
+	 * Handles both direct VideoPress blocks and those within synced patterns,
+	 * which are automatically expanded by WordPress when parse_blocks() is called.
+	 *
+	 * @param array $blocks Array of parsed blocks.
+	 * @return array Array of VideoPress GUIDs found.
+	 */
+	private static function collect_guids_from_blocks( $blocks ) {
+		$guids = array();
+
+		foreach ( $blocks as $block ) {
+			// Check if this is a VideoPress block with a GUID.
+			if (
+				isset( $block['blockName'] ) && 'videopress/video' === $block['blockName']
+				&& isset( $block['attrs']['guid'] ) && is_string( $block['attrs']['guid'] )
+			) {
+				$guids[] = $block['attrs']['guid'];
+			}
+
+			// Recursively check inner blocks (including synced patterns which have been expanded).
+			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
+				$guids = array_merge( $guids, self::collect_guids_from_blocks( $block['innerBlocks'] ) );
+			}
+		}
+
+		return $guids;
+	}
+
+	/**
+	 * Check if a post contains a VideoPress GUID, using cached GUID list for fast lookup.
+	 *
+	 * Falls back to detailed scanning only if cache misses. This is much faster than
+	 * the previous implementation which always scanned post_content.
+	 *
+	 * @param int    $embedded_post_id The post id to check.
+	 * @param string $guid             The video guid to find.
+	 *
+	 * @return bool
+	 */
+	private function post_embeds_videopress_guid_cached( $embedded_post_id, $guid ) {
+		if ( empty( $embedded_post_id ) || empty( $guid ) ) {
+			return false;
+		}
+
+		// Try fast lookup from cache.
+		$transient_key = "videopress_guids_{$embedded_post_id}";
+		$cached_guids  = get_transient( $transient_key );
+
+		if ( false !== $cached_guids ) {
+			return in_array( $guid, (array) $cached_guids, true );
+		}
+
+		// Cache miss: build and cache the GUID list, then check.
+		$guids = self::build_and_cache_post_guids( $embedded_post_id );
+		return in_array( $guid, $guids, true );
 	}
 
 	/**
@@ -437,7 +561,7 @@ class Access_Control {
 		if (
 			$embedded_post_id
 			&& VIDEOPRESS_PRIVACY::IS_PUBLIC !== $privacy_setting
-			&& ! $this->post_embeds_videopress_guid( $embedded_post_id, $guid )
+			&& ! $this->post_embeds_videopress_guid_cached( $embedded_post_id, $guid )
 		) {
 			$embedded_post_id = 0;
 		}

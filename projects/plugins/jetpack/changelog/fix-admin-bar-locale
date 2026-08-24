@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Omnibar: return admin bar nodes translated in the user's locale.

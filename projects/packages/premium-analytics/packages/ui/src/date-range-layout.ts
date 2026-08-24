@@ -9,7 +9,7 @@
  * rather than hiding the whole choice behind a menu.
  */
 export type PresetLabelMode =
-	/** Full labels ("Last 7 days"), while they fit. */
+	/** Full labels ("7 days"), while they fit. */
 	| 'full'
 	/** Abbreviated labels ("7D") once they do not. */
 	| 'abbreviated';

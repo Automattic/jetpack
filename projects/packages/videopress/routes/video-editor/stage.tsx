@@ -27,6 +27,7 @@ import { redo as redoIcon, undo as undoIcon } from '@wordpress/icons';
 import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Button, Dialog, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import ChaptersPanel from '../../src/client/components/chapters-editor/chapters/chapters-panel';
 import ChaptersTimeline from '../../src/client/components/chapters-editor/chapters/chapters-timeline';
 import ChaptersPreviewPlayer from '../../src/client/components/chapters-editor/preview/preview-player';
 import { usePreviewTransport } from '../../src/client/components/chapters-editor/preview/use-preview-transport';
@@ -536,38 +537,55 @@ function EditorReady( { video }: ReadyProps ): ReactElement {
 				<div className="vp-video-editor vp-chapters-tokens">
 					<div className="vp-video-editor__body">
 						<EditorOperationsPanel />
-						<div className="vp-video-editor__main">
-							<div className="vp-video-editor__canvas">
-								<ChaptersPreviewPlayer
-									ref={ playerRef }
-									video={ video }
-									fallbackPlaybackUrl={ playbackFallbackUrl }
-									onTimeUpdate={ onTimeUpdate }
-									onPlayingChange={ onPlayingChange }
-								/>
+						<div className="vp-video-editor__workspace">
+							<div className="vp-video-editor__main">
+								<div className="vp-video-editor__canvas">
+									<ChaptersPreviewPlayer
+										ref={ playerRef }
+										video={ video }
+										fallbackPlaybackUrl={ playbackFallbackUrl }
+										onTimeUpdate={ onTimeUpdate }
+										onPlayingChange={ onPlayingChange }
+									/>
+								</div>
+								<div
+									className={
+										'vp-video-editor__timeline-section vp-video-editor__timeline' +
+										( chaptersLocked ? ' vp-video-editor__timeline--locked' : '' )
+									}
+									data-testid="chapters-timeline-lock"
+									aria-busy={ chaptersLocked || undefined }
+								>
+									{ /* The timeline owns the document-level shortcuts instance
+									     (space, arrows, Delete, mod+Z); it detaches while the
+									     discard confirm dialog is open. */ }
+									<ChaptersTimeline
+										session={ session }
+										dispatch={ dispatch }
+										currentMs={ currentMs }
+										onSeek={ onSeek }
+										onTogglePlay={ onTogglePlay }
+										playing={ playing }
+										locked={ chaptersLocked }
+										onScrubStart={ onScrubStart }
+										onScrubEnd={ onScrubEnd }
+										shortcutsEnabled={ ! confirmDiscardOpen }
+										readOnly={ chaptersProbe === 'manual' }
+									/>
+								</div>
 							</div>
 							<div
 								className={
-									'vp-video-editor__timeline-section vp-video-editor__timeline' +
-									( chaptersLocked ? ' vp-video-editor__timeline--locked' : '' )
+									'vp-video-editor__panel' +
+									( chaptersLocked ? ' vp-video-editor__panel--locked' : '' )
 								}
-								data-testid="chapters-timeline-lock"
 								aria-busy={ chaptersLocked || undefined }
 							>
-								{ /* The timeline owns the document-level shortcuts instance
-								     (space, arrows, Delete, mod+Z); it detaches while the
-								     discard confirm dialog is open. */ }
-								<ChaptersTimeline
+								<ChaptersPanel
 									session={ session }
 									dispatch={ dispatch }
-									currentMs={ currentMs }
 									onSeek={ onSeek }
-									onTogglePlay={ onTogglePlay }
-									playing={ playing }
 									locked={ chaptersLocked }
-									onScrubStart={ onScrubStart }
-									onScrubEnd={ onScrubEnd }
-									shortcutsEnabled={ ! confirmDiscardOpen }
 									readOnly={ chaptersProbe === 'manual' }
 								/>
 							</div>

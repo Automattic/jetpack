@@ -7,6 +7,7 @@ import { formatNumber } from '@automattic/number-formatters';
  * WordPress dependencies
  */
 import { __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { useEvent, useViewportMatch } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
@@ -156,6 +157,9 @@ function StageInner() {
 	const statusView = params.view === 'spam' || params.view === 'trash' ? params.view : 'inbox';
 	const statusFilter = statusView === 'inbox' ? 'draft,publish' : statusView;
 	const dateSettings = getDateSettings();
+	// Matches the width at which boot flips the inspector from a side panel to a
+	// full-screen overlay.
+	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
 	const sourceIdValue = ( searchParams as { sourceId?: string | number } )?.sourceId;
 	const sourceIdNumber =
@@ -245,6 +249,11 @@ function StageInner() {
 		},
 		[ searchParams, navigate ]
 	);
+
+	// Selecting a single response is what both clicking a row and (on small
+	// screens) the View action do. `useEvent` keeps the reference stable so the
+	// memoized row actions don't rebuild every time `searchParams` changes.
+	const selectResponse = useEvent( ( id: string ) => onChangeSelection( [ id ] ) );
 
 	const onStatusChange = useCallback(
 		( nextStatus: 'inbox' | 'spam' | 'trash' ) => {
@@ -632,10 +641,10 @@ function StageInner() {
 		() =>
 			getRowActions( {
 				navigate,
-				searchParams,
 				view: statusView,
+				onSelectResponse: isMobileViewport ? selectResponse : undefined,
 			} ),
-		[ navigate, searchParams, statusView ]
+		[ navigate, statusView, isMobileViewport, selectResponse ]
 	);
 
 	const paginationInfo = useMemo(
@@ -721,9 +730,9 @@ function StageInner() {
 
 	const onClickItem = useCallback(
 		( item: unknown ) => {
-			onChangeSelection( [ String( ( item as { id: number | string } ).id ) ] );
+			selectResponse( String( ( item as { id: number | string } ).id ) );
 		},
-		[ onChangeSelection ]
+		[ selectResponse ]
 	);
 
 	return (

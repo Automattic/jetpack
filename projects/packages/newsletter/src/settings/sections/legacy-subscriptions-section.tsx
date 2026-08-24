@@ -11,7 +11,7 @@ import { Card, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
-import { ToggleWithEditorLink } from '../components/toggle-with-link';
+import { Toggle, ToggleWithEditorLink } from '../components/toggle';
 import { getNewsletterScriptData } from '../script-data';
 import type { NewsletterSettings } from '../types';
 
@@ -80,7 +80,7 @@ export function LegacySubscriptionsSection( {
 							siteType={ siteType }
 						/>
 				  )
-				: ( 'toggle' as const ),
+				: Toggle,
 		},
 		{
 			id: 'sm_enabled',
@@ -98,7 +98,7 @@ export function LegacySubscriptionsSection( {
 							siteType={ siteType }
 						/>
 				  )
-				: ( 'toggle' as const ),
+				: Toggle,
 		},
 		{
 			id: 'jetpack_subscribe_overlay_enabled',
@@ -116,7 +116,7 @@ export function LegacySubscriptionsSection( {
 							siteType={ siteType }
 						/>
 				  )
-				: ( 'toggle' as const ),
+				: Toggle,
 		},
 		{
 			id: 'jetpack_subscribe_floating_button_enabled',
@@ -134,7 +134,7 @@ export function LegacySubscriptionsSection( {
 							siteType={ siteType }
 						/>
 				  )
-				: ( 'toggle' as const ),
+				: Toggle,
 		},
 		{
 			id: 'jetpack_subscriptions_subscribe_navigation_enabled',
@@ -152,7 +152,7 @@ export function LegacySubscriptionsSection( {
 							siteType={ siteType }
 						/>
 				  )
-				: ( 'toggle' as const ),
+				: Toggle,
 		},
 		{
 			id: 'jetpack_subscriptions_login_navigation_enabled',
@@ -170,7 +170,7 @@ export function LegacySubscriptionsSection( {
 							siteType={ siteType }
 						/>
 				  )
-				: ( 'toggle' as const ),
+				: Toggle,
 		},
 		{
 			id: 'stb_enabled',
@@ -179,7 +179,7 @@ export function LegacySubscriptionsSection( {
 				'jetpack-newsletter'
 			),
 			type: 'boolean' as const,
-			Edit: 'toggle' as const,
+			Edit: Toggle,
 		},
 		{
 			id: 'stc_enabled',
@@ -188,7 +188,7 @@ export function LegacySubscriptionsSection( {
 				'jetpack-newsletter'
 			),
 			type: 'boolean' as const,
-			Edit: 'toggle' as const,
+			Edit: Toggle,
 		},
 	];
 

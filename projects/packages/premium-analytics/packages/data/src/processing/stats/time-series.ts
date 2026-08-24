@@ -95,6 +95,15 @@ function parseTimeSeriesRows( payload: unknown ) {
 	} );
 }
 
+// Not `localeCompare`: a collation may ignore the separators these bounds carry.
+function compareBucketBounds( a: string, b: string ) {
+	if ( a === b ) {
+		return 0;
+	}
+
+	return a < b ? -1 : 1;
+}
+
 function getPrimaryMetricValue( row: StatsRecord ) {
 	// The first numeric metric is the headline value; matrix payloads preserve API field order.
 	const primaryMetric = Object.entries( row ).find(
@@ -210,6 +219,10 @@ function getHourIntervalFields( date: string, hour: unknown ) {
 	};
 }
 
+// `stats/visits` packs an hourly bucket's date and hour into a single `period`,
+// where the email timeline carries the hour in its own column.
+const packedHourlyPeriod = /^(\d{4}-\d{2}-\d{2})[T ](\d{2})/;
+
 function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: string ) {
 	if ( unit === 'hour' && row.hour !== undefined && typeof rawPeriod === 'string' ) {
 		return getHourIntervalFields( rawPeriod, row.hour );
@@ -221,6 +234,14 @@ function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: strin
 			date_start: row.date_start,
 			date_end: row.date_end,
 		};
+	}
+
+	if ( unit === 'hour' && typeof rawPeriod === 'string' ) {
+		const packed = rawPeriod.match( packedHourlyPeriod );
+
+		if ( packed ) {
+			return getHourIntervalFields( packed[ 1 ], packed[ 2 ] );
+		}
 	}
 
 	return getTimeSeriesIntervalFields( rawPeriod, unit );
@@ -279,19 +300,24 @@ export function sanitizeStatsTimeSeriesResponse(
 
 		return totals;
 	}, {} );
-	const data = rows.map< StatsTimeSeriesDataPoint >( row => {
-		const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
-		const range = getRowIntervalFields( row, rawPeriod, unit );
-		const value = safeParseFloat( getPrimaryMetricValue( row ) );
+	const data = rows
+		.map< StatsTimeSeriesDataPoint >( row => {
+			const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
+			const range = getRowIntervalFields( row, rawPeriod, unit );
+			const value = safeParseFloat( getPrimaryMetricValue( row ) );
 
-		return {
-			...row,
-			...range,
-			label: range.time_interval,
-			value,
-			items: [],
-		};
-	} );
+			return {
+				...row,
+				...range,
+				label: range.time_interval,
+				value,
+				items: [],
+			};
+		} )
+		// `stats/visits` returns buckets oldest first, `stats/subscribers` newest
+		// first, but everything downstream reads `data[0]` as the oldest bucket —
+		// starting with the summary bounds below.
+		.sort( ( a, b ) => compareBucketBounds( a.date_start, b.date_start ) );
 	const firstRow = data[ 0 ];
 	const lastRow = data[ data.length - 1 ];
 

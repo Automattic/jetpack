@@ -99,10 +99,13 @@ export const ES_ES_SETTINGS = settingsFor(
 /**
  * Build a UTC date, matching the fixtures' timezone so no day shift is in play.
  *
- * @param year  - Full year.
- * @param month - 1-based month.
- * @param day   - Day of month.
+ * @param year   - Full year.
+ * @param month  - 1-based month.
+ * @param day    - Day of month.
+ * @param [hour] - Hour of day. Defaults to midnight, which is where a
+ *               day-aligned range starts; pass one to build a rolling window
+ *               that does not sit on a day boundary.
  * @return The date.
  */
-export const utcDate = ( year: number, month: number, day: number ): Date =>
-	new Date( Date.UTC( year, month - 1, day ) );
+export const utcDate = ( year: number, month: number, day: number, hour: number = 0 ): Date =>
+	new Date( Date.UTC( year, month - 1, day, hour ) );

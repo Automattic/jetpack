@@ -1,4 +1,9 @@
 /**
+ * Marks a successful response whose shape cannot be sanitized.
+ */
+export class StatsResponseShapeError extends Error {}
+
+/**
  * Extract HTTP status code from common API error shapes.
  *
  * WordPress REST API errors and fetch errors can expose the status in
@@ -70,6 +75,10 @@ export function getApiErrorCode( error: unknown ): string | null {
  * current user/session, so retrying only delays the widget-specific error UI.
  */
 export function shouldRetryApiError( failureCount: number, error: unknown ): boolean {
+	if ( error instanceof StatsResponseShapeError ) {
+		return false;
+	}
+
 	const status = getApiErrorStatus( error );
 
 	if ( status === 401 || status === 403 || status === 404 ) {

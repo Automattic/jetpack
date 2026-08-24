@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Responses: On small screens, the View action now opens the response the same way tapping its title does.

@@ -1,16 +1,16 @@
 /**
  * External dependencies
  */
-import { useStatsVisits } from '@jetpack-premium-analytics/data';
+import { useStatsVisits, withoutComparison } from '@jetpack-premium-analytics/data';
 import { Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
 	describeError,
+	MetricSparklineSkeleton,
 	Sparkline,
 	useWidgetRootContext,
 	WidgetRoot,
 	WidgetState,
-	withoutComparison,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -99,6 +99,7 @@ function TotalViewsMetric() {
 					icon: seen,
 					description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <MetricSparklineSkeleton /> }
 			>
 				<div className={ styles.body }>
 					{ /* Not `MetricValue`: it pins a 20px line-height at any font size, which

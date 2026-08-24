@@ -5,16 +5,19 @@ import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 /**
  * WordPress dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
-import { Modal, Spinner } from '@wordpress/components';
+import {
+	Modal,
+	Spinner,
+	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __ } from '@wordpress/i18n';
-import { useParams } from '@wordpress/route';
-import { Stack } from '@wordpress/ui';
+import { __, _x } from '@wordpress/i18n';
+import { useNavigate, useParams, useSearch } from '@wordpress/route';
+import { Badge, Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -24,9 +27,13 @@ import ResponseFieldsIterator from '../../src/dashboard/components/inspector/res
 import ResponseMeta from '../../src/dashboard/components/inspector/response-meta';
 import ResponseNavigation from '../../src/dashboard/components/inspector/response-navigation/index.tsx';
 import { getDisplayName } from '../../src/dashboard/components/inspector/utils.ts';
+import useMarkAsReadOnView from '../../src/dashboard/hooks/use-mark-as-read-on-view.ts';
+import { useMarkAsSpam } from '../../src/dashboard/hooks/use-mark-as-spam.ts';
 import FormsPage from '../../src/dashboard/wp-build/components/page';
 import SingleResponseBreadcrumbs from './breadcrumbs.tsx';
 import SingleResponseActions from './page-actions.tsx';
+import getResponseQuery from './query.ts';
+import repairResponseRecord from './repair-record.ts';
 import useResponsePageNavigation from './use-navigation.ts';
 // Shared wp-build dashboard chrome (page layout + breadcrumb link styling). The
 // other dashboard routes load this; the single-response route needs it too so
@@ -40,29 +47,51 @@ import './style.scss';
 import type { DispatchActions, SelectActions } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FileItem, FormResponse } from '../../src/types/index.ts';
 
-// Stable query reference so the value passed to `isResolving` matches the one
-// used by `getEntityRecord` (and the route loader).
-const RESPONSE_QUERY = { fields_format: 'collection' };
-
 type PreviewFileItem = FileItem | { url: string; name: string };
+
+/**
+ * Header badge for a response that is no longer in the inbox.
+ *
+ * Inbox responses (`publish`) get no badge — the absence of one is the normal
+ * state. Spam and trash are surfaced so that actioning a response from this page
+ * (which keeps the user here) still shows where it landed.
+ *
+ * @param props        - Component props.
+ * @param props.status - The response status.
+ * @return The badge, or null for inbox responses.
+ */
+function ResponseStatusBadge( { status }: { status: FormResponse[ 'status' ] } ) {
+	if ( status === 'spam' ) {
+		return <Badge intent="high">{ _x( 'Spam', 'response status', 'jetpack-forms' ) }</Badge>;
+	}
+
+	if ( status === 'trash' ) {
+		return <Badge intent="draft">{ _x( 'Trash', 'response status', 'jetpack-forms' ) }</Badge>;
+	}
+
+	return null;
+}
 
 /**
  * Standalone single response page (wp-build route).
  *
  * Renders one feedback response (meta + fields) as a full page at
- * `/response/$responseId`. Not linked from anywhere yet.
+ * `/response/$responseId`. Reached from the responses list's "View" row action.
  *
  * @return The single response page.
  */
 function Stage(): React.JSX.Element {
 	const params = useParams( { from: '/response/$responseId' } );
+	const searchParams = useSearch( { from: '/response/$responseId' } );
+	const navigate = useNavigate();
 	const id = Number( params.responseId );
 	const isValidId = Number.isFinite( id ) && id > 0;
 
-	const { editEntityRecord } = useDispatch( coreStore ) as unknown as DispatchActions;
-	const [ markedReadId, setMarkedReadId ] = useState< number | null >( null );
+	const { receiveEntityRecords } = useDispatch( coreStore ) as unknown as DispatchActions;
 	const [ previewFile, setPreviewFile ] = useState< PreviewFileItem | null >( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
+
+	const responseQuery = useMemo( () => getResponseQuery( id ), [ id ] );
 
 	const { response, isLoading } = useSelect(
 		select => {
@@ -71,12 +100,15 @@ function Stage(): React.JSX.Element {
 			}
 
 			const core = select( coreStore );
-			// Read the collection-format record directly and overlay any pending
-			// edits (e.g. the optimistic "mark as read"). We avoid
-			// `getEditedEntityRecord`, which resolves the canonical (query-less)
-			// record and refetches feedback without `fields_format=collection`,
-			// overwriting the shared record and stripping the rich field rendering.
-			const rawRecord = core.getEntityRecord( 'postType', 'feedback', id, RESPONSE_QUERY );
+			// Read the collection-format record and overlay any pending edits (e.g.
+			// the optimistic "mark as read"). We avoid `getEditedEntityRecord`, which
+			// resolves the canonical (query-less) record and refetches feedback
+			// without `fields_format=collection`, overwriting the shared record and
+			// stripping the rich field rendering.
+			const records = core.getEntityRecords( 'postType', 'feedback', responseQuery ) as
+				| FormResponse[]
+				| null;
+			const rawRecord = records?.[ 0 ];
 			const edits = (
 				core as unknown as {
 					getEntityRecordEdits: ( k: string, n: string, i: number ) => object | undefined;
@@ -85,15 +117,14 @@ function Stage(): React.JSX.Element {
 
 			return {
 				response: rawRecord ? ( { ...rawRecord, ...edits } as unknown as FormResponse ) : null,
-				isLoading: ( core as unknown as SelectActions ).isResolving( 'getEntityRecord', [
+				isLoading: ( core as unknown as SelectActions ).isResolving( 'getEntityRecords', [
 					'postType',
 					'feedback',
-					id,
-					RESPONSE_QUERY,
+					responseQuery,
 				] ),
 			};
 		},
-		[ id, isValidId ]
+		[ id, isValidId, responseQuery ]
 	);
 
 	// For managed forms, resolve the actual jetpack_form post title so the
@@ -113,6 +144,43 @@ function Stage(): React.JSX.Element {
 		[ response?.form_id ]
 	);
 
+	// The email's "Mark as spam" button lands here with `?mark_as_spam=1`, which
+	// opens a confirmation dialog — the destructive step is never taken on the
+	// strength of a click in an email client alone. Same hook the responses list
+	// inspector uses, so the copy and behaviour stay in one place.
+	const clearMarkAsSpamParam = useCallback( () => {
+		navigate( {
+			search: { ...searchParams, mark_as_spam: undefined },
+			replace: true,
+		} );
+	}, [ navigate, searchParams ] );
+
+	const {
+		isConfirmDialogOpen,
+		onConfirmMarkAsSpam,
+		onCancelMarkAsSpam,
+		markAsSpamConfirmationMessage,
+		isSaving,
+	} = useMarkAsSpam( response, {
+		checkParameter: () => ( searchParams as { mark_as_spam?: number } )?.mark_as_spam === 1,
+		removeParameter: clearMarkAsSpamParam,
+		switchToSpam: () => {
+			// Unlike the list inspector, this page stays put, so the badge and menu
+			// flip in place rather than the user being taken to the spam view.
+			if ( response ) {
+				repairResponseRecord( receiveEntityRecords, response, 'spam', responseQuery );
+			}
+			clearMarkAsSpamParam();
+		},
+	} );
+
+	// The dialog's save and the menu's actions are separate mutation paths on one
+	// response. Both report into this single signal — the dialog directly, the menu
+	// through `onBusyChange` — so neither can run against the other and neither can
+	// be navigated away from mid-flight.
+	const [ isMenuBusy, setIsMenuBusy ] = useState( false );
+	const isMutating = isConfirmDialogOpen || isSaving || isMenuBusy;
+
 	const { hasPrevious, hasNext, goPrevious, goNext } = useResponsePageNavigation( id );
 
 	// Arrow keys move between responses, matching the inbox inspector. Ignore the
@@ -125,7 +193,9 @@ function Stage(): React.JSX.Element {
 			if ( event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey ) {
 				return;
 			}
-			if ( previewFile ) {
+			// Navigating away while the spam confirmation is open would leave the
+			// dialog describing one response and confirming against another.
+			if ( previewFile || isConfirmDialogOpen || isSaving ) {
 				return;
 			}
 			const target = event.target as HTMLElement | null;
@@ -149,28 +219,37 @@ function Stage(): React.JSX.Element {
 
 		window.addEventListener( 'keydown', handleKeyDown );
 		return () => window.removeEventListener( 'keydown', handleKeyDown );
-	}, [ goPrevious, goNext, hasPrevious, hasNext, previewFile ] );
+	}, [ goPrevious, goNext, hasPrevious, hasNext, previewFile, isConfirmDialogOpen, isSaving ] );
 
-	// Mark the response as read when it is viewed.
+	// Mark the response as read when it is viewed, keeping the admin-menu unread
+	// counter in sync. The shared hook latches on a ref, which also survives the
+	// "Mark as unread" menu item on this page re-running the effect.
+	useMarkAsReadOnView( response );
+
+	// Arrives from the list's Print action. `window.print()` blocks, so it must not
+	// fire while the page is still a spinner. The ref is keyed by id because
+	// prev/next moves between responses without remounting this route.
+	const hasPrintRequest = ( searchParams as { print?: number } )?.print === 1;
+	const printedForIdRef = useRef< number | null >( null );
+
 	useEffect( () => {
-		if ( ! response || ! response.id || ! response.is_unread ) {
-			return;
-		}
-		if ( markedReadId === response.id ) {
+		if ( ! hasPrintRequest || ! response || isLoading || printedForIdRef.current === id ) {
 			return;
 		}
 
-		setMarkedReadId( response.id );
-		editEntityRecord( 'postType', 'feedback', response.id, { is_unread: false } );
+		printedForIdRef.current = id;
 
-		apiFetch( {
-			path: `/wp/v2/feedback/${ response.id }/read`,
-			method: 'POST',
-			data: { is_unread: false },
-		} ).catch( () => {
-			editEntityRecord( 'postType', 'feedback', response.id, { is_unread: true } );
+		// Deliberately untimed: a deferred print would be cancelled when this effect
+		// re-runs, and `useEffect` already runs after the response is in the DOM.
+		window.print();
+
+		// `print()` blocks, so by here the dialog is closed. Drop the flag so a
+		// reload doesn't reprint.
+		navigate( {
+			search: { ...searchParams, print: undefined },
+			replace: true,
 		} );
-	}, [ response, editEntityRecord, markedReadId ] );
+	}, [ hasPrintRequest, response, isLoading, id, navigate, searchParams ] );
 
 	const handleFilePreview = useCallback(
 		( file: PreviewFileItem ) => () => {
@@ -198,7 +277,12 @@ function Stage(): React.JSX.Element {
 		</FormsPage>
 	);
 
-	if ( isValidId && isLoading ) {
+	// Only show the spinner when there is nothing to show. Every status change
+	// invalidates `getEntityRecords` resolutions (see `invalidateCacheAndNavigate`),
+	// which re-resolves this page's own query — without the `! response` guard the
+	// response would be replaced by a full-page spinner on each action, which is
+	// exactly what staying on the page is meant to avoid.
+	if ( isValidId && isLoading && ! response ) {
 		return renderMessagePage(
 			isValidId ? `#${ id }` : __( 'Response', 'jetpack-forms' ),
 			__( 'Response', 'jetpack-forms' ),
@@ -225,6 +309,7 @@ function Stage(): React.JSX.Element {
 			breadcrumbs={
 				<SingleResponseBreadcrumbs response={ response } formTitle={ formName || formTitle } />
 			}
+			badges={ <ResponseStatusBadge status={ response.status } /> }
 			subTitle={ subTitle }
 			ariaLabel={ displayName }
 			actions={
@@ -236,13 +321,17 @@ function Stage(): React.JSX.Element {
 					className="jp-forms__single-response-actions"
 				>
 					<ResponseNavigation
-						hasNext={ hasNext }
-						hasPrevious={ hasPrevious }
+						hasNext={ hasNext && ! isMutating }
+						hasPrevious={ hasPrevious && ! isMutating }
 						onNext={ goNext }
 						onPrevious={ goPrevious }
 						onClose={ null }
 					/>
-					<SingleResponseActions response={ response } />
+					<SingleResponseActions
+						response={ response }
+						isBlocked={ isConfirmDialogOpen || isSaving }
+						onBusyChange={ setIsMenuBusy }
+					/>
 				</Stack>
 			}
 			showFooter={ false }
@@ -264,6 +353,15 @@ function Stage(): React.JSX.Element {
 					/>
 				</Modal>
 			) }
+
+			<ConfirmDialog
+				isOpen={ isConfirmDialogOpen }
+				onConfirm={ onConfirmMarkAsSpam }
+				onCancel={ onCancelMarkAsSpam }
+				isBusy={ isSaving }
+			>
+				{ markAsSpamConfirmationMessage }
+			</ConfirmDialog>
 		</FormsPage>
 	);
 }

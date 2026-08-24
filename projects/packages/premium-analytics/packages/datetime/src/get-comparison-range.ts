@@ -78,7 +78,10 @@ export function getComparisonRangeFromPreset(
 		let to: Date;
 
 		if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {
-			to = subMilliseconds( refTo, windowMs );
+			// Both ends are inclusive, so the window lasts `windowMs + 1`. Shifting
+			// by `windowMs` alone lands `to` on `refFrom` itself, inside the
+			// reference window, which reads one bucket late at hourly granularity.
+			to = subMilliseconds( refTo, windowMs + 1 );
 		} else if ( presetId === COMPARISON_PREVIOUS_MONTH ) {
 			to = subMonths( refTo, 1 );
 		} else if ( presetId === COMPARISON_PREVIOUS_YEAR ) {

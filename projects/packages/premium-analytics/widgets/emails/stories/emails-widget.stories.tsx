@@ -1,12 +1,4 @@
-/**
- * The close-up stories exercise the presentational `EmailsLeaderboard` with
- * fixture rows so the populated chart renders without a backend. The `Loading`
- * / `Error` / `Empty` stories force the data-connected widget's `<WidgetState>`
- * states via `setReportMockState`. `WidgetDashboardWithWidget` mounts the real
- * dashboard with the data-connected widget; `registerReportMocks` supplies a
- * mock `stats/emails/summary` response so it renders populated in product
- * context.
- */
+/** Email widget stories and mocked report states. */
 /**
  * External dependencies
  */
@@ -28,7 +20,7 @@ import {
 import { withStoryRouter } from '../../stories/with-story-router';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
-import EmailsRender, { EmailsLeaderboard, type EmailRow } from '../render';
+import EmailsRender, { EmailsList, type EmailRow } from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj, Decorator } from '@storybook/react';
@@ -39,15 +31,15 @@ registerReportMocks();
 
 const EMAILS_RENDER_MODULE = 'storybook/emails';
 
-const meta: Meta< typeof EmailsLeaderboard > = {
+const meta: Meta< typeof EmailsList > = {
 	title: 'Packages/Premium Analytics/Widgets/Emails',
-	component: EmailsLeaderboard,
+	component: EmailsList,
 	tags: [ 'autodocs' ],
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Emails" widget. Lists the most recently sent emails with their open or click rate, rendered as a leaderboard. The displayed rate is the `metric` attribute (`relevance: \'high\'`), exposed as a control by the widget host. The close-up stories drive the presentational `EmailsLeaderboard` with fixtures; `WidgetDashboardWithWidget` mounts the real dashboard with the data-connected widget (fed by a mocked `stats/emails/summary` response).',
+					'Lists the latest emails with their open or click rate. Close-up stories use fixtures; the dashboard story uses a mocked report.',
 			},
 		},
 	},
@@ -55,7 +47,7 @@ const meta: Meta< typeof EmailsLeaderboard > = {
 
 export default meta;
 
-type Story = StoryObj< typeof EmailsLeaderboard >;
+type Story = StoryObj< typeof EmailsList >;
 
 const mockRows: EmailRow[] = [
 	{
@@ -155,13 +147,8 @@ export const ByClickRate: Story = {
 	decorators: [ withWidgetCanvas, withEmailsWidgetRoot, withStoryRouter ],
 };
 
-// Renders the data-connected widget with a `max` distinct from the other
-// stories. The email summary is all-time — its query key carries the row count,
-// not a date range — so a unique `max` (→ `quantity`) gives each forced-state
-// story its own cache entry and it hits the mock fresh instead of reading
-// another story's cached success from the shared query client.
-function renderEmailsWithMax( max: number ) {
-	return <EmailsRender attributes={ { max, metric: 'opens' } } />;
+function renderEmails() {
+	return <EmailsRender attributes={ { metric: 'opens' } } />;
 }
 
 /**
@@ -169,7 +156,7 @@ function renderEmailsWithMax( max: number ) {
  * mock is forced to never resolve for the duration of this story.
  */
 export const Loading: Story = {
-	render: () => renderEmailsWithMax( 7 ),
+	render: renderEmails,
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
@@ -184,7 +171,7 @@ export const Loading: Story = {
  * re-runs the query — still mocked as failing while this story is active).
  */
 export const Error: Story = {
-	render: () => renderEmailsWithMax( 8 ),
+	render: renderEmails,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
@@ -198,7 +185,7 @@ export const Error: Story = {
  * will appear here once you send a newsletter.").
  */
 export const Empty: Story = {
-	render: () => renderEmailsWithMax( 9 ),
+	render: renderEmails,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
@@ -265,7 +252,7 @@ function EmailsDashboardStory( props: WidgetDashboardWithWidgetControls ) {
 			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ EMAILS_RENDER_MODULE }
 			renderComponent={ EmailsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 6, metric: 'opens' } }
+			attributes={ { metric: 'opens' } }
 		/>
 	);
 }
