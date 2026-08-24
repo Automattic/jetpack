@@ -1,32 +1,23 @@
 /**
  * External dependencies
  */
-import { Stack, Text } from '@wordpress/ui';
-import clsx from 'clsx';
+import { __ } from '@wordpress/i18n';
+import { Stack, Text } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
+import type { HelloWorldAttributes } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-interface HelloWorldAttributes {
-	message?: string;
-}
+type HelloWorldWidgetProps = WidgetRenderProps< HelloWorldAttributes >;
 
-type HelloWorldRenderProps = {
-	attributes?: HelloWorldAttributes;
-};
-
-/**
- * Renders the Hello World widget.
- *
- * @param root0            - Component props.
- * @param root0.attributes - Widget attributes.
- * @return The rendered widget.
- */
-export default function HelloWorld( { attributes }: HelloWorldRenderProps ) {
+export default function HelloWorld( { attributes = {} }: HelloWorldWidgetProps ) {
 	return (
-		<Stack align="center" justify="center" className={ clsx( styles.root ) }>
-			<Text variant="heading-2xl">{ attributes?.message || 'Hello World' }</Text>
+		<Stack align="center" justify="center" className={ styles.root }>
+			<Text variant="heading-2xl" render={ <h2 /> }>
+				{ attributes.message || __( 'Hello World', 'jetpack-premium-analytics-pkg' ) }
+			</Text>
 		</Stack>
 	);
 }

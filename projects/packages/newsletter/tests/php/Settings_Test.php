@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Newsletter\Tests;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Newsletter\Settings;
+use Automattic\Jetpack\Newsletter\Subscribers_Announcement;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -48,6 +50,12 @@ class Settings_Test extends BaseTestCase {
 
 		// Clear the load action registered by add_wp_admin_menu on success.
 		remove_all_actions( 'load-jetpack_page_jetpack-newsletter' );
+
+		// Clear the Subscribers announcement handlers. Without this a test that
+		// registers them leaks into the next one, and a test asserting they are
+		// absent would pass or fail on ordering rather than on the site-ID gate.
+		remove_all_actions( 'wp_ajax_' . Subscribers_Announcement::TOGGLE_ACTION );
+		remove_all_actions( 'admin_post_' . Subscribers_Announcement::GO_ACTION );
 	}
 
 	/**
@@ -59,7 +67,6 @@ class Settings_Test extends BaseTestCase {
 		( new Connection_Manager() )->reset_connection_status();
 
 		unset( $_GET['page'] );
-		unset( $GLOBALS['jetpack_newsletter_test_is_automattician'] );
 		remove_all_filters( Settings::MODERNIZATION_FILTER );
 		remove_all_filters( 'site_url' );
 		remove_all_filters( 'home_url' );
@@ -69,8 +76,42 @@ class Settings_Test extends BaseTestCase {
 		wp_dequeue_script( 'jetpack-newsletter' );
 		wp_deregister_script( 'jp-tracks' );
 		wp_deregister_script( 'jetpack-newsletter' );
+		wp_deregister_script( 'wp-theme' );
+
+		// The polyfill registrar keeps its request map, hook latch, and version
+		// threshold in process-global statics. Reset them so a legacy-surface
+		// test cannot leak state into — or read state from — another test.
+		$this->reset_wp_build_polyfills_statics();
 
 		parent::tear_down();
+	}
+
+	/**
+	 * Reset WP_Build_Polyfills' static state between tests.
+	 *
+	 * Mirrors WP_Build_Polyfills_Test's own tear_down: the registrar records
+	 * requested handles, whether it has hooked wp_default_scripts, and the
+	 * force-replacement version threshold in statics that otherwise persist
+	 * across tests in the same process.
+	 */
+	private function reset_wp_build_polyfills_statics() {
+		if ( ! class_exists( WP_Build_Polyfills::class ) ) {
+			return;
+		}
+
+		$statics = array(
+			'requested'            => array(),
+			'hooked'               => false,
+			'wp_version_threshold' => '7.0',
+		);
+
+		foreach ( $statics as $name => $value ) {
+			$property = new \ReflectionProperty( WP_Build_Polyfills::class, $name );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$property->setAccessible( true );
+			}
+			$property->setValue( null, $value );
+		}
 	}
 
 	/**
@@ -169,162 +210,14 @@ class Settings_Test extends BaseTestCase {
 
 	/**
 	 * `is_modernized()` is the canonical gate used by `maybe_load_wp_build`,
-	 * `add_wp_admin_menu`, and `load_admin_scripts`. Its default — the value
-	 * `apply_filters` receives — is the staged-rollout cohort. With the percentage
-	 * cohort held at 0% and no Automattician in the test environment, the default
-	 * must be false.
+	 * `add_wp_admin_menu`, and `load_admin_scripts`. The staged rollout is complete:
+	 * the modernized experience now defaults on for every site, so the value
+	 * `apply_filters` receives must be true.
 	 */
-	public function test_is_modernized_defaults_to_false_outside_rollout() {
-		$this->assertFalse(
-			self::call_private_static_is_modernized(),
-			'Modernization gate must default to false when the site is not in the rollout cohort.'
-		);
-	}
-
-	/**
-	 * The rollout now spans *all* sites: removing the old wpcom-platform gate means a
-	 * self-hosted (non-wpcom) Jetpack site with a resolvable wpcom blog ID enters the
-	 * percentage cohort just like Simple/WoA, bucketed on its stored wpcom ID. At the
-	 * current 0% it is not enrolled; once the percentage is raised it would be, which
-	 * is exactly the "all sites" behavior this asserts against the live constant.
-	 */
-	public function test_self_hosted_connected_site_bucketed_on_wpcom_id() {
-		\Jetpack_Options::update_option( 'id', 200 ); // Non-wpcom site, but a connected wpcom blog ID.
-
-		try {
-			$this->assertSame(
-				( 200 % 100 ) < Settings::MODERNIZATION_ROLLOUT_PERCENTAGE,
-				Settings::is_modernization_rollout_enabled(),
-				'A self-hosted connected Jetpack site must be bucketed on its wpcom blog ID against the rollout percentage.'
-			);
-		} finally {
-			\Jetpack_Options::delete_option( 'id' );
-		}
-	}
-
-	/**
-	 * Simple sites can be upgraded to Atomic (WoA). The cohort keys on the wpcom blog
-	 * ID, which is preserved across the transfer (read from `jetpack_options['id']` on
-	 * WoA, not the current blog ID), so a site's enrollment decision is identical
-	 * before and after the upgrade — it never silently flips on transfer. Asserted
-	 * against the live percentage so it holds at 0% and after a bump alike.
-	 */
-	public function test_woa_site_bucketed_on_stable_wpcom_blog_id() {
-		$this->set_woa_constants();
-		\Jetpack_Options::update_option( 'id', 200 ); // 200 % 100 = 0.
-
-		try {
-			$this->assertSame(
-				( 200 % 100 ) < Settings::MODERNIZATION_ROLLOUT_PERCENTAGE,
-				Settings::is_modernization_rollout_enabled(),
-				'A WoA site must be bucketed on its stable wpcom blog ID against the rollout percentage.'
-			);
-		} finally {
-			$this->clear_woa_constants();
-		}
-	}
-
-	/**
-	 * On a site where the wpcom blog ID can't be resolved (e.g. a freshly transferred
-	 * WoA site before its connection settles, or a disconnected self-hosted site), the
-	 * site must not be bucketed as blog ID 0 and enrolled by accident once the
-	 * percentage is non-zero. This holds regardless of the percentage.
-	 */
-	public function test_rollout_disabled_when_wpcom_blog_id_unavailable() {
-		$this->set_woa_constants();
-		\Jetpack_Options::delete_option( 'id' );
-
-		try {
-			$this->assertFalse(
-				Settings::is_modernization_rollout_enabled(),
-				'A site with no resolvable wpcom blog ID must not be enrolled.'
-			);
-		} finally {
-			$this->clear_woa_constants();
-		}
-	}
-
-	/**
-	 * Mark the environment as a WordPress.com on Atomic (WoA) site: Atomic platform
-	 * constants plus the wpcomsh marker `Host::is_woa_site()` keys on. Clears the
-	 * Host cache so the freshly-set constants are observed.
-	 */
-	private function set_woa_constants() {
-		\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_SITE_ID', 12345 );
-		\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_CLIENT_ID', 70 );
-		\Automattic\Jetpack\Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/wpcomsh/wpcomsh.php' );
-		\Automattic\Jetpack\Status\Cache::clear();
-	}
-
-	/**
-	 * Undo `set_woa_constants()` and any wpcom blog ID stored for the WoA scenario.
-	 */
-	private function clear_woa_constants() {
-		\Automattic\Jetpack\Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
-		\Automattic\Jetpack\Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
-		\Automattic\Jetpack\Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
-		\Automattic\Jetpack\Status\Cache::clear();
-		\Jetpack_Options::delete_option( 'id' );
-	}
-
-	/**
-	 * A WordPress.com Simple site is bucketed on its current blog ID (not the stored
-	 * `jetpack_options['id']`). WorDBless reports blog ID 1, so this verifies the
-	 * Simple branch feeds the right ID into the bucket math. Asserted against the live
-	 * percentage so it holds at 0% and after a bump alike.
-	 */
-	public function test_wpcom_simple_site_bucketed_on_current_blog_id() {
-		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
-
-		try {
-			$this->assertSame(
-				( (int) get_current_blog_id() % 100 ) < Settings::MODERNIZATION_ROLLOUT_PERCENTAGE,
-				Settings::is_modernization_rollout_enabled(),
-				'A WordPress.com Simple site must be bucketed on its current blog ID against the rollout percentage.'
-			);
-		} finally {
-			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
-		}
-	}
-
-	/**
-	 * Automatticians get the modernized experience by default so they can dogfood it
-	 * outside the percentage cohort. On Simple this rides the `is_automattician()`
-	 * global, which enrolls a11ns regardless of whether the site's blog ID falls in
-	 * the percentage bucket — the only path that enrolls anyone while the percentage
-	 * is held at 0%.
-	 *
-	 * The Atomic half of the carve-out — `Visitor::is_automattician_feature_flags_only()`,
-	 * driven by `AT_PROXIED_REQUEST` — is intentionally not given a dedicated test: its
-	 * *true* path is `Visitor`'s own contract (covered in the jetpack-status package), and
-	 * setting `AT_PROXIED_REQUEST` requires an irreversible `define()` that would need
-	 * `@runInSeparateProcess` (which trips a PHP 7.x WP-core bootstrap warning under
-	 * `failOnWarning`). Its *false* path — that the `Visitor` call is wired in and doesn't
-	 * fatal — is already exercised by every non-a11n cohort test below, where the `||`
-	 * does not short-circuit and so evaluates the `Visitor` branch.
-	 */
-	public function test_rollout_enabled_for_automattician() {
-		$GLOBALS['jetpack_newsletter_test_is_automattician'] = true;
-
+	public function test_is_modernized_defaults_to_true() {
 		$this->assertTrue(
-			Settings::is_modernization_rollout_enabled(),
-			'Automatticians must be enrolled in the modernization rollout by default.'
-		);
-	}
-
-	/**
-	 * The a11n enrollment is only the filter *default*: an Automattician who wants
-	 * the legacy view back must still be able to force it with `__return_false`,
-	 * so the check has to live in the default fed to `apply_filters`, never as a
-	 * post-filter override.
-	 */
-	public function test_automattician_default_is_still_overridable_by_filter() {
-		$GLOBALS['jetpack_newsletter_test_is_automattician'] = true;
-		add_filter( Settings::MODERNIZATION_FILTER, '__return_false' );
-
-		$this->assertFalse(
 			self::call_private_static_is_modernized(),
-			'An Automattician must be able to opt back into the legacy view with __return_false.'
+			'Modernization gate must default to true now that the rollout is at 100%.'
 		);
 	}
 
@@ -437,6 +330,112 @@ class Settings_Test extends BaseTestCase {
 			wp_script_is( 'jetpack-newsletter', 'enqueued' ),
 			'Legacy newsletter bundle must be enqueued when modernization is off.'
 		);
+	}
+
+	/**
+	 * The legacy bundle depends on the `wp-theme` script handle — it imports
+	 * `@wordpress/ui`, which reaches `@wordpress/theme`, and WP Core does not
+	 * register that handle. Only `WP_Build_Polyfills` does, and its full
+	 * registration runs on the modernized path alone. Without an explicit request
+	 * here, `wp_enqueue_script` silently drops `jetpack-newsletter` over the
+	 * unregistered dependency and the page renders blank.
+	 */
+	public function test_load_admin_scripts_registers_wp_theme_polyfill_on_legacy_surface() {
+		add_filter( Settings::MODERNIZATION_FILTER, '__return_false' );
+
+		// The polyfill only registers wp-theme when its build asset exists on
+		// disk. That build directory is gitignored and absent in CI PHP runs, so
+		// borrow WP_Build_Polyfills_Test's fixture approach and lay down a stub
+		// asset file when the real build is missing.
+		$fixture = $this->ensure_wp_theme_polyfill_asset();
+
+		// Core never registers wp-theme; start clean so the assertion reflects
+		// what our code registers rather than a leftover registration.
+		wp_deregister_script( 'wp-theme' );
+
+		try {
+			( new Settings() )->load_admin_scripts();
+
+			$consumers = WP_Build_Polyfills::get_consumers();
+			$this->assertContains(
+				'jetpack-newsletter',
+				$consumers['wp-theme'] ?? array(),
+				'The legacy newsletter bundle must be recorded as a wp-theme polyfill consumer.'
+			);
+
+			// The behaviour the bug was about: wp-theme is actually registered, so
+			// WordPress no longer drops jetpack-newsletter over a missing dependency.
+			$this->assertTrue(
+				wp_script_is( 'wp-theme', 'registered' ),
+				'The legacy surface must register wp-theme; Core never does, and the bundle depends on it.'
+			);
+		} finally {
+			$this->remove_wp_theme_polyfill_asset( $fixture );
+		}
+	}
+
+	/**
+	 * Ensure the polyfill's built wp-theme asset file exists so register() can
+	 * register the handle.
+	 *
+	 * The wp-build-polyfills build directory is gitignored, so it may be missing
+	 * during PHP test runs. When it is, write a minimal stub at the exact path
+	 * register() reads (dirname of the class file, two levels up, + /build).
+	 *
+	 * @return array {file, dirs} describing what we created, for cleanup. Empty
+	 *               when the real asset already exists and nothing was created.
+	 */
+	private function ensure_wp_theme_polyfill_asset() {
+		$reflector = new \ReflectionClass( WP_Build_Polyfills::class );
+		$asset_dir = dirname( $reflector->getFileName(), 2 ) . '/build/scripts/theme';
+		$asset     = $asset_dir . '/index.asset.php';
+
+		if ( file_exists( $asset ) ) {
+			return array();
+		}
+
+		// Create the missing directory chain, tracking what we made so tear-down
+		// removes only our fixture and never a real build artifact.
+		$missing = array();
+		$dir     = $asset_dir;
+		while ( ! is_dir( $dir ) ) {
+			$missing[] = $dir;
+			$dir       = dirname( $dir );
+		}
+		$created_dirs = array();
+		foreach ( array_reverse( $missing ) as $dir ) {
+			mkdir( $dir );
+			$created_dirs[] = $dir;
+		}
+
+		file_put_contents( $asset, "<?php return array( 'dependencies' => array(), 'version' => 'test' );\n" );
+
+		return array(
+			'file' => $asset,
+			'dirs' => $created_dirs,
+		);
+	}
+
+	/**
+	 * Remove the stub wp-theme asset created by ensure_wp_theme_polyfill_asset().
+	 *
+	 * @param array $fixture The {file, dirs} descriptor it returned.
+	 */
+	private function remove_wp_theme_polyfill_asset( $fixture ) {
+		if ( empty( $fixture ) ) {
+			return;
+		}
+
+		if ( isset( $fixture['file'] ) && file_exists( $fixture['file'] ) ) {
+			unlink( $fixture['file'] );
+		}
+
+		// Remove deepest-first so each directory is empty when we drop it.
+		foreach ( array_reverse( $fixture['dirs'] ?? array() ) as $dir ) {
+			if ( is_dir( $dir ) ) {
+				rmdir( $dir );
+			}
+		}
 	}
 
 	/**

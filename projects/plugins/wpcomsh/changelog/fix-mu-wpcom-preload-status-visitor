@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack AI: Keep AI working on Atomic sites where the new AI module has not activated, and stop the editor breaking when another plugin bundles an older copy of the Jetpack Status package.

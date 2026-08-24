@@ -1,42 +1,60 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
-import { decideInitialView, type View } from './lib/orchestration.ts';
+import { decodeEntities } from '@wordpress/html-entities';
+import { decideInitialView, isAllTasksMode, type View } from './lib/orchestration.ts';
+import { contextFromInferred, contextFromTaskIds, setTracksContext } from './lib/tracks.ts';
 import { TailoredList } from './tailored-list/tailored-list.tsx';
 import { Wizard } from './wizard/wizard.tsx';
-import type { TailorResult } from './lib/types.ts';
+import type { GoalSlug, TailorResult } from './lib/types.ts';
 import type { LaunchpadData } from './tailored-list/model.ts';
 
 /**
- * Orchestrates the AI Launchpad flow: a new user (no persisted AI output) sees
- * the wizard, finishes it, and transitions to the tailored list; a returning
- * user (output already persisted) lands straight on the tailored list.
- *
- * On load it reads `GET /ai-launchpad` once to decide the view. When the wizard
- * finishes it hands the in-flight tailor promise to the list, which shows the
- * skeleton until the AI call and its PUT settle, then renders the six tasks.
- *
- * View selection uses local React state (no `@wordpress/data` store), matching
- * the wizard and tailored-list streams.
+ * Orchestrates the AI Launchpad flow: new users see the wizard, returning users
+ * land straight on the tailored list.
  *
  * @return The orchestrated AI Launchpad element.
  */
 export function App() {
-	// `null` while the initial read is in flight; the skeleton-free wizard and
-	// list both decide their own loading UI once a view is chosen.
+	// null while the initial read is in flight.
 	const [ view, setView ] = useState< View | null >( null );
 	const [ pendingTailor, setPendingTailor ] = useState< Promise< TailorResult > | undefined >();
-	// The composite read used to decide the view; handed to the list so a
-	// returning user doesn't fetch the same expensive endpoint twice.
+	// The goal picked in the wizard, forwarded to the list for its heading.
+	const [ goal, setGoal ] = useState< GoalSlug | undefined >();
+	// Handed to the list so returning users don't refetch the same endpoint.
 	const [ initialData, setInitialData ] = useState< LaunchpadData | undefined >();
 
 	useEffect( () => {
 		let cancelled = false;
-		apiFetch< LaunchpadData >( { path: '/wpcom/v2/ai-launchpad' } ).then( data => {
+		// Testing aid: ?all_tasks=1 skips the wizard and renders the full catalog.
+		const allTasks = isAllTasksMode( window.location.search );
+		const path = allTasks ? '/wpcom/v2/ai-launchpad?all_tasks=1' : '/wpcom/v2/ai-launchpad';
+		apiFetch< LaunchpadData >( { path } ).then( data => {
 			if ( cancelled ) {
 				return;
 			}
+			// blogname/blogdescription arrive HTML-escaped (sanitize_option stores them
+			// that way); decode so React doesn't render literal entities in the wizard
+			// prefill and the preview title.
+			if ( data.site ) {
+				data.site = {
+					...data.site,
+					title: data.site.title && decodeEntities( data.site.title ),
+					description: data.site.description && decodeEntities( data.site.description ),
+				};
+			}
 			setInitialData( data );
-			setView( decideInitialView( data ) );
+			setView( allTasks ? 'list' : decideInitialView( data ) );
+
+			// Seed the shared Tracks context from the persisted state (all-null for
+			// brand-new sites) before the mounted view records its viewed event.
+			const inferred = data.ai_output?.payload?.inferred;
+			setTracksContext( contextFromInferred( inferred ) );
+			if ( ! inferred?.goal && data.wizard?.goal ) {
+				setTracksContext( { goal: data.wizard.goal } );
+			}
+			if ( data.tasks?.length ) {
+				setTracksContext( contextFromTaskIds( data.tasks.map( task => task.id ) ) );
+			}
 		} );
 		return () => {
 			cancelled = true;
@@ -52,23 +70,33 @@ export function App() {
 			<Wizard
 				initialSiteName={ initialData?.site?.title }
 				initialIntent={ initialData?.site?.description }
-				onComplete={ ( _input, tailoring ) => {
+				siteUrl={ initialData?.site?.url }
+				onComplete={ ( input, tailoring ) => {
 					setPendingTailor( () => tailoring );
+					setGoal( input.goal );
+					// The wizard wrote the entered Name to blogname; keep the preview
+					// card's title in sync without refetching. Mirrors the server's
+					// guard: an empty/whitespace Name never overwrites the title.
+					const siteName = input.site_name.trim();
+					if ( siteName ) {
+						setInitialData( data =>
+							data?.site ? { ...data, site: { ...data.site, title: siteName } } : data
+						);
+					}
 					setView( 'list' );
 				} }
 			/>
 		);
 	}
 
-	// After the wizard, the list runs the fresh tailor flow (initialData would be
-	// the pre-wizard read); returning users render straight from initialData. The
-	// site context is path-independent, so it's passed either way — that lets the
-	// loading skeleton show the site preview before the tailored read lands.
+	// After the wizard the list runs the fresh tailor flow; returning users render
+	// from initialData. Site is passed either way so the skeleton can show the preview.
 	return (
 		<TailoredList
 			pendingTailor={ pendingTailor }
 			initialData={ pendingTailor ? undefined : initialData }
 			site={ initialData?.site }
+			goal={ goal }
 		/>
 	);
 }

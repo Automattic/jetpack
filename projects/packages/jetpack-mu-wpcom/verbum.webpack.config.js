@@ -9,9 +9,12 @@ const babelOpts = {
 			{
 				pragma: 'h',
 				pragmaFrag: 'Fragment',
+				runtime: 'classic',
+				useSpread: true,
 			},
 		],
 	],
+	targets: require( '@automattic/jetpack-webpack-config/targets' ),
 	presets: [ [ '@automattic/jetpack-webpack-config/babel/preset' ] ],
 };
 
@@ -86,7 +89,17 @@ module.exports = [
 				// Handle CSS.
 				jetpackConfig.CssRule( {
 					extensions: [ 'css', 'scss' ],
-					extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
+					extraLoaders: [
+						{
+							loader: 'postcss-loader',
+							options: {
+								postcssOptions: {
+									config: path.join( __dirname, 'postcss.config.js' ),
+								},
+							},
+						},
+						{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
+					],
 				} ),
 
 				// Handle images.

@@ -1,4 +1,4 @@
-import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import {
 	wordpress as coreIcon,
@@ -28,7 +28,7 @@ const ThreatsNavigation = ( { selected, onSelect, sourceType = 'scan', statusFil
 		},
 	} = useProtectData( { sourceType, filter: { status: statusFilter } } );
 	const { recordEvent } = useAnalyticsTracks();
-	const [ isSmallOrLarge ] = useBreakpointMatch( 'lg', '<' );
+	const isSmallOrLarge = useViewportMatch( 'large', '<' );
 
 	const trackNavigationClickAll = useCallback( () => {
 		recordEvent( 'jetpack_protect_navigation_all_click' );

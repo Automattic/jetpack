@@ -92,6 +92,7 @@ class Jetpack_Options {
 			'id',                                  // (int)    The Client ID/WP.com Blog ID of this site.
 			'publicize_connections',               // (array)  An array of Publicize connections from WordPress.com.
 			'master_user',                         // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
+			'protected_owner',                     // (array)  Anchor identifying the locked connection owner. WordPress.com is authoritative; this is a local cache. Keys: wpcom_user_id, email, local_user_id, locked, confirmed_at, confirmed_by.
 			'version',                             // (string) Used during upgrade procedure to auto-activate new modules. version:time.
 			'old_version',                         // (string) Used to determine which modules are the most recently added. previous_version:time.
 			'fallback_no_verify_ssl_certs',        // (int)    Flag for determining if this host must skip SSL Certificate verification due to misconfigured SSL.
@@ -218,6 +219,31 @@ class Jetpack_Options {
 	}
 
 	/**
+	 * Checks whether an option has a stored value, distinguishing an absent option from one stored
+	 * as a falsy value. Reads from the same storage as `get_option` (external storage or database)
+	 * but does not apply the `jetpack_options` filter, so a filter override is not mistaken for a
+	 * stored value.
+	 *
+	 * @since 8.11.0
+	 *
+	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix.
+	 *
+	 * @return bool Whether the option is stored.
+	 */
+	public static function option_exists( $name ) {
+		if ( self::should_use_external_storage( $name )
+			&& class_exists( 'Automattic\Jetpack\Connection\External_Storage' )
+			&& null !== \Automattic\Jetpack\Connection\External_Storage::get_value( $name )
+		) {
+			return true;
+		}
+
+		// A value no caller would ever store, so getting it back means the option is absent.
+		$sentinel = '__jetpack_option_absent__';
+		return $sentinel !== self::get_option_from_database( $name, $sentinel );
+	}
+
+	/**
 	 * Returns the requested option.  Looks in jetpack_options or jetpack_$name as appropriate.
 	 *
 	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix. The method will prefix the option name.
@@ -250,7 +276,7 @@ class Jetpack_Options {
 	 *
 	 * @var array
 	 */
-	private static $external_storage_allowlist = array( 'blog_token', 'id', 'master_user', 'user_tokens' );
+	private static $external_storage_allowlist = array( 'blog_token', 'id', 'master_user', 'protected_owner', 'user_tokens' );
 
 	/**
 	 * Determines if external storage should be used for a given option.
@@ -604,6 +630,7 @@ class Jetpack_Options {
 			$unsafe_options = array(
 				'id',                           // (int)    The Client ID/WP.com Blog ID of this site.
 				'master_user',                  // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
+				'protected_owner',              // (array)  Anchor identifying the locked connection owner. Resetting it would unlock ownership while the connection survives.
 				'version',                      // (string) Used during upgrade procedure to auto-activate new modules. version:time
 
 				// non_compact.

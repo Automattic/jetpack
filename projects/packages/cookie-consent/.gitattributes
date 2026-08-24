@@ -7,3 +7,8 @@
 src/modules/**       production-exclude
 tools/**             production-exclude
 declarations.d.ts    production-exclude
+tests/**             production-exclude
+phpunit.8.xml.dist   production-exclude
+phpunit.9.xml.dist   production-exclude
+phpunit.11.xml.dist  production-exclude
+phpunit.12.xml.dist  production-exclude

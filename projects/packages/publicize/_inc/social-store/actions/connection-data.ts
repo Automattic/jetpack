@@ -4,7 +4,6 @@ import { dispatch as coreDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import { getSocialScriptData } from '../../utils/script-data';
 import { CUSTOMIZE_PER_NETWORK_KEY } from '../constants';
 import { Connection, EditorConnection, KeyringResponse, KeyringResult } from '../types';
 import {
@@ -97,8 +96,16 @@ export function fetchKeyringResult( requestId: string ) {
 			if ( response?.code === 'success' && response.data ) {
 				return response.data;
 			}
-		} catch {
-			// Swallow the error: an absent result is surfaced to the user as "no accounts found".
+		} catch ( error ) {
+			let message: string = __( 'Error verifying the connection.', 'jetpack-publicize-pkg' );
+
+			if ( typeof error === 'object' && 'message' in error && error.message ) {
+				message = `${ message } ${ error.message }`;
+			}
+
+			const { createErrorNotice } = coreDispatch( globalNoticesStore );
+
+			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
 		} finally {
 			dispatch( setFetchingKeyringResult( false ) );
 		}
@@ -223,15 +230,19 @@ export function abortRefreshConnectionsRequest() {
 }
 
 /**
- * Effect handler which will refresh the connection test results.
+ * Fetch connections from the server and merge them into the store.
  *
- * @param syncToMeta - Whether to sync the connection state to the post meta.
- * @return A thunk to refresh connection test results.
+ * @param queryParams - Query params for the connections endpoint, e.g. `{ test_connections: 1 }` to run connection tests.
+ * @param syncToMeta  - Whether to sync the connection state to the post meta.
+ * @return A thunk to fetch connections.
  */
-export function refreshConnectionTestResults( syncToMeta = false ) {
+export function fetchConnections(
+	queryParams: Record< string, string | number > = {},
+	syncToMeta = false
+) {
 	return async function ( { dispatch, select } ) {
 		try {
-			const path = getSocialScriptData().api_paths.refreshConnections;
+			const path = addQueryArgs( '/wpcom/v2/publicize/connections', queryParams );
 
 			// Wait until all connections are done updating/deleting.
 			while (
@@ -260,10 +271,20 @@ export function refreshConnectionTestResults( syncToMeta = false ) {
 			// If the request was aborted.
 			if ( 'AbortError' === e.name ) {
 				// Fire it again to run after the current operation that cancelled the request.
-				dispatch( refreshConnectionTestResults( syncToMeta ) );
+				dispatch( fetchConnections( queryParams, syncToMeta ) );
 			}
 		}
 	};
+}
+
+/**
+ * Refresh the connection test results.
+ *
+ * @param syncToMeta - Whether to sync the connection state to the post meta.
+ * @return A thunk to refresh connection test results.
+ */
+export function refreshConnectionTestResults( syncToMeta = false ) {
+	return fetchConnections( { test_connections: 1 }, syncToMeta );
 }
 
 /**

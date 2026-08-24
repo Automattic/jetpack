@@ -8,7 +8,7 @@
 		"automattic/custom-fonts": "^3.0",
 		"automattic/custom-fonts-typekit": "^2.0",
 		"automattic/text-media-widget-styles": "^2.0",
-		"automattic/wc-calypso-bridge": "^2.11.6",
+		"automattic/wc-calypso-bridge": "^2.11.7",
 		"wordpress/classic-editor-plugin": "1.6.7",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
@@ -62,7 +62,14 @@
 			"type": "path",
 			"url": "../../packages/*",
 			"options": {
-				"monorepo": true
+				"monorepo": true,
+				"versions": {
+					"automattic/block-delimiter": "dev-trunk",
+					"automattic/jetpack-assets": "dev-trunk",
+					"automattic/jetpack-connection": "dev-trunk",
+					"automattic/jetpack-constants": "dev-trunk",
+					"automattic/jetpack-device-detection": "dev-trunk"
+				}
 			}
 		},
 		{

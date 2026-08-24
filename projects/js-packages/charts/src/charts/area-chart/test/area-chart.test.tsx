@@ -1,9 +1,11 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createRef } from 'react';
 import { GlobalChartsProvider } from '../../../providers';
+import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
 import AreaChart, { AreaChartUnresponsive } from '../area-chart';
-import type { SingleChartRef } from '../../private/single-chart-context';
+import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
+import type { ChartInstanceRef } from '../../private/chart-instance-context';
 
 const mockRefCallback = jest.fn();
 jest.mock( '../../../hooks/use-element-size', () => ( {
@@ -42,7 +44,7 @@ describe( 'AreaChart', () => {
 		);
 	};
 
-	const renderUnresponsive = ( props = {}, ref?: React.Ref< SingleChartRef > ) => {
+	const renderUnresponsive = ( props = {}, ref?: React.Ref< ChartInstanceRef > ) => {
 		return render(
 			<GlobalChartsProvider>
 				<AreaChartUnresponsive { ...defaultProps } { ...props } ref={ ref } />
@@ -242,7 +244,7 @@ describe( 'AreaChart', () => {
 
 		test( 'y-axis rescales across legend toggles by default', async () => {
 			const user = userEvent.setup();
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			render(
 				<GlobalChartsProvider>
 					<AreaChartUnresponsive
@@ -274,7 +276,7 @@ describe( 'AreaChart', () => {
 			// Exercises the non-stacked branch of fixedYDomain, which scans the
 			// raw min/max across all series rather than summing stack columns.
 			const user = userEvent.setup();
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			render(
 				<GlobalChartsProvider>
 					<AreaChartUnresponsive
@@ -306,7 +308,7 @@ describe( 'AreaChart', () => {
 
 		test( 'y-axis stays pinned when rescaleYOnLegendToggle is false', async () => {
 			const user = userEvent.setup();
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			render(
 				<GlobalChartsProvider>
 					<AreaChartUnresponsive
@@ -333,12 +335,225 @@ describe( 'AreaChart', () => {
 			expect( afterToggleDomain ).toEqual( initialDomain );
 		} );
 
+		test( 'y-axis stays pinned when rescaleYOnVisibilityChange is false', async () => {
+			const user = userEvent.setup();
+			const ref = createRef< ChartInstanceRef >();
+			render(
+				<GlobalChartsProvider>
+					<AreaChartUnresponsive
+						{ ...defaultProps }
+						showLegend
+						chartId="test-interactive-domain-pin-new"
+						legend={ { interactive: true } }
+						rescaleYOnVisibilityChange={ false }
+						ref={ ref }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const initialDomain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( initialDomain ).toBeDefined();
+
+			await user.click( screen.getByText( 'Series A' ) );
+
+			const afterToggleDomain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( afterToggleDomain ).toEqual( initialDomain );
+		} );
+
+		it( 'hides a series programmatically when the legend is not interactive', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<AreaChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-area"
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.queryByText( /all series are hidden/i ) ).not.toBeInTheDocument();
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-programmatic-area', 'Series A' );
+				context.toggleSeriesVisibility( 'test-programmatic-area', 'Series B' );
+			} );
+
+			expect( screen.getByText( /all series are hidden/i ) ).toBeInTheDocument();
+		} );
+
+		it( 'omits the click instruction when the legend cannot be clicked', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<AreaChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-empty-copy-area"
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-empty-copy-area', 'Series A' );
+			} );
+
+			expect( screen.getByText( 'All series are hidden.' ) ).toBeInTheDocument();
+			expect( screen.queryByText( /click legend items/i ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'pins the value axis across a programmatic hide when rescaleYOnVisibilityChange is false', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+			const ref = createRef< ChartInstanceRef >();
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<AreaChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-pin-area"
+						rescaleYOnVisibilityChange={ false }
+						ref={ ref }
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 200, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const before = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( before ).toBeDefined();
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-programmatic-pin-area', 'Series B' );
+			} );
+
+			const after = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( after ).toEqual( before );
+		} );
+
+		it( 'collapses only the hidden series when the legend is not interactive', () => {
+			// With a non-interactive legend, `renderSeries` must still zero out a
+			// programmatically-hidden series via `yAccessor` — the same collapse the
+			// interactive legend gets — rather than rendering its real data. With the
+			// default `rescaleYOnVisibilityChange` (true), visx derives the y-scale
+			// domain from what's actually rendered, so hiding the taller of two
+			// series must shrink the domain if the collapse took effect.
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+			const ref = createRef< ChartInstanceRef >();
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<AreaChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-collapse-area"
+						ref={ ref }
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 200, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const before = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( before ).toBeDefined();
+			expect( before![ 1 ] ).toBeGreaterThanOrEqual( 200 );
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-programmatic-collapse-area', 'Series B' );
+			} );
+
+			const after = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( after ).toBeDefined();
+			expect( after![ 1 ] ).toBeLessThan( before![ 1 ] );
+		} );
+
 		test( 'supports negative stacked values without clipping (with pinned Y)', () => {
 			// The mixed-sign full-extent pin only kicks in when the consumer
 			// opts into pinned-Y behavior; visx's natural domain derivation for
 			// a `stackOffset: 'none'` stack does not extend below zero for
 			// purely-negative series, which is what this test guards against.
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			render(
 				<GlobalChartsProvider>
 					<AreaChartUnresponsive
@@ -377,7 +592,7 @@ describe( 'AreaChart', () => {
 		} );
 
 		test( 'does not pin domain for non-default stack offsets', () => {
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			render(
 				<GlobalChartsProvider>
 					<AreaChartUnresponsive
@@ -401,6 +616,44 @@ describe( 'AreaChart', () => {
 		} );
 	} );
 
+	describe( 'Programmatic visibility (non-interactive legend)', () => {
+		test( 'tooltip omits a series hidden programmatically even though the legend is not clickable', async () => {
+			const user = userEvent.setup();
+			const chartId = 'test-noninteractive-tooltip';
+			let context: GlobalChartsContextValue | undefined;
+
+			const Harness = () => {
+				context = useGlobalChartsContext();
+				return (
+					<AreaChart
+						{ ...defaultProps }
+						chartId={ chartId }
+						showLegend
+						legend={ { interactive: false } }
+					/>
+				);
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Harness />
+				</GlobalChartsProvider>
+			);
+
+			act( () => {
+				context?.toggleSeriesVisibility( chartId, 'Series A' );
+			} );
+
+			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			chart.focus();
+			await user.keyboard( '{ArrowRight}' );
+
+			const tooltip = await screen.findByRole( 'tooltip' );
+			expect( tooltip ).not.toHaveTextContent( 'Series A' );
+			expect( tooltip ).toHaveTextContent( 'Series B' );
+		} );
+	} );
+
 	describe( 'Without GlobalChartsProvider', () => {
 		test( 'self-wraps in a provider when none is present', () => {
 			render( <AreaChartUnresponsive { ...defaultProps } /> );
@@ -419,7 +672,7 @@ describe( 'AreaChart', () => {
 
 	describe( 'Chart Ref Interface', () => {
 		test( 'exposes getScales via ref', () => {
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			renderUnresponsive( {}, ref );
 
 			expect( ref.current?.getScales() ).toBeDefined();
@@ -428,7 +681,7 @@ describe( 'AreaChart', () => {
 		} );
 
 		test( 'exposes getChartDimensions via ref', () => {
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			renderUnresponsive( { width: 800, height: 400 }, ref );
 
 			const dimensions = ref.current?.getChartDimensions();
@@ -543,5 +796,78 @@ describe( 'AreaChart', () => {
 			'clip-path',
 			'url(#chart-zoom-clip-zoomtest)'
 		);
+	} );
+
+	describe( 'Legend group collapsing', () => {
+		const groupedData = [
+			{
+				label: 'Views',
+				group: 'views',
+				data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+			},
+			{
+				label: 'Views — previous',
+				group: 'views',
+				options: { type: 'comparison' as const },
+				data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+			},
+		];
+
+		test( 'renders one legend item per series by default', () => {
+			renderWithProvider( { showLegend: true, data: groupedData } );
+
+			expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Views — previous' ) ).toBeInTheDocument();
+		} );
+
+		test( 'collapses a group to one item when legend.collapseGroups is set', () => {
+			renderWithProvider( {
+				showLegend: true,
+				legend: { collapseGroups: true },
+				data: groupedData,
+			} );
+
+			expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Views — previous' ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'All series hidden', () => {
+		it( 'drops the grid so it does not collapse when every series is hidden', async () => {
+			const user = userEvent.setup();
+
+			renderWithProvider( {
+				showLegend: true,
+				legend: { interactive: true },
+				chartId: 'area-hidden-axes',
+				data: [
+					{
+						label: 'Series A',
+						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+					},
+					{
+						label: 'Series B',
+						data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+					},
+				],
+			} );
+
+			// The visx grid has no role/testid, so query its internal class from within the plot.
+			/* eslint-disable testing-library/no-node-access */
+			const plot = screen.getByRole( 'grid' );
+			expect( plot.querySelector( '.visx-rows' ) ).toBeInTheDocument();
+
+			const buttons = screen.getAllByRole( 'button' );
+			await user.click( buttons[ 0 ] );
+			await user.click( buttons[ 1 ] );
+
+			// With no visible data the value scale collapses, so the grid is removed rather than
+			// rendered squished at the top behind the empty state.
+			expect( plot.querySelector( '.visx-rows' ) ).not.toBeInTheDocument();
+			/* eslint-enable testing-library/no-node-access */
+			expect(
+				screen.getByText( /all series are hidden.*click legend items to show data/i )
+			).toBeInTheDocument();
+		} );
 	} );
 } );

@@ -3,12 +3,16 @@ import {
 	createStatsSummaryDataPoint,
 	getStatsArrayFromKeys,
 	coerceStatsRecord,
+	getStatsReportItems,
 	getStatsSummaryIntervalFields,
 	getStatsTopLevelDataDate,
+	limitStatsRows,
 	mapStatsReportDataPoints,
+	mergeStatsComparisonRows,
 	normalizeStatsSummary,
 } from './utils';
 import type {
+	StatsItemAction,
 	StatsNormalizedDataPoint,
 	StatsNormalizedItemBase,
 	StatsNormalizedReport,
@@ -23,8 +27,26 @@ export type StatsVideoPlaysItem = StatsNormalizedItemBase & {
 	watch_time: number;
 	retention_rate: number;
 	link: string | null;
+	actions?: StatsItemAction[];
 	children: null;
 };
+
+export type StatsVideoPlaysComparisonItem = StatsVideoPlaysItem & {
+	previousPlays?: number;
+	previousImpressions?: number;
+};
+
+// Returns null when the video has no stable identifier at all, so unrelated
+// untitled rows never match each other in the comparison merge.
+function getVideoKey( video: StatsVideoPlaysItem ): string | null {
+	if ( video.id != null ) {
+		return String( video.id );
+	}
+
+	const label = typeof video.label === 'string' ? video.label : '';
+
+	return video.link || label || null;
+}
 
 export function sanitizeStatsVideoPlaysResponse(
 	response: unknown,
@@ -42,6 +64,7 @@ export function sanitizeStatsVideoPlaysResponse(
 		watch_time: safeParseFloat( item.watch_time ),
 		retention_rate: safeParseFloat( item.retention_rate ),
 		link: typeof item.url === 'string' ? item.url : null,
+		actions: typeof item.url === 'string' ? [ { type: 'link', data: item.url } ] : [],
 		children: null,
 	} );
 	const getSummarySource = () => {
@@ -77,4 +100,27 @@ export function sanitizeStatsVideoPlaysResponse(
 			? summaryData
 			: mapStatsReportDataPoints( response, query, videoDataKeys, parse ),
 	};
+}
+
+export function mergeStatsVideoPlaysComparisonRows(
+	primaryReport?: StatsNormalizedReport< StatsVideoPlaysItem >,
+	comparisonReport?: StatsNormalizedReport< StatsVideoPlaysItem >,
+	maxRows?: number
+) {
+	return mergeStatsComparisonRows<
+		StatsVideoPlaysItem,
+		StatsVideoPlaysItem,
+		StatsVideoPlaysComparisonItem
+	>( {
+		primaryRows: limitStatsRows( getStatsReportItems( primaryReport ), maxRows ),
+		comparisonRows: getStatsReportItems( comparisonReport ),
+		getPrimaryKey: getVideoKey,
+		getComparisonKey: getVideoKey,
+		getComparisonValue: video => video.plays,
+		mapRow: ( video, { previousValue, comparisonItem } ) => ( {
+			...video,
+			previousPlays: previousValue,
+			previousImpressions: comparisonItem?.impressions,
+		} ),
+	} );
 }

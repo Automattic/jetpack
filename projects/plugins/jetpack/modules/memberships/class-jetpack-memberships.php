@@ -194,6 +194,7 @@ class Jetpack_Memberships {
 		'PHP' => 0,
 		'RUB' => 0,
 		'TRY' => 0,
+		'MYR' => 2.00,
 	);
 
 	/**
@@ -700,7 +701,13 @@ class Jetpack_Memberships {
 		}
 
 		$post_access_level = get_post_meta( $post_id, self::$post_access_level_meta_name, true );
-		if ( empty( $post_access_level ) ) {
+		// Defaults to "everybody" when unset, and also when the stored value is not a
+		// string. Corrupt rows (e.g. a serialized array like a:1:{i:0;s:0:"";}) can be
+		// persisted by non-REST write paths, and an array flows unchanged into the
+		// strict string-typed `earn_user_has_access` callback on WPCOM, fataling the
+		// render. Coercing here keeps this canonical accessor's documented string
+		// contract regardless of how the meta was written.
+		if ( empty( $post_access_level ) || ! is_string( $post_access_level ) ) {
 			$post_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 
@@ -842,8 +849,10 @@ class Jetpack_Memberships {
 		$all_newsletters_plan_ids = self::get_all_newsletter_plan_ids();
 
 		if ( 0 === count( $all_newsletters_plan_ids ) &&
-			Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS === $post_access_level ||
-			Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS === $post_access_level
+			(
+				Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS === $post_access_level ||
+				Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS === $post_access_level
+			)
 		) {
 			// The post is paywalled but there is no newsletter plans on the site.
 			// We downgrade the post level to subscribers-only

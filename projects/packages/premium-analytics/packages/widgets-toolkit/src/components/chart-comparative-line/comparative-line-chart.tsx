@@ -1,16 +1,21 @@
 /**
  * External dependencies
  */
-import { LineChart } from '@automattic/charts';
-import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { LineChart, Stack, type TickResolution } from '@jetpack-premium-analytics/externals';
+import {
+	formatDate,
+	formatMetricValue,
+	type DateFormatName,
+} from '@jetpack-premium-analytics/formatters';
+import { useResizeObserver } from '@wordpress/compose';
 import clsx from 'clsx';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { type ComponentProps } from 'react';
 /**
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
-import { isEmptyChartData, getEmptyChartDomain } from '../../helpers';
+import { isEmptyChartData, getFixedYAxis, dateFormatForResolution } from '../../helpers';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-line-chart.module.scss';
 import { alignSeriesDates } from './utils';
@@ -29,12 +34,10 @@ function resolveSeriesStyles(
 	stylesFromProp: SeriesStyle[] | undefined,
 	series: ComparativeLineChartSeries[]
 ): SeriesStyle[] {
-	// If styles prop is provided, use it directly
 	if ( stylesFromProp?.length ) {
 		return stylesFromProp;
 	}
 
-	// Fallback: extract styles from series options
 	return series.map( s => {
 		const lineStyle = s.options?.seriesLineStyle;
 
@@ -56,13 +59,11 @@ function resolveSeriesStyles(
 const DEFAULT_MARGIN = { right: 0 };
 
 /**
- * Applies resolved styles to series data for the internal LineChart.
- * Sets options.stroke and options.seriesLineStyle on each series.
- *
- * @param series         - Original series data
- * @param resolvedStyles - Styles to apply
- * @return Series with styles applied to options
+ * Chart-area height (px) below which `compactWhenShort` degrades the chart to
+ * a sparkline (no y-axis, grid, or legend).
  */
+const COMPACT_CHART_HEIGHT = 140;
+
 function applyStylesToSeries(
 	series: ComparativeLineChartSeries[],
 	resolvedStyles: SeriesStyle[]
@@ -93,14 +94,6 @@ function applyStylesToSeries(
 type LineChartProps = ComponentProps< typeof LineChart >;
 type RenderTooltipParams = Parameters< NonNullable< LineChartProps[ 'renderTooltip' ] > >[ 0 ];
 
-/**
- * Props for the ComparativeLineChart component.
- *
- * Combines series data with chart options, formatting, and responsive behavior.
- * Wraps @automattic/charts LineChart with sensible defaults for comparative data visualization.
- *
- * Note: The chart defaults to margin.right = 0 since the Y-axis is positioned on the left.
- */
 export type ComparativeLineChartProps = {
 	/**
 	 * Array of series data to display in the chart.
@@ -116,17 +109,33 @@ export type ComparativeLineChartProps = {
 	 */
 	styles?: SeriesStyle[];
 
-	/**
-	 * CSS class for the chart container
-	 */
 	className?: string;
 
-	/**
-	 * Format configuration for chart values (Y-axis ticks and tooltips)
-	 */
 	dataFormat: DataFormat;
 
-	tickFormat?: string;
+	/** Named date format for the X-axis ticks. Uses the chart default when omitted. */
+	tickFormat?: DateFormatName;
+
+	/**
+	 * The series' bucket size. Declaring it lets the automatic tick formatter pick
+	 * its regime from a known granularity instead of measuring the gaps between
+	 * points, which a single-bucket or DST-shortened series gives it no way to
+	 * read. An explicit `tickFormat` still wins over both.
+	 */
+	tickResolution?: TickResolution;
+
+	/**
+	 * Renders a point's date for a tooltip row, in the named format this chart
+	 * picked for it. Callers whose points are wall clocks (see `chart-date.ts`)
+	 * pass a variant that re-anchors them first; defaults to `formatDate`.
+	 */
+	formatTooltipDate?: ( date: Date, format: DateFormatName ) => string;
+
+	/**
+	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area
+	 * is too short for readable axis labels. Defaults to false.
+	 */
+	compactWhenShort?: boolean;
 } & Omit<
 	ComponentProps< typeof LineChart >,
 	| 'data'
@@ -146,31 +155,38 @@ export function ComparativeLineChart( {
 	className,
 	dataFormat,
 	tickFormat: xTickFormatType,
+	tickResolution,
+	formatTooltipDate = formatDate,
 	maxWidth = Infinity,
+	compactWhenShort = false,
 }: ComparativeLineChartProps ) {
-	/**
-	 * Resolve styles: prop takes priority, fallback to series options.
-	 * This array is used for tooltip styling and to decorate series data.
-	 */
+	const tooltipDateFormat = dateFormatForResolution( tickResolution );
+	// The measured Stack fills its container (flex), so its height is independent
+	// of whether the axis/legend are shown — no measure/hide feedback loop.
+	const [ chartAreaHeight, setChartAreaHeight ] = useState( Infinity );
+	const measureRef = useResizeObserver< HTMLDivElement >( entries => {
+		const rect = entries[ 0 ]?.contentRect;
+		if ( rect ) {
+			setChartAreaHeight( rect.height );
+		}
+	} );
+	const isCompact = compactWhenShort && chartAreaHeight < COMPACT_CHART_HEIGHT;
+	// Also used for tooltip styling, not only to decorate the series data.
 	const resolvedStyles = useMemo< SeriesStyle[] >(
 		() => resolveSeriesStyles( stylesProp, series ),
 		[ stylesProp, series ]
 	);
 
-	/**
-	 * Custom label extractor for line chart datum.
-	 * Uses realDate for comparison series to show the actual date.
-	 *
-	 * @param datum - The data point with date information
-	 * @param index - Index of this entry in the tooltip
-	 */
+	// Comparison points sit on the primary series' dates, so the tooltip reads
+	// the `realDate` preserved by `alignSeriesDates`.
 	const getTooltipLabel = useCallback(
 		( datum: { date: Date; realDate?: Date }, index: number ): string => {
 			const isComparison = index > 0;
 			const displayDate = isComparison ? datum.realDate ?? datum.date : datum.date;
-			return formatDate( displayDate );
+
+			return formatTooltipDate( displayDate, tooltipDateFormat );
 		},
-		[]
+		[ tooltipDateFormat, formatTooltipDate ]
 	);
 
 	const renderTooltip = useCallback(
@@ -188,10 +204,7 @@ export function ComparativeLineChart( {
 		[ dataFormat, resolvedStyles, getTooltipLabel ]
 	);
 
-	/**
-	 * Y-axis formatter using dataFormat configuration,
-	 * but using multipliers and 0 decimals to keep strings short and concise.
-	 */
+	// Multipliers and no decimals keep the y-axis tick labels short.
 	const yTickFormat = useMemo(
 		() => ( value: number ) =>
 			formatMetricValue( value, dataFormat.type, {
@@ -201,151 +214,96 @@ export function ComparativeLineChart( {
 		[ dataFormat ]
 	);
 
-	/**
-	 * Creates margin object for fixed domain charts.
-	 * The chart library doesn't auto-adjust left margin for fixed domains,
-	 * so we estimate based on the formatted max value length.
-	 */
-	const createDomainMargin = useCallback(
-		( maxValue: number ) => ( {
-			...DEFAULT_MARGIN,
-			left: yTickFormat( maxValue ).length * 10,
-		} ),
-		[ yTickFormat ]
-	);
-
-	/**
-	 * Align comparison series dates to primary series for X-axis display.
-	 * Original dates are preserved in realDate for tooltip display.
-	 */
+	// Comparison dates are aligned onto the primary series for the X axis; the
+	// originals stay in `realDate` for tooltips.
 	const alignedSeries = useMemo( () => alignSeriesDates( series ), [ series ] );
 
-	/**
-	 * Apply resolved styles to series data for the internal LineChart.
-	 * Only needed when styles come from prop; otherwise series already have styles.
-	 */
 	const styledSeries = useMemo( () => {
-		// If no styles prop, series already have their styles in options
+		// Without a styles prop, the series already carry their styles in options.
 		if ( ! stylesProp?.length ) {
 			return alignedSeries;
 		}
 		return applyStylesToSeries( alignedSeries, resolvedStyles );
 	}, [ stylesProp, alignedSeries, resolvedStyles ] );
 
-	/**
-	 * Detect if chart data is empty and apply special props for empty state
-	 */
 	const isEmptyData = useMemo( () => isEmptyChartData( styledSeries ), [ styledSeries ] );
 
-	/**
-	 * For percentage metrics, always use a fixed domain [0, 1.0] (0% to 100%)
-	 * regardless of actual data values or empty state
-	 */
-	const percentageDomain: [ number, number ] | null = useMemo( () => {
-		return dataFormat.type === 'percentage' ? [ 0, 1.0 ] : null;
-	}, [ dataFormat.type ] );
-
-	const emptyChartProps = useMemo( () => {
-		if ( ! isEmptyData ) {
-			return {};
-		}
-
-		const domain = getEmptyChartDomain( dataFormat.type );
-
-		return {
-			chartOptions: { yScale: { domain } },
-			margin: createDomainMargin( domain[ 1 ] ),
-		};
-	}, [ isEmptyData, dataFormat.type, createDomainMargin ] );
-
-	/**
-	 * Calculate margin for percentage charts
-	 */
-	const percentageMargin = useMemo( () => {
-		if ( ! percentageDomain ) {
-			return undefined;
-		}
-		return createDomainMargin( percentageDomain[ 1 ] );
-	}, [ percentageDomain, createDomainMargin ] );
+	// A pinned domain for percentage metrics and all-zero periods, with the left
+	// margin its widest tick needs. Null lets the chart scale to the data.
+	const fixedYAxis = useMemo(
+		() => getFixedYAxis( dataFormat.type, isEmptyData, yTickFormat ),
+		[ dataFormat.type, isEmptyData, yTickFormat ]
+	);
 
 	const xTickFormat = useCallback(
-		( date: number ) => formatDate( date, xTickFormatType ?? 'short' ),
+		( date: number ) => formatDate( date, xTickFormatType ),
 		[ xTickFormatType ]
 	);
 
-	/**
-	 * Merge chart options with empty chart options if data is empty
-	 * For percentage metrics, always apply fixed domain
-	 */
 	const chartOptions = useMemo( () => {
 		const baseOptions = {
 			axis: {
 				x: {
-					// Use the chart library's default behavior for 'custom' presets
+					// Must stay conditional: `formatDate` defaults to `medium`, so an
+					// unconditional `xTickFormat` would put full site-format dates on every
+					// tick. Without the prop, the chart library's own tick labels stay in use.
 					tickFormat: xTickFormatType ? xTickFormat : undefined,
+					tickResolution,
 				},
 				y: {
 					tickFormat: yTickFormat,
+					// Hide the y-axis on short tiles; its labels would otherwise overlap.
+					...( isCompact ? { display: false } : {} ),
 				},
 			},
 		};
 
-		// Apply percentage domain if applicable
-		if ( percentageDomain ) {
-			return {
-				...baseOptions,
-				yScale: { domain: percentageDomain },
-			};
-		}
-
-		if ( ! isEmptyData ) {
+		if ( ! fixedYAxis ) {
 			return baseOptions;
 		}
 
-		// Merge with empty chart options
-		return {
-			...baseOptions,
-			...emptyChartProps.chartOptions,
-		};
-	}, [
-		xTickFormat,
-		xTickFormatType,
-		yTickFormat,
-		percentageDomain,
-		isEmptyData,
-		emptyChartProps.chartOptions,
-	] );
+		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
+	}, [ xTickFormat, xTickFormatType, tickResolution, yTickFormat, fixedYAxis, isCompact ] );
+
+	const margin = fixedYAxis ? { ...DEFAULT_MARGIN, left: fixedYAxis.marginLeft } : DEFAULT_MARGIN;
 
 	return (
-		<LineChart
-			className={ clsx( styles.chart, className ) }
-			data={ styledSeries }
-			options={ chartOptions }
-			margin={ percentageMargin ?? emptyChartProps.margin ?? DEFAULT_MARGIN }
-			maxWidth={ maxWidth }
-			resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
-			withLegendGlyph={ false }
-			showLegend={ false }
-			curveType="monotone"
-			withGradientFill
-			withTooltips={ !! renderTooltip && ! isEmptyData }
-			renderTooltip={ renderTooltip }
-		>
-			<LineChart.Legend
-				shape="line"
-				className={ styles.legend }
-				itemClassName={ styles.legendItem }
-				itemStyles={ {
-					margin: 0,
-				} }
-				labelClassName={ styles.legendLabel }
-				labelStyles={ {
-					maxWidth: '100%',
-					textOverflow: 'ellipsis',
-					margin: 0,
-				} }
-				shapeStyles={ { margin: 0 } }
-			/>
-		</LineChart>
+		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>
+			<LineChart
+				className={ styles.chartContent }
+				data={ styledSeries }
+				options={ chartOptions }
+				// With the y-axis hidden, reclaim its reserved left margin for the line.
+				margin={ isCompact ? { ...margin, left: 0 } : margin }
+				maxWidth={ maxWidth }
+				gridVisibility={ isCompact ? 'none' : undefined }
+				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
+				withLegendGlyph={ false }
+				showLegend={ false }
+				curveType="monotone"
+				withGradientFill
+				withTooltips={ !! renderTooltip && ! isEmptyData }
+				renderTooltip={ renderTooltip }
+			>
+				{ /* The solid/dashed lines already convey current vs previous period. */ }
+				{ ! isCompact && (
+					<LineChart.Legend
+						shape="line"
+						className={ styles.legend }
+						itemClassName={ styles.legendItem }
+						itemStyles={ {
+							margin: 0,
+						} }
+						labelClassName={ styles.legendLabel }
+						labelStyles={ {
+							maxWidth: '100%',
+							textOverflow: 'ellipsis',
+							margin: 0,
+						} }
+						shapeStyles={ { margin: 0 } }
+					/>
+				) }
+			</LineChart>
+		</Stack>
 	);
 }

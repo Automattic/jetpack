@@ -4,26 +4,22 @@ import {
 	Card,
 	CardBody,
 	Notice,
-	VisuallyHidden,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalHStack as HStack,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalText as Text,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
-import { useEntityRecord } from '@wordpress/core-data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
+import { Stack } from '@wordpress/ui';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
 import { useValidationIssues } from '../hooks/use-validation-issues';
 import ConfettiAnimation from './confetti';
+import { DirectoryList } from './directory-list';
 import { PODCAST_APPS } from './podcast-apps';
 import './style.scss';
 import SubmitModal from './submit-modal';
-import type { PodcastShowState, PodcatcherId } from '../types';
+import type { PodcatcherId } from '../types';
 import type { FocusEvent } from 'react';
 
 const prefersReducedMotion = (): boolean =>
@@ -37,23 +33,21 @@ const selectOnFocus = ( event: FocusEvent< HTMLInputElement > ) => {
 // validator rejects that shape.
 const COPIED_LABEL = __( 'Copied!', 'jetpack-podcast' );
 const COPY_LINK_LABEL = __( 'Copy link', 'jetpack-podcast' );
-const PENDING_LABEL = __( 'Pending', 'jetpack-podcast' );
-// `active` means the feed has been crawled by the directory's bot — not that
-// the show has actually been published in the directory's catalog. "Submitted"
-// reflects what we know; "Live" overpromises.
-const SUBMITTED_LABEL = __( 'Submitted', 'jetpack-podcast' );
+const CHECKING_LABEL = __( 'Checking your podcast setup…', 'jetpack-podcast' );
+const NEED_CATEGORY_LABEL = __( 'Set a post category in Settings first', 'jetpack-podcast' );
+const NEED_TITLE_LABEL = __( 'Add a podcast title in Settings first', 'jetpack-podcast' );
 
-const StateBadge = ( { state }: { state: PodcastShowState } ) => {
-	if ( state !== 'pending' && state !== 'active' ) {
-		return null;
+const AUTOMATIC_APPS = PODCAST_APPS.filter( app => app.submission === 'automatic' );
+const MANUAL_APPS = PODCAST_APPS.filter( app => app.submission !== 'automatic' );
+
+const blockedReason = ( isLoading: boolean, isEnabled: boolean, remaining: string ): string => {
+	if ( isLoading ) {
+		return CHECKING_LABEL;
 	}
-	const label = state === 'active' ? SUBMITTED_LABEL : PENDING_LABEL;
-	return (
-		<span className={ `podcast__state-badge podcast__state-badge--${ state }` }>
-			<VisuallyHidden as="span">{ __( 'Status:', 'jetpack-podcast' ) } </VisuallyHidden>
-			{ label }
-		</span>
-	);
+	if ( ! isEnabled ) {
+		return NEED_CATEGORY_LABEL;
+	}
+	return remaining;
 };
 
 const FeedCopyField = ( { value }: { value: string } ) => {
@@ -70,7 +64,7 @@ const FeedCopyField = ( { value }: { value: string } ) => {
 	}, [ copied ] );
 
 	return (
-		<HStack alignment="center" spacing={ 2 } className="podcast__feed-copy">
+		<Stack align="center" gap="sm" className="podcast__feed-copy">
 			<input
 				type="text"
 				className="podcast__feed-copy-input"
@@ -87,7 +81,7 @@ const FeedCopyField = ( { value }: { value: string } ) => {
 			>
 				{ copied ? COPIED_LABEL : COPY_LINK_LABEL }
 			</Button>
-		</HStack>
+		</Stack>
 	);
 };
 
@@ -96,25 +90,54 @@ interface DistributionTabProps {
 }
 
 const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
-	const { data: settings } = usePodcastSettings();
-	const { issues, isReady, isLoading } = useValidationIssues();
-	const categoryId = settings?.podcasting_category_id ?? 0;
-	// Pull the configured category record so we can derive the feed URL
-	// (`{category-archive}feed/`) without needing PHP-side script data.
-	const { record: category } = useEntityRecord< { link?: string } >(
-		'taxonomy',
-		'category',
-		categoryId,
-		{ enabled: categoryId > 0 }
-	);
-	const feedUrl = category?.link ? `${ category.link }feed/` : '';
-	const isEnabled = categoryId > 0;
-	// Includes isLoading so the buttons don't flash enabled before issues resolve.
-	const isSubmitBlocked = ! isEnabled || ! isReady || isLoading;
+	const { data: settings, isLoading: settingsLoading } = usePodcastSettings();
+	const { issues, isLoading } = useValidationIssues();
+	// Canonical category feed URL, derived server-side via get_term_feed_link()
+	// so it's correct across every permalink structure. Reconstructing it here by
+	// appending `feed/` to the archive link broke plain-permalink / no-trailing-
+	// slash sites (e.g. `?cat=5feed/`).
+	const feedUrl = settings?.podcasting_feed_url ?? '';
+	const isEnabled = ( settings?.podcasting_category_id ?? 0 ) > 0 && !! feedUrl;
+	const states = settings?.podcasting_show_states ?? {};
 
 	const [ activeId, setActiveId ] = useState< PodcatcherId | null >( null );
 	const [ showConfetti, setShowConfetti ] = useState( false );
 	const activeApp = PODCAST_APPS.find( a => a.id === activeId ) ?? null;
+
+	const stepsLeftLabel =
+		issues.length > 0
+			? sprintf(
+					/* translators: %d: number of remaining setup steps before podcast directory submission is unlocked. */
+					_n(
+						'%d step left before you can submit',
+						'%d steps left before you can submit',
+						issues.length,
+						'jetpack-podcast'
+					),
+					issues.length
+			  )
+			: '';
+
+	const setupStepsLeftLabel =
+		issues.length > 0
+			? sprintf(
+					/* translators: %d: number of unfinished podcast setup steps. */
+					_n(
+						'%d step left to finish your podcast setup',
+						'%d steps left to finish your podcast setup',
+						issues.length,
+						'jetpack-podcast'
+					),
+					issues.length
+			  )
+			: '';
+
+	const automaticBlocked = blockedReason(
+		settingsLoading,
+		isEnabled,
+		settings?.podcasting_title ? '' : NEED_TITLE_LABEL
+	);
+	const manualBlocked = blockedReason( isLoading, isEnabled, stepsLeftLabel );
 
 	const handleSubmitClick = useCallback( ( id: PodcatcherId ) => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_submit_modal_opened', {
@@ -131,13 +154,11 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 		setShowConfetti( true );
 	}, [] );
 
-	const ActiveModal = activeApp?.Modal ?? SubmitModal;
-
 	return (
 		<>
 			{ issues.length > 0 && (
 				<Notice status="warning" isDismissible={ false } className="podcast__distribution-notice">
-					<strong>{ __( 'Almost ready to submit', 'jetpack-podcast' ) }</strong>
+					<strong>{ setupStepsLeftLabel }</strong>
 					<ul className="podcast__settings-issues">
 						{ issues.map( issue => (
 							<li key={ issue }>{ issue }</li>
@@ -151,93 +172,72 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 
 			<Card>
 				<CardBody>
-					<VStack spacing={ 8 }>
-						<VStack spacing={ 4 }>
-							<VStack spacing={ 1 }>
-								<h3 className="podcast__card-title">{ __( 'RSS feed', 'jetpack-podcast' ) }</h3>
+					<Stack direction="column" gap="2xl">
+						<Text variant="muted">
+							{ __(
+								'Submit your podcast to the most popular podcast apps so people can find and follow it.',
+								'jetpack-podcast'
+							) }
+						</Text>
+
+						{ AUTOMATIC_APPS.length > 0 && (
+							<Stack direction="column" gap="lg">
+								<Stack direction="column" gap="xs">
+									<h3 className="podcast__card-title">
+										{ __( 'Automatic submission', 'jetpack-podcast' ) }
+									</h3>
+									<Text variant="muted">
+										{ __(
+											'We submit your feed for you. It usually goes live within a few minutes.',
+											'jetpack-podcast'
+										) }
+									</Text>
+								</Stack>
+								<DirectoryList
+									apps={ AUTOMATIC_APPS }
+									states={ states }
+									blockedReason={ automaticBlocked }
+									onOpenModal={ handleSubmitClick }
+									onFirstSave={ handleFirstSave }
+								/>
+							</Stack>
+						) }
+
+						<Stack direction="column" gap="lg">
+							<Stack direction="column" gap="xs">
+								<h3 className="podcast__card-title">
+									{ __( 'Manual submission', 'jetpack-podcast' ) }
+								</h3>
 								<Text variant="muted">
 									{ __(
-										'Copy this URL, then submit it to each directory below to publish your podcast.',
+										'Copy this URL, then submit it to each directory below yourself.',
 										'jetpack-podcast'
 									) }
 								</Text>
-							</VStack>
-							{ isEnabled && feedUrl ? (
+							</Stack>
+							{ isEnabled ? (
 								<FeedCopyField value={ feedUrl } />
 							) : (
 								<Text variant="muted">
 									{ __(
-										'Set your podcast category to generate the feed URL you can submit to directories.',
+										'Set your post category to generate the feed URL you can submit to directories.',
 										'jetpack-podcast'
 									) }
 								</Text>
 							) }
-						</VStack>
-
-						<VStack spacing={ 4 }>
-							<VStack spacing={ 1 }>
-								<h3 className="podcast__card-title">
-									{ __( 'Podcast directories', 'jetpack-podcast' ) }
-								</h3>
-								<Text variant="muted">
-									{ __(
-										'Submit your podcast to the directories below where you want it to appear. Most take a few days to go live.',
-										'jetpack-podcast'
-									) }
-								</Text>
-							</VStack>
-							<VStack as="ul" spacing={ 0 } className="podcast__directory-list">
-								{ PODCAST_APPS.map( app => {
-									const { Logo } = app;
-									const state = settings?.podcasting_show_states?.[ app.id ] ?? '';
-									return (
-										<HStack
-											as="li"
-											key={ app.id }
-											alignment="center"
-											justify="space-between"
-											className="podcast__directory-row"
-										>
-											<HStack alignment="center" spacing={ 3 } expanded={ false }>
-												<span aria-hidden="true">
-													<Logo />
-												</span>
-												<Text weight={ 500 }>{ app.name }</Text>
-												<StateBadge state={ state } />
-											</HStack>
-											<Button
-												variant="primary"
-												size="compact"
-												// eslint-disable-next-line react/jsx-no-bind
-												onClick={ () => handleSubmitClick( app.id ) }
-												disabled={ isSubmitBlocked }
-												accessibleWhenDisabled
-												aria-label={
-													isSubmitBlocked
-														? sprintf(
-																/* translators: %s is the directory name (Apple Podcasts, Spotify, etc.). */
-																__(
-																	'Submit to %s (finish setting up your podcast first).',
-																	'jetpack-podcast'
-																),
-																app.name
-														  )
-														: undefined
-												}
-											>
-												{ __( 'Submit', 'jetpack-podcast' ) }
-											</Button>
-										</HStack>
-									);
-								} ) }
-							</VStack>
-						</VStack>
-					</VStack>
+							<DirectoryList
+								apps={ MANUAL_APPS }
+								states={ states }
+								blockedReason={ manualBlocked }
+								onOpenModal={ handleSubmitClick }
+							/>
+						</Stack>
+					</Stack>
 				</CardBody>
 			</Card>
 
 			{ activeApp && (
-				<ActiveModal
+				<SubmitModal
 					app={ activeApp }
 					feedUrl={ feedUrl }
 					onClose={ handleClose }

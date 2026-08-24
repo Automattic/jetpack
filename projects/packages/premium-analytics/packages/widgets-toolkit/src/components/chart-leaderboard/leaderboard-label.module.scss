@@ -1,15 +1,95 @@
 .container {
-	padding: var(--wpds-dimension-padding-sm);
+	min-inline-size: 0;
+	max-inline-size: 100%;
+	overflow: hidden;
 }
 
 .label {
+	min-inline-size: 0;
+	overflow: hidden;
 	font-size: var(--wpds-typography-font-size-sm);
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
-.labelImage {
-	width: 28px;
-	height: 28px;
+.media {
+	flex: none;
+	width: var(--jpa-leaderboard-image-width);
+	height: var(--jpa-leaderboard-image-height);
 	vertical-align: middle;
-	border-radius: var(--wpds-border-radius-md);
-	object-fit: cover;
+	border-radius: var(--jpa-leaderboard-image-radius);
+	object-fit: var(--jpa-leaderboard-image-fit);
+}
+
+.avatar {
+	--jpa-leaderboard-image-width: 20px;
+	--jpa-leaderboard-image-height: 20px;
+	--jpa-leaderboard-image-radius: 50%;
+	--jpa-leaderboard-image-fit: cover;
+}
+
+.favicon {
+	--jpa-leaderboard-image-width: 16px;
+	--jpa-leaderboard-image-height: 16px;
+	--jpa-leaderboard-image-radius: var(--wpds-border-radius-sm);
+	--jpa-leaderboard-image-fit: cover;
+}
+
+/* The dashboard boot shell applies img { height: auto } at higher specificity.
+ * Keep width as the sizing constraint so flags remain consistent there as
+ * well as in Storybook, while preserving each flag's aspect ratio. */
+.flag {
+	--jpa-leaderboard-image-width: 28px;
+	--jpa-leaderboard-image-height: auto;
+	--jpa-leaderboard-image-radius: var(--wpds-border-radius-sm);
+	--jpa-leaderboard-image-fit: contain;
+}
+
+.thumbnail {
+	--jpa-leaderboard-image-width: 28px;
+	--jpa-leaderboard-image-height: 28px;
+	--jpa-leaderboard-image-radius: var(--wpds-border-radius-md);
+	--jpa-leaderboard-image-fit: cover;
+}
+
+.row,
+.rowLink {
+	display: flex;
+	align-items: center;
+	box-sizing: border-box;
+	inline-size: 100%;
+	min-block-size: 36px;
+	min-inline-size: 0;
+	max-inline-size: 100%;
+	padding-inline: var(--wpds-dimension-padding-sm);
+	overflow: hidden;
+	color: inherit;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.rowLink {
+	gap: var(--wpds-dimension-gap-xs);
+}
+
+/* Block padding sets the bar height when the label sits on top of the bar, so
+   the 36px floor is dropped. Doubled with the base class to beat it on
+   specificity rather than on stylesheet order. */
+.overlay.row,
+.overlay.rowLink {
+	min-block-size: 0;
+	padding-block: var(--wpds-dimension-padding-md);
+}
+
+.rowLink:hover .label,
+.rowLink:focus .label {
+	text-decoration: underline;
+}
+
+/* DataViews picker cells stretch media images to 100%. Widget previews render
+ * inert, so keep each semantic media kind at its shared size. */
+:global([inert]) .container .media {
+	width: var(--jpa-leaderboard-image-width);
+	height: var(--jpa-leaderboard-image-height);
+	object-fit: var(--jpa-leaderboard-image-fit);
 }

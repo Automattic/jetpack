@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+WP.com Error Reporting: use direct fetch with no CORS preflight

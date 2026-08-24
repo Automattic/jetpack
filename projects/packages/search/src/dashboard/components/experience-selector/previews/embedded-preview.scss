@@ -2,28 +2,28 @@
 	width: 100%;
 	height: 200px;
 	padding: var(--wpds-dimension-padding-md);
-	background: var(--wpds-color-bg-surface-neutral);
+	background: var(--wpds-color-background-surface-neutral);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	border-radius: var(--wpds-border-radius-md);
 }
 
 .jp-search-embedded-preview__search {
 	padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
-	background: var(--wpds-color-bg-surface-neutral-strong);
+	background: var(--wpds-color-background-surface-neutral-strong);
 	border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 }
 
 .jp-search-embedded-preview__search-icon {
-	fill: var(--wpds-color-fg-content-neutral-weak);
+	fill: var(--wpds-color-foreground-content-neutral-weak);
 	flex: 0 0 auto;
 }
 
 .jp-search-embedded-preview__sort-control {
 	padding: 1px var(--wpds-dimension-padding-xs);
-	background: var(--wpds-color-bg-surface-neutral-strong);
+	background: var(--wpds-color-background-surface-neutral-strong);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	border-radius: var(--wpds-border-radius-sm);
-	color: var(--wpds-color-fg-content-neutral-weak);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 
 	svg {
 		fill: currentColor;
@@ -44,7 +44,7 @@
 	flex: 0 0 auto;
 	width: 36px;
 	height: 28px;
-	background: var(--wpds-color-bg-surface-neutral-weak);
+	background: var(--wpds-color-background-surface-neutral-weak);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	border-radius: var(--wpds-border-radius-sm);
 }
@@ -73,13 +73,13 @@
 	height: 9px;
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-interactive-neutral);
 	border-radius: var(--wpds-border-radius-sm);
-	background: var(--wpds-color-bg-surface-neutral-weak);
+	background: var(--wpds-color-background-surface-neutral-weak);
 	flex: 0 0 auto;
 }
 
 .jp-search-embedded-preview__filter-list
 .is-checked
 .jp-search-embedded-preview__checkbox {
-	background: var(--wpds-color-bg-interactive-brand-strong);
-	border-color: var(--wpds-color-bg-interactive-brand-strong);
+	background: var(--wpds-color-background-interactive-brand-strong);
+	border-color: var(--wpds-color-background-interactive-brand-strong);
 }

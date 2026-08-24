@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-07-09
+### Added
+- Add Utils::ip_is_public() to check whether an IP address is a safe, globally-routable public destination (rejects private, reserved, and special-use ranges including cloud-metadata addresses). [#50175]
+
 ## [0.4.14] - 2026-06-08
 ### Changed
 - Internal updates.
@@ -122,6 +126,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add jetpack-ip package functionality [#28846]
 - Initialized the package. [#28765]
 
+[0.5.0]: https://github.com/automattic/jetpack-ip/compare/v0.4.14...v0.5.0
 [0.4.14]: https://github.com/automattic/jetpack-ip/compare/v0.4.13...v0.4.14
 [0.4.13]: https://github.com/automattic/jetpack-ip/compare/v0.4.12...v0.4.13
 [0.4.12]: https://github.com/automattic/jetpack-ip/compare/v0.4.11...v0.4.12

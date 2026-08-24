@@ -28,7 +28,18 @@ class Podcast_Distribution_Endpoint extends WP_REST_Controller {
 	 * Wire up routes.
 	 */
 	public static function init() {
-		add_action( 'rest_api_init', array( new self(), 'register_routes' ) );
+		add_action( 'rest_api_init', array( self::class, 'register' ) );
+	}
+
+	/**
+	 * Registers the REST routes on the `rest_api_init` hook.
+	 *
+	 * Instantiated here, rather than eagerly, so the endpoint class only loads
+	 * on requests that reach `rest_api_init`. Static so the callback can be
+	 * unregistered.
+	 */
+	public static function register() {
+		( new self() )->register_routes();
 	}
 
 	/**
@@ -94,6 +105,32 @@ class Podcast_Distribution_Endpoint extends WP_REST_Controller {
 			'wpcom'
 		);
 
-		return $this->relay_response( $response );
+		$relayed = $this->relay_response( $response );
+
+		if ( $relayed instanceof WP_REST_Response ) {
+			$this->save_show_state( $relayed->get_data() );
+		}
+
+		return $relayed;
+	}
+
+	/**
+	 * Mirror the Pocket Casts verdict onto this site's local podcast options so
+	 * the dashboard reflects it (wpcom only persisted it to its own copy).
+	 *
+	 * @param mixed $data Decoded relay body.
+	 */
+	protected function save_show_state( $data ): void {
+		$state = is_array( $data ) && isset( $data['state'] ) ? $data['state'] : '';
+
+		if ( ! in_array( $state, array( 'pending', 'active', 'rejected' ), true ) ) {
+			return;
+		}
+
+		update_option( 'podcasting_show_states', array( 'pocketcasts' => 'rejected' === $state ? '' : $state ) );
+
+		if ( 'active' === $state && ! empty( $data['share_link'] ) && is_string( $data['share_link'] ) ) {
+			update_option( 'podcasting_show_urls', array( 'pocketcasts' => $data['share_link'] ) );
+		}
 	}
 }

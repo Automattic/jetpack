@@ -122,6 +122,7 @@ class Jetpack_Backup {
 		Connection_Rest_Authentication::init();
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller::class, 'register_routes' ) );
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
@@ -241,6 +242,14 @@ class Jetpack_Backup {
 		// This callback is registered via `load-{$page_suffix}` in `add_wp_admin_submenu()`,
 		// so it only fires on the Backup admin page — no need to re-check the page here.
 		if ( self::is_modernized() ) {
+			// The i18n loader is registered on every admin page by jetpack-assets but
+			// only enqueued when depended on; the esbuild bundles don't pull it in.
+			// Enqueue it here, before the early return, so the wp-build dashboard's
+			// init module can download its JS translation catalogs.
+			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+				wp_enqueue_script( 'wp-jp-i18n-loader' );
+			}
+
 			// wp-build manages its own enqueue pipeline. The legacy script,
 			// initial state, and tracking are intentionally skipped for the
 			// wp-build dashboard.
@@ -952,7 +961,36 @@ class Jetpack_Backup {
 		}
 
 		self::load_wp_build();
+
+		// wp-build registers standalone modules (e.g. the init module) on
+		// wp_default_scripts, which has already fired by admin_menu. Register them
+		// directly so the init module makes it into the import map.
+		if ( function_exists( 'jetpack_backup_register_script_modules' ) ) {
+			jetpack_backup_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+
 		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		add_action( 'admin_print_scripts', array( __CLASS__, 'render_connection_initial_state' ), 1 );
+	}
+
+	/**
+	 * Emit `window.JP_CONNECTION_INITIAL_STATE` inline on the modernized
+	 * Backup admin page.
+	 *
+	 * The modernized enqueue path short-circuits before the legacy
+	 * `Connection_Initial_State::render_script()` call, so without this
+	 * the React `<Gates>` component never sees the connection state and
+	 * sits on its loading skeleton forever. We emit the same JS payload
+	 * the legacy path emits, just outside of a registered script handle
+	 * (wp-build's handles aren't reliable here, and the global is
+	 * page-scoped — any tag setting it works).
+	 *
+	 * @return void
+	 */
+	public static function render_connection_initial_state() {
+		echo '<script id="jetpack-backup-connection-initial-state">'
+			. Connection_Initial_State::render() // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render() returns pre-escaped JSON.
+			. '</script>';
 	}
 
 	/**
@@ -1006,9 +1044,11 @@ class Jetpack_Backup {
 	/**
 	 * Returns true when the wp-build modernization filter is enabled.
 	 *
+	 * @since 4.3.14 Changed from private to public; the REST bridges gate their route registration on it.
+	 *
 	 * @return bool
 	 */
-	private static function is_modernized() {
+	public static function is_modernized() {
 		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
 	}
 

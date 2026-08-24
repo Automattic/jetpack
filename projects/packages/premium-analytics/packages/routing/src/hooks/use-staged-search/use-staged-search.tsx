@@ -33,9 +33,6 @@ export type UseStagedSearchReturn< TSearch extends AnyObject > = {
 	 */
 	effective: TSearch;
 
-	/**
-	 * Whether the process is syncing.
-	 */
 	isSyncing: boolean;
 
 	/**
@@ -58,9 +55,6 @@ export type UseStagedSearchReturn< TSearch extends AnyObject > = {
 	 */
 	revert: () => void;
 
-	/**
-	 * Cancel pending debounced commit.
-	 */
 	cancelAutoCommit: () => void;
 };
 
@@ -101,14 +95,8 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 	const navigate = useNavigate( { from: opts.from } );
 	const committed = useSearch( { from: opts.from } ) as TSearch;
 
-	/*
-	 * Stage the search params.
-	 */
 	const [ staged, setStaged ] = useState< TSearch >( committed );
 
-	/*
-	 * Track if the process is syncing.
-	 */
 	const [ isSyncing, setIsSyncing ] = useState( false ); // not used yet
 
 	// Buffer for not-yet-committed changes.
@@ -131,9 +119,6 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ committed ] );
 
-	/**
-	 * Cancel pending debounced auto-commit.
-	 */
 	const cancelAutoCommit = useCallback( () => {
 		if ( timerRef.current ) {
 			clearTimeout( timerRef.current );
@@ -141,9 +126,6 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 		}
 	}, [] );
 
-	/**
-	 * Cleanup on unmount.
-	 */
 	useEffect( () => {
 		return () => {
 			cancelAutoCommit();
@@ -164,6 +146,7 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 				timerRef.current = setTimeout( () => {
 					navigate( {
 						replace: true, // do not pollute history while interacting
+						viewTransition: false,
 						search: prev => ( {
 							...prev,
 							...( bufferRef.current as Partial< TSearch > ),
@@ -187,7 +170,6 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 			const patch = bufferRef.current;
 			const hasPatch = patch && Object.keys( patch ).length > 0;
 
-			// Cancel any pending debounced replace-commit
 			cancelAutoCommit();
 
 			// If buffer is empty but staged differs from committed, compute a minimal diff
@@ -223,6 +205,7 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 
 			navigate( {
 				replace: commitOpts?.replace ?? false, // explicit commits push into history
+				viewTransition: false,
 				search: prev => ( {
 					...prev,
 					...( finalPatch as Partial< TSearch > ),
@@ -234,9 +217,6 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 		[ navigate, committed, staged, cancelAutoCommit ]
 	);
 
-	/**
-	 * Discard local changes and return to committed snapshot.
-	 */
 	const revert = useCallback( () => {
 		cancelAutoCommit();
 		bufferRef.current = {};
@@ -252,9 +232,6 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 		[ committed, staged ]
 	) as TSearch;
 
-	/*
-	 * Dirty if there is a buffer or staged differs from committed.
-	 */
 	const isDirty =
 		Object.keys( bufferRef.current ).length > 0 &&
 		! shallowEqual( staged as AnyObject, committed as AnyObject );

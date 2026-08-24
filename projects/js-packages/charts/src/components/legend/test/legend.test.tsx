@@ -1,9 +1,14 @@
 /* eslint-disable react/jsx-no-bind */
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useMemo } from 'react';
-import { SingleChartContext } from '../../../charts/private/single-chart-context';
-import { GlobalChartsProvider, useChartId, useChartRegistration } from '../../../providers';
+import { useEffect, useMemo } from 'react';
+import { ChartInstanceContext } from '../../../charts/private/chart-instance-context';
+import {
+	GlobalChartsProvider,
+	useChartId,
+	useChartRegistration,
+	useGlobalChartsContext,
+} from '../../../providers';
 import { Legend } from '../legend';
 import { BaseLegend } from '../private/base-legend';
 import type { ChartType } from '../../../types';
@@ -183,7 +188,8 @@ describe( 'BaseLegend', () => {
 			);
 			const labels = screen.getAllByText( /Long Label/ );
 			labels.forEach( label => {
-				expect( label ).toHaveStyle( { maxWidth: '10rem' } );
+				// Note getComputedStyle converts lengths to px.
+				expect( label ).toHaveStyle( { maxWidth: '160px' } );
 			} );
 		} );
 
@@ -467,9 +473,9 @@ describe( 'BaseLegend', () => {
 			return render(
 				<GlobalChartsProvider>
 					<ChartRegistrar chartType={ chartType } chartId={ chartId } />
-					<SingleChartContext.Provider value={ { chartId } }>
+					<ChartInstanceContext.Provider value={ { chartId } }>
 						<Legend shape={ explicitShape } />
-					</SingleChartContext.Provider>
+					</ChartInstanceContext.Provider>
 				</GlobalChartsProvider>
 			);
 		};
@@ -529,6 +535,7 @@ describe( 'BaseLegend', () => {
 			expect( legendItems ).toHaveLength( 2 );
 			expect( legendItems[ 0 ] ).toHaveAttribute( 'tabIndex', '0' );
 			expect( legendItems[ 0 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+			expect( screen.queryByRole( 'list' ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'handles click events to toggle visibility', async () => {
@@ -631,6 +638,198 @@ describe( 'BaseLegend', () => {
 
 			// Should still be visible (pressed)
 			expect( legendItems[ 0 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
+
+		it( 'toggles every series in a group when a grouped item is clicked', async () => {
+			const user = userEvent.setup();
+
+			const groupedItems = [
+				{ label: 'Views', color: '#0000ff', seriesLabels: [ 'Views', 'Views — previous' ] },
+				{
+					label: 'Visitors',
+					color: '#00ff00',
+					seriesLabels: [ 'Visitors', 'Visitors — previous' ],
+				},
+			];
+
+			const VisibilityProbe = () => {
+				const { isSeriesVisible } = useGlobalChartsContext();
+				return (
+					<div>
+						<span data-testid="views">{ String( isSeriesVisible( 'test-chart', 'Views' ) ) }</span>
+						<span data-testid="views-prev">
+							{ String( isSeriesVisible( 'test-chart', 'Views — previous' ) ) }
+						</span>
+						<span data-testid="visitors">
+							{ String( isSeriesVisible( 'test-chart', 'Visitors' ) ) }
+						</span>
+					</div>
+				);
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ groupedItems } interactive={ true } chartId="test-chart" />
+					<VisibilityProbe />
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.getByTestId( 'views' ) ).toHaveTextContent( 'true' );
+			expect( screen.getByTestId( 'views-prev' ) ).toHaveTextContent( 'true' );
+
+			const buttons = screen.getAllByRole( 'button' );
+			await user.click( buttons[ 0 ] );
+
+			// One click hides both series in the Views group, leaving Visitors untouched.
+			expect( screen.getByTestId( 'views' ) ).toHaveTextContent( 'false' );
+			expect( screen.getByTestId( 'views-prev' ) ).toHaveTextContent( 'false' );
+			expect( screen.getByTestId( 'visitors' ) ).toHaveTextContent( 'true' );
+			expect( buttons[ 0 ] ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
+
+		it( 'converges a desynced group to a uniform state in one click', async () => {
+			const user = userEvent.setup();
+
+			const groupedItems = [
+				{ label: 'Views', color: '#0000ff', seriesLabels: [ 'Views', 'Views — previous' ] },
+			];
+
+			const DesyncProbe = () => {
+				const { isSeriesVisible, toggleSeriesVisibility } = useGlobalChartsContext();
+				return (
+					<div>
+						<button
+							data-testid="hide-previous"
+							onClick={ () => toggleSeriesVisibility( 'test-chart', 'Views — previous' ) }
+						>
+							hide previous
+						</button>
+						<span data-testid="views">{ String( isSeriesVisible( 'test-chart', 'Views' ) ) }</span>
+						<span data-testid="views-prev">
+							{ String( isSeriesVisible( 'test-chart', 'Views — previous' ) ) }
+						</span>
+					</div>
+				);
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ groupedItems } interactive={ true } chartId="test-chart" />
+					<DesyncProbe />
+				</GlobalChartsProvider>
+			);
+
+			// Desync the group: hide only the comparison series programmatically.
+			await user.click( screen.getByTestId( 'hide-previous' ) );
+			expect( screen.getByTestId( 'views' ) ).toHaveTextContent( 'true' );
+			expect( screen.getByTestId( 'views-prev' ) ).toHaveTextContent( 'false' );
+
+			// Clicking the grouped item hides the whole group, not inverts each member.
+			const legendButton = screen.getAllByRole( 'button' )[ 0 ];
+			await user.click( legendButton );
+			expect( screen.getByTestId( 'views' ) ).toHaveTextContent( 'false' );
+			expect( screen.getByTestId( 'views-prev' ) ).toHaveTextContent( 'false' );
+
+			// And the next click shows the whole group again.
+			await user.click( legendButton );
+			expect( screen.getByTestId( 'views' ) ).toHaveTextContent( 'true' );
+			expect( screen.getByTestId( 'views-prev' ) ).toHaveTextContent( 'true' );
+		} );
+
+		it( 'falls back to the item label when seriesLabels is an empty array', async () => {
+			const user = userEvent.setup();
+
+			const items = [ { label: 'Views', color: '#0000ff', seriesLabels: [] as string[] } ];
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ items } interactive={ true } chartId="test-chart" />
+				</GlobalChartsProvider>
+			);
+
+			const legendButton = screen.getByRole( 'button' );
+			expect( legendButton ).toHaveAttribute( 'aria-pressed', 'true' );
+
+			await user.click( legendButton );
+
+			expect( legendButton ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
+	} );
+
+	describe( 'Non-interactive legend reflects hidden state', () => {
+		const HiddenSeriesHarness = ( { interactive }: { interactive: boolean } ) => {
+			const context = useGlobalChartsContext();
+			useEffect( () => {
+				context.toggleSeriesVisibility( 'legend-a11y-chart', 'Series A' );
+				// eslint-disable-next-line react-hooks/exhaustive-deps
+			}, [] );
+			return (
+				<BaseLegend
+					chartId="legend-a11y-chart"
+					interactive={ interactive }
+					items={ [
+						{ label: 'Series A', value: '10', color: '#ff0000' },
+						{ label: 'Series B', value: '20', color: '#00ff00' },
+					] }
+				/>
+			);
+		};
+
+		it( 'marks a programmatically hidden series inactive on a non-interactive legend', () => {
+			render(
+				<GlobalChartsProvider>
+					<HiddenSeriesHarness interactive={ false } />
+				</GlobalChartsProvider>
+			);
+
+			const items = screen.getAllByTestId( 'legend-item' );
+			expect( items[ 0 ] ).toHaveClass( 'legend-item--inactive' );
+			expect( items[ 1 ] ).not.toHaveClass( 'legend-item--inactive' );
+		} );
+
+		it( 'does not make a non-interactive legend item operable', () => {
+			render(
+				<GlobalChartsProvider>
+					<HiddenSeriesHarness interactive={ false } />
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.queryAllByRole( 'button' ) ).toHaveLength( 0 );
+			const items = screen.getAllByTestId( 'legend-item' );
+			expect( items[ 0 ] ).not.toHaveAttribute( 'aria-pressed' );
+			expect( items[ 0 ] ).not.toHaveAttribute( 'tabindex' );
+			expect( items[ 0 ] ).toHaveAttribute( 'role', 'listitem' );
+		} );
+
+		it( 'names the hidden state accessibly on a non-interactive legend', () => {
+			render(
+				<GlobalChartsProvider>
+					<HiddenSeriesHarness interactive={ false } />
+				</GlobalChartsProvider>
+			);
+
+			const items = screen.getAllByTestId( 'legend-item' );
+			expect( items[ 0 ] ).toHaveAttribute( 'aria-label', 'Series A, 10: hidden' );
+			expect( items[ 1 ] ).not.toHaveAttribute( 'aria-label' );
+		} );
+
+		it( 'includes the item value in interactive accessible names', () => {
+			render(
+				<GlobalChartsProvider>
+					<HiddenSeriesHarness interactive={ true } />
+				</GlobalChartsProvider>
+			);
+
+			expect(
+				screen.getByRole( 'button', {
+					name: 'Series A, 10: hidden. Toggle visibility.',
+				} )
+			).toBeInTheDocument();
+			expect(
+				screen.getByRole( 'button', {
+					name: 'Series B, 20: visible. Toggle visibility.',
+				} )
+			).toBeInTheDocument();
 		} );
 	} );
 } );

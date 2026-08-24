@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Consent log: unhook the personal-data exporter/eraser filters on deactivation.

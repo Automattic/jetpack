@@ -1,0 +1,7 @@
+.root {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	block-size: 100%;
+	min-block-size: 0;
+}

@@ -54,7 +54,7 @@ function restoreLabel( count: number ): string {
 /**
  * Right-pane detail card for a selected backup activity item.
  *
- * Shows the status header with Download / Restore actions linking to the
+ * Shows the item's title header with Download / Restore actions linking to the
  * matching sibling routes, the backup's summary line, a timestamp by-line,
  * and the file browser. File selection state lives here so the header
  * actions can switch between "Download backup" and "Download N selected
@@ -93,7 +93,7 @@ export default function BackupDetail( { item }: Props ) {
 					>
 						<Icon icon={ cloud } />
 						<Text variant="heading-md" render={ <h3 /> }>
-							{ __( 'Backup and scan complete', 'jetpack-backup-pkg' ) }
+							{ item.title }
 						</Text>
 					</Stack>
 					<Stack
@@ -115,7 +115,7 @@ export default function BackupDetail( { item }: Props ) {
 			</Card.Header>
 			<Card.Content className="jpb-backup-detail__body">
 				<Text className="jpb-backup-detail__stats">{ item.stats }</Text>
-				<Text size="small" variant="muted" className="jpb-backup-detail__by">
+				<Text variant="body-sm" className="jpb-text-muted jpb-backup-detail__by">
 					{ sprintf(
 						/* translators: %1$s formatted date+time, %2$s actor name */
 						__( '%1$s by %2$s', 'jetpack-backup-pkg' ),

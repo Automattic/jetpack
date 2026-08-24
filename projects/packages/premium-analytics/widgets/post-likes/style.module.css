@@ -1,0 +1,13 @@
+/* Fill the tile so the roster can fit its rows to the available height. */
+.root {
+	display: flex;
+	flex-direction: column;
+	block-size: 100%;
+	min-block-size: 0;
+}
+
+/* Allow WidgetState to fill and shrink within the tile. */
+.root > * {
+	flex: 1 1 auto;
+	min-block-size: 0;
+}

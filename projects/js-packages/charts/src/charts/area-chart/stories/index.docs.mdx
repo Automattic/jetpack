@@ -75,6 +75,30 @@ A single-series area chart is a useful way to emphasise a single trend with visu
 
 <Canvas of={ AreaChartStories.SingleSeries } />
 
+## Zooming
+
+Set `zoomable` to let users drag horizontally across the plot to zoom the X axis into that range:
+
+<Canvas of={ AreaChartStories.Zoomable } />
+
+<Source
+	language="jsx"
+	code={ `<AreaChart
+		data={ data }
+		zoomable={ true }
+	/>` }
+/>
+
+Zoom behaviour:
+
+- Disabled by default (`zoomable={ false }`).
+- Only the X axis rescales; the Y axis is unaffected.
+- A selection rectangle follows the pointer while dragging.
+- Drags shorter than 6px are ignored, so a click never zooms.
+- While zoomed, a "Reset zoom" button appears in the top-right to restore the full domain. It is reachable with Tab and activates with Enter or Space. A "Reset zoom" tooltip shows on hover and on keyboard focus, and Escape dismisses it.
+- Areas are clipped to the plot area whenever `zoomable` is set, keeping the zoom-out animation within the axes.
+- `zoomable` chains with your own `onPointerDown`/`onPointerMove`/`onPointerUp` handlers rather than replacing them.
+
 ## Error Handling
 
 The chart gracefully handles common edge cases:
@@ -100,11 +124,27 @@ For full legend configuration options, see the [Legend component docs](./?path=/
 
 ## Responsive Behavior
 
-By default, charts fill their parent container's dimensions. The parent must have an explicit height, or the chart must receive an `aspectRatio` prop:
+By default, charts **fill their parent container's dimensions**. The parent must have an explicit height, or the chart must receive an `aspectRatio`:
 
 <Canvas of={ AreaChartStories.AspectRatio } />
 
-For more details, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design).
+<Source
+	language="jsx"
+	code={ `// Fill parent container (default) - parent needs explicit height
+	<div style={{ width: '100%', height: '400px' }}>
+		<AreaChart data={ data } />
+	</div>
+
+	// Use aspect ratio - height from width, contained if the parent is shorter
+	<div style={{ width: '100%' }}>
+		<AreaChart data={ data } aspectRatio={ 0.5 } />
+	</div>
+
+	// Fixed dimensions
+	<AreaChart data={ data } width={ 800 } height={ 400 } />` }
+/>
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ## Animation
 

@@ -2,52 +2,30 @@
  * External dependencies
  */
 import { useReportCouponsByDate } from '@jetpack-premium-analytics/data';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { coupon } from '@jetpack-premium-analytics/icons';
-import { Stack } from '@wordpress/ui';
+import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { DonutChart } from '../../components';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
+import { DonutChart, DonutChartSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../components/widget-root';
-import { buildCouponUseData } from '../../helpers';
-import { useWidgetError } from '../../hooks';
+import { buildCouponUseData, isEmptyPieChartData } from '../../helpers';
 import { useSegmentStyles } from '../common';
 import styles from '../common/donut-widget.module.scss';
 
 /**
- * Coupon Use Widget Component
- *
  * Displays a donut chart showing total sales with a coupon vs net sales breakdown.
  * Shows the total sales in the center with slices in the legend.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <CouponUseWidget />
- * </WidgetRoot>
- * ```
  */
 export function CouponUseWidget() {
 	const { reportParams } = useWidgetRootContext();
 
-	const {
-		primary,
-		comparison,
-		hasComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		error,
-		refetch,
-	} = useReportCouponsByDate( reportParams );
-
-	const isInitialLoading = isLoading && ! hasData;
-	const isRefetching = isFetching && hasData;
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
+		useReportCouponsByDate( reportParams );
 
 	const { chartData, total, comparisonTotal, legendData } = useMemo(
 		() => buildCouponUseData( primary.data, comparison.data, hasComparison ),
@@ -56,17 +34,28 @@ export function CouponUseWidget() {
 
 	const segmentStyles = useSegmentStyles( chartData );
 
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null;
-	}
-
-	if ( isInitialLoading ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
-		<>
+		<WidgetState
+			isLoading={ isLoading }
+			isFetching={ isFetching }
+			// The report queries keep the previous period's data as placeholders
+			// across range changes, so only surface the error when there is
+			// nothing to show.
+			isError={ isError && ! hasData }
+			isEmpty={ isEmptyPieChartData( chartData ) }
+			error={ {
+				description: __(
+					"We couldn't load coupon data. Please try again in a moment.",
+					'jetpack-premium-analytics-pkg'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: coupon,
+				description: __( 'No coupon usage in this period.', 'jetpack-premium-analytics-pkg' ),
+			} }
+			renderLoading={ <DonutChartSkeleton /> }
+		>
 			<Stack className={ styles.container } direction="column" align="center" justify="center">
 				<DonutChart
 					chartData={ chartData }
@@ -78,11 +67,10 @@ export function CouponUseWidget() {
 						type: 'currency',
 						options: { useMultipliers: true, decimals: 0 },
 					} }
-					emptyStateIcon={ coupon }
+					maxSize={ null }
 					withTooltips
 				/>
 			</Stack>
-			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
+		</WidgetState>
 	);
 }

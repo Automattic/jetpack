@@ -82,6 +82,50 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that a known source token resolves to its mapped back destination.
+	 */
+	public function test_resolve_back_url_maps_known_source() {
+		$this->assertSame(
+			'https://wordpress.com/reader',
+			wpcom_write_resolve_back_url( 'reader' )
+		);
+	}
+
+	/**
+	 * Test that an unknown or empty source falls back to the dashboard (default behavior).
+	 */
+	public function test_resolve_back_url_falls_back_to_dashboard() {
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( '' ) );
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'something_unknown' ) );
+		// Inferred analytics sources should not change the back destination.
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'dashboard' ) );
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'direct' ) );
+	}
+
+	/**
+	 * Test that the back button href reflects the resolved destination, defaulting to the dashboard.
+	 */
+	public function test_template_back_button_defaults_to_dashboard() {
+		ob_start();
+		wpcom_write_template();
+		$html = ob_get_clean();
+
+		$this->assertStringContainsString( 'class="bw-back"', $html );
+		$this->assertStringContainsString( 'href="' . esc_url( admin_url() ) . '"', $html );
+	}
+
+	/**
+	 * Test that a resolved back URL is rendered into the back button href.
+	 */
+	public function test_template_back_button_uses_resolved_url() {
+		ob_start();
+		wpcom_write_template( '', '', 0, array(), 'new', array(), false, '', array(), '', 'https://wordpress.com/reader' );
+		$html = ob_get_clean();
+
+		$this->assertStringContainsString( 'href="' . esc_url( 'https://wordpress.com/reader' ) . '"', $html );
+	}
+
+	/**
 	 * Test that the wpcom-write script module is registered after init.
 	 */
 	public function test_script_module_is_registered() {
@@ -577,30 +621,6 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$output = $this->render_template();
 
 		$this->assertStringContainsString( 'bw-recovery-banner" hidden', $output );
-	}
-
-	/**
-	 * Test that the template contains the beta disclaimer banner markup.
-	 */
-	public function test_template_contains_disclaimer_banner() {
-		wp_set_current_user( $this->admin_id );
-
-		$output = $this->render_template();
-
-		$this->assertStringContainsString( 'class="bw-disclaimer-banner"', $output );
-		$this->assertStringContainsString( 'actions.dismissDisclaimer', $output );
-		$this->assertStringContainsString( 'Data loss is possible', $output );
-	}
-
-	/**
-	 * Test that the disclaimer banner is hidden by default (shown via JS after localStorage check).
-	 */
-	public function test_disclaimer_banner_hidden_by_default() {
-		wp_set_current_user( $this->admin_id );
-
-		$output = $this->render_template();
-
-		$this->assertStringContainsString( 'bw-disclaimer-banner" hidden', $output );
 	}
 
 	/**
@@ -1294,7 +1314,9 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * Block types are extracted directly from the `<!-- wp:type -->` comment
 	 * literals that convertToBlocks() emits, so no manual annotations are
-	 * needed for that axis.
+	 * needed for that axis.  The scan starts at serializeList(), the list
+	 * serializer convertToBlocks() delegates to, which sits immediately above
+	 * it, so that both functions' literals are covered.
 	 *
 	 * Attribute-level sync uses a hardcoded map of what convertToBlocks()
 	 * outputs per block type.  When you add attribute support in view.js,
@@ -1308,12 +1330,20 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$view_js      = file_get_contents( $view_js_path );
 		$this->assertNotEmpty( $view_js, 'Could not read view.js at ' . $view_js_path );
 
-		$fn_start = strpos( $view_js, 'function convertToBlocks(' );
-		$this->assertNotFalse( $fn_start, 'convertToBlocks() not found in view.js' );
-		// Read enough of the function body to capture all block types.
-		// If convertToBlocks() grows past this, the assertion below will
-		// catch missing types. Increase as needed.
-		$fn_body = substr( $view_js, $fn_start, 10000 );
+		// Scan from serializeList(), the list serializer convertToBlocks()
+		// delegates to, through the end of convertToBlocks() itself -- which is
+		// its closing `return blocks.join(...)`.  Bounding the scan on that
+		// statement rather than a character count keeps unrelated code further
+		// down the file from being mistaken for block types the serializer
+		// emits, and keeps the region correct as either function grows.
+		$this->assertStringContainsString( 'function serializeList(', $view_js );
+		$this->assertStringContainsString( 'function convertToBlocks(', $view_js );
+		$this->assertStringContainsString( 'return blocks.join', $view_js );
+
+		$fn_start = strpos( $view_js, 'function serializeList(' );
+		$fn_end   = strpos( $view_js, 'return blocks.join', $fn_start );
+		$this->assertGreaterThan( $fn_start, $fn_end, 'convertToBlocks() should follow serializeList() in view.js' );
+		$fn_body = substr( $view_js, $fn_start, $fn_end - $fn_start );
 
 		// Match opening block comments only (negative lookbehind skips closing <!-- /wp:... -->).
 		preg_match_all( '/<!-- (?!\/)wp:([a-z][a-z0-9-]*)/', $fn_body, $matches );

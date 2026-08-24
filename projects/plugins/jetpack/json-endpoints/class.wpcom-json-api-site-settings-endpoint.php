@@ -503,7 +503,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'show_on_front'                    => (string) get_option( 'show_on_front' ),
 						'page_on_front'                    => (string) get_option( 'page_on_front' ),
 						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
-						'subscription_options'             => (array) get_option( 'subscription_options' ),
+						'subscription_options'             => $this->get_subscription_options_in_user_locale(),
 						'supports_free_tier_customization' => true,
 						'jetpack_verbum_subscription_modal' => (bool) get_option( 'jetpack_verbum_subscription_modal', true ),
 						'enable_verbum_commenting'         => (bool) get_option( 'enable_verbum_commenting', true ),
@@ -630,6 +630,39 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Reads `subscription_options` with the current user's locale active, to
+	 * ensure that the defaults would be translated when displaying to the user
+	 * or comparing the options before saving.
+	 *
+	 * @return array The `subscription_options` value, defaults included.
+	 */
+	private function get_subscription_options_in_user_locale() {
+		$switched_locale = false;
+
+		if ( function_exists( 'wpcom_switch_to_user_locale' ) ) {
+			// Compare the locales before/after switch to decide if we should switch back
+			$locale_before = determine_locale();
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Checked above. See also https://github.com/phan/phan/issues/1204.
+			wpcom_switch_to_user_locale();
+			$switched_locale = determine_locale() !== $locale_before;
+		}
+
+		// Resolve the defaults the same way get_option() does for a missing row (via the
+		// `default_option_*` filter with $passed_default = false), then let any stored
+		// sub-keys take precedence. Passing an array default keeps get_option() from
+		// re-populating the defaults, so a partial row stays partial before the merge.
+		$default_subscription_options = (array) apply_filters( 'default_option_subscription_options', array(), 'subscription_options', false );
+		$stored_subscription_options  = (array) get_option( 'subscription_options', array() );
+		$subscription_options         = array_merge( $default_subscription_options, $stored_subscription_options );
+
+		if ( $switched_locale ) {
+			restore_previous_locale();
+		}
+
+		return $subscription_options;
 	}
 
 	/**
@@ -1034,11 +1067,62 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$filtered_value['hide_free_tier'] = $hide_free_tier;
 					}
 
+					// Clients that render the settings form tend to post the whole
+					// `subscription_options` bag back, including sub-keys the user never
+					// touched. This could result in a translated value inadvertently
+					// saved in the database.
+					// Get the value from db or the default options populated by filter.
+					$current_subscription_options = $this->get_subscription_options_in_user_locale();
+					$changed_subscription_options = array();
+
+					foreach ( $filtered_value as $subscription_option_key => $subscription_option_value ) {
+						$current_subscription_option = $current_subscription_options[ $subscription_option_key ] ?? null;
+
+						// The incoming value has already been through wp_kses() above, and
+						// wp_kses() is not guaranteed to be byte-preserving — it rewrites
+						// attribute quoting, and differently across WordPress versions. Put the
+						// current value through the same pass so the comparison reflects a real
+						// edit rather than a sanitizer rewrite; without this, a default carrying
+						// markup (`invitation`) never compares equal and is persisted on every
+						// save. Safe to apply to an already-sanitized value: the pass is
+						// idempotent.
+						if ( is_string( $current_subscription_option ) ) {
+							$current_subscription_option = wp_kses(
+								$current_subscription_option,
+								array(
+									'a' => array(
+										'href' => array(),
+									),
+								)
+							);
+						}
+
+						// A sub-key the site has never stored reads as unset everywhere this
+						// option is consumed, so an empty incoming value for it is not a change.
+						if (
+							null === $current_subscription_option
+							&& ( '' === $subscription_option_value || false === $subscription_option_value )
+						) {
+							continue;
+						}
+
+						if ( $current_subscription_option === $subscription_option_value ) {
+							continue;
+						}
+
+						$changed_subscription_options[ $subscription_option_key ] = $subscription_option_value;
+					}
+
+					if ( empty( $changed_subscription_options ) ) {
+						break;
+					}
+
+					// Get the value from the database or an empty array.
 					$old_subscription_options = get_option( 'subscription_options', array() );
-					$new_subscription_options = array_merge( $old_subscription_options, $filtered_value );
+					$new_subscription_options = array_merge( $old_subscription_options, $changed_subscription_options );
 
 					if ( update_option( $key, $new_subscription_options ) ) {
-						$updated[ $key ] = $filtered_value;
+						$updated[ $key ] = $changed_subscription_options;
 					}
 					break;
 

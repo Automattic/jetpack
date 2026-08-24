@@ -12,27 +12,20 @@ import type {
 	ComparativeDatePointDate,
 } from '../components/chart-comparative-line/types';
 
-/**
- * Generic type for time series data that has date_start and metric values
- */
 export type TimeSeriesData = {
 	date_start: string;
 	[ key: string ]: string | number;
 };
 
 /**
- * Generic type for time series response.
- * The summary only needs date_start and date_end for chart labels,
- * so we use a loose constraint that accepts any summary with those fields.
+ * The summary is only read for chart labels, so it stays loosely constrained to
+ * `date_start` / `date_end`.
  */
 type TimeSeriesResponse< T extends TimeSeriesData > = {
 	data: T[];
 	summary: { date_start: string; date_end: string };
 };
 
-/**
- * Map time series items array into chart series data.
- */
 function mapTimeSeriesToLineChartData< T extends TimeSeriesData >(
 	data: T[],
 	metricKey: keyof T
@@ -54,9 +47,6 @@ type BuildTimeSeriesChartOptions< T extends TimeSeriesData > = {
 	emptyDataFallback?: 'empty-array' | 'no-data-series';
 };
 
-/**
- * Generic function to build line chart series from time series data
- */
 export function buildTimeSeriesChartData< T extends TimeSeriesData >( {
 	primary,
 	comparison,
@@ -67,7 +57,7 @@ export function buildTimeSeriesChartData< T extends TimeSeriesData >( {
 		if ( emptyDataFallback === 'no-data-series' ) {
 			return [
 				{
-					label: __( 'No data available', 'jetpack-premium-analytics' ),
+					label: __( 'No data available', 'jetpack-premium-analytics-pkg' ),
 					data: [],
 				},
 			];

@@ -3,19 +3,19 @@
 	align-items: center;
 	gap: 0.125em;
 	font-size: var(--wpds-typography-font-size-md, 13px);
-	font-weight: var(--wpds-typography-font-weight-medium, 499);
+	font-weight: var(--wpds-typography-font-weight-emphasis, 499);
 	line-height: 1;
 
 	&--up {
-		color: var(--charts-trend-up-color, #1a8917);
+		color: var(--a8c-charts-color-trend-up);
 	}
 
 	&--down {
-		color: var(--charts-trend-down-color, #d63638);
+		color: var(--a8c-charts-color-trend-down);
 	}
 
 	&--neutral {
-		color: var(--charts-trend-neutral-color, #646970);
+		color: var(--a8c-charts-color-trend-neutral);
 	}
 
 	&__icon {

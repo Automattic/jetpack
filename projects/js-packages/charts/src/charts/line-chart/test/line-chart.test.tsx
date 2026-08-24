@@ -1,12 +1,14 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlyphDiamond } from '@visx/glyph';
 import { createElement, createRef } from 'react';
 import { GlobalChartsProvider, defaultTheme } from '../../../providers';
+import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
 import LineChart, { LineChartUnresponsive } from '../line-chart';
-import type { SingleChartRef } from '../../private/single-chart-context';
+import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
+import type { ChartInstanceRef } from '../../private/chart-instance-context';
 
 // Mock useElementSize to return non-zero dimensions in jsdom so charts render
 const mockRefCallback = jest.fn();
@@ -436,7 +438,48 @@ describe( 'LineChart', () => {
 			expect( ticks.length ).toBeGreaterThan( 1 );
 		} );
 
+		test( 'renders hour ticks when tickResolution declares the buckets sub-daily.', () => {
+			renderWithTheme( {
+				width: 800,
+				options: { axis: { x: { tickResolution: 'hour' } } },
+				data: [
+					{
+						label: 'Series A',
+						// A day apart: spacing inference would read this as daily buckets.
+						data: [
+							{ date: new Date( '2024-01-01T00:00:00' ), value: 10 },
+							{ date: new Date( '2024-01-02T00:00:00' ), value: 20 },
+						],
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText( /\d+\s(AM|PM)/ );
+			expect( ticks.length ).toBeGreaterThan( 1 );
+		} );
+
 		test( 'renders ticks in short date format.', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						// Weekly resolution: fine enough to keep full dates on the ticks.
+						data: Array.from( { length: 16 }, ( _, i ) => ( {
+							date: new Date( Date.UTC( 2024, 0, 1 + i * 7 ) ),
+							value: 10 + i,
+						} ) ),
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText(
+				/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d+$/
+			);
+			expect( ticks.length ).toBeGreaterThan( 1 );
+		} );
+
+		test( 'renders month ticks for month-or-coarser buckets within a year.', () => {
 			renderWithTheme( {
 				width: 800,
 				data: [
@@ -453,9 +496,7 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			const ticks = screen.getAllByText(
-				/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d+$/
-			);
+			const ticks = screen.getAllByText( /^(Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/ );
 			expect( ticks.length ).toBeGreaterThan( 1 );
 		} );
 
@@ -502,7 +543,8 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			const ticks = screen.getAllByText( /(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct) \d+/ );
+			// Roughly monthly buckets render month ticks under the resolution-aware formatter.
+			const ticks = screen.getAllByText( /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct)$/ );
 			expect( ticks.length ).toBeLessThan( 6 ); // Not much space
 		} );
 
@@ -862,7 +904,7 @@ describe( 'LineChart', () => {
 
 	describe( 'Chart Ref Interface', () => {
 		test( 'exposes getScales method via ref', () => {
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			renderUnwrappedWithTheme( {}, 'default', ref );
 
 			expect( ref.current?.getScales() ).toBeDefined();
@@ -871,7 +913,7 @@ describe( 'LineChart', () => {
 		} );
 
 		test( 'exposes getChartDimensions method via ref', () => {
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			renderUnwrappedWithTheme( { width: 800, height: 400 }, 'default', ref );
 
 			const dimensions = ref.current?.getChartDimensions();
@@ -1258,7 +1300,7 @@ describe( 'LineChart', () => {
 			expect( buttons ).toHaveLength( 0 );
 		} );
 
-		it( 'shows all series when chartId is missing even if legendInteractive is true', () => {
+		it( 'shows all series when nothing has been hidden', () => {
 			render(
 				<GlobalChartsProvider>
 					<LineChartUnresponsive
@@ -1277,6 +1319,136 @@ describe( 'LineChart', () => {
 				expect( item ).toHaveAttribute( 'aria-pressed', 'true' );
 			} );
 		} );
+
+		it( 'hides a series programmatically when the legend is not interactive', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-line"
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.queryByText( /all series are hidden/i ) ).not.toBeInTheDocument();
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-programmatic-line', 'Series A' );
+				context.toggleSeriesVisibility( 'test-programmatic-line', 'Series B' );
+			} );
+
+			expect( screen.getByText( /all series are hidden/i ) ).toBeInTheDocument();
+		} );
+
+		it( 'omits the click instruction when the legend cannot be clicked', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-empty-copy-line"
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-empty-copy-line', 'Series A' );
+			} );
+
+			expect( screen.getByText( 'All series are hidden.' ) ).toBeInTheDocument();
+			expect( screen.queryByText( /click legend items/i ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'pins the value axis across a programmatic hide when rescaleYOnVisibilityChange is false', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+			const ref = createRef< ChartInstanceRef >();
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-pin-line"
+						rescaleYOnVisibilityChange={ false }
+						ref={ ref }
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 200, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const before = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( before ).toBeDefined();
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-programmatic-pin-line', 'Series B' );
+			} );
+
+			const after = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( after ).toEqual( before );
+		} );
 	} );
 
 	// The line is not animated, so it clips only while actually zoomed.
@@ -1293,5 +1465,194 @@ describe( 'LineChart', () => {
 			'clip-path',
 			'url(#chart-zoom-clip-zoomtest)'
 		);
+	} );
+
+	describe( 'Legend group collapsing', () => {
+		const comparisonPair = [
+			{
+				label: 'Views',
+				group: 'views',
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+					{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+				],
+			},
+			{
+				label: 'Views — previous',
+				group: 'views',
+				options: { type: 'comparison' as const },
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 8, label: 'Jan 1' },
+					{ date: new Date( '2024-01-02' ), value: 16, label: 'Jan 2' },
+				],
+			},
+		];
+
+		it( 'renders one legend item per series by default', () => {
+			renderWithTheme( {
+				showLegend: true,
+				chartId: 'legend-groups-default',
+				data: comparisonPair,
+			} );
+
+			expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Views — previous' ) ).toBeInTheDocument();
+		} );
+
+		it( 'collapses a group to one item when legend.collapseGroups is set', () => {
+			renderWithTheme( {
+				showLegend: true,
+				legend: { collapseGroups: true },
+				chartId: 'legend-groups-collapsed',
+				data: comparisonPair,
+			} );
+
+			expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Views — previous' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'toggles only the clicked series when interactive without collapseGroups', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				showLegend: true,
+				legend: { interactive: true },
+				chartId: 'legend-groups-interactive',
+				data: comparisonPair,
+			} );
+
+			const buttons = screen.getAllByRole( 'button' );
+			await user.click( buttons[ 0 ] );
+
+			expect( buttons[ 0 ] ).toHaveAttribute( 'aria-pressed', 'false' );
+			expect( buttons[ 1 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
+
+		it( 'toggles the whole group when interactive with collapseGroups', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				showLegend: true,
+				legend: { interactive: true, collapseGroups: true },
+				chartId: 'legend-groups-interactive-collapsed',
+				data: comparisonPair,
+			} );
+
+			const buttons = screen.getAllByRole( 'button' );
+			expect( buttons ).toHaveLength( 1 );
+
+			await user.click( buttons[ 0 ] );
+
+			expect( buttons[ 0 ] ).toHaveAttribute( 'aria-pressed', 'false' );
+			expect(
+				screen.getByText( /all series are hidden.*click legend items to show data/i )
+			).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Interactive Legend — value axis', () => {
+		const twoSeries = [
+			{
+				label: 'Views',
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+					{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+				],
+				options: {},
+			},
+			{
+				label: 'Visitors',
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 100, label: 'Jan 1' },
+					{ date: new Date( '2024-01-02' ), value: 200, label: 'Jan 2' },
+				],
+				options: {},
+			},
+		];
+		// Bare numbers inside the plot (scoped via the chart's grid role, away from visx's
+		// off-screen text-measurement SVGs) are value-axis ticks: the series labels carry no digits
+		// and the empty-state message is text-only.
+		const numericTick = /^[\d,]+$/;
+
+		it( 'pins the value axis when rescaleYOnVisibilityChange is false', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				showLegend: true,
+				legend: { interactive: true },
+				rescaleYOnVisibilityChange: false,
+				chartId: 'line-stable-axis',
+				data: twoSeries,
+			} );
+
+			const chart = screen.getByRole( 'grid' );
+			const ticksBefore = within( chart )
+				.getAllByText( numericTick )
+				.map( el => el.textContent )
+				.sort();
+			expect( ticksBefore.length ).toBeGreaterThan( 0 );
+
+			// Hide the high-range Visitors series; with a pinned domain the axis keeps its ticks.
+			await user.click( screen.getAllByRole( 'button' )[ 1 ] );
+
+			const ticksAfter = within( chart )
+				.getAllByText( numericTick )
+				.map( el => el.textContent )
+				.sort();
+			expect( ticksAfter ).toEqual( ticksBefore );
+		} );
+
+		it( 'rescales the value axis by default when a series is toggled off', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				showLegend: true,
+				legend: { interactive: true },
+				chartId: 'line-rescale-axis',
+				data: twoSeries,
+			} );
+
+			const chart = screen.getByRole( 'grid' );
+			const ticksBefore = within( chart )
+				.getAllByText( numericTick )
+				.map( el => el.textContent )
+				.sort();
+			expect( ticksBefore.length ).toBeGreaterThan( 0 );
+
+			// Default preserves the pre-existing behaviour: hiding the high-range Visitors series
+			// lets the axis rescale to the remaining Views range, so its ticks change.
+			await user.click( screen.getAllByRole( 'button' )[ 1 ] );
+
+			const ticksAfter = within( chart )
+				.getAllByText( numericTick )
+				.map( el => el.textContent )
+				.sort();
+			expect( ticksAfter ).not.toEqual( ticksBefore );
+		} );
+
+		it( 'drops the axes when all series are hidden so they do not collapse', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				showLegend: true,
+				legend: { interactive: true },
+				chartId: 'line-hidden-axes',
+				data: twoSeries,
+			} );
+
+			const chart = screen.getByRole( 'grid' );
+			expect( within( chart ).getAllByText( numericTick ).length ).toBeGreaterThan( 0 );
+
+			const buttons = screen.getAllByRole( 'button' );
+			await user.click( buttons[ 0 ] );
+			await user.click( buttons[ 1 ] );
+
+			// With no visible data the value scale would collapse, so the axes are removed rather
+			// than rendered squished at the top — no tick labels remain.
+			expect( within( chart ).queryAllByText( numericTick ) ).toHaveLength( 0 );
+			expect(
+				screen.getByText( /all series are hidden.*click legend items to show data/i )
+			).toBeInTheDocument();
+		} );
 	} );
 } );

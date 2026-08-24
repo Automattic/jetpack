@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import enquirer from 'enquirer';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import pluralize from 'pluralize';
 import semver from 'semver';
 import { doesRepoExist } from '../helpers/github.js';
@@ -594,18 +594,9 @@ function generateJsPackage( answers, pkgDir ) {
 						jetpackWebpackConfig.FileRule(),
 					],
 				},
-				plugins: [${
-					ts
-						? `
-					...jetpackWebpackConfig.StandardPlugins( {
-						// Generate \`.d.ts\` files per tsconfig settings.
-						ForkTSCheckerPlugin: {},
-					} ),
-				`
-						: `
+				plugins: [
 					...jetpackWebpackConfig.StandardPlugins(),
-				`
-				}],
+				],
 			};
 			`.replace( /^\t\t\t/gm, '' )
 		);
@@ -696,7 +687,10 @@ function createPackageJson( packageJson, answers ) {
 			packageJson.devDependencies[ 'webpack-cli' ] = findVersionFromPnpmLock( 'webpack-cli' );
 			packageJson.scripts = {
 				...packageJson.scripts,
-				build: 'pnpm run clean && pnpm exec webpack',
+				// For TS, generate `.d.ts` files with tsgo per tsconfig settings.
+				build: ts
+					? 'pnpm run clean && pnpm exec webpack && pnpm exec tsgo --pretty'
+					: 'pnpm run clean && pnpm exec webpack',
 				clean: 'rm -rf build/',
 			};
 			packageJson.exports = {
@@ -709,10 +703,12 @@ function createPackageJson( packageJson, answers ) {
 		}
 		if ( ts ) {
 			packageJson.devDependencies.typescript = findVersionFromPnpmLock( 'typescript' );
-			if ( answers.typescript === 'ts-tsc' ) {
+			if ( ! answers.typescript.endsWith( '-src' ) ) {
 				packageJson.devDependencies[ '@typescript/native-preview' ] = findVersionFromPnpmLock(
 					'@typescript/native-preview'
 				);
+			}
+			if ( answers.typescript === 'ts-tsc' ) {
 				packageJson.scripts = {
 					...packageJson.scripts,
 					build: 'pnpm run clean && pnpm exec tsgo --pretty',
@@ -1002,9 +998,9 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 6.9\n' +
+		'Requires at least: 7.0\n' +
 		'Requires PHP: 7.2\n' +
-		'Tested up to: 7.0\n' +
+		'Tested up to: 7.1\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +

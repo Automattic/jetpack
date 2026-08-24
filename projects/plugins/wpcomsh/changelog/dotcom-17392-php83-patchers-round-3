@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+CLI: php83 patchers round 3 — LF variants for the SecondLine theme patch (newer licensed builds ship Unix line endings), and a deepcore-widget patch for the duplicated static counters in the Elementor magazine widget's render(), which only compiles on pages using that widget.

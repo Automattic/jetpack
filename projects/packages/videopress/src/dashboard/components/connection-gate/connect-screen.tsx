@@ -26,7 +26,10 @@ export default function ConnectScreen( { onConnect, isConnecting }: Props ) {
 	return (
 		<AdminPage
 			title={ 'VideoPress' /* product name; not translated */ }
-			subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
+			subTitle={ __(
+				'Host, manage, customize, and track your videos — all in one place.',
+				'jetpack-videopress-pkg'
+			) }
 		>
 			<Stack direction="column" gap="md" className="vp-connection-gate">
 				<Text variant="heading-2xl">

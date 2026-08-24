@@ -1,19 +1,16 @@
 import { Disabled } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useIsModernized } from '../../hooks/use-is-modernized';
-import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
+import { hasAdminUiV2 } from '../../utils/script-data';
+import { ConnectionFlowModal } from '../connection-flow';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { useService } from '../services/use-service';
 import { ConnectionInfo } from './connection-info';
-import { ModernConnectionInfo } from './connection-info-modern';
-import modernStyles from './style-modern.module.scss';
-import styles from './style.module.scss';
+import listStyles from './style.module.scss';
 
 const ConnectionManagement = ( {
 	className = null,
@@ -21,14 +18,6 @@ const ConnectionManagement = ( {
 	hideConnectButton = false,
 	hideHeading = false,
 } ) => {
-	const isModernized = useIsModernized();
-	const ConnectionInfoVariant = isModernized ? ModernConnectionInfo : ConnectionInfo;
-	// The modernized chassis owns its list chrome (edge-to-edge dividers, no
-	// outline, rows supply their own padding). The legacy admin page / block
-	// editor keep the trunk `style.module.scss` classes byte-for-byte.
-	const listStyles = isModernized ? modernStyles : styles;
-	const { refresh } = useSocialMediaConnections();
-
 	const {
 		connections: rawConnections,
 		deletingConnections,
@@ -51,10 +40,6 @@ const ConnectionManagement = ( {
 		}
 		return a.service_name.localeCompare( b.service_name );
 	} );
-
-	useEffect( () => {
-		refresh();
-	}, [ refresh ] );
 
 	const getService = useService();
 
@@ -89,7 +74,7 @@ const ConnectionManagement = ( {
 									key={ connection.connection_id }
 								>
 									<Disabled isDisabled={ isUpdatingOrDeleting }>
-										<ConnectionInfoVariant
+										<ConnectionInfo
 											connection={ connection }
 											service={ getService( connection.service_name ) }
 											canMarkAsShared={ canMarkAsShared }
@@ -101,7 +86,7 @@ const ConnectionManagement = ( {
 					</ul>
 				</>
 			) : null }
-			<ManageConnectionsModal />
+			{ hasAdminUiV2() ? <ConnectionFlowModal /> : <ManageConnectionsModal /> }
 			{ ! hideConnectButton && (
 				<Button
 					variant={ connections.length ? 'outline' : 'solid' }

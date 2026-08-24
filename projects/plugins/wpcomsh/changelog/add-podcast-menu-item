@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Updated composer.lock for the Podcast package's new jetpack-admin-ui dependency.

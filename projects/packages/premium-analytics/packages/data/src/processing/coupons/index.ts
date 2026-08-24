@@ -8,9 +8,6 @@ type ReportsCouponsResponse = Awaited< ReturnType< typeof fetchReportCoupons > >
 type RawCouponsDataItem = ReportsCouponsResponse[ 'data' ][ number ];
 type RawCouponsDataSummary = ReportsCouponsResponse[ 'summary' ];
 
-/**
- * Processed data item (numbers for calculations)
- */
 type SanitizedCouponsDataItem = Override<
 	RawCouponsDataItem,
 	{
@@ -20,9 +17,6 @@ type SanitizedCouponsDataItem = Override<
 	}
 >;
 
-/**
- * Processed summary (numbers for calculations)
- */
 type SanitizedCouponsDataSummary = Override<
 	RawCouponsDataSummary,
 	{
@@ -32,17 +26,11 @@ type SanitizedCouponsDataSummary = Override<
 	}
 >;
 
-/**
- * Processed response with numeric values
- */
 type SanitizedCouponsResponse = {
 	summary: SanitizedCouponsDataSummary;
 	data: SanitizedCouponsDataItem[];
 };
 
-/**
- * Sanitize/process a single coupon item by converting strings to numbers
- */
 function sanitizeCouponItem( item: RawCouponsDataItem ): SanitizedCouponsDataItem {
 	return {
 		...item,
@@ -52,9 +40,6 @@ function sanitizeCouponItem( item: RawCouponsDataItem ): SanitizedCouponsDataIte
 	};
 }
 
-/**
- * Sanitize/process summary by converting strings to numbers
- */
 function sanitizeCouponSummary( summary: RawCouponsDataSummary ): SanitizedCouponsDataSummary {
 	return {
 		...summary,
@@ -64,10 +49,6 @@ function sanitizeCouponSummary( summary: RawCouponsDataSummary ): SanitizedCoupo
 	};
 }
 
-/**
- * Sanitize the response from the reports/coupons endpoint
- * Converts string values to numbers for easier calculations and charting.
- */
 export const sanitizeReportCouponsResponse = (
 	response: ReportsCouponsResponse
 ): SanitizedCouponsResponse => {

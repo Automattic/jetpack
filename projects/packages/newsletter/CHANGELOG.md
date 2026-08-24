@@ -5,6 +5,89 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.6] - 2026-08-20
+### Changed
+- Update dependencies. [#51423]
+
+## [0.12.5] - 2026-08-20
+### Changed
+- Update package dependencies. [#51190] [#51399]
+
+### Fixed
+- Make newsletter settings save feedback consistent and allow sender settings to save with Enter. [#51261]
+- Newsletter: Fix a fatal error on the settings page caused by Gutenberg removing a private API that DataViews toggle and radio fields relied on. [#51363]
+- Normalize spacing in Newsletter settings cards. [#51264]
+
+## [0.12.4] - 2026-08-10
+### Changed
+- Update package dependencies. [#50509] [#51008]
+
+### Fixed
+- Fix the settings page rendering blank on WordPress 6.9. [#50509]
+- Subscribers: Remove the misleading "Joined" field from the subscriber profile, which showed the site's creation date rather than a per-subscriber date. [#51054]
+- Subscribers: Restore the option to assign imported subscribers to specific newsletter categories on CSV upload and manual add. [#51007]
+- Subscribers: Show your own subscription in the list instead of an empty state when you are the only subscriber, with a prompt pointing at the Add subscribers button. [#50923]
+
+## [0.12.3] - 2026-08-03
+### Changed
+- Categories: Deep-link the subscribe block help text to the "Subscribe to specific categories" section. [#50937]
+
+### Fixed
+- Categories: Add categories inline instead of linking out to wp-admin, so a new category appears and is selected without a page refresh. [#50878]
+- Load JS translation catalogs and stamp the package text domain on the wp-build dashboard bundles. [#50762]
+- Only show the Subscribers announcement page on sites that predate the Subscribers move. [#50874]
+- Remove the Subscribers announcement page entirely on sites that postdate the Subscribers move, instead of leaving an unstyled fallback page behind. [#50874]
+- Subscribe modal heading: Remove the duplicated "Button only" note from the card description. [#50974]
+- Subscribers: Show the newsletter categories a subscriber receives emails for, and restore the missing subscription date, in the subscriber details panel. [#50877]
+
+## [0.12.2] - 2026-07-27
+### Changed
+- Update package dependencies. [#50751] [#50753]
+
+### Fixed
+- Register wp-build polyfills on the legacy settings page so the admin bundle loads when the wp-theme script handle isn't registered. [#50587]
+- Subscribers dashboard: Refresh the subscriber list automatically once an import finishes and show a success or failure notice, without requiring a page reload. [#50756]
+
+## [0.12.1] - 2026-07-20
+### Changed
+- Refresh the Daily Writing Prompt widget layout and fix its styling on self-hosted Jetpack. [#50500]
+- Update package dependencies. [#50510] [#50529] [#50582]
+
+### Fixed
+- Fix an intermittent flash of unstyled content on the Newsletter dashboard in Firefox. [#50558]
+
+## [0.12.0] - 2026-07-13
+### Changed
+- Enable the modernized dashboard for all sites by default. [#50091]
+- Update package dependencies. [#49272]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
+### Fixed
+- Daily Writing Prompt: Decode HTML entities so quotation marks render correctly instead of showing entity names like `&quot;`. [#50405]
+- Subscribers: Show the styled "Subscribers moved" announcement page instead of the bare fallback. [#50349]
+
+## [0.11.2] - 2026-07-06
+### Changed
+- Settings: Space the Email content private-site notice from the form with a Stack gap instead of a custom CSS margin rule. [#50085]
+- Update package dependencies. [#50097] [#50183]
+
+### Fixed
+- Daily Writing Prompt: Show a branded fallback with a Reader link when no prompt is available or the request fails, instead of rendering a blank widget. [#50119]
+- Settings: Add bottom margin to the Email content private-site notice so it no longer collides with the featured image toggle. [#50072]
+
+## [0.11.1] - 2026-06-29
+### Changed
+- Settings: Link the "Button only" style hint to platform-appropriate support documentation. [#50009]
+- Update package dependencies. [#49271]
+
+## [0.11.0] - 2026-06-25
+### Changed
+- Introduce the modernized dashboard and WP Admin subscriber management behind the `rsm_jetpack_ui_modernization_newsletter` and `jetpack_wp_admin_subscriber_management_enabled` filters, off by default. [#49036]
+- Update package dependencies. [#49831]
+
+### Fixed
+- Align the settings DataForm field `Edit` controls, the import-subscribers notice `ActionLink`, and the dashboard tab panels with the `@wordpress/dataviews` 16 and `@wordpress/ui` 0.15 type APIs. [#49801]
+
 ## [0.10.0] - 2026-06-22
 ### Added
 - Add a transitional Subscribers announcement page (wp-build) shown in place of the legacy Subscribers menu link when the Newsletter modernization filter is enabled. [#49496]
@@ -249,6 +332,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.12.6]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.5...v0.12.6
+[0.12.5]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.4...v0.12.5
+[0.12.4]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.3...v0.12.4
+[0.12.3]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.2...v0.12.3
+[0.12.2]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.1...v0.12.2
+[0.12.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.0...v0.12.1
+[0.12.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.11.2...v0.12.0
+[0.11.2]: https://github.com/Automattic/jetpack-newsletter/compare/v0.11.1...v0.11.2
+[0.11.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.11.0...v0.11.1
+[0.11.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.9.1...v0.10.0
 [0.9.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.10...v0.9.0

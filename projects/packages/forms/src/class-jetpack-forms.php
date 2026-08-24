@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Forms;
 
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\Forms\ContactForm\Feedback_Source;
 use Automattic\Jetpack\Forms\ContactForm\Util;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
 /**
@@ -14,12 +16,39 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard;
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '7.22.4';
+	const PACKAGE_VERSION = '7.25.0';
+
+	/**
+	 * Name of the feature flag gating field conditional logic.
+	 */
+	const CONDITIONAL_LOGIC_FLAG = 'forms-conditional-logic';
+
+	/**
+	 * Register the package's feature flags.
+	 *
+	 * Registration is unconditional and happens as the package loads, so the full set stays
+	 * discoverable through `Feature_Flags::all()` and nothing can call `is_enabled()` on an
+	 * unregistered flag.
+	 *
+	 * @return void
+	 */
+	public static function register_feature_flags() {
+		Feature_Flags::register(
+			self::CONDITIONAL_LOGIC_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Show or hide a form field based on the answer to another field.',
+				'owner'       => 'jetpack-forms',
+			)
+		);
+	}
 
 	/**
 	 * Load the contact form module.
 	 */
 	public static function load_contact_form() {
+		self::register_feature_flags();
+
 		Util::init();
 
 		if ( self::is_feedback_dashboard_enabled() ) {
@@ -129,6 +158,22 @@ class Jetpack_Forms {
 	}
 
 	/**
+	 * Returns true if field conditional logic is enabled.
+	 *
+	 * One switch for the whole feature: the editor panel, the front-end show/hide, and the
+	 * submission-time enforcement in validation and storage. Gating them together means a
+	 * form can never hide a field from the visitor while still requiring it on submit.
+	 *
+	 * Turning the flag off on a form that already has conditions is safe: the conditions are
+	 * simply ignored, so every field renders, validates and stores as an ordinary field.
+	 *
+	 * @return boolean
+	 */
+	public static function is_conditional_logic_enabled() {
+		return Feature_Flags::is_enabled( self::CONDITIONAL_LOGIC_FLAG );
+	}
+
+	/**
 	 * Returns true if webhooks are enabled.
 	 *
 	 * @return boolean
@@ -146,15 +191,36 @@ class Jetpack_Forms {
 	 * Whether author-configured outbound destinations from a form source should be honored.
 	 *
 	 * Destinations declared in the form content (webhooks, the legacy postToUrl attribute and
-	 * the Salesforce integration) are only honored when the source post's author has the
-	 * `manage_options` capability. Returns false when no post author can be determined (for
-	 * example, widget or block-template forms whose source id is not a numeric post).
+	 * the Salesforce integration) carry submission data to an outbound URL, so they are only
+	 * honored when whoever placed the form had an administrator-level capability:
 	 *
-	 * @param int|string $source_id The form source id: a post id for post/page forms, or a
-	 *                              non-numeric value for widget or block-template sources.
+	 * - For post/page forms (`single`, numeric source id) the source post's author must have
+	 *   the `manage_options` capability. Editor/Author/Contributor-authored forms are dropped.
+	 * - For block templates, block template parts and widgets the source id is not a numeric
+	 *   post, so there is no author to check. Editing any of those surfaces already requires
+	 *   the `edit_theme_options` capability — administrator-tier, strictly above the
+	 *   capabilities an Editor/Author/Contributor holds — so their destinations are trusted.
+	 *
+	 * The source type is established server-side (from the signed JWT, or by re-rendering the
+	 * real template/template part on the legacy path) and is not forgeable by the submitter.
+	 *
+	 * Returns false for any other unresolved source (non-numeric id of an unknown type, or a
+	 * numeric id with no admin-capable author).
+	 *
+	 * @param int|string $source_id   The form source id: a post id for post/page forms, or a
+	 *                                non-numeric value for widget or block-template sources.
+	 * @param string     $source_type The form source type: single, widget, block_template or
+	 *                                block_template_part. Defaults to 'single'.
 	 * @return boolean
 	 */
-	public static function should_honor_content_destinations( $source_id ) {
+	public static function should_honor_content_destinations( $source_id, $source_type = 'single' ) {
+		// Block templates, template parts and widgets can only be authored by users with the
+		// administrator-tier `edit_theme_options` capability, so their destinations are trusted
+		// even though the source id is not a numeric post.
+		if ( in_array( $source_type, Feedback_Source::ADMIN_TIER_SOURCE_TYPES, true ) ) {
+			return true;
+		}
+
 		if ( ! is_numeric( $source_id ) ) {
 			return false;
 		}

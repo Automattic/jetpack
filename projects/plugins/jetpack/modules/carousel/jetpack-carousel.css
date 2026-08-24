@@ -4,6 +4,22 @@
 	--jp-carousel-bg-color: #000;
 	--jp-carousel-bg-faded-color: #222;
 	--jp-carousel-border-color: #3a3a3a;
+	--jp-carousel-fade-duration: 100ms;
+}
+
+/*
+Every opacity fade in the module runs through this class, so it stays on the
+compositor and JS only has to flip the target value.
+*/
+.jp-carousel-fade {
+	transition: opacity var(--jp-carousel-fade-duration) ease-out;
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+
+	.jp-carousel-fade {
+		transition-duration: 0s;
+	}
 }
 
 :root .jp-carousel-light {
@@ -411,7 +427,8 @@ div.jp-carousel-buttons a:hover {
 
 .jp-carousel-photo-description p a,
 .jp-carousel-comments p a,
-.jp-carousel-info h2 a {
+.jp-carousel-info .jp-carousel-photo-caption a,
+.jp-carousel-info .jp-carousel-caption a {
 	color: var(--jp-carousel-primary-color) !important;
 	border: none !important;
 	text-decoration: underline !important;
@@ -433,7 +450,8 @@ div.jp-carousel-buttons a:hover {
 
 .jp-carousel-photo-description p a:hover,
 .jp-carousel-comments p a:hover,
-.jp-carousel-info h2 a:hover {
+.jp-carousel-info .jp-carousel-photo-caption a:hover,
+.jp-carousel-info .jp-carousel-caption a:hover {
 	color: var(--jp-carousel-primary-subtle-color) !important;
 }
 

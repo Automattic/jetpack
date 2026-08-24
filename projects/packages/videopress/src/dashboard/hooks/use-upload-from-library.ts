@@ -1,5 +1,7 @@
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import { promoteOnSimple } from '../../client/lib/promote-on-simple';
 import { LIBRARY_QUERY_KEY } from './use-library';
 
 type UploadStatusResponse = {
@@ -13,6 +15,10 @@ type UploadStatusResponse = {
 	// Returned for the `uploaded` (already-on-VideoPress) terminal status.
 	uploaded_post_id?: number | string;
 	uploaded_video_guid?: string;
+	// Chunk-progress fields present on `new` / `resume` / `uploading` /
+	// `complete` responses (`bytes_uploaded` is -1 on `error`).
+	bytes_uploaded?: number;
+	file_size?: number;
 };
 
 export type UploadFromLibraryResult = {
@@ -25,6 +31,8 @@ export type UploadFromLibraryOptions = {
 	delayMs?: number;
 	/** Maximum total attempts before giving up. */
 	maxAttempts?: number;
+	/** Called with the upload percentage (0–100) after each chunk response. */
+	onProgress?: ( percent: number ) => void;
 };
 
 const DEFAULT_DELAY_MS = 500;
@@ -77,6 +85,21 @@ export async function uploadFromLibrary(
 			continue;
 		}
 
+		// Each POST pushes one chunk server-side and reports the running
+		// offset; surface it so callers can render real upload progress.
+		// `bytes_uploaded` is -1 on `error` responses, hence the >= 0 guard.
+		if (
+			options.onProgress &&
+			typeof result.bytes_uploaded === 'number' &&
+			typeof result.file_size === 'number' &&
+			result.bytes_uploaded >= 0 &&
+			result.file_size > 0
+		) {
+			options.onProgress(
+				Math.min( 100, Math.round( ( result.bytes_uploaded / result.file_size ) * 100 ) )
+			);
+		}
+
 		if ( result.status === 'complete' && result.uploaded_details ) {
 			return {
 				guid: result.uploaded_details.guid,
@@ -107,19 +130,37 @@ export async function uploadFromLibrary(
 	throw new Error( 'Upload from library timed out.' );
 }
 
+export type UploadFromLibraryVariables = {
+	/** The numeric or string WordPress attachment ID. */
+	id: string | number;
+	/** Called with the upload percentage (0–100) after each chunk response. */
+	onProgress?: ( percent: number ) => void;
+};
+
+// The implementation lives in client/lib so the VideoPress block's
+// media-library picker can share it (client never imports from dashboard);
+// re-exported here to keep the dashboard-side import surface unchanged.
+export { promoteOnSimple };
+
 /**
  * Promote an existing local WordPress media attachment to a
- * VideoPress-hosted video by walking the chunked upload endpoint.
- * On success the library query is invalidated so the new VideoPress
- * item appears (in processing state, which the library's existing
- * 2s polling then resolves once the backend finishes transcoding).
+ * VideoPress-hosted video. On WordPress.com Simple this is one in-process
+ * POST to wpcom/v2/videopress/promote (the file is already on WordPress.com
+ * storage); elsewhere it walks the chunked videopress/v1 upload endpoint.
+ * On success the library query is invalidated so the new VideoPress item
+ * appears (in processing state, which the library's existing 2s polling
+ * then resolves once the backend finishes transcoding).
  *
  * @return A react-query mutation.
  */
 export function useUploadFromLibrary() {
 	const client = useQueryClient();
-	return useMutation< UploadFromLibraryResult, Error, string | number >( {
-		mutationFn: id => uploadFromLibrary( id ),
+	return useMutation< UploadFromLibraryResult, Error, UploadFromLibraryVariables >( {
+		// On Simple the promote is a single in-process POST — there are no
+		// chunks, so onProgress never fires and the row's promoting overlay
+		// stays indeterminate until the mutation settles.
+		mutationFn: ( { id, onProgress } ) =>
+			isSimpleSite() ? promoteOnSimple( id ) : uploadFromLibrary( id, { onProgress } ),
 		onSuccess: () => {
 			client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
 		},

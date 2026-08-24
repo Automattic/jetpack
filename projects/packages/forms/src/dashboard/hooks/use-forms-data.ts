@@ -9,6 +9,7 @@ export type FormListItem = {
 	modified: string;
 	entriesCount: number;
 	editUrl?: string;
+	isCollectingResponses: boolean;
 };
 
 /**
@@ -57,6 +58,7 @@ type JetpackFormRestItem = {
 	modified: string;
 	entries_count?: number;
 	edit_url?: string;
+	is_collecting_responses?: boolean;
 };
 
 type UseFormsDataReturn = {
@@ -113,6 +115,8 @@ export default function useFormsData(
 				modified: typedItem.modified,
 				entriesCount: typedItem.entries_count ?? 0,
 				editUrl: typedItem.edit_url,
+				// Default to true so we never warn on a form whose status we couldn't determine.
+				isCollectingResponses: typedItem.is_collecting_responses ?? true,
 			} );
 		}
 		return items;

@@ -39,6 +39,32 @@ class Site_Health {
 		self::$initialized = true;
 
 		add_action( 'admin_init', array( __CLASS__, 'maybe_register_site_health' ), 1 );
+
+		// Deliberately hooked to the cron-only `jetpack_heartbeat` action (end of
+		// Heartbeat::cron_exec()) and not `jetpack_heartbeat_stats_array`, which
+		// also fires in synchronous request contexts (XML-RPC, REST, WP-CLI) where
+		// a remote test would be slow and an amplification vector.
+		add_action( 'jetpack_heartbeat', array( __CLASS__, 'do_daily_connection_check' ) );
+	}
+
+	/**
+	 * Runs the WP.com connection test once a day on the heartbeat cron.
+	 *
+	 * The test result itself is discarded: the point is the test's side effects,
+	 * which keep the Error_Handler state for failures that WP.com cannot report
+	 * through a request of its own (e.g. the site blocking WP.com requests) fresh —
+	 * reported while the condition persists, cleared once it resolves. Without this,
+	 * the error would only update on Site Health page visits and Core's weekly
+	 * Site Health cron, and would expire (ERROR_LIFE_TIME) while still unresolved.
+	 *
+	 * @since 8.10.0
+	 */
+	public static function do_daily_connection_check() {
+		if ( ! ( new Manager() )->is_connected() ) {
+			return;
+		}
+
+		( new Connection_Health_Tests() )->run_test( 'test__wpcom_connection_test' );
 	}
 
 	/**

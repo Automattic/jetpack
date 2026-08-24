@@ -3,6 +3,10 @@
  */
 import { tz, TZDate, TZDateMini } from '@date-fns/tz';
 import { format, isValid, startOfDay, endOfDay } from 'date-fns';
+/**
+ * Internal dependencies
+ */
+import { readSiteTimestamp, type TimestampParts } from './site-timestamp';
 
 type GrowTuple< T extends unknown[], Max extends number > = T[ 'length' ] extends Max
 	? T
@@ -32,6 +36,7 @@ type GrowTuple< T extends unknown[], Max extends number > = T[ 'length' ] extend
 type DateParts = GrowTuple< [ number, number ], 7 >;
 
 /**
+ * Build a TZDate from `DateParts` in the given timezone, UTC when omitted.
  *
  * @param root0
  * @param root0."0"
@@ -60,18 +65,58 @@ export function createTZDateFromParts(
 }
 
 /**
- * Create a TZDate in the provided timezone.
- * Defaults to UTC when no timezone is given.
+ * Anchor wall-clock parts to a timezone.
+ *
+ * @param parts    - The wall-clock parts.
+ * @param timeZone - The timezone the wall time belongs to.
+ * @return The zoned date, or an invalid date when the timezone has no such day.
+ */
+function wallTimeToTZDate( parts: TimestampParts, timeZone: string ): TZDate {
+	const date = createTZDateFromParts( parts, timeZone );
+
+	// A zone that skips a whole day, as Pacific/Apia did on 2011-12-30, moves
+	// the wall time onto the next one. Compare only the date parts, so a wall
+	// time normalized by a DST jump stays valid.
+	const survivedRoundTrip =
+		date.getFullYear() === parts[ 0 ] &&
+		date.getMonth() === parts[ 1 ] &&
+		date.getDate() === parts[ 2 ];
+
+	return survivedRoundTrip ? date : new TZDateMini( NaN, timeZone );
+}
+
+/**
+ * Create a TZDate, reading offset-less strings as wall time in the timezone.
+ *
  * @param value
  * @param timeZone
  */
 export function toLocalTZ( value?: number | string | Date, timeZone?: string ): TZDate {
 	const tzid = timeZone ?? '+00:00';
-	if ( value !== undefined ) {
-		return new TZDateMini( value as number, tzid );
+
+	if ( value === undefined ) {
+		return TZDateMini.tz( tzid );
 	}
 
-	return TZDateMini.tz( tzid );
+	if ( typeof value === 'string' ) {
+		const timestamp = readSiteTimestamp( value );
+
+		// A shape this package does not read reaches `Date` otherwise, which
+		// resolves an offset-less string in the *browser's* zone — the shift this
+		// module avoids — and leaves `parseSiteDateTime` rejecting a value this
+		// accepts.
+		if ( ! timestamp?.isValid ) {
+			return new TZDateMini( NaN, tzid );
+		}
+
+		// An offset already identifies an instant, so only wall times are
+		// anchored to the timezone.
+		return timestamp.offset
+			? new TZDateMini( timestamp.value as unknown as number, tzid )
+			: wallTimeToTZDate( timestamp.parts, tzid );
+	}
+
+	return new TZDateMini( value as number, tzid );
 }
 
 /**
@@ -108,7 +153,6 @@ export function dateToISOStringWithTZ( date: Date, timezone: string ): string {
  * @return A Date object representing midnight in the specified timezone
  */
 export function startOfDayTZ( date: Date | number, timeZone: string ): Date {
-	// Create TZDate in the target timezone - this interprets the input date in that timezone
 	const tzDate = new TZDateMini( new Date( date ).getTime(), timeZone );
 	// startOfDay from date-fns respects the timezone context in TZDate
 	return startOfDay( tzDate );
@@ -122,7 +166,6 @@ export function startOfDayTZ( date: Date | number, timeZone: string ): Date {
  * @return A Date object representing the last millisecond of the day in the specified timezone
  */
 export function endOfDayTZ( date: Date | number, timeZone: string ): Date {
-	// Create TZDate in the target timezone - this interprets the input date in that timezone
 	const tzDate = new TZDateMini( new Date( date ).getTime(), timeZone );
 	// endOfDay from date-fns respects the timezone context in TZDate
 	return endOfDay( tzDate );

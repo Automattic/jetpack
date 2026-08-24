@@ -4,14 +4,14 @@
 	"title": "AI Launchpad Selector Agent Output",
 	"description": "Cross-stream contract for the AI Launchpad. Three consumers: (1) Stream F's `js/lib/tailor.ts` parses the `jetpack-ai-query` response and validates against this schema (Ajv); (2) Stream B's `PUT /tailored` validates incoming request bodies against this schema server-side; (3) the Node eval runner (`bin/eval-ai-launchpad.mjs`) validates fixture outputs against this schema during prompt iteration. Change this schema and three test paths fail in lockstep — that's the point.",
 	"type": "object",
-	"required": [ "tasks", "inferred", "first_post_draft" ],
+	"required": [ "tasks", "inferred", "first_post_draft", "about_page_draft" ],
 	"additionalProperties": false,
 	"properties": {
 		"tasks": {
 			"type": "array",
 			"minItems": 6,
 			"maxItems": 6,
-			"description": "Exactly six task selections. The last task MUST be a launch task (canonical: `site_launched`; flow-specific alternatives: `blog_launched`, `woo_launch_site`, `link_in_bio_launched`, `videopress_launched`); server enforces. Order follows the STEP rules from the system prompt: first-creation → niche-specific → foundation → launch. Catalog uses snake_case IDs.",
+			"description": "Exactly six task selections. The last task MUST be a launch task (canonical: `site_launched`; flow-specific alternatives: `blog_launched`, `link_in_bio_launched`, `videopress_launched`); server enforces. Order follows the STEP rules from the system prompt: first-creation → niche-specific → foundation → launch. Catalog uses snake_case IDs.",
 			"items": {
 				"type": "object",
 				"required": [ "id", "subtitle" ],
@@ -42,6 +42,11 @@
 					"enum": [ "write", "build", "sell", "newsletter", "educate", "portfolio" ],
 					"description": "Echoes or re-resolves the wizard goal. Single source of truth downstream."
 				},
+				"inferred_goal": {
+					"type": "string",
+					"enum": [ "write", "build", "sell", "newsletter", "educate", "portfolio" ],
+					"description": "The goal the model infers from the site name and description ALONE, ignoring the wizard goal. Analytics only: read by the Tracks/Logstash context builders, never by tailoring or read-side logic. Optional so an output that omits it never fails into the fallback."
+				},
 				"brand_name": {
 					"type": "string",
 					"maxLength": 80,
@@ -50,6 +55,31 @@
 				"niche": {
 					"type": "string",
 					"maxLength": 120
+				},
+				"theme_category": {
+					"type": "string",
+					"enum": [
+						"blog",
+						"portfolio",
+						"business",
+						"store",
+						"art-design",
+						"about",
+						"real-estate",
+						"health-wellness",
+						"authors-writers",
+						"newsletter",
+						"education",
+						"magazine",
+						"music",
+						"restaurant",
+						"travel-lifestyle",
+						"fashion-beauty",
+						"community-non-profit",
+						"podcast",
+						"entertainment"
+					],
+					"description": "The theme-showcase subject category that best matches the site, used to pre-filter the showcase to a category (every category carries free themes, unlike free-text search which surfaces mostly paid results). Slugs mirror the showcase's `subject` taxonomy from /rest/v1.2/theme-filters."
 				},
 				"vibe": {
 					"type": "string",
@@ -93,6 +123,62 @@
 						"minLength": 1,
 						"maxLength": 1200
 					}
+				}
+			}
+		},
+		"about_page_draft": {
+			"type": "object",
+			"required": [ "title", "paragraphs" ],
+			"additionalProperties": false,
+			"description": "Starter About-page content, grounded in the user's own description. Persisted via POST /wp/v2/pages as status=draft when the user clicks the add_about_page task CTA. Outputs persisted before this field existed lack it; the client then creates an empty page shell.",
+			"properties": {
+				"title": {
+					"type": "string",
+					"minLength": 1,
+					"maxLength": 80,
+					"description": "The page title, ≤4 words per the system prompt (usually \"About\" or \"About {brand}\")."
+				},
+				"paragraphs": {
+					"type": "array",
+					"minItems": 2,
+					"maxItems": 3,
+					"description": "Two or three short paragraphs: who is behind the site, what visitors will find, an invitation.",
+					"items": {
+						"type": "string",
+						"minLength": 1,
+						"maxLength": 1200
+					}
+				}
+			}
+		},
+		"page_intros": {
+			"type": "object",
+			"additionalProperties": false,
+			"description": "Opening lines for the page tasks whose page is otherwise fixed markup: the client hand-authors heading + block, and this is the one part worth tailoring. Keyed by task id so the client looks the line up by the id it is already rendering, and so a new page task costs one property here rather than a new top-level field. Optional as a whole, and every key inside it is optional too: the model writes a key only for a page task it actually selected, so a run that selected none carries nothing. Outputs persisted before this field existed lack it; the client then creates the page without an intro paragraph.",
+			"properties": {
+				"add_contact_page": {
+					"type": "string",
+					"minLength": 1,
+					"maxLength": 200,
+					"description": "One sentence inviting the visitor to get in touch, grounded in what someone would contact this site about. The page carries a working contact form, so the prompt forbids naming an email address, phone number, or postal address here."
+				},
+				"add_events_page": {
+					"type": "string",
+					"minLength": 1,
+					"maxLength": 200,
+					"description": "One sentence saying what kind of thing this site runs and why someone would come. The page's event entries are deliberately left blank for the user to fill in, so the prompt forbids naming a date, a day, a time, a venue, or a price here: only the user knows when their events are."
+				},
+				"add_video_page": {
+					"type": "string",
+					"minLength": 1,
+					"maxLength": 200,
+					"description": "One sentence saying what this site's videos show and why someone would watch. The page carries one empty core/video block for the user to fill, so the prompt forbids describing a particular video as if it were already there, promising a number of them, or naming a video platform or channel."
+				},
+				"add_gallery_page": {
+					"type": "string",
+					"minLength": 1,
+					"maxLength": 200,
+					"description": "One sentence saying what this site's pictures show and why someone would look. The page carries one empty core/gallery block for the user to fill with their OWN images, so the prompt forbids describing a particular image as if it were already there, promising a number of them, or naming a photo-sharing platform or account."
 				}
 			}
 		}

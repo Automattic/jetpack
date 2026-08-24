@@ -103,7 +103,7 @@
 
 #wpadminbar #wp-admin-bar-site-name {
 
-	> .ab-item::before {
+	&:not(.has-site-icon) > .ab-item::before {
 
 		/**
 		 * Always show the House icon by the site name.
@@ -123,10 +123,11 @@
 /**
  * Site badge and plan info in the dropdown
  */
-// Drop core's .ab-submenu padding here to match Calypso.
-#wpadminbar #wp-admin-bar-site-name-default,
+
+// Match core's spacing for added submenu nodes instead of zeroing padding.
+// https://github.com/WordPress/WordPress/blob/c06456a36202fdb76787228f007b28e5028216fe/wp-includes/css/admin-bar.css#L546
 #wpadminbar #wp-admin-bar-site-plan {
-	padding: 0;
+	margin-top: -12px;
 }
 
 // Pad the wrapper top instead, pushing Visit Site down to match Calypso.
@@ -187,8 +188,6 @@
 /**
  * Profile section of the admin bar
  */
-// stylelint-disable-next-line no-duplicate-selectors
-// -- disabling due to the complexity of combining the two selectors
 #wpadminbar {
 	// Add background color to the right side of the admin bar for the mobile view
 	.quicklinks {

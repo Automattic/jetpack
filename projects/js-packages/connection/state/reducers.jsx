@@ -10,6 +10,7 @@ import {
 	SET_AUTHORIZATION_URL,
 	SET_CONNECTED_PLUGINS,
 	SET_CONNECTION_ERRORS,
+	SET_CONNECTION_HEALTH_ERRORS,
 	SET_IS_OFFLINE_MODE,
 } from './actions';
 
@@ -87,10 +88,26 @@ const userConnectionData = ( state, action ) => {
 	}
 };
 
+const connectionOwner = ( state = null, action ) => {
+	switch ( action.type ) {
+		default:
+			return state;
+	}
+};
+
 const connectionErrors = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_CONNECTION_ERRORS:
 			return action.connectionErrors;
+	}
+
+	return state;
+};
+
+const connectionHealthErrors = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_CONNECTION_HEALTH_ERRORS:
+			return action.connectionHealthErrors;
 	}
 
 	return state;
@@ -114,7 +131,9 @@ const reducers = combineReducers( {
 	authorizationUrl,
 	userConnectionData,
 	connectedPlugins,
+	connectionOwner,
 	connectionErrors,
+	connectionHealthErrors,
 	isOfflineMode,
 } );
 

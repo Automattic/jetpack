@@ -15,8 +15,6 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Identity_Crisis;
-use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
-use Automattic\Jetpack\Image_CDN\Image_CDN_Image;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Licensing\Endpoints as Licensing_Endpoints;
@@ -214,7 +212,6 @@ class Jetpack_Redux_State_Helper {
 				'messageCode'      => Jetpack::state( 'message' ),
 				'errorCode'        => Jetpack::state( 'error' ),
 				'errorDescription' => Jetpack::state( 'error_description' ),
-				'messageContent'   => Jetpack::state( 'display_update_modal' ) ? self::get_update_modal_data() : null,
 			),
 			'tracksUserData'                       => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'currentIp'                            => IP_Utils::get_ip(),
@@ -249,15 +246,11 @@ class Jetpack_Redux_State_Helper {
 
 			/*
 			 * This filter is already documented in jetpack/modules/subscriptions.php.
-			 * Default is the staged rollout (Automatticians plus the percentage cohort,
-			 * currently 0%, bucketed by the stable wpcom blog ID), delegated to the
-			 * canonical Newsletter\Settings helper and guarded so an older packaged copy
-			 * can't fatal.
+			 * Defaults on for every site; hosts can opt out with the filter.
 			 */
 			'isWpAdminSubscriberManagementEnabled' => apply_filters(
 				'jetpack_wp_admin_subscriber_management_enabled',
-				method_exists( '\Automattic\Jetpack\Newsletter\Settings', 'is_modernization_rollout_enabled' )
-					&& \Automattic\Jetpack\Newsletter\Settings::is_modernization_rollout_enabled()
+				true
 			),
 		);
 	}
@@ -291,67 +284,31 @@ class Jetpack_Redux_State_Helper {
 
 	/**
 	 * Returns the release post content and image data as an associative array.
-	 * This data is used to create the update modal.
+	 *
+	 * The update modal that consumed this data has been removed, so there is nothing to return.
+	 *
+	 * @deprecated 16.2
+	 *
+	 * @return null
 	 */
 	public static function get_update_modal_data() {
-		$post_data = self::get_release_post_data();
-
-		if ( ! isset( $post_data['posts'][0] ) ) {
-			return;
-		}
-
-		$post = $post_data['posts'][0];
-
-		if ( empty( $post['content'] ) ) {
-			return;
-		}
-
-		// This allows us to embed videopress videos into the release post.
-		add_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10, 2 );
-		$content = wp_kses_post( $post['content'] );
-		remove_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10 );
-
-		$post_title = $post['title'] ?? null;
-		$title      = wp_kses( $post_title, array() );
-
-		$post_thumbnail = $post['post_thumbnail'] ?? null;
-		if ( ! empty( $post_thumbnail ) ) {
-			$photon_image = new Image_CDN_Image(
-				array(
-					'file'   => Image_CDN_Core::cdn_url( $post_thumbnail['URL'] ),
-					'width'  => $post_thumbnail['width'],
-					'height' => $post_thumbnail['height'],
-				),
-				$post_thumbnail['mime_type']
-			);
-			$photon_image->resize(
-				array(
-					'width'  => 600,
-					'height' => null,
-					'crop'   => false,
-				)
-			);
-			$post_thumbnail_url = $photon_image->get_raw_filename();
-		} else {
-			$post_thumbnail_url = null;
-		}
-
-		$post_array = array(
-			'release_post_content'        => $content,
-			'release_post_featured_image' => $post_thumbnail_url,
-			'release_post_title'          => $title,
-		);
-
-		return $post_array;
+		_deprecated_function( __METHOD__, 'jetpack-16.2' );
+		return null;
 	}
 
 	/**
 	 * Temporarily allow post content to contain iframes, e.g. for videopress.
 	 *
+	 * Only ever used while sanitizing the release post for the removed update modal.
+	 *
+	 * @deprecated 16.2
+	 *
 	 * @param string $tags    The tags.
 	 * @param string $context The context.
 	 */
 	public static function allow_post_embed_iframe( $tags, $context ) {
+		_deprecated_function( __METHOD__, 'jetpack-16.2' );
+
 		if ( 'post' === $context ) {
 			$tags['iframe'] = array(
 				'src'             => true,
@@ -366,36 +323,18 @@ class Jetpack_Redux_State_Helper {
 	}
 
 	/**
-	 * Obtains the release post from the Jetpack release post blog. A release post will be displayed in the
-	 * update modal when a post has a tag equal to the Jetpack version number.
+	 * Obtains the release post from the Jetpack release post blog.
 	 *
-	 * The response parameters for the post array can be found here:
-	 * https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/posts/%24post_ID/#apidoc-response
+	 * The release post blog has had no post tagged for a current Jetpack version since 2023, and the
+	 * update modal that consumed this has been removed, so this no longer makes a remote request.
 	 *
-	 * @return array|null Returns an associative array containing the release post data at index ['posts'][0].
-	 *                    Returns null if the release post data is not available.
+	 * @deprecated 16.2
+	 *
+	 * @return null
 	 */
 	public static function get_release_post_data() {
-		if ( Constants::is_defined( 'TESTING_IN_JETPACK' ) && Constants::get_constant( 'TESTING_IN_JETPACK' ) ) {
-			return null;
-		}
-
-		$release_post_src = add_query_arg(
-			array(
-				'order_by' => 'date',
-				'tag'      => JETPACK__VERSION,
-				'number'   => '1',
-			),
-			'https://public-api.wordpress.com/rest/v1/sites/' . JETPACK__RELEASE_POST_BLOG_SLUG . '/posts'
-		);
-
-		$response = wp_remote_get( $release_post_src );
-
-		if ( ! is_array( $response ) ) {
-			return null;
-		}
-
-		return json_decode( wp_remote_retrieve_body( $response ), true );
+		_deprecated_function( __METHOD__, 'jetpack-16.2' );
+		return null;
 	}
 
 	/**

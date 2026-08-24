@@ -2,4 +2,4 @@
  * Widget edit fields
  */
 export { ReportParamsField, type ReportParamsFieldAttributes } from './date-report-params-field';
-export { MetricsField, DEFAULT_METRICS } from './metrics-field';
+export { PageGranularityField } from './page-granularity-field';

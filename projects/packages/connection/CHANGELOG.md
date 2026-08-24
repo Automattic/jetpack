@@ -5,6 +5,112 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.11.0] - 2026-08-20
+### Added
+- Error UI: Document displayable connection errors and identify cases where consumers should offer a support link. [#51360]
+
+### Fixed
+- Terms of Service: Avoid a redundant per-request database query on sites without a persistent object cache. [#50965]
+
+## [8.10.4] - 2026-08-19
+### Changed
+- Tracking: Sanitize the event name, event properties, user agent, IP address, and language recorded with Tracks events. [#51316]
+
+### Fixed
+- Report errors from XML-RPC faults, which were invisible to the existing intake. We also remove invalid_signature from the displayable error codes as it is not actionable. [#51208]
+
+## [8.10.3] - 2026-08-14
+### Fixed
+- Account status: Do not report an account mismatch when the WordPress.com email and the site email differ only in letter case. [#51285]
+
+## [8.10.2] - 2026-08-13
+### Security
+- Connection: Leave another user's broken-token error out of the connection error data, so the reconnect CTA is no longer offered against a token it cannot restore. [#51034]
+
+### Changed
+- Connection: Warn a secondary admin that reconnecting on the connection owner's behalf transfers ownership and disconnects every other user. [#51034]
+
+### Fixed
+- Connection: Stop displaying connection owner errors that refer to a previous owner. [#51034]
+
+## [8.10.1] - 2026-08-12
+### Fixed
+- Report connection errors that happen while signing an outgoing request, record the specific reason the token could not be loaded, and store the request body hash with them. [#51116]
+
+## [8.10.0] - 2026-08-11
+### Added
+- Add a site data endpoint so plugins without the Jetpack plugin can read the WordPress.com site record. [#51057]
+- Connection Health: Surface the blocked-request connection failure (host blocking WordPress.com requests) as a verified connection error with an admin notice, and re-check the connection daily on the heartbeat cron. [#51145]
+
+### Fixed
+- Error Handler: Prevent a fatal error when a request runs during a plugin update and an older version of the Error_Handler class is already loaded. [#51173]
+
+## [8.9.0] - 2026-08-06
+### Changed
+- Error Handler: Standardize the stored connection error structure with explicit error type and direction fields. [#50992]
+
+## [8.8.2] - 2026-08-03
+### Changed
+- Update dependencies. [#50674]
+
+## [8.8.1] - 2026-07-31
+### Added
+- Connection: Expose the connection-error audience (site/owner/user) to the Jetpack dashboard so error notices can be tailored to the viewer.
+
+### Changed
+- Connection: Fetch connected user data from WordPress.com over REST instead of XML-RPC.
+
+### Fixed
+- Connection: cache wpcom.getUser XML-RPC failures briefly in get_connected_user_data().
+
+## [8.8.0] - 2026-07-27
+### Added
+- Show non-owner admins who needs to reconnect instead of a reconnect button when connection ownership is locked. [#50662]
+
+### Changed
+- Update package dependencies. [#50751]
+
+## [8.7.10] - 2026-07-22
+### Changed
+- Update dependencies. [#50674]
+
+## [8.7.9] - 2026-07-20
+### Changed
+- Heartbeat: Report the site environment stats (WordPress/PHP versions, site configuration, etc.) for all connected sites. [#50006]
+- Update dependencies. [#50551]
+- Update package dependencies. [#50529]
+
+## [8.7.8] - 2026-07-13
+### Changed
+- Internal updates.
+
+## [8.7.7] - 2026-07-09
+### Changed
+- Route the is_usable_domain() IP check through Utils::ip_is_public(), so reserved and special-use ranges (CGNAT, link-local/cloud-metadata, multicast, and similar) are rejected consistently with the rest of the codebase. [#50175]
+
+## [8.7.6] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## [8.7.5] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [8.7.4] - 2026-06-25
+### Changed
+- Heartbeat: Report the missing connection owner and XML-RPC error stats for all connected sites. [#49922]
+
+## [8.7.3] - 2026-06-24
+### Changed
+- Reduce per-request memory footprint on connected sites by deferring package version tracking to request shutdown. [#49803]
+
+## [8.7.2] - 2026-06-23
+### Changed
+- Update package dependencies. [#49831]
+
+### Fixed
+- Connection: Do not offer to reconnect when the site is blocking WordPress.com's connection test (e.g. firewall/WAF). [#49655]
+
 ## [8.7.1] - 2026-06-22
 ### Changed
 - Update package dependencies. [#49691] [#49757]
@@ -1912,6 +2018,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.11.0]: https://github.com/Automattic/jetpack-connection/compare/v8.10.4...v8.11.0
+[8.10.4]: https://github.com/Automattic/jetpack-connection/compare/v8.10.3...v8.10.4
+[8.10.3]: https://github.com/Automattic/jetpack-connection/compare/v8.10.2...v8.10.3
+[8.10.2]: https://github.com/Automattic/jetpack-connection/compare/v8.10.1...v8.10.2
+[8.10.1]: https://github.com/Automattic/jetpack-connection/compare/v8.10.0...v8.10.1
+[8.10.0]: https://github.com/Automattic/jetpack-connection/compare/v8.9.0...v8.10.0
+[8.9.0]: https://github.com/Automattic/jetpack-connection/compare/v8.8.2...v8.9.0
+[8.8.2]: https://github.com/Automattic/jetpack-connection/compare/v8.8.1...v8.8.2
+[8.8.1]: https://github.com/Automattic/jetpack-connection/compare/v8.8.0...v8.8.1
+[8.8.0]: https://github.com/Automattic/jetpack-connection/compare/v8.7.10...v8.8.0
+[8.7.10]: https://github.com/Automattic/jetpack-connection/compare/v8.7.9...v8.7.10
+[8.7.9]: https://github.com/Automattic/jetpack-connection/compare/v8.7.8...v8.7.9
+[8.7.8]: https://github.com/Automattic/jetpack-connection/compare/v8.7.7...v8.7.8
+[8.7.7]: https://github.com/Automattic/jetpack-connection/compare/v8.7.6...v8.7.7
+[8.7.6]: https://github.com/Automattic/jetpack-connection/compare/v8.7.5...v8.7.6
+[8.7.5]: https://github.com/Automattic/jetpack-connection/compare/v8.7.4...v8.7.5
+[8.7.4]: https://github.com/Automattic/jetpack-connection/compare/v8.7.3...v8.7.4
+[8.7.3]: https://github.com/Automattic/jetpack-connection/compare/v8.7.2...v8.7.3
+[8.7.2]: https://github.com/Automattic/jetpack-connection/compare/v8.7.1...v8.7.2
 [8.7.1]: https://github.com/Automattic/jetpack-connection/compare/v8.7.0...v8.7.1
 [8.7.0]: https://github.com/Automattic/jetpack-connection/compare/v8.6.1...v8.7.0
 [8.6.1]: https://github.com/Automattic/jetpack-connection/compare/v8.6.0...v8.6.1

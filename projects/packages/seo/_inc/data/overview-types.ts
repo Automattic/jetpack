@@ -1,5 +1,5 @@
 // Shape of the aggregated Overview state the server bootstraps onto
-// `window.JetpackScriptData.seo.overview` (see `Initializer::get_overview_data()`).
+// `window.JetpackScriptData.seo.overview` (see `Dashboard_Data::get_overview_data()`).
 // Plain TypeScript — the server owns the payload, so no runtime schema is needed.
 
 export interface SiteVisibility {
@@ -18,8 +18,10 @@ export interface SiteVerification {
 
 export interface ContentCoverage {
 	total: number;
-	with_description: number;
 	with_schema: number;
+	with_title: number;
+	with_description: number;
+	with_search_visible: number;
 }
 
 export interface OverviewResponse {

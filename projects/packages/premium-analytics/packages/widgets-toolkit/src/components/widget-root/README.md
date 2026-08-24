@@ -56,7 +56,7 @@ export function MyWidget() {
 | -------------- | -------------------------------------- | --------------------------------------------------------------- |
 | `attributes`   | `Partial<ReportParamsFieldAttributes>` | Widget attributes, may include `reportParams`                   |
 | `children`     | `ReactNode`                            | Child components (widgets)                                      |
-| `options.from` | `string`                               | Router path for URL params (default: `/`)                       |
+| `options.from` | `string`                               | Deprecated/ignored — params are always read from the current matched route |
 
 ### useWidgetRootContext
 
@@ -64,7 +64,8 @@ Returns the resolved context value:
 
 ```typescript
 type WidgetRootContextValue = {
-	reportParams: ReportParams;
+	reportParams: ReportParams; // Surface-scoped params used for data and rendering.
+	navigationParams?: ReportParams; // Full report window retained for links.
 };
 ```
 
@@ -77,6 +78,10 @@ type WidgetRootContextValue = {
 1. **From attributes** - If `attributes.reportParams` is provided and non-empty
 2. **From URL** - Falls back to URL search params via `@wordpress/route`
 
+The normalized result is retained as `navigationParams` so links preserve the
+shared report window. `reportParams` may omit fields the current surface does
+not offer, such as comparison fields on Insights.
+
 This allows widgets to work both:
 
 - In the Analytics dashboard (params from URL)
@@ -88,7 +93,7 @@ This allows widgets to work both:
 WidgetRoot
 ├── AnalyticsQueryClientProvider (shared React Query client)
 │   └── GlobalChartsProvider (chart theme)
-│       └── WidgetRootContext.Provider (reportParams)
+│       └── WidgetRootContext.Provider (reportParams, navigationParams)
 │           └── children (widget components)
 ```
 
@@ -130,7 +135,7 @@ Aligned with [Tailwind container query defaults](https://tailwindcss.com/docs/re
 
 	// >= 576px: add more spacing
 	@include widget-query( xl ) {
-		gap: var( --wpds-dimension-base );
+		gap: var( --wpds-dimension-size-5xs );
 	}
 }
 ```

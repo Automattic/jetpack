@@ -1,0 +1,16 @@
+{
+	"name": "jpa/top-platforms",
+	"title": "Top platforms",
+	"description": "Top browsers and operating systems your visitors use.",
+	"help": {
+		"content": "A breakdown of the operating systems and browsers your visitors used, sorted by views.",
+		"links": [
+			{
+				"label": "Learn more",
+				"href": "https://jetpack.com/support/jetpack-stats/"
+			}
+		]
+	},
+	"category": "traffic",
+	"presentation": "framed"
+}

@@ -148,6 +148,7 @@ describe( 'store actions', () => {
 			priceRange: null,
 			staticFilterSelections: {},
 			staticPostTypes: null,
+			resultsPerPage: 10,
 			results: [ { title: 'Existing result' } ],
 			locale: 'en-US',
 			isLoading: false,
@@ -237,6 +238,19 @@ describe( 'store actions', () => {
 		);
 	} );
 
+	it( 'fetches the page-level results-per-page value from state on every fetch', async () => {
+		// `search-results/render.php` seeds `state.resultsPerPage` once at
+		// template render (author override or the site's `posts_per_page`);
+		// the store reads it on every fetch, same as `staticPostTypes`.
+		const ok = () =>
+			createResponse( { results: [], total: 0, page_handle: null, aggregations: {} } );
+
+		state.resultsPerPage = 30;
+		global.fetch.mockResolvedValueOnce( ok() );
+		await runGenerator( actions.search( { syncUrl: false } ) );
+		expect( decodeURIComponent( global.fetch.mock.calls[ 0 ][ 0 ] ) ).toContain( 'size=30' );
+	} );
+
 	it( 'popstate re-runs search with only the syncUrl option (scope stays seeded)', async () => {
 		// Page-level scope is set by render.php and doesn't move; popstate
 		// only restores URL-driven state slices (query, filters, sort, etc).
@@ -281,14 +295,18 @@ describe( 'store actions', () => {
 		state.pageHandle = 'old-page';
 		state.aggregations = { category: { buckets: [ { key: 'news', doc_count: 3 } ] } };
 		state.hasError = false;
+		const resultsRef = state.results;
+		const aggregationsRef = state.aggregations;
 
 		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) );
 		await runGenerator( actions.search( { syncUrl: false } ) );
 
 		expect( state.hasError ).toBe( true );
+		expect( state.results ).toBe( resultsRef );
 		expect( state.results ).toEqual( [] );
 		expect( state.totalResults ).toBe( 0 );
 		expect( state.pageHandle ).toBeNull();
+		expect( state.aggregations ).toBe( aggregationsRef );
 		expect( state.aggregations ).toEqual( {} );
 		// `resultsCountText` reads from `totalResults` via `computeResultsCountText`,
 		// so an empty count string falls out for free — no extra wiring.
@@ -344,6 +362,154 @@ describe( 'store actions', () => {
 		// Slot key must not leak into state — downstream readers key off
 		// `filterKey`, never `effectiveSlug`.
 		expect( state.aggregations[ 'jetpack-search-tag1' ] ).toBeUndefined();
+	} );
+
+	it( 'keeps each-bound result and aggregation containers stable when search() resolves', async () => {
+		state.results = [];
+		state.aggregations = {};
+		state.retainedFilterOptions = {};
+		state.filterConfigs = {
+			category: {
+				filterKey: 'category',
+				filterType: 'taxonomy',
+				taxonomy: 'category',
+				effectiveSlug: 'category',
+				maxItems: 10,
+			},
+		};
+		const resultsRef = state.results;
+		const aggregationsRef = state.aggregations;
+		const retainedRef = state.retainedFilterOptions;
+
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Fresh result' ) ],
+				total: 1,
+				page_handle: null,
+				aggregations: {
+					category: {
+						buckets: [ { key: 'news/News', doc_count: 4 } ],
+					},
+				},
+			} )
+		);
+
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect( state.results ).toBe( resultsRef );
+		expect( state.results ).toHaveLength( 1 );
+		expect( state.results[ 0 ].title ).toBe( 'Fresh result' );
+		expect( state.aggregations ).toBe( aggregationsRef );
+		expect( state.aggregations.category.buckets[ 0 ].key ).toBe( 'news/News' );
+		expect( state.retainedFilterOptions ).toBe( retainedRef );
+		expect( state.retainedFilterOptions.category ).toEqual( [ { value: 'news', label: 'News' } ] );
+	} );
+
+	it( 'overwrites a kept aggregation key in place when a re-search returns the same key', async () => {
+		// The happy-path stability test starts from `{}`, so it only exercises
+		// replaceStateObject's add branch. Here `category` is present in BOTH
+		// the prior and the next aggregations — proving the keep-branch
+		// overwrites the bucket contents while holding the same object
+		// reference (the load-bearing property for `data-wp-each`).
+		state.results = [];
+		state.aggregations = { category: { buckets: [ { key: 'old/Old', doc_count: 1 } ] } };
+		state.retainedFilterOptions = {};
+		state.filterConfigs = {
+			category: {
+				filterKey: 'category',
+				filterType: 'taxonomy',
+				taxonomy: 'category',
+				effectiveSlug: 'category',
+				maxItems: 10,
+			},
+		};
+		const aggregationsRef = state.aggregations;
+
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Fresh result' ) ],
+				total: 1,
+				page_handle: null,
+				aggregations: { category: { buckets: [ { key: 'news/News', doc_count: 4 } ] } },
+			} )
+		);
+
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect( state.aggregations ).toBe( aggregationsRef );
+		expect( state.aggregations.category.buckets ).toEqual( [ { key: 'news/News', doc_count: 4 } ] );
+	} );
+
+	it( 'drops an aggregation key absent from the next response while keeping the container reference', async () => {
+		// replaceStateObject's delete-stale branch: a prior response had both
+		// `category` and `tag`; the next response only returns `category`. The
+		// stale `tag` key must be deleted from the SAME object (not a fresh
+		// one), or a `data-wp-each` bound to it would render a ghost facet.
+		state.results = [];
+		state.aggregations = {
+			category: { buckets: [ { key: 'news/News', doc_count: 4 } ] },
+			tag: { buckets: [ { key: 'react/React', doc_count: 2 } ] },
+		};
+		state.retainedFilterOptions = {};
+		state.filterConfigs = {
+			category: {
+				filterKey: 'category',
+				filterType: 'taxonomy',
+				taxonomy: 'category',
+				effectiveSlug: 'category',
+				maxItems: 10,
+			},
+			tag: {
+				filterKey: 'tag',
+				filterType: 'taxonomy',
+				taxonomy: 'tag',
+				effectiveSlug: 'tag',
+				maxItems: 10,
+			},
+		};
+		const aggregationsRef = state.aggregations;
+
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Fresh result' ) ],
+				total: 1,
+				page_handle: null,
+				aggregations: { category: { buckets: [ { key: 'updates/Updates', doc_count: 7 } ] } },
+			} )
+		);
+
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect( state.aggregations ).toBe( aggregationsRef );
+		expect( state.aggregations.category.buckets ).toEqual( [
+			{ key: 'updates/Updates', doc_count: 7 },
+		] );
+		expect( Object.hasOwn( state.aggregations, 'tag' ) ).toBe( false );
+	} );
+
+	it( 'appends loadMore() results in place, keeping the results array reference', async () => {
+		// loadMore does `state.results.push( ...appended )` rather than
+		// reassigning, so the each-bound array keeps its reference and the
+		// runtime keeps re-rendering. Without this the second page would
+		// silently never paint.
+		state.results = [ { id: 'page1-1', title: 'Page 1 result', index: 0 } ];
+		state.pageHandle = 'next-page';
+		const resultsRef = state.results;
+
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Page 2 result' ) ],
+				page_handle: 'page-3',
+			} )
+		);
+
+		await runGenerator( actions.loadMore() );
+
+		expect( state.results ).toBe( resultsRef );
+		expect( state.results ).toHaveLength( 2 );
+		expect( state.results[ 0 ].title ).toBe( 'Page 1 result' );
+		expect( state.results[ 1 ].title ).toBe( 'Page 2 result' );
+		expect( state.pageHandle ).toBe( 'page-3' );
 	} );
 
 	it( 'leaves the existing results in place when loadMore() errors out', async () => {
@@ -768,6 +934,133 @@ describe( 'store getters', () => {
 		// hidden so it doesn't flash before the user types.
 		state.hasSearchParam = false;
 		expect( state.showNoResults ).toBe( false );
+	} );
+
+	it( 'shows the filters-active no-results block only on a filtered search', () => {
+		state.results = [];
+		state.isLoading = false;
+		state.hasError = false;
+		state.activeFilters = {};
+		expect( state.showNoResultsFiltered ).toBe( false );
+
+		state.activeFilters = { category: [ 'news' ] };
+		expect( state.showNoResultsFiltered ).toBe( true );
+
+		// Never escapes the base gate — a search that returned results must not
+		// surface an empty state.
+		state.results = [ { title: 'Existing result' } ];
+		expect( state.showNoResultsFiltered ).toBe( false );
+	} );
+
+	// The overlay template is pre-rendered outside the page's own state, so it
+	// resolves the unscoped/scoped pairing server-side and binds here instead of
+	// to `showNoResultsAny`, which reads the flags that pass never writes.
+	it( 'shows the unfiltered no-results block only on an unfiltered search', () => {
+		state.results = [];
+		state.isLoading = false;
+		state.hasError = false;
+		state.activeFilters = {};
+		expect( state.showNoResultsUnfiltered ).toBe( true );
+
+		state.activeFilters = { category: [ 'news' ] };
+		expect( state.showNoResultsUnfiltered ).toBe( false );
+
+		// Never escapes the base gate.
+		state.activeFilters = {};
+		state.results = [ { title: 'Existing result' } ];
+		expect( state.showNoResultsUnfiltered ).toBe( false );
+	} );
+
+	it( 'yields the unscoped no-results block to a scoped one for the state it claims', () => {
+		state.results = [];
+		state.isLoading = false;
+		state.hasError = false;
+		state.activeFilters = {};
+		delete state.hasScopedNoResultsFiltered;
+		expect( state.showNoResultsAny ).toBe( true );
+
+		// A "Filters are active" block alongside the template's default one:
+		// the scoped block owns the filtered case, the unscoped one the rest.
+		state.hasScopedNoResultsFiltered = true;
+		expect( state.showNoResultsAny ).toBe( true );
+		expect( state.showNoResultsFiltered ).toBe( false );
+
+		state.activeFilters = { category: [ 'news' ] };
+		expect( state.showNoResultsAny ).toBe( false );
+		expect( state.showNoResultsFiltered ).toBe( true );
+
+		// Never escapes the base gate.
+		state.results = [ { title: 'Existing result' } ];
+		expect( state.showNoResultsAny ).toBe( false );
+	} );
+
+	it( 'shows the no-results container whenever the region is not showing results', () => {
+		state.results = [];
+		state.isLoading = false;
+		state.isLoadingMore = false;
+		state.hasError = false;
+		state.activeFilters = {};
+		expect( state.showEmptyStateRegion ).toBe( true );
+
+		// The container spans both kinds of empty state; its variants pick.
+		state.hasError = true;
+		expect( state.showEmptyStateRegion ).toBe( true );
+
+		// A search that returned results shows neither.
+		state.hasError = false;
+		state.results = [ { title: 'Existing result' } ];
+		expect( state.showEmptyStateRegion ).toBe( false );
+	} );
+
+	it( 'stands the legacy results-list error region down only for an error-scoped block', () => {
+		// Seeded server-side, so "unset" has to read as "not covered" — the
+		// store never declares it, per AGENTS.md on seeded keys.
+		state.hasError = true;
+		state.isLoading = false;
+		state.isLoadingMore = false;
+		delete state.hasErrorBlock;
+		expect( state.showLegacyError ).toBe( true );
+
+		state.hasErrorBlock = true;
+		expect( state.showLegacyError ).toBe( false );
+
+		// Never escapes the base gate.
+		delete state.hasErrorBlock;
+		state.hasError = false;
+		expect( state.showLegacyError ).toBe( false );
+	} );
+
+	it( 'stands the legacy results-list message down only for states a no-results block covers', () => {
+		// The coverage flags are seeded server-side by each block's render, and
+		// are deliberately absent from the store's literal state — see AGENTS.md
+		// on seeded keys — so the getter must treat "unset" as "not covered".
+		state.results = [];
+		state.isLoading = false;
+		state.hasError = false;
+		state.activeFilters = {};
+		delete state.hasNoResultsUnfiltered;
+		delete state.hasNoResultsFiltered;
+		expect( state.showLegacyNoResults ).toBe( true );
+
+		// A block scoped to "filters active" must not retire the unfiltered
+		// message — otherwise an unfiltered empty search renders nothing at all.
+		state.hasNoResultsFiltered = true;
+		expect( state.showLegacyNoResults ).toBe( true );
+
+		state.activeFilters = { category: [ 'news' ] };
+		expect( state.showLegacyNoResults ).toBe( false );
+
+		// Full coverage retires it in both directions.
+		state.hasNoResultsUnfiltered = true;
+		expect( state.showLegacyNoResults ).toBe( false );
+		state.activeFilters = {};
+		expect( state.showLegacyNoResults ).toBe( false );
+
+		// Never escapes the base gate.
+		state.results = [ { title: 'Existing result' } ];
+		delete state.hasNoResultsUnfiltered;
+		delete state.hasNoResultsFiltered;
+		expect( state.showLegacyNoResults ).toBe( false );
 	} );
 
 	it( 'hasActiveFilters counts the priceRange (including half-open) as a filter', () => {

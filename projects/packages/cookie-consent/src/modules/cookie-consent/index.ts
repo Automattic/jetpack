@@ -1,5 +1,5 @@
 /**
- * Shoppers Privacy Module Entry Point
+ * Cookie Consent Module Entry Point
  *
  * This module handles GDPR cookie consent and CCPA opt-out functionality.
  */

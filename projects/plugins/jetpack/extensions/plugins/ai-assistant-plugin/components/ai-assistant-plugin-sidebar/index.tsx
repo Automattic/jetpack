@@ -43,6 +43,7 @@ import {
 	PLACEMENT_JETPACK_SIDEBAR,
 	PLACEMENT_PRE_PUBLISH,
 } from './constants';
+import { useSidebarOpenFromUrl } from './open-sidebar-from-url';
 import Upgrade from './upgrade';
 import './style.scss';
 /**
@@ -248,6 +249,9 @@ export default function AiAssistantPluginSidebar() {
 
 	const planType = usePlanType( currentTier );
 
+	// The AI settings "Try it out" link asks for the sidebar to start open.
+	const sidebarOpenRequested = useSidebarOpenFromUrl();
+
 	// If the post type is not viewable, do not render my plugin.
 	if ( ! isViewable ) {
 		return null;
@@ -270,7 +274,7 @@ export default function AiAssistantPluginSidebar() {
 			<JetpackPluginSidebar>
 				<PanelBody
 					title={ title }
-					initialOpen={ false }
+					initialOpen={ sidebarOpenRequested }
 					onToggle={ isOpen => {
 						isOpen && panelToggleTracker( PLACEMENT_JETPACK_SIDEBAR );
 					} }

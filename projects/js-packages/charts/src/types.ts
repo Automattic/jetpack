@@ -191,9 +191,10 @@ export type LeaderboardEntry = {
 	currentValue: number;
 
 	/**
-	 * Value of the entry in the previous period
+	 * Value of the entry in the previous period. Omit when this row has no
+	 * matching comparison-period value.
 	 */
-	previousValue: number;
+	previousValue?: number;
 
 	/**
 	 * Width of current bar, as % of the current value
@@ -201,14 +202,16 @@ export type LeaderboardEntry = {
 	currentShare: number;
 
 	/**
-	 * Width of previous bar, as % of the current value
+	 * Width of previous bar, as % of the current value. Omit when this row has
+	 * no matching comparison-period value.
 	 */
-	previousShare: number;
+	previousShare?: number;
 
 	/**
-	 * Delta of the entry
+	 * Delta of the entry. Omit when the percentage change is unavailable, such
+	 * as when the row has no comparison value or its previous value is zero.
 	 */
-	delta: number;
+	delta?: number;
 
 	/**
 	 * Optional color for the entry's image/icon
@@ -249,8 +252,8 @@ export type GradientStop = {
 
 export type SeriesDataOptions = {
 	gradient?: {
-		from: string;
-		to: string;
+		from?: string;
+		to?: string;
 		fromOpacity?: number;
 		toOpacity?: number;
 		stops?: GradientStop[];
@@ -266,6 +269,16 @@ export type SeriesData = {
 	label: string;
 	data: DataPointDate[] | DataPoint[];
 	options?: SeriesDataOptions;
+};
+
+/**
+ * Visual styling for a bar series of a given semantic type (e.g. 'comparison').
+ * `widthFactor` is the bar width relative to the primary bar slot (1.5 = 150%);
+ * `opacity` sets the shadow translucency.
+ */
+export type BarStyles = {
+	widthFactor?: number;
+	opacity?: number;
 };
 
 export type MultipleDataPointsDate = {
@@ -388,6 +401,9 @@ export type ChartTheme = {
 	lineChart?: {
 		lineStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles > >;
 	};
+	barChart?: {
+		barStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, BarStyles > >;
+	};
 	/** Sparkline specific settings */
 	sparkline?: {
 		/** Margin around the sparkline chart */
@@ -399,6 +415,21 @@ export type ChartTheme = {
 		};
 		/** Stroke width for the sparkline line */
 		strokeWidth?: number;
+	};
+	/**
+	 * HeatmapChart settings. Cell gap, radius, value size and the selection ring come from
+	 * WPDS tokens in CSS, so only the scale color and the compact sizing live here.
+	 */
+	heatmapChart?: {
+		/**
+		 * Color the cell scale interpolates toward at the highest value (prop > this >
+		 * palette `colors[0]`), fed to CSS `color-mix`. Omit to use the palette color.
+		 */
+		primaryColor?: string;
+		/** Gap in px between cells in compact mode */
+		compactCellGap?: number;
+		/** Fixed square cell size in px for compact mode */
+		compactCellSize?: number;
 	};
 };
 
@@ -420,11 +451,22 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	lineChart: {
 		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles >;
 	};
+	barChart: {
+		barStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, BarStyles >;
+	};
 	legend: Required< NonNullable< ChartTheme[ 'legend' ] > >;
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
 		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
 	};
+	heatmapChart: Omit< Required< NonNullable< ChartTheme[ 'heatmapChart' ] > >, 'primaryColor' > &
+		Pick< NonNullable< ChartTheme[ 'heatmapChart' ] >, 'primaryColor' >;
 };
+
+/**
+ * Bucket resolution of time-series data, as known by the caller (e.g. a
+ * granularity selector), for consumers that don't need to infer it.
+ */
+export type TickResolution = 'hour' | 'day' | 'week' | 'month' | 'year';
 
 export type AxisOptions = {
 	orientation?: OrientationType;
@@ -439,6 +481,15 @@ export type AxisOptions = {
 	labelClassName?: string;
 	tickClassName?: string;
 	tickFormat?: TickFormatter< ScaleInput< AxisScale > >;
+	/**
+	 * Bucket resolution of the data, set on whichever axis carries the dates.
+	 * When set, the automatic tick formatter derives tick formats from it
+	 * directly instead of inferring the resolution from point spacing. For
+	 * daily-or-finer buckets the overall time span still constrains the choice —
+	 * e.g. hourly buckets spanning more than a week get date ticks, since hour
+	 * ticks would be unreadable at that span. Ignored when `tickFormat` is set.
+	 */
+	tickResolution?: TickResolution;
 	/**
 	 * Whether to display this axis. Defaults to true.
 	 */
@@ -573,6 +624,22 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 };
 
 /**
+ * Legend config for charts built from `SeriesData` (line, bar, area). Adds `collapseGroups` on top
+ * of the shared config. It is intentionally absent from the base `ChartLegendConfig` so point-based
+ * charts (pie, semi-circle pie) — whose data points carry `group` only to coordinate colours — can't
+ * set it.
+ */
+export type SeriesChartLegendConfig = ChartLegendConfig< SeriesData[] > & {
+	/**
+	 * Collapse series that share a `group` into a single legend item, labelled by the group's
+	 * primary series (its first non-comparison member). Off by default, so every series keeps its
+	 * own item. Combines with `interactive`: a collapsed item toggles every series in its group, an
+	 * uncollapsed one toggles only its own.
+	 */
+	collapseGroups?: boolean;
+};
+
+/**
  * Base properties shared across all chart components
  */
 export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > = {
@@ -667,40 +734,6 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 			y?: AxisOptions;
 		};
 	};
-};
-
-/**
- * Properties for grid components
- */
-export type GridProps = {
-	/**
-	 * Width of the grid in pixels
-	 */
-	width: number;
-	/**
-	 * Height of the grid in pixels
-	 */
-	height: number;
-	/**
-	 * Grid visibility. x is default.
-	 */
-	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
-	/**
-	 * X-axis scale for the grid
-	 * TODO: Fix any type after resolving visx scale type issues
-	 */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	xScale: any;
-	/**
-	 * Y-axis scale for the grid
-	 * TODO: Fix any type after resolving visx scale type issues
-	 */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	yScale: any;
-	/**
-	 * Top offset for the grid
-	 */
-	top?: number;
 };
 
 /**

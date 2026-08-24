@@ -4,22 +4,29 @@ import type { CompleteChartTheme } from '../../types';
  * Default theme configuration
  */
 const defaultTheme: CompleteChartTheme = {
-	backgroundColor: '#FFFFFF', // chart background color
+	backgroundColor: 'var(--a8c-charts-color-background, #fff)',
 	labelBackgroundColor: 'transparent', // label background color (transparent by default)
-	labelTextColor: '#FFFFFF', // label text color (white to match original behavior)
+	// White label text sits on top of arbitrary series colors, so it has no WPDS content-foreground equivalent. Every other colour here is a bare pointer at the catalog emitted by `chart-scope.scss`; the terminal literal is the last resort for the SSR and jsdom paths, where getComputedStyle resolves nothing.
+	labelTextColor: 'var(--a8c-charts-color-label-on-fill, #FFFFFF)',
 	colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
 	gridStyles: {
-		stroke: '#DCDCDE',
+		stroke: 'var(--a8c-charts-color-grid, #dbdbdb)',
 		strokeWidth: 1,
 	},
 	tickLength: 4,
 	gridColor: '',
 	gridColorDark: '',
-	xTickLineStyles: { stroke: 'black' },
-	xAxisLineStyles: { stroke: '#DCDCDE', strokeWidth: 1 },
+	xTickLineStyles: {
+		stroke: 'var(--a8c-charts-color-tick, #dbdbdb)',
+		strokeWidth: 1,
+	},
+	xAxisLineStyles: {
+		stroke: 'var(--a8c-charts-color-axis, #dbdbdb)',
+		strokeWidth: 1,
+	},
 	legend: {
 		labelStyles: {
-			color: 'var(--jp-gray-80, #2c3338)',
+			color: 'var(--a8c-charts-color-label, #1e1e1e)',
 		},
 		containerStyles: {},
 		shapeStyles: [],
@@ -31,35 +38,43 @@ const defaultTheme: CompleteChartTheme = {
 	// that `buildChartTheme` injects as an inline style on SVG `<text>`
 	// elements for axis labels and ticks. Setting `inherit` lets SVG text
 	// pick up the host application's font-family via normal CSS inheritance.
-	svgLabelSmall: { fill: 'var(--jp-gray-80, #2c3338)', fontFamily: 'inherit' },
+	svgLabelSmall: {
+		fill: 'var(--a8c-charts-color-label-axis, #1e1e1e)',
+		fontFamily: 'inherit',
+	},
 	svgLabelBig: { fontFamily: 'inherit' },
 	annotationStyles: {
 		label: {
-			anchorLineStroke: 'var(--jp-gray-80, #2c3338)',
-			backgroundFill: '#fff',
+			anchorLineStroke: 'var(--a8c-charts-color-annotation, #1e1e1e)',
+			backgroundFill: 'var(--a8c-charts-color-surface, #fff)',
 		},
 		connector: {
-			stroke: 'var(--jp-gray-80, #2c3338)',
+			stroke: 'var(--a8c-charts-color-annotation, #1e1e1e)',
 		},
 		circleSubject: {
 			stroke: 'transparent',
-			fill: 'var(--jp-gray-80, #2c3338)',
+			fill: 'var(--a8c-charts-color-annotation, #1e1e1e)',
 			radius: 5,
 		},
 	},
 	geoChart: {
-		featureFillColor: 'var(--jp-gray-0, #f6f7f7)',
+		featureFillColor: 'var(--a8c-charts-color-surface-secondary, #f4f4f4)',
 	},
 	leaderboardChart: {
 		rowGap: 12,
 		columnGap: 4,
 		labelSpacing: 'xs',
-		deltaColors: [ '#FF8C8F', '#757575', '#1F9828' ], // [negative, neutral, positive]
+		// [negative, neutral, positive]
+		deltaColors: [
+			'var(--a8c-charts-color-trend-down, #cc1818)',
+			'var(--a8c-charts-color-trend-neutral, #707070)',
+			'var(--a8c-charts-color-trend-up, #008030)',
+		],
 	},
 	conversionFunnelChart: {
-		backgroundColor: '#F3F4F6',
-		positiveChangeColor: '#1F9828',
-		negativeChangeColor: '#FF8C8F',
+		backgroundColor: 'var(--a8c-charts-color-surface-secondary, #f4f4f4)',
+		positiveChangeColor: 'var(--a8c-charts-color-trend-up, #008030)',
+		negativeChangeColor: 'var(--a8c-charts-color-trend-down, #cc1818)',
 	},
 	lineChart: {
 		lineStyles: {
@@ -69,9 +84,23 @@ const defaultTheme: CompleteChartTheme = {
 			},
 		},
 	},
+	barChart: {
+		barStyles: {
+			comparison: {
+				widthFactor: 1.5,
+				opacity: 0.5,
+			},
+		},
+	},
 	sparkline: {
 		margin: { top: 2, right: 2, bottom: 2, left: 2 },
 		strokeWidth: 1.5,
+	},
+	// `primaryColor` is left unset so it falls back to the palette's `colors[0]`. The compact
+	// 11px square / 2px gap is the contribution-graph rhythm, which has no WPDS dimension.
+	heatmapChart: {
+		compactCellGap: 2,
+		compactCellSize: 11,
 	},
 };
 
