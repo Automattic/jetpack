@@ -1,0 +1,454 @@
+// The same container Home and Analytics use, so the body lines up with the
+// masthead title and the tab strip above it. This used to be a 660px centred
+// column, which left ~300px of dead space either side and aligned with
+// nothing. The reading measure is capped on the text itself instead — see
+// `&__card` and the shared dropzone's `__sub` (components/upload-dropzone) —
+// rather than by narrowing the whole page.
+.vp-onboarding {
+	box-sizing: border-box;
+	inline-size: 100%;
+	max-inline-size: 1344px;
+	margin-inline: auto;
+	padding-block: var(--wpds-dimension-padding-2xl);
+	padding-inline: var(--wpds-dimension-padding-2xl);
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-2xl);
+
+	// Card spec: 8px radius, 1px neutral-stroke border, white surface.
+	&__card {
+		inline-size: 100%;
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		border-radius: var(--wpds-border-radius-lg);
+		background: var(--wpds-color-background-surface-neutral-strong);
+	}
+
+	// The "ways in" tiles. `auto-fill` rather than a fixed two-column track:
+	// the card now spans the full dashboard width, and two stretched columns
+	// would make each tile ~600px wide. Filling with 260px tracks keeps a tile
+	// tile-sized at any width and drops to one column on narrow screens without
+	// a media query.
+	&__options {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+		gap: var(--wpds-dimension-gap-lg);
+	}
+
+	&__option {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--wpds-dimension-gap-xs);
+		padding: var(--wpds-dimension-padding-xl);
+		text-align: start;
+		background: var(--wpds-color-background-surface-neutral);
+		// Resting border matches the card border (neutral stroke, not weak).
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		border-radius: var(--wpds-border-radius-lg);
+		cursor: var(--wpds-cursor-control);
+		transition: background var(--wpds-motion-duration-sm) var(--wpds-motion-easing-subtle);
+
+		// Very subtle gray hover fill, not a dark border.
+		&:hover {
+			background: var(--wpds-color-background-surface-neutral-weak);
+		}
+
+		&:disabled {
+			cursor: default;
+			opacity: 0.64;
+		}
+
+		&:disabled:hover {
+			background: var(--wpds-color-background-surface-neutral);
+		}
+	}
+
+	&__option-icon {
+		display: inline-flex;
+		margin-bottom: var(--wpds-dimension-gap-sm);
+		color: var(--wpds-color-foreground-content-neutral);
+	}
+
+	&__option-title {
+		color: var(--wpds-color-foreground-content-neutral);
+		font-weight: var(--wpds-typography-font-weight-emphasis);
+	}
+
+	&__option-desc {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	// The dropzone itself moved to components/upload-dropzone (shared with
+	// Home's emptied-library state); only the card that frames it lives here.
+
+	&__limit-notice {
+		margin-bottom: var(--wpds-dimension-gap-lg);
+	}
+
+}
+
+// Multi-step card morph. The active card slides up + fades in
+// while the previous slides up + fades out, and the wrapper height
+// eases between the two — the Cloudflare onboarding step transition.
+$vp-flow-easing: cubic-bezier(0.2, 0.7, 0.2, 1);
+$vp-flow-duration: 380ms;
+
+.vp-flow {
+	position: relative;
+	transition: height $vp-flow-duration $vp-flow-easing;
+
+	&__card {
+		inline-size: 100%;
+
+		&.is-enter {
+			animation: vp-card-in $vp-flow-duration $vp-flow-easing both;
+		}
+
+		// The exiting card overlays in the same spot. On a same-shape handover
+		// both are briefly visible and that is the cross-fade; on a
+		// shape-changing one `.is-sequenced` below keeps them from ever painting
+		// together, and this rule only takes the card out of flow so the
+		// incoming one can occupy the spot.
+		// Top and sides only — NOT `inset: 0`: pinning the bottom edge
+		// as well stretches the exiting card to the height of the wrapper,
+		// which by then is already easing towards the INCOMING step's height.
+		// Going upload → edit that is the full editor, and the dropzone card
+		// centres its content vertically, so its hint and its button drifted
+		// down into the middle of the editor and printed straight through the
+		// Description field. Left auto, the card keeps its natural height and
+		// overlays from the top, which is what a cross-fade is.
+		&.is-exit {
+			position: absolute;
+			inset-block-start: 0;
+			inset-inline: 0;
+			pointer-events: none;
+			animation: vp-card-out $vp-flow-duration $vp-flow-easing both;
+		}
+	}
+
+	// Shape-changing handover: the outgoing card is not animated at all, and
+	// only the incoming one moves.
+	// A cross-fade was wrong here — a dropzone and an editor form share no
+	// line, so for ~250ms the dropzone's hint and button printed legibly over
+	// the Description field. Sequencing the two fades fixed that (a live
+	// capture confirmed zero frames with both cards visible) but bought it
+	// with a ~105ms hole: the incoming card was held at opacity 0 until the
+	// outgoing one had finished leaving, so for a beat the panel showed
+	// nothing at all. Delaying the wrapper's height was measured and made no
+	// pixel of difference — the void is bounded by the white admin panel
+	// behind the flow, not by the wrapper, which only reserves space below it.
+	// So: cut the outgoing card instead of waving it off, exactly as the
+	// reduced-motion branch below already does, and let the editor fade in
+	// immediately over the full duration. A drop is a deliberate act that
+	// already has its own feedback; the dropzone does not need a farewell.
+	// One thing moves instead of two, there is no dead band to fall into, and
+	// "the two never co-occupy" holds trivially rather than by timing.
+	&.is-sequenced {
+
+		> .vp-flow__card.is-exit {
+			display: none;
+		}
+	}
+}
+
+@keyframes vp-card-in {
+
+	from {
+		opacity: 0;
+		transform: translateY(16px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes vp-card-out {
+
+	from {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	to {
+		opacity: 0;
+		transform: translateY(-16px);
+	}
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+
+	.vp-flow {
+		transition: none;
+	}
+
+	// `animation: none` clears the animation-name, so the higher-specificity
+	// duration/delay longhands `.is-sequenced` sets above stay inert here: there
+	// is no animation left for them to time. This branch is unchanged by the
+	// sequencing work, and `display: none` below still does the real job.
+	.vp-flow__card.is-enter,
+	.vp-flow__card.is-exit {
+		animation: none;
+	}
+
+	.vp-flow__card.is-exit {
+		display: none;
+	}
+
+	.vp-onboarding > .vp-onboarding__card,
+	.vp-onboarding > .vp-flow {
+		animation: none;
+	}
+}
+
+// Staggered entrance on first load: the intro card and the step flow each fade
+// up slightly, one just behind the other.
+@keyframes vp-fade-up {
+
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.vp-onboarding {
+
+	> .vp-onboarding__card,
+	> .vp-flow {
+		animation: vp-fade-up 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+	}
+
+	// Rebased when the welcome line was removed: the card inherits the 40ms
+	// opening beat so the page doesn't sit blank for 130ms, and the flow keeps
+	// the same ~90ms interval behind it.
+	> .vp-onboarding__card {
+		animation-delay: 40ms;
+	}
+
+	> .vp-flow {
+		animation-delay: 130ms;
+	}
+
+	// The dropzone is the page's one action; at full container width it reads
+	// as a void. 660px centered — the canonical Jetpack settings measure this
+	// dashboard's Settings tab already uses, so the two pages line up. Only
+	// this card narrows: the edit surface that follows it in the same flow
+	// needs the width.
+	.vp-onboarding__card--upload {
+		max-inline-size: 660px;
+		margin-inline: auto;
+	}
+}
+
+// Uploading step — the DS ProgressBar + percentage.
+.vp-uploading {
+
+	&__pct {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		font-size: var(--wpds-typography-font-size-sm);
+		font-variant-numeric: tabular-nums;
+	}
+
+	&__bar {
+		inline-size: 100%;
+	}
+
+	&__hint {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__error {
+		color: var(--wpds-color-foreground-content-error);
+	}
+
+	&__actions {
+		display: flex;
+		justify-content: flex-start;
+	}
+}
+
+// Bulk upload — per-file progress rows (uploading) and per-file
+// title rows (details).
+.vp-bulk {
+	// Uploading: icon + (name/pct row above a progress bar).
+	&__uprow {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--wpds-dimension-gap-sm);
+	}
+
+	&__uprow-main {
+		flex: 1;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-xs);
+	}
+
+	&__uprow-top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--wpds-dimension-gap-sm);
+	}
+
+	// Details: status head plus file-name and title inputs, divided per row.
+	&__row {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-md);
+		padding-bottom: var(--wpds-dimension-gap-lg);
+		border-bottom:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral-weak);
+
+		&:last-child {
+			padding-bottom: 0;
+			border-bottom: none;
+		}
+	}
+
+	&__row-head {
+		display: flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-sm);
+		margin-bottom: var(--wpds-dimension-gap-sm);
+	}
+}
+
+// Success step — confirmation plus share links for the published attachments.
+.vp-success {
+
+	&__summary {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__title {
+		color: var(--wpds-color-foreground-content-neutral);
+		font-weight: var(--wpds-typography-font-weight-emphasis);
+		overflow-wrap: anywhere;
+	}
+
+	&__share {
+		display: flex;
+		align-items: flex-end;
+		gap: var(--wpds-dimension-gap-sm);
+	}
+
+	&__share-field {
+		flex: 1;
+		min-width: 0;
+	}
+
+	&__list {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-lg);
+	}
+
+	&__item {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-sm);
+		padding-bottom: var(--wpds-dimension-gap-lg);
+		border-bottom:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral-weak);
+
+		&:last-child {
+			padding-bottom: 0;
+			border-bottom: none;
+		}
+	}
+
+	// Bulk step only — the per-video "Add to a post" menu sits under its share
+	// row, left-aligned so it reads as belonging to that video rather than to
+	// the card as a whole.
+	&__item-actions {
+		display: flex;
+		justify-content: flex-start;
+	}
+
+	&__copy-status {
+		color: var(--wpds-color-foreground-content-success);
+
+		&.is-error {
+			color: var(--wpds-color-foreground-content-error);
+		}
+	}
+
+	&__actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: var(--wpds-dimension-gap-sm);
+		padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-xl);
+		border-top: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	}
+
+	@media ( max-width: 782px ) {
+
+		&__share {
+			align-items: stretch;
+			flex-direction: column;
+		}
+	}
+}
+
+// Details step — the uploaded-file chip + form actions.
+.vp-details {
+
+	&__file {
+		display: flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-sm);
+		padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
+		background: var(--wpds-color-background-surface-neutral-weak);
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		border-radius: var(--wpds-border-radius-md);
+	}
+
+	&__file-icon {
+		display: inline-flex;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__file-name {
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		color: var(--wpds-color-foreground-content-neutral);
+		font-weight: var(--wpds-typography-font-weight-emphasis);
+	}
+
+	&__file-status {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-xs);
+		color: var(--wpds-color-foreground-content-success);
+		font-size: var(--wpds-typography-font-size-sm);
+
+		&.is-error {
+			color: var(--wpds-color-foreground-content-error);
+		}
+	}
+
+	&__error {
+		color: var(--wpds-color-foreground-content-error);
+	}
+
+	&__actions {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-xl);
+		border-top: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	}
+}

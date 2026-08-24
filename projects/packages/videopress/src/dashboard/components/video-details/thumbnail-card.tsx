@@ -66,7 +66,7 @@ function EditableThumbnailCard( { video }: Props ): ReactElement {
 	return (
 		<Card.Root>
 			<Card.Header>
-				<Card.Title>{ __( 'Thumbnail', 'jetpack-videopress-pkg' ) }</Card.Title>
+				<Card.Title render={ <h2 /> }>{ __( 'Thumbnail', 'jetpack-videopress-pkg' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
 				{ /*
@@ -86,14 +86,28 @@ function EditableThumbnailCard( { video }: Props ): ReactElement {
 						 * rather than dashed: it is content, not an affordance.
 						 */ }
 						<div className="vp-thumbnail-picker__current">
-							{ posterUrl && (
+							{ /*
+							 * Exactly one of these three renders: the slot is a
+							 * centred flex row, so a second child would sit
+							 * beside the first at full width rather than over
+							 * it.
+							 *
+							 * `isBusy` (the poster mutation) belongs here, on
+							 * the thing that is actually changing. It used to
+							 * relabel the "Upload image" tile instead, so
+							 * picking a frame from the video made the OTHER
+							 * tile claim to be working. `isPosterPending` does
+							 * not cover it — that is an image-load state, not
+							 * the mutation.
+							 */ }
+							{ posterUrl && ! isBusy && (
 								<img
 									src={ posterUrl }
 									alt={ __( 'Current thumbnail', 'jetpack-videopress-pkg' ) }
 								/>
 							) }
-							{ isPosterPending && <Skeleton /> }
-							{ ! posterUrl && ! isPosterPending && (
+							{ ( isPosterPending || isBusy ) && <Skeleton /> }
+							{ ! posterUrl && ! isPosterPending && ! isBusy && (
 								<span className="vp-thumbnail-picker__empty">
 									{ __( 'No thumbnail yet', 'jetpack-videopress-pkg' ) }
 								</span>
@@ -101,11 +115,7 @@ function EditableThumbnailCard( { video }: Props ): ReactElement {
 						</div>
 						<ThumbnailTile
 							icon={ upload }
-							label={
-								isBusy
-									? __( 'Updating…', 'jetpack-videopress-pkg' )
-									: __( 'Upload image', 'jetpack-videopress-pkg' )
-							}
+							label={ __( 'Upload image', 'jetpack-videopress-pkg' ) }
 							disabled={ isBusy || ! ( window.wp as WpGlobal | undefined )?.media }
 							onClick={ handleUploadImage }
 						/>

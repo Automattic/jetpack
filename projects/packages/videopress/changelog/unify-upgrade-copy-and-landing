@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: use one upgrade message everywhere, and stop the landing page flashing the library before it settles.

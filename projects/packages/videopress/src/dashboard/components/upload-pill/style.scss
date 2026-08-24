@@ -1,0 +1,129 @@
+// The consolidated upload pill — a floating batch-progress surface pinned to
+// the viewport's bottom-right on every dashboard screen. The design system
+// has no floating-status primitive, so the surface treatment (background,
+// stroke, radius, elevation) mirrors the `@wordpress/ui` Dialog popup's.
+.vp-upload-pill {
+	position: fixed;
+	// The Dialog popup's own viewport inset (its `--viewport-inset` is the
+	// same 24px token), so the two surfaces align when both are on screen.
+	inset-block-end: var(--wpds-dimension-padding-2xl);
+	inset-inline-end: var(--wpds-dimension-padding-2xl);
+	// Above the page content and admin chrome, below the Dialog layer —
+	// `--wp-ui-dialog-z-index` is pinned to 100000 in admin-shell.scss, so an
+	// open modal's backdrop still dims and covers the pill.
+	z-index: 99990;
+	inline-size: 360px;
+	max-inline-size: calc(100vw - var(--wpds-dimension-padding-2xl) * 2);
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-lg);
+	// The Dialog popup's elevation ramp. Its `--_wp-ui-elevation-lg` is a
+	// private custom property scoped to the popup, so the values are copied
+	// rather than read.
+	box-shadow:
+		0 5px 15px rgba(0, 0, 0, 0.08),
+		0 15px 27px rgba(0, 0, 0, 0.07),
+		0 30px 36px rgba(0, 0, 0, 0.04),
+		0 50px 43px rgba(0, 0, 0, 0.02);
+
+	&__header {
+		display: flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-sm);
+		padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
+	}
+
+	&__summary {
+		display: flex;
+		flex: 1 1 auto;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-xs);
+		// Lets the label ellipsize instead of growing the pill.
+		min-inline-size: 0;
+	}
+
+	&__label {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		color: var(--wpds-color-foreground-content-neutral);
+		font-weight: var(--wpds-typography-font-weight-emphasis);
+	}
+
+	&__bar {
+		inline-size: 100%;
+	}
+
+	&__rows {
+		margin: 0;
+		padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-lg);
+		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+		list-style: none;
+		// A tall batch scrolls inside the pill rather than growing past the
+		// viewport.
+		max-block-size: 40vh;
+		overflow-y: auto;
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+
+		&__rows {
+			animation: vp-upload-pill-expand var(--wpds-motion-duration-sm) var(--wpds-motion-easing-subtle);
+		}
+	}
+
+	&__row {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-xs);
+		margin: 0;
+		padding-block: var(--wpds-dimension-padding-sm);
+
+		& + & {
+			border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+		}
+	}
+
+	&__row-top {
+		display: flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-sm);
+	}
+
+	&__row-name {
+		flex: 1 1 auto;
+		min-inline-size: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		color: var(--wpds-color-foreground-content-neutral);
+	}
+
+	&__row-progress {
+		display: flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-sm);
+	}
+
+	&__row-percent {
+		flex: 0 0 auto;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__row-error {
+		color: var(--wpds-color-foreground-content-error);
+	}
+}
+
+@keyframes vp-upload-pill-expand {
+
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}

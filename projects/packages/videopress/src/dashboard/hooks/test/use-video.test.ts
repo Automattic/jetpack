@@ -1,7 +1,15 @@
 import { renderHook, waitFor } from '@testing-library/react';
+import { makeLibraryItem } from '../../test-utils/library-item';
 import { getApiFetchMock, mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
-import { useInvalidateVideo, useVideo } from '../use-video';
+import { PROCESSING_POLL_MAX_MS } from '../use-library';
+import {
+	isMissingVideoError,
+	nextVideoPoll,
+	shouldPollVideo,
+	useInvalidateVideo,
+	useVideo,
+} from '../use-video';
 
 describe( 'useVideo', () => {
 	it( 'fetches /wp/v2/media/{id} and maps to LibraryItem', async () => {
@@ -133,6 +141,32 @@ describe( 'useVideo', () => {
 	} );
 } );
 
+describe( 'shouldPollVideo', () => {
+	it( 'polls while a VideoPress item is still processing', () => {
+		expect( shouldPollVideo( makeLibraryItem( { isProcessing: true } ) ) ).toBe( true );
+	} );
+
+	// The upload flow's bind path: the attachment exists before WordPress.com
+	// registers the VideoPress video, so the record arrives GUID-less with
+	// `isProcessing` false. A poll gated on processing alone would leave the
+	// edit surface stuck on a 'local' record forever.
+	it( 'polls a GUID-less item so the screen notices the GUID arriving', () => {
+		expect(
+			shouldPollVideo( makeLibraryItem( { guid: '', type: 'local', isProcessing: false } ) )
+		).toBe( true );
+	} );
+
+	it( 'stops polling once the item has a GUID and is done processing', () => {
+		expect( shouldPollVideo( makeLibraryItem( { guid: 'g', isProcessing: false } ) ) ).toBe(
+			false
+		);
+	} );
+
+	it( 'does not poll before the first response', () => {
+		expect( shouldPollVideo( undefined ) ).toBe( false );
+	} );
+} );
+
 describe( 'useInvalidateVideo', () => {
 	it( 'invalidates the cached video so the next read refetches it', async () => {
 		let title = 'Before';
@@ -156,5 +190,82 @@ describe( 'useInvalidateVideo', () => {
 
 		await waitFor( () => expect( result.current.query.video?.title ).toBe( 'After' ) );
 		expect( getApiFetchMock() ).toHaveBeenCalledTimes( 2 );
+	} );
+} );
+
+describe( 'isMissingVideoError', () => {
+	it( 'recognises the REST code and the raw 404', () => {
+		expect( isMissingVideoError( { code: 'rest_post_invalid_id' } ) ).toBe( true );
+		expect( isMissingVideoError( { data: { status: 404 } } ) ).toBe( true );
+		expect( isMissingVideoError( { status: 404 } ) ).toBe( true );
+	} );
+
+	it( 'leaves every other failure alone', () => {
+		expect( isMissingVideoError( undefined ) ).toBe( false );
+		expect( isMissingVideoError( new Error( 'network' ) ) ).toBe( false );
+		expect( isMissingVideoError( { data: { status: 500 } } ) ).toBe( false );
+	} );
+} );
+
+describe( 'nextVideoPoll', () => {
+	const now = 1_000_000;
+
+	// Regression: an out-of-band delete left the stale row polling a 404 every
+	// 2s until the VIDP-298 cap fired, minutes later.
+	it( 'stops polling once the record 404s, even while it still looks unfinished', () => {
+		const { anchor, interval } = nextVideoPoll(
+			null,
+			42,
+			makeLibraryItem( { isProcessing: true } ),
+			{ code: 'rest_post_invalid_id' },
+			now
+		);
+		expect( interval ).toBe( false );
+		expect( anchor ).toBeNull();
+	} );
+
+	it( 'polls a processing item and holds one budget across refetches', () => {
+		const first = nextVideoPoll( null, 42, makeLibraryItem( { isProcessing: true } ), null, now );
+		expect( first.interval ).toBe( 2000 );
+
+		const capped = nextVideoPoll(
+			first.anchor,
+			42,
+			makeLibraryItem( { isProcessing: true } ),
+			null,
+			now + PROCESSING_POLL_MAX_MS
+		);
+		expect( capped.anchor?.startedAt ).toBe( now );
+		expect( capped.interval ).toBe( false );
+	} );
+
+	// Registration and transcoding are separate waits: a slow registration used
+	// to burn the single per-id budget and leave the transcode tail unpolled.
+	it( 're-arms the budget when the GUID arrives mid-poll', () => {
+		const registering = nextVideoPoll(
+			null,
+			42,
+			makeLibraryItem( { guid: '', type: 'local', isProcessing: false } ),
+			null,
+			now
+		);
+		expect( registering.interval ).toBe( 2000 );
+
+		const transcoding = nextVideoPoll(
+			registering.anchor,
+			42,
+			makeLibraryItem( { guid: 'g', isProcessing: true } ),
+			null,
+			now + PROCESSING_POLL_MAX_MS
+		);
+		expect( transcoding.anchor?.startedAt ).toBe( now + PROCESSING_POLL_MAX_MS );
+		expect( transcoding.interval ).toBe( 2000 );
+	} );
+
+	it( 'stops polling once the item is registered and finished', () => {
+		expect(
+			nextVideoPoll( null, 42, makeLibraryItem( { guid: 'g', isProcessing: false } ), null, now )
+				.interval
+		).toBe( false );
 	} );
 } );

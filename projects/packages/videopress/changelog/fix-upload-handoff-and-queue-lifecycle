@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Dashboard: hand single uploads to the dedicated video screen, and fix the upload queue's delete, cancel and adoption behavior.

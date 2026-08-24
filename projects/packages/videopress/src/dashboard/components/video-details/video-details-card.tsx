@@ -12,6 +12,7 @@ type Props = {
 	onChange: ( partial: { title?: string; description?: string } ) => void;
 	onOpenChapters: () => void;
 	confirmNavigation?: () => boolean;
+	allowEditorLink?: boolean;
 };
 
 /**
@@ -32,6 +33,8 @@ type Props = {
  * @param props.onOpenChapters    - Opens the chapters help modal.
  * @param props.confirmNavigation - Dirty-form guard forwarded to the chapters
  *                                deep link (same guard the sub-nav uses).
+ * @param props.allowEditorLink   - Whether the chapters deep link can resolve;
+ *                                false while the record is a synthetic draft.
  * @return The card element.
  */
 export default function VideoDetailsCard( {
@@ -41,11 +44,14 @@ export default function VideoDetailsCard( {
 	onChange,
 	onOpenChapters,
 	confirmNavigation,
+	allowEditorLink,
 }: Props ): ReactElement {
 	return (
 		<Card.Root>
 			<Card.Header>
-				<Card.Title>{ __( 'Video details', 'jetpack-videopress-pkg' ) }</Card.Title>
+				<Card.Title render={ <h2 /> }>
+					{ __( 'Video details', 'jetpack-videopress-pkg' ) }
+				</Card.Title>
 			</Card.Header>
 			<Card.Content>
 				<Stack direction="column" gap="md">
@@ -56,17 +62,30 @@ export default function VideoDetailsCard( {
 					/>
 					{ /*
 					 * Deliberately `@wordpress/components`' TextareaControl and
-					 * not `@wordpress/ui`'s Textarea primitive. The two label
-					 * styles already agree — `@wordpress/components`
-					 * src/utils/base-label.ts is 11px / fontWeightEmphasis /
-					 * uppercase, and `@wordpress/ui`
+					 * not `@wordpress/ui`'s Textarea primitive, because
+					 * `@wordpress/ui` has no TextareaControl equivalent to swap
+					 * to. (Its Textarea primitive is `use-with-caution`, but so
+					 * are the Field and InputControl in this same Stack, so that
+					 * is not a reason to single it out.)
+					 *
+					 * The two labels do NOT render identically, so this is a
+					 * tolerated mismatch, not a non-issue. On paper they agree —
+					 * `@wordpress/components` src/utils/base-label.ts is 11px /
+					 * fontWeightEmphasis (600) / uppercase, and `@wordpress/ui`
 					 * src/utils/css/field.module.css gives Field.Label
-					 * font-size-xs (11px), font-weight-emphasis, uppercase — so
-					 * there is nothing to fix by swapping, and `@wordpress/ui`
-					 * has no TextareaControl equivalent to swap to. (Its
-					 * Textarea primitive is `use-with-caution`, but so are the
-					 * Field and InputControl in this same Stack, so that is not
-					 * a reason to single it out.) Leave this be.
+					 * font-size-xs (11px), font-weight-emphasis (600),
+					 * uppercase. But they arrive through different cascades
+					 * (Emotion vs a CSS `@layer`), and an audit of the live
+					 * screen measured them apart: weight 600 vs 499, and an 8px
+					 * margin-bottom under this label that the one above does not
+					 * have. That margin is real — `labelStyles` in
+					 * base-control-styles.ts sets it unconditionally, and
+					 * `__nextHasNoMarginBottom` is a deprecated no-op in
+					 * `@wordpress/components` 37, so it cannot be passed away.
+					 *
+					 * Normalising the two needs either a component swap that
+					 * does not exist yet or new CSS reaching into a third-party
+					 * label — out of scope here. Tracked as a follow-up.
 					 */ }
 					<TextareaControl
 						__nextHasNoMarginBottom
@@ -80,6 +99,7 @@ export default function VideoDetailsCard( {
 						description={ description }
 						onOpenHelp={ onOpenChapters }
 						confirmNavigation={ confirmNavigation }
+						allowEditorLink={ allowEditorLink }
 					/>
 				</Stack>
 			</Card.Content>

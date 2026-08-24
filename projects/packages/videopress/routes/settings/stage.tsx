@@ -4,9 +4,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Card, Stack } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
-import FreeTierNotice, {
-	FREE_TIER_AT_LIMIT_MESSAGE,
-} from '../../src/dashboard/components/free-tier-notice';
+import FreeTierNotice from '../../src/dashboard/components/free-tier-notice';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import {
@@ -52,7 +50,9 @@ const SettingsForm = () => {
 	return (
 		<Card.Root>
 			<Card.Header>
-				<Card.Title>{ __( 'Video settings', 'jetpack-videopress-pkg' ) }</Card.Title>
+				<Card.Title render={ <h2 /> }>
+					{ __( 'Video settings', 'jetpack-videopress-pkg' ) }
+				</Card.Title>
 			</Card.Header>
 			<Card.Content>
 				<Stack direction="column" gap="lg">
@@ -66,7 +66,7 @@ const SettingsForm = () => {
 										'jetpack-videopress-pkg'
 								  )
 								: __(
-										"Private videos won't play for signed-out visitors.",
+										'Private videos won’t play for signed-out visitors.',
 										'jetpack-videopress-pkg'
 								  )
 						}
@@ -103,7 +103,7 @@ const StageInner = () => {
 	return (
 		<DashboardLayout activeTab="settings">
 			<div className="jp-videopress-settings">
-				{ isAtLimit && <FreeTierNotice message={ FREE_TIER_AT_LIMIT_MESSAGE } /> }
+				{ isAtLimit && <FreeTierNotice /> }
 				<SettingsForm />
 			</div>
 		</DashboardLayout>

@@ -37,6 +37,12 @@ type Props = {
 	description: string;
 	onOpenHelp: () => void;
 	confirmNavigation?: () => boolean;
+	/**
+	 * False while the record is a synthetic draft (the /upload bridge before
+	 * the attachment registers): its id builds a `/video/draft-…/editor`
+	 * target the router cannot resolve.
+	 */
+	allowEditorLink?: boolean;
 };
 
 /**
@@ -89,6 +95,7 @@ function EditChaptersLink( {
  * @param props.confirmNavigation - Same guard the sub-nav uses: invoked before
  *                                the deep link navigates away from a dirty
  *                                Details form; return false to stay put.
+ * @param props.allowEditorLink   - Whether the deep link can resolve.
  * @return The summary element.
  */
 export default function ChaptersSummary( {
@@ -96,6 +103,7 @@ export default function ChaptersSummary( {
 	description,
 	onOpenHelp,
 	confirmNavigation,
+	allowEditorLink = true,
 }: Props ): ReactElement {
 	const { rows } = useMemo( () => parseDescription( description ), [ description ] );
 
@@ -115,7 +123,7 @@ export default function ChaptersSummary( {
 						rows.length
 					) }
 				</Text>
-				{ isChaptersEditorEnabled() && (
+				{ allowEditorLink && isChaptersEditorEnabled() && (
 					<EditChaptersLink videoId={ video.id } confirmNavigation={ confirmNavigation } />
 				) }
 			</Stack>
