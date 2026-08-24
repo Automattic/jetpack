@@ -5,12 +5,7 @@ import {
 import useSimpleQuery from '../../../data/use-simple-query';
 import A4ABanner from '../../a4a-banner';
 import LoadingBlock from '../../loading-block';
-
-type A4AData = {
-	isEnabled: boolean;
-	isAgencyAccount: boolean;
-	isDismissed: boolean;
-};
+import type { JetpackManageData } from '../../../data/types';
 
 /**
  * Component to display the Automattic for Agencies upsell banner.
@@ -18,7 +13,7 @@ type A4AData = {
  * @return The rendered component
  */
 export function A4AUpsell() {
-	const { data, isLoading, isError } = useSimpleQuery< A4AData >( {
+	const { data, isLoading, isError } = useSimpleQuery< JetpackManageData >( {
 		name: QUERY_GET_JETPACK_MANAGE_DATA_KEY,
 		query: { path: REST_API_GET_JETPACK_MANAGE_DATA },
 	} );

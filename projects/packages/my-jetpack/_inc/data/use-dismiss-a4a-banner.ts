@@ -1,6 +1,14 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import { QUERY_DISMISS_A4A_BANNER_KEY, REST_API_DISMISS_A4A_BANNER } from './constants';
+import { useCallback } from 'react';
+import {
+	QUERY_DISMISS_A4A_BANNER_KEY,
+	QUERY_GET_JETPACK_MANAGE_DATA_KEY,
+	REST_API_DISMISS_A4A_BANNER,
+	REST_API_GET_JETPACK_MANAGE_DATA,
+} from './constants';
 import useSimpleMutation from './use-simple-mutation';
+import type { JetpackManageData } from './types';
 
 /**
  * Dismiss the Automattic for Agencies banner for this site.
@@ -12,7 +20,9 @@ import useSimpleMutation from './use-simple-mutation';
  * @return The mutation result, exposing `dismiss` (the mutate fn) and its `isPending` state.
  */
 export default function useDismissA4ABanner() {
-	const { mutate: dismiss, isPending } = useSimpleMutation( {
+	const queryClient = useQueryClient();
+
+	const { mutate, isPending } = useSimpleMutation( {
 		name: QUERY_DISMISS_A4A_BANNER_KEY,
 		query: {
 			path: REST_API_DISMISS_A4A_BANNER,
@@ -23,6 +33,19 @@ export default function useDismissA4ABanner() {
 			'jetpack-my-jetpack'
 		),
 	} );
+
+	const dismiss = useCallback( () => {
+		// Mark the cached payload dismissed before firing the request. Leaving it stale means that
+		// navigating away from the Overview tab and back re-renders the banner from cache until the
+		// refetch lands — visibly, and firing a second `banner_view` event for a banner the user
+		// has already dismissed. `useSimpleQuery` keys on [ name, query ], so this must match.
+		queryClient.setQueryData(
+			[ QUERY_GET_JETPACK_MANAGE_DATA_KEY, { path: REST_API_GET_JETPACK_MANAGE_DATA } ],
+			( data: JetpackManageData | undefined ) => ( data ? { ...data, isDismissed: true } : data )
+		);
+
+		mutate();
+	}, [ mutate, queryClient ] );
 
 	return { dismiss, isPending };
 }
