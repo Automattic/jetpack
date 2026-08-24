@@ -18,8 +18,8 @@ const injectSearchApp = () => {
 		<Provider store={ store }>
 			<SearchApp
 				aggregations={ buildFilterAggregations( [
-					...window[ SERVER_OBJECT_NAME ].widgets,
-					...window[ SERVER_OBJECT_NAME ].widgetsOutsideOverlay,
+					...( window[ SERVER_OBJECT_NAME ].widgets ?? [] ),
+					...( window[ SERVER_OBJECT_NAME ].widgetsOutsideOverlay ?? [] ),
 				] ) }
 				enableAnalytics={ ! window[ SERVER_OBJECT_NAME ].disableTracking }
 				hasOverlayWidgets={ !! window[ SERVER_OBJECT_NAME ].hasOverlayWidgets }
