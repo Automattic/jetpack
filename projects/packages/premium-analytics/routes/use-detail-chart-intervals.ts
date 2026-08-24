@@ -2,9 +2,12 @@
  * External dependencies
  */
 import { useMemo } from '@wordpress/element';
-import { STATS_CHART_BUCKET_PERIODS } from '@jetpack-premium-analytics/data';
+import {
+	STATS_CHART_BUCKET_PERIODS,
+	type StatsChartBucketPeriod,
+	IntervalType,
+} from '@jetpack-premium-analytics/data';
 import { defaultPeriodForInterval } from '@jetpack-premium-analytics/widgets-toolkit';
-import type { IntervalType } from '@jetpack-premium-analytics/data';
 
 /**
  * The buckets these charts draw, as an `IntervalType` list. They sum daily
@@ -42,8 +45,13 @@ export function useDetailChartIntervals(
 	intervalOptions: IntervalType[]
 ): DetailChartIntervals {
 	return useMemo( () => {
-		const honoured = intervalOptions.filter( option => HONOURED_INTERVALS.includes( option ) );
-		const offered: IntervalType[] = honoured.length
+		// The predicate narrows to the honoured buckets' own type, which
+		// `defaultPeriodForInterval` requires — `quarter` is an IntervalType but
+		// not a bucket a Stats request accepts.
+		const honoured = intervalOptions.filter( ( option ): option is StatsChartBucketPeriod =>
+			HONOURED_INTERVALS.includes( option )
+		);
+		const offered = honoured.length
 			? honoured
 			: [ defaultPeriodForInterval( interval, STATS_CHART_BUCKET_PERIODS ) ];
 
