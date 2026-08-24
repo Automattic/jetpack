@@ -153,7 +153,12 @@ class Reprint_Exporter {
 		// while a client is actively exporting.
 		self::open_export_window();
 
-		$this->serve_export();
+		try {
+			$this->serve_export();
+		} catch ( \InvalidArgumentException $exception ) {
+			$this->error( 400, $exception->getMessage() );
+			return;
+		}
 		$this->terminate();
 	}
 

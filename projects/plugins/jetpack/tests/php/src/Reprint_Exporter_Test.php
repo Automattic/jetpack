@@ -451,4 +451,21 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		// Window timestamp was bumped to (approximately) now.
 		$this->assertGreaterThanOrEqual( time() - 5, (int) get_option( Reprint_Exporter::ENABLED_OPTION ) );
 	}
+
+	/**
+	 * Invalid export parameters return JSON instead of a WordPress fatal error.
+	 */
+	public function test_invalid_export_request_returns_400() {
+		$stub              = $this->make_ready_stub();
+		$stub->serve_error = new \InvalidArgumentException( 'endpoint parameter is required.' );
+		update_option( Reprint_Exporter::SECRET_OPTION, 'a-secret' );
+
+		$body = $this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertSame( 400, $stub->error_code );
+		$this->assertStringContainsString( '"code":400', $body );
+		$this->assertStringContainsString( 'endpoint parameter is required.', $body );
+		$this->assertTrue( $stub->served );
+		$this->assertTrue( $stub->terminated );
+	}
 }

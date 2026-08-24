@@ -38,6 +38,13 @@ class Reprint_Exporter_Test_Stub extends Reprint_Exporter {
 	public $served = false;
 
 	/**
+	 * Exception thrown by serve_export(), if any.
+	 *
+	 * @var \InvalidArgumentException|null
+	 */
+	public $serve_error = null;
+
+	/**
 	 * Whether terminate() was reached.
 	 *
 	 * @var bool
@@ -64,9 +71,15 @@ class Reprint_Exporter_Test_Stub extends Reprint_Exporter {
 
 	/**
 	 * Records that the export would have been served, without exporting.
+	 *
+	 * @throws \InvalidArgumentException When configured to simulate invalid export parameters.
 	 */
 	protected function serve_export() {
 		$this->served = true;
+
+		if ( null !== $this->serve_error ) {
+			throw $this->serve_error;
+		}
 	}
 
 	/**

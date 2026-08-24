@@ -118,9 +118,11 @@ function wpcomsh_reprint_handle_request( $wp ) {
 	// now that we know this request is legit.
 	update_option( 'reprint_exporter_enabled', time() );
 
-	// WordPress is already loaded at this point.
-	// Let's run Reprint!
-	Site_Export_HTTP_Server::serve( array( 'default_directory' => ABSPATH ) );
+	try {
+		Site_Export_HTTP_Server::serve( array( 'default_directory' => ABSPATH ) );
+	} catch ( \InvalidArgumentException $exception ) {
+		_reprint_exporter_error( 400, $exception->getMessage() );
+	}
 	exit;
 }
 add_action( 'parse_request', 'wpcomsh_reprint_handle_request', 0 );
