@@ -1,0 +1,179 @@
+/**
+ * Tests for the form editor welcome guide component
+ *
+ * The pure visibility rules live in should-show.test.js. This covers the parts
+ * that only exist once the component is mounted: which preference writes it
+ * makes, and when.
+ */
+
+/**
+ * External dependencies
+ */
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+// Mocks must be registered before importing the component under test.
+const set = jest.fn();
+const preferences = new Map();
+
+await jest.unstable_mockModule( '@wordpress/data', () => ( {
+	useDispatch: jest.fn( () => ( { set } ) ),
+	useSelect: jest.fn( mapSelect =>
+		mapSelect( () => ( {
+			get: ( scope, name ) => preferences.get( `${ scope }.${ name }` ),
+		} ) )
+	),
+} ) );
+
+/*
+ * `Guide` renders into a portal and pulls in a large slice of
+ * @wordpress/components. These tests only care whether it rendered and what
+ * happens when it is finished, so the mock exposes the finish handler as a
+ * button and nothing else.
+ */
+await jest.unstable_mockModule( '@wordpress/components', () => ( {
+	Guide: ( { contentLabel, onFinish } ) => (
+		<div data-testid="guide">
+			{ contentLabel }
+			<button type="button" onClick={ onFinish }>
+				Finish
+			</button>
+		</div>
+	),
+} ) );
+
+/**
+ * Internal dependencies
+ */
+const { FormWelcomeGuide, PREFERENCE_NAME, PREFERENCE_SCOPE } = await import(
+	'../../../../src/form-editor/welcome-guide/index'
+);
+
+const CORE_SCOPE = 'core/edit-post';
+
+/**
+ * Seeds the preference store the mocked `useSelect` reads from.
+ *
+ * @param {object}            values                  - Preference values.
+ * @param {boolean|undefined} values.jetpackForms     - The jetpack/forms welcomeGuide preference.
+ * @param {boolean|undefined} values.coreWelcomeGuide - The core/edit-post welcomeGuide preference.
+ */
+const seedPreferences = ( { jetpackForms, coreWelcomeGuide } = {} ) => {
+	preferences.clear();
+	preferences.set( `${ PREFERENCE_SCOPE }.${ PREFERENCE_NAME }`, jetpackForms );
+	preferences.set( `${ CORE_SCOPE }.${ PREFERENCE_NAME }`, coreWelcomeGuide );
+};
+
+/**
+ * Sets the editor URL the guide reads the force argument from.
+ *
+ * @param {string} search - The query string, including the leading `?`, or empty.
+ */
+const setSearch = search => {
+	window.history.replaceState( {}, '', `/wp-admin/post-new.php${ search }` );
+};
+
+describe( 'FormWelcomeGuide', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		seedPreferences();
+		setSearch( '' );
+		window.jetpackFormsWelcomeGuide = { isEligible: true };
+	} );
+
+	it( 'opens for an eligible user who has not dismissed it', () => {
+		render( <FormWelcomeGuide /> );
+
+		expect( screen.getByTestId( 'guide' ) ).toBeInTheDocument();
+	} );
+
+	it( 'stays closed once the dismissal is stored', () => {
+		seedPreferences( { jetpackForms: false } );
+
+		render( <FormWelcomeGuide /> );
+
+		expect( screen.queryByTestId( 'guide' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'stays closed for a user it is not meant for', () => {
+		window.jetpackFormsWelcomeGuide = { isEligible: false };
+
+		render( <FormWelcomeGuide /> );
+
+		expect( screen.queryByTestId( 'guide' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'persists the dismissal the first time it is closed', async () => {
+		render( <FormWelcomeGuide /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Finish' } ) );
+
+		expect( set ).toHaveBeenCalledWith( PREFERENCE_SCOPE, PREFERENCE_NAME, false );
+	} );
+
+	it( 'does not re-persist a dismissal that is already stored', async () => {
+		// Already dismissed, but forced open so it can be closed again.
+		seedPreferences( { jetpackForms: false } );
+		setSearch( '?jetpack_forms_welcome_guide=1' );
+
+		render( <FormWelcomeGuide /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Finish' } ) );
+
+		expect( set ).not.toHaveBeenCalledWith( PREFERENCE_SCOPE, PREFERENCE_NAME, false );
+	} );
+
+	/*
+	 * Regression test for the earlier review feedback: bringing the guide back
+	 * from the Options menu must not undo a stored dismissal, or it starts
+	 * auto-opening on every later load.
+	 */
+	it( 'never writes the jetpack/forms preference back to true when reopened', () => {
+		seedPreferences( { jetpackForms: false, coreWelcomeGuide: false } );
+
+		const { rerender } = render( <FormWelcomeGuide /> );
+
+		// The user picks Options -> Welcome Guide, which flips core's preference.
+		seedPreferences( { jetpackForms: false, coreWelcomeGuide: true } );
+		rerender( <FormWelcomeGuide /> );
+
+		expect( set ).not.toHaveBeenCalledWith( PREFERENCE_SCOPE, PREFERENCE_NAME, true );
+	} );
+
+	it( 'reopens and clears core’s preference when the Options item is toggled on', () => {
+		seedPreferences( { jetpackForms: false, coreWelcomeGuide: false } );
+
+		const { rerender } = render( <FormWelcomeGuide /> );
+		expect( screen.queryByTestId( 'guide' ) ).not.toBeInTheDocument();
+
+		seedPreferences( { jetpackForms: false, coreWelcomeGuide: true } );
+		rerender( <FormWelcomeGuide /> );
+
+		expect( screen.getByTestId( 'guide' ) ).toBeInTheDocument();
+		expect( set ).toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, false );
+	} );
+
+	/*
+	 * Marked `failing` on purpose: this documents the behavior the guide should
+	 * have, and it is currently inverted.
+	 *
+	 * The takeover effect reacts to core/edit-post welcomeGuide simply *being*
+	 * true rather than transitioning to true, so it cannot tell a menu click
+	 * from a value that was already there. Core's own default is true until the
+	 * editor bundle's subscribe callback suppresses it, and a user who
+	 * deliberately re-enabled core's guide has true persisted. Either way the
+	 * effect fires on mount and persists false, switching core's welcome modal
+	 * off in the post and page editors for someone who never saw it there.
+	 *
+	 * Once the effect only reacts to a false -> true transition, this goes green
+	 * and the `.failing` marker should be dropped.
+	 */
+	it.failing( 'does not touch core’s preference when it is already true on mount', () => {
+		seedPreferences( { coreWelcomeGuide: true } );
+
+		render( <FormWelcomeGuide /> );
+
+		expect( set ).not.toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, false );
+	} );
+} );

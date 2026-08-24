@@ -775,6 +775,41 @@ class Form_Editor_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Core stores the block editor's preferences under a blog-prefixed meta key
+	 * — wp_register_persisted_preferences_meta() builds it as
+	 * $wpdb->get_blog_prefix() . 'persisted_preferences' — so the literal
+	 * wp_persisted_preferences only happens to be right on a single site using
+	 * the default table prefix. Anywhere else (a multisite subsite, or a custom
+	 * $table_prefix) the read comes back empty, dismissal never registers, and
+	 * every user looks eligible forever.
+	 */
+	public function test_preferences_are_read_from_the_blog_prefixed_meta_key() {
+		$this->markTestSkipped(
+			'Pending the fix: get_persisted_preferences() hardcodes wp_persisted_preferences instead of deriving the key from $wpdb->get_blog_prefix().'
+		);
+
+		global $wpdb;
+
+		$user_id         = $this->log_in_new_user();
+		$original_prefix = $wpdb->base_prefix;
+		$preferences     = array( 'jetpack/forms' => array( 'welcomeGuide' => false ) );
+
+		$wpdb->set_prefix( 'jptest_' );
+
+		try {
+			update_user_meta( $user_id, $wpdb->get_blog_prefix() . 'persisted_preferences', $preferences );
+
+			$this->assertSame(
+				$preferences,
+				$this->call_private( 'get_persisted_preferences' ),
+				'Preferences should be read from the blog-prefixed key, not a hardcoded wp_ one'
+			);
+		} finally {
+			$wpdb->set_prefix( $original_prefix );
+		}
+	}
+
+	/**
 	 * Puts the current screen in the form editor.
 	 *
 	 * @return \WP_Screen The screen that was set.
