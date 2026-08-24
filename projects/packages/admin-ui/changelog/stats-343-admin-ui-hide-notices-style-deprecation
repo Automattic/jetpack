@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Deprecate Admin_Menu::print_hide_core_admin_notices_style(); hide_core_admin_notices() enqueues the CSS now.
