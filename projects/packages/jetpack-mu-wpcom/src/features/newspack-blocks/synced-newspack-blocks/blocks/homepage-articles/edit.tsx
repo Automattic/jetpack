@@ -66,6 +66,7 @@ class Edit extends Component< HomepageArticlesProps > {
 			showAvatar,
 			showDate,
 			showCategory,
+			showTagLabels,
 			sectionHeader,
 		} = attributes;
 
@@ -111,6 +112,21 @@ class Edit extends Component< HomepageArticlesProps > {
 							{ showCategory && ( ! post.newspack_post_sponsors || post.newspack_sponsors_show_categories ) && (
 								<RawHTML>{ decodeEntities( post.newspack_category_info ) }</RawHTML>
 							) }
+						</div>
+					) }{ ' ' }
+					{ showTagLabels && post.newspack_tag_labels && (
+						<div className="cat-links tag-labels">
+							{ post.newspack_tag_labels.map( ( newspack_tag_label, index ) => {
+								return newspack_tag_label.link ? (
+									<a key={ index } href="#" className="tag-label flag">
+										{ newspack_tag_label.flag }
+									</a>
+								) : (
+									<span key={ index } className="tag-label flag">
+										{ newspack_tag_label.flag }
+									</span>
+								);
+							} ) }
 						</div>
 					) }
 					{ RichText.isEmpty( sectionHeader ) ? (
@@ -208,6 +224,7 @@ class Edit extends Component< HomepageArticlesProps > {
 			showAuthor,
 			showAvatar,
 			showCategory,
+			showTagLabels,
 			postLayout,
 			mediaPosition,
 			specificMode,
@@ -444,6 +461,11 @@ class Edit extends Component< HomepageArticlesProps > {
 						label={ __( 'Show category', 'jetpack-mu-wpcom' ) }
 						checked={ showCategory }
 						onChange={ () => setAttributes( { showCategory: ! showCategory } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show tag labels', 'jetpack-mu-wpcom' ) }
+						checked={ showTagLabels }
+						onChange={ () => setAttributes( { showTagLabels: ! showTagLabels } ) }
 					/>
 					{ IS_SUBTITLE_SUPPORTED_IN_THEME && (
 						<ToggleControl

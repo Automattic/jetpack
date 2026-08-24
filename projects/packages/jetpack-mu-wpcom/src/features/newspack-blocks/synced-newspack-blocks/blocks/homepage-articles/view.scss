@@ -300,7 +300,7 @@
 				}
 
 				&::after {
-					background: rgba(np-colors.$neutral-1000, 0.5);
+					background: np-colors.$overlay-500;
 					content: "";
 					inset: 0;
 					position: absolute;

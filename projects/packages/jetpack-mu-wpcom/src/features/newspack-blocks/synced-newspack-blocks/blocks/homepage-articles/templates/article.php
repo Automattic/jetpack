@@ -17,6 +17,10 @@ call_user_func(
 		// Get sponsors for this post.
 		$sponsors = Newspack_Blocks::get_all_sponsors( $post_id );
 
+		// Get tag labels for this post, but only when the block is set to show them
+		// (avoids a per-post taxonomy lookup when tag labels are disabled).
+		$tag_labels = ( $attributes['showTagLabels'] ?? true ) ? Newspack_Blocks::get_tag_labels( $post_id ) : null;
+
 		// Add classes based on the post's assigned categories and tags.
 		$classes[] = Newspack_Blocks::get_term_classes( $post_id );
 
@@ -112,6 +116,10 @@ call_user_func(
 				</div>
 				<?php
 			endif;
+
+			if ( ! empty( $tag_labels ) ) {
+				Newspack_Blocks::display_tag_labels( $tag_labels );
+			}
 
 			if ( '' === $attributes['sectionHeader'] ) {
 				// Don't link the title if the post lacks a valid URL.

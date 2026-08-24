@@ -269,7 +269,7 @@ function newspack_blocks_render_block_carousel( $attributes ) {
 		$data_attributes[] = 'data-autoplay=1';
 		$data_attributes[] = sprintf( 'data-autoplay_delay=%s', esc_attr( $delay ) );
 	}
-	Newspack_Blocks::enqueue_view_assets( 'carousel' );
+	Newspack_Blocks::enqueue_view_assets( 'carousel', 'defer' );
 	if ( 1 === $counter ) {
 		$selector = '';
 	}

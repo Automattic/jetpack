@@ -424,16 +424,15 @@ class QueryControls extends Component {
 									tokens={ getTermsOfCustomTaxonomy( customTaxonomyExclusions, slug ) }
 								/>
 							) ) }
-
-						{ onAllowDedupeChange && (
-							<ToggleControl
-								label={ __( 'Allow duplicate content', 'jetpack-mu-wpcom' ) }
-								help={ __( "Exclude this block from the page's deduplication logic.", 'jetpack-mu-wpcom' ) }
-								checked={ allowDedupeCurrentValue }
-								onChange={ value => onAllowDedupeChange( value ) }
-							/>
-						) }
 					</>
+				) }
+                { onAllowDedupeChange && (
+					<ToggleControl
+						label={ __( 'Allow duplicate content', 'jetpack-mu-wpcom' ) }
+						help={ __( "Exclude this block from the page's deduplication logic.", 'jetpack-mu-wpcom' ) }
+						checked={ allowDedupeCurrentValue }
+						onChange={ value => onAllowDedupeChange( value ) }
+					/>
 				) }
             </>
         );

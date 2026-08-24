@@ -61,3 +61,29 @@ function get_authors_roles_slugs() {
 		get_authors_roles()
 	);
 }
+
+/**
+ * Whether an avatar should be displayed, honoring a "hide default avatar" preference.
+ *
+ * Gravatar-served images never carry core's `avatar-default` class (core only
+ * emits it when no avatar was found, and the Gravatar branch always reports
+ * found), so a generated fallback like `d=mm` is indistinguishable from a real
+ * avatar by class alone. When hiding defaults, callers must fetch the avatar
+ * with Gravatar's `blank` fallback so it can be detected via the `d=blank`
+ * param — mirroring the Author List block's long-standing behavior.
+ *
+ * @param string|false $avatar       Avatar HTML as returned by get_avatar()/coauthors_get_avatar().
+ * @param bool         $hide_default Whether default (fallback) avatars should be hidden.
+ *
+ * @return bool True if the avatar should be displayed.
+ */
+function is_avatar_displayable( $avatar, $hide_default ) {
+	if ( ! $avatar ) {
+		return false;
+	}
+	if ( ! $hide_default ) {
+		return true;
+	}
+	$is_default = false !== strpos( $avatar, 'avatar-default' ) || false !== strpos( $avatar, 'd=blank' );
+	return ! $is_default;
+}

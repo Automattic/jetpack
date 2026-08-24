@@ -422,7 +422,7 @@ function newspack_blocks_render_block_homepage_articles( $attributes ) {
 	<?php
 
 	$content = ob_get_clean();
-	Newspack_Blocks::enqueue_view_assets( 'homepage-articles' );
+	Newspack_Blocks::enqueue_view_assets( 'homepage-articles', 'defer' );
 
 	return $content;
 }
