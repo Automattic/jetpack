@@ -244,7 +244,7 @@ export function useBackups( { forcePoll = false }: Args = {} ): Result {
 	}, [ data, error, backups ] );
 
 	// The activity log has no poll of its own (see the key split in query-client.ts).
-	// Fire on the in-progress -> finished edge only; per-tick would refetch every 5s.
+	// Fire once when a run leaves in-progress; per-tick would refetch every 5s.
 	const wasInProgress = useRef( false );
 	useEffect( () => {
 		if ( wasInProgress.current && summary.state !== 'in-progress' ) {

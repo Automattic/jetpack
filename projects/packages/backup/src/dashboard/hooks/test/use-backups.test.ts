@@ -242,10 +242,11 @@ describe( 'useBackups', () => {
 
 		// Still running on the next poll: no invalidation yet.
 		act( () => result.current.refetch() );
-		await waitFor( () => expect( mockedApiFetch ).toHaveBeenCalledTimes( 2 ) );
+		// At least two: the 5s in-progress poll can land its own tick on a slow runner.
+		await waitFor( () => expect( mockedApiFetch.mock.calls.length ).toBeGreaterThanOrEqual( 2 ) );
 		expect( invalidate ).not.toHaveBeenCalled();
 
-		// Finishes: invalidate the activity log exactly once.
+		// Finishes: one invalidation for this consumer, however many polls ran.
 		act( () => result.current.refetch() );
 		await waitFor( () => expect( result.current.state ).toBe( 'complete' ) );
 
