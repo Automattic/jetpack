@@ -262,10 +262,8 @@ async function fixDeps( pkg ) {
 		pkg.dependencies.glob = '^13';
 	}
 
-	// newspack-icons only imports SVG and Path from @wordpress/primitives, and neither changed in v4.
-	// packages/icons in Automattic/newspack-workspace already widens this range, but the published
-	// 1.1.1 predates that change. Drop this once a release carries the wider range; the guard on the
-	// exact old value means it stops applying by itself when that happens.
+	// Updated in upstream trunk with no other changes, but not released yet.
+	// https://github.com/Automattic/newspack-workspace/pull/835
 	if (
 		pkg.name === 'newspack-icons' &&
 		pkg.peerDependencies?.[ '@wordpress/primitives' ] === '^3.0.0'
