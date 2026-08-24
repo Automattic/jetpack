@@ -289,7 +289,7 @@ class Dashboard_Data {
 			'enhancer' => array(
 				'available'    => $filter_on && $plan_supports,
 				'enabled'      => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
-				'aiSeoEnabled' => (bool) $ai_seo_on,
+				'aiSeoEnabled' => $ai_seo_on,
 			),
 			'llmsTxt'  => array(
 				'enabled'  => Llms_Txt::is_enabled(),
