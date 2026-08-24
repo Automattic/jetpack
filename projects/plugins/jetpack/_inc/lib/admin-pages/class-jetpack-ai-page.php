@@ -129,8 +129,9 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 		$show_gated_views = jetpack_is_internal_testing_environment();
 
 		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array(
-			'name'      => '',
-			'renews_on' => '',
+			'name'       => '',
+			'renews_on'  => '',
+			'auto_renew' => true,
 		);
 
 		wp_add_inline_script(
@@ -155,6 +156,9 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					// The plan's own renewal date, matching My Jetpack — the
 					// usage-period rollover is a different, monthly date.
 					'planRenewsOn'     => $plan_info['renews_on'],
+					// The same date reads "Renews on" or "Expires on" depending on
+					// auto-renew, matching My Jetpack and the wpcom subscriptions page.
+					'planAutoRenew'    => $plan_info['auto_renew'],
 					'showFeaturesView' => $show_gated_views,
 					// The walkthrough videos link to WordPress.com courses, so the
 					// Overview only shows them on WordPress.com-hosted sites (i4 thread).
@@ -237,8 +241,9 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	 */
 	private static function get_ai_plan_info() {
 		$empty = array(
-			'name'      => '',
-			'renews_on' => '',
+			'name'       => '',
+			'renews_on'  => '',
+			'auto_renew' => true,
 		);
 
 		if ( ! class_exists( '\Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai' ) ) {
@@ -271,6 +276,10 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			// trim the store names' brand prefixes; they are untranslated.
 			$info['name']      = (string) preg_replace( '/^(Jetpack|WordPress\.com) /', '', (string) $purchase->product_name );
 			$info['renews_on'] = (string) ( $purchase->expiry_date ?? '' );
+			// Absent means unknown, not off: only a purchase that positively
+			// reports auto-renew off should relabel the date as an expiry.
+			$info['auto_renew'] = ! isset( $purchase->is_auto_renew_enabled )
+				|| (bool) $purchase->is_auto_renew_enabled;
 		}
 
 		set_transient( 'jetpack_ai_overview_plan_info', $info, HOUR_IN_SECONDS );

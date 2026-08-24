@@ -128,6 +128,7 @@ export default function App() {
 		upgradeUrl,
 		planName,
 		planRenewsOn,
+		planAutoRenew,
 		isWpcomHosted,
 		isUserConnected,
 	} = window?.jetpackAiSettings ?? {};
@@ -336,6 +337,7 @@ export default function App() {
 						upgradeUrl={ upgradeUrl }
 						planName={ planName }
 						planRenewsOn={ planRenewsOn }
+						planAutoRenew={ planAutoRenew }
 						isWpcomHosted={ isWpcomHosted }
 						isUserConnected={ isUserConnected }
 						hostAllowsAi={ aiSettings?.host_allows_ai }

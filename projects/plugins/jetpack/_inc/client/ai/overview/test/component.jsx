@@ -110,6 +110,40 @@ describe( 'AiOverview', () => {
 		expect( screen.queryByText( /September 1, 2026/ ) ).not.toBeInTheDocument();
 	} );
 
+	test( 'renewal date: reads as an expiry when the purchase does not auto-renew', async () => {
+		// Auto-renew off means the date is the last day of service, not a
+		// renewal — matching My Jetpack and the wpcom subscriptions page.
+		apiFetch.mockResolvedValueOnce( unlimitedPayload() );
+
+		render(
+			<AiOverview
+				{ ...PROPS }
+				planName="Business"
+				planRenewsOn="2026-12-23T00:00:00+00:00"
+				planAutoRenew={ false }
+			/>
+		);
+
+		await expect(
+			screen.findByText( 'Expires on: December 23, 2026' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /Renews on/ ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'renewal date: an unknown auto-renew state keeps the renewal wording', async () => {
+		// The flag is absent on payloads that predate it; unknown must not be
+		// read as "off", which would mislabel every auto-renewing plan.
+		apiFetch.mockResolvedValueOnce( unlimitedPayload() );
+
+		render(
+			<AiOverview { ...PROPS } planName="Business" planRenewsOn="2026-12-23T00:00:00+00:00" />
+		);
+
+		await expect(
+			screen.findByText( 'Renews on: December 23, 2026' )
+		).resolves.toBeInTheDocument();
+	} );
+
 	test( 'renewal date: holds its day under a western site timezone', async () => {
 		// @wordpress/date defaults to offset 0 in jest, which would make the
 		// assertion vacuous; pin a UTC-7 site for this test only.

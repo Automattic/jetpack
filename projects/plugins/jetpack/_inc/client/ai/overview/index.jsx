@@ -81,15 +81,17 @@ const DOC_LINKS = [
  * left, plan + upgrade-or-renewal on the right. Loading and error states stay
  * inside the card so the rest of the Overview renders immediately.
  *
- * @param {object} props                - Component props.
- * @param {string} props.upgradeUrl     - Upgrade destination (shared with the MCP upsell).
- * @param {string} [props.planName]     - Purchase name granting AI ("WordPress.com Business");
- *                                      preferred over the derived label when present.
- * @param {string} [props.planRenewsOn] - The purchase's own renewal date; preferred over
- *                                      the usage-period rollover, which is monthly.
+ * @param {object}  props                 - Component props.
+ * @param {string}  props.upgradeUrl      - Upgrade destination (shared with the MCP upsell).
+ * @param {string}  [props.planName]      - Purchase name granting AI ("WordPress.com Business");
+ *                                        preferred over the derived label when present.
+ * @param {string}  [props.planRenewsOn]  - The purchase's own renewal date; preferred over
+ *                                        the usage-period rollover, which is monthly.
+ * @param {boolean} [props.planAutoRenew] - Whether the purchase auto-renews; decides
+ *                                        whether the date reads Renews on or Expires on.
  * @return {object} Component markup.
  */
-function UsageCard( { upgradeUrl, planName, planRenewsOn } ) {
+function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 	const { isLoading, data, error } = useAiUsage();
 	const usage = normalizeUsage( data );
 	// Only the purchase's own renewal belongs under "Renews on"; the usage
@@ -220,11 +222,17 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn } ) {
 										variant="body-sm"
 										className="jetpack-ai-overview__muted jetpack-ai-overview__renewal"
 									>
-										{ sprintf(
-											/* translators: %s: localized date the plan renews on. */
-											__( 'Renews on: %s', 'jetpack' ),
-											renewsOnDisplay
-										) }
+										{ planAutoRenew !== false
+											? sprintf(
+													/* translators: %s: localized date the plan renews on. */
+													__( 'Renews on: %s', 'jetpack' ),
+													renewsOnDisplay
+											  )
+											: sprintf(
+													/* translators: %s: localized date the plan expires on. */
+													__( 'Expires on: %s', 'jetpack' ),
+													renewsOnDisplay
+											  ) }
 									</Text>
 								) }
 							</Stack>
@@ -245,6 +253,7 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn } ) {
  * @param {string}  [props.upgradeUrl]      - Upgrade destination for the usage card.
  * @param {string}  [props.planName]        - Purchase name granting AI, from the page data.
  * @param {string}  [props.planRenewsOn]    - The purchase's renewal date, from the page data.
+ * @param {boolean} [props.planAutoRenew]   - Whether that purchase auto-renews, from the page data.
  * @param {boolean} [props.isWpcomHosted]   - Whether the site is hosted on WordPress.com;
  *                                          the video row links to WP.com courses and hides elsewhere.
  * @param {boolean} [props.showActivityLog] - Whether the activity-log row applies: the row's
@@ -261,6 +270,7 @@ export default function AiOverview( {
 	upgradeUrl,
 	planName,
 	planRenewsOn,
+	planAutoRenew,
 	isWpcomHosted,
 	showActivityLog,
 	hostAllowsAi,
@@ -297,7 +307,12 @@ export default function AiOverview( {
 				</Card.Root>
 			) }
 			{ !! blogId && ! hostBlocked && ! userUnlinked && (
-				<UsageCard upgradeUrl={ upgradeUrl } planName={ planName } planRenewsOn={ planRenewsOn } />
+				<UsageCard
+					upgradeUrl={ upgradeUrl }
+					planName={ planName }
+					planRenewsOn={ planRenewsOn }
+					planAutoRenew={ planAutoRenew }
+				/>
 			) }
 			{ ! blogId && (
 				// Disconnected: skip the fetch (it can only fail) and explain

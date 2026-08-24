@@ -89,6 +89,18 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * A Jetpack AI subscription with auto-renew switched off.
+	 *
+	 * @return object
+	 */
+	private function jetpack_ai_purchase_without_auto_renew() {
+		$purchase                        = $this->jetpack_ai_purchase();
+		$purchase->is_auto_renew_enabled = false;
+
+		return $purchase;
+	}
+
+	/**
 	 * Run page_admin_scripts() against a fresh scripts registry and decode the
 	 * jetpackAiSettings payload it injects.
 	 *
@@ -128,6 +140,32 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertTrue( $settings['showFeaturesView'] );
+	}
+
+	/**
+	 * Auto-renew off must reach the client, so the date can read as an expiry.
+	 */
+	public function test_plan_auto_renew_is_false_when_the_purchase_does_not_renew() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->given_site( array( $this->jetpack_ai_purchase_without_auto_renew() ) );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertArrayHasKey( 'planAutoRenew', $settings );
+		$this->assertFalse( $settings['planAutoRenew'] );
+	}
+
+	/**
+	 * A purchase that says nothing about auto-renew is unknown, not off — the
+	 * date must keep the renewal wording rather than claim an expiry.
+	 */
+	public function test_plan_auto_renew_defaults_true_when_the_purchase_omits_it() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->given_site( array( $this->jetpack_ai_purchase() ) );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['planAutoRenew'] );
 	}
 
 	/**
