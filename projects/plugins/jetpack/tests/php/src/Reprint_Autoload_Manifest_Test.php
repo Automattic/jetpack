@@ -55,6 +55,7 @@ class Reprint_Autoload_Manifest_Test extends WP_UnitTestCase {
 		'WordPress\\Reprint\\Server\\FileTreeProducer',
 		'WordPress\\Reprint\\Server\\GzipOutputStream',
 		'WordPress\\Reprint\\Server\\MySQLDumpProducer',
+		'WordPress\\Reprint\\Server\\PdoConstants',
 		'WordPress\\Reprint\\Server\\ResourceBudget',
 		'WordPress\\Reprint\\Server\\SqliteDriverPDO',
 		'WordPress\\Reprint\\Server\\SqliteDriverPDOStatement',
@@ -127,18 +128,10 @@ class Reprint_Autoload_Manifest_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The PDO polyfill must never reach the classmap.
+	 * Reprint must not publish fake PDO classes.
 	 *
-	 * The package's src/class-pdo-polyfill.php declares global PDO, PDOStatement
-	 * and PDOException — six constants and two empty classes — inside eval()
-	 * heredocs, and Composer's class map generator strips strings before
-	 * tokenising, so they do not land. Its exclude-from-classmap entry does not
-	 * help here: Jetpack's AutoloadGenerator emits no such key.
-	 *
-	 * It matters because class_exists( 'PDO' ) is a capability probe, and the
-	 * manifest is site-global. A faithful polyfill would answer it true and
-	 * right; this one would answer true and wrong, and every plugin on the site
-	 * would fatal on first use.
+	 * Jetpack's autoloader is site-wide, and PDO is a capability probe for
+	 * co-resident plugins.
 	 */
 	public function test_no_pdo_polyfill_classes() {
 		$classmap = $this->manifest( 'jetpack_autoload_classmap.php' );
@@ -169,34 +162,20 @@ class Reprint_Autoload_Manifest_Test extends WP_UnitTestCase {
 	/**
 	 * Every reprint classmap entry names a file the production build ships.
 	 *
-	 * Reads the same two git attributes the build's file list reads. The
-	 * package lives under vendor/, which is gitignored, so a file ships only
-	 * where production-include is set on it and production-exclude is not.
+	 * The package lives under vendor/, so the plugin's production attributes
+	 * must include it explicitly. Read the tracked attribute file directly:
+	 * Docker test containers cannot reliably read the worktree's Git metadata.
 	 */
 	public function test_classmap_paths_ship_in_the_production_build() {
-		$plugin_dir = $this->plugin_dir();
-		$paths      = array();
+		$attributes_file = $this->plugin_dir() . '.gitattributes';
+		$attributes      = file_get_contents( $attributes_file );
+		$this->assertNotFalse( $attributes, '.gitattributes must be readable.' );
 
-		foreach ( $this->reprint_classmap_entries() as $class => $path ) {
-			$this->assertStringStartsWith( $plugin_dir, $path, "$class maps outside the plugin directory." );
-			$paths[] = substr( $path, strlen( $plugin_dir ) );
-		}
-		$this->assertNotEmpty( $paths );
-
-		$attributes = $this->check_attr( $plugin_dir, array( 'production-include', 'production-exclude' ), $paths );
-
-		foreach ( $paths as $path ) {
-			$this->assertSame(
-				'set',
-				$attributes[ $path ]['production-include'] ?? null,
-				"$path is not production-included, so it will not ship."
-			);
-			$this->assertContains(
-				$attributes[ $path ]['production-exclude'] ?? null,
-				array( 'unspecified', 'unset' ),
-				"$path is production-excluded, so it will not ship."
-			);
-		}
+		$this->assertMatchesRegularExpression(
+			'#^/vendor/wp-php-toolkit/reprint-server/\*\*\s+production-include\s*$#m',
+			$attributes,
+			'Reprint server must be production-included so every classmap path ships.'
+		);
 	}
 
 	/**
@@ -219,39 +198,5 @@ class Reprint_Autoload_Manifest_Test extends WP_UnitTestCase {
 		}
 
 		$this->assertSame( array(), $found );
-	}
-
-	/**
-	 * Reads git attributes for a list of paths.
-	 *
-	 * @param string   $cwd        Directory to run git in.
-	 * @param string[] $attributes Attribute names to read.
-	 * @param string[] $paths      Paths, relative to $cwd.
-	 * @return array<string, array<string, string>> Path => attribute => value.
-	 */
-	private function check_attr( $cwd, $attributes, $paths ) {
-		$command = 'git -C ' . escapeshellarg( $cwd ) . ' -c core.quotepath=off check-attr '
-			. implode( ' ', array_map( 'escapeshellarg', $attributes ) ) . ' -- '
-			. implode( ' ', array_map( 'escapeshellarg', $paths ) ) . ' 2>/dev/null';
-
-		$output    = array();
-		$exit_code = 0;
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec -- The build reads these attributes the same way; there is no PHP equivalent.
-		exec( $command, $output, $exit_code );
-
-		if ( 0 !== $exit_code ) {
-			$this->markTestSkipped( 'git could not read the attributes here, so the production file list is unchecked.' );
-		}
-
-		$result = array();
-		foreach ( $output as $line ) {
-			// Each line reads `<path>: <attribute>: <value>`.
-			$parts = explode( ': ', $line );
-			if ( 3 === count( $parts ) ) {
-				$result[ $parts[0] ][ $parts[1] ] = $parts[2];
-			}
-		}
-
-		return $result;
 	}
 }

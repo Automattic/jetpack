@@ -292,13 +292,19 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	// -- Export window helper -------------------------------------------------
 
 	/**
-	 * A missing or stale enabled timestamp keeps the window closed.
+	 * A missing, stale, or future enabled timestamp keeps the window closed.
 	 */
-	public function test_export_window_closed_when_missing_or_stale() {
+	public function test_export_window_closed_when_missing_stale_or_future() {
 		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
 
 		update_option( Reprint_Exporter::ENABLED_OPTION, time() - ( HOUR_IN_SECONDS + 60 ) );
 		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
+
+		update_option( Reprint_Exporter::ENABLED_OPTION, time() + Reprint_Exporter::HMAC_CLOCK_SKEW + 1 );
+		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
+
+		update_option( Reprint_Exporter::ENABLED_OPTION, time() + Reprint_Exporter::HMAC_CLOCK_SKEW - 1 );
+		$this->assertTrue( Reprint_Exporter::is_export_window_open() );
 
 		update_option( Reprint_Exporter::ENABLED_OPTION, time() );
 		$this->assertTrue( Reprint_Exporter::is_export_window_open() );

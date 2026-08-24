@@ -120,6 +120,24 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that a future enabled timestamp does not keep the export gate open.
+	 */
+	public function test_export_gate_is_closed_for_a_future_timestamp() {
+		update_option( 'reprint_exporter_enabled', time() + 301 );
+
+		$this->assertFalse( _should_expose_reprint_exporter_on_this_site() );
+	}
+
+	/**
+	 * Test that the export gate tolerates the HMAC clock skew.
+	 */
+	public function test_export_gate_tolerates_hmac_clock_skew() {
+		update_option( 'reprint_exporter_enabled', time() + 299 );
+
+		$this->assertTrue( _should_expose_reprint_exporter_on_this_site() );
+	}
+
+	/**
 	 * Test that the rotate-secret route is always registered.
 	 */
 	public function test_rest_route_always_registered() {

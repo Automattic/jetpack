@@ -185,7 +185,10 @@ add_filter( 'site_settings_endpoint_update_reprint_exporter_enabled', 'wpcomsh_r
  */
 function _should_expose_reprint_exporter_on_this_site(): bool {
 	$enabled_at = (int) get_option( 'reprint_exporter_enabled', 0 );
-	return $enabled_at > 0 && ( time() - $enabled_at ) <= HOUR_IN_SECONDS;
+	$now        = time();
+	return $enabled_at > 0
+		&& $enabled_at <= $now + 300
+		&& ( $now - $enabled_at ) <= HOUR_IN_SECONDS;
 }
 
 /**

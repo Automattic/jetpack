@@ -2,10 +2,9 @@
 /**
  * Reprint export support for Pressable and WordPress.com (Atomic) sites.
  *
- * Not a module: it has no module headers, so it never appears in the module
- * list and cannot be activated or deactivated. module-extras.php requires it on
- * every request, through the `jetpack_tools_to_include` filter, which is how a
- * site owner can keep it from loading at all.
+ * Not a module: it has no module headers, so it cannot be activated or
+ * deactivated. module-extras.php loads it as a connected tool, and
+ * `jetpack_tools_to_include` can exclude it entirely.
  *
  * The registration itself is gated on the host — see Reprint_Exporter::is_available().
  *

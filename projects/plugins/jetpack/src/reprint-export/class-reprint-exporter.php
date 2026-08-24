@@ -1,36 +1,10 @@
 <?php
 /**
- * Reprint export support for Jetpack on Pressable and WordPress.com (Atomic).
+ * HMAC-authenticated, time-limited Reprint export for Pressable and Atomic
+ * sites.
  *
- * Mirrors the behavior shipped in wpcomsh for WordPress.com on Atomic, but
- * hosted in Jetpack so it also serves Pressable and can eventually replace the
- * wpcomsh copy. It exposes an HMAC-authenticated, time-limited full-site export
- * endpoint backed by the wp-php-toolkit/reprint-server package.
- *
- * On Atomic this runs alongside the wpcomsh copy without colliding: it uses a
- * distinct query var (?reprint-api-jetpack) and REST namespace (jetpack/v4/*), so
- * clients can migrate off the old ?reprint-api / wpcomsh/v1 surface at their
- * own pace.
- *
- * Gating, in two phases that use different auth and network paths:
- *
- * 1. Secret rotation via the generic Jetpack REST proxy. The
- *    /jetpack/v4/reprint/rotate-export-secret route only accepts
- *    site-level Jetpack-signed requests, so it can only be invoked through
- *    the WordPress.com public API proxy. User-token signatures are not
- *    sufficient because the endpoint returns the secret for a full-site
- *    export. On success the site generates a random secret, stores it in the
- *    `reprint_exporter_secret` option, opens the export window, and returns
- *    the secret.
- *
- * 2. Export streaming — the client (now holding the shared secret) talks
- *    directly to the site at ?reprint-api-jetpack using HMAC-signed requests. This
- *    bypasses the public API entirely because public-api does not support
- *    streaming and extra hops add latency and complexity.
- *
- * The whole feature is gated behind the host check (overridable via the
- * `jetpack_reprint_export_available` filter), so generic self-hosted Jetpack
- * sites never register or expose any of it.
+ * On Atomic, this shares export options with wpcomsh while using distinct REST
+ * and query-var surfaces, so both integrations can run simultaneously.
  *
  * @package automattic/jetpack
  */
@@ -68,16 +42,7 @@ class Reprint_Exporter {
 	const HMAC_CLOCK_SKEW = 300;
 
 	/**
-	 * Registers the hooks where the feature is available, and does nothing
-	 * where it is not.
-	 *
-	 * Called from modules/reprint-export.php, which module-extras.php requires
-	 * on `after_setup_theme`, rather than from Jetpack's constructor. The
-	 * constructor is the hottest path in the plugin and the worst place to risk
-	 * a fatal, and it runs before other plugins load, so a
-	 * `jetpack_reprint_export_available` filter added by one of them would come
-	 * too late to be read. Going through module-extras also means the
-	 * `jetpack_tools_to_include` filter can drop the feature entirely.
+	 * Initializes Reprint export where it is available.
 	 */
 	public static function maybe_init() {
 		if ( self::is_available() ) {
@@ -97,24 +62,12 @@ class Reprint_Exporter {
 	/**
 	 * Whether Reprint export support is available on the current site.
 	 *
-	 * Defaults to true on Pressable and WordPress.com (Atomic) hosts, false
-	 * everywhere else. The filter acts as both an override for testing and an
-	 * emergency kill switch.
-	 *
-	 * On Atomic this coexists with the copy shipped in wpcomsh: the two use
-	 * different query vars (?reprint-api-jetpack here vs ?reprint-api there) and
-	 * REST namespaces (jetpack/v4 vs wpcomsh/v1), so both can run side by side
-	 * while clients migrate to the Jetpack surface. Atomic detection uses
-	 * is_atomic_platform() rather than is_woa_site() so it keeps working once
-	 * wpcomsh (and its reprint copy) is removed.
+	 * Defaults to true on Pressable and WordPress.com (Atomic) hosts and false
+	 * elsewhere. The filter can override this value.
 	 *
 	 * @return bool
 	 */
 	public static function is_available() {
-		// Read IS_PRESSABLE directly rather than through Host::is_pressable(). That
-		// method arrived in jetpack-status 6.2.0, and another plugin on the site can
-		// ship an older copy of the package that wins autoloading, in which case the
-		// call is fatal. Host::is_atomic_platform() has been there since 2021.
 		$available = Constants::is_true( 'IS_PRESSABLE' ) || ( new Host() )->is_atomic_platform();
 
 		/**
@@ -131,7 +84,7 @@ class Reprint_Exporter {
 	}
 
 	/**
-	 * Registers the secret-rotation REST route.
+	 * Registers Reprint REST routes.
 	 */
 	public static function register_rest_routes() {
 		( new REST_Controller() )->register_routes();
@@ -140,9 +93,8 @@ class Reprint_Exporter {
 	/**
 	 * Handles the ?reprint-api-jetpack request.
 	 *
-	 * Hooked on `parse_request` at priority 0 so we run before WordPress
-	 * resolves the query and long before any template output (important on
-	 * Private Sites, whose template_redirect hooks redirect + exit).
+	 * Runs before template redirects so export requests also work on private
+	 * sites.
 	 *
 	 * @param \WP $wp The WordPress environment instance.
 	 */
@@ -152,33 +104,22 @@ class Reprint_Exporter {
 			return;
 		}
 
-		// Defense in depth: the hook is only registered when available, but
-		// re-check so the filter kill switch also short-circuits live requests.
+		// Recheck availability so a filter can disable an already registered handler.
 		if ( ! self::is_available() ) {
 			return;
 		}
 
-		// Only respond on the root path, matching the wpcomsh behavior.
+		// Do not let the query var claim non-root WordPress routes.
 		if ( '' !== $wp->request ) {
 			return;
 		}
 
-		// Sliding activation window: the export stays open only for 60
-		// minutes since the last accepted request, so an idle site
-		// auto-closes the gate. HMAC verification happens separately below.
 		if ( ! self::is_export_window_open() ) {
 			return;
 		}
 
-		// -- CORS -------------------------------------------------------------
-		// Allow CORS from any origin. The export client (e.g. Playground)
-		// runs on many different deployments and new ones appear regularly.
-		// Since every export request requires a dedicated HMAC secret, the
-		// origin header is not a meaningful security boundary — an attacker
-		// without the secret cannot export anything regardless of origin.
-		//
-		// Must run before authentication: browsers send the OPTIONS preflight
-		// without credentials, so auth must not be required for that method.
+		// HMAC authentication, not Origin, controls access to exports.
+		// Handle browser preflights before HMAC because they carry no credentials.
 		if ( ! headers_sent() ) {
 			header( 'Access-Control-Allow-Origin: *' );
 			header( 'Access-Control-Allow-Methods: GET, POST, OPTIONS' );
@@ -195,7 +136,6 @@ class Reprint_Exporter {
 			return;
 		}
 
-		// -- Authenticate via HMAC --------------------------------------------
 		$secret = get_option( self::SECRET_OPTION, '' );
 		if ( ! is_string( $secret ) || '' === $secret ) {
 			$this->error( 503, 'Export not configured. Please rotate the shared secret via POST /jetpack/v4/reprint/rotate-export-secret.' );
@@ -208,31 +148,28 @@ class Reprint_Exporter {
 			return;
 		}
 
-		// Bump the timestamp now that we know this request is legit.
 		self::open_export_window();
 
-		// WordPress is already loaded at this point. Run Reprint!
 		$this->serve_export();
 		$this->terminate();
 	}
 
 	/**
-	 * Gate for the export handler: the enabled option must hold a unix
-	 * timestamp within the last 60 minutes.
+	 * Whether the current export window is open.
 	 *
 	 * @return bool
 	 */
 	public static function is_export_window_open() {
 		$enabled_at = (int) get_option( self::ENABLED_OPTION, 0 );
-		return $enabled_at > 0 && ( time() - $enabled_at ) <= HOUR_IN_SECONDS;
+		$now        = time();
+		return $enabled_at > 0
+			&& $enabled_at <= $now + self::HMAC_CLOCK_SKEW
+			&& ( $now - $enabled_at ) <= HOUR_IN_SECONDS;
 	}
 
 	/**
-	 * Opens (or slides forward) the 60-minute export window by stamping the
-	 * enabled option with the current time.
-	 *
-	 * Shared by the REST enable/rotate routes and the request handler's
-	 * post-auth bump, so the window is opened the same way everywhere.
+	 * Opens the export window by stamping the enabled option with the current
+	 * time.
 	 *
 	 * @return int The unix timestamp the window was opened at.
 	 */
