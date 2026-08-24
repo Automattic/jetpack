@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { VisuallyHidden } from '@wordpress/components';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Badge, Link } from '@wordpress/ui';
@@ -77,8 +78,10 @@ const getFieldList = ( response: FormResponse ): ResponseField[] => {
 /**
  * Per-response key lookup, so a row's fields are walked once rather than once per cell.
  *
- * Keyed on the record object, which `useInboxData` keeps stable between fetches; entries
- * fall away with the records themselves, so there is nothing to invalidate.
+ * Keyed on the record object, so the map holds for as long as a render pass reuses the
+ * same records. `useInboxData` rebuilds every record whenever it recomputes, so a refetch
+ * simply misses and rebuilds; entries fall away with the records themselves, and there is
+ * nothing to invalidate.
  */
 const fieldsByKey = new WeakMap< FormResponse, Map< string, ResponseField > >();
 
@@ -339,9 +342,15 @@ export const buildResponseFieldColumns = (
 			const value = getResponseFieldValue( item, column.key );
 
 			if ( ! value ) {
+				/*
+				 * Visually hidden text rather than an `aria-label`: the span carries no
+				 * role, and ARIA forbids naming a generic element, so the label would go
+				 * unannounced. `FieldRating` names its icons the same way.
+				 */
 				return (
-					<span className="jp-forms__inbox__field-column is-empty" aria-label={ NO_ANSWER_LABEL }>
-						&mdash;
+					<span className="jp-forms__inbox__field-column is-empty">
+						<VisuallyHidden as="span">{ NO_ANSWER_LABEL }</VisuallyHidden>
+						<span aria-hidden="true">&mdash;</span>
 					</span>
 				);
 			}
@@ -390,7 +399,13 @@ export const buildResponseFieldColumns = (
 			if ( link ) {
 				return (
 					<span className="jp-forms__inbox__field-column" title={ value }>
-						<Link href={ link.href } openInNewTab={ link.openInNewTab }>
+						<Link
+							href={ link.href }
+							openInNewTab={ link.openInNewTab }
+							// The value came from a form submission, and `Link` sets
+							// `target` without a `rel` of its own.
+							rel={ link.openInNewTab ? 'noopener noreferrer' : undefined }
+						>
 							{ value }
 						</Link>
 					</span>

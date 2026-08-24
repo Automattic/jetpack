@@ -78,6 +78,16 @@
 		min-inline-size: 280px;
 	}
 
+	/*
+	 * A selected row is tinted on the `tr`, which a frozen cell's own background
+	 * would otherwise paint over — so the two frozen columns have to repeat the
+	 * tint. DataViews does exactly this for its own sticky actions column.
+	 */
+	tr.is-selected td.dataviews-view-table__checkbox-column,
+	tr.is-selected td.dataviews-view-table__checkbox-column + td {
+		background-color: var(--wpds-color-background-interactive-brand-weak-active);
+	}
+
 	// No z-index on the frozen body cells: being positioned already paints
 	// them over the ordinary cells scrolling past, while leaving them below
 	// the sticky `thead` (z-index 1). The frozen header cells need to win
