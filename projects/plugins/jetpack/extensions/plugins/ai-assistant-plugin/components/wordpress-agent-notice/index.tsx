@@ -6,8 +6,9 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteType } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { speak } from '@wordpress/a11y';
-import { Button } from '@wordpress/components';
+import { Button, Icon } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as preferencesStore } from '@wordpress/preferences';
 import { Notice } from '@wordpress/ui';
@@ -117,17 +118,36 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 
 	return (
 		// Notice.Root speaks its children by default; this notice appears on every load.
-		<Notice.Root intent="info" icon={ null } spokenMessage="">
+		<Notice.Root
+			intent="info"
+			icon={ null }
+			spokenMessage=""
+			// The notice's middle column is `1fr`, which refuses to shrink below its
+			// contents and so pushes the close button outside a narrow sidebar.
+			style={ { gridTemplateColumns: 'auto minmax(0, 1fr) auto' } }
+		>
 			<Notice.Description>
-				{ __(
-					'AI tools have moved to the WordPress Agent. Look for the four-pointed star icon in the admin bar at the top of the screen.',
-					'jetpack'
+				{ createInterpolateElement(
+					// translators: <icon /> is replaced with the WordPress Agent's icon, so keep the tag
+					// as written. "Ask AI" is a button label; use the same wording as that button.
+					__(
+						'AI tools have moved to the WordPress Agent. Look for the "Ask AI" <icon /> button at the top of the screen.',
+						'jetpack'
+					),
+					{
+						// Decorative only. Every SVG is hidden from screen readers, so the
+						// words beside it carry the description.
+						icon: (
+							<Icon icon={ bigSkyIcon } size={ 16 } style={ { verticalAlign: 'text-bottom' } } />
+						),
+					}
 				) }
 			</Notice.Description>
 
 			<Notice.Actions>
-				{ /* From @wordpress/components, to match the other buttons in the sidebar. */ }
 				{ isAgentReady && (
+					// From @wordpress/components rather than @wordpress/ui, which has no
+					// tooltip, to match the other buttons in the sidebar.
 					<Button
 						variant="secondary"
 						icon={ bigSkyIcon }
@@ -135,14 +155,17 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 						disabled={ isChatOnScreen }
 						accessibleWhenDisabled
 						showTooltip={ isChatOnScreen }
+						// Secondary buttons set `white-space: nowrap` and a fixed height, so a
+						// long label cannot fit a narrow sidebar. Wrapping suits any translation.
+						style={ { whiteSpace: 'normal', height: 'auto', minHeight: '36px' } }
 						// This prop replaces the accessible name, so it repeats the visible
 						// text before saying why the button is disabled.
 						label={
-							isChatOnScreen ? __( 'Open WordPress Agent (already open)', 'jetpack' ) : undefined
+							isChatOnScreen ? __( 'WordPress Agent is already open', 'jetpack' ) : undefined
 						}
 					>
 						{ /* translators: Button that opens the WordPress Agent chat. "WordPress Agent" is a product name. */ }
-						{ __( 'Open WordPress Agent', 'jetpack' ) }
+						{ __( 'WordPress Agent', 'jetpack' ) }
 					</Button>
 				) }
 
