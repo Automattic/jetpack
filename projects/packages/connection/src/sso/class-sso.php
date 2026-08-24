@@ -334,9 +334,11 @@ class SSO {
 	public function enqueue_login_styles() {
 		$handle = 'jetpack-sso-login-styles';
 
-		// No src: the handle only carries the inline CSS below. It depends on `login` so these rules stay after the core
-		// login stylesheet, which sets `.message` margins at the same specificity.
-		wp_register_style( $handle, false, array( 'login' ), Package_Version::PACKAGE_VERSION );
+		// No src: the handle only carries the inline CSS below. Core enqueues `login` before `login_enqueue_scripts` fires,
+		// so these rules already print after the core login stylesheet, which sets `.message` margins at the same
+		// specificity. No dependency on `login`: plugins that replace the login screen deregister that handle, and a
+		// missing dependency would drop this one from the queue.
+		wp_register_style( $handle, false, array(), Package_Version::PACKAGE_VERSION );
 		wp_enqueue_style( $handle );
 
 		$css = <<<'CSS'
