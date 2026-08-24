@@ -1965,6 +1965,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$formatted_submission_data[] = array(
 				'label'          => Util::maybe_add_colon_to_label( $field_data['label'] ),
 				'value'          => self::get_submission_display_value( $field_data['value'], $type ),
+				// The submitted answer, kept beside the label the summary prints. The checkbox
+				// icon is chosen from it: `is_checked_value()` recognizes only the ASCII `no`
+				// sentinel, so a translated "No" would read as ticked in every locale whose
+				// word for it is not "no".
+				'rawValue'       => $field_data['value'],
 				'images'         => $images,
 				'url'            => $url,
 				'files'          => $files,
@@ -2271,7 +2276,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 					// field-type-icon: rendered based on field type and, for checkboxes, the answer.
 					// The data-rendered-type attribute enables hydration optimization by allowing
 					// the JS callback to skip re-rendering when the icon is already correct.
-					$field_value = $submission['value'] ?? '';
+					// The raw answer, not the printed label -- see `rawValue` above.
+					$field_value = $submission['rawValue'] ?? '';
 					$icon_key    = self::get_field_type_icon_key( $field_type, $field_value );
 					$html       .= '<div class="field-type-icon" data-wp-watch="callbacks.watchFieldTypeIcon" data-rendered-type="' . esc_attr( $icon_key ) . '">' . self::get_field_type_icon( $field_type, $field_value ) . '</div>';
 					// field-name: always present.

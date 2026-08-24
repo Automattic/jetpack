@@ -93,6 +93,10 @@ const setSubmissionData = ( data = [] ) => {
 		return {
 			label: maybeAddColonToLabel( item.label ),
 			value: getSubmissionDisplayValue( item.value, item.type, config?.unchecked_label ?? '' ),
+			// The submitted answer, kept beside the label. The checkbox icon is chosen from
+			// it, and `isCheckedValue()` cannot read a translated "No". Mirrors `rawValue` in
+			// Contact_Form::format_submission_data(), which seeds this same context.
+			rawValue: item.value,
 			images,
 			url,
 			files,

@@ -5110,6 +5110,50 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The confirmation summary picks its checkbox icon from the submitted answer, so the
+	 * answer has to survive alongside the label the summary prints.
+	 *
+	 * `is_checked_value()` recognizes only the ASCII sentinel `no`, so a translated "No" reads
+	 * as ticked -- English passes by coincidence of the sentinel, every other locale renders
+	 * the ticked icon next to the word for "no".
+	 */
+	public function test_format_submission_data_keeps_the_raw_answer_for_the_icon() {
+		$translate = function ( $translation, $text ) {
+			return 'No' === $text ? 'Non' : $translation;
+		};
+		add_filter( 'gettext_jetpack-forms', $translate, 10, 2 );
+
+		$formatted = $this->invoke_private_static(
+			'format_submission_data',
+			array(
+				array(
+					array(
+						'label' => 'Send me a copy',
+						'value' => '',
+						'type'  => 'checkbox',
+					),
+				),
+			)
+		);
+
+		remove_filter( 'gettext_jetpack-forms', $translate, 10 );
+
+		$this->assertSame( 'Non', $formatted[0]['value'], 'the summary prints the translated label' );
+		$this->assertSame( '', $formatted[0]['rawValue'], 'the answer itself is kept for the icon' );
+
+		// What the icon actually keys off, and what it would key off without the split.
+		$this->assertSame(
+			'checkbox:unchecked',
+			$this->invoke_private_static( 'get_field_type_icon_key', array( 'checkbox', $formatted[0]['rawValue'] ) )
+		);
+		$this->assertSame(
+			'checkbox',
+			$this->invoke_private_static( 'get_field_type_icon_key', array( 'checkbox', $formatted[0]['value'] ) ),
+			'the translated label reads as ticked, which is why the raw answer is carried'
+		);
+	}
+
+	/**
 	 * An unticked checkbox submits nothing, so the summary drew the label over a blank line.
 	 * The email renderer has always said "No" here.
 	 */
