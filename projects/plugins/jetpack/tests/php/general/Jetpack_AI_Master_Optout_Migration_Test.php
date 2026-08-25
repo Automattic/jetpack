@@ -178,4 +178,73 @@ class Jetpack_AI_Master_Optout_Migration_Test extends \WP_UnitTestCase {
 			'reconcile_ai_master_optout must run at a later init priority than activate_new_modules.'
 		);
 	}
+
+	/**
+	 * The flag must not be spent while the module has not been activated yet. When
+	 * auto-activation could not turn `ai` on (for example, a build whose version
+	 * window excluded it), the opt-out is still waiting to be reconciled, so a
+	 * later upgrade that does activate the module must get the chance to honor it.
+	 */
+	public function test_flag_not_spent_while_module_never_activated() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		update_option( 'jetpack_ai_enabled', 0 );
+		\Jetpack_Options::update_option( 'active_modules', array() );
+
+		Jetpack::reconcile_ai_master_optout();
+
+		$this->assertFalse(
+			(bool) get_option( Jetpack::AI_MASTER_OPTOUT_MIGRATED_OPTION ),
+			'The one-shot flag stays unset until the module has actually been activated.'
+		);
+
+		// The module activates on a later upgrade: the opt-out is reconciled then.
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+
+		Jetpack::reconcile_ai_master_optout();
+
+		$this->assertFalse( ( new Modules() )->is_active( 'ai' ), 'The deferred opt-out is honored once the module activates.' );
+		$this->assertTrue( (bool) get_option( Jetpack::AI_MASTER_OPTOUT_MIGRATED_OPTION ), 'The flag is set once the reconciliation really ran.' );
+	}
+
+	/**
+	 * A site whose module was already active before the guard shipped is not left
+	 * re-running the migration: it reconciles and sets the flag on the first run.
+	 */
+	public function test_already_active_module_reconciles_and_sets_flag_once() {
+		update_option( 'jetpack_ai_enabled', 0 );
+		$this->set_up_auto_activated_off_simple();
+		delete_option( Jetpack::AI_MASTER_OPTOUT_MIGRATED_OPTION );
+
+		Jetpack::reconcile_ai_master_optout();
+
+		$this->assertFalse( ( new Modules() )->is_active( 'ai' ), 'The opt-out is reconciled on the first run.' );
+		$this->assertTrue( (bool) get_option( Jetpack::AI_MASTER_OPTOUT_MIGRATED_OPTION ), 'The flag is set on the first run.' );
+
+		// The module is now inactive, but the flag keeps the second run a no-op.
+		Jetpack::reconcile_ai_master_optout();
+
+		$this->assertTrue( (bool) get_option( Jetpack::AI_MASTER_OPTOUT_MIGRATED_OPTION ), 'The flag stays set.' );
+	}
+
+	/**
+	 * With no opt-out stored, the guard changes nothing observable: the module is
+	 * never touched, whether or not it has been activated yet.
+	 */
+	public function test_absent_option_is_unaffected_by_module_guard() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		delete_option( 'jetpack_ai_enabled' );
+		\Jetpack_Options::update_option( 'active_modules', array() );
+
+		Jetpack::reconcile_ai_master_optout();
+
+		$this->assertSame( array(), (array) \Jetpack_Options::get_option( 'active_modules' ), 'No opt-out, module not yet active: nothing changes.' );
+		$this->assertFalse( (bool) get_option( Jetpack::AI_MASTER_OPTOUT_MIGRATED_OPTION ), 'The flag is not spent before the module activates.' );
+
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+
+		Jetpack::reconcile_ai_master_optout();
+
+		$this->assertTrue( ( new Modules() )->is_active( 'ai' ), 'No opt-out, module active: auto-activation is preserved.' );
+		$this->assertTrue( (bool) get_option( Jetpack::AI_MASTER_OPTOUT_MIGRATED_OPTION ), 'The flag is set once the module is active.' );
+	}
 }

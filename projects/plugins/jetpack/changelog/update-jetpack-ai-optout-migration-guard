@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+AI: Do not mark the opt-out migration as done until the ai module has actually been activated.

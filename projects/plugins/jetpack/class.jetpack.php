@@ -3063,6 +3063,8 @@ p {
 	 * no-op on Simple. The {@see self::AI_MASTER_OPTOUT_MIGRATED_OPTION} flag makes it run exactly
 	 * once, which matters because off-Simple the option is no longer the master after this runs:
 	 * a stale falsey option must not keep re-deactivating a module the user later turns back on.
+	 * The flag is only set once the module is in the raw `active_modules` option, so an upgrade
+	 * on which auto-activation could not turn it on leaves the reconciliation for a later one.
 	 *
 	 * @return void
 	 */
@@ -3073,6 +3075,12 @@ p {
 
 		// Simple keeps the `jetpack_ai_enabled` option as the master; modules don't run there.
 		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		// Nothing to reconcile until auto-activation has really turned the module on. Leave the
+		// flag unset so a later upgrade that does activate it still honors the opt-out.
+		if ( ! in_array( 'ai', (array) Jetpack_Options::get_option( 'active_modules', array() ), true ) ) {
 			return;
 		}
 
