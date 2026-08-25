@@ -1,4 +1,5 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "../shared/styles/field-hints" as *;
 
 :where(.jetpack-contact-form) {
 	border-width: 0;
@@ -372,11 +373,6 @@
 	.jetpack-field-label__input.jetpack-field-label__input {
 		cursor: text;
 		margin-bottom: 0.25em;
-	}
-
-	.jetpack-field-label__suffix {
-		margin-inline-start: 0.25em;
-		font-weight: 700;
 	}
 
 	.components-toggle-control .components-base-control__field {
@@ -832,7 +828,11 @@
 	.is-style-outlined &,
 	.is-style-animated & {
 
-		.jetpack-field {
+		// The outer field anchors absolutely-positioned labels for field types
+		// with no control wrapper; the control wrapper anchors them for the
+		// rest, so the label sizes to label+input and not to the hints below.
+		.jetpack-field,
+		.jetpack-field__control {
 			position: relative;
 		}
 	}
@@ -894,10 +894,6 @@
 				transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 				margin: 0;
 				z-index: 1;
-
-				.jetpack-field-label__suffix {
-					font-weight: 300;
-				}
 			}
 
 			:where(.notched-label__filler) {
@@ -955,8 +951,7 @@
 					font-size: 0.68em;
 				}
 
-				.jetpack-field-label__input,
-				.jetpack-field-label__suffix {
+				.jetpack-field-label__input {
 					font-size: 0.8em;
 				}
 
@@ -1083,8 +1078,7 @@
 				transform: translateY(0);
 				top: calc(2px + var(--jetpack--contact-form--border-top-size, 1px));
 
-				.jetpack-field-label__input,
-				.jetpack-field-label__suffix {
+				.jetpack-field-label__input {
 					font-size: 0.75em;
 				}
 
