@@ -914,7 +914,7 @@ class WPCOM_JSON_API_Menus_Update_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abs
 		$data = $data[0];
 
 		// Avoid special-case handling of an unset 'items' field in empty menus
-		$data['items'] = $data['items'] ?? array();
+		$data['items'] ??= array();
 
 		$data = $this->create_new_items( $data, $menu_id );
 
