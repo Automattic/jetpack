@@ -342,10 +342,16 @@ const getRemainingCapacity = () => {
 /**
  * Drop the oldest entry that failed, to make room for a file that did not.
  *
- * Skips the stand-in entry that markup without a notice element gets instead of a message. That
- * one sits past the limit by construction, so treating it as an ordinary rejected file would hand
- * back a slot the field never had — and since a fresh stand-in is added whenever a batch is
- * declined, every drop would net one more entry.
+ * Protects the stand-in entry that markup without a notice element gets instead of a message, but
+ * only while the field is over its limit. That entry is added past the limit by construction, so
+ * displacing it then would hand back a slot the field never had, and since a fresh stand-in is
+ * added whenever a batch is declined, every drop would net one more entry.
+ *
+ * Once the entries fit again — the visitor removed the real file — the stand-in is an ordinary
+ * occupant and may be replaced. Protecting it there instead leaves the field wedged: it holds the
+ * only slot, cannot be evicted, and no further stand-in is added because one is already present,
+ * so every later drop does nothing whatsoever and the visitor is left looking at a preview named
+ * after a file that was never accepted.
  *
  * @param {string} noticeMessage - The message the stand-in entry carries.
  *
@@ -353,8 +359,11 @@ const getRemainingCapacity = () => {
  */
 const evictFailedFile = noticeMessage => {
 	const context = getContext();
+	const { maxFiles } = getFileFieldExtra();
+	const isOverCapacity = context.files.length > maxFiles;
+
 	const index = context.files.findIndex(
-		fileInfo => fileInfo.error && fileInfo.error !== noticeMessage
+		fileInfo => fileInfo.error && ! ( isOverCapacity && fileInfo.error === noticeMessage )
 	);
 
 	if ( index === -1 ) {

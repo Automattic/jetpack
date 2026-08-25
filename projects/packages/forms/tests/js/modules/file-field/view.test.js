@@ -694,6 +694,32 @@ describe( 'File Field View', () => {
 
 			expect( mockContext.files ).toHaveLength( 2 );
 		} );
+
+		test( 'the stand-in is replaceable once it is the only entry left', () => {
+			// While the field is over its limit the stand-in must hold — evicting it would hand back
+			// a slot the field never had. Once the real file is gone it is an ordinary occupant, and
+			// protecting it there wedges the field: it cannot be evicted, no further stand-in is added
+			// because one is present, and every later drop does nothing at all.
+			document.querySelector( '.jetpack-form-file-field__notice' ).remove();
+			mockContext.files = [ { id: 'existing', error: null } ];
+
+			storeConfig.actions.fileAdded( {
+				target: {
+					files: [ { name: 'declined.pdf', type: 'application/pdf', size: 10 } ],
+				},
+			} );
+			expect( mockContext.files ).toHaveLength( 2 );
+
+			removeFile( 'existing' );
+			expect( mockContext.files ).toHaveLength( 1 );
+
+			storeConfig.actions.fileAdded( {
+				target: { files: [ { name: 'wanted.pdf', type: 'application/pdf', size: 10 } ] },
+			} );
+
+			expect( mockContext.files ).toHaveLength( 1 );
+			expect( mockContext.files[ 0 ] ).toMatchObject( { name: 'wanted.pdf', error: null } );
+		} );
 	} );
 
 	describe( 'Keyboard handling', () => {
