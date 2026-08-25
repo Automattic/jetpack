@@ -106,7 +106,7 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 	const isChatOnScreen = useIsWordPressAgentChatVisible();
 
 	const openAgent = () => {
-		tracks.recordEvent( 'jetpack_ai_agent_notice_click', eventProperties );
+		tracks.recordEvent( 'jetpack_big_sky_agent_notice_click', eventProperties );
 		// Reset the view first, as the editor's Ask AI button does, so the chat
 		// always opens on the same screen however it was last left.
 		resumeWordPressAgentChat();
@@ -114,7 +114,7 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 	};
 
 	const dismiss = () => {
-		tracks.recordEvent( 'jetpack_ai_agent_notice_dismiss', eventProperties );
+		tracks.recordEvent( 'jetpack_big_sky_agent_notice_dismiss', eventProperties );
 		set( PREFERENCE_SCOPE, DISMISSED_PREFERENCE, true );
 		// The notice and its panel both go, taking focus with them.
 		speak( __( 'Notice dismissed.', 'jetpack' ), 'polite' );

@@ -329,7 +329,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 			);
 
 			expect( mockRecordEvent ).toHaveBeenCalledWith(
-				'jetpack_ai_agent_notice_click',
+				'jetpack_big_sky_agent_notice_click',
 				expect.objectContaining( { placement } )
 			);
 		} );
