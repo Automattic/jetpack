@@ -1,15 +1,17 @@
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '@wordpress/i18n';
 import { ApiError, apiCall, isAmbiguousFailure, requireTypes, toIntRewindId } from '../_helpers';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+// `__` returns a sentinel rather than its input, so a message that reached
+// the reader untranslated is distinguishable from one that did not. The rest
+// of the module is preserved: replacing it wholesale would leave `sprintf`
+// and `_n` undefined for everything in this file's module graph.
 jest.mock( '@wordpress/i18n', () => ( {
 	...jest.requireActual( '@wordpress/i18n' ),
-	__: jest.fn( ( text: string ) => text ),
+	__: jest.fn( () => 'TRANSLATED' ),
 } ) );
 
 const mockedApiFetch = apiFetch as unknown as jest.Mock;
-const mockedTranslate = __ as jest.Mock;
 
 describe( 'toIntRewindId', () => {
 	test( 'returns the input unchanged when there is no decimal suffix', () => {
@@ -75,19 +77,17 @@ describe( 'requireTypes', () => {
 describe( 'apiCall', () => {
 	beforeEach( () => {
 		mockedApiFetch.mockReset();
-		mockedTranslate.mockClear();
 	} );
 
-	// A rejection with no `message` must still reach the reader in their
-	// own language. Asserting the rendered text would pass either way —
-	// the mocked `__` returns its input unchanged — so this pins the call
-	// instead, which only happens when the fallback is wrapped in `__()`.
+	// A rejection with no `message` must still reach the reader in their own
+	// language. Asserting on the thrown message pins the whole path: that
+	// `__()` runs, and that what it returns is what lands on `ApiError`.
 	test( 'translates the fallback message when the rejection carries none', async () => {
 		mockedApiFetch.mockRejectedValue( { code: 'some_code' } );
 
-		await expect( apiCall( { path: '/x' } ) ).rejects.toThrow( ApiError );
-
-		expect( mockedTranslate ).toHaveBeenCalledWith( 'Request failed', 'jetpack-backup-pkg' );
+		await expect( apiCall( { path: '/x' } ) ).rejects.toMatchObject( {
+			message: 'TRANSLATED',
+		} );
 	} );
 } );
 
