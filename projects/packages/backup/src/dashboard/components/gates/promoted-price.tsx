@@ -1,5 +1,6 @@
 import { formatCurrency } from '@automattic/number-formatters';
-import { __ } from '@wordpress/i18n';
+import { VisuallyHidden } from '@wordpress/components';
+import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import { usePromotedProduct } from '../../hooks/use-promoted-product';
 
@@ -36,8 +37,8 @@ export default function PromotedPrice() {
 	// saving.
 	const hasDiscount = effectiveText !== fullText;
 
-	// Every string here is the legacy no-plan card's, unchanged, so they
-	// arrive already translated instead of waiting a GlotPress cycle.
+	// These three are the legacy no-plan card's, unchanged, so they arrive
+	// already translated instead of waiting a GlotPress cycle.
 	//
 	// One const per string, rather than a `__()` call chosen inside a
 	// ternary: the minifier factors the shared call out and leaves the
@@ -50,6 +51,22 @@ export default function PromotedPrice() {
 	const infoText = hasDiscount ? introductoryInfoText : basicInfoText;
 	const priceDetails = __( 'per month, billed yearly', 'jetpack-backup-pkg' );
 
+	// The one string here that is not legacy's, so the one that waits a
+	// GlotPress cycle. It earns that: the struck-through figure is the
+	// only place the renewal amount appears, and it is hidden below, so
+	// without this a screen reader is told a full price exists and never
+	// told what it is.
+	//
+	// Deliberately says nothing about *when* it renews. The offer's
+	// interval is a year today and the hook handles monthly ones too, so
+	// naming a period here would be wrong for the case that handling
+	// exists for.
+	const renewalText = sprintf(
+		/* translators: %s is the full monthly price the subscription renews at. */
+		__( 'Renews at %s per month.', 'jetpack-backup-pkg' ),
+		fullText
+	);
+
 	return (
 		<Stack direction="column" gap="xs" align="center">
 			<Stack direction="row" gap="xs" align="baseline" justify="center" wrap="wrap">
@@ -57,9 +74,12 @@ export default function PromotedPrice() {
 				 * Hidden from assistive tech rather than read out. A
 				 * strikethrough carries no meaning a screen reader
 				 * conveys, so announcing it gives two bare amounts and no
-				 * hint which one is charged. The sentence below says what
-				 * the strikethrough means in words, which is the accessible
-				 * version of the same information.
+				 * hint which one is charged.
+				 *
+				 * Hiding it is only half the fix. "All renewals are at
+				 * full price" establishes that a full price exists and
+				 * never says what it is, so the amount itself is restored
+				 * further down as visually-hidden text.
 				 */ }
 				{ hasDiscount && (
 					<Text variant="body-lg" render={ <s /> } aria-hidden="true">
@@ -69,6 +89,7 @@ export default function PromotedPrice() {
 				<Text variant="heading-lg">{ effectiveText }</Text>
 			</Stack>
 			<Text variant="body-sm">{ priceDetails }</Text>
+			{ hasDiscount && <VisuallyHidden>{ renewalText }</VisuallyHidden> }
 			<Text variant="body-sm">{ infoText }</Text>
 		</Stack>
 	);

@@ -666,7 +666,6 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $wpcom_request );
 
 		if ( 200 !== $response_code ) {
-			// Something went wrong so we'll just return the response without caching.
 			return new WP_Error(
 				'failed_to_fetch_data',
 				esc_html__( 'Unable to fetch the requested data.', 'jetpack-backup-pkg' ),

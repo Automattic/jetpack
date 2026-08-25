@@ -150,7 +150,6 @@ class Jetpack_Backup_Test extends TestCase {
 		$result = Jetpack_Backup::get_backup_promoted_product_info();
 
 		remove_filter( 'pre_http_request', array( $this, 'mock_request_as_product_catalogue' ) );
-		$this->catalogue_status = 200;
 
 		$this->assertIsObject( $result );
 		$this->assertSame( 'BRL', $result->currency_code );
@@ -174,7 +173,6 @@ class Jetpack_Backup_Test extends TestCase {
 		$result = Jetpack_Backup::get_backup_promoted_product_info();
 
 		remove_filter( 'pre_http_request', array( $this, 'mock_request_as_product_catalogue' ) );
-		$this->catalogue_body = null;
 
 		$this->assertInstanceOf( WP_Error::class, $result, $label );
 		$this->assertSame( 'promoted_product_unreadable', $result->get_error_code(), $label );
@@ -203,18 +201,24 @@ class Jetpack_Backup_Test extends TestCase {
 	}
 
 	/**
-	 * A non-200 is reported with the upstream status.
+	 * A non-200 is reported with the upstream status, not a generic one.
+	 *
+	 * 403 and not 500 deliberately. 500 is also what the no-status
+	 * fallback produces, so asserting it here would pass whether or not
+	 * the status was forwarded at all — and would leave this testing the
+	 * same thing as the transport-failure case below.
 	 */
 	public function test_promoted_product_info_forwards_a_non_200() {
-		add_filter( 'pre_http_request', array( $this, 'mock_request_as_server_error' ) );
+		$this->catalogue_status = 403;
+		add_filter( 'pre_http_request', array( $this, 'mock_request_as_product_catalogue' ), 10, 3 );
 
 		$result = Jetpack_Backup::get_backup_promoted_product_info();
 
-		remove_filter( 'pre_http_request', array( $this, 'mock_request_as_server_error' ) );
+		remove_filter( 'pre_http_request', array( $this, 'mock_request_as_product_catalogue' ) );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'failed_to_fetch_data', $result->get_error_code() );
-		$this->assertSame( 500, $result->get_error_data()['status'] );
+		$this->assertSame( 403, $result->get_error_data()['status'] );
 	}
 
 	/**

@@ -62,6 +62,14 @@ const PRICED_PRODUCT = {
 const PRICE_PATH = '/jetpack/v4/backup-promoted-product-info';
 
 /**
+ * The full price and nothing else — which is the struck-through element,
+ * since the visually-hidden renewal line wraps the same figure in words.
+ * Anchored so it cannot also match that sentence, and spelled with `R$`
+ * so it doubles as a check that the fixture's currency reached the DOM.
+ */
+const PRICE_ALONE = /^R\$\s?44[.,]95$/;
+
+/**
  * Render a gate screen.
  *
  * `screen` is safe for this file, unlike the retry suite next door:
@@ -85,7 +93,6 @@ beforeEach( () => {
 	// held for an hour, so without this the first test to resolve it
 	// decides what every later one sees.
 	queryClient.clear();
-	queryClient.setDefaultOptions( { queries: { retry: false } } );
 	// Default to a catalogue that answers with nothing, so the tests that
 	// are not about the price render without one.
 	mockApiFetch.mockResolvedValue( null );
@@ -191,7 +198,7 @@ describe( 'No-plan gate', () => {
 
 		// 275.40 for the first year is 22.95 a month; 44.95 after it.
 		await expect( screen.findByText( /22[.,]95/ ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( /44[.,]95/ ) ).toBeInTheDocument();
+		expect( screen.getByText( PRICE_ALONE ) ).toBeInTheDocument();
 
 		// Two amounts on screen is only honest if the screen says which
 		// one recurs.
@@ -201,13 +208,37 @@ describe( 'No-plan gate', () => {
 	it( 'does not read the superseded price out as a second price', async () => {
 		// A strikethrough is invisible to a screen reader, so announcing
 		// both amounts gives two prices and no way to tell which is
-		// charged. The sentence below them carries that in words.
+		// charged.
+		mockApiFetch.mockResolvedValue( PRICED_PRODUCT );
+
+		renderScreen( NoBackupPlanScreen );
+		await expect( screen.findByText( /Renews at/ ) ).resolves.toBeInTheDocument();
+
+		expect( screen.getByText( PRICE_ALONE ) ).toHaveAttribute( 'aria-hidden', 'true' );
+	} );
+
+	it( 'still tells assistive tech what the price renews at', async () => {
+		// Hiding the strikethrough is only half the fix. "All renewals are
+		// at full price" says a full price exists and never says what it
+		// is, so hiding the only place the figure appears would leave a
+		// screen reader with strictly fewer facts than a sighted reader —
+		// on the screen whose entire job is to inform a purchase.
 		mockApiFetch.mockResolvedValue( PRICED_PRODUCT );
 
 		renderScreen( NoBackupPlanScreen );
 
-		const superseded = await screen.findByText( /44[.,]95/ );
-		expect( superseded ).toHaveAttribute( 'aria-hidden', 'true' );
+		const renewal = await screen.findByText( /Renews at .*44[.,]95 per month/ );
+		expect( renewal ).not.toHaveAttribute( 'aria-hidden' );
+	} );
+
+	it( 'says nothing about renewal when there is no introductory offer', async () => {
+		// One price, nothing superseded, nothing to explain.
+		mockApiFetch.mockResolvedValue( { ...PRICED_PRODUCT, introductory_offer: null } );
+
+		renderScreen( NoBackupPlanScreen );
+
+		await expect( screen.findByText( /44[.,]95/ ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /Renews at/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'converts a monthly introductory offer by its own interval', async () => {
