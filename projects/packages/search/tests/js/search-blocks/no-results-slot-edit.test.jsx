@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { InnerBlocks, store as blockEditorStore } from '@wordpress/block-editor';
-import NoResultsSlotEdit from '../../../src/search-blocks/blocks/no-results/slot/edit';
+import NoResultsSlotEdit, {
+	conditionLabel,
+} from '../../../src/search-blocks/blocks/no-results/slot/edit';
 
 const mockSelectedStores = [];
 
@@ -20,17 +22,13 @@ jest.mock( '@wordpress/i18n', () => ( {
 } ) );
 
 let mockInnerBlockCount = 0;
-let mockInnerBlocks = [];
-// Expanded by default so the existing preview assertions read the selected
-// state; the collapsed cases opt out explicitly.
-let mockIsSelected = true;
+let mockIsSelected = false;
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: callback =>
 		callback( store => {
 			mockSelectedStores.push( store );
 			return {
 				getBlockCount: () => mockInnerBlockCount,
-				getBlocks: () => mockInnerBlocks,
 				isBlockSelected: () => mockIsSelected,
 				hasSelectedInnerBlock: () => false,
 			};
@@ -46,8 +44,7 @@ describe( 'NoResultsSlotEdit', () => {
 	beforeEach( () => {
 		InnerBlocks.mockClear();
 		mockInnerBlockCount = 0;
-		mockInnerBlocks = [];
-		mockIsSelected = true;
+		mockIsSelected = false;
 	} );
 
 	// The canvas preview mirrors render.php's fallback, so an author can see
@@ -60,6 +57,8 @@ describe( 'NoResultsSlotEdit', () => {
 		expect( mockSelectedStores ).toContain( blockEditorStore );
 	} );
 
+	// WYSIWYG at all times: the default selection state shows the full preview
+	// without the variant ever being clicked (SEARCH-341).
 	it( 'previews the filter-aware pair for an empty unscoped variant', () => {
 		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
 
@@ -78,6 +77,18 @@ describe( 'NoResultsSlotEdit', () => {
 		render( <NoResultsSlotEdit attributes={ { condition: 'error' } } clientId="v-1" /> );
 		expect( screen.getByText( ERROR_DEFAULT ) ).toBeInTheDocument();
 		expect( screen.queryByText( UNFILTERED_DEFAULT ) ).not.toBeInTheDocument();
+	} );
+
+	// The preview carries the class render.php puts on the front end's default
+	// copy, so the canvas shows the same centered, dimmed treatment a visitor
+	// would see.
+	it( 'styles the preview with the front-end default class', () => {
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+
+		// eslint-disable-next-line testing-library/no-node-access -- the class sits on the preview wrapper, which exposes no role or text of its own to query.
+		expect( screen.getByText( UNFILTERED_DEFAULT ).parentElement ).toHaveClass(
+			'jetpack-search-no-results--default'
+		);
 	} );
 
 	// Authored content is what renders, so the preview has to get out of the
@@ -102,86 +113,62 @@ describe( 'NoResultsSlotEdit', () => {
 	it( 'falls back to the unscoped condition for an unknown saved value', () => {
 		render( <NoResultsSlotEdit attributes={ { condition: 'bogus' } } clientId="v-1" /> );
 
-		expect( screen.getAllByText( 'Any empty search' ).length ).toBeGreaterThan( 0 );
 		expect( screen.getByText( UNFILTERED_DEFAULT ) ).toBeInTheDocument();
+		expect( screen.getByText( FILTERED_DEFAULT ) ).toBeInTheDocument();
 	} );
 
-	// Several variants in one container look identical on the canvas without
-	// this, so the label carries the condition.
-	it( 'labels the variant with its condition on the canvas', () => {
+	// The variant paints no name or outline of its own — identification is
+	// Gutenberg's native selection UI plus the List view label (SEARCH-341).
+	it( 'paints no condition label on the canvas', () => {
 		render( <NoResultsSlotEdit attributes={ { condition: 'filtered' } } clientId="v-1" /> );
 
-		expect( screen.getAllByText( 'Filters are active' ).length ).toBeGreaterThan( 0 );
+		expect( screen.queryByText( 'Filters are active' ) ).not.toBeInTheDocument();
 	} );
 
-	// Three stacked previews push the rest of the template off-screen, and only
-	// one condition can ever be on screen for a visitor.
-	it( 'collapses an untouched variant to a single summary line', () => {
-		mockIsSelected = false;
-		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
-
-		expect( screen.getByText( UNFILTERED_DEFAULT ) ).toBeInTheDocument();
-		// The second line and the appender are what the collapse buys back.
-		expect( screen.queryByText( FILTERED_DEFAULT ) ).not.toBeInTheDocument();
-		expect( InnerBlocks.mock.calls[ 0 ][ 0 ].renderAppender ).toBe( false );
-	} );
-
-	// The inner drop target comes from `useInnerBlocksProps`, so unmounting
-	// InnerBlocks while collapsed would make a drag onto the variant resolve to
-	// the container instead — whose `allowedBlocks` rejects everything but a
-	// variant. It stays mounted; only the appender goes.
-	it( 'keeps a drop target while collapsed', () => {
-		mockIsSelected = false;
-		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
-
-		expect( InnerBlocks ).toHaveBeenCalled();
-		expect( screen.getByTestId( 'variant-inner-blocks' ) ).toBeInTheDocument();
-	} );
-
-	it( 'expands the variant once it is selected', () => {
-		mockIsSelected = false;
+	// Standard convention: the appender appears only while the block is
+	// selected. The inner drop target stays mounted either way — unmounting it
+	// would make a drag onto an unselected variant resolve to the container,
+	// whose `allowedBlocks` rejects everything but a variant.
+	it( 'shows the appender only while the variant is selected', () => {
 		const { unmount } = render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+		expect( InnerBlocks.mock.calls[ 0 ][ 0 ].renderAppender ).toBe( false );
+		expect( screen.getByTestId( 'variant-inner-blocks' ) ).toBeInTheDocument();
 		unmount();
 
 		mockIsSelected = true;
 		InnerBlocks.mockClear();
 		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
-
-		expect( screen.getByText( FILTERED_DEFAULT ) ).toBeInTheDocument();
-		expect( InnerBlocks.mock.calls[ 0 ][ 0 ].renderAppender ).not.toBe( false );
+		expect( InnerBlocks.mock.calls[ 0 ][ 0 ].renderAppender ).toBe(
+			InnerBlocks.ButtonBlockAppender
+		);
 	} );
 
-	// An authored variant collapses too — three stacked messages are three times
-	// the height the front end will ever use — but the row summarises the
-	// author's own copy so it still says what's inside.
-	it( 'summarises an authored variant with its own first line of copy', () => {
-		mockIsSelected = false;
+	// Authored blocks are what the author reads on the canvas — never hidden
+	// behind a summary line.
+	it( 'keeps authored blocks visible while the variant is unselected', () => {
 		mockInnerBlockCount = 1;
-		mockInnerBlocks = [ { attributes: { content: '<strong>Nothing</strong> matched' } } ];
-		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
-
-		expect( screen.getByText( 'Nothing matched' ) ).toBeInTheDocument();
-		expect( screen.queryByText( UNFILTERED_DEFAULT ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'reads the summary out of a nested block', () => {
-		mockIsSelected = false;
-		mockInnerBlockCount = 1;
-		mockInnerBlocks = [
-			{ attributes: {}, innerBlocks: [ { attributes: { content: 'Buried copy' } } ] },
-		];
-		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
-
-		expect( screen.getByText( 'Buried copy' ) ).toBeInTheDocument();
-	} );
-
-	// Hidden, not unmounted — see the drop-target note in edit.jsx.
-	it( 'keeps authored blocks mounted while collapsed', () => {
-		mockIsSelected = false;
-		mockInnerBlockCount = 1;
-		mockInnerBlocks = [ { attributes: { content: 'Authored' } } ];
 		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
 
 		expect( screen.getByTestId( 'variant-inner-blocks' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'conditionLabel', () => {
+	// Wired as the block's `__experimentalLabel` so List view, breadcrumb, and
+	// a11y announcements name the condition instead of repeating the title.
+	it.each( [
+		[ 'any', 'Any empty search' ],
+		[ 'filtered', 'Filters are active' ],
+		[ 'error', 'Search failed' ],
+	] )( 'names the %s condition', ( condition, label ) => {
+		expect( conditionLabel( { condition } ) ).toBe( label );
+	} );
+
+	it.each( [
+		[ 'no saved condition', {} ],
+		[ 'an unknown condition', { condition: 'bogus' } ],
+		[ 'no attributes', undefined ],
+	] )( 'falls back to the unscoped label for %s', ( _label, attributes ) => {
+		expect( conditionLabel( attributes ) ).toBe( 'Any empty search' );
 	} );
 } );
