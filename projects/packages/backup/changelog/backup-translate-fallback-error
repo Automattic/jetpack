@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
+Comment: Backup: translate the modernized dashboard's fallback API error message, which always rendered in English. No-op when the modernization filter is off.
 
-Fix an untranslated fallback error message on the Backup dashboard.
