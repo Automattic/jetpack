@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: keep the file upload dropzone available when a file is rejected for its type or size, so a replacement can be selected.

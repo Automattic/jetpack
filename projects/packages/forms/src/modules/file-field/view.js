@@ -25,24 +25,51 @@ const PREVIEW_FOCUS_DELAY_MS = 100;
  */
 const MAX_CONCURRENT_UPLOADS = 3;
 
-// Uploads waiting for a slot. Entries are `{ clientFileId, start }`, where `start` is bound to the
-// scope of the field that queued it — see `enqueueUpload()`.
+/*
+ * How long an upload may make no progress before it is treated as hung, in milliseconds.
+ *
+ * Deliberately measured against progress rather than total elapsed time, which is what
+ * `XMLHttpRequest.timeout` offers. A 20MB file on a slow connection legitimately takes minutes, so
+ * any total-time budget generous enough not to kill it is too generous to catch a stall — while a
+ * request that has died silently, or whose response was swallowed by a proxy, reports no progress
+ * at all. Without this, such a request never reaches readyState 4, never frees its slot, and takes
+ * one of the page's three permanently: three of them stop uploads on every file field on the page,
+ * showing nothing but previews stuck on "Uploading…".
+ */
+const UPLOAD_STALL_TIMEOUT_MS = 60 * 1000;
+
+// Uploads waiting for a slot. Entries are `{ clientFileId, fieldId, start }`, where `start` is
+// bound to the scope of the field that queued it — see `enqueueUpload()`.
 const uploadQueue = [];
 
-// Client file IDs whose upload has started and not yet settled. A Set rather than a counter so
-// that `finishUpload()` is idempotent: several code paths can report the same upload as finished.
-const activeUploadIds = new Set();
+// Stall watchdogs by client file ID, reset on every progress event. See UPLOAD_STALL_TIMEOUT_MS.
+const uploadStallTimers = new Map();
 
 /*
- * Whether the next preview to initialize may take focus.
- *
- * `data-wp-init` runs once per rendered preview, so a batch of files runs the focus callback once
- * per file, each scheduling its own timer against the same 100ms deadline. Whichever fired last
- * won, which is to say focus landed on an arbitrary preview. The latch lets the first preview of
- * a batch claim focus and the rest skip it. It starts open so that a single add — the only case
- * before this change — behaves exactly as it did.
+ * Client file IDs whose upload has started and not yet settled. A Set rather than a counter so that
+ * `finishUpload()` is idempotent: several code paths can report the same upload as finished.
  */
-let canClaimPreviewFocus = true;
+const activeUploadIds = new Set();
+
+// The field each running upload belongs to, so `pumpUploadQueue()` can share slots between fields.
+const activeUploadFieldIds = new Map();
+
+/*
+ * The client file ID of the one preview allowed to take focus, or null.
+ *
+ * `data-wp-init` runs once per rendered preview, so a batch runs the focus callback once per file,
+ * each scheduling its own timer against the same 100ms deadline; whichever fired last won, which
+ * is to say focus landed on an arbitrary preview.
+ *
+ * Naming the file rather than raising a flag matters, because file IDs are unique across the page.
+ * A shared boolean can only express "nothing has claimed focus since it was last set", which is a
+ * different question from "is this the first preview of this batch, in this field" — the two come
+ * apart whenever previews from two batches, or from two file fields, mount in the same render.
+ * Then whichever preview happens to mount first consumes the claim and the file the visitor just
+ * chose is left unfocused. An ID cannot be claimed by the wrong preview, and a second batch simply
+ * supersedes the first, which is what a visitor who just picked another file would expect.
+ */
+let focusClaimFileId = null;
 
 let uploadToken = null;
 let tokenExpiry = null;
@@ -195,6 +222,40 @@ const getFileFieldExtra = () => {
 };
 
 /**
+ * Whether this field's markup has somewhere to show a field-level notice.
+ *
+ * Only true for markup rendered by the current PHP. Runs inside an action's scope, so `getElement()`
+ * resolves to the element the visitor interacted with — the file input or the container, both of
+ * which sit inside `.jetpack-form-file-field__container`.
+ *
+ * @return {boolean} True when the notice element is present.
+ */
+const hasNoticeElement = () => {
+	const { ref } = getElement();
+
+	return !! ref
+		?.closest?.( '.jetpack-form-file-field__container' )
+		?.querySelector( '.jetpack-form-file-field__notice' );
+};
+
+/**
+ * Whether the dropzone is currently shown.
+ *
+ * Tests the one thing that actually hides it — `is-hidden`, bound to `state.isFileFieldFull` — in
+ * preference to a general visibility probe. `checkVisibility()` and `offsetParent` both require
+ * layout, which means they answer differently under a test renderer than in a browser, and this
+ * question has a definite answer that does not need layout to find.
+ *
+ * @param {HTMLElement} dropzoneInner - The dropzone's inner button element.
+ *
+ * @return {boolean} True when the dropzone is visible.
+ */
+const isDropzoneVisible = dropzoneInner =>
+	! dropzoneInner
+		.closest( '.jetpack-form-file-field__dropzone' )
+		?.classList.contains( 'is-hidden' );
+
+/**
  * The files currently held by the field.
  *
  * @return {Array} The field's files.
@@ -234,18 +295,22 @@ const getFileError = file => {
 /**
  * How many more files the field will accept.
  *
- * Entries carrying an error are not counted. A file rejected for its type or its size was never
- * uploaded, so it holds no place — otherwise a single bad file in a full batch would block the
- * replacement the visitor is being asked to provide. `state.isFileFieldFull` counts the same way,
- * so the dropzone stays visible exactly while there is room for another file.
+ * Counts every entry, including those that failed their own type or size check.
+ *
+ * Excluding errored entries reads as kinder — a rejected file was never uploaded, so why should it
+ * hold a place? — but it leaves nothing bounding them. They would neither consume capacity nor
+ * hide the dropzone, so picking a disallowed file over and over would pile up previews without
+ * limit, and `validators.file` reports `invalid_file_has_errors` for every one of them: the same
+ * unsubmittable form this batch work exists to prevent, reached by a different route. A visitor
+ * who needs to replace a rejected file dismisses it with its own × button, which is one click and
+ * was already the established behaviour.
  *
  * @return {number} The number of files that can still be added.
  */
 const getRemainingCapacity = () => {
 	const { maxFiles } = getFileFieldExtra();
-	const acceptedFiles = getFileFieldFiles().filter( fileInfo => ! fileInfo.error );
 
-	return Math.max( maxFiles - acceptedFiles.length, 0 );
+	return Math.max( maxFiles - getFileFieldFiles().length, 0 );
 };
 
 /**
@@ -256,6 +321,8 @@ const getRemainingCapacity = () => {
  *
  * @param {File}        file  - The file to add.
  * @param {string|null} error - Why the file cannot be uploaded, or null.
+ *
+ * @return {string} The client file ID of the entry that was added.
  */
 const addFileToContext = ( file, error ) => {
 	const context = getContext();
@@ -279,6 +346,8 @@ const addFileToContext = ( file, error ) => {
 
 	// Start the upload if we don't have any errors.
 	! error && enqueueUpload( file, clientFileId );
+
+	return clientFileId;
 };
 
 /**
@@ -295,39 +364,64 @@ const addFileToContext = ( file, error ) => {
  * preview: those are about the file, and the visitor has to see which one to replace.
  *
  * @param {File[]} files - The files to add.
+ *
+ * @return {number} How many files were declined for want of room.
  */
 const addFiles = files => {
 	const context = getContext();
 	const { i18n } = getConfig( CONFIG_NAMESPACE );
 
-	// Reopen the latch so the first preview this batch renders takes focus. See `canClaimPreviewFocus`.
-	canClaimPreviewFocus = true;
-
 	let remainingCapacity = getRemainingCapacity();
+	let firstDeclined = null;
 	let declinedCount = 0;
+	let firstAddedId = null;
 
 	for ( const file of files ) {
 		if ( ! file ) {
 			continue;
 		}
 
-		const error = getFileError( file );
-
-		if ( ! error ) {
-			if ( remainingCapacity === 0 ) {
-				declinedCount++;
-				continue;
-			}
-
-			remainingCapacity--;
+		/*
+		 * Capacity is spent before the file is examined, so a file rejected for its type or size
+		 * occupies a place like any other. It has to: an entry that consumed nothing could be added
+		 * again and again, and each one blocks submission through `validators.file`.
+		 */
+		if ( remainingCapacity === 0 ) {
+			declinedCount++;
+			firstDeclined = firstDeclined ?? file;
+			continue;
 		}
 
-		addFileToContext( file, error );
+		remainingCapacity--;
+
+		const addedId = addFileToContext( file, getFileError( file ) );
+
+		if ( firstAddedId === null ) {
+			firstAddedId = addedId;
+		}
 	}
 
-	context.fileNotice = declinedCount ? i18n.maxFiles : '';
+	// Nominate this batch's first file, by id, as the one preview that may take focus.
+	focusClaimFileId = firstAddedId;
+
+	if ( ! declinedCount ) {
+		context.fileNotice = '';
+	} else if ( hasNoticeElement() ) {
+		context.fileNotice = i18n.maxFiles;
+	} else {
+		/*
+		 * Markup cached before the notice element existed, served against this bundle — the window
+		 * the back-compat shim at the bottom of this file covers. There is nowhere to render
+		 * `fileNotice`, so declining silently would make the visitor's files simply vanish. Fall
+		 * back to what that markup did understand: one errored preview carrying the message. One,
+		 * not one per declined file, which is the pile-up this batch work exists to end.
+		 */
+		addFileToContext( firstDeclined, i18n.maxFiles );
+	}
 
 	actions.updateField( context.fieldId, context.files );
+
+	return declinedCount;
 };
 
 // Map to store AbortControllers for each file upload
@@ -347,6 +441,7 @@ const uploadControllers = new Map();
 const enqueueUpload = ( file, clientFileId ) => {
 	uploadQueue.push( {
 		clientFileId,
+		fieldId: getContext().fieldId,
 		start: withScope( () => actions.uploadFile( file, clientFileId ) ),
 	} );
 
@@ -355,12 +450,38 @@ const enqueueUpload = ( file, clientFileId ) => {
 
 /**
  * Start queued uploads until the concurrency limit is reached.
+ *
+ * Picks the waiting file whose field has the fewest uploads running, rather than simply the one
+ * that has waited longest. Strict arrival order is fine while a field accepts a single file, but
+ * once it accepts several, a visitor who fills the first field before reaching the second would
+ * leave the second field's file waiting behind the whole of the first field's batch — and a
+ * preview stuck at 0% is indistinguishable from a broken field, since nothing on screen says it is
+ * waiting on another field's traffic. Ties keep arrival order, so a single field still uploads in
+ * the order its files were added.
  */
 const pumpUploadQueue = () => {
 	while ( activeUploadIds.size < MAX_CONCURRENT_UPLOADS && uploadQueue.length ) {
-		const { clientFileId, start } = uploadQueue.shift();
+		const activePerField = new Map();
+
+		for ( const fieldId of activeUploadFieldIds.values() ) {
+			activePerField.set( fieldId, ( activePerField.get( fieldId ) ?? 0 ) + 1 );
+		}
+
+		let index = 0;
+
+		for ( let candidate = 1; candidate < uploadQueue.length; candidate++ ) {
+			const best = activePerField.get( uploadQueue[ index ].fieldId ) ?? 0;
+			const here = activePerField.get( uploadQueue[ candidate ].fieldId ) ?? 0;
+
+			if ( here < best ) {
+				index = candidate;
+			}
+		}
+
+		const { clientFileId, fieldId, start } = uploadQueue.splice( index, 1 )[ 0 ];
 
 		activeUploadIds.add( clientFileId );
+		activeUploadFieldIds.set( clientFileId, fieldId );
 		start();
 	}
 };
@@ -374,11 +495,66 @@ const pumpUploadQueue = () => {
  * @param {string} clientFileId - The client file ID.
  */
 const finishUpload = clientFileId => {
+	clearStallWatchdog( clientFileId );
+	activeUploadFieldIds.delete( clientFileId );
+
 	if ( ! activeUploadIds.delete( clientFileId ) ) {
 		return;
 	}
 
 	pumpUploadQueue();
+};
+
+/**
+ * (Re)start the stall watchdog for an upload. See UPLOAD_STALL_TIMEOUT_MS.
+ *
+ * Aborting on expiry rather than just freeing the slot is deliberate: the abort drives the request
+ * to readyState 4 with status 0, which is already handled as a failed upload, so the visitor gets
+ * an error they can act on instead of a preview that sits at its last percentage forever.
+ *
+ * @param {string} clientFileId - The client file ID.
+ */
+const startStallWatchdog = clientFileId => {
+	clearStallWatchdog( clientFileId );
+
+	uploadStallTimers.set(
+		clientFileId,
+		setTimeout( () => {
+			uploadStallTimers.delete( clientFileId );
+			uploadControllers.get( clientFileId )?.abort();
+			// The abort settles the request, but free the slot here too in case it does not.
+			finishUpload( clientFileId );
+		}, UPLOAD_STALL_TIMEOUT_MS )
+	);
+};
+
+/**
+ * Stop watching an upload for a stall.
+ *
+ * @param {string} clientFileId - The client file ID.
+ */
+const clearStallWatchdog = clientFileId => {
+	const timer = uploadStallTimers.get( clientFileId );
+
+	if ( timer !== undefined ) {
+		clearTimeout( timer );
+		uploadStallTimers.delete( clientFileId );
+	}
+};
+
+/**
+ * Read an upload response body, tolerating one that is not JSON.
+ *
+ * @param {string} responseText - The raw response body.
+ *
+ * @return {object|null} The parsed body, or null when it could not be read.
+ */
+const parseUploadResponse = responseText => {
+	try {
+		return JSON.parse( responseText );
+	} catch {
+		return null;
+	}
 };
 
 /**
@@ -402,6 +578,9 @@ const dequeueUpload = clientFileId => {
  * @param {ProgressEvent} event        - The progress event object.
  */
 const onProgress = ( clientFileId, event ) => {
+	// Evidence the request is alive, so the stall watchdog starts over.
+	startStallWatchdog( clientFileId );
+
 	const progress = ( event.loaded / event.total ) * 100;
 	// We don't want to show 100% progress, as it's misleading.
 	updateFileContext( { progress: Math.min( progress, 97 ) }, clientFileId );
@@ -421,8 +600,21 @@ const onReadyStateChange = ( clientFileId, event ) => {
 		uploadControllers.delete( clientFileId );
 		finishUpload( clientFileId );
 
+		/*
+		 * A proxy, a WAF interstitial or a PHP fatal can all answer 200 with something that is not
+		 * JSON. Letting SyntaxError out of an event handler would leave the entry on "Uploading…"
+		 * for good, and `validators.file` blocks submission on any file that never finished — so a
+		 * body we cannot read is reported as a failed upload, which the visitor can act on.
+		 */
+		const response = parseUploadResponse( xhr.responseText );
+
+		if ( response === null ) {
+			const config = getConfig( CONFIG_NAMESPACE );
+			updateFileContext( { error: config.i18n.uploadFailed, hasError: true }, clientFileId );
+			return;
+		}
+
 		if ( xhr.status === 200 ) {
-			const response = JSON.parse( xhr.responseText );
 			if ( response.success ) {
 				updateFileContext(
 					{
@@ -448,7 +640,6 @@ const onReadyStateChange = ( clientFileId, event ) => {
 			return;
 		}
 		if ( xhr.responseText ) {
-			const response = JSON.parse( xhr.responseText );
 			updateFileContext( { error: response.message, hasError: true }, clientFileId );
 		}
 	}
@@ -521,9 +712,12 @@ const releaseFile = file => {
 		return;
 	}
 
-	// The file may be waiting for a slot rather than uploading, in which case there is no
-	// controller to abort and nothing else would ever take it off the queue.
+	/*
+	 * The file may be waiting for a slot rather than uploading, in which case there is no
+	 * controller to abort and nothing else would ever take it off the queue.
+	 */
 	dequeueUpload( file.id );
+	clearStallWatchdog( file.id );
 
 	const abortController = uploadControllers.get( file.id );
 	if ( abortController ) {
@@ -641,6 +835,7 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 			actions.trackFirstInteraction();
 			if ( event.dataTransfer ) {
 				const droppedFiles = [];
+				let skippedDirectory = false;
 
 				for ( const item of Array.from( event.dataTransfer.items ) ) {
 					// Dragging selected text, a link or an image from another tab yields items with
@@ -653,15 +848,32 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 					// discarded every remaining file in a mixed selection and left `isDropping`
 					// set, stranding the dropzone in its drag-hover style.
 					if ( item.webkitGetAsEntry()?.isDirectory ) {
+						skippedDirectory = true;
 						continue;
 					}
-					droppedFiles.push( item.getAsFile() );
+					// `getAsFile()` can still return null for a `file` item, and a batch of nothing but
+					// nulls would otherwise clear an existing notice and re-nominate a focus target.
+					const droppedFile = item.getAsFile();
+
+					if ( droppedFile ) {
+						droppedFiles.push( droppedFile );
+					}
 				}
 
-				// A drop carrying nothing this field can take — only directories, or only dragged
-				// text — leaves the field untouched rather than reporting an empty batch.
-				if ( droppedFiles.length ) {
-					addFiles( droppedFiles );
+				/*
+				 * A drop carrying nothing this field can take — only directories, or only dragged
+				 * text — leaves the files alone rather than reporting an empty batch.
+				 */
+				const declinedCount = droppedFiles.length ? addFiles( droppedFiles ) : 0;
+
+				/*
+				 * Say so when a folder was dropped and this drop had nothing more pressing to report.
+				 * Ignoring it in silence leaves the visitor watching for an upload that will never
+				 * start, and any notice still up from an earlier drop would appear to describe the
+				 * folder. The string has been in the config since the field shipped, unused.
+				 */
+				if ( skippedDirectory && ! declinedCount ) {
+					getContext().fileNotice = getConfig( CONFIG_NAMESPACE ).i18n.folderNotSupported;
 				}
 			}
 			const context = getContext();
@@ -718,28 +930,47 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 				return;
 			}
 
-			const xhr = new XMLHttpRequest();
-			const formData = new FormData();
+			/*
+			 * The slot is already claimed by this point, and until `readystatechange` is wired up
+			 * nothing else would ever report this upload as finished. A throw from `xhr.open()` or
+			 * `xhr.send()` — both of which the XHR spec allows — would leave the ID in
+			 * `activeUploadIds` for the life of the page, shrinking the page-wide limit by one every
+			 * time it happened, with no error anywhere.
+			 */
+			try {
+				const xhr = new XMLHttpRequest();
+				const formData = new FormData();
 
-			// Create an AbortController for this upload
-			const abortController = new AbortController();
-			uploadControllers.set( clientFileId, abortController );
+				// Create an AbortController for this upload
+				const abortController = new AbortController();
+				uploadControllers.set( clientFileId, abortController );
 
-			xhr.open( 'POST', endpoint, true );
-			xhr.upload.addEventListener( 'progress', withScope( onProgress.bind( this, clientFileId ) ) );
-			xhr.addEventListener(
-				'readystatechange',
-				withScope( onReadyStateChange.bind( this, clientFileId ) )
-			);
+				xhr.open( 'POST', endpoint, true );
+				xhr.upload.addEventListener(
+					'progress',
+					withScope( onProgress.bind( this, clientFileId ) )
+				);
+				xhr.addEventListener(
+					'readystatechange',
+					withScope( onReadyStateChange.bind( this, clientFileId ) )
+				);
 
-			// Handle abort signal
-			abortController.signal.addEventListener( 'abort', () => {
-				xhr.abort();
-			} );
+				// Handle abort signal
+				abortController.signal.addEventListener( 'abort', () => {
+					xhr.abort();
+				} );
 
-			formData.append( 'file', file );
-			formData.append( 'token', token );
-			xhr.send( formData );
+				formData.append( 'file', file );
+				formData.append( 'token', token );
+
+				// Armed before the send, so a request that dies before its first progress event is
+				// still caught.
+				startStallWatchdog( clientFileId );
+				xhr.send( formData );
+			} catch {
+				updateFileContext( { error: i18n.uploadFailed, hasError: true }, clientFileId );
+				finishUpload( clientFileId );
+			}
 		},
 
 		/**
@@ -756,6 +987,16 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 			 */
 			context.files.splice( 0 );
 			context.fileNotice = '';
+
+			/*
+			 * Re-validate, the way `removeFile` does. Without this the field keeps whatever error it
+			 * held before the reset: `releaseFile()` aborts each upload, an abort settles the request
+			 * synchronously as readyState 4 / status 0, and that path records `invalid_file_has_errors`
+			 * against the field on its way out. The files are then gone but the error is not, so the
+			 * form refuses to submit and asks the visitor to remove file errors from a field showing
+			 * no files at all.
+			 */
+			actions.updateField( context.fieldId, context.files );
 		},
 
 		/**
@@ -841,10 +1082,15 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 			const { ref } = getElement();
 			const container = ref.closest( '.jetpack-form-file-field__container' );
 
-			// Only the first preview a batch renders takes focus; see `canClaimPreviewFocus`. The
-			// rest still return the cleanup below, so removing any of them restores focus normally.
-			const claimsFocus = canClaimPreviewFocus;
-			canClaimPreviewFocus = false;
+			/*
+			 * Only the preview for the file this batch nominated takes focus; see `focusClaimFileId`.
+			 * The rest still return the cleanup below, so removing any of them restores focus normally.
+			 */
+			const claimsFocus = focusClaimFileId !== null && getContext().file?.id === focusClaimFileId;
+
+			if ( claimsFocus ) {
+				focusClaimFileId = null;
+			}
 
 			// `isConnected` guards the case where the file is removed inside the delay: focusing a
 			// detached node is a silent no-op that would strand focus on `<body>`.
@@ -874,9 +1120,21 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 
 					const { activeElement, body } = dropzone.ownerDocument;
 
-					if ( ! activeElement || activeElement === body ) {
-						dropzone.focus( { focusVisible: true } );
+					if ( activeElement && activeElement !== body ) {
+						return;
 					}
+
+					/*
+					 * `isConnected` is not enough: the dropzone is hidden with `display: none` while the
+					 * field is full, and a hidden element is still connected. Calling focus() on it is a
+					 * silent no-op, which would leave focus on <body> — precisely what this is here to
+					 * prevent. Fall back to whatever preview remains.
+					 */
+					const target = isDropzoneVisible( dropzone )
+						? dropzone
+						: container?.querySelector( '.jetpack-form-file-field__preview' );
+
+					target?.focus( { focusVisible: true } );
 				}, PREVIEW_FOCUS_DELAY_MS );
 			};
 		},

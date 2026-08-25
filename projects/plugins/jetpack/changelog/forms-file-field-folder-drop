@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: explain that a folder dropped on the file upload field was ignored rather than doing nothing.

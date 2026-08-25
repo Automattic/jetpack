@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+File upload field: Report an upload that stops responding, or that gets a reply the browser cannot read, as failed instead of leaving it in progress indefinitely.
