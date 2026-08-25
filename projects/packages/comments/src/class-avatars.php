@@ -15,16 +15,18 @@ use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 class Avatars {
 
 	/**
-	 * Comment meta holding a stored avatar URL.
+	 * Comment meta holding a stored avatar URL. The checkpoint writes the first; the
+	 * second is the Highlander key, read for comments written before it.
 	 */
-	const AVATAR_META = 'hc_avatar';
+	const AVATAR_META     = 'jp_ci_avatar';
+	const OLD_AVATAR_META = 'hc_avatar';
 
 	/**
 	 * Hosts whose avatars are served.
 	 *
 	 * @var string[]
 	 */
-	private static $avatar_hosts = array( 'graph.facebook.com', 'twimg.com' );
+	private static $avatar_hosts = array( 'graph.facebook.com', 'twimg.com', 'googleusercontent.com' );
 
 	/**
 	 * Register the avatar filter.
@@ -48,6 +50,10 @@ class Avatars {
 		}
 
 		$stored = get_comment_meta( (int) $id_or_email->comment_ID, self::AVATAR_META, true );
+
+		if ( ! is_string( $stored ) || $stored === '' ) {
+			$stored = get_comment_meta( (int) $id_or_email->comment_ID, self::OLD_AVATAR_META, true );
+		}
 
 		if ( ! is_string( $stored ) || $stored === '' || ! self::is_servable_avatar( $stored ) ) {
 			return $args;

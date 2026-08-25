@@ -1,20 +1,33 @@
+import { identityUser } from '../shared/identity';
+import { ProviderButtons } from './checkpoint/provider-buttons';
 import { GuestFields } from './guest-fields';
 import { LogInPrompt } from './log-in-prompt';
 
 export { CommentingAs } from './commenting-as';
 
 /**
- * How the reader identifies themselves, which depends on whether the site
- * takes comments from anyone and on whether they are already logged in.
+ * How the reader identifies themselves. Someone already known, logged in or
+ * signed in through the checkpoint, sees nothing here; the attribution line is drawn
+ * in the footer instead. Otherwise it is the log-in prompt when the site
+ * requires an account, or the provider buttons above the guest fields.
  *
- * @return The prompt to log in, the guest fields, or nothing for a logged-in reader.
+ * @return The prompt, the buttons and guest fields, or nothing.
  */
 export const Identity = () => {
-	const { isLoggedIn, mustLogIn } = JetpackComments;
+	const { mustLogIn } = JetpackComments;
+
+	if ( identityUser.value ) {
+		return null;
+	}
 
 	if ( mustLogIn ) {
 		return <LogInPrompt />;
 	}
 
-	return isLoggedIn ? null : <GuestFields />;
+	return (
+		<>
+			<ProviderButtons />
+			<GuestFields />
+		</>
+	);
 };

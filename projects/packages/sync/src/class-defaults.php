@@ -831,6 +831,9 @@ class Defaults {
 		'hc_foreign_user_id',
 		'hc_post_as',
 		'hc_wpcom_id_sig',
+		'jp_ci_avatar',
+		'jp_ci_provider',
+		'jp_ci_sub',
 		'protocol',
 	);
 

@@ -1,6 +1,7 @@
 import { signal, computed } from '@preact/signals';
 import { createContext } from 'preact';
 import { readDraft } from '../form/draft';
+import { identityUser, isConnecting } from './identity';
 import type { Commenter, FormSettings } from './types';
 
 /**
@@ -24,8 +25,13 @@ export function createSignals( formSettings: FormSettings ) {
 		url: JetpackComments.commenter.url,
 	} );
 
+	// identityUser and isConnecting are page-global (shared/identity.ts); submission waits on both.
 	const isSubmitDisabled = computed(
-		() => JetpackComments.mustLogIn || isEmptyComment.value || isSavingComment.value
+		() =>
+			( JetpackComments.mustLogIn && ! identityUser.value ) ||
+			isEmptyComment.value ||
+			isSavingComment.value ||
+			isConnecting.value
 	);
 
 	return {

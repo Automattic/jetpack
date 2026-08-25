@@ -7,7 +7,28 @@ export type Commenter = {
 export type CurrentUser = {
 	avatarUrl: string;
 	commentingAs: string;
+	isPassport: boolean;
 };
+
+export type CheckpointProvider = {
+	id: string;
+	label: string;
+};
+
+export type CheckpointSettings =
+	| { enabled: false }
+	| {
+			enabled: true;
+			blogId: number;
+			connectUrl: string;
+			landingUrl: string;
+			providers: CheckpointProvider[];
+			redeemUrl: string;
+			logoutUrl: string;
+			nonce: string;
+			channel: string;
+			disclosure: string;
+	  };
 
 export type FormSettings = {
 	postId: number;
@@ -35,6 +56,8 @@ export type Strings = {
 	guestPromptRequired: string;
 	saveDetails: string;
 	logOut: string;
+	commentingAs: string;
+	loginError: string;
 };
 
 export type Settings = {
@@ -46,6 +69,7 @@ export type Settings = {
 	strings: Strings;
 	commenter: Commenter;
 	user: CurrentUser | null;
+	checkpoint: CheckpointSettings;
 };
 
 declare global {
