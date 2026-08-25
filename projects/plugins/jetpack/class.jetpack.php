@@ -2384,7 +2384,8 @@ class Jetpack {
 	 * @return void
 	 */
 	private static function activate_default_modules_once( $min_version, $max_version, array $other_modules = array(), $redirect = null ) {
-		$is_prerelease = self::is_development_version();
+		$version       = self::current_version();
+		$is_prerelease = self::release_version( $version ) !== $version;
 		$already       = self::get_prerelease_activated_modules();
 
 		$offered = array();
