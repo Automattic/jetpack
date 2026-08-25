@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add comment identity sign-in: continue with Google, Facebook or WordPress.com through a WordPress.com checkpoint, with the identity applied to the comment on the site's own server. Off unless the jetpack_comments_new_hotness filter returns true.

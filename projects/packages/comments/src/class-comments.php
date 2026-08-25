@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Comments;
 
+use Automattic\Jetpack\Comments\Identity\Checkpoint;
+
 /**
  * Package entry point.
  */
@@ -45,5 +47,6 @@ class Comments {
 	public static function init() {
 		Comment_Form::init();
 		Avatars::init();
+		Checkpoint::init();
 	}
 }

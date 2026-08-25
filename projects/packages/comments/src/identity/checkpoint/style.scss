@@ -1,0 +1,75 @@
+/**
+ * The provider sign-in buttons and the disclosure line, shown above the guest
+ * fields and inside the log-in prompt.
+ */
+
+.jetpack-comments__providers {
+	padding: 16px;
+	border-block-start: 1px solid var(--jetpack-comments-border-color);
+}
+
+.jetpack-comments__provider-buttons {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.jetpack-comments__provider {
+	all: unset;
+	display: block;
+	box-sizing: border-box;
+	inline-size: 100%;
+	padding: 9px 16px;
+	border: 1px solid var(--jetpack-comments-border-color);
+	border-radius: 4px;
+	color: var(--jetpack-comments-font-color);
+	font-family: inherit;
+	font-size: 14px;
+	text-align: center;
+	cursor: pointer;
+
+	&:hover:not([disabled]),
+	&:focus-visible {
+		border-color: var(--jetpack-comments-accent-color);
+	}
+
+	&[disabled] {
+		opacity: 0.6;
+		cursor: default;
+	}
+
+	&[aria-busy="true"] {
+		cursor: progress;
+	}
+}
+
+.jetpack-comments__provider-error {
+	all: unset;
+	display: block;
+	margin-block-start: 12px;
+	font-size: 13px;
+	color: var(--jetpack-comments-font-color);
+}
+
+.jetpack-comments__disclosure {
+	all: unset;
+	display: block;
+	margin-block-start: 12px;
+	font-size: 12px;
+	line-height: 18px;
+	opacity: 0.8;
+	color: var(--jetpack-comments-font-color);
+}
+
+// Where the buttons sit directly above the guest fields, the fields draw the
+// dividing rule, so the buttons should not draw one too.
+.jetpack-comments__providers + .jetpack-comments__identity {
+	border-block-start: none;
+}
+
+// Inside the log-in prompt the buttons are already within a padded block.
+.jetpack-comments__identity .jetpack-comments__providers {
+	padding: 0;
+	border-block-start: none;
+	margin-block-end: 16px;
+}
