@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Normalize the excluded IP list so addresses written in another form still match.

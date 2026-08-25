@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Visitor: Resolve the visitor address through the site's trusted header alone where one is configured, instead of also reading the forwarded headers.

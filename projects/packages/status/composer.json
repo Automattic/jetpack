@@ -5,14 +5,14 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=7.2",
-		"automattic/jetpack-constants": "@dev"
+		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-ip": "@dev"
 	},
 	"require-dev": {
 		"brain/monkey": "^2.6.2",
 		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-plans": "@dev",
-		"automattic/jetpack-ip": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},
 	"suggest": {
