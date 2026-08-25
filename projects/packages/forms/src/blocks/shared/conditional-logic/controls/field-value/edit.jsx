@@ -1,7 +1,7 @@
 import { Icon, Notice, SelectControl, TextControl, Tooltip } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { caution, check, plus, trash } from '@wordpress/icons';
+import { caution, drafts, plus, published, trash } from '@wordpress/icons';
 import { Button, IconButton, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { RULE_TYPE_FIELD_VALUE } from '../../constants.js';
@@ -9,6 +9,7 @@ import { useEnsureFieldId } from '../../hooks/use-subject-fields.js';
 import { getFieldDisplayName } from '../../util/field-label.js';
 import {
 	OPERATORS,
+	getCarriedOverValue,
 	getOperatorsForTypeKey,
 	getValueInputForTypeKey,
 	operatorNeedsValue,
@@ -147,7 +148,9 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 			const nextSubject = fields.find( field => selectionValue( field ) === selection );
 
 			if ( ! nextSubject ) {
-				onChange( index, { field: '', operator: OPERATORS.IS, value: '' } );
+				// The value is carried, normalized: whether it still applies is decided by
+				// the next subject the author picks.
+				onChange( index, { field: '', operator: OPERATORS.IS, value: rule.value ?? '' } );
 				return;
 			}
 
@@ -172,9 +175,16 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 				? rule.operator
 				: defaultOperatorFor( nextSubject.typeKey );
 
-			onChange( index, { field: fieldId, operator, value: '' } );
+			// The value box is offered before a subject is chosen, so a value typed first is
+			// kept. Dropped when the new subject cannot represent it, which would otherwise
+			// leave an empty-looking box the evaluators were still comparing against.
+			const carried = operatorNeedsValue( operator )
+				? getCarriedOverValue( rule.value, nextSubject.typeKey, nextSubject.options )
+				: null;
+
+			onChange( index, { field: fieldId, operator, value: carried ?? '' } );
 		},
-		[ ensureFieldId, fields, ownFieldId, index, onChange, rule.operator ]
+		[ ensureFieldId, fields, ownFieldId, index, onChange, rule.operator, rule.value ]
 	);
 
 	const handleOperatorChange = useCallback(
@@ -192,6 +202,18 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 	const operators = getOperatorsForTypeKey( subject?.typeKey || 'string' );
 	const isComplete = isRuleComplete( rule, subject );
 
+	// The builder opens with one empty row, which is not a mistake -- so amber is kept for a
+	// condition begun and left unfinished, the only case where a field silently will not react.
+	// A complete rule is necessarily a started one, which is why three states need two flags.
+	const isStarted = isRuleStarted( rule );
+
+	let statusIcon = drafts;
+	if ( isComplete ) {
+		statusIcon = published;
+	} else if ( isStarted ) {
+		statusIcon = caution;
+	}
+
 	const activeReason = __( 'This condition is active.', 'jetpack-forms' );
 
 	// Why the condition will be skipped, phrased as the thing to do about it. The three cases
@@ -200,7 +222,7 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 	let inactiveReason = __( 'Choose a field to compare against.', 'jetpack-forms' );
 	if ( missingSubject ) {
 		inactiveReason = __( 'The field this condition refers to no longer exists.', 'jetpack-forms' );
-	} else if ( isRuleStarted( rule ) ) {
+	} else if ( isStarted ) {
 		inactiveReason = __( 'Give this condition a value.', 'jetpack-forms' );
 	}
 
@@ -249,11 +271,12 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 					<span
 						className={ clsx( 'jetpack-contact-form__conditional-logic-rule-status', {
 							'is-active': isComplete,
+							'is-unstarted': ! isStarted,
 						} ) }
 						role="img"
 						aria-label={ isComplete ? activeReason : inactiveReason }
 					>
-						<Icon icon={ isComplete ? check : caution } size={ 20 } />
+						<Icon icon={ statusIcon } size={ 20 } />
 					</span>
 				</Tooltip>
 

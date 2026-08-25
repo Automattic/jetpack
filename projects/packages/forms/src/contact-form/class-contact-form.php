@@ -1527,13 +1527,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$config = array(
-			'error_types'    => array(
+			'error_types'     => array(
 				'is_required'        => __( 'This field is required.', 'jetpack-forms' ),
 				'invalid_form_empty' => __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
 				'invalid_form'       => __( 'Please fill out the form correctly.', 'jetpack-forms' ),
 				'network_error'      => __( 'Connection issue while submitting the form. Check that you are connected to the Internet and try again.', 'jetpack-forms' ),
 			),
-			'admin_ajax_url' => admin_url( 'admin-ajax.php' ),
+			'admin_ajax_url'  => admin_url( 'admin-ajax.php' ),
+			// Translated here because the interactivity module is a script module with no
+			// i18n dependency, and the string has to match what was rendered server-side.
+			'unchecked_label' => __( 'No', 'jetpack-forms' ),
 		);
 		wp_interactivity_config( 'jetpack/form', $config );
 		\wp_enqueue_script_module(
@@ -1961,7 +1964,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			$formatted_submission_data[] = array(
 				'label'          => Util::maybe_add_colon_to_label( $field_data['label'] ),
-				'value'          => self::maybe_transform_value( $field_data['value'] ),
+				'value'          => self::get_submission_display_value( $field_data['value'], $type ),
+				// The submitted answer, kept beside the label the summary prints. The checkbox
+				// icon is chosen from it: `is_checked_value()` recognizes only the ASCII `no`
+				// sentinel, so a translated "No" would read as ticked in every locale whose
+				// word for it is not "no".
+				'rawValue'       => $field_data['value'],
 				'images'         => $images,
 				'url'            => $url,
 				'files'          => $files,
@@ -1972,6 +1980,29 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		return $formatted_submission_data;
+	}
+
+	/**
+	 * The value a submitted field shows in the confirmation summary.
+	 *
+	 * An unticked checkbox submits nothing, so it arrives empty and the summary drew the
+	 * label over a blank line. The email renderer has always said "No" here.
+	 *
+	 * Mirrored by `getSubmissionDisplayValue()` in src/modules/form/helpers.js, which formats
+	 * the same data for an AJAX submission; the two must produce the same string or the
+	 * summary changes as the Interactivity API hydrates it.
+	 *
+	 * @param mixed  $value The submitted value.
+	 * @param string $type  The field type.
+	 *
+	 * @return mixed The value to display.
+	 */
+	private static function get_submission_display_value( $value, $type ) {
+		if ( 'checkbox' === $type && ! Feedback_Field::is_checked_value( $value ) ) {
+			return __( 'No', 'jetpack-forms' );
+		}
+
+		return self::maybe_transform_value( $value );
 	}
 
 	/**
@@ -2245,7 +2276,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 					// field-type-icon: rendered based on field type and, for checkboxes, the answer.
 					// The data-rendered-type attribute enables hydration optimization by allowing
 					// the JS callback to skip re-rendering when the icon is already correct.
-					$field_value = $submission['value'] ?? '';
+					// The raw answer, not the printed label -- see `rawValue` above.
+					$field_value = $submission['rawValue'] ?? '';
 					$icon_key    = self::get_field_type_icon_key( $field_type, $field_value );
 					$html       .= '<div class="field-type-icon" data-wp-watch="callbacks.watchFieldTypeIcon" data-rendered-type="' . esc_attr( $icon_key ) . '">' . self::get_field_type_icon( $field_type, $field_value ) . '</div>';
 					// field-name: always present.

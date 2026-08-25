@@ -640,6 +640,18 @@ export type SeriesChartLegendConfig = ChartLegendConfig< SeriesData[] > & {
 };
 
 /**
+ * Initial visibility options for charts built from labelled series.
+ */
+export interface SeriesVisibilityProps {
+	/**
+	 * Series labels to hide from the first defined value. User changes persist until
+	 * the chart remounts or its ID changes; later values for the same ID are ignored.
+	 * Omit to retain the provider's existing visibility for the chart ID.
+	 */
+	defaultHiddenSeries?: readonly string[];
+}
+
+/**
  * Base properties shared across all chart components
  */
 export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > = {

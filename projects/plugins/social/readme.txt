@@ -2,7 +2,7 @@
 Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk
 Tags: social media automation, social media scheduling, auto share, social sharing, social media marketing
 Requires at least: 7.0
-Requires PHP: 7.2
+Requires PHP: 7.4
 Tested up to: 7.1
 Stable tag: 9.0.3
 License: GPLv2 or later
