@@ -2,6 +2,7 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const { glob } = require( 'glob' );
+const webpack = require( 'webpack' );
 const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plugin' );
 
 const sharedWebpackConfig = {
@@ -152,6 +153,71 @@ module.exports = [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin(),
 		],
+	},
+	/*
+	 * Build the newsletter email design editor on its own.
+	 *
+	 * It gets its own entry rather than joining an existing bundle because
+	 * `@woocommerce/email-editor` is large and is only ever needed on the one
+	 * admin screen that mounts it.
+	 */
+	{
+		...sharedWebpackConfig,
+		entry: {
+			// The package's `exports` map publishes only its main entry, so its
+			// stylesheet cannot be imported by subpath from the source file. Pair the
+			// two here instead, so the styles still go through the usual CSS pipeline
+			// and get an RTL build.
+			'email-design-editor': [
+				'./modules/subscriptions/email-design-editor/src/index.jsx',
+				path.join(
+					path.dirname( require.resolve( '@woocommerce/email-editor' ) ),
+					'../build-style/style.css'
+				),
+			],
+		},
+		plugins: [
+			...sharedWebpackConfig.plugins,
+
+			// Some of the package's strings are published with the textdomain left as
+			// a build-time `__i18n_text_domain__` placeholder rather than a literal.
+			// Unreplaced it is a free variable, so those strings would throw a
+			// ReferenceError when their component rendered.
+			new webpack.DefinePlugin( {
+				__i18n_text_domain__: JSON.stringify( 'jetpack' ),
+			} ),
+			...jetpackWebpackConfig.DependencyExtractionPlugin( {
+				requestMap: {
+					// WordPress registers no `wp-global-styles-engine` script handle at
+					// Jetpack's minimum (WP 7.0), so externalizing it would put an
+					// unregistered handle in the asset file and WordPress would refuse
+					// to enqueue the script at all, silently. Bundle it instead.
+					'@wordpress/global-styles-engine': { external: false },
+				},
+			} ),
+		],
+		module: {
+			...sharedWebpackConfig.module,
+			rules: [
+				...sharedWebpackConfig.module.rules,
+
+				// The package's strings are authored against the `woocommerce`
+				// textdomain, which is not loaded on a Jetpack site, so without this
+				// every string in the editor would render untranslated.
+				jetpackWebpackConfig.TranspileRule( {
+					includeNodeModules: [ '@woocommerce/email-editor/' ],
+					babelOpts: {
+						configFile: false,
+						plugins: [
+							[
+								require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
+								{ textdomain: 'jetpack' },
+							],
+						],
+					},
+				} ),
+			],
+		},
 	},
 	// Build admin page JS.
 	{

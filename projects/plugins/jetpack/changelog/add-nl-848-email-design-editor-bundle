@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Adds the newsletter email design editor's JavaScript bundle and its build configuration. Nothing enqueues it yet, so there is no user-facing change.
+
+

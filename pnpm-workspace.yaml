@@ -9,6 +9,17 @@ packages:
   - tools/performance
   - .github/files/coverage-munger
 
+overrides:
+  # @woocommerce/email-editor pins about thirty exact @wordpress/* versions, and
+  # the @wordpress/components@30.x among them asks for date-fns ^3.6.0. Left
+  # alone that drags the whole workspace's date-fns down from 4.x, which then
+  # fails strictPeerDependencies below because @base-ui/react wants ^4. Those
+  # @wordpress/* packages are externalized to wp.* at build time, so none of
+  # their code is bundled and none of it runs against the newer date-fns.
+  # Scoped to the ^3 range rather than to date-fns as a whole, so the 1.x and
+  # 2.x copies some CLI tooling still asks for stay where they are.
+  "date-fns@^3.6.0": "^4.1.0"
+
 engineStrict: true
 pmOnFail: ignore
 preferWorkspacePackages: true
