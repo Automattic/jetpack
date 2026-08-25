@@ -1,0 +1,81 @@
+// The storage section sits above the Overview's two-pane grid rather
+// than inside it: `.jpb-overview` is a two-column grid at >= 961px, so a
+// child would be auto-placed into the layout and push the detail pane
+// onto its own row. Same reason the status banners are siblings.
+.jpb-storage-space {
+	inline-size: 100%;
+	margin-block-end: 24px;
+
+	// `<Text render={ <h2 /> }>` renders a real heading, which inherits
+	// wp-admin's own `h2` margins. Reset both so the gap to the bar is
+	// this file's decision.
+	h2 {
+		margin-block: 0 12px;
+	}
+}
+
+.jpb-storage-meter {
+	// `ProgressBar`'s root *is* the track, and it ships 1.5px tall with a
+	// 160px intrinsic width — sized for an inline loading indicator, not
+	// a storage meter. Everything below re-sizes it into a full-width bar.
+	// Deliberately nested rather than written flat.
+	// `@wordpress/components` styles the track through a runtime-injected
+	// emotion class of equal specificity, and emotion appends to `<head>`
+	// after the bundled stylesheet — so a flat `&__bar` rule would lose on
+	// source order no matter where this file sits in the build. One extra
+	// class wins it without reaching for `!important`.
+	& &__bar {
+		block-size: 24px;
+		inline-size: 100%;
+		border-radius: 12px;
+		background-color: var(--wpds-color-background-track-neutral);
+
+		// The filled portion. `ProgressBar` renders it as the track's only
+		// `div` child; the sibling `<progress>` is the visually-hidden
+		// element that carries the value for assistive technology.
+		> div {
+			// Rounded on the leading edge, flat on the trailing one, so a
+			// partly-filled bar reads as a level rather than as a pill
+			// floating in a groove. Logical corners keep that correct in
+			// RTL, where the fill grows from the right.
+			border-radius: 0;
+			border-start-start-radius: 12px;
+			border-end-start-radius: 12px;
+
+			// Some storage is always in use, so keep a radius-sized floor
+			// or the leading corner has nothing to round.
+			min-inline-size: 12px;
+
+			// And a radius-sized ceiling below 100%, so the flat trailing
+			// edge never reaches the track's rounded end and leaves a
+			// square corner poking out of it. Lifted at `--full` below.
+			max-inline-size: calc(100% - 12px);
+		}
+	}
+
+	// Level colours. Legacy's palette was hardcoded Jetpack hex tokens
+	// (`--jp-black`, `--jp-yellow-20`, `--jp-red-40`), none of which are
+	// declared on a modernized page; these are the design-system
+	// equivalents this dashboard already uses elsewhere. No fallbacks:
+	// the design-system build injects those, and hand-written ones go
+	// stale.
+	& &__bar--normal > div {
+		background-color: var(--wpds-color-background-interactive-neutral-strong);
+	}
+
+	& &__bar--warning > div {
+		background-color: var(--wpds-color-foreground-content-caution-weak);
+	}
+
+	& &__bar--critical > div {
+		background-color: var(--wpds-color-background-interactive-error-strong);
+	}
+
+	// At full, the fill spans the whole track, so it can take the track's
+	// own rounding on both ends.
+	& &__bar--full > div {
+		background-color: var(--wpds-color-background-interactive-error-strong);
+		border-radius: 12px;
+		max-inline-size: none;
+	}
+}

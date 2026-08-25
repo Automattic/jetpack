@@ -37,6 +37,11 @@ export const keys = {
 	// deliberately does not share the activity-log family's key.
 	backups: () => [ 'backup', 'backups' ] as const,
 	siteSize: () => [ 'backup', 'site-size' ] as const,
+	// The site's retention and storage policies. Separate from
+	// `siteSize` because it is a separate route with a much flatter
+	// change rate — but the storage meter needs both, so the two are
+	// always read together.
+	sitePolicies: () => [ 'backup', 'site-policies' ] as const,
 	// Family prefix for any rewindable-activity-log page. Use as a
 	// query-filter root to scan all cached pages (e.g. when looking up
 	// a row by id across pages).
