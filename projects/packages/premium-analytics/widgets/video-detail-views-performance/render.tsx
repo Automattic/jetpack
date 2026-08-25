@@ -18,7 +18,7 @@ import { video } from '@wordpress/icons';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import useVideoMetrics from './use-video-metrics';
+import useVideoMetrics, { COUNT_FORMAT } from './use-video-metrics';
 import type {
 	VideoDetailViewsPerformanceAttributes,
 	VideoDetailViewsPerformanceChartType,
@@ -29,11 +29,6 @@ type VideoDetailViewsPerformanceRenderAttributes = VideoDetailViewsPerformanceAt
 	Partial< ReportParamsFieldAttributes >;
 type VideoDetailViewsPerformanceWidgetProps =
 	WidgetRenderProps< VideoDetailViewsPerformanceRenderAttributes >;
-
-const DATA_FORMAT = {
-	type: 'number' as const,
-	options: { useMultipliers: true, decimals: 0 },
-};
 
 type VideoDetailViewsPerformanceInnerProps = {
 	/** How the selected metric is drawn. `MetricTabsChart` owns the default. */
@@ -83,7 +78,7 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 			>
 				<MetricTabsChart
 					metrics={ metrics }
-					dataFormat={ DATA_FORMAT }
+					dataFormat={ COUNT_FORMAT }
 					chartType={ chartType }
 					groupLabel={ groupLabel }
 				/>

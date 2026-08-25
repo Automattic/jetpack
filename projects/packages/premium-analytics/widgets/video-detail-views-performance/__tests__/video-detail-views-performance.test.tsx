@@ -316,6 +316,8 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		const metrics = chartedMetrics( chart );
 		expect( metrics.map( metric => metric.label ) ).toEqual( [ 'Views' ] );
 		expect( metrics[ 0 ].values ).toEqual( [ 0, 5, 0, 7, 0, 0, 0 ] );
+		// No `total` in the response, so the headline falls back to the bucketed sum.
+		expect( metrics[ 0 ].value ).toBe( 12 );
 	} );
 
 	it( 'renders the scopeless empty state and makes no request without a video scope', async () => {

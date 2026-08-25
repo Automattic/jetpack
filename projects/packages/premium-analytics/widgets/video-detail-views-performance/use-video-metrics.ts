@@ -47,7 +47,10 @@ export interface VideoMetricsState {
 	refetch: () => void;
 }
 
-const COUNT_FORMAT: DataFormat = {
+/**
+ * Whole-number count format, shared with the chart's required fallback format.
+ */
+export const COUNT_FORMAT: DataFormat = {
 	type: 'number',
 	options: { useMultipliers: true, decimals: 0 },
 };
