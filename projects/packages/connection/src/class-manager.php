@@ -1068,7 +1068,10 @@ class Manager {
 
 		$result = ( $sandboxed || $signed ) ? false : get_transient( $transient_key );
 
-		if ( false === $result ) {
+		// Only the array shape stored below can be served. A `pre_transient_*` filter or a damaged
+		// object cache entry can hand back anything, and a non-array would throw on
+		// `$result['body']` for every request until the entry expired, so it reads as a miss.
+		if ( ! is_array( $result ) ) {
 			$result = $this->fetch_connected_site_data( $site_id, $sandbox_secret );
 
 			// A signed read that failed must not replace a still-usable cached record with the failure.

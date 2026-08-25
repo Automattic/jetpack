@@ -549,6 +549,24 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Only the array shape this method stores can be served. A `pre_transient_*` filter or a
+	 * damaged object cache entry can hand back anything, and reading a body off a non-array would
+	 * throw for every request until the entry expired. An unusable entry has to fail open.
+	 */
+	public function test_an_unusable_cache_entry_is_refetched() {
+		$this->fake_http_response( 200, '{"ID":1234,"name":"Test site"}' );
+		set_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . 1234, 'not-an-array', 5 * MINUTE_IN_SECONDS );
+
+		$record = $this->manager->get_connected_site_data();
+
+		$this->assertSame( 'Test site', $record->name );
+		$this->assertSame(
+			array( 'body' => '{"ID":1234,"name":"Test site"}' ),
+			get_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . 1234 )
+		);
+	}
+
+	/**
 	 * WordPress.com requests this route right after a purchase so the site stores the new plan.
 	 * That request arrives signed with a connection token. Serving it from the cache would hand
 	 * it the pre-purchase record and turn the refresh into a no-op, so a signed request reads
