@@ -4,18 +4,19 @@ import { __ } from '@wordpress/i18n';
 import { closeSmall } from '@wordpress/icons';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import { useFileContents } from '../../hooks/use-file-contents';
+import { formatFileSize, usePathInfo } from '../../hooks/use-path-info';
 import './style.scss';
 import type { FileNodeFile } from '../../types/file-tree';
 
 /**
  * Heuristic mime-type lookup by file extension.
  *
- * WPCOM's `/path-info` endpoint, which PR 48859 originally relied on,
- * returns "No file found" for every variant we tried — it appears to
- * query an internal index that isn't populated for every site / file.
- * Deriving mime from the extension keeps the FileInfoCard's preview-or-
- * not decision working without that fetch, and matches the heuristic
- * legacy file managers use.
+ * Deliberately not replaced by `path-info`'s `data_type`: that field is
+ * a small integer type code — the manifest path's second character —
+ * rather than a mime type, and it cannot tell a previewable `.php` from
+ * an opaque binary. Calypso reaches the same conclusion and keeps its
+ * own extension map for exactly this decision, using `data_type` only
+ * to drive granular download.
  */
 const EXT_TO_MIME: Record< string, string > = {
 	css: 'text/css',
@@ -61,11 +62,16 @@ type Props = {
 
 /**
  * Renders the preview slot's body: a spinner while loading, the file
- * contents in a `<pre>` when available, an error-specific muted line
- * when the fetch failed (most commonly because the file's `period`
- * predates available content blobs — VaultPress retains manifest
- * entries longer than blob storage), or a generic "preview unavailable"
- * muted line for non-text mime types.
+ * contents in a `<pre>` when available, a muted line when the fetch
+ * failed, or a generic "preview unavailable" muted line for non-text
+ * mime types.
+ *
+ * The error branch says nothing about *why*, on purpose. It used to
+ * blame blob storage having outlived the manifest entry, which was
+ * never right: upstream reports a genuinely unreadable blob with a
+ * different error entirely, and the failure that prompted that wording
+ * turned out to be this package percent-encoding an already-base64
+ * path. There is no failure mode here specific enough to name.
  *
  * Pulled out as a standalone component to keep `FileInfoCard`'s JSX flat
  * (no nested ternaries) and to give the loading / error / empty branches
@@ -102,10 +108,7 @@ function PreviewBody( {
 	if ( error ) {
 		return (
 			<Text variant="body-sm" className="jpb-text-muted">
-				{ __(
-					'Preview could not be loaded for this file. It may no longer be available in storage.',
-					'jetpack-backup-pkg'
-				) }
+				{ __( 'Preview could not be loaded for this file.', 'jetpack-backup-pkg' ) }
 			</Text>
 		);
 	}
@@ -135,15 +138,20 @@ function isTextual( mime: string ): boolean {
 }
 
 /**
- * Side panel showing details for the currently-open file: modified
- * timestamp, monospace text preview for recognized text mime types,
- * plus per-file Download and Restore buttons.
+ * Side panel showing details for the currently-open file: size, hash,
+ * modified timestamp, and a monospace text preview for recognized text
+ * mime types.
  *
- * `lastModified`, `period`, and `manifestPath` all come from `/ls` and
- * are carried on the FileNode itself — no extra fetch needed. The
- * preview pulls content via the file's own `period` (not the parent
- * backup's rewindId) because VaultPress addresses file blobs by their
- * per-entry snapshot timestamp.
+ * Two fetches back this, both keyed on the file's own `period` from
+ * `/ls` rather than the parent backup's rewindId, because VaultPress
+ * records one row per file version and matches the period exactly.
+ * `path-info` supplies size, hash and the real mtime; `file-content`
+ * supplies the preview body. Neither is fatal on its own — the card
+ * renders whatever resolved.
+ *
+ * `lastModified` from `/ls` is the snapshot the file landed in, which
+ * is close to but not the same as the file's modification time, so
+ * path-info's `mtime` wins when it is available.
  *
  * @param props         - Component props.
  * @param props.file    - The file node clicked in the tree.
@@ -158,6 +166,8 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 		isLoading: contentsLoading,
 		error: contentsError,
 	} = useFileContents( file.period, file.manifestPath, showPreview );
+	const { size, hash, lastModified } = usePathInfo( file.period, file.manifestPath );
+	const modified = lastModified ?? file.lastModified;
 
 	return (
 		<Card.Root className="jpb-file-info-card">
@@ -181,16 +191,28 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				</Button>
 			</Stack>
 			<dl className="jpb-file-info-card__meta">
-				{ file.lastModified && (
+				{ modified && (
 					<div>
 						<dt>{ __( 'Modified:', 'jetpack-backup-pkg' ) }</dt>
-						<dd>{ dateI18n( 'M j, Y, g:i A', file.lastModified, undefined ) }</dd>
+						<dd>{ dateI18n( 'M j, Y, g:i A', modified, undefined ) }</dd>
+					</div>
+				) }
+				{ size !== null && (
+					<div>
+						<dt>{ __( 'Size:', 'jetpack-backup-pkg' ) }</dt>
+						<dd>{ formatFileSize( size ) }</dd>
 					</div>
 				) }
 				{ mimeType && (
 					<div>
 						<dt>{ __( 'Type:', 'jetpack-backup-pkg' ) }</dt>
 						<dd>{ mimeType }</dd>
+					</div>
+				) }
+				{ hash && (
+					<div>
+						<dt>{ __( 'Hash:', 'jetpack-backup-pkg' ) }</dt>
+						<dd className="jpb-file-info-card__hash">{ hash }</dd>
 					</div>
 				) }
 			</dl>

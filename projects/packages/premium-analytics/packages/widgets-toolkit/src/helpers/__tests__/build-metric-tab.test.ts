@@ -98,4 +98,51 @@ describe( 'buildMetricTab', () => {
 		expect( tab.previousValue ).toBeUndefined();
 		expect( tab.previous ).toBeUndefined();
 	} );
+	// Bucket stamps carry a nominal offset that must be dropped, not honoured
+	// (the full rationale lives on `toChartDate`). These cases fail under the
+	// old `localTZDate` reading and are the only guard on that.
+	describe( 'bucket stamps are read as the wall clock they name', () => {
+		// Pinned west of UTC on purpose: under a UTC runner the correct reading and
+		// the buggy one coincide, so these cases would pass either way. `TZ` is not
+		// on the typed env shape, hence the cast.
+		const env = process.env as Record< string, string | undefined >;
+		const runnerTimeZone = env.TZ;
+		beforeAll( () => {
+			env.TZ = 'America/Los_Angeles';
+		} );
+		afterAll( () => {
+			// Assigning `undefined` to an env var sets the literal string "undefined";
+			// an unset variable has to be deleted back off.
+			if ( runnerTimeZone === undefined ) {
+				delete env.TZ;
+			} else {
+				env.TZ = runnerTimeZone;
+			}
+		} );
+
+		const dateOf = ( dateStart: string ) =>
+			buildMetricTab( {
+				primary: { summary: { views: 1 }, data: [ { date_start: dateStart, views: 1 } ] },
+				comparison: undefined,
+				hasComparison: false,
+				field: 'views',
+				label: 'Views',
+			} ).current[ 0 ].date;
+
+		it.each( [
+			// The shape every `formatDatePartWithTime` branch emits.
+			[ '2026-06-15T00:00:00+00:00', 15, 0 ],
+			[ '2026-06-15T09:00:00+00:00', 15, 9 ],
+			[ '2026-06-15T00:00:00Z', 15, 0 ],
+			// The `row.date_start` passthrough in `getRowIntervalFields` forwards
+			// whatever the API sent, which need not carry a time at all. A bare date
+			// parses as UTC unless it is anchored, so this is the same bug's back door.
+			[ '2026-06-15', 15, 0 ],
+		] )( 'reads %s as day %i hour %i in the local frame', ( stamp, day, hour ) => {
+			const date = dateOf( stamp );
+
+			expect( date.getDate() ).toBe( day );
+			expect( date.getHours() ).toBe( hour );
+		} );
+	} );
 } );

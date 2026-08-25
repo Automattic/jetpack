@@ -7,5 +7,5 @@ export { useElementSize } from './use-element-size';
 export { useTextTruncation } from './use-text-truncation';
 export { useZeroValueDisplay } from './use-zero-value-display';
 export { useDataWithPercentages } from './use-data-with-percentages';
-export { useInteractiveLegendData } from './use-interactive-legend-data';
+export { useLegendVisibilityData } from './use-legend-visibility-data';
 export { usePrefersReducedMotion } from './use-prefers-reduced-motion';

@@ -109,12 +109,19 @@ export {
 	type StatsVisitsStatFields,
 } from './hooks/use-stats-visits';
 export {
+	useStatsHourOfDay,
+	type StatsHourOfDayParams,
+	type StatsHourOfDayBucket,
+	type StatsHourOfDayReport,
+} from './hooks/use-stats-hour-of-day';
+export {
 	aggregateStatsDrilldownRows,
 	bucketStatsTimeSeries,
 	flattenStatsLeaves,
 	getStatsChartBucketKey,
 	getStatsReportItems,
 	selectStatsCommentsRows,
+	STATS_CHART_BUCKET_PERIODS,
 	sliceWordAdsStatsReport,
 } from './processing/stats';
 export type { FlattenStatsLeavesContext, FlattenStatsLeavesOptions } from './processing/stats';
@@ -243,6 +250,7 @@ export {
 	getApiErrorStatus,
 	saveBlob,
 	shouldRetryApiError,
+	StatsResponseShapeError,
 	toPostId,
 	useSiteHomeUrl,
 	withoutComparison,

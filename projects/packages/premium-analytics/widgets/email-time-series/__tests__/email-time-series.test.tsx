@@ -18,6 +18,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		pointsAreWallClocks,
 	}: {
 		metrics: {
 			key: string;
@@ -26,6 +27,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			current: { date: Date; value: number }[];
 		}[];
 		chartType?: string;
+		pointsAreWallClocks?: boolean;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
@@ -33,7 +35,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-metric-label={ metrics[ 0 ]?.label }
 			data-metric-total={ String( metrics[ 0 ]?.value ) }
 			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
+			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
 			data-chart-type={ String( chartType ) }
+			data-wall-clocks={ String( pointsAreWallClocks ) }
 		/>
 	),
 } ) );
@@ -91,6 +95,40 @@ describe( 'EmailTimeSeriesWidget', () => {
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'stats/opens/emails/1234' );
 		expect( requestedPath ).toContain( 'stats_fields=timeline' );
+	} );
+
+	// Pinned west of UTC on purpose: under a UTC runner the wall-clock reading
+	// and the old instant reading coincide, so this would pass either way. `TZ`
+	// is not on the typed env shape, hence the cast.
+	it( 'builds chart points as the wall clocks the buckets name, declared to the chart', async () => {
+		const env = process.env as Record< string, string | undefined >;
+		const runnerTimeZone = env.TZ;
+		env.TZ = 'America/Los_Angeles';
+
+		try {
+			mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
+
+			render(
+				<EmailTimeSeriesWidget
+					attributes={ {
+						reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+						metric: 'opens',
+					} }
+				/>
+			);
+
+			const chart = await screen.findByTestId( 'metric-tabs-chart' );
+			// The old `localTZDate` reading anchors the buckets away from the
+			// local frame, so these read as the previous day (3,4,5) under it.
+			expect( chart ).toHaveAttribute( 'data-days', '4,5,6' );
+			expect( chart ).toHaveAttribute( 'data-wall-clocks', 'true' );
+		} finally {
+			if ( runnerTimeZone === undefined ) {
+				delete env.TZ;
+			} else {
+				env.TZ = runnerTimeZone;
+			}
+		}
 	} );
 
 	it( 'reads the clicks endpoint when metric is clicks', async () => {
@@ -155,15 +193,14 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( requestedDates ).toEqual( [ '2026-07-01T00:00:00.000+08:00' ] );
 	} );
 
-	it( 'aggregates the daily buckets into ISO weeks for the weekly granularity', async () => {
+	it( 'aggregates the daily buckets into ISO weeks when the page interval is weekly', async () => {
 		mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
 
 		render(
 			<EmailTimeSeriesWidget
 				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					reportParams: { ...getDefaultQueryParams( false ), interval: 'week', post_id: 1234 },
 					metric: 'opens',
-					granularity: 'week',
 				} }
 			/>
 		);
@@ -172,7 +209,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-values', '15,7' );
 	} );
 
-	it( 'aggregates the daily buckets into calendar months for the monthly granularity', async () => {
+	it( 'aggregates the daily buckets into calendar months when the page interval is monthly', async () => {
 		mockApiFetch.mockResolvedValue( {
 			timeline: {
 				unit: 'day',
@@ -188,9 +225,18 @@ describe( 'EmailTimeSeriesWidget', () => {
 		render(
 			<EmailTimeSeriesWidget
 				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					// An explicit multi-month window: `WidgetRoot` normalizes report
+					// params through `resolveIntervalForRange`, and the default
+					// 30-day preset would coerce a monthly interval back to daily.
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-05-01T00:00:00.000+08:00',
+						to: '2026-08-31T23:59:59.999+08:00',
+						interval: 'month',
+						post_id: 1234,
+					},
 					metric: 'opens',
-					granularity: 'month',
 				} }
 			/>
 		);

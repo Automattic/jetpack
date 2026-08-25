@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { parseSiteDateTime, siteTimeZone, toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { Icon, Text } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
 import { envelope as envelopeIcon, page as pageIcon, post as postIcon } from '@wordpress/icons';
@@ -60,11 +61,11 @@ export function PostSummaryCard( {
 }: PostSummaryCardProps ) {
 	const { title, type, publishedDate, imageUrl } = summary;
 
-	const publishedDateObject = publishedDate ? new Date( publishedDate ) : undefined;
-	const formattedDate =
-		publishedDateObject && isValid( publishedDateObject )
-			? format( publishedDateObject, DATE_FORMAT )
-			: undefined;
+	// Read and shown in the site timezone, like the Stats data the page reports on.
+	const publishedDateObject = parseSiteDateTime( publishedDate );
+	const formattedDate = publishedDateObject
+		? format( toLocalTZ( publishedDateObject, siteTimeZone() ), DATE_FORMAT )
+		: undefined;
 	// The email wording reuses the publish date: WordPress.com sends the
 	// newsletter when the post publishes, and the email stats API exposes no
 	// separate send timestamp (`stats/emails/summary` returns the post date).

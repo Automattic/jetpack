@@ -17,8 +17,9 @@ import {
 } from '../../providers';
 import { formatMetricValue, attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { SingleChartContext } from '../private/single-chart-context';
+import { getAllHiddenMessage } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import { useFittedRowCount, useLeaderboardLegendItems } from './hooks';
 import styles from './leaderboard-chart.module.scss';
@@ -225,35 +226,28 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		legendLabels,
 	} );
 
-	// Track visibility of primary and comparison series for interactive legends
+	// Track visibility of primary and comparison series from the shared legend state.
 	const isPrimaryVisible = useMemo( () => {
-		if ( ! chartId || ! legendInteractive || legendItems.length === 0 ) {
+		if ( legendItems.length === 0 ) {
 			return true;
 		}
 		return isSeriesVisible( chartId, legendItems[ 0 ].label );
-	}, [ chartId, legendInteractive, legendItems, isSeriesVisible ] );
+	}, [ chartId, legendItems, isSeriesVisible ] );
 
 	const isComparisonVisible = useMemo( () => {
-		if ( ! chartId || ! legendInteractive || legendItems.length < 2 ) {
+		if ( legendItems.length < 2 ) {
 			return true;
 		}
 		return isSeriesVisible( chartId, legendItems[ 1 ].label );
-	}, [ chartId, legendInteractive, legendItems, isSeriesVisible ] );
+	}, [ chartId, legendItems, isSeriesVisible ] );
 
 	// Check if all series are hidden
 	const allSeriesHidden = useMemo( () => {
-		if ( ! legendInteractive ) return false;
 		if ( withComparison && ! withOverlayLabel ) {
 			return ! isPrimaryVisible && ! isComparisonVisible;
 		}
 		return ! isPrimaryVisible;
-	}, [
-		legendInteractive,
-		isPrimaryVisible,
-		isComparisonVisible,
-		withComparison,
-		withOverlayLabel,
-	] );
+	}, [ isPrimaryVisible, isComparisonVisible, withComparison, withOverlayLabel ] );
 
 	// Validate data
 	const isDataValid = Boolean( data && data.length > 0 );
@@ -278,9 +272,10 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 
 	const prefersReducedMotion = usePrefersReducedMotion();
 
-	// There are no rows to measure while an interactive legend has hidden every
-	// series. Pausing fitting restores the full row count and, when a series is shown
-	// again, re-runs the effect against the newly mounted grid.
+	// There are no rows to measure while every series is hidden, whether from an
+	// interactive legend click or a programmatic toggle. Pausing fitting restores
+	// the full row count and, when a series is shown again, re-runs the effect
+	// against the newly mounted grid.
 	const { contentRef, fittedCount, isMeasurable } = useFittedRowCount(
 		fitRows && ! allSeriesHidden,
 		data?.length ?? 0,
@@ -291,7 +286,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
 		return (
-			<SingleChartContext.Provider value={ { chartId } }>
+			<ChartInstanceContext.Provider value={ { chartId } }>
 				<ChartLayout
 					legendPosition={ legendPosition }
 					legendElement={ false }
@@ -315,7 +310,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 							: __( 'No data available', 'jetpack-charts' ) }
 					</div>
 				</ChartLayout>
-			</SingleChartContext.Provider>
+			</ChartInstanceContext.Provider>
 		);
 	}
 
@@ -335,7 +330,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	);
 
 	return (
-		<SingleChartContext.Provider value={ { chartId } }>
+		<ChartInstanceContext.Provider value={ { chartId } }>
 			<ChartLayout
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }
@@ -372,7 +367,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					) }
 					{ allSeriesHidden ? (
 						<div className={ styles.emptyState }>
-							{ __( 'All series are hidden. Click legend items to show data.', 'jetpack-charts' ) }
+							{ getAllHiddenMessage( legendInteractive, 'series' ) }
 						</div>
 					) : (
 						<Grid
@@ -476,7 +471,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					) }
 				</div>
 			</ChartLayout>
-		</SingleChartContext.Provider>
+		</ChartInstanceContext.Provider>
 	);
 };
 
