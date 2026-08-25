@@ -12,7 +12,7 @@ definition and lazily renders that report's page component. Adding a report does
    The component owns all of the page chrome (header, tabs, widget grid) — the
    stage renders it as-is.
 
-2. **Register one entry** in `REPORTS` in `registry.ts`. Labels are getters so
+2. **Register one entry** in `REPORTS` in `registry.ts`. Names are getters so
    translations resolve after the i18n locale data has loaded; `load` is a
    dynamic import of the page component:
 
@@ -22,7 +22,8 @@ definition and lazily renders that report's page component. Adding a report does
    export const REPORTS: Record< string, ReportDefinition > = {
    	posts: {
    		id: 'posts',
-   		getTitle: () => __( 'Posts & pages', 'jetpack-premium-analytics' ),
+   		getLabel: () => __( 'All pages', 'jetpack-premium-analytics-pkg' ),
+   		getTitle: () => __( 'All pages report', 'jetpack-premium-analytics-pkg' ),
    		// Optional — only for reports that own sections:
    		// resolveSection: value => resolveSectionId( value ),
    		load: () => import( './posts/page' ),
@@ -32,6 +33,18 @@ definition and lazily renders that report's page component. Adding a report does
 
 That's it. The report is reachable at `/reports/<id>`. An unknown or missing
 `$report` redirects to the dashboard (`route.ts`).
+
+## Naming a report
+
+`getLabel` names the report from outside itself: its own trailing breadcrumb,
+and the crumb back to it from a detail page. `getTitle` heads its records —
+`All pages report` where the label is `All pages`.
+
+Pages read both from `REPORTS` and declare no strings of their own.
+
+A tabbed report heads each section from its open tab instead, through
+`getTabTitle( activeTab )`, which falls back to that tab's label. Its `getTitle`
+goes unused.
 
 ## Providers the stage mounts for every report
 

@@ -1,23 +1,164 @@
 .dashboard {
 	min-block-size: 0;
+
+	/*
+	 * Tweak Card layout to make it fit the screen.
+	 * TODO: consider adding this upstream to the Card component.
+	 */
+	section:first-of-type {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+		--wp-ui-card-header-content-margin: var(--wpds-dimension-padding-lg);
+
+		> div {
+			margin-block-start: 0;
+		}
+	}
+
+	// Overlay WidgetHeader re-declares padding to 2xl; match Card tweak.
+	// TODO: fix upstream in @wordpress/widget-dashboard.
+	[class*="__widget-header"][class*="__overlay"] {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+	}
+}
+
+/*
+ * Widget inserter DataViewsPicker: preview tiles are Cards whose default
+ * padding is too roomy. Scope via the admin body class because the dialog
+ * portals outside `.dashboard`. :global — class is not a CSS Module local.
+ * TODO: consider adding this upstream to the Card / widget-dashboard picker.
+ */
+:global(
+	.toplevel_page_jetpack-premium-analytics-wp-admin
+	.dataviews-picker-wrapper
+) {
+
+	section:first-of-type {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-md);
+		--wp-ui-card-header-content-margin: var(--wpds-dimension-padding-md);
+
+		> div {
+			margin-block-start: 0;
+		}
+	}
+}
+
+.loading {
+	// Fill the route stage and center the spinner while the sections entity
+	// resolves. Mirrors the reports stage's centered loading state.
+	min-block-size: 240px;
+	block-size: 100%;
 }
 
 .content {
+	// Grows to fill a short section, but never shrinks below the widget grid:
+	// `min-block-size: 0` here would let the panel end above its own content, so
+	// the scroll container's end landed on the last widget and the padding below
+	// never rendered.
 	flex: 1 1 auto;
-	min-block-size: 0;
-	overflow-y: auto;
-	// Reserve paint space for the widget host's outer focus outline.
-	padding-block-start: calc(var(--wpds-border-width-focus, 2px) + 2px);
+
+	// Containing block for the pin marker below, and the scope that lets the
+	// marker's timeline reach the header beside it: a named timeline is
+	// otherwise invisible to anything but its own descendants.
+	position: relative;
+	timeline-scope: --section-header-pin;
+
+	padding-block-end: var(--wpds-dimension-padding-3xl);
 	// Match the horizontal padding of the page header and the section tabs so the
 	// widget grid lines up with them instead of sitting flush to the edge.
-	padding-block-end: 24px;
-	padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
-.dateFilters {
-	// Sits below the section tabs and above the widgets. The tab list already
-	// adds a bottom margin, so only pad below here to keep the spacing even.
-	// Inline padding matches the tabs and widget grid so it lines up.
-	padding-block-end: var(--wpds-dimension-gap-lg, 16px);
-	padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+.widgets {
+	// Caps every layer the grid raises (edit overlay, resizing tiles, the
+	// @dnd-kit drag preview) under the sticky header, which then only has to
+	// outrank this box rather than z-index values it does not own.
+	isolation: isolate;
+
+	// Inherited by the @wordpress/grid surfaces (grid, masonry, edit overlay),
+	// which otherwise fall back to the wider `--wpds-dimension-gap-xl`.
+	--wp-grid-gap: var(--wpds-dimension-gap-lg);
+
+	// Temporary solution. Fixed upstream https://github.com/WordPress/gutenberg/pull/80570
+	section:first-of-type {
+		display: flex;
+		flex-direction: column;
+	}
+}
+
+/*
+ * Publishes the `--section-header-pin` timeline the header condenses against:
+ * only the route knows where the header pins, since what it clears is the
+ * route's own tab list. The marker's top edge sits exactly where the header
+ * comes to rest, so its view timeline's `exit` phase opens as the header
+ * sticks, and its height is how far the condense runs. Measured, never
+ * painted.
+ */
+.pinMarker {
+	position: absolute;
+	inset-block-start: 0;
+	inline-size: 1px;
+	block-size: 40px;
+	visibility: hidden;
+	pointer-events: none;
+	view-timeline-name: --section-header-pin;
+	view-timeline-axis: block;
+}
+
+.sectionHeader {
+	// Pins at 0 rather than under the page header's height: the scroll
+	// container is the sections root, which begins where the page header ends.
+	position: sticky;
+	inset-block-start: 0;
+	z-index: 1;
+
+	/*
+	 * A stuck header must be opaque, and it takes the page header's fill: this
+	 * band is page chrome, not the widgets' canvas, and the hairline is the
+	 * edge between the two. The negative margin spans it across the panel's
+	 * gutter to cover content passing under it; the matching padding keeps the
+	 * header row in place and the container query's measured width unchanged.
+	 */
+	margin-inline: calc(-1 * var(--wpds-dimension-padding-2xl));
+	padding-inline: var(--wpds-dimension-padding-2xl);
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border-block-end:
+		var(--wpds-border-width-xs) solid
+		var(--wpds-color-stroke-surface-neutral-weak);
+
+	// The gap above was the tab bar's bottom margin, moved inside the fill so
+	// the fill starts at the tabs' hairline.
+	padding-block-start: var(--wpds-dimension-gap-lg);
+	padding-block-end: var(--wpds-dimension-gap-lg);
+
+	margin-block-end: var(--wpds-dimension-gap-lg);
+}
+
+// Same gate as the component's condense (see `section-header.module.scss`):
+// without timeline support the 0s fallback animation would freeze the
+// padding in its pinned state.
+@supports (animation-timeline: --section-header-pin) {
+
+	.sectionHeader {
+		// Tightens the padding on the subtitle's own timeline: once pinned
+		// there are no tabs left to clear, and the band should cost the
+		// widgets as little height as it can.
+		animation: condense-section-header linear both;
+		animation-timeline: --section-header-pin;
+		animation-range: exit;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+
+		.sectionHeader {
+			animation: none;
+		}
+	}
+}
+
+@keyframes condense-section-header {
+
+	to {
+		padding-block-start: var(--wpds-dimension-gap-sm);
+		padding-block-end: var(--wpds-dimension-gap-sm);
+	}
 }

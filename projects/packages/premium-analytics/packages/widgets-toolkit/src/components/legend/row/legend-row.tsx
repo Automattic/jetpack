@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Stack } from '@wordpress/ui';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import styles from '../legend.module.scss';
 import type { ReactNode } from 'react';
 
@@ -10,9 +10,6 @@ import type { ReactNode } from 'react';
  */
 
 export type LegendRowProps = {
-	/**
-	 * The label content (usually text)
-	 */
 	children: ReactNode;
 
 	/**

@@ -1,19 +1,11 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-/**
- * Configurable attributes for the File downloads widget.
- */
-export type FileDownloadsAttributes = {
-	/**
-	 * Maximum rows to display (0 = all). Defaults to 10.
-	 */
-	max?: number;
-};
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type FileDownloadsAttributes = Record< never, never >;
 
 /**
  * File downloads widget type definition.
@@ -23,19 +15,9 @@ export type FileDownloadsAttributes = {
  * (the shared dashboard date picker).
  */
 export default {
-	name: 'jpa/file-downloads',
-	title: __( 'File downloads', 'jetpack-premium-analytics' ),
 	icon: download,
-	attributes: [
-		{
-			id: 'max',
-			label: __( 'Max rows', 'jetpack-premium-analytics' ),
-			type: 'number',
-		},
-	] as WidgetAttributeField< FileDownloadsAttributes >[],
+	attributes: [] as WidgetAttributeField< FileDownloadsAttributes >[],
 	example: {
-		attributes: {
-			max: 10,
-		},
+		attributes: {},
 	},
 };

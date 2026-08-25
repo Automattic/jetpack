@@ -1,10 +1,13 @@
 import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ManageConnectionsModal } from '..';
 import { setup } from '../../../utils/test-factory';
+import { ManageConnectionsModal } from '../index';
 
 jest.mock( '../confirmation-form', () => ( {
 	ConfirmationForm: () => <div>Confirmation Form</div>,
+} ) );
+jest.mock( '../../services/services-list', () => ( {
+	ServicesList: () => <div>Services List</div>,
 } ) );
 jest.mock( '../../../hooks/use-user-can-share-connection', () => ( {
 	useUserCanShareConnection: jest.fn( () => true ),
@@ -24,26 +27,43 @@ describe( 'ManageConnectionsModal', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'renders ServicesList when there is no keyringResult', () => {
+	// The Dialog/Tooltip primitives schedule async positioning effects after
+	// mount, so flush them inside act before asserting.
+	const renderModal = async () => {
 		render( <ManageConnectionsModal /> );
+		// Settle the floating-ui/tooltip effects (some resolve via microtasks,
+		// some via timers) so no state update escapes act.
+		await act( async () => {
+			await Promise.resolve();
+			jest.runAllTimers();
+		} );
+		await act( async () => {
+			jest.runAllTimers();
+		} );
+	};
+
+	it( 'renders the services list in a dialog when there is no keyringResult', async () => {
+		await renderModal();
 
 		expect( screen.queryByText( 'Confirmation Form' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Services List' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Manage Jetpack Social connections' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders ConfirmationForm when there is a keyringResult', () => {
+	it( 'renders the ConfirmationForm when there is a keyringResult', async () => {
 		stubGetKeyringResult.mockReturnValue( { ID: 'facebook' } );
 
-		render( <ManageConnectionsModal /> );
+		await renderModal();
 
 		expect( screen.getByText( 'Confirmation Form' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Connection confirmation' ) ).toBeInTheDocument();
 	} );
 
-	it( 'closes the modal and resets keyringResult when closeModal is called', async () => {
+	it( 'resets the keyring result when the dialog is closed', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
-		render( <ManageConnectionsModal /> );
+		await renderModal();
 
 		await user.click( screen.getByRole( 'button', { name: /close/i } ) );
 

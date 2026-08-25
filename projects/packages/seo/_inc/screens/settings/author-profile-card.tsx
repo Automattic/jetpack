@@ -1,10 +1,11 @@
-import { __, sprintf } from '@wordpress/i18n';
-import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
+import { __ } from '@wordpress/i18n';
+import { commentAuthorAvatar } from '@wordpress/icons';
+import { Card, CollapsibleCard, Stack } from '@wordpress/ui';
+import CardTitleIcon from '../../components/card-title-icon';
+import StatusIndicator from '../../components/status-indicator';
 import { useAuthorProfile } from '../../data/use-author-profile';
 import AuthorProfileSection from './schema-settings/author-profile-section';
-import './style.scss';
-
-const notSetLabel = __( 'Not set', 'jetpack-seo' );
+import type { SettingStatus } from '../../components/status-indicator';
 
 /**
  * Per-user Author profile settings card.
@@ -25,8 +26,9 @@ function AuthorProfileCard() {
 	const form = useAuthorProfile();
 	const { profile, isLoading, hasLoadError } = form;
 
-	// Fields the header badge counts as "set": the optional ones an author fills
-	// in (name and avatar are always present). Hidden until the profile loads.
+	// Fields the header status counts as "set": the optional ones an author fills
+	// in (name and avatar are always present, so they'd never discriminate).
+	// Hidden until the profile loads.
 	const fieldsSet = [
 		profile.description,
 		profile.url,
@@ -35,22 +37,27 @@ function AuthorProfileCard() {
 	];
 	const setCount = fieldsSet.filter( Boolean ).length;
 
+	let profileStatus: SettingStatus = 'not-started';
+	if ( setCount === fieldsSet.length ) {
+		profileStatus = 'complete';
+	} else if ( setCount > 0 ) {
+		profileStatus = 'in-progress';
+	}
+
 	return (
 		<CollapsibleCard.Root defaultOpen={ false }>
-			<CollapsibleCard.Header>
+			<CollapsibleCard.Header render={ <h2 /> }>
 				<Stack direction="row" justify="space-between" align="center" gap="sm">
-					<Card.Title>{ __( 'Author profile', 'jetpack-seo' ) }</Card.Title>
+					<Card.Title>
+						<CardTitleIcon
+							icon={ commentAuthorAvatar }
+							title={ __( 'Author profile', 'jetpack-seo' ) }
+						/>
+					</Card.Title>
 					{ ! isLoading && ! hasLoadError && (
-						<Badge intent={ setCount === fieldsSet.length ? 'stable' : 'draft' }>
-							{ setCount > 0
-								? sprintf(
-										/* translators: %1$d: number of filled author profile fields. %2$d: total number of fields. */
-										__( '%1$d of %2$d set', 'jetpack-seo' ),
-										setCount,
-										fieldsSet.length
-								  )
-								: notSetLabel }
-						</Badge>
+						<CollapsibleCard.HeaderDescription>
+							<StatusIndicator status={ profileStatus } />
+						</CollapsibleCard.HeaderDescription>
 					) }
 				</Stack>
 			</CollapsibleCard.Header>

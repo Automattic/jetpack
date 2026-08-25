@@ -1,19 +1,11 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { desktop } from '@wordpress/icons';
+import { mobile } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-/**
- * Widget attributes shape.
- */
-export type DevicesAttributes = {
-	/**
-	 * Maximum rows to display (0 = all). Defaults to 5.
-	 */
-	max?: number;
-};
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type DevicesAttributes = Record< never, never >;
 
 /**
  * Devices widget type definition.
@@ -23,19 +15,9 @@ export type DevicesAttributes = {
  * reportParams (the shared dashboard date picker).
  */
 export default {
-	name: 'jpa/devices',
-	title: __( 'Devices', 'jetpack-premium-analytics' ),
-	icon: desktop,
-	attributes: [
-		{
-			id: 'max',
-			label: __( 'Max rows', 'jetpack-premium-analytics' ),
-			type: 'number',
-		},
-	] as WidgetAttributeField< DevicesAttributes >[],
+	icon: mobile,
+	attributes: [] as WidgetAttributeField< DevicesAttributes >[],
 	example: {
-		attributes: {
-			max: 5,
-		},
+		attributes: {},
 	},
 };

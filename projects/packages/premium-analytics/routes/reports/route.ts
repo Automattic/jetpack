@@ -1,12 +1,16 @@
 /**
  * External dependencies
  */
-import { getScriptData } from '@automattic/jetpack-script-data';
-import { ensureCoreSettingsReady, normalizeReportParams } from '@jetpack-premium-analytics/data';
+import {
+	ensureCoreSettingsReady,
+	needsReportDateParamsSeed,
+	normalizeReportParams,
+} from '@jetpack-premium-analytics/data';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { getReportDefinition } from './registry';
 
 type ReportRouteParams = { report?: string };
@@ -20,7 +24,6 @@ type ReportRouteSearch = Record< string, string | undefined >;
  * component. Guards mirror the dashboard and post-detail routes:
  *
  * - Not connected → /connect
- * - Connected but sync pending → /syncing
  * - Unknown or missing `$report` → / (dashboard)
  *
  * The unknown-report guard uses the same reasoning as post-detail's invalid
@@ -39,15 +42,8 @@ export const route = {
 		params,
 		search,
 	}: { params?: ReportRouteParams; search?: ReportRouteSearch } = {} ) => {
-		const connectionStatus = getScriptData()?.connection?.connectionStatus;
-
-		if ( ! connectionStatus?.isRegistered ) {
+		if ( ! isPremiumAnalyticsSiteConnected() ) {
 			throw redirect( { to: '/connect' } );
-		}
-
-		const syncFinished = getScriptData()?.premium_analytics?.initial_full_sync_finished ?? 0;
-		if ( ! syncFinished ) {
-			throw redirect( { to: '/syncing' } );
 		}
 
 		// Validate the path param against the registry. An unknown or missing
@@ -73,7 +69,7 @@ export const route = {
 			currentSearch.section && definition.resolveSection
 				? definition.resolveSection( currentSearch.section )
 				: undefined;
-		const needsDateSeed = ! currentSearch.from || ! currentSearch.to || ! currentSearch.interval;
+		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
 		const needsSectionSeed =
 			!! currentSearch.section &&
 			!! definition.resolveSection &&
@@ -81,9 +77,10 @@ export const route = {
 
 		if ( needsDateSeed || needsSectionSeed ) {
 			/*
-			 * Seed dates in the site timezone, not the browser's, by waiting for
-			 * core `site` settings. A rejection here shouldn't error the whole
-			 * page, so fall back to the default seed.
+			 * Warm the core `site` record before the stage renders, so
+			 * `useSiteHomeUrl()` has it. A rejection here shouldn't error the
+			 * whole page, so fall through to the seed. The seed's own dates do
+			 * not depend on this; they resolve from the WordPress date settings.
 			 */
 			try {
 				await ensureCoreSettingsReady();

@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-08-10
+### Added
+- Add a script module polyfill for @wordpress/widget-primitives. [#50509]
+
+### Changed
+- Update package dependencies. [#50509]
+
+## [0.3.0] - 2026-08-03
+### Added
+- Add a build-time export-contract check that fails the build when a polyfilled package imports a symbol the shipped version of another polyfilled package does not export — the Jetpack 16.0 blank-dashboard failure mode. [#50676]
+- Add a stamp-textdomains post-build tool and a shared loadI18nCatalogs helper for translating wp-build dashboard JavaScript. strip-unminified-prod now replaces string-bearing unminified bundles with i18n reference stubs instead of deleting them, so string extraction keeps working on production builds. [#50762]
+- Add a wp-rich-text polyfill: replace core's rich-text on WordPress 7.0 and older, where it lacks the private APIs newer dashboard dependencies unlock at load time. Replaced core scripts now keep their footer placement and translations. [#50908]
+
+### Fixed
+- Free a stalled translation-catalog download's concurrency slot so queued downloads still run. [#50950]
+- Throttle translation catalog downloads and stop requesting widget catalogs at boot — they now load on demand via loadBundleI18nCatalog(). [#50904]
+
+## [0.2.5] - 2026-07-27
+### Changed
+- Update package dependencies. [#50751]
+
+## [0.2.4] - 2026-07-22
+### Changed
+- Update dependencies. [#50674]
+
+## [0.2.3] - 2026-07-20
+### Changed
+- Update dependencies. [#50551]
+- Update package dependencies. [#50529]
+
+## [0.2.2] - 2026-07-13
+### Changed
+- Update dependencies. [#49464]
+
 ## [0.2.1] - 2026-07-09
 ### Changed
 - Update package dependencies. [#49272]
@@ -103,6 +137,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Add @wordpress/ui to devDependencies so the boot module bundles it instead of externalizing it as an unregistered wp-ui script handle, which caused a blank page at runtime. [#47727]
 
+[0.4.0]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.2.5...v0.3.0
+[0.2.5]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.2.4...v0.2.5
+[0.2.4]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.2.3...v0.2.4
+[0.2.3]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.2.2...v0.2.3
+[0.2.2]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.1.18...v0.2.0
 [0.1.18]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.1.17...v0.1.18

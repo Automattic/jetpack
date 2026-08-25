@@ -9,8 +9,28 @@
 
 // eslint-disable-next-line import/no-unresolved -- Provided by WordPress at runtime via wp_register_script_module.
 import { store, getElement } from '@wordpress/interactivity';
-// eslint-disable-next-line import/no-unresolved -- Provided by WordPress at runtime via wp_register_script_module.
+/* eslint-disable import/no-unresolved -- wpcom-write/* modules are provided by WordPress at runtime via wp_register_script_module. */
+import {
+	IMAGE_SIZE_SLUGS,
+	IMAGE_ALIGNS,
+	getMediaIdFromImg,
+	setFigureSize,
+	setFigureAlignment,
+	getFigureAlignment,
+	libraryThumbUrl,
+} from 'wpcom-write/image-format';
+import {
+	parsePostId,
+	escapeAttr,
+	rgbToHex,
+	isSafePasteHref,
+	getEmbedUrl,
+	parseMarkdownListShortcut,
+	parseMarkdownQuoteShortcut,
+	describeSaveError,
+} from 'wpcom-write/text-helpers';
 import { createUndoHistory } from 'wpcom-write/undo-history';
+/* eslint-enable import/no-unresolved */
 
 // Translated strings passed from PHP via wp_print_inline_script_tag.
 const i18n = window.wpcomWriteStrings || {};
@@ -18,12 +38,20 @@ const i18n = window.wpcomWriteStrings || {};
 // Tracks the blockquote currently containing the cursor, for citation placeholder lifecycle.
 let activeBlockquote = null;
 
+/*
+ * The pencil on the per-image edit button, which this file builds at runtime
+ * rather than rendering server-side. Every other icon lives in icons.php —
+ * this is the one that can't, so keep the two in sync by hand. It draws with
+ * `currentColor` like the rest, taking the button's color and its states.
+ */
+const EDIT_ICON_SVG =
+	'<svg class="bw-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>';
+
 // Autosave configuration.
 const AUTOSAVE_INTERVAL_MS = 30000; // 30 seconds.
 const AUTOSAVE_MESSAGE_DURATION_MS = 2000;
 const AUTOSAVE_STORAGE_KEY = 'wpcom-write-autosave-draft';
 const ANON_DRAFT_STORAGE_KEY = 'wpcom-write-anon-draft';
-const DISCLAIMER_STORAGE_KEY = 'wpcom-write-disclaimer-dismissed';
 
 /**
  * Whether the editor is running on a logged-out page that opts into the
@@ -44,6 +72,24 @@ const ANON_EDITOR_OPENED_AT = typeof Date !== 'undefined' ? Date.now() : 0;
 
 // Guards `wpcom_write_editor_anon_write_start` to once per session.
 let anonWriteStartTracked = false;
+
+/**
+ * Read the funnel `source` from the current URL, sanitized to [a-z0-9_-]
+ * (lowercased first, mirroring PHP sanitize_key). '' when absent. Kept identical
+ * to the anon open-event reader on the server so the whole anon funnel reports
+ * one consistent source across signup.
+ *
+ * @return {string} Sanitized source, or '' when not present.
+ */
+function getAnonSource() {
+	try {
+		return ( new URLSearchParams( window.location.search ).get( 'source' ) || '' )
+			.toLowerCase()
+			.replace( /[^a-z0-9_-]/g, '' );
+	} catch {
+		return '';
+	}
+}
 
 /**
  * Fire a client-side Tracks event via the `_tkq` queue. Anon callers share the
@@ -113,7 +159,11 @@ function maybeTrackAnonWriteStart( text ) {
 		return;
 	}
 	anonWriteStartTracked = true;
-	recordTracksEvent( 'wpcom_write_editor_anon_write_start' );
+	const anonSource = getAnonSource();
+	recordTracksEvent(
+		'wpcom_write_editor_anon_write_start',
+		anonSource ? { source: anonSource } : {}
+	);
 }
 
 /**
@@ -348,18 +398,6 @@ function formatRelativeDate( dateStr ) {
 	} ).format( new Date( dateStr ) );
 }
 
-/**
- * Check whether raw user input is a bare numeric post ID.
- *
- * @param {string} input - Raw user input from the post picker URL field.
- * @return {number|null} Post ID or null if not a bare numeric string.
- */
-function parsePostId( input ) {
-	const trimmed = input.trim();
-	if ( /^\d+$/.test( trimmed ) ) return parseInt( trimmed, 10 );
-	return null;
-}
-
 // Save/restore the selection so we can insert images after the modal closes.
 let savedRange = null;
 
@@ -516,8 +554,19 @@ function stripRuntimeFigureControls( root ) {
 		wrapper.remove();
 	} );
 	root
-		.querySelectorAll( '.bw-img-delete, .bw-img-caption-btn, .bw-img-edit' )
+		.querySelectorAll(
+			'.bw-img-delete, .bw-img-caption-btn, .bw-img-edit, .bw-image-uploading-status'
+		)
 		.forEach( el => el.remove() );
+	// Drop the in-flight upload treatment (pulsing skeleton class, the inline
+	// aspect-ratio that reserves the placeholder box, and the aria-busy flag)
+	// so a save or undo capture taken mid-upload never bakes the runtime-only
+	// styling or state into stored HTML.
+	root.querySelectorAll( '.bw-image-uploading' ).forEach( fig => {
+		fig.classList.remove( 'bw-image-uploading' );
+		fig.style.removeProperty( 'aspect-ratio' );
+		fig.removeAttribute( 'aria-busy' );
+	} );
 }
 
 /**
@@ -628,33 +677,10 @@ function getContent() {
 	return cachedContent;
 }
 
-// Image size presets we ship. Wide/full layouts and custom widths stay in the
-// block editor (see RSM-3472).
-const IMAGE_SIZE_SLUGS = [ 'thumbnail', 'medium', 'large', 'full' ];
-
-// Image alignment values we ship. All three are made explicit on save —
-// every image gets an `align*` class on the figure and an `align`
-// attribute in the block JSON, including center, so themes can rely on
-// the class to position the figure (many don't center unaligned figures
-// by default).
-const IMAGE_ALIGNS = [ 'left', 'center', 'right' ];
-
 // Cache of media library size lookups keyed by attachment ID.  Populated
 // at upload time from the API response, then again lazily when the user
 // changes the size of a figure loaded from a saved post.
 const mediaSizesCache = new Map();
-
-/**
- * Read the attachment ID embedded in `wp-image-<id>` on an `<img>`.
- *
- * @param {HTMLImageElement} img - The image element.
- * @return {number|null} Numeric attachment ID, or null when the class is absent.
- */
-function getMediaIdFromImg( img ) {
-	if ( ! img ) return null;
-	const match = img.className.match( /(?:^|\s)wp-image-(\d+)(?:\s|$)/ );
-	return match ? parseInt( match[ 1 ], 10 ) : null;
-}
 
 /**
  * Get the registered media-library sizes for an attachment, caching the
@@ -719,17 +745,6 @@ function trackMediaSizeSwap( promise ) {
 }
 
 /**
- * Toggle a size class on a figure, replacing any existing one.
- *
- * @param {Element} fig  - The figure element.
- * @param {string}  slug - A size slug or '' (clear).
- */
-function setFigureSize( fig, slug ) {
-	IMAGE_SIZE_SLUGS.forEach( s => fig.classList.remove( 'size-' + s ) );
-	if ( slug ) fig.classList.add( 'size-' + slug );
-}
-
-/**
  * Infer a size slug for a figure by matching the img's current src against
  * the media library's registered sizes. Used when a figure loaded from
  * outside Write (e.g. block-editor default insert) has no `size-X` class
@@ -754,35 +769,6 @@ async function inferSizeFromImgSrc( fig ) {
 		if ( sizes[ slug ]?.source_url === src ) return slug;
 	}
 	return '';
-}
-
-/**
- * Toggle an alignment class on a figure, replacing any existing one.  Always
- * adds one of alignleft/aligncenter/alignright so the published view centers
- * reliably (themes key off these classes; unaligned figures don't center
- * consistently across themes).
- *
- * @param {Element} fig   - The figure element.
- * @param {string}  align - 'left', 'center', or 'right'.
- */
-function setFigureAlignment( fig, align ) {
-	fig.classList.remove( 'alignleft', 'alignright', 'aligncenter' );
-	if ( align === 'left' ) fig.classList.add( 'alignleft' );
-	else if ( align === 'right' ) fig.classList.add( 'alignright' );
-	else fig.classList.add( 'aligncenter' );
-}
-
-/**
- * Read the current alignment from a figure's class list. Returns 'center'
- * when no align class is set.
- *
- * @param {Element} fig - The figure element.
- * @return {string} 'left', 'center', or 'right'.
- */
-function getFigureAlignment( fig ) {
-	if ( fig.classList.contains( 'alignleft' ) ) return 'left';
-	if ( fig.classList.contains( 'alignright' ) ) return 'right';
-	return 'center';
 }
 
 /**
@@ -1003,30 +989,6 @@ function focusModalInput() {
 		);
 		if ( target ) target.focus();
 	} );
-}
-
-/**
- * Escape a string for safe interpolation into an HTML attribute value.
- *
- * @param {string} str - Raw string value.
- * @return {string} HTML-attribute-safe string.
- */
-function escapeAttr( str ) {
-	return str.replace( /&/g, '&amp;' ).replace( /"/g, '&quot;' );
-}
-
-/**
- * Convert an rgb() color string to hex (#rrggbb). Returns the input
- * unchanged if it is not in rgb() format.
- *
- * @param {string} rgb - A CSS color value, e.g. "rgb(214, 54, 56)".
- * @return {string} Hex color string, e.g. "#d63638".
- */
-function rgbToHex( rgb ) {
-	const m = rgb.match( /^rgb\(\s*(\d+),\s*(\d+),\s*(\d+)\s*\)$/ );
-	if ( ! m ) return rgb;
-	const hex = i => ( '0' + parseInt( m[ i ], 10 ).toString( 16 ) ).slice( -2 );
-	return '#' + hex( 1 ) + hex( 2 ) + hex( 3 );
 }
 
 /**
@@ -1275,23 +1237,75 @@ function sanitizePasteNode( el ) {
 }
 
 /**
- * Whether `href` is safe to preserve on a pasted link. Allows http(s),
- * mailto, tel, and same-document/relative URLs; everything else (notably
- * `javascript:`, `vbscript:`, and `data:`) is rejected so a pasted link
- * can't smuggle script execution past the sanitizer.
+ * Serialize a <ul>/<ol> as core/list block markup, recursing into sublists.
  *
- * @param {string} href - The href value to check.
- * @return {boolean} True when the href is safe to keep.
+ * contentEditable produces two shapes for the same indented item, and both have
+ * to round-trip. Nested, where the sublist sits inside its parent <li>:
+ * `<ul><li>Parent<ul><li>Child</li></ul></li></ul>`. Sibling, where it follows
+ * the <li>: `<ul><li>Parent</li><ul><li>Child</li></ul></ul>`. The sibling shape
+ * is what document.execCommand( 'indent' ) and most pasted HTML produce; it
+ * renders identically, so a serializer that only walks direct-child <li>
+ * elements drops those items with nothing to show the writer.
+ *
+ * Sublists are emitted as nested core/list inner blocks, matching what
+ * `@wordpress/blocks` serialize() produces for the equivalent block tree, so the
+ * block editor reopens the list without an invalid-content warning.
+ *
+ * @param {Element} listEl - A <ul> or <ol> element.
+ * @return {string} Serialized core/list block markup.
  */
-function isSafePasteHref( href ) {
-	if ( ! href ) return false;
-	const trimmed = href.trim();
-	if ( ! trimmed ) return false;
-	// Relative / same-document / query / fragment URLs have no scheme.
-	if ( /^[#/?]/.test( trimmed ) || trimmed.startsWith( './' ) || trimmed.startsWith( '../' ) ) {
-		return true;
-	}
-	return /^(https?:|mailto:|tel:)/i.test( trimmed );
+function serializeList( listEl ) {
+	// Group children into items, attaching each sibling-shaped sublist to the
+	// <li> it follows. A sublist with no <li> before it has no owner, and
+	// core/list cannot express an inner list without a parent core/list-item,
+	// so its items are pulled up to this level rather than inventing an empty
+	// bullet the writer never typed: one level of indent is lost, no content is.
+	const items = [];
+	const collect = el => {
+		for ( const child of el.children ) {
+			const childTag = child.tagName.toLowerCase();
+			if ( childTag === 'li' ) {
+				items.push( { li: child, sublists: [] } );
+			} else if ( childTag === 'ul' || childTag === 'ol' ) {
+				if ( items.length ) items[ items.length - 1 ].sublists.push( child );
+				else collect( child );
+			}
+		}
+	};
+	collect( listEl );
+
+	const listItems = items.length
+		? items
+				.map( ( { li, sublists } ) => {
+					// Clone so lifting nested lists out doesn't disturb the editor DOM.
+					const clone = li.cloneNode( true );
+					const nested = [];
+					for ( const child of Array.from( clone.children ) ) {
+						const childTag = child.tagName.toLowerCase();
+						if ( childTag === 'ul' || childTag === 'ol' ) {
+							nested.push( child );
+							child.remove();
+						}
+					}
+					// Strip the lone <br> placeholder contentEditable leaves in an
+					// otherwise empty item, matching what the paragraph, heading
+					// and quote branches below already do.  Needed here because
+					// indenting an empty item leaves the <li> holding just a <br>
+					// plus its sublist, which would otherwise serialize a stray
+					// line break ahead of the nested list.
+					const text = clone.innerHTML.trim().replace( /^<br\s*\/?>$/, '' );
+					// Nested sublists sit inside the <li> so they come first in
+					// document order; sibling ones follow the <li> entirely.
+					const inner = [ ...nested, ...sublists ].map( serializeList ).join( '' );
+					return `<!-- wp:list-item -->\n<li>${ text }${ inner }</li>\n<!-- /wp:list-item -->`;
+				} )
+				.join( '\n\n' )
+		: '<!-- wp:list-item -->\n<li></li>\n<!-- /wp:list-item -->';
+
+	const ordered = listEl.tagName.toLowerCase() === 'ol';
+	const listTag = ordered ? 'ol' : 'ul';
+	const attrs = ordered ? ' {"ordered":true}' : '';
+	return `<!-- wp:list${ attrs } -->\n<${ listTag } class="wp-block-list">${ listItems }</${ listTag }>\n<!-- /wp:list -->`;
 }
 
 /**
@@ -1499,21 +1513,7 @@ function convertToBlocks( html ) {
 				`<!-- wp:quote${ jsonAttr } -->\n<blockquote class="wp-block-quote"${ quoteAlignAttr }>${ quoteInner }${ citeHtml }</blockquote>\n<!-- /wp:quote -->`
 			);
 		} else if ( tag === 'ul' || tag === 'ol' ) {
-			// Wrap each <li> in wp:list-item block comments.
-			const liNodes = Array.from( node.querySelectorAll( ':scope > li' ) );
-			const listItems = liNodes.length
-				? liNodes
-						.map(
-							li =>
-								`<!-- wp:list-item -->\n<li>${ li.innerHTML.trim() }</li>\n<!-- /wp:list-item -->`
-						)
-						.join( '\n' )
-				: '<!-- wp:list-item -->\n<li></li>\n<!-- /wp:list-item -->';
-			const listTag = tag === 'ol' ? 'ol' : 'ul';
-			const attrs = tag === 'ol' ? ' {"ordered":true}' : '';
-			blocks.push(
-				`<!-- wp:list${ attrs } -->\n<${ listTag } class="wp-block-list">${ listItems }</${ listTag }>\n<!-- /wp:list -->`
-			);
+			blocks.push( serializeList( node ) );
 		} else if ( tag === 'hr' ) {
 			blocks.push(
 				'<!-- wp:separator -->\n<hr class="wp-block-separator has-alpha-channel-opacity"/>\n<!-- /wp:separator -->'
@@ -1618,26 +1618,6 @@ function clearSlashText() {
 			parent.innerHTML = '<br>';
 		}
 	}
-}
-
-/**
- * Convert a YouTube/Vimeo URL to an embeddable URL.
- *
- * @param {string} url - The video URL to convert.
- * @return {string|null} The embeddable URL, or null if not recognized.
- */
-function getEmbedUrl( url ) {
-	// YouTube
-	let match = url.match(
-		/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/
-	);
-	if ( match ) return 'https://www.youtube.com/embed/' + match[ 1 ];
-
-	// Vimeo
-	match = url.match( /vimeo\.com\/(\d+)/ );
-	if ( match ) return 'https://player.vimeo.com/video/' + match[ 1 ];
-
-	return null;
 }
 
 /**
@@ -2068,7 +2048,7 @@ function addDeleteButtons() {
 		// images (RSM-3980).
 		const editBtn = document.createElement( 'button' );
 		editBtn.className = 'bw-img-edit';
-		editBtn.innerHTML = '<span class="dashicons dashicons-edit" aria-hidden="true"></span>';
+		editBtn.innerHTML = EDIT_ICON_SVG;
 		editBtn.contentEditable = 'false';
 		editBtn.setAttribute( 'aria-label', i18n.editImage || 'Edit image' );
 		editBtn.setAttribute( 'title', i18n.editImage || 'Edit image' );
@@ -2333,19 +2313,6 @@ let libraryFetchToken = 0;
 const LIBRARY_PER_PAGE = 24;
 
 /**
- * Pick the smallest reasonable thumbnail URL for the grid. Falls back to the
- * full-size source_url for images without registered sizes (e.g. uploads that
- * pre-date a media setting change).
- *
- * @param {object} media - Media item from /wp/v2/media.
- * @return {string} The thumbnail URL to render.
- */
-function libraryThumbUrl( media ) {
-	const sizes = media.media_details?.sizes;
-	return sizes?.thumbnail?.source_url || sizes?.medium?.source_url || media.source_url || '';
-}
-
-/**
  * Render the library strip into #bw-library-grid. Always replaces — the strip
  * holds the most recent items (or current search results) only.  Thumbnails
  * are <button>s; the container has aria-label, so individual items use plain
@@ -2523,23 +2490,6 @@ function insertNewList( listTag ) {
 }
 
 /**
- * Detect a markdown list shortcut in a paragraph's text.
- *
- * Returns 'ul' for `-`, `*`, or `+`, 'ol' for `1.`, otherwise null. Captured
- * before the trigger space is inserted, so the marker should be the only
- * content — trailing whitespace is allowed to tolerate a stray <br>-only text
- * node that contentEditable can leave in an otherwise-empty block.
- *
- * @param {string} text - The paragraph's text content.
- * @return {'ul'|'ol'|null} The list tag to create, or null.
- */
-function parseMarkdownListShortcut( text ) {
-	if ( /^[-*+]\s*$/.test( text ) ) return 'ul';
-	if ( /^1\.\s*$/.test( text ) ) return 'ol';
-	return null;
-}
-
-/**
  * Replace a paragraph with a fresh list containing one empty item, and move the cursor into it.
  *
  * @param {HTMLElement} paragraph - The paragraph to convert.
@@ -2556,21 +2506,6 @@ function applyMarkdownListShortcut( paragraph, listTag ) {
 	state.formatUList = listTag === 'ul';
 	state.formatOList = listTag === 'ol';
 	state.insideList = true;
-}
-
-/**
- * Detect a markdown blockquote shortcut in a paragraph's text.
- *
- * Returns true for a lone `>` marker. Captured before the trigger space is
- * inserted, so the marker should be the only content — trailing whitespace is
- * allowed to tolerate a stray <br>-only text node that contentEditable can
- * leave in an otherwise-empty block, matching parseMarkdownListShortcut.
- *
- * @param {string} text - The paragraph's text content.
- * @return {boolean} Whether the text is a blockquote shortcut.
- */
-function parseMarkdownQuoteShortcut( text ) {
-	return /^>\s*$/.test( text );
 }
 
 /**
@@ -3354,14 +3289,54 @@ function uploadAndInsertImage( file ) {
 	figure.className = 'bw-image-figure bw-image-uploading size-large';
 	const img = document.createElement( 'img' );
 	const localUrl = URL.createObjectURL( file );
+	// Reserve the image's box up-front so the pulsing placeholder is the right
+	// size before (or even without) the local preview decoding, and so the
+	// figure doesn't reflow when the uploaded URL swaps in. Start from a 3:2
+	// fallback, then refine to the real proportions once the preview reports
+	// its natural dimensions. Some formats (e.g. HEIC) never decode in-browser,
+	// in which case the fallback box stands in and the user still sees a
+	// correctly-sized, pulsing placeholder instead of nothing.
+	figure.style.aspectRatio = '3 / 2';
+	img.addEventListener(
+		'load',
+		() => {
+			// Guard on the uploading class: if the upload finished before the
+			// local preview decoded, the swap below already reassigned img.src
+			// and cleared the reserved box. Without this check the load event
+			// for the swapped-in URL would re-add an inline aspect-ratio to a
+			// completed figure, which stripRuntimeFigureControls (scoped to
+			// .bw-image-uploading) would then miss and leak into saved HTML.
+			if (
+				figure.classList.contains( 'bw-image-uploading' ) &&
+				img.naturalWidth &&
+				img.naturalHeight
+			) {
+				figure.style.aspectRatio = img.naturalWidth + ' / ' + img.naturalHeight;
+			}
+		},
+		{ once: true }
+	);
 	img.src = localUrl;
 	img.alt = '';
 	figure.appendChild( img );
+
+	// Announce the in-flight upload to assistive tech: the pulsing box is a
+	// purely visual cue, so pair it with aria-busy and a visually-hidden live
+	// region. Both are removed on swap (and stripped from any save/undo capture
+	// taken mid-upload) so they never reach stored HTML.
+	figure.setAttribute( 'aria-busy', 'true' );
+	const srStatus = document.createElement( 'span' );
+	srStatus.className = 'bw-visually-hidden bw-image-uploading-status';
+	srStatus.setAttribute( 'role', 'status' );
+	figure.appendChild( srStatus );
 
 	const p = insertMediaBlock( figure );
 	if ( p ) {
 		placeCursorAt( p );
 	}
+	// Set the text after the live region is in the DOM so assistive tech
+	// reliably picks up the change as an announcement.
+	srStatus.textContent = i18n.uploadingImage || 'Uploading image…';
 	// Deliberately do NOT push undo history here: the placeholder figure's
 	// img.src is a blob: URL that gets revoked when the upload completes.
 	// Capturing the placeholder in an undo snapshot would let Cmd+Z restore
@@ -3384,6 +3359,13 @@ function uploadAndInsertImage( file ) {
 			img.alt = media.alt_text || '';
 			img.className = 'wp-image-' + media.id;
 			figure.className = 'bw-image-figure size-large';
+			// Release the reserved placeholder box — the swapped-in image now
+			// dictates the figure height. It shares the preview's aspect ratio,
+			// so clearing this produces no visible reflow.
+			figure.style.aspectRatio = '';
+			// Tear down the in-flight a11y affordances now the upload is done.
+			figure.removeAttribute( 'aria-busy' );
+			srStatus.remove();
 			mediaSizesCache.set( media.id, media.media_details?.sizes || null );
 			// The figure was decorated by addDeleteButtons() before upload,
 			// so it's missing the Size button (that branch is gated on
@@ -3499,6 +3481,12 @@ const { state } = store( 'wpcom-write', {
 		},
 		get displayStatus() {
 			return state.message || state.headerLabel;
+		},
+		get hasMessage() {
+			// Drives the has-topbar-message class on the topbar (data-wp-class) so the
+			// mobile layout can hide the idle title mirror and let a transient message
+			// take over the bar. See style.css.
+			return !! ( state.message && state.message.trim() );
 		},
 		get isClassicWarning() {
 			return state.unsupportedWarning === 'classic-editor';
@@ -5874,6 +5862,17 @@ const { state } = store( 'wpcom-write', {
 
 		async publish() {
 			if ( isAnon() ) {
+				// Nothing to hand off to signup yet — block the empty publish the
+				// same way the authenticated path does in performSave(), so an anon
+				// visitor can't wall themselves into signup with a blank draft.
+				if ( ! hasWritableContent() ) {
+					state.message = i18n.pleaseWriteSomething || 'Please write something';
+					setTimeout( () => {
+						state.message = '';
+					}, 2500 );
+					return;
+				}
+
 				// The publish-intent event — the moment an anon visitor hits the
 				// signup wall. Captured before navigating away so it isn't lost to
 				// the handoff. word_count / draft_size_bytes size the draft; the
@@ -5898,16 +5897,24 @@ const { state } = store( 'wpcom-write', {
 				// GET the browser cancels on unload — so a synchronous navigate
 				// would drop this event. The wait is bounded (and skipped entirely
 				// when Tracks isn't loaded) so the handoff is never stalled.
+				const anonSource = getAnonSource();
 				await recordTracksEventBeforeUnload( 'wpcom_write_editor_anon_publish_click', {
 					word_count: words,
 					time_to_publish_ms: Date.now() - ANON_EDITOR_OPENED_AT,
 					draft_size_bytes:
 						typeof Blob !== 'undefined' ? new Blob( [ draftContent ] ).size : draftContent.length,
+					...( anonSource ? { source: anonSource } : {} ),
 				} );
 
 				// Anon visitors hand off to the signup flow, which reads the draft
-				// from localStorage and publishes after signup completes.
-				window.location.assign( 'https://wordpress.com/setup/write-on' );
+				// from localStorage and publishes after signup completes. Forward
+				// `source` so the funnel stays attributable across the signup hop
+				// (the flow itself must read it for this to reach its Tracks events).
+				window.location.assign(
+					anonSource
+						? `https://wordpress.com/setup/write-on?source=${ encodeURIComponent( anonSource ) }`
+						: 'https://wordpress.com/setup/write-on'
+				);
 				return;
 			}
 			await savePost( 'publish' );
@@ -6021,11 +6028,6 @@ const { state } = store( 'wpcom-write', {
 			state.showRecoveryBanner = false;
 		},
 
-		dismissDisclaimer() {
-			localStorage.setItem( DISCLAIMER_STORAGE_KEY, '1' );
-			state.showDisclaimer = false;
-		},
-
 		// --- Unsupported content warning ---
 		goBack() {
 			const sameOrigin =
@@ -6104,30 +6106,14 @@ function showPostPickerModal() {
 
 // Report a save that has neither resolved nor rejected within this window.
 const SAVE_STALL_THRESHOLD_MS = 30000;
-// Cap free-text error strings so a pathological message can't bloat the payload.
-const MAX_ERROR_MESSAGE_LENGTH = 200;
-
-/**
- * Normalize an unknown thrown value into a small, Tracks-friendly descriptor.
- *
- * Handles the shapes `wp.apiFetch` actually rejects with: WP REST errors
- * ( `{ code, message, data: { status } }` ), native/AbortError ( `{ name,
- * message }` ), and non-object throws as a last resort.
- *
- * @param {*} err - The thrown value.
- * @return {{ code: string, status: (number|null), message: string }} Descriptor.
- */
-function describeSaveError( err ) {
-	if ( ! err || typeof err !== 'object' ) {
-		const raw = err === undefined ? '' : String( err );
-		return { code: 'unknown', status: null, message: raw.slice( 0, MAX_ERROR_MESSAGE_LENGTH ) };
-	}
-	// Prefer the specific REST `code`; fall back to `name` ('AbortError', 'TypeError', …).
-	const code = err.code || err.name || 'unknown';
-	const status = err.data && typeof err.data.status === 'number' ? err.data.status : null;
-	const message = String( err.message || '' ).slice( 0, MAX_ERROR_MESSAGE_LENGTH );
-	return { code: String( code ), status, message };
-}
+// Hard timeout for a save request. If it is still outstanding this long after
+// the stall threshold, abort it so the UI recovers — Publish/Save re-enable and
+// an error is shown — instead of staying greyed out forever (RSM-4323). Set
+// beyond the stall threshold so a genuinely slow-but-succeeding save still
+// completes, and so telemetry ordering stays readable: `save_stalled` fires
+// first as the diagnostic, then the abort surfaces as a recoverable
+// `save_failed` with error_code 'AbortError'.
+const SAVE_REQUEST_TIMEOUT_MS = SAVE_STALL_THRESHOLD_MS + 15000;
 
 /**
  * Fire the `wpcom_write_editor_save_failed` Tracks event.
@@ -6188,12 +6174,35 @@ function recordSaveStalled( { postStatus, isAutosave, isUpdate, isEditing, phase
 }
 
 /**
+ * Run window.wp.apiFetch with a hard timeout.
+ *
+ * If the request neither resolves nor rejects within `timeoutMs`, abort it so
+ * the caller's catch runs and the UI recovers, rather than hanging forever on a
+ * connection held open by a proxy, VPN, or ad blocker — the stall failure mode
+ * seen in RSM-4323. apiFetch passes `signal` through to window.fetch, so the
+ * aborted request rejects with an AbortError, which describeSaveError reports as
+ * error_code 'AbortError'.
+ *
+ * @param {object} options   - apiFetch options (path, method, data, …).
+ * @param {number} timeoutMs - Abort the request after this many milliseconds.
+ * @return {Promise<*>} Resolves with the apiFetch result, or rejects (including on abort).
+ */
+function apiFetchWithTimeout( options, timeoutMs ) {
+	const controller = new AbortController();
+	const timer = setTimeout( () => controller.abort(), timeoutMs );
+	return window.wp
+		.apiFetch( { ...options, signal: controller.signal } )
+		.finally( () => clearTimeout( timer ) );
+}
+
+/**
  * Save or publish the current post via the REST API.
  *
  * Thin wrapper around performSave() that reports any throw during content
  * preparation or tag resolution — code that runs before the save request's own
- * try/catch and today surfaces as a silent unhandled rejection. It re-throws to
- * preserve current behavior; this is an observability-only change (RSM-4323).
+ * try/catch and today surfaces as a silent unhandled rejection. On such a throw
+ * it now also recovers the UI (resets the saving flag, surfaces a retryable
+ * error) instead of leaving Publish/Save greyed out (RSM-4323).
  *
  * @param {string}  postStatus - The desired post status ('publish' or 'draft').
  * @param {boolean} isAutosave - Whether this is a periodic autosave (quieter UX).
@@ -6207,8 +6216,7 @@ async function savePost( postStatus, isAutosave = false ) {
 		await performSave( postStatus, isAutosave, saveCtx );
 	} catch ( err ) {
 		// Save-request failures are handled inside performSave; anything caught
-		// here threw during content prep / tag resolution. Report, then re-throw
-		// so behavior is unchanged.
+		// here threw during content prep / tag resolution.
 		clearTimeout( saveCtx.stallWatchdog );
 		recordSaveFailed( err, {
 			postStatus,
@@ -6217,7 +6225,21 @@ async function savePost( postStatus, isAutosave = false ) {
 			isEditing: state.editPostId > 0,
 			phase: 'prepare',
 		} );
-		throw err;
+		// Recover the UI. performSave sets state.isSaving = true before any of
+		// the prep work that can throw, so a prep-stage throw previously
+		// surfaced as a silent unhandled rejection with the saving flag stuck
+		// true — Publish/Save greyed out with no message (RSM-4323). Reset it,
+		// and for user-initiated saves surface a retryable error.
+		state.isSaving = false;
+		if ( ! isAutosave ) {
+			state.message = ( i18n.error || 'Error: %s' ).replace(
+				'%s',
+				i18n.couldNotSave || 'Could not save. Please try again.'
+			);
+			setTimeout( () => {
+				state.message = '';
+			}, 4000 );
+		}
 	}
 }
 
@@ -6376,9 +6398,13 @@ async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 	if ( tagNames.length ) {
 		const newTagIds = await Promise.all(
 			tagNames.map( name =>
-				window.wp
-					.apiFetch( { path: '/wp/v2/tags', method: 'POST', data: { name } } )
+				apiFetchWithTimeout(
+					{ path: '/wp/v2/tags', method: 'POST', data: { name } },
+					SAVE_REQUEST_TIMEOUT_MS
+				)
 					.then( tag => tag.id )
+					// A duplicate returns term_id; a hung/aborted or failed tag
+					// request drops just that tag (null) so the save proceeds.
 					.catch( err => err?.data?.term_id ?? null )
 			)
 		).then( ids => ids.filter( Boolean ) );
@@ -6392,19 +6418,22 @@ async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 	stallPhase = 'save_request';
 
 	try {
-		const post = await window.wp.apiFetch( {
-			path,
-			method: 'POST',
-			data: {
-				title: state.title,
-				content: blockMarkup,
-				status: postStatus,
-				categories: selectedCats,
-				...tagData,
-				featured_media: state.featuredMediaId || 0,
-				wpcom_write_editor_used: true,
+		const post = await apiFetchWithTimeout(
+			{
+				path,
+				method: 'POST',
+				data: {
+					title: state.title,
+					content: blockMarkup,
+					status: postStatus,
+					categories: selectedCats,
+					...tagData,
+					featured_media: state.featuredMediaId || 0,
+					wpcom_write_editor_used: true,
+				},
 			},
-		} );
+			SAVE_REQUEST_TIMEOUT_MS
+		);
 		clearTimeout( stallWatchdog );
 
 		// Store the post ID so subsequent saves update the same post.
@@ -6488,7 +6517,17 @@ async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 		recordSaveFailed( err, { postStatus, isAutosave, isUpdate, isEditing, phase: 'save_request' } );
 		state.isSaving = false;
 		if ( ! isAutosave ) {
-			state.message = ( i18n.error || 'Error: %s' ).replace( '%s', err.message );
+			const { code, message } = describeSaveError( err );
+			// A timed-out/aborted request or a dropped connection carries no
+			// useful server message (the dominant failure in RSM-4323 was a
+			// network-layer reject with no HTTP status). Show a plain retry
+			// prompt instead of an empty or opaque "Error: ". `message` is
+			// already capped at MAX_ERROR_MESSAGE_LENGTH by describeSaveError.
+			const detail =
+				code === 'AbortError' || ! message
+					? i18n.saveTimedOut || 'Saving timed out. Please check your connection and try again.'
+					: message;
+			state.message = ( i18n.error || 'Error: %s' ).replace( '%s', detail );
 			setTimeout( () => {
 				state.message = '';
 			}, 4000 );
@@ -6531,17 +6570,6 @@ const autosaveReady = setInterval( () => {
 	autosaveTimer = setInterval( () => {
 		actions.autosave();
 	}, AUTOSAVE_INTERVAL_MS );
-
-	// Show the beta disclaimer unless previously dismissed. Anon visitors
-	// skip this entirely — not just because the banner is irrelevant, but
-	// because the layout's sibling selectors (`.bw-disclaimer-banner:not(
-	// [hidden]) ~ .bw-toolbar`) push the toolbar down based on the `hidden`
-	// attribute, which the Interactivity API only sets when the state is
-	// false. Leaving state true would shift the toolbar down by 44px even
-	// though our anon CSS hides the banner itself.
-	if ( ! isAnon() && ! localStorage.getItem( DISCLAIMER_STORAGE_KEY ) ) {
-		state.showDisclaimer = true;
-	}
 
 	// Check for a recoverable autosaved draft (only for new posts).
 	if ( isAnon() ) {

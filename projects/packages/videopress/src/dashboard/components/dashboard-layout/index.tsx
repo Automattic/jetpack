@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import DashboardTabs, { TAB_PATHS, type DashboardTab } from '../dashboard-tabs';
+import OnboardingModal from '../onboarding-modal';
 import './style.scss';
 import type { ReactNode } from 'react';
 
@@ -17,7 +18,7 @@ type Props = {
 	hideFooter?: boolean;
 };
 
-const TAB_VALUES: DashboardTab[] = [ 'overview', 'library', 'settings' ];
+const TAB_VALUES: DashboardTab[] = [ 'library', 'stats', 'settings' ];
 
 /**
  * Shared chrome for every wp-build VideoPress dashboard tab. Renders
@@ -51,7 +52,10 @@ export default function DashboardLayout( { activeTab, children, actions, hideFoo
 	return (
 		<AdminPage
 			title={ 'VideoPress' /* product name; not translated */ }
-			subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
+			subTitle={ __(
+				'Host, manage, customize, and track your videos — all in one place.',
+				'jetpack-videopress-pkg'
+			) }
 			actions={ actions }
 			showFooter={ ! hideFooter }
 		>
@@ -63,6 +67,11 @@ export default function DashboardLayout( { activeTab, children, actions, hideFoo
 					</Tabs.Panel>
 				) ) }
 			</Tabs.Root>
+			{ /*
+			 * Rendered from the shared chrome rather than a route so the
+			 * first-run welcome greets the user on whichever tab they land on.
+			 */ }
+			<OnboardingModal />
 		</AdminPage>
 	);
 }

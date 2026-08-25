@@ -34,12 +34,29 @@ if ( ! class_exists( 'Jetpack_SEO_Utils' ) ) {
 
 		/**
 		 * Stub for the host plugin's front-page meta description getter, read by
-		 * Initializer::get_settings_data().
+		 * Dashboard_Data::get_settings_data().
 		 *
 		 * @return string
 		 */
 		public static function get_front_page_meta_description() {
 			return '';
+		}
+
+		/**
+		 * Whether the site has a grandfathered legacy front-page description, read by
+		 * Initializer::get_settings_data() to keep that field editable when gated.
+		 *
+		 * @var bool
+		 */
+		public static $has_legacy_front_page_meta = false;
+
+		/**
+		 * Stub for the host plugin's legacy front-page-meta check.
+		 *
+		 * @return bool
+		 */
+		public static function has_legacy_front_page_meta() {
+			return self::$has_legacy_front_page_meta;
 		}
 	}
 }

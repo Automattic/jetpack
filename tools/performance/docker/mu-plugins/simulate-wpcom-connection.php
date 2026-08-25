@@ -70,6 +70,23 @@ class Jetpack_WPCom_Connection_Simulator {
 	public function __construct() {
 		$this->latency_ms = getenv( 'WPCOM_SIMULATED_LATENCY_MS' ) ? (int) getenv( 'WPCOM_SIMULATED_LATENCY_MS' ) : 200;
 
+		// Force Jetpack offline mode OFF. The fixture's site URL (http://localhost:<port>)
+		// contains no dot, so Status::is_local_site() treats it as a local site and Jetpack
+		// enters offline mode. Offline mode blocks My Jetpack from initializing at all
+		// (Initializer::should_initialize()), yet this fixture explicitly simulates a
+		// production, connected site. This is install-wide: flipping it shifts what EVERY
+		// scenario measures (Jetpack runs more code paths when not offline) — see the
+		// offline-mode attribution note in README.md.
+		//
+		// Two filters are needed because Status::is_offline_mode() falls back to the stored
+		// option when the filtered value is false: `$offline = (bool) apply_filters( ... );
+		// if ( ! $offline ) { $offline = (bool) get_option( 'jetpack_offline_mode' ); }`. The
+		// first filter overrides the is_local_site() result; pre_option_* forces the option
+		// read to 0 so a dirty/reused fixture DB with jetpack_offline_mode=1 can't silently
+		// turn offline mode back on and break every scenario's boot.
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		add_filter( 'pre_option_jetpack_offline_mode', '__return_zero' );
+
 		// Set up fake connection on init (after Jetpack loads).
 		add_action( 'plugins_loaded', array( $this, 'setup_fake_connection' ), 1 );
 

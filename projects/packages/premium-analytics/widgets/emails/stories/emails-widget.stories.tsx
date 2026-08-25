@@ -1,23 +1,28 @@
+/** Email widget stories and mocked report states. */
 /**
- * The close-up stories exercise the presentational `EmailsLeaderboard` with
- * fixtures so each state (populated, loading, empty, error) renders without a
- * backend. `WidgetDashboardWithWidget` mounts the real dashboard with the
- * data-connected widget; `registerReportMocks` supplies a mock
- * `stats/emails/summary` response so it renders populated in product context.
+ * External dependencies
  */
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
 /**
  * Internal dependencies
  */
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
-import { withChartTheme } from '../../../packages/widgets-toolkit/src/stories/with-chart-theme';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import EmailsRender, { EmailsLeaderboard, type EmailRow } from '../render';
+import { withStoryRouter } from '../../stories/with-story-router';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import EmailsRender, { EmailsList, type EmailRow } from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { Meta, StoryObj, Decorator } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentType } from 'react';
@@ -26,58 +31,69 @@ registerReportMocks();
 
 const EMAILS_RENDER_MODULE = 'storybook/emails';
 
-const meta: Meta< typeof EmailsLeaderboard > = {
+const meta: Meta< typeof EmailsList > = {
 	title: 'Packages/Premium Analytics/Widgets/Emails',
-	component: EmailsLeaderboard,
+	component: EmailsList,
 	tags: [ 'autodocs' ],
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Emails" widget. Lists the most recently sent emails with their open or click rate, rendered as a leaderboard. The displayed rate is the `metric` attribute (`relevance: \'high\'`), exposed as a control by the widget host. The close-up stories drive the presentational `EmailsLeaderboard` with fixtures; `WidgetDashboardWithWidget` mounts the real dashboard with the data-connected widget (fed by a mocked `stats/emails/summary` response).',
+					'Lists the latest emails with their open or click rate. Close-up stories use fixtures; the dashboard story uses a mocked report.',
 			},
 		},
 	},
-	decorators: [ withChartTheme ],
 };
 
 export default meta;
 
-type Story = StoryObj< typeof EmailsLeaderboard >;
+type Story = StoryObj< typeof EmailsList >;
 
 const mockRows: EmailRow[] = [
 	{
 		id: 1,
+		postId: 1,
+		link: 'https://example.com/stand-out/',
 		label: '4 Ways to Make Your Website Stand Out',
 		opensRate: 38.1,
 		clicksRate: 3.81,
 	},
 	{
 		id: 2,
+		postId: 2,
+		link: 'https://example.com/develop-locally/',
 		label: 'Develop Locally on Linux with WordPress.com',
 		opensRate: 41.2,
 		clicksRate: 5.98,
 	},
 	{
 		id: 3,
+		postId: 3,
+		link: 'https://example.com/new-themes/',
 		label: '10 Brand-New WordPress.com Themes for 2026',
 		opensRate: 35.7,
 		clicksRate: 7.12,
 	},
 	{
 		id: 4,
+		postId: 4,
+		link: 'https://example.com/languages/',
 		label: 'WordPress.com Is Now Available in More Languages',
 		opensRate: 52.4,
 		clicksRate: 8.93,
 	},
 	{
 		id: 5,
+		postId: 5,
+		link: 'https://example.com/wordcamp-europe/',
 		label: 'WordCamp Europe 2026: What to Expect',
 		opensRate: 47.9,
 		clicksRate: 10.25,
 	},
 	{
 		id: 6,
+		postId: 6,
+		link: 'https://example.com/collaborate/',
 		label: 'Click, Comment, Done: A Better Way to Collaborate',
 		opensRate: 44.3,
 		clicksRate: 10.38,
@@ -87,6 +103,8 @@ const mockRows: EmailRow[] = [
 const mockLongLabelRows: EmailRow[] = [
 	{
 		id: 1,
+		postId: 1,
+		link: 'https://example.com/long-subject/',
 		label:
 			'An exhaustively long, keyword-stuffed subject line that almost certainly needs to be truncated before it overflows the row',
 		opensRate: 22.5,
@@ -94,20 +112,18 @@ const mockLongLabelRows: EmailRow[] = [
 	},
 	{
 		id: 2,
+		postId: 2,
+		link: 'https://example.com/monthly-digest/',
 		label: 'Your monthly digest: billing, new features, and what is coming next',
 		opensRate: 33.8,
 		clicksRate: 6.7,
 	},
 ];
 
-/**
- * Close-up canvas so the widget fills a real body area outside the dashboard
- * grid — the loading overlay and empty state need a sized container to render in.
- */
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '320px' } }>
+const withEmailsWidgetRoot: Decorator = Story => (
+	<WidgetRoot attributes={ { reportParams: getDefaultQueryParams() } }>
 		<Story />
-	</div>
+	</WidgetRoot>
 );
 
 /**
@@ -117,7 +133,7 @@ export const Default: Story = {
 	args: {
 		rows: mockRows,
 	},
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withEmailsWidgetRoot, withStoryRouter ],
 };
 
 /**
@@ -128,38 +144,54 @@ export const ByClickRate: Story = {
 		rows: mockRows,
 		metric: 'clicks',
 	},
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withEmailsWidgetRoot, withStoryRouter ],
 };
 
+function renderEmails() {
+	return <EmailsRender attributes={ { metric: 'opens' } } />;
+}
+
 /**
- * Loading state — the loading overlay renders while data is fetched.
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
  */
 export const Loading: Story = {
-	args: {
-		rows: [],
-		isLoading: true,
+	render: renderEmails,
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		setReportMockState( 'stats/emails/summary', 'loading' );
+		return () => setReportMockState( 'stats/emails/summary', null );
 	},
-	decorators: [ withWidgetCanvas ],
 };
 
 /**
- * Empty state — no emails have been sent yet.
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: renderEmails,
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		setReportMockState( 'stats/emails/summary', 'error' );
+		return () => setReportMockState( 'stats/emails/summary', null );
+	},
+};
+
+/**
+ * Resolved with no rows: the widget shows its empty state ("Your latest emails
+ * will appear here once you send a newsletter.").
  */
 export const Empty: Story = {
-	args: {
-		rows: [],
+	render: renderEmails,
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		setReportMockState( 'stats/emails/summary', 'empty' );
+		return () => setReportMockState( 'stats/emails/summary', null );
 	},
-	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * Error state — the report could not be loaded.
- */
-export const ErrorState: Story = {
-	args: {
-		isError: true,
-	},
-	decorators: [ withWidgetCanvas ],
 };
 
 /**
@@ -169,16 +201,12 @@ export const LongLabels: Story = {
 	args: {
 		rows: mockLongLabelRows,
 	},
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withEmailsWidgetRoot, withStoryRouter ],
 };
 
 /**
  * Creates a decorator that wraps the story in a fixed-size container so the
  * widget's responsiveness can be inspected at a given width.
- *
- * @param width    - The container width (any CSS length).
- * @param [height] - The container height; defaults to `auto`.
- * @return A Storybook decorator.
  */
 const createSizeDecorator = ( width: string, height = 'auto' ): Decorator => {
 	return Story => (
@@ -204,7 +232,7 @@ export const SizeMedium: Story = {
 	args: {
 		rows: mockRows,
 	},
-	decorators: [ createSizeDecorator( '448px' ) ],
+	decorators: [ createSizeDecorator( '448px' ), withEmailsWidgetRoot, withStoryRouter ],
 };
 
 /**
@@ -214,29 +242,17 @@ export const SizeLarge: Story = {
 	args: {
 		rows: mockRows,
 	},
-	decorators: [ createSizeDecorator( '576px' ) ],
+	decorators: [ createSizeDecorator( '576px' ), withEmailsWidgetRoot, withStoryRouter ],
 };
 
-/**
- * Renders the data-connected widget through the shared dashboard harness, so it
- * appears exactly as it does in product (full-bleed framing, sizing, edit mode).
- *
- * @param props - The dashboard story controls.
- * @return The widget mounted inside the real `WidgetDashboard`.
- */
 function EmailsDashboardStory( props: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...props }
-			widgetType={ {
-				name: widgetDefinition.name,
-				title: widgetDefinition.title,
-				icon: widgetDefinition.icon,
-				presentation: 'framed',
-			} }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ EMAILS_RENDER_MODULE }
 			renderComponent={ EmailsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 6, metric: 'opens' } }
+			attributes={ { metric: 'opens' } }
 		/>
 	);
 }

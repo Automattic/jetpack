@@ -84,6 +84,7 @@ export const chartDecorator: Decorator = ( Story, context ) => {
 				) }
 				<div
 					ref={ containerRef }
+					data-testid="chart-story-container"
 					style={ {
 						resize: args.resize || 'both',
 						overflow: 'auto',
@@ -163,7 +164,8 @@ const StoryChartProvider = ( {
 			*/ }
 			<div
 				style={ {
-					fontFamily: 'var(--wpds-typography-font-family-body, sans-serif)',
+					fontFamily:
+						'var(--wpds-typography-font-family-body, -apple-system, system-ui, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif)',
 				} }
 			>
 				<GlobalChartsProvider key={ providerKey } theme={ theme }>

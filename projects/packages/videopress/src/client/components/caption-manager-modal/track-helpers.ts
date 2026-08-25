@@ -53,7 +53,6 @@ export type ManualTrack = {
 };
 
 export type UploadFormMode = 'add' | 'replace';
-export type NoticeState = { status: 'success' | 'error'; message: string } | null;
 export type CaptionCueBlock = ReturnType< typeof createBlock >;
 
 type TrackApiError = {

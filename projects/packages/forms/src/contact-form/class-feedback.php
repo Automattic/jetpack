@@ -53,6 +53,19 @@ class Feedback {
 	public const IS_TEST_META_KEY = '_feedback_is_test';
 
 	/**
+	 * Name of the hidden POST field carrying the form fill duration.
+	 *
+	 * Prefixed because submitted fields share one flat POST namespace with author-defined
+	 * fields, whose names a site owner can set by hand. An unprefixed `form_fill_duration`
+	 * field would silently overwrite this one.
+	 *
+	 * @since 7.24.0
+	 *
+	 * @var string
+	 */
+	public const FORM_FILL_DURATION_FIELD = 'jetpack_form_fill_duration';
+
+	/**
 	 * Cache key for the source post IDs list.
 	 *
 	 * @var string
@@ -249,6 +262,15 @@ class Feedback {
 	protected $country_code = null;
 
 	/**
+	 * The form fill duration in seconds.
+	 *
+	 * Tracks how long the user spent filling out the form (from first interaction to submission).
+	 *
+	 * @var int|null
+	 */
+	protected $form_fill_duration = null;
+
+	/**
 	 * The subject of the feedback entry.
 	 *
 	 * @var string
@@ -302,6 +324,13 @@ class Feedback {
 	 * @var bool
 	 */
 	protected $has_consent = false;
+
+	/**
+	 * Whether this response was loaded from structured feedback data.
+	 *
+	 * @var bool
+	 */
+	protected $uses_structured_fields = false;
 
 	/**
 	 * Whether the feedback entry is unread.
@@ -427,10 +456,11 @@ class Feedback {
 			! empty( $parsed_content['is_test'] )
 		);
 
-		$this->ip_address   = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
-		$this->country_code = $parsed_content['country_code'] ?? null;
-		$this->user_agent   = $parsed_content['user_agent'] ?? null;
-		$this->subject      = $parsed_content['subject'] ?? $this->get_first_field_of_type( 'subject' );
+		$this->ip_address         = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
+		$this->country_code       = $parsed_content['country_code'] ?? null;
+		$this->user_agent         = $parsed_content['user_agent'] ?? null;
+		$this->form_fill_duration = $parsed_content['form_fill_duration'] ?? null;
+		$this->subject            = $parsed_content['subject'] ?? $this->get_first_field_of_type( 'subject' );
 
 		$this->notification_recipients = $parsed_content['notification_recipients'] ?? array();
 		$this->logged_in_user          = $parsed_content['logged_in_user'] ?? null;
@@ -484,6 +514,15 @@ class Feedback {
 	 */
 	private function load_from_submission( $post_data, $form, $current_post = null, $current_page_number = 1 ) {
 
+		// Drop the answers to fields conditional logic hid, once, before anything reads them.
+		//
+		// get_computed_fields() already skips hidden fields for the stored response, but the
+		// comment content, the consent flag, the author details and the notification
+		// recipients all read $post_data directly and were still seeing them. Stripping here
+		// is what makes "a hidden field was never answered" true for every consumer instead
+		// of just the one.
+		$post_data = self::without_hidden_answers( $post_data, $form );
+
 		$this->source = Feedback_Source::from_submission( $current_post, $current_page_number );
 
 		// Use the form's ref attribute as the authoritative form ID.
@@ -493,14 +532,15 @@ class Feedback {
 		$this->form_id     = $form_id_attribute > 0 ? $form_id_attribute : null;
 
 		// If post_data is provided, use it to populate fields.
-		$this->fields          = $this->get_computed_fields( $post_data, $form );
-		$this->ip_address      = Contact_Form_Plugin::get_ip_address();
-		$this->country_code    = $this->get_country_code_from_ip( $this->ip_address );
-		$this->user_agent      = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : null;
-		$this->subject         = $this->get_computed_subject( $post_data, $form );
-		$this->author_data     = Feedback_Author::from_submission( $post_data, $form );
-		$this->comment_content = $this->get_computed_comment_content( $post_data, $form );
-		$this->has_consent     = $this->get_computed_consent( $post_data, $form );
+		$this->fields             = $this->get_computed_fields( $post_data, $form );
+		$this->ip_address         = Contact_Form_Plugin::get_ip_address();
+		$this->country_code       = $this->get_country_code_from_ip( $this->ip_address );
+		$this->user_agent         = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : null;
+		$this->form_fill_duration = $this->get_computed_form_fill_duration( $post_data );
+		$this->subject            = $this->get_computed_subject( $post_data, $form );
+		$this->author_data        = Feedback_Author::from_submission( $post_data, $form );
+		$this->comment_content    = $this->get_computed_comment_content( $post_data, $form );
+		$this->has_consent        = $this->get_computed_consent( $post_data, $form );
 
 		$this->notification_recipients = $this->get_computed_notification_recipients( $post_data, $form );
 
@@ -517,6 +557,32 @@ class Feedback {
 				'id'           => $current_user->ID,
 			);
 		}
+	}
+
+	/**
+	 * Remove submitted values belonging to fields conditional logic resolved as hidden.
+	 *
+	 * The form owns the resolution and caches it, so this asks rather than resolving again --
+	 * a second resolution over a different value source is exactly what let validation and
+	 * storage disagree about a prefilled consent field.
+	 *
+	 * @param array        $post_data The post data from the form submission.
+	 * @param Contact_Form $form      The form object.
+	 * @return array The post data, less any hidden field's answer.
+	 */
+	private static function without_hidden_answers( $post_data, $form ) {
+		if ( ! is_array( $post_data ) ) {
+			return $post_data;
+		}
+
+		// Empty when the feature is off, so this is a no-op then.
+		foreach ( $form->get_resolved_field_visibility() as $field_id => $is_visible ) {
+			if ( false === $is_visible ) {
+				unset( $post_data[ $field_id ] );
+			}
+		}
+
+		return $post_data;
 	}
 
 	/**
@@ -749,6 +815,15 @@ class Feedback {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Whether this response uses structured feedback fields.
+	 *
+	 * @return bool
+	 */
+	public function uses_structured_fields() {
+		return $this->uses_structured_fields;
 	}
 
 	/**
@@ -1122,6 +1197,17 @@ class Feedback {
 	 */
 	public function get_country_code() {
 		return $this->country_code;
+	}
+
+	/**
+	 * Get the form fill duration in seconds.
+	 *
+	 * Represents the time from first user interaction to form submission.
+	 *
+	 * @return int|null
+	 */
+	public function get_form_fill_duration() {
+		return $this->form_fill_duration;
 	}
 
 	/**
@@ -1567,6 +1653,7 @@ class Feedback {
 				'ip'                      => $this->ip_address,
 				'country_code'            => $this->country_code,
 				'user_agent'              => $this->user_agent,
+				'form_fill_duration'      => $this->form_fill_duration,
 				'notification_recipients' => $this->notification_recipients,
 				'logged_in_user'          => $this->logged_in_user,
 			),
@@ -1584,7 +1671,29 @@ class Feedback {
 			$fields_to_serialize['country_code'] = null;
 		}
 
-		return addslashes( wp_json_encode( $fields_to_serialize, JSON_UNESCAPED_SLASHES ) );
+		/*
+		 * JSON_HEX_TAG escapes every `<` and `>` as a \u003C / \u003E sequence,
+		 * which is what keeps this payload intact on the way into the database.
+		 * It is load-bearing here, not cosmetic - do not drop it.
+		 *
+		 * This payload is written to `post_content`, and any submitter without
+		 * `unfiltered_html` - every logged-out visitor, and every non-super-admin
+		 * on a multisite - has `wp_filter_post_kses` attached to `content_save_pre`.
+		 * A bare `<` anywhere in the payload (a field label, a submitted value, or
+		 * the source page title) then reads as the start of a tag, and core's
+		 * `wp_pre_kses_less_than()` runs esc_html() over everything from that `<` to
+		 * the end of the string. The quotes inside it become `&quot;`, so
+		 * `json_decode()` can no longer read the payload and the entire response
+		 * comes back empty.
+		 *
+		 * `json_decode()` resolves the escaped sequences natively, so no decode step
+		 * is needed and payloads written before this flag was added still parse.
+		 *
+		 * This deliberately diverges from Jetpack.Functions.JsonEncodeFlags, which
+		 * recommends JSON_UNESCAPED_SLASHES alone for database-field writes. That
+		 * guidance assumes the write is not KSES-filtered; this one is.
+		 */
+		return addslashes( wp_json_encode( $fields_to_serialize, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG ) );
 	}
 
 	/**
@@ -1596,9 +1705,11 @@ class Feedback {
 	 */
 	private function parse_content( $post_content = '', $version = null ) {
 		if ( $version === 'v3' ) {
+			$this->uses_structured_fields = true;
 			return $this->parse_content_v3( $post_content );
 		}
 		if ( $version === 'v2' ) {
+			$this->uses_structured_fields = true;
 			return $this->parse_content_v2( $post_content );
 		}
 
@@ -1613,6 +1724,7 @@ class Feedback {
 				$decoded_content = json_decode( stripslashes( trim( $post_content ) ), true );
 			}
 			if ( isset( $decoded_content['fields'] ) && is_array( $decoded_content['fields'] ) ) {
+				$this->uses_structured_fields = true;
 				return $this->parse_content_v3( $post_content );
 			}
 		}
@@ -2144,16 +2256,54 @@ class Feedback {
 		$fields = array();
 
 		$field_ids = $form->get_field_ids();
-		// For all fields, grab label and value
-		$i = 1;
+
+		// Collect renderable fields and their submitted values up front so conditional logic
+		// rules (which may reference any sibling field) can be evaluated in the loop below.
+		$renderable  = array();
+		$form_values = array();
 		foreach ( $field_ids['all'] as $field_id ) {
 			$field = $form->fields[ $field_id ];
 			$type  = $field->get_attribute( 'type' );
 			if ( ! $field->is_field_renderable( $type ) ) {
 				continue;
 			}
+			$value                    = $this->get_field_value( $field_id, $post_data, $type );
+			$form_values[ $field_id ] = $value;
+			$renderable[ $field_id ]  = array(
+				'field' => $field,
+				'type'  => $type,
+				'value' => $value,
+			);
+		}
 
-			$value = $this->get_field_value( $field_id, $post_data, $type );
+		// Ask the form, rather than resolving a second time.
+		//
+		// Storage used to run its own resolve_visibility() over a different value source and a
+		// different field set than validation did, and the two disagreed. Validation reads
+		// get_computed_field_value() -- POST, then GET, then the field's default, then the
+		// logged-in user -- while this loop reads POST only; and it skips anything
+		// is_field_renderable() rejects, so a rule whose subject is an option-less select was
+		// evaluated during validation and ignored here.
+		//
+		// Unchecking a consent field prefilled from a query argument hit both: the browser
+		// posts nothing, validation fell back to the query argument and read it checked,
+		// storage read '' and read it unchecked. The dependent field was required-validated
+		// and then had its answer dropped -- the silently discarded answer this feature is
+		// supposed to make impossible.
+		//
+		// Returns an empty array when the flag is off, so there is nothing extra to guard.
+		$visibility = $form->get_resolved_field_visibility();
+
+		$i = 1;
+		foreach ( $renderable as $field_id => $entry ) {
+			$field = $entry['field'];
+			$type  = $entry['type'];
+			$value = $entry['value'];
+
+			if ( isset( $visibility[ $field_id ] ) && false === $visibility[ $field_id ] ) {
+				continue;
+			}
+
 			$label = wp_strip_all_tags( $field->get_attribute( 'label' ) );
 			$key   = $i . '_' . $label;
 
@@ -2169,7 +2319,7 @@ class Feedback {
 			if ( ! $this->has_file && $fields[ $key ]->has_file() ) {
 				$this->has_file = true;
 			}
-			++$i; // Increment prefix counter for the next field.
+			++$i;
 		}
 
 		return $fields;
@@ -2230,6 +2380,40 @@ class Feedback {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Gets the computed form fill duration, in seconds.
+	 *
+	 * The value is supplied by the view script as a hidden field, so it is submitter-controlled
+	 * and cannot be trusted. Anything that is not a plain sequence of digits is treated as
+	 * unknown and stored as null, rather than being coerced into a number that would read as a
+	 * real measurement: `absint()` alone would turn "abc" into 0 (indistinguishable from a
+	 * genuine sub-second fill), "-1" into 1, and a value past PHP_INT_MAX into a float, which
+	 * would contradict the integer type the REST schema advertises.
+	 *
+	 * The value is left empty when the submitter never interacted with the form, or ran without
+	 * JavaScript, which is also an unknown duration.
+	 *
+	 * @since 7.24.0
+	 *
+	 * @param array $post_data The post data from the form submission.
+	 * @return int|null
+	 */
+	private function get_computed_form_fill_duration( $post_data ) {
+		if ( ! isset( $post_data[ self::FORM_FILL_DURATION_FIELD ] ) ) {
+			return null;
+		}
+
+		$raw = $post_data[ self::FORM_FILL_DURATION_FIELD ];
+
+		// is_scalar() has to come first so an array-shaped POST does not blow up on the cast.
+		if ( ! is_scalar( $raw ) || ! ctype_digit( (string) $raw ) ) {
+			return null;
+		}
+
+		// Clamp so an abandoned tab left open for days cannot skew aggregates.
+		return min( (int) $raw, DAY_IN_SECONDS );
 	}
 
 	/**

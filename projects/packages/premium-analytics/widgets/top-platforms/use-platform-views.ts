@@ -5,18 +5,15 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getStatsPlanErrorReason, useStatsDevices } from '@jetpack-premium-analytics/data';
+import { useStatsDevices } from '@jetpack-premium-analytics/data';
 import { formatDisplayLabel } from '@jetpack-premium-analytics/widgets-toolkit';
-import type {
-	ReportParams,
-	StatsDevicesItem,
-	StatsNormalizedReport,
-} from '@jetpack-premium-analytics/data';
+import type { ReportParams, StatsDevicesComparisonItem } from '@jetpack-premium-analytics/data';
 
 export interface PlatformView {
 	key: string;
 	label: string;
 	views: number;
+	previousViews?: number;
 }
 
 interface UsePlatformViewsArgs {
@@ -36,43 +33,44 @@ interface UsePlatformViewsArgs {
 
 interface PlatformViewsState {
 	data: PlatformView[];
-	comparisonData: PlatformView[];
 	hasComparison: boolean;
 	isLoading: boolean;
+	isFetching: boolean;
 	isError: boolean;
-	errorReason: 'upgrade-required' | null;
+	error: unknown;
+	refetch: () => void;
 }
 
 const BROWSER_LABELS: Record< string, string > = {
-	chrome: __( 'Chrome', 'jetpack-premium-analytics' ),
-	safari: __( 'Safari', 'jetpack-premium-analytics' ),
-	firefox: __( 'Firefox', 'jetpack-premium-analytics' ),
-	edge: __( 'Edge', 'jetpack-premium-analytics' ),
-	opera: __( 'Opera', 'jetpack-premium-analytics' ),
-	samsung: __( 'Samsung Internet', 'jetpack-premium-analytics' ),
-	ie: __( 'IE', 'jetpack-premium-analytics' ),
-	yandex: __( 'Yandex', 'jetpack-premium-analytics' ),
-	miui: __( 'Mi Browser', 'jetpack-premium-analytics' ),
-	other: __( 'Other', 'jetpack-premium-analytics' ),
+	chrome: __( 'Chrome', 'jetpack-premium-analytics-pkg' ),
+	safari: __( 'Safari', 'jetpack-premium-analytics-pkg' ),
+	firefox: __( 'Firefox', 'jetpack-premium-analytics-pkg' ),
+	edge: __( 'Edge', 'jetpack-premium-analytics-pkg' ),
+	opera: __( 'Opera', 'jetpack-premium-analytics-pkg' ),
+	samsung: __( 'Samsung Internet', 'jetpack-premium-analytics-pkg' ),
+	ie: __( 'IE', 'jetpack-premium-analytics-pkg' ),
+	yandex: __( 'Yandex', 'jetpack-premium-analytics-pkg' ),
+	miui: __( 'Mi Browser', 'jetpack-premium-analytics-pkg' ),
+	other: __( 'Other', 'jetpack-premium-analytics-pkg' ),
 };
 
 const PLATFORM_LABELS: Record< string, string > = {
-	windows: __( 'Windows', 'jetpack-premium-analytics' ),
-	mac: __( 'macOS', 'jetpack-premium-analytics' ),
-	android: __( 'Android', 'jetpack-premium-analytics' ),
-	linux: __( 'Linux', 'jetpack-premium-analytics' ),
-	ios: __( 'iOS', 'jetpack-premium-analytics' ),
-	ipad: __( 'iPad', 'jetpack-premium-analytics' ),
-	iphone: __( 'iPhone', 'jetpack-premium-analytics' ),
-	ipados: __( 'iPadOS', 'jetpack-premium-analytics' ),
-	macos: __( 'macOS', 'jetpack-premium-analytics' ),
-	chrome: __( 'Chrome OS', 'jetpack-premium-analytics' ),
-	android_tablet: __( 'Android Tablet', 'jetpack-premium-analytics' ),
-	other: __( 'Other', 'jetpack-premium-analytics' ),
+	windows: __( 'Windows', 'jetpack-premium-analytics-pkg' ),
+	mac: __( 'macOS', 'jetpack-premium-analytics-pkg' ),
+	android: __( 'Android', 'jetpack-premium-analytics-pkg' ),
+	linux: __( 'Linux', 'jetpack-premium-analytics-pkg' ),
+	ios: __( 'iOS', 'jetpack-premium-analytics-pkg' ),
+	ipad: __( 'iPad', 'jetpack-premium-analytics-pkg' ),
+	iphone: __( 'iPhone', 'jetpack-premium-analytics-pkg' ),
+	ipados: __( 'iPadOS', 'jetpack-premium-analytics-pkg' ),
+	macos: __( 'macOS', 'jetpack-premium-analytics-pkg' ),
+	chrome: __( 'Chrome OS', 'jetpack-premium-analytics-pkg' ),
+	android_tablet: __( 'Android Tablet', 'jetpack-premium-analytics-pkg' ),
+	other: __( 'Other', 'jetpack-premium-analytics-pkg' ),
 };
 
 function toPlatformView(
-	item: StatsDevicesItem,
+	item: StatsDevicesComparisonItem,
 	deviceProperty: 'browser' | 'platform'
 ): PlatformView {
 	const key = String( item.label ?? '' );
@@ -82,14 +80,12 @@ function toPlatformView(
 		key,
 		label: formatDisplayLabel( key, labels ),
 		views: item.value,
+		previousViews: item.previousValue,
 	};
 }
 
 /**
  * Fetch platform views (browser or OS) via the shared Stats data layer.
- *
- * @param {UsePlatformViewsArgs} args - Hook arguments.
- * @return The current data/loading/error state.
  */
 export default function usePlatformViews( {
 	reportParams,
@@ -101,28 +97,25 @@ export default function usePlatformViews( {
 		deviceProperty,
 	};
 
-	const { primary, comparison, hasComparison, isLoading, isError, error } =
-		useStatsDevices( statsParams );
-	const errorReason = getStatsPlanErrorReason( error );
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
+		useStatsDevices( statsParams, { maxRows: max } );
 
-	const report = primary.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
-	const rawItems = report?.data?.[ 0 ]?.items ?? [];
-	const items = rawItems
-		.map( item => toPlatformView( item, deviceProperty ) )
-		.slice( 0, max > 0 ? max : undefined );
+	const rows = ( comparisonRows?.rows ?? [] ).map( item => toPlatformView( item, deviceProperty ) );
 
-	const comparisonReport = comparison.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
-	const comparisonRawItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
-	const comparisonItems = comparisonRawItems
-		.map( item => toPlatformView( item, deviceProperty ) )
-		.slice( 0, max > 0 ? max : undefined );
+	// The Stats queries carry `placeholderData: previousData => previousData`, so a
+	// failed range change keeps the prior period's rows in `data` while `isError`
+	// flips true. Only surface the error when there's nothing to show, so a transient
+	// refetch failure doesn't replace populated rows with the error state. `error` is
+	// gated by the same predicate so it is populated iff `isError` is true.
+	const showError = rows.length === 0 && isError;
 
 	return {
-		data: items,
-		comparisonData: comparisonItems,
+		data: rows,
 		hasComparison,
 		isLoading,
-		isError,
-		errorReason,
+		isFetching,
+		isError: showError,
+		error: showError ? error : null,
+		refetch,
 	};
 }

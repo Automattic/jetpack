@@ -5,13 +5,17 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SearchTermsRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import widgetManifest from '../widget.json';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -19,14 +23,9 @@ registerReportMocks();
 
 const SEARCH_TERMS_RENDER_MODULE = 'storybook/search-terms';
 
-// Pick only the fields that StoryWidgetMetadata accepts; the attribute schema
-// and example arrays are typed differently in WidgetType and cause a type error.
-const storyWidgetType = {
-	name: widgetDefinition.name,
-	title: widgetDefinition.title,
-	icon: widgetDefinition.icon,
-	presentation: 'framed' as const,
-};
+// Build the story widget type from its manifest and module. `presentation`
+// comes from widget.json ( 'framed' ), so the host frames the widget.
+const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 interface SearchTermsStoryControls {
 	withComparison: boolean;
@@ -34,47 +33,20 @@ interface SearchTermsStoryControls {
 
 function renderSearchTerms( { withComparison }: SearchTermsStoryControls ) {
 	return (
-		<SearchTermsRender
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
+		<SearchTermsRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />
 	);
 }
 
-// Renders the widget on a preset distinct from the other stories. The query key
-// derives from the date range, so a unique preset gives the forced-state stories
-// their own cache entry and they hit the mock fresh instead of reading another
-// story's cached success from the shared query client.
+// Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderSearchTermsOnPreset( preset: PresetType ) {
 	return (
-		<SearchTermsRender
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( false, preset ) } }
-		/>
+		<SearchTermsRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />
 	);
 }
 
 function SearchTermsDashboardRender( props: WidgetRenderProps< unknown > ) {
 	return <SearchTermsRender { ...( props as ComponentProps< typeof SearchTermsRender > ) } />;
 }
-
-// Close-up frame: a white, widget-sized card so each state reads the way it does
-// as a real dashboard widget (in product the host supplies this frame).
-const withWidgetCanvas: Decorator = Story => (
-	<div
-		style={ {
-			width: '380px',
-			height: '520px',
-			margin: '0 auto',
-			padding: '16px',
-			boxSizing: 'border-box',
-			background: '#fff',
-			border: '1px solid #e0e0e0',
-			borderRadius: '8px',
-			overflow: 'hidden',
-		} }
-	>
-		<Story />
-	</div>
-);
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/SearchTerms',
@@ -100,13 +72,13 @@ type Story = StoryObj< SearchTermsStoryControls >;
 export const Default: Story = {
 	render: renderSearchTerms,
 	args: { withComparison: false },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 export const WithComparison: Story = {
 	render: renderSearchTerms,
 	args: { withComparison: true },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -115,10 +87,9 @@ export const WithComparison: Story = {
  */
 export const Loading: Story = {
 	render: () => renderSearchTermsOnPreset( 'last-90-days' ),
-	// Kept off the shared autodocs page: the mock override is keyed by path, so it
-	// would otherwise force the sibling stories on that page into the same state.
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/search-terms', 'loading' );
 		return () => setReportMockState( 'stats/search-terms', null );
@@ -126,15 +97,31 @@ export const Loading: Story = {
 };
 
 /**
- * The fetch failed: the widget shows its error state with a Retry action (which
- * re-runs the query — still mocked as failing while this story is active).
+ * The fetch failed with a permission-gated 403: the widget shows the neutral
+ * "You don't have access to this data." copy and no Retry action, since a
+ * permission gate is deterministic and retrying cannot clear it.
  */
 export const Error: Story = {
 	render: () => renderSearchTermsOnPreset( 'last-7-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/search-terms', 'error' );
+		return () => setReportMockState( 'stats/search-terms', null );
+	},
+};
+
+/**
+ * The fetch failed in a way that can heal — the proxy's `no_connection` 403: the
+ * widget shows its retryable copy with a Retry action, which re-runs the query
+ * (still mocked as failing while this story is active).
+ */
+export const ErrorRetryable: Story = {
+	render: () => renderSearchTermsOnPreset( 'last-12-months' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		setReportMockState( 'stats/search-terms', 'error-retryable' );
 		return () => setReportMockState( 'stats/search-terms', null );
 	},
 };
@@ -144,9 +131,9 @@ export const Error: Story = {
  * glyph and "No search terms in this period.").
  */
 export const Empty: Story = {
-	render: () => renderSearchTermsOnPreset( 'last-365-days' ),
+	render: () => renderSearchTermsOnPreset( 'last-year' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/search-terms', 'empty' );
 		return () => setReportMockState( 'stats/search-terms', null );
@@ -169,7 +156,7 @@ function SearchTermsDashboardStory( {
 			renderComponent={
 				SearchTermsDashboardRender as ComponentType< WidgetRenderProps< unknown > >
 			}
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }

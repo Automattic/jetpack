@@ -88,6 +88,13 @@ const userConnectionData = ( state, action ) => {
 	}
 };
 
+const connectionOwner = ( state = null, action ) => {
+	switch ( action.type ) {
+		default:
+			return state;
+	}
+};
+
 const connectionErrors = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_CONNECTION_ERRORS:
@@ -124,6 +131,7 @@ const reducers = combineReducers( {
 	authorizationUrl,
 	userConnectionData,
 	connectedPlugins,
+	connectionOwner,
 	connectionErrors,
 	connectionHealthErrors,
 	isOfflineMode,

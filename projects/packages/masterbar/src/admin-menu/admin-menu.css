@@ -41,8 +41,7 @@
 
 	body:not(.folded).auto-fold .interface-interface-skeleton,
 	.auto-fold .edit-post-layout .components-editor-notices__snackbar,
-	.components-snackbar-list.edit-widgets-notices__snackbar,
-	.jp-dialogue-modern-full__container {
+	.components-snackbar-list.edit-widgets-notices__snackbar {
 		left: 272px;
 	}
 
@@ -357,7 +356,6 @@ a.screen-switcher__button:hover > strong {
 
 /** Add new site button **/
 
-/* stylelint-disable-next-line no-duplicate-selectors -- This is part of a larger section of changes. */
 #adminmenu {
 	display: flex;
 	flex-direction: column;

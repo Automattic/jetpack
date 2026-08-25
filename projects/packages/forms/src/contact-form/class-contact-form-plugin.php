@@ -569,6 +569,33 @@ class Contact_Form_Plugin {
 			unset( $atts['defaultValue'] );
 		}
 
+		// Serialize the conditionalLogic object so it survives the shortcode roundtrip.
+		// Only emit when explicitly enabled to keep the shortcode and frontend context lean.
+		//
+		// JSON_HEX_TAG matters as much as JSON_HEX_AMP here: this lands in `post_content` as
+		// shortcode text and is decoded back in Contact_Form_Field, and KSES rewrites a bare
+		// `<` on the way in. A rule comparing against a value containing `<` would come back
+		// as unparseable JSON and silently drop the field's whole condition.
+		if ( isset( $atts['conditionalLogic'] ) ) {
+			$logic = $atts['conditionalLogic'];
+			if ( is_array( $logic ) && ! empty( $logic['enabled'] ) ) {
+				$json = \wp_json_encode( $logic, JSON_UNESCAPED_SLASHES | JSON_HEX_AMP | JSON_HEX_TAG );
+
+				// The rules are a JSON array, so the value contains `[` and `]`. WordPress's
+				// shortcode attribute pattern excludes both, so as shortcode text the value is
+				// cut short and the attribute is dropped entirely -- leaving a field that is
+				// still required but no longer conditional, which blocks submission on a
+				// question the visitor cannot see. Numeric entities survive the pattern and
+				// are turned back by the html_entity_decode() in Contact_Form_Field.
+				$atts['conditionallogic'] = str_replace(
+					array( '[', ']' ),
+					array( '&#91;', '&#93;' ),
+					(string) $json
+				);
+			}
+			unset( $atts['conditionalLogic'] );
+		}
+
 		// Process inner blocks to shortcode attributes.
 		if ( $block && ! empty( $block->parsed_block['innerBlocks'] ) ) {
 			// Only apply the block style classes to the field wrapper if the field is one of the new inner block types.
@@ -898,33 +925,29 @@ class Contact_Form_Plugin {
 		);
 
 		// Process content for marker classes and add interactivity
-		$processed_content = $content;
+		$blocks_content = do_blocks( $content );
+		$tags           = new \WP_HTML_Tag_Processor( $blocks_content );
 
-		// Only process if we have the WP_HTML_Tag_Processor
-		if ( class_exists( 'WP_HTML_Tag_Processor' ) ) {
-			$blocks_content = do_blocks( $content );
-			$tags           = new \WP_HTML_Tag_Processor( $blocks_content );
+		// Move to the first token so the bookmark has a valid span, then set the bookmark.
+		$tags->next_tag();
+		$tags->set_bookmark( 'start' );
 
-			// Move to the first token so the bookmark has a valid span, then set the bookmark.
-			$tags->next_tag();
-			$tags->set_bookmark( 'start' );
-
-			// Process blocks with the "next step" trigger
-			while ( $tags->next_tag( array( 'class_name' => 'trigger-next-step' ) ) ) {
-				// No need to set data-wp-interactive since the parent div already has it
-				$tags->set_attribute( 'data-wp-on--click', 'actions.nextStep' );
-			}
-
-			// Reset and process blocks with the "previous step" trigger
-			$tags->seek( 'start' );
-			while ( $tags->next_tag( array( 'class_name' => 'trigger-previous-step' ) ) ) {
-				$tags->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
-			}
-
-			$processed_content = $tags->get_updated_html();
-		} else {
-			$processed_content = do_blocks( $content );
+		// Process blocks with the "next step" trigger
+		while ( $tags->next_tag( array( 'class_name' => 'trigger-next-step' ) ) ) {
+			// No need to set data-wp-interactive since the parent div already has it
+			$tags->set_attribute( 'data-wp-on--click', 'actions.nextStep' );
 		}
+
+		// Reset and process blocks with the "previous step" trigger
+		$tags->seek( 'start' );
+		while ( $tags->next_tag( array( 'class_name' => 'trigger-previous-step' ) ) ) {
+			$tags->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
+		}
+
+		$processed_content = $tags->get_updated_html();
+
+		$processed_content = Contact_Form_Block::apply_background_support( $processed_content, $atts, Contact_Form_Block::STEP_BLOCK_CLASS );
+
 		$is_current_step_class = ( self::$step_count === 1 ? 'is-current-step' : '' );
 		return '<div data-wp-interactive="jetpack/form" class="jetpack-form-step ' . $is_current_step_class . ' " data-wp-class--is-before-current="state.isBeforeCurrent" data-wp-class--is-after-current="state.isAfterCurrent" data-wp-class--is-current-step="state.isCurrentStep" ' . wp_interactivity_data_wp_context( array( 'step' => self::$step_count ) ) . ' >'
 				. $processed_content
@@ -1852,6 +1875,17 @@ class Contact_Form_Plugin {
 		if ( ! $form ) {
 			return Form_Submission_Error::system_error( 'form_not_found', __( 'Form not found.', 'jetpack-forms' ) );
 		}
+
+		// Conditional fields cannot be validated while the form is still being parsed: a rule's
+		// subject may not exist yet, so `parse_contact_field()` defers them. Something has to
+		// validate them once the whole form is known, and on this path nothing did -- the JWT
+		// branch calls `validate()` above, but this one went straight to `has_errors()`. A
+		// required conditional field left empty, an invalid email or an out-of-allow-list choice
+		// would all be stored unchecked.
+		//
+		// Fields that were validated at parse time early-return once `is_error()` is set, so
+		// this is idempotent for everything else.
+		$form->validate();
 
 		if ( $form->has_errors() ) {
 			return $form->errors;
@@ -3267,10 +3301,12 @@ class Contact_Form_Plugin {
 													<!-- /wp:jetpack/contact-form -->';
 		}
 
+		$form_title = isset( $_POST['formTitle'] ) ? sanitize_text_field( wp_unslash( $_POST['formTitle'] ) ) : '';
+
 		$post_id = wp_insert_post(
 			array(
 				'post_type'    => 'page',
-				'post_title'   => '',
+				'post_title'   => $form_title,
 				'post_content' => $pattern_content,
 			)
 		);

@@ -16,13 +16,15 @@ Main chart component with responsive behavior by default.
 | `chartId` | `string` | auto-generated | Optional unique identifier for the chart |
 | `width` | `number` | responsive | Chart width in pixels |
 | `height` | `number` | `400` | Chart height in pixels |
+| `aspectRatio` | `number` | - | Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. Used when `width`/`height` are omitted. |
 | `orientation` | `'vertical' \| 'horizontal'` | `'vertical'` | Bar orientation |
 | `withTooltips` | `boolean` | `false` | Enable interactive tooltips |
 | `withPatterns` | `boolean` | `false` | Use pattern fills for accessibility |
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Vertical bars rise from the bottom; horizontal bars stretch from the left. Automatically respects user's `prefers-reduced-motion` system setting |
 | `showZeroValues` | `boolean` | `false` | Display zero values with minimum visual height |
 | `showLegend` | `boolean` | `false` | Display chart legend |
-| `legend` | `ChartLegendConfig` | `undefined` | Legend configuration object. See [ChartLegendConfig](#chartlegendconfig-type) |
+| `legend` | `SeriesChartLegendConfig` | `undefined` | Legend configuration object. See [SeriesChartLegendConfig](#serieschartlegendconfig-type) |
+| `defaultHiddenSeries` | `readonly string[]` | — | Series labels to hide the first time the provider sees this `chartId`. User changes persist across remounts, and reset only on a `chartId` change; later values for the same ID are ignored. |
 | `gridVisibility` | `'x' \| 'y' \| 'xy' \| 'none'` | orientation-based | Grid line visibility |
 | `renderTooltip` | `(params: RenderTooltipParams) => ReactNode` | - | Custom tooltip render function |
 | `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }` | calculated | Chart margins |
@@ -113,25 +115,29 @@ type ChartOptions = {
 			orientation?: 'top' | 'bottom';
 			numTicks?: number;
 			tickFormat?: (value: any) => string;
+			tickResolution?: 'hour' | 'day' | 'week' | 'month' | 'year';
 		};
 		y?: {
 			orientation?: 'left' | 'right';
 			numTicks?: number;
 			tickFormat?: (value: number) => string;
+			tickResolution?: 'hour' | 'day' | 'week' | 'month' | 'year';
 		};
 	};
 };
 ```
 
-## ChartLegendConfig Type
+## SeriesChartLegendConfig Type
 
 ```typescript
-type ChartLegendConfig = {
+type SeriesChartLegendConfig = {
 	orientation?: 'horizontal' | 'vertical';
 	position?: 'top' | 'bottom';
 	alignment?: 'start' | 'center' | 'end';
 	shape?: LegendShape;
 	interactive?: boolean;
+	// Collapse series sharing a `group` into one item (line, bar, area charts only).
+	collapseGroups?: boolean;
 	itemClassName?: string;
 	itemStyles?: LegendItemStyles;
 	labelStyles?: LegendLabelStyles;

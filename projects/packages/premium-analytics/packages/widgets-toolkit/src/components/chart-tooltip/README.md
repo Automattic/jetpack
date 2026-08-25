@@ -54,6 +54,7 @@ const renderTooltip = params => (
 | `tooltipData`   | `{ datumByKey?: Record<string, unknown> }` | No       | Tooltip data from visx chart                                                   |
 | `dataFormat`    | `DataFormat`                               | Yes      | Format for values: currency, number, percentage                                |
 | `seriesStyles`  | `TooltipStyle[]`                           | Yes      | Styles for each series (color, stroke properties)                              |
+| `seriesKeys`    | `string[]`                                 | No       | Series keys in the same order as `seriesStyles`. Pairs a row with its style by key rather than by position, for charts that emit rows out of series order (a bar chart drawing two metrics lists both current periods before either previous period) |
 | `indicatorType` | `'line' \| 'rect'`                         | Yes      | Shape indicator: line for line charts, rect for bars                           |
 | `getLabel`      | `(datum, index, key) => string`            | No       | Custom label extractor. `key` is the series key/label (default: `datum.label`) |
 | `getValue`      | `(datum) => number`                        | No       | Custom value extractor (default: `datum.value`)                                |
@@ -77,7 +78,7 @@ The component provides sensible defaults that work with common chart data patter
 
 ```typescript
 // Default label extractor - uses datum.label
-// The key parameter contains the series key (e.g., date range for bar charts)
+// The key parameter contains the series key (the series label, e.g. `Views · previous period`)
 function defaultGetLabel( datum: unknown, _index: number, _key: string ): string {
 	return ( datum as { label: string } ).label ?? '';
 }
@@ -93,9 +94,11 @@ function defaultGetValue( datum: unknown ): number {
 **Line charts with dates**: Pass a custom `getLabel` to format dates:
 
 ```tsx
-const getLabel = ( datum, index, _key ) => {
-	const isComparison = index > 0;
-	const displayDate = isComparison ? datum.realDate ?? datum.date : datum.date;
+const getLabel = ( datum, _index, _key ) => {
+	// A comparison point is identified by carrying `realDate`, not by its index:
+	// a chart can draw more than one current-period metric, so index 1+ is not
+	// necessarily a comparison.
+	const displayDate = datum.realDate ?? datum.date;
 	return formatDate( displayDate );
 };
 ```
@@ -128,7 +131,6 @@ Uses `RectShape` from the chart library. Supports:
 The tooltip uses WPDS design tokens:
 
 - `--wpds-color-foreground-content-neutral` - Text color
-- `--wpds-elevation-sm` - Box shadow
 - `--wpds-dimension-padding-sm` - Padding
 
 Global visx-tooltip overrides are applied to ensure consistent layout.

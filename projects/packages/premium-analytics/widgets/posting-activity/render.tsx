@@ -2,22 +2,31 @@
  * External dependencies
  */
 import { useStatsStreak } from '@jetpack-premium-analytics/data';
+import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { formatDate } from '@jetpack-premium-analytics/formatters';
+import { calendar } from '@jetpack-premium-analytics/icons';
 import {
-	HeatmapChart,
-	WidgetLoadingOverlay,
+	AdaptiveCalendarHeatmap,
+	CalendarHeatmapPagerOverlay,
+	CalendarHeatmapTooltip,
+	HeatmapChartUnresponsive,
+	HeatmapSkeleton,
 	WidgetRoot,
-	buildCalendarHeatmapData,
+	WidgetState,
+	describeError,
+	resolveCalendarHeatmapWindow,
+	resolveCalendarHeatmapWindowDays,
+	useViewportWidth,
 	useWidgetRootContext,
-	type DataPointDate,
+	type HeatmapTooltipData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { format } from 'date-fns';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './style.module.css';
 import type { PostingActivityAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
@@ -27,102 +36,145 @@ type PostingActivityRenderAttributes = PostingActivityAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type PostingActivityWidgetProps = WidgetRenderProps< PostingActivityRenderAttributes >;
 
-/**
- * Fetches the posting-activity streak through the designated `useStatsStreak`
- * hook and renders it as a calendar heatmap. The `stats/streak` endpoint
- * returns a `{ 'yyyy-MM-dd': count }` map of posts per day (no comparison
- * period); `buildCalendarHeatmapData` lays that out into the week-column /
- * weekday-row grid the chart expects. The date range comes from the dashboard
- * picker via `reportParams`.
- *
- * @return The widget content.
- */
-function PostingActivityInner() {
-	const { reportParams } = useWidgetRootContext();
+// Shared so a pending or failed fetch doesn't hand the heatmap a fresh object
+// every render, which would rebuild the whole dense day series each time.
+const NO_POSTS_BY_DAY: Record< string, number | null > = {};
 
-	const { data, isLoading, isError } = useStatsStreak( reportParams );
+const formatPostCount = ( count: number ) =>
+	sprintf(
+		/* translators: %d: number of posts published that day, e.g. "3". */
+		_n( '%d post', '%d posts', count, 'jetpack-premium-analytics-pkg' ),
+		count
+	);
 
-	const { data: heatmapData, rowLabels } = useMemo( () => {
-		const series: DataPointDate[] = Object.entries( data ?? {} ).map(
-			( [ dateString, value ] ) => ( {
-				dateString,
-				value,
-			} )
-		);
-		return buildCalendarHeatmapData( series );
-	}, [ data ] );
-
-	const hasData = heatmapData.length > 0;
-
-	if ( isLoading && ! hasData ) {
-		return (
-			<div className={ styles.content }>
-				<WidgetLoadingOverlay />
-			</div>
-		);
-	}
-
-	if ( isError ) {
-		return (
-			<div className={ styles.content }>
-				<Stack align="center" justify="center" className={ styles.placeholder }>
-					<Text>{ __( 'Could not load posting activity.', 'jetpack-premium-analytics' ) }</Text>
-				</Stack>
-			</div>
-		);
-	}
-
-	if ( ! hasData ) {
-		return (
-			<div className={ styles.content }>
-				<Stack align="center" justify="center" className={ styles.placeholder }>
-					<Text>
-						{ __(
-							'Posts you publish will appear here as a calendar heatmap.',
-							'jetpack-premium-analytics'
-						) }
-					</Text>
-				</Stack>
-			</div>
-		);
-	}
-
+function renderCellTooltip( { value, cellLabel }: HeatmapTooltipData ) {
 	return (
-		<div className={ styles.content }>
-			<HeatmapChart
-				data={ heatmapData }
-				rowLabels={ rowLabels }
-				compact
-				primaryColor="var(--wp-admin-theme-color, #3858e9)"
-				withTooltips
-				className={ styles.heatmap }
-			>
-				<HeatmapChart.Legend
-					lessLabel={ __( 'Fewer Posts', 'jetpack-premium-analytics' ) }
-					moreLabel={ __( 'More Posts', 'jetpack-premium-analytics' ) }
-				/>
-			</HeatmapChart>
-		</div>
+		<CalendarHeatmapTooltip
+			value={ value }
+			cellLabel={ cellLabel }
+			emptyLabel={ __( 'No posts', 'jetpack-premium-analytics-pkg' ) }
+			formatValue={ formatPostCount }
+		/>
 	);
 }
 
 /**
- * Widget render entry point.
+ * The `stats/streak` endpoint returns a `{ 'yyyy-MM-dd': count }` map of posts
+ * per day, with no comparison period.
  *
- * WidgetRoot provides the analytics query client, chart theme, and the report
- * params consumed by the inner heatmap — resolved from the dashboard date range
- * via context, the same way the other Stats widgets read them. This widget has
- * no own settings, so nothing is forwarded to the inner component.
+ * The date range comes from the dashboard picker via `reportParams`. The fetch
+ * window is that range, capped at the history the widest possible tile could draw
+ * so a long selection cannot request years the grid would throw away.
  *
- * @param {PostingActivityWidgetProps} props - The widget render props.
- * @return The rendered widget.
+ * `AdaptiveCalendarHeatmap` fits the grid to the tile: the height picks the cell
+ * size, the width picks how many week columns are drawn.
  */
+function PostingActivityInner() {
+	const { reportParams } = useWidgetRootContext();
+
+	// Same window rule as the other calendar heatmap: a ceiling at the history the
+	// viewport could draw, and no floor. A floor would reach back past the selection,
+	// putting years outside the card's heading inside it (WOOA7S-1963).
+	const viewportWidth = useViewportWidth();
+	const windowDays = resolveCalendarHeatmapWindowDays( viewportWidth );
+
+	// One reading for both windows below, so a render across midnight cannot resolve
+	// them against different days.
+	const today = format( new Date(), 'yyyy-MM-dd' );
+
+	// Both the request window and the range the heatmap draws and pages through:
+	// without a floor the two coincide, so paging can never leave the selection.
+	const streakRange = useMemo(
+		() => resolveCalendarHeatmapWindow( reportParams, { maxDays: windowDays }, today ),
+		[ reportParams, windowDays, today ]
+	);
+
+	// The period as selected, before the ceiling. All time on a long-lived site
+	// reaches back past the window, and the empty state has to know the response
+	// says nothing about the years left out.
+	const periodWindow = useMemo(
+		() => resolveCalendarHeatmapWindow( reportParams, {}, today ),
+		[ reportParams, today ]
+	);
+	const isWindowClipped = periodWindow.startDate < streakRange.startDate;
+	const streakParams = useMemo(
+		() => ( { ...reportParams, startDate: streakRange.startDate, endDate: streakRange.endDate } ),
+		[ reportParams, streakRange ]
+	);
+
+	const { data, isLoading, isFetching, isError, error, refetch } = useStatsStreak( streakParams );
+
+	// The endpoint returns only days with posts, so an empty response means the
+	// window has none — the component densifies the rest into empty cells. Days
+	// outside the range are still ruled out, so a stale response for a wider
+	// selection cannot suppress the empty state while the new one loads.
+	const postsByDay = data ?? NO_POSTS_BY_DAY;
+	const hasData = useMemo(
+		() =>
+			Object.entries( postsByDay ).some(
+				( [ day, count ] ) =>
+					day >= streakRange.startDate && day <= streakRange.endDate && Number( count ) > 0
+			),
+		[ postsByDay, streakRange ]
+	);
+
+	// Where the period outran the window, name the days the request covers rather
+	// than the period: the site may well have posts outside them.
+	const windowStart = parseSiteDateTime( streakRange.startDate );
+	const windowEnd = parseSiteDateTime( streakRange.endDate );
+	const emptyDescription =
+		isWindowClipped && windowStart && windowEnd
+			? sprintf(
+					/* translators: 1: first date the request covers, e.g. "Aug 9, 2024". 2: last date it covers. */
+					__( 'No posts published between %1$s and %2$s.', 'jetpack-premium-analytics-pkg' ),
+					formatDate( windowStart, 'compact' ),
+					formatDate( windowEnd, 'compact' )
+			  )
+			: __( 'No posts published in this period.', 'jetpack-premium-analytics-pkg' );
+
+	return (
+		<AdaptiveCalendarHeatmap valueByDay={ postsByDay } period={ streakRange }>
+			{ ( chartProps, pager ) => (
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					// The query keeps the previous response via `placeholderData`, so only
+					// surface the error when there is nothing to show.
+					isError={ isError && ! hasData }
+					isEmpty={ ! hasData }
+					error={ describeError( error, {
+						retryDescription: __(
+							"We couldn't load posting activity. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						onRetry: refetch,
+					} ) }
+					empty={ {
+						icon: calendar,
+						description: emptyDescription,
+					} }
+					renderLoading={ <HeatmapSkeleton /> }
+				>
+					{ /* No legend: the cell tooltips carry the counts, and the legend's
+					     44px comes out of the cells. */ }
+					<CalendarHeatmapPagerOverlay pager={ pager }>
+						<HeatmapChartUnresponsive
+							{ ...chartProps }
+							primaryColor="var(--wp-admin-theme-color, #3858e9)"
+							withTooltips
+							renderTooltip={ renderCellTooltip }
+						/>
+					</CalendarHeatmapPagerOverlay>
+				</WidgetState>
+			) }
+		</AdaptiveCalendarHeatmap>
+	);
+}
+
 export default function PostingActivity( { attributes = {} }: PostingActivityWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<div className={ styles.root }>
-				<PostingActivityInner />
-			</div>
+			<PostingActivityInner />
 		</WidgetRoot>
 	);
 }

@@ -5,6 +5,95 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.26.0] - 2026-08-25
+### Added
+- Responses: Show each form field as a column when viewing a single form's responses. [#51448]
+
+### Changed
+- Responses: On small screens, show only the response and its actions instead of a table that scrolls sideways. [#51448]
+- Responses: On small screens, the View action now opens the response the same way tapping its title does. [#51486]
+- Show progress while a new form's editor opens, and report it when creating a form fails. [#51371]
+
+### Fixed
+- Apply the name typed when creating a form, and stop a dismissed save from reporting into a reopened dialog. [#51371]
+- Contact Form: Remove the classic-theme editor margin between a field's label and its input. [#51527]
+- Responses: Allow a single response to scroll when it is taller than the screen. [#51486]
+- Responses: Prevent an error that could stop responses from loading when a file upload field was stored without any file data. [#51485]
+
+## [7.25.0] - 2026-08-20
+### Added
+- Add a Print action to form responses, which opens the response on its own page and prints just the response. [#51368]
+- Contact Form: Add background image support to the Form and Step blocks. [#50975]
+- Feedback author avatars: Pick a stable Color Studio background color per email for initials identity avatars via `bg_color`. [#50578]
+
+### Changed
+- Responses: Open a response on its own page from the list's View action and from both response notification email buttons, and keep the user on that page when a response is marked as spam or trashed. [#51127]
+- Update package dependencies. [#51125] [#51399]
+
+### Fixed
+- Contact Form: Make Group and Columns blocks fill the form width so nested fields render full-width. [#51266]
+- Dashboard: Keep response field icons and formatting after marking a response as spam. [#51288]
+- Dashboard: Show an explanation instead of a blank page when the dashboard assets are missing. [#51151]
+- Fix the first change made to a form after opening a page being discarded when saving. [#51393]
+- Form preview: Label the admin bar edit link "Edit Form" instead of "Edit Page". [#51235]
+- Grouped field labels: Lower the legend padding reset so themes and global styles can override it. [#51187]
+- Multistep forms: Keep step padding within the form width. [#50975]
+- Prevent a fatal error when logging webhook responses with unexpected header types. [#51156]
+- Rating field: Keep the default left-aligned, borderless rendering under the Outlined and Animated form styles. [#51126]
+- Responses: Preserve line breaks in multi-line answers. [#51369]
+- Show an empty checkbox icon next to checkbox fields the respondent left unchecked, instead of always showing a ticked one. [#51293]
+- Slider field: Keep the default label when the form uses the Outlined or Animated style, so the label no longer overlaps the slider track. [#51124]
+
+## [7.24.0] - 2026-08-10
+### Security
+- Contact Form: Improve sanitization of content submitted through the file field.
+
+### Added
+- Add form fill duration to form entries. [#45786]
+
+### Changed
+- Add the site ID and Jetpack version to the response email open tracking event. [#51102]
+- Update package dependencies. [#50509] [#51008]
+
+### Fixed
+- Ensure the submit button inside a Form renders as a button element so forms saved without an explicit element can still be submitted. [#51046]
+- Form block: Show the fallback notification recipient as a placeholder so it is clear when no address is saved. [#51014]
+- Form editor: Keep the form block selected so the form settings sidebar stays reachable. [#51047]
+
+## [7.23.4] - 2026-08-03
+### Removed
+- Dashboard: Remove redundant workaround for a dashboard loading edge case now fixed in bundled dependencies. No functional change. [#50780]
+
+### Fixed
+- Keep responses readable when a field label, submitted value, or page title contains a "<" character. [#50817]
+- Load JS translation catalogs and stamp the package text domain on the wp-build dashboard bundles. [#50762]
+
+## [7.23.3] - 2026-07-27
+### Changed
+- Update dependencies. [#50719]
+- Update package dependencies. [#50717] [#50751] [#50753] [#50792]
+
+## [7.23.2] - 2026-07-20
+### Changed
+- Update package dependencies. [#50510] [#50529]
+
+## [7.23.1] - 2026-07-13
+### Changed
+- Forms now reports its unread count to the central menu-badges registry instead of writing admin-menu markup directly. [#50190]
+- Update package dependencies. [#49272] [#50234] [#50407]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
+### Removed
+- Remove unused react-redux, redux, and redux-thunk dependencies. [#50282]
+
+### Fixed
+- Block editor: Surface the most common fields (Name, Email, Text…) first in the form's block inserter instead of burying them past the quick-inserter cutoff. [#50425]
+- Contact Form: Restore the listView block support so form fields can be managed from the editor List View (regressed when block attributes were ported to block.json metadata). [#50463]
+- Feedback: Parse versionless JSON `post_content` as JSON instead of falling through to the legacy plain-text parser. [#50380]
+- Fix an invalid Stack "gap" value ("s" -> "sm") in the single-response actions bar, surfaced as a type error by the @wordpress/ui update. [#49272]
+- Fix the Form Responses quick link disappearing from the admin bar on mobile viewports, and align its icon with the native items. [#50421]
+- Stop loading the unused legacy dashboard SPA bundle on the new (wp-build) Forms dashboard. [#50219]
+
 ## [7.23.0] - 2026-07-06
 ### Added
 - Warn admins and editors when a form isn't collecting responses (email and saving both off, no integration) in the editor, on the live form, and in the dashboard. [#49808]
@@ -2576,6 +2665,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.26.0]: https://github.com/automattic/jetpack-forms/compare/v7.25.0...v7.26.0
+[7.25.0]: https://github.com/automattic/jetpack-forms/compare/v7.24.0...v7.25.0
+[7.24.0]: https://github.com/automattic/jetpack-forms/compare/v7.23.4...v7.24.0
+[7.23.4]: https://github.com/automattic/jetpack-forms/compare/v7.23.3...v7.23.4
+[7.23.3]: https://github.com/automattic/jetpack-forms/compare/v7.23.2...v7.23.3
+[7.23.2]: https://github.com/automattic/jetpack-forms/compare/v7.23.1...v7.23.2
+[7.23.1]: https://github.com/automattic/jetpack-forms/compare/v7.23.0...v7.23.1
 [7.23.0]: https://github.com/automattic/jetpack-forms/compare/v7.22.6...v7.23.0
 [7.22.6]: https://github.com/automattic/jetpack-forms/compare/v7.22.5...v7.22.6
 [7.22.5]: https://github.com/automattic/jetpack-forms/compare/v7.22.4...v7.22.5

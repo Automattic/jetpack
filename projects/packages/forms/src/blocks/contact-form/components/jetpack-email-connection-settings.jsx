@@ -1,8 +1,9 @@
 import { TextControl, ToggleControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import { validate as emailValidatorValidate } from 'email-validator';
-import HelpMessage from './help-message/index.jsx';
+import { getAutoRecipientHelpText } from '../util/auto-recipient';
 
 const JetpackEmailConnectionSettings = ( {
 	emailAddress = '',
@@ -10,7 +11,9 @@ const JetpackEmailConnectionSettings = ( {
 	emailNotifications = true,
 	instanceId,
 	setAttributes,
-	postAuthorEmail,
+	autoRecipient = '',
+	autoRecipientSource = 'site_admin',
+	autoSubject = '',
 } ) => {
 	const [ emailErrors, setEmailErrors ] = useState( false );
 
@@ -67,9 +70,9 @@ const JetpackEmailConnectionSettings = ( {
 	};
 
 	const onBlurEmailField = e => {
+		// An empty field means "inherit the fallback recipient", so it must stay empty.
 		if ( e.target.value.length === 0 ) {
 			setEmailErrors( false );
-			setAttributes( { to: postAuthorEmail } );
 			return;
 		}
 
@@ -85,12 +88,16 @@ const JetpackEmailConnectionSettings = ( {
 		setAttributes( { to: email.trim() } );
 	};
 
+	const emailHelpText = `${ getAutoRecipientHelpText( autoRecipientSource ) } ${ __(
+		'You can enter multiple email addresses separated by commas.',
+		'jetpack-forms'
+	) }`;
+
 	return (
 		<>
 			<ToggleControl
-				label={ __( 'Send responses to email', 'jetpack-forms' ) }
+				label={ __( 'Email me new responses', 'jetpack-forms' ) }
 				checked={ emailNotifications }
-				help={ __( 'Get incoming form responses sent to your email inbox.', 'jetpack-forms' ) }
 				onChange={ value => setAttributes( { emailNotifications: value } ) }
 				__nextHasNoMarginBottom={ true }
 			/>
@@ -100,10 +107,10 @@ const JetpackEmailConnectionSettings = ( {
 						aria-describedby={ `contact-form-${ instanceId }-email-${
 							hasEmailErrors() ? 'error' : 'help'
 						}` }
-						label={ __( 'Email address to send to', 'jetpack-forms' ) }
-						placeholder={ __( 'name@example.com', 'jetpack-forms' ) }
+						label={ __( 'Send email notifications to', 'jetpack-forms' ) }
+						placeholder={ autoRecipient || __( 'name@example.com', 'jetpack-forms' ) }
 						onKeyDown={ e => {
-							if ( event.key === 'Enter' ) {
+							if ( e.key === 'Enter' ) {
 								e.preventDefault();
 								e.stopPropagation();
 							}
@@ -111,22 +118,25 @@ const JetpackEmailConnectionSettings = ( {
 						value={ emailAddress }
 						onBlur={ onBlurEmailField }
 						onChange={ onChangeEmailField }
-						help={ __(
-							'You can enter multiple email addresses separated by commas.',
-							'jetpack-forms'
-						) }
+						help={ emailHelpText }
 						__nextHasNoMarginBottom={ true }
 						__next40pxDefaultSize={ true }
 					/>
 
-					<HelpMessage isError id={ `contact-form-${ instanceId }-email-error` }>
-						{ getEmailErrors() }
-					</HelpMessage>
+					{ hasEmailErrors() && (
+						<Notice.Root
+							intent="error"
+							id={ `contact-form-${ instanceId }-email-error` }
+							style={ { marginBottom: '16px' } }
+						>
+							<Notice.Description>{ getEmailErrors() }</Notice.Description>
+						</Notice.Root>
+					) }
 
 					<TextControl
 						label={ __( 'Email subject line', 'jetpack-forms' ) }
 						value={ emailSubject }
-						placeholder={ __( 'Enter a subject', 'jetpack-forms' ) }
+						placeholder={ autoSubject || __( 'Enter a subject', 'jetpack-forms' ) }
 						onChange={ newSubject => setAttributes( { subject: newSubject } ) }
 						__nextHasNoMarginBottom={ true }
 						__next40pxDefaultSize={ true }

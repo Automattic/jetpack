@@ -13,18 +13,13 @@ use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
 /**
- * Premium podcast feature gate.
- *
- * Resolves the paid surfaces (episode dashboard, stats, episode block) two
- * ways depending on the host:
+ * Premium podcast feature gate (dashboard, stats, episode block). Two paths:
  *
  * - WordPress.com (Simple/WoA): the `podcasting` plan feature via
- *   `Current_Plan::supports`, plus the launch-day grandfather rule. Reads
- *   request-scoped state, so callers gating a different blog must
- *   `switch_to_blog` first.
- * - Self-hosted Jetpack: the site's purchased plan over the Jetpack
- *   connection. Per PODS-123, the Growth (and Complete) plans unlock the paid
- *   surfaces; everything else is feed-only.
+ *   `Current_Plan::supports`, plus the launch-day grandfather rule. Request-
+ *   scoped, so gating another blog needs `switch_to_blog` first.
+ * - Self-hosted Jetpack: a Growth/Complete purchase over the connection
+ *   (PODS-123). Only consulted in admin/editor contexts.
  */
 class Podcast_Gate {
 
@@ -38,20 +33,11 @@ class Podcast_Gate {
 	const GRANDFATHER_CUTOFF_DATE = '2026-05-18';
 
 	/**
-	 * Transient holding the cached `/upgrades` response. Short-lived (30s, set
-	 * below): mainly dedupes the lookup across a single page load. A buyer
-	 * returning from checkout busts it outright via `flush_purchases_cache()`,
-	 * so the TTL only bounds the unlikely case where that signal is missed.
+	 * Transient holding the cached `/upgrades` response. Short-lived (30s): dedupes
+	 * the lookup across the successive editor/admin loads that consult the gate,
+	 * without a synchronous WPCOM request on each one.
 	 */
 	const PURCHASES_TRANSIENT = 'jetpack_podcast_site_purchases';
-
-	/**
-	 * Request-scoped memo of the purchases lookup (including failures, so a
-	 * failed fetch isn't retried mid-request). Null until first resolved.
-	 *
-	 * @var array|null
-	 */
-	private static $purchases_cache = null;
 
 	/**
 	 * Whether the current site can use the paid podcast surfaces.
@@ -76,29 +62,25 @@ class Podcast_Gate {
 	}
 
 	/**
-	 * Drop the cached purchases lookup so the next access check re-reads
-	 * `/upgrades`. Called when a buyer returns from checkout so a fresh plan
-	 * unlocks the paid surfaces immediately rather than after the TTL.
+	 * The minimum plan slug to upsell: WordPress.com Premium (`value_bundle`) or
+	 * Jetpack Growth (`jetpack_growth_yearly`).
+	 *
+	 * @return string
 	 */
-	public static function flush_purchases_cache(): void {
-		delete_transient( self::PURCHASES_TRANSIENT );
-		self::$purchases_cache = null;
+	public static function get_required_plan_slug(): string {
+		return ( new Host() )->is_wpcom_platform() ? 'value_bundle' : 'jetpack_growth_yearly';
 	}
 
 	/**
-	 * Whether a self-hosted Jetpack site owns a Growth (or Complete) plan.
-	 *
-	 * Mirrors the bundle-detection pattern used by My Jetpack's Growth/Security
-	 * products: match purchased product slugs rather than the `podcasting`
-	 * feature, which maps to all Jetpack sites on WordPress.com and so can't
-	 * distinguish free from paid here.
+	 * Whether a self-hosted site owns a Growth/Complete plan. Matches purchased
+	 * product slugs, not the `podcasting` feature (which is true for every Jetpack
+	 * site on WordPress.com and can't tell free from paid here).
 	 */
 	private static function self_hosted_has_paid_plan(): bool {
 		foreach ( self::get_site_current_purchases() as $purchase ) {
 			$slug = is_array( $purchase ) && isset( $purchase['product_slug'] ) ? $purchase['product_slug'] : '';
 
-			// Growth and Complete bundles unlock the paid surfaces; matched as
-			// prefixes so every billing term/tier counts.
+			// Prefix match so every Growth/Complete billing term counts.
 			foreach ( array( 'jetpack_growth', 'jetpack_complete' ) as $prefix ) {
 				if ( is_string( $slug ) && 0 === strpos( $slug, $prefix ) ) {
 					return true;
@@ -110,23 +92,17 @@ class Podcast_Gate {
 	}
 
 	/**
-	 * The site's current purchases from WordPress.com (`/upgrades`).
+	 * The site's current purchases from WordPress.com (`/upgrades`). Cached in a
+	 * short transient so successive gate checks don't each fire a WPCOM request.
+	 * Fails closed to an empty list on any error, without caching it, so the next
+	 * request retries rather than serving a stale empty.
 	 *
-	 * Fails closed: an unreachable or malformed response returns no purchases
-	 * and isn't written to the transient, so the next request retries rather
-	 * than serving a stale empty result.
-	 *
-	 * @return array List of purchase entries (associative arrays); empty on failure.
+	 * @return array Purchase entries; empty on failure.
 	 */
 	private static function get_site_current_purchases(): array {
-		if ( null !== self::$purchases_cache ) {
-			return self::$purchases_cache;
-		}
-
 		$cached = get_transient( self::PURCHASES_TRANSIENT );
 		if ( is_array( $cached ) ) {
-			self::$purchases_cache = $cached;
-			return self::$purchases_cache;
+			return $cached;
 		}
 
 		$response = Client::wpcom_json_api_request_as_blog(
@@ -136,21 +112,16 @@ class Podcast_Gate {
 		);
 
 		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
-			self::$purchases_cache = array();
-			return self::$purchases_cache;
+			return array();
 		}
 
 		$decoded = json_decode( wp_remote_retrieve_body( $response ), true );
 		if ( ! is_array( $decoded ) ) {
-			self::$purchases_cache = array();
-			return self::$purchases_cache;
+			return array();
 		}
 
-		// 30s: short enough that a plan change shows up quickly even if the
-		// checkout-return bust is missed, long enough to dedupe a page load.
 		set_transient( self::PURCHASES_TRANSIENT, $decoded, 30 );
-		self::$purchases_cache = $decoded;
-		return self::$purchases_cache;
+		return $decoded;
 	}
 
 	/**

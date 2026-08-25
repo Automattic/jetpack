@@ -2,7 +2,14 @@
  * Internal dependencies
  */
 import { safeParseFloat } from '../../utils/parsing';
-import { coerceStatsRecord, createStatsListDataPoint, normalizeStatsReportSummary } from './utils';
+import {
+	coerceStatsRecord,
+	createStatsListDataPoint,
+	getStatsReportItems,
+	limitStatsRows,
+	mergeStatsComparisonRows,
+	normalizeStatsReportSummary,
+} from './utils';
 import type { StatsNormalizedItemBase, StatsNormalizedReport } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
@@ -20,6 +27,10 @@ export interface StatsDevicesItem extends StatsNormalizedItemBase {
 	children: null;
 }
 
+export type StatsDevicesComparisonItem = StatsDevicesItem & {
+	previousValue?: number;
+};
+
 /**
  * Parse the `top_values` object returned by `stats/devices/{property}`.
  *
@@ -31,9 +42,6 @@ export interface StatsDevicesItem extends StatsNormalizedItemBase {
  * ```
  *
  * Items are sorted descending by value.
- *
- * @param topValues - Raw top_values object from the API.
- * @return Normalized device items.
  */
 function parseTopValues( topValues: Record< string, unknown > ): StatsDevicesItem[] {
 	return Object.entries( topValues )
@@ -56,10 +64,6 @@ function parseTopValues( topValues: Record< string, unknown > ): StatsDevicesIte
  * ```
  *
  * `top_values` is a plain object (dict), not an array.
- *
- * @param response - Raw WPCOM Stats API response.
- * @param query    - Stats query params (used to detect summarize mode).
- * @return Normalized report.
  */
 export function sanitizeStatsDevicesResponse(
 	response: unknown,
@@ -73,4 +77,24 @@ export function sanitizeStatsDevicesResponse(
 		summary: normalizeStatsReportSummary( response, query ),
 		data: items.length ? [ createStatsListDataPoint( response, query, items ) ] : [],
 	};
+}
+
+export function mergeStatsDevicesComparisonRows(
+	primaryReport?: StatsNormalizedReport< StatsDevicesItem >,
+	comparisonReport?: StatsNormalizedReport< StatsDevicesItem >,
+	maxRows?: number
+) {
+	return mergeStatsComparisonRows< StatsDevicesItem, StatsDevicesItem, StatsDevicesComparisonItem >(
+		{
+			primaryRows: limitStatsRows( getStatsReportItems( primaryReport ), maxRows ),
+			comparisonRows: getStatsReportItems( comparisonReport ),
+			getPrimaryKey: item => item.label,
+			getComparisonKey: item => item.label,
+			getComparisonValue: item => item.value,
+			mapRow: ( item, { previousValue } ) => ( {
+				...item,
+				previousValue,
+			} ),
+		}
+	);
 }

@@ -12,6 +12,14 @@
 		cursor: not-allowed;
 	}
 
+	// At-limit upgrade notice rendered above the listing. The tabpanel is a
+	// column flex (see dashboard-layout/style.scss), so the notice stacks on
+	// top of the flex-growing viewport; the margin matches the Overview
+	// tab's 24px gutter.
+	&__notice {
+		margin: 24px 24px 0;
+	}
+
 	&__viewport {
 		display: flex;
 		flex-direction: column;
@@ -68,6 +76,18 @@
 			@container (max-width: 120px) {
 				display: none;
 			}
+		}
+	}
+
+	// Orientation indicator: the core `mobile` icon reads as a portrait
+	// phone; a quarter turn makes it read as a landscape one.
+	&__orientation {
+		display: inline-flex;
+		align-items: center;
+		color: currentColor;
+
+		&--landscape svg {
+			transform: rotate(90deg);
 		}
 	}
 

@@ -6,12 +6,12 @@
 	overflow: hidden;
 }
 
-.placeholder {
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
 	flex: 1 1 0;
-	min-block-size: 0;
-	inline-size: 100%;
-	color: var(--wpds-color-foreground-content-neutral-weak);
-	text-align: center;
+	min-height: 0;
 }
 
 .itemLabel {

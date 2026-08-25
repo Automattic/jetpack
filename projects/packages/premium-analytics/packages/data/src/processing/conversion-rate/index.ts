@@ -25,10 +25,6 @@ type SanitizedConversionRateByDateItem = Override<
 	}
 >;
 
-/**
- * Sanitize/process a single conversion rate item by converting strings to numbers
- * and calculating the conversion rate
- */
 function sanitizeConversionRateItem(
 	item: RawConversionRateReportDataItem
 ): SanitizedConversionRateByDateItem {
@@ -53,9 +49,6 @@ function sanitizeConversionRateItem(
 	};
 }
 
-/**
- * Funnel step for conversion rate visualization
- */
 type FunnelStep = {
 	id: string;
 	label: string;
@@ -63,9 +56,6 @@ type FunnelStep = {
 	rate: number;
 };
 
-/**
- * Processed response with funnel steps and overall conversion rate
- */
 type SanitizedConversionRateByDateResponse = {
 	summary: SanitizedConversionRateByDateItem;
 	data: SanitizedConversionRateByDateItem[];
@@ -74,9 +64,6 @@ type SanitizedConversionRateByDateResponse = {
 };
 
 /**
- * Sanitize the response from the sessions/by-conversion-rate endpoint
- * Converts string values to numbers for easier calculations and charting.
- *
  * The `summary` single item has basically the same structure
  * as the `data` array items, so we can use the same mapper function for both.
  */
@@ -96,17 +83,16 @@ export const sanitizeReportConversionRateResponse = (
 
 	const sanitizedSummary = sanitizeConversionRateItem( response?.summary || defaultSummary );
 
-	// Create funnel steps from the summary data
 	const steps: FunnelStep[] = [
 		{
 			id: 'sessions',
-			label: __( 'Sessions', 'jetpack-premium-analytics' ),
+			label: __( 'Sessions', 'jetpack-premium-analytics-pkg' ),
 			count: sanitizedSummary.active_sessions,
 			rate: 100, // Starting point
 		},
 		{
 			id: 'cart-addition',
-			label: __( 'Cart', 'jetpack-premium-analytics' ),
+			label: __( 'Cart', 'jetpack-premium-analytics-pkg' ),
 			count: sanitizedSummary.with_cart_addition,
 			rate:
 				sanitizedSummary.active_sessions > 0
@@ -115,7 +101,7 @@ export const sanitizeReportConversionRateResponse = (
 		},
 		{
 			id: 'checkout',
-			label: __( 'Checkout', 'jetpack-premium-analytics' ),
+			label: __( 'Checkout', 'jetpack-premium-analytics-pkg' ),
 			count: sanitizedSummary.reached_checkout,
 			rate:
 				sanitizedSummary.active_sessions > 0
@@ -124,7 +110,7 @@ export const sanitizeReportConversionRateResponse = (
 		},
 		{
 			id: 'completed',
-			label: __( 'Purchase', 'jetpack-premium-analytics' ),
+			label: __( 'Purchase', 'jetpack-premium-analytics-pkg' ),
 			count: sanitizedSummary.completed_checkout,
 			rate:
 				sanitizedSummary.active_sessions > 0

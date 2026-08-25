@@ -3,15 +3,14 @@
  */
 import { useReportOrderAttribution, type FilterCondition } from '@jetpack-premium-analytics/data';
 import { device } from '@jetpack-premium-analytics/icons';
+import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { BarChart } from '../../components';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
+import { BarChart, BarChartSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../components/widget-root';
-import { buildSalesByDeviceData } from '../../helpers';
-import { useWidgetError } from '../../hooks';
+import { buildSalesByDeviceData, isEmptyChartData } from '../../helpers';
 import { useBarStyles } from '../common';
 
 type SalesByDeviceWidgetProps = {
@@ -22,38 +21,24 @@ type SalesByDeviceWidgetProps = {
 	 * When omitted, shows data for all product types.
 	 */
 	filter?: FilterCondition;
+
+	emptyStateText?: string;
+
+	errorText?: string;
 };
 
 /**
- * Sales by Device Widget Component
+ * Bar chart of sales by device type (Desktop, Mobile, Tablet).
  *
- * Displays a bar chart showing sales breakdown by device type (Desktop, Mobile, Tablet).
- *
- * Features:
- * - Optional product type filtering (e.g., bookings only)
- * - Comparison support (current vs previous period)
- *
- * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @param props        - Component props
- * @param props.filter - Optional product type filter
- *
- * @example
- * // All product types
- * <WidgetRoot attributes={ attributes }>
- *     <SalesByDeviceWidget />
- * </WidgetRoot>
- *
- * @example
- * // Bookings only
- * <WidgetRoot attributes={ attributes }>
- *     <SalesByDeviceWidget filter={ BOOKINGS_FILTER } />
- * </WidgetRoot>
+ * Must render within a WidgetRoot, which provides reportParams via context.
  */
-export function SalesByDeviceWidget( { filter }: SalesByDeviceWidgetProps ) {
+export function SalesByDeviceWidget( {
+	filter,
+	emptyStateText,
+	errorText,
+}: SalesByDeviceWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
 
-	// Add the device view to params
 	const paramsWithView = useMemo(
 		() => ( {
 			...reportParams,
@@ -63,11 +48,8 @@ export function SalesByDeviceWidget( { filter }: SalesByDeviceWidgetProps ) {
 		[ reportParams, filter ]
 	);
 
-	const { primary, hasComparison, isLoading, isFetching, hasData, isError, error, refetch } =
+	const { primary, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
 		useReportOrderAttribution( paramsWithView );
-
-	const isInitialLoading = isLoading && ! hasData;
-	const isRefetching = isFetching && hasData;
 
 	const { chartData } = useMemo(
 		() => buildSalesByDeviceData( primary.data, hasComparison, reportParams ),
@@ -76,17 +58,31 @@ export function SalesByDeviceWidget( { filter }: SalesByDeviceWidgetProps ) {
 
 	const barStyles = useBarStyles( chartData );
 
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null;
-	}
-
-	if ( isInitialLoading ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
-		<>
+		<WidgetState
+			isLoading={ isLoading }
+			isFetching={ isFetching }
+			// The report queries keep the previous period's data as placeholders
+			// across range changes, so only surface the error when there is
+			// nothing to show.
+			isError={ isError && ! hasData }
+			isEmpty={ isEmptyChartData( chartData ) }
+			error={ {
+				description:
+					errorText ??
+					__(
+						"We couldn't load sales by device data. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: device,
+				description:
+					emptyStateText ?? __( 'No sales data in this period.', 'jetpack-premium-analytics-pkg' ),
+			} }
+			renderLoading={ <BarChartSkeleton /> }
+		>
 			<BarChart
 				chartData={ chartData }
 				styles={ barStyles }
@@ -94,9 +90,7 @@ export function SalesByDeviceWidget( { filter }: SalesByDeviceWidgetProps ) {
 					type: 'currency',
 					options: { useMultipliers: true, decimals: 0 },
 				} }
-				emptyStateIcon={ device }
 			/>
-			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
+		</WidgetState>
 	);
 }

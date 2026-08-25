@@ -289,6 +289,14 @@ class Connections_Controller extends Base_Controller {
 			return $connections;
 		}
 
+		/*
+		 * The Jetpack site path proxies to WPCOM instead of going through Connections::get_all(),
+		 * so the filter is applied here too to keep both paths consistent.
+		 *
+		 * This filter is documented in projects/packages/publicize/src/class-connections.php
+		 */
+		$connections = (array) apply_filters( 'jetpack_publicize_connections', $connections );
+
 		$items = array();
 
 		foreach ( $connections as $item ) {
@@ -310,14 +318,46 @@ class Connections_Controller extends Base_Controller {
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error True if the request has access to create items, WP_Error object otherwise.
 	 */
-	public function create_item_permissions_check( $request ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function create_item_permissions_check( $request ) {
 		$permissions = parent::publicize_permissions_check();
 
 		if ( is_wp_error( $permissions ) ) {
 			return $permissions;
 		}
 
+		$shared_permission = $this->check_shared_param_permission( $request );
+
+		if ( is_wp_error( $shared_permission ) ) {
+			return $shared_permission;
+		}
+
 		return current_user_can( 'publish_posts' );
+	}
+
+	/**
+	 * Check whether the request is allowed to set the `shared` flag on a connection.
+	 *
+	 * Shared connections are usable by every author on the site, so only editors
+	 * and above may set the flag. Used by both the create and the update permission
+	 * check, so the rule cannot drift between the two.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return true|WP_Error True if the request may proceed, WP_Error object otherwise.
+	 */
+	protected function check_shared_param_permission( $request ) {
+		if ( ! $request->has_param( 'shared' ) ) {
+			return true;
+		}
+
+		if ( ! current_user_can( 'edit_others_posts' ) ) {
+			return new WP_Error(
+				'rest_cannot_share_connection',
+				__( 'Sorry, you are not allowed to share connections with other users.', 'jetpack-publicize-pkg' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
 	}
 
 	/**
@@ -395,10 +435,10 @@ class Connections_Controller extends Base_Controller {
 			);
 		}
 
-		// If the connection is being marked/unmarked as shared.
-		if ( $request->has_param( 'shared' ) ) {
-			// Only editors and above can mark a connection as shared.
-			return current_user_can( 'edit_others_posts' );
+		$shared_permission = $this->check_shared_param_permission( $request );
+
+		if ( is_wp_error( $shared_permission ) ) {
+			return $shared_permission;
 		}
 
 		return current_user_can( 'publish_posts' );

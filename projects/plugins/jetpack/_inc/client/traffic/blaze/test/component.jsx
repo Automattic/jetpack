@@ -180,7 +180,7 @@ describe( 'Blaze settings', () => {
 		expect( screen.getByRole( 'button', { name: /^Close$/ } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /Manage campaigns/ } ) ).toHaveAttribute(
 			'href',
-			'https://example.com/wp-admin/tools.php?page=advertising'
+			'https://example.com/wp-admin/admin.php?page=advertising'
 		);
 	} );
 

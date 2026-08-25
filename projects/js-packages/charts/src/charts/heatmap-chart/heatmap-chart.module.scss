@@ -1,3 +1,8 @@
+// Focus-ring width shared across the grid and cell-selected focus outlines. A
+// Sass var, not a custom property: a compile-time constant scoped to this
+// module, so it needs no runtime cascade and never lands on the DOM.
+$focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px));
+
 .heatmap-chart {
 	width: 100%;
 	height: 100%;
@@ -5,16 +10,27 @@
 	font-size: var(--wpds-typography-font-size-sm, 12px);
 }
 
+// Height-capped grids are content-sized vertically, so the wrapper hugs them
+// instead of stretching — the consumer decides how to place it in leftover
+// space. Width-only caps keep the normal full-height layout.
+.heatmap-chart--height-capped {
+	height: max-content;
+}
+
 .heatmap-chart__empty {
 	padding: var(--wpds-dimension-padding-lg, 16px);
-	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+	color: var(--a8c-charts-color-label-secondary);
 }
 
 // Track template is set inline because CSS `repeat()` won't take a `var()`
 // count. ARIA rows are `display: contents` so their cells join this grid.
 .heatmap-chart__grid {
 	display: grid;
-	gap: var(--heatmap-cell-gap, var(--wpds-dimension-gap-xs, 4px));
+	// --a8c-charts-dimension-heatmap-cell-gap is component-emitted from JS per
+	// render, not a catalog entry. Do not collapse this to a bare var(); the
+	// inner WPDS fallback is the only value this property has when the JS var
+	// is unset.
+	gap: var(--a8c-charts-dimension-heatmap-cell-gap, var(--wpds-dimension-gap-xs, 4px));
 	flex: 1 1 0;
 	width: 100%;
 	// Override flex's auto minimum so short widgets do not scroll.
@@ -22,7 +38,7 @@
 
 	&:focus-visible {
 		outline:
-			var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px)) solid
+			$focus-ring-width solid
 			var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9));
 		outline-offset: 2px;
 		border-radius: var(--wpds-border-radius-sm, 2px);
@@ -36,13 +52,22 @@
 	min-height: 0;
 }
 
+// A cell-height cap makes the row tracks content-bound, so the grid must not
+// stretch: leftover container height would otherwise be absorbed by the auto
+// label row. A width-only cap does not change vertical flex sizing.
+.heatmap-chart__grid--height-capped {
+	flex: 0 0 auto;
+	height: max-content;
+	min-height: 0;
+}
+
 .heatmap-chart__row {
 	display: contents;
 }
 
 .heatmap-chart__col-label,
 .heatmap-chart__row-label {
-	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+	color: var(--a8c-charts-color-label-secondary);
 	font-size: var(--wpds-typography-font-size-xs, 11px);
 	white-space: nowrap;
 	overflow: visible;
@@ -66,38 +91,54 @@
 	justify-content: center;
 	min-width: 0;
 	min-height: 0;
-	border-radius: var(--wpds-border-radius-sm, 2px);
+	border-radius: var(--a8c-charts-border-radius-cell);
 	// Empty (no-data) default; cells with a value override it below.
-	background: var(--wpds-color-background-track-neutral-weak, #f0f0f0);
+	background: var(--a8c-charts-color-track);
+}
+
+// An empty grid slot (calendar ragged edges): keeps its track but paints and
+// captures nothing. `visibility` (not `display`) so the slot still sizes.
+.heatmap-chart__cell--hidden {
+	visibility: hidden;
+	pointer-events: none;
+}
+
+// Grid filler: keeps its slot so the grid reads as continuous, but stands for a
+// day nothing was measured for — so it captures no pointer, and its track is
+// faded to keep it apart from a measured day that simply scored zero. Mixed
+// towards `transparent` rather than a lighter grey so it holds in either theme.
+.heatmap-chart__cell--placeholder {
+	pointer-events: none;
+	background: color-mix(in sRGB, var(--a8c-charts-color-track) 45%, transparent);
 }
 
 // Floor the mix at 15% so the lowest value stays visibly tinted, distinct from
 // an empty cell.
 .heatmap-chart__cell--filled {
-	background: color-mix(in sRGB, var(--heatmap-primary) calc((0.15 + 0.85 * var(--intensity)) * 100%), var(--heatmap-bg, #fff));
+	background: color-mix(in sRGB, var(--a8c-charts-color-heatmap-primary) calc((0.15 + 0.85 * var(--a8c-charts-heatmap-cell-intensity)) * 100%), var(--a8c-charts-color-heatmap-background, #fff));
 }
 
 .heatmap-chart__cell--selected {
 	outline:
-		var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px)) solid
+		$focus-ring-width solid
 		var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9));
-	outline-offset: calc(-1 * var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px)));
+	outline-offset: calc(-1 * #{$focus-ring-width});
 }
 
 .heatmap-chart__cell-value {
-	color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+	color: var(--a8c-charts-color-label);
 	font-size: var(--wpds-typography-font-size-md, 13px);
 }
 
 // Light text on fills dark enough to out-contrast dark text (decided in JS from
 // the blended fill luminance).
 .heatmap-chart__cell--strong .heatmap-chart__cell-value {
-	color: var(--wpds-color-foreground-interactive-neutral-strong, #f0f0f0);
+	color: var(--a8c-charts-color-label-inverse);
 }
 
 .heatmap-chart__legend-swatch {
 	width: var(--wpds-dimension-size-3xs, 12px);
 	height: var(--wpds-dimension-size-3xs, 12px);
-	border-radius: var(--wpds-border-radius-sm, 2px);
-	background: color-mix(in sRGB, var(--heatmap-primary) calc((0.15 + 0.85 * var(--intensity)) * 100%), var(--heatmap-bg, #fff));
+	border-radius: var(--a8c-charts-border-radius-cell);
+	background: color-mix(in sRGB, var(--a8c-charts-color-heatmap-primary) calc((0.15 + 0.85 * var(--a8c-charts-heatmap-cell-intensity)) * 100%), var(--a8c-charts-color-heatmap-background, #fff));
 }

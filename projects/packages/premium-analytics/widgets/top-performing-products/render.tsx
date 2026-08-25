@@ -24,14 +24,7 @@ type TopPerformingProductsWidgetProps =
 	};
 
 /**
- * Top performing products widget.
- *
- * Thin composition over the widgets-toolkit: WidgetRoot provides the query
- * client, chart theme, and resolved report params; TopPerformingProductsWidget
- * fetches physical product data and renders a revenue leaderboard.
- *
- * @param {TopPerformingProductsWidgetProps} props - The widget render props.
- * @return The rendered widget.
+ * Physical products ranked by revenue.
  */
 export default function TopPerformingProductsRender( {
 	attributes = {},

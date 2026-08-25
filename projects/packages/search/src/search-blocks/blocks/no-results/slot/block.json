@@ -1,0 +1,43 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack-search/no-results-slot",
+	"version": "0.1.0",
+	"title": "No Results Variant",
+	"category": "jetpack-search",
+	"description": "Content for one empty-state condition — put any blocks inside, including links, images, and buttons. Powered by Jetpack Search.",
+	"parent": [ "jetpack-search/no-results" ],
+	"attributes": {
+		"condition": {
+			"type": "string",
+			"enum": [ "any", "filtered", "error" ],
+			"default": "any"
+		}
+	},
+	"supports": {
+		"html": false,
+		"interactivity": true,
+		"layout": {
+			"default": {
+				"type": "constrained"
+			}
+		},
+		"color": {
+			"background": true,
+			"text": true,
+			"link": true
+		},
+		"spacing": {
+			"padding": true,
+			"margin": true,
+			"blockGap": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"fontFamily": true
+		}
+	},
+	"textdomain": "jetpack-search-pkg",
+	"render": "file:./render.php"
+}

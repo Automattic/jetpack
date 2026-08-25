@@ -37,9 +37,9 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( { steps = 5, lessLabel,
 							className={ styles[ 'heatmap-chart__legend-swatch' ] }
 							style={
 								{
-									'--heatmap-primary': primaryColorHex,
-									'--heatmap-bg': backgroundColor,
-									'--intensity': intensity,
+									'--a8c-charts-color-heatmap-primary': primaryColorHex,
+									'--a8c-charts-color-heatmap-background': backgroundColor,
+									'--a8c-charts-heatmap-cell-intensity': intensity,
 								} as CSSProperties
 							}
 						/>

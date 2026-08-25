@@ -14,16 +14,18 @@ import {
 	sanitizeStatsCommentFollowersResponse,
 	sanitizeStatsFollowersResponse,
 	sanitizeStatsCommentsResponse,
+	sanitizeStatsHourOfDayResponse,
 	sanitizeStatsInsightsResponse,
 	sanitizeStatsStreakResponse,
 	sanitizeStatsVisitsResponse,
 	sanitizeStatsTagsResponse,
 	sanitizeStatsTimeSeriesResponse,
 	sanitizeStatsEmailTimeSeriesResponse,
-	sanitizeStatsPublicizeResponse,
 	sanitizeStatsEmailBreakdownResponse,
 	sanitizeStatsEmailSummaryResponse,
 	sanitizeStatsPassthroughResponse,
+	sanitizeStatsPostCommentsResponse,
+	sanitizeStatsPostLikesResponse,
 	sanitizeStatsPostResponse,
 	sanitizeStatsReferrersResponse,
 	sanitizeStatsSearchTermsResponse,
@@ -31,6 +33,7 @@ import {
 	sanitizeStatsSiteResponse,
 	sanitizeStatsSubscribersCountsResponse,
 	sanitizeStatsSubscribersResponse,
+	sanitizeStatsSummaryResponse,
 	sanitizeStatsTopAuthorsResponse,
 	sanitizeStatsTopPostsResponse,
 	sanitizeStatsUtmResponse,
@@ -53,9 +56,16 @@ import type { UseQueryOptions } from '@tanstack/react-query';
 export type StatsReportParams = ReportParams & StatsQueryParamFields;
 type StatsSanitizer< TData = unknown > = ( response: unknown, params?: StatsQueryParams ) => TData;
 
+type StatsReportQuerySettings = {
+	/** Query params derived from the shared report range that this endpoint does not accept. */
+	omitParams?: readonly ( keyof StatsQueryParamFields )[];
+};
+
 const statsSanitizers = {
 	passthrough: sanitizeStatsPassthroughResponse,
 	post: sanitizeStatsPostResponse,
+	postComments: sanitizeStatsPostCommentsResponse,
+	postLikes: sanitizeStatsPostLikesResponse,
 	site: sanitizeStatsSiteResponse,
 	topPosts: sanitizeStatsTopPostsResponse,
 	referrers: sanitizeStatsReferrersResponse,
@@ -76,16 +86,17 @@ const statsSanitizers = {
 	tags: sanitizeStatsTagsResponse,
 	utm: sanitizeStatsUtmResponse,
 	visits: sanitizeStatsVisitsResponse,
+	hourOfDay: sanitizeStatsHourOfDayResponse,
 	timeSeries: sanitizeStatsTimeSeriesResponse,
 	emailTimeSeries: sanitizeStatsEmailTimeSeriesResponse,
 	subscribers: sanitizeStatsSubscribersResponse,
 	subscribersCounts: sanitizeStatsSubscribersCountsResponse,
-	publicize: sanitizeStatsPublicizeResponse,
 	wordAdsStats: sanitizeStatsWordAdsStatsResponse,
 	wordAdsEarnings: sanitizeStatsWordAdsEarningsResponse,
 	emailBreakdown: sanitizeStatsEmailBreakdownResponse,
 	emailSummary: sanitizeStatsEmailSummaryResponse,
 	singleVideo: sanitizeStatsSingleVideoResponse,
+	summary: sanitizeStatsSummaryResponse,
 } satisfies Record< string, StatsSanitizer >;
 
 export type StatsSanitizerKey = keyof typeof statsSanitizers;
@@ -165,11 +176,18 @@ export function statsReportQuery< TSanitizer extends StatsSanitizerKey >(
 	version: StatsProxyVersion = '1.1',
 	// Endpoint-specific params that should reach the API but are not in the
 	// reportParamsToStatsQueryParams allow-list (e.g. filter_by_country).
-	extraParams?: StatsProxyParams
+	extraParams?: StatsProxyParams,
+	settings?: StatsReportQuerySettings
 ): StatsReportQueryOptions< TSanitizer > {
 	const statsParams = reportParamsToStatsQueryParams( params );
 	const reportParams = {
 		...statsParams,
+		// List reports are day-bucketed: `days` counts calendar days and the
+		// summarized window is `period` × `days`, so the dashboard's chart
+		// interval must not leak in as the period (e.g. `period=week` with
+		// `days=189` would cover 189 weeks). Callers can still force a period
+		// explicitly via `params.period`.
+		...( params.period === undefined ? { period: 'day' as const } : {} ),
 		...extraParams,
 		...( statsParams.summarize === undefined &&
 		typeof statsParams.days === 'number' &&
@@ -177,13 +195,18 @@ export function statsReportQuery< TSanitizer extends StatsSanitizerKey >(
 			? { summarize: 1 }
 			: {} ),
 	};
+	const queryParams: StatsQueryParams = { ...reportParams };
+
+	for ( const param of settings?.omitParams ?? [] ) {
+		delete queryParams[ param ];
+	}
 
 	return statsProxyQuery( {
 		name,
 		version,
 		endpoint,
-		params: reportParams,
+		params: queryParams,
 		sanitizer,
-		enabled: !! ( reportParams.end_date || reportParams.date || reportParams.start_date ),
+		enabled: !! ( queryParams.end_date || queryParams.date || queryParams.start_date ),
 	} );
 }

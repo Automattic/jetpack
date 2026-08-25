@@ -5,6 +5,9 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-launchpad-navigator.php';
+
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
@@ -207,5 +210,92 @@ class Launchpad_Retired_Site_Intents_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( 'design-first', get_option( 'site_intent' ), 'the switched-to blog must survive' );
 		$this->assertSame( 'full', get_option( 'launchpad_screen' ), 'the switched-to blog must survive' );
+	}
+
+	/**
+	 * A Navigator config left pointing at a retired checklist reports no active
+	 * checklist, rather than one that no longer exists. This can outlive the
+	 * intent cleanup, so it must not depend on `site_intent` still matching.
+	 */
+	public function test_retired_active_checklist_slug_reads_as_none() {
+		wpcom_register_default_launchpad_checklists();
+		// Cleared already, to prove the repair does not depend on the intent still matching.
+		update_option( 'site_intent', '' );
+		update_option(
+			'wpcom_launchpad_config',
+			array(
+				'active_checklist_slug' => 'start-writing',
+				'navigator_checklists'  => array( 'start-writing', 'design-first' ),
+			)
+		);
+
+		$this->assertNull( wpcom_launchpad_get_active_checklist(), 'retired active slug must read as none' );
+	}
+
+	/**
+	 * A live active checklist is still reported.
+	 */
+	public function test_live_active_checklist_slug_is_reported() {
+		wpcom_register_default_launchpad_checklists();
+		update_option(
+			'wpcom_launchpad_config',
+			array( 'active_checklist_slug' => 'design-first' )
+		);
+
+		$this->assertSame( 'design-first', wpcom_launchpad_get_active_checklist() );
+	}
+
+	/**
+	 * Removing a retired active checklist promotes the next registered one, rather
+	 * than leaving the retired slug stored with no active checklist reported.
+	 */
+	public function test_removing_retired_active_checklist_promotes_next_registered() {
+		wpcom_register_default_launchpad_checklists();
+		update_option(
+			'wpcom_launchpad_config',
+			array(
+				'active_checklist_slug' => 'start-writing',
+				'navigator_checklists'  => array( 'start-writing', 'design-first' ),
+			)
+		);
+
+		$result = wpcom_launchpad_navigator_remove_checklist( 'start-writing' );
+
+		$this->assertSame( 'design-first', $result['new_active_checklist'], 'the next registered checklist must be promoted' );
+		$this->assertSame( 'design-first', wpcom_launchpad_get_active_checklist(), 'the promotion must be persisted' );
+	}
+
+	/**
+	 * A non-string active checklist slug from malformed legacy state reads as none
+	 * rather than fataling on the registered-checklist lookup.
+	 */
+	public function test_malformed_active_checklist_slug_reads_as_none() {
+		wpcom_register_default_launchpad_checklists();
+		update_option(
+			'wpcom_launchpad_config',
+			array( 'active_checklist_slug' => array( 'unexpected' ) )
+		);
+
+		$this->assertNull( wpcom_launchpad_get_active_checklist() );
+	}
+
+	/**
+	 * Retired slugs are accepted for reads and removal, but not for setting the
+	 * active checklist, so a retired flow cannot be re-selected.
+	 */
+	public function test_navigator_enums_separate_reads_from_mutations() {
+		wpcom_register_default_launchpad_checklists();
+		$navigator = new WPCOM_REST_API_V2_Endpoint_Launchpad_Navigator();
+
+		$registered = $navigator->get_checklist_slug_enums();
+		$this->assertContains( 'design-first', $registered );
+		$this->assertNotContains( 'start-writing', $registered, 'mutations must not accept a retired slug' );
+
+		$readable = $navigator->get_readable_checklist_slug_enums();
+		$this->assertContains( 'start-writing', $readable, 'reads and removal must accept a retired slug' );
+
+		$this->assertFalse( $navigator->validate_checklist_slug_param( 'start-writing' ), 'setting a retired slug active must be rejected' );
+		$this->assertTrue( $navigator->validate_checklist_slug_param( 'design-first' ) );
+		$this->assertTrue( $navigator->validate_checklist_slug_param( null ), 'clearing the active checklist must stay allowed' );
 	}
 }

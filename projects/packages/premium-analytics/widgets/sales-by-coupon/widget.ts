@@ -1,19 +1,15 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
- * The widget has no user-configurable attributes. Report params still reach it
- * through WidgetRoot: the dashboard date range, or `attributes.reportParams`
- * when a host injects them (e.g. Storybook and dashboard previews).
+ * No user-configurable attributes; report params still reach the widget through
+ * WidgetRoot (dashboard date range, or `attributes.reportParams` from a host).
  */
 export type SalesByCouponAttributes = Record< never, never >;
 
 /**
- * Widget type definition.
- *
  * Ported from `woocommerce-analytics/sales-by-coupon` in
  * woocommerce/woocommerce-analytics (next-woocommerce-analytics).
  *
@@ -23,11 +19,5 @@ export type SalesByCouponAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/sales-by-coupon',
-	title: __( 'Sales by coupon', 'jetpack-premium-analytics' ),
-	description: __(
-		'Shows the top coupon codes by order revenue over the selected time period.',
-		'jetpack-premium-analytics'
-	),
 	icon: chartBar,
 };

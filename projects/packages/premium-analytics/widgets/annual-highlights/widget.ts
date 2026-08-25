@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { calendar } from '@wordpress/icons';
+import { pin } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -40,32 +40,30 @@ export const DEFAULT_HIGHLIGHT_METRICS: AnnualHighlightMetric[] = [
  * metric enabled.
  */
 export default {
-	name: 'jpa/annual-highlights',
-	title: __( 'Annual highlights', 'jetpack-premium-analytics' ),
-	icon: calendar,
+	icon: pin,
 	attributes: [
 		{
 			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics' ),
+			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
 			type: 'array',
 			relevance: 'high',
 			Edit: ArrayCheckboxField,
 			elements: [
 				{
 					value: 'posts',
-					label: __( 'Posts', 'jetpack-premium-analytics' ),
+					label: __( 'Posts', 'jetpack-premium-analytics-pkg' ),
 				},
 				{
 					value: 'words',
-					label: __( 'Words', 'jetpack-premium-analytics' ),
+					label: __( 'Words', 'jetpack-premium-analytics-pkg' ),
 				},
 				{
 					value: 'likes',
-					label: __( 'Likes', 'jetpack-premium-analytics' ),
+					label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
 				},
 				{
 					value: 'comments',
-					label: __( 'Comments', 'jetpack-premium-analytics' ),
+					label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 				},
 			],
 		},

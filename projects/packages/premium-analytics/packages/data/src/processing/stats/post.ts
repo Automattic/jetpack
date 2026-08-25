@@ -1,3 +1,4 @@
+import { format, isValid, parse } from 'date-fns';
 import { safeParseFloat } from '../../utils/parsing';
 import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from './utils';
 
@@ -22,6 +23,16 @@ export type StatsPostWeek = {
 };
 
 type StatsPostRawNumeric = number | string;
+
+/**
+ * One day of the post's full view history. The endpoint's `data` field is an
+ * array of `[date, views]` tuples covering every day since publication (unlike
+ * `weeks`, which the server hard-codes to a recent seven-week window).
+ */
+export type StatsPostDay = {
+	date: string;
+	views: number;
+};
 
 type StatsPostRawYear = {
 	total?: StatsPostRawNumeric;
@@ -54,11 +65,12 @@ export type StatsPostMeta = {
 	post_date?: string;
 	post_date_gmt?: string;
 	post_status?: string;
-	comment_count?: StatsPostRawNumeric;
+	comment_count?: number;
 };
 
 export type StatsPostRawResponse = {
 	date?: string;
+	data?: unknown[];
 	views?: StatsPostRawNumeric;
 	like_count?: StatsPostRawNumeric;
 	years?: Record< string, StatsPostRawYear >;
@@ -72,6 +84,7 @@ export type StatsPostRawResponse = {
 
 export type StatsPostResponse = {
 	date?: string;
+	data?: StatsPostDay[];
 	views?: number;
 	like_count?: number;
 	years?: Record< string, StatsPostYear >;
@@ -82,6 +95,18 @@ export type StatsPostResponse = {
 	highest_week_average?: number;
 	post?: StatsPostMeta;
 };
+
+const STATS_POST_DAY_FORMAT = 'yyyy-MM-dd';
+
+/** A real calendar day in the API's `YYYY-MM-DD` format. */
+function isValidStatsPostDay( value: string ): boolean {
+	if ( ! /^\d{4}-\d{2}-\d{2}$/.test( value ) ) {
+		return false;
+	}
+
+	const parsed = parse( value, STATS_POST_DAY_FORMAT, new Date( 0 ) );
+	return isValid( parsed ) && format( parsed, STATS_POST_DAY_FORMAT ) === value;
+}
 
 function normalizeStatsPostYear( value: unknown ): StatsPostYear {
 	const year = coerceStatsRecord( value );
@@ -104,6 +129,26 @@ function normalizeStatsPostYears( value: unknown ) {
 	);
 }
 
+function normalizeStatsPostDays( value: unknown ): StatsPostDay[] {
+	return (
+		coerceStatsArray( value )
+			.flatMap( entry => {
+				if (
+					! Array.isArray( entry ) ||
+					typeof entry[ 0 ] !== 'string' ||
+					! isValidStatsPostDay( entry[ 0 ] )
+				) {
+					return [];
+				}
+
+				return [ { date: entry[ 0 ], views: safeParseFloat( entry[ 1 ] ) } ];
+			} )
+			// Consumers clamp date windows against the first/last entries, so
+			// guarantee oldest-first ordering regardless of the API's order.
+			.sort( ( a, b ) => a.date.localeCompare( b.date ) )
+	);
+}
+
 function normalizeStatsPostWeek( value: unknown ): StatsPostWeek {
 	const week = coerceStatsRecord( value );
 
@@ -122,6 +167,21 @@ function normalizeStatsPostWeek( value: unknown ): StatsPostWeek {
 	};
 }
 
+/**
+ * Normalizes the post meta, parsing `comment_count` and leaving an absent count
+ * absent so consumers can tell unknown from a real zero.
+ */
+function normalizeStatsPostMeta( value: unknown ): StatsPostMeta {
+	const meta = coerceStatsRecord( value );
+
+	return {
+		...( meta as StatsPostMeta ),
+		...( meta.comment_count !== undefined
+			? { comment_count: safeParseFloat( meta.comment_count ) }
+			: {} ),
+	};
+}
+
 export function sanitizeStatsPostResponse( response: unknown ): StatsPostResponse {
 	if ( ! isStatsRecord( response ) ) {
 		return {};
@@ -131,6 +191,7 @@ export function sanitizeStatsPostResponse( response: unknown ): StatsPostRespons
 
 	return {
 		...( typeof payload.date === 'string' ? { date: payload.date } : {} ),
+		...( payload.data !== undefined ? { data: normalizeStatsPostDays( payload.data ) } : {} ),
 		...( payload.views !== undefined ? { views: safeParseFloat( payload.views ) } : {} ),
 		...( payload.like_count !== undefined
 			? { like_count: safeParseFloat( payload.like_count ) }
@@ -151,6 +212,6 @@ export function sanitizeStatsPostResponse( response: unknown ): StatsPostRespons
 		...( payload.highest_week_average !== undefined
 			? { highest_week_average: safeParseFloat( payload.highest_week_average ) }
 			: {} ),
-		...( payload.post !== undefined ? { post: payload.post as StatsPostMeta } : {} ),
+		...( payload.post !== undefined ? { post: normalizeStatsPostMeta( payload.post ) } : {} ),
 	};
 }

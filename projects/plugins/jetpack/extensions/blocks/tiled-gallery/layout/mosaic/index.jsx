@@ -50,6 +50,16 @@ export default class Mosaic extends Component {
 		// Start above the gallery node itself (which is its own flex row container).
 		let el = node.parentElement;
 		while ( el && el.parentElement ) {
+			// Never climb past the block-canvas root into editor chrome. In a
+			// non-iframed editor (a classic theme with an apiVersion < 3 block keeps
+			// the canvas non-iframed) the first flex ancestor outside the canvas is an
+			// emotion-styled chrome div; laying the mosaic out against it divides its
+			// width by its many children and collapses every item to ~105px. Only flex
+			// containers inside the canvas (e.g. a Row/Stack block) are valid targets.
+			// See JETPACK-1900.
+			if ( el.matches( '.is-root-container, .editor-styles-wrapper' ) ) {
+				return null;
+			}
 			const parent = el.parentElement;
 			const display = view.getComputedStyle( parent ).display;
 			if ( 'flex' === display || 'inline-flex' === display ) {
@@ -58,6 +68,31 @@ export default class Mosaic extends Component {
 			el = parent;
 		}
 		return null;
+	}
+
+	/**
+	 * Number of real flex items among a container's children. Excludes children that
+	 * are not laid-out flex items — non-rendered elements (`<style>`, `<script>`,
+	 * `<template>`, `<link>`) and elements taken out of flow (display:none or
+	 * absolutely positioned, e.g. a popover slot) — which would otherwise inflate the
+	 * equal-share divisor in getLayoutWidth. See JETPACK-1900.
+	 *
+	 * @param {HTMLElement} container - The flex container.
+	 * @param {Window}      view      - The container's owning window.
+	 * @return {number} Count of laid-out flex items.
+	 */
+	countFlexItems( container, view ) {
+		const nonItemTags = [ 'STYLE', 'SCRIPT', 'TEMPLATE', 'LINK' ];
+		return Array.from( container.children ).filter( child => {
+			if ( nonItemTags.includes( child.tagName ) ) {
+				return false;
+			}
+			const style = view.getComputedStyle( child );
+			if ( 'none' === style.display ) {
+				return false;
+			}
+			return 'absolute' !== style.position && 'fixed' !== style.position;
+		} ).length;
 	}
 
 	/**
@@ -79,11 +114,12 @@ export default class Mosaic extends Component {
 		if ( ! container ) {
 			return this.gallery.current ? this.gallery.current.clientWidth : 0;
 		}
-		// children.length is a deliberate, pragmatic proxy for "number of flex
-		// items", and the division below assumes those items are equal width — it
-		// does not honor per-item flex-grow/flex-basis. That's enough for the common
-		// Row/Stack of galleries; non-uniform rows are left as a follow-up.
-		const count = container.children.length;
+		const view = container.ownerDocument?.defaultView || window;
+		// countFlexItems is a deliberate, pragmatic proxy for "number of flex items",
+		// and the division below assumes those items are equal width — it does not
+		// honor per-item flex-grow/flex-basis. That's enough for the common Row/Stack
+		// of galleries; non-uniform rows are left as a follow-up.
+		const count = this.countFlexItems( container, view );
 		if ( count <= 1 ) {
 			return container.clientWidth;
 		}
@@ -93,7 +129,6 @@ export default class Mosaic extends Component {
 		// own layout and settles to a different value on each reload in Firefox.
 		// Dividing the container width is content-independent, so the result is
 		// stable across browsers/reloads. See JETPACK-1726.
-		const view = container.ownerDocument?.defaultView || window;
 		const gap = parseFloat( view.getComputedStyle( container ).columnGap ) || 0;
 		return ( container.clientWidth - gap * ( count - 1 ) ) / count;
 	}
@@ -111,6 +146,14 @@ export default class Mosaic extends Component {
 			// Lay out against a stable width rather than the (possibly content-sized)
 			// observed width, so the result is deterministic across browsers/reloads.
 			const width = this.getLayoutWidth();
+			// A gallery that is not laid out yet, or that sits inside a hidden
+			// container, measures 0px. Percentages derived from that are meaningless
+			// — a single column row divides zero by zero and produces NaN — and the
+			// widths this pass reports are persisted, so wait for a real measurement
+			// rather than saving nonsense. See JETPACK-1990.
+			if ( width <= 0 ) {
+				return;
+			}
 			// Ignore sub-pixel width changes. When the block is a content-sized flex
 			// item (inside a Row/Stack), our own layout writes can feed back into the
 			// observed width; bailing here stops that feedback loop.

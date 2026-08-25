@@ -228,7 +228,7 @@ describe( 'NotificationsSettings', () => {
 			/>
 		);
 
-		expect( screen.getByText( 'Enable notifications for responses' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Send me push notifications' ) ).toBeInTheDocument();
 	} );
 
 	it( 'does not show user selector when toggle is disabled', () => {

@@ -22,6 +22,11 @@ import type {
 const ENTITY_KIND = 'wpcom/v2';
 const ENTITY_NAME = 'podcast/settings';
 
+// Shared by the in-progress notice and both outcomes: creating a notice
+// replaces any existing one with the same id, so "Saving…" turns into the
+// result in place rather than stacking a second snackbar under it.
+const SAVE_NOTICE_ID = 'jetpack-podcast-save-settings';
+
 if (
 	! dataSelect( coreStore )
 		.getEntitiesConfig( ENTITY_KIND )
@@ -52,6 +57,8 @@ const PODCAST_KEYS: Array< keyof PodcastSettings > = [
 	'podcasting_email',
 	'podcasting_show_urls',
 	'podcasting_show_states',
+	'podcasting_feed_limit',
+	'podcasting_feed_url',
 ];
 
 // Ids from the injected map, plus the record's own keys, so a missing map never
@@ -86,7 +93,9 @@ const normalizeShowStates = ( raw: unknown ): PodcastShowStates => {
 
 const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings => {
 	const numericKey = ( key: keyof PodcastSettings ) =>
-		key === 'podcasting_category_id' || key === 'podcasting_image_id';
+		key === 'podcasting_category_id' ||
+		key === 'podcasting_image_id' ||
+		key === 'podcasting_feed_limit';
 
 	const toString = ( value: unknown ): string => {
 		if ( typeof value === 'string' ) {
@@ -175,7 +184,7 @@ export function useUpdatePodcastSettings(): {
 	isPending: boolean;
 } {
 	const { saveEntityRecord } = useDispatch( coreStore );
-	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const isPending = useSelect(
 		select => !! select( coreStore ).isSavingEntityRecord( ENTITY_KIND, ENTITY_NAME, undefined ),
 		[]
@@ -186,6 +195,15 @@ export function useUpdatePodcastSettings(): {
 			updates: PodcastSettingsUpdate,
 			{ silent = false }: { silent?: boolean } = {}
 		): Promise< PodcastSettings > => {
+			if ( ! silent ) {
+				// Not dismissible: it's replaced by the outcome a moment later, so
+				// there's nothing worth dismissing by hand.
+				createInfoNotice( __( 'Saving…', 'jetpack-podcast' ), {
+					id: SAVE_NOTICE_ID,
+					type: 'snackbar',
+					isDismissible: false,
+				} );
+			}
 			try {
 				const record = await saveEntityRecord(
 					ENTITY_KIND,
@@ -197,6 +215,7 @@ export function useUpdatePodcastSettings(): {
 				}
 				if ( ! silent ) {
 					createSuccessNotice( __( 'Settings saved.', 'jetpack-podcast' ), {
+						id: SAVE_NOTICE_ID,
 						type: 'snackbar',
 					} );
 				}
@@ -205,13 +224,13 @@ export function useUpdatePodcastSettings(): {
 				if ( ! silent ) {
 					createErrorNotice(
 						__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
-						{ type: 'snackbar' }
+						{ id: SAVE_NOTICE_ID, type: 'snackbar' }
 					);
 				}
 				throw error;
 			}
 		},
-		[ saveEntityRecord, createSuccessNotice, createErrorNotice ]
+		[ saveEntityRecord, createInfoNotice, createSuccessNotice, createErrorNotice ]
 	);
 
 	const mutate = useCallback(

@@ -6,6 +6,20 @@
 @use "../atoms/colors/colors";
 @use "../atoms/typography/functions" as typography-functions;
 
+// Design tokens aligned with the React-based Jetpack admin pages (Newsletter,
+// VideoPress, Activity Log). These mirror the WordPress Design System (WPDS)
+// tokens those pages consume, with hex fallbacks for when the token stylesheet
+// isn't enqueued on this legacy page. See @automattic/jetpack-base-styles.
+$jp-surface: #fff;
+$jp-border: var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+$jp-text: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+$jp-text-muted: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+$jp-primary: #3858e9;
+$jp-primary-hover: #2145c7;
+// Primary UI/body text size on the WPDS admin pages (Activity Log, etc.) is
+// 13px, not the 16px `$font-body` this legacy page used.
+$jp-font-ui: var(--wpds-typography-font-size-md, 13px);
+
 .page-content.configure {
 	margin-top: 0;
 }
@@ -50,437 +64,448 @@
 	padding-top: 94px;
 }
 
-.filter-search {
-	display: none;
-	margin-top: 15px;
-	float: left;
-
-	@media (max-width: 782px) {
-		display: block;
-	}
-
-	@media (max-width: 530px) {
-		display: none;
-	}
-
-	.button {
-		background: colors.$white;
-		border: 1.5px solid calypso-colors.$black;
-		border-radius: 4px;
-		font-size: typography.$font-body;
-		line-height: 24px;
-		letter-spacing: -0.01em;
-		color: calypso-colors.$black;
-	}
-}
-
-// Bulk select table header area.
-.fixed-top {
-	box-sizing: border-box;
-	border-bottom: 1px solid calypso-colors.$gray-5;
-
-	/* Auto layout */
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	padding: 16px;
-	gap: 16px;
-
-	.tablenav.top {
-		display: flex;
-		padding: 0;
-		margin: 0 0 0 10px;
-		height: auto;
-	}
-
-	select#bulk-action-selector-top {
-		width: 180px;
-		height: 40px;
-		border: 1px solid #dcdcde;
-		border-radius: 4px;
-		padding: 8px 16px;
-		margin-right: 8px;
-		line-height: normal;
-		color: calypso-colors.$black;
-		font-size: typography.$font-body-small;
-		letter-spacing: -0.02em;
-	}
-
-	.alignleft.actions.bulkactions {
-		display: flex;
-		align-items: center;
-
-		.button {
-			display: flex;
-			flex-direction: row;
-			justify-content: center;
-			align-items: center;
-			padding: 6px 24px;
-			height: 40px;
-			background: colors.$white;
-			border: 1.5px solid calypso-colors.$black;
-			border-radius: 4px;
-
-			// Button label.
-			font-size: typography.$font-body;
-			line-height: 24px;
-			letter-spacing: -0.01em;
-			color: calypso-colors.$black;
-		}
-
-		.button:hover {
-			//border: 1.5px solid $black;
-		}
-	}
-}
-
-#jp-plugin-container .table-bordered {
-	border-collapse: collapse;
-
-	.check-column {
-
-		input[type="checkbox"] {
-			width: 20px;
-			height: 20px;
-			border-radius: 2px;
-			margin-left: 0;
-
-			&::before {
-				margin: -2px;
-				color: calypso-colors.$black;
-				width: 21px;
-				height: 21px;
-			}
-		}
-	}
-
-	.info {
-		letter-spacing: -0.02em;
-	}
-
-	.row-actions {
-
-		a.dops-button.is-compact {
-			color: calypso-colors.$black;
-			line-height: 20px;
-			font-size: typography.$font-body-extra-small;
-			font-weight: 600;
-			background: colors.$white;
-			border: 1.5px solid calypso-colors.$black;
-			border-radius: 4px;
-			box-shadow: none;
-			text-decoration: none;
-			padding: 3px 8px;
-		}
-
-		.delete a.dops-button.is-compact {
-			color: calypso-colors.$red-50;
-			border: 1px solid calypso-colors.$gray-5;
-		}
-
-		.configure a {
-			color: calypso-colors.$black;
-			font-size: typography.$font-body-extra-small;
-			line-height: 20px;
-			font-weight: 600;
-			text-decoration: none;
-
-			&:hover {
-				text-decoration: underline;
-			}
-		}
-	}
-}
-
+// Shared admin wrapper spacing (masthead notices / footer areas).
 .wrap {
 	margin: 0;
-	padding: 0 1.5em 1em;
+	padding-block: 0 1em;
+	padding-inline: 1.5em;
 	overflow: hidden;
+}
 
-	//h2 {
-	//	font-size: 24px;
-	//	font-weight: 400;
-	//}
+// ==========================================================================
+// Modules page (admin.php?page=jetpack_modules)
+// Two-column layout (module list + filter sidebar) restyled to match the
+// Offline Mode dashboard: product-group sections rendered as toggle rows
+// inside a card, with status/recommended badges. Uses CSS logical properties
+// so the layout is RTL-aware by default.
+// ==========================================================================
+
+.jetpack-module-list {
+	// 24px canvas inset top and bottom, matching the React admin pages.
+	padding-block: 24px;
+
+	.wrap {
+		display: flex;
+		gap: 24px;
+		overflow: visible;
+	}
+
 	.manage-left {
-		float: left;
+		flex: 1 1 auto;
+		min-width: 0;
 		margin: 0;
 		padding: 0;
-		width: 63%;
-
-		table {
-			width: 100%;
-		}
-
-		th {
-			font-weight: 400;
-		}
-
-		@media (max-width: 782px) {
-			width: 100%;
-		}
 	}
 
 	.manage-right {
-		margin-top: 24px;
+		flex: 0 0 260px;
+		inline-size: 260px;
+		margin: 0;
 		padding: 0;
-		float: right;
-		width: 35%;
-		z-index: 1;
+	}
+}
 
-		p {
-			font-size: typography.$font-body-small;
+// --------------------------------------------------------------------------
+// Offline Mode notice panel
+// --------------------------------------------------------------------------
+// Friendly informational callout, mirroring jp-activity-log__upsell-callout:
+// a neutral bordered card rather than an error/warning-style notice.
+.jetpack-offline-notice {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	width: 100%;
+	margin-block: 0 24px;
+	margin-inline: 0;
+	padding: 24px;
+	// Decorative blurred gradient blob anchored to the top-inline-end corner,
+	// matching the plan-picker/pricing sections (Search, VideoPress). Layered
+	// over the neutral surface and clipped by the card's rounded corners.
+	background-color: $jp-surface;
+	background-image: url(../images/gradient.svg);
+	background-repeat: no-repeat;
+	background-position: right top;
+	background-size: 380px auto;
+	border: 1px solid $jp-border;
+	border-radius: 8px;
+}
+
+.jetpack-offline-notice__title {
+	margin: 0;
+	font-size: typography.$font-title-small;
+	line-height: 1.3;
+	font-weight: 500;
+	color: $jp-text;
+}
+
+.jetpack-offline-notice__text {
+	margin: 0;
+	font-size: typography.$font-body-small;
+	line-height: 1.5;
+	color: $jp-text-muted;
+
+	a {
+		color: $jp-primary;
+		text-decoration: underline;
+	}
+}
+
+// --------------------------------------------------------------------------
+// Filter sidebar (.manage-right)
+// --------------------------------------------------------------------------
+.jetpack-module-list .manage-right {
+
+	.bumper {
+		margin: 0;
+	}
+
+	p {
+		font-size: $jp-font-ui;
+		line-height: 24px;
+		letter-spacing: -0.02em;
+		font-weight: 700;
+		color: $jp-text;
+		margin-block: 16px 4px;
+		margin-inline: 0;
+	}
+
+	// Search box. Nudge down so it vertically aligns with the list card's
+	// bulk-actions bar (12px padding + 36px controls) in the main column.
+	p.search-box {
+		width: 100%;
+		margin-block: 0;
+		margin-inline: 0;
+		float: none;
+		display: block;
+		position: static;
+
+		input[type="search"] {
+			box-sizing: border-box;
+			border: 1px solid $jp-border;
+			border-radius: 4px;
+			padding-block: 8px;
+			padding-inline: 40px 16px;
 			line-height: 24px;
-			letter-spacing: -0.02em;
-			font-weight: 700;
-			color: calypso-colors.$gray-80;
-			margin: 16px 0 4px 0;
+			font-size: $jp-font-ui;
+			color: $jp-text;
+			font-weight: 400;
+			height: 40px;
+			width: 100%;
+			margin: 0;
+			background-image: url(../images/icon-search.svg);
+			background-repeat: no-repeat;
+			background-position: 12px center;
+			float: none;
+
+			&::placeholder {
+				color: calypso-colors.$gray-30;
+			}
 		}
 
+		input[type="submit"] {
+			display: none;
+		}
+	}
+
+	// Module tag filters (subsubsub) and the "Purpose" facet share the same
+	// vertical text-link list styling.
+	.subsubsub,
+	.purpose-filter {
+		margin: 0;
+		padding: 0;
+
+		li {
+			display: block;
+			margin-block: 0 4px;
+			margin-inline: 0;
+			font-size: $jp-font-ui;
+
+			a {
+				display: inline-block;
+				padding-block: 2px;
+				padding-inline: 6px;
+				border-radius: 4px;
+				color: $jp-text;
+				text-decoration: none;
+				line-height: 24px;
+				letter-spacing: -0.02em;
+
+				&:hover {
+					background: calypso-colors.$gray-0;
+				}
+			}
+
+			.count {
+				color: $jp-text-muted;
+			}
+
+			&.current a {
+				background: $jp-primary;
+
+				&,
+				.count {
+					color: colors.$white;
+					font-weight: 700;
+				}
+			}
+
+			// Tags with no matches under the current filters: greyed out and
+			// non-interactive, but kept in place so the list doesn't reflow.
+			&.is-empty {
+				opacity: 0.4;
+
+				a {
+					pointer-events: none;
+					cursor: default;
+				}
+			}
+		}
+	}
+
+	// Mobile: slide the sidebar in as an overlay panel.
+	@media (max-width: 782px) {
+		position: fixed;
+		inset-block: 0;
+		inset-inline-end: 0;
+		margin-block: 0;
+		min-inline-size: 300px;
+		display: none;
+		background: colors.$white;
+		box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
+		z-index: 13;
+
 		.bumper {
-			margin-left: 48px;
+			margin: 13px;
+		}
+
+		.navbar-form {
+			margin-block: 16px 0;
+			margin-inline: 0;
+			padding: 0;
 		}
 
 		&.show {
 			display: block;
 			overflow-y: auto;
 			overflow-x: hidden;
-			position: absolute;
-			z-index: 100000; // sits on top of wp-admin bar
+			z-index: 100000; // above the wp-admin bar
+		}
+	}
+}
+
+// Mobile-only toggle that reveals the filter sidebar.
+.filter-search {
+	display: none;
+
+	@media (max-width: 782px) {
+		display: inline-flex;
+	}
+
+	.button {
+		background: colors.$white;
+		border: 1px solid $jp-border;
+		border-radius: 4px;
+		font-size: $jp-font-ui;
+		color: $jp-text;
+		height: 36px;
+	}
+}
+
+// Segmented filter / sort chips.
+.jetpack-module-list .button-group {
+	display: inline-flex;
+	flex-wrap: wrap;
+
+	.button {
+		box-shadow: none;
+		padding-inline: 16px;
+		min-inline-size: 72px;
+		border: 1px solid $jp-border;
+		color: $jp-text;
+		height: 36px;
+		font-size: 13px;
+		line-height: 18px;
+		font-weight: 400;
+		background: colors.$white;
+
+		&:hover {
+			background: calypso-colors.$gray-0;
 		}
 
-		.search-bar {
-			margin-bottom: 18px;
-			max-width: 300px;
+		&:focus {
+			border-color: $jp-primary;
+		}
+	}
+
+	button.dops-button.button.active {
+		background: $jp-primary;
+		border-color: $jp-primary;
+		color: colors.$white;
+		font-weight: 600;
+
+		&:hover {
+			background: $jp-primary-hover;
+			border-color: $jp-primary-hover;
 		}
 
-		p.search-box {
-			width: 100%;
-			height: auto;
-			margin: 16px 0 0 0;
-			float: none;
-			display: block;
-			position: static;
+		&:focus {
+			border-color: colors.$white;
+			box-shadow: 0 0 0 1px $jp-primary;
+		}
+	}
+}
 
-			input[type="search"] {
-				border: 1px solid calypso-colors.$gray-5;
+// --------------------------------------------------------------------------
+// Card + bulk actions
+// --------------------------------------------------------------------------
+.jetpack-modules-card {
+	background: colors.$white;
+	border: 1px solid $jp-border;
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.jetpack-modules-card__bulk {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 16px;
+	padding-block: 12px;
+	padding-inline: 16px;
+	background: calypso-colors.$gray-0;
+	border-block-end: 1px solid $jp-border;
+
+	.jetpack-modules-card__checkall {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		font-size: $jp-font-ui;
+		color: $jp-text;
+		white-space: nowrap;
+
+		input[type="checkbox"] {
+			margin: 0;
+		}
+	}
+
+	.tablenav.top {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		float: none;
+		height: auto;
+		margin: 0;
+		padding: 0;
+
+		.tablenav-pages,
+		.displaying-num,
+		br.clear {
+			display: none;
+		}
+
+		.alignleft.actions.bulkactions {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+
+			select {
+				min-inline-size: 140px;
+				height: 36px;
+				border: 1px solid $jp-border;
 				border-radius: 4px;
-				padding: 8px 16px 8px 40px;
-				line-height: 24px;
-				font-size: typography.$font-body;
-				letter-spacing: -0.02em;
-				color: calypso-colors.$black;
-				font-weight: 400;
-				height: 40px;
-				width: 100%;
-				background-image: url(../images/icon-search.svg);
-				background-repeat: no-repeat;
-				background-position: 8px center;
-				float: none;
-
-				&::placeholder {
-					color: calypso-colors.$gray-30;
-				}
-
-				@media (max-width: 782px) {
-					max-width: 90%;
-				}
-			}
-
-			input[type="submit"] {
-				display: none;
-			}
-		}
-
-		.button-group {
-
-			@media (max-width: 782px) {
-				white-space: normal;
+				padding-block: 0;
+				// Leave room for the native dropdown arrow so the label doesn't overlap it.
+				padding-inline: 12px 28px;
+				font-size: $jp-font-ui;
+				color: $jp-text;
 			}
 
 			.button {
-				box-shadow: none;
-				padding-left: 24px;
-				padding-right: 24px;
-				min-width: 90px;
-				border: 1px solid calypso-colors.$gray-5;
-				color: calypso-colors.$black;
-				height: 40px;
-				font-size: 13px;
-				line-height: 18px;
-				font-weight: 400;
+				height: 36px;
+				border: 1px solid $jp-border;
+				border-radius: 4px;
 				background: colors.$white;
-
-				&:hover {
-					background: calypso-colors.$gray-0;
-				}
-
-				&:focus {
-					border-color: calypso-colors.$black;
-				}
-			}
-
-			button.dops-button.button.active {
-				background: calypso-colors.$black;
-				color: colors.$white;
-				font-weight: 600;
-
-				&:hover {
-					background: calypso-colors.$gray-80;
-				}
-
-				&:focus {
-					border-color: colors.$white;
-					box-shadow: 0 0 0 1px calypso-colors.$black;
-				}
+				color: $jp-text;
+				box-shadow: none;
 			}
 		}
-
-		.subsubsub {
-			margin: 0;
-			padding: 0;
-
-			li {
-				display: block;
-				text-align: left;
-				margin: 0 0 4px 0;
-				font-size: 14px;
-
-				a {
-					padding: 0;
-					color: calypso-colors.$black;
-					text-decoration: underline;
-					font-size: typography.$font-body-small;
-					line-height: 24px;
-					letter-spacing: -0.02em;
-
-					&:hover {
-						text-decoration-thickness: 3px;
-					}
-				}
-
-				&.current {
-					border-radius: 4px;
-					background: calypso-colors.$black;
-					padding: 2px 6px;
-
-					a,
-					.count {
-						color: colors.$white;
-						text-decoration: none;
-						font-weight: 700;
-					}
-				}
-			}
-		}
-
-		@media (max-width: 782px) {
-			background: #fff;
-			bottom: 0;
-			display: none;
-			min-width: 300px;
-			position: fixed;
-			right: 0;
-			top: 0;
-			z-index: 13;
-			box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
-
-			.bumper {
-				margin: 13px;
-			}
-
-			.navbar-form {
-				margin: 16px 0 0 0;
-				padding: 0;
-			}
-		} // < 782
 	}
 }
 
-@media (max-width: 782px) {
-
-	// Fix to override particular wp-list-table changes in core - July 2015
-	.wp-list-table tr:not(.inline-edit-row):not(.no-items) td:not(.column-primary):not(.check-column) {
-		padding: 11px 10px;
-		display: block;
-	}
-
-	.manage-right.show .subsubsub li {
-		padding: 5px;
-	}
-
-} // < 782
-
-@media (max-width: 650px) {
-
-	.table-bordered.jetpack-modules tr.jetpack-module.deprecated td .row-actions {
-		float: none;
-		padding-left: 18px;
-	}
+.jetpack-modules-card table.jetpack-modules {
+	width: 100%;
+	margin: 0;
+	border: 0;
+	border-collapse: collapse;
+	background: transparent;
+	box-shadow: none;
 }
 
-@media (max-width: 430px) {
-
-	// Hide activate / config links on really small screens.
-	// Users can still utilize these actions by tapping on the title of the module.
-	.table-bordered.jetpack-modules tr.jetpack-module td .row-actions {
-		display: none;
-	}
-
-	.table-bordered.jetpack-modules tr.jetpack-module.deprecated td .row-actions {
-		display: block;
-	}
-} // < 430
-
-// Modules page hacks
 .jetpack-modules-list-table-form .widefat td {
 	width: 100%;
 }
 
-.jetpack-module-list {
+// --------------------------------------------------------------------------
+// Group headers
+// --------------------------------------------------------------------------
+tr.jetpack-module-group-header {
+	display: block;
 
-	.widefat {
-		border: none;
+	td {
+		display: block;
+		padding-block: 20px 8px;
+		padding-inline: 16px;
+		border: 0;
+		background: transparent;
 	}
 
-	.wrap {
-		display: flex;
-		overflow: visible;
-
-		.manage-left {
-			flex-grow: 1;
-			width: auto;
-		}
-
-		.manage-right {
-			flex-grow: 0;
-		}
+	// The very first group header sits flush with the top of the card.
+	&:first-child td {
+		padding-block-start: 16px;
 	}
 }
 
+.jetpack-module-group-header__title {
+	margin: 0;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: $jp-text-muted;
+}
+
+// --------------------------------------------------------------------------
+// Module rows
+// --------------------------------------------------------------------------
 tr.jetpack-module {
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: row;
-	align-items: center;
-	padding: 16px;
+	align-items: flex-start;
 	gap: 16px;
 	width: 100%;
-	height: 60px;
+	padding: 16px;
 	background: colors.$white;
-	border-bottom: 1px solid calypso-colors.$gray-5;
+	border-block-start: 1px solid $jp-border;
 
-	@media (max-width: 782px) {
-		padding: 4px 10px;
-		height: auto;
-	}
-
-	&:last-of-type {
-		border-bottom: 0;
+	// No divider directly under a group header.
+	.jetpack-module-group-header + & {
+		border-block-start: 0;
 	}
 
 	th.check-column {
-		padding-top: 0;
+		flex: 0 0 auto;
 		width: auto;
+		padding: 0;
+		margin-block-start: 2px;
+	}
+
+	.column-name {
+		flex: 1 1 auto;
+		min-width: 0;
+		padding: 0;
+		color: $jp-text;
 	}
 
 	a,
@@ -493,32 +518,201 @@ tr.jetpack-module.unavailable {
 	background: #f9f9f6;
 }
 
-tr.jetpack-module.active {
-	background: #f9f9f6;
+.jetpack-module__body {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 16px;
+	width: 100%;
+}
 
-	.column-name .info {
-		font-weight: 700;
+.jetpack-module__info {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.jetpack-module__name {
+	font-size: $jp-font-ui;
+	font-weight: 600;
+	color: $jp-text;
+
+	// Rendered as a link to the module's support page when one is available.
+	&:hover,
+	&:focus {
+		color: $jp-primary;
+		text-decoration: underline;
+	}
+}
+
+.jetpack-module__description {
+	font-size: $jp-font-ui;
+	line-height: 1.5;
+	color: $jp-text-muted;
+}
+
+.jetpack-module__meta {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	flex: 0 0 auto;
+	margin-inline-start: auto;
+}
+
+.jetpack-module__badges {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.jetpack-module__badge {
+	display: inline-flex;
+	align-items: center;
+	padding-block: 2px;
+	padding-inline: 8px;
+	border-radius: 2px;
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1.5;
+	white-space: nowrap;
+
+	&.is-active {
+		background: #edfaef;
+		color: #00450c;
 	}
 
+	&.is-inactive {
+		background: calypso-colors.$gray-0;
+		color: $jp-text-muted;
+	}
 
+	&.is-recommended {
+		background: #f0f4ff;
+		color: #1d35b4;
+	}
 }
 
-tr.jetpack-module .column-name {
-	color: calypso-colors.$gray-80;
-	float: left;
-	align-items: center;
+.jetpack-module .row-actions {
 	display: flex;
-	padding: 0;
+	align-items: center;
+	gap: 12px;
+	position: static;
+	margin: 0;
+	left: auto;
+
+	// Row actions are always visible on this page (not on hover).
+	opacity: 1;
+
+	.configure a {
+		color: $jp-text;
+		font-size: typography.$font-body-extra-small;
+		line-height: 20px;
+		font-weight: 600;
+		text-decoration: none;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
 }
 
-tr.jetpack-module .row-actions {
+.jetpack-module__unavailable {
+	max-inline-size: 220px;
+	font-size: typography.$font-body-extra-small;
+	line-height: 1.4;
+	color: $jp-text-muted;
+}
+
+// --------------------------------------------------------------------------
+// Toggle switch (styled link that activates / deactivates the module)
+// --------------------------------------------------------------------------
+.jetpack-module__toggle {
+	display: inline-flex;
 	align-items: center;
-	display: flex;
+	text-decoration: none;
+	cursor: pointer;
+	border-radius: 10px;
+
+	&:focus {
+		outline: none;
+	}
+}
+
+.jetpack-module__toggle-track {
 	position: relative;
-	margin-left: auto;
-	left: 0;
+	display: inline-block;
+	inline-size: 36px;
+	block-size: 20px;
+	background: #dcdcde;
+	border-radius: 10px;
+	transition: background 0.15s ease-in-out;
+}
 
-	span.configure {
-		margin-right: 16px;
+.jetpack-module__toggle-thumb {
+	position: absolute;
+	inset-block-start: 2px;
+	inset-inline-start: 2px;
+	inline-size: 16px;
+	block-size: 16px;
+	border-radius: 50%;
+	background: colors.$white;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+	transition: inset-inline-start 0.15s ease-in-out;
+}
+
+.jetpack-module__toggle.is-active {
+
+	.jetpack-module__toggle-track {
+		background: $jp-primary;
+	}
+
+	.jetpack-module__toggle-thumb {
+		inset-inline-start: 18px;
+	}
+}
+
+.jetpack-module__toggle.is-disabled {
+	cursor: default;
+	opacity: 0.6;
+}
+
+.jetpack-module__toggle:focus-visible .jetpack-module__toggle-track {
+	box-shadow: 0 0 0 2px colors.$white, 0 0 0 4px $jp-primary;
+}
+
+// --------------------------------------------------------------------------
+// Checkboxes
+// --------------------------------------------------------------------------
+.jetpack-module-list .check-column input[type="checkbox"] {
+	width: 20px;
+	height: 20px;
+	border-radius: 2px;
+	margin-inline-start: 0;
+
+	&::before {
+		margin: -2px;
+		color: $jp-text;
+		width: 21px;
+		height: 21px;
+	}
+}
+
+// --------------------------------------------------------------------------
+// Responsive
+// --------------------------------------------------------------------------
+@media (max-width: 782px) {
+
+	.jetpack-module__body {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+	}
+
+	.jetpack-module__meta {
+		margin-inline-start: 0;
+		width: 100%;
+		justify-content: space-between;
 	}
 }

@@ -1,16 +1,19 @@
 /**
  * External dependencies
  */
+import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
-import { Button, Icon, Stack } from '@wordpress/ui';
+import { useLayoutEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
+// Avoid pulling the `widgets/common` graph in through the hooks barrel.
+import { useDelayedLoading } from '../../hooks/use-delayed-loading';
 import { ChartEmptyState } from '../chart-empty-state';
-import { WidgetLoadingOverlay } from '../widget-loading-overlay';
+import { GenericSkeleton } from '../widget-skeleton';
 import { errorStateIcon } from './error-state-icon';
 import styles from './widget-state.module.scss';
-import type { ComponentProps, ReactNode } from 'react';
+import type { ComponentProps, FocusEvent, ReactNode } from 'react';
 
 export interface WidgetStateError {
 	title?: string;
@@ -20,47 +23,31 @@ export interface WidgetStateError {
 
 export interface WidgetStateEmpty {
 	icon?: ComponentProps< typeof Icon >[ 'icon' ];
-	description: string;
+	/** Defaults to "No data in this period." when omitted. */
+	description?: string;
 }
 
 export interface WidgetStateProps {
-	/** A fetch is in flight and there is no data yet (React Query `isLoading`). */
+	/**
+	 * Nothing on screen answers the current params: a first load, or a param
+	 * change still showing the previous response. Pass the data hook's
+	 * `isLoading`, which is already widened to cover both.
+	 */
 	isLoading: boolean;
-	/** A background refetch is in flight while data is shown (React Query `isFetching`). */
+	/**
+	 * Unchanged params being revalidated (React Query `isFetching`). Draws
+	 * nothing — the numbers on screen are still the right answer.
+	 */
 	isFetching?: boolean;
 	isError: boolean;
-	/** Resolved, but there is nothing meaningful to show. */
 	isEmpty: boolean;
 	error?: WidgetStateError;
 	empty?: WidgetStateEmpty;
-	/** Optional per-widget loading override (e.g. a chart skeleton). */
+	/** Optional content-shaped loading override; defaults to `GenericSkeleton`. */
 	renderLoading?: ReactNode;
-	/** Success content, rendered only when the state is `ready`. */
 	children: ReactNode;
 }
 
-/**
- * Data-agnostic widget content-area state. Derives one state from the four
- * signals and renders loading / error / empty / the success children. Knows
- * nothing about the data layer — callers map their fetch result to the signals
- * and pass generic `error` / `empty` descriptors.
- *
- * Priority: error → loading (first load) → empty → ready. During a background
- * refetch (`isFetching` with data) the children stay visible under a busy
- * overlay. The empty state carries no icon by default (staying visually distinct
- * from the error state's glyph); a caller opts in via `empty.icon`.
- *
- * @param props               - Component props.
- * @param props.isLoading     - A fetch is in flight and there is no data yet.
- * @param props.isFetching    - A background refetch is in flight while data is shown.
- * @param props.isError       - Whether the fetch failed.
- * @param props.isEmpty       - Resolved, but there is nothing meaningful to show.
- * @param props.error         - Error descriptor shown when `isError` is true.
- * @param props.empty         - Empty-state descriptor; renders no icon unless `empty.icon` is set.
- * @param props.renderLoading - Optional per-widget loading override.
- * @param props.children      - Success content, rendered only when the state is `ready`.
- * @return The rendered widget state.
- */
 export function WidgetState( {
 	isLoading,
 	isFetching = false,
@@ -71,23 +58,79 @@ export function WidgetState( {
 	renderLoading,
 	children,
 }: WidgetStateProps ) {
+	// `isFetching` is true on the first load too, and a quick revalidation is not
+	// worth announcing.
+	const isRevalidating = useDelayedLoading( isFetching && ! isLoading );
+
+	const rootRef = useRef< HTMLDivElement >( null );
+	// What the reader is standing on inside this widget, so the effect below can
+	// tell "their element was taken away" from "they walked off".
+	const focusedInside = useRef< HTMLElement | null >( null );
+
+	const rememberFocus = ( event: FocusEvent< HTMLDivElement > ) => {
+		focusedInside.current = event.target;
+	};
+
+	const forgetFocus = ( event: FocusEvent< HTMLDivElement > ) => {
+		// An element on its way out fires focusout in some browsers and not in
+		// others. Keep it either way: that is the case the effect below exists for.
+		if ( ! event.target.isConnected ) {
+			return;
+		}
+		// Moving within the widget is not leaving it.
+		if ( ! event.currentTarget.contains( event.relatedTarget ) ) {
+			focusedInside.current = null;
+		}
+	};
+
+	// Every branch but the ready one unmounts the children, and a drill-down or a
+	// range change reaches the skeleton by definition — both take the row the
+	// reader activated with them, and the browser hands focus to <body>, where the
+	// next Tab restarts at the top of the page. Catch it on the root instead.
+	//
+	// Deliberately unconditional: a branch change is the common way to lose the
+	// focused element, but not the only one — new rows arriving under unchanged
+	// params unmount it just the same, without any branch change to key on.
+	useLayoutEffect( () => {
+		const target = focusedInside.current;
+		const root = rootRef.current;
+		// Use the widget's own document to support rendering in another window.
+		const ownerDocument = root?.ownerDocument;
+		if ( ! target || ! root || ! ownerDocument ) {
+			return;
+		}
+		// A target still in the document is not something this widget dropped.
+		if ( target.isConnected ) {
+			return;
+		}
+		// Gone either way, so stop tracking it now. Held past the render that
+		// dropped it, it would let the next fall to <body> anywhere on the page
+		// pull focus in here.
+		focusedInside.current = null;
+		// Step in only for focus this widget just dropped: focus that went
+		// anywhere but <body> is not ours to move.
+		if ( ownerDocument.activeElement !== ownerDocument.body ) {
+			return;
+		}
+		root.focus( { preventScroll: true } );
+	} );
+
+	const skeleton = renderLoading ?? <GenericSkeleton />;
+	let body: ReactNode;
+
 	if ( isError ) {
-		return (
-			<Stack
-				className={ styles.state }
-				direction="column"
-				gap="lg"
-				align="center"
-				justify="center"
-				role="alert"
-			>
-				<Icon size={ 40 } icon={ errorStateIcon } />
+		// Vertical centering lives in the stylesheet (`safe center`), not the
+		// `justify` prop: the prop's inline style would beat the class rule and
+		// reintroduce the unreachable-top overflow on short tiles.
+		body = (
+			<Stack className={ styles.state } direction="column" gap="lg" align="center" role="alert">
+				<Icon size={ 40 } className={ styles.stateIcon } icon={ errorStateIcon } />
 				{ error?.title && <div className={ styles.title }>{ error.title }</div> }
 				<div className={ styles.description }>
 					{ error?.description ??
 						__(
 							"We couldn't load this data. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						) }
 				</div>
 				{ !! error?.actions?.length && (
@@ -107,18 +150,10 @@ export function WidgetState( {
 				) }
 			</Stack>
 		);
-	}
-
-	// `isLoading` blocks unconditionally — it means "no data yet", so there is
-	// nothing to keep visible regardless of how the caller derived `isEmpty`.
-	// `isFetching` only blocks when the resolved data is empty; with rows shown
-	// it falls through to the ready branch's non-blocking busy overlay.
-	if ( isLoading || ( isEmpty && isFetching ) ) {
-		return <>{ renderLoading ?? <WidgetLoadingOverlay /> }</>;
-	}
-
-	if ( isEmpty ) {
-		return (
+	} else if ( isLoading ) {
+		body = <div className={ styles.loading }>{ skeleton }</div>;
+	} else if ( isEmpty ) {
+		body = (
 			<ChartEmptyState
 				// No default icon: the caller opts in via `empty.icon`. Keeping the
 				// component icon-agnostic avoids a domain-specific default (e.g. a
@@ -126,22 +161,29 @@ export function WidgetState( {
 				// the error state, which always carries its own glyph. `null`
 				// suppresses `ChartEmptyState`'s own `cautionFilled` default.
 				icon={ empty?.icon ?? null }
-				text={
-					empty?.description ??
-					__( 'No data found for this date range.', 'jetpack-premium-analytics' )
-				}
+				// `ChartEmptyState` supplies the "No data in this period." default when
+				// `description` is omitted — keep that copy in one place.
+				text={ empty?.description }
 			/>
 		);
+	} else {
+		body = <div className={ styles.content }>{ children }</div>;
 	}
 
 	return (
-		<div className={ styles.ready }>
-			{ children }
-			{ isFetching && (
-				<div className={ styles.busy } aria-hidden="true">
-					<WidgetLoadingOverlay />
-				</div>
-			) }
+		<div
+			ref={ rootRef }
+			// Focused programmatically when a branch change drops the reader's
+			// element, but never in the tab order itself.
+			tabIndex={ -1 }
+			className={ styles.root }
+			onFocus={ rememberFocus }
+			onBlur={ forgetFocus }
+			// A marker, not an announcement: on a roleless container most screen
+			// readers stay quiet, which is the point — nothing on screen moved.
+			aria-busy={ isRevalidating || undefined }
+		>
+			{ body }
 		</div>
 	);
 }

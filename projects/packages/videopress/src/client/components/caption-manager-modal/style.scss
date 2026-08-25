@@ -574,35 +574,24 @@
 }
 
 /*
- * The discard confirmation renders as an in-modal overlay rather than a
- * nested Modal, which WordPress would dismiss or hide this modal for.
+ * The discard confirmation overlay's rules (__confirm-scrim/-dialog/-actions)
+ * live in confirmation-overlay.scss, imported by the component itself so
+ * other hosts (e.g. the chapter manager modal) get them.
  */
 
-/* Transparent, but still catches clicks so the content behind stays inert. */
-.videopress-caption-manager__confirm-scrim {
+/*
+ * Transient outcome and error snackbars float over the bottom of the modal.
+ * The list spans the modal so it can't push layout, but only the bubbles
+ * themselves capture clicks, leaving the content behind interactive.
+ */
+.videopress-caption-manager__snackbars {
 	position: absolute;
-	inset: 0;
-	z-index: 10;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
+	inset-block-end: 16px;
+	inset-inline: 16px;
+	z-index: 11;
+	pointer-events: none;
 
-.videopress-caption-manager__confirm-dialog {
-	background: #fff;
-	border: 1px solid #dcdcde;
-	border-radius: 4px;
-	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-	padding: 24px;
-	max-inline-size: 22rem;
-
-	p {
-		margin: 0 0 16px;
+	.components-snackbar {
+		pointer-events: auto;
 	}
-}
-
-.videopress-caption-manager__confirm-actions {
-	display: flex;
-	justify-content: flex-end;
-	gap: 8px;
 }

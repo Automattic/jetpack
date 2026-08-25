@@ -2,20 +2,22 @@
  * @jest-environment node
  */
 import { buildCorePayload, buildJetpackPayload } from '../build-payload';
+import { makeSchemaSettings } from './fixtures/schema-settings-fixtures';
 import type { SettingsResponse } from '../settings-types';
 
 const makeSettings = ( overrides: Partial< SettingsResponse > = {} ): SettingsResponse => ( {
 	front_page_description: '',
+	has_legacy_front_page_meta: false,
 	title_formats: { posts: [ { type: 'token', value: 'site_name' } ] },
+	title_separator: '-',
+	title_formats_editable: true,
+	verification_tools_active: true,
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
 	sitemap_active: false,
 	sitemap_url: '',
 	canonical_active: false,
-	schema: {
-		organization: { name: '', description: '', sameAs: [], email: '' },
-		defaults: { organization: { name: 'Acme Co', description: 'We make things' } },
-	},
+	schema: makeSchemaSettings(),
 	...overrides,
 } );
 
@@ -52,6 +54,28 @@ describe( 'buildJetpackPayload', () => {
 		} );
 		expect( buildJetpackPayload( baseline, local ) ).toEqual( {
 			advanced_seo_title_formats: { posts: [ { type: 'token', value: 'post_title' } ] },
+		} );
+	} );
+
+	it( 'never emits title formats from a read-only conflict state', () => {
+		const baseline = makeSettings( {
+			title_formats: { posts: [ { type: 'token', value: 'site_name' } ] },
+			title_formats_editable: false,
+		} );
+		const local = makeSettings( {
+			title_formats: { posts: [] },
+			title_formats_editable: false,
+		} );
+
+		expect( buildJetpackPayload( baseline, local ) ).toEqual( {} );
+	} );
+
+	it( 'maps the verification module toggle to verification-tools', () => {
+		const baseline = makeSettings( { verification_tools_active: true } );
+		const local = makeSettings( { verification_tools_active: false } );
+
+		expect( buildJetpackPayload( baseline, local ) ).toEqual( {
+			'verification-tools': false,
 		} );
 	} );
 

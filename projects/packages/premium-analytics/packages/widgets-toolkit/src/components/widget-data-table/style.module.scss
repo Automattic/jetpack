@@ -1,0 +1,7 @@
+/* DataViews supplies its own inline cell/footer inset, so widgets using this
+ * table declare `presentation: "content-bleed"` and the host contributes no
+ * body padding; otherwise the two stack and the table sits doubly inset. */
+.root {
+	min-inline-size: 0;
+	overflow: hidden;
+}

@@ -8,11 +8,14 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Podcast\Admin_Page as Podcast_Admin_Page;
 use Automattic\Jetpack\Redirect;
 
 require_once __DIR__ . '/../../common/wpcom-callout.php';
+require_once __DIR__ . '/../../common/class-launchpad-personalization-experiment.php';
 
 /**
  * Checks if the current user has a WordPress.com account connected.
@@ -98,6 +101,13 @@ function wpcom_add_my_home_menu() {
 		&& function_exists( 'wpcom_ai_launchpad_is_eligible' )
 		&& wpcom_ai_launchpad_is_eligible()
 	) {
+		return;
+	}
+
+	// The no_guidance launchpad-personalization variation gets no My Home at all: these
+	// users work from the wp-admin dashboard. Removing the menu item here also removes it
+	// from the Calypso sidebar, which is built from this menu via the admin-menu endpoint.
+	if ( 'no_guidance' === Launchpad_Personalization_Experiment::get_variation() ) {
 		return;
 	}
 
@@ -269,6 +279,33 @@ function wpcom_get_current_plan_name() {
 }
 
 /**
+ * Relabels the WooCommerce menu item to "Store setup" on Commerce-plan sites.
+ *
+ * Only the sidebar label is changed; the page title is left untouched. This builds the
+ * classic wp-admin sidebar; the nav-unified interface is handled by Atomic_Admin_Menu in
+ * jetpack-masterbar. Both share Store_Plan::is_commerce_plan() so their scope stays in sync.
+ * On a nav-unified Atomic site both relabelers run (harmless — both idempotently set "Store
+ * setup"; this one runs last, so the jetpack-mu-wpcom text domain wins, same English string).
+ */
+function wpcom_relabel_woocommerce_menu() {
+	global $menu;
+
+	if ( ! is_array( $menu ) || ! class_exists( \Automattic\Jetpack\Masterbar\Store_Plan::class ) || ! \Automattic\Jetpack\Masterbar\Store_Plan::is_commerce_plan() ) {
+		return;
+	}
+
+	foreach ( $menu as $position => $item ) {
+		if ( isset( $item[2] ) && 'woocommerce' === $item[2] ) {
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$menu[ $position ][0] = __( 'Store setup', 'jetpack-mu-wpcom' );
+			break;
+		}
+	}
+}
+// Priority 999999 so it runs after WooCommerce registers its menu (default priority).
+add_action( 'admin_menu', 'wpcom_relabel_woocommerce_menu', 999999 );
+
+/**
  * Re-order the submenu items of the given menu slug according to a sorted array of submenu slugs.
  *
  * @param string $menu_slug The menu slug.
@@ -424,7 +461,12 @@ function wpcom_add_jetpack_submenu() {
 		\Automattic\Jetpack\Newsletter\Subscribers_Announcement::add_wp_admin_submenu();
 	}
 
-	Podcast_Admin_Page::add_wp_admin_submenu();
+	// Atomic loads Podcast through the Jetpack module, which the owner can switch
+	// off, and this builder runs either way. is_active() is always true on Simple,
+	// where the package loads unconditionally.
+	if ( ( new Modules() )->is_active( 'podcast' ) ) {
+		Podcast_Admin_Page::add_wp_admin_submenu();
+	}
 
 	if ( $is_simple_site ) {
 		// Jetpack > Newsletter.
@@ -436,6 +478,21 @@ function wpcom_add_jetpack_submenu() {
 			$newsletter_settings = new Newsletter_Settings();
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
 			$newsletter_settings->add_wp_admin_submenu();
+		}
+
+		// Jetpack > VideoPress.
+		// Register the in-admin VideoPress dashboard page. Like Newsletter above, this
+		// must run here (priority 999999) because the Jetpack parent menu is created by
+		// this function and doesn't exist at earlier priorities. Gated on the VideoPress
+		// site feature so it only surfaces for VideoPress-enabled Simple sites during dev.
+		if (
+			class_exists( '\Automattic\Jetpack\VideoPress\Admin_UI' ) &&
+			function_exists( 'wpcom_site_has_feature' ) &&
+			class_exists( '\WPCOM_Features' ) &&
+			wpcom_site_has_feature( \WPCOM_Features::VIDEOPRESS )
+		) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			\Automattic\Jetpack\VideoPress\Admin_UI::add_wp_admin_submenu();
 		}
 
 		// Jetpack > Traffic
@@ -467,6 +524,7 @@ function wpcom_add_jetpack_submenu() {
 		array(
 			'my-jetpack',
 			'stats',
+			'advertising',
 			'boost',
 			'social',
 			'akismet-key-config',
@@ -703,7 +761,7 @@ function wpcom_add_tools_menu() {
 		'tools.php',
 		array(
 			'tools.php',
-			'advertising',
+			'advertising-moved',
 			'marketing',
 			'monetize',
 			'import',

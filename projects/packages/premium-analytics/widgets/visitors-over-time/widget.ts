@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { seen } from '@wordpress/icons';
 
 /**
@@ -23,11 +22,5 @@ export type VisitorsOverTimeAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/visitors-over-time',
-	title: __( 'Visitors over time', 'jetpack-premium-analytics' ),
-	description: __(
-		'Track website visitor trends and monitor traffic patterns over time.',
-		'jetpack-premium-analytics'
-	),
 	icon: seen,
 };

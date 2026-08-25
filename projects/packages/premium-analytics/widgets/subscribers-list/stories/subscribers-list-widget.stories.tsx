@@ -7,23 +7,22 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SubscribersListRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import widgetManifest from '../widget.json';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentType } from 'react';
 
 registerReportMocks();
 
 const SUBSCRIBERS_LIST_RENDER_MODULE = 'storybook/subscribers-list';
-
-// Close-up canvas so the roster fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '360px' } }>
-		<Story />
-	</div>
-);
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/SubscribersList',
@@ -48,8 +47,51 @@ type DashboardStory = StoryObj< WidgetDashboardWithWidgetControls >;
  * The widget on its own, populated from mocked followers data.
  */
 export const Default: Story = {
-	render: () => <SubscribersListRender attributes={ { num: 6 } } />,
+	render: () => <SubscribersListRender attributes={ {} } />,
 	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => <SubscribersListRender attributes={ {} } />,
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'stats/followers', 'loading' );
+		return () => setReportMockState( 'stats/followers', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => <SubscribersListRender attributes={ {} } />,
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'stats/followers', 'error' );
+		return () => setReportMockState( 'stats/followers', null );
+	},
+};
+
+/**
+ * Resolved with no rows: the widget shows its empty state (the neutral customer
+ * glyph and "No subscribers yet.").
+ */
+export const Empty: Story = {
+	render: () => <SubscribersListRender attributes={ {} } />,
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'stats/followers', 'empty' );
+		return () => setReportMockState( 'stats/followers', null );
+	},
 };
 
 /**
@@ -59,10 +101,10 @@ export const WidgetDashboardWithWidget: DashboardStory = {
 	render: args => (
 		<WidgetDashboardWithWidgetStory
 			{ ...args }
-			widgetType={ widgetDefinition }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ SUBSCRIBERS_LIST_RENDER_MODULE }
 			renderComponent={ SubscribersListRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { num: 6 } }
+			attributes={ {} }
 		/>
 	),
 	args: {

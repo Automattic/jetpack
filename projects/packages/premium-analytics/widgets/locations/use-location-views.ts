@@ -2,11 +2,7 @@
  * Internal dependencies
  */
 import { useStatsLocations } from '@jetpack-premium-analytics/data';
-import type {
-	ReportParams,
-	StatsLocationsItem,
-	StatsNormalizedReport,
-} from '@jetpack-premium-analytics/data';
+import type { ReportParams, StatsLocationsComparisonItem } from '@jetpack-premium-analytics/data';
 
 export type GeoMode = 'country' | 'region' | 'city';
 
@@ -19,6 +15,7 @@ export interface LocationView {
 	countryCode: string;
 	countryFull: string;
 	value: number;
+	previousValue?: number;
 	region: string;
 }
 
@@ -43,22 +40,19 @@ interface UseLocationViewsArgs {
 
 interface LocationViewsState {
 	data: LocationView[];
-	comparisonData: LocationView[];
 	hasComparison: boolean;
 	isLoading: boolean;
 	isFetching: boolean;
 	hasData: boolean;
 	isError: boolean;
-	isPlaceholderData: boolean;
+	refetch: () => void;
 }
 
 /**
- * Map a `StatsLocationsItem` from the data layer to the widget's `LocationView` shape.
- *
- * @param item - Normalized location item from the data layer.
- * @return A `LocationView` for the widget, or null if the item has no country code.
+ * Map a `StatsLocationsItem` from the data layer to the widget's `LocationView`
+ * shape. Returns `null` for an item with no country code.
  */
-function toLocationView( item: StatsLocationsItem ): LocationView | null {
+function toLocationView( item: StatsLocationsComparisonItem ): LocationView | null {
 	if ( ! item.countryCode ) {
 		return null;
 	}
@@ -71,6 +65,7 @@ function toLocationView( item: StatsLocationsItem ): LocationView | null {
 		countryCode: item.countryCode,
 		countryFull,
 		value: item.views,
+		previousValue: item.previousViews,
 		region: item.region ?? '',
 	};
 }
@@ -80,9 +75,6 @@ function toLocationView( item: StatsLocationsItem ): LocationView | null {
  *
  * Delegates fetching, caching, and normalization to `useStatsLocations` from
  * `@jetpack-premium-analytics/data`.
- *
- * @param {UseLocationViewsArgs} args - Hook arguments.
- * @return The current data/loading/error state.
  */
 export default function useLocationViews( {
 	reportParams,
@@ -97,33 +89,24 @@ export default function useLocationViews( {
 		...( countryFilter ? { filter_by_country: countryFilter } : {} ),
 	} as Parameters< typeof useStatsLocations >[ 0 ];
 
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
-		useStatsLocations( statsParams );
-	const isPlaceholderData = primary.isPlaceholderData || comparison.isPlaceholderData;
+	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
+		useStatsLocations( statsParams, { maxRows: max } );
 
-	const report = primary.data as StatsNormalizedReport< StatsLocationsItem > | undefined;
-	const comparisonReport = comparison.data as
-		| StatsNormalizedReport< StatsLocationsItem >
-		| undefined;
-	const rawItems = report?.data?.[ 0 ]?.items ?? [];
-	const rawComparisonItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
-	const items = rawItems
+	const items = ( comparisonRows?.rows ?? [] )
 		.map( toLocationView )
-		.filter( ( v ): v is LocationView => v !== null )
-		.slice( 0, max > 0 ? max : undefined );
-	const comparisonItems = rawComparisonItems
-		.map( toLocationView )
-		.filter( ( v ): v is LocationView => v !== null )
-		.slice( 0, max > 0 ? max : undefined );
+		.filter( ( v ): v is LocationView => v !== null );
 
 	return {
 		data: items,
-		comparisonData: comparisonItems,
 		hasComparison,
 		isLoading,
 		isFetching,
 		hasData,
-		isError,
-		isPlaceholderData,
+		// The Stats queries carry `placeholderData: previousData => previousData`, so a
+		// failed range change keeps the prior period's rows in `data` while `isError`
+		// flips true. Only surface the error when there's nothing to show, so a transient
+		// refetch failure doesn't replace populated rows with the error state.
+		isError: items.length === 0 && isError,
+		refetch,
 	};
 }

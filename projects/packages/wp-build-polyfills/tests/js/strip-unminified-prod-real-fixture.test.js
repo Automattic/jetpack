@@ -19,15 +19,20 @@
  */
 
 const { spawnSync } = require( 'child_process' );
+const crypto = require( 'crypto' );
 const { existsSync, readFileSync, rmSync } = require( 'fs' );
 const assert = require( 'node:assert/strict' );
 const { describe, it, before, after } = require( 'node:test' );
 const path = require( 'path' );
+const { isStub } = require( '../../bin/i18n-stub-lib.js' );
+const { stampDir } = require( '../../bin/stamp-textdomains-lib.js' );
 const {
 	strip,
 	hasUnpatchedFallback,
 	PHP_TARGETS,
 } = require( '../../bin/strip-unminified-prod-lib.js' );
+
+const DOMAIN = 'jetpack-wp-build-polyfills';
 
 const POLYFILLS_DIR = path.join( __dirname, '..', '..' );
 const FIXTURE_DIR = path.join( POLYFILLS_DIR, 'tests', 'fixtures', 'wp-build-source' );
@@ -114,19 +119,70 @@ describe(
 			}
 		} );
 
+		it( 'stamps real gettext calls but not gettext-shaped calls on other objects', () => {
+			// Runs before the strip tests below, matching the real build order
+			// (`build:stamp-textdomains` then `build:strip-unminified-prod`).
+			assert.ok( stampDir( FIXTURE_BUILD, DOMAIN ) > 0, 'some bundles were stamped' );
+
+			for ( const file of [ 'routes/dashboard/content.js', 'routes/dashboard/content.min.js' ] ) {
+				const src = readFileSync( path.join( FIXTURE_BUILD, file ), 'utf8' );
+				assert.ok(
+					src.includes( 'not-a-translatable-string' ),
+					`${ file }: the decoy call survived bundling, so this test still means something`
+				);
+				assert.match(
+					src,
+					/["']Hello from fixture["'],\s*["']jetpack-wp-build-polyfills["']/,
+					`${ file }: the real gettext call carries the domain`
+				);
+				assert.doesNotMatch(
+					src,
+					/not-a-translatable-string["'],\s*["']jetpack-wp-build-polyfills/,
+					`${ file }: the decoy call on an unrelated object was left alone`
+				);
+			}
+		} );
+
+		it( 'rehashes the asset file of every stamped bundle', () => {
+			// A second stamp pass is a no-op on the JS, so the versions written
+			// by the pass above must already match the files on disk.
+			const bundle = path.join( FIXTURE_BUILD, 'routes/dashboard/content.min.js' );
+			const asset = readFileSync(
+				path.join( FIXTURE_BUILD, 'routes/dashboard/content.min.asset.php' ),
+				'utf8'
+			);
+			const version = crypto
+				.createHash( 'sha256' )
+				.update( readFileSync( bundle ) )
+				.digest( 'hex' )
+				.slice( 0, 20 );
+
+			assert.match(
+				asset,
+				new RegExp( `'version'\\s*=>\\s*'${ version }'` ),
+				'the asset version matches the stamped bundle wp-build no longer hashed'
+			);
+		} );
+
 		it( 'strips paired unminified bundles and patches every PHP loader', () => {
 			const result = strip( FIXTURE_BUILD );
 			assert.equal( result.skipped, false );
-			// 2 routes paired + 1 wpScript paired + 1 CSS paired + 1 widget (2 paired) = 6 deletions.
-			assert.equal( result.deletedFiles, 6 );
+			// content.js carries a gettext call (from stage.ts) and becomes a stub;
+			// the other 5 paired bundles (route.js, wpScript js, CSS, 2 widget js)
+			// have no gettext calls and are deleted.
+			assert.equal( result.stubbedFiles, 1 );
+			assert.equal( result.deletedFiles, 5 );
 			assert.equal( result.patchedFiles, 5 );
 
-			// Paired bundles gone, minified siblings retained.
+			// Paired string-less bundles gone, minified siblings retained. The
+			// string-bearing content.js stays behind as an i18n stub so GlotPress /
+			// `wp i18n make-pot` still have something to extract from.
+			const STUBBED = 'routes/dashboard/content.js';
 			for ( const [ unminified, minified ] of PAIRED_BUNDLES ) {
 				assert.equal(
 					existsSync( path.join( FIXTURE_BUILD, unminified ) ),
-					false,
-					`${ unminified } should be removed`
+					unminified === STUBBED,
+					`${ unminified } should be ${ unminified === STUBBED ? 'stubbed in place' : 'removed' }`
 				);
 				assert.equal(
 					existsSync( path.join( FIXTURE_BUILD, minified ) ),
@@ -134,6 +190,21 @@ describe(
 					`${ minified } should be retained`
 				);
 			}
+
+			const stubSource = readFileSync( path.join( FIXTURE_BUILD, STUBBED ), 'utf8' );
+			assert.ok( isStub( stubSource ), 'content.js replaced by an i18n stub' );
+			assert.ok(
+				stubSource.includes( '__( "Hello from fixture", "jetpack-wp-build-polyfills" );' ),
+				'the gettext call from real wp-build output survives in the stub'
+			);
+			assert.ok(
+				! stubSource.includes( 'stage' ),
+				'application code does not survive in the stub'
+			);
+			assert.ok(
+				! stubSource.includes( 'not-a-translatable-string' ),
+				'a gettext-shaped call on an unrelated object stays out of the .pot'
+			);
 
 			// Paired `.js.map` sourcemaps for the deleted `.js` files are
 			// also dropped — they're not useful without the unminified bundle.
@@ -155,7 +226,12 @@ describe(
 
 		it( 'is idempotent on real output — a second pass changes nothing', () => {
 			const result = strip( FIXTURE_BUILD );
-			assert.deepEqual( result, { deletedFiles: 0, patchedFiles: 0, skipped: false } );
+			assert.deepEqual( result, {
+				deletedFiles: 0,
+				stubbedFiles: 0,
+				patchedFiles: 0,
+				skipped: false,
+			} );
 		} );
 	}
 );

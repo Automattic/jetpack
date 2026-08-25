@@ -1833,9 +1833,9 @@ function wpcom_track_site_launch_task() {
 	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'videopress_launched' );
 	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'blog_launched' );
 
-	// Remove site intent for blog onboarding flows and disable launchpad.
+	// Remove site intent for the blog onboarding flow and disable launchpad.
 	$site_intent = get_option( 'site_intent' );
-	if ( in_array( $site_intent, array( 'start-writing', 'design-first' ), true ) ) {
+	if ( 'design-first' === $site_intent ) {
 		update_option( 'site_intent', '' );
 		update_option( 'launchpad_screen', 'off' );
 	}
@@ -1992,15 +1992,6 @@ function wpcom_launchpad_is_blog_launched_task_disabled() {
 		if ( wpcom_is_checklist_task_complete( 'plan_completed' )
 			&& wpcom_is_checklist_task_complete( 'domain_upsell' )
 			&& wpcom_is_checklist_task_complete( 'setup_blog' ) ) {
-			return false;
-		}
-		return true;
-	}
-	if ( 'start-writing' === get_option( 'site_intent' ) ) {
-		if ( wpcom_is_checklist_task_complete( 'plan_completed' )
-			&& wpcom_is_checklist_task_complete( 'domain_upsell' )
-			&& wpcom_is_checklist_task_complete( 'setup_blog' )
-			&& wpcom_is_checklist_task_complete( 'first_post_published' ) ) {
 			return false;
 		}
 		return true;
@@ -2819,7 +2810,7 @@ function wpcom_trigger_email_campaign() {
 		return;
 	}
 
-	if ( ! in_array( $site_intent, array( 'start-writing', 'design-first' ), true ) ) {
+	if ( 'design-first' !== $site_intent ) {
 		return;
 	}
 

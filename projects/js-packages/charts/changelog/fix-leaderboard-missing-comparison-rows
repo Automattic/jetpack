@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Leaderboard Chart: Avoid fabricated deltas for rows without matching comparison data.

@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { scheduled } from '@wordpress/icons';
 
 /**
@@ -20,7 +19,5 @@ export type MostPopularTimeAttributes = Record< never, never >;
  * total.
  */
 export default {
-	name: 'jpa/most-popular-time',
-	title: __( 'Most popular time', 'jetpack-premium-analytics' ),
 	icon: scheduled,
 };

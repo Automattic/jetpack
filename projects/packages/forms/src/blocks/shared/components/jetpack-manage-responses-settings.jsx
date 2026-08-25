@@ -12,10 +12,6 @@ const JetpackManageResponsesSettings = ( { attributes, setAttributes } ) => {
 		<>
 			<ToggleControl
 				label={ __( 'Save responses', 'jetpack-forms' ) }
-				help={ __(
-					'Keep responses saved, or set up email/integration to avoid losing them.',
-					'jetpack-forms'
-				) }
 				checked={ saveResponses }
 				onChange={ value => setAttributes( { saveResponses: value } ) }
 				__nextHasNoMarginBottom={ true }

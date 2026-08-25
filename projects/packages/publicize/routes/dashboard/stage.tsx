@@ -12,6 +12,7 @@ import { TurnOnSocialProvider } from '../../_inc/components/settings-tab/turn-on
 import SocialPage, { type SocialTab } from '../../_inc/components/social-page';
 import { store as socialStore } from '../../_inc/social-store';
 import { canToggleSocialModule } from '../../_inc/utils/misc';
+import { hasAdminUiV2 } from '../../_inc/utils/script-data';
 
 type StageSearch = Record< string, unknown > & {
 	tab?: string;
@@ -23,16 +24,25 @@ const queryClient = new QueryClient();
 
 /**
  * "Add account" action rendered into the Page header on the Overview
- * tab. Dispatches `openConnectionsModal` so the existing
- * `ManageConnectionsModal` (rendered inside `ConnectionManagement`)
- * takes over from there.
+ * tab. Behind `ADMIN_UI_V2` it starts the new connection flow
+ * (`ConnectionFlowModal`); otherwise it opens today's
+ * `ManageConnectionsModal` — both mounted by the Overview tab.
  *
  * @return The page-header action button.
  */
 const AddAccountAction = () => {
-	const { openConnectionsModal } = useDispatch( socialStore );
+	const { openConnectionsModal, startConnectionFlow } = useDispatch( socialStore );
+
+	const onClick = useCallback( () => {
+		if ( hasAdminUiV2() ) {
+			startConnectionFlow( { origin: 'dashboard' } );
+		} else {
+			openConnectionsModal();
+		}
+	}, [ openConnectionsModal, startConnectionFlow ] );
+
 	return (
-		<Button variant="solid" size="compact" onClick={ openConnectionsModal }>
+		<Button variant="solid" size="compact" onClick={ onClick }>
 			{ __( 'Add account', 'jetpack-publicize-pkg' ) }
 		</Button>
 	);
@@ -47,8 +57,7 @@ const AddAccountAction = () => {
  * When the site is disconnected, or on the free plan with the pricing
  * nudge not yet dismissed, the client-side `SocialGate` (rendered inside
  * `SocialPage`) shows the connection or pricing gate in place of these
- * tabs — so the modernized dashboard handles those states itself instead
- * of falling back to the legacy admin page.
+ * tabs — so the Social dashboard handles those states itself.
  *
  * @return Stage content.
  */

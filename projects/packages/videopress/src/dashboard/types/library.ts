@@ -8,6 +8,8 @@ export type LibraryItemPrivacy = 'public' | 'private' | 'site-default';
 // thumbnail button, action eligibility) handles it without extra plumbing.
 export type UploadStatus = 'idle' | 'uploading' | 'promoting' | 'deleting' | 'failed';
 export type VideoRating = 'G' | 'PG-13' | 'R';
+// null when the orientation is unknown (missing dimensions) or square.
+export type VideoOrientation = 'landscape' | 'portrait' | null;
 
 export interface UploadState {
 	status: UploadStatus;
@@ -33,7 +35,12 @@ export interface LibraryItem {
 	allowDownloads: boolean;
 	shortcode: string;
 	sourceUrl?: string;
+	// The best browser-playable MP4 rendition (dvd → std → hd). Preferred over
+	// `sourceUrl` for playback: the original upload may be an HEVC .mov most
+	// browsers can't decode. Undefined until the transcode ladder is ready.
+	playbackUrl?: string;
 	isProcessing: boolean;
+	orientation: VideoOrientation;
 	tracks: VideoTextTrack[];
 }
 

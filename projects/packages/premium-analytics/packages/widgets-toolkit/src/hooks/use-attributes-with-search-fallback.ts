@@ -1,63 +1,54 @@
 /**
  * External dependencies
  */
+import { useReportScope, withoutComparison } from '@jetpack-premium-analytics/data';
 import { useSearch } from '@wordpress/route';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import type { ReportParamsFieldAttributes } from '../fields';
 
 /**
- * Hook that provides widget attributes with URL search params as fallback.
+ * Falls back to the URL search params when `attributes` carry no reportParams,
+ * so a widget works in both hosts: Dashboard-v2 passes no attributes and needs
+ * the URL, Post-Launch passes attributes and ignores it.
  *
- * When attributes don't contain reportParams (empty or missing), this hook
- * will attempt to get them from the URL using useSearch(). This is useful
- * for dashboard widgets that can work in two contexts:
- * - Dashboard-v2: No attributes, needs URL params
- * - Post-Launch: Has attributes, ignores URL
- *
- * @param { Partial< ReportParamsFieldAttributes > } attributes - The widget attributes (may be empty or partial)
- * @return { ReportParamsFieldAttributes } Effective attributes with reportParams guaranteed
- *
- * @example
- * ```typescript
- * function MyWidgetRender( { attributes } ) {
- *   const effectiveAttributes = useAttributesWithSearchFallback( attributes );
- *   return <MyWidget attributes={ effectiveAttributes } />;
- * }
- * ```
+ * @param attributes - The widget attributes, which may be empty or partial.
+ * @return The original attributes with effective reportParams guaranteed.
  */
-export function useAttributesWithSearchFallback(
-	attributes: Partial< ReportParamsFieldAttributes >
-): ReportParamsFieldAttributes {
-	/*
-	 * Try to get search params from router.
-	 * This may fail in contexts without router (e.g., Post-Launch).
-	 * We declare the variable and use try/catch to handle both cases.
-	 */
+export function useAttributesWithSearchFallback< T extends Partial< ReportParamsFieldAttributes > >(
+	attributes: T
+): T & ReportParamsFieldAttributes {
+	// `useSearch` throws outside a router context, which is how Post-Launch
+	// renders widgets, so the call is guarded rather than assumed.
 	let search: Record< string, any >;
 
 	try {
+		// `strict: false` rather than `from: '/'`, matching `WidgetRoot`: widgets
+		// pick up the date range on any page, not only the dashboard at `/`. Pinned
+		// to `/`, this throws on every other matched route and falls back to `{}` —
+		// leaving a widget's header control reading a default range while its body
+		// reads the real one.
 		// eslint-disable-next-line react-hooks/rules-of-hooks
-		search = useSearch( {
-			from: '/',
-		} );
+		search = useSearch( { strict: false } );
 	} catch {
-		/*
-		 * Not in router context or route doesn't exist.
-		 * This can happen in Post-Launch where widgets are rendered
-		 * outside the Analytics dashboard context.
-		 */
 		search = {};
 	}
 
-	/*
-	 * Check if reportParams exists and is not empty.
-	 * If it exists, use the provided attributes.
-	 * Otherwise, build attributes from URL search params.
-	 */
 	const hasReportParams =
 		!! attributes?.reportParams && Object.keys( attributes.reportParams ).length > 0;
+	const sourceReportParams = hasReportParams
+		? ( attributes as ReportParamsFieldAttributes ).reportParams
+		: search;
 
-	return hasReportParams ? ( attributes as ReportParamsFieldAttributes ) : { reportParams: search };
+	const { offersComparison } = useReportScope();
+
+	return useMemo( () => {
+		const reportParams = offersComparison
+			? sourceReportParams
+			: withoutComparison( sourceReportParams );
+
+		return { ...attributes, reportParams };
+	}, [ attributes, offersComparison, sourceReportParams ] );
 }

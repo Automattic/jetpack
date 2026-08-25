@@ -1,24 +1,24 @@
 /**
  * External dependencies
  */
-import {
-	getDefaultPreset,
-	normalizeReportParams,
-	localTZDate,
-	getSiteTimezone,
-} from '@jetpack-premium-analytics/data';
+import { getDefaultPreset, normalizeReportParams } from '@jetpack-premium-analytics/data';
 import {
 	type ComparisonPresetId,
+	endOfDayTZ,
 	isPrimaryPreset,
+	siteTimeZone,
 	type DateRange,
 } from '@jetpack-premium-analytics/datetime';
-import { deriveComparisonRange, encodeDateToSearchParam } from '@jetpack-premium-analytics/routing';
+import { Stack } from '@jetpack-premium-analytics/externals';
+import {
+	decodeDateSearchParam,
+	deriveComparisonRange,
+	encodeDateToSearchParam,
+} from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
-import { Stack } from '@wordpress/ui';
-import { endOfDay } from 'date-fns';
-import { useCallback, useMemo, useState, useEffect } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { getStoreInfo } from '../helpers/store-info';
-import type { DataFormControlProps } from '@wordpress/dataviews';
+import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
 
 /*
  * Copied from widgets-toolkit `fields/date-report-params-field` so widget
@@ -29,9 +29,6 @@ import type { DataFormControlProps } from '@wordpress/dataviews';
  * toolkit copy when the toolkit dissolves.
  */
 
-/**
- * Inferred types
- */
 type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ] >;
 
 export type ReportParamsFieldAttributes = {
@@ -52,8 +49,8 @@ export function ReportParamsField( {
 	const reportParams = normalizeReportParams( stagedReportParams, defaultPreset );
 
 	const range = {
-		from: localTZDate( reportParams.from ),
-		to: localTZDate( reportParams.to ),
+		from: decodeDateSearchParam( reportParams.from ),
+		to: decodeDateSearchParam( reportParams.to ),
 	};
 
 	const stageDateRange = useCallback(
@@ -62,7 +59,10 @@ export function ReportParamsField( {
 
 			if ( nextRange?.from && nextRange?.to ) {
 				nextReportParams.from = encodeDateToSearchParam( nextRange.from );
-				nextReportParams.to = encodeDateToSearchParam( endOfDay( nextRange.to ) );
+				nextReportParams.to = encodeDateToSearchParam(
+					// The site's day boundary, not the visitor's (see build-range-patch).
+					endOfDayTZ( nextRange.to, siteTimeZone() )
+				);
 			}
 
 			if ( nextPresetId && isPrimaryPreset( nextPresetId ) ) {
@@ -71,10 +71,6 @@ export function ReportParamsField( {
 				delete nextReportParams.preset;
 			}
 
-			/*
-			 * Derive comparison range from primary range and preset,
-			 * when comparison is enabled.
-			 */
 			if ( reportParams.comp === '1' ) {
 				const derived = deriveComparisonRange( nextReportParams );
 				if ( derived ) {
@@ -88,7 +84,6 @@ export function ReportParamsField( {
 		[ stagedReportParams, reportParams.comp ]
 	);
 
-	// Basic check if the date range has been changed.
 	const isDateRangeDirty = useMemo( () => {
 		return (
 			attributes?.reportParams?.from !== stagedReportParams?.from ||
@@ -127,18 +122,6 @@ export function ReportParamsField( {
 		setStagedReportParams( attributes?.reportParams );
 	}, [ setStagedReportParams, attributes ] );
 
-	/*
-	 * Get the dashboard layout surface for responsive calculations.
-	 * This is a temporary workaround until @automattic/dashboard exposes
-	 * a Context provider. See WOOA7S-1008 for the upstream solution.
-	 */
-	const [ containerElement, setContainerElement ] = useState< HTMLElement | null >( null );
-
-	useEffect( () => {
-		const node = document.querySelector< HTMLElement >( '.next-admin-layout__surface' );
-		setContainerElement( node );
-	}, [] );
-
 	return (
 		<Stack direction="column" gap="sm">
 			<DateFiltersPanel
@@ -150,8 +133,7 @@ export function ReportParamsField( {
 				onApply={ commit }
 				canApply={ isDateRangeDirty }
 				onCancel={ clear }
-				timeZone={ getSiteTimezone() }
-				containerElement={ containerElement }
+				timeZone={ siteTimeZone() }
 			/>
 		</Stack>
 	);

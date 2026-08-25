@@ -140,17 +140,17 @@ When you omit dimension props, the chart expands to fill its parent container:
 
 #### Aspect Ratio Mode
 
-For layouts where you want height calculated from width, pass the `aspectRatio` prop:
+For layouts where the container width varies but you want consistent proportions, pass the `aspectRatio` prop:
 
 <Source
 	language="jsx"
-	code={`// Height = width × aspectRatio (e.g., 2:1 ratio)
+	code={`// Height from width; contained if the parent is shorter
 	<div style={{ width: '100%' }}>
 		<LineChart data={data} aspectRatio={0.5} />
 	</div>`}
 />
 
-This is useful for responsive layouts where the container width varies but you want consistent proportions.
+The chart keeps this ratio, contained within its parent on both axes: it fills the available width and derives its height, but shrinks both axes to fit a shorter parent rather than overflowing. A taller parent leaves space below rather than stretching the chart.
 
 #### Fixed Dimensions
 
@@ -167,7 +167,7 @@ For complete control, specify explicit `width` and `height` props:
 |------|------|---------|-------------|
 | `width` | `number` | - | Fixed width in pixels (omit for responsive) |
 | `height` | `number` | - | Fixed height in pixels (omit for responsive) |
-| `aspectRatio` | `number` | - | Height as ratio of width (e.g., `0.5` = half width) |
+| `aspectRatio` | `number` | - | Height as ratio of width (e.g., `0.5` = half width); contained within the parent on both axes |
 | `maxWidth` | `number` | `1200` | Maximum width constraint |
 | `resizeDebounceTime` | `number` | `300` | Debounce delay for resize events (ms) |
 

@@ -1,4 +1,9 @@
+import type { ConnectionOwner } from '../../types.ts';
 import type { ReactElement } from 'react';
+
+// Part of this hook's public result contract, so re-export it: the package
+// barrel forwards this module's types to consumers.
+export type { ConnectionOwner };
 
 export interface ConnectionErrorData {
 	action?: string;
@@ -11,8 +16,18 @@ export interface ConnectionErrorData {
 	secondary_action_label?: string;
 	secondary_action_variant?: 'primary' | 'secondary';
 	secondary_tracking_event?: string;
+	/** When true, the notice appends a "Contact Jetpack Support" link, e.g. because a reconnect may not fix it. */
+	support_link?: boolean;
 	[ key: string ]: unknown;
 }
+
+/**
+ * Who a connection error is relevant to:
+ * - `site`: blog-token / site-wide errors.
+ * - `owner`: errors tied to the connection owner's user token.
+ * - `user`: errors tied to another specific user's token.
+ */
+export type ConnectionErrorAudience = 'site' | 'owner' | 'user';
 
 export interface ConnectionErrorObject {
 	error_message: string;
@@ -20,6 +35,8 @@ export interface ConnectionErrorObject {
 	user_id?: string;
 	error_type?: string;
 	error_data?: ConnectionErrorData;
+	/** Optional audience metadata; readers must treat a missing value as site-wide. */
+	audience?: ConnectionErrorAudience;
 	[ key: string ]: unknown;
 }
 
@@ -85,4 +102,14 @@ export interface UseConnectionErrorNoticeResult {
 	isRestoringConnection: boolean;
 	/** The restore error message, if the last restore attempt failed. */
 	restoreConnectionError: string | null;
+	/** The connection owner of record. Derived server-side from the `master_user`. */
+	connectionOwner: ConnectionOwner | null;
+	/** Whether the current viewer is the owner of record. */
+	isCurrentUserConnectionOwner: boolean;
+	/**
+	 * The viewer's local WordPress user ID, so consumers can tell an error that is
+	 * theirs from one belonging to another user without subscribing to the store
+	 * a second time. Undefined when the connection data has not loaded.
+	 */
+	currentUserId: number | undefined;
 }

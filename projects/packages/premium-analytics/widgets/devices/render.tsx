@@ -2,16 +2,19 @@
  * External dependencies
  */
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { device } from '@jetpack-premium-analytics/icons';
 /**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
 import {
+	DonutChartSkeleton,
 	Legend,
+	WIDGET_ROW_LIMIT,
+	describeError,
 	SemiCircleChart,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
 	useSegmentStyles,
 	useWidgetRootContext,
 	type LegendItem,
@@ -41,24 +44,11 @@ function toRatio( percentage: number ) {
 	return percentage / 100;
 }
 
-type DevicesInnerProps = {
-	/**
-	 * Max rows to display.
-	 */
-	max: number;
-};
-
-/**
- * Inner component — rendered inside WidgetRoot.
- *
- * @param {DevicesInnerProps} props - The component props.
- * @return The rendered semi-circle chart or state placeholder.
- */
-function DevicesInner( { max }: DevicesInnerProps ) {
+function DevicesInner() {
 	const { reportParams } = useWidgetRootContext();
-	const { data, comparisonData, hasComparison, isLoading, isError, errorReason } = useDeviceViews( {
+	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useDeviceViews( {
 		reportParams,
-		max,
+		max: WIDGET_ROW_LIMIT,
 		deviceProperty: 'screensize',
 	} );
 
@@ -67,47 +57,7 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 		value: toRatio( item.percentage ),
 	} ) );
 
-	// Must be called unconditionally before any early return.
 	const segmentStyles = useSegmentStyles( chartData );
-
-	if ( isError ) {
-		return (
-			<div className={ styles.content }>
-				<Stack align="center" justify="center" className={ styles.placeholder }>
-					<Text>
-						{ errorReason === 'upgrade-required'
-							? __(
-									'Device stats are not included in your current plan.',
-									'jetpack-premium-analytics'
-							  )
-							: __( 'Could not load device data.', 'jetpack-premium-analytics' ) }
-					</Text>
-				</Stack>
-			</div>
-		);
-	}
-
-	if ( isLoading && data.length === 0 ) {
-		return (
-			<div className={ styles.content }>
-				<WidgetLoadingOverlay />
-			</div>
-		);
-	}
-
-	if ( data.length === 0 ) {
-		return (
-			<div className={ styles.content }>
-				<Stack align="center" justify="center" className={ styles.placeholder }>
-					<Text>{ __( 'No device data in this period.', 'jetpack-premium-analytics' ) }</Text>
-				</Stack>
-			</div>
-		);
-	}
-
-	const comparisonMap = new Map(
-		comparisonData.map( item => [ item.label, toRatio( item.percentage ) ] )
-	);
 
 	const legendData: LegendItem[] = data.map( item => ( {
 		label: item.displayLabel,
@@ -117,7 +67,10 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 			PERCENTAGE_DATA_FORMAT.type,
 			PERCENTAGE_DATA_FORMAT.options
 		),
-		comparison: hasComparison ? comparisonMap.get( item.label ) ?? 0 : undefined,
+		comparison:
+			hasComparison && item.previousPercentage !== undefined
+				? toRatio( item.previousPercentage )
+				: undefined,
 	} ) );
 	const styledLegendData = legendData.map( ( item, index ) => ( {
 		...item,
@@ -126,35 +79,50 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 
 	return (
 		<div className={ styles.content }>
-			<div className={ styles.chartShell }>
-				<SemiCircleChart
-					chartData={ chartData }
-					styles={ segmentStyles }
-					showLegend={ false }
-					showMetric={ false }
-					dataFormat={ PERCENTAGE_DATA_FORMAT }
-				/>
-				<Legend items={ styledLegendData } withComparison={ hasComparison } />
-			</div>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				isError={ isError }
+				isEmpty={ data.length === 0 }
+				error={ describeError( error, {
+					retryDescription: __(
+						"We couldn't load device data. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					onRetry: refetch,
+				} ) }
+				empty={ {
+					icon: device,
+					description: __( 'No device data in this period.', 'jetpack-premium-analytics-pkg' ),
+				} }
+				renderLoading={ <DonutChartSkeleton /> }
+			>
+				<div className={ styles.chartWrap }>
+					<div className={ styles.chartShell }>
+						<SemiCircleChart
+							chartData={ chartData }
+							styles={ segmentStyles }
+							showLegend={ false }
+							showMetric={ false }
+							withTooltips
+							dataFormat={ PERCENTAGE_DATA_FORMAT }
+						/>
+						<Legend items={ styledLegendData } withComparison={ hasComparison } />
+					</div>
+				</div>
+			</WidgetState>
 		</div>
 	);
 }
 
 /**
- * Devices widget render component.
- *
  * Shows screen size breakdown (Desktop / Mobile / Tablet) as a semi-circle chart.
- *
- * @param {DevicesWidgetProps} props - The widget render props.
- * @return The rendered widget content.
  */
 export default function DevicesWidget( { attributes = {} }: DevicesWidgetProps ) {
-	const max = attributes?.max ?? 5;
-
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<DevicesInner max={ max } />
+				<DevicesInner />
 			</div>
 		</WidgetRoot>
 	);

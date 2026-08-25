@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
+import { Text } from '@jetpack-premium-analytics/externals';
 import { Button, DropdownMenu, MenuGroup, MenuItem, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { check, moreVertical } from '@wordpress/icons';
-import { Text } from '@wordpress/ui';
 import { useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -17,14 +17,8 @@ import styles from './report-performance-chart.module.scss';
 import { buildReportMetricSeries } from './utils/build-report-metric-series';
 import type { ReportChartMetric } from './types';
 import type { DataFormat } from '../../types';
-import type { LegendLabels } from '../chart-leaderboard';
 import type { IntervalType, StatsTimeSeriesReport } from '@jetpack-premium-analytics/data';
 import type { ReactNode } from 'react';
-
-// Charts base styles. Widgets get these through WidgetRoot; report pages
-// render charts without a WidgetRoot, so load them here. Without them the
-// chart's layout constraints are missing and the svg grows without bound.
-import '@automattic/charts/style.css';
 
 const DEFAULT_DATA_FORMAT: DataFormat = {
 	type: 'number',
@@ -32,9 +26,9 @@ const DEFAULT_DATA_FORMAT: DataFormat = {
 };
 
 const INTERVAL_LABELS: Partial< Record< IntervalType, string > > = {
-	day: __( 'By days', 'jetpack-premium-analytics' ),
-	week: __( 'By weeks', 'jetpack-premium-analytics' ),
-	month: __( 'By months', 'jetpack-premium-analytics' ),
+	day: __( 'By days', 'jetpack-premium-analytics-pkg' ),
+	week: __( 'By weeks', 'jetpack-premium-analytics-pkg' ),
+	month: __( 'By months', 'jetpack-premium-analytics-pkg' ),
 };
 
 const DEFAULT_INTERVAL_OPTIONS: IntervalType[] = [ 'day', 'week', 'month' ];
@@ -47,10 +41,10 @@ const DEFAULT_INTERVAL_OPTIONS: IntervalType[] = [ 'day', 'week', 'month' ];
  */
 function getDefaultMetrics(): ReportChartMetric[] {
 	return [
-		{ key: 'views', label: __( 'Views', 'jetpack-premium-analytics' ) },
-		{ key: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics' ) },
-		{ key: 'comments', label: __( 'Comments', 'jetpack-premium-analytics' ) },
-		{ key: 'likes', label: __( 'Likes', 'jetpack-premium-analytics' ) },
+		{ key: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },
+		{ key: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ) },
+		{ key: 'comments', label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
+		{ key: 'likes', label: __( 'Likes', 'jetpack-premium-analytics-pkg' ) },
 	];
 }
 
@@ -73,8 +67,6 @@ export interface ReportPerformanceChartProps {
 	intervalOptions?: IntervalType[];
 	/** Value/axis format (defaults to compact numbers). */
 	dataFormat?: DataFormat;
-	/** Optional date labels for the single-metric comparison legend. */
-	legendLabels?: LegendLabels;
 	/** Extra header-right controls, rendered before the built-in ones. */
 	controls?: ReactNode;
 }
@@ -96,7 +88,7 @@ export interface ReportPerformanceChartProps {
  * @return The performance chart section.
  */
 export function ReportPerformanceChart( {
-	title = __( 'Performance', 'jetpack-premium-analytics' ),
+	title = __( 'Performance', 'jetpack-premium-analytics-pkg' ),
 	primary,
 	comparison,
 	isLoading = false,
@@ -105,7 +97,6 @@ export function ReportPerformanceChart( {
 	onIntervalChange,
 	intervalOptions = DEFAULT_INTERVAL_OPTIONS,
 	dataFormat = DEFAULT_DATA_FORMAT,
-	legendLabels,
 	controls,
 }: ReportPerformanceChartProps ) {
 	const allMetrics = useMemo( () => metrics ?? getDefaultMetrics(), [ metrics ] );
@@ -118,8 +109,8 @@ export function ReportPerformanceChart( {
 	);
 
 	const series = useMemo(
-		() => buildReportMetricSeries( { primary, comparison, metrics: visibleMetrics, legendLabels } ),
-		[ primary, comparison, visibleMetrics, legendLabels ]
+		() => buildReportMetricSeries( { primary, comparison, metrics: visibleMetrics } ),
+		[ primary, comparison, visibleMetrics ]
 	);
 	const seriesStyles = useSeriesStyles( series );
 
@@ -152,7 +143,7 @@ export function ReportPerformanceChart( {
 					<SelectControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
-						label={ __( 'Chart interval', 'jetpack-premium-analytics' ) }
+						label={ __( 'Chart interval', 'jetpack-premium-analytics-pkg' ) }
 						hideLabelFromVision
 						value={ interval }
 						options={ intervalSelectOptions }
@@ -160,11 +151,11 @@ export function ReportPerformanceChart( {
 					/>
 					<DropdownMenu
 						icon={ moreVertical }
-						label={ __( 'Chart options', 'jetpack-premium-analytics' ) }
+						label={ __( 'Chart options', 'jetpack-premium-analytics-pkg' ) }
 						popoverProps={ { placement: 'bottom-end' } }
 					>
 						{ () => (
-							<MenuGroup label={ __( 'Metrics', 'jetpack-premium-analytics' ) }>
+							<MenuGroup label={ __( 'Metrics', 'jetpack-premium-analytics-pkg' ) }>
 								{ allMetrics.map( metric => {
 									const isVisible = ! hiddenMetricKeys.includes( metric.key );
 									return (
@@ -186,11 +177,13 @@ export function ReportPerformanceChart( {
 			</div>
 			{ ! isChartHidden && (
 				<div className={ styles.chart }>
-					<ComparativeLineChart
-						series={ series }
-						styles={ seriesStyles }
-						dataFormat={ dataFormat }
-					/>
+					{ ( ! isLoading || series.length > 0 ) && (
+						<ComparativeLineChart
+							series={ series }
+							styles={ seriesStyles }
+							dataFormat={ dataFormat }
+						/>
+					) }
 					{ isLoading && <WidgetLoadingOverlay /> }
 				</div>
 			) }
@@ -201,8 +194,8 @@ export function ReportPerformanceChart( {
 					onClick={ () => setIsChartHidden( current => ! current ) }
 				>
 					{ isChartHidden
-						? __( 'Show chart', 'jetpack-premium-analytics' )
-						: __( 'Hide chart', 'jetpack-premium-analytics' ) }
+						? __( 'Show chart', 'jetpack-premium-analytics-pkg' )
+						: __( 'Hide chart', 'jetpack-premium-analytics-pkg' ) }
 				</Button>
 			</div>
 		</ReportPageSection>

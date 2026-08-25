@@ -12,8 +12,6 @@ export type TopPerformingProductsWidgetProps = {
 };
 
 /**
- * Top Performing Products Widget
- *
  * Displays the top-performing physical products by net revenue in a leaderboard format.
  * Shows product images, names, and revenue with comparison to previous period.
  *
@@ -29,11 +27,6 @@ export type TopPerformingProductsWidgetProps = {
  *
  * @param props       - Component props
  * @param props.limit - Maximum number of products to display (default: 5)
- *
- * @example
- * <WidgetRoot attributes={ attributes }>
- *   <TopPerformingProductsWidget limit={ 5 } />
- * </WidgetRoot>
  */
 export function TopPerformingProductsWidget( { limit = 5 }: TopPerformingProductsWidgetProps ) {
 	return (

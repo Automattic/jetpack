@@ -71,6 +71,13 @@ export function resolveConnectionErrorActions(
 
 	const errorData: ConnectionErrorData = connectionError.error_data ?? {};
 	const suggestedAction = errorData.action;
+
+	// An explicit 'none' action marks the error as informational only (for example,
+	// a secondary admin viewing a locked connection owner's error). Surface no CTA.
+	if ( suggestedAction === 'none' ) {
+		return [];
+	}
+
 	const actionHandler = suggestedAction ? actionHandlers[ suggestedAction ] : undefined;
 
 	let actions: Action[];
@@ -109,7 +116,9 @@ export function resolveConnectionErrorActions(
 			},
 		];
 	} else {
-		// Default action - restore connection.
+		// Default action - restore connection. The label stays generic on purpose:
+		// `restoreConnection()` restores the blog token and then walks the user
+		// through reconnecting their own account when that is also needed.
 		actions = [
 			{
 				label: __( 'Restore Connection', 'jetpack-connection-js' ),

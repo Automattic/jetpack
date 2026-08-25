@@ -27,15 +27,15 @@ describe( 'Stats time-series normalizer', () => {
 			expect.objectContaining( {
 				views: 21,
 				visitors: 8,
-				date_start: '2026-06-15T00:00:00+00:00',
-				date_end: '2026-06-16T23:59:59+00:00',
+				date_start: '2026-06-15T00:00:00',
+				date_end: '2026-06-16T23:59:59',
 			} )
 		);
 		expect( result.data[ 0 ] ).toEqual(
 			expect.objectContaining( {
 				time_interval: '2026-06-15',
-				date_start: '2026-06-15T00:00:00+00:00',
-				date_end: '2026-06-15T23:59:59+00:00',
+				date_start: '2026-06-15T00:00:00',
+				date_end: '2026-06-15T23:59:59',
 				label: '2026-06-15',
 				value: 8,
 				views: 8,
@@ -68,8 +68,8 @@ describe( 'Stats time-series normalizer', () => {
 		expect( sanitizeStatsTimeSeriesResponse( weeklySubscribersFixture ).data[ 0 ] ).toEqual(
 			expect.objectContaining( {
 				time_interval: '2026-06-15',
-				date_start: '2026-06-15T00:00:00+00:00',
-				date_end: '2026-06-21T23:59:59+00:00',
+				date_start: '2026-06-15T00:00:00',
+				date_end: '2026-06-21T23:59:59',
 				value: 9,
 				subscribers: 9,
 			} )
@@ -80,8 +80,8 @@ describe( 'Stats time-series normalizer', () => {
 		expect( sanitizeStatsTimeSeriesResponse( wpcomWeeklySubscribersFixture ).data[ 0 ] ).toEqual(
 			expect.objectContaining( {
 				time_interval: '2026-06-29',
-				date_start: '2026-06-29T00:00:00+00:00',
-				date_end: '2026-07-05T23:59:59+00:00',
+				date_start: '2026-06-29T00:00:00',
+				date_end: '2026-07-05T23:59:59',
 				value: 9,
 				subscribers: 9,
 			} )
@@ -92,8 +92,8 @@ describe( 'Stats time-series normalizer', () => {
 		expect( sanitizeStatsTimeSeriesResponse( invalidWeekSubscribersFixture ).data[ 0 ] ).toEqual(
 			expect.objectContaining( {
 				time_interval: '2026-W54',
-				date_start: '2026-W54T00:00:00+00:00',
-				date_end: '2026-W54T23:59:59+00:00',
+				date_start: '2026-W54T00:00:00',
+				date_end: '2026-W54T23:59:59',
 				value: 9,
 				subscribers: 9,
 			} )
@@ -103,8 +103,8 @@ describe( 'Stats time-series normalizer', () => {
 		).toEqual(
 			expect.objectContaining( {
 				time_interval: '2025-W53',
-				date_start: '2025-W53T00:00:00+00:00',
-				date_end: '2025-W53T23:59:59+00:00',
+				date_start: '2025-W53T00:00:00',
+				date_end: '2025-W53T23:59:59',
 				value: 9,
 				subscribers: 9,
 			} )
@@ -115,8 +115,8 @@ describe( 'Stats time-series normalizer', () => {
 		expect( sanitizeStatsTimeSeriesResponse( monthlySubscribersFixture ).data[ 0 ] ).toEqual(
 			expect.objectContaining( {
 				time_interval: '2024-02-01',
-				date_start: '2024-02-01T00:00:00+00:00',
-				date_end: '2024-02-29T23:59:59+00:00',
+				date_start: '2024-02-01T00:00:00',
+				date_end: '2024-02-29T23:59:59',
 				value: 29,
 				subscribers: 29,
 			} )
@@ -124,8 +124,8 @@ describe( 'Stats time-series normalizer', () => {
 		expect( sanitizeStatsTimeSeriesResponse( yearlySubscribersFixture ).data[ 0 ] ).toEqual(
 			expect.objectContaining( {
 				time_interval: '2024-01-01',
-				date_start: '2024-01-01T00:00:00+00:00',
-				date_end: '2024-12-31T23:59:59+00:00',
+				date_start: '2024-01-01T00:00:00',
+				date_end: '2024-12-31T23:59:59',
 				value: 366,
 				subscribers: 366,
 			} )
@@ -160,8 +160,8 @@ describe( 'Stats time-series normalizer', () => {
 		expect( result.summary ).toEqual(
 			expect.objectContaining( {
 				opens_count: 21,
-				date_start: '2026-06-15T00:00:00+00:00',
-				date_end: '2026-06-16T23:59:59+00:00',
+				date_start: '2026-06-15T00:00:00',
+				date_end: '2026-06-16T23:59:59',
 			} )
 		);
 		expect( result.data[ 0 ] ).toEqual(
@@ -192,8 +192,8 @@ describe( 'Stats time-series normalizer', () => {
 		expect( result.data ).toEqual( [
 			expect.objectContaining( {
 				time_interval: '2026-06-15 09:00',
-				date_start: '2026-06-15T09:00:00+00:00',
-				date_end: '2026-06-15T09:59:59+00:00',
+				date_start: '2026-06-15T09:00:00',
+				date_end: '2026-06-15T09:59:59',
 				label: '2026-06-15 09:00',
 				value: 3,
 				opens_count: 3,
@@ -201,7 +201,7 @@ describe( 'Stats time-series normalizer', () => {
 			} ),
 			expect.objectContaining( {
 				time_interval: '2026-06-15 10:00',
-				date_start: '2026-06-15T10:00:00+00:00',
+				date_start: '2026-06-15T10:00:00',
 				value: 5,
 				opens_count: 5,
 				hour: 10,
@@ -220,8 +220,8 @@ describe( 'Stats time-series normalizer', () => {
 		expect( result.data ).toEqual( [
 			expect.objectContaining( {
 				time_interval: '2026-06-15 09:00',
-				date_start: '2026-06-15T09:00:00+00:00',
-				date_end: '2026-06-15T09:59:59+00:00',
+				date_start: '2026-06-15T09:00:00',
+				date_end: '2026-06-15T09:59:59',
 				value: 4,
 				clicks_count: 4,
 				hour: 9,
@@ -257,7 +257,7 @@ describe( 'Stats time-series normalizer', () => {
 		expect( result.data[ 1 ] ).toEqual(
 			expect.objectContaining( {
 				time_interval: '2026-06-15 23:00',
-				date_end: '2026-06-15T23:59:59+00:00',
+				date_end: '2026-06-15T23:59:59',
 				hour: '23',
 				value: 4,
 			} )
@@ -269,6 +269,127 @@ describe( 'Stats time-series normalizer', () => {
 
 		expect( result.data ).toEqual( [] );
 		expect( result.summary ).toEqual( { date_start: '', date_end: '' } );
+	} );
+
+	it( 'restamps an offset-bearing query date as a bucket bound when no rows are returned', () => {
+		const result = sanitizeStatsTimeSeriesResponse(
+			{},
+			{
+				start_date: '2026-06-15T00:00:00-07:00',
+				end_date: '2026-06-16T23:59:59-07:00',
+			}
+		);
+
+		expect( result.data ).toEqual( [] );
+		expect( result.summary ).toEqual( {
+			date_start: '2026-06-15T00:00:00',
+			date_end: '2026-06-16T23:59:59',
+		} );
+	} );
+
+	it( 'falls back to the offset-bearing `date` param for date_end when end_date is absent', () => {
+		const result = sanitizeStatsTimeSeriesResponse(
+			{},
+			{ start_date: '2026-06-15T00:00:00-07:00', date: '2026-06-16T23:59:59-07:00' }
+		);
+
+		expect( result.summary ).toEqual( {
+			date_start: '2026-06-15T00:00:00',
+			date_end: '2026-06-16T23:59:59',
+		} );
+	} );
+
+	it( 'resolves hourly visits rows whose period packs the date and hour together', () => {
+		const result = sanitizeStatsTimeSeriesResponse(
+			{
+				unit: 'hour',
+				fields: [ 'period', 'views' ],
+				data: [
+					[ '2026-06-15 09:00:00', 3 ],
+					[ '2026-06-15 10:00:00', 5 ],
+					[ '2026-06-16 00:00:00', 1 ],
+				],
+			},
+			{ period: 'hour' }
+		);
+
+		expect( result.data ).toEqual( [
+			expect.objectContaining( {
+				time_interval: '2026-06-15 09:00',
+				date_start: '2026-06-15T09:00:00',
+				date_end: '2026-06-15T09:59:59',
+				value: 3,
+			} ),
+			expect.objectContaining( {
+				time_interval: '2026-06-15 10:00',
+				date_start: '2026-06-15T10:00:00',
+				value: 5,
+			} ),
+			expect.objectContaining( {
+				time_interval: '2026-06-16 00:00',
+				date_start: '2026-06-16T00:00:00',
+				value: 1,
+			} ),
+		] );
+	} );
+
+	it( 'leaves an hourly row that carries no parseable hour on its calendar bucket', () => {
+		const result = sanitizeStatsTimeSeriesResponse(
+			{ unit: 'hour', fields: [ 'period', 'views' ], data: [ [ '2026-06-15', 3 ] ] },
+			{ period: 'hour' }
+		);
+
+		expect( result.data[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				time_interval: '2026-06-15',
+				date_start: '2026-06-15T00:00:00',
+				date_end: '2026-06-15T23:59:59',
+			} )
+		);
+	} );
+
+	it( 'matches the row shape when rows are present and when they are not', () => {
+		const query = {
+			start_date: '2026-06-15T00:00:00-07:00',
+			end_date: '2026-06-15T23:59:59-07:00',
+		};
+		const withRows = sanitizeStatsTimeSeriesResponse(
+			{ unit: 'day', fields: [ 'period', 'views' ], data: [ [ '2026-06-15', 3 ] ] },
+			query
+		);
+		const withoutRows = sanitizeStatsTimeSeriesResponse( {}, query );
+
+		expect( withoutRows.summary.date_start ).toBe( withRows.summary.date_start );
+		expect( withoutRows.summary.date_end ).toBe( withRows.summary.date_end );
+	} );
+
+	// The shape `stats/subscribers` returns.
+	it( 'orders newest-first payloads oldest first', () => {
+		const result = sanitizeStatsTimeSeriesResponse(
+			{
+				date: '2026-06-17',
+				unit: 'day',
+				fields: [ 'period', 'subscribers' ],
+				data: [
+					[ '2026-06-17', 12 ],
+					[ '2026-06-16', 11 ],
+					[ '2026-06-15', 9 ],
+				],
+			},
+			{ period: 'day' }
+		);
+
+		expect( result.data.map( row => row.time_interval ) ).toEqual( [
+			'2026-06-15',
+			'2026-06-16',
+			'2026-06-17',
+		] );
+		expect( result.summary ).toEqual(
+			expect.objectContaining( {
+				date_start: '2026-06-15T00:00:00',
+				date_end: '2026-06-17T23:59:59',
+			} )
+		);
 	} );
 
 	it( 'detects supported time-series payload shapes', () => {

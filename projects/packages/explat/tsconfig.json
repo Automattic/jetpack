@@ -4,8 +4,7 @@
 	"include": [ "./src/client/**/*" ],
 	"files": [ "./global.d.ts" ],
 	"compilerOptions": {
-		"typeRoots": [ "./node_modules/@types/", "src" ],
-		"sourceMap": true,
-		"outDir": "./build/"
+		"types": [ "node" ],
+		"typeRoots": [ "./node_modules/@types/", "src" ]
 	}
 }

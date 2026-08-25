@@ -6,6 +6,11 @@ import { envelope } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
+ * Internal dependencies
+ */
+import { SelectField } from '@jetpack-premium-analytics/fields';
+
+/**
  * Which rate the leaderboard displays. Rows stay in newest-first order
  * regardless; this only changes the value shown and the overlay bar width.
  */
@@ -17,10 +22,6 @@ export type EmailMetric = 'opens' | 'clicks';
  * through to `render.tsx`.
  */
 export type EmailsAttributes = {
-	/**
-	 * Number of emails to show. `0` means as many as the endpoint returns (max 30).
-	 */
-	max?: number;
 	/**
 	 * Which rate to display. Defaults to `opens`.
 	 */
@@ -37,26 +38,20 @@ export type EmailsAttributes = {
  * there is no date range or comparison period.
  */
 export default {
-	name: 'jpa/stats-emails',
-	title: __( 'Emails', 'jetpack-premium-analytics' ),
 	icon: envelope,
 	attributes: [
 		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics' ),
-			type: 'integer',
-		},
-		{
 			id: 'metric',
-			label: __( 'View by', 'jetpack-premium-analytics' ),
+			label: __( 'View by', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'Open rate', 'jetpack-premium-analytics' ),
+					label: __( 'By open rate', 'jetpack-premium-analytics-pkg' ),
 					value: 'opens',
 				},
 				{
-					label: __( 'Click rate', 'jetpack-premium-analytics' ),
+					label: __( 'By click rate', 'jetpack-premium-analytics-pkg' ),
 					value: 'clicks',
 				},
 			],
@@ -65,7 +60,6 @@ export default {
 	] as WidgetAttributeField< EmailsAttributes >[],
 	example: {
 		attributes: {
-			max: 10,
 			metric: 'opens',
 		},
 	},

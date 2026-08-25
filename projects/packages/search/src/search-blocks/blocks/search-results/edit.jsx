@@ -2,8 +2,8 @@
  * Editor preview for jetpack-search/search-results.
  *
  * Renders an InnerBlocks region pre-populated with the result-display stack
- * (count + sort row, results list, load-more). The results-list block owns
- * its empty-state and error-state messages internally. Container owns no
+ * (count + sort row, results list, no-results, load-more). The no-results block
+ * owns every empty state, the failed request included. Container owns no
  * behavior beyond the post-type-scope inspector setting — render.php is a
  * Group-like wrapper that emits `$content` and lets each inner block
  * contribute its own markup and Interactivity API directives.
@@ -12,11 +12,16 @@
  * post types this search experience covers." The scope seeds
  * `state.staticPostTypes` on render and applies to every fetch the store
  * makes — initial hydration, typed searches, filter/sort, load-more.
+ *
+ * Results per page: also the single source of truth for how many results
+ * each fetch returns (initial + load-more). Seeds `state.resultsPerPage`;
+ * `0`/unset resolves live to the site's `posts_per_page` Reading setting at
+ * render time, so a later change to that setting still applies.
  */
 import { InspectorControls, InnerBlocks, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody } from '@wordpress/components';
+import { PanelBody, TextControl } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import PostTypeScopeControl, { MODE_INCLUDE, MODE_EXCLUDE } from '../../editor/post-type-control';
 
 const TEMPLATE = [
@@ -26,6 +31,7 @@ const TEMPLATE = [
 		[ [ 'jetpack-search/results-count' ], [ 'jetpack-search/results-sort' ] ],
 	],
 	[ 'jetpack-search/results-list' ],
+	[ 'jetpack-search/no-results' ],
 	[ 'jetpack-search/results-load-more' ],
 	[ 'jetpack-search/powered-by' ],
 ];
@@ -35,6 +41,7 @@ const ALLOWED = [
 	'jetpack-search/results-count',
 	'jetpack-search/results-sort',
 	'jetpack-search/results-list',
+	'jetpack-search/no-results',
 	'jetpack-search/results-load-more',
 	'jetpack-search/powered-by',
 ];
@@ -54,6 +61,26 @@ export default function SearchResultsEdit( { attributes, setAttributes } ) {
 		() => ( Array.isArray( attributes?.postTypes ) ? attributes.postTypes : [] ),
 		[ attributes?.postTypes ]
 	);
+	const maxResultsPerPage = window.JetpackSearchBlocksConfig?.maxResultsPerPage ?? 100;
+	const defaultResultsPerPage = window.JetpackSearchBlocksConfig?.defaultResultsPerPage ?? 10;
+
+	// Empty clears back to `0` (auto) — must short-circuit before the numeric
+	// clamp, since `Number( '' )` is `0` and `Math.max( 1, 0 )` would floor an
+	// intentionally-cleared field to `1`, defeating the auto contract.
+	const handleResultsPerPageChange = value => {
+		if ( value === '' || value === undefined || value === null ) {
+			setAttributes( { resultsPerPage: 0 } );
+			return;
+		}
+		const parsed = Number( value );
+		if ( ! Number.isFinite( parsed ) ) {
+			setAttributes( { resultsPerPage: 0 } );
+			return;
+		}
+		setAttributes( {
+			resultsPerPage: Math.min( Math.max( 1, Math.round( parsed ) ), maxResultsPerPage ),
+		} );
+	};
 
 	return (
 		<>
@@ -80,6 +107,22 @@ export default function SearchResultsEdit( { attributes, setAttributes } ) {
 						onChange={ ( { mode: nextMode, postTypes: nextPostTypes } ) =>
 							setAttributes( { postTypeMode: nextMode, postTypes: nextPostTypes } )
 						}
+					/>
+				</PanelBody>
+				<PanelBody title={ __( 'Pagination', 'jetpack-search-pkg' ) } initialOpen={ false }>
+					<TextControl
+						type="number"
+						label={ __( 'Results per page', 'jetpack-search-pkg' ) }
+						help={ __( "Leave blank to match the site's Reading setting.", 'jetpack-search-pkg' ) }
+						min={ 1 }
+						max={ maxResultsPerPage }
+						value={ attributes?.resultsPerPage || '' }
+						placeholder={ sprintf(
+							// translators: %d is the site's "Blog pages show at most" Reading setting.
+							__( 'Site default (%d)', 'jetpack-search-pkg' ),
+							defaultResultsPerPage
+						) }
+						onChange={ handleResultsPerPageChange }
 					/>
 				</PanelBody>
 			</InspectorControls>

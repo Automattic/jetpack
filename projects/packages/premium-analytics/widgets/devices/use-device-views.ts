@@ -5,12 +5,11 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getStatsPlanErrorReason, useStatsDevices } from '@jetpack-premium-analytics/data';
+import { useStatsDevices } from '@jetpack-premium-analytics/data';
 import { formatDisplayLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 import type {
 	ReportParams,
-	StatsDevicesItem,
-	StatsNormalizedReport,
+	StatsDevicesComparisonItem,
 	StatsDeviceProperty,
 } from '@jetpack-premium-analytics/data';
 
@@ -18,6 +17,7 @@ export interface DeviceView {
 	label: string;
 	displayLabel: string;
 	percentage: number;
+	previousPercentage?: number;
 }
 
 interface UseDeviceViewsArgs {
@@ -37,11 +37,12 @@ interface UseDeviceViewsArgs {
 
 interface DeviceViewsState {
 	data: DeviceView[];
-	comparisonData: DeviceView[];
 	hasComparison: boolean;
 	isLoading: boolean;
+	isFetching: boolean;
 	isError: boolean;
-	errorReason: 'upgrade-required' | null;
+	error: unknown;
+	refetch: () => void;
 }
 
 /**
@@ -49,33 +50,28 @@ interface DeviceViewsState {
  * Keys not in this map are title-cased as a fallback.
  */
 const DEVICE_LABELS: Record< string, string > = {
-	desktop: __( 'Desktop', 'jetpack-premium-analytics' ),
-	mobile: __( 'Mobile', 'jetpack-premium-analytics' ),
-	tablet: __( 'Tablet', 'jetpack-premium-analytics' ),
-	phone: __( 'Phone', 'jetpack-premium-analytics' ),
-	unknown: __( 'Unknown', 'jetpack-premium-analytics' ),
+	desktop: __( 'Desktop', 'jetpack-premium-analytics-pkg' ),
+	mobile: __( 'Mobile', 'jetpack-premium-analytics-pkg' ),
+	tablet: __( 'Tablet', 'jetpack-premium-analytics-pkg' ),
+	phone: __( 'Phone', 'jetpack-premium-analytics-pkg' ),
+	unknown: __( 'Unknown', 'jetpack-premium-analytics-pkg' ),
 };
 
 /**
  * Converts a StatsDevicesItem from the data layer to the widget's DeviceView shape.
- *
- * @param item - Normalized device item from the data layer.
- * @return DeviceView with a human-readable display label.
  */
-function toDeviceView( item: StatsDevicesItem ): DeviceView {
+function toDeviceView( item: StatsDevicesComparisonItem ): DeviceView {
 	const key = typeof item.label === 'string' ? item.label : String( item.label );
 	return {
 		label: key,
 		displayLabel: formatDisplayLabel( key, DEVICE_LABELS ),
 		percentage: item.value,
+		previousPercentage: item.previousValue,
 	};
 }
 
 /**
  * Fetch device percentages for the Devices widget via the shared Stats data layer.
- *
- * @param {UseDeviceViewsArgs} args - Hook arguments.
- * @return The current data/loading/error state.
  */
 export default function useDeviceViews( {
 	reportParams,
@@ -87,26 +83,25 @@ export default function useDeviceViews( {
 		deviceProperty,
 	};
 
-	const { primary, comparison, hasComparison, isLoading, isError, error } =
-		useStatsDevices( statsParams );
-	const errorReason = getStatsPlanErrorReason( error );
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
+		useStatsDevices( statsParams, { maxRows: max } );
 
-	const report = primary.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
-	const rawItems = report?.data?.[ 0 ]?.items ?? [];
-	const items = rawItems.map( toDeviceView ).slice( 0, max > 0 ? max : undefined );
+	const items = ( comparisonRows?.rows ?? [] ).map( toDeviceView );
 
-	const comparisonReport = comparison.data as StatsNormalizedReport< StatsDevicesItem > | undefined;
-	const comparisonRawItems = comparisonReport?.data?.[ 0 ]?.items ?? [];
-	const comparisonItems = comparisonRawItems
-		.map( toDeviceView )
-		.slice( 0, max > 0 ? max : undefined );
+	// The Stats queries carry `placeholderData: previousData => previousData`, so a
+	// failed range change keeps the prior period's rows in `data` while `isError`
+	// flips true. Only surface the error when there's nothing to show, so a transient
+	// refetch failure doesn't replace populated rows with the error state. `error` is
+	// gated by the same predicate so it is populated iff `isError` is true.
+	const showError = items.length === 0 && isError;
 
 	return {
 		data: items,
-		comparisonData: comparisonItems,
 		hasComparison,
 		isLoading,
-		isError,
-		errorReason,
+		isFetching,
+		isError: showError,
+		error: showError ? error : null,
+		refetch,
 	};
 }

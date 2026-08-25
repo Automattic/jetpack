@@ -2,57 +2,30 @@
  * External dependencies
  */
 import { useReportSessionsByDevice } from '@jetpack-premium-analytics/data';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { device } from '@jetpack-premium-analytics/icons';
-import { Stack } from '@wordpress/ui';
+import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { SemiCircleChart } from '../../components';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
+import { SemiCircleChart, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../components/widget-root';
-import { buildSessionsByDeviceData } from '../../helpers';
-import { useWidgetError } from '../../hooks';
+import { buildSessionsByDeviceData, isEmptyPieChartData } from '../../helpers';
 import { useSegmentStyles } from '../common';
 import styles from './sessions-by-device-widget.module.scss';
 
 /**
- * Sessions by Device Type Widget Component
+ * Semi-circle chart of sessions by device category (Mobile, Desktop, Tablet),
+ * with the period total in the center and per-device counts in the legend.
  *
- * Displays a semi-circle chart showing the breakdown of website sessions
- * by device category: Mobile, Desktop, and Tablet.
- *
- * Features:
- * - Shows total sessions in the center with comparison delta
- * - Legend with individual device counts and comparison deltas
- * - Supports comparison periods
- *
- * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <SessionsByDeviceWidget />
- * </WidgetRoot>
- * ```
+ * Must render within a WidgetRoot, which provides reportParams via context.
  */
 export function SessionsByDeviceWidget() {
 	const { reportParams } = useWidgetRootContext();
 
-	const {
-		primary,
-		comparison,
-		hasComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		error,
-		refetch,
-	} = useReportSessionsByDevice( reportParams );
-
-	const isInitialLoading = isLoading && ! hasData;
-	const isRefetching = isFetching && hasData;
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
+		useReportSessionsByDevice( reportParams );
 
 	const { chartData, total, comparisonTotal, legendData } = useMemo(
 		() => buildSessionsByDeviceData( primary.data, comparison.data ),
@@ -61,17 +34,27 @@ export function SessionsByDeviceWidget() {
 
 	const segmentStyles = useSegmentStyles( chartData );
 
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null;
-	}
-
-	if ( isInitialLoading ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
-		<>
+		<WidgetState
+			isLoading={ isLoading }
+			isFetching={ isFetching }
+			// The report queries keep the previous period's data as placeholders
+			// across range changes, so only surface the error when there is
+			// nothing to show.
+			isError={ isError && ! hasData }
+			isEmpty={ isEmptyPieChartData( chartData ) }
+			error={ {
+				description: __(
+					"We couldn't load sessions data. Please try again in a moment.",
+					'jetpack-premium-analytics-pkg'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: device,
+				description: __( 'No session data in this period.', 'jetpack-premium-analytics-pkg' ),
+			} }
+		>
 			{ /*
 			 * `safe center` centers the chart in tall cells but falls back to
 			 * top-start when the chart + legend are taller than the tile, so the
@@ -83,7 +66,6 @@ export function SessionsByDeviceWidget() {
 					chartData={ chartData }
 					value={ total }
 					styles={ segmentStyles }
-					emptyStateIcon={ device }
 					comparisonValue={ hasComparison ? comparisonTotal : null }
 					legendData={ legendData }
 					showLegend={ true }
@@ -94,7 +76,6 @@ export function SessionsByDeviceWidget() {
 					withTooltips
 				/>
 			</Stack>
-			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
+		</WidgetState>
 	);
 }

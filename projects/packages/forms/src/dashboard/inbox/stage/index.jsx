@@ -34,6 +34,13 @@ import IntegrationsButton from '../../components/integrations-button/index.tsx';
 import Page from '../../components/page/index.tsx';
 import TextWithFlag from '../../components/text-with-flag/index.tsx';
 import useInboxData from '../../hooks/use-inbox-data.ts';
+import useResponseFieldColumns from '../../hooks/use-response-field-columns.ts';
+import {
+	buildResponseFieldColumns,
+	getFrozenColumnsClassName,
+	getResponseTableView,
+	keepColumnChoice,
+} from '../../response-field-columns.tsx';
 import { useDashboardSearchParams } from '../../router/dashboard-search-params-context.tsx';
 import { getPath, getItemId } from '../utils.js';
 import {
@@ -171,6 +178,11 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 
 	const isInboxLoading = isLoadingData || isAkismetStatusPending;
 
+	// A form's own fields become columns, so a single form's responses can be read
+	// across at a glance. The "All responses" view spans every form and has no
+	// shared field set, so it keeps the built-in columns only.
+	const responseFieldColumns = useResponseFieldColumns( { formId: parent, records, setView } );
+
 	useEffect( () => {
 		const _filters = view.filters?.reduce( ( accumulator, { field, value } ) => {
 			if ( ! value ) {
@@ -285,7 +297,9 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 	);
 
 	const onChangeView = useCallback(
-		newView => {
+		incomingView => {
+			let newView = keepColumnChoice( incomingView, view, isMobileViewport );
+
 			if ( ! isInboxStatusToggleView ) {
 				const folderValue = newView.filters?.find( filter => filter.field === 'folder' )?.value;
 				const nextFolder = [ 'inbox', 'spam', 'trash' ].includes( folderValue )
@@ -319,7 +333,15 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 			}
 			setView( newView );
 		},
-		[ isInboxStatusToggleView, setSearchParams, setSelectedResponses, setView, urlFolder ]
+		[
+			isInboxStatusToggleView,
+			isMobileViewport,
+			setSearchParams,
+			setSelectedResponses,
+			setView,
+			urlFolder,
+			view,
+		]
 	);
 
 	const wrapperUnread = ( isUnread, itemValue ) => {
@@ -463,6 +485,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 				enableSorting: false,
 				enableHiding: false,
 			},
+			...buildResponseFieldColumns( responseFieldColumns ),
 			{
 				id: 'date',
 				label: __( 'Date', 'jetpack-forms' ),
@@ -527,6 +550,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 			dateSettings.formats.datetime,
 			isInboxStatusToggleView,
 			isSingleFormView,
+			responseFieldColumns,
 		]
 	);
 
@@ -552,6 +576,19 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 			};
 		} );
 	}, [ isInboxStatusToggleView, setView, urlFolder ] );
+
+	const answerColumnsClassName = getFrozenColumnsClassName(
+		responseFieldColumns,
+		view,
+		isMobileViewport
+	);
+
+	// Narrow screens cannot make use of a table that scrolls sideways, so they get the
+	// response and its actions and nothing else.
+	const viewForDataViews = useMemo(
+		() => getResponseTableView( view, isMobileViewport ),
+		[ isMobileViewport, view ]
+	);
 
 	const actions = useMemo( () => {
 		const mobileViewAction = {
@@ -672,7 +709,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 				actions={ actions }
 				data={ records || EMPTY_ARRAY }
 				isLoading={ isInboxLoading }
-				view={ view }
+				view={ viewForDataViews }
 				onChangeView={ onChangeView }
 				selection={ selection }
 				onChangeSelection={ onChangeSelection }
@@ -693,7 +730,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 					isInboxStatusToggleView={ isInboxStatusToggleView }
 				/>
 				<div className="jp-forms-dataviews-layout-container">
-					<DataViews.Layout />
+					<DataViews.Layout className={ answerColumnsClassName } />
 					<DataViews.Footer />
 				</div>
 			</DataViews>

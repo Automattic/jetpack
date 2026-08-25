@@ -6,10 +6,16 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import BookingsByStatusRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import widgetManifest from '../widget.json';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -31,12 +37,6 @@ type BookingsByStatusStoryProps = BookingsByStatusRenderProps & BookingsByStatus
 interface BookingsByStatusDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		BookingsByStatusStoryControls {}
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 function getBookingsByStatusAttributes(
 	withComparison = false,
@@ -83,6 +83,11 @@ function renderBookingsByStatus( { withComparison, preset }: BookingsByStatusSto
 	);
 }
 
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderBookingsByStatusOnPreset( preset: SelectablePresetId ) {
+	return <BookingsByStatusRender attributes={ getBookingsByStatusAttributes( false, preset ) } />;
+}
+
 function BookingsByStatusDashboardStory( {
 	withComparison,
 	preset,
@@ -91,7 +96,7 @@ function BookingsByStatusDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardStoryArgs }
-			widgetType={ widgetDefinition }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ BOOKINGS_BY_STATUS_RENDER_MODULE }
 			renderComponent={ BookingsByStatusRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
@@ -166,6 +171,51 @@ export const WithComparison: Story = {
 				code: getBookingsByStatusSource( { withComparison: true, preset: DEFAULT_PRESET } ),
 			},
 		},
+	},
+};
+
+/**
+ * First load: the bookings report is in flight, so the widget shows its
+ * loading state. The mock is forced to never resolve for the duration of this
+ * story.
+ */
+export const Loading: Story = {
+	render: () => renderBookingsByStatusOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'bookings/by-date', 'loading' );
+		return () => setReportMockState( 'bookings/by-date', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action
+ * (which re-runs the query — still mocked as failing while this story is
+ * active).
+ */
+export const Error: Story = {
+	render: () => renderBookingsByStatusOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'bookings/by-date', 'error' );
+		return () => setReportMockState( 'bookings/by-date', null );
+	},
+};
+
+/**
+ * Resolved with no bookings: the widget shows its empty state ("No bookings in
+ * this period.").
+ */
+export const Empty: Story = {
+	render: () => renderBookingsByStatusOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'bookings/by-date', 'empty' );
+		return () => setReportMockState( 'bookings/by-date', null );
 	},
 };
 

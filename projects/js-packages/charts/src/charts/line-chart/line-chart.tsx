@@ -29,12 +29,13 @@ import {
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers';
-import { attachSubComponents, resolveCssVariable } from '../../utils';
+import { useDefaultHiddenSeries } from '../../providers/chart-context/hooks/use-default-hidden-series';
+import { attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
-import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
-import { SvgEmptyState } from '../private/svg-empty-state';
+import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
@@ -119,7 +120,7 @@ const validateData = ( data: SeriesData[] ) => {
 
 // Inner component to access DataContext and provide scale data to ref
 const LineChartScalesRef: FC< {
-	chartRef?: Ref< SingleChartRef >;
+	chartRef?: Ref< ChartInstanceRef >;
 	width: number;
 	height: number;
 	margin?: { top?: number; right?: number; bottom?: number; left?: number };
@@ -150,7 +151,7 @@ const LineChartScalesRef: FC< {
 	return null; // This component only provides the ref interface
 };
 
-const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
+const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 	(
 		{
 			data,
@@ -179,6 +180,8 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			onPointerMove = undefined,
 			onPointerOut = undefined,
 			zoomable = false,
+			rescaleYOnVisibilityChange = true,
+			defaultHiddenSeries,
 			children,
 			gridVisibility,
 			gap = 'md',
@@ -186,20 +189,24 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		ref
 	) => {
 		const legendInteractive = legend.interactive ?? false;
+		const legendCollapseGroups = legend.collapseGroups ?? false;
 		const legendShape = legend.shape ?? 'line';
 		const legendPosition = legend.position ?? 'bottom';
 
 		const providerTheme = useGlobalChartsTheme();
-		// Gradient stops apply this as an SVG attribute, where CSS var() cannot
-		// resolve, so resolve the WPDS token to a concrete value first.
-		const resolvedBackgroundColor =
-			resolveCssVariable( providerTheme.backgroundColor ) ?? providerTheme.backgroundColor;
 		const theme = useXYChartTheme( data );
+		// Gradient stops apply this as an SVG attribute, where CSS var() cannot resolve. useXYChartTheme has already resolved the same role inside its memo, against the chart's scope element, so read it back rather than paying another getComputedStyle on every render.
+		const resolvedBackgroundColor = theme.backgroundColor ?? providerTheme.backgroundColor;
 		const chartId = useChartId( providedChartId );
+		const hiddenSeries = useDefaultHiddenSeries( chartId, defaultHiddenSeries );
+		const isSeriesVisible = useCallback(
+			( seriesLabel: string ) => ! hiddenSeries.has( seriesLabel ),
+			[ hiddenSeries ]
+		);
 		const chartRef = useRef< HTMLDivElement >( null );
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );
-		const internalChartRef = useRef< SingleChartRef >( null );
+		const internalChartRef = useRef< ChartInstanceRef >( null );
 
 		const zoom = useXZoom< Date >( {
 			enabled: zoomable,
@@ -233,24 +240,45 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		const dataSorted = useChartDataTransform( data );
-		const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+		const { getElementStyles } = useGlobalChartsContext();
 
-		// Add visibility information to series when using interactive legends
+		// Series visibility is owned by the provider, so it applies whether it changed
+		// through the interactive legend or programmatically.
 		const seriesWithVisibility = useMemo( () => {
-			if ( ! chartId || ! legendInteractive ) {
-				return dataSorted.map( ( series, index ) => ( { series, index, isVisible: true } ) );
-			}
 			return dataSorted.map( ( series, index ) => ( {
 				series,
 				index,
-				isVisible: isSeriesVisible( chartId, series.label ),
+				isVisible: ! hiddenSeries.has( series.label ),
 			} ) );
-		}, [ dataSorted, chartId, isSeriesVisible, legendInteractive ] );
+		}, [ dataSorted, hiddenSeries ] );
 
 		// Check if all series are hidden
 		const allSeriesHidden = useMemo( () => {
 			return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
 		}, [ seriesWithVisibility ] );
+
+		// When series visibility changes — via the interactive legend or programmatically —
+		// and rescaling is opted out, pin the value axis to the full data range so it stays
+		// put instead of visx rescaling the domain to whatever is currently visible and
+		// making the axis jump. Default is to rescale, matching the pre-existing behaviour
+		// and AreaChart's `rescaleYOnVisibilityChange`.
+		const stableYDomain = useMemo< [ number, number ] | undefined >( () => {
+			if ( rescaleYOnVisibilityChange ) {
+				return undefined;
+			}
+			let min = Infinity;
+			let max = -Infinity;
+			for ( const series of dataSorted ) {
+				for ( const point of series.data ?? [] ) {
+					const value = point?.value;
+					if ( typeof value === 'number' && Number.isFinite( value ) ) {
+						min = Math.min( min, value );
+						max = Math.max( max, value );
+					}
+				}
+			}
+			return min < max ? [ min, max ] : undefined;
+		}, [ rescaleYOnVisibilityChange, dataSorted ] );
 
 		// Use the keyboard navigation hook
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -263,7 +291,8 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		} );
 
 		const chartOptions = useMemo( () => {
-			const formatter = options?.axis?.x?.tickFormat || getFormatter( dataSorted );
+			const { tickResolution, ...xAxisOptions } = options?.axis?.x ?? {};
+			const formatter = xAxisOptions.tickFormat || getFormatter( dataSorted, tickResolution );
 
 			return {
 				axis: {
@@ -272,7 +301,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 						numTicks: guessOptimalNumTicks( dataSorted, width, formatter ),
 						tickFormat: formatter,
 						display: true,
-						...options?.axis?.x,
+						...xAxisOptions,
 					},
 					y: {
 						orientation: 'left' as const,
@@ -291,10 +320,11 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					type: 'linear' as const,
 					nice: true,
 					zero: false,
+					...( stableYDomain ? { domain: stableYDomain } : {} ),
 					...options?.yScale,
 				},
 			};
-		}, [ options, dataSorted, width, zoom.domain ] );
+		}, [ options, dataSorted, width, zoom.domain, stableYDomain ] );
 
 		const tooltipRenderGlyph = useMemo( () => {
 			return ( props: GlyphProps< DataPointDate > ) => {
@@ -328,9 +358,10 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			() => ( {
 				withGlyph: withLegendGlyph,
 				glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
+				collapseGroups: legendCollapseGroups,
 				renderGlyph,
 			} ),
-			[ withLegendGlyph, glyphStyle?.radius, renderGlyph ]
+			[ withLegendGlyph, glyphStyle?.radius, legendCollapseGroups, renderGlyph ]
 		);
 
 		// Create legend items using the reusable hook
@@ -387,10 +418,11 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		return (
-			<SingleChartContext.Provider
+			<ChartInstanceContext.Provider
 				value={ {
 					chartId,
 					chartRef: internalChartRef,
+					isSeriesVisible,
 					chartWidth: width,
 					chartHeight: measuredChartHeight || 0,
 				} }
@@ -444,9 +476,18 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 											onPointerOut={ onPointerOut }
 											pointerEventsDataKey="nearest"
 										>
-											{ gridVisibility !== 'none' && <Grid columns={ false } numTicks={ 4 } /> }
-											{ chartOptions.axis.x.display && <Axis { ...chartOptions.axis.x } /> }
-											{ chartOptions.axis.y.display && <Axis { ...chartOptions.axis.y } /> }
+											{ /* With every series hidden there is no data to scale against, so the grid and
+											     axes are dropped while the empty state stands in — otherwise they render
+											     squished at the top. */ }
+											{ ! allSeriesHidden && gridVisibility !== 'none' && (
+												<Grid columns={ false } numTicks={ 4 } />
+											) }
+											{ ! allSeriesHidden && chartOptions.axis.x.display && (
+												<Axis { ...chartOptions.axis.x } />
+											) }
+											{ ! allSeriesHidden && chartOptions.axis.y.display && (
+												<Axis { ...chartOptions.axis.y } />
+											) }
 
 											{ allSeriesHidden ? (
 												<SvgEmptyState
@@ -455,10 +496,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 													width={ width }
 													height={ chartHeight }
 												>
-													{ __(
-														'All series are hidden. Click legend items to show data.',
-														'jetpack-charts'
-													) }
+													{ getAllHiddenMessage( legendInteractive, 'series' ) }
 												</SvgEmptyState>
 											) : null }
 
@@ -585,7 +623,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 						);
 					} }
 				</ChartLayout>
-			</SingleChartContext.Provider>
+			</ChartInstanceContext.Provider>
 		);
 	}
 );
@@ -600,16 +638,16 @@ type LineChartAnnotationComponents = {
 type LineChartBaseProps = Optional< LineChartProps, 'width' | 'height' | 'size' >;
 
 type LineChartComponent = React.ForwardRefExoticComponent<
-	LineChartBaseProps & React.RefAttributes< SingleChartRef >
+	LineChartBaseProps & React.RefAttributes< ChartInstanceRef >
 > &
 	LineChartAnnotationComponents;
 
 type LineChartResponsiveComponent = React.ForwardRefExoticComponent<
-	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< SingleChartRef >
+	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< ChartInstanceRef >
 > &
 	LineChartAnnotationComponents;
 
-const LineChartWithProvider = forwardRef< SingleChartRef, LineChartProps >( ( props, ref ) => {
+const LineChartWithProvider = forwardRef< ChartInstanceRef, LineChartProps >( ( props, ref ) => {
 	const existingContext = useContext( GlobalChartsContext );
 
 	// If we're already in a GlobalChartsProvider context, render the core component directly

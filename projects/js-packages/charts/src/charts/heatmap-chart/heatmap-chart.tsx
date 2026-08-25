@@ -6,9 +6,11 @@ import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'r
 import {
 	GlobalChartsProvider,
 	useChartId,
+	useChartScopeElement,
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers';
+import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
 import { attachSubComponents } from '../../utils';
 import {
 	isValidHexColor,
@@ -16,10 +18,11 @@ import {
 	normalizeColorToHex,
 	prefersLightText,
 } from '../../utils/color-utils';
+import { resolveCssVariable } from '../../utils/resolve-css-var';
 import { Center } from '../private/center';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import styles from './heatmap-chart.module.scss';
 import {
@@ -46,6 +49,10 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	className,
 	compact = false,
 	showValues,
+	maxCellWidth,
+	maxCellHeight,
+	minCellWidth,
+	minCellHeight,
 	rowLabels = [],
 	primaryColor,
 	gap = 'md',
@@ -54,7 +61,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	children,
 } ) => {
 	const chartId = useChartId( providedChartId );
-	const { getElementStyles, resolveThemeColor, theme } = useGlobalChartsContext();
+	const { getElementStyles, theme } = useGlobalChartsContext();
+	const scopeElement = useChartScopeElement();
 	const { heatmapChart: heatmapChartSettings } = theme;
 	const { nonLegendChildren } = useChartChildren( children, 'HeatmapChart' );
 
@@ -75,9 +83,12 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		overrideColor: primaryColor || heatmapChartSettings.primaryColor,
 	} );
 
-	// Resolve the background in the provider's theme scope so the blended-fill text
-	// color tracks a themed (e.g. dark) background.
-	const chartBackgroundHex = resolveThemeColor( theme.backgroundColor );
+	// Resolve the background against this chart's own scope element (not the provider's), matching where `--a8c-charts-color-heatmap-background` is substituted for the cell blend below — a chart-level override otherwise disagrees with a provider-level read.
+	const chartBackgroundHex = normalizeColorToHex(
+		theme.backgroundColor,
+		scopeElement,
+		resolveCssVariable
+	);
 
 	// Choose text color from the blended fill, not the raw value.
 	// If either color cannot resolve to hex, keep dark text.
@@ -125,6 +136,16 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		hideTooltip();
 	}, [ hideTooltip ] );
 
+	// Both empty-slot kinds are skipped by navigation: `hidden` paints nothing,
+	// `placeholder` paints an empty cell, and neither has a value to report.
+	const isCellInert = useCallback(
+		( col: number, row: number ) => {
+			const cell = data[ col ]?.data[ row ];
+			return cell?.hidden === true || cell?.placeholder === true;
+		},
+		[ data ]
+	);
+
 	const onChartKeyDown = useCallback(
 		( event: React.KeyboardEvent< HTMLDivElement > ) => {
 			if (
@@ -144,26 +165,46 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 			event.preventDefault();
 
 			if ( selectedIndex === undefined ) {
-				setSelectedIndex( 0 );
+				// Start at the first navigable cell (a calendar's leading edge
+				// slots may be hidden).
+				for ( let index = 0; index < columns * rows; index++ ) {
+					if ( ! isCellInert( Math.floor( index / rows ), index % rows ) ) {
+						setSelectedIndex( index );
+						return;
+					}
+				}
 				return;
 			}
 
+			let stepCol = 0;
+			let stepRow = 0;
+			if ( event.key === 'ArrowRight' ) {
+				stepCol = 1;
+			} else if ( event.key === 'ArrowLeft' ) {
+				stepCol = -1;
+			} else if ( event.key === 'ArrowDown' ) {
+				stepRow = 1;
+			} else if ( event.key === 'ArrowUp' ) {
+				stepRow = -1;
+			}
+
+			// Step past hidden slots to the next navigable cell in the pressed
+			// direction; when only hidden slots (or the edge) remain that way,
+			// the selection stays put.
 			let col = Math.floor( selectedIndex / rows );
 			let row = selectedIndex % rows;
+			do {
+				col += stepCol;
+				row += stepRow;
+			} while ( col >= 0 && col < columns && row >= 0 && row < rows && isCellInert( col, row ) );
 
-			if ( event.key === 'ArrowRight' ) {
-				col = Math.min( col + 1, columns - 1 );
-			} else if ( event.key === 'ArrowLeft' ) {
-				col = Math.max( col - 1, 0 );
-			} else if ( event.key === 'ArrowDown' ) {
-				row = Math.min( row + 1, rows - 1 );
-			} else if ( event.key === 'ArrowUp' ) {
-				row = Math.max( row - 1, 0 );
+			if ( col < 0 || col >= columns || row < 0 || row >= rows ) {
+				return;
 			}
 
 			setSelectedIndex( col * rows + row );
 		},
-		[ rows, columns, selectedIndex, hideTooltip ]
+		[ rows, columns, selectedIndex, hideTooltip, isCellInert ]
 	);
 
 	const handleCellMouseMove = useCallback(
@@ -243,16 +284,25 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		);
 	}
 
-	const trackSize = compact ? 'var(--heatmap-cell-size)' : 'minmax(0, 1fr)';
+	// Non-compact tracks split the container by default; a max cap makes them
+	// stop growing there instead, so sparse ranges keep sensible cell sizes,
+	// and a min floor makes the grid overflow (for a scrollable wrapper)
+	// rather than crushing cells on long ranges.
+	const columnTrack = compact
+		? 'var(--a8c-charts-dimension-heatmap-cell-size)'
+		: `minmax(${ minCellWidth ?? 0 }px, ${ maxCellWidth ? `${ maxCellWidth }px` : '1fr' })`;
+	const rowTrack = compact
+		? 'var(--a8c-charts-dimension-heatmap-cell-size)'
+		: `minmax(${ minCellHeight ?? 0 }px, ${ maxCellHeight ? `${ maxCellHeight }px` : '1fr' })`;
 	const gridStyle: Record< string, string | number > = {
-		'--heatmap-primary': primaryColorHex,
-		'--heatmap-bg': theme.backgroundColor,
-		gridTemplateColumns: `auto repeat(${ columns }, ${ trackSize })`,
-		gridTemplateRows: `auto repeat(${ rows }, ${ trackSize })`,
+		'--a8c-charts-color-heatmap-primary': primaryColorHex,
+		'--a8c-charts-color-heatmap-background': theme.backgroundColor,
+		gridTemplateColumns: `auto repeat(${ columns }, ${ columnTrack })`,
+		gridTemplateRows: `auto repeat(${ rows }, ${ rowTrack })`,
 	};
 	if ( compact ) {
-		gridStyle[ '--heatmap-cell-gap' ] = `${ compactCellGap }px`;
-		gridStyle[ '--heatmap-cell-size' ] = `${ compactCellSize }px`;
+		gridStyle[ '--a8c-charts-dimension-heatmap-cell-gap' ] = `${ compactCellGap }px`;
+		gridStyle[ '--a8c-charts-dimension-heatmap-cell-size' ] = `${ compactCellSize }px`;
 	}
 
 	const activeDescendant =
@@ -260,16 +310,24 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 			? `${ chartId }-cell-${ Math.floor( selectedIndex / rows ) }-${ selectedIndex % rows }`
 			: undefined;
 
+	// A capped row track makes the chart content-sized vertically: neither the
+	// wrapper nor the grid stretches, or the leftover container height would
+	// land in the auto label row. A width-only cap must keep the normal vertical
+	// flex sizing, so it does not opt into this class.
+	const heightCapped = ! compact && Boolean( maxCellHeight );
+
 	return (
 		<HeatmapContext.Provider value={ heatmapContext }>
-			<SingleChartContext.Provider value={ { chartId } }>
+			<ChartInstanceContext.Provider value={ { chartId } }>
 				<ChartLayout
 					legendPosition="bottom"
 					// Legend renders via trailingContent, not the legend slot.
 					legendChildren={ [] }
 					trailingContent={ nonLegendChildren }
 					gap={ gap }
-					className={ clsx( 'heatmap-chart', styles[ 'heatmap-chart' ], className ) }
+					className={ clsx( 'heatmap-chart', styles[ 'heatmap-chart' ], className, {
+						[ styles[ 'heatmap-chart--height-capped' ] ]: heightCapped,
+					} ) }
 					// Explicit dimensions (the unresponsive export) pin the size; otherwise
 					// width/height are unset and the grid fills its container via CSS. The
 					// responsive export drops the measured pixels so reflow stays fluid.
@@ -289,6 +347,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						onKeyDown={ onChartKeyDown }
 						className={ clsx( styles[ 'heatmap-chart__grid' ], {
 							[ styles[ 'heatmap-chart__grid--compact' ] ]: compact,
+							[ styles[ 'heatmap-chart__grid--height-capped' ] ]: heightCapped,
 						} ) }
 						style={ gridStyle as CSSProperties }
 					>
@@ -319,6 +378,42 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 									</span>
 									{ data.map( ( column, columnIndex ) => {
 										const cell = column.data[ rowIndex ];
+
+										// A hidden cell keeps its grid slot (so the rest of the
+										// column doesn't shift) but paints nothing and takes no
+										// interaction — a calendar's ragged edges.
+										if ( cell?.hidden ) {
+											return (
+												<div
+													key={ `cell-${ columnIndex }-${ rowIndex }` }
+													data-testid="heatmap-cell-hidden"
+													aria-hidden="true"
+													className={ clsx(
+														styles[ 'heatmap-chart__cell' ],
+														styles[ 'heatmap-chart__cell--hidden' ]
+													) }
+												/>
+											);
+										}
+
+										// Filler: drawn like an empty cell so the grid fills its
+										// container, but it stands for a day nothing was measured
+										// for, so it reports nothing to a pointer or a screen
+										// reader either.
+										if ( cell?.placeholder ) {
+											return (
+												<div
+													key={ `cell-${ columnIndex }-${ rowIndex }` }
+													data-testid="heatmap-cell-placeholder"
+													aria-hidden="true"
+													className={ clsx(
+														styles[ 'heatmap-chart__cell' ],
+														styles[ 'heatmap-chart__cell--placeholder' ]
+													) }
+												/>
+											);
+										}
+
 										const value = cell?.value ?? null;
 										const present = isPresent( value );
 										const normalized = present ? getNormalizedValue( value, extent ) : 0;
@@ -354,7 +449,11 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 														selectedIndex === flatIndex,
 												} ) }
 												style={
-													present ? ( { '--intensity': normalized } as CSSProperties ) : undefined
+													present
+														? ( {
+																'--a8c-charts-heatmap-cell-intensity': normalized,
+														  } as CSSProperties )
+														: undefined
 												}
 												onMouseMove={ handleCellMouseMove }
 												onMouseLeave={ handleCellMouseLeave }
@@ -374,13 +473,13 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 					</div>
 					{ withTooltips && tooltipOpen && tooltipData && (
 						<TooltipInPortal top={ tooltipTop } left={ tooltipLeft }>
-							<div role="tooltip" tabIndex={ -1 }>
+							<div className={ CHART_SCOPE_CLASS } role="tooltip" tabIndex={ -1 }>
 								{ ( renderTooltip ?? defaultRenderTooltip )( tooltipData ) }
 							</div>
 						</TooltipInPortal>
 					) }
 				</ChartLayout>
-			</SingleChartContext.Provider>
+			</ChartInstanceContext.Provider>
 		</HeatmapContext.Provider>
 	);
 };

@@ -7,14 +7,12 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import ReferrersWidget, { toReferrerRows } from '../render';
-import type { StatsNormalizedReport, StatsReferrersItem } from '@jetpack-premium-analytics/data';
+import ReferrersWidget, { toReferrerRow } from '../render';
+import type { StatsReferrersComparisonItem } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
-jest.mock( '@wordpress/route', () => ( {
-	useSearch: () => ( {} ),
-} ) );
+jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
@@ -68,6 +66,26 @@ const REFERRERS_RESPONSE = {
 	},
 };
 
+// A single-result group renders as the result itself, so this is the shortest
+// path from an API-supplied URL to a rendered anchor.
+const HOSTILE_REFERRERS_RESPONSE = {
+	date: '2026-06-29',
+	days: {},
+	summary: {
+		groups: [
+			{
+				group: 'evil.example',
+				name: 'evil.example',
+				url: 'javascript:alert(document.cookie)',
+				total: 12,
+				results: { views: 12 },
+			},
+		],
+		other_views: 0,
+		total_views: 12,
+	},
+};
+
 describe( 'ReferrersWidget', () => {
 	beforeEach( () => {
 		queryClient.clear();
@@ -78,7 +96,7 @@ describe( 'ReferrersWidget', () => {
 	it( 'drills down through nested referrer groups and navigates back', async () => {
 		render(
 			<ReferrersWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
@@ -116,10 +134,10 @@ describe( 'ReferrersWidget', () => {
 		expect( screen.queryByRole( 'button', { name: /all referrers/i } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'resets the drill-down to the top level when the date range changes', async () => {
+	it( 'keeps the drill-down across date range changes while the path still resolves', async () => {
 		const { rerender } = render(
 			<ReferrersWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
@@ -132,10 +150,58 @@ describe( 'ReferrersWidget', () => {
 			screen.findByRole( 'button', { name: /view all referrers/i } )
 		).resolves.toBeInTheDocument();
 
-		// A new date range loads a different report; the stale drill path should clear.
+		// The new range still contains the drilled group, so the selection
+		// survives — matching how Locations keeps its country across ranges.
 		rerender(
 			<ReferrersWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-30-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-30-days' ) } }
+			/>
+		);
+
+		await expect(
+			screen.findByRole( 'button', { name: /view referrers for google search/i } )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /view all referrers/i } ) ).toBeInTheDocument();
+	} );
+
+	it( 'resets the drill-down when the drilled group disappears from the data', async () => {
+		const { rerender } = render(
+			<ReferrersWidget
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+			/>
+		);
+
+		const groupButton = await screen.findByRole( 'button', {
+			name: /view referrers for search engines/i,
+		} );
+
+		fireEvent.click( groupButton ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		await expect(
+			screen.findByRole( 'button', { name: /view all referrers/i } )
+		).resolves.toBeInTheDocument();
+
+		// The next range's report no longer contains the drilled group, so the
+		// stale path is dropped once the new data settles.
+		mockApiFetch.mockResolvedValue( {
+			date: '2026-06-29',
+			days: {},
+			summary: {
+				groups: [
+					{
+						group: 'jetpack.com',
+						name: 'jetpack.com',
+						url: 'https://jetpack.com/',
+						total: 18,
+						results: { views: 18 },
+					},
+				],
+				other_views: 0,
+				total_views: 18,
+			},
+		} );
+		rerender(
+			<ReferrersWidget
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-30-days' ) } }
 			/>
 		);
 
@@ -144,15 +210,13 @@ describe( 'ReferrersWidget', () => {
 				screen.queryByRole( 'button', { name: /view all referrers/i } )
 			).not.toBeInTheDocument()
 		);
-		await expect(
-			screen.findByRole( 'button', { name: /view referrers for search engines/i } )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'jetpack.com' ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'renders childless referrers with a URL as outbound links that open in a new tab', async () => {
 		render(
 			<ReferrersWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
@@ -160,156 +224,82 @@ describe( 'ReferrersWidget', () => {
 		expect( link ).toHaveAttribute( 'href', 'https://jetpack.com/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
-} );
 
-describe( 'toReferrerRows', () => {
-	it( 'merges comparison values by scoped key before slicing primary rows', () => {
-		const primary = {
-			summary: {},
-			data: [
-				{
-					time_interval: '2026-06-29',
-					date_start: '2026-06-29 00:00:00',
-					date_end: '2026-06-29 23:59:59',
-					items: [
-						{
-							label: 'Search Engines',
-							views: 4801,
-							link: null,
-							icon: 'https://example.com/search-engine.png',
-							labelIcon: null,
-							children: [
-								{
-									label: 'Google Search',
-									views: 3936,
-									link: null,
-									icon: 'https://example.com/google.png',
-									labelIcon: null,
-									children: [
-										{
-											label: 'google.com',
-											views: 3920,
-											link: 'https://www.google.com/',
-											icon: null,
-											labelIcon: 'external',
-											children: null,
-										},
-									],
-								},
-							],
-						},
-						{
-							label: 'jetpack.com',
-							views: 18,
-							link: 'https://jetpack.com/',
-							icon: null,
-							labelIcon: 'external',
-							children: null,
-						},
-					] satisfies StatsReferrersItem[],
-				},
-			],
-		} satisfies StatsNormalizedReport< StatsReferrersItem >;
+	// Referrer rows derive from inbound request data rather than anything the site
+	// owner authored, and the scheme is not guaranteed by the API contract.
+	it( 'renders a referrer with an unsafe URL as plain text instead of a link', async () => {
+		mockApiFetch.mockResolvedValue( HOSTILE_REFERRERS_RESPONSE );
 
-		const comparison = {
-			summary: {},
-			data: [
-				{
-					time_interval: '2026-06-22',
-					date_start: '2026-06-22 00:00:00',
-					date_end: '2026-06-22 23:59:59',
-					items: [
-						{
-							label: 'Search Engines',
-							views: 4100,
-							link: null,
-							icon: 'https://example.com/search-engine.png',
-							labelIcon: null,
-							children: [
-								{
-									label: 'Google Search',
-									views: 3300,
-									link: null,
-									icon: 'https://example.com/google.png',
-									labelIcon: null,
-									children: [
-										{
-											label: 'google.com',
-											views: 3290,
-											link: 'https://www.google.com/',
-											icon: null,
-											labelIcon: 'external',
-											children: null,
-										},
-									],
-								},
-							],
-						},
-					] satisfies StatsReferrersItem[],
-				},
-			],
-		} satisfies StatsNormalizedReport< StatsReferrersItem >;
+		render(
+			<ReferrersWidget
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+			/>
+		);
 
-		expect( toReferrerRows( primary, comparison, 1 ) ).toEqual( [
-			{
-				label: 'Search Engines',
-				value: 4801,
-				previousValue: 4100,
-				href: undefined,
-				icon: 'https://example.com/search-engine.png',
-				children: [
-					{
-						label: 'Google Search',
-						value: 3936,
-						previousValue: 3300,
-						href: undefined,
-						icon: 'https://example.com/google.png',
-						children: [
-							{
-								label: 'google.com',
-								value: 3920,
-								previousValue: 3290,
-								href: 'https://www.google.com/',
-								icon: 'https://example.com/google.png',
-								children: undefined,
-							},
-						],
-					},
-				],
-			},
-		] );
+		// The row still lists — rejecting the URL must not drop the data.
+		await expect( screen.findByTitle( 'evil.example' ) ).resolves.toBeInTheDocument();
+
+		expect( screen.queryByRole( 'link', { name: /evil\.example/i } ) ).not.toBeInTheDocument();
+		screen.queryAllByRole( 'link' ).forEach( link => {
+			expect( link ).not.toHaveAttribute( 'href', expect.stringMatching( /^javascript:/i ) );
+		} );
 	} );
 
-	it( 'keeps all rows when max is 0', () => {
-		const report = {
-			summary: {},
-			data: [
+	it( 'links to the full Referrers report', () => {
+		render(
+			<ReferrersWidget
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+			/>
+		);
+
+		const link = screen.getByRole( 'link', { name: 'View all' } );
+		expect( link ).toHaveAttribute( 'href', expect.stringContaining( '/reports/referrers' ) );
+	} );
+} );
+
+describe( 'toReferrerRow', () => {
+	it( 'maps merged data-layer items onto leaderboard rows', () => {
+		const item: StatsReferrersComparisonItem = {
+			label: 'Search Engines',
+			views: 4801,
+			previousValue: 4100,
+			link: null,
+			icon: 'https://example.com/search-engine.png',
+			labelIcon: null,
+			childrenHaveComparison: true,
+			children: [
 				{
-					time_interval: '2026-06-29',
-					date_start: '2026-06-29 00:00:00',
-					date_end: '2026-06-29 23:59:59',
-					items: [
-						{
-							label: 'a.com',
-							views: 2,
-							link: 'https://a.com/',
-							icon: null,
-							labelIcon: 'external',
-							children: null,
-						},
-						{
-							label: 'b.com',
-							views: 1,
-							link: 'https://b.com/',
-							icon: null,
-							labelIcon: 'external',
-							children: null,
-						},
-					] satisfies StatsReferrersItem[],
+					label: 'google.com',
+					views: 3920,
+					previousValue: undefined,
+					link: 'https://www.google.com/',
+					icon: 'https://example.com/google.png',
+					labelIcon: 'external',
+					children: null,
+					childrenHaveComparison: false,
 				},
 			],
-		} satisfies StatsNormalizedReport< StatsReferrersItem >;
+		};
 
-		expect( toReferrerRows( report, undefined, 0 ) ).toHaveLength( 2 );
+		expect( toReferrerRow( item ) ).toEqual( {
+			label: 'Search Engines',
+			value: 4801,
+			previousValue: 4100,
+			href: undefined,
+			icon: 'https://example.com/search-engine.png',
+			childrenHaveComparison: true,
+			children: [
+				{
+					label: 'google.com',
+					value: 3920,
+					// Missing comparison matches stay undefined so the chart
+					// suppresses the delta instead of showing a fake change.
+					previousValue: undefined,
+					href: 'https://www.google.com/',
+					icon: 'https://example.com/google.png',
+					children: undefined,
+				},
+			],
+		} );
 	} );
 } );

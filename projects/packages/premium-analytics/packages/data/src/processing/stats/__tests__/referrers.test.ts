@@ -11,8 +11,8 @@ describe( 'Stats referrers normalizer', () => {
 		expect( result.data[ 0 ] ).toEqual(
 			expect.objectContaining( {
 				time_interval: '2026-06-16',
-				date_start: '2026-06-16T00:00:00+00:00',
-				date_end: '2026-06-16T23:59:59+00:00',
+				date_start: '2026-06-16T00:00:00',
+				date_end: '2026-06-16T23:59:59',
 				items: [
 					expect.objectContaining( {
 						label: 'example.com/path',
@@ -37,14 +37,14 @@ describe( 'Stats referrers normalizer', () => {
 			summary: {
 				total_views: 8474,
 				other_views: 0,
-				date_start: '2026-06-16T00:00:00+00:00',
-				date_end: '2026-06-22T23:59:59+00:00',
+				date_start: '2026-06-16T00:00:00',
+				date_end: '2026-06-22T23:59:59',
 			},
 			data: [
 				{
 					time_interval: '2026-06-22',
-					date_start: '2026-06-16T00:00:00+00:00',
-					date_end: '2026-06-22T23:59:59+00:00',
+					date_start: '2026-06-16T00:00:00',
+					date_end: '2026-06-22T23:59:59',
 					items: [
 						expect.objectContaining( {
 							label: 'Search Engines',

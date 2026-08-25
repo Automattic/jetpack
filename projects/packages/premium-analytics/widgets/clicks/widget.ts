@@ -1,19 +1,11 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { link } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-/**
- * Configurable attributes for the Clicks widget.
- */
-export type ClicksAttributes = {
-	/**
-	 * Maximum rows to display. 0 means all rows returned by the API.
-	 */
-	max?: number;
-};
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type ClicksAttributes = Record< never, never >;
 
 /**
  * Clicks widget type definition.
@@ -22,19 +14,9 @@ export type ClicksAttributes = {
  * via the PA proxy at `stats/clicks`.
  */
 export default {
-	name: 'jpa/clicks',
-	title: __( 'Clicks', 'jetpack-premium-analytics' ),
-	icon: chartBar,
-	attributes: [
-		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics' ),
-			type: 'integer',
-		},
-	] as WidgetAttributeField< ClicksAttributes >[],
+	icon: link,
+	attributes: [] as WidgetAttributeField< ClicksAttributes >[],
 	example: {
-		attributes: {
-			max: 10,
-		},
+		attributes: {},
 	},
 };

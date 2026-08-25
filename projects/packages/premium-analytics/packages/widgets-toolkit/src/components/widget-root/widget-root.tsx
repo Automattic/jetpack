@@ -1,16 +1,17 @@
 /**
  * External dependencies
  */
-import { GlobalChartsProvider } from '@automattic/charts';
 import {
 	AnalyticsQueryClientProvider,
 	getDefaultPreset,
 	normalizeReportParams,
+	useReportScope,
+	withoutComparison,
 } from '@jetpack-premium-analytics/data';
+import { GlobalChartsProvider } from '@jetpack-premium-analytics/externals';
 import { useSearch } from '@wordpress/route';
 import { useMemo, type ReactNode } from 'react';
 import { getStoreInfo } from '../../helpers/store-info';
-import '@automattic/charts/style.css';
 /**
  * Internal dependencies
  */
@@ -21,14 +22,8 @@ import type { ReportParamsFieldAttributes } from '../../fields';
 import type { WidgetErrorConfig } from '../../types';
 
 type WidgetRootProps = {
-	/**
-	 * The attributes for the widget.
-	 */
 	attributes?: Partial< ReportParamsFieldAttributes >;
 
-	/**
-	 * The children of the widget root.
-	 */
 	children: ReactNode;
 
 	/**
@@ -37,9 +32,6 @@ type WidgetRootProps = {
 	 */
 	setError?: ( error: WidgetErrorConfig | true | null ) => void;
 
-	/**
-	 * The options for the widget root.
-	 */
 	options?: {
 		/**
 		 * Deprecated. Report params are now always read from the current matched
@@ -50,10 +42,6 @@ type WidgetRootProps = {
 	};
 };
 
-/**
- * Hook that resolves widget attributes:
- * - `reportParams`: with URL search params when it's not provided
- */
 function useResolveReportParams( attributes?: Partial< ReportParamsFieldAttributes > ) {
 	let search: Record< string, unknown > = {};
 
@@ -71,11 +59,6 @@ function useResolveReportParams( attributes?: Partial< ReportParamsFieldAttribut
 		// Do nothing
 	}
 
-	/*
-	 * Check if reportParams exists and is not empty.
-	 * If it exists, use the provided reportParams.
-	 * Otherwise, use URL search params as reportParams.
-	 */
 	const hasReportParams =
 		!! attributes?.reportParams && Object.keys( attributes.reportParams ).length > 0;
 
@@ -91,20 +74,6 @@ function useResolveReportParams( attributes?: Partial< ReportParamsFieldAttribut
  * - GlobalChartsProvider with chart theme
  * - Report params resolution (from attributes or URL fallback)
  * - Context provider for child widgets to access resolved params
- *
- * @example
- * ```tsx
- * // In dashboard-widgets/my-widget/render.tsx
- * <WidgetRoot attributes={ attributes }>
- *     <MyWidget />
- * </WidgetRoot>
- *
- * // In widgets-toolkit/widgets/my-widget.tsx
- * function MyWidget() {
- *     const { reportParams } = useWidgetRootContext();
- *     // Use reportParams for data fetching
- * }
- * ```
  */
 export function WidgetRoot( { attributes, children, setError }: WidgetRootProps ) {
 	const chartTheme = useChartTheme();
@@ -113,12 +82,27 @@ export function WidgetRoot( { attributes, children, setError }: WidgetRootProps 
 	const { launchedDate } = getStoreInfo();
 	const defaultPreset = getDefaultPreset( launchedDate );
 
-	const reportParams = useMemo(
+	/*
+	 * Stripped after resolution rather than at either source, so a surface that
+	 * offers no comparison holds the invariant by construction: neither the URL
+	 * nor a widget's own attributes can put a comparison in front of a reader
+	 * who has no control to switch it off. The params stay in the URL, for the
+	 * surfaces that do offer one to pick back up.
+	 */
+	const { offersComparison } = useReportScope();
+	const navigationParams = useMemo(
 		() => normalizeReportParams( rawReportParams, defaultPreset ),
 		[ rawReportParams, defaultPreset ]
 	);
+	const reportParams = useMemo(
+		() => ( offersComparison ? navigationParams : withoutComparison( navigationParams ) ),
+		[ navigationParams, offersComparison ]
+	);
 
-	const contextValue = useMemo( () => ( { reportParams, setError } ), [ reportParams, setError ] );
+	const contextValue = useMemo(
+		() => ( { reportParams, navigationParams, setError } ),
+		[ reportParams, navigationParams, setError ]
+	);
 
 	return (
 		<AnalyticsQueryClientProvider>

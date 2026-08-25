@@ -4,7 +4,7 @@ import { selectFallback } from './fallback.ts';
 import { requestJwt } from './jwt.ts';
 import { buildTailorPrompt, chooseTailoringMenu } from './prompts.ts';
 import { parseAgentResponse } from './schema-validator.ts';
-import { trackAiResponseReceived } from './tracks.ts';
+import { contextFromTailorResult, setTracksContext } from './tracks.ts';
 import type { TailoredOutput, TailorResult, TailorSource, WizardInput } from './types.ts';
 
 const AI_QUERY_ENDPOINT = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query';
@@ -19,6 +19,25 @@ interface AiQueryResponse {
  * failures worth a second attempt.
  */
 type FetchOutcome = { ok: true; output: TailoredOutput } | { ok: false; retryable: boolean };
+
+/**
+ * Mints a session id for a tailoring run, or '' when `crypto.randomUUID` isn't available.
+ *
+ * `crypto.randomUUID` is undefined outside a secure context and on older Safari/Firefox, and
+ * throws rather than returning undefined — unguarded, that would reject `tailor()` before any
+ * tailoring happens, and every caller catches, so the user would see an empty launchpad instead
+ * of a list. This purely analytical id must not be able to break list rendering; the server
+ * already treats an empty `ai_session_id` as absent.
+ *
+ * @return A UUID, or '' when unavailable.
+ */
+function mintAiSessionId(): string {
+	try {
+		return crypto.randomUUID();
+	} catch {
+		return '';
+	}
+}
 
 /**
  * Call jetpack-ai-query once with the combined prompt and return the validated
@@ -83,21 +102,23 @@ async function fetchAiOutput(
 
 /**
  * Call jetpack-ai-query, retrying once on a transient/validation failure, and
- * return the validated output or null.
+ * return the validated output (or null) plus how many attempts were made.
  *
  * @param input            - The collected wizard input.
  * @param availableTaskIds - Task ids the prompt may offer (filters the menu).
- * @return The validated output, or null.
+ * @return The validated output (or null) and the attempt count.
  */
 async function fetchAiOutputWithRetry(
 	input: WizardInput,
 	availableTaskIds: readonly string[]
-): Promise< TailoredOutput | null > {
+): Promise< { output: TailoredOutput | null; attempts: number } > {
+	let attempts = 1;
 	let outcome = await fetchAiOutput( input, availableTaskIds );
 	if ( ! outcome.ok && outcome.retryable ) {
+		attempts = 2;
 		outcome = await fetchAiOutput( input, availableTaskIds );
 	}
-	return outcome.ok ? outcome.output : null;
+	return { output: outcome.ok ? outcome.output : null, attempts };
 }
 
 /**
@@ -126,14 +147,29 @@ async function fetchAvailableTaskIds( goal: string ): Promise< readonly string[]
 }
 
 /**
- * Persist the tailored output via Stream B's PUT /tailored.
+ * Persist the tailored output via Stream B's PUT /tailored. The timing/attempt
+ * telemetry rides along as query params so the server's `tailored` Logstash
+ * record carries it; there is no separate client-side event.
  *
- * @param output - The tailored output to persist.
- * @param source - Whether the output came from AI or the fallback.
+ * @param output                - The tailored output to persist.
+ * @param source                - Whether the output came from AI or the fallback.
+ * @param telemetry             - Tailoring telemetry for the server's Logstash record.
+ * @param telemetry.durationMs  - How long tailoring took so far, in milliseconds.
+ * @param telemetry.attempts    - How many jetpack-ai-query attempts were made.
+ * @param telemetry.aiSessionId - The id minted for this tailoring run.
  */
-async function persist( output: TailoredOutput, source: TailorSource ): Promise< void > {
+async function persist(
+	output: TailoredOutput,
+	source: TailorSource,
+	telemetry: { durationMs: number; attempts: number; aiSessionId: string }
+): Promise< void > {
 	await apiFetch( {
-		path: addQueryArgs( '/wpcom/v2/ai-launchpad/tailored', { source } ),
+		path: addQueryArgs( '/wpcom/v2/ai-launchpad/tailored', {
+			source,
+			duration_ms: telemetry.durationMs,
+			attempts: telemetry.attempts,
+			ai_session_id: telemetry.aiSessionId,
+		} ),
 		method: 'PUT',
 		data: output,
 	} );
@@ -148,16 +184,21 @@ async function persist( output: TailoredOutput, source: TailorSource ): Promise<
  */
 export async function tailor( input: WizardInput ): Promise< TailorResult > {
 	const start = performance.now();
+	// One id per tailoring run, not per attempt: a retry re-rolls the same checklist. Minted
+	// here rather than server-side so it survives a failed PUT, where the client still renders
+	// a list and still fires events against it.
+	const aiSessionId = mintAiSessionId();
 	const availableTaskIds = await fetchAvailableTaskIds( input.goal );
-	const aiOutput = await fetchAiOutputWithRetry( input, availableTaskIds );
+	const { output: aiOutput, attempts } = await fetchAiOutputWithRetry( input, availableTaskIds );
 
 	if ( aiOutput ) {
 		try {
-			await persist( aiOutput, 'ai' );
-			trackAiResponseReceived( {
-				duration_ms: Math.round( performance.now() - start ),
-				source: 'ai',
+			await persist( aiOutput, 'ai', {
+				durationMs: Math.round( performance.now() - start ),
+				attempts,
+				aiSessionId,
 			} );
+			setTracksContext( contextFromTailorResult( 'ai', aiSessionId ) );
 			return { source: 'ai', output: aiOutput };
 		} catch {
 			// PUT rejected the AI output; fall through to the deterministic fallback below.
@@ -166,13 +207,15 @@ export async function tailor( input: WizardInput ): Promise< TailorResult > {
 
 	const fallbackOutput = selectFallback( input );
 	try {
-		await persist( fallbackOutput, 'fallback' );
+		// `attempts` counts the failed AI calls that preceded the fallback.
+		await persist( fallbackOutput, 'fallback', {
+			durationMs: Math.round( performance.now() - start ),
+			attempts,
+			aiSessionId,
+		} );
 	} catch {
 		// Even if the write fails, still return the fallback so the consumer renders a list, not an empty launchpad.
 	}
-	trackAiResponseReceived( {
-		duration_ms: Math.round( performance.now() - start ),
-		source: 'fallback',
-	} );
+	setTracksContext( contextFromTailorResult( 'fallback', aiSessionId ) );
 	return { source: 'fallback', output: fallbackOutput };
 }

@@ -1,3 +1,4 @@
+import { search } from '@wordpress/icons';
 import { withChartTheme } from '../../../stories/with-chart-theme';
 import { BarChart } from '../../chart-bar';
 import { WidgetState } from '../widget-state';
@@ -8,14 +9,22 @@ import type { Meta, StoryObj } from '@storybook/react';
  * Widget card wrapper, simulating a dashboard widget container so each state is
  * shown within typical widget dimensions.
  */
-const WidgetCard = ( { title, children }: { title: string; children: React.ReactNode } ) => (
+const WidgetCard = ( {
+	title,
+	height = '320px',
+	children,
+}: {
+	title: string;
+	height?: string;
+	children: React.ReactNode;
+} ) => (
 	<div
 		style={ {
 			width: '360px',
-			height: '320px',
-			border: '1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0)',
-			borderRadius: 'var(--wpds-border-radius-md, 8px)',
-			background: 'var(--wpds-color-background-surface-neutral, #fff)',
+			height,
+			border: '1px solid var(--wpds-color-stroke-surface-neutral-weak)',
+			borderRadius: 'var(--wpds-border-radius-md)',
+			background: 'var(--wpds-color-background-surface-neutral)',
 			display: 'flex',
 			flexDirection: 'column',
 			overflow: 'hidden',
@@ -23,11 +32,11 @@ const WidgetCard = ( { title, children }: { title: string; children: React.React
 	>
 		<div
 			style={ {
-				padding: 'var(--wpds-dimension-gap-lg, 16px)',
-				borderBottom: '1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0)',
+				padding: 'var(--wpds-dimension-gap-lg)',
+				borderBottom: '1px solid var(--wpds-color-stroke-surface-neutral-weak)',
 				fontWeight: 600,
-				fontSize: 'var(--wpds-typography-font-size-sm, 14px)',
-				color: 'var(--wpds-color-foreground-content-neutral, #1e1e1e)',
+				fontSize: 'var(--wpds-typography-font-size-sm)',
+				color: 'var(--wpds-color-foreground-content-neutral)',
 			} }
 		>
 			{ title }
@@ -36,8 +45,13 @@ const WidgetCard = ( { title, children }: { title: string; children: React.React
 	</div>
 );
 
-const withWidgetCard = ( Story: React.ComponentType ) => (
-	<WidgetCard title="Traffic by source">
+// `widgetCardHeight` story parameter sizes the mock card, so height-dependent
+// behavior (the 140px short-tile breakpoint) can be shown per story.
+const withWidgetCard = (
+	Story: React.ComponentType,
+	context: { parameters: { widgetCardHeight?: string } }
+) => (
+	<WidgetCard title="Traffic by source" height={ context.parameters.widgetCardHeight }>
 		<Story />
 	</WidgetCard>
 );
@@ -51,7 +65,7 @@ const meta: Meta< typeof WidgetState > = {
 		docs: {
 			description: {
 				component:
-					'Data-agnostic widget content-area state. Derives one state (error → loading → empty → ready, plus a busy overlay on background refetch) from four boolean signals and renders it. Callers map their fetch result to the signals and pass generic `error` / `empty` descriptors. Stories render it inside a mock widget card; the ready and busy states show a mock bar chart standing in for real widget content.',
+					'Data-agnostic widget content-area state. Derives one state (error → loading → empty → ready) from four boolean signals and renders it. The skeleton is reserved for `isLoading`, meaning nothing on screen answers the current params; a background revalidation (`isFetching` alone) draws nothing and only marks the widget busy. Callers map their fetch result to the signals and pass generic `error` / `empty` descriptors. Stories render it inside a mock widget card; the ready state shows a mock bar chart standing in for real widget content.',
 			},
 		},
 	},
@@ -90,17 +104,13 @@ const MockChart = () => (
 			width: '100%',
 			height: '100%',
 			boxSizing: 'border-box',
-			padding: 'var(--wpds-dimension-gap-lg, 16px)',
+			padding: 'var(--wpds-dimension-gap-lg)',
 		} }
 	>
 		<BarChart chartData={ CHART_DATA } dataFormat={ { type: 'number' } } styles={ CHART_STYLES } />
 	</div>
 );
 
-/**
- * First load: a fetch is in flight and there is no data yet, so the loading
- * overlay is shown instead of the children.
- */
 export const Loading: Story = {
 	args: {
 		isLoading: true,
@@ -142,6 +152,55 @@ export const Empty: Story = {
 };
 
 /**
+ * Empty state with an opt-in icon at a regular tile height (above the 140px
+ * short-tile breakpoint): the glyph renders above the text.
+ */
+export const EmptyWithIcon: Story = {
+	args: {
+		isLoading: false,
+		isError: false,
+		isEmpty: true,
+		empty: { icon: search, description: 'No traffic recorded for this period.' },
+		children: <MockChart />,
+	},
+};
+
+/**
+ * Error on a short tile (below the 140px body breakpoint): the container query
+ * hides the glyph so the text-only state stays vertically centered inside the
+ * body and never overlaps the widget footer.
+ */
+export const ErrorShortTile: Story = {
+	parameters: { widgetCardHeight: '180px' },
+	args: {
+		isLoading: false,
+		isError: true,
+		isEmpty: false,
+		error: {
+			description: "We couldn't load this data. Please try again in a moment.",
+			// eslint-disable-next-line no-console
+			actions: [ { label: 'Retry', onClick: () => console.log( 'Retry clicked' ) } ],
+		},
+		children: <MockChart />,
+	},
+};
+
+/**
+ * Empty (with an opt-in icon) on a short tile: same degradation as the error
+ * state — the glyph hides and the text stays vertically centered.
+ */
+export const EmptyShortTileWithIcon: Story = {
+	parameters: { widgetCardHeight: '180px' },
+	args: {
+		isLoading: false,
+		isError: false,
+		isEmpty: true,
+		empty: { icon: search, description: 'No traffic recorded for this period.' },
+		children: <MockChart />,
+	},
+};
+
+/**
  * Success: the children (a mock bar chart) render as-is.
  */
 export const Ready: Story = {
@@ -154,10 +213,10 @@ export const Ready: Story = {
 };
 
 /**
- * Background refetch: the chart stays visible under a non-blocking busy overlay
- * while fresh data loads.
+ * Unchanged params being revalidated. Identical to `Ready` by design — only
+ * `aria-busy` differs.
  */
-export const Busy: Story = {
+export const Refetching: Story = {
 	args: {
 		isLoading: false,
 		isFetching: true,
