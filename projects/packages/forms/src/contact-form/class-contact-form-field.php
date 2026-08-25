@@ -34,9 +34,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * Highest number of files a file upload field will accept, whatever `maxfiles` asks for.
 	 *
-	 * Uploads are anonymous and each one may be as large as FILE_FIELD_MAX_UPLOAD_SIZE, so the
-	 * ceiling bounds what a single visitor can push at the site in one submission. Keep in sync
-	 * with `MAX_FILES_LIMIT` in `blocks/field-file/edit.jsx`, which bounds the editor control.
+	 * This bounds how many files can be attached to a response, not how many bytes reach the site.
+	 * Each file is uploaded as soon as the visitor picks it, so by the time anything here runs the
+	 * transfer has already happened and the submission carries only references — and the upload
+	 * endpoint is reachable on its own besides. Read this as a limit on the shape of a response,
+	 * and look to the endpoint's own quotas for anything to do with volume.
+	 *
+	 * Keep in sync with `MAX_FILES_LIMIT` in `blocks/field-file/edit.jsx`, which bounds the editor
+	 * control; `test_file_field_ceiling_matches_the_editor_control` fails if they drift.
 	 *
 	 * @var int
 	 */

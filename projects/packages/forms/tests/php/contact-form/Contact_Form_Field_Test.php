@@ -753,6 +753,26 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The editor control's ceiling is a separate constant in JavaScript, kept in step by a comment
+	 * on each side. Nothing else fails if one of them moves, and the symptom would be quiet: the
+	 * editor would offer a number the front end silently lowers.
+	 */
+	public function test_file_field_ceiling_matches_the_editor_control() {
+		$edit_jsx = file_get_contents( __DIR__ . '/../../../src/blocks/field-file/edit.jsx' );
+
+		$this->assertSame(
+			1,
+			preg_match( '/const MAX_FILES_LIMIT = (\d+);/', $edit_jsx, $matches ),
+			'Could not find MAX_FILES_LIMIT in blocks/field-file/edit.jsx.'
+		);
+		$this->assertSame(
+			Contact_Form_Field::FILE_FIELD_MAX_FILES_LIMIT,
+			(int) $matches[1],
+			'The editor control offers a different ceiling than the renderer enforces.'
+		);
+	}
+
+	/**
 	 * A file field authored before the setting existed carries no `maxfiles` at all, and has to
 	 * keep accepting exactly one file.
 	 */

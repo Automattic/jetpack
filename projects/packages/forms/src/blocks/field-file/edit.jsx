@@ -80,11 +80,22 @@ export default function FileFieldEdit( props ) {
 
 	const onChangeMaxFiles = useCallback(
 		value => {
-			// NumberControl hands back a string, and an empty one while the field is being cleared.
 			const parsed = parseInt( value, 10 );
 
+			/*
+			 * NumberControl reports every keystroke, including the empty string left behind by a
+			 * backspace. Writing a value then would snap the attribute to 1 mid-edit, and because the
+			 * control is controlled it would redraw as "1" with the caret after it — so an author
+			 * clearing 8 to type 5 would end up committing 15, clamped to the ceiling. Leaving the
+			 * attribute alone keeps their draft intact; there is nothing to save until they type a
+			 * number anyway.
+			 */
+			if ( Number.isNaN( parsed ) ) {
+				return;
+			}
+
 			setAttributes( {
-				maxfiles: Number.isNaN( parsed ) ? 1 : Math.min( Math.max( parsed, 1 ), MAX_FILES_LIMIT ),
+				maxfiles: Math.min( Math.max( parsed, 1 ), MAX_FILES_LIMIT ),
 			} );
 		},
 		[ setAttributes ]
