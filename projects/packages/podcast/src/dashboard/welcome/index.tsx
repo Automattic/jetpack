@@ -1,7 +1,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getAdminUrl, getSiteData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
-	Button,
 	Card,
 	CardBody,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -14,7 +13,7 @@ import {
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, globe, layout, megaphone } from '@wordpress/icons';
-import { LinkButton } from '@wordpress/ui';
+import { Button, LinkButton } from '@wordpress/ui';
 import { buildUpgradeCheckoutUrl, getUpgradePlanName } from '../upgrade';
 import './style.scss';
 
@@ -188,7 +187,7 @@ const Welcome = ( { onEnable, hasAccess }: WelcomeProps ) => {
 						</>
 					) }
 					<HStack justify="flex-start" expanded={ false }>
-						<Button variant="primary" onClick={ onEnable }>
+						<Button variant="solid" onClick={ onEnable }>
 							{ __( 'Set up podcasting', 'jetpack-podcast' ) }
 						</Button>
 					</HStack>
@@ -212,7 +211,7 @@ const Welcome = ( { onEnable, hasAccess }: WelcomeProps ) => {
 											) }
 										</Text>
 									</VStack>
-									<Button variant="secondary" onClick={ onEnable }>
+									<Button variant="outline" onClick={ onEnable }>
 										{ __( 'Start your podcast', 'jetpack-podcast' ) }
 									</Button>
 									<ul className="podcast__welcome-plan-features">
