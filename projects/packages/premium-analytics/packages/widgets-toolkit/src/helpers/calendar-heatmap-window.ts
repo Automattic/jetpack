@@ -15,34 +15,31 @@ export type CalendarHeatmapWindow = {
 };
 
 export type CalendarHeatmapWindowBounds = {
-	minDays?: number;
 	maxDays?: number;
 };
 
 /**
- * Clamps a report range to inclusive minimum and maximum day counts.
+ * Caps a report range at an inclusive maximum day count.
+ *
+ * A floor is deliberately not offered: it would reach back past the selection,
+ * and the card would attribute years the user did not choose to the year in its
+ * heading (WOOA7S-1963). A range too short to fill the tile is filled with
+ * filler weeks instead — see `resolveCalendarHeatmapGridStart`.
  */
 export function resolveCalendarHeatmapWindow(
 	params: { from?: string; to?: string },
 	bounds: CalendarHeatmapWindowBounds,
 	todayIso: string
 ): CalendarHeatmapWindow {
-	const { minDays, maxDays } = bounds;
+	const { maxDays } = bounds;
 	const endDate = getDatePart( params.to ) ?? todayIso;
 	const end = parseISO( endDate );
 
 	// ISO date-only strings sort chronologically.
 	let startDate = getDatePart( params.from ) ?? endDate;
 
-	if ( minDays !== undefined ) {
-		// Bounds count inclusive dates, hence the subtraction of one day.
-		const floor = format( subDays( end, minDays - 1 ), 'yyyy-MM-dd' );
-		if ( startDate > floor ) {
-			startDate = floor;
-		}
-	}
-
 	if ( maxDays !== undefined ) {
+		// Bounds count inclusive dates, hence the subtraction of one day.
 		const cap = format( subDays( end, maxDays - 1 ), 'yyyy-MM-dd' );
 		if ( startDate < cap ) {
 			startDate = cap;
@@ -50,6 +47,40 @@ export function resolveCalendarHeatmapWindow(
 	}
 
 	return { startDate: startDate > endDate ? endDate : startDate, endDate };
+}
+
+/**
+ * The date a heatmap grid has to open on to draw `columns` week columns ending
+ * with `endDate`.
+ *
+ * A period shorter than the tile leaves the grid part-filled, so the grid is
+ * opened back far enough to fill it. Those earlier weeks are drawn, not
+ * requested: the chart paints them as filler that reports nothing, and the
+ * fetch window stays inside the period the user selected (WOOA7S-1963).
+ *
+ * Opening backwards rather than running on past `endDate` also keeps trimming
+ * honest — the grid drops its oldest columns first, which are the filler.
+ *
+ * @param endDate - Last day the grid covers, `yyyy-MM-dd`.
+ * @param columns - Week columns the tile can draw.
+ * @return The grid's first day, or `undefined` when the inputs can't size one.
+ */
+export function resolveCalendarHeatmapGridStart(
+	endDate: string,
+	columns: number
+): string | undefined {
+	if ( ! Number.isFinite( columns ) || columns < 1 ) {
+		return undefined;
+	}
+
+	const end = parseISO( endDate );
+	if ( isNaN( end.getTime() ) ) {
+		return undefined;
+	}
+
+	// A whole number of weeks back from `endDate` lands on the same weekday, so
+	// the grid spans exactly `columns` columns whichever day the week starts on.
+	return format( subDays( end, ( Math.floor( columns ) - 1 ) * 7 ), 'yyyy-MM-dd' );
 }
 
 /**

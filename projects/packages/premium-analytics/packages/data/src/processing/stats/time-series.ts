@@ -114,12 +114,10 @@ function getPrimaryMetricValue( row: StatsRecord ) {
 }
 
 function getDateFnsIntervalFields( startDate: Date, endDate: Date ) {
-	// Stats interval fields are normalized calendar bucket labels, matching getStatsIntervalFields.
-	// They are not intended to be reinterpreted as site-timezone instants downstream.
 	return {
 		time_interval: format( startDate, dateFormat ),
-		date_start: `${ format( startDate, dateFormat ) }T00:00:00+00:00`,
-		date_end: `${ format( endDate, dateFormat ) }T23:59:59+00:00`,
+		date_start: formatDatePartWithTime( format( startDate, dateFormat ), '00:00:00' ),
+		date_end: formatDatePartWithTime( format( endDate, dateFormat ), '23:59:59' ),
 	};
 }
 
@@ -208,10 +206,8 @@ function getHourIntervalFields( date: string, hour: unknown ) {
 	const datePart = getDatePart( date ) ?? date;
 	const hourPart = String( Math.trunc( Number( hour ) ) || 0 ).padStart( 2, '0' );
 
-	// Like getStatsIntervalFields, these are calendar bucket labels stamped with a nominal +00:00
-	// (formatDatePartWithTime's default), not real UTC instants — the API's hour is already
-	// site-local, so a consumer must render the bucket as wall-clock rather than convert it across
-	// the site offset.
+	// Like getStatsIntervalFields, these are timezone-naive calendar bucket labels — the API's
+	// hour is already site-local, so no offset is stamped for a consumer to convert across.
 	return {
 		time_interval: `${ datePart } ${ hourPart }:00`,
 		date_start: formatDatePartWithTime( datePart, `${ hourPart }:00:00` ),
@@ -248,10 +244,10 @@ function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: strin
 }
 
 // Rebuild a summary bound from a query date when no rows came back. Rows stamp
-// `date_start`/`date_end` as full ISO 8601 with a nominal +00:00 (see
+// `date_start`/`date_end` as timezone-naive wall times (see
 // getStatsIntervalFields), so the query's own site-local offset can't be passed
-// through verbatim: consumers read these as wall-clock bucket labels, and a real
-// offset would be converted a second time. Mirrors getStatsSummaryIntervalFields.
+// through verbatim — a real offset would get converted rather than read as the
+// bucket's label. Mirrors getStatsSummaryIntervalFields.
 function toSummaryBound( value: string | undefined, time: string ) {
 	const datePart = getDatePart( value );
 

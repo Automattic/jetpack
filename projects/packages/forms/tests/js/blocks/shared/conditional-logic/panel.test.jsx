@@ -546,6 +546,26 @@ describe( 'ConditionalLogicPanel', () => {
 		expect( screen.getByRole( 'button', { name: 'Add condition' } ) ).toBeEnabled();
 	} );
 
+	// The builder opens with one empty row, so amber there warned about something the author
+	// had not done yet. It is kept for a condition begun and left unfinished.
+	it( 'stays neutral on a condition nobody has started', async () => {
+		await setup( withRules( [] ) );
+
+		const status = screen.getByLabelText( 'Choose a field to compare against.' );
+
+		expect( status ).toHaveClass( 'is-unstarted' );
+		expect( status ).not.toHaveClass( 'is-active' );
+	} );
+
+	it( 'warns once a condition has been started and left unfinished', async () => {
+		await setup( withRules( [ { field: 'name_1', operator: 'is', value: '' } ] ) );
+
+		const status = screen.getByLabelText( 'Give this condition a value.' );
+
+		expect( status ).not.toHaveClass( 'is-unstarted' );
+		expect( status ).not.toHaveClass( 'is-active' );
+	} );
+
 	it( 'marks a complete condition as active', async () => {
 		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
 
@@ -579,7 +599,8 @@ describe( 'ConditionalLogicPanel', () => {
 				groups: [
 					{
 						logicalOperator: 'all',
-						rules: [ { field: 'untitled-field', operator: 'is', value: '' } ],
+						// Carried over: both subjects compare textually.
+						rules: [ { field: 'untitled-field', operator: 'is', value: 'x' } ],
 					},
 				],
 			} ),
@@ -620,6 +641,70 @@ describe( 'ConditionalLogicPanel', () => {
 					{
 						logicalOperator: 'all',
 						rules: [ { field: 'budget_1', operator: 'equals', value: '' } ],
+					},
+				],
+			} ),
+		} );
+	} );
+
+	/**
+	 * The value box is offered before a subject is chosen, so filling it in first is a normal
+	 * order to work in -- and choosing the subject used to wipe it. It is kept only where the
+	 * new subject can still show it.
+	 */
+	it.each( [
+		[ 'keeps a value typed before the subject was chosen', 'iPhone', 'name_1', 'is', 'iPhone' ],
+		// A checkbox compares against nothing, so the value has to go rather than sit unseen.
+		[ 'drops it for a subject that takes no value', 'iPhone', 'terms_1', 'is_checked', '' ],
+		[ 'keeps it for a dropdown that offers it', 'Large', 'size_1', 'is', 'Large' ],
+		// Padding is what the representability check ignores, so it must not survive into the
+		// stored value: a dropdown has no option named "  Large  " and would render blank.
+		[
+			'stores a padded value the way the control can show it',
+			'  Large  ',
+			'size_1',
+			'is',
+			'Large',
+		],
+		[ 'trims a padded number too', ' 10 ', 'budget_1', 'equals', '10' ],
+	] )( '%s', async ( _name, typed, selection, operator, expected ) => {
+		const { setAttributes } = await setup(
+			withRules( [ { field: '', operator: 'is', value: typed } ] )
+		);
+
+		await userEvent.selectOptions( screen.getByLabelText( 'Field' ), selection );
+
+		expect( setAttributes ).toHaveBeenCalledWith( {
+			conditionalLogic: expect.objectContaining( {
+				groups: [
+					{
+						logicalOperator: 'all',
+						rules: [ { field: selection, operator, value: expected } ],
+					},
+				],
+			} ),
+		} );
+	} );
+
+	/**
+	 * Clearing the subject puts the row back where it started, which is a place the value box
+	 * is still offered -- so wiping the value would throw away something the author can still
+	 * see and is still allowed to type. It is representability that decides, and there is no
+	 * subject yet to decide it against.
+	 */
+	it( 'keeps the value when the subject is cleared again', async () => {
+		const { setAttributes } = await setup(
+			withRules( [ { field: 'name_1', operator: 'is', value: 'iPhone' } ] )
+		);
+
+		await userEvent.selectOptions( screen.getByLabelText( 'Field' ), '' );
+
+		expect( setAttributes ).toHaveBeenCalledWith( {
+			conditionalLogic: expect.objectContaining( {
+				groups: [
+					{
+						logicalOperator: 'all',
+						rules: [ { field: '', operator: 'is', value: 'iPhone' } ],
 					},
 				],
 			} ),

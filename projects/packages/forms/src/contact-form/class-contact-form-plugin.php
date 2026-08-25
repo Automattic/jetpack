@@ -3301,10 +3301,12 @@ class Contact_Form_Plugin {
 													<!-- /wp:jetpack/contact-form -->';
 		}
 
+		$form_title = isset( $_POST['formTitle'] ) ? sanitize_text_field( wp_unslash( $_POST['formTitle'] ) ) : '';
+
 		$post_id = wp_insert_post(
 			array(
 				'post_type'    => 'page',
-				'post_title'   => '',
+				'post_title'   => $form_title,
 				'post_content' => $pattern_content,
 			)
 		);

@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
  * Sends the views column in the posts and pages list tables to the dashboard's
  * post detail page instead of the Stats one.
  *
- * @since $$next-version$$
+ * @since 0.4.0
  */
 class Post_List_Link {
 

@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jennywp, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryanc413, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 16.2-a.1
+Stable tag: 16.2-a.3
 Requires at least: 7.0
 Requires PHP: 7.4
 Tested up to: 7.1
@@ -326,88 +326,47 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.2-a.1 - 2026-08-20
-#### Major Enhancements
-- Update minimum WordPress version to 7.0.
-
+### 16.2-a.3 - 2026-08-25
 #### Enhancements
-- AI: Add a Jetpack AI module as the site-wide master switch on self-hosted and Atomic, preserving explicit opt-outs.
-- AI: Hide the AI sidebar when the writing assistant and SEO enhancer toggles are both off.
-- AI: Make the AI toolbar button follow the writing assistant toggle.
-- AI Assistant: Add feature settings controls for Jetpack AI tools.
-- AI Features: Group the feature toggles into a single Agent capabilities card.
-- AI settings: Make the Try it out links pre-open their target — the AI Assistant sidebar in the editor, and Image Studio's generate mode in the Media Library.
-- Content Guidelines AI: Enable AI guideline suggestions on WordPress VIP sites.
-- Forms: Add a Print action to form responses.
-- Forms: Add form fill duration to feedback entries.
-- Map Block: Add support for wide and full width alignments.
-- Newsletter: Explain why the Everyone audience is unavailable when a post has a paywall block, instead of linking to the block.
-- Newsletter: Rename the Access panel to Audience, describe who can read each post, and link out to set up paid subscribers.
-- Podcast: Add a setting for how many episodes the podcast feed includes.
-- Podcast: Split the Distribution directories into Automatic and Manual submission, explain why a disabled button is disabled, and link to your Pocket Casts show once it is live.
-- Premium Analytics: Clarify traffic chart time-axis labels and bar tooltip periods.
-- REST API: Add the `atomic_email_block` field to the site endpoint response.
-- Search Blocks: Add a customizable No Results block while continuing to render existing Results List messages.
-- Stats: Show the Stats dashboard before the site is connected to WordPress.com, so a plan can be picked and the site connected from there.
-
-#### Improved compatibility
-- Tested up to WordPress 7.1.
+- Akismet: Link the settings page header logo and title to the Akismet settings page.
+- Forms: On small screens, show only the response and its actions instead of a table that scrolls sideways.
+- Forms: On small screens, the View action now opens a response the same way tapping its title does.
+- Forms: Show each form field as a column when viewing a single form's responses.
+- Forms: Show progress while a new form's editor opens, and report it when creating a form fails.
+- My Jetpack: Show what Paid Stats actually adds — UTM tracking, device stats, and region & city locations — instead of commercial use.
+- Premium Analytics: Add an Ads dashboard section showing WordAds earnings and performance.
+- Premium Analytics: Add referrer groups that open folded and expand on demand in the Referrers report.
+- Premium Analytics: Click Visitors in the Traffic chart legend to compare it against Views without leaving the metric. Chart legends now name the metric rather than the date range.
+- Premium Analytics: Name comparison dates in the dashboard header, omit weekdays from ranges longer than a week, and omit the year when it matches the current range.
+- Premium Analytics: Offer only the groupings the selected date range supports in the chart's Group by control.
+- Premium Analytics: Show the latest emails sent as a plain list of subjects and rates.
+- Stats: Add a Popular hours widget showing the busiest hour and its daily average views.
+- Stats: Link the post list views column to the analytics post detail page when the new dashboard is enabled.
+- Stats: Set the chart interval once for the whole page instead of per chart widget.
+- VideoPress: Redesign the video details page with grouped details, a wider layout, side-by-side player and settings, thumbnail tiles, collapsible sections, and an Add to content action.
 
 #### Bug fixes
-- AI Assistant: Scroll the Form block's AI prompt into view when it opens, so it no longer sits over the form.
-- Blocks: Fix an infinite refresh loop in the Goodreads block editor that regenerated the widget ID on every re-render and hammered the REST API.
-- Blocks: Restrict Goodreads scripts to the expected Goodreads widget endpoints.
-- Blocks: Treat WordPress.com public API requests as a block-editor context so editor-only extensions load, restoring block plan availability (such as the core/video upgrade nudge) in the mobile editor.
-- Connection: Stop showing a duplicate account notice when your WordPress.com email differs from your site email only in letter case.
-- Connection: Update wording for some connection error notices.
-- Content Guidelines AI: Keep the empty-state banner from painting over the sticky page header while scrolling.
-- Editor: Refresh the cached plan when returning from a plan purchase so paid blocks (such as the Forms file upload field) stop showing their upgrade nudge once the plan is active.
-- Escape the Premium Content block login button label on output.
-- Fix the premium block upgrade banner rendering collapsed and too narrow on the site frontend.
-- Forms: Fix the first change made to a form after opening a page being discarded when saving.
-- Forms: Keep response field icons and formatting after marking a response as spam.
-- Forms: Make Group and Columns blocks fill the form width so nested fields render full-width.
-- Forms: Preserve line breaks in multi-line answers in the responses dashboard.
-- Forms: Show an empty checkbox icon next to checkbox fields the respondent left unchecked, instead of always showing a ticked one.
-- Harden the subscriber authentication endpoint so it only redirects within the current site.
-- Heartbeat: Restore identity crisis reporting in the WP-CLI status command.
-- Likes: Fix Like buttons sometimes getting stuck on "Loading…" and never appearing.
-- Likes: Include public custom post types in default visibility settings so Likes and Comment Likes render on CPTs without requiring manual configuration.
-- Likes: Keep Settings > Sharing available when sharing buttons are turned off, so the Likes and Comment Likes settings stay reachable.
-- Likes: Rename the settings heading on Settings > Sharing to reflect what it holds when sharing buttons are off.
-- Map Block: Remove the duplicate alignment toolbar in the editor.
-- Media API: Restrict the edit endpoints to attachments, so they no longer accept ordinary post IDs.
-- Memberships: Ensure the configured post access level is evaluated correctly before authorizing access to paywalled content.
-- Newsletter: Make the post-publish email confirmation more visible.
-- Newsletter: Round the dashboard widget footer so it stops covering the rounded bottom corner of the WP Admin box.
-- Newsletter: Save the post before generating an email preview, so the preview reflects the latest saved content (e.g. a newly-set featured image).
-- Newsletter: Send the test email when pressing Enter, and show send errors as a proper error notice.
-- Omnibar: Return admin bar nodes translated in the user's locale.
-- Podcast Player: Keep showing the most recent episodes when a podcast feed becomes slow or unreachable, instead of failing to load.
-- Podcast Player: Stop preloading episode audio before playback to avoid inflating podcast download metrics.
-- Premium Analytics: Fix stray time-axis labels and invalid tooltip dates in mixed or compared charts.
-- Premium Analytics: Keep the full set of ticks on the traffic chart's time axis, which could thin out to two labels on longer date ranges.
-- Premium Analytics: Keep the year and the day on the traffic chart's time axis, which could previously skip the tick that named them, and stop the same label falling on two ticks in a row.
-- Premium Analytics: Stop applying hidden date comparisons in dashboard sections that do not offer the control.
-- Premium Content: Keep subscription login available when a WordPress session lacks a subscription token.
-- Premium Content: Restore the local account link from a verified magic-link token so subscription access persists.
-- Random Redirect: Avoid a fatal error when a theme or plugin already declares the module's redirect function.
-- Require a Jetpack site (blog) token for JSON API endpoints that declare no capabilities, such as the Backup helper script endpoints, and reject user tokens regardless of privilege.
-- Resolve Redirect endpoint: Validate every redirect hop, and return a 400 error when a URL cannot be fetched, is blocked, or exceeds the redirect limit, instead of a 200 response with an empty URL.
-- REST API: Require the admin capability for all settings in a request that also updates Post by Email.
-- Security: Enforce per-item permission checks when editing media through the JSON API.
-- Security: External Media: Ensure imported files are always saved under a safe file name.
-- Security: Verify attachment ownership before removing an uploaded package in the plugin and theme install endpoints.
-- SEO: Hide the post list SEO columns for people who had customized Screen Options before those columns existed.
-- Sharing: Escape Tumblr share title, URL, and button label in official button output.
-- Sharing: Use an unpredictable name for share and Press This popups so another page cannot pre-register the same window name.
-- Sitemaps: Avoid a PHP notice when a sitemap query returns no posts.
-- Stats: Limit Top Posts & Pages processing to the number of posts requested.
-- Subscribers: Restore the option to assign imported subscribers to specific newsletter categories on CSV upload and manual add.
-- Subscriptions: Fix subscribe prompts and paywalled content incorrectly showing or blocking for readers who follow the site but have no active email subscription.
-- Tiled Gallery: Keep VIP gallery images off the external Photon domain and add the `jetpack_skip_photon_domain` filter.
-- WAF: Restrict firewall settings to administrators.
-- WordPress Posts: Escape remote site data before output.
+- AI: Auto-activate the AI module on sites running a 16.2 prerelease build.
+- AI: Keep the editor working when another plugin loads an older copy of the Status package.
+- Charts: Draw labels at the design system's font weight and size.
+- Contact Form: Remove the classic-theme editor margin between a field's label and its input.
+- Forms: Allow a single response to scroll when it is taller than the screen.
+- Forms: Apply the name typed when creating a form, and stop a dismissed save from reporting into a reopened dialog.
+- Forms: Prevent an error that could stop responses from loading when a file upload field was stored without any file data.
+- My Jetpack: Always label the license activation link "Activate a license", including on sites with a plan but no activated licenses.
+- My Jetpack: Stop the Stats dashboard from asking which plan you want again after Start for Free was already chosen.
+- Premium Analytics: Compare date ranges against a previous month or year of the same length while keeping whole-calendar-month comparisons aligned by month.
+- Premium Analytics: Compute date-filter day boundaries in the site's timezone, so visitors west of the site timezone no longer get stretched ranges or wrong chart buckets.
+- Premium Analytics: Fix charts getting stuck on their loading skeleton after switching a control that turns one of the underlying requests off.
+- Premium Analytics: Fix report and chart dates that could read a day off for sites away from UTC.
+- Premium Analytics: Label chart points by the bucket they name rather than by the viewer's time zone, and format axis ticks and tooltips at the series' declared bucket size.
+- Premium Analytics: Label Subscribers chart and email timeline points by the bucket they name rather than by the viewer's time zone.
+- Premium Analytics: Show the dashboard right away instead of a sync screen, and flag the Store section's numbers as incomplete while store data is still syncing.
+- Premium Analytics: Start the Traffic chart's Group by control from the dashboard's interval, and replace Auto with hourly grouping.
+- Stats: Keep excluding a visitor IP address from tracking when it is written in another form.
+- Stats: Report the same visitor address the rest of Jetpack resolves on sites with a trusted IP header configured.
+- Stats: Stop recording a malformed visitor IP address.
+- VideoPress: Fix a timeout error when updating a video poster from the media library.
 
 --------
 

@@ -123,8 +123,13 @@ if inputs are invalid
 **Supported presets:**
 
 - `previous-period` - Same duration, immediately before reference
-- `previous-month` - One month before reference dates
-- `previous-year` - One year before reference dates
+- `previous-month` - Same duration, anchored one month before the reference end
+- `previous-year` - Same duration, anchored one year before the reference end
+
+For whole-month references, `previous-month` and `previous-year` instead stay
+aligned to calendar month boundaries, so their duration can differ. Whole months
+are read from the range itself, so a rolling window that happens to land on one
+(April 1-30 from "Last 30 days") compares against all 31 days of March.
 
 ### Range Measurement and Stepping
 

@@ -1,6 +1,7 @@
 /**
  * Internal dependencies
  */
+import { resolvePrimarySeriesByGroup } from '../../../helpers/resolve-series-names';
 import type { ComparativeLineChartSeries } from '../types';
 
 /**
@@ -15,7 +16,12 @@ import type { ComparativeLineChartSeries } from '../types';
  * - Partial intervals at period boundaries
  * - Any time granularity (daily, weekly, monthly)
  *
- * @param series - Array of series data where index 0 is primary and index 1+ are comparison
+ * Only series marked `options.type: 'comparison'` are moved. A grouped
+ * comparison aligns to its group's current period; an ungrouped one retains
+ * the historical behavior of aligning to the first series. A second current
+ * period is not moved.
+ *
+ * @param series - Array of series data to align by group and index
  * @return New array with aligned series (comparison dates match primary, originals in realDate)
  */
 export function alignSeriesDates(
@@ -25,14 +31,27 @@ export function alignSeriesDates(
 		return series;
 	}
 
-	const [ primary, ...rest ] = series;
+	const fallbackPrimary = series[ 0 ];
 
-	if ( ! primary.data.length ) {
+	// Preserve the historical no-data contract, including the original array
+	// reference, when the chart's axis-setting series has no points.
+	if ( ! fallbackPrimary.data.length ) {
 		return series;
 	}
 
-	const alignedRest = rest.map( comparisonSeries => {
-		if ( ! comparisonSeries.data.length ) {
+	const primarySeriesByGroup = resolvePrimarySeriesByGroup( series );
+
+	return series.map( comparisonSeries => {
+		if ( ! comparisonSeries.data.length || comparisonSeries.options?.type !== 'comparison' ) {
+			return comparisonSeries;
+		}
+
+		const primary =
+			( comparisonSeries.group !== undefined
+				? primarySeriesByGroup.get( comparisonSeries.group )
+				: undefined ) ?? fallbackPrimary;
+
+		if ( ! primary.data.length ) {
 			return comparisonSeries;
 		}
 
@@ -64,6 +83,4 @@ export function alignSeriesDates(
 			} ),
 		};
 	} );
-
-	return [ primary, ...alignedRest ];
 }
