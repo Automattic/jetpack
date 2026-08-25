@@ -27,12 +27,13 @@ import {
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers';
+import { useDefaultHiddenSeries } from '../../providers/chart-context/hooks/use-default-hidden-series';
 import { attachSubComponents } from '../../utils';
 import { renderDefaultTooltip } from '../line-chart';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { SvgEmptyState } from '../private/svg-empty-state';
+import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
@@ -72,6 +73,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			zoomable = false,
 			rescaleYOnVisibilityChange,
 			rescaleYOnLegendToggle,
+			defaultHiddenSeries,
 			children,
 			gridVisibility,
 			gap = 'md',
@@ -88,6 +90,11 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		const providerTheme = useGlobalChartsTheme();
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
+		const hiddenSeries = useDefaultHiddenSeries( chartId, defaultHiddenSeries );
+		const isSeriesVisible = useCallback(
+			( seriesLabel: string ) => ! hiddenSeries.has( seriesLabel ),
+			[ hiddenSeries ]
+		);
 		const chartRef = useRef< HTMLDivElement >( null );
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );
@@ -121,18 +128,15 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		);
 
 		const dataSorted = useChartDataTransform( data );
-		const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+		const { getElementStyles } = useGlobalChartsContext();
 
 		const seriesWithVisibility = useMemo( () => {
-			if ( ! chartId || ! legendInteractive ) {
-				return dataSorted.map( ( series, index ) => ( { series, index, isVisible: true } ) );
-			}
 			return dataSorted.map( ( series, index ) => ( {
 				series,
 				index,
-				isVisible: isSeriesVisible( chartId, series.label ),
+				isVisible: ! hiddenSeries.has( series.label ),
 			} ) );
-		}, [ dataSorted, chartId, isSeriesVisible, legendInteractive ] );
+		}, [ dataSorted, hiddenSeries ] );
 
 		const allSeriesHidden = useMemo(
 			() => seriesWithVisibility.every( ( { isVisible } ) => ! isVisible ),
@@ -157,7 +161,6 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		const fixedYDomain = useMemo< [ number, number ] | undefined >( () => {
 			if (
 				rescaleYOnVisibility ||
-				! legendInteractive ||
 				! dataSorted.length ||
 				! dataSorted[ 0 ].data.length ||
 				( stacked && stackOffset !== 'none' )
@@ -199,7 +202,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			}
 			if ( max === -Infinity ) return undefined;
 			return [ Math.min( 0, min ), max ];
-		}, [ dataSorted, stacked, stackOffset, legendInteractive, rescaleYOnVisibility ] );
+		}, [ dataSorted, stacked, stackOffset, rescaleYOnVisibility ] );
 
 		const chartOptions = useMemo( () => {
 			const { tickResolution, ...xAxisOptions } = options?.axis?.x ?? {};
@@ -283,7 +286,6 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		);
 		const filteredRenderTooltip = useCallback(
 			( params: Parameters< typeof renderTooltip >[ 0 ] ) => {
-				if ( ! legendInteractive ) return renderTooltip( params );
 				const datumByKey = params?.tooltipData?.datumByKey;
 				if ( ! datumByKey ) return renderTooltip( params );
 				const filtered = Object.fromEntries(
@@ -307,7 +309,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 					} as typeof params.tooltipData,
 				} );
 			},
-			[ renderTooltip, legendInteractive, visibleLabels ]
+			[ renderTooltip, visibleLabels ]
 		);
 
 		// Defaults that depend on stacked vs overlapping mode.
@@ -354,7 +356,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 					dataKey={ seriesData?.label }
 					data={ seriesData.data as DataPointDate[] }
 					xAccessor={ accessors.xAccessor }
-					yAccessor={ isVisible || ! legendInteractive ? accessors.yAccessor : zeroYAccessor }
+					yAccessor={ isVisible ? accessors.yAccessor : zeroYAccessor }
 					fill={ color }
 					fillOpacity={ resolvedFillOpacity }
 					{ ...( stacked ? {} : { renderLine: resolvedWithStroke, curve } ) }
@@ -369,6 +371,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 				value={ {
 					chartId,
 					chartRef: internalChartRef,
+					isSeriesVisible,
 					chartWidth: width,
 					chartHeight: measuredChartHeight || 0,
 				} }
@@ -437,10 +440,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 													width={ width }
 													height={ chartHeight }
 												>
-													{ __(
-														'All series are hidden. Click legend items to show data.',
-														'jetpack-charts'
-													) }
+													{ getAllHiddenMessage( legendInteractive, 'series' ) }
 												</SvgEmptyState>
 											) : null }
 

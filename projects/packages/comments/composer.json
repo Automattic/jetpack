@@ -1,13 +1,20 @@
 {
 	"name": "automattic/jetpack-comments",
-	"description": "Replaces the default WordPress comment form with social login, subscription options, and block editing.",
+	"description": "Replaces the default WordPress comment form.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=8.1"
+		"php": ">=7.4",
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-image-cdn": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
 	},
 	"repositories": [
 		{
@@ -18,6 +25,15 @@
 			}
 		}
 	],
+	"scripts": {
+		"build-development": "pnpm run build",
+		"build-production": "pnpm run build-production",
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		],
+		"typecheck": "pnpm run typecheck"
+	},
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
@@ -29,6 +45,9 @@
 			"link-template": "https://github.com/Automattic/jetpack-comments/compare/v${old}...v${new}"
 		},
 		"mirror-repo": "Automattic/jetpack-comments",
-		"textdomain": "jetpack-comments"
+		"textdomain": "jetpack-comments",
+		"version-constants": {
+			"::PACKAGE_VERSION": "src/class-comments.php"
+		}
 	}
 }

@@ -25,10 +25,13 @@ export function useAttributesWithSearchFallback< T extends Partial< ReportParams
 	let search: Record< string, any >;
 
 	try {
+		// `strict: false` rather than `from: '/'`, matching `WidgetRoot`: widgets
+		// pick up the date range on any page, not only the dashboard at `/`. Pinned
+		// to `/`, this throws on every other matched route and falls back to `{}` —
+		// leaving a widget's header control reading a default range while its body
+		// reads the real one.
 		// eslint-disable-next-line react-hooks/rules-of-hooks
-		search = useSearch( {
-			from: '/',
-		} );
+		search = useSearch( { strict: false } );
 	} catch {
 		search = {};
 	}

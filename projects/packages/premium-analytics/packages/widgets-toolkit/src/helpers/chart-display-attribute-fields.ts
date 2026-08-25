@@ -5,6 +5,7 @@ import { SelectField, ToggleGroupField } from '@jetpack-premium-analytics/fields
 import { chartLine } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
+import { PageGranularityField } from '../fields/page-granularity-field';
 /**
  * Internal dependencies
  */
@@ -31,29 +32,50 @@ export const CHART_DISPLAY_CHART_TYPES = [
 
 export type ChartDisplayChartType = ( typeof CHART_DISPLAY_CHART_TYPES )[ number ][ 'id' ];
 
-export type ChartGranularityOption = 'auto' | 'day' | 'week' | 'month';
+export type ChartGranularityOption = 'auto' | 'hour' | 'day' | 'week' | 'month';
 
 const GRANULARITY_LABELS: Record< ChartGranularityOption, () => string > = {
 	auto: () => __( 'Auto', 'jetpack-premium-analytics-pkg' ),
+	hour: () => __( 'By hours', 'jetpack-premium-analytics-pkg' ),
 	day: () => __( 'By days', 'jetpack-premium-analytics-pkg' ),
 	week: () => __( 'By weeks', 'jetpack-premium-analytics-pkg' ),
 	month: () => __( 'By months', 'jetpack-premium-analytics-pkg' ),
 };
 
 /**
+ * The "Group by" choices for a set of buckets, in the order given. Shared by
+ * the attribute field and by widgets that own the control themselves, so one
+ * bucket reads the same wherever it is offered.
+ *
+ * @param values - The buckets to offer, in display order.
+ * @return The value/label pairs for those buckets.
+ */
+export function granularityOptions( values: readonly ChartGranularityOption[] ) {
+	return values.map( value => ( { value, label: GRANULARITY_LABELS[ value ]() } ) );
+}
+
+/**
  * The "Group by" attribute field (`relevance: 'high'`, so the widget host
  * renders it as an in-body dropdown). Widgets that follow the dashboard range
  * include `auto`; the detail charts pass explicit buckets only.
+ *
+ * `followsPageInterval` is for a chart that has no `auto` because following the
+ * page is its resting state: an unset attribute then means "whatever the page
+ * says", and the control resolves that the same way the chart does instead of
+ * falling back to the first bucket on the list.
  */
 export function granularityAttributeField<
 	Attributes extends { granularity?: ChartGranularityOption },
->( values: readonly ChartGranularityOption[] ): WidgetAttributeField< Attributes > {
+>(
+	values: readonly ChartGranularityOption[],
+	{ followsPageInterval = false }: { followsPageInterval?: boolean } = {}
+): WidgetAttributeField< Attributes > {
 	return {
 		id: 'granularity',
 		label: __( 'Group by', 'jetpack-premium-analytics-pkg' ),
 		type: 'text',
-		Edit: SelectField,
-		elements: values.map( value => ( { value, label: GRANULARITY_LABELS[ value ]() } ) ),
+		Edit: followsPageInterval ? PageGranularityField : SelectField,
+		elements: granularityOptions( values ),
 		relevance: 'high',
 	} as WidgetAttributeField< Attributes >;
 }

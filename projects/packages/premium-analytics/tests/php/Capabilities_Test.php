@@ -152,6 +152,61 @@ class Capabilities_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A stats reader cannot view ad reports.
+	 */
+	public function test_view_stats_reader_cannot_view_ad_reports() {
+		$user_id = $this->login_as( 'editor' );
+		$this->grant_view_stats_to( $user_id );
+
+		$this->assertTrue( Capabilities::current_user_can_view_analytics() );
+		$this->assertFalse( Capabilities::current_user_can_view_ad_reports() );
+	}
+
+	/**
+	 * The ad reports helper matches the proxy permission check.
+	 */
+	public function test_ad_report_helper_matches_the_proxy_capability() {
+		$controller = new Api_Proxy_Controller();
+		$request    = new WP_REST_Request( 'GET', '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/earnings' );
+		$request->set_param( 'endpoint', 'wordads/earnings' );
+
+		$reader = $this->login_as( 'editor' );
+		$this->grant_view_stats_to( $reader );
+
+		$this->assertSame(
+			$controller->check_data_permission( $request ),
+			Capabilities::current_user_can_view_ad_reports(),
+			'A view_stats reader must be refused by the proxy and by the helper that hides its surfaces.'
+		);
+
+		$this->login_as( 'administrator' );
+
+		$this->assertSame(
+			$controller->check_data_permission( $request ),
+			Capabilities::current_user_can_view_ad_reports(),
+			'An administrator must be admitted by both.'
+		);
+	}
+
+	/**
+	 * The activate_wordads capability is not assigned to any role.
+	 */
+	public function test_activate_wordads_is_not_a_registered_capability() {
+		foreach ( wp_roles()->roles as $slug => $role ) {
+			$this->assertArrayNotHasKey(
+				'activate_wordads',
+				(array) $role['capabilities'],
+				"Role $slug grants activate_wordads."
+			);
+		}
+
+		$this->login_as( 'administrator' );
+
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- asserting the capability is unknown is the point.
+		$this->assertFalse( current_user_can( 'activate_wordads' ) );
+	}
+
+	/**
 	 * Store access is not dashboard access: the capability that opens the store
 	 * reports says nothing about who may read stats.
 	 */

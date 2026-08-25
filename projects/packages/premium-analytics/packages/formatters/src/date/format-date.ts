@@ -22,7 +22,8 @@ export type DateFormatName =
 	| 'year'
 	| 'iso'
 	| 'full'
-	| 'fullNoYear';
+	| 'fullNoYear'
+	| 'dateTime';
 
 /**
  * An instant to render, such as a `TZDate` or a timestamp.
@@ -51,6 +52,10 @@ function formatFor( name: DateFormatName ): string {
 
 	const siteFormat = getSettings().formats.date;
 	const withoutYearFormat = withoutYear( siteFormat ) || siteFormat;
+
+	if ( name === 'dateTime' ) {
+		return `${ siteFormat } ${ getSettings().formats.time }`;
+	}
 
 	if ( name === 'compact' ) {
 		return withShortMonth( siteFormat );

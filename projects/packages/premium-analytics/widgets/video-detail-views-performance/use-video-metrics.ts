@@ -4,6 +4,7 @@
 import {
 	useStatsSingleVideo,
 	type ReportParams,
+	type StatsChartBucketPeriod,
 	type StatsSingleVideoDataPoint,
 } from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
@@ -21,7 +22,6 @@ import {
 /**
  * Internal dependencies
  */
-import type { VideoDetailViewsPerformanceGranularity } from './widget';
 
 /**
  * One chart point: a bucket-start date and the metric's value for the bucket.
@@ -105,7 +105,7 @@ function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
  */
 function calendarBucketWindows(
 	dayWindow: DayWindow,
-	period: VideoDetailViewsPerformanceGranularity
+	period: StatsChartBucketPeriod
 ): BucketWindow[] {
 	// The URL is user-editable, so an inverted range must not reach
 	// `eachDayOfInterval()` (it throws).
@@ -223,7 +223,7 @@ function playWeightedRetention(
 export default function useVideoMetrics(
 	videoId: number,
 	reportParams: ReportParams,
-	period: VideoDetailViewsPerformanceGranularity
+	period: StatsChartBucketPeriod
 ): VideoMetricsState {
 	const primaryWindow = useMemo(
 		() => toDayWindow( reportParams.from, reportParams.to ),

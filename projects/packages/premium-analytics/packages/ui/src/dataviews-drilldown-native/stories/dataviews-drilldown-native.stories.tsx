@@ -505,3 +505,34 @@ export const Paginated: Story = {
 		},
 	},
 };
+
+export const Collapsible: Story = {
+	args: {
+		...Default.args,
+		collapsible: true,
+		hideLevelMarkers: true,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The local collapse layer over the static native rendering: rows with children get a chevron, and folding one drops its whole subtree from the table — including from the pagination count. Sits behind a prop so it can be dropped once core ships native collapse (WordPress/gutenberg#80360).',
+			},
+		},
+	},
+};
+
+export const CollapsedByDefault: Story = {
+	args: {
+		...Collapsible.args,
+		defaultExpanded: 'none',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Opening on the top level only, for a report whose groups are long. Searching still answers: the matches’ ancestors unfold for as long as the search is on, then fold back when it clears.',
+			},
+		},
+	},
+};

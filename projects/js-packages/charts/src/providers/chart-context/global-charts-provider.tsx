@@ -242,28 +242,73 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		[ providerTheme, resolveColor ]
 	);
 
-	// Series visibility management methods
-	const toggleSeriesVisibility = useCallback( ( chartId: string, seriesLabel: string ) => {
-		setHiddenSeries( prev => {
-			const newMap = new Map( prev );
-			const chartHidden = newMap.get( chartId ) || new Set();
-			const newSet = new Set( chartHidden );
+	// Keep hidden-series updates and no-op detection consistent across setters.
+	const updateHiddenSeries = useCallback(
+		( chartId: string, update: ( current: Set< string > ) => Set< string > ) => {
+			setHiddenSeries( prev => {
+				const current = prev.get( chartId );
+				const next = update( new Set( current ?? [] ) );
 
-			if ( newSet.has( seriesLabel ) ) {
-				newSet.delete( seriesLabel );
-			} else {
-				newSet.add( seriesLabel );
-			}
+				if ( ! current && next.size === 0 ) {
+					return prev;
+				}
 
-			if ( newSet.size === 0 ) {
-				newMap.delete( chartId );
-			} else {
-				newMap.set( chartId, newSet );
-			}
+				// Preserve identity for no-op updates.
+				if (
+					current &&
+					current.size === next.size &&
+					[ ...next ].every( label => current.has( label ) )
+				) {
+					return prev;
+				}
 
-			return newMap;
-		} );
-	}, [] );
+				const newMap = new Map( prev );
+				if ( next.size === 0 ) {
+					newMap.delete( chartId );
+				} else {
+					newMap.set( chartId, next );
+				}
+
+				return newMap;
+			} );
+		},
+		[]
+	);
+
+	const toggleSeriesVisibility = useCallback(
+		( chartId: string, seriesLabel: string ) => {
+			updateHiddenSeries( chartId, current => {
+				if ( current.has( seriesLabel ) ) {
+					current.delete( seriesLabel );
+				} else {
+					current.add( seriesLabel );
+				}
+				return current;
+			} );
+		},
+		[ updateHiddenSeries ]
+	);
+
+	const setSeriesVisibility = useCallback(
+		( chartId: string, seriesLabel: string, visible: boolean ) => {
+			updateHiddenSeries( chartId, current => {
+				if ( visible ) {
+					current.delete( seriesLabel );
+				} else {
+					current.add( seriesLabel );
+				}
+				return current;
+			} );
+		},
+		[ updateHiddenSeries ]
+	);
+
+	const setChartHiddenSeries = useCallback(
+		( chartId: string, seriesLabels: readonly string[] ) => {
+			updateHiddenSeries( chartId, () => new Set( seriesLabels ) );
+		},
+		[ updateHiddenSeries ]
+	);
 
 	const isSeriesVisible = useCallback(
 		( chartId: string, seriesLabel: string ) => {
@@ -290,6 +335,8 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			theme: providerTheme,
 			getElementStyles,
 			toggleSeriesVisibility,
+			setSeriesVisibility,
+			setChartHiddenSeries,
 			isSeriesVisible,
 			getHiddenSeries,
 			isColorPaletteResolved,
@@ -302,6 +349,8 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			providerTheme,
 			getElementStyles,
 			toggleSeriesVisibility,
+			setSeriesVisibility,
+			setChartHiddenSeries,
 			isSeriesVisible,
 			getHiddenSeries,
 			isColorPaletteResolved,
