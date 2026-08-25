@@ -1,6 +1,7 @@
 import {
 	computePrimaryRange,
 	stepDateRange,
+	DETAIL_SURFACE_PRESETS,
 	PRESET_CUSTOM,
 	type ComparisonPresetId,
 	type IntervalType,
@@ -81,7 +82,12 @@ type DateFiltersPanelStoryProps = {
 	withComparison?: boolean;
 	initialComparisonPreset?: ComparisonPresetId;
 	containerWidth?: string | number;
+	/** The detail-page surface: all time first, no custom range. */
+	detailSurface?: boolean;
 };
+
+// The day the detail story's resource was published: where its all time starts.
+const STORY_PUBLISHED_DATE = new Date( '2026-07-08T10:29:35.000Z' );
 
 /**
  * Mirrors the dashboard wiring: staged primary edits, committed on Apply (or
@@ -92,6 +98,7 @@ function DateFiltersPanelStory( {
 	withComparison = true,
 	initialComparisonPreset = 'previous-period',
 	containerWidth = '100%',
+	detailSurface = false,
 }: DateFiltersPanelStoryProps ) {
 	const initialPrimary = buildPrimaryState( initialPreset );
 
@@ -193,6 +200,13 @@ function DateFiltersPanelStory( {
 				appliedPresetId={ committedPrimary.presetId }
 				appliedRange={ committedPrimary.range }
 				comparisonPresetId={ comparisonPresetId }
+				{ ...( detailSurface
+					? {
+							presetIds: DETAIL_SURFACE_PRESETS,
+							allTimeStart: STORY_PUBLISHED_DATE,
+							withCustomRange: false,
+					  }
+					: {} ) }
 				withIntervalControl
 				interval={ interval }
 				intervalOptions={ intervalOptions }
@@ -222,6 +236,17 @@ export const DashboardFilters: Story = {
  */
 export const WithoutComparison: Story = {
 	render: () => <DateFiltersPanelStory withComparison={ false } />,
+};
+
+/**
+ * The post and video detail pages' surface: all time leads the rolling windows
+ * and there is no custom-range trigger. All time runs from the resource's
+ * publish date (July 8, 2026 here) through today.
+ */
+export const DetailFilters: Story = {
+	render: () => (
+		<DateFiltersPanelStory initialPreset="all-time" withComparison={ false } detailSurface />
+	),
 };
 
 /**
