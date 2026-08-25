@@ -158,23 +158,21 @@ const StatsSection = () => {
 		recordEvent( 'jetpack_myjetpack_stats_card_seedetailedstats_click', {
 			product: slug,
 		} );
-
-		if ( ! manageUrl ) {
-			return;
-		}
-
-		// The Stats page caches its report, so the legacy link asks it to refresh.
-		// The dashboard fetches on load and has no such param.
-		window.location.href = premiumAnalyticsEnabled ? manageUrl : `${ manageUrl }&force_refresh=1`;
-	}, [ recordEvent, manageUrl, premiumAnalyticsEnabled ] );
+	}, [ recordEvent ] );
 
 	const shouldShowSecondaryButton = useCallback(
 		() => !! ( status === PRODUCT_STATUSES.CAN_UPGRADE && manageUrl ),
 		[ status, manageUrl ]
 	);
 
+	const viewStatsHref = ! manageUrl
+		? undefined
+		: premiumAnalyticsEnabled
+		? manageUrl
+		: `${ manageUrl }&force_refresh=1`;
+
 	const viewStatsButton = {
-		href: manageUrl,
+		href: viewStatsHref,
 		label: __( 'View detailed stats', 'jetpack-my-jetpack' ),
 		onClick: onDetailedStatsClick,
 		shouldShowButton: shouldShowSecondaryButton,
