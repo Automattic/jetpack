@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove the unused granularity attribute from the default WordAds chart widget instance.
