@@ -29,7 +29,12 @@ export interface WordAdsChartState {
 	metrics: MetricTab[];
 	/** True on the first load, while there is no data to show yet. */
 	isLoading: boolean;
-	/** True while the request is fetching. */
+	/**
+	 * True while the primary or comparison request is fetching. The widget
+	 * never has a comparison request in flight — see `hasComparison: false`
+	 * below — but the flag is defined by the underlying `useReport` call,
+	 * which ORs both.
+	 */
 	isFetching: boolean;
 	/** True only when the request failed with no rows left to show. */
 	isError: boolean;

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { megaphone } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
@@ -97,8 +98,14 @@ function WordAdsChartTabsInner() {
 
 export default function WordAdsChartTabs( { attributes = {} }: WordAdsChartTabsWidgetProps ) {
 	return (
-		<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
-			<WordAdsChartTabsInner />
-		</WidgetRoot>
+		// The chart has no comparison series to draw (see `useWordAdsChart`'s
+		// `hasComparison: false`), so it must never offer one — regardless of
+		// what the hosting section declares. Outside `WidgetRoot` so the scope
+		// is already set when `WidgetRoot` strips the comparison search params.
+		<ReportScopeProvider offersComparison={ false }>
+			<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
+				<WordAdsChartTabsInner />
+			</WidgetRoot>
+		</ReportScopeProvider>
 	);
 }
