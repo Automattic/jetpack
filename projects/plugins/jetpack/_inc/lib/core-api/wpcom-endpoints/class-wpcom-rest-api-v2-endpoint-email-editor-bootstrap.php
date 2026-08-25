@@ -146,7 +146,11 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 			 * personalization tags and the blog's saved design. Unfiltered on a site with nothing
 			 * implementing it, which the endpoint reports as unavailable rather than as an empty design.
 			 *
+			 * Internal, and not settled: the editor this serves is still being built, so the shape of
+			 * what comes back is expected to change. Do not depend on it from outside the plugin.
+			 *
 			 * @since $$next-version$$
+			 * @access private
 			 *
 			 * @param array|WP_Error|null $data    The editor's bootstrap data. Null until something provides one.
 			 * @param WP_REST_Request     $request The REST request.
@@ -177,7 +181,11 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 			 * theme.json schema, so a save can succeed into invisibility, and the screen has to be
 			 * able to tell a person their edit did not survive.
 			 *
+			 * Internal, and not settled, for the same reason as the read above: expect the shape of the
+			 * design document and of what is returned to change while the editor is being built.
+			 *
 			 * @since $$next-version$$
+			 * @access private
 			 *
 			 * @param array|WP_Error|null $result  The stored design. Null until something provides one.
 			 * @param WP_REST_Request     $request The REST request.
