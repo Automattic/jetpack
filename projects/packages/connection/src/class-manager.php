@@ -1042,11 +1042,17 @@ class Manager {
 
 		$sandbox_secret = null;
 
-		// An array cookie (`store_sandbox[]=`) sanitizes down to an empty string, which must not
-		// count as a sandbox secret: it opts the request out of the cache with no sandbox to reach.
+		// An array cookie (`store_sandbox[]=`) carries no secret to send, and `filter_var()` turns
+		// it into `false`.
 		if ( isset( $_COOKIE['store_sandbox'] ) && is_string( $_COOKIE['store_sandbox'] ) ) {
 			// Keep only RFC 6265 cookie-octets so the value cannot break out of the Cookie header.
 			$sandbox_secret = preg_replace( '/[^\x21-\x7E]|[";,\\\\]/', '', filter_var( wp_unslash( $_COOKIE['store_sandbox'] ) ) );
+
+			// An empty cookie, or one the sanitizer strips to nothing, is not a sandbox secret.
+			// Counting it as one opts the request out of the cache with no sandbox to reach.
+			if ( '' === $sandbox_secret ) {
+				$sandbox_secret = null;
+			}
 		}
 
 		// A sandboxed request must neither read the shared cache nor seed it with sandbox data.

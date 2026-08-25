@@ -514,6 +514,41 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A `store_sandbox` cookie sent with no value sanitizes down to an empty string. Counting that
+	 * as a sandbox secret opts the request out of the cache and puts a `store_sandbox=;` header on
+	 * a request that has no sandbox to reach, so an empty cookie has to read as no cookie at all.
+	 */
+	public function test_an_empty_sandbox_cookie_is_not_a_sandboxed_request() {
+		$this->fake_http_response( 200, '{"ID":1234,"name":"Test site"}' );
+		$_COOKIE['store_sandbox'] = '';
+
+		$headers = null;
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $args ) use ( &$headers ) {
+				$headers = $args['headers'];
+
+				return $pre;
+			},
+			1,
+			2
+		);
+
+		$requests = $this->count_http_requests(
+			function () {
+				$first  = $this->manager->get_connected_site_data();
+				$second = $this->manager->get_connected_site_data();
+
+				$this->assertEquals( $first, $second );
+			}
+		);
+
+		$this->assertSame( 1, $requests );
+		$this->assertNotFalse( get_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . 1234 ) );
+		$this->assertArrayNotHasKey( 'cookie', array_change_key_case( (array) $headers ) );
+	}
+
+	/**
 	 * WordPress.com requests this route right after a purchase so the site stores the new plan.
 	 * That request arrives signed with a connection token. Serving it from the cache would hand
 	 * it the pre-purchase record and turn the refresh into a no-op, so a signed request reads
