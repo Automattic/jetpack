@@ -233,7 +233,7 @@ describe( 'WordPressAgentNotice', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
 
-		expect( propertiesOf( 'jetpack_ai_agent_notice_click' ) ).toMatchObject( {
+		expect( propertiesOf( 'jetpack_big_sky_agent_notice_click' ) ).toMatchObject( {
 			placement: 'jetpack-sidebar',
 		} );
 	} );
@@ -252,8 +252,8 @@ describe( 'WordPressAgentNotice', () => {
 			current_tier_slug: 'ai-assistant-tier-1',
 			post_type: 'page',
 		};
-		expect( propertiesOf( 'jetpack_ai_agent_notice_click' ) ).toMatchObject( expected );
-		expect( propertiesOf( 'jetpack_ai_agent_notice_dismiss' ) ).toMatchObject( expected );
+		expect( propertiesOf( 'jetpack_big_sky_agent_notice_click' ) ).toMatchObject( expected );
+		expect( propertiesOf( 'jetpack_big_sky_agent_notice_dismiss' ) ).toMatchObject( expected );
 	} );
 
 	it.each( [ 'woa', 'jetpack' ] as const )( 'reports a %s site as itself', async siteType => {
@@ -263,7 +263,7 @@ describe( 'WordPressAgentNotice', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
 
-		expect( propertiesOf( 'jetpack_ai_agent_notice_click' ) ).toMatchObject( {
+		expect( propertiesOf( 'jetpack_big_sky_agent_notice_click' ) ).toMatchObject( {
 			site_type: siteType,
 		} );
 	} );
@@ -275,7 +275,9 @@ describe( 'WordPressAgentNotice', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
 
-		expect( propertiesOf( 'jetpack_ai_agent_notice_click' ) ).not.toHaveProperty( 'post_type' );
+		expect( propertiesOf( 'jetpack_big_sky_agent_notice_click' ) ).not.toHaveProperty(
+			'post_type'
+		);
 	} );
 
 	it( 'omits the plan tier when the site has no tier', async () => {
@@ -285,7 +287,7 @@ describe( 'WordPressAgentNotice', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
 
-		expect( propertiesOf( 'jetpack_ai_agent_notice_click' ) ).not.toHaveProperty(
+		expect( propertiesOf( 'jetpack_big_sky_agent_notice_click' ) ).not.toHaveProperty(
 			'current_tier_slug'
 		);
 	} );
@@ -314,7 +316,7 @@ describe( 'WordPressAgentNotice', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
 
-		expect( propertiesOf( 'jetpack_ai_agent_notice_dismiss' ) ).toMatchObject( {
+		expect( propertiesOf( 'jetpack_big_sky_agent_notice_dismiss' ) ).toMatchObject( {
 			placement: 'pre-publish',
 		} );
 	} );
