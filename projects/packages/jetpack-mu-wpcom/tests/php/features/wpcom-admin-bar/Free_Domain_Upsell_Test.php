@@ -46,14 +46,18 @@ namespace {
 	if ( ! class_exists( 'WPCOM_Store_API' ) ) {
 		/**
 		 * Test double for the wpcom-only store API.
+		 *
+		 * This class leaks into other test files in the same process, so when no
+		 * test plan is configured it delegates to Current_Plan::get() — the exact
+		 * path production code takes when the class is absent.
 		 */
 		class WPCOM_Store_API {
 			/**
-			 * The plan returned by get_current_plan().
+			 * The plan returned by get_current_plan(), or null to delegate.
 			 *
-			 * @var array
+			 * @var array|null
 			 */
-			public static $current_plan = array();
+			public static $current_plan = null;
 
 			/**
 			 * Returns the configured test plan.
@@ -62,6 +66,9 @@ namespace {
 			 * @return array
 			 */
 			public static function get_current_plan( $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				if ( null === self::$current_plan ) {
+					return \Automattic\Jetpack\Current_Plan::get();
+				}
 				return self::$current_plan;
 			}
 		}
@@ -115,6 +122,7 @@ namespace {
 		public function tear_down() {
 			delete_transient( 'free-domain-upsell-variation-' . $this->admin_id );
 			remove_all_filters( 'wpcom_free_domain_upsell_variation' );
+			WPCOM_Store_API::$current_plan = null;
 			Constants::clear_constants();
 			unset(
 				$GLOBALS['explat_assign_calls'],
