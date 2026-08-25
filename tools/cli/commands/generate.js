@@ -776,7 +776,7 @@ async function createComposerJson( composerJson, answers ) {
 	switch ( answers.type ) {
 		case 'package':
 			composerJson.require = composerJson.require || {};
-			composerJson.require.php = '>=7.2';
+			composerJson.require.php = '>=7.4';
 			composerJson.extra = composerJson.extra || {};
 			composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
 			composerJson.extra[ 'branch-alias' ][ 'dev-trunk' ] = '0.1.x-dev';

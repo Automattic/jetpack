@@ -3597,7 +3597,7 @@
 - Jetpack AI: Enabled the AI Assistant usage panel. [#34122]
 
 ### Improved compatibility
-- Updated PHP version reqirements to PHP 7.0 or newer. [#34126]
+- Updated PHP version requirements to PHP 7.0 or newer. [#34126]
 - Updated WordPress version requirements to WordPress 6.3. [#34127]
 
 ### Bug fixes
