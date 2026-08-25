@@ -34,24 +34,6 @@ function downloadLabel( count: number ): string {
 }
 
 /**
- * Returns the appropriate "Restore" header-label given how many items
- * the visitor has selected in the file browser.
- *
- * @param count - Number of currently selected items.
- * @return Localized button label.
- */
-function restoreLabel( count: number ): string {
-	if ( count === 0 ) {
-		return __( 'Restore to this point', 'jetpack-backup-pkg' );
-	}
-	return sprintf(
-		/* translators: %d count of selected items (files + opaque folders) */
-		_n( 'Restore %d selected item', 'Restore %d selected items', count, 'jetpack-backup-pkg' ),
-		count
-	);
-}
-
-/**
  * Right-pane detail card for a selected backup activity item.
  *
  * Shows the item's title header with Download / Restore actions linking to the
@@ -66,6 +48,9 @@ function restoreLabel( count: number ): string {
  */
 export default function BackupDetail( { item }: Props ) {
 	const [ selection, setSelection ] = useState< FileSelection >( EMPTY_FILE_SELECTION );
+	// `count` labels the Download action only -- Restore beside it is
+	// deliberately unlabelled by selection, see its call site.
+	//
 	// `count` tracks how many opaque server-side download units the
 	// current selection covers — files plus folders whose contents
 	// haven't been loaded yet (each treated as one unit). Loaded
@@ -106,9 +91,17 @@ export default function BackupDetail( { item }: Props ) {
 							<Icon icon={ downloadIcon } size={ 18 } />
 							{ downloadLabel( count ) }
 						</Link>
+						{ /*
+						 * Deliberately not labelled from the file selection, unlike
+						 * Download beside it. A restore point is restored whole:
+						 * there is no upstream shape for restoring a subset of
+						 * files, so a count here would promise a scope no layer can
+						 * deliver. The reader who trusts "Restore 3 selected items"
+						 * confirms a full-site restore believing it is scoped.
+						 */ }
 						<Link to={ `/restore/${ item.rewindId }` } className="jpb-backup-detail__restore">
 							<Icon icon={ rotateLeft } size={ 18 } />
-							{ restoreLabel( count ) }
+							{ __( 'Restore to this point', 'jetpack-backup-pkg' ) }
 						</Link>
 					</Stack>
 				</Stack>
