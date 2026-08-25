@@ -128,6 +128,11 @@ describe( 'useWordAdsChart', () => {
 		expect( metrics[ 1 ].dataFormat?.type ).toBe( 'currency' );
 		expect( metrics[ 2 ].dataFormat?.type ).toBe( 'currency' );
 		expect( metrics[ 0 ].current ).toHaveLength( 2 );
+		// This chart never draws a comparison (`hasComparison: false` above) —
+		// a permanent property of the widget, not a side effect of today's
+		// params, so it is asserted here rather than left to infer.
+		expect( metrics[ 0 ].previous ).toBeUndefined();
+		expect( metrics[ 0 ].previousValue ).toBeUndefined();
 		expect( result.current.isEmpty ).toBe( false );
 	} );
 
