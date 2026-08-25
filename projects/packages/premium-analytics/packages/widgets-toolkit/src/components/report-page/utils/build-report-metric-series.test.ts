@@ -91,26 +91,24 @@ describe( 'buildReportMetricSeries', () => {
 		expect( series[ 1 ].group ).toBe( 'views' );
 		expect( series[ 1 ].options?.type ).toBe( 'comparison' );
 		expect( series[ 1 ].data.map( point => point.value ) ).toEqual( [ 80, 90 ] );
-		// Legend labels switch to date ranges so the two periods are tellable apart.
-		expect( series[ 0 ].label ).not.toBe( 'Views' );
+		// The current period keeps the bare metric name, which is what the
+		// collapsed legend item shows; the labels still differ so the charts
+		// provider can track their visibility apart.
+		expect( series[ 0 ].label ).toBe( 'Views' );
 		expect( series[ 0 ].label ).not.toBe( series[ 1 ].label );
 	} );
 
-	it( 'uses supplied legend labels for single-metric comparison series', () => {
+	it( 'names both periods of a single-metric comparison after the metric', () => {
 		const series = buildReportMetricSeries( {
 			primary: PRIMARY,
 			comparison: COMPARISON,
 			metrics: [ VIEWS ],
-			legendLabels: {
-				primary: 'Apr 4-Jul 4, 2026',
-				comparison: 'Jan 2-Apr 3, 2026',
-			},
 		} );
 
-		expect( series.map( entry => entry.label ) ).toEqual( [
-			'Apr 4-Jul 4, 2026',
-			'Jan 2-Apr 3, 2026',
-		] );
+		// Sharing a group and leading with the metric is what collapses the two
+		// into one legend item; the section header names the dates.
+		expect( series.map( entry => entry.label ) ).toEqual( [ 'Views', 'Views · previous period' ] );
+		expect( series.map( entry => entry.group ) ).toEqual( [ 'views', 'views' ] );
 	} );
 
 	it( 'treats missing metric fields as zero', () => {

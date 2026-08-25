@@ -187,11 +187,13 @@ describe( 'ComparativeLineChart', () => {
 		);
 	} );
 
-	it( 'keeps period legend items separate for a single metric', () => {
+	it( 'collapses a single metric two periods into one legend item', () => {
 		render( <ComparativeLineChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );
 
+		// A legend item names the metric; solid vs previous-period mark is what
+		// tells the two apart, so there is nothing for a second item to say.
 		expect( recordedProps().legend ).toEqual( {
-			collapseGroups: false,
+			collapseGroups: true,
 			interactive: false,
 		} );
 	} );

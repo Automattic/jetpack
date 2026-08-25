@@ -10,13 +10,13 @@ import {
 } from '@jetpack-premium-analytics/externals';
 import { formatDate, type DateFormatName } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { fromChartDate } from '../../helpers';
+import { formatComparisonSeriesLabel, fromChartDate } from '../../helpers';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
@@ -120,22 +120,6 @@ type ReadPointDate = ( date: Date ) => Date;
 const asInstant: ReadPointDate = date => date;
 
 /**
- * Label the previous-period series with a stable key. The chart provider stores
- * visibility by label, so including the range would reveal a seeded-hidden
- * comparison whenever the dashboard dates change without remounting the chart.
- *
- * @param metric - The metric the series belongs to.
- * @return The comparison series' label.
- */
-function comparisonLabel( metric: MetricTab ): string {
-	return sprintf(
-		/* translators: %s is a metric name, e.g. "Views". */
-		__( '%s · previous period', 'jetpack-premium-analytics-pkg' ),
-		metric.label
-	);
-}
-
-/**
  * Build the chart series for a metric: the current period plus, when present,
  * the previous period as a same-`group` (same colour) `comparison` series. The
  * current period is labelled by metric name, which is what the collapsed legend
@@ -161,7 +145,7 @@ function buildSeries(
 
 	if ( metric.previous?.length ) {
 		series.push( {
-			label: comparisonLabel( metric ),
+			label: formatComparisonSeriesLabel( metric.label ),
 			group: metric.key,
 			data: metric.previous,
 			options:
@@ -237,8 +221,8 @@ function MetricChart( {
 	const seriesStyles = useSeriesStyles( series );
 	const resolvedDataFormat = metric.dataFormat ?? dataFormat;
 
-	// Without a counterpart there is nothing to compare, and hiding either of the
-	// metric's own periods only takes information away.
+	// Without a counterpart the legend holds a single item — the metric's two
+	// periods collapsed — and clicking it would only empty the chart.
 	const legendInteractive = !! counterpart;
 
 	if ( metric.unavailable ) {

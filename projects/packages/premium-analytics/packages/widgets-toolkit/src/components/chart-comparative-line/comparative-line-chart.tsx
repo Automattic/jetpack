@@ -145,8 +145,8 @@ export type ComparativeLineChartProps = {
 
 	/**
 	 * Let the reader click legend items to show and hide series. Off by default:
-	 * with one metric on the chart there is nothing to compare, and hiding either
-	 * its current or its previous period only takes information away.
+	 * a chart drawing one metric has nothing to compare, and its periods collapse
+	 * into a single item, so clicking it would just empty the chart.
 	 */
 	legendInteractive?: boolean;
 } & Omit<
@@ -195,9 +195,12 @@ export function ComparativeLineChart( {
 	);
 
 	const { seriesNames, isPaired } = useMemo( () => resolveSeriesNames( series ), [ series ] );
+	// A legend item names a metric; the solid mark against its previous-period
+	// twin is what tells the periods apart. So a metric's two periods always
+	// collapse into one item, whether or not a counterpart shares the chart.
 	const legendConfig = useMemo(
-		() => ( { collapseGroups: isPaired, interactive: legendInteractive } ),
-		[ isPaired, legendInteractive ]
+		() => ( { collapseGroups: true, interactive: legendInteractive } ),
+		[ legendInteractive ]
 	);
 
 	// Comparison points sit on the primary series' dates, so the tooltip reads
