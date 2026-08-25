@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Charts: Name each legend item by metric, folding a metric's two periods into one item. Traffic summary: add the paired metric to the chart, hidden until revealed from the legend.

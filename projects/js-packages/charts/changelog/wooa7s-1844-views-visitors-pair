@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep a series revealed from the legend revealed when the chart remounts, instead of re-applying defaultHiddenSeries.

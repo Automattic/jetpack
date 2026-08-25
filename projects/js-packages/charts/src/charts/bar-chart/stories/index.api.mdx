@@ -24,7 +24,7 @@ Main chart component with responsive behavior by default.
 | `showZeroValues` | `boolean` | `false` | Display zero values with minimum visual height |
 | `showLegend` | `boolean` | `false` | Display chart legend |
 | `legend` | `SeriesChartLegendConfig` | `undefined` | Legend configuration object. See [SeriesChartLegendConfig](#serieschartlegendconfig-type) |
-| `defaultHiddenSeries` | `readonly string[]` | — | Series labels to hide from the first defined value. User changes persist until remount or `chartId` change; later values for the same ID are ignored. |
+| `defaultHiddenSeries` | `readonly string[]` | — | Series labels to hide the first time the provider sees this `chartId`. User changes persist across remounts, and reset only on a `chartId` change; later values for the same ID are ignored. |
 | `gridVisibility` | `'x' \| 'y' \| 'xy' \| 'none'` | orientation-based | Grid line visibility |
 | `renderTooltip` | `(params: RenderTooltipParams) => ReactNode` | - | Custom tooltip render function |
 | `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }` | calculated | Chart margins |

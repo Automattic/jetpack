@@ -109,9 +109,10 @@ describe( 'useDefaultHiddenSeries', () => {
 		expect( contextValue.isSeriesVisible( 'chart', 'Visitors' ) ).toBe( true );
 	} );
 
-	it( 'applies only the declared defaults after a remount', () => {
-		// The provider stays mounted; only the chart unmounts and comes back, which
-		// is the case where a stale hidden set would leak into the new mount.
+	it( "keeps the reader's visibility choices across a remount", () => {
+		// The provider stays mounted; only the chart unmounts and comes back — a
+		// chart-type switch, a tab round-trip, a resize flipping tabs into a
+		// dropdown. None of those read as a new chart, so none may re-seed.
 		const Harness = ( { mounted }: { mounted: boolean } ) => (
 			<GlobalChartsProvider>
 				<Grab />
@@ -130,7 +131,31 @@ describe( 'useDefaultHiddenSeries', () => {
 		rerender( <Harness mounted /> );
 
 		expect( contextValue.isSeriesVisible( 'chart', 'Visitors' ) ).toBe( false );
-		expect( contextValue.isSeriesVisible( 'chart', 'Views' ) ).toBe( true );
+		expect( contextValue.isSeriesVisible( 'chart', 'Views' ) ).toBe( false );
+	} );
+
+	it( 'leaves a fully revealed chart revealed after a remount', () => {
+		// Revealing the last hidden series empties the chart's hidden set, and the
+		// provider drops the entry with it. The seeded record has to survive that,
+		// or the defaults come back the next time the chart mounts.
+		const Harness = ( { mounted }: { mounted: boolean } ) => (
+			<GlobalChartsProvider>
+				<Grab />
+				{ mounted && <Chart defaults={ [ 'Visitors' ] } /> }
+			</GlobalChartsProvider>
+		);
+
+		const { rerender } = render( <Harness mounted /> );
+
+		act( () => {
+			contextValue.setSeriesVisibility( 'chart', 'Visitors', true );
+		} );
+		expect( contextValue.getHiddenSeries( 'chart' ) ).toEqual( new Set() );
+
+		rerender( <Harness mounted={ false } /> );
+		rerender( <Harness mounted /> );
+
+		expect( contextValue.isSeriesVisible( 'chart', 'Visitors' ) ).toBe( true );
 	} );
 
 	it( 'retains provider visibility when remounted without defaults', () => {

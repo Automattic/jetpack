@@ -89,6 +89,9 @@ export {
 	type FitWeekColumnsInput,
 } from './calendar-heatmap-layout';
 export { formatViewCount } from './format-view-count';
+export { formatComparisonSeriesLabel } from './format-comparison-series-label';
+export { formatTooltipSeriesLabel } from './format-tooltip-series-label';
+export { resolveSeriesNames, type ResolvedSeriesNames } from './resolve-series-names';
 export {
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,

@@ -4,12 +4,14 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { useDefaultHiddenSeries } from '../hooks/use-default-hidden-series';
 
 const mockGetHiddenSeries = jest.fn( () => new Set( [ 'Provider hidden' ] ) );
-const mockSetChartHiddenSeries = jest.fn();
+const mockSeedChartHiddenSeries = jest.fn();
+const mockHasSeededChart = jest.fn( () => false );
 
 jest.mock( '../hooks/use-global-charts-context', () => ( {
 	useGlobalChartsContext: () => ( {
 		getHiddenSeries: mockGetHiddenSeries,
-		setChartHiddenSeries: mockSetChartHiddenSeries,
+		seedChartHiddenSeries: mockSeedChartHiddenSeries,
+		hasSeededChart: mockHasSeededChart,
 	} ),
 } ) );
 
@@ -32,6 +34,6 @@ describe( 'useDefaultHiddenSeries SSR', () => {
 		expect( view ).not.toContain( 'Visitors' );
 		expect( view ).toContain( 'Views' );
 		expect( mockGetHiddenSeries ).not.toHaveBeenCalled();
-		expect( mockSetChartHiddenSeries ).not.toHaveBeenCalled();
+		expect( mockSeedChartHiddenSeries ).not.toHaveBeenCalled();
 	} );
 } );
