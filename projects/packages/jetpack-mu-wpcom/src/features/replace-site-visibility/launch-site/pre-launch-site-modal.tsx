@@ -1,4 +1,4 @@
-import { PreLaunchModal } from '@automattic/site-launch-modals/pre-launch-modal';
+import PreLaunchModal from '@automattic/site-launch-modals/pre-launch-modal';
 import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
 import { wpcomTrackEvent } from '../../../common/tracks';
