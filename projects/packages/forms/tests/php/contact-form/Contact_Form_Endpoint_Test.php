@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+require_once __DIR__ . '/class-utility.php';
+
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -1440,17 +1442,13 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 	 */
 	public function test_counts_with_source_includes_source_filter_sql() {
 		$captured_query = null;
-		add_filter(
-			'wordbless_wpdb_query_results',
-			function ( $results, $query ) use ( &$captured_query ) {
-				if ( strpos( $query, 'SUM(CASE' ) !== false && strpos( $query, 'source_meta' ) !== false ) {
-					$captured_query = $query;
-				}
-				return $results;
-			},
-			10,
-			2
-		);
+		$capture_query  = function ( $results, $query ) use ( &$captured_query ) {
+			if ( strpos( $query, 'SUM(CASE' ) !== false && strpos( $query, 'source_meta' ) !== false ) {
+				$captured_query = $query;
+			}
+			return $results;
+		};
+		add_filter( 'wordbless_wpdb_query_results', $capture_query, 10, 2 );
 
 		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback/counts' );
 		$request->set_param( 'source', 123 );
@@ -1462,7 +1460,7 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		$this->assertStringContainsString( 'source_meta.meta_value', $captured_query, 'Counts query should filter by source meta value' );
 		$this->assertStringContainsString( 'post_parent', $captured_query, 'Counts query should include post_parent fallback' );
 
-		remove_all_filters( 'wordbless_wpdb_query_results' );
+		remove_filter( 'wordbless_wpdb_query_results', $capture_query, 10 );
 	}
 
 	/**
@@ -1496,24 +1494,20 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 
 		// Second request without source — capture SQL to verify no leftover filter.
 		$found_source_sql = false;
-		add_filter(
-			'wordbless_wpdb_query_results',
-			function ( $results, $query ) use ( &$found_source_sql ) {
-				if ( strpos( $query, 'source_meta' ) !== false ) {
-					$found_source_sql = true;
-				}
-				return $results;
-			},
-			10,
-			2
-		);
+		$capture_query    = function ( $results, $query ) use ( &$found_source_sql ) {
+			if ( strpos( $query, 'source_meta' ) !== false ) {
+				$found_source_sql = true;
+			}
+			return $results;
+		};
+		add_filter( 'wordbless_wpdb_query_results', $capture_query, 10, 2 );
 
 		$request2 = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
 		$this->server->dispatch( $request2 );
 
 		$this->assertFalse( $found_source_sql, 'Source filter should not leak into subsequent requests' );
 
-		remove_all_filters( 'wordbless_wpdb_query_results' );
+		remove_filter( 'wordbless_wpdb_query_results', $capture_query, 10 );
 	}
 
 	/**
@@ -1522,24 +1516,20 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 	public function test_no_source_filter_without_param() {
 		$found_source_sql = false;
 
-		add_filter(
-			'wordbless_wpdb_query_results',
-			function ( $results, $query ) use ( &$found_source_sql ) {
-				if ( strpos( $query, 'source_meta' ) !== false ) {
-					$found_source_sql = true;
-				}
-				return $results;
-			},
-			10,
-			2
-		);
+		$capture_query = function ( $results, $query ) use ( &$found_source_sql ) {
+			if ( strpos( $query, 'source_meta' ) !== false ) {
+				$found_source_sql = true;
+			}
+			return $results;
+		};
+		add_filter( 'wordbless_wpdb_query_results', $capture_query, 10, 2 );
 
 		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
 		$this->server->dispatch( $request );
 
 		$this->assertFalse( $found_source_sql, 'SQL should not include source_meta when no source param' );
 
-		remove_all_filters( 'wordbless_wpdb_query_results' );
+		remove_filter( 'wordbless_wpdb_query_results', $capture_query, 10 );
 	}
 
 	/**
@@ -1548,17 +1538,13 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 	public function test_source_filter_with_zero_value_is_ignored() {
 		$found_source_sql = false;
 
-		add_filter(
-			'wordbless_wpdb_query_results',
-			function ( $results, $query ) use ( &$found_source_sql ) {
-				if ( strpos( $query, 'source_meta' ) !== false ) {
-					$found_source_sql = true;
-				}
-				return $results;
-			},
-			10,
-			2
-		);
+		$capture_query = function ( $results, $query ) use ( &$found_source_sql ) {
+			if ( strpos( $query, 'source_meta' ) !== false ) {
+				$found_source_sql = true;
+			}
+			return $results;
+		};
+		add_filter( 'wordbless_wpdb_query_results', $capture_query, 10, 2 );
 
 		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
 		$request->set_param( 'source', 0 );
@@ -1566,6 +1552,6 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 
 		$this->assertFalse( $found_source_sql, 'source=0 should not inject source filter SQL' );
 
-		remove_all_filters( 'wordbless_wpdb_query_results' );
+		remove_filter( 'wordbless_wpdb_query_results', $capture_query, 10 );
 	}
 }

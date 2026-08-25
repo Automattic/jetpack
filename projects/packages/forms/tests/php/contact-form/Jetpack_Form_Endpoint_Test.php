@@ -44,6 +44,14 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 	private $status_count_filter = null;
 
 	/**
+	 * Which of the post types these tests register were already registered when
+	 * the test started, so tearDown() only unregisters the ones it added.
+	 *
+	 * @var array<string,bool>
+	 */
+	private $post_types_registered_on_entry = array();
+
+	/**
 	 * Setting up the test.
 	 */
 	public function setUp(): void {
@@ -54,6 +62,11 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 		$this->server   = $wp_rest_server;
 
 		do_action( 'rest_api_init' );
+
+		$this->post_types_registered_on_entry = array(
+			'jetpack_form' => post_type_exists( 'jetpack_form' ),
+			'feedback'     => post_type_exists( 'feedback' ),
+		);
 
 		self::$user_id = wp_insert_user(
 			array(
@@ -81,9 +94,18 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$_GET = array();
 
-		// Unregister the post types if they were registered
-		unregister_post_type( 'jetpack_form' );
-		unregister_post_type( 'feedback' );
+		/*
+		 * Post types are registered process-wide, so put the registry back the way
+		 * this test found it rather than unregistering unconditionally. The suite
+		 * brings the plugin up in tests/php/bootstrap.php, which registers the
+		 * feedback post type; tearing that down here left every class that ran
+		 * afterwards without it, and their REST routes with it.
+		 */
+		foreach ( $this->post_types_registered_on_entry as $post_type => $was_registered ) {
+			if ( ! $was_registered && post_type_exists( $post_type ) ) {
+				unregister_post_type( $post_type );
+			}
+		}
 	}
 
 	/**

@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+require_once __DIR__ . '/class-utility.php';
+
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
@@ -1209,17 +1211,15 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		/*
 		 * The field blocks carry the color and typography supports that
-		 * gutenblock_render_field_*() turns into shortcode attributes, and
-		 * Contact_Form_Plugin's constructor registers the feedback post type
-		 * with its comment settings. Set both up here rather than relying on
-		 * another test class in the same PHPUnit process having done it.
-		 * Registering a block twice is an error, so check first; init() is a
-		 * singleton and already no-ops on later calls.
+		 * gutenblock_render_field_*() turns into shortcode attributes. Register
+		 * them here rather than relying on another test class in the same
+		 * PHPUnit process having done it. (The feedback post type these tests
+		 * also need comes from the plugin, which tests/php/bootstrap.php brings
+		 * up for the whole run.)
 		 */
 		if ( ! WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/label' ) ) {
 			Contact_Form_Block::register_child_blocks();
 		}
-		Contact_Form_Plugin::init();
 	}
 
 	/**
@@ -1993,17 +1993,13 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$plugin = Contact_Form_Plugin::init();
 
 		$captured_query = null;
-		add_filter(
-			'wordbless_wpdb_query_results',
-			function ( $results, $query ) use ( &$captured_query ) {
-				if ( strpos( $query, 'source_meta' ) !== false ) {
-					$captured_query = $query;
-				}
-				return $results;
-			},
-			10,
-			2
-		);
+		$capture_query  = function ( $results, $query ) use ( &$captured_query ) {
+			if ( strpos( $query, 'source_meta' ) !== false ) {
+				$captured_query = $query;
+			}
+			return $results;
+		};
+		add_filter( 'wordbless_wpdb_query_results', $capture_query, 10, 2 );
 
 		$nonce                                 = wp_create_nonce( 'feedback_export' );
 		$_POST['feedback_export_nonce_csv']    = $nonce;
@@ -2018,7 +2014,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			$this->assertStringContainsString( 'source_meta.meta_value', $captured_query, 'Export query should filter by source meta value' );
 			$this->assertStringContainsString( 'post_parent', $captured_query, 'Export query should include the post_parent fallback' );
 		} finally {
-			remove_all_filters( 'wordbless_wpdb_query_results' );
+			remove_filter( 'wordbless_wpdb_query_results', $capture_query, 10 );
 			$cleanup_cap();
 			unset(
 				$_POST['feedback_export_nonce_csv'],
@@ -2040,17 +2036,13 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$plugin = Contact_Form_Plugin::init();
 
 		$found_source_sql = false;
-		add_filter(
-			'wordbless_wpdb_query_results',
-			function ( $results, $query ) use ( &$found_source_sql ) {
-				if ( strpos( $query, 'source_meta' ) !== false ) {
-					$found_source_sql = true;
-				}
-				return $results;
-			},
-			10,
-			2
-		);
+		$capture_query    = function ( $results, $query ) use ( &$found_source_sql ) {
+			if ( strpos( $query, 'source_meta' ) !== false ) {
+				$found_source_sql = true;
+			}
+			return $results;
+		};
+		add_filter( 'wordbless_wpdb_query_results', $capture_query, 10, 2 );
 
 		$nonce                                 = wp_create_nonce( 'feedback_export' );
 		$_POST['feedback_export_nonce_csv']    = $nonce;
@@ -2061,7 +2053,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 			$this->assertFalse( $found_source_sql, 'Export query should not include source filter SQL when $_POST[source] is absent' );
 		} finally {
-			remove_all_filters( 'wordbless_wpdb_query_results' );
+			remove_filter( 'wordbless_wpdb_query_results', $capture_query, 10 );
 			$cleanup_cap();
 			unset(
 				$_POST['feedback_export_nonce_csv'],
