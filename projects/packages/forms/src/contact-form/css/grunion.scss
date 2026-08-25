@@ -39,7 +39,13 @@
 	z-index: 2;
 }
 
-.jetpack-form-step {
+// The step's own element carries both its visibility and its
+// layout now that the render callback no longer wraps it in a
+// second div, so hide the inactive steps without naming a
+// `display` for the active one — otherwise this would decide
+// the step's display mode and the layout rules would never
+// get to.
+.jetpack-form-step:not(.is-current-step) {
 	display: none;
 }
 
@@ -50,7 +56,6 @@
 	height: auto;
 	overflow: visible;
 	z-index: 2;
-	display: block;
 }
 
 // jetpack/button: is-hidden class is on inner button element
