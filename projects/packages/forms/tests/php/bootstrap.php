@@ -55,13 +55,16 @@ if ( ! defined( 'DOING_AJAX' ) ) {
 }
 
 /*
- * Bring up the plugin the same way a site does. Registering it here rather than
- * from a test means WorDBless snapshots its hooks as part of the baseline it
- * restores after every test - Contact_Form_Plugin::init() is a singleton, so a
- * class that initializes it mid-run adds hooks that WorDBless then strips, and
- * later calls hand back the cached instance without putting them back.
+ * Bring the plugin up the way a site does. Doing it here rather than from a test
+ * means WorDBless snapshots its hooks as part of the baseline it restores after
+ * every test - Contact_Form_Plugin::init() keeps its instance in a function
+ * static, so a class that initializes it mid-run adds hooks that WorDBless then
+ * strips, and every later call hands back the cached instance without putting
+ * them back.
  *
  * Among other things this registers the contact-field shortcode, without which
- * `new Contact_Form( array() )` cannot build its default form.
+ * `new Contact_Form( array() )` cannot build its default form. What the
+ * constructor wires up is asserted by
+ * Contact_Form_Plugin_Test::test_construction_registers_the_wordpress_integration().
  */
 \Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::init();

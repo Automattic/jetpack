@@ -86,6 +86,14 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 
+		/*
+		 * These tests run as an administrator, and this class extends PHPUnit's
+		 * TestCase rather than WorDBless's, so nothing logs that user back out.
+		 * An administrator has unfiltered_html, which changes how WordPress
+		 * escapes post content on save.
+		 */
+		wp_set_current_user( 0 );
+
 		if ( null !== $this->status_count_filter ) {
 			remove_filter( 'wordbless_wpdb_query_results', $this->status_count_filter, 10 );
 			$this->status_count_filter = null;

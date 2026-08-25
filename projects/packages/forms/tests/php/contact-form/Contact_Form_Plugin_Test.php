@@ -14,6 +14,7 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use ReflectionClass;
 use WorDBless\BaseTestCase;
 use WP_Block;
 use WP_Block_Type_Registry;
@@ -637,6 +638,48 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		);
 	}
 
+	/**
+	 * The constructor is what wires this package into WordPress, and the rest of
+	 * the suite leans on that wiring: the shortcodes the Contact_Form
+	 * constructor parses with, the feedback post type the REST routes hang off,
+	 * the spam and comment filters. tests/php/bootstrap.php runs it once for the
+	 * whole run, so assert here what it registered rather than leaving it to be
+	 * assumed.
+	 *
+	 * Contact_Form_Plugin::init() keeps its instance in a function static, so a
+	 * second one has to come from the constructor directly. The duplicate hooks
+	 * it adds go away with the rest of the test's hooks when WorDBless tears
+	 * down.
+	 */
+	public function test_construction_registers_the_wordpress_integration() {
+		$reflection = new ReflectionClass( Contact_Form_Plugin::class );
+		$plugin     = $reflection->newInstanceWithoutConstructor();
+		$reflection->getConstructor()->invoke( $plugin );
+
+		$this->assertTrue( shortcode_exists( 'contact-form' ), 'The contact-form shortcode should be registered.' );
+		$this->assertTrue( shortcode_exists( 'contact-field' ), 'The contact-field shortcode should be registered.' );
+		$this->assertTrue( shortcode_exists( 'contact-field-option' ), 'The contact-field-option shortcode should be registered.' );
+
+		$this->assertTrue( post_type_exists( 'feedback' ), 'The feedback post type should be registered.' );
+
+		$this->assertNotFalse(
+			has_filter( 'jetpack_contact_form_is_spam', array( $plugin, 'is_spam_blocklist' ) ),
+			'Submissions should be run past the blocklist.'
+		);
+		$this->assertNotFalse(
+			has_filter( 'comments_open', array( $plugin, 'restrict_feedback_comments_to_logged_in' ) ),
+			'Feedback comments should be restricted to logged-in users.'
+		);
+		$this->assertNotFalse(
+			has_action( 'transition_post_status', array( $plugin, 'track_feedback_status_change' ) ),
+			'Feedback status changes should be tracked.'
+		);
+		$this->assertNotFalse(
+			has_filter( 'wp_privacy_personal_data_exporters', array( $plugin, 'register_personal_data_exporter' ) ),
+			'Feedback should be included in a personal data export.'
+		);
+	}
+
 	public function test_process_form_with_jwt() {
 		$this->setup_token_test( null, 'Test User' );
 
@@ -1220,6 +1263,17 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		if ( ! WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/label' ) ) {
 			Contact_Form_Block::register_child_blocks();
 		}
+
+		/*
+		 * The recount is scheduled on shutdown by the plugin's
+		 * transition_post_status handler, so any test class that has already
+		 * saved an unread feedback has left it scheduled - and if that class was
+		 * one of the two that extend PHPUnit's TestCase rather than
+		 * WorDBless's, it is in the hook baseline WorDBless restores after every
+		 * test. The track_feedback_status_change tests assert on whether they
+		 * scheduled it, so start from not scheduled.
+		 */
+		remove_action( 'shutdown', array( Contact_Form_Plugin::class, 'recalculate_unread_count' ) );
 	}
 
 	/**

@@ -45,7 +45,9 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		global $current_user, $user_identity;
 
 		// Clean up globals
-		unset( $_POST, $_GET, $current_user, $user_identity );
+		$_POST = array();
+		$_GET  = array();
+		unset( $current_user, $user_identity );
 	}
 
 	/**
