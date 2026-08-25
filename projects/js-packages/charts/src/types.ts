@@ -374,10 +374,10 @@ export type ChartTheme = {
 	};
 	/** LeaderboardChart specific settings */
 	leaderboardChart?: {
-		/** Gap between rows in the leaderboard grid */
-		rowGap?: number;
-		/** Gap between columns in the leaderboard grid */
-		columnGap?: number;
+		/** Gap between rows in the leaderboard grid, on the WPDS gap scale or in pixels */
+		rowGap?: number | GapSize;
+		/** Gap between columns in the leaderboard grid, on the WPDS gap scale or in pixels */
+		columnGap?: number | GapSize;
 		/** Spacing between label and progress bars */
 		labelSpacing?: GapSize;
 		/** Primary color for current period bars */

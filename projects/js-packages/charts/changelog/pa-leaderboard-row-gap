@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+LeaderboardChart: Accept the WPDS gap scale for the theme's row and column gaps.

@@ -15,7 +15,7 @@ import {
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers';
-import { formatMetricValue, attachSubComponents } from '../../utils';
+import { formatMetricValue, attachSubComponents, resolveGapSize } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
@@ -372,8 +372,8 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					) : (
 						<Grid
 							templateColumns="minmax(0, 1fr) auto"
-							rowGap={ rowGap }
-							columnGap={ columnGap }
+							rowGap={ resolveGapSize( rowGap ) }
+							columnGap={ resolveGapSize( columnGap ) }
 							data-leaderboard-grid
 						>
 							{ data.map( ( entry, rowIndex ) => {
