@@ -3,6 +3,7 @@ import type {
 	DataPointDate,
 	SeriesData,
 	SeriesChartLegendConfig,
+	SeriesVisibilityProps,
 	AnnotationStyles,
 	DataPoint,
 } from '../../types';
@@ -28,7 +29,7 @@ export type RenderLineGlyphProps< Datum extends object > = GlyphProps< Datum > &
 	position?: 'start' | 'end';
 };
 
-export interface LineChartProps extends BaseChartProps< SeriesData[] > {
+export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
 	/**
 	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
 	 */

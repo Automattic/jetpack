@@ -15,12 +15,12 @@ class Comments {
 	/**
 	 * Package version.
 	 */
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * Whether Jetpack Comments should load.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @return bool
 	 */
@@ -28,7 +28,7 @@ class Comments {
 		/**
 		 * Load Jetpack Comments in place of the site's existing comment experience.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 *
 		 * @param bool $enabled Whether to load Jetpack Comments. Default false.
 		 */
@@ -38,7 +38,7 @@ class Comments {
 	/**
 	 * Register the package's features. Safe to call more than once.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @return void
 	 */

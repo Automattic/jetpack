@@ -198,6 +198,23 @@ export const WithCompositionLegend: StoryObj< StoryArgs > = {
 	},
 };
 
+export const WithDefaultHiddenSeries: StoryObj< StoryArgs > = Template.bind( {} );
+WithDefaultHiddenSeries.args = {
+	...Default.args,
+	showLegend: true,
+	legendInteractive: true,
+	chartId: 'default-hidden-series-demo',
+	defaultHiddenSeries: [ 'London' ],
+};
+WithDefaultHiddenSeries.parameters = {
+	docs: {
+		description: {
+			story:
+				'London is hidden from the initial render and marked inactive in the legend. Select its legend item to reveal it.',
+		},
+	},
+};
+
 // Story with gradient filled line chart
 export const GradientFilled: StoryObj< StoryArgs > = Template.bind( {} );
 GradientFilled.args = {

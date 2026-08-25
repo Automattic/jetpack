@@ -10,7 +10,7 @@ import { plus } from '@wordpress/icons';
  * Internal dependencies
  */
 import useCreateForm from '../../hooks/use-create-form.ts';
-import { FormNameModal } from '../form-name-modal';
+import { CreateFormModal } from '../form-name-modal/create-form-modal';
 
 type CreateFormButtonProps = {
 	label?: string;
@@ -53,7 +53,8 @@ export default function CreateFormButton( {
 					button: 'forms',
 				} );
 			},
-		} );
+			// Nothing is left on screen to report a failure to, and openNewForm already logs it.
+		} ).catch( () => {} );
 	}, [ showNameModal, openNewForm, showPatterns ] );
 
 	const handleModalClose = useCallback( () => {
@@ -86,14 +87,10 @@ export default function CreateFormButton( {
 			>
 				{ label }
 			</Button>
-			<FormNameModal
+			<CreateFormModal
 				isOpen={ isModalOpen }
 				onClose={ handleModalClose }
 				onSave={ handleModalSave }
-				title={ __( 'Create form', 'jetpack-forms' ) }
-				primaryButtonLabel={ __( 'Create', 'jetpack-forms' ) }
-				secondaryButtonLabel={ __( 'Cancel', 'jetpack-forms' ) }
-				placeholder={ __( 'Enter form title', 'jetpack-forms' ) }
 			/>
 		</>
 	);

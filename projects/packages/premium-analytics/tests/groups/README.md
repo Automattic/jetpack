@@ -53,6 +53,15 @@ cannot see this difference.
 Do not list a suite in multiple groups. Leave suites with relative module mocks
 ungrouped because those mocks resolve from the suite's directory.
 
+Leave suites that pin their own environment ungrouped too. Jest reads the
+`@jest-environment` docblock of the file it collects, which for a member is the
+group file, so a member asking for `node` silently gets the group's jsdom and
+fails on whatever it wanted `node` for. The guard test reports this.
+
+A suite that declares no `jest.mock()` at all is compatible with every other
+such suite, whatever it covers — `mixed-no-mocks` collects the ones from areas
+too small for a group of their own.
+
 Keep groups at ten members or fewer and reset shared state in `beforeEach`.
 
 ## When a grouped run fails confusingly

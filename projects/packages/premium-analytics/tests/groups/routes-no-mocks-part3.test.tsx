@@ -5,4 +5,5 @@ import '../../routes/reports/search-terms/config/aggregate.test';
 import '../../routes/reports/search-terms/config/fields.test';
 import '../../routes/reports/utm/config/aggregate.test';
 import '../../routes/reports/utm/config/tabs.test';
+import '../../routes/use-detail-chart-intervals.test';
 import '../../routes/video-detail/config/layout.test';

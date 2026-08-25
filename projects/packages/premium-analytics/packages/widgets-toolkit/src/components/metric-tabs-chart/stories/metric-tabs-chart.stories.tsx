@@ -55,6 +55,11 @@ const METRICS: MetricTab[] = [
 	},
 ];
 
+const PAIRED_METRICS: MetricTab[] = [
+	{ ...METRICS[ 0 ], counterpartKey: 'paid' },
+	{ ...METRICS[ 1 ], counterpartKey: 'subscribers' },
+];
+
 // Close-up canvas so the chart fills the frame.
 const withCanvas: Decorator = Story => (
 	<div style={ { width: '100%', height: '300px' } }>
@@ -96,7 +101,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'A metric switcher over a comparative chart: selectable cards (value + period-over-period delta), and the selected metric drawn with its previous-period overlay. `chartType` picks the mark — a current line with a dashed previous-period overlay, or bars with a translucent previous-period shadow. Shared by the subscribers and traffic charts.',
+					'A metric switcher over a comparative chart: selectable cards (value + period-over-period delta), and the selected metric drawn with its previous-period overlay. `chartType` picks the mark — a current line with a dashed previous-period overlay, or bars with a translucent previous-period shadow. A metric naming another through `counterpartKey` draws it alongside, hidden until the reader reveals it from the legend. Shared by the subscribers and traffic charts.',
 			},
 		},
 	},
@@ -132,6 +137,23 @@ export const SingleMetric: Story = {
  */
 export const Bars: Story = {
 	args: { metrics: METRICS, dataFormat: DATA_FORMAT, chartType: 'bar' },
+};
+
+/**
+ * Metrics that name each other as `counterpartKey` are drawn together: the
+ * selected one solid, the other struck through in the legend and hidden until
+ * clicked. Selecting the other card swaps the roles, and revealing a metric
+ * brings its previous-period overlay with it.
+ */
+export const PairedMetrics: Story = {
+	args: { metrics: PAIRED_METRICS, dataFormat: DATA_FORMAT },
+};
+
+/**
+ * The same pair as bars — four bars per interval once both metrics are shown.
+ */
+export const PairedMetricsAsBars: Story = {
+	args: { metrics: PAIRED_METRICS, dataFormat: DATA_FORMAT, chartType: 'bar' },
 };
 
 type SkeletonStory = StoryObj< typeof MetricTabsChartSkeleton >;

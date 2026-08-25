@@ -362,6 +362,7 @@
 	flex-wrap: wrap;
 	justify-content: flex-start;
 	align-items: baseline;
+	margin-bottom: 0; /* Override default margin on classic theme wp-block */
 
 	.components-base-control {
 		margin-top: -1px;
@@ -827,9 +828,9 @@
 	.is-style-outlined &,
 	.is-style-animated & {
 
-		// The date field wraps its label and input in .jetpack-field__control so
-		// the floating label anchors to those two and not to the format hint
-		// below them. Every other field type anchors to .jetpack-field itself.
+		// The outer field anchors absolutely-positioned labels for field types
+		// with no control wrapper; the control wrapper anchors them for the
+		// rest, so the label sizes to label+input and not to the hints below.
 		.jetpack-field,
 		.jetpack-field__control {
 			position: relative;

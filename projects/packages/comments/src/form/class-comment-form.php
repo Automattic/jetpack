@@ -420,7 +420,7 @@ class Comment_Form {
 		/**
 		 * Filter the copy the comment form renders.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 *
 		 * @param array $strings Keyed by the name the app reads.
 		 * @param array $args    Comment form arguments.

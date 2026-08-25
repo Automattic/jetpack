@@ -1,6 +1,6 @@
 import { Tooltip, TooltipContext } from '@visx/xychart';
 import clsx from 'clsx';
-import { useContext, useEffect, useCallback, useMemo } from 'react';
+import { useContext, useEffect, useCallback, useMemo, useRef } from 'react';
 import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
 import type { SeriesData, DataPointDate } from '../../types';
 import type { RenderTooltipParams, XyChartTooltipProps } from '../../visx/types';
@@ -79,12 +79,23 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 		return flattened;
 	}, [ series, mode ] );
 
+	// Tracks whether this effect opened a tooltip, so it only closes its own.
+	const hasKeyboardSelection = useRef( false );
+
 	// Handle tooltip highlighting for keyboard navigation
 	useEffect( () => {
 		if ( selectedIndex === undefined ) {
-			tooltipContext?.hideTooltip();
+			// visx debounces the hide and cancels only the most recently scheduled one,
+			// so hiding on every run leaves earlier hides pending. One of those lands
+			// mid-navigation and closes the tooltip the user is reading.
+			if ( hasKeyboardSelection.current ) {
+				hasKeyboardSelection.current = false;
+				tooltipContext?.hideTooltip();
+			}
 			return;
 		}
+
+		hasKeyboardSelection.current = true;
 
 		if ( mode === 'group' ) {
 			// Show all series at the selected data point index in single tooltip.
