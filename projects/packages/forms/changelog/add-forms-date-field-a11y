@@ -1,4 +1,4 @@
-Significance: minor
-Type: added
+Significance: patch
+Type: fixed
 
-Date field: show the expected format below the input instead of in its label, and let screen readers announce the field's own label.
+Date field: let screen readers announce the field's own label instead of the date picker instructions.

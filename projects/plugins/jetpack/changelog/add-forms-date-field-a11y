@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Forms: Show a date field's expected format below the input rather than in its label, and let screen readers announce the field's own label.
+Forms: Let screen readers announce a date field's own label instead of the date picker instructions.
