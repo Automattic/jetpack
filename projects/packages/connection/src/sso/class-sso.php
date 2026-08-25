@@ -319,21 +319,40 @@ class SSO {
 	}
 
 	/**
-	 * Inlined admin styles for SSO.
+	 * Print the SSO styles for the login screen.
+	 *
+	 * @deprecated $$next-version$$ Use enqueue_login_styles().
 	 */
 	public function print_inline_admin_css() {
-		?>
-			<style>
-				.jetpack-sso .message {
-					margin-top: 20px;
-				}
+		_deprecated_function( __METHOD__, 'connection-$$next-version$$', __CLASS__ . '::enqueue_login_styles' );
+		$this->enqueue_login_styles();
+	}
 
-				.jetpack-sso #login .message:first-child,
-				.jetpack-sso #login h1 + .message {
-					margin-top: 0;
-				}
-			</style>
-		<?php
+	/**
+	 * Enqueue the SSO styles for the login screen.
+	 */
+	public function enqueue_login_styles() {
+		$handle = 'jetpack-sso-login-styles';
+
+		// No src: the handle only carries the inline CSS below. Core enqueues `login` before `login_enqueue_scripts` fires,
+		// so these rules already print after the core login stylesheet, which sets `.message` margins at the same
+		// specificity. No dependency on `login`: plugins that replace the login screen deregister that handle, and a
+		// missing dependency would drop this one from the queue.
+		wp_register_style( $handle, false, array(), Package_Version::PACKAGE_VERSION );
+		wp_enqueue_style( $handle );
+
+		$css = <<<'CSS'
+.jetpack-sso .message {
+	margin-top: 20px;
+}
+
+.jetpack-sso #login .message:first-child,
+.jetpack-sso #login h1 + .message {
+	margin-top: 0;
+}
+CSS;
+
+		wp_add_inline_style( $handle, $css );
 	}
 
 	/**
@@ -559,7 +578,7 @@ class SSO {
 	 */
 	public function display_sso_login_form() {
 		add_filter( 'login_body_class', array( $this, 'login_body_class' ) );
-		add_action( 'login_head', array( $this, 'print_inline_admin_css' ) );
+		add_action( 'login_enqueue_scripts', array( $this, 'enqueue_login_styles' ) );
 
 		if ( ( new Status() )->in_safe_mode() ) {
 			add_filter( 'login_message', array( Notices::class, 'sso_not_allowed_in_safe_mode' ) );
