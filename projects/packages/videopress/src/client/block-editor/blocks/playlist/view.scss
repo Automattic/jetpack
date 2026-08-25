@@ -183,6 +183,46 @@ $vpp-mono: ui-monospace, menlo, monospace;
 		display: none;
 	}
 
+	// Placeholder shown when a private video's thumbnail can't be authorized
+	// for the viewer; hidden until the view script flags the entry.
+	&__entry-lock {
+		position: absolute;
+		inset: 0;
+		display: none;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 2px;
+		padding: 4px;
+		text-align: center;
+		color: var(--vpp-muted);
+
+		svg {
+			inline-size: 16px;
+			block-size: 16px;
+			fill: currentColor;
+		}
+	}
+
+	&__entry-lock-label {
+		font-size: 0.59375rem;
+		font-weight: 600;
+		letter-spacing: 0.02em;
+	}
+
+	&__select.is-locked &__entry-lock {
+		display: flex;
+	}
+
+	&.is-layout-grid &__entry-lock svg {
+		inline-size: 24px;
+		block-size: 24px;
+	}
+
+	&.is-layout-grid &__entry-lock-label {
+		font-size: 0.6875rem;
+	}
+
 	&__entry-time {
 		position: absolute;
 		inset-inline-end: 4px;

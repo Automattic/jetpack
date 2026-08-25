@@ -184,9 +184,10 @@ describe( 'PlaylistEdit', () => {
 				within( screen.getByRole( 'button', { current: true } ) ).getByRole( 'presentation' )
 			).toHaveAttribute( 'src', 'https://example.com/private-poster.jpg?metadata_token=jwt-token' )
 		);
+		expect( screen.getByRole( 'button', { current: true } ) ).not.toHaveClass( 'is-locked' );
 	} );
 
-	it( 'drops the poster of a private video when no playback token is available', async () => {
+	it( 'shows the lock placeholder instead of the poster when no playback token is available', async () => {
 		mockPlaybackToken = null;
 		fetchVideoItemMock.mockResolvedValue( {
 			title: 'Members only',
@@ -197,11 +198,11 @@ describe( 'PlaylistEdit', () => {
 		renderEdit( { videos: [ { guid: 'abcDEF12' } ] } );
 
 		await waitFor( () =>
-			expect( screen.getAllByText( 'Members only' ).length ).toBeGreaterThan( 0 )
+			expect( screen.getByRole( 'button', { current: true } ) ).toHaveClass( 'is-locked' )
 		);
-		expect(
-			within( screen.getByRole( 'button', { current: true } ) ).queryByRole( 'presentation' )
-		).not.toBeInTheDocument();
+		const entryButton = screen.getByRole( 'button', { current: true } );
+		expect( within( entryButton ).queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( within( entryButton ).getByText( 'Private video' ) ).toBeInTheDocument();
 	} );
 
 	it( 'accepts a VideoPress URL', async () => {

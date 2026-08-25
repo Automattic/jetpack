@@ -26,13 +26,15 @@ type LiveVideoMetadata = {
  * The first lookup is anonymous. When it is denied — a private video — and the
  * page carries the token bridge configuration (enqueued whenever the block
  * renders), the lookup is retried with a playback token so authorized viewers
- * still get live metadata. Unauthorized viewers (and API failures) return null
- * and the entry keeps its server-rendered fallback.
+ * still get live metadata. 'locked' means the video is private and could not be
+ * authorized for this viewer; null means the data is unreachable (network
+ * failure, deleted video) and the entry just keeps its server-rendered
+ * fallback.
  *
  * @param guid - The video GUID.
- * @return The metadata, or null when it can't be read.
+ * @return The metadata, 'locked', or null.
  */
-async function fetchLiveMetadata( guid: string ): Promise< LiveVideoMetadata | null > {
+async function fetchLiveMetadata( guid: string ): Promise< LiveVideoMetadata | 'locked' | null > {
 	const endpoint = `https://public-api.wordpress.com/rest/v1.1/videos/${ encodeURIComponent(
 		guid
 	) }`;
@@ -42,25 +44,28 @@ async function fetchLiveMetadata( guid: string ): Promise< LiveVideoMetadata | n
 		if ( response.ok ) {
 			return ( await response.json() ) as LiveVideoMetadata;
 		}
+		if ( response.status !== 401 && response.status !== 403 ) {
+			return null;
+		}
 	} catch {
 		// Network failure: a token retry would not fare better.
 		return null;
 	}
 
 	if ( ! window.videopressAjax ) {
-		return null;
+		return 'locked';
 	}
 
 	try {
 		const postId = Number( window.videopressAjax.post_id ) || 0;
 		const { token } = await getMediaToken( 'playback', { guid, id: postId } );
 		if ( ! token ) {
-			return null;
+			return 'locked';
 		}
 
 		const response = await fetch( `${ endpoint }?metadata_token=${ encodeURIComponent( token ) }` );
 		if ( ! response.ok ) {
-			return null;
+			return 'locked';
 		}
 		const metadata = ( await response.json() ) as LiveVideoMetadata;
 
@@ -95,10 +100,17 @@ export function hydratePlaylistMetadata( root: HTMLElement ): Promise< void[] > 
 				return;
 			}
 
-			const metadata = await fetchLiveMetadata( guid );
-			if ( ! metadata ) {
+			const result = await fetchLiveMetadata( guid );
+			if ( 'locked' === result ) {
+				// Show the server-rendered lock placeholder in the thumbnail.
+				entry.classList.add( 'is-locked' );
 				return;
 			}
+			if ( ! result ) {
+				return;
+			}
+			entry.classList.remove( 'is-locked' );
+			const metadata = result;
 
 			if ( typeof metadata.title === 'string' && metadata.title ) {
 				entry.dataset.title = metadata.title;

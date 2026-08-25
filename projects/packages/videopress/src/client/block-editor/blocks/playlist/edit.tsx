@@ -153,9 +153,11 @@ async function liveMetadataWithSignedPoster(
 			} else {
 				// A poster the file host would refuse is worse than the fallback.
 				delete metadata.poster;
+				metadata.isPrivateLocked = true;
 			}
 		} catch {
 			delete metadata.poster;
+			metadata.isPrivateLocked = true;
 		}
 	}
 
@@ -289,11 +291,13 @@ function PlaylistPreview( {
 							<li className="videopress-playlist__entry" key={ `${ entry.guid }-${ index }` }>
 								<button
 									type="button"
-									className={
-										index === currentIndex
-											? 'videopress-playlist__select is-current'
-											: 'videopress-playlist__select'
-									}
+									className={ [
+										'videopress-playlist__select',
+										index === currentIndex ? 'is-current' : '',
+										liveMetadata[ entry.guid ]?.isPrivateLocked ? 'is-locked' : '',
+									]
+										.filter( Boolean )
+										.join( ' ' ) }
 									aria-current={ index === currentIndex ? 'true' : undefined }
 									onClick={ () => onSelect( index ) }
 								>
@@ -308,6 +312,20 @@ function PlaylistPreview( {
 										) }
 										<span className="videopress-playlist__entry-flag">
 											{ __( 'Playing', 'jetpack-videopress-pkg' ) }
+										</span>
+										{ /* Mirrors the server render: shown via the button's is-locked class. */ }
+										<span className="videopress-playlist__entry-lock">
+											<svg
+												viewBox="0 0 24 24"
+												xmlns="http://www.w3.org/2000/svg"
+												aria-hidden="true"
+												focusable="false"
+											>
+												<path d="M17 10h-1.2V7.3c0-2.1-1.7-3.8-3.8-3.8-2.1 0-3.8 1.7-3.8 3.8V10H7c-.6 0-1 .4-1 1v8c0 .6.4 1 1 1h10c.6 0 1-.4 1-1v-8c0-.6-.4-1-1-1Zm-2.7 0H9.7V7.3c0-1.3 1-2.3 2.3-2.3 1.3 0 2.3 1 2.3 2.3V10Z" />
+											</svg>
+											<span className="videopress-playlist__entry-lock-label">
+												{ __( 'Private video', 'jetpack-videopress-pkg' ) }
+											</span>
 										</span>
 										{ formatTimecode( entry.durationMs ) && (
 											<span className="videopress-playlist__entry-time">
