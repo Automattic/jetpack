@@ -38,6 +38,27 @@ const MAX_CONCURRENT_UPLOADS = 3;
  */
 const UPLOAD_STALL_TIMEOUT_MS = 60 * 1000;
 
+/*
+ * How long to wait for a reply once the whole body has been sent, in milliseconds.
+ *
+ * A separate, longer budget because progress events stop at that point — `xhr.upload` fires
+ * `loadend` and nothing more — so everything the server does after receiving the file counts as
+ * silence. It is not: the endpoint stores the file onward, which for 20MB is real work. Measuring
+ * that against the transfer budget aborts uploads that were about to succeed, and since the server
+ * finishes storing a file whose response nobody reads, the visitor retries and pays for the
+ * transfer twice — on an endpoint that was already slow enough to be the problem.
+ */
+const UPLOAD_RESPONSE_TIMEOUT_MS = 3 * 60 * 1000;
+
+/*
+ * How long to wait for an upload token, in milliseconds.
+ *
+ * The slot is claimed before the token is requested, so a token request that hangs holds one of
+ * the page's three for as long as the browser keeps the socket — the same page-wide stall the
+ * upload watchdog exists to prevent, in the one window it cannot see.
+ */
+const TOKEN_REQUEST_TIMEOUT_MS = 30 * 1000;
+
 // Uploads waiting for a slot. Entries are `{ clientFileId, fieldId, start }`, where `start` is
 // bound to the scope of the field that queued it — see `enqueueUpload()`.
 const uploadQueue = [];
@@ -134,6 +155,11 @@ const fetchUploadToken = async () => {
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify( { context: 'file-upload' } ),
+			// See TOKEN_REQUEST_TIMEOUT_MS. Guarded because AbortSignal.timeout is relatively recent
+			// and a missing signal only costs the timeout, not correctness.
+			...( typeof AbortSignal?.timeout === 'function'
+				? { signal: AbortSignal.timeout( TOKEN_REQUEST_TIMEOUT_MS ) }
+				: {} ),
 		} );
 
 		if ( ! response.ok ) {
@@ -314,6 +340,34 @@ const getRemainingCapacity = () => {
 };
 
 /**
+ * Drop the oldest entry that failed, to make room for a file that did not.
+ *
+ * Skips the stand-in entry that markup without a notice element gets instead of a message. That
+ * one sits past the limit by construction, so treating it as an ordinary rejected file would hand
+ * back a slot the field never had — and since a fresh stand-in is added whenever a batch is
+ * declined, every drop would net one more entry.
+ *
+ * @param {string} noticeMessage - The message the stand-in entry carries.
+ *
+ * @return {boolean} True when an entry was removed.
+ */
+const evictFailedFile = noticeMessage => {
+	const context = getContext();
+	const index = context.files.findIndex(
+		fileInfo => fileInfo.error && fileInfo.error !== noticeMessage
+	);
+
+	if ( index === -1 ) {
+		return false;
+	}
+
+	releaseFile( context.files[ index ] );
+	context.files.splice( index, 1 );
+
+	return true;
+};
+
+/**
  * Add one file to the context and queue its upload.
  *
  * Does not touch the field's value or the notice: `addFiles()` reports the whole batch once, so
@@ -381,20 +435,32 @@ const addFiles = files => {
 			continue;
 		}
 
+		const error = getFileError( file );
+
 		/*
 		 * Capacity is spent before the file is examined, so a file rejected for its type or size
 		 * occupies a place like any other. It has to: an entry that consumed nothing could be added
 		 * again and again, and each one blocks submission through `validators.file`.
 		 */
 		if ( remainingCapacity === 0 ) {
-			declinedCount++;
-			firstDeclined = firstDeclined ?? file;
-			continue;
+			/*
+			 * Except that a file the field can actually take may replace one it could not. Without
+			 * this, a single-file field holding one rejected file is "full", so the replacement the
+			 * visitor is being asked for is refused with "too many files" — next to a single visible
+			 * file. Only a usable file earns the eviction; one bad file cannot displace another.
+			 */
+			if ( error || ! evictFailedFile( i18n.maxFiles ) ) {
+				declinedCount++;
+				firstDeclined = firstDeclined ?? file;
+				continue;
+			}
+
+			remainingCapacity++;
 		}
 
 		remainingCapacity--;
 
-		const addedId = addFileToContext( file, getFileError( file ) );
+		const addedId = addFileToContext( file, error );
 
 		if ( firstAddedId === null ) {
 			firstAddedId = addedId;
@@ -408,13 +474,17 @@ const addFiles = files => {
 		context.fileNotice = '';
 	} else if ( hasNoticeElement() ) {
 		context.fileNotice = i18n.maxFiles;
-	} else {
+	} else if ( ! context.files.some( fileInfo => fileInfo.error === i18n.maxFiles ) ) {
 		/*
 		 * Markup cached before the notice element existed, served against this bundle — the window
 		 * the back-compat shim at the bottom of this file covers. There is nowhere to render
 		 * `fileNotice`, so declining silently would make the visitor's files simply vanish. Fall
-		 * back to what that markup did understand: one errored preview carrying the message. One,
-		 * not one per declined file, which is the pile-up this batch work exists to end.
+		 * back to what that markup did understand: a preview carrying the message.
+		 *
+		 * Guarded on one already being present rather than on capacity, because this entry is added
+		 * past the limit by definition — the batch was declined for want of room. Without the guard
+		 * every further drop appends another, which is the pile-up this work exists to end, reached
+		 * through the back-compat door.
 		 */
 		addFileToContext( firstDeclined, i18n.maxFiles );
 	}
@@ -513,8 +583,9 @@ const finishUpload = clientFileId => {
  * an error they can act on instead of a preview that sits at its last percentage forever.
  *
  * @param {string} clientFileId - The client file ID.
+ * @param {number} [timeout]    - How long to wait, defaulting to the transfer budget.
  */
-const startStallWatchdog = clientFileId => {
+const startStallWatchdog = ( clientFileId, timeout = UPLOAD_STALL_TIMEOUT_MS ) => {
 	clearStallWatchdog( clientFileId );
 
 	uploadStallTimers.set(
@@ -524,7 +595,7 @@ const startStallWatchdog = clientFileId => {
 			uploadControllers.get( clientFileId )?.abort();
 			// The abort settles the request, but free the slot here too in case it does not.
 			finishUpload( clientFileId );
-		}, UPLOAD_STALL_TIMEOUT_MS )
+		}, timeout )
 	);
 };
 
@@ -578,8 +649,15 @@ const dequeueUpload = clientFileId => {
  * @param {ProgressEvent} event        - The progress event object.
  */
 const onProgress = ( clientFileId, event ) => {
-	// Evidence the request is alive, so the stall watchdog starts over.
-	startStallWatchdog( clientFileId );
+	/*
+	 * A request that fails mid-body emits a trailing progress event *after* readyState 4, so this
+	 * runs for uploads that have already settled. Re-arming there would leave a timer running for
+	 * an upload nothing will ever finish.
+	 */
+	if ( activeUploadIds.has( clientFileId ) ) {
+		// Evidence the request is alive, so the stall watchdog starts over.
+		startStallWatchdog( clientFileId );
+	}
 
 	const progress = ( event.loaded / event.total ) * 100;
 	// We don't want to show 100% progress, as it's misleading.
@@ -771,12 +849,7 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 			return getFileFieldFiles().length > 0;
 		},
 
-		/*
-		 * Counts only files without an error, the same way `getRemainingCapacity()` does, so the
-		 * dropzone is hidden exactly when there is no room for another file. Counting every entry
-		 * meant a rejected file both hid the dropzone and left its capacity unused: the visitor could
-		 * no longer click to supply a replacement, though a drag-and-drop still went through.
-		 */
+		// Hidden exactly when there is no room, on the same count `getRemainingCapacity()` uses.
 		get isFileFieldFull() {
 			return getRemainingCapacity() === 0;
 		},
@@ -872,7 +945,7 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 				 * start, and any notice still up from an earlier drop would appear to describe the
 				 * folder. The string has been in the config since the field shipped, unused.
 				 */
-				if ( skippedDirectory && ! declinedCount ) {
+				if ( skippedDirectory && ! declinedCount && hasNoticeElement() ) {
 					getContext().fileNotice = getConfig( CONFIG_NAMESPACE ).i18n.folderNotSupported;
 				}
 			}
@@ -950,6 +1023,12 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 					'progress',
 					withScope( onProgress.bind( this, clientFileId ) )
 				);
+				// The body is out; everything from here is the server's time. See the two budgets.
+				xhr.upload.addEventListener( 'loadend', () => {
+					if ( activeUploadIds.has( clientFileId ) ) {
+						startStallWatchdog( clientFileId, UPLOAD_RESPONSE_TIMEOUT_MS );
+					}
+				} );
 				xhr.addEventListener(
 					'readystatechange',
 					withScope( onReadyStateChange.bind( this, clientFileId ) )
@@ -968,6 +1047,11 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 				startStallWatchdog( clientFileId );
 				xhr.send( formData );
 			} catch {
+				/*
+				 * Registered before `open()`, and nothing else would remove it: the readystatechange
+				 * listener is only attached once `open()` has returned.
+				 */
+				uploadControllers.delete( clientFileId );
 				updateFileContext( { error: i18n.uploadFailed, hasError: true }, clientFileId );
 				finishUpload( clientFileId );
 			}
@@ -1086,7 +1170,15 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 			 * Only the preview for the file this batch nominated takes focus; see `focusClaimFileId`.
 			 * The rest still return the cleanup below, so removing any of them restores focus normally.
 			 */
-			const claimsFocus = focusClaimFileId !== null && getContext().file?.id === focusClaimFileId;
+			/*
+			 * `data-wp-each` puts the item under the namespace of the element that declared it, which
+			 * is the legacy one on cached markup — while this callback resolves `getContext()` against
+			 * `jetpack/form`, because the shim delegates through that store's proxy. Reading only the
+			 * shared context would mean no preview ever claims focus on that markup.
+			 */
+			const previewFile = getContext().file ?? getContext( CONFIG_NAMESPACE )?.file;
+
+			const claimsFocus = focusClaimFileId !== null && previewFile?.id === focusClaimFileId;
 
 			if ( claimsFocus ) {
 				focusClaimFileId = null;
@@ -1096,7 +1188,17 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 			// detached node is a silent no-op that would strand focus on `<body>`.
 			const focusTimer = claimsFocus
 				? setTimeout( () => {
-						if ( ref.isConnected ) {
+						/*
+						 * Only move focus that is not already somewhere deliberate. A file dragged from
+						 * the desktop never moves document focus, so a visitor mid-sentence in the message
+						 * box would otherwise lose their caret — and the next keystrokes — to a preview
+						 * appearing 100ms later. The restore path below already reasons this way.
+						 */
+						const { activeElement, body } = ref.ownerDocument;
+						const focusIsIdle =
+							! activeElement || activeElement === body || !! container?.contains( activeElement );
+
+						if ( ref.isConnected && focusIsIdle ) {
 							ref.focus( { focusVisible: true } );
 						}
 				  }, PREVIEW_FOCUS_DELAY_MS )

@@ -405,10 +405,10 @@ describe( 'File Field View', () => {
 			expect( mockContext.fileNotice ).toBe( '' );
 		} );
 
-		test( 'a file rejected for its type gets its own preview and holds a place', () => {
-			// Per-file problems are the visitor's to act on, so they stay visible per file — but they
-			// consume capacity like anything else, so the good file behind this one in a one-file
-			// field is declined rather than admitted alongside it.
+		test( 'a file rejected for its type holds a place until a usable file replaces it', () => {
+			// Picking one bad and one good file at once on a single-file field is ordinary. The bad
+			// one takes the only slot, then the good one displaces it — rather than the visitor being
+			// told they have too many files while looking at exactly one.
 			storeConfig.actions.fileAdded( {
 				target: {
 					files: [
@@ -419,7 +419,33 @@ describe( 'File Field View', () => {
 			} );
 
 			expect( mockContext.files ).toHaveLength( 1 );
-			expect( mockContext.files[ 0 ] ).toMatchObject( { error: 'This file type is not allowed.' } );
+			expect( mockContext.files[ 0 ] ).toMatchObject( { name: 'good.pdf', error: null } );
+			expect( mockContext.fileNotice ).toBe( '' );
+		} );
+
+		test( 'a rejected file left on its own is replaced by the next usable one', () => {
+			// The dropzone is hidden while the field is full, but the container still takes drops, so
+			// this is how a visitor supplies the replacement they are being asked for.
+			storeConfig.actions.fileAdded( {
+				target: { files: [ makeFile( { name: 'evil.exe', type: 'application/x-msdownload' } ) ] },
+			} );
+			expect( mockContext.files[ 0 ] ).toMatchObject( { hasError: true } );
+
+			storeConfig.actions.fileAdded( { target: { files: [ makeFile( { name: 'good.pdf' } ) ] } } );
+
+			expect( mockContext.files ).toHaveLength( 1 );
+			expect( mockContext.files[ 0 ] ).toMatchObject( { name: 'good.pdf', error: null } );
+			expect( mockContext.fileNotice ).toBe( '' );
+		} );
+
+		test( 'a successfully uploaded file is never displaced', () => {
+			// Eviction is only ever a rejected file making way; a file the visitor uploaded stays.
+			mockContext.files = [ { id: 'kept', name: 'kept.pdf', error: null } ];
+
+			storeConfig.actions.fileAdded( { target: { files: [ makeFile( { name: 'new.pdf' } ) ] } } );
+
+			expect( mockContext.files ).toHaveLength( 1 );
+			expect( mockContext.files[ 0 ] ).toMatchObject( { name: 'kept.pdf' } );
 			expect( mockContext.fileNotice ).toBe( 'Too many files.' );
 		} );
 
@@ -647,6 +673,26 @@ describe( 'File Field View', () => {
 				hasError: true,
 				error: 'Too many files.',
 			} );
+		} );
+
+		test( 'further overflow drops do not keep appending fallback entries', () => {
+			// Unguarded, this reopened the very pile-up the batch work exists to end — one more
+			// unsubmittable entry per drop, for as long as the visitor keeps trying.
+			document.querySelector( '.jetpack-form-file-field__notice' ).remove();
+			mockContext.files = [ { id: 'existing', error: null } ];
+
+			for ( let drop = 0; drop < 4; drop++ ) {
+				storeConfig.actions.fileAdded( {
+					target: {
+						files: [
+							{ name: 'a.pdf', type: 'application/pdf', size: 10 },
+							{ name: 'b.pdf', type: 'application/pdf', size: 10 },
+						],
+					},
+				} );
+			}
+
+			expect( mockContext.files ).toHaveLength( 2 );
 		} );
 	} );
 
