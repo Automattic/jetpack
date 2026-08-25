@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-File upload field: Explain that a dropped folder was ignored rather than doing nothing.

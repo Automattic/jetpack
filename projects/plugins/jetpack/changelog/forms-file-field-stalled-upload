@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: report a file upload that stops responding, or that gets a reply the browser cannot read, as failed instead of leaving it in progress indefinitely.

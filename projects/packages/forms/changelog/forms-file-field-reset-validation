@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-File upload field: Clear the field's error state when the form is reset, so a field showing no files can no longer block submission.

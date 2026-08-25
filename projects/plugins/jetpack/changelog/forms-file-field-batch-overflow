@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: decline files beyond the file upload field's limit instead of adding each one as an error that blocks submission.
