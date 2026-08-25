@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Show the dashboard right away instead of a sync screen, and flag the Store section's numbers as incomplete while store data is still syncing.

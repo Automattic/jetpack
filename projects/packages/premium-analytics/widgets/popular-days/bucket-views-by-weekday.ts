@@ -25,9 +25,9 @@ function weekdayLabel( weekday: number ) {
 	return formatWeekday( ( weekday + 1 ) % 7 );
 }
 
-// The `+00:00` on `date_start` labels a calendar bucket rather than marking a
-// real UTC time, so `new Date()` would resolve it against the viewer's timezone
-// and slide the row onto the previous weekday west of Greenwich.
+// `date_start` labels a calendar bucket rather than marking a real instant, so
+// `new Date()` would resolve it against the viewer's timezone and slide the row
+// onto the previous weekday west of Greenwich.
 function readRowDate( row: Record< string, unknown > ) {
 	const datePart = getDatePart( row.date_start ?? row.time_interval ?? row.period );
 

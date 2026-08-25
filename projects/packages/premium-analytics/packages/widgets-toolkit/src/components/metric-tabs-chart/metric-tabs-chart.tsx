@@ -8,19 +8,15 @@ import {
 	VisuallyHidden,
 	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
-import {
-	formatDate,
-	formatDateRange,
-	type DateFormatName,
-} from '@jetpack-premium-analytics/formatters';
+import { formatDate, type DateFormatName } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { fromChartDate } from '../../helpers';
+import { formatComparisonSeriesLabel, fromChartDate } from '../../helpers';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
@@ -64,6 +60,14 @@ export interface MetricTab {
 	dataFormat?: DataFormat;
 	/** Optional explanatory text, surfaced as the card's tooltip. */
 	description?: string;
+	/**
+	 * Key of the metric to draw beside this one, hidden until the reader reveals
+	 * it from the legend. Pairs are declared per metric rather than derived, so
+	 * a widget decides which of its metrics are worth comparing. A key naming no
+	 * metric in the list, the metric itself, or a metric that is `unavailable` at
+	 * the current bucket size, is ignored.
+	 */
+	counterpartKey?: string;
 	/**
 	 * Why this metric has no data at the current bucket size. Set it and the card
 	 * shows a placeholder instead of a value, and the chart the reason instead of
@@ -116,27 +120,10 @@ type ReadPointDate = ( date: Date ) => Date;
 const asInstant: ReadPointDate = date => date;
 
 /**
- * Format a series' legend label as its date range (first to last point), so the
- * legend reads as date ranges — consistent with the other comparative charts
- * (see `buildTimeSeriesChartData`). The selected card names the metric.
- *
- * @param points        - The series points, oldest first.
- * @param readPointDate - Resolves each end to the instant it names.
- * @return The formatted date range, or '' when empty.
- */
-function rangeLabel( points: MetricTabDatum[], readPointDate: ReadPointDate ): string {
-	const first = points[ 0 ];
-	const last = points[ points.length - 1 ];
-
-	return first && last
-		? formatDateRange( { from: readPointDate( first.date ), to: readPointDate( last.date ) } )
-		: '';
-}
-
-/**
  * Build the chart series for a metric: the current period plus, when present,
- * the previous period as a same-`group` (same colour) `comparison` series.
- * Series are labelled by date range for the legend.
+ * the previous period as a same-`group` (same colour) `comparison` series. The
+ * current period is labelled by metric name, which is what the collapsed legend
+ * item reads; the section header names the dates.
  *
  * The comparison series' options differ by chart type. A line needs its area
  * fill suppressed so only the current period is filled — but that same
@@ -144,27 +131,21 @@ function rangeLabel( points: MetricTabDatum[], readPointDate: ReadPointDate ): s
  * rather than a stroke. Bars therefore carry `type` alone and let the charts
  * theme resolve the shadow's colour and width factor.
  *
- * @param metric        - The metric to draw.
- * @param chartType     - How the metric is drawn.
- * @param readPointDate - Resolves a point's date to the instant its label names.
+ * @param metric    - The metric to draw.
+ * @param chartType - How the metric is drawn.
  * @return The chart series.
  */
 function buildSeries(
 	metric: MetricTab,
-	chartType: MetricTabsChartType,
-	readPointDate: ReadPointDate
+	chartType: MetricTabsChartType
 ): ComparativeLineChartSeries[] {
 	const series: ComparativeLineChartSeries[] = [
-		{
-			label: rangeLabel( metric.current, readPointDate ),
-			group: metric.key,
-			data: metric.current,
-		},
+		{ label: metric.label, group: metric.key, data: metric.current },
 	];
 
 	if ( metric.previous?.length ) {
 		series.push( {
-			label: rangeLabel( metric.previous, readPointDate ),
+			label: formatComparisonSeriesLabel( metric.label ),
 			group: metric.key,
 			data: metric.previous,
 			options:
@@ -191,25 +172,42 @@ function buildSeries(
  * a sparkline (dropping its axis, grid, and legend) on short tiles instead of
  * squashing its labels on top of each other.
  *
+ * A `counterpart` is drawn alongside the metric but seeded hidden, so the
+ * legend offers it as a one-click comparison. Its previous period is seeded
+ * with it, which is why revealing the item brings the whole overlay back.
+ *
  * @return The chart for the metric.
  */
 function MetricChart( {
 	metric,
+	counterpart,
 	dataFormat,
 	chartType,
+	chartId,
 	tickResolution,
 	readPointDate,
 }: {
 	metric: MetricTab;
+	counterpart?: MetricTab;
 	dataFormat: DataFormat;
 	chartType: MetricTabsChartType;
+	chartId: string;
 	tickResolution?: TickResolution;
 	readPointDate: ReadPointDate;
 } ) {
-	const series = useMemo(
-		() => buildSeries( metric, chartType, readPointDate ),
-		[ metric, chartType, readPointDate ]
-	);
+	const { series, defaultHiddenSeries } = useMemo( () => {
+		const active = buildSeries( metric, chartType );
+
+		if ( ! counterpart ) {
+			return { series: active, defaultHiddenSeries: undefined };
+		}
+
+		const paired = buildSeries( counterpart, chartType );
+		return {
+			series: [ ...active, ...paired ],
+			defaultHiddenSeries: paired.map( item => item.label ),
+		};
+	}, [ metric, counterpart, chartType ] );
 	const formatTooltipDate = useCallback(
 		( date: Date, format: DateFormatName ) => formatDate( readPointDate( date ), format ),
 		[ readPointDate ]
@@ -223,23 +221,33 @@ function MetricChart( {
 	const seriesStyles = useSeriesStyles( series );
 	const resolvedDataFormat = metric.dataFormat ?? dataFormat;
 
+	// Without a counterpart the legend holds a single item — the metric's two
+	// periods collapsed — and clicking it would only empty the chart.
+	const legendInteractive = !! counterpart;
+
 	if ( metric.unavailable ) {
 		return <div className={ styles.unavailableChart }>{ metric.unavailable }</div>;
 	}
 
 	return chartType === 'bar' ? (
 		<ComparativeBarChart
+			chartId={ chartId }
 			series={ series }
 			dataFormat={ resolvedDataFormat }
+			defaultHiddenSeries={ defaultHiddenSeries }
+			legendInteractive={ legendInteractive }
 			tickResolution={ tickResolution }
 			formatTooltipDate={ formatTooltipDate }
 			compactWhenShort
 		/>
 	) : (
 		<ComparativeLineChart
+			chartId={ chartId }
 			series={ series }
 			styles={ seriesStyles }
 			dataFormat={ resolvedDataFormat }
+			defaultHiddenSeries={ defaultHiddenSeries }
+			legendInteractive={ legendInteractive }
 			tickResolution={ tickResolution }
 			formatTooltipDate={ formatTooltipDate }
 			compactWhenShort
@@ -317,6 +325,11 @@ function MetricTabContent( {
  * supplies the per-metric data and headline values; this owns selection, series
  * building, and layout.
  *
+ * A metric naming another through `counterpartKey` is drawn with that metric
+ * beside it, seeded hidden so the legend offers it as a one-click comparison.
+ * The legend names the metrics; the dates the chart covers are the section
+ * header's job.
+ *
  * Responsive: on narrow tiles the tabs collapse into a dropdown whose trigger
  * is the selected metric's card; on short tiles the chart degrades to a sparkline.
  *
@@ -336,6 +349,30 @@ export function MetricTabsChart( {
 }: MetricTabsChartProps ) {
 	const readPointDate = pointsAreWallClocks ? fromChartDate : asInstant;
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
+
+	// The chart seeds its hidden series once per chart ID, so the ID has to name
+	// the metric: switching metrics swaps which of a pair is hidden, and a stable
+	// ID would leave the chart showing the previous selection's hidden set.
+	const chartIdBase = useId();
+	const chartIdFor = useCallback(
+		( metric: MetricTab ) => `${ chartIdBase }-${ metric.key }`,
+		[ chartIdBase ]
+	);
+	const counterpartFor = useCallback(
+		( metric: MetricTab ) => {
+			if ( ! metric.counterpartKey || metric.counterpartKey === metric.key ) {
+				return undefined;
+			}
+
+			const counterpart = metrics.find( candidate => candidate.key === metric.counterpartKey );
+
+			// A counterpart with nothing to report at this bucket size would reach
+			// the legend as a series the request never asked for, and reveal as a
+			// flat zero line.
+			return counterpart?.unavailable ? undefined : counterpart;
+		},
+		[ metrics ]
+	);
 
 	// Controlled open state: the dashboard's focusable drag-sortable wrapper
 	// closes the popup (reason 'none') right after it opens, so we open on
@@ -403,8 +440,10 @@ export function MetricTabsChart( {
 				<div className={ styles.chart }>
 					<MetricChart
 						metric={ activeMetric }
+						counterpart={ counterpartFor( activeMetric ) }
 						dataFormat={ dataFormat }
 						chartType={ chartType }
+						chartId={ chartIdFor( activeMetric ) }
 						tickResolution={ tickResolution }
 						readPointDate={ readPointDate }
 					/>
@@ -472,8 +511,10 @@ export function MetricTabsChart( {
 					{ activeMetric && (
 						<MetricChart
 							metric={ activeMetric }
+							counterpart={ counterpartFor( activeMetric ) }
 							dataFormat={ dataFormat }
 							chartType={ chartType }
+							chartId={ chartIdFor( activeMetric ) }
 							tickResolution={ tickResolution }
 							readPointDate={ readPointDate }
 						/>
@@ -511,8 +552,10 @@ export function MetricTabsChart( {
 				<Tabs.Panel key={ metric.key } value={ metric.key } className={ styles.chart }>
 					<MetricChart
 						metric={ metric }
+						counterpart={ counterpartFor( metric ) }
 						dataFormat={ dataFormat }
 						chartType={ chartType }
+						chartId={ chartIdFor( metric ) }
 						tickResolution={ tickResolution }
 						readPointDate={ readPointDate }
 					/>

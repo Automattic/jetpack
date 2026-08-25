@@ -39,16 +39,37 @@ export type TrafficChartGranularity = ( typeof TRAFFIC_PERIODS )[ number ];
  */
 export type TrafficChartType = ChartDisplayChartType;
 
+/** The visits `stat_fields` field each metric tab reads, which is also its id. */
+export type TrafficChartMetricId = 'views' | 'visitors' | 'comments' | 'likes';
+
 /**
  * The metric tabs the chart shows, in display order: the id and label of each
  * metric. The id doubles as the visits `stat_fields` field the tab reads.
+ *
+ * Views and Visitors name each other as `counterpartId`, so whichever of the
+ * two is selected draws the other alongside it, hidden until the reader reveals
+ * it from the legend — except at the hourly bucket, where Visitors is
+ * unavailable and Views stands alone. Comments and Likes answer different
+ * questions from each other and stand alone.
+ *
+ * `counterpartId` is constrained to the ids above rather than to `string`: a
+ * key naming no metric is ignored in silence, so a typo would simply drop the
+ * pairing with nothing to notice.
  */
 export const TRAFFIC_CHART_METRICS = [
-	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },
-	{ id: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ), counterpartId: 'visitors' },
+	{
+		id: 'visitors',
+		label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ),
+		counterpartId: 'views',
+	},
 	{ id: 'comments', label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
 	{ id: 'likes', label: __( 'Likes', 'jetpack-premium-analytics-pkg' ) },
-] as const satisfies readonly { id: string; label: string }[];
+] as const satisfies readonly {
+	id: TrafficChartMetricId;
+	label: string;
+	counterpartId?: TrafficChartMetricId;
+}[];
 
 /**
  * Configurable attributes for the Traffic chart widget. Report params still

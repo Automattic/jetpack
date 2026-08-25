@@ -24,7 +24,9 @@ store( NAMESPACE, {
 
 			const context = getContext();
 			const fieldType = context.submission?.type || 'text';
-			const value = context.submission?.value;
+			// The raw answer rather than the printed label: a translated "No" is not the
+			// `no` sentinel `isCheckedValue()` tests for, and would render as ticked.
+			const value = context.submission?.rawValue;
 			// The rendered marker is the icon key, not the field type: a checkbox
 			// resolves to a different icon depending on the submitted value, so
 			// comparing types alone would leave a stale icon in place.

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove a deleted test suite from a jest group listing; no shipped code changes
+
+

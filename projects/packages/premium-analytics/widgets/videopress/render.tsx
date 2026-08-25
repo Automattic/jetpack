@@ -57,6 +57,7 @@ function buildVideoTitle( row: VideoPlaysRow, search: Record< string, unknown > 
 				internal: styles.internalLink,
 				external: styles.labelLink,
 				plain: styles.labelText,
+				text: styles.titleText,
 			} }
 			title={ row.label }
 		/>

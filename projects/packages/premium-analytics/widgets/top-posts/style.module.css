@@ -31,13 +31,15 @@
 
 /* `min-width: 0` lets the flex item shrink below its content width so the
    ellipsis applies; without it a long title pushes the trailing icon out. The
-   outbound marker brings its own inline spacing, so the box needs no gap. */
+   gap matches the leaderboard rows' `.rowLink`, so the outbound marker sits
+   at the same distance from the title in every widget. */
 .labelTitle,
 .labelTitleLink,
 .labelExternalLink {
 	min-width: 0;
 	display: inline-flex;
 	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
 }
 
 /* The label text carries the ellipsis in every branch: `text-overflow` needs
@@ -56,9 +58,11 @@
 	text-decoration: none;
 }
 
-.labelTitleLink:hover,
-.labelTitleLink:focus,
-.labelExternalLink:hover,
-.labelExternalLink:focus {
+/* Underline only the title text, matching the leaderboard rows' hover rule —
+   the outbound marker stays clean instead of taking the underline with it. */
+.labelTitleLink:hover .labelText,
+.labelTitleLink:focus .labelText,
+.labelExternalLink:hover .labelText,
+.labelExternalLink:focus .labelText {
 	text-decoration: underline;
 }

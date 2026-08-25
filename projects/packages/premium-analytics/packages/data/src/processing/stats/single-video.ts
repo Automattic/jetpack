@@ -33,6 +33,8 @@ export type StatsSingleVideoReport = {
 	data: StatsSingleVideoDataPoint[];
 	/** Metric names from `fields` (minus the leading `period`), or null outside range mode. */
 	metrics: string[] | null;
+	/** Every metric's series keyed by its `fields` name, or null outside range mode. */
+	series: Record< string, StatsSingleVideoDataPoint[] > | null;
 	/** Server-computed totals over the requested window, or null when absent. */
 	total: StatsSingleVideoTotals | null;
 	pages: StatsSingleVideoPage[];
@@ -80,6 +82,20 @@ export function sanitizeStatsSingleVideoResponse( response: unknown ): StatsSing
 	);
 	const metrics = fields.length >= 2 && Array.isArray( payload.data ) ? fields.slice( 1 ) : null;
 
+	// One series per named metric column, so range-mode consumers can chart
+	// every metric, not just the leading one.
+	const series = metrics
+		? Object.fromEntries(
+				metrics.map( ( metric, column ) => [
+					metric,
+					tuples.map( row => ( {
+						period: row[ 0 ],
+						value: safeParseFloat( row[ column + 1 ] ),
+					} ) ),
+				] )
+		  )
+		: null;
+
 	// Range queries also return canonical totals over the window, keyed by
 	// metric name. A non-numeric cell is unknown, not a measured zero — drop it
 	// (same guard as `normalizeStatsSummary`) so consumers see the metric as
@@ -97,5 +113,5 @@ export function sanitizeStatsSingleVideoResponse( response: unknown ): StatsSing
 		.map( page => ( { label: page, link: page } ) );
 	const post = sanitizeSingleVideoPost( payload.post );
 
-	return { data, metrics, total, pages, post };
+	return { data, metrics, series, total, pages, post };
 }

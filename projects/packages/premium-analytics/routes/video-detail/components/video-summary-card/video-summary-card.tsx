@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { parseSiteDateTime, siteTimeZone, toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { Icon, Text } from '@jetpack-premium-analytics/externals';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -43,15 +44,15 @@ export function VideoSummaryCard( { summary, performanceRange }: VideoSummaryCar
 	const poster = posterUrl && posterUrl !== failedPosterUrl ? posterUrl : undefined;
 	const hidePoster = useCallback( () => setFailedPosterUrl( posterUrl ), [ posterUrl ] );
 
-	const publishedDateObject = publishedDate ? new Date( publishedDate ) : undefined;
-	const publishedSentence =
-		publishedDateObject && isValid( publishedDateObject )
-			? sprintf(
-					/* translators: %s: the video upload date, e.g. "Aug 19, 2025". */
-					__( 'Video uploaded on %s.', 'jetpack-premium-analytics-pkg' ),
-					format( publishedDateObject, DATE_FORMAT )
-			  )
-			: undefined;
+	// Read and shown in the site timezone, like the Stats data the page reports on.
+	const publishedDateObject = parseSiteDateTime( publishedDate );
+	const publishedSentence = publishedDateObject
+		? sprintf(
+				/* translators: %s: the video upload date, e.g. "Aug 19, 2025". */
+				__( 'Video uploaded on %s.', 'jetpack-premium-analytics-pkg' ),
+				format( toLocalTZ( publishedDateObject, siteTimeZone() ), DATE_FORMAT )
+		  )
+		: undefined;
 
 	const { from, to } = performanceRange ?? {};
 	const performanceSentence =
