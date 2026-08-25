@@ -61,14 +61,15 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		return $field->get_computed_field_value( $field_type, $field_id );
 	}
 
-	private function get_new_field_instance( $attributes ) {
+	private function get_new_field_instance( $attributes, $style = '' ) {
 		$defaults = array(
 			'type'    => 'text',
 			'id'      => 'id',
 			'default' => 'default',
 		);
 
-		$form = new Contact_Form( array() );
+		$form_attributes = $style ? array( 'className' => 'is-style-' . $style ) : array();
+		$form            = new Contact_Form( $form_attributes );
 		return new Contact_Form_Field( wp_parse_args( $attributes, $defaults ), '', $form );
 	}
 
@@ -792,6 +793,80 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The date field no longer welds the format into its visible label.
+	 */
+	public function test_date_field_label_has_no_format_suffix() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'       => 'date',
+				'id'         => 'g1-birthday',
+				'label'      => 'Birthday',
+				'dateformat' => 'mm/dd/yy',
+			)
+		);
+
+		$html = $field->render();
+
+		$this->assertStringNotContainsString( 'Birthday (MM/DD/YYYY)', $html );
+		$this->assertStringContainsString( 'Birthday', $html );
+	}
+
+	/**
+	 * The format renders as its own element below the input.
+	 */
+	public function test_date_field_renders_format_hint_element() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'       => 'date',
+				'id'         => 'g1-birthday',
+				'label'      => 'Birthday',
+				'dateformat' => 'mm/dd/yy',
+			)
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( 'class="contact-form__field-format"', $html );
+		$this->assertStringContainsString( 'id="g1-birthday-text-format"', $html );
+		// Anchored on the closing tag so a re-introduced prefix would fail.
+		$this->assertStringContainsString( 'class="contact-form__field-format">MM/DD/YYYY</span>', $html );
+	}
+
+	/**
+	 * Each of the three formats produces its own hint text.
+	 *
+	 * @param string $date_format The dateformat attribute value.
+	 * @param string $expected    The expected hint text.
+	 * @dataProvider date_format_hint_provider
+	 */
+	#[DataProvider( 'date_format_hint_provider' )]
+	public function test_date_field_format_hint_per_format( $date_format, $expected ) {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'       => 'date',
+				'id'         => 'g1-birthday',
+				'label'      => 'Birthday',
+				'dateformat' => $date_format,
+			)
+		);
+
+		$this->assertStringContainsString( $expected, $field->render() );
+	}
+
+	/**
+	 * Data provider for date format hints.
+	 *
+	 * @return array
+	 */
+	public static function date_format_hint_provider() {
+		return array(
+			'US'          => array( 'mm/dd/yy', 'class="contact-form__field-format">MM/DD/YYYY</span>' ),
+			'European'    => array( 'dd/mm/yy', 'class="contact-form__field-format">DD/MM/YYYY</span>' ),
+			'ISO default' => array( 'yy-mm-dd', 'class="contact-form__field-format">YYYY-MM-DD</span>' ),
+		);
+	}
+
+	/**
 	 * Double-encoding must not survive as live markup either: it decodes to escaped text
 	 * (&lt;img …&gt;), which the browser renders as characters rather than an element.
 	 */
@@ -898,5 +973,345 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	public function test_file_field_content_handles_empty_content() {
 		$this->assertSame( '', $this->sanitize_file_content( null ) );
 		$this->assertSame( '', $this->sanitize_file_content( '' ) );
+	}
+
+	/**
+	 * Author help text renders above the format hint and is escaped.
+	 */
+	public function test_help_text_renders_and_is_escaped() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'     => 'date',
+				'id'       => 'g1-birthday',
+				'label'    => 'Birthday',
+				'helptext' => 'Your <b>birthday</b>',
+			)
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( 'id="g1-birthday-text-help"', $html );
+		$this->assertStringContainsString( 'Your &lt;b&gt;birthday&lt;/b&gt;', $html );
+		$this->assertStringNotContainsString( 'Your <b>birthday</b>', $html );
+
+		$help_position   = strpos( $html, 'contact-form__field-help' );
+		$format_position = strpos( $html, 'contact-form__field-format' );
+		$this->assertNotFalse( $help_position );
+		$this->assertNotFalse( $format_position );
+		$this->assertLessThan( $format_position, $help_position, 'Help text must render before the format hint.' );
+		$this->assertSame( 1, substr_count( $html, 'class="contact-form__field-hints"' ) );
+	}
+
+	/**
+	 * Aria-describedby lists error, then help, then format.
+	 */
+	public function test_aria_describedby_order() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'     => 'date',
+				'id'       => 'g1-birthday',
+				'label'    => 'Birthday',
+				'helptext' => 'Pick a day',
+			)
+		);
+
+		$this->assertStringContainsString(
+			'aria-describedby=\'g1-birthday-text-error-message g1-birthday-text-help g1-birthday-text-format\'',
+			$field->render()
+		);
+	}
+
+	/**
+	 * A field with no help text emits no help element and no dangling id.
+	 */
+	public function test_no_help_text_leaves_no_element_or_dangling_id() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'  => 'text',
+				'id'    => 'g1-name',
+				'label' => 'Name',
+			)
+		);
+
+		$html = $field->render();
+
+		$this->assertStringNotContainsString( 'contact-form__field-help', $html );
+		$this->assertStringNotContainsString( 'g1-name-text-help', $html );
+		$this->assertStringContainsString( 'aria-describedby=\'g1-name-text-error-message\'', $html );
+	}
+
+	/**
+	 * Whitespace-only help text is treated as absent.
+	 */
+	public function test_whitespace_only_help_text_is_ignored() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'     => 'text',
+				'id'       => 'g1-name',
+				'label'    => 'Name',
+				'helptext' => '   ',
+			)
+		);
+
+		$html = $field->render();
+
+		$this->assertStringNotContainsString( 'contact-form__field-help', $html );
+		$this->assertStringContainsString( 'aria-describedby=\'g1-name-text-error-message\'', $html );
+	}
+
+	/**
+	 * Punctuation in help text survives the block -> shortcode -> render trip.
+	 *
+	 * Contact_Form::esc_shortcode_val() encodes `,` `[` `]` `\` as decimal
+	 * entities so they survive the shortcode parser, and unesc_attr() only
+	 * decodes the hex forms. Help text is the first attribute rendered through
+	 * esc_html() into a text node, so a leftover entity would be escaped again
+	 * and shown to the visitor. Building the field directly, as the other tests
+	 * here do, skips the hop that does the encoding — this one must not.
+	 *
+	 * @param string $help_text The author-supplied help text.
+	 * @dataProvider help_text_punctuation_provider
+	 */
+	#[DataProvider( 'help_text_punctuation_provider' )]
+	public function test_help_text_punctuation_survives_the_shortcode_round_trip( $help_text ) {
+		$field_shortcode = Contact_Form::parse_contact_field(
+			array(
+				'type'     => 'text',
+				'id'       => 'g1-x',
+				'label'    => 'Name',
+				'helpText' => $help_text,
+			),
+			null
+		);
+
+		$html = do_shortcode( '[contact-form]' . $field_shortcode . '[/contact-form]' );
+
+		$this->assertStringContainsString(
+			'class="contact-form__field-help">' . esc_html( $help_text ) . '</span>',
+			$html
+		);
+		$this->assertStringNotContainsString( '&#044;', $html );
+		$this->assertStringNotContainsString( '&#091;', $html );
+		$this->assertStringNotContainsString( '&#092;', $html );
+		$this->assertStringNotContainsString( '&#093;', $html );
+	}
+
+	/**
+	 * Data provider for help text punctuation.
+	 *
+	 * @return array
+	 */
+	public static function help_text_punctuation_provider() {
+		return array(
+			'comma'     => array( 'Enter your name, then your email.' ),
+			'brackets'  => array( 'Use [your] nickname.' ),
+			'backslash' => array( 'Domain\\username, please.' ),
+		);
+	}
+
+	/**
+	 * Hand-rolled input markup gets the same description wiring.
+	 *
+	 * @param array  $attributes Extra field attributes.
+	 * @param string $type       The description type used in element ids.
+	 * @dataProvider hand_rolled_field_provider
+	 */
+	#[DataProvider( 'hand_rolled_field_provider' )]
+	public function test_hand_rolled_fields_get_descriptions( $attributes, $type ) {
+		$field = $this->get_new_field_instance(
+			array_merge(
+				array(
+					'id'       => 'g1-x',
+					'label'    => 'Thing',
+					'helptext' => 'Say hi',
+				),
+				$attributes
+			)
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( 'id="g1-x-' . $type . '-help"', $html );
+		$this->assertStringContainsString( 'g1-x-' . $type . '-error-message g1-x-' . $type . '-help', $html );
+		$this->assertSame( 1, substr_count( $html, 'class="contact-form__field-hints"' ) );
+	}
+
+	/**
+	 * Fields that build their own input markup reference their error message
+	 * even with no help text.
+	 *
+	 * Select and slider gained an aria-describedby they never had. The provider
+	 * above sets help text on every row, so without this the common case — a
+	 * plain field with nothing but an error to describe — would be uncovered,
+	 * and a regression that returned an empty describedby would pass.
+	 *
+	 * @param array  $attributes Extra field attributes.
+	 * @param string $type       The description type used in element ids.
+	 * @dataProvider hand_rolled_field_provider
+	 */
+	#[DataProvider( 'hand_rolled_field_provider' )]
+	public function test_hand_rolled_fields_reference_their_error_without_help_text( $attributes, $type ) {
+		$field = $this->get_new_field_instance(
+			array_merge(
+				array(
+					'id'    => 'g1-x',
+					'label' => 'Thing',
+				),
+				$attributes
+			)
+		);
+
+		$html = $field->render();
+
+		// Assert the attribute, not just the id — the id also appears on the
+		// error span itself, so a bare substring check would pass even if the
+		// input carried no aria-describedby at all.
+		$this->assertMatchesRegularExpression(
+			'/aria-describedby=[\'"]g1-x-' . preg_quote( $type, '/' ) . '-error-message[\'"]/',
+			$html
+		);
+		$this->assertStringNotContainsString( 'contact-form__field-hints', $html );
+		$this->assertStringNotContainsString( 'g1-x-' . $type . '-help', $html );
+	}
+
+	/**
+	 * Data provider for hand-rolled input markup.
+	 *
+	 * @return array
+	 */
+	public static function hand_rolled_field_provider() {
+		return array(
+			'textarea'         => array( array( 'type' => 'textarea' ), 'textarea' ),
+			'select'           => array(
+				array(
+					'type'    => 'select',
+					'options' => 'a,b',
+				),
+				'select',
+			),
+			'slider'           => array(
+				array(
+					'type' => 'slider',
+					'min'  => '0',
+					'max'  => '10',
+				),
+				'slider',
+			),
+			'phone w/ country' => array(
+				array(
+					'type'                => 'telephone',
+					'showcountryselector' => '1',
+				),
+				'telephone',
+			),
+		);
+	}
+
+	/**
+	 * Inset-label styles hoist hints outside the field div, and the ids still
+	 * match what aria-describedby references.
+	 */
+	public function test_inset_label_hoists_hints_with_matching_ids() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'     => 'date',
+				'id'       => 'g1-birthday',
+				'label'    => 'Birthday',
+				'helptext' => 'Pick a day',
+			),
+			'outlined'
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( 'contact-form__inset-label-wrap', $html );
+		$this->assertStringContainsString( 'id="g1-birthday-text-help"', $html );
+		$this->assertStringContainsString( 'id="g1-birthday-text-format"', $html );
+		$this->assertStringContainsString( 'id="g1-birthday-text-error"', $html );
+
+		// Check real nesting, not string offsets: the hint must sit outside the
+		// inner field div that wraps the <input>, but still inside the outer
+		// inset-label wrap. Without the deferral the hint renders inline in
+		// render_input_field()'s output and lands inside the inner div.
+		$doc              = new \DOMDocument();
+		$previous_setting = libxml_use_internal_errors( true );
+		$doc->loadHTML( '<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+		libxml_use_internal_errors( $previous_setting );
+		$xpath = new \DOMXPath( $doc );
+
+		$has_class    = "contains(concat(' ', normalize-space(@class), ' '), ' %s ')";
+		$inside_inner = sprintf( "//div[$has_class]//*[@id='g1-birthday-text-help']", 'grunion-field-date-wrap' );
+		$inside_outer = sprintf( "//div[$has_class]//*[@id='g1-birthday-text-help']", 'contact-form__inset-label-wrap' );
+
+		$this->assertCount(
+			0,
+			$xpath->query( $inside_inner ),
+			'Help text must be hoisted outside the inner field div, not rendered inside it.'
+		);
+		$this->assertCount(
+			1,
+			$xpath->query( $inside_outer ),
+			'Help text must remain inside the inset-label wrap.'
+		);
+	}
+
+	/**
+	 * Regression: on inset-label styles the error id must match the id the
+	 * input's aria-describedby points at, for field types whose input type
+	 * differs from the field type.
+	 *
+	 * @param array  $attributes        Extra field attributes (lowercase shortcode names).
+	 * @param string $expected_error_id The error element id that must exist.
+	 * @dataProvider inset_error_id_provider
+	 */
+	#[DataProvider( 'inset_error_id_provider' )]
+	public function test_inset_label_error_id_matches_describedby( $attributes, $expected_error_id ) {
+		$field = $this->get_new_field_instance(
+			array_merge(
+				array(
+					'id'    => 'g1-x',
+					'label' => 'Thing',
+				),
+				$attributes
+			),
+			'outlined'
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( 'id="' . $expected_error_id . '"', $html );
+		// The country-selector phone variant double-quotes its attributes,
+		// unlike render_input_field()'s single-quoted markup, so match either.
+		$this->assertMatchesRegularExpression(
+			'/aria-describedby=[\'"]' . preg_quote( $expected_error_id, '/' ) . '-message/',
+			$html
+		);
+	}
+
+	/**
+	 * Data provider for the inset error id regression.
+	 *
+	 * Each of these renders an input whose type differs from the field type.
+	 *
+	 * @return array
+	 */
+	public static function inset_error_id_provider() {
+		return array(
+			'date'             => array( array( 'type' => 'date' ), 'g1-x-text-error' ),
+			'url'              => array( array( 'type' => 'url' ), 'g1-x-text-error' ),
+			'name'             => array( array( 'type' => 'name' ), 'g1-x-text-error' ),
+			'tel'              => array( array( 'type' => 'telephone' ), 'g1-x-tel-error' ),
+			// The block editor maps the country-selector variant to field type
+			// 'phone' (see class-contact-form-plugin.php's gutenblock_render_field_telephone()),
+			// while render_telephone_field() always builds its ids with the
+			// literal string 'telephone' -- these must still match.
+			'phone w/ country' => array(
+				array(
+					'type'                => 'phone',
+					'showcountryselector' => '1',
+				),
+				'g1-x-telephone-error',
+			),
+		);
 	}
 } // end class

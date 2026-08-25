@@ -17,7 +17,6 @@ import styles from './report-performance-chart.module.scss';
 import { buildReportMetricSeries } from './utils/build-report-metric-series';
 import type { ReportChartMetric } from './types';
 import type { DataFormat } from '../../types';
-import type { LegendLabels } from '../chart-leaderboard';
 import type { IntervalType, StatsTimeSeriesReport } from '@jetpack-premium-analytics/data';
 import type { ReactNode } from 'react';
 
@@ -68,8 +67,6 @@ export interface ReportPerformanceChartProps {
 	intervalOptions?: IntervalType[];
 	/** Value/axis format (defaults to compact numbers). */
 	dataFormat?: DataFormat;
-	/** Optional date labels for the single-metric comparison legend. */
-	legendLabels?: LegendLabels;
 	/** Extra header-right controls, rendered before the built-in ones. */
 	controls?: ReactNode;
 }
@@ -100,7 +97,6 @@ export function ReportPerformanceChart( {
 	onIntervalChange,
 	intervalOptions = DEFAULT_INTERVAL_OPTIONS,
 	dataFormat = DEFAULT_DATA_FORMAT,
-	legendLabels,
 	controls,
 }: ReportPerformanceChartProps ) {
 	const allMetrics = useMemo( () => metrics ?? getDefaultMetrics(), [ metrics ] );
@@ -113,8 +109,8 @@ export function ReportPerformanceChart( {
 	);
 
 	const series = useMemo(
-		() => buildReportMetricSeries( { primary, comparison, metrics: visibleMetrics, legendLabels } ),
-		[ primary, comparison, visibleMetrics, legendLabels ]
+		() => buildReportMetricSeries( { primary, comparison, metrics: visibleMetrics } ),
+		[ primary, comparison, visibleMetrics ]
 	);
 	const seriesStyles = useSeriesStyles( series );
 

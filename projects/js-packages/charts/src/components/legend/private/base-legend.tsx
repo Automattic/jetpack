@@ -12,6 +12,7 @@ import {
 	useCallback,
 	useContext,
 } from 'react';
+import { ChartInstanceContext } from '../../../charts/private/chart-instance-context';
 import { useTextTruncation } from '../../../hooks';
 import { GlobalChartsContext, useGlobalChartsTheme } from '../../../providers';
 import { useStandaloneScopeClass } from '../../../providers/chart-scope';
@@ -150,6 +151,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 
 		const theme = useGlobalChartsTheme();
 		const context = useContext( GlobalChartsContext );
+		const chartInstanceContext = useContext( ChartInstanceContext );
 		const standaloneScopeClass = useStandaloneScopeClass();
 
 		const legendScale = scaleOrdinal( {
@@ -167,15 +169,10 @@ export const BaseLegend: ForwardRefExoticComponent<
 		const handleLegendClick = useCallback(
 			( seriesLabels: string[] ) => {
 				if ( interactive && chartId && context ) {
-					// Converge the whole group on the representative's next state: only toggle series that
-					// currently match it, so a desynced group (e.g. one member hidden programmatically)
-					// ends up uniformly hidden/shown after one click.
 					const representativeVisible = context.isSeriesVisible( chartId, seriesLabels[ 0 ] );
-					seriesLabels.forEach( label => {
-						if ( context.isSeriesVisible( chartId, label ) === representativeVisible ) {
-							context.toggleSeriesVisibility( chartId, label );
-						}
-					} );
+					seriesLabels.forEach( label =>
+						context.setSeriesVisibility( chartId, label, ! representativeVisible )
+					);
 				}
 			},
 			[ interactive, chartId, context ]
@@ -185,12 +182,15 @@ export const BaseLegend: ForwardRefExoticComponent<
 		// programmatically must read as hidden even when the legend cannot be clicked.
 		const isSeriesVisible = useCallback(
 			( seriesLabel: string ) => {
+				if ( chartInstanceContext?.isSeriesVisible ) {
+					return chartInstanceContext.isSeriesVisible( seriesLabel );
+				}
 				if ( ! chartId || ! context ) {
 					return true;
 				}
 				return context.isSeriesVisible( chartId, seriesLabel );
 			},
-			[ chartId, context ]
+			[ chartId, chartInstanceContext, context ]
 		);
 
 		// Create event handlers to avoid inline arrow functions

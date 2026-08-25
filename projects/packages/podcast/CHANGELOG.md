@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2026-08-25
+### Changed
+- Update dependencies. [#51456]
+
 ## [1.5.0] - 2026-08-20
 ### Added
 - Settings: Add an episode limit for the podcast feed. [#51247]
@@ -226,6 +230,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dashboard: Replace the wp-build placeholder with page chrome and tab navigation. [#48559]
 - Dashboard: Slim down wp-build wiring to the Backup pattern. [#48600]
 
+[1.5.1]: https://github.com/Automattic/jetpack-podcast/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/Automattic/jetpack-podcast/compare/v1.4.4...v1.5.0
 [1.4.4]: https://github.com/Automattic/jetpack-podcast/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/Automattic/jetpack-podcast/compare/v1.4.2...v1.4.3

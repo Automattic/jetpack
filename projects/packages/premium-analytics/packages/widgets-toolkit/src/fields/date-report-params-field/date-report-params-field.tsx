@@ -4,6 +4,7 @@
 import { getDefaultPreset, normalizeReportParams } from '@jetpack-premium-analytics/data';
 import {
 	type ComparisonPresetId,
+	endOfDayTZ,
 	isPrimaryPreset,
 	siteTimeZone,
 	type DateRange,
@@ -15,7 +16,6 @@ import {
 	encodeDateToSearchParam,
 } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
-import { endOfDay } from 'date-fns';
 import { useCallback, useMemo, useState } from 'react';
 import { getStoreInfo } from '../../helpers/store-info';
 
@@ -52,7 +52,10 @@ export function ReportParamsField( {
 
 			if ( nextRange?.from && nextRange?.to ) {
 				nextReportParams.from = encodeDateToSearchParam( nextRange.from );
-				nextReportParams.to = encodeDateToSearchParam( endOfDay( nextRange.to ) );
+				nextReportParams.to = encodeDateToSearchParam(
+					// The site's day boundary, not the visitor's (see build-range-patch).
+					endOfDayTZ( nextRange.to, siteTimeZone() )
+				);
 			}
 
 			if ( nextPresetId && isPrimaryPreset( nextPresetId ) ) {

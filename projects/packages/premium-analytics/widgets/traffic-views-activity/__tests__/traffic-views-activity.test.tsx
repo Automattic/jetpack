@@ -150,13 +150,13 @@ describe( 'TrafficViewsActivityWidget', () => {
 	} );
 
 	describe( 'request parameters', () => {
-		it( 'passes the shared history window as from/to, the fields stats/visits reads', () => {
+		it( 'passes the selected period as from/to, the fields stats/visits reads', () => {
 			renderWidget();
 
 			const params = mockUseStatsVisits.mock.calls[ 0 ][ 0 ] as Record< string, unknown >;
 
 			expect( params ).toMatchObject( {
-				from: '2023-12-31',
+				from: '2025-01-01',
 				to: '2025-12-31',
 				period: 'day',
 				stat_fields: 'views',
@@ -225,7 +225,9 @@ describe( 'TrafficViewsActivityWidget', () => {
 			} );
 		} );
 
-		it( 'floors a shorter selection to the shared history window', () => {
+		// A request reaching back past the selection would attribute those years to
+		// the card's heading (WOOA7S-1963).
+		it( 'leaves a selection shorter than the window where it is', () => {
 			renderWidget( {
 				...REPORT_PARAMS,
 				from: '2024-01-01',
@@ -233,7 +235,24 @@ describe( 'TrafficViewsActivityWidget', () => {
 			} as unknown as ReportParams );
 
 			expect( mockUseStatsVisits.mock.calls[ 0 ][ 0 ] ).toMatchObject( {
-				from: '2022-12-31',
+				from: '2024-01-01',
+				to: '2024-12-31',
+			} );
+		} );
+
+		it( 'holds that selection as the viewport widens', () => {
+			renderWidget( {
+				...REPORT_PARAMS,
+				from: '2024-01-01',
+				to: '2024-12-31',
+			} as unknown as ReportParams );
+
+			setViewportWidth( 2560 );
+			fireEvent.resize( window );
+
+			const lastCall = mockUseStatsVisits.mock.calls[ mockUseStatsVisits.mock.calls.length - 1 ];
+			expect( lastCall[ 0 ] ).toMatchObject( {
+				from: '2024-01-01',
 				to: '2024-12-31',
 			} );
 		} );
@@ -284,14 +303,82 @@ describe( 'TrafficViewsActivityWidget', () => {
 			expect( chartDayValues() ).toContain( 'Tue, Jun 3, 2025:340' );
 		} );
 
-		it( 'spans the selected period even though the payload is sparse', () => {
+		it( 'requests only the part of the current year that has happened', () => {
+			renderWidget( {
+				...REPORT_PARAMS,
+				from: '2026-01-01',
+				to: '2026-08-10',
+			} as unknown as ReportParams );
+
+			expect( mockUseStatsVisits.mock.calls[ 0 ][ 0 ] ).toMatchObject( {
+				from: '2026-01-01',
+				to: '2026-08-10',
+			} );
+		} );
+
+		it( 'spans the whole selected period even though the payload is sparse', () => {
 			renderWidget();
 
-			// The 2025 selection densifies to 53 week columns. Not the fetch
-			// window's 106: the request floors at the shared history window, but
-			// the grid must not draw (or let the pager reach) dates outside the
-			// selection — picking 2025 must not page into 2024.
+			// The 53 week columns 2025 spans, not the two years the viewport could draw.
 			expect( screen.getByTestId( 'heatmap' ) ).toHaveAttribute( 'data-columns', '53' );
+		} );
+
+		// jsdom measures every element as 0x0, which resolves to zero columns and
+		// hands the chart the whole series — so a `data-columns` assertion alone
+		// never exercises trimming. These stub a real tile so it does.
+		describe( 'in a measured tile', () => {
+			const currentYear = {
+				...REPORT_PARAMS,
+				from: '2026-01-01',
+				to: '2026-08-10',
+			} as unknown as ReportParams;
+
+			beforeEach( () => {
+				mockUseStatsVisits.mockReturnValue(
+					visitsResult(
+						report( [
+							[ '2026-01-05', 11 ],
+							[ '2026-08-10', 44 ],
+						] )
+					)
+				);
+			} );
+
+			it.each( [
+				[ 1000, 86 ],
+				[ 700, 86 ],
+				[ 1000, 300 ],
+			] )( 'keeps the year on screen at %ix%i', ( width, height ) => {
+				const restoreTileSize = stubTileSize( width, height );
+
+				try {
+					renderWidget( currentYear );
+				} finally {
+					restoreTileSize();
+				}
+
+				// The regression this guards (WOOA7S-1963): the grid ran on to a
+				// December that had not happened, so the columns a smaller tile kept
+				// were the empty future weeks and the year's own traffic was trimmed
+				// away — at 1000x300 the heatmap came out entirely blank.
+				expect( chartDayValues() ).toContain( 'Mon, Aug 10, 2026:44' );
+			} );
+
+			it( 'fills a wide tile with filler weeks rather than leaving a band', () => {
+				const restoreTileSize = stubTileSize( 1000, 86 );
+
+				try {
+					renderWidget( currentYear );
+				} finally {
+					restoreTileSize();
+				}
+
+				const heatmap = screen.getByTestId( 'heatmap' );
+
+				// 2026 has only reached 33 weeks, but the tile draws more than that.
+				expect( Number( heatmap.getAttribute( 'data-columns' ) ) ).toBeGreaterThan( 33 );
+				expect( heatmap ).toHaveAttribute( 'data-width', '1000' );
+			} );
 		} );
 	} );
 
@@ -304,9 +391,9 @@ describe( 'TrafficViewsActivityWidget', () => {
 			expect( screen.queryByTestId( 'heatmap' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'shows the empty state when only the fetch window surplus has views', () => {
-			// The 2025 selection draws only 2025, but the request reaches back a
-			// further year; those older views must not suppress the empty state.
+		it( 'shows the empty state when only days outside the range have views', () => {
+			// 2025 is selected; a response still carrying an older day — a stale one
+			// for a wider selection — must not suppress the empty state.
 			mockUseStatsVisits.mockReturnValue( visitsResult( report( [ [ '2024-03-05', 120 ] ] ) ) );
 			renderWidget();
 

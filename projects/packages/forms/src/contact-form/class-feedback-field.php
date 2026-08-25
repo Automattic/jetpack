@@ -135,8 +135,8 @@ class Feedback_Field {
 	 * explicit "No". The ticked value is a translated string ( "Yes" ), so this
 	 * tests for emptiness and the "no" sentinel rather than matching "yes".
 	 *
-	 * Mirrored by `isCheckedValue()` in src/modules/form/field-type-icons.js and
-	 * in the dashboard's field-icons.tsx, which must agree with this.
+	 * Mirrored by `isCheckedValue()` in src/modules/form/helpers.js and in the
+	 * dashboard's field-icons.tsx, which must agree with this.
 	 *
 	 * @param mixed $value The submitted value.
 	 *
@@ -912,7 +912,7 @@ class Feedback_Field {
 	 * but a feedback can carry a malformed value — an empty string, for
 	 * instance — so callers must never assume that shape.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.26.0
 	 *
 	 * @return array The list of files, empty when the value holds none.
 	 */

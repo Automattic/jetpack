@@ -93,7 +93,8 @@ describe( 'videos fields', () => {
 	it( 'keeps the external page link as the fallback for a row without an ID', () => {
 		renderTitleField( { ...video, id: undefined } );
 
-		const link = screen.getByRole( 'link', { name: 'Launch video' } );
+		// The design system's outbound marker joins the accessible name.
+		const link = screen.getByRole( 'link', { name: 'Launch video(opens in a new tab)' } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/video/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
@@ -102,10 +103,9 @@ describe( 'videos fields', () => {
 	it( 'does not create a detail link for a non-positive ID', () => {
 		renderTitleField( { ...video, id: 0 } );
 
-		expect( screen.getByRole( 'link', { name: 'Launch video' } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/video/'
-		);
+		expect(
+			screen.getByRole( 'link', { name: 'Launch video(opens in a new tab)' } )
+		).toHaveAttribute( 'href', 'https://example.com/video/' );
 	} );
 
 	it( 'renders plain text when a row has neither an ID nor a URL', () => {

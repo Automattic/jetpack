@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2026-08-25
+### Added
+- Add `defaultHiddenSeries` to seed a series hidden on load, plus absolute visibility setters. Keep the keyboard tooltip open when the chart re-renders under it. [#51458]
+- Export `GoogleDataTableColumnRoleType` as a value, so a consumer can build a GeoChart tooltip column. [#51312]
+- Let a calendar heatmap draw a grid wider than its data, filling the extra weeks with cells that report nothing rather than claiming there was no activity on them. [#51385]
+
+### Fixed
+- Draw labels at the design system's font weight and size, and follow the WordPress admin color scheme for the zoom selection. [#51452]
+- GeoChart: Stop an HTML tooltip breaking its lines when it opens near a map edge. [#51312]
+- Honor series visibility set programmatically, not only through the interactive legend. [#51457]
+- Keep a series revealed from the legend revealed when the chart remounts, instead of re-applying `defaultHiddenSeries`. [#51468]
+
 ## [3.0.0] - 2026-08-21
 ### Changed
 - Emit the `--a8c-charts-*` token catalog on the charts provider, so any token can be overridden in CSS anywhere inside it or through the `theme` prop, and resolve tokens against the chart element so CSS-painted and SVG-painted colors honour the same override. A `theme`-prop override keeps the reach of the field it was set from: `svgLabelSmall.fill` moves the SVG axis labels without touching legend labels or heatmap cell values, and `backgroundColor` repaints the chart background without touching tooltips, the annotation label or the zoom-reset control.
@@ -991,6 +1003,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[3.1.0]: https://github.com/Automattic/charts/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/Automattic/charts/compare/v2.0.1...v3.0.0
 [2.0.1]: https://github.com/Automattic/charts/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/Automattic/charts/compare/v1.12.0...v2.0.0
