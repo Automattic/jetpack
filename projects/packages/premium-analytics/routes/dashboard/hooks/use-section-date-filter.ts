@@ -7,6 +7,7 @@ import { useEffect } from 'react';
  * Internal dependencies
  */
 import {
+	DATE_FILTER_NONE,
 	DATE_FILTER_RANGE,
 	DATE_FILTER_YEAR,
 	resolvePresetForSurface,
@@ -36,10 +37,13 @@ export function useSectionDateFilter(
 ): DateFilterSurface {
 	// Null until the sections resolve. Reconciling before then would judge the
 	// preset against the wrong surface and undo a `?section=` deep link's preset.
-	// `year` is the only opt-in, so anything else lands on the range UI.
+	// `year` and `none` are the opt-ins; anything else lands on the range UI.
 	let surface: DateFilterSurface | null = null;
 	if ( section ) {
-		surface = section.date_filter === DATE_FILTER_YEAR ? DATE_FILTER_YEAR : DATE_FILTER_RANGE;
+		surface =
+			section.date_filter === DATE_FILTER_YEAR || section.date_filter === DATE_FILTER_NONE
+				? section.date_filter
+				: DATE_FILTER_RANGE;
 	}
 
 	const { presetId, timeZone, replaceRange } = dateFilters;

@@ -7,6 +7,7 @@ import { renderHook } from '@testing-library/react';
  * Internal dependencies
  */
 import {
+	DATE_FILTER_NONE,
 	DATE_FILTER_RANGE,
 	DATE_FILTER_YEAR,
 	type DashboardSection,
@@ -117,5 +118,24 @@ describe( 'useSectionDateFilter', () => {
 		renderHook( () => useSectionDateFilter( undefined, filters ) );
 
 		expect( replaceRange ).not.toHaveBeenCalled();
+	} );
+
+	it( 'returns the no-control surface for a section registered with it', () => {
+		const { filters } = dateFilters( 'last-7-days' );
+
+		expect(
+			renderHook( () => useSectionDateFilter( section( 'none' ), filters ) ).result.current
+		).toBe( DATE_FILTER_NONE );
+	} );
+
+	// The header shows nothing, but a widget hosts a range picker, so a year
+	// preset carried in from Insights must still be reconciled away.
+	it( 'reconciles a year preset on the no-control surface like the range surface', () => {
+		const { filters, replaceRange } = dateFilters( toYearPresetId( 2024 ) );
+
+		renderHook( () => useSectionDateFilter( section( 'none' ), filters ) );
+
+		expect( replaceRange ).toHaveBeenCalledTimes( 1 );
+		expect( replaceRange.mock.calls[ 0 ][ 1 ] ).toBe( 'last-30-days' );
 	} );
 } );
