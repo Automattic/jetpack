@@ -47,9 +47,19 @@ interface AdaptiveCalendarHeatmapStoryControls {
 	tileWidth: number;
 	/** Height of the mock tile's body, in px. Drives the cell size. */
 	tileHeight: number;
-	/** Use a one-month period to show that the grid stays inside its data window. */
+	/** Use a one-month period to show how a grid shorter than the tile is filled. */
 	shortPeriod: boolean;
 }
+
+// The current year is selected as January through today, so early in the year it is
+// the shortest period Insights can produce. Fixed dates: a story that moved with the
+// clock would render differently on every visual diff.
+const CURRENT_YEAR_AS_OF = [
+	{ label: 'Jan 15 — 2 weeks of data', endDate: '2026-01-15' },
+	{ label: 'Apr 15 — 15 weeks of data', endDate: '2026-04-15' },
+	{ label: 'Aug 19 — 33 weeks of data', endDate: '2026-08-19' },
+	{ label: 'Dec 31 — the whole year', endDate: '2026-12-31' },
+] as const;
 
 /**
  * Mock widget tile. The component measures its parent, so the story has to give it
@@ -177,9 +187,9 @@ export const VeryTallTile: Story = {
 };
 
 /**
- * One month of data in a tile that fits well over a year of columns. The grid stops
- * at the period boundary instead of presenting unfetched earlier dates as no-data
- * cells.
+ * One month of data in a tile that fits well over a year of columns. The month sits
+ * at the right-hand edge and the weeks before it are filler: drawn so the tile fills,
+ * but inert — no tooltip, no keyboard stop, no claim that those days had no traffic.
  */
 export const ShortPeriod: Story = {
 	render: renderAdaptiveCalendarHeatmap,
@@ -194,5 +204,47 @@ export const ShortPeriod: Story = {
 export const NarrowTile: Story = {
 	render: renderAdaptiveCalendarHeatmap,
 	args: { ...SHORT_TILE_ARGS, tileWidth: 420, tileHeight: 320 },
+	decorators: [ withChartTheme ],
+};
+
+/**
+ * The current year, read at four points in it. Every row ends on the day the year has
+ * reached and fills leftwards with filler weeks, so the tile is as full in January as
+ * in December while the request only ever covers days that have happened.
+ */
+export const CurrentYearThroughTheYear: Story = {
+	render: ( { tileWidth, tileHeight } ) => (
+		<div style={ { display: 'flex', flexDirection: 'column', gap: '16px' } }>
+			{ CURRENT_YEAR_AS_OF.map( ( { label, endDate } ) => {
+				const fetched = { startDate: '2026-01-01', endDate };
+
+				return (
+					<div key={ endDate }>
+						<div
+							style={ {
+								marginBlockEnd: '4px',
+								font: 'var(--wpds-typography-body-small)',
+								color: 'var(--wpds-color-foreground-neutral-weak)',
+							} }
+						>
+							{ label }
+						</div>
+						<TileCanvas width={ tileWidth } height={ tileHeight }>
+							<AdaptiveCalendarHeatmap valueByDay={ buildViewsByDay( fetched ) } period={ fetched }>
+								{ chartProps => (
+									<HeatmapChartUnresponsive
+										{ ...chartProps }
+										primaryColor="var(--wp-admin-theme-color, #3858e9)"
+										withTooltips
+									/>
+								) }
+							</AdaptiveCalendarHeatmap>
+						</TileCanvas>
+					</div>
+				);
+			} ) }
+		</div>
+	),
+	args: SHORT_TILE_ARGS,
 	decorators: [ withChartTheme ],
 };

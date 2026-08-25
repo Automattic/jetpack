@@ -250,6 +250,46 @@ Charts automatically register themselves with the Global Charts Context when mou
 	// - Any additional metadata` }
 />
 
+## Series Visibility
+
+The context tracks which series are hidden per chart (by `chartId`) and exposes three ways to change that state, each suited to a different caller:
+
+- **`toggleSeriesVisibility( chartId, seriesLabel )`** — flips a series' current state. This is what an interactive legend (`legend.interactive`) calls on click; use it when you don't know or don't care about the series' current visibility.
+- **`setSeriesVisibility( chartId, seriesLabel, visible )`** — the absolute counterpart to the toggle. Use it when the caller already knows the target state, e.g. driving visibility from an external control instead of a click.
+- **`setChartHiddenSeries( chartId, seriesLabels )`** — replaces a chart's entire hidden set in one call, rather than toggling series one at a time. The `defaultHiddenSeries` prop (available on `LineChart`, `AreaChart`, and `BarChart`) writes through this for its first defined value; later values for the same `chartId` are ignored, and user changes persist across remounts until the `chartId` changes.
+
+<Source
+	language="tsx"
+	code={ `import { useGlobalChartsContext } from '@automattic/charts';
+
+	function VisibilityControls( { chartId } ) {
+		const { toggleSeriesVisibility, setSeriesVisibility, setChartHiddenSeries } =
+			useGlobalChartsContext();
+
+		return (
+			<>
+				{ /* Don't know or care about the current state: just flip it, like a legend click would. */ }
+				<button onClick={ () => toggleSeriesVisibility( chartId, 'Revenue' ) }>
+					Toggle Revenue
+				</button>
+
+				{ /* Know the target state: drive visibility from an external control. */ }
+				<button onClick={ () => setSeriesVisibility( chartId, 'Revenue', true ) }>
+					Show Revenue
+				</button>
+				<button onClick={ () => setSeriesVisibility( chartId, 'Revenue', false ) }>
+					Hide Revenue
+				</button>
+
+				{ /* Replace the whole hidden set in one call, e.g. to reset to a preset view. */ }
+				<button onClick={ () => setChartHiddenSeries( chartId, [ 'Costs', 'Refunds' ] ) }>
+					Reset to defaults
+				</button>
+			</>
+		);
+	}` }
+/>
+
 ## Context Hooks
 
 ### useGlobalChartsContext

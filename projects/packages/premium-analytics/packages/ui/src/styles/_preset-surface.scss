@@ -38,13 +38,14 @@
 	flex-shrink: 0;
 	white-space: nowrap;
 
-	// Selected: soft fill instead of the stock pressed-minimal strong mapping.
-	// Through the custom-prop API, so hover, focus and the border follow it.
+	// Selected: brand text on the soft brand fill, per the segmented control in
+	// the design, instead of the stock pressed-minimal strong mapping. Through
+	// the custom-prop API, so hover, focus and the border follow it.
 	&[aria-pressed="true"] {
-		--wp-ui-button-background-color: var(--wpds-color-background-interactive-neutral-weak-active);
-		--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-neutral-weak-active);
-		--wp-ui-button-foreground-color: var(--wpds-color-foreground-content-neutral);
-		--wp-ui-button-foreground-color-active: var(--wpds-color-foreground-content-neutral);
+		--wp-ui-button-background-color: var(--wpds-color-background-interactive-brand-weak-active);
+		--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-brand-weak-active);
+		--wp-ui-button-foreground-color: var(--wpds-color-foreground-interactive-brand);
+		--wp-ui-button-foreground-color-active: var(--wpds-color-foreground-interactive-brand);
 		outline-offset: 1px;
 	}
 }

@@ -27,7 +27,7 @@ export const CORE_BLOCKS = [
 
 const currentYear = new Date().getFullYear();
 
-// WARNING: sync data with Contact_Form_Field::render_date_field in class-contact-form-field.php
+// WARNING: sync data with Contact_Form_Field::get_date_formats() in class-contact-form-field.php
 export const DATE_FORMATS = [
 	{
 		value: 'mm/dd/yy',
@@ -55,6 +55,15 @@ export const DATE_FORMAT_OPTIONS = DATE_FORMATS.map(
 		value,
 	} )
 );
+
+/**
+ * The format instruction shown below a date field's input.
+ *
+ * @param {string} dateFormat - A DATE_FORMATS value, e.g. 'mm/dd/yy'.
+ * @return {string|null} The hint text, or null for an unknown format.
+ */
+export const getDateFormatHint = dateFormat =>
+	DATE_FORMATS.find( f => f.value === dateFormat )?.label ?? null;
 
 export const FORM_BLOCK_NAME = 'jetpack/contact-form';
 

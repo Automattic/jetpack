@@ -1,7 +1,8 @@
+import { DETAIL_SURFACE_PRESETS } from '@jetpack-premium-analytics/datetime';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Composite } from '@wordpress/components';
-import { DateRangeQuickPresets } from '../date-range-quick-presets';
+import { DateRangeQuickPresets, getSurfacePresetId } from '../date-range-quick-presets';
 import type { ComponentProps } from 'react';
 
 function renderPresets(
@@ -94,5 +95,58 @@ describe( 'DateRangeQuickPresets', () => {
 		renderPresets( { labelMode: 'full' } );
 
 		expect( screen.getByRole( 'button', { name: '7 days' } ) ).not.toHaveAttribute( 'aria-label' );
+	} );
+
+	describe( 'detail surface', () => {
+		const PUBLISHED = new Date( '2026-07-08T10:29:35.000Z' );
+
+		it( 'leads with an all-time pill that abbreviates with the rest', () => {
+			renderPresets( { presetIds: DETAIL_SURFACE_PRESETS, value: 'all-time' } );
+
+			const buttons = screen.getAllByRole( 'button' );
+			expect( buttons ).toHaveLength( 5 );
+			expect( buttons[ 0 ] ).toHaveTextContent( 'All time' );
+			expect( buttons[ 0 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
+
+		it( 'shortens the all-time label when abbreviated', () => {
+			renderPresets( { presetIds: DETAIL_SURFACE_PRESETS, labelMode: 'abbreviated' } );
+
+			expect( screen.getByRole( 'button', { name: 'All time' } ) ).toHaveTextContent( 'All' );
+		} );
+
+		it( 'selects all time from the anchor through today', async () => {
+			const user = userEvent.setup();
+			const { onSelect } = renderPresets( {
+				presetIds: DETAIL_SURFACE_PRESETS,
+				allTimeStart: PUBLISHED,
+			} );
+
+			await user.click( screen.getByRole( 'button', { name: 'All time' } ) );
+
+			const [ range, id ] = onSelect.mock.calls[ 0 ];
+			expect( id ).toBe( 'all-time' );
+			// The UTC surface: the anchor's own day, from midnight.
+			expect( range.from.toISOString() ).toBe( '2026-07-08T00:00:00.000Z' );
+			expect( range.to.getTime() ).toBeGreaterThan( Date.now() - 24 * 60 * 60 * 1000 );
+		} );
+	} );
+
+	describe( 'getSurfacePresetId', () => {
+		it( 'highlights a rolling window on any surface', () => {
+			expect( getSurfacePresetId( 'last-7-days' ) ).toBe( 'last-7-days' );
+			expect( getSurfacePresetId( 'last-7-days', DETAIL_SURFACE_PRESETS ) ).toBe( 'last-7-days' );
+		} );
+
+		it( 'highlights all time only on a surface that lists it', () => {
+			expect( getSurfacePresetId( 'all-time' ) ).toBeNull();
+			expect( getSurfacePresetId( 'all-time', DETAIL_SURFACE_PRESETS ) ).toBe( 'all-time' );
+		} );
+
+		it( 'highlights nothing for a custom range or a year', () => {
+			expect( getSurfacePresetId( 'custom', DETAIL_SURFACE_PRESETS ) ).toBeNull();
+			expect( getSurfacePresetId( 'year-2025', DETAIL_SURFACE_PRESETS ) ).toBeNull();
+			expect( getSurfacePresetId( undefined ) ).toBeNull();
+		} );
 	} );
 } );

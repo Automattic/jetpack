@@ -1,18 +1,18 @@
 /**
- * The Views performance widget is the video detail page's view-trend card:
- * the scoped video's views over the dashboard date range as a line chart.
- * The video scope arrives through `reportParams.post_id` (seeded from the
- * detail page URL in product); the `hasVideoScope` control toggles it to
- * exercise the scopeless empty state.
+ * The Video performance widget is the video detail page's performance card:
+ * the scoped video's views, impressions, hours watched, and retention rate
+ * over the dashboard date range as selectable metric tabs over a chart. The
+ * video scope arrives through `reportParams.post_id` (seeded from the detail
+ * page URL in product); the `hasVideoScope` control toggles it to exercise
+ * the scopeless empty state.
  *
- * Data comes from the proxied `stats/video/{id}` `statType=all` endpoint —
- * the same range request the Video highlights widget issues, so the two share
- * one cache entry — covered by the shared single-video report mock (a
- * deterministic daily series ending today, so relative date presets always
- * intersect it). The video detail design has no period-over-period
- * comparison, so the widget maps no comparison rows; the dashboard story
- * still passes comparison params so the widget stays covered against
- * crashing or inventing an overlay when a host supplies them.
+ * Data comes from one proxied `stats/video/{id}` `statType=all` range
+ * request, covered by the shared single-video report mock (a deterministic
+ * daily series ending today, so relative date presets always intersect it).
+ * The video detail design has no period-over-period comparison, so the
+ * widget maps no comparison rows; the dashboard story still passes
+ * comparison params so the widget stays covered against crashing or
+ * inventing an overlay when a host supplies them.
  */
 /**
  * External dependencies
@@ -107,7 +107,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					"The \"Views performance\" widget: the scoped video's view trend over the dashboard date range as a line chart. The series comes from the `stats/video/{id}` `statType=all` daily history for the selected window (shared with the Video highlights widget's query), zero-filled and bucketed client-side at the page's chart interval. The video detail page has no comparison control, so comparison report params are ignored. Without a video scope the widget renders a scopeless empty state.",
+					"The \"Video performance\" widget: the scoped video's views, impressions, hours watched, and retention rate over the dashboard date range as selectable metric tabs, each headlined by the window's canonical total. The series come from the `stats/video/{id}` `statType=all` daily history for the selected window, zero-filled and bucketed client-side at the page's chart interval (retention rate is play-weighted, not averaged). The video detail page has no comparison control, so comparison report params are ignored. Without a video scope the widget renders a scopeless empty state.",
 			},
 		},
 	},
@@ -121,8 +121,8 @@ export default meta;
 type Story = StoryObj< VideoDetailViewsPerformanceStoryControls >;
 
 /**
- * Default — the scoped video's views for the selected period: a single
- * "Views" line.
+ * Default — the scoped video's four metric tabs for the selected period, with
+ * the Views tab selected.
  */
 export const Default: Story = {
 	render: renderVideoDetailViewsPerformance,
