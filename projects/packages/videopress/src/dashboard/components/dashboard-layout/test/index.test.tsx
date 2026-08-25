@@ -18,6 +18,14 @@ jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => (
 	default: jest.fn(),
 } ) );
 
+// The layout's other child reaches react-query (useOnboardingCounts → useLibrary),
+// which would need a QueryClientProvider these tests have no use for. Nothing here
+// asserts on the modal, so stub it rather than stand up the query machinery.
+jest.mock( '../../onboarding-modal', () => ( {
+	__esModule: true,
+	default: () => null,
+} ) );
+
 const mockUseNavigate = useNavigate as jest.Mock;
 const mockConnectionError = ConnectionError as jest.Mock;
 const mockUseConnectionErrorNotice = useConnectionErrorNotice as jest.MockedFunction<
