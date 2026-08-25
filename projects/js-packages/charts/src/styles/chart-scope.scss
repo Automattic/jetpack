@@ -47,10 +47,17 @@
 	// therefore still wins here — verified in Storybook, where a #b3261e accent
 	// sets both variables to #b3261e.
 
-	// The innermost var(--wp-admin-theme-color, #3858e9) is unreachable: the
-	// outer leg already tried that variable. It is written out because it is
-	// the design system's own spec value for the token, which
-	// `src/styles/test/wpds-fallbacks.test.ts` compares against literally.
+	// DO NOT SIMPLIFY the chain below. The innermost
+	// var(--wp-admin-theme-color, #3858e9) is unreachable — the outer leg
+	// already tried that variable — and reads like a copy-paste mistake. It is
+	// the design system's own spec value for the WPDS token, which
+	// `src/styles/test/wpds-fallbacks.test.ts` compares against literally, so
+	// collapsing it to a bare hex fails that test. Reordering to put the WPDS
+	// token first passes every test and silently breaks admin-colour-scheme
+	// support in wp-admin, for the reason above.
+
+	// That test scans this file as text, comments included, so do not write an
+	// example --wpds-* reference in a comment here — it is read as a real one.
 	--a8c-charts-color-series-1: var(--a8c-charts-color-series-1-theme, var(--wp-admin-theme-color, var(--wpds-color-foreground-interactive-brand, var(--wp-admin-theme-color, #3858e9))));
 	--a8c-charts-color-series-2: var(--a8c-charts-color-series-2-theme);
 	--a8c-charts-color-series-3: var(--a8c-charts-color-series-3-theme);

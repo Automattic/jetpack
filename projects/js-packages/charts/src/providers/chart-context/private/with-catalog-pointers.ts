@@ -34,6 +34,7 @@ const CATALOG_RESTORE_FOR_ROLE: Record<
 	string,
 	( theme: CompleteChartTheme ) => Partial< CompleteChartTheme >
 > = {
+	// Each of the five entries rebuilds the whole array, so a consumer overriding every slot runs this five times. That is deliberate rather than merely tolerated: `seriesPointer` is idempotent, so every pass after the first is a no-op, and five allocations of a five-element array is not worth a special case in a map that is otherwise one entry per role.
 	...Object.fromEntries(
 		Array.from( { length: SERIES_SLOT_COUNT }, ( _, index ) => [
 			seriesRole( index + 1 ),

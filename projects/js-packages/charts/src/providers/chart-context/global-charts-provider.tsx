@@ -91,6 +91,10 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 	// Resolves CSS variables from the wrapper element's scope to handle scoped variables
 	// Note: Only re-runs when providerTheme changes, not when wrapper element changes.
 	// This is intentional, as wrapperRef is expected to be stable for the lifetime of the provider.
+	// A remount is not a gap in that: effects always run on mount, so a new instance resolves
+	// against its own node. Only a node swap *within* one instance would go unseen, and the catalog
+	// is declared on the `.a8c-charts-scope` class rather than on a particular element, so the
+	// replacement carries the same computed values anyway.
 	useLayoutEffect( () => {
 		setIsColorPaletteResolved( false );
 		const { colors } = providerTheme;
