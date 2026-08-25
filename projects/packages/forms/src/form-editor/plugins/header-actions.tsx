@@ -4,11 +4,11 @@
  * Adds "View responses" button to the form editor header.
  */
 
-import { Button, Fill } from '@wordpress/components';
+import { Fill } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { LinkButton } from '@wordpress/ui';
 import { getResponsesUrl } from './utils';
 
 export const HEADER_ACTIONS_PLUGIN = 'jetpack-form-header-actions';
@@ -25,21 +25,15 @@ export const HeaderActions = () => {
 		};
 	} );
 
-	const handleViewResponses = useCallback( () => {
-		if ( postId ) {
-			window.location.href = getResponsesUrl( postId );
-		}
-	}, [ postId ] );
-
 	if ( ! postId || isNewPost ) {
 		return null;
 	}
 
 	return (
 		<Fill name="PinnedItems/core">
-			<Button variant="secondary" size="compact" onClick={ handleViewResponses }>
+			<LinkButton variant="outline" size="compact" href={ getResponsesUrl( postId ) }>
 				{ __( 'View responses', 'jetpack-forms' ) }
-			</Button>
+			</LinkButton>
 		</Fill>
 	);
 };

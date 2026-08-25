@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { LinkButton } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -31,12 +31,16 @@ export default function EditFormButton( {
 
 	const onClick = useCallback( () => {
 		onClickProp?.();
-		window.location.href = getFormEditUrl( formId, adminUrl );
-	}, [ adminUrl, formId, onClickProp ] );
+	}, [ onClickProp ] );
 
 	return (
-		<Button size="compact" variant="secondary" onClick={ onClick }>
+		<LinkButton
+			size="compact"
+			variant="outline"
+			href={ getFormEditUrl( formId, adminUrl ) }
+			onClick={ onClick }
+		>
 			{ __( 'Edit form', 'jetpack-forms' ) }
-		</Button>
+		</LinkButton>
 	);
 }
