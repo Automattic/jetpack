@@ -4,6 +4,11 @@
  * Replaces the generic block editor welcome modal with a guide that walks
  * through the parts of the form editor. Shows once per user, and takes over
  * the editor's own "Welcome Guide" menu item so that reopens it too.
+ *
+ * Always loaded on the form editor, including once the guide has been
+ * dismissed: this is what claims that menu item, and it has to be present in
+ * every state for the claim to hold. The artwork is the only heavy part, and
+ * it is fetched when the guide opens rather than when this loads.
  */
 
 import { Guide } from '@wordpress/components';
@@ -89,12 +94,16 @@ export const FormWelcomeGuide = () => {
 		setIsReopened( false );
 		setIsClosed( true );
 
-		// Only persist the dismissal the first time; re-writing false on every
-		// reopen would queue a pointless preference save.
-		if ( shouldPersistDismissal( preference ) ) {
+		/*
+		 * Only persist the dismissal the first time; re-writing false on every
+		 * reopen would queue a pointless preference save. A forced guide never
+		 * persists: the query argument exists to re-test the first run, so
+		 * closing one must not burn the real one.
+		 */
+		if ( ! isForced && shouldPersistDismissal( preference ) ) {
 			set( PREFERENCE_SCOPE, PREFERENCE_NAME, false );
 		}
-	}, [ preference, set ] );
+	}, [ isForced, preference, set ] );
 
 	const handleReopen = useCallback( () => {
 		setIsClosed( false );

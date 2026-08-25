@@ -133,6 +133,21 @@ describe( 'FormWelcomeGuide', () => {
 	} );
 
 	/*
+	 * The query argument is documented as a way to re-test the first run
+	 * without resetting preferences, so closing a forced guide must not spend
+	 * the real first run of whoever followed the link.
+	 */
+	it( 'never persists a dismissal when the guide was forced open', async () => {
+		setSearch( '?jetpack_forms_welcome_guide=1' );
+
+		render( <FormWelcomeGuide /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Finish' } ) );
+
+		expect( set ).not.toHaveBeenCalledWith( PREFERENCE_SCOPE, PREFERENCE_NAME, false );
+	} );
+
+	/*
 	 * Regression test for the earlier review feedback: bringing the guide back
 	 * from the Options menu must not undo a stored dismissal, or it starts
 	 * auto-opening on every later load.

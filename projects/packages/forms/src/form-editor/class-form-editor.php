@@ -39,13 +39,6 @@ class Form_Editor {
 	const PREFERENCE_SCOPE = 'jetpack/forms';
 
 	/**
-	 * Query argument that force-opens the guide. Mirrors FORCE_QUERY_ARG in welcome-guide/should-show.ts.
-	 *
-	 * @var string
-	 */
-	const FORCE_QUERY_ARG = 'jetpack_forms_welcome_guide';
-
-	/**
 	 * Initialize the form editor.
 	 */
 	public static function init() {
@@ -227,19 +220,19 @@ class Form_Editor {
 	 * already demonstrated they do not need it — and that path never re-runs
 	 * this hook, so not loading here is what skips the guide for them.
 	 *
-	 * Loaded only when the guide will actually open, so a page that would never
-	 * show it does not pay for the bundle at all. The artwork is only fetched
-	 * once the guide opens.
+	 * Loaded on every form editor page load, including once the guide has been
+	 * dismissed. The guide does not add an Options menu item of its own; it
+	 * takes over core's "Welcome Guide" item, which is present whether or not
+	 * this bundle is. Skipping the bundle for dismissed users would leave that
+	 * item unclaimed, and because it is a toggle rather than a button, choosing
+	 * it would persist `welcomeGuide: true` — outliving the page load, beating
+	 * the runtime default this package sets, and reopening core's generic modal
+	 * in the form editor on each load until the user finished it there.
 	 *
-	 * The trade-off is in the Options menu. The guide does not add an item of
-	 * its own; it takes over core's "Welcome Guide" item, which is always
-	 * present whether or not this bundle loads. Once the guide has been
-	 * dismissed the bundle is skipped, so nothing intercepts that item and it
-	 * behaves as core's again — and because core's item is a toggle, choosing
-	 * it persists `welcomeGuide: true`, which outlives the page load and beats
-	 * the runtime default this package sets. The generic modal then opens in
-	 * the form editor on each load until the user finishes it there. The query
-	 * argument is the way back to this guide.
+	 * What loads here is only the shim that claims that item and decides
+	 * whether to open. The slides, their artwork and their styles are a
+	 * separate chunk fetched when the guide actually opens, so a dismissed
+	 * user still pays almost nothing.
 	 */
 	private static function enqueue_welcome_guide() {
 		$screen = get_current_screen();
@@ -248,11 +241,15 @@ class Form_Editor {
 		}
 
 		$preferences = self::get_persisted_preferences();
-		$is_eligible = self::is_welcome_guide_eligible( $preferences );
 
-		if ( ! self::should_open_welcome_guide( $preferences, $is_eligible ) ) {
-			return;
-		}
+		/*
+		 * Eligibility decides whether the guide opens on its own, which it
+		 * never does once dismissed — reopening from the Options menu and the
+		 * query argument both bypass it. The lookup costs a query, so skip it
+		 * when the answer cannot change anything.
+		 */
+		$is_eligible = ! self::is_welcome_guide_dismissed( $preferences )
+			&& self::is_welcome_guide_eligible( $preferences );
 
 		$asset_file = __DIR__ . '/../../dist/form-editor/jetpack-form-welcome-guide.asset.php';
 		if ( ! file_exists( $asset_file ) ) {
@@ -285,27 +282,6 @@ class Form_Editor {
 			) . ';',
 			'before'
 		);
-	}
-
-	/**
-	 * Whether the guide has anything to do on this request.
-	 *
-	 * Nothing to render and nothing to reopen means the bundle would only sit
-	 * idle, so it is not worth the request. Split out from the enqueue as a
-	 * pure decision over values the caller already has: the enqueue needs a
-	 * built `dist/` on disk, while this rule does not, so it stays testable
-	 * whether or not the JS has been built.
-	 *
-	 * @param array $preferences The user's persisted editor preferences.
-	 * @param bool  $is_eligible Whether the guide may open on its own for them.
-	 * @return bool Whether the guide should open.
-	 */
-	private static function should_open_welcome_guide( array $preferences, $is_eligible ) {
-		if ( self::is_welcome_guide_forced() ) {
-			return true;
-		}
-
-		return $is_eligible && ! self::is_welcome_guide_dismissed( $preferences );
 	}
 
 	/**
@@ -344,27 +320,6 @@ class Form_Editor {
 	private static function is_welcome_guide_dismissed( array $preferences ) {
 		return isset( $preferences[ self::PREFERENCE_SCOPE ]['welcomeGuide'] )
 			&& false === $preferences[ self::PREFERENCE_SCOPE ]['welcomeGuide'];
-	}
-
-	/**
-	 * Whether the query argument that force-opens the guide is present.
-	 *
-	 * Mirrors isWelcomeGuideForced() in should-show.ts: present and not
-	 * explicitly falsy. Without this the argument would be useless, since the
-	 * bundle it overrides would never be loaded to read it.
-	 *
-	 * @return bool Whether the guide is being force-opened.
-	 */
-	private static function is_welcome_guide_forced() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display toggle, changes no state.
-		if ( ! isset( $_GET[ self::FORCE_QUERY_ARG ] ) ) {
-			return false;
-		}
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display toggle, changes no state.
-		$value = sanitize_text_field( wp_unslash( $_GET[ self::FORCE_QUERY_ARG ] ) );
-
-		return '0' !== $value && 'false' !== $value;
 	}
 
 	/**

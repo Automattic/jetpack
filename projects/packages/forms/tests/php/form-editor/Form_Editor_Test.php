@@ -53,7 +53,6 @@ class Form_Editor_Test extends BaseTestCase {
 	protected function tear_down() {
 		remove_filter( 'posts_pre_query', array( $this, 'stub_form_query' ), 10 );
 		unregister_post_type( Contact_Form::POST_TYPE );
-		unset( $_GET[ Form_Editor::FORCE_QUERY_ARG ] );
 		parent::tear_down();
 	}
 
@@ -721,42 +720,6 @@ class Form_Editor_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The force argument mirrors isWelcomeGuideForced() in should-show.ts:
-	 * present and not explicitly falsy.
-	 *
-	 * @param mixed $value    Query argument value, or null to omit it.
-	 * @param bool  $expected Expected result.
-	 * @dataProvider force_query_arg_values
-	 */
-	#[\PHPUnit\Framework\Attributes\DataProvider( 'force_query_arg_values' )]
-	public function test_is_welcome_guide_forced( $value, $expected ) {
-		unset( $_GET[ Form_Editor::FORCE_QUERY_ARG ] );
-		if ( null !== $value ) {
-			$_GET[ Form_Editor::FORCE_QUERY_ARG ] = $value;
-		}
-
-		$this->assertSame( $expected, $this->call_private( 'is_welcome_guide_forced' ) );
-
-		unset( $_GET[ Form_Editor::FORCE_QUERY_ARG ] );
-	}
-
-	/**
-	 * Force argument values and whether they enable the guide.
-	 *
-	 * @return array<string, array{mixed, bool}>
-	 */
-	public static function force_query_arg_values() {
-		return array(
-			'absent'         => array( null, false ),
-			'present, empty' => array( '', true ),
-			'one'            => array( '1', true ),
-			'zero'           => array( '0', false ),
-			'literal false'  => array( 'false', false ),
-			'anything else'  => array( 'yes', true ),
-		);
-	}
-
-	/**
 	 * Preferences come back as an array even when nothing is stored.
 	 */
 	public function test_get_persisted_preferences_defaults_to_an_array() {
@@ -806,39 +769,6 @@ class Form_Editor_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The guide opens for a user it is meant for who has not dismissed it.
-	 */
-	public function test_should_open_for_an_eligible_user() {
-		$this->assertTrue( $this->call_private( 'should_open_welcome_guide', array( array(), true ) ) );
-	}
-
-	/**
-	 * Someone the guide is not meant for never sees it.
-	 */
-	public function test_should_not_open_for_an_ineligible_user() {
-		$this->assertFalse( $this->call_private( 'should_open_welcome_guide', array( array(), false ) ) );
-	}
-
-	/**
-	 * Once dismissed there is nothing to show, however eligible they were.
-	 */
-	public function test_should_not_open_once_dismissed() {
-		$preferences = array( 'jetpack/forms' => array( 'welcomeGuide' => false ) );
-
-		$this->assertFalse( $this->call_private( 'should_open_welcome_guide', array( $preferences, true ) ) );
-	}
-
-	/**
-	 * The query argument overrides both, so the guide can always be re-tested.
-	 */
-	public function test_should_open_when_forced() {
-		$preferences                          = array( 'jetpack/forms' => array( 'welcomeGuide' => false ) );
-		$_GET[ Form_Editor::FORCE_QUERY_ARG ] = '1';
-
-		$this->assertTrue( $this->call_private( 'should_open_welcome_guide', array( $preferences, false ) ) );
-	}
-
-	/**
 	 * Other post types never get the guide, which is what keeps it away from the
 	 * in-editor navigation path. The post type check runs before the enqueue
 	 * reaches for the built bundle, so this holds whether or not dist/ exists.
@@ -860,6 +790,17 @@ class Form_Editor_Test extends BaseTestCase {
 		$this->assertFalse( wp_script_is( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'enqueued' ) );
 
 		$this->clean_up_enqueue();
+	}
+
+	/**
+	 * The inline script the guide bundle reads its flags from.
+	 *
+	 * @return string The concatenated inline script, or an empty string.
+	 */
+	private function inline_guide_script() {
+		$inline = wp_scripts()->get_data( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'before' );
+
+		return is_array( $inline ) ? implode( '', $inline ) : (string) $inline;
 	}
 
 	/**
@@ -946,74 +887,48 @@ class Form_Editor_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Someone experienced who already owns a form never downloads the bundle.
+	 * The shim that claims the Options menu item has to be there in every
+	 * state, so an experienced user who already owns a form still gets it —
+	 * they just get `isEligible: false` and it never opens on its own.
 	 */
-	public function test_welcome_guide_is_not_enqueued_for_an_ineligible_user() {
+	public function test_welcome_guide_is_enqueued_for_an_ineligible_user() {
 		$this->skip_without_guide_asset();
 		$user_id             = $this->log_in_new_user();
 		$this->stub_form_ids = array( 1234 );
-		update_user_meta(
-			$user_id,
-			'wp_persisted_preferences',
-			array( 'core/edit-post' => array( 'welcomeGuide' => false ) )
-		);
+		$this->seed_preferences( $user_id, array( 'core/edit-post' => array( 'welcomeGuide' => false ) ) );
 
 		$this->set_form_editor_screen();
 		$this->run_enqueue();
 
-		$this->assertFalse( wp_script_is( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'enqueued' ) );
-		$this->assertTrue(
-			wp_script_is( Form_Editor::SCRIPT_HANDLE, 'enqueued' ),
-			'The editor bundle itself should still load'
-		);
+		$this->assertTrue( wp_script_is( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'enqueued' ) );
+		$this->assertStringContainsString( '"isEligible":false', $this->inline_guide_script() );
 
 		$this->clean_up_enqueue();
 	}
 
 	/**
-	 * Once dismissed there is nothing to show, so the bundle is skipped.
+	 * Once dismissed the guide never opens on its own, but the bundle still
+	 * loads — without it, core's "Welcome Guide" item would go unclaimed and
+	 * bring back the generic modal this guide replaces.
 	 */
-	public function test_welcome_guide_is_not_enqueued_once_dismissed() {
+	public function test_welcome_guide_is_enqueued_once_dismissed() {
 		$this->skip_without_guide_asset();
 		$user_id             = $this->log_in_new_user();
 		$this->stub_form_ids = array();
-		update_user_meta(
-			$user_id,
-			'wp_persisted_preferences',
-			array( 'jetpack/forms' => array( 'welcomeGuide' => false ) )
-		);
+		$this->seed_preferences( $user_id, array( 'jetpack/forms' => array( 'welcomeGuide' => false ) ) );
 
 		$this->set_form_editor_screen();
 		$this->run_enqueue();
 
-		$this->assertFalse( wp_script_is( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'enqueued' ) );
-
-		$this->clean_up_enqueue();
-	}
-
-	/**
-	 * The query argument overrides both, so the guide can always be re-tested.
-	 */
-	public function test_welcome_guide_is_enqueued_when_forced() {
-		$this->skip_without_guide_asset();
-		$user_id             = $this->log_in_new_user();
-		$this->stub_form_ids = array( 1234 );
-		update_user_meta(
-			$user_id,
-			'wp_persisted_preferences',
-			array(
-				'core/edit-post' => array( 'welcomeGuide' => false ),
-				'jetpack/forms'  => array( 'welcomeGuide' => false ),
-			)
+		$this->assertTrue( wp_script_is( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'enqueued' ) );
+		$this->assertStringContainsString(
+			'"isEligible":false',
+			$this->inline_guide_script(),
+			'A dismissed user is reported ineligible without the form lookup running'
 		);
-		$_GET[ Form_Editor::FORCE_QUERY_ARG ] = '1';
-
-		$this->set_form_editor_screen();
-		$this->run_enqueue();
-
-		$this->assertTrue(
-			wp_script_is( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'enqueued' ),
-			'The force argument should load the guide regardless'
+		$this->assertNull(
+			$this->captured_query_vars,
+			'Eligibility cannot change the outcome once dismissed, so it should not be queried'
 		);
 
 		$this->clean_up_enqueue();
