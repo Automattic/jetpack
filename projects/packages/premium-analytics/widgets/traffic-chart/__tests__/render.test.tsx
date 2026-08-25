@@ -24,13 +24,13 @@ const mockUseTrafficChart = jest.mocked( useTrafficChart );
 
 // The dashboard only lets a range carry the intervals it can draw, and
 // `normalizeReportParams` coerces anything else away — so each interval needs a
-// range long enough to keep it. The range also bounds the buckets the widget
-// offers, so a case about a pick needs one that allows the picked bucket too:
-// `day` here is a 30-day window, which allows both days and weeks.
+// range long enough to keep it.
 const RANGE_FOR_INTERVAL: Record< string, { from: string; to: string } > = {
+	hour: { from: '2026-06-29', to: '2026-06-30' },
 	day: { from: '2026-06-01', to: '2026-06-30' },
-	month: { from: '2025-01-01', to: '2026-06-30' },
 	week: { from: '2026-01-01', to: '2026-06-30' },
+	month: { from: '2025-01-01', to: '2026-06-30' },
+	quarter: { from: '2023-01-01', to: '2026-06-30' },
 };
 
 function reportParams( interval: string ): ReportParams {
@@ -62,81 +62,40 @@ beforeEach( () => {
 } );
 
 describe( 'TrafficChart bucket size', () => {
-	it( 'follows the page interval when nobody has picked a bucket', () => {
-		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'month' ) } } /> );
+	it.each( [ 'hour', 'day', 'week', 'month' ] )( 'follows the page interval: %s', interval => {
+		render( <TrafficChartRender attributes={ { reportParams: reportParams( interval ) } } /> );
+
+		expect( requestedBucket() ).toBe( interval );
+	} );
+
+	it( 'clamps a page interval this chart cannot draw to the coarsest it can', () => {
+		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'quarter' ) } } /> );
 
 		expect( requestedBucket() ).toBe( 'month' );
 	} );
 
-	it( "draws a reader's pick while the page still resolves to what it was picked against", () => {
-		render(
-			<TrafficChartRender
-				attributes={ {
-					reportParams: reportParams( 'day' ),
-					granularity: 'week',
-					granularityPickedFor: 'day',
-				} }
-			/>
-		);
+	// The Group by attribute this widget used to declare (WOOA7S-1987): a saved
+	// layout can still carry it, and it must not override the page.
+	it( 'ignores a granularity persisted before the widget dropped the control', () => {
+		const staleAttributes = {
+			reportParams: reportParams( 'month' ),
+			granularity: 'day',
+			granularityPickedFor: 'month',
+		};
 
-		expect( requestedBucket() ).toBe( 'week' );
-	} );
-
-	// The pick above survives a page whose bucket has not moved; this one must
-	// not, because the range it now sits in cannot draw it at all.
-	it( 'lets the pick lapse once the range stops allowing it', () => {
-		render(
-			<TrafficChartRender
-				attributes={ {
-					reportParams: reportParams( 'month' ),
-					granularity: 'day',
-					granularityPickedFor: 'month',
-				} }
-			/>
-		);
+		render( <TrafficChartRender attributes={ staleAttributes } /> );
 
 		expect( requestedBucket() ).toBe( 'month' );
 	} );
 
-	// Otherwise a reader who looked at one widget by days would keep seeing days
-	// after moving the whole page to another range.
-	it( 'lets the pick lapse once the page interval moves', () => {
-		render(
-			<TrafficChartRender
-				attributes={ {
-					reportParams: reportParams( 'week' ),
-					granularity: 'day',
-					granularityPickedFor: 'month',
-				} }
-			/>
-		);
-
-		expect( requestedBucket() ).toBe( 'week' );
-	} );
-
-	// A pick from before this widget offered hourly can still name `auto`.
-	it( 'ignores a pick naming a bucket it no longer offers', () => {
-		render(
-			<TrafficChartRender
-				attributes={ {
-					reportParams: reportParams( 'month' ),
-					granularity: 'auto' as 'day',
-					granularityPickedFor: 'month' as 'day',
-				} }
-			/>
-		);
-
-		expect( requestedBucket() ).toBe( 'month' );
-	} );
-
-	// The widget resolves this from its attributes alone, so it cannot need a
+	// The widget resolves this from `reportParams` alone, so it cannot need a
 	// host setter — and cannot dirty the saved layout just by rendering.
 	it( 'writes nothing, whatever it is handed', () => {
 		const setAttributes = jest.fn();
 
 		render(
 			<TrafficChartRender
-				attributes={ { reportParams: reportParams( 'month' ), granularity: 'day' } }
+				attributes={ { reportParams: reportParams( 'month' ) } }
 				setAttributes={ setAttributes }
 			/>
 		);
