@@ -118,7 +118,13 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 	} else if ( upload.status === 'failed' ) {
 		pill = {
 			intent: 'high',
-			label: __( 'Upload failed', 'jetpack-videopress-pkg' ),
+			label:
+				upload.failureReason === 'connection'
+					? // The connection notice above the library carries the diagnosis and
+					  // the reconnect button, so the row only has to say which problem it
+					  // belongs to.
+					  __( 'Upload failed: Jetpack connection issue', 'jetpack-videopress-pkg' )
+					: __( 'Upload failed', 'jetpack-videopress-pkg' ),
 		};
 	} else if ( isProcessing ) {
 		pill = {

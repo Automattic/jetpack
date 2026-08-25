@@ -13,6 +13,29 @@ import type { ChangeEvent } from 'react';
 
 const debug = debugFactory( 'videopress:use-resumable-uploader' );
 
+/**
+ * `code` carried by the error raised when the upload JWT can't be obtained.
+ */
+export const UPLOAD_TOKEN_ERROR_CODE = 'videopress_no_upload_token';
+
+/**
+ * The error raised when the upload JWT can't be obtained.
+ */
+export class UploadTokenError extends Error {
+	public readonly code = UPLOAD_TOKEN_ERROR_CODE;
+
+	/**
+	 * Build the error.
+	 *
+	 * The message is unchanged from the string this replaced: it is developer
+	 * text, and the dashboard describes the failure in its own words.
+	 */
+	constructor() {
+		super( 'No token provided' );
+		this.name = 'UploadTokenError';
+	}
+}
+
 type UploadingStatusProp = 'idle' | 'resumed' | 'aborted' | 'uploading' | 'done' | 'error';
 
 type UploadingDataProps = {
@@ -57,7 +80,7 @@ const useResumableUploader = ( { onProgress, onSuccess, onError } ): UseResumabl
 	async function uploadHandler( file: File ) {
 		const tokenData = await getMediaToken( 'upload-jwt' );
 		if ( ! tokenData.token ) {
-			return onError( 'No token provided' );
+			return onError( new UploadTokenError() );
 		}
 
 		// The file starts to upload automatically, so we need to set the status to uploading

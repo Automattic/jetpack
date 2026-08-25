@@ -1,16 +1,27 @@
 /**
  * External dependencies
  */
+import useConnectionErrorNotice from '@automattic/jetpack-connection/use-connection-error-notice';
 import { getRequiredPlan, getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
+import { UPLOAD_TOKEN_ERROR_CODE } from '../../../../../hooks/use-resumable-uploader';
 import { PlaceholderWrapper } from '../../edit';
 
-const getErrorMessage = uploadErrorData => {
+const getErrorMessage = ( uploadErrorData, hasConnectionError ) => {
 	if ( ! uploadErrorData ) {
 		return '';
+	}
+
+	// Same rule as classifyUploadFailure(): a missing token means the upload never reached
+	// WordPress.com, but not why; only a connection error alongside it justifies naming the connection.
+	if ( uploadErrorData?.code === UPLOAD_TOKEN_ERROR_CODE && hasConnectionError ) {
+		return __(
+			'Failed to upload your video. Check your Jetpack connection and try again.',
+			'jetpack-videopress-pkg'
+		);
 	}
 
 	const errorMessage =
@@ -56,7 +67,10 @@ const getErrorMessage = uploadErrorData => {
 	return errorMessage;
 };
 const UploadError = ( { errorData, onRetry, onCancel } ) => {
-	const message = getErrorMessage( errorData );
+	// The editor has no ConnectionError notice of its own, so this is read only
+	// as corroboration for the message below, not to render anything.
+	const { hasConnectionError } = useConnectionErrorNotice();
+	const message = getErrorMessage( errorData, hasConnectionError );
 
 	return (
 		<PlaceholderWrapper errorMessage={ message } onNoticeRemove={ onCancel }>
