@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
-import { DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
+import { DATE_FILTER_NONE, DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
 import { useActiveSection, useDashboardSections, useSectionDateFilter } from './hooks';
 import { stage as Dashboard } from './stage';
 import type { SyncStatus } from '@jetpack-premium-analytics/site-sync';
@@ -228,6 +228,18 @@ describe( 'Dashboard report scope', () => {
 
 		expect( screen.getByText( 'no comparison' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'header offers no comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders no header date control for a section with no date surface', () => {
+		mockSection( { date_filter: DATE_FILTER_NONE } );
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_NONE );
+
+		render( <Dashboard /> );
+
+		// The mocked `DateFiltersPanel` is the only thing that renders either
+		// string, so neither appearing means the panel itself never mounted.
+		expect( screen.queryByText( 'header offers comparison' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'header offers no comparison' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'updates the scope when switching between sections', () => {
