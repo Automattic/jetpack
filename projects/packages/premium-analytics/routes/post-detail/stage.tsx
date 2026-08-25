@@ -22,6 +22,7 @@ import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/wi
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailChartIntervals } from '../use-detail-chart-intervals';
+import { useDetailDatePresets } from '../use-detail-date-presets';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { PostDetailTabs, PostSummaryCard } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
@@ -119,6 +120,9 @@ function PostDetail(): JSX.Element {
 		dateFilters.interval,
 		dateFilters.intervalOptions
 	);
+	// All time, then the rolling windows, and no custom range — the detail-page
+	// design; all time runs from the day this resource was published.
+	const datePresets = useDetailDatePresets( summary.publishedDate );
 
 	// The header row hosts the panel in a shrink-to-fit slot, so the panel
 	// measures the row itself to pick its responsive layout; see the
@@ -196,6 +200,7 @@ function PostDetail(): JSX.Element {
 									<DateFiltersPanel
 										{ ...dateFilters }
 										{ ...chartIntervals }
+										{ ...datePresets }
 										containerElement={ headerElement }
 										reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
 									/>

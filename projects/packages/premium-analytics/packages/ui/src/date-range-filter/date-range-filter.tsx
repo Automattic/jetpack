@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { PRESET_CUSTOM, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
+import { PRESET_CUSTOM, type QuickSurfacePresetId } from '@jetpack-premium-analytics/datetime';
 import { Composite } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
@@ -31,6 +31,23 @@ export type DateRangeFilterProps = Omit<
 	 * by `DateFiltersPanel`; only forwarded because the calendar needs it.
 	 */
 	isWideScreen?: boolean;
+
+	/**
+	 * The presets rendered as pills, in display order. Defaults to the rolling
+	 * windows; a detail page leads with all time.
+	 */
+	presetIds?: readonly QuickSurfacePresetId[];
+
+	/**
+	 * Where the all-time pill starts, when the pills include it.
+	 */
+	allTimeStart?: Date;
+
+	/**
+	 * Whether to offer the custom-range popover after the pills. On by default;
+	 * the detail pages' design has presets only.
+	 */
+	withCustomRange?: boolean;
 };
 
 /**
@@ -50,14 +67,17 @@ export function DateRangeFilter( {
 	onOpenChange,
 	labelMode = 'full',
 	isWideScreen = false,
+	presetIds,
+	allTimeStart,
+	withCustomRange = true,
 }: DateRangeFilterProps ) {
 	const surfacePresetId = useMemo(
-		() => getSurfacePresetId( appliedPresetId ?? presetId ),
-		[ appliedPresetId, presetId ]
+		() => getSurfacePresetId( appliedPresetId ?? presetId, presetIds ),
+		[ appliedPresetId, presetId, presetIds ]
 	);
 
 	const handlePresetSelect = useCallback(
-		( nextRange: DateRange, nextPresetId: SelectablePresetId ) => {
+		( nextRange: DateRange, nextPresetId: QuickSurfacePresetId ) => {
 			onChange( nextRange, nextPresetId );
 			onApply();
 		},
@@ -70,10 +90,12 @@ export function DateRangeFilter( {
 			onSelect={ handlePresetSelect }
 			timeZone={ timeZone }
 			labelMode={ labelMode }
+			presetIds={ presetIds }
+			allTimeStart={ allTimeStart }
 		/>
 	);
 
-	const customRangePopover = (
+	const customRangePopover = withCustomRange ? (
 		<DateRangePopover
 			presetId={ presetId ?? PRESET_CUSTOM }
 			range={ range }
@@ -88,7 +110,7 @@ export function DateRangeFilter( {
 			onOpenChange={ onOpenChange }
 			triggerAsCompositeItem
 		/>
-	);
+	) : null;
 
 	/*
 	 * One composite group: preset pills plus the custom-range trigger share a
