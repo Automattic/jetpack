@@ -26,9 +26,11 @@ import { __ } from '@wordpress/i18n';
 const CONDITIONS = [ 'any', 'filtered', 'error' ];
 
 // Mirrors `No_Results::render_default_copy()` so the canvas shows
-// what a visitor would get from an untouched variant. A function, not a
-// constant, so the `__()` calls run after the editor's i18n is loaded rather
-// than being cached in the source locale at module init.
+// what a visitor would get from an untouched variant. An unscoped variant
+// previews both lines even though a visitor only ever sees one — the author
+// should see every state the variant covers. A function, not a constant, so
+// the `__()` calls run after the editor's i18n is loaded rather than being
+// cached in the source locale at module init.
 const defaultMessages = condition => {
 	if ( condition === 'error' ) {
 		return [ __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' ) ];
@@ -91,17 +93,18 @@ export default function NoResultsSlotEdit( { attributes, clientId } ) {
 		},
 		[ clientId ]
 	);
-	const blockProps = useBlockProps( { className: 'jetpack-search-no-results__variant' } );
+	// The `--default` modifier sits on the block wrapper itself, matching where
+	// `render.php` puts it relative to `get_block_wrapper_attributes()`.
+	const blockProps = useBlockProps( {
+		className: hasInnerBlocks
+			? 'jetpack-search-no-results__variant'
+			: 'jetpack-search-no-results__variant jetpack-search-no-results--default',
+	} );
 
 	return (
 		<div { ...blockProps }>
-			{ ! hasInnerBlocks && (
-				<div className="jetpack-search-no-results--default">
-					{ defaultMessages( condition ).map( message => (
-						<p key={ message }>{ message }</p>
-					) ) }
-				</div>
-			) }
+			{ ! hasInnerBlocks &&
+				defaultMessages( condition ).map( message => <p key={ message }>{ message }</p> ) }
 			{ /* Always mounted: the inner drop target comes from
 			     `useInnerBlocksProps`, so unmounting it would make a drag onto an
 			     unselected variant resolve to the container, whose `allowedBlocks`
