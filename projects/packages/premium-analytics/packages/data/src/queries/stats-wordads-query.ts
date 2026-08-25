@@ -52,6 +52,12 @@ export const statsWordAdsStatsQuery = (
 	// anchored to the range start — dropping the unavailable trailing bucket
 	// rather than shifting a bucket earlier and overlapping the dashboard's
 	// comparison window. The Calypso defaults remain the range-less fallback.
+	//
+	// A comparison query paired with this primary query will sit wholly in the
+	// past (no clamping), so it keeps all its buckets. If the primary range ends
+	// today, its comparison ends yesterday — and the comparison will have one
+	// more bucket than the primary. Any consumer pairing them must account for
+	// this bucket-count mismatch.
 	const defaultQuantity = unit === 'year' ? 10 : 30;
 	const quantity =
 		params.quantity ??
