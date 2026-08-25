@@ -209,6 +209,15 @@ class Manager {
 		// Force is_connected() to recompute after important actions.
 		add_action( 'jetpack_site_registered', array( $this, 'reset_connection_status' ) );
 		add_action( 'jetpack_site_disconnected', array( $this, 'reset_connection_status' ) );
+
+		/*
+		 * The `pre_update_jetpack_option_*` invalidators below only cover writes. Deleting the
+		 * tokens goes through `Jetpack_Options::delete_option()`, which fires nothing, so a
+		 * teardown that never reaches `jetpack_site_disconnected` — a `register()` that cleans
+		 * up the old tokens and then fails, for instance — would otherwise leave the memoized
+		 * status reporting a connection whose tokens are already gone.
+		 */
+		add_action( 'jetpack_connection_tokens_deleted', array( $this, 'reset_connection_status' ) );
 		add_action( 'jetpack_sync_register_user', array( $this, 'reset_connection_status' ) );
 		add_action( 'pre_update_jetpack_option_id', array( $this, 'reset_connection_status' ) );
 		add_action( 'pre_update_jetpack_option_blog_token', array( $this, 'reset_connection_status' ) );
