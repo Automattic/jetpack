@@ -1,28 +1,19 @@
 /**
  * Pin the site timezone to UTC so day-bound math is deterministic regardless
- * of the machine timezone running the tests.
+ * of the machine timezone running the tests. `siteTimeZone()` is the leaf
+ * every timezone read resolves through, so stubbing it alone pins paths a
+ * barrel stub cannot reach (the interval rules get `localTZDate` through a
+ * relative import, not the `data` barrel) while keeping the real range and
+ * interval implementations under test.
  */
-jest.mock( '@jetpack-premium-analytics/data', () => {
-	const { TZDateMini } = jest.requireActual( '@date-fns/tz' );
-
-	/*
-	 * Only the timezone reads are stubbed. `resolveIntervalForRange` stays
-	 * real: a stub owning a copy of the interval rules cannot fail when the
-	 * real rules change.
-	 */
-	return {
-		...jest.requireActual( '@jetpack-premium-analytics/data' ),
-		getSiteTimezone: () => '+00:00',
-		dateToISOStringWithLocalTZ: ( date: Date ) => new Date( date.getTime() ).toISOString(),
-		localTZDate: ( value: number | Date ) =>
-			new TZDateMini( typeof value === 'number' ? value : value.getTime(), '+00:00' ),
-	};
-} );
+jest.mock( '@jetpack-premium-analytics/datetime', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/datetime' ),
+	siteTimeZone: () => '+00:00',
+} ) );
 /**
  * External dependencies
  */
 import { canStepForward, stepDateRange } from '@jetpack-premium-analytics/datetime';
-import { endOfDay } from 'date-fns';
 /**
  * Internal dependencies
  */
@@ -31,12 +22,12 @@ import { buildRangePatch } from '../build-range-patch';
 describe( 'buildRangePatch', () => {
 	// A rolling sub-day window: `to` sits mid-day, exactly where end-of-day
 	// rounding would corrupt it.
-	const from = new Date( '2026-07-09T14:30:00.000Z' );
-	const to = new Date( '2026-07-10T14:30:00.000Z' );
+	const from = new Date( '2026-07-09T14:30:00.000+00:00' );
+	const to = new Date( '2026-07-10T14:30:00.000+00:00' );
 
 	// A window long enough to allow day buckets, for the cases about carrying a
 	// selection rather than about coercing it.
-	const wideTo = new Date( '2026-07-19T14:30:00.000Z' );
+	const wideTo = new Date( '2026-07-19T14:30:00.000+00:00' );
 
 	it( 'returns null when there is nothing to stage', () => {
 		expect( buildRangePatch( { effective: {} } ) ).toBeNull();
@@ -51,8 +42,8 @@ describe( 'buildRangePatch', () => {
 		} );
 
 		expect( patch ).toEqual( {
-			from: '2026-07-09T14:30:00.000Z',
-			to: '2026-07-10T14:30:00.000Z',
+			from: '2026-07-09T14:30:00.000+00:00',
+			to: '2026-07-10T14:30:00.000+00:00',
 			preset: 'last-24-hours',
 			interval: 'hour',
 		} );
@@ -135,7 +126,9 @@ describe( 'buildRangePatch', () => {
 	} );
 
 	it( 'extends calendar and manual edits to the end of the day', () => {
-		const expected = endOfDay( to ).getTime();
+		// The end of the *site's* day (pinned to UTC above), whatever the host.
+		// A literal instant, so the expectation cannot drift with `endOfDayTZ`.
+		const expected = new Date( '2026-07-10T23:59:59.999+00:00' ).getTime();
 
 		const custom = buildRangePatch( {
 			nextRange: { from, to },
@@ -157,8 +150,8 @@ describe( 'buildRangePatch', () => {
 			effective: {},
 		} );
 
-		expect( patch?.from ).toBe( '2026-07-09T14:30:00.000Z' );
-		expect( patch?.to ).toBe( '2026-07-10T14:30:00.000Z' );
+		expect( patch?.from ).toBe( '2026-07-09T14:30:00.000+00:00' );
+		expect( patch?.to ).toBe( '2026-07-10T14:30:00.000+00:00' );
 	} );
 
 	/*
@@ -176,8 +169,8 @@ describe( 'buildRangePatch', () => {
 		} );
 
 		expect( back ).toMatchObject( {
-			from: '2026-07-08T14:30:00.000Z',
-			to: '2026-07-09T14:30:00.000Z',
+			from: '2026-07-08T14:30:00.000+00:00',
+			to: '2026-07-09T14:30:00.000+00:00',
 			interval: 'hour',
 			preset: 'custom',
 		} );
@@ -198,8 +191,8 @@ describe( 'buildRangePatch', () => {
 		} );
 
 		expect( patch ).toMatchObject( {
-			compare_from: '2026-07-08T14:30:00.000Z',
-			compare_to: '2026-07-09T14:30:00.000Z',
+			compare_from: '2026-07-08T14:29:59.999+00:00',
+			compare_to: '2026-07-09T14:29:59.999+00:00',
 		} );
 	} );
 

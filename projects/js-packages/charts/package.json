@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "2.0.0",
+	"version": "3.1.0",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -65,7 +65,7 @@
 		"build": "pnpm run build:prod",
 		"build:prod": "tsdown",
 		"storybook": "cd ../storybook && pnpm run storybook:dev",
-		"test": "TZ=UTC jest --config=tests/jest.config.cjs",
+		"test": "TZ=UTC LC_ALL=en_US.UTF-8 jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsgo --noEmit"
 	},

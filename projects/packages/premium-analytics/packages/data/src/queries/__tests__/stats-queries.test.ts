@@ -1,24 +1,8 @@
 /**
- * Mock WordPress dependencies so date.ts can load. The select mock returns
- * site settings with timezone: 'UTC' so getSiteTimezone() returns UTC,
- * making localTZDate's default (site-timezone) calls deterministic
- * regardless of the machine running the test (e.g. the WordAds "yesterday"
- * clamp in stats-wordads-query.ts).
- */
-jest.mock( '@wordpress/core-data', () => ( {
-	store: 'core',
-} ) );
-
-jest.mock( '@wordpress/data', () => ( {
-	select: jest.fn( () => ( {
-		getEntityRecord: jest.fn( () => ( { timezone: 'UTC' } ) ),
-	} ) ),
-} ) );
-
-/**
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
@@ -70,6 +54,14 @@ import { statsWordAdsEarningsQuery, statsWordAdsStatsQuery } from '../stats-word
 import type { StatsReportParams } from '../stats-query';
 
 jest.mock( '@wordpress/api-fetch' );
+
+// `localTZDate()` defaults to the site zone, so pin it rather than letting the
+// machine timezone decide the WordAds "yesterday" clamp in
+// stats-wordads-query.ts.
+setSettings( {
+	...getSettings(),
+	timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
+} );
 
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 
@@ -1314,23 +1306,45 @@ describe( 'Stats query factories', () => {
 		] );
 	} );
 
-	it( 'sets visits quantity for day ranges', () => {
+	// The range is the only thing that bounds a visits request: the endpoint
+	// recounts the buckets from start_date/date and ignores a bucket count sent
+	// alongside them, so neither `quantity` nor `days` belongs in the request.
+	it( 'bounds visits with the range alone', () => {
 		const query = statsVisitsQuery( {
 			from: '2026-06-01',
 			to: '2026-06-07',
 			interval: 'day',
+			days: 3,
 		} );
+		const apiParams = query.queryKey[ 5 ] as Record< string, unknown >;
 
-		expect( query.queryKey ).toEqual(
-			expect.arrayContaining( [
-				expect.objectContaining( {
-					unit: 'day',
-					date: '2026-06-07',
-					start_date: '2026-06-01',
-					quantity: 7,
-				} ),
-			] )
-		);
+		expect( apiParams ).toEqual( {
+			unit: 'day',
+			date: '2026-06-07',
+			start_date: '2026-06-01',
+			stat_fields: 'views,visitors',
+		} );
+	} );
+
+	// Hourly is the one unit whose window needs finer precision than a calendar
+	// day, and the endpoint reads these two straight off the request — so they
+	// have to reach it with their time of day intact.
+	it( 'carries the hourly range at full precision', () => {
+		const query = statsVisitsQuery( {
+			from: '2026-06-15T00:00:00-07:00',
+			to: '2026-06-15T23:59:59-07:00',
+			interval: 'hour',
+		} );
+		const apiParams = query.queryKey[ 5 ] as Record< string, unknown >;
+
+		// Exact rather than a superset: hour is the unit a re-added `quantity`
+		// would land on first, and a partial match would not notice it.
+		expect( apiParams ).toEqual( {
+			unit: 'hour',
+			date: '2026-06-15T23:59:59-07:00',
+			start_date: '2026-06-15T00:00:00-07:00',
+			stat_fields: 'views,visitors',
+		} );
 	} );
 
 	it( 'builds UTM query keys from the selected UTM parameter', () => {
@@ -1416,7 +1430,7 @@ describe( 'Stats query factories', () => {
 		);
 	} );
 
-	it( 'omits visits quantity for non-day ranges', () => {
+	it( 'bounds a coarser visits unit the same way', () => {
 		const query = statsVisitsQuery( {
 			from: '2026-06-01',
 			to: '2026-06-30',
@@ -1424,14 +1438,12 @@ describe( 'Stats query factories', () => {
 		} );
 		const apiParams = query.queryKey[ 5 ] as Record< string, unknown >;
 
-		expect( apiParams ).toEqual(
-			expect.objectContaining( {
-				unit: 'month',
-				date: '2026-06-30',
-				start_date: '2026-06-01',
-			} )
-		);
-		expect( apiParams ).not.toHaveProperty( 'quantity' );
+		expect( apiParams ).toEqual( {
+			unit: 'month',
+			date: '2026-06-30',
+			start_date: '2026-06-01',
+			stat_fields: 'views,visitors',
+		} );
 	} );
 
 	it( 'builds insights query keys without report params', () => {

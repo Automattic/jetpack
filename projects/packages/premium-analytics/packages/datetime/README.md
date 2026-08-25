@@ -28,19 +28,40 @@ const date = createTZDateFromParts( [ 2025, 9, 9 ], 'America/New_York' );
 
 **Returns:** `TZDate` - Timezone-aware date object
 
+#### `siteTimeZone()`
+
+The site's timezone, as an identifier `Intl` accepts. Reads the WordPress
+date settings that ship with the page, so it needs no await.
+
+```typescript
+siteTimeZone(); // 'America/New_York', or '+05:30' on an offset-configured site
+```
+
+**Returns:** `string` - An IANA zone name, or a `±HH:MM` offset
+
 #### `toLocalTZ( value?, timezone? )`
 
 Creates a timezone-aware date in the specified timezone.
 
+A string that states no offset — `YYYY-MM-DD`, or a `T`- or space-separated
+datetime — is read as **wall time** in that timezone. Values that already
+identify an instant (offset-bearing strings, timestamps, `Date`s) keep their
+instant. Surrounding whitespace is ignored, and a clock time or calendar date
+that does not exist yields an invalid date rather than rolling over — whether
+or not the value states an offset. `parseSiteDateTime` accepts exactly the same
+values, so the two cannot disagree on what is parseable.
+
 ```typescript
-const date = toLocalTZ( '2024-01-15', 'America/New_York' );
+const date = toLocalTZ( '2024-01-15', 'America/New_York' ); // Jan 15 00:00 in New York
 const now = toLocalTZ( undefined, '+05:30' ); // Current time in +05:30
+toLocalTZ( '2024-02-31', 'America/New_York' ); // Invalid Date
+toLocalTZ( '2024-02-31T00:00:00Z', 'America/New_York' ); // Invalid Date
 ```
 
 **Parameters:**
 
 - `value` (optional): `number | string | Date` - Date value to convert
-- `timezone` (optional): `string` - Target timezone
+- `timezone` (optional): `string` - Target timezone, default is UTC
 
 **Returns:** `TZDate` - Timezone-aware date object
 
@@ -102,8 +123,13 @@ if inputs are invalid
 **Supported presets:**
 
 - `previous-period` - Same duration, immediately before reference
-- `previous-month` - One month before reference dates
-- `previous-year` - One year before reference dates
+- `previous-month` - Same duration, anchored one month before the reference end
+- `previous-year` - Same duration, anchored one year before the reference end
+
+For whole-month references, `previous-month` and `previous-year` instead stay
+aligned to calendar month boundaries, so their duration can differ. Whole months
+are read from the range itself, so a rolling window that happens to land on one
+(April 1-30 from "Last 30 days") compares against all 31 days of March.
 
 ### Range Measurement and Stepping
 

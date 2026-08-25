@@ -3,28 +3,13 @@
  * of the machine timezone running the tests.
  */
 jest.mock( '@jetpack-premium-analytics/data', () => {
-	const { TZDateMini } = jest.requireActual( '@date-fns/tz' );
+	const { toLocalTZ } = jest.requireActual( '@jetpack-premium-analytics/datetime' );
 
 	return {
 		...jest.requireActual( '@jetpack-premium-analytics/data' ),
-		getSiteTimezone: () => '+00:00',
 		dateToISOStringWithLocalTZ: ( date: Date ) => new Date( date.getTime() ).toISOString(),
-		localTZDate: ( value: number | string | Date, timeZone = '+00:00' ) => {
-			const time = value instanceof Date ? value.getTime() : new Date( value ).getTime();
-			return new TZDateMini( time, timeZone );
-		},
-	};
-} );
-
-jest.mock( '@wordpress/core-data', () => ( { store: 'core' } ) );
-
-jest.mock( '@wordpress/data', () => {
-	const getEntityRecord = () => undefined;
-
-	return {
-		useSelect: ( selector: ( select: () => { getEntityRecord: () => unknown } ) => unknown ) =>
-			selector( () => ( { getEntityRecord } ) ),
-		select: () => ( { getEntityRecord } ),
+		localTZDate: ( value?: number | string | Date, timeZone?: string ) =>
+			toLocalTZ( value, timeZone ?? '+00:00' ),
 	};
 } );
 
@@ -45,10 +30,18 @@ jest.mock( '@wordpress/route', () => ( {
  * External dependencies
  */
 import { act, renderHook } from '@testing-library/react';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
 import { useReportDateFilters } from '../use-report-date-filters';
+
+// The hook reads the site zone from the WordPress date settings, so pin those
+// rather than leaving the pin to the mocked helpers alone.
+setSettings( {
+	...getSettings(),
+	timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
+} );
 
 function renderDateFilters( search: Record< string, unknown > = {} ) {
 	mockSearch = search;
@@ -187,6 +180,22 @@ describe( 'useReportDateFilters', () => {
 			compare_to: '2026-06-30T23:59:59.999Z',
 		} );
 		expect( result.current.appliedComparisonPresetId ).toBe( 'previous-period' );
+		expect( result.current.appliedComparisonRange?.from?.toISOString() ).toBe(
+			'2026-06-01T00:00:00.000Z'
+		);
+		expect( result.current.appliedComparisonRange?.to?.toISOString() ).toBe(
+			'2026-06-30T23:59:59.999Z'
+		);
+	} );
+
+	it( 'carries no comparison window until one is applied', () => {
+		const { result } = renderDateFilters( {
+			from: '2026-07-01T00:00:00.000Z',
+			to: '2026-07-30T23:59:59.999Z',
+			preset: 'last-30-days',
+		} );
+
+		expect( result.current.appliedComparisonRange ).toBeUndefined();
 	} );
 
 	it( 'commits an interval change on its own', () => {
@@ -233,6 +242,7 @@ describe( 'useReportDateFilters', () => {
 		} );
 
 		expect( mockNavigate ).not.toHaveBeenCalled();
+		expect( result.current.appliedComparisonRange ).toBeUndefined();
 
 		act( () => result.current.onApply() );
 

@@ -173,6 +173,35 @@ Every PR touching `/projects` MUST include a changelog file in the project's `ch
 
 Two gates enforce this, both running `tools/check-changelogger-use.php`: the pre-push hook (see "Linting & Formatting" above) and the `linting.yml` CI job. The repo-gardening bot also comments on the PR listing any projects still missing entries. There is no AI-generated-changelog checkbox in the PR template — that feature was removed. Write the entries yourself, with `jp changelog add`.
 
+### User-Facing Changes Outside a Plugin Also Need Plugin Entries
+
+An entry only lands in the CHANGELOG of the project it was added to. A PR confined to a shared project — a PHP package under `projects/packages/`, a JS package under `projects/js-packages/`, or any other non-plugin project — therefore reaches that project's CHANGELOG and nowhere else: the plugins that bundle it get, at most, the generic "Update package dependencies." line the release tooling files under "Other changes", which is never copied to `readme.txt`. Users, release posts, and support documentation read the plugin changelog, so the change is invisible to them.
+
+**When a change to a package or js-package is user-facing — a new block, new or changed UI, a behavior change, a bug fix someone would notice — add a changelog entry to every plugin that ships it, on top of the project's own entry.** Write each one from that plugin's user's perspective; the wording rarely needs to be identical.
+
+Prefix each plugin's entry with the product the shared project backs — `Premium Analytics:` for `packages/premium-analytics`, `Search:` for `packages/search` — so readers of a plugin changelog that bundles many products can place the change. The exception is a plugin named for that same product (`plugins/premium-analytics`, `plugins/search`): there the prefix would only repeat the plugin's own name, so leave it off (or use a narrower component prefix), as in the example below.
+
+List the plugins that ship a project (works the same for `packages/…` and `js-packages/…`):
+
+```bash
+jp dependencies list packages/search --add-dependents --extra build --no-dev | grep '^plugins/'
+jp dependencies list js-packages/components --add-dependents --extra build --no-dev | grep '^plugins/'
+```
+
+A widely-shared js-package can list a dozen plugins. Add entries to the ones where the change is actually reachable by that plugin's users, not to every dependent by reflex.
+
+Then add one entry per plugin. Each project defines its own types — `plugins/jetpack` uses `major` | `enhancement` | `compat` | `bugfix` | `other`:
+
+```bash
+jp changelog add packages/search -s minor -t added       -e "Add a Search Results block."
+jp changelog add plugins/search  -s minor -t added       -e "Add a Search Results block."
+jp changelog add plugins/jetpack -s minor -t enhancement -e "Search: Add a Search Results block."
+```
+
+**The non-interactive form never prompts for this.** Naming a project (`jp changelog add <project> -s … -t … -e …`) disables the indirect-plugin check, so dependent plugins are silently skipped; only bare `jp changelog add` offers to write those entries for you. Using the non-interactive form means adding the plugin entries yourself — or running `jp changelog add --check-indirect-plugins` afterwards to be asked.
+
+The project's own entry alone is correct only when nothing is observable to a site owner: internal refactors, tests, tooling, type fixes.
+
 ### Interactive Mode
 
 Run `jp changelog add` and follow the prompts.
@@ -245,6 +274,7 @@ The exception is the **WordPress.com Tests** check (the TeamCity `JetpackPreFlig
 
 When reviewing code, check for:
 - Adherence to `docs/coding-guidelines.md`
+- User-facing changes in a package or js-package missing changelog entries in the plugins that ship it (see "User-Facing Changes Outside a Plugin Also Need Plugin Entries" above) — CI only checks the directly-touched project, so this gap is reviewer-only
 - Missing documentation for public APIs, or missing explanations for non-obvious logic
 - Typos in user-facing strings, comments, and docs — PHPCS and ESLint check naming and formatting, not spelling, so this needs human eyes
 - Performance hazards that no sniff catches: uncached `wp_remote_*` calls, queries inside loops, `meta_query`/`tax_query`/`orderby => rand` on large tables, and newly autoloaded options. `WordPress.DB.SlowDBQuery` is excluded from the Jetpack ruleset as too noisy, so this is reviewer-only

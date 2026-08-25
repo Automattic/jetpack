@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Host;
+
 require_once __DIR__ . '/dashboard-layout.php';
 require_once __DIR__ . '/dashboard-grammar.php';
 require_once __DIR__ . '/class-dashboard-section.php';
@@ -16,6 +19,16 @@ require_once __DIR__ . '/class-dashboard-section-registry.php';
  * Filter through which WooCommerce section availability is resolved.
  */
 const WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_woocommerce_dashboard_section_available';
+
+/**
+ * Filter through which Subscribers section availability is resolved.
+ */
+const SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_subscribers_dashboard_section_available';
+
+/**
+ * Filter for Ads section availability.
+ */
+const ADS_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_ads_dashboard_section_available';
 
 /**
  * Registers a dashboard section.
@@ -81,6 +94,67 @@ function is_woocommerce_dashboard_section_available_to_current_user() {
 }
 
 /**
+ * Whether the Subscribers dashboard section should be exposed.
+ *
+ * Sites without Jetpack have no module state to check, so the section remains
+ * available. Modules::is_active() also returns true on WPCOM Simple.
+ *
+ * @since 0.3.0
+ *
+ * @return bool True when the subscriptions module is active.
+ */
+function is_subscribers_dashboard_section_available() {
+	$is_available = ! class_exists( 'Jetpack' ) || ( new Modules() )->is_active( 'subscriptions' );
+
+	/**
+	 * Filters whether the Subscribers dashboard section is available.
+	 *
+	 * @since 0.3.0
+	 *
+	 * @param bool $is_available Whether the subscriptions module was detected in the current request.
+	 */
+	return (bool) apply_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, $is_available );
+}
+
+/**
+ * Whether the Ads dashboard section is available.
+ *
+ * WPCOM reads the plan feature rather than the module, which is a false negative
+ * on Atomic and meaningless on Simple. Mirrors is_videopress_available().
+ *
+ * @since 0.4.0
+ *
+ * @return bool True when the site can produce WordAds earnings.
+ */
+function is_ads_dashboard_section_available() {
+	if ( ( new Host() )->is_wpcom_platform() ) {
+		$is_available = function_exists( 'wpcom_site_has_feature' ) && \wpcom_site_has_feature( 'wordads' );
+	} else {
+		$is_available = ! class_exists( 'Jetpack' ) || ( new Modules() )->is_active( 'wordads' );
+	}
+
+	/**
+	 * Filters whether the Ads dashboard section is available.
+	 *
+	 * @since 0.4.0
+	 *
+	 * @param bool $is_available Whether WordAds was detected in the current request.
+	 */
+	return (bool) apply_filters( ADS_DASHBOARD_SECTION_AVAILABLE_FILTER, $is_available );
+}
+
+/**
+ * Whether the current user can access the Ads dashboard section.
+ *
+ * @since 0.4.0
+ *
+ * @return bool
+ */
+function is_ads_dashboard_section_available_to_current_user() {
+	return is_ads_dashboard_section_available() && Capabilities::current_user_can_view_ad_reports();
+}
+
+/**
  * Returns the default widget layout for the WooCommerce dashboard section.
  *
  * @return array Array of widget instances.
@@ -127,6 +201,7 @@ function register_default_dashboard_sections() {
 			'title'          => __( 'Subscribers stats', 'jetpack-premium-analytics-pkg' ),
 			'description'    => __( 'How your subscriber list is growing, and how your emails land.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 30,
+			'is_available'   => __NAMESPACE__ . '\\is_subscribers_dashboard_section_available',
 			'default_layout' => static function () {
 				return get_dashboard_default_layout_for( 'analytics/subscribers' );
 			},
@@ -137,7 +212,19 @@ function register_default_dashboard_sections() {
 			'description'    => __( 'Sales, orders, and what your customers are buying.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 40,
 			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available_to_current_user',
+			// Nothing backfills historical orders to WordPress.com but the analytics
+			// full sync. The site sections above read data it already holds.
+			'requires_sync'  => true,
 			'default_layout' => __NAMESPACE__ . '\\get_woocommerce_dashboard_section_default_layout',
+		),
+		'analytics/ads'         => array(
+			'label'          => __( 'Ads', 'jetpack-premium-analytics-pkg' ),
+			'description'    => __( 'How your ads are performing, and what they have earned you.', 'jetpack-premium-analytics-pkg' ),
+			'order'          => 50,
+			'is_available'   => __NAMESPACE__ . '\\is_ads_dashboard_section_available_to_current_user',
+			'default_layout' => static function () {
+				return get_dashboard_default_layout_for( 'analytics/ads' );
+			},
 		),
 	);
 
@@ -263,6 +350,12 @@ function get_dashboard_section_schema() {
 						'default'     => true,
 					),
 				),
+				'readonly'    => true,
+			),
+			'requires_sync'       => array(
+				'description' => __( 'Whether the section\'s numbers stay incomplete until the analytics initial full sync has finished.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'boolean',
+				'default'     => false,
 				'readonly'    => true,
 			),
 			'default_layout'      => array(

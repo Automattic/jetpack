@@ -136,6 +136,134 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test get_single_response_admin_url points at the standalone response page (wp-build mode).
+	 */
+	public function test_get_single_response_admin_url_wp_build() {
+		add_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/response/123' );
+		$this->assertEquals( $expected, Dashboard::get_single_response_admin_url( 123 ) );
+
+		// Without a post ID there is no single response to open — fall back to the list.
+		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/responses/inbox' );
+		$this->assertEquals( $expected, Dashboard::get_single_response_admin_url() );
+
+		remove_filter( 'jetpack_forms_alpha', '__return_true' );
+	}
+
+	/**
+	 * Test get_single_response_admin_url falls back to the responses list on the legacy dashboard,
+	 * which has no standalone single response route.
+	 */
+	public function test_get_single_response_admin_url_legacy() {
+		add_filter( 'jetpack_forms_alpha', '__return_false' );
+
+		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=inbox&r=123';
+		$this->assertEquals( $expected, Dashboard::get_single_response_admin_url( 123 ) );
+
+		remove_filter( 'jetpack_forms_alpha', '__return_false' );
+	}
+
+	/**
+	 * Capture where redirect_dashboard_url_cross_variant() sends the request.
+	 *
+	 * The method ends in `wp_safe_redirect()` + `exit`, so the redirect is
+	 * intercepted at the `wp_redirect` filter and aborted with an exception before
+	 * either headers or the exit are reached.
+	 *
+	 * @return string|null The redirect target, or null if no redirect happened.
+	 */
+	private function capture_cross_variant_redirect() {
+		$redirect = null;
+
+		// Declared in the docblock rather than as a native `never` return type: this
+		// package supports PHP 7.2 and `never` is 8.1+.
+		$capture = /** @return never */ function ( $location ) use ( &$redirect ) {
+			$redirect = $location;
+			throw new \RuntimeException( 'redirected' );
+		};
+
+		add_filter( 'wp_redirect', $capture );
+
+		try {
+			Dashboard::redirect_dashboard_url_cross_variant();
+		} catch ( \RuntimeException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Expected — stands in for the `exit` after the redirect.
+		} finally {
+			remove_filter( 'wp_redirect', $capture );
+		}
+
+		return $redirect;
+	}
+
+	/**
+	 * A wp-build single response link must survive jetpack_forms_alpha being turned off.
+	 *
+	 * This is the branch nobody exercises by hand: it only runs against links already
+	 * sitting in people's inboxes after the flag is flipped.
+	 */
+	public function test_redirect_cross_variant_maps_single_response_path_to_legacy() {
+		add_filter( 'jetpack_forms_alpha', '__return_false' );
+
+		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
+		$_GET['p']    = '/response/123';
+
+		$redirect = $this->capture_cross_variant_redirect();
+
+		remove_filter( 'jetpack_forms_alpha', '__return_false' );
+
+		// The legacy dashboard has no single response route, so the response is
+		// opened in the inbox list instead — and the `/response/` pattern must not be
+		// shadowed by the `/responses/(inbox|spam|trash)` one above it.
+		$this->assertEquals(
+			get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=inbox&r=123',
+			$redirect
+		);
+	}
+
+	/**
+	 * The email's Mark as spam trigger survives the cross-variant redirect.
+	 *
+	 * Losing it here would silently turn the email's Mark as spam button into a
+	 * plain "view" link on the legacy dashboard.
+	 */
+	public function test_redirect_cross_variant_keeps_mark_as_spam_on_single_response_path() {
+		add_filter( 'jetpack_forms_alpha', '__return_false' );
+
+		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
+		$_GET['p']    = '/response/123?mark_as_spam=1';
+
+		$redirect = $this->capture_cross_variant_redirect();
+
+		remove_filter( 'jetpack_forms_alpha', '__return_false' );
+
+		$this->assertEquals(
+			get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=inbox&r=123&mark_as_spam',
+			$redirect
+		);
+	}
+
+	/**
+	 * The single response path is matched whole — trailing junk is not a response ID.
+	 */
+	public function test_redirect_cross_variant_ignores_malformed_single_response_path() {
+		add_filter( 'jetpack_forms_alpha', '__return_false' );
+
+		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
+		$_GET['p']    = '/response/123junk';
+
+		$redirect = $this->capture_cross_variant_redirect();
+
+		remove_filter( 'jetpack_forms_alpha', '__return_false' );
+
+		// Falls through to the plain inbox with no response selected.
+		$this->assertEquals(
+			get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=inbox',
+			$redirect
+		);
+	}
+
+	/**
 	 * Test get_forms_admin_url without tab for wp-build dashboard
 	 */
 	public function test_get_forms_admin_url_wp_build_without_tab() {

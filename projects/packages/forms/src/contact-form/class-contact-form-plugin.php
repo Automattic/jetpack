@@ -569,6 +569,33 @@ class Contact_Form_Plugin {
 			unset( $atts['defaultValue'] );
 		}
 
+		// Serialize the conditionalLogic object so it survives the shortcode roundtrip.
+		// Only emit when explicitly enabled to keep the shortcode and frontend context lean.
+		//
+		// JSON_HEX_TAG matters as much as JSON_HEX_AMP here: this lands in `post_content` as
+		// shortcode text and is decoded back in Contact_Form_Field, and KSES rewrites a bare
+		// `<` on the way in. A rule comparing against a value containing `<` would come back
+		// as unparseable JSON and silently drop the field's whole condition.
+		if ( isset( $atts['conditionalLogic'] ) ) {
+			$logic = $atts['conditionalLogic'];
+			if ( is_array( $logic ) && ! empty( $logic['enabled'] ) ) {
+				$json = \wp_json_encode( $logic, JSON_UNESCAPED_SLASHES | JSON_HEX_AMP | JSON_HEX_TAG );
+
+				// The rules are a JSON array, so the value contains `[` and `]`. WordPress's
+				// shortcode attribute pattern excludes both, so as shortcode text the value is
+				// cut short and the attribute is dropped entirely -- leaving a field that is
+				// still required but no longer conditional, which blocks submission on a
+				// question the visitor cannot see. Numeric entities survive the pattern and
+				// are turned back by the html_entity_decode() in Contact_Form_Field.
+				$atts['conditionallogic'] = str_replace(
+					array( '[', ']' ),
+					array( '&#91;', '&#93;' ),
+					(string) $json
+				);
+			}
+			unset( $atts['conditionalLogic'] );
+		}
+
 		// Process inner blocks to shortcode attributes.
 		if ( $block && ! empty( $block->parsed_block['innerBlocks'] ) ) {
 			// Only apply the block style classes to the field wrapper if the field is one of the new inner block types.
@@ -1848,6 +1875,17 @@ class Contact_Form_Plugin {
 		if ( ! $form ) {
 			return Form_Submission_Error::system_error( 'form_not_found', __( 'Form not found.', 'jetpack-forms' ) );
 		}
+
+		// Conditional fields cannot be validated while the form is still being parsed: a rule's
+		// subject may not exist yet, so `parse_contact_field()` defers them. Something has to
+		// validate them once the whole form is known, and on this path nothing did -- the JWT
+		// branch calls `validate()` above, but this one went straight to `has_errors()`. A
+		// required conditional field left empty, an invalid email or an out-of-allow-list choice
+		// would all be stored unchecked.
+		//
+		// Fields that were validated at parse time early-return once `is_error()` is set, so
+		// this is idempotent for everything else.
+		$form->validate();
 
 		if ( $form->has_errors() ) {
 			return $form->errors;
@@ -3263,10 +3301,12 @@ class Contact_Form_Plugin {
 													<!-- /wp:jetpack/contact-form -->';
 		}
 
+		$form_title = isset( $_POST['formTitle'] ) ? sanitize_text_field( wp_unslash( $_POST['formTitle'] ) ) : '';
+
 		$post_id = wp_insert_post(
 			array(
 				'post_type'    => 'page',
-				'post_title'   => '',
+				'post_title'   => $form_title,
 				'post_content' => $pattern_content,
 			)
 		);

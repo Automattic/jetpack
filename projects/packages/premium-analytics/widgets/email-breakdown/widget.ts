@@ -40,10 +40,6 @@ export type EmailBreakdownAttributes = {
 	 */
 	metric?: EmailBreakdownMetric;
 	/**
-	 * Number of rows to show. `0` means as many as the endpoint returns.
-	 */
-	max?: number;
-	/**
 	 * Whether the countries view also renders a world map. Used by the wide
 	 * Location clicks card in the fixed post-detail composition.
 	 */
@@ -111,17 +107,11 @@ export default {
 			// metric has no effect there — hide the control to keep it from looking live.
 			isVisible: ( { view } ) => view !== 'links',
 		},
-		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
-			type: 'integer',
-		},
 	] as WidgetAttributeField< EmailBreakdownAttributes >[],
 	example: {
 		attributes: {
 			view: 'countries',
 			metric: 'opens',
-			max: 10,
 		},
 	},
 };

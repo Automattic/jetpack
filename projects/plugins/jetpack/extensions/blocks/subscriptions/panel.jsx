@@ -99,7 +99,7 @@ function NewsletterEditorSettingsPanel( { accessLevel } ) {
 	return (
 		<PluginDocumentSettingPanel
 			className="jetpack-subscribe-newsletter-panel"
-			title={ __( 'Access', 'jetpack' ) }
+			title={ __( 'Audience', 'jetpack' ) }
 			icon={ <JetpackEditorPanelLogo /> }
 			name="jetpack-subscribe-newsletters-editor-panel"
 		>
@@ -137,7 +137,7 @@ const NewsletterDisabledPanels = () => (
 	<>
 		<PluginDocumentSettingPanel
 			className="jetpack-subscribe-newsletters-panel"
-			title={ __( 'Access', 'jetpack' ) }
+			title={ __( 'Audience', 'jetpack' ) }
 			icon={ <JetpackEditorPanelLogo /> }
 		>
 			<NewsletterDisabledNotice />
@@ -171,10 +171,10 @@ function NewsletterPrePublishSettingsPanel( { accessLevel, showPreviewModal } ) 
 				className="jetpack-subscribe-newsletters-panel"
 				title={
 					<>
-						{ __( 'Access:', 'jetpack' ) }
+						{ __( 'Audience:', 'jetpack' ) }
 						{ accessLevel && (
 							<span className={ 'jetpack-subscribe-post-publish-panel__heading' }>
-								{ accessOptions[ accessLevel ].panelHeading }
+								{ accessOptions[ accessLevel ].label }
 							</span>
 						) }
 					</>

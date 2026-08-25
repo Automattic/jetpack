@@ -1,21 +1,21 @@
 /**
  * External dependencies
  */
-import {
-	getDefaultPreset,
-	normalizeReportParams,
-	localTZDate,
-	getSiteTimezone,
-} from '@jetpack-premium-analytics/data';
+import { getDefaultPreset, normalizeReportParams } from '@jetpack-premium-analytics/data';
 import {
 	type ComparisonPresetId,
+	endOfDayTZ,
 	isPrimaryPreset,
+	siteTimeZone,
 	type DateRange,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack, type DataFormControlProps } from '@jetpack-premium-analytics/externals';
-import { deriveComparisonRange, encodeDateToSearchParam } from '@jetpack-premium-analytics/routing';
+import {
+	decodeDateSearchParam,
+	deriveComparisonRange,
+	encodeDateToSearchParam,
+} from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
-import { endOfDay } from 'date-fns';
 import { useCallback, useMemo, useState } from 'react';
 import { getStoreInfo } from '../../helpers/store-info';
 
@@ -42,8 +42,8 @@ export function ReportParamsField( {
 	const reportParams = normalizeReportParams( stagedReportParams, defaultPreset );
 
 	const range = {
-		from: localTZDate( reportParams.from ),
-		to: localTZDate( reportParams.to ),
+		from: decodeDateSearchParam( reportParams.from ),
+		to: decodeDateSearchParam( reportParams.to ),
 	};
 
 	const stageDateRange = useCallback(
@@ -52,7 +52,10 @@ export function ReportParamsField( {
 
 			if ( nextRange?.from && nextRange?.to ) {
 				nextReportParams.from = encodeDateToSearchParam( nextRange.from );
-				nextReportParams.to = encodeDateToSearchParam( endOfDay( nextRange.to ) );
+				nextReportParams.to = encodeDateToSearchParam(
+					// The site's day boundary, not the visitor's (see build-range-patch).
+					endOfDayTZ( nextRange.to, siteTimeZone() )
+				);
 			}
 
 			if ( nextPresetId && isPrimaryPreset( nextPresetId ) ) {
@@ -127,7 +130,7 @@ export function ReportParamsField( {
 				onApply={ commit }
 				canApply={ isDateRangeDirty }
 				onCancel={ clear }
-				timeZone={ getSiteTimezone() }
+				timeZone={ siteTimeZone() }
 			/>
 		</Stack>
 	);

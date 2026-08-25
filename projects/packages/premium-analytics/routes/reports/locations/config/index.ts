@@ -2,6 +2,7 @@ export { buildLocationRows } from './aggregate';
 export { getLocationFields, type LocationRow, type LocationsCountryOption } from './fields';
 export {
 	getReportLocationsTabs,
+	getTabTitle,
 	resolveSection,
 	supportsCountryFilter,
 	type ReportLocationsTabId,

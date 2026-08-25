@@ -10,14 +10,14 @@
 		"dev"
 	],
 	"require": {
-		"php": ">=7.2.5",
+		"php": ">=7.4",
 		"composer-runtime-api": "^2.2.0",
 		"symfony/console": "^5.4 || ^6.4 || ^7.1",
 		"symfony/process": "^5.4 || ^6.4 || ^7.1"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0 || ^4.0",
+		"wikimedia/testing-access-wrapper": "^3.0 || ^4.0",
 		"automattic/phpunit-select-config": "@dev"
 	},
 	"autoload": {

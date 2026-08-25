@@ -65,23 +65,36 @@ beforeEach( () => {
 	setConnection( CONNECTED );
 } );
 
+/**
+ * The stages are wrapped in `<ErrorBoundary>`, so a reintroduced render
+ * throw no longer propagates to the runner — the test would still fail,
+ * but on a `findByText` timeout that points nowhere near the cause.
+ * Asserting the fallback is absent keeps the failure legible.
+ */
+function expectNoBoundaryFallback() {
+	expect( screen.queryByText( 'Something went wrong' ) ).not.toBeInTheDocument();
+}
+
 describe( 'route stages mount their screens with a QueryClient in scope', () => {
 	it( 'renders the Overview stage', async () => {
 		render( <OverviewStage /> );
 
 		await expect( screen.findByText( 'VaultPress Backup' ) ).resolves.toBeInTheDocument();
+		expectNoBoundaryFallback();
 	} );
 
 	it( 'renders the Download stage', async () => {
 		render( <DownloadStage /> );
 
 		await expect( screen.findByText( 'Download backup' ) ).resolves.toBeInTheDocument();
+		expectNoBoundaryFallback();
 	} );
 
 	it( 'renders the Restore stage', async () => {
 		render( <RestoreStage /> );
 
 		await expect( screen.findByText( 'Restore backup' ) ).resolves.toBeInTheDocument();
+		expectNoBoundaryFallback();
 	} );
 } );
 

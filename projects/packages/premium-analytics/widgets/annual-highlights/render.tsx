@@ -9,6 +9,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { PRESET_ALL_TIME, getPresetYear } from '@jetpack-premium-analytics/datetime';
 import {
+	AnnualHighlightsSkeleton,
 	MetricTileGrid,
 	ReportLink,
 	WidgetFooter,
@@ -193,6 +194,9 @@ function AnnualHighlightsReport( {
 					icon: calendar,
 					description: __( 'No highlights for this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				// `tiles` stays empty until the totals arrive, so the skeleton
+				// counts the selected metrics instead.
+				renderLoading={ <AnnualHighlightsSkeleton rows={ metrics.length } /> }
 			>
 				{ totals && (
 					<Stack className={ styles.root } direction="column" gap="lg">

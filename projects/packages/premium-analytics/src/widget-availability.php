@@ -166,6 +166,10 @@ function filter_registrable_widget_types_by_plugin( $widget_candidates ) {
 
 add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrable_widget_types_by_plugin' );
 
+// Subscriber widgets remain available when their section is hidden because
+// their data does not depend on the local module. Unregistering them would also
+// break instances placed in other sections.
+
 /**
  * Removes candidates the reader could not load data for anyway.
  *

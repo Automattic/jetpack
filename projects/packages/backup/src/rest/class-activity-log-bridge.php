@@ -85,8 +85,11 @@ class Activity_Log_Bridge {
 
 		$query = array_filter(
 			array(
-				'number' => $request->get_param( 'number' ),
-				'page'   => $request->get_param( 'page' ),
+				'number'  => $request->get_param( 'number' ),
+				'page'    => $request->get_param( 'page' ),
+				// Activity summaries are rendered by WPCOM. Without this they
+				// come back in English whatever the reader's language is.
+				'_locale' => get_user_locale(),
 			),
 			static function ( $value ) {
 				return null !== $value && '' !== $value;
@@ -107,7 +110,7 @@ class Activity_Log_Bridge {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			return $response;
+			return Rest_Controller::transport_error( $response, 'activity_log_fetch_failed' );
 		}
 
 		$status_code = wp_remote_retrieve_response_code( $response );
