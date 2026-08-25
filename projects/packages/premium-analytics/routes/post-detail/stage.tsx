@@ -118,7 +118,7 @@ function PostDetail(): JSX.Element {
 	// The preset pills alone — all time, then the rolling windows — with no
 	// custom range, period arrows, or interval dropdown, per the detail-page
 	// design; all time runs from the day this resource was published.
-	const dateControls = useDetailDateControls( summary.publishedDate );
+	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
 
 	// The header row hosts the panel in a shrink-to-fit slot, so the panel
 	// measures the row itself to pick its responsive layout; see the
