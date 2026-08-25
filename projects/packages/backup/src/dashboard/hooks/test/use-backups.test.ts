@@ -207,7 +207,13 @@ describe( 'useBackups', () => {
 		expect( mockedApiFetch ).not.toHaveBeenCalled();
 	} );
 
-	it( 'invalidates the activity log once when an in-progress backup finishes, not on every poll', async () => {
+	// The invalidation this hook used to own lives in
+	// `useRefreshActivityOnBackupComplete`, mounted once by the Overview
+	// screen. It has to stay out of here: `BackupNowButton` mounts a
+	// second `useBackups` on that same screen, and a per-observer
+	// invalidation costs a second WPCOM round trip that the first one's
+	// in-flight refetch is silently cancelled for.
+	it( 'invalidates nothing itself when an in-progress backup finishes', async () => {
 		const inProgress: RawBackupEntry[] = [
 			{
 				id: '1',
@@ -229,49 +235,14 @@ describe( 'useBackups', () => {
 				stats: { plugins: {} },
 			},
 		];
-		mockedApiFetch
-			.mockResolvedValueOnce( inProgress )
-			.mockResolvedValueOnce( inProgress )
-			.mockResolvedValue( finished );
+		mockedApiFetch.mockResolvedValueOnce( inProgress ).mockResolvedValue( finished );
 		const { client, wrapper } = makeWrapper();
 		const invalidate = jest.spyOn( client, 'invalidateQueries' );
 
 		const { result } = renderHook( () => useBackups(), { wrapper } );
 		await waitFor( () => expect( result.current.state ).toBe( 'in-progress' ) );
-		expect( invalidate ).not.toHaveBeenCalled();
 
-		// Still running on the next poll: no invalidation yet.
 		act( () => result.current.refetch() );
-		// At least two: the 5s in-progress poll can land its own tick on a slow runner.
-		await waitFor( () => expect( mockedApiFetch.mock.calls.length ).toBeGreaterThanOrEqual( 2 ) );
-		expect( invalidate ).not.toHaveBeenCalled();
-
-		// Finishes: one invalidation for this consumer, however many polls ran.
-		act( () => result.current.refetch() );
-		await waitFor( () => expect( result.current.state ).toBe( 'complete' ) );
-
-		expect( invalidate ).toHaveBeenCalledTimes( 1 );
-		expect( invalidate ).toHaveBeenCalledWith( { queryKey: [ 'backup', 'activity-log' ] } );
-	} );
-
-	it( 'does not invalidate the activity log on mount when no backup is in progress', async () => {
-		mockedApiFetch.mockResolvedValue( [
-			{
-				id: '1',
-				started: '2026-08-14 17:25:46',
-				last_updated: '2026-08-14 17:36:04',
-				status: 'finished',
-				period: '1786728342',
-				percent: '100',
-				is_backup: '1',
-				is_scan: '0',
-				stats: { plugins: {} },
-			},
-		] as RawBackupEntry[] );
-		const { client, wrapper } = makeWrapper();
-		const invalidate = jest.spyOn( client, 'invalidateQueries' );
-
-		const { result } = renderHook( () => useBackups(), { wrapper } );
 		await waitFor( () => expect( result.current.state ).toBe( 'complete' ) );
 
 		expect( invalidate ).not.toHaveBeenCalled();

@@ -17,6 +17,7 @@ import {
 	useHasRestorePoints,
 } from '../hooks/use-activity-log';
 import { useBackups } from '../hooks/use-backups';
+import { useRefreshActivityOnBackupComplete } from '../hooks/use-refresh-activity-on-backup-complete';
 import { isBackupItem } from '../types/activity';
 import type { View } from '@wordpress/dataviews';
 
@@ -78,6 +79,11 @@ export default function OverviewScreen() {
 		isRefetching: backupsRefetching,
 		refetch: refetchBackups,
 	} = useBackups();
+	// Owned here, and only here. `BackupNowButton` reads the same query
+	// through its own `useBackups`, so this screen has two observers of
+	// the state below — but the refresh must fire once per finished
+	// backup, not once per observer. See the hook's docblock.
+	useRefreshActivityOnBackupComplete( backupsState );
 	// A second opinion on whether anything is restorable, from the
 	// paginated activity log rather than the short `/backups` window.
 	// While it is still unknown, assume there *are* restore points:

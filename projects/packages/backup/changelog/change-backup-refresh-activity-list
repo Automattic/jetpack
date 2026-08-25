@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
+Comment: Backup: refresh the modernized dashboard's activity list when a backup finishes, so the new restore point appears without a page reload. No-op when the modernization filter is off.
 
-Refresh the activity list automatically when a backup finishes.
