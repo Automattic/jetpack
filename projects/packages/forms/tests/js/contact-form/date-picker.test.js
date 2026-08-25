@@ -135,9 +135,9 @@ describe( 'contact form date picker', () => {
 	 * the text is. The picker used to set one, which is why this is asserted
 	 * rather than assumed.
 	 *
-	 * Each test checks the attribute and the reflected property: jsdom does not
-	 * reflect every ARIA property to its attribute, so asserting on only one of
-	 * them could pass while the other carries a name.
+	 * Each test asserts the computed name, not just the absence of an aria-label:
+	 * the point is that the <label> wins, and only the positive assertion catches
+	 * a regression that displaces it by some other means.
 	 */
 	describe( 'accessible name', () => {
 		let label;
@@ -161,29 +161,33 @@ describe( 'contact form date picker', () => {
 			label = undefined;
 		} );
 
-		it( 'leaves the input unnamed on attach, so its <label> supplies the accessible name', () => {
+		it( 'lets the <label> name the input on attach', () => {
 			picker = DatePicker( input, {} );
 
+			expect( input ).toHaveAccessibleName( 'Birthday' );
 			expect( input ).not.toHaveAttribute( 'aria-label' );
-			expect( input.ariaLabel ?? null ).toBeNull();
 		} );
 
-		it( 'leaves the input unnamed once the picker is open', () => {
+		it( 'lets the <label> name the input once the picker is open', () => {
 			picker = DatePicker( input, {} );
 
 			picker.open();
 
+			expect( document.body.querySelector( '.dp' ) ).not.toBeNull();
+			expect( input ).toHaveAccessibleName( 'Birthday' );
 			expect( input ).not.toHaveAttribute( 'aria-label' );
-			expect( input.ariaLabel ?? null ).toBeNull();
 		} );
 
-		it( 'leaves the input unnamed when the down arrow key opens the picker', () => {
+		it( 'lets the <label> name the input when the down arrow key opens the picker', () => {
 			picker = DatePicker( input, {} );
 
 			input.dispatchEvent( new KeyboardEvent( 'keydown', { code: 'ArrowDown', bubbles: true } ) );
 
+			// Without this the test passes for any key at all, including ones the
+			// handler ignores, so it would not notice the down-arrow binding breaking.
+			expect( document.body.querySelector( '.dp' ) ).not.toBeNull();
+			expect( input ).toHaveAccessibleName( 'Birthday' );
 			expect( input ).not.toHaveAttribute( 'aria-label' );
-			expect( input.ariaLabel ?? null ).toBeNull();
 		} );
 	} );
 } );
