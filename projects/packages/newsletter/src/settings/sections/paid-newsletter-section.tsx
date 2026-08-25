@@ -3,10 +3,9 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteType } from '@automattic/jetpack-script-data';
-import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Card, Stack, Text } from '@wordpress/ui';
+import { Button, Card, LinkButton, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -18,14 +17,7 @@ interface PaidNewsletterSectionProps {
 }
 
 /**
- * Paid Newsletter Section Component
- *
- * Uses `@wordpress/components` Button + a native `<fieldset>` because this is
- * the one button-as-link case in the dashboard. WP UI's Button rendered as
- * `<a>` (`render={ <a /> }`) inherits wp-admin's global `a { color: #2271b1 }`
- * — that rule is unlayered, while WP UI's button color sits in
- * `@layer wp-ui-components`, and unlayered always wins over layered. Worth a
- * Gutenberg-side fix; out of scope for this PR.
+ * Paid Newsletter Section Component.
  *
  * @param {PaidNewsletterSectionProps} props - Component props
  * @return {JSX.Element | null} The paid newsletter section or null if URL not available
@@ -67,19 +59,20 @@ export function PaidNewsletterSection( {
 							'jetpack-newsletter'
 						) }
 					</Text>
-					<fieldset disabled={ ! isNewsletterEnabled }>
-						<Button
-							__next40pxDefaultSize
-							variant="primary"
+					{ isNewsletterEnabled ? (
+						<LinkButton
+							variant="solid"
 							href={ newsletterScriptData.setupPaymentPlansUrl }
-							target="_blank"
-							rel="noopener noreferrer"
-							disabled={ ! isNewsletterEnabled }
+							openInNewTab
 							onClick={ handlePaidPlansClick }
 						>
 							{ buttonText }
+						</LinkButton>
+					) : (
+						<Button variant="solid" disabled>
+							{ buttonText }
 						</Button>
-					</fieldset>
+					) }
 				</Stack>
 			</Card.Content>
 		</Card.Root>
