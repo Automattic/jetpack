@@ -165,11 +165,8 @@ const StatsSection = () => {
 		[ status, manageUrl ]
 	);
 
-	const viewStatsHref = ! manageUrl
-		? undefined
-		: premiumAnalyticsEnabled
-		? manageUrl
-		: `${ manageUrl }&force_refresh=1`;
+	const viewStatsQuery = premiumAnalyticsEnabled ? '' : '&force_refresh=1';
+	const viewStatsHref = manageUrl ? `${ manageUrl }${ viewStatsQuery }` : undefined;
 
 	const viewStatsButton = {
 		href: viewStatsHref,
