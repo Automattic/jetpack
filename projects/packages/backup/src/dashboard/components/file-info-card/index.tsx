@@ -61,7 +61,13 @@ function mimeFromName( name: string ): string {
 		return '';
 	}
 	const ext = name.slice( idx + 1 ).toLowerCase();
-	return PREVIEWABLE_TEXT_TYPES[ ext ] ?? '';
+	// Not `?? ''`: the map is an object literal, so `a.__proto__` and
+	// `a.constructor` resolve through the prototype chain to values that are
+	// neither null nor undefined. They would preview, and the non-string would
+	// reach `<dd>{ mimeType }</dd>` and throw "Objects are not valid as a React
+	// child", taking the panel down instead of showing "Preview unavailable".
+	const mime = PREVIEWABLE_TEXT_TYPES[ ext ];
+	return typeof mime === 'string' ? mime : '';
 }
 
 type Props = {
@@ -72,8 +78,8 @@ type Props = {
 /**
  * Renders the preview slot's body: a spinner while loading, the file
  * contents in a `<pre>` when available, a muted line when the fetch
- * failed, or a generic "preview unavailable" muted line for non-text
- * mime types.
+ * failed, or a generic "preview unavailable" muted line when the
+ * filename's extension is not one this card can render.
  *
  * The error branch says nothing about *why*, on purpose. It used to
  * blame blob storage having outlived the manifest entry, which was
@@ -87,7 +93,7 @@ type Props = {
  * unique render paths the linter can reason about.
  *
  * @param props             - Component props.
- * @param props.showPreview - Whether the file's mime type is renderable as text.
+ * @param props.showPreview - Whether the filename's extension is in the previewable map.
  * @param props.isLoading   - Whether the file-contents query is in flight.
  * @param props.content     - The fetched body, or null when not yet resolved.
  * @param props.error       - The fetch error, or null on success.

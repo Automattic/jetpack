@@ -23,6 +23,12 @@ const noop = () => {};
 
 const PREVIEW_BODY = 'console.log( "hello" );';
 
+// Real markup, so the SVG case can assert the card shows the source rather
+// than rendering it. Kept to one line: Testing Library normalizes whitespace
+// before matching, so a multi-line fixture would match on shape it does not
+// actually have.
+const SVG_BODY = '<svg xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>';
+
 /** One backup root holding a file per extension under test. */
 const CONTENTS = {
 	'app.js': { type: 'file', period: '1786644531', manifest_path: 'f5:/app.js' },
@@ -30,6 +36,11 @@ const CONTENTS = {
 	'logo.svg': { type: 'file', period: '1786644531', manifest_path: 'f5:/logo.svg' },
 	'readme.txt': { type: 'file', period: '1786644531', manifest_path: 'f5:/readme.txt' },
 	'photo.heic': { type: 'file', period: '1786644531', manifest_path: 'f5:/photo.heic' },
+	'weird.__proto__': {
+		type: 'file',
+		period: '1786644531',
+		manifest_path: 'f5:/weird.__proto__',
+	},
 };
 
 /**
@@ -60,7 +71,15 @@ beforeEach( () => {
 	mockApiFetch.mockReset();
 	mockApiFetch.mockImplementation( ( options: { path: string } ) => {
 		if ( options.path.includes( '/rewind/backup/file-content' ) ) {
-			return Promise.resolve( { content: PREVIEW_BODY } );
+			// The route carries the manifest path base64-encoded, so decode it
+			// to answer per file rather than handing every file one body.
+			const encoded = new URL( options.path, 'https://example.test' ).searchParams.get(
+				'encoded_manifest_path'
+			);
+			const path = encoded ? atob( encoded ) : '';
+			return Promise.resolve( {
+				content: path.endsWith( '.svg' ) ? SVG_BODY : PREVIEW_BODY,
+			} );
 		}
 		if ( options.path.includes( '/rewind/backup/path-info' ) ) {
 			return Promise.resolve( { size: 42 } );
@@ -81,15 +100,35 @@ describe( 'file preview types', () => {
 	} );
 
 	it.each( [
-		[ 'app.js', 'application/javascript' ],
-		[ 'sitemap.xml', 'application/xml' ],
-		[ 'logo.svg', 'image/svg+xml' ],
-	] )( 'previews %s and labels it %s', async ( name, mime ) => {
+		[ 'app.js', 'application/javascript', PREVIEW_BODY ],
+		[ 'sitemap.xml', 'application/xml', PREVIEW_BODY ],
+		[ 'logo.svg', 'image/svg+xml', SVG_BODY ],
+	] )( 'previews %s and labels it %s', async ( name, mime, body ) => {
 		await openFile( name );
 
-		await expect( screen.findByText( PREVIEW_BODY ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( body ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( mime ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Preview unavailable for this file.' ) ).not.toBeInTheDocument();
+	} );
+
+	// The case above only proves an extension in the map previews. `.svg` is in
+	// the map on the understanding that the card shows the source and never
+	// renders the image, and nothing above would notice that changing: swapping
+	// the `<pre>` for `dangerouslySetInnerHTML`, or adding an `<img>` branch on
+	// `image/*`, keeps every other test green.
+	it( 'shows SVG source as text and never parses it into markup', async () => {
+		await openFile( 'logo.svg' );
+
+		const pre = await screen.findByText( SVG_BODY );
+
+		// React escapes string children, so the markup arrives as entities. Were
+		// the source injected instead, it would arrive as real tags and a
+		// `<rect>` element would exist. Asserting on this element's own HTML
+		// rather than querying the container for `svg` matters -- the card's
+		// close button draws one, so a container-wide query always finds it.
+		expect( pre.tagName ).toBe( 'PRE' );
+		expect( pre.innerHTML ).toContain( '&lt;svg' );
+		expect( pre.innerHTML ).not.toContain( '<rect' );
 	} );
 
 	// The card must still refuse formats it cannot render as text, or the
@@ -100,6 +139,17 @@ describe( 'file preview types', () => {
 
 		expect( screen.getByText( 'Preview unavailable for this file.' ) ).toBeInTheDocument();
 		expect( screen.queryByText( PREVIEW_BODY ) ).not.toBeInTheDocument();
+	} );
+
+	// The map is an object literal, so a plain `map[ ext ]` lookup reaches the
+	// prototype chain. `__proto__` and `constructor` are the two extensions that
+	// resolve to something non-null there, and the value is not a string -- so
+	// without an own-value check this both previews and throws "Objects are not
+	// valid as a React child" when the mime reaches the `Type:` row.
+	it( 'refuses an extension that only resolves through the prototype chain', async () => {
+		await openFile( 'weird.__proto__' );
+
+		expect( screen.getByText( 'Preview unavailable for this file.' ) ).toBeInTheDocument();
 	} );
 
 	// `showPreview` also gates the query, so an unpreviewable file must
