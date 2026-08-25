@@ -1,12 +1,14 @@
 /**
- * The newsletter email design screen.
+ * Client-side entry point for the newsletter email design screen.
  *
  * `ExperimentalEmailEditor` takes its whole configuration as a prop and
  * registers the `email-editor/editor` store itself, so there is nothing to set
- * up here beyond handing it the configuration the page provides.
+ * up here beyond handing it what the page provides.
  *
- * Nothing enqueues this bundle yet — the admin page that mounts it is added
- * separately. See NL-848.
+ * The page is the other half, and is added separately: it renders the
+ * container and localises `window.JetpackEmailDesignEditor` with the editor's
+ * configuration. Until it exists nothing enqueues this bundle, so the mount
+ * below finds no configuration and returns. See NL-848.
  */
 import { ExperimentalEmailEditor } from '@woocommerce/email-editor';
 import { createRoot, StrictMode } from '@wordpress/element';
