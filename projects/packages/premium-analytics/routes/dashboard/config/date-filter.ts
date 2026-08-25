@@ -22,10 +22,24 @@ export const DATE_FILTER_RANGE = 'range';
 export const DATE_FILTER_YEAR = 'year';
 
 /**
+ * No header date control at all, for a section whose widgets host their own.
+ *
+ * Mirrors `Dashboard_Section::DATE_FILTER_NONE`, whose docblock carries the
+ * full three-part contract. The two parts this file implements: the section
+ * offers no comparison anywhere (`offersDateComparison` below), and the date
+ * state is still reconciled as the range surface (`resolvePresetForSurface`
+ * below), because the widget-hosted control is a range picker.
+ */
+export const DATE_FILTER_NONE = 'none';
+
+/**
  * The date filter a section's header offers. Mirrors
  * `Dashboard_Section::DATE_FILTERS` on the server, which is the source of truth.
  */
-export type DateFilterSurface = typeof DATE_FILTER_RANGE | typeof DATE_FILTER_YEAR;
+export type DateFilterSurface =
+	| typeof DATE_FILTER_RANGE
+	| typeof DATE_FILTER_YEAR
+	| typeof DATE_FILTER_NONE;
 
 /**
  * Which optional controls a section's date filter offers. Mirrors
@@ -49,7 +63,7 @@ export function offersDateComparison(
 	surface: DateFilterSurface,
 	options: DateFilterOptions | undefined
 ): boolean {
-	if ( surface === DATE_FILTER_YEAR ) {
+	if ( surface === DATE_FILTER_YEAR || surface === DATE_FILTER_NONE ) {
 		return false;
 	}
 
@@ -69,7 +83,8 @@ export function offersDateComparison(
  *
  * Presets a surface can represent are left alone. That includes an absent
  * preset on the range surface, which is how a `?from=&to=` deep link expresses
- * a custom range.
+ * a custom range. `none` falls through to the range branch on purpose: its
+ * widget-hosted control is a range picker, so it needs range-shaped presets.
  *
  * @param surface  - The active section's date-filter surface.
  * @param presetId - The preset currently in the URL, if any.

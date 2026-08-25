@@ -1,5 +1,6 @@
 import { PRESET_ALL_TIME, toYearPresetId } from '@jetpack-premium-analytics/datetime';
 import {
+	DATE_FILTER_NONE,
 	DATE_FILTER_RANGE,
 	DATE_FILTER_YEAR,
 	offersDateComparison,
@@ -36,6 +37,20 @@ describe( 'resolvePresetForSurface', () => {
 			);
 		} );
 	} );
+
+	// `none` means the header shows no control while a widget hosts a range
+	// picker, so the preset must stay coherent with the range surface.
+	describe( 'on the no-control surface', () => {
+		it( 'reconciles exactly like the date-range surface', () => {
+			expect( resolvePresetForSurface( DATE_FILTER_NONE, 'last-7-days' ) ).toBeNull();
+			expect( resolvePresetForSurface( DATE_FILTER_NONE, 'custom' ) ).toBeNull();
+			expect( resolvePresetForSurface( DATE_FILTER_NONE, undefined ) ).toBeNull();
+			expect( resolvePresetForSurface( DATE_FILTER_NONE, PRESET_ALL_TIME ) ).toBe( 'last-30-days' );
+			expect( resolvePresetForSurface( DATE_FILTER_NONE, toYearPresetId( 2024 ) ) ).toBe(
+				'last-30-days'
+			);
+		} );
+	} );
 } );
 
 describe( 'offersDateComparison', () => {
@@ -55,6 +70,15 @@ describe( 'offersDateComparison', () => {
 	it( 'never offers it on the year surface, whatever the section says', () => {
 		expect( offersDateComparison( DATE_FILTER_YEAR, undefined ) ).toBe( false );
 		expect( offersDateComparison( DATE_FILTER_YEAR, { with_date_comparison: true } ) ).toBe(
+			false
+		);
+	} );
+
+	// Not just chrome: `ReportScopeProvider` has `WidgetRoot` strip the
+	// comparison params for the whole section when this is false.
+	it( 'never offers it on the no-control surface, whatever the section says', () => {
+		expect( offersDateComparison( DATE_FILTER_NONE, undefined ) ).toBe( false );
+		expect( offersDateComparison( DATE_FILTER_NONE, { with_date_comparison: true } ) ).toBe(
 			false
 		);
 	} );
