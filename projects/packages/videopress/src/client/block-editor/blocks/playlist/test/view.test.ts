@@ -69,19 +69,19 @@ function setUpPlaylist( autoplayNext = true, loop = false ): HTMLElement {
 					<li><button type="button" class="videopress-playlist__select is-current" aria-current="true"
 						data-guid="aaaaaaaa" data-embed-url="${ EMBED_A }" data-title="First"
 						data-position="1 of 3" data-details="1080p · 12:04" data-progress="1 / 3 · 25:00 total">
-						<span class="videopress-playlist__entry-thumb"></span>
+						<span class="videopress-playlist__entry-thumb"><span class="videopress-playlist__entry-lock"><span class="videopress-playlist__entry-lock-label">Private video</span></span></span>
 						<span class="videopress-playlist__entry-title">First</span>
 					</button></li>
 					<li><button type="button" class="videopress-playlist__select"
 						data-guid="bbbbbbbb" data-embed-url="${ EMBED_B }" data-title="Second"
 						data-position="2 of 3" data-details="4K · 6:41" data-progress="2 / 3 · 25:00 total">
-						<span class="videopress-playlist__entry-thumb"></span>
+						<span class="videopress-playlist__entry-thumb"><span class="videopress-playlist__entry-lock"><span class="videopress-playlist__entry-lock-label">Private video</span></span></span>
 						<span class="videopress-playlist__entry-title">Second</span>
 					</button></li>
 					<li><button type="button" class="videopress-playlist__select"
 						data-guid="cccccccc" data-embed-url="${ EMBED_C }" data-title="Third"
 						data-position="3 of 3" data-details="720p · 6:15" data-progress="3 / 3 · 25:00 total">
-						<span class="videopress-playlist__entry-thumb"></span>
+						<span class="videopress-playlist__entry-thumb"><span class="videopress-playlist__entry-lock"><span class="videopress-playlist__entry-lock-label">Private video</span></span></span>
 						<span class="videopress-playlist__entry-title">Third</span>
 					</button></li>
 				</ol>
@@ -268,7 +268,7 @@ describe( 'initPlaylistBlock', () => {
 		expect( root.querySelector( '.videopress-playlist__select' ) ).not.toHaveClass( 'is-locked' );
 	} );
 
-	it( 'locks the thumbnail and keeps the fallback when no playback token is available', async () => {
+	it( 'locks the thumbnail and titles the entry from the lock label when no playback token is available', async () => {
 		window.videopressAjax = { ajaxUrl: '/wp-admin/admin-ajax.php', bridgeUrl: '', post_id: '12' };
 		mockPlaybackToken = null;
 		mockPrivateGuids = [ 'aaaaaaaa' ];
@@ -277,10 +277,12 @@ describe( 'initPlaylistBlock', () => {
 		const root = setUpPlaylist();
 		await hydratePlaylistMetadata( root );
 
-		expect( root.querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
-			'First'
+		const entry = root.querySelector< HTMLButtonElement >( '.videopress-playlist__select' );
+		expect( entry ).toHaveClass( 'is-locked' );
+		expect( entry.querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
+			'Private video'
 		);
-		expect( root.querySelector( '.videopress-playlist__select' ) ).toHaveClass( 'is-locked' );
+		expect( entry.dataset.title ).toBe( 'Private video' );
 	} );
 
 	it( 'locks the thumbnail without a token retry when the token bridge is not configured', async () => {
@@ -293,7 +295,7 @@ describe( 'initPlaylistBlock', () => {
 
 		expect( getMediaToken ).not.toHaveBeenCalled();
 		expect( root.querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
-			'First'
+			'Private video'
 		);
 		expect( root.querySelector( '.videopress-playlist__select' ) ).toHaveClass( 'is-locked' );
 	} );

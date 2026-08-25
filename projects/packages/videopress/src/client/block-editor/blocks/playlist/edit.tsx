@@ -161,6 +161,10 @@ async function liveMetadataWithSignedPoster(
 		}
 	}
 
+	if ( metadata.isPrivateLocked ) {
+		metadata.title = __( 'Private video', 'jetpack-videopress-pkg' );
+	}
+
 	return metadata;
 }
 
@@ -453,8 +457,15 @@ export default function PlaylistEdit( {
 			fetchVideoItem( { guid, isPrivate: false, skipRatingControl: true } )
 				.then( item => liveMetadataWithSignedPoster( guid, item as Record< string, unknown > ) )
 				.then( metadata => cacheLiveMetadata( guid, metadata ) )
-				.catch( () => {
-					// The entry keeps its GUID fallback when the video data isn't reachable.
+				.catch( ( error: Error & { cause?: { error?: string } } ) => {
+					// A video this user cannot authorize at all shows the lock
+					// placeholder; anything else keeps the GUID fallback.
+					if ( error?.cause?.error === 'auth' ) {
+						cacheLiveMetadata( guid, {
+							title: __( 'Private video', 'jetpack-videopress-pkg' ),
+							isPrivateLocked: true,
+						} );
+					}
 				} );
 		} );
 	}, [ videos ] );

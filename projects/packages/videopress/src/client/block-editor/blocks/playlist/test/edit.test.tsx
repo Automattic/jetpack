@@ -202,7 +202,23 @@ describe( 'PlaylistEdit', () => {
 		);
 		const entryButton = screen.getByRole( 'button', { current: true } );
 		expect( within( entryButton ).queryByRole( 'presentation' ) ).not.toBeInTheDocument();
-		expect( within( entryButton ).getByText( 'Private video' ) ).toBeInTheDocument();
+		// Once in the lock placeholder, once as the entry title.
+		expect( within( entryButton ).getAllByText( 'Private video' ) ).toHaveLength( 2 );
+	} );
+
+	it( 'shows the lock placeholder when the video data request is denied outright', async () => {
+		fetchVideoItemMock.mockRejectedValue(
+			new Error( 'You cannot view this video.', { cause: { error: 'auth' } } )
+		);
+
+		renderEdit( { videos: [ { guid: 'abcDEF12' } ] } );
+
+		await waitFor( () =>
+			expect( screen.getByRole( 'button', { current: true } ) ).toHaveClass( 'is-locked' )
+		);
+		expect(
+			within( screen.getByRole( 'button', { current: true } ) ).getAllByText( 'Private video' )
+		).toHaveLength( 2 );
 	} );
 
 	it( 'accepts a VideoPress URL', async () => {
