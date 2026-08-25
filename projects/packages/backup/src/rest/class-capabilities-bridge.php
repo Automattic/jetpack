@@ -69,23 +69,63 @@ class Capabilities_Bridge {
 			return Rest_Controller::transport_error( $response, 'capabilities_fetch_failed' );
 		}
 
-		$status_code = wp_remote_retrieve_response_code( $response );
+		// Cast: `wp_remote_retrieve_response_code()` returns whatever the
+		// transport put there, and a numeric string fails a strict
+		// comparison against 200 — sending a perfectly good response down
+		// the failure branch, where the `is_int()` test below would then
+		// report it as a 500.
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $status_code ) {
 			return new WP_Error(
 				'capabilities_fetch_failed',
 				__( 'Could not fetch site capabilities.', 'jetpack-backup-pkg' ),
-				array( 'status' => is_int( $status_code ) && $status_code > 0 ? $status_code : 500 )
+				array( 'status' => $status_code > 0 ? $status_code : 500 )
 			);
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
-		if ( ! is_array( $body ) ) {
-			$body = array();
+
+		// A 200 we cannot read is refused rather than projected.
+		//
+		// Coercing it to an empty list is the same as answering "this site
+		// has no Backup plan", and that answer is acted on: `<Gates>`
+		// renders the upgrade screen. So a truncated response, an HTML
+		// error page from something in front of WordPress.com, or a shape
+		// change upstream would each show a paying customer an advert for
+		// what they already own, with no error anywhere to explain it.
+		// The docblock above records this exact mechanism firing once
+		// already; that fix repointed the endpoint and left the tolerant
+		// projection in place.
+		//
+		// An *empty* list is not this case. It is a legitimate answer —
+		// the one every site without Backup gives — and refusing it would
+		// put a permanent error in front of precisely the people the
+		// upgrade screen is for.
+		// `wp_is_numeric_array()` and not `is_array()`, because the two
+		// differ on the shape most likely to arrive if upstream drifts: a
+		// keyed map. `is_array()` accepts `{"capabilities":{"backup":true}}`,
+		// and `in_array()` then compares against that map's *values* — so
+		// the site reads as having no plan, which is the outcome this
+		// whole guard exists to prevent. It returns true for an empty
+		// array, so the carve-out below survives.
+		if (
+			! is_array( $body )
+			|| ! isset( $body['capabilities'] )
+			|| ! wp_is_numeric_array( $body['capabilities'] )
+		) {
+			return new WP_Error(
+				'capabilities_unreadable',
+				__( "Could not read this site's plan details.", 'jetpack-backup-pkg' ),
+				// Deliberately not the 502 `Rest_Controller::transport_error()`
+				// uses: the client reads 502 as "the answer went missing",
+				// a meaning it shares with the destructive restore
+				// mutation. Nothing was in flight here. WordPress.com
+				// answered; we could not read what it said.
+				array( 'status' => 500 )
+			);
 		}
 
-		$capabilities = isset( $body['capabilities'] ) && is_array( $body['capabilities'] )
-			? $body['capabilities']
-			: array();
+		$capabilities = $body['capabilities'];
 
 		return rest_ensure_response(
 			array(

@@ -34,6 +34,7 @@ export default function TotalSalesOverTimeRender( {
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<OrderMetricWidget
 				metricKey="total_sales"
+				seriesLabel={ __( 'Total sales', 'jetpack-premium-analytics-pkg' ) }
 				emptyStateText={ __( 'No sales in this period.', 'jetpack-premium-analytics-pkg' ) }
 				errorText={ __(
 					"We couldn't load total sales. Please try again in a moment.",

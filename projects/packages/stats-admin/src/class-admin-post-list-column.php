@@ -132,7 +132,7 @@ class Admin_Post_List_Column {
 				 * Lets a newer analytics dashboard claim the entry point without this
 				 * package knowing about it.
 				 *
-				 * @since $$next-version$$
+				 * @since 0.34.0
 				 *
 				 * @param string $stats_post_url Stats URL for the post.
 				 * @param int    $post_id        The post the row belongs to.

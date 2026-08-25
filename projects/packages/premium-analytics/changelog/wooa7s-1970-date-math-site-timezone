@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Date filters: Compute day boundaries and daylight-saving wall times in the site's timezone instead of the visitor's browser timezone.

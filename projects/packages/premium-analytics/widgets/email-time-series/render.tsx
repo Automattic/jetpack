@@ -15,8 +15,8 @@ import {
 	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
-	buildReportMetricSeries,
 	defaultPeriodForInterval,
+	toChartDate,
 	useWidgetRootContext,
 	type MetricTab,
 	type ReportParamsFieldAttributes,
@@ -111,14 +111,14 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 	}, [ report, period, field ] );
 
 	// One metric: the headline is the window total (the timeline is summed per
-	// bucket, so the sum of buckets is the range's opens/clicks).
+	// bucket, so the sum of buckets is the range's opens/clicks). Point dates are
+	// wall clocks, read back via `pointsAreWallClocks` (rationale in
+	// `chart-date.ts`).
 	const metricTabs = useMemo< MetricTab[] >( () => {
-		const points = chartReport
-			? buildReportMetricSeries( {
-					primary: chartReport,
-					metrics: [ { key: field, label: metricLabel( metric ) } ],
-			  } )[ 0 ]?.data ?? []
-			: [];
+		const points = ( chartReport?.data ?? [] ).map( point => ( {
+			date: toChartDate( point.date_start ),
+			value: Number( point[ field ] ?? 0 ),
+		} ) );
 
 		return [
 			{
@@ -162,6 +162,7 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
+					pointsAreWallClocks
 				/>
 			</WidgetState>
 		</div>
