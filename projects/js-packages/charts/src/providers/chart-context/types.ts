@@ -42,6 +42,10 @@ export interface GlobalChartsContextValue {
 	toggleSeriesVisibility: ( chartId: string, seriesLabel: string ) => void;
 	setSeriesVisibility: ( chartId: string, seriesLabel: string, visible: boolean ) => void;
 	setChartHiddenSeries: ( chartId: string, seriesLabels: readonly string[] ) => void;
+	/** Applies a chart's defaults once. A no-op for a chart that has already been seeded. */
+	seedChartHiddenSeries: ( chartId: string, seriesLabels: readonly string[] ) => void;
+	/** Whether this chart's defaults have already been seeded, in this or an earlier mount. */
+	hasSeededChart: ( chartId: string ) => boolean;
 	isSeriesVisible: ( chartId: string, seriesLabel: string ) => boolean;
 	getHiddenSeries: ( chartId: string ) => Set< string >;
 	isColorPaletteResolved: boolean;

@@ -438,4 +438,24 @@ describe( 'MetricTabsChart', () => {
 		expect( series ).toHaveLength( 4 );
 		expect( defaultHiddenSeries ).toEqual( [ series[ 2 ].label, series[ 3 ].label ] );
 	} );
+
+	it( 'keeps the same chart ID across a chart-type switch', () => {
+		// The line and bar charts are different components, so switching between
+		// them remounts. The provider only carries a reveal over that remount if
+		// both mounts name the same chart, so this is what keeps a revealed
+		// counterpart revealed when the reader flips the chart type.
+		const { rerender } = render(
+			<MetricTabsChart metrics={ [ VIEWS, VISITORS ] } dataFormat={ DATA_FORMAT } />
+		);
+
+		const lineChartId = recordedPropsFor( mockLineSpy, 'Views' ).chartId;
+		// Guard the assertion below against passing on undefined === undefined.
+		expect( lineChartId ).toEqual( expect.any( String ) );
+
+		rerender(
+			<MetricTabsChart metrics={ [ VIEWS, VISITORS ] } dataFormat={ DATA_FORMAT } chartType="bar" />
+		);
+
+		expect( recordedPropsFor( mockBarSpy, 'Views' ).chartId ).toBe( lineChartId );
+	} );
 } );
