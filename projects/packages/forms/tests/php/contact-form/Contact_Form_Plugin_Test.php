@@ -656,6 +656,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	public function test_construction_registers_the_wordpress_integration() {
 		$construct = Closure::bind(
 			static function () {
+				// @phan-suppress-next-line PhanAccessMethodProtected -- The closure is bound to the class's own scope below, which Phan does not model.
 				return new Contact_Form_Plugin();
 			},
 			null,
