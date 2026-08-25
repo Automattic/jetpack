@@ -1,3 +1,4 @@
+import type { TracksAudienceProperties } from './tracks-audience';
 import type {
 	PLACEMENT_DOCUMENT_SETTINGS,
 	PLACEMENT_JETPACK_SIDEBAR,
@@ -24,8 +25,10 @@ export type EditorSelect = {
 	getCurrentPostType?: () => string | undefined;
 };
 
-export type WordPressAgentNoticeEventProperties = {
+export type WordPressAgentNoticeEventProperties = TracksAudienceProperties & {
 	placement: WordPressAgentNoticePlacement;
+	// The family's settled editor value, present while the core/editor store is registered.
+	surface?: 'block_editor';
 	site_type: SiteType;
 	post_type?: string;
 	current_tier_slug?: string;

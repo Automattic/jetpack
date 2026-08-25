@@ -23,6 +23,7 @@ import {
 	useIsWordPressAgentChatVisible,
 	useIsWordPressAgentReady,
 } from './open-agent';
+import { getTracksAudienceProperties } from './tracks-audience';
 /**
  * Types
  */
@@ -48,13 +49,17 @@ function useEventProperties(
 	placement: WordPressAgentNoticePlacement
 ): WordPressAgentNoticeEventProperties {
 	const { currentTier } = useAiFeature();
-	const postType = useSelect(
-		select => ( select( EDITOR_STORE ) as EditorSelect )?.getCurrentPostType?.(),
-		[]
-	);
+	const { hasEditorStore, postType } = useSelect( select => {
+		const editor = select( EDITOR_STORE ) as EditorSelect | undefined;
+		return { hasEditorStore: !! editor, postType: editor?.getCurrentPostType?.() };
+	}, [] );
 
 	return {
+		// First on purpose: an explicit key below always wins over an audience one.
+		...getTracksAudienceProperties(),
 		placement,
+		// Derived as the family recorder derives it: present while the editor store is.
+		...( hasEditorStore ? { surface: 'block_editor' as const } : {} ),
 		site_type: getSiteType(),
 		...( postType ? { post_type: postType } : {} ),
 		...( currentTier?.slug ? { current_tier_slug: currentTier.slug } : {} ),
