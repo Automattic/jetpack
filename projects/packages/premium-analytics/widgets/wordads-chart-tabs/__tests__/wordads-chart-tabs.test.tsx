@@ -54,8 +54,16 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 } ) );
 
 // WidgetRoot reads URL search params as a fallback for report params; outside
-// a matched route the real hook warns and throws.
-jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
+// a matched route the real hook warns and throws. `useNavigate` is added on
+// top of the shared mock: this widget also hosts its own `DateFiltersPanel`,
+// whose `useReportDateFilters` calls it unconditionally on every render (the
+// tests here never interact with the picker, so a no-op is enough — see
+// `__tests__/date-range-control.test.tsx` for the interactive coverage, which
+// needs a real matched route via `RouteHarness` instead of this mock).
+jest.mock( '@wordpress/route', () => ( {
+	...jest.requireActual( '../../test-utils' ).mockWordPressRoute,
+	useNavigate: () => jest.fn(),
+} ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 

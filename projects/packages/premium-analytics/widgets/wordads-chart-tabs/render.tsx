@@ -2,6 +2,8 @@
  * External dependencies
  */
 import { megaphone } from '@jetpack-premium-analytics/icons';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
@@ -39,12 +41,15 @@ const WORDADS_PERIODS = [
 ] as const satisfies readonly WordAdsPeriod[];
 
 /**
- * The bucket size follows the dashboard's chart interval control, clamped to
- * what this chart supports. Which metric is plotted is the chart's own tab
- * selection.
+ * The date range and bucket size are this widget's own: the Ads section header
+ * offers no date control, because the section's four other widgets read an
+ * endpoint that takes no dates at all. The controls still write the shared URL
+ * search params, so the picker and the chart read one source — see the
+ * single-source-of-truth constraint in the WOOA7S-1979 design.
  */
 function WordAdsChartTabsInner() {
 	const { reportParams } = useWidgetRootContext();
+	const dateFilters = useReportDateFilters( '/' );
 	const period: WordAdsPeriod = defaultPeriodForInterval( reportParams.interval, WORDADS_PERIODS );
 
 	const { metrics, isLoading, isFetching, isError, isEmpty, refetch } = useWordAdsChart(
@@ -54,6 +59,10 @@ function WordAdsChartTabsInner() {
 
 	return (
 		<div className={ styles.root }>
+			<div className={ styles.controls }>
+				<DateFiltersPanel { ...dateFilters } withIntervalControl />
+			</div>
+
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
