@@ -102,6 +102,16 @@ function wpcom_get_sidebar_notice() {
 		'tracks'        => $message->tracks ?? null,
 	);
 
+	// The omnibar upsell experiment moves this message into the admin bar for
+	// treatment users, so the sidebar copy is hidden for them. Other messages
+	// are not part of the experiment and stay untouched.
+	if ( 'free_to_paid_plan' === $cached_notice['id'] ) {
+		require_once __DIR__ . '/../../common/class-free-domain-upsell-experiment.php';
+		if ( 'treatment' === \Automattic\Jetpack\Jetpack_Mu_Wpcom\Free_Domain_Upsell_Experiment::get_variation() ) {
+			$cached_notice = null;
+		}
+	}
+
 	return $cached_notice;
 }
 

@@ -10,7 +10,9 @@
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Free_Domain_Upsell_Experiment;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 // The $icon-color variable for admin color schemes.
 // See: https://github.com/WordPress/wordpress-develop/blob/679cc0c4a261a77bd8fdb140cd9b0b2ff80ebf37/src/wp-admin/css/colors/_variables.scss#L9
@@ -520,3 +522,77 @@ function wpcom_add_stats_to_site_menu( $wp_admin_bar ) {
 	);
 }
 add_action( 'admin_bar_menu', 'wpcom_add_stats_to_site_menu', 40 );
+
+/**
+ * Whether the current user/site is eligible for the omnibar free-domain upsell:
+ * an administrator of a Free Simple site that is not a staging site. Mirrors
+ * the Calypso-side predicate for the same chip.
+ *
+ * @return bool
+ */
+function wpcom_free_domain_upsell_is_eligible() {
+	if ( ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) {
+		return false;
+	}
+
+	if ( ! ( new Host() )->is_wpcom_simple() ) {
+		return false;
+	}
+
+	if ( (bool) get_option( 'wpcom_is_staging_site' ) ) {
+		return false;
+	}
+
+	if ( ! class_exists( '\WPCOM_Store_API' ) ) {
+		return false;
+	}
+	$current_plan = WPCOM_Store_API::get_current_plan( get_current_blog_id() );
+
+	return ! empty( $current_plan['is_free'] );
+}
+
+/**
+ * Adds a "Free domain" upsell chip to the admin bar for users in the treatment
+ * of the omnibar upsell experiment.
+ *
+ * The node is deliberately top-level so it is NOT returned by the site
+ * admin-bar REST endpoint (which only keeps a fixed set of top-level ids):
+ * Calypso surfaces render their own chip, so returning this one would
+ * duplicate it there.
+ *
+ * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
+ */
+function wpcom_add_free_domain_upsell_chip( $wp_admin_bar ) {
+	if ( ! wpcom_free_domain_upsell_is_eligible() ) {
+		return;
+	}
+
+	require_once __DIR__ . '/../../common/class-free-domain-upsell-experiment.php';
+	if ( 'treatment' !== Free_Domain_Upsell_Experiment::get_variation() ) {
+		return;
+	}
+
+	$icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<path d="M18.9397 9.87999L15.4197 6.06999L15.3597 6.00999C15.2897 5.93999 15.1997 5.89999 15.0997 5.89999H8.87973C8.77973 5.89999 8.68973 5.93999 8.61973 6.00999L5.05973 9.87999C4.93973 10.01 4.93973 10.21 5.05973 10.34L11.5397 17.86C11.6497 17.99 11.8197 18.07 11.9997 18.07C12.1797 18.07 12.3397 17.99 12.4597 17.86L18.9397 10.34C19.0597 10.21 19.0497 10.01 18.9397 9.87999ZM15.4097 7.53999L17.3297 9.63999H15.1697L15.4097 7.53999ZM14.4297 6.83999L14.1097 9.63999H10.2897L9.64973 6.83999H14.4297ZM8.68973 7.42999L9.19973 9.63999H6.66973L8.68973 7.42999ZM6.61973 10.6H9.42973L10.8397 15.49L6.61973 10.6ZM12.0397 15.87L10.5297 10.6H13.8597L12.0397 15.87ZM14.9697 10.6H17.3797L13.3697 15.24L14.9697 10.6Z" fill="currentColor" />
+	</svg>';
+
+	$wp_admin_bar->add_menu(
+		array(
+			'id'     => 'wpcom-free-domain-upsell',
+			'parent' => null,
+			'title'  => '<span class="ab-icon" aria-hidden="true">' . $icon . '</span><span class="ab-label">' . esc_html__( 'Free domain', 'jetpack-mu-wpcom' ) . '</span>',
+			'href'   => add_query_arg(
+				array(
+					'siteSlug' => wpcom_get_site_slug(),
+					'ref'      => 'wp-admin',
+				),
+				'https://wordpress.com/setup/domain-and-plan'
+			),
+			'meta'   => array(
+				'class' => 'wpcom-free-domain-upsell',
+				'title' => __( 'Free domain with an annual plan', 'jetpack-mu-wpcom' ),
+			),
+		)
+	);
+}
+add_action( 'admin_bar_menu', 'wpcom_add_free_domain_upsell_chip', 500 );

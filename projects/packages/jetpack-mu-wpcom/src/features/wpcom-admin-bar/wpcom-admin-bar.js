@@ -16,4 +16,18 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			wpcomTrackEvent( 'wpcom_adminbar_command_palette_clicked' );
 		} );
 	}
+
+	const freeDomainUpsell = document.querySelector( '#wp-admin-bar-wpcom-free-domain-upsell a' );
+	if ( freeDomainUpsell ) {
+		wpcomTrackEvent( 'wpcom_omnibar_upsell_impression', {
+			upsell_id: 'omnibar-free-domain',
+			surface: 'wp-admin',
+		} );
+		freeDomainUpsell.addEventListener( 'click', () => {
+			wpcomTrackEvent( 'wpcom_omnibar_upsell_click', {
+				upsell_id: 'omnibar-free-domain',
+				surface: 'wp-admin',
+			} );
+		} );
+	}
 } );
