@@ -8,45 +8,30 @@ import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Stack, Text } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import { getVideoInfoQueryKeyPrefix } from '../../src/client/components/caption-manager-modal/use-video-tracks';
+import { TAB_PATHS } from '../../src/dashboard/components/dashboard-tabs';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
-import ChaptersHelpModal from '../../src/dashboard/components/video-details/chapters-help-modal';
-import HeaderActions from '../../src/dashboard/components/video-details/header-actions';
-import PreviewPlayer from '../../src/dashboard/components/video-details/preview-player';
-import PrivacySharingCard from '../../src/dashboard/components/video-details/privacy-sharing-card';
-import RatingCard from '../../src/dashboard/components/video-details/rating-card';
-import SubtitlesCard from '../../src/dashboard/components/video-details/subtitles-card';
-import ThumbnailCard from '../../src/dashboard/components/video-details/thumbnail-card';
-import { useVideoDetailsForm } from '../../src/dashboard/components/video-details/use-video-details-form';
-import VideoDetailsCard from '../../src/dashboard/components/video-details/video-details-card';
-import VideoInfoCard from '../../src/dashboard/components/video-details/video-info-card';
-import VideoNav from '../../src/dashboard/components/video-nav';
+import { UPLOAD_ONBOARDING_CONTEXT } from '../../src/dashboard/components/upload-dropzone/select-files';
+import UploadPill from '../../src/dashboard/components/upload-pill';
+import Editor, {
+	getParentBreadcrumbItem,
+} from '../../src/dashboard/components/video-details/editor';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
+import { useLibrary } from '../../src/dashboard/hooks/use-library';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
-import { useInvalidateVideo, useVideo } from '../../src/dashboard/hooks/use-video';
-import { isChaptersEditorEnabled } from '../../src/dashboard/utils/chapters-editor';
+import { useUpload } from '../../src/dashboard/hooks/use-upload';
+import {
+	isMissingVideoError,
+	useInvalidateVideo,
+	useVideo,
+} from '../../src/dashboard/hooks/use-video';
 import './style.scss';
-import type { LibraryItem, VideoRating } from '../../src/dashboard/types/library';
+import type { UploadItem } from '../../src/dashboard/hooks/use-upload';
+import type { LibraryItem } from '../../src/dashboard/types/library';
+import type { View } from '@wordpress/dataviews';
 
 const isEditable = ( item: LibraryItem ): boolean =>
 	item.type === 'videopress' && item.upload.status !== 'failed';
-
-/**
- * Parent breadcrumb item — labelled "VideoPress" in every case, but the
- * link target depends on where the user arrived from. Overview's ranking
- * links tag their navigation with `state: { from: 'stats' }`; we read
- * that here so the breadcrumb routes back to the Overview tab instead of
- * defaulting to Library. TanStack stores user state on `window.history.state`,
- * so reading it directly avoids needing `useLocation` (which `@wordpress/route`
- * doesn't re-export from TanStack). Stable for the lifetime of the mount,
- * so no reactivity hook is needed.
- *
- * @return The parent breadcrumb item.
- */
-const getParentBreadcrumbItem = (): { label: string; to: string } => {
-	const from = ( window.history.state as { from?: string } | null )?.from;
-	return { label: 'VideoPress', to: from === 'stats' ? '/stats' : '/' };
-};
 
 const NotFound = () => (
 	<AdminPage
@@ -61,7 +46,7 @@ const NotFound = () => (
 	>
 		<div className="vp-video-details vp-video-details__not-found">
 			<Stack direction="column" gap="md" align="center">
-				<Text>{ __( "We couldn't find that video.", 'jetpack-videopress-pkg' ) }</Text>
+				<Text>{ __( 'We couldn’t find that video.', 'jetpack-videopress-pkg' ) }</Text>
 				<Link to="/">{ __( 'Back to Library', 'jetpack-videopress-pkg' ) }</Link>
 			</Stack>
 		</div>
@@ -86,177 +71,29 @@ const Loading = () => (
 	</AdminPage>
 );
 
-type EditorProps = {
+type StageReadyProps = {
 	video: LibraryItem;
-	onSave: (
-		values: ReturnType< typeof useVideoDetailsForm >[ 'values' ],
-		reset: ReturnType< typeof useVideoDetailsForm >[ 'reset' ]
-	) => void;
-	isSaving: boolean;
-	onDelete: () => void;
-	onDownload: () => void;
-	onManageCaptions: () => void;
-	chaptersOpen: boolean;
-	setChaptersOpen: ( open: boolean ) => void;
+	/**
+	 * The un-acknowledged queue row that produced this video, when there is
+	 * one. It carries the pre-handoff draft and the processing state.
+	 */
+	uploadRow?: UploadItem;
 };
 
-const Editor = ( {
-	video,
-	onSave,
-	isSaving,
-	onDelete,
-	onDownload,
-	onManageCaptions,
-	chaptersOpen,
-	setChaptersOpen,
-}: EditorProps ) => {
-	const { values, update, isDirty, reset } = useVideoDetailsForm( video );
-
-	// The sub-nav's only sibling tab is the Editor, whose route is stripped
-	// from the registry when the chapters editor is off — a one-tab strip
-	// would be pointless chrome, and its Editor tab would dead-end.
-	const showVideoNav = isChaptersEditorEnabled();
-
-	const openChapters = useCallback( () => {
-		setChaptersOpen( true );
-	}, [ setChaptersOpen ] );
-
-	const closeChapters = useCallback( () => {
-		setChaptersOpen( false );
-	}, [ setChaptersOpen ] );
-
-	const onRatingChange = useCallback(
-		( next: VideoRating ) => {
-			update( { rating: next } );
-		},
-		[ update ]
-	);
-
-	const handleSave = useCallback( () => {
-		onSave( values, reset );
-	}, [ onSave, values, reset ] );
-
-	// Guard the sub-nav against losing unsaved form edits: the Editor tab
-	// is a sibling route, so switching tabs unmounts this form entirely.
-	const confirmNavigation = useCallback( () => {
-		return (
-			! isDirty ||
-			// eslint-disable-next-line no-alert -- deliberate synchronous guard; the sub-nav navigation can't await a custom dialog.
-			window.confirm(
-				__(
-					'You have unsaved changes. Leave this page and discard them?',
-					'jetpack-videopress-pkg'
-				)
-			)
-		);
-	}, [ isDirty ] );
-
-	return (
-		<AdminPage
-			breadcrumbs={
-				// display: contents wrapper — a pure scoping hook so the
-				// stylesheet can clamp long video titles in the current-item
-				// crumb (Breadcrumbs' own class names are CSS-module hashes).
-				<div className="vp-video-details__breadcrumbs">
-					{ /*
-					 * The crumb reads the FORM's title, not the saved record, so
-					 * the page heading tracks what is being typed without
-					 * committing it. Two side benefits over reading
-					 * `video.title`: no old→new flicker when the post-save
-					 * refetch lands, and the 2s processing `refetchInterval`
-					 * can't clobber the crumb mid-edit.
-					 *
-					 * `.trim()` matters. Breadcrumbs only short-circuits on
-					 * `items.length === 0`, so a whitespace-only title would
-					 * render an empty <h1> — and that <h1> is this page's only
-					 * accessible name.
-					 */ }
-					<Breadcrumbs
-						items={ [
-							getParentBreadcrumbItem(),
-							{ label: values.title.trim() || __( 'Untitled', 'jetpack-videopress-pkg' ) },
-						] }
-					/>
-				</div>
-			}
-			actions={
-				<HeaderActions
-					guid={ video.guid }
-					canSave={ isDirty && ! isSaving }
-					onSave={ handleSave }
-					onManageCaptions={ onManageCaptions }
-					onDownload={ onDownload }
-					onDelete={ onDelete }
-				/>
-			}
-		>
-			{ showVideoNav && (
-				<VideoNav
-					videoId={ video.id }
-					activeTab="details"
-					confirmNavigation={ confirmNavigation }
-				/>
-			) }
-			<div className="vp-video-details">
-				{ /*
-				 * Placement rule for this screen: the canvas holds what a person
-				 * authors about this video — the words, the still, the captions.
-				 * The right-hand column holds the video itself, the values that
-				 * address it, and the settings picked once from a fixed set.
-				 *
-				 * The split is authoring vs. configuring rather than editable vs.
-				 * read-only, which is why Privacy & sharing and Rating sit beside
-				 * the read-outs: all three are things you set and leave, not
-				 * things you write.
-				 *
-				 * The player used to lead the canvas. It was measured at 502px
-				 * tall on a 1080p display — over half the visible page before a
-				 * single field had been read — while the settings it pushed
-				 * down could not fit their own column and grew a second
-				 * scrollbar with no visible boundary. Those are the same
-				 * problem, and moving one element fixes both.
-				 */ }
-				<div className="vp-video-details__layout">
-					<div className="vp-video-details__canvas">
-						<VideoDetailsCard
-							video={ video }
-							title={ values.title }
-							description={ values.description }
-							onChange={ update }
-							onOpenChapters={ openChapters }
-							confirmNavigation={ confirmNavigation }
-						/>
-						<ThumbnailCard video={ video } />
-						<SubtitlesCard video={ video } onManageSubtitles={ onManageCaptions } />
-					</div>
-					{ /*
-					 * Deliberately a sibling of the canvas rather than the first
-					 * child of the aside: it is placed by grid area, so the stacked
-					 * layout below 1100px can lead with the player while the
-					 * settings stay at the bottom.
-					 */ }
-					<PreviewPlayer video={ video } />
-					<aside
-						className="vp-video-details__inspector"
-						aria-label={ __( 'Video settings', 'jetpack-videopress-pkg' ) }
-					>
-						<VideoInfoCard video={ video } />
-						<PrivacySharingCard
-							privacy={ values.privacy }
-							displayEmbed={ values.displayEmbed }
-							allowDownloads={ values.allowDownloads }
-							onChange={ update }
-						/>
-						<RatingCard value={ values.rating } onChange={ onRatingChange } />
-					</aside>
-				</div>
-			</div>
-			<ChaptersHelpModal isOpen={ chaptersOpen } onClose={ closeChapters } />
-		</AdminPage>
-	);
+// "Was that the last video?" — the server total, deliberately NOT useFreeTier's
+// count: that one adds un-acknowledged queue rows, which on this page includes
+// the row for the very video being deleted. A perPage=1 read, and keyed
+// identically to the first-run count view so every other screen in the session
+// shares its cache entry.
+const LAST_VIDEO_COUNT_VIEW: View = {
+	type: 'table',
+	page: 1,
+	perPage: 1,
+	fields: [],
+	filters: [],
+	search: '',
+	sort: { field: 'date', direction: 'desc' },
 };
-
-type StageReadyProps = { video: LibraryItem };
 
 // Per-video id so the settle notices replace the in-progress snackbar in
 // place (the notices store drops an existing notice with the same id on
@@ -265,16 +102,53 @@ type StageReadyProps = { video: LibraryItem };
 // another — can't clobber each other's notices.
 const deletingNoticeId = ( videoId: string ) => `vp-video-deleting-${ videoId }`;
 
-const StageReady = ( { video }: StageReadyProps ) => {
+const StageReady = ( { video, uploadRow }: StageReadyProps ) => {
 	const navigate = useNavigate();
 	const invalidateVideo = useInvalidateVideo();
 	const { mutate: updateMeta, isPending: isSaving } = useUpdateVideoMeta();
 	const { syncChapters } = useUpdateChapters();
 	const { mutateAsync: deleteVideo, isPending: isDeleting } = useDeleteVideo();
+	const { acknowledgeUpload } = useUpload();
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
 	const [ captionsOpen, setCaptionsOpen ] = useState( false );
 	const queryClient = useQueryClient();
+	const { paginationInfo } = useLibrary( LAST_VIDEO_COUNT_VIEW );
+	const libraryTotalRef = useRef( 0 );
+	libraryTotalRef.current = paginationInfo?.totalItems ?? 0;
+
+	// The upload's own screen. Arriving here from the /upload bridge (or from
+	// the pill's "Add details"), this page owns the tail of the upload: the
+	// processing stage in the player slot, and then nothing — the payoff is
+	// the player itself, which is what the whole flow promised. The row has
+	// delivered everything it carried (the draft, the processing state) the
+	// moment the video is playable, so standing here consumes it.
+	//
+	// A snackbar marks the moment for the flow that earned one: a single
+	// upload. Chaining "Add details" through a five-file batch would
+	// otherwise announce five times.
+	useEffect( () => {
+		if ( ! uploadRow || video.isProcessing ) {
+			return;
+		}
+
+		if ( uploadRow.context === UPLOAD_ONBOARDING_CONTEXT ) {
+			createSuccessNotice( __( 'Your video is live.', 'jetpack-videopress-pkg' ) );
+		}
+
+		acknowledgeUpload( uploadRow.id );
+	}, [ uploadRow, video.isProcessing, acknowledgeUpload, createSuccessNotice ] );
+
+	const uploadSession = uploadRow
+		? {
+				uploadState: video.isProcessing
+					? { status: 'processing' as const, progress: 100, fileName: uploadRow.file.name }
+					: undefined,
+				// The record is real by definition on this route.
+				saveDisabled: false,
+				draft: uploadRow.draft,
+		  }
+		: undefined;
 
 	/*
 	 * The caption manager runs on its own query client, so the page's caches
@@ -339,6 +213,17 @@ const StageReady = ( { video }: StageReadyProps ) => {
 					if ( isDeleting ) {
 						return;
 					}
+					// DELETE …?force=true — there is no trash to recover from, so
+					// the only chance to stop this is before it starts.
+					// eslint-disable-next-line no-alert -- deliberate synchronous guard on an irreversible action.
+					const confirmed = window.confirm(
+						__( 'Permanently delete this video?', 'jetpack-videopress-pkg' )
+					);
+					if ( ! confirmed ) {
+						return;
+					}
+					// Read before the delete: after it, the count has moved.
+					const wasLastVideo = libraryTotalRef.current <= 1;
 					// Deleting can take several seconds (the backend also removes the
 					// remote VideoPress copy); surface progress immediately so the
 					// action doesn't feel frozen. `explicitDismiss` keeps the snackbar
@@ -356,7 +241,9 @@ const StageReady = ( { video }: StageReadyProps ) => {
 								id: deletingNoticeId( video.id ),
 							} );
 							if ( isMountedRef.current ) {
-								navigate( { href: '/' } );
+								// An emptied Library is a dead end — no dropzone, no
+								// next step. Home has both.
+								navigate( { href: wasLastVideo ? TAB_PATHS.home : '/' } );
 							}
 						} )
 						.catch( () => {
@@ -373,6 +260,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 				onManageCaptions={ () => setCaptionsOpen( true ) }
 				chaptersOpen={ chaptersOpen }
 				setChaptersOpen={ setChaptersOpen }
+				uploadSession={ uploadSession }
 			/>
 			{ captionsOpen && (
 				<CaptionManagerModal
@@ -392,17 +280,38 @@ const StageReady = ( { video }: StageReadyProps ) => {
 
 const StageInner = () => {
 	const { id } = useParams( { from: '/video/$id' } );
-	const { video, isLoading } = useVideo( id );
+	const { video, isLoading, error } = useVideo( id );
+	const { uploadQueue } = useUpload();
 
+	// The queue row bound to this attachment, while it is still un-acknowledged.
+	const uploadRow = uploadQueue.find(
+		row => row.media !== undefined && Number( row.media.id ) === Number( id )
+	);
+
+	let body;
 	if ( isLoading ) {
-		return <Loading />;
+		body = <Loading />;
+	} else if ( isMissingVideoError( error ) ) {
+		// Deleted out from under us (another tab, another device): the cached
+		// record is still in hand, and rendering it would offer saves and
+		// deletes against a 404.
+		body = <NotFound />;
+	} else if ( ! video || ! isEditable( video ) ) {
+		body = <NotFound />;
+	} else {
+		body = <StageReady video={ video } uploadRow={ uploadRow } />;
 	}
 
-	if ( ! video || ! isEditable( video ) ) {
-		return <NotFound />;
-	}
-
-	return <StageReady video={ video } />;
+	// The edit screen has its own AdminPage rather than DashboardLayout, so
+	// the batch upload pill — the multi-upload "add details" chain lands
+	// here — needs its own mount. This video's own row is filtered out of it:
+	// the page itself is that upload's progress surface.
+	return (
+		<>
+			{ body }
+			<UploadPill suppressMediaId={ id } />
+		</>
+	);
 };
 
 const Stage = () => (

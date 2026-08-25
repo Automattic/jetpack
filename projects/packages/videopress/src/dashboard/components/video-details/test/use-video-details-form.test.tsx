@@ -83,4 +83,99 @@ describe( 'useVideoDetailsForm', () => {
 		expect( result.current.values.description ).toBe( 'Other cut' );
 		expect( result.current.isDirty ).toBe( false );
 	} );
+
+	/*
+	 * The upload flow's draft session: the form starts on a synthetic record
+	 * (queue id, filename-derived title) and re-binds to the real attachment
+	 * when the upload settles. Edited fields must survive that id change;
+	 * untouched fields must follow the real record, so a title the user never
+	 * typed doesn't shadow the server's.
+	 */
+	it( 'preserveDirtyOnRebind keeps edited fields and adopts the rest on an id change', () => {
+		const draft = makeLibraryItem( {
+			id: 'upload-1',
+			title: 'clip',
+			description: '',
+			rating: 'G',
+		} );
+		const { result, rerender } = renderHook(
+			( item: typeof video ) => useVideoDetailsForm( item, { preserveDirtyOnRebind: true } ),
+			{
+				initialProps: draft,
+			}
+		);
+
+		act( () => result.current.update( { title: 'My launch video' } ) );
+		rerender(
+			makeLibraryItem( { id: '77', title: 'clip', description: 'Server cut', rating: 'PG-13' } )
+		);
+
+		// The typed title survives; the untouched fields take the record's.
+		expect( result.current.values.title ).toBe( 'My launch video' );
+		expect( result.current.values.description ).toBe( 'Server cut' );
+		expect( result.current.values.rating ).toBe( 'PG-13' );
+		// The kept edit reads as unsaved against the NEW baseline — Save must
+		// light up for it.
+		expect( result.current.isDirty ).toBe( true );
+
+		// reset(values) after the save settles the form clean, as on any save.
+		act( () => result.current.reset( result.current.values ) );
+		expect( result.current.isDirty ).toBe( false );
+	} );
+
+	it( 'preserveDirtyOnRebind leaves a clean form fully re-baselined', () => {
+		const draft = makeLibraryItem( { id: 'upload-1', title: 'clip', description: '' } );
+		const { result, rerender } = renderHook(
+			( item: typeof video ) => useVideoDetailsForm( item, { preserveDirtyOnRebind: true } ),
+			{
+				initialProps: draft,
+			}
+		);
+
+		rerender( makeLibraryItem( { id: '77', title: 'Real title', description: 'Real cut' } ) );
+
+		expect( result.current.values.title ).toBe( 'Real title' );
+		expect( result.current.values.description ).toBe( 'Real cut' );
+		expect( result.current.isDirty ).toBe( false );
+	} );
+	it( 'reports only the fields that diverge from the baseline', () => {
+		const { result } = renderHook( () => useVideoDetailsForm( video ) );
+
+		expect( result.current.dirtyValues ).toEqual( {} );
+
+		act( () => result.current.update( { title: 'My Clip 2' } ) );
+		// The diff, not the whole form: it is written through to the upload's
+		// queue row on every keystroke.
+		expect( result.current.dirtyValues ).toEqual( { title: 'My Clip 2' } );
+
+		act( () => result.current.update( { title: 'My Clip' } ) );
+		expect( result.current.dirtyValues ).toEqual( {} );
+	} );
+
+	it( 'seeds initialDraft over the record, as unsaved', () => {
+		const { result } = renderHook( () =>
+			useVideoDetailsForm( video, { initialDraft: { title: 'Launch week recap' } } )
+		);
+
+		expect( result.current.values.title ).toBe( 'Launch week recap' );
+		// Untouched fields still come from the record.
+		expect( result.current.values.description ).toBe( 'First cut' );
+		// Carried edits are unsaved against the server record — that is exactly
+		// what they are, and Save has to light up for them.
+		expect( result.current.isDirty ).toBe( true );
+		expect( result.current.dirtyValues ).toEqual( { title: 'Launch week recap' } );
+	} );
+
+	it( 'reads initialDraft once, at mount', () => {
+		const { result, rerender } = renderHook(
+			( draft: { title?: string } ) => useVideoDetailsForm( video, { initialDraft: draft } ),
+			{ initialProps: { title: 'First seed' } }
+		);
+
+		// The row's draft keeps changing as the user types — re-seeding from it
+		// would fight the very input that produced it.
+		rerender( { title: 'Later value' } );
+
+		expect( result.current.values.title ).toBe( 'First seed' );
+	} );
 } );

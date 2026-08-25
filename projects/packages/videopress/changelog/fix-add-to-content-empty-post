@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Video details: insert the video when "Add to a post or page" opens a new post or page on sites running VideoPress through the Jetpack plugin, instead of creating an empty draft.

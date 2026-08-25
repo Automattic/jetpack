@@ -3,6 +3,16 @@
 
 .vp-library {
 
+	// Stands in for the whole viewport while the empty-vs-listing decision is
+	// pending (the unfiltered count hasn't settled), so the wait reads as
+	// loading rather than a page that loaded empty.
+	&__deciding {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-block-size: 240px;
+	}
+
 	// `aria-disabled` rather than `disabled` so the button stays in the
 	// focus tree and the `@wordpress/components` Tooltip can fire on
 	// hover and focus. The onClick guard in stage.tsx short-circuits the

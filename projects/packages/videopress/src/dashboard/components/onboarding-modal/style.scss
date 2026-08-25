@@ -1,0 +1,223 @@
+// The first-run welcome modal, to the VideoPress Revival Figma spec
+// (node 56-12912): a deep-green video band with the wireframe brand artwork,
+// then the copy on white — headline, three hairline-separated value cards,
+// Learn more / Upload a video footer. `Dialog` supplies the frame, body
+// padding and scroll container; this file declares only what the design
+// system has no opinion about.
+.vp-onboarding-modal {
+
+	// The spec's modal is 675px wide — between the design system's medium and
+	// large surfaces, so pinned explicitly rather than approximated by size.
+	max-inline-size: 675px;
+
+	// Dialog paints a 1px border that turns transparent in modal mode, which
+	// leaves a 1px ring of the popup's white background around the dark video
+	// band. Drop the border entirely; forced-colors mode gets it back because
+	// there the border is the only visible boundary.
+	border: 0;
+
+	@media (forced-colors: active) {
+		border: var(--wpds-border-width-xs) solid CanvasText;
+	}
+
+	// A touch above true center: dialog convention weights the empty space
+	// toward the bottom, and the band-heavy layout reads better lifted.
+	inset-block-start: 42%;
+
+	// The video sits flush to the popup's top corners, above the padded body.
+	// `Dialog.Popup` is `overflow: hidden`, so the band inherits its radius.
+	&__media {
+		position: relative;
+		// `Dialog.Popup` is a flex column, so the band needs a pinned basis and
+		// `min-block-size: 0` to stop it flexing; the height then comes from
+		// `aspect-ratio` alone. See `&__player` for the other half of this.
+		flex: 0 0 auto;
+		aspect-ratio: var(--vp-intro-aspect, 16 / 9);
+		inline-size: 100%;
+		min-block-size: 0;
+		overflow: hidden;
+		// The spec's idle state: the wireframe artwork on the brand's deep
+		// forest green. Every frame of the film is graded against this same
+		// world, so the band never flashes a foreign colour while the video
+		// loads — and if the video is missing entirely, the band still reads
+		// as designed rather than as a hole.
+		// The artwork arrives as `--vp-intro-artwork`, set by the component from
+		// the build URL in the boot payload. It cannot be a plain `url(images/…)`
+		// here: this stylesheet is injected by JS, so the relative path resolves
+		// against `/wp-admin/` and 404s on every load that renders the modal.
+		// When the URL can't be built the property is simply absent and the band
+		// falls back to the flat green — the designed world, minus the artwork.
+		background-color: #003010;
+		background-image: var(--vp-intro-artwork, none);
+		background-position: center;
+		background-size: cover;
+		background-repeat: no-repeat;
+	}
+
+	// Absolutely positioned, not just sized: in flow, the video's own height
+	// participates in the band's layout and beats the aspect-ratio — it grew the
+	// band to 1237px inside a 1002px popup and squashed the body to 24px. Out of
+	// flow, the band's height is purely `inline-size / (16/9)` and the player
+	// fills whatever that comes to.
+	&__player {
+		position: absolute;
+		inset: 0;
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+		border: 0;
+		// The band matches the asset's own ratio, so this neither crops nor
+		// letterboxes — it simply fills.
+		object-fit: cover;
+	}
+
+	// Over the video, so it takes a light foreground and its own scrim instead
+	// of the Dialog default, which assumes a light surface behind it. The
+	// white and the black scrims are literals for the same reason as the
+	// band's green: the design system has no overlay/inverse tokens for
+	// content floating over video.
+	&__close {
+		position: absolute;
+		inset-block-start: var(--wpds-dimension-padding-lg);
+		inset-inline-end: var(--wpds-dimension-padding-lg);
+		z-index: 1;
+		color: #fff;
+		background: rgba(0, 0, 0, 0.5);
+
+		&:hover {
+			color: #fff;
+			background: rgba(0, 0, 0, 0.7);
+		}
+
+		// The DS focus ring is brand blue tuned for light surfaces; on the
+		// dark band it fails the 3:1 non-text contrast minimum. White ring,
+		// same justification as the foreground above.
+		&:focus-visible {
+			outline: 2px solid #fff;
+			outline-offset: 2px;
+		}
+
+		// A lone control floating over video earns a 44px hit target; the
+		// visual stays 32px.
+		&::after {
+			content: "";
+			position: absolute;
+			inset: -6px;
+		}
+	}
+
+	&__body {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-md);
+		// Half of the 32px cards-to-footer distance lives here (the other
+		// half is the footer's padding), so when the body scrolls and the
+		// separator hairline appears, content clears it by 16px instead of
+		// touching it.
+		padding-block-end: var(--wpds-dimension-padding-lg);
+		// The card columns collapse when the MODAL gets narrow, not the
+		// viewport — the popup shrinks long before any phone breakpoint.
+		container-type: inline-size;
+	}
+
+	// Dialog.Title pins its own internal heading variant (20px) and exposes
+	// no variant prop, so the spec's Semibold 32/40 is applied with the same
+	// tokens `heading-2xl` resolves to. The `--_gcd-*` custom properties are
+	// the design system's global-css-defense channel — its heading reset
+	// reads font size from them, so they must be overridden alongside the
+	// plain declarations or the internal 20px wins.
+	&__headline {
+		--_gcd-heading-font-size: var(--wpds-typography-font-size-2xl);
+
+		color: var(--wpds-color-foreground-content-neutral);
+		font-size: var(--wpds-typography-font-size-2xl);
+		line-height: var(--wpds-typography-line-height-2xl);
+		font-weight: var(--wpds-typography-font-weight-emphasis);
+	}
+
+	// Same mechanism as the headline: Dialog.Description hard-codes 13px
+	// internally; the spec's 15px lede is `body-lg`'s tokens, applied direct.
+	// It intentionally runs the full modal width; `text-wrap: pretty` keeps
+	// the second line from breaking mid-phrase.
+	&__lede {
+		--_gcd-p-font-size: var(--wpds-typography-font-size-lg);
+		--_gcd-p-line-height: var(--wpds-typography-line-height-md);
+
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		font-size: var(--wpds-typography-font-size-lg);
+		line-height: var(--wpds-typography-line-height-md);
+		text-wrap: pretty;
+	}
+
+	// Three equal columns; the hairlines between them are drawn as centered
+	// pseudo-elements rather than borders, so every column keeps an identical
+	// content width and the rule sits dead-center in the 24px gutter.
+	&__cards {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: var(--wpds-dimension-gap-xl);
+		// The body's 12px flex gap plus this 12px = the spec's 24px between
+		// the lede and the columns. The zeroed inline padding kills the
+		// user-agent's 40px list indent.
+		padding: var(--wpds-dimension-padding-md) 0 0;
+		margin: 0;
+		list-style: none;
+	}
+
+	&__card {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		margin: 0;
+
+		& + &::before {
+			content: "";
+			position: absolute;
+			inset-block: 0;
+			inset-inline-start: calc(var(--wpds-dimension-gap-xl) / -2);
+			border-inline-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+		}
+	}
+
+	@container (max-width: 559px) {
+
+		&__cards {
+			grid-template-columns: 1fr;
+		}
+
+		&__card + &__card::before {
+			content: none;
+		}
+	}
+
+	// The brand's one accent, used exactly once per card — on the glyph.
+	// Literal Jetpack green: the design system has no non-interactive brand
+	// foreground token, and the interactive one describes links/buttons.
+	&__card-icon {
+		display: inline-flex;
+		margin-block-end: var(--wpds-dimension-gap-sm);
+		color: #069e08;
+
+		svg {
+			fill: currentColor;
+		}
+	}
+
+	&__card-title {
+		margin-block-end: var(--wpds-dimension-gap-xs);
+		color: var(--wpds-color-foreground-content-neutral);
+	}
+
+	&__card-body {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__footer {
+		gap: var(--wpds-dimension-gap-md);
+		// The other half of the 32px cards-to-buttons distance (see `__body`).
+		// The -1px mirrors the design system's own math — the footer carries
+		// a 1px transparent border that becomes the scroll separator, and it
+		// participates in the visual distance.
+		padding-block-start: calc(var(--wpds-dimension-gap-lg) - 1px);
+	}
+}

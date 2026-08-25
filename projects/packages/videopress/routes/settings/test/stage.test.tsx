@@ -17,6 +17,9 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 jest.mock( '@wordpress/route', () => ( {
 	__esModule: true,
 	useNavigate: jest.fn( () => jest.fn() ),
+	// DashboardLayout mounts the onboarding modal, which reads the route's
+	// search params for its `welcome=1` review affordance.
+	useSearch: jest.fn( () => ( {} ) ),
 } ) );
 
 // The AdminPage chrome needs the full admin shell; reduce it to the slots the
@@ -81,6 +84,7 @@ const freeTierState = ( overrides: Partial< FreeTierState > = {} ): FreeTierStat
 	videoCount: 0,
 	limit: 1,
 	isAtLimit: false,
+	isSettled: true,
 	...overrides,
 } );
 
@@ -93,13 +97,18 @@ describe( 'Settings stage', () => {
 		} );
 	} );
 
-	it( 'shows the at-limit upgrade notice once the free upload is used', () => {
+	it( 'shows the upgrade notice once the free upload is used', () => {
 		mockedUseFreeTier.mockReturnValue( freeTierState( { videoCount: 1, isAtLimit: true } ) );
 
 		render( <Stage /> );
 
+		// Every surface shows the same sentence — the notice used to switch to
+		// a shorter at-limit line here, so the same banner read differently
+		// depending on which tab you were standing on.
 		expect(
-			screen.getByText( 'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.' )
+			screen.getByText(
+				'You’re on the free plan, which allows 1 video upload. Upgrade for more storage and unlimited uploads.'
+			)
 		).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toBeInTheDocument();
 	} );

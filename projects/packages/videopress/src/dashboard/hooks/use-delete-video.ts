@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY } from './use-library';
+import { removeUploadRowsForMedia } from './use-upload';
 
 type Id = number | string;
 
@@ -60,13 +61,16 @@ export function useDeleteVideo() {
 			// ghost editor for a video that no longer exists.
 			const ids = Array.isArray( input ) ? input : [ input ];
 			const failedIds = error instanceof DeleteVideosError ? new Set( error.failedIds ) : null;
-			ids
-				.filter( id => ! failedIds?.has( id ) )
-				.forEach( id =>
-					client.removeQueries( {
-						queryKey: [ LIBRARY_QUERY_KEY, LIBRARY_ITEM_QUERY_SEGMENT, String( id ) ],
-					} )
-				);
+			const deletedIds = ids.filter( id => ! failedIds?.has( id ) );
+			deletedIds.forEach( id =>
+				client.removeQueries( {
+					queryKey: [ LIBRARY_QUERY_KEY, LIBRARY_ITEM_QUERY_SEGMENT, String( id ) ],
+				} )
+			);
+			// The upload queue outlives the video: a success row nobody
+			// acknowledged keeps offering "Add details" for a 404, and gets
+			// re-adopted into a permanently "processing" edit session.
+			removeUploadRowsForMedia( deletedIds );
 			// Predicate rather than a key prefix: plain [ LIBRARY_QUERY_KEY ]
 			// would also match useVideo's item queries — on the details page
 			// that query is active for the id being deleted, and the refetch

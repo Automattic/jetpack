@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Say which format is unsupported and what to convert it to instead of claiming a real video is not a video, and stop the file picker offering formats that would be refused.
