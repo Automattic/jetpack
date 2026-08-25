@@ -27,6 +27,7 @@ import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { DashboardSections, SectionSyncNotice } from './components';
 import {
+	DATE_FILTER_NONE,
 	DATE_FILTER_YEAR,
 	isSectionAwaitingSync,
 	offersDateComparison,
@@ -145,22 +146,27 @@ function Dashboard(): JSX.Element {
 	 * the applied range and comparison rather than the picker's staged draft:
 	 * it must not move while an edit is open, only once Apply commits it.
 	 *
-	 * A header without the comparison control must not announce one.
+	 * A header without the comparison control must not announce one, and a
+	 * header with no date control at all must not announce a range the reader
+	 * cannot see or change — that is the mismatch this section is removing.
 	 */
 	const comparisonPresetId = showComparison ? dateFilters.appliedComparisonPresetId : undefined;
 	const comparisonRange = showComparison ? dateFilters.appliedComparisonRange : undefined;
 	const sectionSubtitle = useMemo(
 		() =>
-			getSectionSubtitle( {
-				range: dateFilters.appliedRange,
-				presetId: dateFilters.appliedPresetId,
-				comparisonPresetId,
-				comparisonRange,
-				// The interval control renders as a glyph, so the subtitle is
-				// where the active bucket is readable. Both surfaces carry it.
-				interval: dateFilters.appliedInterval,
-			} ),
+			dateFilterSurface === DATE_FILTER_NONE
+				? undefined
+				: getSectionSubtitle( {
+						range: dateFilters.appliedRange,
+						presetId: dateFilters.appliedPresetId,
+						comparisonPresetId,
+						comparisonRange,
+						// The interval control renders as a glyph, so the subtitle is
+						// where the active bucket is readable. Both surfaces carry it.
+						interval: dateFilters.appliedInterval,
+				  } ),
 		[
+			dateFilterSurface,
 			dateFilters.appliedRange,
 			dateFilters.appliedPresetId,
 			dateFilters.appliedInterval,
@@ -201,15 +207,18 @@ function Dashboard(): JSX.Element {
 	/*
 	 * The date controls belong to the active section: the tab panels unmount
 	 * when they lose focus, so only the active section's header is ever rendered
-	 * and one set of controls is enough.
+	 * and one set of controls is enough. A `none` section renders none at all —
+	 * its widgets host their own.
 	 */
-	const dateControls =
-		dateFilterSurface === DATE_FILTER_YEAR ? (
-			/*
-			 * The year surface carries the interval control but no comparison.
-			 * Composed here rather than inside `DateYearFilter`, which stays the
-			 * preset surface alone.
-			 */
+	let dateControls: JSX.Element | null = null;
+
+	if ( dateFilterSurface === DATE_FILTER_YEAR ) {
+		/*
+		 * The year surface carries the interval control but no comparison.
+		 * Composed here rather than inside `DateYearFilter`, which stays the
+		 * preset surface alone.
+		 */
+		dateControls = (
 			<Stack direction="row" align="center" gap="sm">
 				{ /*
 				 * `startYear` is left out on purpose: nothing in this package knows how
@@ -232,14 +241,15 @@ function Dashboard(): JSX.Element {
 					onChange={ dateFilters.onIntervalChange }
 				/>
 			</Stack>
-		) : (
-			/*
-			 * The dashboard's widgets are charts bucketed by the interval. The
-			 * report pages mount this same panel over records tables, which are
-			 * not, so the control is asked for rather than implied by the props.
-			 */
-			<DateFiltersPanel { ...dateFilters } withIntervalControl />
 		);
+	} else if ( dateFilterSurface !== DATE_FILTER_NONE ) {
+		/*
+		 * The dashboard's widgets are charts bucketed by the interval. The
+		 * report pages mount this same panel over records tables, which are
+		 * not, so the control is asked for rather than implied by the props.
+		 */
+		dateControls = <DateFiltersPanel { ...dateFilters } withIntervalControl />;
+	}
 
 	return (
 		<GlobalErrorProvider>
