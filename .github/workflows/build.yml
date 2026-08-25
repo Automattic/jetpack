@@ -456,6 +456,9 @@ jobs:
             exit 0
           fi
 
+          # To avoid spending too much rate limit, we only re-check the run status after 15 minutes and then every 5 thereafter.
+          NEXTRUNCHECK=$( jq '[ now + 5 * 60, ( .created_at | 15 * 60 + fromdateiso8601 | round ) ] | max' <<<"$JSON" || true )
+
           # Now poll the run until the target job name shows up
           BADCT=0
           while true; do
@@ -476,7 +479,20 @@ jobs:
               exit 0
             fi
 
-            # No job yet. Figure out how long to sleep.
+            # No job yet. Figure out how long to sleep, and maybe check that the watched job is still running at all.
+            if [[ $NEXTRUNCHECK -le $EPOCHSECONDS ]]; then
+              JSON2=$( gh api -X GET "/repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID" || true )
+              if ! jq -e '.id // empty' <<<"$JSON2" &>/dev/null; then
+                echo "Bad JSON when re-checking run conclusion. Will try again later."
+              else
+                CONCLUSION=$( jq '.conclusion // null' <<<"$JSON2" || true )
+                if [[ "$CONCLUSION" != "null" ]]; then
+                  echo "🤷 Workflow $RUN_ID for $SHA has concluded ($CONCLUSION), despite no \"$AWAIT_JOB_NAME\" being found. May as well go ahead."
+                  exit 0
+                fi
+                NEXTRUNCHECK=$(( EPOCHSECONDS + 5 * 60 ))
+              fi
+            fi
             DELAY=$( jq --argjson BUILDS "$BUILD_JOB_NAMES" '.jobs | map( select( .name as $N | $BUILDS | index( $N ) ) | .started_at | fromdateiso8601 ) | max // now | 10 * 60 - ( now - . ) | round' <<<"$JSON" || true )
             [[ "$DELAY" =~ ^[0-9]+$ ]] || DELAY=30
             [[ "$DELAY" -ge 30 ]] || DELAY=30
