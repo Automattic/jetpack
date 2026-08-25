@@ -69,6 +69,27 @@ export const mixedColorFormatsTheme: ChartTheme = {
 } as ChartTheme;
 
 /**
+ * The `--wp-admin-theme-color` each WordPress admin colour scheme publishes, copied from
+ * `@wordpress/base-styles`' `admin-schemes.css`.
+ *
+ * `fresh` and `default` have no `admin-color-*` block of their own and take the `:root` value,
+ * so they are absent here rather than duplicated.
+ */
+export const WP_ADMIN_COLOR_SCHEMES: Record< string, string > = {
+	light: '#007cba',
+	modern: '#3858e9',
+	blue: '#437aa8',
+	coffee: '#916745',
+	ectoplasm: '#646c3e',
+	midnight: '#cf4339',
+	ocean: '#567958',
+	sunrise: '#ad631e',
+};
+
+/** The `adminColorScheme` value meaning "leave the design system in charge". */
+export const NO_ADMIN_COLOR_SCHEME = 'none';
+
+/**
  * Centralized theme map for all chart stories
  */
 export const CHART_THEME_MAP: Record< string, ChartTheme | undefined > = {
@@ -95,9 +116,18 @@ export const themeArgTypes = {
 		table: { category: 'Theme' },
 		if: { arg: 'themeName', eq: 'custom' },
 	},
+	adminColorScheme: {
+		control: { type: 'select' as const },
+		options: [ NO_ADMIN_COLOR_SCHEME, ...Object.keys( WP_ADMIN_COLOR_SCHEMES ) ],
+		defaultValue: NO_ADMIN_COLOR_SCHEME,
+		description:
+			'Simulate a wp-admin colour scheme. Sets --wp-admin-theme-color and unsets the design system’s brand token, so the series palette falls through to the admin colour the way it does in wp-admin.',
+		table: { category: 'Theme' },
+	},
 };
 
 export const sharedThemeArgs = {
 	themeName: 'default',
 	accentColor: DEFAULT_ACCENT_COLOR,
+	adminColorScheme: NO_ADMIN_COLOR_SCHEME,
 } as const;
