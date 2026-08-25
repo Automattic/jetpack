@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Adds an unused dashboard-section date-filter option; nothing user-facing until a section adopts it.
+
+
