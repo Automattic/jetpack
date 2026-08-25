@@ -61,6 +61,16 @@ export type ChartTooltipProps< TDatum = unknown > = {
 	seriesStyles: TooltipStyle[];
 
 	/**
+	 * Series keys in the same order as `seriesStyles`, used to pair a row with
+	 * its style by key instead of by position. Charts emit their tooltip rows in
+	 * their own order — a bar chart drawing two metrics lists both current
+	 * periods before either previous period — so a positional lookup hands rows
+	 * the wrong swatch as soon as the two orders diverge. Omit for charts whose
+	 * rows always arrive in series order.
+	 */
+	seriesKeys?: string[];
+
+	/**
 	 * Indicator type: 'line' for line charts, 'rect' for bar charts
 	 * Uses chart library's LineShape and RectShape components.
 	 */
@@ -79,6 +89,7 @@ export function ChartTooltip< TDatum >( {
 	tooltipData,
 	dataFormat,
 	seriesStyles,
+	seriesKeys,
 	indicatorType,
 	getLabel = defaultGetLabel,
 	getValue = defaultGetValue,
@@ -100,7 +111,13 @@ export function ChartTooltip< TDatum >( {
 					return null;
 				}
 
-				const { stroke, ...lineShapeStyle } = seriesStyles[ index ] || seriesStyles[ 0 ];
+				// No positional fallback once `seriesKeys` is given: that lookup is the
+				// bug the prop exists to fix, and reinstating it on a miss would paint
+				// the row a wrong-but-plausible swatch rather than an obviously odd one.
+				const style = seriesKeys
+					? seriesStyles[ seriesKeys.indexOf( entry.key ) ]
+					: seriesStyles[ index ];
+				const { stroke, ...lineShapeStyle } = style || seriesStyles[ 0 ];
 				const label = getLabel( entry.datum, index, entry.key );
 				const value = getValue( entry.datum );
 

@@ -1,7 +1,9 @@
 /**
  * Internal dependencies
  */
+import { getDateRangeSpan } from '../date-range-span';
 import { COMPARISON_PRESETS, getComparisonRangeFromPreset } from '../get-comparison-range';
+import { createTZDateFromParts } from '../tz';
 
 describe( 'getComparisonRangeFromPreset', () => {
 	it( 'returns undefined when the reference range is incomplete', () => {
@@ -126,6 +128,144 @@ describe( 'getComparisonRangeFromPreset', () => {
 			expect( getComparisonRangeFromPreset( leapDay, 'previous-year' ) ).toEqual( {
 				from: new Date( 2027, 1, 27, 14, 0, 0, 0 ),
 				to: new Date( 2027, 1, 28, 14, 0, 0, 0 ),
+			} );
+		} );
+	} );
+
+	describe( 'day-aligned references that are not whole calendar months', () => {
+		it.each( [
+			[
+				'a rolling 30-day window',
+				new Date( 2026, 6, 21, 0, 0, 0, 0 ),
+				new Date( 2026, 7, 19, 23, 59, 59, 999 ),
+				new Date( 2026, 5, 20, 0, 0, 0, 0 ),
+				new Date( 2026, 6, 19, 23, 59, 59, 999 ),
+			],
+			[
+				'a window whose end clamps in a shorter month',
+				new Date( 2026, 2, 2, 0, 0, 0, 0 ),
+				new Date( 2026, 2, 31, 23, 59, 59, 999 ),
+				new Date( 2026, 0, 30, 0, 0, 0, 0 ),
+				new Date( 2026, 1, 28, 23, 59, 59, 999 ),
+			],
+			[
+				'a week spanning a year boundary',
+				new Date( 2025, 11, 29, 0, 0, 0, 0 ),
+				new Date( 2026, 0, 4, 23, 59, 59, 999 ),
+				new Date( 2025, 10, 28, 0, 0, 0, 0 ),
+				new Date( 2025, 11, 4, 23, 59, 59, 999 ),
+			],
+			[
+				'a window that starts on the 1st but stops short of the month end',
+				new Date( 2026, 2, 1, 0, 0, 0, 0 ),
+				new Date( 2026, 2, 15, 23, 59, 59, 999 ),
+				new Date( 2026, 1, 1, 0, 0, 0, 0 ),
+				new Date( 2026, 1, 15, 23, 59, 59, 999 ),
+			],
+			[
+				'a window whose start has no counterpart a month back',
+				new Date( 2026, 0, 31, 0, 0, 0, 0 ),
+				new Date( 2026, 2, 1, 23, 59, 59, 999 ),
+				new Date( 2026, 0, 3, 0, 0, 0, 0 ),
+				new Date( 2026, 1, 1, 23, 59, 59, 999 ),
+			],
+		] )(
+			'keeps the reference length for previous-month with %s',
+			( _label, from, to, expectedFrom, expectedTo ) => {
+				expect( getComparisonRangeFromPreset( { from, to }, 'previous-month' ) ).toEqual( {
+					from: expectedFrom,
+					to: expectedTo,
+				} );
+			}
+		);
+
+		it( 'keeps the reference length for previous-year across a leap day', () => {
+			const reference = {
+				from: new Date( 2028, 1, 20, 0, 0, 0, 0 ),
+				to: new Date( 2028, 2, 5, 23, 59, 59, 999 ),
+			};
+
+			expect( getComparisonRangeFromPreset( reference, 'previous-year' ) ).toEqual( {
+				from: new Date( 2027, 1, 19, 0, 0, 0, 0 ),
+				to: new Date( 2027, 2, 5, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		it.each( COMPARISON_PRESETS )(
+			'covers the same number of days as the reference for %s',
+			presetId => {
+				const reference = {
+					from: new Date( 2026, 0, 31, 0, 0, 0, 0 ),
+					to: new Date( 2026, 2, 1, 23, 59, 59, 999 ),
+				};
+				const comparison = getComparisonRangeFromPreset( reference, presetId );
+
+				expect( getDateRangeSpan( comparison ) ).toEqual( getDateRangeSpan( reference ) );
+			}
+		);
+	} );
+
+	describe( 'whole calendar months', () => {
+		it( 'sets a whole month against the whole month before it', () => {
+			const march = {
+				from: new Date( 2026, 2, 1, 0, 0, 0, 0 ),
+				to: new Date( 2026, 2, 31, 23, 59, 59, 999 ),
+			};
+
+			expect( getComparisonRangeFromPreset( march, 'previous-month' ) ).toEqual( {
+				from: new Date( 2026, 1, 1, 0, 0, 0, 0 ),
+				to: new Date( 2026, 1, 28, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		it( 'keeps a multi-month window on month bounds', () => {
+			const janToFeb = {
+				from: new Date( 2026, 0, 1, 0, 0, 0, 0 ),
+				to: new Date( 2026, 1, 28, 23, 59, 59, 999 ),
+			};
+
+			expect( getComparisonRangeFromPreset( janToFeb, 'previous-month' ) ).toEqual( {
+				from: new Date( 2025, 11, 1, 0, 0, 0, 0 ),
+				to: new Date( 2026, 0, 31, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		it( 'sets a leap February against the shorter one a year back', () => {
+			const february2028 = {
+				from: new Date( 2028, 1, 1, 0, 0, 0, 0 ),
+				to: new Date( 2028, 1, 29, 23, 59, 59, 999 ),
+			};
+
+			expect( getComparisonRangeFromPreset( february2028, 'previous-year' ) ).toEqual( {
+				from: new Date( 2027, 1, 1, 0, 0, 0, 0 ),
+				to: new Date( 2027, 1, 28, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		it( "reads the month boundary in the range's own zone", () => {
+			const timeZone = 'Pacific/Auckland';
+			const march = {
+				from: createTZDateFromParts( [ 2026, 2, 1, 0, 0, 0, 0 ], timeZone ),
+				to: createTZDateFromParts( [ 2026, 2, 31, 23, 59, 59, 999 ], timeZone ),
+			};
+
+			const comparison = getComparisonRangeFromPreset( march, 'previous-month' );
+
+			expect( comparison?.from?.getDate() ).toBe( 1 );
+			expect( comparison?.from?.getMonth() ).toBe( 1 );
+			expect( comparison?.to?.getDate() ).toBe( 28 );
+			expect( comparison?.to?.getMonth() ).toBe( 1 );
+		} );
+
+		it( 'still mirrors the reference length for previous-period', () => {
+			const march = {
+				from: new Date( 2026, 2, 1, 0, 0, 0, 0 ),
+				to: new Date( 2026, 2, 31, 23, 59, 59, 999 ),
+			};
+
+			expect( getComparisonRangeFromPreset( march, 'previous-period' ) ).toEqual( {
+				from: new Date( 2026, 0, 29, 0, 0, 0, 0 ),
+				to: new Date( 2026, 1, 28, 23, 59, 59, 999 ),
 			} );
 		} );
 	} );

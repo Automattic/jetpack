@@ -3,11 +3,11 @@
  */
 import {
 	useStatsSubscribersReport,
-	localTZDate,
 	type ReportParams,
 	type StatsSubscribersResponse,
 	type StatsSubscribersUnit,
 } from '@jetpack-premium-analytics/data';
+import { toChartDate } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 
 /**
@@ -40,9 +40,11 @@ export interface SubscribersChartState {
 	refetch: () => void;
 }
 
+// Wall clocks, not instants — the chart reads them back via
+// `pointsAreWallClocks` (rationale in `chart-date.ts`).
 function toPoints( report: StatsSubscribersResponse | undefined ): SubscribersChartPoint[] {
 	return ( report?.data ?? [] ).map( point => ( {
-		date: localTZDate( point.date_start ),
+		date: toChartDate( point.date_start ),
 		subscribers: Number( point.subscribers ?? point.value ?? 0 ),
 		paid: Number( point.subscribers_paid ?? 0 ),
 	} ) );

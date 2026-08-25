@@ -419,6 +419,24 @@ export const WithLegend: Story = {
 	},
 };
 
+export const WithDefaultHiddenSeries: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+		legendInteractive: true,
+		chartId: 'default-hidden-series-demo',
+		defaultHiddenSeries: [ 'Great Britain' ],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Great Britain is hidden from the initial render and marked inactive in the legend. Select its legend item to reveal it.',
+			},
+		},
+	},
+};
+
 // Story demonstrating composition API
 export const WithCompositionLegend: Story = {
 	render: args => {

@@ -17,7 +17,7 @@ use Jetpack_Tracks_Client;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.9.15';
+	const PACKAGE_VERSION = '0.10.0';
 
 	/**
 	 * Slug used for the upgrade menu item and redirect URL.
@@ -268,12 +268,12 @@ class Admin_Menu {
 	 * the handle is never printed. The previous admin_print_styles priority-10
 	 * hook still works.
 	 *
-	 * @deprecated $$next-version$$ Use hide_core_admin_notices(), which enqueues the CSS.
+	 * @deprecated 0.10.0 Use hide_core_admin_notices(), which enqueues the CSS.
 	 *
 	 * @return void
 	 */
 	public static function print_hide_core_admin_notices_style() {
-		_deprecated_function( __METHOD__, 'admin-ui-$$next-version$$', __CLASS__ . '::hide_core_admin_notices' );
+		_deprecated_function( __METHOD__, 'admin-ui-0.10.0', __CLASS__ . '::hide_core_admin_notices' );
 		self::hide_core_admin_notices();
 	}
 
