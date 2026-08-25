@@ -2072,6 +2072,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$accept_attribute_value = implode( ', ', self::get_file_field_accepted_mime_types() );
 		$max_files              = $this->get_file_field_max_files();
+		$max_upload_size        = self::get_file_field_max_upload_size();
 
 		$file_size_units = array(
 			_x( 'B', 'unit symbol', 'jetpack-forms' ),
@@ -2088,14 +2089,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'uploadError'        => __( 'Error uploading file', 'jetpack-forms' ),
 				'folderNotSupported' => __( 'Folder uploads are not supported', 'jetpack-forms' ),
 				// translators: %s is the formatted maximum file size.
-				'fileTooLarge'       => sprintf( __( 'File is too large. Maximum allowed size is %s.', 'jetpack-forms' ), size_format( self::FILE_FIELD_MAX_UPLOAD_SIZE ) ),
+				'fileTooLarge'       => sprintf( __( 'File is too large. Maximum allowed size is %s.', 'jetpack-forms' ), size_format( $max_upload_size ) ),
 				'invalidType'        => __( 'This file type is not allowed.', 'jetpack-forms' ),
 				'maxFiles'           => __( 'You have exceeded the number of files that you can upload.', 'jetpack-forms' ),
 				'uploadFailed'       => __( 'File upload failed, try again.', 'jetpack-forms' ),
 			),
 			'endpoint'      => $this->get_unauth_endpoint_url(),
 			'iconsPath'     => Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/',
-			'maxUploadSize' => self::FILE_FIELD_MAX_UPLOAD_SIZE,
+			'maxUploadSize' => $max_upload_size,
 		);
 
 		wp_interactivity_config( 'jetpack/field-file', $global_config );
@@ -2352,11 +2353,61 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	private function get_file_field_max_files() {
 		$max_files = $this->get_attribute( 'maxfiles' );
 
-		if ( ! is_numeric( $max_files ) ) {
-			return self::FILE_FIELD_DEFAULT_MAX_FILES;
-		}
+		$max_files = is_numeric( $max_files )
+			? max( 1, min( (int) $max_files, self::FILE_FIELD_MAX_FILES_LIMIT ) )
+			: self::FILE_FIELD_DEFAULT_MAX_FILES;
 
-		return max( 1, min( (int) $max_files, self::FILE_FIELD_MAX_FILES_LIMIT ) );
+		/**
+		 * Filters how many files a single file upload field accepts.
+		 *
+		 * Applied after the field's own `maxfiles` attribute has been read and clamped. The clamp
+		 * exists because that attribute is author-supplied content; a filter is site code, so it is
+		 * trusted with values above FILE_FIELD_MAX_FILES_LIMIT. Note that the editor's own control
+		 * still offers 1 to FILE_FIELD_MAX_FILES_LIMIT, so raising the ceiling this way applies to
+		 * every file field on the site rather than being something an author picks per field.
+		 *
+		 * The result reaches the browser as `fieldExtra.maxFiles` and is what the submission-time
+		 * count check is measured against, so the two cannot disagree.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int                 $max_files How many files the field accepts.
+		 * @param Contact_Form_Field  $field     The field being rendered.
+		 */
+		return max( 1, (int) apply_filters( 'jetpack_forms_file_field_max_files', $max_files, $this ) );
+	}
+
+	/**
+	 * The largest file a file upload field accepts, in bytes.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int Size in bytes.
+	 */
+	private static function get_file_field_max_upload_size() {
+		/**
+		 * Filters the largest file a file upload field accepts, in bytes.
+		 *
+		 * Deliberately not bounded by the site's own PHP upload limits. The browser sends each file
+		 * straight to the upload endpoint, so `upload_max_filesize` and `post_max_size` have nothing
+		 * to do with this transfer — clamping to them would cap the field at whatever a cheap host
+		 * allows for files that host never receives. The bound that does matter is whatever the
+		 * endpoint itself accepts, and a value above that produces a failed upload rather than a
+		 * rejection the visitor can act on before choosing the file.
+		 *
+		 * The result reaches the browser as the `maxUploadSize` config value, and the "file is too
+		 * large" message is built from the same number, so the two cannot disagree.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int $max_upload_size Maximum size of a single file, in bytes.
+		 */
+		$max_upload_size = (int) apply_filters(
+			'jetpack_forms_file_field_max_upload_size',
+			self::FILE_FIELD_MAX_UPLOAD_SIZE
+		);
+
+		return max( 1, $max_upload_size );
 	}
 
 	/**

@@ -753,6 +753,144 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A site can raise the count past the ceiling that bounds the author-supplied attribute. The
+	 * clamp is there because that attribute is content; a filter is site code.
+	 */
+	public function test_file_field_max_files_is_filterable() {
+		$filter = function () {
+			return 25;
+		};
+		add_filter( 'jetpack_forms_file_field_max_files', $filter );
+
+		$field = $this->get_new_field_instance(
+			array(
+				'type'     => 'file',
+				'maxfiles' => 3,
+			)
+		);
+
+		$method = new \ReflectionMethod( $field, 'get_file_field_max_files' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$filtered = $method->invoke( $field );
+
+		remove_filter( 'jetpack_forms_file_field_max_files', $filter );
+
+		$this->assertSame( 25, $filtered );
+	}
+
+	/**
+	 * A filter returning nonsense must not produce a field that accepts no files at all.
+	 */
+	public function test_file_field_max_files_filter_cannot_go_below_one() {
+		$filter = function () {
+			return 0;
+		};
+		add_filter( 'jetpack_forms_file_field_max_files', $filter );
+
+		$field  = $this->get_new_field_instance( array( 'type' => 'file' ) );
+		$method = new \ReflectionMethod( $field, 'get_file_field_max_files' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$filtered = $method->invoke( $field );
+
+		remove_filter( 'jetpack_forms_file_field_max_files', $filter );
+
+		$this->assertSame( 1, $filtered );
+	}
+
+	/**
+	 * The filtered count is what reaches the browser, so the front end and the submission-time
+	 * check are measured against the same number.
+	 */
+	public function test_filtered_max_files_reaches_field_extra() {
+		$filter = function () {
+			return 12;
+		};
+		add_filter( 'jetpack_forms_file_field_max_files', $filter );
+
+		$field  = $this->get_new_field_instance( array( 'type' => 'file' ) );
+		$method = new \ReflectionMethod( $field, 'get_field_extra' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$extra = $method->invoke( $field, 'file', array() );
+
+		remove_filter( 'jetpack_forms_file_field_max_files', $filter );
+
+		$this->assertSame( 12, $extra['maxFiles'] );
+	}
+
+	/**
+	 * The submission-time check honours the filter too, or a site raising the count would have its
+	 * own submissions rejected.
+	 */
+	public function test_filtered_max_files_is_honoured_on_submission() {
+		$filter = function () {
+			return 3;
+		};
+		add_filter( 'jetpack_forms_file_field_max_files', $filter );
+
+		$field = $this->get_new_field_instance(
+			array(
+				'type'     => 'file',
+				'id'       => 'test_files',
+				'label'    => 'Attachments',
+				'maxfiles' => 1,
+				'required' => '1',
+			)
+		);
+
+		$_POST['test_files'] = array(
+			wp_json_encode( array( 'file_id' => 1 ), JSON_UNESCAPED_SLASHES ),
+			wp_json_encode( array( 'file_id' => 2 ), JSON_UNESCAPED_SLASHES ),
+			wp_json_encode( array( 'file_id' => 3 ), JSON_UNESCAPED_SLASHES ),
+		);
+
+		$field->validate();
+		unset( $_POST['test_files'] );
+		remove_filter( 'jetpack_forms_file_field_max_files', $filter );
+
+		// Three files against an attribute of 1, allowed because the filter raised it.
+		$this->assertFalse( $field->is_error() );
+	}
+
+	/**
+	 * The per-file size limit is filterable, and the message the visitor is shown is built from the
+	 * same number — otherwise a site raising the limit would still be told 20 MB.
+	 */
+	public function test_file_field_max_upload_size_is_filterable() {
+		$filter = function () {
+			return 50 * 1024 * 1024;
+		};
+		add_filter( 'jetpack_forms_file_field_max_upload_size', $filter );
+
+		$method = new \ReflectionMethod( Contact_Form_Field::class, 'get_file_field_max_upload_size' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$filtered = $method->invoke( null );
+
+		remove_filter( 'jetpack_forms_file_field_max_upload_size', $filter );
+
+		$this->assertSame( 50 * 1024 * 1024, $filtered );
+	}
+
+	/**
+	 * Unfiltered, the documented default.
+	 */
+	public function test_file_field_max_upload_size_defaults_to_the_constant() {
+		$method = new \ReflectionMethod( Contact_Form_Field::class, 'get_file_field_max_upload_size' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame( Contact_Form_Field::FILE_FIELD_MAX_UPLOAD_SIZE, $method->invoke( null ) );
+	}
+
+	/**
 	 * The editor control's ceiling is a separate constant in JavaScript, kept in step by a comment
 	 * on each side. Nothing else fails if one of them moves, and the symptom would be quiet: the
 	 * editor would offer a number the front end silently lowers.

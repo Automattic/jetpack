@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+File upload field: Add filters for the number of files a field accepts and the maximum size of each one.
