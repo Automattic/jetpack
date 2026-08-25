@@ -174,6 +174,40 @@ describe( 'alignSeriesDates', () => {
 			expect( result[ 1 ].data[ 0 ] ).not.toHaveProperty( 'realDate' );
 		} );
 
+		it( "aligns each comparison to its group's current period", () => {
+			const views = {
+				...createSeries( 'Views', [ new Date( '2024-01-08' ), new Date( '2024-01-09' ) ] ),
+				group: 'views',
+			};
+			const previousViews = {
+				...createComparison( 'Previous views', [
+					new Date( '2024-01-01' ),
+					new Date( '2024-01-02' ),
+				] ),
+				group: 'views',
+			};
+			const visitors = {
+				...createSeries( 'Visitors', [ new Date( '2024-02-08' ), new Date( '2024-02-09' ) ] ),
+				group: 'visitors',
+			};
+			const previousVisitors = {
+				...createComparison( 'Previous visitors', [
+					new Date( '2024-02-01' ),
+					new Date( '2024-02-02' ),
+				] ),
+				group: 'visitors',
+			};
+
+			const result = alignSeriesDates( [ views, previousViews, visitors, previousVisitors ] );
+
+			expect( result[ 1 ].data.map( point => point.date ) ).toEqual(
+				views.data.map( point => point.date )
+			);
+			expect( result[ 3 ].data.map( point => point.date ) ).toEqual(
+				visitors.data.map( point => point.date )
+			);
+		} );
+
 		it( 'returns series unchanged when dates already align', () => {
 			const primary = createSeries( 'Series A', [
 				new Date( '2024-01-01' ),

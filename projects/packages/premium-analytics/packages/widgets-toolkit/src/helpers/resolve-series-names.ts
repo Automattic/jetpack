@@ -13,6 +13,33 @@ export type ResolvedSeriesNames = {
 };
 
 /**
+ * Resolve each group's current-period series.
+ *
+ * Both tooltip naming and comparison-date alignment need the same definition
+ * of a group's primary: its first non-comparison series.
+ *
+ * @param series - The series the chart was handed.
+ * @return The current-period series keyed by group.
+ */
+export function resolvePrimarySeriesByGroup(
+	series: readonly ComparativeLineChartSeries[]
+): Map< string, ComparativeLineChartSeries > {
+	const primarySeriesByGroup = new Map< string, ComparativeLineChartSeries >();
+
+	for ( const item of series ) {
+		if (
+			item.options?.type !== 'comparison' &&
+			item.group !== undefined &&
+			! primarySeriesByGroup.has( item.group )
+		) {
+			primarySeriesByGroup.set( item.group, item );
+		}
+	}
+
+	return primarySeriesByGroup;
+}
+
+/**
  * Resolve the metric name each series' tooltip row should lead with.
  *
  * A metric's previous period is folded into its legend item, so a comparison
@@ -30,7 +57,10 @@ export type ResolvedSeriesNames = {
 export function resolveSeriesNames(
 	series: readonly ComparativeLineChartSeries[]
 ): ResolvedSeriesNames {
-	const primaryByGroup = new Map< string, string >();
+	const primarySeriesByGroup = resolvePrimarySeriesByGroup( series );
+	const primaryByGroup = new Map(
+		Array.from( primarySeriesByGroup, ( [ group, primary ] ) => [ group, primary.label ] )
+	);
 	let currentCount = 0;
 
 	for ( const item of series ) {
@@ -38,9 +68,6 @@ export function resolveSeriesNames(
 			continue;
 		}
 		currentCount++;
-		if ( item.group !== undefined && ! primaryByGroup.has( item.group ) ) {
-			primaryByGroup.set( item.group, item.label );
-		}
 	}
 
 	const seriesNames = new Map< string, string >();
