@@ -79,6 +79,12 @@ function wpcom_enqueue_admin_bar_assets() {
 		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-admin-bar/wpcom-admin-bar.css' )
 	);
 
+	wp_add_inline_script(
+		'wpcom-admin-bar',
+		'var wpcomAdminBarTrackingSurface = ' . wp_json_encode( wpcom_admin_bar_tracking_surface() ) . ';',
+		'before'
+	);
+
 	/**
 	 * Force the Atomic debug bar menu to be the first menu at the top-right.
 	 */
@@ -524,9 +530,15 @@ function wpcom_add_stats_to_site_menu( $wp_admin_bar ) {
 add_action( 'admin_bar_menu', 'wpcom_add_stats_to_site_menu', 40 );
 
 /**
- * Whether the current user/site is eligible for the omnibar free-domain upsell:
- * an administrator of a Free Simple site that is not a staging site. Mirrors
- * the Calypso-side predicate for the same chip.
+ * Whether the current user/site is eligible for the omnibar free-domain upsell.
+ *
+ * Mirrors the conditions of the two sidebar JITMs the chip is tested against,
+ * which share the "Free domain with an annual plan" message and CTA:
+ * - `free_to_paid_plan`: Free plan, Simple, admin, not a domain-only site, no
+ *   mapped domain.
+ * - `monthly_to_annual_plan`: any monthly plan, Simple, admin, no mapped
+ *   domain.
+ * Matches the Calypso-side predicate for the same chip.
  *
  * @return bool
  */
@@ -543,12 +555,43 @@ function wpcom_free_domain_upsell_is_eligible() {
 		return false;
 	}
 
+	// No mapped primary domain: a Simple site with a mapped domain serves from
+	// its custom domain, so the `.wordpress.com` host check covers the rule.
+	$host = wp_parse_url( home_url(), PHP_URL_HOST );
+	if ( ! is_string( $host ) || ! str_ends_with( $host, '.wordpress.com' ) ) {
+		return false;
+	}
+
 	if ( ! class_exists( '\WPCOM_Store_API' ) ) {
 		return false;
 	}
 	$current_plan = WPCOM_Store_API::get_current_plan( get_current_blog_id() );
 
-	return ! empty( $current_plan['is_free'] );
+	$matches_free_to_paid      = ! empty( $current_plan['is_free'] ) && empty( get_option( 'options' )['is_domain_only'] );
+	$matches_monthly_to_annual = str_ends_with( (string) ( $current_plan['product_slug'] ?? '' ), '-monthly' );
+
+	return $matches_free_to_paid || $matches_monthly_to_annual;
+}
+
+/**
+ * Which surface the admin bar is rendering on, for per-surface tracking.
+ *
+ * @return string One of 'site_frontend', 'site_editor', 'post_editor', 'wp_admin'.
+ */
+function wpcom_admin_bar_tracking_surface() {
+	if ( ! is_admin() ) {
+		return 'site_frontend';
+	}
+
+	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	if ( $screen && 'site-editor' === $screen->id ) {
+		return 'site_editor';
+	}
+	if ( $screen && $screen->is_block_editor() ) {
+		return 'post_editor';
+	}
+
+	return 'wp_admin';
 }
 
 /**

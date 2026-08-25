@@ -19,14 +19,15 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 	const freeDomainUpsell = document.querySelector( '#wp-admin-bar-wpcom-free-domain-upsell a' );
 	if ( freeDomainUpsell ) {
+		const surface = window.wpcomAdminBarTrackingSurface || 'wp_admin';
 		wpcomTrackEvent( 'wpcom_omnibar_upsell_impression', {
 			upsell_id: 'omnibar-free-domain',
-			surface: 'wp-admin',
+			surface,
 		} );
 		freeDomainUpsell.addEventListener( 'click', () => {
 			wpcomTrackEvent( 'wpcom_omnibar_upsell_click', {
 				upsell_id: 'omnibar-free-domain',
-				surface: 'wp-admin',
+				surface,
 			} );
 		} );
 	}

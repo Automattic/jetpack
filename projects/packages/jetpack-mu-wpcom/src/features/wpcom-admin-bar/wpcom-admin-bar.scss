@@ -492,23 +492,10 @@
 			height: auto;
 			line-height: 24px;
 		}
-	}
 
-	&:hover > .ab-item,
-	> .ab-item:focus-visible {
-		background: rgba(56, 88, 233, 0.42);
-		box-shadow: inset 0 0 0 1px rgba(150, 175, 255, 0.8);
-		color: #fff;
-
-		.ab-icon svg {
-			fill: #b8c8ff;
-		}
-	}
-
-	// Keep the full pill (icon + label) on mobile, where core hides ab-labels
-	// and squeezes items to 46px.
-	@media screen and (max-width: 782px) {
-		> .ab-item {
+		// Keep the full pill (icon + label) on mobile, where core hides
+		// ab-labels and squeezes items to 46px.
+		@media screen and (max-width: 782px) {
 			width: auto;
 			height: 24px;
 			margin-block: 11px;
@@ -523,6 +510,17 @@
 				padding: 0;
 				font-size: 0;
 			}
+		}
+	}
+
+	&:hover > .ab-item,
+	> .ab-item:focus-visible {
+		background: rgba(56, 88, 233, 0.42);
+		box-shadow: inset 0 0 0 1px rgba(150, 175, 255, 0.8);
+		color: #fff;
+
+		.ab-icon svg {
+			fill: #b8c8ff;
 		}
 	}
 }

@@ -7,14 +7,17 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Host;
 
 /**
  * Reads the omnibar free-domain upsell variation for the current user.
  *
- * The experiment moves the free-to-paid upsell from the wp-admin sidebar notice
- * (control) to a persistent "Free domain" chip in the admin bar / omnibar
- * (treatment). It only targets Free Simple sites, so there is no Atomic path.
+ * The experiment moves the "Free domain with an annual plan" upsell from the
+ * wp-admin sidebar notice (control; the free_to_paid_plan and
+ * monthly_to_annual_plan messages) to a persistent "Free domain" chip in the
+ * admin bar / omnibar (treatment). It only targets Simple sites, so there is
+ * no Atomic path.
  *
  * On Simple sites, a real page render (wp-admin or front end) uses the assigning
  * ExPlat call, so eligible users are enrolled where the two experiences diverge.
@@ -101,7 +104,7 @@ class Free_Domain_Upsell_Experiment {
 	 * @return bool
 	 */
 	private static function is_page_render() {
-		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+		if ( Constants::is_true( 'REST_REQUEST' ) ) {
 			return false;
 		}
 		if ( wp_doing_ajax() || wp_doing_cron() ) {
