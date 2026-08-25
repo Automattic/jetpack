@@ -540,7 +540,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       AWAIT_JOB_NAME: 'Push to mirror repos'
-      BUILD_JOB_NAMES: '[ "Build wpcom projects", "Build non-wpcom projects" ]'
+      BUILD_JOB_NAMES: '[ "Build all projects", "Build wpcom projects", "Build non-wpcom projects" ]'
     steps: *await_mirrors_steps
 
   update_all_mirrors:
