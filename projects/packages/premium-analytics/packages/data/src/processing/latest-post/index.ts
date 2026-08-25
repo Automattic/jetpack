@@ -59,9 +59,6 @@ function pickFeaturedImageUrl( media: StatsRecord ): string {
  * resolves regardless of site privacy; the post's views, likes, and comments
  * come from the Stats post endpoint. Returns null when the site has no published
  * post.
- *
- * @param response - Raw payload from the core posts endpoint (with `_embed`).
- * @return The normalized latest post, or null when none is present.
  */
 export function sanitizeLatestPostResponse( response: unknown ): LatestPostResponse {
 	const [ first ] = coerceStatsArray( response );

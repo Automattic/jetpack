@@ -15,8 +15,8 @@ describe( 'Stats clicks normalizer', () => {
 		expect( result.summary ).toEqual( {
 			total_clicks: 1323,
 			other_clicks: 0,
-			date_start: '2026-06-16T00:00:00+00:00',
-			date_end: '2026-06-22T23:59:59+00:00',
+			date_start: '2026-06-16T00:00:00',
+			date_end: '2026-06-22T23:59:59',
 		} );
 		expect( result.data[ 0 ] ).toEqual(
 			expect.objectContaining( {
@@ -54,8 +54,8 @@ describe( 'Stats clicks normalizer', () => {
 		expect( result.data[ 0 ] ).toEqual(
 			expect.objectContaining( {
 				time_interval: '2026-06-16',
-				date_start: '2026-06-16T00:00:00+00:00',
-				date_end: '2026-06-16T23:59:59+00:00',
+				date_start: '2026-06-16T00:00:00',
+				date_end: '2026-06-16T23:59:59',
 				items: [
 					expect.objectContaining( {
 						label: 'wordpress.org',
@@ -403,8 +403,8 @@ describe( 'Stats clicks normalizer', () => {
 			data: [
 				{
 					time_interval: '2026-06-29',
-					date_start: '2026-06-29T00:00:00+00:00',
-					date_end: '2026-06-29T23:59:59+00:00',
+					date_start: '2026-06-29T00:00:00',
+					date_end: '2026-06-29T23:59:59',
 					items: [
 						{
 							label: 'wordpress.org',
@@ -464,8 +464,8 @@ describe( 'Stats clicks normalizer', () => {
 			data: [
 				{
 					time_interval: '2026-06-29',
-					date_start: '2026-06-29T00:00:00+00:00',
-					date_end: '2026-06-29T23:59:59+00:00',
+					date_start: '2026-06-29T00:00:00',
+					date_end: '2026-06-29T23:59:59',
 					items: [
 						{
 							label: 'wordpress.org',
@@ -524,8 +524,8 @@ describe( 'Stats clicks normalizer', () => {
 			data: [
 				{
 					time_interval: '2026-06-29',
-					date_start: '2026-06-29T00:00:00+00:00',
-					date_end: '2026-06-29T23:59:59+00:00',
+					date_start: '2026-06-29T00:00:00',
+					date_end: '2026-06-29T23:59:59',
 					items: [
 						{
 							label: 'wordpress.org',
@@ -610,8 +610,8 @@ describe( 'Stats clicks normalizer', () => {
 			data: [
 				{
 					time_interval: '2026-06-29',
-					date_start: '2026-06-29T00:00:00+00:00',
-					date_end: '2026-06-29T23:59:59+00:00',
+					date_start: '2026-06-29T00:00:00',
+					date_end: '2026-06-29T23:59:59',
 					items,
 				},
 			],

@@ -823,6 +823,202 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that the transport of the incoming request being verified defaults to XML-RPC
+	 * and is detected as REST for REST endpoint requests.
+	 */
+	public function test_get_current_request_transport() {
+		$reflection = new \ReflectionClass( $this->manager );
+		$method     = $reflection->getMethod( 'get_current_request_transport' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$default_transport = $method->invoke( $this->manager );
+
+		// Simulate a dispatched REST API request. In a real REST request the REST_REQUEST
+		// constant is set instead; the filter is the only way to toggle the state in-process.
+		add_filter( 'wp_is_rest_endpoint', '__return_true' );
+		$rest_transport = $method->invoke( $this->manager );
+		remove_filter( 'wp_is_rest_endpoint', '__return_true' );
+
+		// Before REST dispatch (e.g. signature verification triggered by an early
+		// determine_current_user call), REST requests are recognized by their URL.
+		$original_server        = $_SERVER;
+		$original_get           = $_GET;
+		$_SERVER['REQUEST_URI'] = '/wp-json/jetpack/v4/connection/status?token=abc';
+		$early_rest_transport   = $method->invoke( $this->manager );
+
+		$_SERVER['REQUEST_URI']          = '/index.php';
+		$_GET['rest_route']              = '/jetpack/v4/connection/status';
+		$plain_permalinks_rest_transport = $method->invoke( $this->manager );
+
+		$_SERVER = $original_server;
+		$_GET    = $original_get;
+
+		$this->assertSame( Error_Handler::ERROR_TYPE_XMLRPC, $default_transport );
+		$this->assertSame( Error_Handler::ERROR_TYPE_REST, $rest_transport );
+		$this->assertSame( Error_Handler::ERROR_TYPE_REST, $early_rest_transport, 'A REST-prefixed request path must be labeled rest even before REST dispatch state exists.' );
+		$this->assertSame( Error_Handler::ERROR_TYPE_REST, $plain_permalinks_rest_transport, 'A rest_route query argument must be labeled rest even before REST dispatch state exists.' );
+	}
+
+	/**
+	 * Test that errors from outgoing requests through `Client::remote_request()` are stored
+	 * with the transport derived from the target endpoint and the 'outgoing' direction.
+	 *
+	 * @dataProvider outgoing_request_transport_provider
+	 *
+	 * @param string $url                The request URL.
+	 * @param string $expected_type      The expected stored error_type.
+	 */
+	#[DataProvider( 'outgoing_request_transport_provider' )]
+	public function test_remote_request_labels_outgoing_errors( $url, $expected_type ) {
+		$this->set_up_connected_user();
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$error_response = function () {
+			return array(
+				'body'     => '{"error":"unknown_token","message":"It looks like your Jetpack connection is broken."}',
+				'response' => array(
+					'code'    => 403,
+					'message' => 'Forbidden',
+				),
+				'headers'  => array(),
+			);
+		};
+		add_filter( 'pre_http_request', $error_response );
+
+		Client::remote_request(
+			array(
+				'url'     => $url,
+				'method'  => 'POST',
+				'user_id' => 0,
+			),
+			'request-body'
+		);
+
+		$verified_errors = Error_Handler::get_instance()->get_verified_errors();
+
+		// Clean up before asserting, so a failed assertion cannot leak state into other tests.
+		remove_filter( 'pre_http_request', $error_response );
+		remove_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		Error_Handler::get_instance()->delete_all_errors();
+
+		$this->assertArrayHasKey( 'unknown_token', $verified_errors );
+		$error = reset( $verified_errors['unknown_token'] );
+		$this->assertSame( $expected_type, $error['error_type'] );
+		$this->assertSame( Error_Handler::DIRECTION_OUTGOING, $error['error_direction'] );
+	}
+
+	/**
+	 * Test that a `Jetpack_Signature` error surfaced during incoming signature verification
+	 * is normalized into the standard error data shape and stored with the incoming
+	 * direction. Uses a stale timestamp, which makes `sign_current_request()` return an
+	 * `invalid_signature` WP_Error carrying its own signature_details but no type/direction.
+	 */
+	public function test_verify_xml_rpc_signature_normalizes_signature_errors() {
+		// Snapshot the superglobals: the test environment pre-populates some $_SERVER keys
+		// (e.g. HTTP_HOST) that later tests rely on, so they must be restored, not unset.
+		$original_server = $_SERVER;
+		$original_get    = $_GET;
+
+		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
+		\Jetpack_Options::update_option( 'blog_token', 'blogkey.blogsecret' );
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$_GET['token']     = 'blogkey:1:0';
+		$_GET['signature'] = 'irrelevant';
+		$_GET['timestamp'] = (string) ( time() - DAY_IN_SECONDS );
+		$_GET['nonce']     = 'testnonce1';
+
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_SERVER['HTTP_HOST']      = 'example.org';
+		$_SERVER['REQUEST_URI']    = '/';
+
+		$result        = $this->manager->verify_xml_rpc_signature();
+		$stored_errors = Error_Handler::get_instance()->get_stored_errors();
+
+		// Clean up before asserting, so a failed assertion cannot leak state into other tests.
+		$_SERVER = $original_server;
+		$_GET    = $original_get;
+		remove_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		Error_Handler::get_instance()->delete_all_errors();
+		\Jetpack_Options::delete_option( 'blog_token' );
+
+		$this->assertFalse( $result );
+		$this->assertArrayHasKey( 'invalid_signature', $stored_errors );
+		$error = $stored_errors['invalid_signature']['0'];
+		$this->assertSame( Error_Handler::ERROR_TYPE_XMLRPC, $error['error_type'] );
+		$this->assertSame( Error_Handler::DIRECTION_INCOMING, $error['error_direction'] );
+		$this->assertSame( 'blogkey:1:0', $error['error_data']['token'] );
+		// The URL normalized by Jetpack_Signature (scheme://host:port form, port empty for
+		// defaults) must win the merge, proving the signature error's own signature_details
+		// were preserved over the Manager-built ones.
+		$this->assertSame( 'http://example.org:/', $error['error_data']['url'] );
+	}
+
+	/**
+	 * Test that a `Jetpack_Signature` error carrying NO error data at all is normalized and
+	 * stored. A blog token with an empty secret chunk passes token retrieval but makes
+	 * `Jetpack_Signature::sign_request()` return `invalid_secret` with no data — before the
+	 * normalization, such errors were silently unstorable by `wp_error_to_array()`.
+	 */
+	public function test_verify_xml_rpc_signature_stores_dataless_signature_errors() {
+		$original_server = $_SERVER;
+		$original_get    = $_GET;
+
+		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
+		\Jetpack_Options::update_option( 'blog_token', 'blogkey.' );
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$_GET['token']     = 'blogkey:1:0';
+		$_GET['signature'] = 'irrelevant';
+		$_GET['timestamp'] = (string) time();
+		$_GET['nonce']     = 'testnonce2';
+
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_SERVER['HTTP_HOST']      = 'example.org';
+		$_SERVER['REQUEST_URI']    = '/';
+
+		$result        = $this->manager->verify_xml_rpc_signature();
+		$stored_errors = Error_Handler::get_instance()->get_stored_errors();
+
+		// Clean up before asserting, so a failed assertion cannot leak state into other tests.
+		$_SERVER = $original_server;
+		$_GET    = $original_get;
+		remove_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		Error_Handler::get_instance()->delete_all_errors();
+		\Jetpack_Options::delete_option( 'blog_token' );
+
+		$this->assertFalse( $result );
+		$this->assertArrayHasKey( 'invalid_secret', $stored_errors );
+		$error = $stored_errors['invalid_secret']['0'];
+		$this->assertSame( Error_Handler::ERROR_TYPE_XMLRPC, $error['error_type'] );
+		$this->assertSame( Error_Handler::DIRECTION_INCOMING, $error['error_direction'] );
+		// With no signature_details of its own, the error is attributed via the
+		// Manager-built details from the request superglobals.
+		$this->assertSame( 'blogkey:1:0', $error['error_data']['token'] );
+	}
+
+	/**
+	 * Data provider for test_remote_request_labels_outgoing_errors.
+	 *
+	 * @return array
+	 */
+	public static function outgoing_request_transport_provider() {
+		return array(
+			'xmlrpc endpoint' => array(
+				'https://jetpack.wordpress.com/xmlrpc.php',
+				Error_Handler::ERROR_TYPE_XMLRPC,
+			),
+			'rest endpoint'   => array(
+				'https://public-api.wordpress.com/wpcom/v2/sites/1234/jetpack-wpcom-user-data',
+				Error_Handler::ERROR_TYPE_REST,
+			),
+		);
+	}
+
+	/**
 	 * Set up a connected blog and user so a signed request can be built as $user_id.
 	 *
 	 * @param int $user_id The local user id to connect.

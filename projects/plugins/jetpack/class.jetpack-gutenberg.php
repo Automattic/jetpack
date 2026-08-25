@@ -793,6 +793,40 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
+		/*
+		 * When the user returns to the editor right after a successful plan
+		 * purchase (signalled by the `plan_upgraded` redirect argument), refresh
+		 * the locally cached plan from WordPress.com before block availability is
+		 * computed below. Otherwise `available_blocks` is derived from the stale
+		 * `jetpack_active_plan` option (only refreshed by the daily heartbeat) and
+		 * paid blocks keep showing their upgrade nudge even though the plan is now
+		 * active. Simple sites gate features live via `wpcom_site_has_feature()`,
+		 * so they neither need nor benefit from this.
+		 *
+		 * The refresh is a blocking WordPress.com request, so it is guarded to run
+		 * only on a connected, non-WPCOM site, throttled to once per minute (a
+		 * repeated or bookmarked `?plan_upgraded` URL cannot trigger a request on
+		 * every load), and time-boxed so a slow origin cannot hang the editor. The
+		 * client-side reload fallback covers a skipped or failed refresh. The value
+		 * is only used to trigger a cache refresh from an authoritative source, so
+		 * no nonce is required. See FORMS-712.
+		 */
+		if (
+			! empty( $_GET['plan_upgraded'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			&& ! ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			&& Jetpack::is_connection_ready()
+			&& ! get_transient( 'jetpack_plan_upgraded_refresh' )
+		) {
+			set_transient( 'jetpack_plan_upgraded_refresh', 1, MINUTE_IN_SECONDS );
+
+			$cap_plan_refresh_timeout = static function () {
+				return 5;
+			};
+			add_filter( 'http_request_timeout', $cap_plan_refresh_timeout, PHP_INT_MAX );
+			Jetpack_Plan::refresh_from_wpcom();
+			remove_filter( 'http_request_timeout', $cap_plan_refresh_timeout, PHP_INT_MAX );
+		}
+
 		$status = new Status();
 
 		// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.
@@ -1216,8 +1250,13 @@ class Jetpack_Gutenberg {
 	 * display blocks are registered just-in-time as they render.
 	 *
 	 * This runs at module-load time (around after_setup_theme), before core defines
-	 * REST_REQUEST during parse_request, so REST requests are detected from the
-	 * request URL instead of the constant.
+	 * REST_REQUEST during parse_request, so self-hosted and Atomic REST requests are
+	 * detected from the request URL instead of the constant. That URL check cannot
+	 * work on WordPress.com Simple: its public API filters `rest_url_prefix` to an
+	 * empty string, so rest_get_url_prefix() returns '' and the REST roots computed
+	 * below collapse to '//', which no request path can match. Simple's requests are
+	 * detected via REST_API_REQUEST instead, which its API entry points define before
+	 * wp-load.php runs.
 	 *
 	 * @since 16.0
 	 *
@@ -1232,11 +1271,19 @@ class Jetpack_Gutenberg {
 		 * Treat any non-front-end execution context as block-editor. These are not the
 		 * front-end hot path this gate optimizes, and some still render block content
 		 * (e.g. cron-generated subscription e-mails) that depends on full registration.
+		 *
+		 * Core defines REST_REQUEST during parse_request, after this runs, so it is
+		 * normally still unset here; it is checked anyway so the result stays correct
+		 * if this is ever called later in the request. REST_API_REQUEST is what catches
+		 * WordPress.com Simple, where the URL check below cannot work at all (see the
+		 * method docblock).
 		 */
 		if (
-			( defined( 'DOING_CRON' ) && DOING_CRON )
-			|| ( defined( 'WP_CLI' ) && WP_CLI )
-			|| ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
+			Constants::is_true( 'DOING_CRON' )
+			|| Constants::is_true( 'WP_CLI' )
+			|| Constants::is_true( 'XMLRPC_REQUEST' )
+			|| Constants::is_true( 'REST_REQUEST' )
+			|| Constants::is_true( 'REST_API_REQUEST' )
 		) {
 			return true;
 		}
@@ -1305,8 +1352,6 @@ class Jetpack_Gutenberg {
 			// Signals Big Sky via the jetpack_image_studio_enabled filter on `init`,
 			// which can run on the front end.
 			'image-studio',
-			// Filters get_avatar_data on the front end to customize AI-authored note avatars.
-			'block-notes',
 		),
 		'extended-blocks' => array(
 			// Registers the videopress/video block on `init`, required to render it on the front end.

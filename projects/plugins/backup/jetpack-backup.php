@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack VaultPress Backup
  * Plugin URI: https://jetpack.com/jetpack-backup
  * Description: Easily restore or download a backup of your site from a specific moment in time.
- * Version: 3.8
+ * Version: 3.9
  * Author: Automattic - Jetpack Backup team
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -28,6 +28,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, see <https://www.gnu.org/licenses/>.
 */
 
+use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup as My_Jetpack_Backup;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 
@@ -184,3 +185,6 @@ register_deactivation_hook( __FILE__, array( 'Automattic\\Jetpack\\Backup\\V0005
 My_Jetpack_Backup::initialize();
 // My Jetpack.
 My_Jetpack_Initializer::init();
+// Activity Log. Idempotent, so it no-ops when the Jetpack plugin already
+// initialized the package on this request.
+Jetpack_Activity_Log::initialize();

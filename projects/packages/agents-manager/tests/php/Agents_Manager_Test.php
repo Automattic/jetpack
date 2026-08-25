@@ -98,6 +98,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 				return Constants::is_true( 'A8C_PROXIED_REQUEST' );
 			}
 		);
+		Functions\when( 'is_automattician' )->justReturn( false );
 
 		$this->agents_manager = Agents_Manager::init();
 
@@ -420,6 +421,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * Tests that enqueue_scripts adds script with empty providers and useUnifiedExperience false by default.
 	 */
 	public function test_enqueue_scripts_with_empty_providers() {
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( false );
+
 		// Set admin context - scripts only enqueue in admin.
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'dashboard' );
@@ -445,6 +448,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'const agentsManagerData =', $inline_script );
 		$this->assertStringContainsString( '"agentProviders":[]', $inline_script );
+		$this->assertStringContainsString( '"isA11n":false', $inline_script );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 	}
@@ -501,6 +505,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * Tests that enqueue_scripts includes useUnifiedExperience true when filter returns true.
 	 */
 	public function test_enqueue_scripts_includes_use_unified_experience_when_enabled() {
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( false );
+		Functions\when( 'is_automattician' )->justReturn( true );
+
 		// Set admin context - scripts only enqueue in admin.
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'dashboard' );
@@ -530,9 +537,70 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'const agentsManagerData =', $inline_script );
 		$this->assertStringContainsString( '"useUnifiedExperience":true', $inline_script );
+		$this->assertStringContainsString( '"isA11n":true', $inline_script );
 
 		// Clean up the filter.
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
+	 * Tests that enqueue_scripts exposes whether the site runs on the WordPress.com platform.
+	 *
+	 * @param string $platform Hosting platform to simulate: 'none', 'simple', or 'woa'.
+	 * @param string $expected Expected JSON-encoded isWpcomPlatform value.
+	 * @dataProvider provide_is_wpcom_platform
+	 */
+	#[DataProvider( 'provide_is_wpcom_platform' )]
+	public function test_enqueue_scripts_exposes_is_wpcom_platform( $platform, $expected ) {
+		Constants::set_constant( 'IS_WPCOM', 'simple' === $platform );
+		if ( 'woa' === $platform ) {
+			Cache::set( 'is_woa_site', true );
+		}
+
+		// Set admin context - scripts only enqueue in admin.
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard' );
+
+		// Reset the script registry to ensure test isolation.
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		// Register the agents-manager script so we can attach inline script to it.
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		// Add a filter to enable unified experience.
+		add_filter(
+			'agents_manager_use_unified_experience',
+			'__return_true',
+			// Use a higher priority to ensure it runs after the class's own filter.
+			20
+		);
+
+		$this->agents_manager->enqueue_scripts();
+
+		// Re-fetch global after wp_register_script initializes it.
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array(); // @phan-suppress-current-line PhanTypeExpectedObjectPropAccessButGotNull
+
+		// Find the inline script containing agentsManagerData.
+		$inline_script = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( '"isWpcomPlatform":' . $expected, $inline_script );
+
+		// Clean up the filter.
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
+	 * Data provider for test_enqueue_scripts_exposes_is_wpcom_platform.
+	 *
+	 * @return array<string, array{0: string, 1: string}>
+	 */
+	public static function provide_is_wpcom_platform() {
+		return array(
+			'non-wpcom site' => array( 'none', 'false' ),
+			'Simple site'    => array( 'simple', 'true' ),
+			'WoA site'       => array( 'woa', 'true' ),
+		);
 	}
 
 	/**
@@ -1501,6 +1569,24 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that a WordPress.com proxy marks the visitor as an Automattician for tracking.
+	 */
+	public function test_is_tracking_automattician_returns_true_for_wpcom_proxy() {
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
+
+		$this->assertTrue( $this->call_is_tracking_automattician() );
+	}
+
+	/**
+	 * Tests that an Atomic proxy marks the visitor as an Automattician for tracking.
+	 */
+	public function test_is_tracking_automattician_returns_true_for_atomic_proxy() {
+		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+
+		$this->assertTrue( $this->call_is_tracking_automattician() );
+	}
+
+	/**
 	 * Helper to call the private get_variant method via reflection.
 	 *
 	 * @return string|null The variant name, or null if scripts should not be loaded.
@@ -1512,6 +1598,21 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			$method->setAccessible( true );
 		}
 		return $method->invoke( $this->agents_manager );
+	}
+
+	/**
+	 * Calls the private tracking classifier.
+	 *
+	 * @return bool
+	 */
+	private function call_is_tracking_automattician() {
+		$reflection = new \ReflectionClass( Agents_Manager::class );
+		$method     = $reflection->getMethod( 'is_tracking_automattician' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		return $method->invoke( null );
 	}
 
 	/**

@@ -47,14 +47,6 @@ interface PostTrafficActivityStoryControls {
 	preset: 'last-30-days' | 'last-365-days';
 }
 
-/**
- * Builds the widget attributes: report params with the post scope the detail
- * page seeds from its URL when `hasPostScope` is on.
- *
- * @param {PostTrafficActivityStoryControls} controls       - The story controls.
- * @param {boolean}                          withComparison - Include comparison report params.
- * @return The widget attributes.
- */
 function getPostTrafficActivityAttributes(
 	{ hasPostScope, preset }: PostTrafficActivityStoryControls,
 	withComparison = false
@@ -67,12 +59,6 @@ function getPostTrafficActivityAttributes(
 	};
 }
 
-/**
- * Renders the data-connected widget with the composed attributes.
- *
- * @param {PostTrafficActivityStoryControls} controls - The story controls.
- * @return The rendered widget.
- */
 function renderPostTrafficActivity( controls: PostTrafficActivityStoryControls ) {
 	return <PostTrafficActivityRender attributes={ getPostTrafficActivityAttributes( controls ) } />;
 }
@@ -145,9 +131,6 @@ interface PostTrafficActivityDashboardStoryProps
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders
  * exactly as it does in product (framed card, sizing, host environment).
- *
- * @param {PostTrafficActivityDashboardStoryProps} props - The dashboard story controls.
- * @return The widget mounted inside the real dashboard.
  */
 function PostTrafficActivityDashboardStory( {
 	hasPostScope,

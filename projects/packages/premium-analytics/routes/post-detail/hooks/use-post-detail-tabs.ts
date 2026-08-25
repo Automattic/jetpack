@@ -78,10 +78,14 @@ export function usePostDetailTabs( postId: number ) {
 		}
 	}, [ canNormalize, storedTab, activeTab, setActiveTab ] );
 
+	// The page's no-comparison invariant is the report scope the stage declares,
+	// so the layout is the tab's fixed one.
+	const layout = POST_DETAIL_TAB_LAYOUTS[ activeTab ];
+
 	return {
 		tabs,
 		activeTab,
 		setActiveTab,
-		layout: POST_DETAIL_TAB_LAYOUTS[ activeTab ],
+		layout,
 	};
 }

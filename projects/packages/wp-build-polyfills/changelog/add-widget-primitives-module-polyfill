@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a script module polyfill for @wordpress/widget-primitives.

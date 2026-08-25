@@ -12,6 +12,10 @@ const WEEKDAY_TOKENS = new Set( [ 'l', 'D', 'N', 'w' ] );
 /** Full weekday name, the form a date-scale label leads with. */
 const WEEKDAY_FORMAT = 'l';
 
+/** Textual month, spelled out and abbreviated. */
+const MONTH_FULL_TOKEN = 'F';
+const MONTH_SHORT_TOKEN = 'M';
+
 /**
  * Separator between the weekday and the date it introduces.
  *
@@ -59,6 +63,20 @@ function toSegments( phpFormat: string ): Segment[] {
 	}
 
 	return segments;
+}
+
+/**
+ * Whether a format renders any of the given date parts.
+ *
+ * Escaped letters spell literal text rather than naming a part, so they do not
+ * count: `G\h i` renders an hour, a literal "h", and minutes — not a 12-hour clock.
+ *
+ * @param phpFormat - PHP `date()` format string.
+ * @param tokens    - Token letters to look for.
+ * @return Whether the format renders one of them.
+ */
+export function hasToken( phpFormat: string, tokens: Set< string > ): boolean {
+	return toSegments( phpFormat ).some( segment => segment.isToken && tokens.has( segment.char ) );
 }
 
 /**
@@ -124,6 +142,25 @@ export function withoutYear( phpFormat: string ): string {
 }
 
 /**
+ * Abbreviate the month in a PHP format string.
+ *
+ * The abbreviation itself still comes from WordPress's translation tables, so a
+ * locale that does not shorten its month names keeps them whole. Formats that
+ * number the month rather than name it are returned unchanged, having nothing
+ * to abbreviate.
+ *
+ * @param phpFormat - PHP `date()` format string.
+ * @return The format with a three-letter month, or unchanged when it names none.
+ */
+export function withShortMonth( phpFormat: string ): string {
+	return toSegments( phpFormat )
+		.map( segment =>
+			segment.isToken && segment.char === MONTH_FULL_TOKEN ? MONTH_SHORT_TOKEN : segment.source
+		)
+		.join( '' );
+}
+
+/**
  * Put the weekday in front of a PHP format string.
  *
  * WordPress publishes no weekday-bearing format, so one has to be derived from
@@ -135,11 +172,7 @@ export function withoutYear( phpFormat: string ): string {
  * @return The format led by its weekday, or unchanged when it already has one.
  */
 export function withWeekday( phpFormat: string ): string {
-	const hasWeekday = toSegments( phpFormat ).some(
-		segment => segment.isToken && WEEKDAY_TOKENS.has( segment.char )
-	);
-
-	if ( hasWeekday ) {
+	if ( hasToken( phpFormat, WEEKDAY_TOKENS ) ) {
 		return phpFormat;
 	}
 

@@ -2,14 +2,18 @@
  * External dependencies
  */
 import { DataViews, filterSortAndPaginate } from '@jetpack-premium-analytics/externals';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { collectAncestorIds, filterCollapsedRows, findParentIds } from './collapsible-rows';
 import styles from './dataviews-drilldown-native.module.scss';
+import { DrilldownToggle } from './drilldown-toggle';
 import { processHierarchyLevels, withHierarchyContext } from './process-hierarchy-levels';
 import type {
+	DataViewRenderFieldProps,
 	Field,
 	SupportedLayouts,
 	View,
@@ -17,13 +21,34 @@ import type {
 } from '@jetpack-premium-analytics/externals';
 import type { ComponentProps, ReactNode } from 'react';
 
-// Inferred props types from the `DataViews` component.
 type PaginationInfo = ComponentProps< typeof DataViews >[ 'paginationInfo' ];
 type OnChangeViewBaseProps< Item > = ViewBaseProps< Item >[ 'onChangeView' ];
 type GetItemIdBaseProps< Item > = ViewBaseProps< Item >[ 'getItemId' ];
 type GetItemLevelBaseProps< Item > = ViewBaseProps< Item >[ 'getItemLevel' ];
 
 const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
+const NO_IDS: ReadonlySet< string > = new Set();
+
+type CollapseContextValue = {
+	isExpanded: ( id: string ) => boolean;
+	/** Rows with children, which therefore get a fold control. */
+	parentIds: ReadonlySet< string >;
+	/** Rows a search or filter holds open: the control stays, inert. */
+	forcedIds: ReadonlySet< string >;
+	onToggle: ( id: string ) => void;
+	/**
+	 * The consumer's own title field and id resolver, which the grafted cell
+	 * renders through. They travel by context rather than by closure so the
+	 * grafted `render` can stay one module-level component: a per-render
+	 * component identity would remount the cell and drop focus from the
+	 * toggle whenever the consumer's `fields` array is a fresh reference.
+	 * `Item` is erased here because one context serves every instantiation.
+	 */
+	titleField?: Field< unknown >;
+	getItemId: ( item: unknown ) => string;
+};
+
+const CollapseContext = createContext< CollapseContextValue | null >( null );
 
 /**
  * `DataViews`' own `getItemId` prop is conditionally optional on `Item` having
@@ -46,6 +71,43 @@ const GenericDataViews = DataViews as unknown as < Item >( props: {
 	config?: { perPageSizes: number[] };
 } ) => ReturnType< typeof DataViews >;
 
+/**
+ * The title field's cell with the fold control prepended.
+ *
+ * Module-level on purpose: this is the `render` the component grafts onto the
+ * consumer's title field, and a `render` rebuilt per render would remount the
+ * cell — taking the focused toggle with it.
+ */
+function CollapsibleTitleCell< Item >( props: DataViewRenderFieldProps< Item > ) {
+	const collapse = useContext( CollapseContext );
+
+	if ( ! collapse ) {
+		throw new Error( 'CollapsibleTitleCell must be rendered within CollapseContext.' );
+	}
+
+	const { titleField, getItemId } = collapse as unknown as {
+		titleField?: Field< Item >;
+		getItemId: GetItemIdBaseProps< Item >;
+	};
+	const id = getItemId( props.item );
+	// `props.field` is DataViews' normalized field, so its `getValue` covers
+	// the dotted-path default a field without one gets upstream.
+	const label = props.field.getValue( { item: props.item } );
+	const RenderTitle = titleField?.render;
+
+	return (
+		<span className={ styles.titleCell }>
+			<DrilldownToggle
+				label={ label ? String( label ) : __( 'Toggle group', 'jetpack-premium-analytics-pkg' ) }
+				expanded={ collapse.isExpanded( id ) }
+				disabled={ collapse.forcedIds.has( id ) }
+				onToggle={ collapse.parentIds.has( id ) ? () => collapse.onToggle( id ) : undefined }
+			/>
+			{ RenderTitle ? <RenderTitle { ...props } /> : String( label ?? '' ) }
+		</span>
+	);
+}
+
 export interface DataViewsDrilldownNativeProps< Item > {
 	/** Flat rows: parents and children mixed; children carry a parent id. */
 	data: Item[];
@@ -67,6 +129,10 @@ export interface DataViewsDrilldownNativeProps< Item > {
 	 * `dataviews-view-table__level` marker span ships unstyled upstream.
 	 */
 	hideLevelMarkers?: boolean;
+	/** Add a fold control to rows that have children. */
+	collapsible?: boolean;
+	/** Whether rows start unfolded. Ignored unless `collapsible`. */
+	defaultExpanded?: 'all' | 'none';
 	/** Show DataViews' loading state. */
 	isLoading?: boolean;
 	/** Accessible label for the search input. */
@@ -82,11 +148,7 @@ export interface DataViewsDrilldownNativeProps< Item > {
  * (`view.showLevels` + `getItemLevel`), keeping the hierarchy legible across
  * interactions: search and filter keep each match under its ancestors, sort
  * orders within each level (not a flat global sort), and rows are emitted in
- * depth-first order before pagination. There is no expand/collapse yet; the
- * native level rendering is a static display.
- *
- * @param {DataViewsDrilldownNativeProps< Item >} props - The component props.
- * @return The DataViews drilldown.
+ * depth-first order before pagination. Pass `collapsible` to fold branches.
  */
 export function DataViewsDrilldownNative< Item >( {
 	data,
@@ -95,6 +157,8 @@ export function DataViewsDrilldownNative< Item >( {
 	getItemParentId,
 	initialView,
 	hideLevelMarkers = false,
+	collapsible = false,
+	defaultExpanded = 'all',
 	isLoading = false,
 	searchLabel,
 	empty,
@@ -116,26 +180,28 @@ export function DataViewsDrilldownNative< Item >( {
 		} as View;
 	} );
 
+	// The rows the reader has toggled away from `defaultExpanded`, rather than
+	// the expanded ids themselves: rows that arrive later (an async load, a
+	// filter change) then follow the default instead of coming back folded.
+	const [ toggledIds, setToggledIds ] = useState< ReadonlySet< string > >( () => new Set() );
+	const expandedByDefault = defaultExpanded !== 'none';
+
 	// Keep the hierarchy legible instead of the flat `filterSortAndPaginate`
 	// semantics: match, re-attach ancestors, re-emit in hierarchy order, then
 	// paginate. Runs over the in-memory rows, so the extra passes are cheap.
-	const { pageData, levelById, paginationInfo } = useMemo( () => {
+	const { pageData, levelById, paginationInfo, parentIds, forcedIds, isExpanded } = useMemo( () => {
 		// 1. Match: apply the view's search + filters only (no sort, one page).
 		const matches = filterSortAndPaginate(
 			data,
 			{ ...view, sort: undefined, page: 1, perPage: Math.max( data.length, 1 ) },
 			fields
 		).data;
+		const matchedIds = new Set( matches.map( getItemId ) );
 
 		// 2. Re-attach each match's ancestors (so filtered children stay under
 		//    their parents instead of orphaned) and descendants (so a matched
 		//    parent keeps the group its aggregate describes).
-		const subset = withHierarchyContext(
-			data,
-			new Set( matches.map( getItemId ) ),
-			getItemId,
-			getItemParentId
-		);
+		const subset = withHierarchyContext( data, matchedIds, getItemId, getItemParentId );
 
 		// 3. Sort within levels: sort the subset flat, then re-emit in hierarchy
 		//    order; `processHierarchyLevels` keeps that order among siblings.
@@ -150,20 +216,97 @@ export function DataViewsDrilldownNative< Item >( {
 			getItemParentId
 		);
 
-		// 4. Paginate the hierarchy-ordered rows ourselves.
+		// 4. Fold the collapsed branches away. A narrowed table must still answer
+		//    the search that narrowed it, so the matches' ancestors unfold for as
+		//    long as the search or filter is on.
+		const isNarrowed = matches.length !== data.length;
+		const forcedRowIds =
+			collapsible && isNarrowed
+				? collectAncestorIds( orderedData, matchedIds, getItemId, getItemParentId )
+				: NO_IDS;
+		const isExpandedForRow = ( id: string ) =>
+			expandedByDefault !== toggledIds.has( id ) || forcedRowIds.has( id );
+		const visibleData = collapsible
+			? filterCollapsedRows( orderedData, getItemId, levels, isExpandedForRow )
+			: orderedData;
+		// Resolve parents before folding so collapsed rows keep their controls.
+		const parentRowIds = collapsible
+			? findParentIds( orderedData, getItemId, getItemParentId )
+			: NO_IDS;
+
+		// 5. Paginate the rows that survived, so folded children stop consuming
+		//    pages. Folding cannot strand the reader past the last page: the rows
+		//    a fold removes all follow the folded row, which is on the page they
+		//    folded it from.
 		const perPage = view.perPage ?? 10;
 		const page = view.page ?? 1;
 		const start = ( page - 1 ) * perPage;
 
 		return {
-			pageData: orderedData.slice( start, start + perPage ),
+			pageData: visibleData.slice( start, start + perPage ),
 			levelById: levels,
 			paginationInfo: {
-				totalItems: orderedData.length,
-				totalPages: Math.max( 1, Math.ceil( orderedData.length / perPage ) ),
+				totalItems: visibleData.length,
+				totalPages: Math.max( 1, Math.ceil( visibleData.length / perPage ) ),
 			},
+			parentIds: parentRowIds,
+			// A forced-open row keeps its control but must not write a fold the
+			// reader cannot see take effect — it would only surface once the
+			// search clears.
+			forcedIds: forcedRowIds,
+			isExpanded: isExpandedForRow,
 		};
-	}, [ data, view, fields, getItemId, getItemParentId ] );
+	}, [
+		data,
+		view,
+		fields,
+		getItemId,
+		getItemParentId,
+		collapsible,
+		expandedByDefault,
+		toggledIds,
+	] );
+
+	const handleToggle = useCallback( ( id: string ) => {
+		setToggledIds( current => {
+			const next = new Set( current );
+
+			if ( ! next.delete( id ) ) {
+				next.add( id );
+			}
+
+			return next;
+		} );
+	}, [] );
+	const titleField = useMemo(
+		() => fields.find( field => field.id === view.titleField ),
+		[ fields, view.titleField ]
+	);
+	const collapseContextValue = useMemo(
+		() =>
+			( {
+				isExpanded,
+				parentIds,
+				forcedIds,
+				onToggle: handleToggle,
+				titleField,
+				getItemId,
+			} ) as unknown as CollapseContextValue,
+		[ isExpanded, parentIds, forcedIds, handleToggle, titleField, getItemId ]
+	);
+
+	// The fold control belongs to the title cell — the only column DataViews
+	// renders levels on — so it is grafted onto the consumer's title field
+	// rather than asked for in every field config.
+	const displayFields = useMemo( () => {
+		if ( ! collapsible ) {
+			return fields;
+		}
+
+		return fields.map( field =>
+			field.id === view.titleField ? { ...field, render: CollapsibleTitleCell } : field
+		);
+	}, [ collapsible, fields, view.titleField ] );
 
 	// Resolved by id: DataViews clones each record internally, so the items
 	// reaching `getItemLevel` are never the objects the hierarchy walk saw.
@@ -183,21 +326,23 @@ export function DataViewsDrilldownNative< Item >( {
 	);
 
 	return (
-		<div className={ clsx( styles.root, hideLevelMarkers && styles.hideLevelMarkers ) }>
-			<GenericDataViews< Item >
-				view={ view }
-				onChangeView={ handleChangeView }
-				fields={ fields }
-				data={ pageData }
-				getItemId={ getItemId }
-				getItemLevel={ getItemLevel }
-				isLoading={ isLoading }
-				paginationInfo={ paginationInfo }
-				defaultLayouts={ { table: {} } }
-				empty={ empty }
-				searchLabel={ searchLabel }
-				config={ { perPageSizes } }
-			/>
-		</div>
+		<CollapseContext.Provider value={ collapseContextValue }>
+			<div className={ clsx( styles.root, hideLevelMarkers && styles.hideLevelMarkers ) }>
+				<GenericDataViews< Item >
+					view={ view }
+					onChangeView={ handleChangeView }
+					fields={ displayFields }
+					data={ pageData }
+					getItemId={ getItemId }
+					getItemLevel={ getItemLevel }
+					isLoading={ isLoading }
+					paginationInfo={ paginationInfo }
+					defaultLayouts={ { table: {} } }
+					empty={ empty }
+					searchLabel={ searchLabel }
+					config={ { perPageSizes } }
+				/>
+			</div>
+		</CollapseContext.Provider>
 	);
 }

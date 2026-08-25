@@ -4,6 +4,7 @@
 import { useStatsSite } from '@jetpack-premium-analytics/data';
 import {
 	MetricTileGrid,
+	MetricTileGridSkeleton,
 	summaryCount,
 	WidgetRoot,
 	WidgetState,
@@ -68,9 +69,6 @@ type AllTimeStatsTile = {
  * appear is controlled by the `metrics` attribute; fields absent from the
  * response are skipped. There is no comparison period for this module, so each
  * value renders as a bare number.
- *
- * @param {AllTimeStatsMetricId[]} metrics - Enabled metric row ids.
- * @return The widget content.
  */
 function AllTimeStatsReport( {
 	metrics = DEFAULT_ALL_TIME_STATS_METRICS,
@@ -129,6 +127,10 @@ function AllTimeStatsReport( {
 							? __( 'Select at least one metric to display.', 'jetpack-premium-analytics-pkg' )
 							: __( 'No stats recorded yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				// `tiles` is built from the summary, so it is empty until the
+				// response lands; the enabled metrics are the count the loaded
+				// grid will show.
+				renderLoading={ <MetricTileGridSkeleton tiles={ enabledMetrics.length } /> }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 			</WidgetState>
@@ -137,15 +139,10 @@ function AllTimeStatsReport( {
 }
 
 /**
- * Widget render entry point.
- *
  * WidgetRoot provides the analytics query client and chart theme the inner
  * report needs. This widget is all-time, so it does not read the dashboard date
  * range; report params still flow into WidgetRoot for parity with the other
  * Stats widgets.
- *
- * @param {AllTimeStatsWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function AllTimeStats( { attributes = {} }: AllTimeStatsWidgetProps ) {
 	return (

@@ -124,7 +124,7 @@ class Stats extends Module_Product {
 	/**
 	 * Get the internationalized features list
 	 *
-	 * @return array CRM features list
+	 * @return array Stats features list
 	 */
 	public static function get_features() {
 		return array(
@@ -132,9 +132,11 @@ class Stats extends Module_Product {
 			__( 'Traffic stats and trends for post and pages', 'jetpack-my-jetpack' ),
 			__( 'Detailed statistics about links leading to your site', 'jetpack-my-jetpack' ),
 			__( 'GDPR compliant', 'jetpack-my-jetpack' ),
-			__( 'Access to upcoming advanced features', 'jetpack-my-jetpack' ),
+			/* translators: UTM refers to the Urchin Tracking Module campaign parameters appended to a URL. */
+			__( 'UTM tracking', 'jetpack-my-jetpack' ),
+			__( 'Device stats', 'jetpack-my-jetpack' ),
+			__( 'Region and city locations', 'jetpack-my-jetpack' ),
 			__( 'Priority support', 'jetpack-my-jetpack' ),
-			__( 'Commercial use', 'jetpack-my-jetpack' ),
 		);
 	}
 
@@ -301,7 +303,7 @@ class Stats extends Module_Product {
 	 * Mirrors `Analytics::MENU_PAGE_SLUG`, spelled out because My Jetpack does not
 	 * depend on the premium-analytics package.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.42.0
 	 */
 	const PREMIUM_ANALYTICS_PAGE_SLUG = 'jetpack-premium-analytics-wp-admin';
 
@@ -312,7 +314,7 @@ class Stats extends Module_Product {
 	 * also ships in plugins without the Jetpack plugin. Public so the UI flags
 	 * report the same answer the URLs are built from.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.42.0
 	 *
 	 * @return bool
 	 */
@@ -349,6 +351,18 @@ class Stats extends Module_Product {
 			static::get_url_product_type(),
 			rawurlencode( 'admin.php?page=stats' )
 		);
+	}
+
+	/**
+	 * Get the URL the user is taken to after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		// Names the plan the Free-vs-Paid question was already answered with here, so the Stats
+		// dashboard's own pricing grid renders the dashboard instead of asking it a second time,
+		// and records the choice as free rather than as one it cannot name.
+		return add_query_arg( 'stats_plan_chosen', 'free', static::get_manage_url() );
 	}
 
 	/**

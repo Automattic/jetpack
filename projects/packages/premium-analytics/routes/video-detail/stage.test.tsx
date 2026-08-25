@@ -1,26 +1,36 @@
+import { useReportScope } from '@jetpack-premium-analytics/data';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { useVideoSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
 
+let mockSearch: Record< string, unknown > = {};
+
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	AnalyticsQueryClientProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
-	pickReportDateParams: ( search: Record< string, unknown > ) => ( {
-		from: search.from,
-		to: search.to,
-	} ),
+	// Spread the real module so the report registry's tab configs, which call
+	// `defineReportTabs`, still resolve now that the registry is not mocked.
+	// `buildReportLink` and `pickReportDateParams` stay real too, so the link
+	// assertions below exercise the code that builds the href in product.
+	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 	useReportDateFilters: () => ( {
 		appliedRange: { from: new Date( 2026, 5, 1 ), to: new Date( 2026, 5, 16 ) },
+		replaceRange: () => {},
+		timeZone: 'UTC',
+		interval: 'day',
+		intervalOptions: [ 'day', 'week' ],
 	} ),
 } ) );
 
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
+	DateFiltersPanel: () => <div>Date filters</div>,
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
 		.StatsBreadcrumbs,
 	StatsPageIcon: () => null,
@@ -50,9 +60,31 @@ jest.mock(
 		)
 );
 
+/**
+ * Reads the scope from where the page's widgets render.
+ *
+ * @return The declared scope, as text.
+ */
+function MockScopeProbe() {
+	const { offersComparison } = useReportScope();
+
+	return (
+		<>
+			<div>Video widgets</div>
+			<div>{ offersComparison ? 'Scope offers comparison' : 'Scope offers no comparison' }</div>
+		</>
+	);
+}
+
+// Captures each render's `layout` prop so tests can assert what the page hands
+// the dashboard.
+const mockDashboardLayouts: unknown[] = [];
 jest.mock( '@wordpress/widget-dashboard', () => {
-	const WidgetDashboard = ( { children }: { children: ReactNode } ) => <>{ children }</>;
-	WidgetDashboard.Widgets = () => <div>Video widgets</div>;
+	const WidgetDashboard = ( { children, layout }: { children: ReactNode; layout?: unknown } ) => {
+		mockDashboardLayouts.push( layout );
+		return <>{ children }</>;
+	};
+	WidgetDashboard.Widgets = () => <MockScopeProbe />;
 
 	return { WidgetDashboard, DEFAULT_GRID: {}, ROW_HEIGHT_PRESETS: { small: 200 } };
 } );
@@ -60,6 +92,9 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 jest.mock( '@wordpress/widget-primitives', () => ( {
 	useWidgetTypes: () => [ [], false ],
 } ) );
+
+// The report registry is deliberately not mocked so the breadcrumb exercises
+// the real report-origin validation.
 
 jest.mock( '@wordpress/admin-ui', () => ( {
 	Breadcrumbs: ( { items }: { items: Array< { label: string; to?: string } > } ) => (
@@ -88,35 +123,15 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 	),
 } ) );
 
-jest.mock( '@wordpress/route', () => ( {
-	Link: ( {
-		to,
-		params,
-		search,
-		children,
-	}: {
-		to: string;
-		params?: Record< string, unknown >;
-		search?: Record< string, unknown >;
-		children: ReactNode;
-	} ) => {
-		const path = Object.entries( params ?? {} ).reduce(
-			( acc, [ key, value ] ) => acc.replace( `$${ key }`, String( value ) ),
-			to
-		);
-		const query = new URLSearchParams(
-			Object.entries( search ?? {} ).map( ( [ key, value ] ) => [ key, String( value ) ] )
-		).toString();
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual( '../../tests/js/route-test-utils' );
 
-		return <a href={ query ? `${ path }?${ query }` : path }>{ children }</a>;
-	},
-	useParams: () => ( { videoId: '42' } ),
-	useSearch: () => ( {
-		from: '2026-06-01',
-		to: '2026-06-16',
-		section: 'embeds',
-	} ),
-} ) );
+	return {
+		Link: mockWordPressRoute.Link,
+		useParams: () => ( { videoId: '42' } ),
+		useSearch: () => mockSearch,
+	};
+} );
 
 jest.mock( './hooks', () => ( {
 	useVideoSummary: jest.fn(),
@@ -143,8 +158,27 @@ function mockSummary( overrides: Record< string, unknown > = {} ) {
 }
 
 describe( 'video detail stage', () => {
+	// The page only renders on sites running VideoPress, and the report registry
+	// behind the Videos crumb reads that from script data.
+	beforeAll( () => {
+		Object.defineProperty( window, 'JetpackScriptData', {
+			configurable: true,
+			value: { premium_analytics: { has_videopress: true } },
+		} );
+	} );
+
 	beforeEach( () => {
 		jest.clearAllMocks();
+		mockDashboardLayouts.length = 0;
+		mockSearch = {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			section: 'embeds',
+		};
+	} );
+
+	afterAll( () => {
+		delete window.JetpackScriptData;
 	} );
 
 	it( 'shows a not-found state with a date-preserving link back to Videos', () => {
@@ -263,12 +297,29 @@ describe( 'video detail stage', () => {
 		render( stage() );
 
 		const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
-		expect( breadcrumbs.getByText( 'Stats' ) ).toBeInTheDocument();
-		expect( breadcrumbs.getByText( 'Launch recap' ) ).toBeInTheDocument();
+		expect( breadcrumbs.getAllByRole( 'listitem' ) ).toHaveLength( 2 );
+		expect( breadcrumbs.getAllByRole( 'listitem' ).map( crumb => crumb.textContent ) ).toEqual( [
+			'Stats',
+			'Launch recap',
+		] );
 		expect(
 			breadcrumbs.getByRole( 'heading', { level: 1, name: 'Launch recap' } )
 		).toBeInTheDocument();
 		expect( screen.getByText( 'Video widgets' ) ).toBeInTheDocument();
+	} );
+
+	it( 'adds the referring report between Stats and the resolved title', () => {
+		mockSearch = { ...mockSearch, ref: 'videos' };
+		mockSummary( { title: 'Launch recap' } );
+
+		render( stage() );
+
+		const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
+		expect( breadcrumbs.getAllByRole( 'listitem' ).map( crumb => crumb.textContent ) ).toEqual( [
+			'Stats',
+			'Videos',
+			'Launch recap',
+		] );
 	} );
 
 	it( 'states the applied report range as the performance window in the summary', () => {
@@ -279,5 +330,41 @@ describe( 'video detail stage', () => {
 		expect(
 			screen.getByText( /Performance from Jun 1, 2026 to Jun 16, 2026/ )
 		).toBeInTheDocument();
+	} );
+
+	// One declaration drives both halves: the panel reads it to drop the Compare
+	// control (covered in the ui package) and `WidgetRoot` reads it to strip the
+	// params. This asserts the declaration the page makes.
+	it( 'declares no comparison for the widgets it renders', () => {
+		mockSummary( { title: 'Launch recap' } );
+		mockSearch = {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			post_id: '42',
+			comp: '1',
+			compare_from: '2026-05-17',
+			compare_to: '2026-05-31',
+			compare_preset: 'previous-period',
+		};
+
+		render( stage() );
+
+		expect( screen.getByText( 'Scope offers no comparison' ) ).toBeInTheDocument();
+	} );
+
+	// The layout the page hands the dashboard is the fixed composition; the
+	// no-comparison invariant is the scope above, not injected attributes.
+	it( 'hands the dashboard its fixed layout', () => {
+		mockSummary( { title: 'Launch recap' } );
+
+		render( stage() );
+
+		const layout = mockDashboardLayouts.at( -1 ) as Array< {
+			attributes?: { reportParams?: unknown };
+		} >;
+		expect( layout.length ).toBeGreaterThan( 0 );
+		for ( const widget of layout ) {
+			expect( widget.attributes ?? {} ).not.toHaveProperty( 'reportParams' );
+		}
 	} );
 } );

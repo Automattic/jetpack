@@ -78,7 +78,6 @@ export type LeaderboardRowChartProps =
  * be buttons and contain interactive link content at the same time. A URL is
  * therefore used only for a childless row; otherwise the row stays static.
  *
- * @param options - Row navigation facts and optional drill-down behavior.
  * @return The single action that the leaderboard row should expose.
  */
 export function resolveLeaderboardRowAction(
@@ -104,12 +103,6 @@ export function resolveLeaderboardRowAction(
  * `LeaderboardChart` turns the whole row into a button; `buildLeaderboardRow`
  * passes that action to the chart.
  *
- * @param props           - Component props.
- * @param props.label     - Label text.
- * @param props.media     - Media rendered before the label.
- * @param props.action    - The row action.
- * @param props.variant   - Row height.
- * @param props.className - Extra class for the row.
  * @return A single label element accepted by `LeaderboardEntry.label`.
  */
 export function LeaderboardRow( {
@@ -170,7 +163,6 @@ export function LeaderboardRow( {
 /**
  * Build the label and chart-level interaction props for one leaderboard row.
  *
- * @param props - Leaderboard row content and action.
  * @return Props to spread onto a `LeaderboardEntry`.
  */
 export function buildLeaderboardRow( props: LeaderboardRowProps ): LeaderboardRowChartProps {

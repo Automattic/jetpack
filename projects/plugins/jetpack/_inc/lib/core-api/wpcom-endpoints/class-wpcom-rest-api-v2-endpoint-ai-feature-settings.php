@@ -23,8 +23,8 @@
 
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Search\Plan as Search_Plan;
+use Automattic\Jetpack\SEO\AI_SEO_Enhancer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -146,7 +146,10 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 		}
 
 		if ( $request->has_param( 'master_enabled' ) ) {
-			update_option( Jetpack_AI_Settings::MASTER_OPTION, (bool) $request->get_param( 'master_enabled' ) );
+			// Routes through the setter so the write lands on whichever store backs
+			// the master on this platform: the option on Simple, the `ai` module
+			// off-Simple.
+			Jetpack_AI_Settings::set_master_enabled( (bool) $request->get_param( 'master_enabled' ) );
 		}
 
 		$features = $request->get_param( 'features' );
@@ -201,8 +204,12 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 			'is_connected'      => $this->is_connected(),
 			'is_user_connected' => $this->is_user_connected(),
 			'plan'              => array(
-				'supports_ai'     => class_exists( Current_Plan::class ) && Current_Plan::supports( 'ai-assistant' ),
-				'supports_search' => $supports_search,
+				'supports_ai'         => class_exists( Current_Plan::class ) && Current_Plan::supports( 'ai-assistant' ),
+				'supports_search'     => $supports_search,
+				// The free Search tier reports supports_search too, but its
+				// remedy for the gated AI Search row is still an upgrade — the
+				// settings page needs this flag to pick the right badge copy.
+				'is_free_search_plan' => $supports_search && $search_plan->is_free_plan(),
 			),
 			'master_enabled'    => Jetpack_AI_Settings::is_master_enabled(),
 			'features'          => array(
@@ -226,24 +233,13 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 
 	/**
 	 * Whether the AI SEO enhancer is available on this site, so the settings
-	 * page can hide its row where the feature can't run.
-	 *
-	 * Mirrors the legacy Traffic page's gate: the feature filter, the
-	 * seo-tools module (always active on WordPress.com Simple, where
-	 * Modules::is_active() short-circuits), and the plan feature.
+	 * page can hide its row. Defers to the SEO package's shared gate; the
+	 * terms are unchanged.
 	 *
 	 * @return bool
 	 */
 	private function is_seo_enhancer_available() {
-		$filter_on = (bool) apply_filters( 'ai_seo_enhancer_enabled', true );
-
-		$module_active = class_exists( Modules::class )
-			&& ( new Modules() )->is_active( 'seo-tools' );
-
-		$plan_supports = class_exists( Current_Plan::class )
-			&& Current_Plan::supports( 'ai-seo-enhancer' );
-
-		return $filter_on && $module_active && $plan_supports;
+		return AI_SEO_Enhancer::is_available();
 	}
 
 	/**

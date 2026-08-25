@@ -20,11 +20,12 @@ import {
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers';
+import { useDefaultHiddenSeries } from '../../providers/chart-context/hooks/use-default-hidden-series';
 import { attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { SingleChartContext } from '../private/single-chart-context';
-import { SvgEmptyState } from '../private/svg-empty-state';
+import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './bar-chart.module.scss';
 import {
@@ -42,13 +43,14 @@ import type {
 	DataPointDate,
 	SeriesData,
 	SeriesChartLegendConfig,
+	SeriesVisibilityProps,
 	Optional,
 } from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { FC, ReactNode, ComponentType } from 'react';
 
-export interface BarChartProps extends BaseChartProps< SeriesData[] > {
+export interface BarChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
 	/**
 	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
 	 */
@@ -122,6 +124,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	orientation = 'vertical',
 	withPatterns = false,
 	showZeroValues = false,
+	defaultHiddenSeries,
 	animation,
 	children,
 	gap = 'md',
@@ -130,6 +133,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const legendCollapseGroups = legend.collapseGroups ?? false;
 	const horizontal = orientation === 'horizontal';
 	const chartId = useChartId( providedChartId );
+	const hiddenSeries = useDefaultHiddenSeries( chartId, defaultHiddenSeries );
+	const isSeriesVisible = useCallback(
+		( seriesLabel: string ) => ! hiddenSeries.has( seriesLabel ),
+		[ hiddenSeries ]
+	);
 	const theme = useXYChartTheme( data );
 
 	const dataSorted = useChartDataTransform( data );
@@ -147,7 +155,23 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ legendCollapseGroups ]
 	);
 	const legendItems = useChartLegendItems( dataSorted, legendOptions );
-	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
+
+	const { getElementStyles } = useGlobalChartsContext();
+
+	// A hidden series is unmounted, so it is not on the band scale either — the
+	// axis has to choose its tick values from what is left. Visibility is owned by
+	// the provider, whether it changed through the legend or programmatically.
+	const isSeriesRendered = useCallback(
+		( series: SeriesData ) => isSeriesVisible( series.label ),
+		[ isSeriesVisible ]
+	);
+
+	const chartOptions = useBarChartOptions(
+		dataWithVisibleZeros,
+		horizontal,
+		options,
+		isSeriesRendered
+	);
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const chartRef = useRef< HTMLDivElement >( null );
 
@@ -182,23 +206,16 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		totalPoints,
 	} );
 
-	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
-
-	// Add visibility information to series when using interactive legends
-	const seriesWithVisibility = useMemo( () => {
-		if ( ! chartId || ! legendInteractive ) {
-			return dataWithVisibleZeros.map( ( series, index ) => ( {
+	// Add visibility information from the shared legend state.
+	const seriesWithVisibility = useMemo(
+		() =>
+			dataWithVisibleZeros.map( ( series, index ) => ( {
 				series,
 				index,
-				isVisible: true,
-			} ) );
-		}
-		return dataWithVisibleZeros.map( ( series, index ) => ( {
-			series,
-			index,
-			isVisible: isSeriesVisible( chartId, series.label ),
-		} ) );
-	}, [ dataWithVisibleZeros, chartId, isSeriesVisible, legendInteractive ] );
+				isVisible: isSeriesRendered( series ),
+			} ) ),
+		[ dataWithVisibleZeros, isSeriesRendered ]
+	);
 
 	// Check if all series are hidden
 	const allSeriesHidden = useMemo( () => {
@@ -505,9 +522,10 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	return (
-		<SingleChartContext.Provider
+		<ChartInstanceContext.Provider
 			value={ {
 				chartId,
+				isSeriesVisible,
 				chartWidth: width,
 				chartHeight: measuredChartHeight || 0,
 			} }
@@ -597,10 +615,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												width={ width }
 												height={ chartHeight }
 											>
-												{ __(
-													'All series are hidden. Click legend items to show data.',
-													'jetpack-charts'
-												) }
+												{ getAllHiddenMessage( legendInteractive, 'series' ) }
 											</SvgEmptyState>
 										) : null }
 
@@ -664,7 +679,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					);
 				} }
 			</ChartLayout>
-		</SingleChartContext.Provider>
+		</ChartInstanceContext.Provider>
 	);
 };
 

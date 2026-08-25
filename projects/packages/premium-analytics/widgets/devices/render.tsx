@@ -8,7 +8,9 @@ import { device } from '@jetpack-premium-analytics/icons';
  */
 import { __ } from '@wordpress/i18n';
 import {
+	DonutChartSkeleton,
 	Legend,
+	WIDGET_ROW_LIMIT,
 	describeError,
 	SemiCircleChart,
 	WidgetRoot,
@@ -42,24 +44,11 @@ function toRatio( percentage: number ) {
 	return percentage / 100;
 }
 
-type DevicesInnerProps = {
-	/**
-	 * Max rows to display.
-	 */
-	max: number;
-};
-
-/**
- * Inner component — rendered inside WidgetRoot.
- *
- * @param {DevicesInnerProps} props - The component props.
- * @return The rendered widget content.
- */
-function DevicesInner( { max }: DevicesInnerProps ) {
+function DevicesInner() {
 	const { reportParams } = useWidgetRootContext();
 	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useDeviceViews( {
 		reportParams,
-		max,
+		max: WIDGET_ROW_LIMIT,
 		deviceProperty: 'screensize',
 	} );
 
@@ -106,6 +95,7 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 					icon: device,
 					description: __( 'No device data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <DonutChartSkeleton /> }
 			>
 				<div className={ styles.chartWrap }>
 					<div className={ styles.chartShell }>
@@ -114,6 +104,7 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 							styles={ segmentStyles }
 							showLegend={ false }
 							showMetric={ false }
+							withTooltips
 							dataFormat={ PERCENTAGE_DATA_FORMAT }
 						/>
 						<Legend items={ styledLegendData } withComparison={ hasComparison } />
@@ -125,20 +116,13 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 }
 
 /**
- * Devices widget render component.
- *
  * Shows screen size breakdown (Desktop / Mobile / Tablet) as a semi-circle chart.
- *
- * @param {DevicesWidgetProps} props - The widget render props.
- * @return The rendered widget content.
  */
 export default function DevicesWidget( { attributes = {} }: DevicesWidgetProps ) {
-	const max = attributes?.max ?? 5;
-
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<DevicesInner max={ max } />
+				<DevicesInner />
 			</div>
 		</WidgetRoot>
 	);

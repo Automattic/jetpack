@@ -96,6 +96,7 @@ The simplest line chart requires only a `data` prop with time-series data:
 **Legend:**
 - **`showLegend`**: Display chart legend (`false` by default)
 - **`legend`**: Legend configuration object (`ChartLegendConfig`) for controlling orientation, position, alignment, shape, interactivity, and styling
+- **`defaultHiddenSeries`**: Series labels hidden from the first defined value; later values for the same `chartId` are ignored
 - **`withLegendGlyph`**: Use custom glyphs in legend (`false` by default)
 
 **Advanced:**
@@ -527,7 +528,7 @@ Zoom behaviour:
 - Only the X axis rescales; the Y axis is unaffected.
 - A selection rectangle follows the pointer while dragging.
 - Drags shorter than 6px are ignored, so a click never zooms.
-- While zoomed, a "Reset zoom" button appears in the top-right to restore the full domain.
+- While zoomed, a "Reset zoom" button appears in the top-right to restore the full domain. It is reachable with Tab and activates with Enter or Space. A "Reset zoom" tooltip shows on hover and on keyboard focus, and Escape dismisses it.
 - Series are clipped to the plot area while zoomed, so lines never overflow the axes.
 - `zoomable` chains with your own `onPointerDown`/`onPointerMove`/`onPointerUp` handlers rather than replacing them.
 
@@ -551,6 +552,10 @@ Use the composition API to add a legend by placing `<LineChart.Legend />` as a c
 />
 
 For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
+
+Use `defaultHiddenSeries` to hide selected series initially while keeping them available through an interactive legend. The first defined list is used; later values for the same `chartId` are ignored. The defaults are seeded once per `chartId`, so a series the reader reveals stays revealed even if the chart unmounts and comes back — swapping between chart types, or a tab the chart lives in going away and returning. Only a new `chartId` seeds again.
+
+<Canvas of={ LineChartStories.WithDefaultHiddenSeries } />
 
 ## Theming Integration
 

@@ -15,10 +15,7 @@ import {
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import TrafficChartRender from '../render';
-import widgetDefinition, {
-	DEFAULT_TRAFFIC_CHART_METRICS,
-	type TrafficChartMetricId,
-} from '../widget';
+import widgetDefinition, { type TrafficChartType } from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -28,30 +25,31 @@ registerReportMocks();
 
 const TRAFFIC_CHART_RENDER_MODULE = 'storybook/traffic-chart';
 
-// Carry the widget's metadata, including the metric-visibility attribute schema
-// so the dashboard story's settings drawer renders the real controls.
+// Carry the widget's metadata, including the attribute schema so the dashboard
+// story's settings drawer renders the real controls.
 const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 interface TrafficChartStoryControls {
 	withComparison: boolean;
-	metrics: TrafficChartMetricId[];
+	chartType: TrafficChartType;
 }
 
-const METRIC_ARG_TYPES = {
-	metrics: {
-		control: 'check',
-		options: DEFAULT_TRAFFIC_CHART_METRICS,
+const CHART_TYPE_ARG_TYPES = {
+	chartType: {
+		control: 'inline-radio',
+		options: [ 'line', 'bar' ] satisfies TrafficChartType[],
 	},
 } as const;
 
-const ALL_METRICS_ARGS = {
-	metrics: DEFAULT_TRAFFIC_CHART_METRICS,
-} as const;
+const DEFAULT_CHART_ARGS = { chartType: 'line' } as const;
 
-function renderTrafficChart( { withComparison, metrics }: TrafficChartStoryControls ) {
+function renderTrafficChart( { withComparison, chartType }: TrafficChartStoryControls ) {
 	return (
 		<TrafficChartRender
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ), metrics } }
+			attributes={ {
+				reportParams: getDefaultQueryParams( withComparison ),
+				chartType,
+			} }
 		/>
 	);
 }
@@ -69,13 +67,13 @@ const meta = {
 	tags: [ 'autodocs' ],
 	argTypes: {
 		withComparison: { control: 'boolean' },
-		...METRIC_ARG_TYPES,
+		...CHART_TYPE_ARG_TYPES,
 	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					"Traffic over the selected period as selectable metric tabs — Views, Visitors, Likes, and Comments — over a comparative line chart. The date range and comparison come from the dashboard controls; the \"Group by\" control is the `granularity` attribute and the tab selection is the `metrics` attribute (both `relevance: 'high'`), exposed by the widget host. When comparison is on the previous period is overlaid as a same-colour dashed line and each tab shows its period-over-period delta. Views/visitors and likes/comments are fetched as two parallel requests (mirroring Calypso) to keep latency down; a pair's request is skipped while neither of its metrics is selected. Data comes from the `useStatsVisits` hook; in Storybook it is served by `registerReportMocks`.",
+					"Traffic over the selected period as selectable metric tabs — Views, Visitors, Likes, and Comments — over a comparative chart. The date range and comparison come from the dashboard controls. \"Group by\" is the `granularity` attribute and \"Chart type\" the `chartType` attribute (both `relevance: 'high'`, so the host renders them in the widget header). The bucket opens on whatever the page's interval control resolves to, clamped to one the chart can draw; changing it redraws this widget alone and leaves the page's interval untouched, and it goes back to following the page the next time that interval moves. Which metric is plotted is the chart's own tab selection. When comparison is on, each tab shows its period-over-period delta and the previous period is overlaid — as a same-colour dashed line for `line`, or as the translucent shadow bar behind each bar for `bar`. Views/visitors and likes/comments are fetched as two parallel requests (mirroring Calypso) to keep latency down; the likes and comments request is skipped at the hourly grain, which cannot fill either. Data comes from the `useStatsVisits` hook; in Storybook it is served by `registerReportMocks`.",
 			},
 		},
 	},
@@ -90,7 +88,7 @@ type Story = StoryObj< TrafficChartStoryControls >;
  */
 export const Default: Story = {
 	render: renderTrafficChart,
-	args: { withComparison: false, ...ALL_METRICS_ARGS },
+	args: { withComparison: false, ...DEFAULT_CHART_ARGS },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -99,16 +97,53 @@ export const Default: Story = {
  */
 export const WithComparison: Story = {
 	render: renderTrafficChart,
-	args: { withComparison: true, ...ALL_METRICS_ARGS },
+	args: { withComparison: true, ...DEFAULT_CHART_ARGS },
 	decorators: [ withWidgetCanvas ],
 };
 
 /**
- * First load: both visits fetches are in flight, so the widget shows its loading
- * state (the metric tabs over the chart's loading overlay). The mock is forced
- * to never resolve for the duration of this story. Both of the widget's requests
- * hit the same `stats/visits` path, so one override covers them.
+ * The same widget drawn as bars — the `chartType` attribute set to `bar`.
  */
+export const BarChart: Story = {
+	render: renderTrafficChart,
+	args: { withComparison: false, ...DEFAULT_CHART_ARGS, chartType: 'bar' },
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * Bars with comparison on: the previous period renders as the translucent
+ * shadow bar behind each current-period bar.
+ */
+export const BarChartWithComparison: Story = {
+	render: renderTrafficChart,
+	args: { withComparison: true, ...DEFAULT_CHART_ARGS, chartType: 'bar' },
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * An hourly range (`Last 24 hours`), where the page's interval control resolves
+ * to `hour`. `stats/visits` fills Views alone at that grain, so the other three
+ * tabs show a placeholder and, when selected, the reason — rather than a `0`
+ * they cannot back up. The likes and comments request is skipped entirely.
+ *
+ * Mounted through the dashboard harness rather than the close-up canvas: hour
+ * ticks are the point of the story, and the canvas is too narrow to draw an
+ * axis at all.
+ */
+export const Hourly: StoryObj< WidgetDashboardWithWidgetControls > = {
+	render: args => (
+		<WidgetDashboardWithWidgetStory
+			{ ...args }
+			widgetType={ storyWidgetType }
+			renderModule={ TRAFFIC_CHART_RENDER_MODULE }
+			renderComponent={ TrafficChartRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ { reportParams: getDefaultQueryParams( false, 'last-24-hours' ) } }
+		/>
+	),
+	args: { ...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS },
+	argTypes: { ...widgetDashboardWithWidgetArgTypes },
+};
+
 export const Loading: Story = {
 	render: () => renderTrafficChartOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
@@ -154,7 +189,7 @@ interface TrafficChartDashboardStoryProps
 
 function TrafficChartDashboardStory( {
 	withComparison,
-	metrics,
+	chartType,
 	...dashboardArgs
 }: TrafficChartDashboardStoryProps ) {
 	return (
@@ -163,7 +198,10 @@ function TrafficChartDashboardStory( {
 			widgetType={ storyWidgetType }
 			renderModule={ TRAFFIC_CHART_RENDER_MODULE }
 			renderComponent={ TrafficChartRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ), metrics } }
+			attributes={ {
+				reportParams: getDefaultQueryParams( withComparison ),
+				chartType,
+			} }
 		/>
 	);
 }
@@ -176,11 +214,11 @@ export const WidgetDashboardWithWidget: StoryObj< TrafficChartDashboardStoryProp
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		withComparison: true,
-		...ALL_METRICS_ARGS,
+		...DEFAULT_CHART_ARGS,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
 		withComparison: { control: 'boolean' },
-		...METRIC_ARG_TYPES,
+		...CHART_TYPE_ARG_TYPES,
 	},
 };

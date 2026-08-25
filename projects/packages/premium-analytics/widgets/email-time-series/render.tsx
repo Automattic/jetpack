@@ -3,21 +3,22 @@
  */
 import {
 	bucketStatsTimeSeries,
-	getStatsChartBucketKey,
 	toPostId,
 	useStatsEmailClicksTimeSeries,
 	useStatsEmailOpensTimeSeries,
-	type StatsEmailTimeSeriesDataPoint,
+	STATS_CHART_BUCKET_PERIODS,
 	type StatsEmailTimeSeriesReport,
 } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
-	ComparativeLineChart,
+	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
-	buildReportMetricSeries,
-	useSeriesStyles,
+	defaultPeriodForInterval,
+	toChartDate,
 	useWidgetRootContext,
+	type MetricTab,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo } from '@wordpress/element';
@@ -28,7 +29,7 @@ import { __ } from '@wordpress/i18n';
 import styles from './style.module.css';
 import type {
 	EmailTimeSeriesAttributes,
-	EmailTimeSeriesGranularity,
+	EmailTimeSeriesChartType,
 	EmailTimeSeriesMetric,
 } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -48,12 +49,6 @@ const METRIC_FIELDS: Record< EmailTimeSeriesMetric, 'opens_count' | 'clicks_coun
 	clicks: 'clicks_count',
 };
 
-/**
- * The chart line's label for a metric.
- *
- * @param metric - The active metric.
- * @return Translated series label.
- */
 function metricLabel( metric: EmailTimeSeriesMetric ): string {
 	return metric === 'clicks'
 		? __( 'Total clicks', 'jetpack-premium-analytics-pkg' )
@@ -62,79 +57,40 @@ function metricLabel( metric: EmailTimeSeriesMetric ): string {
 
 type EmailTimeSeriesReportProps = {
 	metric: EmailTimeSeriesMetric;
-	granularity: EmailTimeSeriesGranularity;
+	/** How the timeline is drawn. `MetricTabsChart` owns the default. */
+	chartType?: EmailTimeSeriesChartType;
 };
 
 /**
  * Fetches the selected email's opens or clicks timeline over the dashboard
- * date range and draws it as a line chart; with the date picker's comparison
- * on, the compare window is fetched as a second request and drawn as a dashed
- * overlay (legend switches to date-range labels). The endpoint reports daily
- * buckets; weekly/monthly granularities aggregate them client-side, with the
- * comparison bucketed relative to the primary layout. Only the active
- * metric's queries run.
- *
- * @param {EmailTimeSeriesReportProps} props - The component props.
- * @return The widget content.
+ * date range and draws it with the window total as the metric headline. The
+ * endpoint reports daily buckets; weekly/monthly intervals aggregate them
+ * client-side. Only the active metric's query runs. The post detail design
+ * has no period-over-period comparison, so comparison report params are
+ * ignored — they ride along in the URL untouched so dashboard state survives
+ * the round trip, and every widget on this page disregards them.
  */
-function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportProps ) {
+function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 	const hasSelection = postId > 0;
-	// Comparison dates only survive the report-param normalizer when the
-	// comparison toggle is on, so their presence is the comparison signal.
-	const hasComparison = !! ( reportParams.compare_from && reportParams.compare_to );
+	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 
-	// The endpoint has no comparison mode of its own, but it accepts any
-	// window (`date` is the window start), so the comparison period is just a
-	// second request scoped to the compare range.
-	const comparisonParams = useMemo(
-		() => ( {
-			...reportParams,
-			from: reportParams.compare_from ?? '',
-			to: reportParams.compare_to ?? '',
-			preset: undefined,
-			comp: undefined,
-			compare_from: undefined,
-			compare_to: undefined,
-			compare_preset: undefined,
-		} ),
-		[ reportParams ]
-	);
-
-	// All hooks are called every render (hooks rule); only the active
-	// metric's queries are enabled, and the comparison window only fetches
-	// while the date picker's comparison is on.
+	// Both hooks are called every render (hooks rule); only the active
+	// metric's query is enabled.
 	const opens = useStatsEmailOpensTimeSeries( postId, reportParams, {
 		enabled: hasSelection && metric === 'opens',
 	} );
 	const clicks = useStatsEmailClicksTimeSeries( postId, reportParams, {
 		enabled: hasSelection && metric === 'clicks',
 	} );
-	const opensComparison = useStatsEmailOpensTimeSeries( postId, comparisonParams, {
-		enabled: hasSelection && hasComparison && metric === 'opens',
-	} );
-	const clicksComparison = useStatsEmailClicksTimeSeries( postId, comparisonParams, {
-		enabled: hasSelection && hasComparison && metric === 'clicks',
-	} );
 	const active = metric === 'clicks' ? clicks : opens;
-	const activeComparison = metric === 'clicks' ? clicksComparison : opensComparison;
 
-	// A comparison failure must not silently drop the overlay while the solid
-	// line stays: surface the error and retry both windows together.
-	const isComparisonError =
-		hasComparison && activeComparison.isError && activeComparison.data === undefined;
 	const retry = useCallback( () => {
 		active.refetch();
-		if ( hasComparison ) {
-			activeComparison.refetch();
-		}
-	}, [ active, activeComparison, hasComparison ] );
+	}, [ active ] );
 
 	const report = active.data as StatsEmailTimeSeriesReport | undefined;
-	const comparisonReport = hasComparison
-		? ( activeComparison.data as StatsEmailTimeSeriesReport | undefined )
-		: undefined;
 	const field = METRIC_FIELDS[ metric ];
 
 	const chartReport = useMemo( () => {
@@ -142,87 +98,45 @@ function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportPr
 			return undefined;
 		}
 
-		if ( granularity === 'day' ) {
+		if ( period === 'day' ) {
 			return report;
 		}
 
 		// The endpoint only buckets by hour/day; weeks/months aggregate client-side.
-		return bucketStatsTimeSeries( report, granularity, point => {
+		return bucketStatsTimeSeries( report, period, point => {
 			const value = Number( point[ field ] ?? 0 );
 
 			return { value, [ field ]: value };
 		} );
-	}, [ report, granularity, field ] );
+	}, [ report, period, field ] );
 
-	// The comparison window is the same length as the primary for most presets,
-	// but previous-month/-year can differ (a 31-day month compared with a
-	// 28-day one), and either window can sit differently against calendar
-	// boundaries. So instead of calendar-bucketing the comparison directly —
-	// which could yield a different bucket count and misalign the overlay —
-	// each comparison day joins the bucket of the primary day at the same
-	// index. Comparison days past the primary window (a longer previous period)
-	// fold into the last bucket, so no comparison data is dropped and the
-	// overlay always mirrors the primary series' bucket layout.
-	const comparisonChartReport = useMemo( () => {
-		if ( ! report || ! comparisonReport ) {
-			return undefined;
-		}
+	// One metric: the headline is the window total (the timeline is summed per
+	// bucket, so the sum of buckets is the range's opens/clicks). Point dates are
+	// wall clocks, read back via `pointsAreWallClocks` (rationale in
+	// `chart-date.ts`).
+	const metricTabs = useMemo< MetricTab[] >( () => {
+		const points = ( chartReport?.data ?? [] ).map( point => ( {
+			date: toChartDate( point.date_start ),
+			value: Number( point[ field ] ?? 0 ),
+		} ) );
 
-		if ( granularity === 'day' ) {
-			return comparisonReport;
-		}
-
-		const primaryBucketKeys = report.data.map( primaryPoint =>
-			getStatsChartBucketKey( primaryPoint.time_interval, granularity )
-		);
-		if ( ! primaryBucketKeys.length ) {
-			return undefined;
-		}
-
-		const totals = new Map< string, { start: StatsEmailTimeSeriesDataPoint; value: number } >();
-		const order: string[] = [];
-		comparisonReport.data.forEach( ( comparisonPoint: StatsEmailTimeSeriesDataPoint, index ) => {
-			const key = primaryBucketKeys[ Math.min( index, primaryBucketKeys.length - 1 ) ];
-			const value = Number( comparisonPoint[ field ] ?? 0 );
-			const bucket = totals.get( key );
-			if ( bucket ) {
-				bucket.value += value;
-			} else {
-				totals.set( key, { start: comparisonPoint, value } );
-				order.push( key );
-			}
-		} );
-
-		return {
-			...comparisonReport,
-			data: order.map( key => {
-				const bucket = totals.get( key )!;
-
-				return { ...bucket.start, value: bucket.value, [ field ]: bucket.value };
-			} ),
-		};
-	}, [ report, comparisonReport, granularity, field ] );
-
-	const series = useMemo(
-		() =>
-			chartReport
-				? buildReportMetricSeries( {
-						primary: chartReport,
-						comparison: comparisonChartReport,
-						metrics: [ { key: field, label: metricLabel( metric ) } ],
-				  } )
-				: [],
-		[ chartReport, comparisonChartReport, field, metric ]
-	);
-	const seriesStyles = useSeriesStyles( series );
+		return [
+			{
+				key: field,
+				label: metricLabel( metric ),
+				value: points.reduce( ( sum, point ) => sum + point.value, 0 ),
+				current: points,
+			},
+		];
+	}, [ chartReport, field, metric ] );
 	const hasPoints = ( chartReport?.data?.length ?? 0 ) > 0;
 
 	return (
 		<div className={ styles.root }>
 			<WidgetState
 				isLoading={ active.isLoading }
-				isFetching={ active.isFetching || ( hasComparison && activeComparison.isFetching ) }
-				isError={ active.isError || isComparisonError }
+				isFetching={ active.isFetching }
+				isError={ active.isError }
 				isEmpty={ ! hasSelection || ! hasPoints }
 				error={ {
 					description: __(
@@ -240,12 +154,15 @@ function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportPr
 								'jetpack-premium-analytics-pkg'
 						  ),
 				} }
+				// The chart is the whole content here, so its block replaces the
+				// generic stacked lines.
+				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
-				<ComparativeLineChart
-					className={ styles.chart }
-					series={ series }
-					styles={ seriesStyles }
+				<MetricTabsChart
+					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
+					pointsAreWallClocks
 				/>
 			</WidgetState>
 		</div>
@@ -254,18 +171,17 @@ function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportPr
 
 /**
  * Email performance widget: a single email's opens or clicks over time —
- * the chart section of the legacy email detail page.
- *
- * @param {EmailTimeSeriesWidgetProps} props - The widget render props.
- * @return The rendered widget.
+ * the chart section of the legacy email detail page — with the window total
+ * as the metric headline.
  */
 export default function EmailTimeSeries( { attributes = {} }: EmailTimeSeriesWidgetProps ) {
 	const metric = attributes.metric ?? 'opens';
-	const granularity = attributes.granularity ?? 'day';
+	// Coerce unknown persisted values to the default.
+	const chartType = attributes.chartType === 'bar' ? 'bar' : 'line';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<EmailTimeSeriesReport metric={ metric } granularity={ granularity } />
+			<EmailTimeSeriesReport metric={ metric } chartType={ chartType } />
 		</WidgetRoot>
 	);
 }

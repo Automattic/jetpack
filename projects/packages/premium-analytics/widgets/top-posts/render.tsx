@@ -11,9 +11,11 @@ import { reports } from '@jetpack-premium-analytics/icons';
 import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	PostTitleLink,
 	ReportLink,
 	RowsCsvDownloadButton,
+	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
@@ -83,7 +85,6 @@ export type TopPostRow = {
 type TopPostsRenderAttributes = TopPostsAttributes & Partial< ReportParamsFieldAttributes >;
 type TopPostsWidgetProps = WidgetRenderProps< TopPostsRenderAttributes >;
 
-type TopPostsReportProps = { max: number };
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 /**
@@ -99,12 +100,6 @@ const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, 
  * Rows with children instead become drill-down rows (per the widget
  * drill-down convention they carry no anchors). The label fills its row so
  * the leaderboard overlay bar gets its height from it.
- *
- * @param rows           - The normalized top-posts rows.
- * @param withComparison - Whether to derive previous-period shares and deltas.
- * @param detailSearch   - Shared report-window parameters for the detail route.
- * @param onDrillDown    - Callback fired when a row with children is selected.
- * @return The leaderboard chart data.
  */
 function buildLeaderboardData(
 	rows: TopPostRow[],
@@ -200,9 +195,6 @@ type TopPostsLeaderboardProps = {
  * Presentational leaderboard for the "Most viewed" widget. Renders
  * already-fetched rows; loading, error, and empty states are owned by the
  * `<WidgetState>` wrapper in the report components.
- *
- * @param {TopPostsLeaderboardProps} props - The component props.
- * @return The rendered leaderboard.
  */
 export const TopPostsLeaderboard = ( {
 	rows = [],
@@ -227,9 +219,6 @@ export const TopPostsLeaderboard = ( {
  * `skip_archives=1` the API still returns the "Homepage (Latest posts)"
  * entry, which has no URL or post ID. Missing comparison matches stay
  * `undefined`.
- *
- * @param items - The merged comparison rows from `useStatsTopPosts`.
- * @return The normalized top-posts rows.
  */
 function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
 	return items.map( item => {
@@ -259,22 +248,20 @@ function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
  * `postviews` (titled "Homepage (Latest posts)", no URL), so it surfaces here
  * in the Posts & pages list — same distribution as the Stats "Most viewed"
  * card, where the Archives list excludes it.
- *
- * @param {TopPostsReportProps} props - The component props.
- * @return The widget content.
  */
-function TopPostsReport( { max }: TopPostsReportProps ) {
+function TopPostsReport() {
 	const { reportParams } = useWidgetRootContext();
 
-	// The widget's "Number of results" maps to the WPCOM stats API's `max`; the
-	// date range is owned by the dashboard picker and carried in `reportParams`.
-	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
+	const statsParams = useMemo(
+		() => ( { ...reportParams, max: WIDGET_ROW_LIMIT } ),
+		[ reportParams ]
+	);
 
 	// Row matching, ranked capping (the API caps `postviews` at `max` but
 	// appends the homepage entry on top of it), and comparison-overlap gating
 	// all live in the data layer's merge helper (see AGENTS.md).
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsTopPosts( statsParams, { maxRows: max } );
+		useStatsTopPosts( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo( () => toTopPostRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
 	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
@@ -336,6 +323,7 @@ function TopPostsReport( { max }: TopPostsReportProps ) {
 						icon: reports,
 						description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<TopPostsLeaderboard
 						rows={ rows }
@@ -357,9 +345,6 @@ function TopPostsReport( { max }: TopPostsReportProps ) {
 /**
  * Human-readable labels for the archive-type keys the WPCOM `stats/archives`
  * report groups by. Types the API may add later fall back to the raw key.
- *
- * @param archiveType - The raw archive-type key from the report.
- * @return The display label for the archive type.
  */
 function archiveTypeLabel( archiveType: string ): string {
 	// Same labels as the Calypso Stats "Most viewed" card's Archives tab
@@ -402,9 +387,6 @@ function archiveTypeLabel( archiveType: string ): string {
  * Humanize an intermediate group label from the API (e.g. the taxonomy key
  * `post_tag` → "Post tag", `topics` → "Topics"). Leaf labels — search
  * phrases, term names — are never passed through this.
- *
- * @param label - The raw group label.
- * @return The humanized label.
  */
 function humanizeArchiveGroupLabel( label: string ): string {
 	const spaced = label.replace( /_/g, ' ' );
@@ -418,10 +400,6 @@ function humanizeArchiveGroupLabel( label: string ): string {
  * search phrase, …) and carry their archive-page URL. Children are preserved
  * so grouped rows can drill down, and missing comparison matches stay
  * `undefined`.
- *
- * @param items      - The merged comparison rows from `useStatsArchives`.
- * @param isTopLevel - Whether the items are archive-type rows.
- * @return The leaderboard rows.
  */
 function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true ): TopPostRow[] {
 	return items.map( item => {
@@ -456,12 +434,8 @@ function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true 
  * Clicks widgets. Mirrors `TopPostsReport` otherwise: the date range and
  * comparison period come from the dashboard picker via `reportParams`, and
  * comparison UI is gated on real row overlap between the two periods.
- *
- * @param props     - The component props.
- * @param props.max - Maximum number of top-level rows to display.
- * @return The widget content.
  */
-function ArchivesReport( { max }: { max: number } ) {
+function ArchivesReport() {
 	const { reportParams } = useWidgetRootContext();
 	const { drillDownItem: drillPath, drillDown, resetDrillDown } = useWidgetDrillDown< string[] >();
 
@@ -469,7 +443,7 @@ function ArchivesReport( { max }: { max: number } ) {
 	// cannot cross-match), the visible-row cap, and the comparison-overlap
 	// gate all live in the data layer's merge helper (see AGENTS.md).
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsArchives( reportParams, { maxRows: max } );
+		useStatsArchives( reportParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
 		() =>
@@ -497,7 +471,7 @@ function ArchivesReport( { max }: { max: number } ) {
 				resolved = false;
 				break;
 			}
-			label = previousStep ?? __( 'All Archives', 'jetpack-premium-analytics-pkg' );
+			label = previousStep ?? __( 'All archives', 'jetpack-premium-analytics-pkg' );
 			list = parent.children;
 			previousStep = step;
 		}
@@ -534,7 +508,7 @@ function ArchivesReport( { max }: { max: number } ) {
 	const backLink =
 		activeRows === rows ? null : (
 			<WidgetBackLink
-				label={ backLabel ?? __( 'All Archives', 'jetpack-premium-analytics-pkg' ) }
+				label={ backLabel ?? __( 'All archives', 'jetpack-premium-analytics-pkg' ) }
 				ariaLabel={ __( 'Back to the previous archive list', 'jetpack-premium-analytics-pkg' ) }
 				onClick={ handleBack }
 			/>
@@ -561,6 +535,7 @@ function ArchivesReport( { max }: { max: number } ) {
 					icon: reports,
 					description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<TopPostsLeaderboard
 					rows={ activeRows }
@@ -573,22 +548,12 @@ function ArchivesReport( { max }: { max: number } ) {
 }
 
 /**
- * Widget render entry point.
- *
- * WidgetRoot provides the analytics query client, chart theme, and the report
- * params consumed by the inner leaderboard — resolved from the dashboard date
- * range via context, the same way the other Stats widgets read them.
- *
  * The `contentView` attribute (`relevance: 'high'`, so the widget host renders
  * its control in the frame header) switches between the Posts & pages and
  * Archives views. Attribute defaults are applied here, in exactly one place,
  * before the inner components receive them.
- *
- * @param {TopPostsWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
-	const max = attributes.max ?? 10;
 	const contentView = attributes.contentView ?? 'posts';
 
 	return (
@@ -596,13 +561,13 @@ export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
 			<div className={ styles.root }>
 				{ contentView === 'archives' ? (
 					<>
-						<ArchivesReport max={ max } />
+						<ArchivesReport />
 						<WidgetFooter>
 							<ReportLink report="posts" section="archives" />
 						</WidgetFooter>
 					</>
 				) : (
-					<TopPostsReport max={ max } />
+					<TopPostsReport />
 				) }
 			</div>
 		</WidgetRoot>

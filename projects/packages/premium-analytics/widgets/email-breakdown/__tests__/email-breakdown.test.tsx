@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
+import { WIDGET_ROW_LIMIT } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
@@ -74,10 +75,6 @@ const USER_CONTENT_LINKS_RESPONSE = {
 
 /**
  * Route a mocked links-view request to the fixture matching its breakdown path.
- *
- * @param userContentResponse - Response for the `user-content-link` breakdown.
- * @param internalResponse    - Response for the `link` breakdown.
- * @return The mock implementation for `apiFetch`.
  */
 function linksViewFetchMock(
 	userContentResponse: unknown = USER_CONTENT_LINKS_RESPONSE,
@@ -138,7 +135,21 @@ describe( 'EmailBreakdownWidget', () => {
 	} );
 
 	it( 'renders the country map from all rows while capping the adjacent leaderboard', async () => {
-		mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
+		const rowCount = WIDGET_ROW_LIMIT + 1;
+		mockApiFetch.mockResolvedValue( {
+			countries: {
+				data: Array.from( { length: rowCount }, ( _, index ) => [
+					`C${ index }`,
+					rowCount - index,
+				] ),
+			},
+			'countries-info': Object.fromEntries(
+				Array.from( { length: rowCount }, ( _, index ) => [
+					`C${ index }`,
+					{ country_full: `Country ${ index }` },
+				] )
+			),
+		} );
 
 		render(
 			<EmailBreakdownWidget
@@ -146,16 +157,18 @@ describe( 'EmailBreakdownWidget', () => {
 					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
 					view: 'countries',
 					metric: 'clicks',
-					max: 1,
 					showMap: true,
 				} }
 			/>
 		);
 
-		await expect( screen.findByText( 'United States' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'United Kingdom' ) ).not.toBeInTheDocument();
+		await expect( screen.findByText( 'Country 0' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( `Country ${ rowCount - 1 }` ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'email-breakdown-map' ) ).toBeInTheDocument();
-		expect( screen.getByTestId( 'geo-chart' ) ).toHaveAttribute( 'data-row-count', '2' );
+		expect( screen.getByTestId( 'geo-chart' ) ).toHaveAttribute(
+			'data-row-count',
+			String( rowCount )
+		);
 	} );
 
 	it( 'does not mount the country map below the map breakpoint', async () => {

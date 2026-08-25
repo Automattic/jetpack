@@ -22,12 +22,7 @@ export type StatsSubscribersParams = {
 	stat_fields?: string;
 };
 
-/**
- * Map a stats `period` onto a granularity the subscribers endpoint accepts.
- *
- * @param period - The period derived from the dashboard interval.
- * @return The nearest supported subscribers unit.
- */
+/** Map a stats `period` onto the nearest granularity the subscribers endpoint accepts. */
 function toSubscribersUnit( period?: string ): StatsSubscribersUnit {
 	return period === 'week' || period === 'month' || period === 'year' ? period : 'day';
 }
@@ -60,9 +55,6 @@ export const statsSubscribersQuery = (
  * buckets spanning the range becomes `quantity`. Wrapped in `useStatsReport`,
  * the comparison window is fetched automatically from the dashboard's compare
  * range.
- *
- * @param params - The dashboard report params.
- * @return The subscribers query options.
  */
 export const statsSubscribersReportQuery = (
 	params: StatsReportParams

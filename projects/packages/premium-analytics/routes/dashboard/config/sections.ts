@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import type { DateFilterSurface } from './date-filter';
+import type { DateFilterOptions, DateFilterSurface } from './date-filter';
 /**
  * External dependencies
  */
@@ -10,7 +10,7 @@ import type { DashboardWidget } from '@wordpress/widget-dashboard';
 /**
  * A dashboard section, served by `GET /dashboards/{name}/sections` and read
  * through the `dashboardSection` core-data entity. The server-side registry is
- * the source of truth for which sections exist, their order, and labels.
+ * the source of truth for which sections exist, their order, and their copy.
  */
 export type DashboardSection = {
 	/**
@@ -26,9 +26,24 @@ export type DashboardSection = {
 	slug: string;
 
 	/**
-	 * Translated display label.
+	 * Translated display label. Names the section's tab.
 	 */
 	label: string;
+
+	/**
+	 * Translated section heading, deliberately not the tab label: the `Traffic`
+	 * tab heads its section `Site traffic`. Read it through
+	 * `resolveSectionHeading`. Optional for the same reason as `date_filter`
+	 * below.
+	 */
+	title?: string | null;
+
+	/**
+	 * Translated section description, rendered as the page subtitle while this
+	 * section is active. Missing or `null` renders no subtitle — there is no
+	 * default copy behind it.
+	 */
+	description?: string | null;
 
 	/**
 	 * Sort order (ascending).
@@ -42,11 +57,23 @@ export type DashboardSection = {
 	 *
 	 * Optional because the field can genuinely be absent: WPCOM's public-api
 	 * registers this route from its own checkout, so a Simple site can be served
-	 * a sections payload built before the field existed. Read it through
-	 * `resolveDateFilterSurface`, which treats a missing value as the
-	 * date-range surface.
+	 * a sections payload built before the field existed. A missing value means
+	 * the date-range surface.
 	 */
 	date_filter?: DateFilterSurface;
+
+	/**
+	 * Which optional controls this section's date filter offers. Optional for
+	 * the same reason as `date_filter` above; absent means every control.
+	 */
+	date_filter_options?: DateFilterOptions;
+
+	/**
+	 * Whether the section's data only reaches WordPress.com through the analytics
+	 * full sync, so it shows sync progress until that sync has finished once.
+	 * Optional for the same reason as `date_filter` above; absent means no wait.
+	 */
+	requires_sync?: boolean;
 
 	/**
 	 * Bundled default widget layout, consumed by the reset action.
@@ -59,6 +86,34 @@ export type DashboardSection = {
  * Server-driven, so an open string.
  */
 export type DashboardSectionId = string;
+
+/**
+ * The heading a section shows above its widgets. Sections that register no
+ * heading of their own — Store today — head the section with their tab label.
+ *
+ * @param section - The section to head.
+ * @return The heading text.
+ */
+export function resolveSectionHeading( section: DashboardSection ): string {
+	// `||` rather than `??`: an empty string is a registrant meaning "none", and
+	// heading the section with it would render an `<h2>` with no accessible name.
+	return section.title || section.label;
+}
+
+/**
+ * Whether a section's data is still waiting on the analytics full sync, so its
+ * widgets show incomplete numbers.
+ *
+ * @param section        - The section to render.
+ * @param isSyncFinished - Whether the analytics initial full sync has finished.
+ * @return Whether the section is still waiting on the sync.
+ */
+export function isSectionAwaitingSync(
+	section: DashboardSection,
+	isSyncFinished: boolean
+): boolean {
+	return !! section.requires_sync && ! isSyncFinished;
+}
 
 /**
  * Narrow a candidate slug to an available section, falling back to the first

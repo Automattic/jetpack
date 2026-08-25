@@ -366,21 +366,31 @@ class Admin_UI {
 		// This callback is registered via `load-{$page_suffix}` in `enable_menu()`,
 		// so it only fires on the VideoPress admin page — no need to re-check the page here.
 		if ( self::is_modernized() ) {
+			Admin_Menu::enqueue_design_tokens();
+
 			// Page-level shell stylesheet: scopes the shared `jetpack-admin-page-layout`
 			// mixin to the dashboard body so every route inherits the proper
 			// scrollable chrome (fixed `#wpbody-content`, scrollable middle, pinned
 			// footer) regardless of whether it uses DashboardLayout. Without this,
 			// non-tabbed routes (e.g. Video details) would only get the layout
 			// after a sibling route's chunk happened to inject the same CSS.
-			$shell_css = dirname( __DIR__ ) . '/build/dashboard-shell/index.css';
-			if ( file_exists( $shell_css ) ) {
+			// Pick the flipped build ourselves on RTL locales rather than leaning on
+			// `wp_style_add_data( …, 'rtl', 'replace' )`: core resolves that by
+			// rewriting `index.css` to `index-rtl.css` (hyphenated) *and* dropping
+			// the LTR tag, but webpack emits the flipped file as `index.rtl.css`
+			// (dotted, the same convention `Assets::register_script()`'s `css_path`
+			// follows). The hyphenated file never exists, so RTL sites used to load
+			// no shell stylesheet at all — the layout flex chain never formed and
+			// the dashboard rendered as a blank page.
+			$shell_dir  = dirname( __DIR__ ) . '/build/dashboard-shell/';
+			$shell_file = is_rtl() && file_exists( $shell_dir . 'index.rtl.css' ) ? 'index.rtl.css' : 'index.css';
+			if ( file_exists( $shell_dir . $shell_file ) ) {
 				wp_register_style(
 					'jetpack-videopress-dashboard-shell',
-					plugins_url( 'build/dashboard-shell/index.css', __DIR__ ),
+					plugins_url( 'build/dashboard-shell/' . $shell_file, __DIR__ ),
 					array(),
-					(string) filemtime( $shell_css )
+					(string) filemtime( $shell_dir . $shell_file )
 				);
-				wp_style_add_data( 'jetpack-videopress-dashboard-shell', 'rtl', 'replace' );
 				wp_enqueue_style( 'jetpack-videopress-dashboard-shell' );
 			}
 
@@ -725,7 +735,7 @@ class Admin_UI {
 	 * filtering the global just before it is consumed keeps the chapters editor
 	 * route modules from ever being registered.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.45.0
 	 *
 	 * @internal Only public so the wp-build page init actions can invoke it.
 	 *
@@ -753,7 +763,7 @@ class Admin_UI {
 	 * Pure helper extracted from `maybe_strip_chapters_editor_routes()` so the
 	 * filtering logic is unit-testable without the generated global.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.45.0
 	 *
 	 * @internal For use by `maybe_strip_chapters_editor_routes()` and tests only.
 	 *
@@ -810,7 +820,7 @@ class Admin_UI {
 	 * editor's "Manage chapters" toolbar button all stay hidden unless a site
 	 * explicitly opts in via the filter.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.45.0
 	 *
 	 * @return bool
 	 */
@@ -820,7 +830,7 @@ class Admin_UI {
 		 *
 		 * Gates UI only — the chapters REST surface stays registered either way.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.45.0
 		 *
 		 * @param bool $enabled Whether the chapters editor UI is enabled. Default false.
 		 */

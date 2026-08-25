@@ -1012,7 +1012,7 @@ class ManagerTest extends TestCase {
 			array( 'abcde:1:aaa', 'bogus signature', 'malformed_user_id' ),
 			array( 'bogus token', 'bogus signature', 'malformed_token' ),
 			array( 'abcde:1:987', 'bogus signature', 'unknown_user' ),
-			array( 'abcde:1:0', 'bogus signature', 'unknown_token' ),
+			array( 'abcde:1:0', 'bogus signature', 'tokens_locked' ),
 		);
 	}
 	/**

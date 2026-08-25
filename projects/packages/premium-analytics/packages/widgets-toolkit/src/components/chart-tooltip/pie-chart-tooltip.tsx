@@ -16,9 +16,6 @@ export type PieChartTooltipProps = {
 	 */
 	tooltipData: DataPointPercentage;
 
-	/**
-	 * Format configuration for the value display.
-	 */
 	dataFormat: DataFormat;
 };
 

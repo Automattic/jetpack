@@ -1,16 +1,11 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { tag } from '@wordpress/icons';
+import { category } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-export type TagsAttributes = {
-	/**
-	 * Maximum number of rows to display.
-	 */
-	max?: number;
-};
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type TagsAttributes = Record< never, never >;
 
 /**
  * Widget type definition for the Tags & categories widget.
@@ -23,17 +18,9 @@ export type TagsAttributes = {
  * archive URL and drill down to their individual members instead.
  */
 export default {
-	icon: tag,
-	attributes: [
-		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
-			type: 'integer',
-		},
-	] as WidgetAttributeField< TagsAttributes >[],
+	icon: category,
+	attributes: [] as WidgetAttributeField< TagsAttributes >[],
 	example: {
-		attributes: {
-			max: 10,
-		},
+		attributes: {},
 	},
 };

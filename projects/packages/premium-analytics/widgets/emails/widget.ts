@@ -23,10 +23,6 @@ export type EmailMetric = 'opens' | 'clicks';
  */
 export type EmailsAttributes = {
 	/**
-	 * Number of emails to show. `0` means as many as the endpoint returns (max 30).
-	 */
-	max?: number;
-	/**
 	 * Which rate to display. Defaults to `opens`.
 	 */
 	metric?: EmailMetric;
@@ -45,22 +41,17 @@ export default {
 	icon: envelope,
 	attributes: [
 		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
-			type: 'integer',
-		},
-		{
 			id: 'metric',
 			label: __( 'View by', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
+					label: __( 'By open rate', 'jetpack-premium-analytics-pkg' ),
 					value: 'opens',
 				},
 				{
-					label: __( 'Click rate', 'jetpack-premium-analytics-pkg' ),
+					label: __( 'By click rate', 'jetpack-premium-analytics-pkg' ),
 					value: 'clicks',
 				},
 			],
@@ -69,7 +60,6 @@ export default {
 	] as WidgetAttributeField< EmailsAttributes >[],
 	example: {
 		attributes: {
-			max: 10,
 			metric: 'opens',
 		},
 	},

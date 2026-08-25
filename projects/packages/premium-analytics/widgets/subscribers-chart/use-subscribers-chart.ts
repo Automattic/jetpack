@@ -3,11 +3,11 @@
  */
 import {
 	useStatsSubscribersReport,
-	localTZDate,
 	type ReportParams,
 	type StatsSubscribersResponse,
 	type StatsSubscribersUnit,
 } from '@jetpack-premium-analytics/data';
+import { toChartDate } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 
 /**
@@ -40,15 +40,11 @@ export interface SubscribersChartState {
 	refetch: () => void;
 }
 
-/**
- * Map a normalized subscribers report into the chart's point shape.
- *
- * @param report - The normalized report, or undefined while loading.
- * @return One point per period, oldest first.
- */
+// Wall clocks, not instants — the chart reads them back via
+// `pointsAreWallClocks` (rationale in `chart-date.ts`).
 function toPoints( report: StatsSubscribersResponse | undefined ): SubscribersChartPoint[] {
 	return ( report?.data ?? [] ).map( point => ( {
-		date: localTZDate( point.date_start ),
+		date: toChartDate( point.date_start ),
 		subscribers: Number( point.subscribers ?? point.value ?? 0 ),
 		paid: Number( point.subscribers_paid ?? 0 ),
 	} ) );
@@ -56,17 +52,12 @@ function toPoints( report: StatsSubscribersResponse | undefined ): SubscribersCh
 
 /**
  * Fetch the subscribers time series for the dashboard's date range at the
- * selected granularity, together with the dashboard comparison window.
+ * given bucket size, together with the dashboard comparison window.
  *
- * The dashboard date range drives the window and the previous-period overlay is
- * driven by the dashboard's comparison state; the in-body granularity control
- * only overrides which `unit` the range is bucketed into. Both windows are
- * fetched by `useStatsSubscribersReport`, which layers the comparison range on
- * top of `reportParams`.
- *
- * @param reportParams - The dashboard report params (date range + comparison).
- * @param period       - Selected granularity (day/week/month).
- * @return The current/previous series, totals, and load state.
+ * The dashboard drives all three: the range, the previous-period overlay via
+ * its comparison state, and `period` via its chart interval control. Both
+ * windows are fetched by `useStatsSubscribersReport`, which layers the
+ * comparison range on top of `reportParams`.
  */
 export default function useSubscribersChart(
 	reportParams: ReportParams,

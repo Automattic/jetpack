@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useNavigate } from '@wordpress/route';
 import { resetFeatures, setFeatures } from '../../../src/dashboard/test-utils/features';
@@ -51,8 +51,27 @@ jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 		</div>
 	),
 } ) );
+// Renders `items` rather than a hardcoded trail, splitting link-vs-<h1> the
+// way the real component does (@wordpress/admin-ui breadcrumbs/index.tsx:
+// every item but the last is a router link; the last, when it carries no
+// `to`, is the page's only <h1>). The live-title cases below read that
+// heading, so a hardcoded stub would make them assert nothing.
 jest.mock( '@wordpress/admin-ui', () => ( {
-	Breadcrumbs: () => <a href="/">VideoPress</a>,
+	Breadcrumbs: ( { items }: { items: { label: string; to?: string }[] } ) => {
+		const last = items[ items.length - 1 ];
+		return (
+			<nav>
+				<ul>
+					{ items.slice( 0, -1 ).map( ( item, index ) => (
+						<li key={ index }>
+							<a href={ item.to }>{ item.label }</a>
+						</li>
+					) ) }
+					<li>{ last.to ? <a href={ last.to }>{ last.label }</a> : <h1>{ last.label }</h1> }</li>
+				</ul>
+			</nav>
+		);
+	},
 } ) );
 
 // Variables referenced inside jest.mock() factories must be prefixed with
@@ -89,9 +108,21 @@ jest.mock( '../../../src/dashboard/components/video-details/preview-player', () 
 	__esModule: true,
 	default: () => <div data-testid="preview-player" />,
 } ) );
+jest.mock( '../../../src/dashboard/components/video-details/video-info-card', () => ( {
+	__esModule: true,
+	default: () => <div data-testid="video-info-card" />,
+} ) );
+// Both carry their own queries — the poster mutation and frame picker in one,
+// the tracks fetch in the other — which would otherwise mount against this
+// file's catch-all apiFetch handler. VideoDetailsCard stays real; the tests
+// type into its fields.
 jest.mock( '../../../src/dashboard/components/video-details/thumbnail-card', () => ( {
 	__esModule: true,
 	default: () => <div data-testid="thumbnail-card" />,
+} ) );
+jest.mock( '../../../src/dashboard/components/video-details/subtitles-card', () => ( {
+	__esModule: true,
+	default: () => <div data-testid="subtitles-card" />,
 } ) );
 jest.mock( '../../../src/dashboard/components/video-details/privacy-sharing-card', () => ( {
 	__esModule: true,
@@ -213,6 +244,46 @@ describe( 'video stage', () => {
 		resetFeatures();
 	} );
 
+	/*
+	 * The layout contract. The player is a grid sibling of the canvas and the
+	 * settings panel, not a child of either, because it is placed by grid area —
+	 * that is what lets the stacked layout below 1100px lead with the player
+	 * while the settings stay last. Nesting it inside the panel would look
+	 * equivalent and silently invert the narrow-viewport order, so pin that it
+	 * is outside.
+	 */
+	it( 'keeps the player out of the settings panel', async () => {
+		await renderReadyStage();
+
+		const panel = screen.getByRole( 'complementary', { name: 'Video settings' } );
+
+		expect( within( panel ).getByTestId( 'video-info-card' ) ).toBeInTheDocument();
+		expect( within( panel ).queryByTestId( 'preview-player' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'preview-player' ) ).toBeInTheDocument();
+	} );
+
+	/*
+	 * The split is authoring vs. configuring, not editable vs. read-only. The
+	 * canvas holds what a person writes; the panel holds the read-outs plus the
+	 * settings picked once from a fixed set. Named cards rather than a count, so
+	 * putting one in the wrong column fails here.
+	 */
+	it( 'groups the settings with the read-outs, and the authoring outside them', async () => {
+		await renderReadyStage();
+
+		const panel = screen.getByRole( 'complementary', { name: 'Video settings' } );
+
+		// Configured once, then left alone.
+		expect( within( panel ).getByTestId( 'privacy-sharing-card' ) ).toBeInTheDocument();
+		expect( within( panel ).getByTestId( 'rating-card' ) ).toBeInTheDocument();
+
+		// Authored — on the canvas, so present on the page but not in the panel.
+		expect( screen.getByTestId( 'thumbnail-card' ) ).toBeInTheDocument();
+		expect( within( panel ).queryByTestId( 'thumbnail-card' ) ).not.toBeInTheDocument();
+		expect( within( panel ).queryByTestId( 'subtitles-card' ) ).not.toBeInTheDocument();
+		expect( within( panel ).queryByLabelText( 'Title' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'renders the Details / Editor sub-nav with Details active', async () => {
 		await renderReadyStage();
 
@@ -309,6 +380,35 @@ describe( 'video stage', () => {
 		// The description didn't change, so the VTT is already in sync.
 		expect( mockSyncChapters ).not.toHaveBeenCalled();
 		expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Video details saved.' );
+	} );
+
+	// The crumb is the page's <h1>. It reads the form's live value, so it has
+	// to follow typing — and it must not turn typing into a save.
+	it( 'tracks the title in the breadcrumb heading as it is typed, without saving', async () => {
+		const user = userEvent.setup();
+
+		await renderReadyStage();
+		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'My Clip' );
+
+		await user.type( screen.getByLabelText( 'Title' ), ' 2' );
+
+		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'My Clip 2' );
+		expect( mockUpdateMeta ).not.toHaveBeenCalled();
+	} );
+
+	// An empty label renders an empty <h1>, which would leave the page with no
+	// accessible name mid-edit; whitespace has to count as empty too.
+	it( 'falls back to Untitled when the title is cleared or only whitespace', async () => {
+		const user = userEvent.setup();
+
+		await renderReadyStage();
+		await user.clear( screen.getByLabelText( 'Title' ) );
+
+		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'Untitled' );
+
+		await user.type( screen.getByLabelText( 'Title' ), '   ' );
+
+		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'Untitled' );
 	} );
 
 	it( 'skips the chapters sync and shows an error when the meta save fails', async () => {

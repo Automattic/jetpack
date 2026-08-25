@@ -1,4 +1,5 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "../shared/styles/field-hints" as *;
 
 :where(.jetpack-contact-form) {
 	border-width: 0;
@@ -12,10 +13,20 @@
 	gap: var(--wp--style--block-gap, 1.5rem);
 
 	.wp-block {
+		max-width: 100%;
+	}
+
+	// Only the form's own children are full-width rows with the flex gap
+	// standing in for block margins. Without the child combinator these also
+	// match blocks nested inside a Columns or Group added to the form: the
+	// flex rule forced every column to 100% so they stacked in the editor
+	// while the front end kept them side by side, and zeroing the margins
+	// collapsed the spacing between a container's own children, which the
+	// front end still renders with the theme's block gap.
+	> .wp-block {
 		flex: 0 0 100%;
 		margin-top: 0;
 		margin-bottom: 0;
-		max-width: 100%;
 	}
 
 	> div {
@@ -79,9 +90,17 @@
 		// not horizontal or vertical means a form created
 		// before layout support was added
 
-		.wp-block {
+		// The form's flex gap stands in for block margins, so its own children
+		// have theirs zeroed. Scoped to direct children: a Group or Columns
+		// added to the form lays its children out itself, and the front end
+		// spaces them with the theme's block gap, so zeroing them here would
+		// collapse that spacing in the editor only.
+		> .wp-block {
 			margin-top: 0;
 			margin-bottom: 0;
+		}
+
+		.wp-block {
 			max-width: 100%;
 
 			&.wp-block-button,
@@ -343,6 +362,7 @@
 	flex-wrap: wrap;
 	justify-content: flex-start;
 	align-items: baseline;
+	margin-bottom: 0; /* Override default margin on classic theme wp-block */
 
 	.components-base-control {
 		margin-top: -1px;
@@ -353,11 +373,6 @@
 	.jetpack-field-label__input.jetpack-field-label__input {
 		cursor: text;
 		margin-bottom: 0.25em;
-	}
-
-	.jetpack-field-label__suffix {
-		margin-inline-start: 0.25em;
-		font-weight: 700;
 	}
 
 	.components-toggle-control .components-base-control__field {
@@ -813,7 +828,11 @@
 	.is-style-outlined &,
 	.is-style-animated & {
 
-		.jetpack-field {
+		// The outer field anchors absolutely-positioned labels for field types
+		// with no control wrapper; the control wrapper anchors them for the
+		// rest, so the label sizes to label+input and not to the hints below.
+		.jetpack-field,
+		.jetpack-field__control {
 			position: relative;
 		}
 	}
@@ -875,10 +894,6 @@
 				transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 				margin: 0;
 				z-index: 1;
-
-				.jetpack-field-label__suffix {
-					font-weight: 300;
-				}
 			}
 
 			:where(.notched-label__filler) {
@@ -936,8 +951,7 @@
 					font-size: 0.68em;
 				}
 
-				.jetpack-field-label__input,
-				.jetpack-field-label__suffix {
+				.jetpack-field-label__input {
 					font-size: 0.8em;
 				}
 
@@ -1064,8 +1078,7 @@
 				transform: translateY(0);
 				top: calc(2px + var(--jetpack--contact-form--border-top-size, 1px));
 
-				.jetpack-field-label__input,
-				.jetpack-field-label__suffix {
+				.jetpack-field-label__input {
 					font-size: 0.75em;
 				}
 

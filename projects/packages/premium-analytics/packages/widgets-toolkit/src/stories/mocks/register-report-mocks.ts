@@ -85,6 +85,8 @@ const STATS_SUBSCRIBERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/s
 // is matched on its own rather than through routeStatsReport().
 const STATS_SUBSCRIBERS_COUNTS_PATH = '/jetpack-premium-analytics/v1/proxy/v2/subscribers/counts';
 const STATS_VISITS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits';
+const STATS_VIEWS_BY_HOUR_PATH =
+	'/jetpack-premium-analytics/v1/proxy/v1.1/stats/views-by/hour-of-day';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
 // Plan usage is served off the v2 base (not under /v1.1/stats), so it needs its
@@ -125,7 +127,8 @@ const STATS_API_BASE = '/jetpack-premium-analytics/v1/proxy/v1.1/stats';
  * Days of mock data to generate (covering past requests).
  */
 const SPECTRUM_DAYS = 90;
-const DAY_MS = 24 * 60 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
 
 /**
  * Parameters for dynamic mock data generation.
@@ -174,6 +177,16 @@ type ReportMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
 const mockStateOverrides = new Map< string, ReportMockState >();
 
 /**
+ * Clear cached queries after a forced mock override changes.
+ *
+ * Forced-state stories are excluded from autodocs, so clearing the shared cache
+ * is safe and avoids coupling mocks to widget query keys.
+ */
+export function resetForcedStateQueries(): void {
+	queryClient.clear();
+}
+
+/**
  * Force every request whose path contains `pathFragment` into a loading or error
  * state, or clear the override with `null`. Intended for a story's `beforeEach`
  * (set on enter, clear on cleanup). Because the override is keyed by path, scope
@@ -189,6 +202,7 @@ export function setReportMockState( pathFragment: string, state: ReportMockState
 	} else {
 		mockStateOverrides.set( pathFragment, state );
 	}
+	resetForcedStateQueries();
 }
 
 /**
@@ -265,6 +279,7 @@ export function setReportMockResponse( pathFragment: string, response: unknown |
 	} else {
 		mockResponseOverrides.set( pathFragment, response );
 	}
+	resetForcedStateQueries();
 }
 
 /**
@@ -297,11 +312,6 @@ function getMockParams(): MockDataParams {
 	return { ...getMockParamsFromPreset( 'default' ), ...fromGlobal };
 }
 
-/**
- * Gets the end date for the mock data spectrum (end of today).
- *
- * @return Date set to the end of today (23:59:59.999).
- */
 function getSpectrumToday(): Date {
 	const today = new Date();
 	today.setHours( 23, 59, 59, 999 );
@@ -768,9 +778,11 @@ function routeReport( subPath: string, query: URLSearchParams ): unknown {
  * expects (`{ subscribers, total, … }`); `total` exceeds the shown rows so the
  * "N more" footer appears.
  *
+ * @param max - Page size from the request's `max` query param; `0` or a missing
+ *            param returns every row.
  * @return Raw followers response.
  */
-function buildFollowersResponse() {
+function buildFollowersResponse( max: number ) {
 	const now = Date.now();
 	const MINUTE = 60 * 1000;
 	const HOUR = 60 * MINUTE;
@@ -782,8 +794,15 @@ function buildFollowersResponse() {
 		{ name: 'Emma Rossi', offset: 3 * HOUR },
 		{ name: 'Aarav Patel', offset: 5 * HOUR },
 		{ name: 'Sofia Nguyen', offset: DAY },
+		{ name: 'Chloe Dubois', offset: 2 * DAY },
+		{ name: 'Liam Carter', offset: 3 * DAY },
+		{ name: 'Mia Andersson', offset: 4 * DAY },
+		{ name: 'Noah Bergström', offset: 5 * DAY },
+		{ name: 'Priya Sharma', offset: 6 * DAY },
+		{ name: 'Tomás Silva', offset: 8 * DAY },
 	];
-	const subscribers = people.map( ( person, index ) => ( {
+	// Match the requested page size.
+	const subscribers = people.slice( 0, max > 0 ? max : undefined ).map( ( person, index ) => ( {
 		ID: 1000 + index,
 		subscription_id: 1000 + index,
 		display_name: person.name,
@@ -857,7 +876,9 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 		date: endDate.toISOString().slice( 0, 10 ),
 		unit,
 		fields: [ 'period', 'subscribers', 'subscribers_paid' ],
-		data: rows,
+		// Newest first, as the live endpoint returns them. An oldest-first mock here
+		// hid WOOA7S-1907.
+		data: rows.reverse(),
 	};
 }
 
@@ -865,6 +886,94 @@ function buildSubscribersResponse( query: URLSearchParams ) {
  * Number of days a unit step spans, used to lay out mock visits buckets.
  */
 const VISITS_STEP_DAYS: Record< string, number > = { day: 1, week: 7, month: 30, year: 365 };
+
+/**
+ * Build an hour-of-day response over the requested date range.
+ */
+function buildHourOfDayResponse( query: URLSearchParams ) {
+	const endDate = parseDateParam( query.get( 'date' ), new Date() );
+	const requestedDays = Number.parseInt( query.get( 'days' ) ?? '', 10 );
+	const fallbackDays = Number.isInteger( requestedDays ) && requestedDays > 0 ? requestedDays : 30;
+	const startDate = parseDateParam(
+		query.get( 'start_date' ),
+		new Date( endDate.getTime() - ( fallbackDays - 1 ) * DAY_MS )
+	);
+	const days = Math.max(
+		1,
+		Math.round( ( endDate.getTime() - startDate.getTime() ) / DAY_MS ) + 1
+	);
+
+	// Two peaks make the distribution easier to read in Storybook.
+	const data = Array.from( { length: 24 }, ( _, hour ) => {
+		const evening = 900 * Math.exp( -( ( hour - 19 ) ** 2 ) / 6 );
+		const morning = 420 * Math.exp( -( ( hour - 10 ) ** 2 ) / 8 );
+
+		return [ String( hour ).padStart( 2, '0' ), Math.round( ( 60 + evening + morning ) * days ) ];
+	} );
+
+	return {
+		date: endDate.toISOString().slice( 0, 10 ),
+		start_date: startDate.toISOString().slice( 0, 10 ),
+		days,
+		dimension: 'hour-of-day',
+		utc_offset: '+00:00',
+		fields: [ 'period', 'views' ],
+		data,
+	};
+}
+
+/**
+ * The hourly slice of `stats/visits`.
+ *
+ * Two things set it apart from the coarser units, and both are what the real
+ * endpoint does: the bucket's date and hour are packed into a single `period`
+ * string rather than split across columns, and only Views carries a number —
+ * every other requested field comes back `null`.
+ *
+ * @param query   - Parsed query params (`start_date`, `quantity`, `stat_fields`).
+ * @param fields  - The requested stat fields, in order.
+ * @param endDate - The last bucket's instant.
+ * @return Raw hourly visits response in the WPCOM matrix shape.
+ */
+function buildHourlyVisitsResponse( query: URLSearchParams, fields: string[], endDate: Date ) {
+	// Counted from the range, as the endpoint does, rather than from `quantity`:
+	// a range-bounded request carries no `quantity`, so reading one would peg
+	// every hourly story to 24 buckets whatever window it asked for. `quantity`
+	// stays as the fallback for the range-less shape.
+	const startDate = query.get( 'start_date' )
+		? parseDateParam( query.get( 'start_date' ), endDate )
+		: null;
+	const spanHours = startDate
+		? Math.floor( ( endDate.getTime() - startDate.getTime() ) / HOUR_MS ) + 1
+		: Number( query.get( 'quantity' ) ) || 24;
+	const count = Math.max( 1, Math.min( 400, spanHours ) );
+
+	const rows = Array.from( { length: count }, ( _, index ) => {
+		const bucket = new Date( endDate );
+		bucket.setUTCHours( bucket.getUTCHours() - ( count - 1 - index ), 0, 0, 0 );
+
+		const hour = bucket.getUTCHours();
+		const period = `${ bucket.toISOString().slice( 0, 10 ) } ${ String( hour ).padStart(
+			2,
+			'0'
+		) }:00:00`;
+		// A daily rhythm — quiet overnight, busiest mid-afternoon — so the shape
+		// reads as hourly traffic rather than noise.
+		const views = Math.max(
+			0,
+			Math.round( 70 + 55 * Math.sin( ( ( hour - 4 ) / 24 ) * 2 * Math.PI ) + 8 * Math.cos( hour ) )
+		);
+
+		return [ period, ...fields.map( field => ( field === 'views' ? views : null ) ) ];
+	} );
+
+	return {
+		date: endDate.toISOString().slice( 0, 10 ),
+		unit: 'hour',
+		fields: [ 'period', ...fields ],
+		data: rows,
+	};
+}
 
 /**
  * Builds the stats/visits time-series response for the traffic chart.
@@ -885,6 +994,11 @@ function buildVisitsResponse( query: URLSearchParams ) {
 	const stepDays = VISITS_STEP_DAYS[ unit ] ?? 1;
 	const fields = ( query.get( 'stat_fields' ) || 'views,visitors' ).split( ',' );
 	const endDate = parseDateParam( query.get( 'date' ), new Date() );
+
+	if ( unit === 'hour' ) {
+		return buildHourlyVisitsResponse( query, fields, endDate );
+	}
+
 	const startDate = parseDateParam(
 		query.get( 'start_date' ),
 		new Date( endDate.getTime() - 29 * stepDays * DAY_MS )
@@ -1093,6 +1207,16 @@ function getQueryParam( requestPath: string, key: string ): string | undefined {
 	const query = requestPath.split( '?' )[ 1 ];
 
 	return query ? new URLSearchParams( query ).get( key ) ?? undefined : undefined;
+}
+
+/**
+ * Parse the query string of a (possibly relative) apiFetch request path.
+ *
+ * @param requestPath - The request path, with or without a query string.
+ * @return The parsed params, empty when the path carries none.
+ */
+function queryParamsOf( requestPath: string ): URLSearchParams {
+	return new URLSearchParams( requestPath.split( '?' )[ 1 ] ?? '' );
 }
 
 /**
@@ -1363,6 +1487,18 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 			return new Promise< never >( () => {} );
 		}
 		if ( state === 'empty' ) {
+			if ( requestPath.startsWith( STATS_VIEWS_BY_HOUR_PATH ) ) {
+				// `sanitizeStatsHourOfDayResponse` throws on any other `dimension`, so the
+				// generic empty payload below would render the error state here instead.
+				return {
+					date: '2026-01-01',
+					start_date: '2025-12-03',
+					days: 30,
+					dimension: 'hour-of-day',
+					fields: [ 'period', 'views' ],
+					data: [],
+				};
+			}
 			// A valid response with no rows across the shapes report sanitizers read
 			// (`summary` / `days` / `data`), so the widget resolves to its empty state.
 			return { date: '2026-01-01', period: 'day', summary: {}, days: {}, data: [] };
@@ -1403,7 +1539,11 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 	}
 
 	if ( requestPath.startsWith( STATS_FOLLOWERS_PATH ) ) {
-		return buildFollowersResponse();
+		const queryIndex = requestPath.indexOf( '?' );
+		const query = new URLSearchParams(
+			queryIndex === -1 ? '' : requestPath.slice( queryIndex + 1 )
+		);
+		return buildFollowersResponse( Number( query.get( 'max' ) ) );
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_COUNTS_PATH ) ) {
@@ -1417,11 +1557,12 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 		);
 	}
 
+	if ( requestPath.startsWith( STATS_VIEWS_BY_HOUR_PATH ) ) {
+		return buildHourOfDayResponse( queryParamsOf( requestPath ) );
+	}
+
 	if ( requestPath.startsWith( STATS_VISITS_PATH ) ) {
-		const queryIndex = requestPath.indexOf( '?' );
-		return buildVisitsResponse(
-			new URLSearchParams( queryIndex === -1 ? '' : requestPath.slice( queryIndex + 1 ) )
-		);
+		return buildVisitsResponse( queryParamsOf( requestPath ) );
 	}
 
 	if ( requestPath.startsWith( STATS_EMAIL_SUMMARY_PATH ) ) {

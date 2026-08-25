@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Analytics dashboard: Compute date-filter day boundaries in the site's timezone, so visitors west of the site timezone no longer get stretched ranges or wrong chart buckets.

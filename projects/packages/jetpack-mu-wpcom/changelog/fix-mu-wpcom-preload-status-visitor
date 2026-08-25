@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack AI: Keep AI working on Atomic sites where the new AI module has not activated, and load the newest Status package Visitor class first so a plugin bundling an older copy no longer breaks the editor.

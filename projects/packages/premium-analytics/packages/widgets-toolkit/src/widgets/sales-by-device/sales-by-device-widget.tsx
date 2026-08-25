@@ -5,7 +5,7 @@ import { useReportOrderAttribution, type FilterCondition } from '@jetpack-premiu
 import { device } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { BarChart, WidgetState } from '../../components';
+import { BarChart, BarChartSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
@@ -22,44 +22,15 @@ type SalesByDeviceWidgetProps = {
 	 */
 	filter?: FilterCondition;
 
-	/**
-	 * Copy for the empty state.
-	 */
 	emptyStateText?: string;
 
-	/**
-	 * Copy for the error state.
-	 */
 	errorText?: string;
 };
 
 /**
- * Sales by Device Widget Component
+ * Bar chart of sales by device type (Desktop, Mobile, Tablet).
  *
- * Displays a bar chart showing sales breakdown by device type (Desktop, Mobile, Tablet).
- *
- * Features:
- * - Optional product type filtering (e.g., bookings only)
- * - Comparison support (current vs previous period)
- *
- * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @param props                - Component props
- * @param props.filter         - Optional product type filter
- * @param props.emptyStateText - Copy for the empty state
- * @param props.errorText      - Copy for the error state
- *
- * @example
- * // All product types
- * <WidgetRoot attributes={ attributes }>
- *     <SalesByDeviceWidget />
- * </WidgetRoot>
- *
- * @example
- * // Bookings only
- * <WidgetRoot attributes={ attributes }>
- *     <SalesByDeviceWidget filter={ BOOKINGS_FILTER } />
- * </WidgetRoot>
+ * Must render within a WidgetRoot, which provides reportParams via context.
  */
 export function SalesByDeviceWidget( {
 	filter,
@@ -68,7 +39,6 @@ export function SalesByDeviceWidget( {
 }: SalesByDeviceWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
 
-	// Add the device view to params
 	const paramsWithView = useMemo(
 		() => ( {
 			...reportParams,
@@ -90,7 +60,7 @@ export function SalesByDeviceWidget( {
 
 	return (
 		<WidgetState
-			isLoading={ isLoading && ! hasData }
+			isLoading={ isLoading }
 			isFetching={ isFetching }
 			// The report queries keep the previous period's data as placeholders
 			// across range changes, so only surface the error when there is
@@ -111,6 +81,7 @@ export function SalesByDeviceWidget( {
 				description:
 					emptyStateText ?? __( 'No sales data in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <BarChartSkeleton /> }
 		>
 			<BarChart
 				chartData={ chartData }

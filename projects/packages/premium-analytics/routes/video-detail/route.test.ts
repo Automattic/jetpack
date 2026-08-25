@@ -2,6 +2,7 @@ import { needsReportDateParamsSeed } from '@jetpack-premium-analytics/data';
 import {
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
+	isVideoPressAvailable,
 } from '../site-readiness';
 import { route } from './route';
 
@@ -21,6 +22,7 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsSiteConnected: jest.fn( () => true ),
 	isPremiumAnalyticsInitialSyncFinished: jest.fn( () => true ),
+	isVideoPressAvailable: jest.fn( () => true ),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -59,10 +61,10 @@ describe( 'video detail route.beforeLoad', () => {
 		await expect( beforeLoad( { videoId: '42' } ) ).rejects.toMatchObject( { to: '/connect' } );
 	} );
 
-	it( 'redirects to /syncing before the initial sync finishes', async () => {
+	it( 'loads the page before the initial sync finishes', async () => {
 		( isPremiumAnalyticsInitialSyncFinished as jest.Mock ).mockReturnValueOnce( false );
 
-		await expect( beforeLoad( { videoId: '42' } ) ).rejects.toMatchObject( { to: '/syncing' } );
+		await expect( beforeLoad( { videoId: '42' }, settledSearch ) ).resolves.toBeUndefined();
 	} );
 
 	it.each( [ undefined, '', 'abc', '-3', '0', '1.5' ] )(
@@ -73,6 +75,14 @@ describe( 'video detail route.beforeLoad', () => {
 			} );
 		}
 	);
+
+	it( 'redirects home without VideoPress', async () => {
+		( isVideoPressAvailable as jest.Mock ).mockReturnValueOnce( false );
+
+		await expect( beforeLoad( { videoId: '42' }, settledSearch ) ).rejects.toMatchObject( {
+			to: '/',
+		} );
+	} );
 
 	it( 'passes through a settled URL without redirecting', async () => {
 		await expect( beforeLoad( { videoId: '42' }, settledSearch ) ).resolves.toBeUndefined();
@@ -140,5 +150,34 @@ describe( 'video detail route.beforeLoad', () => {
 		// Registered now, so the next pass skips.
 		await beforeLoad( { videoId: '42' }, settledSearch );
 		expect( mockAddEntities ).toHaveBeenCalledTimes( 1 );
+	} );
+} );
+
+describe( 'video detail route report origin', () => {
+	afterEach( () => {
+		jest.clearAllMocks();
+		mockGetEntityConfig.mockReturnValue( {} );
+	} );
+
+	it( 'carries the report origin through the seeding redirect', async () => {
+		await expect(
+			beforeLoad(
+				{ videoId: '42' },
+				{ ...settledSearch, post_id: '7', ref: 'utm', ref_section: 'campaign' }
+			)
+		).rejects.toMatchObject( {
+			to: '/video/$videoId',
+			search: expect.objectContaining( {
+				post_id: '42',
+				ref: 'utm',
+				ref_section: 'campaign',
+			} ),
+		} );
+	} );
+
+	it( 'does not redirect when a settled search already carries the origin', async () => {
+		await expect(
+			beforeLoad( { videoId: '42' }, { ...settledSearch, ref: 'utm', ref_section: 'campaign' } )
+		).resolves.toBeUndefined();
 	} );
 } );

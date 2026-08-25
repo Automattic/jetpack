@@ -4,31 +4,29 @@ import type { CompleteChartTheme } from '../../types';
  * Default theme configuration
  */
 const defaultTheme: CompleteChartTheme = {
-	backgroundColor:
-		'var(--a8c-charts-color-background, var(--wpds-color-background-surface-neutral-strong, #fff))',
+	backgroundColor: 'var(--a8c-charts-color-background, #fff)',
 	labelBackgroundColor: 'transparent', // label background color (transparent by default)
-	// White label text sits on top of arbitrary series colors, so it has no WPDS
-	// content-foreground equivalent; the role carries the hardcoded value as its fallback.
+	// White label text sits on top of arbitrary series colors, so it has no WPDS content-foreground equivalent. Every other colour here is a bare pointer at the catalog emitted by `chart-scope.scss`; the terminal literal is the last resort for the SSR and jsdom paths, where getComputedStyle resolves nothing.
 	labelTextColor: 'var(--a8c-charts-color-label-on-fill, #FFFFFF)',
 	colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
 	gridStyles: {
-		stroke: 'var(--a8c-charts-color-grid, var(--wpds-color-stroke-surface-neutral, #dbdbdb))',
+		stroke: 'var(--a8c-charts-color-grid, #dbdbdb)',
 		strokeWidth: 1,
 	},
 	tickLength: 4,
 	gridColor: '',
 	gridColorDark: '',
 	xTickLineStyles: {
-		stroke: 'var(--a8c-charts-color-tick, var(--wpds-color-stroke-surface-neutral, #dbdbdb))',
+		stroke: 'var(--a8c-charts-color-tick, #dbdbdb)',
 		strokeWidth: 1,
 	},
 	xAxisLineStyles: {
-		stroke: 'var(--a8c-charts-color-axis, var(--wpds-color-stroke-surface-neutral, #dbdbdb))',
+		stroke: 'var(--a8c-charts-color-axis, #dbdbdb)',
 		strokeWidth: 1,
 	},
 	legend: {
 		labelStyles: {
-			color: 'var(--a8c-charts-color-label, var(--wpds-color-foreground-content-neutral, #1e1e1e))',
+			color: 'var(--a8c-charts-color-label, #1e1e1e)',
 		},
 		containerStyles: {},
 		shapeStyles: [],
@@ -41,30 +39,26 @@ const defaultTheme: CompleteChartTheme = {
 	// elements for axis labels and ticks. Setting `inherit` lets SVG text
 	// pick up the host application's font-family via normal CSS inheritance.
 	svgLabelSmall: {
-		fill: 'var(--a8c-charts-color-label, var(--wpds-color-foreground-content-neutral, #1e1e1e))',
+		fill: 'var(--a8c-charts-color-label-axis, #1e1e1e)',
 		fontFamily: 'inherit',
 	},
 	svgLabelBig: { fontFamily: 'inherit' },
 	annotationStyles: {
 		label: {
-			anchorLineStroke:
-				'var(--a8c-charts-color-annotation, var(--wpds-color-foreground-content-neutral, #1e1e1e))',
-			backgroundFill:
-				'var(--a8c-charts-color-background, var(--wpds-color-background-surface-neutral-strong, #fff))',
+			anchorLineStroke: 'var(--a8c-charts-color-annotation, #1e1e1e)',
+			backgroundFill: 'var(--a8c-charts-color-surface, #fff)',
 		},
 		connector: {
-			stroke:
-				'var(--a8c-charts-color-annotation, var(--wpds-color-foreground-content-neutral, #1e1e1e))',
+			stroke: 'var(--a8c-charts-color-annotation, #1e1e1e)',
 		},
 		circleSubject: {
 			stroke: 'transparent',
-			fill: 'var(--a8c-charts-color-annotation, var(--wpds-color-foreground-content-neutral, #1e1e1e))',
+			fill: 'var(--a8c-charts-color-annotation, #1e1e1e)',
 			radius: 5,
 		},
 	},
 	geoChart: {
-		featureFillColor:
-			'var(--a8c-charts-color-surface-secondary, var(--wpds-color-background-surface-neutral-weak, #f4f4f4))',
+		featureFillColor: 'var(--a8c-charts-color-surface-secondary, #f4f4f4)',
 	},
 	leaderboardChart: {
 		rowGap: 12,
@@ -72,18 +66,15 @@ const defaultTheme: CompleteChartTheme = {
 		labelSpacing: 'xs',
 		// [negative, neutral, positive]
 		deltaColors: [
-			'var(--a8c-charts-color-trend-down, var(--wpds-color-foreground-content-error-weak, #cc1818))',
-			'var(--a8c-charts-color-trend-neutral, var(--wpds-color-foreground-content-neutral-weak, #707070))',
-			'var(--a8c-charts-color-trend-up, var(--wpds-color-foreground-content-success-weak, #008030))',
+			'var(--a8c-charts-color-trend-down, #cc1818)',
+			'var(--a8c-charts-color-trend-neutral, #707070)',
+			'var(--a8c-charts-color-trend-up, #008030)',
 		],
 	},
 	conversionFunnelChart: {
-		backgroundColor:
-			'var(--a8c-charts-color-surface-secondary, var(--wpds-color-background-surface-neutral-weak, #f4f4f4))',
-		positiveChangeColor:
-			'var(--a8c-charts-color-trend-up, var(--wpds-color-foreground-content-success-weak, #008030))',
-		negativeChangeColor:
-			'var(--a8c-charts-color-trend-down, var(--wpds-color-foreground-content-error-weak, #cc1818))',
+		backgroundColor: 'var(--a8c-charts-color-surface-secondary, #f4f4f4)',
+		positiveChangeColor: 'var(--a8c-charts-color-trend-up, #008030)',
+		negativeChangeColor: 'var(--a8c-charts-color-trend-down, #cc1818)',
 	},
 	lineChart: {
 		lineStyles: {

@@ -13,9 +13,6 @@ import { MetricComparisonWidget } from '../../widgets/metric-comparison';
 import { WidgetState } from '../widget-state';
 import type { DataFormat } from '../../types';
 
-/**
- * Generic type for report data with time series
- */
 type ReportData = {
 	summary: {
 		date_start: string;
@@ -43,9 +40,6 @@ type ReportHookResult = {
 };
 
 export type ReportMetricWidgetProps = {
-	/**
-	 * The metric key to display from the data
-	 */
 	metricKey: string;
 
 	/**
@@ -53,9 +47,6 @@ export type ReportMetricWidgetProps = {
 	 */
 	data: ReportHookResult;
 
-	/**
-	 * The format configuration for the metric
-	 */
 	dataFormat: DataFormat;
 
 	/**
@@ -64,9 +55,6 @@ export type ReportMetricWidgetProps = {
 	 */
 	emptyStateIcon?: React.ComponentProps< typeof Icon >[ 'icon' ];
 
-	/**
-	 * Copy for the empty state.
-	 */
 	emptyStateText?: string;
 
 	/**
@@ -75,13 +63,16 @@ export type ReportMetricWidgetProps = {
 	 * Bookings over time), so the copy has to come from the caller.
 	 */
 	errorText?: string;
+
+	/**
+	 * The metric's name, for the legend. Comes from the caller for the same
+	 * reason the copy above does. Omit it and the legend falls back to the date
+	 * ranges `buildTimeSeriesChartData` labels the series with.
+	 */
+	seriesLabel?: string;
 };
 
 /**
- * Report Metric Widget - Internal Component
- *
- * @param {ReportMetricWidgetProps} props - The component props
- *
  * @internal
  */
 export function ReportMetricWidget( {
@@ -91,6 +82,7 @@ export function ReportMetricWidget( {
 	emptyStateIcon = chartBar,
 	emptyStateText,
 	errorText,
+	seriesLabel,
 }: ReportMetricWidgetProps ) {
 	const { getElementStyles } = useGlobalChartsContext();
 
@@ -98,7 +90,6 @@ export function ReportMetricWidget( {
 	const comparisonData = data.comparison.data;
 	const { isLoading, isFetching, hasData, isError, refetch } = data;
 
-	// Build series[] data.
 	const series = buildTimeSeriesChartData( {
 		primary: primaryData ?? {
 			summary: {
@@ -111,9 +102,9 @@ export function ReportMetricWidget( {
 		comparison: comparisonData,
 		metricKey,
 		emptyDataFallback: 'empty-array',
+		label: seriesLabel,
 	} );
 
-	// Build seriesStyles[] data.
 	const seriesStyles = useMemo(
 		() =>
 			series.map( ( seriesData, index ) => {
@@ -138,7 +129,7 @@ export function ReportMetricWidget( {
 
 	return (
 		<WidgetState
-			isLoading={ isLoading && ! hasData }
+			isLoading={ isLoading }
 			isFetching={ isFetching }
 			// The report queries keep the previous period's data as placeholders
 			// across range changes, so only surface the error when there is

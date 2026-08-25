@@ -7,6 +7,7 @@ import { useCallback } from 'react';
  * Internal dependencies
  */
 import { hasComparisonEnabled, type ReportParams } from '../utils/search';
+import { isAwaitingData } from './awaiting-data';
 
 type UseReportOptions = {
 	enabled?: boolean;
@@ -19,21 +20,9 @@ type QueryFactory< TData > = (
 ) => UseQueryOptions< TData >;
 
 /**
- * Generic hook for fetching report data with comparison support.
- *
- * This hook handles the common pattern of fetching primary and comparison
- * data for analytics reports. It automatically manages the comparison query
- * based on the presence of comparison dates in the params.
- *
- * @template TData - The type of data returned by the query
- *
- * @param    queryFactory                  - Function that creates a query options object from params
- * @param    params                        - Report parameters including dates, filters, and comparison dates
- * @param    options                       - Optional configuration
- * @param    options.enabled               - Whether the queries should be enabled (default: true)
- * @param    options.disabledComparisonKey - Query key to use when comparison is disabled
- *
- * @return Object containing primary and comparison query results
+ * Generic hook for fetching report data with comparison support. The comparison
+ * query is driven by the comparison dates in `params`; when it is disabled the
+ * query still mounts, parked on `options.disabledComparisonKey`.
  *
  * @example
  * ```typescript
@@ -60,10 +49,8 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 	delete primaryParams.compare_preset;
 	delete primaryParams.comp;
 
-	// Create primary query
 	const primaryQueryOptions = queryFactory( primaryParams, 'primary' );
 
-	// Create comparison query if comparison is enabled
 	const comparisonQueryOptions = comparisonEnabled
 		? queryFactory(
 				{
@@ -77,40 +64,30 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 				queryKey: options?.disabledComparisonKey ?? [ 'reports', '__comparison__', 'disabled' ],
 		  };
 
+	const primaryEnabled = queryEnabled && ( primaryQueryOptions.enabled ?? true );
+	const comparisonQueryEnabled =
+		queryEnabled && comparisonEnabled && ( comparisonQueryOptions.enabled ?? true );
+
 	const primary = useQuery( {
 		...primaryQueryOptions,
-		enabled: queryEnabled && ( primaryQueryOptions.enabled ?? true ),
+		enabled: primaryEnabled,
 	} );
 
 	const comparison = useQuery( {
 		...comparisonQueryOptions,
-		enabled: queryEnabled && comparisonEnabled && ( comparisonQueryOptions.enabled ?? true ),
+		enabled: comparisonQueryEnabled,
 	} );
 
-	// Compute common derived states
-	const isLoading = primary.isLoading || comparison.isLoading;
+	// Widened past React Query's `isLoading` — see `isAwaitingData`. Its own
+	// flags stay reachable through `primary` and `comparison`.
+	const isLoading = isAwaitingData( primary ) || isAwaitingData( comparison );
 	const isFetching = primary.isFetching || comparison.isFetching;
 
 	/**
-	 * Check if data exists using standardized response fields.
-	 *
-	 * All sanitized report responses follow a consistent structure:
-	 * - `summary`: Always present (aggregated metrics)
-	 * - `data`: Array of time-series or items (orders, bookings, products, etc.)
-	 * - `steps`: Array of funnel steps (conversion-rate only)
-	 *
-	 * We check multiple fields because different endpoints return different combinations:
-	 * - Time-series reports (orders, bookings, visitors): { summary, data }
-	 * - Conversion funnel: { summary, data, steps, overallRate }
-	 * - List reports (products, coupons): { summary, data }
-	 *
-	 * The use of `as any` is intentional here to handle the generic TData type,
-	 * since we cannot add constraints to the generic without breaking existing usage.
-	 *
-	 * Note: With placeholderData enabled in queries, this hasData check is sufficient
-	 * to determine loading states:
-	 * - If hasData is true: We have data to display (show with loading indicator if fetching)
-	 * - If hasData is false: No data to display (show skeleton)
+	 * Sanitized report responses always carry `summary` and `data`; only the
+	 * conversion funnel adds `steps`, so all three are checked. The `as any`
+	 * escapes the generic `TData`, which cannot be constrained without breaking
+	 * existing callers.
 	 */
 	const hasData =
 		Boolean( ( primary.data as any )?.summary ) ||
@@ -120,17 +97,19 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 		Boolean( ( comparison.data as any )?.data?.length ) ||
 		Boolean( ( comparison.data as any )?.steps?.length );
 
-	// Combined refetch: memoized, awaits both queries, and skips the comparison
-	// query when comparison is disabled. If both queries fail, one "Retry" must
-	// refetch both — so widgets can surface this directly as their retry action.
+	// Combined refetch: memoized and awaiting both queries, so one "Retry" can
+	// re-run everything the widget asked for. React Query's own `refetch()`
+	// deliberately ignores `enabled`, so the gate is applied here instead — a
+	// switched-off query is left alone, and widgets passing `enabled` need no
+	// guard of their own around the retry action.
 	const primaryRefetch = primary.refetch;
 	const comparisonRefetch = comparison.refetch;
 	const refetch = useCallback( async () => {
 		await Promise.all( [
-			primaryRefetch(),
-			comparisonEnabled ? comparisonRefetch() : Promise.resolve(),
+			primaryEnabled ? primaryRefetch() : Promise.resolve(),
+			comparisonQueryEnabled ? comparisonRefetch() : Promise.resolve(),
 		] );
-	}, [ comparisonEnabled, primaryRefetch, comparisonRefetch ] );
+	}, [ primaryEnabled, comparisonQueryEnabled, primaryRefetch, comparisonRefetch ] );
 
 	return {
 		primary,
@@ -139,7 +118,6 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 		isLoading,
 		isFetching,
 		hasData,
-		// Error handling
 		isError: primary.isError || comparison.isError,
 		error: primary.error ?? comparison.error,
 		refetch,

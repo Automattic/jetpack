@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.85.1] - 2026-08-25
+### Changed
+- Only include social connection data in the script data for users who can access Publicize. [#51483]
+- Update dependencies. [#51456]
+
+## [0.85.0] - 2026-08-20
+### Added
+- Connections: Explain why an Instagram Business connection found no accounts to choose from. [#51282]
+
+### Changed
+- Update dependencies. [#51190]
+- Update package dependencies. [#51399]
+
+## [0.84.4] - 2026-08-10
+### Added
+- Add the platform-specific input step for the new connection flow. [#50804]
+
+### Changed
+- Update package dependencies. [#50509] [#51008]
+
+### Fixed
+- Fix the social sharing sidebar failing to load in the editor on WordPress 6.9. [#50509]
+- Prevent unrelated editor hyperlinks from appearing in custom social messages. [#50994]
+
 ## [0.84.3] - 2026-08-03
 ### Changed
 - Surface a visible error when fetching the keyring result fails during a connection, instead of failing silently. [#50822]
@@ -1598,6 +1622,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.85.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.85.0...v0.85.1
+[0.85.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.4...v0.85.0
+[0.84.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.3...v0.84.4
 [0.84.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.2...v0.84.3
 [0.84.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.1...v0.84.2
 [0.84.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.0...v0.84.1

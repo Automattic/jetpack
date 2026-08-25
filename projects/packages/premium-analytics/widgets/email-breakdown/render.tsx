@@ -5,6 +5,7 @@ import { toPostId } from '@jetpack-premium-analytics/data';
 import {
 	GeoChart,
 	LeaderboardChart,
+	WIDGET_ROW_LIMIT,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
@@ -47,10 +48,6 @@ const MAP_MIN_WIDTH = 720;
 
 /**
  * Builds the complete country dataset consumed by `GeoChart`.
- *
- * @param rows   - All normalized rows from the country breakdown report.
- * @param metric - Whether the map represents opens or clicks.
- * @return GeoChart header and country rows.
  */
 function buildEmailGeoData( rows: EmailBreakdownRow[], metric: EmailBreakdownMetric ): GeoData {
 	return [
@@ -74,10 +71,6 @@ function buildEmailGeoData( rows: EmailBreakdownRow[], metric: EmailBreakdownMet
  *
  * The `countries` view renders a flag next to each label; the `links` view
  * renders each row as an external link; other views render a plain label.
- *
- * @param rows - The normalized breakdown rows.
- * @param view - The active breakdown view.
- * @return The leaderboard chart data.
  */
 function buildLeaderboardData(
 	rows: EmailBreakdownRow[],
@@ -117,9 +110,6 @@ function buildLeaderboardData(
 /**
  * The per-view empty-state copy shown when the selected email has no data for
  * the active breakdown.
- *
- * @param view - The active breakdown view.
- * @return The empty-state text.
  */
 function emptyStateText( view: EmailBreakdownView ): string {
 	switch ( view ) {
@@ -158,10 +148,6 @@ type EmailBreakdownLeaderboardProps = {
 	 * When `true` and there are no rows yet, the loading state is shown.
 	 */
 	isLoading?: boolean;
-	/**
-	 * When `true`, a non-blocking busy overlay is shown over existing rows during
-	 * a background refetch.
-	 */
 	isFetching?: boolean;
 	/**
 	 * When `true`, the error state is rendered in place of the chart.
@@ -187,9 +173,6 @@ type EmailBreakdownLeaderboardProps = {
  * Storybook can exercise those states with fixture rows (there is no analytics
  * backend in Storybook, so the data-connected entry point would only ever show
  * chrome).
- *
- * @param {EmailBreakdownLeaderboardProps} props - The component props.
- * @return The rendered leaderboard.
  */
 export const EmailBreakdownLeaderboard = ( {
 	rows = [],
@@ -266,7 +249,6 @@ export const EmailBreakdownLeaderboard = ( {
 type EmailBreakdownReportProps = {
 	view: EmailBreakdownView;
 	metric: EmailBreakdownMetric;
-	max: number;
 	showMap: boolean;
 };
 
@@ -275,11 +257,8 @@ type EmailBreakdownReportProps = {
  * then hands them to the presentational `EmailBreakdownLeaderboard`. The email
  * is scoped by the host through `reportParams.post_id` — the shared
  * single-resource "detail page" param — so the widget needs no id attribute.
- *
- * @param {EmailBreakdownReportProps} props - The component props.
- * @return The widget content.
  */
-function EmailBreakdownReport( { view, metric, max, showMap }: EmailBreakdownReportProps ) {
+function EmailBreakdownReport( { view, metric, showMap }: EmailBreakdownReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 
@@ -287,7 +266,7 @@ function EmailBreakdownReport( { view, metric, max, showMap }: EmailBreakdownRep
 		postId,
 		view,
 		metric,
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} );
 
 	return (
@@ -307,8 +286,6 @@ function EmailBreakdownReport( { view, metric, max, showMap }: EmailBreakdownRep
 }
 
 /**
- * Widget render entry point.
- *
  * The breakdown is scoped to a single email by the host through
  * `reportParams.post_id` (the shared single-resource "detail page" param); the
  * `view` attribute (`relevance: 'high'`) is exposed as a control by the widget
@@ -316,19 +293,15 @@ function EmailBreakdownReport( { view, metric, max, showMap }: EmailBreakdownRep
  * The endpoints report across the whole lifetime of the email, so the date range
  * and comparison period are ignored — `reportParams` is passed into `WidgetRoot`,
  * which exposes it to the inner report, but only `post_id` is read from it.
- *
- * @param {EmailBreakdownWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function EmailBreakdown( { attributes = {} }: EmailBreakdownWidgetProps ) {
 	const view = attributes.view ?? 'countries';
 	const metric = attributes.metric ?? 'opens';
-	const max = attributes.max ?? 10;
 	const showMap = attributes.showMap ?? false;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<EmailBreakdownReport view={ view } metric={ metric } max={ max } showMap={ showMap } />
+			<EmailBreakdownReport view={ view } metric={ metric } showMap={ showMap } />
 		</WidgetRoot>
 	);
 }

@@ -2,31 +2,31 @@
  * External dependencies
  */
 import {
-	getSiteTimezone,
+	getAllowedIntervalsForPreset,
 	hasComparisonEnabled,
-	localTZDate,
+	resolveIntervalForRange,
 } from '@jetpack-premium-analytics/data';
-import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
-import { isValid } from 'date-fns';
+import { PRESET_CUSTOM, siteTimeZone, stepDateRange } from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { encodeDateToSearchParam } from '../../search/date-range';
+import { decodeDateSearchParam, encodeDateToSearchParam } from '../../search/date-range';
 import { useStagedSearch } from '../use-staged-search';
 import { buildRangePatch, type ReportQuerySearchParams } from './build-range-patch';
 import type {
 	ComparisonPresetId,
 	DateRange,
+	IntervalType,
 	PrimaryPresetId,
+	StepDirection,
 } from '@jetpack-premium-analytics/datetime';
+
+type PickerRange = { from: Date | undefined; to: Date | undefined };
 
 /**
  * The values and callbacks that drive `DateFiltersPanel`.
  */
-type PickerRange = { from: Date | undefined; to: Date | undefined };
-
 export type ReportDateFilters = {
 	presetId?: PrimaryPresetId;
 	range: PickerRange;
@@ -34,8 +34,38 @@ export type ReportDateFilters = {
 	appliedRange: PickerRange;
 	comparisonPresetId?: ComparisonPresetId;
 	appliedComparisonPresetId?: ComparisonPresetId;
+
+	/**
+	 * The applied comparison window, when comparison is enabled.
+	 */
+	appliedComparisonRange?: DateRange;
+
+	/**
+	 * The chart interval the control shows as checked.
+	 */
+	interval: IntervalType;
+
+	/**
+	 * The applied chart interval, for surfaces describing what the widgets are
+	 * currently drawing rather than what the picker is holding.
+	 */
+	appliedInterval: IntervalType;
+
+	/**
+	 * The intervals the applied range allows, finest first — what the control
+	 * lists.
+	 */
+	intervalOptions: IntervalType[];
+
 	onChange: ( range?: DateRange, presetId?: PrimaryPresetId ) => void;
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
+	onIntervalChange: ( interval: IntervalType ) => void;
+
+	/**
+	 * Step the applied window backward or forward by its own length.
+	 */
+	onStep: ( direction: StepDirection ) => void;
+
 	onApply: () => void;
 	onCancel: () => void;
 	canApply: boolean;
@@ -68,17 +98,9 @@ export type ReportDateFilters = {
  * @return The parsed range, with invalid endpoints as `undefined`.
  */
 function toPickerRange( from: string | undefined, to: string | undefined, timeZone: string ) {
-	const parse = ( value?: string ) => {
-		if ( ! value ) {
-			return undefined;
-		}
-		const date = localTZDate( value, timeZone );
-		return isValid( date ) ? date : undefined;
-	};
-
 	return {
-		from: parse( from ),
-		to: parse( to ),
+		from: decodeDateSearchParam( from, timeZone ),
+		to: decodeDateSearchParam( to, timeZone ),
 	};
 }
 
@@ -100,20 +122,7 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		TFrom
 	>( { from } );
 
-	/*
-	 * Read the site timezone reactively. A fully-specified deep link skips the
-	 * seed's `ensureCoreSettingsReady()` await, so core `site` settings may not
-	 * be loaded on first paint. Rebuild picker dates when the real timezone
-	 * resolves instead of leaving them anchored to the browser fallback.
-	 */
-	const timeZone = useSelect( select => {
-		void (
-			select( coreStore ) as unknown as {
-				getEntityRecord: ( kind: string, name: string ) => unknown;
-			}
-		 ).getEntityRecord( 'root', 'site' );
-		return getSiteTimezone();
-	}, [] );
+	const timeZone = siteTimeZone();
 
 	const presetId = useMemo( () => effective.preset ?? undefined, [ effective.preset ] );
 	const range = useMemo(
@@ -152,9 +161,66 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 	 * Gated on the same predicate the report params run through, so a surface
 	 * can never announce a comparison the widgets did not request.
 	 */
-	const appliedComparisonPresetId = useMemo(
-		() => ( hasComparisonEnabled( committed ) ? committed.compare_preset ?? undefined : undefined ),
-		[ committed ]
+	const { appliedComparisonPresetId, appliedComparisonRange } = useMemo( () => {
+		if ( ! hasComparisonEnabled( committed ) ) {
+			return { appliedComparisonPresetId: undefined, appliedComparisonRange: undefined };
+		}
+
+		return {
+			appliedComparisonPresetId: committed.compare_preset ?? undefined,
+			// Read the params the widgets queried with so the header cannot name
+			// a different window than the numbers came from.
+			appliedComparisonRange: toPickerRange(
+				committed.compare_from,
+				committed.compare_to,
+				timeZone
+			),
+		};
+	}, [ committed, timeZone ] );
+
+	/*
+	 * Whether the primary picker holds an un-applied edit. The comparison and
+	 * interval controls commit on their own, so both check this first rather
+	 * than committing a range draft along with their own change.
+	 */
+	const hasPrimaryDraft =
+		effective.from !== committed.from ||
+		effective.to !== committed.to ||
+		effective.preset !== committed.preset;
+
+	/*
+	 * The buckets the interval control lists, and the one it checks. Both read
+	 * the applied range: the control sits outside the picker, so a range being
+	 * drafted must not reshape the menu, and resolving the value through the
+	 * same range that produced the options keeps the checked item a listed one.
+	 */
+	const intervalOptions = useMemo(
+		() => getAllowedIntervalsForPreset( appliedPresetId, committed.from ?? '', committed.to ?? '' ),
+		[ appliedPresetId, committed.from, committed.to ]
+	);
+
+	const appliedInterval = useMemo(
+		() =>
+			resolveIntervalForRange(
+				appliedPresetId,
+				committed.from ?? '',
+				committed.to ?? '',
+				committed.interval
+			),
+		[ appliedPresetId, committed.from, committed.to, committed.interval ]
+	);
+
+	// The staged value, so the check mark moves on the click that stages it even
+	// when a primary draft keeps that click from committing.
+	const interval = useMemo(
+		() =>
+			resolveIntervalForRange(
+				appliedPresetId,
+				committed.from ?? '',
+				committed.to ?? '',
+				effective.interval
+			),
+		[ appliedPresetId, committed.from, committed.to, effective.interval ]
 	);
 
 	/**
@@ -172,16 +238,56 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 				comp: nextComparisonRange ? '1' : undefined,
 			} );
 
-			const hasPrimaryDraft =
-				effective.from !== committed.from ||
-				effective.to !== committed.to ||
-				effective.preset !== committed.preset;
+			if ( ! hasPrimaryDraft ) {
+				commit();
+			}
+		},
+		[ stage, commit, hasPrimaryDraft ]
+	);
+
+	/**
+	 * The interval applies on click, the way the preset pills do. With a primary
+	 * edit staged it rides along and commits with it on Apply.
+	 */
+	const onIntervalChange = useCallback(
+		( nextInterval: IntervalType ) => {
+			stage( { interval: nextInterval } );
 
 			if ( ! hasPrimaryDraft ) {
 				commit();
 			}
 		},
-		[ stage, commit, effective, committed ]
+		[ stage, commit, hasPrimaryDraft ]
+	);
+
+	/*
+	 * Commits on click and pushes a history entry, so Back undoes the step and
+	 * the stepped window survives a reload as real URL state.
+	 *
+	 * Steps the applied range, not the staged one: the arrows sit outside the
+	 * picker, so stepping is not the gesture that applies someone's open draft.
+	 */
+	const onStep = useCallback(
+		( direction: StepDirection ) => {
+			const stepped = stepDateRange( appliedRange, direction );
+
+			if ( ! stepped ) {
+				return;
+			}
+
+			const patch = buildRangePatch( {
+				nextRange: stepped,
+				nextPresetId: PRESET_CUSTOM,
+				exactRange: true,
+				effective,
+			} );
+
+			if ( patch ) {
+				stage( patch );
+				commit();
+			}
+		},
+		[ appliedRange, commit, effective, stage ]
 	);
 
 	const onApply = useCallback( () => commit(), [ commit ] );
@@ -210,8 +316,14 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		appliedRange,
 		comparisonPresetId,
 		appliedComparisonPresetId,
+		appliedComparisonRange,
+		interval,
+		appliedInterval,
+		intervalOptions,
 		onChange,
 		onComparisonChange,
+		onIntervalChange,
+		onStep,
 		onApply,
 		onCancel,
 		canApply: isDirty,

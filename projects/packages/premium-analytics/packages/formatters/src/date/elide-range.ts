@@ -1,18 +1,25 @@
 /**
  * External dependencies
  */
+import { siteTimeZone } from '@jetpack-premium-analytics/datetime';
 import { getSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
 import { formatDate } from './format-date';
-import { siteTimeZone } from './site-time-zone';
+
+/**
+ * Forms a range can be elided in. All three name the month, so the elision
+ * rules CLDR publishes for one apply to the others; they differ in its width
+ * and in whether the year is carried at all.
+ */
+export type RangeFormatName = 'medium' | 'compact' | 'compactNoYear';
 
 /** The date parts requested from `Intl` when comparing it with WordPress. */
-const RANGE_PARTS: Intl.DateTimeFormatOptions = {
-	year: 'numeric',
-	month: 'long',
-	day: 'numeric',
+const RANGE_PARTS: Record< RangeFormatName, Intl.DateTimeFormatOptions > = {
+	medium: { year: 'numeric', month: 'long', day: 'numeric' },
+	compact: { year: 'numeric', month: 'short', day: 'numeric' },
+	compactNoYear: { month: 'short', day: 'numeric' },
 };
 
 /**
@@ -28,11 +35,29 @@ const SINGLE_PROBES = [
 ];
 
 /**
- * Two dates with no requested date part in common. The site timezone is
- * applied by both formatters, so a probe crossing a UTC day boundary is safe.
+ * The near end of the probe range. The site timezone is applied by both
+ * formatters, so a probe crossing a UTC day boundary is safe.
  */
 const PROBE_FROM = SINGLE_PROBES[ 0 ];
-const PROBE_TO = new Date( Date.UTC( 2021, 1, 3, 12 ) );
+
+/**
+ * The far end, per form: a date sharing no requested part with `PROBE_FROM`,
+ * so nothing in the probe can be elided and both ends have to render whole.
+ *
+ * Which year it falls in is what has to vary. A form carrying the year needs
+ * the two ends in different ones, or the year elides and the probe measures an
+ * elision rather than the full rendering it is checking for.
+ *
+ * The year-less form needs them in the same one. Asked to span two years with
+ * no year to tell them apart, ICU puts one back to keep the range unambiguous.
+ * That is right of ICU, but it is not a rendering this form ever produces, and
+ * a probe that provokes it costs Hungarian and Czech their elision.
+ */
+const PROBE_TO: Record< RangeFormatName, Date > = {
+	medium: new Date( Date.UTC( 2021, 1, 3, 12 ) ),
+	compact: new Date( Date.UTC( 2021, 1, 3, 12 ) ),
+	compactNoYear: new Date( Date.UTC( 2020, 1, 3, 12 ) ),
+};
 
 /** Treat typographically different Unicode spaces as equivalent. */
 const normalizeSpaces = ( value: string ): string =>
@@ -88,9 +113,13 @@ export function intlLocale(): string | undefined {
  *    Japanese and Chinese fail here: their range patterns use numeric dates
  *    and locale-specific separators instead of their single-date rendering.
  *
+ * Both checks are run per form, since a locale can agree with WordPress on one
+ * month width and not on the other.
+ *
+ * @param name - The form to build the formatter for.
  * @return The formatter, or `undefined` when the two do not agree.
  */
-function buildRangeFormatter(): Intl.DateTimeFormat | undefined {
+function buildRangeFormatter( name: RangeFormatName ): Intl.DateTimeFormat | undefined {
 	const locale = intlLocale();
 
 	if ( ! locale ) {
@@ -101,7 +130,7 @@ function buildRangeFormatter(): Intl.DateTimeFormat | undefined {
 
 	try {
 		formatter = new Intl.DateTimeFormat( locale, {
-			...RANGE_PARTS,
+			...RANGE_PARTS[ name ],
 			timeZone: siteTimeZone(),
 		} );
 	} catch {
@@ -119,41 +148,51 @@ function buildRangeFormatter(): Intl.DateTimeFormat | undefined {
 	}
 
 	const rendersLikeSite = SINGLE_PROBES.every(
-		probe => formatter.format( probe ) === formatDate( probe )
+		probe => formatter.format( probe ) === formatDate( probe, name )
 	);
 	const single = formatter.format( PROBE_FROM );
 	const rangeKeepsRendering = normalizeSpaces(
-		formatter.formatRange( PROBE_FROM, PROBE_TO )
+		formatter.formatRange( PROBE_FROM, PROBE_TO[ name ] )
 	).startsWith( normalizeSpaces( single ) );
 
 	return rendersLikeSite && rangeKeepsRendering ? formatter : undefined;
 }
 
-let cache: { key: string; formatter: Intl.DateTimeFormat | undefined } | undefined;
+/** One entry per form, each holding the settings it was derived from. */
+const cache = new Map<
+	RangeFormatName,
+	{ key: string; formatter: Intl.DateTimeFormat | undefined }
+>();
 
 /**
  * Format a range with the shared month or year elided, where the site's own
  * date format allows it.
  *
- * The probes in `buildRangeFormatter` run once per settings combination, so
- * the result is held against the locale, date format, and timezone it was
- * derived from.
+ * The probes in `buildRangeFormatter` run once per settings combination, so the
+ * result is held against the locale, date format, and timezone it was derived
+ * from.
  *
- * @param from - Start of the range.
- * @param to   - End of the range.
+ * @param from   - Start of the range.
+ * @param to     - End of the range.
+ * @param [name] - The form to elide in. Defaults to `'medium'`.
  * @return The elided range, or `undefined` to fall back to spelling both ends out.
  */
-export function elideRange( from: Date, to: Date ): string | undefined {
+export function elideRange(
+	from: Date,
+	to: Date,
+	name: RangeFormatName = 'medium'
+): string | undefined {
 	if ( Number.isNaN( from.getTime() ) || Number.isNaN( to.getTime() ) ) {
 		return undefined;
 	}
 
 	const settings = getSettings();
 	const key = `${ settings.l10n.locale }|${ settings.formats.date }|${ siteTimeZone() }`;
+	const cached = cache.get( name );
 
-	if ( cache?.key !== key ) {
-		cache = { key, formatter: buildRangeFormatter() };
+	if ( cached?.key !== key ) {
+		cache.set( name, { key, formatter: buildRangeFormatter( name ) } );
 	}
 
-	return cache.formatter?.formatRange( from, to );
+	return cache.get( name )?.formatter?.formatRange( from, to );
 }

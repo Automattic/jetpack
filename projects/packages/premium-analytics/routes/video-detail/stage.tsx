@@ -1,13 +1,18 @@
 /**
  * External dependencies
  */
-import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
+import {
+	AnalyticsQueryClientProvider,
+	GlobalErrorProvider,
+	ReportScopeProvider,
+} from '@jetpack-premium-analytics/data';
 import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { pickReportDateParams, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
 import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -15,6 +20,8 @@ import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
+import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
+import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { VideoSummaryCard } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
@@ -33,6 +40,14 @@ const VIDEO_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small
 // The layout is fixed, so the change callback never fires; the dashboard
 // still requires one because it owns a staging copy internally.
 const noopLayoutChange = () => {};
+
+// The share of the header row the date filter presets can never use: the
+// summary's 400px `min-inline-size` floor plus the row's 16px gap (see
+// `.summary` and `.header` in stage.module.scss — keep the three in sync),
+// plus a 24px buffer so the panel steps down before the wrap threshold —
+// layout wraps synchronously while the measured layout flip lags a frame, so
+// equal thresholds would flash a wrapped row at every boundary.
+const HEADER_RESERVED_INLINE_SIZE = 440;
 
 /**
  * Premium Analytics video detail page shell.
@@ -63,13 +78,26 @@ function VideoDetail(): JSX.Element {
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
-	// The applied report date range lives in the URL search params, read through
-	// the shared date-filter controller. The panel that edits it is intentionally
-	// absent for now: the header's filter UI collides with the preset-measurement
-	// rework in progress, so it ships separately once that lands (WOOA7S-1816).
+	// The applied report date range lives in the URL search params, staged and
+	// committed by the shared date-filter controller (WOOA7S-1816 — restored
+	// after the preset-measurement rework in #50906 landed).
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
+	// The preset pills alone — all time, then the rolling windows — with no
+	// custom range, period arrows, or interval dropdown, per the detail-page
+	// design; all time runs from the day this resource was published.
+	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
+
+	// The header row hosts the panel in a shrink-to-fit slot, so the panel
+	// measures the row itself to pick its responsive layout; see the
+	// `containerElement` prop.
+	const [ headerElement, setHeaderElement ] = useState< HTMLElement | null >( null );
+
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );
+
+	// The page's no-comparison invariant is the report scope the stage declares,
+	// so the layout is the fixed composition.
+	const layout = VIDEO_DETAIL_LAYOUT;
 
 	// Error and not-found responses have no trustworthy title, so only resolved
 	// videos add the title crumb or render the heading.
@@ -78,6 +106,7 @@ function VideoDetail(): JSX.Element {
 			? undefined
 			: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics-pkg' );
 	const resolvedSummary = { ...summary, title };
+	const breadcrumbs = useDetailBreadcrumbs( title );
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
 	let summaryContent: JSX.Element | null;
 
@@ -121,21 +150,43 @@ function VideoDetail(): JSX.Element {
 			widgetTypes={ widgetTypes }
 			isResolvingWidgetTypes={ isResolvingWidgetTypes }
 			resolveWidgetModule={ resolveWidgetModuleWithI18n }
-			layout={ VIDEO_DETAIL_LAYOUT }
+			layout={ layout }
 			onLayoutChange={ noopLayoutChange }
 			gridSettings={ VIDEO_DETAIL_GRID }
 		>
 			<Page
 				visual={ <StatsPageIcon /> }
-				breadcrumbs={ <StatsBreadcrumbs items={ title ? [ { label: title } ] : [] } /> }
+				breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
 				className={ styles.page }
 			>
 				<div className={ styles.scrollArea }>
-					{ summaryContent ? (
-						<div className={ styles.header }>
-							<div className={ styles.summary }>{ summaryContent }</div>
+					{ /*
+					 * The summary and the date filter presets share the header row —
+					 * title on the left, presets on the right, per the design mocks.
+					 * The presets render in every summary state so the range stays
+					 * adjustable while the video loads or errors.
+					 */ }
+					<div ref={ setHeaderElement } className={ styles.header }>
+						{ summaryContent ? <div className={ styles.summary }>{ summaryContent }</div> : null }
+						<div className={ styles.dateFilters }>
+							{ /*
+							 * The design has no period-over-period comparison on this
+							 * page. The panel reads that from the scope the stage
+							 * declares, which is the same declaration that keeps the
+							 * params away from the widgets.
+							 *
+							 * The Video performance chart buckets by the interval the range
+							 * resolves; the design offers no control over it, nor the period
+							 * arrows — see `useDetailDateControls`.
+							 */ }
+							<DateFiltersPanel
+								{ ...dateFilters }
+								{ ...dateControls }
+								containerElement={ headerElement }
+								reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
+							/>
 						</div>
-					) : null }
+					</div>
 					{ canRenderWidgets ? (
 						<div className={ styles.content }>
 							<WidgetDashboard.Widgets className={ styles.widgets } />
@@ -156,7 +207,15 @@ export function stage(): JSX.Element {
 	return (
 		<AnalyticsQueryClientProvider>
 			<GlobalErrorProvider>
-				<VideoDetail />
+				{ /*
+				 * The page names no compared period and offers no control for one,
+				 * so nothing below may fetch or draw a comparison. The params stay
+				 * on the URL so the breadcrumb carries the dashboard's state back
+				 * out.
+				 */ }
+				<ReportScopeProvider offersComparison={ false }>
+					<VideoDetail />
+				</ReportScopeProvider>
 			</GlobalErrorProvider>
 		</AnalyticsQueryClientProvider>
 	);
