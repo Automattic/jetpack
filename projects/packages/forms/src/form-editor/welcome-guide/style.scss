@@ -8,7 +8,7 @@
 	inline-size: 400px;
 
 	// Slides differ in heading and body length, so left alone the modal
-	// resizes as you page through — and because it is vertically centred,
+	// resizes as you page through — and because it is vertically centered,
 	// the whole dialog shifts along with the Previous/Next buttons.
 	// Reserving the tallest slide's height on the guide's own container
 	// anchors both: the container is `justify-content: space-between`, so the
@@ -33,7 +33,7 @@
 
 	.jetpack-forms-welcome-guide__image {
 		// Matches the artwork's own backdrop, so the slot stays the right
-		// colour while the image is still loading.
+		// color while the image is still loading.
 		background: #002c0f;
 		margin-block: 0 16px;
 

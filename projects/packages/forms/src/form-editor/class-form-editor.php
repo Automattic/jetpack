@@ -186,7 +186,7 @@ class Form_Editor {
 	 * form through Gutenberg's in-editor entity navigation, which never reloads
 	 * the page, so `admin_enqueue_scripts` does not run again. A page editor that
 	 * did not load this bundle up front would jump into a form with none of the
-	 * form editor behaviour available.
+	 * form editor behavior available.
 	 */
 	public static function enqueue_admin_scripts() {
 		$screen = get_current_screen();
@@ -228,10 +228,18 @@ class Form_Editor {
 	 * this hook, so not loading here is what skips the guide for them.
 	 *
 	 * Loaded only when the guide will actually open, so a page that would never
-	 * show it does not pay for the bundle at all. The trade-off is that the
-	 * "Form guide" item in the Options menu, which lives in this bundle, is
-	 * absent once the guide has been dismissed — the query argument is then the
-	 * way back. The artwork is only fetched once the guide opens.
+	 * show it does not pay for the bundle at all. The artwork is only fetched
+	 * once the guide opens.
+	 *
+	 * The trade-off is in the Options menu. The guide does not add an item of
+	 * its own; it takes over core's "Welcome Guide" item, which is always
+	 * present whether or not this bundle loads. Once the guide has been
+	 * dismissed the bundle is skipped, so nothing intercepts that item and it
+	 * behaves as core's again — and because core's item is a toggle, choosing
+	 * it persists `welcomeGuide: true`, which outlives the page load and beats
+	 * the runtime default this package sets. The generic modal then opens in
+	 * the form editor on each load until the user finishes it there. The query
+	 * argument is the way back to this guide.
 	 */
 	private static function enqueue_welcome_guide() {
 		$screen = get_current_screen();
@@ -239,13 +247,10 @@ class Form_Editor {
 			return;
 		}
 
-		$is_forced   = self::is_welcome_guide_forced();
 		$preferences = self::get_persisted_preferences();
 		$is_eligible = self::is_welcome_guide_eligible( $preferences );
 
-		// Nothing to render and nothing to reopen, so skip the request entirely
-		// rather than shipping a bundle that would only sit idle.
-		if ( ! $is_forced && ( ! $is_eligible || self::is_welcome_guide_dismissed( $preferences ) ) ) {
+		if ( ! self::should_open_welcome_guide( $preferences, $is_eligible ) ) {
 			return;
 		}
 
@@ -283,20 +288,49 @@ class Form_Editor {
 	}
 
 	/**
+	 * Whether the guide has anything to do on this request.
+	 *
+	 * Nothing to render and nothing to reopen means the bundle would only sit
+	 * idle, so it is not worth the request. Split out from the enqueue as a
+	 * pure decision over values the caller already has: the enqueue needs a
+	 * built `dist/` on disk, while this rule does not, so it stays testable
+	 * whether or not the JS has been built.
+	 *
+	 * @param array $preferences The user's persisted editor preferences.
+	 * @param bool  $is_eligible Whether the guide may open on its own for them.
+	 * @return bool Whether the guide should open.
+	 */
+	private static function should_open_welcome_guide( array $preferences, $is_eligible ) {
+		if ( self::is_welcome_guide_forced() ) {
+			return true;
+		}
+
+		return $is_eligible && ! self::is_welcome_guide_dismissed( $preferences );
+	}
+
+	/**
 	 * Reads the current user's persisted editor preferences.
 	 *
 	 * The same blob backs both the core welcome modal's state and this guide's
 	 * dismissal, so it is read once and passed around.
 	 *
+	 * Core keeps these per site, under a blog-prefixed meta key built by
+	 * wp_register_persisted_preferences_meta(), so the key has to come from
+	 * get_blog_prefix() rather than a literal `wp_`. On a multisite subsite or
+	 * an install with a custom table prefix a hardcoded key reads nothing,
+	 * which looks exactly like "never dismissed, and eligible" for everyone.
+	 *
 	 * @return array The stored preferences, or an empty array.
 	 */
 	private static function get_persisted_preferences() {
+		global $wpdb;
+
 		$user_id = get_current_user_id();
 		if ( ! $user_id ) {
 			return array();
 		}
 
-		$preferences = get_user_meta( $user_id, 'wp_persisted_preferences', true );
+		$preferences = get_user_meta( $user_id, $wpdb->get_blog_prefix() . 'persisted_preferences', true );
 
 		return is_array( $preferences ) ? $preferences : array();
 	}

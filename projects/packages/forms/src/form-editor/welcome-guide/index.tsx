@@ -8,8 +8,10 @@
 
 import { Guide } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { store as preferencesStore } from '@wordpress/preferences';
+import { FORM_POST_TYPE } from '../../blocks/shared/util/constants.js';
 import { getWelcomeGuidePages } from './pages';
 import {
 	isWelcomeGuideEligible,
@@ -30,23 +32,15 @@ export const PREFERENCE_NAME = 'welcomeGuide';
 /** Core's own welcome modal preference, which the Options menu item toggles. */
 const CORE_PREFERENCE_SCOPE = 'core/edit-post';
 
-const PREFERENCES_STORE = 'core/preferences';
+const EDITOR_STORE = 'core/editor';
 
-interface PreferencesSelectors {
-	get: ( scope: string, name: string ) => boolean | undefined;
-}
-
-interface PreferencesActions {
-	set: ( scope: string, name: string, value: boolean ) => void;
+interface EditorSelectors {
+	getCurrentPostType: () => string | undefined;
 }
 
 export const FormWelcomeGuide = () => {
 	const preference = useSelect(
-		select =>
-			( select( PREFERENCES_STORE ) as PreferencesSelectors ).get(
-				PREFERENCE_SCOPE,
-				PREFERENCE_NAME
-			),
+		select => select( preferencesStore ).get( PREFERENCE_SCOPE, PREFERENCE_NAME ),
 		[]
 	);
 
@@ -54,15 +48,26 @@ export const FormWelcomeGuide = () => {
 	// Options menu is a toggle on this value rather than a button, so flipping
 	// to true is the only signal that the user asked for a guide.
 	const coreWelcomeGuide = useSelect(
-		select =>
-			( select( PREFERENCES_STORE ) as PreferencesSelectors ).get(
-				CORE_PREFERENCE_SCOPE,
-				PREFERENCE_NAME
-			),
+		select => select( preferencesStore ).get( CORE_PREFERENCE_SCOPE, PREFERENCE_NAME ),
 		[]
 	);
 
-	const { set } = useDispatch( PREFERENCES_STORE ) as PreferencesActions;
+	/*
+	 * PHP only enqueues this bundle on a form editor page load, but the
+	 * component then stays mounted for the rest of the session — including
+	 * after in-editor navigation takes the user back out to a post or page.
+	 * The preference it watches is global to the editor, so without a post
+	 * type check the guide would follow them out and open over whatever they
+	 * navigated to.
+	 */
+	const isFormEditor = useSelect(
+		select =>
+			( select( EDITOR_STORE ) as EditorSelectors | undefined )?.getCurrentPostType() ===
+			FORM_POST_TYPE,
+		[]
+	);
+
+	const { set } = useDispatch( preferencesStore );
 
 	// Read once on mount: the query argument doesn't change within a page load,
 	// and re-reading it would reopen the guide after the user closes it.
@@ -96,14 +101,18 @@ export const FormWelcomeGuide = () => {
 		setIsReopened( true );
 	}, [] );
 
-	const isOpen = isWelcomeGuideOpen( { preference, isForced, isEligible, isClosed, isReopened } );
+	const isOpen =
+		isFormEditor &&
+		isWelcomeGuideOpen( { preference, isForced, isEligible, isClosed, isReopened } );
 
-	// `Guide` mounts only the slide you are looking at, so each illustration
-	// otherwise starts downloading at the moment you reach it and lands a beat
-	// after the slide. Warming them all once the guide opens means every slide
-	// after the first is already in the browser cache by the time it renders.
-	// Gated on `isOpen` so an editor session that never shows the guide never
-	// fetches the artwork at all.
+	/*
+	 * `Guide` mounts only the slide you are looking at, so each illustration
+	 * otherwise starts downloading at the moment you reach it and lands a beat
+	 * after the slide. Warming them all once the guide opens means every slide
+	 * after the first is already in the browser cache by the time it renders.
+	 * Gated on `isOpen` so an editor session that never shows the guide never
+	 * fetches the artwork at all.
+	 */
 	useEffect( () => {
 		if ( ! isOpen ) {
 			return;
@@ -116,19 +125,34 @@ export const FormWelcomeGuide = () => {
 		} );
 	}, [ isOpen ] );
 
-	// Take over the editor's "Welcome Guide" menu item. Selecting it sets core's
-	// preference to true, which would otherwise bring back the generic modal
-	// this guide replaces — so open this one instead and put the preference
-	// back. Writing false is deliberate and persists: it is the same state the
-	// user would have reached by dismissing core's modal themselves.
+	/*
+	 * Take over the editor's "Welcome Guide" menu item. Selecting it sets
+	 * core's preference to true, which would otherwise bring back the generic
+	 * modal this guide replaces — so open this one instead and put the
+	 * preference back. Writing false is deliberate and persists: it is the same
+	 * state the user would have reached by dismissing core's modal themselves.
+	 *
+	 * Only a transition into true counts. The value being true on its own says
+	 * nothing about whether the user asked for anything: core's own default is
+	 * true until the editor bundle's subscription suppresses it, and a user who
+	 * deliberately re-enabled core's guide has true persisted, which beats that
+	 * suppression. Reacting to the value rather than the change would persist
+	 * false on mount for both of them, switching core's welcome modal off in
+	 * the post and page editors for someone who never saw it there.
+	 */
+	const previousCoreWelcomeGuide = useRef( coreWelcomeGuide );
+
 	useEffect( () => {
-		if ( coreWelcomeGuide !== true ) {
+		const wasEnabled = previousCoreWelcomeGuide.current;
+		previousCoreWelcomeGuide.current = coreWelcomeGuide;
+
+		if ( ! isFormEditor || coreWelcomeGuide !== true || wasEnabled === true ) {
 			return;
 		}
 
 		handleReopen();
 		set( CORE_PREFERENCE_SCOPE, PREFERENCE_NAME, false );
-	}, [ coreWelcomeGuide, handleReopen, set ] );
+	}, [ coreWelcomeGuide, handleReopen, isFormEditor, set ] );
 
 	return (
 		<>

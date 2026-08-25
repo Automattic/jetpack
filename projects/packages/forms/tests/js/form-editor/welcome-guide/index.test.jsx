@@ -16,13 +16,20 @@ import userEvent from '@testing-library/user-event';
 // Mocks must be registered before importing the component under test.
 const set = jest.fn();
 const preferences = new Map();
+let currentPostType = 'jetpack_form';
+
+await jest.unstable_mockModule( '@wordpress/preferences', () => ( {
+	store: 'core/preferences',
+} ) );
 
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	useDispatch: jest.fn( () => ( { set } ) ),
 	useSelect: jest.fn( mapSelect =>
-		mapSelect( () => ( {
-			get: ( scope, name ) => preferences.get( `${ scope }.${ name }` ),
-		} ) )
+		mapSelect( storeName =>
+			storeName === 'core/editor'
+				? { getCurrentPostType: () => currentPostType }
+				: { get: ( scope, name ) => preferences.get( `${ scope }.${ name }` ) }
+		)
 	),
 } ) );
 
@@ -79,6 +86,7 @@ describe( 'FormWelcomeGuide', () => {
 		jest.clearAllMocks();
 		seedPreferences();
 		setSearch( '' );
+		currentPostType = 'jetpack_form';
 		window.jetpackFormsWelcomeGuide = { isEligible: true };
 	} );
 
@@ -155,25 +163,46 @@ describe( 'FormWelcomeGuide', () => {
 	} );
 
 	/*
-	 * Marked `failing` on purpose: this documents the behavior the guide should
-	 * have, and it is currently inverted.
-	 *
-	 * The takeover effect reacts to core/edit-post welcomeGuide simply *being*
-	 * true rather than transitioning to true, so it cannot tell a menu click
-	 * from a value that was already there. Core's own default is true until the
-	 * editor bundle's subscribe callback suppresses it, and a user who
-	 * deliberately re-enabled core's guide has true persisted. Either way the
-	 * effect fires on mount and persists false, switching core's welcome modal
-	 * off in the post and page editors for someone who never saw it there.
-	 *
-	 * Once the effect only reacts to a false -> true transition, this goes green
-	 * and the `.failing` marker should be dropped.
+	 * Core's own default is true until the editor bundle's subscription
+	 * suppresses it, and a user who deliberately re-enabled core's guide has
+	 * true persisted, which beats that suppression. Neither is a request for
+	 * anything, so neither may persist a change to core's preference.
 	 */
-	it.failing( 'does not touch core’s preference when it is already true on mount', () => {
+	it( 'does not touch core’s preference when it is already true on mount', () => {
 		seedPreferences( { coreWelcomeGuide: true } );
 
 		render( <FormWelcomeGuide /> );
 
 		expect( set ).not.toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, false );
+	} );
+
+	/*
+	 * The bundle is only enqueued on a form editor page load, but the component
+	 * stays mounted across in-editor navigation back out to a post or page.
+	 * The preference it watches is global to the editor, so it needs its own
+	 * post type check to stop following the user out.
+	 */
+	describe( 'outside the form editor', () => {
+		beforeEach( () => {
+			currentPostType = 'page';
+		} );
+
+		it( 'stays closed even for an eligible user', () => {
+			render( <FormWelcomeGuide /> );
+
+			expect( screen.queryByTestId( 'guide' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'does not open or clear core’s preference when core’s guide is re-enabled', () => {
+			seedPreferences( { jetpackForms: false, coreWelcomeGuide: false } );
+
+			const { rerender } = render( <FormWelcomeGuide /> );
+
+			seedPreferences( { jetpackForms: false, coreWelcomeGuide: true } );
+			rerender( <FormWelcomeGuide /> );
+
+			expect( screen.queryByTestId( 'guide' ) ).not.toBeInTheDocument();
+			expect( set ).not.toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, false );
+		} );
 	} );
 } );

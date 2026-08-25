@@ -784,10 +784,6 @@ class Form_Editor_Test extends BaseTestCase {
 	 * every user looks eligible forever.
 	 */
 	public function test_preferences_are_read_from_the_blog_prefixed_meta_key() {
-		$this->markTestSkipped(
-			'Pending the fix: get_persisted_preferences() hardcodes wp_persisted_preferences instead of deriving the key from $wpdb->get_blog_prefix().'
-		);
-
 		global $wpdb;
 
 		$user_id         = $this->log_in_new_user();
@@ -807,6 +803,75 @@ class Form_Editor_Test extends BaseTestCase {
 		} finally {
 			$wpdb->set_prefix( $original_prefix );
 		}
+	}
+
+	/**
+	 * The guide opens for a user it is meant for who has not dismissed it.
+	 */
+	public function test_should_open_for_an_eligible_user() {
+		$this->assertTrue( $this->call_private( 'should_open_welcome_guide', array( array(), true ) ) );
+	}
+
+	/**
+	 * Someone the guide is not meant for never sees it.
+	 */
+	public function test_should_not_open_for_an_ineligible_user() {
+		$this->assertFalse( $this->call_private( 'should_open_welcome_guide', array( array(), false ) ) );
+	}
+
+	/**
+	 * Once dismissed there is nothing to show, however eligible they were.
+	 */
+	public function test_should_not_open_once_dismissed() {
+		$preferences = array( 'jetpack/forms' => array( 'welcomeGuide' => false ) );
+
+		$this->assertFalse( $this->call_private( 'should_open_welcome_guide', array( $preferences, true ) ) );
+	}
+
+	/**
+	 * The query argument overrides both, so the guide can always be re-tested.
+	 */
+	public function test_should_open_when_forced() {
+		$preferences                          = array( 'jetpack/forms' => array( 'welcomeGuide' => false ) );
+		$_GET[ Form_Editor::FORCE_QUERY_ARG ] = '1';
+
+		$this->assertTrue( $this->call_private( 'should_open_welcome_guide', array( $preferences, false ) ) );
+	}
+
+	/**
+	 * Other post types never get the guide, which is what keeps it away from the
+	 * in-editor navigation path. The post type check runs before the enqueue
+	 * reaches for the built bundle, so this holds whether or not dist/ exists.
+	 */
+	public function test_welcome_guide_enqueue_bails_outside_the_form_editor() {
+		$this->log_in_new_user();
+		$this->stub_form_ids = array();
+
+		$screen                  = WP_Screen::get( 'post' );
+		$screen->is_block_editor = true;
+		set_current_screen( $screen );
+
+		global $wp_scripts;
+		$wp_scripts = null;
+		wp_scripts();
+
+		$this->call_private( 'enqueue_welcome_guide' );
+
+		$this->assertFalse( wp_script_is( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'enqueued' ) );
+
+		$this->clean_up_enqueue();
+	}
+
+	/**
+	 * Stores preferences under the key core actually uses on this install.
+	 *
+	 * @param int   $user_id     The user to store them for.
+	 * @param array $preferences The preference blob.
+	 */
+	private function seed_preferences( $user_id, array $preferences ) {
+		global $wpdb;
+
+		update_user_meta( $user_id, $wpdb->get_blog_prefix() . 'persisted_preferences', $preferences );
 	}
 
 	/**

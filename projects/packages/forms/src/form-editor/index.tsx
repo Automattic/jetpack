@@ -11,6 +11,7 @@ import { createBlock, cloneBlock } from '@wordpress/blocks';
 import { subscribe, select, dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { getPlugin, registerPlugin, unregisterPlugin } from '@wordpress/plugins';
+import { store as preferencesStore } from '@wordpress/preferences';
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
 import { EmbedCodePanel, EMBED_CODE_PANEL_PLUGIN } from './plugins/embed-code-panel';
 import {
@@ -149,11 +150,7 @@ const state = {
  * @param isSuppressed - Whether the core welcome modal should be suppressed.
  */
 const setCoreWelcomeGuideSuppressed = ( isSuppressed: boolean ) => {
-	const { setDefaults } = dispatch( 'core/preferences' ) as {
-		setDefaults: ( scope: string, defaults: Record< string, unknown > ) => void;
-	};
-
-	setDefaults( 'core/edit-post', {
+	dispatch( preferencesStore ).setDefaults( 'core/edit-post', {
 		welcomeGuide: ! isSuppressed,
 		welcomeGuideTemplate: ! isSuppressed,
 	} );
@@ -411,6 +408,7 @@ const setupFormEditorSubscription = () => {
 			// 1. Handle form editor enter/leave transitions
 			// Detect if we are in the form editor and detect when this state changes across ticks.
 			if ( isFormEditor !== state.isFormEditor ) {
+				const wasFormEditor = state.isFormEditor;
 				state.isFormEditor = isFormEditor;
 
 				if ( isFormEditor ) {
@@ -452,7 +450,18 @@ const setupFormEditorSubscription = () => {
 						unregisterPlugin( FORM_POST_PUBLISH_PANEL_PLUGIN );
 					}
 
-					setCoreWelcomeGuideSuppressed( false );
+					/*
+					 * Only undo the suppression if it was ever applied.
+					 * `state.isFormEditor` starts as null, so the first tick of
+					 * every block editor screen lands here — restoring core's
+					 * defaults unconditionally would re-assert welcomeGuide:
+					 * true on posts and pages that never had it suppressed,
+					 * and on the form editor it would set true on the way in,
+					 * moments before the enter branch sets it back to false.
+					 */
+					if ( wasFormEditor === true ) {
+						setCoreWelcomeGuideSuppressed( false );
+					}
 
 					if ( state.categoriesSetUp ) {
 						state.categoriesSetUp = false;
