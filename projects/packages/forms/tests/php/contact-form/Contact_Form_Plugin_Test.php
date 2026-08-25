@@ -12,9 +12,9 @@ require_once __DIR__ . '/class-utility.php';
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
+use Closure;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use ReflectionClass;
 use WorDBless\BaseTestCase;
 use WP_Block;
 use WP_Block_Type_Registry;
@@ -647,14 +647,21 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	 * assumed.
 	 *
 	 * Contact_Form_Plugin::init() keeps its instance in a function static, so a
-	 * second one has to come from the constructor directly. The duplicate hooks
-	 * it adds go away with the rest of the test's hooks when WorDBless tears
-	 * down.
+	 * second one has to come from the constructor directly. The constructor is
+	 * protected, hence the closure bound to the class's scope - reflection would
+	 * need setAccessible(), which is required before PHP 8.1 and deprecated from
+	 * PHP 8.5. The duplicate hooks it adds go away with the rest of the test's
+	 * hooks when WorDBless tears down.
 	 */
 	public function test_construction_registers_the_wordpress_integration() {
-		$reflection = new ReflectionClass( Contact_Form_Plugin::class );
-		$plugin     = $reflection->newInstanceWithoutConstructor();
-		$reflection->getConstructor()->invoke( $plugin );
+		$construct = Closure::bind(
+			static function () {
+				return new Contact_Form_Plugin();
+			},
+			null,
+			Contact_Form_Plugin::class
+		);
+		$plugin    = $construct();
 
 		$this->assertTrue( shortcode_exists( 'contact-form' ), 'The contact-form shortcode should be registered.' );
 		$this->assertTrue( shortcode_exists( 'contact-field' ), 'The contact-field shortcode should be registered.' );
