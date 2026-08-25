@@ -52,7 +52,7 @@ export function Legend( { items, withComparison = false, hideValue = false }: Le
 			className={ styles.legend }
 			templateColumns={ getTemplateColumns( hideValue, withComparison ) }
 			templateRows={ `repeat( ${ items.length }, var(--wpds-dimension-padding-2xl) )` }
-			rowGap={ 4 }
+			rowGap={ 12 }
 			columnGap={ 10 }
 			align="center"
 		>

@@ -8,8 +8,8 @@
 }
 
 .bullet {
-	width: 8px;
-	height: 8px;
+	width: 16px;
+	height: 16px;
 	border-radius: 50%;
 	flex-shrink: 0;
 }
@@ -23,6 +23,7 @@
 
 .value {
 	text-align: right;
-	font-weight: 600;
+	// Use --wpds-typography-font-weight-medium once the theme ships it.
+	font-weight: 500;
 	white-space: nowrap;
 }
