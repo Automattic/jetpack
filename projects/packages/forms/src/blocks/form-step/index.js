@@ -23,6 +23,31 @@ export const settings = {
 		reusable: false,
 		inserter: true,
 		align: true,
+		layout: {
+			/*
+			 * Mirrored in PHP (class-contact-form-block.php) so both surfaces
+			 * generate the same classes and the same scoped container rule.
+			 *
+			 * `justifyContent: 'stretch'` is what makes a step's blocks fill it.
+			 * Core's flex layout maps a vertical container's justification onto
+			 * `align-items`, and only `stretch` leaves a child's width alone; the
+			 * other values shrink every child to its content. Nothing else in core
+			 * stretches flex children, which is why the step needed a `> *` rule
+			 * before this.
+			 */
+			default: {
+				type: 'flex',
+				orientation: 'vertical',
+				justifyContent: 'stretch',
+				flexWrap: 'nowrap',
+			},
+			allowSwitching: false,
+			allowEditing: true,
+			allowOrientation: false,
+			allowJustification: true,
+			allowVerticalAlignment: false,
+			allowWrap: false,
+		},
 		color: {
 			gradients: true,
 			link: true,

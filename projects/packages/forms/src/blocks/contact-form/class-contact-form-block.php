@@ -706,6 +706,28 @@ class Contact_Form_Block {
 							'backgroundImage' => true,
 						),
 					),
+
+					/*
+					 * Mirrors the block's index.js. Declared here as well as there because
+					 * layout classes and the scoped `wp-container-*` rule are generated per
+					 * surface: the editor reads the JS registration, the front end reads
+					 * this one, and a support declared on only one side renders on only one
+					 * side.
+					 */
+					'layout'     => array(
+						'default'                => array(
+							'type'           => 'flex',
+							'orientation'    => 'vertical',
+							'justifyContent' => 'stretch',
+							'flexWrap'       => 'nowrap',
+						),
+						'allowSwitching'         => false,
+						'allowEditing'           => true,
+						'allowOrientation'       => false,
+						'allowJustification'     => true,
+						'allowVerticalAlignment' => false,
+						'allowWrap'              => false,
+					),
 				),
 			)
 		);

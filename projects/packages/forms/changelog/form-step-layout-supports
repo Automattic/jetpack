@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Multistep: lay a step out with WordPress layout support instead of hand-written CSS, so its Justify control works on every block in the step.
