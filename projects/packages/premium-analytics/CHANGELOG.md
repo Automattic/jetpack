@@ -29,11 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Date filters: Compute day boundaries and daylight-saving wall times in the site's timezone instead of the visitor's browser timezone. [#51419]
 - Fix charts getting stuck on their loading skeleton after switching a control that turns one of the underlying requests off. [#51443]
 - Insights: Scope the calendar heatmaps to the selected period, so the card no longer draws and reports on years outside it. [#51385]
+- Label Subscribers chart and email timeline points by the bucket they name rather than by the viewer's time zone. [#51499]
 - Show only the rows that fit the tile for Latest subscribers, Latest likes, and Latest comments, while keeping the "N more" footer visible. [#51379]
 - Show the dashboard right away instead of a sync screen, and flag the Store section's numbers as incomplete while store data is still syncing. [#51279]
 - Stats: Compare a date range against a previous month or year of the same length, unless the range is whole calendar months. [#51469]
 - Stats: Stamp bucket dates as timezone-naive site-local wall times, fixing report dates that could read a day off for sites away from UTC. [#51499]
-- Label Subscribers chart and email timeline points by the bucket they name rather than by the viewer's time zone. [#51499]
 - Traffic: Start the chart's Group by control from the dashboard's interval, and replace Auto with hourly grouping. [#51446]
 
 ## [0.3.0] - 2026-08-20

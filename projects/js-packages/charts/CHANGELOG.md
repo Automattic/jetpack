@@ -8,8 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [3.1.0] - 2026-08-25
 ### Added
 - Add `defaultHiddenSeries` to seed a series hidden on load, plus absolute visibility setters. Keep the keyboard tooltip open when the chart re-renders under it. [#51458]
-- Let a calendar heatmap draw a grid wider than its data, filling the extra weeks with cells that report nothing rather than claiming there was no activity on them. [#51385]
 - Export `GoogleDataTableColumnRoleType` as a value, so a consumer can build a GeoChart tooltip column. [#51312]
+- Let a calendar heatmap draw a grid wider than its data, filling the extra weeks with cells that report nothing rather than claiming there was no activity on them. [#51385]
 
 ### Fixed
 - Draw labels at the design system's font weight and size, and follow the WordPress admin color scheme for the zoom selection. [#51452]

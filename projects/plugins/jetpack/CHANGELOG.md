@@ -23,12 +23,12 @@
 
 ### Bug fixes
 - AI: Auto-activate the AI module on sites running a 16.2 prerelease build. [#51528]
+- AI: Keep the editor working when another plugin loads an older copy of the Status package. [#51494]
 - Charts: Draw labels at the design system's font weight and size. [#51452]
 - Contact Form: Remove the classic-theme editor margin between a field's label and its input. [#51527]
 - Forms: Allow a single response to scroll when it is taller than the screen. [#51486]
 - Forms: Apply the name typed when creating a form, and stop a dismissed save from reporting into a reopened dialog. [#51371]
 - Forms: Prevent an error that could stop responses from loading when a file upload field was stored without any file data. [#51485]
-- AI: Keep the editor working when another plugin loads an older copy of the Status package. [#51494]
 - My Jetpack: Always label the license activation link "Activate a license", including on sites with a plan but no activated licenses. [#51283]
 - My Jetpack: Stop the Stats dashboard from asking which plan you want again after Start for Free was already chosen. [#51413]
 - Premium Analytics: Compare date ranges against a previous month or year of the same length while keeping whole-calendar-month comparisons aligned by month. [#51469]
