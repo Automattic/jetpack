@@ -83,7 +83,7 @@ The scope element is the wrapper a chart is rendered into, which sits **above** 
 
 | Role | Maps to `--wpds-*` | Fallback |
 |---|---|---|
-| `--a8c-charts-color-series-1` | `--wpds-color-foreground-interactive-brand` | `var(--wp-admin-theme-color, #3858e9)` |
+| `--a8c-charts-color-series-1` | `--wp-admin-theme-color` | `var(--wpds-color-foreground-interactive-brand, var(--wp-admin-theme-color, #3858e9))` |
 | `--a8c-charts-color-series-2` | _(none — unset until a consumer sets it)_ | — |
 | `--a8c-charts-color-series-3` | _(none — unset until a consumer sets it)_ | — |
 | `--a8c-charts-color-series-4` | _(none — unset until a consumer sets it)_ | — |
@@ -112,7 +112,11 @@ Axis and tick share grid's WPDS token but stay distinct roles, so the three can 
 
 The five `--a8c-charts-color-series-*` slots are the palette. `GlobalChartsProvider` resolves them once, at its wrapper, and seeds its colour cache with whatever resolves; charts generate accessible colours beyond the seeds, so five slots is a cap on *seeds*, not on series. A slot that resolves to nothing is skipped and the palette compacts — set only slots 1 and 3 and the palette is two colours, in that order.
 
-Only slot 1 has a default. It maps to `--wpds-color-foreground-interactive-brand`, whose own spec fallback is `var(--wp-admin-theme-color, #3858e9)` — so with no design-system stylesheet loaded, which is the wp-admin case, series colours follow the WordPress admin colour scheme with no host configuration. Naming `--wp-admin-theme-color` ahead of the token would invert that: wp-admin always sets the admin colour, so it would sit above a `ThemeProvider` accent and make theming unreachable on the screens the package is themed for.
+Only slot 1 has a default, and it names `--wp-admin-theme-color` first, so series colours follow the WordPress admin colour scheme with no host configuration.
+
+The design system's own brand token cannot lead that chain. WordPress 7.1's `wp-components` stylesheet depends on the `wp-theme` handle, so `design-tokens.css` loads on every React admin screen, and it pins `--wpds-color-foreground-interactive-brand` to a static `#3858e9` with no reference to the admin colour anywhere. Named first, that token would peg every chart to blueberry.
+
+Leading with the admin colour costs nothing, because `@wordpress/theme`'s `ThemeProvider` writes `--wp-admin-theme-color` from its own accent — its legacy wp-admin override — alongside the `--wpds-*` ramp. A provider accent therefore still wins.
 
 Precedence for a series colour, highest first:
 

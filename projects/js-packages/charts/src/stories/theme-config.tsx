@@ -121,7 +121,7 @@ export const themeArgTypes = {
 		options: [ NO_ADMIN_COLOR_SCHEME, ...Object.keys( WP_ADMIN_COLOR_SCHEMES ) ],
 		defaultValue: NO_ADMIN_COLOR_SCHEME,
 		description:
-			'Simulate a wp-admin colour scheme. Sets --wp-admin-theme-color and unsets the design system’s brand token, so the series palette falls through to the admin colour the way it does in wp-admin.',
+			'Simulate a wp-admin colour scheme by setting --wp-admin-theme-color, the way admin-schemes.css does. The series palette reads it first, so series colors follow the scheme.',
 		table: { category: 'Theme' },
 	},
 };

@@ -125,18 +125,14 @@ const isValidHexColor = ( color: string ): boolean => {
 /**
  * Reproduces a wp-admin colour scheme for the subtree below it.
  *
- * Two declarations, and the second is the one that makes this a test rather than a demo.
- * Storybook always renders a `ThemeProvider`, which generates `--wpds-color-foreground-interactive-brand`;
- * the palette's slot 1 names that token first and only falls through to `--wp-admin-theme-color`
- * when nothing defines it. So setting the admin colour alone would change nothing here, and the
- * fallback leg — the one wp-admin actually takes on WP 7.0.x, where core's design-system build
- * predates the token rename — would stay unreachable outside a real wp-admin.
- *
- * `initial` is what unsets it: a custom property set to `initial` takes the guaranteed-invalid
- * value, so `var()` uses its fallback rather than an empty string.
+ * One declaration, and it is the same one WordPress makes: `admin-schemes.css` sets
+ * `--wp-admin-theme-color` on `body.admin-color-<scheme>`. The palette's slot 1 names that
+ * variable first, so this is enough to exercise the whole path Storybook otherwise cannot —
+ * every story renders a `ThemeProvider`, and without a scheme set the admin colour it publishes
+ * is whatever the provider's accent is.
  *
  * @param scheme - A key of `WP_ADMIN_COLOR_SCHEMES`, or `NO_ADMIN_COLOR_SCHEME`.
- * @return The wrapper's inline custom properties, or undefined to leave the design system alone.
+ * @return The wrapper's inline custom property, or undefined to leave the page as it is.
  */
 const adminColorSchemeStyle = ( scheme: string ): CSSProperties | undefined => {
 	const color = WP_ADMIN_COLOR_SCHEMES[ scheme ];
@@ -145,11 +141,7 @@ const adminColorSchemeStyle = ( scheme: string ): CSSProperties | undefined => {
 		return undefined;
 	}
 
-	return {
-		'--wp-admin-theme-color': color,
-		// eslint-disable-next-line @wordpress/no-setting-ds-tokens -- Story-only, and the opposite of what the rule guards against: this *un*sets the token so charts fall back the way they do in a host with no design-system stylesheet. `ThemeProvider` cannot express "undefined" — it always emits a value.
-		'--wpds-color-foreground-interactive-brand': 'initial',
-	} as CSSProperties;
+	return { '--wp-admin-theme-color': color } as CSSProperties;
 };
 
 /**

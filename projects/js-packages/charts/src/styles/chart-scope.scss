@@ -33,16 +33,25 @@
 	// two-colour palette, and charts generate accessible colours beyond the
 	// seeds. Only slot 1 carries a default.
 
-	// Slot 1 names --wpds-color-foreground-interactive-brand rather than
-	// --wp-admin-theme-color, even though the admin colour scheme is what has
-	// to come through in wp-admin. It does come through: that token's own spec
-	// fallback is `var(--wp-admin-theme-color, #3858e9)`, so with no
-	// design-system stylesheet loaded — the wp-admin case — the chain reaches
-	// the admin scheme on its own. Naming the admin colour first would instead
-	// put it above a ThemeProvider accent, and since wp-admin always sets
-	// --wp-admin-theme-color that would make theming unreachable on exactly
-	// the screens the package is themed for.
-	--a8c-charts-color-series-1: var(--a8c-charts-color-series-1-theme, var(--wpds-color-foreground-interactive-brand, var(--wp-admin-theme-color, #3858e9)));
+	// Slot 1 names --wp-admin-theme-color first. The design system's brand
+	// token cannot lead: WP 7.1's wp-components stylesheet depends on the
+	// wp-theme handle, so design-tokens.css loads on every React admin screen,
+	// and it pins --wpds-color-foreground-interactive-brand to a static #3858e9
+	// with no reference to the admin colour anywhere. Named first, that token
+	// would peg every chart to blueberry and the admin colour scheme would
+	// never be reached.
+
+	// Leading with the admin colour costs nothing, because @wordpress/theme's
+	// ThemeProvider writes --wp-admin-theme-color from its own accent (its
+	// legacy wp-admin override) alongside the --wpds-* ramp. A provider accent
+	// therefore still wins here — verified in Storybook, where a #b3261e accent
+	// sets both variables to #b3261e.
+
+	// The innermost var(--wp-admin-theme-color, #3858e9) is unreachable: the
+	// outer leg already tried that variable. It is written out because it is
+	// the design system's own spec value for the token, which
+	// `src/styles/test/wpds-fallbacks.test.ts` compares against literally.
+	--a8c-charts-color-series-1: var(--a8c-charts-color-series-1-theme, var(--wp-admin-theme-color, var(--wpds-color-foreground-interactive-brand, var(--wp-admin-theme-color, #3858e9))));
 	--a8c-charts-color-series-2: var(--a8c-charts-color-series-2-theme);
 	--a8c-charts-color-series-3: var(--a8c-charts-color-series-3-theme);
 	--a8c-charts-color-series-4: var(--a8c-charts-color-series-4-theme);

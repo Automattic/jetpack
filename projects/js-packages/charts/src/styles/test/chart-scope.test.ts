@@ -122,10 +122,13 @@ function parseTokensDoc(): Map< string, Entry > {
 		// "no mapping" before looking for a token name inside it.
 		const unmapped = mapping.startsWith( '_(none' );
 		const derives = /derives from (--[\w-]+)/.exec( mapping );
-		const wpds = /(--wpds-[\w-]+)/.exec( mapping );
+		// `--wp-*` rather than `--wpds-*`: the series palette maps to WordPress's own
+		// `--wp-admin-theme-color`, since the design system's brand token is a static
+		// hex on every admin screen and cannot carry the admin colour scheme.
+		const token = /(--wp[\w-]+)/.exec( mapping );
 
 		entries.set( role, {
-			reads: unmapped ? null : derives?.[ 1 ] ?? wpds?.[ 1 ] ?? null,
+			reads: unmapped ? null : derives?.[ 1 ] ?? token?.[ 1 ] ?? null,
 			fallback: fallback === '—' ? null : normalize( fallback ),
 		} );
 	}
