@@ -273,11 +273,11 @@ class Dashboard_Data {
 	public static function get_ai_data() {
 		$filter_on = (bool) apply_filters( 'ai_seo_enhancer_enabled', true );
 
-		// Jetpack_AI_Settings lives in plugins/jetpack, which bundles this package;
-		// guarded like the other host-plugin classes here. Without it the AI SEO
-		// control does not exist, so the enhancer keeps its pre-control behavior.
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_AI_Settings lives in plugins/jetpack and is guarded by class_exists.
-		$ai_seo_on = ! class_exists( 'Jetpack_AI_Settings' ) || \Jetpack_AI_Settings::is_ai_seo_enabled();
+		// Jetpack_AI_Settings lives in plugins/jetpack, which bundles this package; guarded
+		// like the other host-plugin classes here. Without the method the AI SEO control
+		// does not exist, so the enhancer keeps its pre-control behavior.
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_AI_Settings lives in plugins/jetpack and is guarded by method_exists.
+		$ai_seo_on = ! method_exists( 'Jetpack_AI_Settings', 'is_ai_seo_enabled' ) || \Jetpack_AI_Settings::is_ai_seo_enabled();
 
 		// Current_Plan comes from the jetpack-plans package (a dependency of this
 		// package since the plan-gating work), so it's always available here; the
