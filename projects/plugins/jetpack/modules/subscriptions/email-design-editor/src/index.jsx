@@ -1,13 +1,46 @@
 /**
  * Client-side entry point for the newsletter email design screen.
  *
+ * The bundle the editor starts from is fetched here rather than inlined into
+ * the page. It lives on the WordPress.com shadow blog, so on Atomic and
+ * self-hosted the page would otherwise have to proxy to WordPress.com while
+ * rendering, putting a blocking request in front of the screen appearing at
+ * all — and on Simple an internal dispatch during the page request breaks the
+ * REST preloads that follow it on a blog the editor has not run for before.
+ * Fetching from the browser also keeps the template's id something only
+ * WordPress.com computes, which is the one field a site must never work out
+ * locally. See NL-848 and NL-851.
+ *
  * The page is the other half, and is added separately: it renders the
- * container and localises `window.JetpackEmailDesignEditor`. Until it exists
- * nothing enqueues this bundle, so the mount below finds no configuration and
- * returns. See NL-848.
+ * container and localises `window.JetpackEmailDesignEditor` with what
+ * WordPress.com cannot know — where to mount, where its buttons navigate to,
+ * and the half of the editor settings that describes this installation. Until
+ * it exists nothing enqueues this bundle, so the mount below returns.
  */
 import { ExperimentalEmailEditor } from '@woocommerce/email-editor';
+import apiFetch from '@wordpress/api-fetch';
+import { Notice } from '@wordpress/components';
 import { createRoot, StrictMode } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
+
+/**
+ * The route serving the editor's bootstrap data.
+ *
+ * Declared by the Jetpack plugin on every platform and answered by
+ * WordPress.com, so the browser calls one local URL on Simple, Atomic and
+ * self-hosted alike.
+ */
+const BOOTSTRAP_PATH = '/wpcom/v2/email-editor-bootstrap';
+
+/**
+ * The post type the editor edits.
+ *
+ * A constant rather than something the page supplies: the design is a block
+ * template, and unlike the template's id — which is namespaced by whichever
+ * theme served it — the post type is the same everywhere.
+ */
+const TEMPLATE_POST_TYPE = 'wp_template';
 
 /**
  * Schemes the editor's navigation buttons may send the browser to.
@@ -51,7 +84,7 @@ function assertNavigableUrl( value, key ) {
 }
 
 /**
- * Translate the page's data into the configuration the editor reads.
+ * Translate the page's data and the fetched bundle into the editor's configuration.
  *
  * The editor's `config` prop is not the WordPress.com bootstrap bundle. The
  * bundle arrives in the shape the REST route returns it — `editor_settings`,
@@ -64,25 +97,26 @@ function assertNavigableUrl( value, key ) {
  * `editorSettings` is assembled from both halves on purpose. WordPress.com
  * removes `__unstableResolvedAssets` and `allowedIframeStyleHandles` from the
  * bundle before returning it, because they describe the installation they were
- * computed on rather than the design; the site supplies its own. The site's
- * half is merged last so it wins.
+ * computed on rather than the design; the page supplies this site's own. The
+ * page's half is merged last so it wins.
  *
- * @param {object} data - The value of `window.JetpackEmailDesignEditor`.
- * @throws {Error} If the page left out something the editor cannot start without.
+ * @param {object} bundle - The response from the bootstrap route.
+ * @param {object} data   - The value of `window.JetpackEmailDesignEditor`.
+ * @throws {Error} If either half left out something the editor cannot start without.
  * @return {object} The editor's `config` prop.
  */
-export function buildEditorConfig( data ) {
-	const { bundle, editorSettings, urls, userEmail, globalStylesPostId } = data;
+export function buildEditorConfig( bundle, data ) {
+	const { editorSettings, urls, userEmail, globalStylesPostId } = data;
 
 	// Mirrors what the package's own `initializeEditor()` validates when it reads
 	// these from a global. Nothing checks them on the `config` prop path, so an
 	// omission would otherwise surface as an unrelated failure deep in the editor.
 	if ( ! bundle?.editor_settings ) {
-		throw new Error( 'JetpackEmailDesignEditor.bundle.editor_settings is required.' );
+		throw new Error( 'The email editor bundle is missing editor_settings.' );
 	}
 
 	if ( ! bundle?.editor_theme ) {
-		throw new Error( 'JetpackEmailDesignEditor.bundle.editor_theme is required.' );
+		throw new Error( 'The email editor bundle is missing editor_theme.' );
 	}
 
 	if ( typeof urls?.back !== 'string' || typeof urls?.listings !== 'string' ) {
@@ -104,12 +138,53 @@ export function buildEditorConfig( data ) {
 }
 
 /**
- * Mount the editor into the container the page renders.
+ * The id of the template the editor opens.
  *
- * @throws {Error} If the page provided a configuration the editor cannot start from.
- * @return {void}
+ * Read from the bundle and never derived here. The package builds it as
+ * `get_stylesheet() . '//' . $slug` on whichever installation registered the
+ * template, so a site working it out locally is right on Simple — where the
+ * site and the shadow blog are the same — and wrong on Atomic and self-hosted.
+ *
+ * @param {object} bundle - The response from the bootstrap route.
+ * @throws {Error} If the bundle carries no template.
+ * @return {string} The template's id.
  */
-export function mountEmailDesignEditor() {
+export function getTemplateId( bundle ) {
+	const id = bundle?.template?.id;
+
+	if ( typeof id !== 'string' || '' === id ) {
+		throw new Error( 'The email editor bundle is missing its template id.' );
+	}
+
+	return id;
+}
+
+/**
+ * What the screen shows when it could not load.
+ *
+ * A blank screen is the failure this is here to avoid: the design lives on
+ * another site, so "nothing appeared" and "your design is empty" look the same
+ * to whoever opened the page.
+ *
+ * @return {import('react').ReactElement} The error notice.
+ */
+function LoadError() {
+	return (
+		<Notice status="error" isDismissible={ false }>
+			{ __(
+				'The email design editor could not be loaded. Please reload the page to try again.',
+				'jetpack'
+			) }
+		</Notice>
+	);
+}
+
+/**
+ * Fetch the bootstrap bundle and mount the editor into the page's container.
+ *
+ * @return {Promise<void>} Resolves once the editor or an error has rendered.
+ */
+export async function mountEmailDesignEditor() {
 	const data = window.JetpackEmailDesignEditor;
 
 	// Not our page. The bundle is only enqueued on the design screen, so this is
@@ -124,25 +199,35 @@ export function mountEmailDesignEditor() {
 		return;
 	}
 
-	const { postId, postType } = data;
+	const root = createRoot( container );
 
-	if ( ! postId ) {
-		throw new Error( 'JetpackEmailDesignEditor.postId is required.' );
+	try {
+		const bundle = await apiFetch( {
+			path: data.templateSlug
+				? addQueryArgs( BOOTSTRAP_PATH, { template_slug: data.templateSlug } )
+				: BOOTSTRAP_PATH,
+		} );
+
+		const config = buildEditorConfig( bundle, data );
+		const postId = getTemplateId( bundle );
+
+		root.render(
+			<StrictMode>
+				<ExperimentalEmailEditor
+					postId={ postId }
+					postType={ TEMPLATE_POST_TYPE }
+					config={ config }
+				/>
+			</StrictMode>
+		);
+	} catch ( error ) {
+		// The message names which half is at fault, which the notice deliberately
+		// does not — but losing it entirely would leave a page with nothing to
+		// debug from.
+		// eslint-disable-next-line no-console
+		console.error( 'Jetpack email design editor:', error );
+		root.render( <LoadError /> );
 	}
-
-	if ( ! postType ) {
-		throw new Error( 'JetpackEmailDesignEditor.postType is required.' );
-	}
-
-	createRoot( container ).render(
-		<StrictMode>
-			<ExperimentalEmailEditor
-				postId={ postId }
-				postType={ postType }
-				config={ buildEditorConfig( data ) }
-			/>
-		</StrictMode>
-	);
 }
 
 if ( document.readyState === 'loading' ) {
