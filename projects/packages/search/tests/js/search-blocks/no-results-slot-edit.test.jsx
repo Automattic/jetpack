@@ -79,16 +79,22 @@ describe( 'NoResultsSlotEdit', () => {
 		expect( screen.queryByText( UNFILTERED_DEFAULT ) ).not.toBeInTheDocument();
 	} );
 
-	// The preview carries the class render.php puts on the front end's default
-	// copy, so the canvas shows the same centered, dimmed treatment a visitor
-	// would see.
-	it( 'styles the preview with the front-end default class', () => {
-		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+	// The `--default` modifier lands on the block wrapper itself — the same
+	// element render.php gives it via `get_block_wrapper_attributes()` — so the
+	// canvas shows the same centered, dimmed treatment a visitor would see.
+	it( 'styles the wrapper with the front-end default class while empty', () => {
+		const { unmount } = render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+		// eslint-disable-next-line testing-library/no-node-access -- the class sits on the block wrapper, which exposes no role or text of its own to query.
+		const wrapper = screen.getByText( UNFILTERED_DEFAULT ).parentElement;
+		expect( wrapper ).toHaveClass( 'jetpack-search-no-results__variant' );
+		expect( wrapper ).toHaveClass( 'jetpack-search-no-results--default' );
+		unmount();
 
-		// eslint-disable-next-line testing-library/no-node-access -- the class sits on the preview wrapper, which exposes no role or text of its own to query.
-		expect( screen.getByText( UNFILTERED_DEFAULT ).parentElement ).toHaveClass(
-			'jetpack-search-no-results--default'
-		);
+		mockInnerBlockCount = 1;
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+		// eslint-disable-next-line testing-library/no-node-access -- same wrapper as above, now holding only the mocked InnerBlocks.
+		const authored = screen.getByTestId( 'variant-inner-blocks' ).parentElement;
+		expect( authored ).not.toHaveClass( 'jetpack-search-no-results--default' );
 	} );
 
 	// Authored content is what renders, so the preview has to get out of the
