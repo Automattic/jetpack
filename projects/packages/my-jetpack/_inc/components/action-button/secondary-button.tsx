@@ -22,12 +22,15 @@ const variantMap = {
 	primary: 'solid',
 	secondary: 'outline',
 	tertiary: 'minimal',
+	link: 'unstyled',
 } as const;
 
 const sizeMap = {
 	normal: 'default',
 	compact: 'compact',
 } as const;
+
+type UiButtonVariant = ( typeof variantMap )[ keyof typeof variantMap ];
 
 const SecondaryButton: FC< SecondaryButtonProps > = props => {
 	const {
@@ -65,7 +68,7 @@ const SecondaryButton: FC< SecondaryButtonProps > = props => {
 		);
 	}
 
-	const mappedVariant = variant === 'link' ? 'unstyled' : variantMap[ variant ];
+	const mappedVariant: UiButtonVariant = variantMap[ variant ];
 
 	const sharedProps = {
 		variant: mappedVariant,
