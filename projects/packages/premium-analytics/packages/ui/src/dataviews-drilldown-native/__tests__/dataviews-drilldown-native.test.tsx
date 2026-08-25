@@ -187,10 +187,19 @@ describe( 'DataViewsDrilldownNative collapse', () => {
 		expect( screen.getByText( 'Google' ) ).toBeInTheDocument();
 		// A branch the search never touched stays folded.
 		expect( screen.queryByText( 'Facebook' ) ).not.toBeInTheDocument();
-		// Forced-open ancestors cannot change the stored fold state.
-		expect( screen.queryByRole( 'button', { name: 'Search Engines' } ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Google' } ) ).not.toBeInTheDocument();
+		// A forced-open ancestor is still a group, so it keeps its control and
+		// its state — it just cannot be used to write a fold yet.
+		const forced = screen.getByRole( 'button', { name: 'Search Engines' } );
+		expect( forced ).toHaveAttribute( 'aria-expanded', 'true' );
+		expect( forced ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getByRole( 'button', { name: 'Google' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 
+		// Clicking it writes nothing, so clearing the search folds everything
+		// back instead of surfacing a fold the reader never saw take effect.
+		await user.click( forced );
 		await user.clear( screen.getByRole( 'searchbox' ) );
 
 		await waitFor( () => expect( screen.queryByText( 'Google' ) ).not.toBeInTheDocument() );

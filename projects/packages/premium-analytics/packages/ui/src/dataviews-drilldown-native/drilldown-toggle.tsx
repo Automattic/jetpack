@@ -14,6 +14,12 @@ export interface DrilldownToggleProps {
 	label: string;
 	/** Whether the row's children are currently shown. */
 	expanded: boolean;
+	/**
+	 * Keep the control in place but inert, for a fold the reader cannot change
+	 * yet. The row is still a group, so this must not fall back to the empty
+	 * slot: that would read as a leaf and drop `aria-expanded` with it.
+	 */
+	disabled?: boolean;
 	/** Fold or unfold the row. Omit to render an empty slot. */
 	onToggle?: () => void;
 }
@@ -22,7 +28,12 @@ export interface DrilldownToggleProps {
  * Render the fold control or an empty slot for a drilldown row.
  * The fixed-size slot keeps titles aligned at each depth.
  */
-export function DrilldownToggle( { label, expanded, onToggle }: DrilldownToggleProps ) {
+export function DrilldownToggle( {
+	label,
+	expanded,
+	disabled = false,
+	onToggle,
+}: DrilldownToggleProps ) {
 	if ( ! onToggle ) {
 		return <span className={ styles.slot } aria-hidden="true" />;
 	}
@@ -37,7 +48,10 @@ export function DrilldownToggle( { label, expanded, onToggle }: DrilldownToggleP
 			size="small"
 			aria-label={ label }
 			aria-expanded={ expanded }
-			onClick={ onToggle }
+			// `focusableWhenDisabled` is Button's default, so this stays in the
+			// tab order and keeps announcing the group state.
+			disabled={ disabled }
+			onClick={ disabled ? undefined : onToggle }
 		>
 			<Button.Icon icon={ expanded ? chevronDown : collapsedIcon } size={ 16 } />
 		</Button>

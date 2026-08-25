@@ -31,7 +31,10 @@ const NO_IDS: ReadonlySet< string > = new Set();
 
 type CollapseContextValue = {
 	isExpanded: ( id: string ) => boolean;
-	toggleableIds: ReadonlySet< string >;
+	/** Rows with children, which therefore get a fold control. */
+	parentIds: ReadonlySet< string >;
+	/** Rows a search or filter holds open: the control stays, inert. */
+	forcedIds: ReadonlySet< string >;
 	onToggle: ( id: string ) => void;
 	/**
 	 * The consumer's own title field and id resolver, which the grafted cell
@@ -97,7 +100,8 @@ function CollapsibleTitleCell< Item >( props: DataViewRenderFieldProps< Item > )
 			<DrilldownToggle
 				label={ label ? String( label ) : __( 'Toggle group', 'jetpack-premium-analytics-pkg' ) }
 				expanded={ collapse.isExpanded( id ) }
-				onToggle={ collapse.toggleableIds.has( id ) ? () => collapse.onToggle( id ) : undefined }
+				disabled={ collapse.forcedIds.has( id ) }
+				onToggle={ collapse.parentIds.has( id ) ? () => collapse.onToggle( id ) : undefined }
 			/>
 			{ RenderTitle ? <RenderTitle { ...props } /> : String( label ?? '' ) }
 		</span>
@@ -185,7 +189,7 @@ export function DataViewsDrilldownNative< Item >( {
 	// Keep the hierarchy legible instead of the flat `filterSortAndPaginate`
 	// semantics: match, re-attach ancestors, re-emit in hierarchy order, then
 	// paginate. Runs over the in-memory rows, so the extra passes are cheap.
-	const { pageData, levelById, paginationInfo, toggleableIds, isExpanded } = useMemo( () => {
+	const { pageData, levelById, paginationInfo, parentIds, forcedIds, isExpanded } = useMemo( () => {
 		// 1. Match: apply the view's search + filters only (no sort, one page).
 		const matches = filterSortAndPaginate(
 			data,
@@ -216,23 +220,19 @@ export function DataViewsDrilldownNative< Item >( {
 		//    the search that narrowed it, so the matches' ancestors unfold for as
 		//    long as the search or filter is on.
 		const isNarrowed = matches.length !== data.length;
-		const forcedIds =
+		const forcedRowIds =
 			collapsible && isNarrowed
 				? collectAncestorIds( orderedData, matchedIds, getItemId, getItemParentId )
 				: NO_IDS;
 		const isExpandedForRow = ( id: string ) =>
-			expandedByDefault !== toggledIds.has( id ) || forcedIds.has( id );
+			expandedByDefault !== toggledIds.has( id ) || forcedRowIds.has( id );
 		const visibleData = collapsible
 			? filterCollapsedRows( orderedData, getItemId, levels, isExpandedForRow )
 			: orderedData;
 		// Resolve parents before folding so collapsed rows keep their controls.
-		// Forced-open ancestors stay non-interactive to preserve stored state.
-		const parentIds = collapsible
+		const parentRowIds = collapsible
 			? findParentIds( orderedData, getItemId, getItemParentId )
 			: NO_IDS;
-		const toggleableRowIds = forcedIds.size
-			? new Set( [ ...parentIds ].filter( id => ! forcedIds.has( id ) ) )
-			: parentIds;
 
 		// 5. Paginate the rows that survived, so folded children stop consuming
 		//    pages. Folding cannot strand the reader past the last page: the rows
@@ -249,7 +249,11 @@ export function DataViewsDrilldownNative< Item >( {
 				totalItems: visibleData.length,
 				totalPages: Math.max( 1, Math.ceil( visibleData.length / perPage ) ),
 			},
-			toggleableIds: toggleableRowIds,
+			parentIds: parentRowIds,
+			// A forced-open row keeps its control but must not write a fold the
+			// reader cannot see take effect — it would only surface once the
+			// search clears.
+			forcedIds: forcedRowIds,
 			isExpanded: isExpandedForRow,
 		};
 	}, [
@@ -282,12 +286,13 @@ export function DataViewsDrilldownNative< Item >( {
 		() =>
 			( {
 				isExpanded,
-				toggleableIds,
+				parentIds,
+				forcedIds,
 				onToggle: handleToggle,
 				titleField,
 				getItemId,
 			} ) as unknown as CollapseContextValue,
-		[ isExpanded, toggleableIds, handleToggle, titleField, getItemId ]
+		[ isExpanded, parentIds, forcedIds, handleToggle, titleField, getItemId ]
 	);
 
 	// The fold control belongs to the title cell — the only column DataViews

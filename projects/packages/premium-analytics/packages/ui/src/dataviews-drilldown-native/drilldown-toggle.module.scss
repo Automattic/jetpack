@@ -1,5 +1,9 @@
 /* Reserve the control's space so sibling titles stay aligned. */
 .slot {
+
+	/* The three variables `IconButton` sets for itself. It is not used here
+	   because its `label` is required and always rendered as a tooltip, so
+	   every chevron would pop one repeating the title beside it. */
 	--wp-ui-button-min-width: unset;
 	--wp-ui-button-padding-inline: 0;
 	--wp-ui-button-aspect-ratio: 1;
