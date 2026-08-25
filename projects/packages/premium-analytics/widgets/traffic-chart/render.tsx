@@ -11,6 +11,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { reports } from '@jetpack-premium-analytics/icons';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -29,6 +30,12 @@ type TrafficChartWidgetProps = WidgetRenderProps< TrafficChartRenderAttributes >
 	 */
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
+
+/**
+ * The route the dashboard's report window lives on, and the one this widget
+ * narrows when a bucket is clicked.
+ */
+const DASHBOARD_ROUTE = '/';
 
 const DATA_FORMAT = {
 	type: 'number' as const,
@@ -54,6 +61,8 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 		reportParams.interval,
 		TRAFFIC_PERIODS
 	);
+
+	const { drillDown } = useReportDateFilters( DASHBOARD_ROUTE );
 
 	const {
 		metrics: metricTabs,
@@ -102,6 +111,7 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 					groupLabel={ groupLabel }
 					tickResolution={ period }
 					pointsAreWallClocks
+					onDatumClick={ drillDown }
 				/>
 			</WidgetState>
 		</div>

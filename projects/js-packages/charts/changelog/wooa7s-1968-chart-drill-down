@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Bar chart: Support pointer event handlers, so a bar can respond to a click.

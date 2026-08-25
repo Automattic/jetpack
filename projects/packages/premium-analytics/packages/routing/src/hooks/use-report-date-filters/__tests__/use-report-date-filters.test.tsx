@@ -310,4 +310,153 @@ describe( 'useReportDateFilters', () => {
 		expect( mockNavigate.mock.calls[ 0 ][ 0 ].replace ).toBe( true );
 		expect( result.current.appliedPresetId ).toBe( 'last-7-days' );
 	} );
+
+	/*
+	 * Each case asserts the interval too, because that is the whole point of a
+	 * drill-down: a bucket's own length never allows the interval that drew it,
+	 * so applying the bucket as the window drops the reading one level finer.
+	 */
+	describe( 'drillDown', () => {
+		beforeAll( () => {
+			// Every bucket under test is closed, so only the clamp cases care.
+			jest.useFakeTimers().setSystemTime( Date.parse( '2027-01-01T00:00:00.000Z' ) );
+		} );
+
+		afterAll( () => jest.useRealTimers() );
+
+		it( 'opens a day bucket into hours', () => {
+			const { result, rerender } = renderDateFilters( {
+				from: '2026-07-01T00:00:00.000Z',
+				to: '2026-07-30T23:59:59.999Z',
+				preset: 'last-30-days',
+				interval: 'day',
+			} );
+
+			act( () => result.current.drillDown( new Date( '2026-07-21T13:45:00.000Z' ) ) );
+			rerender();
+
+			expect( mockSearch ).toMatchObject( {
+				from: '2026-07-21T00:00:00.000Z',
+				to: '2026-07-21T23:59:59.999Z',
+				preset: 'custom',
+				interval: 'hour',
+			} );
+		} );
+
+		it( 'opens a week bucket into days', () => {
+			const { result, rerender } = renderDateFilters( {
+				from: '2026-05-01T00:00:00.000Z',
+				to: '2026-07-30T23:59:59.999Z',
+				preset: 'custom',
+				interval: 'week',
+			} );
+
+			act( () => result.current.drillDown( new Date( '2026-07-22T00:00:00.000Z' ) ) );
+			rerender();
+
+			expect( mockSearch ).toMatchObject( {
+				from: '2026-07-20T00:00:00.000Z',
+				to: '2026-07-26T23:59:59.999Z',
+				interval: 'day',
+			} );
+		} );
+
+		it( 'opens a month bucket into days', () => {
+			const { result, rerender } = renderDateFilters( {
+				from: '2025-08-01T00:00:00.000Z',
+				to: '2026-07-31T23:59:59.999Z',
+				preset: 'custom',
+				interval: 'month',
+			} );
+
+			act( () => result.current.drillDown( new Date( '2026-02-14T00:00:00.000Z' ) ) );
+			rerender();
+
+			expect( mockSearch ).toMatchObject( {
+				from: '2026-02-01T00:00:00.000Z',
+				to: '2026-02-28T23:59:59.999Z',
+				interval: 'day',
+			} );
+		} );
+
+		it( 'opens a year bucket into months', () => {
+			const { result, rerender } = renderDateFilters( {
+				from: '2022-01-01T00:00:00.000Z',
+				to: '2026-12-31T23:59:59.999Z',
+				preset: 'custom',
+				interval: 'year',
+			} );
+
+			act( () => result.current.drillDown( new Date( '2024-05-09T00:00:00.000Z' ) ) );
+			rerender();
+
+			expect( mockSearch ).toMatchObject( {
+				from: '2024-01-01T00:00:00.000Z',
+				to: '2024-12-31T23:59:59.999Z',
+				interval: 'month',
+			} );
+		} );
+
+		it( 'pushes a history entry, so Back is the way out of a drill-down', () => {
+			const { result } = renderDateFilters( {
+				from: '2026-07-01T00:00:00.000Z',
+				to: '2026-07-30T23:59:59.999Z',
+				preset: 'last-30-days',
+				interval: 'day',
+			} );
+
+			act( () => result.current.drillDown( new Date( '2026-07-21T13:45:00.000Z' ) ) );
+
+			expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+			expect( mockNavigate.mock.calls[ 0 ][ 0 ].replace ).toBeFalsy();
+		} );
+
+		it( 'ignores a click on an hourly bucket, the finest reading there is', () => {
+			const { result } = renderDateFilters( {
+				from: '2026-07-21T00:00:00.000Z',
+				to: '2026-07-21T23:59:59.999Z',
+				preset: 'custom',
+				interval: 'hour',
+			} );
+
+			act( () => result.current.drillDown( new Date( '2026-07-21T13:00:00.000Z' ) ) );
+
+			expect( mockNavigate ).not.toHaveBeenCalled();
+		} );
+
+		/*
+		 * Clamping a bucket that shares no ground with the applied window would
+		 * invert the range, so the click is refused rather than applied backwards.
+		 */
+		it( 'ignores a bucket lying outside the applied window', () => {
+			const { result } = renderDateFilters( {
+				from: '2026-07-01T00:00:00.000Z',
+				to: '2026-07-30T23:59:59.999Z',
+				preset: 'last-30-days',
+				interval: 'day',
+			} );
+
+			act( () => result.current.drillDown( new Date( '2026-09-05T00:00:00.000Z' ) ) );
+
+			expect( mockNavigate ).not.toHaveBeenCalled();
+		} );
+
+		it( 'keeps a partial edge bucket inside the applied window', () => {
+			// The window opens mid-week, so the first bar covers Jul 22-26 only.
+			const { result, rerender } = renderDateFilters( {
+				from: '2026-07-22T00:00:00.000Z',
+				to: '2026-10-20T23:59:59.999Z',
+				preset: 'custom',
+				interval: 'week',
+			} );
+
+			act( () => result.current.drillDown( new Date( '2026-07-23T00:00:00.000Z' ) ) );
+			rerender();
+
+			expect( mockSearch ).toMatchObject( {
+				from: '2026-07-22T00:00:00.000Z',
+				to: '2026-07-26T23:59:59.999Z',
+			} );
+		} );
+	} );
 } );

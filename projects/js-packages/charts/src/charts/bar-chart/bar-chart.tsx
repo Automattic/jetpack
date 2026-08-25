@@ -128,6 +128,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	animation,
 	children,
 	gap = 'md',
+	onPointerDown,
+	onPointerUp,
 } ) => {
 	const legendInteractive = legend.interactive ?? false;
 	const legendCollapseGroups = legend.collapseGroups ?? false;
@@ -575,6 +577,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										xScale={ xScale }
 										yScale={ yScale }
 										horizontal={ horizontal }
+										onPointerDown={ onPointerDown }
+										onPointerUp={ onPointerUp }
 										pointerEventsDataKey="nearest"
 									>
 										{ ! allSeriesHidden && (

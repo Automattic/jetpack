@@ -33,6 +33,22 @@ import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 const MIN_TAB_WIDTH = 120;
 
 /**
+ * How far (px) the pointer may travel between down and up and still count as a
+ * click. Above it the gesture is a drag — a zoom selection, or a slip on the
+ * way up — and must not drill the dashboard to a date the reader was only
+ * passing over.
+ */
+const CLICK_DRAG_TOLERANCE_PX = 6;
+
+/**
+ * The pointer-event payload both comparative charts report, carrying the datum
+ * nearest the pointer.
+ */
+type ChartPointerParams = Parameters<
+	NonNullable< ComponentProps< typeof ComparativeLineChart >[ 'onPointerUp' ] >
+>[ 0 ];
+
+/**
  * A single time-series point for a metric.
  */
 export interface MetricTabDatum {
@@ -109,6 +125,11 @@ export interface MetricTabsChartProps {
 	 * are, hence the opt-in. Full rationale in `chart-date.ts`.
 	 */
 	pointsAreWallClocks?: boolean;
+	/**
+	 * A click on the plot, carrying the date of the bucket the pointer is over.
+	 * Omit to leave the chart non-interactive.
+	 */
+	onDatumClick?: ( date: Date ) => void;
 }
 
 /**
@@ -186,6 +207,7 @@ function MetricChart( {
 	chartId,
 	tickResolution,
 	readPointDate,
+	onDatumClick,
 }: {
 	metric: MetricTab;
 	counterpart?: MetricTab;
@@ -194,6 +216,7 @@ function MetricChart( {
 	chartId: string;
 	tickResolution?: TickResolution;
 	readPointDate: ReadPointDate;
+	onDatumClick?: ( date: Date ) => void;
 } ) {
 	const { series, defaultHiddenSeries } = useMemo( () => {
 		const active = buildSeries( metric, chartType );
@@ -212,6 +235,50 @@ function MetricChart( {
 		( date: Date, format: DateFormatName ) => formatDate( readPointDate( date ), format ),
 		[ readPointDate ]
 	);
+
+	const pointerDownRef = useRef< { x: number; y: number } | null >( null );
+
+	const handlePointerDown = useCallback( ( { svgPoint }: ChartPointerParams ) => {
+		pointerDownRef.current = svgPoint ? { x: svgPoint.x, y: svgPoint.y } : null;
+	}, [] );
+
+	const handlePointerUp = useCallback(
+		( { datum, svgPoint }: ChartPointerParams ) => {
+			const start = pointerDownRef.current;
+			pointerDownRef.current = null;
+
+			// A release with no press behind it is the tail of a gesture that began
+			// off the plot, so there is no click here to report.
+			if ( ! start ) {
+				return;
+			}
+
+			if (
+				svgPoint &&
+				Math.hypot( svgPoint.x - start.x, svgPoint.y - start.y ) > CLICK_DRAG_TOLERANCE_PX
+			) {
+				return;
+			}
+
+			/*
+			 * `alignSeriesDates` rewrites a comparison point's date to the primary
+			 * point it is drawn under, so whichever series the pointer resolves to,
+			 * its datum carries the current-period date.
+			 */
+			const date = ( datum as { date?: unknown } | undefined )?.date;
+
+			if ( date instanceof Date ) {
+				onDatumClick?.( readPointDate( date ) );
+			}
+		},
+		[ onDatumClick, readPointDate ]
+	);
+
+	// Left off entirely without a handler, so a chart that does not drill keeps
+	// no pointer listeners at all.
+	const pointerProps = onDatumClick
+		? { onPointerDown: handlePointerDown, onPointerUp: handlePointerUp }
+		: {};
 
 	// Resolve each series' colour + line style from the chart theme so the chart
 	// lines and the tooltip glyphs share the same styling — including the dashed
@@ -239,6 +306,7 @@ function MetricChart( {
 			tickResolution={ tickResolution }
 			formatTooltipDate={ formatTooltipDate }
 			compactWhenShort
+			{ ...pointerProps }
 		/>
 	) : (
 		<ComparativeLineChart
@@ -251,6 +319,7 @@ function MetricChart( {
 			tickResolution={ tickResolution }
 			formatTooltipDate={ formatTooltipDate }
 			compactWhenShort
+			{ ...pointerProps }
 		/>
 	);
 }
@@ -346,6 +415,7 @@ export function MetricTabsChart( {
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics-pkg' ),
 	tickResolution,
 	pointsAreWallClocks = false,
+	onDatumClick,
 }: MetricTabsChartProps ) {
 	const readPointDate = pointsAreWallClocks ? fromChartDate : asInstant;
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
@@ -446,6 +516,7 @@ export function MetricTabsChart( {
 						chartId={ chartIdFor( activeMetric ) }
 						tickResolution={ tickResolution }
 						readPointDate={ readPointDate }
+						onDatumClick={ onDatumClick }
 					/>
 				</div>
 			</div>
@@ -517,6 +588,7 @@ export function MetricTabsChart( {
 							chartId={ chartIdFor( activeMetric ) }
 							tickResolution={ tickResolution }
 							readPointDate={ readPointDate }
+							onDatumClick={ onDatumClick }
 						/>
 					) }
 				</div>
@@ -558,6 +630,7 @@ export function MetricTabsChart( {
 						chartId={ chartIdFor( metric ) }
 						tickResolution={ tickResolution }
 						readPointDate={ readPointDate }
+						onDatumClick={ onDatumClick }
 					/>
 				</Tabs.Panel>
 			) ) }

@@ -42,6 +42,13 @@ type ChartProps = {
 	chartId?: string;
 	defaultHiddenSeries?: readonly string[];
 	legendInteractive?: boolean;
+	onPointerDown?: ( params: PointerParams ) => void;
+	onPointerUp?: ( params: PointerParams ) => void;
+};
+
+type PointerParams = {
+	datum?: unknown;
+	svgPoint?: { x: number; y: number };
 };
 
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
@@ -111,6 +118,20 @@ const WALL_CLOCK_METRIC: MetricTab = {
  */
 function recordedSeries( spy: jest.Mock ): ComparativeLineChartSeries[] {
 	return recordedProps( spy ).series;
+}
+
+/**
+ * Play a press and release over a datum, optionally moving between them.
+ *
+ * @param spy      - The chart stand-in to drive.
+ * @param datum    - The datum the pointer resolves to.
+ * @param distance - How far (px) the pointer travels before release.
+ */
+function pressAndRelease( spy: jest.Mock, datum: unknown, distance = 0 ) {
+	const { onPointerDown, onPointerUp } = recordedProps( spy );
+
+	onPointerDown?.( { datum, svgPoint: { x: 10, y: 10 } } );
+	onPointerUp?.( { datum, svgPoint: { x: 10 + distance, y: 10 } } );
 }
 
 /**
@@ -457,5 +478,140 @@ describe( 'MetricTabsChart', () => {
 		);
 
 		expect( recordedPropsFor( mockBarSpy, 'Views' ).chartId ).toBe( lineChartId );
+	} );
+
+	describe( 'onDatumClick', () => {
+		const CLICKED = new Date( '2026-07-02T00:00:00Z' );
+
+		it.each( [
+			[ 'line', mockLineSpy, undefined ],
+			[ 'bar', mockBarSpy, 'bar' ],
+		] as const )( 'reports a click on the %s chart', ( _name, spy, chartType ) => {
+			const onDatumClick = jest.fn();
+
+			render(
+				<MetricTabsChart
+					metrics={ [ METRIC ] }
+					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
+					onDatumClick={ onDatumClick }
+				/>
+			);
+
+			pressAndRelease( spy, { date: CLICKED, value: 200 } );
+
+			expect( onDatumClick ).toHaveBeenCalledWith( CLICKED );
+		} );
+
+		/*
+		 * A wall-clock point names a bucket, not an instant, so the date handed on
+		 * must be re-anchored in the site's zone first — otherwise an hourly
+		 * bucket opens the browser's day rather than the site's.
+		 */
+		it.each( [
+			[ 'America/Los_Angeles', '2026-07-21T20:00:00.000Z' ],
+			[ 'Asia/Tokyo', '2026-07-21T04:00:00.000Z' ],
+		] )( 'reads a wall-clock point in the site zone, on a site in %s', ( zone, expected ) => {
+			setSettings( siteSettingsIn( zone ) );
+
+			const onDatumClick = jest.fn();
+
+			render(
+				<MetricTabsChart
+					metrics={ [ WALL_CLOCK_METRIC ] }
+					dataFormat={ DATA_FORMAT }
+					onDatumClick={ onDatumClick }
+					pointsAreWallClocks
+				/>
+			);
+
+			pressAndRelease( mockLineSpy, { date: new Date( '2026-07-21T13:00:00.000Z' ), value: 200 } );
+
+			expect( onDatumClick.mock.calls[ 0 ][ 0 ].getTime() ).toBe( Date.parse( expected ) );
+		} );
+
+		// Literal on purpose. Importing the component's tolerance would move both
+		// sides with it, leaving the threshold unpinned.
+		it.each( [
+			[ 6, true ],
+			[ 7, false ],
+		] )( 'travelling %ipx reports a click: %s', ( distance, reports ) => {
+			const onDatumClick = jest.fn();
+
+			render(
+				<MetricTabsChart
+					metrics={ [ METRIC ] }
+					dataFormat={ DATA_FORMAT }
+					onDatumClick={ onDatumClick }
+				/>
+			);
+
+			pressAndRelease( mockLineSpy, { date: CLICKED, value: 200 }, distance );
+
+			expect( onDatumClick ).toHaveBeenCalledTimes( reports ? 1 : 0 );
+		} );
+
+		/*
+		 * A release the chart never saw a press for belongs to a gesture that
+		 * started off the plot, so it must not open a date the pointer only
+		 * happened to end over.
+		 */
+		it( 'ignores a release with no press behind it', () => {
+			const onDatumClick = jest.fn();
+
+			render(
+				<MetricTabsChart
+					metrics={ [ METRIC ] }
+					dataFormat={ DATA_FORMAT }
+					onDatumClick={ onDatumClick }
+				/>
+			);
+
+			recordedProps( mockLineSpy ).onPointerUp?.( {
+				datum: { date: CLICKED, value: 200 },
+				svgPoint: { x: 10, y: 10 },
+			} );
+
+			expect( onDatumClick ).not.toHaveBeenCalled();
+		} );
+
+		it( 'ignores a drag, so a zoom gesture never opens a date', () => {
+			const onDatumClick = jest.fn();
+
+			render(
+				<MetricTabsChart
+					metrics={ [ METRIC ] }
+					dataFormat={ DATA_FORMAT }
+					onDatumClick={ onDatumClick }
+				/>
+			);
+
+			pressAndRelease( mockLineSpy, { date: CLICKED, value: 200 }, 40 );
+
+			expect( onDatumClick ).not.toHaveBeenCalled();
+		} );
+
+		it( 'ignores a release over nothing datable', () => {
+			const onDatumClick = jest.fn();
+
+			render(
+				<MetricTabsChart
+					metrics={ [ METRIC ] }
+					dataFormat={ DATA_FORMAT }
+					onDatumClick={ onDatumClick }
+				/>
+			);
+
+			pressAndRelease( mockLineSpy, { value: 200 } );
+
+			expect( onDatumClick ).not.toHaveBeenCalled();
+		} );
+
+		it( 'leaves the chart without pointer handlers when nothing listens', () => {
+			render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } /> );
+
+			expect( recordedProps( mockLineSpy ).onPointerUp ).toBeUndefined();
+			expect( recordedProps( mockLineSpy ).onPointerDown ).toBeUndefined();
+		} );
 	} );
 } );

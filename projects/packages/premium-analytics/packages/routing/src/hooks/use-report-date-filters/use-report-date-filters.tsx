@@ -6,7 +6,12 @@ import {
 	hasComparisonEnabled,
 	resolveIntervalForRange,
 } from '@jetpack-premium-analytics/data';
-import { PRESET_CUSTOM, siteTimeZone, stepDateRange } from '@jetpack-premium-analytics/datetime';
+import {
+	drillDateRange,
+	PRESET_CUSTOM,
+	siteTimeZone,
+	stepDateRange,
+} from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
@@ -65,6 +70,12 @@ export type ReportDateFilters = {
 	 * Step the applied window backward or forward by its own length.
 	 */
 	onStep: ( direction: StepDirection ) => void;
+
+	/**
+	 * Open the chart bucket containing a date: narrow the applied window to that
+	 * bucket, which drops the reading to the next finer interval.
+	 */
+	drillDown: ( date: Date ) => void;
 
 	onApply: () => void;
 	onCancel: () => void;
@@ -290,6 +301,51 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		[ appliedRange, commit, effective, stage ]
 	);
 
+	/*
+	 * Commits on click and pushes a history entry, like `onStep`, so Back is the
+	 * way out of a drill-down and the narrowed window survives a reload.
+	 *
+	 * Reads the applied interval and range rather than the staged ones: the
+	 * chart draws what is applied, so the bucket the user clicked belongs to
+	 * that window, not to a draft the picker is holding.
+	 */
+	const drillDown = useCallback(
+		( date: Date ) => {
+			const drilled = drillDateRange( date, appliedInterval, new Date() );
+
+			if ( ! drilled?.from || ! drilled.to ) {
+				return;
+			}
+
+			/*
+			 * Kept inside the applied window: a bucket at either edge of the chart
+			 * is usually a partial one, and opening it whole would widen the report
+			 * past the range the user asked for.
+			 */
+			const clampedFrom =
+				appliedRange.from && drilled.from < appliedRange.from ? appliedRange.from : drilled.from;
+			const clampedTo =
+				appliedRange.to && drilled.to > appliedRange.to ? appliedRange.to : drilled.to;
+
+			if ( clampedFrom.getTime() >= clampedTo.getTime() ) {
+				return;
+			}
+
+			const patch = buildRangePatch( {
+				nextRange: { from: clampedFrom, to: clampedTo },
+				nextPresetId: PRESET_CUSTOM,
+				exactRange: true,
+				effective,
+			} );
+
+			if ( patch ) {
+				stage( patch );
+				commit();
+			}
+		},
+		[ appliedInterval, appliedRange, commit, effective, stage ]
+	);
+
 	const onApply = useCallback( () => commit(), [ commit ] );
 	const onCancel = useCallback( () => revert(), [ revert ] );
 
@@ -324,6 +380,7 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		onComparisonChange,
 		onIntervalChange,
 		onStep,
+		drillDown,
 		onApply,
 		onCancel,
 		canApply: isDirty,
