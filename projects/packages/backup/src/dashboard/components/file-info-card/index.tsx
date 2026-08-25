@@ -10,7 +10,15 @@ import './style.scss';
 import type { FileNodeFile } from '../../types/file-tree';
 
 /**
- * Heuristic mime-type lookup by file extension.
+ * File extensions this card can render as text, and the mime type it
+ * labels each one with.
+ *
+ * Membership is the whole previewability rule — an extension in this map
+ * previews, one outside it does not. Adding a binary format here to get
+ * a `Type:` row would therefore also send its bytes to the `<pre>`, so
+ * keep binaries out. `.svg` earns its place because the card shows the
+ * source rather than rendering the image, which also keeps a hostile SVG
+ * out of the DOM.
  *
  * Deliberately not replaced by `path-info`'s `data_type`: that field is
  * a small integer type code — the manifest path's second character —
@@ -19,7 +27,7 @@ import type { FileNodeFile } from '../../types/file-tree';
  * own extension map for exactly this decision, using `data_type` only
  * to drive granular download.
  */
-const EXT_TO_MIME: Record< string, string > = {
+const PREVIEWABLE_TEXT_TYPES: Record< string, string > = {
 	css: 'text/css',
 	csv: 'text/csv',
 	htm: 'text/html',
@@ -53,7 +61,7 @@ function mimeFromName( name: string ): string {
 		return '';
 	}
 	const ext = name.slice( idx + 1 ).toLowerCase();
-	return EXT_TO_MIME[ ext ] ?? '';
+	return PREVIEWABLE_TEXT_TYPES[ ext ] ?? '';
 }
 
 type Props = {
@@ -133,21 +141,6 @@ function PreviewBody( {
 }
 
 /**
- * Returns true when the given mime type is renderable as plain text.
- *
- * @param mime - Mime type string.
- * @return Whether the type is textual.
- */
-function isTextual( mime: string ): boolean {
-	return (
-		mime.startsWith( 'text/' ) ||
-		mime === 'application/x-php' ||
-		mime === 'application/sql' ||
-		mime === 'application/json'
-	);
-}
-
-/**
  * Side panel showing details for the currently-open file: size, hash,
  * modified timestamp, and a monospace text preview for recognized text
  * mime types.
@@ -170,7 +163,7 @@ function isTextual( mime: string ): boolean {
  */
 export default function FileInfoCard( { file, onClose }: Props ) {
 	const mimeType = mimeFromName( file.name );
-	const showPreview = mimeType ? isTextual( mimeType ) : false;
+	const showPreview = Boolean( mimeType );
 	const {
 		content,
 		isLoading: contentsLoading,
