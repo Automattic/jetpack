@@ -67,8 +67,8 @@ export function useChartTheme(): WooChartTheme {
 				],
 			},
 			leaderboardChart: {
-				rowGap: 12,
-				columnGap: 4,
+				rowGap: 'xs',
+				columnGap: 'xs',
 				labelSpacing: 'xs',
 				barBorderRadius: 'var(--wpds-border-radius-md)',
 				deltaColors: [
