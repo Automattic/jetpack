@@ -110,6 +110,21 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap_Test extends Jetpack_RES
 	}
 
 	/**
+	 * Re-register the routes as a site that is not WordPress.com Simple.
+	 *
+	 * The callbacks are chosen in `register_routes()` from the host, so switching platform means
+	 * firing `rest_api_init` again against a fresh server rather than only flipping the constant.
+	 */
+	private function register_routes_as_non_simple() {
+		Constants::set_constant( 'IS_WPCOM', false );
+
+		global $wp_rest_server;
+		$wp_rest_server = new JPTest_Spy_REST_Server();
+		$this->server   = $wp_rest_server;
+		do_action( 'rest_api_init' );
+	}
+
+	/**
 	 * A design document, in the shape the editor saves.
 	 *
 	 * @return array
@@ -406,5 +421,91 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap_Test extends Jetpack_RES
 		$response = $this->server->dispatch( $this->request( Requests::GET ) );
 
 		$this->assertErrorResponse( 'email_editor_failed', $response, 500 );
+	}
+
+	/**
+	 * Test that an unconnected user cannot reach the endpoint, on the path every Atomic and
+	 * self-hosted site takes.
+	 *
+	 * This pins the guarantee, not the line that enforces it, and is worth being precise about: the
+	 * endpoint's permission callback and the connection package's proxy both refuse an unconnected
+	 * user with this same `rest_unauthorized`, so nothing asserted here can tell them apart and
+	 * removing either one alone leaves this green. What it does hold is the contract a caller depends
+	 * on — a site with no connection is refused, rather than served or left waiting on a request that
+	 * cannot be made.
+	 */
+	public function test_an_unconnected_user_cannot_reach_the_endpoint_off_simple() {
+		$this->register_routes_as_non_simple();
+
+		$this->assertErrorResponse(
+			'rest_unauthorized',
+			$this->server->dispatch( $this->request( Requests::GET ) ),
+			403
+		);
+		$this->assertErrorResponse(
+			'rest_unauthorized',
+			$this->server->dispatch( $this->request( Requests::POST, array( 'design' => $this->design() ) ) ),
+			403
+		);
+	}
+
+	/**
+	 * Test that a read implementation returning something other than a bundle is not served as one.
+	 *
+	 * `false` is how PHP conventionally reports failure, so an implementation that fails this way must
+	 * not reach the screen as a successful, empty design.
+	 */
+	public function test_read_rejects_a_non_array_filter_return() {
+		$this->add_temporary_filter( 'jetpack_email_editor_bootstrap', '__return_false' );
+
+		$response = $this->server->dispatch( $this->request( Requests::GET ) );
+
+		$this->assertErrorResponse( 'email_editor_unavailable', $response, 501 );
+	}
+
+	/**
+	 * Test that a write implementation returning something other than a stored design is not reported
+	 * as a successful save.
+	 */
+	public function test_write_rejects_a_non_array_filter_return() {
+		$this->add_temporary_filter(
+			'jetpack_email_editor_save_design',
+			static function () {
+				return 'saved';
+			}
+		);
+
+		$response = $this->server->dispatch( $this->request( Requests::POST, array( 'design' => $this->design() ) ) );
+
+		$this->assertErrorResponse( 'email_editor_unavailable', $response, 501 );
+	}
+
+	/**
+	 * Test that a raising filter is announced, so a host can log what this plugin deliberately does not.
+	 */
+	public function test_a_throwing_filter_fires_the_error_action() {
+		$seen = null;
+
+		$this->add_temporary_filter(
+			'jetpack_email_editor_bootstrap',
+			/**
+			 * @return never
+			 */
+			static function () {
+				throw new RuntimeException( 'the bootstrap raised' );
+			}
+		);
+
+		$this->add_temporary_filter(
+			'jetpack_email_editor_error',
+			static function ( $e ) use ( &$seen ) {
+				$seen = $e;
+			}
+		);
+
+		$this->server->dispatch( $this->request( Requests::GET ) );
+
+		$this->assertInstanceOf( RuntimeException::class, $seen );
+		$this->assertSame( 'the bootstrap raised', $seen->getMessage() );
 	}
 }

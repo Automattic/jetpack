@@ -108,8 +108,10 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 	 */
 	public function permissions_check() {
 		if ( ! ( new Host() )->is_wpcom_simple() && ! ( new Manager() )->is_user_connected() ) {
-			// The proxy sends the request as the user with no blog-token fallback, so an unconnected
-			// user cannot reach WordPress.com at all. Saying so here beats a round trip that cannot succeed.
+			// The proxy refuses an unconnected user too, and returns this same error when it does, so
+			// this changes nothing observable today. It is here because the proxy refuses only while it
+			// is called with no blog-token fallback: without this, a change to that default inside the
+			// connection package would quietly start serving unconnected users on the site's token.
 			return new WP_Error(
 				'rest_unauthorized',
 				__( 'Please connect your user account to WordPress.com', 'jetpack' ),
@@ -191,26 +193,28 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 	/**
 	 * Turns a filtered value into a response.
 	 *
-	 * An unfiltered `null` means nothing implements the filter on this site — the plugin is running
-	 * somewhere its WordPress.com half has not shipped. Reported as unavailable, because returning it
-	 * bare would be indistinguishable from a site whose email design is genuinely empty, and this
-	 * data layer exists to stop a design silently reading or saving as nothing.
+	 * Anything that is not an array or a `WP_Error` is treated as no answer at all, because this data
+	 * layer exists to stop a design silently reading or saving as nothing. An unfiltered `null` means
+	 * nothing implements the filter on this site — the plugin is running somewhere its WordPress.com
+	 * half has not shipped. `false` means an implementation failed and said so the way PHP usually
+	 * does. Returning either bare would be indistinguishable from a site whose email design is
+	 * genuinely empty, so both report as unavailable instead.
 	 *
 	 * @param array|WP_Error|null $value The filtered value.
 	 *
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	private function respond( $value ) {
-		if ( null === $value ) {
+		if ( is_wp_error( $value ) ) {
+			return $value;
+		}
+
+		if ( ! is_array( $value ) ) {
 			return new WP_Error(
 				'email_editor_unavailable',
 				__( 'The email editor is not available on this site.', 'jetpack' ),
 				array( 'status' => 501 )
 			);
-		}
-
-		if ( is_wp_error( $value ) ) {
-			return $value;
 		}
 
 		return rest_ensure_response( $value );
@@ -228,6 +232,18 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 	 * @return WP_Error
 	 */
 	private function unexpected_error( $e ) {
+		/**
+		 * Fires when a filter serving the email editor raises.
+		 *
+		 * This plugin does not record the exception itself — the message can carry internals, so where
+		 * it is safe to write it is the host's call rather than ours. Hook this to log it.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param Throwable $e The exception raised while filtering.
+		 */
+		do_action( 'jetpack_email_editor_error', $e );
+
 		$data = array( 'status' => 500 );
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
