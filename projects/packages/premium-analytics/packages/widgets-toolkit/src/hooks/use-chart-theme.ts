@@ -19,11 +19,11 @@ export function useChartTheme(): WooChartTheme {
 			backgroundColor: 'var(--wpds-color-background-surface-neutral-strong)',
 			labelBackgroundColor: 'var(--wpds-color-background-interactive-neutral-weak)',
 			labelTextColor: 'var(--wpds-color-foreground-interactive-neutral-strong)',
-			// Seed with the accent alone; `@automattic/charts` derives the rest. The nested fallback
-			// is load-bearing: a seed that does not resolve leaves the palette empty and unaccented.
-			colors: [
-				'var(--wpds-color-foreground-interactive-brand, var(--wp-admin-theme-color, #3858e9))',
-			],
+			// No `colors`: `@automattic/charts` seeds its own palette from
+			// `--a8c-charts-color-series-1`, which reads `--wp-admin-theme-color` first and the
+			// design system's brand token after it. Passing a seed here published that as the
+			// slot's theme layer, which put our copy of the chain ahead of the package's own
+			// and made this the place to fix an ordering bug in it.
 			gridStyles: {
 				stroke: 'var(--wpds-color-stroke-surface-neutral)',
 				strokeWidth: 1,

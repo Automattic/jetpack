@@ -114,9 +114,9 @@ The five `--a8c-charts-color-series-*` slots are the palette. `GlobalChartsProvi
 
 Only slot 1 has a default, and it names `--wp-admin-theme-color` first, so series colours follow the WordPress admin colour scheme with no host configuration.
 
-The design system's own brand token cannot lead that chain. WordPress 7.1's `wp-components` stylesheet depends on the `wp-theme` handle, so `design-tokens.css` loads on every React admin screen, and it pins `--wpds-color-foreground-interactive-brand` to a static `#3858e9` with no reference to the admin colour anywhere. Named first, that token would peg every chart to blueberry.
+The design system's brand token is the next leg rather than the first, because it only reaches the admin colour scheme when a WPDS **root provider** is on the page. Measured on a live WordPress 7.1 wp-admin dashboard, `<html data-wpds-root-provider>` carries the whole generated ramp inline, derived from `--wp-admin-theme-color`. Where no root provider boots, the token falls back to the plain stylesheet rule — a static `#3858e9` with no reference to the admin colour. So on WP 7.1 either order happens to work; everywhere else (WP 7.0.x, a page without a root provider, Calypso, SSR) only this one does.
 
-Leading with the admin colour costs nothing, because `@wordpress/theme`'s `ThemeProvider` writes `--wp-admin-theme-color` from its own accent — its legacy wp-admin override — alongside the `--wpds-*` ramp. A provider accent therefore still wins.
+Leading with the admin colour costs nothing, because `@wordpress/theme` writes `--wp-admin-theme-color` from a provider's own accent — its legacy wp-admin override — alongside the `--wpds-*` ramp. A provider accent therefore still wins.
 
 Precedence for a series colour, highest first:
 

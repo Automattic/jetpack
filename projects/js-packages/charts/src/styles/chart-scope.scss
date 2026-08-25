@@ -33,19 +33,23 @@
 	// two-colour palette, and charts generate accessible colours beyond the
 	// seeds. Only slot 1 carries a default.
 
-	// Slot 1 names --wp-admin-theme-color first. The design system's brand
-	// token cannot lead: WP 7.1's wp-components stylesheet depends on the
-	// wp-theme handle, so design-tokens.css loads on every React admin screen,
-	// and it pins --wpds-color-foreground-interactive-brand to a static #3858e9
-	// with no reference to the admin colour anywhere. Named first, that token
-	// would peg every chart to blueberry and the admin colour scheme would
-	// never be reached.
+	// Slot 1 names --wp-admin-theme-color first, because that is the only leg
+	// that does not depend on someone else's runtime.
 
-	// Leading with the admin colour costs nothing, because @wordpress/theme's
-	// ThemeProvider writes --wp-admin-theme-color from its own accent (its
-	// legacy wp-admin override) alongside the --wpds-* ramp. A provider accent
-	// therefore still wins here — verified in Storybook, where a #b3261e accent
-	// sets both variables to #b3261e.
+	// The design system's brand token reaches the admin colour scheme only when
+	// a WPDS *root provider* is on the page: measured on a live WP 7.1 wp-admin
+	// dashboard, <html data-wpds-root-provider> carries the whole generated ramp
+	// inline, derived from --wp-admin-theme-color. Where no root provider boots,
+	// the token falls to the plain stylesheet rule, which is a static #3858e9
+	// with no reference to the admin colour at all. So on WP 7.1 either order
+	// happens to work, and everywhere else — WP 7.0.x, a page without a root
+	// provider, Calypso, SSR — only this one does.
+
+	// Leading with the admin colour costs nothing. @wordpress/theme writes
+	// --wp-admin-theme-color from a provider's own accent (its legacy wp-admin
+	// override) alongside the --wpds-* ramp, so a provider accent still wins
+	// here — verified in Storybook, where a #b3261e accent sets both variables
+	// to #b3261e.
 
 	// DO NOT SIMPLIFY the chain below. The innermost
 	// var(--wp-admin-theme-color, #3858e9) is unreachable — the outer leg
@@ -53,8 +57,8 @@
 	// the design system's own spec value for the WPDS token, which
 	// `src/styles/test/wpds-fallbacks.test.ts` compares against literally, so
 	// collapsing it to a bare hex fails that test. Reordering to put the WPDS
-	// token first passes every test and silently breaks admin-colour-scheme
-	// support in wp-admin, for the reason above.
+	// token first passes every test, and passes in wp-admin too, so nothing
+	// catches it until a host without a root provider renders a chart.
 
 	// That test scans this file as text, comments included, so do not write an
 	// example --wpds-* reference in a comment here — it is read as a real one.
