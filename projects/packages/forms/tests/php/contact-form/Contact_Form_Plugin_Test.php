@@ -300,9 +300,10 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	 * The block's `maxfiles` attribute has to survive the trip into the shortcode the field
 	 * renders as, or the editor setting silently does nothing.
 	 *
-	 * It is lowercase for that reason — Contact_Form_Field runs its attributes through
-	 * shortcode_atts() against an all-lowercase list of defaults and drops anything that does not
-	 * match — so this pins the name as much as the plumbing.
+	 * The name is lowercase to match the PHP side, where shortcode_atts() reads an all-lowercase
+	 * list of defaults. Camel case would survive this particular path anyway, because WordPress
+	 * lowercases attribute names as it parses the shortcode text back — so this pins the name as
+	 * much as the plumbing.
 	 */
 	public function test_gutenblock_render_field_file_carries_max_files() {
 		$block = array(

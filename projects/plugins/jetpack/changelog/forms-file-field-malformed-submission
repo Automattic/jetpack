@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: prevent a fatal error when a submission carries an unexpected value in place of a file reference on the file upload field.

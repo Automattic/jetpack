@@ -800,7 +800,7 @@ class Contact_Form_Field_Test extends BaseTestCase {
 				'id'       => 'test_files',
 				'label'    => 'Attachments',
 				'maxfiles' => 2,
-				'required' => true,
+				'required' => '1',
 			)
 		);
 
@@ -817,6 +817,76 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The limit has to hold for an optional field too. It reaches the count check by a different
+	 * route — the `! required && ! has_value()` early return — so a change to how has_value() reads
+	 * an array value could drop the check for optional fields without any test noticing.
+	 */
+	public function test_file_field_limit_applies_when_the_field_is_optional() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'     => 'file',
+				'id'       => 'test_files',
+				'label'    => 'Attachments',
+				'maxfiles' => 2,
+			)
+		);
+
+		$_POST['test_files'] = array(
+			wp_json_encode( array( 'file_id' => 1 ), JSON_UNESCAPED_SLASHES ),
+			wp_json_encode( array( 'file_id' => 2 ), JSON_UNESCAPED_SLASHES ),
+			wp_json_encode( array( 'file_id' => 3 ), JSON_UNESCAPED_SLASHES ),
+		);
+
+		$field->validate();
+		unset( $_POST['test_files'] );
+
+		$this->assertTrue( $field->is_error() );
+	}
+
+	/**
+	 * The shapes an attacker actually sends, rather than the one the field writes.
+	 *
+	 * @dataProvider data_malformed_file_field_values
+	 *
+	 * @param mixed $value The posted value.
+	 */
+	#[DataProvider( 'data_malformed_file_field_values' )]
+	public function test_file_field_handles_a_malformed_submission( $value ) {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'     => 'file',
+				'id'       => 'test_files',
+				'label'    => 'Attachments',
+				'maxfiles' => 3,
+				'required' => '1',
+			)
+		);
+
+		$_POST['test_files'] = $value;
+
+		$field->validate();
+		unset( $_POST['test_files'] );
+
+		// Rejected rather than fatal, and never silently accepted.
+		$this->assertTrue( $field->is_error() );
+	}
+
+	/**
+	 * Data provider for test_file_field_handles_a_malformed_submission.
+	 *
+	 * @return array
+	 */
+	public static function data_malformed_file_field_values() {
+		return array(
+			'a scalar'            => array( 'not-an-array' ),
+			'an empty array'      => array( array() ),
+			'no zero index'       => array( array( 1 => '{"file_id":1}' ) ),
+			'a nested array'      => array( array( array( 'x' => 'y' ) ) ),
+			'an empty first slot' => array( array( '', '{"file_id":1}' ) ),
+		);
+	}
+
+	/**
 	 * The mirror case, so the check above cannot pass by rejecting everything.
 	 */
 	public function test_file_field_accepts_a_submission_within_its_limit() {
@@ -826,7 +896,7 @@ class Contact_Form_Field_Test extends BaseTestCase {
 				'id'       => 'test_files',
 				'label'    => 'Attachments',
 				'maxfiles' => 2,
-				'required' => true,
+				'required' => '1',
 			)
 		);
 

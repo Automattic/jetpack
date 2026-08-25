@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+File upload field: Prevent a fatal error when a submission carries an unexpected value in place of a file reference.

@@ -2336,9 +2336,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * How many files this file upload field accepts.
 	 *
-	 * Read from the block's `maxfiles` attribute and clamped: the value reaches PHP as author-
-	 * supplied shortcode text, and both the rendered `multiple` attribute and the submission-time
-	 * count check are derived from it.
+	 * Read from the block's `maxfiles` attribute and clamped rather than trusted: the value reaches
+	 * PHP as author-supplied shortcode text, and both the rendered `multiple` attribute and the
+	 * submission-time count check are derived from it.
 	 *
 	 * @since $$next-version$$
 	 *
