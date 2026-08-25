@@ -69,8 +69,9 @@ export const buildCalendarHeatmapData = (
 		 * series' own. Days inside the grid but outside the series become
 		 * placeholder cells: painted as empty slots so a short series still
 		 * fills its container, but reporting nothing, since they were never
-		 * measured. Bounds narrower than the series are ignored — the grid
-		 * never drops a day that carries data.
+		 * measured. A start bound is drawn from the beginning of its week, so
+		 * the grid always opens on a whole column. Bounds narrower than the
+		 * series are ignored — the grid never drops a day that carries data.
 		 */
 		gridSpan?: { start?: string; end?: string };
 	} = {}
@@ -109,10 +110,15 @@ export const buildCalendarHeatmapData = (
 	const gridMinDate = widenTo( options.gridSpan?.start, minDate, 'earlier' );
 	const gridMaxDate = widenTo( options.gridSpan?.end, maxDate, 'later' );
 
-	const gridMinDayKey = format( gridMinDate, 'yyyy-MM-dd' );
 	const gridMaxDayKey = format( gridMaxDate, 'yyyy-MM-dd' );
 
 	const gridStart = startOfWeek( gridMinDate, { weekStartsOn } );
+
+	// A start bound rarely lands on a week start, and `gridStart` rounds it down.
+	// The days it rounds past were no more measured than the rest of the widened
+	// span, so they are filler too; treating them as a ragged edge instead would
+	// notch the first column by however far the bound sat into its week.
+	const gridMinDayKey = format( gridMinDate < minDate ? gridStart : gridMinDate, 'yyyy-MM-dd' );
 	const weekCount = differenceInCalendarWeeks( gridMaxDate, gridStart, { weekStartsOn } ) + 1;
 
 	const rowLabels = Array.from( { length: 7 }, ( _, row ) =>

@@ -14,10 +14,11 @@ export type HeatmapCell = {
 	 */
 	hidden?: boolean;
 	/**
-	 * Paint the cell as an empty slot that carries no claim about the day: it
-	 * looks like a no-value cell but is skipped by hover, tooltips, keyboard
-	 * navigation and the accessibility tree. For grid filler — slots drawn only
-	 * so a short range still fills its container, which were never measured.
+	 * Paint the cell as a faded empty slot that carries no claim about the day:
+	 * it is set apart from a measured day that scored zero, and skipped by
+	 * hover, tooltips, keyboard navigation and the accessibility tree. For grid
+	 * filler — slots drawn only so a short range still fills its container,
+	 * which were never measured.
 	 */
 	placeholder?: boolean;
 };
