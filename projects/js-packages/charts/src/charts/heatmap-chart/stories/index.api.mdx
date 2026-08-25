@@ -79,6 +79,13 @@ type HeatmapCell = {
 	 * place so the rest of the grid doesn't shift.
 	 */
 	hidden?: boolean;
+	/**
+	 * Paint the cell as a faded empty slot that carries no claim about the
+	 * day: it is skipped by hover, tooltips, keyboard navigation and the
+	 * accessibility tree. For grid filler — slots drawn only so a short
+	 * range still fills its container, which were never measured.
+	 */
+	placeholder?: boolean;
 };
 ```
 
@@ -112,7 +119,11 @@ Utility function that converts a flat time-series into the `HeatmapColumn[]` / `
 ```typescript
 function buildCalendarHeatmapData(
 	series: DataPointDate[],
-	options?: { weekStartsOn?: 0 | 1; hideOutOfRangeDays?: boolean }
+	options?: {
+		weekStartsOn?: 0 | 1;
+		hideOutOfRangeDays?: boolean;
+		gridSpan?: { start?: string; end?: string };
+	}
 ): CalendarHeatmapResult
 ```
 
@@ -123,6 +134,7 @@ function buildCalendarHeatmapData(
 | `series` | `DataPointDate[]` | - | **Required.** Array of data points with a `date` (or `dateString`) and a numeric `value`. |
 | `options.weekStartsOn` | `0 \| 1` | `1` | Day the week starts on: `0` = Sunday, `1` = Monday. |
 | `options.hideOutOfRangeDays` | `boolean` | `true` | Mark the week-completion days outside the series' date span as hidden cells (empty grid slots) instead of blank cells, giving the calendar ragged edges. Pass `false` to keep them as blank cells. |
+| `options.gridSpan` | `{ start?: string; end?: string }` | - | Draw the grid over this span (`yyyy-MM-dd` bounds) instead of the series' own, so a series too short to fill its container still does. Days inside the grid but outside the series become `placeholder` cells. A `start` is drawn from the beginning of its week, so the grid opens on a whole column. Bounds narrower than the series are ignored. |
 
 **Returns:** `CalendarHeatmapResult`
 

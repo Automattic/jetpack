@@ -91,6 +91,7 @@ export {
 export { formatViewCount } from './format-view-count';
 export {
 	buildDenseDaySeries,
+	resolveCalendarHeatmapGridStart,
 	resolveCalendarHeatmapWindow,
 	resolveCalendarHeatmapWindowDays,
 	type CalendarHeatmapWindow,

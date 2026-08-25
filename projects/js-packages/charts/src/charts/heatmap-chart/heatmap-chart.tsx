@@ -136,8 +136,13 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		hideTooltip();
 	}, [ hideTooltip ] );
 
-	const isCellHidden = useCallback(
-		( col: number, row: number ) => data[ col ]?.data[ row ]?.hidden === true,
+	// Both empty-slot kinds are skipped by navigation: `hidden` paints nothing,
+	// `placeholder` paints an empty cell, and neither has a value to report.
+	const isCellInert = useCallback(
+		( col: number, row: number ) => {
+			const cell = data[ col ]?.data[ row ];
+			return cell?.hidden === true || cell?.placeholder === true;
+		},
 		[ data ]
 	);
 
@@ -163,7 +168,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 				// Start at the first navigable cell (a calendar's leading edge
 				// slots may be hidden).
 				for ( let index = 0; index < columns * rows; index++ ) {
-					if ( ! isCellHidden( Math.floor( index / rows ), index % rows ) ) {
+					if ( ! isCellInert( Math.floor( index / rows ), index % rows ) ) {
 						setSelectedIndex( index );
 						return;
 					}
@@ -191,7 +196,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 			do {
 				col += stepCol;
 				row += stepRow;
-			} while ( col >= 0 && col < columns && row >= 0 && row < rows && isCellHidden( col, row ) );
+			} while ( col >= 0 && col < columns && row >= 0 && row < rows && isCellInert( col, row ) );
 
 			if ( col < 0 || col >= columns || row < 0 || row >= rows ) {
 				return;
@@ -199,7 +204,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 			setSelectedIndex( col * rows + row );
 		},
-		[ rows, columns, selectedIndex, hideTooltip, isCellHidden ]
+		[ rows, columns, selectedIndex, hideTooltip, isCellInert ]
 	);
 
 	const handleCellMouseMove = useCallback(
@@ -386,6 +391,24 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 													className={ clsx(
 														styles[ 'heatmap-chart__cell' ],
 														styles[ 'heatmap-chart__cell--hidden' ]
+													) }
+												/>
+											);
+										}
+
+										// Filler: drawn like an empty cell so the grid fills its
+										// container, but it stands for a day nothing was measured
+										// for, so it reports nothing to a pointer or a screen
+										// reader either.
+										if ( cell?.placeholder ) {
+											return (
+												<div
+													key={ `cell-${ columnIndex }-${ rowIndex }` }
+													data-testid="heatmap-cell-placeholder"
+													aria-hidden="true"
+													className={ clsx(
+														styles[ 'heatmap-chart__cell' ],
+														styles[ 'heatmap-chart__cell--placeholder' ]
 													) }
 												/>
 											);

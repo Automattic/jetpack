@@ -10,6 +10,36 @@ export type CalendarHeatmapResult = {
 /** Rows that get a weekday label (Mon, Wed, Fri with a Monday week start). */
 const LABELLED_ROWS = [ 0, 2, 4 ];
 
+/**
+ * Resolve one grid bound: an unparseable or narrowing value falls back to the
+ * series' own bound, so the grid can only ever be widened.
+ *
+ * @param bound     - Requested bound as `yyyy-MM-dd`, if any.
+ * @param fallback  - The series' own bound on this side.
+ * @param direction - Which way the bound is allowed to move.
+ * @return The bound to draw to.
+ */
+const widenTo = (
+	bound: string | undefined,
+	fallback: Date,
+	direction: 'earlier' | 'later'
+): Date => {
+	if ( ! bound ) {
+		return fallback;
+	}
+
+	const parsed = parseISO( bound );
+	if ( isNaN( parsed.getTime() ) ) {
+		return fallback;
+	}
+
+	if ( direction === 'earlier' ) {
+		return parsed < fallback ? parsed : fallback;
+	}
+
+	return parsed > fallback ? parsed : fallback;
+};
+
 const toDate = ( point: DataPointDate ): Date | null => {
 	if ( point.date instanceof Date && ! isNaN( point.date.getTime() ) ) {
 		return point.date;
@@ -34,6 +64,16 @@ export const buildCalendarHeatmapData = (
 		 * blank cells even when the series has no entry for them.
 		 */
 		hideOutOfRangeDays?: boolean;
+		/**
+		 * Draw the grid over this span (`yyyy-MM-dd` bounds) instead of the
+		 * series' own. Days inside the grid but outside the series become
+		 * placeholder cells: painted as empty slots so a short series still
+		 * fills its container, but reporting nothing, since they were never
+		 * measured. A start bound is drawn from the beginning of its week, so
+		 * the grid always opens on a whole column. Bounds narrower than the
+		 * series are ignored — the grid never drops a day that carries data.
+		 */
+		gridSpan?: { start?: string; end?: string };
 	} = {}
 ): CalendarHeatmapResult => {
 	const weekStartsOn = options.weekStartsOn ?? 1;
@@ -60,13 +100,26 @@ export const buildCalendarHeatmapData = (
 		}
 	}
 
-	const gridStart = startOfWeek( minDate, { weekStartsOn } );
-	const weekCount = differenceInCalendarWeeks( maxDate, gridStart, { weekStartsOn } ) + 1;
-
 	// Day-key bounds for the ragged-edge option: calendar-day comparison, so
 	// entries carrying a time of day can't shift the span.
 	const minDayKey = format( minDate, 'yyyy-MM-dd' );
 	const maxDayKey = format( maxDate, 'yyyy-MM-dd' );
+
+	// The grid may run wider than the series, never narrower: a bound that would
+	// cut into the data is dropped rather than honoured.
+	const gridMinDate = widenTo( options.gridSpan?.start, minDate, 'earlier' );
+	const gridMaxDate = widenTo( options.gridSpan?.end, maxDate, 'later' );
+
+	const gridMaxDayKey = format( gridMaxDate, 'yyyy-MM-dd' );
+
+	const gridStart = startOfWeek( gridMinDate, { weekStartsOn } );
+
+	// A start bound rarely lands on a week start, and `gridStart` rounds it down.
+	// The days it rounds past were no more measured than the rest of the widened
+	// span, so they are filler too; treating them as a ragged edge instead would
+	// notch the first column by however far the bound sat into its week.
+	const gridMinDayKey = format( gridMinDate < minDate ? gridStart : gridMinDate, 'yyyy-MM-dd' );
+	const weekCount = differenceInCalendarWeeks( gridMaxDate, gridStart, { weekStartsOn } ) + 1;
 
 	const rowLabels = Array.from( { length: 7 }, ( _, row ) =>
 		LABELLED_ROWS.includes( row ) ? format( addDays( gridStart, row ), 'EEE' ) : ''
@@ -104,8 +157,15 @@ export const buildCalendarHeatmapData = (
 				label: format( day, 'EEE, MMM d, yyyy' ),
 				value: valueByDay.has( key ) ? ( valueByDay.get( key ) as number | null ) : null,
 			};
-			if ( hideOutOfRangeDays && ( key < minDayKey || key > maxDayKey ) ) {
-				cell.hidden = true;
+			if ( key < gridMinDayKey || key > gridMaxDayKey ) {
+				// The days completing the grid's first/last week: the calendar's
+				// ragged edge.
+				if ( hideOutOfRangeDays ) {
+					cell.hidden = true;
+				}
+			} else if ( key < minDayKey || key > maxDayKey ) {
+				// Inside the grid the caller asked for, outside the series: filler.
+				cell.placeholder = true;
 			}
 			cells.push( cell );
 		}

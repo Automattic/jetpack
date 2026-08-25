@@ -207,6 +207,7 @@ export {
 	fitWeekColumns,
 	formatViewCount,
 	buildDenseDaySeries,
+	resolveCalendarHeatmapGridStart,
 	resolveCalendarHeatmapWindow,
 	resolveCalendarHeatmapWindowDays,
 	type CalendarHeatmapLayout,
