@@ -22,15 +22,15 @@ describe( 'Stats WordAds normalizers', () => {
 				impressions: 2000,
 				revenue: 9.75,
 				cpm: 4.875,
-				date_start: '2026-05-01T00:00:00+00:00',
-				date_end: '2026-06-30T23:59:59+00:00',
+				date_start: '2026-05-01T00:00:00',
+				date_end: '2026-06-30T23:59:59',
 			} )
 		);
 		expect( result.data ).toEqual( [
 			expect.objectContaining( {
 				time_interval: '2026-05-01',
-				date_start: '2026-05-01T00:00:00+00:00',
-				date_end: '2026-05-31T23:59:59+00:00',
+				date_start: '2026-05-01T00:00:00',
+				date_end: '2026-05-31T23:59:59',
 				label: '2026-05-01',
 				value: 1200,
 				impressions: 1200,
@@ -40,8 +40,8 @@ describe( 'Stats WordAds normalizers', () => {
 			} ),
 			expect.objectContaining( {
 				time_interval: '2026-06-01',
-				date_start: '2026-06-01T00:00:00+00:00',
-				date_end: '2026-06-30T23:59:59+00:00',
+				date_start: '2026-06-01T00:00:00',
+				date_end: '2026-06-30T23:59:59',
 				value: 800,
 				impressions: 800,
 				revenue: 3.25,

@@ -27,6 +27,7 @@ import {
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers';
+import { useDefaultHiddenSeries } from '../../providers/chart-context/hooks/use-default-hidden-series';
 import { attachSubComponents } from '../../utils';
 import { renderDefaultTooltip } from '../line-chart';
 import { useChartChildren } from '../private/chart-composition';
@@ -72,6 +73,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			zoomable = false,
 			rescaleYOnVisibilityChange,
 			rescaleYOnLegendToggle,
+			defaultHiddenSeries,
 			children,
 			gridVisibility,
 			gap = 'md',
@@ -88,6 +90,11 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		const providerTheme = useGlobalChartsTheme();
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
+		const hiddenSeries = useDefaultHiddenSeries( chartId, defaultHiddenSeries );
+		const isSeriesVisible = useCallback(
+			( seriesLabel: string ) => ! hiddenSeries.has( seriesLabel ),
+			[ hiddenSeries ]
+		);
 		const chartRef = useRef< HTMLDivElement >( null );
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );
@@ -121,15 +128,15 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		);
 
 		const dataSorted = useChartDataTransform( data );
-		const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+		const { getElementStyles } = useGlobalChartsContext();
 
 		const seriesWithVisibility = useMemo( () => {
 			return dataSorted.map( ( series, index ) => ( {
 				series,
 				index,
-				isVisible: isSeriesVisible( chartId, series.label ),
+				isVisible: ! hiddenSeries.has( series.label ),
 			} ) );
-		}, [ dataSorted, chartId, isSeriesVisible ] );
+		}, [ dataSorted, hiddenSeries ] );
 
 		const allSeriesHidden = useMemo(
 			() => seriesWithVisibility.every( ( { isVisible } ) => ! isVisible ),
@@ -364,6 +371,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 				value={ {
 					chartId,
 					chartRef: internalChartRef,
+					isSeriesVisible,
 					chartWidth: width,
 					chartHeight: measuredChartHeight || 0,
 				} }

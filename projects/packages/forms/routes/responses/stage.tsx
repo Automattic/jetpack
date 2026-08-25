@@ -26,6 +26,13 @@ import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
+import useResponseFieldColumns from '../../src/dashboard/hooks/use-response-field-columns.ts';
+import {
+	buildResponseFieldColumns,
+	getFrozenColumnsClassName,
+	getResponseTableView,
+	keepColumnChoice,
+} from '../../src/dashboard/response-field-columns.tsx';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import { getFormEditUrl } from '../../src/dashboard/utils.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
@@ -158,7 +165,8 @@ function StageInner() {
 	const statusFilter = statusView === 'inbox' ? 'draft,publish' : statusView;
 	const dateSettings = getDateSettings();
 	// Matches the width at which boot flips the inspector from a side panel to a
-	// full-screen overlay.
+	// full-screen overlay. Also the width below which the responses table drops every
+	// column but the response and its actions, since it cannot usefully scroll sideways.
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
 	const sourceIdValue = ( searchParams as { sourceId?: string | number } )?.sourceId;
@@ -204,7 +212,9 @@ function StageInner() {
 	}, [ searchParams?.search ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const onChangeView = useCallback(
-		( newView: View ) => {
+		( incomingView: View ) => {
+			const newView = keepColumnChoice( incomingView, view, isMobileViewport );
+
 			if ( ! isSingleFormView ) {
 				// If the Folder filter changes (CFM-on behavior), treat it as a route param change.
 				const folderValue =
@@ -235,7 +245,7 @@ function StageInner() {
 				} );
 			}
 		},
-		[ isSingleFormView, navigate, searchParams, statusView, view.search ]
+		[ isMobileViewport, isSingleFormView, navigate, searchParams, statusView, view ]
 	);
 
 	const onChangeSelection = useCallback(
@@ -289,6 +299,15 @@ function StageInner() {
 			};
 		} );
 	}, [ isSingleFormView, setView, statusView ] );
+
+	// A form's own fields become columns, so a single form's responses can be read
+	// across at a glance. The "All responses" view spans every form and has no
+	// shared field set, so it keeps the built-in columns only.
+	const responseFieldColumns = useResponseFieldColumns( {
+		formId: isSingleFormView ? sourceIdNumber : null,
+		records,
+		setView,
+	} );
 
 	const queryParams = useMemo( () => {
 		const queryArgs: QueryParams = {
@@ -528,6 +547,7 @@ function StageInner() {
 				enableSorting: false,
 				enableHiding: false,
 			},
+			...buildResponseFieldColumns( responseFieldColumns ),
 			{
 				id: 'date',
 				type: 'date',
@@ -631,10 +651,22 @@ function StageInner() {
 			dateSettings.formats.datetime,
 			filterOptions,
 			isSingleFormView,
+			responseFieldColumns,
 			totalItemsInbox,
 			totalItemsSpam,
 			totalItemsTrash,
 		]
+	);
+
+	const answerColumnsClassName = getFrozenColumnsClassName(
+		responseFieldColumns,
+		view,
+		isMobileViewport
+	);
+
+	const viewForDataViews = useMemo(
+		() => getResponseTableView( view, isMobileViewport ),
+		[ isMobileViewport, view ]
 	);
 
 	const actions = useMemo(
@@ -793,7 +825,7 @@ function StageInner() {
 					}
 					data={ isQueryStale ? EMPTY_ARRAY : records || EMPTY_ARRAY }
 					fields={ fields as Field< unknown >[] }
-					view={ view }
+					view={ viewForDataViews }
 					onChangeView={ onChangeView }
 					paginationInfo={ paginationInfo }
 					isLoading={ isLoadingData || isQueryStale }
@@ -815,7 +847,7 @@ function StageInner() {
 						} }
 						onStatusChange={ onStatusChange }
 					/>
-					<DataViews.Layout />
+					<DataViews.Layout className={ answerColumnsClassName } />
 					<DataViews.Footer />
 				</DataViews>
 			) }

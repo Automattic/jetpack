@@ -1655,4 +1655,129 @@ describe( 'LineChart', () => {
 			).toBeInTheDocument();
 		} );
 	} );
+
+	describe( 'defaultHiddenSeries', () => {
+		it( 'renders a series hidden when named in defaultHiddenSeries', () => {
+			render(
+				<GlobalChartsProvider>
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						showLegend={ true }
+						legend={ { interactive: true } }
+						chartId="test-default-hidden-line"
+						defaultHiddenSeries={ [ 'Series B' ] }
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const items = screen.getAllByRole( 'button' );
+			expect( items[ 0 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+			expect( items[ 1 ] ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
+
+		it( 'lets the user reveal a series seeded hidden', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						showLegend={ true }
+						legend={ { interactive: true } }
+						chartId="test-default-hidden-reveal-line"
+						defaultHiddenSeries={ [ 'Series B' ] }
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			await user.click( screen.getAllByRole( 'button' )[ 1 ] );
+
+			expect( screen.getAllByRole( 'button' )[ 1 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
+
+		it( 'keeps a revealed series visible after a data change', async () => {
+			// Matters specifically at chart level: useChartRegistration unregisters and
+			// re-registers whenever legendItems change, which a data prop change triggers.
+			// A hook-level harness has no registration at all, so it can't catch a
+			// regression where re-registration re-triggers the seeding effect.
+			const user = userEvent.setup();
+			const chartId = 'test-default-hidden-data-change-line';
+
+			const makeData = ( seriesAValue: number ) => [
+				{
+					label: 'Series A',
+					data: [ { date: new Date( '2024-01-01' ), value: seriesAValue, label: 'Jan 1' } ],
+					options: {},
+				},
+				{
+					label: 'Series B',
+					data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+					options: {},
+				},
+			];
+
+			const { rerender } = render(
+				<GlobalChartsProvider>
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						showLegend={ true }
+						legend={ { interactive: true } }
+						chartId={ chartId }
+						defaultHiddenSeries={ [ 'Series B' ] }
+						data={ makeData( 10 ) }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			await user.click( screen.getAllByRole( 'button' )[ 1 ] );
+			expect( screen.getAllByRole( 'button' )[ 1 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+
+			rerender(
+				<GlobalChartsProvider>
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						showLegend={ true }
+						legend={ { interactive: true } }
+						chartId={ chartId }
+						defaultHiddenSeries={ [ 'Series B' ] }
+						data={ makeData( 30 ) }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.getAllByRole( 'button' )[ 1 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
+	} );
 } );

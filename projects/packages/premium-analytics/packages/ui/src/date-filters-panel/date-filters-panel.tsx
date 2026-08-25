@@ -10,6 +10,7 @@ import {
 	type ComparisonPresetId,
 	type IntervalType,
 	type PrimaryPresetId,
+	type QuickSurfacePresetId,
 	type StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
@@ -62,6 +63,24 @@ export type DateFiltersPanelProps = {
 	 * The current comparison preset ID (e.g., 'previous-period', 'previous-month').
 	 */
 	comparisonPresetId?: ComparisonPresetId;
+
+	/**
+	 * The presets rendered as pills, in display order. Defaults to the rolling
+	 * windows; a detail page leads with all time (`DETAIL_SURFACE_PRESETS`).
+	 */
+	presetIds?: readonly QuickSurfacePresetId[];
+
+	/**
+	 * Where the all-time pill starts, e.g. the resource's publish date. Only
+	 * read when `presetIds` includes all time.
+	 */
+	allTimeStart?: Date;
+
+	/**
+	 * Whether to offer the custom-range popover after the pills. On by default;
+	 * the detail pages' design has presets only.
+	 */
+	withCustomRange?: boolean;
 
 	/**
 	 * Whether to render the chart interval control. Off by default: only a
@@ -148,6 +167,9 @@ export function DateFiltersPanel( {
 	appliedPresetId,
 	appliedRange,
 	comparisonPresetId,
+	presetIds,
+	allTimeStart,
+	withCustomRange = true,
 	withIntervalControl = false,
 	interval,
 	intervalOptions,
@@ -267,8 +289,13 @@ export function DateFiltersPanel( {
 	}, [ containerElement, rootElement, setObserverRef ] );
 
 	// Derived through the same helpers the trigger uses, so the probe measures
-	// the string the trigger is actually showing.
+	// the string the trigger is actually showing — or nothing, on a surface
+	// that offers no custom range.
 	const customTriggerLabel = useMemo( () => {
+		if ( ! withCustomRange ) {
+			return undefined;
+		}
+
 		const committedRange = appliedRange ?? range;
 
 		return getCustomTriggerLabel( {
@@ -290,11 +317,15 @@ export function DateFiltersPanel( {
 		range,
 		validatedAppliedPresetId,
 		validatedPresetId,
+		withCustomRange,
 	] );
 
 	// Labels only. The pills recompute their own ranges at selection time, so a
 	// stale memo here costs nothing.
-	const surfacePresets = useMemo( () => getQuickSurfacePresets( timeZone ), [ timeZone ] );
+	const surfacePresets = useMemo(
+		() => getQuickSurfacePresets( timeZone, { presetIds } ),
+		[ presetIds, timeZone ]
+	);
 
 	const comparisonLabel =
 		typeof comparisonControlProps.label === 'string' ? comparisonControlProps.label : undefined;
@@ -428,6 +459,9 @@ export function DateFiltersPanel( {
 						labelMode={ labelMode }
 						isWideScreen={ isWideScreen }
 						onOpenChange={ setIsPrimaryPickerOpen }
+						presetIds={ presetIds }
+						allTimeStart={ allTimeStart }
+						withCustomRange={ withCustomRange }
 					/>
 				</BaseControl>
 

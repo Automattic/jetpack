@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { formatComparisonSeriesLabel } from './format-comparison-series-label';
 import type {
 	ComparativeLineChartSeries,
 	ComparativeDatePointDate,
@@ -45,13 +46,36 @@ type BuildTimeSeriesChartOptions< T extends TimeSeriesData > = {
 	comparison?: TimeSeriesResponse< T >;
 	metricKey: keyof T;
 	emptyDataFallback?: 'empty-array' | 'no-data-series';
+	/**
+	 * Name both periods after the metric instead of after their date ranges.
+	 * Omit it and each series is labelled with its own range.
+	 */
+	label?: string;
 };
 
+/**
+ * Build a chart's current- and previous-period series from a time-series
+ * response, reading one metric out of each point.
+ *
+ * Both series share a `group`, so the legend collapses them into the single
+ * item the current period's label carries. Pass `label` when that item should
+ * name the metric — the section header already names the dates, so a range
+ * there says nothing the reader cannot already see.
+ *
+ * @param options                   - The build options.
+ * @param options.primary           - The current-period response.
+ * @param options.comparison        - The previous-period response, when comparison is enabled.
+ * @param options.metricKey         - The metric field to read from each point.
+ * @param options.emptyDataFallback - What to return when the primary response has no points.
+ * @param options.label             - Metric name for both series' labels; omit for date ranges.
+ * @return The chart series, current period first.
+ */
 export function buildTimeSeriesChartData< T extends TimeSeriesData >( {
 	primary,
 	comparison,
 	metricKey,
 	emptyDataFallback = 'empty-array',
+	label,
 }: BuildTimeSeriesChartOptions< T > ): ComparativeLineChartSeries[] {
 	if ( ! primary.data?.length ) {
 		if ( emptyDataFallback === 'no-data-series' ) {
@@ -66,10 +90,12 @@ export function buildTimeSeriesChartData< T extends TimeSeriesData >( {
 	}
 
 	const primarySeries: ComparativeLineChartSeries = {
-		label: formatDateRange( {
-			from: localTZDate( primary.summary.date_start ),
-			to: localTZDate( primary.summary.date_end ),
-		} ),
+		label:
+			label ||
+			formatDateRange( {
+				from: localTZDate( primary.summary.date_start ),
+				to: localTZDate( primary.summary.date_end ),
+			} ),
 		data: mapTimeSeriesToLineChartData( primary.data, metricKey ),
 		group: 'primary',
 		options: {},
@@ -80,10 +106,12 @@ export function buildTimeSeriesChartData< T extends TimeSeriesData >( {
 	}
 
 	const comparisonSeries: ComparativeLineChartSeries = {
-		label: formatDateRange( {
-			from: localTZDate( comparison.summary.date_start ),
-			to: localTZDate( comparison.summary.date_end ),
-		} ),
+		label: label
+			? formatComparisonSeriesLabel( label )
+			: formatDateRange( {
+					from: localTZDate( comparison.summary.date_start ),
+					to: localTZDate( comparison.summary.date_end ),
+			  } ),
 		data: mapTimeSeriesToLineChartData( comparison.data, metricKey ),
 		group: 'primary',
 		options: {

@@ -176,7 +176,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "edc5a654cdffde980eafb17c2c1d98ca755957ad"
+                "reference": "69ef9fbdd09f877ad9d669da0ae159000e61e2ad"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
@@ -202,7 +202,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.9.x-dev"
+                    "dev-trunk": "0.10.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -891,7 +891,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "8a31758b4a04ddbcc06cbab8ddbe9d158091807d"
+                "reference": "89274248ea7ccb23a3482c6037c3d2e675a182d5"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -928,7 +928,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "8.11.x-dev"
+                    "dev-trunk": "8.12.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -2097,7 +2097,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "4be7f25cad64e6f7fc5e4170e0013f336bb5b0a1"
+                "reference": "597fdfcb26c961ed78bd819bb3de8bd739693f98"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -2127,7 +2127,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.4.x-dev"
                 }
             },
             "autoload": {
@@ -2146,7 +2146,7 @@
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-js": [
-                    "pnpm run test"
+                    "pnpm run test && pnpm run test-tz"
                 ],
                 "test-js-coverage": [
                     "pnpm run test-coverage"
@@ -2351,11 +2351,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "8a5b63c4879aab4d7e2cbf96fe6361841ffbeb01"
+                "reference": "afe4ad6934c05fa4d8ec07e6039c68a0f42312db"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-wp-abilities": "@dev",
                 "php": ">=7.2"
@@ -2418,7 +2419,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "8c926a1a98e6899a9d82140b06f22924187aece7"
+                "reference": "61a44eda621072696bccce0a1ae601cd52ec49ab"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2443,7 +2444,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.33.x-dev"
+                    "dev-trunk": "0.34.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {
@@ -2486,15 +2487,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "b7934844c0097ce6e85b91d2936d53ae0a4dd8db"
+                "reference": "a5eb26b1682be4bba5d650ad1146ab4df432a9d0"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-ip": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-connection": "@dev",
-                "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
@@ -2511,7 +2512,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.4.x-dev"
+                    "dev-trunk": "6.5.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

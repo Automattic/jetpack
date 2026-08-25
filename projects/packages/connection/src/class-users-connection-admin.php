@@ -22,6 +22,13 @@ class Users_Connection_Admin {
 	const COLUMN_ID = 'user_jetpack';
 
 	/**
+	 * The handle used for the users list table column styles.
+	 *
+	 * @var string
+	 */
+	const STYLE_HANDLE = 'jetpack-connection-users-column';
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -40,7 +47,6 @@ class Users_Connection_Admin {
 		add_filter( 'manage_users_columns', array( $this, 'add_connection_column' ) );
 		add_filter( 'manage_users_custom_column', array( $this, 'render_connection_column' ), 9, 3 ); // Priority 9 to run before SSO
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-		add_action( 'admin_print_styles-users.php', array( $this, 'add_connection_column_styles' ) );
 	}
 
 	/**
@@ -98,6 +104,8 @@ class Users_Connection_Admin {
 			return;
 		}
 
+		self::enqueue_connection_column_styles();
+
 		Assets::register_script(
 			'jetpack-users-connection',
 			'../dist/jetpack-users-connection.js',
@@ -122,66 +130,85 @@ class Users_Connection_Admin {
 	}
 
 	/**
-	 * Add styles for the connection column.
+	 * Enqueue the styles for the connection column as inline CSS on a source-less handle.
+	 */
+	private static function enqueue_connection_column_styles() {
+		// A request can run several instances of this class, and wp_add_inline_style() appends, so the CSS is added once per handle.
+		if ( ! wp_style_is( self::STYLE_HANDLE, 'registered' ) ) {
+			wp_register_style( self::STYLE_HANDLE, false, array(), Package_Version::PACKAGE_VERSION );
+			wp_add_inline_style( self::STYLE_HANDLE, self::get_connection_column_styles() );
+		}
+		wp_enqueue_style( self::STYLE_HANDLE );
+	}
+
+	/**
+	 * Add the styles for the connection column.
+	 *
+	 * @deprecated 8.12.0 The CSS is enqueued on the `jetpack-connection-users-column` style handle by enqueue_scripts().
 	 */
 	public function add_connection_column_styles() {
-		?>
-		<style>
-			.jetpack-connection-tooltip-icon {
-				position: relative;
-				cursor: pointer;
-			}
-			/* Add [?] icon using pseudo-element, only in column header */
-			th.manage-column .jetpack-connection-tooltip-icon::after {
-				content: '[?]';
-				color: #3c434a;
-				font-size: 1em;
-				margin-left: 4px;
-			}
-			.jetpack-connection-tooltip {
-				position: absolute;
-				background: #f6f7f7;
-				top: -85px;
-				width: 250px;
-				padding: 7px;
-				color: #3c434a;
-				font-size: .75rem;
-				line-height: 17px;
-				text-align: left;
-				margin: 0;
-				display: none;
-				border-radius: 4px;
-				font-family: sans-serif;
-				box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.1);
-				left: -170px;
-			}
+		_deprecated_function( __METHOD__, 'connection-8.12.0', __CLASS__ . '::enqueue_scripts' );
+		self::enqueue_connection_column_styles();
+	}
+
+	/**
+	 * Get the styles for the connection column.
+	 *
+	 * @return string CSS rules.
+	 */
+	private static function get_connection_column_styles() {
+		return '
+		.jetpack-connection-tooltip-icon {
+			position: relative;
+			cursor: pointer;
+		}
+		/* Add [?] icon using pseudo-element, only in column header */
+		th.manage-column .jetpack-connection-tooltip-icon::after {
+			content: \'[?]\';
+			color: #3c434a;
+			font-size: 1em;
+			margin-left: 4px;
+		}
+		.jetpack-connection-tooltip {
+			position: absolute;
+			background: #f6f7f7;
+			top: -85px;
+			width: 250px;
+			padding: 7px;
+			color: #3c434a;
+			font-size: .75rem;
+			line-height: 17px;
+			text-align: left;
+			margin: 0;
+			display: none;
+			border-radius: 4px;
+			font-family: sans-serif;
+			box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.1);
+			left: -170px;
+		}
+		.column-user_jetpack {
+			width: 190px;
+		}
+		@media screen and (max-width: 1100px) {
 			.column-user_jetpack {
-				width: 190px;
+				width: auto;
 			}
-			@media screen and (max-width: 1100px) {
-				.column-user_jetpack {
-					width: auto;
-				}
-			}
-			td.column-user_jetpack {
-				vertical-align: middle;
-			}
-			.jetpack-connection-status {
-				display: inline-flex;
-				align-items: center;
-				column-gap: 6px;
-			}
-			.jetpack-connection-status__logo {
-				display: block;
-				flex-shrink: 0;
-			}
-			/* Show tooltip on hover and focus */
-			.jetpack-connection-tooltip-icon:hover .jetpack-connection-tooltip,
-			.jetpack-connection-tooltip-icon:focus-within .jetpack-connection-tooltip {
-				display: block;
-			}
-		</style>
-		<?php
+		}
+		.jetpack-connection-status {
+			display: inline-flex;
+			align-items: center;
+			column-gap: 6px;
+		}
+		.jetpack-connection-status__logo {
+			display: block;
+			flex-shrink: 0;
+		}
+		/* Show tooltip on hover and focus */
+		.jetpack-connection-tooltip-icon:hover .jetpack-connection-tooltip,
+		.jetpack-connection-tooltip-icon:focus-within .jetpack-connection-tooltip {
+			display: block;
+		}
+		';
 	}
 
 	/**

@@ -44,6 +44,10 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 	const [ hiddenSeries, setHiddenSeries ] = useState< Map< string, Set< string > > >(
 		() => new Map()
 	);
+	// Which charts have had their defaults seeded. Kept apart from `hiddenSeries`
+	// because that map drops a chart's entry once its hidden set empties, so an
+	// absent entry cannot tell "never seeded" from "the reader revealed the lot".
+	const seededCharts = useRef< Set< string > >( new Set() );
 
 	// Ref to the wrapper element for resolving scoped CSS variables
 	const wrapperRef = useRef< HTMLDivElement >( null );
@@ -242,28 +246,90 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		[ providerTheme, resolveColor ]
 	);
 
-	// Series visibility management methods
-	const toggleSeriesVisibility = useCallback( ( chartId: string, seriesLabel: string ) => {
-		setHiddenSeries( prev => {
-			const newMap = new Map( prev );
-			const chartHidden = newMap.get( chartId ) || new Set();
-			const newSet = new Set( chartHidden );
+	// Keep hidden-series updates and no-op detection consistent across setters.
+	const updateHiddenSeries = useCallback(
+		( chartId: string, update: ( current: Set< string > ) => Set< string > ) => {
+			setHiddenSeries( prev => {
+				const current = prev.get( chartId );
+				const next = update( new Set( current ?? [] ) );
 
-			if ( newSet.has( seriesLabel ) ) {
-				newSet.delete( seriesLabel );
-			} else {
-				newSet.add( seriesLabel );
+				if ( ! current && next.size === 0 ) {
+					return prev;
+				}
+
+				// Preserve identity for no-op updates.
+				if (
+					current &&
+					current.size === next.size &&
+					[ ...next ].every( label => current.has( label ) )
+				) {
+					return prev;
+				}
+
+				const newMap = new Map( prev );
+				if ( next.size === 0 ) {
+					newMap.delete( chartId );
+				} else {
+					newMap.set( chartId, next );
+				}
+
+				return newMap;
+			} );
+		},
+		[]
+	);
+
+	const toggleSeriesVisibility = useCallback(
+		( chartId: string, seriesLabel: string ) => {
+			updateHiddenSeries( chartId, current => {
+				if ( current.has( seriesLabel ) ) {
+					current.delete( seriesLabel );
+				} else {
+					current.add( seriesLabel );
+				}
+				return current;
+			} );
+		},
+		[ updateHiddenSeries ]
+	);
+
+	const setSeriesVisibility = useCallback(
+		( chartId: string, seriesLabel: string, visible: boolean ) => {
+			updateHiddenSeries( chartId, current => {
+				if ( visible ) {
+					current.delete( seriesLabel );
+				} else {
+					current.add( seriesLabel );
+				}
+				return current;
+			} );
+		},
+		[ updateHiddenSeries ]
+	);
+
+	const setChartHiddenSeries = useCallback(
+		( chartId: string, seriesLabels: readonly string[] ) => {
+			updateHiddenSeries( chartId, () => new Set( seriesLabels ) );
+		},
+		[ updateHiddenSeries ]
+	);
+
+	const hasSeededChart = useCallback(
+		( chartId: string ) => seededCharts.current.has( chartId ),
+		[]
+	);
+
+	const seedChartHiddenSeries = useCallback(
+		( chartId: string, seriesLabels: readonly string[] ) => {
+			if ( seededCharts.current.has( chartId ) ) {
+				return;
 			}
 
-			if ( newSet.size === 0 ) {
-				newMap.delete( chartId );
-			} else {
-				newMap.set( chartId, newSet );
-			}
-
-			return newMap;
-		} );
-	}, [] );
+			seededCharts.current.add( chartId );
+			setChartHiddenSeries( chartId, seriesLabels );
+		},
+		[ setChartHiddenSeries ]
+	);
 
 	const isSeriesVisible = useCallback(
 		( chartId: string, seriesLabel: string ) => {
@@ -290,6 +356,10 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			theme: providerTheme,
 			getElementStyles,
 			toggleSeriesVisibility,
+			setSeriesVisibility,
+			setChartHiddenSeries,
+			seedChartHiddenSeries,
+			hasSeededChart,
 			isSeriesVisible,
 			getHiddenSeries,
 			isColorPaletteResolved,
@@ -302,6 +372,10 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			providerTheme,
 			getElementStyles,
 			toggleSeriesVisibility,
+			setSeriesVisibility,
+			setChartHiddenSeries,
+			seedChartHiddenSeries,
+			hasSeededChart,
 			isSeriesVisible,
 			getHiddenSeries,
 			isColorPaletteResolved,

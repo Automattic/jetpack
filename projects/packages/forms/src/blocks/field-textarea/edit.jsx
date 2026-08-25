@@ -3,6 +3,7 @@ import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls.jsx';
+import JetpackFieldHints from '../shared/components/jetpack-field-hints.jsx';
 import useFieldSelected from '../shared/hooks/use-field-selected.js';
 import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';
@@ -31,11 +32,14 @@ export default function TextareaFieldEdit( props ) {
 		];
 	}, [ requiredIndicator ] );
 
-	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		allowedBlocks: ALLOWED_INNER_BLOCKS,
-		template,
-		templateLock: 'all',
-	} );
+	const innerBlocksProps = useInnerBlocksProps(
+		{ className: 'jetpack-field__control' },
+		{
+			allowedBlocks: ALLOWED_INNER_BLOCKS,
+			template,
+			templateLock: 'all',
+		}
+	);
 
 	useSyncRequiredIndicator( {
 		clientId,
@@ -47,7 +51,14 @@ export default function TextareaFieldEdit( props ) {
 
 	return (
 		<>
-			<div { ...innerBlocksProps } />
+			<div { ...blockProps }>
+				<div { ...innerBlocksProps } />
+				<JetpackFieldHints
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+					isActive={ isSelected || isInnerBlockSelected }
+				/>
+			</div>
 			<JetpackFieldControls
 				id={ id }
 				required={ required }
@@ -55,6 +66,7 @@ export default function TextareaFieldEdit( props ) {
 				width={ width }
 				attributes={ attributes }
 				type="textarea"
+				helpTextSupport
 			/>
 		</>
 	);

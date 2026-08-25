@@ -30,7 +30,7 @@ Highest first:
 2. The role set by a consumer rule targeting the provider wrapper. It beats the catalog default because `:where()` is zero-specificity.
 3. The theme layer `GlobalChartsProvider` writes inline from a `theme` prop override — see below.
 4. The catalog default on the provider wrapper, resolving the mapped `--wpds-*` token.
-5. The WPDS spec-value fallback, when no `--wpds-*` token is set either (SSR, jsdom, or WPDS not loaded).
+5. The WPDS spec-value fallback, when no `--wpds-*` token is set either (SSR, jsdom, or WPDS not loaded). This is not a rare corner: WordPress itself defines no `--wpds-*` typography tokens, so in wp-admin the fallback is what renders. It is written by hand — see `src/styles/test/wpds-fallbacks.test.ts`, which checks each one against the installed `@wordpress/theme`.
 
 A CSS declaration of a role therefore beats a `theme` prop override *anywhere* it is set, the wrapper included — the prop writes a variable the role reads, not the role itself, and a role declared in CSS never reads it.
 
@@ -125,8 +125,8 @@ Instance styling knobs, on the same convention but not shared semantic roles: `-
 
 | Role | Maps to `--wpds-*` | Fallback |
 |---|---|---|
-| `--a8c-charts-color-zoom-selection` | `--wpds-color-background-interactive-brand-strong` | `#3858e9` |
-| `--a8c-charts-color-zoom-selection-stroke` | `--wpds-color-stroke-interactive-brand` | `#3858e9` |
+| `--a8c-charts-color-zoom-selection` | `--wpds-color-background-interactive-brand-strong` | `var(--wp-admin-theme-color, #3858e9)` |
+| `--a8c-charts-color-zoom-selection-stroke` | `--wpds-color-stroke-interactive-brand` | `var(--wp-admin-theme-color, #3858e9)` |
 
 The zoom selection roles' translucency is not part of the role — it lives in `fill-opacity` / `stroke-opacity`, so an override sets an opaque colour and keeps the intended transparency.
 

@@ -21,7 +21,7 @@ import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
  * Internal dependencies
  */
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
-import { useDetailChartIntervals } from '../use-detail-chart-intervals';
+import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { VideoSummaryCard } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
@@ -82,10 +82,10 @@ function VideoDetail(): JSX.Element {
 	// committed by the shared date-filter controller (WOOA7S-1816 — restored
 	// after the preset-measurement rework in #50906 landed).
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const chartIntervals = useDetailChartIntervals(
-		dateFilters.interval,
-		dateFilters.intervalOptions
-	);
+	// The preset pills alone — all time, then the rolling windows — with no
+	// custom range, period arrows, or interval dropdown, per the detail-page
+	// design; all time runs from the day this resource was published.
+	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
 
 	// The header row hosts the panel in a shrink-to-fit slot, so the panel
 	// measures the row itself to pick its responsive layout; see the
@@ -175,14 +175,13 @@ function VideoDetail(): JSX.Element {
 							 * declares, which is the same declaration that keeps the
 							 * params away from the widgets.
 							 *
-							 * The interval control is on: the views chart is bucketed by
-							 * it and carries no bucket control of its own. It is narrowed
-							 * to the buckets that chart can draw — see
-							 * `useDetailChartIntervals`.
+							 * The Video performance chart buckets by the interval the range
+							 * resolves; the design offers no control over it, nor the period
+							 * arrows — see `useDetailDateControls`.
 							 */ }
 							<DateFiltersPanel
 								{ ...dateFilters }
-								{ ...chartIntervals }
+								{ ...dateControls }
 								containerElement={ headerElement }
 								reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
 							/>

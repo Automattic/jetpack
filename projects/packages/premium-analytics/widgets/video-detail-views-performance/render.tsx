@@ -10,17 +10,15 @@ import {
 	defaultPeriodForInterval,
 	describeError,
 	useWidgetRootContext,
-	type MetricTab,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import useVideoViews from './use-video-views';
+import useVideoMetrics, { COUNT_FORMAT } from './use-video-metrics';
 import type {
 	VideoDetailViewsPerformanceAttributes,
 	VideoDetailViewsPerformanceChartType,
@@ -32,13 +30,8 @@ type VideoDetailViewsPerformanceRenderAttributes = VideoDetailViewsPerformanceAt
 type VideoDetailViewsPerformanceWidgetProps =
 	WidgetRenderProps< VideoDetailViewsPerformanceRenderAttributes >;
 
-const DATA_FORMAT = {
-	type: 'number' as const,
-	options: { useMultipliers: true, decimals: 0 },
-};
-
 type VideoDetailViewsPerformanceInnerProps = {
-	/** How the views series is drawn. `MetricTabsChart` owns the default. */
+	/** How the selected metric is drawn. `MetricTabsChart` owns the default. */
 	chartType?: VideoDetailViewsPerformanceChartType;
 };
 
@@ -51,26 +44,13 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 	const videoId = toPostId( reportParams.post_id );
 	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 
-	const { current, isLoading, isFetching, isError, error, refetch } = useVideoViews(
+	const { metrics, isLoading, isFetching, isError, error, refetch } = useVideoMetrics(
 		videoId,
 		reportParams,
 		period
 	);
+	const groupLabel = __( 'Video metric', 'jetpack-premium-analytics-pkg' );
 
-	// One "Views" metric: the headline is the window total (views are summed
-	// per bucket, so the sum of buckets is the range's views). The video detail
-	// page has no comparison control, so there is no previous series.
-	const metricTabs = useMemo< MetricTab[] >(
-		() => [
-			{
-				key: 'views',
-				label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
-				value: current.reduce( ( sum, point ) => sum + point.value, 0 ),
-				current,
-			},
-		],
-		[ current ]
-	);
 	return (
 		<div className={ styles.root }>
 			<WidgetState
@@ -80,7 +60,7 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 				isEmpty={ videoId <= 0 }
 				error={ describeError( error, {
 					retryDescription: __(
-						"We couldn't load this video's views. Please try again in a moment.",
+						"We couldn't load this video's performance. Please try again in a moment.",
 						'jetpack-premium-analytics-pkg'
 					),
 					onRetry: refetch,
@@ -88,7 +68,7 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 				empty={ {
 					icon: video,
 					description: __(
-						'Open a video report to see its views here.',
+						'Open a video report to see its performance here.',
 						'jetpack-premium-analytics-pkg'
 					),
 				} }
@@ -97,9 +77,11 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
 				<MetricTabsChart
-					metrics={ metricTabs }
-					dataFormat={ DATA_FORMAT }
+					metrics={ metrics }
+					dataFormat={ COUNT_FORMAT }
 					chartType={ chartType }
+					groupLabel={ groupLabel }
+					pointsAreWallClocks
 				/>
 			</WidgetState>
 		</div>
@@ -107,10 +89,11 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 }
 
 /**
- * Views performance widget: the scoped video's view trend over the dashboard
- * date range, with the window total as the metric headline. The view series
- * comes from the `stats/video/{id}` daily history for the selected window,
- * zero-filled and bucketed client-side at the page's chart interval.
+ * Video performance widget: the scoped video's views, impressions, hours
+ * watched, and retention rate over the dashboard date range as selectable
+ * metric tabs, each headlined by the window's canonical total. The series come
+ * from one `stats/video/{id}` `statType=all` range report, zero-filled and
+ * bucketed client-side at the page's chart interval.
  */
 export default function VideoDetailViewsPerformance( {
 	attributes = {},
