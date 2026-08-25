@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Align video title links with post title links, adding the outbound marker to external rows.
+Align title link styling across widgets: external video rows gain the standard outbound marker, long titles no longer clip it, and hover underlines cover only the title text.
