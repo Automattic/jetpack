@@ -61,9 +61,6 @@ const defaultTheme: CompleteChartTheme = {
 		featureFillColor: 'var(--a8c-charts-color-surface-secondary, #f4f4f4)',
 	},
 	leaderboardChart: {
-		// No rowGap/columnGap: the grid reads them from custom properties that
-		// default to the design system's gap ramp, so a value here would only
-		// restate the token — and, published inline, would outrank a CSS override.
 		labelSpacing: 'xs',
 		// [negative, neutral, positive]
 		deltaColors: [
