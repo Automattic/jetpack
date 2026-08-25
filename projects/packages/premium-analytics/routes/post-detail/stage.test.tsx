@@ -188,7 +188,8 @@ describe( 'post detail stage', () => {
 
 		render( stage() );
 
-		const action = screen.getByRole( 'link', { name: 'View post' } );
+		// `openInNewTab` appends a screen-reader hint to the accessible name.
+		const action = screen.getByRole( 'link', { name: 'View post(opens in a new tab)' } );
 		expect( action ).toHaveAttribute( 'href', 'https://example.com/hello-world/' );
 		expect( action ).toHaveAttribute( 'target', '_blank' );
 		expect( action ).toHaveAttribute( 'rel', 'noopener noreferrer' );
@@ -199,11 +200,13 @@ describe( 'post detail stage', () => {
 
 		render( stage() );
 
-		expect( screen.getByRole( 'link', { name: 'View page' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'View page(opens in a new tab)' } ) ).toHaveAttribute(
 			'href',
 			'https://example.com/about/'
 		);
-		expect( screen.queryByRole( 'link', { name: 'View post' } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'View post(opens in a new tab)' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'omits the action while the post URL is unresolved', () => {
