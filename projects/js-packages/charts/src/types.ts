@@ -440,12 +440,9 @@ export type ChartTheme = {
 export type CompleteChartTheme = Required< ChartTheme > & {
 	leaderboardChart: Omit<
 		Required< NonNullable< ChartTheme[ 'leaderboardChart' ] > >,
-		'primaryColor' | 'secondaryColor' | 'rowGap' | 'columnGap'
+		'primaryColor' | 'secondaryColor'
 	> &
-		Pick<
-			NonNullable< ChartTheme[ 'leaderboardChart' ] >,
-			'primaryColor' | 'secondaryColor' | 'rowGap' | 'columnGap'
-		>;
+		Pick< NonNullable< ChartTheme[ 'leaderboardChart' ] >, 'primaryColor' | 'secondaryColor' >;
 	conversionFunnelChart: Omit<
 		Required< NonNullable< ChartTheme[ 'conversionFunnelChart' ] > >,
 		'primaryColor'

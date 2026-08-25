@@ -121,7 +121,7 @@ The elevation fallbacks hold the values their removed `--wpds-elevation-*` token
 
 ## Tier 2 — component-specific variables
 
-Instance styling knobs, on the same convention but not shared semantic roles: `--a8c-charts-dimension-leaderboard-bar-hover-inset`, `--a8c-charts-dimension-leaderboard-row-gap`, `--a8c-charts-dimension-leaderboard-column-gap`, `--a8c-charts-color-heatmap-*`, `--a8c-charts-dimension-heatmap-*`, `--a8c-charts-heatmap-cell-intensity`, `--a8c-charts-color-zoom-selection`, `--a8c-charts-color-zoom-selection-stroke`.
+Instance styling knobs, on the same convention but not shared semantic roles: `--a8c-charts-dimension-leaderboard-bar-hover-inset`, `--a8c-charts-color-heatmap-*`, `--a8c-charts-dimension-heatmap-*`, `--a8c-charts-heatmap-cell-intensity`, `--a8c-charts-color-zoom-selection`, `--a8c-charts-color-zoom-selection-stroke`.
 
 | Role | Maps to `--wpds-*` | Fallback |
 |---|---|---|
@@ -132,9 +132,7 @@ The zoom selection roles' translucency is not part of the role — it lives in `
 
 `--a8c-charts-heatmap-cell-intensity` is the one variable without a `{category}` segment: it holds a unitless 0–1 scalar consumed inside `color-mix()`, not a colour.
 
-The heatmap Tier-2 variables, the leaderboard gaps, and `--a8c-charts-dimension-leaderboard-bar-hover-inset` are **component-emitted** — set from JS per render, or in the component's own stylesheet — rather than on the provider wrapper. They are deliberately absent from `chart-scope.scss` and are not consumer override points in the same sense as the catalog above.
-
-The two leaderboard gaps are the exception that proves that rule: nothing emits them unless a theme sets `leaderboardChart.rowGap` / `.columnGap`, so a consumer that leaves those alone can retune the grid's spacing from CSS. Unset, they resolve to `--wpds-dimension-gap-md` and `--wpds-dimension-gap-xs`.
+The heatmap Tier-2 variables and `--a8c-charts-dimension-leaderboard-bar-hover-inset` are **component-emitted** — set from JS per render, or in the component's own stylesheet — rather than on the provider wrapper. They are deliberately absent from `chart-scope.scss` and are not consumer override points in the same sense as the catalog above.
 
 ## Removed override variables
 

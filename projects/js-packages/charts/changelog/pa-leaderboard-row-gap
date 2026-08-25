@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-LeaderboardChart: Default the grid's row and column gaps to the design system's gap ramp, and let a consumer retune them in CSS.
