@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import DashboardTabs, { TAB_PATHS, type DashboardTab } from '../dashboard-tabs';
+import OnboardingModal from '../onboarding-modal';
 import './style.scss';
 import type { ReactNode } from 'react';
 
@@ -66,6 +67,11 @@ export default function DashboardLayout( { activeTab, children, actions, hideFoo
 					</Tabs.Panel>
 				) ) }
 			</Tabs.Root>
+			{ /*
+			 * Rendered from the shared chrome rather than a route so the
+			 * first-run welcome greets the user on whichever tab they land on.
+			 */ }
+			<OnboardingModal />
 		</AdminPage>
 	);
 }
