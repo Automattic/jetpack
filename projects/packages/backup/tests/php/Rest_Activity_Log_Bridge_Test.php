@@ -18,7 +18,9 @@ use WP_REST_Server;
 use function add_action;
 use function add_filter;
 use function do_action;
+use function get_current_user_id;
 use function remove_filter;
+use function update_user_meta;
 use function wp_insert_user;
 use function wp_set_current_user;
 
@@ -112,5 +114,25 @@ class Rest_Activity_Log_Bridge_Test extends TestCase {
 		$this->assertSame( 'activity_log_fetch_failed', $response->get_error_code() );
 		$this->assertStringNotContainsString( 'cURL', $response->get_error_message() );
 		$this->assertSame( 502, $response->get_error_data()['status'] );
+	}
+
+	/**
+	 * WPCOM renders the activity summaries, so the reader's locale has to
+	 * travel with the request or every string comes back in English.
+	 *
+	 * The user locale is set away from the site locale on purpose: reading it
+	 * back with `get_user_locale()` would compare the code against itself and
+	 * pass just as well against `get_locale()`.
+	 */
+	public function test_forwards_the_reader_locale() {
+		$this->arrange_wpcom( array( 'current' => array( 'orderedItems' => array() ) ) );
+		update_user_meta( get_current_user_id(), 'locale', 'es_ES' );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/site/rewindable-activity' );
+		$request->set_param( 'page', 1 );
+		$request->set_param( 'number', 10 );
+		Activity_Log_Bridge::get_activity_log( $request );
+
+		$this->assertStringContainsString( '_locale=es_ES', $this->captured_url );
 	}
 }

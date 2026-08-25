@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Apply the name typed when creating a form, and stop a dismissed save from reporting into a reopened dialog.

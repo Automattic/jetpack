@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add defaultHiddenSeries to seed a series hidden on load, plus absolute visibility setters.
+Add defaultHiddenSeries to seed a series hidden on load, plus absolute visibility setters. Keep the keyboard tooltip open when the chart re-renders under it.

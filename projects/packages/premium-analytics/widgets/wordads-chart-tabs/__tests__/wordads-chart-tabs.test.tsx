@@ -3,18 +3,51 @@
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react';
+import { render, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import WordAdsChartTabsWidget from '../render';
 import useWordAdsChart from '../use-wordads-chart';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 import type { ReactNode } from 'react';
 
-jest.mock( '@wordpress/api-fetch' );
+jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
-const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
+// The chart itself is visx SVG rendering, outside this widget's concern. Keep
+// the metrics observable so the tests can assert what the widget charts.
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
+	MetricTabsChart: ( {
+		metrics,
+		chartType,
+	}: {
+		metrics: {
+			key: string;
+			label: string;
+			value: number;
+			current: { date: Date; value: number }[];
+		}[];
+		chartType?: string;
+	} ) => (
+		<div
+			data-testid="metric-tabs-chart"
+			data-metric-count={ metrics.length }
+			data-metric-label={ metrics[ 0 ]?.label }
+			data-metric-total={ String( metrics[ 0 ]?.value ) }
+			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
+			data-first-date={ metrics[ 0 ]?.current[ 0 ]?.date.toISOString() }
+			data-chart-type={ String( chartType ) }
+		/>
+	),
+} ) );
+
+// WidgetRoot reads URL search params as a fallback for report params; outside
+// a matched route the real hook warns and throws.
+jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
+
+const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 // Raw WPCOM `wordads/stats` matrix shape: two monthly buckets, so the summary
 // totals impressions (2000) and revenue (9.75), and CPM is the weighted average
@@ -201,5 +234,48 @@ describe( 'useWordAdsChart', () => {
 		// average (3.5 / 700 * 1000), not the value over all three buckets.
 		expect( metrics[ 2 ].previousValue ).toBeCloseTo( 3.5 );
 		expect( metrics[ 1 ].previousValue ).toBeCloseTo( 5 );
+	} );
+} );
+
+describe( 'WordAdsChartTabsWidget', () => {
+	beforeEach( () => {
+		queryClient.clear();
+		mockApiFetch.mockReset();
+		mockApiFetch.mockResolvedValue( PRIMARY_RESPONSE );
+	} );
+
+	// The widget has no Group by control: the bucket size is whatever the
+	// dashboard's chart interval control resolved to, clamped to what this
+	// chart supports.
+	it( 'buckets by the interval the dashboard applied', async () => {
+		render(
+			<WordAdsChartTabsWidget
+				attributes={ {
+					reportParams: { from: '2026-05-01', to: '2026-06-30', interval: 'week' },
+				} }
+			/>
+		);
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+
+		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+		expect( requestedPath ).toContain( 'unit=week' );
+	} );
+
+	// `quarter` is an interval the dashboard allows on a multi-year range but
+	// this chart has no bucket for, so it clamps to the nearest one it does.
+	it( 'clamps an unsupported interval to the closest supported bucket', async () => {
+		render(
+			<WordAdsChartTabsWidget
+				attributes={ {
+					reportParams: { from: '2023-01-01', to: '2026-06-30', interval: 'quarter' },
+				} }
+			/>
+		);
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+
+		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+		expect( requestedPath ).toContain( 'unit=month' );
 	} );
 } );

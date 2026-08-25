@@ -1019,6 +1019,64 @@ describe( 'BarChart', () => {
 				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
 			} );
 
+			test( 'keeps the tooltip open once the chart re-renders under it', async () => {
+				// visx hides its tooltip on a debounce and cancels only the most recently
+				// scheduled hide, so anything that re-runs the tooltip effect while nothing
+				// is shown leaves a hide pending that lands on the next tooltip. Seeding a
+				// hidden series re-renders the chart right after mount, which is exactly
+				// that shape.
+				jest.useFakeTimers();
+
+				try {
+					const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+					renderWithTheme( {
+						withTooltips: true,
+						defaultHiddenSeries: [ 'Series B' ],
+						data: [
+							{
+								label: 'Series A',
+								data: [
+									{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+									{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+								],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [
+									{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
+									{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+								],
+								options: {},
+							},
+						],
+					} );
+
+					const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+					chart.focus();
+
+					await user.keyboard( '{ArrowRight}' );
+					expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
+
+					// Well past any pending hide.
+					await act( async () => {
+						jest.advanceTimersByTime( 5000 );
+					} );
+
+					expect( screen.getByTestId( 'chart-tooltip-0' ) ).toBeInTheDocument();
+
+					// Leaving navigation still closes it.
+					await user.keyboard( '{Escape}' );
+					await act( async () => {
+						jest.advanceTimersByTime( 5000 );
+					} );
+
+					expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+				} finally {
+					jest.useRealTimers();
+				}
+			} );
+
 			test( 'left arrow key navigates to previous data point', async () => {
 				const user = userEvent.setup();
 				renderWithTheme( {

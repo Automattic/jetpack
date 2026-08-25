@@ -1,7 +1,12 @@
 /**
  * External dependencies
  */
-import { BarChart, Stack, useGlobalChartsContext } from '@jetpack-premium-analytics/externals';
+import {
+	BarChart,
+	Stack,
+	useGlobalChartsContext,
+	type TickResolution,
+} from '@jetpack-premium-analytics/externals';
 import {
 	formatDate,
 	formatMetricValue,
@@ -14,7 +19,12 @@ import { useCallback, useId, useMemo, useState } from 'react';
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
-import { formatTooltipSeriesLabel, isEmptyChartData, getFixedYAxis } from '../../helpers';
+import {
+	formatTooltipSeriesLabel,
+	isEmptyChartData,
+	getFixedYAxis,
+	dateFormatForResolution,
+} from '../../helpers';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-bar-chart.module.scss';
@@ -71,6 +81,22 @@ export type ComparativeBarChartProps = {
 	tickFormat?: DateFormatName;
 
 	/**
+	 * The series' bucket size. Declaring it lets the automatic tick formatter pick
+	 * its regime from a known granularity instead of measuring the gaps between
+	 * points, which a single-bucket or DST-shortened series gives it no way to
+	 * read. An explicit `tickFormat` still wins over both. The tooltip reads it
+	 * too, to decide whether a date alone identifies a bucket.
+	 */
+	tickResolution?: TickResolution;
+
+	/**
+	 * Renders a point's date for a tooltip row, in the named format this chart
+	 * picked for it. Callers whose points are wall clocks (see `chart-date.ts`)
+	 * pass a variant that re-anchors them first; defaults to `formatDate`.
+	 */
+	formatTooltipDate?: ( date: Date, format: DateFormatName ) => string;
+
+	/**
 	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area
 	 * is too short for readable axis labels. Defaults to false.
 	 */
@@ -122,11 +148,14 @@ export function ComparativeBarChart( {
 	chartId: providedChartId,
 	dataFormat,
 	tickFormat: xTickFormatType,
+	tickResolution,
+	formatTooltipDate = formatDate,
 	compactWhenShort = false,
 	maxWidth = Infinity,
 	defaultHiddenSeries,
 	legendInteractive = false,
 }: ComparativeBarChartProps ) {
+	const tooltipDateFormat = dateFormatForResolution( tickResolution );
 	const fallbackChartId = useId();
 	const chartId = providedChartId ?? fallbackChartId;
 	const { getElementStyles } = useGlobalChartsContext();
@@ -230,10 +259,10 @@ export function ComparativeBarChart( {
 			if ( ! displayDate ) {
 				return key;
 			}
-			const date = formatDate( displayDate );
+			const date = formatTooltipDate( displayDate, tooltipDateFormat );
 			return isPaired ? formatTooltipSeriesLabel( seriesNames.get( key ) ?? key, date ) : date;
 		},
-		[ seriesNames, isPaired ]
+		[ seriesNames, isPaired, formatTooltipDate, tooltipDateFormat ]
 	);
 
 	/**
@@ -329,6 +358,7 @@ export function ComparativeBarChart( {
 					// `formatDate`'s `medium` default from putting full site-format dates
 					// on every tick when no format was asked for.
 					...( xTickFormatType ? { tickFormat: xTickFormat } : {} ),
+					tickResolution,
 				},
 				y: {
 					tickFormat: yTickFormat,
@@ -343,7 +373,7 @@ export function ComparativeBarChart( {
 		}
 
 		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
-	}, [ xTickFormat, xTickFormatType, yTickFormat, isCompact, fixedYAxis ] );
+	}, [ xTickFormat, xTickFormatType, tickResolution, yTickFormat, isCompact, fixedYAxis ] );
 
 	const margin = useMemo( () => {
 		// With the y-axis hidden, reclaim its reserved left margin for the bars.

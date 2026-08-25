@@ -6,6 +6,7 @@ import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	CALENDAR_HEATMAP_CELL_GAP,
 	CALENDAR_HEATMAP_HEADER_HEIGHT,
+	CalendarHeatmapPagerOverlay,
 	CalendarHeatmapTooltip,
 	HeatmapChartUnresponsive,
 	HeatmapSkeleton,
@@ -23,8 +24,6 @@ import {
 import { useResizeObserver } from '@wordpress/compose';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { chevronLeft, chevronRight } from '@wordpress/icons';
-import { Button, Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -89,9 +88,10 @@ function cellHeightForArea( height: number ): number {
 
 /**
  * Renders one page of the post's daily views as a calendar heatmap. Ranges
- * longer than one page grow a header pager stepping through the range; without
- * a post scope (e.g. the widget added outside a post detail page) the query
- * never enables and the empty state shows.
+ * longer than one page grow floating pager arrows over the chart's edges,
+ * stepping through the range; without a post scope (e.g. the widget added
+ * outside a post detail page) the query never enables and the empty state
+ * shows.
  */
 function PostTrafficActivityInner() {
 	const { reportParams } = useWidgetRootContext();
@@ -122,9 +122,9 @@ function PostTrafficActivityInner() {
 		refetch,
 	} = usePostTrafficActivity( postId, reportParams, weeksForWidth( width ) * 7 );
 
-	// The height left for the grid once the pager row has taken its share. Only
-	// the cell height reads it — the page span stays width-derived, so paging
-	// cannot feed back into the measurement and oscillate.
+	// The height the tile offers the grid. Only the cell height reads it — the
+	// page span stays width-derived, so paging cannot feed back into the
+	// measurement and oscillate.
 	const [ chartAreaRef, chartAreaSize ] = useElementSize< HTMLDivElement >();
 	const maxCellHeight = cellHeightForArea( chartAreaSize.height );
 
@@ -191,55 +191,34 @@ function PostTrafficActivityInner() {
 					renderLoading={ <HeatmapSkeleton /> }
 				>
 					<div className={ styles.content }>
-						{ /* The pager only exists when the range exceeds one page (and
-						     only in the ready state, where the grid it steps is
-						     visible); the grid centers in the height it leaves over. */ }
-						{ isPaged && (
-							<Stack align="center" justify="flex-end" gap="sm" className={ styles.pager }>
-								<Button
-									type="button"
-									variant="minimal"
-									tone="neutral"
-									size="small"
-									onClick={ showOlder }
-									disabled={ ! canShowOlder }
-									aria-label={ __( 'Older activity', 'jetpack-premium-analytics-pkg' ) }
-								>
-									<Button.Icon icon={ chevronLeft } size={ 16 } />
-								</Button>
-								<Button
-									type="button"
-									variant="minimal"
-									tone="neutral"
-									size="small"
-									onClick={ showNewer }
-									disabled={ ! canShowNewer }
-									aria-label={ __( 'Newer activity', 'jetpack-premium-analytics-pkg' ) }
-								>
-									<Button.Icon icon={ chevronRight } size={ 16 } />
-								</Button>
-							</Stack>
-						) }
 						{ /* The unresponsive chart export: the capped grid is
 						     content-sized and the page span is derived from the widget's
 						     own measurement, so the responsive wrapper's full-height
 						     measuring container would only break the centered grid. */ }
 						<div ref={ chartAreaRef } className={ styles.chartArea }>
-							<HeatmapChartUnresponsive
-								data={ heatmapData }
-								rowLabels={ rowLabels }
-								primaryColor="var(--wp-admin-theme-color, #3858e9)"
-								withTooltips
-								// Cap cells at the design's 64px width; the page span is
-								// already sized to the card, so tracks never need to
-								// shrink below it. The height cap follows the measured
-								// area so short tiles get flatter cells, not a clipped
-								// month-label row.
-								maxCellWidth={ 64 }
-								maxCellHeight={ maxCellHeight }
-								renderTooltip={ renderCellTooltip }
-								className={ styles.heatmap }
-							/>
+							{ /* The arrows float over the grid's edges on hover; they only
+							     exist when the range exceeds one page (and only in the ready
+							     state, where the grid they step is visible). */ }
+							<CalendarHeatmapPagerOverlay
+								pager={ isPaged ? { canShowOlder, canShowNewer, showOlder, showNewer } : undefined }
+								className={ styles.chartHost }
+							>
+								<HeatmapChartUnresponsive
+									data={ heatmapData }
+									rowLabels={ rowLabels }
+									primaryColor="var(--wp-admin-theme-color, #3858e9)"
+									withTooltips
+									// Cap cells at the design's 64px width; the page span is
+									// already sized to the card, so tracks never need to
+									// shrink below it. The height cap follows the measured
+									// area so short tiles get flatter cells, not a clipped
+									// month-label row.
+									maxCellWidth={ 64 }
+									maxCellHeight={ maxCellHeight }
+									renderTooltip={ renderCellTooltip }
+									className={ styles.heatmap }
+								/>
+							</CalendarHeatmapPagerOverlay>
 						</div>
 					</div>
 				</WidgetState>

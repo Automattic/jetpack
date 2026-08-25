@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { LineChart, Stack } from '@jetpack-premium-analytics/externals';
+import { LineChart, Stack, type TickResolution } from '@jetpack-premium-analytics/externals';
 import {
 	formatDate,
 	formatMetricValue,
@@ -15,7 +15,12 @@ import { type ComponentProps } from 'react';
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
-import { formatTooltipSeriesLabel, isEmptyChartData, getFixedYAxis } from '../../helpers';
+import {
+	formatTooltipSeriesLabel,
+	isEmptyChartData,
+	getFixedYAxis,
+	dateFormatForResolution,
+} from '../../helpers';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-line-chart.module.scss';
 import { alignSeriesDates } from './utils';
@@ -117,6 +122,21 @@ export type ComparativeLineChartProps = {
 	tickFormat?: DateFormatName;
 
 	/**
+	 * The series' bucket size. Declaring it lets the automatic tick formatter pick
+	 * its regime from a known granularity instead of measuring the gaps between
+	 * points, which a single-bucket or DST-shortened series gives it no way to
+	 * read. An explicit `tickFormat` still wins over both.
+	 */
+	tickResolution?: TickResolution;
+
+	/**
+	 * Renders a point's date for a tooltip row, in the named format this chart
+	 * picked for it. Callers whose points are wall clocks (see `chart-date.ts`)
+	 * pass a variant that re-anchors them first; defaults to `formatDate`.
+	 */
+	formatTooltipDate?: ( date: Date, format: DateFormatName ) => string;
+
+	/**
 	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area
 	 * is too short for readable axis labels. Defaults to false.
 	 */
@@ -149,11 +169,14 @@ export function ComparativeLineChart( {
 	chartId,
 	dataFormat,
 	tickFormat: xTickFormatType,
+	tickResolution,
+	formatTooltipDate = formatDate,
 	maxWidth = Infinity,
 	compactWhenShort = false,
 	defaultHiddenSeries,
 	legendInteractive = false,
 }: ComparativeLineChartProps ) {
+	const tooltipDateFormat = dateFormatForResolution( tickResolution );
 	// The measured Stack fills its container (flex), so its height is independent
 	// of whether the axis/legend are shown — no measure/hide feedback loop.
 	const [ chartAreaHeight, setChartAreaHeight ] = useState( Infinity );
@@ -210,10 +233,10 @@ export function ComparativeLineChart( {
 		( datum: { date: Date; realDate?: Date }, _index: number, key: string ): string => {
 			const entry = seriesNames.get( key );
 			const displayDate = datum.realDate ?? datum.date;
-			const date = formatDate( displayDate );
+			const date = formatTooltipDate( displayDate, tooltipDateFormat );
 			return isPaired ? formatTooltipSeriesLabel( entry ?? key, date ) : date;
 		},
-		[ seriesNames, isPaired ]
+		[ seriesNames, isPaired, formatTooltipDate, tooltipDateFormat ]
 	);
 
 	// `resolvedStyles` follows `series`; the tooltip's rows need not, so pair them
@@ -280,6 +303,7 @@ export function ComparativeLineChart( {
 					// unconditional `xTickFormat` would put full site-format dates on every
 					// tick. Without the prop, the chart library's own tick labels stay in use.
 					tickFormat: xTickFormatType ? xTickFormat : undefined,
+					tickResolution,
 				},
 				y: {
 					tickFormat: yTickFormat,
@@ -294,7 +318,7 @@ export function ComparativeLineChart( {
 		}
 
 		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
-	}, [ xTickFormat, xTickFormatType, yTickFormat, fixedYAxis, isCompact ] );
+	}, [ xTickFormat, xTickFormatType, tickResolution, yTickFormat, fixedYAxis, isCompact ] );
 
 	const margin = fixedYAxis ? { ...DEFAULT_MARGIN, left: fixedYAxis.marginLeft } : DEFAULT_MARGIN;
 

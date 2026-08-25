@@ -1,10 +1,13 @@
 /**
  * External dependencies
  */
+import { formatDate, type DateFormatName } from '@jetpack-premium-analytics/formatters';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
+import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import { MetricTabsChart } from '../metric-tabs-chart';
 import type { ComparativeLineChartSeries } from '../../chart-comparative-line/types';
 import type { MetricTab } from '../metric-tabs-chart';
@@ -89,6 +92,17 @@ function recordedProps( spy: jest.Mock ): ChartProps {
 	return spy.mock.calls.at( -1 )[ 0 ];
 }
 
+// Chart points are wall clocks, so this one is built from local parts, the same
+// way `toChartDate` builds them.
+const WALL_CLOCK_METRIC: MetricTab = {
+	...METRIC,
+	current: [
+		{ date: new Date( 2026, 6, 1, 0, 0 ), value: 100 },
+		{ date: new Date( 2026, 6, 2, 0, 0 ), value: 200 },
+	],
+	previous: undefined,
+};
+
 /**
  * The series the most recent chart render received.
  *
@@ -114,6 +128,19 @@ function recordedPropsFor( spy: jest.Mock, label: string ): ChartProps {
 		.at( -1 );
 	expect( call ).toBeDefined();
 	return call[ 0 ];
+}
+
+/**
+ * The tooltip date formatter the most recent chart render received.
+ *
+ * @param spy - The chart stand-in to read.
+ * @return The recorded formatter.
+ */
+function recordedTooltipDateFormatter(
+	spy: jest.Mock
+): ( date: Date, format: DateFormatName ) => string {
+	expect( spy ).toHaveBeenCalled();
+	return spy.mock.calls.at( -1 )[ 0 ].formatTooltipDate;
 }
 
 describe( 'MetricTabsChart', () => {
@@ -184,6 +211,85 @@ describe( 'MetricTabsChart', () => {
 			toOpacity: 0,
 		} );
 		expect( recordedSeries( mockBarSpy )[ 1 ].options?.gradient ).toBeUndefined();
+	} );
+
+	it( 'replaces an unavailable metric with its reason instead of drawing a zero line', () => {
+		const reason = "Hourly data isn't available for this metric.";
+		const unavailable = { ...METRIC, unavailable: reason };
+
+		render( <MetricTabsChart metrics={ [ unavailable ] } dataFormat={ DATA_FORMAT } /> );
+
+		expect( screen.queryByTestId( 'line-chart' ) ).not.toBeInTheDocument();
+		expect( screen.getAllByText( reason ) ).not.toHaveLength( 0 );
+		// The headline stands down to a placeholder rather than reporting a total
+		// the endpoint never returned.
+		expect( screen.queryByText( '300' ) ).not.toBeInTheDocument();
+	} );
+
+	// Only the Stats widgets build wall clocks; the post and video charts hand
+	// over real instants (`parseSiteDateTime`), which re-anchoring would shift
+	// (see `chart-date.ts`) — so the reading has to stay opt-in. Asserted against
+	// the formatter rather than a literal, and over two site zones, so the check
+	// cannot come out vacuous on whichever timezone the machine running it
+	// happens to be in.
+	it.each( [ 'Asia/Tokyo', 'America/Los_Angeles' ] )(
+		'reads a point as the instant it is unless the producer says otherwise, on a site in %s',
+		siteZone => {
+			setSettings( siteSettingsIn( siteZone ) );
+
+			const instant = new Date( Date.UTC( 2026, 6, 1, 15, 0 ) );
+
+			render(
+				<MetricTabsChart
+					metrics={ [ { ...WALL_CLOCK_METRIC, current: [ { date: instant, value: 100 } ] } ] }
+					dataFormat={ DATA_FORMAT }
+				/>
+			);
+
+			const { formatTooltipDate } = mockLineSpy.mock.calls.at( -1 )[ 0 ];
+
+			expect( formatTooltipDate( instant, 'dateTime' ) ).toBe( formatDate( instant, 'dateTime' ) );
+		}
+	);
+
+	// The charts read a point's date as an instant unless told otherwise, and
+	// these points are wall clocks, so the reading is this component's to supply.
+	it.each( [ 'Asia/Tokyo', 'America/Los_Angeles' ] )(
+		'labels a chart point with the bucket it names, on a site in %s',
+		siteZone => {
+			setSettings( siteSettingsIn( siteZone ) );
+
+			render(
+				<MetricTabsChart
+					metrics={ [ WALL_CLOCK_METRIC ] }
+					dataFormat={ DATA_FORMAT }
+					pointsAreWallClocks
+				/>
+			);
+
+			const formatTooltipDate = recordedTooltipDateFormatter( mockLineSpy );
+
+			expect( formatTooltipDate( new Date( 2026, 6, 2, 14, 0 ), 'dateTime' ) ).toBe(
+				'July 2, 2026 2:00 pm'
+			);
+		}
+	);
+
+	it( 'keeps an unavailable metric selectable, so its reason stays reachable', () => {
+		const unavailable = {
+			...METRIC,
+			key: 'likes',
+			label: 'Likes',
+			unavailable: "Hourly data isn't available for this metric.",
+		};
+
+		render( <MetricTabsChart metrics={ [ METRIC, unavailable ] } dataFormat={ DATA_FORMAT } /> );
+
+		const tabs = screen.getAllByRole( 'tab' );
+		expect( tabs ).toHaveLength( 2 );
+		for ( const tab of tabs ) {
+			expect( tab ).toBeEnabled();
+		}
 	} );
 
 	it( 'emits a single series when the metric has no previous period', () => {

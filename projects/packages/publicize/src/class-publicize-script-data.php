@@ -216,7 +216,9 @@ class Publicize_Script_Data {
 
 		return array(
 			'connectionData' => array(
-				'connections' => Connections::get_all_for_user(),
+				// Same gate the block editor assets are enqueued behind, so users who
+				// never get the Social UI are not handed connection details either.
+				'connections' => Utils::current_user_can_access_publicize_data() ? Connections::get_all_for_user() : array(),
 			),
 			'shareStatus'    => $share_status,
 		);

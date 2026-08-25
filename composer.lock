@@ -63,7 +63,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "de88fc94f6bd01bd589b58798f3bd5a3f6e90782"
+                "reference": "6f39c44b56d2f578aee80b632185ce2683ceb785"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -87,7 +87,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "8.1.x-dev"
+                    "dev-trunk": "9.0.x-dev"
                 }
             },
             "autoload": {
@@ -1169,16 +1169,16 @@
         },
         {
             "name": "php-stubs/wordpress-tests-stubs",
-            "version": "v7.0.2",
+            "version": "v7.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/wordpress-tests-stubs.git",
-                "reference": "205a4e28bbd248a0d24bf45eb073826855b2fa2b"
+                "reference": "a4e8d3865a64ee9dbcc5c697e02b221c9e0317b0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/wordpress-tests-stubs/zipball/205a4e28bbd248a0d24bf45eb073826855b2fa2b",
-                "reference": "205a4e28bbd248a0d24bf45eb073826855b2fa2b",
+                "url": "https://api.github.com/repos/php-stubs/wordpress-tests-stubs/zipball/a4e8d3865a64ee9dbcc5c697e02b221c9e0317b0",
+                "reference": "a4e8d3865a64ee9dbcc5c697e02b221c9e0317b0",
                 "shasum": ""
             },
             "require-dev": {
@@ -1203,9 +1203,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/wordpress-tests-stubs/issues",
-                "source": "https://github.com/php-stubs/wordpress-tests-stubs/tree/v7.0.2"
+                "source": "https://github.com/php-stubs/wordpress-tests-stubs/tree/v7.1.0"
             },
-            "time": "2026-07-23T13:02:04+00:00"
+            "time": "2026-08-20T07:25:45+00:00"
         },
         {
             "name": "php-stubs/wp-cli-stubs",
