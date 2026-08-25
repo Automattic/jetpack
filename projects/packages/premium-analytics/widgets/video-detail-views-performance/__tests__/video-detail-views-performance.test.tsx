@@ -41,6 +41,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 					value: metric.value,
 					format: metric.dataFormat?.type,
 					values: metric.current.map( point => point.value ),
+					firstDate: metric.current[ 0 ]?.date.toISOString(),
 					days: metric.current.map( point => point.date.getDate() ),
 				} ) )
 			) }
@@ -60,6 +61,7 @@ type ChartedMetric = {
 	value: number;
 	format?: string;
 	values: number[];
+	firstDate?: string;
 	days: number[];
 };
 
