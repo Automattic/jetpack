@@ -8,7 +8,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { buildTimeSeriesChartData, formatComparisonSeriesLabel } from '../../helpers';
+import { buildTimeSeriesChartData } from '../../helpers';
 import { MetricComparisonWidget } from '../../widgets/metric-comparison';
 import { WidgetState } from '../widget-state';
 import type { DataFormat } from '../../types';
@@ -102,19 +102,8 @@ export function ReportMetricWidget( {
 		comparison: comparisonData,
 		metricKey,
 		emptyDataFallback: 'empty-array',
+		label: seriesLabel,
 	} );
-
-	// The helper labels by date range. The legend names the metric — the section
-	// header names the dates — and the two periods share a group, so they
-	// collapse into the one item the current period's label carries.
-	if ( seriesLabel ) {
-		if ( series[ 0 ] ) {
-			series[ 0 ].label = seriesLabel;
-		}
-		if ( series[ 1 ] ) {
-			series[ 1 ].label = formatComparisonSeriesLabel( seriesLabel );
-		}
-	}
 
 	const seriesStyles = useMemo(
 		() =>

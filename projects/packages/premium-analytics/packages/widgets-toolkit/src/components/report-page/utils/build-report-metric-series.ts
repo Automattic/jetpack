@@ -9,7 +9,6 @@ import {
 	buildTimeSeriesChartData,
 	type TimeSeriesData,
 } from '../../../helpers/build-time-series-chart-data';
-import { formatComparisonSeriesLabel } from '../../../helpers/format-comparison-series-label';
 import type {
 	ComparativeDatePointDate,
 	ComparativeLineChartSeries,
@@ -82,24 +81,19 @@ function buildSingleMetricSeries(
 			? toTimeSeriesResponse( comparison, metric.key )
 			: undefined,
 		metricKey: metric.key,
+		label: metric.label,
 	} );
 
-	// `buildTimeSeriesChartData` labels by date range. The legend names metrics —
-	// the section header names the dates — and the two periods share a group, so
-	// they collapse into the one item the current period's label carries.
+	// Group by metric rather than the helper's shared `primary`, so each metric on
+	// a multi-metric chart resolves its own colour.
 	series.forEach( entry => {
 		entry.group = metric.key;
 	} );
-
-	if ( series[ 0 ] ) {
-		series[ 0 ].label = metric.label;
-	}
 
 	if ( ! series[ 1 ] ) {
 		return series;
 	}
 
-	series[ 1 ].label = formatComparisonSeriesLabel( metric.label );
 	series[ 1 ].options = {
 		...series[ 1 ].options,
 		gradient: { from: 'transparent', to: 'transparent', fromOpacity: 0, toOpacity: 0 },
