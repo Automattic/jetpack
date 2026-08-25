@@ -56,9 +56,11 @@
 	text-decoration: none;
 }
 
-.labelTitleLink:hover,
-.labelTitleLink:focus,
-.labelExternalLink:hover,
-.labelExternalLink:focus {
+/* Underline only the title text, matching the leaderboard rows' hover rule —
+   the outbound marker stays clean instead of taking the underline with it. */
+.labelTitleLink:hover .labelText,
+.labelTitleLink:focus .labelText,
+.labelExternalLink:hover .labelText,
+.labelExternalLink:focus .labelText {
 	text-decoration: underline;
 }

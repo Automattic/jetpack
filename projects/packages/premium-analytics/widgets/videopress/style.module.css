@@ -33,10 +33,12 @@
 	white-space: nowrap;
 }
 
-.labelLink:hover,
-.labelLink:focus,
-.internalLink:hover,
-.internalLink:focus {
+/* Underline only the title text, matching the leaderboard rows' hover rule —
+   the outbound marker stays clean instead of taking the underline with it. */
+.labelLink:hover .titleText,
+.labelLink:focus .titleText,
+.internalLink:hover .titleText,
+.internalLink:focus .titleText {
 	text-decoration: underline;
 }
 
