@@ -1,15 +1,19 @@
 /**
  * Editor preview for jetpack-search/no-results-slot.
  *
- * One condition's content inside the No Results container. Deliberately no
- * `InnerBlocks` template: an auto-inserted placeholder paragraph serializes as
- * an empty `<p>`, which would displace the localized default copy `render.php`
- * falls back to the moment an author so much as clicks into a shipped
- * template. The variant stays genuinely empty until the author adds something,
- * and the preview below stands in for what visitors would see meanwhile.
+ * One condition's content inside the No Results container, shown WYSIWYG at
+ * all times. Deliberately no `InnerBlocks` template: an auto-inserted
+ * placeholder paragraph serializes as an empty `<p>`, which would displace the
+ * localized default copy `render.php` falls back to the moment an author so
+ * much as clicks into a shipped template. The variant stays genuinely empty
+ * until the author adds something, and the preview below — carrying the same
+ * class the front end styles — stands in for what visitors would see
+ * meanwhile.
  *
- * The outline + label and `ButtonBlockAppender` are the container-boundary
- * mitigation described in AGENTS.md's "InnerBlocks appender boundary trap".
+ * No custom canvas chrome: identification comes from Gutenberg's own
+ * selection/hover outlines and the per-condition name `conditionLabel()`
+ * feeds to List view, breadcrumb, and a11y via `__experimentalLabel` (wired
+ * in `editor/register-blocks.jsx`).
  *
  * `condition` is set once, by whatever created the variant, and deliberately
  * has no editing control: every condition already exists in the container, so
@@ -42,40 +46,6 @@ const defaultMessages = condition => {
 	return messages;
 };
 
-// Plain text out of a block attribute. A rich-text attribute already carries
-// one as `.text`; anything else is stripped until the result stops changing,
-// because a single pass over `<scr<a>ipt>` yields `<script>` — the tags it
-// removed reassembling into a new one.
-const toPlainText = raw => {
-	if ( raw && 'object' === typeof raw && 'string' === typeof raw.text ) {
-		return raw.text;
-	}
-	let text = String( raw ?? '' );
-	let previous;
-	do {
-		previous = text;
-		text = text.replace( /<[^<>]*>/g, '' );
-	} while ( text !== previous );
-	return text;
-};
-
-// First line of real copy inside a variant, for the collapsed row's summary.
-// Depth-first so a paragraph inside a Group still reads.
-const firstText = blocks => {
-	for ( const block of blocks ?? [] ) {
-		const raw = block.attributes?.content ?? block.attributes?.text ?? '';
-		const text = toPlainText( raw ).trim();
-		if ( text ) {
-			return text;
-		}
-		const nested = firstText( block.innerBlocks );
-		if ( nested ) {
-			return nested;
-		}
-	}
-	return '';
-};
-
 // Keyed rather than branched: a `return __( … )` per branch reads better but
 // the production minifier folds the identical calls into one `__()` with a
 // computed msgid, which `i18n-check-webpack-plugin` rejects and which would
@@ -85,6 +55,19 @@ export const conditionLabels = () => ( {
 	filtered: __( 'Filters are active', 'jetpack-search-pkg' ),
 	error: __( 'Search failed', 'jetpack-search-pkg' ),
 } );
+
+/**
+ * Per-condition display name for a variant, used as the block's
+ * `__experimentalLabel` so List view, breadcrumb, and a11y announcements
+ * name the condition instead of repeating the block title.
+ *
+ * @param {object} attributes - Block attributes.
+ * @return {string} The condition's label.
+ */
+export const conditionLabel = attributes => {
+	const stored = attributes?.condition;
+	return conditionLabels()[ CONDITIONS.includes( stored ) ? stored : 'any' ];
+};
 
 /**
  * Edit component for the no-results-slot block.
@@ -97,68 +80,34 @@ export const conditionLabels = () => ( {
 export default function NoResultsSlotEdit( { attributes, clientId } ) {
 	const stored = attributes?.condition;
 	const condition = CONDITIONS.includes( stored ) ? stored : 'any';
-	const { hasInnerBlocks, isActive, authoredSummary } = useSelect(
+	const { hasInnerBlocks, isActive } = useSelect(
 		select => {
 			const editor = select( blockEditorStore );
 			return {
 				hasInnerBlocks: editor.getBlockCount( clientId ) > 0,
 				isActive:
 					editor.isBlockSelected( clientId ) || editor.hasSelectedInnerBlock( clientId, true ),
-				// A plain string, so `useSelect`'s shallow compare doesn't see a
-				// fresh value on every store change.
-				authoredSummary: firstText( editor.getBlocks( clientId ) ),
 			};
 		},
 		[ clientId ]
 	);
-	// Only one condition can ever be on screen for a visitor, so three stacked
-	// messages are three times the height the page will ever use. Every message
-	// is a one-liner until it's selected — authored ones summarised by their own
-	// first line of copy, so the row still says what's in there.
-	const isCollapsed = ! isActive;
-	const blockProps = useBlockProps( {
-		className: [
-			'jetpack-search-no-results__variant',
-			'jetpack-search-no-results__editor-canvas',
-			isCollapsed ? 'jetpack-search-no-results__editor-canvas--collapsed' : '',
-		]
-			.filter( Boolean )
-			.join( ' ' ),
-	} );
-	const messages = defaultMessages( condition );
+	const blockProps = useBlockProps( { className: 'jetpack-search-no-results__variant' } );
 
 	return (
 		<div { ...blockProps }>
-			<span className="jetpack-search-no-results__editor-label">
-				{ conditionLabels()[ condition ] }
-			</span>
-			{ isCollapsed && (
-				<span className="jetpack-search-no-results__editor-summary">
-					{ authoredSummary || messages[ 0 ] }
-				</span>
-			) }
-			{ ! isCollapsed && ! hasInnerBlocks && (
-				<div className="jetpack-search-no-results__default-preview">
-					{ messages.map( message => (
+			{ ! hasInnerBlocks && (
+				<div className="jetpack-search-no-results--default">
+					{ defaultMessages( condition ).map( message => (
 						<p key={ message }>{ message }</p>
 					) ) }
 				</div>
 			) }
 			{ /* Always mounted: the inner drop target comes from
-			     `useInnerBlocksProps`, so unmounting it makes a drag onto a
-			     collapsed variant resolve to the container, whose `allowedBlocks`
-			     then rejects it. Empty it has no size, so only a variant with
-			     authored content needs hiding — and that one is summarised in the
-			     row above rather than dropped silently. */ }
-			<div
-				className={
-					isCollapsed && hasInnerBlocks
-						? 'jetpack-search-no-results__editor-blocks jetpack-search-no-results__editor-blocks--collapsed'
-						: 'jetpack-search-no-results__editor-blocks'
-				}
-			>
-				<InnerBlocks renderAppender={ isCollapsed ? false : InnerBlocks.ButtonBlockAppender } />
-			</div>
+			     `useInnerBlocksProps`, so unmounting it would make a drag onto an
+			     unselected variant resolve to the container, whose `allowedBlocks`
+			     then rejects it. The appender follows the standard convention of
+			     appearing only while the block is selected. */ }
+			<InnerBlocks renderAppender={ isActive ? InnerBlocks.ButtonBlockAppender : false } />
 		</div>
 	);
 }

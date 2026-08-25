@@ -59,9 +59,7 @@ export default function NoResultsEdit( { clientId } ) {
 		[ clientId ]
 	);
 	const { insertBlock } = useDispatch( blockEditorStore );
-	const blockProps = useBlockProps( {
-		className: 'jetpack-search-no-results jetpack-search-no-results__editor-container',
-	} );
+	const blockProps = useBlockProps( { className: 'jetpack-search-no-results' } );
 	const taken = used ? used.split( ',' ) : [];
 	const missing = CONDITIONS.filter( c => ! taken.includes( c ) );
 	const labels = conditionLabels();
@@ -93,9 +91,6 @@ export default function NoResultsEdit( { clientId } ) {
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>
-				<span className="jetpack-search-no-results__editor-label">
-					{ __( 'No Results', 'jetpack-search-pkg' ) }
-				</span>
 				<InnerBlocks allowedBlocks={ ALLOWED } template={ TEMPLATE } renderAppender={ false } />
 			</div>
 		</>
