@@ -22,7 +22,11 @@ jest.mock( '@wordpress/dataviews', () => {
 				...actions.map( action =>
 					createElement(
 						'button',
-						{ key: action.id, onClick: () => action.callback( [ item ] ) },
+						{
+							key: action.id,
+							'data-primary': action.isPrimary || undefined,
+							onClick: () => action.callback( [ item ] ),
+						},
 						action.label
 					)
 				)
@@ -44,6 +48,16 @@ const task = {
 let hookResult;
 
 beforeEach( () => {
+	window.__agentsManagerActions = {
+		isReady: true,
+		chatNavigate: jest.fn(),
+		setChatDocked: jest.fn(),
+		setChatOpen: jest.fn(),
+		setContextEntry: jest.fn(),
+		setContextCard: jest.fn(),
+		removeContextEntry: jest.fn(),
+		removeContextCard: jest.fn(),
+	};
 	hookResult = {
 		tasks: [ task ],
 		isLoading: false,
@@ -57,7 +71,11 @@ beforeEach( () => {
 	useScheduledTasks.mockImplementation( () => hookResult );
 } );
 
-test( 'renders the table, opens details, and runs a task now', async () => {
+afterEach( () => {
+	delete window.__agentsManagerActions;
+} );
+
+test( 'renders the table, opens task context in chat, and runs a task now', async () => {
 	const createSuccessNotice = jest.fn();
 	render(
 		<ScheduledTasks
@@ -69,10 +87,26 @@ test( 'renders the table, opens details, and runs a task now', async () => {
 	);
 
 	await userEvent.click( screen.getByRole( 'button', { name: 'Weekly report' } ) );
-	expect( screen.getByText( 'Summarize this week.' ) ).toBeInTheDocument();
-	expect( screen.getByText( 'Done.' ) ).toBeInTheDocument();
-	await userEvent.click( screen.getByRole( 'button', { name: 'Close' } ) );
-	await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+	expect( screen.getByRole( 'button', { name: 'View' } ) ).toHaveAttribute(
+		'data-primary',
+		'true'
+	);
+	expect( window.__agentsManagerActions.setContextEntry ).toHaveBeenCalledWith(
+		expect.objectContaining( {
+			id: 'jetpack-ai/selected-scheduled-task',
+			delivery: 'conversation',
+			data: expect.objectContaining( { taskId: 7, prompt: 'Summarize this week.' } ),
+		} )
+	);
+	expect( window.__agentsManagerActions.setContextCard ).toHaveBeenCalledWith(
+		expect.objectContaining( {
+			id: 'jetpack-ai/selected-scheduled-task-card',
+			contextEntryIds: [ 'jetpack-ai/selected-scheduled-task' ],
+		} )
+	);
+	expect( window.__agentsManagerActions.chatNavigate ).toHaveBeenCalledWith( '/chat' );
+	expect( window.__agentsManagerActions.setChatOpen ).toHaveBeenCalledWith( true );
+	expect( window.__agentsManagerActions.setChatDocked ).not.toHaveBeenCalled();
 
 	await userEvent.click( screen.getByRole( 'button', { name: 'Run now' } ) );
 	await waitFor( () => expect( hookResult.runNow ).toHaveBeenCalledWith( 7 ) );
@@ -104,6 +138,8 @@ test( 'renders the latest result as safe Markdown', async () => {
 	);
 
 	await userEvent.click( screen.getByRole( 'button', { name: 'Weekly report' } ) );
+	const card = window.__agentsManagerActions.setContextCard.mock.calls.at( -1 )[ 0 ];
+	render( card.body );
 	expect( screen.getByText( 'Views:' ).tagName ).toBe( 'STRONG' );
 	expect( screen.getByText( 'Two visitors' ).tagName ).toBe( 'LI' );
 	expect( screen.getByRole( 'link', { name: 'View report' } ) ).toHaveAttribute(
@@ -111,6 +147,30 @@ test( 'renders the latest result as safe Markdown', async () => {
 		'_blank'
 	);
 	expect( screen.getByText( /<script>alert\("nope"\)<\/script>/ ) ).toBeInTheDocument();
+} );
+
+test( 'starts a new chat without changing the persisted docking preference', async () => {
+	hookResult.tasks = [];
+
+	render(
+		<ScheduledTasks
+			blogId={ 123 }
+			apiNonce="nonce"
+			createSuccessNotice={ jest.fn() }
+			createErrorNotice={ jest.fn() }
+		/>
+	);
+
+	await userEvent.click( screen.getByRole( 'button', { name: 'Create a task' } ) );
+	expect( window.__agentsManagerActions.removeContextCard ).toHaveBeenCalledWith(
+		'jetpack-ai/selected-scheduled-task-card'
+	);
+	expect( window.__agentsManagerActions.removeContextEntry ).toHaveBeenCalledWith(
+		'jetpack-ai/selected-scheduled-task'
+	);
+	expect( window.__agentsManagerActions.chatNavigate ).toHaveBeenCalledWith( '/' );
+	expect( window.__agentsManagerActions.setChatOpen ).toHaveBeenCalledWith( true );
+	expect( window.__agentsManagerActions.setChatDocked ).not.toHaveBeenCalled();
 } );
 
 test( 'requires confirmation before deleting', async () => {

@@ -133,20 +133,10 @@ body.jetpack_page_jetpack-ai {
 		cursor: pointer;
 	}
 
-	&__detail dl {
-		display: grid;
-		grid-template-columns: minmax(100px, auto) 1fr;
-		gap: 12px 24px;
-		max-width: 720px;
-	}
-
-	&__detail dt {
-		font-weight: 600;
-	}
-
-	&__detail dd {
-		margin: 0;
-		white-space: pre-wrap;
+	&__context-card {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
 		overflow-wrap: anywhere;
 	}
 

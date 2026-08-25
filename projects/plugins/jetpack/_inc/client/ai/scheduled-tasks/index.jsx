@@ -40,8 +40,11 @@ const STATUS_CHANGE_NOTICES = {
 	paused: __( 'The task was paused.', 'jetpack' ),
 };
 
-const openNewAgentChat = () => {
-	const open = () => {
+const TASK_CONTEXT_ENTRY_ID = 'jetpack-ai/selected-scheduled-task';
+const TASK_CONTEXT_CARD_ID = 'jetpack-ai/selected-scheduled-task-card';
+
+const withAgentChatActions = callback => {
+	const run = () => {
 		const actions = window.__agentsManagerActions;
 		const isReady = actions?.isReady;
 		if (
@@ -51,20 +54,31 @@ const openNewAgentChat = () => {
 		) {
 			return false;
 		}
-		// Agents Manager's catch-all route converts `/` into `/chat` with the
-		// `isNewChat` state that clears any persisted session.
-		actions.chatNavigate?.( '/' );
-		actions.setChatDocked?.( true );
-		actions.setChatOpen?.( true );
+		callback( actions );
 		return true;
 	};
 	const actions = window.__agentsManagerActions;
 	const isReady = actions?.isReady;
 	if ( actions && isReady !== false && ( typeof isReady !== 'function' || isReady() ) ) {
-		open();
+		run();
 	} else {
-		window.addEventListener( 'agents-manager-ready', open, { once: true } );
+		window.addEventListener( 'agents-manager-ready', run, { once: true } );
 	}
+};
+
+const clearScheduledTaskContext = actions => {
+	actions.removeContextCard?.( TASK_CONTEXT_CARD_ID );
+	actions.removeContextEntry?.( TASK_CONTEXT_ENTRY_ID );
+};
+
+const openNewAgentChat = () => {
+	withAgentChatActions( actions => {
+		clearScheduledTaskContext( actions );
+		// Agents Manager's catch-all route converts `/` into `/chat` with the
+		// `isNewChat` state that clears any persisted session.
+		actions.chatNavigate?.( '/' );
+		actions.setChatOpen?.( true );
+	} );
 };
 
 const relativeDate = value => {
@@ -115,37 +129,47 @@ const SafeSummary = ( { text } ) => {
 };
 
 /**
- * Task details modal.
+ * Scheduled task context shown inside Agents Manager.
  *
- * @param {object}   props         - Component props.
- * @param {object}   props.task    - Scheduled task to display.
- * @param {Function} props.onClose - Close callback.
- * @return {object} Task detail UI.
+ * @param {object} props      - Component props.
+ * @param {object} props.task - Scheduled task to display.
+ * @return {object} Scheduled task context UI.
  */
-function TaskDetail( { task, onClose } ) {
+function TaskContextCard( { task } ) {
 	return (
-		<Modal
-			title={ task.title }
-			onRequestClose={ onClose }
-			className="jetpack-ai-scheduled-tasks__detail"
-		>
-			<dl>
-				<dt>{ __( 'Status', 'jetpack' ) }</dt>
-				<dd>{ task.status }</dd>
-				<dt>{ __( 'Scheduled', 'jetpack' ) }</dt>
-				<dd>{ recurrenceLabel( task ) }</dd>
-				<dt>{ __( 'Timezone', 'jetpack' ) }</dt>
-				<dd>{ task.recurrence?.timezone || 'UTC' }</dd>
-				<dt>{ __( 'Prompt', 'jetpack' ) }</dt>
-				<dd>{ task.prompt }</dd>
-				<dt>{ __( 'Latest result', 'jetpack' ) }</dt>
-				<dd>
-					<SafeSummary text={ task.latest_run?.summary || task.latest_run?.failure_reason } />
-				</dd>
-			</dl>
-		</Modal>
+		<div className="jetpack-ai-scheduled-tasks__context-card">
+			<strong>{ task.title }</strong>
+			<SafeSummary text={ task.latest_run?.summary || task.latest_run?.failure_reason } />
+		</div>
 	);
 }
+
+const openScheduledTaskChat = task => {
+	withAgentChatActions( actions => {
+		actions.setContextEntry?.( {
+			id: TASK_CONTEXT_ENTRY_ID,
+			type: 'jetpack-ai/scheduled-task',
+			title: task.title,
+			description: task.prompt,
+			delivery: 'conversation',
+			data: {
+				taskId: task.id,
+				status: task.status,
+				prompt: task.prompt,
+				nextRunAt: task.next_run_at,
+				recurrence: task.recurrence,
+				latestRun: task.latest_run,
+			},
+		} );
+		actions.setContextCard?.( {
+			id: TASK_CONTEXT_CARD_ID,
+			contextEntryIds: [ TASK_CONTEXT_ENTRY_ID ],
+			body: <TaskContextCard task={ task } />,
+		} );
+		actions.chatNavigate?.( '/chat' );
+		actions.setChatOpen?.( true );
+	} );
+};
 
 /**
  * Selectable task title used by the DataViews title field.
@@ -183,7 +207,6 @@ export default function ScheduledTasks( {
 	createErrorNotice,
 } ) {
 	const [ view, setView ] = useState( INITIAL_VIEW );
-	const [ selectedTask, setSelectedTask ] = useState( null );
 	const [ pendingDelete, setPendingDelete ] = useState( null );
 	const { tasks, isLoading, error, inFlightIds, runNow, setStatus, deleteTask, refresh } =
 		useScheduledTasks( { blogId, apiNonce } );
@@ -202,7 +225,6 @@ export default function ScheduledTasks( {
 		},
 		[ createErrorNotice, createSuccessNotice ]
 	);
-	const closeDetail = useCallback( () => setSelectedTask( null ), [] );
 	const closeDelete = useCallback( () => setPendingDelete( null ), [] );
 	const retry = useCallback( () => refresh(), [ refresh ] );
 	const confirmDelete = useCallback( () => {
@@ -221,7 +243,7 @@ export default function ScheduledTasks( {
 				label: __( 'Task', 'jetpack' ),
 				enableGlobalSearch: true,
 				getValue: ( { item } ) => item.title,
-				render: ( { item } ) => <TaskLink item={ item } onSelect={ setSelectedTask } />,
+				render: ( { item } ) => <TaskLink item={ item } onSelect={ openScheduledTaskChat } />,
 			},
 			{
 				id: 'scheduled',
@@ -247,7 +269,8 @@ export default function ScheduledTasks( {
 			{
 				id: 'view',
 				label: __( 'View', 'jetpack' ),
-				callback: items => setSelectedTask( items[ 0 ] ),
+				isPrimary: true,
+				callback: items => openScheduledTaskChat( items[ 0 ] ),
 				isEligible: item => ! inFlightIds.includes( item.id ),
 			},
 			{
@@ -344,7 +367,6 @@ export default function ScheduledTasks( {
 				view={ view }
 				empty={ empty }
 			/>
-			{ selectedTask && <TaskDetail task={ selectedTask } onClose={ closeDetail } /> }
 			{ pendingDelete && (
 				<Modal title={ __( 'Delete task?', 'jetpack' ) } onRequestClose={ closeDelete }>
 					<p>

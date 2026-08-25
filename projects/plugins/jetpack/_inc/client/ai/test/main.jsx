@@ -243,7 +243,7 @@ describe( 'AI admin page (main.jsx)', () => {
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Create a task' } ) );
 		expect( window.__agentsManagerActions.chatNavigate ).toHaveBeenCalledWith( '/' );
-		expect( window.__agentsManagerActions.setChatDocked ).toHaveBeenCalledWith( true );
+		expect( window.__agentsManagerActions.setChatDocked ).not.toHaveBeenCalled();
 		expect( window.__agentsManagerActions.setChatOpen ).toHaveBeenCalledWith( true );
 		delete window.__agentsManagerActions;
 	} );
