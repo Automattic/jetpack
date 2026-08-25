@@ -108,6 +108,46 @@ trait Wpcom_Request_Mock {
 	}
 
 	/**
+	 * Sign in and have WPCOM answer with a body exactly as given.
+	 *
+	 * `arrange_wpcom()` takes an array and always `wp_json_encode`s it, so
+	 * every body it can produce decodes back to an array. That makes the
+	 * "WordPress.com answered 200 with something we cannot read" case —
+	 * a truncated response, an HTML error page, a bare scalar —
+	 * unreachable through it, and that case is exactly the one a bridge's
+	 * projection has to refuse rather than quietly read as an empty list.
+	 *
+	 * @param string     $body   Raw body WPCOM should answer with.
+	 * @param int|string $status HTTP status WPCOM should answer with. A string is
+	 *                           legitimate here: the transport does not guarantee
+	 *                           an int, and a bridge that compares strictly
+	 *                           against 200 has to be tested against that.
+	 */
+	protected function arrange_wpcom_raw( $body, $status = 200 ) {
+		$this->sign_in_as_admin();
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $body, $status ) {
+				$this->captured_url    = $url;
+				$this->captured_urls[] = $url;
+				// Recorded here too, or `captured_body` would mean both
+				// "no request was made" and "a request was made and this
+				// helper did not look" — and the trait documents the
+				// former as how a test proves a guard refused before
+				// reaching the network.
+				$this->captured_body = isset( $args['body'] ) ? json_decode( $args['body'], true ) : null;
+				return array(
+					'response' => array( 'code' => $status ),
+					'body'     => $body,
+				);
+			},
+			10,
+			3
+		);
+	}
+
+	/**
 	 * Sign in and make the request fail in transport.
 	 *
 	 * `pre_http_request` returning a `WP_Error` is what the HTTP client

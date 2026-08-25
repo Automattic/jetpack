@@ -12,11 +12,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "afee041b24440e62c6ddb502b3c6716044f8c3ed"
+                "reference": "4f3d5cc0e79e8be6fa32f7039a0e48fcd115ba72"
             },
             "require": {
                 "composer-plugin-api": "^2.2",
-                "php": ">=7.2"
+                "php": ">=7.4"
             },
             "require-dev": {
                 "automattic/phpunit-select-config": "@dev",
@@ -80,10 +80,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "9772ff10ed4f2e82abda216a2631b547d0a562e9"
+                "reference": "6dfb8c9a810d778fe1b755570e335abea1f46fda"
             },
             "require": {
-                "php": ">=7.2"
+                "php": ">=7.4"
             },
             "require-dev": {
                 "automattic/phpunit-select-config": "@dev",

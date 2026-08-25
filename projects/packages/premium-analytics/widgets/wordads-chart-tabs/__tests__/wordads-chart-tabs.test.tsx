@@ -22,23 +22,33 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		pointsAreWallClocks,
 	}: {
 		metrics: {
 			key: string;
 			label: string;
 			value: number;
 			current: { date: Date; value: number }[];
+			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
+		pointsAreWallClocks?: boolean;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
-			data-metric-count={ metrics.length }
-			data-metric-label={ metrics[ 0 ]?.label }
-			data-metric-total={ String( metrics[ 0 ]?.value ) }
-			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
-			data-first-date={ metrics[ 0 ]?.current[ 0 ]?.date.toISOString() }
 			data-chart-type={ String( chartType ) }
+			data-wall-clocks={ String( pointsAreWallClocks ) }
+			data-metrics={ JSON.stringify(
+				metrics.map( metric => ( {
+					key: metric.key,
+					label: metric.label,
+					value: metric.value,
+					format: metric.dataFormat?.type,
+					values: metric.current.map( point => point.value ),
+					firstDate: metric.current[ 0 ]?.date.toISOString(),
+					days: metric.current.map( point => point.date.getDate() ),
+				} ) )
+			) }
 		/>
 	),
 } ) );

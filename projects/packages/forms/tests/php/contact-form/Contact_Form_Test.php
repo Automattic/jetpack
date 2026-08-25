@@ -1489,7 +1489,6 @@ class Contact_Form_Test extends BaseTestCase {
 			'default'             => 'foo',
 			'placeholder'         => 'PLACEHOLDTHIS!',
 			'id'                  => 'funID',
-			'format'              => '(YYYY-MM-DD)',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
@@ -2035,12 +2034,12 @@ class Contact_Form_Test extends BaseTestCase {
 	 *                                                       and radio buttons.
 	 */
 	public function assertFieldLabel( $wrapper_div, $attributes, $tag_name = 'label' ) {
-		$type     = $attributes['type'];
-		$label    = $this->getFirstElement( $wrapper_div, $tag_name );
-		$expected = 'date' === $type ? $attributes['label'] . ' ' . $attributes['format'] : $attributes['label'];
+		$label = $this->getFirstElement( $wrapper_div, $tag_name );
 
+		// The date field no longer welds its format into the visible label —
+		// the format now renders as a separate hint element below the input.
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$this->assertEquals( $expected, trim( (string) $label->nodeValue ), 'Label is not what we expect it to be...' );
+		$this->assertEquals( $attributes['label'], trim( (string) $label->nodeValue ), 'Label is not what we expect it to be...' );
 	}
 
 	/**
@@ -5107,6 +5106,71 @@ class Contact_Form_Test extends BaseTestCase {
 		// Other types never vary with the value.
 		$this->assertSame( 'text', $this->invoke_private_static( 'get_field_type_icon_key', array( 'text', '' ) ) );
 		$this->assertSame( 'consent', $this->invoke_private_static( 'get_field_type_icon_key', array( 'consent', '' ) ) );
+	}
+
+	/**
+	 * The confirmation summary picks its checkbox icon from the submitted answer, so the
+	 * answer has to survive alongside the label the summary prints.
+	 *
+	 * `is_checked_value()` recognizes only the ASCII sentinel `no`, so a translated "No" reads
+	 * as ticked -- English passes by coincidence of the sentinel, every other locale renders
+	 * the ticked icon next to the word for "no".
+	 */
+	public function test_format_submission_data_keeps_the_raw_answer_for_the_icon() {
+		$translate = function ( $translation, $text ) {
+			return 'No' === $text ? 'Non' : $translation;
+		};
+		add_filter( 'gettext_jetpack-forms', $translate, 10, 2 );
+
+		$formatted = $this->invoke_private_static(
+			'format_submission_data',
+			array(
+				array(
+					array(
+						'label' => 'Send me a copy',
+						'value' => '',
+						'type'  => 'checkbox',
+					),
+				),
+			)
+		);
+
+		remove_filter( 'gettext_jetpack-forms', $translate, 10 );
+
+		$this->assertSame( 'Non', $formatted[0]['value'], 'the summary prints the translated label' );
+		$this->assertSame( '', $formatted[0]['rawValue'], 'the answer itself is kept for the icon' );
+
+		// What the icon actually keys off, and what it would key off without the split.
+		$this->assertSame(
+			'checkbox:unchecked',
+			$this->invoke_private_static( 'get_field_type_icon_key', array( 'checkbox', $formatted[0]['rawValue'] ) )
+		);
+		$this->assertSame(
+			'checkbox',
+			$this->invoke_private_static( 'get_field_type_icon_key', array( 'checkbox', $formatted[0]['value'] ) ),
+			'the translated label reads as ticked, which is why the raw answer is carried'
+		);
+	}
+
+	/**
+	 * An unticked checkbox submits nothing, so the summary drew the label over a blank line.
+	 * The email renderer has always said "No" here.
+	 */
+	public function test_get_submission_display_value_names_an_unticked_checkbox() {
+		$this->assertSame( 'No', $this->invoke_private_static( 'get_submission_display_value', array( '', 'checkbox' ) ) );
+		$this->assertSame( 'No', $this->invoke_private_static( 'get_submission_display_value', array( null, 'checkbox' ) ) );
+		$this->assertSame( 'No', $this->invoke_private_static( 'get_submission_display_value', array( 'No', 'checkbox' ) ) );
+	}
+
+	/**
+	 * Only the checkbox is treated this way: an empty text field really is unanswered, and
+	 * consent keeps its own wording.
+	 */
+	public function test_get_submission_display_value_leaves_other_values_alone() {
+		$this->assertSame( 'Yes', $this->invoke_private_static( 'get_submission_display_value', array( 'Yes', 'checkbox' ) ) );
+		$this->assertSame( '', $this->invoke_private_static( 'get_submission_display_value', array( '', 'text' ) ) );
+		$this->assertSame( '', $this->invoke_private_static( 'get_submission_display_value', array( '', 'consent' ) ) );
+		$this->assertSame( 'Ada', $this->invoke_private_static( 'get_submission_display_value', array( 'Ada', 'text' ) ) );
 	}
 
 	/**
