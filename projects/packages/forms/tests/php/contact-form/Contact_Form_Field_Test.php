@@ -12,10 +12,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
- * Test class for Contact_Form
+ * Test class for Contact_Form_Field
  *
+ * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
  * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form
  */
+#[CoversClass( Contact_Form_Field::class )]
 #[CoversClass( Contact_Form::class )]
 class Contact_Form_Field_Test extends BaseTestCase {
 
