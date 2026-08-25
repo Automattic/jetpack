@@ -398,6 +398,26 @@ describe( 'MetricTabsChart', () => {
 		expect( recordedProps( mockLineSpy ).legendInteractive ).toBe( false );
 	} );
 
+	// The Traffic summary pairs Views with Visitors, but the hourly grain serves
+	// Views alone. Drawing the pair there would offer the legend a series the
+	// request never asked for, which reveals as a flat zero line.
+	it( 'ignores a counterpart with nothing to report at this bucket size', () => {
+		const unavailableVisitors = { ...VISITORS, unavailable: "Hourly data isn't available." };
+
+		render(
+			<MetricTabsChart metrics={ [ VIEWS, unavailableVisitors ] } dataFormat={ DATA_FORMAT } />
+		);
+
+		const { series, defaultHiddenSeries, legendInteractive } = recordedPropsFor(
+			mockLineSpy,
+			'Views'
+		);
+
+		expect( series ).toHaveLength( 2 );
+		expect( defaultHiddenSeries ).toBeUndefined();
+		expect( legendInteractive ).toBe( false );
+	} );
+
 	it( 'ignores a counterpart key that names the metric itself', () => {
 		const selfPaired = { ...METRIC, counterpartKey: METRIC.key };
 

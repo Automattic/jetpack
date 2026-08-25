@@ -374,10 +374,18 @@ export function MetricTabsChart( {
 		[ chartIdBase ]
 	);
 	const counterpartFor = useCallback(
-		( metric: MetricTab ) =>
-			metric.counterpartKey && metric.counterpartKey !== metric.key
-				? metrics.find( candidate => candidate.key === metric.counterpartKey )
-				: undefined,
+		( metric: MetricTab ) => {
+			if ( ! metric.counterpartKey || metric.counterpartKey === metric.key ) {
+				return undefined;
+			}
+
+			const counterpart = metrics.find( candidate => candidate.key === metric.counterpartKey );
+
+			// A counterpart with nothing to report at this bucket size would reach
+			// the legend as a series the request never asked for, and reveal as a
+			// flat zero line.
+			return counterpart?.unavailable ? undefined : counterpart;
+		},
 		[ metrics ]
 	);
 
