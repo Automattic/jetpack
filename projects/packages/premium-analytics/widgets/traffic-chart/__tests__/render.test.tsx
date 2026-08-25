@@ -31,6 +31,7 @@ const RANGE_FOR_INTERVAL: Record< string, { from: string; to: string } > = {
 	week: { from: '2026-01-01', to: '2026-06-30' },
 	month: { from: '2025-01-01', to: '2026-06-30' },
 	quarter: { from: '2023-01-01', to: '2026-06-30' },
+	year: { from: '2023-01-01', to: '2026-06-30' },
 };
 
 function reportParams( interval: string ): ReportParams {
@@ -68,11 +69,17 @@ describe( 'TrafficChart bucket size', () => {
 		expect( requestedBucket() ).toBe( interval );
 	} );
 
-	it( 'clamps a page interval this chart cannot draw to the coarsest it can', () => {
-		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'quarter' ) } } /> );
+	// `quarter` maps straight onto `month`, a bucket this chart draws; `year`
+	// maps onto one it does not, so it is the case that reaches the clamp to
+	// the coarsest offered.
+	it.each( [ 'quarter', 'year' ] )(
+		'resolves a page interval this chart cannot draw to one it can: %s',
+		interval => {
+			render( <TrafficChartRender attributes={ { reportParams: reportParams( interval ) } } /> );
 
-		expect( requestedBucket() ).toBe( 'month' );
-	} );
+			expect( requestedBucket() ).toBe( 'month' );
+		}
+	);
 
 	// The Group by attribute this widget used to declare (WOOA7S-1987): a saved
 	// layout can still carry it, and it must not override the page.
