@@ -984,33 +984,40 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 		uploadFile: function* ( file, clientFileId ) {
 			const { endpoint, i18n } = getConfig( CONFIG_NAMESPACE );
 
-			const token = yield getUploadToken();
-
-			if ( ! token ) {
-				updateFileContext( { error: i18n.uploadFailed, hasError: true }, clientFileId );
-				finishUpload( clientFileId );
-				return;
-			}
-
-			// The token round-trip suspends this generator, and there is no AbortController
-			// registered yet — so a removal during that window has nothing to cancel and returns as
-			// though it worked. Without this check the upload would resume and send a file the user
-			// already deleted. Sharing one token request across a batch widens the window, since
-			// files now queue behind a single fetch rather than each firing their own.
-			const context = getContext();
-			if ( ! context.files.some( fileObject => fileObject.id === clientFileId ) ) {
-				finishUpload( clientFileId );
-				return;
-			}
-
 			/*
-			 * The slot is already claimed by this point, and until `readystatechange` is wired up
-			 * nothing else would ever report this upload as finished. A throw from `xhr.open()` or
-			 * `xhr.send()` — both of which the XHR spec allows — would leave the ID in
-			 * `activeUploadIds` for the life of the page, shrinking the page-wide limit by one every
-			 * time it happened, with no error anywhere.
+			 * The slot was claimed before this generator was started, and until `readystatechange` is
+			 * wired up nothing else would ever report this upload as finished. Anything that throws in
+			 * between — `xhr.open()` or `xhr.send()`, both of which the XHR spec allows, or a rejection
+			 * out of the token request — would leave the ID in `activeUploadIds` for the life of the
+			 * page, shrinking the page-wide limit by one every time, with no error anywhere.
+			 *
+			 * The token request is inside this on purpose even though `fetchUploadToken()` resolves on
+			 * every branch it currently has. That is a property of today's implementation, not of the
+			 * contract, and it reads `getConfig()` before its own try — the guard should not depend on
+			 * either staying true.
 			 */
 			try {
+				const token = yield getUploadToken();
+
+				if ( ! token ) {
+					updateFileContext( { error: i18n.uploadFailed, hasError: true }, clientFileId );
+					finishUpload( clientFileId );
+					return;
+				}
+
+				/*
+				 * The token round-trip suspends this generator, and there is no AbortController
+				 * registered yet — so a removal during that window has nothing to cancel and returns as
+				 * though it worked. Without this check the upload would resume and send a file the
+				 * visitor already deleted. Sharing one token request across a batch widens the window,
+				 * since files now queue behind a single fetch rather than each firing their own.
+				 */
+				const context = getContext();
+				if ( ! context.files.some( fileObject => fileObject.id === clientFileId ) ) {
+					finishUpload( clientFileId );
+					return;
+				}
+
 				const xhr = new XMLHttpRequest();
 				const formData = new FormData();
 
