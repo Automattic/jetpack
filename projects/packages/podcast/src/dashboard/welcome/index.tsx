@@ -14,6 +14,7 @@ import {
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, globe, layout, megaphone } from '@wordpress/icons';
+import { LinkButton } from '@wordpress/ui';
 import { buildUpgradeCheckoutUrl, getUpgradePlanName } from '../upgrade';
 import './style.scss';
 
@@ -245,13 +246,17 @@ const Welcome = ( { onEnable, hasAccess }: WelcomeProps ) => {
 										</HStack>
 										<Text variant="muted">{ paidDescription }</Text>
 									</VStack>
-									<Button variant="primary" href={ upgradeCheckoutUrl } onClick={ onUpgradeClick }>
+									<LinkButton
+										variant="solid"
+										href={ upgradeCheckoutUrl }
+										onClick={ onUpgradeClick }
+									>
 										{ sprintf(
 											/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
 											__( 'Start your %s podcast', 'jetpack-podcast' ),
 											planName
 										) }
-									</Button>
+									</LinkButton>
 									<ul className="podcast__welcome-plan-features">
 										{ paidFeatures.map( feature => (
 											<li key={ feature } className="podcast__welcome-plan-feature">
