@@ -266,12 +266,12 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A blog-token signature can access the export secret.
+	 * A blog-token signature cannot access the export secret.
 	 */
-	public function test_permission_check_allows_blog_token() {
+	public function test_permission_check_denies_blog_token() {
 		$this->set_jetpack_rest_authentication_type( 'blog' );
 
-		$this->assertTrue( ( new REST_Controller() )->permission_check() );
+		$this->assertFalse( ( new REST_Controller() )->permission_check() );
 	}
 
 	/**

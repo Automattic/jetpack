@@ -412,12 +412,12 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the permission callback accepts blog-token requests.
+	 * Test that the permission callback denies blog-token requests.
 	 */
-	public function test_permission_callback_allows_blog_token_request() {
+	public function test_permission_callback_denies_blog_token_request() {
 		$this->set_jetpack_rest_authentication_type( 'blog' );
 
-		$this->assertTrue( $this->controller()->permission_check() );
+		$this->assertFalse( $this->controller()->permission_check() );
 	}
 
 	/**

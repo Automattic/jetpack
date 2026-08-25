@@ -1,8 +1,8 @@
 <?php
 /**
- * REST controller for the Jetpack Reprint exporter secret-rotation endpoint.
+ * REST controller for Jetpack Reprint export provisioning endpoints.
  *
- * Requires a Jetpack-signed request (WordPress.com public API proxy only).
+ * Requires a verified Jetpack user token for a site administrator.
  *
  * @package automattic/jetpack
  */
@@ -102,7 +102,7 @@ class REST_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Permission callback for site-level or administrative user requests.
+	 * Permission callback for administrative user requests.
 	 *
 	 * A user-token request must map to a site administrator because rotating the
 	 * secret grants access to a full-site export.
@@ -110,7 +110,6 @@ class REST_Controller extends WP_REST_Controller {
 	 * @return bool
 	 */
 	public function permission_check() {
-		return Rest_Authentication::is_signed_with_blog_token()
-			|| ( Rest_Authentication::is_signed_with_user_token() && current_user_can( 'manage_options' ) );
+		return Rest_Authentication::is_signed_with_user_token() && current_user_can( 'manage_options' );
 	}
 }
