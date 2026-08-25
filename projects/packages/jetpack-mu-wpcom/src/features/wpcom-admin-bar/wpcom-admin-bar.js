@@ -20,15 +20,17 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	const freeDomainUpsell = document.querySelector( '#wp-admin-bar-wpcom-free-domain-upsell a' );
 	if ( freeDomainUpsell ) {
 		const surface = window.wpcomAdminBarTrackingSurface || 'wp_admin';
-		wpcomTrackEvent( 'wpcom_omnibar_upsell_impression', {
+		const props = {
 			upsell_id: 'omnibar-free-domain',
 			surface,
-		} );
+		};
+		// Which of the two sidebar JITMs this chip replaces, for cohort analysis.
+		if ( window.wpcomFreeDomainUpsellSource ) {
+			props.upsell_source = window.wpcomFreeDomainUpsellSource;
+		}
+		wpcomTrackEvent( 'wpcom_omnibar_upsell_impression', props );
 		freeDomainUpsell.addEventListener( 'click', () => {
-			wpcomTrackEvent( 'wpcom_omnibar_upsell_click', {
-				upsell_id: 'omnibar-free-domain',
-				surface,
-			} );
+			wpcomTrackEvent( 'wpcom_omnibar_upsell_click', props );
 		} );
 	}
 } );

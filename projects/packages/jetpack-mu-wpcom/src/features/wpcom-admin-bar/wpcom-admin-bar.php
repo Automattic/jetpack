@@ -12,7 +12,6 @@ use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Free_Domain_Upsell_Experiment;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 
 // The $icon-color variable for admin color schemes.
 // See: https://github.com/WordPress/wordpress-develop/blob/679cc0c4a261a77bd8fdb140cd9b0b2ff80ebf37/src/wp-admin/css/colors/_variables.scss#L9
@@ -79,9 +78,11 @@ function wpcom_enqueue_admin_bar_assets() {
 		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-admin-bar/wpcom-admin-bar.css' )
 	);
 
+	require_once __DIR__ . '/../../common/class-free-domain-upsell-experiment.php';
 	wp_add_inline_script(
 		'wpcom-admin-bar',
-		'var wpcomAdminBarTrackingSurface = ' . wp_json_encode( wpcom_admin_bar_tracking_surface() ) . ';',
+		'var wpcomAdminBarTrackingSurface = ' . wp_json_encode( wpcom_admin_bar_tracking_surface(), JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
+		. 'var wpcomFreeDomainUpsellSource = ' . wp_json_encode( Free_Domain_Upsell_Experiment::get_upsell_source(), JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 		'before'
 	);
 
@@ -530,50 +531,6 @@ function wpcom_add_stats_to_site_menu( $wp_admin_bar ) {
 add_action( 'admin_bar_menu', 'wpcom_add_stats_to_site_menu', 40 );
 
 /**
- * Whether the current user/site is eligible for the omnibar free-domain upsell.
- *
- * Mirrors the conditions of the two sidebar JITMs the chip is tested against,
- * which share the "Free domain with an annual plan" message and CTA:
- * - `free_to_paid_plan`: Free plan, Simple, admin, not a domain-only site, no
- *   mapped domain.
- * - `monthly_to_annual_plan`: any monthly plan, Simple, admin, no mapped
- *   domain.
- * Matches the Calypso-side predicate for the same chip.
- *
- * @return bool
- */
-function wpcom_free_domain_upsell_is_eligible() {
-	if ( ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) {
-		return false;
-	}
-
-	if ( ! ( new Host() )->is_wpcom_simple() ) {
-		return false;
-	}
-
-	if ( (bool) get_option( 'wpcom_is_staging_site' ) ) {
-		return false;
-	}
-
-	// No mapped primary domain: a Simple site with a mapped domain serves from
-	// its custom domain, so the `.wordpress.com` host check covers the rule.
-	$host = wp_parse_url( home_url(), PHP_URL_HOST );
-	if ( ! is_string( $host ) || ! str_ends_with( $host, '.wordpress.com' ) ) {
-		return false;
-	}
-
-	if ( ! class_exists( '\WPCOM_Store_API' ) ) {
-		return false;
-	}
-	$current_plan = WPCOM_Store_API::get_current_plan( get_current_blog_id() );
-
-	$matches_free_to_paid      = ! empty( $current_plan['is_free'] ) && empty( get_option( 'options' )['is_domain_only'] );
-	$matches_monthly_to_annual = str_ends_with( (string) ( $current_plan['product_slug'] ?? '' ), '-monthly' );
-
-	return $matches_free_to_paid || $matches_monthly_to_annual;
-}
-
-/**
  * Which surface the admin bar is rendering on, for per-surface tracking.
  *
  * @return string One of 'site_frontend', 'site_editor', 'post_editor', 'wp_admin'.
@@ -606,11 +563,12 @@ function wpcom_admin_bar_tracking_surface() {
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
 function wpcom_add_free_domain_upsell_chip( $wp_admin_bar ) {
-	if ( ! wpcom_free_domain_upsell_is_eligible() ) {
+	require_once __DIR__ . '/../../common/class-free-domain-upsell-experiment.php';
+
+	if ( ! Free_Domain_Upsell_Experiment::is_eligible() ) {
 		return;
 	}
 
-	require_once __DIR__ . '/../../common/class-free-domain-upsell-experiment.php';
 	if ( 'treatment' !== Free_Domain_Upsell_Experiment::get_variation() ) {
 		return;
 	}
@@ -627,7 +585,9 @@ function wpcom_add_free_domain_upsell_chip( $wp_admin_bar ) {
 			'href'   => add_query_arg(
 				array(
 					'siteSlug' => wpcom_get_site_slug(),
-					'ref'      => 'wp-admin',
+					// The chip renders wherever the admin bar does, so the ref
+					// reflects the actual surface (matches the `surface` Tracks prop).
+					'ref'      => wpcom_admin_bar_tracking_surface(),
 				),
 				'https://wordpress.com/setup/domain-and-plan'
 			),
