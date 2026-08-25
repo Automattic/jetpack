@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.85.1] - 2026-08-25
+### Changed
+- Only include social connection data in the script data for users who can access Publicize. [#51483]
+- Update dependencies. [#51456]
+
 ## [0.85.0] - 2026-08-20
 ### Added
 - Connections: Explain why an Instagram Business connection found no accounts to choose from. [#51282]
@@ -1617,6 +1622,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.85.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.85.0...v0.85.1
 [0.85.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.4...v0.85.0
 [0.84.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.3...v0.84.4
 [0.84.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.2...v0.84.3

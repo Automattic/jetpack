@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Stats: Report the same visitor address the rest of Jetpack resolves on sites with a trusted IP header configured.

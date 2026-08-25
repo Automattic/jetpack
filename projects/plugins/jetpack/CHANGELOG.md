@@ -2,6 +2,51 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 16.2-a.3 - 2026-08-25
+### Enhancements
+- Akismet: Link the settings page header logo and title to the Akismet settings page. [#51449]
+- Forms: On small screens, show only the response and its actions instead of a table that scrolls sideways. [#51448]
+- Forms: On small screens, the View action now opens a response the same way tapping its title does. [#51486]
+- Forms: Show each form field as a column when viewing a single form's responses. [#51448]
+- Forms: Show progress while a new form's editor opens, and report it when creating a form fails. [#51371]
+- My Jetpack: Show what Paid Stats actually adds — UTM tracking, device stats, and region & city locations — instead of commercial use. [#51410]
+- Premium Analytics: Add an Ads dashboard section showing WordAds earnings and performance. [#51422]
+- Premium Analytics: Add referrer groups that open folded and expand on demand in the Referrers report. [#51465]
+- Premium Analytics: Click Visitors in the Traffic chart legend to compare it against Views without leaving the metric. Chart legends now name the metric rather than the date range. [#51468]
+- Premium Analytics: Name comparison dates in the dashboard header, omit weekdays from ranges longer than a week, and omit the year when it matches the current range. [#51420]
+- Premium Analytics: Offer only the groupings the selected date range supports in the chart's Group by control. [#51446]
+- Premium Analytics: Show the latest emails sent as a plain list of subjects and rates. [#51425]
+- Stats: Add a Popular hours widget showing the busiest hour and its daily average views. [#51239]
+- Stats: Link the post list views column to the analytics post detail page when the new dashboard is enabled. [#51357]
+- Stats: Set the chart interval once for the whole page instead of per chart widget. [#51278]
+- VideoPress: Redesign the video details page with grouped details, a wider layout, side-by-side player and settings, thumbnail tiles, collapsible sections, and an Add to content action. [#51480]
+
+### Bug fixes
+- AI: Auto-activate the AI module on sites running a 16.2 prerelease build. [#51528]
+- Charts: Draw labels at the design system's font weight and size. [#51452]
+- Contact Form: Remove the classic-theme editor margin between a field's label and its input. [#51527]
+- Forms: Allow a single response to scroll when it is taller than the screen. [#51486]
+- Forms: Apply the name typed when creating a form, and stop a dismissed save from reporting into a reopened dialog. [#51371]
+- Forms: Prevent an error that could stop responses from loading when a file upload field was stored without any file data. [#51485]
+- AI: Keep the editor working when another plugin loads an older copy of the Status package. [#51494]
+- My Jetpack: Always label the license activation link "Activate a license", including on sites with a plan but no activated licenses. [#51283]
+- My Jetpack: Stop the Stats dashboard from asking which plan you want again after Start for Free was already chosen. [#51413]
+- Premium Analytics: Compare date ranges against a previous month or year of the same length while keeping whole-calendar-month comparisons aligned by month. [#51469]
+- Premium Analytics: Compute date-filter day boundaries in the site's timezone, so visitors west of the site timezone no longer get stretched ranges or wrong chart buckets. [#51419]
+- Premium Analytics: Fix charts getting stuck on their loading skeleton after switching a control that turns one of the underlying requests off. [#51443]
+- Premium Analytics: Fix report and chart dates that could read a day off for sites away from UTC. [#51499]
+- Premium Analytics: Label chart points by the bucket they name rather than by the viewer's time zone, and format axis ticks and tooltips at the series' declared bucket size. [#51445]
+- Premium Analytics: Label Subscribers chart and email timeline points by the bucket they name rather than by the viewer's time zone. [#51499]
+- Premium Analytics: Show the dashboard right away instead of a sync screen, and flag the Store section's numbers as incomplete while store data is still syncing. [#51279]
+- Premium Analytics: Start the Traffic chart's Group by control from the dashboard's interval, and replace Auto with hourly grouping. [#51446]
+- Stats: Keep excluding a visitor IP address from tracking when it is written in another form. [#51349]
+- Stats: Report the same visitor address the rest of Jetpack resolves on sites with a trusted IP header configured. [#51349]
+- Stats: Stop recording a malformed visitor IP address. [#51349]
+- VideoPress: Fix a timeout error when updating a video poster from the media library. [#51479]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Comments: Load the rebuilt Jetpack Comments form in place of the iframed one when the `jetpack_comments_new_hotness` filter returns true. [#51466]
+
 ## 16.2-a.1 - 2026-08-20
 ### Major Enhancements
 - Update minimum WordPress version to 7.0. [#51370]
