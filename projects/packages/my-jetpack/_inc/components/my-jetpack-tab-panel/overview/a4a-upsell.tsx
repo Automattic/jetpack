@@ -1,7 +1,4 @@
-import {
-	QUERY_GET_JETPACK_MANAGE_DATA_KEY,
-	REST_API_GET_JETPACK_MANAGE_DATA,
-} from '../../../data/constants';
+import { JETPACK_MANAGE_DATA_QUERY } from '../../../data/constants';
 import useSimpleQuery from '../../../data/use-simple-query';
 import A4ABanner from '../../a4a-banner';
 import LoadingBlock from '../../loading-block';
@@ -14,8 +11,10 @@ import type { JetpackManageData } from '../../../data/types';
  */
 export function A4AUpsell() {
 	const { data, isLoading, isError } = useSimpleQuery< JetpackManageData >( {
-		name: QUERY_GET_JETPACK_MANAGE_DATA_KEY,
-		query: { path: REST_API_GET_JETPACK_MANAGE_DATA },
+		...JETPACK_MANAGE_DATA_QUERY,
+		// The payload changes at most hourly, and the dismissal mutation updates this cache
+		// directly, so refetching on every tab switch would only risk clobbering that write.
+		options: { refetchOnMount: false },
 	} );
 
 	if ( isLoading ) {

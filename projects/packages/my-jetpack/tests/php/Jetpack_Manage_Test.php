@@ -7,8 +7,10 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Tokens;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 class Jetpack_Manage_Test extends BaseTestCase {
@@ -25,13 +27,6 @@ class Jetpack_Manage_Test extends BaseTestCase {
 	 * @var int
 	 */
 	protected $editor_id;
-
-	/**
-	 * Canned /jetpack-partners responses, consumed one per HTTP request.
-	 *
-	 * @var array
-	 */
-	protected $http_responses = array();
 
 	/**
 	 * How many outgoing HTTP requests were made.
@@ -61,7 +56,6 @@ class Jetpack_Manage_Test extends BaseTestCase {
 		);
 		wp_set_current_user( 0 );
 
-		$this->http_responses     = array();
 		$this->http_request_count = 0;
 	}
 
@@ -70,8 +64,7 @@ class Jetpack_Manage_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		wp_set_current_user( 0 );
-		remove_filter( 'pre_http_request', array( $this, 'mock_partners_request' ) );
-		delete_transient( 'jetpack_partner_data' );
+		delete_transient( Jetpack_Manage::PARTNER_TYPE_TRANSIENT_KEY );
 	}
 
 	/**
@@ -84,27 +77,33 @@ class Jetpack_Manage_Test extends BaseTestCase {
 		( new Tokens() )->update_user_token( $user_id, 'test.test.' . $user_id, true );
 		Jetpack_Options::update_option( 'id', 123 );
 		wp_set_current_user( $user_id );
+
+		// The first signed request in a PHP process always fails with `invalid_signature`, and
+		// every one after it succeeds. Burn that first call here so these tests do not depend on
+		// some earlier test file having burned it — otherwise they pass in a full suite run and
+		// fail when run alone. It makes no HTTP request, so it consumes no canned response and
+		// does not move `$http_request_count`.
+		Client::wpcom_json_api_request_as_user( '/jetpack-partners' );
 	}
 
 	/**
-	 * Short-circuit outgoing HTTP with the next canned response, counting the calls.
+	 * Hand out canned HTTP responses, in order, counting the requests.
 	 *
-	 * @return array
-	 */
-	public function mock_partners_request() {
-		++$this->http_request_count;
-
-		return array_shift( $this->http_responses );
-	}
-
-	/**
-	 * Queue canned HTTP responses and start intercepting requests.
+	 * WorDBless restores `$wp_filter` wholesale after each test, so this filter needs no removing.
 	 *
 	 * @param array $responses Responses to hand out, in order.
 	 */
 	protected function mock_http( array $responses ) {
-		$this->http_responses = $responses;
-		add_filter( 'pre_http_request', array( $this, 'mock_partners_request' ) );
+		add_filter(
+			'pre_http_request',
+			function () use ( &$responses ) {
+				++$this->http_request_count;
+
+				// Never fall through to the network: a falsy return would let the request out, so
+				// an unexpected extra call would hang CI rather than fail the assertion below it.
+				return array_shift( $responses ) ?? new \WP_Error( 'unexpected_request', 'Unexpected HTTP request.' );
+			}
+		);
 	}
 
 	/**
@@ -117,7 +116,7 @@ class Jetpack_Manage_Test extends BaseTestCase {
 	protected function partners_response( $body, $code = 200 ) {
 		return array(
 			'response' => array( 'code' => $code ),
-			'body'     => wp_json_encode( $body ),
+			'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 		);
 	}
 
@@ -184,69 +183,38 @@ class Jetpack_Manage_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A site that is not a partner should only be looked up once — the negative answer is cached.
+	 * A definitive answer is cached, so two calls only cost one lookup.
+	 *
+	 * @dataProvider provide_cacheable_answers
+	 *
+	 * @param mixed $body     Response body the /jetpack-partners endpoint returns.
+	 * @param int   $code     Response status code.
+	 * @param bool  $expected Whether this answer means the account is an agency.
 	 */
-	public function test_is_agency_account_caches_a_negative_answer() {
+	#[DataProvider( 'provide_cacheable_answers' )]
+	public function test_is_agency_account_caches_a_definitive_answer( $body, $code, $expected ) {
 		$this->connect_user( $this->admin_id );
-		$this->mock_http( array( $this->partners_response( array() ) ) );
+		$this->mock_http( array( $this->partners_response( $body, $code ) ) );
 
-		$first  = Jetpack_Manage::is_agency_account();
-		$second = Jetpack_Manage::is_agency_account();
-
-		$this->assertFalse( $first );
-		$this->assertFalse( $second );
+		$this->assertSame( $expected, Jetpack_Manage::is_agency_account(), 'first lookup' );
+		$this->assertSame( $expected, Jetpack_Manage::is_agency_account(), 'second lookup, from cache' );
 		$this->assertSame( 1, $this->http_request_count );
 	}
 
 	/**
-	 * An agency site should still be detected, and looked up only once.
+	 * Answers that are definitive, and so must be cached.
+	 *
+	 * A 403 is how the endpoint reports a user with no partner account, which is most of them.
+	 *
+	 * @return array
 	 */
-	public function test_is_agency_account_caches_a_positive_answer() {
-		$this->connect_user( $this->admin_id );
-		$this->mock_http(
-			array( $this->partners_response( array( array( 'partner_type' => 'agency' ) ) ) )
+	public static function provide_cacheable_answers() {
+		return array(
+			'no partner'         => array( array(), 200, false ),
+			'agency partner'     => array( array( array( 'partner_type' => 'agency' ) ), 200, true ),
+			'non-agency partner' => array( array( array( 'partner_type' => 'reseller' ) ), 200, false ),
+			'forbidden'          => array( array( 'code' => 'rest_forbidden' ), 403, false ),
 		);
-
-		$first  = Jetpack_Manage::is_agency_account();
-		$second = Jetpack_Manage::is_agency_account();
-
-		$this->assertTrue( $first );
-		$this->assertTrue( $second );
-		$this->assertSame( 1, $this->http_request_count );
-	}
-
-	/**
-	 * A partner that is not an agency is still a definitive answer worth caching.
-	 */
-	public function test_is_agency_account_caches_a_non_agency_partner() {
-		$this->connect_user( $this->admin_id );
-		$this->mock_http(
-			array( $this->partners_response( array( array( 'partner_type' => 'reseller' ) ) ) )
-		);
-
-		$first  = Jetpack_Manage::is_agency_account();
-		$second = Jetpack_Manage::is_agency_account();
-
-		$this->assertFalse( $first );
-		$this->assertFalse( $second );
-		$this->assertSame( 1, $this->http_request_count );
-	}
-
-	/**
-	 * The endpoint answers 403 for a user with no partner account; that is an answer, so cache it.
-	 */
-	public function test_is_agency_account_caches_a_forbidden_response() {
-		$this->connect_user( $this->admin_id );
-		$this->mock_http(
-			array( $this->partners_response( array( 'code' => 'rest_forbidden' ), 403 ) )
-		);
-
-		$first  = Jetpack_Manage::is_agency_account();
-		$second = Jetpack_Manage::is_agency_account();
-
-		$this->assertFalse( $first );
-		$this->assertFalse( $second );
-		$this->assertSame( 1, $this->http_request_count );
 	}
 
 	/**

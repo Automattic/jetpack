@@ -81,3 +81,12 @@ export const PRODUCT_SLUGS = {
 	GROWTH: 'growth',
 	COMPLETE: 'complete',
 } satisfies Record< string, JetpackModule >;
+
+/**
+ * Descriptor for the Jetpack Manage data query, shared by the component that reads it and the
+ * dismissal mutation that updates its cache.
+ */
+export const JETPACK_MANAGE_DATA_QUERY = {
+	name: QUERY_GET_JETPACK_MANAGE_DATA_KEY,
+	query: { path: REST_API_GET_JETPACK_MANAGE_DATA },
+};

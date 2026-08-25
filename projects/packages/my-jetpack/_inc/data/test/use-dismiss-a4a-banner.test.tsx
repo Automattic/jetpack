@@ -1,29 +1,24 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import { QUERY_GET_JETPACK_MANAGE_DATA_KEY, REST_API_GET_JETPACK_MANAGE_DATA } from '../constants';
+import { JETPACK_MANAGE_DATA_QUERY } from '../constants';
 import useDismissA4ABanner from '../use-dismiss-a4a-banner';
+import { getSimpleQueryKey } from '../use-simple-query';
 import type { FC, ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch' );
 
 const mockApiFetch = apiFetch as unknown as jest.MockedFunction< typeof apiFetch >;
 
-const MANAGE_DATA_KEY = [
-	QUERY_GET_JETPACK_MANAGE_DATA_KEY,
-	{ path: REST_API_GET_JETPACK_MANAGE_DATA },
-];
+const MANAGE_DATA_KEY = getSimpleQueryKey( JETPACK_MANAGE_DATA_QUERY );
 
-let queryClient: QueryClient;
+const NOT_DISMISSED = { isEnabled: true, isAgencyAccount: false, isDismissed: false };
 
-const createWrapper = (): FC< { children: ReactNode } > => {
-	queryClient = new QueryClient( {
-		defaultOptions: { mutations: { retry: false } },
-	} );
-	return ( { children } ) => (
-		<QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>
-	);
-};
+const createClient = () => new QueryClient( { defaultOptions: { mutations: { retry: false } } } );
+
+const wrapperFor =
+	( client: QueryClient ): FC< { children: ReactNode } > =>
+	( { children } ) => <QueryClientProvider client={ client }>{ children }</QueryClientProvider>;
 
 describe( 'useDismissA4ABanner', () => {
 	beforeEach( () => {
@@ -31,7 +26,9 @@ describe( 'useDismissA4ABanner', () => {
 	} );
 
 	it( 'starts not pending', () => {
-		const { result } = renderHook( () => useDismissA4ABanner(), { wrapper: createWrapper() } );
+		const { result } = renderHook( () => useDismissA4ABanner(), {
+			wrapper: wrapperFor( createClient() ),
+		} );
 
 		expect( result.current.isPending ).toBe( false );
 		expect( mockApiFetch ).not.toHaveBeenCalled();
@@ -40,7 +37,9 @@ describe( 'useDismissA4ABanner', () => {
 	it( 'POSTs to the dismissal endpoint', async () => {
 		mockApiFetch.mockResolvedValue( { success: true } );
 
-		const { result } = renderHook( () => useDismissA4ABanner(), { wrapper: createWrapper() } );
+		const { result } = renderHook( () => useDismissA4ABanner(), {
+			wrapper: wrapperFor( createClient() ),
+		} );
 
 		result.current.dismiss();
 
@@ -62,7 +61,9 @@ describe( 'useDismissA4ABanner', () => {
 			} )
 		);
 
-		const { result } = renderHook( () => useDismissA4ABanner(), { wrapper: createWrapper() } );
+		const { result } = renderHook( () => useDismissA4ABanner(), {
+			wrapper: wrapperFor( createClient() ),
+		} );
 
 		result.current.dismiss();
 
@@ -72,38 +73,54 @@ describe( 'useDismissA4ABanner', () => {
 
 		await waitFor( () => expect( result.current.isPending ).toBe( false ) );
 	} );
+
 	it( 'marks the cached jetpack-manage payload dismissed, so a remount does not re-show the banner', async () => {
 		mockApiFetch.mockResolvedValue( { success: true } );
 
-		const wrapper = createWrapper();
-		queryClient.setQueryData( MANAGE_DATA_KEY, {
-			isEnabled: true,
-			isAgencyAccount: false,
-			isDismissed: false,
-		} );
+		const client = createClient();
+		client.setQueryData( MANAGE_DATA_KEY, NOT_DISMISSED );
 
-		const { result } = renderHook( () => useDismissA4ABanner(), { wrapper } );
+		const { result } = renderHook( () => useDismissA4ABanner(), {
+			wrapper: wrapperFor( client ),
+		} );
 
 		result.current.dismiss();
 
 		await waitFor( () =>
-			expect( queryClient.getQueryData( MANAGE_DATA_KEY ) ).toEqual( {
-				isEnabled: true,
-				isAgencyAccount: false,
+			expect( client.getQueryData( MANAGE_DATA_KEY ) ).toEqual( {
+				...NOT_DISMISSED,
 				isDismissed: true,
 			} )
 		);
 	} );
 
+	it( 'puts the cached payload back when the request fails', async () => {
+		mockApiFetch.mockRejectedValue( new Error( 'nope' ) );
+
+		const client = createClient();
+		client.setQueryData( MANAGE_DATA_KEY, NOT_DISMISSED );
+
+		const { result } = renderHook( () => useDismissA4ABanner(), {
+			wrapper: wrapperFor( client ),
+		} );
+
+		result.current.dismiss();
+
+		await waitFor( () => expect( result.current.isPending ).toBe( false ) );
+		expect( client.getQueryData( MANAGE_DATA_KEY ) ).toEqual( NOT_DISMISSED );
+	} );
+
 	it( 'leaves an unfetched jetpack-manage cache entry alone', async () => {
 		mockApiFetch.mockResolvedValue( { success: true } );
 
-		const wrapper = createWrapper();
-		const { result } = renderHook( () => useDismissA4ABanner(), { wrapper } );
+		const client = createClient();
+		const { result } = renderHook( () => useDismissA4ABanner(), {
+			wrapper: wrapperFor( client ),
+		} );
 
 		result.current.dismiss();
 
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
-		expect( queryClient.getQueryData( MANAGE_DATA_KEY ) ).toBeUndefined();
+		expect( client.getQueryData( MANAGE_DATA_KEY ) ).toBeUndefined();
 	} );
 } );
