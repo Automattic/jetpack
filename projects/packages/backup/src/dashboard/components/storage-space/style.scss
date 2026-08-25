@@ -63,8 +63,21 @@
 		background-color: var(--wpds-color-background-interactive-neutral-strong);
 	}
 
+	// The one literal here, and deliberately so. This is legacy's warning
+	// yellow (`--jp-yellow-20`), kept identical so the same site reads the
+	// same with the flag on or off. It cannot be spelled as that token:
+	// the `--jp-*` set is declared by a stylesheet the legacy admin page
+	// enqueues and this route does not, so `var(--jp-yellow-20)` here
+	// computes to nothing, the declaration is dropped, and the fill
+	// silently falls back to `<ProgressBar>`'s near-black default — the
+	// Normal colour, on a bar whose whole job is to not look normal.
+	// The design system has no vivid caution *fill*: its caution family is
+	// two pale tints, a muted tan and this olive
+	// (`--wpds-color-foreground-content-caution-weak`, #826a00), none of
+	// them a saturated yellow. Worth raising with the design-system folks
+	// rather than working around a third time.
 	& &__bar--caution > div {
-		background-color: var(--wpds-color-foreground-content-caution-weak);
+		background-color: #f0c930;
 	}
 
 	& &__bar--error > div {
