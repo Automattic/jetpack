@@ -111,18 +111,30 @@ beforeEach( () => {
 /**
  * The single root file's own checkbox.
  *
- * The row checkboxes carry `label=""` and no `aria-label`, so there is
- * nothing to address them by name — position is the only handle. Scoped
- * to the file browser so it stays the right handle: DataViews' list
- * layout renders no row checkboxes today, but a layout change that
- * added them would otherwise silently move this index onto an activity
- * row. Within the browser the order is fixed — the tree's own "N items
- * selected" summary checkbox first, then the one root file's row.
+ * The row checkboxes carry `label=""` and no `aria-label`, so they cannot
+ * be addressed by name. Rather than take one by index, exclude the only
+ * checkbox that *does* have a name — the tree's own "N items selected"
+ * summary — and require exactly one to remain.
+ *
+ * An index would keep passing for the wrong reason. The summary sits
+ * inside `.jpb-file-browser` too, so anything that later rendered a
+ * checkbox above the tree would slide the index onto it, and the summary
+ * is unchecked in the buggy case as well: the reset assertion would stop
+ * failing and nothing would say so. Excluding by identity and counting
+ * what is left turns that into a loud failure instead.
  *
  * @return The file row's checkbox.
  */
 function fileRowCheckbox(): HTMLElement {
-	return within( fileBrowser() ).getAllByRole( 'checkbox' )[ 1 ];
+	const browser = fileBrowser();
+	const summary = within( browser ).getByRole( 'checkbox', { name: /items? selected/ } );
+	const rows = within( browser )
+		.getAllByRole( 'checkbox' )
+		.filter( box => box !== summary );
+	if ( rows.length !== 1 ) {
+		throw new Error( `Expected one file row checkbox, found ${ rows.length }` );
+	}
+	return rows[ 0 ];
 }
 
 /**
@@ -183,5 +195,42 @@ describe( 'Switching between backups', () => {
 		expect( screen.queryByText( /Download \d+ selected item/ ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Restore to this point' ) ).toBeInTheDocument();
 		expect( screen.queryByText( /Restore \d+ selected item/ ) ).not.toBeInTheDocument();
+	} );
+
+	// The other half of the invariant. Keying by `rewindId` makes the
+	// lifetime of the reader's selection depend on that id staying stable
+	// across refetches. It does today — the normalizer derives it per
+	// entry — but were it ever to vary (a synthesized id, a shape change
+	// upstream), the selection would be wiped mid-task on every
+	// activity-log refetch and the test above would stay green.
+	it( 'keeps the selection when the same backup is re-rendered', async () => {
+		mockSearch.mockReturnValue( { selected: REWIND_A } );
+		const { rerender } = render( <OverviewStage /> );
+
+		await expect(
+			screen.findByRole( 'heading', { name: 'Backup A complete' }, SETTLE )
+		).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByRole( 'button', { name: 'File: wp-config.php' }, SETTLE )
+		).resolves.toBeInTheDocument();
+		await userEvent.click( fileRowCheckbox() );
+		await expect(
+			screen.findByText( 'Download 1 selected item', undefined, SETTLE )
+		).resolves.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'File: wp-config.php' } ) );
+		await expect(
+			screen.findByRole( 'button', { name: 'Close preview' }, SETTLE )
+		).resolves.toBeInTheDocument();
+
+		// Same backup, so the key is unchanged and nothing should remount.
+		rerender( <OverviewStage /> );
+
+		await expect(
+			screen.findByRole( 'button', { name: 'File: wp-config.php' }, SETTLE )
+		).resolves.toBeInTheDocument();
+		expect( fileRowCheckbox() ).toBeChecked();
+		expect( screen.getByText( 'Download 1 selected item' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Close preview' } ) ).toBeInTheDocument();
 	} );
 } );
