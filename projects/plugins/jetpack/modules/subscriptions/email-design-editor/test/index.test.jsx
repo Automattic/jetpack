@@ -48,7 +48,11 @@ function pageData( overrides = {} ) {
 			allowedIframeStyleHandles: [ 'wp-block-library' ],
 			__unstableResolvedAssets: { styles: '' },
 		},
-		urls: { back: '/wp-admin/admin.php?page=x', listings: '/wp-admin/edit.php' },
+		urls: {
+			back: '/wp-admin/admin.php?page=x',
+			listings: '/wp-admin/edit.php',
+			send: 'https://example.com/send',
+		},
 		userEmail: 'creator@example.com',
 		globalStylesPostId: 878,
 		...overrides,
@@ -132,6 +136,7 @@ describe( 'Email design editor entry point', () => {
 			expect( config.urls ).toEqual( {
 				back: '/wp-admin/admin.php?page=x',
 				listings: '/wp-admin/edit.php',
+				send: 'https://example.com/send',
 			} );
 			expect( config.userEmail ).toBe( 'creator@example.com' );
 			expect( config.globalStylesPostId ).toBe( 878 );
@@ -176,6 +181,49 @@ describe( 'Email design editor entry point', () => {
 			loadEntryPoint();
 
 			expect( mountedEditorProps().config.globalStylesPostId ).toBeNull();
+		} );
+	} );
+
+	describe( 'the urls it will let the editor navigate to', () => {
+		// Each of these is assigned to `window.location.href` by a header button, so a
+		// scheme the browser executes rather than navigates to is code running in
+		// wp-admin with the administrator's session.
+		it.each( [ [ 'back' ], [ 'listings' ], [ 'send' ] ] )(
+			'rejects a javascript: url in %s',
+			key => {
+				window.JetpackEmailDesignEditor = pageData( {
+					urls: { ...pageData().urls, [ key ]: 'javascript:alert(1)' },
+				} );
+
+				expect( loadEntryPoint ).toThrow( /must be an http or https URL/ );
+				expect( mockRender ).not.toHaveBeenCalled();
+			}
+		);
+
+		it( 'rejects a javascript: url disguised by leading whitespace', () => {
+			// The URL parser strips this before reading the scheme, so a check against
+			// the raw string would pass it through.
+			window.JetpackEmailDesignEditor = pageData( {
+				urls: { ...pageData().urls, back: '  javascript:alert(1)' },
+			} );
+
+			expect( loadEntryPoint ).toThrow( /must be an http or https URL/ );
+		} );
+
+		it( 'rejects a data: url', () => {
+			window.JetpackEmailDesignEditor = pageData( {
+				urls: { ...pageData().urls, back: 'data:text/html,<script></script>' },
+			} );
+
+			expect( loadEntryPoint ).toThrow( /must be an http or https URL/ );
+		} );
+
+		it( 'accepts the relative admin urls a page actually supplies', () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			loadEntryPoint();
+
+			expect( mockRender ).toHaveBeenCalledTimes( 1 );
 		} );
 	} );
 
