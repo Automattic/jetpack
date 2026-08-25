@@ -2,13 +2,28 @@ import { hydratePlaylistMetadata, initPlaylistBlock } from '../view';
 
 // Live metadata the mocked videos API returns, keyed by GUID.
 let mockLiveMetadata: Record< string, { title?: string; poster?: string } > = {};
+// GUIDs whose metadata is only returned when the request carries a metadata_token.
+let mockPrivateGuids: string[] = [];
+// Token the mocked get-media-token resolves with; null simulates an unauthorized viewer.
+let mockPlaybackToken: string | null = null;
+
+jest.mock( '../../../../lib/get-media-token', () => ( {
+	__esModule: true,
+	default: jest.fn( () => Promise.resolve( { token: mockPlaybackToken } ) ),
+} ) );
 
 beforeEach( () => {
+	jest.clearAllMocks();
 	mockLiveMetadata = {};
+	mockPrivateGuids = [];
+	mockPlaybackToken = null;
+	delete ( window as { videopressAjax?: unknown } ).videopressAjax;
 	const fetchMock = jest.fn( ( url: string ) => {
-		const guid = String( url ).split( '/' ).pop();
+		const [ path, query = '' ] = String( url ).split( '?' );
+		const guid = path.split( '/' ).pop();
 		const metadata = guid ? mockLiveMetadata[ guid ] : undefined;
-		if ( ! metadata ) {
+		const needsToken = guid ? mockPrivateGuids.includes( guid ) : false;
+		if ( ! metadata || ( needsToken && ! query.includes( 'metadata_token=' ) ) ) {
 			return Promise.resolve( { ok: false } as Response );
 		}
 		return Promise.resolve( {
@@ -219,6 +234,58 @@ describe( 'initPlaylistBlock', () => {
 		// Unreachable video data keeps the server-rendered fallback.
 		expect( entries[ 2 ].querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
 			'Third'
+		);
+	} );
+
+	it( 'retries private videos with a playback token when the token bridge is configured', async () => {
+		window.videopressAjax = { ajaxUrl: '/wp-admin/admin-ajax.php', bridgeUrl: '', post_id: '12' };
+		mockPlaybackToken = 'jwt-token';
+		mockPrivateGuids = [ 'aaaaaaaa' ];
+		mockLiveMetadata = {
+			aaaaaaaa: { title: 'Private first', poster: 'https://example.com/private.jpg' },
+		};
+
+		const root = setUpPlaylist();
+		await hydratePlaylistMetadata( root );
+
+		const entry = root.querySelector< HTMLButtonElement >( '.videopress-playlist__select' );
+		expect( entry.querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
+			'Private first'
+		);
+		expect( entry.querySelector( '.videopress-playlist__entry-thumb img' ) ).toHaveAttribute(
+			'src',
+			'https://example.com/private.jpg'
+		);
+		expect( global.fetch ).toHaveBeenCalledWith(
+			'https://public-api.wordpress.com/rest/v1.1/videos/aaaaaaaa?metadata_token=jwt-token'
+		);
+	} );
+
+	it( 'keeps the fallback for private videos when no playback token is available', async () => {
+		window.videopressAjax = { ajaxUrl: '/wp-admin/admin-ajax.php', bridgeUrl: '', post_id: '12' };
+		mockPlaybackToken = null;
+		mockPrivateGuids = [ 'aaaaaaaa' ];
+		mockLiveMetadata = { aaaaaaaa: { title: 'Private first' } };
+
+		const root = setUpPlaylist();
+		await hydratePlaylistMetadata( root );
+
+		expect( root.querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
+			'First'
+		);
+	} );
+
+	it( 'does not attempt a token retry without the token bridge configuration', async () => {
+		mockPrivateGuids = [ 'aaaaaaaa' ];
+		mockLiveMetadata = { aaaaaaaa: { title: 'Private first' } };
+		const getMediaToken = jest.requireMock( '../../../../lib/get-media-token' ).default;
+
+		const root = setUpPlaylist();
+		await hydratePlaylistMetadata( root );
+
+		expect( getMediaToken ).not.toHaveBeenCalled();
+		expect( root.querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
+			'First'
 		);
 	} );
 

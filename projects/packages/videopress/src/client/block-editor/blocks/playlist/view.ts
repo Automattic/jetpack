@@ -5,6 +5,7 @@ import domReady from '@wordpress/dom-ready';
 /**
  * Internal dependencies
  */
+import getMediaToken from '../../../lib/get-media-token';
 import { isAllowedOrigin } from '../../../lib/videopress-allowed-origins';
 import './view.scss';
 
@@ -21,17 +22,42 @@ type LiveVideoMetadata = {
 /**
  * Fetch a video's live display metadata from the public videos API.
  *
- * Lookups are anonymous: private videos (and API failures) return null and
- * the entry keeps its server-rendered fallback.
+ * The first lookup is anonymous. When it is denied — a private video — and the
+ * page carries the token bridge configuration (enqueued whenever the block
+ * renders), the lookup is retried with a playback token so authorized viewers
+ * still get live metadata. Unauthorized viewers (and API failures) return null
+ * and the entry keeps its server-rendered fallback.
  *
  * @param guid - The video GUID.
  * @return The metadata, or null when it can't be read.
  */
 async function fetchLiveMetadata( guid: string ): Promise< LiveVideoMetadata | null > {
+	const endpoint = `https://public-api.wordpress.com/rest/v1.1/videos/${ encodeURIComponent(
+		guid
+	) }`;
+
 	try {
-		const response = await fetch(
-			`https://public-api.wordpress.com/rest/v1.1/videos/${ encodeURIComponent( guid ) }`
-		);
+		const response = await fetch( endpoint );
+		if ( response.ok ) {
+			return ( await response.json() ) as LiveVideoMetadata;
+		}
+	} catch {
+		// Network failure: a token retry would not fare better.
+		return null;
+	}
+
+	if ( ! window.videopressAjax ) {
+		return null;
+	}
+
+	try {
+		const postId = Number( window.videopressAjax.post_id ) || 0;
+		const { token } = await getMediaToken( 'playback', { guid, id: postId } );
+		if ( ! token ) {
+			return null;
+		}
+
+		const response = await fetch( `${ endpoint }?metadata_token=${ encodeURIComponent( token ) }` );
 		if ( ! response.ok ) {
 			return null;
 		}
