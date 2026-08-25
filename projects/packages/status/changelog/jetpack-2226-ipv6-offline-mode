@@ -1,4 +1,4 @@
-Significance: minor
+Significance: patch
 Type: fixed
 
-Detect publicly routable IPv6 site URLs as remote instead of local. This adds a dependency on the Jetpack IP package.
+Detect publicly routable IPv6 site URLs as remote instead of local.
