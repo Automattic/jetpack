@@ -457,7 +457,7 @@ jobs:
           fi
 
           # To avoid spending too much rate limit, we only re-check the run status after 15 minutes and then every 5 thereafter.
-          NEXTRUNCHECK=$( jq '[ now + 5 * 60, ( .created_at | 15 * 60 + fromdateiso8601 | round ) ] | max' <<<"$JSON" || true )
+          NEXTRUNCHECK=$( jq '[ now + 5 * 60, ( .created_at | 15 * 60 + fromdateiso8601 ) ] | max | round' <<<"$JSON" || true )
 
           # Now poll the run until the target job name shows up
           BADCT=0
