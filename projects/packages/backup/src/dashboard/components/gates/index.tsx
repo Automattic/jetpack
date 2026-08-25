@@ -18,6 +18,12 @@ type Props = {
  * Top-to-bottom decision tree, first match wins:
  * not-connected → secondary-admin → loading → capabilities-error → no-plan → children
  *
+ * The loading branch is deliberately first-load-only. It sits above the
+ * error branch, so a retry that made the query "loading" again would
+ * replace the error screen — reason, explanation and the only control
+ * that can ask again — with a bare spinner, for the whole round trip.
+ * See `useCapabilities`.
+ *
  * The connection checks come first because they're synchronous — they
  * read a global PHP emitted into the page. Gating them behind the
  * capabilities spinner would make a disconnected site sit through a
@@ -55,7 +61,11 @@ export default function Gates( { children }: Props ) {
 	// don't have a plan".
 	if ( capabilities.error ) {
 		return (
-			<CapabilitiesErrorScreen error={ capabilities.error } onRetry={ capabilities.refetch } />
+			<CapabilitiesErrorScreen
+				error={ capabilities.error }
+				onRetry={ capabilities.refetch }
+				isRetrying={ capabilities.isRetrying }
+			/>
 		);
 	}
 

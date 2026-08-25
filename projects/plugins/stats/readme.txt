@@ -2,7 +2,7 @@
 Contributors: automattic
 Tags: stats, analytics, site stats, traffic, visitors
 Requires at least: 7.0
-Requires PHP: 7.2
+Requires PHP: 7.4
 Tested up to: 7.1
 Stable tag: 0.1.0-alpha
 License: GPLv2 or later
