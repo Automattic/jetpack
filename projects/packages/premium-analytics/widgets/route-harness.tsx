@@ -62,7 +62,13 @@ export function RouteHarness( {
 			history: createMemoryHistory( { initialEntries: [ initialEntry ] } ),
 			// TanStack's options type requires strictNullChecks, which this package does not enable.
 		} as never );
-		// `children` is stable for a given mount; rebuilding the router on it would remount.
+		// Keyed on the search string alone: `children` is deliberately excluded, because
+		// it is a fresh element on every render and including it would rebuild the router
+		// each time, remounting the subtree and dropping the picker's state mid-interaction.
+		// The contract this places on callers: do not re-render with different `children`
+		// while `search` stays the same — the route component would keep rendering the
+		// original `children` and the update would be lost silently. Change the search too,
+		// or mount a fresh harness.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ initialEntry ] );
 
