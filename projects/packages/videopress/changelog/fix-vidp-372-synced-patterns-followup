@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix private video playback authorization for videos embedded through synced patterns and Video Playlist blocks, and let private videos preview in the block editor canvas.

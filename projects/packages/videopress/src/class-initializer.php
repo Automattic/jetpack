@@ -288,11 +288,14 @@ class Initializer {
 	public static function render_videopress_video_block( $block_attributes, $content, $block ) {
 		global $wp_embed;
 
-		// Pre-build and cache the GUID list for this post to optimize authorization checks.
-		// This is called once per page render and caches GUIDs from all VideoPress blocks
-		// (including those in synced patterns), allowing fast O(1) lookups during token requests.
+		// Pre-build and cache the GUID list for this post to optimize authorization checks,
+		// and record the GUID actually being rendered: by render time WordPress has expanded
+		// synced patterns, templates, and template parts, so this covers embedding contexts
+		// the static content scan cannot see.
 		$post_id = $block->context['postId'] ?? get_the_ID();
-		if ( ! empty( $post_id ) ) {
+		if ( ! empty( $post_id ) && isset( $block_attributes['guid'] ) && is_string( $block_attributes['guid'] ) ) {
+			Access_Control::ensure_post_guids_cached( absint( $post_id ), $block_attributes['guid'] );
+		} elseif ( ! empty( $post_id ) ) {
 			Access_Control::build_and_cache_post_guids( absint( $post_id ) );
 		}
 
@@ -746,15 +749,25 @@ class Initializer {
 	/**
 	 * Video Playlist block render callback.
 	 *
-	 * @param array $block_attributes Block attributes.
+	 * @param array          $block_attributes Block attributes.
+	 * @param string         $content          Current block markup.
+	 * @param \WP_Block|null $block            Current block.
 	 *
 	 * @return string Block markup, or an empty string when the playlist has no playable entries.
 	 */
-	public static function render_videopress_playlist_block( $block_attributes ) {
+	public static function render_videopress_playlist_block( $block_attributes, $content = '', $block = null ) {
 		$entries = self::sanitize_playlist_entries( $block_attributes['videos'] ?? null );
 
 		if ( ! $entries ) {
 			return '';
+		}
+
+		// Record the rendered GUIDs in the post's cached GUID list so private playlist
+		// entries pass the playback authorization check, including when the playlist
+		// sits inside a synced pattern, template, or template part.
+		$post_id = isset( $block->context['postId'] ) ? $block->context['postId'] : get_the_ID();
+		if ( ! empty( $post_id ) ) {
+			Access_Control::ensure_post_guids_cached( absint( $post_id ), array_column( $entries, 'guid' ) );
 		}
 
 		$enabled = function ( $key, $default_value = true ) use ( $block_attributes ) {
