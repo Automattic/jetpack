@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Forms: add a Maximum files setting to the file upload field, so it can accept up to ten files instead of one.

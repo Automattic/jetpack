@@ -23,13 +23,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Contact_Form_Field extends Contact_Form_Shortcode {
 
 	/**
-	 * Maximum number of files a single file upload field accepts.
+	 * Number of files a file upload field accepts when its `maxfiles` attribute says nothing.
 	 *
-	 * TODO: Read this from a `maxfiles` attribute once the block exposes one.
+	 * One, so that a field authored before the setting existed keeps behaving exactly as it did.
 	 *
 	 * @var int
 	 */
-	const FILE_FIELD_MAX_FILES = 1;
+	const FILE_FIELD_DEFAULT_MAX_FILES = 1;
+
+	/**
+	 * Highest number of files a file upload field will accept, whatever `maxfiles` asks for.
+	 *
+	 * Uploads are anonymous and each one may be as large as FILE_FIELD_MAX_UPLOAD_SIZE, so the
+	 * ceiling bounds what a single visitor can push at the site in one submission. Keep in sync
+	 * with `MAX_FILES_LIMIT` in `blocks/field-file/edit.jsx`, which bounds the editor control.
+	 *
+	 * @var int
+	 */
+	const FILE_FIELD_MAX_FILES_LIMIT = 10;
 
 	/**
 	 * Maximum size, in bytes, of a single uploaded file.
@@ -624,6 +635,30 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				if ( ! is_array( $field_value ) || empty( $field_value[0] ) ) {
 					/* translators: %s is the name of a form field */
 					$this->add_error( sprintf( __( '%s requires a file to be uploaded.', 'jetpack-forms' ), $field_label ) );
+					break;
+				}
+
+				/*
+				 * Nothing enforced the count on this side before. The limit lived only in the
+				 * browser, so a submission assembled by hand could carry as many uploaded file
+				 * IDs as it liked and every one of them would be attached to the response.
+				 */
+				$max_files = $this->get_file_field_max_files();
+
+				if ( count( $field_value ) > $max_files ) {
+					$this->add_error(
+						sprintf(
+							/* translators: 1: the name of a form field, 2: the maximum number of files it accepts. */
+							_n(
+								'%1$s accepts at most %2$d file.',
+								'%1$s accepts at most %2$d files.',
+								$max_files,
+								'jetpack-forms'
+							),
+							$field_label,
+							$max_files
+						)
+					);
 				}
 				break;
 			default:
@@ -1145,10 +1180,28 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * inputs use. Falls back to the plain instruction when the label is visible
 	 * or there is no name to give. See FORMS-694.
 	 *
+	 * @param int $max_files How many files the field accepts.
+	 *
 	 * @return string
 	 */
-	private function get_file_dropzone_aria_label() {
-		$select_file_text = __( 'Select a file to upload.', 'jetpack-forms' );
+	private function get_file_dropzone_aria_label( $max_files ) {
+		/*
+		 * The count belongs in the accessible name rather than only in the visible dropzone text,
+		 * which is an inner block the author writes and may leave saying "a file" for a field that
+		 * takes several.
+		 */
+		$select_file_text = $max_files > 1
+			? sprintf(
+				/* translators: %d: the maximum number of files the field accepts. */
+				_n(
+					'Select up to %d file to upload.',
+					'Select up to %d files to upload.',
+					$max_files,
+					'jetpack-forms'
+				),
+				$max_files
+			)
+			: __( 'Select a file to upload.', 'jetpack-forms' );
 
 		if ( ! $this->is_label_hidden_by_block_visibility() ) {
 			return $select_file_text;
@@ -2013,6 +2066,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$this->enqueue_file_field_assets();
 
 		$accept_attribute_value = implode( ', ', self::get_file_field_accepted_mime_types() );
+		$max_files              = $this->get_file_field_max_files();
 
 		$file_size_units = array(
 			_x( 'B', 'unit symbol', 'jetpack-forms' ),
@@ -2054,7 +2108,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text, array(), true, $required_indicator );
 
-		$dropzone_aria_label = $this->get_file_dropzone_aria_label();
+		$dropzone_aria_label = $this->get_file_dropzone_aria_label( $max_files );
 
 		ob_start();
 		?>
@@ -2078,6 +2132,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				<input
 					type="file" class="jetpack-form-file-field"
 					accept="<?php echo esc_attr( $accept_attribute_value ); ?>"
+					<?php // Without this the picker returns one file at a time however many the field accepts; a drop already could. ?>
+					<?php echo $max_files > 1 ? 'multiple' : ''; ?>
 					data-wp-on--change="actions.fileAdded"  />
 			</div>
 			<div class="jetpack-form-file-field__preview-wrap" name="file-field-<?php echo esc_attr( $id ); ?>" data-wp-class--is-active="state.hasFileFieldFiles">
@@ -2275,6 +2331,27 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		return "<input type='hidden' name='" . esc_attr( $id ) . "' id='" . esc_attr( $id )
 			. "' value='" . esc_attr( $value ) . "' " . $interactivity_attributes . " />\n";
+	}
+
+	/**
+	 * How many files this file upload field accepts.
+	 *
+	 * Read from the block's `maxfiles` attribute and clamped: the value reaches PHP as author-
+	 * supplied shortcode text, and both the rendered `multiple` attribute and the submission-time
+	 * count check are derived from it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int A number between 1 and FILE_FIELD_MAX_FILES_LIMIT.
+	 */
+	private function get_file_field_max_files() {
+		$max_files = $this->get_attribute( 'maxfiles' );
+
+		if ( ! is_numeric( $max_files ) ) {
+			return self::FILE_FIELD_DEFAULT_MAX_FILES;
+		}
+
+		return max( 1, min( (int) $max_files, self::FILE_FIELD_MAX_FILES_LIMIT ) );
 	}
 
 	/**
@@ -3408,7 +3485,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		if ( 'file' === $type ) {
 			return array(
-				'maxFiles'         => self::FILE_FIELD_MAX_FILES,
+				'maxFiles'         => $this->get_file_field_max_files(),
 				'allowedMimeTypes' => self::get_file_field_accepted_mime_types(),
 			);
 		}

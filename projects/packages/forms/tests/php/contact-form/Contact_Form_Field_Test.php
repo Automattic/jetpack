@@ -644,18 +644,19 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	 *
 	 * @dataProvider data_file_dropzone_aria_label
 	 *
-	 * @param array  $atts     Field attributes.
-	 * @param string $expected Expected dropzone accessible name.
+	 * @param array  $atts      Field attributes.
+	 * @param string $expected  Expected dropzone accessible name.
+	 * @param int    $max_files How many files the field accepts.
 	 */
 	#[DataProvider( 'data_file_dropzone_aria_label' )]
-	public function test_file_dropzone_aria_label( $atts, $expected ) {
+	public function test_file_dropzone_aria_label( $atts, $expected, $max_files = 1 ) {
 		$field  = $this->get_new_field_instance( array_merge( array( 'type' => 'file' ), $atts ) );
 		$method = new \ReflectionMethod( $field, 'get_file_dropzone_aria_label' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
 
-		$this->assertSame( $expected, $method->invoke( $field ) );
+		$this->assertSame( $expected, $method->invoke( $field, $max_files ) );
 	}
 
 	/**
@@ -665,29 +666,179 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	 */
 	public static function data_file_dropzone_aria_label() {
 		return array(
-			'visible label'          => array( array( 'label' => 'Resume' ), 'Select a file to upload.' ),
-			'full-hidden label'      => array(
+			'visible label'           => array( array( 'label' => 'Resume' ), 'Select a file to upload.' ),
+			'full-hidden label'       => array(
 				array(
 					'label'                        => 'Resume',
 					'labelhiddenbyblockvisibility' => true,
 				),
 				'Resume: Select a file to upload.',
 			),
-			'per-viewport hidden'    => array(
+			'per-viewport hidden'     => array(
 				array(
 					'label'        => 'Resume',
 					'labelclasses' => 'wp-block-hidden-mobile',
 				),
 				'Resume: Select a file to upload.',
 			),
-			'hidden but empty label' => array(
+			'hidden but empty label'  => array(
 				array(
 					'label'                        => '',
 					'labelhiddenbyblockvisibility' => true,
 				),
 				'Select a file to upload.',
 			),
+			// The visible dropzone text is an inner block the author writes, and it may well still
+			// read "a file" on a field that takes several — so the count has to be in the name.
+			'multi-file field'        => array(
+				array( 'label' => 'Attachments' ),
+				'Select up to 5 files to upload.',
+				5,
+			),
+			'multi-file hidden label' => array(
+				array(
+					'label'                        => 'Attachments',
+					'labelhiddenbyblockvisibility' => true,
+				),
+				'Attachments: Select up to 3 files to upload.',
+				3,
+			),
 		);
+	}
+
+	/**
+	 * `maxfiles` reaches PHP as author-supplied shortcode text, and both the rendered `multiple`
+	 * attribute and the submission-time count check are derived from it, so it is clamped rather
+	 * than trusted.
+	 *
+	 * @dataProvider data_file_field_max_files
+	 *
+	 * @param mixed $attribute The `maxfiles` attribute value.
+	 * @param int   $expected  The resolved number of files.
+	 */
+	#[DataProvider( 'data_file_field_max_files' )]
+	public function test_file_field_max_files_is_clamped( $attribute, $expected ) {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'     => 'file',
+				'maxfiles' => $attribute,
+			)
+		);
+
+		$method = new \ReflectionMethod( $field, 'get_file_field_max_files' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame( $expected, $method->invoke( $field ) );
+	}
+
+	/**
+	 * Data provider for test_file_field_max_files_is_clamped.
+	 *
+	 * @return array
+	 */
+	public static function data_file_field_max_files() {
+		return array(
+			'unset'             => array( null, 1 ),
+			'a number'          => array( 5, 5 ),
+			// Shortcode attributes arrive as strings even when the block stored a number.
+			'a numeric string'  => array( '5', 5 ),
+			'at the ceiling'    => array( 10, 10 ),
+			'above the ceiling' => array( 99, 10 ),
+			'zero'              => array( 0, 1 ),
+			'negative'          => array( -3, 1 ),
+			'not a number'      => array( 'lots', 1 ),
+		);
+	}
+
+	/**
+	 * A file field authored before the setting existed carries no `maxfiles` at all, and has to
+	 * keep accepting exactly one file.
+	 */
+	public function test_file_field_without_max_files_accepts_one() {
+		$field  = $this->get_new_field_instance( array( 'type' => 'file' ) );
+		$method = new \ReflectionMethod( $field, 'get_file_field_max_files' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame( 1, $method->invoke( $field ) );
+	}
+
+	/**
+	 * The resolved count travels to the front end in `fieldExtra`, which is where the view module
+	 * reads it: the dropzone, the add-time capacity check and the picker all work from that value.
+	 */
+	public function test_file_field_extra_carries_the_resolved_max_files() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'     => 'file',
+				'maxfiles' => 4,
+			)
+		);
+
+		$method = new \ReflectionMethod( $field, 'get_field_extra' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$extra = $method->invoke( $field, 'file', array() );
+
+		$this->assertSame( 4, $extra['maxFiles'] );
+		$this->assertNotEmpty( $extra['allowedMimeTypes'] );
+	}
+
+	/**
+	 * The count was enforced only in the browser, so a submission assembled by hand could carry
+	 * as many uploaded file IDs as it liked and every one would be attached to the response.
+	 */
+	public function test_file_field_rejects_more_files_than_it_accepts() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'     => 'file',
+				'id'       => 'test_files',
+				'label'    => 'Attachments',
+				'maxfiles' => 2,
+				'required' => true,
+			)
+		);
+
+		$_POST['test_files'] = array(
+			wp_json_encode( array( 'file_id' => 1 ), JSON_UNESCAPED_SLASHES ),
+			wp_json_encode( array( 'file_id' => 2 ), JSON_UNESCAPED_SLASHES ),
+			wp_json_encode( array( 'file_id' => 3 ), JSON_UNESCAPED_SLASHES ),
+		);
+
+		$field->validate();
+		unset( $_POST['test_files'] );
+
+		$this->assertTrue( $field->is_error(), 'A third file on a two-file field must be rejected.' );
+	}
+
+	/**
+	 * The mirror case, so the check above cannot pass by rejecting everything.
+	 */
+	public function test_file_field_accepts_a_submission_within_its_limit() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'     => 'file',
+				'id'       => 'test_files',
+				'label'    => 'Attachments',
+				'maxfiles' => 2,
+				'required' => true,
+			)
+		);
+
+		$_POST['test_files'] = array(
+			wp_json_encode( array( 'file_id' => 1 ), JSON_UNESCAPED_SLASHES ),
+			wp_json_encode( array( 'file_id' => 2 ), JSON_UNESCAPED_SLASHES ),
+		);
+
+		$field->validate();
+		unset( $_POST['test_files'] );
+
+		$this->assertFalse( $field->is_error() );
 	}
 
 	/**

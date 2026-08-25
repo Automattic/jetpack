@@ -23,6 +23,22 @@ export const conditional_logic = {
 
 export const settings = {
 	...defaultSettings,
+	attributes: {
+		...defaultSettings.attributes,
+		/*
+		 * Lowercase on purpose, unlike the camelCase attributes elsewhere in these blocks.
+		 *
+		 * A field block renders through Contact_Form_Plugin::block_attributes_to_shortcode_attributes()
+		 * into Contact_Form_Field, whose constructor runs the attributes through shortcode_atts()
+		 * against an all-lowercase list of defaults and drops every key that does not appear in it.
+		 * A `maxFiles` here would therefore never reach the renderer. `iconstyle` in that same list
+		 * carries the same note.
+		 */
+		maxfiles: {
+			type: 'number',
+			default: 1,
+		},
+	},
 	title: __( 'File upload field', 'jetpack-forms' ),
 	keywords: [
 		__( 'File', 'jetpack-forms' ),
