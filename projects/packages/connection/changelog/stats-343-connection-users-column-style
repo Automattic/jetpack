@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Enqueue the Users screen connection column CSS through wp_add_inline_style() instead of printing a style element.

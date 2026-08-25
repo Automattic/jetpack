@@ -1,4 +1,0 @@
-Significance: minor
-Type: deprecated
-
-Deprecate Users_Connection_Admin::add_connection_column_styles(); the Users screen column CSS is enqueued as an inline style now.

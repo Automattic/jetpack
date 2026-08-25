@@ -144,10 +144,10 @@ class Users_Connection_Admin {
 	/**
 	 * Add the styles for the connection column.
 	 *
-	 * @deprecated $$next-version$$ The CSS is enqueued on the `jetpack-connection-users-column` style handle by enqueue_scripts().
+	 * @deprecated 8.12.0 The CSS is enqueued on the `jetpack-connection-users-column` style handle by enqueue_scripts().
 	 */
 	public function add_connection_column_styles() {
-		_deprecated_function( __METHOD__, 'connection-$$next-version$$', __CLASS__ . '::enqueue_scripts' );
+		_deprecated_function( __METHOD__, 'connection-8.12.0', __CLASS__ . '::enqueue_scripts' );
 		self::enqueue_connection_column_styles();
 	}
 

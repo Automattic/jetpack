@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stats: Compare a date range against a previous month or year of the same length, unless the range is whole calendar months.

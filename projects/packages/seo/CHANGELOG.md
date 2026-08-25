@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.3] - 2026-08-25
+### Changed
+- Update dependencies. [#51438]
+
 ## [0.8.2] - 2026-08-20
 ### Added
 - Add a shared gate for the AI SEO Enhancer's availability, so the surfaces that offer it can stop each deriving their own answer. [#51169]
@@ -146,6 +150,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create a Settings screen with site visibility, post title structure, front-page description, and site verification. [#49256]
 - Scaffold the new `jetpack-seo` package and mount its admin page. [#49203]
 
+[0.8.3]: https://github.com/Automattic/jetpack-seo/compare/0.8.2...0.8.3
 [0.8.2]: https://github.com/Automattic/jetpack-seo/compare/0.8.1...0.8.2
 [0.8.1]: https://github.com/Automattic/jetpack-seo/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/Automattic/jetpack-seo/compare/0.7.0...0.8.0

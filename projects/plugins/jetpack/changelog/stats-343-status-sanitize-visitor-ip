@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Stats: Stop recording a malformed visitor IP address.

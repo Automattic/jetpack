@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Charts: let a calendar heatmap draw a grid wider than its data, filling the extra weeks with cells that report nothing rather than claiming there was no activity on them.
