@@ -127,7 +127,9 @@ if inputs are invalid
 - `previous-year` - Same duration, anchored one year before the reference end
 
 For whole-month references, `previous-month` and `previous-year` instead stay
-aligned to calendar month boundaries, so their duration can differ.
+aligned to calendar month boundaries, so their duration can differ. Whole months
+are read from the range itself, so a rolling window that happens to land on one
+(April 1-30 from "Last 30 days") compares against all 31 days of March.
 
 ### Range Measurement and Stepping
 

@@ -156,6 +156,13 @@ describe( 'getComparisonRangeFromPreset', () => {
 				new Date( 2025, 11, 4, 23, 59, 59, 999 ),
 			],
 			[
+				'a window that starts on the 1st but stops short of the month end',
+				new Date( 2026, 2, 1, 0, 0, 0, 0 ),
+				new Date( 2026, 2, 15, 23, 59, 59, 999 ),
+				new Date( 2026, 1, 1, 0, 0, 0, 0 ),
+				new Date( 2026, 1, 15, 23, 59, 59, 999 ),
+			],
+			[
 				'a window whose start has no counterpart a month back',
 				new Date( 2026, 0, 31, 0, 0, 0, 0 ),
 				new Date( 2026, 2, 1, 23, 59, 59, 999 ),

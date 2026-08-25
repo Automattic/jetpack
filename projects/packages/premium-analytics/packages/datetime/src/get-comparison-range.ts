@@ -66,6 +66,9 @@ function getInclusiveDayCount( from: Date, to: Date ): number {
  *   hours) mirror the exact window instead.
  * - Comparison ranges match the reference duration, except that whole-month
  *   `previous-month` and `previous-year` ranges preserve calendar boundaries.
+ *   Whole months are detected from the range shape alone, so a rolling window
+ *   that happens to land on one (April 1-30 from a "last 30 days" preset) also
+ *   compares calendar-to-calendar, against all 31 days of March.
  *
  * @param reference - The reference range to compare against (must include both `from` and `to`).
  * @param presetId  - One of the supported preset identifiers.
