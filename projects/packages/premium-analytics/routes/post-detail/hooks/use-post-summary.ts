@@ -138,7 +138,11 @@ export function usePostSummary( postId: number ): PostSummary {
 	return {
 		title: post?.post_title,
 		type,
-		publishedDate: post?.post_date_gmt ?? post?.post_date,
+		// The site-local publish time, as the Stats API's own timestamps are read.
+		// Only the GMT column is ever the fallback, and it says so, so nothing
+		// downstream mistakes it for a wall time in the site timezone.
+		publishedDate:
+			post?.post_date ?? ( post?.post_date_gmt ? `${ post.post_date_gmt }Z` : undefined ),
 		imageUrl,
 		// The entity permalink is authoritative; the carried URL only covers the
 		// post types core data cannot resolve.

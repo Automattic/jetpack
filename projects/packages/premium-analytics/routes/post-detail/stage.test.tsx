@@ -17,7 +17,13 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	// `defineReportTabs`, still resolve now that the registry is not mocked.
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
-	useReportDateFilters: () => ( {} ),
+	useReportDateFilters: () => ( {
+		appliedRange: {},
+		replaceRange: () => {},
+		timeZone: 'UTC',
+		interval: 'day',
+		intervalOptions: [ 'day', 'week' ],
+	} ),
 } ) );
 
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.

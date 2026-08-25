@@ -26,7 +26,6 @@ import useSubscribersChart, {
 import {
 	SUBSCRIBERS_CHART_METRICS,
 	type SubscribersChartAttributes,
-	type SubscribersChartGranularity,
 	type SubscribersChartMetricId,
 	type SubscribersChartType,
 } from './widget';
@@ -105,30 +104,23 @@ function buildMetrics( state: SubscribersChartState ): MetricTab[] {
 
 type SubscribersChartInnerProps = {
 	/**
-	 * Selected granularity; `auto` follows the dashboard range.
-	 */
-	granularity: SubscribersChartGranularity;
-	/**
 	 * How to draw the selected metric. `MetricTabsChart` owns the default.
 	 */
 	chartType?: SubscribersChartType;
 };
 
 /**
- * The "Group by" control is the `granularity` attribute and the "Chart type"
- * control is the `chartType` attribute (both `relevance: 'high'`), rendered by
- * the widget host. Which metric is plotted is the chart's own tab selection.
+ * The bucket size follows the dashboard's chart interval control, clamped to
+ * what this chart supports. The "Chart type" control is the `chartType`
+ * attribute (`relevance: 'high'`), rendered by the widget host. Which metric is
+ * plotted is the chart's own tab selection.
  */
-function SubscribersChartInner( { granularity, chartType }: SubscribersChartInnerProps ) {
+function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	// `auto` means "follow the dashboard range"; an explicit value sticks
-	// across range changes. This keeps a wide range from staying stuck on
-	// `day` granularity (and blowing up the bucket count) while the user
-	// hasn't picked a granularity themselves.
-	const period: SubscribersPeriod =
-		granularity === 'auto'
-			? defaultPeriodForInterval( reportParams.interval, SUBSCRIBERS_PERIODS )
-			: granularity;
+	const period: SubscribersPeriod = defaultPeriodForInterval(
+		reportParams.interval,
+		SUBSCRIBERS_PERIODS
+	);
 
 	const state = useSubscribersChart( reportParams, period );
 	const metricTabs = useMemo( () => buildMetrics( state ), [ state ] );
@@ -164,6 +156,7 @@ function SubscribersChartInner( { granularity, chartType }: SubscribersChartInne
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
 					groupLabel={ groupLabel }
+					pointsAreWallClocks
 				/>
 			</WidgetState>
 		</div>
@@ -174,11 +167,9 @@ export default function SubscribersChart( {
 	attributes = {},
 	setError,
 }: SubscribersChartWidgetProps ) {
-	const granularity = attributes.granularity ?? 'auto';
-
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<SubscribersChartInner granularity={ granularity } chartType={ attributes.chartType } />
+			<SubscribersChartInner chartType={ attributes.chartType } />
 		</WidgetRoot>
 	);
 }

@@ -4,6 +4,7 @@ export {
 	MetricTileGridSkeleton,
 	type MetricTileGridSkeletonProps,
 } from './metric-tile';
+export { MetricList, type MetricListItem, type MetricListProps } from './metric-list';
 export { MetricValue } from './metric-value';
 export { MetricWithComparison } from './metric-with-comparison';
 export { PeakDistribution, type PeakDistributionProps } from './peak-distribution';
@@ -65,9 +66,12 @@ export {
 export { ChartEmptyState, type ChartEmptyStateProps } from './chart-empty-state';
 export {
 	AdaptiveCalendarHeatmap,
+	CalendarHeatmapPagerOverlay,
 	CalendarHeatmapTooltip,
 	type AdaptiveCalendarHeatmapChartProps,
 	type AdaptiveCalendarHeatmapProps,
+	type CalendarHeatmapPager,
+	type CalendarHeatmapPagerOverlayProps,
 	type CalendarHeatmapTooltipProps,
 } from './calendar-heatmap';
 export { WidgetLoadingOverlay } from './widget-loading-overlay';

@@ -4,14 +4,14 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.2",
+		"php": ">=7.4",
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
 		"brain/monkey": "^2.6.2",
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0 || ^4.0",
+		"wikimedia/testing-access-wrapper": "^3.0 || ^4.0",
 		"automattic/phpunit-select-config": "@dev"
 	},
 	"suggest": {

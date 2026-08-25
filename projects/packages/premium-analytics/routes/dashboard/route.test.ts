@@ -66,10 +66,12 @@ describe( 'dashboard route.beforeLoad', () => {
 		await expect( beforeLoad( settledSearch ) ).rejects.toMatchObject( { to: '/connect' } );
 	} );
 
-	it( 'redirects to /syncing before the initial sync finishes', async () => {
+	// Only the store section's data waits on the analytics sync, so an unfinished
+	// sync must not hold back the site sections.
+	it( 'loads the dashboard before the initial sync finishes', async () => {
 		( isPremiumAnalyticsInitialSyncFinished as jest.Mock ).mockReturnValueOnce( false );
 
-		await expect( beforeLoad( settledSearch ) ).rejects.toMatchObject( { to: '/syncing' } );
+		await expect( beforeLoad( settledSearch ) ).resolves.toBeUndefined();
 	} );
 
 	it( 're-seeds the date params when they are missing', async () => {

@@ -1,4 +1,9 @@
-import { getApiErrorCode, getApiErrorStatus, shouldRetryApiError } from '../api-error';
+import {
+	getApiErrorCode,
+	getApiErrorStatus,
+	shouldRetryApiError,
+	StatsResponseShapeError,
+} from '../api-error';
 
 // Two envelopes reach the client: our own `WP_Error` responses
 // (`{ code, message, data: { status } }`) and WPCOM pass-through errors
@@ -75,5 +80,17 @@ describe( 'shouldRetryApiError', () => {
 		expect( shouldRetryApiError( 0, { status: 500 } ) ).toBe( true );
 		expect( shouldRetryApiError( 2, { status: 500 } ) ).toBe( true );
 		expect( shouldRetryApiError( 3, { status: 500 } ) ).toBe( false );
+	} );
+
+	it( 'does not auto-retry a sanitizer parse failure', () => {
+		// The request itself succeeded; retrying it verbatim reproduces the same
+		// unparsable response instead of a different one. A manual Retry (e.g. a
+		// still-undeployed endpoint) is the mechanism that actually changes the
+		// outcome, so this must not eat the automatic-retry budget.
+		expect( shouldRetryApiError( 0, new StatsResponseShapeError( 'bad shape' ) ) ).toBe( false );
+	} );
+
+	it( 'still retries an ordinary transient failure', () => {
+		expect( shouldRetryApiError( 0, new Error( 'network error' ) ) ).toBe( true );
 	} );
 } );

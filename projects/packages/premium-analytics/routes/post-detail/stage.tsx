@@ -21,6 +21,7 @@ import { useParams } from '@wordpress/route';
 import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
+import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { PostDetailTabs, PostSummaryCard } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
@@ -114,6 +115,10 @@ function PostDetail(): JSX.Element {
 	// The single resource, date range, and comparison all live in the URL search
 	// params, staged and committed by the shared date-filter controller.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
+	// The preset pills alone — all time, then the rolling windows — with no
+	// custom range, period arrows, or interval dropdown, per the detail-page
+	// design; all time runs from the day this resource was published.
+	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
 
 	// The header row hosts the panel in a shrink-to-fit slot, so the panel
 	// measures the row itself to pick its responsive layout; see the
@@ -178,13 +183,18 @@ function PostDetail(): JSX.Element {
 									{ /*
 									 * The design has no period-over-period comparison on
 									 * this page. The panel reads that from the scope the
-									 * stage declares, which is the same declaration that
-									 * keeps the params away from the widgets; the params
-									 * themselves stay in the URL so the breadcrumb carries
-									 * them back to the dashboard.
+									 * stage declares, which is the same declaration that keeps
+									 * the params away from the widgets; the params themselves
+									 * stay in the URL so the breadcrumb carries them back to the
+									 * dashboard.
+									 *
+									 * The Post views and Email performance charts bucket by the
+									 * interval the range resolves; the design offers no control
+									 * over it, nor the period arrows — see `useDetailDateControls`.
 									 */ }
 									<DateFiltersPanel
 										{ ...dateFilters }
+										{ ...dateControls }
 										containerElement={ headerElement }
 										reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
 									/>

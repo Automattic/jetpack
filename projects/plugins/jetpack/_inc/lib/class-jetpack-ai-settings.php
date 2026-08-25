@@ -210,7 +210,7 @@ class Jetpack_AI_Settings {
 	 * registration in init() stays for the package consumers that cannot
 	 * reference this class.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.2
 	 *
 	 * @param bool $default The call site's computed default. Defaults differ
 	 *                      between call sites — see apply_master_gates().

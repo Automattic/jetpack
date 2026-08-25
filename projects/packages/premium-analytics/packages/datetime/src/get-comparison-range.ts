@@ -4,12 +4,16 @@
 import {
 	differenceInDays,
 	differenceInMilliseconds,
+	endOfDay,
+	endOfMonth,
+	isFirstDayOfMonth,
+	isLastDayOfMonth,
+	startOfDay,
+	startOfMonth,
 	subDays,
 	subMilliseconds,
 	subMonths,
 	subYears,
-	startOfDay,
-	endOfDay,
 } from 'date-fns';
 
 export type DateRange = { from?: Date; to?: Date };
@@ -40,6 +44,17 @@ export function isComparisonPresetId( value: unknown ): value is ComparisonPrese
 }
 
 /**
+ * Count the calendar days in an inclusive range.
+ *
+ * @param from - Range start.
+ * @param to   - Range end.
+ * @return The inclusive day count.
+ */
+function getInclusiveDayCount( from: Date, to: Date ): number {
+	return differenceInDays( to, from ) + 1;
+}
+
+/**
  * Returns a comparison DateRange (as Date objects) derived from a reference range
  * and a given preset.
  *
@@ -48,8 +63,12 @@ export function isComparisonPresetId( value: unknown ): value is ComparisonPrese
  *   the frame of the incoming dates (pass TZDate instances for site-local math).
  * - Day-aligned references (midnight to end of day) produce day-aligned
  *   comparison ranges. Sub-day references (rolling windows like the last 24
- *   hours) mirror the exact window instead, so the comparison always covers
- *   the same amount of time as the primary range.
+ *   hours) mirror the exact window instead.
+ * - Comparison ranges match the reference duration, except that whole-month
+ *   `previous-month` and `previous-year` ranges preserve calendar boundaries.
+ *   Whole months are detected from the range shape alone, so a rolling window
+ *   that happens to land on one (April 1-30 from a "last 30 days" preset) also
+ *   compares calendar-to-calendar, against all 31 days of March.
  *
  * @param reference - The reference range to compare against (must include both `from` and `to`).
  * @param presetId  - One of the supported preset identifiers.
@@ -78,7 +97,10 @@ export function getComparisonRangeFromPreset(
 		let to: Date;
 
 		if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {
-			to = subMilliseconds( refTo, windowMs );
+			// Both ends are inclusive, so the window lasts `windowMs + 1`. Shifting
+			// by `windowMs` alone lands `to` on `refFrom` itself, inside the
+			// reference window, which reads one bucket late at hourly granularity.
+			to = subMilliseconds( refTo, windowMs + 1 );
 		} else if ( presetId === COMPARISON_PREVIOUS_MONTH ) {
 			to = subMonths( refTo, 1 );
 		} else if ( presetId === COMPARISON_PREVIOUS_YEAR ) {
@@ -97,24 +119,32 @@ export function getComparisonRangeFromPreset(
 		bound === 1 ? endOfDay( startOfDay( date ) ) : startOfDay( date );
 
 	if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {
-		const daysInclusive = differenceInDays( refTo, refFrom ) + 1;
+		const daysInclusive = getInclusiveDayCount( refFrom, refTo );
 		return {
 			from: clampDayBound( subDays( refFrom, daysInclusive ), 0 ),
 			to: clampDayBound( subDays( refTo, daysInclusive ), 1 ),
 		};
 	}
 
-	if ( presetId === COMPARISON_PREVIOUS_MONTH ) {
-		return {
-			from: clampDayBound( subMonths( refFrom, 1 ), 0 ),
-			to: clampDayBound( subMonths( refTo, 1 ), 1 ),
-		};
-	}
+	if ( presetId === COMPARISON_PREVIOUS_MONTH || presetId === COMPARISON_PREVIOUS_YEAR ) {
+		const shiftBack = presetId === COMPARISON_PREVIOUS_MONTH ? subMonths : subYears;
 
-	if ( presetId === COMPARISON_PREVIOUS_YEAR ) {
+		// Keep whole-month comparisons aligned to calendar boundaries.
+		if ( isFirstDayOfMonth( refFrom ) && isLastDayOfMonth( refTo ) ) {
+			return {
+				from: clampDayBound( startOfMonth( shiftBack( refFrom, 1 ) ), 0 ),
+				to: clampDayBound( endOfMonth( shiftBack( refTo, 1 ) ), 1 ),
+			};
+		}
+
+		// Anchor the end, then rebuild the start to preserve the day count. If the
+		// calendar shift clamps the end (Mar 31 to Feb 28), the start may move into January.
+		const to = shiftBack( refTo, 1 );
+		const daysInclusive = getInclusiveDayCount( refFrom, refTo );
+
 		return {
-			from: clampDayBound( subYears( refFrom, 1 ), 0 ),
-			to: clampDayBound( subYears( refTo, 1 ), 1 ),
+			from: clampDayBound( subDays( to, daysInclusive - 1 ), 0 ),
+			to: clampDayBound( to, 1 ),
 		};
 	}
 

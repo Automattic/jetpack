@@ -8,17 +8,6 @@
 	min-height: 0;
 }
 
-.pager {
-	flex-shrink: 0;
-}
-
-/* Draw the focus ring inside the buttons; the default outset ring gets
-   clipped by the content area's overflow (same treatment as the metric
-   tabs). */
-.pager button {
-	outline-offset: calc(-1 * var(--wpds-border-width-focus));
-}
-
 /* Remaining tile height for WidgetState's block-level root wrapper. */
 .body {
 	flex: 1 1 0;
@@ -31,15 +20,13 @@
 	flex-direction: column;
 	height: 100%;
 	min-height: 0;
-	gap: var(--wpds-dimension-gap-sm);
 
 	/* Safety net for sub-minimum widths (the page floor is 4 week columns). */
 	overflow-x: auto;
 }
 
-/* The rectangle the grid may occupy: the tile height the pager leaves over.
-   Its measured height drives the cell height, so the grid — month-label row
-   included — always fits it. */
+/* The rectangle the grid may occupy. Its measured height drives the cell
+   height, so the grid — month-label row included — always fits it. */
 .chartArea {
 	display: flex;
 	flex-direction: column;
@@ -47,16 +34,35 @@
 	min-height: 0;
 }
 
-.heatmap {
+/* The pager overlay host wrapping the content-sized grid; the floating
+   arrows center on it. Overflow-safe vertical centering: auto margins
+   collapse to zero when the grid outgrows the area (a rounding edge),
+   falling back to top alignment. `justify-content: center` instead pushes
+   the overflow past the scroll origin — `overflow-x: auto` above makes
+   `.content` a scroll container, so that start-side overflow (the month
+   labels) is unreachable and renders clipped. */
+.chartHost {
 	flex: 0 0 auto;
 	min-width: 0;
 	min-height: 0;
-
-	/* Overflow-safe vertical centering: auto margins collapse to zero when
-	   the grid outgrows the area (a rounding edge), falling back to top
-	   alignment. `justify-content: center` instead pushes the overflow past
-	   the scroll origin — `overflow-x: auto` above makes `.content` a scroll
-	   container, so that start-side overflow (the month labels) is
-	   unreachable and renders clipped. */
 	margin-block: auto;
+}
+
+.heatmap {
+	min-width: 0;
+	min-height: 0;
+}
+
+/* The cells cap at the design's 64px, so up to a column of leftover width
+   remains inside the chart's full-width grid. Under the default content
+   distribution the grid hands all of it to the auto-sized weekday-label
+   track, which reads as dead space at the inline start that grows with the
+   tile until the next column fits; any non-stretch distribution stops that
+   absorption, and centering splits the leftover between the sides instead.
+   The grid is an inner chart element (only its `role` is addressable from
+   here), and `safe` falls back to start alignment at sub-minimum widths,
+   where a centered overflow would push the labels past the scroll origin. */
+.heatmap [role="grid"] {
+	justify-content: center;
+	justify-content: safe center;
 }

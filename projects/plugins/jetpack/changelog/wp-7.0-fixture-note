@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Tests: correct the block fixture normalizer's note; WordPress 7.0 did not drop layout classes.
-
-

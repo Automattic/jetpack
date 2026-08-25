@@ -2,9 +2,12 @@
  * External dependencies
  */
 import { useStatsStreak } from '@jetpack-premium-analytics/data';
+import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { formatDate } from '@jetpack-premium-analytics/formatters';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import {
 	AdaptiveCalendarHeatmap,
+	CalendarHeatmapPagerOverlay,
 	CalendarHeatmapTooltip,
 	HeatmapChartUnresponsive,
 	HeatmapSkeleton,
@@ -59,10 +62,9 @@ function renderCellTooltip( { value, cellLabel }: HeatmapTooltipData ) {
  * The `stats/streak` endpoint returns a `{ 'yyyy-MM-dd': count }` map of posts
  * per day, with no comparison period.
  *
- * The date range comes from the dashboard picker via `reportParams`, but the fetch
- * window spans as much history as the widest possible tile could draw — a calendar
- * heatmap needs a span of weeks, not a 7-day slice, and the grid fills the tile
- * rather than stopping where the period does.
+ * The date range comes from the dashboard picker via `reportParams`. The fetch
+ * window is that range, capped at the history the widest possible tile could draw
+ * so a long selection cannot request years the grid would throw away.
  *
  * `AdaptiveCalendarHeatmap` fits the grid to the tile: the height picks the cell
  * size, the width picks how many week columns are drawn.
@@ -70,20 +72,31 @@ function renderCellTooltip( { value, cellLabel }: HeatmapTooltipData ) {
 function PostingActivityInner() {
 	const { reportParams } = useWidgetRootContext();
 
-	// Same window rule as the other calendar heatmap: floor and cap the picker's
-	// range at the history the viewport could show, so the two widgets fill their
-	// tiles with the same span instead of one running out of data early.
+	// Same window rule as the other calendar heatmap: a ceiling at the history the
+	// viewport could draw, and no floor. A floor would reach back past the selection,
+	// putting years outside the card's heading inside it (WOOA7S-1963).
 	const viewportWidth = useViewportWidth();
 	const windowDays = resolveCalendarHeatmapWindowDays( viewportWidth );
+
+	// One reading for both windows below, so a render across midnight cannot resolve
+	// them against different days.
+	const today = format( new Date(), 'yyyy-MM-dd' );
+
+	// Both the request window and the range the heatmap draws and pages through:
+	// without a floor the two coincide, so paging can never leave the selection.
 	const streakRange = useMemo(
-		() =>
-			resolveCalendarHeatmapWindow(
-				reportParams,
-				{ minDays: windowDays, maxDays: windowDays },
-				format( new Date(), 'yyyy-MM-dd' )
-			),
-		[ reportParams, windowDays ]
+		() => resolveCalendarHeatmapWindow( reportParams, { maxDays: windowDays }, today ),
+		[ reportParams, windowDays, today ]
 	);
+
+	// The period as selected, before the ceiling. All time on a long-lived site
+	// reaches back past the window, and the empty state has to know the response
+	// says nothing about the years left out.
+	const periodWindow = useMemo(
+		() => resolveCalendarHeatmapWindow( reportParams, {}, today ),
+		[ reportParams, today ]
+	);
+	const isWindowClipped = periodWindow.startDate < streakRange.startDate;
 	const streakParams = useMemo(
 		() => ( { ...reportParams, startDate: streakRange.startDate, endDate: streakRange.endDate } ),
 		[ reportParams, streakRange ]
@@ -92,13 +105,36 @@ function PostingActivityInner() {
 	const { data, isLoading, isFetching, isError, error, refetch } = useStatsStreak( streakParams );
 
 	// The endpoint returns only days with posts, so an empty response means the
-	// window has none — the component densifies the rest into empty cells.
+	// window has none — the component densifies the rest into empty cells. Days
+	// outside the range are still ruled out, so a stale response for a wider
+	// selection cannot suppress the empty state while the new one loads.
 	const postsByDay = data ?? NO_POSTS_BY_DAY;
-	const hasData = Object.keys( postsByDay ).length > 0;
+	const hasData = useMemo(
+		() =>
+			Object.entries( postsByDay ).some(
+				( [ day, count ] ) =>
+					day >= streakRange.startDate && day <= streakRange.endDate && Number( count ) > 0
+			),
+		[ postsByDay, streakRange ]
+	);
+
+	// Where the period outran the window, name the days the request covers rather
+	// than the period: the site may well have posts outside them.
+	const windowStart = parseSiteDateTime( streakRange.startDate );
+	const windowEnd = parseSiteDateTime( streakRange.endDate );
+	const emptyDescription =
+		isWindowClipped && windowStart && windowEnd
+			? sprintf(
+					/* translators: 1: first date the request covers, e.g. "Aug 9, 2024". 2: last date it covers. */
+					__( 'No posts published between %1$s and %2$s.', 'jetpack-premium-analytics-pkg' ),
+					formatDate( windowStart, 'compact' ),
+					formatDate( windowEnd, 'compact' )
+			  )
+			: __( 'No posts published in this period.', 'jetpack-premium-analytics-pkg' );
 
 	return (
 		<AdaptiveCalendarHeatmap valueByDay={ postsByDay } period={ streakRange }>
-			{ chartProps => (
+			{ ( chartProps, pager ) => (
 				<WidgetState
 					isLoading={ isLoading }
 					isFetching={ isFetching }
@@ -115,21 +151,20 @@ function PostingActivityInner() {
 					} ) }
 					empty={ {
 						icon: calendar,
-						description: __(
-							'No posts published in this period.',
-							'jetpack-premium-analytics-pkg'
-						),
+						description: emptyDescription,
 					} }
 					renderLoading={ <HeatmapSkeleton /> }
 				>
 					{ /* No legend: the cell tooltips carry the counts, and the legend's
 					     44px comes out of the cells. */ }
-					<HeatmapChartUnresponsive
-						{ ...chartProps }
-						primaryColor="var(--wp-admin-theme-color, #3858e9)"
-						withTooltips
-						renderTooltip={ renderCellTooltip }
-					/>
+					<CalendarHeatmapPagerOverlay pager={ pager }>
+						<HeatmapChartUnresponsive
+							{ ...chartProps }
+							primaryColor="var(--wp-admin-theme-color, #3858e9)"
+							withTooltips
+							renderTooltip={ renderCellTooltip }
+						/>
+					</CalendarHeatmapPagerOverlay>
 				</WidgetState>
 			) }
 		</AdaptiveCalendarHeatmap>

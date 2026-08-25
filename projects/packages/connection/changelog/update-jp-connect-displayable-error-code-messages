@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Connection Error UI: Ensure the error allowlist is an explicit, documented contract with meaningful user-facing text for displayable errors, and flag errors where reconnecting may not help so consumers can offer a support link.

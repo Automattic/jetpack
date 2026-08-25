@@ -3,12 +3,13 @@
  */
 import { resolveIntervalForRange, type ReportQueryParams } from '@jetpack-premium-analytics/data';
 import {
+	endOfDayTZ,
 	isSelectablePreset,
+	siteTimeZone,
 	type ComparisonPresetId,
 	type DateRange,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
-import { endOfDay } from 'date-fns';
 /**
  * Internal dependencies
  */
@@ -70,11 +71,15 @@ export function buildRangePatch( {
 		 * Preset and exact ranges are authoritative: rolling windows end at
 		 * the current time, not at a day boundary. Calendar and manual edits
 		 * stage midnight `to` dates, so only those are adjusted to the end of
-		 * the day.
+		 * the day — the site's day, not the visitor's: date-fns' bare
+		 * `endOfDay` would use the browser's boundary and stretch the range
+		 * for visitors west of the site timezone.
 		 */
 		const rangeFrom = encodeDateToSearchParam( nextRange.from );
 		const rangeTo = encodeDateToSearchParam(
-			exactRange || isSelectablePreset( nextPresetId ) ? nextRange.to : endOfDay( nextRange.to )
+			exactRange || isSelectablePreset( nextPresetId )
+				? nextRange.to
+				: endOfDayTZ( nextRange.to, siteTimeZone() )
 		);
 		patch.from = rangeFrom;
 		patch.to = rangeTo;
