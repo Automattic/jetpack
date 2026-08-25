@@ -136,12 +136,17 @@ jest.mock( './components', () => ( {
 	PostSummaryCard: () => <div>Post summary</div>,
 } ) );
 
+let mockActiveTab = 'traffic';
+
 jest.mock( './hooks', () => ( {
 	usePostSummary: jest.fn(),
 	usePostDetailTabs: () => ( {
-		// One tab, so the panel carrying the widget grid actually mounts.
-		tabs: [ { id: 'traffic', label: 'Traffic' } ],
-		activeTab: 'traffic',
+		// The active tab mounts the panel carrying the widget grid.
+		tabs: [
+			{ id: 'traffic', label: 'Traffic' },
+			{ id: 'email-opens', label: 'Email opens' },
+		],
+		activeTab: mockActiveTab,
 		setActiveTab: jest.fn(),
 		layout: [],
 	} ),
@@ -181,6 +186,26 @@ describe( 'post detail stage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockSearch = { from: '2026-06-01', to: '2026-06-16', post_id: '41' };
+		mockActiveTab = 'traffic';
+	} );
+
+	it( 'shows the date filter on the traffic tab', () => {
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.getByText( 'Date filters' ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides the date filter on the email tabs, whose widgets are lifetime-scoped', () => {
+		mockActiveTab = 'email-opens';
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.queryByText( 'Date filters' ) ).not.toBeInTheDocument();
+		// The shared summary header still renders.
+		expect( screen.getByText( 'Post summary' ) ).toBeInTheDocument();
 	} );
 
 	it( 'puts a View post action in the page header, opening the live post in a new tab', () => {

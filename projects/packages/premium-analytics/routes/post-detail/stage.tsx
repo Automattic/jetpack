@@ -179,26 +179,33 @@ function PostDetail(): JSX.Element {
 										performanceRange={ dateFilters.appliedRange }
 									/>
 								</div>
-								<div className={ styles.dateFilters }>
-									{ /*
-									 * The design has no period-over-period comparison on
-									 * this page. The panel reads that from the scope the
-									 * stage declares, which is the same declaration that keeps
-									 * the params away from the widgets; the params themselves
-									 * stay in the URL so the breadcrumb carries them back to the
-									 * dashboard.
-									 *
-									 * The Post views and Email performance charts bucket by the
-									 * interval the range resolves; the design offers no control
-									 * over it, nor the period arrows — see `useDetailDateControls`.
-									 */ }
-									<DateFiltersPanel
-										{ ...dateFilters }
-										{ ...dateControls }
-										containerElement={ headerElement }
-										reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
-									/>
-								</div>
+								{ /* The email tabs' widgets are lifetime-scoped: their endpoints
+								     take no date params, so the filter would be a control that
+								     visibly does nothing (WOOA7S-1945). It hides there; the range
+								     stays in the URL, so the Post traffic tab keeps its selection
+								     when the user tabs back. */ }
+								{ ! EMAIL_TAB_IDS.includes( activeTab ) && (
+									<div className={ styles.dateFilters }>
+										{ /*
+										 * The design has no period-over-period comparison on
+										 * this page. The panel reads that from the scope the
+										 * stage declares, which is the same declaration that keeps
+										 * the params away from the widgets; the params themselves
+										 * stay in the URL so the breadcrumb carries them back to the
+										 * dashboard.
+										 *
+										 * The Post views and Email performance charts bucket by the
+										 * interval the range resolves; the design offers no control
+										 * over it, nor the period arrows — see `useDetailDateControls`.
+										 */ }
+										<DateFiltersPanel
+											{ ...dateFilters }
+											{ ...dateControls }
+											containerElement={ headerElement }
+											reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
+										/>
+									</div>
+								) }
 							</div>
 							{ tabs.map( tab => (
 								<SectionTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>
