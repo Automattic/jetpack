@@ -1,7 +1,7 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { Circle } from '@visx/shape';
 import { Text } from '@visx/text';
-import { useGlobalChartsTheme } from '../../../providers';
+import { useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -87,8 +87,11 @@ export const CustomLabelComponent: Story = {
 			yScale: {},
 			labelComponent: ( { textProps, x, y, label, formatter } ) => {
 				// eslint-disable-next-line react-hooks/rules-of-hooks
-				const theme = useGlobalChartsTheme();
-				const circleColor = theme.colors[ 1 ]; // Use second theme color for contrast
+				const { getElementStyles } = useGlobalChartsContext();
+				// Resolved, not read off `theme.colors` — those entries are catalog pointers
+				// that SVG `fill` cannot resolve, and the second one is a generated colour
+				// unless a consumer seeds slot 2.
+				const circleColor = getElementStyles( { index: 1 } ).color;
 
 				return (
 					<>

@@ -7,12 +7,15 @@ import type { ChartTheme } from '../types';
 export const DEFAULT_ACCENT_COLOR = '#4a19ab';
 
 /**
- * Custom theme using a CSS variable set by `ThemeProvider` for dynamic color generation.
- * The `--wpds-color-foreground-interactive-brand` token is set by wrapping
- * the component tree in a WPDS `ThemeProvider` with a `color.primary` seed.
+ * Custom theme demonstrating that the series palette needs no configuration to follow a
+ * `ThemeProvider`.
+ *
+ * This deliberately sets no `colors`. `--a8c-charts-color-series-1` already reads
+ * `--wpds-color-foreground-interactive-brand`, which a WPDS `ThemeProvider` generates from
+ * its `color.primary` seed, so moving the accent control moves the whole palette — the
+ * seeded series directly, and the generated ones because they derive from it.
  */
 export const customTheme: ChartTheme = {
-	colors: [ 'var(--wpds-color-foreground-interactive-brand)' ],
 	seriesLineStyles: [
 		{},
 		{
@@ -31,6 +34,9 @@ export const customTheme: ChartTheme = {
 /**
  * Theme that uses a variety of color formats (hex, RGB, RGBA, HSL, named)
  * to demonstrate and test color normalization support.
+ *
+ * One colour per format, and exactly as many as there are palette slots: a sixth entry would
+ * be dropped with a console warning without covering a format the first five miss.
  */
 export const mixedColorFormatsTheme: ChartTheme = {
 	colors: [
@@ -39,8 +45,6 @@ export const mixedColorFormatsTheme: ChartTheme = {
 		'hsl(48, 96%, 53%)',
 		'rgba(38, 70, 83, 0.9)',
 		'steelblue',
-		'hsl(280, 60%, 50%)',
-		'rgb(244, 162, 97)',
 	],
 	backgroundColor: 'hsl(0, 0%, 98%)',
 	gridColor: 'rgba(0, 0, 0, 0.1)',
