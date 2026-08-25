@@ -81,7 +81,7 @@ The scope element is the wrapper a chart is rendered into, which sits **above** 
 
 > These tables are checked against `src/styles/chart-scope.scss` by `src/styles/test/chart-scope.test.ts`. Update the stylesheet and the table together.
 
-| Role | Maps to `--wpds-*` | Fallback |
+| Role | Maps to | Fallback |
 |---|---|---|
 | `--a8c-charts-color-series-1` | `--wp-admin-theme-color` | `var(--wpds-color-foreground-interactive-brand, var(--wp-admin-theme-color, #3858e9))` |
 | `--a8c-charts-color-series-2` | _(none — unset until a consumer sets it)_ | — |
@@ -131,7 +131,7 @@ The palette is resolved per provider, so one `ColorCache` and one group-to-colou
 
 ## Non-colour roles
 
-| Role | Maps to `--wpds-*` | Fallback |
+| Role | Maps to | Fallback |
 |---|---|---|
 | `--a8c-charts-motion-duration-entrance` | `--wpds-motion-duration-xl` | `400ms` |
 | `--a8c-charts-motion-easing-entrance` | `--wpds-motion-easing-expressive` | `cubic-bezier(0.25, 0, 0, 1)` |
@@ -149,7 +149,7 @@ The elevation fallbacks hold the values their removed `--wpds-elevation-*` token
 
 Instance styling knobs, on the same convention but not shared semantic roles: `--a8c-charts-dimension-leaderboard-bar-hover-inset`, `--a8c-charts-color-heatmap-*`, `--a8c-charts-dimension-heatmap-*`, `--a8c-charts-heatmap-cell-intensity`, `--a8c-charts-color-zoom-selection`, `--a8c-charts-color-zoom-selection-stroke`.
 
-| Role | Maps to `--wpds-*` | Fallback |
+| Role | Maps to | Fallback |
 |---|---|---|
 | `--a8c-charts-color-zoom-selection` | `--wpds-color-background-interactive-brand-strong` | `var(--wp-admin-theme-color, #3858e9)` |
 | `--a8c-charts-color-zoom-selection-stroke` | `--wpds-color-stroke-interactive-brand` | `var(--wp-admin-theme-color, #3858e9)` |

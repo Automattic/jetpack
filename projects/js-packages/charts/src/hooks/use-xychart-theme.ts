@@ -26,9 +26,14 @@ export const useXYChartTheme = ( data: SeriesData[] ) => {
 
 		const seriesColors: string[] = JSON.parse( seriesColorKey );
 
+		// The palette gets the same treatment as every other colour here, and needs it more: since the series slots became catalog pointers, `theme.colors` is the one field that is always a `var()` chain, and the four slots without a catalog default resolve to nothing at all. visx builds its `colorScale` from this array and uses it as the default stroke for a series rendered without an explicit one, so an unresolved entry paints nothing rather than degrading. Entries that resolve to nothing are dropped so the scale compacts the way the provider's own palette does.
+		const paletteColors = [ ...seriesColors, ...( theme.colors ?? [] ) ]
+			.map( color => resolveColor( color ) )
+			.filter( ( color ): color is string => Boolean( color ) && ! color.includes( 'var(' ) );
+
 		return buildChartTheme( {
 			...theme,
-			colors: [ ...seriesColors, ...( theme.colors ?? [] ) ],
+			colors: paletteColors,
 			backgroundColor: resolveColor( theme.backgroundColor ),
 			gridStyles: theme.gridStyles && {
 				...theme.gridStyles,

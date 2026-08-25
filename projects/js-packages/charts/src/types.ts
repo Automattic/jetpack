@@ -338,9 +338,11 @@ export type ChartTheme = {
 	/**
 	 * Series palette seeds. Entry N publishes `--a8c-charts-color-series-{N+1}`; entries past the fifth are ignored.
 	 *
+	 * Optional so the deprecation is actionable: a consumer writing a full theme literal can now stop setting it. `CompleteChartTheme` is `Required< ChartTheme >`, so `defaultTheme` must still carry one.
+	 *
 	 * @deprecated Set the `--a8c-charts-color-series-1` … `-5` custom properties inside the provider tree instead, or `options.stroke` on a series for a single one. See `TOKENS.md`. Removed in CHARTS-227.
 	 */
-	colors: string[];
+	colors?: string[];
 	/** Optional CSS styles for grid lines */
 	gridStyles?: GridStyles;
 	/** Length of axis ticks in pixels */

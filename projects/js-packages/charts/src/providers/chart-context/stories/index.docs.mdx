@@ -64,7 +64,9 @@ Series colors come from five CSS custom properties, declared on the provider wra
 	}` }
 />
 
-Only slot 1 has a default, and it maps to the design system's brand foreground. In wp-admin that resolves to the site's admin color scheme with no configuration at all, so charts follow the scheme out of the box. Set more slots to widen the palette; charts generates accessible colors beyond whatever you set.
+Only slot 1 has a default, and it reads `--wp-admin-theme-color` first — so in wp-admin, charts follow the site's admin color scheme with no configuration at all. The design system's brand token is the next leg, reached only where that variable is unset. Set more slots to widen the palette; charts generates accessible colors beyond whatever you set.
+
+The order matters and is not interchangeable: on every React admin screen WordPress loads its own design-token stylesheet, which pins the brand token to a static value that does not track the color scheme. `TOKENS.md` has the detail.
 
 **A slot left unset is skipped and the palette compacts.** Setting only slots 1 and 3, as above, gives a three-color palette in the order written — there is no gap where slot 2 would have been.
 

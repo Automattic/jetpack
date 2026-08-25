@@ -74,16 +74,25 @@ describe( 'useXYChartTheme style reads', () => {
 		expect( result.current.colors[ 0 ] ).toBe( 'rebeccapurple' );
 	} );
 
-	// The memo key serialises the strokes rather than joining them, so a colour containing a comma or a space survives the round-trip intact.
+	// The memo key serialises the strokes rather than joining them, so a colour containing a comma or a space survives the round-trip intact. `rgba(0, 0, 0, 0.5)` is the one that proves it: it holds both separators and comes back whole.
+	//
+	// The `var()` entry resolves to its fallback rather than passing through, which is the point of resolving the palette at all — visx paints these as SVG presentation attributes, where a `var()` resolves to nothing.
 	it( 'keeps a stroke that contains separators intact', () => {
 		const { result } = renderWithScope( [
 			{ label: 'A', options: { stroke: 'rgba(0, 0, 0, 0.5)' }, data: [] },
 			{ label: 'B', options: { stroke: 'var(--brand, #fff)' }, data: [] },
 		] as unknown as SeriesData[] );
 
-		expect( result.current.colors.slice( 0, 2 ) ).toEqual( [
-			'rgba(0, 0, 0, 0.5)',
-			'var(--brand, #fff)',
-		] );
+		expect( result.current.colors.slice( 0, 2 ) ).toEqual( [ 'rgba(0, 0, 0, 0.5)', '#fff' ] );
+	} );
+
+	// Four of the five palette slots carry no catalog default, so in jsdom they resolve to nothing. Passing those to visx unresolved would make them its default stroke for any series without an explicit one, painting nothing at all.
+	it( 'drops palette entries that resolve to nothing', () => {
+		const { result } = renderWithScope( [] );
+
+		expect( result.current.colors ).not.toEqual(
+			expect.arrayContaining( [ expect.stringContaining( 'var(' ) ] )
+		);
+		expect( result.current.colors.length ).toBeGreaterThan( 0 );
 	} );
 } );

@@ -10,10 +10,14 @@ export const DEFAULT_ACCENT_COLOR = '#4a19ab';
  * Custom theme demonstrating that the series palette needs no configuration to follow a
  * `ThemeProvider`.
  *
- * This deliberately sets no `colors`. `--a8c-charts-color-series-1` already reads
- * `--wpds-color-foreground-interactive-brand`, which a WPDS `ThemeProvider` generates from
- * its `color.primary` seed, so moving the accent control moves the whole palette — the
- * seeded series directly, and the generated ones because they derive from it.
+ * This deliberately sets no `colors`. Moving the `accentColor` control moves the whole
+ * palette — the seeded series directly, and the generated ones because they derive from it.
+ *
+ * It reaches the palette through `--wp-admin-theme-color`, which `ThemeProvider` writes from
+ * its `color.primary` seed as a legacy wp-admin override, and which slot 1 reads first — not
+ * through the `--wpds-*` ramp it also emits. So setting `adminColorScheme` to anything but
+ * `none` publishes a closer `--wp-admin-theme-color` and the accent control stops driving the
+ * palette. That is the documented cascade, not a bug.
  */
 export const customTheme: ChartTheme = {
 	seriesLineStyles: [

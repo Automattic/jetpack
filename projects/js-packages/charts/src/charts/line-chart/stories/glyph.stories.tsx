@@ -1,5 +1,5 @@
 import { GlyphStar } from '@visx/glyph';
-import { useGlobalChartsTheme, GlobalChartsProvider } from '../../../providers';
+import { useGlobalChartsContext, GlobalChartsProvider } from '../../../providers';
 import { CHART_THEME_MAP, themeArgTypes } from '../../../stories';
 import LineChart from '../line-chart';
 import {
@@ -212,7 +212,9 @@ CustomSvg.args = {
 };
 
 const ToolTipWithGlyph = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
-	const providerTheme = useGlobalChartsTheme();
+	// Resolved, not read off `theme.colors` — those entries are catalog pointers that an SVG
+	// presentation attribute cannot resolve, so a raw one leaves the glyph unstroked.
+	const { getElementStyles } = useGlobalChartsContext();
 
 	return (
 		<div>
@@ -238,7 +240,7 @@ const ToolTipWithGlyph = ( { tooltipData }: RenderTooltipParams< DataPointDate >
 										top={ 10 }
 										left={ 10 }
 										fill={ '#fff' }
-										stroke={ providerTheme.colors[ index % providerTheme.colors.length ] }
+										stroke={ getElementStyles( { index } ).color }
 									/>
 								</svg>
 								{ key }: { datum.value }

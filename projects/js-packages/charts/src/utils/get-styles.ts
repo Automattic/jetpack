@@ -50,6 +50,12 @@ export function getSeriesBarStyles(
 /**
  * Utility function to get stroke color for a series
  *
+ * `themeColors` must already be resolved. `useGlobalChartsTheme().colors` is not: since the series
+ * slots became catalog pointers, its entries are `var()` chains an SVG presentation attribute
+ * cannot resolve. Prefer `getElementStyles( { data, index } ).color` from
+ * `useGlobalChartsContext()`, which resolves at the chart's scope element and generates past the
+ * seeds.
+ *
  * @param {SeriesData} seriesData  - The series data containing styling options
  * @param {number}     index       - The index of the series in the data array
  * @param {string[]}   themeColors - The resolved series palette

@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Charts: follow the WordPress admin color scheme for chart series colors.
+Charts: move series colors to CSS custom properties.
