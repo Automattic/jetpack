@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Dashboard: Improve the forms help modal with clearer migration messaging and View pages CTA.
+Dashboard: Rewrite the missing forms modal to reassure people that forms already on their pages keep working, and spell out the steps to add them to the list.
