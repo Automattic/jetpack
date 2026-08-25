@@ -6,24 +6,26 @@ import LicenseKeyLink from './license-key-link';
 /**
  * My Jetpack, which owns connection for the standalone plugins.
  *
- * Not `admin.php?page=jetpack#/connection`: that screen belongs to the
- * Jetpack plugin, and the only thing that calls
- * `Jetpack_Backup::initialize()` is the standalone Backup plugin, where
- * `page=jetpack` is registered as a `__return_null` placeholder. The link
- * went nowhere for every site that could see it.
+ * Not `admin.php?page=jetpack#/connection`, which reached a connection
+ * screen on no site that could see it — by one of two mechanisms,
+ * depending on what else is installed. Without the Jetpack plugin,
+ * `page=jetpack` is a `__return_null` placeholder registered by
+ * `packages/admin-ui` behind a `! $jetpack_plugin_present` guard, so the
+ * page renders nothing at all. With it, that slug is the Jetpack React
+ * app — whose router has no `/connection` route, so the hash falls to
+ * the catch-all and is replaced with `#/dashboard`.
  *
- * My Jetpack cannot send the reader back here afterwards — its
- * return-to helper only accepts My Jetpack's own hash routes — so this
- * is a one-way trip. A dead link is the worse of the two.
+ * My Jetpack cannot send the reader back here afterwards — its return-to
+ * helper only accepts My Jetpack's own hash routes — so this is a
+ * one-way trip. Still the better of the two.
  */
 const JETPACK_CONNECT_URL = 'admin.php?page=my-jetpack';
 
 /**
  * Fallback shown when Jetpack isn't fully connected to WPCOM.
  *
- * Links out to the Jetpack settings connection screen instead of
- * embedding `<ConnectButton>` — the connection package pulls in SCSS
- * that wp-build can't resolve cleanly today.
+ * Links out rather than embedding `<ConnectButton>`: the connection
+ * package pulls in SCSS that wp-build can't resolve cleanly today.
  *
  * @return The rendered fallback.
  */

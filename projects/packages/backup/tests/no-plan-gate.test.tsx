@@ -6,10 +6,10 @@
 // and the "Use license key" entry point the legacy dashboard put in its
 // header was gone entirely.
 //
-// Also here: the connect link was dead. `admin.php?page=jetpack#/connection`
-// does not exist for the standalone Backup plugin, which is the only thing
-// that calls `Jetpack_Backup::initialize()` — `page=jetpack` is registered
-// there as a `__return_null` placeholder.
+// Also here: the connect link reached no connection screen.
+// `admin.php?page=jetpack` is a `__return_null` placeholder without the
+// Jetpack plugin, and the Jetpack React app with it — and that app has no
+// `/connection` route, so the hash bounced to `#/dashboard`.
 
 const mockApiFetch = jest.fn();
 
@@ -64,7 +64,7 @@ describe( 'No-plan gate', () => {
 	it( 'sends the site through to checkout rather than a generic marketing page', async () => {
 		renderScreen( NoBackupPlanScreen );
 
-		const cta = screen.getByRole( 'link', { name: /^Upgrade now$/ } );
+		const cta = screen.getByRole( 'link', { name: /^Get VaultPress Backup$/ } );
 
 		// Site-scoped: without this the reader lands on a page that has no
 		// idea which site they came from. And on the redirect service, as
@@ -99,7 +99,7 @@ describe( 'No-plan gate', () => {
 
 		renderScreen( NoBackupPlanScreen );
 
-		expect( screen.getByRole( 'link', { name: /^Upgrade now$/ } ) ).not.toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: /^Get VaultPress Backup$/ } ) ).not.toHaveAttribute(
 			'href',
 			expect.stringContaining( 'undefined' )
 		);
@@ -128,11 +128,11 @@ describe.each( [
 	{ name: 'not-connected', Screen: NotConnectedScreen },
 	{ name: 'secondary-admin', Screen: SecondaryAdminScreen },
 ] )( '$name gate', ( { Screen } ) => {
-	it( 'points somewhere that exists for the standalone Backup plugin', async () => {
+	it( 'points somewhere that actually reaches a connection screen', async () => {
 		renderScreen( Screen );
 
-		// `page=jetpack` is a `__return_null` placeholder in the standalone
-		// plugin — the link went nowhere. My Jetpack owns connection there.
+		// `page=jetpack#/connection` reached a connection screen on no site
+		// that could see it. My Jetpack owns connection for these plugins.
 		const cta = screen.getByRole( 'link', { name: /Connect|Link my account/i } );
 		expect( cta ).not.toHaveAttribute( 'href', expect.stringContaining( 'page=jetpack#' ) );
 		expect( cta ).toHaveAttribute( 'href', expect.stringContaining( 'page=my-jetpack' ) );

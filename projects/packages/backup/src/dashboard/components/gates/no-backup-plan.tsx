@@ -1,5 +1,5 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import { Card, Notice } from '@wordpress/components';
+import { Button, Card, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import { useSiteSuffix } from '../../hooks/use-connection';
@@ -12,12 +12,10 @@ import LicenseKeyLink from './license-key-link';
  * This is the whole purchase path for a site without Backup, so it
  * carries both ways in: buy one, or redeem one already bought.
  *
- * The destination is the redirect service with the same slug the legacy
- * no-plan card used (`src/js/components/Admin/no-backup-capabilities.jsx:34`)
- * rather than a jetpack.com URL written here — the slug's target is
- * maintained outside this repo, and reusing it keeps this screen pointing
- * wherever that one already points. It is scoped to the site, without
- * which checkout has no idea which site the reader came from.
+ * The destination is the redirect service, with the same slug the legacy
+ * no-plan card used rather than a jetpack.com URL written here — that
+ * slug's target is maintained outside this repo, so reusing it keeps
+ * this screen pointing wherever that one already points.
  *
  * No Tracks event on the CTA yet: there is no Tracks client on the
  * modernized page at all — `enqueue_admin_scripts()` returns before
@@ -51,10 +49,14 @@ export default function NoBackupPlanScreen() {
 				 * Same tab, as legacy did. An upgrade flow that opens a new
 				 * one strands the page the reader started from, and returns
 				 * them to a dashboard that still says they have no plan.
+				 *
+				 * The label is legacy's, which this package still ships in
+				 * three other places — so it arrives translated rather than
+				 * waiting a GlotPress cycle.
 				 */ }
-				<a className="jpb-gates__cta" href={ upgradeUrl }>
-					{ __( 'Upgrade now', 'jetpack-backup-pkg' ) }
-				</a>
+				<Button variant="primary" href={ upgradeUrl }>
+					{ __( 'Get VaultPress Backup', 'jetpack-backup-pkg' ) }
+				</Button>
 				<LicenseKeyLink />
 			</Stack>
 		</Card>
