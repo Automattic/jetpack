@@ -13,7 +13,7 @@
 // so re-declaring lower down would shadow a consumer override set inside
 // the provider tree.
 
-// The five roles a `theme` prop field can override read a `*-theme` variable
+// The roles a `theme` prop field can override read a `*-theme` variable
 // first, which GlobalChartsProvider writes inline from that field. Publishing
 // the consumer's value one layer out, rather than as the role itself, is what
 // keeps the catalog default reachable: a value that is invalid at
@@ -27,6 +27,26 @@
 
 // Declares custom properties only. This stylesheet must never change layout.
 :where(.a8c-charts-scope) {
+	// The series palette. GlobalChartsProvider resolves these five slots at
+	// its wrapper and seeds ColorCache with whatever resolves; a slot that
+	// resolves to nothing is skipped, so setting only slots 1 and 3 gives a
+	// two-colour palette, and charts generate accessible colours beyond the
+	// seeds. Only slot 1 carries a default.
+
+	// Slot 1 names --wpds-color-foreground-interactive-brand rather than
+	// --wp-admin-theme-color, even though the admin colour scheme is what has
+	// to come through in wp-admin. It does come through: that token's own spec
+	// fallback is `var(--wp-admin-theme-color, #3858e9)`, so with no
+	// design-system stylesheet loaded — the wp-admin case — the chain reaches
+	// the admin scheme on its own. Naming the admin colour first would instead
+	// put it above a ThemeProvider accent, and since wp-admin always sets
+	// --wp-admin-theme-color that would make theming unreachable on exactly
+	// the screens the package is themed for.
+	--a8c-charts-color-series-1: var(--a8c-charts-color-series-1-theme, var(--wpds-color-foreground-interactive-brand, var(--wp-admin-theme-color, #3858e9)));
+	--a8c-charts-color-series-2: var(--a8c-charts-color-series-2-theme);
+	--a8c-charts-color-series-3: var(--a8c-charts-color-series-3-theme);
+	--a8c-charts-color-series-4: var(--a8c-charts-color-series-4-theme);
+	--a8c-charts-color-series-5: var(--a8c-charts-color-series-5-theme);
 	--a8c-charts-color-grid: var(--a8c-charts-color-grid-theme, var(--wpds-color-stroke-surface-neutral, #dbdbdb));
 	--a8c-charts-color-axis: var(--a8c-charts-color-axis-theme, var(--wpds-color-stroke-surface-neutral, #dbdbdb));
 	--a8c-charts-color-tick: var(--a8c-charts-color-tick-theme, var(--wpds-color-stroke-surface-neutral, #dbdbdb));

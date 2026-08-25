@@ -113,7 +113,10 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 						resolveCssVariable
 					);
 
-					// Only process valid hex colors
+					// Only process valid hex colors. An unset palette slot returns its own
+					// `var()` unchanged, so this is also what compacts the palette: slots the
+					// consumer never set drop out here and `getChartColor` generates past
+					// whatever survived.
 					if ( normalizedColor.startsWith( '#' ) ) {
 						resolvedColors.push( normalizedColor );
 						const hslColor = d3Hsl( normalizedColor );
@@ -153,11 +156,18 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		() => new Map()
 	);
 
-	// Reset group color mappings when theme colors change
+	// Reset group color mappings when the resolved palette changes.
+	//
+	// Keyed on the resolved colours rather than on `providerTheme.colors`, which no longer moves
+	// with a `theme.colors` change: the palette is five catalog pointers now, and a consumer's
+	// colours reach it through the theme-layer vars on the wrapper. Keying on content also stops
+	// a consumer passing an inline `theme` object from resetting the map on every render.
+	const paletteKey = colorCache.colors.join( ',' );
+
 	useEffect( () => {
 		// Create a completely new Map instance to trigger dependencies, e.g. useChartLegendItems
 		setGroupToColorMap( new Map() );
-	}, [ providerTheme.colors ] );
+	}, [ paletteKey ] );
 
 	const registerChart = useCallback( ( id: string, data: ChartRegistration ) => {
 		setCharts( prev => new Map( prev ).set( id, data ) );

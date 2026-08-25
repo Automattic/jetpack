@@ -38,7 +38,7 @@ An override set **above** `GlobalChartsProvider` does not apply: the provider's 
 
 #### The theme layer
 
-Each of the five roles a `theme` prop field can override is declared reading a `*-theme` variable first:
+Each role a `theme` prop field can override is declared reading a `*-theme` variable first:
 
 ```scss
 :where(.a8c-charts-scope) {
@@ -83,6 +83,11 @@ The scope element is the wrapper a chart is rendered into, which sits **above** 
 
 | Role | Maps to `--wpds-*` | Fallback |
 |---|---|---|
+| `--a8c-charts-color-series-1` | `--wpds-color-foreground-interactive-brand` | `var(--wp-admin-theme-color, #3858e9)` |
+| `--a8c-charts-color-series-2` | _(none — unset until a consumer sets it)_ | — |
+| `--a8c-charts-color-series-3` | _(none — unset until a consumer sets it)_ | — |
+| `--a8c-charts-color-series-4` | _(none — unset until a consumer sets it)_ | — |
+| `--a8c-charts-color-series-5` | _(none — unset until a consumer sets it)_ | — |
 | `--a8c-charts-color-grid` | `--wpds-color-stroke-surface-neutral` | `#dbdbdb` |
 | `--a8c-charts-color-axis` | `--wpds-color-stroke-surface-neutral` | `#dbdbdb` |
 | `--a8c-charts-color-tick` | `--wpds-color-stroke-surface-neutral` | `#dbdbdb` |
@@ -102,6 +107,23 @@ The scope element is the wrapper a chart is rendered into, which sits **above** 
 | `--a8c-charts-color-tooltip-surface` | _(none — translucent dark surface, no WPDS fit)_ | `rgb(0 0 0 / 85%)` |
 
 Axis and tick share grid's WPDS token but stay distinct roles, so the three can be themed independently.
+
+### The series palette
+
+The five `--a8c-charts-color-series-*` slots are the palette. `GlobalChartsProvider` resolves them once, at its wrapper, and seeds its colour cache with whatever resolves; charts generate accessible colours beyond the seeds, so five slots is a cap on *seeds*, not on series. A slot that resolves to nothing is skipped and the palette compacts — set only slots 1 and 3 and the palette is two colours, in that order.
+
+Only slot 1 has a default. It maps to `--wpds-color-foreground-interactive-brand`, whose own spec fallback is `var(--wp-admin-theme-color, #3858e9)` — so with no design-system stylesheet loaded, which is the wp-admin case, series colours follow the WordPress admin colour scheme with no host configuration. Naming `--wp-admin-theme-color` ahead of the token would invert that: wp-admin always sets the admin colour, so it would sit above a `ThemeProvider` accent and make theming unreachable on the screens the package is themed for.
+
+Precedence for a series colour, highest first:
+
+1. `options.stroke` on that series, resolved at the chart element. This is the per-series override.
+2. A CSS declaration of `--a8c-charts-color-series-N`, on the usual catalog rules above.
+3. `theme.colors[ N - 1 ]`, which publishes slot N's theme layer. Deprecated — see below.
+4. The catalog default, which exists only for slot 1.
+
+The palette is resolved per provider, so one `ColorCache` and one group-to-colour map serve every chart under it and siblings agree on what a group is coloured. The consequence is that a slot set on a *chart's own* element does not apply — the palette was resolved at the provider wrapper before that element existed. Use `options.stroke` for a per-chart colour.
+
+`theme.colors` is deprecated sugar over the slots: entry N publishes slot N's theme layer through the same mechanism as every other mapped field, so a CSS declaration still outranks it and a short array leaves the later slots unset rather than blank. Entries past the fifth are ignored, with a one-time console warning. It is removed in CHARTS-227.
 
 ## Non-colour roles
 

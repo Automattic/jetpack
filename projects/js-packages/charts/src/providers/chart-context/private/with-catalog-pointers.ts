@@ -1,11 +1,49 @@
 import { defaultTheme } from '../themes';
+import { SERIES_SLOT_COUNT, seriesRole } from './theme-override-vars';
 import type { CompleteChartTheme } from '../../../types';
 
+/**
+ * The pointer one palette slot is restored to.
+ *
+ * Unlike the other roles, this keeps the consumer's own colour as the pointer's terminal literal instead of the catalog's. The literal is only ever reached where `getComputedStyle` resolves nothing — SSR and jsdom — and there the palette is the one field where falling back to the catalog default would be visible: every series would paint the same seeded blue. In a browser the slot resolves first, so a CSS declaration of it still outranks the consumer's `theme.colors`.
+ *
+ * @param index - The slot's zero-based index in `colors`.
+ * @param value - The merged theme's entry for it.
+ * @return The catalog pointer for that slot.
+ */
+const seriesPointer = ( index: number, value: string | undefined ): string => {
+	const role = seriesRole( index + 1 );
+
+	// Idempotent: `withCatalogPointers` runs this once per overridden slot, so from the second call on the array already holds pointers.
+	if ( typeof value === 'string' && value.startsWith( `var(${ role }` ) ) {
+		return value;
+	}
+
+	// A slot the consumer left empty keeps the catalog's own pointer, so a CSS declaration of it still reaches the palette.
+	if ( typeof value !== 'string' || value === '' ) {
+		return defaultTheme.colors[ index ];
+	}
+
+	return `var(${ role }, ${ value })`;
+};
+
 // Restores each overridden role's mapped theme field to the catalog pointer `defaultTheme` already carries for it, so the value comes from `themes.ts` itself rather than a second, hand-copied literal.
+//
+// Every series slot restores the whole `colors` array, not just its own entry. `mergeThemes` replaces arrays outright, so a consumer passing two colours would otherwise leave a two-entry palette and put slots 3 to 5 out of reach of a CSS declaration that sets them.
 const CATALOG_RESTORE_FOR_ROLE: Record<
 	string,
 	( theme: CompleteChartTheme ) => Partial< CompleteChartTheme >
 > = {
+	...Object.fromEntries(
+		Array.from( { length: SERIES_SLOT_COUNT }, ( _, index ) => [
+			seriesRole( index + 1 ),
+			( theme: CompleteChartTheme ) => ( {
+				colors: defaultTheme.colors.map( ( _pointer, slot ) =>
+					seriesPointer( slot, theme.colors?.[ slot ] )
+				),
+			} ),
+		] )
+	),
 	'--a8c-charts-color-background': () => ( { backgroundColor: defaultTheme.backgroundColor } ),
 	'--a8c-charts-color-grid': theme => ( {
 		gridStyles: { ...theme.gridStyles, stroke: defaultTheme.gridStyles.stroke },
@@ -26,7 +64,7 @@ const CATALOG_RESTORE_FOR_ROLE: Record<
  *
  * This covers roles `themeOverrideVars` deliberately left unpublished as well as the ones it published. A value that reads its own role is not publishable, but leaving visx the consumer's literal is what the whole mechanism exists to prevent: `theme={ { gridStyles: { stroke: 'var(--brand, var(--a8c-charts-color-grid, red))' } } }` would have CSS paint the catalog default while visx painted `--brand`.
  *
- * Every field outside the five mapped roles is left exactly as `merged` provided it: those aren't published as theme-layer vars, so rewriting them would erase a consumer's override with no replacement carrier.
+ * Every field outside the mapped roles is left exactly as `merged` provided it: those aren't published as theme-layer vars, so rewriting them would erase a consumer's override with no replacement carrier.
  *
  * @param merged          - The consumer theme merged onto `defaultTheme` (`mergeThemes` output).
  * @param overriddenRoles - The catalog roles the consumer overrode, from `themeOverrideVars`.

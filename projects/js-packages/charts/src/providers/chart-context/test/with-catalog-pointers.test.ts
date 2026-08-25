@@ -44,4 +44,55 @@ describe( 'withCatalogPointers', () => {
 		// Not a mapped role, so its literal survives even when other roles are being restored.
 		expect( result.leaderboardChart.deltaColors ).toEqual( [ 'red', 'grey', 'green' ] );
 	} );
+
+	// The palette is restored as a whole, so a consumer's short array cannot shorten it. `mergeThemes` replaces arrays outright, and a two-entry palette would leave slots 3 to 5 unreadable — a CSS declaration of one of them would have no entry to resolve through.
+	it( 'restores the full five-slot palette from a shorter consumer array', () => {
+		const merged = mergeThemes( defaultTheme, {
+			colors: [ '#111', '#222' ],
+		} as Partial< ChartTheme > );
+
+		const result = withCatalogPointers( merged, [
+			'--a8c-charts-color-series-1',
+			'--a8c-charts-color-series-2',
+		] );
+
+		expect( result.colors ).toEqual( [
+			'var(--a8c-charts-color-series-1, #111)',
+			'var(--a8c-charts-color-series-2, #222)',
+			'var(--a8c-charts-color-series-3)',
+			'var(--a8c-charts-color-series-4)',
+			'var(--a8c-charts-color-series-5)',
+		] );
+	} );
+
+	// Each slot's restore rewrites the whole array, so restoring five of them must not wrap the pointers five times over.
+	it( 'restores the palette idempotently across every overridden slot', () => {
+		const merged = mergeThemes( defaultTheme, {
+			colors: [ '#111', '#222', '#333', '#444', '#555' ],
+		} as Partial< ChartTheme > );
+
+		const result = withCatalogPointers( merged, [
+			'--a8c-charts-color-series-1',
+			'--a8c-charts-color-series-2',
+			'--a8c-charts-color-series-3',
+			'--a8c-charts-color-series-4',
+			'--a8c-charts-color-series-5',
+		] );
+
+		expect( result.colors ).toEqual( [
+			'var(--a8c-charts-color-series-1, #111)',
+			'var(--a8c-charts-color-series-2, #222)',
+			'var(--a8c-charts-color-series-3, #333)',
+			'var(--a8c-charts-color-series-4, #444)',
+			'var(--a8c-charts-color-series-5, #555)',
+		] );
+	} );
+
+	// The literal is only reached where getComputedStyle resolves nothing, and the palette is the one field where falling back to the catalog default would be visible: every series would paint the same seeded blue.
+	it( 'keeps the consumer colour as each pointer’s terminal literal, for SSR and jsdom', () => {
+		const merged = mergeThemes( defaultTheme, { colors: [ 'red' ] } as Partial< ChartTheme > );
+		const result = withCatalogPointers( merged, [ '--a8c-charts-color-series-1' ] );
+
+		expect( result.colors[ 0 ] ).toBe( 'var(--a8c-charts-color-series-1, red)' );
+	} );
 } );

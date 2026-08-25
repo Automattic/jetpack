@@ -52,7 +52,7 @@ export function getSeriesBarStyles(
  *
  * @param {SeriesData} seriesData  - The series data containing styling options
  * @param {number}     index       - The index of the series in the data array
- * @param {string[]}   themeColors - Array of theme colors
+ * @param {string[]}   themeColors - The resolved series palette
  * @return {string} The stroke color for the series
  */
 export function getSeriesStroke(

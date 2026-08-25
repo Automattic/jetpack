@@ -20,16 +20,19 @@ const normalize = ( value: string ): string => value.replace( /\s+/g, ' ' ).trim
 /**
  * Unwraps the theme layer a `theme`-prop-overridable role carries, so the tables in `TOKENS.md` keep documenting what a role ultimately resolves to — its `--wpds-*` token and spec fallback — rather than restating the override plumbing in every row. Which roles carry the layer is pinned separately below.
  *
+ * A role with no catalog default reads its layer with no fallback at all — the empty series-palette slots — and unwraps to nothing, which is what it resolves to until a consumer sets it.
+ *
  * @param name  - The declared property name.
  * @param value - Its normalized value.
- * @return The value with a leading `var(<name>-theme, … )` wrapper removed.
+ * @return The value with a leading `var(<name>-theme, … )` wrapper removed, or the empty string where that wrapper carried no fallback.
  */
 function stripThemeLayer( name: string, value: string ): string {
-	const layered = new RegExp( `^var\\(\\s*${ themeLayerVar( name ) }\\s*,\\s*(.*)\\)$`, 's' ).exec(
-		value
-	);
+	const layered = new RegExp(
+		`^var\\(\\s*${ themeLayerVar( name ) }\\s*(?:,\\s*(.*))?\\)$`,
+		's'
+	).exec( value );
 
-	return layered ? layered[ 1 ].trim() : value;
+	return layered ? ( layered[ 1 ] ?? '' ).trim() : value;
 }
 
 /**
@@ -55,6 +58,13 @@ function parseStylesheet(): Map< string, Entry > {
 
 		const name = declaration.slice( 0, separator ).trim();
 		const value = stripThemeLayer( name, normalize( declaration.slice( separator + 1 ) ) );
+
+		// A role that unwrapped to nothing maps to nothing and falls back to nothing.
+		if ( value === '' ) {
+			entries.set( name, { reads: null, fallback: null } );
+			continue;
+		}
+
 		const wrapped = /^var\(\s*(.*)\)$/s.exec( value );
 
 		if ( ! wrapped ) {
@@ -140,13 +150,13 @@ describe( 'chart scope catalog', () => {
 	// The layer is what keeps a `theme` prop override from being able to take its role down with it: an override that is invalid at computed-value time only invalidates `<role>-theme`, and the role's own fallback still resolves the mapped token. Drop the layer from a role and that role's overrides go back to blanking every read site.
 	it.each( THEME_LAYERED_ROLES )( 'declares %s reading its theme layer first', role => {
 		expect( stylesheet ).toMatch(
-			new RegExp( `${ role }:\\s*var\\(\\s*${ themeLayerVar( role ) }\\s*,` )
+			new RegExp( `${ role }:\\s*var\\(\\s*${ themeLayerVar( role ) }\\s*[,)]` )
 		);
 	} );
 
 	it( 'gives a theme layer to the overridable roles and to nothing else', () => {
 		const layered = [ ...declared.keys() ].filter( role =>
-			new RegExp( `${ role }:\\s*var\\(\\s*${ themeLayerVar( role ) }\\s*,` ).test( stylesheet )
+			new RegExp( `${ role }:\\s*var\\(\\s*${ themeLayerVar( role ) }\\s*[,)]` ).test( stylesheet )
 		);
 
 		expect( layered.sort() ).toEqual( [ ...THEME_LAYERED_ROLES ].sort() );
