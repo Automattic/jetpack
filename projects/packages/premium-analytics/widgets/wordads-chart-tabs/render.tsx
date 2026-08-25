@@ -49,6 +49,9 @@ const WORDADS_PERIODS = [
  */
 function WordAdsChartTabsInner() {
 	const { reportParams } = useWidgetRootContext();
+	// Unlike `WidgetRoot`'s `useSearch( { strict: false } )`, `useReportDateFilters`
+	// requires a real matched route and throws without one. Hardcoding '/' is
+	// safe because this widget only ever mounts on the `/` dashboard route.
 	const dateFilters = useReportDateFilters( '/' );
 	const period: WordAdsPeriod = defaultPeriodForInterval( reportParams.interval, WORDADS_PERIODS );
 

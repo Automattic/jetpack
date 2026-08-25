@@ -119,7 +119,10 @@ export const Empty: Story = {
  * sees it, and the picker's `useSearch`/`useNavigate` throw with no active
  * match. Routing the real matched route through `renderComponent` itself —
  * nested inside `StoryRouterProvider`, closest to the widget — sidesteps that
- * without touching the shared dashboard harness.
+ * without touching the shared dashboard harness. This wrapper becomes
+ * unnecessary if `widget-dashboard-with-widget.tsx` is ever changed to provide
+ * a real matched route itself — the next widget that needs one here should
+ * fix that shared harness rather than copy this local workaround.
  */
 function WordAdsChartTabsWithOwnRoute( props: WidgetRenderProps< unknown > ) {
 	return (

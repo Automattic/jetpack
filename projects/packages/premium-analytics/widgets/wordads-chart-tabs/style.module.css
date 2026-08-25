@@ -9,5 +9,5 @@
 .controls {
 	display: flex;
 	justify-content: flex-end;
-	margin-block-end: var(--wp-admin-theme-spacing, 12px);
+	margin-block-end: var(--wpds-dimension-gap-md);
 }

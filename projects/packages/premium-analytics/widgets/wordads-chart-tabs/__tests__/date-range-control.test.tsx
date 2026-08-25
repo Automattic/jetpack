@@ -47,7 +47,12 @@ describe( 'WordAds chart date range control', () => {
 			</RouteHarness>
 		);
 
-		await waitFor( () => expect( wordAdsRequestPaths().length ).toBeGreaterThan( 0 ) );
+		// `last-7-days` resolves to a 7-bucket window; asserting the bucket count
+		// (not just that some request happened) is what ties this to the URL's
+		// preset rather than to whatever default the hook might fall back to.
+		await waitFor( () =>
+			expect( wordAdsRequestPaths().at( -1 ) ).toEqual( expect.stringContaining( 'quantity=7' ) )
+		);
 	} );
 
 	it( 'refetches with a different window when the picker commits a new range', async () => {
@@ -59,8 +64,9 @@ describe( 'WordAds chart date range control', () => {
 			</RouteHarness>
 		);
 
-		await waitFor( () => expect( wordAdsRequestPaths().length ).toBeGreaterThan( 0 ) );
-		const before = wordAdsRequestPaths().at( -1 );
+		await waitFor( () =>
+			expect( wordAdsRequestPaths().at( -1 ) ).toEqual( expect.stringContaining( 'quantity=7' ) )
+		);
 
 		// Drive the real control, not the URL: this is what proves the picker and
 		// the chart read one source. The quick-preset pills sit directly in the
@@ -70,6 +76,11 @@ describe( 'WordAds chart date range control', () => {
 		// which drive the same pills by their accessible names ('7 days', '30 days').
 		await user.click( await screen.findByRole( 'button', { name: '30 days' } ) );
 
-		await waitFor( () => expect( wordAdsRequestPaths().at( -1 ) ).not.toBe( before ) );
+		// Not just "changed": the click was "30 days", so the refetched window
+		// must carry that bucket count — a regression that changed to any other
+		// window (e.g. a stale 7 or a wrong 90) would fail this.
+		await waitFor( () =>
+			expect( wordAdsRequestPaths().at( -1 ) ).toEqual( expect.stringContaining( 'quantity=30' ) )
+		);
 	} );
 } );

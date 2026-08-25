@@ -57,12 +57,21 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 // a matched route the real hook warns and throws. `useNavigate` is added on
 // top of the shared mock: this widget also hosts its own `DateFiltersPanel`,
 // whose `useReportDateFilters` calls it unconditionally on every render (the
-// tests here never interact with the picker, so a no-op is enough — see
+// tests here never interact with the picker, so a stub is enough — see
 // `__tests__/date-range-control.test.tsx` for the interactive coverage, which
-// needs a real matched route via `RouteHarness` instead of this mock).
+// needs a real matched route via `RouteHarness` instead of this mock). The
+// stub throws if actually invoked, rather than silently no-opping, so a future
+// test in this file that triggers navigation fails loudly instead of passing
+// while nothing happened.
 jest.mock( '@wordpress/route', () => ( {
 	...jest.requireActual( '../../test-utils' ).mockWordPressRoute,
-	useNavigate: () => jest.fn(),
+	useNavigate:
+		() =>
+		( ...args: unknown[] ) => {
+			throw new Error(
+				`navigate is not available under the route mock (called with ${ JSON.stringify( args ) })`
+			);
+		},
 } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
