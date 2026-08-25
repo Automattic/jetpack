@@ -393,19 +393,20 @@ class Access_Control {
 		$guids = array();
 
 		foreach ( $blocks as $block ) {
-			$block_name = $block['blockName'] ?? null;
+			$block_name  = $block['blockName'] ?? null;
+			$attrs       = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : array();
+			$attr_guid   = $attrs['guid'] ?? null;
+			$attr_videos = $attrs['videos'] ?? null;
+			$attr_ref    = $attrs['ref'] ?? null;
 
 			// A VideoPress video block with a GUID.
-			if (
-				'videopress/video' === $block_name
-				&& isset( $block['attrs']['guid'] ) && is_string( $block['attrs']['guid'] )
-			) {
-				$guids[] = $block['attrs']['guid'];
+			if ( 'videopress/video' === $block_name && is_string( $attr_guid ) ) {
+				$guids[] = $attr_guid;
 			}
 
 			// A VideoPress playlist block: each entry carries its own GUID.
-			if ( 'videopress/playlist' === $block_name && ! empty( $block['attrs']['videos'] ) && is_array( $block['attrs']['videos'] ) ) {
-				foreach ( $block['attrs']['videos'] as $entry ) {
+			if ( 'videopress/playlist' === $block_name && is_array( $attr_videos ) ) {
+				foreach ( $attr_videos as $entry ) {
 					if ( is_array( $entry ) && isset( $entry['guid'] ) && is_string( $entry['guid'] ) ) {
 						$guids[] = $entry['guid'];
 					}
@@ -413,8 +414,8 @@ class Access_Control {
 			}
 
 			// A synced pattern: resolve the wp_block ref, which parse_blocks() leaves unexpanded.
-			if ( 'core/block' === $block_name && ! empty( $block['attrs']['ref'] ) ) {
-				$ref = absint( $block['attrs']['ref'] );
+			if ( 'core/block' === $block_name && ! empty( $attr_ref ) ) {
+				$ref = absint( $attr_ref );
 				if ( $ref && ! isset( $visited_refs[ $ref ] ) && count( $visited_refs ) < self::MAX_PATTERN_REFS ) {
 					$visited_refs[ $ref ] = true;
 

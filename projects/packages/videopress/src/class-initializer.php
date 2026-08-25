@@ -481,7 +481,7 @@ class Initializer {
 		$premium_block_plan_id    = isset( $block->context['premium-content/planId'] ) ? intval( $block->context['premium-content/planId'] ) : 0;
 		$is_premium_content_child = isset( $block->context['isPremiumContentChild'] ) ? (bool) $block->context['isPremiumContentChild'] : false;
 		$maybe_premium_script     = '';
-		if ( $is_premium_content_child ) {
+		if ( $is_premium_content_child && is_string( $guid ) ) {
 			Access_Control::instance()->set_guid_subscription( $guid, $premium_block_plan_id );
 			$escaped_guid         = wp_json_encode( $guid, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 			$script_content       = "if ( ! window.__guidsToPlanIds ) { window.__guidsToPlanIds = {}; }; window.__guidsToPlanIds[$escaped_guid] = $premium_block_plan_id;";
@@ -765,7 +765,7 @@ class Initializer {
 		// Record the rendered GUIDs in the post's cached GUID list so private playlist
 		// entries pass the playback authorization check, including when the playlist
 		// sits inside a synced pattern, template, or template part.
-		$post_id = isset( $block->context['postId'] ) ? $block->context['postId'] : get_the_ID();
+		$post_id = $block->context['postId'] ?? get_the_ID();
 		if ( ! empty( $post_id ) ) {
 			Access_Control::ensure_post_guids_cached( absint( $post_id ), array_column( $entries, 'guid' ) );
 		}
