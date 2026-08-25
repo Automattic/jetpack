@@ -2,7 +2,6 @@
  * External dependencies
  */
 import {
-	sliceWordAdsStatsReport,
 	useStatsWordAdsStats,
 	type ReportParams,
 	type StatsPeriod,
@@ -17,9 +16,8 @@ import { WORDADS_CHART_METRICS } from './metrics';
 import { buildMetricTab, type MetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
- * Granularity the chart can be grouped by. Layered onto the dashboard range as
- * its `period` (mapped to the WordAds endpoint's `unit`); the range and
- * comparison stay dashboard-driven.
+ * Granularity the chart can be grouped by. Layered onto the widget's own date
+ * range as its `period` (mapped to the WordAds endpoint's `unit`).
  */
 export type WordAdsPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' | 'year' >;
 
@@ -31,7 +29,7 @@ export interface WordAdsChartState {
 	metrics: MetricTab[];
 	/** True on the first load, while there is no data to show yet. */
 	isLoading: boolean;
-	/** True while the request is fetching, including comparison refetches. */
+	/** True while the request is fetching. */
 	isFetching: boolean;
 	/** True only when the request failed with no rows left to show. */
 	isError: boolean;
@@ -63,38 +61,23 @@ export default function useWordAdsChart(
 	// Memoize the request params so the query key is stable across renders.
 	const params = useMemo( () => toWordAdsParams( reportParams, period ), [ reportParams, period ] );
 
-	const { primary, comparison, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsWordAdsStats( params );
+	const { primary, isLoading, isFetching, isError, refetch } = useStatsWordAdsStats( params );
 
 	const primaryData = primary.data as StatsWordAdsResponse | undefined;
-	const rawComparisonData = comparison.data as StatsWordAdsResponse | undefined;
-
-	// A range ending today clamps the primary window to end yesterday (WordAds is
-	// computed nightly), dropping its trailing bucket, while the past comparison
-	// window keeps all of its — so it comes back one bucket longer. Trim it back
-	// to the primary's bucket count so the delta compares equal-length windows and
-	// the overlay aligns to the primary point-for-point.
-	const comparisonData = useMemo(
-		() =>
-			primaryData && rawComparisonData
-				? sliceWordAdsStatsReport( rawComparisonData, primaryData.data.length )
-				: rawComparisonData,
-		[ primaryData, rawComparisonData ]
-	);
 
 	const metrics = useMemo(
 		() =>
 			WORDADS_CHART_METRICS.map( metric =>
 				buildMetricTab( {
 					primary: primaryData,
-					comparison: comparisonData,
-					hasComparison,
+					comparison: undefined,
+					hasComparison: false,
 					field: metric.id,
 					label: metric.label,
 					dataFormat: metric.dataFormat,
 				} )
 			),
-		[ primaryData, comparisonData, hasComparison ]
+		[ primaryData ]
 	);
 
 	return {

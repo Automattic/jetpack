@@ -83,4 +83,20 @@ describe( 'WordAds chart date range control', () => {
 			expect( wordAdsRequestPaths().at( -1 ) ).toEqual( expect.stringContaining( 'quantity=30' ) )
 		);
 	} );
+
+	it( 'issues one WordAds request, with no comparison request behind it', async () => {
+		render(
+			<RouteHarness search={ { preset: 'last-7-days', interval: 'day' } }>
+				<WordAdsChartTabsWidget attributes={ {} } />
+			</RouteHarness>
+		);
+
+		await waitFor( () => expect( wordAdsRequestPaths().length ).toBeGreaterThan( 0 ) );
+
+		// `RouteHarness` declares `offersComparison={ false }`, the same thing a
+		// `none` section declares, so `WidgetRoot` strips the comparison params.
+		// Stripped params must mean no second request — not merely a request with
+		// the comparison dates removed.
+		await waitFor( () => expect( wordAdsRequestPaths() ).toHaveLength( 1 ) );
+	} );
 } );
