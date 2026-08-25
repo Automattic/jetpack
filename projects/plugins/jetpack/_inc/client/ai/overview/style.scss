@@ -68,6 +68,12 @@
 		max-inline-size: 118px;
 	}
 
+	// The frame breaks this line after the label, never inside the date
+	// (AI-Settings node 6021-3997), so the date is a single unbreakable run.
+	&__renewal-date {
+		white-space: nowrap;
+	}
+
 	// The frame gives the requests number a taller line box than the plan name,
 	// which one shared heading-xl variant cannot express. Two classes, because the
 	// variant's runtime-injected line-height rule outranks a lone class in order.

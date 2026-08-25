@@ -24,6 +24,11 @@ const PROPS = {
 // region, so a bare text query matches twice. Ignore that region.
 const IGNORE_A11Y = { ignore: 'script, style, .a11y-speak-region' };
 
+// The renewal line renders the date in its own nowrap span (the frame breaks
+// after the label, never inside the date), so its text spans two nodes.
+const renewalLine = expected => ( _, el ) =>
+	el?.classList?.contains( 'jetpack-ai-overview__renewal' ) && el.textContent === expected;
+
 describe( 'AiOverview', () => {
 	test( 'free tier: renders remaining requests against the free limit per the i4 card', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
@@ -125,7 +130,7 @@ describe( 'AiOverview', () => {
 		);
 
 		await expect(
-			screen.findByText( 'Expires on: December 23, 2026' )
+			screen.findByText( renewalLine( 'Expires on: December 23, 2026' ) )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /Renews on/ ) ).not.toBeInTheDocument();
 	} );
@@ -140,7 +145,7 @@ describe( 'AiOverview', () => {
 		);
 
 		await expect(
-			screen.findByText( 'Renews on: December 23, 2026' )
+			screen.findByText( renewalLine( 'Renews on: December 23, 2026' ) )
 		).resolves.toBeInTheDocument();
 	} );
 
@@ -160,7 +165,7 @@ describe( 'AiOverview', () => {
 				<AiOverview { ...PROPS } planName="Business" planRenewsOn="2026-12-23T00:00:00+00:00" />
 			);
 			await expect(
-				screen.findByText( 'Renews on: December 23, 2026' )
+				screen.findByText( renewalLine( 'Renews on: December 23, 2026' ) )
 			).resolves.toBeInTheDocument();
 		} finally {
 			setDateSettings( saved );

@@ -7,6 +7,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink, ProgressBar, Spinner, VisuallyHidden } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
+import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
 import { Card, Link, LinkButton, Notice, Stack, Text } from '@wordpress/ui';
@@ -222,17 +223,20 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 										variant="body-sm"
 										className="jetpack-ai-overview__muted jetpack-ai-overview__renewal"
 									>
-										{ planAutoRenew !== false
-											? sprintf(
-													/* translators: %s: localized date the plan renews on. */
-													__( 'Renews on: %s', 'jetpack' ),
-													renewsOnDisplay
-											  )
-											: sprintf(
-													/* translators: %s: localized date the plan expires on. */
-													__( 'Expires on: %s', 'jetpack' ),
-													renewsOnDisplay
-											  ) }
+										{ createInterpolateElement(
+											planAutoRenew !== false
+												? sprintf(
+														/* translators: %s: localized date the plan renews on. */
+														__( 'Renews on: <date>%s</date>', 'jetpack' ),
+														renewsOnDisplay
+												  )
+												: sprintf(
+														/* translators: %s: localized date the plan expires on. */
+														__( 'Expires on: <date>%s</date>', 'jetpack' ),
+														renewsOnDisplay
+												  ),
+											{ date: <span className="jetpack-ai-overview__renewal-date" /> }
+										) }
 									</Text>
 								) }
 							</Stack>
