@@ -45,6 +45,8 @@ class Jetpack_AI_Master_Optout_Migration_Test extends \WP_UnitTestCase {
 	private function set_up_auto_activated_off_simple() {
 		Constants::set_constant( 'IS_WPCOM', false );
 		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		// On a prerelease the upgrade also records what it activated; the reconciler reads that.
+		update_option( Jetpack::PRERELEASE_ACTIVATED_MODULES_OPTION, array( 'ai' ), false );
 		$this->assertTrue( ( new Modules() )->is_active( 'ai' ), 'Precondition: the module is auto-activated.' );
 	}
 
@@ -76,8 +78,9 @@ class Jetpack_AI_Master_Optout_Migration_Test extends \WP_UnitTestCase {
 		Constants::set_constant( 'IS_WPCOM', false );
 		update_option( 'jetpack_ai_enabled', 0 );
 
-		// Auto-activation, the way the upgrade routine really does it.
+		// Auto-activation, the way the upgrade routine really does it: the module hook, then the record.
 		( new Modules() )->update_active( array( 'ai' ) );
+		update_option( Jetpack::PRERELEASE_ACTIVATED_MODULES_OPTION, array( 'ai' ), false );
 
 		Jetpack::reconcile_ai_master_optout();
 
@@ -244,6 +247,41 @@ class Jetpack_AI_Master_Optout_Migration_Test extends \WP_UnitTestCase {
 			$activate_priority,
 			$reconcile_priority,
 			'reconcile_ai_master_optout must run at a later init priority than activate_new_modules.'
+		);
+	}
+
+	/**
+	 * The stopgap's `ai` reaches the raw option as soon as any module is activated, because the
+	 * activation paths seed from the filtered list and write it back. That must not spend the
+	 * one-shot either.
+	 */
+	public function test_migration_flag_is_not_consumed_by_a_written_back_filter_module() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array() );
+		update_option( 'jetpack_ai_enabled', 0 );
+		// A synthetic module file, so activating it has no side effects.
+		$path = function () {
+			return __DIR__ . '/fixtures/prerelease-test-module.php';
+		};
+		add_filter( 'jetpack_get_module_path', $path );
+
+		$stopgap = function ( $modules ) {
+			$modules[] = 'ai';
+			return array_unique( $modules );
+		};
+		add_filter( 'jetpack_active_modules', $stopgap );
+		// An empty version window plus one explicit module: the same write-back a user's toggle does.
+		Jetpack::activate_default_modules( '99.0', '99.1', array( 'written-back-probe' ), false, false );
+		remove_filter( 'jetpack_active_modules', $stopgap );
+		$this->assertContains( 'ai', (array) \Jetpack_Options::get_option( 'active_modules' ), 'Precondition: the write-back happened.' );
+
+		Jetpack::reconcile_ai_master_optout();
+
+		remove_filter( 'jetpack_get_module_path', $path );
+
+		$this->assertFalse(
+			get_option( Jetpack::AI_MASTER_OPTOUT_MIGRATED_OPTION, false ),
+			'A module the stopgap wrote back into the raw option must not spend the migration.'
 		);
 	}
 }

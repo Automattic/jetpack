@@ -3355,14 +3355,15 @@ p {
 			return;
 		}
 
-		// Nothing to reconcile until the module is genuinely active. Burning the one-shot before
-		// then consumes the migration: on a prerelease the module could not auto-activate at all
-		// (its `First Introduced` sorted above the running version), so this ran, found nothing,
-		// and marked the migration done — after which an opt-out would never be honored. Read the
-		// raw option rather than get_active_modules(), which `jetpack_active_modules` can report
-		// active for a module that was never really turned on.
-		$raw = Jetpack_Options::get_option( 'active_modules' );
-		if ( ! is_array( $raw ) || ! in_array( 'ai', $raw, true ) ) {
+		// Nothing to reconcile until the upgrade has really handled the module; spending the one-shot
+		// before then silently drops the opt-out. On a prerelease that is the activation record, which
+		// only the upgrade path writes. The raw option is not proof: any module toggle writes the
+		// filtered list back into it, and on Atomic the stopgap puts `ai` in that list.
+		$version = self::current_version();
+		$handled = self::release_version( $version ) !== $version
+			? self::get_prerelease_activated_modules()
+			: (array) Jetpack_Options::get_option( 'active_modules' );
+		if ( ! in_array( 'ai', $handled, true ) ) {
 			return;
 		}
 
