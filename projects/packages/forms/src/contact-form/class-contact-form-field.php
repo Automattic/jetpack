@@ -2391,9 +2391,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 * Deliberately not bounded by the site's own PHP upload limits. The browser sends each file
 		 * straight to the upload endpoint, so `upload_max_filesize` and `post_max_size` have nothing
 		 * to do with this transfer — clamping to them would cap the field at whatever a cheap host
-		 * allows for files that host never receives. The bound that does matter is whatever the
-		 * endpoint itself accepts, and a value above that produces a failed upload rather than a
-		 * rejection the visitor can act on before choosing the file.
+		 * allows for files that host never receives.
+		 *
+		 * The bound that does matter is the endpoint's own, which rejects anything over 20MB — the
+		 * same figure FILE_FIELD_MAX_UPLOAD_SIZE carries, so that by default a file too large to be
+		 * stored is refused here, before the visitor waits through an upload that cannot succeed.
+		 * Lowering this is therefore always safe; raising it past 20MB needs the endpoint raised to
+		 * match, or the visitor is told the file is fine and then shown an upload failure.
 		 *
 		 * The result reaches the browser as the `maxUploadSize` config value, and the "file is too
 		 * large" message is built from the same number, so the two cannot disagree.
