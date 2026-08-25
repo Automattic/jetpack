@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useContext, useMemo, type FC } from 'react';
+import { useContext, useMemo, type CSSProperties, type FC } from 'react';
 import { Legend } from '../../components/legend';
 import { usePrefersReducedMotion } from '../../hooks';
 import {
@@ -15,7 +15,7 @@ import {
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers';
-import { formatMetricValue, attachSubComponents, resolveGapSize } from '../../utils';
+import { formatMetricValue, attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
@@ -25,6 +25,17 @@ import { useFittedRowCount, useLeaderboardLegendItems } from './hooks';
 import styles from './leaderboard-chart.module.scss';
 import type { LeaderboardChartProps } from './types';
 import type { LeaderboardEntry } from '../../types';
+
+/**
+ * The row and column gaps, read from component-emitted custom properties so a
+ * consumer can retune them in CSS. The theme's `rowGap` / `columnGap` publish
+ * into these below; with neither set, the design system's gap ramp is the
+ * default.
+ */
+const ROW_GAP =
+	'var(--a8c-charts-dimension-leaderboard-row-gap, var(--wpds-dimension-gap-md, 12px))';
+const COLUMN_GAP =
+	'var(--a8c-charts-dimension-leaderboard-column-gap, var(--wpds-dimension-gap-xs, 4px))';
 
 /**
  * Default value formatter using formatMetricValue
@@ -206,6 +217,21 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		secondaryColor: settingsSecondaryColor,
 		deltaColors,
 	} = leaderboardChartSettings;
+	// A theme that sets a gap publishes it here; left unset, ROW_GAP and
+	// COLUMN_GAP fall through to the design system's ramp.
+	const gridStyle = useMemo( () => {
+		const vars: Record< string, string > = {};
+
+		if ( rowGap !== undefined ) {
+			vars[ '--a8c-charts-dimension-leaderboard-row-gap' ] = `${ rowGap }px`;
+		}
+
+		if ( columnGap !== undefined ) {
+			vars[ '--a8c-charts-dimension-leaderboard-column-gap' ] = `${ columnGap }px`;
+		}
+
+		return vars;
+	}, [ rowGap, columnGap ] );
 	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
 	const { color: resolvedPrimaryColor } = getElementStyles( {
 		index: 0,
@@ -372,8 +398,9 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					) : (
 						<Grid
 							templateColumns="minmax(0, 1fr) auto"
-							rowGap={ resolveGapSize( rowGap ) }
-							columnGap={ resolveGapSize( columnGap ) }
+							rowGap={ ROW_GAP }
+							columnGap={ COLUMN_GAP }
+							style={ gridStyle as CSSProperties }
 							data-leaderboard-grid
 						>
 							{ data.map( ( entry, rowIndex ) => {

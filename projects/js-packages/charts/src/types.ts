@@ -374,10 +374,10 @@ export type ChartTheme = {
 	};
 	/** LeaderboardChart specific settings */
 	leaderboardChart?: {
-		/** Gap between rows in the leaderboard grid, on the WPDS gap scale or in pixels */
-		rowGap?: number | GapSize;
-		/** Gap between columns in the leaderboard grid, on the WPDS gap scale or in pixels */
-		columnGap?: number | GapSize;
+		/** Gap between rows in the leaderboard grid */
+		rowGap?: number;
+		/** Gap between columns in the leaderboard grid */
+		columnGap?: number;
 		/** Spacing between label and progress bars */
 		labelSpacing?: GapSize;
 		/** Primary color for current period bars */
@@ -440,9 +440,12 @@ export type ChartTheme = {
 export type CompleteChartTheme = Required< ChartTheme > & {
 	leaderboardChart: Omit<
 		Required< NonNullable< ChartTheme[ 'leaderboardChart' ] > >,
-		'primaryColor' | 'secondaryColor'
+		'primaryColor' | 'secondaryColor' | 'rowGap' | 'columnGap'
 	> &
-		Pick< NonNullable< ChartTheme[ 'leaderboardChart' ] >, 'primaryColor' | 'secondaryColor' >;
+		Pick<
+			NonNullable< ChartTheme[ 'leaderboardChart' ] >,
+			'primaryColor' | 'secondaryColor' | 'rowGap' | 'columnGap'
+		>;
 	conversionFunnelChart: Omit<
 		Required< NonNullable< ChartTheme[ 'conversionFunnelChart' ] > >,
 		'primaryColor'

@@ -34,6 +34,3 @@ export { resolveCssVariable, createCssVariableResolver } from './resolve-css-var
 
 // Font sizing utilities
 export { resolveFontSize } from './resolve-font-size';
-
-// Gap scale utilities
-export { resolveGapSize } from './resolve-gap-size';

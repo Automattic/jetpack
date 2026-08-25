@@ -3,6 +3,10 @@
 }
 
 .chart {
+	// Tighter than the charts default, to match the design reference. The row's
+	// focus-ring padding sits on top of this.
+	--a8c-charts-dimension-leaderboard-row-gap: var(--wpds-dimension-gap-xs);
+
 	height: 100%;
 	justify-content: space-between;
 
