@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "075cc190ab1d496a7b35b8d3e5b53ade",
+    "content-hash": "76d3a0f2d3e3a899ef5a7c983e37bb56",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -4377,7 +4377,7 @@
         },
         {
             "name": "wp-php-toolkit/reprint-server",
-            "version": "v0.10.3",
+            "version": "v0.10.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wp-php-toolkit/reprint-server",
