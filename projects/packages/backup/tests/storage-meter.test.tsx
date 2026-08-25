@@ -181,6 +181,71 @@ describe( 'the section heading', () => {
 	} );
 } );
 
+describe( 'colour and geometry', () => {
+	/**
+	 * The modifier classes on the bar, which are the contract between
+	 * `meter.tsx` and `style.scss`.
+	 *
+	 * @return The class list, or null when no bar rendered.
+	 */
+	function barModifiers(): string[] | null {
+		// eslint-disable-next-line testing-library/no-node-access -- The class list is the thing under test; no role or label exposes it.
+		const bar = document.querySelector( '.jpb-storage-meter__bar' );
+		return bar ? Array.from( bar.classList ) : null;
+	}
+
+	it( 'takes the full-width geometry only when the bar actually reaches the end', async () => {
+		mockEndpoints( { size: { size: 100 * GB } } );
+		renderWithClient( <StorageSpace /> );
+		await expect( screen.findByText( 'Cloud storage full' ) ).resolves.toBeInTheDocument();
+		expect( barModifiers() ).toContain( 'jpb-storage-meter__bar--complete' );
+	} );
+
+	it( 'keeps the flat trailing edge at BackupsDiscarded, which fires at any fill level', async () => {
+		// The regression this guards: geometry used to be keyed off the
+		// level name, and `BackupsDiscarded` shares `Full`'s alarm colour.
+		// A half-full bar was therefore drawn as a fully-rounded pill
+		// floating in the track — the exact shape the partly-filled
+		// treatment exists to avoid. Colour is shared; geometry is not.
+		mockEndpoints( {
+			size: {
+				size: 50 * GB,
+				min_days_of_backups_allowed: 7,
+				days_of_backups_allowed: 7,
+				days_of_backups_saved: 7,
+				retention_days: 30,
+			},
+		} );
+		renderWithClient( <StorageSpace /> );
+		await expect( screen.findByText( 'Cloud storage space' ) ).resolves.toBeInTheDocument();
+		expect( barModifiers() ).toContain( 'jpb-storage-meter__bar--error' );
+		expect( barModifiers() ).not.toContain( 'jpb-storage-meter__bar--complete' );
+	} );
+
+	it.each( [
+		[ 10, 'jpb-storage-meter__bar--neutral' ],
+		[ 70, 'jpb-storage-meter__bar--caution' ],
+		[ 85, 'jpb-storage-meter__bar--error' ],
+	] )( 'fills %i%% with %s', async ( percent, expected ) => {
+		mockEndpoints( { size: { size: percent * GB } } );
+		renderWithClient( <StorageSpace /> );
+		await waitFor( () => expect( barModifiers() ).not.toBeNull() );
+		expect( barModifiers() ).toContain( expected );
+	} );
+} );
+
+describe( 'landmarks', () => {
+	it( 'exposes the section as a named region, not a bare container', async () => {
+		// `<section>` maps to `region` only when it has an accessible name.
+		// Without one a screen reader cannot jump to the answer to "why did
+		// my backups stop".
+		renderWithClient( <StorageSpace /> );
+		await expect(
+			screen.findByRole( 'region', { name: 'Cloud storage space' } )
+		).resolves.toBeInTheDocument();
+	} );
+} );
+
 describe( 'the meter itself', () => {
 	it( 'clamps a site holding more than its limit to a full bar', async () => {
 		mockEndpoints( { size: { size: 150 * GB } } );
@@ -189,6 +254,15 @@ describe( 'the meter itself', () => {
 		expect( meterValue() ).toBe( 100 );
 	} );
 
+	// Caveat worth knowing: the dashboard route externalizes
+	// `@wordpress/components` to the `wp-components` handle, so the
+	// `<ProgressBar>` that runs in wp-admin is WordPress core's, not the
+	// version pinned here and resolved by jest. This asserts the override
+	// against the pinned copy. It holds because the implementation spreads
+	// caller props *after* its own hardcoded `aria-label="Loading …"` —
+	// prop-spread ordering, which is not a documented contract. If core
+	// ever reverses it the meter silently goes back to announcing itself as
+	// a loading indicator and this test will not notice.
 	it( 'labels itself as storage rather than inheriting ProgressBar’s "Loading" label', async () => {
 		mockEndpoints( { size: { size: 42 * GB } } );
 		renderWithClient( <StorageSpace /> );

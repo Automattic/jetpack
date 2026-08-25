@@ -58,23 +58,26 @@
 	// declared on a modernized page; these are the design-system
 	// equivalents this dashboard already uses elsewhere. No fallbacks:
 	// the design-system build injects those, and hand-written ones go
-	// stale.
-	& &__bar--normal > div {
+	// stale. Colour only — nothing here touches geometry, see `--complete`.
+	& &__bar--neutral > div {
 		background-color: var(--wpds-color-background-interactive-neutral-strong);
 	}
 
-	& &__bar--warning > div {
+	& &__bar--caution > div {
 		background-color: var(--wpds-color-foreground-content-caution-weak);
 	}
 
-	& &__bar--critical > div {
+	& &__bar--error > div {
 		background-color: var(--wpds-color-background-interactive-error-strong);
 	}
 
-	// At full, the fill spans the whole track, so it can take the track's
-	// own rounding on both ends.
-	& &__bar--full > div {
-		background-color: var(--wpds-color-background-interactive-error-strong);
+	// Geometry only, and applied on the measurement rather than the level.
+	// A bar that reaches the end can take the track's own rounding on both
+	// ends and give up the trailing-edge buffer; a bar that does not must
+	// keep the flat trailing edge, whatever colour it is carrying.
+	// `BackupsDiscarded` is why this is separate: it wears the error fill
+	// at any percentage.
+	& &__bar--complete > div {
 		border-radius: 12px;
 		max-inline-size: none;
 	}

@@ -1,3 +1,4 @@
+import { useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Text } from '@wordpress/ui';
 import { StorageUsageLevels } from '../../data/storage-usage-levels';
@@ -44,14 +45,20 @@ function sectionHeading( usageLevel: StorageUsageLevelName | null ): string {
  */
 export default function StorageSpace() {
 	const usage = useStorageUsage();
+	// `<section>` is only a `region` landmark when it has an accessible
+	// name; unnamed it is a generic container and buys nothing a `<div>`
+	// would not. Pointing at the heading makes it a landmark a screen
+	// reader can jump to, which is the point of a section that answers
+	// "why did my backups stop".
+	const headingId = useId();
 
 	if ( ! usage.hasUsableFigures ) {
 		return null;
 	}
 
 	return (
-		<section className="jpb-storage-space">
-			<Text variant="heading-md" render={ <h2 /> }>
+		<section className="jpb-storage-space" aria-labelledby={ headingId }>
+			<Text variant="heading-md" render={ <h2 id={ headingId } /> }>
 				{ sectionHeading( usage.usageLevel ) }
 			</Text>
 			<StorageMeter

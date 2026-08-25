@@ -4,20 +4,29 @@ import { StorageUsageLevels } from '../../data/storage-usage-levels';
 import type { StorageUsageLevelName } from '../../data/storage-usage-levels';
 
 /**
- * Level → BEM modifier. `BackupsDiscarded` deliberately shares `full`:
- * both mean storage has already cost the site backups, and the reader
- * needs one alarm, not two shades of one.
+ * Level → fill colour.
+ *
+ * Colour only. Geometry is a separate modifier keyed off how full the bar
+ * actually is, because the two do not travel together: `BackupsDiscarded`
+ * is the one level derived from the retention day-counts rather than the
+ * percentage, so it fires at any fill level while carrying the same alarm
+ * colour as `Full`. Folding the two into one modifier drew it as a
+ * fully-rounded pill floating in the track at 50% — the exact shape the
+ * partly-filled treatment exists to avoid.
+ *
+ * `Critical`, `Full` and `BackupsDiscarded` share the error fill
+ * deliberately: the reader needs one alarm, not three shades of one.
  */
 // Spelled as literal keys rather than `[ StorageUsageLevels.Normal ]`:
 // the members of that object are typed as the whole union, so a computed
 // key from it widens and the record stops being exhaustive — which is the
 // one thing this table is for.
-const METER_MODIFIERS: Record< StorageUsageLevelName, string > = {
-	Normal: 'normal',
-	Warning: 'warning',
-	Critical: 'critical',
-	Full: 'full',
-	BackupsDiscarded: 'full',
+const FILL_MODIFIERS: Record< StorageUsageLevelName, string > = {
+	Normal: 'neutral',
+	Warning: 'caution',
+	Critical: 'error',
+	Full: 'error',
+	BackupsDiscarded: 'error',
 };
 
 type Props = {
@@ -45,7 +54,14 @@ export default function StorageMeter( { storageUsed, storageLimit, usageLevel }:
 	// Fall back to the calm styling rather than an unstyled bar when the
 	// level is unknown: the figures are still real, only the judgement
 	// about them is missing.
-	const modifier = METER_MODIFIERS[ usageLevel ?? StorageUsageLevels.Normal ];
+	const fill = FILL_MODIFIERS[ usageLevel ?? StorageUsageLevels.Normal ];
+	// Only a bar that actually reaches the end may take the track's own
+	// rounding on both ends and give up the trailing-edge buffer. Driven
+	// by the measurement, never by the level name.
+	const classNames = [ 'jpb-storage-meter__bar', `jpb-storage-meter__bar--${ fill }` ];
+	if ( percent >= 100 ) {
+		classNames.push( 'jpb-storage-meter__bar--complete' );
+	}
 
 	return (
 		<div className="jpb-storage-meter">
@@ -57,7 +73,7 @@ export default function StorageMeter( { storageUsed, storageLimit, usageLevel }:
 			 * dashboard's bar does today.
 			 */ }
 			<ProgressBar
-				className={ `jpb-storage-meter__bar jpb-storage-meter__bar--${ modifier }` }
+				className={ classNames.join( ' ' ) }
 				value={ percent }
 				aria-label={ sprintf(
 					/* translators: %d: percentage of backup storage used. */
