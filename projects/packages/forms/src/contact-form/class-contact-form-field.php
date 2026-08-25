@@ -1752,7 +1752,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// that use the notch html (`notched-label__leading` has a max-width of `100px` to prevent it from getting too wide).
 			// It prevents large border radius values from disrupting the look and feel of the fields.
 			if ( isset( $style_variation_attributes['border']['radius'] ) ) {
-				$options_styles          = $options_styles ?? '';
+				$options_styles        ??= '';
 				$radius                  = $style_variation_attributes['border']['radius'];
 				$has_split_radius_values = is_array( $radius );
 				$top_left_radius         = $has_split_radius_values ? $radius['topLeft'] : $radius;
@@ -2385,7 +2385,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			 * It prevents large border radius values from disrupting the look and feel of the fields.
 			 */
 			if ( isset( $style_variation_attributes['border']['radius'] ) ) {
-				$options_styles          = $options_styles ?? '';
+				$options_styles        ??= '';
 				$radius                  = $style_variation_attributes['border']['radius'];
 				$has_split_radius_values = is_array( $radius );
 				$top_left_radius         = $has_split_radius_values ? $radius['topLeft'] : $radius;
