@@ -32,7 +32,20 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	const FILE_FIELD_DEFAULT_MAX_FILES = 1;
 
 	/**
-	 * Highest number of files a file upload field will accept, whatever `maxfiles` asks for.
+	 * Highest number of files a filter may raise a field to.
+	 *
+	 * Separate from FILE_FIELD_MAX_FILES_LIMIT, which bounds what an author can choose: a site that
+	 * wants more headroom than the editor offers can filter its way up to here, and no further. The
+	 * endpoint imposes no count limit of its own that refuses anything — its per-site budgets log
+	 * and alert but still store the file — so this is the only thing standing between a filter and
+	 * a single site uploading as much as it likes.
+	 *
+	 * @var int
+	 */
+	const FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT = 25;
+
+	/**
+	 * Highest number of files an author can choose for a field, whatever `maxfiles` asks for.
 	 *
 	 * This bounds how many files can be attached to a response, not how many bytes reach the site.
 	 * Each file is uploaded as soon as the visitor picks it, so by the time anything here runs the
@@ -2360,11 +2373,17 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		/**
 		 * Filters how many files a single file upload field accepts.
 		 *
-		 * Applied after the field's own `maxfiles` attribute has been read and clamped. The clamp
-		 * exists because that attribute is author-supplied content; a filter is site code, so it is
-		 * trusted with values above FILE_FIELD_MAX_FILES_LIMIT. Note that the editor's own control
-		 * still offers 1 to FILE_FIELD_MAX_FILES_LIMIT, so raising the ceiling this way applies to
-		 * every file field on the site rather than being something an author picks per field.
+		 * Applied after the field's own `maxfiles` attribute has been read and clamped, and clamped
+		 * again to FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT afterwards. A filter is site code, so it is
+		 * trusted above what an author may choose — but not without a ceiling, because nothing on the
+		 * receiving end refuses a submission for holding too many files.
+		 *
+		 * The value it receives has already been clamped to FILE_FIELD_MAX_FILES_LIMIT, so a filter
+		 * cannot read an author's out-of-range choice back out of it. Take the raw value from
+		 * `$field->get_attribute( 'maxfiles' )` to honour a per-field number above that.
+		 *
+		 * The editor's control still offers 1 to FILE_FIELD_MAX_FILES_LIMIT and knows nothing about
+		 * this filter, so a site raising the count is choosing it for every file field it has.
 		 *
 		 * The result reaches the browser as `fieldExtra.maxFiles` and is what the submission-time
 		 * count check is measured against, so the two cannot disagree.
@@ -2374,7 +2393,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 * @param int                 $max_files How many files the field accepts.
 		 * @param Contact_Form_Field  $field     The field being rendered.
 		 */
-		return max( 1, (int) apply_filters( 'jetpack_forms_file_field_max_files', $max_files, $this ) );
+		$max_files = (int) apply_filters( 'jetpack_forms_file_field_max_files', $max_files, $this );
+
+		return max( 1, min( $max_files, self::FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT ) );
 	}
 
 	/**
@@ -2393,11 +2414,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 * to do with this transfer — clamping to them would cap the field at whatever a cheap host
 		 * allows for files that host never receives.
 		 *
-		 * The bound that does matter is the endpoint's own, which rejects anything over 20MB — the
-		 * same figure FILE_FIELD_MAX_UPLOAD_SIZE carries, so that by default a file too large to be
-		 * stored is refused here, before the visitor waits through an upload that cannot succeed.
-		 * Lowering this is therefore always safe; raising it past 20MB needs the endpoint raised to
-		 * match, or the visitor is told the file is fine and then shown an upload failure.
+		 * The bound that does matter is the endpoint's own, which rejects anything over
+		 * FILE_FIELD_MAX_UPLOAD_SIZE. So this filter can only lower the limit, never raise it: a
+		 * larger value would have the field accept a file, show the visitor a size allowance in the
+		 * "file is too large" message that nothing can honour, and then fail the upload once they had
+		 * already waited for it. Raising the ceiling means raising it at the endpoint first.
 		 *
 		 * The result reaches the browser as the `maxUploadSize` config value, and the "file is too
 		 * large" message is built from the same number, so the two cannot disagree.
@@ -2411,7 +2432,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			self::FILE_FIELD_MAX_UPLOAD_SIZE
 		);
 
-		return max( 1, $max_upload_size );
+		return max( 1, min( $max_upload_size, self::FILE_FIELD_MAX_UPLOAD_SIZE ) );
 	}
 
 	/**

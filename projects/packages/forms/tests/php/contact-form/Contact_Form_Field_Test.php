@@ -863,7 +863,7 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	 */
 	public function test_file_field_max_upload_size_is_filterable() {
 		$filter = function () {
-			return 50 * 1024 * 1024;
+			return 5 * 1024 * 1024;
 		};
 		add_filter( 'jetpack_forms_file_field_max_upload_size', $filter );
 
@@ -875,7 +875,62 @@ class Contact_Form_Field_Test extends BaseTestCase {
 
 		remove_filter( 'jetpack_forms_file_field_max_upload_size', $filter );
 
-		$this->assertSame( 50 * 1024 * 1024, $filtered );
+		$this->assertSame( 5 * 1024 * 1024, $filtered );
+	}
+
+	/**
+	 * The filter cannot raise the limit past what the endpoint will store. A larger value would
+	 * have the field accept a file, promise that size in the "file is too large" message, and then
+	 * fail the upload after the visitor had already waited for it.
+	 */
+	public function test_file_field_max_upload_size_filter_cannot_exceed_the_endpoint() {
+		$filter = function () {
+			return 2 * 1024 * 1024 * 1024;
+		};
+		add_filter( 'jetpack_forms_file_field_max_upload_size', $filter );
+
+		$method = new \ReflectionMethod( Contact_Form_Field::class, 'get_file_field_max_upload_size' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$filtered = $method->invoke( null );
+
+		remove_filter( 'jetpack_forms_file_field_max_upload_size', $filter );
+
+		$this->assertSame( Contact_Form_Field::FILE_FIELD_MAX_UPLOAD_SIZE, $filtered );
+	}
+
+	/**
+	 * A filter may reach past what an author can choose, but not without a ceiling — nothing on the
+	 * receiving end refuses a submission for holding too many files.
+	 */
+	public function test_file_field_max_files_filter_cannot_exceed_the_absolute_limit() {
+		$filter = function () {
+			return 500;
+		};
+		add_filter( 'jetpack_forms_file_field_max_files', $filter );
+
+		$field  = $this->get_new_field_instance( array( 'type' => 'file' ) );
+		$method = new \ReflectionMethod( $field, 'get_file_field_max_files' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$filtered = $method->invoke( $field );
+
+		remove_filter( 'jetpack_forms_file_field_max_files', $filter );
+
+		$this->assertSame( Contact_Form_Field::FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT, $filtered );
+	}
+
+	/**
+	 * The ceiling a filter may reach has to sit above the one an author may choose, or the filter
+	 * could only ever lower the limit and the two constants would be describing the same thing.
+	 */
+	public function test_the_filter_ceiling_is_above_the_author_ceiling() {
+		$this->assertGreaterThan(
+			Contact_Form_Field::FILE_FIELD_MAX_FILES_LIMIT,
+			Contact_Form_Field::FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT
+		);
 	}
 
 	/**
