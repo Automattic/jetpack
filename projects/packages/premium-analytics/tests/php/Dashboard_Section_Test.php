@@ -253,6 +253,23 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A section can opt out of the header date filter entirely.
+	 */
+	public function test_section_accepts_the_none_date_filter() {
+		$registry = new Dashboard_Section_Registry();
+
+		$section = $registry->register(
+			'example_dashboard',
+			'example/ads',
+			array( 'date_filter' => Dashboard_Section::DATE_FILTER_NONE )
+		);
+
+		$this->assertInstanceOf( Dashboard_Section::class, $section );
+		$this->assertSame( Dashboard_Section::DATE_FILTER_NONE, $section->date_filter );
+		$this->assertSame( 'none', $section->to_array()['date_filter'] );
+	}
+
+	/**
 	 * An unrecognized date filter keeps the default instead of reaching the dashboard.
 	 */
 	public function test_section_ignores_unknown_date_filter() {
@@ -475,7 +492,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 			array_keys( $schema['properties'] )
 		);
 		$this->assertSame(
-			array( 'range', 'year' ),
+			array( 'range', 'year', 'none' ),
 			$schema['properties']['date_filter']['enum']
 		);
 		$this->assertSame( 'range', $schema['properties']['date_filter']['default'] );

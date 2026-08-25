@@ -334,7 +334,7 @@ function get_dashboard_section_schema() {
 				'readonly'    => true,
 			),
 			'date_filter'         => array(
-				'description' => __( 'Which date filter the section header offers: the rolling date range, or all time plus single years.', 'jetpack-premium-analytics-pkg' ),
+				'description' => __( 'Which date filter the section header offers: the rolling date range, all time plus single years, or none at all when the section\'s widgets host their own.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'enum'        => Dashboard_Section::DATE_FILTERS,
 				'default'     => Dashboard_Section::DATE_FILTER_RANGE,

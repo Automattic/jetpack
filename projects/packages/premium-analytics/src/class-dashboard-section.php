@@ -36,12 +36,37 @@ final class Dashboard_Section {
 	const DATE_FILTER_YEAR = 'year';
 
 	/**
+	 * Date-filter surface offering no header control at all, for a section whose
+	 * widgets host their own date controls.
+	 *
+	 * The contract has three parts, and consumers depend on all three:
+	 *
+	 * 1. The section header renders no date control.
+	 * 2. The section offers no comparison anywhere. `offersDateComparison()`
+	 *    returns false on the frontend, so `ReportScopeProvider` has `WidgetRoot`
+	 *    strip the comparison params before any widget sees them. This is a data
+	 *    contract, not just chrome: a section whose widget hosts its own
+	 *    comparison control cannot use this value.
+	 * 3. The date state still exists, and is reconciled as the range surface,
+	 *    because the widget-hosted control is a range picker.
+	 *
+	 * Parts 2 and 3 tie this value to "the widget hosts a range picker with no
+	 * comparison". A future consumer needing a year-shaped or comparison-capable
+	 * widget control should split control placement from control capability
+	 * rather than widen this constant.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
+	const DATE_FILTER_NONE = 'none';
+
+	/**
 	 * Date-filter surfaces a section may declare.
 	 *
 	 * @since 0.2.0
 	 * @var string[]
 	 */
-	const DATE_FILTERS = array( self::DATE_FILTER_RANGE, self::DATE_FILTER_YEAR );
+	const DATE_FILTERS = array( self::DATE_FILTER_RANGE, self::DATE_FILTER_YEAR, self::DATE_FILTER_NONE );
 
 	/**
 	 * Dashboard identifier.
