@@ -16,6 +16,34 @@ const CONFIG_NAMESPACE = 'jetpack/field-file';
 // Long enough for the preview to be rendered and the dropzone hidden before focus moves.
 const PREVIEW_FOCUS_DELAY_MS = 100;
 
+/*
+ * How many uploads may be in flight at once, across every file field on the page.
+ *
+ * A batch used to open one XMLHttpRequest per file the moment it was added, so selecting ten
+ * 20MB files pushed 200MB at the network at once — each request starved of bandwidth, each
+ * progress bar crawling, and the whole batch finishing later than if they had been sent in turn.
+ */
+const MAX_CONCURRENT_UPLOADS = 3;
+
+// Uploads waiting for a slot. Entries are `{ clientFileId, start }`, where `start` is bound to the
+// scope of the field that queued it — see `enqueueUpload()`.
+const uploadQueue = [];
+
+// Client file IDs whose upload has started and not yet settled. A Set rather than a counter so
+// that `finishUpload()` is idempotent: several code paths can report the same upload as finished.
+const activeUploadIds = new Set();
+
+/*
+ * Whether the next preview to initialize may take focus.
+ *
+ * `data-wp-init` runs once per rendered preview, so a batch of files runs the focus callback once
+ * per file, each scheduling its own timer against the same 100ms deadline. Whichever fired last
+ * won, which is to say focus landed on an arbitrary preview. The latch lets the first preview of
+ * a batch claim focus and the rest skip it. It starts open so that a single add — the only case
+ * before this change — behaves exactly as it did.
+ */
+let canClaimPreviewFocus = true;
+
 let uploadToken = null;
 let tokenExpiry = null;
 // Set while a token request is in flight so several files added at once share a single request
@@ -174,34 +202,63 @@ const getFileFieldExtra = () => {
 const getFileFieldFiles = () => getContext().files ?? [];
 
 /**
- * Add the file to the context.
+ * Why this file cannot be uploaded, if it cannot be.
  *
- * @param {File} file - The file to add.
+ * Deliberately excludes the max-file check: whether there is room for a file is a property of the
+ * batch being added rather than of the file itself, and `addFiles()` owns it.
+ *
+ * The type check comes first so that it still wins for a file that is both oversized and of a
+ * disallowed type. That is the precedence the two sequential assignments this replaced happened to
+ * produce — the type check ran second and overwrote the size message — and it is the better of the
+ * two to report, since no smaller version of that file would be accepted either.
+ *
+ * @param {File} file - The file to check.
+ *
+ * @return {string|null} The error message, or null when the file is acceptable.
  */
-const addFileToContext = file => {
+const getFileError = file => {
 	const config = getConfig( CONFIG_NAMESPACE );
-	const context = getContext();
-	const { maxFiles, allowedMimeTypes } = getFileFieldExtra();
+	const { allowedMimeTypes } = getFileFieldExtra();
 
-	let error = null;
-
-	// Check that the file not more then the max size.
-	if ( file.size > config.maxUploadSize ) {
-		error = config.i18n.fileTooLarge;
-	}
-
-	// Check that the file type is allowed.
 	if ( ! allowedMimeTypes.includes( file.type ) ) {
-		error = config.i18n.invalidType;
+		return config.i18n.invalidType;
 	}
 
-	// Get all files that don't have an error properly
-	const validFiles = context.files.filter( fileInfo => ! fileInfo.error );
-
-	// Check if the user is trying to add more files then allowed.
-	if ( maxFiles < validFiles.length + 1 ) {
-		error = config.i18n.maxFiles;
+	if ( file.size > config.maxUploadSize ) {
+		return config.i18n.fileTooLarge;
 	}
+
+	return null;
+};
+
+/**
+ * How many more files the field will accept.
+ *
+ * Entries carrying an error are not counted. A file rejected for its type or its size was never
+ * uploaded, so it holds no place — otherwise a single bad file in a full batch would block the
+ * replacement the visitor is being asked to provide. `state.isFileFieldFull` counts the same way,
+ * so the dropzone stays visible exactly while there is room for another file.
+ *
+ * @return {number} The number of files that can still be added.
+ */
+const getRemainingCapacity = () => {
+	const { maxFiles } = getFileFieldExtra();
+	const acceptedFiles = getFileFieldFiles().filter( fileInfo => ! fileInfo.error );
+
+	return Math.max( maxFiles - acceptedFiles.length, 0 );
+};
+
+/**
+ * Add one file to the context and queue its upload.
+ *
+ * Does not touch the field's value or the notice: `addFiles()` reports the whole batch once, so
+ * that a ten-file drop runs one validation pass rather than ten.
+ *
+ * @param {File}        file  - The file to add.
+ * @param {string|null} error - Why the file cannot be uploaded, or null.
+ */
+const addFileToContext = ( file, error ) => {
+	const context = getContext();
 
 	const clientFileId = performance.now() + '-' + Math.random();
 	const hasImage =
@@ -220,16 +277,122 @@ const addFileToContext = file => {
 		error,
 	} );
 
-	actions.updateField( context.fieldId, context.files );
-
 	// Start the upload if we don't have any errors.
-	! error && actions.uploadFile( file, clientFileId );
+	! error && enqueueUpload( file, clientFileId );
+};
 
-	// Load the file so we can display it. In case it is an image.
+/**
+ * Add a batch of files to the field.
+ *
+ * Every entry point hands its files here rather than adding them one at a time, because the
+ * max-file limit can only be applied to a batch as a whole. Adding one at a time meant each file
+ * past the limit got its own preview carrying the "too many files" message — and since
+ * `validators.file` reports `invalid_file_has_errors` for any errored entry, dropping ten files on
+ * a field that accepts one produced nine previews that all had to be dismissed by hand before the
+ * form could be submitted. Overflow is now declined outright and reported once.
+ *
+ * Files that fail their own validation are still added, with their own message on their own
+ * preview: those are about the file, and the visitor has to see which one to replace.
+ *
+ * @param {File[]} files - The files to add.
+ */
+const addFiles = files => {
+	const context = getContext();
+	const { i18n } = getConfig( CONFIG_NAMESPACE );
+
+	// Reopen the latch so the first preview this batch renders takes focus. See `canClaimPreviewFocus`.
+	canClaimPreviewFocus = true;
+
+	let remainingCapacity = getRemainingCapacity();
+	let declinedCount = 0;
+
+	for ( const file of files ) {
+		if ( ! file ) {
+			continue;
+		}
+
+		const error = getFileError( file );
+
+		if ( ! error ) {
+			if ( remainingCapacity === 0 ) {
+				declinedCount++;
+				continue;
+			}
+
+			remainingCapacity--;
+		}
+
+		addFileToContext( file, error );
+	}
+
+	context.fileNotice = declinedCount ? i18n.maxFiles : '';
+
+	actions.updateField( context.fieldId, context.files );
 };
 
 // Map to store AbortControllers for each file upload
 const uploadControllers = new Map();
+
+/**
+ * Queue a file's upload, to start as soon as there is a free slot.
+ *
+ * The starter is wrapped with `withScope()` here rather than being called plainly at pump time.
+ * The pump runs from whichever upload settled last, which may belong to a different file field on
+ * the page; without capturing this field's scope now, `uploadFile()` would resolve `getContext()`
+ * against that other field and look for the file in the wrong list.
+ *
+ * @param {File}   file         - The file to upload.
+ * @param {string} clientFileId - The client file ID.
+ */
+const enqueueUpload = ( file, clientFileId ) => {
+	uploadQueue.push( {
+		clientFileId,
+		start: withScope( () => actions.uploadFile( file, clientFileId ) ),
+	} );
+
+	pumpUploadQueue();
+};
+
+/**
+ * Start queued uploads until the concurrency limit is reached.
+ */
+const pumpUploadQueue = () => {
+	while ( activeUploadIds.size < MAX_CONCURRENT_UPLOADS && uploadQueue.length ) {
+		const { clientFileId, start } = uploadQueue.shift();
+
+		activeUploadIds.add( clientFileId );
+		start();
+	}
+};
+
+/**
+ * Report an upload as settled and let the next one start.
+ *
+ * Idempotent: an upload can be reported as finished both by its own `readystatechange` handler and
+ * by a removal racing it, and freeing the same slot twice would let the queue run over the limit.
+ *
+ * @param {string} clientFileId - The client file ID.
+ */
+const finishUpload = clientFileId => {
+	if ( ! activeUploadIds.delete( clientFileId ) ) {
+		return;
+	}
+
+	pumpUploadQueue();
+};
+
+/**
+ * Drop a file's upload from the queue, if it has not started yet.
+ *
+ * @param {string} clientFileId - The client file ID.
+ */
+const dequeueUpload = clientFileId => {
+	const index = uploadQueue.findIndex( entry => entry.clientFileId === clientFileId );
+
+	if ( index !== -1 ) {
+		uploadQueue.splice( index, 1 );
+	}
+};
 
 /**
  * Responsible for updating the progress circle.
@@ -256,6 +419,7 @@ const onReadyStateChange = ( clientFileId, event ) => {
 		// The request has settled either way, so its controller can never abort anything again.
 		// Dropping it here keeps the map from growing for the lifetime of the page.
 		uploadControllers.delete( clientFileId );
+		finishUpload( clientFileId );
 
 		if ( xhr.status === 200 ) {
 			const response = JSON.parse( xhr.responseText );
@@ -357,6 +521,10 @@ const releaseFile = file => {
 		return;
 	}
 
+	// The file may be waiting for a slot rather than uploading, in which case there is no
+	// controller to abort and nothing else would ever take it off the queue.
+	dequeueUpload( file.id );
+
 	const abortController = uploadControllers.get( file.id );
 	if ( abortController ) {
 		abortController.abort();
@@ -367,6 +535,10 @@ const releaseFile = file => {
 		// Strip the `url(…)` wrapper the style binding needs to get back to the blob URL.
 		URL.revokeObjectURL( file.url.substring( 4, file.url.length - 1 ) );
 	}
+
+	// Freed last, because it starts the next queued upload: doing it before the abort above would
+	// briefly run one request over the limit.
+	finishUpload( file.id );
 };
 
 const { state, actions, callbacks } = store( NAMESPACE, {
@@ -405,8 +577,19 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 			return getFileFieldFiles().length > 0;
 		},
 
+		/*
+		 * Counts only files without an error, the same way `getRemainingCapacity()` does, so the
+		 * dropzone is hidden exactly when there is no room for another file. Counting every entry
+		 * meant a rejected file both hid the dropzone and left its capacity unused: the visitor could
+		 * no longer click to supply a replacement, though a drag-and-drop still went through.
+		 */
 		get isFileFieldFull() {
-			return getFileFieldExtra().maxFiles <= getFileFieldFiles().length;
+			return getRemainingCapacity() === 0;
+		},
+
+		// Whether the field-level notice — currently only "too many files" — has something to say.
+		get hasFileFieldNotice() {
+			return !! getContext().fileNotice;
 		},
 	},
 
@@ -442,8 +625,7 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 		 * @param {Event} event - The event object.
 		 */
 		fileAdded( event ) {
-			const files = Array.from( event.target.files );
-			files.forEach( addFileToContext );
+			addFiles( Array.from( event.target.files ) );
 		},
 
 		/**
@@ -458,6 +640,8 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 			// at the submit button rather than at the drop.
 			actions.trackFirstInteraction();
 			if ( event.dataTransfer ) {
+				const droppedFiles = [];
+
 				for ( const item of Array.from( event.dataTransfer.items ) ) {
 					// Dragging selected text, a link or an image from another tab yields items with
 					// `kind === 'string'`. Those return null from both `webkitGetAsEntry()` and
@@ -471,7 +655,13 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 					if ( item.webkitGetAsEntry()?.isDirectory ) {
 						continue;
 					}
-					addFileToContext( item.getAsFile() );
+					droppedFiles.push( item.getAsFile() );
+				}
+
+				// A drop carrying nothing this field can take — only directories, or only dragged
+				// text — leaves the field untouched rather than reporting an empty batch.
+				if ( droppedFiles.length ) {
+					addFiles( droppedFiles );
 				}
 			}
 			const context = getContext();
@@ -513,6 +703,7 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 
 			if ( ! token ) {
 				updateFileContext( { error: i18n.uploadFailed, hasError: true }, clientFileId );
+				finishUpload( clientFileId );
 				return;
 			}
 
@@ -523,6 +714,7 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 			// files now queue behind a single fetch rather than each firing their own.
 			const context = getContext();
 			if ( ! context.files.some( fileObject => fileObject.id === clientFileId ) ) {
+				finishUpload( clientFileId );
 				return;
 			}
 
@@ -563,6 +755,7 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 			 * previous array and leave removed files visible.
 			 */
 			context.files.splice( 0 );
+			context.fileNotice = '';
 		},
 
 		/**
@@ -601,6 +794,10 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 			if ( index !== -1 ) {
 				context.files.splice( index, 1 );
 			}
+
+			// There is room again, so a "too many files" notice from an earlier batch is now wrong.
+			context.fileNotice = '';
+
 			actions.updateField( context.fieldId, context.files );
 
 			if ( file.file_id ) {
@@ -644,13 +841,20 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 			const { ref } = getElement();
 			const container = ref.closest( '.jetpack-form-file-field__container' );
 
+			// Only the first preview a batch renders takes focus; see `canClaimPreviewFocus`. The
+			// rest still return the cleanup below, so removing any of them restores focus normally.
+			const claimsFocus = canClaimPreviewFocus;
+			canClaimPreviewFocus = false;
+
 			// `isConnected` guards the case where the file is removed inside the delay: focusing a
 			// detached node is a silent no-op that would strand focus on `<body>`.
-			const focusTimer = setTimeout( () => {
-				if ( ref.isConnected ) {
-					ref.focus( { focusVisible: true } );
-				}
-			}, PREVIEW_FOCUS_DELAY_MS );
+			const focusTimer = claimsFocus
+				? setTimeout( () => {
+						if ( ref.isConnected ) {
+							ref.focus( { focusVisible: true } );
+						}
+				  }, PREVIEW_FOCUS_DELAY_MS )
+				: null;
 
 			return () => {
 				clearTimeout( focusTimer );

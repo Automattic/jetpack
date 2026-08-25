@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+File upload field: Decline files beyond the field's limit instead of adding each one as an error that blocks submission.

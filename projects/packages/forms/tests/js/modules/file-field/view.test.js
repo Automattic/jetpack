@@ -23,6 +23,7 @@ describe( 'File Field View', () => {
 	let mockElement;
 	let storeConfig;
 	let storeConfigs;
+	let storeReturns;
 	let mockUpdateField;
 	let mockTrackFirstInteraction;
 	let state;
@@ -52,6 +53,7 @@ describe( 'File Field View', () => {
 			},
 			files: [],
 			isDropping: false,
+			fileNotice: '',
 		};
 
 		mockElement = {
@@ -106,10 +108,14 @@ describe( 'File Field View', () => {
 
 		// The module registers twice: the real store under `jetpack/form`, then a back-compat alias
 		// under the old `jetpack/field-file` namespace. Keep them apart so tests can address either.
+		// `storeReturns` holds what the module itself destructured, so assigning over one of its
+		// actions is the only way a test can intercept an internal call: the module closed over this
+		// object, not over `storeConfigs`.
 		storeConfigs = {};
+		storeReturns = {};
 		mockStore.mockImplementation( ( namespace, config ) => {
 			storeConfigs[ namespace ] = config;
-			return {
+			storeReturns[ namespace ] = {
 				state: config.state,
 				actions: {
 					...config.actions,
@@ -118,6 +124,7 @@ describe( 'File Field View', () => {
 				},
 				callbacks: config.callbacks,
 			};
+			return storeReturns[ namespace ];
 		} );
 
 		await import( '../../../../src/modules/file-field/view.js' );
@@ -169,6 +176,32 @@ describe( 'File Field View', () => {
 		while ( ! step.done ) {
 			step = generator.next( await step.value );
 		}
+	};
+
+	/**
+	 * A minimal XMLHttpRequest double that lets a test drive readystatechange.
+	 *
+	 * @return {object} The fake request and its captured listeners.
+	 */
+	const installFakeXhr = () => {
+		const listeners = {};
+		const xhr = {
+			readyState: 4,
+			status: 200,
+			responseText: JSON.stringify( {
+				success: true,
+				data: { file_id: 'server-1', name: 'doc.pdf', size: 10, type: 'application/pdf' },
+			} ),
+			open: jest.fn(),
+			send: jest.fn(),
+			abort: jest.fn(),
+			upload: { addEventListener: jest.fn() },
+			addEventListener: jest.fn( ( name, cb ) => {
+				listeners[ name ] = cb;
+			} ),
+		};
+		jest.spyOn( global, 'XMLHttpRequest' ).mockImplementation( () => xhr );
+		return { xhr, listeners };
 	};
 
 	describe( 'Store registration', () => {
@@ -252,6 +285,19 @@ describe( 'File Field View', () => {
 			mockContext.files = [ { id: '1' } ];
 			expect( state.isFileFieldFull ).toBe( true );
 		} );
+
+		test( 'isFileFieldFull does not count a file that failed validation', () => {
+			// A rejected file was never uploaded, so it holds no capacity — and the dropzone has to
+			// stay reachable, or the visitor cannot click to supply the replacement being asked for.
+			mockContext.files = [ { id: '1', error: 'This file type is not allowed.' } ];
+			expect( state.isFileFieldFull ).toBe( false );
+		} );
+
+		test( 'hasFileFieldNotice follows the field-level notice', () => {
+			expect( state.hasFileFieldNotice ).toBe( false );
+			mockContext.fileNotice = 'Too many files.';
+			expect( state.hasFileFieldNotice ).toBe( true );
+		} );
 	} );
 
 	describe( 'Adding files', () => {
@@ -284,6 +330,20 @@ describe( 'File Field View', () => {
 			} );
 		} );
 
+		test( 'reports the type when a file is both oversized and of a disallowed type', () => {
+			// No smaller version of that file would be accepted either, so the type is the more
+			// useful of the two to report. The original code got this order by accident, with the
+			// type assignment overwriting the size one; pinning it here keeps a later reshuffle of
+			// the two checks from quietly swapping the message.
+			storeConfig.actions.fileAdded( {
+				target: {
+					files: [ makeFile( { name: 'huge.exe', type: 'application/x-msdownload', size: 2048 } ) ],
+				},
+			} );
+
+			expect( mockContext.files[ 0 ].error ).toBe( 'This file type is not allowed.' );
+		} );
+
 		test( 'rejects a file over the configured max upload size', () => {
 			storeConfig.actions.fileAdded( { target: { files: [ makeFile( { size: 2048 } ) ] } } );
 
@@ -293,15 +353,92 @@ describe( 'File Field View', () => {
 			} );
 		} );
 
-		test( 'rejects a file beyond maxFiles', () => {
+		test( 'declines a file beyond maxFiles instead of giving it an error preview', () => {
+			// An over-limit file used to be added with the "too many files" message on its own
+			// preview, which `validators.file` then reported as `invalid_file_has_errors` — so the
+			// form could not be submitted until the visitor dismissed a file they never chose to add.
 			mockContext.files = [ { id: 'existing', error: null } ];
 
 			storeConfig.actions.fileAdded( { target: { files: [ makeFile() ] } } );
 
-			expect( mockContext.files[ 1 ] ).toMatchObject( {
-				hasError: true,
-				error: 'Too many files.',
+			expect( mockContext.files ).toHaveLength( 1 );
+			expect( mockContext.fileNotice ).toBe( 'Too many files.' );
+		} );
+
+		test( 'takes a batch up to the limit and declines only the overflow', () => {
+			mockContext.fieldExtra.maxFiles = 2;
+
+			storeConfig.actions.fileAdded( {
+				target: {
+					files: [
+						makeFile( { name: 'a.pdf' } ),
+						makeFile( { name: 'b.pdf' } ),
+						makeFile( { name: 'c.pdf' } ),
+					],
+				},
 			} );
+
+			expect( mockContext.files.map( file => file.name ) ).toEqual( [ 'a.pdf', 'b.pdf' ] );
+			expect( mockContext.files.every( file => ! file.error ) ).toBe( true );
+			expect( mockContext.fileNotice ).toBe( 'Too many files.' );
+		} );
+
+		test( 'says nothing when the whole batch fits', () => {
+			mockContext.fieldExtra.maxFiles = 2;
+
+			storeConfig.actions.fileAdded( {
+				target: { files: [ makeFile( { name: 'a.pdf' } ), makeFile( { name: 'b.pdf' } ) ] },
+			} );
+
+			expect( mockContext.fileNotice ).toBe( '' );
+		} );
+
+		test( 'a file rejected for its type still gets its own preview and holds no capacity', () => {
+			// Per-file problems are the visitor's to act on and have to stay visible per file; only
+			// genuine overflow is declined. And since the bad file was never uploaded, the good one
+			// behind it in the same batch still fits.
+			storeConfig.actions.fileAdded( {
+				target: {
+					files: [
+						makeFile( { name: 'evil.exe', type: 'application/x-msdownload' } ),
+						makeFile( { name: 'good.pdf' } ),
+					],
+				},
+			} );
+
+			expect( mockContext.files ).toHaveLength( 2 );
+			expect( mockContext.files[ 0 ] ).toMatchObject( { error: 'This file type is not allowed.' } );
+			expect( mockContext.files[ 1 ] ).toMatchObject( { name: 'good.pdf', error: null } );
+			expect( mockContext.fileNotice ).toBe( '' );
+		} );
+
+		test( 'reports the whole batch to the form once rather than once per file', () => {
+			mockContext.fieldExtra.maxFiles = 3;
+
+			storeConfig.actions.fileAdded( {
+				target: { files: [ makeFile(), makeFile(), makeFile() ] },
+			} );
+
+			expect( mockUpdateField ).toHaveBeenCalledTimes( 1 );
+			expect( mockUpdateField.mock.calls[ 0 ][ 1 ] ).toHaveLength( 3 );
+		} );
+
+		test( 'clears a stale overflow notice once a file is removed', () => {
+			mockContext.files = [ { id: 'existing', error: null } ];
+			storeConfig.actions.fileAdded( { target: { files: [ makeFile() ] } } );
+			expect( mockContext.fileNotice ).toBe( 'Too many files.' );
+
+			removeFile( 'existing' );
+
+			expect( mockContext.fileNotice ).toBe( '' );
+		} );
+
+		test( 'clears the notice on reset', () => {
+			mockContext.fileNotice = 'Too many files.';
+
+			storeConfig.actions.resetFiles();
+
+			expect( mockContext.fileNotice ).toBe( '' );
 		} );
 
 		test( 'pushes the value through the shared updateField action', () => {
@@ -489,32 +626,6 @@ describe( 'File Field View', () => {
 	} );
 
 	describe( 'Upload lifecycle', () => {
-		/**
-		 * A minimal XMLHttpRequest double that lets a test drive readystatechange.
-		 *
-		 * @return {object} The fake request and its captured listeners.
-		 */
-		const installFakeXhr = () => {
-			const listeners = {};
-			const xhr = {
-				readyState: 4,
-				status: 200,
-				responseText: JSON.stringify( {
-					success: true,
-					data: { file_id: 'server-1', name: 'doc.pdf', size: 10, type: 'application/pdf' },
-				} ),
-				open: jest.fn(),
-				send: jest.fn(),
-				abort: jest.fn(),
-				upload: { addEventListener: jest.fn() },
-				addEventListener: jest.fn( ( name, cb ) => {
-					listeners[ name ] = cb;
-				} ),
-			};
-			jest.spyOn( global, 'XMLHttpRequest' ).mockImplementation( () => xhr );
-			return { xhr, listeners };
-		};
-
 		test( 'a settled request marks the file uploaded and drops its abort controller', async () => {
 			mockTokenFetch();
 			const { xhr, listeners } = installFakeXhr();
@@ -579,6 +690,125 @@ describe( 'File Field View', () => {
 
 			expect( global.URL.revokeObjectURL ).toHaveBeenCalledWith( 'blob:mock' );
 			expect( mockContext.files ).toEqual( [] );
+		} );
+	} );
+
+	describe( 'Upload queue', () => {
+		/**
+		 * Intercept uploads so a test can see which files started, and settle them by hand.
+		 *
+		 * Assigns over the action on the object the module destructured, which is the only handle a
+		 * test has on an internal call. The real implementation still runs, so the generator can be
+		 * driven to the point where it has sent.
+		 *
+		 * @return {Array} The uploads that have started, in order, appended to as more start.
+		 */
+		const interceptUploads = () => {
+			const realUploadFile = storeConfig.actions.uploadFile;
+			const started = [];
+
+			storeReturns[ 'jetpack/form' ].actions.uploadFile = ( file, clientFileId ) => {
+				const generator = realUploadFile( file, clientFileId );
+				started.push( { clientFileId, generator } );
+				return generator;
+			};
+
+			return started;
+		};
+
+		/**
+		 * Offer the field a batch of acceptable files through the picker.
+		 *
+		 * @param {number} count - How many files to add.
+		 */
+		const addPdfFiles = count => {
+			storeConfig.actions.fileAdded( {
+				target: {
+					files: Array.from( { length: count }, ( _, index ) => ( {
+						name: `file-${ index }.pdf`,
+						type: 'application/pdf',
+						size: 10,
+					} ) ),
+				},
+			} );
+		};
+
+		test( 'starts at most three uploads at once and holds the rest back', () => {
+			// Every added file used to open its own request immediately, so a ten-file batch put ten
+			// uploads on the wire at once — each starved of bandwidth, and the batch as a whole
+			// finishing later than if they had gone in turn.
+			mockContext.fieldExtra.maxFiles = 5;
+			const started = interceptUploads();
+
+			addPdfFiles( 5 );
+
+			expect( started ).toHaveLength( 3 );
+			expect( mockContext.files ).toHaveLength( 5 );
+		} );
+
+		test( 'starts the next queued upload when a running one is removed', () => {
+			mockContext.fieldExtra.maxFiles = 5;
+			const started = interceptUploads();
+			addPdfFiles( 5 );
+
+			removeFile( mockContext.files[ 0 ].id );
+
+			expect( started ).toHaveLength( 4 );
+			// The fourth file added, which is now third in the list the removal left behind.
+			expect( started[ 3 ].clientFileId ).toBe( mockContext.files[ 2 ].id );
+		} );
+
+		test( 'a file removed while queued never starts', () => {
+			// Nothing else takes a waiting file off the queue: it has no AbortController yet, so the
+			// abort path in releaseFile() has nothing to cancel.
+			mockContext.fieldExtra.maxFiles = 5;
+			const started = interceptUploads();
+			addPdfFiles( 5 );
+			const queuedId = mockContext.files[ 4 ].id;
+
+			removeFile( queuedId );
+			expect( started ).toHaveLength( 3 );
+
+			// Freeing a running slot now reaches past it to the file still waiting.
+			removeFile( mockContext.files[ 0 ].id );
+
+			expect( started ).toHaveLength( 4 );
+			expect( started.map( entry => entry.clientFileId ) ).not.toContain( queuedId );
+		} );
+
+		test( 'a settled request frees the slot for the next queued upload', async () => {
+			mockContext.fieldExtra.maxFiles = 5;
+			mockTokenFetch();
+			const { xhr, listeners } = installFakeXhr();
+			const started = interceptUploads();
+
+			addPdfFiles( 5 );
+			expect( started ).toHaveLength( 3 );
+
+			await drainGenerator( started[ 0 ].generator );
+			listeners.readystatechange( { target: xhr } );
+
+			expect( started ).toHaveLength( 4 );
+		} );
+
+		test( 'an upload abandoned because its file is already gone frees its slot', async () => {
+			// uploadFile() bails after the token resolves if the file has been removed meanwhile. That
+			// exit registers no AbortController and settles no request, so nothing else would report
+			// the slot as free and the queue would run one short for the rest of the page.
+			mockContext.fieldExtra.maxFiles = 5;
+			mockTokenFetch();
+			installFakeXhr();
+			const started = interceptUploads();
+
+			addPdfFiles( 5 );
+			const abandoned = started[ 0 ];
+
+			// Drop the entry directly, so the upload is orphaned without releaseFile() freeing it.
+			mockContext.files = mockContext.files.filter( file => file.id !== abandoned.clientFileId );
+
+			await drainGenerator( abandoned.generator );
+
+			expect( started ).toHaveLength( 4 );
 		} );
 	} );
 
@@ -773,6 +1003,52 @@ describe( 'File Field View', () => {
 			jest.runAllTimers();
 
 			expect( dropzone.focus ).toHaveBeenCalledWith( { focusVisible: true } );
+			jest.useRealTimers();
+		} );
+
+		test( 'only the first preview of a batch takes focus', () => {
+			// data-wp-init runs once per rendered preview, so a batch used to race one 100ms timer per
+			// file against the same deadline and focus whichever happened to fire last.
+			jest.useFakeTimers();
+			mockContext.fieldExtra.maxFiles = 3;
+
+			// Go through the real add path: it is the batch that reopens the focus latch.
+			storeConfig.actions.fileAdded( {
+				target: {
+					files: [
+						{ name: 'a.pdf', type: 'application/pdf', size: 10 },
+						{ name: 'b.pdf', type: 'application/pdf', size: 10 },
+					],
+				},
+			} );
+
+			const first = mountPreview();
+			const second = mountPreview();
+
+			jest.runAllTimers();
+
+			expect( first.preview.focus ).toHaveBeenCalledWith( { focusVisible: true } );
+			expect( second.preview.focus ).not.toHaveBeenCalled();
+			jest.useRealTimers();
+		} );
+
+		test( 'a later single add takes focus again', () => {
+			jest.useFakeTimers();
+			mockContext.fieldExtra.maxFiles = 3;
+
+			storeConfig.actions.fileAdded( {
+				target: { files: [ { name: 'a.pdf', type: 'application/pdf', size: 10 } ] },
+			} );
+			mountPreview();
+
+			storeConfig.actions.fileAdded( {
+				target: { files: [ { name: 'b.pdf', type: 'application/pdf', size: 10 } ] },
+			} );
+			const second = mountPreview();
+
+			jest.runAllTimers();
+
+			expect( second.preview.focus ).toHaveBeenCalledWith( { focusVisible: true } );
 			jest.useRealTimers();
 		} );
 
