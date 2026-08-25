@@ -10,6 +10,47 @@ import { ExperimentalEmailEditor } from '@woocommerce/email-editor';
 import { createRoot, StrictMode } from '@wordpress/element';
 
 /**
+ * Schemes the editor's navigation buttons may send the browser to.
+ *
+ * `javascript:` and `data:` are URLs a browser executes rather than navigates
+ * to, and the editor assigns these values straight to `window.location.href`.
+ */
+const NAVIGABLE_PROTOCOLS = [ 'http:', 'https:' ];
+
+/**
+ * Check that a URL the editor will navigate to is one the browser can navigate to.
+ *
+ * Resolving against the current page is what the editor's own back button does,
+ * and it does not neutralise a scheme: relative resolution applies only when the
+ * value has no scheme of its own, so `javascript:…` survives the round trip
+ * intact. The check therefore has to read the protocol the URL parses to, not
+ * the string it started as — the parser also strips leading whitespace, which a
+ * `startsWith( 'javascript:' )` test would miss.
+ *
+ * @param {*}      value - The configured URL.
+ * @param {string} key   - Its key, named in the error so the page can be fixed.
+ * @throws {Error} If the value is not a URL the browser can navigate to.
+ * @return {void}
+ */
+function assertNavigableUrl( value, key ) {
+	if ( typeof value !== 'string' ) {
+		throw new Error( `JetpackEmailDesignEditor.urls.${ key } must be a string.` );
+	}
+
+	let resolved;
+
+	try {
+		resolved = new URL( value, window.location.href );
+	} catch {
+		throw new Error( `JetpackEmailDesignEditor.urls.${ key } is not a valid URL.` );
+	}
+
+	if ( ! NAVIGABLE_PROTOCOLS.includes( resolved.protocol ) ) {
+		throw new Error( `JetpackEmailDesignEditor.urls.${ key } must be an http or https URL.` );
+	}
+}
+
+/**
  * Translate the page's data into the configuration the editor reads.
  *
  * The editor's `config` prop is not the WordPress.com bootstrap bundle. The
@@ -47,6 +88,11 @@ export function buildEditorConfig( data ) {
 	if ( typeof urls?.back !== 'string' || typeof urls?.listings !== 'string' ) {
 		throw new Error( 'JetpackEmailDesignEditor.urls.back and .listings are required strings.' );
 	}
+
+	// Every value here ends up assigned to `window.location.href` by the editor's
+	// header buttons, so each has to be somewhere the browser can navigate to and
+	// not something it will execute.
+	Object.entries( urls ).forEach( ( [ key, value ] ) => assertNavigableUrl( value, key ) );
 
 	return {
 		editorSettings: { ...bundle.editor_settings, ...editorSettings },
