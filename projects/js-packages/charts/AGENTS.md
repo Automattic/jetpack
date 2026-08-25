@@ -39,6 +39,14 @@ The package is migrating to WordPress UI and Theme as its defaults. When adding 
   (My Jetpack and friends) resolve source through the `jetpack:src` export
   condition instead. A change that only affects `dist/` can therefore break
   four packages this one does not import.
+- **Referencing `process.env` in `src` breaks a consumer's typecheck.** Webpack
+  consumers compile this package's source through `jetpack:src` under *their*
+  tsconfig, and several (videopress among them) have no `@types/node`, so a bare
+  `process.env.NODE_ENV` fails with `TS2591` in their build and not in ours.
+  `pnpm run typecheck` here will not catch it. Declare a local
+  `declare const process: { env: Record< string, string | undefined > };` in any
+  file that needs it — `bar-chart/private/comparison-bars.tsx` and
+  `providers/chart-context/private/theme-override-vars.ts` both do.
 - **Never `deps.alwaysBundle` a package that transitively requires an external.**
   Pre-bundling is safe only for dependencies that require nothing themselves —
   `fast-deep-equal` qualifies, which is why `tsdown.config.ts` still lists it.

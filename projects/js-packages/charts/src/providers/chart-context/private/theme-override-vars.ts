@@ -1,5 +1,11 @@
 import type { ChartTheme } from '../../../types';
 
+/*
+ * `process.env.NODE_ENV` is replaced by the bundler at build time. Declare a
+ * minimal `process` locally so this file type-checks as source under `jetpack:src`.
+ */
+declare const process: { env: Record< string, string | undefined > };
+
 /** How many series-palette slots the catalog emits. `theme.colors` entries past this are ignored. */
 export const SERIES_SLOT_COUNT = 5;
 
