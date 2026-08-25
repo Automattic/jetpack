@@ -82,7 +82,7 @@ describe( 'NoResultsSlotEdit', () => {
 	// The `--default` modifier lands on the block wrapper itself — the same
 	// element render.php gives it via `get_block_wrapper_attributes()` — so the
 	// canvas shows the same centered, dimmed treatment a visitor would see.
-	it( 'styles the wrapper with the front-end default class while empty', () => {
+	it( 'puts the front-end default class on the wrapper only while empty', () => {
 		const { unmount } = render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
 		// eslint-disable-next-line testing-library/no-node-access -- the class sits on the block wrapper, which exposes no role or text of its own to query.
 		const wrapper = screen.getByText( UNFILTERED_DEFAULT ).parentElement;
