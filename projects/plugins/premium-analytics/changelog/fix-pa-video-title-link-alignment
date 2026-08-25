@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Align video title links with post title links, adding the outbound marker to external rows.
