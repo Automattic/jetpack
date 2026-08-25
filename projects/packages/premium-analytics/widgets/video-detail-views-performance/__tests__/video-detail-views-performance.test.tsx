@@ -4,7 +4,6 @@
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
@@ -19,6 +18,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		pointsAreWallClocks,
 	}: {
 		metrics: {
 			key: string;
@@ -28,10 +28,12 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
+		pointsAreWallClocks?: boolean;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-chart-type={ String( chartType ) }
+			data-wall-clocks={ String( pointsAreWallClocks ) }
 			data-metrics={ JSON.stringify(
 				metrics.map( metric => ( {
 					key: metric.key,
@@ -39,7 +41,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 					value: metric.value,
 					format: metric.dataFormat?.type,
 					values: metric.current.map( point => point.value ),
-					firstDate: metric.current[ 0 ]?.date.toISOString(),
+					days: metric.current.map( point => point.date.getDate() ),
 				} ) )
 			) }
 		/>
@@ -58,7 +60,7 @@ type ChartedMetric = {
 	value: number;
 	format?: string;
 	values: number[];
-	firstDate?: string;
+	days: number[];
 };
 
 /**
@@ -205,15 +207,13 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		expect( requestedParams.get( 'date' ) ).toBe( WINDOW_PARAMS.to );
 	} );
 
-	it( 'anchors bucket days at site-local midnight so negative-offset sites keep the calendar day', async () => {
-		// A UTC-12 site: a date-only bucket key parsed as UTC midnight would
-		// render as the previous day once formatted in the site timezone. The
-		// point instant must be the key's site-local midnight instead.
-		const defaultSettings = getSettings();
-		setSettings( {
-			...defaultSettings,
-			timezone: { offset: -12, offsetFormatted: '-12', string: '', abbr: '' },
-		} );
+	// Pinned west of UTC on purpose: under a UTC runner the wall-clock reading
+	// and an instant reading coincide, so this would pass either way. `TZ` is
+	// not on the typed env shape, hence the cast.
+	it( 'builds bucket points as the wall clocks the buckets name, declared to the chart', async () => {
+		const env = process.env as Record< string, string | undefined >;
+		const runnerTimeZone = env.TZ;
+		env.TZ = 'America/Los_Angeles';
 
 		try {
 			mockApiFetch.mockImplementation(
@@ -225,10 +225,17 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 			);
 
 			const chart = await screen.findByTestId( 'metric-tabs-chart' );
-			// 2026-07-01 site-local midnight at UTC-12 is 2026-07-01T12:00:00Z.
-			expect( chartedMetrics( chart )[ 0 ].firstDate ).toBe( '2026-07-01T12:00:00.000Z' );
+			// A site-midnight instant for this UTC+8 window would read back as the
+			// previous day in Los Angeles; the wall-clock reading keeps every
+			// label on the bucket it names.
+			expect( chartedMetrics( chart )[ 0 ].days ).toEqual( [ 1, 2, 3, 4, 5, 6, 7 ] );
+			expect( chart ).toHaveAttribute( 'data-wall-clocks', 'true' );
 		} finally {
-			setSettings( defaultSettings );
+			if ( runnerTimeZone === undefined ) {
+				delete env.TZ;
+			} else {
+				env.TZ = runnerTimeZone;
+			}
 		}
 	} );
 

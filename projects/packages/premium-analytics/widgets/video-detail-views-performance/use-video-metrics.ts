@@ -7,8 +7,12 @@ import {
 	type StatsChartBucketPeriod,
 	type StatsSingleVideoDataPoint,
 } from '@jetpack-premium-analytics/data';
-import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
-import { toDay, type DataFormat, type MetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	toChartDate,
+	toDay,
+	type DataFormat,
+	type MetricTab,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
@@ -163,17 +167,19 @@ function bucketTotals(
 /**
  * Turn bucket totals into chart points.
  *
- * The endpoint's bucket keys are plain site-local calendar dates, so each
- * point's instant must be that day's site-local midnight. `parseSiteDateTime`
- * anchors the offset-less key in the site timezone; the chart's `formatDate`
- * labels render in the same zone, so the calendar day round-trips.
+ * The bucket keys are plain site-local calendar dates, and the chart lays
+ * points out and labels the axis through the browser's timezone — so the keys
+ * are read as wall clocks with `toChartDate`, and the widget declares
+ * `pointsAreWallClocks` to the chart (rationale in `chart-date.ts`). A real
+ * site-midnight instant here would shift the label a day for any viewer west
+ * of the site.
  */
 function toBucketPoints(
 	buckets: BucketWindow[],
 	totals: Map< string, number >
 ): VideoMetricPoint[] {
 	return buckets.map( bucket => ( {
-		date: parseSiteDateTime( bucket.date ) ?? parseISO( bucket.date ),
+		date: toChartDate( bucket.date ),
 		value: totals.get( bucket.date ) ?? 0,
 	} ) );
 }
