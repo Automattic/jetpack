@@ -20,6 +20,7 @@ import {
 	isEmptyChartData,
 	getFixedYAxis,
 	dateFormatForResolution,
+	resolveSeriesNames,
 } from '../../helpers';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-line-chart.module.scss';
@@ -144,8 +145,8 @@ export type ComparativeLineChartProps = {
 
 	/**
 	 * Let the reader click legend items to show and hide series. Off by default:
-	 * a chart drawing one metric has nothing to compare, and clicking its only
-	 * item would just empty it.
+	 * with one metric on the chart there is nothing to compare, and hiding either
+	 * its current or its previous period only takes information away.
 	 */
 	legendInteractive?: boolean;
 } & Omit<
@@ -193,48 +194,24 @@ export function ComparativeLineChart( {
 		[ stylesProp, series ]
 	);
 
-	// In a paired chart, a metric's previous period is folded into its legend
-	// item, so name its tooltip row after the group's current period rather than
-	// by the comparison's internal label.
-	const { seriesNames, isPaired } = useMemo( () => {
-		const primaryByGroup = new Map< string, string >();
-		let currentCount = 0;
-
-		for ( const item of series ) {
-			if ( item.options?.type === 'comparison' ) {
-				continue;
-			}
-			currentCount++;
-			if ( item.group !== undefined && ! primaryByGroup.has( item.group ) ) {
-				primaryByGroup.set( item.group, item.label );
-			}
-		}
-
-		const names = new Map< string, string >();
-		for ( const item of series ) {
-			names.set(
-				item.label,
-				( item.group !== undefined && primaryByGroup.get( item.group ) ) || item.label
-			);
-		}
-
-		return { seriesNames: names, isPaired: currentCount > 1 };
-	}, [ series ] );
+	const { seriesNames, isPaired } = useMemo( () => resolveSeriesNames( series ), [ series ] );
 	const legendConfig = useMemo(
 		() => ( { collapseGroups: isPaired, interactive: legendInteractive } ),
 		[ isPaired, legendInteractive ]
 	);
 
 	// Comparison points sit on the primary series' dates, so the tooltip reads
-	// the `realDate` preserved by `alignSeriesDates`. Dates alone name a row
-	// only while one metric is drawn; a pair repeats every date, so each row
-	// leads with the metric it belongs to.
+	// the `realDate` preserved by `alignSeriesDates`. A chart handed more than
+	// one metric prefixes every row with its metric: dates alone would name two
+	// rows the same as soon as the reader reveals the counterpart.
 	const getTooltipLabel = useCallback(
 		( datum: { date: Date; realDate?: Date }, _index: number, key: string ): string => {
-			const entry = seriesNames.get( key );
+			const name = seriesNames.get( key );
 			const displayDate = datum.realDate ?? datum.date;
 			const date = formatTooltipDate( displayDate, tooltipDateFormat );
-			return isPaired ? formatTooltipSeriesLabel( entry ?? key, date ) : date;
+			// Without a name the row would otherwise lead with an internal label,
+			// so fall back to the date, which is always meaningful.
+			return isPaired && name ? formatTooltipSeriesLabel( name, date ) : date;
 		},
 		[ seriesNames, isPaired, formatTooltipDate, tooltipDateFormat ]
 	);

@@ -111,9 +111,13 @@ export function ChartTooltip< TDatum >( {
 					return null;
 				}
 
-				const styleIndex = seriesKeys ? seriesKeys.indexOf( entry.key ) : index;
-				const { stroke, ...lineShapeStyle } =
-					seriesStyles[ styleIndex ] || seriesStyles[ index ] || seriesStyles[ 0 ];
+				// No positional fallback once `seriesKeys` is given: that lookup is the
+				// bug the prop exists to fix, and reinstating it on a miss would paint
+				// the row a wrong-but-plausible swatch rather than an obviously odd one.
+				const style = seriesKeys
+					? seriesStyles[ seriesKeys.indexOf( entry.key ) ]
+					: seriesStyles[ index ];
+				const { stroke, ...lineShapeStyle } = style || seriesStyles[ 0 ];
 				const label = getLabel( entry.datum, index, entry.key );
 				const value = getValue( entry.datum );
 

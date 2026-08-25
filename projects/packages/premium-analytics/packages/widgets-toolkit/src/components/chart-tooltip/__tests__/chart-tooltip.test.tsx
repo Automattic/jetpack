@@ -60,6 +60,24 @@ describe( 'ChartTooltip', () => {
 		] );
 	} );
 
+	it( 'gives a row it has no key for the first style, not a borrowed one', () => {
+		render(
+			<ChartTooltip
+				tooltipData={ TOOLTIP_DATA }
+				dataFormat={ DATA_FORMAT }
+				seriesStyles={ STYLES }
+				// Short list: neither Visitors row appears in it.
+				seriesKeys={ [ 'Views', 'Views · June' ] }
+				indicatorType="rect"
+				getLabel={ ( _datum, _index, key ) => key }
+			/>
+		);
+
+		// Falling back to the row's position would hand these '#views-previous'
+		// and '#visitors-previous' — a wrong swatch that still looks deliberate.
+		expect( swatchFills() ).toEqual( [ '#views', '#views', '#views-previous', '#views' ] );
+	} );
+
 	it( 'falls back to position when no series keys are given', () => {
 		render(
 			<ChartTooltip

@@ -64,7 +64,8 @@ export interface MetricTab {
 	 * Key of the metric to draw beside this one, hidden until the reader reveals
 	 * it from the legend. Pairs are declared per metric rather than derived, so
 	 * a widget decides which of its metrics are worth comparing. A key naming no
-	 * metric in the list, or the metric itself, is ignored.
+	 * metric in the list, the metric itself, or a metric that is `unavailable` at
+	 * the current bucket size, is ignored.
 	 */
 	counterpartKey?: string;
 	/**
@@ -236,8 +237,8 @@ function MetricChart( {
 	const seriesStyles = useSeriesStyles( series );
 	const resolvedDataFormat = metric.dataFormat ?? dataFormat;
 
-	// A lone legend item has nothing to compare against, and clicking it would
-	// only empty the chart.
+	// Without a counterpart there is nothing to compare, and hiding either of the
+	// metric's own periods only takes information away.
 	const legendInteractive = !! counterpart;
 
 	if ( metric.unavailable ) {

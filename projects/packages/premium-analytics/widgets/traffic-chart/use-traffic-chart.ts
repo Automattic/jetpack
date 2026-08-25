@@ -13,7 +13,11 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { TRAFFIC_CHART_METRICS, type TrafficChartGranularity } from './widget';
+import {
+	TRAFFIC_CHART_METRICS,
+	type TrafficChartGranularity,
+	type TrafficChartMetricId,
+} from './widget';
 import { buildMetricTab, type MetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
@@ -23,14 +27,12 @@ import { buildMetricTab, type MetricTab } from '@jetpack-premium-analytics/widge
  */
 export type TrafficPeriod = TrafficChartGranularity;
 
-type TrafficMetricId = ( typeof TRAFFIC_CHART_METRICS )[ number ][ 'id' ];
-
 /**
  * The metrics `stats/visits` fills at the hourly grain. The rest come back
  * `null` there, so they are surfaced as unavailable rather than as zeroes, and
  * their request is skipped.
  */
-const HOURLY_METRICS = new Set< TrafficMetricId >( [ 'views' ] );
+const HOURLY_METRICS = new Set< TrafficChartMetricId >( [ 'views' ] );
 
 /**
  * Normalized traffic chart state: one metric tab per traffic field plus the
@@ -69,7 +71,7 @@ export default function useTrafficChart(
 ): TrafficChartState {
 	const isHourly = period === 'hour';
 	const isServed = useCallback(
-		( metricId: TrafficMetricId ) => ! isHourly || HOURLY_METRICS.has( metricId ),
+		( metricId: TrafficChartMetricId ) => ! isHourly || HOURLY_METRICS.has( metricId ),
 		[ isHourly ]
 	);
 

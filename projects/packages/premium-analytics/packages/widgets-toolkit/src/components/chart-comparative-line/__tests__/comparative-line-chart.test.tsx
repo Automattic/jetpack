@@ -196,11 +196,39 @@ describe( 'ComparativeLineChart', () => {
 		} );
 	} );
 
-	it( 'uses a comparison point real date even when its series name is unavailable', () => {
+	it( 'names a paired row after its metric, not after its own label', () => {
 		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
 		render( <ComparativeLineChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } /> );
 
-		expect( tooltipLabelFor( COMPARISON_POINT, 0, 'Unknown' ) ).toBe( 'Unknown · June 1, 2026' );
+		expect( tooltipLabelFor( { date: JULY_1 }, 2, 'Visitors' ) ).toBe( 'Visitors · July 1, 2026' );
+		// The comparison row borrows its group's current-period name rather than
+		// leading with 'Visitors · previous period'.
+		expect( tooltipLabelFor( COMPARISON_POINT, 3, 'Visitors · previous period' ) ).toBe(
+			'Visitors · June 1, 2026'
+		);
+	} );
+
+	it( 'falls back to the date for a key it has no series for', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		render( <ComparativeLineChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } /> );
+
+		// Leading with the raw key would present an internal label as a metric
+		// name, which is the thing the prefix exists to stop.
+		expect( tooltipLabelFor( COMPARISON_POINT, 0, 'Unknown' ) ).toBe( 'June 1, 2026' );
+	} );
+
+	// `buildReportMetricSeries` draws Views/Visitors/Comments/Likes together with
+	// no comparison, so the performance chart reaches the paired branch too.
+	it( 'names rows by series on a multi-metric chart with no comparison', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		const twoMetrics: ComparativeLineChartSeries[] = [
+			{ label: 'Views', group: 'views', data: [ { date: JULY_1, value: 100 } ] },
+			{ label: 'Visitors', group: 'visitors', data: [ { date: JULY_1, value: 40 } ] },
+		];
+
+		render( <ComparativeLineChart series={ twoMetrics } dataFormat={ DATA_FORMAT } /> );
+
+		expect( tooltipLabelFor( { date: JULY_1 }, 1, 'Visitors' ) ).toBe( 'Visitors · July 1, 2026' );
 	} );
 
 	it( "labels a tooltip with the point's date, read in the site's timezone", () => {

@@ -24,6 +24,7 @@ import {
 	isEmptyChartData,
 	getFixedYAxis,
 	dateFormatForResolution,
+	resolveSeriesNames,
 } from '../../helpers';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
 import { ChartTooltip } from '../chart-tooltip';
@@ -122,8 +123,8 @@ export type ComparativeBarChartProps = {
 
 	/**
 	 * Let the reader click legend items to show and hide series. Off by default:
-	 * a chart drawing one metric has nothing to compare, and clicking its only
-	 * item would just empty it.
+	 * with one metric on the chart there is nothing to compare, and hiding either
+	 * its current or its previous period only takes information away.
 	 */
 	legendInteractive?: boolean;
 };
@@ -212,36 +213,10 @@ export function ComparativeBarChart( {
 		[ xTickFormatType ]
 	);
 
-	/**
-	 * In a paired chart, a metric's previous period is folded into its legend
-	 * item, so name its tooltip row after the group's current period rather than
-	 * by the comparison's internal label. `isPaired` tracks whether the chart
-	 * draws more than one metric, which is when a date stops identifying a row.
-	 */
-	const { primaryByGroup, seriesNames, isPaired } = useMemo( () => {
-		const groupNames = new Map< string, string >();
-		let currentCount = 0;
-
-		for ( const item of series ) {
-			if ( item.options?.type === 'comparison' ) {
-				continue;
-			}
-			currentCount++;
-			if ( item.group !== undefined && ! groupNames.has( item.group ) ) {
-				groupNames.set( item.group, item.label );
-			}
-		}
-
-		const names = new Map< string, string >();
-		for ( const item of series ) {
-			names.set(
-				item.label,
-				( item.group !== undefined && groupNames.get( item.group ) ) || item.label
-			);
-		}
-
-		return { primaryByGroup: groupNames, seriesNames: names, isPaired: currentCount > 1 };
-	}, [ series ] );
+	const { primaryByGroup, seriesNames, isPaired } = useMemo(
+		() => resolveSeriesNames( series ),
+		[ series ]
+	);
 	const legendConfig = useMemo(
 		() => ( { collapseGroups: isPaired, interactive: legendInteractive } ),
 		[ isPaired, legendInteractive ]
@@ -250,8 +225,9 @@ export function ComparativeBarChart( {
 	/**
 	 * Label a tooltip row by its point's own date. Comparison points carry the
 	 * primary series' date for axis alignment, so read `realDate` when present
-	 * or the row would repeat the current period's date. With a pair on the
-	 * chart every date appears twice, so each row leads with its metric.
+	 * or the row would repeat the current period's date. A chart handed more than
+	 * one metric prefixes every row with its metric: dates alone would name two
+	 * rows the same as soon as the reader reveals the counterpart.
 	 */
 	const getTooltipLabel = useCallback(
 		( datum: { date?: Date; realDate?: Date }, _index: number, key: string ): string => {
@@ -259,8 +235,11 @@ export function ComparativeBarChart( {
 			if ( ! displayDate ) {
 				return key;
 			}
+			const name = seriesNames.get( key );
 			const date = formatTooltipDate( displayDate, tooltipDateFormat );
-			return isPaired ? formatTooltipSeriesLabel( seriesNames.get( key ) ?? key, date ) : date;
+			// Without a name the row would otherwise lead with an internal label,
+			// so fall back to the date, which is always meaningful.
+			return isPaired && name ? formatTooltipSeriesLabel( name, date ) : date;
 		},
 		[ seriesNames, isPaired, formatTooltipDate, tooltipDateFormat ]
 	);
