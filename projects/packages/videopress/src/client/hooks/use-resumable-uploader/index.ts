@@ -19,6 +19,19 @@ const debug = debugFactory( 'videopress:use-resumable-uploader' );
 export const UPLOAD_TOKEN_ERROR_CODE = 'videopress_no_upload_token';
 
 /**
+ * A failure as it reaches `onError` and the returned `error`.
+ *
+ * Always an `Error`, but the extras depend on where it came from: `code` on
+ * failures raised here (see `UploadTokenError`), `originalResponse` on tus
+ * transport failures. Consumers branch on both, so they are declared optional
+ * rather than left off the type.
+ */
+export type ResumableUploadError = Error & {
+	code?: string;
+	originalResponse?: { getBody?: () => string };
+};
+
+/**
  * The error raised when the upload JWT can't be obtained.
  */
 export class UploadTokenError extends Error {
@@ -56,10 +69,20 @@ type UseResumableUploader = {
 	resumeHandler: ResumaHandlerProps;
 	uploadingData: UploadingDataProps;
 	media: VideoMediaProps;
-	error: string;
+	error: ResumableUploadError | null;
 };
 
-const useResumableUploader = ( { onProgress, onSuccess, onError } ): UseResumableUploader => {
+type UseResumableUploaderProps = {
+	onProgress: ( bytesSent: number, bytesTotal: number ) => void;
+	onSuccess: ( data: VideoMediaProps ) => void;
+	onError: ( error: ResumableUploadError ) => void;
+};
+
+const useResumableUploader = ( {
+	onProgress,
+	onSuccess,
+	onError,
+}: UseResumableUploaderProps ): UseResumableUploader => {
 	const [ uploadingData, setUploadingData ] = useState< UploadingDataProps >( {
 		bytesSent: 0,
 		bytesTotal: 0,
@@ -68,7 +91,7 @@ const useResumableUploader = ( { onProgress, onSuccess, onError } ): UseResumabl
 	} );
 
 	const [ media, setMedia ] = useState< VideoMediaProps >();
-	const [ error, setError ] = useState( null );
+	const [ error, setError ] = useState< ResumableUploadError | null >( null );
 	const [ resumeHandler, setResumeHandler ] = useState< ResumaHandlerProps >();
 
 	/**
@@ -115,7 +138,7 @@ const useResumableUploader = ( { onProgress, onSuccess, onError } ): UseResumabl
 				setMedia( data );
 				onSuccess( data );
 			},
-			onError: ( err: Error ) => {
+			onError: ( err: ResumableUploadError ) => {
 				setUploadingData( prev => ( { ...prev, status: 'error' } ) );
 				setError( err );
 				onError( err );

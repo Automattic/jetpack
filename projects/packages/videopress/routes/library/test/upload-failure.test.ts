@@ -26,7 +26,7 @@ describe( 'classifyUploadFailure', () => {
 		expect( classifyUploadFailure( failed( 'some_other_code' ), true ) ).toBe( 'other' );
 	} );
 
-	it( 'reports nothing for an upload that has not failed', () => {
+	it( 'returns "other" for an upload that has not failed', () => {
 		expect( classifyUploadFailure( { status: 'uploading', errorCode: undefined }, true ) ).toBe(
 			'other'
 		);

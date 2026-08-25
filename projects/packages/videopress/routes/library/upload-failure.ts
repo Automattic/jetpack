@@ -12,7 +12,7 @@ import type { UploadFailureReason } from '../../src/dashboard/types/library';
  *
  * Both checks are needed, because each rules out a different mistake.
  *
- * @param {UploadItem} item               - The failed queue item.
+ * @param {UploadItem} item               - The queue item to classify. One that has not failed is always 'other'.
  * @param {boolean}    hasConnectionError - Whether the connection store is reporting an error.
  * @return {UploadFailureReason} What to attribute the failure to.
  */
