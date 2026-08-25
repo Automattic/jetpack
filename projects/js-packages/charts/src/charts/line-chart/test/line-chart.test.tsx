@@ -518,10 +518,11 @@ describe( 'LineChart', () => {
 				],
 			} );
 
+			// January is absent: formatMonthOrYearTick renders it as the year instead.
 			const ticks = screen.getAllByText( /^(Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/ );
 			expect( ticks.length ).toBeGreaterThan( 1 );
 			expect(
-				screen.queryByText( /^(February|March|April|May|June|July|August|September|October)$/ )
+				screen.queryByText( /^(February|March|April|June|July|August|September|October)$/ )
 			).not.toBeInTheDocument();
 		} );
 

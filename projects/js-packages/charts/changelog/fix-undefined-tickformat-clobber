@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Charts: keep the abbreviated date tick labels on line and area chart x-axes when a consumer passes an undefined tickFormat.
+LineChart, AreaChart: Keep the derived abbreviated date tick labels when a consumer passes an undefined tickFormat.

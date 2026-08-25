@@ -128,21 +128,20 @@ describe( 'AreaChart', () => {
 
 		test( 'keeps the derived month formatter when tickFormat is passed as undefined', () => {
 			renderWithProvider( {
-				width: 800,
 				options: { axis: { x: { tickFormat: undefined } } },
 				data: monthlySeries,
 			} );
 
+			// January is absent: formatMonthOrYearTick renders it as the year instead.
 			const ticks = screen.getAllByText( /^(Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/ );
 			expect( ticks.length ).toBeGreaterThan( 1 );
 			expect(
-				screen.queryByText( /^(February|March|April|May|June|July|August|September|October)$/ )
+				screen.queryByText( /^(February|March|April|June|July|August|September|October)$/ )
 			).not.toBeInTheDocument();
 		} );
 
 		test( 'honors an explicit tickFormat over the derived formatter', () => {
 			renderWithProvider( {
-				width: 800,
 				options: {
 					axis: {
 						x: {
