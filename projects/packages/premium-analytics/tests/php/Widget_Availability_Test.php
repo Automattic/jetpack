@@ -80,7 +80,7 @@ class Widget_Availability_Test extends BaseTestCase {
 				'category' => 'stats',
 			),
 			array(
-				'name'     => 'jpa/video-detail-highlights',
+				'name'     => 'jpa/video-detail-views-performance',
 				'category' => 'stats',
 			),
 			array(
@@ -217,7 +217,7 @@ class Widget_Availability_Test extends BaseTestCase {
 		$names = $this->available_names( false, true );
 
 		$this->assertContains( 'jpa/videopress', $names );
-		$this->assertContains( 'jpa/video-detail-highlights', $names );
+		$this->assertContains( 'jpa/video-detail-views-performance', $names );
 	}
 
 	/**

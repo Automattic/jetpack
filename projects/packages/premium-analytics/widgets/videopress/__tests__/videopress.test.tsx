@@ -122,7 +122,9 @@ describe( 'VideoPressWidget', () => {
 
 		const title = await screen.findByText( 'Unlinked video' );
 		expect( title ).not.toHaveRole( 'link' );
-		expect( title ).toHaveAttribute( 'title', 'Unlinked video' );
+		// The tooltip lives on the plain-branch wrapper; the label itself sits in
+		// the inner text span shared by every branch.
+		expect( screen.getByTitle( 'Unlinked video' ) ).toBeInTheDocument();
 	} );
 
 	it( 'requests the dashboard date range from report params', async () => {
