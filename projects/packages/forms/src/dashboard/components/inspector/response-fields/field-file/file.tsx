@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-import { Icon, Tooltip } from '@wordpress/components';
+import { Button, Icon, Tooltip } from '@wordpress/components';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
-import { Link, LinkButton } from '@wordpress/ui';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -66,16 +66,9 @@ const FieldFile = ( { file, onClick } ) => {
 				<div className={ iconClass } style={ iconStyle }></div>
 				<div className="jp-forms__inbox-response-file__name">
 					{ file.is_previewable && (
-						<LinkButton
-							variant="unstyled"
-							href={ file.url }
-							onClick={ event => {
-								event.preventDefault();
-								onClick( event );
-							} }
-						>
+						<Button target="_blank" variant="link" onClick={ onClick }>
 							{ decodeEntities( file.name ) }
-						</LinkButton>
+						</Button>
 					) }
 					{ ! file.is_previewable && (
 						<Link openInNewTab href={ file.url + '&preview=true' }>
@@ -94,9 +87,9 @@ const FieldFile = ( { file, onClick } ) => {
 			</div>
 			<span className="jp-forms__inbox-response-file__item-actions">
 				<Tooltip text={ __( 'Download', 'jetpack-forms' ) }>
-					<LinkButton variant="outline" href={ file.url } openInNewTab>
+					<Button variant="secondary" href={ file.url } target="_blank">
 						<Icon icon={ download } />
-					</LinkButton>
+					</Button>
 				</Tooltip>
 			</span>
 		</div>
