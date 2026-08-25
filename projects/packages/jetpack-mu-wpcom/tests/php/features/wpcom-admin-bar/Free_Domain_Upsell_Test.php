@@ -14,11 +14,6 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-bar/wpcom-adm
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/common/class-free-domain-upsell-experiment.php';
 require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
 
-if ( ! function_exists( 'get_current_screen' ) ) {
-	require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
-	require_once ABSPATH . 'wp-admin/includes/screen.php';
-}
-
 /**
  * Tests for the free-domain upsell chip eligibility, experiment resolution,
  * sidebar-notice suppression, tracking surface, and admin bar node.
@@ -122,56 +117,19 @@ class Free_Domain_Upsell_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Fakes the current screen so is_admin() and get_current_screen() see it.
+	 * Sets a real admin screen, same pattern as Survicate_Test.
 	 *
-	 * @param string $id              The screen id.
+	 * @param string $screen_id       The screen id.
 	 * @param bool   $is_block_editor Whether the screen hosts the block editor.
 	 */
-	private function fake_admin_screen( $id, $is_block_editor = false ) {
-		$GLOBALS['current_screen'] = new class( $id, $is_block_editor ) {
-			/**
-			 * The screen id.
-			 *
-			 * @var string
-			 */
-			public $id;
-
-			/**
-			 * Whether the screen hosts the block editor.
-			 *
-			 * @var bool
-			 */
-			private $block_editor;
-
-			/**
-			 * Constructor.
-			 *
-			 * @param string $id              The screen id.
-			 * @param bool   $is_block_editor Whether the screen hosts the block editor.
-			 */
-			public function __construct( $id, $is_block_editor ) {
-				$this->id           = $id;
-				$this->block_editor = $is_block_editor;
-			}
-
-			/**
-			 * Mirrors WP_Screen::in_admin() for is_admin().
-			 *
-			 * @return bool
-			 */
-			public function in_admin() {
-				return true;
-			}
-
-			/**
-			 * Mirrors WP_Screen::is_block_editor().
-			 *
-			 * @return bool
-			 */
-			public function is_block_editor() {
-				return $this->block_editor;
-			}
-		};
+	private function set_admin_screen( $screen_id, $is_block_editor = false ) {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( $screen_id );
+		if ( $is_block_editor ) {
+			$screen   = get_current_screen();
+			$property = ( new \ReflectionClass( $screen ) )->getProperty( 'is_block_editor' );
+			$property->setValue( $screen, true );
+		}
 	}
 
 	// ---- Eligibility ----
@@ -397,7 +355,7 @@ class Free_Domain_Upsell_Test extends \WorDBless\BaseTestCase {
 	 * A regular admin screen reports wp_admin.
 	 */
 	public function test_tracking_surface_wp_admin() {
-		$this->fake_admin_screen( 'edit-post' );
+		$this->set_admin_screen( 'edit-post' );
 		$this->assertSame( 'wp_admin', wpcom_admin_bar_tracking_surface() );
 	}
 
@@ -405,7 +363,7 @@ class Free_Domain_Upsell_Test extends \WorDBless\BaseTestCase {
 	 * A block editor screen reports post_editor.
 	 */
 	public function test_tracking_surface_post_editor() {
-		$this->fake_admin_screen( 'post', true );
+		$this->set_admin_screen( 'post', true );
 		$this->assertSame( 'post_editor', wpcom_admin_bar_tracking_surface() );
 	}
 
@@ -413,7 +371,7 @@ class Free_Domain_Upsell_Test extends \WorDBless\BaseTestCase {
 	 * The site editor reports site_editor (checked before is_block_editor()).
 	 */
 	public function test_tracking_surface_site_editor() {
-		$this->fake_admin_screen( 'site-editor', true );
+		$this->set_admin_screen( 'site-editor', true );
 		$this->assertSame( 'site_editor', wpcom_admin_bar_tracking_surface() );
 	}
 
