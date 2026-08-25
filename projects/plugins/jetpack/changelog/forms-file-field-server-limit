@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: enforce the file upload field's limit when the form is submitted, not only in the browser.

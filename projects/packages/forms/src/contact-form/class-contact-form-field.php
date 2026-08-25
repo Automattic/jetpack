@@ -2366,36 +2366,47 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	private function get_file_field_max_files() {
 		$max_files = $this->get_attribute( 'maxfiles' );
 
-		$max_files = is_numeric( $max_files )
-			? max( 1, min( (int) $max_files, self::FILE_FIELD_MAX_FILES_LIMIT ) )
-			: self::FILE_FIELD_DEFAULT_MAX_FILES;
+		if ( ! is_numeric( $max_files ) ) {
+			return self::FILE_FIELD_DEFAULT_MAX_FILES;
+		}
 
+		return max( 1, min( (int) $max_files, self::get_file_field_max_files_limit() ) );
+	}
+
+	/**
+	 * The highest number of files an author may set a single file upload field to.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int A number between 1 and FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT.
+	 */
+	public static function get_file_field_max_files_limit() {
 		/**
-		 * Filters how many files a single file upload field accepts.
+		 * Filters the highest number of files an author may set a file upload field to.
 		 *
-		 * Applied after the field's own `maxfiles` attribute has been read and clamped, and clamped
-		 * again to FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT afterwards. A filter is site code, so it is
-		 * trusted above what an author may choose — but not without a ceiling, because nothing on the
-		 * receiving end refuses a submission for holding too many files.
+		 * This raises the ceiling rather than setting the count. A field still takes whatever its
+		 * author chose, so one deliberately set to a single file keeps taking a single file — which
+		 * is the whole difference between offering more room and overriding everybody's choice.
 		 *
-		 * The value it receives has already been clamped to FILE_FIELD_MAX_FILES_LIMIT, so a filter
-		 * cannot read an author's out-of-range choice back out of it. Take the raw value from
-		 * `$field->get_attribute( 'maxfiles' )` to honour a per-field number above that.
+		 * The editor's control reads the same number, so what an author is offered is what the site
+		 * will honour. A field already storing a number above the ceiling is clamped down to it, so
+		 * removing this filter returns those fields to the default rather than leaving them on a
+		 * value nothing enforces any more.
 		 *
-		 * The editor's control still offers 1 to FILE_FIELD_MAX_FILES_LIMIT and knows nothing about
-		 * this filter, so a site raising the count is choosing it for every file field it has.
-		 *
-		 * The result reaches the browser as `fieldExtra.maxFiles` and is what the submission-time
-		 * count check is measured against, so the two cannot disagree.
+		 * Bounded by FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT. Nothing at the receiving end refuses a
+		 * submission for holding too many files — the endpoint's per-site budgets log and alert but
+		 * store the file regardless — so this ceiling is the only thing standing in the way.
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param int                 $max_files How many files the field accepts.
-		 * @param Contact_Form_Field  $field     The field being rendered.
+		 * @param int $limit The highest number of files an author may choose.
 		 */
-		$max_files = (int) apply_filters( 'jetpack_forms_file_field_max_files', $max_files, $this );
+		$limit = (int) apply_filters(
+			'jetpack_forms_file_field_max_files_limit',
+			self::FILE_FIELD_MAX_FILES_LIMIT
+		);
 
-		return max( 1, min( $max_files, self::FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT ) );
+		return max( 1, min( $limit, self::FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT ) );
 	}
 
 	/**

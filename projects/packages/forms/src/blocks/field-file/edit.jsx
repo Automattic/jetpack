@@ -19,12 +19,21 @@ import useParentFormClientId from '../shared/hooks/use-parent-form-client-id.js'
 import './editor.scss';
 
 /*
- * Highest value the control offers. Keep in sync with
- * Contact_Form_Field::FILE_FIELD_MAX_FILES_LIMIT, which clamps the attribute again at render time
- * and is what the submission-time check is measured against — this only keeps the editor from
- * offering a number the front end would silently lower.
+ * Highest value the control offers when PHP has not said otherwise. Matches
+ * Contact_Form_Field::FILE_FIELD_MAX_FILES_LIMIT, which is the default the site sends below.
  */
-const MAX_FILES_LIMIT = 10;
+const DEFAULT_MAX_FILES_LIMIT = 10;
+
+/*
+ * What this site will actually honour, after the `jetpack_forms_file_field_max_files_limit` filter.
+ *
+ * Read from PHP rather than hardcoded so the control cannot offer a number the front end would
+ * quietly lower, nor withhold one a filter has made available. A field already storing more than
+ * this is clamped at render time, so a site that removes its filter returns those fields to the
+ * default on its own.
+ */
+const getMaxFilesLimit = () =>
+	window.jpFormsBlocks?.defaults?.maxFilesLimit || DEFAULT_MAX_FILES_LIMIT;
 
 const ALLOWED_BLOCKS = []; // leave this empty to prevent adding new blocks inside and duplicating them.
 const DEFAULT_TEMPLATE = [
@@ -47,6 +56,7 @@ const DEFAULT_TEMPLATE = [
 export default function FileFieldEdit( props ) {
 	const { attributes, clientId, isSelected, setAttributes, name, className } = props;
 	const { id, required, width, maxfiles = 1 } = attributes;
+	const maxFilesLimit = getMaxFilesLimit();
 
 	const fieldFileAvailability = getJetpackExtensionAvailability( 'field-file' );
 
@@ -95,10 +105,10 @@ export default function FileFieldEdit( props ) {
 			}
 
 			setAttributes( {
-				maxfiles: Math.min( Math.max( parsed, 1 ), MAX_FILES_LIMIT ),
+				maxfiles: Math.min( Math.max( parsed, 1 ), maxFilesLimit ),
 			} );
 		},
-		[ setAttributes ]
+		[ setAttributes, maxFilesLimit ]
 	);
 
 	const requiresCustomUpgradeNudge = useMemo( () => {
@@ -135,7 +145,7 @@ export default function FileFieldEdit( props ) {
 								key="maxfiles"
 								label={ __( 'Maximum files', 'jetpack-forms' ) }
 								min={ 1 }
-								max={ MAX_FILES_LIMIT }
+								max={ maxFilesLimit }
 								step={ 1 }
 								value={ maxfiles }
 								onChange={ onChangeMaxFiles }

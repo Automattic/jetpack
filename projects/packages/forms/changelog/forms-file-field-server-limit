@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-File upload field: Enforce the file limit when the form is submitted, not only in the browser.
