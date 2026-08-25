@@ -13,7 +13,7 @@
 		"testing"
 	],
 	"require": {
-		"php": ">=7.2",
+		"php": ">=7.4",
 		"automattic/ignorefile": "@dev",
 		"squizlabs/php_codesniffer": "^3.6.1 || ^4.0.0"
 	},
@@ -31,7 +31,7 @@
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
 		"test-php": "@composer phpunit",
-		"test-php-coverage": "php -dpcov.directory=. -dauto_prepend_file=tests/php/coverage-bootstrap.php ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 	},
 	"repositories": [
 		{

@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Feature_Flags;
  */
 class Feature_Flags {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * Registered feature flags.
@@ -87,7 +87,7 @@ class Feature_Flags {
 		/**
 		 * Filters whether a Jetpack feature flag is enabled.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 *
 		 * @param bool   $enabled    Whether the flag is enabled. Defaults to the registered default.
 		 * @param string $flag_name  Feature flag name.
@@ -102,7 +102,7 @@ class Feature_Flags {
 		 * This mirrors the WordPress `option_{$option}` convention so a single flag can be
 		 * toggled with a `__return_true`/`__return_false` one-liner.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 *
 		 * @param bool  $enabled    Whether the flag is enabled.
 		 * @param array $definition Registered feature flag definition.

@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.12.0] - 2026-08-25
+### Changed
+- Enqueue the connection owner notice script through `wp_add_inline_script()` instead of printing a script element. [#51461]
+- Enqueue the Users screen connection column CSS through `wp_add_inline_style()` instead of printing a style element. [#51459]
+- SSO: Enqueue the login and user-admin styles through `wp_add_inline_style()` instead of printing style elements. [#51460]
+
+### Deprecated
+- Deprecate `Users_Connection_Admin::add_connection_column_styles()`; the Users screen column CSS is enqueued as an inline style now. [#51459]
+- SSO: Deprecate `print_inline_admin_css()` in favour of `enqueue_login_styles()`. [#51460]
+
+## [8.11.0] - 2026-08-20
+### Added
+- Error UI: Document displayable connection errors and identify cases where consumers should offer a support link. [#51360]
+
+### Fixed
+- Terms of Service: Avoid a redundant per-request database query on sites without a persistent object cache. [#50965]
+
+## [8.10.4] - 2026-08-19
+### Changed
+- Tracking: Sanitize the event name, event properties, user agent, IP address, and language recorded with Tracks events. [#51316]
+
+### Fixed
+- Report errors from XML-RPC faults, which were invisible to the existing intake. We also remove invalid_signature from the displayable error codes as it is not actionable. [#51208]
+
 ## [8.10.3] - 2026-08-14
 ### Fixed
 - Account status: Do not report an account mismatch when the WordPress.com email and the site email differ only in letter case. [#51285]
@@ -2004,6 +2028,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.12.0]: https://github.com/Automattic/jetpack-connection/compare/v8.11.0...v8.12.0
+[8.11.0]: https://github.com/Automattic/jetpack-connection/compare/v8.10.4...v8.11.0
+[8.10.4]: https://github.com/Automattic/jetpack-connection/compare/v8.10.3...v8.10.4
 [8.10.3]: https://github.com/Automattic/jetpack-connection/compare/v8.10.2...v8.10.3
 [8.10.2]: https://github.com/Automattic/jetpack-connection/compare/v8.10.1...v8.10.2
 [8.10.1]: https://github.com/Automattic/jetpack-connection/compare/v8.10.0...v8.10.1

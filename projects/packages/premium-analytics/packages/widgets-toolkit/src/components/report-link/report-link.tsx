@@ -2,15 +2,13 @@
  * External dependencies
  */
 import { Link } from '@jetpack-premium-analytics/externals';
-import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import { __ } from '@wordpress/i18n';
 import { Link as RouteLink } from '@wordpress/route';
 import clsx from 'clsx';
-import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { useWidgetRootContext } from '../widget-root';
+import { useWidgetNavigationSearch } from '../../hooks/use-widget-navigation-search';
 import styles from './report-link.module.scss';
 
 export type ReportLinkProps = {
@@ -49,14 +47,7 @@ export type ReportLinkProps = {
  * @return The rendered report link.
  */
 export function ReportLink( { report, section, label, ariaLabel, className }: ReportLinkProps ) {
-	const { reportParams } = useWidgetRootContext();
-	const search = useMemo(
-		() => ( {
-			...pickReportDateParams( reportParams ),
-			...( section ? { section } : {} ),
-		} ),
-		[ reportParams, section ]
-	);
+	const search = useWidgetNavigationSearch( section );
 
 	return (
 		<Link

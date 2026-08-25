@@ -16,6 +16,8 @@ export interface ConnectionErrorData {
 	secondary_action_label?: string;
 	secondary_action_variant?: 'primary' | 'secondary';
 	secondary_tracking_event?: string;
+	/** When true, the notice appends a "Contact Jetpack Support" link, e.g. because a reconnect may not fix it. */
+	support_link?: boolean;
 	[ key: string ]: unknown;
 }
 

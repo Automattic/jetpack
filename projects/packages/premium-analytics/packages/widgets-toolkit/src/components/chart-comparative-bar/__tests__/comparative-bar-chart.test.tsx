@@ -2,9 +2,11 @@
  * External dependencies
  */
 import { render, screen } from '@testing-library/react';
+import { setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
+import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import { ComparativeBarChart } from '../comparative-bar-chart';
 import type { ComparativeBarChartSeries } from '../types';
 
@@ -12,6 +14,7 @@ import type { ComparativeBarChartSeries } from '../types';
 // through a provider jsdom cannot lay out, and what matters here is the option
 // object this wrapper composes.
 const mockBarSpy = jest.fn();
+const mockLegendSpy = jest.fn();
 
 jest.mock( '@jetpack-premium-analytics/externals', () => {
 	const { forwardRef } = jest.requireActual( 'react' );
@@ -22,7 +25,10 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 		// is observable.
 		return <div data-testid="bar-chart">{ props.children }</div>;
 	};
-	BarChart.Legend = () => <div data-testid="bar-chart-legend" />;
+	BarChart.Legend = ( props: Record< string, unknown > ) => {
+		mockLegendSpy( props );
+		return <div data-testid="bar-chart-legend" />;
+	};
 
 	return {
 		BarChart,
@@ -67,6 +73,11 @@ const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 const JULY_1 = new Date( '2026-07-01T00:00:00Z' );
 const JULY_2 = new Date( '2026-07-02T00:00:00Z' );
 
+// A tooltip label reads its point as the instant it is, in the site's timezone,
+// so this one is an instant and every label assertion fixes the site's zone.
+// Callers whose points are wall clocks pass their own `formatTooltipDate`.
+const JULY_2_2PM_TOKYO = new Date( '2026-07-02T05:00:00Z' );
+
 const SERIES: ComparativeBarChartSeries[] = [
 	{
 		label: 'July',
@@ -93,10 +104,39 @@ const SERIES_WITH_COMPARISON: ComparativeBarChartSeries[] = [
 	},
 ];
 
+const UNGROUPED_SERIES_WITH_COMPARISON = SERIES_WITH_COMPARISON.map(
+	( { label, data, options } ) => ( { label, data, options } )
+);
+
+// Two metrics on one chart, each with its previous period — what the traffic
+// chart draws once the reader reveals the counterpart metric.
+const PAIRED_SERIES: ComparativeBarChartSeries[] = [
+	...SERIES_WITH_COMPARISON,
+	{
+		label: 'Visitors',
+		group: 'visitors',
+		data: [
+			{ date: JULY_1, value: 40 },
+			{ date: JULY_2, value: 60 },
+		],
+	},
+	{
+		label: 'Visitors · June',
+		group: 'visitors',
+		options: { type: 'comparison' },
+		data: [
+			{ date: JULY_1, realDate: new Date( '2026-06-01T00:00:00Z' ), value: 30 },
+			{ date: JULY_2, realDate: new Date( '2026-06-02T00:00:00Z' ), value: 35 },
+		],
+	},
+];
+
 /** The props `ComparativeBarChart` hands to `ChartTooltip`. */
 type TooltipProps = {
 	tooltipData: { datumByKey: Record< string, { datum: { value: number } } > };
 	seriesStyles: { stroke: string; opacity?: number }[];
+	seriesKeys?: string[];
+	getLabel: ( datum: { date?: Date; realDate?: Date }, index: number, key: string ) => string;
 };
 
 /**
@@ -110,6 +150,9 @@ function recordedProps(): {
 		yScale?: { domain: [ number, number ] };
 	};
 	margin: { left?: number; right: number };
+	chartId: string;
+	defaultHiddenSeries?: readonly string[];
+	legend: { collapseGroups: boolean; interactive: boolean };
 	gridVisibility?: string;
 	showZeroValues?: boolean;
 	withTooltips: boolean;
@@ -158,6 +201,30 @@ function tooltipRowsFor( hoveredDate: Date ): Record< string, number > {
 	);
 }
 
+/**
+ * The label the tooltip puts on a hovered point.
+ *
+ * @param hoveredDate - The point's date.
+ * @return The rendered row label.
+ */
+function tooltipLabelFor( hoveredDate: Date ): string {
+	/* eslint-disable testing-library/render-result-naming-convention --
+	   As above: this is the chart's `renderTooltip` prop, not testing-library's
+	   `render()`. */
+	const tooltipRenderer = recordedProps().renderTooltip;
+	const hovered = { date: hoveredDate, value: 100 };
+
+	const tooltipNode = tooltipRenderer( {
+		tooltipData: {
+			nearestDatum: { datum: hovered, key: 'July' },
+			datumByKey: { July: { datum: hovered, index: 0, key: 'July' } },
+		},
+	} );
+
+	return tooltipNode.props.getLabel( hovered, 0, 'July' );
+	/* eslint-enable testing-library/render-result-naming-convention */
+}
+
 const ZERO_SERIES: ComparativeBarChartSeries[] = [
 	{
 		label: 'July',
@@ -172,6 +239,7 @@ const ZERO_SERIES: ComparativeBarChartSeries[] = [
 describe( 'ComparativeBarChart', () => {
 	beforeEach( () => {
 		mockBarSpy.mockClear();
+		mockLegendSpy.mockClear();
 		mockChartHeight = Infinity;
 	} );
 
@@ -192,6 +260,51 @@ describe( 'ComparativeBarChart', () => {
 		expect( typeof recordedOptions().axis.x.tickFormat ).toBe( 'function' );
 	} );
 
+	it( 'declares the bucket size to the x-axis', () => {
+		render(
+			<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } tickResolution="hour" />
+		);
+
+		// Two hourly points an hour apart are also two daily points 24 hours apart
+		// as far as gap-measuring goes, so the axis needs telling which it is.
+		expect( recordedOptions().axis.x.tickResolution ).toBe( 'hour' );
+	} );
+
+	it( "labels a tooltip with the point's date, read in the site's timezone", () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
+
+		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'July 2, 2026' );
+	} );
+
+	// A date alone names 24 hourly buckets, so it cannot identify the one hovered
+	// — and the hour it gains has to be the one the axis tick under it shows.
+	it( 'adds the hour the point names at the hourly resolution', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		render(
+			<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } tickResolution="hour" />
+		);
+
+		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'July 2, 2026 2:00 pm' );
+	} );
+
+	// How a point's date is read is the caller's to decide — Stats buckets are
+	// wall clocks rather than instants — while which format names it stays here.
+	it( 'hands the point and the format it picked to a caller-supplied formatter', () => {
+		const formatTooltipDate = jest.fn( () => 'the bucket' );
+		render(
+			<ComparativeBarChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				tickResolution="hour"
+				formatTooltipDate={ formatTooltipDate }
+			/>
+		);
+
+		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'the bucket' );
+		expect( formatTooltipDate ).toHaveBeenCalledWith( JULY_2_2PM_TOKYO, 'dateTime' );
+	} );
+
 	it( 'adds the previous-period value to the tooltip when comparing', () => {
 		render( <ComparativeBarChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );
 
@@ -202,10 +315,105 @@ describe( 'ComparativeBarChart', () => {
 		expect( tooltipRowsFor( JULY_2 ) ).toEqual( { July: 100, June: 120 } );
 	} );
 
+	it( 'adds an ungrouped previous-period value to the tooltip', () => {
+		render(
+			<ComparativeBarChart series={ UNGROUPED_SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } />
+		);
+
+		expect( tooltipRowsFor( JULY_1 ) ).toEqual( { July: 100, June: 80 } );
+	} );
+
 	it( 'leaves the tooltip alone when there is no comparison series', () => {
 		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 
 		expect( tooltipRowsFor( JULY_1 ) ).toEqual( { July: 100 } );
+	} );
+
+	it( 'names the tooltip rows by metric once two are drawn', () => {
+		render( <ComparativeBarChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } /> );
+
+		const { getLabel } = recordedProps().renderTooltip( {
+			tooltipData: { nearestDatum: { datum: { date: JULY_1, value: 100 }, key: 'July' } },
+		} ).props;
+
+		// Every row on a paired chart covers the same hovered date, so a date alone
+		// would label two of them identically. A comparison row is named after the
+		// metric it shadows, not by its own internal label.
+		expect( getLabel( { date: JULY_1 }, 0, 'July' ) ).toBe( 'July · July 1, 2026' );
+		expect( getLabel( { date: JULY_1 }, 2, 'Visitors' ) ).toBe( 'Visitors · July 1, 2026' );
+		expect(
+			getLabel(
+				{ date: JULY_1, realDate: new Date( '2026-06-01T00:00:00Z' ) },
+				3,
+				'Visitors · June'
+			)
+		).toBe( 'Visitors · June 1, 2026' );
+	} );
+
+	it( 'keys the tooltip styles so rows keep their own swatch', () => {
+		render( <ComparativeBarChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } /> );
+
+		/* eslint-disable-next-line testing-library/render-result-naming-convention --
+		   This is the chart's `renderTooltip` prop, not testing-library's `render()`. */
+		const tooltip = recordedProps().renderTooltip( {
+			tooltipData: { nearestDatum: { datum: { date: JULY_1, value: 100 }, key: 'July' } },
+		} );
+
+		// The chart lists both current periods before either previous period, while
+		// the styles follow the series. Without the keys the tooltip pairs each row
+		// with whichever style happens to sit at its position.
+		expect( tooltip.props.seriesKeys ).toEqual( [ 'July', 'June', 'Visitors', 'Visitors · June' ] );
+	} );
+
+	it( 'leaves a hidden metric out of the tooltip', () => {
+		render( <ComparativeBarChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } /> );
+
+		/* eslint-disable testing-library/render-result-naming-convention --
+		   These are the chart's `renderTooltip` prop and its return value. */
+		const hovered = { date: JULY_1, value: 100 };
+		const tooltip = recordedProps().renderTooltip( {
+			tooltipData: {
+				nearestDatum: { datum: hovered, key: 'July' },
+				// A hidden series draws no bar, so the chart never reports one.
+				datumByKey: { July: { datum: hovered, index: 0, key: 'July' } },
+			},
+		} );
+		/* eslint-enable testing-library/render-result-naming-convention */
+
+		// Re-pairing must not resurrect the shadow of a metric the reader hid.
+		expect( Object.keys( tooltip.props.tooltipData.datumByKey ) ).toEqual( [ 'July', 'June' ] );
+	} );
+
+	it( 'passes visibility settings through to the chart and legend', () => {
+		render(
+			<ComparativeBarChart
+				chartId="traffic"
+				series={ PAIRED_SERIES }
+				dataFormat={ DATA_FORMAT }
+				defaultHiddenSeries={ [ 'Visitors', 'Visitors · June' ] }
+				legendInteractive
+			/>
+		);
+
+		expect( recordedProps() ).toMatchObject( {
+			chartId: 'traffic',
+			defaultHiddenSeries: [ 'Visitors', 'Visitors · June' ],
+			legend: { collapseGroups: true, interactive: true },
+		} );
+		expect( mockLegendSpy ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { interactive: true } )
+		);
+	} );
+
+	it( 'collapses a single metric two periods into one legend item', () => {
+		render( <ComparativeBarChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );
+
+		// A legend item names the metric; solid vs previous-period mark is what
+		// tells the two apart, so there is nothing for a second item to say.
+		expect( recordedProps().legend ).toEqual( {
+			collapseGroups: true,
+			interactive: false,
+		} );
 	} );
 
 	it( 'always formats the y axis', () => {

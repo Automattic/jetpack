@@ -256,6 +256,22 @@ export const RescaleYOnVisibilityChange: StoryObj< StoryArgs > = {
 	},
 };
 
+export const WithDefaultHiddenSeries: StoryObj< StoryArgs > = Template.bind( {} );
+WithDefaultHiddenSeries.args = {
+	...Default.args,
+	legendInteractive: true,
+	chartId: 'default-hidden-series-demo',
+	defaultHiddenSeries: [ 'London' ],
+};
+WithDefaultHiddenSeries.parameters = {
+	docs: {
+		description: {
+			story:
+				'London is hidden from the initial render and marked inactive in the legend. Select its legend item to reveal it.',
+		},
+	},
+};
+
 export const WithCompositionLegend: StoryObj< StoryArgs > = {
 	render: args => {
 		const legend = extractLegendConfig< ChartLegendConfig< SeriesData[] > >( args );

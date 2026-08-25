@@ -8,8 +8,8 @@ function makeReport( items: StatsTopPostsItem[] ): StatsNormalizedReport< StatsT
 		data: [
 			{
 				time_interval: '2026-06-25',
-				date_start: '2026-06-25T00:00:00+00:00',
-				date_end: '2026-06-25T23:59:59+00:00',
+				date_start: '2026-06-25T00:00:00',
+				date_end: '2026-06-25T23:59:59',
 				items,
 			},
 		],
@@ -29,14 +29,14 @@ describe( 'Stats top posts normalizer', () => {
 			summary: {
 				total_views: 0,
 				dropped_ids: [],
-				date_start: '2026-06-16T00:00:00+00:00',
-				date_end: '2026-06-22T23:59:59+00:00',
+				date_start: '2026-06-16T00:00:00',
+				date_end: '2026-06-22T23:59:59',
 			},
 			data: [
 				{
 					time_interval: '2026-06-22',
-					date_start: '2026-06-16T00:00:00+00:00',
-					date_end: '2026-06-22T23:59:59+00:00',
+					date_start: '2026-06-16T00:00:00',
+					date_end: '2026-06-22T23:59:59',
 					items: [
 						expect.objectContaining( {
 							id: 265143,
@@ -75,8 +75,8 @@ describe( 'Stats top posts normalizer', () => {
 		expect( result.data ).toEqual( [
 			{
 				time_interval: '2026-06-16',
-				date_start: '2026-06-16T00:00:00+00:00',
-				date_end: '2026-06-16T23:59:59+00:00',
+				date_start: '2026-06-16T00:00:00',
+				date_end: '2026-06-16T23:59:59',
 				items: [
 					expect.objectContaining( {
 						id: 41,

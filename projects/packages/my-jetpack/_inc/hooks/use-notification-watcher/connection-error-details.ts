@@ -154,55 +154,6 @@ export function getConnectionErrorScope(
 }
 
 /**
- * How to phrase a detail line.
- */
-export type ConnectionErrorDetailOptions = {
-	/** Leave the scope out and return the code alone. */
-	omitScope?: boolean;
-};
-
-/**
- * Build the supporting detail line shown under an error's message: the scope it
- * applies to, plus the raw error code when one is available so the error can be
- * quoted verbatim to support.
- *
- * @param {ConnectionErrorObject}        error   - The error to describe.
- * @param {ConnectionErrorViewer}        viewer  - Who is looking at the notice.
- * @param {ConnectionErrorDetailOptions} options - How to phrase the line.
- * @return {string} The detail line, empty when there is nothing left to say.
- */
-export function getConnectionErrorDetail(
-	error: ConnectionErrorObject,
-	viewer: ConnectionErrorViewer = {},
-	{ omitScope = false }: ConnectionErrorDetailOptions = {}
-): string {
-	const code = typeof error?.error_code === 'string' ? error.error_code : '';
-
-	if ( omitScope ) {
-		return code
-			? sprintf(
-					/* translators: %s is the raw error code. */
-					__( 'Error code: %s', 'jetpack-my-jetpack' ),
-					code
-			  )
-			: '';
-	}
-
-	const scope = getConnectionErrorScope( error, viewer );
-
-	if ( ! code ) {
-		return scope;
-	}
-
-	return sprintf(
-		/* translators: %1$s is what the error applies to (e.g. "Site connection"), %2$s is the raw error code. */
-		__( '%1$s · Error code: %2$s', 'jetpack-my-jetpack' ),
-		scope,
-		code
-	);
-}
-
-/**
  * One rendered detail line, standing for one or more errors.
  */
 export type ConnectionErrorDetailLine = {
@@ -216,33 +167,24 @@ export type ConnectionErrorDetailLine = {
  * Build the detail lines for a set of errors, collapsing any that would read
  * identically.
  *
- * Errors that differ in the payload can still describe the same thing to this
- * viewer — the same code reported against both the blog token and a consumer's
- * injected copy of it reduces to one line. Rendering those verbatim looks like a
- * duplication bug, so collapse them.
+ * A line says which token the error belongs to, and nothing else.
  *
- * @param {ConnectionErrorObject[]} errors    - The errors to describe.
- * @param {ConnectionErrorViewer}   viewer    - Who is looking at the notice.
- * @param {boolean}                 omitScope - Leave the scope out, for when it is already in the title.
+ * When the title already names the scope, there is nothing left for a line to
+ * say; the caller renders no lines at all rather than asking for them here.
+ *
+ * @param {ConnectionErrorObject[]} errors - The errors to describe.
+ * @param {ConnectionErrorViewer}   viewer - Who is looking at the notice.
  * @return {ConnectionErrorDetailLine[]} The deduplicated detail lines.
  */
 export function getConnectionErrorDetailLines(
 	errors: ConnectionErrorObject[],
-	viewer: ConnectionErrorViewer = {},
-	omitScope: boolean = false
+	viewer: ConnectionErrorViewer = {}
 ): ConnectionErrorDetailLine[] {
 	// Keyed by the line each error would render as.
 	const lines = new Set< string >();
 
 	for ( const error of errors ) {
-		const detail = getConnectionErrorDetail( error, viewer, { omitScope } );
-
-		// Without a scope, a codeless error has nothing left to say.
-		if ( ! detail ) {
-			continue;
-		}
-
-		lines.add( detail );
+		lines.add( getConnectionErrorScope( error, viewer ) );
 	}
 
 	return [ ...lines ].map( detail => ( { key: detail, text: detail } ) );
