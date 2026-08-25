@@ -149,7 +149,7 @@ describe( 'AiOverview', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
-	test( 'renewal date: holds its day under a western site timezone', async () => {
+	test( 'renewal date: follows the site timezone, as the other purchase surfaces do', async () => {
 		// @wordpress/date defaults to offset 0 in jest, which would make the
 		// assertion vacuous; pin a UTC-7 site for this test only.
 		const saved = getDateSettings();
@@ -158,14 +158,15 @@ describe( 'AiOverview', () => {
 			timezone: { ...saved.timezone, offset: -7, string: '' },
 		} );
 		try {
-			// The purchase date is UTC midnight, so it must name that same day
-			// on a western site, not the day before.
+			// A UTC-midnight purchase date is still the previous evening on a
+			// western site, and the card names that local day — matching My
+			// Jetpack rather than pinning the date to UTC.
 			apiFetch.mockResolvedValueOnce( unlimitedPayload() );
 			render(
 				<AiOverview { ...PROPS } planName="Business" planRenewsOn="2026-12-23T00:00:00+00:00" />
 			);
 			await expect(
-				screen.findByText( renewalLine( 'Renews on: December 23, 2026' ) )
+				screen.findByText( renewalLine( 'Renews on: December 22, 2026' ) )
 			).resolves.toBeInTheDocument();
 		} finally {
 			setDateSettings( saved );
