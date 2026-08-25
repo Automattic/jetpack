@@ -222,6 +222,10 @@ function register_default_dashboard_sections() {
 			'description'    => __( 'How your ads are performing, and what they have earned you.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 50,
 			'is_available'   => __NAMESPACE__ . '\\is_ads_dashboard_section_available_to_current_user',
+			// Four of the five widgets read `wordads/earnings`, which takes no date
+			// parameters, so a section-wide control would claim to filter what it
+			// cannot. The chart hosts its own range instead.
+			'date_filter'    => Dashboard_Section::DATE_FILTER_NONE,
 			'default_layout' => static function () {
 				return get_dashboard_default_layout_for( 'analytics/ads' );
 			},

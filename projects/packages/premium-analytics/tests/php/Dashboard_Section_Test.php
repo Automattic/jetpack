@@ -342,7 +342,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'insights'    => Dashboard_Section::DATE_FILTER_YEAR,
 				'subscribers' => Dashboard_Section::DATE_FILTER_RANGE,
 				'store'       => Dashboard_Section::DATE_FILTER_RANGE,
-				'ads'         => Dashboard_Section::DATE_FILTER_RANGE,
+				'ads'         => Dashboard_Section::DATE_FILTER_NONE,
 			),
 			array_column(
 				array_map(
