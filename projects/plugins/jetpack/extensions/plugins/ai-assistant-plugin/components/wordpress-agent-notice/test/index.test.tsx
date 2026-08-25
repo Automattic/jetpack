@@ -1,7 +1,14 @@
 import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { speak } from '@wordpress/a11y';
-import { createReduxStore, dispatch, register, select } from '@wordpress/data';
+import {
+	createRegistry,
+	createReduxStore,
+	dispatch,
+	register,
+	RegistryProvider,
+	select,
+} from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
 import WordPressAgentNotice, {
 	DISMISSED_PREFERENCE,
@@ -67,6 +74,9 @@ describe( 'WordPressAgentNotice', () => {
 		mockIsAgentReady = true;
 		mockIsChatOnScreen = false;
 		mockIsFeatureAvailable = true;
+		// The audience props read these server-injected globals for real.
+		delete ( globalThis as Record< string, unknown > ).agentsManagerData;
+		delete ( globalThis as Record< string, unknown > ).bigSkyInitialState;
 	} );
 
 	describe( 'useWordPressAgentNotice', () => {
@@ -256,6 +266,33 @@ describe( 'WordPressAgentNotice', () => {
 		expect( propertiesOf( 'jetpack_big_sky_agent_notice_dismiss' ) ).toMatchObject( expected );
 	} );
 
+	it( 'records the surface and audience context with each event', async () => {
+		const user = userEvent.setup();
+		( globalThis as Record< string, unknown > ).agentsManagerData = {
+			isA11n: true,
+			isDevMode: true,
+		};
+		render( <WordPressAgentNotice placement="document-settings" /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
+
+		const expected = { surface: 'block_editor', is_test: true, is_a11n: true };
+		expect( propertiesOf( 'jetpack_big_sky_agent_notice_click' ) ).toMatchObject( expected );
+		expect( propertiesOf( 'jetpack_big_sky_agent_notice_dismiss' ) ).toMatchObject( expected );
+	} );
+
+	it( 'omits is_a11n when the server payload does not carry it', async () => {
+		const user = userEvent.setup();
+		render( <WordPressAgentNotice placement="document-settings" /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
+
+		const properties = propertiesOf( 'jetpack_big_sky_agent_notice_click' );
+		expect( properties ).toMatchObject( { is_test: false } );
+		expect( properties ).not.toHaveProperty( 'is_a11n' );
+	} );
+
 	it.each( [ 'woa', 'jetpack' ] as const )( 'reports a %s site as itself', async siteType => {
 		const user = userEvent.setup();
 		mockSiteType = siteType;
@@ -278,6 +315,24 @@ describe( 'WordPressAgentNotice', () => {
 		expect( propertiesOf( 'jetpack_big_sky_agent_notice_click' ) ).not.toHaveProperty(
 			'post_type'
 		);
+	} );
+
+	it( 'omits the surface where no editor store exists, as the family recorder does', async () => {
+		const user = userEvent.setup();
+		// An isolated registry stands in for a screen without the block editor.
+		const registry = createRegistry();
+		registry.register( preferencesStore );
+		render(
+			<RegistryProvider value={ registry }>
+				<WordPressAgentNotice placement="document-settings" />
+			</RegistryProvider>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
+
+		const properties = propertiesOf( 'jetpack_big_sky_agent_notice_click' );
+		expect( properties ).not.toHaveProperty( 'surface' );
+		expect( properties ).not.toHaveProperty( 'post_type' );
 	} );
 
 	it( 'omits the plan tier when the site has no tier', async () => {
