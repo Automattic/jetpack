@@ -21,7 +21,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { queryClient } from '../src/dashboard/data/query-client';
@@ -109,15 +109,29 @@ beforeEach( () => {
 } );
 
 /**
- * The single root file's own checkbox. `getAllByRole` returns document
- * order: the tree has exactly one root file, so its row checkbox is
- * always the second one — the first is the tree's own "N selected"
- * summary checkbox, rendered above the tree.
+ * The single root file's own checkbox.
+ *
+ * The row checkboxes carry `label=""` and no `aria-label`, so there is
+ * nothing to address them by name — position is the only handle. Scoped
+ * to the file browser so it stays the right handle: DataViews' list
+ * layout renders no row checkboxes today, but a layout change that
+ * added them would otherwise silently move this index onto an activity
+ * row. Within the browser the order is fixed — the tree's own "N items
+ * selected" summary checkbox first, then the one root file's row.
  *
  * @return The file row's checkbox.
  */
 function fileRowCheckbox(): HTMLElement {
-	return screen.getAllByRole( 'checkbox' )[ 1 ];
+	return within( fileBrowser() ).getAllByRole( 'checkbox' )[ 1 ];
+}
+
+/**
+ * The file browser pane.
+ *
+ * @return The file browser container.
+ */
+function fileBrowser(): HTMLElement {
+	return document.querySelector( '.jpb-file-browser' ) as HTMLElement;
 }
 
 describe( 'Switching between backups', () => {
@@ -133,12 +147,16 @@ describe( 'Switching between backups', () => {
 		).resolves.toBeInTheDocument();
 		await userEvent.click( fileRowCheckbox() );
 
-		// Selecting the file swaps the header action's label off its default.
+		// Selecting the file swaps both header actions off their defaults.
 		// The mocked `<Link>` renders a plain `<a>` with no `href` (the real
 		// component takes `to`), so it carries no implicit `link` role here.
+		// Both are asserted because `BackupDetail` labels them from one
+		// `count`, and a reset that missed either would leave the reader a
+		// header that describes a selection they cannot see.
 		await expect(
 			screen.findByText( 'Download 1 selected item', undefined, SETTLE )
 		).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Restore 1 selected item' ) ).toBeInTheDocument();
 
 		// Open the file's preview as well. A regression that cleared the
 		// selection but left `openFile` set would otherwise pass.
@@ -163,5 +181,7 @@ describe( 'Switching between backups', () => {
 		expect( fileRowCheckbox() ).not.toBeChecked();
 		expect( screen.getByText( 'Download backup' ) ).toBeInTheDocument();
 		expect( screen.queryByText( /Download \d+ selected item/ ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Restore to this point' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /Restore \d+ selected item/ ) ).not.toBeInTheDocument();
 	} );
 } );
