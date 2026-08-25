@@ -7,12 +7,14 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WP_Block;
+use WP_Block_Type_Registry;
 use WP_Error;
 
 // Load the Form_Submission_Error class for testing.
@@ -26,7 +28,20 @@ require_once __DIR__ . '/../../../src/contact-form/class-form-submission-error.p
 #[CoversClass( Contact_Form_Plugin::class )]
 class Contact_Form_Plugin_Test extends BaseTestCase {
 
-	private $get_current_user;
+	/**
+	 * The `$post` global as it was when the test started, restored in tearDown().
+	 *
+	 * @var \WP_Post|null
+	 */
+	private $post_global_backup;
+
+	/**
+	 * The `$_POST` superglobal as it was when the test started, restored in tearDown().
+	 *
+	 * @var array
+	 */
+	private $post_superglobal_backup;
+
 	/**
 	 * Test that ::revert_that_print works correctly
 	 *
@@ -621,31 +636,27 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	public function test_process_form_with_jwt() {
-		$previous_post = $this->setup_token_test( null, 'Test User' );
+		$this->setup_token_test( null, 'Test User' );
 
 		$plugin = Contact_Form_Plugin::init();
 		$result = $plugin->process_form_submission();
 
 		$this->assertInstanceOf( WP_Error::class, $result, 'Expected a WP_Error when processing the form submission.' );
 		$this->assertEquals( 'check_spam', $result->get_error_code(), 'Expected the error code to be "check_spam".' );
-
-		$this->teardown_post_for_test( $previous_post );
 	}
 
 	public function test_process_form_with_jwt_validation_error() {
-		$previous_post = $this->setup_token_test( null );
+		$this->setup_token_test( null );
 
 		$plugin = Contact_Form_Plugin::init();
 		$result = $plugin->process_form_submission();
 		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when processing the form submission.' );
 		$this->assertEquals( 'Name field is required.', $result->get_error_message(), 'Expected the error message to be "Name field is required.".' );
 		$this->assertTrue( $result->is_validation_type(), 'Expected this to be a validation error.' );
-
-		$this->teardown_post_for_test( $previous_post );
 	}
 
 	public function test_process_form_with_fake_jwt() {
-		$previous_post = $this->setup_token_test( 'fake.jwt.token' );
+		$this->setup_token_test( 'fake.jwt.token' );
 
 		$plugin = Contact_Form_Plugin::init();
 		$result = $plugin->process_form_submission();
@@ -653,14 +664,10 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when processing the form submission with invalid JWT.' );
 		$this->assertEquals( 'invalid_jwt', $result->get_error_code(), 'Expected the error code to be "invalid_jwt".' );
 		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
-
-		$this->teardown_post_for_test( $previous_post );
 	}
 
 	public function test_process_form_with_deleted_parent_post() {
-		global $post;
-		$previous_post = $this->setup_token_test( null, 'Test User' );
-		$post_id       = $post->ID;
+		$post_id = $this->setup_token_test( null, 'Test User' );
 
 		// Delete the parent post after JWT is created
 		wp_delete_post( $post_id, true );
@@ -672,19 +679,10 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertEquals( 'form_unavailable', $result->get_error_code(), 'Expected the error code to be "form_unavailable".' );
 		$this->assertEquals( 'This form is no longer available.', $result->get_error_message(), 'Expected appropriate error message.' );
 		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
-
-		$post = $previous_post; // Restore the previous post.
-		remove_filter( 'jetpack_contact_form_is_spam', array( $this, 'return_error_for_test' ) );
-		unset( $_POST['contact-form-hash'] );
-		unset( $_POST['jetpack_contact_form_jwt'] );
-		unset( $_POST['contact-form-id'] );
-		unset( $_POST[ 'g' . $post_id . '-name' ] );
 	}
 
 	public function test_process_form_with_trashed_parent_post() {
-		global $post;
-		$previous_post = $this->setup_token_test( null, 'Test User' );
-		$post_id       = $post->ID;
+		$post_id = $this->setup_token_test( null, 'Test User' );
 
 		// Move the parent post to trash after JWT is created
 		wp_trash_post( $post_id );
@@ -696,13 +694,20 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertEquals( 'form_unavailable', $result->get_error_code(), 'Expected the error code to be "form_unavailable".' );
 		$this->assertEquals( 'This form is no longer available.', $result->get_error_message(), 'Expected appropriate error message.' );
 		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
-
-		$this->teardown_post_for_test( $previous_post );
 	}
 
+	/**
+	 * Publish a post holding a contact form and stage a submission for it in `$_POST`.
+	 *
+	 * The `$post` global, `$_POST` and the current user are all reset by
+	 * tearDown(), so callers don't have to clean up after themselves.
+	 *
+	 * @param string|null $token The JWT to submit. Defaults to a valid one for the form.
+	 * @param string|null $name  Value for the form's required Name field. Omit to submit it empty.
+	 * @return int The ID of the post holding the form.
+	 */
 	private function setup_token_test( $token = null, $name = null ) {
 		global $post;
-		$this->get_current_user = wp_get_current_user();
 		wp_set_current_user( 0 );
 		$post_id = wp_insert_post(
 			array(
@@ -713,8 +718,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			)
 		);
 
-		$previous_post = $post;
-		$post          = get_post( $post_id );
+		$post = get_post( $post_id );
 		// We do this because we don't currenly have a way to prevent the redirect to happen.
 		add_filter( 'jetpack_contact_form_is_spam', array( $this, 'return_error_for_test' ) );
 		$form                              = new Contact_Form( array( 'to' => 'test@example.com' ), "[contact-field label='Name' type='name' required='1'/]" );
@@ -726,19 +730,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			$_POST[ 'g' . $post_id . '-name' ] = $name;
 		}
 
-		return $previous_post;
-	}
-
-	private function teardown_post_for_test( $previous_post ) {
-		global $post;
-		wp_set_current_user( $this->get_current_user->ID );
-		wp_delete_post( $post->ID, true ); // Clean up the test post.
-		$post = $previous_post; // Restore the previous post.
-		remove_filter( 'jetpack_contact_form_is_spam', array( $this, 'return_error_for_test' ) );
-		unset( $_POST['contact-form-hash'] );
-		unset( $_POST['jetpack_contact_form_jwt'] );
-		unset( $_POST['contact-form-id'] );
-		unset( $_POST[ 'g' . $post->ID . '-name' ] );
+		return $post_id;
 	}
 
 	public function return_error_for_test() {
@@ -1039,7 +1031,13 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		wp_delete_post( $test_id, true );
 	}
 
+	/**
+	 * A feedback whose source post has since been deleted exports the stored
+	 * entry title, flagged as deleted, and no source URL.
+	 */
 	public function test_interpersonal_data_exporter() {
+		// create_legacy_feedback() files the feedback under the `$post` global.
+		$source_post = Utility::create_post_context();
 
 		$post_id = Utility::create_legacy_feedback(
 			array(
@@ -1048,6 +1046,9 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 				'3_email' => 'hello@example.com',
 			)
 		);
+
+		// The feedback outlives the post the form was on.
+		Utility::destroy_post_context( $source_post );
 
 		$plugin   = Contact_Form_Plugin::init();
 		$exporter = $plugin->internal_personal_data_formater( array( $post_id ) );
@@ -1101,6 +1102,36 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			$exporter[0]
 		);
 		$this->assertIsArray( $exporter, 'Expected the exporter to return an array.' );
+	}
+
+	/**
+	 * While the source post still exists, the exporter reports its current
+	 * title and permalink rather than the values stored with the feedback.
+	 */
+	public function test_interpersonal_data_exporter_with_existing_source_post() {
+		$source_post = Utility::create_post_context();
+
+		$post_id = Utility::create_legacy_feedback( array( '1_field' => 'value1' ) );
+
+		$plugin   = Contact_Form_Plugin::init();
+		$exporter = $plugin->internal_personal_data_formater( array( $post_id ) );
+
+		$this->assertContains(
+			array(
+				'name'  => 'Source Title',
+				'value' => $source_post->post_title,
+			),
+			$exporter[0]['data'],
+			'Expected the exporter to report the live source post title.'
+		);
+		$this->assertContains(
+			array(
+				'name'  => 'Source URL:',
+				'value' => get_permalink( $source_post->ID ),
+			),
+			$exporter[0]['data'],
+			'Expected the exporter to report the live source post permalink.'
+		);
 	}
 
 	public function test_personal_data_search_filter_v2_unicode_search() {
@@ -1162,18 +1193,47 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Reset the menu-badges registry before each unread_count test so entries
-	 * left by other test classes in the same PHPUnit process don't leak in.
+	 * Give each test a clean `$post` and `$_POST` to work from, and reset the
+	 * menu-badges registry so entries left by other test classes in the same
+	 * PHPUnit process don't leak in. The previous values are put back in
+	 * tearDown() so this class doesn't disturb the rest of the suite either.
 	 */
 	public function setUp(): void {
 		parent::setUp();
+		global $post;
+		$this->post_global_backup      = $post;
+		$this->post_superglobal_backup = $_POST ?? array();
+		$post                          = null;
+		$_POST                         = array();
 		Notification_Counts::reset();
+
+		/*
+		 * The field blocks carry the color and typography supports that
+		 * gutenblock_render_field_*() turns into shortcode attributes, and
+		 * Contact_Form_Plugin's constructor registers the feedback post type
+		 * with its comment settings. Set both up here rather than relying on
+		 * another test class in the same PHPUnit process having done it.
+		 * Registering a block twice is an error, so check first; init() is a
+		 * singleton and already no-ops on later calls.
+		 */
+		if ( ! WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/label' ) ) {
+			Contact_Form_Block::register_child_blocks();
+		}
+		Contact_Form_Plugin::init();
 	}
 
 	/**
-	 * Clean up the menu-badges registry and options after each unread_count test.
+	 * Restore the globals and clean up the menu-badges registry and options.
+	 *
+	 * This runs even when an assertion fails part-way through a test, so no
+	 * test can leave a stale `$post` or extra `$_POST` keys behind for the
+	 * next one. Posts, users, options and hooks are cleared for us by
+	 * WorDBless, which is why none of that is repeated here.
 	 */
 	public function tearDown(): void {
+		global $post;
+		$post  = $this->post_global_backup;
+		$_POST = $this->post_superglobal_backup;
 		Notification_Counts::reset();
 		remove_filter( 'jetpack_forms_alpha', '__return_false' );
 		delete_option( 'jetpack_feedback_unread_count' );
@@ -1541,7 +1601,8 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	public function test_comment_filter_only_affects_feedback_posts() {
 		$regular_post_id = wp_insert_post(
 			array(
-				'post_type' => 'post',
+				'post_type'  => 'post',
+				'post_title' => 'Regular Post',
 			)
 		);
 
@@ -1700,6 +1761,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$post_id = wp_insert_post(
 			array(
 				'post_type'   => 'post',
+				'post_title'  => 'Regular Post',
 				'post_status' => 'publish',
 			)
 		);
@@ -1740,6 +1802,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$post_id = wp_insert_post(
 			array(
 				'post_type'   => $post_type,
+				'post_title'  => 'Test Form',
 				'post_status' => $old_status,
 			)
 		);
