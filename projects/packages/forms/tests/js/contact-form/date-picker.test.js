@@ -169,25 +169,56 @@ describe( 'contact form date picker', () => {
 		} );
 
 		it( 'lets the <label> name the input once the picker is open', () => {
+			let opened = false;
 			picker = DatePicker( input, {} );
+			picker.on( 'open', () => {
+				opened = true;
+			} );
 
 			picker.open();
 
-			expect( document.body.querySelector( '.dp' ) ).not.toBeNull();
+			expect( opened ).toBe( true );
 			expect( input ).toHaveAccessibleName( 'Birthday' );
 			expect( input ).not.toHaveAttribute( 'aria-label' );
 		} );
 
 		it( 'lets the <label> name the input when the down arrow key opens the picker', () => {
+			let opened = false;
 			picker = DatePicker( input, {} );
+			picker.on( 'open', () => {
+				opened = true;
+			} );
 
 			input.dispatchEvent( new KeyboardEvent( 'keydown', { code: 'ArrowDown', bubbles: true } ) );
 
-			// Without this the test passes for any key at all, including ones the
-			// handler ignores, so it would not notice the down-arrow binding breaking.
-			expect( document.body.querySelector( '.dp' ) ).not.toBeNull();
+			// Without this the test passes for any key the handler ignores, so it
+			// would not notice the down-arrow binding breaking.
+			expect( opened ).toBe( true );
 			expect( input ).toHaveAccessibleName( 'Birthday' );
 			expect( input ).not.toHaveAttribute( 'aria-label' );
+		} );
+	} );
+
+	/*
+	 * When block visibility hides a field's label, the server puts the name
+	 * straight on the input via get_hidden_label_aria_label_attr(). That is the
+	 * case the old behavior hurt most — the input's only name was the one the
+	 * picker overwrote — so a legitimate server-supplied name must survive too.
+	 */
+	describe( 'accessible name when the field label is hidden', () => {
+		beforeEach( () => {
+			setUserAgent( DESKTOP_UA );
+			setMaxTouchPoints( 0 );
+			input = createInput();
+			input.setAttribute( 'aria-label', 'Birthday' );
+		} );
+
+		it( 'leaves a server-supplied aria-label intact', () => {
+			picker = DatePicker( input, {} );
+
+			picker.open();
+
+			expect( input ).toHaveAccessibleName( 'Birthday' );
 		} );
 	} );
 } );
