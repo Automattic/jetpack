@@ -238,10 +238,22 @@ describe( 'landmarks', () => {
 	it( 'exposes the section as a named region, not a bare container', async () => {
 		// `<section>` maps to `region` only when it has an accessible name.
 		// Without one a screen reader cannot jump to the answer to "why did
-		// my backups stop".
+		// my backups stop". Querying by name also proves the `id` survives
+		// `<Text render={ … } />`, which is what `aria-labelledby` points at.
 		renderWithClient( <StorageSpace /> );
 		await expect(
 			screen.findByRole( 'region', { name: 'Cloud storage space' } )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'puts the heading at level 3, level with its siblings', async () => {
+		// Deliberately not legacy's `h2`. The backup and activity detail
+		// cards are `h3` and are visual siblings of this section, so an
+		// `h2` here would read as though they were nested inside cloud
+		// storage.
+		renderWithClient( <StorageSpace /> );
+		await expect(
+			screen.findByRole( 'heading', { level: 3, name: 'Cloud storage space' } )
 		).resolves.toBeInTheDocument();
 	} );
 } );

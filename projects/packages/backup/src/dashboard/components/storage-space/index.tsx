@@ -58,7 +58,13 @@ export default function StorageSpace() {
 
 	return (
 		<section className="jpb-storage-space" aria-labelledby={ headingId }>
-			<Text variant="heading-md" render={ <h2 id={ headingId } /> }>
+			{ /*
+			 * `h3` rather than the `h2` legacy uses, to match every other
+			 * heading in this dashboard — the backup and activity detail
+			 * cards are visual siblings of this section, not children of
+			 * it, and an `h2` here would put them under it in the outline.
+			 */ }
+			<Text variant="heading-md" render={ <h3 id={ headingId } /> }>
 				{ sectionHeading( usage.usageLevel ) }
 			</Text>
 			<StorageMeter

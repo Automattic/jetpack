@@ -6,10 +6,10 @@
 	inline-size: 100%;
 	margin-block-end: 24px;
 
-	// `<Text render={ <h2 /> }>` renders a real heading, which inherits
-	// wp-admin's own `h2` margins. Reset both so the gap to the bar is
+	// `<Text render={ <h3 /> }>` renders a real heading, which inherits
+	// wp-admin's own `h3` margins. Reset both so the gap to the bar is
 	// this file's decision.
-	h2 {
+	h3 {
 		margin-block: 0 12px;
 	}
 }
