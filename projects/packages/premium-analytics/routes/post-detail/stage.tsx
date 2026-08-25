@@ -3,7 +3,7 @@ import {
 	GlobalErrorProvider,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { Button } from '@jetpack-premium-analytics/externals';
+import { LinkButton } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
@@ -142,19 +142,18 @@ function PostDetail(): JSX.Element {
 					breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
 					actions={
 						publicUrl ? (
-							<Button
+							<LinkButton
 								variant="solid"
 								tone="neutral"
 								size="compact"
-								nativeButton={ false }
-								role="link"
 								className={ styles.viewPost }
-								render={ <a href={ publicUrl } target="_blank" rel="noopener noreferrer" /> }
+								href={ publicUrl }
+								openInNewTab
 							>
 								{ summary.type === 'page'
 									? __( 'View page', 'jetpack-premium-analytics-pkg' )
 									: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
-							</Button>
+							</LinkButton>
 						) : undefined
 					}
 					className={ styles.page }
