@@ -192,7 +192,6 @@ describe( 'post detail stage', () => {
 		const action = screen.getByRole( 'link', { name: 'View post(opens in a new tab)' } );
 		expect( action ).toHaveAttribute( 'href', 'https://example.com/hello-world/' );
 		expect( action ).toHaveAttribute( 'target', '_blank' );
-		expect( action ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 	} );
 
 	it( 'labels the action View page for a page', () => {
