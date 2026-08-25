@@ -53,6 +53,18 @@ describe( 'resolvePresetForSurface', () => {
 	} );
 } );
 
+describe( 'Date-filter surface constants', () => {
+	// The frontend re-declares these values rather than importing them from PHP, and
+	// `resolvePresetForSurface` treats unknown surfaces exactly like `none`, so a typo
+	// here would break the mirror with every other test still green.
+	// `Dashboard_Section::DATE_FILTERS` is the source of truth.
+	it( 'mirrors the PHP surface values exactly', () => {
+		expect( DATE_FILTER_RANGE ).toBe( 'range' );
+		expect( DATE_FILTER_YEAR ).toBe( 'year' );
+		expect( DATE_FILTER_NONE ).toBe( 'none' );
+	} );
+} );
+
 describe( 'offersDateComparison', () => {
 	it( 'follows the section on the date-range surface', () => {
 		expect( offersDateComparison( DATE_FILTER_RANGE, { with_date_comparison: true } ) ).toBe(
