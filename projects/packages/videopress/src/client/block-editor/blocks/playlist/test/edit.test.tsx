@@ -64,6 +64,13 @@ jest.mock( '../../../../lib/fetch-video-item', () => ( {
 	fetchVideoItem: jest.fn(),
 } ) );
 
+// Token get-media-token resolves with; used to sign private posters.
+let mockPlaybackToken: string | null = null;
+jest.mock( '../../../../lib/get-media-token', () => ( {
+	__esModule: true,
+	default: jest.fn( () => Promise.resolve( { token: mockPlaybackToken } ) ),
+} ) );
+
 const fetchVideoItemMock = fetchVideoItem as unknown as jest.Mock;
 
 const DEFAULT_ATTRIBUTES: PlaylistAttributes = {
@@ -121,6 +128,7 @@ const LIVE_TITLES: Record< string, string > = {
 beforeEach( () => {
 	jest.clearAllMocks();
 	mockMediaSelection = [];
+	mockPlaybackToken = null;
 	// Titles are live data resolved per GUID, never stored in attributes.
 	fetchVideoItemMock.mockImplementation( ( { guid }: { guid: string } ) => {
 		const numbered = guid.match( /^aaaaaaa(\d)$/ );
@@ -158,6 +166,42 @@ describe( 'PlaylistEdit', () => {
 				videos: [ { guid: 'abcDEF12', durationMs: 724000, height: 1080 } ],
 			} )
 		);
+	} );
+
+	it( 'signs private video posters with a playback token', async () => {
+		mockPlaybackToken = 'jwt-token';
+		fetchVideoItemMock.mockResolvedValue( {
+			title: 'Members only',
+			poster: 'https://example.com/private-poster.jpg',
+			is_private: true,
+		} );
+
+		renderEdit( { videos: [ { guid: 'abcDEF12' } ] } );
+
+		await waitFor( () =>
+			// The canvas entry is the aria-current button; its poster img is decorative (alt="").
+			expect(
+				within( screen.getByRole( 'button', { current: true } ) ).getByRole( 'presentation' )
+			).toHaveAttribute( 'src', 'https://example.com/private-poster.jpg?metadata_token=jwt-token' )
+		);
+	} );
+
+	it( 'drops the poster of a private video when no playback token is available', async () => {
+		mockPlaybackToken = null;
+		fetchVideoItemMock.mockResolvedValue( {
+			title: 'Members only',
+			poster: 'https://example.com/private-poster.jpg',
+			is_private: true,
+		} );
+
+		renderEdit( { videos: [ { guid: 'abcDEF12' } ] } );
+
+		await waitFor( () =>
+			expect( screen.getAllByText( 'Members only' ).length ).toBeGreaterThan( 0 )
+		);
+		expect(
+			within( screen.getByRole( 'button', { current: true } ) ).queryByRole( 'presentation' )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'accepts a VideoPress URL', async () => {

@@ -28,7 +28,8 @@ beforeEach( () => {
 		}
 		return Promise.resolve( {
 			ok: true,
-			json: () => Promise.resolve( metadata ),
+			// A fresh object per call, like a real response.json().
+			json: () => Promise.resolve( { ...metadata } ),
 		} as Response );
 	} );
 	( global as { fetch: unknown } ).fetch = fetchMock;
@@ -252,9 +253,10 @@ describe( 'initPlaylistBlock', () => {
 		expect( entry.querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
 			'Private first'
 		);
+		// The poster's bare file URL is refused by the file host — it must carry the token too.
 		expect( entry.querySelector( '.videopress-playlist__entry-thumb img' ) ).toHaveAttribute(
 			'src',
-			'https://example.com/private.jpg'
+			'https://example.com/private.jpg?metadata_token=jwt-token'
 		);
 		expect( global.fetch ).toHaveBeenCalledWith(
 			'https://public-api.wordpress.com/rest/v1.1/videos/aaaaaaaa?metadata_token=jwt-token'

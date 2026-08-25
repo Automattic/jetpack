@@ -7,6 +7,7 @@ import domReady from '@wordpress/dom-ready';
  */
 import getMediaToken from '../../../lib/get-media-token';
 import { isAllowedOrigin } from '../../../lib/videopress-allowed-origins';
+import { withMetadataToken } from './utils';
 import './view.scss';
 
 type PlayerEventMessage = {
@@ -61,7 +62,14 @@ async function fetchLiveMetadata( guid: string ): Promise< LiveVideoMetadata | n
 		if ( ! response.ok ) {
 			return null;
 		}
-		return ( await response.json() ) as LiveVideoMetadata;
+		const metadata = ( await response.json() ) as LiveVideoMetadata;
+
+		// The API returns the private poster's bare file URL, which the file host
+		// refuses without a token — sign it with the same one.
+		if ( typeof metadata.poster === 'string' && metadata.poster ) {
+			return { ...metadata, poster: withMetadataToken( metadata.poster, token ) };
+		}
+		return metadata;
 	} catch {
 		return null;
 	}

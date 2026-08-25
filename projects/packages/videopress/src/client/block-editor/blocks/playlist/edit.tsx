@@ -25,6 +25,7 @@ import { closeSmall, dragHandle, Icon } from '@wordpress/icons';
  * Internal dependencies
  */
 import { fetchVideoItem } from '../../../lib/fetch-video-item';
+import getMediaToken from '../../../lib/get-media-token';
 import { isVideoPressGuid, pickGUIDFromUrl } from '../../../lib/url';
 import { VideoPressIcon } from '../video/components/icons';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../video/constants';
@@ -36,6 +37,7 @@ import {
 	playlistEmbedUrl,
 	playlistRuntimeMs,
 	resolutionLabel,
+	withMetadataToken,
 } from './utils';
 import './editor.scss';
 /**
@@ -122,6 +124,39 @@ function liveMetadataFromApiResponse( item: Record< string, unknown > ): Playlis
 	}
 	if ( typeof item?.poster === 'string' && item.poster ) {
 		metadata.poster = item.poster;
+	}
+
+	return metadata;
+}
+
+/**
+ * Build an entry's live metadata, signing the poster URL for private videos:
+ * the API returns the poster's bare file URL, which the file host refuses
+ * without a token. The token comes from the same local cache fetchVideoItem
+ * used to read the metadata, so this rarely costs an extra request.
+ *
+ * @param guid - The video GUID.
+ * @param item - The videos API response.
+ * @return Live metadata.
+ */
+async function liveMetadataWithSignedPoster(
+	guid: string,
+	item: Record< string, unknown >
+): Promise< PlaylistLiveMetadata > {
+	const metadata = liveMetadataFromApiResponse( item );
+
+	if ( metadata.poster && item?.is_private === true ) {
+		try {
+			const { token } = await getMediaToken( 'playback', { guid } );
+			if ( token ) {
+				metadata.poster = withMetadataToken( metadata.poster, token );
+			} else {
+				// A poster the file host would refuse is worse than the fallback.
+				delete metadata.poster;
+			}
+		} catch {
+			delete metadata.poster;
+		}
 	}
 
 	return metadata;
@@ -398,12 +433,8 @@ export default function PlaylistEdit( {
 			metadataFetchesStarted.current.add( guid );
 
 			fetchVideoItem( { guid, isPrivate: false, skipRatingControl: true } )
-				.then( item =>
-					cacheLiveMetadata(
-						guid,
-						liveMetadataFromApiResponse( item as Record< string, unknown > )
-					)
-				)
+				.then( item => liveMetadataWithSignedPoster( guid, item as Record< string, unknown > ) )
+				.then( metadata => cacheLiveMetadata( guid, metadata ) )
 				.catch( () => {
 					// The entry keeps its GUID fallback when the video data isn't reachable.
 				} );
@@ -458,7 +489,10 @@ export default function PlaylistEdit( {
 		try {
 			const item = await fetchVideoItem( { guid, isPrivate: false, skipRatingControl: true } );
 			metadataFetchesStarted.current.add( guid );
-			cacheLiveMetadata( guid, liveMetadataFromApiResponse( item as Record< string, unknown > ) );
+			cacheLiveMetadata(
+				guid,
+				await liveMetadataWithSignedPoster( guid, item as Record< string, unknown > )
+			);
 			setAttributes( {
 				videos: [ ...videos, entryFromApiResponse( guid, item as Record< string, unknown > ) ],
 			} );
