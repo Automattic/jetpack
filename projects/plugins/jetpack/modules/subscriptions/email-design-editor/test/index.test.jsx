@@ -48,6 +48,7 @@ function bootstrapBundle( overrides = {} ) {
 		editor_settings: { styles: [ { css: 'body{}' } ] },
 		editor_theme: { version: 3, settings: { color: { palette: [] } } },
 		template: { id: 'pub/stylesheet//wpcom-newsletter' },
+		global_styles_post_id: 10,
 		// The same templates as full REST records, which is what the editor's core-data
 		// resolution needs and what the four-field `template` above cannot stand in for.
 		templates: [
@@ -233,7 +234,7 @@ describe( 'Email design editor entry point', () => {
 			expect( config.theme ).toEqual( { version: 3, settings: { color: { palette: [] } } } );
 			expect( config.urls ).toEqual( pageData().urls );
 			expect( config.userEmail ).toBe( 'creator@example.com' );
-			expect( config.globalStylesPostId ).toBe( 878 );
+			expect( config.globalStylesPostId ).toBe( 10 );
 			expect( config.editorSettings ).toBeDefined();
 		} );
 
@@ -267,7 +268,28 @@ describe( 'Email design editor entry point', () => {
 			expect( config ).not.toHaveProperty( 'elementId' );
 		} );
 
+		it( 'takes the global styles post id from the bundle, not the page', async () => {
+			// A WordPress.com post id. A page working it out locally is right on Simple and
+			// wrong on Atomic and self-hosted, exactly as for the template's id.
+			window.JetpackEmailDesignEditor = pageData( { globalStylesPostId: 878 } );
+
+			await loadEntryPoint();
+
+			expect( mountedEditorProps().config.globalStylesPostId ).toBe( 10 );
+		} );
+
+		it( 'falls back to the page when the bundle carries no global styles post id', async () => {
+			// Degrades to the previous behaviour against a bundle deployed before NL-871.
+			mockApiFetch.mockResolvedValue( bootstrapBundle( { global_styles_post_id: undefined } ) );
+			window.JetpackEmailDesignEditor = pageData( { globalStylesPostId: 878 } );
+
+			await loadEntryPoint();
+
+			expect( mountedEditorProps().config.globalStylesPostId ).toBe( 878 );
+		} );
+
 		it( 'defaults a missing global styles post id to null rather than undefined', async () => {
+			mockApiFetch.mockResolvedValue( bootstrapBundle( { global_styles_post_id: undefined } ) );
 			window.JetpackEmailDesignEditor = pageData( { globalStylesPostId: undefined } );
 
 			await loadEntryPoint();
