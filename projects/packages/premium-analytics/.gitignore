@@ -2,5 +2,6 @@ vendor/
 node_modules/
 build/
 build-module/
+build-style/
 composer.lock
 .phpunit.cache/

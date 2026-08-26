@@ -7,6 +7,10 @@ import apiFetch from '@wordpress/api-fetch';
 import { store as bootStore } from '@wordpress/boot';
 import { dispatch } from '@wordpress/data';
 import { chartBar } from '@wordpress/icons';
+/**
+ * Internal dependencies
+ */
+import './admin-shell.scss';
 
 // apiFetch middleware registers onto a shared, process-wide chain. Guard so
 // repeated init() calls (re-mount, HMR, a future second boot) don't stack

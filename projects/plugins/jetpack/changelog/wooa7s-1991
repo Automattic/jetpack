@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: fix scrolling on the dashboard when the wp-admin menu is taller than the window.

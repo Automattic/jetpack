@@ -1,26 +1,26 @@
-// Flex column so the section panel fills the remaining viewport height and
-// scrolls internally instead of collapsing to its content height. Otherwise
-// the panel grows with the widget grid, and the grid (fixed row height)
-// resizes it back, so the two oscillate while resizing a widget (flicker).
+@use "@wordpress/base-styles/breakpoints";
+
 .root {
 	display: flex;
 	flex-direction: column;
 	flex: 1 1 auto;
 	min-block-size: 0;
 
-	// The section's scroll container. Scrolling here rather than the boot
-	// stage keeps the page header out of the scroll flow entirely: `Page` is
-	// `height: 100%`, so a sticky header inside it runs out of containing
-	// block one viewport in and slides away. The tab list scrolls away with
-	// the content, which is interim until the sections move into `Page`'s
-	// navigation slot (WordPress/gutenberg#79746, not yet in
-	// `@wordpress/admin-ui`; WOOA7S-1931).
+	// Below `$break-medium` boot fixes its surfaces to the viewport, so the
+	// panel has to scroll itself; on desktop the page is the only scroller
+	// (WOOA7S-1991). The tab list scrolls away either way, until the sections
+	// move into `Page`'s navigation slot (WordPress/gutenberg#79746; WOOA7S-1931).
 	overflow-y: auto;
 
 	// Own stacking context, so in-panel layers (the sticky section header,
 	// widget focus rings) never compete with the page header above.
 	position: relative;
 	z-index: 0;
+
+	@media (min-width: #{breakpoints.$break-medium + 1}) {
+		min-block-size: auto;
+		overflow-y: visible;
+	}
 }
 
 // Scoped under the root to outweigh the shared tab bar's own single-class rule

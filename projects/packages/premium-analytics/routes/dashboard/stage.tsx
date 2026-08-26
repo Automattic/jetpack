@@ -37,6 +37,7 @@ import {
 	useDashboardGridSettings,
 	useDashboardSectionLayout,
 	useDashboardSections,
+	usePinnedHeaderOffset,
 	useSectionDateFilter,
 } from './hooks';
 import styles from './stage.module.scss';
@@ -185,6 +186,7 @@ function Dashboard(): JSX.Element {
 
 	// Container element for the date filters panel responsive layout.
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
+	usePinnedHeaderOffset( containerElement );
 
 	// The sections carry each section's default layout, so until the entity
 	// resolves the layout above is transiently empty. WidgetDashboard treats an
