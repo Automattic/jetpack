@@ -47,6 +47,14 @@ const settings = {
 		...attributes,
 		label: ( attributes.label || '' ) + label,
 	} ),
+	// `role: 'content'` is what keeps splitting honest. When Enter splits an option
+	// (or "Insert before/after" adds a sibling), the editor builds the new block by
+	// copying every attribute of the current one EXCEPT those marked as content —
+	// the idea being that a new sibling inherits configuration but starts empty.
+	// Anything left unmarked here therefore rides along into the new option: without
+	// it the new option arrives pre-filled with the previous option's label, and a
+	// sibling of the "Other" option becomes a second "Other" option, which the field's
+	// own toggle can neither produce nor represent.
 	attributes: {
 		placeholder: {
 			type: 'string',
@@ -55,6 +63,7 @@ const settings = {
 		label: {
 			type: 'string',
 			default: '',
+			role: 'content',
 		},
 		requiredText: {
 			type: 'string',
@@ -71,10 +80,12 @@ const settings = {
 		isOther: {
 			type: 'boolean',
 			default: false,
+			role: 'content',
 		},
 		otherPlaceholder: {
 			type: 'string',
 			default: __( 'Please specify…', 'jetpack-forms' ),
+			role: 'content',
 		},
 	},
 	usesContext: [
