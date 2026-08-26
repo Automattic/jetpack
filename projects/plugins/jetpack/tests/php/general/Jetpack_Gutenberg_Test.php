@@ -244,7 +244,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			array(
 				'https://foo@127.0.0.1 @calendar.google.com',
 				// The fix for https://bugs.php.net/bug.php?id=77423 changed the behavior here.
-				// It's included in PHP 8.0.1, 7.4.14, 7.3.26, and distros might have backported it to
+				// It's included in PHP 8.0.1, 7.4.14, and distros might have backported it to
 				// out-of-support versions too, so just expect either option.
 				self::logicalOr( self::isFalse(), self::equalTo( 'https://calendar.google.com/' ) ),
 			),

@@ -205,14 +205,11 @@ class Ai_Answer_Render_Test extends TestCase {
 		$markup = $this->render();
 		// The panel binds to `state.aiPanelHidden` and also carries the bare
 		// `hidden` attribute so server-rendered visitors never see the
-		// scaffold before hydration. `preg_match` rather than
-		// `assertMatchesRegularExpression` because the latter was added in
-		// PHPUnit 9.1, and the PHP 7.2 CI matrix still runs an older
-		// PHPUnit that doesn't ship the method.
+		// scaffold before hydration.
 		$this->assertStringContainsString( 'data-wp-bind--hidden="state.aiPanelHidden"', $markup );
-		$this->assertSame(
-			1,
-			preg_match( '/aria-live="polite"\s+hidden\s*>/', $markup ),
+		$this->assertMatchesRegularExpression(
+			'/aria-live="polite"\s+hidden\s*>/',
+			$markup,
 			'Expected the rendered wrapper to carry a bare `hidden` attribute right after `aria-live="polite"`.'
 		);
 	}
