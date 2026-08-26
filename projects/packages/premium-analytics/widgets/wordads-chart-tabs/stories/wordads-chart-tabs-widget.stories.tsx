@@ -12,16 +12,29 @@ import {
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
-import { withStoryRouteSearch } from '../../stories/with-story-route-search';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
-import { RouteHarness } from '../../route-harness';
+import { RouteHarness } from '../route-harness';
 import WordAdsChartTabsRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 registerReportMocks();
+
+/**
+ * Mount a story under a real matched `/` route with the given search params.
+ *
+ * @param search - Initial search params for the `/` route.
+ * @return A Storybook decorator.
+ */
+function withStoryRouteSearch( search: Record< string, string > ): Decorator {
+	return Story => (
+		<RouteHarness search={ search }>
+			<Story />
+		</RouteHarness>
+	);
+}
 
 const WORDADS_CHART_TABS_RENDER_MODULE = 'storybook/wordads-chart-tabs';
 

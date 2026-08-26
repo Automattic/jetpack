@@ -289,7 +289,9 @@ Notes:
 The render component receives only widget host props. Type it with
 `WidgetRenderProps<T>` from `@wordpress/widget-primitives`, default `attributes`, and pass
 host-provided attributes into `<WidgetRoot>`. This is how Storybook and the dashboard inject
-`reportParams` for date range and comparison state.
+`reportParams` for date range and comparison state. The one exception is a widget that hosts
+its own date control (see `.agents/rules/widgets.md`), which forwards none so its controls and
+its chart stay on the URL.
 
 ```tsx
 import {
@@ -378,7 +380,7 @@ UI. Widgets without mapped comparison rows omit the story and the `withCompariso
 `WidgetDashboardWithWidget` story should still pass comparison report params by default, so the
 widget is covered against crashing or inventing deltas when the host supplies comparison dates.
 The exception is a widget that hosts its own date control (see `.agents/rules/widgets.md`): it
-injects no report params anywhere, and mounts its stories under `widgets/route-harness.tsx`.
+injects no report params anywhere, and mounts its stories under its own `route-harness.tsx`.
 
 The shared imports, helpers, and `meta`:
 

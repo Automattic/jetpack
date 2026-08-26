@@ -8,7 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { RouteHarness } from '../../route-harness';
+import { RouteHarness } from '../route-harness';
 import WordAdsChartTabsWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );

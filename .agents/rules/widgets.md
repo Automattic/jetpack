@@ -91,7 +91,7 @@ date control and hands the placement to its widgets. Such a widget calls
 `?preset=` the header would have. It is the one case that inverts the rule above: it
 must forward **no** `attributes` at all, because `WidgetRoot` prefers injected report
 params over the URL, which would leave its control writing one source while its chart
-read another. Its tests and stories mount a real matched route (`widgets/route-harness.tsx`)
-rather than injecting `reportParams`. `widgets/wordads-chart-tabs/` is the reference.
+read another. Its tests and stories mount a real matched route (see the reference widget's
+`route-harness.tsx`) rather than injecting `reportParams`. `widgets/wordads-chart-tabs/` is the reference.
 
 <!-- TODO: link to the canonical widget API declaration (contract types). -->

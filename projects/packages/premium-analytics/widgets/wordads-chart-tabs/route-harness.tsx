@@ -14,7 +14,12 @@ import { useMemo, type ReactNode } from 'react';
 /**
  * Mount a subtree under a real matched `/` route.
  *
- * A widget that hosts its own date controls reads and writes the URL through
+ * Local to this widget on purpose: it is the only one that hosts its own date
+ * controls today. Lift it to `widgets/` when a second one needs it — and prefer
+ * teaching `widgets/stories/with-story-router.tsx` to match a `/` route over
+ * keeping two copies of the router boilerplate.
+ *
+ * This widget hosts its own date controls, so it reads and writes the URL through
  * `useReportDateFilters`, which needs both `useSearch` and `useNavigate` on a
  * live match. Neither Storybook nor the Jest route mock provides that: the
  * shared `withStoryRouter` supplies router *context* only (enough for `Link` to
