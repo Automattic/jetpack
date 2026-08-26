@@ -199,19 +199,25 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 						</Button>
 					</Stack>
 				</PanelBody>
-
-				<ConditionalLogicModal
-					isOpen={ isModalOpen }
-					onClose={ closeModal }
-					logic={ logic }
-					group={ group }
-					fields={ fields }
-					ownFieldId={ attributes.id }
-					onActionChange={ handleActionChange }
-					onMatchChange={ handleMatchChange }
-					onRulesChange={ handleRulesChange }
-				/>
 			</InspectorControls>
+
+			{ /* Deliberately outside InspectorControls. That component is a slot fill, and a fill
+			     renders nothing while its slot is unmounted -- which is the case whenever the
+			     settings sidebar is closed. With the dialog inside it, the toolbar button (whose
+			     whole purpose is reaching the builder from the canvas) set isModalOpen and nothing
+			     appeared. Modal portals to the document body, so its position here is immaterial
+			     beyond staying out of the fill. */ }
+			<ConditionalLogicModal
+				isOpen={ isModalOpen }
+				onClose={ closeModal }
+				logic={ logic }
+				group={ group }
+				fields={ fields }
+				ownFieldId={ attributes.id }
+				onActionChange={ handleActionChange }
+				onMatchChange={ handleMatchChange }
+				onRulesChange={ handleRulesChange }
+			/>
 		</>
 	);
 };

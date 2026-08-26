@@ -1,4 +1,4 @@
-import { describe, expect, it, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useCallback, useState } from 'react';
@@ -57,8 +57,16 @@ const SUBJECT_FIELDS = [
 
 const mockToggleBlockHighlight = jest.fn();
 
+// InspectorControls is a slot fill, and a fill renders its children only while a matching
+// slot is mounted -- which, for the block inspector, means only while the settings sidebar is
+// open. A mock that passes children straight through erases that, and with it any test's
+// ability to tell "renders in the sidebar" apart from "renders at all". Modelling the slot
+// keeps the two distinguishable; `isSidebarOpen` is reset to true before each test, so the
+// cases that do not care about the sidebar read exactly as they did before.
+let isSidebarOpen = true;
+
 await jest.unstable_mockModule( '@wordpress/block-editor', () => ( {
-	InspectorControls: ( { children } ) => <div>{ children }</div>,
+	InspectorControls: ( { children } ) => ( isSidebarOpen ? <div>{ children }</div> : null ),
 	BlockControls: ( { children } ) => <div>{ children }</div>,
 	store: 'core/block-editor',
 } ) );
@@ -166,6 +174,10 @@ const optionValues = select =>
 		.map( o => o.value );
 
 describe( 'ConditionalLogicPanel', () => {
+	beforeEach( () => {
+		isSidebarOpen = true;
+	} );
+
 	it( 'renders the panel title', async () => {
 		await setup( DEFAULT_ATTRIBUTE, { openModal: false } );
 		expect( screen.getByText( 'Conditional logic' ) ).toBeInTheDocument();
@@ -261,6 +273,54 @@ describe( 'ConditionalLogicPanel', () => {
 		await setup( DEFAULT_ATTRIBUTE, { openModal: false } );
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Add conditional logic' } ) );
+
+		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
+	} );
+
+	// The toolbar button exists so an author can reach the builder from the canvas, which is
+	// exactly the situation in which the settings sidebar is likely to be closed. The dialog
+	// therefore cannot live inside InspectorControls: a fill whose slot is unmounted renders
+	// nothing, so the click would flip the open state and produce no dialog at all.
+	it( 'opens the dialog from the toolbar while the settings sidebar is closed', async () => {
+		isSidebarOpen = false;
+
+		render(
+			<ConditionalLogicPanel
+				clientId="abc"
+				attributes={ { conditionalLogic: DEFAULT_ATTRIBUTE } }
+				setAttributes={ jest.fn() }
+			/>
+		);
+
+		// Guards the premise: with the sidebar closed the inspector panel really is absent, so
+		// the toolbar button is the only way in.
+		expect( screen.queryByRole( 'button', { name: 'Conditional logic' } ) ).not.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Add conditional logic' } ) );
+
+		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
+	} );
+
+	// Same for a field that already carries conditions, whose toolbar button is labelled with
+	// the summary rather than the invitation.
+	it( 'opens the dialog from a conditioned field toolbar while the sidebar is closed', async () => {
+		isSidebarOpen = false;
+
+		render(
+			<ConditionalLogicPanel
+				clientId="abc"
+				attributes={ {
+					conditionalLogic: withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ),
+				} }
+				setAttributes={ jest.fn() }
+			/>
+		);
+
+		await userEvent.click(
+			screen.getByRole( 'button', {
+				name: 'This field is shown only if: Name (Name field) is \u201cx\u201d',
+			} )
+		);
 
 		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
 	} );
