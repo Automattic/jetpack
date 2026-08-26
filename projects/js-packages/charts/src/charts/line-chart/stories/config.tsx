@@ -4,6 +4,7 @@ import { createElement } from 'react';
 import { defaultTheme } from '../../../providers';
 import {
 	chartDecorator,
+	chartStoryGlobals,
 	sharedChartArgTypes,
 	ChartStoryArgs,
 } from '../../../stories/chart-decorator';
@@ -57,6 +58,7 @@ export const lineChartMetaArgs: Meta< StoryArgs > = {
 	parameters: {
 		layout: 'centered',
 	},
+	globals: chartStoryGlobals,
 	decorators: [ chartDecorator ],
 	argTypes: {
 		...seriesLegendArgTypes,

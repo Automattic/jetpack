@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { chartStoryGlobals } from '../../../stories/chart-decorator';
+import { chartStoryGlobals } from '../../../stories';
 import { TrendIndicator } from '../trend-indicator';
 import type { TrendIndicatorProps } from '../types';
 

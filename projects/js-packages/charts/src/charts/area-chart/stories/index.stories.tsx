@@ -2,7 +2,6 @@ import {
 	extractLegendConfig,
 	temperatureData as sampleData,
 	trafficData as webTrafficData,
-	chartStoryGlobals,
 } from '../../../stories';
 import AreaChart from '../area-chart';
 import { areaChartMetaArgs, areaChartStoryArgs, type StoryArgs as BaseStoryArgs } from './config';
@@ -15,7 +14,6 @@ type StoryArgs = BaseStoryArgs & {
 };
 
 const meta: Meta< StoryArgs > = {
-	globals: chartStoryGlobals,
 	...areaChartMetaArgs,
 	title: 'JS Packages/Charts Library/Charts/Area Chart',
 	component: areaChartMetaArgs.component,

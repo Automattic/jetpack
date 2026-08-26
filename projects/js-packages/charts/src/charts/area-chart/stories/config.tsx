@@ -1,5 +1,6 @@
 import {
 	chartDecorator,
+	chartStoryGlobals,
 	sharedChartArgTypes,
 	ChartStoryArgs,
 } from '../../../stories/chart-decorator';
@@ -22,6 +23,7 @@ export const areaChartMetaArgs: Meta< StoryArgs > = {
 	parameters: {
 		layout: 'centered',
 	},
+	globals: chartStoryGlobals,
 	decorators: [ chartDecorator ],
 	argTypes: {
 		...seriesLegendArgTypes,

@@ -1,5 +1,5 @@
 import { GlyphTriangle } from '@visx/glyph';
-import { ChartStoryArgs, chartStoryGlobals, temperatureData as sampleData } from '../../../stories';
+import { ChartStoryArgs, temperatureData as sampleData } from '../../../stories';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { LineChartAnnotationProps } from '../types';
@@ -8,7 +8,6 @@ import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
 
 const meta: Meta< StoryArgs > = {
-	globals: chartStoryGlobals,
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts Library/Charts/Line Chart/Annotations',
 	component: lineChartMetaArgs.component, // Make eslint happy.
