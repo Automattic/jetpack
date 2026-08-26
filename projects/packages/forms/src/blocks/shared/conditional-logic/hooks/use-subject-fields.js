@@ -15,6 +15,10 @@ import { getFieldOptions } from '../util/field-options.ts';
  * @param {string} label - The field's visible label.
  * @return {string} A slug usable as a field id.
  */
+// Matches register.jsx's own prefix check. Kept local rather than imported, because
+// register.jsx registers the editor filter as an import side effect.
+const FIELD_BLOCK_PREFIX = 'jetpack/field-';
+
 const toFieldIdBase = label => {
 	const slug = ( label || '' )
 		.trim()
@@ -119,6 +123,83 @@ const walk = ( blocks, excludeId, step, found ) => {
 };
 
 /**
+ * Every field block in a form, in document order.
+ *
+ * Deliberately broader than the walk above, in two ways, because this feeds id uniqueness
+ * rather than the subject dropdown:
+ *
+ * It keeps the field that owns the panel. Uniqueness is a property of the whole form, and
+ * `walk()` drops the owner, so a list built from it cannot say whether the owner comes before
+ * or after a field it collides with -- and that ordering decides which of the two keeps the id.
+ *
+ * It matches on the block name alone rather than on conditional-logic support. PHP assigns
+ * ids to every field it parses, so a field with no comparison behaviour still occupies an id
+ * and still pushes a later duplicate along.
+ *
+ * @param {Array} blocks - Blocks to walk.
+ * @param {Array} found  - Accumulator.
+ */
+const walkFieldIds = ( blocks, found ) => {
+	if ( ! Array.isArray( blocks ) ) {
+		return;
+	}
+
+	blocks.forEach( block => {
+		if ( ! block ) {
+			return;
+		}
+
+		if ( typeof block.name === 'string' && block.name.startsWith( FIELD_BLOCK_PREFIX ) ) {
+			found.push( { clientId: block.clientId, id: block.attributes?.id || '' } );
+			return; // A field's own inner blocks hold its inputs, not other fields.
+		}
+
+		walkFieldIds( block.innerBlocks, found );
+	} );
+};
+
+/**
+ * Resolve the contact form a field sits in.
+ *
+ * @param {Function} select   - The data-registry select function.
+ * @param {string}   clientId - A field block's client id.
+ * @return {string|undefined} The form's client id, or the field's immediate root.
+ */
+const getFormClientId = ( select, clientId ) => {
+	const { getBlockParentsByBlockName, getBlockRootClientId } = select( 'core/block-editor' );
+
+	const formParents = getBlockParentsByBlockName( clientId, 'jetpack/contact-form' );
+
+	// Fall back to the immediate root when the field is not inside a contact form yet,
+	// which happens in pattern previews and legacy layouts.
+	return formParents?.[ formParents.length - 1 ] || getBlockRootClientId( clientId );
+};
+
+/**
+ * Every field id in the form, in document order, including the panel's own field.
+ *
+ * @param {string} clientId - The field block owning the panel.
+ * @return {Array} `{ clientId, id }` for each field, in document order.
+ */
+export const useFormFieldIds = clientId =>
+	useSelect(
+		select => {
+			const formClientId = getFormClientId( select, clientId );
+
+			if ( ! formClientId ) {
+				return [];
+			}
+
+			const form = select( 'core/block-editor' ).getBlock( formClientId );
+			const found = [];
+			walkFieldIds( form?.innerBlocks || [], found );
+
+			return found;
+		},
+		[ clientId ]
+	);
+
+/**
  * Collect the fields a condition on `clientId` may reference.
  *
  * Returns every other field in the same form, annotated with the comparison behavior and
@@ -132,20 +213,13 @@ const walk = ( blocks, excludeId, step, found ) => {
 const useSubjectFields = clientId =>
 	useSelect(
 		select => {
-			const { getBlock, getBlockParentsByBlockName, getBlockRootClientId } =
-				select( 'core/block-editor' );
-
-			const formParents = getBlockParentsByBlockName( clientId, 'jetpack/contact-form' );
-			// Fall back to the immediate root when the field is not inside a contact form yet,
-			// which happens in pattern previews and legacy layouts.
-			const formClientId =
-				formParents?.[ formParents.length - 1 ] || getBlockRootClientId( clientId );
+			const formClientId = getFormClientId( select, clientId );
 
 			if ( ! formClientId ) {
 				return [];
 			}
 
-			const form = getBlock( formClientId );
+			const form = select( 'core/block-editor' ).getBlock( formClientId );
 			const found = [];
 			walk( form?.innerBlocks || [], clientId, null, found );
 

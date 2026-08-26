@@ -43,6 +43,7 @@ await jest.unstable_mockModule(
 	() => ( {
 		__esModule: true,
 		default: () => [],
+		useFormFieldIds: () => [],
 		useEnsureFieldId: () => () => 'field_1',
 	} )
 );

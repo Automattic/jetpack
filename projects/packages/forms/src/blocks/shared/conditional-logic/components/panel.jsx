@@ -17,8 +17,8 @@ import {
 	startsHidden,
 	withPrimaryGroupRules,
 } from '../constants.js';
-import useDeduplicateSubjectFieldIds from '../hooks/use-deduplicate-subject-ids.js';
-import useSubjectFields from '../hooks/use-subject-fields.js';
+import useDeduplicateFieldIds from '../hooks/use-deduplicate-field-ids.js';
+import useSubjectFields, { useFormFieldIds } from '../hooks/use-subject-fields.js';
 import {
 	describeRule,
 	getActiveConditions,
@@ -88,13 +88,18 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 	);
 
 	const fields = useSubjectFields( clientId );
+	const formFieldIds = useFormFieldIds( clientId );
 	const group = getPrimaryGroup( logic );
 
 	// Two fields can legitimately reach this point sharing an id -- ids survive copy, paste
 	// and duplicate, and the Name field's inserter variations ship fixed ones. The dropdown
 	// keys its options by id, so a duplicate makes the second field unselectable. Repaired
 	// only while the dialog is open, so nothing rewrites ids as a form merely loads.
-	useDeduplicateSubjectFieldIds( fields, attributes.id, isModalOpen );
+	//
+	// Fed from the whole form rather than from `fields`, which drops this very block: which
+	// of two colliding fields keeps the id is decided by document order, and a list missing
+	// one of them cannot answer that.
+	useDeduplicateFieldIds( formFieldIds, isModalOpen );
 
 	const updateLogic = useCallback(
 		next => setAttributes( { conditionalLogic: next } ),

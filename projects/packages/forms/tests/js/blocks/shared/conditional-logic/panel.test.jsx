@@ -86,6 +86,7 @@ await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	useDispatch: () => ( {
 		toggleBlockHighlight: mockToggleBlockHighlight,
 		updateBlockAttributes: mockUpdateBlockAttributes,
+		__unstableMarkNextChangeAsNotPersistent: () => {},
 	} ),
 } ) );
 
@@ -98,11 +99,17 @@ const mockEnsureFieldId = jest.fn( ( field, usedIds = [] ) => {
 	return usedIds.includes( base ) ? `${ base }-2` : base;
 } );
 
+// The panel reads two lists from this module: the subject dropdown's fields (owner excluded)
+// and every field in the form in document order (owner included), which is what decides
+// which of two colliding ids survives.
+let formFieldIds = [];
+
 await jest.unstable_mockModule(
 	'../../../../../src/blocks/shared/conditional-logic/hooks/use-subject-fields.js',
 	() => ( {
 		__esModule: true,
 		default: () => subjectFields,
+		useFormFieldIds: () => formFieldIds,
 		useEnsureFieldId: () => mockEnsureFieldId,
 	} )
 );
@@ -184,6 +191,7 @@ describe( 'ConditionalLogicPanel', () => {
 	beforeEach( () => {
 		isSidebarOpen = true;
 		subjectFields = SUBJECT_FIELDS;
+		formFieldIds = [];
 		mockUpdateBlockAttributes.mockClear();
 	} );
 
@@ -348,69 +356,42 @@ describe( 'ConditionalLogicPanel', () => {
 		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
 	} );
 
-	// Two fields can share an id: ids survive copy, paste and duplicate, and the Name
-	// field's inserter variations ship fixed ones. The dropdown keys its options by id, so a
-	// duplicate leaves the second field unselectable -- the browser resolves an option by
-	// value and picks the first match.
-	describe( 'duplicate subject field ids', () => {
-		const DUPLICATES = [
-			{
-				clientId: 'c-first-a',
-				id: 'first-name',
-				label: 'First name',
-				typeLabel: 'Name field',
-				typeKey: 'string',
-				options: [],
-				step: null,
-			},
-			{
-				clientId: 'c-first-b',
-				id: 'first-name',
-				label: 'First name',
-				typeLabel: 'Name field',
-				typeKey: 'string',
-				options: [],
-				step: null,
-			},
-		];
+	// The panel's job here is wiring: hand the deduplication hook the whole form in document
+	// order, and tell it whether the dialog is open. The renaming rules themselves are covered
+	// by the hook's own unit tests.
+	describe( 'duplicate field ids', () => {
+		const OTHER = { clientId: 'c-other', id: 'first-name' };
+		const OWN = { clientId: 'abc', id: 'first-name' };
 
-		// The narrow trigger the repair is built around: opening the builder, never merely
-		// rendering the panel. Rewriting ids as a form loads would touch posts nobody is
-		// editing.
+		// The narrow trigger: opening the builder, not merely rendering the panel.
 		it( 'leaves ids alone while the dialog is closed', async () => {
-			subjectFields = DUPLICATES;
+			formFieldIds = [ OTHER, OWN ];
 
-			await setup( DEFAULT_ATTRIBUTE, { openModal: false } );
+			await setup( DEFAULT_ATTRIBUTE, { openModal: false, ownFieldId: 'first-name' } );
 
 			expect( mockUpdateBlockAttributes ).not.toHaveBeenCalled();
 		} );
 
-		it( 'renames the later duplicate once the dialog is opened', async () => {
-			subjectFields = DUPLICATES;
+		it( 'repairs the collision once the dialog is opened', async () => {
+			formFieldIds = [ OWN, OTHER ];
 
-			await setup( DEFAULT_ATTRIBUTE );
+			await setup( DEFAULT_ATTRIBUTE, { ownFieldId: 'first-name' } );
 
-			expect( mockUpdateBlockAttributes ).toHaveBeenCalledWith( 'c-first-b', {
+			expect( mockUpdateBlockAttributes ).toHaveBeenCalledWith( 'c-other', {
 				id: 'first-name-2',
 			} );
 		} );
 
-		// The field owning the panel is excluded from the subject list, so its id is the one
-		// collision that list cannot see.
-		it( 'does not rename onto the id of the field owning the panel', async () => {
-			subjectFields = DUPLICATES;
+		// The proof that the panel passes the *whole* form and not the subject list: the subject
+		// list excludes this block, so a panel wired to it could never rename its own field --
+		// and would rename the earlier one instead, swapping the two fields' identities.
+		it( 'renames its own field when that field is the later duplicate', async () => {
+			formFieldIds = [ OTHER, OWN ];
 
-			await setup( DEFAULT_ATTRIBUTE, { ownFieldId: 'first-name-2' } );
+			await setup( DEFAULT_ATTRIBUTE, { ownFieldId: 'first-name' } );
 
-			expect( mockUpdateBlockAttributes ).toHaveBeenCalledWith( 'c-first-b', {
-				id: 'first-name-3',
-			} );
-		} );
-
-		it( 'writes no ids when the subjects are already distinct', async () => {
-			await setup( DEFAULT_ATTRIBUTE );
-
-			expect( mockUpdateBlockAttributes ).not.toHaveBeenCalled();
+			expect( mockUpdateBlockAttributes ).toHaveBeenCalledTimes( 1 );
+			expect( mockUpdateBlockAttributes ).toHaveBeenCalledWith( 'abc', { id: 'first-name-2' } );
 		} );
 	} );
 
