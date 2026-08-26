@@ -268,12 +268,18 @@ class Rest_Controller {
 	 * start the backup restore.", distinguishable only by a status code.
 	 *
 	 * WordPress.com's own reason is preserved under `wpcom`, deliberately
-	 * shaped like `transport_error()`'s `transport` key and kept there for
-	 * the same reason: it is support-facing English, so it travels in
-	 * `data` rather than being spliced into a message the reader expects in
-	 * their own language. The client maps the codes it recognises onto
-	 * copy of its own (see `upstreamMessage` in `_helpers.ts`); the rest
-	 * still reach whoever reads the response.
+	 * shaped like `transport_error()`'s `transport` key. The client decides
+	 * what to do with it: `failureMessage()` in `_helpers.ts` maps the
+	 * codes whose meaning is the code itself, and *renders* the message for
+	 * the ones — `rewind_error`, `authorization_required` — where one code
+	 * spans several unrelated situations and only the sentence tells them
+	 * apart.
+	 *
+	 * That the message can reach a reader is why the flattening and the
+	 * 200-character clip below are not housekeeping. They are the whole
+	 * reason it is safe to render, so do not relax them. It stays a plain
+	 * string all the way out; the client escapes it by rendering it as
+	 * React children.
 	 *
 	 * Only those two fields are forwarded, never the body — an error body
 	 * is unbounded and can echo the request that produced it.

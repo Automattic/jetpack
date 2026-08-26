@@ -361,9 +361,10 @@ class File_Browser_Bridge {
 	 * own text never reaches the reader.
 	 *
 	 * Both wrappers keep what WordPress.com actually said one level down,
-	 * under `transport` and `wpcom` respectively — the reader gets
-	 * `$message` in their own language, and the reason survives for
-	 * whoever has to work out what went wrong.
+	 * under `transport` and `wpcom` respectively, so `$message` names the
+	 * operation and the reason survives beside it rather than replacing
+	 * it. The client frames the two together when the reason is one only
+	 * a sentence can carry.
 	 *
 	 * @param array|\WP_Error $response The wp_remote_* response.
 	 * @param string          $code     Error code for a transport failure or a non-200.
