@@ -12,7 +12,6 @@ import {
 	WidgetState,
 	useWidgetRootContext,
 	defaultPeriodForInterval,
-	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 /**
@@ -21,11 +20,10 @@ import { __ } from '@wordpress/i18n';
 import styles from './style.module.css';
 import useWordAdsChart, { type WordAdsPeriod } from './use-wordads-chart';
 import type { WordAdsChartTabsAttributes } from './widget';
+import type { FunctionComponent } from 'react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-type WordAdsChartTabsRenderAttributes = WordAdsChartTabsAttributes &
-	Partial< ReportParamsFieldAttributes >;
-type WordAdsChartTabsWidgetProps = WidgetRenderProps< WordAdsChartTabsRenderAttributes >;
+type WordAdsChartTabsWidgetProps = WidgetRenderProps< WordAdsChartTabsAttributes >;
 
 const DATA_FORMAT = {
 	type: 'number' as const,
@@ -96,16 +94,26 @@ function WordAdsChartTabsInner() {
 	);
 }
 
-export default function WordAdsChartTabs( { attributes = {} }: WordAdsChartTabsWidgetProps ) {
+// Declared through the props type but taking none: the host still passes
+// `attributes`, and dropping them at the signature is what keeps them from
+// reaching `WidgetRoot`.
+const WordAdsChartTabs: FunctionComponent< WordAdsChartTabsWidgetProps > = () => {
 	return (
-		// The chart has no comparison series to draw (see `useWordAdsChart`'s
-		// `hasComparison: false`), so it must never offer one — regardless of
-		// what the hosting section declares. Outside `WidgetRoot` so the scope
-		// is already set when `WidgetRoot` strips the comparison search params.
+		// The chart has no comparison series to draw, so it must never offer one —
+		// regardless of what the hosting section declares. Outside `WidgetRoot` so
+		// the scope is already set when it strips the comparison search params.
 		<ReportScopeProvider offersComparison={ false }>
-			<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
+			{ /*
+			 * No `attributes` forwarded on purpose: `WidgetRoot` prefers injected
+			 * report params over the URL, which would leave this widget's own
+			 * controls writing one source while the chart read another. Passing
+			 * nothing is what keeps the two on the URL.
+			 */ }
+			<WidgetRoot attributes={ {} }>
 				<WordAdsChartTabsInner />
 			</WidgetRoot>
 		</ReportScopeProvider>
 	);
-}
+};
+
+export default WordAdsChartTabs;

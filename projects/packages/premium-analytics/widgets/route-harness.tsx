@@ -22,25 +22,25 @@ import { useMemo, type ReactNode } from 'react';
  * One real memory router serves both, which is cheaper and more honest than
  * maintaining two fakes.
  *
- * `ReportScopeProvider offersComparison={ false }` mirrors what a `none` section
- * declares in the app. Without it the context default (`true`) would make
- * `DateFiltersPanel` render a comparison control the product does not have.
+ * `offersComparison` defaults to what the app's context defaults to, so a
+ * subtree that suppresses comparison itself is seen doing it rather than
+ * inheriting it from the harness. Pass `false` to stand in for a section that
+ * declares no comparison.
  *
- * The router is rebuilt only when the initial search changes: calling
- * `createRouter` on every render would remount the subtree and drop the
- * picker's state mid-interaction.
- *
- * @param props          - Component props.
- * @param props.search   - Initial search params for the `/` route.
- * @param props.children - The subtree to mount.
+ * @param props                  - Component props.
+ * @param props.search           - Initial search params for the `/` route.
+ * @param props.children         - The subtree to mount.
+ * @param props.offersComparison - What the hosting section declares.
  * @return The subtree under a matched route.
  */
 export function RouteHarness( {
 	search,
 	children,
+	offersComparison = true,
 }: {
 	search: Record< string, string >;
 	children: ReactNode;
+	offersComparison?: boolean;
 } ) {
 	const initialEntry = useMemo( () => {
 		const query = new URLSearchParams( search ).toString();
@@ -53,7 +53,9 @@ export function RouteHarness( {
 			getParentRoute: () => rootRoute,
 			path: '/',
 			component: () => (
-				<ReportScopeProvider offersComparison={ false }>{ children }</ReportScopeProvider>
+				<ReportScopeProvider offersComparison={ offersComparison }>
+					{ children }
+				</ReportScopeProvider>
 			),
 		} );
 
@@ -70,7 +72,7 @@ export function RouteHarness( {
 		// original `children` and the update would be lost silently. Change the search too,
 		// or mount a fresh harness.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ initialEntry ] );
+	}, [ initialEntry, offersComparison ] );
 
 	return <RouterProvider router={ router as never } />;
 }

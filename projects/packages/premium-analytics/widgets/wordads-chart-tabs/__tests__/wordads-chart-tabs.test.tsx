@@ -3,12 +3,11 @@
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { render, renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import WordAdsChartTabsWidget from '../render';
 import useWordAdsChart from '../use-wordads-chart';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 import type { ReactNode } from 'react';
@@ -53,27 +52,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	),
 } ) );
 
-// WidgetRoot reads URL search params as a fallback for report params; outside
-// a matched route the real hook warns and throws. `useNavigate` is added on
-// top of the shared mock: this widget also hosts its own `DateFiltersPanel`,
-// whose `useReportDateFilters` calls it unconditionally on every render (the
-// tests here never interact with the picker, so a stub is enough — see
-// `__tests__/date-range-control.test.tsx` for the interactive coverage, which
-// needs a real matched route via `RouteHarness` instead of this mock). The
-// stub throws if actually invoked, rather than silently no-opping, so a future
-// test in this file that triggers navigation fails loudly instead of passing
-// while nothing happened.
-jest.mock( '@wordpress/route', () => ( {
-	...jest.requireActual( '../../test-utils' ).mockWordPressRoute,
-	useNavigate:
-		() =>
-		( ...args: unknown[] ) => {
-			throw new Error(
-				`navigate is not available under the route mock (called with ${ JSON.stringify( args ) })`
-			);
-		},
-} ) );
-
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 // Raw WPCOM `wordads/stats` matrix shape: two monthly buckets, so the summary
@@ -86,6 +64,13 @@ const PRIMARY_RESPONSE = {
 		[ '2026-05', '1200', '6.50', '5.42' ],
 		[ '2026-06', 800, 3.25, 4.06 ],
 	],
+};
+
+// Served for the comparison window, so a chart that did draw one would show it.
+const COMPARISON_RESPONSE = {
+	unit: 'month',
+	fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
+	data: [ [ '2026-03', '500', '2.00', '4.00' ] ],
 };
 
 function wrapper( { children }: { children: ReactNode } ) {
@@ -179,47 +164,29 @@ describe( 'useWordAdsChart', () => {
 		expect( result.current.isEmpty ).toBe( true );
 		expect( result.current.metrics[ 0 ].current ).toHaveLength( 0 );
 	} );
-} );
 
-describe( 'WordAdsChartTabsWidget', () => {
-	beforeEach( () => {
-		queryClient.clear();
-		mockApiFetch.mockReset();
-		mockApiFetch.mockResolvedValue( PRIMARY_RESPONSE );
-	} );
-
-	// The widget has no Group by control: the bucket size is whatever the
-	// dashboard's chart interval control resolved to, clamped to what this
-	// chart supports.
-	it( 'buckets by the interval the dashboard applied', async () => {
-		render(
-			<WordAdsChartTabsWidget
-				attributes={ {
-					reportParams: { from: '2026-05-01', to: '2026-06-30', interval: 'week' },
-				} }
-			/>
+	// A permanent property of this chart, not a side effect of today's params:
+	// even handed a comparison window it draws none. The widget strips these
+	// params before they reach the hook, so this drives the hook directly.
+	it( 'draws no comparison even when the params carry one', async () => {
+		mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
+			Promise.resolve( path.includes( 'date=2026-03-31' ) ? COMPARISON_RESPONSE : PRIMARY_RESPONSE )
 		);
 
-		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+		const reportParams: ReportParams = {
+			from: '2026-05-01',
+			to: '2026-06-30',
+			interval: 'month',
+			comp: '1',
+			compare_from: '2026-03-01',
+			compare_to: '2026-03-31',
+		};
 
-		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'unit=week' );
-	} );
+		const { result } = renderHook( () => useWordAdsChart( reportParams, 'month' ), { wrapper } );
 
-	// `quarter` is an interval the dashboard allows on a multi-year range but
-	// this chart has no bucket for, so it clamps to the nearest one it does.
-	it( 'clamps an unsupported interval to the closest supported bucket', async () => {
-		render(
-			<WordAdsChartTabsWidget
-				attributes={ {
-					reportParams: { from: '2023-01-01', to: '2026-06-30', interval: 'quarter' },
-				} }
-			/>
-		);
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 
-		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
-
-		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'unit=month' );
+		expect( result.current.metrics[ 0 ].previous ).toBeUndefined();
+		expect( result.current.metrics[ 0 ].previousValue ).toBeUndefined();
 	} );
 } );

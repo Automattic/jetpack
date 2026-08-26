@@ -6,9 +6,9 @@ import { chartBar } from '@wordpress/icons';
 /**
  * The widget has no user-configurable attributes: the date range and bucket
  * size come from the controls the widget renders itself, which write the shared
- * URL search params. Nothing may inject `attributes.reportParams` here —
- * `WidgetRoot` prefers injected attributes over the URL, which would leave the
- * controls writing one source while the chart reads another.
+ * URL search params. `render.tsx` forwards no attributes to `WidgetRoot` for
+ * that reason — injected report params win over the URL there, which would
+ * leave the controls writing one source while the chart read another.
  */
 export type WordAdsChartTabsAttributes = Record< never, never >;
 

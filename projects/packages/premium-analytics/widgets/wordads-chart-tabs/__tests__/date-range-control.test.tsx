@@ -84,7 +84,39 @@ describe( 'WordAds chart date range control', () => {
 		);
 	} );
 
-	it( 'issues one WordAds request, with no comparison request behind it', async () => {
+	// The widget has no Group by control: the bucket size is whatever the URL's
+	// interval resolved to, clamped to what this chart supports.
+	it( 'buckets by the interval the URL carries', async () => {
+		render(
+			<RouteHarness search={ { preset: 'last-90-days', interval: 'week' } }>
+				<WordAdsChartTabsWidget attributes={ {} } />
+			</RouteHarness>
+		);
+
+		await waitFor( () =>
+			expect( wordAdsRequestPaths().at( -1 ) ).toEqual( expect.stringContaining( 'unit=week' ) )
+		);
+	} );
+
+	// `quarter` is an interval the range allows but this chart has no bucket
+	// for, so it clamps to the nearest one it does.
+	it( 'clamps an unsupported URL interval to the closest supported bucket', async () => {
+		render(
+			<RouteHarness search={ { preset: 'last-365-days', interval: 'quarter' } }>
+				<WordAdsChartTabsWidget attributes={ {} } />
+			</RouteHarness>
+		);
+
+		await waitFor( () =>
+			expect( wordAdsRequestPaths().at( -1 ) ).toEqual( expect.stringContaining( 'unit=month' ) )
+		);
+	} );
+
+	// The harness leaves `offersComparison` at the app's default, so the widget's
+	// own `ReportScopeProvider` is the only thing that can strip the comparison
+	// params — a fresh load without `from`/`to` has `normalizeReportParams` add
+	// them. Removing that provider makes this a two-request render.
+	it( 'issues one WordAds request even when the host offers comparison', async () => {
 		render(
 			<RouteHarness search={ { preset: 'last-7-days', interval: 'day' } }>
 				<WordAdsChartTabsWidget attributes={ {} } />
@@ -93,8 +125,6 @@ describe( 'WordAds chart date range control', () => {
 
 		await waitFor( () => expect( wordAdsRequestPaths().length ).toBeGreaterThan( 0 ) );
 
-		// `RouteHarness` declares `offersComparison={ false }`, the same thing a
-		// `none` section declares, so `WidgetRoot` strips the comparison params.
 		// Stripped params must mean no second request — not merely a request with
 		// the comparison dates removed.
 		await waitFor( () => expect( wordAdsRequestPaths() ).toHaveLength( 1 ) );
