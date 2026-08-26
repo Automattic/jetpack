@@ -82,6 +82,7 @@ class WP_Build_Admin_Frame_Test extends BaseTestCase {
 	 */
 	public function test_prints_both_blocks_once_after_registration() {
 		WP_Build_Admin_Frame::register();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- The second call must be a no-op.
 		WP_Build_Admin_Frame::register();
 
 		$output = $this->render_admin_header();
