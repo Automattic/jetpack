@@ -157,15 +157,15 @@ describe( 'PopularDaysWidget', () => {
 		expect( screen.queryByTestId( 'sparkline' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'still headlines a weekday when every day in range drew zero views', () => {
+	it( 'renders the empty state when every day in range drew zero views', () => {
 		mockUseStatsVisits.mockReturnValue(
 			visitsResult( { summary: { views: 0 }, data: [ dailyRow( '2026-07-06', 0 ) ] } )
 		);
 
 		renderWidget();
 
-		expect( screen.getByText( 'Monday' ) ).toBeInTheDocument();
-		expect( screen.getByText( '0 views' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'No views in this period.' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'sparkline' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'routes a permission-gated 403 through describeError: neutral copy, no retry', () => {

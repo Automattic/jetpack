@@ -8,9 +8,11 @@
 	"dependencies": {
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@jetpack-premium-analytics/data": "workspace:*",
+		"@jetpack-premium-analytics/datetime": "workspace:*",
 		"@jetpack-premium-analytics/externals": "workspace:*",
 		"@jetpack-premium-analytics/routing": "workspace:*",
 		"@jetpack-premium-analytics/ui": "workspace:*",
+		"@jetpack-premium-analytics/widgets-toolkit": "workspace:*",
 		"@wordpress/admin-ui": "2.7.0",
 		"@wordpress/core-data": "7.51.0",
 		"@wordpress/data": "10.51.0",

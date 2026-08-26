@@ -297,7 +297,7 @@ The configuration passed to `init()` carries its own `schema_version` field, whi
 
 The minimum-requirements contract for consumers:
 
-- PHP >= 7.2
+- PHP >= 7.4
 - The WordPress Interactivity API (WP 6.5+ / Gutenberg).
 - The WP Consent API plugin (provides `window.wp_set_consent`) for writing consent state.
 

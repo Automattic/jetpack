@@ -19,6 +19,18 @@ use PHPUnit\Framework\Attributes\CoversClass;
  */
 #[CoversClass( Stats::class )]
 class Main_Test extends StatsBaseTestCase {
+
+	/**
+	 * Reads of the `trusted_ip_header` site option during the last
+	 * should_track_with_excluded_ips() call.
+	 *
+	 * Visitor::get_ip( true ) reads that option before it looks at anything else, so a count
+	 * of zero means the visitor address was never resolved. The skip is not observable any
+	 * other way from here.
+	 *
+	 * @var int
+	 */
+	private $visitor_lookups = 0;
 	/**
 	 * An instance of Main class.
 	 *
@@ -267,6 +279,106 @@ class Main_Test extends StatsBaseTestCase {
 		$should_track = Stats::should_track();
 		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10 );
 		$this->assertTrue( $should_track );
+	}
+
+	/**
+	 * Test Main::should_track
+	 *
+	 * Visitor::get_ip() returns a normalized address, so an excluded entry written in an
+	 * equivalent form still has to match. '::ffff:203.0.113.5' reaches get_ip() as
+	 * '203.0.113.5', and the configured list has to be normalized the same way.
+	 *
+	 * The lookup count pins the probe the skip test below depends on: should the visitor
+	 * address stop being resolved through that option, this case fails rather than the skip
+	 * case passing on a measurement that no longer observes anything.
+	 */
+	public function test_should_track_is_false_for_an_excluded_ip_written_in_another_form() {
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = '::ffff:203.0.113.5';
+
+		$should_track = $this->should_track_with_excluded_ips( array( __CLASS__, 'filter_jetpack_stats_excluded_ips' ) );
+
+		$this->assertFalse( $should_track );
+		$this->assertGreaterThan( 0, $this->visitor_lookups );
+	}
+
+	/**
+	 * Test Main::should_track
+	 *
+	 * A visitor who is not on the excluded list is still counted. The lookup count pins the
+	 * probe, as above.
+	 */
+	public function test_should_track_is_true_for_an_ip_that_is_not_excluded() {
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = '198.51.100.9';
+
+		$should_track = $this->should_track_with_excluded_ips( array( __CLASS__, 'filter_jetpack_stats_excluded_ips' ) );
+
+		$this->assertTrue( $should_track );
+		$this->assertGreaterThan( 0, $this->visitor_lookups );
+	}
+
+	/**
+	 * Test Main::should_track
+	 *
+	 * Every entry of a misconfigured list can normalize away. Resolving the visitor address
+	 * reads request headers and a site option, so with nothing left to compare against the
+	 * lookup has to be skipped rather than performed and discarded.
+	 */
+	public function test_should_track_skips_the_visitor_lookup_for_a_list_that_normalizes_to_nothing() {
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = '198.51.100.9';
+
+		$should_track = $this->should_track_with_excluded_ips( array( __CLASS__, 'filter_jetpack_stats_unusable_excluded_ips' ) );
+
+		$this->assertTrue( $should_track );
+		$this->assertSame( 0, $this->visitor_lookups );
+	}
+
+	/**
+	 * Calls Main::should_track with the stats module active and the given excluded IP list
+	 * configured, recording how often the visitor address was resolved and cleaning up the
+	 * filters and the request header afterwards.
+	 *
+	 * @param callable $excluded_ips Callback returning the excluded IP list.
+	 *
+	 * @return bool
+	 */
+	private function should_track_with_excluded_ips( $excluded_ips ) {
+		$this->visitor_lookups = 0;
+
+		$counter = function ( $pre ) {
+			++$this->visitor_lookups;
+			return $pre;
+		};
+
+		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
+		add_filter( 'jetpack_stats_excluded_ips', $excluded_ips );
+		add_filter( 'pre_site_option_trusted_ip_header', $counter );
+
+		$should_track = Stats::should_track();
+
+		remove_filter( 'pre_site_option_trusted_ip_header', $counter );
+		remove_filter( 'jetpack_stats_excluded_ips', $excluded_ips );
+		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10 );
+		unset( $_SERVER['HTTP_X_FORWARDED_FOR'] );
+
+		return $should_track;
+	}
+
+	/**
+	 * Excludes one address from tracking, written with an IPv4-mapped IPv6 prefix.
+	 *
+	 * @return array
+	 */
+	public static function filter_jetpack_stats_excluded_ips() {
+		return array( '::ffff:203.0.113.5' );
+	}
+
+	/**
+	 * Excludes nothing usable: no entry survives normalization.
+	 *
+	 * @return array
+	 */
+	public static function filter_jetpack_stats_unusable_excluded_ips() {
+		return array( 42, array( '203.0.113.5' ), 'not-an-ip', '' );
 	}
 
 	/**

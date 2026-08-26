@@ -335,6 +335,76 @@ class Feedback_Field_Test extends BaseTestCase {
 		remove_filter( 'jetpack_unauth_file_download_url', array( $this, 'return_url' ) );
 	}
 
+	/**
+	 * A file field can be stored with a malformed value — an empty string, say,
+	 * rather than the expected array with a `files` key. Rendering it must not
+	 * fatal, in any context.
+	 */
+	public function test_get_render_value_with_malformed_file_value() {
+		$malformed = array(
+			'empty string'      => '',
+			'null'              => null,
+			'empty array'       => array(),
+			'non-empty string'  => 'not-an-array',
+			'string files key'  => array( 'files' => '' ),
+			'files key missing' => array( 'field_id' => 'g1-1' ),
+		);
+
+		foreach ( $malformed as $case => $value ) {
+			$field = new Feedback_Field( 'test_key', 'test_label', $value, 'file' );
+
+			$api = $field->get_render_value( 'api' );
+			$this->assertIsArray( $api, "api value for {$case} should be an array" );
+			$this->assertSame( array(), $api['files'], "api files for {$case} should be empty" );
+
+			$this->assertSame(
+				array(
+					'field_id' => '',
+					'files'    => array(),
+				),
+				$field->get_render_value( 'submit' ),
+				"submit value for {$case} should carry no files"
+			);
+
+			$this->assertSame(
+				array(
+					'type'  => 'file',
+					'files' => array(),
+				),
+				$field->get_render_value( 'web' ),
+				"web value for {$case} should carry no files"
+			);
+
+			$this->assertSame( '', $field->get_render_value( 'default' ), "default value for {$case} should be empty" );
+			$this->assertSame( '', $field->get_render_value( 'csv' ), "csv value for {$case} should be empty" );
+			$this->assertIsString( $field->get_render_value( 'email_html' ), "email_html value for {$case} should be a string" );
+			$this->assertFalse( $field->has_file(), "{$case} should not report a file" );
+		}
+	}
+
+	/**
+	 * A well-formed file value keeps the keys it arrived with.
+	 */
+	public function test_get_render_api_value_preserves_sibling_keys_when_files_are_dropped() {
+		$field = new Feedback_Field(
+			'test_key',
+			'test_label',
+			array(
+				'field_id' => 'g1-1',
+				'files'    => '',
+			),
+			'file'
+		);
+
+		$this->assertSame(
+			array(
+				'field_id' => 'g1-1',
+				'files'    => array(),
+			),
+			$field->get_render_value( 'api' )
+		);
+	}
+
 	public function test_render_label_in_different_contexts() {
 		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value' );
 		$this->assertEquals( 'test_label', $field->get_label() );

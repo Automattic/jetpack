@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { SelectField, ToggleGroupField } from '@jetpack-premium-analytics/fields';
+import { ToggleGroupField } from '@jetpack-premium-analytics/fields';
 import { chartLine } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
@@ -30,33 +30,6 @@ export const CHART_DISPLAY_CHART_TYPES = [
 }[];
 
 export type ChartDisplayChartType = ( typeof CHART_DISPLAY_CHART_TYPES )[ number ][ 'id' ];
-
-export type ChartGranularityOption = 'auto' | 'day' | 'week' | 'month';
-
-const GRANULARITY_LABELS: Record< ChartGranularityOption, () => string > = {
-	auto: () => __( 'Auto', 'jetpack-premium-analytics-pkg' ),
-	day: () => __( 'By days', 'jetpack-premium-analytics-pkg' ),
-	week: () => __( 'By weeks', 'jetpack-premium-analytics-pkg' ),
-	month: () => __( 'By months', 'jetpack-premium-analytics-pkg' ),
-};
-
-/**
- * The "Group by" attribute field (`relevance: 'high'`, so the widget host
- * renders it as an in-body dropdown). Widgets that follow the dashboard range
- * include `auto`; the detail charts pass explicit buckets only.
- */
-export function granularityAttributeField<
-	Attributes extends { granularity?: ChartGranularityOption },
->( values: readonly ChartGranularityOption[] ): WidgetAttributeField< Attributes > {
-	return {
-		id: 'granularity',
-		label: __( 'Group by', 'jetpack-premium-analytics-pkg' ),
-		type: 'text',
-		Edit: SelectField,
-		elements: values.map( value => ( { value, label: GRANULARITY_LABELS[ value ]() } ) ),
-		relevance: 'high',
-	} as WidgetAttributeField< Attributes >;
-}
 
 /**
  * The "Chart type" attribute field (`relevance: 'high'`), offering the chart

@@ -96,6 +96,7 @@ The simplest line chart requires only a `data` prop with time-series data:
 **Legend:**
 - **`showLegend`**: Display chart legend (`false` by default)
 - **`legend`**: Legend configuration object (`ChartLegendConfig`) for controlling orientation, position, alignment, shape, interactivity, and styling
+- **`defaultHiddenSeries`**: Series labels hidden from the first defined value; later values for the same `chartId` are ignored
 - **`withLegendGlyph`**: Use custom glyphs in legend (`false` by default)
 
 **Advanced:**
@@ -551,6 +552,10 @@ Use the composition API to add a legend by placing `<LineChart.Legend />` as a c
 />
 
 For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
+
+Use `defaultHiddenSeries` to hide selected series initially while keeping them available through an interactive legend. The first defined list is used; later values for the same `chartId` are ignored. The defaults are seeded once per `chartId`, so a series the reader reveals stays revealed even if the chart unmounts and comes back — swapping between chart types, or a tab the chart lives in going away and returning. Only a new `chartId` seeds again.
+
+<Canvas of={ LineChartStories.WithDefaultHiddenSeries } />
 
 ## Theming Integration
 

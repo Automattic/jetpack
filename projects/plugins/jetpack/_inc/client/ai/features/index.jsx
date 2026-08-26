@@ -79,7 +79,7 @@ const SECTIONS = [
 		title: __( 'SEO', 'jetpack' ),
 		features: [
 			{
-				key: 'seo_enhancer',
+				key: 'ai_seo',
 				label: __( 'AI SEO', 'jetpack' ),
 				description: __(
 					'AI recommendations to optimize titles, meta descriptions, and content for search engines.',

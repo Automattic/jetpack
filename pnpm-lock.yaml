@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-ZW2BoUDYyI5nkZ8o3EkCzocg7Bspf+AzfFGBEEoeEK8=
+pnpmfileChecksum: sha256-412BlTj8SuAsn0adAeKHaOGDsUgOBoK7UY2dHyXD8j4=
 
 patchedDependencies:
   '@wordpress/build': 151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022
@@ -2290,7 +2290,63 @@ importers:
         specifier: 7.2.1
         version: 7.2.1(webpack@5.107.2)
 
-  projects/packages/comments: {}
+  projects/packages/comments:
+    dependencies:
+      '@preact/signals':
+        specifier: 1.2.2
+        version: 1.2.2(preact@10.28.2)
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
+      preact:
+        specifier: 10.28.2
+        version: 10.28.2
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.29.7
+        version: 7.29.7
+      '@babel/plugin-transform-react-jsx':
+        specifier: 7.29.7
+        version: 7.29.7(@babel/core@7.29.7)
+      '@babel/runtime':
+        specifier: 7.29.7
+        version: 7.29.7
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260707.2
+        version: 7.0.0-dev.20260707.2
+      '@wordpress/browserslist-config':
+        specifier: 6.51.0
+        version: 6.51.0
+      autoprefixer:
+        specifier: 10.4.20
+        version: 10.4.20(postcss@8.5.23)
+      babel-plugin-transform-rename-properties:
+        specifier: 0.1.0
+        version: 0.1.0(@babel/core@7.29.7)
+      browserslist:
+        specifier: ^4.24.0
+        version: 4.28.4
+      postcss:
+        specifier: 8.5.23
+        version: 8.5.23
+      postcss-loader:
+        specifier: 8.2.0
+        version: 8.2.0(postcss@8.5.23)(webpack@5.107.2)
+      sass-embedded:
+        specifier: 1.97.3
+        version: 1.97.3
+      sass-loader:
+        specifier: 16.0.5
+        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.107.2)
+      webpack:
+        specifier: 5.107.2
+        version: 5.107.2(postcss@8.5.23)(webpack-cli@7.2.1)
+      webpack-cli:
+        specifier: 7.2.1
+        version: 7.2.1(webpack@5.107.2)
 
   projects/packages/connection:
     dependencies:
@@ -3028,6 +3084,12 @@ importers:
       moment:
         specifier: 2.30.1
         version: 2.30.1
+      newspack-colors:
+        specifier: 1.1.3
+        version: 1.1.3
+      newspack-icons:
+        specifier: 1.1.1
+        version: 1.1.1(@wordpress/primitives@4.51.0(@types/react@18.3.28)(react@18.3.1))(react@18.3.1)
       preact:
         specifier: 10.28.2
         version: 10.28.2
@@ -3060,6 +3122,9 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/plugin-transform-react-jsx':
+        specifier: 7.29.7
+        version: 7.29.7(@babel/core@7.29.7)
+      '@babel/preset-react':
         specifier: 7.29.7
         version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
@@ -9056,6 +9121,7 @@ packages:
 
   '@octokit/webhooks-types@7.6.1':
     resolution: {integrity: sha512-S8u2cJzklBC0FgTwWVLaM8tMrDuDMVE4xiTK4EYXM9GntyvrdbSoxqDQa+Fh57CCNApyIpyeqPhhFEmHPfrXgw==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   '@oxc-parser/binding-android-arm-eabi@0.127.0':
     resolution: {integrity: sha512-0LC7ye4hvqbIKxAzThzvswgHLFu2AURKzYLeSVvLdu2TBOYWQDmHnTqPLeA597BcUCxiLqLsS4CJ5uoI5WYWCQ==}
@@ -12064,6 +12130,7 @@ packages:
   '@xmldom/xmldom@0.9.11':
     resolution: {integrity: sha512-tW8bcK3hsG0/uqSnNz6TK4BkcuZSezoU7DlnYssILmZDktPnSHHuDJJFM0AJv+13gz2r0iGdrj6qqKeUnxXEDg==}
     engines: {node: '>=14.6'}
+    deprecated: this version has critical issues, please update to the latest version
 
   '@xtuc/ieee754@1.2.0':
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}
@@ -15682,6 +15749,15 @@ packages:
 
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
+
+  newspack-colors@1.1.3:
+    resolution: {integrity: sha512-XjQWVIrTIATm66zmP0JoFmLVcYPAZZ+4zWcTdSTAvQ3y/SeWC5mPcWgdn/BO2NZE3qDXLJL1EZ4JymBU02mo8A==}
+
+  newspack-icons@1.1.1:
+    resolution: {integrity: sha512-puoKC6Op/icAUzArSuXnj89iCLmGrimldUKuLf1VKqyxw8z0ozOx2KmnJAUX6R0eCVuMEYpwRv/2XZE3E99MKw==}
+    peerDependencies:
+      '@wordpress/primitives': ^3.0.0 || ^4.0.0
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
 
   no-case@3.0.4:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
@@ -38213,6 +38289,13 @@ snapshots:
   negotiator@0.6.4: {}
 
   neo-async@2.6.2: {}
+
+  newspack-colors@1.1.3: {}
+
+  newspack-icons@1.1.1(@wordpress/primitives@4.51.0(@types/react@18.3.28)(react@18.3.1))(react@18.3.1):
+    dependencies:
+      '@wordpress/primitives': 4.51.0(@types/react@18.3.28)(react@18.3.1)
+      react: 18.3.1
 
   no-case@3.0.4:
     dependencies:

@@ -1,12 +1,15 @@
 import {
 	computePrimaryRange,
+	getComparisonRangeFromPreset,
 	PRESET_ALL_TIME,
 	type ComparisonPresetId,
+	type DateRange,
 	type IntervalType,
 	type PrimaryPresetId,
 	type YearSurfacePresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
+import { getSettings, setSettings } from '@wordpress/date';
 import { useCallback, useRef, useState } from 'react';
 import { DateFiltersPanel } from '../../date-filters-panel';
 import { DateIntervalDropdown } from '../../date-interval-dropdown';
@@ -17,8 +20,10 @@ import {
 import { DateYearFilter } from '../../date-year-filter';
 import { getSectionSubtitle } from '../get-section-subtitle';
 import { SectionHeader } from '../section-header';
-import type { DateRange } from '../../date-filters-panel/date-filters-panel';
+import type { DateRange as PanelDateRange } from '../../date-filters-panel/date-filters-panel';
 import type { Meta, StoryObj } from '@storybook/react';
+
+const STORYBOOK_TIMEZONE = 'America/New_York';
 
 const meta: Meta< typeof SectionHeader > = {
 	title: 'Packages/Premium Analytics/UI/SectionHeader',
@@ -40,15 +45,22 @@ const meta: Meta< typeof SectionHeader > = {
 	argTypes: {
 		children: { control: false },
 	},
+	beforeEach: () => {
+		const settings = getSettings();
+		setSettings( {
+			...settings,
+			timezone: { ...settings.timezone, string: STORYBOOK_TIMEZONE },
+		} );
+
+		return () => setSettings( settings );
+	},
 };
 export default meta;
 
 type Story = StoryObj< typeof SectionHeader >;
 
-const STORYBOOK_TIMEZONE = 'America/New_York';
-
 type PrimaryFilterState = {
-	range: DateRange;
+	range: PanelDateRange;
 	presetId: PrimaryPresetId;
 };
 
@@ -56,8 +68,9 @@ type PrimaryFilterState = {
  * The applied date configuration the subtitle describes.
  */
 type AppliedDateState = {
-	range: DateRange;
+	range: PanelDateRange;
 	comparisonPresetId?: ComparisonPresetId;
+	comparisonRange?: DateRange;
 	presetId?: PrimaryPresetId;
 	interval?: IntervalType;
 };
@@ -86,6 +99,14 @@ function hasPrimaryDraft( staged: PrimaryFilterState, committed: PrimaryFilterSt
 		staged.range.to !== committed.range.to ||
 		staged.presetId !== committed.presetId
 	);
+}
+
+/**
+ * Derived on every commit rather than stored, because `buildRangePatch`
+ * re-derives the comparison whenever the primary range moves.
+ */
+function comparisonRangeFor( range: PanelDateRange, presetId: ComparisonPresetId | undefined ) {
+	return presetId ? getComparisonRangeFromPreset( range, presetId ) : undefined;
 }
 
 /**
@@ -121,15 +142,18 @@ function RollingDateControls( {
 		[ pickedInterval ]
 	);
 
-	const handleChange = useCallback( ( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
-		const next: PrimaryFilterState = {
-			range: nextRange ?? stagedRef.current.range,
-			presetId: nextPresetId ?? stagedRef.current.presetId,
-		};
+	const handleChange = useCallback(
+		( nextRange?: PanelDateRange, nextPresetId?: PrimaryPresetId ) => {
+			const next: PrimaryFilterState = {
+				range: nextRange ?? stagedRef.current.range,
+				presetId: nextPresetId ?? stagedRef.current.presetId,
+			};
 
-		stagedRef.current = next;
-		setStaged( next );
-	}, [] );
+			stagedRef.current = next;
+			setStaged( next );
+		},
+		[]
+	);
 
 	const handleApply = useCallback( () => {
 		setCommitted( stagedRef.current );
@@ -137,6 +161,7 @@ function RollingDateControls( {
 			range: stagedRef.current.range,
 			presetId: stagedRef.current.presetId,
 			comparisonPresetId,
+			comparisonRange: comparisonRangeFor( stagedRef.current.range, comparisonPresetId ),
 			interval: intervalFor( stagedRef.current.presetId ),
 		} );
 	}, [ onAppliedChange, comparisonPresetId, intervalFor ] );
@@ -153,7 +178,7 @@ function RollingDateControls( {
 	 * comparison never commits an un-applied primary draft.
 	 */
 	const handleComparisonChange = useCallback(
-		( _range: DateRange | undefined, nextPresetId?: ComparisonPresetId ) => {
+		( _range: PanelDateRange | undefined, nextPresetId?: ComparisonPresetId ) => {
 			setComparisonPresetId( nextPresetId );
 
 			if ( ! hasPrimaryDraft( stagedRef.current, committed ) ) {
@@ -161,6 +186,7 @@ function RollingDateControls( {
 					range: committed.range,
 					presetId: committed.presetId,
 					comparisonPresetId: nextPresetId,
+					comparisonRange: comparisonRangeFor( committed.range, nextPresetId ),
 					interval: intervalFor( committed.presetId ),
 				} );
 			}
@@ -179,6 +205,7 @@ function RollingDateControls( {
 					range: committed.range,
 					presetId: committed.presetId,
 					comparisonPresetId,
+					comparisonRange: comparisonRangeFor( committed.range, comparisonPresetId ),
 					interval: nextInterval,
 				} );
 			}

@@ -11,10 +11,7 @@ import { redirect } from '@wordpress/route';
  * Internal dependencies
  */
 import { ensureDashboardEntities } from '../dashboard-entities';
-import {
-	isPremiumAnalyticsInitialSyncFinished,
-	isPremiumAnalyticsSiteConnected,
-} from '../site-readiness';
+import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 
 type DashboardSearch = Record< string, string | undefined >;
 
@@ -23,7 +20,10 @@ type DashboardSearch = Record< string, string | undefined >;
  *
  * Guard:
  * - Not connected → /connect
- * - Connected but sync pending → /syncing
+ *
+ * The initial analytics sync is not a guard: only the store section's data waits
+ * on it, so that section shows sync progress while the rest of the dashboard
+ * renders (see `stage.tsx`).
  *
  * Seed the default date range into the URL on first visit so the date picker
  * and the widgets share a populated search state. Defaults to the last 30 days
@@ -54,10 +54,6 @@ export const route = {
 	beforeLoad: async ( { search }: { search?: DashboardSearch } = {} ) => {
 		if ( ! isPremiumAnalyticsSiteConnected() ) {
 			throw redirect( { to: '/connect' } );
-		}
-
-		if ( ! isPremiumAnalyticsInitialSyncFinished() ) {
-			throw redirect( { to: '/syncing' } );
 		}
 
 		const params = ( search ?? {} ) as DashboardSearch;

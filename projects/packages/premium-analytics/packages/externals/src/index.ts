@@ -19,6 +19,7 @@ export {
 	ConversionFunnelChart,
 	GeoChart,
 	GlobalChartsProvider,
+	GoogleDataTableColumnRoleType,
 	HeatmapChart,
 	HeatmapChartUnresponsive,
 	LeaderboardChartUnresponsive,
@@ -30,6 +31,7 @@ export {
 	buildCalendarHeatmapData,
 	lightenHexColor,
 	normalizeColorToHex,
+	parseAsLocalDate,
 	useGlobalChartsContext,
 	type BaseLegendItem,
 	type ChartTheme,
@@ -43,6 +45,7 @@ export {
 	type HeatmapTooltipData,
 	type LineStyles,
 	type SeriesData,
+	type TickResolution,
 } from '@automattic/charts';
 
 export { LineShape, RectShape } from '@automattic/charts/visx/legend';
@@ -68,12 +71,14 @@ export { DateRangeCalendar } from '@automattic/ui';
 export {
 	Button,
 	EmptyState,
+	LinkButton,
 	Field as FormField,
 	Fieldset,
 	Icon,
 	IconButton,
 	Input,
 	Link,
+	Notice,
 	SelectControl,
 	Skeleton,
 	Stack,

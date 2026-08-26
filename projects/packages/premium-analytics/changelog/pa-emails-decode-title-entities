@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Emails: Decode HTML entities in email subject lines.
