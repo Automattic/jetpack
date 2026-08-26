@@ -1,5 +1,5 @@
 import { Modal, Notice, SelectControl } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import FieldValueControl from '../controls/field-value/edit.jsx';
 
@@ -117,9 +117,11 @@ const ConditionalLogicModal = ( {
 				{ duplicateFieldIds.size > 0 && (
 					<Notice status="warning" isDismissible={ false }>
 						{ sprintf(
-							/* translators: %s: comma-separated list of duplicated field names/IDs. */
-							__(
-								'More than one field uses the Name/ID %s, so a condition cannot tell them apart. Those fields are unavailable below. To use one, select it in the editor and give it a unique value under Advanced → Name/ID.',
+							/* translators: %s: comma-separated list of field names/IDs used by more than one field. */
+							_n(
+								"Some fields are unavailable because their Name/ID isn't unique: %s. Give each field its own under Advanced → Name/ID.",
+								"Some fields are unavailable because their Name/IDs aren't unique: %s. Give each field its own under Advanced → Name/ID.",
+								duplicateFieldIds.size,
 								'jetpack-forms'
 							),
 							[ ...duplicateFieldIds ].join( ', ' )

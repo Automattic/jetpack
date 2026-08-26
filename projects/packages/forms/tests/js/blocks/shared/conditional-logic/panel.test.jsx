@@ -377,7 +377,9 @@ describe( 'ConditionalLogicPanel', () => {
 
 			// `Notice` announces itself through @wordpress/a11y, which mirrors the text into a
 			// live region -- so every notice matches twice. Either copy carries the whole message.
-			const [ notice ] = screen.getAllByText( /More than one field uses the Name\/ID first-name/ );
+			const [ notice ] = screen.getAllByText(
+				/Some fields are unavailable because their Name\/ID isn't unique: first-name/
+			);
 
 			expect( notice ).toHaveTextContent( /Advanced → Name\/ID/ );
 		} );
