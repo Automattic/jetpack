@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { readSiteTimestamp } from '@jetpack-premium-analytics/datetime';
+/**
  * Internal dependencies
  */
 import { reportParamsToStatsQueryParams } from '../utils/stats-params';
@@ -31,12 +35,17 @@ const hasValidPostId = ( postId: number ) => Number.isInteger( postId ) && postI
 const toEmailPeriod = ( period?: string ): StatsEmailTimeSeriesPeriod =>
 	period === 'hour' ? 'hour' : 'day';
 
-// The wall-clock hour a window's end names, read from the string as written;
-// a bare date ends at hour 23.
+// The wall-clock hour a window's end names, read by the datetime package's
+// single timestamp reader so it cannot disagree with the sanitizer's trim
+// bounds, then narrowed the same way (T-separated only — getDatePart, which
+// derives `days`, splits on T alone); a bare date, or anything the reader
+// rejects or the pipeline can't carry, ends at hour 23 as before.
 const endHourOfDay = ( value?: string ): number => {
-	const match = typeof value === 'string' && value.match( /[T ](\d{2}):/ );
+	const timestamp = typeof value === 'string' ? readSiteTimestamp( value ) : null;
 
-	return match ? Number( match[ 1 ] ) : 23;
+	return timestamp?.isValid && ! timestamp.value.includes( ' ' ) && timestamp.value.includes( 'T' )
+		? timestamp.parts[ 3 ]
+		: 23;
 };
 
 // Mirror Calypso's requestEmailStats: the timeline is period-scoped and always sends period,

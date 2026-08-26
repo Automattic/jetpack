@@ -273,10 +273,7 @@ describe( 'Stats time-series normalizer', () => {
 		);
 	} );
 
-	it( 'reads window bounds as the wall clock written, in every accepted timestamp shape', () => {
-		// Report params can carry a space-separated time or omit the seconds
-		// (the datetime package's SITE_TIMESTAMP shapes); the trim must read
-		// the same wall clock from all of them.
+	it( 'reads window bounds as the wall clock written, only in pipeline-supported shapes', () => {
 		const timeline = {
 			timeline: {
 				unit: 'hour',
@@ -290,16 +287,8 @@ describe( 'Stats time-series normalizer', () => {
 			},
 		};
 
-		const spaceSeparated = sanitizeStatsEmailTimeSeriesResponse( timeline, {
-			period: 'hour',
-			window_start: '2026-06-14 09:00:00-04:00',
-			window_end: '2026-06-15 08:59:59-04:00',
-		} );
-		expect( spaceSeparated.data.map( point => point.time_interval ) ).toEqual( [
-			'2026-06-14 09:00',
-			'2026-06-15 08:00',
-		] );
-
+		// A seconds-less T-separated bound reads the same wall clock as the
+		// full ISO shape the presets emit.
 		const noSeconds = sanitizeStatsEmailTimeSeriesResponse( timeline, {
 			period: 'hour',
 			window_start: '2026-06-14T09:00-04:00',
@@ -309,6 +298,16 @@ describe( 'Stats time-series normalizer', () => {
 			'2026-06-14 09:00',
 			'2026-06-15 08:00',
 		] );
+
+		// Space-separated datetimes degrade upstream (getDatePart splits on T
+		// only, so the day count is already wrong before the request is sized);
+		// the trim must stay disabled for them rather than half-apply.
+		const spaceSeparated = sanitizeStatsEmailTimeSeriesResponse( timeline, {
+			period: 'hour',
+			window_start: '2026-06-14 09:00:00-04:00',
+			window_end: '2026-06-15 08:59:59-04:00',
+		} );
+		expect( spaceSeparated.data ).toHaveLength( 4 );
 	} );
 
 	it( 'keeps rows whose bucket bounds are not comparable wall clocks', () => {
@@ -367,6 +366,22 @@ describe( 'Stats time-series normalizer', () => {
 			end_date: '2026-06-16',
 		} );
 		expect( requestDates.data ).toHaveLength( 2 );
+
+		// A bound the timestamp reader rejects, or an inverted window, must
+		// disable the trim rather than silently empty the chart.
+		const invalidBound = sanitizeStatsEmailTimeSeriesResponse( timeline, {
+			period: 'day',
+			window_start: '2026-06-15',
+			window_end: '2026-06-16T99:00:00',
+		} );
+		expect( invalidBound.data ).toHaveLength( 2 );
+
+		const inverted = sanitizeStatsEmailTimeSeriesResponse( timeline, {
+			period: 'day',
+			window_start: '2026-06-16',
+			window_end: '2026-06-15',
+		} );
+		expect( inverted.data ).toHaveLength( 2 );
 	} );
 
 	it( 'normalizes hour 0 and string-typed hour values into padded per-hour buckets', () => {

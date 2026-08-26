@@ -31,6 +31,11 @@ export type StatsQueryParamFields = {
 	summarize?: number | boolean;
 	complete_stats?: number | boolean;
 	skip_archives?: number | boolean;
+	// Sanitizer-only: the wall-clock window the time-series sanitizer trims
+	// to, sent via `sanitizerParams`. Deliberately absent from statsParamKeys
+	// so report params can never carry them into a request.
+	window_start?: string;
+	window_end?: string;
 };
 
 export type StatsQueryParams = StatsProxyParams & StatsQueryParamFields;

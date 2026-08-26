@@ -294,6 +294,31 @@ describe( 'Stats query factories', () => {
 		} );
 	} );
 
+	it( 'reads the end hour from every timestamp shape the datetime reader accepts', () => {
+		const quantityFor = ( from: string, to: string ) =>
+			(
+				statsEmailClicksTimeSeriesQuery( 41, { from, to, interval: 'hour' } ).queryKey[ 5 ] as {
+					quantity: number;
+				}
+			 ).quantity;
+
+		// A seconds-less end must size the same window as the full ISO shape,
+		// so quantity and the sanitizer trim stay agreed.
+		expect( quantityFor( '2026-06-14T09:00-04:00', '2026-06-15T08:59-04:00' ) ).toBe( 33 );
+
+		// Space-separated datetimes degrade upstream (getDatePart, which
+		// derives `days`, splits on T only), so the end hour falls back to 23
+		// there too — one whole degraded day, matching pre-fix behavior, with
+		// the sanitizer trim disabled by the same narrowing.
+		expect( quantityFor( '2026-06-14 09:00:00-04:00', '2026-06-15 08:59:59-04:00' ) ).toBe( 24 );
+
+		// An end the reader rejects falls back to hour 23 — the old full-day
+		// request — and the sanitizer, sharing the reader, disables its trim.
+		expect( quantityFor( '2026-06-14T09:00:00.000-04:00', '2026-06-15T99:00:00.000-04:00' ) ).toBe(
+			48
+		);
+	} );
+
 	it( 'disables email time series queries without a positive integer post ID or a date', () => {
 		const range = { from: '2026-06-01', to: '2026-06-07', interval: 'day' } as const;
 

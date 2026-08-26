@@ -208,7 +208,11 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-metric-total', '276' );
 
 		const requestedPath = String( mockApiFetch.mock.calls[ 0 ][ 0 ].path );
-		expect( new URLSearchParams( requestedPath.split( '?' )[ 1 ] ).get( 'quantity' ) ).toBe( '33' );
+		const requestParams = new URLSearchParams( requestedPath.split( '?' )[ 1 ] );
+		expect( requestParams.get( 'quantity' ) ).toBe( '33' );
+		// The trim window is sanitizer-only and must never reach the API.
+		expect( requestParams.get( 'window_start' ) ).toBeNull();
+		expect( requestParams.get( 'window_end' ) ).toBeNull();
 	} );
 
 	it( 'ignores comparison report params: one request, single series', async () => {

@@ -1,4 +1,8 @@
-import { formatDatePartWithTime, getDatePart } from '@jetpack-premium-analytics/datetime';
+import {
+	formatDatePartWithTime,
+	getDatePart,
+	readSiteTimestamp,
+} from '@jetpack-premium-analytics/datetime';
 import {
 	endOfISOWeek,
 	endOfMonth,
@@ -263,26 +267,37 @@ function getTimeSeriesSummarySidecars( response: StatsRecord ) {
 	};
 }
 
-// The timestamp shapes report params can carry (a subset of the datetime
-// package's SITE_TIMESTAMP): a calendar date, optionally followed by a
-// T- or space-separated wall time with optional seconds; any offset or
-// milliseconds after that are irrelevant to a wall-clock bound.
-const WALL_CLOCK_PARTS = /^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?)?/;
+const padTimePart = ( part: number ) => String( part ).padStart( 2, '0' );
 
 // A trim-window bound in the same timezone-naive wall-clock shape the bucket
 // labels carry: the value's own date and time parts as written, any offset
-// ignored. A bare date widens to the whole day via the fallback time, whose
-// seconds also fill in for a seconds-less time.
-function toWallClockBound( value: unknown, fallbackTime: string ) {
-	const match = typeof value === 'string' ? WALL_CLOCK_PARTS.exec( value.trim() ) : null;
+// ignored. Validated by the datetime package's single timestamp reader so the
+// accepted shapes cannot drift from the rest of the package, then narrowed to
+// what the stats-params pipeline itself accepts — bare dates and T-separated
+// datetimes; getDatePart splits on T only, so a space-separated value already
+// degrades the day count upstream and must not trim here either. An invalid
+// or unsupported value yields no bound (and so no trim). A bare date widens
+// to the whole day via the fallback time; a seconds-less time takes the
+// fallback seconds.
+function toWallClockBound( value: unknown, fallbackTime: string, fallbackSeconds: string ) {
+	const timestamp = typeof value === 'string' ? readSiteTimestamp( value ) : null;
 
-	if ( ! match ) {
+	if ( ! timestamp?.isValid || timestamp.value.includes( ' ' ) ) {
 		return undefined;
 	}
 
-	const [ , datePart, hours, minutes, seconds ] = match;
-	const time = hours
-		? `${ hours }:${ minutes }:${ seconds ?? fallbackTime.slice( 6 ) }`
+	const [ year, month, day, hours, minutes, seconds ] = timestamp.parts;
+	const datePart = `${ String( year ).padStart( 4, '0' ) }-${ padTimePart(
+		month + 1
+	) }-${ padTimePart( day ) }`;
+	// The reader guarantees these shapes, so the probes only ask what was
+	// written: a time at all, and seconds within it.
+	const hasTime = timestamp.value.includes( 'T' );
+	const hasSeconds = /T\d{2}:\d{2}:\d{2}/.test( timestamp.value );
+	const time = hasTime
+		? `${ padTimePart( hours ) }:${ padTimePart( minutes ) }:${
+				hasSeconds ? padTimePart( seconds ) : fallbackSeconds
+		  }`
 		: fallbackTime;
 
 	return formatDatePartWithTime( datePart, time );
@@ -331,10 +346,12 @@ export function sanitizeStatsTimeSeriesResponse(
 	// params — those reach this sanitizer from range-bounded endpoints (visits,
 	// subscribers, wordads) that must not have buckets dropped. Rows whose
 	// bounds aren't comparable wall clocks are kept, not dropped.
-	const windowStart = toWallClockBound( query?.window_start, '00:00:00' );
-	const windowEnd = toWallClockBound( query?.window_end, '23:59:59' );
+	const windowStart = toWallClockBound( query?.window_start, '00:00:00', '00' );
+	const windowEnd = toWallClockBound( query?.window_end, '23:59:59', '59' );
+	// An inverted window (a hand-edited deep link) falls back to no trim
+	// rather than silently emptying the chart.
 	const kept =
-		windowStart && windowEnd
+		windowStart && windowEnd && windowStart <= windowEnd
 			? buckets.filter(
 					( { range } ) =>
 						! isWallClockStamp( range.date_start ) ||
