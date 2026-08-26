@@ -94,19 +94,22 @@ class WP_Build_Admin_Frame_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The stylesheet targets the boot single-page layout and the body behind it.
+	 * The stylesheet targets the boot single-page layout, in its global-class and
+	 * CSS Modules forms, and the body behind it.
 	 */
 	public function test_styles_override_the_boot_layout_with_the_menu_color() {
 		ob_start();
 		WP_Build_Admin_Frame::print_styles();
 		$css = ob_get_clean();
 
-		$this->assertStringContainsString( '#wpcontent .boot-layout--single-page {', $css );
+		$this->assertStringContainsString( '#wpcontent .boot-layout--single-page,', $css );
+		$this->assertStringContainsString( '#wpcontent [class*="__layout-single-page"] {', $css );
 		$this->assertStringContainsString(
 			'background: var(--wp-build-admin-menu-background, var(--wpds-color-background-surface-neutral-weak));',
 			$css
 		);
-		$this->assertStringContainsString( 'body:has(.boot-layout--single-page) {', $css );
+		$this->assertStringContainsString( 'body:has(.boot-layout--single-page),', $css );
+		$this->assertStringContainsString( 'body:has([class*="__layout-single-page"]) {', $css );
 		$this->assertStringContainsString( 'background: var(--wp-build-admin-menu-background, #fff);', $css );
 	}
 

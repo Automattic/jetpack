@@ -35,19 +35,25 @@ class WP_Build_Admin_Frame {
 	/**
 	 * Print the backdrop override.
 	 *
-	 * `#wpcontent .boot-layout--single-page` outranks the `.boot-layout` rule
-	 * boot injects at runtime. The fallbacks keep boot's own colors when the
-	 * sampling script did not run.
+	 * Both selectors are (1,1,0), so they outrank the layout rule boot injects
+	 * at runtime. The fallbacks keep boot's own colors when the sampling script
+	 * did not run.
 	 *
 	 * @return void
 	 */
 	public static function print_styles() {
+		// The layout root is `.boot-layout--single-page` up to boot 0.20. From
+		// boot 0.21 (WordPress/gutenberg#81756, Gutenberg 23.9) the styles are
+		// CSS Modules and the class is `_<hash>__layout-single-page`, so the
+		// attribute selector matches the local name whatever the hash is.
 		?>
 		<style id="wp-build-admin-frame-css">
-			#wpcontent .boot-layout--single-page {
+			#wpcontent .boot-layout--single-page,
+			#wpcontent [class*="__layout-single-page"] {
 				background: var(--wp-build-admin-menu-background, var(--wpds-color-background-surface-neutral-weak));
 			}
-			body:has(.boot-layout--single-page) {
+			body:has(.boot-layout--single-page),
+			body:has([class*="__layout-single-page"]) {
 				background: var(--wp-build-admin-menu-background, #fff);
 			}
 		</style>
