@@ -58,8 +58,8 @@ type Result = Figures &
  * day-counts, and `/site/backup/policies` reports the limit. A meter
  * drawn from `/size` alone has no denominator.
  *
- * Both halves are read defensively for the same reason. Every legacy
- * bridge answers a non-200 from WordPress.com with a bare `null` body,
+ * Both halves are read defensively for the same reason. A route that
+ * cannot decode WordPress.com's answer still returns a bare `null` body,
  * which WordPress serves as HTTP 200 — so the request resolves, React
  * Query records a success, and the only evidence of failure is the shape
  * of the data. Anything unreadable therefore has to collapse to `null`
