@@ -12,6 +12,16 @@
 	h3 {
 		margin-block: 0 12px;
 	}
+
+	// Stands in for the heading while the two storage requests are in
+	// flight. Matches the rendered heading's line box and its gap to the
+	// bar exactly (measured: 20px + 12px), so the real section replaces it
+	// without moving anything below it.
+	&__heading-placeholder {
+		block-size: 20px;
+		inline-size: 160px;
+		margin-block-end: 12px;
+	}
 }
 
 .jpb-storage-meter {
@@ -82,6 +92,13 @@
 
 	& &__bar--error > div {
 		background-color: var(--wpds-color-background-interactive-error-strong);
+	}
+
+	// Stands in for the bar itself, at the same height and radius.
+	& &__placeholder {
+		block-size: 24px;
+		inline-size: 100%;
+		border-radius: 12px;
 	}
 
 	// Geometry only, and applied on the measurement rather than the level.

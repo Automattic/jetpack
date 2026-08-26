@@ -103,6 +103,34 @@ describe( 'the render gate', () => {
 		expect( meterValue() ).toBe( 10 );
 	} );
 
+	it( "holds the section's height while the requests are in flight", async () => {
+		// The shift this guards: the section used to render `null` until
+		// both requests resolved, so on a slow connection the activity list
+		// rendered first and was then pushed down when they landed.
+		let release: ( v: unknown ) => void = () => {};
+		const pending = new Promise( resolve => {
+			release = resolve;
+		} );
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) =>
+			( options?.path ?? '' ).includes( '/site/backup/' ) ? pending : Promise.resolve( {} )
+		);
+
+		renderWithClient( <StorageSpace /> );
+
+		// The placeholders are `aria-hidden` by design — there is nothing
+		// worth announcing yet — so no role or label reaches them, and the
+		// class is the only handle. Same escape hatch as `barModifiers()`.
+		/* eslint-disable testing-library/no-node-access -- see above. */
+		await waitFor( () => expect( document.querySelector( '.jpb-storage-space' ) ).not.toBeNull() );
+		expect( document.querySelector( '.jpb-storage-meter__placeholder' ) ).not.toBeNull();
+		/* eslint-enable testing-library/no-node-access */
+		// Nothing is claimed while we are still looking.
+		expect( screen.queryByText( 'Cloud storage space' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+
+		release( { ok: true, size: 10 * GB, policies: { storage_limit_bytes: 100 * GB } } );
+	} );
+
 	it( 'stays silent when the policies read fails, rather than drawing an empty bar', async () => {
 		// The dangerous case. `/policies` answering a non-200 arrives as a
 		// bare `null` with HTTP 200, so nothing rejects and nothing here

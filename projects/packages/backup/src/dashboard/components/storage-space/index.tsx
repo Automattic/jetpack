@@ -1,6 +1,6 @@
 import { useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Text } from '@wordpress/ui';
+import { Skeleton, Text } from '@wordpress/ui';
 import { StorageUsageLevels } from '../../data/storage-usage-levels';
 import { useStorageUsage } from '../../hooks/use-storage-usage';
 import StorageMeter from './meter';
@@ -52,6 +52,28 @@ export default function StorageSpace() {
 	// "why did my backups stop".
 	const headingId = useId();
 
+	// Hold the section's exact height while the two requests are in
+	// flight, so the activity list below is not pushed down when they
+	// land — which would happen on precisely the slow connections where
+	// this section matters most. Sized to the rendered article: a 20px
+	// heading line, 12px, a 24px bar.
+	//
+	// Skeletons rather than the real heading over an empty track: both
+	// would assert content we do not have yet, and an empty meter reads
+	// as "0% used" rather than as "still looking".
+	if ( usage.isLoading ) {
+		return (
+			<section className="jpb-storage-space" aria-hidden="true">
+				<Skeleton className="jpb-storage-space__heading-placeholder" />
+				<div className="jpb-storage-meter">
+					<Skeleton className="jpb-storage-meter__placeholder" />
+				</div>
+			</section>
+		);
+	}
+
+	// Resolved, and there is nothing to measure against. Silence is
+	// correct here, and matches legacy's gate.
 	if ( ! usage.hasUsableFigures ) {
 		return null;
 	}

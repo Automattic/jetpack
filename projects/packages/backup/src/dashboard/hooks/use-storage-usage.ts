@@ -11,14 +11,21 @@ import { useSiteSizeQuery } from './use-site-size';
 const SITE_POLICIES_STALE_MS = 5 * 60_000;
 
 type Figures = {
-	/** Size of the most recent backup in bytes, or null when unknown. */
-	lastBackupSize: number | null;
-	/** Days of backups the plan promises, or null when unknown. */
-	planRetentionDays: number | null;
 	/** Derived level driving the meter's colour and the section heading. */
 	usageLevel: StorageUsageLevelName | null;
+	/**
+	 * True only while a request is genuinely in flight. React Query v5
+	 * defines this as `isPending && isFetching`, so a query disabled by
+	 * `useCanQueryWpcom()` reports `false` rather than staying pending
+	 * forever — which is what makes it safe to reserve layout on.
+	 */
 	isLoading: boolean;
 };
+
+// `last_backup_size` and the plan's own retention are read off these same
+// responses but deliberately not returned: nothing consumes them yet, and
+// the usage details that will are JETPACK-2330. Adding each back is one
+// line when there is a caller.
 
 /**
  * `hasUsableFigures` is a discriminant, not a convenience flag: it is the
@@ -55,7 +62,7 @@ type Result = Figures &
  * response is discarded rather than half-read. Legacy does the same, by
  * dispatching its failure action.
  *
- * @return Storage figures, the derived level, and whether to render.
+ * @return The two figures, the derived level, and whether to render.
  */
 export function useStorageUsage(): Result {
 	const sizeQuery = useSiteSizeQuery();
@@ -71,8 +78,6 @@ export function useStorageUsage(): Result {
 
 	const storageUsed = size?.size ?? null;
 	const storageLimit = policies?.storage_limit_bytes ?? null;
-	const lastBackupSize = size?.last_backup_size ?? null;
-	const planRetentionDays = policies?.activity_log_limit_days ?? null;
 
 	// Retention is not one field. The site's own `retention_days` wins
 	// when it is set, and the plan's `activity_log_limit_days` stands in
@@ -80,7 +85,7 @@ export function useStorageUsage(): Result {
 	// planRetentionDays` at `backup-storage-space/index.jsx:33`, and the
 	// `||` is load-bearing: `retention_days` is `0` on a site with no
 	// retention policy, not absent.
-	const retentionDays = size?.retention_days || planRetentionDays;
+	const retentionDays = size?.retention_days || ( policies?.activity_log_limit_days ?? null );
 
 	const usageLevel = getUsageLevel(
 		storageUsed,
@@ -92,8 +97,6 @@ export function useStorageUsage(): Result {
 	);
 
 	const figures: Figures = {
-		lastBackupSize,
-		planRetentionDays,
 		usageLevel,
 		isLoading: sizeQuery.isLoading || policiesQuery.isLoading,
 	};
