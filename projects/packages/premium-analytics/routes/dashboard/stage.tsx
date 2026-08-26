@@ -141,10 +141,7 @@ function Dashboard(): JSX.Element {
 		activeSectionRecord?.date_filter_options
 	);
 
-	/*
-	 * Placement, not capability: a section that hands the date control to its
-	 * widgets still has the same date state on the same surface.
-	 */
+	// Placement only: the date state is the same either way.
 	const showHeaderDateControl = offersHeaderDateControl( activeSectionRecord?.date_filter_options );
 
 	/*
@@ -153,8 +150,7 @@ function Dashboard(): JSX.Element {
 	 * it must not move while an edit is open, only once Apply commits it.
 	 *
 	 * A header without the comparison control must not announce one, and a
-	 * header that does not own the date control must not announce the range on
-	 * its behalf — the widget hosting the control is where it is readable.
+	 * header that does not own the date control must not announce the range.
 	 */
 	const comparisonPresetId = showComparison ? dateFilters.appliedComparisonPresetId : undefined;
 	const comparisonRange = showComparison ? dateFilters.appliedComparisonRange : undefined;

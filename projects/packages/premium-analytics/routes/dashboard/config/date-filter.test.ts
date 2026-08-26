@@ -40,13 +40,9 @@ describe( 'resolvePresetForSurface', () => {
 } );
 
 describe( 'Date-filter surface constants', () => {
-	// The frontend re-declares these values rather than importing them from PHP,
-	// and an unrecognized surface falls back to `range` silently, so a typo here
-	// would break the mirror with every other test still green.
-	//
-	// This pins the literals; it cannot see a surface added on the PHP side
-	// only. `Dashboard_Section_Test::test_sections_schema_documents_the_date_filter`
-	// asserts the enum exactly, and names this file, so that direction fails there.
+	// An unrecognized surface falls back to `range` silently, so a typo here
+	// would go unnoticed. A surface added on the PHP side only fails in
+	// `Dashboard_Section_Test::test_sections_schema_documents_the_date_filter`.
 	it( 'pins the surface literals the PHP constants use', () => {
 		expect( DATE_FILTER_RANGE ).toBe( 'range' );
 		expect( DATE_FILTER_YEAR ).toBe( 'year' );
@@ -74,8 +70,6 @@ describe( 'offersDateComparison', () => {
 		);
 	} );
 
-	// Not just chrome: the dashboard declares this on `ReportScopeProvider`, so
-	// `WidgetRoot` strips the comparison params for the whole section.
 	it( 'ignores the placement of the control', () => {
 		expect(
 			offersDateComparison( DATE_FILTER_RANGE, {
@@ -102,14 +96,12 @@ describe( 'offersHeaderDateControl', () => {
 		).toBe( false );
 	} );
 
-	// A section registered before the field existed, and a payload served before
-	// it existed, both keep the header control they had.
+	// A payload served before the field existed carries no placement.
 	it( 'keeps the control when the section carries no placement', () => {
 		expect( offersHeaderDateControl( undefined ) ).toBe( true );
 		expect( offersHeaderDateControl( { with_date_comparison: true } ) ).toBe( true );
 	} );
 
-	// Placement is not capability: a widget-hosted control still has one.
 	it( 'is independent of comparison', () => {
 		expect(
 			offersHeaderDateControl( { with_date_comparison: false, with_header_date_control: true } )

@@ -272,7 +272,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertInstanceOf( Dashboard_Section::class, $section );
 
-		// Placement moves; the surface does not.
 		$this->assertSame( Dashboard_Section::DATE_FILTER_RANGE, $section->date_filter );
 		$this->assertSame(
 			array(
@@ -538,11 +537,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 	/**
 	 * The sections schema documents the date-filter surfaces and their default.
 	 *
-	 * The frontend re-declares these values in
-	 * `routes/dashboard/config/date-filter.ts` rather than importing them, and an
-	 * unrecognized surface falls back to `range` there silently. Adding a surface
-	 * means widening `DateFilterSurface` in that file too, or the dashboard will
-	 * never render it.
+	 * `routes/dashboard/config/date-filter.ts` re-declares these rather than
+	 * importing them, and falls back to `range` silently, so a new surface has to
+	 * widen `DateFilterSurface` there too or the dashboard will never render it.
 	 */
 	public function test_sections_schema_documents_the_date_filter() {
 		$schema = get_dashboard_section_schema();

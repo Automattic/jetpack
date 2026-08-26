@@ -98,9 +98,8 @@ final class Dashboard_Section {
 	/**
 	 * Which shape the section's date filter takes, as one of self::DATE_FILTERS.
 	 *
-	 * Shape only. Where the control renders is `with_header_date_control`, and
-	 * whether the section supports comparison at all is `with_date_comparison`;
-	 * both live in self::$date_filter_options.
+	 * Shape only. Where it renders and what it supports are
+	 * self::$date_filter_options.
 	 *
 	 * @since 0.2.0
 	 * @var string
@@ -108,16 +107,14 @@ final class Dashboard_Section {
 	public $date_filter = self::DATE_FILTER_RANGE;
 
 	/**
-	 * The capabilities of the section's date filter, separate from its shape.
+	 * What the section's date filter supports, and where it renders.
 	 *
-	 * - `with_date_comparison`: whether the section supports period-over-period
-	 *   comparison at all. Not just chrome — when false, the frontend drops the
-	 *   comparison from the params it fetches and renders widgets with, so a
-	 *   section that turns it off has no comparison anywhere.
-	 * - `with_header_date_control`: whether the section header renders the date
-	 *   control. False hands it to the section's widgets, which host their own.
-	 *   The date state still exists either way and still takes `$date_filter`'s
-	 *   shape; only the placement moves.
+	 * - `with_date_comparison`: whether the section supports comparison at all.
+	 *   Not just chrome — false drops the comparison from the params every
+	 *   widget in the section fetches with.
+	 * - `with_header_date_control`: whether the header renders the date control.
+	 *   False hands it to the section's widgets. Only the placement moves; the
+	 *   date state still takes `$date_filter`'s shape.
 	 *
 	 * @since 0.3.0
 	 * @since $$next-version$$ Added `with_header_date_control`.

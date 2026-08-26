@@ -22,11 +22,9 @@ export const DATE_FILTER_RANGE = 'range';
 export const DATE_FILTER_YEAR = 'year';
 
 /**
- * The shape a section's date filter takes. Mirrors
+ * The shape a section's date filter takes — not where it renders, and not what
+ * it supports, which are `DateFilterOptions`. Mirrors
  * `Dashboard_Section::DATE_FILTERS` on the server, which is the source of truth.
- *
- * Shape only: where the control renders and whether the section supports
- * comparison are `DateFilterOptions` below.
  */
 export type DateFilterSurface = typeof DATE_FILTER_RANGE | typeof DATE_FILTER_YEAR;
 
@@ -36,20 +34,17 @@ export type DateFilterSurface = typeof DATE_FILTER_RANGE | typeof DATE_FILTER_YE
  */
 export type DateFilterOptions = {
 	with_date_comparison: boolean;
-	// Optional on the wire: a payload served before this field existed carries
-	// no placement, and the header keeps the control (`offersHeaderDateControl`).
+	// Optional: a payload served before this field existed carries no placement.
 	with_header_date_control?: boolean;
 };
 
 /**
  * Whether the section supports period-over-period comparison at all.
  *
- * Not just chrome: the dashboard declares this on `ReportScopeProvider`, so a
- * false answer has `WidgetRoot` drop the comparison from the params it fetches
- * and renders with, for every widget in the section.
+ * Not just chrome: false has `WidgetRoot` drop the comparison from the params
+ * every widget in the section fetches and renders with.
  *
- * The year surface never supports it; otherwise the section decides. Absent
- * options keep it, as every section did before the field.
+ * The year surface never supports it; otherwise the section decides.
  *
  * @param surface - The active section's date-filter surface.
  * @param options - The active section's date-filter options, if any.
@@ -69,11 +64,9 @@ export function offersDateComparison(
 /**
  * Whether the section's header renders the date control.
  *
- * False hands it to the section's widgets, which host their own. Only the
- * placement moves: the date state still exists and still takes the surface's
- * shape, so a widget-hosted control reads and writes the same `?preset=`.
- *
- * Absent options keep the header control, as every section did before the field.
+ * False hands it to the section's widgets. Only the placement moves — the date
+ * state still exists and still takes the surface's shape, so a widget-hosted
+ * control reads and writes the same `?preset=`.
  *
  * @param options - The active section's date-filter options, if any.
  * @return Whether to render the header date control.

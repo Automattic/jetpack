@@ -352,13 +352,11 @@ describe( 'Dashboard header date control', () => {
 
 		render( <Dashboard /> );
 
-		// `DateFiltersPanel` is the range surface's control; the probe it renders
-		// is how we see whether it mounted at all.
+		// The probe `DateFiltersPanel` renders is how we see whether it mounted.
 		expect( screen.queryByText( /^header offers/ ) ).not.toBeInTheDocument();
 	} );
 
-	// The reader has no header control to see or change the range with, so the
-	// header must not state one on the widget's behalf.
+	// The reader has no header control to change the range with.
 	it( 'announces no range for a section that hands the control to its widgets', () => {
 		mockSection( {
 			date_filter: DATE_FILTER_RANGE,
@@ -370,8 +368,7 @@ describe( 'Dashboard header date control', () => {
 		expect( screen.queryByText( /^subtitle:/ ) ).not.toBeInTheDocument();
 	} );
 
-	// Placement is not capability. Moving the control must not strip the
-	// comparison params the widgets fetch with.
+	// Moving the control must not strip the params the widgets fetch with.
 	it( 'keeps the comparison scope when only the placement moves', () => {
 		mockSection( {
 			date_filter: DATE_FILTER_RANGE,
