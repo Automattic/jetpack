@@ -23,9 +23,9 @@ describe( 'fetchRecentRestores', () => {
 	}
 
 	test( 'distinguishes a failed read from an empty collection', async () => {
-		// The legacy route answers a non-200 from WordPress.com with a
-		// bare `null`, which WordPress then serves as HTTP 200 — so this
-		// resolves rather than rejecting. Returning `[]` for it would tell
+		// The legacy route answers a WordPress.com reply it cannot decode
+		// with a bare `null`, which WordPress then serves as HTTP 200 — so
+		// this resolves rather than rejecting. Returning `[]` for it would tell
 		// a caller deciding whether to start a destructive restore that
 		// nothing is running, which is the opposite of what it knows.
 		respondWith( null );

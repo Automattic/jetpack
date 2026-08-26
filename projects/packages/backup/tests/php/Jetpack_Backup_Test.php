@@ -46,16 +46,24 @@ class Jetpack_Backup_Test extends TestCase {
 	private $wpcom_status = 200;
 
 	/**
+	 * How many times a route reached the mocked transport.
+	 *
+	 * @var int
+	 */
+	private $http_requests = 0;
+
+	/**
 	 * Undo the request mocking. Done here rather than after each assertion so
 	 * that a failing assertion cannot leak a filter into the next test.
 	 */
 	protected function tearDown(): void {
 		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
-		remove_filter( 'pre_http_request', array( $this, 'mock_request_as_wp_error' ) );
+		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_unreachable' ) );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ) );
 		wp_set_current_user( 0 );
 
-		$this->wpcom_status = 200;
+		$this->wpcom_status  = 200;
+		$this->http_requests = 0;
 
 		parent::tearDown();
 	}
@@ -115,16 +123,22 @@ class Jetpack_Backup_Test extends TestCase {
 	 * A transport failure has no status at all. Reporting the 0 that casting
 	 * produces would leave the REST layer emitting an invalid status line.
 	 *
+	 * The request count is asserted because a 500 alone proves nothing here: a
+	 * request that is never signed is refused before the wire and reports a
+	 * status of 0 too, so this would pass with neither the sign-in nor the
+	 * transport mock in place.
+	 *
 	 * @param string $callback Name of the route callback.
 	 * @dataProvider provide_wpcom_backed_route_callbacks
 	 */
 	#[DataProvider( 'provide_wpcom_backed_route_callbacks' )]
 	public function test_route_reports_a_transport_failure_as_500( $callback ) {
 		$this->sign_in_as_connected_admin();
-		add_filter( 'pre_http_request', array( $this, 'mock_request_as_wp_error' ) );
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_unreachable' ) );
 
 		$result = call_user_func( array( Jetpack_Backup::class, $callback ) );
 
+		$this->assertSame( 1, $this->http_requests, $callback );
 		$this->assertInstanceOf( WP_Error::class, $result, $callback );
 		$this->assertSame( 500, $result->get_error_data()['status'], $callback );
 	}
@@ -450,10 +464,26 @@ class Jetpack_Backup_Test extends TestCase {
 	 * @return array
 	 */
 	public function mock_wpcom_response() {
+		++$this->http_requests;
+
 		return array(
 			'response' => array( 'code' => $this->wpcom_status ),
 			'body'     => '{}',
 		);
+	}
+
+	/**
+	 * Mock a request that leaves this site but never reaches WordPress.com.
+	 *
+	 * Kept separate from `mock_request_as_wp_error()` so the route tests can
+	 * count how far the request got.
+	 *
+	 * @return WP_Error
+	 */
+	public function mock_wpcom_unreachable() {
+		++$this->http_requests;
+
+		return new WP_Error( 'http_request_failed', 'The request failed.' );
 	}
 
 	/**

@@ -778,8 +778,10 @@ class Jetpack_Backup {
 			return self::get_failed_fetch_error();
 		}
 
-		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
-			return self::get_failed_fetch_error();
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response_code );
 		}
 
 		return rest_ensure_response(
