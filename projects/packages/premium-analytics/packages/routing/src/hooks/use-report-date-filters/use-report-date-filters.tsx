@@ -11,6 +11,7 @@ import {
 	PRESET_CUSTOM,
 	siteTimeZone,
 	stepDateRange,
+	toLocalTZ,
 } from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from 'react';
 /**
@@ -311,7 +312,13 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 	 */
 	const drillDown = useCallback(
 		( date: Date ) => {
-			const drilled = drillDateRange( date, appliedInterval, new Date() );
+			/*
+			 * `drillDateRange` closes a bucket on the clock of the date handed to it,
+			 * so the click is re-anchored in the site's zone first. A caller may pass
+			 * a plain instant, which would otherwise cut the bucket on the browser's
+			 * clock and open the wrong day west or east of the site.
+			 */
+			const drilled = drillDateRange( toLocalTZ( date, timeZone ), appliedInterval, new Date() );
 
 			if ( ! drilled?.from || ! drilled.to ) {
 				return;
@@ -343,7 +350,7 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 				commit();
 			}
 		},
-		[ appliedInterval, appliedRange, commit, effective, stage ]
+		[ appliedInterval, appliedRange, commit, effective, stage, timeZone ]
 	);
 
 	const onApply = useCallback( () => commit(), [ commit ] );
