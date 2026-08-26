@@ -68,7 +68,7 @@ export const Loading: Story = {
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [
-		withStoryRouteSearch( { preset: 'last-90-days', interval: 'day' } ),
+		withStoryRouteSearch( { preset: 'last-90-days', interval: 'week' } ),
 		withWidgetCanvas,
 	],
 	beforeEach: () => {
@@ -102,7 +102,7 @@ export const Empty: Story = {
 	render: renderWordAdsChartTabs,
 	tags: [ '!autodocs' ],
 	decorators: [
-		withStoryRouteSearch( { preset: 'last-365-days', interval: 'day' } ),
+		withStoryRouteSearch( { preset: 'last-365-days', interval: 'month' } ),
 		withWidgetCanvas,
 	],
 	beforeEach: () => {
