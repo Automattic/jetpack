@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Report a failed WordPress.com request as an error instead of an empty success, so the dashboard shows a failure notice rather than an empty backup list.
