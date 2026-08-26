@@ -358,10 +358,10 @@ class Admin_Menu_Test extends TestCase {
 			'__return_null',
 			10,
 			array(
-				'id'          => 'forms',
-				'group'       => 'create',
-				'group_label' => 'Create',
-				'order'       => 20,
+				'id'           => 'forms',
+				'group'        => 'create',
+				'group_label'  => 'Create',
+				'order'        => 20,
 				'customizable' => true,
 			)
 		);
@@ -602,7 +602,18 @@ class Admin_Menu_Test extends TestCase {
 		Admin_Menu::add_menu( 'Another Tool', 'Another Tool', 'manage_options', 'https://example.com/tool', '__return_null', 1, array( 'external' => true ) );
 		Admin_Menu::add_menu( 'Settings', 'Settings', 'manage_options', 'admin.php?page=jetpack#/settings', '__return_null', 2 );
 		Admin_Menu::add_menu( 'Forms', 'Forms', 'edit_pages', 'jetpack-forms-admin', '__return_null', 3 );
-		Admin_Menu::add_menu( 'Jetpack Manage', 'Jetpack Manage', 'manage_options', 'https://cloud.jetpack.com', '__return_null', 4, array( 'id' => 'jetpack-manage', 'external' => true ) );
+		Admin_Menu::add_menu(
+			'Jetpack Manage',
+			'Jetpack Manage',
+			'manage_options',
+			'https://cloud.jetpack.com',
+			'__return_null',
+			4,
+			array(
+				'id'       => 'jetpack-manage',
+				'external' => true,
+			)
+		);
 		Admin_Menu::add_menu( 'My Jetpack', 'My Jetpack', 'edit_posts', 'my-jetpack', '__return_null', 5 );
 
 		do_action( 'admin_menu' );

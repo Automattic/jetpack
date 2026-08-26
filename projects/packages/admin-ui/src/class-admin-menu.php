@@ -476,10 +476,10 @@ class Admin_Menu {
 	 * @return array
 	 */
 	public static function get_customization_model( $user_id = 0 ) {
-		$site_layout        = self::get_site_menu_layout();
-		$user_layout        = self::get_user_menu_layout( $user_id );
+		$site_layout         = self::get_site_menu_layout();
+		$user_layout         = self::get_user_menu_layout( $user_id );
 		$has_personal_layout = self::has_user_menu_layout( $user_id );
-		$items              = self::get_registered_menu_items();
+		$items               = self::get_registered_menu_items();
 
 		if ( empty( $items ) ) {
 			$items = self::get_recommended_menu_catalog_items();
@@ -642,11 +642,11 @@ class Admin_Menu {
 	 * @return array
 	 */
 	private static function resolve_customized_menu_items( $menu_items ) {
-		$site_layout   = self::get_site_menu_layout();
-		$user_layout   = self::get_user_menu_layout();
-		$my_jetpack    = array();
-		$product_items = array();
-		$settings      = array();
+		$site_layout    = self::get_site_menu_layout();
+		$user_layout    = self::get_user_menu_layout();
+		$my_jetpack     = array();
+		$product_items  = array();
+		$settings       = array();
 		$external_items = array();
 
 		foreach ( $menu_items as $registration_index => $menu_item ) {
@@ -654,8 +654,8 @@ class Admin_Menu {
 				continue;
 			}
 
-			$metadata  = $menu_item['metadata'];
-			$item_id   = $metadata['id'];
+			$metadata   = $menu_item['metadata'];
+			$item_id    = $metadata['id'];
 			$item_prefs = self::get_resolved_item_preferences( $item_id, $metadata, $site_layout, $user_layout );
 
 			if ( ! empty( $item_prefs['hidden'] ) && ! empty( $metadata['customizable'] ) ) {
@@ -666,7 +666,7 @@ class Admin_Menu {
 			$menu_item['resolved_order']     = $item_prefs['order'];
 			$menu_item['has_saved_order']    = $item_prefs['has_saved_order'];
 			$menu_item['registration_index'] = $registration_index;
-			$menu_item['classes']             = array( 'jetpack-admin-menu-item' );
+			$menu_item['classes']            = array( 'jetpack-admin-menu-item' );
 
 			if ( 'my-jetpack' === $item_id ) {
 				$my_jetpack[] = $menu_item;
@@ -729,7 +729,7 @@ class Admin_Menu {
 			foreach ( $product_items as $index => $product_item ) {
 				if ( $product_item['resolved_order'] >= $separator['order'] ) {
 					$product_items[ $index ]['resolved_separators'][] = $separator;
-					$target_found = true;
+					$target_found                                     = true;
 					break;
 				}
 			}
@@ -774,7 +774,7 @@ class Admin_Menu {
 
 		if ( isset( $site_layout['items'][ $item_id ] ) ) {
 			$prefs['has_saved_order'] = array_key_exists( 'order', $site_layout['items'][ $item_id ] );
-			$prefs = array_merge( $prefs, $site_layout['items'][ $item_id ] );
+			$prefs                    = array_merge( $prefs, $site_layout['items'][ $item_id ] );
 		}
 
 		if ( isset( $user_layout['items'][ $item_id ] ) ) {
@@ -910,19 +910,19 @@ class Admin_Menu {
 	private static function infer_menu_item_id( $menu_item ) {
 		$slug     = (string) $menu_item['menu_slug'];
 		$slug_map = array(
-			'my-jetpack'                         => 'my-jetpack',
-			'stats'                              => 'stats',
-			'jetpack-forms-admin'                => 'forms',
-			'jetpack-forms-responses-wp-admin'   => 'forms',
-			'jetpack-newsletter'                 => 'newsletter',
-			'jetpack-social'                     => 'social',
-			'jetpack-ai'                         => 'ai',
-			'jetpack-videopress'                 => 'videopress',
-			'jetpack-backup'                     => 'backup',
-			'jetpack-scan'                       => 'scan',
-			'akismet-key-config'                 => 'akismet-anti-spam',
-			'jetpack-activity-log'               => 'activity-log',
-			'jetpack-search'                     => 'search',
+			'my-jetpack'                       => 'my-jetpack',
+			'stats'                            => 'stats',
+			'jetpack-forms-admin'              => 'forms',
+			'jetpack-forms-responses-wp-admin' => 'forms',
+			'jetpack-newsletter'               => 'newsletter',
+			'jetpack-social'                   => 'social',
+			'jetpack-ai'                       => 'ai',
+			'jetpack-videopress'               => 'videopress',
+			'jetpack-backup'                   => 'backup',
+			'jetpack-scan'                     => 'scan',
+			'akismet-key-config'               => 'akismet-anti-spam',
+			'jetpack-activity-log'             => 'activity-log',
+			'jetpack-search'                   => 'search',
 		);
 
 		if ( isset( $slug_map[ $slug ] ) ) {
@@ -936,8 +936,8 @@ class Admin_Menu {
 		$normalized_title = self::normalize_menu_item_id( wp_strip_all_tags( $menu_item['menu_title'] ) );
 		$title_map        = array(
 			'akismet-anti-spam' => 'akismet-anti-spam',
-			'jetpack-manage'   => 'jetpack-manage',
-			'subscribers'      => 'subscribers',
+			'jetpack-manage'    => 'jetpack-manage',
+			'subscribers'       => 'subscribers',
 			'vaultpress-backup' => 'backup',
 		);
 
@@ -1043,66 +1043,66 @@ class Admin_Menu {
 	 */
 	private static function get_recommended_menu_item_defaults() {
 		return array(
-			'my-jetpack'         => array(
+			'my-jetpack'        => array(
 				'group'        => 'top',
 				'order'        => 0,
 				'customizable' => false,
 			),
-			'stats'              => array(
+			'stats'             => array(
 				'group' => 'top',
 				'order' => 10,
 			),
-			'forms'              => array(
+			'forms'             => array(
 				'group' => 'create',
 				'order' => 20,
 			),
-			'newsletter'         => array(
+			'newsletter'        => array(
 				'group' => 'create',
 				'order' => 30,
 			),
-			'subscribers'        => array(
+			'subscribers'       => array(
 				'group'    => 'create',
 				'order'    => 35,
 				'external' => true,
 			),
-			'social'             => array(
+			'social'            => array(
 				'group' => 'create',
 				'order' => 40,
 			),
-			'ai'                 => array(
+			'ai'                => array(
 				'group' => 'create',
 				'order' => 50,
 			),
-			'videopress'         => array(
+			'videopress'        => array(
 				'group' => 'create',
 				'order' => 55,
 			),
-			'backup'             => array(
+			'backup'            => array(
 				'group' => 'protect',
 				'order' => 60,
 			),
-			'scan'               => array(
+			'scan'              => array(
 				'group' => 'protect',
 				'order' => 70,
 			),
-			'akismet-anti-spam'  => array(
+			'akismet-anti-spam' => array(
 				'group' => 'protect',
 				'order' => 80,
 			),
-			'activity-log'       => array(
+			'activity-log'      => array(
 				'group' => 'manage',
 				'order' => 90,
 			),
-			'search'             => array(
+			'search'            => array(
 				'group' => 'manage',
 				'order' => 95,
 			),
-			'jetpack-manage'     => array(
+			'jetpack-manage'    => array(
 				'group'    => 'manage',
 				'order'    => 100,
 				'external' => true,
 			),
-			'settings'           => array(
+			'settings'          => array(
 				'group'        => 'utility',
 				'order'        => 900,
 				'customizable' => false,
@@ -1222,23 +1222,23 @@ class Admin_Menu {
 			$group      = self::get_group_for_layout( $item_prefs['group'], $site_layout );
 
 			$model_items[] = array(
-				'id'           => $item_id,
-				'label'        => html_entity_decode( wp_strip_all_tags( $menu_item['menu_title'] ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
-				'menuSlug'     => $menu_item['menu_slug'],
-				'group'        => $item_prefs['group'],
-				'groupLabel'   => $group['label'],
-				'order'        => $item_prefs['order'],
+				'id'            => $item_id,
+				'label'         => html_entity_decode( wp_strip_all_tags( $menu_item['menu_title'] ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
+				'menuSlug'      => $menu_item['menu_slug'],
+				'group'         => $item_prefs['group'],
+				'groupLabel'    => $group['label'],
+				'order'         => $item_prefs['order'],
 				'hasSavedOrder' => $item_prefs['has_saved_order'],
-				'customizable' => (bool) $metadata['customizable'],
-				'hidden'       => ! empty( $item_prefs['hidden'] ),
-				'external'     => (bool) $metadata['external'],
+				'customizable'  => (bool) $metadata['customizable'],
+				'hidden'        => ! empty( $item_prefs['hidden'] ),
+				'external'      => (bool) $metadata['external'],
 			);
 		}
 
 		usort(
 			$model_items,
 			function ( $a, $b ) {
-				$rank = function ( $item ) {
+				$rank   = function ( $item ) {
 					if ( 'my-jetpack' === $item['id'] ) {
 						return 0;
 					}

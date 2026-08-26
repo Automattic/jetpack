@@ -257,7 +257,10 @@ class Admin_Menu_Customization_Rest_Test extends TestCase {
 	private function reset_admin_menu_state() {
 		$reflection = new \ReflectionClass( Admin_Menu::class );
 
-		foreach ( array( 'menu_items' => array(), 'initialized' => false ) as $property_name => $value ) {
+		foreach ( array(
+			'menu_items'  => array(),
+			'initialized' => false,
+		) as $property_name => $value ) {
 			if ( ! $reflection->hasProperty( $property_name ) ) {
 				continue;
 			}
