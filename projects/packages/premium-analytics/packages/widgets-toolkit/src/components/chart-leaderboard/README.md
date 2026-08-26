@@ -143,24 +143,10 @@ A `postLink` row carries no media, and never becomes a chart button: a chart row
 button cannot nest an anchor.
 
 Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video
-detail route rather than the post one. The same constraints apply: no media, and never a chart
-button.
+detail route instead of the post one. Same constraints: no media, never a chart button.
 
 ```tsx
-const row = {
-	id: 'video-9',
-	...buildLeaderboardRow( {
-		label: 'Launch teaser',
-		media: { kind: 'none' },
-		action: {
-			kind: 'videoLink',
-			id: 9,
-			search: { from: '2026-03-01', to: '2026-03-10' },
-		},
-	} ),
-	currentValue: 100,
-	currentShare: 100,
-};
+action: { kind: 'videoLink', id: 9, search: { from: '2026-03-01', to: '2026-03-10' } },
 ```
 
 Inside a widget, use `LeaderboardPostLabel` instead of building a post action by hand. It reads
@@ -174,13 +160,8 @@ the range the row was read against:
 Pass `section` to `LeaderboardPostLabel` to open a named tab on the detail page, such as
 `email-opens`.
 
-There is no `LeaderboardVideoLabel`, so a widget that builds a `videoLink` action takes the same
-window from `useWidgetNavigationSearch()` and passes it as `search`:
-
-```tsx
-const detailSearch = useWidgetNavigationSearch();
-const action = { kind: 'videoLink', id: row.id, href: row.link, search: detailSearch };
-```
+There is no `LeaderboardVideoLabel`, so a widget building a `videoLink` action takes that same
+window from `useWidgetNavigationSearch()` and passes it as `search`.
 
 `LeaderboardRowMedia` provides five semantic media variants. The variant owns its size,
 fallback, and default alt-text policy:

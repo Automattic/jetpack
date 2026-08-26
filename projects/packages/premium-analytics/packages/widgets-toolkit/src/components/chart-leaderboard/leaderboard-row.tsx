@@ -21,9 +21,8 @@ export type LeaderboardRowAction =
 			/** Public URL. It becomes the link itself when there is no post ID. */
 			href?: string | null;
 			/**
-			 * Search parameters for the detail route. Required so a row cannot reach
-			 * the detail page without the window it was read against; pass `{}` to
-			 * navigate deliberately without one.
+			 * Required, so a row cannot silently open the detail page on its own
+			 * default range. Pass `{}` to navigate without a window on purpose.
 			 */
 			search: Record< string, unknown >;
 	  }
@@ -35,9 +34,8 @@ export type LeaderboardRowAction =
 			/** Public URL. It becomes the link itself when there is no video ID. */
 			href?: string | null;
 			/**
-			 * Search parameters for the detail route. Required so a row cannot reach
-			 * the detail page without the window it was read against; pass `{}` to
-			 * navigate deliberately without one.
+			 * Required, so a row cannot silently open the detail page on its own
+			 * default range. Pass `{}` to navigate without a window on purpose.
 			 */
 			search: Record< string, unknown >;
 	  }
