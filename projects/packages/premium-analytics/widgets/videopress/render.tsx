@@ -4,13 +4,13 @@
 import { useStatsVideoPlays } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
-	LeaderboardRow,
 	LeaderboardSkeleton,
 	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
 	calculateDelta,
 	getCombinedPeriodMax,
 	sharePercentage,
@@ -59,13 +59,11 @@ function buildLeaderboardData(
 
 	return rows.map( row => ( {
 		id: row.key,
-		label: (
-			<LeaderboardRow
-				label={ row.label }
-				media={ { kind: 'none' } }
-				action={ { kind: 'videoLink', id: row.id, href: row.link, search: detailSearch } }
-			/>
-		),
+		...buildLeaderboardRow( {
+			label: row.label,
+			media: { kind: 'none' },
+			action: { kind: 'videoLink', id: row.id, href: row.link, search: detailSearch },
+		} ),
 		currentValue: row.plays,
 		currentShare: sharePercentage( row.plays, maxPlays ),
 		previousValue: row.previousPlays,

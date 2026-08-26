@@ -7,6 +7,35 @@ import { fireEvent, render, screen } from '@testing-library/react';
  */
 import { LeaderboardLabel } from '../leaderboard-label';
 import { buildLeaderboardRow, resolveLeaderboardRowAction } from '../leaderboard-row';
+import type { AnchorHTMLAttributes, ReactNode } from 'react';
+
+type MockRouteLinkProps = {
+	to: string;
+	params?: Record< string, unknown >;
+	children: ReactNode;
+} & Omit< AnchorHTMLAttributes< HTMLAnchorElement >, 'href' >;
+
+// `forwardRef`, because the design system link that renders this forwards a ref.
+jest.mock( '@wordpress/route', () => {
+	const { forwardRef } = jest.requireActual( 'react' ) as typeof import('react');
+
+	return {
+		Link: forwardRef< HTMLAnchorElement, MockRouteLinkProps >(
+			( { to, params, children, ...props }, ref ) => (
+				<a
+					ref={ ref }
+					href={ Object.entries( params ?? {} ).reduce(
+						( result, [ key, value ] ) => result.replace( `$${ key }`, String( value ) ),
+						to
+					) }
+					{ ...props }
+				>
+					{ children }
+				</a>
+			)
+		),
+	};
+} );
 
 describe( 'LeaderboardLabel', () => {
 	it( 'renders media and text without adding row actions', () => {
@@ -106,18 +135,18 @@ describe( 'buildLeaderboardRow', () => {
 		expect( row ).not.toHaveProperty( 'onClick' );
 	} );
 
-	it( 'keeps a video link out of the chart button props', () => {
+	it( 'routes a video link to the video detail page, not the post one', () => {
 		const row = buildLeaderboardRow( {
 			label: 'Launch teaser',
 			media: { kind: 'none' },
-			action: { kind: 'videoLink', href: 'https://example.com/launch-teaser/' },
+			action: { kind: 'videoLink', id: 9, href: 'https://example.com/launch-teaser/' },
 		} );
 
 		render( row.label );
 
 		expect( screen.getByRole( 'link', { name: /Launch teaser/ } ) ).toHaveAttribute(
 			'href',
-			'https://example.com/launch-teaser/'
+			'/video/9'
 		);
 		expect( row ).not.toHaveProperty( 'onClick' );
 	} );

@@ -52,6 +52,8 @@
 	--jpa-leaderboard-image-fit: cover;
 }
 
+/* The chart insets its own `.label` in overlay mode, but an element label
+ * bypasses that rule — and the overlay bar takes its height from this row. */
 .row,
 .rowLink {
 	display: flex;

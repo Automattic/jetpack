@@ -142,8 +142,9 @@ const row = {
 A `postLink` row carries no media, and never becomes a chart button: a chart row that is a
 button cannot nest an anchor.
 
-Video rows use `videoLink`, which behaves the same way but delegates to `VideoTitleLink` so the
-row reaches the video detail route rather than the post one.
+Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video
+detail route rather than the post one. The same constraints apply: no media, and never a chart
+button.
 
 ```tsx
 const row = {
@@ -164,8 +165,7 @@ const row = {
 
 Inside a widget, use `LeaderboardPostLabel` instead of building a post action by hand. It reads
 the report window from `WidgetRootContext` and passes it as `search`, so the detail page opens on
-the range the row was read against. A widget that builds its own action should take the same
-window from `useWidgetNavigationSearch()`:
+the range the row was read against:
 
 ```tsx
 <LeaderboardPostLabel id={ row.postId } label={ row.label } link={ row.link } />
@@ -173,6 +173,14 @@ window from `useWidgetNavigationSearch()`:
 
 Pass `section` to `LeaderboardPostLabel` to open a named tab on the detail page, such as
 `email-opens`.
+
+There is no `LeaderboardVideoLabel`, so a widget that builds a `videoLink` action takes the same
+window from `useWidgetNavigationSearch()` and passes it as `search`:
+
+```tsx
+const detailSearch = useWidgetNavigationSearch();
+const action = { kind: 'videoLink', id: row.id, href: row.link, search: detailSearch };
+```
 
 `LeaderboardRowMedia` provides five semantic media variants. The variant owns its size,
 fallback, and default alt-text policy:

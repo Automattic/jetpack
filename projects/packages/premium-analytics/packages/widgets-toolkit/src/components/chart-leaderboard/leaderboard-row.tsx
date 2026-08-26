@@ -96,17 +96,14 @@ export function resolveLeaderboardRowAction(
 /**
  * Render the shared leaderboard row chrome around a label.
  *
- * Link actions own the anchor and its new-tab affordance. Post and video links
- * delegate to `PostTitleLink` and `VideoTitleLink`, which pick the internal
- * detail route, the public URL, or plain text for the row. Drill-down actions
- * stay non-interactive here because `LeaderboardChart` turns the whole row into
- * a button; `buildLeaderboardRow` passes that action to the chart.
+ * Drill-down actions stay non-interactive here because `LeaderboardChart` turns
+ * the whole row into a button; `buildLeaderboardRow` passes that action to the
+ * chart.
  *
  * @return A single label element accepted by `LeaderboardEntry.label`.
  */
 export function LeaderboardRow( { label, media, action }: LeaderboardRowProps ): ReactElement {
-	// Title-link rows carry no media, so the row chrome goes on the title element
-	// itself, which is an anchor for the two linked branches and a span otherwise.
+	// Title-link rows carry no media, so the row chrome goes on the title element.
 	if ( action.kind === 'postLink' || action.kind === 'videoLink' ) {
 		const TitleLink = action.kind === 'postLink' ? PostTitleLink : VideoTitleLink;
 
