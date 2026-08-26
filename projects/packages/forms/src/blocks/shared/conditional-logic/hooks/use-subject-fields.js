@@ -28,6 +28,9 @@ const toFieldIdBase = label => {
 /**
  * Read a field block's visible label.
  *
+ * A checkbox and a consent field keep theirs on the standalone `jetpack/option` their
+ * template inserts rather than on a `jetpack/label` block.
+ *
  * Falls back to the explicit id, then to a placeholder: a field with neither a label nor an
  * id is still selectable, and an empty entry in the dropdown would be unusable.
  *
@@ -35,14 +38,35 @@ const toFieldIdBase = label => {
  * @return {string} A label suitable for the subject dropdown.
  */
 const getFieldLabel = block => {
-	const labelBlock = ( block.innerBlocks || [] ).find( inner => inner.name === 'jetpack/label' );
-	const label = labelBlock?.attributes?.label;
+	const innerBlocks = block.innerBlocks || [];
+	// Direct children only: the choice fields nest their options under a `jetpack/options`
+	// wrapper, so a `jetpack/option` found here can only be a field's own inline label. The
+	// block also declares `isStandalone` for this, but position holds for older markup saved
+	// before that attribute existed.
+	const inlineLabel = name =>
+		innerBlocks.find( inner => inner.name === name )?.attributes?.label?.trim();
 
-	if ( label && label.trim() ) {
-		return label.trim();
+	const label = inlineLabel( 'jetpack/label' ) || inlineLabel( 'jetpack/option' );
+
+	if ( label ) {
+		return label;
 	}
 
-	return block.attributes?.id || __( 'Untitled field', 'jetpack-forms' );
+	const id = block.attributes?.id;
+	const untitled = __( 'Untitled field', 'jetpack-forms' );
+
+	if ( ! id ) {
+		return untitled;
+	}
+
+	// An author's id is worth showing; one this panel minted from the placeholder is not, or
+	// choosing an unnamed field renames it to "untitled-field" in the dropdown it was picked
+	// from. `generateUniqueFormFieldId` only ever appends `-<n>`, so stripping that suffix is
+	// enough to recognize one.
+	const placeholderId = toFieldIdBase( untitled );
+	const isMinted = id === placeholderId || id.replace( /-\d+$/, '' ) === placeholderId;
+
+	return isMinted ? untitled : id;
 };
 
 /**

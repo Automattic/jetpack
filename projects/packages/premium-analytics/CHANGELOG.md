@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-08-25
+### Added
+- Add an Ads dashboard section showing WordAds earnings and performance. [#51422]
+- Charts: Name each legend item by metric, folding a metric's two periods into one item. Traffic summary: add the paired metric to the chart, hidden until revealed from the legend. [#51468]
+- Insights: Add a Popular hours widget and show it instead of Most popular day by default. [#51239]
+- Link the post list table's views column to the post detail page. [#51357]
+- Locations: Name the regions behind each country total in the Regions map tooltip. [#51312]
+- Page the calendar heatmaps through weeks that do not fit the tile with floating hover arrows, replacing the post detail header pager and the Insights heatmaps' silent clipping. [#51437]
+- Referrers report: Add referrer groups that open folded and expand on demand. [#51465]
+
+### Changed
+- Chart widgets: Follow the page chart interval control instead of a per-widget Group by. [#51278]
+- Latest emails sent: Drop the bar behind each row and show the subject and rate as a plain list. [#51425]
+- Leaderboard: Replace the deprecated `--a8c--charts--leaderboard--bar--border-radius` variable with `--a8c-charts-border-radius-leaderboard-bar`. [#51308]
+- Name comparison dates in the dashboard header, omit weekdays from ranges longer than a week, and omit the year when it matches the current range. [#51420]
+- Traffic: Offer only the groupings the selected date range supports in the chart's Group by control. [#51446]
+
+### Fixed
+- Apply the first widget section flex-column workaround to the post and video detail routes too. [#51434]
+- Charts: Label chart points by the bucket they name rather than by the viewer's time zone, and format axis ticks and tooltips at the series' declared bucket size. [#51445]
+- Date comparison: End a sub-day previous period immediately before the reference window instead of one instant inside it. [#51374]
+- Date filters: Compute day boundaries and daylight-saving wall times in the site's timezone instead of the visitor's browser timezone. [#51419]
+- Fix charts getting stuck on their loading skeleton after switching a control that turns one of the underlying requests off. [#51443]
+- Insights: Scope the calendar heatmaps to the selected period, so the card no longer draws and reports on years outside it. [#51385]
+- Label Subscribers chart and email timeline points by the bucket they name rather than by the viewer's time zone. [#51499]
+- Show only the rows that fit the tile for Latest subscribers, Latest likes, and Latest comments, while keeping the "N more" footer visible. [#51379]
+- Show the dashboard right away instead of a sync screen, and flag the Store section's numbers as incomplete while store data is still syncing. [#51279]
+- Stats: Compare a date range against a previous month or year of the same length, unless the range is whole calendar months. [#51469]
+- Stats: Stamp bucket dates as timezone-naive site-local wall times, fixing report dates that could read a day off for sites away from UTC. [#51499]
+- Traffic: Start the chart's Group by control from the dashboard's interval, and replace Auto with hourly grouping. [#51446]
+
 ## [0.3.0] - 2026-08-20
 ### Added
 - Date controls: Let each dashboard section declare whether its header offers the period-over-period comparison control. [#51230]
@@ -136,5 +167,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress: Add a video detail page with plays leaderboard, video highlights, and embed locations. [#50311] [#50536]
 - WordAds: Add widgets for ads served, average CPM and revenue over time, all-time earnings highlights, and earnings, sponsored content and adjustments history. [#50314] [#50490]
 
+[0.4.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.1.0...0.2.0

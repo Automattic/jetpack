@@ -63,6 +63,13 @@ export type ReportMetricWidgetProps = {
 	 * Bookings over time), so the copy has to come from the caller.
 	 */
 	errorText?: string;
+
+	/**
+	 * The metric's name, for the legend. Comes from the caller for the same
+	 * reason the copy above does. Omit it and the legend falls back to the date
+	 * ranges `buildTimeSeriesChartData` labels the series with.
+	 */
+	seriesLabel?: string;
 };
 
 /**
@@ -75,6 +82,7 @@ export function ReportMetricWidget( {
 	emptyStateIcon = chartBar,
 	emptyStateText,
 	errorText,
+	seriesLabel,
 }: ReportMetricWidgetProps ) {
 	const { getElementStyles } = useGlobalChartsContext();
 
@@ -94,6 +102,7 @@ export function ReportMetricWidget( {
 		comparison: comparisonData,
 		metricKey,
 		emptyDataFallback: 'empty-array',
+		label: seriesLabel,
 	} );
 
 	const seriesStyles = useMemo(

@@ -291,8 +291,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 		} );
 
 		const chartOptions = useMemo( () => {
-			const { tickResolution, ...xAxisOptions } = options?.axis?.x ?? {};
-			const formatter = xAxisOptions.tickFormat || getFormatter( dataSorted, tickResolution );
+			const { tickResolution, tickFormat, ...xAxisOptions } = options?.axis?.x ?? {};
+			const formatter = tickFormat || getFormatter( dataSorted, tickResolution );
 
 			return {
 				axis: {

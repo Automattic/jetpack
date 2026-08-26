@@ -44,6 +44,10 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 	const [ hiddenSeries, setHiddenSeries ] = useState< Map< string, Set< string > > >(
 		() => new Map()
 	);
+	// Which charts have had their defaults seeded. Kept apart from `hiddenSeries`
+	// because that map drops a chart's entry once its hidden set empties, so an
+	// absent entry cannot tell "never seeded" from "the reader revealed the lot".
+	const seededCharts = useRef< Set< string > >( new Set() );
 
 	// Ref to the wrapper element for resolving scoped CSS variables
 	const wrapperRef = useRef< HTMLDivElement >( null );
@@ -310,6 +314,23 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		[ updateHiddenSeries ]
 	);
 
+	const hasSeededChart = useCallback(
+		( chartId: string ) => seededCharts.current.has( chartId ),
+		[]
+	);
+
+	const seedChartHiddenSeries = useCallback(
+		( chartId: string, seriesLabels: readonly string[] ) => {
+			if ( seededCharts.current.has( chartId ) ) {
+				return;
+			}
+
+			seededCharts.current.add( chartId );
+			setChartHiddenSeries( chartId, seriesLabels );
+		},
+		[ setChartHiddenSeries ]
+	);
+
 	const isSeriesVisible = useCallback(
 		( chartId: string, seriesLabel: string ) => {
 			const chartHidden = hiddenSeries.get( chartId );
@@ -337,6 +358,8 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			toggleSeriesVisibility,
 			setSeriesVisibility,
 			setChartHiddenSeries,
+			seedChartHiddenSeries,
+			hasSeededChart,
 			isSeriesVisible,
 			getHiddenSeries,
 			isColorPaletteResolved,
@@ -351,6 +374,8 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			toggleSeriesVisibility,
 			setSeriesVisibility,
 			setChartHiddenSeries,
+			seedChartHiddenSeries,
+			hasSeededChart,
 			isSeriesVisible,
 			getHiddenSeries,
 			isColorPaletteResolved,

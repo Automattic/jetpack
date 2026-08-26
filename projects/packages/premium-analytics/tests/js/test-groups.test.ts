@@ -132,6 +132,16 @@ function membersOf( groupFile: string ): string[] {
 	return readGroup( groupFile ).members;
 }
 
+/**
+ * Gets the leading docblock of a file, which is the only one Jest reads.
+ *
+ * @param {string} file - File to read.
+ * @return {string} The leading docblock, or an empty string when there is none.
+ */
+function leadingDocblock( file: string ): string {
+	return /^\s*\/\*\*[\s\S]*?\*\//.exec( fs.readFileSync( file, 'utf8' ) )?.[ 0 ] ?? '';
+}
+
 describe( 'mock signature parser', () => {
 	it( 'compares complete factories when comments and strings contain parentheses', () => {
 		const first = `jest.mock( 'example', () => {
@@ -214,6 +224,18 @@ describe( 'test groups', () => {
 				signature: first.signature,
 			} );
 		}
+	} );
+
+	// Jest reads the environment docblock of the file it collects, which for a
+	// grouped suite is the group file. A member pinning its own environment gets
+	// the group's instead, silently: `@jest-environment node` becomes jsdom, and
+	// the suite fails on whatever the node environment was there to provide.
+	it.each( groups )( '%s members do not pin a Jest environment', groupFile => {
+		const pinned = membersOf( groupFile )
+			.map( member => resolveSuite( member ) as string )
+			.filter( file => /@jest-environment\b/.test( leadingDocblock( file ) ) );
+
+		expect( pinned.map( file => path.relative( GROUPS_DIR, file ) ) ).toEqual( [] );
 	} );
 
 	it( 'never lists the same suite in two groups', () => {
