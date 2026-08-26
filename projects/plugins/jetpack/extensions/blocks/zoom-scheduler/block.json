@@ -4,7 +4,7 @@
 	"name": "jetpack/zoom-scheduler",
 	"title": "Zoom Scheduler",
 	"description": "Embed a Zoom Scheduler booking page.",
-	"keywords": [ "zoom", "calendar", "schedule", "appointments", "booking" ],
+	"keywords": [ "scheduling", "appointment", "booking", "schedule", "calendar" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
 	"category": "grow",
