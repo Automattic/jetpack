@@ -20,10 +20,7 @@ function createClient() {
 	return new QueryClient( { defaultOptions: { queries: { retry: false } } } );
 }
 
-/**
- * A fetcher that succeeds once and then fails, which is the shape of every
- * failed refresh: data lands, then the refetch behind it does not.
- */
+/** Data lands, then the refetch behind it does not — every failed refresh. */
 function succeedsThenFails( error: unknown ) {
 	return jest
 		.fn< Promise< unknown >, [] >()
@@ -92,8 +89,7 @@ describe( 'useRefreshFailure', () => {
 		const queryFn = succeedsThenFails( { status: 500 } );
 		const { result } = renderHook(
 			() => {
-				// No `meta`: a product thumbnail or a settings read, whose failure
-				// says nothing about the figures the reader is looking at.
+				// No `meta`: a thumbnail or a settings read, not a figure on screen.
 				const query = useQuery( { queryKey: [ 'unscoped' ], queryFn, retry: false } );
 				return { query, failure: useRefreshFailure() };
 			},
@@ -123,7 +119,7 @@ describe( 'useRefreshFailure', () => {
 		} );
 		expect( result.current.failure.hasStaleData ).toBe( true );
 
-		// The reader switches a control off — the observer stays, `enabled` does not.
+		// The reader switches a control off: the observer stays, `enabled` does not.
 		// `refetchQueries` skips disabled queries, so counting this one would leave
 		// a notice no Retry can clear.
 		rerender( { enabled: false } );
@@ -133,8 +129,7 @@ describe( 'useRefreshFailure', () => {
 
 	it( 'names the oldest data still on screen when two queries fail', async () => {
 		const queryClient = createClient();
-		// Seeded rather than fetched: two real fetches race, and both would stamp
-		// whatever `Date.now()` returned last. These are the ages the reader sees.
+		// Seeded rather than fetched: two real fetches race on `Date.now()`.
 		queryClient.setQueryData( [ 'older' ], { views: 1 }, { updatedAt: 1_000 } );
 		queryClient.setQueryData( [ 'newer' ], { views: 2 }, { updatedAt: 9_000 } );
 

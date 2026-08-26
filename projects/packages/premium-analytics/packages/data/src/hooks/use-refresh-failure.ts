@@ -15,20 +15,14 @@ type NoRefreshFailure = {
 };
 
 type StaleDataRetained = {
-	/** A refresh failed while the data it was replacing is still on screen. */
 	hasStaleData: true;
 	/** When the oldest data still on screen was last fetched, in epoch ms. */
 	dataUpdatedAt: number;
-	/** False when every failure is deterministic for this session, so retrying cannot help. */
+	/** False only when every failure on screen is deterministic for this session. */
 	canRetry: boolean;
-	/** A retry is in flight; the caller should mark its action busy rather than accept another. */
 	isRetrying: boolean;
 };
 
-/**
- * The two states are separate members so `dataUpdatedAt` cannot go missing from
- * the one that promises it — callers narrow on `hasStaleData` alone.
- */
 export type RefreshFailureSnapshot = NoRefreshFailure | StaleDataRetained;
 
 export type RefreshFailure = RefreshFailureSnapshot & {
@@ -50,13 +44,11 @@ function readCache( cache: QueryCache ): RefreshFailureSnapshot {
 
 		const state = query.state;
 		// The oldest fetch is the honest one to name: it is the staleness the
-		// reader is actually looking at somewhere on the page.
+		// reader is looking at somewhere on the page.
 		dataUpdatedAt =
 			dataUpdatedAt === undefined
 				? state.dataUpdatedAt
 				: Math.min( dataUpdatedAt, state.dataUpdatedAt );
-		// One retryable failure is enough to keep the button: it is false only
-		// when every failure on screen is deterministic.
 		canRetry = canRetry || isUserRetryableError( state.error );
 		isRetrying = isRetrying || state.fetchStatus === 'fetching';
 	}
@@ -96,10 +88,9 @@ function createStore( cache: QueryCache ) {
 }
 
 /**
- * Report whether any query the reader reads numbers from failed to refresh while
+ * Report whether a query the reader reads numbers from failed to refresh while
  * still holding the data it was refreshing, which widgets render as if it were
- * current. Scope and Retry share one predicate, so the notice can never name a
- * failure its own Retry does not reach.
+ * current.
  */
 export function useRefreshFailure(): RefreshFailure {
 	const queryClient = useQueryClient();

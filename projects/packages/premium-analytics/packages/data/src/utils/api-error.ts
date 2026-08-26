@@ -69,24 +69,24 @@ export function getApiErrorCode( error: unknown ): string | null {
 }
 
 /**
- * Determine whether offering the reader a Retry can plausibly help.
+ * Whether the failure means this user or session may not read the data.
  *
- * Distinct from `shouldRetryApiError`, which is the query client's automatic
- * policy: a 401 or 404 is worth a deliberate retry from the reader even though
- * retrying it three times in a row on its own is not. A 403 is a deterministic
- * access failure — except the proxy's `no_connection` 403, which flags a broken
- * Jetpack connection that can heal, so it stays retryable.
+ * The proxy's `no_connection` 403 is not one: it flags a broken Jetpack
+ * connection, which says nothing about permissions and can heal.
+ */
+export function isAccessDenied( error: unknown ): boolean {
+	return getApiErrorStatus( error ) === 403 && getApiErrorCode( error ) !== 'no_connection';
+}
+
+/**
+ * Whether offering the reader a Retry can plausibly help.
+ *
+ * Distinct from `shouldRetryApiError`, the query client's automatic policy: a
+ * 401 or 404 is worth a deliberate retry from the reader even though retrying it
+ * three times unprompted is not.
  */
 export function isUserRetryableError( error: unknown ): boolean {
-	if ( error instanceof StatsResponseShapeError ) {
-		return false;
-	}
-
-	if ( getApiErrorStatus( error ) === 403 ) {
-		return getApiErrorCode( error ) === 'no_connection';
-	}
-
-	return true;
+	return ! ( error instanceof StatsResponseShapeError ) && ! isAccessDenied( error );
 }
 
 /**

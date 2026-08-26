@@ -44,6 +44,7 @@ export {
 	computeDateRangeFromPreset,
 	getApiErrorCode,
 	getApiErrorStatus,
+	isAccessDenied,
 	isUserRetryableError,
 	saveBlob,
 	shouldRetryApiError,

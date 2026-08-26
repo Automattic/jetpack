@@ -30,15 +30,14 @@ function ConnectedNotice( { className }: RefreshFailureNoticeProps ) {
 }
 
 /**
- * Speaks for the whole grid: a failed refresh usually takes every widget with
- * it, and one message with one Retry beats a dozen widgets each saying so.
+ * Speaks for the whole grid: a failed refresh usually takes every widget with it.
  *
  * Brings its own provider around the shared client, the way `WidgetRoot` does
  * for each widget — the dashboard stage itself sits above them all and has none.
  *
  * @param {RefreshFailureNoticeProps} props           - Component props.
  * @param {string}                    props.className - Optional class for layout tweaks.
- * @return The notice, or `null` while every widget is showing what it fetched.
+ * @return The notice, or `null`.
  */
 export function RefreshFailureNotice( { className }: RefreshFailureNoticeProps ) {
 	return (
