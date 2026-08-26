@@ -145,20 +145,27 @@ export async function handler( argv ) {
 	} );
 	await listr.run().catch( err => {
 		/*
-		 * A failed command has already had its say: Listr prints `err.message`,
-		 * and execa folds a captured child's output into that message, so
-		 * repeating the error here would only print the whole thing twice. An
-		 * error with no `shortMessage` did not come from execa, which makes it a
-		 * bug in the CLI rather than a command that failed. Listr prints only the
-		 * message for those, and drops it entirely for anything thrown that is
-		 * not an Error, so print the error itself and get the stack with it. The
-		 * advice below is about answering a command's prompt, so it only applies
-		 * to a command that failed, and it would be telling a lie about the full
-		 * error being elsewhere once the error has just been printed in full.
+		 * An error with no `shortMessage` did not come from execa, so it is a bug
+		 * in the CLI rather than a command that failed. Listr prints only
+		 * `err.message` for those, and nothing at all for anything thrown that is
+		 * not an Error, so print those in full and get the stack with them.
+		 *
+		 * For a command that failed, execa has already folded the captured output
+		 * into `err.message` and how much of that reaches the user comes down to
+		 * the renderer. The update renderer keeps only the last line of it, cut
+		 * off at the terminal width, which is usually nothing worth reading; say
+		 * it again in full. Listr falls back to the verbose renderer when stdout
+		 * is not a terminal, and that one prints the message whole, so saying it
+		 * again there would only double it.
+		 *
+		 * The advice below is about answering a prompt a command is waiting on,
+		 * so it has nothing to say about a bug in the CLI.
 		 */
 		const commandFailed = typeof err?.shortMessage === 'string';
 		if ( verbose || ! commandFailed ) {
 			console.error( err );
+		} else if ( process.stdout.isTTY ) {
+			console.error( err.message );
 		}
 		if ( ! verbose && commandFailed ) {
 			console.error(
