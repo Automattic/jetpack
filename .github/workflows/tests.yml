@@ -182,7 +182,42 @@ jobs:
           FAILED=()
           mkdir artifacts
           [[ -n "$COVERAGE_GROUP" ]] && mkdir coverage
-          for P in composer.json projects/*/*/composer.json; do
+          # The loop hands work to the lanes in the order it walks the projects,
+          # which is lexicographic. That leaves every plugins/* project until
+          # last, so the longest-running ones only start once the run is already
+          # a third done and then finish alone while the other lanes sit idle.
+          # Starting the longest ones first uses the same CPU time and ends the
+          # run sooner.
+          #
+          # js-packages/critical-css-gen is deliberately NOT in this list. It is
+          # 150s of mostly-headless-Chrome work that today runs early alongside
+          # small projects, and #51591 showed it more than doubling when it was
+          # moved next to the other long projects.
+          #
+          # [Do not merge] Only test-js is reordered here, so the PHP jobs in the
+          # same run act as a control.
+          SLOW_FIRST=()
+          if [[ "$TEST_SCRIPT" == test-js* ]]; then
+            SLOW_FIRST=(
+              projects/packages/premium-analytics/composer.json
+              projects/packages/publicize/composer.json
+              projects/plugins/jetpack/composer.json
+              projects/packages/videopress/composer.json
+            )
+          fi
+          ORDER=( composer.json )
+          for P in "${SLOW_FIRST[@]}"; do
+            [[ -f "$P" ]] && ORDER+=( "$P" )
+          done
+          for P in projects/*/*/composer.json; do
+            for Q in "${SLOW_FIRST[@]}"; do
+              [[ "$P" == "$Q" ]] && continue 2
+            done
+            ORDER+=( "$P" )
+          done
+          echo "Project order: ${ORDER[*]}"
+
+          for P in "${ORDER[@]}"; do
             if [[ ${#PIDS[@]} -ge $MAXPIDS ]]; then
               if ! wait -fn -p PID "${!PIDS[@]}"; then
                 echo "::error::Tests for ${PIDS[$PID]} failed!"
