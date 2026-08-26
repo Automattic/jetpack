@@ -127,6 +127,55 @@ describe( 'the preview pane', () => {
 	} );
 } );
 
+describe( 'handing focus back', () => {
+	// Moving focus in and handing it back are one contract. Closing unmounts
+	// the focused element, so without this focus drops to `<body>` and the
+	// next Tab restarts at the top of the document — every row again.
+	it( 'returns focus to the row that opened the card', async () => {
+		await renderBrowser();
+		const opener = screen.getByRole( 'button', { name: 'File: wp-config.php' } );
+		await userEvent.click( opener );
+		await expect(
+			screen.findByRole( 'region', { name: 'Preview of wp-config.php' } )
+		).resolves.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Close preview' } ) );
+
+		await waitFor( () => expect( opener ).toHaveFocus() );
+	} );
+} );
+
+describe( 'the preview while it loads', () => {
+	// Focus lands here while the fetch is still in flight, and `Spinner` is
+	// `role="presentation"` with no text — so without these the region
+	// announces itself and then says nothing at all.
+	it( 'reports itself busy and says so', async () => {
+		let resolveContent: ( value: { content: string } ) => void = () => {};
+		mockApiFetch.mockImplementation( ( options: { path: string } ) => {
+			if ( options.path.includes( '/rewind/backup/file-content' ) ) {
+				return new Promise( resolve => {
+					resolveContent = resolve;
+				} );
+			}
+			if ( options.path.includes( '/rewind/backup/path-info' ) ) {
+				return Promise.resolve( { size: 42 } );
+			}
+			return Promise.resolve( { contents: ROOT } );
+		} );
+
+		await renderBrowser();
+		await userEvent.click( screen.getByRole( 'button', { name: 'File: wp-config.php' } ) );
+
+		const preview = await screen.findByRole( 'region', { name: 'Preview of wp-config.php' } );
+		expect( preview ).toHaveAttribute( 'aria-busy', 'true' );
+		expect( screen.getByText( 'Loading preview…' ) ).toBeInTheDocument();
+
+		resolveContent( { content: 'define( "X", 1 );' } );
+
+		await waitFor( () => expect( preview ).toHaveAttribute( 'aria-busy', 'false' ) );
+	} );
+} );
+
 describe( 'folder states', () => {
 	it( 'announces a folder that could not be loaded', async () => {
 		mockApiFetch.mockImplementation( ( options: { data?: { path?: string } } ) => {
@@ -142,6 +191,32 @@ describe( 'folder states', () => {
 		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
 			"Couldn't load this folder."
 		);
+	} );
+
+	// A polite live region inserted together with its content is the case
+	// assistive tech handles least consistently. The region has to be in the
+	// tree before the text arrives, which means it exists while loading too.
+	it( 'mounts the empty-state region before it has anything to say', async () => {
+		let resolveChildren: ( value: { contents: Record< string, unknown > } ) => void = () => {};
+		mockApiFetch.mockImplementation( ( options: { data?: { path?: string } } ) => {
+			if ( options.data?.path === '/wp-content' ) {
+				return new Promise( resolve => {
+					resolveChildren = resolve;
+				} );
+			}
+			return Promise.resolve( { contents: ROOT } );
+		} );
+
+		await renderBrowser();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Folder: wp-content' } ) );
+
+		// Present and empty while the fetch is still in flight.
+		const region = await screen.findByRole( 'status' );
+		expect( region ).toBeEmptyDOMElement();
+
+		resolveChildren( { contents: {} } );
+
+		await waitFor( () => expect( region ).toHaveTextContent( 'Empty' ) );
 	} );
 
 	it( 'announces an empty folder', async () => {

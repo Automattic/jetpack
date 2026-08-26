@@ -1,4 +1,4 @@
-import { Spinner } from '@wordpress/components';
+import { Spinner, VisuallyHidden } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { useEffect, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -104,7 +104,16 @@ function PreviewBody( {
 		);
 	}
 	if ( isLoading ) {
-		return <Spinner />;
+		// `Spinner` is `role="presentation"` with no text, so on its own this
+		// branch is silent — and focus lands here while it is still showing.
+		// Without something to read, the region announces itself and then says
+		// nothing at all.
+		return (
+			<>
+				<Spinner />
+				<VisuallyHidden>{ __( 'Loading preview…', 'jetpack-backup-pkg' ) }</VisuallyHidden>
+			</>
+		);
 	}
 	if ( error ) {
 		return (
@@ -247,6 +256,7 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				className="jpb-file-info-card__preview"
 				tabIndex={ 0 }
 				role="region"
+				aria-busy={ contentsLoading }
 				aria-label={ sprintf(
 					/* translators: %s: file name. */
 					__( 'Preview of %s', 'jetpack-backup-pkg' ),

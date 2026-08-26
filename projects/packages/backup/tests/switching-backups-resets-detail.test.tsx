@@ -21,7 +21,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { queryClient } from '../src/dashboard/data/query-client';
@@ -111,39 +111,14 @@ beforeEach( () => {
 /**
  * The single root file's own checkbox.
  *
- * The row checkboxes carry `label=""` and no `aria-label`, so they cannot
- * be addressed by name. Rather than take one by index, exclude the only
- * checkbox that *does* have a name — the tree's own "N items selected"
- * summary — and require exactly one to remain.
- *
- * An index would keep passing for the wrong reason. The summary sits
- * inside `.jpb-file-browser` too, so anything that later rendered a
- * checkbox above the tree would slide the index onto it, and the summary
- * is unchecked in the buggy case as well: the reset assertion would stop
- * failing and nothing would say so. Excluding by identity and counting
- * what is left turns that into a loud failure instead.
+ * Addressed by name. Row checkboxes had no accessible name until #51616,
+ * which is why this used to exclude the tree's named summary checkbox and
+ * count what was left — the name is the better handle now that there is one.
  *
  * @return The file row's checkbox.
  */
 function fileRowCheckbox(): HTMLElement {
-	const browser = fileBrowser();
-	const summary = within( browser ).getByRole( 'checkbox', { name: /items? selected/ } );
-	const rows = within( browser )
-		.getAllByRole( 'checkbox' )
-		.filter( box => box !== summary );
-	if ( rows.length !== 1 ) {
-		throw new Error( `Expected one file row checkbox, found ${ rows.length }` );
-	}
-	return rows[ 0 ];
-}
-
-/**
- * The file browser pane.
- *
- * @return The file browser container.
- */
-function fileBrowser(): HTMLElement {
-	return document.querySelector( '.jpb-file-browser' ) as HTMLElement;
+	return screen.getByRole( 'checkbox', { name: 'Select wp-config.php' } );
 }
 
 describe( 'Switching between backups', () => {
