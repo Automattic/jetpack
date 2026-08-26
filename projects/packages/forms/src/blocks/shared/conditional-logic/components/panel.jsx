@@ -10,6 +10,8 @@ import { __ } from '@wordpress/i18n';
 import { seen, unseen } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
+import useFormFieldIds from '../../hooks/use-form-field-ids.js';
+import { getDuplicateFieldIds } from '../../util/duplicate-ids.js';
 import {
 	countRules,
 	getPrimaryGroup,
@@ -17,8 +19,7 @@ import {
 	startsHidden,
 	withPrimaryGroupRules,
 } from '../constants.js';
-import useSubjectFields, { useFormFieldIds } from '../hooks/use-subject-fields.js';
-import { getDuplicateFieldIds } from '../util/duplicate-ids.js';
+import useSubjectFields from '../hooks/use-subject-fields.js';
 import {
 	describeRule,
 	getActiveConditions,
@@ -88,18 +89,13 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 	);
 
 	const fields = useSubjectFields( clientId );
-	const formFieldIds = useFormFieldIds( clientId );
 	const group = getPrimaryGroup( logic );
 
-	// Two fields can legitimately share an id -- ids survive copy, paste and duplicate, and
-	// the Name field's inserter variations ship fixed ones. A rule stores the id of the field
-	// it compares against, so a shared id cannot say which field is meant; the builder marks
-	// those fields unavailable and asks the author to give them a unique Name/ID rather than
-	// picking one for them.
-	//
-	// Computed from the whole form rather than from `fields`, which drops this very block: a
-	// subject sharing an id with the field being edited is just as ambiguous, and a list
-	// missing one of the two cannot see that.
+	// Only the dialog surfaces this, so the form is not walked while it is closed. Taken from
+	// the whole form rather than from `fields`, which drops this very block: a subject sharing
+	// an id with the field being edited is just as ambiguous, and a list missing one of the two
+	// cannot see that. See getDuplicateFieldIds() for why ids collide in the first place.
+	const formFieldIds = useFormFieldIds( clientId, isModalOpen );
 	const duplicateFieldIds = useMemo( () => getDuplicateFieldIds( formFieldIds ), [ formFieldIds ] );
 
 	const updateLogic = useCallback(

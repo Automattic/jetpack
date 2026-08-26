@@ -3,6 +3,9 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import FieldValueControl from '../controls/field-value/edit.jsx';
 
+// Shared empty set, so a caller that omits the prop does not hand every render a new one.
+const NO_DUPLICATE_IDS = new Set();
+
 const ACTION_OPTIONS = [
 	{ value: 'show', label: __( 'Show this field', 'jetpack-forms' ) },
 	{ value: 'hide', label: __( 'Hide this field', 'jetpack-forms' ) },
@@ -43,7 +46,7 @@ const ConditionalLogicModal = ( {
 	logic,
 	group,
 	fields,
-	duplicateFieldIds,
+	duplicateFieldIds = NO_DUPLICATE_IDS,
 	ownFieldId,
 	onActionChange,
 	onMatchChange,
@@ -111,7 +114,7 @@ const ConditionalLogicModal = ( {
 				     fields in question, and the Name/ID is what the author will see on each
 				     one. Not dismissible: the affected fields stay unavailable until it is
 				     acted on, so hiding the explanation would leave them looking broken. */ }
-				{ duplicateFieldIds?.size > 0 && (
+				{ duplicateFieldIds.size > 0 && (
 					<Notice status="warning" isDismissible={ false }>
 						{ sprintf(
 							/* translators: %s: comma-separated list of duplicated field names/IDs. */

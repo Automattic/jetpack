@@ -99,19 +99,23 @@ const mockEnsureFieldId = jest.fn( ( field, usedIds = [] ) => {
 	return usedIds.includes( base ) ? `${ base }-2` : base;
 } );
 
-// The panel reads two lists from this module: the subject dropdown's fields (owner excluded)
-// and every field in the form in document order (owner included), which is what decides
-// which of two colliding ids survives.
-let formFieldIds = [];
-
 await jest.unstable_mockModule(
 	'../../../../../src/blocks/shared/conditional-logic/hooks/use-subject-fields.js',
 	() => ( {
 		__esModule: true,
 		default: () => subjectFields,
-		useFormFieldIds: () => formFieldIds,
 		useEnsureFieldId: () => mockEnsureFieldId,
 	} )
+);
+
+// The panel reads two lists: the subject dropdown's fields (which exclude this block) and
+// every field id in the form (which includes it), the second being what tells it whether an
+// id is unique.
+let formFieldIds = [];
+
+await jest.unstable_mockModule(
+	'../../../../../src/blocks/shared/hooks/use-form-field-ids.js',
+	() => ( { __esModule: true, default: () => formFieldIds } )
 );
 
 const { default: ConditionalLogicPanel } = await import(
@@ -135,8 +139,10 @@ const withRules = ( rules, extra = {} ) => ( {
 
 const setup = async (
 	conditionalLogic = DEFAULT_ATTRIBUTE,
-	{ openModal = true, ownFieldId } = {}
+	{ openModal = true, ownFieldId, sidebarOpen = true } = {}
 ) => {
+	isSidebarOpen = sidebarOpen;
+
 	const setAttributes = jest.fn();
 	const { container } = render(
 		<ConditionalLogicPanel
@@ -145,6 +151,12 @@ const setup = async (
 			setAttributes={ setAttributes }
 		/>
 	);
+
+	// With the sidebar closed the inspector fill renders nothing, so there is no panel to
+	// expand and no button to reach the dialog with -- the toolbar is all a test has.
+	if ( ! sidebarOpen ) {
+		return { setAttributes, container };
+	}
 
 	// PanelBody renders collapsed (initialOpen={false}), so nothing inside it exists
 	// in the DOM until the title is activated.
@@ -189,6 +201,7 @@ const optionValues = select =>
 
 describe( 'ConditionalLogicPanel', () => {
 	beforeEach( () => {
+		// setup() sets this per test; reset it for the helpers that render directly.
 		isSidebarOpen = true;
 		subjectFields = SUBJECT_FIELDS;
 		formFieldIds = [];
@@ -298,49 +311,29 @@ describe( 'ConditionalLogicPanel', () => {
 	// exactly the situation in which the settings sidebar is likely to be closed. The dialog
 	// therefore cannot live inside InspectorControls: a fill whose slot is unmounted renders
 	// nothing, so the click would flip the open state and produce no dialog at all.
-	it( 'opens the dialog from the toolbar while the settings sidebar is closed', async () => {
-		isSidebarOpen = false;
+	it.each( [
+		[ 'a field with no conditions', DEFAULT_ATTRIBUTE, 'Add conditional logic' ],
+		[
+			'a field that already has one',
+			withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ),
+			'This field is shown only if: Name (Name field) is “x”',
+		],
+	] )(
+		'opens the dialog from the toolbar of %s while the sidebar is closed',
+		async ( _label, conditionalLogic, buttonName ) => {
+			await setup( conditionalLogic, { sidebarOpen: false, openModal: false } );
 
-		render(
-			<ConditionalLogicPanel
-				clientId="abc"
-				attributes={ { conditionalLogic: DEFAULT_ATTRIBUTE } }
-				setAttributes={ jest.fn() }
-			/>
-		);
+			// Guards the premise: with the sidebar closed the inspector panel really is absent,
+			// so the toolbar button is the only way in.
+			expect(
+				screen.queryByRole( 'button', { name: 'Conditional logic' } )
+			).not.toBeInTheDocument();
 
-		// Guards the premise: with the sidebar closed the inspector panel really is absent, so
-		// the toolbar button is the only way in.
-		expect( screen.queryByRole( 'button', { name: 'Conditional logic' } ) ).not.toBeInTheDocument();
+			await userEvent.click( screen.getByRole( 'button', { name: buttonName } ) );
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'Add conditional logic' } ) );
-
-		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
-	} );
-
-	// Same for a field that already carries conditions, whose toolbar button is labelled with
-	// the summary rather than the invitation.
-	it( 'opens the dialog from a conditioned field toolbar while the sidebar is closed', async () => {
-		isSidebarOpen = false;
-
-		render(
-			<ConditionalLogicPanel
-				clientId="abc"
-				attributes={ {
-					conditionalLogic: withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ),
-				} }
-				setAttributes={ jest.fn() }
-			/>
-		);
-
-		await userEvent.click(
-			screen.getByRole( 'button', {
-				name: 'This field is shown only if: Name (Name field) is \u201cx\u201d',
-			} )
-		);
-
-		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
-	} );
+			expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
+		}
+	);
 
 	it( 'opens the dialog from the toolbar button', async () => {
 		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ), {
@@ -376,10 +369,7 @@ describe( 'ConditionalLogicPanel', () => {
 				nameField( 'c-a', 'First name' ),
 				nameField( 'c-b', 'Partner first name' ),
 			];
-			formFieldIds = [
-				{ clientId: 'c-a', id: 'first-name' },
-				{ clientId: 'c-b', id: 'first-name' },
-			];
+			formFieldIds = [ 'first-name', 'first-name' ];
 		} );
 
 		it( 'names the duplicated Name/ID and says how to fix it', async () => {
@@ -392,8 +382,6 @@ describe( 'ConditionalLogicPanel', () => {
 			expect( notice ).toHaveTextContent( /Advanced → Name\/ID/ );
 		} );
 
-		// Offered but not selectable, rather than hidden: an author looking for a field they know
-		// is in the form should find it here with a reason attached, not silently absent.
 		it( 'still lists the fields, marked and disabled', async () => {
 			await setup( DEFAULT_ATTRIBUTE );
 
@@ -426,10 +414,7 @@ describe( 'ConditionalLogicPanel', () => {
 	} );
 
 	it( 'leaves fields with distinct ids selectable and unremarked', async () => {
-		formFieldIds = [
-			{ clientId: 'c-name', id: 'name_1' },
-			{ clientId: 'c-budget', id: 'budget_1' },
-		];
+		formFieldIds = [ 'name_1', 'budget_1' ];
 
 		await setup( DEFAULT_ATTRIBUTE );
 

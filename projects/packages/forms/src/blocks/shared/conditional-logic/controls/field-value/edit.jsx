@@ -37,6 +37,25 @@ const INPUT_TYPE_BY_KIND = {
  */
 const selectionValue = field => field.id || `clientId:${ field.clientId }`;
 
+// Shared empty set, so a caller that omits the prop does not hand every render a new one.
+const NO_DUPLICATE_IDS = new Set();
+
+/**
+ * How a subject field is named in the dropdown, marked when its id is not unique.
+ *
+ * @param {object}  field       - Subject field descriptor.
+ * @param {boolean} isAmbiguous - Whether another field claims the same id.
+ * @return {string} The option's text.
+ */
+const optionLabel = ( field, isAmbiguous ) =>
+	isAmbiguous
+		? sprintf(
+				/* translators: %s: a form field's name, e.g. "First name (Name field)". */
+				__( '%s — duplicate Name/ID', 'jetpack-forms' ),
+				getFieldDisplayName( field )
+		  )
+		: getFieldDisplayName( field );
+
 /**
  * Default operator for a newly added rule, chosen from the subject field's own operator set
  * so the rule is valid the moment it appears.
@@ -131,7 +150,7 @@ const RuleRow = ( {
 	rule,
 	index,
 	fields,
-	duplicateFieldIds,
+	duplicateFieldIds = NO_DUPLICATE_IDS,
 	ownFieldId,
 	shouldFocus,
 	onChange,
@@ -157,7 +176,7 @@ const RuleRow = ( {
 	// id no longer identifies one field, and the renderer resolves it to whichever renders
 	// first -- which may not be the field the author picked. Say so rather than showing a
 	// confident-looking row that means something else.
-	const ambiguousSubject = !! rule.field && !! duplicateFieldIds?.has( rule.field );
+	const ambiguousSubject = duplicateFieldIds.has( rule.field );
 
 	const handleFieldChange = useCallback(
 		selection => {
@@ -322,10 +341,9 @@ const RuleRow = ( {
 					{ Object.keys( grouped ).map( group => (
 						<optgroup key={ group } label={ group }>
 							{ grouped[ group ].map( field => {
-								// Offered but not selectable, rather than hidden: an author looking for
-								// a field they know is in the form should find it here with a reason
-								// attached, not silently absent.
-								const isAmbiguous = !! field.id && !! duplicateFieldIds?.has( field.id );
+								// Offered but not selectable, rather than hidden: an author looking for a
+								// field they know is in the form should find it here with a reason attached.
+								const isAmbiguous = duplicateFieldIds.has( field.id );
 
 								return (
 									<option
@@ -333,13 +351,7 @@ const RuleRow = ( {
 										value={ selectionValue( field ) }
 										disabled={ isAmbiguous }
 									>
-										{ isAmbiguous
-											? sprintf(
-													/* translators: %s: a form field's name, e.g. "First name (Name field)". */
-													__( '%s — duplicate Name/ID', 'jetpack-forms' ),
-													getFieldDisplayName( field )
-											  )
-											: getFieldDisplayName( field ) }
+										{ optionLabel( field, isAmbiguous ) }
 									</option>
 								);
 							} ) }
@@ -401,7 +413,7 @@ const FieldValueControl = ( {
 	rules: storedRules,
 	onChange,
 	fields,
-	duplicateFieldIds,
+	duplicateFieldIds = NO_DUPLICATE_IDS,
 	ownFieldId,
 } ) => {
 	const stored = useMemo(
