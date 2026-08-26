@@ -18,8 +18,10 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-ai-page.p
 /**
  * Class Jetpack_AI_Page_Test
  *
+ * @covers \Jetpack_AI_Feature_Flags
  * @covers \Jetpack_AI_Page
  */
+#[CoversClass( Jetpack_AI_Feature_Flags::class )]
 #[CoversClass( Jetpack_AI_Page::class )]
 class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -32,6 +34,11 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		unset( $GLOBALS['wp_scripts'] );
 		delete_transient( 'jetpack_ai_overview_plan_info' );
 		Status_Cache::clear();
+		remove_all_filters( 'agents_manager_should_load' );
+		remove_all_filters( 'agents_manager_agent_id' );
+		remove_all_filters( 'agents_manager_agent_providers' );
+		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks' );
 
 		parent::tear_down();
 	}
@@ -128,6 +135,8 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 
 		$this->assertArrayHasKey( 'showFeaturesView', $settings );
 		$this->assertFalse( $settings['showFeaturesView'] );
+		$this->assertArrayHasKey( 'featureFlags', $settings );
+		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
 	}
 
 	/**
@@ -140,6 +149,79 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertTrue( $settings['showFeaturesView'] );
+		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
+	}
+
+	/**
+	 * The Scheduled tasks experience is registered as a default-off feature flag.
+	 */
+	public function test_scheduled_tasks_feature_flag_is_registered() {
+		Jetpack_AI_Feature_Flags::register();
+
+		$this->assertSame(
+			array(
+				'default'     => false,
+				'description' => 'Enable the Scheduled tasks tab and Agents Manager sidebar in AI Hub.',
+				'owner'       => 'jetpack-ai',
+				'name'        => 'ai-hub-scheduled-tasks',
+			),
+			\Automattic\Jetpack\Feature_Flags\Feature_Flags::get( Jetpack_AI_Feature_Flags::SCHEDULED_TASKS )
+		);
+	}
+
+	/**
+	 * WordPress.com can enable the Scheduled tasks experience through the feature flag filter.
+	 */
+	public function test_scheduled_tasks_view_can_be_enabled_by_feature_flag() {
+		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
+	}
+
+	/**
+	 * The AI Hub page loads the Agents Manager shell with its admin page.
+	 */
+	public function test_add_page_actions_loads_agents_manager() {
+		$page = new Jetpack_AI_Page();
+		$page->add_page_actions( 'jetpack_page_jetpack-ai' );
+
+		$this->assertNotFalse(
+			has_action( 'load-jetpack_page_jetpack-ai', array( $page, 'load_agents_manager' ) )
+		);
+	}
+
+	/**
+	 * The Agents Manager shell stays dormant while Scheduled tasks are disabled.
+	 */
+	public function test_agents_manager_shell_is_disabled_by_default() {
+		$page = new Jetpack_AI_Page();
+		$page->load_agents_manager();
+
+		$this->assertFalse( apply_filters( 'agents_manager_should_load', false ) );
+		$this->assertSame( array(), apply_filters( 'agents_manager_agent_providers', array() ) );
+		$this->assertSame( array(), apply_filters( 'jetpack_ai_sidebar_agents_manager_data', array() ) );
+	}
+
+	/**
+	 * The AI Hub page requests the generic Agents Manager shell.
+	 */
+	public function test_agents_manager_shell_uses_wp_orchestrator() {
+		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
+
+		$page = new Jetpack_AI_Page();
+		$page->load_agents_manager();
+
+		$agents_manager = \Automattic\Jetpack\Agents_Manager\Agents_Manager::get_instance();
+
+		$this->assertInstanceOf( \Automattic\Jetpack\Agents_Manager\Agents_Manager::class, $agents_manager );
+		$this->assertNotFalse(
+			has_action( 'admin_enqueue_scripts', array( $agents_manager, 'enqueue_scripts' ) )
+		);
+		$this->assertTrue( apply_filters( 'agents_manager_should_load', false ) );
+		$this->assertSame( 'wp-orchestrator', apply_filters( 'agents_manager_agent_id', null ) );
 	}
 
 	/**
@@ -166,6 +248,85 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertTrue( $settings['planAutoRenew'] );
+	}
+
+	/**
+	 * The AI Hub Agents Manager includes the scheduled task starter prompts.
+	 */
+	public function test_agents_manager_uses_scheduled_task_empty_view() {
+		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
+
+		$user_id = self::factory()->user->create(
+			array(
+				'display_name' => 'Sanja',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$page = new Jetpack_AI_Page();
+		$page->load_agents_manager();
+
+		$providers = apply_filters( 'agents_manager_agent_providers', array() );
+		$this->assertContains(
+			add_query_arg(
+				'ver',
+				JETPACK__VERSION,
+				plugins_url( '_inc/jetpack-ai-scheduled-tasks-provider.js', JETPACK__PLUGIN_FILE )
+			),
+			$providers
+		);
+
+		$data = apply_filters( 'jetpack_ai_sidebar_agents_manager_data', array() );
+		$this->assertSame( 'Howdy Sanja! Let’s schedule a task.', $data['emptyViewHeading'] );
+		$this->assertSame( 'Got a different request? Ask away.', $data['emptyViewHelp'] );
+		$this->assertSame(
+			array(
+				array(
+					'id'         => 'create-daily-reminder',
+					'label'      => 'Create a daily reminder',
+					'prompt'     => 'Create a daily reminder',
+					'autoSubmit' => true,
+				),
+				array(
+					'id'         => 'draft-weekly-post',
+					'label'      => 'Draft a weekly post',
+					'prompt'     => 'Draft a weekly post',
+					'autoSubmit' => true,
+				),
+				array(
+					'id'         => 'schedule-monthly-report',
+					'label'      => 'Schedule a monthly report',
+					'prompt'     => 'Schedule a monthly report',
+					'autoSubmit' => true,
+				),
+			),
+			$data['scheduledTaskEmptyViewSuggestions']
+		);
+	}
+
+	/**
+	 * The Agents Manager JWT client receives the connection state it needs.
+	 */
+	public function test_connection_initial_state_is_injected() {
+		unset( $GLOBALS['wp_scripts'] );
+		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
+		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
+	}
+
+	/**
+	 * The Agents Manager connection state stays dormant with Scheduled tasks.
+	 */
+	public function test_connection_initial_state_is_not_injected_by_default() {
+		unset( $GLOBALS['wp_scripts'] );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
+		$this->assertStringNotContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
 	}
 
 	/**

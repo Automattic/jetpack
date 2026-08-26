@@ -1058,6 +1058,8 @@ function buildVisitsResponse( query: URLSearchParams ) {
  * populated in Storybook. The shape matches what `sanitizeStatsEmailSummaryResponse`
  * expects (`{ posts: [ { title, opens_rate, clicks_rate, … } ] }`); rates are
  * 0–100 percentages and the rows are newest-first to mirror the live endpoint.
+ * One subject line carries HTML entities, because the live endpoint returns them
+ * encoded.
  *
  * @return Raw email-summary response.
  */
@@ -1071,7 +1073,11 @@ function buildEmailSummaryResponse() {
 			opens_rate: 52.4,
 			clicks_rate: 8.93,
 		},
-		{ title: 'WordCamp Europe 2026: What to Expect', opens_rate: 47.9, clicks_rate: 10.25 },
+		{
+			title: 'WordCamp Europe 2026: Talks &amp; Workshops You Shouldn&#8217;t Miss',
+			opens_rate: 47.9,
+			clicks_rate: 10.25,
+		},
 		{
 			title: 'Click, Comment, Done: A Better Way to Collaborate',
 			opens_rate: 44.3,
