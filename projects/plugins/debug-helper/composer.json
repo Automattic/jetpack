@@ -4,6 +4,22 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "^4.0.0",
+		"automattic/phpunit-select-config": "@dev",
+		"automattic/jetpack-wp-build-polyfills": "@dev"
+	},
+	"scripts": {
+		"phpunit": [
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"test-php-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+		]
+	},
 	"repositories": [
 		{
 			"type": "path",

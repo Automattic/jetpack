@@ -37,3 +37,16 @@ There are two mockers implemented:
 #### Adding a Custom Mocker
 1. Create a class implementing `Automattic\Jetpack\Debug_Helper\Mocker\Runner_Interface` that mocks the data.
 2. Add it into the list in `Automattic\Jetpack\Debug_Helper\Mocker::$runners`.
+
+### Package Provenance
+
+Shows which runtime serves each WordPress package on the current admin screen: WordPress core, the Gutenberg plugin, Jetpack's wp-build-polyfills, or another plugin. A badge in the admin bar (`WP x · GB y`) opens a panel listing every registered `wp-*` script and script module with its provider, the plugin tree the file ships from, and its version.
+
+With the module active, a WP-CLI command predicts the same table for WordPress and Gutenberg versions the site is not running, and checks whether the private-apis copy that would win accepts the module names the site's bundles opt in with:
+
+```
+wp jetpack-debug provenance predict --wp=7.0.4,7.1 --gutenberg=off,23.8.0
+wp jetpack-debug provenance predict --wp=7.1 --gutenberg=/tmp/gutenberg.zip --format=json
+```
+
+`--wp` takes release versions or `trunk` (read from the WordPress/WordPress mirror on GitHub; the running version is read from disk). `--gutenberg` takes `off`, `active`, a release version (downloaded from GitHub Releases), or a path to a plugin zip or directory. Downloads are cached in the system temp directory; `--refresh` bypasses the cache. The command exits with status 1 when any cell rejects an opt-in, so it can gate a script.

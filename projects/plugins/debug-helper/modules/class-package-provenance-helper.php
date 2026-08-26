@@ -458,3 +458,10 @@ class Package_Provenance_Helper {
 }
 
 new Package_Provenance_Helper();
+
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	require_once __DIR__ . '/inc/class-package-provenance-predictor.php';
+	require_once __DIR__ . '/inc/class-package-provenance-sources.php';
+	require_once __DIR__ . '/inc/class-package-provenance-cli.php';
+	WP_CLI::add_command( 'jetpack-debug provenance', 'Package_Provenance_CLI' );
+}
