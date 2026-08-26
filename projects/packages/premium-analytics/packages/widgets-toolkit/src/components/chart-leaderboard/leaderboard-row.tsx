@@ -20,8 +20,12 @@ export type LeaderboardRowAction =
 			id?: number | string;
 			/** Public URL. It becomes the link itself when there is no post ID. */
 			href?: string | null;
-			/** Search parameters for the detail route, such as the report window. */
-			search?: Record< string, unknown >;
+			/**
+			 * Search parameters for the detail route. Required so a row cannot reach
+			 * the detail page without the window it was read against; pass `{}` to
+			 * navigate deliberately without one.
+			 */
+			search: Record< string, unknown >;
 	  }
 	| {
 			/** A video with a detail page inside the dashboard. */
@@ -30,8 +34,12 @@ export type LeaderboardRowAction =
 			id?: number | string;
 			/** Public URL. It becomes the link itself when there is no video ID. */
 			href?: string | null;
-			/** Search parameters for the detail route, such as the report window. */
-			search?: Record< string, unknown >;
+			/**
+			 * Search parameters for the detail route. Required so a row cannot reach
+			 * the detail page without the window it was read against; pass `{}` to
+			 * navigate deliberately without one.
+			 */
+			search: Record< string, unknown >;
 	  }
 	| {
 			kind: 'drillDown';

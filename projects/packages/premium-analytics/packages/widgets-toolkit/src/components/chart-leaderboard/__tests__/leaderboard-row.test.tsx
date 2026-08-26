@@ -131,7 +131,7 @@ describe( 'buildLeaderboardRow', () => {
 		const row = buildLeaderboardRow( {
 			label: 'Pricing',
 			media: { kind: 'none' },
-			action: { kind: 'postLink', href: 'https://example.com/pricing/' },
+			action: { kind: 'postLink', href: 'https://example.com/pricing/', search: {} },
 		} );
 
 		render( row.label );
@@ -143,18 +143,23 @@ describe( 'buildLeaderboardRow', () => {
 		expect( row ).not.toHaveProperty( 'onClick' );
 	} );
 
-	it( 'routes a video link to the video detail page, not the post one', () => {
+	it( 'routes a video link to the video detail page with the report window', () => {
 		const row = buildLeaderboardRow( {
 			label: 'Launch teaser',
 			media: { kind: 'none' },
-			action: { kind: 'videoLink', id: 9, href: 'https://example.com/launch-teaser/' },
+			action: {
+				kind: 'videoLink',
+				id: 9,
+				href: 'https://example.com/launch-teaser/',
+				search: { date_start: '2026-08-01', date_end: '2026-08-26' },
+			},
 		} );
 
 		render( row.label );
 
 		expect( screen.getByRole( 'link', { name: /Launch teaser/ } ) ).toHaveAttribute(
 			'href',
-			'/video/9'
+			'/video/9?date_start=2026-08-01&date_end=2026-08-26'
 		);
 		expect( row ).not.toHaveProperty( 'onClick' );
 	} );
