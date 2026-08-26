@@ -27,10 +27,10 @@ import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { DashboardSections, SectionSyncNotice } from './components';
 import {
-	DATE_FILTER_NONE,
 	DATE_FILTER_YEAR,
 	isSectionAwaitingSync,
 	offersDateComparison,
+	offersHeaderDateControl,
 	resolveSectionHeading,
 } from './config';
 import {
@@ -142,38 +142,45 @@ function Dashboard(): JSX.Element {
 	);
 
 	/*
+	 * Placement, not capability: a section that hands the date control to its
+	 * widgets still has the same date state on the same surface.
+	 */
+	const showHeaderDateControl = offersHeaderDateControl( activeSectionRecord?.date_filter_options );
+
+	/*
 	 * The subtitle states what the widgets are currently showing, so it follows
 	 * the applied range and comparison rather than the picker's staged draft:
 	 * it must not move while an edit is open, only once Apply commits it.
 	 *
 	 * A header without the comparison control must not announce one, and a
-	 * header with no date control at all must not announce a range the reader
-	 * cannot see or change — that is the mismatch this section is removing.
+	 * header that does not own the date control must not announce the range on
+	 * its behalf — the widget hosting the control is where it is readable.
 	 */
 	const comparisonPresetId = showComparison ? dateFilters.appliedComparisonPresetId : undefined;
 	const comparisonRange = showComparison ? dateFilters.appliedComparisonRange : undefined;
-	const sectionSubtitle = useMemo(
-		() =>
-			dateFilterSurface === DATE_FILTER_NONE
-				? undefined
-				: getSectionSubtitle( {
-						range: dateFilters.appliedRange,
-						presetId: dateFilters.appliedPresetId,
-						comparisonPresetId,
-						comparisonRange,
-						// The interval control renders as a glyph, so the subtitle is
-						// where the active bucket is readable. Both surfaces carry it.
-						interval: dateFilters.appliedInterval,
-				  } ),
-		[
-			dateFilterSurface,
-			dateFilters.appliedRange,
-			dateFilters.appliedPresetId,
-			dateFilters.appliedInterval,
+	const sectionSubtitle = useMemo( () => {
+		if ( ! showHeaderDateControl ) {
+			return undefined;
+		}
+
+		return getSectionSubtitle( {
+			range: dateFilters.appliedRange,
+			presetId: dateFilters.appliedPresetId,
 			comparisonPresetId,
 			comparisonRange,
-		]
-	);
+			// The interval control renders as a glyph, so the subtitle is where
+			// the active bucket is readable. Both surfaces that render a header
+			// control carry it.
+			interval: dateFilters.appliedInterval,
+		} );
+	}, [
+		showHeaderDateControl,
+		dateFilters.appliedRange,
+		dateFilters.appliedPresetId,
+		dateFilters.appliedInterval,
+		comparisonPresetId,
+		comparisonRange,
+	] );
 
 	/*
 	 * The year surface applies on click — it has no Apply step of its own — so
@@ -207,48 +214,49 @@ function Dashboard(): JSX.Element {
 	/*
 	 * The date controls belong to the active section: the tab panels unmount
 	 * when they lose focus, so only the active section's header is ever rendered
-	 * and one set of controls is enough. A `none` section renders none at all —
-	 * its widgets host their own.
+	 * and one set of controls is enough. A section that opts out of the header
+	 * control renders none at all — its widgets host their own.
 	 */
 	let dateControls: JSX.Element | null = null;
 
-	if ( dateFilterSurface === DATE_FILTER_YEAR ) {
-		/*
-		 * The year surface carries the interval control but no comparison.
-		 * Composed here rather than inside `DateYearFilter`, which stays the
-		 * preset surface alone.
-		 */
-		dateControls = (
-			<Stack direction="row" align="center" gap="sm">
-				{ /*
-				 * `startYear` is left out on purpose: nothing in this package knows how
-				 * far back the site's data goes yet (`getStoreInfo()` is still a stub),
-				 * so the surface falls back to `DEFAULT_YEAR_SURFACE_COUNT` — six years,
-				 * which is the window the design shows. Pass the site's oldest year of
-				 * content here once a source for it exists, so a younger site stops
-				 * offering years it has nothing to show for.
-				 */ }
-				<DateYearFilter
-					value={ dateFilters.appliedPresetId }
-					onSelect={ selectYear }
-					timeZone={ dateFilters.timeZone }
-					containerElement={ containerElement }
-				/>
+	if ( showHeaderDateControl ) {
+		dateControls =
+			dateFilterSurface === DATE_FILTER_YEAR ? (
+				/*
+				 * The year surface carries the interval control but no comparison.
+				 * Composed here rather than inside `DateYearFilter`, which stays the
+				 * preset surface alone.
+				 */
+				<Stack direction="row" align="center" gap="sm">
+					{ /*
+					 * `startYear` is left out on purpose: nothing in this package knows how
+					 * far back the site's data goes yet (`getStoreInfo()` is still a stub),
+					 * so the surface falls back to `DEFAULT_YEAR_SURFACE_COUNT` — six years,
+					 * which is the window the design shows. Pass the site's oldest year of
+					 * content here once a source for it exists, so a younger site stops
+					 * offering years it has nothing to show for.
+					 */ }
+					<DateYearFilter
+						value={ dateFilters.appliedPresetId }
+						onSelect={ selectYear }
+						timeZone={ dateFilters.timeZone }
+						containerElement={ containerElement }
+					/>
 
-				<DateIntervalDropdown
-					options={ dateFilters.intervalOptions }
-					value={ dateFilters.interval }
-					onChange={ dateFilters.onIntervalChange }
-				/>
-			</Stack>
-		);
-	} else if ( dateFilterSurface !== DATE_FILTER_NONE ) {
-		/*
-		 * The dashboard's widgets are charts bucketed by the interval. The
-		 * report pages mount this same panel over records tables, which are
-		 * not, so the control is asked for rather than implied by the props.
-		 */
-		dateControls = <DateFiltersPanel { ...dateFilters } withIntervalControl />;
+					<DateIntervalDropdown
+						options={ dateFilters.intervalOptions }
+						value={ dateFilters.interval }
+						onChange={ dateFilters.onIntervalChange }
+					/>
+				</Stack>
+			) : (
+				/*
+				 * The dashboard's widgets are charts bucketed by the interval. The
+				 * report pages mount this same panel over records tables, which are
+				 * not, so the control is asked for rather than implied by the props.
+				 */
+				<DateFiltersPanel { ...dateFilters } withIntervalControl />
+			);
 	}
 
 	return (

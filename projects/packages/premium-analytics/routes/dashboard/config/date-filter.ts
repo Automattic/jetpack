@@ -22,52 +22,64 @@ export const DATE_FILTER_RANGE = 'range';
 export const DATE_FILTER_YEAR = 'year';
 
 /**
- * No header date control at all, for a section whose widgets host their own.
- *
- * Mirrors `Dashboard_Section::DATE_FILTER_NONE`, whose docblock carries the
- * full three-part contract. The two parts this file implements: the section
- * offers no comparison anywhere (`offersDateComparison` below), and the date
- * state is still reconciled as the range surface (`resolvePresetForSurface`
- * below), because the widget-hosted control is a range picker.
- */
-export const DATE_FILTER_NONE = 'none';
-
-/**
- * The date filter a section's header offers. Mirrors
+ * The shape a section's date filter takes. Mirrors
  * `Dashboard_Section::DATE_FILTERS` on the server, which is the source of truth.
+ *
+ * Shape only: where the control renders and whether the section supports
+ * comparison are `DateFilterOptions` below.
  */
-export type DateFilterSurface =
-	| typeof DATE_FILTER_RANGE
-	| typeof DATE_FILTER_YEAR
-	| typeof DATE_FILTER_NONE;
+export type DateFilterSurface = typeof DATE_FILTER_RANGE | typeof DATE_FILTER_YEAR;
 
 /**
- * Which optional controls a section's date filter offers. Mirrors
+ * What a section's date filter supports, and where it renders. Mirrors
  * `Dashboard_Section::$date_filter_options` on the server.
  */
 export type DateFilterOptions = {
 	with_date_comparison: boolean;
+	// Optional on the wire: a payload served before this field existed carries
+	// no placement, and the header keeps the control (`offersHeaderDateControl`).
+	with_header_date_control?: boolean;
 };
 
 /**
- * Whether the section's header offers the comparison control.
+ * Whether the section supports period-over-period comparison at all.
  *
- * The year surface never does; on the range surface the section decides.
- * Absent options keep the control, as every section did before the field.
+ * Not just chrome: the dashboard declares this on `ReportScopeProvider`, so a
+ * false answer has `WidgetRoot` drop the comparison from the params it fetches
+ * and renders with, for every widget in the section.
+ *
+ * The year surface never supports it; otherwise the section decides. Absent
+ * options keep it, as every section did before the field.
  *
  * @param surface - The active section's date-filter surface.
  * @param options - The active section's date-filter options, if any.
- * @return Whether to render the comparison control.
+ * @return Whether the section supports comparison.
  */
 export function offersDateComparison(
 	surface: DateFilterSurface,
 	options: DateFilterOptions | undefined
 ): boolean {
-	if ( surface === DATE_FILTER_YEAR || surface === DATE_FILTER_NONE ) {
+	if ( surface === DATE_FILTER_YEAR ) {
 		return false;
 	}
 
 	return options?.with_date_comparison ?? true;
+}
+
+/**
+ * Whether the section's header renders the date control.
+ *
+ * False hands it to the section's widgets, which host their own. Only the
+ * placement moves: the date state still exists and still takes the surface's
+ * shape, so a widget-hosted control reads and writes the same `?preset=`.
+ *
+ * Absent options keep the header control, as every section did before the field.
+ *
+ * @param options - The active section's date-filter options, if any.
+ * @return Whether to render the header date control.
+ */
+export function offersHeaderDateControl( options: DateFilterOptions | undefined ): boolean {
+	return options?.with_header_date_control ?? true;
 }
 
 /**
@@ -83,8 +95,7 @@ export function offersDateComparison(
  *
  * Presets a surface can represent are left alone. That includes an absent
  * preset on the range surface, which is how a `?from=&to=` deep link expresses
- * a custom range. `none` falls through to the range branch on purpose: its
- * widget-hosted control is a range picker, so it needs range-shaped presets.
+ * a custom range.
  *
  * @param surface  - The active section's date-filter surface.
  * @param presetId - The preset currently in the URL, if any.

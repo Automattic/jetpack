@@ -1,9 +1,9 @@
 import { PRESET_ALL_TIME, toYearPresetId } from '@jetpack-premium-analytics/datetime';
 import {
-	DATE_FILTER_NONE,
 	DATE_FILTER_RANGE,
 	DATE_FILTER_YEAR,
 	offersDateComparison,
+	offersHeaderDateControl,
 	resolvePresetForSurface,
 } from './date-filter';
 
@@ -37,31 +37,19 @@ describe( 'resolvePresetForSurface', () => {
 			);
 		} );
 	} );
-
-	// `none` means the header shows no control while a widget hosts a range
-	// picker, so the preset must stay coherent with the range surface.
-	describe( 'on the no-control surface', () => {
-		it( 'reconciles exactly like the date-range surface', () => {
-			expect( resolvePresetForSurface( DATE_FILTER_NONE, 'last-7-days' ) ).toBeNull();
-			expect( resolvePresetForSurface( DATE_FILTER_NONE, 'custom' ) ).toBeNull();
-			expect( resolvePresetForSurface( DATE_FILTER_NONE, undefined ) ).toBeNull();
-			expect( resolvePresetForSurface( DATE_FILTER_NONE, PRESET_ALL_TIME ) ).toBe( 'last-30-days' );
-			expect( resolvePresetForSurface( DATE_FILTER_NONE, toYearPresetId( 2024 ) ) ).toBe(
-				'last-30-days'
-			);
-		} );
-	} );
 } );
 
 describe( 'Date-filter surface constants', () => {
-	// The frontend re-declares these values rather than importing them from PHP, and
-	// `resolvePresetForSurface` treats unknown surfaces exactly like `none`, so a typo
-	// here would break the mirror with every other test still green.
-	// `Dashboard_Section::DATE_FILTERS` is the source of truth.
-	it( 'mirrors the PHP surface values exactly', () => {
+	// The frontend re-declares these values rather than importing them from PHP,
+	// and an unrecognized surface falls back to `range` silently, so a typo here
+	// would break the mirror with every other test still green.
+	//
+	// This pins the literals; it cannot see a surface added on the PHP side
+	// only. `Dashboard_Section_Test::test_sections_schema_documents_the_date_filter`
+	// asserts the enum exactly, and names this file, so that direction fails there.
+	it( 'pins the surface literals the PHP constants use', () => {
 		expect( DATE_FILTER_RANGE ).toBe( 'range' );
 		expect( DATE_FILTER_YEAR ).toBe( 'year' );
-		expect( DATE_FILTER_NONE ).toBe( 'none' );
 	} );
 } );
 
@@ -86,12 +74,45 @@ describe( 'offersDateComparison', () => {
 		);
 	} );
 
-	// Not just chrome: `ReportScopeProvider` has `WidgetRoot` strip the
-	// comparison params for the whole section when this is false.
-	it( 'never offers it on the no-control surface, whatever the section says', () => {
-		expect( offersDateComparison( DATE_FILTER_NONE, undefined ) ).toBe( false );
-		expect( offersDateComparison( DATE_FILTER_NONE, { with_date_comparison: true } ) ).toBe(
-			false
-		);
+	// Not just chrome: the dashboard declares this on `ReportScopeProvider`, so
+	// `WidgetRoot` strips the comparison params for the whole section.
+	it( 'ignores the placement of the control', () => {
+		expect(
+			offersDateComparison( DATE_FILTER_RANGE, {
+				with_date_comparison: true,
+				with_header_date_control: false,
+			} )
+		).toBe( true );
+		expect(
+			offersDateComparison( DATE_FILTER_RANGE, {
+				with_date_comparison: false,
+				with_header_date_control: true,
+			} )
+		).toBe( false );
+	} );
+} );
+
+describe( 'offersHeaderDateControl', () => {
+	it( 'follows the section', () => {
+		expect(
+			offersHeaderDateControl( { with_date_comparison: true, with_header_date_control: true } )
+		).toBe( true );
+		expect(
+			offersHeaderDateControl( { with_date_comparison: true, with_header_date_control: false } )
+		).toBe( false );
+	} );
+
+	// A section registered before the field existed, and a payload served before
+	// it existed, both keep the header control they had.
+	it( 'keeps the control when the section carries no placement', () => {
+		expect( offersHeaderDateControl( undefined ) ).toBe( true );
+		expect( offersHeaderDateControl( { with_date_comparison: true } ) ).toBe( true );
+	} );
+
+	// Placement is not capability: a widget-hosted control still has one.
+	it( 'is independent of comparison', () => {
+		expect(
+			offersHeaderDateControl( { with_date_comparison: false, with_header_date_control: true } )
+		).toBe( true );
 	} );
 } );

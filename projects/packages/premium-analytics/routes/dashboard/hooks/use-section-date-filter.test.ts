@@ -7,7 +7,6 @@ import { renderHook } from '@testing-library/react';
  * Internal dependencies
  */
 import {
-	DATE_FILTER_NONE,
 	DATE_FILTER_RANGE,
 	DATE_FILTER_YEAR,
 	type DashboardSection,
@@ -51,6 +50,30 @@ function dateFilters( presetId?: ReportDateFilters[ 'presetId' ] ) {
 			timeZone: 'UTC',
 			replaceRange,
 		} as unknown as ReportDateFilters,
+	};
+}
+
+/**
+ * Build a date-filter controller whose `replaceRange` actually moves the preset,
+ * so a reconciliation can be seen settling rather than only being staged once.
+ *
+ * @param presetId - The preset the URL starts on.
+ * @return The recorded calls, and an accessor rebuilding the controller.
+ */
+function statefulDateFilters( presetId?: ReportDateFilters[ 'presetId' ] ) {
+	let current = presetId;
+	const replaceRange = jest.fn( ( _range, nextPresetId ) => {
+		current = nextPresetId;
+	} );
+
+	return {
+		replaceRange,
+		filters: () =>
+			( {
+				presetId: current,
+				timeZone: 'UTC',
+				replaceRange,
+			} ) as unknown as ReportDateFilters,
 	};
 }
 
@@ -120,22 +143,28 @@ describe( 'useSectionDateFilter', () => {
 		expect( replaceRange ).not.toHaveBeenCalled();
 	} );
 
-	it( 'returns the no-control surface for a section registered with it', () => {
-		const { filters } = dateFilters( 'last-7-days' );
+	// A year preset carried in from Insights cannot be shown by the range
+	// picker, so switching sections must reconcile it — and then settle.
+	it( 'reconciles a year preset carried across a section switch, then settles', () => {
+		const { filters, replaceRange } = statefulDateFilters( toYearPresetId( 2024 ) );
 
-		expect(
-			renderHook( () => useSectionDateFilter( section( 'none' ), filters ) ).result.current
-		).toBe( DATE_FILTER_NONE );
-	} );
+		const { rerender } = renderHook(
+			( { dateFilter }: { dateFilter: string } ) =>
+				useSectionDateFilter( section( dateFilter ), filters() ),
+			{ initialProps: { dateFilter: DATE_FILTER_YEAR } }
+		);
 
-	// The header shows nothing, but a widget hosts a range picker, so a year
-	// preset carried in from Insights must still be reconciled away.
-	it( 'reconciles a year preset on the no-control surface like the range surface', () => {
-		const { filters, replaceRange } = dateFilters( toYearPresetId( 2024 ) );
+		expect( replaceRange ).not.toHaveBeenCalled();
 
-		renderHook( () => useSectionDateFilter( section( 'none' ), filters ) );
+		rerender( { dateFilter: DATE_FILTER_RANGE } );
 
 		expect( replaceRange ).toHaveBeenCalledTimes( 1 );
 		expect( replaceRange.mock.calls[ 0 ][ 1 ] ).toBe( 'last-30-days' );
+
+		// The preset the reconciliation staged is one this surface can show, so
+		// a further render must not stage another.
+		rerender( { dateFilter: DATE_FILTER_RANGE } );
+
+		expect( replaceRange ).toHaveBeenCalledTimes( 1 );
 	} );
 } );
