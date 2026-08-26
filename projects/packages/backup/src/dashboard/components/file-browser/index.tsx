@@ -1,5 +1,5 @@
 import { CheckboxControl, Spinner } from '@wordpress/components';
-import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 // The upstream names don't describe what they draw: `file` is a folder
 // glyph, `page` is a document one, and there is no `folder` export.
@@ -563,6 +563,9 @@ function NodeRow( {
 		[ onToggle, node.path, isEffectivelySelected ]
 	);
 	const handleToggleOpen = useCallback( () => setOpen( v => ! v ), [] );
+	// Names the region the toggle expands, so `aria-expanded` has something
+	// to refer to. Per row, because every folder owns its own children.
+	const childrenId = useId();
 	const handleOpenFile = useCallback( () => {
 		if ( ! nodeIsFolder ) {
 			onOpenFile( node as FileNodeFile );
@@ -592,11 +595,23 @@ function NodeRow( {
 	return (
 		<div>
 			<div className={ rowClassName } style={ { paddingInlineStart: 12 + depth * 16 } }>
+				{ /*
+				 * `CheckboxControl` renders its `<label>` only under `label && …`,
+				 * so an empty string emits no label element at all and the input
+				 * is left unnamed — every row announced as a bare "checkbox".
+				 * The name has to come through `aria-label` instead, and it names
+				 * what the box selects rather than repeating the row's own label.
+				 */ }
 				<CheckboxControl
 					checked={ isEffectivelySelected }
 					indeterminate={ isIndeterminate }
 					onChange={ handleToggleSelected }
 					label=""
+					aria-label={ sprintf(
+						/* translators: %s: file or folder name. */
+						__( 'Select %s', 'jetpack-backup-pkg' ),
+						node.name
+					) }
 					__nextHasNoMarginBottom
 				/>
 				{ nodeIsFolder ? (
@@ -606,6 +621,11 @@ function NodeRow( {
 						type="button"
 						className="jpb-file-browser__toggle"
 						aria-expanded={ open }
+						// Points at the wrapper below, which only exists while open.
+						// `aria-controls` referencing an absent id is the documented
+						// behaviour for a collapsed disclosure, and is what every
+						// assistive-tech implementation expects here.
+						aria-controls={ childrenId }
 						aria-label={ sprintf(
 							/* translators: %s: folder name. */
 							__( 'Folder: %s', 'jetpack-backup-pkg' ),
@@ -634,7 +654,7 @@ function NodeRow( {
 				) }
 			</div>
 			{ open && nodeIsFolder && (
-				<div className="jpb-file-browser__children">
+				<div className="jpb-file-browser__children" id={ childrenId }>
 					{ isLoading && (
 						<div
 							className="jpb-file-browser__loading"
@@ -650,7 +670,13 @@ function NodeRow( {
 					 * that we couldn't look inside it.
 					 */ }
 					{ ! isLoading && error && (
+						// `alert` rather than `status`: the reader asked for this
+						// folder and got nothing back, so it is worth interrupting.
+						// Both states are announced because each replaces content the
+						// reader is waiting on, and a silent swap reads as a folder
+						// that never finished opening.
 						<div
+							role="alert"
 							className="jpb-file-browser__error"
 							style={ { paddingInlineStart: 44 + depth * 16 } }
 						>
@@ -662,6 +688,7 @@ function NodeRow( {
 					) }
 					{ ! isLoading && ! error && ( children ?? [] ).length === 0 && (
 						<div
+							role="status"
 							className="jpb-file-browser__empty"
 							style={ { paddingInlineStart: 44 + depth * 16 } }
 						>
