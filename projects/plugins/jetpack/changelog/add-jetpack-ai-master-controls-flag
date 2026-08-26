@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Jetpack AI: Gate master-switch enforcement off WordPress.com Simple on the ai-master-controls feature flag instead of the internal testing environment check.

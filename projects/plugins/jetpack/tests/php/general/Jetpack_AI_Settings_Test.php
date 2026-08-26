@@ -12,6 +12,7 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Modules;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -36,6 +37,21 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	private $force_ai_active_filter = null;
 
 	/**
+	 * Registered feature flags as the test found them, restored in tear_down().
+	 *
+	 * @var array
+	 */
+	private $registered_flags = array();
+
+	/**
+	 * Snapshot the feature-flag registry so tear_down() can put it back.
+	 */
+	public function set_up() {
+		parent::set_up();
+		$this->registered_flags = Feature_Flags::all();
+	}
+
+	/**
 	 * Off-Simple, the `ai` module is the master switch. Force it active so the
 	 * master reads as on, mirroring the option-default-on baseline the gate
 	 * tests assume.
@@ -49,12 +65,11 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Master enforcement only runs on internal testing environments while the
-	 * AI controls are not publicly launched. The predicate treats a proxied
-	 * A8C request as internal, so that is the lever the enforcement tests pull.
+	 * Master enforcement runs off-Simple only while the `ai-master-controls`
+	 * feature flag is on, so that is the lever the enforcement tests pull.
 	 */
-	private function force_internal_testing_env() {
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+	private function force_master_enforcement() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_AI_Feature_Flags::MASTER_CONTROLS, '__return_true' );
 	}
 
 	/**
@@ -62,6 +77,11 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		remove_filter( 'jetpack_feature_flag_enabled_' . Jetpack_AI_Feature_Flags::MASTER_CONTROLS, '__return_true' );
+		Feature_Flags::reset();
+		foreach ( $this->registered_flags as $name => $definition ) {
+			Feature_Flags::register( $name, $definition );
+		}
 		delete_option( Jetpack_AI_Settings::MASTER_OPTION );
 		foreach ( Jetpack_AI_Settings::FEATURE_OPTIONS as $option ) {
 			delete_option( $option );
@@ -111,11 +131,11 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Master off (off-Simple: the `ai` module inactive) turns off every AI filter
-	 * the settings class guards — on an internal testing environment, where
+	 * the settings class guards — with the `ai-master-controls` flag on, where
 	 * master enforcement is live.
 	 */
 	public function test_master_off_disables_ai_filters() {
-		$this->force_internal_testing_env();
+		$this->force_master_enforcement();
 
 		// Off-Simple, the module is the master and is inactive by default here.
 		$this->assertFalse( Jetpack_AI_Settings::is_master_enabled() );
@@ -126,12 +146,12 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Until the AI controls ship publicly, the master gate is waived outside
-	 * internal testing environments: an inactive `ai` module must not turn AI
+	 * Until the AI controls ship publicly, the master gate is waived while the
+	 * `ai-master-controls` flag is off: an inactive `ai` module must not turn AI
 	 * off for the public.
 	 */
-	public function test_master_not_enforced_outside_internal_testing_env() {
-		// Plain test env: not internal, module inactive.
+	public function test_master_not_enforced_while_flag_off() {
+		// Flag off by default, module inactive.
 		$this->assertFalse( Jetpack_AI_Settings::is_master_enabled(), 'Precondition: the stored master state reads off.' );
 
 		$this->assertTrue( apply_filters( 'jetpack_ai_enabled', true ) );
@@ -143,10 +163,48 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * The rollout is a feature flag now: an internal testing environment on its
+	 * own no longer enforces the master gate.
+	 */
+	public function test_internal_testing_env_alone_does_not_enforce_master() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$this->assertFalse( Jetpack_AI_Settings::is_master_enabled(), 'Precondition: the stored master state reads off.' );
+		$this->assertTrue( apply_filters( 'jetpack_ai_enabled', true ) );
+		$this->assertTrue( Jetpack_AI_Settings::is_ai_enabled() );
+	}
+
+	/**
+	 * The flag is registered with the AI defaults, so it shows up on every
+	 * control surface and ships off.
+	 */
+	public function test_master_controls_flag_is_registered() {
+		$flag = Feature_Flags::get( 'ai-master-controls' );
+
+		$this->assertNotNull( $flag );
+		$this->assertSame( 'ai-master-controls', Jetpack_AI_Feature_Flags::MASTER_CONTROLS );
+		$this->assertFalse( $flag['default'] );
+		$this->assertSame( 'jetpack-ai', $flag['owner'] );
+		$this->assertArrayHasKey( 'ai-master-controls', Feature_Flags::all() );
+	}
+
+	/**
+	 * On WordPress.com Simple the master option enforces whether the flag is
+	 * on or off.
+	 */
+	public function test_master_option_enforced_on_wpcom_simple_with_flag_on() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->force_master_enforcement();
+		update_option( Jetpack_AI_Settings::MASTER_OPTION, 0 );
+
+		$this->assertFalse( Jetpack_AI_Settings::is_ai_enabled() );
+	}
+
+	/**
 	 * The waiver covers only the master gate: the host gate (a server-owner
 	 * decision) keeps enforcing everywhere.
 	 */
-	public function test_host_gate_enforced_outside_internal_testing_env() {
+	public function test_host_gate_enforced_while_flag_off() {
 		if ( ! function_exists( 'wp_supports_ai' ) ) {
 			$this->markTestSkipped( 'wp_supports_ai() is not available in this WordPress version.' );
 		}
@@ -159,10 +217,9 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 
 	/**
 	 * The waiver is an off-Simple concern: WordPress.com Simple keeps its
-	 * existing contract, where the master option enforces regardless of the
-	 * internal-testing predicate.
+	 * existing contract, where the master option enforces with the flag off.
 	 */
-	public function test_master_option_enforced_on_wpcom_simple_regardless_of_env() {
+	public function test_master_option_enforced_on_wpcom_simple_with_flag_off() {
 		Constants::set_constant( 'IS_WPCOM', true );
 		update_option( Jetpack_AI_Settings::MASTER_OPTION, 0 );
 
@@ -177,7 +234,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	 * helper's hard AND.
 	 */
 	public function test_is_ai_enabled_master_gate_is_final() {
-		$this->force_internal_testing_env();
+		$this->force_master_enforcement();
 		update_option( Jetpack_AI_Settings::MASTER_OPTION, 0 );
 		add_filter( 'jetpack_ai_enabled', '__return_true', PHP_INT_MAX );
 
@@ -403,7 +460,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 
 	/**
 	 * The controls this class owns are not publicly launched, so a stored-off
-	 * toggle is inert outside internal testing environments: the feature keeps
+	 * toggle is inert while the `ai-master-controls` flag is off: the feature keeps
 	 * the behavior the released version has.
 	 */
 	public function test_owned_toggles_are_inert_outside_internal_testing() {
@@ -419,11 +476,11 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * On an internal testing environment the same stored values apply, so the
+	 * With the `ai-master-controls` flag on the same stored values apply, so the
 	 * settings page can be exercised end to end there.
 	 */
 	public function test_owned_toggles_apply_on_internal_testing() {
-		$this->force_internal_testing_env();
+		$this->force_master_enforcement();
 
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
 		update_option( 'jetpack_ai_image_editor_enabled', 0 );
@@ -458,7 +515,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	 */
 	public function test_seo_feature_follows_its_option() {
 		$this->force_ai_module_active();
-		$this->force_internal_testing_env();
+		$this->force_master_enforcement();
 
 		$this->assertTrue( Jetpack_AI_Settings::is_ai_seo_enabled(), 'Defaults on with every gate open.' );
 
@@ -473,7 +530,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	 * so the choice returns when the master does.
 	 */
 	public function test_seo_feature_master_off_preserves_saved_value() {
-		$this->force_internal_testing_env();
+		$this->force_master_enforcement();
 
 		// Seed off first so the row exists: a write equal to the registered
 		// default is short-circuited by update_option and stores nothing.
@@ -495,7 +552,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	 * override the in-chain gate callback, but not the helper's hard AND.
 	 */
 	public function test_seo_feature_late_filter_cannot_beat_master() {
-		$this->force_internal_testing_env();
+		$this->force_master_enforcement();
 		add_filter( 'jetpack_ai_seo_enabled', '__return_true', 999 );
 
 		// Off-Simple the `ai` module is the master and is inactive by default here.
@@ -523,7 +580,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	 * A feature's option turns it off where the owned toggles apply.
 	 */
 	public function test_feature_option_off() {
-		$this->force_internal_testing_env();
+		$this->force_master_enforcement();
 
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
 
@@ -576,7 +633,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	 */
 	public function test_owned_features_honor_their_option_off_wpcom_simple() {
 		Constants::set_constant( 'IS_WPCOM', false );
-		$this->force_internal_testing_env();
+		$this->force_master_enforcement();
 
 		update_option( 'jetpack_ai_image_editor_enabled', 0 );
 

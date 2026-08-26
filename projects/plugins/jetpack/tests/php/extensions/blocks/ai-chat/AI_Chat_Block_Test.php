@@ -61,6 +61,7 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 
 		$this->deactivate_ai_module_for_test();
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		remove_filter( 'jetpack_feature_flag_enabled_ai-master-controls', '__return_true' );
 		remove_filter( 'jetpack_ai_enabled', '__return_false' );
 		remove_filter( 'jetpack_offline_mode', '__return_false' );
 		delete_option( 'jetpack_ai_enabled' );

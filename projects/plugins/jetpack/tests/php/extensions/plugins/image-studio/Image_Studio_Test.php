@@ -91,8 +91,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		remove_filter( 'jetpack_feature_flag_enabled_ai-master-controls', '__return_true' );
 		$this->deactivate_ai_module_for_test();
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		remove_filter( 'jetpack_feature_flag_enabled_ai-master-controls', '__return_true' );
 		delete_transient( ImageStudio\ASSET_TRANSIENT );
 		remove_all_filters( 'jetpack_image_studio_enabled' );
 		remove_all_filters( 'jetpack_image_studio_can_generate_video_clips' );

@@ -17,6 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Jetpack_AI_Feature_Flags {
 
 	const SCHEDULED_TASKS = 'ai-hub-scheduled-tasks';
+	const MASTER_CONTROLS = 'ai-master-controls';
 
 	/**
 	 * Register Jetpack AI feature flags.
@@ -29,6 +30,14 @@ class Jetpack_AI_Feature_Flags {
 			array(
 				'default'     => false,
 				'description' => 'Enable the Scheduled tasks tab and Agents Manager sidebar in AI Hub.',
+				'owner'       => 'jetpack-ai',
+			)
+		);
+		Feature_Flags::register(
+			self::MASTER_CONTROLS,
+			array(
+				'default'     => false,
+				'description' => 'Enforce the AI master switch and the AI Hub feature toggles off WordPress.com Simple.',
 				'owner'       => 'jetpack-ai',
 			)
 		);

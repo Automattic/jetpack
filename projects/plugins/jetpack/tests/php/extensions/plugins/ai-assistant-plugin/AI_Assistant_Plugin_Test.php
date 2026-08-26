@@ -37,8 +37,10 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		remove_filter( 'jetpack_feature_flag_enabled_ai-master-controls', '__return_true' );
 		$this->deactivate_ai_module_for_test();
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		remove_filter( 'jetpack_feature_flag_enabled_ai-master-controls', '__return_true' );
 		unregister_setting( 'general', 'jetpack_ai_agents_enabled' );
 		Constants::clear_single_constant( 'IS_WPCOM' );
 

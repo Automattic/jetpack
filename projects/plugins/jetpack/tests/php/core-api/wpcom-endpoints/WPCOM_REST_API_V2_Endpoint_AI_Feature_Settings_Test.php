@@ -83,6 +83,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	 */
 	public function tear_down() {
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		remove_filter( 'jetpack_feature_flag_enabled_ai-master-controls', '__return_true' );
 		delete_option( Jetpack_AI_Settings::MASTER_OPTION );
 		foreach ( Jetpack_AI_Settings::FEATURE_OPTIONS as $option ) {
 			delete_option( $option );
@@ -316,8 +317,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		wp_set_current_user( self::$admin_id );
 		self::connect_owner();
 
-		// Master enforcement only runs on internal testing environments.
+		// Master enforcement off Simple runs only with the ai-master-controls flag on.
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'jetpack_feature_flag_enabled_ai-master-controls', '__return_true' );
 
 		// Off-Simple the master is the `ai` module; turn it off.
 		self::set_ai_module_active( false );
@@ -335,8 +337,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		self::connect_owner();
 		self::set_ai_module_active( true );
 
-		// The owned toggles only apply on internal testing environments.
+		// The owned toggles apply off Simple only with the ai-master-controls flag on.
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'jetpack_feature_flag_enabled_ai-master-controls', '__return_true' );
 
 		update_option( Jetpack_AI_Settings::FEATURE_OPTIONS['image_editor'], false );
 
@@ -562,8 +565,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	public function test_post_partial_update() {
 		wp_set_current_user( self::$admin_id );
 
-		// The owned toggles only apply on internal testing environments.
+		// The owned toggles apply off Simple only with the ai-master-controls flag on.
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'jetpack_feature_flag_enabled_ai-master-controls', '__return_true' );
 
 		$data = $this->dispatch(
 			'POST',
@@ -599,8 +603,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	public function test_post_master_switch() {
 		wp_set_current_user( self::$admin_id );
 
-		// Master enforcement only runs on internal testing environments.
+		// Master enforcement off Simple runs only with the ai-master-controls flag on.
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'jetpack_feature_flag_enabled_ai-master-controls', '__return_true' );
 
 		// Off-Simple the master is the `ai` module; start it active so the write
 		// actually flips state and we exercise the setter's module routing.

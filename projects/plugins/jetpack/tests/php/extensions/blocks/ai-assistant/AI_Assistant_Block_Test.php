@@ -59,6 +59,7 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		remove_filter( 'jetpack_feature_flag_enabled_ai-master-controls', '__return_true' );
 		if ( Blocks::is_registered( self::BLOCK_NAME ) ) {
 			unregister_block_type( self::BLOCK_NAME );
 		}
@@ -68,6 +69,7 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 
 		$this->deactivate_ai_module_for_test();
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		remove_filter( 'jetpack_feature_flag_enabled_ai-master-controls', '__return_true' );
 		delete_option( 'jetpack_ai_enabled' );
 		delete_option( 'jetpack_ai_writing_assistant_enabled' );
 		delete_option( 'jetpack_ai_image_editor_enabled' );

@@ -20,6 +20,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 
@@ -206,8 +207,8 @@ class Jetpack_AI_Settings {
 
 	/**
 	 * Whether the AI controls — the master switch and the toggles this class owns
-	 * — take effect here. They are not publicly launched, so off Simple they apply
-	 * on internal testing environments only. Remove at public launch.
+	 * — take effect here. Simple always enforces. Elsewhere they are not publicly
+	 * launched and apply only with the `ai-master-controls` flag on. Remove at launch.
 	 *
 	 * @return bool
 	 */
@@ -216,7 +217,7 @@ class Jetpack_AI_Settings {
 			return true;
 		}
 
-		return function_exists( 'jetpack_is_internal_testing_environment' ) && jetpack_is_internal_testing_environment();
+		return Feature_Flags::is_enabled( Jetpack_AI_Feature_Flags::MASTER_CONTROLS );
 	}
 
 	/**

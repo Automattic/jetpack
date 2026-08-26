@@ -42,7 +42,7 @@ class Jetpack_Redux_State_Helper_Test extends WP_UnitTestCase {
 		global $_wp_theme_features;
 
 		$_wp_theme_features = $this->theme_features;
-		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		remove_filter( 'jetpack_feature_flag_enabled_ai-master-controls', '__return_true' );
 		parent::tear_down();
 	}
 
@@ -68,16 +68,16 @@ class Jetpack_Redux_State_Helper_Test extends WP_UnitTestCase {
 
 	/**
 	 * The initial state reports the effective AI state through the same gate
-	 * chain the editor enforces: waived master outside internal testing
-	 * environments, enforced master (the inactive `ai` module) inside them.
+	 * chain the editor enforces: waived master while the `ai-master-controls`
+	 * flag is off, enforced master (the inactive `ai` module) with it on.
 	 */
 	public function test_ai_effectively_enabled_reflects_the_ai_gates() {
 		$redux_state = Jetpack_Redux_State_Helper::get_initial_state();
-		$this->assertTrue( $redux_state['isAiEnabled'], 'Outside internal testing envs the master is waived, so AI reads on.' );
+		$this->assertTrue( $redux_state['isAiEnabled'], 'With the flag off the master is waived, so AI reads on.' );
 
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-		$redux_state                    = Jetpack_Redux_State_Helper::get_initial_state();
+		add_filter( 'jetpack_feature_flag_enabled_ai-master-controls', '__return_true' );
+		$redux_state = Jetpack_Redux_State_Helper::get_initial_state();
 
-		$this->assertFalse( $redux_state['isAiEnabled'], 'On internal testing envs the inactive ai module reads as master off.' );
+		$this->assertFalse( $redux_state['isAiEnabled'], 'With the flag on the inactive ai module reads as master off.' );
 	}
 }

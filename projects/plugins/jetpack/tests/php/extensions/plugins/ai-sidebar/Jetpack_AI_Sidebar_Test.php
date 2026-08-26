@@ -86,6 +86,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function tear_down() {
 		$this->deactivate_ai_module_for_test();
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		remove_filter( 'jetpack_feature_flag_enabled_ai-master-controls', '__return_true' );
 		delete_transient( AiAssistantPlugin\AI_SIDEBAR_ASSET_TRANSIENT );
 		$this->reset_sidebar_hooks();
 		remove_all_filters( 'pre_http_request' );
@@ -96,6 +97,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'ai_seo_enhancer_enabled' );
 		Status_Cache::clear();
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		remove_filter( 'jetpack_feature_flag_enabled_ai-master-controls', '__return_true' );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		delete_option( 'jetpack_offline_mode' );
 		delete_option( 'big_sky_enable' );
@@ -878,7 +880,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function test_toolbar_button_disabled_when_agents_manager_variant_is_disconnected() {
 		$this->set_block_editor_screen();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->force_master_enforcement_for_test();
 		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_disconnected_variant' ) );
 
 		$this->assertFalse( Jetpack_AI_Sidebar::is_toolbar_button_enabled() );
@@ -889,7 +891,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function test_toolbar_button_enabled_when_agents_manager_variant_is_connected() {
 		$this->set_block_editor_screen();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->force_master_enforcement_for_test();
 		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_variant' ) );
 
 		$this->assertTrue( Jetpack_AI_Sidebar::is_toolbar_button_enabled() );
@@ -1130,7 +1132,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function test_add_agents_manager_data_seo_suggestions_survive_auto_option_off() {
 		$this->set_block_editor_screen();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->force_master_enforcement_for_test();
 		$this->activate_seo_tools_module();
 		update_option( 'ai_seo_enhancer_enabled', 0 );
 
@@ -1149,7 +1151,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function test_add_agents_manager_data_seo_suggestions_follow_seo_option() {
 		$this->set_block_editor_screen();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->force_master_enforcement_for_test();
 		$this->activate_seo_tools_module();
 		update_option( 'jetpack_ai_seo_enabled', 0 );
 
@@ -1200,7 +1202,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function test_add_agents_manager_data_block_transformations_follow_writing_toggle_despite_filter() {
 		$this->set_block_editor_screen();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->force_master_enforcement_for_test();
 		$this->activate_seo_tools_module();
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
 		update_option( 'jetpack_ai_seo_enabled', 1 );
@@ -1227,7 +1229,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function test_add_agents_manager_data_editorial_review_follows_writing_toggle_despite_filter() {
 		$this->set_block_editor_screen();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->force_master_enforcement_for_test();
 		$this->activate_seo_tools_module();
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
 		update_option( 'jetpack_ai_seo_enabled', 1 );
@@ -1254,7 +1256,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function test_add_agents_manager_data_seo_suggestions_follow_option_off() {
 		$this->set_block_editor_screen();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->force_master_enforcement_for_test();
 		$this->activate_seo_tools_module();
 		update_option( 'jetpack_ai_seo_enabled', 0 );
 
@@ -1529,7 +1531,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_patch_jetpack_ai_sidebar_preview_data_skips_when_agents_manager_variant_is_disconnected() {
 		$this->set_block_editor_screen();
 		$this->cache_sidebar_asset_data();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->force_master_enforcement_for_test();
 		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_disconnected_variant' ) );
 		wp_enqueue_script( 'agents-manager', 'https://example.com/am.js', array(), '1.0', true );
 
@@ -1547,7 +1549,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_patch_jetpack_ai_sidebar_preview_data_runs_when_agents_manager_variant_is_connected() {
 		$this->set_block_editor_screen();
 		$this->cache_sidebar_asset_data();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->force_master_enforcement_for_test();
 		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_variant' ) );
 		wp_enqueue_script( 'agents-manager', 'https://example.com/am.js', array(), '1.0', true );
 
@@ -1734,7 +1736,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_abilities_script_skips_when_agents_manager_variant_is_disconnected() {
 		$this->set_block_editor_screen();
 		$this->cache_sidebar_asset_data();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->force_master_enforcement_for_test();
 		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_disconnected_variant' ) );
 
 		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
@@ -1748,7 +1750,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_abilities_script_enqueues_when_agents_manager_variant_is_connected() {
 		$this->set_block_editor_screen();
 		$this->cache_sidebar_asset_data();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->force_master_enforcement_for_test();
 		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_variant' ) );
 
 		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
@@ -1823,7 +1825,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_register_provider_skips_when_agents_manager_variant_is_disconnected() {
 		$this->set_block_editor_screen();
 		$this->cache_sidebar_asset_data();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->force_master_enforcement_for_test();
 		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_disconnected_variant' ) );
 
 		$existing  = array( 'https://example.com/other-provider.mjs' );
@@ -1838,7 +1840,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_register_provider_registers_when_agents_manager_variant_is_connected() {
 		$this->set_block_editor_screen();
 		$this->cache_sidebar_asset_data();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->force_master_enforcement_for_test();
 		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_variant' ) );
 
 		$providers = Jetpack_AI_Sidebar::register_provider( array( 'https://example.com/other-provider.mjs' ) );
