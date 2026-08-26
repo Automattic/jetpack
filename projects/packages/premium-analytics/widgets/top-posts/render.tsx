@@ -12,7 +12,6 @@ import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
-	PostTitleLink,
 	ReportLink,
 	RowsCsvDownloadButton,
 	WIDGET_ROW_LIMIT,
@@ -20,6 +19,7 @@ import {
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
 	calculateDelta,
 	getCombinedPeriodMax,
 	safeHttpUrl,
@@ -29,10 +29,10 @@ import {
 	useWidgetRootContext,
 	type CsvColumn,
 	type LeaderboardChartData,
+	type LeaderboardRowAction,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
-import { Text } from '@jetpack-premium-analytics/externals';
 import { useCallback, useEffect, useMemo } from 'react';
 /**
  * Internal dependencies
@@ -88,18 +88,43 @@ type TopPostsWidgetProps = WidgetRenderProps< TopPostsRenderAttributes >;
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 /**
+ * Pick the one action a top-posts row exposes. Grouped rows become drill-down
+ * rows, which the chart turns into buttons, so they cannot carry an anchor.
+ */
+function resolveRowAction(
+	row: TopPostRow,
+	detailSearch: Record< string, unknown >,
+	onDrillDown?: ( row: TopPostRow ) => void
+): LeaderboardRowAction {
+	if ( row.children?.length ) {
+		return onDrillDown
+			? {
+					kind: 'drillDown',
+					onClick: () => onDrillDown( row ),
+					ariaLabel: sprintf(
+						/* translators: %s is an archive category label, e.g. "Searches". */
+						__( 'View %s archive pages', 'jetpack-premium-analytics-pkg' ),
+						row.label
+					),
+			  }
+			: { kind: 'static' };
+	}
+
+	return { kind: 'postLink', id: row.postId, href: row.href, search: detailSearch };
+}
+
+/**
  * Maps normalized top-posts rows onto the shape `LeaderboardChart` expects.
  * Current shares are computed relative to the most-viewed row so the overlay
  * bars are proportional. When `withComparison` is set, previous-period shares
  * and per-row deltas are derived from each row's `previousValue`; otherwise
  * the comparison fields are zeroed.
  *
- * Titles route through `PostTitleLink`: post/page rows navigate to the
+ * Titles use the shared leaderboard row: post/page rows navigate to the
  * internal detail page through the router, and rows without a post ID (the
  * Archives view) fall back to the public URL and take the external-link icon.
  * Rows with children instead become drill-down rows (per the widget
- * drill-down convention they carry no anchors). The label fills its row so
- * the leaderboard overlay bar gets its height from it.
+ * drill-down convention they carry no anchors).
  */
 function buildLeaderboardData(
 	rows: TopPostRow[],
@@ -114,34 +139,14 @@ function buildLeaderboardData(
 
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue;
-		const hasChildren = !! row.children?.length;
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
-			label: (
-				<span className={ styles.labelRow }>
-					{ /* Rows inside a drill-down button cannot carry anchors. */ }
-					{ hasChildren ? (
-						<Text className={ styles.labelTitle } title={ row.label }>
-							<span className={ styles.labelText }>{ row.label }</span>
-						</Text>
-					) : (
-						<PostTitleLink
-							id={ row.postId }
-							label={ row.label }
-							link={ row.href }
-							search={ detailSearch }
-							title={ row.label }
-							classNames={ {
-								internal: styles.labelTitleLink,
-								external: styles.labelExternalLink,
-								plain: styles.labelTitle,
-								text: styles.labelText,
-							} }
-						/>
-					) }
-				</span>
-			),
+			...buildLeaderboardRow( {
+				label: row.label,
+				media: { kind: 'none' },
+				action: resolveRowAction( row, detailSearch, onDrillDown ),
+			} ),
 			currentValue: row.value,
 			currentShare: sharePercentage( row.value, maxViews ),
 			// Rows without a comparison-period match keep `undefined` so the chart
@@ -155,15 +160,6 @@ function buildLeaderboardData(
 				withComparison && previousValue !== undefined
 					? calculateDelta( row.value, previousValue )
 					: undefined,
-			...( hasChildren &&
-				onDrillDown && {
-					onClick: () => onDrillDown( row ),
-					ariaLabel: sprintf(
-						/* translators: %s is an archive category label, e.g. "Searches". */
-						__( 'View %s archive pages', 'jetpack-premium-analytics-pkg' ),
-						row.label
-					),
-				} ),
 		};
 	} );
 }
