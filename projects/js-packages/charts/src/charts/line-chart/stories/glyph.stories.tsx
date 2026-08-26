@@ -1,6 +1,6 @@
 import { GlyphStar } from '@visx/glyph';
 import { useGlobalChartsTheme, GlobalChartsProvider } from '../../../providers';
-import { CHART_THEME_MAP, themeArgTypes } from '../../../stories';
+import { CHART_THEME_MAP, chartStoryGlobals, themeArgTypes } from '../../../stories';
 import LineChart from '../line-chart';
 import {
 	lineChartMetaArgs,
@@ -56,6 +56,7 @@ const glyphChartDecorator: Decorator = ( Story, { args } ) => {
 };
 
 const meta: Meta< StoryArgs > = {
+	globals: chartStoryGlobals,
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts Library/Charts/Line Chart/Glyphs',
 	component: lineChartMetaArgs.component, // Make eslint happy.

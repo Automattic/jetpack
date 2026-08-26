@@ -11,6 +11,7 @@ import {
 	ChartStoryArgs,
 	themeArgTypes,
 	sharedThemeArgs,
+	chartStoryGlobals,
 } from '../../../stories';
 import { Legend } from '../legend';
 import type { SeriesData, DataPointPercentage } from '../../../types';
@@ -18,6 +19,7 @@ import type { SeriesData, DataPointPercentage } from '../../../types';
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof Legend > >;
 
 const meta: Meta< StoryArgs > = {
+	globals: chartStoryGlobals,
 	title: 'JS Packages/Charts Library/Components/Legend',
 	component: Legend,
 	parameters: {

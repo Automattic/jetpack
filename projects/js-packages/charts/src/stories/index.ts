@@ -1,6 +1,7 @@
 // Shared decorators and story utilities
 export {
 	chartDecorator,
+	chartStoryGlobals,
 	simpleChartDecorator,
 	sharedChartArgTypes,
 	type ChartStoryArgs,

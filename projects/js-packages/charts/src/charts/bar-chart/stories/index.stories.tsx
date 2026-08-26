@@ -10,6 +10,7 @@ import {
 	trafficData,
 	themeArgTypes,
 	type SeriesLegendStoryControls,
+	chartStoryGlobals,
 } from '../../../stories';
 import BarChart from '../bar-chart';
 import type { ChartLegendConfig, SeriesData } from '../../../types';
@@ -26,6 +27,7 @@ type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarChart > > &
 	};
 
 const meta: Meta< StoryArgs > = {
+	globals: chartStoryGlobals,
 	title: 'JS Packages/Charts Library/Charts/Bar Chart',
 	component: BarChart,
 	parameters: {

@@ -13,6 +13,7 @@ import {
 	decliningMetricsData as negativeGrowth,
 	categorizedMetricsData as dataWithImageColor,
 	themeArgTypes,
+	chartStoryGlobals,
 } from '../../../stories';
 import {
 	legendArgTypes,
@@ -29,6 +30,7 @@ type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LeaderboardChart >
 	LegendStoryControls;
 
 const meta: Meta< StoryArgs > = {
+	globals: chartStoryGlobals,
 	title: 'JS Packages/Charts Library/Charts/Leaderboard Chart',
 	component: LeaderboardChart,
 	parameters: {

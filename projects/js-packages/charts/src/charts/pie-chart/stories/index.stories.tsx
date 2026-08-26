@@ -1,6 +1,7 @@
 import { GlobalChartsProvider } from '../../../providers';
 import {
 	chartDecorator,
+	chartStoryGlobals,
 	sharedChartArgTypes,
 	ChartStoryArgs,
 } from '../../../stories/chart-decorator';
@@ -23,6 +24,7 @@ type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > > &
 	};
 
 const meta: Meta< StoryArgs > = {
+	globals: chartStoryGlobals,
 	title: 'JS Packages/Charts Library/Charts/Pie Chart',
 	component: PieChart,
 	parameters: {
