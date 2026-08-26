@@ -4,7 +4,7 @@
 import { VisuallyHidden } from '@wordpress/components';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Badge, Link } from '@wordpress/ui';
+import { Badge, Link, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -41,13 +41,40 @@ const BADGED_VALUE_FIELDS: FieldType[] = [ 'consent', 'checkbox', 'radio', 'sele
 export type ResponseFieldColumn = {
 	/** The DataViews field id. */
 	id: string;
-	/** The form field key the column reads from. */
+	/** The form field id from the form schema, or '' on a response predating them. */
+	fieldId: string;
+	/** The response's own field key, used only where there is no form field id. */
 	key: string;
 	/** The column header. */
 	label: string;
 	/** The form field type, so the cell can render the way the inspector does. */
 	type: FieldType;
 };
+
+/**
+ * The identifier a column is tracked by.
+ *
+ * The form field id is the only identifier that survives a field being moved. A
+ * response's `key` is `<position>_<label>`, so reordering a form renumbers the key of
+ * every field after the moved one — which both splits a single field into two columns
+ * and, because the column then reads whatever now occupies that position, files one
+ * field's answer under another field's header.
+ *
+ * Responses stored before form field ids existed carry none, and fall back to the key.
+ *
+ * @param field - The response field.
+ * @return        The identity, or '' for a field that carries neither.
+ */
+const getFieldIdentity = ( field: ResponseField ): string => String( field.id || field.key || '' );
+
+/**
+ * Labels are the only thing a response predating form field ids can be matched on, so
+ * they are compared leniently — case and surrounding space are not meaningful here.
+ *
+ * @param label - The field label.
+ * @return        The label in comparable form.
+ */
+const normalizeLabel = ( label: string ): string => label.trim().toLowerCase();
 
 /**
  * Reads a response's fields as a list, whatever shape they arrived in.
@@ -76,24 +103,67 @@ const getFieldList = ( response: FormResponse ): ResponseField[] => {
 };
 
 /**
- * Per-response key lookup, so a row's fields are walked once rather than once per cell.
+ * The ways a single response's fields can be looked up.
  *
- * Keyed on the record object, so the map holds for as long as a render pass reuses the
+ * `hasFieldIds` says whether this response was stored with form field ids at all. When it
+ * was, an id match is the whole answer: a column whose field is absent from the response
+ * is absent, and must not fall through to a positional key that now belongs to a
+ * different field. Only a response without ids may be matched the looser ways.
+ */
+type FieldIndex = {
+	byFieldId: Map< string, ResponseField >;
+	byKey: Map< string, ResponseField >;
+	byLabel: Map< string, ResponseField >;
+	hasFieldIds: boolean;
+};
+
+/**
+ * Per-response lookup, so a row's fields are walked once rather than once per cell.
+ *
+ * Keyed on the record object, so the index holds for as long as a render pass reuses the
  * same records. `useInboxData` rebuilds every record whenever it recomputes, so a refetch
  * simply misses and rebuilds; entries fall away with the records themselves, and there is
  * nothing to invalidate.
  */
-const fieldsByKey = new WeakMap< FormResponse, Map< string, ResponseField > >();
+const fieldIndexes = new WeakMap< FormResponse, FieldIndex >();
 
-const getFieldMap = ( response: FormResponse ): Map< string, ResponseField > => {
-	let map = fieldsByKey.get( response );
+const getFieldIndex = ( response: FormResponse ): FieldIndex => {
+	let index = fieldIndexes.get( response );
 
-	if ( ! map ) {
-		map = new Map( getFieldList( response ).map( field => [ String( field.key ), field ] ) );
-		fieldsByKey.set( response, map );
+	if ( ! index ) {
+		index = {
+			byFieldId: new Map(),
+			byKey: new Map(),
+			byLabel: new Map(),
+			hasFieldIds: false,
+		};
+
+		for ( const field of getFieldList( response ) ) {
+			// First writer wins throughout: a form with two identically labelled fields
+			// would otherwise have the later one shadow the earlier in the label index.
+			if ( field.id ) {
+				index.hasFieldIds = true;
+
+				if ( ! index.byFieldId.has( String( field.id ) ) ) {
+					index.byFieldId.set( String( field.id ), field );
+				}
+			}
+
+			if ( field.key !== undefined && ! index.byKey.has( String( field.key ) ) ) {
+				index.byKey.set( String( field.key ), field );
+			}
+
+			const label = normalizeLabel( decodeEntities( String( field.label ?? '' ) ) );
+
+			if ( label && ! index.byLabel.has( label ) ) {
+				index.byLabel.set( label, field );
+			}
+		}
+
+		fieldIndexes.set( response, index );
 	}
 
-	return map;
+	return index;
 };
 
 /**
@@ -108,20 +178,34 @@ const getFieldMap = ( response: FormResponse ): Map< string, ResponseField > => 
  */
 export const getResponseFieldColumns = ( responses: FormResponse[] ): ResponseFieldColumn[] => {
 	const columns = new Map< string, ResponseFieldColumn >();
+	// Which identity a given label was first claimed by, so a form whose older responses
+	// predate form field ids does not get one column per storage generation.
+	const identityByLabel = new Map< string, string >();
 
 	for ( const response of responses ?? [] ) {
 		for ( const field of getFieldList( response ) ) {
-			const key = String( field.key ?? '' );
+			const identity = getFieldIdentity( field );
 
-			if ( ! key || columns.has( key ) ) {
+			if ( ! identity || columns.has( identity ) ) {
 				continue;
 			}
 
-			const label = decodeEntities( String( field.label || key ) );
+			const label = decodeEntities( String( field.label || identity ) );
+			const labelKey = normalizeLabel( label );
+			const claimedBy = labelKey ? columns.get( identityByLabel.get( labelKey ) ?? '' ) : undefined;
 
-			columns.set( key, {
-				id: `${ COLUMN_ID_PREFIX }${ key }`,
-				key,
+			// A field already on screen under this label is the same field when either
+			// side is unidentified — the only thing the two can be compared on is the
+			// label. Two fields that both carry ids are distinct even when they share a
+			// label, and each keeps its own column.
+			if ( claimedBy && ( ! claimedBy.fieldId || ! field.id ) ) {
+				continue;
+			}
+
+			columns.set( identity, {
+				id: `${ COLUMN_ID_PREFIX }${ identity }`,
+				fieldId: String( field.id ?? '' ),
+				key: String( field.key ?? '' ),
 				label,
 				// Legacy responses carry no type (or a useless 'basic'); the inspector
 				// infers one from the label in that case, so match it.
@@ -130,6 +214,10 @@ export const getResponseFieldColumns = ( responses: FormResponse[] ): ResponseFi
 						? ( field.type as FieldType )
 						: inferFieldTypeFromLabel( label ) ?? 'text',
 			} );
+
+			if ( labelKey && ! identityByLabel.has( labelKey ) ) {
+				identityByLabel.set( labelKey, identity );
+			}
 		}
 	}
 
@@ -151,8 +239,22 @@ export const mergeResponseFieldColumns = (
 	previous: ResponseFieldColumn[],
 	discovered: ResponseFieldColumn[]
 ): ResponseFieldColumn[] => {
-	const known = new Set( previous.map( column => column.key ) );
-	const additions = discovered.filter( column => ! known.has( column.key ) );
+	const knownIds = new Set( previous.map( column => column.id ) );
+	const knownByLabel = new Map(
+		previous.map( column => [ normalizeLabel( column.label ), column ] as const )
+	);
+
+	const additions = discovered.filter( column => {
+		if ( knownIds.has( column.id ) ) {
+			return false;
+		}
+
+		// Same rule as within a single batch: an unidentified column and a labelled
+		// match are the same field, since the label is all they can be compared on.
+		const claimedBy = knownByLabel.get( normalizeLabel( column.label ) );
+
+		return ! ( claimedBy && ( ! claimedBy.fieldId || ! column.fieldId ) );
+	} );
 
 	return additions.length === 0 ? previous : [ ...previous, ...additions ];
 };
@@ -214,25 +316,43 @@ const getFieldText = ( field?: ResponseField ): string => {
 /**
  * Reads one field off a response, whatever shape the response arrived in.
  *
+ * A response stored with form field ids is matched on its id and nothing else. If it
+ * carries no field with that id then the field is genuinely absent from it, and falling
+ * back to a positional key would read whichever field now occupies that slot — the answer
+ * would appear under the wrong header. Only a response predating form field ids is
+ * matched the looser ways: first on its own key, then on its label.
+ *
  * @param response - The form response.
- * @param key      - The form field key.
+ * @param column   - The column being read.
  * @return           The field, or undefined when this response has no such field.
  */
 export const getResponseField = (
 	response: FormResponse,
-	key: string
-): ResponseField | undefined => getFieldMap( response ).get( key );
+	column: ResponseFieldColumn
+): ResponseField | undefined => {
+	const index = getFieldIndex( response );
+
+	if ( column.fieldId && index.hasFieldIds ) {
+		return index.byFieldId.get( column.fieldId );
+	}
+
+	return (
+		( column.key ? index.byKey.get( column.key ) : undefined ) ??
+		index.byLabel.get( normalizeLabel( column.label ) )
+	);
+};
 
 /**
  * Reads one field's value off a response, as display text.
  *
  * @param response - The form response.
- * @param key      - The form field key.
+ * @param column   - The column being read.
  * @return           The value as text, or an empty string.
  */
-export const getResponseFieldValue = ( response: FormResponse, key: string ): string => {
-	return decodeEntities( getFieldText( getFieldMap( response ).get( key ) ) ).trim();
-};
+export const getResponseFieldValue = (
+	response: FormResponse,
+	column: ResponseFieldColumn
+): string => decodeEntities( getFieldText( getResponseField( response, column ) ) ).trim();
 
 /**
  * The link a field's value should open, when it is the kind of value worth acting on.
@@ -337,9 +457,9 @@ export const buildResponseFieldColumns = (
 		// The responses query only understands the built-in fields, so sorting on an
 		// answer would silently do nothing.
 		enableSorting: false,
-		getValue: ( { item }: { item: FormResponse } ) => getResponseFieldValue( item, column.key ),
+		getValue: ( { item }: { item: FormResponse } ) => getResponseFieldValue( item, column ),
 		render: ( { item }: { item: FormResponse } ) => {
-			const value = getResponseFieldValue( item, column.key );
+			const value = getResponseFieldValue( item, column );
 
 			if ( ! value ) {
 				/*
@@ -367,25 +487,36 @@ export const buildResponseFieldColumns = (
 
 			// Answers picked from a fixed set of choices are badges, as in the inspector.
 			// Multi-select keeps one badge per choice rather than a comma-joined string.
-			const rawValue = getResponseField( item, column.key )?.value;
+			const rawValue = getResponseField( item, column )?.value;
 
 			if ( column.type === 'checkbox-multiple' && Array.isArray( rawValue ) ) {
 				return (
-					<span className="jp-forms__inbox__field-column is-badges">
+					<Stack
+						direction="row"
+						gap="xs"
+						align="center"
+						className="jp-forms__inbox__field-column-badges"
+					>
 						{ rawValue.map( ( choice, index ) => (
 							<Badge intent="draft" key={ index }>
 								{ decodeEntities( String( choice ) ) }
 							</Badge>
 						) ) }
-					</span>
+					</Stack>
 				);
 			}
 
 			if ( BADGED_VALUE_FIELDS.includes( column.type ) ) {
 				return (
-					<span className="jp-forms__inbox__field-column is-badges" title={ value }>
+					<Stack
+						direction="row"
+						gap="xs"
+						align="center"
+						className="jp-forms__inbox__field-column-badges"
+						title={ value }
+					>
 						<Badge intent="draft">{ value }</Badge>
-					</span>
+					</Stack>
 				);
 			}
 

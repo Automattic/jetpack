@@ -21,16 +21,14 @@
 		max-inline-size: none;
 		overflow: visible;
 	}
+}
 
-	// Choice answers are badges. They sit on one line and clip rather than
-	// wrap, so a response that ticked six boxes cannot stretch every row.
-	&.is-badges {
-		display: flex;
-		align-items: center;
-		gap: var(--wpds-dimension-padding-xs);
-		overflow: hidden;
-		white-space: nowrap;
-	}
+// Choice answers are badges, laid out by `Stack`. All that is left here is the
+// same one-line cap the text cells get: badges clip rather than wrap, so a
+// response that ticked six boxes cannot stretch every row of the table.
+.jp-forms__inbox__field-column-badges {
+	max-inline-size: 22em;
+	overflow: hidden;
 }
 
 // Answer columns push the table wider than the viewport, so it scrolls
@@ -49,11 +47,22 @@
 	// so scrolled cells pass behind these rather than showing through them.
 	--jp-frozen-base: var(--wpds-color-background-surface-neutral-strong);
 	--jp-frozen-bg: var(--wp-dataviews-color-background, var(--jp-frozen-base));
-	// The checkbox column is the table's leading padding plus the control's
-	// own box. DataViews gives us no way to read that width, so it is
-	// reconstructed here; the background above hides the seam if it is ever
-	// a pixel out.
+	// How far in the frozen title column starts: the width of the checkbox
+	// column beside it. DataViews exposes no way to read that width, and
+	// guessing at its padding only stays true until the padding changes — so
+	// the width is declared here instead, and the column is sized to match it
+	// below. Offset and column width then cannot drift apart, because both
+	// come from this one value.
 	--jp-frozen-offset: calc(var(--wpds-dimension-padding-2xl) + 24px);
+
+	// `<col>` cannot be made sticky — it only honours width, background,
+	// border and visibility — but width is exactly what is needed here, and
+	// sizing the column is what makes the offset above true rather than
+	// hopeful. A browser will still widen the column if its content demands
+	// it; the shared background hides the seam if that ever happens.
+	col.dataviews-view-table__col-checkbox {
+		inline-size: var(--jp-frozen-offset);
+	}
 
 	th.dataviews-view-table__checkbox-column,
 	td.dataviews-view-table__checkbox-column {

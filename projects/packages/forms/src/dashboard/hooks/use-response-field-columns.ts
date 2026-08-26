@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import { readColumnPreference } from '../response-column-preferences.ts';
 import {
 	getResponseFieldColumns,
 	mergeResponseFieldColumns,
@@ -89,9 +90,16 @@ export default function useResponseFieldColumns( {
 }: UseResponseFieldColumnsArgs ): ResponseFieldColumn[] {
 	const [ columns, setColumns ] = useState< ResponseFieldColumn[] >( EMPTY_COLUMNS );
 	// The accumulated columns, read and written without re-running this effect.
-	const seen = useRef< { formId: number | null; columns: ResponseFieldColumn[] } >( {
-		formId: null,
+	// `formId` starts undefined rather than null so that the first run always counts as a
+	// change of form — otherwise the view spanning every form would never restore.
+	const seen = useRef< {
+		formId: number | null | undefined;
+		columns: ResponseFieldColumn[];
+		restoredIds: Set< string >;
+	} >( {
+		formId: undefined,
 		columns: EMPTY_COLUMNS,
+		restoredIds: new Set(),
 	} );
 
 	useEffect( () => {
@@ -99,14 +107,24 @@ export default function useResponseFieldColumns( {
 
 		if ( previous.formId !== formId ) {
 			const staleIds = new Set( previous.columns.map( column => column.id ) );
+			const restored = readColumnPreference( formId );
 
-			seen.current = { formId, columns: EMPTY_COLUMNS };
+			seen.current = {
+				formId,
+				columns: EMPTY_COLUMNS,
+				// The answer columns that were on offer when this form's choice was saved.
+				// Anything in here has already been offered to the user once, so it must
+				// not be re-added — that is what keeps a hidden column hidden.
+				restoredIds: new Set( restored?.knownAnswerIds ?? [] ),
+			};
 			setColumns( EMPTY_COLUMNS );
 
-			if ( staleIds.size > 0 ) {
+			if ( restored || staleIds.size > 0 ) {
 				setView( previousView => ( {
 					...previousView,
-					fields: ( previousView.fields || [] ).filter( id => ! staleIds.has( id ) ),
+					fields: restored
+						? restored.fields
+						: ( previousView.fields || [] ).filter( id => ! staleIds.has( id ) ),
 				} ) );
 			}
 		}
@@ -127,13 +145,22 @@ export default function useResponseFieldColumns( {
 			return;
 		}
 
-		// mergeResponseFieldColumns only ever appends, so the tail is what is new.
-		const newIds = merged.slice( known.length ).map( column => column.id );
+		// mergeResponseFieldColumns only ever appends, so the tail is what is new. A
+		// column the user has already been offered is not new, however freshly it was
+		// just rediscovered — restoring a choice means not re-offering what it excluded.
+		const restoredIds = seen.current.restoredIds;
+		const newIds = merged
+			.slice( known.length )
+			.map( column => column.id )
+			.filter( id => ! restoredIds.has( id ) );
 		const answerIds = new Set( merged.map( column => column.id ) );
 
-		seen.current = { formId, columns: merged };
+		seen.current = { formId, columns: merged, restoredIds };
 		setColumns( merged );
-		setView( previousView => showColumns( previousView, newIds, answerIds ) );
+
+		if ( newIds.length > 0 ) {
+			setView( previousView => showColumns( previousView, newIds, answerIds ) );
+		}
 	}, [ formId, records, setView ] );
 
 	return columns;

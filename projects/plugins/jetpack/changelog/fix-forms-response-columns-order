@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Forms: order a form's responses table as From, Date, the form's own fields, Source, IP Address, Status.

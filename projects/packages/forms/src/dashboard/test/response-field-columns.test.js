@@ -12,6 +12,15 @@ import {
 
 const collectionResponse = fields => ( { id: 1, fields } );
 
+// A column as `getResponseFieldColumns` would build it, for the lookup helpers.
+const columnFor = ( { id = '', key = '', label = 'L', type = 'text' } = {} ) => ( {
+	id: `field:${ id || key }`,
+	fieldId: id,
+	key,
+	label,
+	type,
+} );
+
 describe( 'getResponseFieldColumns', () => {
 	it( 'derives one column per field, keyed by the field key', () => {
 		const columns = getResponseFieldColumns( [
@@ -22,8 +31,8 @@ describe( 'getResponseFieldColumns', () => {
 		] );
 
 		expect( columns ).toEqual( [
-			{ id: 'field:1_Name', key: '1_Name', label: 'Name', type: 'name' },
-			{ id: 'field:2_Email', key: '2_Email', label: 'Email', type: 'email' },
+			{ id: 'field:1_Name', fieldId: '', key: '1_Name', label: 'Name', type: 'name' },
+			{ id: 'field:2_Email', fieldId: '', key: '2_Email', label: 'Email', type: 'email' },
 		] );
 	} );
 
@@ -82,8 +91,8 @@ describe( 'getResponseFieldColumns', () => {
 		// The legacy shape carries no type, so it is inferred from the label the way
 		// the response inspector does.
 		expect( columns ).toEqual( [
-			{ id: 'field:Name', key: 'Name', label: 'Name', type: 'name' },
-			{ id: 'field:Message', key: 'Message', label: 'Message', type: 'textarea' },
+			{ id: 'field:Name', fieldId: '', key: 'Name', label: 'Name', type: 'name' },
+			{ id: 'field:Message', fieldId: '', key: 'Message', label: 'Message', type: 'textarea' },
 		] );
 	} );
 
@@ -95,7 +104,10 @@ describe( 'getResponseFieldColumns', () => {
 
 describe( 'getResponseFieldValue', () => {
 	const valueOf = ( value, key = 'k' ) =>
-		getResponseFieldValue( collectionResponse( [ { key, label: 'L', value } ] ), key );
+		getResponseFieldValue(
+			collectionResponse( [ { key, label: 'L', value } ] ),
+			columnFor( { key } )
+		);
 
 	it( 'renders a plain string', () => {
 		expect( valueOf( 'Social Media' ) ).toBe( 'Social Media' );
@@ -129,7 +141,9 @@ describe( 'getResponseFieldValue', () => {
 		expect( valueOf( undefined ) ).toBe( '' );
 		expect( valueOf( '   ' ) ).toBe( '' );
 		expect( valueOf( { unexpected: true } ) ).toBe( '' );
-		expect( getResponseFieldValue( collectionResponse( [] ), 'missing' ) ).toBe( '' );
+		expect(
+			getResponseFieldValue( collectionResponse( [] ), columnFor( { key: 'missing' } ) )
+		).toBe( '' );
 	} );
 
 	it( 'renders a rating as submitted', () => {
@@ -138,7 +152,7 @@ describe( 'getResponseFieldValue', () => {
 } );
 
 const DESKTOP_VIEW = { titleField: 'from', fields: [ 'date', 'field:1_Name', 'ip' ] };
-const COLUMNS = [ { id: 'field:1_Name', key: '1_Name', label: 'Name', type: 'text' } ];
+const COLUMNS = [ { id: 'field:1_Name', fieldId: '', key: '1_Name', label: 'Name', type: 'text' } ];
 
 describe( 'getResponseTableView', () => {
 	it( 'hands DataViews the view untouched on a wide screen', () => {
@@ -243,14 +257,18 @@ describe( 'getResponseField', () => {
 			{ key: 'k', label: 'Sessions', value: [ 'Keynote', 'Panel' ], type: 'checkbox-multiple' },
 		] );
 
-		expect( getResponseField( response, 'k' ).value ).toEqual( [ 'Keynote', 'Panel' ] );
-		expect( getResponseField( response, 'missing' ) ).toBeUndefined();
+		expect(
+			getResponseField( response, columnFor( { key: 'k', label: 'Sessions' } ) ).value
+		).toEqual( [ 'Keynote', 'Panel' ] );
+		expect(
+			getResponseField( response, columnFor( { key: 'missing', label: 'Missing' } ) )
+		).toBeUndefined();
 	} );
 } );
 
 describe( 'mergeResponseFieldColumns', () => {
-	const a = { id: 'field:a', key: 'a', label: 'A', type: 'text' };
-	const b = { id: 'field:b', key: 'b', label: 'B', type: 'text' };
+	const a = { id: 'field:a', fieldId: 'a', key: '1_A', label: 'A', type: 'text' };
+	const b = { id: 'field:b', fieldId: 'b', key: '2_B', label: 'B', type: 'text' };
 
 	it( 'appends columns that are new', () => {
 		expect( mergeResponseFieldColumns( [ a ], [ a, b ] ) ).toEqual( [ a, b ] );
@@ -263,5 +281,134 @@ describe( 'mergeResponseFieldColumns', () => {
 
 	it( 'keeps columns that the current page no longer carries', () => {
 		expect( mergeResponseFieldColumns( [ a, b ], [] ) ).toEqual( [ a, b ] );
+	} );
+} );
+
+/**
+ * A field as the collection format stores it, carrying both identifiers.
+ *
+ * @param {object} field         - The field parts.
+ * @param {string} field.id      - The form field id from the form schema.
+ * @param {string} field.key     - The response's own `<position>_<label>` key.
+ * @param {string} field.label   - The field label.
+ * @param {*}      [field.value] - The stored answer.
+ * @param {string} [field.type]  - The form field type.
+ * @return {object} The response field.
+ */
+const identifiedField = ( { id, key, label, value = 'x', type = 'text' } ) => ( {
+	id,
+	key,
+	label,
+	value,
+	type,
+} );
+
+describe( 'field identity across form edits', () => {
+	it( 'keeps one column when a field moves and its positional key changes', () => {
+		// A response stores its keys as `<position>_<label>`, so moving Email ahead of
+		// Name renumbers both. Keyed on that, one field becomes two columns.
+		const columns = getResponseFieldColumns( [
+			collectionResponse( [
+				identifiedField( { id: 'g5-name', key: '1_Name', label: 'Name' } ),
+				identifiedField( { id: 'g5-email', key: '2_Email', label: 'Email' } ),
+			] ),
+			collectionResponse( [
+				identifiedField( { id: 'g5-email', key: '1_Email', label: 'Email' } ),
+				identifiedField( { id: 'g5-name', key: '2_Name', label: 'Name' } ),
+			] ),
+		] );
+
+		expect( columns.map( column => column.id ) ).toEqual( [ 'field:g5-name', 'field:g5-email' ] );
+	} );
+
+	it( 'reads each answer from its own field when responses disagree on order', () => {
+		const reordered = collectionResponse( [
+			identifiedField( { id: 'g5-email', key: '1_Email', label: 'Email', value: 'grace@x.com' } ),
+			identifiedField( { id: 'g5-name', key: '2_Name', label: 'Name', value: 'Grace' } ),
+		] );
+
+		// Read positionally, the Name column would take `1_Email` and file the address
+		// under the wrong header.
+		expect(
+			getResponseFieldValue(
+				reordered,
+				columnFor( { id: 'g5-name', key: '1_Name', label: 'Name' } )
+			)
+		).toBe( 'Grace' );
+	} );
+
+	it( 'shows nothing when an identified response simply lacks the field', () => {
+		const withoutName = collectionResponse( [
+			identifiedField( { id: 'g5-email', key: '1_Email', label: 'Email', value: 'grace@x.com' } ),
+		] );
+
+		expect(
+			getResponseFieldValue(
+				withoutName,
+				columnFor( { id: 'g5-name', key: '1_Name', label: 'Name' } )
+			)
+		).toBe( '' );
+	} );
+
+	it( 'falls back to the label for a response predating form field ids', () => {
+		expect(
+			getResponseFieldValue(
+				{ id: 2, fields: { Name: 'Grace' } },
+				columnFor( { id: 'g5-name', key: '1_Name', label: 'Name' } )
+			)
+		).toBe( 'Grace' );
+	} );
+
+	it( 'gives a field one column whether or not the response carrying it was identified', () => {
+		const columns = getResponseFieldColumns( [
+			collectionResponse( [ identifiedField( { id: 'g5-name', key: '1_Name', label: 'Name' } ) ] ),
+			{ id: 2, fields: { Name: 'Grace' } },
+		] );
+
+		expect( columns.map( column => column.id ) ).toEqual( [ 'field:g5-name' ] );
+	} );
+
+	it( 'keeps two columns for two identified fields that share a label', () => {
+		// Distinct ids mean genuinely distinct fields, however alike their headers read.
+		const columns = getResponseFieldColumns( [
+			collectionResponse( [
+				identifiedField( { id: 'g5-name', key: '1_Name', label: 'Name' } ),
+				identifiedField( { id: 'g5-name-2', key: '2_Name', label: 'Name' } ),
+			] ),
+		] );
+
+		expect( columns.map( column => column.id ) ).toEqual( [ 'field:g5-name', 'field:g5-name-2' ] );
+	} );
+
+	it( 'tells two same-labelled fields apart after one of them has moved', () => {
+		// Both fallbacks are useless here: the label is ambiguous, and the swap means the
+		// positional key now belongs to the other field. Only the form field id can say
+		// which answer goes under which header.
+		const columns = getResponseFieldColumns( [
+			collectionResponse( [
+				identifiedField( { id: 'g5-name', key: '1_Name', label: 'Name', value: 'Ada' } ),
+				identifiedField( { id: 'g5-name-2', key: '2_Name', label: 'Name', value: 'Lovelace' } ),
+			] ),
+		] );
+		const swapped = collectionResponse( [
+			identifiedField( { id: 'g5-name-2', key: '1_Name', label: 'Name', value: 'Hopper' } ),
+			identifiedField( { id: 'g5-name', key: '2_Name', label: 'Name', value: 'Grace' } ),
+		] );
+
+		expect( getResponseFieldValue( swapped, columns[ 0 ] ) ).toBe( 'Grace' );
+		expect( getResponseFieldValue( swapped, columns[ 1 ] ) ).toBe( 'Hopper' );
+	} );
+
+	it( 'does not append an unidentified column for a field already known by id', () => {
+		const known = {
+			id: 'field:g5-name',
+			fieldId: 'g5-name',
+			key: '1_Name',
+			label: 'Name',
+			type: 'text',
+		};
+		const legacy = { id: 'field:Name', fieldId: '', key: 'Name', label: 'Name', type: 'text' };
+
+		expect( mergeResponseFieldColumns( [ known ], [ legacy ] ) ).toEqual( [ known ] );
 	} );
 } );

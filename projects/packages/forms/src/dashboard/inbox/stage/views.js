@@ -14,7 +14,10 @@ export const defaultView = {
 	page: 1,
 	perPage: 20,
 	titleField: 'from',
-	fields: [ 'date', 'source', 'ip' ],
+	// From is the title column and renders ahead of these; answer columns are slotted
+	// in directly after Date. The order is therefore From, Date, the form's own
+	// fields, Source, IP Address, Status.
+	fields: [ 'date', 'source', 'ip', 'read_status' ],
 };
 
 export const defaultLayouts = {

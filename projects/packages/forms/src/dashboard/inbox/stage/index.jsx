@@ -10,7 +10,7 @@ import { useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { Badge, Link } from '@wordpress/ui';
@@ -35,6 +35,7 @@ import Page from '../../components/page/index.tsx';
 import TextWithFlag from '../../components/text-with-flag/index.tsx';
 import useInboxData from '../../hooks/use-inbox-data.ts';
 import useResponseFieldColumns from '../../hooks/use-response-field-columns.ts';
+import { writeColumnPreference } from '../../response-column-preferences.ts';
 import {
 	buildResponseFieldColumns,
 	getFrozenColumnsClassName,
@@ -108,6 +109,9 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 		return Number.isFinite( id ) && id > 0 ? id : null;
 	}, [ parentId ] );
 	const isSingleFormView = !! parent;
+	// Every answer column currently on offer, kept in a ref because the choice is saved
+	// from `onChangeView`, which is declared before the columns hook runs.
+	const knownAnswerIdsRef = useRef( [] );
 
 	const dateSettings = getDateSettings();
 
@@ -182,6 +186,10 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 	// across at a glance. The "All responses" view spans every form and has no
 	// shared field set, so it keeps the built-in columns only.
 	const responseFieldColumns = useResponseFieldColumns( { formId: parent, records, setView } );
+
+	useEffect( () => {
+		knownAnswerIdsRef.current = responseFieldColumns.map( column => column.id );
+	}, [ responseFieldColumns ] );
 
 	useEffect( () => {
 		const _filters = view.filters?.reduce( ( accumulator, { field, value } ) => {
@@ -300,6 +308,13 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 		incomingView => {
 			let newView = keepColumnChoice( incomingView, view, isMobileViewport );
 
+			// DataViews reports a column being shown, hidden or moved through here and
+			// keeps nothing itself, so this is the only moment the choice can be saved.
+			writeColumnPreference( parent, {
+				fields: newView.fields ?? [],
+				knownAnswerIds: knownAnswerIdsRef.current,
+			} );
+
 			if ( ! isInboxStatusToggleView ) {
 				const folderValue = newView.filters?.find( filter => filter.field === 'folder' )?.value;
 				const nextFolder = [ 'inbox', 'spam', 'trash' ].includes( folderValue )
@@ -336,6 +351,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 		[
 			isInboxStatusToggleView,
 			isMobileViewport,
+			parent,
 			setSearchParams,
 			setSelectedResponses,
 			setView,
