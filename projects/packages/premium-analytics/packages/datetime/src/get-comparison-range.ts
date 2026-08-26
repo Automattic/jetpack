@@ -20,6 +20,11 @@ import {
 	subWeeks,
 	subYears,
 } from 'date-fns';
+/**
+ * Internal dependencies
+ */
+import { completeToDateRange } from './to-date-range';
+import type { PrimaryPresetId } from './presets/types';
 
 export type DateRange = { from?: Date; to?: Date };
 
@@ -91,6 +96,18 @@ export function getWholeMonthCount( from: Date, to: Date ): number | null {
 }
 
 /**
+ * Context the comparison is derived in.
+ */
+export type ComparisonRangeOptions = {
+	/**
+	 * The preset the reference range came from. A to-date preset is measured
+	 * by the day it is read on, so its previous period is taken from the
+	 * completed window: the twelve whole months before "12 months".
+	 */
+	primaryPresetId?: PrimaryPresetId;
+};
+
+/**
  * Returns a comparison DateRange derived from a reference range and a preset.
  *
  * - Day boundaries are resolved in the frame of the incoming dates; pass TZDate
@@ -100,11 +117,13 @@ export function getWholeMonthCount( from: Date, to: Date ): number | null {
  *
  * @param reference - The reference range to compare against (must include both `from` and `to`).
  * @param presetId  - One of the supported preset identifiers.
+ * @param options   - The context the reference range was produced in.
  * @return A new DateRange for the comparison period, or `undefined` if inputs are invalid.
  */
 export function getComparisonRangeFromPreset(
 	reference: DateRange,
-	presetId: ComparisonPresetId
+	presetId: ComparisonPresetId,
+	options: ComparisonRangeOptions = {}
 ): DateRange | undefined {
 	if ( ! reference?.from || ! reference?.to ) {
 		return undefined;
@@ -147,23 +166,29 @@ export function getComparisonRangeFromPreset(
 		bound === 1 ? endOfDay( startOfDay( date ) ) : startOfDay( date );
 
 	if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {
+		// Only the previous period reads a to-date preset's completed window. The
+		// previous month and year shift the dates as read, so a to-date window
+		// compares with the same days a month or a year earlier.
+		const completed = completeToDateRange( { from: refFrom, to: refTo }, options.primaryPresetId );
+		const completedTo = completed.to ?? refTo;
+
 		// A whole-months window steps back by its month count — Last month lands
 		// on the previous calendar month, Last year on the previous calendar
 		// year — where a day-count shift would skew across unequal month and
 		// year lengths (365-day 2025 against 366-day 2024).
-		const wholeMonths = getWholeMonthCount( refFrom, refTo );
+		const wholeMonths = getWholeMonthCount( refFrom, completedTo );
 		if ( wholeMonths ) {
-			const dayAfterTo = startOfDay( addDays( refTo, 1 ) );
+			const dayAfterTo = startOfDay( addDays( completedTo, 1 ) );
 			return {
 				from: clampDayBound( subMonths( refFrom, wholeMonths ), 0 ),
 				to: clampDayBound( subDays( subMonths( dayAfterTo, wholeMonths ), 1 ), 1 ),
 			};
 		}
 
-		const daysInclusive = getInclusiveDayCount( refFrom, refTo );
+		const daysInclusive = getInclusiveDayCount( refFrom, completedTo );
 		return {
 			from: clampDayBound( subDays( refFrom, daysInclusive ), 0 ),
-			to: clampDayBound( subDays( refTo, daysInclusive ), 1 ),
+			to: clampDayBound( subDays( completedTo, daysInclusive ), 1 ),
 		};
 	}
 

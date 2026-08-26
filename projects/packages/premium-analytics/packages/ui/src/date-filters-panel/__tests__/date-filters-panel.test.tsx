@@ -134,4 +134,32 @@ describe( 'DateFiltersPanel', () => {
 		).toEqual( [ 'Last 24 hours', 'Last 7 days', 'Last 30 days', 'Last 12 months', 'All time' ] );
 		expect( screen.getByRole( 'menuitemradio', { name: 'All time' } ) ).toBeChecked();
 	} );
+
+	it( 'derives the comparison of a to-date preset from its completed window', async () => {
+		mockContainerResize();
+		const onComparisonChange = jest.fn();
+		const user = userEvent.setup();
+
+		// `last-12-months` as read on 20 August 2026. Measured by the day, the
+		// previous period would start on 12 September 2024.
+		renderPanel( {
+			presetId: 'last-12-months',
+			range: {
+				from: new Date( '2025-09-01T00:00:00.000Z' ),
+				to: new Date( '2026-08-20T23:59:59.999Z' ),
+			},
+			onComparisonChange,
+		} );
+
+		await user.click( screen.getByRole( 'button', { name: 'Compare' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'Previous period' } ) );
+
+		expect( onComparisonChange ).toHaveBeenCalledWith(
+			{
+				from: new Date( '2024-09-01T00:00:00.000Z' ),
+				to: new Date( '2025-08-31T23:59:59.999Z' ),
+			},
+			'previous-period'
+		);
+	} );
 } );

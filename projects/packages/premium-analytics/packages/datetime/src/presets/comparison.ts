@@ -16,6 +16,7 @@ import {
 	getComparisonRangeFromPreset,
 	getWholeMonthCount,
 	type ComparisonPresetId,
+	type ComparisonRangeOptions,
 	type DateRange,
 } from '../get-comparison-range';
 
@@ -181,9 +182,14 @@ function getOptionLabel(
  * a 7-day range lists no last-week entry.
  *
  * @param reference - The applied range (both ends required).
+ * @param options   - The context the range was produced in; the preset it came
+ *                  from decides how a to-date window is measured.
  * @return The options, empty when the range is incomplete or inverted.
  */
-export function getComparisonOptions( reference: DateRange ): ComparisonOption[] {
+export function getComparisonOptions(
+	reference: DateRange,
+	options: ComparisonRangeOptions = {}
+): ComparisonOption[] {
 	const refFrom = reference?.from;
 	const refTo = reference?.to;
 
@@ -204,17 +210,17 @@ export function getComparisonOptions( reference: DateRange ): ComparisonOption[]
 		candidates.push( COMPARISON_PREVIOUS_YEAR );
 	}
 
-	const options: ComparisonOption[] = [];
+	const offered: ComparisonOption[] = [];
 
 	for ( const id of candidates ) {
-		const range = getComparisonRangeFromPreset( reference, id );
+		const range = getComparisonRangeFromPreset( reference, id, options );
 
 		if ( ! range?.from || ! range.to ) {
 			continue;
 		}
 
 		const resolved = range as Required< DateRange >;
-		const duplicate = options.some(
+		const duplicate = offered.some(
 			option =>
 				option.range.from.getTime() === resolved.from.getTime() &&
 				option.range.to.getTime() === resolved.to.getTime()
@@ -224,7 +230,7 @@ export function getComparisonOptions( reference: DateRange ): ComparisonOption[]
 			continue;
 		}
 
-		options.push( {
+		offered.push( {
 			id,
 			label: getOptionLabel( id, { from: refFrom, to: refTo }, resolved ),
 			shortLabel: SHORT_LABELS[ id ](),
@@ -232,5 +238,5 @@ export function getComparisonOptions( reference: DateRange ): ComparisonOption[]
 		} );
 	}
 
-	return options;
+	return offered;
 }

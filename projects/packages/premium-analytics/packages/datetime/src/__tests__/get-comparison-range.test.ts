@@ -347,4 +347,105 @@ describe( 'getComparisonRangeFromPreset', () => {
 			);
 		} );
 	} );
+
+	describe( 'whole-month and whole-year references', () => {
+		it( 'moves a calendar year back by a year, not by its day count', () => {
+			// 2024 has 366 days, so 365 days back from 1 January 2025 is
+			// 2 January 2024, and the previous period drops New Year's Day.
+			expect(
+				getComparisonRangeFromPreset(
+					{
+						from: new Date( 2025, 0, 1, 0, 0, 0, 0 ),
+						to: new Date( 2025, 11, 31, 23, 59, 59, 999 ),
+					},
+					'previous-period'
+				)
+			).toEqual( {
+				from: new Date( 2024, 0, 1, 0, 0, 0, 0 ),
+				to: new Date( 2024, 11, 31, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		it( 'moves twelve rolling months back by calendar months', () => {
+			expect(
+				getComparisonRangeFromPreset(
+					{
+						from: new Date( 2025, 7, 20, 0, 0, 0, 0 ),
+						to: new Date( 2026, 7, 19, 23, 59, 59, 999 ),
+					},
+					'previous-period'
+				)
+			).toEqual( {
+				from: new Date( 2024, 7, 20, 0, 0, 0, 0 ),
+				to: new Date( 2025, 7, 19, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		it( 'ends the previous whole months on a month end, whatever day the reference ends on', () => {
+			// January through February: moving the end back two months would
+			// land it on 28 December, not on the end of December.
+			expect(
+				getComparisonRangeFromPreset(
+					{
+						from: new Date( 2026, 0, 1, 0, 0, 0, 0 ),
+						to: new Date( 2026, 1, 28, 23, 59, 59, 999 ),
+					},
+					'previous-period'
+				)
+			).toEqual( {
+				from: new Date( 2025, 10, 1, 0, 0, 0, 0 ),
+				to: new Date( 2025, 11, 31, 23, 59, 59, 999 ),
+			} );
+		} );
+	} );
+
+	describe( 'to-date presets', () => {
+		// `last-12-months` as read on 20 August 2026.
+		const reference = {
+			from: new Date( 2025, 8, 1, 0, 0, 0, 0 ),
+			to: new Date( 2026, 7, 20, 23, 59, 59, 999 ),
+		};
+
+		it( 'takes the previous period from the completed window', () => {
+			expect(
+				getComparisonRangeFromPreset( reference, 'previous-period', {
+					primaryPresetId: 'last-12-months',
+				} )
+			).toEqual( {
+				from: new Date( 2024, 8, 1, 0, 0, 0, 0 ),
+				to: new Date( 2025, 7, 31, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		it( 'compares the previous month and year with the days read so far', () => {
+			// Year over year and month over month stay to-date, so the totals
+			// line up with the same days a year or a month earlier.
+			expect(
+				getComparisonRangeFromPreset( reference, 'previous-year', {
+					primaryPresetId: 'last-12-months',
+				} )
+			).toEqual( {
+				from: new Date( 2024, 8, 1, 0, 0, 0, 0 ),
+				to: new Date( 2025, 7, 20, 23, 59, 59, 999 ),
+			} );
+			expect(
+				getComparisonRangeFromPreset( reference, 'previous-month', {
+					primaryPresetId: 'last-12-months',
+				} )
+			).toEqual( {
+				from: new Date( 2025, 7, 1, 0, 0, 0, 0 ),
+				to: new Date( 2026, 6, 20, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		it( 'measures the same dates by the day under any other preset', () => {
+			// Picked by hand, the window has no running month: 354 days back.
+			expect(
+				getComparisonRangeFromPreset( reference, 'previous-period', { primaryPresetId: 'custom' } )
+			).toEqual( {
+				from: new Date( 2024, 8, 12, 0, 0, 0, 0 ),
+				to: new Date( 2025, 7, 31, 23, 59, 59, 999 ),
+			} );
+		} );
+	} );
 } );

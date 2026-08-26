@@ -627,4 +627,29 @@ describe( 'useReportDateFilters', () => {
 			} );
 		} );
 	} );
+
+	it( 'steps a to-date preset by whole months and compares it with the months before', () => {
+		// `last-12-months` as read on 20 August 2026. Stepped by its day count
+		// the window would start on 12 September and its comparison on the 24th.
+		const { result, rerender } = renderDateFilters( {
+			from: '2025-09-01T00:00:00.000Z',
+			to: '2026-08-20T23:59:59.999Z',
+			preset: 'last-12-months',
+			interval: 'month',
+			comp: '1',
+			compare_preset: 'previous-period',
+		} );
+
+		act( () => result.current.onStep( 'previous' ) );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( {
+			from: '2024-09-01T00:00:00.000Z',
+			to: '2025-08-31T23:59:59.999Z',
+			preset: 'custom',
+			interval: 'month',
+			compare_from: '2023-09-01T00:00:00.000Z',
+			compare_to: '2024-08-31T23:59:59.999Z',
+		} );
+	} );
 } );

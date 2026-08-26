@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Date controls: Include the current day in the last-N-day ranges, and count the 12-month range in whole calendar months, to match Jetpack Stats.
+Date controls: Include the current day in the last-N-day ranges, and count the 12-month range in whole calendar months for its dates, its length, the step arrows and the previous period, to match Jetpack Stats.

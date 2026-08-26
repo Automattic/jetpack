@@ -7,6 +7,7 @@ import {
 	resolveIntervalForRange,
 } from '@jetpack-premium-analytics/data';
 import {
+	completeToDateRange,
 	drillDateRange,
 	PRESET_CUSTOM,
 	reportingTimeZone,
@@ -263,7 +264,12 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 	 */
 	const onStep = useCallback(
 		( direction: StepDirection ) => {
-			const stepped = stepDateRange( appliedRange, direction );
+			// A to-date window steps as its completed window, so the arrows move
+			// "12 months" by whole months rather than by the days read so far.
+			const stepped = stepDateRange(
+				completeToDateRange( appliedRange, appliedPresetId ),
+				direction
+			);
 
 			if ( ! stepped ) {
 				return;
@@ -281,7 +287,7 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 				commit();
 			}
 		},
-		[ appliedRange, commit, effective, stage ]
+		[ appliedPresetId, appliedRange, commit, effective, stage ]
 	);
 
 	/*

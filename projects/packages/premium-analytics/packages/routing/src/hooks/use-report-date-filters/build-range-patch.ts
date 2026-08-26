@@ -90,9 +90,15 @@ export function buildRangePatch( {
 			effective.interval
 		);
 
-		// Loose `comp` check: an unquoted URL delivers number 1, not '1'.
+		// Loose `comp` check: an unquoted URL delivers number 1, not '1'. The
+		// preset being staged measures the new range, not the one it replaces.
 		if ( String( effective.comp ) === '1' ) {
-			const derived = deriveComparisonRange( { ...effective, from: rangeFrom, to: rangeTo } );
+			const derived = deriveComparisonRange( {
+				...effective,
+				from: rangeFrom,
+				to: rangeTo,
+				preset: nextPresetId ?? effective.preset,
+			} );
 			if ( derived ) {
 				patch.compare_from = derived.compare_from;
 				patch.compare_to = derived.compare_to;
