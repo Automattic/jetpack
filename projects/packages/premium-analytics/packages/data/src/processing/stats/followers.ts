@@ -1,7 +1,9 @@
+import { isValid, parseISO } from 'date-fns';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
 	createStatsListDataPoint,
+	limitStatsRows,
 	normalizeStatsSummary,
 } from './utils';
 import type {
@@ -74,10 +76,12 @@ function getSubscriptionId( item: StatsFollowersRawItem ) {
 	);
 }
 
-function subscribedAt( item: { date_subscribed?: string } ) {
-	const time = Date.parse( item.date_subscribed ?? '' );
+// `parseISO`, not `Date.parse`: the row's date label is parsed the same way, so
+// a string only one of them accepts would sort and render inconsistently.
+function subscribedAt( item: StatsFollowersRawItem ) {
+	const date = item.date_subscribed ? parseISO( item.date_subscribed ) : null;
 
-	return Number.isNaN( time ) ? -Infinity : time;
+	return date && isValid( date ) ? date.getTime() : -Infinity;
 }
 
 export function sanitizeStatsFollowersResponse(
@@ -85,11 +89,14 @@ export function sanitizeStatsFollowersResponse(
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsFollowersItem > {
 	const payload = coerceStatsRecord( response ) as StatsFollowersRawResponse & StatsRecord;
-	// `type=all` concatenates the newest `max` email subscribers with the newest
-	// `max` WPCOM ones, so the raw order is grouped by type rather than by date.
-	const subscribers = coerceStatsArray< StatsFollowersRawItem >( payload.subscribers )
-		.slice()
-		.sort( ( a, b ) => subscribedAt( b ) - subscribedAt( a ) );
+	// `type=all` answers with a block per subscriber type, so the raw order is not
+	// date order, and only the newest `max` of the merged blocks are newest overall.
+	const subscribers = limitStatsRows(
+		coerceStatsArray< StatsFollowersRawItem >( payload.subscribers )
+			.slice()
+			.sort( ( a, b ) => subscribedAt( b ) - subscribedAt( a ) ),
+		query?.max
+	);
 	const items = subscribers.map( item => ( {
 		id: getSubscriptionId( item ),
 		label: item.label ?? item.display_name ?? item.name ?? item.email ?? '',

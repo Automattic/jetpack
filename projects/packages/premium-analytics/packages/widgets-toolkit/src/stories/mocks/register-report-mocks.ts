@@ -773,14 +773,10 @@ function routeReport( subPath: string, query: URLSearchParams ): unknown {
 
 /**
  * Builds a mock Stats "followers" (subscribers) response for the Latest
- * Subscribers widget. `type=all` answers with the newest `max` email
- * subscribers followed by the newest `max` WPCOM ones, so the rows arrive
- * grouped by type rather than in date order — the mock reproduces that, and an
- * email-only subscriber has no name, so its `label` is the address. `total`
- * exceeds the shown rows so the "N more" footer appears.
+ * Subscribers widget. Rows arrive grouped by subscriber type rather than in
+ * date order, and `total` exceeds them so the "N more" footer appears.
  *
- * @param max - Page size from the request's `max` query param, applied per
- *            type; `0` or a missing param returns every row.
+ * @param max - Rows per type; `0` or a missing param returns every row.
  * @return Raw followers response.
  */
 function buildFollowersResponse( max: number ) {
