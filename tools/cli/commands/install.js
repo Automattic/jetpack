@@ -144,14 +144,19 @@ export async function handler( argv ) {
 		renderer: verbose ? VerboseRenderer : UpdateRenderer,
 	} );
 	await listr.run().catch( err => {
-		if ( verbose ) {
+		/*
+		 * A failed command has already had its say: Listr prints `err.message`,
+		 * and execa folds a captured child's output into that message, so
+		 * repeating the error here would only print the whole thing twice. An
+		 * error with no `shortMessage` did not come from execa, which makes it a
+		 * bug in the CLI rather than a command that failed. Listr prints only the
+		 * message for those, and drops it entirely for anything thrown that is
+		 * not an Error, so print the error itself and get the stack with it.
+		 */
+		if ( verbose || typeof err?.shortMessage !== 'string' ) {
 			console.error( err );
-		} else {
-			/*
-			 * Listr has already printed `err.message`, and execa folds a captured
-			 * child's output into that message, so the command has had its say.
-			 * Printing the error object again here would only repeat it.
-			 */
+		}
+		if ( ! verbose ) {
 			console.error(
 				chalk.yellow(
 					'\nRun again with `-v` for the full error, and to answer any prompt the command is waiting on.\n' +
@@ -160,6 +165,6 @@ export async function handler( argv ) {
 				)
 			);
 		}
-		process.exit( err.exitCode || 1 );
+		process.exit( err?.exitCode || 1 );
 	} );
 }
