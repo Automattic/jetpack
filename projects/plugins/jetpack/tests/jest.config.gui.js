@@ -14,6 +14,7 @@ module.exports = {
 		'<rootDir>/_inc/client/ai/overview/test/component.jsx',
 		'<rootDir>/_inc/client/ai/test/main.jsx',
 		'<rootDir>/_inc/client/sharing/test/component.jsx',
+		'<rootDir>/_inc/client/traffic/test/component.jsx',
 		'<rootDir>/_inc/client/at-a-glance/stats/test/chart-bar-range.js',
 	],
 	setupFilesAfterEnv: [ ...baseConfig.setupFilesAfterEnv, '<rootDir>/tests/jest-globals.gui.js' ],
