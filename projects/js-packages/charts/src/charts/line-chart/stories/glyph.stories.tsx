@@ -212,8 +212,6 @@ CustomSvg.args = {
 };
 
 const ToolTipWithGlyph = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
-	// Resolved, not read off `theme.colors` — those entries are catalog pointers that an SVG
-	// presentation attribute cannot resolve, so a raw one leaves the glyph unstroked.
 	const { getElementStyles } = useGlobalChartsContext();
 
 	return (

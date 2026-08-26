@@ -162,9 +162,9 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 
 	// Reset group color mappings when the resolved palette changes.
 	//
-	// Keyed on the resolved colours rather than on `providerTheme.colors`, which no longer moves
-	// with a `theme.colors` change: the palette is five catalog pointers now, and a consumer's
-	// colours reach it through the theme-layer vars on the wrapper. Keying on content also stops
+	// Keyed on the resolved colours rather than on `providerTheme.colors`, which holds five
+	// catalog pointers and so does not move with a `theme.colors` change — a consumer's colours
+	// reach the palette through the theme-layer vars on the wrapper. Keying on content also stops
 	// a consumer passing an inline `theme` object from resetting the map on every render.
 	const paletteKey = colorCache.colors.join( ',' );
 

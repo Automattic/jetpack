@@ -88,9 +88,6 @@ export const CustomLabelComponent: Story = {
 			labelComponent: ( { textProps, x, y, label, formatter } ) => {
 				// eslint-disable-next-line react-hooks/rules-of-hooks
 				const { getElementStyles } = useGlobalChartsContext();
-				// Resolved, not read off `theme.colors` — those entries are catalog pointers
-				// that SVG `fill` cannot resolve, and the second one is a generated colour
-				// unless a consumer seeds slot 2.
 				const circleColor = getElementStyles( { index: 1 } ).color;
 
 				return (
