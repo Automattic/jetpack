@@ -346,6 +346,36 @@ class Rest_Download_Bridge_Test extends TestCase {
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'download_status_fetch_failed', $result->get_error_code() );
 		$this->assertSame( 502, $result->get_error_data()['status'] );
+		// This body names no reason, so none is invented. An always-present
+		// key would make "WordPress.com said nothing" and "we did not look"
+		// look the same to whoever reads the failure.
+		$this->assertArrayNotHasKey( 'wpcom', $result->get_error_data() );
+	}
+
+	/**
+	 * The status route keeps WordPress.com's reason when it gives one.
+	 *
+	 * 401 rather than 500, because 500 is also the fallback for a status
+	 * that cannot be read — a test written against it would pass whether
+	 * or not the status was forwarded.
+	 */
+	public function test_status_forwards_the_upstream_reason() {
+		$this->arrange_wpcom(
+			array(
+				'error'   => 'authorization_required',
+				'message' => 'An active access token must be used.',
+			),
+			401
+		);
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/backups/download/123/status' );
+		$request->set_param( 'rewind_id', '123' );
+		$request->set_param( 'download_id', 55 );
+		$data = Download_Bridge::get_download_status( $request )->get_error_data();
+
+		$this->assertSame( 401, $data['status'] );
+		$this->assertSame( 'authorization_required', $data['wpcom']['code'] );
+		$this->assertSame( 'An active access token must be used.', $data['wpcom']['message'] );
 	}
 
 	/**

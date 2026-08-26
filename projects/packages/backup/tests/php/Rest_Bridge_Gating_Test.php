@@ -24,6 +24,7 @@ use function add_filter;
 use function do_action;
 use function remove_action;
 use function remove_filter;
+use function wp_json_encode;
 
 /**
  * Tests that the modernization filter is the only thing standing between
@@ -305,5 +306,208 @@ class Rest_Bridge_Gating_Test extends TestCase {
 
 		$this->assertSame( 'http_request_failed', $data['transport']['code'] );
 		$this->assertSame( 'cURL error 6: Could not resolve host', $data['transport']['message'] );
+	}
+
+	/**
+	 * The reason is read out of all three shapes WordPress.com answers in.
+	 *
+	 * The shapes disagree about which key holds the machine token, and one
+	 * of them has no token at all — so what separates them is whether the
+	 * value is a word or a sentence. Getting that sorting wrong is silent:
+	 * a sentence in `code` is simply a key the client can never match.
+	 *
+	 * @param string $label    What this body is.
+	 * @param string $body     Raw body WordPress.com answers with.
+	 * @param array  $expected The reason it should yield.
+	 * @dataProvider provide_upstream_bodies
+	 */
+	#[DataProvider( 'provide_upstream_bodies' )]
+	public function test_upstream_reason_reads_each_envelope( $label, $body, array $expected ) {
+		$this->assertSame( $expected, Rest_Controller::upstream_reason( $body ), $label );
+	}
+
+	/**
+	 * Bodies WordPress.com answers a failed request with.
+	 *
+	 * @return array
+	 */
+	public static function provide_upstream_bodies() {
+		return array(
+			// wpcom/v2 serializes a WP_Error. This is the shape the restore
+			// and capabilities routes refuse in.
+			'a v2 WP_Error envelope'       => array(
+				'a v2 WP_Error envelope',
+				'{"code":"no_connected_jetpack","message":"This site is not connected.","data":{"status":412}}',
+				array(
+					'code'    => 'no_connected_jetpack',
+					'message' => 'This site is not connected.',
+				),
+			),
+			// The older v1 envelope names the same token `error`.
+			'a v1 error envelope'          => array(
+				'a v1 error envelope',
+				'{"error":"authorization_required","message":"An active access token must be used."}',
+				array(
+					'code'    => 'authorization_required',
+					'message' => 'An active access token must be used.',
+				),
+			),
+			// VaultPress's own 200 body. `error` is a sentence here, so it
+			// must land in `message` — the half nothing branches on.
+			'a VaultPress refusal'         => array(
+				'a VaultPress refusal',
+				'{"ok":false,"error":"There is already a restore in progress"}',
+				array( 'message' => 'There is already a restore in progress' ),
+			),
+			'a token with no prose beside' => array(
+				'a token with no prose beside',
+				'{"error":"rewind_error"}',
+				array( 'code' => 'rewind_error' ),
+			),
+			// Everything below names no reason, and must not invent one.
+			'an HTML gateway page'         => array( 'an HTML gateway page', '<html>502 Bad Gateway</html>', array() ),
+			'an empty body'                => array( 'an empty body', '', array() ),
+			'a body with no reason keys'   => array( 'a body with no reason keys', '{"capabilities":["backup"]}', array() ),
+			'a blank reason'               => array( 'a blank reason', '{"code":"   ","message":""}', array() ),
+			// A non-string `code` is upstream drift, not a reason. Casting
+			// it would put `Array` or `1` in front of a support agent.
+			'a non-string code'            => array( 'a non-string code', '{"code":{"nested":true}}', array() ),
+		);
+	}
+
+	/**
+	 * A multi-line upstream message is flattened before it is forwarded.
+	 *
+	 * Newlines go first so an indented stack trace cannot spend the length
+	 * budget on whitespace before it says anything.
+	 */
+	public function test_upstream_reason_flattens_whitespace() {
+		$reason = Rest_Controller::upstream_reason( "{\"message\":\"Restore failed.\\n\\n    Disk full.\"}" );
+
+		$this->assertSame( 'Restore failed. Disk full.', $reason['message'] );
+	}
+
+	/**
+	 * A long upstream message is clipped rather than copied out whole.
+	 *
+	 * Neither half is bounded upstream and both are forwarded on every
+	 * failed request, so this is the only thing standing between a
+	 * VaultPress stack trace and the browser.
+	 */
+	public function test_upstream_reason_clips_a_long_message() {
+		$reason = Rest_Controller::upstream_reason(
+			wp_json_encode( array( 'message' => str_repeat( 'a', 500 ) ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
+		);
+
+		$this->assertSame( str_repeat( 'a', 200 ) . '…', $reason['message'] );
+	}
+
+	/**
+	 * The clip lands between characters, not inside one.
+	 *
+	 * `substr()` would cut a multi-byte character in half and produce a
+	 * field that is not valid UTF-8, which `wp_json_encode()` then drops —
+	 * losing the reason to the very code meant to preserve it.
+	 */
+	public function test_upstream_reason_clips_on_character_boundaries() {
+		$reason = Rest_Controller::upstream_reason(
+			wp_json_encode( array( 'message' => str_repeat( 'é', 500 ) ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
+		);
+
+		$this->assertSame( str_repeat( 'é', 200 ) . '…', $reason['message'] );
+		$this->assertNotFalse( wp_json_encode( $reason, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
+	}
+
+	/**
+	 * A non-200 keeps WordPress.com's status and its reason, under the
+	 * bridge's own code and translated message.
+	 *
+	 * 412 rather than 500 on purpose: 500 is also what an unreadable
+	 * status falls back to, so a test written against it would pass
+	 * whether the status was forwarded or thrown away.
+	 */
+	public function test_upstream_error_forwards_status_and_reason() {
+		$response = array(
+			'response' => array( 'code' => 412 ),
+			'body'     => '{"code":"no_connected_jetpack","message":"This site is not connected."}',
+		);
+
+		$error = Rest_Controller::upstream_error( $response, 'restore_initiate_failed', 'Could not start the backup restore.' );
+		$data  = $error->get_error_data();
+
+		$this->assertSame( 'restore_initiate_failed', $error->get_error_code() );
+		$this->assertSame( 'Could not start the backup restore.', $error->get_error_message() );
+		$this->assertSame( 412, $data['status'] );
+		$this->assertSame( 'no_connected_jetpack', $data['wpcom']['code'] );
+		$this->assertSame( 'This site is not connected.', $data['wpcom']['message'] );
+	}
+
+	/**
+	 * A status the transport reports as a string still travels as a number.
+	 *
+	 * The client reads `data.status` numerically — `isAmbiguousFailure()`
+	 * tests it with `typeof … === 'number'` and would call a string-status
+	 * failure ambiguous, which for the restore mutation means offering to
+	 * start a second one.
+	 */
+	public function test_upstream_error_casts_a_string_status() {
+		$response = array(
+			'response' => array( 'code' => '401' ),
+			'body'     => '',
+		);
+
+		$data = Rest_Controller::upstream_error( $response, 'capabilities_fetch_failed', 'x' )->get_error_data();
+
+		$this->assertSame( 401, $data['status'] );
+	}
+
+	/**
+	 * A response with no readable status is reported as 500, never as 0.
+	 *
+	 * `status_header( 0 )` emits an invalid status line, so a zero must not
+	 * be allowed to reach the response at all.
+	 *
+	 * @param string $label    What is wrong with this response.
+	 * @param array  $response The wp_remote_* response.
+	 * @dataProvider provide_responses_without_a_status
+	 */
+	#[DataProvider( 'provide_responses_without_a_status' )]
+	public function test_upstream_error_never_forwards_a_zero_status( $label, array $response ) {
+		$data = Rest_Controller::upstream_error( $response, 'download_status_fetch_failed', 'x' )->get_error_data();
+
+		$this->assertSame( 500, $data['status'], $label );
+	}
+
+	/**
+	 * Responses whose status cannot be read as a number.
+	 *
+	 * @return array
+	 */
+	public static function provide_responses_without_a_status() {
+		return array(
+			'no response key'       => array( 'no response key', array( 'body' => '' ) ),
+			'an empty status'       => array( 'an empty status', array( 'response' => array( 'code' => '' ) ) ),
+			'a literal zero'        => array( 'a literal zero', array( 'response' => array( 'code' => 0 ) ) ),
+			'an unparseable status' => array( 'an unparseable status', array( 'response' => array( 'code' => 'weird' ) ) ),
+		);
+	}
+
+	/**
+	 * A body that names no reason adds no key.
+	 *
+	 * An always-present `wpcom` holding an empty array would read, to
+	 * anyone looking at a failed request, as "WordPress.com said nothing"
+	 * being indistinguishable from "we did not look".
+	 */
+	public function test_upstream_error_omits_the_reason_when_there_is_none() {
+		$response = array(
+			'response' => array( 'code' => 503 ),
+			'body'     => '<html>503 Service Unavailable</html>',
+		);
+
+		$data = Rest_Controller::upstream_error( $response, 'activity_log_fetch_failed', 'x' )->get_error_data();
+
+		$this->assertSame( 503, $data['status'] );
+		$this->assertArrayNotHasKey( 'wpcom', $data );
 	}
 }

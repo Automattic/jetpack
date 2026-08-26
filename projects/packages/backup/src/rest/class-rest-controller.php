@@ -245,4 +245,137 @@ class Rest_Controller {
 			)
 		);
 	}
+
+	/**
+	 * Longest either half of a forwarded upstream reason may be.
+	 *
+	 * Neither field is bounded upstream and both travel to the browser on
+	 * every failed request, so a VaultPress stack trace in `message` would
+	 * otherwise be copied out verbatim.
+	 *
+	 * @var int
+	 */
+	private const REASON_MAX_LENGTH = 200;
+
+	/**
+	 * Convert a non-200 answer from WordPress.com into a bridge error.
+	 *
+	 * The counterpart of `transport_error()`, for the failure where the
+	 * request did arrive and WordPress.com refused it. Every bridge used to
+	 * spell this branch out for itself, and every spelling threw away the
+	 * only part that says *why*: a plan problem and an expired token both
+	 * reached a support agent as `restore_initiate_failed` / "Could not
+	 * start the backup restore.", distinguishable only by a status code.
+	 *
+	 * WordPress.com's own reason is preserved under `wpcom`, deliberately
+	 * shaped like `transport_error()`'s `transport` key and kept there for
+	 * the same reason: it is support-facing English, so it travels in
+	 * `data` rather than being spliced into a message the reader expects in
+	 * their own language. The client maps the codes it recognises onto
+	 * copy of its own (see `upstreamMessage` in `_helpers.ts`); the rest
+	 * still reach whoever reads the response.
+	 *
+	 * Only those two fields are forwarded, never the body — an error body
+	 * is unbounded and can echo the request that produced it.
+	 *
+	 * The status is cast before it is forwarded, because the retrieval
+	 * helper returns whatever the transport put there. A zero or an
+	 * unparseable value must never reach a `WP_Error`, since core hands
+	 * the status to `status_header()`, and a zero there emits an invalid
+	 * status line. The client is equally literal about the type:
+	 * `isAmbiguousFailure()` only reads a status that is already a number,
+	 * and treats a failure with no readable status as ambiguous.
+	 *
+	 * @param array|\WP_Error $response The wp_remote_* response. Non-200 by the time it gets here.
+	 * @param string          $code     Bridge error code for the operation that failed.
+	 * @param string          $message  Translated message for the reader.
+	 * @return WP_Error
+	 */
+	public static function upstream_error( $response, $code, $message ) {
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
+
+		$data = array( 'status' => $status_code > 0 ? $status_code : 500 );
+
+		$reason = self::upstream_reason( wp_remote_retrieve_body( $response ) );
+		if ( ! empty( $reason ) ) {
+			$data['wpcom'] = $reason;
+		}
+
+		return new WP_Error( $code, $message, $data );
+	}
+
+	/**
+	 * Read WordPress.com's own reason out of a response body.
+	 *
+	 * Three shapes have to be read here and they disagree about where the
+	 * reason lives. A wpcom/v2 route serializes a `WP_Error` as `{ code,
+	 * message, data }`. The older v1 envelope names that same token `error`
+	 * and keeps prose beside it in `message`. And the restore endpoint's
+	 * own `{ ok: false, error }` body puts VaultPress's sentence directly
+	 * in `error`, with no token anywhere.
+	 *
+	 * So `error` is sometimes a token and sometimes a sentence, and the
+	 * only thing separating them is shape: a `WP_Error` code has no
+	 * whitespace in it, and a VaultPress refusal is a sentence. Sorting on
+	 * that is what keeps the two halves honest. The client matches `code`
+	 * against a list of codes it knows, so a sentence landing there would
+	 * become a key that can never match — the reason lost again, in a
+	 * quieter way.
+	 *
+	 * @param string|array $body Raw response body, or one already decoded.
+	 * @return array<string, string> `code` and/or `message`; empty when the body names no reason.
+	 */
+	public static function upstream_reason( $body ) {
+		$decoded = is_array( $body ) ? $body : json_decode( (string) $body, true );
+		if ( ! is_array( $decoded ) ) {
+			return array();
+		}
+
+		$token = '';
+		foreach ( array( 'code', 'error' ) as $key ) {
+			if ( isset( $decoded[ $key ] ) && is_string( $decoded[ $key ] ) && '' !== trim( $decoded[ $key ] ) ) {
+				$token = trim( $decoded[ $key ] );
+				break;
+			}
+		}
+
+		$prose = isset( $decoded['message'] ) && is_string( $decoded['message'] ) ? trim( $decoded['message'] ) : '';
+
+		$reason = array();
+		if ( '' !== $token && ! preg_match( '/\s/', $token ) ) {
+			$reason['code'] = self::clip_reason( $token );
+		} elseif ( '' === $prose ) {
+			// The token slot held a sentence and nothing else carried one.
+			$prose = $token;
+		}
+
+		if ( '' !== $prose ) {
+			$reason['message'] = self::clip_reason( $prose );
+		}
+
+		return $reason;
+	}
+
+	/**
+	 * Flatten and shorten one half of an upstream reason.
+	 *
+	 * Newlines go first so a multi-line upstream message cannot spend the
+	 * whole budget on indentation before it says anything. `mb_substr()`
+	 * rather than `substr()` because the cut would otherwise land inside a
+	 * multi-byte character and produce a field that is not valid UTF-8,
+	 * which `wp_json_encode()` drops entirely — losing the reason to the
+	 * very code meant to preserve it.
+	 *
+	 * @param string $value Raw upstream text.
+	 * @return string
+	 */
+	private static function clip_reason( $value ) {
+		$value = trim( preg_replace( '/\s+/', ' ', $value ) );
+
+		if ( mb_strlen( $value, 'UTF-8' ) <= self::REASON_MAX_LENGTH ) {
+			return $value;
+		}
+
+		return rtrim( mb_substr( $value, 0, self::REASON_MAX_LENGTH, 'UTF-8' ) ) . '…';
+	}
 }

@@ -58,9 +58,16 @@ export function toIntRewindId( rewindId: string ): string {
 }
 
 /**
- * Error thrown by the data-layer fetchers when WPCOM (via the bridge)
- * responds with a known error code. Consumers branch on `code` to pick
- * the right user-facing message.
+ * Error thrown by the data-layer fetchers when a request fails.
+ *
+ * `code` is the bridge's own code for the operation, and every failure of
+ * one operation carries the same one — all three ways a restore can fail
+ * to start are `restore_initiate_failed` — so it names what failed and
+ * never why. Nothing branches on it, and nothing should: the parts that
+ * carry a verdict live on `data`, which is where both
+ * `isAmbiguousFailure` and `upstreamMessage` read. It is kept because it
+ * is the field `apiFetch` rejections already have, and because it names
+ * the operation in a bug report.
  */
 export class ApiError extends Error {
 	public readonly code: string;
@@ -193,8 +200,76 @@ export function requireTypes( items: Record< string, boolean > ): Record< string
 }
 
 /**
- * Thin wrapper around `@wordpress/api-fetch` that re-throws bridge errors
- * as `ApiError` so React Query's onError handlers can branch on `code`.
+ * The reason WordPress.com gave, as the bridges forward it.
+ *
+ * Both halves are optional and only one usually arrives: `code` when
+ * WordPress.com refused with a `WP_Error`, `message` when the refusal was
+ * prose (see `Rest_Controller::upstream_reason()`, which decides which is
+ * which). Neither is ever rendered.
+ */
+type UpstreamReason = { code?: string; message?: string };
+
+/**
+ * The code WordPress.com refused with, when the bridge forwarded one.
+ *
+ * @param data - The `data` from a bridge failure.
+ * @return The upstream code, or an empty string when there is none.
+ */
+function upstreamCode( data: unknown ): string {
+	const wpcom = ( data as { wpcom?: UpstreamReason } | undefined )?.wpcom;
+	return typeof wpcom?.code === 'string' ? wpcom.code : '';
+}
+
+/**
+ * Copy for the WordPress.com refusals a reader can do something about.
+ *
+ * This is the half of the change that the bridges' new `data.wpcom` is
+ * for. Without a branch here, forwarding the reason would improve
+ * nothing anyone sees: the three surfaces that report a failure —
+ * `<QueryError>`, `<CapabilitiesErrorScreen>` and the error boundary —
+ * render `error.message` and nothing else, and the message they were
+ * getting is the bridge's single line per operation. "Could not fetch
+ * site capabilities." reads the same whether the plan lapsed or the
+ * token did.
+ *
+ * Only recognised codes are translated. Everything else keeps the
+ * bridge's generic line rather than being handed the upstream text,
+ * which is unbounded English written for whoever reads the logs — it
+ * still travels in `data.wpcom` for them.
+ *
+ * A `switch` rather than a lookup table so each `__()` runs when it is
+ * needed. At module scope they would all run before this bundle's locale
+ * data has finished loading, and every one of them would be evaluated in
+ * English and cached that way.
+ *
+ * @param code - The code WordPress.com refused with.
+ * @return Translated copy, or null when there is nothing better to say.
+ */
+function upstreamMessage( code: string ): string | null {
+	switch ( code ) {
+		case 'no_connected_jetpack':
+			// Deliberately the same msgid the bridge's own `not_connected`
+			// uses. The reader is being told the same fact by a different
+			// route, and reusing it means the string is already translated.
+			return __( 'This site is not connected to Jetpack.', 'jetpack-backup-pkg' );
+		case 'authorization_required':
+			return __(
+				'Your WordPress.com account is not allowed to manage this site.',
+				'jetpack-backup-pkg'
+			);
+		case 'rewind_error':
+			return __(
+				'The backup service ran into a problem. Try again in a few minutes, and contact support if it keeps happening.',
+				'jetpack-backup-pkg'
+			);
+		default:
+			return null;
+	}
+}
+
+/**
+ * Thin wrapper around `@wordpress/api-fetch` that re-throws every failure
+ * as an `ApiError`, so one place decides what a failed request says.
  *
  * Options are typed `APIFetchOptions< true >` — the parsing variant —
  * because every fetcher here wants the decoded JSON body rather than the
@@ -209,9 +284,11 @@ export async function apiCall< T >( options: APIFetchOptions< true > ): Promise<
 		return await apiFetch< T >( options );
 	} catch ( raw ) {
 		const err = raw as { code?: string; message?: string; data?: unknown };
+		const fallback = __( 'Request failed', 'jetpack-backup-pkg' );
+		const bridgeMessage = typeof err.message === 'string' ? err.message : fallback;
 		throw new ApiError(
 			typeof err.code === 'string' ? err.code : 'unknown',
-			typeof err.message === 'string' ? err.message : __( 'Request failed', 'jetpack-backup-pkg' ),
+			upstreamMessage( upstreamCode( err.data ) ) ?? bridgeMessage,
 			err.data
 		);
 	}

@@ -2,13 +2,17 @@ import apiFetch from '@wordpress/api-fetch';
 import { ApiError, apiCall, isAmbiguousFailure, requireTypes, toIntRewindId } from '../_helpers';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
-// `__` returns a sentinel rather than its input, so a message that reached
-// the reader untranslated is distinguishable from one that did not. The rest
-// of the module is preserved: replacing it wholesale would leave `sprintf`
-// and `_n` undefined for everything in this file's module graph.
+// `__` prefixes a sentinel rather than returning its input, so a message that
+// reached the reader untranslated is distinguishable from one that did not.
+// The msgid is kept on the end because the branch that picks *which* string to
+// show is the thing under test here — a bare sentinel would make every branch
+// return the same value, and an assertion that cannot tell them apart passes
+// whichever one runs. The rest of the module is preserved: replacing it
+// wholesale would leave `sprintf` and `_n` undefined for everything in this
+// file's module graph.
 jest.mock( '@wordpress/i18n', () => ( {
 	...jest.requireActual( '@wordpress/i18n' ),
-	__: jest.fn( () => 'TRANSLATED' ),
+	__: jest.fn( ( text: string ) => `TRANSLATED:${ text }` ),
 } ) );
 
 const mockedApiFetch = apiFetch as unknown as jest.Mock;
@@ -86,7 +90,83 @@ describe( 'apiCall', () => {
 		mockedApiFetch.mockRejectedValue( { code: 'some_code' } );
 
 		await expect( apiCall( { path: '/x' } ) ).rejects.toMatchObject( {
-			message: 'TRANSLATED',
+			message: 'TRANSLATED:Request failed',
+		} );
+	} );
+
+	// The client half of the bridges' `data.wpcom`. Without this branch the
+	// bridges' new reason would improve nothing anyone sees: every surface
+	// that reports a failure renders `error.message`, and the message is one
+	// fixed line per operation.
+	test.each( [
+		[
+			'a lapsed connection',
+			'no_connected_jetpack',
+			'TRANSLATED:This site is not connected to Jetpack.',
+		],
+		[
+			'a rejected token',
+			'authorization_required',
+			'TRANSLATED:Your WordPress.com account is not allowed to manage this site.',
+		],
+	] )( 'says what happened for %s', async ( _label, code, expected ) => {
+		mockedApiFetch.mockRejectedValue( {
+			code: 'capabilities_fetch_failed',
+			message: 'Could not fetch site capabilities.',
+			data: { status: 412, wpcom: { code } },
+		} );
+
+		await expect( apiCall( { path: '/x' } ) ).rejects.toMatchObject( { message: expected } );
+	} );
+
+	// The bridge's own code is not the one being read. Both fixtures below
+	// carry the same one, and only the upstream half differs — so a
+	// mapping wired to `code` instead of `data.wpcom.code` fails here.
+	test( 'keeps the bridge message for an upstream code it does not know', async () => {
+		mockedApiFetch.mockRejectedValue( {
+			code: 'capabilities_fetch_failed',
+			message: 'Could not fetch site capabilities.',
+			data: { status: 500, wpcom: { code: 'something_new_upstream' } },
+		} );
+
+		await expect( apiCall( { path: '/x' } ) ).rejects.toMatchObject( {
+			message: 'Could not fetch site capabilities.',
+		} );
+	} );
+
+	// The reason is prose — a VaultPress refusal, which the bridge puts in
+	// `message` precisely because nothing may branch on it. Rendering
+	// unbounded upstream English at a reader who may not read English is
+	// not an improvement on a translated generic line.
+	test( 'never shows the upstream prose to the reader', async () => {
+		mockedApiFetch.mockRejectedValue( {
+			code: 'restore_initiate_failed',
+			message: 'Could not start the backup restore.',
+			data: { status: 500, wpcom: { message: 'There is already a restore in progress' } },
+		} );
+
+		await expect( apiCall( { path: '/x' } ) ).rejects.toMatchObject( {
+			message: 'Could not start the backup restore.',
+		} );
+	} );
+
+	// It still has to reach a support agent, so it travels on `data`
+	// untouched — including for the codes that did get mapped.
+	test( 'passes the upstream reason through on data', async () => {
+		const data = { status: 412, wpcom: { code: 'no_connected_jetpack' } };
+		mockedApiFetch.mockRejectedValue( { code: 'capabilities_fetch_failed', data } );
+
+		await expect( apiCall( { path: '/x' } ) ).rejects.toMatchObject( { data } );
+	} );
+
+	// A failure from the browser → site hop carries no `data` at all, and
+	// reading into it must not throw a second error on top of the first.
+	test( 'survives a rejection with no data', async () => {
+		mockedApiFetch.mockRejectedValue( { code: 'fetch_error', message: 'Network down.' } );
+
+		await expect( apiCall( { path: '/x' } ) ).rejects.toMatchObject( {
+			code: 'fetch_error',
+			message: 'Network down.',
 		} );
 	} );
 } );

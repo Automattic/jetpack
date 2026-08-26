@@ -150,10 +150,10 @@ class Restore_Bridge {
 
 		$status_code = wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $status_code ) {
-			return new WP_Error(
+			return Rest_Controller::upstream_error(
+				$response,
 				'restore_initiate_failed',
-				__( 'Could not start the backup restore.', 'jetpack-backup-pkg' ),
-				array( 'status' => is_int( $status_code ) && $status_code > 0 ? $status_code : 500 )
+				__( 'Could not start the backup restore.', 'jetpack-backup-pkg' )
 			);
 		}
 
@@ -172,10 +172,27 @@ class Restore_Bridge {
 		// distinguished the two cases anyway: `(int) null` and `(int) 0`
 		// are both `0`.
 		if ( empty( $decoded['ok'] ) ) {
+			$data = array( 'status' => 500 );
+
+			// The `error` beside it is the whole of what went wrong —
+			// "There is already a restore in progress" and its like — and
+			// it was being dropped on the floor, leaving a reader who
+			// cannot start a second restore with no way to learn why.
+			//
+			// It arrives as prose with no machine code beside it, which is
+			// why `upstream_reason()` sorts on shape rather than on which
+			// key a value came from. The v2 route usually turns this
+			// answer into a 500 `rewind_error` before it ever reaches us,
+			// so what this branch catches is the shape upstream does not.
+			$reason = Rest_Controller::upstream_reason( $decoded );
+			if ( ! empty( $reason ) ) {
+				$data['wpcom'] = $reason;
+			}
+
 			return new WP_Error(
 				'restore_initiate_failed',
 				__( 'Could not start the backup restore.', 'jetpack-backup-pkg' ),
-				array( 'status' => 500 )
+				$data
 			);
 		}
 
@@ -277,10 +294,10 @@ class Restore_Bridge {
 		}
 
 		if ( 200 !== $status_code ) {
-			return new WP_Error(
+			return Rest_Controller::upstream_error(
+				$response,
 				'restore_status_fetch_failed',
-				__( 'Could not fetch restore progress.', 'jetpack-backup-pkg' ),
-				array( 'status' => is_int( $status_code ) && $status_code > 0 ? $status_code : 500 )
+				__( 'Could not fetch restore progress.', 'jetpack-backup-pkg' )
 			);
 		}
 

@@ -314,6 +314,75 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	}
 
 	/**
+	 * The refusal that comes back inside a 200 keeps its reason too.
+	 *
+	 * VaultPress says why in prose, under `error`, and this branch used to
+	 * drop it — leaving a reader who cannot start a restore with a generic
+	 * sentence and no way to learn that one is already running.
+	 *
+	 * It lands in `message` rather than `code` because it is a sentence,
+	 * and the client only ever matches `code` against tokens it knows.
+	 */
+	public function test_initiate_keeps_the_reason_from_a_refusal_in_a_200() {
+		$this->arrange_wpcom(
+			array(
+				'ok'    => false,
+				'error' => 'There is already a restore in progress',
+			)
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/rewind/to/123' );
+		$request->set_param( 'rewind_id', '123' );
+		$response = Restore_Bridge::initiate_restore( $request );
+		$data     = $response->get_error_data();
+
+		$this->assertSame( 'There is already a restore in progress', $data['wpcom']['message'] );
+		$this->assertArrayNotHasKey( 'code', $data['wpcom'] );
+		// Unchanged: WordPress.com answered and said no, so nothing was
+		// queued and `isAmbiguousFailure()` must keep reading this as safe
+		// to retry.
+		$this->assertSame( 500, $data['status'] );
+	}
+
+	/**
+	 * A refusal that names nothing adds no reason.
+	 */
+	public function test_initiate_omits_the_reason_when_the_refusal_is_silent() {
+		$this->arrange_wpcom( array( 'ok' => false ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/rewind/to/123' );
+		$request->set_param( 'rewind_id', '123' );
+		$response = Restore_Bridge::initiate_restore( $request );
+
+		$this->assertArrayNotHasKey( 'wpcom', $response->get_error_data() );
+	}
+
+	/**
+	 * A non-200 on initiate carries WordPress.com's own code.
+	 *
+	 * The bridge's code cannot say why on its own — all three initiate
+	 * failures are `restore_initiate_failed` — so a support agent looking
+	 * at a failed restore has only this to go on. 412 rather than 500,
+	 * because 500 is also the fallback for an unreadable status.
+	 */
+	public function test_initiate_forwards_the_upstream_reason() {
+		$this->arrange_wpcom(
+			array(
+				'code'    => 'no_connected_jetpack',
+				'message' => 'This site is not connected.',
+			),
+			412
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/rewind/to/123' );
+		$request->set_param( 'rewind_id', '123' );
+		$data = Restore_Bridge::initiate_restore( $request )->get_error_data();
+
+		$this->assertSame( 412, $data['status'] );
+		$this->assertSame( 'no_connected_jetpack', $data['wpcom']['code'] );
+	}
+
+	/**
 	 * The status poll targets the v2 route and is signed with the blog
 	 * token.
 	 *
@@ -424,5 +493,8 @@ class Rest_Restore_Bridge_Test extends TestCase {
 		$this->assertInstanceOf( WP_Error::class, $response );
 		$this->assertSame( 'restore_status_fetch_failed', $response->get_error_code() );
 		$this->assertSame( 502, $response->get_error_data()['status'] );
+		// And the reason survives the wrapping, which is what lets the
+		// client say something better than "could not fetch progress".
+		$this->assertSame( 'rewind_error', $response->get_error_data()['wpcom']['code'] );
 	}
 }
