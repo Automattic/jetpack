@@ -31,7 +31,7 @@ const makeDefaultItems = () => [
 	makeMenuItem( 'scan', 'Scan' ),
 	makeMenuItem( 'forms', 'Forms' ),
 	makeMenuItem( 'ai', 'AI Assistant' ),
-	makeMenuItem( 'settings', 'Settings', { customizable: false } ),
+	makeMenuItem( 'settings', 'Settings', { customizable: false, external: true } ),
 	makeMenuItem( 'jetpack-manage', 'Jetpack Manage', {
 		customizable: false,
 		external: true,

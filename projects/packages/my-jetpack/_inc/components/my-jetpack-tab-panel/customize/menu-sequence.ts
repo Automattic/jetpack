@@ -71,7 +71,7 @@ export function buildMenuSequence(
 	const settings = items.find( item => item.id === 'settings' );
 	const products = items.filter( isProductItem ).sort( compareProducts );
 	const external = items
-		.filter( item => item.external )
+		.filter( item => item.external && item.id !== 'my-jetpack' && item.id !== 'settings' )
 		.sort( ( a, b ) => {
 			const aIsManage = a.id === 'jetpack-manage';
 			const bIsManage = b.id === 'jetpack-manage';
