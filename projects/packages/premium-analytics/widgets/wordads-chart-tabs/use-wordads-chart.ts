@@ -17,11 +17,9 @@ import { buildMetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
 export type WordAdsPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' | 'year' >;
 
 /**
- * Fetch the WordAds time series and expose its three fields as metric tabs — Ads
- * Served (impressions), Average CPM, and Revenue, matching the Calypso WordAds
- * page's tab labels and order. The endpoint returns all three in a single
- * request, so — unlike the traffic chart's split requests — one
- * `useStatsWordAdsStats` call drives every tab.
+ * The WordAds fields as metric tabs, in the Calypso WordAds page's labels and order.
+ * One request returns all three, so — unlike the traffic chart's split requests — a
+ * single `useStatsWordAdsStats` call drives every tab.
  */
 export default function useWordAdsChart( reportParams: ReportParams, period: WordAdsPeriod ) {
 	// Memoize the request params so the query key is stable across renders.

@@ -2,7 +2,6 @@ export {
 	createReportParamsField,
 	getDefaultReportParams,
 	type ReportParamsFieldAttributes,
-	type ReportParamsFieldOptions,
 } from './report-params-field/report-params-field';
 
 export { ArrayCheckboxField } from './field-array-checkbox';

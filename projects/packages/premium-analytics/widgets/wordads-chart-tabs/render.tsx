@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
-import { getDefaultReportParams } from '@jetpack-premium-analytics/fields';
 import { megaphone } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTabsChart,
@@ -13,10 +12,10 @@ import {
 	defaultPeriodForInterval,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import { DEFAULT_REPORT_PARAMS } from './default-report-params';
 import styles from './style.module.css';
 import useWordAdsChart, { type WordAdsPeriod } from './use-wordads-chart';
 import type { WordAdsChartTabsAttributes } from './widget';
@@ -80,8 +79,7 @@ function WordAdsChartTabsInner() {
 
 export default function WordAdsChartTabs( { attributes = {} }: WordAdsChartTabsWidgetProps ) {
 	// Unsaved instances must not fall back to the section's URL date range.
-	const defaultReportParams = useMemo( getDefaultReportParams, [] );
-	const reportParams = attributes.reportParams ?? defaultReportParams;
+	const reportParams = attributes.reportParams ?? DEFAULT_REPORT_PARAMS;
 
 	return (
 		// Scope the widget body before WidgetRoot strips the unsupported

@@ -55,8 +55,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 } ) );
 
 // WidgetRoot reads URL search params as a fallback for report params; outside
-// a matched route the real hook warns and throws. These tests supply the params
-// as attributes, the way the widget's header control saves them.
+// a matched route the real hook warns and throws.
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
@@ -200,6 +199,10 @@ describe( 'WordAdsChartTabsWidget', () => {
 		mockApiFetch.mockResolvedValue( PRIMARY_RESPONSE );
 	} );
 
+	// A failed assertion would skip a reset written into the test body, leaking
+	// the URL state to whatever runs next.
+	afterEach( () => setMockRouteSearch( {} ) );
+
 	// The widget's body carries no Group by control: the bucket size is the one
 	// its header control saved, clamped to what this chart supports.
 	it( 'buckets by the interval its attributes carry', async () => {
@@ -243,14 +246,11 @@ describe( 'WordAdsChartTabsWidget', () => {
 	it( 'ignores the URL range for an instance saved without report params', async () => {
 		setMockRouteSearch( { from: '2020-01-01', to: '2020-01-31', interval: 'month' } );
 
-		// The layout saves the instance with no attributes at all.
 		render( <WordAdsChartTabsWidget attributes={ {} } /> );
 
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).not.toContain( 'date=2020-01-31' );
-
-		setMockRouteSearch( {} );
 	} );
 
 	// The widget scopes itself with `offersComparison={ false }`, so `WidgetRoot`

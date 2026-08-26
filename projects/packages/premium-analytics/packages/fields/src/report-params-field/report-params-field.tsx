@@ -28,8 +28,11 @@ import type { DataFormControlProps } from '@jetpack-premium-analytics/externals'
 /*
  * The editor lives here rather than in widgets-toolkit so widget metadata
  * modules can consume it through this package's script module: the toolkit is
- * bundled-from-source and its scss graph cannot enter the widget metadata
- * build. The toolkit keeps only the `ReportParamsFieldAttributes` shape.
+ * bundled-from-source and its scss graph cannot enter the widget metadata build.
+ *
+ * `getStoreInfo()` is imported rather than read from context because the control
+ * renders as host chrome outside the widget tree, where `WidgetRootContext` is
+ * unreachable.
  */
 
 type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ] >;
@@ -50,8 +53,7 @@ export type ReportParamsFieldAttributes = {
 	reportParams: ReportParams;
 };
 
-export type ReportParamsFieldOptions = {
-	/** Whether to offer the chart bucket control beside the range. */
+type ReportParamsFieldOptions = {
 	withIntervalControl?: boolean;
 };
 
@@ -119,6 +121,15 @@ function ReportParamsControl( {
 		to: decodeDateSearchParam( reportParams.to ),
 	};
 
+	// What the widget is actually showing. Without it an open draft clears the
+	// preset, and the pill row reports no selection at all.
+	const appliedParams = normalizeReportParams( committed, defaultPreset );
+
+	const appliedRange = {
+		from: decodeDateSearchParam( appliedParams.from ),
+		to: decodeDateSearchParam( appliedParams.to ),
+	};
+
 	const stageDateRange = useCallback(
 		( nextRange?: DateRange, nextPresetId?: string ) => {
 			const nextReportParams = { ...stagedReportParams };
@@ -165,19 +176,24 @@ function ReportParamsControl( {
 		stagedReportParams?.preset,
 	] );
 
-	const commitComparisonRange = useCallback(
+	const changeComparisonRange = useCallback(
 		( nextComparisonRange?: DateRange, nextComparisonPresetId?: ComparisonPresetId ) => {
-			onChange( {
-				reportParams: {
-					...reportParams,
-					compare_from: encodeDateToSearchParam( nextComparisonRange?.from ),
-					compare_to: encodeDateToSearchParam( nextComparisonRange?.to ),
-					compare_preset: nextComparisonPresetId,
-					comp: '1' as const,
-				},
-			} );
+			const next = {
+				...stagedReportParams,
+				compare_from: encodeDateToSearchParam( nextComparisonRange?.from ),
+				compare_to: encodeDateToSearchParam( nextComparisonRange?.to ),
+				compare_preset: nextComparisonPresetId,
+				comp: nextComparisonRange ? ( '1' as const ) : undefined,
+			};
+			stage( next );
+
+			// Rides along with an open range draft, so changing the comparison
+			// never applies a range the user has not committed.
+			if ( ! isDateRangeDirty ) {
+				onChange( { reportParams: next } );
+			}
 		},
-		[ onChange, reportParams ]
+		[ stagedReportParams, isDateRangeDirty, onChange, stage ]
 	);
 
 	const commit = useCallback( () => {
@@ -224,9 +240,11 @@ function ReportParamsControl( {
 			<DateFiltersPanel
 				range={ range }
 				presetId={ stagedReportParams?.preset ?? reportParams.preset }
-				comparisonPresetId={ attributes?.reportParams?.compare_preset }
+				appliedPresetId={ appliedParams.preset }
+				appliedRange={ appliedRange }
+				comparisonPresetId={ stagedReportParams?.compare_preset }
 				onChange={ stageDateRange }
-				onComparisonChange={ commitComparisonRange }
+				onComparisonChange={ changeComparisonRange }
 				onApply={ commit }
 				canApply={ isDateRangeDirty }
 				onCancel={ clear }

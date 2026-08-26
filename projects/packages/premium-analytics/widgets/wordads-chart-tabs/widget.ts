@@ -3,7 +3,6 @@
  */
 import {
 	createReportParamsField,
-	getDefaultReportParams,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/fields';
 /**
@@ -11,6 +10,10 @@ import {
  */
 import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
+/**
+ * Internal dependencies
+ */
+import { DEFAULT_REPORT_PARAMS } from './default-report-params';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /** The widget owns its date controls because other Ads widgets accept no dates. */
@@ -39,7 +42,7 @@ export default {
 	] as WidgetAttributeField< WordAdsChartTabsAttributes >[],
 	example: {
 		attributes: {
-			reportParams: getDefaultReportParams(),
+			reportParams: DEFAULT_REPORT_PARAMS,
 		},
 	},
 };

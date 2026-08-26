@@ -113,8 +113,8 @@ final class Dashboard_Section {
 	 *   Not just chrome — false drops the comparison from the params every
 	 *   widget in the section fetches with.
 	 * - `with_header_date_control`: whether the header renders the date control.
-	 *   False hands it to the section's widgets. Only the placement moves; the
-	 *   date state still takes `$date_filter`'s shape.
+	 *   False hands it to the section's widgets, which may save the range onto the
+	 *   widget instance rather than the URL.
 	 *
 	 * @since 0.3.0
 	 * @since $$next-version$$ Added `with_header_date_control`.

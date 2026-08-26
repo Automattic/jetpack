@@ -42,11 +42,9 @@ export const statsWordAdsStatsQuery = (
 	const yesterday = format( subDays( localTZDate(), 1 ), 'yyyy-MM-dd' );
 	const clampToYesterday = rangeEndDay !== undefined && rangeEndDay > yesterday;
 	const date = clampToYesterday ? yesterday : rangeEnd;
-	// The endpoint accepts a bucket count and end date, not a range. Use the
-	// clamped end to drop today's unavailable bucket without shifting the start.
-	// Preserve Calypso's defaults when no range is supplied. Only the primary
-	// window is clamped, so a past comparison window would come back one bucket
-	// longer; nothing asks this endpoint for a comparison today.
+	// The endpoint takes a bucket count and end date, not a range: derive the count
+	// from the clamped end so dropping today's bucket does not shift the start.
+	// Calypso's own defaults stand in when no range is supplied.
 	const defaultQuantity = unit === 'year' ? 10 : 30;
 	const quantity =
 		params.quantity ??

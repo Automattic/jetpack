@@ -57,9 +57,11 @@ function renderField( withIntervalControl?: boolean ) {
 	};
 }
 
-async function draftShortRange( user: ReturnType< typeof userEvent.setup >, days: number ) {
-	await user.click( screen.getByRole( 'button', { name: /custom/i } ) );
+function openCustomRange( user: ReturnType< typeof userEvent.setup > ) {
+	return user.click( screen.getByRole( 'button', { name: /custom/i } ) );
+}
 
+async function shortenRangeTo( days: number ) {
 	const from = await screen.findByLabelText< HTMLInputElement >( 'From' );
 	const to = screen.getByLabelText< HTMLInputElement >( 'To' );
 	const end = new Date( `${ to.value }T00:00:00Z` );
@@ -71,6 +73,11 @@ async function draftShortRange( user: ReturnType< typeof userEvent.setup >, days
 	 */
 	// eslint-disable-next-line testing-library/prefer-user-event
 	fireEvent.change( from, { target: { value: start.toISOString().slice( 0, 10 ) } } );
+}
+
+async function draftShortRange( user: ReturnType< typeof userEvent.setup >, days: number ) {
+	await openCustomRange( user );
+	await shortenRangeTo( days );
 }
 
 describe( 'createReportParamsField', () => {
@@ -140,6 +147,39 @@ describe( 'createReportParamsField', () => {
 		expect( saved ).toHaveLength( 0 );
 	} );
 
+	it( 'keeps Apply disabled until the range actually changes', async () => {
+		const user = userEvent.setup();
+		renderField( true );
+
+		await openCustomRange( user );
+
+		await expect( screen.findByRole( 'button', { name: 'Apply' } ) ).resolves.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+
+		await shortenRangeTo( 3 );
+
+		expect( screen.getByRole( 'button', { name: 'Apply' } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
+	// The pills report what the widget is showing, so an un-applied draft must not
+	// leave the row with nothing selected.
+	it( 'keeps the applied preset selected while a custom range is drafted', async () => {
+		const user = userEvent.setup();
+		renderField( true );
+
+		await draftShortRange( user, 3 );
+
+		expect( screen.getByRole( 'button', { name: /30 days/i } ) ).toHaveAttribute(
+			'aria-pressed',
+			'true'
+		);
+	} );
+
 	/*
 	 * Reading the options from the applied range while the checked value comes
 	 * from the draft lets the menu offer a bucket the drafted range cannot hold:
@@ -172,6 +212,66 @@ describe( 'createReportParamsField', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Apply' } ) );
 
 		expect( latest() ).toEqual( expect.objectContaining( { interval: 'hour' } ) );
+	} );
+
+	// The bucket rides along with an open range draft, so cancelling the draft has
+	// to take it with them — and leave the control clean enough that the next
+	// bucket click commits on its own again.
+	it( 'drops a bucket picked mid-draft when the range draft is cancelled', async () => {
+		const user = userEvent.setup();
+		const { saved } = renderField( true );
+
+		await draftShortRange( user, 3 );
+		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: 'By hours' } ) );
+
+		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+
+		expect( saved ).toHaveLength( 0 );
+
+		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
+
+		await expect(
+			screen.findByRole( 'menuitemradio', { name: 'By weeks' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'menuitemradio', { name: 'By hours' } ) ).not.toBeInTheDocument();
+
+		await user.click( await screen.findByRole( 'menuitemradio', { name: 'By weeks' } ) );
+
+		expect( saved ).toHaveLength( 1 );
+	} );
+
+	it( 'commits a comparison range on selection', async () => {
+		const user = userEvent.setup();
+		const { latest } = renderField();
+
+		await user.click( screen.getByRole( 'button', { name: /compare/i } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Previous period' } ) );
+
+		expect( latest() ).toEqual(
+			expect.objectContaining( {
+				comp: '1',
+				compare_preset: 'previous-period',
+				compare_from: expect.any( String ),
+				compare_to: expect.any( String ),
+			} )
+		);
+	} );
+
+	// Committing the comparison on its own would apply the range draft with it.
+	it( 'holds a comparison picked mid-draft until Apply', async () => {
+		const user = userEvent.setup();
+		const { saved, latest } = renderField();
+
+		await draftShortRange( user, 3 );
+		await user.click( screen.getByRole( 'button', { name: /compare/i } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Previous period' } ) );
+
+		expect( saved ).toHaveLength( 0 );
+
+		await user.click( screen.getByRole( 'button', { name: 'Apply' } ) );
+
+		expect( latest() ).toEqual( expect.objectContaining( { compare_preset: 'previous-period' } ) );
 	} );
 
 	it( 'realigns the draft when the params change from outside', async () => {
