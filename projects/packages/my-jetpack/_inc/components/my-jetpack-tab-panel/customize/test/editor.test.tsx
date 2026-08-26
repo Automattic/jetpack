@@ -130,6 +130,7 @@ jest.mock( '@wordpress/ui', () => {
 
 const mockApiFetch = apiFetch as unknown as jest.MockedFunction< typeof apiFetch >;
 const mockGetWindowState = getMyJetpackWindowInitialState as jest.Mock;
+const originalJQuery = window.jQuery;
 
 const makeItem = (
 	id: string,
@@ -217,6 +218,10 @@ describe( 'CustomizeContent', () => {
 			'contact-form': { activated: true, available: true },
 		};
 		arrangeInitialState( buildModel() );
+	} );
+
+	afterEach( () => {
+		window.jQuery = originalJQuery;
 	} );
 
 	it( 'presents one direct menu editor without legacy group and default controls', async () => {
@@ -500,5 +505,21 @@ describe( 'CustomizeContent', () => {
 		);
 		expect( screen.getByText( 'Unsaved changes' ) ).toBeInTheDocument();
 		expect( mockPreview.apply ).toHaveBeenCalled();
+	} );
+
+	it( 'keeps the sortable instance mounted while a changed draft is saved', async () => {
+		const sortable = jest.fn();
+		window.jQuery = jest.fn( () => ( { sortable } ) ) as unknown as typeof window.jQuery;
+		const user = userEvent.setup();
+		render( <CustomizeContent /> );
+		await expect( screen.findByText( 'Menu is up to date' ) ).resolves.toBeInTheDocument();
+		await waitFor( () => expect( sortable ).toHaveBeenCalled() );
+		sortable.mockClear();
+
+		await user.click( screen.getByRole( 'button', { name: 'Alphabetize sections' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Save my menu' } ) );
+		await expect( screen.findByText( 'My menu was saved.' ) ).resolves.toBeInTheDocument();
+
+		expect( sortable ).not.toHaveBeenCalledWith( 'destroy' );
 	} );
 } );

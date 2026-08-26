@@ -61,7 +61,10 @@ type SortableOptions = {
 };
 
 type SortableCollection = {
-	sortable: ( options: SortableOptions | 'destroy' ) => SortableCollection;
+	sortable: {
+		( options: SortableOptions | 'destroy' ): SortableCollection;
+		( command: 'option', option: 'disabled', value: boolean ): SortableCollection;
+	};
 };
 
 type SortableJQuery = ( element: HTMLElement ) => SortableCollection;
@@ -206,6 +209,7 @@ function MenuItemRow( props: MenuItemRowProps ) {
 							__( 'Drag %s', 'jetpack-my-jetpack' ),
 							node.label
 						) }
+						disabled={ disabled }
 						size="compact"
 						variant="minimal"
 					/>
@@ -327,6 +331,7 @@ function SeparatorRow( props: SeparatorRowProps ) {
 				className={ styles[ 'drag-handle' ] }
 				icon={ dragHandle }
 				label={ __( 'Drag separator', 'jetpack-my-jetpack' ) }
+				disabled={ disabled }
 				size="compact"
 				variant="minimal"
 			/>
@@ -389,6 +394,7 @@ export function CustomizeContent() {
 	const initialSequence = initialSequenceRef.current;
 	const itemListRef = useRef< HTMLDivElement | null >( null );
 	const previewRef = useRef< JetpackMenuPreview | null >( null );
+	const sortableRef = useRef< SortableCollection | null >( null );
 	const separatorCounter = useRef( 0 );
 	const [ model, setModel ] = useState( initialModel );
 	const modelRef = useRef( initialModel );
@@ -410,6 +416,8 @@ export function CustomizeContent() {
 	const isSaving = savingScope !== null;
 	const isDirty = hasDraftChanged( baseline, draft );
 	const editingDisabled = isSaving || loadFailed;
+	const editingDisabledRef = useRef( editingDisabled );
+	editingDisabledRef.current = editingDisabled;
 	productsRef.current = products;
 	modulesRef.current = modules;
 	optimisticActiveIdsRef.current = optimisticActiveIds;
@@ -539,7 +547,7 @@ export function CustomizeContent() {
 	useEffect( () => {
 		const listElement = itemListRef.current;
 		const sortable = window.jQuery;
-		if ( view !== 'active' || ! listElement || ! sortable || editingDisabled ) {
+		if ( view !== 'active' || ! listElement || ! sortable ) {
 			return;
 		}
 
@@ -566,11 +574,20 @@ export function CustomizeContent() {
 				reorderDraft( orderedIds );
 			},
 		} );
+		sortableRef.current = sortableList;
+		sortableList.sortable( 'option', 'disabled', editingDisabledRef.current );
 
 		return () => {
 			sortableList.sortable( 'destroy' );
+			if ( sortableRef.current === sortableList ) {
+				sortableRef.current = null;
+			}
 		};
-	}, [ draft, editingDisabled, reorderDraft, view ] );
+	}, [ reorderDraft, view ] );
+
+	useEffect( () => {
+		sortableRef.current?.sortable( 'option', 'disabled', editingDisabled );
+	}, [ editingDisabled ] );
 
 	const editableIds = useMemo(
 		() => draft.filter( node => ! node.locked ).map( node => node.id ),
