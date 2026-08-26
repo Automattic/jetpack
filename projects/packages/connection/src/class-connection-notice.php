@@ -143,60 +143,8 @@ class Connection_Notice {
 
 			echo "<div id='jp-switch-user-results'></div>";
 			echo '</form>';
-			?>
-			<script type="text/javascript">
-				( function() {
-					const switchOwnerButton = document.getElementById('jp-switch-connection-owner');
-					if ( ! switchOwnerButton ) {
-						return;
-					}
 
-					switchOwnerButton.addEventListener( 'submit', function ( e ) {
-						e.preventDefault();
-
-						const submitBtn = document.getElementById('jp-switch-connection-owner-submit');
-						submitBtn.disabled = true;
-
-						const results = document.getElementById('jp-switch-user-results');
-						results.innerHTML = '';
-						results.classList.remove( 'error-message' );
-
-						const handleAPIError = ( message ) => {
-							submitBtn.disabled = false;
-
-							results.classList.add( 'error-message' );
-							results.innerHTML = message || "<?php esc_html_e( 'Something went wrong. Please try again.', 'jetpack-connection' ); ?>";
-						}
-
-						fetch(
-							<?php echo wp_json_encode( esc_url_raw( get_rest_url() . 'jetpack/v4/connection/owner' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
-							{
-								method: 'POST',
-								headers: {
-									'X-WP-Nonce': <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
-								},
-								body: new URLSearchParams( new FormData( this ) ),
-							}
-						)
-							.then( response => response.json() )
-							.then( data => {
-								if ( data.hasOwnProperty( 'code' ) && data.code === 'success' ) {
-									// Owner successfully changed.
-									results.innerHTML = <?php echo wp_json_encode( esc_html__( 'Success!', 'jetpack-connection' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
-									setTimeout(function () {
-										document.getElementById( 'jetpack-notice-switch-connection-owner' ).style.display = 'none';
-									}, 1000);
-
-									return;
-								}
-
-								handleAPIError( data?.message );
-							} )
-							.catch( () => handleAPIError() );
-					});
-				} )();
-			</script>
-			<?php
+			$this->enqueue_connection_owner_script();
 		} else {
 			echo '<p>' . esc_html__( 'Every Jetpack site needs at least one connected admin for the features to work properly. Please connect to your WordPress.com account via the button below. Once you connect, you may refresh this page to see an option to change the connection owner.', 'jetpack-connection' ) . '</p>';
 			$connect_url = $connection_manager->get_authorization_url();
@@ -237,5 +185,86 @@ class Connection_Notice {
 		);
 		echo '</p>';
 		echo '</div>';
+	}
+
+	/**
+	 * Enqueue the script that hands the chosen owner to the connection owner REST endpoint.
+	 *
+	 * The notice prints on `admin_notices`, after `admin_enqueue_scripts` has run, so the handle
+	 * has no source of its own and goes in the footer, where the form it binds to already exists.
+	 *
+	 * @return void
+	 */
+	private function enqueue_connection_owner_script() {
+		$handle = 'jetpack-connection-owner-notice';
+
+		wp_register_script( $handle, false, array(), Package_Version::PACKAGE_VERSION, true );
+		wp_enqueue_script( $handle );
+		wp_add_inline_script( $handle, $this->get_connection_owner_script() );
+	}
+
+	/**
+	 * Build the script that hands the chosen owner to the connection owner REST endpoint.
+	 *
+	 * @return string
+	 */
+	private function get_connection_owner_script() {
+		$rest_url        = wp_json_encode( esc_url_raw( get_rest_url() . 'jetpack/v4/connection/owner' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+		$rest_nonce      = wp_json_encode( wp_create_nonce( 'wp_rest' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+		$success_message = wp_json_encode( esc_html__( 'Success!', 'jetpack-connection' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+		$error_message   = wp_json_encode( esc_html__( 'Something went wrong. Please try again.', 'jetpack-connection' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+
+		return <<<JS
+( function() {
+	const switchOwnerButton = document.getElementById('jp-switch-connection-owner');
+	if ( ! switchOwnerButton ) {
+		return;
+	}
+
+	switchOwnerButton.addEventListener( 'submit', function ( e ) {
+		e.preventDefault();
+
+		const submitBtn = document.getElementById('jp-switch-connection-owner-submit');
+		submitBtn.disabled = true;
+
+		const results = document.getElementById('jp-switch-user-results');
+		results.innerHTML = '';
+		results.classList.remove( 'error-message' );
+
+		const handleAPIError = ( message ) => {
+			submitBtn.disabled = false;
+
+			results.classList.add( 'error-message' );
+			results.innerHTML = message || {$error_message};
+		}
+
+		fetch(
+			{$rest_url},
+			{
+				method: 'POST',
+				headers: {
+					'X-WP-Nonce': {$rest_nonce},
+				},
+				body: new URLSearchParams( new FormData( this ) ),
+			}
+		)
+			.then( response => response.json() )
+			.then( data => {
+				if ( data.hasOwnProperty( 'code' ) && data.code === 'success' ) {
+					// Owner successfully changed.
+					results.innerHTML = {$success_message};
+					setTimeout(function () {
+						document.getElementById( 'jetpack-notice-switch-connection-owner' ).style.display = 'none';
+					}, 1000);
+
+					return;
+				}
+
+				handleAPIError( data?.message );
+			} )
+			.catch( () => handleAPIError() );
+	});
+} )();
+JS;
 	}
 }

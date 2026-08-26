@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.8] - 2026-08-10
+### Changed
+- Internal updates.
+
+## [3.3.7] - 2026-07-27
+### Changed
+- Update dependencies. [#50719]
+
+## [3.3.6] - 2026-07-20
+### Changed
+- Update package dependencies. [#50510] [#50529]
+
+## [3.3.5] - 2026-07-13
+### Changed
+- Update dependencies. [#50360]
+
+## [3.3.4] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
 ## [3.3.3] - 2026-06-29
 ### Changed
 - Update dependencies. [#50004]
@@ -229,6 +249,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release after extracting from Calypso.
 
+[3.3.8]: https://github.com/Automattic/social-previews/compare/v3.3.7...v3.3.8
+[3.3.7]: https://github.com/Automattic/social-previews/compare/v3.3.6...v3.3.7
+[3.3.6]: https://github.com/Automattic/social-previews/compare/v3.3.5...v3.3.6
+[3.3.5]: https://github.com/Automattic/social-previews/compare/v3.3.4...v3.3.5
+[3.3.4]: https://github.com/Automattic/social-previews/compare/v3.3.3...v3.3.4
 [3.3.3]: https://github.com/Automattic/social-previews/compare/v3.3.2...v3.3.3
 [3.3.2]: https://github.com/Automattic/social-previews/compare/v3.3.1...v3.3.2
 [3.3.1]: https://github.com/Automattic/social-previews/compare/v3.3.0...v3.3.1

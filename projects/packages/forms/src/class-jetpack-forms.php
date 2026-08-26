@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms;
 
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Forms\ContactForm\Feedback_Source;
 use Automattic\Jetpack\Forms\ContactForm\Util;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
@@ -15,12 +16,39 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard;
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '7.22.6';
+	const PACKAGE_VERSION = '7.26.0';
+
+	/**
+	 * Name of the feature flag gating field conditional logic.
+	 */
+	const CONDITIONAL_LOGIC_FLAG = 'forms-conditional-logic';
+
+	/**
+	 * Register the package's feature flags.
+	 *
+	 * Registration is unconditional and happens as the package loads, so the full set stays
+	 * discoverable through `Feature_Flags::all()` and nothing can call `is_enabled()` on an
+	 * unregistered flag.
+	 *
+	 * @return void
+	 */
+	public static function register_feature_flags() {
+		Feature_Flags::register(
+			self::CONDITIONAL_LOGIC_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Show or hide a form field based on the answer to another field.',
+				'owner'       => 'jetpack-forms',
+			)
+		);
+	}
 
 	/**
 	 * Load the contact form module.
 	 */
 	public static function load_contact_form() {
+		self::register_feature_flags();
+
 		Util::init();
 
 		if ( self::is_feedback_dashboard_enabled() ) {
@@ -127,6 +155,22 @@ class Jetpack_Forms {
 		 * @param bool true Whether to enable the Integrations UI. Default true.
 		 */
 		return apply_filters( 'jetpack_forms_is_integrations_enabled', true );
+	}
+
+	/**
+	 * Returns true if field conditional logic is enabled.
+	 *
+	 * One switch for the whole feature: the editor panel, the front-end show/hide, and the
+	 * submission-time enforcement in validation and storage. Gating them together means a
+	 * form can never hide a field from the visitor while still requiring it on submit.
+	 *
+	 * Turning the flag off on a form that already has conditions is safe: the conditions are
+	 * simply ignored, so every field renders, validates and stores as an ordinary field.
+	 *
+	 * @return boolean
+	 */
+	public static function is_conditional_logic_enabled() {
+		return Feature_Flags::is_enabled( self::CONDITIONAL_LOGIC_FLAG );
 	}
 
 	/**

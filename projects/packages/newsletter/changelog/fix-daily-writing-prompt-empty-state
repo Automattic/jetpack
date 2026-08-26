@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Daily Writing Prompt widget: show a branded fallback with a Reader link when no prompt is available or the request fails, instead of rendering a blank widget.

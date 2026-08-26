@@ -93,9 +93,12 @@ const supportedModules = [
 ];
 
 const moduleSources = [
-	...glob.sync( '_inc/*.js' ),
-	...supportedModules.map( dir => glob.sync( `modules/${ dir }/**/*.js` ) ).flat(),
-].filter( name => ! name.endsWith( '.min.js' ) && name.indexOf( '/test/' ) < 0 );
+	...glob.sync( '_inc/*.{js,jsx}' ),
+	...supportedModules.map( dir => glob.sync( `modules/${ dir }/**/*.{js,jsx}` ) ).flat(),
+]
+	.filter( name => ! name.endsWith( '.min.js' ) && name.indexOf( '/test/' ) < 0 )
+	// For historical reasons, this is handled separately.
+	.filter( name => ! /\/widget-visibility\/.*\.jsx$/.test( name ) );
 
 // Library definitions for certain modules.
 const libraryDefs = {
@@ -107,7 +110,12 @@ const libraryDefs = {
 
 const moduleEntries = {};
 for ( const module of moduleSources ) {
-	const name = module.slice( 0, -3 ).replace( /^(_inc|modules)\//, '' );
+	const name = module.replace( /\.jsx?$/, '' ).replace( /^(_inc|modules)\//, '' );
+	if ( moduleEntries[ name ] ) {
+		throw new Error(
+			`Ambiguous module entry "${ name }": both ${ moduleEntries[ name ].import } and ./${ module } exist. Pick one.`
+		);
+	}
 	moduleEntries[ name ] = {
 		import: './' + module,
 	};
@@ -150,7 +158,7 @@ module.exports = [
 		...sharedWebpackConfig,
 		entry: {
 			admin: {
-				import: path.join( __dirname, '../_inc/client', 'admin.js' ),
+				import: path.join( __dirname, '../_inc/client', 'admin.jsx' ),
 				// I don't know if we really need to export this. We were in the past, maybe some third party uses it.
 				library: {
 					name: 'getRouteName',
@@ -158,12 +166,23 @@ module.exports = [
 					export: 'getRouteName',
 				},
 			},
-			'plugins-page': path.join( __dirname, '../_inc/client', 'plugins-entry.js' ),
+			'plugins-page': path.join( __dirname, '../_inc/client', 'plugins-entry.jsx' ),
 			'network-admin': path.join( __dirname, '../_inc/client', 'network-admin.tsx' ),
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
-			...jetpackWebpackConfig.DependencyExtractionPlugin(),
+			...jetpackWebpackConfig.DependencyExtractionPlugin( {
+				// Match the AI admin build: @wordpress/ui (pulled in via the licensing
+				// activation screen) drags in @wordpress/theme and @wordpress/private-apis.
+				// They are not registered as WP script handles on the main Jetpack admin
+				// path (WP < 7.0 has no core wp-theme, and this page does not load the
+				// wp-build-polyfills shim), so bundle them instead of externalizing to
+				// avoid the whole dashboard script failing to enqueue.
+				requestMap: {
+					'@wordpress/theme': { external: false },
+					'@wordpress/private-apis': { external: false },
+				},
+			} ),
 		],
 		externals: {
 			...sharedWebpackConfig.externals,
@@ -176,7 +195,7 @@ module.exports = [
 	{
 		...sharedWebpackConfig,
 		entry: {
-			'jetpack-ai-admin': path.join( __dirname, '../_inc/client', 'ai-admin.js' ),
+			'jetpack-ai-admin': path.join( __dirname, '../_inc/client', 'ai-admin.jsx' ),
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,

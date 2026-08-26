@@ -58,30 +58,31 @@ type JetpackModuleWithCard =
 	| 'stats'
 	| 'videopress';
 
+// In ThreatItem and ScanItem, fields marked optional are only sent to users with `manage_options`.
 type ThreatItem = {
 	// Protect API properties (free plan)
-	id: string;
-	title: string;
-	fixed_in: string;
-	description: string | null;
-	source: string | null;
+	id?: string;
+	title?: string;
+	fixed_in?: string;
+	description?: string | null;
+	source?: string | null;
 	// Scan API properties (paid plan)
-	context: string | null;
-	filename: string | null;
-	first_detected: string | null;
-	fixable: boolean | null;
+	context?: string | null;
+	filename?: string | null;
+	first_detected?: string | null;
+	fixable?: boolean | null;
 	severity: number | null;
-	signature: string | null;
-	status: number | null;
+	signature?: string | null;
+	status?: number | null;
 };
 
 type ScanItem = {
-	checked: boolean;
-	name: string;
-	slug: string;
+	checked?: boolean;
+	name?: string;
+	slug?: string;
 	threats: ThreatItem[];
-	type: string;
-	version: string;
+	type?: string;
+	version?: string;
 };
 
 type RewindStatus =
@@ -399,37 +400,41 @@ type Purchase = {
 };
 
 type ProtectData = {
+	// Fields marked optional are only sent to users with `manage_options`.
 	scanData: {
 		core: ScanItem;
 		current_progress?: string;
-		data_source: string;
+		data_source?: string;
 		database: string[];
-		error: boolean;
+		error?: boolean;
 		error_code?: string;
 		error_message?: string;
 		files: string[];
-		has_unchecked_items: boolean;
+		has_unchecked_items?: boolean;
 		last_checked: string;
 		num_plugins_threats: number;
 		num_themes_threats: number;
 		num_threats: number;
 		plugins: ScanItem[];
-		status: string;
+		status?: string;
 		themes: ScanItem[];
 		threats?: ThreatItem[];
 	};
+	// Fields marked optional are only sent to users with `manage_options`.
 	wafConfig: {
-		automatic_rules_available: boolean;
+		automatic_rules_available?: boolean;
 		blocked_logins: number;
-		bootstrap_path: string;
+		bootstrap_path?: string;
 		brute_force_protection: boolean;
 		jetpack_waf_automatic_rules: '1' | '';
-		jetpack_waf_ip_allow_list: '1' | '';
-		jetpack_waf_ip_block_list: boolean;
-		jetpack_waf_ip_list: boolean;
-		jetpack_waf_share_data: '1' | '';
-		jetpack_waf_share_debug_data: boolean;
-		standalone_mode: boolean;
+		jetpack_waf_ip_allow_list?: '1' | '';
+		jetpack_waf_ip_allow_list_enabled?: boolean;
+		jetpack_waf_ip_block_list?: boolean;
+		jetpack_waf_ip_block_list_enabled?: boolean;
+		jetpack_waf_ip_list?: boolean;
+		jetpack_waf_share_data?: '1' | '';
+		jetpack_waf_share_debug_data?: boolean;
+		standalone_mode?: boolean;
 		waf_supported: boolean;
 		waf_enabled: boolean;
 	};
@@ -516,6 +521,7 @@ interface Window {
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
 		myJetpackFlags: {
+			showAiModuleToggle: boolean;
 			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
 		};
@@ -691,5 +697,9 @@ interface Window {
 	myJetpackRest?: {
 		apiRoot: string;
 		apiNonce: string;
+	};
+	/** Shared client for live-updating Jetpack admin-menu notification badges (automattic/jetpack-menu-badges). */
+	jetpackMenuBadges?: {
+		setCount: ( menuSlug: string, count: number ) => void;
 	};
 }

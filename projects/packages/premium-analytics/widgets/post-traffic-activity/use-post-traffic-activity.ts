@@ -1,0 +1,150 @@
+/**
+ * External dependencies
+ */
+import { useStatsPost, type ReportParams } from '@jetpack-premium-analytics/data';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import {
+	addDays,
+	eachDayOfInterval,
+	endOfWeek,
+	format,
+	parseISO,
+	startOfWeek,
+	subDays,
+} from 'date-fns';
+import { toDay, type DataPointDate } from '@jetpack-premium-analytics/widgets-toolkit';
+
+/**
+ * Normalized activity state: one point per calendar day of the visible page
+ * plus paging controls and the request's load/error flags. `hasData`
+ * distinguishes the first load from refetches.
+ */
+export interface PostTrafficActivityState {
+	days: DataPointDate[];
+	/** Whether the selected range exceeds one page (shows the pager). */
+	isPaged: boolean;
+	/** Whether an older page exists inside the selected range. */
+	canShowOlder: boolean;
+	/** Whether a newer page exists (the newest page is shown first). */
+	canShowNewer: boolean;
+	showOlder: () => void;
+	showNewer: () => void;
+	isLoading: boolean;
+	isFetching: boolean;
+	isError: boolean;
+	hasData: boolean;
+	refetch: () => void;
+}
+
+/**
+ * Fetch the scoped post's daily view activity for the dashboard's report
+ * params and expose one page of it. The caller derives `pageSpanDays` from
+ * the card width (whole week columns that fit), so one page always fills the
+ * card exactly: a range at or under one page pads backward to
+ * `range end − (pageSpanDays − 1)` with blank filler weeks, and a longer
+ * range is paged — the newest page shows first and the header arrows step
+ * through the range one page at a time, the oldest page padding backward the
+ * same way. Every calendar day of the page through the range end gets a
+ * point: days without traffic — and leading filler days before the range —
+ * carry `null` (blank cells per the design, not zero labels), while the days
+ * completing the newest week past the range end emit no point at all, so the
+ * chart's ragged-edge option hides their cells and the current week only
+ * draws through today. A `postId` of 0 disables the request.
+ */
+export default function usePostTrafficActivity(
+	postId: number,
+	reportParams: ReportParams,
+	pageSpanDays: number
+): PostTrafficActivityState {
+	const { data, isLoading, isFetching, isError, refetch } = useStatsPost( {
+		postId,
+		fields: [ 'data' ],
+	} );
+
+	// Pages step back from the range end; a new range (or a resize that
+	// changes the page span) starts back at the newest page.
+	const [ pageOffset, setPageOffset ] = useState( 0 );
+	useEffect( () => {
+		setPageOffset( 0 );
+	}, [ reportParams.from, reportParams.to, pageSpanDays ] );
+
+	const from = toDay( reportParams.from );
+	const to = toDay( reportParams.to );
+
+	const { days, isPaged, canShowOlder } = useMemo( () => {
+		if ( ! from || ! to || from > to ) {
+			return { days: [] as DataPointDate[], isPaged: false, canShowOlder: false };
+		}
+
+		const history = data?.data ?? [];
+		const viewsByDay = new Map( history.map( day => [ day.date, day.views ] ) );
+
+		// Pages snap to week boundaries: the chart grids Monday-start week
+		// columns from the window's first week, so an unaligned window would
+		// span one more column than the width measurement sized the card for.
+		// With both bounds aligned, a page is exactly `pageSpanDays / 7`
+		// columns; the days past the range edges inside those weeks stay
+		// blank filler.
+		const firstWeekStart = startOfWeek( parseISO( from ), { weekStartsOn: 1 } );
+		const newestPageEnd = endOfWeek( parseISO( to ), { weekStartsOn: 1 } );
+		const paged = firstWeekStart < subDays( newestPageEnd, pageSpanDays - 1 );
+
+		let pageEnd = subDays( newestPageEnd, pageOffset * pageSpanDays );
+		let pageStart = subDays( pageEnd, pageSpanDays - 1 );
+
+		// The oldest page of a paged range clamps to the range's first week
+		// and fills forward (overlapping the previous page), instead of
+		// padding months of out-of-range blanks before it. Short ranges keep
+		// padding backward from the range end so the grid still fills the card.
+		if ( paged && pageStart < firstWeekStart ) {
+			pageStart = firstWeekStart;
+			const clampedEnd = addDays( firstWeekStart, pageSpanDays - 1 );
+			pageEnd = clampedEnd < newestPageEnd ? clampedEnd : newestPageEnd;
+		}
+
+		// No points past the range end: the chart's ragged-edge option then
+		// hides the trailing cells of the newest week (future days, on a
+		// rolling preset), per the design. `pageEnd` itself stays week-aligned
+		// so the column count still matches the width measurement.
+		const rangeEnd = parseISO( to );
+		const pointsEnd = rangeEnd < pageEnd ? rangeEnd : pageEnd;
+
+		const points = eachDayOfInterval( { start: pageStart, end: pointsEnd } ).map( date => {
+			const dateString = format( date, 'yyyy-MM-dd' );
+			const inRange = dateString >= from && dateString <= to;
+			const views = inRange ? viewsByDay.get( dateString ) : undefined;
+
+			// Blank (null) for no-traffic and leading filler days, per the
+			// design — not a `0` label.
+			return { dateString, value: views ? views : null };
+		} );
+
+		return {
+			days: points,
+			isPaged: paged,
+			canShowOlder: firstWeekStart < pageStart,
+		};
+	}, [ data, from, to, pageOffset, pageSpanDays ] );
+
+	const showOlder = useCallback( () => {
+		setPageOffset( offset => ( canShowOlder ? offset + 1 : offset ) );
+	}, [ canShowOlder ] );
+
+	const showNewer = useCallback( () => {
+		setPageOffset( offset => Math.max( 0, offset - 1 ) );
+	}, [] );
+
+	return {
+		days,
+		isPaged,
+		canShowOlder,
+		canShowNewer: pageOffset > 0,
+		showOlder,
+		showNewer,
+		isLoading,
+		isFetching,
+		isError,
+		hasData: !! data,
+		refetch,
+	};
+}

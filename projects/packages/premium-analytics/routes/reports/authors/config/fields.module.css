@@ -1,0 +1,7 @@
+.avatar {
+	inline-size: var(--wpds-dimension-size-sm);
+	block-size: var(--wpds-dimension-size-sm);
+	flex-shrink: 0;
+	border-radius: 50%;
+	object-fit: cover;
+}

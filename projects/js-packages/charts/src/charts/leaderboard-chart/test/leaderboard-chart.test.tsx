@@ -1,6 +1,9 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { GlobalChartsProvider } from '../../../providers';
+import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
 import LeaderboardChart from '../leaderboard-chart';
+import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
 import type { LeaderboardEntry } from '../../../types';
 
 const mockDefaultParentSize = () => ( {
@@ -76,6 +79,77 @@ describe( 'LeaderboardChart', () => {
 
 		expect( screen.getByText( '+25%' ) ).toBeInTheDocument();
 		expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows a placeholder when a row has no previous value', () => {
+		render(
+			<LeaderboardChart
+				data={ [
+					...mockData,
+					{
+						id: 'new',
+						label: 'New Source',
+						currentValue: 100,
+						currentShare: 1,
+					},
+				] }
+				withComparison={ true }
+			/>
+		);
+
+		expect( screen.getByText( '+25%' ) ).toBeInTheDocument();
+		expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'New Source' ) ).toBeInTheDocument();
+		expect( screen.getByText( '—' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( 'No comparison data' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '+100%' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows an unavailable delta when a known previous value is zero', () => {
+		render(
+			<LeaderboardChart
+				data={ [
+					{
+						id: 'new',
+						label: 'New Source',
+						currentValue: 100,
+						previousValue: 0,
+						currentShare: 100,
+						previousShare: 0,
+					},
+				] }
+				withComparison={ true }
+			/>
+		);
+
+		expect( screen.getByText( '—' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( 'Percentage change unavailable' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'No comparison data' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( '+100%' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'still renders the comparison bar when the previous value is known but the delta is unavailable', () => {
+		// The comparison bar is gated on a known previous value, not on the
+		// delta, so a row whose delta is unavailable keeps its bar. previousShare
+		// is non-zero here so a dropped bar cannot hide behind a zero width.
+		const { container } = render(
+			<LeaderboardChart
+				data={ [
+					{
+						id: 'zero-prev',
+						label: 'Zero Prev',
+						currentValue: 100,
+						previousValue: 0,
+						currentShare: 100,
+						previousShare: 40,
+					},
+				] }
+				withComparison={ true }
+			/>
+		);
+
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		expect( container.querySelectorAll( '.bar' ) ).toHaveLength( 2 );
 	} );
 
 	it( 'shows custom label when provided', () => {
@@ -347,13 +421,110 @@ describe( 'LeaderboardChart', () => {
 		} );
 	} );
 
-	describe( 'Responsive wrapper', () => {
-		it( 'fills parent container (height:100%) by default', () => {
-			render( <LeaderboardChart data={ mockData } /> );
-			const wrapper = screen.getByTestId( 'responsive-wrapper' );
-			expect( wrapper ).toHaveStyle( { height: '100%' } );
+	describe( 'Programmatic visibility', () => {
+		it( 'hides the primary series programmatically when the legend is not interactive', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LeaderboardChart
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-leaderboard"
+						data={ mockData }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const primaryLabel = screen.getAllByTestId( 'legend-item' )[ 0 ].textContent;
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-programmatic-leaderboard', primaryLabel );
+			} );
+
+			expect( screen.getByText( /all series are hidden/i ) ).toBeInTheDocument();
 		} );
 
+		it( 'omits the click instruction when the legend cannot be clicked', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LeaderboardChart
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-empty-copy-leaderboard"
+						data={ mockData }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const primaryLabel = screen.getAllByTestId( 'legend-item' )[ 0 ].textContent;
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-empty-copy-leaderboard', primaryLabel );
+			} );
+
+			expect( screen.getByText( 'All series are hidden.' ) ).toBeInTheDocument();
+			expect( screen.queryByText( /click legend items/i ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'still renders the primary series when only the comparison is hidden programmatically', () => {
+			// Hiding every series routes through allSeriesHidden to the empty state and
+			// never exercises the per-series render path. Hiding only the comparison
+			// series exercises that path for the leaderboard's primary/comparison split.
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LeaderboardChart
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						withComparison={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-comparison-leaderboard"
+						data={ mockData }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const comparisonLabel = screen.getAllByTestId( 'legend-item' )[ 1 ].textContent;
+
+			act( () => {
+				context.toggleSeriesVisibility(
+					'test-programmatic-comparison-leaderboard',
+					comparisonLabel
+				);
+			} );
+
+			expect( screen.queryByText( /all series are hidden/i ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Direct' ) ).toBeInTheDocument();
+			expect( screen.getByText( '12.5K' ) ).toBeInTheDocument();
+			expect( screen.queryByText( '+25%' ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Responsive wrapper', () => {
 		it( 'applies explicit width and height to chart container', () => {
 			const { useParentSize } = jest.requireMock( '@visx/responsive' );
 			useParentSize.mockReturnValue( {
@@ -401,6 +572,52 @@ describe( 'LeaderboardChart', () => {
 			render( <LeaderboardChart data={ [ { ...mockData[ 0 ], onClick: jest.fn() } ] } /> );
 			// mockData[0] label is 'Direct', currentValue 12500 → '12.5K'
 			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName( /Direct.*12\.5K/ );
+		} );
+
+		it( 'does not include the missing comparison dash in interactive row names', () => {
+			render(
+				<LeaderboardChart
+					data={ [
+						{
+							id: 'new',
+							label: 'New Source',
+							currentValue: 100,
+							currentShare: 1,
+							onClick: jest.fn(),
+						},
+					] }
+					withComparison={ true }
+				/>
+			);
+
+			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName(
+				/New Source.*100.*No comparison data/
+			);
+			expect( screen.getByRole( 'button' ) ).not.toHaveAccessibleName( /—/ );
+		} );
+
+		it( 'does not include the unavailable delta dash in interactive row names', () => {
+			render(
+				<LeaderboardChart
+					data={ [
+						{
+							id: 'zero-prev',
+							label: 'Zero Prev',
+							currentValue: 100,
+							previousValue: 0,
+							currentShare: 1,
+							previousShare: 0,
+							onClick: jest.fn(),
+						},
+					] }
+					withComparison={ true }
+				/>
+			);
+
+			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName(
+				/Zero Prev.*100.*Percentage change unavailable/
+			);
+			expect( screen.getByRole( 'button' ) ).not.toHaveAccessibleName( /—/ );
 		} );
 
 		it( 'derives the accessible name from an image label via its alt text', () => {

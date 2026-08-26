@@ -153,6 +153,21 @@ export function readConsentChoices(): ConsentEventChoices {
 	}, {} );
 }
 
+export function hasAnalyticsConsent( choices: ConsentEventChoices ): boolean {
+	const analyticsCategory = getConsentCategories().find(
+		category =>
+			category.key === 'analytics' ||
+			category.wpConsentMap.includes( 'statistics' ) ||
+			category.wpConsentMap.includes( 'statistics-anonymous' )
+	);
+
+	if ( ! analyticsCategory ) {
+		return choices.analytics === true;
+	}
+
+	return choices[ getCategoryPreferenceKey( analyticsCategory ) ] === true;
+}
+
 export function saveConsentChoices(
 	choices: ConsentEventChoices,
 	eventType: ConsentEventType = 'accept_selected'
@@ -233,7 +248,8 @@ export function handleConsentByRegion(
 	countryCode: string,
 	region: string,
 	config: Config,
-	context: Context
+	context: Context,
+	bannerEnabled: boolean = true
 ): void {
 	if ( isGdprCountry( countryCode, config ) ) {
 		// GDPR: Opt-in model - show banner for explicit consent
@@ -250,8 +266,14 @@ export function handleConsentByRegion(
 			return;
 		}
 
-		context.showBanner = true;
-		trackPrivacyBannerView();
+		// Only surface the banner when the banner feature is on. Its markup may still
+		// render on a banner-disabled site to back the footer manage-preferences modal,
+		// so popping it here would be wrong. The consent handling above/below is
+		// independent of the banner and always runs.
+		if ( bannerEnabled ) {
+			context.showBanner = true;
+			trackPrivacyBannerView();
+		}
 		return;
 	}
 

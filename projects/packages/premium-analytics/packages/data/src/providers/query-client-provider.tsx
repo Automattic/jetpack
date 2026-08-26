@@ -6,45 +6,19 @@ import { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
+import { getApiErrorStatus, shouldRetryApiError, StatsResponseShapeError } from '../utils';
 import { globalErrorManager } from './global-error-manager';
+
+// Both the retry policy and the global error detection below read the HTTP
+// status, which apiFetch drops on its way to throwing the parsed body.
+// `fetchPreservingStatus()` restores it for every request that goes through the
+// stats transport or the notices route by parsing at its own call site — nothing
+// needs registering here, so neither depends on the app's boot path. The few
+// queries still on bare apiFetch (latest post, product images, site sync) hit
+// local WP REST routes, whose `WP_Error` bodies already carry `data.status`.
 
 const DEFAULT_STALE_TIME = 5 * 60 * 1000;
 const DEFAULT_GC_TIME = 10 * 60 * 1000;
-
-/**
- * Extract HTTP status code from various error formats.
- * WordPress REST API errors may have different shapes.
- */
-function getErrorStatus( error: unknown ): number | null {
-	if ( ! error || typeof error !== 'object' ) {
-		return null;
-	}
-
-	const err = error as Record< string, unknown >;
-
-	// Standard fetch Response error
-	if ( typeof err.status === 'number' ) {
-		return err.status;
-	}
-
-	// WordPress REST API error format
-	if ( err.data && typeof err.data === 'object' ) {
-		const data = err.data as Record< string, unknown >;
-		if ( typeof data.status === 'number' ) {
-			return data.status;
-		}
-	}
-
-	// Nested response object
-	if ( err.response && typeof err.response === 'object' ) {
-		const response = err.response as Record< string, unknown >;
-		if ( typeof response.status === 'number' ) {
-			return response.status;
-		}
-	}
-
-	return null;
-}
 
 /**
  * QueryCache with global error detection for auth and server errors.
@@ -55,15 +29,20 @@ function getErrorStatus( error: unknown ): number | null {
  * - 503: Service unavailable (server overloaded or under maintenance)
  * - 504: Gateway timeout (request took too long)
  *
- * This is QueryClient configuration (not a side effect subscription), so it's
- * appropriate at module level. The globalErrorManager singleton is used here
- * because QueryClient must be instantiated once (singleton pattern), but the
- * error state is safely consumed via useSyncExternalStore in GlobalErrorProvider.
- *
- * Network errors are handled separately in GlobalErrorProvider via onlineManager.
+ * Module level is safe: this is QueryClient configuration rather than a side-effect
+ * subscription, and QueryClient must be instantiated once. The error state itself is
+ * consumed via useSyncExternalStore in GlobalErrorProvider, which also handles
+ * network errors via onlineManager.
  */
 const queryCache = new QueryCache( {
 	onError: error => {
+		if ( error instanceof StatsResponseShapeError ) {
+			// A response contract violation needs a developer-visible diagnostic;
+			// the widget intentionally replaces the detail with user-safe copy.
+			// eslint-disable-next-line no-console
+			console.warn( `Unexpected Stats response: ${ error.message }` );
+		}
+
 		const currentError = globalErrorManager.getError();
 
 		// Don't override network error (highest priority)
@@ -71,7 +50,7 @@ const queryCache = new QueryCache( {
 			return;
 		}
 
-		const status = getErrorStatus( error );
+		const status = getApiErrorStatus( error );
 
 		if ( status === 401 ) {
 			// Auth errors take precedence over server errors, but not network errors.
@@ -97,24 +76,21 @@ export const queryClient = new QueryClient( {
 	queryCache,
 	defaultOptions: {
 		queries: {
-			/*
-			 * Stale time is the time after which the data
-			 * is considered stale and a new request is made.
-			 * Stale time: 5 minutes
-			 */
 			staleTime: DEFAULT_STALE_TIME,
 
-			/*
-			 * GC time is the time after which the data is considered garbage
-			 * collected and removed from the cache.
-			 * GC time: 10 minutes
-			 */
 			gcTime: DEFAULT_GC_TIME,
 
 			/**
 			 * Noop fetcher to prevent react-query errors for empty queries in console.
 			 */
 			queryFn: () => Promise.resolve( undefined ),
+
+			/**
+			 * 401/403 responses are deterministic for the current user/session.
+			 * Retrying them keeps initial widgets in a loading state and delays the
+			 * specific auth/plan-gated error UI.
+			 */
+			retry: shouldRetryApiError,
 		},
 	},
 } );

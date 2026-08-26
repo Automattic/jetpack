@@ -19,7 +19,7 @@ interface JsonSchema {
  */
 export const AGENT_OUTPUT_SCHEMA: JsonSchema = {
 	type: 'object',
-	required: [ 'tasks', 'inferred', 'first_post_draft' ],
+	required: [ 'tasks', 'inferred', 'first_post_draft', 'about_page_draft' ],
 	additionalProperties: false,
 	properties: {
 		tasks: {
@@ -45,8 +45,36 @@ export const AGENT_OUTPUT_SCHEMA: JsonSchema = {
 					type: 'string',
 					enum: [ 'write', 'build', 'sell', 'newsletter', 'educate', 'portfolio' ],
 				},
+				inferred_goal: {
+					type: 'string',
+					enum: [ 'write', 'build', 'sell', 'newsletter', 'educate', 'portfolio' ],
+				},
 				brand_name: { type: 'string', maxLength: 80 },
 				niche: { type: 'string', maxLength: 120 },
+				theme_category: {
+					type: 'string',
+					enum: [
+						'blog',
+						'portfolio',
+						'business',
+						'store',
+						'art-design',
+						'about',
+						'real-estate',
+						'health-wellness',
+						'authors-writers',
+						'newsletter',
+						'education',
+						'magazine',
+						'music',
+						'restaurant',
+						'travel-lifestyle',
+						'fashion-beauty',
+						'community-non-profit',
+						'podcast',
+						'entertainment',
+					],
+				},
 				vibe: { type: 'string', maxLength: 120 },
 				audience: { type: 'string', maxLength: 200 },
 				tagline: { type: 'string', maxLength: 200 },
@@ -65,6 +93,33 @@ export const AGENT_OUTPUT_SCHEMA: JsonSchema = {
 					maxItems: 2,
 					items: { type: 'string', minLength: 1, maxLength: 1200 },
 				},
+			},
+		},
+		about_page_draft: {
+			type: 'object',
+			required: [ 'title', 'paragraphs' ],
+			additionalProperties: false,
+			properties: {
+				title: { type: 'string', minLength: 1, maxLength: 80 },
+				paragraphs: {
+					type: 'array',
+					minItems: 2,
+					maxItems: 3,
+					items: { type: 'string', minLength: 1, maxLength: 1200 },
+				},
+			},
+		},
+		// Optional, and optional key by key: a page intro exists only for a page task the model chose.
+		// Absent from `required` above rather than expressed as a conditional, which this validator
+		// cannot represent — see the JsonSchema interface for the keywords it supports.
+		page_intros: {
+			type: 'object',
+			additionalProperties: false,
+			properties: {
+				add_contact_page: { type: 'string', minLength: 1, maxLength: 200 },
+				add_events_page: { type: 'string', minLength: 1, maxLength: 200 },
+				add_video_page: { type: 'string', minLength: 1, maxLength: 200 },
+				add_gallery_page: { type: 'string', minLength: 1, maxLength: 200 },
 			},
 		},
 	},

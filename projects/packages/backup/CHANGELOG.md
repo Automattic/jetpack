@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.15] - 2026-08-25
+### Changed
+- Internal updates.
+
+## [4.3.14] - 2026-08-20
+### Changed
+- Update package dependencies. [#51399]
+
+## [4.3.13] - 2026-08-11
+### Changed
+- Update dependencies. [#50841]
+
+## [4.3.12] - 2026-08-10
+### Changed
+- Update package dependencies. [#50509] [#51008]
+
+## [4.3.11] - 2026-08-03
+### Fixed
+- Load JS translation catalogs and stamp the package text domain on the wp-build dashboard bundles. [#50762]
+
+## [4.3.10] - 2026-07-27
+### Changed
+- Update dependencies. [#50719]
+- Update package dependencies. [#50751] [#50753]
+
+## [4.3.9] - 2026-07-20
+### Changed
+- Update package dependencies. [#50510] [#50529] [#50582]
+
+## [4.3.8] - 2026-07-13
+### Changed
+- Update package dependencies. [#49272]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
+## [4.3.7] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183] [#50212]
+
 ## [4.3.6] - 2026-06-29
 ### Changed
 - Update package dependencies. [#49271]
@@ -1159,6 +1197,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[4.3.15]: https://github.com/Automattic/jetpack-backup/compare/v4.3.14...v4.3.15
+[4.3.14]: https://github.com/Automattic/jetpack-backup/compare/v4.3.13...v4.3.14
+[4.3.13]: https://github.com/Automattic/jetpack-backup/compare/v4.3.12...v4.3.13
+[4.3.12]: https://github.com/Automattic/jetpack-backup/compare/v4.3.11...v4.3.12
+[4.3.11]: https://github.com/Automattic/jetpack-backup/compare/v4.3.10...v4.3.11
+[4.3.10]: https://github.com/Automattic/jetpack-backup/compare/v4.3.9...v4.3.10
+[4.3.9]: https://github.com/Automattic/jetpack-backup/compare/v4.3.8...v4.3.9
+[4.3.8]: https://github.com/Automattic/jetpack-backup/compare/v4.3.7...v4.3.8
+[4.3.7]: https://github.com/Automattic/jetpack-backup/compare/v4.3.6...v4.3.7
 [4.3.6]: https://github.com/Automattic/jetpack-backup/compare/v4.3.5...v4.3.6
 [4.3.5]: https://github.com/Automattic/jetpack-backup/compare/v4.3.4...v4.3.5
 [4.3.4]: https://github.com/Automattic/jetpack-backup/compare/v4.3.3...v4.3.4

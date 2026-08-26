@@ -1,72 +1,46 @@
 import {
-	getSiteTimezone,
 	GlobalErrorProvider,
-	localTZDate,
-	type ReportQueryParams,
+	queryClient,
+	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
+import { Stack } from '@jetpack-premium-analytics/externals';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { useSyncStatus } from '@jetpack-premium-analytics/site-sync';
 import {
-	deriveComparisonRange,
-	encodeDateToSearchParam,
-	useStagedSearch,
-} from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+	DateFiltersPanel,
+	DateIntervalDropdown,
+	DateYearFilter,
+	SectionHeader,
+	SectionTabPanel,
+	StatsBreadcrumbs,
+	StatsPageIcon,
+	getSectionSubtitle,
+} from '@jetpack-premium-analytics/ui';
 import { Page } from '@wordpress/admin-ui';
+import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useCallback, useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { Tabs } from '@wordpress/ui';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
-import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
-import { endOfDay, isValid } from 'date-fns';
-import { DashboardSections } from './components';
+import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
+import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
+import { DashboardSections, SectionSyncNotice } from './components';
 import {
-	DASHBOARD_NAME,
+	DATE_FILTER_YEAR,
+	isSectionAwaitingSync,
+	offersDateComparison,
+	resolveSectionHeading,
+} from './config';
+import {
 	useActiveSection,
 	useDashboardGridSettings,
 	useDashboardSectionLayout,
 	useDashboardSections,
+	useSectionDateFilter,
 } from './hooks';
 import styles from './stage.module.scss';
-import type {
-	ComparisonPresetId,
-	DateRange,
-	PrimaryPresetId,
-} from '@jetpack-premium-analytics/datetime';
-
-type ReportQuerySearchParams = Partial<
-	ReportQueryParams & {
-		preset?: PrimaryPresetId;
-		compare_preset?: ComparisonPresetId;
-		comp?: '1';
-	}
->;
-
-/**
- * Parse search-param dates into a picker range, dropping unparseable values to
- * `undefined`. The picker reads these straight from the URL, so a malformed
- * `from`/`to` (e.g. a hand-edited or under-encoded deep link where the `+`
- * offset decoded to a space) must not become an invalid Date — `formatDate`
- * throws "Invalid time value" on one and would white-screen the dashboard.
- *
- * @param {string} [from] - The `from` search param.
- * @param {string} [to]   - The `to` search param.
- * @return {object} The parsed range, with invalid endpoints as `undefined`.
- */
-function toPickerRange( from?: string, to?: string ) {
-	const parse = ( value?: string ) => {
-		if ( ! value ) {
-			return undefined;
-		}
-		const date = localTZDate( value );
-		return isValid( date ) ? date : undefined;
-	};
-
-	return {
-		from: parse( from ),
-		to: parse( to ),
-	};
-}
+import type { DateRange, YearSurfacePresetId } from '@jetpack-premium-analytics/datetime';
 
 /**
  * Premium Analytics dashboard page stage component.
@@ -74,13 +48,45 @@ function toPickerRange( from?: string, to?: string ) {
  * @return {JSX.Element} The Premium Analytics dashboard.
  */
 function Dashboard(): JSX.Element {
-	const sections = useDashboardSections();
-	const [ activeSection, setActiveSection ] = useActiveSection();
-	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout(
-		DASHBOARD_NAME,
-		activeSection
+	const { sections, hasResolved: hasResolvedSections } = useDashboardSections();
+	const [ activeSection, setActiveSection ] = useActiveSection( sections );
+	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout( activeSection, sections );
+	const [ gridSettings ] = useDashboardGridSettings();
+
+	/*
+	 * Only a section whose data reaches WordPress.com through the analytics full
+	 * sync has incomplete numbers; the rest read data it already holds. The
+	 * watcher runs at the dashboard level rather than inside the notice below, so
+	 * the sync starts as soon as the dashboard opens instead of only once that
+	 * section is visited.
+	 */
+	const isSyncFinished = isPremiumAnalyticsInitialSyncFinished();
+	const sectionsAwaitSync = sections.some( section =>
+		isSectionAwaitingSync( section, isSyncFinished )
 	);
-	const [ gridSettings, setGridSettings ] = useDashboardGridSettings();
+	const {
+		data: syncStatus,
+		error: syncError,
+		isComplete: isSyncComplete,
+		triggerSync,
+	} = useSyncStatus( { enabled: sectionsAwaitSync, autoStart: true } );
+
+	const [ isRetryingSync, setIsRetryingSync ] = useState( false );
+	const retrySync = useCallback( async () => {
+		setIsRetryingSync( true );
+		try {
+			await triggerSync();
+		} finally {
+			setIsRetryingSync( false );
+		}
+	}, [ triggerSync ] );
+
+	// Widgets that rendered mid-sync cached numbers the sync has since filled in.
+	useEffect( () => {
+		if ( isSyncComplete ) {
+			queryClient.invalidateQueries( { queryKey: [ 'reports' ] } );
+		}
+	}, [ isSyncComplete ] );
 
 	const widgetModules = useSelect(
 		select =>
@@ -100,208 +106,217 @@ function Dashboard(): JSX.Element {
 		[]
 	);
 
-	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
-
 	const [ editMode, setEditMode ] = useState( false );
 
-	/*
-	 * Date-range state lives in the URL search params. Edits are staged
-	 * locally and committed atomically on Apply (or immediately for
-	 * comparison changes), so widgets re-fetch only on commit.
-	 */
-	const { committed, effective, stage, commit, revert, isDirty } = useStagedSearch<
-		ReportQuerySearchParams,
-		'/'
-	>( {
-		from: '/',
+	// Only the widgets this section renders need their metadata resolved at
+	// boot; the complete registry is what the widget picker lists, so it can
+	// wait for edit mode. `null` until the sections resolve — the layout is
+	// empty until then, and this hook runs on those renders too, below the
+	// spinner returned further down. See `useWidgetTypesWithI18n`.
+	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules, {
+		visibleNames: hasResolvedSections ? layout.map( widget => widget.type ) : null,
+		includeAll: editMode,
 	} );
 
 	/*
-	 * Staged preset/range are the in-progress draft: the open popover (calendar
-	 * + trigger) reflects them live as the user edits.
+	 * Date-range state lives in the URL search params. The shared controller
+	 * stages edits locally and commits atomically on Apply (or immediately for
+	 * comparison changes), so widgets re-fetch only on commit.
 	 */
-	const presetId = useMemo( () => effective.preset ?? undefined, [ effective.preset ] );
-	const range = useMemo(
-		() => toPickerRange( effective.from, effective.to ),
-		[ effective.from, effective.to ]
+	const dateFilters = useReportDateFilters( '/' );
+
+	const activeSectionRecord = sections.find( section => section.slug === activeSection );
+
+	/*
+	 * Which date filter the active section's header shows. Also reconciles the
+	 * preset in the URL with that filter's surface, so a section switch never
+	 * leaves the visible control unable to represent the selection.
+	 */
+	const dateFilterSurface = useSectionDateFilter( activeSectionRecord, dateFilters );
+
+	// Server-driven, like the surface above.
+	const showComparison = offersDateComparison(
+		dateFilterSurface,
+		activeSectionRecord?.date_filter_options
 	);
 
 	/*
-	 * Committed preset/range are what's actually applied. The picker uses them
-	 * to label its trigger while the popover is closed, so an accidental
-	 * outside-click reverts the display to the applied range — while the staged
-	 * draft above is kept and restored when the popover reopens.
+	 * The subtitle states what the widgets are currently showing, so it follows
+	 * the applied range and comparison rather than the picker's staged draft:
+	 * it must not move while an edit is open, only once Apply commits it.
+	 *
+	 * A header without the comparison control must not announce one.
 	 */
-	const appliedPresetId = useMemo( () => committed.preset ?? undefined, [ committed.preset ] );
-	const appliedRange = useMemo(
-		() => toPickerRange( committed.from, committed.to ),
-		[ committed.from, committed.to ]
+	const comparisonPresetId = showComparison ? dateFilters.appliedComparisonPresetId : undefined;
+	const comparisonRange = showComparison ? dateFilters.appliedComparisonRange : undefined;
+	const sectionSubtitle = useMemo(
+		() =>
+			getSectionSubtitle( {
+				range: dateFilters.appliedRange,
+				presetId: dateFilters.appliedPresetId,
+				comparisonPresetId,
+				comparisonRange,
+				// The interval control renders as a glyph, so the subtitle is
+				// where the active bucket is readable. Both surfaces carry it.
+				interval: dateFilters.appliedInterval,
+			} ),
+		[
+			dateFilters.appliedRange,
+			dateFilters.appliedPresetId,
+			dateFilters.appliedInterval,
+			comparisonPresetId,
+			comparisonRange,
+		]
 	);
 
-	const onChange = useCallback(
-		( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
-			if ( ! nextRange && ! nextPresetId ) {
-				return;
-			}
-
-			if ( nextRange && nextRange.from && nextRange.to ) {
-				/*
-				 * Stage `from` and `to` as ISO strings. The `to` date is
-				 * adjusted to the end of the day, since the date picker core
-				 * component sets the time to 00:00:00.
-				 */
-				const from = encodeDateToSearchParam( nextRange.from );
-				const to = encodeDateToSearchParam( endOfDay( nextRange.to ) );
-				const patch: ReportQuerySearchParams = { from, to };
-
-				/*
-				 * When comparison is enabled, re-derive the comparison window
-				 * from the new primary range so widgets compare against the
-				 * matching previous period instead of the stale dates.
-				 */
-				if ( effective.comp === '1' ) {
-					const derived = deriveComparisonRange( { ...effective, from, to } );
-					if ( derived ) {
-						patch.compare_from = derived.compare_from;
-						patch.compare_to = derived.compare_to;
-					}
-				}
-
-				stage( patch );
-			}
-
-			if ( nextPresetId ) {
-				stage( { preset: nextPresetId } );
-			}
-		},
-		[ stage, effective ]
-	);
-
-	const comparisonPresetId = useMemo(
-		() => effective.compare_preset ?? undefined,
-		[ effective.compare_preset ]
-	);
-
-	/**
-	 * Comparison changes commit immediately — but only when the primary date
-	 * isn't mid-edit. If a primary edit is staged but not yet applied, the
-	 * comparison change rides along and commits together on Apply, so tweaking
-	 * the comparison never commits an un-applied primary draft.
+	/*
+	 * The year surface applies on click — it has no Apply step of its own — so
+	 * stage and commit together, the way the quick presets do inside
+	 * `DateRangeFilter`.
 	 */
-	const onComparisonChange = useCallback(
-		( nextComparisonRange: DateRange | undefined, nextComparisonPresetId?: ComparisonPresetId ) => {
-			stage( {
-				compare_from: encodeDateToSearchParam( nextComparisonRange?.from ),
-				compare_to: encodeDateToSearchParam( nextComparisonRange?.to ),
-				compare_preset: nextComparisonPresetId ?? undefined,
-				comp: nextComparisonRange ? '1' : undefined,
-			} );
-
-			const hasPrimaryDraft =
-				effective.from !== committed.from ||
-				effective.to !== committed.to ||
-				effective.preset !== committed.preset;
-
-			if ( ! hasPrimaryDraft ) {
-				commit();
-			}
+	const { onChange: onDateChange, onApply: onDateApply } = dateFilters;
+	const selectYear = useCallback(
+		( range: DateRange, presetId: YearSurfacePresetId ) => {
+			onDateChange( range, presetId );
+			onDateApply();
 		},
-		[ stage, commit, effective, committed ]
+		[ onDateChange, onDateApply ]
 	);
-
-	const onApply = useCallback( () => {
-		commit();
-	}, [ commit ] );
-
-	const onCancel = useCallback( () => {
-		revert();
-	}, [ revert ] );
 
 	// Container element for the date filters panel responsive layout.
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
+	// The sections carry each section's default layout, so until the entity
+	// resolves the layout above is transiently empty. WidgetDashboard treats an
+	// empty layout as "no widgets" and force-opens edit mode, so it must not
+	// mount before the sections exist.
+	if ( ! hasResolvedSections ) {
+		return (
+			<Stack justify="center" align="center" className={ styles.loading }>
+				<Spinner />
+			</Stack>
+		);
+	}
+
 	/*
-	 * Read the site timezone reactively. A fully-specified deep link skips the
-	 * seed's `ensureCoreSettingsReady()` await, so core `site` settings may not
-	 * be loaded on first paint; subscribing here re-renders with the real site
-	 * timezone once they resolve, instead of sticking with the browser fallback.
+	 * The date controls belong to the active section: the tab panels unmount
+	 * when they lose focus, so only the active section's header is ever rendered
+	 * and one set of controls is enough.
 	 */
-	const timeZone = useSelect( select => {
-		void (
-			select( coreStore ) as unknown as {
-				getEntityRecord: ( kind: string, name: string ) => unknown;
-			}
-		 ).getEntityRecord( 'root', 'site' );
-		return getSiteTimezone();
-	}, [] );
+	const dateControls =
+		dateFilterSurface === DATE_FILTER_YEAR ? (
+			/*
+			 * The year surface carries the interval control but no comparison.
+			 * Composed here rather than inside `DateYearFilter`, which stays the
+			 * preset surface alone.
+			 */
+			<Stack direction="row" align="center" gap="sm">
+				{ /*
+				 * `startYear` is left out on purpose: nothing in this package knows how
+				 * far back the site's data goes yet (`getStoreInfo()` is still a stub),
+				 * so the surface falls back to `DEFAULT_YEAR_SURFACE_COUNT` — six years,
+				 * which is the window the design shows. Pass the site's oldest year of
+				 * content here once a source for it exists, so a younger site stops
+				 * offering years it has nothing to show for.
+				 */ }
+				<DateYearFilter
+					value={ dateFilters.appliedPresetId }
+					onSelect={ selectYear }
+					timeZone={ dateFilters.timeZone }
+					containerElement={ containerElement }
+				/>
+
+				<DateIntervalDropdown
+					options={ dateFilters.intervalOptions }
+					value={ dateFilters.interval }
+					onChange={ dateFilters.onIntervalChange }
+				/>
+			</Stack>
+		) : (
+			/*
+			 * The dashboard's widgets are charts bucketed by the interval. The
+			 * report pages mount this same panel over records tables, which are
+			 * not, so the control is asked for rather than implied by the props.
+			 */
+			<DateFiltersPanel { ...dateFilters } withIntervalControl />
+		);
 
 	return (
 		<GlobalErrorProvider>
-			<WidgetDashboard
-				widgetTypes={ widgetTypes }
-				isResolvingWidgetTypes={ isResolvingWidgetTypes }
-				layout={ layout }
-				onLayoutChange={ setLayout }
-				onLayoutReset={ resetLayout }
-				gridSettings={ gridSettings }
-				onGridSettingsChange={ setGridSettings }
-				editMode={ editMode }
-				onEditChange={ setEditMode }
-			>
-				<Page
-					title={ __( 'Analytics', 'jetpack-premium-analytics' ) }
-					subTitle={ __(
-						'Track your site performance and visitor insights.',
-						'jetpack-premium-analytics'
-					) }
-					actions={ <WidgetDashboard.Actions /> }
-					className={ styles.dashboard }
+			{ /*
+			 * The same answer the header uses to decide whether to render the
+			 * comparison control, declared once for the widgets below: hiding
+			 * the control does not strip the params, and a widget reading them
+			 * straight off the URL would show a comparison this section's
+			 * reader has no way to see or switch off.
+			 */ }
+			<ReportScopeProvider offersComparison={ showComparison }>
+				<WidgetDashboard
+					widgetTypes={ widgetTypes }
+					isResolvingWidgetTypes={ isResolvingWidgetTypes }
+					resolveWidgetModule={ resolveWidgetModuleWithI18n }
+					layout={ layout }
+					onLayoutChange={ setLayout }
+					onLayoutReset={ resetLayout }
+					gridSettings={ gridSettings }
+					editMode={ editMode }
+					onEditChange={ setEditMode }
 				>
-					<DashboardSections
-						sections={ sections }
-						value={ activeSection }
-						onChange={ setActiveSection }
+					<Page
+						visual={ <StatsPageIcon /> }
+						breadcrumbs={ <StatsBreadcrumbs isRoot /> }
+						subTitle={ activeSectionRecord?.description }
+						actions={ <WidgetDashboard.Actions /> }
+						className={ styles.dashboard }
 					>
-						{ /*
-						 * The date filters drive every section, so they render once
-						 * below the section tabs and above the widgets, sharing the
-						 * URL search state across all sections.
-						 *
-						 * The wrapper div is also the responsive-measurement target:
-						 * DateFiltersPanel reads its width to pick mobile/wide layouts
-						 * instead of relying on the viewport.
-						 */ }
-						<div ref={ setContainerElement } className={ styles.dateFilters }>
-							<DateFiltersPanel
-								presetId={ presetId }
-								range={ range }
-								appliedPresetId={ appliedPresetId }
-								appliedRange={ appliedRange }
-								comparisonPresetId={ comparisonPresetId }
-								onChange={ onChange }
-								onComparisonChange={ onComparisonChange }
-								onApply={ onApply }
-								onCancel={ onCancel }
-								canApply={ isDirty }
-								timeZone={ timeZone }
-								containerElement={ containerElement }
-							/>
-						</div>
-						{ sections.map( section => (
-							<Tabs.Panel key={ section.id } value={ section.id } className={ styles.content }>
-								{ activeSection === section.id ? (
-									<>
-										<WidgetDashboard.NoWidgetsState />
-										<WidgetDashboard.Widgets />
-									</>
-								) : null }
-							</Tabs.Panel>
-						) ) }
-					</DashboardSections>
+						<DashboardSections
+							sections={ sections }
+							value={ activeSection }
+							onChange={ setActiveSection }
+						>
+							{ sections.map( section => (
+								<SectionTabPanel
+									key={ section.slug }
+									value={ section.slug }
+									className={ styles.content }
+								>
+									{ /* Marks where the header below comes to rest, so its subtitle
+								     starts condensing there. Measured, never seen. */ }
+									<div className={ styles.pinMarker } aria-hidden="true" />
 
-					<WidgetDashboard.Commands />
-				</Page>
-			</WidgetDashboard>
+									<div ref={ setContainerElement } className={ styles.sectionHeader }>
+										<SectionHeader
+											title={ resolveSectionHeading( section ) }
+											subtitle={ sectionSubtitle }
+											condenseOnScroll
+										>
+											{ dateControls }
+										</SectionHeader>
+									</div>
+
+									{ activeSection === section.slug ? (
+										<>
+											{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
+												<SectionSyncNotice
+													percentage={ syncStatus?.percentage ?? 0 }
+													hasError={ !! syncError }
+													onRetry={ retrySync }
+													isRetrying={ isRetryingSync }
+												/>
+											) : null }
+
+											<WidgetDashboard.NoWidgetsState />
+											<WidgetDashboard.Widgets className={ styles.widgets } />
+										</>
+									) : null }
+								</SectionTabPanel>
+							) ) }
+						</DashboardSections>
+
+						<WidgetDashboard.Commands />
+					</Page>
+				</WidgetDashboard>
+			</ReportScopeProvider>
 		</GlobalErrorProvider>
 	);
 }

@@ -1,13 +1,8 @@
 /**
- * External dependencies
- */
-import apiFetch from '@wordpress/api-fetch';
-import { addQueryArgs } from '@wordpress/url';
-/**
  * Internal dependencies
  */
 import { BaseReportParams } from '../../utils/types';
-import { reportsPath } from '../constants';
+import { fetchReport } from '../stats-proxy-fetch';
 import type { FilterCondition } from '../../types/filter-condition';
 
 export type RequestReportProductsParams = Omit< BaseReportParams, 'interval' > & {
@@ -37,9 +32,6 @@ type ReportProductsResponse = {
 	};
 };
 
-/**
- * Fetches products report data from the WooCommerce Analytics API
- */
 export async function fetchReportProducts(
 	params: RequestReportProductsParams
 ): Promise< ReportProductsResponse > {
@@ -61,12 +53,9 @@ export async function fetchReportProducts(
 		queryArgs.order = params.order;
 	}
 
-	// Add filters to query params if provided
 	if ( params.filters && params.filters.length > 0 ) {
 		queryArgs.filters = params.filters;
 	}
 
-	return apiFetch< ReportProductsResponse >( {
-		path: addQueryArgs( `${ reportsPath }/products`, queryArgs ),
-	} );
+	return fetchReport< ReportProductsResponse >( 'products', queryArgs );
 }

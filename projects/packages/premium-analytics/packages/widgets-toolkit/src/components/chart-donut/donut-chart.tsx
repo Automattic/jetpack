@@ -1,10 +1,12 @@
 /**
  * External dependencies
  */
-import { PieChartUnresponsive as PieChart } from '@automattic/charts';
-import { useResizeObserver } from '@wordpress/compose';
-import { Icon, Stack } from '@wordpress/ui';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import {
+	PieChartUnresponsive as PieChart,
+	Icon,
+	Stack,
+} from '@jetpack-premium-analytics/externals';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -14,6 +16,7 @@ import {
 	isEmptyPieChartData,
 	type SegmentStyle,
 } from '../../helpers';
+import { useElementSize } from '../../hooks';
 import { ChartEmptyState } from '../chart-empty-state';
 import { PieChartTooltip } from '../chart-tooltip';
 import { Legend as LegendPure } from '../legend/legend';
@@ -23,7 +26,6 @@ import type { DataFormat } from '../../types';
 import type { LegendItem } from '../legend/legend';
 import type { ComponentProps } from 'react';
 
-// Default chart configuration
 const DEFAULT_THICKNESS = 0.3;
 const DEFAULT_CORNER_SCALE = 0.03;
 const DEFAULT_GAP_SCALE = 0.01;
@@ -35,63 +37,6 @@ const MIN_SIZE = 64;
 const MAX_SIZE = 192;
 const COMPACT_LEGEND_GAP_SIZE = 8;
 const DEFAULT_LEGEND_GAP_SIZE = 24;
-
-type ElementSize = {
-	width: number;
-	height: number;
-};
-
-function getElementSize( element: Element ): ElementSize {
-	const { width, height } = element.getBoundingClientRect();
-
-	return {
-		width: Math.round( width ),
-		height: Math.round( height ),
-	};
-}
-
-function useElementSize< T extends HTMLElement >() {
-	const elementRef = useRef< T | null >( null );
-	const [ size, setSize ] = useState< ElementSize >( {
-		width: 0,
-		height: 0,
-	} );
-
-	const updateSize = useCallback( ( nextSize: ElementSize ) => {
-		setSize( previousSize =>
-			previousSize.width === nextSize.width && previousSize.height === nextSize.height
-				? previousSize
-				: nextSize
-		);
-	}, [] );
-
-	const observerRef = useResizeObserver< T >( entries => {
-		const element = entries[ 0 ]?.target ?? elementRef.current;
-
-		if ( ! element ) {
-			return;
-		}
-
-		updateSize( getElementSize( element ) );
-	} );
-
-	const setElementRef = useCallback(
-		( element: T | null ) => {
-			elementRef.current = element;
-
-			if ( typeof ResizeObserver !== 'undefined' ) {
-				observerRef( element );
-			}
-
-			if ( element ) {
-				updateSize( getElementSize( element ) );
-			}
-		},
-		[ observerRef, updateSize ]
-	);
-
-	return [ setElementRef, size ] as const;
-}
 
 export type DonutChartProps = {
 	/**
@@ -117,9 +62,6 @@ export type DonutChartProps = {
 	 */
 	comparisonValue?: number | null;
 
-	/**
-	 * Format for displaying values
-	 */
 	dataFormat?: DataFormat;
 
 	/**
@@ -127,9 +69,6 @@ export type DonutChartProps = {
 	 */
 	legendData?: LegendItem[];
 
-	/**
-	 * Show legend below chart
-	 */
 	showLegend?: boolean;
 
 	/**
@@ -145,14 +84,8 @@ export type DonutChartProps = {
 	 */
 	maxSize?: number | null;
 
-	/**
-	 * Icon to display in the empty state
-	 */
 	emptyStateIcon?: React.ComponentProps< typeof Icon >[ 'icon' ];
 
-	/**
-	 * Text to display in the empty state
-	 */
 	emptyStateText?: string;
 
 	/**
@@ -161,14 +94,8 @@ export type DonutChartProps = {
 	 */
 	withTooltips?: boolean;
 
-	/**
-	 * Horizontal offset for tooltip positioning.
-	 */
 	tooltipOffsetX?: number;
 
-	/**
-	 * Vertical offset for tooltip positioning.
-	 */
 	tooltipOffsetY?: number;
 
 	/**
@@ -180,12 +107,8 @@ export type DonutChartProps = {
 };
 
 /**
- * Pure DonutChart component.
- * Does not depend on any context provider - all data flows through props.
- *
- * Colors can be provided via:
- * 1. `styles` prop (takes priority) - array of { color } per segment
- * 2. `chartData[].color` - inline color per segment
+ * Context-free DonutChart: everything arrives through props. Segment colors
+ * come from the `styles` prop, or from `chartData[].color` when it is absent.
  */
 export function DonutChart( {
 	chartData,
@@ -212,17 +135,11 @@ export function DonutChart( {
 	const [ containerRef, containerSize ] = useElementSize< HTMLDivElement >();
 	const [ legendRef, legendSize ] = useElementSize< HTMLDivElement >();
 
-	/**
-	 * Resolve styles: prop takes priority, fallback to chartData colors.
-	 */
 	const resolvedStyles = useMemo(
 		() => resolveSegmentStyles( stylesProp, chartData ),
 		[ stylesProp, chartData ]
 	);
 
-	/**
-	 * Apply styles to chart data
-	 */
 	const styledChartData = useMemo( () => {
 		if ( ! stylesProp?.length ) {
 			return chartData;
@@ -230,9 +147,6 @@ export function DonutChart( {
 		return applyStylesToItems( chartData, resolvedStyles );
 	}, [ stylesProp, chartData, resolvedStyles ] );
 
-	/**
-	 * Apply styles to legend data
-	 */
 	const styledLegendData = useMemo( () => {
 		if ( ! legendData ) {
 			return undefined;
@@ -259,7 +173,6 @@ export function DonutChart( {
 	);
 	const stackGap = isCompactLayout ? 'sm' : 'xl';
 
-	// Render empty state when no data is available
 	if ( isEmptyData ) {
 		return <ChartEmptyState icon={ emptyStateIcon } text={ emptyStateText } />;
 	}

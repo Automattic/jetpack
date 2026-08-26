@@ -102,6 +102,8 @@ class WPCOM_Features {
 	private const JETPACK_COMPLETE_BI_YEARLY                  = 'jetpack_complete_bi_yearly'; // 2035
 	private const JETPACK_COMPLETE                            = 'jetpack_complete'; // 2014
 	private const JETPACK_COMPLETE_MONTHLY                    = 'jetpack_complete_monthly'; // 2015
+	private const JETPACK_SECURITY_T0_YEARLY                  = 'jetpack_security_t0_yearly'; // 10237
+	private const JETPACK_SECURITY_T0_MONTHLY                 = 'jetpack_security_t0_monthly'; // 10238
 	private const JETPACK_SECURITY_T1_BI_YEARLY               = 'jetpack_security_t1_bi_yearly'; // 2034
 	private const JETPACK_SECURITY_T1_YEARLY                  = 'jetpack_security_t1_yearly'; // 2016
 	private const JETPACK_SECURITY_T1_MONTHLY                 = 'jetpack_security_t1_monthly'; // 2017
@@ -284,6 +286,7 @@ class WPCOM_Features {
 
 	private const JETPACK_SECURITY_DAILY_PLANS    = array( self::JETPACK_SECURITY_DAILY, self::JETPACK_SECURITY_DAILY_MONTHLY );
 	private const JETPACK_SECURITY_REALTIME_PLANS = array( self::JETPACK_SECURITY_REALTIME, self::JETPACK_SECURITY_REALTIME_MONTHLY );
+	private const JETPACK_SECURITY_T0_PLANS       = array( self::JETPACK_SECURITY_T0_MONTHLY, self::JETPACK_SECURITY_T0_YEARLY );
 	private const JETPACK_SECURITY_T1_PLANS       = array( self::JETPACK_SECURITY_T1_MONTHLY, self::JETPACK_SECURITY_T1_YEARLY, self::JETPACK_SECURITY_T1_BI_YEARLY, self::A4A_JETPACK_SECURITY_TIER_1_MONTHLY, self::A4A_JETPACK_SECURITY_TIER_1_YEARLY );
 	private const JETPACK_SECURITY_T2_PLANS       = array( self::JETPACK_SECURITY_T2_MONTHLY, self::JETPACK_SECURITY_T2_YEARLY, self::A4A_JETPACK_SECURITY_TIER_2_MONTHLY, self::A4A_JETPACK_SECURITY_TIER_2_YEARLY );
 
@@ -319,6 +322,7 @@ class WPCOM_Features {
 		self::JETPACK_COMPLETE_PLANS,
 		self::JETPACK_SECURITY_DAILY_PLANS,
 		self::JETPACK_SECURITY_REALTIME_PLANS,
+		self::JETPACK_SECURITY_T0_PLANS,
 		self::JETPACK_SECURITY_T1_PLANS,
 		self::JETPACK_SECURITY_T2_PLANS,
 		self::JETPACK_STARTER_PLANS,
@@ -329,6 +333,7 @@ class WPCOM_Features {
 		self::JETPACK_COMPLETE_PLANS,
 		self::JETPACK_SECURITY_DAILY_PLANS,
 		self::JETPACK_SECURITY_REALTIME_PLANS,
+		self::JETPACK_SECURITY_T0_PLANS,
 		self::JETPACK_SECURITY_T1_PLANS,
 		self::JETPACK_SECURITY_T2_PLANS,
 	);
@@ -482,12 +487,14 @@ class WPCOM_Features {
 	public const SCAN_SELF_SERVE                   = 'scan-self-serve';
 	public const SCHEDULED_UPDATES                 = 'scheduled-updates';
 	public const SECURITY_SETTINGS                 = 'security-settings';
+	public const SEO_ADMIN_UI                      = 'seo-admin-ui';
 	public const SEO_PREVIEW_TOOLS                 = 'seo-preview-tools';
 	public const SEND_A_MESSAGE                    = 'send-a-message';
 	public const SET_PRIMARY_CUSTOM_DOMAIN         = 'set-primary-custom-domain';
 	public const SFTP                              = 'sftp';
 	public const SIMPLE_PAYMENTS                   = 'simple-payments';
 	public const SITE_PREVIEW_LINKS                = 'site-preview-links';
+	public const SOCIAL_ADMIN_UI_V2                = 'social-admin-ui-v2';
 	public const SOCIAL_IMAGE_FOCAL_POINT          = 'social-image-focal-point';
 	public const SOCIAL_IMAGE_GENERATOR            = 'social-image-generator';
 	public const SOCIAL_MESSAGE_TEMPLATES          = 'social-message-templates';
@@ -1189,6 +1196,7 @@ class WPCOM_Features {
 			self::JETPACK_BUSINESS_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
 			self::JETPACK_SECURITY_REALTIME_PLANS,
+			self::JETPACK_SECURITY_T0_PLANS,
 			self::JETPACK_SECURITY_T1_PLANS,
 			self::JETPACK_SECURITY_T2_PLANS,
 			self::JETPACK_STARTER_PLANS,
@@ -1203,10 +1211,7 @@ class WPCOM_Features {
 		),
 
 		self::RECURRING_PAYMENTS                => array(
-			array(
-				'sticker_not_present' => 'gating-business-q1',
-				self::WPCOM_ALL_SITES,
-			),
+			self::WPCOM_ALL_SITES,
 			self::WPCOM_STARTER_PLANS,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
@@ -1290,6 +1295,13 @@ class WPCOM_Features {
 			self::JETPACK_ALL_SITES,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
+		self::SEO_ADMIN_UI                      => array(
+			// For now, this is controlled via a blog sticker in Store_Product_List.
+			array(
+				'before' => '2004-12-12',
+				self::WPCOM_ALL_SITES,
+			),
+		),
 		self::SEO_PREVIEW_TOOLS                 => array(
 			array(
 				'required_sticker' => 'gating-business-q1',
@@ -1362,6 +1374,13 @@ class WPCOM_Features {
 			self::JETPACK_SOCIAL_PLANS,
 			self::JETPACK_GROWTH_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+		),
+		self::SOCIAL_ADMIN_UI_V2                => array(
+			// For now, this is controlled via a blog sticker in Store_Product_List.
+			array(
+				'before' => '2004-12-12',
+				self::WPCOM_ALL_SITES,
+			),
 		),
 		self::SOCIAL_IMAGE_FOCAL_POINT          => array(
 			// For now, this is controlled via a blog sticker in Store_Product_List.
@@ -1661,6 +1680,7 @@ class WPCOM_Features {
 				'before' => '2021-10-07',
 				self::JETPACK_SECURITY_DAILY_PLANS,
 				self::JETPACK_SECURITY_REALTIME_PLANS,
+				self::JETPACK_SECURITY_T0_PLANS,
 				self::JETPACK_SECURITY_T1_PLANS,
 				self::JETPACK_SECURITY_T2_PLANS,
 			),
@@ -1704,6 +1724,7 @@ class WPCOM_Features {
 				self::JETPACK_COMPLETE_PLANS,
 				self::JETPACK_SECURITY_DAILY_PLANS,
 				self::JETPACK_SECURITY_REALTIME_PLANS,
+				self::JETPACK_SECURITY_T0_PLANS,
 				self::JETPACK_SECURITY_T1_PLANS,
 				self::JETPACK_SECURITY_T2_PLANS,
 				self::JETPACK_PREMIUM_PLANS,

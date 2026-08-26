@@ -111,6 +111,19 @@ class Akismet_Admin_Chrome {
 				display: flex;
 				align-items: center;
 				gap: 8px;
+				text-decoration: none;
+			}
+			/* Keep the ring to keyboard focus. Scoped to the container to outrank
+				wp-admin's `a:focus` and Akismet's `#akismet-plugin-container
+				a:focus-visible`, which both beat a bare class selector. */
+			#akismet-plugin-container .jp-akismet-header__title:focus:not( :focus-visible ) {
+				box-shadow: none;
+				outline: none;
+			}
+			#akismet-plugin-container .jp-akismet-header__title:focus-visible {
+				border-radius: 2px;
+				box-shadow: 0 0 0 2px #2271b1;
+				outline: 2px solid transparent;
 			}
 			/* 24×24 visual slot centering the 20px logo, matching My Jetpack/Boost. */
 			.jp-akismet-header__visual {
@@ -189,9 +202,9 @@ class Akismet_Admin_Chrome {
 			.jetpack-admin-page #dolly {
 				float: none;
 				text-align: end;
-				background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+				background: var(--wpds-color-background-surface-neutral-strong, #fff);
 				font-style: italic;
-				color: var(--wpds-color-fg-content-neutral-weak, #87a6bc);
+				color: var(--wpds-color-foreground-content-neutral-weak, #87a6bc);
 				border-bottom: none;
 			}
 			@media (max-width: 659px) {
@@ -313,10 +326,10 @@ class Akismet_Admin_Chrome {
 		$this->print_styles();
 		?>
 		<header class="jp-akismet-header">
-			<div class="jp-akismet-header__title">
+			<a class="jp-akismet-header__title" href="<?php echo esc_url( admin_url( 'admin.php?page=akismet-key-config' ) ); ?>">
 				<span class="jp-akismet-header__visual" aria-hidden="true"><?php echo $this->akismet_logo( 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></span>
 				<h1><?php esc_html_e( 'Akismet Anti-spam', 'jetpack' ); ?></h1>
-			</div>
+			</a>
 		</header>
 		<?php
 	}

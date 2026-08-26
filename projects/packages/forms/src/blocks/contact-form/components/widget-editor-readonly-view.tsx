@@ -2,7 +2,7 @@ import { useBlockEditingMode, useBlockProps, useInnerBlocksProps } from '@wordpr
 import { Disabled, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { navigateToForm } from '../util/navigate-to-form.ts';
-import ContactFormSkeletonLoader from './jetpack-contact-form-skeleton-loader.js';
+import ContactFormSkeletonLoader from './jetpack-contact-form-skeleton-loader.jsx';
 import './widget-editor-readonly-view.scss';
 
 export default function WidgetEditorReadonlyView( {

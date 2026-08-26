@@ -1,5 +1,7 @@
 .leaderboardChart {
-	transition: opacity 0.3s ease-in-out;
+	transition:
+		opacity var(--wpds-motion-duration-lg, 300ms)
+		var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 
 	&--responsive {
 		height: 100%;
@@ -14,6 +16,15 @@
 		flex: 1;
 		min-height: 0;
 		overflow: auto;
+
+		// With fitRows the chart hides the rows that would not fit, so there is
+		// nothing left to scroll to — a scrollbar here would only ever reveal the
+		// hidden rows' reserved space.
+		&--fit {
+			overflow: hidden;
+			// Anchors .fitEmptyState, which is laid over the hidden rows.
+			position: relative;
+		}
 	}
 }
 
@@ -49,17 +60,25 @@
 		// row's fixed-pixel hover inset from collapsing a narrow bar to nothing.
 		min-width: var(--wpds-dimension-size-5xs, 4px);
 
-		border-radius: var(--a8c--charts--leaderboard--bar--border-radius, 9999px);
+		border-radius: var(--a8c-charts-border-radius-leaderboard-bar);
 		z-index: -1; /* places it behind the label */
 
+		// Keep the collapsed state in `from` and never on the element: a dropped
+		// animation then fails visible. `both`, not `forwards`, for the
+		// backwards fill.
 		&--animated {
 			transform-origin: left;
 			transform-box: fill-box;
-			transform: scaleX(0);
-			animation: stretch 1s ease-out forwards;
+			animation:
+				stretch var(--a8c-charts-motion-duration-entrance)
+				var(--a8c-charts-motion-easing-entrance) both;
 		}
 
 		@keyframes stretch {
+
+			from {
+				transform: scaleX(0);
+			}
 
 			to {
 				transform: scaleX(1);
@@ -69,7 +88,19 @@
 }
 
 .valueContainer {
+	align-items: center;
 	justify-content: flex-end;
+}
+
+.deltaValue {
+	display: inline-block;
+	font-variant-numeric: tabular-nums;
+	min-width: 3ch;
+	text-align: end;
+}
+
+.deltaPlaceholder {
+	text-align: center;
 }
 
 .overlayLabel {
@@ -79,28 +110,47 @@
 .emptyState {
 	padding: var(--wpds-dimension-padding-3xl, 32px) var(--wpds-dimension-padding-lg, 16px);
 	text-align: center;
-	color: #666;
+	color: var(--a8c-charts-color-label-secondary);
 	font-size: var(--wpds-typography-font-size-md, 13px);
 	font-style: italic;
 }
 
-.interactiveRow {
-	--focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px));
+// Shown when not even one row fits. The rows stay in the layout underneath so
+// they remain measurable, so this is taken out of flow to sit over them.
+.fitEmptyState {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	// The shared empty state reserves generous vertical whitespace. This overlay
+	// is specifically for compact containers, where the text may fit even though
+	// a complete data row does not.
+	padding-block: 0;
+}
 
+// Focus-ring width shared so a standard row's reserved padding and an
+// interactive row's outline (and its inset offset) stay equal. A Sass var,
+// not a custom property: a compile-time constant scoped to this module, so it
+// needs no runtime cascade and never lands on the DOM as an unprefixed var.
+$focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px));
+
+.row {
 	display: grid;
 	grid-column: 1 / -1;
 	grid-template-columns: subgrid;
 	align-items: center;
+	// Every row reserves the same space for the interactive focus ring. Keeping
+	// this on the shared wrapper ensures that adding or removing an action never
+	// changes the row height or subgrid column edges.
+	padding: $focus-ring-width;
+}
+
+.interactiveRow {
 	position: relative;
 
 	// Native button reset.
-	box-sizing: border-box;
 	appearance: none;
-	width: 100%;
-	margin: 0;
-	// Reserve a ring's worth of space on every edge so the inset focus outline
-	// hugs the row without the bar painting over it (see :focus-visible below).
-	padding: var(--focus-ring-width);
 	border: 0;
 	background: none;
 	color: inherit;
@@ -118,11 +168,17 @@
 	// a grid item aligned to the inline start, so its inset mirrors in RTL; the
 	// value slide is given an RTL override below. No row background.
 	.bar {
-		transition: opacity 0.15s ease, width 0.15s ease;
+		transition:
+			opacity var(--wpds-motion-duration-sm, 100ms)
+			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1)),
+			width var(--wpds-motion-duration-sm, 100ms)
+			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 	}
 
 	.valueContainer {
-		transition: transform 0.15s ease;
+		transition:
+			transform var(--wpds-motion-duration-sm, 100ms)
+			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 	}
 
 	&:hover,
@@ -130,14 +186,14 @@
 
 		// Fixed reserve for the chevron — the value slides by it in full, and the
 		// bar width inset (see leaderboard-chart.tsx) scales it by the bar's share.
-		--a8c--charts--leaderboard--bar--hover-inset: var(--wpds-dimension-gap-2xl, 32px);
+		--a8c-charts-dimension-leaderboard-bar-hover-inset: var(--wpds-dimension-gap-2xl, 32px);
 
 		.bar {
 			opacity: 0.5;
 		}
 
 		.valueContainer {
-			transform: translateX(calc(var(--a8c--charts--leaderboard--bar--hover-inset) * -1));
+			transform: translateX(calc(var(--a8c-charts-dimension-leaderboard-bar-hover-inset) * -1));
 		}
 
 		.chevron {
@@ -148,19 +204,18 @@
 	// In RTL the value slides toward the inline start the other way (rightward).
 	[dir="rtl"] &:hover .valueContainer,
 	[dir="rtl"] &:focus-visible .valueContainer {
-		transform: translateX(var(--a8c--charts--leaderboard--bar--hover-inset));
+		transform: translateX(var(--a8c-charts-dimension-leaderboard-bar-hover-inset));
 	}
 
 	&:focus-visible {
 		border-radius: var(--wpds-border-radius-sm, 2px);
 		outline:
-			var(--focus-ring-width) solid
-			var(--wpds-color-stroke-focus-brand, var(--wp-admin-theme-color, #3858e9));
+			$focus-ring-width solid
+			var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9));
 		// Inset by its own width so the outer edge hugs the row boundary: the
-		// outline then sits in the row's padding (also a ring width), clear of the
-		// bar, and stays inside the overflow:auto container that would clip an
-		// outset ring.
-		outline-offset: calc(-1 * var(--focus-ring-width));
+		// outline then sits in the shared row padding, clear of the bar, and stays
+		// inside the overflow:auto container that would clip an outset ring.
+		outline-offset: calc(-1 * #{$focus-ring-width});
 	}
 }
 
@@ -171,8 +226,10 @@
 	bottom: 0;
 	margin-block: auto;
 	opacity: 0;
-	color: var(--wpds-color-fg-content-neutral-weak, #707070);
-	transition: opacity 0.15s ease;
+	color: var(--a8c-charts-color-label-secondary);
+	transition:
+		opacity var(--wpds-motion-duration-sm, 100ms)
+		var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
 	pointer-events: none;
 
 	// The glyph points toward the inline end, so flip it to point left in RTL.

@@ -55,7 +55,7 @@ const meta: Meta< StoryArgs > = {
 
 export default meta;
 
-const Template: StoryFn< typeof PieSemiCircleChart > = args => <PieSemiCircleChart { ...args } />;
+const Template: StoryFn< StoryArgs > = args => <PieSemiCircleChart { ...args } />;
 
 const tooltipStoryArgs = {
 	...sharedThemeArgs,
@@ -65,7 +65,7 @@ const tooltipStoryArgs = {
 	note: 'Q4 2023',
 };
 
-export const Default: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );
+export const Default: StoryObj< StoryArgs > = Template.bind( {} );
 Default.args = {
 	...tooltipStoryArgs,
 };
@@ -78,7 +78,7 @@ Default.parameters = {
 	},
 };
 
-export const NoTooltips: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );
+export const NoTooltips: StoryObj< StoryArgs > = Template.bind( {} );
 NoTooltips.args = {
 	...tooltipStoryArgs,
 	withTooltips: false,
@@ -91,7 +91,7 @@ NoTooltips.parameters = {
 	},
 };
 
-export const Custom: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );
+export const Custom: StoryObj< StoryArgs > = Template.bind( {} );
 Custom.args = {
 	...tooltipStoryArgs,
 	renderTooltip: ( { tooltipData }: PieSemiCircleChartRenderTooltipParams ) => {
@@ -161,7 +161,7 @@ Custom.parameters = {
 	},
 };
 
-export const CustomWithEmoji: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );
+export const CustomWithEmoji: StoryObj< StoryArgs > = Template.bind( {} );
 CustomWithEmoji.args = {
 	...tooltipStoryArgs,
 	renderTooltip: ( { tooltipData }: PieSemiCircleChartRenderTooltipParams ) => {
@@ -193,7 +193,7 @@ CustomWithEmoji.parameters = {
 	},
 };
 
-export const CustomTableTooltip: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );
+export const CustomTableTooltip: StoryObj< StoryArgs > = Template.bind( {} );
 CustomTableTooltip.args = {
 	...tooltipStoryArgs,
 	renderTooltip: ( { tooltipData }: PieSemiCircleChartRenderTooltipParams ) => {
@@ -252,7 +252,7 @@ CustomTableTooltip.parameters = {
 	},
 };
 
-export const TooltipOffset: StoryObj< typeof PieSemiCircleChart > = {
+export const TooltipOffset: StoryObj< StoryArgs > = {
 	render: () => (
 		<div
 			style={ {

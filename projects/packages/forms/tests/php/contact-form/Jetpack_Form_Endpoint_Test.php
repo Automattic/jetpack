@@ -233,6 +233,132 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 	}
 
 	/**
+	 * A form block with no destination configured.
+	 */
+	private const BROKEN_FORM_CONTENT = '<!-- wp:jetpack/contact-form {"emailNotifications":false,"saveResponses":false} --><!-- /wp:jetpack/contact-form -->';
+
+	/**
+	 * A form block left at its (collecting) defaults.
+	 */
+	private const HEALTHY_FORM_CONTENT = '<!-- wp:jetpack/contact-form --><!-- /wp:jetpack/contact-form -->';
+
+	/**
+	 * Helper to insert a jetpack_form with the given block content.
+	 *
+	 * @param string $title   Post title.
+	 * @param string $content Block content.
+	 * @return int Post ID.
+	 */
+	private function insert_form( string $title, string $content ): int {
+		return wp_insert_post(
+			array(
+				'post_type'    => 'jetpack_form',
+				'post_title'   => $title,
+				'post_status'  => 'publish',
+				'post_content' => $content,
+			)
+		);
+	}
+
+	/**
+	 * A broken single (edit-context) form fetch reports is_collecting_responses=false.
+	 *
+	 * Covers prepare_item_for_response() -> is_form_collecting_responses() ->
+	 * find_contact_form_attributes() for a form that drops its submissions.
+	 */
+	public function test_single_broken_form_is_not_collecting() {
+		Contact_Form::register_post_type();
+		do_action( 'rest_api_init' );
+
+		$broken = $this->insert_form( 'Broken Single', self::BROKEN_FORM_CONTENT );
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/jetpack-forms/' . $broken );
+		$request->set_param( 'context', 'edit' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'is_collecting_responses', $data );
+		$this->assertFalse( $data['is_collecting_responses'] );
+	}
+
+	/**
+	 * A contact-form block nested inside another block is still detected.
+	 *
+	 * Covers the recursive innerBlocks branch of find_contact_form_attributes().
+	 */
+	public function test_nested_broken_form_is_not_collecting() {
+		Contact_Form::register_post_type();
+		do_action( 'rest_api_init' );
+
+		$nested = $this->insert_form(
+			'Nested Broken',
+			'<!-- wp:group --><div class="wp-block-group">' . self::BROKEN_FORM_CONTENT . '</div><!-- /wp:group -->'
+		);
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/jetpack-forms/' . $nested );
+		$request->set_param( 'context', 'edit' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertFalse( $response->get_data()['is_collecting_responses'] );
+	}
+
+	/**
+	 * A form post with no contact-form block defaults to collecting (no warning).
+	 *
+	 * Covers the "no block found" and empty-content fall-throughs.
+	 */
+	public function test_form_without_contact_block_defaults_to_collecting() {
+		Contact_Form::register_post_type();
+		do_action( 'rest_api_init' );
+
+		$no_block = $this->insert_form( 'No Block', '<!-- wp:paragraph --><p>Just text.</p><!-- /wp:paragraph -->' );
+		$empty    = $this->insert_form( 'Empty', '' );
+
+		foreach ( array( $no_block, $empty ) as $id ) {
+			$request = new WP_REST_Request( 'GET', '/wp/v2/jetpack-forms/' . $id );
+			$request->set_param( 'context', 'edit' );
+			$response = $this->server->dispatch( $request );
+			$this->assertTrue( $response->get_data()['is_collecting_responses'], "Form $id should default to collecting" );
+		}
+	}
+
+	/**
+	 * A healthy single (edit-context) form fetch reports is_collecting_responses=true.
+	 */
+	public function test_single_healthy_form_is_collecting() {
+		Contact_Form::register_post_type();
+		do_action( 'rest_api_init' );
+
+		$healthy = $this->insert_form( 'Healthy Single', self::HEALTHY_FORM_CONTENT );
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/jetpack-forms/' . $healthy );
+		$request->set_param( 'context', 'edit' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'is_collecting_responses', $data );
+		$this->assertTrue( $data['is_collecting_responses'] );
+	}
+
+	/**
+	 * The flag is omitted from non-edit (view) context responses.
+	 */
+	public function test_is_collecting_responses_absent_in_view_context() {
+		Contact_Form::register_post_type();
+		do_action( 'rest_api_init' );
+
+		$broken = $this->insert_form( 'Broken View', self::BROKEN_FORM_CONTENT );
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/jetpack-forms/' . $broken );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertArrayNotHasKey( 'is_collecting_responses', $response->get_data() );
+	}
+
+	/**
 	 * Test updating a jetpack-form via REST API.
 	 */
 	public function test_update_jetpack_form_via_rest() {

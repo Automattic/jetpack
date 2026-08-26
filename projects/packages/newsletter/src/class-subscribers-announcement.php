@@ -71,6 +71,18 @@ class Subscribers_Announcement {
 	const GO_ACTION = 'jetpack_subscribers_announcement_go_to_newsletter';
 
 	/**
+	 * Site ID cutoff for displaying the Subscribers announcement page.
+	 *
+	 * Sites with an ID *below* this value registered before Subscribers moved
+	 * out of its old placement, so they need the transitional announcement.
+	 * Sites at or above it only ever saw the current placement. The bound is
+	 * exclusive: a site whose ID equals this value does not see the page.
+	 *
+	 * @var int
+	 */
+	const SITE_ID_CUTOFF = 256340000;
+
+	/**
 	 * Register request handlers and the wp-build loader.
 	 *
 	 * Called from Settings::init_hooks() so the AJAX/admin-post handlers exist
@@ -80,6 +92,10 @@ class Subscribers_Announcement {
 	 * @return void
 	 */
 	public static function init() {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+
 		add_action( 'wp_ajax_' . self::TOGGLE_ACTION, array( __CLASS__, 'handle_toggle_menu' ) );
 		add_action( 'admin_post_' . self::GO_ACTION, array( __CLASS__, 'handle_go_to_newsletter' ) );
 
@@ -92,11 +108,29 @@ class Subscribers_Announcement {
 	/**
 	 * Whether the announcement page feature is active.
 	 *
+	 * This is the single gate for the whole feature: `init()` (handlers and the
+	 * wp-build loader), `maybe_load_wp_build()`, and both menu-registration
+	 * entry points consult it. They must agree — if the menu were registered
+	 * while this returned false, maybe_load_wp_build() would bail, the wp-build
+	 * render function would never be defined, and add_menu() would serve the
+	 * bare render_fallback() page instead of the styled announcement app.
+	 *
 	 * @return bool
 	 */
 	public static function is_enabled() {
 		/** This filter is documented in projects/packages/newsletter/src/class-settings.php */
-		return (bool) apply_filters( Settings::MODERNIZATION_FILTER, false );
+		if ( ! apply_filters( Settings::MODERNIZATION_FILTER, true ) ) {
+			return false;
+		}
+
+		// Only sites predating the Subscribers move have anything to be told
+		// about. Use the quiet lookup: it returns null rather than a WP_Error
+		// when the site has no known ID, and comparing a WP_Error against an
+		// int is a TypeError on PHP 8. A site with no known ID (disconnected)
+		// is treated as newer and does not see the page.
+		$site_id = Connection_Manager::get_site_id( true );
+
+		return $site_id !== null && $site_id < self::SITE_ID_CUTOFF;
 	}
 
 	/**
@@ -124,6 +158,13 @@ class Subscribers_Announcement {
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
 			)
 		);
+
+		// wp-build registers standalone modules (e.g. the init module) on
+		// wp_default_scripts, which has already fired by admin_menu. Register them
+		// directly so the init module makes it into the import map.
+		if ( function_exists( 'jetpack_newsletter_register_script_modules' ) ) {
+			jetpack_newsletter_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
 
 		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 	}
@@ -156,6 +197,10 @@ class Subscribers_Announcement {
 	 * @return void
 	 */
 	public static function add_menu() {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+
 		$callback = function_exists( 'jetpack_newsletter_jetpack_subscribers_announcement_wp_admin_render_page' )
 			? 'jetpack_newsletter_jetpack_subscribers_announcement_wp_admin_render_page'
 			: array( __CLASS__, 'render_fallback' );
@@ -203,6 +248,10 @@ class Subscribers_Announcement {
 	 * @return void
 	 */
 	public static function add_wp_admin_submenu() {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+
 		$callback = function_exists( 'jetpack_newsletter_jetpack_subscribers_announcement_wp_admin_render_page' )
 			? 'jetpack_newsletter_jetpack_subscribers_announcement_wp_admin_render_page'
 			: array( __CLASS__, 'render_fallback' );
@@ -230,11 +279,25 @@ class Subscribers_Announcement {
 	 */
 	public static function on_page_load() {
 		add_action( 'admin_head', array( __CLASS__, 'print_app_data' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_i18n_loader' ) );
 
 		self::tracking()->record_user_event(
 			'subscribers_announcement_page_view',
 			array( 'menu_removed' => (bool) get_option( self::REMOVED_OPTION ) )
 		);
+	}
+
+	/**
+	 * Enqueue the i18n loader so the wp-build init module can download its JS
+	 * translation catalogs. It's registered on every admin page by jetpack-assets
+	 * but only enqueued when depended on; the esbuild bundles don't pull it in.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_i18n_loader() {
+		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+			wp_enqueue_script( 'wp-jp-i18n-loader' );
+		}
 	}
 
 	/**

@@ -2,31 +2,45 @@
  * External dependencies
  */
 import {
+	mergeStatsClicksComparisonRows,
 	useStatsClicks,
+	type StatsClicksComparisonItem,
 	type StatsClicksItem,
 	type StatsNormalizedReport,
 	type StatsReportParams,
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
-	WidgetLoadingOverlay,
+	LeaderboardSkeleton,
+	ReportLink,
+	WIDGET_ROW_LIMIT,
+	WidgetBackLink,
+	WidgetFooter,
 	WidgetRoot,
+	WidgetState,
+	buildLeaderboardRow,
 	calculateDelta,
+	getCombinedPeriodMax,
+	resolveLeaderboardRowAction,
+	safeHttpUrl,
+	sharePercentage,
+	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Icon, Link, Stack, Text } from '@wordpress/ui';
+import { link } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import widgetDefinition, { type ClicksAttributes } from './widget';
+import { type ClicksAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type ClicksRenderAttributes = ClicksAttributes & Partial< ReportParamsFieldAttributes >;
+type ClicksWidgetProps = WidgetRenderProps< ClicksRenderAttributes >;
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
@@ -58,270 +72,173 @@ export type ClickRow = {
 	 * Child clicked links for drill-down.
 	 */
 	children?: ClickRow[];
+	/**
+	 * Whether the child rows have any matching comparison-period rows.
+	 */
+	childrenHaveComparison?: boolean;
 };
 
-function getItemLabel( item: StatsClicksItem, parentLabel?: string ): string {
+function getItemLabel( item: StatsClicksComparisonItem | StatsClicksItem ): string {
 	if ( typeof item.label === 'string' && item.label ) {
 		return item.label;
 	}
 
-	return item.link ?? parentLabel ?? '';
+	return item.link ?? '';
 }
 
-type NormalizedClickItem = {
-	key: string;
-	label: string;
-	value: number;
-	previousValue: number;
-	href?: string;
-	icon?: string | null;
-	children?: NormalizedClickItem[];
-};
-
-function getItemKey( item: StatsClicksItem, parentLabel?: string ): string {
-	const label = getItemLabel( item, parentLabel );
-	return item.link ?? label;
-}
-
-function buildClickItemLookup(
-	items: StatsClicksItem[],
-	parent?: { label: string }
-): Map< string, StatsClicksItem > {
-	const lookup = new Map< string, StatsClicksItem >();
-
-	items.forEach( item => {
-		const label = getItemLabel( item, parent?.label );
-		lookup.set( getItemKey( item, parent?.label ), item );
-		( item.children ?? [] ).forEach( child => {
-			buildClickItemLookup( [ child ], { label } ).forEach( ( value, key ) => {
-				lookup.set( key, value );
-			} );
-		} );
-	} );
-
-	return lookup;
-}
-
-function normalizeClickItem(
-	item: StatsClicksItem,
-	comparisonLookup: Map< string, StatsClicksItem >,
-	parent?: { label: string; icon?: string | null }
-): NormalizedClickItem {
-	const label = getItemLabel( item, parent?.label );
-	const key = getItemKey( item, parent?.label );
-	const children = ( item.children ?? [] ).map( child =>
-		normalizeClickItem( child, comparisonLookup, { label, icon: item.icon ?? parent?.icon } )
-	);
+function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
+	const href = safeHttpUrl( item.link );
 
 	return {
-		key,
-		label,
+		label: getItemLabel( item ),
 		value: item.views,
-		previousValue: comparisonLookup.get( key )?.views ?? 0,
-		href: item.link ?? undefined,
-		icon: item.icon ?? parent?.icon,
-		children: children.length ? sortClickItems( children ) : undefined,
-	};
-}
-
-function sortClickItems( items: NormalizedClickItem[] ): NormalizedClickItem[] {
-	return [ ...items ].sort( ( a, b ) => b.value - a.value );
-}
-
-function toClickRow( item: NormalizedClickItem ): ClickRow {
-	return {
-		label: item.label,
-		value: item.value,
 		previousValue: item.previousValue,
-		href: item.href,
+		...( href ? { href } : {} ),
 		icon: item.icon,
 		children: item.children?.map( toClickRow ),
+		...( item.childrenHaveComparison ? { childrenHaveComparison: true } : {} ),
 	};
-}
-
-function normalizeClickItems(
-	items: StatsClicksItem[],
-	comparisonLookup: Map< string, StatsClicksItem >
-): NormalizedClickItem[] {
-	return sortClickItems( items.map( item => normalizeClickItem( item, comparisonLookup ) ) );
-}
-
-function getItems(
-	report: StatsNormalizedReport< StatsClicksItem > | undefined
-): StatsClicksItem[] {
-	return report?.data.flatMap( point => point.items ) ?? [];
 }
 
 /**
  * Flattens a normalized clicks report into `ClickRow[]` and attaches matching
- * comparison values when a comparison report is present.
- *
- * @param report           - Primary clicks report.
- * @param comparisonReport - Comparison clicks report.
- * @param max              - Maximum rows to keep. 0 keeps all rows.
- * @return Rows ready for the leaderboard.
+ * comparison values when a comparison report is present. Rows are capped
+ * client-side by `max`; `max = 0` keeps all rows.
+ */
+export function toClickRowsWithComparison(
+	report: StatsNormalizedReport< StatsClicksItem > | undefined,
+	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
+	max: number
+): { rows: ClickRow[]; hasComparison: boolean } {
+	const { rows, hasComparison } = mergeStatsClicksComparisonRows( report, comparisonReport, max );
+	const clickRows = rows.map( toClickRow );
+
+	return {
+		rows: clickRows,
+		hasComparison,
+	};
+}
+
+/**
+ * `toClickRowsWithComparison` without the `hasComparison` flag.
  */
 export function toClickRows(
 	report: StatsNormalizedReport< StatsClicksItem > | undefined,
 	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
 	max: number
 ): ClickRow[] {
-	const comparisonLookup = buildClickItemLookup( getItems( comparisonReport ) );
-	const sorted = normalizeClickItems( getItems( report ), comparisonLookup );
-	const sliced = max > 0 ? sorted.slice( 0, max ) : sorted;
-
-	return sliced.map( toClickRow );
-}
-
-function ClickLabel( { row }: { row: ClickRow } ) {
-	return (
-		<span className={ styles.labelContent }>
-			{ row.icon && <img src={ row.icon } alt="" className={ styles.labelIcon } /> }
-			<span className={ styles.labelTitle }>{ row.label }</span>
-		</span>
-	);
-}
-
-function ClicksHeaderTitle() {
-	return (
-		<span className={ styles.headerTitle }>
-			<Icon icon={ widgetDefinition.icon } size={ 20 } className={ styles.headerIcon } />
-			<span>{ __( 'Clicks', 'jetpack-premium-analytics' ) }</span>
-		</span>
-	);
+	return toClickRowsWithComparison( report, comparisonReport, max ).rows;
 }
 
 /**
  * Maps normalized click rows onto the shape `LeaderboardChart` expects.
- *
- * @param rows           - Normalized click rows.
- * @param withComparison - Whether to include comparison values and deltas.
- * @param onDrillDown    - Callback fired when a row with child links is selected.
- * @return Leaderboard chart data.
  */
 function buildLeaderboardData(
 	rows: ClickRow[],
 	withComparison: boolean,
 	onDrillDown?: ( row: ClickRow ) => void
 ): LeaderboardChartData {
-	const maxCurrentClicks = Math.max( ...rows.map( row => row.value ), 1 );
-	const maxPreviousClicks = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
+	const maxClicks = getCombinedPeriodMax(
+		rows.map( row => row.value ),
+		withComparison ? rows.map( row => row.previousValue ) : []
+	);
 
 	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue ?? 0;
+		const previousValue = row.previousValue;
 		const hasChildren = !! row.children?.length;
-		const shouldRenderLink = !! row.href && ! hasChildren;
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
-			label: shouldRenderLink ? (
-				<Link
-					className={ styles.labelLink }
-					href={ row.href }
-					variant="unstyled"
-					openInNewTab
-					title={ row.label }
-				>
-					<ClickLabel row={ row } />
-				</Link>
-			) : (
-				<span className={ styles.labelText } title={ row.label }>
-					<ClickLabel row={ row } />
-				</span>
-			),
+			...buildLeaderboardRow( {
+				label: row.label,
+				media: { kind: 'favicon', url: row.icon ?? undefined },
+				action: resolveLeaderboardRowAction( {
+					href: row.href,
+					hasChildren,
+					drillDown: onDrillDown
+						? {
+								onClick: () => onDrillDown( row ),
+								ariaLabel: sprintf(
+									/* translators: %s is the clicked link or domain label. */
+									__( 'View clicked links for %s', 'jetpack-premium-analytics-pkg' ),
+									row.label
+								),
+						  }
+						: undefined,
+				} ),
+			} ),
 			currentValue: row.value,
-			currentShare: ( row.value / maxCurrentClicks ) * 100,
+			currentShare: sharePercentage( row.value, maxClicks ),
 			previousValue,
 			previousShare:
-				withComparison && previousValue > 0 ? ( previousValue / maxPreviousClicks ) * 100 : 0,
-			delta: withComparison ? calculateDelta( row.value, previousValue ) : 0,
-			...( hasChildren &&
-				onDrillDown && {
-					onClick: () => onDrillDown( row ),
-					ariaLabel: sprintf(
-						/* translators: %s is the clicked link or domain label. */
-						__( 'View clicked links for %s', 'jetpack-premium-analytics' ),
-						row.label
-					),
-				} ),
+				withComparison && previousValue !== undefined
+					? sharePercentage( previousValue, maxClicks )
+					: undefined,
+			delta:
+				withComparison && previousValue !== undefined
+					? calculateDelta( row.value, previousValue )
+					: undefined,
 		};
 	} );
 }
 
 export type ClicksLeaderboardProps = {
+	/**
+	 * Normalized click rows.
+	 */
 	rows?: ClickRow[];
-	isLoading?: boolean;
-	isError?: boolean;
+	/**
+	 * When true, render comparison deltas.
+	 */
 	withComparison?: boolean;
+	/**
+	 * Callback fired when a row with child links is selected.
+	 */
 	onDrillDown?: ( row: ClickRow ) => void;
 };
 
 /**
  * Presentational leaderboard for the Clicks widget.
- *
- * @param props                - Component props.
- * @param props.rows           - Normalized click rows.
- * @param props.isLoading      - When true, show a loading overlay.
- * @param props.isError        - When true, show an error message.
- * @param props.withComparison - When true, render comparison deltas.
- * @param props.onDrillDown    - Callback fired when a row with child links is selected.
- * @return The rendered leaderboard.
  */
 export function ClicksLeaderboard( {
 	rows = [],
-	isLoading = false,
-	isError = false,
 	withComparison = false,
 	onDrillDown,
 }: ClicksLeaderboardProps ) {
-	if ( isError ) {
-		return (
-			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>{ __( 'Could not load clicks data.', 'jetpack-premium-analytics' ) }</Text>
-			</Stack>
-		);
-	}
-
-	if ( isLoading && rows.length === 0 ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
 		<LeaderboardChart
 			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
-			loading={ isLoading }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
-			emptyStateText={ __( 'No clicks in this period.', 'jetpack-premium-analytics' ) }
 			dataFormat={ DATA_FORMAT }
 		/>
 	);
 }
 
-function ClicksInner( { max }: { max: number } ) {
+/**
+ * Clicks widget inner component. Reads report params from WidgetRoot context
+ * and renders the leaderboard, with drill-down into a link's child clicks.
+ */
+function ClicksInner() {
 	const { reportParams } = useWidgetRootContext();
-	const [ selectedClickLabel, setSelectedClickLabel ] = useState< string | null >( null );
-	const clearSelectedClick = useCallback( () => setSelectedClickLabel( null ), [] );
-	const handleDrillDown = useCallback( ( row: ClickRow ) => {
-		setSelectedClickLabel( row.label );
-	}, [] );
+	const {
+		drillDownItem: selectedClickLabel,
+		drillDown: selectClick,
+		resetDrillDown: clearSelectedClick,
+	} = useWidgetDrillDown< string >();
 	const statsParams = {
 		...reportParams,
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} as StatsReportParams;
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError } =
-		useStatsClicks( statsParams );
-	const showLoading = isLoading || ( isFetching && hasData );
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } = useStatsClicks(
+		statsParams,
+		{ maxRows: WIDGET_ROW_LIMIT }
+	);
 
 	const rows = useMemo(
-		() =>
-			toClickRows(
-				primary.data as StatsNormalizedReport< StatsClicksItem > | undefined,
-				comparison.data as StatsNormalizedReport< StatsClicksItem > | undefined,
-				max
-			),
-		[ primary.data, comparison.data, max ]
+		() => ( comparisonRows?.rows ?? [] ).map( toClickRow ),
+		[ comparisonRows ]
 	);
 	const selectedClick = useMemo(
 		() => rows.find( row => row.label === selectedClickLabel ) ?? null,
@@ -329,66 +246,82 @@ function ClicksInner( { max }: { max: number } ) {
 	);
 	const isDrillDown = !! selectedClick?.children?.length;
 	const activeRows = isDrillDown ? selectedClick.children ?? [] : rows;
+	const withComparison = isDrillDown ? !! selectedClick?.childrenHaveComparison : hasComparison;
 
-	const header = (
-		<Stack direction="row" justify="space-between" align="center" className={ styles.widgetHeader }>
-			<Stack direction="row" align="center" gap="xs" className={ styles.breadcrumb }>
-				{ isDrillDown ? (
-					<>
-						<Button
-							variant="unstyled"
-							onClick={ clearSelectedClick }
-							className={ styles.breadcrumbLink }
-						>
-							<ClicksHeaderTitle />
-						</Button>
-						<Text className={ styles.breadcrumbSeparator }>/</Text>
-						<Text className={ styles.breadcrumbCurrent }>{ selectedClick?.label }</Text>
-					</>
-				) : (
-					<Text className={ styles.breadcrumbTitle }>
-						<ClicksHeaderTitle />
-					</Text>
-				) }
-			</Stack>
-		</Stack>
+	// The view already falls back to the top list when the selected link is
+	// missing or no longer drillable (no children); clear the stored selection
+	// too once data has settled without a drillable match, so stale state
+	// can't resurface on a later refetch (WOOA7S-1666). In-flight fetches keep
+	// placeholder rows and errors aren't settled data, so a valid selection
+	// survives refetches and transient failures.
+	useEffect( () => {
+		if ( selectedClickLabel && ! isDrillDown && ! isLoading && ! isFetching && ! isError ) {
+			clearSelectedClick();
+		}
+	}, [ selectedClickLabel, isDrillDown, isLoading, isFetching, isError, clearSelectedClick ] );
+
+	const handleDrillDown = useCallback(
+		( row: ClickRow ) => {
+			selectClick( row.label );
+		},
+		[ selectClick ]
 	);
 
+	const backLink = isDrillDown ? (
+		<WidgetBackLink
+			label={ __( 'All clicks', 'jetpack-premium-analytics-pkg' ) }
+			ariaLabel={ __( 'View all clicks', 'jetpack-premium-analytics-pkg' ) }
+			onClick={ clearSelectedClick }
+		/>
+	) : null;
+
 	return (
-		<>
-			{ header }
-			<div className={ styles.content }>
+		<div className={ styles.content }>
+			{ backLink }
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// The Stats queries carry `placeholderData: previousData => previousData`, so a
+				// failed range change keeps the prior period's rows while `isError` flips true.
+				// Only surface the error when there's nothing to show, so a transient refetch
+				// failure doesn't replace populated rows with the error state.
+				isError={ rows.length === 0 && isError }
+				isEmpty={ activeRows.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load clicks. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: link,
+					description: __( 'No clicks in this period.', 'jetpack-premium-analytics-pkg' ),
+				} }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+			>
 				<ClicksLeaderboard
 					rows={ activeRows }
-					isLoading={ showLoading }
-					isError={ isError }
-					withComparison={ hasComparison }
+					withComparison={ withComparison }
 					onDrillDown={ isDrillDown ? undefined : handleDrillDown }
 				/>
-			</div>
-		</>
+			</WidgetState>
+		</div>
 	);
 }
 
 /**
- * Clicks widget render component.
- *
  * Shows the most-clicked external links as a ranked leaderboard. Date range
  * comes from the shared dashboard date picker via WidgetRoot.
- *
- * @param props            - Render props.
- * @param props.attributes - Widget attributes.
- * @return The rendered widget content.
  */
-export default function ClicksWidget( {
-	attributes = {},
-}: WidgetRenderProps< ClicksRenderAttributes > ) {
-	const max = attributes?.max ?? 10;
-
+export default function ClicksWidget( { attributes = {} }: ClicksWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<ClicksInner max={ max } />
+				<ClicksInner />
+				<WidgetFooter>
+					<ReportLink report="clicks" />
+				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

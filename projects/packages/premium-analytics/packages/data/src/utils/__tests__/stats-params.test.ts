@@ -25,12 +25,59 @@ describe( 'getStatsPeriodFromInterval', () => {
 describe( 'getPeriodsBetweenInclusive', () => {
 	it.each( [
 		[ 'day', '2026-06-01', '2026-06-30', 30 ],
-		[ 'hour', '2026-06-01', '2026-06-02', 2 ],
 		[ 'week', '2026-06-01', '2026-06-28', 4 ],
 		[ 'month', '2026-01-15', '2026-06-15', 6 ],
 		[ 'year', '2024-03-01', '2026-03-01', 3 ],
 	] as const )( 'counts %s buckets inclusive of both ends', ( period, from, to, expected ) => {
 		expect( getPeriodsBetweenInclusive( period, from, to ) ).toBe( expected );
+	} );
+
+	it.each( [
+		[ 'day', '2026-06-01T00:00:00.000-07:00', '2026-06-30T23:59:59.999-07:00', 30 ],
+		[ 'week', '2026-06-01T00:00:00.000-07:00', '2026-06-28T23:59:59.999-07:00', 4 ],
+		[ 'month', '2026-01-15T00:00:00.000-07:00', '2026-06-15T23:59:59.999-07:00', 6 ],
+		[ 'year', '2024-03-01T00:00:00.000-07:00', '2026-03-01T23:59:59.999-07:00', 3 ],
+	] as const )(
+		'counts %s buckets from an offset-bearing range exactly as from a bare one',
+		( period, from, to, expected ) => {
+			expect( getPeriodsBetweenInclusive( period, from, to ) ).toBe( expected );
+		}
+	);
+
+	// Hourly is the one granularity finer than a calendar day, so it counts the
+	// instants rather than the days they fall on. A range ending on the hour is
+	// not a bucket longer than one ending a millisecond before it, so the span
+	// rounds up rather than gaining a fixed `+ 1`.
+	it.each( [
+		[ '2026-06-01T00:00:00.000-07:00', '2026-06-01T23:59:59.999-07:00', 24 ],
+		[ '2026-06-01T09:00:00.000-07:00', '2026-06-02T08:59:59.999-07:00', 24 ],
+		[ '2026-06-01T00:00:00.000-07:00', '2026-06-02T23:59:59.999-07:00', 48 ],
+		[ '2026-06-01T09:00:00.000-07:00', '2026-06-01T09:30:00.000-07:00', 1 ],
+		[ '2026-06-01T00:00:00.000-07:00', '2026-06-02T00:00:00.000-07:00', 24 ],
+		[ '2026-06-01', '2026-06-02', 24 ],
+		[ '2026-06-01T09:00:00.000-07:00', '2026-06-01T09:00:00.000-07:00', 1 ],
+	] )( 'counts the hour buckets from %s to %s', ( from, to, expected ) => {
+		expect( getPeriodsBetweenInclusive( 'hour', from, to ) ).toBe( expected );
+	} );
+
+	it( 'reads the site-local calendar day, not the UTC day, at a day boundary', () => {
+		// 23:00 on 2026-06-30 at -07:00 is already 2026-07-01 in UTC. Counting
+		// off the UTC day would report an extra bucket on every negative-offset
+		// site whose range ends late in the evening.
+		expect(
+			getPeriodsBetweenInclusive(
+				'day',
+				'2026-06-01T00:00:00.000-07:00',
+				'2026-06-30T23:00:00.000-07:00'
+			)
+		).toBe( 30 );
+		expect(
+			getPeriodsBetweenInclusive(
+				'month',
+				'2026-06-01T00:00:00.000-07:00',
+				'2026-06-30T23:00:00.000-07:00'
+			)
+		).toBe( 1 );
 	} );
 
 	it( 'falls back to one bucket for an inverted range', () => {
@@ -49,9 +96,46 @@ describe( 'reportParamsToStatsQueryParams', () => {
 		).toEqual(
 			expect.objectContaining( {
 				period: 'day',
-				end_date: '2026-06-07',
-				start_date: '2026-06-01',
+				end_date: '2026-06-07T23:59:59',
+				start_date: '2026-06-01T00:00:00',
 				days: 7,
+			} )
+		);
+	} );
+
+	it( 'passes the offset-bearing date through untrimmed, still counting days correctly', () => {
+		expect(
+			reportParamsToStatsQueryParams( {
+				from: '2026-06-01T00:00:00.000-07:00',
+				to: '2026-06-07T23:59:59.000-07:00',
+				interval: 'day',
+			} )
+		).toEqual(
+			expect.objectContaining( {
+				period: 'day',
+				end_date: '2026-06-07T23:59:59.000-07:00',
+				start_date: '2026-06-01T00:00:00.000-07:00',
+				days: 7,
+			} )
+		);
+	} );
+
+	it( 'keeps the time of day on an hourly range, still counting whole days', () => {
+		// The `last-24-hours` shape: an hourly range whose ends are mid-day, not
+		// midnight. The time survives to the wire (the endpoint resolves it),
+		// while `days` stays a calendar-day count for the bucket math.
+		expect(
+			reportParamsToStatsQueryParams( {
+				from: '2026-06-14T09:00:00.000-04:00',
+				to: '2026-06-15T08:59:59.999-04:00',
+				interval: 'hour',
+			} )
+		).toEqual(
+			expect.objectContaining( {
+				period: 'hour',
+				start_date: '2026-06-14T09:00:00.000-04:00',
+				end_date: '2026-06-15T08:59:59.999-04:00',
+				days: 2,
 			} )
 		);
 	} );
@@ -101,6 +185,14 @@ describe( 'reportParamsToStatsQueryParams', () => {
 		);
 	} );
 
+	it( 'forwards the Stats archives handling option', () => {
+		expect( reportParamsToStatsQueryParams( { skip_archives: 1 } ) ).toEqual(
+			expect.objectContaining( {
+				skip_archives: 1,
+			} )
+		);
+	} );
+
 	it( 'does not forward Woo report-only params to Stats endpoints', () => {
 		const params = reportParamsToStatsQueryParams( {
 			from: '2026-06-01',
@@ -125,12 +217,12 @@ describe( 'reportParamsToStatsQueryParams', () => {
 			to: '2026-06-01',
 			geoMode: 'city',
 			utmParams: 'utm_source,utm_campaign',
-			deviceParam: 'browser',
+			deviceProperty: 'browser',
 		} );
 
 		expect( params ).not.toHaveProperty( 'geoMode' );
 		expect( params ).not.toHaveProperty( 'utmParams' );
-		expect( params ).not.toHaveProperty( 'deviceParam' );
+		expect( params ).not.toHaveProperty( 'deviceProperty' );
 	} );
 
 	it( 'does not forward unknown params to Stats endpoints', () => {

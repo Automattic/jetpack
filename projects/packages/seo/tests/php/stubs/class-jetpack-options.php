@@ -5,7 +5,7 @@
  * The real class lives in projects/plugins/jetpack and is not autoloaded in the
  * SEO package test context. `Automattic\Jetpack\Modules::get_active()` reads the
  * `active_modules` option through it, so without this stub any code path that
- * calls `Modules::is_active()` (e.g. `Initializer::get_overview_data()` and
+ * calls `Modules::is_active()` (e.g. `Dashboard_Data::get_overview_data()` and
  * `Initializer::init()`) fatals with "Class Jetpack_Options not found".
  *
  * Module membership in tests is driven via the `jetpack_active_modules` filter

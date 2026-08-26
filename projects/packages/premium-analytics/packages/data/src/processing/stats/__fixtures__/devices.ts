@@ -1,36 +1,31 @@
-import type { StatsDevicesResponse } from '../devices';
-
-export const devicesScreenSizeFixture = {
+/**
+ * Actual API shape returned by stats/devices/{property}.
+ * top_values is a plain object (dict), not an array.
+ */
+export const devicesFixture = {
+	date: '2026-06-25',
+	period: 'day',
 	top_values: {
-		mobile: 9,
-		desktop: 4,
-		tablet: 2,
+		desktop: 85.9,
+		mobile: 13.5,
+		tablet: 0.5,
 	},
-} satisfies StatsDevicesResponse;
-
-export const devicesBrowserFixture = {
-	top_values: {
-		chrome: 9,
-		safari: 4,
-		ie: 1,
-	},
-} satisfies StatsDevicesResponse;
-
-export const devicesPlatformFixture = {
-	top_values: {
-		ios: 9,
-		android: 4,
-		ipad: 1,
-	},
-} satisfies StatsDevicesResponse;
+};
 
 export const devicesEmptyFixture = {
-	top_values: [],
-} satisfies StatsDevicesResponse;
+	date: '2026-06-25',
+	period: 'day',
+	top_values: {},
+};
 
-export const devicesZeroValueFixture = {
+export const devicesBrowserFixture = {
+	date: '2026-06-25',
+	period: 'day',
 	top_values: {
-		mobile: 0,
-		desktop: 4,
+		chrome: 29451,
+		safari: 3407,
+		other: 2721,
+		edge: 1823,
+		firefox: 1444,
 	},
-} satisfies StatsDevicesResponse;
+};

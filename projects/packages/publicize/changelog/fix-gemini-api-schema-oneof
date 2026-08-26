@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Update REST API status schema to use `oneOf` for Gemini compatibility while preserving null support.

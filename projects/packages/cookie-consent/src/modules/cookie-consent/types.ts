@@ -40,6 +40,13 @@ declare global {
 		jetpackCookieConsentConfig?: {
 			apiUrl: string;
 			eventPrefix?: string;
+			// Feature toggles. Each feature is enabled unless the consumer sets it to
+			// `false`; `tracks` is the only one read today, but the map stays open so new
+			// features can be gated without a type change.
+			features?: {
+				tracks?: boolean;
+				[ feature: string ]: boolean | undefined;
+			};
 			categories?: ConsentCategory[];
 			nonce?: string;
 		};

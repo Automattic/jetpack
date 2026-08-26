@@ -2,52 +2,73 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { trendingUp } from '@wordpress/icons';
+import { megaphone } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
+
 /**
  * Internal dependencies
  */
 import type { StatsUtmParam } from '@jetpack-premium-analytics/data';
+import { SelectField } from '@jetpack-premium-analytics/fields';
 
 /**
  * Widget attributes shape.
  *
- * @property utmParam - UTM dimension to break down by. Defaults to 'utm_source,utm_medium'.
- * @property max      - Maximum rows to display (0 = all). Defaults to 10.
+ * @property utmDimension   - UTM dimension to break down by. Defaults to 'utm_source,utm_medium'.
+ * @property showReportLink - Whether to render the "View all" footer link. Defaults to true.
+ *                          Host compositions on terminal pages (post detail) set this to false;
+ *                          it is not a user-facing control.
  */
 export type UtmInsightsAttributes = {
-	utmParam?: StatsUtmParam;
-	max?: number;
+	utmDimension?: StatsUtmParam;
+	showReportLink?: boolean;
 };
 
 /**
  * UTM Insights widget type definition.
  *
  * Shows traffic breakdown by UTM parameter via the PA proxy at
- * `stats/utm/{utmParam}`. The active dimension is stored in widget
- * attributes so it persists per widget instance across sessions.
- * Date range comes from WidgetRoot's reportParams (the shared
- * dashboard date picker).
+ * `stats/utm/{utmParam}`. The active dimension is the `utmDimension`
+ * attribute (`relevance: 'high'`), so the widget host renders its
+ * control. Date range comes from WidgetRoot's reportParams (the
+ * shared dashboard date picker).
  */
 export default {
-	name: 'jpa/utm-insights',
-	title: __( 'UTM Insights', 'jetpack-premium-analytics' ),
-	icon: trendingUp,
+	icon: megaphone,
 	attributes: [
 		{
-			id: 'utmParam',
-			label: __( 'UTM parameter', 'jetpack-premium-analytics' ),
-			type: 'string',
+			id: 'utmDimension',
+			label: __( 'UTM parameter', 'jetpack-premium-analytics-pkg' ),
+			type: 'text',
+			Edit: SelectField,
+			elements: [
+				{
+					label: __( 'Source / Medium', 'jetpack-premium-analytics-pkg' ),
+					value: 'utm_source,utm_medium',
+				},
+				{
+					label: __( 'Campaign / Source / Medium', 'jetpack-premium-analytics-pkg' ),
+					value: 'utm_campaign,utm_source,utm_medium',
+				},
+				{
+					label: __( 'Source', 'jetpack-premium-analytics-pkg' ),
+					value: 'utm_source',
+				},
+				{
+					label: __( 'Medium', 'jetpack-premium-analytics-pkg' ),
+					value: 'utm_medium',
+				},
+				{
+					label: __( 'Campaign', 'jetpack-premium-analytics-pkg' ),
+					value: 'utm_campaign',
+				},
+			],
+			relevance: 'high',
 		},
-		{
-			id: 'max',
-			label: __( 'Max rows', 'jetpack-premium-analytics' ),
-			type: 'number',
-		},
-	],
+	] as WidgetAttributeField< UtmInsightsAttributes >[],
 	example: {
 		attributes: {
-			utmParam: 'utm_source,utm_medium',
-			max: 10,
+			utmDimension: 'utm_source,utm_medium',
 		},
 	},
 };

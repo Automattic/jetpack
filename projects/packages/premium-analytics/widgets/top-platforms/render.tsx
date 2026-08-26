@@ -1,0 +1,135 @@
+/**
+ * External dependencies
+ */
+import { device } from '@jetpack-premium-analytics/icons';
+/**
+ * WordPress dependencies
+ */
+import { __ } from '@wordpress/i18n';
+import { Stack, Text } from '@jetpack-premium-analytics/externals';
+import {
+	WIDGET_ROW_LIMIT,
+	calculateDelta,
+	describeError,
+	getCombinedPeriodMax,
+	LeaderboardChart,
+	LeaderboardSkeleton,
+	sharePercentage,
+	WidgetRoot,
+	WidgetState,
+	useWidgetRootContext,
+	type LeaderboardChartData,
+	type ReportParamsFieldAttributes,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * Internal dependencies
+ */
+import styles from './style.module.css';
+import usePlatformViews from './use-platform-views';
+import { type TopPlatformsAttributes } from './widget';
+/**
+ * Types
+ */
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+type TopPlatformsRenderAttributes = TopPlatformsAttributes & Partial< ReportParamsFieldAttributes >;
+type TopPlatformsWidgetProps = WidgetRenderProps< TopPlatformsRenderAttributes >;
+
+const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
+
+type PlatformMode = 'browser' | 'platform';
+
+type TopPlatformsInnerProps = {
+	/**
+	 * Device dimension to rank: browsers or operating systems.
+	 */
+	platformDimension: PlatformMode;
+};
+
+function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
+	const { reportParams } = useWidgetRootContext();
+
+	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = usePlatformViews(
+		{
+			reportParams,
+			max: WIDGET_ROW_LIMIT,
+			deviceProperty: platformDimension,
+		}
+	);
+
+	const maxViews = getCombinedPeriodMax(
+		data.map( item => item.views ),
+		hasComparison ? data.map( item => item.previousViews ) : []
+	);
+	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => {
+		const previousValue = item.previousViews;
+
+		return {
+			id: `${ index }-${ item.key }`,
+			label: (
+				<Stack align="center" className={ styles.itemLabel }>
+					<Text>{ item.label }</Text>
+				</Stack>
+			),
+			currentValue: item.views,
+			currentShare: sharePercentage( item.views, maxViews ),
+			previousValue,
+			previousShare:
+				hasComparison && previousValue !== undefined
+					? sharePercentage( previousValue, maxViews )
+					: undefined,
+			delta:
+				hasComparison && previousValue !== undefined
+					? calculateDelta( item.views, previousValue )
+					: undefined,
+		};
+	} );
+
+	return (
+		<div className={ styles.content }>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				isError={ isError }
+				isEmpty={ data.length === 0 }
+				error={ describeError( error, {
+					retryDescription: __(
+						"We couldn't load platform data. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					onRetry: refetch,
+				} ) }
+				empty={ {
+					icon: device,
+					description: __( 'No platform data in this period.', 'jetpack-premium-analytics-pkg' ),
+				} }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+			>
+				<LeaderboardChart
+					data={ leaderboardData }
+					withComparison={ hasComparison }
+					withOverlayLabel
+					showLegend={ false }
+					dataFormat={ DATA_FORMAT }
+				/>
+			</WidgetState>
+		</div>
+	);
+}
+
+/**
+ * Browser or OS breakdown as a ranked leaderboard. The active dimension is the
+ * `platformDimension` attribute (`relevance: 'high'`), exposed as a control by
+ * the widget host.
+ */
+export default function TopPlatformsWidget( { attributes }: TopPlatformsWidgetProps ) {
+	const platformDimension = attributes?.platformDimension ?? 'browser';
+
+	return (
+		<WidgetRoot attributes={ attributes }>
+			<div className={ styles.root }>
+				<TopPlatformsInner platformDimension={ platformDimension } />
+			</div>
+		</WidgetRoot>
+	);
+}

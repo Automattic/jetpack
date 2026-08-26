@@ -10,6 +10,14 @@ import { makeBaseConfig, defineConfig } from 'jetpack-js-tools/eslintrc/base.mjs
 export default defineConfig(
 	makeBaseConfig( import.meta.url ),
 	{
+		// Node runs these directly — the base config only grants node globals to
+		// `*.config.cjs`, and the test helpers beside the Jest config need them too.
+		files: [ 'tests/*.cjs' ],
+		languageOptions: {
+			globals: { __dirname: 'readonly', __filename: 'readonly' },
+		},
+	},
+	{
 		files: [ 'packages/datetime/**' ],
 		rules: {
 			'jsdoc/require-description': 'off',
@@ -67,6 +75,15 @@ export default defineConfig(
 		},
 	},
 	{
+		// `ToggleGroupField` is built on the `__experimental*` ToggleGroupControl
+		// exports from `@wordpress/components`, which have no stable equivalent
+		// yet — the same exemption the widgets-toolkit block carries.
+		files: [ 'packages/fields/**' ],
+		rules: {
+			'@wordpress/no-unsafe-wp-apis': 'off',
+		},
+	},
+	{
 		// The routing port also imports `react` directly (the staged-search
 		// hook), flagged as extraneous because the internal package's deps are
 		// declared on the parent manifest.
@@ -121,6 +138,87 @@ export default defineConfig(
 			'jsdoc/check-indentation': 'off',
 			'jsdoc/escape-inline-tags': 'off',
 			'import/no-extraneous-dependencies': 'off',
+		},
+	},
+	{
+		// Each package under `packages/` that declares `wpScriptModuleExports`
+		// is a shared script module, so a direct import of one of these
+		// libraries compiles it *into* that module instead of resolving to the
+		// externals module — which is what made an unrelated one-line change
+		// rewrite megabytes of build output (WOOA7S-1836).
+		//
+		// Covers all of `packages/**`, including the packages that are bundled
+		// from source rather than compiled to their own module: they end up
+		// inside whichever module imports them, so a direct import there costs
+		// the same. `widgets/` and `routes/` are covered by the block below,
+		// which adds the charts-via-toolkit rule on top.
+		//
+		// `packages/externals` is deliberately excluded: it *is* the
+		// passthrough, so it has to import them directly.
+		files: [ 'packages/**', 'projects/packages/premium-analytics/packages/**' ],
+		ignores: [
+			'packages/externals/**',
+			'projects/packages/premium-analytics/packages/externals/**',
+		],
+		rules: {
+			'no-restricted-imports': [
+				'error',
+				{
+					patterns: [
+						{
+							// Matches the libraries and their subpath entries
+							// (e.g. `@automattic/charts/visx/legend`) but not
+							// stylesheet side-effect imports: those are plain
+							// CSS, not the library, so they carry none of the
+							// bundling cost.
+							regex:
+								'^(@automattic/charts|@automattic/ui|@wordpress/ui|@wordpress/dataviews)(/(?!.*\\.css$).*)?$',
+							message:
+								'Import these from @jetpack-premium-analytics/externals instead: it compiles them once into a shared script module rather than into every module that imports them. Missing an export? Add it to packages/externals/src/index.ts.',
+						},
+					],
+				},
+			],
+		},
+	},
+	{
+		// Widget render bundles and route bundles are lazy-loaded on their own,
+		// so a direct import of one of these libraries is inlined into that
+		// bundle rather than resolved from a shared script module.
+		//
+		// Charts are called out separately: they must come through
+		// widgets-toolkit, which themes them and takes charts from externals
+		// itself, so a toolkit passthrough costs nothing. Everything else goes
+		// straight to externals.
+		//
+		// Both rules live in one block on purpose — a second `files` entry
+		// naming `no-restricted-imports` again would replace this rule for
+		// these paths rather than add to it.
+		files: [
+			'widgets/**',
+			'routes/**',
+			'projects/packages/premium-analytics/widgets/**',
+			'projects/packages/premium-analytics/routes/**',
+		],
+		rules: {
+			'no-restricted-imports': [
+				'error',
+				{
+					patterns: [
+						{
+							// Same `.css` exemption as the packages rule above.
+							regex: '^@automattic/charts(/(?!.*\\.css$).*)?$',
+							message:
+								'Import chart components from @jetpack-premium-analytics/widgets-toolkit instead: it is a shared script module, so charts is bundled once for the whole dashboard. Missing a component? Re-export it from the toolkit "Charts passthrough" section.',
+						},
+						{
+							regex: '^(@automattic/ui|@wordpress/ui|@wordpress/dataviews)(/(?!.*\\.css$).*)?$',
+							message:
+								'Import these from @jetpack-premium-analytics/externals instead: it compiles them once into a shared script module rather than into every bundle that imports them. Missing an export? Add it to packages/externals/src/index.ts.',
+						},
+					],
+				},
+			],
 		},
 	}
 );

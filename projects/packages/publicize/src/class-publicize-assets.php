@@ -37,10 +37,7 @@ class Publicize_Assets {
 			return false;
 		}
 
-		/** This filter is documented in projects/packages/publicize/src/class-publicize-base.php */
-		$capability = apply_filters( 'jetpack_publicize_capability', 'publish_posts' );
-
-		return current_user_can( $capability );
+		return Publicize_Utils::current_user_can_access_publicize_data();
 	}
 
 	/**
@@ -78,11 +75,18 @@ class Publicize_Assets {
 	}
 
 	/**
-	 * Register polyfills for the wp-theme / wp-private-apis handles the Social bundles
-	 * depend on but WP < 7.0 does not ship (or ships with an incomplete allowlist).
+	 * Register polyfills for the wp-theme / wp-private-apis / wp-rich-text handles the
+	 * Social bundles depend on but WP < 7.0 does not ship (or ships with an incomplete
+	 * allowlist).
 	 *
-	 * Only the two handles Social actually uses are requested, to keep the polyfill's
-	 * `wp-private-apis` force-replacement off any handle we don't need.
+	 * `wp-rich-text` is needed because the editor bundles reach `@wordpress/dataviews`
+	 * (via `@wordpress/ui`), whose dataform controls unlock rich-text's `privateApis` at
+	 * module scope. WP 6.9 exports none, so without the polyfill the bundle throws
+	 * "Cannot unlock an undefined object" before the sidebar renders.
+	 *
+	 * Only the handles Social actually uses are requested, to keep the polyfill's
+	 * force-replacement off any handle we don't need — `wp-notices` in particular, which
+	 * Core registers adequately for these bundles.
 	 */
 	public static function register_wp_build_polyfills() {
 		if ( ! class_exists( WP_Build_Polyfills::class ) ) {
@@ -91,7 +95,7 @@ class Publicize_Assets {
 
 		WP_Build_Polyfills::register(
 			'jetpack-social',
-			array( 'wp-theme', 'wp-private-apis' )
+			array( 'wp-theme', 'wp-private-apis', 'wp-rich-text' )
 		);
 	}
 }

@@ -1,14 +1,24 @@
 import { __, _x } from '@wordpress/i18n';
 import defaultSettings from '../shared/settings/index.js';
 import deprecated from './deprecated.js';
-import edit from './edit.js';
+import edit from './edit.jsx';
 import blockIcon from './icon.jsx';
-import save from './save.js';
+import save from './save.jsx';
 
 export const name = 'field-date';
 
 export const form_editor = {
 	category: 'advanced',
+};
+
+/**
+ * Conditional logic: how this field's value is compared.
+ *
+ * Declared per block so the rule builder can offer the right operators and value
+ * input. A block that omits this simply gets no conditional-logic support.
+ */
+export const conditional_logic = {
+	type: 'date',
 };
 
 export const settings = {
@@ -21,10 +31,6 @@ export const settings = {
 	description: __( 'Capture date information with a date picker.', 'jetpack-forms' ),
 	icon: blockIcon,
 	edit,
-	providesContext: {
-		...defaultSettings.providesContext,
-		'jetpack/field-date-format': 'dateFormat',
-	},
 	attributes: {
 		...defaultSettings.attributes,
 		dateFormat: {
@@ -56,4 +62,5 @@ export default {
 	name,
 	settings,
 	form_editor,
+	conditional_logic,
 };

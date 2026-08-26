@@ -5,6 +5,114 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.44.1] - 2026-08-25
+### Changed
+- Stats: Replace the commercial-use row on the Add Stats screen with UTM tracking, device stats, and location detail. [#51410]
+
+### Fixed
+- Fix a PHP 8.5 deprecation notice raised for products that do not ship a standalone plugin. [#51162]
+- Plans section: Always label the license activation link "Activate a license", including on sites with a plan but no activated licenses. [#51283]
+- Stats: Tell the Stats dashboard when Start for Free was chosen, so it does not ask which plan you want a second time. [#51413]
+
+## [5.44.0] - 2026-08-20
+### Added
+- Error UI: Add a support link to broken-connection notices when reconnecting may not resolve the problem. [#51360]
+
+## [5.43.1] - 2026-08-19
+### Changed
+- Update package dependencies. [#51399]
+
+## [5.43.0] - 2026-08-13
+### Changed
+- Connection: Leave another user's broken token out of the connection error notice, since only that user can restore it. [#51034]
+- Connection: Show the scope and error code of each connection error in the notice, instead of only the first error's message. [#51034]
+
+## [5.42.3] - 2026-08-12
+### Changed
+- Protect: Test the site protection data endpoint against the real firewall configuration. [#51184]
+
+## [5.42.2] - 2026-08-11
+### Changed
+- Update dependencies. [#46951]
+
+## [5.42.1] - 2026-08-11
+### Changed
+- Update package dependencies. [#51125]
+
+## [5.42.0] - 2026-08-10
+### Security
+- Cache the support chat authentication token per user instead of site-wide.
+- Only expose the full firewall configuration and scan report to users who can manage site options.
+
+### Added
+- Jetpack AI: Drive the product card from the new AI module with an inline on/off toggle. [#50718]
+
+### Changed
+- Limit the AI card's module toggle to internal testing environments ahead of release. [#50718]
+- Stats: Point the product card at the Premium Analytics dashboard when it replaces the Stats page. [#50926]
+- Update package dependencies. [#50509] [#51008]
+
+### Fixed
+- Fix the My Jetpack page rendering blank on WordPress 6.9. [#50509]
+- Reload after toggling the AI card, so the toggle and every other surface reflect the new module state. [#50718]
+
+## [5.41.1] - 2026-08-03
+### Changed
+- Update dependencies. [#46951]
+
+## [5.41.0] - 2026-07-27
+### Changed
+- Force a full page reload after activating or deactivating VideoPress, so the WP Admin menu reflects the new activation state. [#50740]
+- Show only the Products section, without the tab bar, on WordPress.com Simple sites. [#50694]
+- Skip the connection onboarding flow on WordPress.com Simple sites, which are connected by definition. [#50693]
+- Update package dependencies. [#50751] [#50753] [#50792]
+
+### Fixed
+- Record the tab-click analytics event only on a real tab change, and rewrite a stale or invalid section hash to the section shown. [#50694]
+
+## [5.40.9] - 2026-07-22
+### Changed
+- Update package dependencies. [#50683]
+
+### Fixed
+- Hide the Modules footer link and the Help tab's Useful links section (All Jetpack modules, Debug information) on WordPress.com Simple sites, where the target admin pages do not exist. [#50675]
+
+## [5.40.8] - 2026-07-20
+### Changed
+- Allow pricing interstitials to limit container width. [#50567]
+- Update package dependencies. [#50510] [#50529] [#50582]
+
+### Fixed
+- Connection: Ensure My Jetpack Connection status card is compatible with TSX in Jetpack Connection package. [#50370]
+- Hide the large Stats graph when the Stats module is disabled, and show the compact Stats card with an activation CTA instead. [#50464]
+- Register a pricing-table config for Stats so the interstitial no longer renders an empty column. [#50535]
+- Reload the page after toggling a menu-registering module (Podcast, Newsletter, Reader) in My Jetpack so the wp-admin sidebar reflects the change, matching the Forms toggle behavior. [#50269]
+
+## [5.40.7] - 2026-07-13
+### Changed
+- Update package dependencies. [#50407]
+
+### Fixed
+- Fix route changes in Chrome when scroll APIs return promises. [#50465]
+- Show a Site Editor action for sharing buttons on block themes. [#50355]
+
+## [5.40.6] - 2026-07-09
+### Changed
+- My Jetpack now reports its red-bubble alerts to the central menu-badges registry instead of writing admin-menu markup directly; the Protect alert is skipped there since Protect reports its own count. [#50190]
+- Update package dependencies. [#49272]
+
+### Fixed
+- Fix the My Jetpack app failing to load on WordPress 6.9 installs without the Gutenberg plugin active, where the wp-theme script handle it depends on is otherwise unregistered. [#50291]
+
+## [5.40.5] - 2026-07-06
+### Changed
+- Consume the resolved actions from the Connection package instead of duplicating the action-resolution logic. [#50081]
+- Update package dependencies. [#50097] [#50183] [#50212]
+
+### Fixed
+- De-duplicate search results so a product no longer appears twice (e.g. Forms, VideoPress). [#50056]
+- Products: Keep product search result order stable while typing a category name. [#50058]
+
 ## [5.40.4] - 2026-06-29
 ### Changed
 - Update dependencies. [#46951]
@@ -2754,6 +2862,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.44.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.44.0...5.44.1
+[5.44.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.43.1...5.44.0
+[5.43.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.43.0...5.43.1
+[5.43.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.42.3...5.43.0
+[5.42.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.42.2...5.42.3
+[5.42.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.42.1...5.42.2
+[5.42.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.42.0...5.42.1
+[5.42.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.41.1...5.42.0
+[5.41.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.41.0...5.41.1
+[5.41.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.9...5.41.0
+[5.40.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.8...5.40.9
+[5.40.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.7...5.40.8
+[5.40.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.6...5.40.7
+[5.40.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.5...5.40.6
+[5.40.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.4...5.40.5
 [5.40.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.3...5.40.4
 [5.40.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.2...5.40.3
 [5.40.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.1...5.40.2

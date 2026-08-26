@@ -1,10 +1,10 @@
 === Jetpack VideoPress  ===
 Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski, nunyvega, leogermani, cgastrell
 Tags: video, video-hosting, video-player, cdn, video-streaming
-Requires at least: 6.9
-Tested up to: 7.0
-Stable tag: 3.1
-Requires PHP: 7.2
+Requires at least: 7.0
+Tested up to: 7.1
+Stable tag: 3.4
+Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 The finest video hosting for WordPress. Drag and drop videos through the WordPress editor and keep the focus on your content, not the ads.
@@ -83,12 +83,10 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 3.1 - 2026-05-14
+### 3.4 - 2026-08-19
 #### Changed
-- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency.
 - Update package dependencies.
 
 #### Fixed
-- Prevent the "Add new video" button from disappearing on the admin dashboard after the first video is uploaded.
-- VideoPress admin: Add padding around the Settings section, make the hero full width on medium screens, and remove an empty pagination placeholder below the video library.
+- Connection: Stop showing a duplicate account notice when your WordPress.com email differs from your site email only in letter case.
 

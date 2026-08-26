@@ -453,7 +453,7 @@ class Search_Blocks {
 	 */
 	public static function woocommerce_version_supported( ?string $version = null ): bool {
 		// `constant()` keeps static analysis happy — WC isn't a dependency here.
-		$version = $version ?? ( defined( 'WC_VERSION' ) ? (string) constant( 'WC_VERSION' ) : '' );
+		$version ??= ( defined( 'WC_VERSION' ) ? (string) constant( 'WC_VERSION' ) : '' );
 		return '' !== $version && version_compare( $version, self::MIN_WOOCOMMERCE_VERSION, '>=' );
 	}
 
@@ -631,10 +631,18 @@ class Search_Blocks {
 	 * URL param key the inline search experience uses for the current request.
 	 * On the WP search route `s`; elsewhere `q` (see `NON_SEARCH_QUERY_PARAM`).
 	 *
+	 * Uses direct property access on `$wp_query` rather than the `is_search()`
+	 * global function, because the function calls `_doing_it_wrong()` when
+	 * invoked before the query has finished running (e.g. during block render).
+	 *
 	 * @return string
 	 */
 	public static function get_search_param_name(): string {
-		return function_exists( 'is_search' ) && is_search() ? 's' : self::NON_SEARCH_QUERY_PARAM;
+		global $wp_query;
+		if ( isset( $wp_query ) && ! empty( $wp_query->is_search ) ) {
+			return 's';
+		}
+		return self::NON_SEARCH_QUERY_PARAM;
 	}
 
 	/**
@@ -663,6 +671,7 @@ class Search_Blocks {
 			$asset['version'] ?? false,
 			true
 		);
+		wp_set_script_translations( 'jetpack-search-blocks-register', 'jetpack-search-pkg' );
 
 		// Surface PHP gates to the editor bundle so block edits and the
 		// registration loop branch consistently with server-side renders.
@@ -677,6 +686,11 @@ class Search_Blocks {
 					'supportsPaidSearch'         => self::supports_paid_search(),
 					'supportedCustomTaxonomies'  => self::supported_custom_taxonomies(),
 					'customTaxonomyMap'          => (object) self::custom_taxonomy_map(),
+					// Resolved the same way `search-results/render.php` resolves the
+					// live value, so the editor placeholder never claims a default
+					// visitors won't actually get.
+					'defaultResultsPerPage'      => Helper::resolve_results_per_page(),
+					'maxResultsPerPage'          => Helper::get_max_posts_per_page(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
@@ -718,21 +732,7 @@ class Search_Blocks {
 
 		self::register_store_script_module();
 
-		$blocks_dir = __DIR__ . '/blocks';
-		$block_dirs = glob( $blocks_dir . '/*', GLOB_ONLYDIR );
-
-		if ( ! $block_dirs ) {
-			return;
-		}
-
-		$wc_blocks_enabled = self::woocommerce_blocks_enabled();
-		foreach ( $block_dirs as $block_dir ) {
-			if ( ! file_exists( $block_dir . '/block.json' ) ) {
-				continue;
-			}
-			if ( ! $wc_blocks_enabled && self::is_woocommerce_only_block( basename( $block_dir ) ) ) {
-				continue;
-			}
+		foreach ( self::block_directories() as $block_dir ) {
 			register_block_type( $block_dir );
 		}
 
@@ -1013,7 +1013,7 @@ class Search_Blocks {
 		$template_path = __DIR__ . '/templates/jetpack-search.html';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file.
 		$raw = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
-		return static::substitute_template_placeholders( $raw );
+		return static::sync_filters_popover_content( static::substitute_template_placeholders( $raw ) );
 	}
 
 	/**
@@ -1088,7 +1088,8 @@ class Search_Blocks {
 		$file          = $is_product ? 'jetpack-search-overlay-product.html' : 'jetpack-search-overlay.html';
 		$template_path = __DIR__ . '/templates/' . $file;
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file; wp_remote_get() is for remote URLs.
-		self::$overlay_template_content_cache[ $key ] = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		$raw = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		self::$overlay_template_content_cache[ $key ] = static::sync_filters_popover_content( $raw );
 		return self::$overlay_template_content_cache[ $key ];
 	}
 
@@ -1193,7 +1194,7 @@ class Search_Blocks {
 		// from `do_blocks()` land before the importmap prints — see
 		// AGENTS.md § Hydration & SSR seeding.
 		self::$block_template_overlay_rendered_html = trim(
-			do_blocks( static::get_overlay_template_content() )
+			No_Results::render_self_contained( static::get_overlay_template_content() )
 		);
 	}
 
@@ -1204,9 +1205,13 @@ class Search_Blocks {
 	 * theme paints on the browser canvas) or when bg equals ink (vintage
 	 * frame-themes like Twenty Sixteen use body as a colored border around a
 	 * lighter `.site` content wrapper). See AGENTS.md § Theme tokens.
+	 *
+	 * The `wp_body_open` hook registers unconditionally in `init()`, before
+	 * the module-active check in `Initializer::init_search_blocks()` — so the
+	 * module gate lives here instead, front-end only.
 	 */
 	public static function print_theme_token_sampler(): void {
-		if ( is_admin() ) {
+		if ( is_admin() || ! ( new Module_Control() )->is_active() ) {
 			return;
 		}
 		echo "<script id='jetpack-search-theme-token-sampler'>(function(){try{var c=getComputedStyle(document.body),r=document.documentElement,ink=c.color,bg=c.backgroundColor;if(ink){r.style.setProperty('--jp-search-page-ink',ink);}if(bg&&bg!==ink&&bg!=='rgba(0, 0, 0, 0)'&&bg!=='transparent'){r.style.setProperty('--jp-search-page-surface',bg);}}catch(e){}})();</script>";
@@ -1659,7 +1664,7 @@ CSS;
 		$template_path = __DIR__ . '/templates/jetpack-search-product-results.html';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file.
 		$raw = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
-		return static::substitute_template_placeholders( $raw );
+		return static::sync_filters_popover_content( static::substitute_template_placeholders( $raw ) );
 	}
 
 	/**
@@ -1693,6 +1698,93 @@ CSS;
 	 */
 	protected static function resolve_chrome_slugs(): array {
 		return Theme_Chrome_Slug_Resolver::resolve();
+	}
+
+	/**
+	 * Names of the "source of truth" filter-composition blocks — whichever is
+	 * present in a template supplies the canonical filter config that
+	 * `jetpack-search/filters-popover` mirrors. See {@see sync_filters_popover_content()}.
+	 */
+	const FILTERS_SOURCE_BLOCK_NAMES = array( 'jetpack-search/filters', 'jetpack-search/filters-product' );
+
+	/**
+	 * `jetpack-search/filters-popover` (the collapsible/mobile filter panel) and
+	 * `jetpack-search/filters` / `jetpack-search/filters-product` (the wide-viewport
+	 * sidebar) are two independently-serialized copies of the same filter
+	 * configuration, shown one-or-the-other via a CSS breakpoint. Nothing keeps
+	 * them in sync, so editing one silently leaves the other stale (SEARCH-307).
+	 *
+	 * Rather than a two-way sync, the sidebar block is treated as the single
+	 * source of truth: every time template content is read — for rendering or
+	 * for editing — the popover's inner blocks are recomputed to mirror
+	 * whatever the sidebar currently contains. A direct edit to the popover's
+	 * own inner blocks still saves, but is overwritten back to match the
+	 * sidebar on the next read; self-healing, no migration needed for content
+	 * that already diverged before this existed.
+	 *
+	 * @param string $content Block markup, e.g. a full template or singleton-CPT post_content.
+	 * @return string Block markup with the popover's inner blocks synced to the sidebar's, unchanged if either block is absent.
+	 */
+	public static function sync_filters_popover_content( string $content ): string {
+		if ( '' === $content || false === strpos( $content, 'jetpack-search/filters-popover' ) ) {
+			return $content;
+		}
+		$blocks = parse_blocks( $content );
+		$source = static::find_block_by_name( $blocks, self::FILTERS_SOURCE_BLOCK_NAMES );
+		if ( null === $source ) {
+			return $content;
+		}
+		$replaced = static::replace_block_inner_content( $blocks, 'jetpack-search/filters-popover', $source );
+		return $replaced ? serialize_blocks( $blocks ) : $content;
+	}
+
+	/**
+	 * Depth-first search for the first block matching one of `$names`.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Parsed blocks (`parse_blocks()` shape).
+	 * @param string[]                       $names  Block names to match.
+	 * @return array<string,mixed>|null
+	 */
+	protected static function find_block_by_name( array $blocks, array $names ): ?array {
+		foreach ( $blocks as $block ) {
+			if ( in_array( $block['blockName'], $names, true ) ) {
+				return $block;
+			}
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$found = static::find_block_by_name( $block['innerBlocks'], $names );
+				if ( null !== $found ) {
+					return $found;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Depth-first search that overwrites the first block named `$name` with
+	 * `$source`'s inner blocks. `innerBlocks`/`innerContent`/`innerHTML` are
+	 * copied together from `$source` so the null-placeholder bookkeeping in
+	 * `innerContent` stays internally consistent regardless of how many
+	 * filters `$source` has.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Parsed blocks, modified in place.
+	 * @param string                         $name   Block name to replace.
+	 * @param array<string,mixed>            $source Block whose inner content is cloned onto the match.
+	 * @return bool Whether a match was found and replaced.
+	 */
+	protected static function replace_block_inner_content( array &$blocks, string $name, array $source ): bool {
+		foreach ( $blocks as &$block ) {
+			if ( $block['blockName'] === $name ) {
+				$block['innerBlocks']  = $source['innerBlocks'];
+				$block['innerContent'] = $source['innerContent'];
+				$block['innerHTML']    = $source['innerHTML'];
+				return true;
+			}
+			if ( ! empty( $block['innerBlocks'] ) && static::replace_block_inner_content( $block['innerBlocks'], $name, $source ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -2014,7 +2106,8 @@ HTML;
 			return array();
 		}
 		// Bail if any helper is missing — half-loaded feature would ship inconsistent filterConfigs.
-		foreach ( static::filter_block_helpers() as $helper ) {
+		$helpers = static::filter_block_helpers();
+		foreach ( $helpers as $helper ) {
 			if ( ! class_exists( $helper ) ) {
 				return array();
 			}
@@ -2023,9 +2116,29 @@ HTML;
 		if ( ! $post || empty( $post->post_content ) ) {
 			return array();
 		}
+		if ( ! static::post_content_has_filter_block( $post, array_keys( $helpers ) ) ) {
+			return array();
+		}
 		$configs = array();
 		static::walk_blocks_for_filter_configs( parse_blocks( $post->post_content ), $configs );
 		return $configs;
+	}
+
+	/**
+	 * Does the post contain any of the given block names? SEARCH-295: a
+	 * has_block() scan to gate parse_blocks() on large, filter-less posts.
+	 *
+	 * @param \WP_Post $post        Post to scan.
+	 * @param string[] $block_names Block names to scan for.
+	 * @return bool
+	 */
+	protected static function post_content_has_filter_block( \WP_Post $post, array $block_names ): bool {
+		foreach ( $block_names as $block_name ) {
+			if ( has_block( $block_name, $post ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -2091,15 +2204,17 @@ HTML;
 	 * @return array<string, mixed>
 	 */
 	public static function build_initial_state() {
-		$is_private         = class_exists( Status::class ) ? ( new Status() )->is_private_site() : false;
-		$is_wpcom           = class_exists( Helper::class ) ? Helper::is_wpcom() : false;
-		$site_id            = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
-		$search_query       = static::parse_url_search_query();
-		$active_filters     = static::parse_url_filters();
-		$filter_logic       = static::parse_url_filter_logic( $active_filters );
-		$price_range        = static::parse_url_price_range();
-		$is_initial_loading = static::is_initial_loading();
-		$searching_text     = function_exists( '__' ) ? __( 'Searching…', 'jetpack-search-pkg' ) : 'Searching…';
+		$is_private                = class_exists( Status::class ) ? ( new Status() )->is_private_site() : false;
+		$is_wpcom                  = class_exists( Helper::class ) ? Helper::is_wpcom() : false;
+		$site_id                   = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
+		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && \Jetpack::is_module_active( 'photon' );
+		$search_query              = static::parse_url_search_query();
+		$active_filters            = static::parse_url_filters();
+		$filter_logic              = static::parse_url_filter_logic( $active_filters );
+		$price_range               = static::parse_url_price_range();
+		$is_initial_loading        = static::is_initial_loading();
+		$searching_text            = function_exists( '__' ) ? __( 'Searching…', 'jetpack-search-pkg' ) : 'Searching…';
+		$query_options             = static::get_instant_search_query_options();
 
 		return array(
 			// Connection / routing config.
@@ -2108,6 +2223,7 @@ HTML;
 			'nonce'                      => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
 			'isPrivateSite'              => $is_private,
 			'isWpcom'                    => $is_wpcom,
+			'isPhotonEnabled'            => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private,
 			// TrainTracks gate, mirroring instant search's `disableTracking`
 			// (Helper::get_search_options): suppresses `_tkq` pushes for
 			// `?disable_tracking=1` crawlers/QA and the filter override.
@@ -2168,7 +2284,30 @@ HTML;
 			'aiExtendedLoadingHints'     => static::build_ai_extended_loading_hints(),
 
 			'wcStockStatusLabels'        => static::build_stock_status_labels(),
+
+			// Query customization from `jetpack_instant_search_options` — same
+			// keys Instant Search / Inline Search honor, so Embedded and the
+			// blocks Overlay stay compatible with those filters.
+			'highlightPhraseOnly'        => $query_options['highlightPhraseOnly'],
+			'highlightFilterStopwords'   => $query_options['highlightFilterStopwords'],
+			'highlightFields'            => $query_options['highlightFields'],
+			'additionalBlogIds'          => $query_options['additionalBlogIds'],
+			'adminQueryFilter'           => $query_options['adminQueryFilter'],
+			'customResults'              => $query_options['customResults'],
 		);
+	}
+
+	/**
+	 * Read Instant Search query-customization options for the blocks store.
+	 *
+	 * @since 7.4.0
+	 *
+	 * @return array Query options with keys:
+	 *               `highlightPhraseOnly`, `highlightFilterStopwords`, `highlightFields`,
+	 *               `additionalBlogIds`, `adminQueryFilter`, and `customResults`.
+	 */
+	public static function get_instant_search_query_options(): array {
+		return Helper::get_instant_search_query_options();
 	}
 
 	/**
@@ -2192,6 +2331,45 @@ HTML;
 			$labels[ $value ] = (string) ( $option['label'] ?? $value );
 		}
 		return $labels;
+	}
+
+	/**
+	 * Every block directory to register, parents first then their children.
+	 *
+	 * A block directory may nest child blocks that only ever render inside it
+	 * (`no-results/slot`). They live there rather than beside their parent so
+	 * the relationship is obvious in the tree, and they inherit the parent's
+	 * WooCommerce gating for free — a skipped parent is never descended into.
+	 *
+	 * @internal Public only so the registration walk can be asserted directly.
+	 *
+	 * @return string[] Absolute directory paths, each holding a `block.json`.
+	 */
+	public static function block_directories(): array {
+		$block_dirs = glob( __DIR__ . '/blocks/*', GLOB_ONLYDIR );
+		if ( ! $block_dirs ) {
+			return array();
+		}
+
+		$wc_blocks_enabled = self::woocommerce_blocks_enabled();
+		$directories       = array();
+		foreach ( $block_dirs as $block_dir ) {
+			if ( ! file_exists( $block_dir . '/block.json' ) ) {
+				continue;
+			}
+			if ( ! $wc_blocks_enabled && self::is_woocommerce_only_block( basename( $block_dir ) ) ) {
+				continue;
+			}
+			$directories[] = $block_dir;
+
+			foreach ( (array) glob( $block_dir . '/*', GLOB_ONLYDIR ) as $child_dir ) {
+				if ( file_exists( $child_dir . '/block.json' ) ) {
+					$directories[] = $child_dir;
+				}
+			}
+		}
+
+		return $directories;
 	}
 
 	/**

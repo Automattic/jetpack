@@ -11,7 +11,7 @@ import { fetchSyncStatus } from '../api/fetch-sync-status';
 import { triggerFullSync } from '../api/trigger-full-sync';
 import { POLL_INTERVAL, MAX_POLL_FAILURES } from '../constants';
 import { toSyncStatus, isSyncComplete, isSyncStalled } from '../status';
-import type { SyncStatus, UseSyncStatusReturn } from '../types';
+import type { SyncStatus, UseSyncStatusOptions, UseSyncStatusReturn } from '../types';
 
 /**
  * Read the page-load milestone injected by the backend Sync_Status_Tracker.
@@ -25,38 +25,33 @@ function readMilestone(): number {
 }
 
 /**
- * Whether the site has store data to sync (WooCommerce active). When false the
- * status is derived from Jetpack's generic initial full sync. Read once at mount;
- * WooCommerce activation only changes between page loads.
- *
- * Defaults to false when the flag is absent (an abnormal boot — the backend always
- * injects it). "Site data" is the neutral, never-wrong framing: every site has it,
- * only some have a store, so guessing a store is the riskier miss.
- *
- * @return Whether the site has store data.
- */
-function hasStoreData(): boolean {
-	return getScriptData()?.premium_analytics?.has_store_data ?? false;
-}
-
-/**
  * Polls Jetpack's sync status and returns analytics-scoped progress.
  *
  * Polling auto-stops when the sync completes or stalls, or after
  * `MAX_POLL_FAILURES` consecutive fetch errors; a single transient error is
  * retried on the next tick and self-heals on the next success. If the
- * page-load milestone is already set, the dashboard is gated open immediately
+ * page-load milestone is already set, the status reports complete immediately
  * and no polling occurs. `triggerSync` POSTs the full-sync trigger and resumes
- * polling; it never rejects (failures surface via `error`).
+ * polling; it never rejects (failures surface via `error`), and a start that
+ * failed keeps reporting until a poll proves the sync is under way.
  *
+ * @param options           - Hook options.
+ * @param options.enabled   - Whether to watch the sync at all.
+ * @param options.autoStart - Whether to start a sync when none is running.
  * @return The current sync state plus a `triggerSync` action.
  */
-export function useSyncStatus(): UseSyncStatusReturn {
+export function useSyncStatus( {
+	enabled = true,
+	autoStart = false,
+}: UseSyncStatusOptions = {} ): UseSyncStatusReturn {
 	const milestoneRef = useRef< number >( readMilestone() );
-	const hasStoreDataRef = useRef< boolean >( hasStoreData() );
 	const [ data, setData ] = useState< SyncStatus >();
 	const [ error, setError ] = useState< Error | null >( null );
-	const [ isStalled, setIsStalled ] = useState( false );
+	// A start that failed leaves nothing running, so no amount of successful
+	// polling disproves it: only the analytics module appearing in the sync
+	// progress does. Held apart from the poll's own errors, which a single
+	// success clears, so the retry stays on screen until the sync is under way.
+	const startErrorRef = useRef< Error | null >( null );
 
 	const intervalRef = useRef< ReturnType< typeof setInterval > | null >( null );
 	// Consecutive fetch failures. Reset on every success and whenever polling
@@ -85,11 +80,14 @@ export function useSyncStatus(): UseSyncStatusReturn {
 					milestoneRef.current = live;
 				}
 
-				const status = toSyncStatus( raw, milestoneRef.current, hasStoreDataRef.current );
+				const status = toSyncStatus( raw, milestoneRef.current );
 				failureCountRef.current = 0;
 				setData( status );
-				setError( null );
-				setIsStalled( false );
+
+				if ( status.isStarted || isSyncComplete( status ) ) {
+					startErrorRef.current = null;
+				}
+				setError( startErrorRef.current );
 
 				if ( isSyncComplete( status ) ) {
 					clearPolling();
@@ -98,9 +96,10 @@ export function useSyncStatus(): UseSyncStatusReturn {
 
 				if ( isSyncStalled( status ) ) {
 					clearPolling();
-					setIsStalled( true );
 					setError(
-						new Error( __( 'Sync has stalled. Please try again.', 'jetpack-premium-analytics' ) )
+						new Error(
+							__( 'Sync has stalled. Please try again.', 'jetpack-premium-analytics-pkg' )
+						)
 					);
 				}
 			} )
@@ -108,14 +107,14 @@ export function useSyncStatus(): UseSyncStatusReturn {
 				const message =
 					e instanceof Error
 						? e.message
-						: __( 'Unable to get sync status.', 'jetpack-premium-analytics' );
+						: __( 'Unable to get sync status.', 'jetpack-premium-analytics-pkg' );
 				// Keep polling through transient blips; only give up once failures
 				// pile up, so a momentary network/500 hiccup self-heals next tick.
 				failureCountRef.current += 1;
 				if ( failureCountRef.current >= MAX_POLL_FAILURES ) {
 					clearPolling();
+					setError( new Error( message ) );
 				}
-				setError( new Error( message ) );
 			} );
 	}, [ clearPolling ] );
 
@@ -131,8 +130,8 @@ export function useSyncStatus(): UseSyncStatusReturn {
 
 	const triggerSync = useCallback( async () => {
 		clearPolling();
+		startErrorRef.current = null;
 		setError( null );
-		setIsStalled( false );
 
 		try {
 			await triggerFullSync();
@@ -140,25 +139,50 @@ export function useSyncStatus(): UseSyncStatusReturn {
 			startPolling();
 		} catch ( e: unknown ) {
 			const message =
-				e instanceof Error ? e.message : __( 'Unable to start sync.', 'jetpack-premium-analytics' );
-			setError( new Error( message ) );
+				e instanceof Error
+					? e.message
+					: __( 'Unable to start sync.', 'jetpack-premium-analytics-pkg' );
+			startErrorRef.current = new Error( message );
+			setError( startErrorRef.current );
+			// The request may still have reached the server despite the error. Resume
+			// observation so the next status response can establish what happened.
+			startPolling();
 		}
 	}, [ clearPolling, poll, startPolling ] );
 
 	useEffect( () => {
-		// Already finished before this page load — gate open, no polling needed.
+		if ( ! enabled ) {
+			return;
+		}
+
+		// Already finished before this page load — nothing is waiting, no polling
+		// needed.
 		if ( milestoneRef.current > 0 ) {
-			setData( toSyncStatus( {}, milestoneRef.current, hasStoreDataRef.current ) );
+			setData( toSyncStatus( {}, milestoneRef.current ) );
 			return;
 		}
 
 		poll();
 		startPolling();
 		return clearPolling;
-	}, [ poll, startPolling, clearPolling ] );
+	}, [ enabled, poll, startPolling, clearPolling ] );
+
+	// Once per mount: a sync the user declined to retry must stay stopped.
+	const didAutoStart = useRef( false );
+	useEffect( () => {
+		if ( ! enabled || ! autoStart || ! data || didAutoStart.current ) {
+			return;
+		}
+
+		if ( isSyncComplete( data ) || data.isStarted || data.isRunning ) {
+			return;
+		}
+
+		didAutoStart.current = true;
+		void triggerSync();
+	}, [ enabled, autoStart, data, triggerSync ] );
 
 	const isComplete = data ? isSyncComplete( data ) : false;
-	const isLoading = ! data && ! error;
 
-	return { data, error, isLoading, isComplete, isStalled, triggerSync };
+	return { data, error, isComplete, triggerSync };
 }

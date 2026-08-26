@@ -3,9 +3,12 @@ import {
 	createStatsSummaryDataPoint,
 	getStatsArrayFromKeys,
 	coerceStatsRecord,
+	getStatsReportItems,
 	getStatsSummaryIntervalFields,
 	getStatsTopLevelDataDate,
+	limitStatsRows,
 	mapStatsReportDataPoints,
+	mergeStatsComparisonRows,
 	normalizeStatsSummary,
 } from './utils';
 import type {
@@ -27,6 +30,23 @@ export type StatsVideoPlaysItem = StatsNormalizedItemBase & {
 	actions?: StatsItemAction[];
 	children: null;
 };
+
+export type StatsVideoPlaysComparisonItem = StatsVideoPlaysItem & {
+	previousPlays?: number;
+	previousImpressions?: number;
+};
+
+// Returns null when the video has no stable identifier at all, so unrelated
+// untitled rows never match each other in the comparison merge.
+function getVideoKey( video: StatsVideoPlaysItem ): string | null {
+	if ( video.id != null ) {
+		return String( video.id );
+	}
+
+	const label = typeof video.label === 'string' ? video.label : '';
+
+	return video.link || label || null;
+}
 
 export function sanitizeStatsVideoPlaysResponse(
 	response: unknown,
@@ -80,4 +100,27 @@ export function sanitizeStatsVideoPlaysResponse(
 			? summaryData
 			: mapStatsReportDataPoints( response, query, videoDataKeys, parse ),
 	};
+}
+
+export function mergeStatsVideoPlaysComparisonRows(
+	primaryReport?: StatsNormalizedReport< StatsVideoPlaysItem >,
+	comparisonReport?: StatsNormalizedReport< StatsVideoPlaysItem >,
+	maxRows?: number
+) {
+	return mergeStatsComparisonRows<
+		StatsVideoPlaysItem,
+		StatsVideoPlaysItem,
+		StatsVideoPlaysComparisonItem
+	>( {
+		primaryRows: limitStatsRows( getStatsReportItems( primaryReport ), maxRows ),
+		comparisonRows: getStatsReportItems( comparisonReport ),
+		getPrimaryKey: getVideoKey,
+		getComparisonKey: getVideoKey,
+		getComparisonValue: video => video.plays,
+		mapRow: ( video, { previousValue, comparisonItem } ) => ( {
+			...video,
+			previousPlays: previousValue,
+			previousImpressions: comparisonItem?.impressions,
+		} ),
+	} );
 }

@@ -6,18 +6,22 @@
  */
 
 import { store, getContext, getConfig, withSyncEvent } from '@wordpress/interactivity';
+import { isFeatureEnabled } from './features';
 import {
 	trackPrivacyBannerAccept,
 	trackPrivacyBannerCustomize,
 	trackPrivacyBannerReject,
+	trackPrivacyBannerView,
 	trackPrivacyManageOpen,
 	trackPrivacyPolicyOptOut,
 } from './tracks';
+import { ensureTracksLoaded } from './tracks-utils';
 import {
 	UNKNOWN_COUNTRY_CODE,
 	getCookie,
 	setCookie,
 	hasConsentSet,
+	hasAnalyticsConsent,
 	readConsentChoices,
 	saveConsentChoices,
 	isGdprCountry,
@@ -26,7 +30,7 @@ import {
 	getConsentChoices,
 	type GeoConfig,
 } from './utils';
-import type { ConsentEventChoices } from './types';
+import type { ConsentEvent, ConsentEventChoices } from './types';
 
 interface GeoState {
 	initialized: boolean;
@@ -88,6 +92,7 @@ let geoState: GeoState = {
 let openedFromFooter = false;
 let openModalFromFooter: ( () => void ) | null = null;
 let manageLinkConsentListenerRegistered = false;
+let tracksConsentListenerRegistered = false;
 const gdprManageLinkContexts = new Set< GdprManageLinkContext >();
 
 function shouldShowManagePreferencesLink( config: StoreConfig ): boolean {
@@ -141,6 +146,20 @@ function updateManageLinkContexts( config: StoreConfig ): void {
 	} );
 }
 
+function registerTracksConsentListener(): void {
+	if ( tracksConsentListenerRegistered ) {
+		return;
+	}
+
+	tracksConsentListenerRegistered = true;
+	window.addEventListener( 'wp_consent_saved', ( event: Event ) => {
+		const consentEvent = event as CustomEvent< ConsentEvent >;
+		if ( consentEvent.detail?.choices && hasAnalyticsConsent( consentEvent.detail.choices ) ) {
+			ensureTracksLoaded();
+		}
+	} );
+}
+
 const { actions } = store( 'jetpack/cookie-consent', {
 	state: {
 		// Cookie banner state
@@ -180,7 +199,7 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			// Update context
 			setContextCategories( context, choices );
 
-			trackPrivacyBannerAccept( choices );
+			trackPrivacyBannerAccept( choices, hasAnalyticsConsent( choices ) );
 
 			// Save consent to WP Consent API (this will set the cookies)
 			saveConsentChoices( choices, 'accept_all' );
@@ -216,7 +235,7 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				...context.categories,
 			} );
 
-			trackPrivacyBannerAccept( choices );
+			trackPrivacyBannerAccept( choices, hasAnalyticsConsent( choices ) );
 
 			// Save consent to WP Consent API (this will set the cookies)
 			saveConsentChoices( choices, 'accept_selected' );
@@ -340,7 +359,11 @@ const { actions } = store( 'jetpack/cookie-consent', {
 		openManagePreferences: withSyncEvent( ( event: MouseEvent ) => {
 			event.preventDefault();
 
-			trackPrivacyManageOpen();
+			const hasPriorConsent = hasConsentSet();
+			trackPrivacyManageOpen(
+				hasPriorConsent,
+				hasPriorConsent && hasAnalyticsConsent( readConsentChoices() )
+			);
 
 			openModalFromFooter?.();
 		} ),
@@ -521,13 +544,18 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				return;
 			}
 
-			// Update cookie banner context if present
+			// Always resolve region-driven consent (CCPA auto-grant, non-regulated implied
+			// consent, GDPR+GPC opt-out) — that's independent of the banner. The banner
+			// feature only controls whether the banner itself is surfaced; its markup may
+			// still render on a banner-disabled site to back the footer modal, so we pass
+			// the flag down rather than skipping the whole call.
 			if ( 'showBanner' in context ) {
 				handleConsentByRegion(
 					geoData.countryCode || UNKNOWN_COUNTRY_CODE,
 					geoData.region || '',
 					config,
-					context as CookieBannerContext
+					context as CookieBannerContext,
+					isFeatureEnabled( 'banner' )
 				);
 			}
 
@@ -559,6 +587,8 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				| GdprManageLinkContext
 				| FooterLinksFallbackContext
 				| ( CookieBannerContext & CcpaContext );
+
+			registerTracksConsentListener();
 
 			// Initialize CCPA-specific context if present.
 			// The footer-links fallback context also exposes isCcpaRegion (to gate
@@ -595,14 +625,19 @@ const { actions } = store( 'jetpack/cookie-consent', {
 				// getConfig() is not typed, so we need to assert the type.
 				const config = getConfig() as unknown as StoreConfig;
 
-				// Check for force preview mode
-				if ( config.forcePreview ) {
+				// Force-preview, like the auto-show above, only applies when the banner
+				// feature is on (the markup may exist only to back the footer modal).
+				if ( config.forcePreview && isFeatureEnabled( 'banner' ) ) {
 					context.showBanner = true;
+					trackPrivacyBannerView();
 					return;
 				}
 
 				if ( hasConsentSet() ) {
 					// User already made a choice, read from WP Consent API
+					if ( hasAnalyticsConsent( readConsentChoices() ) ) {
+						ensureTracksLoaded();
+					}
 					return;
 				}
 			}

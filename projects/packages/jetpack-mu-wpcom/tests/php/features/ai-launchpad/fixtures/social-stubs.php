@@ -34,7 +34,7 @@ class AI_Launchpad_Stub_Connections {
  * Stand-in for Automattic\Jetpack\Jetpack_Mu_Wpcom\AI_Launchpad (just the slug).
  */
 class AI_Launchpad_Stub_AI_Launchpad {
-	const MENU_SLUG = 'ai-launchpad-wp-admin';
+	const MENU_SLUG = 'site-setup-wp-admin';
 }
 
 if ( ! class_exists( 'Automattic\\Jetpack\\Publicize\\Publicize_Utils', false ) ) {

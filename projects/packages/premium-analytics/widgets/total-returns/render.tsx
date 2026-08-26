@@ -17,21 +17,17 @@ import type { ComponentProps } from 'react';
 // also pass them via `attributes`. Compose the render-only shape to cover both.
 type TotalReturnsRenderAttributes = TotalReturnsAttributes & Partial< ReportParamsFieldAttributes >;
 
-type TotalReturnsRenderProps = WidgetRenderProps< TotalReturnsRenderAttributes > & {
+type TotalReturnsWidgetProps = WidgetRenderProps< TotalReturnsRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
 /**
- * Total returns widget.
- *
- * Thin composition over the widgets-toolkit: WidgetRoot provides the query
- * client, chart theme, and resolved report params; TotalReturnsWidget renders
- * refunds and net sales for the selected period.
+ * Refunds and net sales for the selected period.
  */
 export default function TotalReturnsRender( {
 	attributes = {},
 	setError,
-}: TotalReturnsRenderProps ) {
+}: TotalReturnsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<TotalReturnsWidget />

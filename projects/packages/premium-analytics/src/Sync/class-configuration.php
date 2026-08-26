@@ -91,13 +91,9 @@ class Configuration {
 	/**
 	 * Whether WooCommerce is active in the current request.
 	 *
-	 * Public so the sync milestone tracker can decide which full sync gates the
-	 * dashboard: the `woocommerce_analytics` module when WooCommerce is active,
-	 * or Jetpack's generic initial full sync when it is not.
-	 *
 	 * @return bool
 	 */
-	public static function is_woocommerce_active(): bool {
+	private static function is_woocommerce_active(): bool {
 		return class_exists( 'WooCommerce' ) || function_exists( 'WC' );
 	}
 
@@ -166,7 +162,11 @@ class Configuration {
 					'woocommerce_date_type', // Date used to determine the date range for analytics reports.
 				),
 				'jetpack_sync_constants_whitelist' => array(
-					'WC_ANALYTICS_VERSION',
+					// Syncing this triggers WPCom to provision the WC Analytics tables. Defined by the
+					// plugin at load (double underscore, per the JETPACK__VERSION convention). (WOOA7S-1643)
+					// WC_ANALYTICS_VERSION is intentionally omitted: it is defined and whitelisted by the
+					// standalone woocommerce-analytics plugin, and on a PA-only store would only sync null.
+					'JETPACK_PREMIUM_ANALYTICS__VERSION',
 				),
 			)
 		);

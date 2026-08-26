@@ -3,12 +3,8 @@
  */
 import { __ } from '@wordpress/i18n';
 import { formatLegendLabels } from './format-legend-labels';
-import type { SeriesData } from '@automattic/charts';
 import type { ReportDataMap, ReportParams } from '@jetpack-premium-analytics/data';
-
-/**
- * Internal dependencies
- */
+import type { SeriesData } from '@jetpack-premium-analytics/externals';
 
 export interface SalesByDeviceData {
 	chartData: SeriesData[];
@@ -38,23 +34,21 @@ export function buildSalesByDeviceData(
 
 	const { data } = orderAttribution;
 
-	// Build bar chart data - current period
 	const chartData: SeriesData[] = [
 		{
 			label: primaryLabel,
 			data: data.map( item => ( {
-				label: item.item || __( 'Unassigned', 'jetpack-premium-analytics' ),
+				label: item.item || __( 'Unassigned', 'jetpack-premium-analytics-pkg' ),
 				value: item.current_period?.value ?? 0,
 			} ) ),
 		},
 	];
 
-	// Add comparison period if available
 	if ( hasComparison ) {
 		chartData.push( {
 			label: comparisonLabel,
 			data: data.map( item => ( {
-				label: item.item || __( 'Unassigned', 'jetpack-premium-analytics' ),
+				label: item.item || __( 'Unassigned', 'jetpack-premium-analytics-pkg' ),
 				value: item.previous_period?.value ?? 0,
 			} ) ),
 		} );

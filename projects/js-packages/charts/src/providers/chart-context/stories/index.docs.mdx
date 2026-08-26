@@ -112,22 +112,22 @@ The Global Charts Context uses a comprehensive theme system that controls all vi
 		// Core colors used for data visualization
 		colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
 
-		// Chart background and labels
-		backgroundColor: '#FFFFFF',
+    	// Chart background and labels
+		backgroundColor: 'var(--a8c-charts-color-background, #fff)',
 		labelBackgroundColor: 'transparent',
 		labelTextColor: '#FFFFFF',
 
 		// Grid and axis styling
 		gridStyles: {
-			stroke: '#DCDCDE',
+			stroke: 'var(--a8c-charts-color-grid, #dbdbdb)',
 			strokeWidth: 1,
 		},
-		xAxisLineStyles: { stroke: '#DCDCDE', strokeWidth: 1 },
+		xAxisLineStyles: { stroke: 'var(--a8c-charts-color-grid, #dbdbdb)', strokeWidth: 1 },
 
 		// Legend appearance
 		legend: {
 			labelStyles: {
-				color: 'var(--jp-gray-80, #2c3338)',
+				color: 'var(--a8c-charts-color-label, #1e1e1e)',
 			},
 		},
 
@@ -135,12 +135,17 @@ The Global Charts Context uses a comprehensive theme system that controls all vi
 		leaderboardChart: {
 			primaryColor: '#006DAB',
 			secondaryColor: '#98C8DF',
-			deltaColors: [ '#FF8C8F', '#757575', '#1F9828' ], // [negative, neutral, positive]
+			// [negative, neutral, positive]
+			deltaColors: [
+				'var(--a8c-charts-color-trend-down, #cc1818)',
+				'var(--a8c-charts-color-trend-neutral, #707070)',
+				'var(--a8c-charts-color-trend-up, #008030)',
+			],
 		},
 
 		conversionFunnelChart: {
 			primaryColor: '#006DAB',
-			backgroundColor: '#F3F4F6',
+			backgroundColor: 'var(--a8c-charts-color-surface-secondary, #f4f4f4)',
 		}
 	};
 
@@ -165,6 +170,62 @@ Themes are merged with the default theme, so you only need to specify the proper
 	</GlobalChartsProvider>` }
 />
 
+A field you leave out doesn't fall back to a separate JS default value — it falls through to the catalog default, because `defaultTheme` holds a `--a8c-charts-*` pointer for every color rather than a literal. Omitting a color is therefore how you opt into design-system theming, not how you opt out of theming.
+
+### CSS Custom Property Overrides
+
+The package's `--a8c-charts-*` token catalog is emitted once, on the `GlobalChartsProvider` wrapper element, so you can retheme any chart with plain CSS — no `theme` prop required, as long as a `GlobalChartsProvider` is present (every chart either sits under one explicitly or auto-mounts its own). Set the role you want to change on the provider wrapper, or on any element **inside** the provider tree that is an **ancestor** of the chart; the closest such declaration wins:
+
+```css
+.my-dashboard {
+	--a8c-charts-color-grid: #e0e0e0;
+	--a8c-charts-color-trend-up: #007a3d;
+}
+```
+
+```tsx
+<GlobalChartsProvider>
+	<div className="my-dashboard">
+		<LineChart data={ salesData } />
+	</div>
+</GlobalChartsProvider>
+```
+
+Setting these on an ancestor of `GlobalChartsProvider` has no effect — the provider's own declaration on its wrapper always beats a value inherited from further up the tree. To theme every chart on a page, target the scope class itself instead of an ancestor:
+
+```css
+.a8c-charts-scope {
+	--a8c-charts-color-grid: #e0e0e0;
+}
+```
+
+That rule matches every provider wrapper — including the one a bare chart mounts for itself — and it beats the catalog default, which is declared through `:where()` at zero specificity. If you previously set `--a8c-charts-*` on `:root` or on a wrapper above your charts, this is the replacement. See TOKENS.md for the full precedence order.
+
+Three placements need care:
+
+- **A chart's own class is too deep to reach the SVG colours.** Setting a role on the element a chart's `className` lands on — `.line-chart { --a8c-charts-color-grid: … }` — moves everything that chart paints in CSS, but not the gridlines, axis lines or tick labels: visx and Google Charts need concrete values, which are resolved in JS at the chart's scope element, an ancestor of the class you targeted. The result is a half-applied override, so scope this kind of rule to a wrapper **around** the chart instead. Supporting it on the chart itself is tracked in CHARTS-255.
+
+- **Tooltips rendered in a portal** — those of `PieChart`, `PieSemiCircleChart`, `HeatmapChart` and `ConversionFunnelChart`, which position through `@visx/tooltip`'s `useTooltipInPortal` — sit outside the provider's DOM tree, so they re-declare the catalog on themselves and never see an override scoped to the provider or to an element inside it. They do carry the scope class, so the `.a8c-charts-scope` rule above reaches them.
+- **`@wordpress/theme`'s `ThemeProvider` belongs above `GlobalChartsProvider`**, not between it and a chart. The catalog reads its `--wpds-*` tokens at the provider wrapper, so a `ThemeProvider` mounted below that wrapper is never consulted and CSS-painted colors keep the light-mode spec values.
+
+The `theme` prop is a second, narrower override path. Five `ChartTheme` fields map to a catalog role, and setting one publishes it as that role's theme-layer variable (`--a8c-charts-color-grid-theme` for the grid) on the provider wrapper — so it also reaches the SVG- and Google-Charts-painted colors those tools can't read from `theme` directly:
+
+| `theme` field | Catalog role |
+| --- | --- |
+| `backgroundColor` | `--a8c-charts-color-background` |
+| `gridStyles.stroke` | `--a8c-charts-color-grid` |
+| `xAxisLineStyles.stroke` | `--a8c-charts-color-axis` |
+| `xTickLineStyles.stroke` | `--a8c-charts-color-tick` |
+| `svgLabelSmall.fill` | `--a8c-charts-color-label-axis` |
+
+Each field publishes a role read by exactly the elements that field already controlled, so a `theme` override never spreads further than the element class it names. Where the obvious role has wider readership, one side takes a role of its own: `svgLabelSmall.fill` writes the narrow `--a8c-charts-color-label-axis`, leaving legend labels, heatmap cell values, funnel labels and the line-chart tooltip on the broad `--a8c-charts-color-label`. Set the broad role in CSS to move them all together.
+
+A CSS declaration of the role wins over the `theme` prop wherever you set it, the provider wrapper included: the prop writes the theme layer, and a role declared in CSS never reads that layer.
+
+Publishing the value one layer out is what keeps the catalog default reachable. An override CSS cannot resolve — most often `var(--wpds-…)` with no fallback, when the design-system stylesheet isn't loaded — leaves the role resolving its own mapped token instead of taking every reader of that role down with it. A value that points at the role it would override is not published at all, since that would make the role depend on itself; the field falls back to the catalog default on both the CSS and SVG paths, so the two never disagree.
+
+See TOKENS.md for the full catalog and precedence order.
+
 ## Chart Registration
 
 ### Automatic Registration
@@ -187,6 +248,46 @@ Charts automatically register themselves with the Global Charts Context when mou
 	// - Legend items from this chart
 	// - Chart type ('line-chart')
 	// - Any additional metadata` }
+/>
+
+## Series Visibility
+
+The context tracks which series are hidden per chart (by `chartId`) and exposes three ways to change that state, each suited to a different caller:
+
+- **`toggleSeriesVisibility( chartId, seriesLabel )`** — flips a series' current state. This is what an interactive legend (`legend.interactive`) calls on click; use it when you don't know or don't care about the series' current visibility.
+- **`setSeriesVisibility( chartId, seriesLabel, visible )`** — the absolute counterpart to the toggle. Use it when the caller already knows the target state, e.g. driving visibility from an external control instead of a click.
+- **`setChartHiddenSeries( chartId, seriesLabels )`** — replaces a chart's entire hidden set in one call, rather than toggling series one at a time. The `defaultHiddenSeries` prop (available on `LineChart`, `AreaChart`, and `BarChart`) writes through this for its first defined value; later values for the same `chartId` are ignored, and user changes persist across remounts until the `chartId` changes.
+
+<Source
+	language="tsx"
+	code={ `import { useGlobalChartsContext } from '@automattic/charts';
+
+	function VisibilityControls( { chartId } ) {
+		const { toggleSeriesVisibility, setSeriesVisibility, setChartHiddenSeries } =
+			useGlobalChartsContext();
+
+		return (
+			<>
+				{ /* Don't know or care about the current state: just flip it, like a legend click would. */ }
+				<button onClick={ () => toggleSeriesVisibility( chartId, 'Revenue' ) }>
+					Toggle Revenue
+				</button>
+
+				{ /* Know the target state: drive visibility from an external control. */ }
+				<button onClick={ () => setSeriesVisibility( chartId, 'Revenue', true ) }>
+					Show Revenue
+				</button>
+				<button onClick={ () => setSeriesVisibility( chartId, 'Revenue', false ) }>
+					Hide Revenue
+				</button>
+
+				{ /* Replace the whole hidden set in one call, e.g. to reset to a preset view. */ }
+				<button onClick={ () => setChartHiddenSeries( chartId, [ 'Costs', 'Refunds' ] ) }>
+					Reset to defaults
+				</button>
+			</>
+		);
+	}` }
 />
 
 ## Context Hooks
@@ -223,6 +324,37 @@ Access the full context for advanced chart functionality:
 		);
 	}` }
 />
+
+### useChartScopeElement
+
+Returns the element a chart's tokens resolve against — the wrapper the chart renders into, which is where an override set anywhere between the provider and that chart has landed. Pair it with `normalizeColorToHex` and `resolveCssVariable` when JS needs a *resolved* color rather than the token string: computing text contrast against `theme.backgroundColor`, for example, or feeding a color to Google Charts, which cannot read `var()`.
+
+<Source
+	language="tsx"
+	code={ `import {
+		useChartScopeElement,
+		useGlobalChartsTheme,
+		normalizeColorToHex,
+		resolveCssVariable,
+	} from '@automattic/charts';
+
+	function ContrastAwareLabel() {
+		const scopeElement = useChartScopeElement();
+		const theme = useGlobalChartsTheme();
+
+		// Resolves at call time, so the result follows a light/dark switch
+		// even when the token string never changes. Empty input returns ''.
+		const backgroundHex = normalizeColorToHex(
+			theme.backgroundColor,
+			scopeElement,
+			resolveCssVariable
+		);
+
+		return <span>{ backgroundHex }</span>;
+	}` }
+/>
+
+Resolve at this element rather than at `document.documentElement` or at the provider wrapper. Either of those sees only what is declared at or above it, so a chart-scoped override — one set between the provider and a single chart — would be invisible to JS while still painting in CSS, and the two paint paths would disagree. `area-chart`, `line-chart`, `geo-chart` and `heatmap-chart` all take this path.
 
 ### useGlobalChartsTheme
 

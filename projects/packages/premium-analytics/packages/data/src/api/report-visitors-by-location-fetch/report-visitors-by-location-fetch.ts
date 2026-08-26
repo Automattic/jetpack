@@ -1,12 +1,7 @@
 /**
- * External dependencies
- */
-import apiFetch from '@wordpress/api-fetch';
-import { addQueryArgs } from '@wordpress/url';
-/**
  * Internal dependencies
  */
-import { reportsPath } from '../constants';
+import { fetchReport } from '../stats-proxy-fetch';
 import type { BaseReportParams } from '../../utils/types';
 
 type VisitorsByLocationReportDataItem = {
@@ -33,12 +28,6 @@ export type RequestReportVisitorsByLocationParams = BaseReportParams & {
 	limit?: number;
 };
 
-/**
- * Fetch visitors grouped by location (country or region) for the selected period.
- *
- * This endpoint is proxied through `/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/...`
- * and ultimately served by wpcom analytics.
- */
 export async function fetchReportVisitorsByLocation( {
 	from,
 	to,
@@ -47,7 +36,7 @@ export async function fetchReportVisitorsByLocation( {
 	country_code,
 	limit,
 }: RequestReportVisitorsByLocationParams ): Promise< ReportsVisitorsByLocationResponse > {
-	const path = addQueryArgs( `${ reportsPath }/sessions/by-location`, {
+	return fetchReport< ReportsVisitorsByLocationResponse >( 'sessions/by-location', {
 		from,
 		to,
 		interval,
@@ -55,6 +44,4 @@ export async function fetchReportVisitorsByLocation( {
 		country_code,
 		limit,
 	} );
-
-	return apiFetch( { path } ) as Promise< ReportsVisitorsByLocationResponse >;
 }

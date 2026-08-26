@@ -1,12 +1,11 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { search } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-export interface SearchTermsAttributes {
-	max?: number;
-}
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type SearchTermsAttributes = Record< never, never >;
 
 /**
  * Widget type definition for the Search Terms widget.
@@ -18,19 +17,9 @@ export interface SearchTermsAttributes {
  * Date range comes from WidgetRoot's reportParams (the shared dashboard date picker).
  */
 export default {
-	name: 'jpa/search-terms',
-	title: __( 'Search Terms', 'jetpack-premium-analytics' ),
 	icon: search,
-	attributes: [
-		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics' ),
-			type: 'integer' as const,
-		},
-	],
+	attributes: [] as WidgetAttributeField< SearchTermsAttributes >[],
 	example: {
-		attributes: {
-			max: 10,
-		},
+		attributes: {},
 	},
 };

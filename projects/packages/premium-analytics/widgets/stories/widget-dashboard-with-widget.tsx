@@ -1,15 +1,34 @@
 import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { Page } from '@wordpress/admin-ui';
-import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
-import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from 'react';
+import {
+	ROW_HEIGHT_PRESETS,
+	WidgetDashboard,
+	type DashboardWidget,
+} from '@wordpress/widget-dashboard';
+import {
+	useEffect,
+	useMemo,
+	useState,
+	type CSSProperties,
+	type ComponentType,
+	type ReactNode,
+} from 'react';
+import type { ArgTypes } from '@storybook/react';
 import type {
 	ResolveWidgetModule,
 	WidgetRenderProps,
 	WidgetType,
 } from '@wordpress/widget-primitives';
+/**
+ * Internal dependencies
+ */
+import { StoryRouterProvider } from './with-story-router';
 
-const DASHBOARD_ROW_HEIGHT = 300;
-const DASHBOARD_GRID_GAP = 24;
+const DASHBOARD_ROW_HEIGHT = ROW_HEIGHT_PRESETS.small;
+// Mirrors the route stages' `--wp-grid-gap` override, so edit-mode track guides and the
+// four-column canvas width below match production. Keep the two forms in sync.
+const DASHBOARD_GRID_GAP_TOKEN = 'var(--wpds-dimension-gap-lg)';
+const DASHBOARD_GRID_GAP = 16;
 const DASHBOARD_ONE_COLUMN_WIDTH = 381;
 const DASHBOARD_PAGE_INLINE_PADDING = 48;
 
@@ -67,7 +86,7 @@ export const widgetDashboardWithWidgetArgTypes = {
 		control: 'select',
 		options: Object.keys( HOST_ROOT_FONT_SIZE ),
 	},
-};
+} satisfies Partial< ArgTypes< WidgetDashboardWithWidgetControls > >;
 
 type StoryWidgetMetadata = {
 	name: string;
@@ -117,7 +136,7 @@ export function WidgetDashboardWithWidget( {
 	rowHeight,
 	editMode,
 	hostEnvironment,
-	pageTitle = 'Analytics',
+	pageTitle = 'Stats',
 	widgetUuid = `${ widgetType.name }-story`,
 }: WidgetDashboardWithWidgetProps ) {
 	const storyWidgetType = useMemo< WidgetType >(
@@ -169,37 +188,74 @@ export function WidgetDashboardWithWidget( {
 	}, [ editMode ] );
 
 	return (
-		<GlobalErrorProvider>
-			<HostRootFontSize hostEnvironment={ hostEnvironment }>
-				{ /*
-				 * Outer box fills the canvas and owns horizontal overflow; the inner
-				 * box holds the simulated `dashboardWidth`. The host widget-settings
-				 * drawer is portaled to <body> and positioned `fixed; right: 0`, so a
-				 * body wider than the visible canvas (which a fixed `dashboardWidth`
-				 * wider than the Storybook preview would cause) pushes the drawer
-				 * off-screen. Containing the overflow here keeps the document at canvas
-				 * width so the drawer stays anchored to the visible viewport edge; the
-				 * wide layout remains inspectable by scrolling the box.
-				 */ }
-				<div style={ { width: '100%', overflowX: 'auto' } }>
-					<div style={ { width: dashboardWidth } }>
-						<WidgetDashboard
-							layout={ layout }
-							onLayoutChange={ setLayout }
-							widgetTypes={ [ storyWidgetType ] }
-							resolveWidgetModule={ resolveWidgetModule }
-							gridSettings={ { model: 'grid', rowHeight } }
-							editMode={ currentEditMode }
-							onEditChange={ setCurrentEditMode }
+		<StoryRouterProvider>
+			<GlobalErrorProvider>
+				<HostRootFontSize hostEnvironment={ hostEnvironment }>
+					{ /*
+					 * Outer box fills the canvas and owns horizontal overflow; the inner
+					 * box holds the simulated `dashboardWidth`. The host widget-settings
+					 * drawer is portaled to <body> and positioned `fixed; right: 0`, so a
+					 * body wider than the visible canvas (which a fixed `dashboardWidth`
+					 * wider than the Storybook preview would cause) pushes the drawer
+					 * off-screen. Containing the overflow here keeps the document at canvas
+					 * width so the drawer stays anchored to the visible viewport edge; the
+					 * wide layout remains inspectable by scrolling the box.
+					 *
+					 * Both boxes are flex columns with a bounded (viewport) height so the
+					 * `Page` inside resolves its `height: 100%` and its content area becomes
+					 * the internal scroll surface — matching how the real dashboard fills the
+					 * wp-admin viewport. Without a definite height the page collapses to its
+					 * content height and the fixed-row-height grid resizes it back on every
+					 * vertical widget resize, so the two oscillate and the grid flickers.
+					 *
+					 * `isolation: isolate` keeps dashboard-internal z-indexes (widget
+					 * headers, resize handles) inside this box's stacking context. The
+					 * settings drawer has no z-index of its own (`--wp-ui-drawer-z-index`
+					 * defaults to `initial`), so without the isolation those `z-index: 1`
+					 * elements escalate to the document level and paint over the
+					 * body-portaled drawer — in the real dashboard the wp-admin shell
+					 * provides this containing stacking context.
+					 */ }
+					<div
+						style={ {
+							blockSize: '100vh',
+							display: 'flex',
+							flexDirection: 'column',
+							inlineSize: '100%',
+							isolation: 'isolate',
+							overflowX: 'auto',
+						} }
+					>
+						<div
+							style={
+								{
+									display: 'flex',
+									flex: '1 1 auto',
+									flexDirection: 'column',
+									inlineSize: dashboardWidth,
+									minBlockSize: 0,
+									'--wp-grid-gap': DASHBOARD_GRID_GAP_TOKEN,
+								} as CSSProperties
+							}
 						>
-							<Page title={ pageTitle } actions={ <WidgetDashboard.Actions /> } hasPadding>
-								<WidgetDashboard.NoWidgetsState />
-								<WidgetDashboard.Widgets />
-							</Page>
-						</WidgetDashboard>
+							<WidgetDashboard
+								layout={ layout }
+								onLayoutChange={ setLayout }
+								widgetTypes={ [ storyWidgetType ] }
+								resolveWidgetModule={ resolveWidgetModule }
+								gridSettings={ { model: 'grid', rowHeight } }
+								editMode={ currentEditMode }
+								onEditChange={ setCurrentEditMode }
+							>
+								<Page title={ pageTitle } actions={ <WidgetDashboard.Actions /> } hasPadding>
+									<WidgetDashboard.NoWidgetsState />
+									<WidgetDashboard.Widgets />
+								</Page>
+							</WidgetDashboard>
+						</div>
 					</div>
-				</div>
-			</HostRootFontSize>
-		</GlobalErrorProvider>
+				</HostRootFontSize>
+			</GlobalErrorProvider>
+		</StoryRouterProvider>
 	);
 }

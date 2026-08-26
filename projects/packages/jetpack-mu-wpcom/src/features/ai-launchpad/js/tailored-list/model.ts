@@ -1,4 +1,4 @@
-import type { TailoredInferred, TailoredOutput, FirstPostDraft } from '../lib/types.ts';
+import type { AboutPageDraft, TailoredOutput, FirstPostDraft } from '../lib/types.ts';
 
 /**
  * A single enriched task: AI subtitle merged with the catalog's title,
@@ -9,9 +9,19 @@ export interface EnrichedTask {
 	subtitle: string;
 	title: string;
 	completed: boolean;
-	// True when a site-editor task has a saved-but-unpublished draft: the card shows
-	// the drafts icon + a "Continue" CTA, and `calypso_path` reopens that draft.
+	// True when a task is mid-way through its prerequisite. For a site-editor task that
+	// means a saved-but-unpublished draft (drafts icon + "Continue" CTA, `calypso_path`
+	// reopens it); for the synthetic `install_woocommerce` task it means the plugin is
+	// installed but not yet active (the CTA activates it).
 	in_progress: boolean;
+	// True for a task shown as a locked preview of the roadmap (e.g. a sell site's
+	// commerce tasks before WooCommerce is active): it renders muted, expands to its
+	// subtitle, but offers no CTA or Skip until its prerequisite is met.
+	disabled: boolean;
+	// True when the user skipped the task (persisted server-side). A skipped task
+	// arrives with `completed` already coerced to true; the flag is here so the UI
+	// can distinguish skipped from genuinely done if it ever wants to.
+	skipped?: boolean;
 	calypso_path: string | null;
 }
 
@@ -35,15 +45,34 @@ export interface LaunchpadData {
 		payload: TailoredOutput;
 	} | null;
 	site?: SiteData;
+	// The persisted wizard input; seeds the Tracks goal before tailoring exists.
+	wizard?: { goal?: string } | null;
 }
 
 /** How a task's "Get started" CTA behaves when clicked. */
-export type CtaKind = 'first_post' | 'pattern_page' | 'launch' | 'deeplink';
+export type CtaKind =
+	| 'first_post'
+	| 'about_page'
+	| 'gallery_page'
+	| 'contact_page'
+	| 'events_page'
+	| 'video_page'
+	| 'portfolio_piece'
+	| 'launch'
+	| 'deeplink';
 
 const FIRST_POST_TASK_IDS = [ 'first_post_published', 'first_post_published_newsletter' ];
-const PATTERN_PAGE_TASK_IDS = [ 'add_about_page' ];
-// Launch tasks with no catalog deeplink: they open the wordpress.com launch
-// flow. woo_launch_site is excluded — it has its own deeplink.
+// Create-content kinds are actionable only when the AI output is present.
+const CREATE_CONTENT_KINDS: CtaKind[] = [
+	'first_post',
+	'about_page',
+	'gallery_page',
+	'contact_page',
+	'events_page',
+	'video_page',
+	'portfolio_piece',
+];
+// Launch tasks with no catalog deeplink: they open the wordpress.com launch flow.
 const LAUNCH_TASK_IDS = [
 	'site_launched',
 	'blog_launched',
@@ -53,8 +82,9 @@ const LAUNCH_TASK_IDS = [
 
 /**
  * Resolve how a task's "Get started" CTA behaves: first-creation tasks draft a
- * post, page-creating tasks build a pattern page, launch tasks open the launch
- * flow, everything else deeplinks to the catalog's `calypso_path`.
+ * post, the About task writes the AI-drafted page, the hand-authored page tasks
+ * create their page, launch tasks open the launch flow, everything else
+ * deeplinks to the catalog's `calypso_path`.
  *
  * @param taskId - The catalog task ID.
  * @return The CTA kind.
@@ -63,8 +93,23 @@ export function ctaKind( taskId: string ): CtaKind {
 	if ( FIRST_POST_TASK_IDS.includes( taskId ) ) {
 		return 'first_post';
 	}
-	if ( PATTERN_PAGE_TASK_IDS.includes( taskId ) ) {
-		return 'pattern_page';
+	if ( 'add_about_page' === taskId ) {
+		return 'about_page';
+	}
+	if ( 'add_gallery_page' === taskId ) {
+		return 'gallery_page';
+	}
+	if ( 'add_contact_page' === taskId ) {
+		return 'contact_page';
+	}
+	if ( 'add_events_page' === taskId ) {
+		return 'events_page';
+	}
+	if ( 'add_video_page' === taskId ) {
+		return 'video_page';
+	}
+	if ( 'add_portfolio_piece' === taskId ) {
+		return 'portfolio_piece';
 	}
 	if ( LAUNCH_TASK_IDS.includes( taskId ) ) {
 		return 'launch';
@@ -86,6 +131,7 @@ const COMPLETE_ON_CLICK_TASK_IDS = [
 	'site_monitoring_page',
 	'setup_ssh',
 	'share_site',
+	'pick_fonts_colors',
 ];
 
 /**
@@ -125,13 +171,28 @@ export function launchSiteUrl( siteUrl: string ): string | null {
  * be unit-tested without pulling `@wordpress/*` into the test runner.
  */
 export interface CtaHandlers {
-	trackTaskClicked: ( props: { task_id: string } ) => void;
+	trackTaskCtaClicked: ( props: { task_id: string } ) => void;
 	createFirstPostDraft: (
 		draft: FirstPostDraft
 	) => Promise< { post_id: number; edit_url: string } >;
-	createPatternPage: (
-		inferred: TailoredInferred
+	createAboutPage: (
+		draft: AboutPageDraft | undefined
 	) => Promise< { page_id: number; edit_url: string } >;
+	createGalleryPage: (
+		intro: string | undefined
+	) => Promise< { page_id: number; edit_url: string } >;
+	createContactPage: (
+		intro: string | undefined
+	) => Promise< { page_id: number; edit_url: string } >;
+	createEventsPage: (
+		intro: string | undefined
+	) => Promise< { page_id: number; edit_url: string } >;
+	createVideoPage: (
+		intro: string | undefined
+	) => Promise< { page_id: number; edit_url: string } >;
+	// No intro parameter, alone among the page tasks: the portfolio piece carries no AI-written copy,
+	// because its subject is one project the model has never heard of.
+	createPortfolioPiece: () => Promise< { page_id: number; edit_url: string } >;
 }
 
 /**
@@ -172,7 +233,7 @@ export async function resolveCtaUrl(
 	handlers: CtaHandlers,
 	siteUrl: string | null = null
 ): Promise< string | null > {
-	handlers.trackTaskClicked( { task_id: task.id } );
+	handlers.trackTaskCtaClicked( { task_id: task.id } );
 
 	const kind = ctaKind( task.id );
 	let url: string | null;
@@ -181,8 +242,27 @@ export async function resolveCtaUrl(
 		url = task.calypso_path;
 	} else if ( kind === 'first_post' && output ) {
 		url = ( await handlers.createFirstPostDraft( output.first_post_draft ) ).edit_url;
-	} else if ( kind === 'pattern_page' && output ) {
-		url = ( await handlers.createPatternPage( output.inferred ) ).edit_url;
+	} else if ( kind === 'about_page' && output ) {
+		url = ( await handlers.createAboutPage( output.about_page_draft ) ).edit_url;
+	} else if ( kind === 'gallery_page' && output ) {
+		// Its own key too. This one used to be handed `output.inferred` instead, because it scored the
+		// pattern library against the site's niche before building the page; there is no library and no
+		// scoring left, so it reads a line like every other page task.
+		url = ( await handlers.createGalleryPage( output.page_intros?.add_gallery_page ) ).edit_url;
+	} else if ( kind === 'contact_page' && output ) {
+		// Keyed by task id, so the page task reads its own line and nothing else. Undefined for an
+		// output persisted before page_intros existed, or a run where the model omitted the key —
+		// the page is still created, without the intro paragraph.
+		url = ( await handlers.createContactPage( output.page_intros?.add_contact_page ) ).edit_url;
+	} else if ( kind === 'events_page' && output ) {
+		// Its own key, for the same reasons: the events page never reads the contact page's line.
+		url = ( await handlers.createEventsPage( output.page_intros?.add_events_page ) ).edit_url;
+	} else if ( kind === 'video_page' && output ) {
+		url = ( await handlers.createVideoPage( output.page_intros?.add_video_page ) ).edit_url;
+	} else if ( kind === 'portfolio_piece' && output ) {
+		// Reads nothing out of `output`; the guard is here so this branch and isTaskActionable agree about
+		// when the CTA exists, since the piece is a create-content kind like the rest.
+		url = ( await handlers.createPortfolioPiece() ).edit_url;
 	} else if ( kind === 'launch' ) {
 		url = siteUrl ? launchSiteUrl( siteUrl ) : null;
 	} else {
@@ -207,12 +287,16 @@ export function isTaskActionable(
 	output: TailoredOutput | null,
 	siteUrl: string | null = null
 ): boolean {
+	// A disabled preview task has no reachable action until its prerequisite is met.
+	if ( task.disabled ) {
+		return false;
+	}
 	// An in-progress task reopens its existing draft via calypso_path, so it stays actionable.
 	if ( task.in_progress && task.calypso_path ) {
 		return true;
 	}
 	const kind = ctaKind( task.id );
-	if ( ( kind === 'first_post' || kind === 'pattern_page' ) && output ) {
+	if ( CREATE_CONTENT_KINDS.includes( kind ) && output ) {
 		return true;
 	}
 	if ( kind === 'launch' ) {
@@ -223,16 +307,17 @@ export function isTaskActionable(
 }
 
 /**
- * The id of the next incomplete task to auto-expand. With no `afterId`, the first
- * incomplete task; with `afterId`, the first incomplete task after it, falling
- * back to any remaining incomplete task. Returns null when every task is complete.
+ * The id of the next actionable task to auto-expand. With no `afterId`, the first
+ * such task; with `afterId`, the first one after it, falling back to any remaining
+ * one. Disabled preview tasks are never targets (they can't be acted on yet, though
+ * they stay manually expandable). Returns null when nothing is left to act on.
  *
  * @param tasks   - The enriched tasks (skipped tasks already coerced to completed).
  * @param afterId - The id to advance past, or undefined to take the first.
- * @return The next incomplete task id, or null.
+ * @return The next actionable task id, or null.
  */
 export function nextIncompleteId( tasks: EnrichedTask[], afterId?: string ): string | null {
-	const incomplete = tasks.filter( task => ! task.completed );
+	const incomplete = tasks.filter( task => ! task.completed && ! task.disabled );
 	if ( incomplete.length === 0 ) {
 		return null;
 	}
@@ -258,6 +343,7 @@ export function tasksFromFixture( output: TailoredOutput ): EnrichedTask[] {
 		title: humanizeTaskId( task.id ),
 		completed: false,
 		in_progress: false,
+		disabled: false,
 		calypso_path: null,
 	} ) );
 }

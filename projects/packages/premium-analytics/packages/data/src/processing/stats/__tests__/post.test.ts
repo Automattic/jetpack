@@ -8,6 +8,7 @@ describe( 'Stats post normalizer', () => {
 		expect( result ).toEqual( {
 			date: '2026-06-22',
 			views: 128,
+			like_count: 24,
 			years: {
 				'2026': {
 					total: 128,
@@ -56,6 +57,7 @@ describe( 'Stats post normalizer', () => {
 				post_date: '2026-06-22 10:00:00',
 				post_date_gmt: '2026-06-22 18:00:00',
 				post_status: 'publish',
+				comment_count: 8,
 			},
 		} );
 	} );
@@ -85,6 +87,27 @@ describe( 'Stats post normalizer', () => {
 					months: { '6': 85 },
 				},
 			},
+		} );
+	} );
+
+	it( 'normalizes the daily history tuples oldest-first and drops malformed entries', () => {
+		expect(
+			sanitizeStatsPostResponse( {
+				data: [
+					[ '2026-07-02', '17' ],
+					[ '2026-07-01', 42 ],
+					[ 'not-a-date', 9 ],
+					[ '2026-02-30', 9 ],
+					[ '2026-7-01', 9 ],
+					[ 12345, 9 ],
+					'not-a-tuple',
+				],
+			} )
+		).toEqual( {
+			data: [
+				{ date: '2026-07-01', views: 42 },
+				{ date: '2026-07-02', views: 17 },
+			],
 		} );
 	} );
 

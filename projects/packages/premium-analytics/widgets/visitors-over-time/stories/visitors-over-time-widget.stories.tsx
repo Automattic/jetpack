@@ -6,11 +6,17 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import LineChart from '../../../../../js-packages/charts/src/charts/line-chart/line-chart';
 import VisitorsOverTimeRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import widgetManifest from '../widget.json';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -22,30 +28,24 @@ const PRESET_OPTIONS = SELECTABLE_PRESETS;
 // Static Storybook builds need this source import before ComparativeLineChart reads LineChart.Legend.
 const ensureLineChartComposition = () => LineChart.Legend;
 
-type VisitorsOverTimeRenderProps = ComponentProps< typeof VisitorsOverTimeRender >;
-const noopSetError: VisitorsOverTimeRenderProps[ 'setError' ] = () => {};
+type VisitorsOverTimeWidgetProps = ComponentProps< typeof VisitorsOverTimeRender >;
+const noopSetError: VisitorsOverTimeWidgetProps[ 'setError' ] = () => {};
 
 interface VisitorsOverTimeStoryControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
 
-type VisitorsOverTimeStoryProps = VisitorsOverTimeRenderProps & VisitorsOverTimeStoryControls;
+type VisitorsOverTimeStoryProps = VisitorsOverTimeWidgetProps & VisitorsOverTimeStoryControls;
 
 interface VisitorsOverTimeDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		VisitorsOverTimeStoryControls {}
 
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
-
 function getVisitorsOverTimeAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
-): VisitorsOverTimeRenderProps[ 'attributes' ] {
+): VisitorsOverTimeWidgetProps[ 'attributes' ] {
 	return {
 		reportParams: getDefaultQueryParams( withComparison, preset ),
 	};
@@ -90,6 +90,18 @@ function renderVisitorsOverTime( { withComparison, preset }: VisitorsOverTimeSto
 	);
 }
 
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderVisitorsOverTimeOnPreset( preset: SelectablePresetId ) {
+	ensureLineChartComposition();
+
+	return (
+		<VisitorsOverTimeRender
+			attributes={ getVisitorsOverTimeAttributes( false, preset ) }
+			setError={ noopSetError }
+		/>
+	);
+}
+
 function VisitorsOverTimeDashboardStory( {
 	withComparison,
 	preset,
@@ -100,7 +112,7 @@ function VisitorsOverTimeDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardStoryArgs }
-			widgetType={ widgetDefinition }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ VISITORS_OVER_TIME_RENDER_MODULE }
 			renderComponent={ VisitorsOverTimeRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ getVisitorsOverTimeAttributes( withComparison, preset ) }
@@ -134,7 +146,7 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj< typeof meta >;
+type Story = StoryObj< VisitorsOverTimeStoryControls >;
 type DashboardStory = StoryObj< VisitorsOverTimeDashboardStoryProps >;
 
 /**
@@ -178,6 +190,49 @@ export const WithComparison: Story = {
 				) => getVisitorsOverTimeSource( storyContext.args ),
 			},
 		},
+	},
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderVisitorsOverTimeOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'sessions/by-date', 'loading' );
+		return () => setReportMockState( 'sessions/by-date', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderVisitorsOverTimeOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'sessions/by-date', 'error' );
+		return () => setReportMockState( 'sessions/by-date', null );
+	},
+};
+
+/**
+ * Resolved with no visitor data: the widget shows its empty state ("No visitors
+ * in this period.").
+ */
+export const Empty: Story = {
+	render: () => renderVisitorsOverTimeOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( 'sessions/by-date', 'empty' );
+		return () => setReportMockState( 'sessions/by-date', null );
 	},
 };
 

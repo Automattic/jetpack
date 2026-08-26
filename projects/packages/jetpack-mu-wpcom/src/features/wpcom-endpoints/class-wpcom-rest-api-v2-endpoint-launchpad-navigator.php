@@ -50,7 +50,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Navigator extends WP_REST_Controller 
 						'remove_checklist_slug' => array(
 							'description' => 'The slug of the checklist to remove from the active list.',
 							'type'        => 'string',
-							'enum'        => $this->get_checklist_slug_enums(),
+							'enum'        => $this->get_readable_checklist_slug_enums(),
 						),
 					),
 				),
@@ -61,7 +61,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Navigator extends WP_REST_Controller 
 	/**
 	 * Validates that the argument sent to the active_checklist_slug parameter is a valid checklist slug or empty.
 	 *
-	 * @param string $value The value of the active_checklist_slug parameter.
+	 * @param string|null $value The value of the active_checklist_slug parameter.
 	 * @return bool
 	 */
 	public function validate_checklist_slug_param( $value ) {
@@ -81,6 +81,21 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Navigator extends WP_REST_Controller 
 	public function get_checklist_slug_enums() {
 		$checklists = wpcom_launchpad_checklists()->get_all_task_lists();
 		return array_keys( $checklists );
+	}
+
+	/**
+	 * Returns the checklist slugs a read or removal request may reference.
+	 *
+	 * Retired flow slugs are included so a stale client can still read or remove
+	 * one. Setting a retired slug as active still uses the registered slugs from
+	 * get_checklist_slug_enums(), so it is rejected at the boundary.
+	 *
+	 * @return array Array of checklist slugs.
+	 */
+	public function get_readable_checklist_slug_enums() {
+		return array_values(
+			array_unique( array_merge( $this->get_checklist_slug_enums(), wpcom_launchpad_get_retired_site_intents() ) )
+		);
 	}
 
 	/**

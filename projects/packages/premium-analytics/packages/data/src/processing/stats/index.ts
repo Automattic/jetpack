@@ -1,44 +1,81 @@
 export {
 	combineStatsNormalizedReports,
+	flattenStatsLeaves,
+	getStatsReportItems,
+	mergeStatsComparisonRows,
 	sanitizeStatsPassthroughResponse,
 	sanitizeStatsSiteResponse,
 } from './utils';
-export { sanitizeStatsTopPostsResponse } from './top-posts';
+export type {
+	FlattenStatsLeavesContext,
+	FlattenStatsLeavesOptions,
+	StatsComparisonRowContext,
+} from './utils';
+export {
+	bucketStatsTimeSeries,
+	getStatsChartBucketKey,
+	STATS_CHART_BUCKET_PERIODS,
+} from './chart-buckets';
+export type { StatsChartBucketPeriod } from './chart-buckets';
+export { aggregateStatsDrilldownRows } from './drilldown-rows';
+export type {
+	AggregateStatsDrilldownRowsOptions,
+	StatsDrilldownItemContext,
+	StatsDrilldownRow,
+	StatsDrilldownRowContext,
+	StatsDrilldownSourceReport,
+} from './drilldown-rows';
+export { mergeStatsTopPostsComparisonRows, sanitizeStatsTopPostsResponse } from './top-posts';
 export { sanitizeStatsPostResponse } from './post';
-export { sanitizeStatsReferrersResponse } from './referrers';
-export { sanitizeStatsClicksResponse } from './clicks';
-export { sanitizeStatsSearchTermsResponse } from './search-terms';
-export { sanitizeStatsFileDownloadsResponse } from './file-downloads';
-export { sanitizeStatsTopAuthorsResponse } from './top-authors';
+export { sanitizeStatsPostCommentsResponse } from './post-comments';
+export { sanitizeStatsPostLikesResponse } from './post-likes';
+export { mergeStatsReferrersComparisonRows, sanitizeStatsReferrersResponse } from './referrers';
+export { mergeStatsClicksComparisonRows, sanitizeStatsClicksResponse } from './clicks';
+export {
+	mergeStatsSearchTermsComparisonRows,
+	sanitizeStatsSearchTermsResponse,
+} from './search-terms';
+export {
+	mergeStatsFileDownloadsComparisonRows,
+	sanitizeStatsFileDownloadsResponse,
+} from './file-downloads';
+export { mergeStatsTopAuthorsComparisonRows, sanitizeStatsTopAuthorsResponse } from './top-authors';
 export { sanitizeStatsHighlightsResponse } from './highlights';
-export { sanitizeStatsLocationsResponse } from './locations';
-export { sanitizeStatsVideoPlaysResponse } from './video-plays';
+export { mergeStatsLocationsComparisonRows, sanitizeStatsLocationsResponse } from './locations';
+export { mergeStatsVideoPlaysComparisonRows, sanitizeStatsVideoPlaysResponse } from './video-plays';
 export {
 	isStatsTimeSeriesPayload,
 	sanitizeStatsTimeSeriesResponse,
 	sanitizeStatsEmailTimeSeriesResponse,
 } from './time-series';
 export { sanitizeStatsVisitsResponse } from './visits';
+export { sanitizeStatsHourOfDayResponse } from './hour-of-day';
 export { sanitizeStatsInsightsResponse } from './insights';
-export { sanitizeStatsUtmResponse } from './utm';
+export { mergeStatsUtmComparisonRows, sanitizeStatsUtmResponse } from './utm';
 export { sanitizeStatsEmailSummaryResponse } from './email-summary';
-export { sanitizeStatsEmailBreakdownResponse } from './email-breakdown';
-export { sanitizeStatsArchivesResponse } from './archives';
+export { compareEmailBreakdownItems, sanitizeStatsEmailBreakdownResponse } from './email-breakdown';
+export { mergeStatsArchivesComparisonRows, sanitizeStatsArchivesResponse } from './archives';
 export { sanitizeStatsCommentFollowersResponse } from './comment-followers';
 export { sanitizeStatsFollowersResponse } from './followers';
-export { sanitizeStatsCommentsResponse } from './comments';
+export { sanitizeStatsCommentsResponse, selectStatsCommentsRows } from './comments';
 export {
 	sanitizeStatsSubscribersResponse,
 	sanitizeStatsSubscribersCountsResponse,
 } from './subscribers';
 export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse } from './tags';
-export { sanitizeStatsDevicesResponse } from './devices';
-export { sanitizeStatsPublicizeResponse } from './publicize';
-export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse } from './wordads';
+export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from './devices';
+export {
+	sanitizeStatsWordAdsStatsResponse,
+	sanitizeStatsWordAdsEarningsResponse,
+	sliceWordAdsStatsReport,
+} from './wordads';
 export { sanitizeStatsSingleVideoResponse } from './single-video';
-export type { StatsTopPostsItem } from './top-posts';
+export { sanitizeStatsSummaryResponse } from './summary';
+export type { StatsTopPostsComparisonItem, StatsTopPostsItem } from './top-posts';
+export type { StatsSummaryResponse } from './summary';
 export type {
+	StatsPostDay,
 	StatsPostMeta,
 	StatsPostMonthValues,
 	StatsPostRawResponse,
@@ -47,11 +84,17 @@ export type {
 	StatsPostWeekDay,
 	StatsPostYear,
 } from './post';
-export type { StatsReferrersItem } from './referrers';
-export type { StatsClicksItem } from './clicks';
-export type { StatsSearchTermsItem } from './search-terms';
-export type { StatsFileDownloadsItem } from './file-downloads';
-export type { StatsTopAuthorsItem } from './top-authors';
+export type { StatsPostComment, StatsPostCommentsResponse } from './post-comments';
+export type { StatsPostLike, StatsPostLikesResponse } from './post-likes';
+export type { StatsReferrersComparisonItem, StatsReferrersItem } from './referrers';
+export type { StatsClicksComparisonItem, StatsClicksItem } from './clicks';
+export type { StatsSearchTermsComparisonItem, StatsSearchTermsItem } from './search-terms';
+export type { StatsFileDownloadsComparisonItem, StatsFileDownloadsItem } from './file-downloads';
+export type {
+	StatsTopAuthorsComparisonItem,
+	StatsTopAuthorsItem,
+	StatsTopAuthorsPostComparisonItem,
+} from './top-authors';
 export type {
 	StatsHighlightsPeriod,
 	StatsHighlightsRange,
@@ -60,17 +103,23 @@ export type {
 	StatsHighlightsRawResponse,
 	StatsHighlightsResponse,
 } from './highlights';
-export type { StatsLocationsItem } from './locations';
-export type { StatsVideoPlaysItem } from './video-plays';
+export type { StatsLocationsComparisonItem, StatsLocationsItem } from './locations';
+export type { StatsVideoPlaysComparisonItem, StatsVideoPlaysItem } from './video-plays';
 export type {
 	StatsInsightsHourlyViews,
 	StatsInsightsResponse,
 	StatsInsightsYear,
 } from './insights';
-export type { StatsUtmItem, StatsUtmParam, StatsUtmTopPostItem } from './utm';
+export type {
+	StatsUtmComparisonItem,
+	StatsUtmComparisonTopPostItem,
+	StatsUtmItem,
+	StatsUtmParam,
+	StatsUtmTopPostItem,
+} from './utm';
 export type { StatsEmailSummaryItem } from './email-summary';
 export type { StatsEmailBreakdownItem } from './email-breakdown';
-export type { StatsArchivesItem } from './archives';
+export type { StatsArchivesComparisonItem, StatsArchivesItem } from './archives';
 export type {
 	StatsTimeSeriesDataPoint,
 	StatsTimeSeriesReport,
@@ -83,24 +132,15 @@ export type {
 	StatsCommentFollowersRawPost,
 	StatsCommentFollowersRawResponse,
 } from './comment-followers';
-export type {
-	StatsPublicizeApiResponse,
-	StatsPublicizeItem,
-	StatsPublicizeService,
-} from './publicize';
+export type { StatsDevicesComparisonItem, StatsDevicesItem } from './devices';
 export type {
 	StatsFollowersItem,
 	StatsFollowersRawItem,
 	StatsFollowersRawResponse,
 } from './followers';
 export type {
-	StatsDevicesItem,
-	StatsDevicesResponse,
-	StatsDevicesResponseItem,
-	StatsDevicesTopValues,
-} from './devices';
-export type {
 	StatsCommentsAuthorItem,
+	StatsCommentsGroup,
 	StatsCommentsGroupItem,
 	StatsCommentsItem,
 	StatsCommentsPostItem,
@@ -109,6 +149,7 @@ export type {
 	StatsCommentsRawPost,
 	StatsCommentsRawResponse,
 	StatsCommentsResponse,
+	StatsCommentsRow,
 } from './comments';
 export type {
 	StatsSubscribersCounts,
@@ -143,7 +184,9 @@ export type {
 export type {
 	StatsSingleVideoDataPoint,
 	StatsSingleVideoPage,
+	StatsSingleVideoPost,
 	StatsSingleVideoReport,
+	StatsSingleVideoTotals,
 } from './single-video';
 export type {
 	StatsItemAction,
@@ -153,3 +196,4 @@ export type {
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
 } from './types';
+export type { StatsHourOfDayBucket, StatsHourOfDayReport } from './hour-of-day';
