@@ -70,7 +70,15 @@ const useActivatePlugins = ( productSlugs: string | string[] ) => {
 							/* translators: %s is either the product name, i.e.- "Jetpack Backup" or the word "Plugins". */
 							__( '%s activated successfully!', 'jetpack-my-jetpack' ),
 							products?.length === 1 ? products[ 0 ].title : __( 'Plugins', 'jetpack-my-jetpack' )
-						)
+						),
+						{
+							actions: [
+								{
+									label: __( 'Customize menu', 'jetpack-my-jetpack' ),
+									url: 'admin.php?page=my-jetpack#/customize',
+								},
+							],
+						}
 					);
 				} );
 			},

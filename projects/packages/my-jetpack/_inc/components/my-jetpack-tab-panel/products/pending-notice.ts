@@ -1,4 +1,5 @@
 import { useGlobalNotices } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
 
 /**
@@ -11,14 +12,23 @@ import { useEffect } from 'react';
 
 const PENDING_NOTICE_KEY = 'myJetpackPendingSuccessNotice';
 
+type PendingSuccessNotice = {
+	message: string;
+	customizeMenu: boolean;
+};
+
 /**
  * Store a success notice to be shown after the next page load.
  *
- * @param {string} message - The notice message.
+ * @param {string}  message       - The notice message.
+ * @param {boolean} customizeMenu - Whether to offer the menu editor after replay.
  */
-export function setPendingSuccessNotice( message: string ): void {
+export function setPendingSuccessNotice( message: string, customizeMenu = true ): void {
 	try {
-		window.sessionStorage?.setItem( PENDING_NOTICE_KEY, message );
+		window.sessionStorage?.setItem(
+			PENDING_NOTICE_KEY,
+			JSON.stringify( { message, customizeMenu } )
+		);
 	} catch {
 		// sessionStorage may be unavailable; the notice is non-critical.
 	}
@@ -27,15 +37,31 @@ export function setPendingSuccessNotice( message: string ): void {
 /**
  * Read and clear any pending success notice.
  *
- * @return {string | null} The stored message, or null if none.
+ * @return {PendingSuccessNotice | null} The stored notice, or null if none.
  */
-export function consumePendingSuccessNotice(): string | null {
+export function consumePendingSuccessNotice(): PendingSuccessNotice | null {
 	try {
-		const message = window.sessionStorage?.getItem( PENDING_NOTICE_KEY ) ?? null;
-		if ( message ) {
+		const stored = window.sessionStorage?.getItem( PENDING_NOTICE_KEY ) ?? null;
+		if ( stored ) {
 			window.sessionStorage.removeItem( PENDING_NOTICE_KEY );
 		}
-		return message;
+		if ( ! stored ) {
+			return null;
+		}
+
+		try {
+			const notice = JSON.parse( stored ) as Partial< PendingSuccessNotice >;
+			if ( typeof notice.message === 'string' ) {
+				return {
+					message: notice.message,
+					customizeMenu: notice.customizeMenu === true,
+				};
+			}
+		} catch {
+			return { message: stored, customizeMenu: false };
+		}
+
+		return null;
 	} catch {
 		/* istanbul ignore next -- sessionStorage may be unavailable (e.g. private mode). */
 		return null;
@@ -52,9 +78,21 @@ export function useReplayPendingNotice(): void {
 	// re-renders (e.g. a product refetch), or it would consume the notice on the page
 	// that set it — before the reload — so it would never reach the freshly-loaded page.
 	useEffect( () => {
-		const message = consumePendingSuccessNotice();
-		if ( message ) {
-			createSuccessNotice( message );
+		const notice = consumePendingSuccessNotice();
+		if ( notice ) {
+			createSuccessNotice(
+				notice.message,
+				notice.customizeMenu
+					? {
+							actions: [
+								{
+									label: __( 'Customize menu', 'jetpack-my-jetpack' ),
+									url: 'admin.php?page=my-jetpack#/customize',
+								},
+							],
+					  }
+					: undefined
+			);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount.
 	}, [] );

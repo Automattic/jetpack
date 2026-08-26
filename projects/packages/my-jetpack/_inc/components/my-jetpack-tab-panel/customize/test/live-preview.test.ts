@@ -15,6 +15,7 @@ const makeMenuItem = (
 	customizable: true,
 	hidden: false,
 	external: false,
+	registered: true,
 	...overrides,
 } );
 

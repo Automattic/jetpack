@@ -15,6 +15,35 @@ const mockPreview = {
 	restore: jest.fn(),
 };
 
+const mockActivate = jest.fn( ( _value, options ) => options?.onSuccess?.() );
+const mockRefetchProducts = jest.fn( () => Promise.resolve() );
+let mockProducts: Record< string, Record< string, unknown > > = {};
+let mockModules: Record< string, Record< string, unknown > > = {};
+
+jest.mock( '../../../../data/products/use-all-products', () => ( {
+	useAllProducts: () => ( {
+		data: mockProducts,
+		isLoading: false,
+		isRefetching: false,
+		isError: false,
+		refetch: mockRefetchProducts,
+	} ),
+} ) );
+
+jest.mock( '../../../../data/products/use-activate-plugins', () => ( {
+	__esModule: true,
+	default: () => ( { activate: mockActivate, isPending: false, isSuccess: false } ),
+} ) );
+
+jest.mock( '../../products/use-all-jetpack-modules', () => ( {
+	useAllJetpackModules: () => ( { modules: mockModules, isLoading: false } ),
+} ) );
+
+const mockNavigate = jest.fn();
+jest.mock( 'react-router', () => ( {
+	useNavigate: () => mockNavigate,
+} ) );
+
 jest.mock( '../live-preview', () => ( {
 	createJetpackMenuPreview: () => mockPreview,
 } ) );
@@ -22,12 +51,14 @@ jest.mock( '../live-preview', () => ( {
 jest.mock( '@wordpress/ui', () => {
 	const react = jest.requireActual( 'react' );
 	const element = react.createElement;
+	const tabsContext = react.createContext( { value: '', onValueChange: () => undefined } );
 	const container =
 		( tag = 'div' ) =>
 		( { children, ...props } ) =>
 			element( tag, props, children );
 
 	return {
+		Badge: container( 'span' ),
 		Button: ( { children, loading, loadingAnnouncement, ...props } ) => {
 			void loading;
 			void loadingAnnouncement;
@@ -75,6 +106,24 @@ jest.mock( '@wordpress/ui', () => {
 			CloseIcon: ( { label, ...props } ) => element( 'button', { ...props, 'aria-label': label } ),
 		},
 		Stack: container(),
+		Tabs: {
+			Root: ( { children, value, onValueChange } ) =>
+				element( tabsContext.Provider, { value: { value, onValueChange } }, children ),
+			List: ( { children, ...props } ) => element( 'div', { ...props, role: 'tablist' }, children ),
+			Tab: ( { children, value, ...props } ) => {
+				const context = react.useContext( tabsContext );
+				return element(
+					'button',
+					{
+						...props,
+						role: 'tab',
+						'aria-selected': context.value === value,
+						onClick: () => context.onValueChange( value ),
+					},
+					children
+				);
+			},
+		},
 		Text: container( 'span' ),
 	};
 } );
@@ -95,6 +144,7 @@ const makeItem = (
 	customizable: true,
 	hidden: false,
 	external: false,
+	registered: true,
 	...overrides,
 } );
 
@@ -107,8 +157,10 @@ const buildModel = ( overrides: Partial< AdminMenuModel > = {} ): AdminMenuModel
 	separators: {},
 	items: [
 		makeItem( 'my-jetpack', 'My Jetpack', { customizable: false } ),
-		makeItem( 'forms', 'Forms' ),
-		makeItem( 'scan', 'Scan' ),
+		makeItem( 'forms', 'Forms', { productSlug: 'jetpack-forms' } ),
+		makeItem( 'scan', 'Scan', { productSlug: 'scan' } ),
+		makeItem( 'backup', 'Backup', { productSlug: 'backup', registered: false } ),
+		makeItem( 'ai', 'AI', { productSlug: 'jetpack-ai', registered: false } ),
 		makeItem( 'settings', 'Settings', { customizable: false } ),
 		makeItem( 'jetpack-manage', 'Jetpack Manage', {
 			customizable: false,
@@ -139,6 +191,31 @@ const arrangeInitialState = ( model: AdminMenuModel, userIsAdmin = true ) => {
 describe( 'CustomizeContent', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		mockProducts = {
+			'jetpack-forms': {
+				slug: 'jetpack-forms',
+				status: 'active',
+				name: 'Forms',
+				title: 'Forms',
+			},
+			scan: { slug: 'scan', status: 'active', name: 'Scan', title: 'Scan' },
+			backup: {
+				slug: 'backup',
+				status: 'needs_activation',
+				name: 'Backup',
+				title: 'Backup',
+				hasPaidPlanForProduct: true,
+			},
+			'jetpack-ai': {
+				slug: 'jetpack-ai',
+				status: 'needs_plan',
+				name: 'AI',
+				title: 'AI',
+			},
+		};
+		mockModules = {
+			'contact-form': { activated: true, available: true },
+		};
 		arrangeInitialState( buildModel() );
 	} );
 
@@ -291,5 +368,137 @@ describe( 'CustomizeContent', () => {
 		await user.click( checkbox );
 
 		expect( checkbox ).not.toBeChecked();
+	} );
+
+	it( 'retains registered off-site destinations when the REST catalog cannot re-register them', async () => {
+		const initial = buildModel( {
+			items: [
+				...buildModel().items,
+				makeItem( 'cloud-tool', 'Cloud Tool', {
+					customizable: false,
+					external: true,
+					registered: true,
+				} ),
+			],
+		} );
+		arrangeInitialState( initial );
+		mockApiFetch.mockResolvedValue( buildModel() );
+
+		render( <CustomizeContent /> );
+		await expect( screen.findByText( 'Menu is up to date' ) ).resolves.toBeInTheDocument();
+
+		expect( screen.getByText( 'Cloud Tool' ) ).toBeInTheDocument();
+	} );
+
+	it( 'defaults to the sortable Active menu and exposes an alphabetical Inactive catalog', async () => {
+		const user = userEvent.setup();
+		render( <CustomizeContent /> );
+
+		expect( screen.getByRole( 'tab', { name: 'Active' } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
+		expect( screen.getByRole( 'checkbox', { name: 'Show Forms in menu' } ) ).toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'tab', { name: 'Inactive' } ) );
+		const inactiveRows = screen.getAllByRole( 'listitem' );
+		expect( inactiveRows.map( row => row.textContent ) ).toEqual( [
+			expect.stringContaining( 'AI' ),
+			expect.stringContaining( 'Backup' ),
+		] );
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /Drag/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'activates an eligible product, returns to Active, and highlights its new menu row', async () => {
+		const user = userEvent.setup();
+		render( <CustomizeContent /> );
+		await user.click( screen.getByRole( 'tab', { name: 'Inactive' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Activate Backup' } ) );
+
+		expect( mockActivate ).toHaveBeenCalledWith(
+			undefined,
+			expect.objectContaining( {
+				onSuccess: expect.any( Function ),
+				onError: expect.any( Function ),
+			} )
+		);
+		await waitFor( () =>
+			expect( screen.getByRole( 'tab', { name: 'Active' } ) ).toHaveAttribute(
+				'aria-selected',
+				'true'
+			)
+		);
+		const activatedRow = screen.getByRole( 'listitem', { name: 'Backup' } );
+		expect( activatedRow ).toHaveAttribute( 'data-newly-activated', 'true' );
+		expect( activatedRow ).toHaveTextContent( 'Backup' );
+		expect( activatedRow ).toHaveFocus();
+		expect( mockRefetchProducts ).toHaveBeenCalled();
+		expect(
+			screen.getByText( 'Backup was activated and added to your menu.' )
+		).toBeInTheDocument();
+	} );
+
+	it( 'uses the existing product flow when an inactive product needs a prerequisite', async () => {
+		const user = userEvent.setup();
+		render( <CustomizeContent /> );
+		await user.click( screen.getByRole( 'tab', { name: 'Inactive' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Learn more about AI' } ) );
+
+		expect( mockNavigate ).toHaveBeenCalledWith( '/add-jetpack-ai' );
+	} );
+
+	it( 'offers Learn more instead of an unavailable dead end when a paid module needs setup', async () => {
+		mockProducts.backup.status = 'needs_plan';
+		mockModules.vaultpress = { activated: false, available: false };
+		const user = userEvent.setup();
+		render( <CustomizeContent /> );
+		await user.click( screen.getByRole( 'tab', { name: 'Inactive' } ) );
+
+		expect( screen.getByRole( 'button', { name: 'Learn more about Backup' } ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Unavailable' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the inactive view open and reports activation errors', async () => {
+		mockActivate.mockImplementationOnce( ( _value, options ) => options?.onError?.() );
+		const user = userEvent.setup();
+		render( <CustomizeContent /> );
+		await user.click( screen.getByRole( 'tab', { name: 'Inactive' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Activate Backup' } ) );
+
+		expect( screen.getByRole( 'tab', { name: 'Inactive' } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
+		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
+			'Backup could not be activated. Try again.'
+		);
+	} );
+
+	it( 'alphabetizes each active section and previews the unsaved result', async () => {
+		const user = userEvent.setup();
+		arrangeInitialState(
+			buildModel( {
+				items: buildModel().items.map( item => {
+					if ( item.id === 'scan' ) {
+						return { ...item, hasSavedOrder: true, order: 0 };
+					}
+					return item.id === 'forms' ? { ...item, hasSavedOrder: true, order: 10 } : item;
+				} ),
+			} )
+		);
+		render( <CustomizeContent /> );
+		const list = screen.getByRole( 'list', { name: 'My Jetpack menu' } );
+		expect( list.textContent?.indexOf( 'Scan' ) ).toBeLessThan(
+			list.textContent?.indexOf( 'Forms' ) ?? 0
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Alphabetize sections' } ) );
+
+		expect( list.textContent?.indexOf( 'Forms' ) ).toBeLessThan(
+			list.textContent?.indexOf( 'Scan' ) ?? 0
+		);
+		expect( screen.getByText( 'Unsaved changes' ) ).toBeInTheDocument();
+		expect( mockPreview.apply ).toHaveBeenCalled();
 	} );
 } );

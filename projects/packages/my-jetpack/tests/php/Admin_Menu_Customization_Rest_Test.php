@@ -146,7 +146,13 @@ class Admin_Menu_Customization_Rest_Test extends TestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertTrue( $data['featureEnabled'] );
 		$this->assertFalse( $data['active'] );
-		$this->assertSame( array( 'my-jetpack', 'scan' ), array_column( $data['items'], 'id' ) );
+
+		$items = array_column( $data['items'], null, 'id' );
+		$this->assertTrue( $items['my-jetpack']['registered'] );
+		$this->assertTrue( $items['scan']['registered'] );
+		$this->assertSame( 'scan', $items['scan']['productSlug'] );
+		$this->assertFalse( $items['forms']['registered'] );
+		$this->assertSame( 'jetpack-forms', $items['forms']['productSlug'] );
 	}
 
 	/**

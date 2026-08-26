@@ -11,14 +11,19 @@ import {
 	InputControl,
 	Notice,
 	Stack,
+	Tabs,
 	Text,
 } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { REST_API_ADMIN_MENU_CUSTOMIZATION } from '../../../data/constants';
+import { useAllProducts } from '../../../data/products/use-all-products';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
+import { useAllJetpackModules } from '../products/use-all-jetpack-modules';
+import { InactiveProductRow } from './inactive-product-row';
 import { createJetpackMenuPreview, type JetpackMenuPreview } from './live-preview';
 import {
 	addCustomSeparator,
+	alphabetizeMenuSections,
 	buildMenuSequence,
 	hasDraftChanged,
 	moveEditableNode,
@@ -28,8 +33,20 @@ import {
 	updateCustomSeparator,
 	updateItemVisibility,
 } from './menu-sequence';
+import {
+	getMenuCatalogState,
+	getMenuProductModuleSlug,
+	insertActivatedItem,
+} from './product-catalog';
 import styles from './styles.module.scss';
-import type { AdminMenuLayout, AdminMenuModel, MenuItemNode, MenuNode, NoticeState } from './types';
+import type {
+	AdminMenuItem,
+	AdminMenuLayout,
+	AdminMenuModel,
+	MenuItemNode,
+	MenuNode,
+	NoticeState,
+} from './types';
 
 type SortableOptions = {
 	cancel: string;
@@ -90,7 +107,43 @@ const normalizeModel = ( model?: Partial< AdminMenuModel > ): AdminMenuModel => 
 	items: ( model?.items ?? [] ).map( item => ( {
 		...item,
 		hasSavedOrder: item.hasSavedOrder ?? false,
+		registered: item.registered ?? true,
 	} ) ),
+} );
+
+const mergeCanonicalItems = ( previous: AdminMenuItem[], next: AdminMenuItem[] ) => {
+	const previousById = new Map( previous.map( item => [ item.id, item ] ) );
+	const nextIds = new Set( next.map( item => item.id ) );
+
+	const merged = next.map( item => {
+		const previousItem = previousById.get( item.id );
+		if ( ! previousItem?.registered || item.registered ) {
+			return item;
+		}
+
+		return {
+			...item,
+			registered: true,
+			label: previousItem.label,
+			menuSlug: previousItem.menuSlug,
+		};
+	} );
+
+	previous.forEach( item => {
+		if ( item.registered && ! nextIds.has( item.id ) ) {
+			merged.push( item );
+		}
+	} );
+
+	return merged;
+};
+
+const getResolvedLayout = ( model: AdminMenuModel ): AdminMenuLayout => ( {
+	items: model.items.reduce< AdminMenuLayout[ 'items' ] >( ( items, item ) => {
+		items[ item.id ] = { hidden: item.hidden, order: item.order };
+		return items;
+	}, {} ),
+	separators: { ...model.separators },
 } );
 
 const getInitialModel = () =>
@@ -115,6 +168,7 @@ type MenuItemRowProps = {
 	canMoveDown: boolean;
 	canMoveUp: boolean;
 	disabled: boolean;
+	highlighted: boolean;
 	node: MenuItemNode;
 	onMove: ( id: string, direction: -1 | 1 ) => void;
 	onVisibilityChange: ( id: string, visible: boolean ) => void;
@@ -127,17 +181,20 @@ type MenuItemRowProps = {
  * @return The menu item row.
  */
 function MenuItemRow( props: MenuItemRowProps ) {
-	const { canMoveDown, canMoveUp, disabled, node, onMove, onVisibilityChange } = props;
+	const { canMoveDown, canMoveUp, disabled, highlighted, node, onMove, onVisibilityChange } = props;
 	const editable = ! node.locked;
 
 	return (
 		<div
 			className={ `${ styles.row } ${
 				editable ? styles[ 'row-editable' ] : styles[ 'row-locked' ]
-			}` }
+			} ${ highlighted ? styles[ 'row-highlighted' ] : '' }` }
 			data-menu-node-id={ node.id }
 			data-menu-node-editable={ editable || undefined }
+			data-newly-activated={ highlighted || undefined }
+			tabIndex={ highlighted ? -1 : undefined }
 			role="listitem"
+			aria-label={ node.label }
 		>
 			<div className={ styles[ 'row-leading' ] }>
 				{ editable ? (
@@ -319,16 +376,30 @@ function SeparatorRow( props: SeparatorRowProps ) {
  */
 export function CustomizeContent() {
 	const initialModel = useMemo( () => getInitialModel(), [] );
-	const initialSequence = useMemo(
-		() => buildMenuSequence( initialModel.items, initialModel.separators ),
-		[ initialModel ]
-	);
+	const { data: products, refetch: refetchProducts } = useAllProducts();
+	const { modules } = useAllJetpackModules();
+	const initialSequenceRef = useRef< MenuNode[] >();
+	if ( ! initialSequenceRef.current ) {
+		const initialCatalogState = getMenuCatalogState( initialModel.items, products, modules );
+		initialSequenceRef.current = buildMenuSequence(
+			initialCatalogState.activeItems,
+			initialModel.separators
+		);
+	}
+	const initialSequence = initialSequenceRef.current;
 	const itemListRef = useRef< HTMLDivElement | null >( null );
 	const previewRef = useRef< JetpackMenuPreview | null >( null );
 	const separatorCounter = useRef( 0 );
 	const [ model, setModel ] = useState( initialModel );
+	const modelRef = useRef( initialModel );
+	const productsRef = useRef( products );
+	const modulesRef = useRef( modules );
+	const optimisticActiveIdsRef = useRef< Set< string > >( new Set() );
 	const [ baseline, setBaseline ] = useState( initialSequence );
 	const [ draft, setDraft ] = useState( initialSequence );
+	const [ view, setView ] = useState< 'active' | 'inactive' >( 'active' );
+	const [ optimisticActiveIds, setOptimisticActiveIds ] = useState< Set< string > >( new Set() );
+	const [ highlightedItemId, setHighlightedItemId ] = useState< string | null >( null );
 	const [ isLoading, setIsLoading ] = useState( initialModel.featureEnabled );
 	const [ savingScope, setSavingScope ] = useState< 'site' | 'user' | null >( null );
 	const [ loadFailed, setLoadFailed ] = useState( false );
@@ -339,6 +410,13 @@ export function CustomizeContent() {
 	const isSaving = savingScope !== null;
 	const isDirty = hasDraftChanged( baseline, draft );
 	const editingDisabled = isSaving || loadFailed;
+	productsRef.current = products;
+	modulesRef.current = modules;
+	optimisticActiveIdsRef.current = optimisticActiveIds;
+	const catalogState = useMemo(
+		() => getMenuCatalogState( model.items, products, modules, optimisticActiveIds ),
+		[ model.items, modules, optimisticActiveIds, products ]
+	);
 	let statusMessage: string = __( 'Menu is up to date', 'jetpack-my-jetpack' );
 	if ( isLoading ) {
 		statusMessage = __( 'Loading menu…', 'jetpack-my-jetpack' );
@@ -347,14 +425,57 @@ export function CustomizeContent() {
 	}
 
 	const applyCanonicalModel = useCallback( ( nextValue: AdminMenuModel ) => {
-		const nextModel = normalizeModel( nextValue );
-		const nextSequence = buildMenuSequence( nextModel.items, nextModel.separators );
+		const normalizedModel = normalizeModel( nextValue );
+		const nextModel = {
+			...normalizedModel,
+			items: mergeCanonicalItems( modelRef.current.items, normalizedModel.items ),
+		};
+		const nextCatalog = getMenuCatalogState(
+			nextModel.items,
+			productsRef.current,
+			modulesRef.current,
+			optimisticActiveIdsRef.current
+		);
+		const nextSequence = buildMenuSequence( nextCatalog.activeItems, nextModel.separators );
+		modelRef.current = nextModel;
 		setModel( nextModel );
 		setBaseline( nextSequence );
 		setDraft( nextSequence );
 		previewRef.current?.apply( nextSequence );
 		previewRef.current?.commit();
 	}, [] );
+
+	useEffect( () => {
+		if ( isDirty ) {
+			return;
+		}
+
+		const currentIds = draft
+			.filter( node => node.type === 'item' )
+			.map( node => node.id )
+			.join( ',' );
+		const nextSequence = buildMenuSequence( catalogState.activeItems, model.separators );
+		const nextIds = nextSequence
+			.filter( node => node.type === 'item' )
+			.map( node => node.id )
+			.join( ',' );
+		if ( currentIds === nextIds ) {
+			return;
+		}
+
+		setBaseline( nextSequence );
+		setDraft( nextSequence );
+	}, [ catalogState.activeItems, draft, isDirty, model.separators ] );
+
+	useEffect( () => {
+		if ( ! highlightedItemId || view !== 'active' ) {
+			return;
+		}
+
+		itemListRef.current
+			?.querySelector< HTMLElement >( `[data-menu-node-id="${ highlightedItemId }"]` )
+			?.focus();
+	}, [ draft, highlightedItemId, view ] );
 
 	useEffect( () => {
 		if ( ! initialModel.featureEnabled ) {
@@ -418,7 +539,7 @@ export function CustomizeContent() {
 	useEffect( () => {
 		const listElement = itemListRef.current;
 		const sortable = window.jQuery;
-		if ( ! listElement || ! sortable || editingDisabled ) {
+		if ( view !== 'active' || ! listElement || ! sortable || editingDisabled ) {
 			return;
 		}
 
@@ -449,7 +570,7 @@ export function CustomizeContent() {
 		return () => {
 			sortableList.sortable( 'destroy' );
 		};
-	}, [ draft, editingDisabled, reorderDraft ] );
+	}, [ draft, editingDisabled, reorderDraft, view ] );
 
 	const editableIds = useMemo(
 		() => draft.filter( node => ! node.locked ).map( node => node.id ),
@@ -481,9 +602,59 @@ export function CustomizeContent() {
 		setAnnouncement( __( 'Separator added.', 'jetpack-my-jetpack' ) );
 	}, [] );
 
+	const alphabetizeSections = useCallback( () => {
+		setDraft( current => alphabetizeMenuSections( current ) );
+		setAnnouncement( __( 'Product sections alphabetized.', 'jetpack-my-jetpack' ) );
+	}, [] );
+
+	const handleProductActivated = useCallback(
+		( item: AdminMenuItem ) => {
+			const nextOptimisticIds = new Set( optimisticActiveIdsRef.current );
+			nextOptimisticIds.add( item.id );
+			optimisticActiveIdsRef.current = nextOptimisticIds;
+			setOptimisticActiveIds( nextOptimisticIds );
+
+			const nextItems = insertActivatedItem( modelRef.current.items, item );
+			const nextModel = { ...modelRef.current, items: nextItems };
+			modelRef.current = nextModel;
+			setModel( nextModel );
+			const nextCatalog = getMenuCatalogState(
+				nextItems,
+				productsRef.current,
+				modulesRef.current,
+				nextOptimisticIds
+			);
+			setDraft( buildMenuSequence( nextCatalog.activeItems, nextModel.separators ) );
+			setHighlightedItemId( item.id );
+			setView( 'active' );
+			setNotice( {
+				intent: 'success',
+				message: sprintf(
+					/* translators: %s is a product name. */
+					__( '%s was activated and added to your menu.', 'jetpack-my-jetpack' ),
+					item.label
+				),
+			} );
+			void refetchProducts();
+		},
+		[ refetchProducts ]
+	);
+
+	const handleProductActivationError = useCallback( ( item: AdminMenuItem ) => {
+		setNotice( {
+			intent: 'error',
+			message: sprintf(
+				/* translators: %s is a product name. */
+				__( '%s could not be activated. Try again.', 'jetpack-my-jetpack' ),
+				item.label
+			),
+		} );
+	}, [] );
+
 	const saveLayout = useCallback(
 		( scope: 'site' | 'user' ) => {
-			const layout = serializeDraftLayout( draft );
+			const previousLayout = scope === 'site' ? model.siteLayout : getResolvedLayout( model );
+			const layout = serializeDraftLayout( draft, previousLayout );
 			const snapshot = scope === 'site' ? { ...layout, enabled: true } : layout;
 			setSavingScope( scope );
 			setNotice( null );
@@ -520,7 +691,7 @@ export function CustomizeContent() {
 				} )
 				.finally( () => setSavingScope( null ) );
 		},
-		[ applyCanonicalModel, draft ]
+		[ applyCanonicalModel, draft, model ]
 	);
 
 	if ( ! model.featureEnabled ) {
@@ -547,6 +718,16 @@ export function CustomizeContent() {
 				</div>
 			</div>
 
+			<Tabs.Root
+				value={ view }
+				onValueChange={ value => setView( value === 'inactive' ? 'inactive' : 'active' ) }
+			>
+				<Tabs.List variant="minimal" className={ styles[ 'view-tabs' ] }>
+					<Tabs.Tab value="active">{ __( 'Active', 'jetpack-my-jetpack' ) }</Tabs.Tab>
+					<Tabs.Tab value="inactive">{ __( 'Inactive', 'jetpack-my-jetpack' ) }</Tabs.Tab>
+				</Tabs.List>
+			</Tabs.Root>
+
 			{ notice && (
 				<Notice.Root intent={ notice.intent } className={ styles.notice }>
 					<Notice.Description>{ notice.message }</Notice.Description>
@@ -557,90 +738,149 @@ export function CustomizeContent() {
 				</Notice.Root>
 			) }
 
-			<Card.Root className={ styles[ 'editor-card' ] }>
-				<Card.Content className={ styles[ 'editor-content' ] }>
-					<div
-						className={ styles[ 'menu-list' ] }
-						ref={ itemListRef }
-						role="list"
-						aria-label={ __( 'My Jetpack menu', 'jetpack-my-jetpack' ) }
-					>
-						{ draft.map( node => {
-							const editableIndex = editableIds.indexOf( node.id );
-							const movement = {
-								canMoveUp: editableIndex > 0,
-								canMoveDown: editableIndex >= 0 && editableIndex < editableIds.length - 1,
-							};
-
-							return node.type === 'item' ? (
-								<MenuItemRow
-									key={ node.id }
-									{ ...movement }
-									disabled={ editingDisabled }
-									node={ node }
-									onMove={ moveNode }
-									onVisibilityChange={ ( id, visible ) =>
-										setDraft( current => updateItemVisibility( current, id, visible ) )
-									}
-								/>
-							) : (
-								<SeparatorRow
-									key={ node.id }
-									{ ...movement }
-									disabled={ editingDisabled }
-									node={ node }
-									onMove={ moveNode }
-									onRemove={ id => {
-										setDraft( current => removeCustomSeparator( current, id ) );
-										setAnnouncement( __( 'Separator removed.', 'jetpack-my-jetpack' ) );
-									} }
-									onTitleChange={ ( id, title ) =>
-										setDraft( current => updateCustomSeparator( current, id, title ) )
-									}
-								/>
-							);
-						} ) }
-					</div>
-
-					<div className={ styles[ 'add-action' ] }>
-						<Button
-							variant="outline"
-							tone="neutral"
-							disabled={
-								editingDisabled ||
-								! draft.some( node => node.type === 'item' && ! node.external && ! node.locked )
-							}
-							onClick={ addSeparator }
+			{ view === 'active' ? (
+				<Card.Root className={ styles[ 'editor-card' ] }>
+					<Card.Content className={ styles[ 'editor-content' ] }>
+						<div
+							className={ styles[ 'menu-list' ] }
+							ref={ itemListRef }
+							role="list"
+							aria-label={ __( 'My Jetpack menu', 'jetpack-my-jetpack' ) }
 						>
-							<Icon icon={ plus } size={ 18 } />
-							{ __( 'Add separator', 'jetpack-my-jetpack' ) }
-						</Button>
-					</div>
+							{ draft.map( node => {
+								const editableIndex = editableIds.indexOf( node.id );
+								const movement = {
+									canMoveUp: editableIndex > 0,
+									canMoveDown: editableIndex >= 0 && editableIndex < editableIds.length - 1,
+								};
 
-					<Stack className={ styles.actions } direction="row" gap="sm" wrap="wrap">
-						<Button
-							loading={ savingScope === 'user' }
-							loadingAnnouncement={ __( 'Saving my menu', 'jetpack-my-jetpack' ) }
-							disabled={ editingDisabled || ( ! isDirty && model.hasPersonalLayout ) }
-							onClick={ () => saveLayout( 'user' ) }
-						>
-							{ __( 'Save my menu', 'jetpack-my-jetpack' ) }
-						</Button>
-						{ userIsAdmin && (
+								return node.type === 'item' ? (
+									<MenuItemRow
+										key={ node.id }
+										{ ...movement }
+										disabled={ editingDisabled }
+										highlighted={ highlightedItemId === node.id }
+										node={ node }
+										onMove={ moveNode }
+										onVisibilityChange={ ( id, visible ) =>
+											setDraft( current => updateItemVisibility( current, id, visible ) )
+										}
+									/>
+								) : (
+									<SeparatorRow
+										key={ node.id }
+										{ ...movement }
+										disabled={ editingDisabled }
+										node={ node }
+										onMove={ moveNode }
+										onRemove={ id => {
+											setDraft( current => removeCustomSeparator( current, id ) );
+											setAnnouncement( __( 'Separator removed.', 'jetpack-my-jetpack' ) );
+										} }
+										onTitleChange={ ( id, title ) =>
+											setDraft( current => updateCustomSeparator( current, id, title ) )
+										}
+									/>
+								);
+							} ) }
+						</div>
+
+						<div className={ styles[ 'editor-tools' ] }>
 							<Button
 								variant="outline"
 								tone="neutral"
-								loading={ savingScope === 'site' }
-								loadingAnnouncement={ __( 'Updating site default', 'jetpack-my-jetpack' ) }
-								disabled={ editingDisabled }
-								onClick={ () => saveLayout( 'site' ) }
+								disabled={
+									editingDisabled ||
+									! draft.some( node => node.type === 'item' && ! node.external && ! node.locked )
+								}
+								onClick={ addSeparator }
 							>
-								{ __( 'Set as site default', 'jetpack-my-jetpack' ) }
+								<Icon icon={ plus } size={ 18 } />
+								{ __( 'Add separator', 'jetpack-my-jetpack' ) }
 							</Button>
-						) }
-					</Stack>
-				</Card.Content>
-			</Card.Root>
+							<Button
+								variant="outline"
+								tone="neutral"
+								disabled={
+									editingDisabled ||
+									! draft.some( node => node.type === 'item' && ! node.external && ! node.locked )
+								}
+								onClick={ alphabetizeSections }
+							>
+								{ __( 'Alphabetize sections', 'jetpack-my-jetpack' ) }
+							</Button>
+						</div>
+
+						<Stack className={ styles.actions } direction="row" gap="sm" wrap="wrap">
+							<Button
+								loading={ savingScope === 'user' }
+								loadingAnnouncement={ __( 'Saving my menu', 'jetpack-my-jetpack' ) }
+								disabled={ editingDisabled || ( ! isDirty && model.hasPersonalLayout ) }
+								onClick={ () => saveLayout( 'user' ) }
+							>
+								{ __( 'Save my menu', 'jetpack-my-jetpack' ) }
+							</Button>
+							{ userIsAdmin && (
+								<Button
+									variant="outline"
+									tone="neutral"
+									loading={ savingScope === 'site' }
+									loadingAnnouncement={ __( 'Updating site default', 'jetpack-my-jetpack' ) }
+									disabled={ editingDisabled }
+									onClick={ () => saveLayout( 'site' ) }
+								>
+									{ __( 'Set as site default', 'jetpack-my-jetpack' ) }
+								</Button>
+							) }
+						</Stack>
+					</Card.Content>
+				</Card.Root>
+			) : (
+				<Card.Root className={ styles[ 'editor-card' ] }>
+					<Card.Content className={ styles[ 'editor-content' ] }>
+						<div className={ styles[ 'inactive-intro' ] }>
+							<Text variant="body-md">
+								{ __(
+									'Explore products that are not currently in your Jetpack menu. Activate one to add it below My Jetpack.',
+									'jetpack-my-jetpack'
+								) }
+							</Text>
+						</div>
+						<div
+							className={ styles[ 'inactive-list' ] }
+							role="list"
+							aria-label={ __( 'Inactive Jetpack products', 'jetpack-my-jetpack' ) }
+						>
+							{ catalogState.inactiveItems.length > 0 ? (
+								catalogState.inactiveItems.map( item => {
+									const product = item.productSlug ? products[ item.productSlug ] : undefined;
+									const moduleSlug = item.productSlug
+										? getMenuProductModuleSlug( item.productSlug )
+										: '';
+
+									return (
+										<InactiveProductRow
+											key={ item.id }
+											canManage={ userIsAdmin }
+											item={ item }
+											module={ modules[ moduleSlug ] }
+											product={ product }
+											onActivated={ handleProductActivated }
+											onActivationError={ handleProductActivationError }
+										/>
+									);
+								} )
+							) : (
+								<div className={ styles[ 'inactive-empty' ] }>
+									<Text variant="body-md">
+										{ __( 'All available products are active.', 'jetpack-my-jetpack' ) }
+									</Text>
+								</div>
+							) }
+						</div>
+					</Card.Content>
+				</Card.Root>
+			) }
 
 			<div className={ styles[ 'screen-reader-status' ] } aria-live="polite" aria-atomic="true">
 				{ announcement }

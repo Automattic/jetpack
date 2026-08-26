@@ -7,6 +7,9 @@ export type AdminMenuItem = {
 	customizable: boolean;
 	hidden: boolean;
 	external: boolean;
+	registered: boolean;
+	productSlug?: string | null;
+	newlyActivated?: boolean;
 	group?: string;
 	groupLabel?: string;
 };

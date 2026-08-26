@@ -1,5 +1,6 @@
 import {
 	addCustomSeparator,
+	alphabetizeMenuSections,
 	buildMenuSequence,
 	hasDraftChanged,
 	moveEditableNode,
@@ -8,6 +9,7 @@ import {
 	serializeDraftLayout,
 	updateCustomSeparator,
 } from '../menu-sequence';
+import { insertActivatedItem } from '../product-catalog';
 import type { AdminMenuItem, AdminMenuSeparator } from '../types';
 
 const makeMenuItem = (
@@ -23,6 +25,7 @@ const makeMenuItem = (
 	customizable: true,
 	hidden: false,
 	external: false,
+	registered: true,
 	...overrides,
 } );
 
@@ -118,6 +121,36 @@ describe( 'buildMenuSequence', () => {
 
 		expect( sequence.find( node => node.id === 'untitled' ) ).toMatchObject( { title: '' } );
 	} );
+
+	it( 'places a newly activated product first while restoring saved products to their position', () => {
+		const items = makeDefaultItems()
+			.filter( item => item.id !== 'ai' )
+			.map( item =>
+				item.id === 'forms' || item.id === 'scan'
+					? { ...item, hasSavedOrder: true, order: item.id === 'forms' ? 10 : 20 }
+					: item
+			);
+		const catalogItem = makeMenuItem( 'ai', 'AI Assistant', { registered: false } );
+
+		const newlyActivated = buildMenuSequence( insertActivatedItem( items, catalogItem ), {} );
+		expect( newlyActivated.slice( 1, 5 ).map( node => node.id ) ).toEqual( [
+			'base-products-start',
+			'ai',
+			'forms',
+			'scan',
+		] );
+
+		const restored = buildMenuSequence(
+			insertActivatedItem( items, { ...catalogItem, hasSavedOrder: true, order: 15 } ),
+			{}
+		);
+		expect( restored.slice( 1, 5 ).map( node => node.id ) ).toEqual( [
+			'base-products-start',
+			'forms',
+			'ai',
+			'scan',
+		] );
+	} );
 } );
 
 describe( 'editing a menu sequence', () => {
@@ -171,6 +204,53 @@ describe( 'editing a menu sequence', () => {
 		expect( layout.separators.security.title ).toBe( '' );
 		expect( layout.separators ).not.toHaveProperty( 'base-products-start' );
 		expect( layout.separators ).not.toHaveProperty( 'base-products-end' );
+	} );
+
+	it( 'preserves preferences for inactive products when serializing the visible draft', () => {
+		const sequence = buildMenuSequence(
+			makeDefaultItems().filter( item => item.id !== 'ai' ),
+			{}
+		);
+		const layout = serializeDraftLayout( sequence, {
+			items: {
+				ai: { hidden: true, order: 35 },
+				forms: { hidden: true, order: 999 },
+			},
+			separators: {},
+		} );
+
+		expect( layout.items.ai ).toEqual( { hidden: true, order: 35 } );
+		expect( layout.items.forms ).toEqual( { hidden: false, order: 0 } );
+	} );
+
+	it( 'alphabetizes each product section without moving separators or protected rows', () => {
+		const sequence = buildMenuSequence(
+			makeDefaultItems().map( item => {
+				if ( item.id === 'scan' ) {
+					return { ...item, hasSavedOrder: true, order: 0, hidden: true };
+				}
+				if ( item.id === 'forms' ) {
+					return { ...item, hasSavedOrder: true, order: 20 };
+				}
+				return item.id === 'ai' ? { ...item, hasSavedOrder: true, order: 40 } : item;
+			} ),
+			{ middle: { id: 'middle', title: 'Second section', order: 30 } }
+		);
+		const alphabetized = alphabetizeMenuSections( sequence );
+
+		expect( alphabetized.map( node => node.id ) ).toEqual( [
+			'my-jetpack',
+			'base-products-start',
+			'forms',
+			'scan',
+			'middle',
+			'ai',
+			'base-products-end',
+			'settings',
+			'jetpack-manage',
+			'cloud',
+		] );
+		expect( alphabetized.find( node => node.id === 'scan' ) ).toMatchObject( { hidden: true } );
 	} );
 
 	it( 'compares normalized drafts for the unsaved state', () => {

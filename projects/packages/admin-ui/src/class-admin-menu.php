@@ -479,11 +479,22 @@ class Admin_Menu {
 		$site_layout         = self::get_site_menu_layout();
 		$user_layout         = self::get_user_menu_layout( $user_id );
 		$has_personal_layout = self::has_user_menu_layout( $user_id );
-		$items               = self::get_registered_menu_items();
+		$registered_items    = self::get_registered_menu_items();
+		$items_by_id         = array();
 
-		if ( empty( $items ) ) {
-			$items = self::get_recommended_menu_catalog_items();
+		foreach ( self::get_recommended_menu_catalog_items() as $catalog_item ) {
+			$item_id                    = $catalog_item['metadata']['id'];
+			$catalog_item['registered'] = false;
+			$items_by_id[ $item_id ]    = $catalog_item;
 		}
+
+		foreach ( $registered_items as $registered_item ) {
+			$item_id                       = $registered_item['metadata']['id'];
+			$registered_item['registered'] = true;
+			$items_by_id[ $item_id ]       = $registered_item;
+		}
+
+		$items = array_values( $items_by_id );
 
 		return array(
 			'featureEnabled'    => self::is_customization_feature_enabled(),
@@ -895,6 +906,7 @@ class Admin_Menu {
 			'id'           => $item_id,
 			'group'        => $group,
 			'group_label'  => $group_label,
+			'product_slug' => ! empty( $metadata['product_slug'] ) ? sanitize_key( $metadata['product_slug'] ) : '',
 			'order'        => isset( $metadata['order'] ) && is_numeric( $metadata['order'] ) ? (int) $metadata['order'] : self::get_position_order( $menu_item ),
 			'customizable' => array_key_exists( 'customizable', $metadata ) ? (bool) $metadata['customizable'] : true,
 			'external'     => array_key_exists( 'external', $metadata ) ? (bool) $metadata['external'] : self::is_external_menu_slug( $menu_item['menu_slug'] ),
@@ -1049,16 +1061,19 @@ class Admin_Menu {
 				'customizable' => false,
 			),
 			'stats'             => array(
-				'group' => 'top',
-				'order' => 10,
+				'group'        => 'top',
+				'order'        => 10,
+				'product_slug' => 'stats',
 			),
 			'forms'             => array(
-				'group' => 'create',
-				'order' => 20,
+				'group'        => 'create',
+				'order'        => 20,
+				'product_slug' => 'jetpack-forms',
 			),
 			'newsletter'        => array(
-				'group' => 'create',
-				'order' => 30,
+				'group'        => 'create',
+				'order'        => 30,
+				'product_slug' => 'newsletter',
 			),
 			'subscribers'       => array(
 				'group'    => 'create',
@@ -1066,36 +1081,43 @@ class Admin_Menu {
 				'external' => true,
 			),
 			'social'            => array(
-				'group' => 'create',
-				'order' => 40,
+				'group'        => 'create',
+				'order'        => 40,
+				'product_slug' => 'social',
 			),
 			'ai'                => array(
-				'group' => 'create',
-				'order' => 50,
+				'group'        => 'create',
+				'order'        => 50,
+				'product_slug' => 'jetpack-ai',
 			),
 			'videopress'        => array(
-				'group' => 'create',
-				'order' => 55,
+				'group'        => 'create',
+				'order'        => 55,
+				'product_slug' => 'videopress',
 			),
 			'backup'            => array(
-				'group' => 'protect',
-				'order' => 60,
+				'group'        => 'protect',
+				'order'        => 60,
+				'product_slug' => 'backup',
 			),
 			'scan'              => array(
-				'group' => 'protect',
-				'order' => 70,
+				'group'        => 'protect',
+				'order'        => 70,
+				'product_slug' => 'scan',
 			),
 			'akismet-anti-spam' => array(
-				'group' => 'protect',
-				'order' => 80,
+				'group'        => 'protect',
+				'order'        => 80,
+				'product_slug' => 'anti-spam',
 			),
 			'activity-log'      => array(
 				'group' => 'manage',
 				'order' => 90,
 			),
 			'search'            => array(
-				'group' => 'manage',
-				'order' => 95,
+				'group'        => 'manage',
+				'order'        => 95,
+				'product_slug' => 'search',
 			),
 			'jetpack-manage'    => array(
 				'group'    => 'manage',
@@ -1232,6 +1254,8 @@ class Admin_Menu {
 				'customizable'  => (bool) $metadata['customizable'],
 				'hidden'        => ! empty( $item_prefs['hidden'] ),
 				'external'      => (bool) $metadata['external'],
+				'productSlug'   => $metadata['product_slug'] ? $metadata['product_slug'] : null,
+				'registered'    => ! empty( $menu_item['registered'] ),
 			);
 		}
 

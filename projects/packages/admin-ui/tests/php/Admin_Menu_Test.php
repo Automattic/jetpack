@@ -376,6 +376,30 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * The customization model combines real registrations with the product catalog.
+	 *
+	 * @return void
+	 */
+	public function test_customization_model_includes_registered_state_and_product_slugs() {
+		wp_set_current_user( self::$admin_user_id );
+		Admin_Menu::add_menu( 'Jetpack Forms', 'Forms', 'edit_pages', 'jetpack-forms-admin', '__return_null', 10 );
+
+		$model = Admin_Menu::get_customization_model( self::$admin_user_id );
+		$items = array();
+		foreach ( $model['items'] as $item ) {
+			$items[ $item['id'] ] = $item;
+		}
+
+		$this->assertTrue( $items['forms']['registered'] );
+		$this->assertSame( 'jetpack-forms', $items['forms']['productSlug'] );
+		$this->assertFalse( $items['ai']['registered'] );
+		$this->assertSame( 'jetpack-ai', $items['ai']['productSlug'] );
+		$this->assertFalse( $items['akismet-anti-spam']['registered'] );
+		$this->assertSame( 'anti-spam', $items['akismet-anti-spam']['productSlug'] );
+		$this->assertArrayHasKey( 'search', $items );
+	}
+
+	/**
 	 * Legacy behavior remains unchanged while customization is unavailable.
 	 *
 	 * @return void

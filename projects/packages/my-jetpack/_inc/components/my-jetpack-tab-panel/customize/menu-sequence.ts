@@ -29,6 +29,9 @@ const isProductItem = ( item: AdminMenuItem ) =>
 	! item.external && item.id !== 'my-jetpack' && item.id !== 'settings';
 
 const compareProducts = ( a: AdminMenuItem, b: AdminMenuItem ) => {
+	if ( a.newlyActivated !== b.newlyActivated ) {
+		return a.newlyActivated ? -1 : 1;
+	}
 	if ( a.hasSavedOrder && b.hasSavedOrder && a.order !== b.order ) {
 		return a.order - b.order;
 	}
@@ -287,10 +290,16 @@ export function updateItemVisibility(
 /**
  * Convert an editor sequence into a persistence payload.
  *
- * @param sequence - Current sequence.
+ * @param sequence       - Current sequence.
+ * @param previousLayout - Resolved layout used to retain non-visible product preferences.
  * @return Layout without derived base separators.
  */
-export function serializeDraftLayout( sequence: MenuNode[] ): AdminMenuLayout {
+export function serializeDraftLayout(
+	sequence: MenuNode[],
+	previousLayout: AdminMenuLayout = { items: {}, separators: {} }
+): AdminMenuLayout {
+	const hasProductRegion = sequence.some( node => node.type === 'item' && isProductItem( node ) );
+
 	return sequence.reduce< AdminMenuLayout >(
 		( layout, node ) => {
 			if ( node.type === 'item' ) {
@@ -308,8 +317,50 @@ export function serializeDraftLayout( sequence: MenuNode[] ): AdminMenuLayout {
 
 			return layout;
 		},
-		{ items: {}, separators: {} }
+		{
+			items: { ...previousLayout.items },
+			separators: hasProductRegion ? {} : { ...previousLayout.separators },
+		}
 	);
+}
+
+/**
+ * Alphabetize each contiguous run of products without moving section boundaries.
+ *
+ * @param sequence - Current menu sequence.
+ * @return Sequence with each product run alphabetized.
+ */
+export function alphabetizeMenuSections( sequence: MenuNode[] ): MenuNode[] {
+	const result = [ ...sequence ];
+	let runStart = -1;
+
+	const sortRun = ( end: number ) => {
+		if ( runStart < 0 ) {
+			return;
+		}
+
+		const sorted = result
+			.slice( runStart, end )
+			.sort( ( a, b ) =>
+				a.type === 'item' && b.type === 'item' ? a.label.localeCompare( b.label ) : 0
+			);
+		result.splice( runStart, sorted.length, ...sorted );
+		runStart = -1;
+	};
+
+	result.forEach( ( node, index ) => {
+		if ( node.type === 'item' && isProductItem( node ) && ! node.locked ) {
+			if ( runStart < 0 ) {
+				runStart = index;
+			}
+			return;
+		}
+
+		sortRun( index );
+	} );
+	sortRun( result.length );
+
+	return normalizeProductRegionOrders( result );
 }
 
 /**
