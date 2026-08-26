@@ -522,6 +522,55 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * A personal layout activates customization without requiring a site default.
+	 *
+	 * @return void
+	 */
+	public function test_personal_layout_activates_customization_without_site_default() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter( Admin_Menu::CUSTOMIZATION_FEATURE_FILTER, '__return_true' );
+		Admin_Menu::update_user_menu_layout(
+			array(
+				'items' => array(
+					'scan' => array( 'order' => 10 ),
+				),
+			),
+			self::$admin_user_id
+		);
+
+		$this->assertTrue( Admin_Menu::is_customization_active() );
+	}
+
+	/**
+	 * Custom separators are normalized before persistence.
+	 *
+	 * @return void
+	 */
+	public function test_menu_layout_sanitizes_custom_separators() {
+		$layout = Admin_Menu::sanitize_menu_layout(
+			array(
+				'separators' => array(
+					'Custom-Section!' => array(
+						'title' => '<b>Protect</b>',
+						'order' => '30',
+					),
+				),
+			)
+		);
+
+		$this->assertSame(
+			array(
+				'custom-section' => array(
+					'id'    => 'custom-section',
+					'title' => 'Protect',
+					'order' => 30,
+				),
+			),
+			$layout['separators']
+		);
+	}
+
+	/**
 	 * User preferences can hide customizable items without affecting access control.
 	 *
 	 * @return void

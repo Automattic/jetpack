@@ -356,9 +356,21 @@ class Admin_Menu {
 		}
 
 		$layout = self::get_site_menu_layout();
-		$active = ! empty( $layout['enabled'] );
+		$active = self::has_user_menu_layout() || ! empty( $layout['enabled'] );
 
 		return (bool) apply_filters( self::CUSTOMIZATION_ACTIVE_FILTER, $active, $layout );
+	}
+
+	/**
+	 * Returns whether a user has saved personal menu preferences.
+	 *
+	 * @param int $user_id User ID. Defaults to the current user.
+	 * @return bool
+	 */
+	private static function has_user_menu_layout( $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+
+		return $user_id > 0 && metadata_exists( 'user', $user_id, self::CUSTOMIZATION_USER_META );
 	}
 
 	/**
@@ -486,9 +498,10 @@ class Admin_Menu {
 	 */
 	public static function sanitize_menu_layout( $layout ) {
 		$sanitized = array(
-			'enabled' => false,
-			'groups'  => array(),
-			'items'   => array(),
+			'enabled'    => false,
+			'groups'     => array(),
+			'items'      => array(),
+			'separators' => array(),
 		);
 
 		if ( ! is_array( $layout ) ) {
@@ -542,6 +555,25 @@ class Admin_Menu {
 				if ( isset( $item['order'] ) && is_numeric( $item['order'] ) ) {
 					$sanitized['items'][ $item_id ]['order'] = (int) $item['order'];
 				}
+			}
+		}
+
+		if ( ! empty( $layout['separators'] ) && is_array( $layout['separators'] ) ) {
+			foreach ( $layout['separators'] as $separator_id => $separator ) {
+				if ( ! is_array( $separator ) ) {
+					continue;
+				}
+
+				$separator_id = sanitize_key( $separator_id );
+				if ( empty( $separator_id ) ) {
+					continue;
+				}
+
+				$sanitized['separators'][ $separator_id ] = array(
+					'id'    => $separator_id,
+					'title' => isset( $separator['title'] ) ? sanitize_text_field( $separator['title'] ) : '',
+					'order' => isset( $separator['order'] ) && is_numeric( $separator['order'] ) ? (int) $separator['order'] : 100,
+				);
 			}
 		}
 
@@ -1042,9 +1074,10 @@ class Admin_Menu {
 	 */
 	private static function get_default_site_menu_layout() {
 		return array(
-			'enabled' => (bool) apply_filters( self::CUSTOMIZATION_DEFAULT_ENABLED_FILTER, false ),
-			'groups'  => self::get_recommended_groups(),
-			'items'   => array(),
+			'enabled'    => (bool) apply_filters( self::CUSTOMIZATION_DEFAULT_ENABLED_FILTER, false ),
+			'groups'     => self::get_recommended_groups(),
+			'items'      => array(),
+			'separators' => array(),
 		);
 	}
 
@@ -1055,9 +1088,10 @@ class Admin_Menu {
 	 */
 	private static function get_default_user_menu_layout() {
 		return array(
-			'enabled' => false,
-			'groups'  => array(),
-			'items'   => array(),
+			'enabled'    => false,
+			'groups'     => array(),
+			'items'      => array(),
+			'separators' => array(),
 		);
 	}
 
@@ -1083,6 +1117,10 @@ class Admin_Menu {
 			foreach ( $override['items'] as $item_id => $item ) {
 				$base['items'][ $item_id ] = array_merge( $base['items'][ $item_id ] ?? array(), $item );
 			}
+		}
+
+		if ( array_key_exists( 'separators', $override ) ) {
+			$base['separators'] = $override['separators'];
 		}
 
 		return $base;
