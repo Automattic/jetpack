@@ -2,6 +2,7 @@ import { Stack } from '@wordpress/ui';
 import { action } from 'storybook/actions';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { defaultTheme, useGlobalChartsContext } from '../../../providers';
+import { useChartScopeElement } from '../../../providers/chart-scope';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -19,7 +20,13 @@ import {
 	extractLegendConfig,
 	type LegendStoryControls,
 } from '../../../stories/legend-config';
-import { formatMetricValue, hexToRgba } from '../../../utils';
+import {
+	formatMetricValue,
+	isValidHexColor,
+	mixHexColors,
+	normalizeColorToHex,
+	resolveCssVariable,
+} from '../../../utils';
 import { SUBPIXEL_TOLERANCE } from '../hooks';
 import LeaderboardChart, { LeaderboardChartUnresponsive } from '../leaderboard-chart';
 import type { ChartLegendConfig, LeaderboardEntry } from '../../../types';
@@ -179,6 +186,7 @@ export const WithOverlayLabel: Story = {
 		data: sampleData,
 		withOverlayLabel: true,
 	},
+	render: args => <LeaderboardChartWithOverlayLabel { ...args } />,
 };
 
 const zeroChangeData: LeaderboardEntry[] = sampleData.map( ( entry, index ) =>
@@ -298,6 +306,7 @@ export const MissingComparisonRowsWithOverlayLabel: Story = {
 			'--a8c-charts-border-radius-leaderboard-bar': '4px',
 		},
 	},
+	render: args => <LeaderboardChartWithOverlayLabel { ...args } />,
 	parameters: {
 		docs: {
 			description: {
@@ -343,7 +352,7 @@ export const Interactive: Story = {
 			'--a8c-charts-border-radius-leaderboard-bar': '4px',
 		},
 	},
-	render: args => <LeaderboardChartWithOverlayLabelImage { ...args } />,
+	render: args => <LeaderboardChartWithOverlayLabel { ...args } />,
 	parameters: {
 		docs: {
 			description: {
@@ -363,6 +372,7 @@ export const MixedInteractivity: Story = {
 		withComparison: true,
 		withOverlayLabel: true,
 	},
+	render: args => <LeaderboardChartWithOverlayLabel { ...args } />,
 	parameters: {
 		docs: {
 			description: {
@@ -560,16 +570,24 @@ export const AdvancedFormatting: Story = {
 	},
 };
 
-const LeaderboardChartWithOverlayLabelImage = ( args: StoryArgs ) => {
-	const { getElementStyles } = useGlobalChartsContext();
+const OVERLAY_LABEL_BAR_TINT = 0.25;
+
+// The label sits on top of the bar, so the bar is tinted rather than filled: at full strength the series colour competes with the label text for contrast.
+//
+// Composited against the background rather than passed as `rgba()`, because `primaryColor` cannot carry alpha — `resolveColor` normalises every override through `normalizeColorToHex`, whose `formatHex()` drops it. Mixing the surface 25% toward the series colour is the same pixel.
+const LeaderboardChartWithOverlayLabel = ( args: StoryArgs ) => {
+	const scopeElement = useChartScopeElement();
+	const { getElementStyles, theme } = useGlobalChartsContext();
 	const { color: primaryColor } = getElementStyles( {
 		index: 0,
 		overrideColor: args.primaryColor,
 	} );
 
-	const primaryColorWithAlpha = hexToRgba( primaryColor, 0.08 );
+	const background = normalizeColorToHex( theme.backgroundColor, scopeElement, resolveCssVariable );
+	const surface = isValidHexColor( background ) ? background : '#fff';
+	const tintedPrimaryColor = mixHexColors( surface, primaryColor, OVERLAY_LABEL_BAR_TINT );
 
-	return <LeaderboardChart { ...args } primaryColor={ primaryColorWithAlpha } />;
+	return <LeaderboardChart { ...args } primaryColor={ tintedPrimaryColor } />;
 };
 
 export const OverlayLabelWithImage: Story = {
@@ -591,7 +609,7 @@ export const OverlayLabelWithImage: Story = {
 			'--a8c-charts-border-radius-leaderboard-bar': '4px',
 		},
 	},
-	render: args => <LeaderboardChartWithOverlayLabelImage { ...args } />,
+	render: args => <LeaderboardChartWithOverlayLabel { ...args } />,
 };
 
 export const WithLegend: Story = {
