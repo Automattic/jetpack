@@ -151,7 +151,7 @@ export function buildEditorConfig( bundle, data ) {
 		// site and the shadow blog are the same, and wrong on Atomic and self-hosted. The page
 		// remains a fallback so this degrades to the previous behaviour against a bundle that
 		// does not carry one yet. See NL-871.
-		globalStylesPostId: bundle.global_styles?.post_id ?? globalStylesPostId ?? null,
+		globalStylesPostId: getGlobalStylesPostId( bundle ) ?? globalStylesPostId ?? null,
 	};
 }
 
@@ -196,6 +196,27 @@ export function buildPreloadMap( bundle, templateId ) {
 }
 
 /**
+ * The id of the global-styles record the bundle points at, or null when it sent no usable one.
+ *
+ * Validated rather than trusted because this value is interpolated into the preload's path keys.
+ * The keys are deliberately exact — the editor loads the *site's own* global-styles record
+ * alongside ours, and that one has to keep reaching the network untouched — so an id carrying a
+ * query string or a slash would silently widen what we answer for. Rejecting anything that is not
+ * a positive integer keeps the code to the invariant its callers document.
+ *
+ * WordPress.com sends an int today and the filter behind this route is only consulted on Simple,
+ * so this is defence in depth rather than a reachable defect. It costs a comparison.
+ *
+ * @param {object} bundle - The response from the bootstrap route.
+ * @return {number|null} The record's id, or null.
+ */
+function getGlobalStylesPostId( bundle ) {
+	const id = bundle?.global_styles?.post_id;
+
+	return Number.isInteger( id ) && id > 0 ? id : null;
+}
+
+/**
  * The global-styles record the editor reads its design from.
  *
  * Both halves are required. The package's selector guards on
@@ -223,7 +244,7 @@ export function buildPreloadMap( bundle, templateId ) {
  */
 function globalStylesPreloads( bundle ) {
 	const globalStyles = bundle?.global_styles;
-	const id = globalStyles?.post_id;
+	const id = getGlobalStylesPostId( bundle );
 
 	if ( ! id || ! globalStyles?.record ) {
 		return {};
