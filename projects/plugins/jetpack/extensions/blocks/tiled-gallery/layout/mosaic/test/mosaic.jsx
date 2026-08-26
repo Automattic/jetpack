@@ -2,15 +2,22 @@ import { render } from '@testing-library/react';
 import Mosaic from '../index';
 
 let observerCallback;
+let mockObserved;
 
 jest.mock( 'resize-observer-polyfill', () => {
 	return class ResizeObserverMock {
 		constructor( cb ) {
 			observerCallback = cb;
 		}
-		observe() {}
-		unobserve() {}
-		disconnect() {}
+		observe( el ) {
+			mockObserved?.add( el );
+		}
+		unobserve( el ) {
+			mockObserved?.delete( el );
+		}
+		disconnect() {
+			mockObserved?.clear();
+		}
 	};
 } );
 
@@ -91,6 +98,81 @@ describe( 'Mosaic resize loop guard', () => {
 		// A genuine resize is still honored.
 		fireResize( 560 );
 		expect( onResize ).toHaveBeenCalledTimes( 2 );
+	} );
+} );
+
+describe( 'Mosaic container observation', () => {
+	let rafSpy;
+	let cafSpy;
+	let computedStyleSpy;
+	let pendingRaf;
+
+	beforeEach( () => {
+		mockObserved = new Set();
+		pendingRaf = undefined;
+		// Hold the queued pass instead of running it, so the test can decide what the
+		// canvas looks like by the time it runs.
+		rafSpy = jest.spyOn( window, 'requestAnimationFrame' ).mockImplementation( cb => {
+			pendingRaf = cb;
+			return 1;
+		} );
+		cafSpy = jest.spyOn( window, 'cancelAnimationFrame' ).mockImplementation( () => {} );
+	} );
+
+	afterEach( () => {
+		rafSpy.mockRestore();
+		cafSpy.mockRestore();
+		computedStyleSpy?.mockRestore();
+		computedStyleSpy = undefined;
+		mockObserved = undefined;
+	} );
+
+	it( 'observes the flex container once the editor has styled the canvas (JETPACK-1726)', () => {
+		// The editor styles the canvas *after* the block mounts, so on the first frame
+		// the flex ancestors still compute as plain blocks and the walk finds nothing.
+		// Resolving the anchor only at mount leaves the observer watching just the
+		// gallery — and a gallery whose own box is content-sized never changes on its
+		// own, so no pass ever runs and it keeps a stale width forever.
+		const flexContainer = document.createElement( 'div' );
+		const item = document.createElement( 'div' );
+		flexContainer.appendChild( item );
+		document.body.appendChild( flexContainer );
+		Object.defineProperty( flexContainer, 'clientWidth', { configurable: true, get: () => 800 } );
+
+		let stylesApplied = false;
+		computedStyleSpy = jest.spyOn( window, 'getComputedStyle' ).mockImplementation( el => ( {
+			display: stylesApplied && el === flexContainer ? 'flex' : 'block',
+			flexDirection: 'row',
+			columnGap: 'normal',
+		} ) );
+
+		const images = [ { width: 100, height: 100 } ];
+		render(
+			<Mosaic
+				align="center"
+				columns={ 1 }
+				images={ images }
+				layoutStyle="rectangular"
+				renderedImages={ images.map( ( img, i ) => (
+					<div className="tiled-gallery__item" key={ i }>
+						<img data-width="100" data-height="100" alt="" />
+					</div>
+				) ) }
+				onResize={ () => {} }
+			/>,
+			{ container: item }
+		);
+
+		// Mount happened before the canvas was styled: nothing but the gallery.
+		expect( mockObserved.has( flexContainer ) ).toBe( false );
+
+		// The editor styles the canvas, then the queued pass runs.
+		stylesApplied = true;
+		pendingRaf();
+
+		expect( mockObserved.has( flexContainer ) ).toBe( true );
+
+		document.body.removeChild( flexContainer );
 	} );
 } );
 
@@ -244,5 +326,195 @@ describe( 'Mosaic layout-width anchoring', () => {
 		const mosaic = instanceFor( galleryA );
 		expect( mosaic.getFlexContainer() ).toBe( container );
 		expect( mosaic.getLayoutWidth() ).toBe( 390 );
+	} );
+
+	it( 'skips a flex ancestor that is itself content-sized and keeps climbing (JETPACK-1726)', () => {
+		// stack(flex, column, align-items:center, 1000)
+		//   > columns(flex, row) > column > wrapper > gallery
+		//
+		// `columns` is a cross-axis child of a column-direction flex container whose
+		// align-items is not stretch, so its width is shrink-to-fit — decided by the
+		// gallery it contains. Anchoring to it feeds our own layout back into the
+		// width we lay out against, and the gallery grows without bound.
+		const stack = document.createElement( 'div' );
+		const columns = document.createElement( 'div' );
+		const column = document.createElement( 'div' );
+		const wrapper = document.createElement( 'div' );
+		const gallery = document.createElement( 'div' );
+		stack.appendChild( columns );
+		columns.appendChild( column );
+		column.appendChild( wrapper );
+		wrapper.appendChild( gallery );
+
+		defineClientWidth( stack, 1000 );
+		defineClientWidth( columns, 7641 ); // already ballooned by the feedback loop
+		defineClientWidth( gallery, 7633 );
+
+		computedStyleSpy = jest.spyOn( window, 'getComputedStyle' ).mockImplementation( el => {
+			if ( el === stack ) {
+				return {
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'center',
+					columnGap: 'normal',
+				};
+			}
+			if ( el === columns ) {
+				return { display: 'flex', flexDirection: 'row', alignSelf: 'auto', columnGap: 'normal' };
+			}
+			return { display: 'block', columnGap: 'normal' };
+		} );
+
+		const mosaic = instanceFor( gallery );
+		// The content-sized `columns` is skipped in favour of the stack, whose own
+		// width is set by the layout around it.
+		expect( mosaic.isContentSized( columns, window ) ).toBe( true );
+		expect( mosaic.getFlexContainer() ).toBe( stack );
+		expect( mosaic.getLayoutWidth() ).toBe( 1000 );
+	} );
+
+	it( 'skips a Row nested in a Row, which is shrink-to-fit on the main axis (JETPACK-1726)', () => {
+		// outerRow(flex, row, 645) > innerRow(flex, row, flex:0 1 auto) > wrapper > gallery
+		//
+		// Width is the main axis here, so `innerRow` neither grows nor has a definite
+		// basis: it is shrink-to-fit, sized by the gallery inside it. Anchoring to it
+		// is circular and the gallery grows without bound.
+		const outerRow = document.createElement( 'div' );
+		const innerRow = document.createElement( 'div' );
+		const wrapper = document.createElement( 'div' );
+		const gallery = document.createElement( 'div' );
+		outerRow.appendChild( innerRow );
+		innerRow.appendChild( wrapper );
+		wrapper.appendChild( gallery );
+
+		defineClientWidth( outerRow, 645 );
+		defineClientWidth( innerRow, 18189 ); // already ballooned by the feedback loop
+
+		computedStyleSpy = jest.spyOn( window, 'getComputedStyle' ).mockImplementation( el => {
+			if ( el === outerRow ) {
+				return { display: 'flex', flexDirection: 'row', flexGrow: '0', columnGap: 'normal' };
+			}
+			if ( el === innerRow ) {
+				return {
+					display: 'flex',
+					flexDirection: 'row',
+					flexGrow: '0',
+					flexBasis: 'auto',
+					columnGap: 'normal',
+				};
+			}
+			return { display: 'block', columnGap: 'normal' };
+		} );
+
+		const mosaic = instanceFor( gallery );
+		expect( mosaic.isContentSized( innerRow, window ) ).toBe( true );
+		expect( mosaic.getFlexContainer() ).toBe( outerRow );
+		// One flex item in the outer row, so the gallery gets its full width.
+		expect( mosaic.getLayoutWidth() ).toBe( 645 );
+	} );
+
+	it( 'still anchors to a row-direction container whose item grows to fill it', () => {
+		// Same shape, but innerRow has flex-grow: 1, so its width is handed to it by
+		// outerRow rather than taken from its content — a perfectly good anchor.
+		const outerRow = document.createElement( 'div' );
+		const innerRow = document.createElement( 'div' );
+		const wrapper = document.createElement( 'div' );
+		const gallery = document.createElement( 'div' );
+		outerRow.appendChild( innerRow );
+		innerRow.appendChild( wrapper );
+		wrapper.appendChild( gallery );
+
+		defineClientWidth( outerRow, 645 );
+		defineClientWidth( innerRow, 645 );
+
+		computedStyleSpy = jest.spyOn( window, 'getComputedStyle' ).mockImplementation( el => {
+			if ( el === outerRow ) {
+				return { display: 'flex', flexDirection: 'row', flexGrow: '0', columnGap: 'normal' };
+			}
+			if ( el === innerRow ) {
+				return {
+					display: 'flex',
+					flexDirection: 'row',
+					flexGrow: '1',
+					flexBasis: 'auto',
+					columnGap: 'normal',
+				};
+			}
+			return { display: 'block', columnGap: 'normal' };
+		} );
+
+		const mosaic = instanceFor( gallery );
+		expect( mosaic.isContentSized( innerRow, window ) ).toBe( false );
+		expect( mosaic.getFlexContainer() ).toBe( innerRow );
+		expect( mosaic.getLayoutWidth() ).toBe( 645 );
+	} );
+
+	it( 'still anchors to a nested flex container that is stretched by its parent', () => {
+		// Same shape, but the stack stretches its children, so `columns` fills the
+		// stack's width and remains a perfectly good anchor.
+		const stack = document.createElement( 'div' );
+		const columns = document.createElement( 'div' );
+		const column = document.createElement( 'div' );
+		const gallery = document.createElement( 'div' );
+		stack.appendChild( columns );
+		columns.appendChild( column );
+		column.appendChild( gallery );
+
+		defineClientWidth( stack, 1000 );
+		defineClientWidth( columns, 1000 );
+
+		computedStyleSpy = jest.spyOn( window, 'getComputedStyle' ).mockImplementation( el => {
+			if ( el === stack ) {
+				return {
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'stretch',
+					columnGap: 'normal',
+				};
+			}
+			if ( el === columns ) {
+				return { display: 'flex', flexDirection: 'row', alignSelf: 'auto', columnGap: 'normal' };
+			}
+			return { display: 'block', columnGap: 'normal' };
+		} );
+
+		const mosaic = instanceFor( gallery );
+		expect( mosaic.isContentSized( columns, window ) ).toBe( false );
+		expect( mosaic.getFlexContainer() ).toBe( columns );
+		expect( mosaic.getLayoutWidth() ).toBe( 1000 );
+	} );
+
+	it( 'gives a stacked gallery the full width instead of a share of it (JETPACK-1726)', () => {
+		// stack(flex, column, 1000) > [paragraph, wrapper > gallery, paragraph]
+		// Stacked items sit one above the other, so the gallery gets the whole 1000px.
+		// Dividing by the item count would strand it at a third of the space.
+		const stack = document.createElement( 'div' );
+		const before = document.createElement( 'p' );
+		const wrapper = document.createElement( 'div' );
+		const after = document.createElement( 'p' );
+		const gallery = document.createElement( 'div' );
+		stack.appendChild( before );
+		stack.appendChild( wrapper );
+		stack.appendChild( after );
+		wrapper.appendChild( gallery );
+
+		defineClientWidth( stack, 1000 );
+		defineClientWidth( gallery, 21 );
+
+		computedStyleSpy = jest.spyOn( window, 'getComputedStyle' ).mockImplementation( el => {
+			if ( el === stack ) {
+				return {
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'stretch',
+					columnGap: '20px',
+				};
+			}
+			return { display: 'block', columnGap: 'normal' };
+		} );
+
+		const mosaic = instanceFor( gallery );
+		expect( mosaic.getFlexContainer() ).toBe( stack );
+		expect( mosaic.getLayoutWidth() ).toBe( 1000 );
 	} );
 } );
