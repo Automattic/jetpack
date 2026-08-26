@@ -84,11 +84,14 @@ The outer component must still pass host `attributes` into `<WidgetRoot>`. Do no
 drop them just because the inner component needs none of the widget's own settings;
 otherwise host-provided `reportParams` and comparison controls are discarded.
 
-**Exception — a widget that hosts its own date control.** The section sets
-`date_filter_options.with_header_date_control` to `false`, and the widget reads and
-writes the shared URL through `useReportDateFilters( '/' )`. Do not forward host
-`attributes`: `WidgetRoot` would prefer their `reportParams` over the URL. Mount tests
-and stories under a matched route; `widgets/wordads-chart-tabs/` and its
-`route-harness.tsx` are the reference.
+**A widget that hosts its own date control.** A section can set
+`date_filter_options.with_header_date_control` to `false`, which renders no header date
+control and hands it to that section's widgets. Such a widget does not read the URL
+itself: it declares a `reportParams` attribute with `relevance: 'high'` and
+`Edit: createReportParamsField( … )` from `@jetpack-premium-analytics/fields`, and the
+host renders that control in the widget's own header. `WidgetRoot` already prefers
+`attributes.reportParams` over the URL, so the rule above still holds — forward host
+attributes as usual, and the control and the body read one source.
+`widgets/wordads-chart-tabs/` is the reference.
 
 <!-- TODO: link to the canonical widget API declaration (contract types). -->

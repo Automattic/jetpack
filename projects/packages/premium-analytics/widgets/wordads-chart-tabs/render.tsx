@@ -3,8 +3,6 @@
  */
 import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { megaphone } from '@jetpack-premium-analytics/icons';
-import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
@@ -20,7 +18,6 @@ import { __ } from '@wordpress/i18n';
 import styles from './style.module.css';
 import useWordAdsChart, { type WordAdsPeriod } from './use-wordads-chart';
 import type { WordAdsChartTabsAttributes } from './widget';
-import type { FunctionComponent } from 'react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type WordAdsChartTabsWidgetProps = WidgetRenderProps< WordAdsChartTabsAttributes >;
@@ -41,8 +38,6 @@ const WORDADS_PERIODS = [
 
 function WordAdsChartTabsInner() {
 	const { reportParams } = useWidgetRootContext();
-	// This widget only mounts on the dashboard's matched `/` route.
-	const dateFilters = useReportDateFilters( '/' );
 	const period: WordAdsPeriod = defaultPeriodForInterval( reportParams.interval, WORDADS_PERIODS );
 
 	const { metrics, isLoading, isFetching, isError, isEmpty, refetch } = useWordAdsChart(
@@ -52,10 +47,6 @@ function WordAdsChartTabsInner() {
 
 	return (
 		<div className={ styles.root }>
-			<div className={ styles.controls }>
-				<DateFiltersPanel { ...dateFilters } withIntervalControl />
-			</div>
-
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
@@ -85,18 +76,16 @@ function WordAdsChartTabsInner() {
 	);
 }
 
-/**
- * Ignore host attributes so the URL written by this widget's controls remains
- * the source of its report parameters.
- */
-const WordAdsChartTabs: FunctionComponent< WordAdsChartTabsWidgetProps > = () => {
+export default function WordAdsChartTabs( { attributes = {} }: WordAdsChartTabsWidgetProps ) {
 	return (
+		// The chart has no comparison series to draw, so it must never offer one —
+		// regardless of what the hosting section declares. Outside `WidgetRoot` so
+		// the scope is already set when it strips the comparison params, which also
+		// keeps the header control from offering a comparison the chart ignores.
 		<ReportScopeProvider offersComparison={ false }>
-			<WidgetRoot attributes={ {} }>
+			<WidgetRoot attributes={ attributes }>
 				<WordAdsChartTabsInner />
 			</WidgetRoot>
 		</ReportScopeProvider>
 	);
-};
-
-export default WordAdsChartTabs;
+}

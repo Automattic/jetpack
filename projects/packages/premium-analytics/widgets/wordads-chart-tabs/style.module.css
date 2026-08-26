@@ -5,17 +5,3 @@
 	height: 100%;
 	overflow: hidden;
 }
-
-.controls {
-	display: flex;
-	flex-shrink: 0;
-	margin-block-end: var(--wpds-dimension-gap-md);
-
-	/*
-	 * The panel fills the row, so end-anchoring has to happen inside its own
-	 * row rather than through this container's alignment.
-	 */
-	:global(.date-filters-panel__row) {
-		justify-content: flex-end;
-	}
-}

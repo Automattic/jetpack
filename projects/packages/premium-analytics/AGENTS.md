@@ -289,9 +289,7 @@ Notes:
 The render component receives only widget host props. Type it with
 `WidgetRenderProps<T>` from `@wordpress/widget-primitives`, default `attributes`, and pass
 host-provided attributes into `<WidgetRoot>`. This is how Storybook and the dashboard inject
-`reportParams` for date range and comparison state. The one exception is a widget that hosts
-its own date control (see `.agents/rules/widgets.md`), which forwards none so its controls and
-its chart stay on the URL.
+`reportParams` for date range and comparison state.
 
 ```tsx
 import {

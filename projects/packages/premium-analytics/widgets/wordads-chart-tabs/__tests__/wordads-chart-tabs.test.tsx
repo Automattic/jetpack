@@ -3,16 +3,60 @@
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react';
+import { render, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import WordAdsChartTabsWidget from '../render';
 import useWordAdsChart from '../use-wordads-chart';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+
+// The chart itself is visx SVG rendering, outside this widget's concern. Keep
+// the metrics observable so the tests can assert what the widget charts.
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
+	MetricTabsChart: ( {
+		metrics,
+		chartType,
+		pointsAreWallClocks,
+	}: {
+		metrics: {
+			key: string;
+			label: string;
+			value: number;
+			current: { date: Date; value: number }[];
+			dataFormat?: { type: string };
+		}[];
+		chartType?: string;
+		pointsAreWallClocks?: boolean;
+	} ) => (
+		<div
+			data-testid="metric-tabs-chart"
+			data-chart-type={ String( chartType ) }
+			data-wall-clocks={ String( pointsAreWallClocks ) }
+			data-metrics={ JSON.stringify(
+				metrics.map( metric => ( {
+					key: metric.key,
+					label: metric.label,
+					value: metric.value,
+					format: metric.dataFormat?.type,
+					values: metric.current.map( point => point.value ),
+					firstDate: metric.current[ 0 ]?.date.toISOString(),
+					days: metric.current.map( point => point.date.getDate() ),
+				} ) )
+			) }
+		/>
+	),
+} ) );
+
+// WidgetRoot reads URL search params as a fallback for report params; outside
+// a matched route the real hook warns and throws. These tests supply the params
+// as attributes, the way the widget's header control saves them.
+jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
@@ -145,5 +189,70 @@ describe( 'useWordAdsChart', () => {
 
 		expect( result.current.metrics[ 0 ].previous ).toBeUndefined();
 		expect( result.current.metrics[ 0 ].previousValue ).toBeUndefined();
+	} );
+} );
+
+describe( 'WordAdsChartTabsWidget', () => {
+	beforeEach( () => {
+		queryClient.clear();
+		mockApiFetch.mockReset();
+		mockApiFetch.mockResolvedValue( PRIMARY_RESPONSE );
+	} );
+
+	// The widget's body carries no Group by control: the bucket size is the one
+	// its header control saved, clamped to what this chart supports.
+	it( 'buckets by the interval its attributes carry', async () => {
+		render(
+			<WordAdsChartTabsWidget
+				attributes={ {
+					reportParams: { from: '2026-05-01', to: '2026-06-30', interval: 'week' },
+				} }
+			/>
+		);
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+
+		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+		expect( requestedPath ).toContain( 'unit=week' );
+	} );
+
+	// `quarter` is an interval the range allows and the header control can save,
+	// but this chart has no bucket for, so it clamps to the nearest one it does.
+	it( 'clamps an unsupported interval to the closest supported bucket', async () => {
+		render(
+			<WordAdsChartTabsWidget
+				attributes={ {
+					reportParams: { from: '2023-01-01', to: '2026-06-30', interval: 'quarter' },
+				} }
+			/>
+		);
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+
+		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+		expect( requestedPath ).toContain( 'unit=month' );
+	} );
+
+	// The widget scopes itself with `offersComparison={ false }`, so `WidgetRoot`
+	// strips the comparison params before the chart fetches — stripped params
+	// must mean no second request, not a request with the dates removed.
+	it( 'issues one request even when its attributes carry a comparison', async () => {
+		render(
+			<WordAdsChartTabsWidget
+				attributes={ {
+					reportParams: {
+						from: '2026-05-01',
+						to: '2026-06-30',
+						interval: 'month',
+						comp: '1',
+						compare_from: '2026-03-01',
+						compare_to: '2026-03-31',
+					},
+				} }
+			/>
+		);
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
 	} );
 } );
