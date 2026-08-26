@@ -141,14 +141,14 @@ describe( 'reportParamsToStatsQueryParams', () => {
 	} );
 
 	it( 'maps the semantic end date to the Stats API date param', () => {
-		expect(
-			statsQueryParamsToApiParams( {
-				period: 'day',
-				start_date: '2026-06-01',
-				end_date: '2026-06-07',
-				days: 7,
-			} )
-		).toEqual(
+		const apiParams = statsQueryParamsToApiParams( {
+			period: 'day',
+			start_date: '2026-06-01',
+			end_date: '2026-06-07',
+			days: 7,
+		} );
+
+		expect( apiParams ).toEqual(
 			expect.objectContaining( {
 				period: 'day',
 				date: '2026-06-07',
@@ -156,6 +156,11 @@ describe( 'reportParamsToStatsQueryParams', () => {
 				days: 7,
 			} )
 		);
+		// Load-bearing beyond naming: the shared time-series sanitizer trims to
+		// a window only when it receives BOTH start_date and end_date, so
+		// end_date must never survive into API params or every range-bounded
+		// endpoint would start dropping buckets.
+		expect( apiParams ).not.toHaveProperty( 'end_date' );
 	} );
 
 	it( 'falls back to one day for invalid date ranges', () => {

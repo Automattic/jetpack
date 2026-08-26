@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Email timeline: request only the hourly buckets the selected window needs and trim the chart and totals to that window.
+Email timeline: request the smallest hourly window the endpoint can serve and trim the chart and totals to the selected window.

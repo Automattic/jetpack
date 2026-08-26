@@ -58,7 +58,9 @@ function emailTimeSeriesQuery(
 	const emailParams: StatsProxyParams = {
 		period,
 		quantity:
-			period === 'hour' ? 24 * ( days - 1 ) + endHourOfDay( statsParams.end_date ) + 1 : days,
+			period === 'hour'
+				? Math.max( 1, 24 * ( days - 1 ) + endHourOfDay( statsParams.end_date ) + 1 )
+				: days,
 		...( statsParams.start_date ? { date: statsParams.start_date } : {} ),
 		stats_fields: 'timeline',
 	};

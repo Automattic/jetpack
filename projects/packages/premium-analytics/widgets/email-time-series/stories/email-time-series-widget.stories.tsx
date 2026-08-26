@@ -115,7 +115,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Email performance" widget. Draws a single sent email\'s opens or clicks per day as a line chart, spanning the dashboard date range — the chart section of the legacy email detail page. The bucket size follows the page\'s chart interval control; weekly and monthly grouping aggregate the daily buckets client-side because the endpoint only reports hourly/daily. Scoped to one email via a mocked `reportParams.post_id`. The post detail page has no comparison control, so comparison report params are ignored.',
+					'The "Email performance" widget. Draws a single sent email\'s opens or clicks per day as a line chart, spanning the dashboard date range — the chart section of the legacy email detail page. The bucket size follows the page\'s chart interval control: an hourly window (the last-24-hours preset) draws the hourly buckets directly, while weekly and monthly grouping aggregate the daily buckets client-side because the endpoint only reports hourly/daily. Scoped to one email via a mocked `reportParams.post_id`. The post detail page has no comparison control, so comparison report params are ignored.',
 			},
 		},
 	},
@@ -158,10 +158,10 @@ export const ByWeeks: Story = {
  * days. The endpoint anchors its hourly buckets on the start day's midnight,
  * so the mock returns buckets from before the window opens — the data layer
  * trims them, and the chart draws exactly the selected 24 hours (WOOA7S-1840).
- * The page interval is pinned to `hour` by the preset, so the interval
- * control is hidden here.
+ * The preset pins the page interval to `hour`, so the interval control is
+ * hidden here and no interval arg is wired.
  */
-export const LastTwentyFourHours: Story = {
+export const LastTwentyFourHours: StoryObj< Omit< EmailTimeSeriesStoryControls, 'interval' > > = {
 	render: ( { metric, chartType } ) => (
 		<EmailTimeSeriesRender
 			attributes={ {
@@ -174,8 +174,8 @@ export const LastTwentyFourHours: Story = {
 			} }
 		/>
 	),
-	args: { metric: 'opens', interval: 'day', chartType: 'line' },
-	argTypes: { interval: { table: { disable: true } } },
+	args: { metric: 'opens', chartType: 'line' },
+	parameters: { controls: { exclude: [ 'interval' ] } },
 	decorators: [ withWidgetCanvas ],
 };
 

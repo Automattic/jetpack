@@ -263,20 +263,35 @@ function getTimeSeriesSummarySidecars( response: StatsRecord ) {
 	};
 }
 
+// The timestamp shapes report params can carry (a subset of the datetime
+// package's SITE_TIMESTAMP): a calendar date, optionally followed by a
+// T- or space-separated wall time with optional seconds; any offset or
+// milliseconds after that are irrelevant to a wall-clock bound.
+const WALL_CLOCK_PARTS = /^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?)?/;
+
 // A trim-window bound in the same timezone-naive wall-clock shape the bucket
 // labels carry: the value's own date and time parts as written, any offset
-// ignored. A bare date widens to the whole day via the fallback time.
+// ignored. A bare date widens to the whole day via the fallback time, whose
+// seconds also fill in for a seconds-less time.
 function toWallClockBound( value: string | undefined, fallbackTime: string ) {
-	const datePart = getDatePart( value );
+	const match = typeof value === 'string' ? WALL_CLOCK_PARTS.exec( value.trim() ) : null;
 
-	if ( ! datePart || ! /^\d{4}-\d{2}-\d{2}$/.test( datePart ) ) {
+	if ( ! match ) {
 		return undefined;
 	}
 
-	const time = typeof value === 'string' && value.match( /[T ](\d{2}:\d{2}:\d{2})/ );
+	const [ , datePart, hours, minutes, seconds ] = match;
+	const time = hours
+		? `${ hours }:${ minutes }:${ seconds ?? fallbackTime.slice( 6 ) }`
+		: fallbackTime;
 
-	return formatDatePartWithTime( datePart, time ? time[ 1 ] : fallbackTime );
+	return formatDatePartWithTime( datePart, time );
 }
+
+// Bucket bounds are comparable against a window bound only in this shape;
+// a row whose bounds fall outside it (an unparseable period label echoed
+// back verbatim) is kept rather than silently discarded.
+const isWallClockStamp = ( value: string ) => /^\d{4}-\d{2}-\d{2}T/.test( value );
 
 export function isStatsTimeSeriesPayload( payload: unknown ) {
 	const response = coerceStatsRecord( payload );
@@ -312,16 +327,19 @@ export function sanitizeStatsTimeSeriesResponse(
 	// the start day's midnight regardless of the requested time of day, so a
 	// mid-day window comes back with leading out-of-window buckets. Request
 	// params never reach a sanitizer as `end_date` (statsQueryParamsToApiParams
-	// renames it to `date`), so only callers passing a window through
-	// `sanitizerParams` opt in.
+	// renames it to `date` — an invariant pinned in the stats-params tests), so
+	// only callers passing a window through `sanitizerParams` opt in. Rows
+	// whose bounds aren't comparable wall clocks are kept, not dropped.
 	const windowStart = toWallClockBound( query?.start_date, '00:00:00' );
 	const windowEnd = toWallClockBound( query?.end_date, '23:59:59' );
 	const kept =
 		windowStart && windowEnd
 			? buckets.filter(
 					( { range } ) =>
-						compareBucketBounds( range.date_end, windowStart ) >= 0 &&
-						compareBucketBounds( range.date_start, windowEnd ) <= 0
+						! isWallClockStamp( range.date_start ) ||
+						! isWallClockStamp( range.date_end ) ||
+						( compareBucketBounds( range.date_end, windowStart ) >= 0 &&
+							compareBucketBounds( range.date_start, windowEnd ) <= 0 )
 			  )
 			: buckets;
 	const summary = kept.reduce< Record< string, number > >( ( totals, { row } ) => {

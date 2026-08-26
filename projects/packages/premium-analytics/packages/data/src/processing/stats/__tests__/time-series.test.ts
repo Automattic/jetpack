@@ -273,6 +273,65 @@ describe( 'Stats time-series normalizer', () => {
 		);
 	} );
 
+	it( 'reads window bounds as the wall clock written, in every accepted timestamp shape', () => {
+		// Report params can carry a space-separated time or omit the seconds
+		// (the datetime package's SITE_TIMESTAMP shapes); the trim must read
+		// the same wall clock from all of them.
+		const timeline = {
+			timeline: {
+				unit: 'hour',
+				fields: [ 'date', 'hour', 'opens_count' ],
+				data: [
+					[ '2026-06-14', 8, 1 ],
+					[ '2026-06-14', 9, 2 ],
+					[ '2026-06-15', 8, 4 ],
+					[ '2026-06-15', 9, 8 ],
+				],
+			},
+		};
+
+		const spaceSeparated = sanitizeStatsEmailTimeSeriesResponse( timeline, {
+			period: 'hour',
+			start_date: '2026-06-14 09:00:00-04:00',
+			end_date: '2026-06-15 08:59:59-04:00',
+		} );
+		expect( spaceSeparated.data.map( point => point.time_interval ) ).toEqual( [
+			'2026-06-14 09:00',
+			'2026-06-15 08:00',
+		] );
+
+		const noSeconds = sanitizeStatsEmailTimeSeriesResponse( timeline, {
+			period: 'hour',
+			start_date: '2026-06-14T09:00-04:00',
+			end_date: '2026-06-15T08:59-04:00',
+		} );
+		expect( noSeconds.data.map( point => point.time_interval ) ).toEqual( [
+			'2026-06-14 09:00',
+			'2026-06-15 08:00',
+		] );
+	} );
+
+	it( 'keeps rows whose bucket bounds are not comparable wall clocks', () => {
+		// An unparseable period label echoes back verbatim as its own bounds;
+		// the trim must not silently discard such a row (and its counts).
+		const result = sanitizeStatsEmailTimeSeriesResponse(
+			{
+				timeline: {
+					unit: 'day',
+					fields: [ 'date', 'opens_count' ],
+					data: [
+						[ '2026-06-15', 3 ],
+						[ 'not-a-date', 5 ],
+					],
+				},
+			},
+			{ period: 'day', start_date: '2026-06-15', end_date: '2026-06-15' }
+		);
+
+		expect( result.data ).toHaveLength( 2 );
+		expect( result.summary ).toEqual( expect.objectContaining( { opens_count: 8 } ) );
+	} );
+
 	it( 'widens bare-date window bounds to whole days and needs both bounds to trim', () => {
 		const timeline = {
 			timeline: {

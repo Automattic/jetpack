@@ -167,6 +167,50 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( requestedPath ).toContain( 'stats/clicks/emails/1234' );
 	} );
 
+	it( 'draws exactly the selected hourly window from a midnight-anchored payload', async () => {
+		// The endpoint anchors hourly buckets on the start day's midnight and
+		// returns `quantity` buckets forward, so a last-24-hours window (09:00
+		// → 08:59 next day) is served as 33 buckets from hour 0. The widget
+		// must chart and sum only the 24 in-window hours.
+		mockApiFetch.mockResolvedValue( {
+			timeline: {
+				unit: 'hour',
+				fields: [ 'date', 'hour', 'opens_count' ],
+				data: [
+					...Array.from( { length: 24 }, ( _, hour ) => [ '2026-07-04', hour, hour ] ),
+					...Array.from( { length: 9 }, ( _, hour ) => [ '2026-07-05', hour, hour ] ),
+				],
+			},
+		} );
+
+		render(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-07-04T09:00:00.000+08:00',
+						to: '2026-07-05T08:59:59.999+08:00',
+						interval: 'hour',
+						post_id: 1234,
+					},
+					metric: 'opens',
+				} }
+			/>
+		);
+
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		const values = String( chart.getAttribute( 'data-values' ) ).split( ',' );
+		expect( values ).toHaveLength( 24 );
+		expect( values[ 0 ] ).toBe( '9' );
+		expect( values[ 23 ] ).toBe( '8' );
+		// Hours 9–23 of day one plus 0–8 of day two.
+		expect( chart ).toHaveAttribute( 'data-metric-total', '276' );
+
+		const requestedPath = String( mockApiFetch.mock.calls[ 0 ][ 0 ].path );
+		expect( new URLSearchParams( requestedPath.split( '?' )[ 1 ] ).get( 'quantity' ) ).toBe( '33' );
+	} );
+
 	it( 'ignores comparison report params: one request, single series', async () => {
 		mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
 
