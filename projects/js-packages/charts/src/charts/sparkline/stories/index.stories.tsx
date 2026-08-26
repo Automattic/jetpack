@@ -82,9 +82,6 @@ const defaultData = [ 10, 15, 12, 18, 22, 25, 23, 28 ];
 /**
  * Basic sparkline with all controls available for customization.
  * Use the controls panel to experiment with colors, gradients, dimensions, and data.
- *
- * No `color` is set, so the line takes the first series palette color
- * (`--a8c-charts-color-series-1`) and follows the admin color scheme with it.
  */
 export const Default: Story = {
 	args: {
