@@ -15,9 +15,10 @@ export type PresetRowProbeProps = {
 
 	/**
 	 * The label the real trigger is showing. "Custom" versus a formatted range
-	 * differs by ~40px.
+	 * differs by ~40px. Absent when the surface offers no custom range, so the
+	 * probe leaves the trigger out of the measured row too.
 	 */
-	customTriggerLabel: string;
+	customTriggerLabel?: string;
 
 	/**
 	 * The period navigation, as the panel renders it. Its width moves with the
@@ -131,16 +132,18 @@ function PresetRowProbeComponent( {
 							{ preset.label }
 						</Button>
 					) ) }
-					<Button
-						className="date-filters-panel-button"
-						variant="minimal"
-						tone="neutral"
-						tabIndex={ -1 }
-					>
-						{ /* Mirrors the real trigger's markup so both measure the same box. */ }
-						<span className="date-filters-panel-button__label">{ customTriggerLabel }</span>
-						<Icon className="date-filters-panel-button__caret" icon={ chevronDown } size={ 18 } />
-					</Button>
+					{ customTriggerLabel !== undefined && (
+						<Button
+							className="date-filters-panel-button"
+							variant="minimal"
+							tone="neutral"
+							tabIndex={ -1 }
+						>
+							{ /* Mirrors the real trigger's markup so both measure the same box. */ }
+							<span className="date-filters-panel-button__label">{ customTriggerLabel }</span>
+							<Icon className="date-filters-panel-button__caret" icon={ chevronDown } size={ 18 } />
+						</Button>
+					) }
 				</div>
 
 				{ /* The real controls, not mirrors: the panel hands the same elements

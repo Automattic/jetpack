@@ -1,3 +1,4 @@
+import { DETAIL_SURFACE_PRESETS } from '@jetpack-premium-analytics/datetime';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateRangeFilter } from '../date-range-filter';
@@ -72,5 +73,34 @@ describe( 'DateRangeFilter', () => {
 			'last-30-days'
 		);
 		expect( onApply ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'renders presets only when the surface offers no custom range', async () => {
+		const user = userEvent.setup();
+		renderFilter( { presetIds: DETAIL_SURFACE_PRESETS, withCustomRange: false } );
+		await flushCompositeItems();
+
+		const toolbar = screen.getByRole( 'toolbar', { name: 'Date range' } );
+		expect( within( toolbar ).getAllByRole( 'button' ) ).toHaveLength( 5 );
+		expect( within( toolbar ).queryByRole( 'button', { name: 'Custom' } ) ).not.toBeInTheDocument();
+
+		// The last pill ends the roving tabindex where the trigger used to.
+		await user.tab();
+		await user.keyboard( '{End}' );
+		expect( screen.getByRole( 'button', { name: '12 months' } ) ).toHaveFocus();
+	} );
+
+	it( 'highlights all time on the detail surface', () => {
+		renderFilter( {
+			presetIds: DETAIL_SURFACE_PRESETS,
+			withCustomRange: false,
+			presetId: 'all-time',
+			appliedPresetId: 'all-time',
+		} );
+
+		expect( screen.getByRole( 'button', { name: 'All time' } ) ).toHaveAttribute(
+			'aria-pressed',
+			'true'
+		);
 	} );
 } );

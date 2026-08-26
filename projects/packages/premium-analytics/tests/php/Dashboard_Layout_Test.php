@@ -546,10 +546,11 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			);
 		}
 
-		$this->assertSame(
-			array( 'granularity' => 'auto' ),
-			$layout_by_uuid['default-wordads-chart-tabs-widget-instance']['attributes']
-		);
+		// The chart's bucket follows the page interval control, so no default
+		// instance seeds attributes any more.
+		foreach ( $layout as $instance ) {
+			$this->assertArrayNotHasKey( 'attributes', $instance, $instance['uuid'] );
+		}
 		$this->assertSame(
 			get_dashboard_default_layout_for( DASHBOARD_ADS_SECTION_ID ),
 			get_dashboard_default_layout_for( 'analytics/ads' )
