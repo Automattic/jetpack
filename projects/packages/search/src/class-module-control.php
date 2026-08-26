@@ -111,7 +111,7 @@ class Module_Control {
 	 * @return bool
 	 */
 	public function is_instant_search_enabled() {
-		if ( ! $this->plan->supports_instant_search() || ! $this->is_active() ) {
+		if ( ! $this->is_active() || ! $this->plan->supports_instant_search() ) {
 			return false;
 		}
 

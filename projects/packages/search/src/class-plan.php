@@ -23,6 +23,9 @@ class Plan {
 	const JETPACK_SEARCH_PLAN_INFO_OPTION_KEY  = 'jetpack_search_plan_info';
 	const JETPACK_SEARCH_EVER_SUPPORTED_SEARCH = 'jetpack_search_ever_supported_search';
 
+	const PLAN_FETCH_BACKOFF_TRANSIENT_KEY = 'jetpack_search_plan_fetch_backoff';
+	const PLAN_FETCH_BACKOFF_SECONDS       = 5 * MINUTE_IN_SECONDS;
+
 	// The pricing update starting from August 2022.
 	const JETPACK_SEARCH_NEW_PRICING_VERSION = '202208';
 	const JETPACK_SEARCH_FREE_PRODUCT_SLUG   = 'jetpack_search_free';
@@ -75,7 +78,7 @@ class Plan {
 			$this->get_plan_info_from_wpcom();
 		}
 		$plan_info = get_option( self::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
-		if ( false === $plan_info && ! $force_refresh ) {
+		if ( false === $plan_info && ! $force_refresh && false === get_transient( self::PLAN_FETCH_BACKOFF_TRANSIENT_KEY ) ) {
 			$plan_info = $this->get_plan_info( true );
 		}
 		return $plan_info;
@@ -145,16 +148,24 @@ class Plan {
 	 */
 	public function update_search_plan_info( $response ) {
 		if ( is_wp_error( $response ) ) {
+			set_transient( self::PLAN_FETCH_BACKOFF_TRANSIENT_KEY, true, self::PLAN_FETCH_BACKOFF_SECONDS );
 			return false;
 		}
 		$body        = json_decode( wp_remote_retrieve_body( $response ), true );
 		$status_code = wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $status_code ) {
+			set_transient( self::PLAN_FETCH_BACKOFF_TRANSIENT_KEY, true, self::PLAN_FETCH_BACKOFF_SECONDS );
 			return false;
 		}
 
-		return $this->set_plan_options( $body );
+		$updated = $this->set_plan_options( $body );
+		if ( $updated ) {
+			delete_transient( self::PLAN_FETCH_BACKOFF_TRANSIENT_KEY );
+		} else {
+			set_transient( self::PLAN_FETCH_BACKOFF_TRANSIENT_KEY, true, self::PLAN_FETCH_BACKOFF_SECONDS );
+		}
+		return $updated;
 	}
 
 	/**
