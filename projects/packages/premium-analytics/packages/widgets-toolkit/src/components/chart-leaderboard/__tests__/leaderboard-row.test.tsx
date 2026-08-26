@@ -12,6 +12,7 @@ import type { AnchorHTMLAttributes, ReactNode } from 'react';
 type MockRouteLinkProps = {
 	to: string;
 	params?: Record< string, unknown >;
+	search?: Record< string, unknown >;
 	children: ReactNode;
 } & Omit< AnchorHTMLAttributes< HTMLAnchorElement >, 'href' >;
 
@@ -21,18 +22,25 @@ jest.mock( '@wordpress/route', () => {
 
 	return {
 		Link: forwardRef< HTMLAnchorElement, MockRouteLinkProps >(
-			( { to, params, children, ...props }, ref ) => (
-				<a
-					ref={ ref }
-					href={ Object.entries( params ?? {} ).reduce(
-						( result, [ key, value ] ) => result.replace( `$${ key }`, String( value ) ),
-						to
-					) }
-					{ ...props }
-				>
-					{ children }
-				</a>
-			)
+			( { to, params, search, children, ...props }, ref ) => {
+				const path = Object.entries( params ?? {} ).reduce(
+					( result, [ key, value ] ) => result.replace( `$${ key }`, String( value ) ),
+					to
+				);
+				const query = new URLSearchParams();
+				Object.entries( search ?? {} ).forEach( ( [ key, value ] ) => {
+					if ( value !== undefined && value !== null ) {
+						query.set( key, String( value ) );
+					}
+				} );
+				const queryString = query.toString();
+
+				return (
+					<a ref={ ref } href={ queryString ? `${ path }?${ queryString }` : path } { ...props }>
+						{ children }
+					</a>
+				);
+			}
 		),
 	};
 } );
