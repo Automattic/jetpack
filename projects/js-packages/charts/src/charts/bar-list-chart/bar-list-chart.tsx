@@ -214,18 +214,10 @@ const getDefaultYOffset = (
 
 // How far a single-series bar fill travels from white toward the series colour.
 //
-// With one series the label is drawn *on* the bar, so the fill is a background for text and has to
-// keep contrast with `--a8c-charts-color-label`. A full-strength series colour cannot promise that:
-// the catalog's own seed, `#3858e9`, leaves `#1e1e1e` at 2.97:1. This value puts the default at
-// 9.0:1, matching the light blue the palette used to open with.
-//
-// Multi-series bars keep their full strength: `getDefaultYOffset` lifts the label clear of them, so
-// nothing is read against the fill, and tinting would only compress the separation between series.
-//
-// White rather than `theme.backgroundColor`, which would read as if it knew the surface: the chart
-// paints no background, so that token names a colour nothing here is drawn on. White is the same
-// assumption, made visibly, and it is what Premium Analytics' leaderboard already blends toward.
-// CHARTS-261 has charts paint their own surface; blend toward the token once that is true.
+// With one series the label is drawn *on* the bar, so the fill is a text background and has to keep
+// contrast with `--a8c-charts-color-label`. At full strength the catalog seed `#3858e9` leaves
+// `#1e1e1e` at 2.97:1; this puts it at 9.0:1. Multi-series bars keep full strength — the label is
+// lifted clear of them, so nothing is read against the fill.
 const BAR_TINT_TOWARD_SERIES = 0.4;
 
 const BarListChartInternal: FC< BarListChartProps > = ( {
