@@ -3,7 +3,6 @@
  */
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Text } from '@jetpack-premium-analytics/externals';
 import {
 	WIDGET_ROW_LIMIT,
 	calculateDelta,
@@ -12,6 +11,7 @@ import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	LeaderboardPostLabel,
+	LeaderboardRow,
 	ReportLink,
 	WidgetBackLink,
 	WidgetFooter,
@@ -139,11 +139,11 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 						link={ postRow.href }
 					/>
 				) : (
-					<span className={ styles.itemLabel }>
-						<Text className={ styles.itemLabelText } variant="body-sm">
-							{ item.label }
-						</Text>
-					</span>
+					<LeaderboardRow
+						label={ item.label }
+						media={ { kind: 'none' } }
+						action={ { kind: 'static' } }
+					/>
 				),
 				currentValue: item.value,
 				currentShare: sharePercentage( item.value, maxValue ),

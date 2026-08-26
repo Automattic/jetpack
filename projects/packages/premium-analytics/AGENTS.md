@@ -759,9 +759,9 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
   add a second in-widget `<Text variant="heading-md" render={ <h3 /> }>` title for framed Stats
   widgets.
 - View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }`
-- Leaderboard rows: prefer `LeaderboardRow` / `buildLeaderboardRow` / `LeaderboardPostLabel` over
-  a hand-written label — a copy drifts from the shared row box. `utm-insights` and
-  `video-detail-embeds` are the last two that still draw their own, and match `.row` in
+- Leaderboard rows: build them with `LeaderboardRow` / `buildLeaderboardRow` /
+  `LeaderboardPostLabel` — a hand-written copy drifts from the shared row box. `video-detail-embeds`
+  is the one exception, a plain list rather than a leaderboard, and matches `.row` in
   `chart-leaderboard/leaderboard-label.module.scss` by hand.
 - Loading / error / empty state: render through `<WidgetState>` (see "Loading / error / empty
   state" above), not `LeaderboardChart`'s `emptyStateText` or a hand-rolled `data.length === 0`
