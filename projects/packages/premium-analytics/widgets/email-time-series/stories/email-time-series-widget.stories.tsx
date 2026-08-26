@@ -15,6 +15,7 @@
  * External dependencies
  */
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { PRESET_LAST_24_HOURS } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
@@ -149,6 +150,32 @@ export const Clicks: Story = {
 export const ByWeeks: Story = {
 	render: renderEmailTimeSeries,
 	args: { metric: 'opens', interval: 'week', chartType: 'line' },
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * The last-24-hours preset: an hourly window that usually spans two calendar
+ * days. The endpoint anchors its hourly buckets on the start day's midnight,
+ * so the mock returns buckets from before the window opens — the data layer
+ * trims them, and the chart draws exactly the selected 24 hours (WOOA7S-1840).
+ * The page interval is pinned to `hour` by the preset, so the interval
+ * control is hidden here.
+ */
+export const LastTwentyFourHours: Story = {
+	render: ( { metric, chartType } ) => (
+		<EmailTimeSeriesRender
+			attributes={ {
+				reportParams: {
+					...getDefaultQueryParams( false, PRESET_LAST_24_HOURS ),
+					post_id: MOCK_EMAIL_ID,
+				},
+				metric,
+				chartType,
+			} }
+		/>
+	),
+	args: { metric: 'opens', interval: 'day', chartType: 'line' },
+	argTypes: { interval: { table: { disable: true } } },
 	decorators: [ withWidgetCanvas ],
 };
 
