@@ -6,61 +6,75 @@ import { useCallback, useMemo, useSyncExternalStore } from 'react';
 /**
  * Internal dependencies
  */
-import { shouldRetryApiError } from '../utils/api-error';
+import { isUserRetryableError } from '../utils/api-error';
+import { isRefreshNoticeQuery } from './refresh-failure-scope';
 import type { QueryCache } from '@tanstack/react-query';
 
-export interface RefreshFailure {
+type NoRefreshFailure = {
+	hasStaleData: false;
+};
+
+type StaleDataRetained = {
 	/** A refresh failed while the data it was replacing is still on screen. */
-	hasStaleData: boolean;
+	hasStaleData: true;
 	/** When the oldest data still on screen was last fetched, in epoch ms. */
-	dataUpdatedAt?: number;
-	/** False when every failure is deterministic (auth, permissions), so retrying cannot help. */
+	dataUpdatedAt: number;
+	/** False when every failure is deterministic for this session, so retrying cannot help. */
 	canRetry: boolean;
-	/** Refetch the failed queries. */
+	/** A retry is in flight; the caller should mark its action busy rather than accept another. */
+	isRetrying: boolean;
+};
+
+/**
+ * The two states are separate members so `dataUpdatedAt` cannot go missing from
+ * the one that promises it — callers narrow on `hasStaleData` alone.
+ */
+export type RefreshFailureSnapshot = NoRefreshFailure | StaleDataRetained;
+
+export type RefreshFailure = RefreshFailureSnapshot & {
+	/** Refetch the queries this snapshot counted, and only those. */
 	retry: () => void;
-}
+};
 
-type Snapshot = Omit< RefreshFailure, 'retry' >;
+const NO_FAILURE: NoRefreshFailure = { hasStaleData: false };
 
-const NO_FAILURE: Snapshot = { hasStaleData: false, canRetry: false };
-
-function readCache( cache: QueryCache ): Snapshot {
+function readCache( cache: QueryCache ): RefreshFailureSnapshot {
 	let dataUpdatedAt: number | undefined;
 	let canRetry = false;
+	let isRetrying = false;
 
 	for ( const query of cache.getAll() ) {
-		// Unobserved entries are cached leftovers nobody is reading; only what a
-		// mounted widget still shows can look like fresh data.
-		if ( query.getObserversCount() === 0 ) {
+		if ( ! isRefreshNoticeQuery( query ) ) {
 			continue;
 		}
 
 		const state = query.state;
-		// Retained data is what separates a failed refresh from a failed first
-		// load — the latter is the widget's own error state to render.
-		if ( state.status !== 'error' || state.data === undefined ) {
-			continue;
-		}
-
 		// The oldest fetch is the honest one to name: it is the staleness the
 		// reader is actually looking at somewhere on the page.
 		dataUpdatedAt =
 			dataUpdatedAt === undefined
 				? state.dataUpdatedAt
 				: Math.min( dataUpdatedAt, state.dataUpdatedAt );
-		// The auto-retry policy answers the same question as the Retry button —
-		// can fetching this again plausibly succeed? — so it decides both.
-		canRetry = canRetry || shouldRetryApiError( 0, state.error );
+		// One retryable failure is enough to keep the button: it is false only
+		// when every failure on screen is deterministic.
+		canRetry = canRetry || isUserRetryableError( state.error );
+		isRetrying = isRetrying || state.fetchStatus === 'fetching';
 	}
 
-	return dataUpdatedAt === undefined ? NO_FAILURE : { hasStaleData: true, dataUpdatedAt, canRetry };
+	return dataUpdatedAt === undefined
+		? NO_FAILURE
+		: { hasStaleData: true, dataUpdatedAt, canRetry, isRetrying };
 }
 
-function isSameSnapshot( a: Snapshot, b: Snapshot ): boolean {
+function isSameSnapshot( a: RefreshFailureSnapshot, b: RefreshFailureSnapshot ): boolean {
+	if ( ! a.hasStaleData || ! b.hasStaleData ) {
+		return a.hasStaleData === b.hasStaleData;
+	}
+
 	return (
-		a.hasStaleData === b.hasStaleData &&
 		a.dataUpdatedAt === b.dataUpdatedAt &&
-		a.canRetry === b.canRetry
+		a.canRetry === b.canRetry &&
+		a.isRetrying === b.isRetrying
 	);
 }
 
@@ -82,8 +96,10 @@ function createStore( cache: QueryCache ) {
 }
 
 /**
- * Report whether any mounted query failed to refresh while still holding the
- * data it was refreshing, which widgets render as if it were current.
+ * Report whether any query the reader reads numbers from failed to refresh while
+ * still holding the data it was refreshing, which widgets render as if it were
+ * current. Scope and Retry share one predicate, so the notice can never name a
+ * failure its own Retry does not reach.
  */
 export function useRefreshFailure(): RefreshFailure {
 	const queryClient = useQueryClient();
@@ -91,10 +107,7 @@ export function useRefreshFailure(): RefreshFailure {
 	const snapshot = useSyncExternalStore( store.subscribe, store.getSnapshot, store.getSnapshot );
 
 	const retry = useCallback( () => {
-		void queryClient.refetchQueries( {
-			type: 'active',
-			predicate: query => query.state.status === 'error',
-		} );
+		void queryClient.refetchQueries( { predicate: isRefreshNoticeQuery } );
 	}, [ queryClient ] );
 
 	return useMemo( () => ( { ...snapshot, retry } ), [ snapshot, retry ] );

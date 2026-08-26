@@ -13,17 +13,18 @@ type RefreshFailureNoticeProps = {
  * @return The notice, or `null`.
  */
 function ConnectedNotice( { className }: RefreshFailureNoticeProps ) {
-	const { hasStaleData, dataUpdatedAt, canRetry, retry } = useRefreshFailure();
+	const failure = useRefreshFailure();
 
-	if ( ! hasStaleData || dataUpdatedAt === undefined ) {
+	if ( ! failure.hasStaleData ) {
 		return null;
 	}
 
 	return (
 		<StaleDataNotice
 			className={ className }
-			updatedAt={ dataUpdatedAt }
-			onRetry={ canRetry ? retry : undefined }
+			updatedAt={ failure.dataUpdatedAt }
+			onRetry={ failure.canRetry ? failure.retry : undefined }
+			isRetrying={ failure.isRetrying }
 		/>
 	);
 }

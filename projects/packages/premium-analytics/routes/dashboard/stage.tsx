@@ -292,7 +292,7 @@ function Dashboard(): JSX.Element {
 										>
 											{ dateControls }
 										</SectionHeader>
-										{ /* Inside the pinned band so the only Retry on the page stays
+										{ /* Inside the pinned band so a failed refresh, and its Retry, stay
 										     reachable however far the reader has scrolled. */ }
 										<RefreshFailureNotice className={ styles.refreshFailure } />
 									</div>

@@ -2,6 +2,7 @@ export { localTZDate, dateToISOStringWithLocalTZ, formatToTimezoneNaiveString } 
 export {
 	getApiErrorCode,
 	getApiErrorStatus,
+	isUserRetryableError,
 	shouldRetryApiError,
 	StatsResponseShapeError,
 } from './api-error';

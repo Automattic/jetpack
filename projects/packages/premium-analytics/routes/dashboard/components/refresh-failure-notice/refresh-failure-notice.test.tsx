@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { AnalyticsQueryClientProvider, queryClient } from '@jetpack-premium-analytics/data';
+import {
+	AnalyticsQueryClientProvider,
+	REFRESH_NOTICE_META,
+	queryClient,
+} from '@jetpack-premium-analytics/data';
 import { useQuery } from '@tanstack/react-query';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -21,6 +25,25 @@ import { RefreshFailureNotice } from './refresh-failure-notice';
 function Widget( { queryFn }: { queryFn: () => Promise< unknown > } ) {
 	const { data, isError } = useQuery( {
 		queryKey: [ 'refresh-failure-notice-probe' ],
+		queryFn: queryFn as () => Promise< { views: number } >,
+		retry: false,
+		meta: REFRESH_NOTICE_META,
+	} );
+
+	return <span>{ data ? String( data.views ) : ( isError && 'failed' ) || 'loading' }</span>;
+}
+
+/**
+ * The same probe without the opt-in `meta`, standing in for the supporting
+ * queries that share the cache but hold none of the numbers on screen.
+ *
+ * @param props         - Component props.
+ * @param props.queryFn - Fetcher for the query.
+ * @return The fetched value, or why there is none.
+ */
+function UnscopedWidget( { queryFn }: { queryFn: () => Promise< unknown > } ) {
+	const { data, isError } = useQuery( {
+		queryKey: [ 'refresh-failure-notice-unscoped' ],
 		queryFn: queryFn as () => Promise< { views: number } >,
 		retry: false,
 	} );
@@ -72,14 +95,14 @@ describe( 'RefreshFailureNotice', () => {
 		renderDashboard( () => Promise.resolve( { views: 1 } ) );
 
 		await expect( screen.findByText( '1' ) ).resolves.toBeInTheDocument();
-		expect( description( /Couldn’t refresh\./ ) ).not.toBeInTheDocument();
+		expect( description( /Couldn't refresh\./ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'stays quiet when a first load fails, which the widget reports itself', async () => {
 		renderDashboard( () => Promise.reject( { status: 500 } ) );
 
 		await expect( screen.findByText( 'failed' ) ).resolves.toBeInTheDocument();
-		expect( description( /Couldn’t refresh\./ ) ).not.toBeInTheDocument();
+		expect( description( /Couldn't refresh\./ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'names the numbers as stale once a refresh fails, and retries them', async () => {
@@ -95,12 +118,33 @@ describe( 'RefreshFailureNotice', () => {
 
 		// The widget keeps showing what it fetched; only the notice says it is old.
 		expect( screen.getByText( '1' ) ).toBeInTheDocument();
-		expect( description( /Couldn’t refresh\. Showing data from / ) ).toBeInTheDocument();
+		expect( description( /Couldn't refresh\. Showing data from / ) ).toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 
 		await expect( screen.findByText( '2' ) ).resolves.toBeInTheDocument();
-		expect( description( /Couldn’t refresh\./ ) ).not.toBeInTheDocument();
+		expect( description( /Couldn't refresh\./ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'stays quiet when the failure is not one the reader reads numbers from', async () => {
+		const queryFn = jest
+			.fn< Promise< unknown >, [] >()
+			.mockResolvedValueOnce( { views: 1 } )
+			.mockRejectedValue( { status: 500 } );
+
+		render(
+			<AnalyticsQueryClientProvider>
+				{ /* No `meta`: a thumbnail or a settings read, not a figure on screen. */ }
+				<UnscopedWidget queryFn={ queryFn } />
+				<RefreshFailureNotice className="refresh-failure" />
+			</AnalyticsQueryClientProvider>
+		);
+
+		await expect( screen.findByText( '1' ) ).resolves.toBeInTheDocument();
+		await refetch();
+
+		expect( screen.getByText( '1' ) ).toBeInTheDocument();
+		expect( description( /Couldn't refresh\./ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'drops the retry where retrying cannot help', async () => {
@@ -113,7 +157,7 @@ describe( 'RefreshFailureNotice', () => {
 		await expect( screen.findByText( '1' ) ).resolves.toBeInTheDocument();
 		await refetch();
 
-		expect( description( /Couldn’t refresh\. Showing data from / ) ).toBeInTheDocument();
+		expect( description( /Couldn't refresh\. Showing data from / ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 } );
