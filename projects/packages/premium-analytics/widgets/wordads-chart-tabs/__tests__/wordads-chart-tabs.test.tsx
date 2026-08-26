@@ -14,44 +14,6 @@ import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
-// The chart itself is visx SVG rendering, outside this widget's concern. Keep
-// the metrics observable so the tests can assert what the widget charts.
-jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
-	MetricTabsChart: ( {
-		metrics,
-		chartType,
-		pointsAreWallClocks,
-	}: {
-		metrics: {
-			key: string;
-			label: string;
-			value: number;
-			current: { date: Date; value: number }[];
-			dataFormat?: { type: string };
-		}[];
-		chartType?: string;
-		pointsAreWallClocks?: boolean;
-	} ) => (
-		<div
-			data-testid="metric-tabs-chart"
-			data-chart-type={ String( chartType ) }
-			data-wall-clocks={ String( pointsAreWallClocks ) }
-			data-metrics={ JSON.stringify(
-				metrics.map( metric => ( {
-					key: metric.key,
-					label: metric.label,
-					value: metric.value,
-					format: metric.dataFormat?.type,
-					values: metric.current.map( point => point.value ),
-					firstDate: metric.current[ 0 ]?.date.toISOString(),
-					days: metric.current.map( point => point.date.getDate() ),
-				} ) )
-			) }
-		/>
-	),
-} ) );
-
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 // Raw WPCOM `wordads/stats` matrix shape: two monthly buckets, so the summary
