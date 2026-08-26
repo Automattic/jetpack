@@ -64,6 +64,11 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+		// The AI controls only take effect on internal testing environments while
+		// they are unlaunched. These tests are about what the toggles do, so put
+		// the suite where they apply; the scoping itself is pinned in
+		// Jetpack_AI_Settings_Test.
+		$this->force_master_enforcement_for_test();
 		delete_transient( ImageStudio\ASSET_TRANSIENT );
 		$this->saved_wp_scripts = $GLOBALS['wp_scripts'] ?? null;
 		$this->saved_wp_styles  = $GLOBALS['wp_styles'] ?? null;
@@ -85,7 +90,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		$this->deactivate_ai_module_for_test();
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		delete_transient( ImageStudio\ASSET_TRANSIENT );
 		remove_all_filters( 'jetpack_image_studio_enabled' );
 		remove_all_filters( 'jetpack_image_studio_can_generate_video_clips' );
@@ -524,6 +531,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_master_option_off_disables_image_studio() {
 		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->force_master_enforcement_for_test();
 		$this->deactivate_ai_module_for_test();
 
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
@@ -537,6 +545,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
 
 		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->force_master_enforcement_for_test();
 		$this->deactivate_ai_module_for_test();
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
@@ -567,6 +576,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	public function test_master_off_cannot_be_reenabled_by_late_filter() {
 		$this->enable_big_sky();
 		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->force_master_enforcement_for_test();
 		$this->deactivate_ai_module_for_test();
 		add_filter( 'jetpack_ai_enabled', '__return_true', 99 );
 

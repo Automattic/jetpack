@@ -9,7 +9,10 @@
  */
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Agents_Manager\Agents_Manager;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -19,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once __DIR__ . '/class.jetpack-admin-page.php';
+require_once dirname( __DIR__ ) . '/class-jetpack-ai-feature-flags.php';
 
 /**
  * Builds the Jetpack AI admin page and its sidebar menu entry.
@@ -55,8 +59,99 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	 *
 	 * @param string $hook The page hook returned by get_page_hook().
 	 */
-	public function add_page_actions( $hook ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Nothing extra needed beyond the common hooks in Jetpack_Admin_Page::add_actions().
+	public function add_page_actions( $hook ) {
+		add_action( 'load-' . $hook, array( $this, 'load_agents_manager' ) );
+	}
+
+	/**
+	 * Request the existing Agents Manager shell for this page.
+	 */
+	public function load_agents_manager() {
+		if ( ! self::is_scheduled_tasks_enabled() ) {
+			return;
+		}
+
+		Agents_Manager::init();
+
+		add_filter( 'agents_manager_should_load', '__return_true' );
+		add_filter( 'agents_manager_agent_id', array( $this, 'get_agents_manager_agent_id' ) );
+		add_filter( 'agents_manager_agent_providers', array( $this, 'add_scheduled_tasks_provider' ) );
+		add_filter( 'jetpack_ai_sidebar_agents_manager_data', array( $this, 'add_scheduled_tasks_data' ) );
+	}
+
+	/**
+	 * Use the generic WP Orchestrator agent in AI Hub.
+	 *
+	 * @return string Agent ID.
+	 */
+	public function get_agents_manager_agent_id() {
+		return 'wp-orchestrator';
+	}
+
+	/**
+	 * Add the AI Hub provider that supplies scheduled task starter prompts.
+	 *
+	 * @param array $providers Existing provider module URLs.
+	 * @return array Updated provider module URLs.
+	 */
+	public function add_scheduled_tasks_provider( $providers ) {
+		$providers[] = add_query_arg(
+			'ver',
+			JETPACK__VERSION,
+			plugins_url( '_inc/jetpack-ai-scheduled-tasks-provider.js', JETPACK__PLUGIN_FILE )
+		);
+
+		return $providers;
+	}
+
+	/**
+	 * Customize Agents Manager's empty view for the Scheduled tasks page.
+	 *
+	 * @param array $data Existing Agents Manager data.
+	 * @return array Updated Agents Manager data.
+	 */
+	public function add_scheduled_tasks_data( $data ) {
+		$current_user = wp_get_current_user();
+
+		$data['emptyViewHeading'] = sprintf(
+			/* translators: %s: Current user's display name. */
+			__( 'Howdy %s! Let’s schedule a task.', 'jetpack' ),
+			$current_user->display_name
+		);
+		$data['emptyViewHelp']                     = __( 'Got a different request? Ask away.', 'jetpack' );
+		$data['scheduledTaskEmptyViewSuggestions'] = array(
+			array(
+				'id'         => 'create-daily-reminder',
+				'label'      => __( 'Create a daily reminder', 'jetpack' ),
+				'prompt'     => __( 'Create a daily reminder', 'jetpack' ),
+				'autoSubmit' => true,
+			),
+			array(
+				'id'         => 'draft-weekly-post',
+				'label'      => __( 'Draft a weekly post', 'jetpack' ),
+				'prompt'     => __( 'Draft a weekly post', 'jetpack' ),
+				'autoSubmit' => true,
+			),
+			array(
+				'id'         => 'schedule-monthly-report',
+				'label'      => __( 'Schedule a monthly report', 'jetpack' ),
+				'prompt'     => __( 'Schedule a monthly report', 'jetpack' ),
+				'autoSubmit' => true,
+			),
+		);
+
+		return $data;
+	}
+
+	/**
+	 * Whether the Scheduled tasks tab and its Agents Manager sidebar are enabled.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function is_scheduled_tasks_enabled() {
+		return Feature_Flags::is_enabled( Jetpack_AI_Feature_Flags::SCHEDULED_TASKS );
 	}
 
 	/**
@@ -101,7 +196,9 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 		 * it answers only the cohort half, and page registration requires both
 		 * (see packages/seo Initializer::init()).
 		 */
-		$seo_settings_url = admin_url( 'admin.php?page=jetpack#/traffic' );
+		$seo_settings_url          = admin_url( 'admin.php?page=jetpack#/traffic' );
+		$is_internal_test          = jetpack_is_internal_testing_environment();
+		$show_scheduled_tasks_view = self::is_scheduled_tasks_enabled();
 		if (
 			// The exact-symbol guard matters: the autoloader can select an older
 			// jetpack-seo copy from another plugin that has the class but not
@@ -122,6 +219,20 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 		);
 
 		wp_set_script_translations( 'jetpack-ai-admin', 'jetpack' );
+		if ( $show_scheduled_tasks_view ) {
+			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
+		}
+
+		// Pre-release gate for the Overview and Features views. Everything the
+		// gated views need hangs off this one flag, so opening them up to
+		// everyone is a single change here.
+		$show_gated_views = $is_internal_test;
+
+		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array(
+			'name'       => '',
+			'renews_on'  => '',
+			'auto_renew' => true,
+		);
 
 		wp_add_inline_script(
 			'jetpack-ai-admin',
@@ -137,15 +248,33 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					// Route through the Jetpack redirect service so the upgrade
 					// destination for the MCP upsell can be retargeted without
 					// shipping a code change.
-					'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-upgrade-url-for-jetpack-sites' ),
-					// Pre-release gate: only internal testing environments see
-					// the Features view. Remove when the view goes public.
-					'showFeaturesView' => jetpack_is_internal_testing_environment(),
+					'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-upgrade-url-for-jetpack-sites', array( 'path' => 'jetpack_ai_yearly' ) ),
+					// The purchase granting AI, for the Overview usage card — the
+					// usage endpoint cannot name it. Only looked up when a gated
+					// view can render it.
+					'planName'         => $plan_info['name'],
+					// The plan's own renewal date, matching My Jetpack — the
+					// usage-period rollover is a different, monthly date.
+					'planRenewsOn'     => $plan_info['renews_on'],
+					// The same date reads "Renews on" or "Expires on" depending on
+					// auto-renew, matching My Jetpack and the wpcom subscriptions page.
+					'planAutoRenew'    => $plan_info['auto_renew'],
+					'showFeaturesView' => $show_gated_views,
+					// The tab and its Agents Manager sidebar ship disabled by default.
+					'featureFlags'     => array(
+						Jetpack_AI_Feature_Flags::SCHEDULED_TASKS => $show_scheduled_tasks_view,
+					),
+					// The walkthrough videos link to WordPress.com courses, so the
+					// Overview only shows them on WordPress.com-hosted sites (i4 thread).
+					'isWpcomHosted'    => ( new Host() )->is_woa_site(),
+					// The usage endpoint proxies as the current user, which needs
+					// their own WordPress.com account linked — not just the site.
+					'isUserConnected'  => ( new Connection_Manager() )->is_user_connected(),
 					// Tracks audience properties for the jetpack_mcp_* events, per the
 					// Tracks standards for AI product events (AIINT-586). The client
 					// sends them as the strings 'true'/'false' (AIINT-576).
 					'isA11n'           => self::is_current_user_automattician(),
-					'isTest'           => jetpack_is_internal_testing_environment(),
+					'isTest'           => $is_internal_test,
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
@@ -201,6 +330,99 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			: '';
 
 		return '' !== $email && '@automattic.com' === substr( $email, -15 );
+	}
+
+	/**
+	 * Name and renewal date of the purchase granting this site AI ("Jetpack
+	 * Complete"), from My Jetpack's purchase data — its Plans section's source.
+	 *
+	 * The renewal is the purchase's expiry date, matching what My Jetpack
+	 * shows — not the AI usage-period rollover, which is a different date.
+	 *
+	 * @return array{name: string, renews_on: string} Empty strings when nothing
+	 *                                                paid grants AI or the data
+	 *                                                is unavailable.
+	 */
+	private static function get_ai_plan_info() {
+		$empty = array(
+			'name'       => '',
+			'renews_on'  => '',
+			'auto_renew' => true,
+		);
+
+		if ( ! class_exists( '\Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai' ) ) {
+			return $empty;
+		}
+
+		// The purchase lookup can make remote requests; cache the outcome
+		// (empty included) so the admin page pays that cost at most hourly.
+		$cached = get_transient( 'jetpack_ai_overview_plan_info' );
+		if ( is_array( $cached ) ) {
+			return array_merge( $empty, $cached );
+		}
+
+		// A failed lookup is not "no purchase": skip the hour-long cache so the
+		// next page load can try again instead of pinning a blank plan cell.
+		if ( is_wp_error( \Automattic\Jetpack\My_Jetpack\Wpcom_Products::get_site_current_purchases() ) ) {
+			return $empty;
+		}
+
+		$purchase = \Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai::get_paid_plan_purchase_for_product();
+
+		// A WordPress.com site names its own plan, never a Jetpack one.
+		if ( self::is_jetpack_purchase( $purchase ) && ( new Host() )->is_woa_site() ) {
+			$purchase = self::get_wpcom_plan_purchase();
+		}
+
+		$info = $empty;
+		if ( $purchase && ! empty( $purchase->product_name ) && 'expired' !== ( $purchase->expiry_status ?? '' ) ) {
+			// The design shows the bare plan name ("Complete", "Business"), so
+			// trim the store names' brand prefixes; they are untranslated.
+			$info['name']      = (string) preg_replace( '/^(Jetpack|WordPress\.com) /', '', (string) $purchase->product_name );
+			$info['renews_on'] = (string) ( $purchase->expiry_date ?? '' );
+			// Absent means unknown, not off: only a purchase that positively
+			// reports auto-renew off should relabel the date as an expiry.
+			$info['auto_renew'] = ! isset( $purchase->is_auto_renew_enabled )
+				|| (bool) $purchase->is_auto_renew_enabled;
+		}
+
+		set_transient( 'jetpack_ai_overview_plan_info', $info, HOUR_IN_SECONDS );
+
+		return $info;
+	}
+
+	/**
+	 * Whether a purchase was bought from the Jetpack store.
+	 *
+	 * @param object|null $purchase Purchase from My Jetpack.
+	 * @return bool
+	 */
+	private static function is_jetpack_purchase( $purchase ) {
+		return (bool) $purchase && 0 === strpos( (string) ( $purchase->product_slug ?? '' ), 'jetpack_' );
+	}
+
+	/**
+	 * The purchase behind the site's current WordPress.com plan.
+	 *
+	 * The plan record carries only a slug and a display name lives on purchases,
+	 * so the slug is matched back to the purchase that created it.
+	 *
+	 * @return object|null Null when the plan or its purchase cannot be found.
+	 */
+	private static function get_wpcom_plan_purchase() {
+		$current_plan = \Automattic\Jetpack\My_Jetpack\Wpcom_Products::get_site_current_plan();
+		$plan_slug    = is_array( $current_plan ) && ! empty( $current_plan['product_slug'] )
+			? (string) $current_plan['product_slug']
+			: '';
+
+		// An empty slug simply matches nothing below, so it needs no guard.
+		foreach ( (array) \Automattic\Jetpack\My_Jetpack\Wpcom_Products::get_site_current_purchases() as $purchase ) {
+			if ( $plan_slug === ( $purchase->product_slug ?? '' ) ) {
+				return $purchase;
+			}
+		}
+
+		return null;
 	}
 
 	/**

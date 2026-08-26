@@ -1,3 +1,4 @@
+import { decodeEntities } from '@wordpress/html-entities';
 import { safeParseFloat } from '../../utils/parsing';
 import { coerceStatsArray, coerceStatsRecord, createStatsListDataPoint } from './utils';
 import type {
@@ -29,7 +30,9 @@ function normalizeStatsEmailSummaryItem( post: StatsRecord ): StatsEmailSummaryI
 
 	return {
 		id: post.id as string | number | undefined,
-		label: post.title,
+		// WPCOM returns the subject line HTML-encoded (`&amp;`, `&#8217;`), and every
+		// consumer renders it as text, so decode once here.
+		label: typeof post.title === 'string' ? decodeEntities( post.title ) : post.title,
 		// Opens is the headline metric for the emails leaderboard; clicks_rate is frequently 0.
 		value: safeParseFloat( post.opens ),
 		link,
