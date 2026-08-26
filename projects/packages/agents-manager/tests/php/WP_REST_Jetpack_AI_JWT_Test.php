@@ -21,7 +21,7 @@ require_once __DIR__ . '/../../src/class-wp-rest-jetpack-ai-jwt.php';
 class WP_REST_Jetpack_AI_JWT_Test extends \WorDBless\BaseTestCase {
 
 	/**
-	 * Deprecated functions reported while a test ran.
+	 * Deprecated classes reported while a test ran.
 	 *
 	 * @var string[]
 	 */
@@ -33,28 +33,28 @@ class WP_REST_Jetpack_AI_JWT_Test extends \WorDBless\BaseTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		add_filter( 'deprecated_function_trigger_error', '__return_false' );
-		add_action( 'deprecated_function_run', array( $this, 'record_deprecation' ) );
+		add_filter( 'deprecated_class_trigger_error', '__return_false' );
+		add_action( 'deprecated_class_run', array( $this, 'record_deprecation' ) );
 	}
 
 	/**
 	 * Tear down test fixtures.
 	 */
 	public function tear_down() {
-		remove_filter( 'deprecated_function_trigger_error', '__return_false' );
-		remove_action( 'deprecated_function_run', array( $this, 'record_deprecation' ) );
+		remove_filter( 'deprecated_class_trigger_error', '__return_false' );
+		remove_action( 'deprecated_class_run', array( $this, 'record_deprecation' ) );
 		$this->deprecated = array();
 
 		parent::tear_down();
 	}
 
 	/**
-	 * Records a deprecated function call.
+	 * Records a deprecated class instantiation.
 	 *
-	 * @param string $function_name The deprecated function.
+	 * @param string $class_name The deprecated class.
 	 */
-	public function record_deprecation( $function_name ) {
-		$this->deprecated[] = $function_name;
+	public function record_deprecation( $class_name ) {
+		$this->deprecated[] = $class_name;
 	}
 
 	/**
@@ -65,7 +65,7 @@ class WP_REST_Jetpack_AI_JWT_Test extends \WorDBless\BaseTestCase {
 		$controller = new WP_REST_Jetpack_AI_JWT();
 
 		$this->assertInstanceOf( REST_Jetpack_AI_JWT::class, $controller );
-		$this->assertContains( WP_REST_Jetpack_AI_JWT::class . '::__construct', $this->deprecated );
+		$this->assertContains( WP_REST_Jetpack_AI_JWT::class, $this->deprecated );
 	}
 
 	/**
