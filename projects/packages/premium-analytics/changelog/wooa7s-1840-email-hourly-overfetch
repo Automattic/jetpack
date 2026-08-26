@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Email timeline: request only the hourly buckets the selected window needs and trim the chart and totals to that window.

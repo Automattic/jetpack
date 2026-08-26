@@ -263,6 +263,21 @@ function getTimeSeriesSummarySidecars( response: StatsRecord ) {
 	};
 }
 
+// A trim-window bound in the same timezone-naive wall-clock shape the bucket
+// labels carry: the value's own date and time parts as written, any offset
+// ignored. A bare date widens to the whole day via the fallback time.
+function toWallClockBound( value: string | undefined, fallbackTime: string ) {
+	const datePart = getDatePart( value );
+
+	if ( ! datePart || ! /^\d{4}-\d{2}-\d{2}$/.test( datePart ) ) {
+		return undefined;
+	}
+
+	const time = typeof value === 'string' && value.match( /[T ](\d{2}:\d{2}:\d{2})/ );
+
+	return formatDatePartWithTime( datePart, time ? time[ 1 ] : fallbackTime );
+}
+
 export function isStatsTimeSeriesPayload( payload: unknown ) {
 	const response = coerceStatsRecord( payload );
 
@@ -286,8 +301,30 @@ export function sanitizeStatsTimeSeriesResponse(
 ): StatsTimeSeriesReport {
 	const response = coerceStatsRecord( payload );
 	const unit = String( response.unit ?? query?.period ?? 'day' );
-	const rows = parseTimeSeriesRows( payload );
-	const summary = rows.reduce< Record< string, number > >( ( totals, row ) => {
+	const buckets = parseTimeSeriesRows( payload ).map( row => {
+		const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
+
+		return { row, range: getRowIntervalFields( row, rawPeriod, unit ) };
+	} );
+	// Trim to the caller's window when it names one — before the summary, so
+	// out-of-window buckets inflate neither the totals nor the chart.
+	// Quantity-based endpoints (the email timeline) anchor hourly buckets on
+	// the start day's midnight regardless of the requested time of day, so a
+	// mid-day window comes back with leading out-of-window buckets. Request
+	// params never reach a sanitizer as `end_date` (statsQueryParamsToApiParams
+	// renames it to `date`), so only callers passing a window through
+	// `sanitizerParams` opt in.
+	const windowStart = toWallClockBound( query?.start_date, '00:00:00' );
+	const windowEnd = toWallClockBound( query?.end_date, '23:59:59' );
+	const kept =
+		windowStart && windowEnd
+			? buckets.filter(
+					( { range } ) =>
+						compareBucketBounds( range.date_end, windowStart ) >= 0 &&
+						compareBucketBounds( range.date_start, windowEnd ) <= 0
+			  )
+			: buckets;
+	const summary = kept.reduce< Record< string, number > >( ( totals, { row } ) => {
 		Object.entries( row ).forEach( ( [ key, value ] ) => {
 			if ( ! nonMetricFields.includes( key ) && typeof value === 'number' ) {
 				totals[ key ] = ( totals[ key ] ?? 0 ) + value;
@@ -296,10 +333,8 @@ export function sanitizeStatsTimeSeriesResponse(
 
 		return totals;
 	}, {} );
-	const data = rows
-		.map< StatsTimeSeriesDataPoint >( row => {
-			const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
-			const range = getRowIntervalFields( row, rawPeriod, unit );
+	const data = kept
+		.map< StatsTimeSeriesDataPoint >( ( { row, range } ) => {
 			const value = safeParseFloat( getPrimaryMetricValue( row ) );
 
 			return {

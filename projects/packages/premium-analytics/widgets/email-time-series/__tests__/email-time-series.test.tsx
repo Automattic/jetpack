@@ -48,6 +48,16 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
+// An explicit window covering the fixture buckets below: the data layer trims
+// buckets to the requested window, so a default (today-relative) preset would
+// trim these fixed July dates away.
+const JULY_WEEK_PARAMS = {
+	...getDefaultQueryParams( false ),
+	preset: undefined,
+	from: '2026-07-01T00:00:00.000+08:00',
+	to: '2026-07-07T23:59:59.999+08:00',
+};
+
 // Raw WPCOM email timeline shape (`stats_fields=timeline`): a matrix nested
 // under `timeline`, one daily row per bucket. 2026-07-04/05 fall in one ISO
 // week (Mon 2026-06-29) and 2026-07-06 opens the next, so weekly grouping
@@ -78,7 +88,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		render(
 			<EmailTimeSeriesWidget
 				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
 					metric: 'opens',
 				} }
 			/>
@@ -111,7 +121,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 			render(
 				<EmailTimeSeriesWidget
 					attributes={ {
-						reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+						reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
 						metric: 'opens',
 					} }
 				/>
@@ -143,7 +153,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		render(
 			<EmailTimeSeriesWidget
 				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
 					metric: 'clicks',
 				} }
 			/>
@@ -199,7 +209,15 @@ describe( 'EmailTimeSeriesWidget', () => {
 		render(
 			<EmailTimeSeriesWidget
 				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), interval: 'week', post_id: 1234 },
+					// A 35-day window (weekly needs >= 28 days) covering both ISO weeks.
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-06-08T00:00:00.000+08:00',
+						to: '2026-07-12T23:59:59.999+08:00',
+						interval: 'week',
+						post_id: 1234,
+					},
 					metric: 'opens',
 				} }
 			/>

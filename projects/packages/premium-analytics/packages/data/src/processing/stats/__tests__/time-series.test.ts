@@ -236,6 +236,72 @@ describe( 'Stats time-series normalizer', () => {
 		expect( result.summary ).toEqual( expect.objectContaining( { clicks_count: 11 } ) );
 	} );
 
+	it( 'trims buckets outside a start_date/end_date window and sums only the rest', () => {
+		// The last-24-hours shape: the endpoint anchors hourly buckets on the
+		// start day's midnight, so the payload carries leading buckets before
+		// the window's 09:00 start that must not be plotted or summed.
+		const result = sanitizeStatsEmailTimeSeriesResponse(
+			{
+				timeline: {
+					unit: 'hour',
+					fields: [ 'date', 'hour', 'opens_count' ],
+					data: [
+						[ '2026-06-14', 8, 1 ],
+						[ '2026-06-14', 9, 2 ],
+						[ '2026-06-15', 8, 4 ],
+						[ '2026-06-15', 9, 8 ],
+					],
+				},
+			},
+			{
+				period: 'hour',
+				start_date: '2026-06-14T09:00:00.000-04:00',
+				end_date: '2026-06-15T08:59:59.999-04:00',
+			}
+		);
+
+		expect( result.data.map( point => point.time_interval ) ).toEqual( [
+			'2026-06-14 09:00',
+			'2026-06-15 08:00',
+		] );
+		expect( result.summary ).toEqual(
+			expect.objectContaining( {
+				opens_count: 6,
+				date_start: '2026-06-14T09:00:00',
+				date_end: '2026-06-15T08:59:59',
+			} )
+		);
+	} );
+
+	it( 'widens bare-date window bounds to whole days and needs both bounds to trim', () => {
+		const timeline = {
+			timeline: {
+				unit: 'day',
+				fields: [ 'date', 'opens_count' ],
+				data: [
+					[ '2026-06-15', 3 ],
+					[ '2026-06-16', 5 ],
+				],
+			},
+		};
+
+		const windowed = sanitizeStatsEmailTimeSeriesResponse( timeline, {
+			period: 'day',
+			start_date: '2026-06-15',
+			end_date: '2026-06-16',
+		} );
+		expect( windowed.data ).toHaveLength( 2 );
+		expect( windowed.summary ).toEqual( expect.objectContaining( { opens_count: 8 } ) );
+
+		// Range-bounded endpoints (e.g. visits) reach the sanitizer with a
+		// start_date but never an end_date; a lone bound must not trim.
+		const oneBound = sanitizeStatsEmailTimeSeriesResponse( timeline, {
+			period: 'day',
+			start_date: '2026-06-16',
+		} );
+		expect( oneBound.data ).toHaveLength( 2 );
+	} );
+
 	it( 'normalizes hour 0 and string-typed hour values into padded per-hour buckets', () => {
 		const result = sanitizeStatsEmailTimeSeriesResponse(
 			{
