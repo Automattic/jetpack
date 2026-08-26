@@ -9,8 +9,13 @@
 	block-size: 100%;
 }
 
+/* 6px is what wp-admin's `dd, li` rule gives the metric list's rows, so keeping
+ * it here holds the two widgets to the same row rhythm side by side. */
 .list {
+	display: flex;
 	flex: 1 1 auto;
+	flex-direction: column;
+	gap: 6px;
 	min-block-size: 0;
 }
 
@@ -21,7 +26,7 @@
 }
 
 .row {
-	padding-block: var(--wpds-dimension-padding-sm);
+	min-block-size: 36px;
 }
 
 /* flex:1 + min-width:0 lets the name ellipsis, not push "since" off-row. */
@@ -32,8 +37,8 @@
 
 .avatar {
 	flex-shrink: 0;
-	width: 32px;
-	height: 32px;
+	width: 28px;
+	height: 28px;
 	border-radius: 50%;
 	object-fit: cover;
 }
@@ -41,8 +46,8 @@
 /* The DataViews picker grids stretch media-cell images to 100%. Widget
  * previews render inert, so restore the avatar size there. */
 :global([inert]) .row .avatar {
-	width: 32px;
-	height: 32px;
+	width: 28px;
+	height: 28px;
 	object-fit: cover;
 }
 
@@ -69,7 +74,7 @@ a.name:focus {
 
 .more {
 	flex-shrink: 0;
-	padding-block: var(--wpds-dimension-padding-sm);
+	padding-block: var(--wpds-dimension-padding-md) 0;
 	color: var(--wpds-color-foreground-content-neutral-weak);
-	font-size: var(--wpds-typography-font-size-sm);
+	font-size: var(--wpds-typography-font-size-md);
 }
