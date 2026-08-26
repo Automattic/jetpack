@@ -134,6 +134,10 @@
 				// Bundled into the rich-text polyfill (rich-text unlocks its private
 				// APIs at module scope), so it must move in lockstep with rich-text.
 				'@wordpress/compose',
+				// notices' types are generated against @wordpress/data's generics, so it has to
+				// stay on data's release train: notices 5.53 with data 10.51 fails the typecheck
+				// in js-packages/components. When this group bumps notices ahead of data, pin it
+				// back to data's train (see #51303).
 				'@wordpress/notices',
 				'@wordpress/private-apis',
 				'@wordpress/rich-text',
