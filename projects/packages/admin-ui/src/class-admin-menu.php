@@ -215,7 +215,7 @@ class Admin_Menu {
 			);
 
 			if ( ! empty( $menu_item['classes'] ) ) {
-				self::add_submenu_item_classes( $menu_item['menu_slug'], $menu_item['classes'] );
+				self::add_submenu_item_classes( (string) $menu_item['menu_slug'], $menu_item['classes'] );
 			}
 		}
 
