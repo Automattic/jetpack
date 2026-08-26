@@ -9,6 +9,18 @@ import AiFeatures from '../index';
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
 
 describe( 'AiFeatures rendering', () => {
+	// jsdom does not implement navigation, so cancel the anchors' default
+	// action in link-click tests; React's onClick handlers still run.
+	const cancelNavigation = event => event.preventDefault();
+	beforeEach( () => document.addEventListener( 'click', cancelNavigation ) );
+	afterEach( () => document.removeEventListener( 'click', cancelNavigation ) );
+
+	const callsFor = eventName =>
+		analytics.tracks.recordEvent.mock.calls
+			.filter( call => call[ 0 ] === eventName )
+			.map( call => call[ 1 ] );
+	const toggledCalls = () => callsFor( 'jetpack_ai_feature_toggled' );
+
 	const renderFeatures = ( overrides = {} ) =>
 		render(
 			<AiFeatures
@@ -311,7 +323,7 @@ describe( 'AiFeatures rendering', () => {
 		await userEvent.click( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) );
 
 		expect( onUpdate ).not.toHaveBeenCalled();
-		expect( analytics.tracks.recordEvent ).not.toHaveBeenCalled();
+		expect( toggledCalls() ).toHaveLength( 0 );
 	} );
 
 	test( 'toggling a row sends a partial update for just that key', async () => {
@@ -371,7 +383,53 @@ describe( 'AiFeatures rendering', () => {
 
 		await userEvent.click( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) );
 
-		expect( analytics.tracks.recordEvent ).not.toHaveBeenCalled();
+		expect( toggledCalls() ).toHaveLength( 0 );
+	} );
+
+	test( 'viewed: records the features tab once on mount', () => {
+		analytics.tracks.recordEvent.mockClear();
+		renderFeatures();
+
+		expect( callsFor( 'jetpack_ai_hub_viewed' ) ).toEqual( [ { tab: 'features' } ] );
+	} );
+
+	test( 'upsell: the badge records a view on mount and a click when the popover opens', async () => {
+		analytics.tracks.recordEvent.mockClear();
+		renderFeatures( { is_connected: true, plan: { supports_ai: true, supports_search: false } } );
+
+		expect( callsFor( 'jetpack_ai_hub_upsell_viewed' ) ).toEqual( [
+			{ placement: 'features-badge', section: 'search' },
+		] );
+		expect( callsFor( 'jetpack_ai_hub_upsell_click' ) ).toHaveLength( 0 );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Requires upgrade' } ) );
+
+		expect( callsFor( 'jetpack_ai_hub_upsell_click' ) ).toEqual( [
+			{ placement: 'features-badge', section: 'search' },
+		] );
+	} );
+
+	test( 'link clicks: notice links and feature action links record their type', async () => {
+		analytics.tracks.recordEvent.mockClear();
+		renderFeatures( { is_connected: false } );
+		await userEvent.click( screen.getByRole( 'link', { name: 'Connect Jetpack' } ) );
+		expect( callsFor( 'jetpack_ai_hub_link_click' ) ).toEqual( [ { link_type: 'connection' } ] );
+
+		analytics.tracks.recordEvent.mockClear();
+		renderFeatures( { is_connected: true, master_enabled: false } );
+		await userEvent.click( screen.getByRole( 'link', { name: 'Manage in My Jetpack' } ) );
+		expect( callsFor( 'jetpack_ai_hub_link_click' ) ).toEqual( [ { link_type: 'products' } ] );
+
+		analytics.tracks.recordEvent.mockClear();
+		renderFeatures();
+		await userEvent.click( screen.getByRole( 'link', { name: 'Try it out in the editor' } ) );
+		expect( callsFor( 'jetpack_ai_hub_link_click' ) ).toEqual( [
+			{
+				link_type: 'feature_action',
+				feature: 'writing_assistant',
+				link: 'post-new.php?openSidebar=jetpack-ai-assistant',
+			},
+		] );
 	} );
 
 	test( 'Feature Clip does not render even when the endpoint reports it', () => {

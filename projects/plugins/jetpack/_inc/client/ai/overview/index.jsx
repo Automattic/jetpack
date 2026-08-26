@@ -7,11 +7,12 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink, ProgressBar, Spinner, VisuallyHidden } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
 import { Card, Link, LinkButton, Notice, Stack, Text } from '@wordpress/ui';
 import NavRow from '../components/nav-row';
+import { EVENTS, recordAiHubEvent, useRecordOnce } from '../tracks';
 import buildPageThumb from './images/build-page.webp';
 import connectClaudeThumb from './images/connect-claude.webp';
 import mediaLibraryThumb from './images/media-library.webp';
@@ -120,6 +121,18 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 	const meterValue = usage.unlimited
 		? 100
 		: ( usage.requestsAvailable / usage.requestsLimit ) * 100;
+	const showUpgrade = ! isLoading && ! error && usage.showUpgrade && !! upgradeUrl;
+	useEffect( () => {
+		if ( showUpgrade ) {
+			recordAiHubEvent( EVENTS.UPSELL_VIEWED, { placement: 'overview-usage' } );
+		}
+	}, [ showUpgrade ] );
+	const handleUpgradeClick = useCallback( () => {
+		recordAiHubEvent( 'jetpack_ai_upgrade_button', {
+			placement: 'ai-hub-overview',
+			context: 'jetpack-ai',
+		} );
+	}, [] );
 
 	return (
 		<Card.Root>
@@ -210,8 +223,8 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 										{ planLabel }
 									</Text>
 								) }
-								{ usage.showUpgrade && upgradeUrl && (
-									<LinkButton href={ upgradeUrl } size="compact">
+								{ showUpgrade && (
+									<LinkButton href={ upgradeUrl } size="compact" onClick={ handleUpgradeClick }>
 										{ __( 'Upgrade', 'jetpack' ) }
 									</LinkButton>
 								) }
@@ -280,6 +293,8 @@ export default function AiOverview( {
 } ) {
 	const hostBlocked = hostAllowsAi === false;
 	const userUnlinked = isUserConnected === false;
+	useRecordOnce( EVENTS.VIEWED, { tab: 'overview', plan_name: planName ?? '' } );
+	const recordLinkClick = props => () => recordAiHubEvent( EVENTS.LINK_CLICK, props );
 	return (
 		<Stack direction="column" gap="xl">
 			{ !! blogId && hostBlocked && (
@@ -300,7 +315,10 @@ export default function AiOverview( {
 							</Notice.Title>
 							<Notice.Description>
 								{ __( 'Connect your account to see your AI usage.', 'jetpack' ) }{ ' ' }
-								<Link href="admin.php?page=my-jetpack#/connection">
+								<Link
+									href="admin.php?page=my-jetpack#/connection"
+									onClick={ recordLinkClick( { link_type: 'connection' } ) }
+								>
 									{ __( 'Connect account', 'jetpack' ) }
 								</Link>
 							</Notice.Description>
@@ -327,7 +345,10 @@ export default function AiOverview( {
 							</Notice.Title>
 							<Notice.Description>
 								{ __( 'Connect the site to see your AI usage.', 'jetpack' ) }{ ' ' }
-								<Link href="admin.php?page=my-jetpack#/connection">
+								<Link
+									href="admin.php?page=my-jetpack#/connection"
+									onClick={ recordLinkClick( { link_type: 'connection' } ) }
+								>
 									{ __( 'Connect Jetpack', 'jetpack' ) }
 								</Link>
 							</Notice.Description>
@@ -348,6 +369,7 @@ export default function AiOverview( {
 							'jetpack'
 						) }
 						href={ activityLogUrl }
+						onClick={ recordLinkClick( { link_type: 'activity_log' } ) }
 						tone="neutral"
 					/>
 				</Card.Root>
@@ -366,6 +388,7 @@ export default function AiOverview( {
 								key={ slug }
 								target="_blank"
 								rel="noopener noreferrer"
+								onClick={ recordLinkClick( { link_type: 'video', link: slug } ) }
 							>
 								{ /* Decorative: the card's title carries the meaning. */ }
 								<img
@@ -404,7 +427,11 @@ export default function AiOverview( {
 				<Stack direction="column" gap="sm" align="flex-start">
 					{ DOC_LINKS.filter( ( { wpcomOnly } ) => isWpcomHosted || ! wpcomOnly ).map(
 						( { slug, title } ) => (
-							<ExternalLink key={ slug } href={ getRedirectUrl( slug ) }>
+							<ExternalLink
+								key={ slug }
+								href={ getRedirectUrl( slug ) }
+								onClick={ recordLinkClick( { link_type: 'doc', link: slug } ) }
+							>
 								{ title }
 							</ExternalLink>
 						)

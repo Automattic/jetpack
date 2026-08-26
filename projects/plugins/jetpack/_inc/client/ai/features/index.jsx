@@ -13,7 +13,7 @@ import { ToggleControl } from '@wordpress/components';
 import { Fragment, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Card, Link, Notice, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
-import analytics from 'lib/analytics';
+import { EVENTS, recordAiHubEvent, useRecordOnce } from '../tracks';
 
 // Server-computed target for the AI SEO row: the dedicated Jetpack SEO page
 // where it exists, the Traffic settings card otherwise. Falls back to Traffic
@@ -173,6 +173,13 @@ function FeatureRow( {
 	);
 
 	const action = checked ? feature.enabledAction : feature.disabledAction;
+	const handleActionClick = useCallback( () => {
+		recordAiHubEvent( EVENTS.LINK_CLICK, {
+			link_type: 'feature_action',
+			feature: feature.key,
+			link: action?.href,
+		} );
+	}, [ feature.key, action?.href ] );
 	// The toggle keeps showing the SAVED value but can't be used while the
 	// connection gate fails (no feature can load without it), while the master
 	// switch is off (the saved choice returns when master does), or while the
@@ -195,11 +202,56 @@ function FeatureRow( {
 					className="jetpack-ai-features__action"
 					href={ action.href }
 					openInNewTab={ !! action.external }
+					onClick={ handleActionClick }
 				>
 					{ action.label }
 				</Link>
 			) }
 		</Stack>
+	);
+}
+
+/**
+ * The "Requires upgrade" badge and its remedy popover for one gated section.
+ * Records the upsell as viewed on mount and as clicked when the popover opens.
+ *
+ * @param {object} props         - Component props.
+ * @param {string} props.section - Section key the badge belongs to.
+ * @param {string} props.tooltip - Remedy copy shown in the popover.
+ * @return {object} Component markup.
+ */
+function UpgradeBadge( { section, tooltip } ) {
+	useRecordOnce( EVENTS.UPSELL_VIEWED, { placement: 'features-badge', section } );
+	const handleOpenChange = useCallback(
+		open => {
+			if ( open ) {
+				recordAiHubEvent( EVENTS.UPSELL_CLICK, { placement: 'features-badge', section } );
+			}
+		},
+		[ section ]
+	);
+
+	return (
+		<Popover.Root onOpenChange={ handleOpenChange }>
+			{ /* A popover rather than a tooltip: click opens it, touch
+			     works, and screen readers announce the remedy copy. The
+			     trigger's accessible name is its visible badge text. */ }
+			<Popover.Trigger
+				openOnHover
+				delay={ 200 }
+				closeDelay={ 200 }
+				className="jetpack-ai-features__upgrade-badge"
+			>
+				<Badge intent="informational">{ __( 'Requires upgrade', 'jetpack' ) }</Badge>
+			</Popover.Trigger>
+			<Popover.Popup>
+				<Popover.Arrow />
+				<VisuallyHidden render={ <Popover.Title /> }>
+					{ __( 'Requires upgrade', 'jetpack' ) }
+				</VisuallyHidden>
+				<Popover.Description>{ tooltip }</Popover.Description>
+			</Popover.Popup>
+		</Popover.Root>
 	);
 }
 
@@ -248,13 +300,15 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 		  );
 
 	const sections = visibleSections( SECTIONS, features );
+	useRecordOnce( EVENTS.VIEWED, { tab: 'features' } );
+	const recordLinkClick = props => () => recordAiHubEvent( EVENTS.LINK_CLICK, props );
 
 	const handleToggle = useCallback(
 		( key, enabled ) => {
 			onUpdate( { features: { [ key ]: enabled } } ).then( saved => {
 				// Track outcomes, not attempts: a failed save changed nothing.
 				if ( saved ) {
-					analytics.tracks.recordEvent( 'jetpack_ai_feature_toggled', {
+					recordAiHubEvent( 'jetpack_ai_feature_toggled', {
 						feature: key,
 						enabled,
 					} );
@@ -289,7 +343,10 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 							'AI features need a connection to run. Your saved settings will apply once the site is connected.',
 							'jetpack'
 						) }{ ' ' }
-						<Link href="admin.php?page=my-jetpack#/connection">
+						<Link
+							href="admin.php?page=my-jetpack#/connection"
+							onClick={ recordLinkClick( { link_type: 'connection' } ) }
+						>
 							{ __( 'Connect Jetpack', 'jetpack' ) }
 						</Link>
 					</Notice.Description>
@@ -305,7 +362,10 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 							'Your feature settings are saved and will apply again when AI is turned back on.',
 							'jetpack'
 						) }{ ' ' }
-						<Link href="admin.php?page=my-jetpack">
+						<Link
+							href="admin.php?page=my-jetpack"
+							onClick={ recordLinkClick( { link_type: 'products' } ) }
+						>
 							{ __( 'Manage in My Jetpack', 'jetpack' ) }
 						</Link>
 					</Notice.Description>
@@ -344,29 +404,7 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 											</Text>
 											{ isConnected &&
 												section.features.some( f => features[ f.key ]?.requires_upgrade ) && (
-													<Popover.Root>
-														{ /* A popover rather than a tooltip: click opens it, touch
-													     works, and screen readers announce the remedy copy —
-													     the shape agreed with design on the PR. The trigger's
-													     accessible name is its visible badge text. */ }
-														<Popover.Trigger
-															openOnHover
-															delay={ 200 }
-															closeDelay={ 200 }
-															className="jetpack-ai-features__upgrade-badge"
-														>
-															<Badge intent="informational">
-																{ __( 'Requires upgrade', 'jetpack' ) }
-															</Badge>
-														</Popover.Trigger>
-														<Popover.Popup>
-															<Popover.Arrow />
-															<VisuallyHidden render={ <Popover.Title /> }>
-																{ __( 'Requires upgrade', 'jetpack' ) }
-															</VisuallyHidden>
-															<Popover.Description>{ upgradeBadgeTooltip }</Popover.Description>
-														</Popover.Popup>
-													</Popover.Root>
+													<UpgradeBadge section={ section.key } tooltip={ upgradeBadgeTooltip } />
 												) }
 										</div>
 										{ section.features.map( feature => renderRow( feature ) ) }

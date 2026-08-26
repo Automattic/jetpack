@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings as getDateSettings, setSettings as setDateSettings } from '@wordpress/date';
+import analytics from 'lib/analytics';
 import AiOverview from '../index';
 import { freePayload, tieredPayload, unlimitedPayload } from './fixtures';
 
@@ -8,7 +10,22 @@ import { freePayload, tieredPayload, unlimitedPayload } from './fixtures';
 // hits the network and each test controls the response.
 jest.mock( '@wordpress/api-fetch' );
 
+// The component imports the webpack-aliased 'lib/analytics', which doesn't
+// resolve under jest; provide it virtually. (jest.mock is hoisted.)
+jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
+
+const callsFor = eventName =>
+	analytics.tracks.recordEvent.mock.calls
+		.filter( call => call[ 0 ] === eventName )
+		.map( call => call[ 1 ] );
+
+// jsdom does not implement navigation, so cancel the anchors' default action;
+// React's onClick handlers still run.
+const cancelNavigation = event => event.preventDefault();
+beforeEach( () => document.addEventListener( 'click', cancelNavigation ) );
+
 afterEach( () => {
+	document.removeEventListener( 'click', cancelNavigation );
 	jest.resetAllMocks();
 } );
 
@@ -392,6 +409,63 @@ describe( 'AiOverview', () => {
 			const card = screen.getByRole( 'link', { name: new RegExp( name ) } );
 			expect( card ).toHaveAttribute( 'href', expect.stringContaining( slug ) );
 		}
+	} );
+
+	test( 'tracks: records the overview view once on mount with the plan name', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } planName="Jetpack Complete" /> );
+
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+		expect( callsFor( 'jetpack_ai_hub_viewed' ) ).toEqual( [
+			{ tab: 'overview', plan_name: 'Jetpack Complete' },
+		] );
+	} );
+
+	test( 'tracks: the upgrade button records a view when it renders and a click', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		const upgrade = await screen.findByRole( 'link', { name: 'Upgrade' } );
+		expect( callsFor( 'jetpack_ai_hub_upsell_viewed' ) ).toEqual( [
+			{ placement: 'overview-usage' },
+		] );
+
+		await userEvent.click( upgrade );
+		expect( callsFor( 'jetpack_ai_upgrade_button' ) ).toEqual( [
+			{ placement: 'ai-hub-overview', context: 'jetpack-ai' },
+		] );
+	} );
+
+	test( 'tracks: no upsell view is recorded without an upgrade button', async () => {
+		apiFetch.mockResolvedValueOnce( unlimitedPayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+		expect( callsFor( 'jetpack_ai_hub_upsell_viewed' ) ).toHaveLength( 0 );
+	} );
+
+	test( 'tracks: video, doc, activity log, and connect links record their type', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'link', { name: /Connect your site to Claude/ } ) );
+		await userEvent.click( screen.getByRole( 'link', { name: /MCP integration guide/ } ) );
+		await userEvent.click( screen.getByRole( 'link', { name: /Activity log/ } ) );
+		expect( callsFor( 'jetpack_ai_hub_link_click' ) ).toEqual( [
+			{ link_type: 'video', link: 'jetpack-ai-hub-overview-video-connect-claude' },
+			{ link_type: 'doc', link: 'jetpack-ai-hub-overview-docs-mcp-guide' },
+			{ link_type: 'activity_log' },
+		] );
+
+		analytics.tracks.recordEvent.mockClear();
+		render( <AiOverview { ...PROPS } blogId={ 0 } /> );
+		await userEvent.click( screen.getByRole( 'link', { name: 'Connect Jetpack' } ) );
+		expect( callsFor( 'jetpack_ai_hub_link_click' ) ).toEqual( [ { link_type: 'connection' } ] );
 	} );
 
 	test( 'documentation: renders all five links through the redirect service', async () => {

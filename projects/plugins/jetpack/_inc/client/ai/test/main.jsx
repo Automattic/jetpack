@@ -78,6 +78,11 @@ const connectedMcpGet = () => ( {
 	},
 } );
 
+const hubViews = () =>
+	analytics.tracks.recordEvent.mock.calls
+		.filter( call => call[ 0 ] === 'jetpack_ai_hub_viewed' )
+		.map( call => call[ 1 ] );
+
 const mcpViewCount = () =>
 	analytics.tracks.recordEvent.mock.calls.filter(
 		call => call[ 0 ] === 'jetpack_mcp_settings_viewed'
@@ -401,6 +406,25 @@ describe( 'AI admin page (main.jsx)', () => {
 			screen.findByRole( 'checkbox', { name: 'Enable MCP access' } )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /Activity log/ } ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'hub view tracking: the Overview and Features tabs each record their own view', async () => {
+		mockApiFetch( { mcpGet: connectedMcpGet() } );
+		window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
+		window.location.hash = '#/overview';
+		render( <App /> );
+
+		await waitFor( () => {
+			expect( hubViews() ).toEqual( [ expect.objectContaining( { tab: 'overview' } ) ] );
+		} );
+
+		act( () => {
+			window.location.hash = '#/features';
+			window.dispatchEvent( new Event( 'hashchange' ) );
+		} );
+		await waitFor( () => {
+			expect( hubViews().map( p => p.tab ) ).toEqual( [ 'overview', 'features' ] );
+		} );
 	} );
 
 	test( 'MCP view tracking: does not fire on the Features tab', async () => {

@@ -27,7 +27,7 @@ export default function NavRow( { icon, title, description, href, onClick, tone 
 	// Only the element and its props differ between the two forms: an anchor
 	// when there is a destination, a button when there is a handler.
 	const Tag = href ? 'a' : 'button';
-	const tagProps = href ? { href } : { onClick, type: 'button' };
+	const tagProps = href ? { href, onClick } : { onClick, type: 'button' };
 	const className = tone
 		? `jetpack-ai-nav-row jetpack-ai-nav-row--${ tone }`
 		: 'jetpack-ai-nav-row';
