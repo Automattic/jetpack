@@ -497,6 +497,51 @@ describe( 'Email design editor entry point', () => {
 			expect( keyed ).not.toContain( '/wp/v2/global-styles/2' );
 		} );
 
+		it.each( [
+			[ 'a query string smuggled into the id', '2?context=edit' ],
+			[ 'a numeric string', '999999999' ],
+			[ 'zero', 0 ],
+			[ 'a float', 1.5 ],
+		] )( 'preloads no global styles path for %s', async ( _label, postId ) => {
+			mockApiFetch.mockResolvedValue(
+				bootstrapBundle( {
+					global_styles: { ...bootstrapBundle().global_styles, post_id: postId },
+				} )
+			);
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			// The keys are interpolated from this value, and the editor loads the site's own
+			// global-styles record alongside ours. An id carrying a query string or a slash would
+			// widen what we answer for — `2?context=edit` is the site's own record's path.
+			const map = preloadedMap();
+
+			expect( Object.keys( map ).some( k => k.includes( 'global-styles' ) ) ).toBe( false );
+			expect( Object.keys( map.OPTIONS || {} ) ).toHaveLength( 0 );
+		} );
+
+		it.each( [
+			[ 'a query string smuggled into the id', '2?context=edit' ],
+			[ 'a numeric string', '999999999' ],
+			[ 'zero', 0 ],
+			[ 'a negative id', -1 ],
+			[ 'a float', 1.5 ],
+		] )( 'falls back to the page id rather than passing on %s', async ( _label, postId ) => {
+			// `??` only falls through on null/undefined, so an invalid id that is merely falsy —
+			// 0 — would otherwise reach the editor instead of the fallback.
+			mockApiFetch.mockResolvedValue(
+				bootstrapBundle( {
+					global_styles: { ...bootstrapBundle().global_styles, post_id: postId },
+				} )
+			);
+			window.JetpackEmailDesignEditor = pageData( { globalStylesPostId: 878 } );
+
+			await loadEntryPoint();
+
+			expect( mountedEditorProps().config.globalStylesPostId ).toBe( 878 );
+		} );
+
 		it( 'preloads the template half even when the bundle carries no global styles', async () => {
 			mockApiFetch.mockResolvedValue( bootstrapBundle( { global_styles: undefined } ) );
 			window.JetpackEmailDesignEditor = pageData();
