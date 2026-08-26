@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Backup: surface WordPress.com's own reason when a modernized-dashboard request fails, instead of one fixed sentence per operation — a lapsed connection, a rejected account and a backup-service fault now say so, and the upstream reason travels on the error for support. No-op when the modernization filter is off.
+
+
