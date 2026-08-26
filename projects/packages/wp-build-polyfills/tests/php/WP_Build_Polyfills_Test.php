@@ -990,4 +990,97 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		$this->assertFalse( $scripts->query( 'wp-private-apis', 'registered' ) );
 		$this->assertFalse( $scripts->query( 'wp-theme', 'registered' ) );
 	}
+
+	/**
+	 * Data provider for test_predict_registration.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_predict_registration() {
+		return array(
+			'WP 6.9, no Gutenberg'       => array(
+				'6.9.1',
+				null,
+				'7.0',
+				array(
+					'wp-notices'      => 'force',
+					'wp-private-apis' => 'force',
+					'wp-rich-text'    => 'force',
+				),
+			),
+			'WP 7.0.4, no Gutenberg'     => array(
+				'7.0.4',
+				null,
+				'7.0',
+				array(
+					'wp-notices'      => 'fallback',
+					'wp-private-apis' => 'force',
+					'wp-rich-text'    => 'force',
+				),
+			),
+			'WP 7.1, no Gutenberg'       => array(
+				'7.1',
+				null,
+				'7.0',
+				array(
+					'wp-notices'      => 'fallback',
+					'wp-private-apis' => 'fallback',
+					'wp-rich-text'    => 'fallback',
+				),
+			),
+			'WP 7.0.4, Gutenberg 23.4.0' => array(
+				'7.0.4',
+				'23.4.0',
+				'7.0',
+				array(
+					'wp-private-apis' => 'force',
+					'wp-rich-text'    => 'force',
+				),
+			),
+			'WP 7.0.4, Gutenberg 23.5.0' => array(
+				'7.0.4',
+				'23.5.0',
+				'7.0',
+				array(
+					'wp-private-apis' => 'fallback',
+					'wp-rich-text'    => 'force',
+				),
+			),
+			'WP 7.0.4, Gutenberg 23.6.0' => array(
+				'7.0.4',
+				'23.6.0',
+				'7.0',
+				array(
+					'wp-private-apis' => 'fallback',
+					'wp-rich-text'    => 'fallback',
+				),
+			),
+			'WP 6.9, Gutenberg 23.8.0'   => array( '6.9.1', '23.8.0', '7.0', array( 'wp-notices' => 'fallback' ) ),
+			'consumer threshold 7.1'     => array( '7.0.4', null, '7.1', array( 'wp-notices' => 'force' ) ),
+		);
+	}
+
+	/**
+	 * Test predict_registration() against the force rules.
+	 *
+	 * @dataProvider provide_predict_registration
+	 *
+	 * @param string      $wp_version        WordPress version.
+	 * @param string|null $gutenberg_version Gutenberg version or null.
+	 * @param string      $threshold         Consumer threshold.
+	 * @param array       $expected          Expected modes for a subset of handles.
+	 */
+	#[DataProvider( 'provide_predict_registration' )]
+	public function test_predict_registration( $wp_version, $gutenberg_version, $threshold, $expected ) {
+		$modes = WP_Build_Polyfills::predict_registration( $wp_version, $gutenberg_version, $threshold );
+
+		foreach ( $expected as $handle => $mode ) {
+			$this->assertSame( $mode, $modes[ $handle ], $handle );
+		}
+		$this->assertSame( 'fallback', $modes['wp-theme'] );
+		$this->assertSame( 'fallback', $modes['wp-views'] );
+		foreach ( WP_Build_Polyfills::MODULE_IDS as $module_id ) {
+			$this->assertSame( 'fallback', $modes[ $module_id ], $module_id );
+		}
+	}
 }

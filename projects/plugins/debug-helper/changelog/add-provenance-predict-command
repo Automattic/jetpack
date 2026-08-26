@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Package Provenance: Add a WP-CLI command that predicts which runtime serves each polyfilled package on a given WordPress and Gutenberg version, and whether the site's bundles would be rejected by the winning private-apis allowlist.

@@ -185,46 +185,9 @@ class WP_Build_Polyfills {
 		// Gutenberg cannot be trusted to provide a compatible implementation.
 		$gutenberg_version = defined( 'GUTENBERG_VERSION' ) ? GUTENBERG_VERSION : null;
 
-		$polyfills = array(
-			'wp-notices'      => array(
-				'path'            => 'notices',
-				'force_threshold' => '7.0',
-				// Only force-replace on older WP without Gutenberg: older Core
-				// versions ship notices without SnackbarNotices and InlineNotices
-				// component exports that @wordpress/boot depends on.
-			),
-			'wp-private-apis' => array(
-				'path'                  => 'private-apis',
-				'force_threshold'       => '7.1',
-				'gutenberg_min_version' => self::GUTENBERG_PRIVATE_APIS_MIN_VERSION,
-				// WP 7.0 and older versions ship private-apis with an incomplete
-				// allowlist that rejects @wordpress/theme, @wordpress/route, and
-				// newer dashboard packages. Active Gutenberg is only a safe
-				// substitute once its private-apis allowlist includes those
-				// dashboard packages too.
-			),
-			'wp-rich-text'    => array(
-				'path'                  => 'rich-text',
-				'force_threshold'       => '7.1',
-				'gutenberg_min_version' => self::GUTENBERG_RICH_TEXT_MIN_VERSION,
-				// WP 7.0 and older ship a rich-text whose `privateApis` current
-				// dashboard dependencies cannot use (e.g. @wordpress/dataviews
-				// >= 17.2 dataform controls, which unlock it at module scope).
-				// WP 6.9 exports no `privateApis` at all, which throws "Cannot
-				// unlock an undefined object"; WP 7.0 exports one locked with
-				// only `useRichText`, so destructuring the other keys yields
-				// undefined. Either way the page blanks. Older Gutenberg is not
-				// a safe substitute either — see the constant's doc.
-			),
-			'wp-theme'        => array(
-				'path' => 'theme',
-			),
-			'wp-views'        => array(
-				'path' => 'views',
-			),
-		);
+		$wp_version = $GLOBALS['wp_version'] ?? '0';
 
-		foreach ( $polyfills as $handle => $data ) {
+		foreach ( self::script_policies() as $handle => $data ) {
 			if ( ! isset( self::$requested[ $handle ] ) ) {
 				continue;
 			}
@@ -235,14 +198,7 @@ class WP_Build_Polyfills {
 				continue;
 			}
 
-			$force_threshold = $data['force_threshold'] ?? null;
-			if ( null !== $force_threshold && version_compare( $wp_version_threshold, $force_threshold, '>' ) ) {
-				$force_threshold = $wp_version_threshold;
-			}
-
-			$force = null !== $force_threshold
-				&& ! self::is_gutenberg_version_safe( $data['gutenberg_min_version'] ?? null, $gutenberg_version )
-				&& version_compare( $GLOBALS['wp_version'] ?? '0', $force_threshold, '<' );
+			$force = self::should_force( $data, $wp_version, $gutenberg_version, $wp_version_threshold );
 
 			if ( ! $force && $scripts->query( $handle, 'registered' ) ) {
 				continue;
@@ -280,6 +236,100 @@ class WP_Build_Polyfills {
 				$scripts->set_translations( $handle );
 			}
 		}
+	}
+
+	/**
+	 * Predicts how each polyfill registers on a given WordPress and Gutenberg version.
+	 *
+	 * `force` replaces the copy Core or Gutenberg registered under the handle;
+	 * `fallback` only registers when nobody else did. Script modules are always
+	 * `fallback`: `wp_register_script_module()` keeps the first registration.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string      $wp_version           WordPress version to evaluate.
+	 * @param string|null $gutenberg_version    Gutenberg plugin version, or null when it is inactive.
+	 * @param string      $wp_version_threshold WordPress version below which force-replacements apply. Defaults to '7.0'.
+	 * @return array<string, string> Script handle or module ID => 'force' | 'fallback'.
+	 */
+	public static function predict_registration( $wp_version, $gutenberg_version = null, $wp_version_threshold = '7.0' ) {
+		$modes = array();
+		foreach ( self::script_policies() as $handle => $policy ) {
+			$modes[ $handle ] = self::should_force( $policy, $wp_version, $gutenberg_version, $wp_version_threshold ) ? 'force' : 'fallback';
+		}
+		foreach ( self::MODULE_IDS as $module_id ) {
+			$modes[ $module_id ] = 'fallback';
+		}
+
+		return $modes;
+	}
+
+	/**
+	 * Registration policy per polyfilled classic script.
+	 *
+	 * @return array<string, array{path: string, force_threshold?: string, gutenberg_min_version?: string}>
+	 */
+	private static function script_policies() {
+		return array(
+			'wp-notices'      => array(
+				'path'            => 'notices',
+				'force_threshold' => '7.0',
+				// Only force-replace on older WP without Gutenberg: older Core
+				// versions ship notices without SnackbarNotices and InlineNotices
+				// component exports that @wordpress/boot depends on.
+			),
+			'wp-private-apis' => array(
+				'path'                  => 'private-apis',
+				'force_threshold'       => '7.1',
+				'gutenberg_min_version' => self::GUTENBERG_PRIVATE_APIS_MIN_VERSION,
+				// WP 7.0 and older versions ship private-apis with an incomplete
+				// allowlist that rejects @wordpress/theme, @wordpress/route, and
+				// newer dashboard packages. Active Gutenberg is only a safe
+				// substitute once its private-apis allowlist includes those
+				// dashboard packages too.
+			),
+			'wp-rich-text'    => array(
+				'path'                  => 'rich-text',
+				'force_threshold'       => '7.1',
+				'gutenberg_min_version' => self::GUTENBERG_RICH_TEXT_MIN_VERSION,
+				// WP 7.0 and older ship a rich-text whose `privateApis` current
+				// dashboard dependencies cannot use (e.g. @wordpress/dataviews
+				// >= 17.2 dataform controls, which unlock it at module scope).
+				// WP 6.9 exports no `privateApis` at all, which throws "Cannot
+				// unlock an undefined object"; WP 7.0 exports one locked with
+				// only `useRichText`, so destructuring the other keys yields
+				// undefined. Either way the page blanks. Older Gutenberg is not
+				// a safe substitute either — see the constant's doc.
+			),
+			'wp-theme'        => array(
+				'path' => 'theme',
+			),
+			'wp-views'        => array(
+				'path' => 'views',
+			),
+		);
+	}
+
+	/**
+	 * Whether a polyfill must replace an existing registration.
+	 *
+	 * @param array       $policy               Entry from script_policies().
+	 * @param string      $wp_version           WordPress version to evaluate.
+	 * @param string|null $gutenberg_version    Gutenberg plugin version, or null when it is inactive.
+	 * @param string      $wp_version_threshold WordPress version below which force-replacements apply.
+	 * @return bool
+	 */
+	private static function should_force( $policy, $wp_version, $gutenberg_version, $wp_version_threshold ) {
+		$force_threshold = $policy['force_threshold'] ?? null;
+		if ( null === $force_threshold ) {
+			return false;
+		}
+		if ( version_compare( $wp_version_threshold, $force_threshold, '>' ) ) {
+			$force_threshold = $wp_version_threshold;
+		}
+
+		return ! self::is_gutenberg_version_safe( $policy['gutenberg_min_version'] ?? null, $gutenberg_version )
+			&& version_compare( $wp_version, $force_threshold, '<' );
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add WP_Build_Polyfills::predict_registration() to expose the force-replacement decision per polyfill for a given WordPress and Gutenberg version.
