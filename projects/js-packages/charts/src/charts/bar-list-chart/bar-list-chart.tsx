@@ -4,13 +4,7 @@ import { createScale, scaleBand } from '@visx/scale';
 import { Text, type TextProps } from '@visx/text';
 import { useContext, useMemo } from 'react';
 import { GlobalChartsContext, GlobalChartsProvider, useGlobalChartsContext } from '../../providers';
-import { useChartScopeElement } from '../../providers/chart-scope';
-import {
-	isValidHexColor,
-	mixHexColors,
-	normalizeColorToHex,
-	resolveCssVariable,
-} from '../../utils';
+import { isValidHexColor, lightenHexColor } from '../../utils';
 import { BarChartUnresponsive } from '../bar-chart';
 import { withResponsive } from '../private/with-responsive';
 import type { SeriesData } from '../..';
@@ -218,7 +212,7 @@ const getDefaultYOffset = (
 	return -( barThickness + GAP_BETWEEN_BARS );
 };
 
-// How far a single-series bar fill travels from the surface toward the series colour.
+// How far a single-series bar fill travels from white toward the series colour.
 //
 // With one series the label is drawn *on* the bar, so the fill is a background for text and has to
 // keep contrast with `--a8c-charts-color-label`. A full-strength series colour cannot promise that:
@@ -227,6 +221,11 @@ const getDefaultYOffset = (
 //
 // Multi-series bars keep their full strength: `getDefaultYOffset` lifts the label clear of them, so
 // nothing is read against the fill, and tinting would only compress the separation between series.
+//
+// White rather than `theme.backgroundColor`, which would read as if it knew the surface: the chart
+// paints no background, so that token names a colour nothing here is drawn on. White is the same
+// assumption, made visibly, and it is what Premium Analytics' leaderboard already blends toward.
+// CHARTS-261 has charts paint their own surface; blend toward the token once that is true.
 const BAR_TINT_TOWARD_SERIES = 0.4;
 
 const BarListChartInternal: FC< BarListChartProps > = ( {
@@ -242,21 +241,13 @@ const BarListChartInternal: FC< BarListChartProps > = ( {
 	},
 	...rest
 } ) => {
-	const { getElementStyles, theme } = useGlobalChartsContext();
-	const scopeElement = useChartScopeElement();
+	const { getElementStyles } = useGlobalChartsContext();
 
 	// A series carrying its own stroke is left alone — the consumer asked for that exact colour.
 	const tintedData = useMemo( () => {
 		if ( data.length > 1 ) {
 			return data;
 		}
-
-		const background = normalizeColorToHex(
-			theme.backgroundColor,
-			scopeElement,
-			resolveCssVariable
-		);
-		const surface = isValidHexColor( background ) ? background : '#fff';
 
 		return data.map( ( series, index ) => {
 			if ( series.options?.stroke ) {
@@ -273,11 +264,11 @@ const BarListChartInternal: FC< BarListChartProps > = ( {
 				...series,
 				options: {
 					...series.options,
-					stroke: mixHexColors( surface, color, BAR_TINT_TOWARD_SERIES ),
+					stroke: lightenHexColor( color, 1 - BAR_TINT_TOWARD_SERIES ),
 				},
 			};
 		} );
-	}, [ data, getElementStyles, theme.backgroundColor, scopeElement ] );
+	}, [ data, getElementStyles ] );
 
 	const chartOptions = useMemo( () => {
 		const isMultiSeries = data.length > 1;

@@ -2,7 +2,6 @@ import { Stack } from '@wordpress/ui';
 import { action } from 'storybook/actions';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { defaultTheme, useGlobalChartsContext } from '../../../providers';
-import { useChartScopeElement } from '../../../providers/chart-scope';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -20,13 +19,7 @@ import {
 	extractLegendConfig,
 	type LegendStoryControls,
 } from '../../../stories/legend-config';
-import {
-	formatMetricValue,
-	isValidHexColor,
-	mixHexColors,
-	normalizeColorToHex,
-	resolveCssVariable,
-} from '../../../utils';
+import { formatMetricValue, lightenHexColor } from '../../../utils';
 import { SUBPIXEL_TOLERANCE } from '../hooks';
 import LeaderboardChart, { LeaderboardChartUnresponsive } from '../leaderboard-chart';
 import type { ChartLegendConfig, LeaderboardEntry } from '../../../types';
@@ -570,30 +563,24 @@ export const AdvancedFormatting: Story = {
 	},
 };
 
+// Matches the 8% Premium Analytics uses in `chart-leaderboard/leaderboard-chart.tsx`.
 const OVERLAY_LABEL_BAR_TINT = 0.08;
 
-// The label sits on top of the bar, so the bar is tinted rather than filled: at full strength the series colour competes with the label text for contrast. Matches the 8% Premium Analytics uses in `chart-leaderboard/leaderboard-chart.tsx`.
+// The label sits on top of the bar, so the bar is tinted rather than filled: at full strength the series colour competes with the label text for contrast.
 //
-// Composited against the background rather than passed as `rgba()`, because `primaryColor` cannot carry alpha — `resolveColor` normalises every override through `normalizeColorToHex`, whose `formatHex()` drops it. Mixing the surface toward the series colour is the same pixel.
+// Blended rather than passed as `rgba()`, because `primaryColor` cannot carry alpha — `resolveColor` normalises every override through `normalizeColorToHex`, whose `formatHex()` drops it. That stripping is deliberate: geo chart feeds its resolved colour to Google Charts, which takes hex only, and `lightenHexColor`/`mixHexColors` throw on anything else. Blending is the mechanism here, not a workaround.
 //
-// The wrapper supplies that surface, because the chart paints no background of its own and the Storybook canvas is the wp-admin body grey. A tint this faint is mixed against the chart's white background token and would then composite over the grey — two different colours, and at 8% the bar disappears. In Premium Analytics the surface is the widget card. #51589 turns the canvas white for chart stories, which makes this wrapper redundant; drop it when that lands.
+// Blended toward white rather than toward `theme.backgroundColor`, which would read as if it knew the surface: the chart paints no background, so that token names a colour nothing here is drawn on. White is the same assumption, made visibly. CHARTS-261 has charts paint their own surface, at which point the token becomes true and this should blend toward it instead.
 const LeaderboardChartWithOverlayLabel = ( args: StoryArgs ) => {
-	const scopeElement = useChartScopeElement();
-	const { getElementStyles, theme } = useGlobalChartsContext();
+	const { getElementStyles } = useGlobalChartsContext();
 	const { color: primaryColor } = getElementStyles( {
 		index: 0,
 		overrideColor: args.primaryColor,
 	} );
 
-	const background = normalizeColorToHex( theme.backgroundColor, scopeElement, resolveCssVariable );
-	const surface = isValidHexColor( background ) ? background : '#fff';
-	const tintedPrimaryColor = mixHexColors( surface, primaryColor, OVERLAY_LABEL_BAR_TINT );
+	const tintedPrimaryColor = lightenHexColor( primaryColor, 1 - OVERLAY_LABEL_BAR_TINT );
 
-	return (
-		<div style={ { background: surface, padding: '12px' } }>
-			<LeaderboardChart { ...args } primaryColor={ tintedPrimaryColor } />
-		</div>
-	);
+	return <LeaderboardChart { ...args } primaryColor={ tintedPrimaryColor } />;
 };
 
 export const OverlayLabelWithImage: Story = {
