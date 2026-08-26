@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -15,17 +15,29 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 // the series observable so the tests can assert what the widget charts.
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
-	ComparativeLineChart: ( {
-		series,
+	MetricTabsChart: ( {
+		metrics,
+		chartType,
+		pointsAreWallClocks,
 	}: {
-		series: { label: string; data: { value: number }[] }[];
+		metrics: {
+			key: string;
+			label: string;
+			value: number;
+			current: { date: Date; value: number }[];
+		}[];
+		chartType?: string;
+		pointsAreWallClocks?: boolean;
 	} ) => (
 		<div
-			data-testid="comparative-line-chart"
-			data-series-count={ series.length }
-			data-series-label={ series[ 0 ]?.label }
-			data-values={ series[ 0 ]?.data.map( point => point.value ).join( ',' ) }
-			data-previous-values={ series[ 1 ]?.data.map( point => point.value ).join( ',' ) }
+			data-testid="metric-tabs-chart"
+			data-metric-count={ metrics.length }
+			data-metric-label={ metrics[ 0 ]?.label }
+			data-metric-total={ String( metrics[ 0 ]?.value ) }
+			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
+			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
+			data-chart-type={ String( chartType ) }
+			data-wall-clocks={ String( pointsAreWallClocks ) }
 		/>
 	),
 } ) );
@@ -72,13 +84,51 @@ describe( 'EmailTimeSeriesWidget', () => {
 			/>
 		);
 
-		const chart = await screen.findByTestId( 'comparative-line-chart' );
-		expect( chart ).toHaveAttribute( 'data-series-label', 'Total opens' );
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		expect( chart ).toHaveAttribute( 'data-metric-label', 'Total opens' );
 		expect( chart ).toHaveAttribute( 'data-values', '10,5,7' );
+		// The metric headline is the window total, and the chart type
+		// defaults to line.
+		expect( chart ).toHaveAttribute( 'data-metric-total', '22' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'stats/opens/emails/1234' );
 		expect( requestedPath ).toContain( 'stats_fields=timeline' );
+	} );
+
+	// Pinned west of UTC on purpose: under a UTC runner the wall-clock reading
+	// and the old instant reading coincide, so this would pass either way. `TZ`
+	// is not on the typed env shape, hence the cast.
+	it( 'builds chart points as the wall clocks the buckets name, declared to the chart', async () => {
+		const env = process.env as Record< string, string | undefined >;
+		const runnerTimeZone = env.TZ;
+		env.TZ = 'America/Los_Angeles';
+
+		try {
+			mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
+
+			render(
+				<EmailTimeSeriesWidget
+					attributes={ {
+						reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+						metric: 'opens',
+					} }
+				/>
+			);
+
+			const chart = await screen.findByTestId( 'metric-tabs-chart' );
+			// The old `localTZDate` reading anchors the buckets away from the
+			// local frame, so these read as the previous day (3,4,5) under it.
+			expect( chart ).toHaveAttribute( 'data-days', '4,5,6' );
+			expect( chart ).toHaveAttribute( 'data-wall-clocks', 'true' );
+		} finally {
+			if ( runnerTimeZone === undefined ) {
+				delete env.TZ;
+			} else {
+				env.TZ = runnerTimeZone;
+			}
+		}
 	} );
 
 	it( 'reads the clicks endpoint when metric is clicks', async () => {
@@ -99,8 +149,8 @@ describe( 'EmailTimeSeriesWidget', () => {
 			/>
 		);
 
-		const chart = await screen.findByTestId( 'comparative-line-chart' );
-		expect( chart ).toHaveAttribute( 'data-series-label', 'Total clicks' );
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		expect( chart ).toHaveAttribute( 'data-metric-label', 'Total clicks' );
 		expect( chart ).toHaveAttribute( 'data-values', '3' );
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
@@ -132,8 +182,8 @@ describe( 'EmailTimeSeriesWidget', () => {
 			/>
 		);
 
-		const chart = await screen.findByTestId( 'comparative-line-chart' );
-		expect( chart ).toHaveAttribute( 'data-series-count', '1' );
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		expect( chart ).toHaveAttribute( 'data-metric-count', '1' );
 		expect( chart ).toHaveAttribute( 'data-values', '10,5,7' );
 
 		// One request, scoped to the primary window only.
@@ -143,24 +193,23 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( requestedDates ).toEqual( [ '2026-07-01T00:00:00.000+08:00' ] );
 	} );
 
-	it( 'aggregates the daily buckets into ISO weeks for the weekly granularity', async () => {
+	it( 'aggregates the daily buckets into ISO weeks when the page interval is weekly', async () => {
 		mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
 
 		render(
 			<EmailTimeSeriesWidget
 				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					reportParams: { ...getDefaultQueryParams( false ), interval: 'week', post_id: 1234 },
 					metric: 'opens',
-					granularity: 'week',
 				} }
 			/>
 		);
 
-		const chart = await screen.findByTestId( 'comparative-line-chart' );
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chart ).toHaveAttribute( 'data-values', '15,7' );
 	} );
 
-	it( 'aggregates the daily buckets into calendar months for the monthly granularity', async () => {
+	it( 'aggregates the daily buckets into calendar months when the page interval is monthly', async () => {
 		mockApiFetch.mockResolvedValue( {
 			timeline: {
 				unit: 'day',
@@ -176,14 +225,23 @@ describe( 'EmailTimeSeriesWidget', () => {
 		render(
 			<EmailTimeSeriesWidget
 				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					// An explicit multi-month window: `WidgetRoot` normalizes report
+					// params through `resolveIntervalForRange`, and the default
+					// 30-day preset would coerce a monthly interval back to daily.
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-05-01T00:00:00.000+08:00',
+						to: '2026-08-31T23:59:59.999+08:00',
+						interval: 'month',
+						post_id: 1234,
+					},
 					metric: 'opens',
-					granularity: 'month',
 				} }
 			/>
 		);
 
-		const chart = await screen.findByTestId( 'comparative-line-chart' );
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chart ).toHaveAttribute( 'data-values', '4,15' );
 	} );
 
@@ -204,7 +262,65 @@ describe( 'EmailTimeSeriesWidget', () => {
 		await expect(
 			screen.findByText( 'No activity for this email in this period.' )
 		).resolves.toBeInTheDocument();
-		expect( screen.queryByTestId( 'comparative-line-chart' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'metric-tabs-chart' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows loading instead of the stale empty state once a new range drags on', async () => {
+		const emptyResponse = {
+			timeline: { unit: 'day', fields: [ 'date', 'opens_count' ], data: [] },
+		};
+		mockApiFetch
+			.mockResolvedValueOnce( emptyResponse )
+			// Keep the new range pending so its loading state is observable.
+			.mockImplementationOnce( () => new Promise( () => {} ) );
+
+		const { rerender } = render(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-07-01T00:00:00.000+08:00',
+						to: '2026-07-07T23:59:59.999+08:00',
+						post_id: 1234,
+					},
+					metric: 'opens',
+				} }
+			/>
+		);
+
+		await expect(
+			screen.findByText( 'No activity for this email in this period.' )
+		).resolves.toBeInTheDocument();
+
+		// The skeleton waits out the shared delay, so drive it rather than
+		// sleeping. Switched on here so the fetches above resolve normally.
+		jest.useFakeTimers();
+		rerender(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-08-01T00:00:00.000+08:00',
+						to: '2026-08-07T23:59:59.999+08:00',
+						post_id: 1234,
+					},
+					metric: 'opens',
+				} }
+			/>
+		);
+		act( () => {
+			jest.advanceTimersByTime( 1000 );
+		} );
+
+		// The previous range's "no activity" is not an answer about this one, so
+		// it gives way to an announced skeleton.
+		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByText( 'No activity for this email in this period.' )
+		).not.toBeInTheDocument();
+		jest.useRealTimers();
 	} );
 
 	it( 'renders the empty state and makes no request without a selected email', async () => {

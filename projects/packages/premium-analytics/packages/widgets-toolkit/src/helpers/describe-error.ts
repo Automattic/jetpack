@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { getApiErrorCode, getApiErrorStatus } from '@jetpack-premium-analytics/data';
+import {
+	getApiErrorCode,
+	getApiErrorStatus,
+	StatsResponseShapeError,
+} from '@jetpack-premium-analytics/data';
 /**
  * WordPress dependencies
  */
@@ -33,6 +37,12 @@ export function describeError(
 	error: unknown,
 	{ retryDescription, onRetry }: DescribeErrorOptions
 ): WidgetStateError {
+	if ( error instanceof StatsResponseShapeError ) {
+		return {
+			description: __( 'This data is unavailable right now.', 'jetpack-premium-analytics-pkg' ),
+		};
+	}
+
 	if ( getApiErrorStatus( error ) === 403 && getApiErrorCode( error ) !== 'no_connection' ) {
 		return {
 			description: __( "You don't have access to this data.", 'jetpack-premium-analytics-pkg' ),

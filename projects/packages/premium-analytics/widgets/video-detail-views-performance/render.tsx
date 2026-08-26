@@ -1,28 +1,27 @@
 /**
  * External dependencies
  */
-import { toPostId } from '@jetpack-premium-analytics/data';
+import { STATS_CHART_BUCKET_PERIODS, toPostId } from '@jetpack-premium-analytics/data';
 import {
-	ComparativeLineChart,
+	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
+	defaultPeriodForInterval,
 	describeError,
-	useSeriesStyles,
 	useWidgetRootContext,
-	type ComparativeLineChartSeries,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import useVideoViews from './use-video-views';
+import useVideoMetrics, { COUNT_FORMAT } from './use-video-metrics';
 import type {
 	VideoDetailViewsPerformanceAttributes,
-	VideoDetailViewsPerformanceGranularity,
+	VideoDetailViewsPerformanceChartType,
 } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
@@ -31,59 +30,37 @@ type VideoDetailViewsPerformanceRenderAttributes = VideoDetailViewsPerformanceAt
 type VideoDetailViewsPerformanceWidgetProps =
 	WidgetRenderProps< VideoDetailViewsPerformanceRenderAttributes >;
 
-const DATA_FORMAT = {
-	type: 'number' as const,
-	options: { useMultipliers: true, decimals: 0 },
-};
-
 type VideoDetailViewsPerformanceInnerProps = {
-	/** The granularity attribute: the chart's bucket size. */
-	granularity: VideoDetailViewsPerformanceGranularity;
+	/** How the selected metric is drawn. `MetricTabsChart` owns the default. */
+	chartType?: VideoDetailViewsPerformanceChartType;
 };
 
 /**
  * Without a video scope (e.g. the widget added outside a video detail page) the
  * query never enables and the empty state shows.
  */
-function VideoDetailViewsPerformanceInner( {
-	granularity,
-}: VideoDetailViewsPerformanceInnerProps ) {
+function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerformanceInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const videoId = toPostId( reportParams.post_id );
+	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 
-	const { current, isLoading, isFetching, isError, error, hasData, refetch } = useVideoViews(
+	const { metrics, isLoading, isFetching, isError, error, refetch } = useVideoMetrics(
 		videoId,
 		reportParams,
-		granularity
+		period
 	);
-
-	// The video detail page has no comparison control, so the chart always
-	// draws the single "Views" series.
-	const series = useMemo< ComparativeLineChartSeries[] >( () => {
-		if ( ! current.length ) {
-			return [];
-		}
-
-		return [
-			{
-				label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
-				group: 'views',
-				data: current,
-			},
-		];
-	}, [ current ] );
-	const seriesStyles = useSeriesStyles( series );
+	const groupLabel = __( 'Video metric', 'jetpack-premium-analytics-pkg' );
 
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ isLoading && ! hasData }
+				isLoading={ isLoading }
 				isFetching={ isFetching }
 				isError={ isError }
 				isEmpty={ videoId <= 0 }
 				error={ describeError( error, {
 					retryDescription: __(
-						"We couldn't load this video's views. Please try again in a moment.",
+						"We couldn't load this video's performance. Please try again in a moment.",
 						'jetpack-premium-analytics-pkg'
 					),
 					onRetry: refetch,
@@ -91,16 +68,20 @@ function VideoDetailViewsPerformanceInner( {
 				empty={ {
 					icon: video,
 					description: __(
-						'Open a video report to see its views here.',
+						'Open a video report to see its performance here.',
 						'jetpack-premium-analytics-pkg'
 					),
 				} }
+				// The chart is the whole content here, so its block replaces the
+				// generic stacked lines.
+				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
-				<ComparativeLineChart
-					className={ styles.chart }
-					series={ series }
-					styles={ seriesStyles }
-					dataFormat={ DATA_FORMAT }
+				<MetricTabsChart
+					metrics={ metrics }
+					dataFormat={ COUNT_FORMAT }
+					chartType={ chartType }
+					groupLabel={ groupLabel }
+					pointsAreWallClocks
 				/>
 			</WidgetState>
 		</div>
@@ -108,22 +89,21 @@ function VideoDetailViewsPerformanceInner( {
 }
 
 /**
- * Views performance widget: the scoped video's view trend over the dashboard
- * date range as a line chart. The view series comes from the
- * `stats/video/{id}` daily history for the selected window, zero-filled and
- * bucketed client-side per the granularity attribute.
+ * Video performance widget: the scoped video's views, impressions, hours
+ * watched, and retention rate over the dashboard date range as selectable
+ * metric tabs, each headlined by the window's canonical total. The series come
+ * from one `stats/video/{id}` `statType=all` range report, zero-filled and
+ * bucketed client-side at the page's chart interval.
  */
 export default function VideoDetailViewsPerformance( {
 	attributes = {},
 }: VideoDetailViewsPerformanceWidgetProps ) {
 	// Coerce unknown persisted values to the default.
-	const attrGranularity = attributes?.granularity;
-	const granularity =
-		attrGranularity === 'week' || attrGranularity === 'month' ? attrGranularity : 'day';
+	const chartType = attributes?.chartType === 'bar' ? 'bar' : 'line';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<VideoDetailViewsPerformanceInner granularity={ granularity } />
+			<VideoDetailViewsPerformanceInner chartType={ chartType } />
 		</WidgetRoot>
 	);
 }

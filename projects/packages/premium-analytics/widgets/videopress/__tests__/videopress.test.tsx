@@ -122,7 +122,9 @@ describe( 'VideoPressWidget', () => {
 
 		const title = await screen.findByText( 'Unlinked video' );
 		expect( title ).not.toHaveRole( 'link' );
-		expect( title ).toHaveAttribute( 'title', 'Unlinked video' );
+		// The tooltip lives on the plain-branch wrapper; the label itself sits in
+		// the inner text span shared by every branch.
+		expect( screen.getByTitle( 'Unlinked video' ) ).toBeInTheDocument();
 	} );
 
 	it( 'requests the dashboard date range from report params', async () => {
@@ -146,7 +148,7 @@ describe( 'VideoPressWidget', () => {
 			<VideoPressWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
 		);
 
-		expect( screen.getByRole( 'link', { name: 'See report' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
 			'href',
 			expect.stringContaining( '/reports/videos' )
 		);

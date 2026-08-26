@@ -7,6 +7,7 @@ import { formatNumber } from '@automattic/number-formatters';
  * WordPress dependencies
  */
 import { __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { useEvent, useViewportMatch } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
@@ -25,6 +26,13 @@ import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
+import useResponseFieldColumns from '../../src/dashboard/hooks/use-response-field-columns.ts';
+import {
+	buildResponseFieldColumns,
+	getFrozenColumnsClassName,
+	getResponseTableView,
+	keepColumnChoice,
+} from '../../src/dashboard/response-field-columns.tsx';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import { getFormEditUrl } from '../../src/dashboard/utils.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
@@ -156,6 +164,10 @@ function StageInner() {
 	const statusView = params.view === 'spam' || params.view === 'trash' ? params.view : 'inbox';
 	const statusFilter = statusView === 'inbox' ? 'draft,publish' : statusView;
 	const dateSettings = getDateSettings();
+	// Matches the width at which boot flips the inspector from a side panel to a
+	// full-screen overlay. Also the width below which the responses table drops every
+	// column but the response and its actions, since it cannot usefully scroll sideways.
+	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
 	const sourceIdValue = ( searchParams as { sourceId?: string | number } )?.sourceId;
 	const sourceIdNumber =
@@ -200,7 +212,9 @@ function StageInner() {
 	}, [ searchParams?.search ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const onChangeView = useCallback(
-		( newView: View ) => {
+		( incomingView: View ) => {
+			const newView = keepColumnChoice( incomingView, view, isMobileViewport );
+
 			if ( ! isSingleFormView ) {
 				// If the Folder filter changes (CFM-on behavior), treat it as a route param change.
 				const folderValue =
@@ -231,7 +245,7 @@ function StageInner() {
 				} );
 			}
 		},
-		[ isSingleFormView, navigate, searchParams, statusView, view.search ]
+		[ isMobileViewport, isSingleFormView, navigate, searchParams, statusView, view ]
 	);
 
 	const onChangeSelection = useCallback(
@@ -245,6 +259,11 @@ function StageInner() {
 		},
 		[ searchParams, navigate ]
 	);
+
+	// Selecting a single response is what both clicking a row and (on small
+	// screens) the View action do. `useEvent` keeps the reference stable so the
+	// memoized row actions don't rebuild every time `searchParams` changes.
+	const selectResponse = useEvent( ( id: string ) => onChangeSelection( [ id ] ) );
 
 	const onStatusChange = useCallback(
 		( nextStatus: 'inbox' | 'spam' | 'trash' ) => {
@@ -280,6 +299,15 @@ function StageInner() {
 			};
 		} );
 	}, [ isSingleFormView, setView, statusView ] );
+
+	// A form's own fields become columns, so a single form's responses can be read
+	// across at a glance. The "All responses" view spans every form and has no
+	// shared field set, so it keeps the built-in columns only.
+	const responseFieldColumns = useResponseFieldColumns( {
+		formId: isSingleFormView ? sourceIdNumber : null,
+		records,
+		setView,
+	} );
 
 	const queryParams = useMemo( () => {
 		const queryArgs: QueryParams = {
@@ -519,6 +547,7 @@ function StageInner() {
 				enableSorting: false,
 				enableHiding: false,
 			},
+			...buildResponseFieldColumns( responseFieldColumns ),
 			{
 				id: 'date',
 				type: 'date',
@@ -622,20 +651,32 @@ function StageInner() {
 			dateSettings.formats.datetime,
 			filterOptions,
 			isSingleFormView,
+			responseFieldColumns,
 			totalItemsInbox,
 			totalItemsSpam,
 			totalItemsTrash,
 		]
 	);
 
+	const answerColumnsClassName = getFrozenColumnsClassName(
+		responseFieldColumns,
+		view,
+		isMobileViewport
+	);
+
+	const viewForDataViews = useMemo(
+		() => getResponseTableView( view, isMobileViewport ),
+		[ isMobileViewport, view ]
+	);
+
 	const actions = useMemo(
 		() =>
 			getRowActions( {
 				navigate,
-				searchParams,
 				view: statusView,
+				onSelectResponse: isMobileViewport ? selectResponse : undefined,
 			} ),
-		[ navigate, searchParams, statusView ]
+		[ navigate, statusView, isMobileViewport, selectResponse ]
 	);
 
 	const paginationInfo = useMemo(
@@ -721,9 +762,9 @@ function StageInner() {
 
 	const onClickItem = useCallback(
 		( item: unknown ) => {
-			onChangeSelection( [ String( ( item as { id: number | string } ).id ) ] );
+			selectResponse( String( ( item as { id: number | string } ).id ) );
 		},
-		[ onChangeSelection ]
+		[ selectResponse ]
 	);
 
 	return (
@@ -784,7 +825,7 @@ function StageInner() {
 					}
 					data={ isQueryStale ? EMPTY_ARRAY : records || EMPTY_ARRAY }
 					fields={ fields as Field< unknown >[] }
-					view={ view }
+					view={ viewForDataViews }
 					onChangeView={ onChangeView }
 					paginationInfo={ paginationInfo }
 					isLoading={ isLoadingData || isQueryStale }
@@ -806,7 +847,7 @@ function StageInner() {
 						} }
 						onStatusChange={ onStatusChange }
 					/>
-					<DataViews.Layout />
+					<DataViews.Layout className={ answerColumnsClassName } />
 					<DataViews.Footer />
 				</DataViews>
 			) }

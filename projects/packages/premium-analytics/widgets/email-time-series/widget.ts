@@ -1,14 +1,16 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { envelope } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Internal dependencies
  */
-import { SelectField } from '@jetpack-premium-analytics/fields';
+import {
+	chartTypeAttributeField,
+	type ChartDisplayChartType,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * Which timeline the chart draws for the selected email.
@@ -16,10 +18,10 @@ import { SelectField } from '@jetpack-premium-analytics/fields';
 export type EmailTimeSeriesMetric = 'opens' | 'clicks';
 
 /**
- * Chart bucket granularity. The email timeline endpoint reports daily
- * buckets; weeks and months aggregate the daily buckets client-side.
+ * How the timeline is drawn. The shared chart-display list keeps every chart
+ * widget's dropdown identical and ties it to the toolkit's own union.
  */
-export type EmailTimeSeriesGranularity = 'day' | 'week' | 'month';
+export type EmailTimeSeriesChartType = ChartDisplayChartType;
 
 /**
  * Configurable attributes for the Email performance widget.
@@ -27,55 +29,33 @@ export type EmailTimeSeriesGranularity = 'day' | 'week' | 'month';
 export type EmailTimeSeriesAttributes = {
 	/**
 	 * Which timeline to draw: opens (default) or clicks. The post detail page
-	 * pins one per email tab, so the attribute stays at the default (low)
-	 * relevance rather than growing a header control.
+	 * pins one per email tab through the tab layout, so this is not a
+	 * user-facing control — exposing it would let a pinned tab contradict its
+	 * own title.
 	 */
 	metric?: EmailTimeSeriesMetric;
 	/**
-	 * Chart bucket granularity (`relevance: 'high'`, so the host renders the
-	 * control). Defaults to `day`.
+	 * How to draw the timeline (`relevance: 'high'`). Defaults to `line`.
 	 */
-	granularity?: EmailTimeSeriesGranularity;
+	chartType?: EmailTimeSeriesChartType;
 };
 
 /**
  * Widget type definition.
  *
  * The opens/clicks-over-time chart from the legacy email detail page
- * (`stats-email-chart-tabs`). The email is scoped by the host through
- * `reportParams.post_id` (the shared single-resource "detail page" param);
- * the timeline spans the dashboard date range.
+ * (`stats-email-chart-tabs`), with the window total as the metric headline.
+ * The email is scoped by the host through `reportParams.post_id` (the shared
+ * single-resource "detail page" param); the timeline spans the dashboard
+ * date range and is bucketed at the page's chart interval.
  */
 export default {
 	icon: envelope,
-	attributes: [
-		{
-			id: 'metric',
-			label: __( 'Metric', 'jetpack-premium-analytics-pkg' ),
-			type: 'text',
-			Edit: SelectField,
-			elements: [
-				{ label: __( 'Opens', 'jetpack-premium-analytics-pkg' ), value: 'opens' },
-				{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ), value: 'clicks' },
-			],
-		},
-		{
-			id: 'granularity',
-			label: __( 'Group by', 'jetpack-premium-analytics-pkg' ),
-			type: 'text',
-			Edit: SelectField,
-			elements: [
-				{ label: __( 'By days', 'jetpack-premium-analytics-pkg' ), value: 'day' },
-				{ label: __( 'By weeks', 'jetpack-premium-analytics-pkg' ), value: 'week' },
-				{ label: __( 'By months', 'jetpack-premium-analytics-pkg' ), value: 'month' },
-			],
-			relevance: 'high',
-		},
-	] as WidgetAttributeField< EmailTimeSeriesAttributes >[],
+	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< EmailTimeSeriesAttributes >[],
 	example: {
 		attributes: {
 			metric: 'opens',
-			granularity: 'day',
+			chartType: 'line',
 		},
 	},
 };

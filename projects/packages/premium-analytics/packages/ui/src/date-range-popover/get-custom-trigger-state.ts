@@ -60,19 +60,21 @@ type GetCustomTriggerLabelArgs = {
 	triggerState: CustomTriggerState;
 	range: TriggerDateRange;
 	committedRange: TriggerDateRange;
-	rememberedCustomRange?: TriggerDateRange | null;
 	customLabel: string;
 	formatRange: ( range: TriggerDateRange ) => string;
 };
 
 /**
- * Derives the custom trigger label from visual state and remembered ranges.
+ * Derives the custom trigger label from its visual state.
+ *
+ * Only a custom range the trigger itself is holding — staged or applied — gets
+ * a date label. While a preset drives the range the trigger reads "Custom", so
+ * two different ranges are never on screen at once (WOOA7S-1936).
  */
 export function getCustomTriggerLabel( {
 	triggerState,
 	range,
 	committedRange,
-	rememberedCustomRange,
 	customLabel,
 	formatRange,
 }: GetCustomTriggerLabelArgs ): string {
@@ -82,10 +84,6 @@ export function getCustomTriggerLabel( {
 
 	if ( triggerState === 'applied' ) {
 		return formatRange( committedRange );
-	}
-
-	if ( rememberedCustomRange?.from && rememberedCustomRange.to ) {
-		return formatRange( rememberedCustomRange );
 	}
 
 	return customLabel;

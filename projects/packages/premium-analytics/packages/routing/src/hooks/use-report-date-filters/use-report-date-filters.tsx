@@ -3,19 +3,15 @@
  */
 import {
 	getAllowedIntervalsForPreset,
-	getSiteTimezone,
 	hasComparisonEnabled,
-	localTZDate,
 	resolveIntervalForRange,
 } from '@jetpack-premium-analytics/data';
-import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
-import { isValid } from 'date-fns';
+import { PRESET_CUSTOM, siteTimeZone, stepDateRange } from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { encodeDateToSearchParam } from '../../search/date-range';
+import { decodeDateSearchParam, encodeDateToSearchParam } from '../../search/date-range';
 import { useStagedSearch } from '../use-staged-search';
 import { buildRangePatch, type ReportQuerySearchParams } from './build-range-patch';
 import type {
@@ -23,6 +19,7 @@ import type {
 	DateRange,
 	IntervalType,
 	PrimaryPresetId,
+	StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 
 type PickerRange = { from: Date | undefined; to: Date | undefined };
@@ -37,6 +34,11 @@ export type ReportDateFilters = {
 	appliedRange: PickerRange;
 	comparisonPresetId?: ComparisonPresetId;
 	appliedComparisonPresetId?: ComparisonPresetId;
+
+	/**
+	 * The applied comparison window, when comparison is enabled.
+	 */
+	appliedComparisonRange?: DateRange;
 
 	/**
 	 * The chart interval the control shows as checked.
@@ -58,6 +60,12 @@ export type ReportDateFilters = {
 	onChange: ( range?: DateRange, presetId?: PrimaryPresetId ) => void;
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 	onIntervalChange: ( interval: IntervalType ) => void;
+
+	/**
+	 * Step the applied window backward or forward by its own length.
+	 */
+	onStep: ( direction: StepDirection ) => void;
+
 	onApply: () => void;
 	onCancel: () => void;
 	canApply: boolean;
@@ -90,17 +98,9 @@ export type ReportDateFilters = {
  * @return The parsed range, with invalid endpoints as `undefined`.
  */
 function toPickerRange( from: string | undefined, to: string | undefined, timeZone: string ) {
-	const parse = ( value?: string ) => {
-		if ( ! value ) {
-			return undefined;
-		}
-		const date = localTZDate( value, timeZone );
-		return isValid( date ) ? date : undefined;
-	};
-
 	return {
-		from: parse( from ),
-		to: parse( to ),
+		from: decodeDateSearchParam( from, timeZone ),
+		to: decodeDateSearchParam( to, timeZone ),
 	};
 }
 
@@ -122,20 +122,7 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		TFrom
 	>( { from } );
 
-	/*
-	 * Read the site timezone reactively. A fully-specified deep link skips the
-	 * seed's `ensureCoreSettingsReady()` await, so core `site` settings may not
-	 * be loaded on first paint. Rebuild picker dates when the real timezone
-	 * resolves instead of leaving them anchored to the browser fallback.
-	 */
-	const timeZone = useSelect( select => {
-		void (
-			select( coreStore ) as unknown as {
-				getEntityRecord: ( kind: string, name: string ) => unknown;
-			}
-		 ).getEntityRecord( 'root', 'site' );
-		return getSiteTimezone();
-	}, [] );
+	const timeZone = siteTimeZone();
 
 	const presetId = useMemo( () => effective.preset ?? undefined, [ effective.preset ] );
 	const range = useMemo(
@@ -174,10 +161,22 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 	 * Gated on the same predicate the report params run through, so a surface
 	 * can never announce a comparison the widgets did not request.
 	 */
-	const appliedComparisonPresetId = useMemo(
-		() => ( hasComparisonEnabled( committed ) ? committed.compare_preset ?? undefined : undefined ),
-		[ committed ]
-	);
+	const { appliedComparisonPresetId, appliedComparisonRange } = useMemo( () => {
+		if ( ! hasComparisonEnabled( committed ) ) {
+			return { appliedComparisonPresetId: undefined, appliedComparisonRange: undefined };
+		}
+
+		return {
+			appliedComparisonPresetId: committed.compare_preset ?? undefined,
+			// Read the params the widgets queried with so the header cannot name
+			// a different window than the numbers came from.
+			appliedComparisonRange: toPickerRange(
+				committed.compare_from,
+				committed.compare_to,
+				timeZone
+			),
+		};
+	}, [ committed, timeZone ] );
 
 	/*
 	 * Whether the primary picker holds an un-applied edit. The comparison and
@@ -261,6 +260,36 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		[ stage, commit, hasPrimaryDraft ]
 	);
 
+	/*
+	 * Commits on click and pushes a history entry, so Back undoes the step and
+	 * the stepped window survives a reload as real URL state.
+	 *
+	 * Steps the applied range, not the staged one: the arrows sit outside the
+	 * picker, so stepping is not the gesture that applies someone's open draft.
+	 */
+	const onStep = useCallback(
+		( direction: StepDirection ) => {
+			const stepped = stepDateRange( appliedRange, direction );
+
+			if ( ! stepped ) {
+				return;
+			}
+
+			const patch = buildRangePatch( {
+				nextRange: stepped,
+				nextPresetId: PRESET_CUSTOM,
+				exactRange: true,
+				effective,
+			} );
+
+			if ( patch ) {
+				stage( patch );
+				commit();
+			}
+		},
+		[ appliedRange, commit, effective, stage ]
+	);
+
 	const onApply = useCallback( () => commit(), [ commit ] );
 	const onCancel = useCallback( () => revert(), [ revert ] );
 
@@ -287,12 +316,14 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		appliedRange,
 		comparisonPresetId,
 		appliedComparisonPresetId,
+		appliedComparisonRange,
 		interval,
 		appliedInterval,
 		intervalOptions,
 		onChange,
 		onComparisonChange,
 		onIntervalChange,
+		onStep,
 		onApply,
 		onCancel,
 		canApply: isDirty,

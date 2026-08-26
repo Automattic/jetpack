@@ -1141,7 +1141,7 @@ class REST_Connector {
 	 * WordPress.com. The floor there is `manage_options`, matching the capability the route
 	 * carried before it moved into this package.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.10.0
 	 *
 	 * @return true|WP_Error
 	 */
@@ -1164,7 +1164,7 @@ class REST_Connector {
 	/**
 	 * Return the site's WordPress.com record, or an error envelope describing the failure.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.10.0
 	 *
 	 * @return WP_Error|\WP_HTTP_Response|WP_REST_Response
 	 */
@@ -1179,7 +1179,7 @@ class REST_Connector {
 	 * Jetpack plugin's deprecated wrapper, do not have to construct a `REST_Connector` and
 	 * re-register the routes.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.10.0
 	 *
 	 * @param Manager|null $connection The connection manager to fetch with. Defaults to a new one.
 	 * @return WP_Error|\WP_HTTP_Response|WP_REST_Response
@@ -1191,7 +1191,7 @@ class REST_Connector {
 			/**
 			 * Fires when the site data was successfully returned from the /sites/%d wpcom endpoint.
 			 *
-			 * @since $$next-version$$
+			 * @since 8.10.0
 			 * @since-jetpack 8.7.0
 			 */
 			do_action( 'jetpack_get_site_data_success' );

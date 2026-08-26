@@ -73,7 +73,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'Traffic over the selected period as selectable metric tabs — Views, Visitors, Likes, and Comments — over a comparative chart. The date range and comparison come from the dashboard controls; the "Group by" control is the `granularity` attribute and the "Chart type" control is the `chartType` attribute (both `relevance: \'high\'`), exposed by the widget host; which metric is plotted is the chart\'s own tab selection. When comparison is on, each tab shows its period-over-period delta and the previous period is overlaid — as a same-colour dashed line for `line`, or as the translucent shadow bar behind each bar for `bar`. Views/visitors and likes/comments are fetched as two parallel requests (mirroring Calypso) to keep latency down. Data comes from the `useStatsVisits` hook; in Storybook it is served by `registerReportMocks`.',
+					"Traffic over the selected period as selectable metric tabs — Views, Visitors, Likes, and Comments — over a comparative chart. The date range, comparison, and bucket size come from the dashboard controls: the bucket is whatever the page's interval control resolves to, clamped to one the chart can draw. \"Chart type\" is the `chartType` attribute (`relevance: 'high'`, so the host renders it in the widget header). Which metric is plotted is the chart's own tab selection. When comparison is on, each tab shows its period-over-period delta and the previous period is overlaid — as a same-colour dashed line for `line`, or as the translucent shadow bar behind each bar for `bar`. Views/visitors and likes/comments are fetched as two parallel requests (mirroring Calypso) to keep latency down; the likes and comments request is skipped at the hourly grain, which cannot fill either. Data comes from the `useStatsVisits` hook; in Storybook it is served by `registerReportMocks`.",
 			},
 		},
 	},
@@ -121,11 +121,29 @@ export const BarChartWithComparison: Story = {
 };
 
 /**
- * First load: both visits fetches are in flight, so the widget shows its loading
- * state (the metric tabs over the chart's loading overlay). The mock is forced
- * to never resolve for the duration of this story. Both of the widget's requests
- * hit the same `stats/visits` path, so one override covers them.
+ * An hourly range (`Last 24 hours`), where the page's interval control resolves
+ * to `hour`. `stats/visits` fills Views alone at that grain, so the other three
+ * tabs show a placeholder and, when selected, the reason — rather than a `0`
+ * they cannot back up. The likes and comments request is skipped entirely.
+ *
+ * Mounted through the dashboard harness rather than the close-up canvas: hour
+ * ticks are the point of the story, and the canvas is too narrow to draw an
+ * axis at all.
  */
+export const Hourly: StoryObj< WidgetDashboardWithWidgetControls > = {
+	render: args => (
+		<WidgetDashboardWithWidgetStory
+			{ ...args }
+			widgetType={ storyWidgetType }
+			renderModule={ TRAFFIC_CHART_RENDER_MODULE }
+			renderComponent={ TrafficChartRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ { reportParams: getDefaultQueryParams( false, 'last-24-hours' ) } }
+		/>
+	),
+	args: { ...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS },
+	argTypes: { ...widgetDashboardWithWidgetArgTypes },
+};
+
 export const Loading: Story = {
 	render: () => renderTrafficChartOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.

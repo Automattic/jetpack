@@ -32,9 +32,10 @@ describe( 'DateComparisonDropdown', () => {
 			/>
 		);
 
-		// Named by its tooltip: the `+` trigger carries no text of its own.
-		const trigger = screen.getByRole( 'button', { name: 'Add comparison' } );
-		expect( trigger ).toHaveTextContent( '' );
+		// The additive state names itself, so what is on screen is also what a
+		// screen reader or a speech-input user gets.
+		const trigger = screen.getByRole( 'button', { name: 'Compare' } );
+		expect( trigger ).toHaveTextContent( 'Compare' );
 
 		await user.click( trigger );
 		expect( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) ).toBeChecked();

@@ -65,17 +65,21 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 		return [ 'week', 'month' ];
 	} else if ( daysDiff >= 28 ) {
 		return [ 'day', 'week' ];
-	} else if ( daysDiff >= 3 ) {
+	} else if ( daysDiff >= 7 ) {
 		return [ 'day' ];
-	} else if ( daysDiff >= 1 ) {
-		return [ 'hour', 'day' ];
+	} else if ( daysDiff >= 2 ) {
+		// Days by default; hours stay on offer as the only reading that shows
+		// shape within a day.
+		return [ 'day', 'hour' ];
 	}
 
-	return [ 'hour', 'day' ];
+	// A day or less has nothing to draw in daily buckets: one bar is not a
+	// series. Hours are the only reading of it.
+	return [ 'hour' ];
 }
 
 /**
- * Allowed intervals for a preset, ordered finest-first.
+ * Allowed intervals for a preset, default first.
  *
  * Unknown / custom / year-surface presets derive the list from `from`–`to`
  * length.
@@ -89,10 +93,15 @@ export function getAllowedIntervalsForPreset(
 	to: string
 ): IntervalType[] {
 	switch ( preset ) {
+		/*
+		 * Hours alone: a single day bucketed by day is one bar, and offering
+		 * `day` would let a bucket carried over from a longer preset flatten
+		 * the whole window into a point.
+		 */
 		case PRESET_TODAY:
 		case PRESET_YESTERDAY:
 		case PRESET_LAST_24_HOURS:
-			return [ 'hour', 'day' ];
+			return [ 'hour' ];
 		case PRESET_LAST_7_DAYS:
 			return [ 'day' ];
 		case PRESET_LAST_30_DAYS:
@@ -113,7 +122,7 @@ export function getAllowedIntervalsForPreset(
  * Resolve a valid interval for a date range.
  *
  * Returns `current` when it is allowed for the range; otherwise the range
- * default (finest allowed).
+ * default (first allowed).
  */
 export function resolveIntervalForRange(
 	preset: PrimaryPresetId | undefined,
@@ -130,7 +139,7 @@ export function resolveIntervalForRange(
 	return allowed[ 0 ] ?? 'day';
 }
 
-/** Default (finest) interval for a preset / date range. */
+/** Default interval for a preset / date range. */
 export function getDefaultIntervalForPeriod(
 	preset: PrimaryPresetId | undefined,
 	from: string,

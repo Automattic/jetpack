@@ -453,7 +453,7 @@ class Search_Blocks {
 	 */
 	public static function woocommerce_version_supported( ?string $version = null ): bool {
 		// `constant()` keeps static analysis happy — WC isn't a dependency here.
-		$version = $version ?? ( defined( 'WC_VERSION' ) ? (string) constant( 'WC_VERSION' ) : '' );
+		$version ??= ( defined( 'WC_VERSION' ) ? (string) constant( 'WC_VERSION' ) : '' );
 		return '' !== $version && version_compare( $version, self::MIN_WOOCOMMERCE_VERSION, '>=' );
 	}
 
@@ -671,6 +671,7 @@ class Search_Blocks {
 			$asset['version'] ?? false,
 			true
 		);
+		wp_set_script_translations( 'jetpack-search-blocks-register', 'jetpack-search-pkg' );
 
 		// Surface PHP gates to the editor bundle so block edits and the
 		// registration loop branch consistently with server-side renders.
@@ -731,21 +732,7 @@ class Search_Blocks {
 
 		self::register_store_script_module();
 
-		$blocks_dir = __DIR__ . '/blocks';
-		$block_dirs = glob( $blocks_dir . '/*', GLOB_ONLYDIR );
-
-		if ( ! $block_dirs ) {
-			return;
-		}
-
-		$wc_blocks_enabled = self::woocommerce_blocks_enabled();
-		foreach ( $block_dirs as $block_dir ) {
-			if ( ! file_exists( $block_dir . '/block.json' ) ) {
-				continue;
-			}
-			if ( ! $wc_blocks_enabled && self::is_woocommerce_only_block( basename( $block_dir ) ) ) {
-				continue;
-			}
+		foreach ( self::block_directories() as $block_dir ) {
 			register_block_type( $block_dir );
 		}
 
@@ -1207,7 +1194,7 @@ class Search_Blocks {
 		// from `do_blocks()` land before the importmap prints — see
 		// AGENTS.md § Hydration & SSR seeding.
 		self::$block_template_overlay_rendered_html = trim(
-			do_blocks( static::get_overlay_template_content() )
+			No_Results::render_self_contained( static::get_overlay_template_content() )
 		);
 	}
 
@@ -2313,7 +2300,7 @@ HTML;
 	/**
 	 * Read Instant Search query-customization options for the blocks store.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.4.0
 	 *
 	 * @return array Query options with keys:
 	 *               `highlightPhraseOnly`, `highlightFilterStopwords`, `highlightFields`,
@@ -2344,6 +2331,45 @@ HTML;
 			$labels[ $value ] = (string) ( $option['label'] ?? $value );
 		}
 		return $labels;
+	}
+
+	/**
+	 * Every block directory to register, parents first then their children.
+	 *
+	 * A block directory may nest child blocks that only ever render inside it
+	 * (`no-results/slot`). They live there rather than beside their parent so
+	 * the relationship is obvious in the tree, and they inherit the parent's
+	 * WooCommerce gating for free — a skipped parent is never descended into.
+	 *
+	 * @internal Public only so the registration walk can be asserted directly.
+	 *
+	 * @return string[] Absolute directory paths, each holding a `block.json`.
+	 */
+	public static function block_directories(): array {
+		$block_dirs = glob( __DIR__ . '/blocks/*', GLOB_ONLYDIR );
+		if ( ! $block_dirs ) {
+			return array();
+		}
+
+		$wc_blocks_enabled = self::woocommerce_blocks_enabled();
+		$directories       = array();
+		foreach ( $block_dirs as $block_dir ) {
+			if ( ! file_exists( $block_dir . '/block.json' ) ) {
+				continue;
+			}
+			if ( ! $wc_blocks_enabled && self::is_woocommerce_only_block( basename( $block_dir ) ) ) {
+				continue;
+			}
+			$directories[] = $block_dir;
+
+			foreach ( (array) glob( $block_dir . '/*', GLOB_ONLYDIR ) as $child_dir ) {
+				if ( file_exists( $child_dir . '/block.json' ) ) {
+					$directories[] = $child_dir;
+				}
+			}
+		}
+
+		return $directories;
 	}
 
 	/**

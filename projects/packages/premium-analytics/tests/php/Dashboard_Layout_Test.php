@@ -8,11 +8,13 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
 use WP_REST_Server;
 
 require_once __DIR__ . '/../../src/dashboard-layout.php';
+require_once __DIR__ . '/../../src/dashboard-sections.php';
 require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
 
 /**
@@ -33,7 +35,12 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$wp_rest_server = null;
 		$this->reset_analytics_capabilities();
 		wp_set_current_user( 0 );
+		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		Constants::clear_constants();
+		// The default layout now reaches Host::is_wpcom_platform(), which memoizes
+		// `is_woa_site` past Constants::clear_constants().
+		Cache::clear();
+		remove_all_filters( VIDEOPRESS_AVAILABLE_FILTER );
 		parent::tear_down();
 	}
 
@@ -161,6 +168,70 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A stats reader cannot access the Ads tab layout.
+	 */
+	public function test_default_layout_route_refuses_the_ads_tab_for_a_view_stats_reader() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+
+		list( $status ) = $this->request_default_layout( DASHBOARD_ADS_SECTION_ID );
+
+		$this->assertSame( 404, $status );
+	}
+
+	/**
+	 * An administrator can access the Ads tab layout.
+	 */
+	public function test_default_layout_route_serves_the_ads_tab_to_an_administrator() {
+		$this->register_route_with_capabilities();
+		$this->login_as( 'administrator' );
+
+		list( $status, $types ) = $this->request_default_layout( DASHBOARD_ADS_SECTION_ID );
+
+		$this->assertSame( 200, $status );
+		$this->assertContains( 'jpa/wordads-highlights', $types );
+	}
+
+	/**
+	 * An unavailable tab does not expose its default layout.
+	 */
+	public function test_default_layout_route_refuses_an_unavailable_subscribers_tab() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		list( $status ) = $this->request_default_layout( DASHBOARD_SUBSCRIBERS_SECTION_ID );
+
+		$this->assertSame( 404, $status );
+	}
+
+	/**
+	 * An unavailable tab is refused when `?name=` shadows the URL capture.
+	 */
+	public function test_default_layout_route_refuses_a_name_shadowed_subscribers_tab() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		list( $status ) = $this->request_default_layout( DASHBOARD_NAME, 'analytics/subscribers' );
+
+		$this->assertSame( 404, $status );
+	}
+
+	/**
+	 * An available Subscribers tab exposes its default layout.
+	 */
+	public function test_default_layout_route_serves_an_available_subscribers_tab() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+
+		list( $status, $types ) = $this->request_default_layout( DASHBOARD_SUBSCRIBERS_SECTION_ID );
+
+		$this->assertSame( 200, $status );
+		$this->assertContains( 'jpa/subscribers-chart', $types );
+	}
+
+	/**
 	 * Non-Premium-Analytics dashboards are left untouched.
 	 */
 	public function test_seed_default_dashboard_layout_ignores_other_dashboards() {
@@ -199,6 +270,26 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The Top videos instance follows VideoPress, which this test env lacks.
+	 */
+	public function test_traffic_default_excludes_videopress_widget_without_videopress() {
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID ), 'type' );
+
+		$this->assertNotContains( 'jpa/videopress', $layout_types, 'Top videos must not be part of the default layout without VideoPress.' );
+	}
+
+	/**
+	 * With VideoPress, the Top videos instance is back in the default layout.
+	 */
+	public function test_traffic_default_keeps_videopress_widget_with_videopress() {
+		add_filter( VIDEOPRESS_AVAILABLE_FILTER, '__return_true' );
+
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID ), 'type' );
+
+		$this->assertContains( 'jpa/videopress', $layout_types );
+	}
+
+	/**
 	 * WPCOM Simple keeps Simple-only widgets in the default layout.
 	 */
 	public function test_traffic_default_keeps_simple_only_widgets_on_wpcom_simple() {
@@ -207,6 +298,28 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID ), 'type' );
 
 		$this->assertContains( 'jpa/file-downloads', $layout_types );
+	}
+
+	/**
+	 * Shares is Simple-only too, so the Insights default drops it on self-hosted
+	 * Jetpack sites (this test env).
+	 */
+	public function test_insights_default_excludes_shares_on_self_hosted() {
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_INSIGHTS_SECTION_ID ), 'type' );
+
+		$this->assertNotContains( 'jpa/shares', $layout_types, 'Simple-only widget instances must not be part of the default layout on self-hosted sites.' );
+		$this->assertContains( 'jpa/tags', $layout_types, 'Regular widget instances remain in the default layout.' );
+	}
+
+	/**
+	 * WPCOM Simple keeps Shares in the Insights default.
+	 */
+	public function test_insights_default_keeps_shares_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_INSIGHTS_SECTION_ID ), 'type' );
+
+		$this->assertContains( 'jpa/shares', $layout_types );
 	}
 
 	/**
@@ -267,7 +380,6 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'utmDimension' => 'utm_source,utm_medium',
-				'max'          => 10,
 			),
 			$layout_by_uuid[ $utm_widget_uuid ]['attributes']
 		);
@@ -290,11 +402,12 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			'default-total-views-widget-instance'          => array( 'jpa/total-views', 1, 1, 4 ),
 			'default-total-visitors-widget-instance'       => array( 'jpa/total-visitors', 1, 1, 5 ),
 			'default-popular-days-widget-instance'         => array( 'jpa/popular-days', 1, 1, 6 ),
-			'default-most-popular-day-widget-instance'     => array( 'jpa/most-popular-day', 1, 1, 7 ),
-			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 8 ),
-			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 9 ),
-			'default-shares-widget-instance'               => array( 'jpa/shares', 1, 2, 10 ),
-			'default-tags-widget-instance'                 => array( 'jpa/tags', 1, 2, 11 ),
+			'default-popular-hours-widget-instance'        => array( 'jpa/popular-hours', 1, 1, 7 ),
+			'default-traffic-views-activity-widget-instance' => array( 'jpa/traffic-views-activity', 4, 2, 8 ),
+			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 9 ),
+			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 10 ),
+			'default-shares-widget-instance'               => array( 'jpa/shares', 1, 2, 11 ),
+			'default-tags-widget-instance'                 => array( 'jpa/tags', 1, 2, 12 ),
 		);
 
 		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );
@@ -372,7 +485,6 @@ class Dashboard_Layout_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'max'    => 10,
 				'metric' => 'opens',
 			),
 			$layout_by_uuid['default-subscribers-emails-widget-instance']['attributes']
@@ -398,6 +510,50 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->assertSame(
 			get_dashboard_default_layout_for( DASHBOARD_STORE_SECTION_ID ),
 			get_dashboard_default_layout_for( 'woocommerce/store' )
+		);
+	}
+
+	/**
+	 * The Ads tab receives its WordAds widgets in the Calypso order.
+	 */
+	public function test_seed_default_dashboard_layout_adds_ads_widgets() {
+		$layout         = seed_default_dashboard_layout( array(), DASHBOARD_ADS_SECTION_ID );
+		$layout_by_uuid = array_column( $layout, null, 'uuid' );
+
+		// uuid => [ type, width, height, order ]; widths fill the four-column grid.
+		$expected = array(
+			'default-wordads-highlights-widget-instance' => array( 'jpa/wordads-highlights', 4, 1, 0 ),
+			'default-wordads-chart-tabs-widget-instance' => array( 'jpa/wordads-chart-tabs', 4, 2, 1 ),
+			'default-wordads-earnings-history-widget-instance' => array( 'jpa/wordads-earnings-history', 4, 2, 2 ),
+			'default-wordads-sponsored-content-history-widget-instance' => array( 'jpa/wordads-sponsored-content-history', 2, 2, 3 ),
+			'default-wordads-adjustments-history-widget-instance' => array( 'jpa/wordads-adjustments-history', 2, 2, 4 ),
+		);
+
+		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );
+
+		foreach ( $expected as $uuid => $instance ) {
+			list( $type, $width, $height, $order ) = $instance;
+
+			$this->assertSame( $type, $layout_by_uuid[ $uuid ]['type'], $uuid );
+			$this->assertSame(
+				array(
+					'width'  => $width,
+					'height' => $height,
+					'order'  => $order,
+				),
+				$layout_by_uuid[ $uuid ]['placement'],
+				$uuid
+			);
+		}
+
+		// The chart's bucket follows the page interval control, so no default
+		// instance seeds attributes any more.
+		foreach ( $layout as $instance ) {
+			$this->assertArrayNotHasKey( 'attributes', $instance, $instance['uuid'] );
+		}
+		$this->assertSame(
+			get_dashboard_default_layout_for( DASHBOARD_ADS_SECTION_ID ),
+			get_dashboard_default_layout_for( 'analytics/ads' )
 		);
 	}
 

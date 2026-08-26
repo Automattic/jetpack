@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Agents_Manager;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -132,6 +133,14 @@ class Open_State_Store {
 				'agents_manager_open'   => (bool) ( $calypso_prefs['agents_manager_open'] ?? false ),
 				'agents_manager_docked' => (bool) ( $calypso_prefs['agents_manager_docked'] ?? false ),
 			);
+		}
+
+		// The cached state is only as good as the connection that produced it.
+		// Without a user connection the frontend cannot fetch or refresh state
+		// (the app never mounts), so a pre-render from a stale transient would
+		// flash a shell nothing ever takes down.
+		if ( ! ( new Connection_Manager() )->is_user_connected( $user_id ) ) {
+			return null;
 		}
 
 		$cached = get_transient( self::cache_key( $user_id ) );

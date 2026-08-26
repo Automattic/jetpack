@@ -1323,6 +1323,81 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * Place a fixture `search-blocks-editor/register-blocks.asset.php` at the
+	 * path `enqueue_editor_assets()` reads, without clobbering a real Build.
+	 * Returns a cleanup callback that restores the prior state (original
+	 * contents, or removal of anything this created).
+	 *
+	 * @param array $asset Asset array to write.
+	 * @return callable Cleanup callback.
+	 */
+	private function stub_editor_asset_file( array $asset ): callable {
+		$dir  = Package::get_installed_path() . 'build/search-blocks-editor';
+		$file = $dir . '/register-blocks.asset.php';
+
+		$created_dirs = array();
+		foreach ( array( Package::get_installed_path() . 'build', $dir ) as $d ) {
+			if ( ! is_dir( $d ) ) {
+				mkdir( $d );
+				$created_dirs[] = $d;
+			}
+		}
+
+		$had_file = file_exists( $file );
+		$original = $had_file ? file_get_contents( $file ) : null;
+		$export   = var_export( $asset, true );
+		file_put_contents( $file, "<?php return $export;\n" );
+
+		return static function () use ( $file, $had_file, $original, $created_dirs ) {
+			if ( $had_file ) {
+				file_put_contents( $file, $original );
+			} elseif ( file_exists( $file ) ) {
+				unlink( $file );
+			}
+			foreach ( array_reverse( $created_dirs ) as $d ) {
+				// Only directories this fixture created, and only while
+				// empty — scandir() returns just '.' and '..' for an empty
+				// dir, so guard on that instead of silencing rmdir().
+				if ( is_dir( $d ) && 2 === count( scandir( $d ) ) ) {
+					rmdir( $d );
+				}
+			}
+		};
+	}
+
+	/**
+	 * `enqueue_editor_assets()` must wire up `wp_set_script_translations()`
+	 * for the register-blocks bundle, or every `__()` call in the editor
+	 * settings panel silently renders in English regardless of site locale —
+	 * `block.json`'s `editorScript` auto-wiring doesn't apply here since this
+	 * bundle is enqueued manually, not declared per-block. Stub the asset
+	 * file so this passes in CI's PHP-only test job, which has no JS build.
+	 */
+	public function test_enqueue_editor_assets_sets_script_translations() {
+		$cleanup = $this->stub_editor_asset_file(
+			array(
+				'dependencies' => array(),
+				'version'      => 'test-editor-version',
+			)
+		);
+
+		$handle = 'jetpack-search-blocks-register';
+		try {
+			Search_Blocks::enqueue_editor_assets();
+
+			$this->assertTrue( wp_script_is( $handle, 'registered' ), "$handle must be registered before its translations can be set" );
+			$this->assertSame(
+				'jetpack-search-pkg',
+				wp_scripts()->registered[ $handle ]->textdomain,
+				'enqueue_editor_assets must call wp_set_script_translations() with the jetpack-search-pkg domain'
+			);
+		} finally {
+			wp_deregister_script( $handle );
+			$cleanup();
+		}
+	}
+
+	/**
 	 * The `wp_body_open` registration itself stays unconditional (SEARCH-299)
 	 * — the module gate lives inside the callback instead.
 	 */
@@ -3615,5 +3690,66 @@ class Search_Blocks_Test extends TestCase {
 				10
 			);
 		}
+	}
+	/**
+	 * A block directory may nest child blocks that only ever render inside it.
+	 * Without the descent the child is never registered, and its markup renders
+	 * as an unrecognized block.
+	 */
+	public function test_block_directories_includes_nested_child_blocks() {
+		$dirs = array_map( 'basename', Search_Blocks::block_directories() );
+		$this->assertContains( 'no-results', $dirs );
+		$this->assertContains( 'slot', $dirs, 'the no-results child block must be discovered' );
+	}
+
+	/**
+	 * Parents come before their children so a child is never registered against
+	 * a parent WordPress has not seen yet.
+	 */
+	public function test_block_directories_lists_a_parent_before_its_child() {
+		$paths  = array_map(
+			static function ( $dir ) {
+				return str_replace( '\\', '/', $dir );
+			},
+			Search_Blocks::block_directories()
+		);
+		$parent = null;
+		$child  = null;
+		foreach ( $paths as $i => $path ) {
+			if ( substr( $path, -strlen( '/blocks/no-results' ) ) === '/blocks/no-results' ) {
+				$parent = $i;
+			}
+			if ( substr( $path, -strlen( '/blocks/no-results/slot' ) ) === '/blocks/no-results/slot' ) {
+				$child = $i;
+			}
+		}
+		$this->assertNotNull( $parent );
+		$this->assertNotNull( $child );
+		$this->assertLessThan( $child, $parent );
+	}
+
+	/**
+	 * Every directory handed to `register_block_type()` must actually hold a
+	 * `block.json`, or registration emits a `_doing_it_wrong()` notice.
+	 */
+	public function test_block_directories_all_hold_a_block_json() {
+		foreach ( Search_Blocks::block_directories() as $dir ) {
+			$this->assertFileExists( $dir . '/block.json' );
+		}
+	}
+
+	/**
+	 * A child inherits its parent's WooCommerce gate for free — a skipped
+	 * parent is never descended into, so no orphan child slips through.
+	 */
+	public function test_block_directories_skips_woocommerce_only_blocks_when_gated_off() {
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( false );
+		$off = array_map( 'basename', Search_Blocks::block_directories() );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true );
+		$on = array_map( 'basename', Search_Blocks::block_directories() );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( null );
+
+		$this->assertContains( 'filters-product', $on );
+		$this->assertNotContains( 'filters-product', $off );
 	}
 }

@@ -49,27 +49,32 @@ const ES_WEEKDAYS = [ 'domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'vie
  * running the suite. Tests that vary the zone spread the result and replace
  * the `timezone` block.
  *
- * @param locale     - Moment locale name. Must be unique per fixture, since
- *                   `setSettings` skips redefining a locale it already knows.
- * @param dateFormat - The site's `date_format` option, in PHP tokens.
- * @param months     - Translated month names, January first. Defaults to the
- *                   package's English names.
- * @param weekdays   - Translated weekday names, Sunday first. Defaults to the
- *                   package's English names.
+ * @param locale      - Moment locale name. Must be unique per fixture, since
+ *                    `setSettings` skips redefining a locale it already knows.
+ * @param dateFormat  - The site's `date_format` option, in PHP tokens.
+ * @param months      - Translated month names, January first. Defaults to the
+ *                    package's English names.
+ * @param weekdays    - Translated weekday names, Sunday first. Defaults to the
+ *                    package's English names.
+ * @param monthsShort - Abbreviated month names. Defaults to the first three
+ *                    letters of each, which is only right where the locale
+ *                    abbreviates that way. Hungarian, for one, punctuates its
+ *                    abbreviations, so it has to pass its own.
  * @return Settings ready for `setSettings`.
  */
 export const settingsFor = (
 	locale: string,
 	dateFormat: string,
 	months: string[] = DEFAULT_MONTHS,
-	weekdays: string[] = DEFAULTS.l10n.weekdays as string[]
+	weekdays: string[] = DEFAULTS.l10n.weekdays as string[],
+	monthsShort: string[] = months.map( month => month.slice( 0, 3 ) )
 ): DateSettings => ( {
 	...DEFAULTS,
 	l10n: {
 		...DEFAULTS.l10n,
 		locale,
 		months,
-		monthsShort: months.map( month => month.slice( 0, 3 ) ),
+		monthsShort,
 		weekdays,
 		weekdaysShort: weekdays.map( weekday => weekday.slice( 0, 3 ) ),
 	},
@@ -94,10 +99,13 @@ export const ES_ES_SETTINGS = settingsFor(
 /**
  * Build a UTC date, matching the fixtures' timezone so no day shift is in play.
  *
- * @param year  - Full year.
- * @param month - 1-based month.
- * @param day   - Day of month.
+ * @param year   - Full year.
+ * @param month  - 1-based month.
+ * @param day    - Day of month.
+ * @param [hour] - Hour of day. Defaults to midnight, which is where a
+ *               day-aligned range starts; pass one to build a rolling window
+ *               that does not sit on a day boundary.
  * @return The date.
  */
-export const utcDate = ( year: number, month: number, day: number ): Date =>
-	new Date( Date.UTC( year, month - 1, day ) );
+export const utcDate = ( year: number, month: number, day: number, hour: number = 0 ): Date =>
+	new Date( Date.UTC( year, month - 1, day, hour ) );

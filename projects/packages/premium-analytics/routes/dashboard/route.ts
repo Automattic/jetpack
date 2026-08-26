@@ -11,10 +11,7 @@ import { redirect } from '@wordpress/route';
  * Internal dependencies
  */
 import { ensureDashboardEntities } from '../dashboard-entities';
-import {
-	isPremiumAnalyticsInitialSyncFinished,
-	isPremiumAnalyticsSiteConnected,
-} from '../site-readiness';
+import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 
 type DashboardSearch = Record< string, string | undefined >;
 
@@ -23,17 +20,19 @@ type DashboardSearch = Record< string, string | undefined >;
  *
  * Guard:
  * - Not connected → /connect
- * - Connected but sync pending → /syncing
+ *
+ * The initial analytics sync is not a guard: only the store section's data waits
+ * on it, so that section shows sync progress while the rest of the dashboard
+ * renders (see `stage.tsx`).
  *
  * Seed the default date range into the URL on first visit so the date picker
  * and the widgets share a populated search state. Defaults to the last 30 days
  * with a previous-period comparison, resolved from the shared analytics
  * defaults (`getDefaultQueryParams`). Also re-seeds when `interval` is missing
- * or not allowed for the active range. The seed runs after
- * `ensureCoreSettingsReady()` so the dates are encoded in the site timezone;
- * otherwise `getDefaultQueryParams` would fall back to the browser timezone
- * (core `site` settings not loaded yet) and the seeded `to` boundary would land
- * on a different instant than a later Apply writes.
+ * or not allowed for the active range. The seed itself needs nothing async —
+ * the site timezone comes from the WordPress date settings that ship with the
+ * page — but it still awaits `ensureCoreSettingsReady()` to warm the core
+ * `site` record that `useSiteHomeUrl()` reads once the stage renders.
  *
  * Then register the widget-modules discovery entity before the stage renders,
  * so the stage's `getEntityRecords` read resolves and feeds the records to
@@ -57,18 +56,14 @@ export const route = {
 			throw redirect( { to: '/connect' } );
 		}
 
-		if ( ! isPremiumAnalyticsInitialSyncFinished() ) {
-			throw redirect( { to: '/syncing' } );
-		}
-
 		const params = ( search ?? {} ) as DashboardSearch;
 		if ( needsReportDateParamsSeed( params ) ) {
 			/*
-			 * Seed dates in the site timezone, not the browser's, by waiting for
-			 * core `site` settings. A rejection here (network/auth) shouldn't
-			 * error the whole page, so fall back to the default seed — matching
-			 * upstream's loader behavior. The only cost is the timezone briefly
-			 * falling back to the browser's until settings resolve.
+			 * Warm the core `site` record before the stage renders, so
+			 * `useSiteHomeUrl()` has it. A rejection here (network/auth)
+			 * shouldn't error the whole page, so fall through to the seed —
+			 * matching upstream's loader behavior. The seed's own dates do not
+			 * depend on this; they resolve from the WordPress date settings.
 			 */
 			try {
 				await ensureCoreSettingsReady();

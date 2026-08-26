@@ -98,13 +98,67 @@ describe( 'getSectionSubtitle', () => {
 		).toContain( '(24 hours)' );
 	} );
 
-	it( 'names the compared period when a comparison is applied', () => {
+	it( 'names the days the compared period covers, in place of the preset', () => {
+		expect(
+			getSectionSubtitle( {
+				range: { from: at( 2026, 6, 1 ), to: endOf( 2026, 6, 7 ) },
+				comparisonPresetId: 'previous-period',
+				comparisonRange: { from: at( 2026, 5, 25 ), to: endOf( 2026, 5, 31 ) },
+			} )
+		).toMatch( /\(7 days\) vs\. May 25\u2009–\u200931, 2026$/ );
+	} );
+
+	it( 'names the days for a calendar-shifted preset too', () => {
+		expect(
+			getSectionSubtitle( {
+				range: { from: at( 2026, 6, 1 ), to: endOf( 2026, 6, 7 ) },
+				comparisonPresetId: 'previous-year',
+				comparisonRange: { from: at( 2025, 6, 1 ), to: endOf( 2025, 6, 7 ) },
+			} )
+		).toMatch( /\(7 days\) vs\. June 1\u2009–\u20097, 2025$/ );
+	} );
+
+	it( 'names both sides of a rolling 24-hour comparison by the day they end on', () => {
+		expect(
+			getSectionSubtitle( {
+				range: {
+					from: new TZDate( 2026, 7, 19, 15, 0, 0, 0, TEST_TIMEZONE ),
+					to: new TZDate( 2026, 7, 20, 15, 0, 0, 0, TEST_TIMEZONE ),
+				},
+				comparisonPresetId: 'previous-period',
+				comparisonRange: {
+					from: new TZDate( 2026, 7, 18, 15, 0, 0, 0, TEST_TIMEZONE ),
+					to: new TZDate( 2026, 7, 19, 15, 0, 0, 0, TEST_TIMEZONE ),
+				},
+				interval: 'hour',
+			} )
+		).toBe( 'Thursday, August 20 (24 hours, hourly) vs. August 19, 2026' );
+	} );
+
+	it( 'falls back to naming the preset when the comparison window is missing', () => {
 		expect(
 			getSectionSubtitle( {
 				range: currentYearRange( 7 ),
 				comparisonPresetId: 'previous-period',
 			} )
 		).toMatch( /\(7 days\) vs\. Previous period$/ );
+
+		expect(
+			getSectionSubtitle( {
+				range: currentYearRange( 7 ),
+				comparisonPresetId: 'previous-period',
+				comparisonRange: { from: at( 2026, 5, 25 ) },
+			} )
+		).toMatch( /\(7 days\) vs\. Previous period$/ );
+	} );
+
+	it( 'ignores a comparison window carried without a preset', () => {
+		expect(
+			getSectionSubtitle( {
+				range: currentYearRange( 7 ),
+				comparisonRange: { from: at( 2026, 5, 25 ), to: endOf( 2026, 5, 31 ) },
+			} )
+		).not.toContain( 'May' );
 	} );
 
 	it( 'omits the comparison when none is applied', () => {
@@ -138,11 +192,12 @@ describe( 'getSectionSubtitle', () => {
 		it( 'stays inside the parenthetical, ahead of the comparison', () => {
 			expect(
 				getSectionSubtitle( {
-					range: currentYearRange( 7 ),
+					range: { from: at( 2026, 6, 1 ), to: endOf( 2026, 6, 7 ) },
 					interval: 'day',
 					comparisonPresetId: 'previous-period',
+					comparisonRange: { from: at( 2026, 5, 25 ), to: endOf( 2026, 5, 31 ) },
 				} )
-			).toMatch( /\(7 days, daily\) vs\. Previous period$/ );
+			).toMatch( /\(7 days, daily\) vs\. May 25\u2009–\u200931, 2026$/ );
 		} );
 	} );
 
@@ -205,21 +260,21 @@ describe( 'getSectionSubtitle', () => {
 
 		it( 'measures the running year under a non-year preset, unit and all', () => {
 			// The regression this guards: read mid-month the same dates measure in
-			// days and lead with the weekday, and on a month boundary they measure
-			// in months and carry the year instead.
+			// days, and on a month boundary in months, which is the length the
+			// year surface refuses to state.
 			expect(
 				getSectionSubtitle( {
 					range: { from: RUNNING_YEAR_FROM, to: endOf( 2026, 7, 30 ) },
 					presetId: 'custom',
 				} )
-			).toBe( 'Thursday, January 1 – Thursday, July 30 (211 days)' );
+			).toBe( 'January 1 – July 30 (211 days)' );
 
 			expect(
 				getSectionSubtitle( {
 					range: { from: RUNNING_YEAR_FROM, to: endOf( 2026, 7, 31 ) },
 					presetId: 'custom',
 				} )
-			).toBe( 'January 1, 2026 – July 31, 2026 (7 months)' );
+			).toBe( 'January 1 – July 31 (7 months)' );
 		} );
 	} );
 } );

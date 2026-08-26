@@ -1,5 +1,6 @@
 export {
 	POST_DETAIL_TAB_IDS,
+	EMAIL_TAB_IDS,
 	DEFAULT_TAB_ID,
 	getTabLabel,
 	getPostDetailTabs,

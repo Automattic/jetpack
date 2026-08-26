@@ -4,6 +4,7 @@
 import {
 	useStatsPost,
 	type ReportParams,
+	type StatsChartBucketPeriod,
 	type StatsPostDay,
 } from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
@@ -16,10 +17,6 @@ import {
 	format,
 	parseISO,
 } from 'date-fns';
-/**
- * Internal dependencies
- */
-import type { PostViewsGranularity } from './widget';
 
 /**
  * One chart point: a bucket-start date and the views summed into the bucket.
@@ -99,7 +96,7 @@ function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
  */
 function calendarBucketWindows(
 	dayWindow: DayWindow,
-	period: PostViewsGranularity
+	period: StatsChartBucketPeriod
 ): BucketWindow[] {
 	// The URL is user-editable, so an inverted range must not reach
 	// `eachDayOfInterval()` (it throws).
@@ -150,12 +147,9 @@ function bucketDays( days: StatsPostDay[], buckets: BucketWindow[] ): PostViewsP
 	// The endpoint's day keys are plain site-local calendar dates, so each
 	// point's instant must be that day's site-local midnight. `parseSiteDateTime`
 	// anchors the offset-less key in the site timezone; the chart's `formatDate`
-	// labels render in the same zone, so the calendar day round-trips without a
-	// TZ-induced day shift (a date-only string fed to `localTZDate` would parse
-	// as UTC midnight and read as the previous day on negative-offset sites).
+	// labels render in the same zone, so the calendar day round-trips.
 	// `bucket.date` comes from `format( start, 'yyyy-MM-dd' )`, so the parse
-	// cannot fail in practice; if it ever does, drop the point rather than
-	// fall back to a browser-local instant that reintroduces the day shift.
+	// cannot fail in practice; drop the point rather than guess if it ever does.
 	return buckets.flatMap( bucket => {
 		const date = parseSiteDateTime( bucket.date );
 		return date ? [ { date, value: totals.get( bucket.date ) ?? 0 } ] : [];
@@ -174,7 +168,7 @@ function bucketDays( days: StatsPostDay[], buckets: BucketWindow[] ): PostViewsP
 export default function usePostViews(
 	postId: number,
 	reportParams: ReportParams,
-	period: PostViewsGranularity
+	period: StatsChartBucketPeriod
 ): PostViewsState {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsPost( {
 		postId,

@@ -1,26 +1,44 @@
 /**
  * External dependencies
  */
+import { getDateRangeSpan, type DateRange } from '@jetpack-premium-analytics/datetime';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { elideRange, type RangeFormatName } from './elide-range';
 import { formatDate } from './format-date';
-import type { DateRange } from './types';
+import { isSingleDaySpan } from './is-single-day-span';
+
+type FormatDateRangeOptions = {
+	/**
+	 * Name a window of a day or less by the day it ends on, even when a rolling
+	 * window crosses a calendar boundary.
+	 */
+	collapseSingleDay?: boolean;
+};
 
 /**
  * Format a date range in one of the forms `elideRange` can elide.
  *
- * @param name  - The form to render in.
- * @param range - The range to format.
+ * @param name      - The form to render in.
+ * @param range     - The range to format.
+ * @param [options] - Formatting options.
  * @return The formatted range.
  */
-const formatRange = ( name: RangeFormatName, range?: DateRange ): string => {
+const formatRange = (
+	name: RangeFormatName,
+	range?: DateRange,
+	options: FormatDateRangeOptions = {}
+): string => {
 	const { from, to } = range ?? {};
 
 	if ( ! from || ! to ) {
 		return '';
+	}
+
+	if ( options.collapseSingleDay && isSingleDaySpan( getDateRangeSpan( { from, to } ) ) ) {
+		return formatDate( to, name );
 	}
 
 	// Compare complete site-local dates because the display format may omit the year.
@@ -52,7 +70,8 @@ const formatRange = ( name: RangeFormatName, range?: DateRange ): string => {
  *
  * Returns `''` when `range`, `from`, or `to` is missing.
  *
- * @param range - The range to format.
+ * @param range     - The range to format.
+ * @param [options] - Formatting options.
  * @return The formatted range.
  *
  * @example
@@ -60,7 +79,10 @@ const formatRange = ( name: RangeFormatName, range?: DateRange ): string => {
  *                                 // elided:    'June 21 – 25, 2025'
  *                                 // spelt out: 'June 21, 2025 – June 25, 2025'
  */
-export const formatDateRange = ( range?: DateRange ): string => formatRange( 'medium', range );
+export const formatDateRange = (
+	range?: DateRange,
+	options: FormatDateRangeOptions = {}
+): string => formatRange( 'medium', range, options );
 
 /**
  * Format a date range with the month abbreviated.
@@ -84,3 +106,36 @@ export const formatDateRange = ( range?: DateRange ): string => formatRange( 'me
  */
 export const formatDateRangeCompact = ( range?: DateRange ): string =>
 	formatRange( 'compact', range );
+
+/**
+ * Format a date range in the shortest form that still identifies it.
+ *
+ * For controls that carry a range as their own label, where every character is
+ * width taken from something else on the row. It drops the year on top of what
+ * `formatDateRangeCompact` already shortens, but only while the whole range
+ * sits in the current year — a range anywhere else needs its year to say which
+ * one it is, and reads as the compact form instead.
+ *
+ * "Current" is the site's own year, since the year each end falls in is read in
+ * the site's timezone like every other date the dashboard renders.
+ *
+ * @param range - The range to format.
+ * @return The formatted range.
+ *
+ * @example
+ * formatDateRangeMinimal( { from, to } ) // this year:  'Jul 24' / 'Jul 13 – 26'
+ *                                        // any other: 'Jun 21, 2025'
+ */
+export const formatDateRangeMinimal = ( range?: DateRange ): string => {
+	const { from, to } = range ?? {};
+
+	if ( ! from || ! to ) {
+		return '';
+	}
+
+	const currentYear = formatDate( Date.now(), 'year' );
+	const isCurrentYear =
+		formatDate( from, 'year' ) === currentYear && formatDate( to, 'year' ) === currentYear;
+
+	return formatRange( isCurrentYear ? 'compactNoYear' : 'compact', range );
+};

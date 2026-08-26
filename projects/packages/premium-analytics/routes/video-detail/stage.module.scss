@@ -26,6 +26,28 @@
 	// Inherited by the @wordpress/grid surfaces (grid, masonry, edit overlay),
 	// which otherwise fall back to the wider `--wpds-dimension-gap-xl`.
 	--wp-grid-gap: var(--wpds-dimension-gap-lg);
+
+	// Match the dashboard's tightened widget Card padding (#51101): the detail
+	// routes render the same widget Cards, and the roomier default otherwise
+	// clips content-sized widgets like the traffic activity heatmap
+	// (WOOA7S-1905). TODO with #51101: consider fixing upstream in Card.
+	section:first-of-type {
+		// Temporary solution. Fixed upstream https://github.com/WordPress/gutenberg/pull/80570
+		display: flex;
+		flex-direction: column;
+
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+		--wp-ui-card-header-content-margin: var(--wpds-dimension-padding-lg);
+
+		> div {
+			margin-block-start: 0;
+		}
+	}
+
+	// Overlay WidgetHeader re-declares padding to 2xl; match the Card tweak.
+	[class*="__widget-header"][class*="__overlay"] {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+	}
 }
 
 .header {

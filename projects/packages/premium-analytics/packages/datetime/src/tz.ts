@@ -1,8 +1,12 @@
 /**
  * External dependencies
  */
-import { tz, TZDate, TZDateMini } from '@date-fns/tz';
+import { tz, TZDate, TZDateMini, tzOffset } from '@date-fns/tz';
 import { format, isValid, startOfDay, endOfDay } from 'date-fns';
+/**
+ * Internal dependencies
+ */
+import { readSiteTimestamp, type TimestampParts } from './site-timestamp';
 
 type GrowTuple< T extends unknown[], Max extends number > = T[ 'length' ] extends Max
 	? T
@@ -31,6 +35,53 @@ type GrowTuple< T extends unknown[], Max extends number > = T[ 'length' ] extend
  */
 type DateParts = GrowTuple< [ number, number ], 7 >;
 
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const MINUTE_IN_MS = 60 * 1000;
+
+/**
+ * Resolve wall-clock parts to the instant they name in a timezone.
+ *
+ * `TZDateMini`'s own parts constructor seeds its offset guess from the machine
+ * timezone, so wall times a DST transition skips or repeats resolve to
+ * different instants depending on the host — in production, the visitor's
+ * browser. This resolves them deterministically instead: a wall time a
+ * fall-back transition names twice takes its first occurrence, and one a
+ * spring-forward gap skips normalizes forward by the gap's length.
+ *
+ * @param parts    - Wall-clock parts, `[ year, month, ...rest ]` as `Date.UTC` reads them.
+ * @param timeZone - The timezone the wall time belongs to.
+ * @return The timestamp of the resolved instant, in milliseconds.
+ */
+function wallPartsToTimestamp( parts: number[], timeZone: string ): number {
+	const [ year, month, ...rest ] = parts;
+	const wallAsUTC = Date.UTC( year, month, ...rest );
+
+	// The offsets in effect a day before and after bracket any DST transition
+	// the wall time can sit on.
+	const before = tzOffset( timeZone, new Date( wallAsUTC - DAY_IN_MS ) );
+	const after = tzOffset( timeZone, new Date( wallAsUTC + DAY_IN_MS ) );
+
+	const candidates: number[] = [];
+	for ( const offset of before === after ? [ before ] : [ before, after ] ) {
+		const timestamp = wallAsUTC - offset * MINUTE_IN_MS;
+		// The anchor only holds where its offset is actually in effect.
+		if ( tzOffset( timeZone, new Date( timestamp ) ) === offset ) {
+			candidates.push( timestamp );
+		}
+	}
+
+	if ( candidates.length > 0 ) {
+		// Two survivors mean a fall-back transition names the wall time twice;
+		// the earliest timestamp is its first occurrence.
+		return Math.min( ...candidates );
+	}
+
+	// No survivor means a spring-forward gap skips the wall time. Anchoring
+	// with the pre-gap offset lands just past the transition, normalizing the
+	// wall time forward by the gap's length.
+	return wallAsUTC - before * MINUTE_IN_MS;
+}
+
 /**
  * Build a TZDate from `DateParts` in the given timezone, UTC when omitted.
  *
@@ -56,23 +107,62 @@ export function createTZDateFromParts(
 	const idx = dateParts.indexOf( undefined );
 	const datePartsTrimmed = idx === -1 ? dateParts : dateParts.slice( 0, idx );
 
-	// @ts-expect-error: We know datePartsTrimmed is a tuple of numbers, spreading is safe.
-	return new TZDateMini( ...datePartsTrimmed, tzid );
+	return new TZDateMini( wallPartsToTimestamp( datePartsTrimmed as number[], tzid ), tzid );
 }
 
 /**
- * Create a TZDate in the provided timezone.
- * Defaults to UTC when no timezone is given.
+ * Anchor wall-clock parts to a timezone.
+ *
+ * @param parts    - The wall-clock parts.
+ * @param timeZone - The timezone the wall time belongs to.
+ * @return The zoned date, or an invalid date when the timezone has no such day.
+ */
+function wallTimeToTZDate( parts: TimestampParts, timeZone: string ): TZDate {
+	const date = createTZDateFromParts( parts, timeZone );
+
+	// A zone that skips a whole day, as Pacific/Apia did on 2011-12-30, moves
+	// the wall time onto the next one. Compare only the date parts, so a wall
+	// time normalized by a DST jump stays valid.
+	const survivedRoundTrip =
+		date.getFullYear() === parts[ 0 ] &&
+		date.getMonth() === parts[ 1 ] &&
+		date.getDate() === parts[ 2 ];
+
+	return survivedRoundTrip ? date : new TZDateMini( NaN, timeZone );
+}
+
+/**
+ * Create a TZDate, reading offset-less strings as wall time in the timezone.
+ *
  * @param value
  * @param timeZone
  */
 export function toLocalTZ( value?: number | string | Date, timeZone?: string ): TZDate {
 	const tzid = timeZone ?? '+00:00';
-	if ( value !== undefined ) {
-		return new TZDateMini( value as number, tzid );
+
+	if ( value === undefined ) {
+		return TZDateMini.tz( tzid );
 	}
 
-	return TZDateMini.tz( tzid );
+	if ( typeof value === 'string' ) {
+		const timestamp = readSiteTimestamp( value );
+
+		// A shape this package does not read reaches `Date` otherwise, which
+		// resolves an offset-less string in the *browser's* zone — the shift this
+		// module avoids — and leaves `parseSiteDateTime` rejecting a value this
+		// accepts.
+		if ( ! timestamp?.isValid ) {
+			return new TZDateMini( NaN, tzid );
+		}
+
+		// An offset already identifies an instant, so only wall times are
+		// anchored to the timezone.
+		return timestamp.offset
+			? new TZDateMini( timestamp.value as unknown as number, tzid )
+			: wallTimeToTZDate( timestamp.parts, tzid );
+	}
+
+	return new TZDateMini( value as number, tzid );
 }
 
 /**

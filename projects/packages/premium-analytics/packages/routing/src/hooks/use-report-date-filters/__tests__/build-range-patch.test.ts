@@ -1,49 +1,19 @@
 /**
- * Mocks: the data package reads the site timezone from the WordPress core
- * store. Pin the timezone to UTC so day-bound math is deterministic
- * regardless of the machine timezone running the tests.
+ * Pin the site timezone to UTC so day-bound math is deterministic regardless
+ * of the machine timezone running the tests. `siteTimeZone()` is the leaf
+ * every timezone read resolves through, so stubbing it alone pins paths a
+ * barrel stub cannot reach (the interval rules get `localTZDate` through a
+ * relative import, not the `data` barrel) while keeping the real range and
+ * interval implementations under test.
  */
-jest.mock( '@jetpack-premium-analytics/data', () => {
-	const { TZDateMini } = jest.requireActual( '@date-fns/tz' );
-
-	/**
-	 * Stub of `resolveIntervalForRange` for the presets these tests exercise.
-	 *
-	 * @param period  - Active date-range preset id.
-	 * @param _from   - Unused; signature parity with the real helper.
-	 * @param _to     - Unused; signature parity with the real helper.
-	 * @param current - Candidate interval to keep when still allowed.
-	 * @return Interval allowed for the mocked preset.
-	 */
-	const resolveIntervalForRange = (
-		period: string | undefined,
-		_from: string,
-		_to: string,
-		current?: string
-	) => {
-		let allowed = [ 'hour', 'day' ];
-		if ( period === 'last-7-days' ) {
-			allowed = [ 'day' ];
-		}
-
-		if ( current && allowed.includes( current ) ) {
-			return current;
-		}
-		return allowed[ 0 ];
-	};
-
-	return {
-		getSiteTimezone: () => '+00:00',
-		dateToISOStringWithLocalTZ: ( date: Date ) => new Date( date.getTime() ).toISOString(),
-		localTZDate: ( value: number | Date ) =>
-			new TZDateMini( typeof value === 'number' ? value : value.getTime(), '+00:00' ),
-		resolveIntervalForRange,
-	};
-} );
+jest.mock( '@jetpack-premium-analytics/datetime', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/datetime' ),
+	siteTimeZone: () => '+00:00',
+} ) );
 /**
  * External dependencies
  */
-import { endOfDay } from 'date-fns';
+import { canStepForward, stepDateRange } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
@@ -52,8 +22,12 @@ import { buildRangePatch } from '../build-range-patch';
 describe( 'buildRangePatch', () => {
 	// A rolling sub-day window: `to` sits mid-day, exactly where end-of-day
 	// rounding would corrupt it.
-	const from = new Date( '2026-07-09T14:30:00.000Z' );
-	const to = new Date( '2026-07-10T14:30:00.000Z' );
+	const from = new Date( '2026-07-09T14:30:00.000+00:00' );
+	const to = new Date( '2026-07-10T14:30:00.000+00:00' );
+
+	// A window long enough to allow day buckets, for the cases about carrying a
+	// selection rather than about coercing it.
+	const wideTo = new Date( '2026-07-19T14:30:00.000+00:00' );
 
 	it( 'returns null when there is nothing to stage', () => {
 		expect( buildRangePatch( { effective: {} } ) ).toBeNull();
@@ -68,8 +42,8 @@ describe( 'buildRangePatch', () => {
 		} );
 
 		expect( patch ).toEqual( {
-			from: '2026-07-09T14:30:00.000Z',
-			to: '2026-07-10T14:30:00.000Z',
+			from: '2026-07-09T14:30:00.000+00:00',
+			to: '2026-07-10T14:30:00.000+00:00',
 			preset: 'last-24-hours',
 			interval: 'hour',
 		} );
@@ -77,12 +51,12 @@ describe( 'buildRangePatch', () => {
 
 	it( 'keeps the current interval when the preset is unchanged and still allows it', () => {
 		const patch = buildRangePatch( {
-			nextRange: { from, to },
-			nextPresetId: 'last-24-hours',
-			effective: { preset: 'last-24-hours', interval: 'day' },
+			nextRange: { from, to: wideTo },
+			nextPresetId: 'last-30-days',
+			effective: { preset: 'last-30-days', interval: 'week' },
 		} );
 
-		expect( patch?.interval ).toBe( 'day' );
+		expect( patch?.interval ).toBe( 'week' );
 	} );
 
 	it( 'clamps an unsupported interval to the range default', () => {
@@ -97,13 +71,26 @@ describe( 'buildRangePatch', () => {
 
 	it( 'carries a still-allowed interval across a preset change', () => {
 		const patch = buildRangePatch( {
-			nextRange: { from, to },
-			nextPresetId: 'last-24-hours',
+			nextRange: { from, to: wideTo },
+			nextPresetId: 'last-30-days',
 			effective: { preset: 'last-7-days', interval: 'day' },
 		} );
 
-		// `day` is allowed for last-24-hours, so the selection survives.
+		// `day` is allowed for last-30-days too, so the selection survives.
 		expect( patch?.interval ).toBe( 'day' );
+	} );
+
+	// A day bucket on a day-long window draws the whole range as one bar.
+	it( 'coerces a day bucket when switching to a day-long preset', () => {
+		for ( const preset of [ 'last-7-days', 'last-30-days' ] as const ) {
+			const patch = buildRangePatch( {
+				nextRange: { from, to },
+				nextPresetId: 'last-24-hours',
+				effective: { preset, interval: 'day' },
+			} );
+
+			expect( patch?.interval ).toBe( 'hour' );
+		}
 	} );
 
 	it( 'coerces an interval the new preset disallows', () => {
@@ -118,7 +105,7 @@ describe( 'buildRangePatch', () => {
 
 	it( 'carries the interval through a manual edit that leaves a preset', () => {
 		const patch = buildRangePatch( {
-			nextRange: { from, to },
+			nextRange: { from, to: wideTo },
 			nextPresetId: 'custom',
 			effective: { preset: 'last-7-days', interval: 'day' },
 		} );
@@ -126,8 +113,22 @@ describe( 'buildRangePatch', () => {
 		expect( patch?.interval ).toBe( 'day' );
 	} );
 
+	// A stepped window carries no preset, so the same rule has to reach it
+	// through the range length rather than through the preset table.
+	it( 'coerces a day bucket on a day-long custom range', () => {
+		const patch = buildRangePatch( {
+			nextRange: { from, to },
+			nextPresetId: 'custom',
+			effective: { preset: 'last-7-days', interval: 'day' },
+		} );
+
+		expect( patch?.interval ).toBe( 'hour' );
+	} );
+
 	it( 'extends calendar and manual edits to the end of the day', () => {
-		const expected = endOfDay( to ).getTime();
+		// The end of the *site's* day (pinned to UTC above), whatever the host.
+		// A literal instant, so the expectation cannot drift with `endOfDayTZ`.
+		const expected = new Date( '2026-07-10T23:59:59.999+00:00' ).getTime();
 
 		const custom = buildRangePatch( {
 			nextRange: { from, to },
@@ -141,6 +142,47 @@ describe( 'buildRangePatch', () => {
 		expect( expected ).toBeGreaterThan( to.getTime() );
 	} );
 
+	it( 'keeps an exact range untouched even when it leaves a preset', () => {
+		const patch = buildRangePatch( {
+			nextRange: { from, to },
+			nextPresetId: 'custom',
+			exactRange: true,
+			effective: {},
+		} );
+
+		expect( patch?.from ).toBe( '2026-07-09T14:30:00.000+00:00' );
+		expect( patch?.to ).toBe( '2026-07-10T14:30:00.000+00:00' );
+	} );
+
+	/*
+	 * Rounding a stepped `to` up to the end of its day stretches a rolling
+	 * window on every step and pushes its next window into the future, hiding
+	 * the forward arrow.
+	 */
+	it( 'steps a rolling window back and forward without changing its length', () => {
+		const previous = stepDateRange( { from, to }, 'previous' );
+		const back = buildRangePatch( {
+			nextRange: previous,
+			nextPresetId: 'custom',
+			exactRange: true,
+			effective: { preset: 'last-24-hours', interval: 'hour' },
+		} );
+
+		expect( back ).toMatchObject( {
+			from: '2026-07-08T14:30:00.000+00:00',
+			to: '2026-07-09T14:30:00.000+00:00',
+			interval: 'hour',
+			preset: 'custom',
+		} );
+
+		const backRange = { from: new Date( back?.from ?? '' ), to: new Date( back?.to ?? '' ) };
+		expect( canStepForward( backRange, to ) ).toBe( true );
+
+		const returned = stepDateRange( backRange, 'next' );
+		expect( returned?.from?.getTime() ).toBe( from.getTime() );
+		expect( returned?.to?.getTime() ).toBe( to.getTime() );
+	} );
+
 	it( 're-derives the comparison range from the new primary range when enabled', () => {
 		const patch = buildRangePatch( {
 			nextRange: { from, to },
@@ -149,8 +191,8 @@ describe( 'buildRangePatch', () => {
 		} );
 
 		expect( patch ).toMatchObject( {
-			compare_from: '2026-07-08T14:30:00.000Z',
-			compare_to: '2026-07-09T14:30:00.000Z',
+			compare_from: '2026-07-08T14:29:59.999+00:00',
+			compare_to: '2026-07-09T14:29:59.999+00:00',
 		} );
 	} );
 

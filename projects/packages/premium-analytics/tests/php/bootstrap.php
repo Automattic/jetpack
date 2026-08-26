@@ -21,3 +21,8 @@ if ( empty( $_SERVER['SCRIPT_FILENAME'] ) ) {
 // and be exercised. Loaded after Test_Environment::init() so WordPress base classes
 // (e.g. WP_REST_Controller) are already available for the stubs to extend.
 require_once __DIR__ . '/mocks/woocommerce-mocks.php';
+
+// Controllable stand-in for the WPCOM platform's feature gate, so the Simple/Atomic
+// branch of is_videopress_available() can be driven in both directions. Inert until a
+// test populates $GLOBALS['jpa_test_wpcom_features'].
+require_once __DIR__ . '/mocks/wpcom-feature-mocks.php';

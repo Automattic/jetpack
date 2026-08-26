@@ -1,18 +1,18 @@
 /**
- * The Views performance widget is the video detail page's view-trend card:
- * the scoped video's views over the dashboard date range as a line chart.
- * The video scope arrives through `reportParams.post_id` (seeded from the
- * detail page URL in product); the `hasVideoScope` control toggles it to
- * exercise the scopeless empty state.
+ * The Video performance widget is the video detail page's performance card:
+ * the scoped video's views, impressions, hours watched, and retention rate
+ * over the dashboard date range as selectable metric tabs over a chart. The
+ * video scope arrives through `reportParams.post_id` (seeded from the detail
+ * page URL in product); the `hasVideoScope` control toggles it to exercise
+ * the scopeless empty state.
  *
- * Data comes from the proxied `stats/video/{id}` `statType=all` endpoint —
- * the same range request the Video highlights widget issues, so the two share
- * one cache entry — covered by the shared single-video report mock (a
- * deterministic daily series ending today, so relative date presets always
- * intersect it). The video detail design has no period-over-period
- * comparison, so the widget maps no comparison rows; the dashboard story
- * still passes comparison params so the widget stays covered against
- * crashing or inventing an overlay when a host supplies them.
+ * Data comes from one proxied `stats/video/{id}` `statType=all` range
+ * request, covered by the shared single-video report mock (a deterministic
+ * daily series ending today, so relative date presets always intersect it).
+ * The video detail design has no period-over-period comparison, so the
+ * widget maps no comparison rows; the dashboard story still passes
+ * comparison params so the widget stays covered against crashing or
+ * inventing an overlay when a host supplies them.
  */
 /**
  * External dependencies
@@ -29,9 +29,11 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { presetForStoryInterval } from '../../stories/preset-for-story-interval';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import VideoDetailViewsPerformanceRender from '../render';
-import widgetDefinition, { type VideoDetailViewsPerformanceGranularity } from '../widget';
+import widgetDefinition, { type VideoDetailViewsPerformanceChartType } from '../widget';
+import type { StatsChartBucketPeriod } from '@jetpack-premium-analytics/data';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -47,23 +49,26 @@ const VIDEO_DETAIL_VIEWS_PERFORMANCE_RENDER_MODULE = 'storybook/video-detail-vie
 
 interface VideoDetailViewsPerformanceStoryControls {
 	hasVideoScope: boolean;
-	granularity: VideoDetailViewsPerformanceGranularity;
+	interval: StatsChartBucketPeriod;
+	chartType: VideoDetailViewsPerformanceChartType;
 }
 
 /**
- * Builds the widget attributes: the granularity attribute plus report params
- * with the video scope the detail page seeds from its URL when
- * `hasVideoScope` is on. Comparison stays a parameter so the dashboard story
- * can pass host comparison params without duplicating the scoping rule.
+ * Builds the widget attributes: report params carrying the page's chart
+ * interval (which the widget buckets by) plus the video scope the detail page
+ * seeds from its URL when `hasVideoScope` is on. Comparison stays a parameter
+ * so the dashboard story can pass host comparison params without duplicating
+ * the scoping rule.
  */
 function getVideoDetailViewsPerformanceAttributes(
-	{ hasVideoScope, granularity }: VideoDetailViewsPerformanceStoryControls,
+	{ hasVideoScope, interval, chartType }: VideoDetailViewsPerformanceStoryControls,
 	withComparison = false
 ): ComponentProps< typeof VideoDetailViewsPerformanceRender >[ 'attributes' ] {
 	return {
-		granularity,
+		chartType,
 		reportParams: {
-			...getDefaultQueryParams( withComparison ),
+			...getDefaultQueryParams( withComparison, presetForStoryInterval( interval ) ),
+			interval,
 			...( hasVideoScope ? { post_id: MOCK_VIDEO_ID } : {} ),
 		},
 	};
@@ -86,17 +91,23 @@ const meta = {
 			control: 'boolean',
 			description: 'Include the `post_id` report param the video detail page seeds from its URL.',
 		},
-		granularity: {
+		interval: {
 			control: 'radio',
 			options: [ 'day', 'week', 'month' ],
-			description: 'The "Group by" toolbar attribute rendered by the widget host.',
+			description:
+				'The page chart interval the widget buckets its daily history into. Monthly moves the story range to 90 days, the shortest preset that allows it.',
+		},
+		chartType: {
+			control: 'radio',
+			options: [ 'line', 'bar' ],
+			description: 'The "Chart type" toolbar attribute rendered by the widget host.',
 		},
 	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Views performance" widget: the scoped video\'s view trend over the dashboard date range as a line chart. The series comes from the `stats/video/{id}` `statType=all` daily history for the selected window (shared with the Video highlights widget\'s query), zero-filled and bucketed client-side per the host-rendered "Group by" control. The video detail page has no comparison control, so comparison report params are ignored. Without a video scope the widget renders a scopeless empty state.',
+					"The \"Video performance\" widget: the scoped video's views, impressions, hours watched, and retention rate over the dashboard date range as selectable metric tabs, each headlined by the window's canonical total. The series come from the `stats/video/{id}` `statType=all` daily history for the selected window, zero-filled and bucketed client-side at the page's chart interval (retention rate is play-weighted, not averaged). The video detail page has no comparison control, so comparison report params are ignored. Without a video scope the widget renders a scopeless empty state.",
 			},
 		},
 	},
@@ -110,12 +121,12 @@ export default meta;
 type Story = StoryObj< VideoDetailViewsPerformanceStoryControls >;
 
 /**
- * Default — the scoped video's views for the selected period: a single
- * "Views" line.
+ * Default — the scoped video's four metric tabs for the selected period, with
+ * the Views tab selected.
  */
 export const Default: Story = {
 	render: renderVideoDetailViewsPerformance,
-	args: { hasVideoScope: true, granularity: 'day' },
+	args: { hasVideoScope: true, interval: 'day', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -126,7 +137,7 @@ export const Default: Story = {
  */
 export const NoVideoScope: Story = {
 	render: renderVideoDetailViewsPerformance,
-	args: { hasVideoScope: false, granularity: 'day' },
+	args: { hasVideoScope: false, interval: 'day', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -136,14 +147,15 @@ interface VideoDetailViewsPerformanceDashboardStoryProps
 
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders
- * exactly as it does in product (framed card, host "Group by" toolbar
- * control, sizing, edit mode). It passes comparison params unconditionally,
+ * exactly as it does in product (framed card, host toolbar controls, sizing,
+ * edit mode). It passes comparison params unconditionally,
  * so the widget stays covered against crashing or inventing an overlay when
  * a host supplies comparison dates.
  */
 function VideoDetailViewsPerformanceDashboardStory( {
 	hasVideoScope,
-	granularity,
+	interval,
+	chartType,
 	...dashboardArgs
 }: VideoDetailViewsPerformanceDashboardStoryProps ) {
 	return (
@@ -155,7 +167,7 @@ function VideoDetailViewsPerformanceDashboardStory( {
 				VideoDetailViewsPerformanceRender as ComponentType< WidgetRenderProps< unknown > >
 			}
 			attributes={ getVideoDetailViewsPerformanceAttributes(
-				{ hasVideoScope, granularity },
+				{ hasVideoScope, interval, chartType },
 				true
 			) }
 		/>
@@ -170,7 +182,7 @@ export const WidgetDashboardWithWidget: StoryObj< VideoDetailViewsPerformanceDas
 			widgetWidth: 2,
 			widgetHeight: 2,
 			hasVideoScope: true,
-			granularity: 'day',
+			interval: 'day',
 		},
 		argTypes: {
 			...widgetDashboardWithWidgetArgTypes,
@@ -178,10 +190,11 @@ export const WidgetDashboardWithWidget: StoryObj< VideoDetailViewsPerformanceDas
 				control: 'boolean',
 				description: 'Include the `post_id` report param the video detail page seeds from its URL.',
 			},
-			granularity: {
+			interval: {
 				control: 'radio',
 				options: [ 'day', 'week', 'month' ],
-				description: 'The "Group by" toolbar attribute rendered by the widget host.',
+				description:
+					'The page chart interval the widget buckets its daily history into. Monthly moves the story range to 90 days, the shortest preset that allows it.',
 			},
 		},
 	};

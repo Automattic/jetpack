@@ -3,12 +3,13 @@
  */
 import { resolveIntervalForRange, type ReportQueryParams } from '@jetpack-premium-analytics/data';
 import {
+	endOfDayTZ,
 	isSelectablePreset,
+	siteTimeZone,
 	type ComparisonPresetId,
 	type DateRange,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
-import { endOfDay } from 'date-fns';
 /**
  * Internal dependencies
  */
@@ -35,6 +36,13 @@ type BuildRangePatchArgs = {
 	nextPresetId?: PrimaryPresetId;
 
 	/**
+	 * Store both ends exactly as given, skipping the end-of-day adjustment
+	 * for calendar edits. For ranges derived from an already-normalized
+	 * window, like stepping.
+	 */
+	exactRange?: boolean;
+
+	/**
 	 * The current effective search params, used to re-derive the comparison
 	 * range and to resolve the interval for the next range.
 	 */
@@ -53,20 +61,25 @@ type BuildRangePatchArgs = {
 export function buildRangePatch( {
 	nextRange,
 	nextPresetId,
+	exactRange,
 	effective,
 }: BuildRangePatchArgs ): ReportQuerySearchParams | null {
 	const patch: ReportQuerySearchParams = {};
 
 	if ( nextRange?.from && nextRange.to ) {
 		/*
-		 * Preset ranges are authoritative: rolling presets like
-		 * last-24-hours end at the current time. Calendar and manual
-		 * edits stage midnight `to` dates, so only those are adjusted
-		 * to the end of the day.
+		 * Preset and exact ranges are authoritative: rolling windows end at
+		 * the current time, not at a day boundary. Calendar and manual edits
+		 * stage midnight `to` dates, so only those are adjusted to the end of
+		 * the day — the site's day, not the visitor's: date-fns' bare
+		 * `endOfDay` would use the browser's boundary and stretch the range
+		 * for visitors west of the site timezone.
 		 */
 		const rangeFrom = encodeDateToSearchParam( nextRange.from );
 		const rangeTo = encodeDateToSearchParam(
-			isSelectablePreset( nextPresetId ) ? nextRange.to : endOfDay( nextRange.to )
+			exactRange || isSelectablePreset( nextPresetId )
+				? nextRange.to
+				: endOfDayTZ( nextRange.to, siteTimeZone() )
 		);
 		patch.from = rangeFrom;
 		patch.to = rangeTo;

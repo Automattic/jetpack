@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add update_from_site_record() to set the cached plan and products from a decoded site record.

@@ -57,6 +57,7 @@ const PODCAST_KEYS: Array< keyof PodcastSettings > = [
 	'podcasting_email',
 	'podcasting_show_urls',
 	'podcasting_show_states',
+	'podcasting_feed_limit',
 	'podcasting_feed_url',
 ];
 
@@ -92,7 +93,9 @@ const normalizeShowStates = ( raw: unknown ): PodcastShowStates => {
 
 const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings => {
 	const numericKey = ( key: keyof PodcastSettings ) =>
-		key === 'podcasting_category_id' || key === 'podcasting_image_id';
+		key === 'podcasting_category_id' ||
+		key === 'podcasting_image_id' ||
+		key === 'podcasting_feed_limit';
 
 	const toString = ( value: unknown ): string => {
 		if ( typeof value === 'string' ) {

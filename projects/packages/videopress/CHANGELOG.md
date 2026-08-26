@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.47.2] - 2026-08-25
+### Added
+- Video details: Move the add-to-content action into the page header, where it can now create a new page as well as a new post. [#51480]
+
+### Changed
+- Update dependencies. [#51456]
+- Video details: Group the title, description and chapters into a single card, and show the title in the page heading as you type it. [#51480]
+- Video details: Show the current thumbnail beside the control that replaces it, and give subtitles a section of their own. [#51480]
+- Video details: Widen the screen and show the video's settings beside a preview of the video rather than below it. [#51480]
+
+### Fixed
+- Fix a timeout error when updating a video poster from the media library. [#51479]
+
+## [0.47.1] - 2026-08-20
+### Changed
+- Update dependencies. [#49464]
+
+## [0.47.0] - 2026-08-19
+### Added
+- Add a Video Playlist block. [#51332]
+
+### Changed
+- Chapters editor: move the chapter list into a side panel beside the preview and timeline. [#51147]
+- Update package dependencies. [#51399]
+
+### Fixed
+- Fix: Private VideoPress videos in synced patterns intermittently fail authorization by caching GUID lists at render time for fast O(1) lookup during token requests. [#51398]
+
+## [0.46.0] - 2026-08-13
+### Added
+- Show the free-plan upgrade notice on the Library and Settings tabs once the free video upload has been used. [#51186]
+
+### Changed
+- Update package dependencies. [#51125]
+
 ## [0.45.0] - 2026-08-10
 ### Security
 - Improve escaping of block attributes rendered into inline styles.
@@ -2142,6 +2177,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.47.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.47.1...v0.47.2
+[0.47.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.47.0...v0.47.1
+[0.47.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.46.0...v0.47.0
+[0.46.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.45.0...v0.46.0
 [0.45.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.44.0...v0.45.0
 [0.44.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.43.0...v0.44.0
 [0.43.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.42.0...v0.43.0

@@ -1,8 +1,12 @@
 import {
 	computePrimaryRange,
+	stepDateRange,
+	DETAIL_SURFACE_PRESETS,
+	PRESET_CUSTOM,
 	type ComparisonPresetId,
 	type IntervalType,
 	type PrimaryPresetId,
+	type StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 import { setLocaleData, resetLocaleData } from '@wordpress/i18n';
 import { endOfDay, subDays, startOfDay } from 'date-fns';
@@ -26,7 +30,7 @@ const meta: Meta< typeof DateFiltersPanel > = {
 			description: {
 				component:
 					'Dashboard date filters: primary date range (surface presets + custom calendar), ' +
-					'the chart interval, and an optional comparison range.',
+					'an optional comparison range, and the chart interval.',
 			},
 		},
 	},
@@ -78,7 +82,12 @@ type DateFiltersPanelStoryProps = {
 	withComparison?: boolean;
 	initialComparisonPreset?: ComparisonPresetId;
 	containerWidth?: string | number;
+	/** The detail-page surface: all time first, no custom range. */
+	detailSurface?: boolean;
 };
+
+// The day the detail story's resource was published: where its all time starts.
+const STORY_PUBLISHED_DATE = new Date( '2026-07-08T10:29:35.000Z' );
 
 /**
  * Mirrors the dashboard wiring: staged primary edits, committed on Apply (or
@@ -89,6 +98,7 @@ function DateFiltersPanelStory( {
 	withComparison = true,
 	initialComparisonPreset = 'previous-period',
 	containerWidth = '100%',
+	detailSurface = false,
 }: DateFiltersPanelStoryProps ) {
 	const initialPrimary = buildPrimaryState( initialPreset );
 
@@ -148,6 +158,25 @@ function DateFiltersPanelStory( {
 		stagedPrimary.range.to !== committedPrimary.range.to ||
 		stagedPrimary.presetId !== committedPrimary.presetId;
 
+	// Stepping applies on click and takes the range off its preset, the way it
+	// commits through the report params in product.
+	const handleStep = useCallback( ( direction: StepDirection ) => {
+		const stepped = stepDateRange( stagedPrimaryRef.current.range, direction );
+
+		if ( ! stepped?.from || ! stepped.to ) {
+			return;
+		}
+
+		const nextPrimary: PrimaryFilterState = {
+			range: { from: stepped.from, to: stepped.to },
+			presetId: PRESET_CUSTOM,
+		};
+
+		stagedPrimaryRef.current = nextPrimary;
+		setStagedPrimary( nextPrimary );
+		setCommittedPrimary( nextPrimary );
+	}, [] );
+
 	/*
 	 * The interval follows the applied range, so switching preset re-derives the
 	 * menu. A pick the new range still allows survives; one it does not falls
@@ -171,12 +200,20 @@ function DateFiltersPanelStory( {
 				appliedPresetId={ committedPrimary.presetId }
 				appliedRange={ committedPrimary.range }
 				comparisonPresetId={ comparisonPresetId }
+				{ ...( detailSurface
+					? {
+							presetIds: DETAIL_SURFACE_PRESETS,
+							allTimeStart: STORY_PUBLISHED_DATE,
+							withCustomRange: false,
+					  }
+					: {} ) }
 				withIntervalControl
 				interval={ interval }
 				intervalOptions={ intervalOptions }
 				onChange={ handlePrimaryChange }
 				onComparisonChange={ handleComparisonChange }
 				onIntervalChange={ setPickedInterval }
+				onStep={ handleStep }
 				onApply={ handlePrimaryApply }
 				onCancel={ handlePrimaryCancel }
 				canApply={ canApplyPrimary }
@@ -199,6 +236,17 @@ export const DashboardFilters: Story = {
  */
 export const WithoutComparison: Story = {
 	render: () => <DateFiltersPanelStory withComparison={ false } />,
+};
+
+/**
+ * The post and video detail pages' surface: all time leads the rolling windows
+ * and there is no custom-range trigger. All time runs from the resource's
+ * publish date (July 8, 2026 here) through today.
+ */
+export const DetailFilters: Story = {
+	render: () => (
+		<DateFiltersPanelStory initialPreset="all-time" withComparison={ false } detailSurface />
+	),
 };
 
 /**
@@ -271,9 +319,9 @@ const RUSSIAN: LocaleFixture = {
 	ratio: 1.49,
 	translations: {
 		'Last 24 hours': 'Последние 24 часа',
-		'Last 7 days': 'Последние 7 дней',
-		'Last 30 days': 'Последние 30 дней',
-		'Last 12 months': 'Последние 12 месяцев',
+		'7 days': '7 дней',
+		'30 days': '30 дней',
+		'12 months': '12 месяцев',
 		Custom: 'Произвольно',
 		'All time': 'Всё время',
 		'Previous period': 'Предыдущий период',
@@ -288,9 +336,9 @@ const DUTCH: LocaleFixture = {
 	ratio: 1.37,
 	translations: {
 		'Last 24 hours': 'Laatste 24 uur',
-		'Last 7 days': 'Afgelopen 7 dagen',
-		'Last 30 days': 'Afgelopen 30 dagen',
-		'Last 12 months': 'Afgelopen 12 maanden',
+		'7 days': '7 dagen',
+		'30 days': '30 dagen',
+		'12 months': '12 maanden',
 		Custom: 'Aangepast',
 		'All time': 'Aller tijden',
 		'Previous period': 'Vorige periode',
@@ -310,9 +358,9 @@ const GERMAN: LocaleFixture = {
 	ratio: 1.24,
 	translations: {
 		'Last 24 hours': 'Die letzten 24 Stunden',
-		'Last 7 days': 'Letzte 7 Tage',
-		'Last 30 days': 'Letzte 30 Tage',
-		'Last 12 months': 'Letzte 12 Monate',
+		'7 days': '7 Tage',
+		'30 days': '30 Tage',
+		'12 months': '12 Monate',
 		Custom: 'Individuell',
 		'All time': 'Gesamte Zeit',
 		'Previous period': 'Vorherige Periode',
@@ -354,7 +402,7 @@ const LADDER_WIDTHS = [ 960, 782, 600, 360, 280 ];
  * is visible rather than asserted.
  *
  * Rungs are annotated against the four preset pills alone. That is a floor: the
- * custom trigger, the interval control, and the comparison control share the
+ * custom trigger, the comparison control, and the interval control share the
  * same line, as will the period navigation.
  */
 function WidthLadder( { fixture }: { fixture: LocaleFixture } ) {

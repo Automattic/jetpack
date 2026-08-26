@@ -15,21 +15,28 @@ export type PresetRowProbeProps = {
 
 	/**
 	 * The label the real trigger is showing. "Custom" versus a formatted range
-	 * differs by ~40px.
+	 * differs by ~40px. Absent when the surface offers no custom range, so the
+	 * probe leaves the trigger out of the measured row too.
 	 */
-	customTriggerLabel: string;
+	customTriggerLabel?: string;
 
 	/**
-	 * The chart interval control, as the panel renders it. A glyph, so its width
-	 * is the same fixed cost in every locale.
+	 * The period navigation, as the panel renders it. Its width moves with the
+	 * forward arrow appearing and disappearing, which the row has to absorb.
 	 */
-	interval?: ReactNode;
+	navigation?: ReactNode;
 
 	/**
 	 * The comparison control, as the panel renders it. It has no abbreviated
 	 * form, so its width is a fixed cost the presets have to absorb.
 	 */
 	comparison?: ReactNode;
+
+	/**
+	 * The chart interval control, as the panel renders it. A glyph, so its width
+	 * is the same fixed cost in every locale.
+	 */
+	interval?: ReactNode;
 
 	/** Reports the row's natural width whenever it changes. */
 	onMeasure: ( width: number ) => void;
@@ -52,8 +59,9 @@ export type PresetRowProbeProps = {
 function PresetRowProbeComponent( {
 	presets,
 	customTriggerLabel,
-	interval,
+	navigation,
 	comparison,
+	interval,
 	onMeasure,
 }: PresetRowProbeProps ) {
 	const rowRef = useRef< HTMLDivElement >( null );
@@ -84,7 +92,7 @@ function PresetRowProbeComponent( {
 	// `max-content`, so the width only moves on a render that changes the row.
 	useLayoutEffect( () => {
 		measure();
-	}, [ measure, presets, customTriggerLabel, interval, comparison ] );
+	}, [ measure, presets, customTriggerLabel, navigation, comparison, interval ] );
 
 	// Web fonts land after first paint and shift the metrics. Insurance: the
 	// dashboard ships none today.
@@ -109,6 +117,8 @@ function PresetRowProbeComponent( {
 		// @ts-expect-error -- `inert` is valid HTML but missing from this React version's types.
 		<div className="preset-row-probe" aria-hidden="true" inert="">
 			<div className="preset-row-probe__panel" ref={ rowRef }>
+				{ navigation }
+
 				<div className="preset-row-probe__row">
 					{ presets.map( preset => (
 						<Button
@@ -122,22 +132,24 @@ function PresetRowProbeComponent( {
 							{ preset.label }
 						</Button>
 					) ) }
-					<Button
-						className="date-filters-panel-button"
-						variant="minimal"
-						tone="neutral"
-						tabIndex={ -1 }
-					>
-						{ /* Mirrors the real trigger's markup so both measure the same box. */ }
-						<span className="date-filters-panel-button__label">{ customTriggerLabel }</span>
-						<Icon className="date-filters-panel-button__caret" icon={ chevronDown } size={ 18 } />
-					</Button>
+					{ customTriggerLabel !== undefined && (
+						<Button
+							className="date-filters-panel-button"
+							variant="minimal"
+							tone="neutral"
+							tabIndex={ -1 }
+						>
+							{ /* Mirrors the real trigger's markup so both measure the same box. */ }
+							<span className="date-filters-panel-button__label">{ customTriggerLabel }</span>
+							<Icon className="date-filters-panel-button__caret" icon={ chevronDown } size={ 18 } />
+						</Button>
+					) }
 				</div>
 
 				{ /* The real controls, not mirrors: the panel hands the same elements
 				     here and to the row, so the two cannot drift. */ }
-				{ interval }
 				{ comparison }
+				{ interval }
 			</div>
 		</div>
 	);

@@ -2017,6 +2017,14 @@ class Classic_Search {
 	 * @return bool
 	 */
 	public function should_handle_query( $query ) {
+		$should_handle = $query->is_main_query() && $query->is_search();
+
+		// is_search() can stay true after a pre_get_posts callback clears 's' having already
+		// used it to set post__in; defer to WP's normal query so post__in is honored.
+		if ( $should_handle && $query->get( 'post__in' ) && ! $query->get( 's' ) ) {
+			$should_handle = false;
+		}
+
 		/**
 		 * Determine whether a given WP_Query should be handled by ElasticSearch.
 		 *
@@ -2027,7 +2035,7 @@ class Classic_Search {
 		 * @param bool     $should_handle Should be handled by Jetpack Search.
 		 * @param WP_Query $query         The WP_Query object.
 		 */
-		return apply_filters( 'jetpack_search_should_handle_query', $query->is_main_query() && $query->is_search(), $query );
+		return apply_filters( 'jetpack_search_should_handle_query', $should_handle, $query );
 	}
 
 	/**
