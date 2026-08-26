@@ -1,10 +1,16 @@
 /**
  * External dependencies
  */
-import { getDefaultPreset, normalizeReportParams } from '@jetpack-premium-analytics/data';
+import {
+	getAllowedIntervalsForPreset,
+	getDefaultPreset,
+	normalizeReportParams,
+	resolveIntervalForRange,
+} from '@jetpack-premium-analytics/data';
 import {
 	type ComparisonPresetId,
 	endOfDayTZ,
+	type IntervalType,
 	isPrimaryPreset,
 	siteTimeZone,
 	type DateRange,
@@ -35,10 +41,44 @@ export type ReportParamsFieldAttributes = {
 	reportParams: ReportParams;
 };
 
-export function ReportParamsField( {
+export type ReportParamsFieldOptions = {
+	/**
+	 * Whether to offer the chart bucket control beside the range. Only a widget
+	 * whose body is bucketed by it — a chart, not a records table — should.
+	 */
+	withIntervalControl?: boolean;
+};
+
+/**
+ * Build the widget-header control for a widget that owns its own report params.
+ *
+ * The control is declared as a `relevance: 'high'` attribute in the widget's
+ * `widget.ts`; the dashboard renders it inline in the widget header and saves
+ * edits onto the widget instance. `WidgetRoot` already prefers
+ * `attributes.reportParams` over the URL, so the control and the widget body
+ * read one source with no further wiring.
+ *
+ * Comparison is not an option here: the panel takes it from the surrounding
+ * `ReportScopeProvider`, which the dashboard declares once per section from
+ * `date_filter_options.with_date_comparison`.
+ *
+ * @param options                     - Field options.
+ * @param options.withIntervalControl - Whether to offer the chart bucket control.
+ * @return A DataForm control component.
+ */
+export function createReportParamsField( { withIntervalControl }: ReportParamsFieldOptions = {} ) {
+	return function ReportParamsFieldControl(
+		props: DataFormControlProps< ReportParamsFieldAttributes >
+	) {
+		return <ReportParamsControl { ...props } withIntervalControl={ withIntervalControl } />;
+	};
+}
+
+function ReportParamsControl( {
 	data: attributes,
 	onChange,
-}: DataFormControlProps< ReportParamsFieldAttributes > ) {
+	withIntervalControl,
+}: DataFormControlProps< ReportParamsFieldAttributes > & ReportParamsFieldOptions ) {
 	const [ stagedReportParams, setStagedReportParams ] = useState< ReportParams >(
 		attributes?.reportParams
 	);
@@ -122,6 +162,44 @@ export function ReportParamsField( {
 		setStagedReportParams( attributes?.reportParams );
 	}, [ setStagedReportParams, attributes ] );
 
+	/*
+	 * The bucket menu reads the committed range, not the draft: the control sits
+	 * outside the picker, so a range being edited must not reshape it, and
+	 * resolving the value through the same range that produced the options keeps
+	 * the checked item a listed one. Same reasoning as `useReportDateFilters`.
+	 */
+	const applied = normalizeReportParams( attributes?.reportParams, defaultPreset );
+
+	const intervalOptions = useMemo(
+		() => getAllowedIntervalsForPreset( applied.preset, applied.from ?? '', applied.to ?? '' ),
+		[ applied.preset, applied.from, applied.to ]
+	);
+
+	const interval = useMemo(
+		() =>
+			resolveIntervalForRange(
+				applied.preset,
+				applied.from ?? '',
+				applied.to ?? '',
+				reportParams.interval
+			),
+		[ applied.preset, applied.from, applied.to, reportParams.interval ]
+	);
+
+	const changeInterval = useCallback(
+		( nextInterval: IntervalType ) => {
+			const next = { ...stagedReportParams, interval: nextInterval };
+			setStagedReportParams( next );
+
+			// Applies on click, the way the preset pills do — unless a range draft
+			// is open, in which case it rides along and commits on Apply.
+			if ( ! isDateRangeDirty ) {
+				onChange( { reportParams: next } );
+			}
+		},
+		[ stagedReportParams, isDateRangeDirty, onChange ]
+	);
+
 	return (
 		<Stack direction="column" gap="sm">
 			<DateFiltersPanel
@@ -134,7 +212,16 @@ export function ReportParamsField( {
 				canApply={ isDateRangeDirty }
 				onCancel={ clear }
 				timeZone={ siteTimeZone() }
+				withIntervalControl={ withIntervalControl }
+				interval={ interval }
+				intervalOptions={ intervalOptions }
+				onIntervalChange={ changeInterval }
 			/>
 		</Stack>
 	);
 }
+
+/**
+ * The default control: range and comparison, no bucket control.
+ */
+export const ReportParamsField = createReportParamsField();
