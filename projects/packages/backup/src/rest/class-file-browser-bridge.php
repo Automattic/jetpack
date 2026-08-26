@@ -325,13 +325,25 @@ class File_Browser_Bridge {
 		$stream_status = wp_remote_retrieve_response_code( $stream_response );
 		if ( 200 !== $stream_status ) {
 			// The one failure here whose reason does not come from the JSON
-			// API: this response is the storage host's, so its error bodies
-			// are usually XML and `upstream_reason()` finds nothing in them.
-			// Asking anyway costs a `json_decode` on a path that has already
-			// failed, and the storage host does sometimes answer in JSON.
+			// API. This response is the storage host's, not WordPress.com's,
+			// so two caveats ride along with reusing the shared wrapper.
 			//
-			// It cannot pick up file content by mistake — a 200 never
-			// reaches this branch.
+			// Its error bodies are usually XML, which `upstream_reason()`
+			// reads nothing out of; asking anyway costs one `json_decode`
+			// on a path that has already failed, and the host does
+			// sometimes answer in JSON. When it does, the reason is filed
+			// under a key named `wpcom`, which misnames its origin — worth
+			// knowing before anyone reads that field as WordPress.com's.
+			//
+			// And the body it reads is not guaranteed to be an error body.
+			// `200 !== $stream_status` is not type-safe, so a `'200'` from
+			// a transport that reports statuses as strings arrives here
+			// with the previewed file's own bytes in hand. Harmless — the
+			// caller is the admin who asked for that file, and the clamp in
+			// `upstream_error()` reports the status as 500 rather than
+			// forwarding a success code — but it is not the same claim as
+			// "a 200 never reaches this branch", which is what this comment
+			// used to say and is not true.
 			return Rest_Controller::upstream_error(
 				$stream_response,
 				'backup_file_content_stream_failed',

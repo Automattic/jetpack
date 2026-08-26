@@ -278,13 +278,29 @@ class Rest_Controller {
 	 * Only those two fields are forwarded, never the body — an error body
 	 * is unbounded and can echo the request that produced it.
 	 *
-	 * The status is cast before it is forwarded, because the retrieval
-	 * helper returns whatever the transport put there. A zero or an
-	 * unparseable value must never reach a `WP_Error`, since core hands
-	 * the status to `status_header()`, and a zero there emits an invalid
-	 * status line. The client is equally literal about the type:
-	 * `isAmbiguousFailure()` only reads a status that is already a number,
-	 * and treats a failure with no readable status as ambiguous.
+	 * The status is clamped to the failure range rather than merely tested
+	 * for truthiness, and that is load-bearing. The retrieval helper hands
+	 * back whatever the transport put there, so a *success* code can reach
+	 * this function: four of the callers compare `200 !== $status_code`
+	 * without casting, which a numeric-string `'200'` fails, routing a
+	 * perfectly good response into the failure branch. Forwarding it would then set `data.status` to 200, WordPress
+	 * would serve the error envelope as HTTP 200, `apiFetch` would resolve
+	 * instead of rejecting, and `apiCall()` would never throw — so a
+	 * failed restore would run the mutation's `onSuccess` and report a
+	 * restore that never started. A visible failure becoming an invisible
+	 * false success is the worst outcome available on a destructive
+	 * operation, so anything outside 4xx/5xx becomes a 500.
+	 *
+	 * The same clamp is what keeps junk out. `(int)` is a total function:
+	 * `'2 Bad'` is 2, `3.7` is 3, `true` is 1, and a zero must never reach
+	 * a `WP_Error` at all, because core hands the status to
+	 * `status_header()` and a zero there emits an invalid status line.
+	 *
+	 * What the cast does buy, and the reason it is here rather than an
+	 * `is_int()` test, is that a genuine `'404'` from a transport that
+	 * reports statuses as strings now travels as 404 instead of being
+	 * flattened to 500. The client is literal about the type too:
+	 * `isAmbiguousFailure()` only reads a status that is already a number.
 	 *
 	 * @param array|\WP_Error $response The wp_remote_* response. Non-200 by the time it gets here.
 	 * @param string          $code     Bridge error code for the operation that failed.
@@ -294,7 +310,7 @@ class Rest_Controller {
 	public static function upstream_error( $response, $code, $message ) {
 		$status_code = (int) wp_remote_retrieve_response_code( $response );
 
-		$data = array( 'status' => $status_code > 0 ? $status_code : 500 );
+		$data = array( 'status' => $status_code >= 400 && $status_code <= 599 ? $status_code : 500 );
 
 		$reason = self::upstream_reason( wp_remote_retrieve_body( $response ) );
 		if ( ! empty( $reason ) ) {
@@ -322,6 +338,18 @@ class Rest_Controller {
 	 * become a key that can never match — the reason lost again, in a
 	 * quieter way.
 	 *
+	 * Sorting is all it does, though: nothing is ever discarded. When
+	 * `error` holds a sentence *and* `message` holds another — which is
+	 * what a VaultPress refusal wrapped in a generic envelope looks like —
+	 * both are kept, `error` first, because that is the specific half. An
+	 * earlier revision promoted `error` only when `message` was empty, and
+	 * so threw away the specific reason in exactly the shape this function
+	 * exists to read.
+	 *
+	 * `/u` on the whitespace test is not cosmetic. Without it `\s` is
+	 * ASCII-only, so a sentence spaced with U+00A0 has "no whitespace" and
+	 * lands in `code` — the precise outcome the sort is here to prevent.
+	 *
 	 * @param string|array $body Raw response body, or one already decoded.
 	 * @return array<string, string> `code` and/or `message`; empty when the body names no reason.
 	 */
@@ -341,16 +369,24 @@ class Rest_Controller {
 
 		$prose = isset( $decoded['message'] ) && is_string( $decoded['message'] ) ? trim( $decoded['message'] ) : '';
 
-		$reason = array();
-		if ( '' !== $token && ! preg_match( '/\s/', $token ) ) {
+		$reason    = array();
+		$sentences = array();
+
+		if ( '' !== $token && ! preg_match( '/\s/u', $token ) ) {
 			$reason['code'] = self::clip_reason( $token );
-		} elseif ( '' === $prose ) {
-			// The token slot held a sentence and nothing else carried one.
-			$prose = $token;
+		} elseif ( '' !== $token ) {
+			$sentences[] = $token;
 		}
 
-		if ( '' !== $prose ) {
-			$reason['message'] = self::clip_reason( $prose );
+		// Guarded against the duplicate rather than assumed away: some
+		// envelopes repeat the same text in both keys, and joining it to
+		// itself would say everything twice inside a budget meant for one.
+		if ( '' !== $prose && ! in_array( $prose, $sentences, true ) ) {
+			$sentences[] = $prose;
+		}
+
+		if ( ! empty( $sentences ) ) {
+			$reason['message'] = self::clip_reason( implode( ' ', $sentences ) );
 		}
 
 		return $reason;
@@ -360,17 +396,36 @@ class Rest_Controller {
 	 * Flatten and shorten one half of an upstream reason.
 	 *
 	 * Newlines go first so a multi-line upstream message cannot spend the
-	 * whole budget on indentation before it says anything. `mb_substr()`
-	 * rather than `substr()` because the cut would otherwise land inside a
-	 * multi-byte character and produce a field that is not valid UTF-8,
-	 * which `wp_json_encode()` drops entirely — losing the reason to the
-	 * very code meant to preserve it.
+	 * whole budget on indentation before it says anything.
+	 *
+	 * `mb_substr()` rather than `substr()`, and the reason is mostly not
+	 * the exotic one. A byte-wise cut spends the budget in bytes, so a
+	 * reason written in a script that costs three bytes a character keeps
+	 * a third of what it was allotted — 67 characters of 200, in the test
+	 * that pins this. The encoding damage is the smaller half: the cut
+	 * lands inside a character and leaves the field invalid UTF-8, which
+	 * `wp_json_encode()` does not reject — its sanity check silently
+	 * rewrites the broken bytes, so the reason arrives with a `?` on the
+	 * end and nothing anywhere says why.
+	 *
+	 * The flatten runs in Unicode mode so a non-breaking or ideographic
+	 * space collapses like any other, which also means it returns null on
+	 * invalid UTF-8. The ASCII pass stands behind it so the bound is still
+	 * enforced in that case. Unreachable in practice — every string that
+	 * gets here came out of a `json_decode()`, which refuses invalid
+	 * UTF-8 outright — but a silent null would turn the whole reason into
+	 * an empty string, which is a poor way to find out.
 	 *
 	 * @param string $value Raw upstream text.
 	 * @return string
 	 */
 	private static function clip_reason( $value ) {
-		$value = trim( preg_replace( '/\s+/', ' ', $value ) );
+		$flattened = preg_replace( '/\s+/u', ' ', $value );
+		if ( null === $flattened ) {
+			$flattened = preg_replace( '/\s+/', ' ', $value );
+		}
+
+		$value = trim( (string) $flattened );
 
 		if ( mb_strlen( $value, 'UTF-8' ) <= self::REASON_MAX_LENGTH ) {
 			return $value;

@@ -403,19 +403,34 @@ class Rest_Bridge_Gating_Test extends TestCase {
 	}
 
 	/**
-	 * The clip lands between characters, not inside one.
+	 * The clip counts characters, and lands between them rather than
+	 * inside one.
 	 *
-	 * `substr()` would cut a multi-byte character in half and produce a
-	 * field that is not valid UTF-8, which `wp_json_encode()` then drops —
-	 * losing the reason to the very code meant to preserve it.
+	 * Three bytes per character on purpose, and both assertions depend on
+	 * it. An earlier version used `é` at two bytes, where a 200-byte cut
+	 * lands on a character boundary anyway — so the value stayed valid
+	 * UTF-8 no matter what the implementation did, and that half of the
+	 * test could not fail. 200 is not a multiple of 3, so this one
+	 * genuinely splits a character when the clip counts bytes.
+	 *
+	 * The validity check is asserted first because PHPUnit stops at the
+	 * first failure, and behind the length check it would never run under
+	 * the mutation it exists to catch.
+	 *
+	 * `mb_check_encoding()` and not `wp_json_encode() !== false`: WordPress
+	 * does not reject an invalid string, it rewrites it. The broken bytes
+	 * come back as a `?` and the encode succeeds, so an assertion phrased
+	 * that way would pass over exactly the damage it was written for.
 	 */
 	public function test_upstream_reason_clips_on_character_boundaries() {
 		$reason = Rest_Controller::upstream_reason(
-			wp_json_encode( array( 'message' => str_repeat( 'é', 500 ) ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
+			wp_json_encode( array( 'message' => str_repeat( '日', 500 ) ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 		);
 
-		$this->assertSame( str_repeat( 'é', 200 ) . '…', $reason['message'] );
-		$this->assertNotFalse( wp_json_encode( $reason, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
+		$this->assertTrue( mb_check_encoding( $reason['message'], 'UTF-8' ) );
+		// And the budget is spent in characters, which is the larger half
+		// of the harm: a byte-wise clip keeps 67 of these, not 200.
+		$this->assertSame( str_repeat( '日', 200 ) . '…', $reason['message'] );
 	}
 
 	/**
@@ -509,5 +524,138 @@ class Rest_Bridge_Gating_Test extends TestCase {
 
 		$this->assertSame( 503, $data['status'] );
 		$this->assertArrayNotHasKey( 'wpcom', $data );
+	}
+
+	/**
+	 * A success code never reaches `data.status`, however it arrives.
+	 *
+	 * The most dangerous input this function takes, and the reason the
+	 * status is clamped to the failure range rather than tested for
+	 * truthiness. Four of the callers compare `200 !== $status_code`
+	 * without casting, so a numeric-string `'200'` fails that comparison
+	 * and lands here — carrying a success code into a failure. Forwarded,
+	 * it would make WordPress serve the error envelope as HTTP 200:
+	 * `apiFetch` resolves, `apiCall()` never throws, `isAmbiguousFailure()`
+	 * never runs, and the restore mutation's `onSuccess` reports a restore
+	 * that never started.
+	 *
+	 * The junk cases ride along because `(int)` is total — `'2 Bad'` is 2
+	 * and `true` is 1 — and a low status is no more servable than a zero.
+	 *
+	 * @param string $label    What this response carries.
+	 * @param mixed  $upstream The status code the transport reports.
+	 * @dataProvider provide_statuses_that_are_not_failures
+	 */
+	#[DataProvider( 'provide_statuses_that_are_not_failures' )]
+	public function test_upstream_error_never_forwards_a_success_status( $label, $upstream ) {
+		$response = array(
+			'response' => array( 'code' => $upstream ),
+			'body'     => '{"code":"rewind_error"}',
+		);
+
+		$data = Rest_Controller::upstream_error( $response, 'restore_initiate_failed', 'x' )->get_error_data();
+
+		$this->assertSame( 500, $data['status'], $label );
+	}
+
+	/**
+	 * Statuses that must never be forwarded as the failure's own.
+	 *
+	 * @return array
+	 */
+	public static function provide_statuses_that_are_not_failures() {
+		return array(
+			// The one that matters: this is what an un-cast caller routes
+			// into the failure branch on a perfectly good response.
+			'a 200 reported as a string' => array( 'a 200 reported as a string', '200' ),
+			'a 204 reported as a string' => array( 'a 204 reported as a string', '204' ),
+			'a real 200'                 => array( 'a real 200', 200 ),
+			'a 3xx'                      => array( 'a 3xx', 302 ),
+			'a status with a suffix'     => array( 'a status with a suffix', '2 Bad' ),
+			'a float'                    => array( 'a float', 3.7 ),
+			'a boolean'                  => array( 'a boolean', true ),
+			'a status above the range'   => array( 'a status above the range', 600 ),
+		);
+	}
+
+	/**
+	 * Two sentences are both kept, specific one first.
+	 *
+	 * A VaultPress refusal wrapped in a generic envelope puts the reason
+	 * in `error` and boilerplate in `message`. An earlier revision
+	 * promoted `error` only when `message` was empty, so this shape —
+	 * the one the restore bridge exists to read — silently kept the
+	 * boilerplate and dropped the reason.
+	 */
+	public function test_upstream_reason_keeps_both_sentences() {
+		$reason = Rest_Controller::upstream_reason(
+			'{"ok":false,"error":"There is already a restore in progress","message":"Rewind failed"}'
+		);
+
+		$this->assertSame( 'There is already a restore in progress Rewind failed', $reason['message'] );
+		$this->assertArrayNotHasKey( 'code', $reason );
+	}
+
+	/**
+	 * The same text in both keys is not said twice.
+	 */
+	public function test_upstream_reason_does_not_repeat_a_duplicated_sentence() {
+		$reason = Rest_Controller::upstream_reason(
+			'{"error":"Rewind failed for this site","message":"Rewind failed for this site"}'
+		);
+
+		$this->assertSame( 'Rewind failed for this site', $reason['message'] );
+	}
+
+	/**
+	 * A code beside a sentence still keeps both halves.
+	 *
+	 * The v1 envelope's ordinary shape, pinned so the two-sentence fix
+	 * above cannot regress it into folding the token in with the prose.
+	 */
+	public function test_upstream_reason_keeps_a_code_and_its_prose() {
+		$reason = Rest_Controller::upstream_reason(
+			'{"error":"authorization_required","message":"An active access token must be used."}'
+		);
+
+		$this->assertSame( 'authorization_required', $reason['code'] );
+		$this->assertSame( 'An active access token must be used.', $reason['message'] );
+	}
+
+	/**
+	 * Whitespace is judged in Unicode, not in ASCII.
+	 *
+	 * `\s` without `/u` is ASCII-only, so a sentence spaced with U+00A0
+	 * has no whitespace as far as the sort is concerned and lands in
+	 * `code` — a key the client can never match, which is the exact
+	 * outcome the sort exists to prevent.
+	 *
+	 * @param string $label     What separates the words.
+	 * @param string $separator The space character to use.
+	 * @dataProvider provide_unicode_spaces
+	 */
+	#[DataProvider( 'provide_unicode_spaces' )]
+	public function test_upstream_reason_reads_unicode_spaces_as_whitespace( $label, $separator ) {
+		$sentence = 'Restore' . $separator . 'already' . $separator . 'running';
+
+		$reason = Rest_Controller::upstream_reason( array( 'error' => $sentence ) );
+
+		$this->assertArrayNotHasKey( 'code', $reason, $label );
+		// And the flatten normalises it, so the message is not carrying
+		// exotic spacing into the response either.
+		$this->assertSame( 'Restore already running', $reason['message'], $label );
+	}
+
+	/**
+	 * Space characters that are not an ASCII space.
+	 *
+	 * @return array
+	 */
+	public static function provide_unicode_spaces() {
+		return array(
+			'a non-breaking space' => array( 'a non-breaking space', "\u{00A0}" ),
+			'an ideographic space' => array( 'an ideographic space', "\u{3000}" ),
+			'a thin space'         => array( 'a thin space', "\u{2009}" ),
+		);
 	}
 }

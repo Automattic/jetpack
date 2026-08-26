@@ -135,4 +135,55 @@ class Rest_Activity_Log_Bridge_Test extends TestCase {
 
 		$this->assertStringContainsString( '_locale=es_ES', $this->captured_url );
 	}
+
+	/**
+	 * A non-200 becomes the bridge's error, carrying the status and the
+	 * reason WordPress.com gave.
+	 *
+	 * This route had no non-200 coverage at all, which mattered more than
+	 * it looks: it is one of the four callers that compares
+	 * `200 !== $status_code` without casting, so it is a route where a
+	 * mis-clamped status would reach the client unnoticed.
+	 *
+	 * 403 rather than 500, because 500 is also the fallback for a status
+	 * outside the failure range — a test written against it would pass
+	 * whether or not the status was forwarded.
+	 */
+	public function test_reports_a_non_200_with_the_upstream_reason() {
+		$this->arrange_wpcom(
+			array(
+				'code'    => 'authorization_required',
+				'message' => 'An active access token must be used.',
+			),
+			403
+		);
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/site/rewindable-activity' );
+		$response = Activity_Log_Bridge::get_activity_log( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'activity_log_fetch_failed', $response->get_error_code() );
+		$this->assertSame( 403, $response->get_error_data()['status'] );
+		$this->assertSame( 'authorization_required', $response->get_error_data()['wpcom']['code'] );
+	}
+
+	/**
+	 * A success code reported as a string is never served as one.
+	 *
+	 * This route compares `200 !== $status_code` uncast, so a transport
+	 * that reports statuses as strings sends a perfectly good response
+	 * down the failure branch. What must not then happen is the 200
+	 * travelling on as the error's own status: WordPress would serve the
+	 * error envelope as HTTP 200 and the client would read a failure as a
+	 * success.
+	 */
+	public function test_never_serves_a_string_200_as_a_success() {
+		$this->arrange_wpcom_raw( '{"current":{"orderedItems":[]}}', '200' );
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/site/rewindable-activity' );
+		$response = Activity_Log_Bridge::get_activity_log( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 500, $response->get_error_data()['status'] );
+	}
 }
