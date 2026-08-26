@@ -1,3 +1,4 @@
+import { chartStoryGlobals } from '../../../stories';
 import { BaseTooltip } from '../index';
 import type { Meta } from '@storybook/react';
 
@@ -11,6 +12,7 @@ const CustomTooltipContent = ( { data } ) => (
 export default {
 	title: 'JS Packages/Charts Library/Components/Tooltip',
 	component: BaseTooltip,
+	globals: chartStoryGlobals,
 	parameters: {
 		layout: 'centered',
 		docs: {
