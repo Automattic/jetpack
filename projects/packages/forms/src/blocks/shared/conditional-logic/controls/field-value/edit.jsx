@@ -341,7 +341,10 @@ const RuleRow = ( {
 						ambiguousSubject
 							? sprintf(
 									/* translators: %s: a field name/ID shared by more than one field. */
-									__( '%s is used by more than one field.', 'jetpack-forms' ),
+									__(
+										'Field Name/ID %s is not unique. Rename one under Advanced → Name/ID.',
+										'jetpack-forms'
+									),
 									rule.field
 							  )
 							: undefined

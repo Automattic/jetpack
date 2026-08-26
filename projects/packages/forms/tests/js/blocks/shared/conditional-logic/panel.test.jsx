@@ -426,7 +426,7 @@ describe( 'ConditionalLogicPanel', () => {
 
 			const subject = screen.getByRole( 'combobox', { name: 'Field' } );
 
-			expect( subject ).toHaveAccessibleDescription( /first-name is used by more than one field/ );
+			expect( subject ).toHaveAccessibleDescription( /Field Name\/ID first-name is not unique/ );
 		} );
 	} );
 
