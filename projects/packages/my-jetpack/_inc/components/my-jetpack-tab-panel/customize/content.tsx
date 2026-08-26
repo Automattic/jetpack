@@ -1,58 +1,35 @@
+/* eslint-disable react/jsx-no-bind */
+
 import apiFetch from '@wordpress/api-fetch';
+import { __, sprintf } from '@wordpress/i18n';
+import { arrowDown, arrowUp, dragHandle, Icon, lock, plus, trash } from '@wordpress/icons';
 import {
 	Button,
 	Card,
-	CardBody,
+	Checkbox,
+	IconButton,
+	InputControl,
 	Notice,
-	SelectControl,
-	Spinner,
-	TextControl,
-	ToggleControl,
-} from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
-import { arrowDown, arrowUp, dragHandle, Icon } from '@wordpress/icons';
+	Stack,
+	Text,
+} from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { REST_API_ADMIN_MENU_CUSTOMIZATION } from '../../../data/constants';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
+import { createJetpackMenuPreview, type JetpackMenuPreview } from './live-preview';
+import {
+	addCustomSeparator,
+	buildMenuSequence,
+	hasDraftChanged,
+	moveEditableNode,
+	removeCustomSeparator,
+	reorderEditableNodes,
+	serializeDraftLayout,
+	updateCustomSeparator,
+	updateItemVisibility,
+} from './menu-sequence';
 import styles from './styles.module.scss';
-
-type AdminMenuGroup = {
-	id: string;
-	label: string;
-	order: number;
-};
-
-type AdminMenuItem = {
-	id: string;
-	label: string;
-	menuSlug: string;
-	group: string;
-	groupLabel: string;
-	order: number;
-	customizable: boolean;
-	hidden: boolean;
-	external: boolean;
-};
-
-type AdminMenuLayout = {
-	enabled: boolean;
-	groups: Record< string, AdminMenuGroup >;
-	items: Record< string, Partial< AdminMenuItem > >;
-};
-
-type AdminMenuModel = {
-	featureEnabled: boolean;
-	active: boolean;
-	siteLayout: AdminMenuLayout;
-	userLayout: AdminMenuLayout;
-	groups: AdminMenuGroup[];
-	items: AdminMenuItem[];
-};
-
-type NoticeState = {
-	status: 'success' | 'error';
-	message: string;
-};
+import type { AdminMenuLayout, AdminMenuModel, MenuItemNode, MenuNode, NoticeState } from './types';
 
 type SortableOptions = {
 	cancel: string;
@@ -78,184 +55,262 @@ declare global {
 	}
 }
 
-type GroupLabelControlProps = {
-	group: AdminMenuGroup;
-	onChange: ( id: string, label: string ) => void;
-};
-
-type MenuItemRowProps = {
-	groupOptions: { label: string; value: string }[];
-	index: number;
-	isLast: boolean;
-	item: AdminMenuItem;
-	onMove: ( id: string, direction: -1 | 1 ) => void;
-	onUpdate: ( id: string, updates: Partial< AdminMenuItem > ) => void;
-};
-
 const emptyLayout: AdminMenuLayout = {
-	enabled: false,
-	groups: {},
 	items: {},
+	separators: {},
 };
 
 const emptyModel: AdminMenuModel = {
 	featureEnabled: false,
 	active: false,
-	siteLayout: emptyLayout,
+	hasPersonalLayout: false,
+	siteLayout: { ...emptyLayout, enabled: false },
 	userLayout: emptyLayout,
-	groups: [],
+	separators: {},
 	items: [],
 };
 
-const getInitialModel = (): AdminMenuModel => {
-	const model = getMyJetpackWindowInitialState( 'adminMenuCustomization' ) as
-		| Partial< AdminMenuModel >
-		| undefined;
-
-	return {
-		...emptyModel,
-		...model,
-		siteLayout: {
-			...emptyLayout,
-			...( model?.siteLayout ?? {} ),
-		},
-		userLayout: {
-			...emptyLayout,
-			...( model?.userLayout ?? {} ),
-		},
-		groups: model?.groups ?? [],
-		items: model?.items ?? [],
-	};
-};
-
-const getGroupsRecord = ( groups: AdminMenuGroup[] ) =>
-	groups.reduce< Record< string, AdminMenuGroup > >( ( result, group ) => {
-		result[ group.id ] = group;
-		return result;
-	}, {} );
-
-const getOrderedItems = ( items: AdminMenuItem[] ) =>
-	[ ...items ].sort( ( a, b ) => {
-		if ( a.order === b.order ) {
-			return a.label.localeCompare( b.label );
-		}
-
-		return a.order - b.order;
-	} );
-
-export const reorderAdminMenuItems = ( items: AdminMenuItem[], orderedIds: string[] ) => {
-	const sortedItems = getOrderedItems( items );
-	const itemById = new Map( sortedItems.map( item => [ item.id, item ] ) );
-	const reorderedIds = new Set< string >();
-	const reorderedItems = orderedIds.reduce< AdminMenuItem[] >( ( result, id ) => {
-		const item = itemById.get( id );
-
-		if ( item && ! reorderedIds.has( id ) ) {
-			result.push( item );
-			reorderedIds.add( id );
-		}
-
-		return result;
-	}, [] );
-
-	sortedItems.forEach( item => {
-		if ( ! reorderedIds.has( item.id ) ) {
-			reorderedItems.push( item );
-		}
-	} );
-
-	return reorderedItems.map( ( item, index ) => ( {
+const normalizeModel = ( model?: Partial< AdminMenuModel > ): AdminMenuModel => ( {
+	...emptyModel,
+	...model,
+	siteLayout: {
+		...emptyLayout,
+		enabled: false,
+		...( model?.siteLayout ?? {} ),
+		items: model?.siteLayout?.items ?? {},
+		separators: model?.siteLayout?.separators ?? {},
+	},
+	userLayout: {
+		...emptyLayout,
+		...( model?.userLayout ?? {} ),
+		items: model?.userLayout?.items ?? {},
+		separators: model?.userLayout?.separators ?? {},
+	},
+	separators: model?.separators ?? {},
+	items: ( model?.items ?? [] ).map( item => ( {
 		...item,
-		order: index * 10,
-	} ) );
+		hasSavedOrder: item.hasSavedOrder ?? false,
+	} ) ),
+} );
+
+const getInitialModel = () =>
+	normalizeModel(
+		getMyJetpackWindowInitialState( 'adminMenuCustomization' ) as
+			| Partial< AdminMenuModel >
+			| undefined
+	);
+
+const getLockedDescription = ( node: MenuItemNode ) => {
+	if ( node.id === 'my-jetpack' ) {
+		return __( 'Always first', 'jetpack-my-jetpack' );
+	}
+	if ( node.id === 'settings' ) {
+		return __( 'Always here', 'jetpack-my-jetpack' );
+	}
+
+	return __( 'Off-site destination', 'jetpack-my-jetpack' );
 };
 
-const GroupLabelControl = ( { group, onChange }: GroupLabelControlProps ) => {
-	const handleChange = useCallback(
-		( label: string ) => {
-			onChange( group.id, label );
-		},
-		[ group.id, onChange ]
-	);
-
-	return (
-		<TextControl
-			key={ group.id }
-			label={ group.id }
-			value={ group.label }
-			onChange={ handleChange }
-		/>
-	);
+type MenuItemRowProps = {
+	canMoveDown: boolean;
+	canMoveUp: boolean;
+	disabled: boolean;
+	node: MenuItemNode;
+	onMove: ( id: string, direction: -1 | 1 ) => void;
+	onVisibilityChange: ( id: string, visible: boolean ) => void;
 };
 
-const MenuItemRow = ( {
-	groupOptions,
-	index,
-	isLast,
-	item,
-	onMove,
-	onUpdate,
-}: MenuItemRowProps ) => {
-	const handleVisibilityChange = useCallback(
-		( checked: boolean ) => {
-			onUpdate( item.id, { hidden: ! checked } );
-		},
-		[ item.id, onUpdate ]
-	);
-	const handleGroupChange = useCallback(
-		( group: string | string[] ) => {
-			onUpdate( item.id, { group: String( group ) } );
-		},
-		[ item.id, onUpdate ]
-	);
-	const handleMoveUp = useCallback( () => {
-		onMove( item.id, -1 );
-	}, [ item.id, onMove ] );
-	const handleMoveDown = useCallback( () => {
-		onMove( item.id, 1 );
-	}, [ item.id, onMove ] );
-	const dragHandleClassName = item.customizable
-		? `${ styles[ 'drag-handle' ] } ${ styles[ 'drag-handle-active' ] }`
-		: styles[ 'drag-handle' ];
+/**
+ * Render a registered Jetpack menu item.
+ *
+ * @param props - Row properties.
+ * @return The menu item row.
+ */
+function MenuItemRow( props: MenuItemRowProps ) {
+	const { canMoveDown, canMoveUp, disabled, node, onMove, onVisibilityChange } = props;
+	const editable = ! node.locked;
 
 	return (
-		<div className={ styles[ 'item-row' ] } data-menu-item-id={ item.id }>
-			<span className={ dragHandleClassName } aria-hidden="true">
-				<Icon icon={ dragHandle } />
-			</span>
-			<ToggleControl
-				label={ item.label }
-				checked={ ! item.hidden }
-				disabled={ ! item.customizable }
-				onChange={ handleVisibilityChange }
+		<div
+			className={ `${ styles.row } ${
+				editable ? styles[ 'row-editable' ] : styles[ 'row-locked' ]
+			}` }
+			data-menu-node-id={ node.id }
+			data-menu-node-editable={ editable || undefined }
+			role="listitem"
+		>
+			<div className={ styles[ 'row-leading' ] }>
+				{ editable ? (
+					<IconButton
+						className={ styles[ 'drag-handle' ] }
+						icon={ dragHandle }
+						label={ sprintf(
+							/* translators: %s is a menu item name. */
+							__( 'Drag %s', 'jetpack-my-jetpack' ),
+							node.label
+						) }
+						size="compact"
+						variant="minimal"
+					/>
+				) : (
+					<span className={ styles[ 'lock-icon' ] } aria-hidden="true">
+						<Icon icon={ lock } size={ 18 } />
+					</span>
+				) }
+			</div>
+
+			<div className={ styles[ 'row-copy' ] }>
+				<Text variant="body-md" className={ styles[ 'row-title' ] }>
+					{ node.label }
+				</Text>
+				{ node.locked && (
+					<Text variant="body-sm" className={ styles[ 'row-description' ] }>
+						{ getLockedDescription( node ) }
+					</Text>
+				) }
+			</div>
+
+			{ editable && (
+				<div className={ styles[ 'visibility-control' ] }>
+					<Checkbox
+						aria-label={ sprintf(
+							/* translators: %s is a menu item name. */
+							__( 'Show %s in menu', 'jetpack-my-jetpack' ),
+							node.label
+						) }
+						checked={ ! node.hidden }
+						disabled={ disabled }
+						onCheckedChange={ checked => onVisibilityChange( node.id, checked === true ) }
+					/>
+					<Text variant="body-sm">{ __( 'Show', 'jetpack-my-jetpack' ) }</Text>
+				</div>
+			) }
+
+			{ editable && (
+				<div className={ styles[ 'row-actions' ] }>
+					<IconButton
+						icon={ arrowUp }
+						label={ sprintf(
+							/* translators: %s is a menu item name. */
+							__( 'Move %s up', 'jetpack-my-jetpack' ),
+							node.label
+						) }
+						disabled={ disabled || ! canMoveUp }
+						onClick={ () => onMove( node.id, -1 ) }
+						size="compact"
+						variant="minimal"
+					/>
+					<IconButton
+						icon={ arrowDown }
+						label={ sprintf(
+							/* translators: %s is a menu item name. */
+							__( 'Move %s down', 'jetpack-my-jetpack' ),
+							node.label
+						) }
+						disabled={ disabled || ! canMoveDown }
+						onClick={ () => onMove( node.id, 1 ) }
+						size="compact"
+						variant="minimal"
+					/>
+				</div>
+			) }
+		</div>
+	);
+}
+
+type SeparatorRowProps = {
+	canMoveDown: boolean;
+	canMoveUp: boolean;
+	disabled: boolean;
+	node: Extract< MenuNode, { type: 'separator' } >;
+	onMove: ( id: string, direction: -1 | 1 ) => void;
+	onRemove: ( id: string ) => void;
+	onTitleChange: ( id: string, title: string ) => void;
+};
+
+/**
+ * Render a protected or custom separator row.
+ *
+ * @param props - Row properties.
+ * @return The separator row.
+ */
+function SeparatorRow( props: SeparatorRowProps ) {
+	const { canMoveDown, canMoveUp, disabled, node, onMove, onRemove, onTitleChange } = props;
+	if ( node.base ) {
+		return (
+			<div
+				className={ `${ styles.row } ${ styles[ 'separator-row' ] } ${ styles[ 'row-locked' ] }` }
+				data-menu-node-id={ node.id }
+				role="listitem"
+			>
+				<span className={ styles[ 'separator-rule' ] } aria-hidden="true" />
+				<div className={ styles[ 'row-copy' ] }>
+					<Text variant="body-sm" className={ styles[ 'base-separator-label' ] }>
+						{ __( 'Base separator', 'jetpack-my-jetpack' ) }
+					</Text>
+					<Text variant="body-sm" className={ styles[ 'row-description' ] }>
+						{ __( 'Keeps products together', 'jetpack-my-jetpack' ) }
+					</Text>
+				</div>
+				<span className={ styles[ 'lock-icon' ] } aria-hidden="true">
+					<Icon icon={ lock } size={ 18 } />
+				</span>
+			</div>
+		);
+	}
+
+	return (
+		<div
+			className={ `${ styles.row } ${ styles[ 'separator-row' ] } ${ styles[ 'row-editable' ] }` }
+			data-menu-node-id={ node.id }
+			data-menu-node-editable
+			role="listitem"
+		>
+			<IconButton
+				className={ styles[ 'drag-handle' ] }
+				icon={ dragHandle }
+				label={ __( 'Drag separator', 'jetpack-my-jetpack' ) }
+				size="compact"
+				variant="minimal"
 			/>
-			<SelectControl
-				label={ __( 'Group', 'jetpack-my-jetpack' ) }
-				hideLabelFromVision
-				value={ item.group }
-				options={ groupOptions }
-				disabled={ ! item.customizable }
-				onChange={ handleGroupChange }
-			/>
-			<div className={ styles[ 'item-actions' ] }>
-				<Button
-					icon={ arrowUp }
-					label={ __( 'Move up', 'jetpack-my-jetpack' ) }
-					showTooltip
-					disabled={ index === 0 || ! item.customizable }
-					onClick={ handleMoveUp }
+			<div className={ styles[ 'separator-input' ] }>
+				<InputControl
+					label={ __( 'Separator title (optional)', 'jetpack-my-jetpack' ) }
+					value={ node.title }
+					disabled={ disabled }
+					onValueChange={ value => onTitleChange( node.id, String( value ?? '' ) ) }
 				/>
-				<Button
+			</div>
+			<div className={ styles[ 'row-actions' ] }>
+				<IconButton
+					icon={ arrowUp }
+					label={ __( 'Move separator up', 'jetpack-my-jetpack' ) }
+					disabled={ disabled || ! canMoveUp }
+					onClick={ () => onMove( node.id, -1 ) }
+					size="compact"
+					variant="minimal"
+				/>
+				<IconButton
 					icon={ arrowDown }
-					label={ __( 'Move down', 'jetpack-my-jetpack' ) }
-					showTooltip
-					disabled={ isLast || ! item.customizable }
-					onClick={ handleMoveDown }
+					label={ __( 'Move separator down', 'jetpack-my-jetpack' ) }
+					disabled={ disabled || ! canMoveDown }
+					onClick={ () => onMove( node.id, 1 ) }
+					size="compact"
+					variant="minimal"
+				/>
+				<IconButton
+					icon={ trash }
+					label={ __( 'Remove separator', 'jetpack-my-jetpack' ) }
+					disabled={ disabled }
+					onClick={ () => onRemove( node.id ) }
+					size="compact"
+					tone="neutral"
+					variant="minimal"
 				/>
 			</div>
 		</div>
 	);
-};
+}
 
 /**
  * My Jetpack Customize tab content.
@@ -264,26 +319,41 @@ const MenuItemRow = ( {
  */
 export function CustomizeContent() {
 	const initialModel = useMemo( () => getInitialModel(), [] );
+	const initialSequence = useMemo(
+		() => buildMenuSequence( initialModel.items, initialModel.separators ),
+		[ initialModel ]
+	);
 	const itemListRef = useRef< HTMLDivElement | null >( null );
-	const [ model, setModel ] = useState< AdminMenuModel >( initialModel );
-	const [ items, setItems ] = useState< AdminMenuItem[] >( () =>
-		getOrderedItems( initialModel.items )
-	);
-	const [ groups, setGroups ] = useState< Record< string, AdminMenuGroup > >( () =>
-		getGroupsRecord( initialModel.groups )
-	);
-	const [ enabled, setEnabled ] = useState( initialModel.siteLayout.enabled );
-	const [ isLoading, setIsLoading ] = useState( false );
-	const [ isSaving, setIsSaving ] = useState( false );
+	const previewRef = useRef< JetpackMenuPreview | null >( null );
+	const separatorCounter = useRef( 0 );
+	const [ model, setModel ] = useState( initialModel );
+	const [ baseline, setBaseline ] = useState( initialSequence );
+	const [ draft, setDraft ] = useState( initialSequence );
+	const [ isLoading, setIsLoading ] = useState( initialModel.featureEnabled );
+	const [ savingScope, setSavingScope ] = useState< 'site' | 'user' | null >( null );
+	const [ loadFailed, setLoadFailed ] = useState( false );
 	const [ notice, setNotice ] = useState< NoticeState | null >( null );
+	const [ announcement, setAnnouncement ] = useState( '' );
 	const userIsAdminValue = getMyJetpackWindowInitialState( 'userIsAdmin' ) as unknown;
 	const userIsAdmin = userIsAdminValue === true || userIsAdminValue === '1';
+	const isSaving = savingScope !== null;
+	const isDirty = hasDraftChanged( baseline, draft );
+	const editingDisabled = isSaving || loadFailed;
+	let statusMessage: string = __( 'Menu is up to date', 'jetpack-my-jetpack' );
+	if ( isLoading ) {
+		statusMessage = __( 'Loading menu…', 'jetpack-my-jetpack' );
+	} else if ( isDirty ) {
+		statusMessage = __( 'Unsaved changes', 'jetpack-my-jetpack' );
+	}
 
-	const applyModel = useCallback( ( nextModel: AdminMenuModel ) => {
+	const applyCanonicalModel = useCallback( ( nextValue: AdminMenuModel ) => {
+		const nextModel = normalizeModel( nextValue );
+		const nextSequence = buildMenuSequence( nextModel.items, nextModel.separators );
 		setModel( nextModel );
-		setItems( getOrderedItems( nextModel.items ) );
-		setGroups( getGroupsRecord( nextModel.groups ) );
-		setEnabled( nextModel.siteLayout.enabled );
+		setBaseline( nextSequence );
+		setDraft( nextSequence );
+		previewRef.current?.apply( nextSequence );
+		previewRef.current?.commit();
 	}, [] );
 
 	useEffect( () => {
@@ -291,193 +361,175 @@ export function CustomizeContent() {
 			return;
 		}
 
+		const preview = createJetpackMenuPreview();
+		previewRef.current = preview;
+		preview.apply( initialSequence );
+
+		return () => {
+			preview.restore();
+			previewRef.current = null;
+		};
+	}, [ initialModel.featureEnabled, initialSequence ] );
+
+	useEffect( () => {
+		previewRef.current?.apply( draft );
+	}, [ draft ] );
+
+	useEffect( () => {
+		if ( ! initialModel.featureEnabled ) {
+			return;
+		}
+
+		let cancelled = false;
 		setIsLoading( true );
 		apiFetch< AdminMenuModel >( { path: REST_API_ADMIN_MENU_CUSTOMIZATION } )
-			.then( applyModel )
-			.catch( () => {
-				setNotice( {
-					status: 'error',
-					message: __( 'Could not load menu preferences.', 'jetpack-my-jetpack' ),
-				} );
+			.then( nextModel => {
+				if ( ! cancelled ) {
+					applyCanonicalModel( nextModel );
+				}
 			} )
-			.finally( () => setIsLoading( false ) );
-	}, [ applyModel, initialModel.featureEnabled ] );
+			.catch( () => {
+				if ( ! cancelled ) {
+					setLoadFailed( true );
+					setNotice( {
+						intent: 'error',
+						message: __(
+							'Your menu could not be loaded. Reload this page to try again.',
+							'jetpack-my-jetpack'
+						),
+					} );
+				}
+			} )
+			.finally( () => {
+				if ( ! cancelled ) {
+					setIsLoading( false );
+				}
+			} );
 
-	const groupOptions = useMemo(
-		() =>
-			Object.values( groups )
-				.sort( ( a, b ) => a.order - b.order )
-				.map( group => ( {
-					label: group.label || group.id,
-					value: group.id,
-				} ) ),
-		[ groups ]
-	);
-	const visibleGroups = useMemo(
-		() =>
-			Object.values( groups )
-				.filter( group => group.label )
-				.sort( ( a, b ) => a.order - b.order ),
-		[ groups ]
-	);
-	const orderedItems = useMemo( () => getOrderedItems( items ), [ items ] );
+		return () => {
+			cancelled = true;
+		};
+	}, [ applyCanonicalModel, initialModel.featureEnabled ] );
 
-	const reorderItems = useCallback( ( orderedIds: string[] ) => {
-		setItems( currentItems => reorderAdminMenuItems( currentItems, orderedIds ) );
-	}, [] );
-
-	const updateItem = useCallback( ( id: string, updates: Partial< AdminMenuItem > ) => {
-		setItems( currentItems =>
-			currentItems.map( item => ( item.id === id ? { ...item, ...updates } : item ) )
-		);
-	}, [] );
-	const updateGroupLabel = useCallback( ( id: string, label: string ) => {
-		setGroups( currentGroups => ( {
-			...currentGroups,
-			[ id ]: {
-				...currentGroups[ id ],
-				label,
-			},
-		} ) );
-	}, [] );
-
-	const moveItem = useCallback( ( id: string, direction: -1 | 1 ) => {
-		setItems( currentItems => {
-			const sortedItems = getOrderedItems( currentItems );
-			const index = sortedItems.findIndex( item => item.id === id );
-			const nextIndex = index + direction;
-
-			if ( index < 0 || nextIndex < 0 || nextIndex >= sortedItems.length ) {
-				return currentItems;
-			}
-
-			const nextItems = [ ...sortedItems ];
-			const item = nextItems[ index ];
-			nextItems[ index ] = nextItems[ nextIndex ];
-			nextItems[ nextIndex ] = item;
-
-			return reorderAdminMenuItems(
-				currentItems,
-				nextItems.map( menuItem => menuItem.id )
-			);
-		} );
+	const reorderDraft = useCallback( ( orderedIds: string[] ) => {
+		setDraft( current => reorderEditableNodes( current, orderedIds ) );
 	}, [] );
 
 	useEffect( () => {
 		const listElement = itemListRef.current;
 		const sortable = window.jQuery;
-
-		if ( ! listElement || ! sortable ) {
+		if ( ! listElement || ! sortable || editingDisabled ) {
 			return;
 		}
 
 		const sortableList = sortable( listElement );
-
 		if ( typeof sortableList.sortable !== 'function' ) {
 			return;
 		}
 
 		sortableList.sortable( {
-			cancel: 'input, select, textarea, button',
+			cancel: 'input, textarea, button:not([class*="drag-handle"])',
 			containment: listElement,
 			cursor: 'move',
 			forcePlaceholderSize: true,
-			handle: `.${ styles[ 'drag-handle-active' ] }`,
-			items: `> .${ styles[ 'item-row' ] }`,
-			placeholder: styles[ 'item-row-placeholder' ],
+			handle: `.${ styles[ 'drag-handle' ] }`,
+			items: '[data-menu-node-editable]',
+			placeholder: styles[ 'row-placeholder' ],
 			tolerance: 'pointer',
 			update: () => {
 				const orderedIds = Array.from(
-					listElement.querySelectorAll< HTMLElement >( '[data-menu-item-id]' )
+					listElement.querySelectorAll< HTMLElement >( '[data-menu-node-editable]' )
 				)
-					.map( row => row.dataset.menuItemId )
+					.map( row => row.dataset.menuNodeId )
 					.filter( Boolean ) as string[];
-
-				reorderItems( orderedIds );
+				reorderDraft( orderedIds );
 			},
 		} );
 
 		return () => {
 			sortableList.sortable( 'destroy' );
 		};
-	}, [ orderedItems, reorderItems ] );
+	}, [ draft, editingDisabled, reorderDraft ] );
 
-	const buildItemsLayout = useCallback(
-		() =>
-			items.reduce< AdminMenuLayout[ 'items' ] >( ( result, item, index ) => {
-				result[ item.id ] = {
-					group: item.group,
-					hidden: item.hidden,
-					order: index * 10,
-				};
-				return result;
-			}, {} ),
-		[ items ]
+	const editableIds = useMemo(
+		() => draft.filter( node => ! node.locked ).map( node => node.id ),
+		[ draft ]
 	);
 
+	const moveNode = useCallback( ( id: string, direction: -1 | 1 ) => {
+		setDraft( current => {
+			const nextDraft = moveEditableNode( current, id, direction );
+			if ( nextDraft !== current ) {
+				const node = nextDraft.find( candidate => candidate.id === id );
+				const label = node?.type === 'item' ? node.label : __( 'Separator', 'jetpack-my-jetpack' );
+				setAnnouncement(
+					sprintf(
+						/* translators: 1: row name, 2: direction. */
+						__( '%1$s moved %2$s.', 'jetpack-my-jetpack' ),
+						label,
+						direction < 0 ? __( 'up', 'jetpack-my-jetpack' ) : __( 'down', 'jetpack-my-jetpack' )
+					)
+				);
+			}
+			return nextDraft;
+		} );
+	}, [] );
+
+	const addSeparator = useCallback( () => {
+		const id = `custom-${ Date.now() }-${ separatorCounter.current++ }`;
+		setDraft( current => addCustomSeparator( current, id ) );
+		setAnnouncement( __( 'Separator added.', 'jetpack-my-jetpack' ) );
+	}, [] );
+
 	const saveLayout = useCallback(
-		( scope: 'site' | 'user', layout: Partial< AdminMenuLayout > ) => {
-			setIsSaving( true );
+		( scope: 'site' | 'user' ) => {
+			const layout = serializeDraftLayout( draft );
+			const snapshot = scope === 'site' ? { ...layout, enabled: true } : layout;
+			setSavingScope( scope );
 			setNotice( null );
 
 			apiFetch< AdminMenuModel >( {
 				path: REST_API_ADMIN_MENU_CUSTOMIZATION,
 				method: 'POST',
-				data: {
-					scope,
-					layout,
-				},
+				data: { scope, layout: snapshot },
 			} )
 				.then( nextModel => {
-					applyModel( nextModel );
+					applyCanonicalModel( nextModel );
 					setNotice( {
-						status: 'success',
+						intent: 'success',
 						message:
 							scope === 'site'
-								? __( 'Site menu defaults saved.', 'jetpack-my-jetpack' )
-								: __( 'Personal menu saved.', 'jetpack-my-jetpack' ),
+								? __( 'Site default was updated.', 'jetpack-my-jetpack' )
+								: __( 'My menu was saved.', 'jetpack-my-jetpack' ),
 					} );
 				} )
 				.catch( () => {
 					setNotice( {
-						status: 'error',
-						message: __( 'Could not save menu preferences.', 'jetpack-my-jetpack' ),
+						intent: 'error',
+						message:
+							scope === 'site'
+								? __(
+										'Site defaults could not be updated. Your changes are still here.',
+										'jetpack-my-jetpack'
+								  )
+								: __(
+										'Your menu could not be saved. Your changes are still here.',
+										'jetpack-my-jetpack'
+								  ),
 					} );
 				} )
-				.finally( () => setIsSaving( false ) );
+				.finally( () => setSavingScope( null ) );
 		},
-		[ applyModel ]
+		[ applyCanonicalModel, draft ]
 	);
-
-	const saveSiteLayout = useCallback( () => {
-		saveLayout( 'site', {
-			enabled,
-			groups,
-			items: buildItemsLayout(),
-		} );
-	}, [ buildItemsLayout, enabled, groups, saveLayout ] );
-
-	const savePersonalLayout = useCallback( () => {
-		saveLayout( 'user', {
-			items: buildItemsLayout(),
-		} );
-	}, [ buildItemsLayout, saveLayout ] );
-	const useLegacyMenu = useCallback( () => {
-		saveLayout( 'site', {
-			enabled: false,
-			groups: {},
-			items: {},
-		} );
-	}, [ saveLayout ] );
-	const dismissNotice = useCallback( () => {
-		setNotice( null );
-	}, [] );
 
 	if ( ! model.featureEnabled ) {
 		return (
-			<Notice status="info" isDismissible={ false }>
-				{ __( 'Menu customization is not available on this site.', 'jetpack-my-jetpack' ) }
-			</Notice>
+			<Notice.Root intent="info">
+				<Notice.Description>
+					{ __( 'Menu customization is not available on this site.', 'jetpack-my-jetpack' ) }
+				</Notice.Description>
+			</Notice.Root>
 		);
 	}
 
@@ -485,105 +537,114 @@ export function CustomizeContent() {
 		<div className={ styles.customize }>
 			<div className={ styles.header }>
 				<div>
-					<h2>{ __( 'Customize', 'jetpack-my-jetpack' ) }</h2>
+					<h2>{ __( 'Customize my Jetpack menu', 'jetpack-my-jetpack' ) }</h2>
 					<p className={ styles.intro }>
-						{ __(
-							'Choose how Jetpack appears in your WordPress admin menu.',
-							'jetpack-my-jetpack'
-						) }
+						{ __( 'Drag items and separators. Changes preview live.', 'jetpack-my-jetpack' ) }
 					</p>
 				</div>
-				{ isLoading && <Spinner /> }
+				<div className={ styles[ 'draft-status' ] } role="status" aria-live="polite">
+					<Text variant="body-sm">{ statusMessage }</Text>
+				</div>
 			</div>
 
 			{ notice && (
-				<Notice status={ notice.status } onRemove={ dismissNotice }>
-					{ notice.message }
-				</Notice>
+				<Notice.Root intent={ notice.intent } className={ styles.notice }>
+					<Notice.Description>{ notice.message }</Notice.Description>
+					<Notice.CloseIcon
+						label={ __( 'Dismiss notice', 'jetpack-my-jetpack' ) }
+						onClick={ () => setNotice( null ) }
+					/>
+				</Notice.Root>
 			) }
 
-			<Card className={ styles[ 'settings-card' ] }>
-				<CardBody>
-					<div className={ styles[ 'fieldset-stack' ] }>
-						{ userIsAdmin && (
-							<fieldset className={ styles.fieldset }>
-								<legend className={ styles.legend }>
-									{ __( 'Defaults', 'jetpack-my-jetpack' ) }
-								</legend>
-								<p className={ styles.description }>
-									{ __(
-										'Set the shared Jetpack menu defaults for this site.',
-										'jetpack-my-jetpack'
-									) }
-								</p>
-								<ToggleControl
-									label={ __( 'Recommended menu', 'jetpack-my-jetpack' ) }
-									checked={ enabled }
-									onChange={ setEnabled }
-								/>
-								<div className={ styles[ 'group-grid' ] }>
-									{ visibleGroups.map( group => (
-										<GroupLabelControl
-											key={ group.id }
-											group={ group }
-											onChange={ updateGroupLabel }
-										/>
-									) ) }
-								</div>
-							</fieldset>
-						) }
+			<Card.Root className={ styles[ 'editor-card' ] }>
+				<Card.Content className={ styles[ 'editor-content' ] }>
+					<div
+						className={ styles[ 'menu-list' ] }
+						ref={ itemListRef }
+						role="list"
+						aria-label={ __( 'My Jetpack menu', 'jetpack-my-jetpack' ) }
+					>
+						{ draft.map( node => {
+							const editableIndex = editableIds.indexOf( node.id );
+							const movement = {
+								canMoveUp: editableIndex > 0,
+								canMoveDown: editableIndex >= 0 && editableIndex < editableIds.length - 1,
+							};
 
-						<fieldset className={ styles.fieldset }>
-							<legend className={ styles.legend }>{ __( 'Menu', 'jetpack-my-jetpack' ) }</legend>
-							<p className={ styles.description }>
-								{ __(
-									'Choose which Jetpack items appear, where they belong, and their order.',
-									'jetpack-my-jetpack'
-								) }
-							</p>
-							<div className={ styles[ 'item-list' ] } ref={ itemListRef }>
-								{ orderedItems.map( ( item, index ) => (
-									<MenuItemRow
-										key={ item.id }
-										groupOptions={ groupOptions }
-										index={ index }
-										isLast={ index === orderedItems.length - 1 }
-										item={ item }
-										onMove={ moveItem }
-										onUpdate={ updateItem }
-									/>
-								) ) }
-							</div>
-						</fieldset>
+							return node.type === 'item' ? (
+								<MenuItemRow
+									key={ node.id }
+									{ ...movement }
+									disabled={ editingDisabled }
+									node={ node }
+									onMove={ moveNode }
+									onVisibilityChange={ ( id, visible ) =>
+										setDraft( current => updateItemVisibility( current, id, visible ) )
+									}
+								/>
+							) : (
+								<SeparatorRow
+									key={ node.id }
+									{ ...movement }
+									disabled={ editingDisabled }
+									node={ node }
+									onMove={ moveNode }
+									onRemove={ id => {
+										setDraft( current => removeCustomSeparator( current, id ) );
+										setAnnouncement( __( 'Separator removed.', 'jetpack-my-jetpack' ) );
+									} }
+									onTitleChange={ ( id, title ) =>
+										setDraft( current => updateCustomSeparator( current, id, title ) )
+									}
+								/>
+							);
+						} ) }
 					</div>
 
-					<div className={ styles.actions }>
+					<div className={ styles[ 'add-action' ] }>
 						<Button
-							variant="primary"
-							isBusy={ isSaving }
-							disabled={ isSaving }
-							onClick={ savePersonalLayout }
+							variant="outline"
+							tone="neutral"
+							disabled={
+								editingDisabled ||
+								! draft.some( node => node.type === 'item' && ! node.external && ! node.locked )
+							}
+							onClick={ addSeparator }
+						>
+							<Icon icon={ plus } size={ 18 } />
+							{ __( 'Add separator', 'jetpack-my-jetpack' ) }
+						</Button>
+					</div>
+
+					<Stack className={ styles.actions } direction="row" gap="sm" wrap="wrap">
+						<Button
+							loading={ savingScope === 'user' }
+							loadingAnnouncement={ __( 'Saving my menu', 'jetpack-my-jetpack' ) }
+							disabled={ editingDisabled || ( ! isDirty && model.hasPersonalLayout ) }
+							onClick={ () => saveLayout( 'user' ) }
 						>
 							{ __( 'Save my menu', 'jetpack-my-jetpack' ) }
 						</Button>
 						{ userIsAdmin && (
-							<>
-								<Button
-									variant="secondary"
-									isBusy={ isSaving }
-									disabled={ isSaving }
-									onClick={ saveSiteLayout }
-								>
-									{ __( 'Save defaults', 'jetpack-my-jetpack' ) }
-								</Button>
-								<Button variant="tertiary" disabled={ isSaving } onClick={ useLegacyMenu }>
-									{ __( 'Use legacy menu', 'jetpack-my-jetpack' ) }
-								</Button>
-							</>
+							<Button
+								variant="outline"
+								tone="neutral"
+								loading={ savingScope === 'site' }
+								loadingAnnouncement={ __( 'Updating site default', 'jetpack-my-jetpack' ) }
+								disabled={ editingDisabled }
+								onClick={ () => saveLayout( 'site' ) }
+							>
+								{ __( 'Set as site default', 'jetpack-my-jetpack' ) }
+							</Button>
 						) }
-					</div>
-				</CardBody>
-			</Card>
+					</Stack>
+				</Card.Content>
+			</Card.Root>
+
+			<div className={ styles[ 'screen-reader-status' ] } aria-live="polite" aria-atomic="true">
+				{ announcement }
+			</div>
 		</div>
 	);
 }

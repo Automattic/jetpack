@@ -462,36 +462,41 @@ type VideopressData = {
 	videoCount: number;
 };
 
-type AdminMenuCustomizationGroup = {
-	id: string;
-	label: string;
-	order: number;
-};
-
 type AdminMenuCustomizationItem = {
 	id: string;
 	label: string;
 	menuSlug: string;
-	group: string;
-	groupLabel: string;
 	order: number;
+	hasSavedOrder: boolean;
 	customizable: boolean;
 	hidden: boolean;
 	external: boolean;
 };
 
+type AdminMenuCustomizationItemPreference = {
+	hidden?: boolean;
+	order?: number;
+};
+
+type AdminMenuCustomizationSeparator = {
+	id: string;
+	title: string;
+	order: number;
+};
+
 type AdminMenuCustomizationLayout = {
-	enabled: boolean;
-	groups: Record< string, AdminMenuCustomizationGroup >;
-	items: Record< string, Partial< AdminMenuCustomizationItem > >;
+	enabled?: boolean;
+	items: Record< string, AdminMenuCustomizationItemPreference >;
+	separators: Record< string, AdminMenuCustomizationSeparator >;
 };
 
 type AdminMenuCustomizationModel = {
 	featureEnabled: boolean;
 	active: boolean;
+	hasPersonalLayout: boolean;
 	siteLayout: AdminMenuCustomizationLayout;
 	userLayout: AdminMenuCustomizationLayout;
-	groups: AdminMenuCustomizationGroup[];
+	separators: Record< string, AdminMenuCustomizationSeparator >;
 	items: AdminMenuCustomizationItem[];
 };
 

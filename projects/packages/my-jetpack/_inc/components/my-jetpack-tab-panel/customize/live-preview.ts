@@ -55,6 +55,20 @@ const getPlainLabelHtml = ( anchor: HTMLAnchorElement | null ) => {
 	return itemLabel?.innerHTML ?? anchor.innerHTML;
 };
 
+const snapshotItem = ( element: HTMLElement ): ItemSnapshot => {
+	const anchor = element.querySelector< HTMLAnchorElement >( 'a' );
+
+	return {
+		element,
+		classAttribute: element.getAttribute( 'class' ),
+		hiddenAttribute: element.getAttribute( 'hidden' ),
+		styleAttribute: element.getAttribute( 'style' ),
+		anchor,
+		anchorHtml: anchor?.innerHTML ?? '',
+		plainLabelHtml: getPlainLabelHtml( anchor ),
+	};
+};
+
 const captureBaseline = ( submenu: HTMLElement ): PreviewBaseline => {
 	const items = new Map< string, ItemSnapshot >();
 
@@ -68,16 +82,7 @@ const captureBaseline = ( submenu: HTMLElement ): PreviewBaseline => {
 			return;
 		}
 
-		const anchor = child.querySelector< HTMLAnchorElement >( 'a' );
-		items.set( id, {
-			element: child,
-			classAttribute: child.getAttribute( 'class' ),
-			hiddenAttribute: child.getAttribute( 'hidden' ),
-			styleAttribute: child.getAttribute( 'style' ),
-			anchor,
-			anchorHtml: anchor?.innerHTML ?? '',
-			plainLabelHtml: getPlainLabelHtml( anchor ),
-		} );
+		items.set( id, snapshotItem( child ) );
 	} );
 
 	return {
@@ -87,6 +92,9 @@ const captureBaseline = ( submenu: HTMLElement ): PreviewBaseline => {
 };
 
 const restoreBaseline = ( submenu: HTMLElement, baseline: PreviewBaseline ) => {
+	submenu
+		.querySelectorAll< HTMLElement >( '[data-jetpack-menu-preview-transient]' )
+		.forEach( element => element.remove() );
 	baseline.children.forEach( child => submenu.appendChild( child ) );
 	baseline.items.forEach( snapshot => {
 		restoreAttribute( snapshot.element, 'class', snapshot.classAttribute );
@@ -98,8 +106,8 @@ const restoreBaseline = ( submenu: HTMLElement, baseline: PreviewBaseline ) => {
 	} );
 };
 
-const resetSeparatorMarkup = ( baseline: PreviewBaseline ) => {
-	baseline.items.forEach( snapshot => {
+const resetSeparatorMarkup = ( items: Map< string, ItemSnapshot > ) => {
+	items.forEach( snapshot => {
 		snapshot.element.classList.remove( SEPARATOR_CLASS );
 		if ( snapshot.anchor ) {
 			snapshot.anchor.innerHTML = snapshot.plainLabelHtml;
@@ -133,18 +141,38 @@ const decorateItem = ( snapshot: ItemSnapshot, title: string ) => {
 	snapshot.anchor.insertBefore( label, itemLabel );
 };
 
-const isVisibleProduct = ( node: MenuNode, baseline: PreviewBaseline ): node is MenuItemNode =>
+const isVisibleProduct = (
+	node: MenuNode,
+	items: Map< string, ItemSnapshot >
+): node is MenuItemNode =>
 	node.type === 'item' &&
 	! node.external &&
 	node.id !== 'my-jetpack' &&
 	node.id !== 'settings' &&
 	! node.hidden &&
-	baseline.items.has( node.id );
+	items.has( node.id );
+
+const createTransientItem = ( submenu: HTMLElement, node: MenuItemNode ) => {
+	const item = submenu.ownerDocument.createElement( 'li' );
+	const safeId = node.id.replace( /[^a-zA-Z0-9_-]/g, '-' );
+	item.className = `jetpack-admin-menu-item ${ ITEM_CLASS_PREFIX }${ safeId }`;
+	item.dataset.jetpackMenuPreviewTransient = 'true';
+
+	const anchor = submenu.ownerDocument.createElement( 'a' );
+	anchor.href = /^(?:https?:\/\/|[a-z0-9_-]+\.php)/i.test( node.menuSlug )
+		? node.menuSlug
+		: `admin.php?page=${ node.menuSlug }`;
+	anchor.textContent = node.label;
+	item.appendChild( anchor );
+	submenu.appendChild( item );
+
+	return snapshotItem( item );
+};
 
 /**
  * Create a reversible adapter for the existing WordPress Jetpack submenu.
  *
- * @param root Document or element containing the WordPress admin menu.
+ * @param root - Document or element containing the WordPress admin menu.
  * @return Preview lifecycle controls.
  */
 export function createJetpackMenuPreview( root: ParentNode = document ): JetpackMenuPreview {
@@ -162,23 +190,31 @@ export function createJetpackMenuPreview( root: ParentNode = document ): Jetpack
 	return {
 		apply( sequence: MenuNode[] ) {
 			restoreBaseline( submenu, baseline );
-			resetSeparatorMarkup( baseline );
+			const workingItems = new Map( baseline.items );
+			sequence.forEach( node => {
+				if ( node.type === 'item' && ! workingItems.has( node.id ) ) {
+					workingItems.set( node.id, createTransientItem( submenu, node ) );
+				}
+			} );
+			resetSeparatorMarkup( workingItems );
 
 			const orderedItems = sequence
 				.filter( ( node ): node is MenuItemNode => node.type === 'item' )
-				.map( node => ( { node, snapshot: baseline.items.get( node.id ) } ) )
+				.map( node => ( { node, snapshot: workingItems.get( node.id ) } ) )
 				.filter(
 					( entry ): entry is { node: MenuItemNode; snapshot: ItemSnapshot } =>
 						entry.snapshot !== undefined
 				);
 
 			const firstRenderedItem = Array.from( submenu.children ).find( child =>
-				Array.from( baseline.items.values() ).some( snapshot => snapshot.element === child )
+				Array.from( workingItems.values() ).some( snapshot => snapshot.element === child )
 			);
 			if ( firstRenderedItem ) {
 				const marker = document.createComment( 'jetpack-menu-preview' );
 				submenu.insertBefore( marker, firstRenderedItem );
-				orderedItems.forEach( ( { snapshot } ) => submenu.insertBefore( snapshot.element, marker ) );
+				orderedItems.forEach( ( { snapshot } ) =>
+					submenu.insertBefore( snapshot.element, marker )
+				);
 				marker.remove();
 			}
 
@@ -186,7 +222,7 @@ export function createJetpackMenuPreview( root: ParentNode = document ): Jetpack
 				snapshot.element.hidden = node.hidden;
 			} );
 
-			if ( ! sequence.some( node => isVisibleProduct( node, baseline ) ) ) {
+			if ( ! sequence.some( node => isVisibleProduct( node, workingItems ) ) ) {
 				return;
 			}
 
@@ -199,12 +235,10 @@ export function createJetpackMenuPreview( root: ParentNode = document ): Jetpack
 					.slice( index + 1 )
 					.find(
 						candidate =>
-							candidate.type === 'item' &&
-							! candidate.hidden &&
-							baseline.items.has( candidate.id )
+							candidate.type === 'item' && ! candidate.hidden && workingItems.has( candidate.id )
 					) as MenuItemNode | undefined;
 				if ( followingItem ) {
-					decorateItem( baseline.items.get( followingItem.id ) as ItemSnapshot, node.title );
+					decorateItem( workingItems.get( followingItem.id ) as ItemSnapshot, node.title );
 				}
 			} );
 		},

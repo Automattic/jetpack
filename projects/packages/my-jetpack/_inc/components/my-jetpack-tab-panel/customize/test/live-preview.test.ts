@@ -1,5 +1,5 @@
-import { buildMenuSequence, reorderEditableNodes, updateItemVisibility } from '../menu-sequence';
 import { createJetpackMenuPreview } from '../live-preview';
+import { buildMenuSequence, reorderEditableNodes, updateItemVisibility } from '../menu-sequence';
 import type { AdminMenuItem, AdminMenuSeparator } from '../types';
 
 const makeMenuItem = (
@@ -69,9 +69,7 @@ describe( 'createJetpackMenuPreview', () => {
 			'settings',
 			'jetpack-manage',
 		] );
-		expect( document.querySelector< HTMLElement >( '[data-test-id="scan"]' )?.hidden ).toBe(
-			true
-		);
+		expect( document.querySelector< HTMLElement >( '[data-test-id="scan"]' )?.hidden ).toBe( true );
 		expect( document.querySelector( '[data-test-id="forms"]' ) ).toBe( originalForms );
 		expect( document.querySelector( '[data-test-id="forms"]' )?.classList ).toContain(
 			'jetpack-admin-menu-separator-start'
@@ -96,9 +94,7 @@ describe( 'createJetpackMenuPreview', () => {
 		preview.apply( sequence );
 		preview.apply( sequence );
 
-		expect( document.querySelectorAll( '.jetpack-admin-menu-separator-label' ) ).toHaveLength(
-			0
-		);
+		expect( document.querySelectorAll( '.jetpack-admin-menu-separator-label' ) ).toHaveLength( 0 );
 	} );
 
 	it( 'restores order, visibility, classes, and anchor markup exactly', () => {
@@ -139,5 +135,25 @@ describe( 'createJetpackMenuPreview', () => {
 		expect( document.querySelector< HTMLElement >( '[data-test-id="forms"]' )?.hidden ).toBe(
 			false
 		);
+	} );
+
+	it( 'creates a removable preview node when a previously hidden item is not in the DOM', () => {
+		document.querySelector( '[data-test-id="forms"]' )?.remove();
+		const preview = createJetpackMenuPreview( document );
+		const sequence = buildMenuSequence(
+			items.map( item => ( item.id === 'forms' ? { ...item, hidden: false } : item ) ),
+			{}
+		);
+
+		preview.apply( sequence );
+
+		const transientItem = document.querySelector< HTMLElement >(
+			'.jetpack-admin-menu-item-id-forms'
+		);
+		expect( transientItem ).toHaveTextContent( 'Forms' );
+		expect( transientItem?.querySelector( 'a' ) ).toHaveAttribute( 'href', 'admin.php?page=forms' );
+
+		preview.restore();
+		expect( document.querySelector( '.jetpack-admin-menu-item-id-forms' ) ).toBeNull();
 	} );
 } );

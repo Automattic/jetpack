@@ -162,9 +162,7 @@ describe( 'editing a menu sequence', () => {
 
 	it( 'serializes item visibility and custom separator order without base separators', () => {
 		const sequence = buildMenuSequence(
-			makeDefaultItems().map( item =>
-				item.id === 'forms' ? { ...item, hidden: true } : item
-			),
+			makeDefaultItems().map( item => ( item.id === 'forms' ? { ...item, hidden: true } : item ) ),
 			{ security: { id: 'security', title: '', order: 15 } }
 		);
 		const layout = serializeDraftLayout( sequence );
