@@ -1,8 +1,4 @@
-import {
-	formatDatePartWithTime,
-	getDatePart,
-	readSiteTimestamp,
-} from '@jetpack-premium-analytics/datetime';
+import { formatDatePartWithTime, getDatePart } from '@jetpack-premium-analytics/datetime';
 import {
 	endOfISOWeek,
 	endOfMonth,
@@ -15,6 +11,7 @@ import {
 	startOfYear,
 } from 'date-fns';
 import { safeParseFloat } from '../../utils/parsing';
+import { createStatsBucketWindowFilter, type StatsBucketFilter } from './bucket-window';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
@@ -267,47 +264,6 @@ function getTimeSeriesSummarySidecars( response: StatsRecord ) {
 	};
 }
 
-const padTimePart = ( part: number ) => String( part ).padStart( 2, '0' );
-
-// A trim-window bound in the same timezone-naive wall-clock shape the bucket
-// labels carry: the value's own date and time parts as written, any offset
-// ignored. Validated by the datetime package's single timestamp reader so the
-// accepted shapes cannot drift from the rest of the package, then narrowed to
-// what the stats-params pipeline itself accepts — bare dates and T-separated
-// datetimes; getDatePart splits on T only, so a space-separated value already
-// degrades the day count upstream and must not trim here either. An invalid
-// or unsupported value yields no bound (and so no trim). A bare date widens
-// to the whole day via the fallback time; a seconds-less time takes the
-// fallback seconds.
-function toWallClockBound( value: unknown, fallbackTime: string, fallbackSeconds: string ) {
-	const timestamp = typeof value === 'string' ? readSiteTimestamp( value ) : null;
-
-	if ( ! timestamp?.isValid || timestamp.value.includes( ' ' ) ) {
-		return undefined;
-	}
-
-	const [ year, month, day, hours, minutes, seconds ] = timestamp.parts;
-	const datePart = `${ String( year ).padStart( 4, '0' ) }-${ padTimePart(
-		month + 1
-	) }-${ padTimePart( day ) }`;
-	// The reader guarantees these shapes, so the probes only ask what was
-	// written: a time at all, and seconds within it.
-	const hasTime = timestamp.value.includes( 'T' );
-	const hasSeconds = /T\d{2}:\d{2}:\d{2}/.test( timestamp.value );
-	const time = hasTime
-		? `${ padTimePart( hours ) }:${ padTimePart( minutes ) }:${
-				hasSeconds ? padTimePart( seconds ) : fallbackSeconds
-		  }`
-		: fallbackTime;
-
-	return formatDatePartWithTime( datePart, time );
-}
-
-// Bucket bounds are comparable against a window bound only in this shape;
-// a row whose bounds fall outside it (an unparseable period label echoed
-// back verbatim) is kept rather than silently discarded.
-const isWallClockStamp = ( value: string ) => /^\d{4}-\d{2}-\d{2}T/.test( value );
-
 export function isStatsTimeSeriesPayload( payload: unknown ) {
 	const response = coerceStatsRecord( payload );
 
@@ -327,7 +283,8 @@ export function isStatsTimeSeriesPayload( payload: unknown ) {
 
 export function sanitizeStatsTimeSeriesResponse(
 	payload: unknown,
-	query?: StatsQueryParams
+	query?: StatsQueryParams,
+	keepBucket?: StatsBucketFilter
 ): StatsTimeSeriesReport {
 	const response = coerceStatsRecord( payload );
 	const unit = String( response.unit ?? query?.period ?? 'day' );
@@ -336,30 +293,10 @@ export function sanitizeStatsTimeSeriesResponse(
 
 		return { row, range: getRowIntervalFields( row, rawPeriod, unit ) };
 	} );
-	// Trim to the caller's window when it names one — before the summary, so
-	// out-of-window buckets inflate neither the totals nor the chart.
-	// Quantity-based endpoints (the email timeline) anchor hourly buckets on
-	// the start day's midnight regardless of the requested time of day, so a
-	// mid-day window comes back with leading out-of-window buckets. The opt-in
-	// is the dedicated `window_start`/`window_end` pair (sent via
-	// `sanitizerParams`), never the generic `start_date`/`end_date` request
-	// params — those reach this sanitizer from range-bounded endpoints (visits,
-	// subscribers, wordads) that must not have buckets dropped. Rows whose
-	// bounds aren't comparable wall clocks are kept, not dropped.
-	const windowStart = toWallClockBound( query?.window_start, '00:00:00', '00' );
-	const windowEnd = toWallClockBound( query?.window_end, '23:59:59', '59' );
-	// An inverted window (a hand-edited deep link) falls back to no trim
-	// rather than silently emptying the chart.
-	const kept =
-		windowStart && windowEnd && windowStart <= windowEnd
-			? buckets.filter(
-					( { range } ) =>
-						! isWallClockStamp( range.date_start ) ||
-						! isWallClockStamp( range.date_end ) ||
-						( compareBucketBounds( range.date_end, windowStart ) >= 0 &&
-							compareBucketBounds( range.date_start, windowEnd ) <= 0 )
-			  )
-			: buckets;
+	// Filter before the summary, so dropped buckets inflate neither the totals
+	// nor the chart. Only an endpoint-specific sanitizer supplies a filter (see
+	// bucket-window.ts); the shared path keeps every bucket.
+	const kept = keepBucket ? buckets.filter( ( { range } ) => keepBucket( range ) ) : buckets;
 	const summary = kept.reduce< Record< string, number > >( ( totals, { row } ) => {
 		Object.entries( row ).forEach( ( [ key, value ] ) => {
 			if ( ! nonMetricFields.includes( key ) && typeof value === 'number' ) {
@@ -432,5 +369,11 @@ export function sanitizeStatsEmailTimeSeriesResponse(
 			? { ...timeline, fields: [ ...fields, 'hour' ] }
 			: timeline;
 
-	return sanitizeStatsTimeSeriesResponse( normalizedTimeline, query );
+	// The email timeline is quantity-based and midnight-anchored, so its
+	// query opts into the bucket-window trim (see bucket-window.ts).
+	return sanitizeStatsTimeSeriesResponse(
+		normalizedTimeline,
+		query,
+		createStatsBucketWindowFilter( query )
+	);
 }

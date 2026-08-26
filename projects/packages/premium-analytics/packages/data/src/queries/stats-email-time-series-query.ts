@@ -1,10 +1,7 @@
 /**
- * External dependencies
- */
-import { readSiteTimestamp } from '@jetpack-premium-analytics/datetime';
-/**
  * Internal dependencies
  */
+import { toStatsBucketWindowParams, windowEndHour } from '../processing/stats';
 import { reportParamsToStatsQueryParams } from '../utils/stats-params';
 import {
 	statsProxyQuery,
@@ -35,27 +32,17 @@ const hasValidPostId = ( postId: number ) => Number.isInteger( postId ) && postI
 const toEmailPeriod = ( period?: string ): StatsEmailTimeSeriesPeriod =>
 	period === 'hour' ? 'hour' : 'day';
 
-// The wall-clock hour a window's end names, read by the datetime package's
-// single timestamp reader so it cannot disagree with the sanitizer's trim
-// bounds, then narrowed the same way (T-separated only — getDatePart, which
-// derives `days`, splits on T alone); a bare date, or anything the reader
-// rejects or the pipeline can't carry, ends at hour 23 as before.
-const endHourOfDay = ( value?: string ): number => {
-	const timestamp = typeof value === 'string' ? readSiteTimestamp( value ) : null;
-
-	return timestamp?.isValid && ! timestamp.value.includes( ' ' ) && timestamp.value.includes( 'T' )
-		? timestamp.parts[ 3 ]
-		: 23;
-};
+// The endpoint anchors hourly buckets on the start day's midnight regardless
+// of the time of day `date` carries (see bucket-window.ts), so an hourly
+// request must span that midnight through the window's end hour; the
+// sanitizer trims the leading out-of-window buckets.
+const hourlyQuantity = ( days: number, endDate?: string ) =>
+	Math.max( 1, 24 * ( days - 1 ) + windowEndHour( endDate ) + 1 );
 
 // Mirror Calypso's requestEmailStats: the timeline is period-scoped and always sends period,
 // quantity, date, and stats_fields=timeline. Unlike the other stats endpoints (where `date`
 // is the window's END), the email timeline reads `date` as the window's START and returns
-// `quantity` buckets going forward — one per day, or 24 per day for hourly. The endpoint
-// resolves `date` to its calendar day and anchors hourly buckets on that day's midnight
-// regardless of the time of day it carries (verified against production), so a mid-day
-// window needs buckets from that midnight through the window's end hour, and the leading
-// out-of-window buckets are trimmed off by the sanitizer via the window in sanitizerParams.
+// `quantity` buckets going forward — one per day, or 24 per day for hourly.
 function emailTimeSeriesQuery(
 	statType: 'opens' | 'clicks',
 	postId: number,
@@ -64,12 +51,10 @@ function emailTimeSeriesQuery(
 	const statsParams = reportParamsToStatsQueryParams( params );
 	const period = toEmailPeriod( statsParams.period );
 	const days = statsParams.days ?? ( period === 'hour' ? 1 : 30 );
+	const window = toStatsBucketWindowParams( statsParams );
 	const emailParams: StatsProxyParams = {
 		period,
-		quantity:
-			period === 'hour'
-				? Math.max( 1, 24 * ( days - 1 ) + endHourOfDay( statsParams.end_date ) + 1 )
-				: days,
+		quantity: period === 'hour' ? hourlyQuantity( days, statsParams.end_date ) : days,
 		...( statsParams.start_date ? { date: statsParams.start_date } : {} ),
 		stats_fields: 'timeline',
 	};
@@ -80,14 +65,7 @@ function emailTimeSeriesQuery(
 		endpoint: `stats/${ statType }/emails/${ postId }`,
 		params: emailParams,
 		sanitizer: 'emailTimeSeries',
-		...( statsParams.start_date && statsParams.end_date
-			? {
-					sanitizerParams: {
-						window_start: statsParams.start_date,
-						window_end: statsParams.end_date,
-					},
-			  }
-			: {} ),
+		...( window ? { sanitizerParams: window } : {} ),
 		enabled: hasValidPostId( postId ) && !! emailParams.date,
 	} );
 }

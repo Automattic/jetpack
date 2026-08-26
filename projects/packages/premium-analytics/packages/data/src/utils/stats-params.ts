@@ -31,9 +31,10 @@ export type StatsQueryParamFields = {
 	summarize?: number | boolean;
 	complete_stats?: number | boolean;
 	skip_archives?: number | boolean;
-	// Sanitizer-only: the wall-clock window the time-series sanitizer trims
-	// to, sent via `sanitizerParams`. Deliberately absent from statsParamKeys
-	// so report params can never carry them into a request.
+	// Sanitizer-only: the trim window owned by processing/stats/bucket-window.ts,
+	// sent via `sanitizerParams` and honored only by the email time-series
+	// sanitizer — inert for every other sanitizer. Deliberately absent from
+	// statsParamKeys so report params can never carry them into a request.
 	window_start?: string;
 	window_end?: string;
 };

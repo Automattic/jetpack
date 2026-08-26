@@ -48,6 +48,7 @@ export {
 	sanitizeStatsTimeSeriesResponse,
 	sanitizeStatsEmailTimeSeriesResponse,
 } from './time-series';
+export { toStatsBucketWindowParams, windowEndHour, type StatsBucketFilter } from './bucket-window';
 export { sanitizeStatsVisitsResponse } from './visits';
 export { sanitizeStatsHourOfDayResponse } from './hour-of-day';
 export { sanitizeStatsInsightsResponse } from './insights';
