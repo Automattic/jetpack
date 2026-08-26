@@ -33,7 +33,7 @@ class Manager {
 	 * Prefix of the transient holding the cached WordPress.com site record. The blog ID is
 	 * appended so a reconnect to a different site cannot read the previous site's record.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.0.0
 	 *
 	 * @var string
 	 */
@@ -1010,7 +1010,7 @@ class Manager {
 	 * and `jetpack_site_data_fetched` fires on a cached read too. The cached copy has to go, or it
 	 * keeps announcing the older record and undoes what that caller stored.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.0.0
 	 *
 	 * @return void
 	 */
@@ -1101,7 +1101,7 @@ class Manager {
 		 * The record is passed as an array rather than the object this method returns, so that a
 		 * listener cannot mutate the instance that becomes the REST response.
 		 *
-		 * @since $$next-version$$
+		 * @since 9.0.0
 		 *
 		 * @param array $record The decoded site record from the WordPress.com `/sites/%d` endpoint.
 		 */
@@ -1116,7 +1116,7 @@ class Manager {
 	 * Returns a cacheable array rather than the decoded record so that both outcomes survive a
 	 * round trip through a transient.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.0.0
 	 *
 	 * @param int         $site_id        The WordPress.com blog ID.
 	 * @param string|null $sandbox_secret Sanitized store sandbox cookie value, or null when not sandboxed.
