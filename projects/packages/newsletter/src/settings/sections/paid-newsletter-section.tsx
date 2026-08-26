@@ -52,7 +52,7 @@ export function PaidNewsletterSection( {
 				<Card.Title>{ __( 'Paid newsletter', 'jetpack-newsletter' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				<Stack direction="column" gap="xl">
+				<Stack direction="column" gap="xl" align="start">
 					<Text variant="body-md" render={ <p /> }>
 						{ __(
 							'Earn money through your Newsletter. Reward your most loyal subscribers with exclusive content or add a paywall to monetize content.',
