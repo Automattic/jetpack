@@ -39,18 +39,9 @@ const WORDADS_PERIODS = [
 	'year',
 ] as const satisfies readonly WordAdsPeriod[];
 
-/**
- * The date range and bucket size are this widget's own: the Ads section header
- * offers no date control, because the section's four other widgets read an
- * endpoint that takes no dates at all. The controls still write the shared URL
- * search params, so the picker and the chart read one source — see the
- * single-source-of-truth constraint in the WOOA7S-1979 design.
- */
 function WordAdsChartTabsInner() {
 	const { reportParams } = useWidgetRootContext();
-	// Unlike `WidgetRoot`'s `useSearch( { strict: false } )`, `useReportDateFilters`
-	// requires a real matched route and throws without one. Hardcoding '/' is
-	// safe because this widget only ever mounts on the `/` dashboard route.
+	// This widget only mounts on the dashboard's matched `/` route.
 	const dateFilters = useReportDateFilters( '/' );
 	const period: WordAdsPeriod = defaultPeriodForInterval( reportParams.interval, WORDADS_PERIODS );
 
@@ -94,21 +85,13 @@ function WordAdsChartTabsInner() {
 	);
 }
 
-// Declared through the props type but taking none: the host still passes
-// `attributes`, and dropping them at the signature is what keeps them from
-// reaching `WidgetRoot`.
+/**
+ * Ignore host attributes so the URL written by this widget's controls remains
+ * the source of its report parameters.
+ */
 const WordAdsChartTabs: FunctionComponent< WordAdsChartTabsWidgetProps > = () => {
 	return (
-		// The chart has no comparison series to draw, so it must never offer one —
-		// regardless of what the hosting section declares. Outside `WidgetRoot` so
-		// the scope is already set when it strips the comparison search params.
 		<ReportScopeProvider offersComparison={ false }>
-			{ /*
-			 * No `attributes` forwarded on purpose: `WidgetRoot` prefers injected
-			 * report params over the URL, which would leave this widget's own
-			 * controls writing one source while the chart read another. Passing
-			 * nothing is what keeps the two on the URL.
-			 */ }
 			<WidgetRoot attributes={ {} }>
 				<WordAdsChartTabsInner />
 			</WidgetRoot>

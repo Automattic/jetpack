@@ -379,8 +379,8 @@ as Storybook controls.
 UI. Widgets without mapped comparison rows omit the story and the `withComparison` control. Their
 `WidgetDashboardWithWidget` story should still pass comparison report params by default, so the
 widget is covered against crashing or inventing deltas when the host supplies comparison dates.
-The exception is a widget that hosts its own date control (see `.agents/rules/widgets.md`): it
-injects no report params anywhere, and mounts its stories under its own `route-harness.tsx`.
+Widgets that host their own date control inject no report params and mount stories under
+their own `route-harness.tsx`; see `.agents/rules/widgets.md`.
 
 The shared imports, helpers, and `meta`:
 

@@ -423,8 +423,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Insights and Ads drop the comparison control; the rest keep it. Ads is the
-	 * only built-in section that hands the date control to its widgets.
+	 * Ads alone moves its date control to widgets; Ads and Insights disable comparison.
 	 */
 	public function test_built_in_sections_declare_their_date_filter_options() {
 		// Store needs both gates: the filter stands in for WooCommerce being active,

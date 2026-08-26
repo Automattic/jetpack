@@ -28,7 +28,7 @@ const PRIMARY_RESPONSE = {
 	],
 };
 
-// Served for the comparison window, so a chart that did draw one would show it.
+// Distinct data proves the comparison is omitted.
 const COMPARISON_RESPONSE = {
 	unit: 'month',
 	fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
@@ -75,9 +75,7 @@ describe( 'useWordAdsChart', () => {
 		expect( metrics[ 1 ].dataFormat?.type ).toBe( 'currency' );
 		expect( metrics[ 2 ].dataFormat?.type ).toBe( 'currency' );
 		expect( metrics[ 0 ].current ).toHaveLength( 2 );
-		// This chart never draws a comparison (`hasComparison: false` above) —
-		// a permanent property of the widget, not a side effect of today's
-		// params, so it is asserted here rather than left to infer.
+		// Comparison is unsupported regardless of report parameters.
 		expect( metrics[ 0 ].previous ).toBeUndefined();
 		expect( metrics[ 0 ].previousValue ).toBeUndefined();
 		expect( result.current.isEmpty ).toBe( false );
@@ -127,9 +125,6 @@ describe( 'useWordAdsChart', () => {
 		expect( result.current.metrics[ 0 ].current ).toHaveLength( 0 );
 	} );
 
-	// A permanent property of this chart, not a side effect of today's params:
-	// even handed a comparison window it draws none. The widget strips these
-	// params before they reach the hook, so this drives the hook directly.
 	it( 'draws no comparison even when the params carry one', async () => {
 		mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
 			Promise.resolve( path.includes( 'date=2026-03-31' ) ? COMPARISON_RESPONSE : PRIMARY_RESPONSE )

@@ -23,7 +23,7 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 registerReportMocks();
 
 /**
- * Mount a story under a real matched `/` route with the given search params.
+ * Mount a story under a matched `/` route with the given search params.
  *
  * @param search - Initial search params for the `/` route.
  * @return A Storybook decorator.
@@ -61,9 +61,6 @@ export default meta;
 type Story = StoryObj< Record< string, never > >;
 type DashboardStory = StoryObj< WidgetDashboardWithWidgetControls >;
 
-/**
- * The widget on its own.
- */
 export const Default: Story = {
 	render: renderWordAdsChartTabs,
 	decorators: [
@@ -125,17 +122,8 @@ export const Empty: Story = {
 };
 
 /*
- * `WidgetDashboardWithWidgetStory` wraps its whole tree in `StoryRouterProvider`
- * (router *context* only, no matched route — see `RouteHarness`'s docblock), so
- * an outer `withStoryRouteSearch` decorator can never reach this widget: the
- * inner provider overrides the router context before `useReportDateFilters`
- * sees it, and the picker's `useSearch`/`useNavigate` throw with no active
- * match. Routing the real matched route through `renderComponent` itself —
- * nested inside `StoryRouterProvider`, closest to the widget — sidesteps that
- * without touching the shared dashboard harness. This wrapper becomes
- * unnecessary if `widget-dashboard-with-widget.tsx` is ever changed to provide
- * a real matched route itself — the next widget that needs one here should
- * fix that shared harness rather than copy this local workaround.
+ * The dashboard story provides router context but no matched route. Put the
+ * harness inside that context through `renderComponent` so the date hooks work.
  */
 function WordAdsChartTabsWithOwnRoute( props: WidgetRenderProps< unknown > ) {
 	return (
@@ -157,9 +145,6 @@ function WordAdsChartTabsDashboardStory( dashboardArgs: WidgetDashboardWithWidge
 	);
 }
 
-/**
- * Renders the real registered widget through the shared dashboard harness.
- */
 export const WidgetDashboardWithWidget: DashboardStory = {
 	render: args => <WordAdsChartTabsDashboardStory { ...args } />,
 	args: {

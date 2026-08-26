@@ -16,8 +16,7 @@ import { WORDADS_CHART_METRICS } from './metrics';
 import { buildMetricTab, type MetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
- * Granularity the chart can be grouped by. Layered onto the widget's own date
- * range as its `period` (mapped to the WordAds endpoint's `unit`).
+ * Supported WordAds chart bucket sizes.
  */
 export type WordAdsPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' | 'year' >;
 
@@ -29,12 +28,7 @@ export interface WordAdsChartState {
 	metrics: MetricTab[];
 	/** True on the first load, while there is no data to show yet. */
 	isLoading: boolean;
-	/**
-	 * True while the primary or comparison request is fetching — `useReport`
-	 * ORs both. Only the primary ever fetches here: `render.tsx` scopes the
-	 * widget with `offersComparison={ false }`, so `WidgetRoot` strips the
-	 * comparison params and that query never enables.
-	 */
+	/** True while the request is fetching. */
 	isFetching: boolean;
 	/** True only when the request failed with no rows left to show. */
 	isError: boolean;
@@ -44,20 +38,14 @@ export interface WordAdsChartState {
 }
 
 /**
- * Compose the WordAds query params: the dashboard report params plus the
- * selected bucket `period` (the query factory maps it to the endpoint's `unit`).
+ * Add the selected bucket period to the widget's report parameters.
  */
 function toWordAdsParams( reportParams: ReportParams, period: WordAdsPeriod ): StatsWordAdsParams {
 	return { ...reportParams, period };
 }
 
 /**
- * Fetch the WordAds time series for the dashboard's report params and expose one
- * metric tab per WordAds field — Ads Served (impressions), Average CPM, and
- * Revenue, matching the Calypso WordAds page's tab labels and order. Ads Served
- * is a count; CPM and revenue are currency. The endpoint returns all three
- * fields in a single request, so — unlike the traffic chart's split requests —
- * one `useStatsWordAdsStats` call drives every tab.
+ * Fetch the WordAds time series and expose its three fields as metric tabs.
  */
 export default function useWordAdsChart(
 	reportParams: ReportParams,

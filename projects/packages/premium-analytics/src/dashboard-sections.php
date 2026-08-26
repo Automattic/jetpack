@@ -222,9 +222,8 @@ function register_default_dashboard_sections() {
 			'description'         => __( 'How your ads are performing, and what they have earned you.', 'jetpack-premium-analytics-pkg' ),
 			'order'               => 50,
 			'is_available'        => __NAMESPACE__ . '\\is_ads_dashboard_section_available_to_current_user',
-			// Four of the five widgets read `wordads/earnings`, which takes no date
-			// parameters, so a header control would claim to filter what it cannot.
-			// The chart hosts the range itself, and has no comparison to offer.
+			// Only the chart supports dates, so it owns the control. No Ads widget
+			// supports comparison.
 			'date_filter_options' => array(
 				'with_date_comparison'     => false,
 				'with_header_date_control' => false,

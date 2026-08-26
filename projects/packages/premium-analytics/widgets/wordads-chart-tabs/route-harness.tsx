@@ -12,25 +12,16 @@ import {
 import { useMemo, type ReactNode } from 'react';
 
 /**
- * Mount a subtree under a real matched `/` route.
+ * Mount a subtree under a matched `/` route.
  *
- * Local to this widget on purpose: it is the only one that hosts its own date
- * controls today. Lift it to `widgets/` when a second one needs it — and prefer
- * teaching `widgets/stories/with-story-router.tsx` to match a `/` route over
- * keeping two copies of the router boilerplate.
+ * This is local to its only consumer. If another widget needs it, lift it to
+ * `widgets/` and teach the shared story router to match `/`.
  *
- * This widget hosts its own date controls, so it reads and writes the URL through
- * `useReportDateFilters`, which needs both `useSearch` and `useNavigate` on a
- * live match. Neither Storybook nor the Jest route mock provides that: the
- * shared `withStoryRouter` supplies router *context* only (enough for `Link` to
- * build an href), and `tests/js/route-test-utils.tsx` mocks `useSearch` alone.
- * One real memory router serves both, which is cheaper and more honest than
- * maintaining two fakes.
+ * URL-backed controls need a live match for both search and navigation;
+ * Storybook's router context and the Jest route mock do not provide both.
  *
- * `offersComparison` defaults to what the app's context defaults to, so a
- * subtree that suppresses comparison itself is seen doing it rather than
- * inheriting it from the harness. Pass `false` to stand in for a section that
- * declares no comparison.
+ * Comparison defaults to the app context default. Pass `false` to model a
+ * section that disables it.
  *
  * @param props                  - Component props.
  * @param props.search           - Initial search params for the `/` route.
@@ -69,13 +60,8 @@ export function RouteHarness( {
 			history: createMemoryHistory( { initialEntries: [ initialEntry ] } ),
 			// TanStack's options type requires strictNullChecks, which this package does not enable.
 		} as never );
-		// Keyed on the search string alone: `children` is deliberately excluded, because
-		// it is a fresh element on every render and including it would rebuild the router
-		// each time, remounting the subtree and dropping the picker's state mid-interaction.
-		// The contract this places on callers: do not re-render with different `children`
-		// while `search` stays the same — the route component would keep rendering the
-		// original `children` and the update would be lost silently. Change the search too,
-		// or mount a fresh harness.
+		// Excluding the freshly-created `children` avoids remounting the router on every
+		// render. Callers changing children must also change search or remount the harness.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ initialEntry, offersComparison ] );
 

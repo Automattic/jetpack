@@ -53,11 +53,8 @@ export const statsWordAdsStatsQuery = (
 	// rather than shifting a bucket earlier and overlapping the dashboard's
 	// comparison window. The Calypso defaults remain the range-less fallback.
 	//
-	// A comparison window sits wholly in the past, so it is never clamped and
-	// keeps every bucket, while a primary range ending today loses its trailing
-	// one — pairing the two yields an extra comparison bucket. Nothing pairs
-	// them today: the WordAds chart is the only consumer and it draws no
-	// comparison. The first consumer that does must align the counts itself.
+	// A primary ending today may have one fewer bucket than an unclamped
+	// comparison. A future consumer drawing comparisons must align their counts.
 	const defaultQuantity = unit === 'year' ? 10 : 30;
 	const quantity =
 		params.quantity ??
