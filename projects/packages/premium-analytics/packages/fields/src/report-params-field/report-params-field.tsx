@@ -22,7 +22,7 @@ import {
 	encodeDateToSearchParam,
 } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { getStoreInfo } from '../helpers/store-info';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
 
@@ -98,6 +98,20 @@ function ReportParamsControl( {
 		attributes?.reportParams
 	);
 
+	/*
+	 * `DateRangeFilter` applies a quick preset by calling `onChange` and then
+	 * `onApply` in the same tick, so the commit below cannot read the state that
+	 * `onChange` just queued — it would write the previous selection back over
+	 * the new one, leaving the widget a click behind. Mirror the staged params
+	 * into a ref that every stage updates synchronously.
+	 */
+	const stagedRef = useRef< ReportParams >( stagedReportParams );
+
+	const stage = useCallback( ( next: ReportParams ) => {
+		stagedRef.current = next;
+		setStagedReportParams( next );
+	}, [] );
+
 	const { launchedDate } = getStoreInfo();
 	const defaultPreset = getDefaultPreset( launchedDate );
 
@@ -134,20 +148,9 @@ function ReportParamsControl( {
 				}
 			}
 
-			setStagedReportParams( nextReportParams );
-
-			/*
-			 * Quick presets apply on click, as they do in the dashboard header —
-			 * there `useStagedSearch` auto-commits them on a debounce. Without
-			 * this the pill highlights but nothing else moves: the widget keeps
-			 * fetching the committed range, and the bucket menu keeps offering
-			 * that range's buckets. Only a custom range keeps its Apply step.
-			 */
-			if ( nextPresetId && isPrimaryPreset( nextPresetId ) ) {
-				onChange( { reportParams: nextReportParams } );
-			}
+			stage( nextReportParams );
 		},
-		[ stagedReportParams, reportParams.comp, onChange ]
+		[ stagedReportParams, reportParams.comp, stage ]
 	);
 
 	const isDateRangeDirty = useMemo( () => {
@@ -181,12 +184,12 @@ function ReportParamsControl( {
 	);
 
 	const commit = useCallback( () => {
-		onChange( { reportParams: stagedReportParams } );
-	}, [ onChange, stagedReportParams ] );
+		onChange( { reportParams: stagedRef.current } );
+	}, [ onChange ] );
 
 	const clear = useCallback( () => {
-		setStagedReportParams( attributes?.reportParams );
-	}, [ setStagedReportParams, attributes ] );
+		stage( attributes?.reportParams );
+	}, [ stage, attributes ] );
 
 	/*
 	 * The bucket menu reads the committed range, not the draft: the control sits
@@ -215,7 +218,7 @@ function ReportParamsControl( {
 	const changeInterval = useCallback(
 		( nextInterval: IntervalType ) => {
 			const next = { ...stagedReportParams, interval: nextInterval };
-			setStagedReportParams( next );
+			stage( next );
 
 			// Applies on click, the way the preset pills do — unless a range draft
 			// is open, in which case it rides along and commits on Apply.
@@ -223,7 +226,7 @@ function ReportParamsControl( {
 				onChange( { reportParams: next } );
 			}
 		},
-		[ stagedReportParams, isDateRangeDirty, onChange ]
+		[ stagedReportParams, isDateRangeDirty, onChange, stage ]
 	);
 
 	return (
