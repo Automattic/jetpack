@@ -151,11 +151,8 @@ const OptionEdit = ( {
 						<ToggleControl
 							label={ __( '"Other" option', 'jetpack-forms' ) }
 							checked={ !! isOther }
-							// Only the flag changes. An option the author never named still
-							// reads "Other" once this is on, because an empty label falls back
-							// to `emptyPlaceholder` — so there is nothing to gain by wiping a
-							// label they did write, and a name like "Something else" is exactly
-							// what an author reaches for here.
+							// Leave the label alone: an unnamed option already falls back to
+							// the "Other" placeholder, so there is nothing to gain by wiping one.
 							onChange={ value => setAttributes( { isOther: value } ) }
 							help={ __(
 								'Show as "Other" option with a text input field below it.',

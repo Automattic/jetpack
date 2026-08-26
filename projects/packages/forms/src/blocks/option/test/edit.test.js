@@ -44,10 +44,8 @@ await jest.unstable_mockModule( '../../shared/hooks/use-synced-attributes.jsx', 
 const OptionEdit = ( await import( '../edit.jsx' ) ).default;
 
 /**
- * Depth-first search of a returned element tree for the first element of a type.
- *
- * OptionEdit is invoked as a plain function, so nothing below it renders — the
- * control we want is an unrendered element in the returned tree.
+ * Depth-first search for the first element of a type. OptionEdit is invoked as a
+ * plain function, so nothing below it renders.
  *
  * @param {*} node - Element or children to search.
  * @param {*} type - The component type to look for.
@@ -73,7 +71,7 @@ const findElement = ( node, type ) => {
 };
 
 /**
- * Renders a radio option and returns the "Other" toggle's onChange handler.
+ * Returns the "Other" toggle's onChange handler for a radio option.
  *
  * @param {object}   attributes    - The option block's attributes.
  * @param {Function} setAttributes - Spy to capture writes.
@@ -100,9 +98,7 @@ describe( 'the option block\'s "Other" toggle', () => {
 		getOtherToggleOnChange( { label: 'Something else' }, setAttributes )( true );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { isOther: true } );
-		// An explicit `label: ''` would wipe the author's text; asserting on the
-		// exact payload above would pass even for `{ isOther: true, label: '' }`
-		// if the matcher ever loosened, so state the real requirement too.
+		// Stated separately: the payload assertion alone would not pin this down.
 		expect( setAttributes.mock.calls[ 0 ][ 0 ] ).not.toHaveProperty( 'label' );
 	} );
 

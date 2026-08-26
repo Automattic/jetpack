@@ -2,12 +2,8 @@ import { describe, expect, it } from '@jest/globals';
 import optionBlock from '../index.jsx';
 
 /**
- * The editor builds a new sibling option — on Enter-to-split, and on "Insert
- * before/after" — by copying every attribute of the current option EXCEPT the
- * ones declared with `role: 'content'`. An attribute missing that annotation is
- * treated as configuration and is inherited, so dropping a role here does not
- * fail loudly: it silently ships an option that arrives pre-filled with its
- * neighbour's answer.
+ * Dropping a role here fails silently — the new sibling option just arrives
+ * pre-filled from its neighbour.
  *
  * @see https://github.com/WordPress/gutenberg/blob/trunk/packages/block-editor/src/store/actions.js `getSiblingBlockAttributes`
  */
