@@ -182,9 +182,37 @@ export const getResponseFieldColumns = ( responses: FormResponse[] ): ResponseFi
 	// predate form field ids does not get one column per storage generation.
 	const identityByLabel = new Map< string, string >();
 
+	/*
+	 * A form field id, wherever one exists in this batch, keyed by label.
+	 *
+	 * Taken in a first pass rather than as the batch is walked, because otherwise the
+	 * identity of a column would depend on which response happened to come first: a form
+	 * holding both pre- and post-field-id responses would produce `field:g5-name` when
+	 * sorted one way and `field:1_Name` when sorted the other, and a stored column choice
+	 * keyed on one of those would not survive the other. Preferring the id whenever the
+	 * batch supplies one anywhere makes the identity independent of order.
+	 */
+	const fieldIdByLabel = new Map< string, string >();
+
 	for ( const response of responses ?? [] ) {
 		for ( const field of getFieldList( response ) ) {
-			const identity = getFieldIdentity( field );
+			if ( ! field.id ) {
+				continue;
+			}
+
+			const label = normalizeLabel( decodeEntities( String( field.label ?? '' ) ) );
+
+			if ( label && ! fieldIdByLabel.has( label ) ) {
+				fieldIdByLabel.set( label, String( field.id ) );
+			}
+		}
+	}
+
+	for ( const response of responses ?? [] ) {
+		for ( const field of getFieldList( response ) ) {
+			const ownLabel = normalizeLabel( decodeEntities( String( field.label ?? '' ) ) );
+			const borrowedId = field.id ? '' : fieldIdByLabel.get( ownLabel ) ?? '';
+			const identity = borrowedId || getFieldIdentity( field );
 
 			if ( ! identity || columns.has( identity ) ) {
 				continue;
@@ -204,7 +232,7 @@ export const getResponseFieldColumns = ( responses: FormResponse[] ): ResponseFi
 
 			columns.set( identity, {
 				id: `${ COLUMN_ID_PREFIX }${ identity }`,
-				fieldId: String( field.id ?? '' ),
+				fieldId: String( field.id ?? borrowedId ),
 				key: String( field.key ?? '' ),
 				label,
 				// Legacy responses carry no type (or a useless 'basic'); the inspector
@@ -396,10 +424,42 @@ const NO_COLUMNS: string[] = [];
  *
  * @param view     - The stage's view state.
  * @param isMobile - Whether the viewport is below the table's usable width.
+ * @param knownIds - Every column DataViews has a field for. Omitted, nothing is withheld.
  * @return           The view to render with.
  */
-export const getResponseTableView = ( view: View, isMobile: boolean ): View =>
-	isMobile ? { ...view, fields: NO_COLUMNS } : view;
+export const getResponseTableView = (
+	view: View,
+	isMobile: boolean,
+	knownIds?: Set< string >
+): View => {
+	if ( isMobile ) {
+		return { ...view, fields: NO_COLUMNS };
+	}
+
+	if ( ! knownIds ) {
+		return view;
+	}
+
+	/*
+	 * Only columns DataViews has a field for, and each of them once.
+	 *
+	 * A restored column choice is the user's, not a description of the form as it stands
+	 * now: it can name a field since deleted, or one whose responses have not loaded yet.
+	 * DataViews renders a cell for every id it is given and skips the ones it cannot
+	 * resolve, which leaves a blank column with no header menu — and, because the
+	 * properties panel lists the fields it knows rather than the columns on screen, no way
+	 * for the user to take it off again.
+	 *
+	 * The unresolved ids stay in the caller's own view, so a column whose responses simply
+	 * have not arrived yet keeps its place and reappears there. `keepColumnChoice` puts
+	 * them back when DataViews hands the view over.
+	 */
+	const fields = ( view.fields || [] ).filter(
+		( id, index, all ) => knownIds.has( id ) && all.indexOf( id ) === index
+	);
+
+	return fields.length === ( view.fields || [] ).length ? view : { ...view, fields };
+};
 
 /**
  * The view to persist when DataViews reports a change.
@@ -411,13 +471,70 @@ export const getResponseTableView = ( view: View, isMobile: boolean ): View =>
  * @param incomingView - The view DataViews handed back.
  * @param currentView  - The stage's own view state.
  * @param isMobile     - Whether the viewport is below the table's usable width.
+ * @param knownIds     - Every column DataViews has a field for. Omitted, nothing is put back.
  * @return               The view to store.
  */
 export const keepColumnChoice = (
 	incomingView: View,
 	currentView: View,
-	isMobile: boolean
-): View => ( isMobile ? { ...incomingView, fields: currentView.fields } : incomingView );
+	isMobile: boolean,
+	knownIds?: Set< string >
+): View => {
+	if ( isMobile ) {
+		return { ...incomingView, fields: currentView.fields };
+	}
+
+	if ( ! knownIds ) {
+		return incomingView;
+	}
+
+	/*
+	 * Put back the columns DataViews was never shown.
+	 *
+	 * `getResponseTableView` withholds ids DataViews has no field for, so it cannot report
+	 * them back — and taking its answer at face value would quietly drop a column the user
+	 * chose, just because the responses carrying it had not loaded yet. Each withheld id
+	 * returns after the column it used to follow, so the user's order survives.
+	 */
+	const withheld = ( currentView.fields || [] ).filter( id => ! knownIds.has( id ) );
+
+	if ( withheld.length === 0 ) {
+		return incomingView;
+	}
+
+	const previous = currentView.fields || [];
+	const fields = [ ...( incomingView.fields || [] ) ];
+
+	for ( const id of withheld ) {
+		const predecessor = previous
+			.slice( 0, previous.indexOf( id ) )
+			.filter( candidate => knownIds.has( candidate ) )
+			.pop();
+		const at = predecessor ? fields.indexOf( predecessor ) + 1 : 0;
+
+		fields.splice( at, 0, id );
+	}
+
+	return { ...incomingView, fields };
+};
+
+/**
+ * Whether two views show the same columns, in the same order.
+ *
+ * The stage saves the user's column choice from the callback DataViews reports *every*
+ * change through — sorting, searching, paging — so it needs to tell a change of columns
+ * from everything else.
+ *
+ * @param fields         - The columns after the change.
+ * @param previousFields - The columns before it.
+ * @return                 Whether the two are the same choice.
+ */
+export const isSameColumnChoice = ( fields?: string[], previousFields?: string[] ): boolean => {
+	const next = fields || [];
+	const previous = previousFields || [];
+
+	return next.length === previous.length && next.every( ( id, index ) => id === previous[ index ] );
+};
 
 /**
  * The modifier that turns on the frozen leading columns, when they apply.

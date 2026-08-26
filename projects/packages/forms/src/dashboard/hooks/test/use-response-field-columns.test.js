@@ -215,3 +215,73 @@ describe( 'useResponseFieldColumns, restoring a saved choice', () => {
 		expect( view().fields ).toEqual( [ 'date', 'field:1_Name', 'source', 'ip' ] );
 	} );
 } );
+
+/**
+ * A response whose fields carry form field ids, as everything stored since they shipped does.
+ *
+ * @param {number}   formId - The jetpack_form post the response belongs to.
+ * @param {string[]} labels - One field per label.
+ * @return {object} A form response.
+ */
+const identifiedResponse = ( formId, labels ) => ( {
+	id: `${ formId }-id-${ labels.join( '-' ) }`,
+	form_id: formId,
+	fields: labels.map( ( label, index ) => ( {
+		id: `g${ formId }-${ label.toLowerCase() }`,
+		key: `${ index + 1 }_${ label }`,
+		label,
+		value: 'x',
+		type: 'text',
+	} ) ),
+} );
+
+describe( 'useResponseFieldColumns, reconciling a restored choice', () => {
+	it( 'does not add a column the restored choice already names', () => {
+		// A choice can name a column the hook is only now discovering — when it was saved
+		// before the answer columns had loaded, so `knownAnswerIds` never recorded them.
+		// Adding it again would render the column twice.
+		writeColumnPreference( 5, {
+			fields: [ 'date', 'field:1_Name', 'source', 'ip' ],
+			knownAnswerIds: [],
+		} );
+
+		const { view } = setup( { formId: 5, records: [ response( 5, [ 'Name' ] ) ] } );
+
+		expect( view().fields ).toEqual( [ 'date', 'field:1_Name', 'source', 'ip' ] );
+	} );
+
+	it( 'leaves a column for a field the form no longer has, for the view to withhold', () => {
+		// The hook cannot tell a deleted field from one whose responses are still loading,
+		// so it keeps the id and `getResponseTableView` declines to render it.
+		writeColumnPreference( 5, {
+			fields: [ 'date', 'field:1_Deleted', 'source' ],
+			knownAnswerIds: [ 'field:1_Deleted' ],
+		} );
+
+		const { result, view } = setup( { formId: 5, records: [ response( 5, [ 'Name' ] ) ] } );
+
+		// Name was never on offer when the choice was saved, so it is new and appears;
+		// the deleted field's id is kept, and only the rendered view drops it.
+		expect( view().fields ).toEqual( [ 'date', 'field:1_Name', 'field:1_Deleted', 'source' ] );
+		expect( result.current.map( column => column.id ) ).toEqual( [ 'field:1_Name' ] );
+	} );
+
+	it( 'restores a choice made on responses that carry form field ids', () => {
+		writeColumnPreference( 5, {
+			fields: [ 'date', 'field:g5-email', 'ip' ],
+			knownAnswerIds: [ 'field:g5-name', 'field:g5-email' ],
+		} );
+
+		const { result, view } = setup( {
+			formId: 5,
+			records: [ identifiedResponse( 5, [ 'Name', 'Email' ] ) ],
+		} );
+
+		expect( result.current.map( column => column.id ) ).toEqual( [
+			'field:g5-name',
+			'field:g5-email',
+		] );
+		// Name stays hidden, and the discovered columns are keyed by field id throughout.
+		expect( view().fields ).toEqual( [ 'date', 'field:g5-email', 'ip' ] );
+	} );
+} );

@@ -29,6 +29,10 @@
 .jp-forms__inbox__field-column-badges {
 	max-inline-size: 22em;
 	overflow: hidden;
+	// `Stack` brings the flex layout but no typography: without this a badge
+	// whose label outgrows the cell wraps inside its own box and grows the
+	// whole row, which is what capping the cell is meant to prevent.
+	white-space: nowrap;
 }
 
 // Answer columns push the table wider than the viewport, so it scrolls
@@ -60,7 +64,12 @@
 	// sizing the column is what makes the offset above true rather than
 	// hopeful. A browser will still widen the column if its content demands
 	// it; the shared background hides the seam if that ever happens.
-	col.dataviews-view-table__col-checkbox {
+	// The class is repeated deliberately. DataViews sizes its own generated
+	// columns with a selector of exactly the specificity this rule would
+	// otherwise have, so which of the two wins would come down to the order
+	// the stylesheets happen to be concatenated in — and reordering an import
+	// would silently un-pin the column.
+	col.dataviews-view-table__col-checkbox.dataviews-view-table__col-checkbox {
 		inline-size: var(--jp-frozen-offset);
 	}
 

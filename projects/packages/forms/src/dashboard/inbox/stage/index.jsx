@@ -40,6 +40,7 @@ import {
 	buildResponseFieldColumns,
 	getFrozenColumnsClassName,
 	getResponseTableView,
+	isSameColumnChoice,
 	keepColumnChoice,
 } from '../../response-field-columns.tsx';
 import { useDashboardSearchParams } from '../../router/dashboard-search-params-context.tsx';
@@ -112,6 +113,8 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 	// Every answer column currently on offer, kept in a ref because the choice is saved
 	// from `onChangeView`, which is declared before the columns hook runs.
 	const knownAnswerIdsRef = useRef( [] );
+	// Every column DataViews has a field for, for the same reason.
+	const knownFieldIdsRef = useRef( new Set() );
 
 	const dateSettings = getDateSettings();
 
@@ -306,14 +309,25 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 
 	const onChangeView = useCallback(
 		incomingView => {
-			let newView = keepColumnChoice( incomingView, view, isMobileViewport );
+			let newView = keepColumnChoice(
+				incomingView,
+				view,
+				isMobileViewport,
+				knownFieldIdsRef.current
+			);
 
 			// DataViews reports a column being shown, hidden or moved through here and
 			// keeps nothing itself, so this is the only moment the choice can be saved.
-			writeColumnPreference( parent, {
-				fields: newView.fields ?? [],
-				knownAnswerIds: knownAnswerIdsRef.current,
-			} );
+			// Only when the columns actually changed, though: this same callback carries
+			// every sort, search and page change, and saving on those would both write
+			// constantly and, while a form's responses are still loading, record an empty
+			// set of known answer columns over a choice that names several.
+			if ( ! isSameColumnChoice( newView.fields, view.fields ) ) {
+				writeColumnPreference( parent, {
+					fields: newView.fields ?? [],
+					knownAnswerIds: knownAnswerIdsRef.current,
+				} );
+			}
 
 			if ( ! isInboxStatusToggleView ) {
 				const folderValue = newView.filters?.find( filter => filter.field === 'folder' )?.value;
@@ -601,9 +615,15 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 
 	// Narrow screens cannot make use of a table that scrolls sideways, so they get the
 	// response and its actions and nothing else.
+	const knownFieldIds = useMemo( () => new Set( fields.map( field => field.id ) ), [ fields ] );
+
+	useEffect( () => {
+		knownFieldIdsRef.current = knownFieldIds;
+	}, [ knownFieldIds ] );
+
 	const viewForDataViews = useMemo(
-		() => getResponseTableView( view, isMobileViewport ),
-		[ isMobileViewport, view ]
+		() => getResponseTableView( view, isMobileViewport, knownFieldIds ),
+		[ isMobileViewport, knownFieldIds, view ]
 	);
 
 	const actions = useMemo( () => {

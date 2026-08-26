@@ -32,6 +32,7 @@ import {
 	buildResponseFieldColumns,
 	getFrozenColumnsClassName,
 	getResponseTableView,
+	isSameColumnChoice,
 	keepColumnChoice,
 } from '../../src/dashboard/response-field-columns.tsx';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
@@ -199,6 +200,8 @@ function StageInner() {
 	// Every answer column currently on offer, kept in a ref because the choice is saved
 	// from `onChangeView`, which is declared before the columns hook runs.
 	const knownAnswerIdsRef = useRef< string[] >( [] );
+	// Every column DataViews has a field for, for the same reason.
+	const knownFieldIdsRef = useRef< Set< string > >( new Set() );
 
 	const selection = useMemo( () => searchParams?.responseIds ?? [], [ searchParams?.responseIds ] );
 	const {
@@ -224,14 +227,25 @@ function StageInner() {
 
 	const onChangeView = useCallback(
 		( incomingView: View ) => {
-			const newView = keepColumnChoice( incomingView, view, isMobileViewport );
+			const newView = keepColumnChoice(
+				incomingView,
+				view,
+				isMobileViewport,
+				knownFieldIdsRef.current
+			);
 
 			// DataViews reports a column being shown, hidden or moved through here and
 			// keeps nothing itself, so this is the only moment the choice can be saved.
-			writeColumnPreference( columnPreferenceFormId, {
-				fields: newView.fields ?? [],
-				knownAnswerIds: knownAnswerIdsRef.current,
-			} );
+			// Only when the columns actually changed, though: this same callback carries
+			// every sort, search and page change, and saving on those would both write
+			// constantly and, while a form's responses are still loading, record an empty
+			// set of known answer columns over a choice that names several.
+			if ( ! isSameColumnChoice( newView.fields, view.fields ) ) {
+				writeColumnPreference( columnPreferenceFormId, {
+					fields: newView.fields ?? [],
+					knownAnswerIds: knownAnswerIdsRef.current,
+				} );
+			}
 
 			if ( ! isSingleFormView ) {
 				// If the Folder filter changes (CFM-on behavior), treat it as a route param change.
@@ -694,9 +708,15 @@ function StageInner() {
 		isMobileViewport
 	);
 
+	const knownFieldIds = useMemo( () => new Set( fields.map( field => field.id ) ), [ fields ] );
+
+	useEffect( () => {
+		knownFieldIdsRef.current = knownFieldIds;
+	}, [ knownFieldIds ] );
+
 	const viewForDataViews = useMemo(
-		() => getResponseTableView( view, isMobileViewport ),
-		[ isMobileViewport, view ]
+		() => getResponseTableView( view, isMobileViewport, knownFieldIds ),
+		[ isMobileViewport, knownFieldIds, view ]
 	);
 
 	const actions = useMemo(

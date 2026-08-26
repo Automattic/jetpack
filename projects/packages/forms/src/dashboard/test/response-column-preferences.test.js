@@ -54,13 +54,30 @@ describe( 'readColumnPreference', () => {
 	it( 'drops entries that are not column ids, and tolerates a missing known list', () => {
 		window.localStorage.setItem(
 			getColumnPreferenceKey( 5 ),
-			JSON.stringify( { fields: [ 'date', 7, null, 'ip' ] } )
+			JSON.stringify( { v: 1, fields: [ 'date', 7, null, 'ip' ] } )
 		);
 
 		expect( readColumnPreference( 5 ) ).toEqual( {
 			fields: [ 'date', 'ip' ],
 			knownAnswerIds: [],
 		} );
+	} );
+
+	it( 'discards a choice written under a different schema', () => {
+		// A stored choice replaces the default columns wholesale, so a later change to
+		// what those defaults are would never reach anyone holding an older one. Refusing
+		// to read it is what lets such a change land.
+		window.localStorage.setItem(
+			getColumnPreferenceKey( 5 ),
+			JSON.stringify( { fields: [ 'date' ], knownAnswerIds: [] } )
+		);
+		expect( readColumnPreference( 5 ) ).toBeNull();
+
+		window.localStorage.setItem(
+			getColumnPreferenceKey( 5 ),
+			JSON.stringify( { v: 99, fields: [ 'date' ], knownAnswerIds: [] } )
+		);
+		expect( readColumnPreference( 5 ) ).toBeNull();
 	} );
 
 	it( 'reports no choice when storage itself throws', () => {

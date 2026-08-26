@@ -19,6 +19,14 @@
 /** Namespaced so the key cannot collide with anything else on the admin origin. */
 const STORAGE_PREFIX = 'jetpack-forms/response-columns/';
 
+/*
+ * Shape of the stored payload. A stored choice replaces the default columns wholesale, so
+ * a later change to what those defaults are — a new built-in column, say — would never
+ * reach anyone holding an older choice. Bumping this discards them and starts over, which
+ * costs the user one re-hidden column and is the only way to make such a change land.
+ */
+const SCHEMA_VERSION = 1;
+
 export type ResponseColumnPreference = {
 	/** The view's `fields`: which columns are shown, in the order the user put them. */
 	fields: string[];
@@ -62,7 +70,7 @@ export const readColumnPreference = ( formId: number | null ): ResponseColumnPre
 
 		const parsed = JSON.parse( raw );
 
-		if ( ! parsed || ! Array.isArray( parsed.fields ) ) {
+		if ( ! parsed || ! Array.isArray( parsed.fields ) || parsed.v !== SCHEMA_VERSION ) {
 			return null;
 		}
 
@@ -88,7 +96,10 @@ export const writeColumnPreference = (
 	preference: ResponseColumnPreference
 ): void => {
 	try {
-		window.localStorage.setItem( getColumnPreferenceKey( formId ), JSON.stringify( preference ) );
+		window.localStorage.setItem(
+			getColumnPreferenceKey( formId ),
+			JSON.stringify( { ...preference, v: SCHEMA_VERSION } )
+		);
 	} catch {
 		// A choice of columns is not worth an error path. If it cannot be stored the
 		// table still works; it simply starts from the defaults next time.

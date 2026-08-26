@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: bugfix
 
 Forms: keep one column per form field on a form's responses when a field is moved, and read every answer from the field it belongs to.

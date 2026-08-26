@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: added
 
 Responses: remember which columns are shown, and their order, for each form.

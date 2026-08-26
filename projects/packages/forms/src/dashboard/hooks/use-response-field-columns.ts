@@ -50,11 +50,19 @@ const showColumns = ( previousView: View, newIds: string[], answerIds: Set< stri
 			-1
 		) + 1;
 
+	// A restored choice can already name a column that is only now being discovered, and
+	// inserting it a second time would render it twice.
+	const additions = newIds.filter( id => ! previousFields.includes( id ) );
+
+	if ( additions.length === 0 ) {
+		return previousView;
+	}
+
 	return {
 		...previousView,
 		fields: [
 			...previousFields.slice( 0, insertAt ),
-			...newIds,
+			...additions,
 			...previousFields.slice( insertAt ),
 		],
 	};

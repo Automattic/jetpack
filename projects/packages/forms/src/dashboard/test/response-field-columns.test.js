@@ -3,6 +3,7 @@ import {
 	getFieldLink,
 	getFrozenColumnsClassName,
 	getResponseTableView,
+	isSameColumnChoice,
 	keepColumnChoice,
 	getResponseField,
 	getResponseFieldColumns,
@@ -410,5 +411,125 @@ describe( 'field identity across form edits', () => {
 		const legacy = { id: 'field:Name', fieldId: '', key: 'Name', label: 'Name', type: 'text' };
 
 		expect( mergeResponseFieldColumns( [ known ], [ legacy ] ) ).toEqual( [ known ] );
+	} );
+} );
+
+describe( 'getResponseTableView, reconciling a restored choice', () => {
+	const KNOWN = new Set( [ 'date', 'field:a', 'source' ] );
+
+	it( 'withholds a column DataViews has no field for', () => {
+		// DataViews renders a cell for every id it is given and skips the ones it cannot
+		// resolve, leaving a blank column with no header menu — and the properties panel
+		// lists the fields it knows rather than the columns on screen, so the user has no
+		// way to take it off again.
+		const view = { titleField: 'from', fields: [ 'date', 'field:deleted', 'source' ] };
+
+		expect( getResponseTableView( view, false, KNOWN ).fields ).toEqual( [ 'date', 'source' ] );
+	} );
+
+	it( 'shows a column only once, however often the choice names it', () => {
+		const view = { titleField: 'from', fields: [ 'date', 'field:a', 'field:a', 'source' ] };
+
+		expect( getResponseTableView( view, false, KNOWN ).fields ).toEqual( [
+			'date',
+			'field:a',
+			'source',
+		] );
+	} );
+
+	it( 'hands the view straight back when every column resolves', () => {
+		const view = { titleField: 'from', fields: [ 'date', 'field:a', 'source' ] };
+
+		expect( getResponseTableView( view, false, KNOWN ) ).toBe( view );
+	} );
+
+	it( 'still drops every column on a narrow screen', () => {
+		const view = { titleField: 'from', fields: [ 'date', 'field:a' ] };
+
+		expect( getResponseTableView( view, true, KNOWN ).fields ).toEqual( [] );
+	} );
+} );
+
+describe( 'keepColumnChoice, putting back what DataViews never saw', () => {
+	const KNOWN = new Set( [ 'date', 'field:a', 'source', 'ip' ] );
+
+	it( 'keeps a withheld column, in the place the user left it', () => {
+		// `field:pending` belongs to a field whose responses have not loaded yet. DataViews
+		// was never shown it, so it cannot report it back — and taking its answer at face
+		// value would drop a column the user chose.
+		const current = { fields: [ 'date', 'field:pending', 'field:a', 'source' ] };
+		const incoming = { fields: [ 'date', 'field:a', 'source' ] };
+
+		expect( keepColumnChoice( incoming, current, false, KNOWN ).fields ).toEqual( [
+			'date',
+			'field:pending',
+			'field:a',
+			'source',
+		] );
+	} );
+
+	it( 'keeps a withheld leading column at the front', () => {
+		const current = { fields: [ 'field:pending', 'date' ] };
+		const incoming = { fields: [ 'date' ] };
+
+		expect( keepColumnChoice( incoming, current, false, KNOWN ).fields ).toEqual( [
+			'field:pending',
+			'date',
+		] );
+	} );
+
+	it( "carries the user's reordering of the columns DataViews did see", () => {
+		const current = { fields: [ 'date', 'field:pending', 'field:a', 'source' ] };
+		const incoming = { fields: [ 'source', 'date', 'field:a' ] };
+
+		expect( keepColumnChoice( incoming, current, false, KNOWN ).fields ).toEqual( [
+			'source',
+			'date',
+			'field:pending',
+			'field:a',
+		] );
+	} );
+
+	it( 'passes the view through when nothing was withheld', () => {
+		const current = { fields: [ 'date', 'field:a' ] };
+		const incoming = { fields: [ 'field:a', 'date' ] };
+
+		expect( keepColumnChoice( incoming, current, false, KNOWN ) ).toBe( incoming );
+	} );
+} );
+
+describe( 'isSameColumnChoice', () => {
+	it( 'tells a change of columns from a change of anything else', () => {
+		expect( isSameColumnChoice( [ 'date', 'ip' ], [ 'date', 'ip' ] ) ).toBe( true );
+		expect( isSameColumnChoice( [ 'date', 'ip' ], [ 'ip', 'date' ] ) ).toBe( false );
+		expect( isSameColumnChoice( [ 'date' ], [ 'date', 'ip' ] ) ).toBe( false );
+		expect( isSameColumnChoice( undefined, [] ) ).toBe( true );
+	} );
+} );
+
+describe( 'column identity does not depend on the order responses arrive in', () => {
+	// A form holding responses from before and after form field ids: sorted one way the
+	// identified response comes first, sorted the other way it does not. The column id
+	// has to come out the same either way, or a stored choice keyed on one of them
+	// strands a column the next session cannot resolve.
+	const identified = collectionResponse( [
+		identifiedField( { id: 'g5-name', key: '1_Name', label: 'Name', value: 'Ada' } ),
+	] );
+	const legacy = { id: 2, fields: { Name: 'Grace' } };
+
+	it( 'prefers the form field id whichever response is seen first', () => {
+		expect( getResponseFieldColumns( [ identified, legacy ] ).map( c => c.id ) ).toEqual( [
+			'field:g5-name',
+		] );
+		expect( getResponseFieldColumns( [ legacy, identified ] ).map( c => c.id ) ).toEqual( [
+			'field:g5-name',
+		] );
+	} );
+
+	it( 'still reads the answer off the response that carries no id', () => {
+		const [ column ] = getResponseFieldColumns( [ legacy, identified ] );
+
+		expect( getResponseFieldValue( legacy, column ) ).toBe( 'Grace' );
+		expect( getResponseFieldValue( identified, column ) ).toBe( 'Ada' );
 	} );
 } );
