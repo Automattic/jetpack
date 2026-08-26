@@ -20,6 +20,8 @@
  * @return bool False when error happens, other wise true.
  */
 function jetpack_shim_setcookie( $name, $value, $options ) {
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'setcookie' );
+
 	$not_allowed_chars = ",; \t\r\n\013\014";
 
 	if ( false !== strpbrk( $name, $not_allowed_chars ) ) {
