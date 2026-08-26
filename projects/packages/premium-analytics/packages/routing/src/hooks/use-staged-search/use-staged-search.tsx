@@ -98,9 +98,16 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 	opts: UseStagedSearchOptions< TFrom >
 ): UseStagedSearchReturn< TSearch > {
 	const navigate = useNavigate( opts.from === undefined ? {} : { from: opts.from } );
-	const committed = useSearch(
+
+	/*
+	 * TanStack types the strict and loose forms as exclusive shapes keyed on a
+	 * generic, so a runtime choice between them cannot satisfy either on its own;
+	 * the widened parameter type admits both.
+	 */
+	const searchOptions = (
 		opts.from === undefined ? { strict: false } : { from: opts.from }
-	) as TSearch;
+	) as Parameters< typeof useSearch >[ 0 ];
+	const committed = useSearch( searchOptions ) as TSearch;
 
 	const [ staged, setStaged ] = useState< TSearch >( committed );
 
