@@ -243,13 +243,12 @@ describe( 'ComparativeBarChart', () => {
 		mockChartHeight = Infinity;
 	} );
 
-	it( 'omits the x tickFormat key when no tick format is requested', () => {
+	it( 'passes no x tickFormat when no tick format is requested', () => {
 		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 
-		// The bar chart spreads these options over its own defaults, so an explicit
-		// `tickFormat: undefined` would erase its date formatter and leave the axis
-		// rendering raw `Date.toString()` values.
-		expect( recordedOptions().axis.x ).not.toHaveProperty( 'tickFormat' );
+		// `undefined` hands the axis to the chart's derived date formatter;
+		// `formatDate`'s `medium` default would override it.
+		expect( recordedOptions().axis.x.tickFormat ).toBeUndefined();
 	} );
 
 	it( 'passes an x tickFormat when one is requested', () => {

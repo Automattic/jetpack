@@ -129,7 +129,7 @@ final class Dashboard_Section {
 	 * Whether the section's data only reaches WordPress.com through the analytics
 	 * full sync, so its numbers are incomplete until that sync has finished once.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.4.0
 	 * @var bool
 	 */
 	public $requires_sync = false;

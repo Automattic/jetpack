@@ -122,7 +122,7 @@ function is_subscribers_dashboard_section_available() {
  * WPCOM reads the plan feature rather than the module, which is a false negative
  * on Atomic and meaningless on Simple. Mirrors is_videopress_available().
  *
- * @since $$next-version$$
+ * @since 0.4.0
  *
  * @return bool True when the site can produce WordAds earnings.
  */
@@ -136,7 +136,7 @@ function is_ads_dashboard_section_available() {
 	/**
 	 * Filters whether the Ads dashboard section is available.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.4.0
 	 *
 	 * @param bool $is_available Whether WordAds was detected in the current request.
 	 */
@@ -146,7 +146,7 @@ function is_ads_dashboard_section_available() {
 /**
  * Whether the current user can access the Ads dashboard section.
  *
- * @since $$next-version$$
+ * @since 0.4.0
  *
  * @return bool
  */

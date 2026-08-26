@@ -14,7 +14,7 @@ import {
 import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper.js';
 import { getRating } from '../field-rating/view.js';
 import { isFieldHiddenByLogic } from './conditional-visibility.js';
-import { maybeAddColonToLabel, maybeTransformValue, getImages, getUrl } from './helpers.js';
+import { maybeAddColonToLabel, getImages, getUrl, getSubmissionDisplayValue } from './helpers.js';
 import { focusNextInput, getForm, submitForm } from './shared.ts';
 // Import field type icons view to register its callbacks.
 import './field-type-icons-view.js';
@@ -92,7 +92,11 @@ const setSubmissionData = ( data = [] ) => {
 
 		return {
 			label: maybeAddColonToLabel( item.label ),
-			value: maybeTransformValue( item.value ),
+			value: getSubmissionDisplayValue( item.value, item.type, config?.unchecked_label ?? '' ),
+			// The submitted answer, kept beside the label. The checkbox icon is chosen from
+			// it, and `isCheckedValue()` cannot read a translated "No". Mirrors `rawValue` in
+			// Contact_Form::format_submission_data(), which seeds this same context.
+			rawValue: item.value,
 			images,
 			url,
 			files,

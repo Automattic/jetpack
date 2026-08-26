@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Premium Analytics: label Subscribers chart and email timeline points by the bucket they name rather than by the viewer's time zone.

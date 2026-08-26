@@ -34,7 +34,7 @@ jobs:
 
     # See above.
     concurrency:
-      group: gardening-xjobqueue-${{ github.ref }}
+      group: gardening-xjobqueue-${{ github.head_ref || github.ref }}
       queue: max
 
     steps:
