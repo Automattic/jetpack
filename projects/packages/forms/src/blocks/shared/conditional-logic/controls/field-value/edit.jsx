@@ -235,7 +235,10 @@ const RuleRow = ( {
 	const handleRemove = useCallback( () => onRemove( index ), [ index, onRemove ] );
 
 	const operators = getOperatorsForTypeKey( subject?.typeKey || 'string' );
-	const isComplete = isRuleComplete( rule, subject );
+	// An ambiguous subject is not a working condition, whatever its shape says: the id resolves
+	// to the first field claiming it, which may not be the one the author picked. Treating it as
+	// complete would put a green tick beside a notice saying the opposite.
+	const isComplete = ! ambiguousSubject && isRuleComplete( rule, subject );
 
 	// The builder opens with one empty row, which is not a mistake -- so amber is kept for a
 	// condition begun and left unfinished, the only case where a field silently will not react.
@@ -255,7 +258,12 @@ const RuleRow = ( {
 	// are the three ways a rule can fail to say anything: no subject, a subject that has since
 	// been deleted, or an operator whose value was never filled in.
 	let inactiveReason = __( 'Choose a field to compare against.', 'jetpack-forms' );
-	if ( missingSubject ) {
+	if ( ambiguousSubject ) {
+		inactiveReason = __(
+			'More than one field uses this Name/ID, so this condition cannot say which it means.',
+			'jetpack-forms'
+		);
+	} else if ( missingSubject ) {
 		inactiveReason = __( 'The field this condition refers to no longer exists.', 'jetpack-forms' );
 	} else if ( isStarted ) {
 		inactiveReason = __( 'Give this condition a value.', 'jetpack-forms' );

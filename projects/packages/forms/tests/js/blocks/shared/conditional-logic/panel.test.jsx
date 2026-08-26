@@ -403,6 +403,22 @@ describe( 'ConditionalLogicPanel', () => {
 			expect( mockUpdateBlockAttributes ).not.toHaveBeenCalled();
 		} );
 
+		// The status icon must not say "active" while the notice beside it says the condition
+		// cannot tell which field it means. The subject resolves -- to whichever field claims
+		// the id first -- so shape alone would call this complete.
+		it( 'does not show an ambiguous condition as active', async () => {
+			await setup( withRules( [ { field: 'first-name', operator: 'is', value: 'x' } ] ) );
+
+			expect(
+				screen.queryByRole( 'img', { name: 'This condition is active.' } )
+			).not.toBeInTheDocument();
+			expect(
+				screen.getByRole( 'img', {
+					name: 'More than one field uses this Name/ID, so this condition cannot say which it means.',
+				} )
+			).toBeInTheDocument();
+		} );
+
 		// A rule saved before the ids collided, or against a field that was later duplicated.
 		it( 'flags a stored condition that names a shared id', async () => {
 			await setup( withRules( [ { field: 'first-name', operator: 'is', value: 'x' } ] ) );
