@@ -61,7 +61,7 @@
 	min-block-size: 36px;
 	min-inline-size: 0;
 	max-inline-size: 100%;
-	padding-inline: var(--wpds-dimension-padding-sm);
+	padding-inline: var(--wpds-dimension-padding-md);
 	overflow: hidden;
 	color: inherit;
 	text-decoration: none;
@@ -72,17 +72,9 @@
 	gap: var(--wpds-dimension-gap-xs);
 }
 
-/* Block padding sets the bar height when the label sits on top of the bar, so
-   the 36px floor is dropped. Doubled with the base class to beat it on
-   specificity rather than on stylesheet order. */
-.overlay.row,
-.overlay.rowLink {
-	min-block-size: 0;
-	padding-block: var(--wpds-dimension-padding-md);
-}
-
 .rowLink:hover .label,
 .rowLink:focus .label {
+	color: var(--wpds-color-foreground-interactive-brand);
 	text-decoration: underline;
 }
 

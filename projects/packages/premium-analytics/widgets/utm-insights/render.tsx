@@ -137,8 +137,6 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 						id={ postRow.postId }
 						label={ postRow.label }
 						link={ postRow.href }
-						variant="overlay"
-						className={ styles.itemLabelInset }
 					/>
 				) : (
 					<span className={ styles.itemLabel }>
