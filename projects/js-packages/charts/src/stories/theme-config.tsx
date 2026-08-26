@@ -10,8 +10,8 @@ export const DEFAULT_ACCENT_COLOR = '#4a19ab';
  * Custom theme demonstrating that the series palette needs no configuration to follow a
  * `ThemeProvider`.
  *
- * This deliberately sets no `colors`. Moving the `accentColor` control moves the whole
- * palette — the seeded series directly, and the generated ones because they derive from it.
+ * Moving the `accentColor` control moves the whole palette — the seeded series directly, and the
+ * generated ones because they derive from it.
  *
  * It reaches the palette through `--wp-admin-theme-color`, which `ThemeProvider` writes from
  * its `color.primary` seed as a legacy wp-admin override, and which slot 1 reads first — not
