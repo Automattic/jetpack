@@ -1279,11 +1279,25 @@ function JetpackContactFormEdit( {
 							setAttributes={ setAttributes }
 						/>
 					</PanelBody>
-					{ isIntegrationsEnabled && showBlockIntegrations && (
-						<Suspense fallback={ <div /> }>
-							<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
-						</Suspense>
-					) }
+				</InspectorControls>
+
+				{ /* Outside InspectorControls, because IntegrationControls is not only an
+				     inspector panel: it also contributes a BlockControls toolbar button and the
+				     dialog that button opens. InspectorControls is a slot fill, and a fill
+				     renders nothing while its slot is unmounted -- which is the case whenever
+				     the settings sidebar is closed -- so nesting those inside it left the
+				     toolbar entry point dead in exactly the state it exists for. The component
+				     wraps its own panel half in InspectorControls instead, which is why the
+				     inspector is split in two here: this keeps the Integrations panel in its
+				     original position between "Action after submit" and "Webhooks", since fills
+				     are ordered by render order. */ }
+				{ isIntegrationsEnabled && showBlockIntegrations && (
+					<Suspense fallback={ <div /> }>
+						<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
+					</Suspense>
+				) }
+
+				<InspectorControls>
 					{ showWebhooks && (
 						<PanelBody
 							title={ __( 'Webhooks', 'jetpack-forms' ) }
