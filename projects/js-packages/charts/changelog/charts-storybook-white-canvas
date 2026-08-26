@@ -1,4 +1,5 @@
 Significance: patch
 Type: changed
+Comment: Storybook-only: preview chart stories on a white canvas.
 
-Charts: Storybook-only - preview chart stories on a white canvas.
+
