@@ -3,8 +3,14 @@ export { useReportOrderAttribution } from './use-report-order-attribution';
 export { useReportCoupons } from './use-report-coupons';
 export { useReportCouponsByDate } from './use-report-coupons-by-date';
 export { useReportCustomers } from './use-report-customers';
+export { useReportCustomersByDate } from './use-report-customers-by-date';
 export { useReportConversionRate } from './use-report-conversion-rate';
+export { useReportProducts } from './use-report-products';
+export { useProductImages } from './use-product-images';
+export { useReportVisitors } from './use-report-visitors';
+export { useReportVisitorsByLocation } from './use-report-visitors-by-location';
 export { useReportBookings } from './use-report-bookings';
+export { useReportSessionsByDevice } from './use-report-sessions-by-device';
 export { useStatsSite } from './use-stats-site';
 export {
 	useStatsPost,
@@ -22,6 +28,7 @@ export {
 	type StatsPostLikesParams,
 	type StatsPostLikesResponse,
 } from './use-stats-post-likes';
+export { useStatsQuery } from './use-stats-query';
 export { useStatsTopPosts } from './use-stats-top-posts';
 export { useStatsReferrers } from './use-stats-referrers';
 export { useStatsClicks } from './use-stats-clicks';
@@ -108,6 +115,11 @@ export {
 	type StatsHourOfDayBucket,
 	type StatsHourOfDayReport,
 } from './use-stats-hour-of-day';
+export {
+	useStatsSummary,
+	type StatsSummaryParams,
+	type StatsSummaryResponse,
+} from './use-stats-summary';
 export { useStatsInsights } from './use-stats-insights';
 export type {
 	StatsInsightsParams,
@@ -172,6 +184,7 @@ export {
 	type StatsSingleVideoPost,
 	type StatsSingleVideoParams,
 	type StatsSingleVideoResponse,
+	type StatsSingleVideoTotals,
 } from './use-stats-single-video';
 export {
 	useStatsEmailOpensTimeSeries,
@@ -197,8 +210,3 @@ export type {
 	StatsAppDashboardStoreModule,
 } from './use-stats-app-dashboard-modules';
 export type { UseStatsOptions } from './use-stats-report';
-
-/**
- * @deprecated Use individual hooks instead: useReportOrders, useReportOrderAttribution, useReportCoupons
- */
-export { useReport } from './use-report';

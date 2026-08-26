@@ -52,7 +52,6 @@
 		"@automattic/number-formatters": "workspace:*",
 		"@automattic/popup-monitor": "1.0.2",
 		"@automattic/social-previews": "workspace:*",
-		"@automattic/ui": "1.0.2",
 		"@jetpack-social/init": "link:packages/init",
 		"@tanstack/react-query": "5.101.2",
 		"@wordpress/admin-ui": "2.7.0",

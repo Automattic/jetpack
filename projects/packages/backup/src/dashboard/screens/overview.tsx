@@ -224,7 +224,10 @@ function RightPane( {
 		);
 	}
 	if ( isBackupItem( item ) ) {
-		return <BackupDetail item={ item } />;
+		// Keyed by rewindId so switching backups remounts the detail pane —
+		// `BackupDetail` and `FileBrowser` hold selection/open-file state that
+		// otherwise survives a prop change and leaks into the next backup.
+		return <BackupDetail key={ item.rewindId } item={ item } />;
 	}
 	return <ActivityDetail item={ item } />;
 }

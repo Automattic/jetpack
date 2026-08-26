@@ -899,7 +899,8 @@ class Jetpack_Gutenberg {
 		}
 		// AI Assistant
 		$ai_assistant_state = array(
-			'is-enabled' => Jetpack_AI_Settings::is_ai_enabled(),
+			'is-enabled'     => Jetpack_AI_Settings::is_ai_enabled(),
+			'is-seo-enabled' => Jetpack_AI_Settings::is_ai_seo_enabled(),
 		);
 
 		$screen_base = null;
