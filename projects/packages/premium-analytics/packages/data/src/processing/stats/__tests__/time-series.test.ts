@@ -236,7 +236,7 @@ describe( 'Stats time-series normalizer', () => {
 		expect( result.summary ).toEqual( expect.objectContaining( { clicks_count: 11 } ) );
 	} );
 
-	it( 'trims buckets outside a start_date/end_date window and sums only the rest', () => {
+	it( 'trims buckets outside a window_start/window_end window and sums only the rest', () => {
 		// The last-24-hours shape: the endpoint anchors hourly buckets on the
 		// start day's midnight, so the payload carries leading buckets before
 		// the window's 09:00 start that must not be plotted or summed.
@@ -255,8 +255,8 @@ describe( 'Stats time-series normalizer', () => {
 			},
 			{
 				period: 'hour',
-				start_date: '2026-06-14T09:00:00.000-04:00',
-				end_date: '2026-06-15T08:59:59.999-04:00',
+				window_start: '2026-06-14T09:00:00.000-04:00',
+				window_end: '2026-06-15T08:59:59.999-04:00',
 			}
 		);
 
@@ -292,8 +292,8 @@ describe( 'Stats time-series normalizer', () => {
 
 		const spaceSeparated = sanitizeStatsEmailTimeSeriesResponse( timeline, {
 			period: 'hour',
-			start_date: '2026-06-14 09:00:00-04:00',
-			end_date: '2026-06-15 08:59:59-04:00',
+			window_start: '2026-06-14 09:00:00-04:00',
+			window_end: '2026-06-15 08:59:59-04:00',
 		} );
 		expect( spaceSeparated.data.map( point => point.time_interval ) ).toEqual( [
 			'2026-06-14 09:00',
@@ -302,8 +302,8 @@ describe( 'Stats time-series normalizer', () => {
 
 		const noSeconds = sanitizeStatsEmailTimeSeriesResponse( timeline, {
 			period: 'hour',
-			start_date: '2026-06-14T09:00-04:00',
-			end_date: '2026-06-15T08:59-04:00',
+			window_start: '2026-06-14T09:00-04:00',
+			window_end: '2026-06-15T08:59-04:00',
 		} );
 		expect( noSeconds.data.map( point => point.time_interval ) ).toEqual( [
 			'2026-06-14 09:00',
@@ -325,7 +325,7 @@ describe( 'Stats time-series normalizer', () => {
 					],
 				},
 			},
-			{ period: 'day', start_date: '2026-06-15', end_date: '2026-06-15' }
+			{ period: 'day', window_start: '2026-06-15', window_end: '2026-06-15' }
 		);
 
 		expect( result.data ).toHaveLength( 2 );
@@ -346,19 +346,27 @@ describe( 'Stats time-series normalizer', () => {
 
 		const windowed = sanitizeStatsEmailTimeSeriesResponse( timeline, {
 			period: 'day',
-			start_date: '2026-06-15',
-			end_date: '2026-06-16',
+			window_start: '2026-06-15',
+			window_end: '2026-06-16',
 		} );
 		expect( windowed.data ).toHaveLength( 2 );
 		expect( windowed.summary ).toEqual( expect.objectContaining( { opens_count: 8 } ) );
 
-		// Range-bounded endpoints (e.g. visits) reach the sanitizer with a
-		// start_date but never an end_date; a lone bound must not trim.
+		// A lone bound must not trim, and neither must the generic
+		// start_date/end_date request params — range-bounded endpoints (e.g.
+		// visits) reach this sanitizer with those and must keep every bucket.
 		const oneBound = sanitizeStatsEmailTimeSeriesResponse( timeline, {
 			period: 'day',
-			start_date: '2026-06-16',
+			window_start: '2026-06-16',
 		} );
 		expect( oneBound.data ).toHaveLength( 2 );
+
+		const requestDates = sanitizeStatsEmailTimeSeriesResponse( timeline, {
+			period: 'day',
+			start_date: '2026-06-16',
+			end_date: '2026-06-16',
+		} );
+		expect( requestDates.data ).toHaveLength( 2 );
 	} );
 
 	it( 'normalizes hour 0 and string-typed hour values into padded per-hour buckets', () => {

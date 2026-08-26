@@ -273,7 +273,7 @@ const WALL_CLOCK_PARTS = /^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))
 // labels carry: the value's own date and time parts as written, any offset
 // ignored. A bare date widens to the whole day via the fallback time, whose
 // seconds also fill in for a seconds-less time.
-function toWallClockBound( value: string | undefined, fallbackTime: string ) {
+function toWallClockBound( value: unknown, fallbackTime: string ) {
 	const match = typeof value === 'string' ? WALL_CLOCK_PARTS.exec( value.trim() ) : null;
 
 	if ( ! match ) {
@@ -325,13 +325,14 @@ export function sanitizeStatsTimeSeriesResponse(
 	// out-of-window buckets inflate neither the totals nor the chart.
 	// Quantity-based endpoints (the email timeline) anchor hourly buckets on
 	// the start day's midnight regardless of the requested time of day, so a
-	// mid-day window comes back with leading out-of-window buckets. Request
-	// params never reach a sanitizer as `end_date` (statsQueryParamsToApiParams
-	// renames it to `date` — an invariant pinned in the stats-params tests), so
-	// only callers passing a window through `sanitizerParams` opt in. Rows
-	// whose bounds aren't comparable wall clocks are kept, not dropped.
-	const windowStart = toWallClockBound( query?.start_date, '00:00:00' );
-	const windowEnd = toWallClockBound( query?.end_date, '23:59:59' );
+	// mid-day window comes back with leading out-of-window buckets. The opt-in
+	// is the dedicated `window_start`/`window_end` pair (sent via
+	// `sanitizerParams`), never the generic `start_date`/`end_date` request
+	// params — those reach this sanitizer from range-bounded endpoints (visits,
+	// subscribers, wordads) that must not have buckets dropped. Rows whose
+	// bounds aren't comparable wall clocks are kept, not dropped.
+	const windowStart = toWallClockBound( query?.window_start, '00:00:00' );
+	const windowEnd = toWallClockBound( query?.window_end, '23:59:59' );
 	const kept =
 		windowStart && windowEnd
 			? buckets.filter(

@@ -156,10 +156,9 @@ describe( 'reportParamsToStatsQueryParams', () => {
 				days: 7,
 			} )
 		);
-		// Load-bearing beyond naming: the shared time-series sanitizer trims to
-		// a window only when it receives BOTH start_date and end_date, so
-		// end_date must never survive into API params or every range-bounded
-		// endpoint would start dropping buckets.
+		// The semantic end_date must not survive alongside the API's date param
+		// — endpoints read `date`, and a stray end_date would leak into query
+		// keys and request URLs.
 		expect( apiParams ).not.toHaveProperty( 'end_date' );
 	} );
 

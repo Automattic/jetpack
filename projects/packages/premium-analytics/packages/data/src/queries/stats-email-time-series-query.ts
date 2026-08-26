@@ -74,8 +74,8 @@ function emailTimeSeriesQuery(
 		...( statsParams.start_date && statsParams.end_date
 			? {
 					sanitizerParams: {
-						start_date: statsParams.start_date,
-						end_date: statsParams.end_date,
+						window_start: statsParams.start_date,
+						window_end: statsParams.end_date,
 					},
 			  }
 			: {} ),

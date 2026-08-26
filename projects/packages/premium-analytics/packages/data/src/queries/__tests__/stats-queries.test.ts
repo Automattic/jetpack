@@ -231,7 +231,7 @@ describe( 'Stats query factories', () => {
 			{ period: 'day', quantity: 7, date: '2026-06-01', stats_fields: 'timeline' },
 			undefined,
 			'emailTimeSeries',
-			{ start_date: '2026-06-01', end_date: '2026-06-07' },
+			{ window_start: '2026-06-01', window_end: '2026-06-07' },
 		] );
 	} );
 
@@ -274,7 +274,8 @@ describe( 'Stats query factories', () => {
 		// 08:xx June 15 = 33 buckets, not 24 from 09:00, and not 24 per calendar
 		// day touched — the 48-bucket over-fetch was WOOA7S-1840). The leading
 		// out-of-window buckets the midnight anchor forces are trimmed by the
-		// sanitizer via the window passed in sanitizerParams (query key slot 8).
+		// sanitizer via the window_start/window_end pair passed in
+		// sanitizerParams (query key slot 8).
 		const { queryKey } = statsEmailClicksTimeSeriesQuery( 41, {
 			from: '2026-06-14T09:00:00.000-04:00',
 			to: '2026-06-15T08:59:59.999-04:00',
@@ -288,8 +289,8 @@ describe( 'Stats query factories', () => {
 			stats_fields: 'timeline',
 		} );
 		expect( queryKey[ 8 ] ).toEqual( {
-			start_date: '2026-06-14T09:00:00.000-04:00',
-			end_date: '2026-06-15T08:59:59.999-04:00',
+			window_start: '2026-06-14T09:00:00.000-04:00',
+			window_end: '2026-06-15T08:59:59.999-04:00',
 		} );
 	} );
 
