@@ -84,4 +84,14 @@ The outer component must still pass host `attributes` into `<WidgetRoot>`. Do no
 drop them just because the inner component needs none of the widget's own settings;
 otherwise host-provided `reportParams` and comparison controls are discarded.
 
+**Exception — a widget that hosts its own date control.** A section can set
+`date_filter_options.with_header_date_control` to `false`, which renders no header
+date control and hands the placement to its widgets. Such a widget calls
+`useReportDateFilters( '/' )` and renders its own `DateFiltersPanel`, writing the same
+`?preset=` the header would have. It is the one case that inverts the rule above: it
+must forward **no** `attributes` at all, because `WidgetRoot` prefers injected report
+params over the URL, which would leave its control writing one source while its chart
+read another. Its tests and stories mount a real matched route (`widgets/route-harness.tsx`)
+rather than injecting `reportParams`. `widgets/wordads-chart-tabs/` is the reference.
+
 <!-- TODO: link to the canonical widget API declaration (contract types). -->

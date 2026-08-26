@@ -30,10 +30,10 @@ export interface WordAdsChartState {
 	/** True on the first load, while there is no data to show yet. */
 	isLoading: boolean;
 	/**
-	 * True while the primary or comparison request is fetching. The widget
-	 * never has a comparison request in flight — see `hasComparison: false`
-	 * below — but the flag is defined by the underlying `useReport` call,
-	 * which ORs both.
+	 * True while the primary or comparison request is fetching — `useReport`
+	 * ORs both. Only the primary ever fetches here: `render.tsx` scopes the
+	 * widget with `offersComparison={ false }`, so `WidgetRoot` strips the
+	 * comparison params and that query never enables.
 	 */
 	isFetching: boolean;
 	/** True only when the request failed with no rows left to show. */
