@@ -3,7 +3,14 @@ import { Group } from '@visx/group';
 import { createScale, scaleBand } from '@visx/scale';
 import { Text, type TextProps } from '@visx/text';
 import { useContext, useMemo } from 'react';
-import { GlobalChartsContext, GlobalChartsProvider } from '../../providers';
+import { GlobalChartsContext, GlobalChartsProvider, useGlobalChartsContext } from '../../providers';
+import { useChartScopeElement } from '../../providers/chart-scope';
+import {
+	isValidHexColor,
+	mixHexColors,
+	normalizeColorToHex,
+	resolveCssVariable,
+} from '../../utils';
 import { BarChartUnresponsive } from '../bar-chart';
 import { withResponsive } from '../private/with-responsive';
 import type { SeriesData } from '../..';
@@ -211,6 +218,17 @@ const getDefaultYOffset = (
 	return -( barThickness + GAP_BETWEEN_BARS );
 };
 
+// How far a single-series bar fill travels from the surface toward the series colour.
+//
+// With one series the label is drawn *on* the bar, so the fill is a background for text and has to
+// keep contrast with `--a8c-charts-color-label`. A full-strength series colour cannot promise that:
+// the catalog's own seed, `#3858e9`, leaves `#1e1e1e` at 2.97:1. This value puts the default at
+// 9.0:1, matching the light blue the palette used to open with.
+//
+// Multi-series bars keep their full strength: `getDefaultYOffset` lifts the label clear of them, so
+// nothing is read against the fill, and tinting would only compress the separation between series.
+const BAR_TINT_TOWARD_SERIES = 0.4;
+
 const BarListChartInternal: FC< BarListChartProps > = ( {
 	data,
 	width,
@@ -224,6 +242,43 @@ const BarListChartInternal: FC< BarListChartProps > = ( {
 	},
 	...rest
 } ) => {
+	const { getElementStyles, theme } = useGlobalChartsContext();
+	const scopeElement = useChartScopeElement();
+
+	// A series carrying its own stroke is left alone — the consumer asked for that exact colour.
+	const tintedData = useMemo( () => {
+		if ( data.length > 1 ) {
+			return data;
+		}
+
+		const background = normalizeColorToHex(
+			theme.backgroundColor,
+			scopeElement,
+			resolveCssVariable
+		);
+		const surface = isValidHexColor( background ) ? background : '#fff';
+
+		return data.map( ( series, index ) => {
+			if ( series.options?.stroke ) {
+				return series;
+			}
+
+			const { color } = getElementStyles( { data: series, index } );
+
+			if ( ! isValidHexColor( color ) ) {
+				return series;
+			}
+
+			return {
+				...series,
+				options: {
+					...series.options,
+					stroke: mixHexColors( surface, color, BAR_TINT_TOWARD_SERIES ),
+				},
+			};
+		} );
+	}, [ data, getElementStyles, theme.backgroundColor, scopeElement ] );
+
 	const chartOptions = useMemo( () => {
 		const isMultiSeries = data.length > 1;
 
@@ -260,7 +315,7 @@ const BarListChartInternal: FC< BarListChartProps > = ( {
 		<BarChartUnresponsive
 			orientation="horizontal"
 			gridVisibility={ 'none' }
-			data={ data }
+			data={ tintedData }
 			width={ width }
 			height={ height }
 			margin={ margin }
