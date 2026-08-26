@@ -341,13 +341,17 @@ describe( 'Email design editor entry point', () => {
 			return mockCreatePreloadingMiddleware.mock.calls[ 0 ][ 0 ];
 		}
 
-		it( 'preloads the collection under both contexts', async () => {
+		it( 'preloads the collection under every context it has been seen asked for', async () => {
 			window.JetpackEmailDesignEditor = pageData();
 
 			await loadEntryPoint();
 
 			const map = preloadedMap();
 
+			// Including no context at all: this editor asks for `?context=edit` on WordPress
+			// 7.1, the same load on WordPress.com asks for none, and a miss leaves the editor
+			// waiting on a record that never arrives.
+			expect( map[ '/wp/v2/templates' ].body ).toHaveLength( 1 );
 			expect( map[ '/wp/v2/templates?context=edit' ].body ).toHaveLength( 1 );
 			expect( map[ '/wp/v2/templates?context=view' ].body ).toHaveLength( 1 );
 		} );
@@ -416,6 +420,7 @@ describe( 'Email design editor entry point', () => {
 			const map = buildPreloadMap( bootstrapBundle(), 'pub/other//something-else' );
 
 			expect( Object.keys( map ) ).toEqual( [
+				'/wp/v2/templates',
 				'/wp/v2/templates?context=edit',
 				'/wp/v2/templates?context=view',
 			] );

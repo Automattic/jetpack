@@ -186,9 +186,12 @@ export function buildPreloadMap( bundle, templateId ) {
 		},
 	};
 
-	// Both contexts, because which one core-data asks for depends on what the current user may
-	// do with the record, and an unmatched key costs nothing.
+	// Every context the collection has been seen asked for, including none at all. The two
+	// measurements disagree — this editor asks for `?context=edit` on WordPress 7.1, while the
+	// same load on WordPress.com carries no context — and a key that goes unmatched costs
+	// nothing, whereas the one miss that matters leaves the editor waiting forever.
 	const map = {
+		'/wp/v2/templates': collection,
 		'/wp/v2/templates?context=edit': collection,
 		'/wp/v2/templates?context=view': collection,
 	};
@@ -196,7 +199,10 @@ export function buildPreloadMap( bundle, templateId ) {
 	const item = templates.find( template => template?.id === templateId );
 
 	if ( item ) {
-		map[ `/wp/v2/templates/${ templateId }?context=edit` ] = { body: item, headers: {} };
+		const record = { body: item, headers: {} };
+
+		map[ `/wp/v2/templates/${ templateId }` ] = record;
+		map[ `/wp/v2/templates/${ templateId }?context=edit` ] = record;
 	}
 
 	return map;
