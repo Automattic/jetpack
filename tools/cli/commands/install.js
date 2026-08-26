@@ -151,12 +151,16 @@ export async function handler( argv ) {
 		 * error with no `shortMessage` did not come from execa, which makes it a
 		 * bug in the CLI rather than a command that failed. Listr prints only the
 		 * message for those, and drops it entirely for anything thrown that is
-		 * not an Error, so print the error itself and get the stack with it.
+		 * not an Error, so print the error itself and get the stack with it. The
+		 * advice below is about answering a command's prompt, so it only applies
+		 * to a command that failed, and it would be telling a lie about the full
+		 * error being elsewhere once the error has just been printed in full.
 		 */
-		if ( verbose || typeof err?.shortMessage !== 'string' ) {
+		const commandFailed = typeof err?.shortMessage === 'string';
+		if ( verbose || ! commandFailed ) {
 			console.error( err );
 		}
-		if ( ! verbose ) {
+		if ( ! verbose && commandFailed ) {
 			console.error(
 				chalk.yellow(
 					'\nRun again with `-v` for the full error, and to answer any prompt the command is waiting on.\n' +
