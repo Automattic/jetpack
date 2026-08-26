@@ -737,6 +737,7 @@ class Initializer {
 				);
 			}
 
+			$layout['enabled'] = true;
 			Admin_Menu::update_site_menu_layout( $layout );
 		} else {
 			Admin_Menu::update_user_menu_layout( $layout );

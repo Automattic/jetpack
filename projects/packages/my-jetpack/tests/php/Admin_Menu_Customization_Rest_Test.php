@@ -162,7 +162,6 @@ class Admin_Menu_Customization_Rest_Test extends TestCase {
 			array(
 				'scope'  => 'site',
 				'layout' => array(
-					'enabled'    => true,
 					'items'      => array(
 						'scan' => array(
 							'order' => 20,
