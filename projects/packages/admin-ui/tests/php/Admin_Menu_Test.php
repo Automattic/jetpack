@@ -566,6 +566,25 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * Titled separators keep the WordPress hover indicator beside the menu item only.
+	 *
+	 * @return void
+	 */
+	public function test_titled_separator_hover_indicator_excludes_separator_label() {
+		$stylesheet = file_get_contents( dirname( __DIR__, 2 ) . '/src/admin-ui-upgrade-menu.scss' );
+
+		$this->assertIsString( $stylesheet );
+		$this->assertStringContainsString(
+			"&:hover,\n\t&:focus {\n\t\tbox-shadow: none;",
+			$stylesheet
+		);
+		$this->assertStringContainsString(
+			'.jetpack-admin-menu-item-label::before',
+			$stylesheet
+		);
+	}
+
+	/**
 	 * An untitled custom separator renders a divider without title markup.
 	 *
 	 * @return void

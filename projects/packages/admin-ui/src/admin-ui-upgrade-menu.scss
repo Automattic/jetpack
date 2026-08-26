@@ -20,9 +20,26 @@
 }
 
 #adminmenu .wp-submenu li.jetpack-admin-menu-separator-start > a {
+	position: relative;
 	margin-block-start: 8px;
 	padding-block-start: 8px;
 	border-block-start: 1px solid rgba(240, 246, 252, 0.16);
+
+	&:hover,
+	&:focus {
+		box-shadow: none;
+
+		.jetpack-admin-menu-item-label::before {
+			position: absolute;
+			inset-block-end: 0;
+			inset-inline-start: 0;
+			block-size: calc(1.4em + 5px);
+			inline-size: 4px;
+			background: currentColor;
+			content: "";
+			pointer-events: none;
+		}
+	}
 }
 
 #adminmenu .wp-submenu li.jetpack-admin-menu-separator-start .jetpack-admin-menu-separator-label {
