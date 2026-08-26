@@ -82,7 +82,20 @@ export async function handler( argv ) {
 		argv.project = [ argv.project ];
 	}
 
-	const stdio = argv.v ? [ 'ignore', 'inherit', 'inherit' ] : [ 'ignore', 'ignore', 'ignore' ];
+	/*
+	 * `pnpm` and `composer` both prompt on occasion: pnpm asks before purging a
+	 * `node_modules` that no longer matches the current config, composer asks
+	 * before running third-party plugins. Give them stdin under `--verbose`,
+	 * where Listr runs one task at a time through a plain line-based renderer,
+	 * so a prompt is legible and only one child can own the terminal.
+	 *
+	 * The default renderer redraws over the terminal and runs up to
+	 * `--concurrency` tasks at once, so a prompt there would be overwritten and
+	 * would race its siblings for keystrokes. Keep stdin closed there and buffer
+	 * the output instead, so a failure can at least say what went wrong. Both
+	 * streams are captured because pnpm reports errors on stdout.
+	 */
+	const stdio = argv.v ? [ 'inherit', 'inherit', 'inherit' ] : [ 'ignore', 'pipe', 'pipe' ];
 	const tasks = [];
 	let didPnpm = false;
 
@@ -128,8 +141,17 @@ export async function handler( argv ) {
 	await listr.run().catch( err => {
 		console.error( err );
 		if ( ! argv.v ) {
+			const output = [ err.stdout, err.stderr ]
+				.filter( s => typeof s === 'string' && s.trim() !== '' )
+				.join( '\n' )
+				.trim();
+			if ( output ) {
+				console.error( chalk.red( `\nOutput from the failed command:\n${ output }` ) );
+			}
 			console.error(
-				chalk.yellow( 'You might try running with `-v` to get more information on the failure' )
+				chalk.yellow(
+					'\nYou might try running with `-v` to get more information on the failure. Some failures are really unanswered prompts (for example, `pnpm` asking to confirm removal of `node_modules`), and `-v` is what lets you answer them.'
+				)
 			);
 		}
 		process.exit( err.exitCode || 1 );
