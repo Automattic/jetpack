@@ -78,10 +78,8 @@ function WordAdsChartTabsInner() {
 
 export default function WordAdsChartTabs( { attributes = {} }: WordAdsChartTabsWidgetProps ) {
 	return (
-		// The chart has no comparison series to draw, so it must never offer one —
-		// regardless of what the hosting section declares. Outside `WidgetRoot` so
-		// the scope is already set when it strips the comparison params, which also
-		// keeps the header control from offering a comparison the chart ignores.
+		// Set the scope before WidgetRoot strips unsupported comparison parameters
+		// and configures the header control.
 		<ReportScopeProvider offersComparison={ false }>
 			<WidgetRoot attributes={ attributes }>
 				<WordAdsChartTabsInner />

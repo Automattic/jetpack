@@ -26,9 +26,7 @@ registerReportMocks();
 
 const WORDADS_CHART_TABS_RENDER_MODULE = 'storybook/wordads-chart-tabs';
 
-// The widget's own header control saves these; a close-up story stands in for it
-// by passing the attributes it would have saved. Distinct preset per story →
-// its own query-cache entry; see forceStatsMockState.
+// Mirror the header control's saved attributes. Each preset gets its own query-cache entry.
 function renderOnPreset( preset: PresetType, interval: IntervalType ) {
 	return () => (
 		<WordAdsChartTabsRender
@@ -61,10 +59,6 @@ export const Default: Story = {
 	decorators: [ withWidgetCanvas ],
 };
 
-/**
- * First load: the fetch is in flight, so the widget shows its loading state. The
- * mock is forced to never resolve for the duration of this story.
- */
 export const Loading: Story = {
 	render: renderOnPreset( 'last-90-days', 'week' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
@@ -76,10 +70,6 @@ export const Loading: Story = {
 	},
 };
 
-/**
- * The fetch failed: the widget shows its error state with a Retry action (which
- * re-runs the query — still mocked as failing while this story is active).
- */
 export const Error: Story = {
 	render: renderOnPreset( 'last-7-days', 'day' ),
 	tags: [ '!autodocs' ],
@@ -90,10 +80,6 @@ export const Error: Story = {
 	},
 };
 
-/**
- * Resolved with no rows: the widget shows its empty state (the neutral megaphone
- * glyph and "No WordAds data in this period.").
- */
 export const Empty: Story = {
 	render: renderOnPreset( 'last-365-days', 'month' ),
 	tags: [ '!autodocs' ],
