@@ -151,33 +151,30 @@ export async function handler( argv ) {
 		 * not an Error, so print those in full and get the stack with them.
 		 *
 		 * For a command that failed, execa has already folded the captured output
-		 * into `err.message` and how much of that reaches the user comes down to
-		 * the renderer. The update renderer keeps only the last line of it, cut
-		 * off at the terminal width, which is usually nothing worth reading; say
-		 * it again in full. Listr falls back to the verbose renderer when stdout
-		 * is not a terminal, and that one prints the message whole, so saying it
-		 * again there would only double it. The verbose renderer writes to stdout,
-		 * so keep the command and its exit code on stderr for anything reading
-		 * only that.
+		 * into `err.message`, so print that. Listr reports through stdout, and
+		 * how much it reports depends on the renderer, so neither of those is
+		 * something to lean on: redirect stdout and the reason goes with it. The
+		 * cost is that `jetpack install >log 2>&1` carries the message twice,
+		 * which is worth paying to keep stderr complete on its own.
 		 *
 		 * Say something about prompts only where a prompt is really the problem.
-		 * Rerunning under `-v` helps if there is a terminal to prompt on, and the
-		 * purge is worth naming only when it is what went wrong: it deletes a
-		 * `node_modules` that takes minutes to rebuild, so suggesting it after an
-		 * unrelated composer failure would be sending someone somewhere costly
-		 * and useless.
+		 * Answering one takes a terminal at both ends, to type into and to read
+		 * the question from. The purge is worth naming only when it is what went
+		 * wrong: it deletes a `node_modules` that takes minutes to rebuild, so
+		 * raising it after an unrelated composer failure would send someone
+		 * somewhere costly and useless. Under `-v` the child's output was never
+		 * captured, so there is no message to recognize it in; pnpm will have
+		 * said its piece directly to the terminal by then anyway.
 		 */
 		const commandFailed = typeof err?.shortMessage === 'string';
 		if ( verbose || ! commandFailed ) {
 			console.error( err );
-		} else if ( process.stdout.isTTY ) {
-			console.error( err.message );
 		} else {
-			console.error( err.shortMessage );
+			console.error( err.message );
 		}
 		if ( ! verbose && commandFailed ) {
 			const advice = [];
-			if ( process.stdin.isTTY ) {
+			if ( process.stdin.isTTY && process.stdout.isTTY ) {
 				advice.push( 'Run again with `-v` to answer any prompt the command is waiting on.' );
 			}
 			if (
