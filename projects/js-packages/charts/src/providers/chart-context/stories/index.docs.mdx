@@ -68,7 +68,7 @@ Only slot 1 has a default, and it reads `--wp-admin-theme-color` first — so in
 
 The order matters and is not interchangeable: on every React admin screen WordPress loads its own design-token stylesheet, which pins the brand token to a static value that does not track the color scheme. `TOKENS.md` has the detail.
 
-**A slot left unset is skipped and the palette compacts.** Setting only slots 1 and 3, as above, gives a three-color palette in the order written — there is no gap where slot 2 would have been.
+**A slot left unset is skipped and the palette compacts.** Set only slots 1 and 3 and the palette is two colors, in the order written — there is no gap where slot 2 would have been.
 
 Five slots is a cap on *seeds*, not on series. A chart with twenty series still gets twenty distinct colors; the slots decide what the generator starts from.
 
