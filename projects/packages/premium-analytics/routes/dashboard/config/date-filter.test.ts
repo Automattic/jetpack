@@ -3,7 +3,6 @@ import {
 	DATE_FILTER_RANGE,
 	DATE_FILTER_YEAR,
 	offersDateComparison,
-	offersHeaderDateControl,
 	resolvePresetForSurface,
 } from './date-filter';
 
@@ -83,28 +82,5 @@ describe( 'offersDateComparison', () => {
 				with_header_date_control: true,
 			} )
 		).toBe( false );
-	} );
-} );
-
-describe( 'offersHeaderDateControl', () => {
-	it( 'follows the section', () => {
-		expect(
-			offersHeaderDateControl( { with_date_comparison: true, with_header_date_control: true } )
-		).toBe( true );
-		expect(
-			offersHeaderDateControl( { with_date_comparison: true, with_header_date_control: false } )
-		).toBe( false );
-	} );
-
-	// A payload served before the field existed carries no placement.
-	it( 'keeps the control when the section carries no placement', () => {
-		expect( offersHeaderDateControl( undefined ) ).toBe( true );
-		expect( offersHeaderDateControl( { with_date_comparison: true } ) ).toBe( true );
-	} );
-
-	it( 'is independent of comparison', () => {
-		expect(
-			offersHeaderDateControl( { with_date_comparison: false, with_header_date_control: true } )
-		).toBe( true );
 	} );
 } );

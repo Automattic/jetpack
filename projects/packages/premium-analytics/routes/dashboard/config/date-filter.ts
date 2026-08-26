@@ -62,20 +62,6 @@ export function offersDateComparison(
 }
 
 /**
- * Whether the section's header renders the date control.
- *
- * False hands it to the section's widgets. Only the placement moves — the date
- * state still exists and still takes the surface's shape, so a widget-hosted
- * control reads and writes the same `?preset=`.
- *
- * @param options - The active section's date-filter options, if any.
- * @return Whether to render the header date control.
- */
-export function offersHeaderDateControl( options: DateFilterOptions | undefined ): boolean {
-	return options?.with_header_date_control ?? true;
-}
-
-/**
  * The preset a surface should take over with when the URL carries one it cannot
  * represent, or `null` when the current preset is already coherent.
  *

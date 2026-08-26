@@ -30,7 +30,6 @@ import {
 	DATE_FILTER_YEAR,
 	isSectionAwaitingSync,
 	offersDateComparison,
-	offersHeaderDateControl,
 	resolveSectionHeading,
 } from './config';
 import {
@@ -142,7 +141,8 @@ function Dashboard(): JSX.Element {
 	);
 
 	// Placement only: the date state is the same either way.
-	const showHeaderDateControl = offersHeaderDateControl( activeSectionRecord?.date_filter_options );
+	const showHeaderDateControl =
+		activeSectionRecord?.date_filter_options?.with_header_date_control ?? true;
 
 	/*
 	 * The subtitle states what the widgets are currently showing, so it follows
