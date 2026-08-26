@@ -16,8 +16,9 @@ export const defaultView = {
 	titleField: 'from',
 	// From is the title column and renders ahead of these; answer columns are slotted
 	// in directly after Date. The order is therefore From, Date, the form's own
-	// fields, Source, IP Address, Status.
-	fields: [ 'date', 'source', 'ip', 'read_status' ],
+	// fields, Source, IP Address — and Status after those, for anyone who turns it
+	// on, since it is off by default.
+	fields: [ 'date', 'source', 'ip' ],
 };
 
 export const defaultLayouts = {

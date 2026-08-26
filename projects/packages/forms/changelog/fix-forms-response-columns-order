@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Responses: order the table as From, Date, the form's own fields, Source, IP Address, Status.
