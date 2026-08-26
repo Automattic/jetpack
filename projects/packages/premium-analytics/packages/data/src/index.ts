@@ -64,7 +64,13 @@ export {
 	resolveIntervalForRange,
 } from './utils/interval';
 export type { IntervalType } from './utils/interval';
-export { getDefaultPreset, getDefaultQueryParams } from './defaults';
+export {
+	getDefaultPreset,
+	getDefaultQueryParams,
+	getDefaultReportParams,
+	getStoreInfo,
+	type StoreInfo,
+} from './defaults';
 export { downloadReport, exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
 export type {
 	DownloadReportParams,

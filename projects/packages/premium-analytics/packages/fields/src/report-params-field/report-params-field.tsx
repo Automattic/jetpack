@@ -4,6 +4,7 @@
 import {
 	getAllowedIntervalsForPreset,
 	getDefaultPreset,
+	getStoreInfo,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -22,7 +23,6 @@ import {
 } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { getStoreInfo } from '../helpers/store-info';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
 
 /*
@@ -36,18 +36,6 @@ import type { DataFormControlProps } from '@jetpack-premium-analytics/externals'
  */
 
 type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ] >;
-
-/**
- * The report params a widget that owns its date range starts on.
- *
- * A preset alone, so `normalizeReportParams` recomputes its moving end on every
- * load rather than freezing the dates this module was built on.
- *
- * @return The default report params.
- */
-export function getDefaultReportParams(): ReportParams {
-	return { preset: getDefaultPreset( getStoreInfo().launchedDate ) };
-}
 
 export type ReportParamsFieldAttributes = {
 	reportParams: ReportParams;
