@@ -22,7 +22,6 @@ export const settings = {
 		html: false,
 		reusable: false,
 		inserter: true,
-		align: true,
 		layout: {
 			/*
 			 * Mirrored in PHP (class-contact-form-block.php) so both surfaces
@@ -65,6 +64,13 @@ export const settings = {
 		},
 	},
 	attributes: {
+		/*
+		 * No `align` support: a step always fills its container, so the alignment
+		 * toolbar had nothing to change and only added a control to a block that
+		 * already carries several. The attribute stays declared so a value saved
+		 * while the support existed still round-trips instead of being dropped on
+		 * the next save.
+		 */
 		align: {
 			type: 'string',
 		},

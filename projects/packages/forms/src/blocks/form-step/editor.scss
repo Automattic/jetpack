@@ -7,7 +7,6 @@
 	display: flex;
 	align-items: center;
 	color: currentColor;
-	margin: var(--wp--style--block-gap, 1.5rem) 0;
 
 	// Horizontal lines on both sides, similar to paywall block.
 	&::before,
@@ -34,4 +33,16 @@
 
 .wp-block-jetpack-form-step {
 	box-sizing: border-box;
+}
+
+// The step label is a child of the step's layout container, so core's
+// `.is-layout-flex > :is(*, div) { margin: 0 }` zeroes any margin set on the
+// class alone. Two classes here to beat it.
+// Only the block-start side: the label is the first thing in a step, and its
+// top margin is the only gap between one step and the next in All steps view —
+// steps are siblings of each other, not of the label, so the step's own
+// `gap` never applies there. Below the label that `gap` does apply, and adding
+// a margin as well would double the space.
+.wp-block-jetpack-form-step > .jetpack-form-step__break {
+	margin-block-start: var(--wp--style--block-gap, 1.5rem);
 }
