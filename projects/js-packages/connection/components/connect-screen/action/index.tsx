@@ -43,6 +43,17 @@ export const getConnectScreenErrorMessage = (
 			);
 		case 'connection_disabled':
 			return __( 'This site has been suspended.', 'jetpack-connection-js' );
+		case 'register_http_request_failed':
+			return __(
+				'Your site could not reach WordPress.com. This is usually temporary — try again in a minute. If it keeps happening, ask your hosting provider to allow connections to jetpack.wordpress.com.',
+				'jetpack-connection-js'
+			);
+		case 'wpcom_408':
+		case 'wpcom_5??':
+			return __(
+				'WordPress.com is temporarily unavailable. Please try again in a minute.',
+				'jetpack-connection-js'
+			);
 	}
 
 	if ( isOfflineMode ) {
