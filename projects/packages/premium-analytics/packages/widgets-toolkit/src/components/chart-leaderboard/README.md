@@ -175,12 +175,7 @@ fallback, and default alt-text policy:
 | `icon`      | 20 × 20px | No image; takes a glyph          |
 | `none`      | No media  | Renders text only                |
 
-`icon` takes a `@wordpress/icons` glyph rather than a URL, for rows whose media is a symbol
-instead of a picture:
-
-```tsx
-media: { kind: 'icon', icon: category },
-```
+`icon` takes a `@wordpress/icons` glyph rather than a URL: `media: { kind: 'icon', icon: category }`.
 
 Use `resolveLeaderboardRowAction` when raw data can contain both an external URL and children.
 It applies the shared precedence: drill-down for rows with children, external links for

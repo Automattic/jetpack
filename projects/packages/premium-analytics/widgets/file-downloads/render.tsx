@@ -18,9 +18,9 @@ import {
 	getCombinedPeriodMax,
 	safeHttpUrl,
 	LeaderboardChart,
-	LeaderboardRow,
 	LeaderboardSkeleton,
 	ReportLink,
+	buildLeaderboardRow,
 	resolveLeaderboardRowAction,
 	sharePercentage,
 	WidgetFooter,
@@ -78,13 +78,11 @@ function buildLeaderboardData(
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
-			label: (
-				<LeaderboardRow
-					label={ row.label }
-					media={ { kind: 'none' } }
-					action={ resolveLeaderboardRowAction( { href: row.href, hasChildren: false } ) }
-				/>
-			),
+			...buildLeaderboardRow( {
+				label: row.label,
+				media: { kind: 'none' },
+				action: resolveLeaderboardRowAction( { href: row.href, hasChildren: false } ),
+			} ),
 			currentValue: row.value,
 			currentShare: sharePercentage( row.value, maxValue ),
 			previousValue,
