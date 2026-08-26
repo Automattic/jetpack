@@ -7,6 +7,7 @@ All things forms. This package currently contains the implementation for Jetpack
 ```
 .
 ├── src/
+│   ├── abilities/                                   - WordPress Abilities API registration for forms.
 │   ├── blocks/                                      - Form blocks.
 │   ├── contact-form/                                - Contact form module implementation.
 │   ├── dashboard/                                   - Implementation for the new forms dashboard.

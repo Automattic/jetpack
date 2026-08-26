@@ -16,6 +16,12 @@ The feedback system handles form submission data storage and retrieval:
 
 - **[Feedback_Source](feedback-source.md)** ([Class Reference](feedback-source-class.md)) - Tracks the source context of a form submission (post, page, widget, or block template). Provides permalinks and edit URLs based on submission origin.
 
+### Abilities System
+
+Registers Jetpack Forms abilities with the WordPress Abilities API:
+
+- **[Forms_Abilities](abilities.md)** - Registers form and response management abilities (list, get, create, delete forms; get, update, and bulk-update responses; get status counts) under the `jetpack-forms` category. Ability callbacks delegate to the existing REST endpoints via `rest_do_request()` so they inherit endpoint validation, sanitization, and hooks.
+
 ### Form System
 
 Classes that handle form rendering and processing:
