@@ -305,7 +305,7 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 							'Your feature settings are saved and will apply again when AI is turned back on.',
 							'jetpack'
 						) }{ ' ' }
-						<Link href="admin.php?page=my-jetpack">
+						<Link href="admin.php?page=my-jetpack#/products">
 							{ __( 'Manage in My Jetpack', 'jetpack' ) }
 						</Link>
 					</Notice.Description>

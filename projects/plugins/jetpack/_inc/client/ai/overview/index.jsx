@@ -64,10 +64,6 @@ const DOC_LINKS = [
 	{
 		slug: 'jetpack-ai-hub-overview-docs-agent-setup',
 		title: __( 'Setting up agentic workflows', 'jetpack' ),
-		// The guide covers WordPress.com plans and settings screens, so it has
-		// nothing to tell a site hosted elsewhere. Drop this once the Jetpack
-		// version of the page exists.
-		wpcomOnly: true,
 	},
 	{ slug: 'jetpack-ai-hub-overview-docs-billing', title: __( 'Billing & plans', 'jetpack' ) },
 	{
@@ -256,8 +252,6 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
  * @param {string}  [props.planName]        - Purchase name granting AI, from the page data.
  * @param {string}  [props.planRenewsOn]    - The purchase's renewal date, from the page data.
  * @param {boolean} [props.planAutoRenew]   - Whether that purchase auto-renews, from the page data.
- * @param {boolean} [props.isWpcomHosted]   - Whether the site is hosted on WordPress.com;
- *                                          the video row links to WP.com courses and hides elsewhere.
  * @param {boolean} [props.showActivityLog] - Whether the activity-log row applies: the row's
  *                                          copy promises AI-agent actions, which need MCP.
  * @param {boolean} [props.hostAllowsAi]    - The host's AI switch; when explicitly false, no
@@ -273,7 +267,6 @@ export default function AiOverview( {
 	planName,
 	planRenewsOn,
 	planAutoRenew,
-	isWpcomHosted,
 	showActivityLog,
 	hostAllowsAi,
 	isUserConnected,
@@ -353,62 +346,54 @@ export default function AiOverview( {
 				</Card.Root>
 			) }
 
-			{ isWpcomHosted && (
-				<div className="jetpack-ai-overview__videos">
-					<Text render={ <h2 /> } variant="heading-lg">
-						{ __( 'Walkthrough videos', 'jetpack' ) }
-					</Text>
-					<div className="jetpack-ai-overview__video-grid">
-						{ WALKTHROUGH_VIDEOS.map( ( { slug, title, duration, thumbnail } ) => (
-							<a
-								className="jetpack-ai-overview__video"
-								href={ getRedirectUrl( slug ) }
-								key={ slug }
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								{ /* Decorative: the card's title carries the meaning. */ }
-								<img
-									className="jetpack-ai-overview__video-thumb"
-									src={ thumbnail }
-									alt=""
-									width="644"
-									height="348"
-									loading="lazy"
-								/>
-								<span className="jetpack-ai-overview__video-meta">
-									<Text render={ <span /> } variant="heading-md">
-										{ title }
-									</Text>
-									<Text
-										render={ <span /> }
-										variant="body-md"
-										className="jetpack-ai-overview__muted"
-									>
-										{ duration }
-									</Text>
-								</span>
-								{ /* The design leaves the cards unmarked, so announce the
+			<div className="jetpack-ai-overview__videos">
+				<Text render={ <h2 /> } variant="heading-lg">
+					{ __( 'Walkthrough videos', 'jetpack' ) }
+				</Text>
+				<div className="jetpack-ai-overview__video-grid">
+					{ WALKTHROUGH_VIDEOS.map( ( { slug, title, duration, thumbnail } ) => (
+						<a
+							className="jetpack-ai-overview__video"
+							href={ getRedirectUrl( slug ) }
+							key={ slug }
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{ /* Decorative: the card's title carries the meaning. */ }
+							<img
+								className="jetpack-ai-overview__video-thumb"
+								src={ thumbnail }
+								alt=""
+								width="644"
+								height="348"
+								loading="lazy"
+							/>
+							<span className="jetpack-ai-overview__video-meta">
+								<Text render={ <span /> } variant="heading-md">
+									{ title }
+								</Text>
+								<Text render={ <span /> } variant="body-md" className="jetpack-ai-overview__muted">
+									{ duration }
+								</Text>
+							</span>
+							{ /* The design leaves the cards unmarked, so announce the
 							     new tab the way ExternalLink does, minus its arrow. */ }
-								<VisuallyHidden>{ __( '(opens in a new tab)', 'jetpack' ) }</VisuallyHidden>
-							</a>
-						) ) }
-					</div>
+							<VisuallyHidden>{ __( '(opens in a new tab)', 'jetpack' ) }</VisuallyHidden>
+						</a>
+					) ) }
 				</div>
-			) }
+			</div>
 
 			<div className="jetpack-ai-overview__docs">
 				<Text render={ <h2 /> } variant="heading-lg">
 					{ __( 'Documentation', 'jetpack' ) }
 				</Text>
 				<Stack direction="column" gap="sm" align="flex-start">
-					{ DOC_LINKS.filter( ( { wpcomOnly } ) => isWpcomHosted || ! wpcomOnly ).map(
-						( { slug, title } ) => (
-							<ExternalLink key={ slug } href={ getRedirectUrl( slug ) }>
-								{ title }
-							</ExternalLink>
-						)
-					) }
+					{ DOC_LINKS.map( ( { slug, title } ) => (
+						<ExternalLink key={ slug } href={ getRedirectUrl( slug ) }>
+							{ title }
+						</ExternalLink>
+					) ) }
 				</Stack>
 			</div>
 		</Stack>
