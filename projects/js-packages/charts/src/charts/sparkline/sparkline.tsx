@@ -1,6 +1,6 @@
 import clsx from 'clsx';
-import { useMemo, forwardRef } from 'react';
-import { useGlobalChartsTheme } from '../../providers';
+import { useContext, useMemo, forwardRef } from 'react';
+import { GlobalChartsContext, useGlobalChartsTheme } from '../../providers';
 import { LineChartUnresponsive } from '../line-chart';
 import { withResponsive } from '../private/with-responsive';
 import styles from './sparkline.module.scss';
@@ -60,6 +60,9 @@ const SparklineComponent = forwardRef< HTMLDivElement, SparklineProps >(
 		ref
 	) => {
 		const theme = useGlobalChartsTheme();
+		// Read through the context rather than `useGlobalChartsContext()`, which throws: Sparkline
+		// renders standalone too, and only the LineChart it delegates to supplies a provider.
+		const chartsContext = useContext( GlobalChartsContext );
 
 		// Get theme defaults for sparkline
 		const themeStrokeWidth = theme.sparkline?.strokeWidth ?? 1.5;
@@ -127,7 +130,10 @@ const SparklineComponent = forwardRef< HTMLDivElement, SparklineProps >(
 		if ( data.length === 1 ) {
 			const cx = width / 2;
 			const cy = height / 2;
-			const resolvedColor = color || '#000000';
+			// The multi-point path lets LineChart resolve the palette; a lone circle has to ask for
+			// the same slot itself, or omitting `color` paints black instead of the series colour.
+			const resolvedColor =
+				color || chartsContext?.getElementStyles( { index: 0 } ).color || '#000000';
 
 			return (
 				<div

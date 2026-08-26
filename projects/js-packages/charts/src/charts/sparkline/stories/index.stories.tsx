@@ -4,6 +4,7 @@ import {
 	chartStoryGlobals,
 	type ChartStoryArgs,
 } from '../../../stories/chart-decorator';
+import { themeArgTypes } from '../../../stories/theme-config';
 import type { Meta, StoryObj } from '@storybook/react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof Sparkline > >;
@@ -67,6 +68,7 @@ const meta: Meta< StoryArgs > = {
 			description: 'Enable entry animation on initial render',
 			table: { category: 'Visual Style' },
 		},
+		...themeArgTypes,
 	},
 };
 
@@ -80,13 +82,15 @@ const defaultData = [ 10, 15, 12, 18, 22, 25, 23, 28 ];
 /**
  * Basic sparkline with all controls available for customization.
  * Use the controls panel to experiment with colors, gradients, dimensions, and data.
+ *
+ * No `color` is set, so the line takes the first series palette color
+ * (`--a8c-charts-color-series-1`) and follows the admin color scheme with it.
  */
 export const Default: Story = {
 	args: {
 		data: defaultData,
 		width: 120,
 		height: 48,
-		color: '#4CAF50',
 		containerHeight: '100px',
 	},
 };
