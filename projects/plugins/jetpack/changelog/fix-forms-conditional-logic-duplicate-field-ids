@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Fix a second field with a duplicate name/ID being unselectable in the conditional logic rules dialog.

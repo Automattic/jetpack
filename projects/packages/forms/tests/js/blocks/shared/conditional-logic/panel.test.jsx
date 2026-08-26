@@ -55,7 +55,11 @@ const SUBJECT_FIELDS = [
 	},
 ];
 
+// Swapped per test by the duplicate-id cases; reset to SUBJECT_FIELDS before each.
+let subjectFields = SUBJECT_FIELDS;
+
 const mockToggleBlockHighlight = jest.fn();
+const mockUpdateBlockAttributes = jest.fn();
 
 // InspectorControls is a slot fill, and a fill renders its children only while a matching
 // slot is mounted -- which, for the block inspector, means only while the settings sidebar is
@@ -79,7 +83,10 @@ const actualData = await import( '@wordpress/data' );
 
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	...actualData,
-	useDispatch: () => ( { toggleBlockHighlight: mockToggleBlockHighlight } ),
+	useDispatch: () => ( {
+		toggleBlockHighlight: mockToggleBlockHighlight,
+		updateBlockAttributes: mockUpdateBlockAttributes,
+	} ),
 } ) );
 
 const mockEnsureFieldId = jest.fn( ( field, usedIds = [] ) => {
@@ -95,7 +102,7 @@ await jest.unstable_mockModule(
 	'../../../../../src/blocks/shared/conditional-logic/hooks/use-subject-fields.js',
 	() => ( {
 		__esModule: true,
-		default: () => SUBJECT_FIELDS,
+		default: () => subjectFields,
 		useEnsureFieldId: () => mockEnsureFieldId,
 	} )
 );
@@ -176,6 +183,8 @@ const optionValues = select =>
 describe( 'ConditionalLogicPanel', () => {
 	beforeEach( () => {
 		isSidebarOpen = true;
+		subjectFields = SUBJECT_FIELDS;
+		mockUpdateBlockAttributes.mockClear();
 	} );
 
 	it( 'renders the panel title', async () => {
@@ -337,6 +346,72 @@ describe( 'ConditionalLogicPanel', () => {
 		);
 
 		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
+	} );
+
+	// Two fields can share an id: ids survive copy, paste and duplicate, and the Name
+	// field's inserter variations ship fixed ones. The dropdown keys its options by id, so a
+	// duplicate leaves the second field unselectable -- the browser resolves an option by
+	// value and picks the first match.
+	describe( 'duplicate subject field ids', () => {
+		const DUPLICATES = [
+			{
+				clientId: 'c-first-a',
+				id: 'first-name',
+				label: 'First name',
+				typeLabel: 'Name field',
+				typeKey: 'string',
+				options: [],
+				step: null,
+			},
+			{
+				clientId: 'c-first-b',
+				id: 'first-name',
+				label: 'First name',
+				typeLabel: 'Name field',
+				typeKey: 'string',
+				options: [],
+				step: null,
+			},
+		];
+
+		// The narrow trigger the repair is built around: opening the builder, never merely
+		// rendering the panel. Rewriting ids as a form loads would touch posts nobody is
+		// editing.
+		it( 'leaves ids alone while the dialog is closed', async () => {
+			subjectFields = DUPLICATES;
+
+			await setup( DEFAULT_ATTRIBUTE, { openModal: false } );
+
+			expect( mockUpdateBlockAttributes ).not.toHaveBeenCalled();
+		} );
+
+		it( 'renames the later duplicate once the dialog is opened', async () => {
+			subjectFields = DUPLICATES;
+
+			await setup( DEFAULT_ATTRIBUTE );
+
+			expect( mockUpdateBlockAttributes ).toHaveBeenCalledWith( 'c-first-b', {
+				id: 'first-name-2',
+			} );
+		} );
+
+		// The field owning the panel is excluded from the subject list, so its id is the one
+		// collision that list cannot see.
+		it( 'does not rename onto the id of the field owning the panel', async () => {
+			subjectFields = DUPLICATES;
+
+			await setup( DEFAULT_ATTRIBUTE, { ownFieldId: 'first-name-2' } );
+
+			expect( mockUpdateBlockAttributes ).toHaveBeenCalledWith( 'c-first-b', {
+				id: 'first-name-3',
+			} );
+		} );
+
+		it( 'writes no ids when the subjects are already distinct', async () => {
+			await setup( DEFAULT_ATTRIBUTE );
+
+			expect( mockUpdateBlockAttributes ).not.toHaveBeenCalled();
+		} );
 	} );
 
 	it( 'invites the author in when there are no conditions yet', async () => {
