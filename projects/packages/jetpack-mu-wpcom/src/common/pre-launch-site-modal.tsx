@@ -1,7 +1,7 @@
 import PreLaunchModal from '@automattic/site-launch-modals/pre-launch-modal';
 import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
-import { wpcomTrackEvent } from '../../../common/tracks';
+import { wpcomTrackEvent } from './tracks';
 import type { CSSProperties } from 'react';
 
 import './pre-launch-site-modal.scss';
@@ -24,10 +24,11 @@ interface Props {
 }
 
 /**
- * The Reading-settings wrapper around the shared pre-launch modal. Every value
- * the modal needs is already localized on the page, so — unlike Calypso — this
- * wrapper fetches nothing. On confirm it hands off to the same
- * `/start/launch-site` URL the button used before.
+ * A wrapper around the shared pre-launch modal used by the site-launch entry
+ * points (Reading settings, the admin-bar button). Every value the modal needs
+ * is already localized on the page, so — unlike Calypso — this wrapper fetches
+ * nothing. On confirm it hands off to the same `/start/launch-site` URL the
+ * entry point would have redirected to.
  *
  * @param  props            - Component props.
  * @param  props.siteName   - The site title shown in the modal.

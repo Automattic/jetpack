@@ -1,6 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import { useState } from 'react';
 import { useSiteLaunchGatingVariant } from '../../common/hooks';
+import PreLaunchSiteModal from '../../common/pre-launch-site-modal';
 import { wpcomTrackEvent } from '../../common/tracks';
 
 const icon = (
@@ -29,6 +31,11 @@ const launchButtonData = typeof window === 'object' ? window.JETPACK_LAUNCH_BUTT
  */
 export function LaunchButton() {
 	const [ , variant ] = useSiteLaunchGatingVariant();
+	const [ showPreLaunchModal, setShowPreLaunchModal ] = useState( false );
+
+	// Sites on a paid plan with a custom domain skip Calypso's domain and plan
+	// steps, so we confirm with the pre-launch modal before handing off.
+	const qualifiesForPreLaunch = !! launchButtonData.sitePlan && launchButtonData.hasCustomDomain;
 
 	// Site launch gating: 'semi_gated_site_launch' is the shipped default. The other
 	// branches are scaffolding for future experiments; see useSiteLaunchGatingVariant.
@@ -43,14 +50,37 @@ export function LaunchButton() {
 			} );
 
 			return (
-				<a
-					className="ab-item"
-					role="menuitem"
-					href={ launchUrl }
-					onClick={ () => wpcomTrackEvent( 'wpcom_adminbar_launch_site' ) }
-				>
-					<Content />
-				</a>
+				<>
+					<a
+						className="ab-item"
+						role="menuitem"
+						href={ launchUrl }
+						onClick={ event => {
+							wpcomTrackEvent( 'wpcom_adminbar_launch_site' );
+							// Qualifying sites confirm via the pre-launch modal; everyone
+							// else follows the link, preserving today's behavior.
+							if ( qualifiesForPreLaunch ) {
+								event.preventDefault();
+								wpcomTrackEvent( 'wpcom_launch_site_pre_launch_modal_shown' );
+								setShowPreLaunchModal( true );
+							}
+						} }
+					>
+						<Content />
+					</a>
+					{ showPreLaunchModal && (
+						<PreLaunchSiteModal
+							siteName={ launchButtonData.siteName }
+							siteDomain={ launchButtonData.siteDomain }
+							homeUrl={ launchButtonData.siteUrl }
+							planName={
+								launchButtonData.sitePlan?.product_name || __( 'Paid plan', 'jetpack-mu-wpcom' )
+							}
+							launchUrl={ launchUrl }
+							onClose={ () => setShowPreLaunchModal( false ) }
+						/>
+					) }
+				</>
 			);
 		}
 	}

@@ -2,9 +2,9 @@ import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
 import { useSiteLaunchGatingVariant } from '../../../common/hooks';
+import PreLaunchSiteModal from '../../../common/pre-launch-site-modal';
 import { wpcomTrackEvent } from '../../../common/tracks';
 import SitePreviewLink from '../site-preview-link';
-import PreLaunchSiteModal from './pre-launch-site-modal';
 import type { SitePreviewLinkObject } from '../site-preview-link';
 
 interface Props {
