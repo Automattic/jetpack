@@ -50,7 +50,8 @@ export function builder( yargs ) {
 		} )
 		.option( 'concurrency', {
 			type: 'number',
-			description: 'Maximum number of install tasks to run at once. Ignored with `--verbose`.',
+			description:
+				'Maximum number of install tasks to run at once. Ignored with `--verbose`, which runs one task at a time so `pnpm` and `composer` can prompt.',
 			default: 20,
 			coerce: coerceConcurrency,
 		} );
@@ -83,19 +84,23 @@ export async function handler( argv ) {
 	}
 
 	/*
+	 * Verbose mode decides three things at once, and they have to stay in step.
+	 *
 	 * `pnpm` and `composer` both prompt on occasion: pnpm asks before purging a
 	 * `node_modules` that no longer matches the current config, composer asks
-	 * before running third-party plugins. Give them stdin under `--verbose`,
-	 * where Listr runs one task at a time through a plain line-based renderer,
-	 * so a prompt is legible and only one child can own the terminal.
+	 * before running third-party plugins. Handing a child stdin is only safe
+	 * when exactly one of them can own the terminal and the renderer is not
+	 * redrawing over it, which is what `concurrent: false` plus the line-based
+	 * VerboseRenderer give us.
 	 *
-	 * The default renderer redraws over the terminal and runs up to
-	 * `--concurrency` tasks at once, so a prompt there would be overwritten and
-	 * would race its siblings for keystrokes. Keep stdin closed there and buffer
-	 * the output instead, so a failure can at least say what went wrong. Both
-	 * streams are captured because pnpm reports errors on stdout.
+	 * Otherwise stdin stays closed, since a prompt would be painted over by the
+	 * update renderer and would race up to `--concurrency` siblings for
+	 * keystrokes. Capture the child's output there instead so a failure can say
+	 * what went wrong; both streams are captured because pnpm reports errors on
+	 * stdout.
 	 */
-	const stdio = argv.v ? [ 'inherit', 'inherit', 'inherit' ] : [ 'ignore', 'pipe', 'pipe' ];
+	const verbose = !! argv.v;
+	const stdio = verbose ? [ 'inherit', 'inherit', 'inherit' ] : [ 'ignore', 'pipe', 'pipe' ];
 	const tasks = [];
 	let didPnpm = false;
 
@@ -135,22 +140,23 @@ export async function handler( argv ) {
 	}
 
 	const listr = new Listr( tasks, {
-		concurrent: argv.v ? false : argv.concurrency,
-		renderer: argv.v ? VerboseRenderer : UpdateRenderer,
+		concurrent: verbose ? false : argv.concurrency,
+		renderer: verbose ? VerboseRenderer : UpdateRenderer,
 	} );
 	await listr.run().catch( err => {
-		console.error( err );
-		if ( ! argv.v ) {
-			const output = [ err.stdout, err.stderr ]
-				.filter( s => typeof s === 'string' && s.trim() !== '' )
-				.join( '\n' )
-				.trim();
-			if ( output ) {
-				console.error( chalk.red( `\nOutput from the failed command:\n${ output }` ) );
-			}
+		if ( verbose ) {
+			console.error( err );
+		} else {
+			/*
+			 * Listr has already printed `err.message`, and execa folds a captured
+			 * child's output into that message, so the command has had its say.
+			 * Printing the error object again here would only repeat it.
+			 */
 			console.error(
 				chalk.yellow(
-					'\nYou might try running with `-v` to get more information on the failure. Some failures are really unanswered prompts (for example, `pnpm` asking to confirm removal of `node_modules`), and `-v` is what lets you answer them.'
+					'\nRun again with `-v` for the full error, and to answer any prompt the command is waiting on.\n' +
+						'With no terminal to prompt on (CI, a script, an agent), `pnpm` refuses to remove `node_modules` on its own; ' +
+						'`jetpack pnpm install --config.confirm-modules-purge=false` tells it to go ahead.'
 				)
 			);
 		}
