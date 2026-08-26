@@ -150,13 +150,17 @@ describe( 'Share popups', () => {
 		expect( telegramCall[ 2 ] ).toBe( 'menubar=1,resizable=1,width=450,height=450' );
 	} );
 
-	it( 'survives a blocked popup instead of throwing on the next click', () => {
+	it( 'retries after a blocked popup instead of dying on the next click', () => {
+		// window.open returns null when the popup is blocked. The next click has to reach
+		// window.open again rather than tripping over the stored handle.
 		openSpy.mockImplementation( () => null );
 		const link = addShareButton( 'x' );
 
-		click( link );
+		const first = click( link );
+		const second = click( link );
 
-		expect( () => click( link ) ).not.toThrow();
+		expect( first.defaultPrevented ).toBe( true );
+		expect( second.defaultPrevented ).toBe( true );
 		expect( openSpy ).toHaveBeenCalledTimes( 2 );
 	} );
 

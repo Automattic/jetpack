@@ -613,6 +613,7 @@
 			}
 		);
 	}
+
 	// ---------------------------- SHARE POPUPS ---------------------------- //
 
 	// Services that open their share link in a popup publish the window features
@@ -713,7 +714,7 @@
 	// should fail where it already failed, after `init()` has registered, rather than
 	// take the rest of the file down with it.
 	if ( window.WPCOM_sharing_popups_bound !== true ) {
-		window.WPCOM_sharing_popups_bound = true;
 		document.body.addEventListener( 'click', openSharePopup );
+		window.WPCOM_sharing_popups_bound = true;
 	}
 } )();

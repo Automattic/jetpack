@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Sharing: reduce the inline JavaScript on posts with sharing buttons by opening every share popup from one shared click handler.
+Sharing: Reduce the inline JavaScript on posts with sharing buttons by opening every share popup from one shared click handler.
