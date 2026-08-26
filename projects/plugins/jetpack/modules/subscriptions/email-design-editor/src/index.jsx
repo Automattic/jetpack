@@ -139,7 +139,19 @@ export function buildEditorConfig( bundle, data ) {
 		theme: bundle.editor_theme,
 		urls,
 		userEmail,
-		globalStylesPostId: globalStylesPostId ?? null,
+
+		// A gate rather than a data source: the record it names is an empty scaffold, and the
+		// design itself arrives already merged into `editor_theme`. Measured on WordPress.com,
+		// leaving it null makes the package generate no canvas CSS at all — not the saved
+		// design, not stock values, no `:root{--wp--preset--…}` block — while naming any valid
+		// record paints the whole theme. Nothing here reads the record's contents.
+		//
+		// Taken from the bundle first for the reason the template's id is: it is a
+		// WordPress.com post id, so a page working it out locally is right on Simple, where the
+		// site and the shadow blog are the same, and wrong on Atomic and self-hosted. The page
+		// remains a fallback so this degrades to the previous behaviour against a bundle that
+		// does not carry one yet. See NL-871.
+		globalStylesPostId: bundle.global_styles_post_id ?? globalStylesPostId ?? null,
 	};
 }
 
