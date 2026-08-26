@@ -476,21 +476,24 @@ class Admin_Menu {
 	 * @return array
 	 */
 	public static function get_customization_model( $user_id = 0 ) {
-		$site_layout = self::get_site_menu_layout();
-		$user_layout = self::get_user_menu_layout( $user_id );
-		$items       = self::get_registered_menu_items();
+		$site_layout        = self::get_site_menu_layout();
+		$user_layout        = self::get_user_menu_layout( $user_id );
+		$has_personal_layout = self::has_user_menu_layout( $user_id );
+		$items              = self::get_registered_menu_items();
 
 		if ( empty( $items ) ) {
 			$items = self::get_recommended_menu_catalog_items();
 		}
 
 		return array(
-			'featureEnabled' => self::is_customization_feature_enabled(),
-			'active'         => self::is_customization_active(),
-			'siteLayout'     => $site_layout,
-			'userLayout'     => $user_layout,
-			'groups'         => array_values( $site_layout['groups'] ),
-			'items'          => self::get_customization_model_items( $items, $site_layout, $user_layout ),
+			'featureEnabled'    => self::is_customization_feature_enabled(),
+			'active'            => self::is_customization_active(),
+			'hasPersonalLayout' => $has_personal_layout,
+			'siteLayout'        => $site_layout,
+			'userLayout'        => $user_layout,
+			'groups'            => array_values( $site_layout['groups'] ),
+			'separators'        => $has_personal_layout ? $user_layout['separators'] : $site_layout['separators'],
+			'items'             => self::get_customization_model_items( $items, $site_layout, $user_layout ),
 		);
 	}
 
@@ -1225,6 +1228,7 @@ class Admin_Menu {
 				'group'        => $item_prefs['group'],
 				'groupLabel'   => $group['label'],
 				'order'        => $item_prefs['order'],
+				'hasSavedOrder' => $item_prefs['has_saved_order'],
 				'customizable' => (bool) $metadata['customizable'],
 				'hidden'       => ! empty( $item_prefs['hidden'] ),
 				'external'     => (bool) $metadata['external'],
@@ -1233,23 +1237,48 @@ class Admin_Menu {
 
 		usort(
 			$model_items,
-			function ( $a, $b ) use ( $site_layout ) {
-				$result = self::compare_settings_menu_item_position( $a, $b );
-				if ( 0 !== $result ) {
-					return $result;
+			function ( $a, $b ) {
+				$rank = function ( $item ) {
+					if ( 'my-jetpack' === $item['id'] ) {
+						return 0;
+					}
+					if ( 'settings' === $item['id'] ) {
+						return 2;
+					}
+					if ( $item['external'] ) {
+						return 3;
+					}
+
+					return 1;
+				};
+				$rank_a = $rank( $a );
+				$rank_b = $rank( $b );
+				if ( $rank_a !== $rank_b ) {
+					return $rank_a <=> $rank_b;
 				}
 
-				$group_a = self::get_group_for_layout( $a['group'], $site_layout );
-				$group_b = self::get_group_for_layout( $b['group'], $site_layout );
-				$result  = $group_a['order'] <=> $group_b['order'];
-				if ( 0 === $result ) {
-					$result = $a['order'] <=> $b['order'];
-				}
-				if ( 0 === $result ) {
-					$result = strcmp( $a['label'], $b['label'] );
+				if ( 1 === $rank_a ) {
+					if ( $a['hasSavedOrder'] && $b['hasSavedOrder'] ) {
+						$result = $a['order'] <=> $b['order'];
+						if ( 0 !== $result ) {
+							return $result;
+						}
+					} elseif ( $a['hasSavedOrder'] !== $b['hasSavedOrder'] ) {
+						return $a['hasSavedOrder'] ? -1 : 1;
+					}
 				}
 
-				return $result;
+				if ( 3 === $rank_a ) {
+					$a_is_manage = 'jetpack-manage' === $a['id'];
+					$b_is_manage = 'jetpack-manage' === $b['id'];
+					if ( $a_is_manage !== $b_is_manage ) {
+						return $a_is_manage ? -1 : 1;
+					}
+
+					return $a['order'] <=> $b['order'];
+				}
+
+				return strcasecmp( $a['label'], $b['label'] );
 			}
 		);
 

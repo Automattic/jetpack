@@ -162,11 +162,16 @@ class Admin_Menu_Customization_Rest_Test extends TestCase {
 			array(
 				'scope'  => 'site',
 				'layout' => array(
-					'enabled' => true,
-					'groups'  => array(
-						'create' => array(
-							'label' => 'Make',
+					'enabled'    => true,
+					'items'      => array(
+						'scan' => array(
 							'order' => 20,
+						),
+					),
+					'separators' => array(
+						'security' => array(
+							'title' => 'Security',
+							'order' => 10,
 						),
 					),
 				),
@@ -178,7 +183,48 @@ class Admin_Menu_Customization_Rest_Test extends TestCase {
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertTrue( $data['siteLayout']['enabled'] );
-		$this->assertSame( 'Make', $data['siteLayout']['groups']['create']['label'] );
+		$this->assertSame( 'Security', $data['siteLayout']['separators']['security']['title'] );
+		$this->assertSame( 'Security', $data['separators']['security']['title'] );
+	}
+
+	/**
+	 * Saving a personal layout activates it without changing the site default.
+	 *
+	 * @return void
+	 */
+	public function test_user_layout_activates_personal_menu() {
+		wp_set_current_user( self::$admin_user_id );
+
+		$request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/admin-menu' );
+		$request->set_body_params(
+			array(
+				'scope'  => 'user',
+				'layout' => array(
+					'items'      => array(
+						'scan' => array(
+							'hidden' => true,
+							'order'  => 20,
+						),
+					),
+					'separators' => array(
+						'tools' => array(
+							'title' => 'Tools',
+							'order' => 10,
+						),
+					),
+				),
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertTrue( $data['active'] );
+		$this->assertTrue( $data['hasPersonalLayout'] );
+		$this->assertFalse( $data['siteLayout']['enabled'] );
+		$this->assertSame( 'Tools', $data['userLayout']['separators']['tools']['title'] );
+		$this->assertSame( 'Tools', $data['separators']['tools']['title'] );
 	}
 
 	/**
