@@ -72,9 +72,15 @@
 	gap: var(--wpds-dimension-gap-xs);
 }
 
+/* The design system renders the external-link arrow as a sibling of the
+   label, so the colour has to go on the anchor to reach it. */
+.rowLink:hover,
+.rowLink:focus {
+	color: var(--wpds-color-foreground-interactive-brand);
+}
+
 .rowLink:hover .label,
 .rowLink:focus .label {
-	color: var(--wpds-color-foreground-interactive-brand);
 	text-decoration: underline;
 }
 

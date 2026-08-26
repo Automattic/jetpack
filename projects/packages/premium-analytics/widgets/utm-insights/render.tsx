@@ -140,7 +140,9 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 					/>
 				) : (
 					<span className={ styles.itemLabel }>
-						<Text className={ styles.itemLabelText }>{ item.label }</Text>
+						<Text className={ styles.itemLabelText } variant="body-sm">
+							{ item.label }
+						</Text>
 					</span>
 				),
 				currentValue: item.value,
