@@ -82,6 +82,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	 * Reset the options and filters this test touches.
 	 */
 	public function tear_down() {
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		delete_option( Jetpack_AI_Settings::MASTER_OPTION );
 		foreach ( Jetpack_AI_Settings::FEATURE_OPTIONS as $option ) {
 			delete_option( $option );
@@ -195,12 +196,12 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	}
 
 	/**
-	 * Read `features.seo_enhancer.available` off a fresh GET.
+	 * Read `features.seo.available` off a fresh GET.
 	 *
 	 * @return bool
 	 */
-	private function get_seo_enhancer_available() {
-		return $this->dispatch( 'GET' )->get_data()['features']['seo_enhancer']['available'];
+	private function get_seo_available() {
+		return $this->dispatch( 'GET' )->get_data()['features']['ai_seo']['available'];
 	}
 
 	/**
@@ -208,16 +209,14 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	 * satisfied the row is available.
 	 *
 	 * Positive-entitlement is asserted on the self-hosted flavor only. On
-	 * WordPress.com Atomic (wpcomsh) `ai-seo-enhancer` is a registered wpcom
+	 * WordPress.com Atomic (wpcomsh) `advanced-seo` is a registered wpcom
 	 * feature, so Current_Plan::supports() resolves it through the real
 	 * wpcom_site_has_feature() purchase lookup rather than the
 	 * `jetpack_active_plan` filter set here; forcing a matching purchase would
-	 * couple this test to wpcomsh's purchase schema. The three unavailable
-	 * cases below still run on both flavors, and the unentitled path — the one
-	 * a self-hosted site without the feature actually hits — is covered by
-	 * test_seo_enhancer_unavailable_when_plan_lacks_feature everywhere.
+	 * couple this test to wpcomsh's purchase schema. The two unavailable cases
+	 * below still run on both flavors.
 	 */
-	public function test_seo_enhancer_available_when_all_inputs_true() {
+	public function test_seo_row_available_when_all_inputs_true() {
 		if ( getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
 			$this->markTestSkipped( 'Entitlement resolves through the wpcom purchase gate on Atomic; the positive case is covered on the self-hosted flavor.' );
 		}
@@ -228,20 +227,20 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		self::set_seo_tools_active( true );   // 2.
 		self::set_plan( 'jetpack_business' ); // 3.
 
-		$this->assertTrue( $this->get_seo_enhancer_available() );
+		$this->assertTrue( $this->get_seo_available() );
 	}
 
 	/**
 	 * Input 1 falsified alone: the `ai_seo_enhancer_enabled` kill switch is off.
 	 */
-	public function test_seo_enhancer_unavailable_when_filter_off() {
+	public function test_seo_row_unavailable_when_filter_off() {
 		wp_set_current_user( self::$admin_id );
 
 		self::set_seo_tools_active( true );
 		self::set_plan( 'jetpack_business' );
 		add_filter( 'ai_seo_enhancer_enabled', '__return_false' );
 
-		$this->assertFalse( $this->get_seo_enhancer_available() );
+		$this->assertFalse( $this->get_seo_available() );
 	}
 
 	/**
@@ -253,28 +252,28 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	 * therefore covers the self-hosted and Atomic paths only; it is not a claim
 	 * about Simple.
 	 */
-	public function test_seo_enhancer_unavailable_when_module_inactive() {
+	public function test_seo_row_unavailable_when_module_inactive() {
 		wp_set_current_user( self::$admin_id );
 
 		self::set_seo_tools_active( false );
 		self::set_plan( 'jetpack_business' );
 
-		$this->assertFalse( $this->get_seo_enhancer_available() );
+		$this->assertFalse( $this->get_seo_available() );
 	}
 
 	/**
-	 * Input 3 falsified alone: the plan does not grant `ai-seo-enhancer`.
-	 *
-	 * This is the branch a free site lands on, and the one that hides the row
-	 * on an unentitled site with SEO tools switched on.
+	 * Input 3 on a free plan: the row follows `advanced-seo`, which sits in the
+	 * free plan's supports list, so it is offered wherever SEO tools run. The
+	 * row governs user-initiated suggestions as well as automatic generation,
+	 * and only the automatic half needs the higher `ai-seo-enhancer` tier.
 	 */
-	public function test_seo_enhancer_unavailable_when_plan_lacks_feature() {
+	public function test_seo_row_available_on_a_free_plan() {
 		wp_set_current_user( self::$admin_id );
 
 		self::set_seo_tools_active( true );
 		self::set_plan( 'jetpack_free' );
 
-		$this->assertFalse( $this->get_seo_enhancer_available() );
+		$this->assertTrue( $this->get_seo_available() );
 	}
 
 	/**
@@ -317,6 +316,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		wp_set_current_user( self::$admin_id );
 		self::connect_owner();
 
+		// Master enforcement only runs on internal testing environments.
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
 		// Off-Simple the master is the `ai` module; turn it off.
 		self::set_ai_module_active( false );
 
@@ -332,6 +334,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		wp_set_current_user( self::$admin_id );
 		self::connect_owner();
 		self::set_ai_module_active( true );
+
+		// The owned toggles only apply on internal testing environments.
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 
 		update_option( Jetpack_AI_Settings::FEATURE_OPTIONS['image_editor'], false );
 
@@ -431,7 +436,10 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		$this->assertArrayNotHasKey( 'sub', $features['image_editor'] );
 		$this->assertArrayNotHasKey( 'image_label', $features );
 		$this->assertArrayNotHasKey( 'excerpt', $features );
-		$this->assertFalse( $features['seo_enhancer']['enabled'] );
+		$this->assertTrue( $features['ai_seo']['enabled'] );
+		// The automatic-generation option keeps its own surfaces; the settings
+		// page only carries the AI SEO row.
+		$this->assertArrayNotHasKey( 'seo_enhancer', $features );
 		$this->assertFalse( $features['ai_search']['enabled'] );
 		// No paid Search product in the test environment.
 		$this->assertTrue( $features['ai_search']['requires_upgrade'] );
@@ -554,26 +562,34 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	public function test_post_partial_update() {
 		wp_set_current_user( self::$admin_id );
 
+		// The owned toggles only apply on internal testing environments.
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
 		$data = $this->dispatch(
 			'POST',
 			array(
 				'features' => array(
 					'writing_assistant' => false,
+					'ai_seo'            => false,
+					// A stale client may still send removed keys. They are ignored.
 					'seo_enhancer'      => array( 'enabled' => true ),
-					// A stale client may still send the removed excerpt key. It is ignored.
 					'excerpt'           => false,
 				),
 			)
 		)->get_data();
 
 		$this->assertFalse( $data['features']['writing_assistant']['enabled'] );
-		$this->assertTrue( $data['features']['seo_enhancer']['enabled'] );
+		$this->assertFalse( $data['features']['ai_seo']['enabled'] );
 		// Untouched keys keep their defaults.
 		$this->assertTrue( $data['features']['image_editor']['enabled'] );
 
 		// The options actually changed — this is what the load points read.
 		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) );
-		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' ) );
+		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'ai_seo' ) );
+
+		// The automatic-generation option is owned by the Traffic page and the SEO
+		// dashboard: this endpoint no longer writes it.
+		$this->assertFalse( (bool) get_option( 'ai_seo_enhancer_enabled', false ) );
 	}
 
 	/**
@@ -582,6 +598,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	 */
 	public function test_post_master_switch() {
 		wp_set_current_user( self::$admin_id );
+
+		// Master enforcement only runs on internal testing environments.
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 
 		// Off-Simple the master is the `ai` module; start it active so the write
 		// actually flips state and we exercise the setter's module routing.

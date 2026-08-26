@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Cache the WordPress.com site record briefly so the site endpoint does not make a request per read.

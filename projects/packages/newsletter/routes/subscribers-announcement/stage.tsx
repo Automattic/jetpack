@@ -3,7 +3,7 @@ import { getSiteData } from '@automattic/jetpack-script-data';
 import { ToggleControl } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Notice, Text } from '@wordpress/ui';
+import { LinkButton, Notice, Text } from '@wordpress/ui';
 import './route.scss';
 
 /**
@@ -41,12 +41,6 @@ const Stage = (): JSX.Element => {
 	const data = getAnnouncementData();
 	const [ menuRemoved, setMenuRemoved ] = useState( Boolean( data?.menuRemoved ) );
 	const [ isSaving, setIsSaving ] = useState( false );
-
-	const goToNewsletter = useCallback( () => {
-		if ( data?.goToNewsletterUrl ) {
-			window.location.href = data.goToNewsletterUrl;
-		}
-	}, [ data?.goToNewsletterUrl ] );
 
 	const toggleMenu = useCallback(
 		( removed: boolean ) => {
@@ -105,9 +99,11 @@ const Stage = (): JSX.Element => {
 						{ __( 'Now it’s part of Jetpack → Newsletter', 'jetpack-newsletter' ) }
 					</Text>
 					<div className="jetpack-subscribers-announcement__cta">
-						<Button onClick={ goToNewsletter }>
-							{ __( 'View my subscribers', 'jetpack-newsletter' ) }
-						</Button>
+						{ data?.goToNewsletterUrl && (
+							<LinkButton href={ data.goToNewsletterUrl }>
+								{ __( 'View my subscribers', 'jetpack-newsletter' ) }
+							</LinkButton>
+						) }
 					</div>
 					<div className="jetpack-subscribers-announcement__remove">
 						<ToggleControl

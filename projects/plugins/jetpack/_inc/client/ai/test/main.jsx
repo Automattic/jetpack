@@ -9,15 +9,14 @@ import App from '../main';
 // main.jsx imports the webpack-aliased 'lib/analytics', which doesn't resolve
 // under jest — provide it virtually. (jest.mock is hoisted above the imports.)
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
+jest.mock( '@automattic/jetpack-ai-client', () => ( { requestJwt: jest.fn() } ) );
 
 // Both settings hooks fetch through @wordpress/api-fetch; stub it so nothing
 // hits the network and each test controls the GET/POST responses.
 jest.mock( '@wordpress/api-fetch' );
 
-// main.jsx uses Tabs as nav-only (no Tabs.Panel), which trips the design
-// system's async a11y validation — a console.error the shared jest-console
-// setup treats as a test failure. Swap only Tabs for inert passthroughs; the
-// real Notice/Stack are kept because the assertions below rely on them.
+// Swap Tabs for inert passthroughs; the real Notice/Stack are kept because
+// the assertions below rely on them.
 jest.mock( '@wordpress/ui', () => {
 	const actual = jest.requireActual( '@wordpress/ui' );
 	const { createElement } = require( 'react' );
@@ -27,7 +26,12 @@ jest.mock( '@wordpress/ui', () => {
 			createElement( tag, null, children );
 	return {
 		...actual,
-		Tabs: { Root: passthrough( 'div' ), List: passthrough( 'div' ), Tab: passthrough( 'button' ) },
+		Tabs: {
+			Root: passthrough( 'div' ),
+			List: passthrough( 'div' ),
+			Tab: passthrough( 'button' ),
+			Panel: passthrough( 'div' ),
+		},
 	};
 } );
 
@@ -67,6 +71,17 @@ function mockApiFetch( { featureGet = enabledSettings(), mcpGet = {}, featurePos
 // region, so a bare text query matches twice. Ignore that region.
 const IGNORE_A11Y = { ignore: 'script, style, .a11y-speak-region' };
 
+// An MCP payload for a connected site with MCP enabled: account tools make
+// hasMcpAccess true, and the sites entry makes getSiteLevelEnabled true for
+// blogId 1 — so the hub body (rows included) renders.
+const connectedMcpGet = () => ( {
+	has_mcp_access: true,
+	mcp_abilities: {
+		account: { some_tool: { title: 'Some tool', enabled: true } },
+		sites: [ { blog_id: 1, site_level_enabled: true } ],
+	},
+} );
+
 const mcpViewCount = () =>
 	analytics.tracks.recordEvent.mock.calls.filter(
 		call => call[ 0 ] === 'jetpack_mcp_settings_viewed'
@@ -87,6 +102,7 @@ beforeEach( () => {
 afterEach( () => {
 	// Tests that exercise the internal-testing flag set this global.
 	delete window.jetpackAiSettings;
+	delete window.__agentsManagerActions;
 	// The @wordpress/notices store is module-global: drain it so a snackbar
 	// created in one test cannot re-animate into the next test's render.
 	select( noticesStore )
@@ -190,16 +206,46 @@ describe( 'AI admin page (main.jsx)', () => {
 		).not.toBeInTheDocument();
 	} );
 
-	test( 'internal-testing flag: the Features tab carries an A12s only badge', async () => {
-		// The Features view is gated to internal testing environments; when the
-		// injected flag says we are in one, the tab must say so — Automatticians
-		// should not mistake the view for public UI.
+	test( 'internal-testing flag: every gated tab carries an A12s only badge', async () => {
+		// Overview and Features are both gated to internal testing environments;
+		// when the injected flag says we are in one, each tab must say so —
+		// Automatticians should not mistake either view for public UI. MCP
+		// Settings ships publicly, so it must not be labelled.
 		window.jetpackAiSettings = { showFeaturesView: true };
 		mockApiFetch();
 
 		render( <App /> );
 
-		await expect( screen.findByText( 'A12s only' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findAllByText( 'A12s only' ) ).resolves.toHaveLength( 2 );
+	} );
+
+	test( 'scheduled tasks flag: exposes the gated hash route and Figma empty state', async () => {
+		window.jetpackAiSettings = {
+			featureFlags: { 'ai-hub-scheduled-tasks': true },
+		};
+		window.location.hash = '#/scheduled-tasks';
+		window.__agentsManagerActions = {
+			// The sandbox's agents manager currently exposes readiness as a boolean.
+			isReady: true,
+			chatNavigate: jest.fn(),
+			setChatDocked: jest.fn(),
+			setChatOpen: jest.fn(),
+		};
+		mockApiFetch();
+
+		render( <App /> );
+
+		await expect(
+			screen.findByText( 'Schedule tasks for repeated work' )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Scheduled tasks' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'A12s only' ) ).not.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Create a task' } ) );
+		expect( window.__agentsManagerActions.chatNavigate ).toHaveBeenCalledWith( '/' );
+		expect( window.__agentsManagerActions.setChatDocked ).not.toHaveBeenCalled();
+		expect( window.__agentsManagerActions.setChatOpen ).toHaveBeenCalledWith( true );
+		delete window.__agentsManagerActions;
 	} );
 
 	test( 'no internal-testing flag: no A12s only badge renders', async () => {
@@ -295,17 +341,100 @@ describe( 'AI admin page (main.jsx)', () => {
 		).not.toBeInTheDocument();
 	} );
 
-	test( 'a11n gate: with showFeaturesView the tab bar shows and WordPress Agent is the default view', async () => {
+	test( 'a11n gate: with showFeaturesView the tab bar shows and Overview is the default view', async () => {
+		// Connected, so the Overview usage card renders rather than the
+		// not-connected notice.
+		window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
 		window.location.hash = '';
 		mockApiFetch();
 
 		render( <App /> );
 
+		// Overview is the first tab, so it is the landing view (per the i4
+		// design); the other tabs are present but not mounted.
 		await expect(
-			screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
+			screen.findByText( 'Available requests', IGNORE_A11Y )
 		).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Overview' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'WordPress Agent' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'MCP Settings' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'checkbox', { name: /Writing Assistant/ } )
+		).not.toBeInTheDocument();
+	} );
+
+	test( 'overview tab: gate on: Overview is first and owns the activity log row — exactly once', async () => {
+		window.jetpackAiSettings = {
+			showFeaturesView: true,
+			blogId: 1,
+			activityLogUrl: 'https://example.com/activity',
+			upgradeUrl: 'https://example.com/upgrade',
+		};
+		window.location.hash = '';
+		mockApiFetch( { mcpGet: connectedMcpGet() } );
+
+		render( <App /> );
+
+		// Landing view is Overview; the row renders there and nowhere else.
+		const rows = await screen.findAllByRole( 'link', { name: /Activity log/ } );
+		expect( rows ).toHaveLength( 1 );
+		expect( rows[ 0 ] ).toHaveAttribute( 'href', 'https://example.com/activity' );
+
+		// On the MCP view the row must NOT render — Overview owns it while the
+		// Overview tab exists (it would otherwise appear twice on one page).
+		act( () => {
+			window.location.hash = '#/mcp';
+			window.dispatchEvent( new Event( 'hashchange' ) );
+		} );
+		await expect(
+			screen.findByRole( 'checkbox', { name: 'Enable MCP access' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /Activity log/ } ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'overview tab: gate off: a #/overview deep link falls back to the MCP view', async () => {
+		window.jetpackAiSettings = { blogId: 1, activityLogUrl: 'https://example.com/activity' };
+		window.location.hash = '#/overview';
+		mockApiFetch( { mcpGet: connectedMcpGet() } );
+
+		render( <App /> );
+
+		// The MCP hub settles — with its activity log row, exactly as today.
+		await expect(
+			screen.findByRole( 'checkbox', { name: 'Enable MCP access' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.getAllByRole( 'link', { name: /Activity log/ } ) ).toHaveLength( 1 );
+		// No Overview UI leaks through the gate.
+		expect( screen.queryByText( 'Available requests', IGNORE_A11Y ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Overview' ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'activity log row: renders on the MCP hub as a link when MCP is enabled', async () => {
+		// Gate off: the MCP hub is the row's home, conditional on the site
+		// having an activity log URL and MCP being enabled.
+		window.jetpackAiSettings = { blogId: 1, activityLogUrl: 'https://example.com/activity' };
+		window.location.hash = '';
+		mockApiFetch( { mcpGet: connectedMcpGet() } );
+
+		render( <App /> );
+
+		const row = await screen.findByRole( 'link', { name: /Activity log/ } );
+		expect( row ).toHaveAttribute( 'href', 'https://example.com/activity' );
+		expect( screen.getAllByRole( 'link', { name: /Activity log/ } ) ).toHaveLength( 1 );
+	} );
+
+	test( 'activity log row: absent from the MCP hub without an activityLogUrl', async () => {
+		window.jetpackAiSettings = { blogId: 1 };
+		window.location.hash = '';
+		mockApiFetch( { mcpGet: connectedMcpGet() } );
+
+		render( <App /> );
+
+		// Settle on the hub (the site-level toggle is its stable anchor).
+		await expect(
+			screen.findByRole( 'checkbox', { name: 'Enable MCP access' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /Activity log/ } ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'MCP view tracking: does not fire on the Features tab', async () => {

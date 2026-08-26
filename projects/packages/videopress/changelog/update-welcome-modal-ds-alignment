@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Align the welcome modal with the design system: derive the media band's control colors from a ThemeProvider seed, use the dialog's own type scale, and the Jetpack brand token for the card icons.
