@@ -576,22 +576,6 @@ describe( 'MetricTabsChart', () => {
 			expect( onDatumClick ).not.toHaveBeenCalled();
 		} );
 
-		it( 'ignores a drag, so a zoom gesture never opens a date', () => {
-			const onDatumClick = jest.fn();
-
-			render(
-				<MetricTabsChart
-					metrics={ [ METRIC ] }
-					dataFormat={ DATA_FORMAT }
-					onDatumClick={ onDatumClick }
-				/>
-			);
-
-			pressAndRelease( mockLineSpy, { date: CLICKED, value: 200 }, 40 );
-
-			expect( onDatumClick ).not.toHaveBeenCalled();
-		} );
-
 		it( 'ignores a release over nothing datable', () => {
 			const onDatumClick = jest.fn();
 

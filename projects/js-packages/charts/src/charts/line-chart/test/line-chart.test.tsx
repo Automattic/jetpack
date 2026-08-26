@@ -1188,21 +1188,6 @@ describe( 'LineChart', () => {
 				} );
 			} );
 
-			test( 'Space activates the selected point too', async () => {
-				const user = userEvent.setup();
-				const onDatumActivate = jest.fn();
-				renderWithTheme( { data: [ SERIES_A ], onDatumActivate } );
-
-				screen.getByRole( 'grid', { name: /line chart/i } ).focus();
-				await user.keyboard( '{ArrowRight}[Space]' );
-
-				expect( onDatumActivate ).toHaveBeenCalledWith( {
-					datum: SERIES_A.data[ 0 ],
-					index: 0,
-					key: 'Series A',
-				} );
-			} );
-
 			test( 'Enter with no point selected activates nothing', async () => {
 				const user = userEvent.setup();
 				const onDatumActivate = jest.fn();

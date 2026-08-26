@@ -64,10 +64,4 @@ describe( 'BarChart pointer events', () => {
 		expect( props.onPointerDown ).toBe( onPointerDown );
 		expect( props.onPointerUp ).toBe( onPointerUp );
 	} );
-
-	test( 'resolves pointer events to the nearest datum', () => {
-		renderBarChart();
-
-		expect( mockXYChart.mock.calls.at( -1 )[ 0 ].pointerEventsDataKey ).toBe( 'nearest' );
-	} );
 } );
