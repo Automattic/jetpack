@@ -4,16 +4,16 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-activity-log": "@dev",
-		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-autoloader": "@dev",
-		"automattic/jetpack-composer-plugin": "@dev",
-		"automattic/jetpack-config": "@dev",
-		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-my-jetpack": "@dev",
-		"automattic/jetpack-sync": "@dev",
-		"automattic/jetpack-videopress": "@dev",
-		"automattic/jetpack-status": "@dev"
+		"automattic/jetpack-activity-log": "^0.3.0",
+		"automattic/jetpack-assets": "^5.0.0",
+		"automattic/jetpack-autoloader": "^6.0.0",
+		"automattic/jetpack-composer-plugin": "^5.0.0",
+		"automattic/jetpack-config": "^4.0.0",
+		"automattic/jetpack-connection": "^9.0.0",
+		"automattic/jetpack-my-jetpack": "^6.0.0",
+		"automattic/jetpack-sync": "^5.0.0",
+		"automattic/jetpack-videopress": "^0.48.0",
+		"automattic/jetpack-status": "^7.0.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -23,15 +23,7 @@
 	"scripts": {
 		"watch": "echo 'This script is actually watching the Jetpack VideoPress package' && jetpack watch packages/videopress"
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
