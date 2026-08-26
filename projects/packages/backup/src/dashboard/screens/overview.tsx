@@ -10,6 +10,7 @@ import BackupStatusPanel, { replacesOverview } from '../components/backup-status
 import BackupStatusBanner, { BackupTroubleBanner } from '../components/backup-status/banner';
 import DashboardLayout from '../components/dashboard-layout';
 import QueryError from '../components/query-error';
+import StorageSpace from '../components/storage-space';
 import {
 	ACTIVITY_LOG_DEFAULT_PER_PAGE,
 	useActivityById,
@@ -172,6 +173,18 @@ export default function OverviewScreen() {
 			 * loading, so the terminal case still reports immediately.
 			 */ }
 			{ ! restorePointsLoading && <BackupTroubleBanner state={ backupsState } /> }
+			{ /*
+			 * Above the list, and a sibling of the grid for the same
+			 * reason the banners are. It answers a question the list
+			 * cannot — a site whose backups have stopped because storage
+			 * ran out sees only an activity log that quietly stops — so it
+			 * belongs where that news is read first, not below the fold.
+			 *
+			 * It renders nothing until it has both a usage figure and a
+			 * limit, so on a site with no retention policy this costs a
+			 * pair of requests and no layout.
+			 */ }
+			<StorageSpace />
 			<div className="jpb-overview">
 				<ActivityList
 					selectedId={ selectedId }
