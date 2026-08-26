@@ -129,10 +129,9 @@
 				'@wordpress/undo-manager',
 				'@wordpress/views',
 				// Additional packages polyfilled by wp-build-polyfills, which need to be kept in sync with each other.
-				// (@wordpress/notices is polyfilled too, but it is externalized and its types follow
-				// @wordpress/data's, so it stays in the monorepo:wordpress group next to data.)
 				'@wordpress/a11y',
 				'@wordpress/boot',
+				'@wordpress/notices',
 				'@wordpress/private-apis',
 				'@wordpress/rich-text',
 				'@wordpress/route',
@@ -140,6 +139,9 @@
 				// Bundled into the rich-text polyfill (rich-text unlocks its private
 				// APIs at module scope), so it must move in lockstep with rich-text.
 				'@wordpress/compose',
+				// Not polyfilled, but notices' store types are generated against data's generics
+				// (notices 5.53 needs data ^10.53), so data has to move on the same train as notices.
+				'@wordpress/data',
 				// @wordpress/build is still heavily developed; its dashboards share the same bundled
 				// packages and test surface, so exercising build alongside the rest is practical.
 				'@wordpress/build',
