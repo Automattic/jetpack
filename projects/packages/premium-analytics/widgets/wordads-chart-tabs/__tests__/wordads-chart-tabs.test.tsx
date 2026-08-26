@@ -8,6 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
 import WordAdsChartTabsWidget from '../render';
 import useWordAdsChart from '../use-wordads-chart';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
@@ -231,6 +232,25 @@ describe( 'WordAdsChartTabsWidget', () => {
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'unit=month' );
+	} );
+
+	/*
+	 * The Ads default layout saves this widget with no attributes, and
+	 * `WidgetRoot` falls back to the URL for a missing `reportParams` — the
+	 * section date state this widget no longer follows. The fallback in
+	 * `render.tsx` must win over the URL.
+	 */
+	it( 'ignores the URL range for an instance saved without report params', async () => {
+		setMockRouteSearch( { from: '2020-01-01', to: '2020-01-31', interval: 'month' } );
+
+		// The layout saves the instance with no attributes at all.
+		render( <WordAdsChartTabsWidget attributes={ {} } /> );
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+		expect( requestedPath ).not.toContain( 'date=2020-01-31' );
+
+		setMockRouteSearch( {} );
 	} );
 
 	// The widget scopes itself with `offersComparison={ false }`, so `WidgetRoot`

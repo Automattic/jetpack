@@ -1,7 +1,6 @@
 export {
 	createReportParamsField,
 	getDefaultReportParams,
-	ReportParamsField,
 	type ReportParamsFieldAttributes,
 	type ReportParamsFieldOptions,
 } from './report-params-field/report-params-field';

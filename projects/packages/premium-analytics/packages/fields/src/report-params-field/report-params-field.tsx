@@ -5,7 +5,6 @@ import {
 	getAllowedIntervalsForPreset,
 	getDefaultPreset,
 	normalizeReportParams,
-	resolveIntervalForRange,
 } from '@jetpack-premium-analytics/data';
 import {
 	type ComparisonPresetId,
@@ -22,17 +21,15 @@ import {
 	encodeDateToSearchParam,
 } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getStoreInfo } from '../helpers/store-info';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
 
 /*
- * Copied from widgets-toolkit `fields/date-report-params-field` so widget
- * metadata modules can consume it through this package's script module
- * (the toolkit is bundled-from-source and its scss graph cannot enter the
- * widget metadata build). The toolkit copy remains for render-side use
- * until fields fully owns the editors; keep the two in sync or delete the
- * toolkit copy when the toolkit dissolves.
+ * The editor lives here rather than in widgets-toolkit so widget metadata
+ * modules can consume it through this package's script module: the toolkit is
+ * bundled-from-source and its scss graph cannot enter the widget metadata
+ * build. The toolkit keeps only the `ReportParamsFieldAttributes` shape.
  */
 
 type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ] >;
@@ -111,6 +108,22 @@ function ReportParamsControl( {
 		stagedRef.current = next;
 		setStagedReportParams( next );
 	}, [] );
+
+	/*
+	 * Realign the draft when the params change from outside this control — an
+	 * undo, a dashboard reset, another surface saving the same widget. Without
+	 * it `commit` writes the stale draft back over that change. Key on the
+	 * value, not the object: a host that builds the attribute during render
+	 * would otherwise wipe the draft on every render.
+	 */
+	const committed = attributes?.reportParams;
+	const committedKey = JSON.stringify( committed ?? null );
+
+	useEffect( () => {
+		stagedRef.current = committed;
+		setStagedReportParams( committed );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ committedKey ] );
 
 	const { launchedDate } = getStoreInfo();
 	const defaultPreset = getDefaultPreset( launchedDate );
@@ -192,27 +205,20 @@ function ReportParamsControl( {
 	}, [ stage, attributes ] );
 
 	/*
-	 * The bucket menu reads the committed range, not the draft: the control sits
-	 * outside the picker, so a range being edited must not reshape it, and
-	 * resolving the value through the same range that produced the options keeps
-	 * the checked item a listed one. Same reasoning as `useReportDateFilters`.
+	 * Options and checked value both come from the staged params, so the checked
+	 * bucket is always a listed one — `normalizeReportParams` already resolved
+	 * `interval` against this very range. Reading the options from the committed
+	 * range instead would let the menu offer a bucket the drafted range cannot
+	 * hold, and the resolve below would then silently drop the click.
 	 */
-	const applied = normalizeReportParams( attributes?.reportParams, defaultPreset );
-
 	const intervalOptions = useMemo(
-		() => getAllowedIntervalsForPreset( applied.preset, applied.from ?? '', applied.to ?? '' ),
-		[ applied.preset, applied.from, applied.to ]
-	);
-
-	const interval = useMemo(
 		() =>
-			resolveIntervalForRange(
-				applied.preset,
-				applied.from ?? '',
-				applied.to ?? '',
-				reportParams.interval
+			getAllowedIntervalsForPreset(
+				reportParams.preset,
+				reportParams.from ?? '',
+				reportParams.to ?? ''
 			),
-		[ applied.preset, applied.from, applied.to, reportParams.interval ]
+		[ reportParams.preset, reportParams.from, reportParams.to ]
 	);
 
 	const changeInterval = useCallback(
@@ -242,15 +248,10 @@ function ReportParamsControl( {
 				onCancel={ clear }
 				timeZone={ siteTimeZone() }
 				withIntervalControl={ withIntervalControl }
-				interval={ interval }
+				interval={ reportParams.interval }
 				intervalOptions={ intervalOptions }
 				onIntervalChange={ changeInterval }
 			/>
 		</Stack>
 	);
 }
-
-/**
- * The default control: range and comparison, no bucket control.
- */
-export const ReportParamsField = createReportParamsField();

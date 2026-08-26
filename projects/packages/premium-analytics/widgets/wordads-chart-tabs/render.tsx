@@ -13,6 +13,7 @@ import {
 	defaultPeriodForInterval,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -78,20 +79,25 @@ function WordAdsChartTabsInner() {
 }
 
 export default function WordAdsChartTabs( { attributes = {} }: WordAdsChartTabsWidgetProps ) {
+	/*
+	 * The Ads default layout saves this widget with no attributes at all, and
+	 * `WidgetRoot` falls back to the URL for a missing `reportParams` — which is
+	 * the section date state this widget no longer follows. Fall back to the
+	 * same default the header control shows instead, so the two never name
+	 * different windows. Memoized: a fresh object here re-keys every memo below
+	 * `WidgetRoot` on each render.
+	 */
+	const reportParams = useMemo(
+		() => attributes.reportParams ?? getDefaultReportParams(),
+		[ attributes.reportParams ]
+	);
+
 	return (
-		// Set the scope before WidgetRoot strips unsupported comparison parameters
-		// and configures the header control.
+		// Scope the widget body before WidgetRoot strips the unsupported
+		// comparison parameters. The header control is host chrome outside this
+		// tree; it takes its scope from the section provider.
 		<ReportScopeProvider offersComparison={ false }>
-			{ /*
-			 * An instance saved before this widget owned its range carries no
-			 * `reportParams`, and `WidgetRoot` falls back to the URL for those —
-			 * which is the section date state this widget no longer follows. Fall
-			 * back to the same default the header control shows instead, so the
-			 * two never name different windows.
-			 */ }
-			<WidgetRoot
-				attributes={ { reportParams: attributes.reportParams ?? getDefaultReportParams() } }
-			>
+			<WidgetRoot attributes={ { ...attributes, reportParams } }>
 				<WordAdsChartTabsInner />
 			</WidgetRoot>
 		</ReportScopeProvider>
