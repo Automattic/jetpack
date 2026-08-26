@@ -1,3 +1,4 @@
+import { SERIES_PALETTE_POINTERS } from './private/series-palette';
 import type { CompleteChartTheme } from '../../types';
 
 /**
@@ -8,14 +9,11 @@ const defaultTheme: CompleteChartTheme = {
 	labelBackgroundColor: 'transparent', // label background color (transparent by default)
 	// White label text sits on top of arbitrary series colors, so it has no WPDS content-foreground equivalent. Every other colour here is a bare pointer at the catalog emitted by `chart-scope.scss`; the terminal literal is the last resort for the SSR and jsdom paths, where getComputedStyle resolves nothing.
 	labelTextColor: 'var(--a8c-charts-color-label-on-fill, #FFFFFF)',
-	// The series palette is five catalog slots, resolved at the provider wrapper. Only slot 1 has a catalog default, so the rest resolve to nothing until a consumer sets them and are dropped before `ColorCache` is built — the palette compacts rather than going blank. The literal is the SSR and jsdom last resort, where `getComputedStyle` resolves nothing.
-	colors: [
-		'var(--a8c-charts-color-series-1, #3858e9)',
-		'var(--a8c-charts-color-series-2)',
-		'var(--a8c-charts-color-series-3)',
-		'var(--a8c-charts-color-series-4)',
-		'var(--a8c-charts-color-series-5)',
-	],
+	// Derived, not authored: the slot manifest lives in `private/series-palette.ts` because which
+	// slots exist describes the catalog, not the theme. The field itself is still load-bearing —
+	// see that file for why the provider reads the palette through the theme and what CHARTS-227
+	// has to move before it can delete this.
+	colors: [ ...SERIES_PALETTE_POINTERS ],
 	gridStyles: {
 		stroke: 'var(--a8c-charts-color-grid, #dbdbdb)',
 		strokeWidth: 1,

@@ -1,3 +1,4 @@
+import { SERIES_SLOT_COUNT, seriesRole } from './series-palette';
 import type { ChartTheme } from '../../../types';
 
 /*
@@ -5,17 +6,6 @@ import type { ChartTheme } from '../../../types';
  * minimal `process` locally so this file type-checks as source under `jetpack:src`.
  */
 declare const process: { env: Record< string, string | undefined > };
-
-/** How many series-palette slots the catalog emits. `theme.colors` entries past this are ignored. */
-export const SERIES_SLOT_COUNT = 5;
-
-/**
- * The catalog role holding one series-palette slot.
- *
- * @param slot - The one-based slot number.
- * @return The role name.
- */
-export const seriesRole = ( slot: number ): string => `--a8c-charts-color-series-${ slot }`;
 
 // The consumer theme fields that correspond to an emitted catalog role, and the role each one overrides. Each role must be read by exactly the elements its field controlled before the role existed: `svgLabelSmall.fill` maps to the narrow `--a8c-charts-color-label-axis` rather than `--a8c-charts-color-label`, because the broad role is also read by legend labels, heatmap cell values, funnel labels and the line-chart tooltip, which that field never moved.
 //

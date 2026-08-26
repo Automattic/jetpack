@@ -1,5 +1,5 @@
 import { defaultTheme } from '../themes';
-import { SERIES_SLOT_COUNT, seriesRole } from './theme-override-vars';
+import { SERIES_PALETTE_POINTERS, SERIES_SLOT_COUNT, seriesRole } from './series-palette';
 import type { CompleteChartTheme } from '../../../types';
 
 /**
@@ -21,13 +21,13 @@ const seriesPointer = ( index: number, value: string | undefined ): string => {
 
 	// A slot the consumer left empty keeps the catalog's own pointer, so a CSS declaration of it still reaches the palette.
 	if ( typeof value !== 'string' || value === '' ) {
-		return defaultTheme.colors[ index ];
+		return SERIES_PALETTE_POINTERS[ index ];
 	}
 
 	return `var(${ role }, ${ value })`;
 };
 
-// Restores each overridden role's mapped theme field to the catalog pointer `defaultTheme` already carries for it, so the value comes from `themes.ts` itself rather than a second, hand-copied literal.
+// Restores each overridden role's mapped theme field to the catalog pointer already written for it — `defaultTheme` for the ordinary roles, `series-palette.ts` for the palette slots — so the value comes from the one place that declares it rather than a second, hand-copied literal.
 //
 // Every series slot restores the whole `colors` array, not just its own entry. `mergeThemes` replaces arrays outright, so a consumer passing two colours would otherwise leave a two-entry palette and put slots 3 to 5 out of reach of a CSS declaration that sets them.
 const CATALOG_RESTORE_FOR_ROLE: Record<
@@ -39,7 +39,7 @@ const CATALOG_RESTORE_FOR_ROLE: Record<
 		Array.from( { length: SERIES_SLOT_COUNT }, ( _, index ) => [
 			seriesRole( index + 1 ),
 			( theme: CompleteChartTheme ) => ( {
-				colors: defaultTheme.colors.map( ( _pointer, slot ) =>
+				colors: SERIES_PALETTE_POINTERS.map( ( _pointer, slot ) =>
 					seriesPointer( slot, theme.colors?.[ slot ] )
 				),
 			} ),

@@ -24,6 +24,7 @@ import {
 // Imported from the module rather than the `chart-scope` barrel: the barrel also pulls `use-standalone-scope-class`, which imports `GlobalChartsContext` back from this file. That cycle resolves today only because the binding is read lazily inside the hook body.
 import { ChartScopeContext } from '../chart-scope/chart-scope-context';
 import { getChartColor, type ColorCache } from './private/get-chart-color';
+import { SERIES_PALETTE_POINTERS } from './private/series-palette';
 import { themeOverrideVars } from './private/theme-override-vars';
 import { withCatalogPointers } from './private/with-catalog-pointers';
 import { defaultTheme } from './themes';
@@ -97,46 +98,42 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 	// replacement carries the same computed values anyway.
 	useLayoutEffect( () => {
 		setIsColorPaletteResolved( false );
-		const { colors } = providerTheme;
 		const resolvedColors: string[] = [];
 		const hues: number[] = [];
 		const existingHslColors: Array< [ number, number, number ] > = [];
 		let minHue = 360;
 		let maxHue = 0;
 
-		// Process all colors once and cache the results
-		if ( Array.isArray( colors ) ) {
-			for ( const color of colors ) {
-				if ( color && typeof color === 'string' ) {
-					// Normalize color to hex format, handling CSS variables, RGB, HSL, etc.
-					// This uses normalizeColorToHex which resolves CSS variables and converts
-					// rgb(), rgba(), hsl() formats to hex
-					const normalizedColor = normalizeColorToHex(
-						color,
-						wrapperRef.current,
-						resolveCssVariable
-					);
+		// Resolved from the theme rather than from `SERIES_PALETTE_POINTERS`, and it has to be. In a
+		// browser the two are equivalent — both name the same slots, and the wrapper's theme-layer
+		// vars answer either. But `withCatalogPointers` puts the consumer's own colour in each
+		// pointer's terminal position, and that literal is the only carrier for the palette where
+		// `getComputedStyle` resolves nothing: SSR and jsdom. Walking the manifest instead makes
+		// every consumer palette collapse to the catalog seed there.
+		for ( const color of providerTheme.colors ?? SERIES_PALETTE_POINTERS ) {
+			// Normalize color to hex format, handling CSS variables, RGB, HSL, etc.
+			// This uses normalizeColorToHex which resolves CSS variables and converts
+			// rgb(), rgba(), hsl() formats to hex
+			const normalizedColor = normalizeColorToHex( color, wrapperRef.current, resolveCssVariable );
 
-					// Only process valid hex colors. An unset palette slot returns its own
-					// `var()` unchanged, so this is also what compacts the palette: slots the
-					// consumer never set drop out here and `getChartColor` generates past
-					// whatever survived.
-					if ( normalizedColor.startsWith( '#' ) ) {
-						resolvedColors.push( normalizedColor );
-						const hslColor = d3Hsl( normalizedColor );
-						// d3Hsl returns NaN values for invalid colors
-						if ( ! isNaN( hslColor.h ) ) {
-							const hslTuple: [ number, number, number ] = [
-								hslColor.h,
-								hslColor.s * 100,
-								hslColor.l * 100,
-							];
-							hues.push( hslTuple[ 0 ] );
-							existingHslColors.push( hslTuple );
-							minHue = Math.min( minHue, hslTuple[ 0 ] );
-							maxHue = Math.max( maxHue, hslTuple[ 0 ] );
-						}
-					}
+			// Only process valid hex colors. An unset palette slot returns its own
+			// `var()` unchanged, so this is also what compacts the palette: slots the
+			// consumer never set drop out here and `getChartColor` generates past
+			// whatever survived.
+			if ( normalizedColor.startsWith( '#' ) ) {
+				resolvedColors.push( normalizedColor );
+				const hslColor = d3Hsl( normalizedColor );
+				// d3Hsl returns NaN values for invalid colors
+				if ( ! isNaN( hslColor.h ) ) {
+					const hslTuple: [ number, number, number ] = [
+						hslColor.h,
+						hslColor.s * 100,
+						hslColor.l * 100,
+					];
+					hues.push( hslTuple[ 0 ] );
+					existingHslColors.push( hslTuple );
+					minHue = Math.min( minHue, hslTuple[ 0 ] );
+					maxHue = Math.max( maxHue, hslTuple[ 0 ] );
 				}
 			}
 		}
