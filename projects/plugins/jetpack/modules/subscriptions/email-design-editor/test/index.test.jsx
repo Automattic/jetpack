@@ -7,6 +7,8 @@
 
 const mockRender = jest.fn();
 const mockApiFetch = jest.fn();
+const mockUse = jest.fn();
+const mockCreatePreloadingMiddleware = jest.fn( map => ( { preloading: map } ) );
 
 jest.mock( '@wordpress/element', () => {
 	const actualElement = jest.requireActual( '@wordpress/element' );
@@ -17,10 +19,14 @@ jest.mock( '@wordpress/element', () => {
 	};
 } );
 
-jest.mock( '@wordpress/api-fetch', () => ( {
-	__esModule: true,
-	default: ( ...args ) => mockApiFetch( ...args ),
-} ) );
+jest.mock( '@wordpress/api-fetch', () => {
+	const apiFetch = ( ...args ) => mockApiFetch( ...args );
+
+	apiFetch.use = ( ...args ) => mockUse( ...args );
+	apiFetch.createPreloadingMiddleware = ( ...args ) => mockCreatePreloadingMiddleware( ...args );
+
+	return { __esModule: true, default: apiFetch };
+} );
 
 const MockEmailEditor = () => null;
 
@@ -42,6 +48,22 @@ function bootstrapBundle( overrides = {} ) {
 		editor_settings: { styles: [ { css: 'body{}' } ] },
 		editor_theme: { version: 3, settings: { color: { palette: [] } } },
 		template: { id: 'pub/stylesheet//wpcom-newsletter' },
+		// The same templates as full REST records, which is what the editor's core-data
+		// resolution needs and what the four-field `template` above cannot stand in for.
+		templates: [
+			{
+				id: 'pub/stylesheet//wpcom-newsletter',
+				slug: 'wpcom-newsletter',
+				title: { rendered: 'Newsletter' },
+				content: { raw: '' },
+				post_types: [ 'wp_template' ],
+				source: 'theme',
+				origin: 'theme',
+				has_theme_file: true,
+				type: 'wp_template',
+				status: 'publish',
+			},
+		],
 		personalization_tags: [],
 		...overrides,
 	};
@@ -117,6 +139,8 @@ describe( 'Email design editor entry point', () => {
 		document.body.innerHTML = `<div id="${ ELEMENT_ID }"></div>`;
 		delete window.JetpackEmailDesignEditor;
 		mockRender.mockClear();
+		mockUse.mockClear();
+		mockCreatePreloadingMiddleware.mockClear();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( bootstrapBundle() );
 		jest.spyOn( console, 'error' ).mockImplementation( () => {} );
@@ -301,6 +325,100 @@ describe( 'Email design editor entry point', () => {
 			await loadEntryPoint();
 
 			expect( renderedTheErrorState() ).toBe( true );
+		} );
+	} );
+
+	describe( 'preloading the templates the editor resolves', () => {
+		const { buildPreloadMap } = jest.requireActual( '../src/index' );
+		const templateId = 'pub/stylesheet//wpcom-newsletter';
+
+		/**
+		 * The map handed to `createPreloadingMiddleware` on the last mount.
+		 *
+		 * @return {object} The preload map.
+		 */
+		function preloadedMap() {
+			return mockCreatePreloadingMiddleware.mock.calls[ 0 ][ 0 ];
+		}
+
+		it( 'preloads the collection under both contexts', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			const map = preloadedMap();
+
+			expect( map[ '/wp/v2/templates?context=edit' ].body ).toHaveLength( 1 );
+			expect( map[ '/wp/v2/templates?context=view' ].body ).toHaveLength( 1 );
+		} );
+
+		it( 'preloads the item under the id the bundle gave, not one it derived', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect( preloadedMap() ).toHaveProperty( `/wp/v2/templates/${ templateId }?context=edit` );
+		} );
+
+		it( 'passes the records through untouched, since the editor reads fields we cannot invent', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			// `post_types` is read without optional chaining in the package's selectors, so a
+			// record missing it throws rather than degrading.
+			const [ record ] = preloadedMap()[ '/wp/v2/templates?context=edit' ].body;
+
+			expect( record.post_types ).toEqual( [ 'wp_template' ] );
+			expect( record.source ).toBe( 'theme' );
+			expect( record.has_theme_file ).toBe( true );
+		} );
+
+		it( 'gives every entry headers, which parse:false callers read unconditionally', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			Object.values( preloadedMap() ).forEach( entry => {
+				expect( entry.headers ).toBeDefined();
+			} );
+		} );
+
+		it( 'installs the middleware before the editor mounts', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			// core-data resolves the template on the editor's first render, so a middleware
+			// installed afterwards would be too late to answer for it.
+			expect( mockUse.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+				mockRender.mock.invocationCallOrder[ 0 ]
+			);
+		} );
+
+		it( 'installs nothing when the bundle carries no template records', async () => {
+			mockApiFetch.mockResolvedValue( bootstrapBundle( { templates: undefined } ) );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			// WordPress.com does not send these yet. The editor must still mount rather than
+			// the entry throwing on a key that is not there.
+			expect( mockUse ).not.toHaveBeenCalled();
+			expect( renderedTheErrorState() ).toBe( false );
+		} );
+
+		it( 'installs nothing when the bundle sends an empty collection', () => {
+			expect( buildPreloadMap( bootstrapBundle( { templates: [] } ), templateId ) ).toBeNull();
+		} );
+
+		it( 'omits the item entry when no record matches the template id', () => {
+			const map = buildPreloadMap( bootstrapBundle(), 'pub/other//something-else' );
+
+			expect( Object.keys( map ) ).toEqual( [
+				'/wp/v2/templates?context=edit',
+				'/wp/v2/templates?context=view',
+			] );
 		} );
 	} );
 

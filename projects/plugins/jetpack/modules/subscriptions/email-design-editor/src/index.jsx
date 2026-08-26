@@ -11,6 +11,12 @@
  * WordPress.com computes, which is the one field a site must never work out
  * locally. See NL-848 and NL-851.
  *
+ * The bundle is also what the editor's own reads are answered from. Its
+ * template records are installed as an api-fetch preload before the editor
+ * mounts, because they are registered only while WordPress.com builds the
+ * bundle and so are absent from any ordinary REST request. See
+ * `buildPreloadMap()`.
+ *
  * The page is the other half, and is added separately: it renders the
  * container and localises `window.JetpackEmailDesignEditor` with what
  * WordPress.com cannot know — where to mount, where its buttons navigate to,
@@ -138,6 +144,65 @@ export function buildEditorConfig( bundle, data ) {
 }
 
 /**
+ * The template records the editor would otherwise fetch, keyed by the path it asks for.
+ *
+ * The editor resolves its canvas template through core-data, which fetches
+ * `/wp/v2/templates` — the item and the collection both, as observed. On WordPress.com
+ * neither answer contains it: the email templates are registered while the bootstrap bundle
+ * is built, and that only happens inside the bootstrap request. An ordinary REST request
+ * never registers them, so the editor waits on a record that exists only during a different
+ * request and never finishes mounting.
+ *
+ * Registering them server-side for every REST request would fix the fetch and put the email
+ * templates in the Site Editor's template list, which is a visible regression on every
+ * enrolled blog. Preloading confines them to this page.
+ *
+ * The records come from the bundle rather than being assembled here. `template` carries four
+ * fields; a REST template record carries around fifteen, and the editor reads several of the
+ * rest — `post_types` with no optional chaining, so a record without it throws rather than
+ * degrading, plus `source`, `origin` and `has_theme_file` when resetting a template. Only
+ * WordPress.com holds the real records, the same reason the template's id is handed down
+ * rather than derived. Until it sends them there is nothing to preload, and this returns null.
+ *
+ * @param {object} bundle     - The response from the bootstrap route.
+ * @param {string} templateId - The id of the template the editor opens.
+ * @return {object|null} A map for `createPreloadingMiddleware`, or null when the bundle
+ *                       carries no template records.
+ */
+export function buildPreloadMap( bundle, templateId ) {
+	const templates = bundle?.templates;
+
+	if ( ! Array.isArray( templates ) || 0 === templates.length ) {
+		return null;
+	}
+
+	// Callers passing `parse: false` build a Response out of these, and that path reads
+	// `headers` unconditionally, so every entry carries one even when it is empty.
+	const collection = {
+		body: templates,
+		headers: {
+			'X-WP-Total': String( templates.length ),
+			'X-WP-TotalPages': '1',
+		},
+	};
+
+	// Both contexts, because which one core-data asks for depends on what the current user may
+	// do with the record, and an unmatched key costs nothing.
+	const map = {
+		'/wp/v2/templates?context=edit': collection,
+		'/wp/v2/templates?context=view': collection,
+	};
+
+	const item = templates.find( template => template?.id === templateId );
+
+	if ( item ) {
+		map[ `/wp/v2/templates/${ templateId }?context=edit` ] = { body: item, headers: {} };
+	}
+
+	return map;
+}
+
+/**
  * The id of the template the editor opens.
  *
  * Read from the bundle and never derived here. The package builds it as
@@ -210,6 +275,15 @@ export async function mountEmailDesignEditor() {
 
 		const config = buildEditorConfig( bundle, data );
 		const postId = getTemplateId( bundle );
+		const preload = buildPreloadMap( bundle, postId );
+
+		if ( preload ) {
+			// Registered last so it runs first: api-fetch unshifts middlewares and applies them
+			// right to left, so this one sees `options.path` before the locale and WordPress.com
+			// rewriting middlewares have rewritten it. It has to be installed before the editor
+			// mounts, because core-data resolves the template on its first render.
+			apiFetch.use( apiFetch.createPreloadingMiddleware( preload ) );
+		}
 
 		root.render(
 			<StrictMode>
