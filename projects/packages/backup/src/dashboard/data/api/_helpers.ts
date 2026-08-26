@@ -211,7 +211,7 @@ export async function apiCall< T >( options: APIFetchOptions< true > ): Promise<
 		const err = raw as { code?: string; message?: string; data?: unknown };
 		throw new ApiError(
 			typeof err.code === 'string' ? err.code : 'unknown',
-			typeof err.message === 'string' ? err.message : 'Request failed',
+			typeof err.message === 'string' ? err.message : __( 'Request failed', 'jetpack-backup-pkg' ),
 			err.data
 		);
 	}
