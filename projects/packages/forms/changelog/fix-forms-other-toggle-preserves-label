@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep an option's label when switching it to the "Other" option.
