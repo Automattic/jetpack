@@ -8,7 +8,6 @@ import {
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
-import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
@@ -26,6 +25,7 @@ import {
 	sharePercentage,
 	useReportCsvExport,
 	useWidgetDrillDown,
+	useWidgetNavigationSearch,
 	useWidgetRootContext,
 	type CsvColumn,
 	type LeaderboardChartData,
@@ -260,7 +260,7 @@ function TopPostsReport() {
 		useStatsTopPosts( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo( () => toTopPostRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
-	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
+	const detailSearch = useWidgetNavigationSearch();
 	const withComparison = hasComparison;
 
 	// Serialize whatever the leaderboard has loaded, mirroring the Jetpack Stats

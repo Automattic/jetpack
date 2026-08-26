@@ -106,6 +106,22 @@ describe( 'buildLeaderboardRow', () => {
 		expect( row ).not.toHaveProperty( 'onClick' );
 	} );
 
+	it( 'keeps a video link out of the chart button props', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Launch teaser',
+			media: { kind: 'none' },
+			action: { kind: 'videoLink', href: 'https://example.com/launch-teaser/' },
+		} );
+
+		render( row.label );
+
+		expect( screen.getByRole( 'link', { name: /Launch teaser/ } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/launch-teaser/'
+		);
+		expect( row ).not.toHaveProperty( 'onClick' );
+	} );
+
 	it( 'returns chart button props for a drill-down without nesting an action', () => {
 		const onClick = jest.fn();
 		const row = buildLeaderboardRow( {
