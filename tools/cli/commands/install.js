@@ -156,25 +156,42 @@ export async function handler( argv ) {
 		 * off at the terminal width, which is usually nothing worth reading; say
 		 * it again in full. Listr falls back to the verbose renderer when stdout
 		 * is not a terminal, and that one prints the message whole, so saying it
-		 * again there would only double it.
+		 * again there would only double it. The verbose renderer writes to stdout,
+		 * so keep the command and its exit code on stderr for anything reading
+		 * only that.
 		 *
-		 * The advice below is about answering a prompt a command is waiting on,
-		 * so it has nothing to say about a bug in the CLI.
+		 * Say something about prompts only where a prompt is really the problem.
+		 * Rerunning under `-v` helps if there is a terminal to prompt on, and the
+		 * purge is worth naming only when it is what went wrong: it deletes a
+		 * `node_modules` that takes minutes to rebuild, so suggesting it after an
+		 * unrelated composer failure would be sending someone somewhere costly
+		 * and useless.
 		 */
 		const commandFailed = typeof err?.shortMessage === 'string';
 		if ( verbose || ! commandFailed ) {
 			console.error( err );
 		} else if ( process.stdout.isTTY ) {
 			console.error( err.message );
+		} else {
+			console.error( err.shortMessage );
 		}
 		if ( ! verbose && commandFailed ) {
-			console.error(
-				chalk.yellow(
-					'\nRun again with `-v` to answer any prompt the command is waiting on.\n' +
-						'With no terminal to prompt on (CI, a script, an agent), `pnpm` refuses to remove `node_modules` on its own; ' +
-						'`jetpack pnpm install --config.confirm-modules-purge=false` tells it to go ahead.'
-				)
-			);
+			const advice = [];
+			if ( process.stdin.isTTY ) {
+				advice.push( 'Run again with `-v` to answer any prompt the command is waiting on.' );
+			}
+			if (
+				err.command?.startsWith( 'pnpm' ) &&
+				err.message.includes( 'ERR_PNPM_ABORTED_REMOVE_MODULES_DIR' )
+			) {
+				advice.push(
+					'`pnpm` will not remove `node_modules` unless it can ask first. To tell it to go ahead ' +
+						'without being asked, run `jetpack pnpm install --config.confirm-modules-purge=false`.'
+				);
+			}
+			if ( advice.length > 0 ) {
+				console.error( chalk.yellow( `\n${ advice.join( '\n' ) }` ) );
+			}
 		}
 		process.exit( err?.exitCode || 1 );
 	} );
