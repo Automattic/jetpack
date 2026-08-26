@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix checkbox and consent field alignment in the editor on classic themes.

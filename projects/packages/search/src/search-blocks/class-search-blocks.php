@@ -453,7 +453,7 @@ class Search_Blocks {
 	 */
 	public static function woocommerce_version_supported( ?string $version = null ): bool {
 		// `constant()` keeps static analysis happy — WC isn't a dependency here.
-		$version = $version ?? ( defined( 'WC_VERSION' ) ? (string) constant( 'WC_VERSION' ) : '' );
+		$version ??= ( defined( 'WC_VERSION' ) ? (string) constant( 'WC_VERSION' ) : '' );
 		return '' !== $version && version_compare( $version, self::MIN_WOOCOMMERCE_VERSION, '>=' );
 	}
 

@@ -12,12 +12,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "84bfbc56a19b28c814c2c553ba6bc3bdd0ef4ebb"
+                "reference": "dae87f7177d94fd76de64a9b0542f0ba201ac029"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev",
-                "php": ">=7.2"
+                "php": ">=7.4"
             },
             "require-dev": {
                 "automattic/jetpack-connection": "@dev",
@@ -89,11 +89,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "afee041b24440e62c6ddb502b3c6716044f8c3ed"
+                "reference": "4f3d5cc0e79e8be6fa32f7039a0e48fcd115ba72"
             },
             "require": {
                 "composer-plugin-api": "^2.2",
-                "php": ">=7.2"
+                "php": ">=7.4"
             },
             "require-dev": {
                 "automattic/phpunit-select-config": "@dev",
@@ -157,10 +157,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
-                "reference": "a2f68c778c6c47b3e9f7699379fe5efa8ffe2acc"
+                "reference": "3abd420b0e4f66103c2466634b662fe112986eaf"
             },
             "require": {
-                "php": ">=7.2"
+                "php": ">=7.4"
             },
             "require-dev": {
                 "automattic/phpunit-select-config": "@dev",
@@ -211,10 +211,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/ip",
-                "reference": "d63dccb293846fdd6ef54fb78848d043815de4bb"
+                "reference": "4132cf3677be48bfe87b85ce9c18f02d0de06187"
             },
             "require": {
-                "php": ">=7.2"
+                "php": ">=7.4"
             },
             "require-dev": {
                 "automattic/phpunit-select-config": "@dev",
@@ -269,10 +269,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "9772ff10ed4f2e82abda216a2631b547d0a562e9"
+                "reference": "6dfb8c9a810d778fe1b755570e335abea1f46fda"
             },
             "require": {
-                "php": ">=7.2"
+                "php": ">=7.4"
             },
             "require-dev": {
                 "automattic/phpunit-select-config": "@dev",
@@ -322,11 +322,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "84a8949d203512d279ad65280af8d2af01d4d799"
+                "reference": "f0f62b70e7d86e7c296c46635862654541d24d89"
             },
             "require": {
                 "automattic/jetpack-status": "@dev",
-                "php": ">=7.2"
+                "php": ">=7.4"
             },
             "require-dev": {
                 "automattic/phpunit-select-config": "@dev",
@@ -377,12 +377,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "8478d12eaf8b393eec0cddd178a20199e77a42a1"
+                "reference": "e81bf97be65512f3b6073b4f224cbe3fe8c243a9"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-ip": "@dev",
-                "php": ">=7.2"
+                "php": ">=7.4"
             },
             "require-dev": {
                 "automattic/jetpack-connection": "@dev",

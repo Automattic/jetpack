@@ -1,16 +1,14 @@
 import { Button, Card } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
+import LicenseKeyLink from './license-key-link';
 
-const JETPACK_CONNECT_USER_URL = 'admin.php?page=jetpack#/connection';
+/** My Jetpack, for the reasons spelled out in `not-connected.tsx`. */
+const JETPACK_CONNECT_USER_URL = 'admin.php?page=my-jetpack';
 
 /**
  * Fallback shown when the current user is an admin but isn't personally
  * linked to a WordPress.com account on this site.
- *
- * Links out to the Jetpack settings connection screen rather than
- * embedding `<ConnectButton>` (see `not-connected.tsx` for the
- * wp-build/SCSS rationale).
  *
  * @return The rendered fallback.
  */
@@ -30,6 +28,7 @@ export default function SecondaryAdminScreen() {
 				<Button variant="primary" href={ JETPACK_CONNECT_USER_URL }>
 					{ __( 'Link my account', 'jetpack-backup-pkg' ) }
 				</Button>
+				<LicenseKeyLink />
 			</Stack>
 		</Card>
 	);

@@ -64,7 +64,7 @@
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-waf": "@dev",
 		"automattic/jetpack-wp-abilities": "@dev",
-		"automattic/woocommerce-analytics": "^0.16",
+		"automattic/woocommerce-analytics": "^0.17",
 		"wp-php-toolkit/reprint-server": "^0.10.4"
 	},
 	"require-dev": {
