@@ -1,15 +1,31 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings as getDateSettings, setSettings as setDateSettings } from '@wordpress/date';
+import analytics from 'lib/analytics';
 import AiOverview from '../index';
 import { freePayload, tieredPayload, unlimitedPayload } from './fixtures';
 
 // The usage hook fetches through @wordpress/api-fetch; stub it so nothing
 // hits the network and each test controls the response.
 jest.mock( '@wordpress/api-fetch' );
+// The component imports the webpack-aliased 'lib/analytics', which does not
+// resolve under jest; provide it virtually.
+jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
+
+const callsFor = eventName =>
+	analytics.tracks.recordEvent.mock.calls
+		.filter( call => call[ 0 ] === eventName )
+		.map( call => call[ 1 ] );
+
+// jsdom does not implement navigation; cancel the anchors' default action so
+// clicks still reach React's handlers without a jsdom "not implemented" error.
+const cancelNavigation = event => event.preventDefault();
+beforeEach( () => document.addEventListener( 'click', cancelNavigation ) );
 
 afterEach( () => {
 	jest.resetAllMocks();
+	document.removeEventListener( 'click', cancelNavigation );
 } );
 
 const PROPS = {
@@ -394,5 +410,25 @@ describe( 'AiOverview', () => {
 			const link = screen.getByRole( 'link', { name: new RegExp( name ) } );
 			expect( link ).toHaveAttribute( 'href', expect.stringContaining( slug ) );
 		}
+	} );
+	test( 'tracks: records the overview view once on mount', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+		expect( callsFor( 'jetpack_ai_hub_viewed' ) ).toEqual( [ { tab: 'overview' } ] );
+	} );
+
+	test( 'tracks: a video card click records the video slug', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'link', { name: /Connect your site to Claude/ } ) );
+		expect( callsFor( 'jetpack_ai_hub_link_click' ) ).toEqual( [
+			{ link_type: 'video', link: 'jetpack-ai-hub-overview-video-connect-claude' },
+		] );
 	} );
 } );
