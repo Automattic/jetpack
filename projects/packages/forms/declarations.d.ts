@@ -17,7 +17,5 @@ declare module '*.svg';
 declare global {
 	interface Window {
 		JP_CONNECTION_INITIAL_STATE: ConnectionScriptData;
-		/** Set by Form_Editor::enqueue_welcome_guide(); absent off the form editor. */
-		jetpackFormsWelcomeGuide?: { isEligible: boolean };
 	}
 }

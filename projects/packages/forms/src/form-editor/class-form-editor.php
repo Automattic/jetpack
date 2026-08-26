@@ -229,10 +229,9 @@ class Form_Editor {
 	 * the runtime default this package sets, and reopening core's generic modal
 	 * in the form editor on each load until the user finished it there.
 	 *
-	 * What loads here is only the shim that claims that item and decides
-	 * whether to open. The slides, their artwork and their styles are a
-	 * separate chunk fetched when the guide actually opens, so a dismissed
-	 * user still pays almost nothing.
+	 * The bundle carries the slide copy and styles as well as the shim that
+	 * claims the menu item, so a dismissed user does pay for those — a few KB
+	 * gzipped. Only the artwork is deferred, fetched when the guide opens.
 	 */
 	private static function enqueue_welcome_guide() {
 		$screen = get_current_screen();
@@ -368,8 +367,7 @@ class Form_Editor {
 				'fields'        => 'ids',
 				'no_found_rows' => true,
 				'cache_results' => false,
-				'orderby'       => 'ID',
-				'order'         => 'ASC',
+				'orderby'       => 'none',
 			)
 		);
 

@@ -17,7 +17,7 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as preferencesStore } from '@wordpress/preferences';
 import { FORM_POST_TYPE } from '../../blocks/shared/util/constants.js';
-import { getWelcomeGuidePages } from './pages';
+import { getWelcomeGuidePages, WELCOME_GUIDE_IMAGES } from './pages';
 import {
 	isWelcomeGuideEligible,
 	isWelcomeGuideForced,
@@ -127,10 +127,10 @@ export const FormWelcomeGuide = () => {
 			return;
 		}
 
-		getWelcomeGuidePages().forEach( ( { imageSrc } ) => {
+		WELCOME_GUIDE_IMAGES.forEach( src => {
 			// Assigning `src` is enough to start the request and populate the
 			// HTTP cache; the element itself is never added to the document.
-			new window.Image().src = imageSrc;
+			new window.Image().src = src;
 		} );
 	}, [ isOpen ] );
 
@@ -163,17 +163,17 @@ export const FormWelcomeGuide = () => {
 		set( CORE_PREFERENCE_SCOPE, PREFERENCE_NAME, false );
 	}, [ coreWelcomeGuide, handleReopen, isFormEditor, set ] );
 
+	if ( ! isOpen ) {
+		return null;
+	}
+
 	return (
-		<>
-			{ isOpen && (
-				<Guide
-					className="jetpack-forms-welcome-guide"
-					contentLabel={ __( 'Welcome to the form editor', 'jetpack-forms' ) }
-					finishButtonText={ __( 'Start building', 'jetpack-forms' ) }
-					onFinish={ handleFinish }
-					pages={ getWelcomeGuidePages() }
-				/>
-			) }
-		</>
+		<Guide
+			className="jetpack-forms-welcome-guide"
+			contentLabel={ __( 'Welcome to the form editor', 'jetpack-forms' ) }
+			finishButtonText={ __( 'Start building', 'jetpack-forms' ) }
+			onFinish={ handleFinish }
+			pages={ getWelcomeGuidePages() }
+		/>
 	);
 };
