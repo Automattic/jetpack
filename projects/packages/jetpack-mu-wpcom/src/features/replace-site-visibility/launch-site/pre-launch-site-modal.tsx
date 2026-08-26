@@ -2,11 +2,14 @@ import PreLaunchModal from '@automattic/site-launch-modals/pre-launch-modal';
 import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
 import { wpcomTrackEvent } from '../../../common/tracks';
+import type { CSSProperties } from 'react';
 
 import './pre-launch-site-modal.scss';
 
 // The preview iframe renders the site at desktop width and is scaled down into
-// the thumbnail box, matching the Calypso pre-launch preview.
+// the thumbnail box, matching the Calypso pre-launch preview. These constants are
+// the single source of truth for the box size: they drive the scale math here and
+// are handed to the SCSS via CSS custom properties, so the two never drift.
 const PREVIEW_BASE_WIDTH = 1200;
 const THUMBNAIL_WIDTH = 114;
 const THUMBNAIL_HEIGHT = 88;
@@ -57,10 +60,22 @@ export default function PreLaunchSiteModal( {
 			onLaunch={ () => {
 				setIsLaunching( true );
 				wpcomTrackEvent( 'wpcom_launch_site_pre_launch_modal_confirm' );
-				window.location.href = launchUrl;
+				// Defer navigation one tick so the queued Tracks beacon can flush
+				// before the page unloads.
+				setTimeout( () => {
+					window.location.href = launchUrl;
+				}, 0 );
 			} }
 			preview={
-				<div className="wpcom-pre-launch-site-modal__thumbnail">
+				<div
+					className="wpcom-pre-launch-site-modal__thumbnail"
+					style={
+						{
+							'--wpcom-pre-launch-thumbnail-width': `${ THUMBNAIL_WIDTH }px`,
+							'--wpcom-pre-launch-thumbnail-height': `${ THUMBNAIL_HEIGHT }px`,
+						} as CSSProperties
+					}
+				>
 					<iframe
 						title={ siteName }
 						src={ addQueryArgs( homeUrl, {
