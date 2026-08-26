@@ -186,7 +186,13 @@ export function reportParamsToStatsQueryParams(
 }
 
 export function statsQueryParamsToApiParams( params: StatsQueryParams = {} ): StatsProxyParams {
+	// window_start/window_end are sanitizer-only (see StatsQueryParamFields):
+	// stripped here so a caller that passes them in request params by mistake
+	// cannot leak them into request URLs and query keys.
 	const { end_date: endDate, ...apiParams } = params;
+
+	delete apiParams.window_start;
+	delete apiParams.window_end;
 
 	return {
 		...apiParams,
