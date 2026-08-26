@@ -59,4 +59,33 @@ describe( 'createReportParamsField', () => {
 			reportParams: expect.objectContaining( { interval: 'week' } ),
 		} );
 	} );
+
+	/*
+	 * The dashboard header's pills apply on click, because `useStagedSearch`
+	 * auto-commits them. Without the same here the pill highlights while the
+	 * widget keeps fetching the committed range — and the bucket menu keeps
+	 * offering that range's buckets, so picking "Last 24 hours" left months and
+	 * quarters on offer.
+	 */
+	it( 'applies a quick preset on click, with no Apply step', async () => {
+		const user = userEvent.setup();
+		const { onChange } = renderField( true );
+
+		await user.click( screen.getByRole( 'button', { name: /24 hours/i } ) );
+
+		expect( onChange ).toHaveBeenCalledWith( {
+			reportParams: expect.objectContaining( { preset: 'last-24-hours' } ),
+		} );
+	} );
+
+	// A custom range is drafted in a popover and still has its own Apply, so it
+	// must not commit through the same path.
+	it( 'leaves a custom range to its Apply step', async () => {
+		const user = userEvent.setup();
+		const { onChange } = renderField( true );
+
+		await user.click( screen.getByRole( 'button', { name: /custom/i } ) );
+
+		expect( onChange ).not.toHaveBeenCalled();
+	} );
 } );

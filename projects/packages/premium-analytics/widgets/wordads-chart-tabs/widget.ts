@@ -3,6 +3,7 @@
  */
 import {
 	createReportParamsField,
+	getDefaultReportParams,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/fields';
 /**
@@ -32,11 +33,9 @@ export default {
 			Edit: ReportParamsField,
 		},
 	] as WidgetAttributeField< WordAdsChartTabsAttributes >[],
-	// Stored as a preset alone so `normalizeReportParams` recomputes its moving
-	// end on every load, rather than baking the dates this module was built on.
 	example: {
 		attributes: {
-			reportParams: { preset: 'last-30-days', interval: 'day' },
+			reportParams: getDefaultReportParams(),
 		},
 	},
 };

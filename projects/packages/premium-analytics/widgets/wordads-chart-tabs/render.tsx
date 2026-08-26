@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
+import { getDefaultReportParams } from '@jetpack-premium-analytics/fields';
 import { megaphone } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTabsChart,
@@ -81,7 +82,16 @@ export default function WordAdsChartTabs( { attributes = {} }: WordAdsChartTabsW
 		// Set the scope before WidgetRoot strips unsupported comparison parameters
 		// and configures the header control.
 		<ReportScopeProvider offersComparison={ false }>
-			<WidgetRoot attributes={ attributes }>
+			{ /*
+			 * An instance saved before this widget owned its range carries no
+			 * `reportParams`, and `WidgetRoot` falls back to the URL for those —
+			 * which is the section date state this widget no longer follows. Fall
+			 * back to the same default the header control shows instead, so the
+			 * two never name different windows.
+			 */ }
+			<WidgetRoot
+				attributes={ { reportParams: attributes.reportParams ?? getDefaultReportParams() } }
+			>
 				<WordAdsChartTabsInner />
 			</WidgetRoot>
 		</ReportScopeProvider>

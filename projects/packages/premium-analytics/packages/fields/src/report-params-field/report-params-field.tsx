@@ -37,6 +37,21 @@ import type { DataFormControlProps } from '@jetpack-premium-analytics/externals'
 
 type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ] >;
 
+/**
+ * The report params a widget that owns its date range starts on.
+ *
+ * A preset alone, so `normalizeReportParams` recomputes its moving end on every
+ * load rather than freezing the dates this module was built on. Shared with the
+ * widget's `render.tsx`: `WidgetRoot` falls back to the URL when a widget
+ * carries no `reportParams`, which would leave this control and that widget's
+ * body reading different windows until the first edit.
+ *
+ * @return The default report params.
+ */
+export function getDefaultReportParams(): ReportParams {
+	return { preset: getDefaultPreset( getStoreInfo().launchedDate ) };
+}
+
 export type ReportParamsFieldAttributes = {
 	reportParams: ReportParams;
 };
@@ -120,8 +135,19 @@ function ReportParamsControl( {
 			}
 
 			setStagedReportParams( nextReportParams );
+
+			/*
+			 * Quick presets apply on click, as they do in the dashboard header —
+			 * there `useStagedSearch` auto-commits them on a debounce. Without
+			 * this the pill highlights but nothing else moves: the widget keeps
+			 * fetching the committed range, and the bucket menu keeps offering
+			 * that range's buckets. Only a custom range keeps its Apply step.
+			 */
+			if ( nextPresetId && isPrimaryPreset( nextPresetId ) ) {
+				onChange( { reportParams: nextReportParams } );
+			}
 		},
-		[ stagedReportParams, reportParams.comp ]
+		[ stagedReportParams, reportParams.comp, onChange ]
 	);
 
 	const isDateRangeDirty = useMemo( () => {
