@@ -4217,9 +4217,6 @@ importers:
       '@automattic/social-previews':
         specifier: workspace:*
         version: link:../../js-packages/social-previews
-      '@automattic/ui':
-        specifier: 1.0.2
-        version: 1.0.2(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@jetpack-social/init':
         specifier: link:packages/init
         version: link:packages/init
