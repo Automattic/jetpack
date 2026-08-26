@@ -91,6 +91,20 @@ describe( 'AiFeatures rendering', () => {
 		).not.toBeInTheDocument();
 	} );
 
+	test( 'the AI SEO row renders from the ai_seo feature key inside the SEO group', () => {
+		renderFeatures( {
+			features: {
+				writing_assistant: { enabled: true },
+				ai_seo: { enabled: true },
+			},
+		} );
+
+		const seoGroup = screen.getByRole( 'region', { name: 'SEO' } );
+		const toggle = within( seoGroup ).getByRole( 'checkbox', { name: /AI SEO/ } );
+		expect( toggle ).toBeChecked();
+		expect( toggle ).toBeEnabled();
+	} );
+
 	test( 'the upgrade badge sits inside the Search group', () => {
 		renderFeatures();
 

@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Load the CSS that hides core admin notices on Jetpack pages through the style queue instead of printing a style element.

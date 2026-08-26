@@ -505,6 +505,28 @@ describe( 'BarChart', () => {
 			expect( distinctTexts( ticks ).size ).toBeGreaterThan( 1 );
 		} );
 
+		test( 'keeps the derived date formatter when tickFormat is passed as undefined', () => {
+			renderWithTheme( {
+				width: 800,
+				options: { axis: { x: { tickFormat: undefined } } },
+				data: [
+					{
+						label: 'Series A',
+						data: Array.from( { length: 14 }, ( _, i ) => ( {
+							date: new Date( 2024, 0, 1 + i ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText( /^Jan \d+$/ );
+			expect( distinctTexts( ticks ).size ).toBeGreaterThan( 1 );
+			// A clobbered formatter falls back to raw `Date.toString()` ticks.
+			expect( screen.queryByText( /GMT/ ) ).not.toBeInTheDocument();
+		} );
+
 		test( 'renders distinct hour ticks for sub-daily buckets in a single day', () => {
 			renderWithTheme( {
 				width: 800,
@@ -1017,6 +1039,64 @@ describe( 'BarChart', () => {
 				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveFocus();
 				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
 				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+			} );
+
+			test( 'keeps the tooltip open once the chart re-renders under it', async () => {
+				// visx hides its tooltip on a debounce and cancels only the most recently
+				// scheduled hide, so anything that re-runs the tooltip effect while nothing
+				// is shown leaves a hide pending that lands on the next tooltip. Seeding a
+				// hidden series re-renders the chart right after mount, which is exactly
+				// that shape.
+				jest.useFakeTimers();
+
+				try {
+					const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+					renderWithTheme( {
+						withTooltips: true,
+						defaultHiddenSeries: [ 'Series B' ],
+						data: [
+							{
+								label: 'Series A',
+								data: [
+									{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+									{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+								],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [
+									{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
+									{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+								],
+								options: {},
+							},
+						],
+					} );
+
+					const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+					chart.focus();
+
+					await user.keyboard( '{ArrowRight}' );
+					expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
+
+					// Well past any pending hide.
+					await act( async () => {
+						jest.advanceTimersByTime( 5000 );
+					} );
+
+					expect( screen.getByTestId( 'chart-tooltip-0' ) ).toBeInTheDocument();
+
+					// Leaving navigation still closes it.
+					await user.keyboard( '{Escape}' );
+					await act( async () => {
+						jest.advanceTimersByTime( 5000 );
+					} );
+
+					expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+				} finally {
+					jest.useRealTimers();
+				}
 			} );
 
 			test( 'left arrow key navigates to previous data point', async () => {
@@ -2123,6 +2203,72 @@ describe( 'BarChart', () => {
 			expect(
 				screen.getByText( /all series are hidden.*click legend items to show data/i )
 			).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'defaultHiddenSeries', () => {
+		it( 'renders a series hidden when named in defaultHiddenSeries', () => {
+			render(
+				<GlobalChartsProvider>
+					<BarChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: true } }
+						chartId="test-default-hidden-bar"
+						defaultHiddenSeries={ [ 'Series B' ] }
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const items = screen.getAllByRole( 'button' );
+			expect( items[ 0 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+			expect( items[ 1 ] ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
+
+		it( 'lets the user reveal a series seeded hidden', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<BarChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: true } }
+						chartId="test-default-hidden-reveal-bar"
+						defaultHiddenSeries={ [ 'Series B' ] }
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			await user.click( screen.getAllByRole( 'button' )[ 1 ] );
+
+			expect( screen.getAllByRole( 'button' )[ 1 ] ).toHaveAttribute( 'aria-pressed', 'true' );
 		} );
 	} );
 } );

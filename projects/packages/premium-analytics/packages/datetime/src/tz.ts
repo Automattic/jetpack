@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { tz, TZDate, TZDateMini } from '@date-fns/tz';
+import { tz, TZDate, TZDateMini, tzOffset } from '@date-fns/tz';
 import { format, isValid, startOfDay, endOfDay } from 'date-fns';
 /**
  * Internal dependencies
@@ -35,6 +35,53 @@ type GrowTuple< T extends unknown[], Max extends number > = T[ 'length' ] extend
  */
 type DateParts = GrowTuple< [ number, number ], 7 >;
 
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const MINUTE_IN_MS = 60 * 1000;
+
+/**
+ * Resolve wall-clock parts to the instant they name in a timezone.
+ *
+ * `TZDateMini`'s own parts constructor seeds its offset guess from the machine
+ * timezone, so wall times a DST transition skips or repeats resolve to
+ * different instants depending on the host — in production, the visitor's
+ * browser. This resolves them deterministically instead: a wall time a
+ * fall-back transition names twice takes its first occurrence, and one a
+ * spring-forward gap skips normalizes forward by the gap's length.
+ *
+ * @param parts    - Wall-clock parts, `[ year, month, ...rest ]` as `Date.UTC` reads them.
+ * @param timeZone - The timezone the wall time belongs to.
+ * @return The timestamp of the resolved instant, in milliseconds.
+ */
+function wallPartsToTimestamp( parts: number[], timeZone: string ): number {
+	const [ year, month, ...rest ] = parts;
+	const wallAsUTC = Date.UTC( year, month, ...rest );
+
+	// The offsets in effect a day before and after bracket any DST transition
+	// the wall time can sit on.
+	const before = tzOffset( timeZone, new Date( wallAsUTC - DAY_IN_MS ) );
+	const after = tzOffset( timeZone, new Date( wallAsUTC + DAY_IN_MS ) );
+
+	const candidates: number[] = [];
+	for ( const offset of before === after ? [ before ] : [ before, after ] ) {
+		const timestamp = wallAsUTC - offset * MINUTE_IN_MS;
+		// The anchor only holds where its offset is actually in effect.
+		if ( tzOffset( timeZone, new Date( timestamp ) ) === offset ) {
+			candidates.push( timestamp );
+		}
+	}
+
+	if ( candidates.length > 0 ) {
+		// Two survivors mean a fall-back transition names the wall time twice;
+		// the earliest timestamp is its first occurrence.
+		return Math.min( ...candidates );
+	}
+
+	// No survivor means a spring-forward gap skips the wall time. Anchoring
+	// with the pre-gap offset lands just past the transition, normalizing the
+	// wall time forward by the gap's length.
+	return wallAsUTC - before * MINUTE_IN_MS;
+}
+
 /**
  * Build a TZDate from `DateParts` in the given timezone, UTC when omitted.
  *
@@ -60,8 +107,7 @@ export function createTZDateFromParts(
 	const idx = dateParts.indexOf( undefined );
 	const datePartsTrimmed = idx === -1 ? dateParts : dateParts.slice( 0, idx );
 
-	// @ts-expect-error: We know datePartsTrimmed is a tuple of numbers, spreading is safe.
-	return new TZDateMini( ...datePartsTrimmed, tzid );
+	return new TZDateMini( wallPartsToTimestamp( datePartsTrimmed as number[], tzid ), tzid );
 }
 
 /**

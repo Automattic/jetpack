@@ -2,11 +2,11 @@
  * External dependencies
  */
 import {
+	QUICK_SURFACE_PRESETS,
 	computePrimaryRange,
 	getQuickSurfacePresets,
-	isSelectablePreset,
 	type PrimaryPresetId,
-	type SelectablePresetId,
+	type QuickSurfacePresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { Button } from '@jetpack-premium-analytics/externals';
 import { Composite } from '@wordpress/components';
@@ -22,12 +22,25 @@ type DateRangeQuickPresetsProps = {
 	/**
 	 * Currently selected preset ID, or null when a custom range is active.
 	 */
-	value: SelectablePresetId | null;
+	value: QuickSurfacePresetId | null;
 
 	/**
-	 * Fired when the user picks a rolling-window preset.
+	 * Fired when the user picks a preset.
 	 */
-	onSelect: ( range: DateRange, id: SelectablePresetId ) => void;
+	onSelect: ( range: DateRange, id: QuickSurfacePresetId ) => void;
+
+	/**
+	 * The presets to render as pills, in display order. Defaults to the rolling
+	 * windows; a detail page leads with all time (`DETAIL_SURFACE_PRESETS`).
+	 */
+	presetIds?: readonly QuickSurfacePresetId[];
+
+	/**
+	 * Where the all-time pill starts, e.g. the resource's publish date. Only
+	 * read when the pills include all time; without it the range falls back to
+	 * the year surface's default span.
+	 */
+	allTimeStart?: Date;
 
 	/**
 	 * IANA timezone string (e.g., 'America/New_York').
@@ -46,8 +59,13 @@ export function DateRangeQuickPresets( {
 	onSelect,
 	timeZone,
 	labelMode = 'full',
+	presetIds = QUICK_SURFACE_PRESETS,
+	allTimeStart,
 }: DateRangeQuickPresetsProps ) {
-	const presets = useMemo( () => getQuickSurfacePresets( timeZone ), [ timeZone ] );
+	const presets = useMemo(
+		() => getQuickSurfacePresets( timeZone, { presetIds, startDate: allTimeStart } ),
+		[ allTimeStart, presetIds, timeZone ]
+	);
 
 	/*
 	 * The whole group switches together. A row mixing "Last 24 hours" with "7D"
@@ -63,7 +81,7 @@ export function DateRangeQuickPresets( {
 	/*
 	 * Recompute the range at selection time: the memoized preset ranges go
 	 * stale while the page stays open, which matters for rolling windows
-	 * like last-24-hours.
+	 * like last-24-hours. All time keeps its anchor, so only its end moves.
 	 */
 	const selectPreset = useCallback(
 		( presetId: string ) => {
@@ -72,9 +90,12 @@ export function DateRangeQuickPresets( {
 				return;
 			}
 
-			onSelect( computePrimaryRange( preset.id, timeZone ) ?? preset.range, preset.id );
+			onSelect(
+				computePrimaryRange( preset.id, timeZone, { startDate: allTimeStart } ) ?? preset.range,
+				preset.id
+			);
 		},
-		[ onSelect, presets, timeZone ]
+		[ allTimeStart, onSelect, presets, timeZone ]
 	);
 
 	/*
@@ -112,12 +133,17 @@ export function DateRangeQuickPresets( {
 /**
  * Returns the preset ID to highlight on the surface controls.
  *
- * @param presetId - Active preset from staged search state.
- * @return The selectable preset ID, or null when a custom range or a preset
- *         from another surface (e.g. a year) is active.
+ * @param presetId  - Active preset from staged search state.
+ * @param presetIds - The presets the surface renders.
+ * @return The rendered preset ID, or null when a custom range or a preset the
+ *         surface does not list (e.g. a year, or all time on the dashboard) is
+ *         active.
  */
 export function getSurfacePresetId(
-	presetId: PrimaryPresetId | null | undefined
-): SelectablePresetId | null {
-	return isSelectablePreset( presetId ) ? presetId : null;
+	presetId: PrimaryPresetId | null | undefined,
+	presetIds: readonly QuickSurfacePresetId[] = QUICK_SURFACE_PRESETS
+): QuickSurfacePresetId | null {
+	return presetId && ( presetIds as readonly string[] ).includes( presetId )
+		? ( presetId as QuickSurfacePresetId )
+		: null;
 }

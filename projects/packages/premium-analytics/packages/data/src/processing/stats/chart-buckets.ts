@@ -51,7 +51,7 @@ export function getStatsChartBucketKey( date: string, period: StatsChartBucketPe
  *
  * The caller maps each data point to its chart metrics, including the required
  * headline `value`. Metrics are summed when daily points share a chart bucket.
- * Each bucket preserves the first daily point's time and offset.
+ * Each bucket preserves the first daily point's time suffix.
  *
  * @param report          - The normalized daily Stats report.
  * @param period          - The chart bucket period.

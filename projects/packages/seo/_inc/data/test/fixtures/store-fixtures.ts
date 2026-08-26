@@ -39,7 +39,7 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 };
 
 export const SEEDED_AI: AiState = {
-	enhancer: { available: true, enabled: false },
+	enhancer: { available: true, enabled: false, aiSeoEnabled: true },
 	llmsTxt: { enabled: false, url: 'https://example.com/llms.txt', canServe: true },
 	crawlers: {
 		catalog: [

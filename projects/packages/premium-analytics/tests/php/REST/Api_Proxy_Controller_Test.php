@@ -977,8 +977,8 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	 * @return WP_REST_Request
 	 */
 	private function build_data_request( string $method, string $endpoint, array $params = array(), ?string $version = null ): WP_REST_Request {
-		$version = $version ?? '2';
-		$request = new WP_REST_Request( $method, '/jetpack-premium-analytics/v1/proxy/v' . $version . '/' . $endpoint );
+		$version ??= '2';
+		$request   = new WP_REST_Request( $method, '/jetpack-premium-analytics/v1/proxy/v' . $version . '/' . $endpoint );
 		// `endpoint` and `version` are both route (URL) captures in production.
 		$request->set_url_params(
 			array(

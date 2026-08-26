@@ -35,6 +35,14 @@ interface GlobalChartsContextValue {
 
 	// Series visibility management shared by charts and legends
 	toggleSeriesVisibility: (chartId: string, seriesLabel: string) => void;
+	// Absolute counterpart to the toggle, for callers that know the target state.
+	setSeriesVisibility: (chartId: string, seriesLabel: string, visible: boolean) => void;
+	// Replaces a chart's entire hidden set.
+	setChartHiddenSeries: (chartId: string, seriesLabels: readonly string[]) => void;
+	// Applies a chart's defaults once. A no-op for a chart that has already been seeded.
+	seedChartHiddenSeries: (chartId: string, seriesLabels: readonly string[]) => void;
+	// Whether this chart's defaults have already been seeded, in this or an earlier mount.
+	hasSeededChart: (chartId: string) => boolean;
 	isSeriesVisible: (chartId: string, seriesLabel: string) => boolean;
 	getHiddenSeries: (chartId: string) => Set<string>;
 
@@ -47,6 +55,7 @@ interface GlobalChartsContextValue {
 
 | Member | Note |
 | ------ | ---- |
+| `seedChartHiddenSeries` | Backs the `defaultHiddenSeries` prop. The provider records which chart IDs it has seeded, so a chart that unmounts and comes back keeps whatever the reader had shown or hidden. |
 | `isColorPaletteResolved` | `false` until the color cache has resolved from the DOM and painted. Use it to defer transitions that would otherwise interpolate from a fallback color. |
 
 For theming and CSS custom-property overrides, see the [Global Charts Context guide](?path=/docs/js-packages-charts-library-global-context--docs) and `TOKENS.md`.
