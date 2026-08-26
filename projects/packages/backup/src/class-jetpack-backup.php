@@ -661,26 +661,46 @@ class Jetpack_Backup {
 	/**
 	 * Gets information about the currently promoted backup product.
 	 *
-	 * @return string|WP_Error A JSON object of the current backup product being promoted if the request was successful, or a WP_Error otherwise.
+	 * @return object|WP_Error The promoted product, or a WP_Error if it could not be read.
 	 */
 	public static function get_backup_promoted_product_info() {
 		$request_url   = 'https://public-api.wordpress.com/rest/v1.1/products?locale=' . get_user_locale() . '&type=jetpack';
 		$wpcom_request = wp_remote_get( esc_url_raw( $request_url ) );
-		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
-		if ( 200 === $response_code ) {
-			$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
-			return $products->{self::JETPACK_BACKUP_PROMOTED_PRODUCT};
-		} else {
-			// Something went wrong so we'll just return the response without caching.
+		// Cast: the transport may report the status as a numeric string, which
+		// a strict comparison against 200 sends down the failure path.
+		$response_code = (int) wp_remote_retrieve_response_code( $wpcom_request );
+
+		if ( 200 !== $response_code ) {
 			return new WP_Error(
 				'failed_to_fetch_data',
 				esc_html__( 'Unable to fetch the requested data.', 'jetpack-backup-pkg' ),
 				array(
-					'status'  => $response_code,
+					// A transport failure has no status at all; reporting 0 would
+					// leave the REST layer with nothing to serve.
+					'status'  => $response_code ? $response_code : 500,
 					'request' => $wpcom_request,
 				)
 			);
 		}
+
+		$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+
+		// A 200 is not a promise that the promoted product is in the body. A
+		// truncated response decodes to null, and the slug is a constant here
+		// but a catalogue entry upstream — retiring it there leaves this a 200
+		// with the key absent. Reading through either emits a PHP warning and
+		// yields null, which the route then serves as a 200 carrying `null`:
+		// indistinguishable, to a caller, from a priced answer it failed to
+		// read. Refusing says which of the two happened.
+		if ( ! is_object( $products ) || ! isset( $products->{ self::JETPACK_BACKUP_PROMOTED_PRODUCT } ) ) {
+			return new WP_Error(
+				'promoted_product_unreadable',
+				esc_html__( 'Unable to read the promoted product information.', 'jetpack-backup-pkg' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return $products->{ self::JETPACK_BACKUP_PROMOTED_PRODUCT };
 	}
 
 	/**
