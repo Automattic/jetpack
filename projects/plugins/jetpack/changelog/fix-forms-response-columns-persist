@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Forms: remember which response columns are shown, and their order, for each form.
