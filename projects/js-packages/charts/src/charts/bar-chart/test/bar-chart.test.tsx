@@ -505,6 +505,28 @@ describe( 'BarChart', () => {
 			expect( distinctTexts( ticks ).size ).toBeGreaterThan( 1 );
 		} );
 
+		test( 'keeps the derived date formatter when tickFormat is passed as undefined', () => {
+			renderWithTheme( {
+				width: 800,
+				options: { axis: { x: { tickFormat: undefined } } },
+				data: [
+					{
+						label: 'Series A',
+						data: Array.from( { length: 14 }, ( _, i ) => ( {
+							date: new Date( 2024, 0, 1 + i ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText( /^Jan \d+$/ );
+			expect( distinctTexts( ticks ).size ).toBeGreaterThan( 1 );
+			// A clobbered formatter falls back to raw `Date.toString()` ticks.
+			expect( screen.queryByText( /GMT/ ) ).not.toBeInTheDocument();
+		} );
+
 		test( 'renders distinct hour ticks for sub-daily buckets in a single day', () => {
 			renderWithTheme( {
 				width: 800,

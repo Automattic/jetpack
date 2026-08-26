@@ -492,10 +492,7 @@ function get_dashboard_default_section_layouts() {
 				'jpa/wordads-chart-tabs',
 				1,
 				4,
-				2,
-				array(
-					'granularity' => 'auto',
-				)
+				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-wordads-earnings-history-widget-instance',

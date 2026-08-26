@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop deleting and rewriting the plan and product options when the stored value is unchanged.
