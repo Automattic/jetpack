@@ -170,7 +170,7 @@ export async function handler( argv ) {
 		if ( ! verbose && commandFailed ) {
 			console.error(
 				chalk.yellow(
-					'\nRun again with `-v` for the full error, and to answer any prompt the command is waiting on.\n' +
+					'\nRun again with `-v` to answer any prompt the command is waiting on.\n' +
 						'With no terminal to prompt on (CI, a script, an agent), `pnpm` refuses to remove `node_modules` on its own; ' +
 						'`jetpack pnpm install --config.confirm-modules-purge=false` tells it to go ahead.'
 				)
