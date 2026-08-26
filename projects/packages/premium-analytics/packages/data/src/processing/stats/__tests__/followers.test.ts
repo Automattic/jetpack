@@ -49,6 +49,27 @@ describe( 'Stats followers normalizer', () => {
 		);
 	} );
 
+	it( 'orders subscribers by subscription date, newest first', () => {
+		// `type=all` returns the newest email subscribers followed by the newest
+		// WPCOM ones, so an older email row can precede a newer WPCOM one.
+		const result = sanitizeStatsFollowersResponse( {
+			...followersFixture,
+			subscribers: [
+				{ ID: 1, label: 'older@example.com', date_subscribed: '2025-01-26T00:00:00+00:00' },
+				{ ID: 2, label: 'Newest Reader', date_subscribed: '2026-08-25T00:00:00+00:00' },
+				{ ID: 3, label: 'Undated Reader' },
+				{ ID: 4, label: 'Middle Reader', date_subscribed: '2026-04-28T00:00:00+00:00' },
+			],
+		} );
+
+		expect( result.data[ 0 ].items.map( item => item.label ) ).toEqual( [
+			'Newest Reader',
+			'Middle Reader',
+			'older@example.com',
+			'Undated Reader',
+		] );
+	} );
+
 	it( 'returns an empty report for missing subscribers', () => {
 		expect(
 			sanitizeStatsFollowersResponse( {

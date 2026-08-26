@@ -74,12 +74,22 @@ function getSubscriptionId( item: StatsFollowersRawItem ) {
 	);
 }
 
+function subscribedAt( item: { date_subscribed?: string } ) {
+	const time = Date.parse( item.date_subscribed ?? '' );
+
+	return Number.isNaN( time ) ? -Infinity : time;
+}
+
 export function sanitizeStatsFollowersResponse(
 	response: unknown,
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsFollowersItem > {
 	const payload = coerceStatsRecord( response ) as StatsFollowersRawResponse & StatsRecord;
-	const subscribers = coerceStatsArray< StatsFollowersRawItem >( payload.subscribers );
+	// `type=all` concatenates the newest `max` email subscribers with the newest
+	// `max` WPCOM ones, so the raw order is grouped by type rather than by date.
+	const subscribers = coerceStatsArray< StatsFollowersRawItem >( payload.subscribers )
+		.slice()
+		.sort( ( a, b ) => subscribedAt( b ) - subscribedAt( a ) );
 	const items = subscribers.map( item => ( {
 		id: getSubscriptionId( item ),
 		label: item.label ?? item.display_name ?? item.name ?? item.email ?? '',
