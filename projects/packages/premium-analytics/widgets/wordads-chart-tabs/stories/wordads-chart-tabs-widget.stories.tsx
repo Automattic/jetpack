@@ -54,11 +54,18 @@ export default meta;
 type Story = StoryObj< Record< string, never > >;
 type DashboardStory = StoryObj< WidgetDashboardWithWidgetControls >;
 
+/**
+ * The widget on its own, on the range its header control defaults to.
+ */
 export const Default: Story = {
 	render: renderOnPreset( 'last-30-days', 'day' ),
 	decorators: [ withWidgetCanvas ],
 };
 
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
 export const Loading: Story = {
 	render: renderOnPreset( 'last-90-days', 'week' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
@@ -70,6 +77,10 @@ export const Loading: Story = {
 	},
 };
 
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
 export const Error: Story = {
 	render: renderOnPreset( 'last-7-days', 'day' ),
 	tags: [ '!autodocs' ],
@@ -80,6 +91,10 @@ export const Error: Story = {
 	},
 };
 
+/**
+ * Resolved with no rows: the widget shows its empty state (the neutral megaphone
+ * glyph and "No WordAds data in this period.").
+ */
 export const Empty: Story = {
 	render: renderOnPreset( 'last-365-days', 'month' ),
 	tags: [ '!autodocs' ],
@@ -104,6 +119,10 @@ function WordAdsChartTabsDashboardStory( dashboardArgs: WidgetDashboardWithWidge
 	);
 }
 
+/**
+ * Renders the real registered widget through the shared dashboard harness,
+ * including the date control the widget declares in its own header.
+ */
 export const WidgetDashboardWithWidget: DashboardStory = {
 	render: args => <WordAdsChartTabsDashboardStory { ...args } />,
 	args: {

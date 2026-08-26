@@ -16,19 +16,23 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 /** The widget owns its date controls because other Ads widgets accept no dates. */
 export type WordAdsChartTabsAttributes = Partial< ReportParamsFieldAttributes >;
 
-/*
- * High relevance places the control in the widget header, where it collapses
- * on narrow cards. WidgetRoot reads its saved report parameters.
- */
+// The chart's body is bucketed by the interval, so the control offers it.
 const ReportParamsField = createReportParamsField( { withIntervalControl: true } );
 
-/** WordAds metric tabs with widget-owned date controls. Requires active WordAds. */
+/**
+ * WordAds metric tabs with widget-owned date controls. Requires active WordAds.
+ *
+ * Ported from the Jetpack Stats `wordads-chart-tabs` card in wp-calypso (the
+ * chart above the WordAds page); the tab labels and order match it.
+ */
 export default {
 	icon: chartBar,
 	attributes: [
 		{
 			id: 'reportParams',
 			label: __( 'Date range', 'jetpack-premium-analytics-pkg' ),
+			// High relevance so the host renders it in the widget's header, where
+			// it collapses into a dropdown on narrow cards.
 			relevance: 'high',
 			Edit: ReportParamsField,
 		},

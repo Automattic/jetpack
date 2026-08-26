@@ -28,7 +28,6 @@ export interface WordAdsChartState {
 	metrics: MetricTab[];
 	/** True on the first load, while there is no data to show yet. */
 	isLoading: boolean;
-	/** True while the request is fetching. */
 	isFetching: boolean;
 	/** True only when the request failed with no rows left to show. */
 	isError: boolean;
@@ -38,14 +37,18 @@ export interface WordAdsChartState {
 }
 
 /**
- * Add the selected bucket period to the widget's report parameters.
+ * Add the selected bucket period; the query factory maps it to the endpoint's `unit`.
  */
 function toWordAdsParams( reportParams: ReportParams, period: WordAdsPeriod ): StatsWordAdsParams {
 	return { ...reportParams, period };
 }
 
 /**
- * Fetch the WordAds time series and expose its three fields as metric tabs.
+ * Fetch the WordAds time series and expose its three fields as metric tabs — Ads
+ * Served (impressions), Average CPM, and Revenue, matching the Calypso WordAds
+ * page's tab labels and order. The endpoint returns all three in a single
+ * request, so — unlike the traffic chart's split requests — one
+ * `useStatsWordAdsStats` call drives every tab.
  */
 export default function useWordAdsChart(
 	reportParams: ReportParams,
