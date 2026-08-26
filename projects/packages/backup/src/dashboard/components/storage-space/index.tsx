@@ -96,7 +96,11 @@ export default function StorageSpace() {
 				storageLimit={ usage.storageLimit }
 				usageLevel={ usage.usageLevel }
 			/>
-			<StorageUsageDetails storageUsed={ usage.storageUsed } storageLimit={ usage.storageLimit } />
+			<StorageUsageDetails
+				storageUsed={ usage.storageUsed }
+				storageLimit={ usage.storageLimit }
+				daysOfBackupsSaved={ usage.daysOfBackupsSaved }
+			/>
 		</section>
 	);
 }

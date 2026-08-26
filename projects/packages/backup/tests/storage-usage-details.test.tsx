@@ -92,6 +92,20 @@ function retentionLink(): Promise< HTMLElement > {
 	return screen.findByRole( 'link', { name: /backups saved/ } );
 }
 
+/**
+ * The details row's layout container.
+ *
+ * A layout wrapper carries no role and no accessible name, so its class is
+ * the only handle — the same escape hatch `storage-meter.test.tsx` uses to
+ * reach the bar's modifier classes. Kept out of the `describe` blocks so
+ * the one direct DOM read lives in a single named place.
+ *
+ * @return The row, or null before it has rendered.
+ */
+function detailsRow(): HTMLElement | null {
+	return document.querySelector( '.jpb-storage-space__details' );
+}
+
 beforeEach( () => {
 	mockApiFetch.mockReset();
 	mockEndpoints();
@@ -183,6 +197,46 @@ describe( 'the retention line', () => {
 			'href',
 			'https://jetpack.com/redirect/?source=backup-plugin-storage-backups-saved'
 		);
+	} );
+} );
+
+describe( 'the row itself', () => {
+	it( 'lays the two readings out as a wrapping, space-between row', async () => {
+		// The entire responsive and RTL story, and nothing else asserts it.
+		// There is no breakpoint here on purpose — `Stack` writes these as
+		// inline styles, so a media query would need `!important` to beat
+		// them. Wrapping is what makes the row stack on a narrow viewport,
+		// and `space-between` is what puts the wrapped line flush with the
+		// start rather than pinned to the end. Flexbox resolves both
+		// against the writing direction, which is what keeps the row
+		// mirrored in RTL without a second rule.
+		mockEndpoints();
+		renderWithClient( <StorageSpace /> );
+
+		await waitFor( () => expect( detailsRow() ).not.toBeNull() );
+		expect( detailsRow() ).toHaveStyle( {
+			flexDirection: 'row',
+			flexWrap: 'wrap',
+			justifyContent: 'space-between',
+		} );
+	} );
+
+	it( 'separates the readings by the gap legacy stacks them at', async () => {
+		// `xs` is 4px, which is what legacy's phone-down rule uses. A
+		// larger token would leave the wrapped line floating away from the
+		// bar it belongs to.
+		mockEndpoints();
+		renderWithClient( <StorageSpace /> );
+
+		await waitFor( () => expect( detailsRow() ).not.toBeNull() );
+
+		// The literal fallback is the design system's own: its build injects
+		// one into every token reference, so this pins the token *and* the
+		// value it currently resolves to. A bump that moves `xs` off 4px
+		// should fail here and be looked at rather than land silently.
+		expect( detailsRow() ).toHaveStyle( {
+			gap: 'var(--wpds-dimension-gap-xs, 4px)',
+		} );
 	} );
 } );
 

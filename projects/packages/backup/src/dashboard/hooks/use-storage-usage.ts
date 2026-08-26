@@ -20,12 +20,21 @@ type Figures = {
 	 * forever — which is what makes it safe to reserve layout on.
 	 */
 	isLoading: boolean;
+	/**
+	 * Days of backups WordPress.com is actually holding, or null when the
+	 * response did not carry the figure. Distinct from the plan's promised
+	 * retention: this is what survived the storage limit.
+	 *
+	 * Nullable on its own rather than folded into `hasUsableFigures`,
+	 * because it is genuinely independent of the two byte figures — a
+	 * response can describe storage perfectly well and omit this.
+	 */
+	daysOfBackupsSaved: number | null;
 };
 
 // `last_backup_size` and the plan's own retention are read off these same
-// responses but deliberately not returned: nothing consumes them yet, and
-// the usage details that will are JETPACK-2330. Adding each back is one
-// line when there is a caller.
+// responses but deliberately not returned: nothing consumes them yet.
+// Adding each back is one line when there is a caller.
 
 /**
  * `hasUsableFigures` is a discriminant, not a convenience flag: it is the
@@ -62,7 +71,7 @@ type Result = Figures &
  * response is discarded rather than half-read. Legacy does the same, by
  * dispatching its failure action.
  *
- * @return The two figures, the derived level, and whether to render.
+ * @return The figures, the derived level, and whether to render.
  */
 export function useStorageUsage(): Result {
 	const sizeQuery = useSiteSizeQuery();
@@ -87,18 +96,21 @@ export function useStorageUsage(): Result {
 	// retention policy, not absent.
 	const retentionDays = size?.retention_days || ( policies?.activity_log_limit_days ?? null );
 
+	const daysOfBackupsSaved = size?.days_of_backups_saved ?? null;
+
 	const usageLevel = getUsageLevel(
 		storageUsed,
 		storageLimit,
 		size?.min_days_of_backups_allowed ?? null,
 		size?.days_of_backups_allowed ?? null,
 		retentionDays,
-		size?.days_of_backups_saved ?? null
+		daysOfBackupsSaved
 	);
 
 	const figures: Figures = {
 		usageLevel,
 		isLoading: sizeQuery.isLoading || policiesQuery.isLoading,
+		daysOfBackupsSaved,
 	};
 
 	// A limit of zero is not a limit anyone can be measured against, and a

@@ -3,7 +3,6 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Link, Stack, Text } from '@wordpress/ui';
 import { useSiteSuffix } from '../../hooks/use-connection';
-import { useSiteSizeQuery } from '../../hooks/use-site-size';
 import type { ReactNode } from 'react';
 
 // Binary multiples, as legacy spells them. WordPress.com reports these
@@ -21,11 +20,35 @@ const TERABYTE = 2 ** 40;
  * that has filled whole terabytes is vanishingly rare, and "0.01TB used"
  * would answer a question nobody asked.
  *
- * Both msgids are legacy's, character for character — including the
- * unusual `%1.1f`/`%2f` spelling, which is not positional despite reading
- * as though it were: those are sprintf *widths*, and the arguments are
- * consumed in order. Keeping them identical is the point, so the strings
- * arrive already translated rather than waiting a GlotPress cycle.
+ * Both msgids are legacy's, character for character, so the strings
+ * arrive already translated rather than waiting a GlotPress cycle. That
+ * carries a known defect across with them, and it is worth being precise
+ * about which one.
+ *
+ * The gigabyte msgid's `%1.1f` and `%2f` are *not* argument references,
+ * despite reading as though they were. They parse as a width and a
+ * precision, and `@tannin/sprintf` — which is what `@wordpress/i18n` uses —
+ * annotates the width group "Min width (unsupported)" and discards it. So
+ * both are plain sequential placeholders, consumed in the order they
+ * appear, and the English source renders correctly at every limit:
+ * `sprintf( 'Using <strong>%1.1fGB</strong> of %2fGB', 3, 5 )` gives
+ * `Using <strong>3.0GB</strong> of 5GB`, with no padding and no stray
+ * space.
+ *
+ * The hazard is not the rendering, it is the reordering. Being sequential,
+ * the two values swap places if a translation fronts the total — which is
+ * natural in plenty of languages: `sprintf( 'Of %2fGB, using
+ * <strong>%1.1fGB</strong>', 12.4, 20 )` gives `Of 12.4GB, using 20.0GB`,
+ * used and total transposed. On the one screen whose job is to say whether
+ * backups are at risk, that tells the reader they are over quota when they
+ * are not. Truly positional placeholders survive the same reorder, which is
+ * why the terabyte msgid below — spelled `%1$d`/`%2$d` — is immune.
+ *
+ * Fixing the gigabyte string means changing legacy and this copy together
+ * so the msgid stays shared, and that is queued as its own change rather
+ * than done here. Until it lands, the translator comment on the string
+ * must not describe these as numbered arguments, or it invites exactly the
+ * reorder that breaks them.
  *
  * @param storageUsed  - Bytes of backup storage in use.
  * @param storageLimit - The plan's storage limit in bytes.
@@ -35,9 +58,16 @@ function usageText( storageUsed: number, storageLimit: number ): ReactNode {
 	const usedGigabytes = storageUsed / GIGABYTE;
 
 	if ( storageLimit < TERABYTE ) {
-		// translators: Must use unit abbreviation; describes used vs available storage amounts (e.g. 20.0GB of 30GB used, 0.5GB of 20GB used). %1.1f: numeric amount of disk space used, %2f: numeric amount of disk space available.
+		// translators: Must use unit abbreviation; describes used vs available storage amounts (e.g. 20.0GB of 30GB used, 0.5GB of 20GB used). %1.1f and %2f are NOT numbered arguments — they are filled in the order they appear, %1.1f first with the amount of disk space used, then %2f with the amount available. Please keep them in that order.
 		const inGigabytes = __( 'Using <strong>%1.1fGB</strong> of %2fGB', 'jetpack-backup-pkg' );
 
+		// Legacy carries `eslint-disable-next-line @wordpress/valid-sprintf`
+		// on its copy of this call, and its absence here is not a clean
+		// bill of health: the rule only inspects a format string it can
+		// resolve, and hoisting the msgid into a `const` — which the
+		// minifier reasoning above requires — puts it out of reach. The
+		// string is exactly as malformed as it was; nothing is checking it
+		// any more. See the note on this function about what that costs.
 		return createInterpolateElement(
 			sprintf(
 				inGigabytes,
@@ -90,6 +120,7 @@ function daysOfBackupsLabel( days: number ): string {
 type Props = {
 	storageUsed: number;
 	storageLimit: number;
+	daysOfBackupsSaved: number | null;
 };
 
 /**
@@ -97,9 +128,12 @@ type Props = {
  *
  * The bar says how full; these say how full *of what*, and how much
  * history that has bought — which is the figure someone weighing an
- * upgrade actually needs. Rendered only by the section's `hasUsableFigures`
- * branch, so both byte figures are known numbers by the time they arrive
- * here and neither needs re-testing.
+ * upgrade actually needs.
+ *
+ * Presentational, like `meter.tsx`: everything arrives as a prop, read
+ * once by the section from `useStorageUsage()`. Rendered only by that
+ * section's `hasUsableFigures` branch, so both byte figures are known
+ * numbers by the time they get here and neither needs re-testing.
  *
  * Legacy's copy of this also hosts the storage help popover. That is
  * JETPACK-2332 and deliberately absent, along with the Tracks event its
@@ -107,23 +141,18 @@ type Props = {
  * yet (JETPACK-2301). Legacy's own orchestrator never passes the
  * `onClickedPurchase` prop either, so nothing is lost in the meantime.
  *
- * @param props              - Component props.
- * @param props.storageUsed  - Bytes of backup storage in use.
- * @param props.storageLimit - The plan's storage limit in bytes.
+ * @param props                    - Component props.
+ * @param props.storageUsed        - Bytes of backup storage in use.
+ * @param props.storageLimit       - The plan's storage limit in bytes.
+ * @param props.daysOfBackupsSaved - Days of history held, or null when unreported.
  * @return The rendered readings.
  */
-export default function StorageUsageDetails( { storageUsed, storageLimit }: Props ) {
+export default function StorageUsageDetails( {
+	storageUsed,
+	storageLimit,
+	daysOfBackupsSaved,
+}: Props ) {
 	const site = useSiteSuffix();
-	const sizeQuery = useSiteSizeQuery();
-
-	// Read straight off the shared `/size` query rather than through
-	// `useStorageUsage()`: one field for one caller does not justify
-	// widening that hook's return, and React Query serves both observers
-	// from the single request either way. The `ok` gate is the same one it
-	// applies — WordPress.com's success flag lives *inside* a 200 body, and
-	// without it the sibling fields carry no meaning.
-	const size = sizeQuery.data?.ok ? sizeQuery.data : null;
-	const daysOfBackupsSaved = size?.days_of_backups_saved ?? null;
 
 	// The key is omitted rather than passed as undefined. `getRedirectUrl`
 	// walks its args with `for…in`, so a present-but-undefined `site` is
