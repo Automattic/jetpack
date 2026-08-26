@@ -26,6 +26,11 @@ export type ChartStoryArgs< T = Record< string, unknown > > = T & {
  * drawn on: charts paint no background of their own, so every host — Premium Analytics widgets,
  * Stats v1 cards — puts them on a white card. Previewing on the grey misreports contrast, and a
  * faint fill mixed against the chart's white background token disappears into it.
+ *
+ * Two consequences of setting this as a meta-level global rather than a preview-level default:
+ * Storybook locks the toolbar's background control while a chart story is selected ("Background set
+ * by story parameters"), and it substitutes the whole `backgrounds` global object rather than
+ * merging into it, so a key added at preview level (`grid`) would not reach chart stories.
  */
 export const chartStoryGlobals = {
 	backgrounds: { value: 'light' },
