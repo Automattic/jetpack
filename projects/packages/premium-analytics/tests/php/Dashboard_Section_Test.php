@@ -342,7 +342,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'insights'    => Dashboard_Section::DATE_FILTER_YEAR,
 				'subscribers' => Dashboard_Section::DATE_FILTER_RANGE,
 				'store'       => Dashboard_Section::DATE_FILTER_RANGE,
-				'ads'         => Dashboard_Section::DATE_FILTER_NONE,
+				'ads'         => Dashboard_Section::DATE_FILTER_RANGE,
 			),
 			array_column(
 				array_map(
@@ -423,8 +423,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Insights drops the comparison control; the rest keep it. Every built-in
-	 * section still renders its own header control.
+	 * Insights and Ads drop the comparison control; the rest keep it. Ads is the
+	 * only built-in section that hands the date control to its widgets.
 	 */
 	public function test_built_in_sections_declare_their_date_filter_options() {
 		// Store needs both gates: the filter stands in for WooCommerce being active,
@@ -453,8 +453,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'with_header_date_control' => true,
 				),
 				'ads'         => array(
-					'with_date_comparison'     => true,
-					'with_header_date_control' => true,
+					'with_date_comparison'     => false,
+					'with_header_date_control' => false,
 				),
 			),
 			array_column(

@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Ads: Move the date range onto the WordAds chart, and drop the section-wide date filter. Add a `none` value to `Dashboard_Section::DATE_FILTERS` and the dashboard REST schema's `date_filter` enum, for sections whose widgets host their own date control.
+Ads: Move the date range onto the WordAds chart, and drop the section header's date filter.

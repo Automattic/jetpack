@@ -218,15 +218,18 @@ function register_default_dashboard_sections() {
 			'default_layout' => __NAMESPACE__ . '\\get_woocommerce_dashboard_section_default_layout',
 		),
 		'analytics/ads'         => array(
-			'label'          => __( 'Ads', 'jetpack-premium-analytics-pkg' ),
-			'description'    => __( 'How your ads are performing, and what they have earned you.', 'jetpack-premium-analytics-pkg' ),
-			'order'          => 50,
-			'is_available'   => __NAMESPACE__ . '\\is_ads_dashboard_section_available_to_current_user',
+			'label'               => __( 'Ads', 'jetpack-premium-analytics-pkg' ),
+			'description'         => __( 'How your ads are performing, and what they have earned you.', 'jetpack-premium-analytics-pkg' ),
+			'order'               => 50,
+			'is_available'        => __NAMESPACE__ . '\\is_ads_dashboard_section_available_to_current_user',
 			// Four of the five widgets read `wordads/earnings`, which takes no date
-			// parameters, so a section-wide control would claim to filter what it
-			// cannot. The chart hosts its own range instead.
-			'date_filter'    => Dashboard_Section::DATE_FILTER_NONE,
-			'default_layout' => static function () {
+			// parameters, so a header control would claim to filter what it cannot.
+			// The chart hosts the range itself, and has no comparison to offer.
+			'date_filter_options' => array(
+				'with_date_comparison'     => false,
+				'with_header_date_control' => false,
+			),
+			'default_layout'      => static function () {
 				return get_dashboard_default_layout_for( 'analytics/ads' );
 			},
 		),
