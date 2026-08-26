@@ -51,7 +51,11 @@ await jest.unstable_mockModule( '../../../../../src/blocks/contact-form/child-bl
 	],
 } ) );
 
-const { default: useSubjectFields, useEnsureFieldId } = await import(
+const {
+	default: useSubjectFields,
+	useEnsureFieldId,
+	useFormFieldIds,
+} = await import(
 	'../../../../../src/blocks/shared/conditional-logic/hooks/use-subject-fields.js'
 );
 
@@ -88,6 +92,22 @@ const field = ( clientId, { label, id, option, name = 'jetpack/field-text' } = {
 };
 
 const ensureFieldId = () => renderHook( () => useEnsureFieldId() ).result.current;
+const formFieldIdsFor = clientId => renderHook( () => useFormFieldIds( clientId ) ).result.current;
+
+/**
+ * A non-field container, e.g. a Group or a Column. Forms allow these (`CORE_BLOCKS`).
+ *
+ * @param {string} clientId    - Block client id.
+ * @param {string} name        - Block name.
+ * @param {Array}  innerBlocks - Children.
+ * @return {object} A block instance shaped the way the store returns them.
+ */
+const container = ( clientId, name, innerBlocks ) => ( {
+	clientId,
+	name,
+	attributes: {},
+	innerBlocks,
+} );
 const subjectsFor = clientId => renderHook( () => useSubjectFields( clientId ) ).result.current;
 
 beforeEach( () => {
@@ -308,5 +328,93 @@ describe( 'useSubjectFields', () => {
 
 	it( 'offers nothing when the field is not inside a form', () => {
 		expect( subjectsFor( 'c-orphan' ) ).toEqual( [] );
+	} );
+} );
+
+describe( 'useFormFieldIds', () => {
+	// Unlike the subject list this keeps the panel's own field, because which of two colliding
+	// fields keeps an id is decided by document order and a list missing one of them cannot
+	// answer that.
+	it( 'includes every field in the form, in document order, owner included', () => {
+		blocks = {
+			form: {
+				clientId: 'form',
+				name: 'jetpack/contact-form',
+				attributes: {},
+				innerBlocks: [ field( 'c-1', { id: 'first' } ), field( 'c-2', { id: 'second' } ) ],
+			},
+		};
+		rootOf = { 'c-1': 'form', 'c-2': 'form' };
+
+		expect( formFieldIdsFor( 'c-1' ) ).toEqual( [
+			{ clientId: 'c-1', id: 'first' },
+			{ clientId: 'c-2', id: 'second' },
+		] );
+	} );
+
+	// Forms permit core containers (Group, Columns, ...). A field nested in one is still a
+	// field of that form -- PHP renders it and assigns it an id like any other -- so the walk
+	// has to descend through blocks it does not recognise rather than stopping at them.
+	it( 'descends through Group and Columns to reach nested fields', () => {
+		blocks = {
+			form: {
+				clientId: 'form',
+				name: 'jetpack/contact-form',
+				attributes: {},
+				innerBlocks: [
+					container( 'g-1', 'core/group', [ field( 'c-nested', { id: 'name' } ) ] ),
+					field( 'c-top', { id: 'name' } ),
+					container( 'cols', 'core/columns', [
+						container( 'col', 'core/column', [ field( 'c-deep', { id: 'name' } ) ] ),
+					] ),
+				],
+			},
+		};
+		rootOf = { 'c-top': 'form' };
+
+		// Document order, flattened: nested first, then top level, then the deeper one.
+		expect( formFieldIdsFor( 'c-top' ) ).toEqual( [
+			{ clientId: 'c-nested', id: 'name' },
+			{ clientId: 'c-top', id: 'name' },
+			{ clientId: 'c-deep', id: 'name' },
+		] );
+	} );
+
+	// A field's own inner blocks are its label and input, not more fields.
+	it( 'does not descend into a field to find more fields', () => {
+		blocks = {
+			form: {
+				clientId: 'form',
+				name: 'jetpack/contact-form',
+				attributes: {},
+				innerBlocks: [ field( 'c-1', { label: 'Name', id: 'name' } ) ],
+			},
+		};
+		rootOf = { 'c-1': 'form' };
+
+		expect( formFieldIdsFor( 'c-1' ) ).toEqual( [ { clientId: 'c-1', id: 'name' } ] );
+	} );
+
+	// Reported as '' rather than undefined, so a caller can tell "no id" from "not a field"
+	// without optional chaining -- and so the deduplication hook can skip it cheaply.
+	it( 'reports a missing id as an empty string', () => {
+		blocks = {
+			form: {
+				clientId: 'form',
+				name: 'jetpack/contact-form',
+				attributes: {},
+				innerBlocks: [ field( 'c-1' ) ],
+			},
+		};
+		rootOf = { 'c-1': 'form' };
+
+		expect( formFieldIdsFor( 'c-1' ) ).toEqual( [ { clientId: 'c-1', id: '' } ] );
+	} );
+
+	it( 'returns nothing when the field is not in a form', () => {
+		blocks = {};
+		rootOf = {};
+
+		expect( formFieldIdsFor( 'orphan' ) ).toEqual( [] );
 	} );
 } );
