@@ -1,5 +1,5 @@
-import { Modal, SelectControl } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { Modal, Notice, SelectControl } from '@wordpress/components';
+import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import FieldValueControl from '../controls/field-value/edit.jsx';
 
@@ -24,16 +24,17 @@ const MATCH_OPTIONS = [
  * there is no draft state and no Save button. Undo is the editor's own. That matches the
  * integrations modal in this package and keeps one source of truth for the rules.
  *
- * @param {object}   props                - Component props.
- * @param {boolean}  props.isOpen         - Whether the dialog is open.
- * @param {Function} props.onClose        - Called when the dialog is dismissed.
- * @param {object}   props.logic          - The normalized conditional-logic attribute.
- * @param {object}   props.group          - The group being edited.
- * @param {Array}    props.fields         - Fields available as rule subjects.
- * @param {string}   props.ownFieldId     - Id of the field the panel belongs to.
- * @param {Function} props.onActionChange - Called with the next show/hide action.
- * @param {Function} props.onMatchChange  - Called with the next any/all operator.
- * @param {Function} props.onRulesChange  - Called with the group's next rules.
+ * @param {object}   props                   - Component props.
+ * @param {boolean}  props.isOpen            - Whether the dialog is open.
+ * @param {Function} props.onClose           - Called when the dialog is dismissed.
+ * @param {object}   props.logic             - The normalized conditional-logic attribute.
+ * @param {object}   props.group             - The group being edited.
+ * @param {Array}    props.fields            - Fields available as rule subjects.
+ * @param {Set}      props.duplicateFieldIds - Ids claimed by more than one field in the form.
+ * @param {string}   props.ownFieldId        - Id of the field the panel belongs to.
+ * @param {Function} props.onActionChange    - Called with the next show/hide action.
+ * @param {Function} props.onMatchChange     - Called with the next any/all operator.
+ * @param {Function} props.onRulesChange     - Called with the group's next rules.
  * @return {object|null} The dialog, or null when closed.
  */
 const ConditionalLogicModal = ( {
@@ -42,6 +43,7 @@ const ConditionalLogicModal = ( {
 	logic,
 	group,
 	fields,
+	duplicateFieldIds,
 	ownFieldId,
 	onActionChange,
 	onMatchChange,
@@ -105,9 +107,27 @@ const ConditionalLogicModal = ( {
 						  ) }
 				</Text>
 
+				{ /* Named rather than merely counted, because fixing this means finding the
+				     fields in question, and the Name/ID is what the author will see on each
+				     one. Not dismissible: the affected fields stay unavailable until it is
+				     acted on, so hiding the explanation would leave them looking broken. */ }
+				{ duplicateFieldIds?.size > 0 && (
+					<Notice status="warning" isDismissible={ false }>
+						{ sprintf(
+							/* translators: %s: comma-separated list of duplicated field names/IDs. */
+							__(
+								'More than one field uses the Name/ID %s, so a condition cannot tell them apart. Those fields are unavailable below. To use one, select it in the editor and give it a unique value under Advanced → Name/ID.',
+								'jetpack-forms'
+							),
+							[ ...duplicateFieldIds ].join( ', ' )
+						) }
+					</Notice>
+				) }
+
 				<FieldValueControl
 					rules={ group.rules }
 					fields={ fields }
+					duplicateFieldIds={ duplicateFieldIds }
 					ownFieldId={ ownFieldId }
 					onChange={ onRulesChange }
 				/>

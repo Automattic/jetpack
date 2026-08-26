@@ -115,18 +115,28 @@ const RuleValueControl = ( { rule, subject, onChange } ) => {
 /**
  * A single condition row: subject field, operator, and value.
  *
- * @param {object}   props             - Component props.
- * @param {object}   props.rule        - The rule being edited.
- * @param {number}   props.index       - Zero-based rule index.
- * @param {Array}    props.fields      - Available subject fields.
- * @param {string}   props.ownFieldId  - Id of the field the panel belongs to, which is absent
- *                                     from `fields` and so invisible to the uniqueness check.
- * @param {boolean}  props.shouldFocus - Whether this row was just added and should take focus.
- * @param {Function} props.onChange    - Called with (index, patch).
- * @param {Function} props.onRemove    - Called with (index).
+ * @param {object}   props                   - Component props.
+ * @param {object}   props.rule              - The rule being edited.
+ * @param {number}   props.index             - Zero-based rule index.
+ * @param {Array}    props.fields            - Available subject fields.
+ * @param {Set}      props.duplicateFieldIds - Ids claimed by more than one field in the form.
+ * @param {string}   props.ownFieldId        - Id of the field the panel belongs to, which is absent
+ *                                           from `fields` and so invisible to the uniqueness check.
+ * @param {boolean}  props.shouldFocus       - Whether this row was just added and should take focus.
+ * @param {Function} props.onChange          - Called with (index, patch).
+ * @param {Function} props.onRemove          - Called with (index).
  * @return {object} The rendered rule row.
  */
-const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRemove } ) => {
+const RuleRow = ( {
+	rule,
+	index,
+	fields,
+	duplicateFieldIds,
+	ownFieldId,
+	shouldFocus,
+	onChange,
+	onRemove,
+} ) => {
 	const fieldRef = useRef( null );
 
 	// A condition added by the button appears empty, so the first thing to do with it is
@@ -142,6 +152,12 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 
 	const subject = fields.find( field => field.id && field.id === rule.field );
 	const missingSubject = rule.field && ! subject;
+
+	// A rule saved before the ids collided, or against a field that was later duplicated. The
+	// id no longer identifies one field, and the renderer resolves it to whichever renders
+	// first -- which may not be the field the author picked. Say so rather than showing a
+	// confident-looking row that means something else.
+	const ambiguousSubject = !! rule.field && !! duplicateFieldIds?.has( rule.field );
 
 	const handleFieldChange = useCallback(
 		selection => {
@@ -252,6 +268,19 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 				</Notice>
 			) }
 
+			{ ambiguousSubject && (
+				<Notice status="warning" isDismissible={ false }>
+					{ sprintf(
+						/* translators: %s: a field name/ID shared by more than one field. */
+						__(
+							'More than one field uses the Name/ID %s, so this condition cannot tell which one it means. Give each of those fields a unique Name/ID.',
+							'jetpack-forms'
+						),
+						rule.field
+					) }
+				</Notice>
+			) }
+
 			{ /* One row per condition, reading as a sentence: subject, comparison, value. The
 			     remove control sits at the end of the row rather than in a header, so a long
 			     list is three aligned columns instead of a stack of cards. */ }
@@ -292,11 +321,28 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 					<option value="">{ __( 'Select a field…', 'jetpack-forms' ) }</option>
 					{ Object.keys( grouped ).map( group => (
 						<optgroup key={ group } label={ group }>
-							{ grouped[ group ].map( field => (
-								<option key={ field.clientId } value={ selectionValue( field ) }>
-									{ getFieldDisplayName( field ) }
-								</option>
-							) ) }
+							{ grouped[ group ].map( field => {
+								// Offered but not selectable, rather than hidden: an author looking for
+								// a field they know is in the form should find it here with a reason
+								// attached, not silently absent.
+								const isAmbiguous = !! field.id && !! duplicateFieldIds?.has( field.id );
+
+								return (
+									<option
+										key={ field.clientId }
+										value={ selectionValue( field ) }
+										disabled={ isAmbiguous }
+									>
+										{ isAmbiguous
+											? sprintf(
+													/* translators: %s: a form field's name, e.g. "First name (Name field)". */
+													__( '%s — duplicate Name/ID', 'jetpack-forms' ),
+													getFieldDisplayName( field )
+											  )
+											: getFieldDisplayName( field ) }
+									</option>
+								);
+							} ) }
 						</optgroup>
 					) ) }
 				</SelectControl>
@@ -336,11 +382,12 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 /**
  * The Field Value control: a list of conditions comparing sibling fields.
  *
- * @param {object}   props            - Component props.
- * @param {Array}    props.rules      - The rules of the group being edited.
- * @param {Function} props.onChange   - Called with the group's next rules.
- * @param {Array}    props.fields     - Available subject fields.
- * @param {string}   props.ownFieldId - Id of the field the panel belongs to.
+ * @param {object}   props                   - Component props.
+ * @param {Array}    props.rules             - The rules of the group being edited.
+ * @param {Function} props.onChange          - Called with the group's next rules.
+ * @param {Array}    props.fields            - Available subject fields.
+ * @param {Set}      props.duplicateFieldIds - Ids claimed by more than one field in the form.
+ * @param {string}   props.ownFieldId        - Id of the field the panel belongs to.
  * @return {object} The rendered control.
  */
 const BLANK_RULE = {
@@ -350,7 +397,13 @@ const BLANK_RULE = {
 	value: '',
 };
 
-const FieldValueControl = ( { rules: storedRules, onChange, fields, ownFieldId } ) => {
+const FieldValueControl = ( {
+	rules: storedRules,
+	onChange,
+	fields,
+	duplicateFieldIds,
+	ownFieldId,
+} ) => {
 	const stored = useMemo(
 		() => ( Array.isArray( storedRules ) ? storedRules : [] ),
 		[ storedRules ]
@@ -412,6 +465,7 @@ const FieldValueControl = ( { rules: storedRules, onChange, fields, ownFieldId }
 					rule={ rule }
 					index={ index }
 					fields={ fields }
+					duplicateFieldIds={ duplicateFieldIds }
 					ownFieldId={ ownFieldId }
 					shouldFocus={ index === focusIndex }
 					onChange={ updateRule }

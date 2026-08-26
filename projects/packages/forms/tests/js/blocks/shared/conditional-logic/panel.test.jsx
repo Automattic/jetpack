@@ -356,43 +356,85 @@ describe( 'ConditionalLogicPanel', () => {
 		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
 	} );
 
-	// The panel's job here is wiring: hand the deduplication hook the whole form in document
-	// order, and tell it whether the dialog is open. The renaming rules themselves are covered
-	// by the hook's own unit tests.
-	describe( 'duplicate field ids', () => {
-		const OTHER = { clientId: 'c-other', id: 'first-name' };
-		const OWN = { clientId: 'abc', id: 'first-name' };
+	// Two fields can share an id -- ids survive copy, paste and duplicate, and the Name
+	// field's inserter variations ship fixed ones. A rule stores the id of the field it
+	// compares against, so a shared id cannot say which field is meant. The builder refuses to
+	// offer those fields and explains how to fix it, rather than choosing for the author.
+	describe( 'fields that share a Name/ID', () => {
+		const nameField = ( clientId, label ) => ( {
+			clientId,
+			id: 'first-name',
+			label,
+			typeLabel: 'Name field',
+			typeKey: 'string',
+			options: [],
+			step: null,
+		} );
 
-		// The narrow trigger: opening the builder, not merely rendering the panel.
-		it( 'leaves ids alone while the dialog is closed', async () => {
-			formFieldIds = [ OTHER, OWN ];
+		beforeEach( () => {
+			subjectFields = [
+				nameField( 'c-a', 'First name' ),
+				nameField( 'c-b', 'Partner first name' ),
+			];
+			formFieldIds = [
+				{ clientId: 'c-a', id: 'first-name' },
+				{ clientId: 'c-b', id: 'first-name' },
+			];
+		} );
 
-			await setup( DEFAULT_ATTRIBUTE, { openModal: false, ownFieldId: 'first-name' } );
+		it( 'names the duplicated Name/ID and says how to fix it', async () => {
+			await setup( DEFAULT_ATTRIBUTE );
+
+			// `Notice` announces itself through @wordpress/a11y, which mirrors the text into a
+			// live region -- so every notice matches twice. Either copy carries the whole message.
+			const [ notice ] = screen.getAllByText( /More than one field uses the Name\/ID first-name/ );
+
+			expect( notice ).toHaveTextContent( /Advanced → Name\/ID/ );
+		} );
+
+		// Offered but not selectable, rather than hidden: an author looking for a field they know
+		// is in the form should find it here with a reason attached, not silently absent.
+		it( 'still lists the fields, marked and disabled', async () => {
+			await setup( DEFAULT_ATTRIBUTE );
+
+			const first = screen.getByRole( 'option', {
+				name: 'First name (Name field) — duplicate Name/ID',
+			} );
+			const second = screen.getByRole( 'option', {
+				name: 'Partner first name (Name field) — duplicate Name/ID',
+			} );
+
+			expect( first ).toBeDisabled();
+			expect( second ).toBeDisabled();
+		} );
+
+		// The whole point of the change: nothing is renamed on the author's behalf.
+		it( 'writes no ids', async () => {
+			await setup( DEFAULT_ATTRIBUTE );
 
 			expect( mockUpdateBlockAttributes ).not.toHaveBeenCalled();
 		} );
 
-		it( 'repairs the collision once the dialog is opened', async () => {
-			formFieldIds = [ OWN, OTHER ];
+		// A rule saved before the ids collided, or against a field that was later duplicated.
+		it( 'flags a stored condition that names a shared id', async () => {
+			await setup( withRules( [ { field: 'first-name', operator: 'is', value: 'x' } ] ) );
 
-			await setup( DEFAULT_ATTRIBUTE, { ownFieldId: 'first-name' } );
-
-			expect( mockUpdateBlockAttributes ).toHaveBeenCalledWith( 'c-other', {
-				id: 'first-name-2',
-			} );
+			expect(
+				screen.getAllByText( /this condition cannot tell which one it means/ ).length
+			).toBeGreaterThan( 0 );
 		} );
+	} );
 
-		// The proof that the panel passes the *whole* form and not the subject list: the subject
-		// list excludes this block, so a panel wired to it could never rename its own field --
-		// and would rename the earlier one instead, swapping the two fields' identities.
-		it( 'renames its own field when that field is the later duplicate', async () => {
-			formFieldIds = [ OTHER, OWN ];
+	it( 'leaves fields with distinct ids selectable and unremarked', async () => {
+		formFieldIds = [
+			{ clientId: 'c-name', id: 'name_1' },
+			{ clientId: 'c-budget', id: 'budget_1' },
+		];
 
-			await setup( DEFAULT_ATTRIBUTE, { ownFieldId: 'first-name' } );
+		await setup( DEFAULT_ATTRIBUTE );
 
-			expect( mockUpdateBlockAttributes ).toHaveBeenCalledTimes( 1 );
-			expect( mockUpdateBlockAttributes ).toHaveBeenCalledWith( 'abc', { id: 'first-name-2' } );
-		} );
+		expect( screen.queryAllByText( /duplicate Name\/ID/ ) ).toHaveLength( 0 );
+		expect( screen.getByRole( 'option', { name: 'Name (Name field)' } ) ).toBeEnabled();
 	} );
 
 	it( 'invites the author in when there are no conditions yet', async () => {

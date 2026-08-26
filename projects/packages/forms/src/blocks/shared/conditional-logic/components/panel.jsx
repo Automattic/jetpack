@@ -17,8 +17,8 @@ import {
 	startsHidden,
 	withPrimaryGroupRules,
 } from '../constants.js';
-import useDeduplicateFieldIds from '../hooks/use-deduplicate-field-ids.js';
 import useSubjectFields, { useFormFieldIds } from '../hooks/use-subject-fields.js';
+import { getDuplicateFieldIds } from '../util/duplicate-ids.js';
 import {
 	describeRule,
 	getActiveConditions,
@@ -91,15 +91,16 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 	const formFieldIds = useFormFieldIds( clientId );
 	const group = getPrimaryGroup( logic );
 
-	// Two fields can legitimately reach this point sharing an id -- ids survive copy, paste
-	// and duplicate, and the Name field's inserter variations ship fixed ones. The dropdown
-	// keys its options by id, so a duplicate makes the second field unselectable. Repaired
-	// only while the dialog is open, so nothing rewrites ids as a form merely loads.
+	// Two fields can legitimately share an id -- ids survive copy, paste and duplicate, and
+	// the Name field's inserter variations ship fixed ones. A rule stores the id of the field
+	// it compares against, so a shared id cannot say which field is meant; the builder marks
+	// those fields unavailable and asks the author to give them a unique Name/ID rather than
+	// picking one for them.
 	//
-	// Fed from the whole form rather than from `fields`, which drops this very block: which
-	// of two colliding fields keeps the id is decided by document order, and a list missing
-	// one of them cannot answer that.
-	useDeduplicateFieldIds( formFieldIds, isModalOpen );
+	// Computed from the whole form rather than from `fields`, which drops this very block: a
+	// subject sharing an id with the field being edited is just as ambiguous, and a list
+	// missing one of the two cannot see that.
+	const duplicateFieldIds = useMemo( () => getDuplicateFieldIds( formFieldIds ), [ formFieldIds ] );
 
 	const updateLogic = useCallback(
 		next => setAttributes( { conditionalLogic: next } ),
@@ -225,6 +226,7 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 				logic={ logic }
 				group={ group }
 				fields={ fields }
+				duplicateFieldIds={ duplicateFieldIds }
 				ownFieldId={ attributes.id }
 				onActionChange={ handleActionChange }
 				onMatchChange={ handleMatchChange }
