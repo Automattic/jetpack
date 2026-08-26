@@ -198,6 +198,10 @@ class Admin_Menu {
 				continue;
 			}
 
+			if ( self::is_customization_feature_enabled() ) {
+				$menu_item['classes'][] = 'jetpack-admin-menu-item-id-' . sanitize_html_class( $menu_item['metadata']['id'] );
+			}
+
 			$can_see_toplevel_menu = true;
 
 			add_submenu_page(
@@ -635,11 +639,14 @@ class Admin_Menu {
 	 * @return array
 	 */
 	private static function resolve_customized_menu_items( $menu_items ) {
-		$site_layout    = self::get_site_menu_layout();
-		$user_layout    = self::get_user_menu_layout();
-		$resolved_items = array();
+		$site_layout   = self::get_site_menu_layout();
+		$user_layout   = self::get_user_menu_layout();
+		$my_jetpack    = array();
+		$product_items = array();
+		$settings      = array();
+		$external_items = array();
 
-		foreach ( $menu_items as $menu_item ) {
+		foreach ( $menu_items as $registration_index => $menu_item ) {
 			if ( ! current_user_can( $menu_item['capability'] ) ) {
 				continue;
 			}
@@ -652,52 +659,93 @@ class Admin_Menu {
 				continue;
 			}
 
-			$group_id    = $item_prefs['group'];
-			$group       = self::get_group_for_layout( $group_id, $site_layout );
-			$menu_item['metadata']['group']       = $group_id;
-			$menu_item['metadata']['group_label'] = $group['label'];
-			$menu_item['metadata']['order']       = $item_prefs['order'];
-			$menu_item['resolved_group_order']    = $group['order'];
-			$menu_item['resolved_order']          = $item_prefs['order'];
-			$resolved_items[]                     = $menu_item;
+			$menu_item['metadata']['order']  = $item_prefs['order'];
+			$menu_item['resolved_order']     = $item_prefs['order'];
+			$menu_item['has_saved_order']    = $item_prefs['has_saved_order'];
+			$menu_item['registration_index'] = $registration_index;
+			$menu_item['classes']             = array( 'jetpack-admin-menu-item' );
+
+			if ( 'my-jetpack' === $item_id ) {
+				$my_jetpack[] = $menu_item;
+			} elseif ( 'settings' === $item_id ) {
+				$settings[] = $menu_item;
+			} elseif ( ! empty( $metadata['external'] ) ) {
+				$external_items[] = $menu_item;
+			} else {
+				$product_items[] = $menu_item;
+			}
 		}
 
 		usort(
-			$resolved_items,
+			$product_items,
 			function ( $a, $b ) {
-				$result = self::compare_settings_menu_item_position( $a, $b );
-				if ( 0 !== $result ) {
-					return $result;
-				}
-
-				$result = $a['resolved_group_order'] <=> $b['resolved_group_order'];
-				if ( 0 === $result ) {
+				if ( $a['has_saved_order'] && $b['has_saved_order'] ) {
 					$result = $a['resolved_order'] <=> $b['resolved_order'];
-				}
-				if ( 0 === $result ) {
-					$result = strcmp( $a['menu_title'], $b['menu_title'] );
+					if ( 0 !== $result ) {
+						return $result;
+					}
+				} elseif ( $a['has_saved_order'] !== $b['has_saved_order'] ) {
+					return $a['has_saved_order'] ? -1 : 1;
 				}
 
-				return $result;
+				return strcasecmp( wp_strip_all_tags( $a['menu_title'] ), wp_strip_all_tags( $b['menu_title'] ) );
 			}
 		);
 
-		$seen_groups = array();
-		foreach ( $resolved_items as $index => $menu_item ) {
-			$group_id    = $menu_item['metadata']['group'];
-			$group_label = $menu_item['metadata']['group_label'];
-			$classes     = array( 'jetpack-admin-menu-item' );
+		usort(
+			$external_items,
+			function ( $a, $b ) {
+				$a_is_manage = 'jetpack-manage' === $a['metadata']['id'];
+				$b_is_manage = 'jetpack-manage' === $b['metadata']['id'];
 
-			if ( ! isset( $seen_groups[ $group_id ] ) ) {
-				$seen_groups[ $group_id ] = true;
-				if ( ! empty( $group_label ) ) {
-					$classes[]                          = 'jetpack-admin-menu-group-start';
-					$classes[]                          = 'jetpack-admin-menu-group-' . sanitize_html_class( $group_id );
-					$resolved_items[ $index ]['menu_title'] = self::add_group_label_to_menu_title( $menu_item['menu_title'], $group_label );
+				if ( $a_is_manage !== $b_is_manage ) {
+					return $a_is_manage ? -1 : 1;
+				}
+
+				return $a['registration_index'] <=> $b['registration_index'];
+			}
+		);
+
+		if ( ! empty( $product_items ) ) {
+			$product_items[0]['resolved_separators'][] = array( 'title' => '' );
+			if ( ! empty( $settings ) ) {
+				$settings[0]['resolved_separators'][] = array( 'title' => '' );
+			}
+		}
+
+		$separators = self::has_user_menu_layout() ? $user_layout['separators'] : $site_layout['separators'];
+		uasort(
+			$separators,
+			function ( $a, $b ) {
+				return $a['order'] <=> $b['order'];
+			}
+		);
+
+		foreach ( $separators as $separator ) {
+			$target_found = false;
+			foreach ( $product_items as $index => $product_item ) {
+				if ( $product_item['resolved_order'] >= $separator['order'] ) {
+					$product_items[ $index ]['resolved_separators'][] = $separator;
+					$target_found = true;
+					break;
 				}
 			}
 
-			$resolved_items[ $index ]['classes']  = $classes;
+			if ( ! $target_found && ! empty( $settings ) ) {
+				$settings[0]['resolved_separators'][] = $separator;
+			}
+		}
+
+		$resolved_items = array_merge( $my_jetpack, $product_items, $settings, $external_items );
+		foreach ( $resolved_items as $index => $menu_item ) {
+			if ( ! empty( $menu_item['resolved_separators'] ) ) {
+				$resolved_items[ $index ]['classes'][]  = 'jetpack-admin-menu-separator-start';
+				$resolved_items[ $index ]['menu_title'] = self::add_separator_labels_to_menu_title(
+					$menu_item['menu_title'],
+					$menu_item['resolved_separators']
+				);
+			}
+
 			$resolved_items[ $index ]['position'] = $index + 1;
 		}
 
@@ -715,16 +763,21 @@ class Admin_Menu {
 	 */
 	private static function get_resolved_item_preferences( $item_id, $metadata, $site_layout, $user_layout ) {
 		$prefs = array(
-			'hidden' => false,
-			'group'  => $metadata['group'],
-			'order'  => $metadata['order'],
+			'hidden'          => false,
+			'group'           => $metadata['group'],
+			'order'           => $metadata['order'],
+			'has_saved_order' => false,
 		);
 
 		if ( isset( $site_layout['items'][ $item_id ] ) ) {
+			$prefs['has_saved_order'] = array_key_exists( 'order', $site_layout['items'][ $item_id ] );
 			$prefs = array_merge( $prefs, $site_layout['items'][ $item_id ] );
 		}
 
 		if ( isset( $user_layout['items'][ $item_id ] ) ) {
+			if ( array_key_exists( 'order', $user_layout['items'][ $item_id ] ) ) {
+				$prefs['has_saved_order'] = true;
+			}
 			$prefs = array_merge( $prefs, $user_layout['items'][ $item_id ] );
 		}
 
@@ -732,6 +785,28 @@ class Admin_Menu {
 		$prefs['order'] = isset( $prefs['order'] ) && is_numeric( $prefs['order'] ) ? (int) $prefs['order'] : $metadata['order'];
 
 		return $prefs;
+	}
+
+	/**
+	 * Adds optional separator labels before a normal submenu item title.
+	 *
+	 * @param string $menu_title Menu title.
+	 * @param array  $separators Separators applied before the item.
+	 * @return string
+	 */
+	private static function add_separator_labels_to_menu_title( $menu_title, $separators ) {
+		$labels = '';
+		foreach ( $separators as $separator ) {
+			if ( ! empty( $separator['title'] ) ) {
+				$labels .= '<span class="jetpack-admin-menu-separator-label" aria-hidden="true">' . esc_html( $separator['title'] ) . '</span>';
+			}
+		}
+
+		if ( '' === $labels ) {
+			return $menu_title;
+		}
+
+		return $labels . '<span class="jetpack-admin-menu-item-label">' . wp_kses_post( $menu_title ) . '</span>';
 	}
 
 	/**

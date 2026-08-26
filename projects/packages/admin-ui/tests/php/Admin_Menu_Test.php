@@ -440,26 +440,177 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Active customization uses the recommended grouped order and marks group starts.
+	 * Active customization alphabetizes products between protected anchors.
 	 *
 	 * @return void
 	 */
-	public function test_customization_active_uses_grouped_recommended_order() {
+	public function test_customization_active_uses_alphabetical_product_order() {
 		wp_set_current_user( self::$admin_user_id );
 		add_filter( 'jetpack_admin_menu_customization_enabled', '__return_true' );
 		Admin_Menu::update_site_menu_layout( array( 'enabled' => true ) );
 
+		Admin_Menu::add_menu( 'Settings', 'Settings', 'manage_options', 'admin.php?page=jetpack#/settings', '__return_null', 2 );
 		Admin_Menu::add_menu( 'Scan', 'Scan', 'manage_options', 'jetpack-scan', '__return_null', 1 );
 		Admin_Menu::add_menu( 'Forms', 'Forms', 'edit_pages', 'jetpack-forms-admin', '__return_null', 10 );
 		Admin_Menu::add_menu( 'My Jetpack', 'My Jetpack', 'edit_posts', 'my-jetpack', '__return_null', -1 );
 
 		do_action( 'admin_menu' );
 
-		$this->assertSame( array( 'my-jetpack', 'jetpack-forms-admin', 'jetpack-scan' ), $this->get_registered_submenu_slugs() );
-		$this->assertSubmenuItemHasClass( 'jetpack-forms-admin', 'jetpack-admin-menu-group-start' );
-		$this->assertSubmenuTitleContains( 'jetpack-forms-admin', 'Create' );
-		$this->assertSubmenuItemHasClass( 'jetpack-scan', 'jetpack-admin-menu-group-start' );
-		$this->assertSubmenuTitleContains( 'jetpack-scan', 'Protect' );
+		$this->assertSame(
+			array( 'my-jetpack', 'jetpack-forms-admin', 'jetpack-scan', 'admin.php?page=jetpack#/settings' ),
+			$this->get_registered_submenu_slugs()
+		);
+		$this->assertSubmenuItemHasClass( 'my-jetpack', 'jetpack-admin-menu-item-id-my-jetpack' );
+		$this->assertSubmenuItemHasClass( 'jetpack-forms-admin', 'jetpack-admin-menu-separator-start' );
+		$this->assertSubmenuItemHasClass( 'admin.php?page=jetpack#/settings', 'jetpack-admin-menu-separator-start' );
+	}
+
+	/**
+	 * Base separators are omitted when no on-site products are registered.
+	 *
+	 * @return void
+	 */
+	public function test_customization_omits_base_separators_without_products() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter( Admin_Menu::CUSTOMIZATION_FEATURE_FILTER, '__return_true' );
+		Admin_Menu::update_site_menu_layout( array( 'enabled' => true ) );
+
+		Admin_Menu::add_menu( 'My Jetpack', 'My Jetpack', 'edit_posts', 'my-jetpack', '__return_null', 1 );
+		Admin_Menu::add_menu( 'Settings', 'Settings', 'manage_options', 'admin.php?page=jetpack#/settings', '__return_null', 2 );
+		Admin_Menu::add_menu(
+			'Jetpack Manage',
+			'Jetpack Manage',
+			'manage_options',
+			'https://cloud.jetpack.com',
+			'__return_null',
+			3,
+			array(
+				'id'       => 'jetpack-manage',
+				'external' => true,
+			)
+		);
+
+		do_action( 'admin_menu' );
+
+		$settings = $this->get_submenu_item( 'admin.php?page=jetpack#/settings' );
+		$this->assertNotNull( $settings );
+		$this->assertStringNotContainsString( 'jetpack-admin-menu-separator-start', $settings[4] ?? '' );
+	}
+
+	/**
+	 * A titled custom separator decorates the following product item.
+	 *
+	 * @return void
+	 */
+	public function test_customization_renders_titled_custom_separator() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter( Admin_Menu::CUSTOMIZATION_FEATURE_FILTER, '__return_true' );
+		Admin_Menu::update_site_menu_layout(
+			array(
+				'enabled'    => true,
+				'items'      => array(
+					'forms' => array( 'order' => 10 ),
+					'scan'  => array( 'order' => 30 ),
+				),
+				'separators' => array(
+					'security' => array(
+						'title' => 'Security',
+						'order' => 20,
+					),
+				),
+			)
+		);
+		Admin_Menu::add_menu( 'Forms', 'Forms', 'edit_pages', 'jetpack-forms-admin', '__return_null', 2 );
+		Admin_Menu::add_menu( 'Scan', 'Scan', 'manage_options', 'jetpack-scan', '__return_null', 1 );
+
+		do_action( 'admin_menu' );
+
+		$this->assertSubmenuItemHasClass( 'jetpack-scan', 'jetpack-admin-menu-separator-start' );
+		$this->assertSubmenuTitleContains( 'jetpack-scan', 'jetpack-admin-menu-separator-label' );
+		$this->assertSubmenuTitleContains( 'jetpack-scan', 'Security' );
+	}
+
+	/**
+	 * An untitled custom separator renders a divider without title markup.
+	 *
+	 * @return void
+	 */
+	public function test_customization_renders_untitled_custom_separator_without_label() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter( Admin_Menu::CUSTOMIZATION_FEATURE_FILTER, '__return_true' );
+		Admin_Menu::update_site_menu_layout(
+			array(
+				'enabled'    => true,
+				'items'      => array(
+					'forms' => array( 'order' => 10 ),
+					'scan'  => array( 'order' => 30 ),
+				),
+				'separators' => array(
+					'security' => array(
+						'title' => '',
+						'order' => 20,
+					),
+				),
+			)
+		);
+		Admin_Menu::add_menu( 'Forms', 'Forms', 'edit_pages', 'jetpack-forms-admin', '__return_null', 2 );
+		Admin_Menu::add_menu( 'Scan', 'Scan', 'manage_options', 'jetpack-scan', '__return_null', 1 );
+
+		do_action( 'admin_menu' );
+
+		$scan = $this->get_submenu_item( 'jetpack-scan' );
+		$this->assertNotNull( $scan );
+		$this->assertStringContainsString( 'jetpack-admin-menu-separator-start', $scan[4] ?? '' );
+		$this->assertStringNotContainsString( 'jetpack-admin-menu-separator-label', $scan[0] );
+	}
+
+	/**
+	 * Saved product order takes precedence over the alphabetical fallback.
+	 *
+	 * @return void
+	 */
+	public function test_customization_uses_saved_product_order() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter( Admin_Menu::CUSTOMIZATION_FEATURE_FILTER, '__return_true' );
+		Admin_Menu::update_site_menu_layout(
+			array(
+				'enabled' => true,
+				'items'   => array(
+					'scan'  => array( 'order' => 10 ),
+					'forms' => array( 'order' => 20 ),
+				),
+			)
+		);
+		Admin_Menu::add_menu( 'Forms', 'Forms', 'edit_pages', 'jetpack-forms-admin', '__return_null', 1 );
+		Admin_Menu::add_menu( 'Scan', 'Scan', 'manage_options', 'jetpack-scan', '__return_null', 2 );
+
+		do_action( 'admin_menu' );
+
+		$this->assertSame( array( 'jetpack-scan', 'jetpack-forms-admin' ), $this->get_registered_submenu_slugs() );
+	}
+
+	/**
+	 * Settings anchors Jetpack Manage and other off-site items below products.
+	 *
+	 * @return void
+	 */
+	public function test_customization_keeps_off_site_items_after_settings() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter( Admin_Menu::CUSTOMIZATION_FEATURE_FILTER, '__return_true' );
+		Admin_Menu::update_site_menu_layout( array( 'enabled' => true ) );
+
+		Admin_Menu::add_menu( 'Another Tool', 'Another Tool', 'manage_options', 'https://example.com/tool', '__return_null', 1, array( 'external' => true ) );
+		Admin_Menu::add_menu( 'Settings', 'Settings', 'manage_options', 'admin.php?page=jetpack#/settings', '__return_null', 2 );
+		Admin_Menu::add_menu( 'Forms', 'Forms', 'edit_pages', 'jetpack-forms-admin', '__return_null', 3 );
+		Admin_Menu::add_menu( 'Jetpack Manage', 'Jetpack Manage', 'manage_options', 'https://cloud.jetpack.com', '__return_null', 4, array( 'id' => 'jetpack-manage', 'external' => true ) );
+		Admin_Menu::add_menu( 'My Jetpack', 'My Jetpack', 'edit_posts', 'my-jetpack', '__return_null', 5 );
+
+		do_action( 'admin_menu' );
+
+		$this->assertSame(
+			array( 'my-jetpack', 'jetpack-forms-admin', 'admin.php?page=jetpack#/settings', 'https://cloud.jetpack.com', 'https://example.com/tool' ),
+			$this->get_registered_submenu_slugs()
+		);
 	}
 
 	/**
