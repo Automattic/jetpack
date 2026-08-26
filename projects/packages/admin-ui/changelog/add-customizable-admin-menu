@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Admin menu: Add feature-flagged menu customization metadata and layout resolution.
+Admin menu: Add customizable ordering, visibility, and titled separators to the Jetpack submenu.
