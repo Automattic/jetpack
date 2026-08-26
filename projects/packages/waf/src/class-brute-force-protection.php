@@ -529,7 +529,7 @@ class Brute_Force_Protection {
 	 * @return void
 	 */
 	public function log_failed_attempt( $username, $error = null ) {
-		$username = $username ?? '';
+		$username ??= '';
 
 		// Skip if Account protection password validation error.
 		if ( is_object( $error ) && isset( $error->errors['password_detection_validation_error'] ) ) {

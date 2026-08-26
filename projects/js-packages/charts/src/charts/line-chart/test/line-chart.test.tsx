@@ -500,6 +500,57 @@ describe( 'LineChart', () => {
 			expect( ticks.length ).toBeGreaterThan( 1 );
 		} );
 
+		test( 'keeps the derived month formatter when tickFormat is passed as undefined.', () => {
+			renderWithTheme( {
+				width: 800,
+				options: { axis: { x: { tickFormat: undefined } } },
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10 },
+							{ date: new Date( '2024-04-01' ), value: 20 },
+							{ date: new Date( '2024-07-01' ), value: 30 },
+							{ date: new Date( '2024-10-01' ), value: 40 },
+							{ date: new Date( '2025-03-01' ), value: 50 },
+						],
+					},
+				],
+			} );
+
+			// January is absent: formatMonthOrYearTick renders it as the year instead.
+			const ticks = screen.getAllByText( /^(Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/ );
+			expect( ticks.length ).toBeGreaterThan( 1 );
+			expect(
+				screen.queryByText( /^(February|March|April|June|July|August|September|October)$/ )
+			).not.toBeInTheDocument();
+		} );
+
+		test( 'honors an explicit tickFormat over the derived formatter.', () => {
+			renderWithTheme( {
+				width: 800,
+				options: {
+					axis: {
+						x: {
+							tickFormat: ( date: Date | number ) =>
+								`tick-${ new Date( Number( date ) ).getUTCMonth() }`,
+						},
+					},
+				},
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10 },
+							{ date: new Date( '2024-07-01' ), value: 30 },
+						],
+					},
+				],
+			} );
+
+			expect( screen.getAllByText( /^tick-\d+$/ ).length ).toBeGreaterThan( 0 );
+		} );
+
 		test( 'renders ticks in year format.', () => {
 			renderWithTheme( {
 				width: 800,

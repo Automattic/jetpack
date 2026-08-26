@@ -262,6 +262,15 @@ async function fixDeps( pkg ) {
 		pkg.dependencies.glob = '^13';
 	}
 
+	// Updated in upstream trunk with no other changes, but not released yet.
+	// https://github.com/Automattic/newspack-workspace/pull/835
+	if (
+		pkg.name === 'newspack-icons' &&
+		pkg.peerDependencies?.[ '@wordpress/primitives' ] === '^3.0.0'
+	) {
+		pkg.peerDependencies[ '@wordpress/primitives' ] = '^3.0.0 || ^4.0.0';
+	}
+
 	// We don't use this in our E2E runs, and it brings in a lot of extraneous deps (and CVE-2026-54285).
 	// (if you bring this back, do it by reverting the pnpmfile changes in commit e90548654eacfa7493388331dd644a6f927d16c5, don't just delete this bit).
 	if ( pkg.name === '@wordpress/e2e-test-utils-playwright' ) {
