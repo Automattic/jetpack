@@ -3,6 +3,7 @@
  */
 import {
 	LeaderboardChart,
+	LeaderboardRow,
 	LeaderboardSkeleton,
 	WIDGET_ROW_LIMIT,
 	WidgetRoot,
@@ -14,7 +15,7 @@ import {
 import { megaphone } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@jetpack-premium-analytics/externals';
+import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -41,9 +42,11 @@ function SharesInner() {
 		return data.map( ( service, index ) => ( {
 			id: `${ index }-${ service.service }`,
 			label: (
-				<Stack align="center" className={ styles.itemLabel }>
-					<Text className={ styles.itemLabelText }>{ service.label }</Text>
-				</Stack>
+				<LeaderboardRow
+					label={ service.label }
+					media={ { kind: 'none' } }
+					action={ { kind: 'static' } }
+				/>
 			),
 			currentValue: service.value,
 			currentShare: sharePercentage( service.value, maxValue ),

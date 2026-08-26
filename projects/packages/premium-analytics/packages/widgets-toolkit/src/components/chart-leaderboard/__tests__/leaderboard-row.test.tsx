@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { fireEvent, render, screen } from '@testing-library/react';
+import { category } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -64,6 +65,18 @@ describe( 'LeaderboardLabel', () => {
 		render( <LeaderboardLabel label="Desktop" media={ { kind: 'none' } } /> );
 
 		expect( screen.getByText( 'Desktop' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'img' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders a glyph for icon media without announcing it', () => {
+		const { container } = render(
+			<LeaderboardLabel label="Recipes" media={ { kind: 'icon', icon: category } } />
+		);
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the glyph is aria-hidden by design, so the DOM is the only place to assert it.
+		const glyphPath = container.querySelector( 'svg path' )?.getAttribute( 'd' );
+
+		expect( screen.getByText( 'Recipes' ) ).toBeInTheDocument();
+		expect( glyphPath ).toBeTruthy();
 		expect( screen.queryByRole( 'img' ) ).not.toBeInTheDocument();
 	} );
 } );

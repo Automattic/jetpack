@@ -163,7 +163,7 @@ Pass `section` to `LeaderboardPostLabel` to open a named tab on the detail page,
 There is no `LeaderboardVideoLabel`, so a widget building a `videoLink` action takes that same
 window from `useWidgetNavigationSearch()` and passes it as `search`.
 
-`LeaderboardRowMedia` provides five semantic media variants. The variant owns its size,
+`LeaderboardRowMedia` provides six semantic media variants. The variant owns its size,
 fallback, and default alt-text policy:
 
 | Kind        | Size      | Missing or failed image behavior |
@@ -172,7 +172,15 @@ fallback, and default alt-text policy:
 | `favicon`   | 16 × 16px | Hidden; always decorative        |
 | `flag`      | 28px wide | Placeholder; proportional height |
 | `thumbnail` | 28 × 28px | Placeholder                      |
+| `icon`      | 20 × 20px | No image; takes a glyph          |
 | `none`      | No media  | Renders text only                |
+
+`icon` takes a `@wordpress/icons` glyph rather than a URL, for rows whose media is a symbol
+instead of a picture:
+
+```tsx
+media: { kind: 'icon', icon: category },
+```
 
 Use `resolveLeaderboardRowAction` when raw data can contain both an external URL and children.
 It applies the shared precedence: drill-down for rows with children, external links for

@@ -3,6 +3,7 @@
  */
 import {
 	LeaderboardChart,
+	LeaderboardRow,
 	LeaderboardSkeleton,
 	ReportLink,
 	WIDGET_ROW_LIMIT,
@@ -10,6 +11,8 @@ import {
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
+	resolveLeaderboardRowAction,
 	safeHttpUrl,
 	sharePercentage,
 	useWidgetDrillDown,
@@ -21,7 +24,7 @@ import { tag as tagIllustration } from '@jetpack-premium-analytics/icons';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { category, tag as tagGlyph } from '@wordpress/icons';
-import { Icon, Link, Stack } from '@jetpack-premium-analytics/externals';
+import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -37,45 +40,11 @@ type TagsWidgetProps = WidgetRenderProps< TagsRenderAttributes >;
 // row is a tag.
 const rowGlyph = ( labelIcon: string ) => ( labelIcon === 'folder' ? category : tagGlyph );
 
-// Icon + label fields shared by the leaderboard rows and the drilled-in members;
-// documented on TagChildView.
-type TagLabelProps = Pick< TagChildView, 'labelIcon' | 'label' | 'link' >;
-
 interface TagGroupMembersProps {
 	/**
 	 * The selected group's individual tags/categories.
 	 */
 	members: TagChildView[];
-}
-
-/**
- * Icon + label for a single tag/category, shared by the leaderboard rows and the
- * drilled-in group members. A member with an archive URL renders an external
- * link; one without renders plain text.
- */
-function TagLabel( { labelIcon, label, link }: TagLabelProps ) {
-	const href = safeHttpUrl( link );
-
-	return (
-		<>
-			<Icon icon={ rowGlyph( labelIcon ) } size={ 20 } className={ styles.itemIcon } />
-			{ href ? (
-				<Link
-					className={ styles.itemLabelText }
-					href={ href }
-					variant="unstyled"
-					openInNewTab
-					title={ label }
-				>
-					{ label }
-				</Link>
-			) : (
-				<span className={ styles.itemLabelText } title={ label }>
-					{ label }
-				</span>
-			) }
-		</>
-	);
 }
 
 /**
@@ -87,9 +56,15 @@ function TagGroupMembers( { members }: TagGroupMembersProps ) {
 	return (
 		<Stack direction="column" className={ styles.childList }>
 			{ members.map( member => (
-				<div key={ member.id } className={ styles.childRow }>
-					<TagLabel labelIcon={ member.labelIcon } label={ member.label } link={ member.link } />
-				</div>
+				<LeaderboardRow
+					key={ member.id }
+					label={ member.label }
+					media={ { kind: 'icon', icon: rowGlyph( member.labelIcon ) } }
+					action={ resolveLeaderboardRowAction( {
+						href: safeHttpUrl( member.link ) ?? undefined,
+						hasChildren: false,
+					} ) }
+				/>
 			) ) }
 		</Stack>
 	);
@@ -130,22 +105,25 @@ function TagsInner() {
 
 			return {
 				id: row.id,
-				label: (
-					<Stack align="center" className={ styles.itemLabel }>
-						<TagLabel labelIcon={ row.labelIcon } label={ row.label } link={ row.link } />
-					</Stack>
-				),
 				currentValue: row.value,
 				currentShare: sharePercentage( row.value, maxValue ),
 				// Grouped rows have no single archive URL, so a click drills into
 				// their members instead. Single tag/category rows link out directly.
-				...( isGroup && {
-					onClick: () => selectGroup( row.label ),
-					ariaLabel: sprintf(
-						/* translators: %s is the grouped tags and categories label */
-						__( 'View the tags and categories in %s', 'jetpack-premium-analytics-pkg' ),
-						row.label
-					),
+				...buildLeaderboardRow( {
+					label: row.label,
+					media: { kind: 'icon', icon: rowGlyph( row.labelIcon ) },
+					action: resolveLeaderboardRowAction( {
+						href: safeHttpUrl( row.link ) ?? undefined,
+						hasChildren: isGroup,
+						drillDown: {
+							onClick: () => selectGroup( row.label ),
+							ariaLabel: sprintf(
+								/* translators: %s is the grouped tags and categories label */
+								__( 'View the tags and categories in %s', 'jetpack-premium-analytics-pkg' ),
+								row.label
+							),
+						},
+					} ),
 				} ),
 			};
 		} );

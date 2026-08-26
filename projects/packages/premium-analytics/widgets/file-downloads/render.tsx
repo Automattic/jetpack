@@ -12,15 +12,16 @@ import {
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
-import { Link } from '@jetpack-premium-analytics/externals';
 import {
 	WIDGET_ROW_LIMIT,
 	calculateDelta,
 	getCombinedPeriodMax,
 	safeHttpUrl,
 	LeaderboardChart,
+	LeaderboardRow,
 	LeaderboardSkeleton,
 	ReportLink,
+	resolveLeaderboardRowAction,
 	sharePercentage,
 	WidgetFooter,
 	WidgetRoot,
@@ -77,20 +78,12 @@ function buildLeaderboardData(
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
-			label: row.href ? (
-				<Link
-					className={ styles.labelLink }
-					href={ row.href }
-					variant="unstyled"
-					openInNewTab
-					title={ row.label }
-				>
-					{ row.label }
-				</Link>
-			) : (
-				<span className={ styles.labelText } title={ row.label }>
-					{ row.label }
-				</span>
+			label: (
+				<LeaderboardRow
+					label={ row.label }
+					media={ { kind: 'none' } }
+					action={ resolveLeaderboardRowAction( { href: row.href, hasChildren: false } ) }
+				/>
 			),
 			currentValue: row.value,
 			currentShare: sharePercentage( row.value, maxValue ),
