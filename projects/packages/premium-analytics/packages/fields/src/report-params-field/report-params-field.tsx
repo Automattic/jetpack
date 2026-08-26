@@ -38,10 +38,7 @@ type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ]
  * The report params a widget that owns its date range starts on.
  *
  * A preset alone, so `normalizeReportParams` recomputes its moving end on every
- * load rather than freezing the dates this module was built on. Shared with the
- * widget's `render.tsx`: `WidgetRoot` falls back to the URL when a widget
- * carries no `reportParams`, which would leave this control and that widget's
- * body reading different windows until the first edit.
+ * load rather than freezing the dates this module was built on.
  *
  * @return The default report params.
  */
@@ -54,25 +51,12 @@ export type ReportParamsFieldAttributes = {
 };
 
 export type ReportParamsFieldOptions = {
-	/**
-	 * Whether to offer the chart bucket control beside the range. Only a widget
-	 * whose body is bucketed by it — a chart, not a records table — should.
-	 */
+	/** Whether to offer the chart bucket control beside the range. */
 	withIntervalControl?: boolean;
 };
 
 /**
- * Build the widget-header control for a widget that owns its own report params.
- *
- * The control is declared as a `relevance: 'high'` attribute in the widget's
- * `widget.ts`; the dashboard renders it inline in the widget header and saves
- * edits onto the widget instance. `WidgetRoot` already prefers
- * `attributes.reportParams` over the URL, so the control and the widget body
- * read one source with no further wiring.
- *
- * Comparison is not an option here: the panel takes it from the surrounding
- * `ReportScopeProvider`, which the dashboard declares once per section from
- * `date_filter_options.with_date_comparison`.
+ * Build a widget-owned report params field.
  *
  * @param options                     - Field options.
  * @param options.withIntervalControl - Whether to offer the chart bucket control.

@@ -5,7 +5,6 @@ import {
 	useStatsWordAdsStats,
 	type ReportParams,
 	type StatsPeriod,
-	type StatsWordAdsParams,
 	type StatsWordAdsResponse,
 } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
@@ -13,35 +12,9 @@ import { useMemo } from '@wordpress/element';
  * Internal dependencies
  */
 import { WORDADS_CHART_METRICS } from './metrics';
-import { buildMetricTab, type MetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
+import { buildMetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
 
-/**
- * Supported WordAds chart bucket sizes.
- */
 export type WordAdsPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' | 'year' >;
-
-/**
- * Normalized WordAds chart state: one metric tab per WordAds field plus the
- * load/error/empty signals `WidgetState` consumes.
- */
-export interface WordAdsChartState {
-	metrics: MetricTab[];
-	/** True on the first load, while there is no data to show yet. */
-	isLoading: boolean;
-	isFetching: boolean;
-	/** True only when the request failed with no rows left to show. */
-	isError: boolean;
-	/** True when the current period resolved without any rows. */
-	isEmpty: boolean;
-	refetch: () => void;
-}
-
-/**
- * Add the selected bucket period; the query factory maps it to the endpoint's `unit`.
- */
-function toWordAdsParams( reportParams: ReportParams, period: WordAdsPeriod ): StatsWordAdsParams {
-	return { ...reportParams, period };
-}
 
 /**
  * Fetch the WordAds time series and expose its three fields as metric tabs — Ads
@@ -50,12 +23,9 @@ function toWordAdsParams( reportParams: ReportParams, period: WordAdsPeriod ): S
  * request, so — unlike the traffic chart's split requests — one
  * `useStatsWordAdsStats` call drives every tab.
  */
-export default function useWordAdsChart(
-	reportParams: ReportParams,
-	period: WordAdsPeriod
-): WordAdsChartState {
+export default function useWordAdsChart( reportParams: ReportParams, period: WordAdsPeriod ) {
 	// Memoize the request params so the query key is stable across renders.
-	const params = useMemo( () => toWordAdsParams( reportParams, period ), [ reportParams, period ] );
+	const params = useMemo( () => ( { ...reportParams, period } ), [ reportParams, period ] );
 
 	const { primary, isLoading, isFetching, isError, refetch } = useStatsWordAdsStats( params );
 

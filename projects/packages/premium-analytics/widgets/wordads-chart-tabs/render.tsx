@@ -79,18 +79,9 @@ function WordAdsChartTabsInner() {
 }
 
 export default function WordAdsChartTabs( { attributes = {} }: WordAdsChartTabsWidgetProps ) {
-	/*
-	 * The Ads default layout saves this widget with no attributes at all, and
-	 * `WidgetRoot` falls back to the URL for a missing `reportParams` — which is
-	 * the section date state this widget no longer follows. Fall back to the
-	 * same default the header control shows instead, so the two never name
-	 * different windows. Memoized: a fresh object here re-keys every memo below
-	 * `WidgetRoot` on each render.
-	 */
-	const reportParams = useMemo(
-		() => attributes.reportParams ?? getDefaultReportParams(),
-		[ attributes.reportParams ]
-	);
+	// Unsaved instances must not fall back to the section's URL date range.
+	const defaultReportParams = useMemo( getDefaultReportParams, [] );
+	const reportParams = attributes.reportParams ?? defaultReportParams;
 
 	return (
 		// Scope the widget body before WidgetRoot strips the unsupported

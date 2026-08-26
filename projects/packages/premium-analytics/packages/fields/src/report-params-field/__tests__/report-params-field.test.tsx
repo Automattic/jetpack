@@ -57,16 +57,6 @@ function renderField( withIntervalControl?: boolean ) {
 	};
 }
 
-/**
- * Draft a short custom range in the popover without applying it.
- *
- * Typing into the date inputs commits no range — it only stages one and flips
- * the preset to custom — so the control ends up dirty with a window far shorter
- * than the applied one.
- *
- * @param user - The userEvent session driving the popover.
- * @param days - How many days the drafted window should span.
- */
 async function draftShortRange( user: ReturnType< typeof userEvent.setup >, days: number ) {
 	await user.click( screen.getByRole( 'button', { name: /custom/i } ) );
 
@@ -98,8 +88,6 @@ describe( 'createReportParamsField', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
-	// The bucket applies on click, the way the preset pills do — there is no
-	// Apply step for it while the range itself is unedited.
 	it( 'saves a bucket change without an Apply step', async () => {
 		const user = userEvent.setup();
 		const { latest } = renderField( true );
@@ -130,8 +118,6 @@ describe( 'createReportParamsField', () => {
 		expect( latest() ).toEqual( expect.objectContaining( { preset: 'last-7-days' } ) );
 	} );
 
-	// The bucket menu reshapes with the applied range: a 24-hour window has only
-	// hours to offer, where the 30-day window it replaced had days and weeks.
 	it( 'reshapes the bucket menu once the preset applies', async () => {
 		const user = userEvent.setup();
 		renderField( true );
@@ -145,8 +131,6 @@ describe( 'createReportParamsField', () => {
 		expect( screen.queryByRole( 'menuitemradio', { name: 'By days' } ) ).not.toBeInTheDocument();
 	} );
 
-	// A custom range is drafted in a popover and still has its own Apply, so it
-	// must not commit through the same path.
 	it( 'leaves a custom range to its Apply step', async () => {
 		const user = userEvent.setup();
 		const { saved } = renderField( true );
@@ -175,8 +159,6 @@ describe( 'createReportParamsField', () => {
 		expect( screen.queryByRole( 'menuitemradio', { name: 'By weeks' } ) ).not.toBeInTheDocument();
 	} );
 
-	// The applies-on-click shortcut must not fire while a range draft is open,
-	// or it would commit the new bucket against the range the user is replacing.
 	it( 'holds a bucket picked mid-draft until Apply', async () => {
 		const user = userEvent.setup();
 		const { saved, latest } = renderField( true );
@@ -192,8 +174,6 @@ describe( 'createReportParamsField', () => {
 		expect( latest() ).toEqual( expect.objectContaining( { interval: 'hour' } ) );
 	} );
 
-	// The draft is a second copy of the attribute. Left unaligned, the next
-	// commit writes it back over whatever changed the attribute meanwhile.
 	it( 'realigns the draft when the params change from outside', async () => {
 		const user = userEvent.setup();
 		const { setFromOutside } = renderField( true );
