@@ -1,10 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { chartStoryGlobals } from '../../../stories/chart-decorator';
 import { TrendIndicator } from '../trend-indicator';
 import type { TrendIndicatorProps } from '../types';
 
 const meta: Meta< TrendIndicatorProps > = {
-	globals: chartStoryGlobals,
 	title: 'JS Packages/Charts Library/Components/Trend Indicator',
 	component: TrendIndicator,
 	parameters: {

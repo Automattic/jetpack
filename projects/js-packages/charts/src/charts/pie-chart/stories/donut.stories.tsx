@@ -10,7 +10,6 @@ import {
 	legendArgTypes,
 	themeArgTypes,
 	type LegendStoryControls,
-	chartStoryGlobals,
 } from '../../../stories';
 import { customerRevenueData, customerRevenueLegendData } from '../../../stories/sample-data';
 import { Group } from '../../../visx/group';
@@ -39,7 +38,6 @@ const data = [
 ];
 
 const meta: Meta< StoryArgs > = {
-	globals: chartStoryGlobals,
 	title: 'JS Packages/Charts Library/Charts/Donut Chart',
 	component: PieChart,
 	parameters: {

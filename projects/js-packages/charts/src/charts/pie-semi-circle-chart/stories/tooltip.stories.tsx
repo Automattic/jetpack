@@ -1,7 +1,6 @@
 import { formatNumber } from '@automattic/number-formatters';
 import {
 	chartDecorator,
-	chartStoryGlobals,
 	sharedChartArgTypes,
 	ChartStoryArgs,
 } from '../../../stories/chart-decorator';
@@ -25,7 +24,6 @@ const getEmoji = ( label: string ) => {
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieSemiCircleChart > >;
 
 const meta: Meta< StoryArgs > = {
-	globals: chartStoryGlobals,
 	title: 'JS Packages/Charts Library/Charts/Pie Semi Circle Chart/Tooltips',
 	component: PieSemiCircleChart,
 	parameters: {

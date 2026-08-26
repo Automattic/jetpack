@@ -10,7 +10,6 @@ import {
 	marketingChannelsComparison as salesByChannel,
 	salesByProduct,
 	themeArgTypes,
-	chartStoryGlobals,
 } from '../../../stories';
 import BarListChart from '../bar-list-chart';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -18,7 +17,6 @@ import type { Meta, StoryObj } from '@storybook/react';
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarListChart > >;
 
 const meta: Meta< StoryArgs > = {
-	globals: chartStoryGlobals,
 	title: 'JS Packages/Charts Library/Charts/Bar List Chart',
 	component: BarListChart,
 	parameters: {

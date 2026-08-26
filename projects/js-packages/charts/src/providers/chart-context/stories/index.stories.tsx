@@ -9,11 +9,7 @@ import {
 	SeriesData,
 	LeaderboardChart,
 } from '../../../.';
-import {
-	simpleChartDecorator,
-	chartStoryGlobals,
-	ChartStoryArgs,
-} from '../../../stories/chart-decorator';
+import { simpleChartDecorator, ChartStoryArgs } from '../../../stories/chart-decorator';
 import {
 	medalCountsData,
 	marketingChannelsByCountry,
@@ -30,7 +26,6 @@ type StoryArgs = ChartStoryArgs< {
 } >;
 
 const meta: Meta< StoryArgs > = {
-	globals: chartStoryGlobals,
 	title: 'JS Packages/Charts Library/Global Context',
 	parameters: {
 		layout: 'centered',

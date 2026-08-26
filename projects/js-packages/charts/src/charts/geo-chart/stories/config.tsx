@@ -1,6 +1,5 @@
 import {
 	chartDecorator,
-	chartStoryGlobals,
 	sharedChartArgTypes,
 	ChartStoryArgs,
 	viewsByCountry,
@@ -17,7 +16,6 @@ export const geoChartMetaArgs: Meta< StoryArgs > = {
 	parameters: {
 		layout: 'centered',
 	},
-	globals: chartStoryGlobals,
 	decorators: [ chartDecorator ],
 	argTypes: {
 		...sharedChartArgTypes,

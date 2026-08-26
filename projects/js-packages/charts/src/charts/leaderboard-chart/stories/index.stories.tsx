@@ -14,7 +14,6 @@ import {
 	decliningMetricsData as negativeGrowth,
 	categorizedMetricsData as dataWithImageColor,
 	themeArgTypes,
-	chartStoryGlobals,
 } from '../../../stories';
 import {
 	legendArgTypes,
@@ -37,7 +36,6 @@ type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LeaderboardChart >
 	LegendStoryControls;
 
 const meta: Meta< StoryArgs > = {
-	globals: chartStoryGlobals,
 	title: 'JS Packages/Charts Library/Charts/Leaderboard Chart',
 	component: LeaderboardChart,
 	parameters: {
@@ -577,6 +575,8 @@ const OVERLAY_LABEL_BAR_TINT = 0.08;
 // The label sits on top of the bar, so the bar is tinted rather than filled: at full strength the series colour competes with the label text for contrast. Matches the 8% Premium Analytics uses in `chart-leaderboard/leaderboard-chart.tsx`.
 //
 // Composited against the background rather than passed as `rgba()`, because `primaryColor` cannot carry alpha — `resolveColor` normalises every override through `normalizeColorToHex`, whose `formatHex()` drops it. Mixing the surface toward the series colour is the same pixel.
+//
+// The wrapper supplies that surface, because the chart paints no background of its own and the Storybook canvas is the wp-admin body grey. A tint this faint is mixed against the chart's white background token and would then composite over the grey — two different colours, and at 8% the bar disappears. In Premium Analytics the surface is the widget card. #51589 turns the canvas white for chart stories, which makes this wrapper redundant; drop it when that lands.
 const LeaderboardChartWithOverlayLabel = ( args: StoryArgs ) => {
 	const scopeElement = useChartScopeElement();
 	const { getElementStyles, theme } = useGlobalChartsContext();
@@ -589,7 +589,11 @@ const LeaderboardChartWithOverlayLabel = ( args: StoryArgs ) => {
 	const surface = isValidHexColor( background ) ? background : '#fff';
 	const tintedPrimaryColor = mixHexColors( surface, primaryColor, OVERLAY_LABEL_BAR_TINT );
 
-	return <LeaderboardChart { ...args } primaryColor={ tintedPrimaryColor } />;
+	return (
+		<div style={ { background: surface, padding: '12px' } }>
+			<LeaderboardChart { ...args } primaryColor={ tintedPrimaryColor } />
+		</div>
+	);
 };
 
 export const OverlayLabelWithImage: Story = {

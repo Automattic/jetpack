@@ -2,7 +2,6 @@ import { formatNumber } from '@automattic/number-formatters';
 import { GlobalChartsProvider } from '../../../providers';
 import {
 	chartDecorator,
-	chartStoryGlobals,
 	sharedChartArgTypes,
 	ChartStoryArgs,
 } from '../../../stories/chart-decorator';
@@ -15,7 +14,6 @@ import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > >;
 
 const meta: Meta< StoryArgs > = {
-	globals: chartStoryGlobals,
 	title: 'JS Packages/Charts Library/Charts/Pie Chart/Tooltips',
 	component: PieChart,
 	parameters: {

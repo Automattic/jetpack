@@ -7,7 +7,6 @@ import {
 	lowConversionFunnelData,
 	highConversionFunnelData,
 	themeArgTypes,
-	chartStoryGlobals,
 } from '../../../stories';
 import ConversionFunnelChart from '../conversion-funnel-chart';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -15,7 +14,6 @@ import type { Meta, StoryObj } from '@storybook/react';
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof ConversionFunnelChart > >;
 
 const meta: Meta< StoryArgs > = {
-	globals: chartStoryGlobals,
 	title: 'JS Packages/Charts Library/Charts/Conversion Funnel Chart',
 	component: ConversionFunnelChart,
 	parameters: {
