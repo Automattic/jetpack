@@ -48,7 +48,16 @@ function bootstrapBundle( overrides = {} ) {
 		editor_settings: { styles: [ { css: 'body{}' } ] },
 		editor_theme: { version: 3, settings: { color: { palette: [] } } },
 		template: { id: 'pub/stylesheet//wpcom-newsletter' },
-		global_styles_post_id: 10,
+		global_styles: {
+			post_id: 999999999,
+			can_edit: false,
+			record: {
+				id: 999999999,
+				title: { rendered: 'Email styles' },
+				settings: {},
+				styles: { color: { background: '#00ff00' } },
+			},
+		},
 		// The same templates as full REST records, which is what the editor's core-data
 		// resolution needs and what the four-field `template` above cannot stand in for.
 		templates: [
@@ -234,7 +243,7 @@ describe( 'Email design editor entry point', () => {
 			expect( config.theme ).toEqual( { version: 3, settings: { color: { palette: [] } } } );
 			expect( config.urls ).toEqual( pageData().urls );
 			expect( config.userEmail ).toBe( 'creator@example.com' );
-			expect( config.globalStylesPostId ).toBe( 10 );
+			expect( config.globalStylesPostId ).toBe( 999999999 );
 			expect( config.editorSettings ).toBeDefined();
 		} );
 
@@ -275,12 +284,12 @@ describe( 'Email design editor entry point', () => {
 
 			await loadEntryPoint();
 
-			expect( mountedEditorProps().config.globalStylesPostId ).toBe( 10 );
+			expect( mountedEditorProps().config.globalStylesPostId ).toBe( 999999999 );
 		} );
 
 		it( 'falls back to the page when the bundle carries no global styles post id', async () => {
 			// Degrades to the previous behaviour against a bundle deployed before NL-871.
-			mockApiFetch.mockResolvedValue( bootstrapBundle( { global_styles_post_id: undefined } ) );
+			mockApiFetch.mockResolvedValue( bootstrapBundle( { global_styles: undefined } ) );
 			window.JetpackEmailDesignEditor = pageData( { globalStylesPostId: 878 } );
 
 			await loadEntryPoint();
@@ -289,7 +298,7 @@ describe( 'Email design editor entry point', () => {
 		} );
 
 		it( 'defaults a missing global styles post id to null rather than undefined', async () => {
-			mockApiFetch.mockResolvedValue( bootstrapBundle( { global_styles_post_id: undefined } ) );
+			mockApiFetch.mockResolvedValue( bootstrapBundle( { global_styles: undefined } ) );
 			window.JetpackEmailDesignEditor = pageData( { globalStylesPostId: undefined } );
 
 			await loadEntryPoint();
@@ -405,7 +414,11 @@ describe( 'Email design editor entry point', () => {
 
 			await loadEntryPoint();
 
-			Object.values( preloadedMap() ).forEach( entry => {
+			const { OPTIONS = {}, ...paths } = preloadedMap();
+
+			// `OPTIONS` is the format's own container for OPTIONS responses rather than a path,
+			// so its entries are one level down.
+			[ ...Object.values( paths ), ...Object.values( OPTIONS ) ].forEach( entry => {
 				expect( entry.headers ).toBeDefined();
 			} );
 		} );
@@ -422,8 +435,92 @@ describe( 'Email design editor entry point', () => {
 			);
 		} );
 
-		it( 'installs nothing when the bundle carries no template records', async () => {
+		it( 'preloads the global styles record under every context', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			const map = preloadedMap();
+			const base = '/wp/v2/global-styles/999999999';
+
+			// The record's contents are what paint the canvas, not just its id — measured on
+			// WordPress.com, where a preloaded record's colour won over the stored design.
+			[ base, `${ base }?context=view`, `${ base }?context=edit` ].forEach( path => {
+				expect( map[ path ].body.styles.color.background ).toBe( '#00ff00' );
+			} );
+		} );
+
+		it( 'answers the canUser probe, without which the canvas renders unstyled', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			// The package guards on `postId && undefined !== canEdit`, and canEdit comes from an
+			// OPTIONS request. Preload only the GET and it stays undefined, the selector returns
+			// null, and the result is indistinguishable from the id never arriving.
+			expect( preloadedMap().OPTIONS[ '/wp/v2/global-styles/999999999' ].headers.Allow ).toBe(
+				'GET'
+			);
+		} );
+
+		it( 'allows writes only when the bundle says the user may edit', async () => {
+			mockApiFetch.mockResolvedValue(
+				bootstrapBundle( {
+					global_styles: {
+						...bootstrapBundle().global_styles,
+						can_edit: true,
+					},
+				} )
+			);
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect( preloadedMap().OPTIONS[ '/wp/v2/global-styles/999999999' ].headers.Allow ).toBe(
+				'GET, POST, PUT'
+			);
+		} );
+
+		it( 'never keys a global styles record other than its own', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			// The editor also loads the site's own record — measured as global-styles/2. Anything
+			// broader than an exact id would push the site's own design through this plumbing.
+			const map = preloadedMap();
+			const keyed = [ ...Object.keys( map ), ...Object.keys( map.OPTIONS || {} ) ].filter( k =>
+				k.includes( 'global-styles' )
+			);
+
+			expect( keyed.every( k => k.startsWith( '/wp/v2/global-styles/999999999' ) ) ).toBe( true );
+			expect( keyed ).not.toContain( '/wp/v2/global-styles/2' );
+		} );
+
+		it( 'preloads the template half even when the bundle carries no global styles', async () => {
+			mockApiFetch.mockResolvedValue( bootstrapBundle( { global_styles: undefined } ) );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect( preloadedMap() ).toHaveProperty( '/wp/v2/templates' );
+			expect( preloadedMap().OPTIONS ).toBeUndefined();
+		} );
+
+		it( 'preloads the global styles half even when the bundle carries no templates', async () => {
 			mockApiFetch.mockResolvedValue( bootstrapBundle( { templates: undefined } ) );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect( preloadedMap() ).toHaveProperty( '/wp/v2/global-styles/999999999' );
+			expect( preloadedMap() ).not.toHaveProperty( '/wp/v2/templates' );
+		} );
+
+		it( 'installs nothing when the bundle carries neither half', async () => {
+			mockApiFetch.mockResolvedValue(
+				bootstrapBundle( { templates: undefined, global_styles: undefined } )
+			);
 			window.JetpackEmailDesignEditor = pageData();
 
 			await loadEntryPoint();
@@ -435,13 +532,15 @@ describe( 'Email design editor entry point', () => {
 		} );
 
 		it( 'installs nothing when the bundle sends an empty collection', () => {
-			expect( buildPreloadMap( bootstrapBundle( { templates: [] } ), templateId ) ).toBeNull();
+			const empty = bootstrapBundle( { templates: [], global_styles: undefined } );
+
+			expect( buildPreloadMap( empty, templateId ) ).toBeNull();
 		} );
 
 		it( 'omits the item entry when no record matches the template id', () => {
 			const map = buildPreloadMap( bootstrapBundle(), 'pub/other//something-else' );
 
-			expect( Object.keys( map ) ).toEqual( [
+			expect( Object.keys( map ).filter( k => k.startsWith( '/wp/v2/templates' ) ) ).toEqual( [
 				'/wp/v2/templates',
 				'/wp/v2/templates?context=edit',
 				'/wp/v2/templates?context=view',

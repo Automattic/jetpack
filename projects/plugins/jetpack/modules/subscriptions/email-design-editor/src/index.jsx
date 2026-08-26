@@ -151,12 +151,17 @@ export function buildEditorConfig( bundle, data ) {
 		// site and the shadow blog are the same, and wrong on Atomic and self-hosted. The page
 		// remains a fallback so this degrades to the previous behaviour against a bundle that
 		// does not carry one yet. See NL-871.
-		globalStylesPostId: bundle.global_styles_post_id ?? globalStylesPostId ?? null,
+		globalStylesPostId: bundle.global_styles?.post_id ?? globalStylesPostId ?? null,
 	};
 }
 
 /**
- * The template records the editor would otherwise fetch, keyed by the path it asks for.
+ * Everything the editor would otherwise fetch, keyed by the path it asks for.
+ *
+ * Two things travel this way — the canvas templates and the global-styles record — for the same
+ * reason: both exist only while WordPress.com builds the bootstrap bundle, so a request made from
+ * the browser cannot reach them. Sending the contents and answering the fetch locally sidesteps
+ * that rather than working around it.
  *
  * The editor resolves its canvas template through core-data, which fetches
  * `/wp/v2/templates` — the item and the collection both, as observed. On WordPress.com
@@ -174,18 +179,85 @@ export function buildEditorConfig( bundle, data ) {
  * rest — `post_types` with no optional chaining, so a record without it throws rather than
  * degrading, plus `source`, `origin` and `has_theme_file` when resetting a template. Only
  * WordPress.com holds the real records, the same reason the template's id is handed down
- * rather than derived. Until it sends them there is nothing to preload, and this returns null.
+ * rather than derived. Until it sends them there is nothing to preload.
  *
  * @param {object} bundle     - The response from the bootstrap route.
  * @param {string} templateId - The id of the template the editor opens.
  * @return {object|null} A map for `createPreloadingMiddleware`, or null when the bundle
- *                       carries no template records.
+ *                       carries nothing to preload.
  */
 export function buildPreloadMap( bundle, templateId ) {
+	const map = {
+		...templatePreloads( bundle, templateId ),
+		...globalStylesPreloads( bundle ),
+	};
+
+	return Object.keys( map ).length > 0 ? map : null;
+}
+
+/**
+ * The global-styles record the editor reads its design from.
+ *
+ * Both halves are required. The package's selector guards on
+ * `postId && undefined !== canEdit`, and `canEdit` comes from `canUser( 'update', … )`, which is
+ * an `OPTIONS` request. Answer the `GET` alone and `canEdit` stays undefined, the selector returns
+ * null, and the canvas renders unstyled — indistinguishable from the id never having arrived.
+ *
+ * The record's contents are used, not just its id: measured on WordPress.com by preloading a
+ * record whose background differed from the blog's stored design, and the canvas took the
+ * record's colour. So this has to carry the body WordPress.com sent, not a placeholder.
+ *
+ * `Allow` decides how the editor treats it. Without `POST`/`PUT` the package reads through
+ * `getEntityRecord` rather than `getEditedEntityRecord`, which is the shape to ship while there
+ * is no save interception: the canvas paints and the Styles panel is not editable, so nothing can
+ * write to a record we have not yet routed.
+ *
+ * **Only this one id, never a pattern.** The editor also loads the site's own global-styles record
+ * alongside ours — measured as `OPTIONS /wp/v2/global-styles/2` and
+ * `GET /wp/v2/global-styles/2?context=edit`, `2` being `wp-global-styles-pub/assembler`. Matching
+ * `/wp/v2/global-styles/*` would put the site's own design through the newsletter's plumbing. That
+ * record has to keep reaching the network untouched.
+ *
+ * @param {object} bundle - The response from the bootstrap route.
+ * @return {object} Preload entries, empty when the bundle carries no global styles.
+ */
+function globalStylesPreloads( bundle ) {
+	const globalStyles = bundle?.global_styles;
+	const id = globalStyles?.post_id;
+
+	if ( ! id || ! globalStyles?.record ) {
+		return {};
+	}
+
+	const record = { body: globalStyles.record, headers: {} };
+
+	return {
+		[ `/wp/v2/global-styles/${ id }` ]: record,
+		[ `/wp/v2/global-styles/${ id }?context=view` ]: record,
+		[ `/wp/v2/global-styles/${ id }?context=edit` ]: record,
+
+		// OPTIONS responses live under their own top-level key in the preload format.
+		OPTIONS: {
+			[ `/wp/v2/global-styles/${ id }` ]: {
+				body: {},
+				headers: { Allow: globalStyles.can_edit ? 'GET, POST, PUT' : 'GET' },
+			},
+		},
+	};
+}
+
+/**
+ * The template records the editor resolves its canvas from.
+ *
+ * @param {object} bundle     - The response from the bootstrap route.
+ * @param {string} templateId - The id of the template the editor opens.
+ * @return {object} Preload entries, empty when the bundle carries no template records.
+ */
+function templatePreloads( bundle, templateId ) {
 	const templates = bundle?.templates;
 
 	if ( ! Array.isArray( templates ) || 0 === templates.length ) {
-		return null;
+		return {};
 	}
 
 	// Callers passing `parse: false` build a Response out of these, and that path reads
