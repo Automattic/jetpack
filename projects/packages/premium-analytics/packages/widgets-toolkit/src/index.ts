@@ -152,7 +152,7 @@ export { COLOR_GRAY_100, WIDGET_ROW_LIMIT } from './constants';
 /**
  * Widget edit fields
  */
-export { ReportParamsField, type ReportParamsFieldAttributes } from './fields';
+export type { ReportParamsFieldAttributes } from './fields';
 
 /**
  * Helpers and utilities
