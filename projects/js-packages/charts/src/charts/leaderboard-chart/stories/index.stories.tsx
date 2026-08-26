@@ -563,14 +563,11 @@ export const AdvancedFormatting: Story = {
 	},
 };
 
-// Matches the 8% Premium Analytics uses in `chart-leaderboard/leaderboard-chart.tsx`.
+// How far the overlay-label bar travels from white toward the series colour.
+//
+// The label is drawn on the bar, so at full strength the series colour competes with the label text for contrast. Blended rather than passed as `rgba()`: `primaryColor` cannot carry alpha, since `resolveColor` normalises every override through `normalizeColorToHex`, whose `formatHex()` drops it.
 const OVERLAY_LABEL_BAR_TINT = 0.08;
 
-// The label sits on top of the bar, so the bar is tinted rather than filled: at full strength the series colour competes with the label text for contrast.
-//
-// Blended rather than passed as `rgba()`, because `primaryColor` cannot carry alpha — `resolveColor` normalises every override through `normalizeColorToHex`, whose `formatHex()` drops it. That stripping is deliberate: geo chart feeds its resolved colour to Google Charts, which takes hex only, and `lightenHexColor`/`mixHexColors` throw on anything else. Blending is the mechanism here, not a workaround.
-//
-// Blended toward white rather than toward `theme.backgroundColor`, which would read as if it knew the surface: the chart paints no background, so that token names a colour nothing here is drawn on. White is the same assumption, made visibly. CHARTS-261 has charts paint their own surface, at which point the token becomes true and this should blend toward it instead.
 const LeaderboardChartWithOverlayLabel = ( args: StoryArgs ) => {
 	const { getElementStyles } = useGlobalChartsContext();
 	const { color: primaryColor } = getElementStyles( {
