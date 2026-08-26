@@ -295,25 +295,14 @@ const RuleRow = ( {
 				</Notice>
 			) }
 
-			{ ambiguousSubject && (
-				<Notice status="warning" isDismissible={ false }>
-					{ sprintf(
-						/* translators: %s: a field name/ID shared by more than one field. */
-						__(
-							'More than one field uses the Name/ID %s, so this condition cannot tell which one it means. Give each of those fields a unique Name/ID.',
-							'jetpack-forms'
-						),
-						rule.field
-					) }
-				</Notice>
-			) }
-
 			{ /* One row per condition, reading as a sentence: subject, comparison, value. The
 			     remove control sits at the end of the row rather than in a header, so a long
 			     list is three aligned columns instead of a stack of cards. */ }
+			{ /* Top-aligned when the subject carries a message: that column grows taller, and
+			     centring would leave the three controls stepping down the row. */ }
 			<Stack
 				direction="row"
-				align="center"
+				align={ ambiguousSubject ? 'flex-start' : 'center' }
 				gap="sm"
 				className="jetpack-contact-form__conditional-logic-rule-row"
 			>
@@ -342,6 +331,21 @@ const RuleRow = ( {
 					hideLabelFromVision
 					value={ rule.field || '' }
 					onChange={ handleFieldChange }
+					className={ clsx( 'jetpack-contact-form__conditional-logic-rule-subject', {
+						'is-ambiguous': ambiguousSubject,
+					} ) }
+					// Under the control it is about, rather than as a banner over the row: the
+					// problem belongs to this one subject, and the dialog's own notice already
+					// carries the general explanation and the fix.
+					help={
+						ambiguousSubject
+							? sprintf(
+									/* translators: %s: a field name/ID shared by more than one field. */
+									__( '%s is used by more than one field.', 'jetpack-forms' ),
+									rule.field
+							  )
+							: undefined
+					}
 					__nextHasNoMarginBottom={ true }
 					__next40pxDefaultSize={ true }
 				>

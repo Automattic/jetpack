@@ -129,6 +129,18 @@
 	// The `-weak` tokens are the ones that carry the hue. Their unsuffixed
 	// counterparts are text-on-light colours, dark enough (near-black green and
 	// brown) that neither icon read as its status.
+	.jetpack-contact-form__conditional-logic-rule-subject.is-ambiguous {
+
+		.components-select-control__input {
+			border-color: #b32d2e;
+		}
+
+		.components-base-control__help {
+			color: #b32d2e;
+			margin-block-start: 4px;
+		}
+	}
+
 	.jetpack-contact-form__conditional-logic-rule-status {
 		display: flex;
 		align-items: center;

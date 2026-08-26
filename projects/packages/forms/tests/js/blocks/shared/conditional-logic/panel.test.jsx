@@ -420,12 +420,13 @@ describe( 'ConditionalLogicPanel', () => {
 		} );
 
 		// A rule saved before the ids collided, or against a field that was later duplicated.
-		it( 'flags a stored condition that names a shared id', async () => {
+		// The message hangs under the subject control it is about, not over the whole row.
+		it( 'explains a stored condition that names a shared id, under its field', async () => {
 			await setup( withRules( [ { field: 'first-name', operator: 'is', value: 'x' } ] ) );
 
-			expect(
-				screen.getAllByText( /this condition cannot tell which one it means/ ).length
-			).toBeGreaterThan( 0 );
+			const subject = screen.getByRole( 'combobox', { name: 'Field' } );
+
+			expect( subject ).toHaveAccessibleDescription( /first-name is used by more than one field/ );
 		} );
 	} );
 
