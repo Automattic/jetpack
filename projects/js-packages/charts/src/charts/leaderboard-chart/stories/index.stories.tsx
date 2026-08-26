@@ -14,6 +14,7 @@ import {
 	decliningMetricsData as negativeGrowth,
 	categorizedMetricsData as dataWithImageColor,
 	themeArgTypes,
+	chartStoryGlobals,
 } from '../../../stories';
 import {
 	legendArgTypes,
@@ -36,6 +37,7 @@ type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LeaderboardChart >
 	LegendStoryControls;
 
 const meta: Meta< StoryArgs > = {
+	globals: chartStoryGlobals,
 	title: 'JS Packages/Charts Library/Charts/Leaderboard Chart',
 	component: LeaderboardChart,
 	parameters: {
@@ -575,8 +577,6 @@ const OVERLAY_LABEL_BAR_TINT = 0.08;
 // The label sits on top of the bar, so the bar is tinted rather than filled: at full strength the series colour competes with the label text for contrast. Matches the 8% Premium Analytics uses in `chart-leaderboard/leaderboard-chart.tsx`.
 //
 // Composited against the background rather than passed as `rgba()`, because `primaryColor` cannot carry alpha — `resolveColor` normalises every override through `normalizeColorToHex`, whose `formatHex()` drops it. Mixing the surface toward the series colour is the same pixel.
-//
-// The chart paints no background of its own, so the story supplies the surface the tint is mixed against. Without it the bars composite over Storybook's canvas instead, and a tint this faint disappears — which is the widget card in Premium Analytics, not something the chart provides.
 const LeaderboardChartWithOverlayLabel = ( args: StoryArgs ) => {
 	const scopeElement = useChartScopeElement();
 	const { getElementStyles, theme } = useGlobalChartsContext();
@@ -589,11 +589,7 @@ const LeaderboardChartWithOverlayLabel = ( args: StoryArgs ) => {
 	const surface = isValidHexColor( background ) ? background : '#fff';
 	const tintedPrimaryColor = mixHexColors( surface, primaryColor, OVERLAY_LABEL_BAR_TINT );
 
-	return (
-		<div style={ { background: surface, padding: '12px' } }>
-			<LeaderboardChart { ...args } primaryColor={ tintedPrimaryColor } />
-		</div>
-	);
+	return <LeaderboardChart { ...args } primaryColor={ tintedPrimaryColor } />;
 };
 
 export const OverlayLabelWithImage: Story = {

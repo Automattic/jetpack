@@ -3,6 +3,7 @@ import {
 	temperatureData as sampleData,
 	largeValuesData,
 	trafficData as webTrafficData,
+	chartStoryGlobals,
 } from '../../../stories';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs, type StoryArgs as BaseStoryArgs } from './config';
@@ -21,6 +22,7 @@ type StoryArgs = BaseStoryArgs & {
 };
 
 const meta: Meta< StoryArgs > = {
+	globals: chartStoryGlobals,
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts Library/Charts/Line Chart',
 	component: lineChartMetaArgs.component, // Make eslint happy.

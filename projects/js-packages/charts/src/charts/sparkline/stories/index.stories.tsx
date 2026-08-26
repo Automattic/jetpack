@@ -1,10 +1,15 @@
 import { Sparkline } from '../';
-import { chartDecorator, type ChartStoryArgs } from '../../../stories/chart-decorator';
+import {
+	chartDecorator,
+	chartStoryGlobals,
+	type ChartStoryArgs,
+} from '../../../stories/chart-decorator';
 import type { Meta, StoryObj } from '@storybook/react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof Sparkline > >;
 
 const meta: Meta< StoryArgs > = {
+	globals: chartStoryGlobals,
 	title: 'JS Packages/Charts Library/Charts/Sparkline',
 	component: Sparkline,
 	parameters: {

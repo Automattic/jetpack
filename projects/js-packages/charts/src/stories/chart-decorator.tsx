@@ -27,6 +27,18 @@ export type ChartStoryArgs< T = Record< string, unknown > > = T & {
 };
 
 /**
+ * Story globals every chart meta applies.
+ *
+ * The monorepo default canvas is the wp-admin body grey (`--jp-white-off`), which no chart is ever
+ * drawn on: charts paint no background of their own, so every host — Premium Analytics widgets,
+ * Stats v1 cards — puts them on a white card. Previewing on the grey misreports contrast, and a
+ * faint fill mixed against the chart's white background token disappears into it.
+ */
+export const chartStoryGlobals = {
+	backgrounds: { value: 'light' },
+} as const;
+
+/**
  * Shared decorator for chart stories with GlobalChartsProvider and dynamic theme support
  * Provides a resizable container for testing responsive behavior
  * Composes with simpleChartDecorator to add container styling

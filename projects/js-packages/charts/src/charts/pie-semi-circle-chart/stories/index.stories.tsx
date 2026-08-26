@@ -10,6 +10,7 @@ import {
 	partialOsUsageData as data,
 	themeArgTypes,
 	type LegendStoryControls,
+	chartStoryGlobals,
 } from '../../../stories';
 import { PieSemiCircleChart } from '../index';
 import type { ChartLegendConfig, DataPointPercentage } from '../../../types';
@@ -19,6 +20,7 @@ type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieSemiCircleChart
 	LegendStoryControls;
 
 const meta: Meta< StoryArgs > = {
+	globals: chartStoryGlobals,
 	title: 'JS Packages/Charts Library/Charts/Pie Semi Circle Chart',
 	component: PieSemiCircleChart,
 	parameters: {

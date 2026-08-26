@@ -1,5 +1,6 @@
 import {
 	chartDecorator,
+	chartStoryGlobals,
 	sharedChartArgTypes,
 	ChartStoryArgs,
 } from '../../../stories/chart-decorator';
@@ -17,6 +18,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof HeatmapChart > >;
 
 const meta: Meta< StoryArgs > = {
+	globals: chartStoryGlobals,
 	title: 'JS Packages/Charts Library/Charts/Heatmap Chart',
 	component: HeatmapChart,
 	parameters: { layout: 'centered' },

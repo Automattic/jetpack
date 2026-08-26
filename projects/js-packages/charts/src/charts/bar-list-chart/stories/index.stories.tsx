@@ -10,6 +10,7 @@ import {
 	marketingChannelsComparison as salesByChannel,
 	salesByProduct,
 	themeArgTypes,
+	chartStoryGlobals,
 } from '../../../stories';
 import BarListChart from '../bar-list-chart';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -17,6 +18,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarListChart > >;
 
 const meta: Meta< StoryArgs > = {
+	globals: chartStoryGlobals,
 	title: 'JS Packages/Charts Library/Charts/Bar List Chart',
 	component: BarListChart,
 	parameters: {
@@ -71,6 +73,31 @@ export const Animation: Story = {
 	},
 };
 
+// The colour is resolved here, not inside `labelComponent`. visx renders that through its axis
+// render prop, outside this provider, so a `useGlobalChartsContext()` call in it throws; the
+// closure carries the resolved value in instead.
+const BarListChartWithCircleLabels = ( args: StoryArgs ) => {
+	const { getElementStyles } = useGlobalChartsContext();
+	const circleColor = getElementStyles( { index: 1 } ).color;
+
+	return (
+		<BarListChart
+			{ ...args }
+			options={ {
+				...args.options,
+				labelComponent: ( { textProps, x, y, label, formatter } ) => (
+					<>
+						<Circle cx={ x + 6 } cy={ y } r={ 8 } fill={ circleColor } />
+						<Text { ...textProps } textAnchor="start" x={ x + 24 } y={ y } fontWeight={ 500 }>
+							{ formatter( label ) }
+						</Text>
+					</>
+				),
+			} }
+		/>
+	);
+};
+
 export const CustomLabelComponent: Story = {
 	args: {
 		...Default.args,
@@ -85,22 +112,9 @@ export const CustomLabelComponent: Story = {
 		options: {
 			xScale: {},
 			yScale: {},
-			labelComponent: ( { textProps, x, y, label, formatter } ) => {
-				// eslint-disable-next-line react-hooks/rules-of-hooks
-				const { getElementStyles } = useGlobalChartsContext();
-				const circleColor = getElementStyles( { index: 1 } ).color;
-
-				return (
-					<>
-						<Circle cx={ x + 6 } cy={ y } r={ 8 } fill={ circleColor } />
-						<Text { ...textProps } textAnchor="start" x={ x + 24 } y={ y } fontWeight={ 500 }>
-							{ formatter( label ) }
-						</Text>
-					</>
-				);
-			},
 		},
 	},
+	render: args => <BarListChartWithCircleLabels { ...args } />,
 };
 
 export const CustomValueComponent: Story = {
