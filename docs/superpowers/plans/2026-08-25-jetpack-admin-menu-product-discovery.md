@@ -114,7 +114,7 @@
 - No source changes expected; browser-discovered defects return to the relevant test-first task above.
 
 - [ ] Confirm slot 3 health and branch placement with the Jurassic slot skill.
-- [ ] Open `https://devin-3.jurassic.tube/wp-admin/admin.php?page=my-jetpack#/customize` in the in-app browser.
+- [ ] Open My Jetpack's Customize tab in the in-app browser.
 - [ ] Verify the Active view matches the real Jetpack submenu and live preview; verify the Inactive view is alphabetical, non-sortable, and exposes appropriate actions.
 - [ ] Activate one safe eligible feature, confirm it moves into Active below My Jetpack, confirm focus/highlight and the sidebar preview, and restore the test site's prior state if needed.
 - [ ] Add a separator, alphabetize sections, hide/show a row, save My menu, reload, and confirm the persisted order/visibility and current `@wordpress/ui` notices.
