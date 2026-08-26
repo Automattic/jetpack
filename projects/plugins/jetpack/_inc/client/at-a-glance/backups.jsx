@@ -27,7 +27,7 @@ import {
 	getVaultPressData,
 } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
-import { getPartnerCoupon, showBackups } from 'state/initial-state';
+import { getPartnerCoupon, getSiteAdminUrl, showBackups } from 'state/initial-state';
 import { siteHasFeature, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import BackupGettingStarted from './backup-getting-started';
@@ -70,6 +70,7 @@ class DashBackups extends Component {
 		trackUpgradeButtonView: PropTypes.func,
 
 		// Connected props
+		siteAdminUrl: PropTypes.string.isRequired,
 		vaultPressData: PropTypes.any.isRequired,
 		hasBackups: PropTypes.bool.isRequired,
 		hasRealTimeBackups: PropTypes.bool.isRequired,
@@ -82,6 +83,7 @@ class DashBackups extends Component {
 
 	static defaultProps = {
 		siteRawUrl: '',
+		siteAdminUrl: '',
 		getOptionValue: noop,
 		vaultPressData: '',
 		isOfflineMode: false,
@@ -188,7 +190,7 @@ class DashBackups extends Component {
 			isFetchingSite,
 			isVaultPressInstalled,
 			getOptionValue,
-			siteRawUrl,
+			siteAdminUrl,
 			vaultPressData,
 		} = this.props;
 
@@ -228,12 +230,7 @@ class DashBackups extends Component {
 						{
 							a: (
 								<a
-									href={ getRedirectUrl( 'calypso-plugins-setup', {
-										site: siteRawUrl,
-										query: 'only=backups',
-									} ) }
-									target="_blank"
-									rel="noopener noreferrer"
+									href={ `${ siteAdminUrl }plugin-install.php?tab=search&type=term&s=vaultpress` }
 								/>
 							),
 						}
@@ -530,6 +527,7 @@ class DashBackups extends Component {
 export default connect(
 	state => {
 		return {
+			siteAdminUrl: getSiteAdminUrl( state ),
 			vaultPressData: getVaultPressData( state ),
 			isOfflineMode: isOfflineMode( state ),
 			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
