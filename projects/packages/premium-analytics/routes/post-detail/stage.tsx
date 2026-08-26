@@ -146,7 +146,6 @@ function PostDetail(): JSX.Element {
 								variant="solid"
 								tone="neutral"
 								size="compact"
-								className={ styles.viewPost }
 								href={ publicUrl }
 								openInNewTab
 							>

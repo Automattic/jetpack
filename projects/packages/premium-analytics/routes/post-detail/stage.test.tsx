@@ -213,7 +213,7 @@ describe( 'post detail stage', () => {
 
 		render( stage() );
 
-		expect( screen.queryByRole( 'link', { name: /^View (post|page)$/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /^View (post|page)/ } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'omits the action when the post URL carries an unsupported scheme', () => {
@@ -221,7 +221,7 @@ describe( 'post detail stage', () => {
 
 		render( stage() );
 
-		expect( screen.queryByRole( 'link', { name: /^View (post|page)$/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /^View (post|page)/ } ) ).not.toBeInTheDocument();
 	} );
 
 	// One declaration drives both halves: the panel reads it to drop the Compare
