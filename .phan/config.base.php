@@ -201,8 +201,6 @@ function make_phan_config( $dir, $options = array() ) {
 				array(
 					// WordPress coding standards do not allow the `?:` operator.
 					'PhanPluginDuplicateConditionalTernaryDuplication',
-					// Temporary, to fix in a followup PR.
-					'PhanPluginDuplicateExpressionAssignmentOperation',
 				),
 				$options['unsuppress_issue_types']
 			),

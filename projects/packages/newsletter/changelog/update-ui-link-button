@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Make writing-prompt, paid-plan, and subscribers-announcement actions real links.
