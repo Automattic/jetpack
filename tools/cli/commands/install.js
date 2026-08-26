@@ -50,8 +50,7 @@ export function builder( yargs ) {
 		} )
 		.option( 'concurrency', {
 			type: 'number',
-			description:
-				'Maximum number of install tasks to run at once. Ignored with `--verbose`, which runs one task at a time so `pnpm` and `composer` can prompt.',
+			description: 'Maximum number of install tasks to run at once. Ignored with `--verbose`.',
 			default: 20,
 			coerce: coerceConcurrency,
 		} );
@@ -84,20 +83,12 @@ export async function handler( argv ) {
 	}
 
 	/*
-	 * Verbose mode decides three things at once, and they have to stay in step.
-	 *
-	 * `pnpm` and `composer` both prompt on occasion: pnpm asks before purging a
-	 * `node_modules` that no longer matches the current config, composer asks
-	 * before running third-party plugins. Handing a child stdin is only safe
-	 * when exactly one of them can own the terminal and the renderer is not
-	 * redrawing over it, which is what `concurrent: false` plus the line-based
-	 * VerboseRenderer give us.
-	 *
-	 * Otherwise stdin stays closed, since a prompt would be painted over by the
-	 * update renderer and would race up to `--concurrency` siblings for
-	 * keystrokes. Capture the child's output there instead so a failure can say
-	 * what went wrong; both streams are captured because pnpm reports errors on
-	 * stdout.
+	 * Verbose runs one task at a time, so a child can have the terminal to itself
+	 * and prompt: pnpm asks before purging a `node_modules` that no longer
+	 * matches the current config, composer before running third-party plugins.
+	 * Otherwise stdin stays closed and the output is captured instead, so a
+	 * failure can still say what went wrong. Both streams, since pnpm reports
+	 * errors on stdout.
 	 */
 	const verbose = !! argv.v;
 	const stdio = verbose ? [ 'inherit', 'inherit', 'inherit' ] : [ 'ignore', 'pipe', 'pipe' ];
@@ -145,38 +136,24 @@ export async function handler( argv ) {
 	} );
 	await listr.run().catch( err => {
 		/*
-		 * An error with no `shortMessage` did not come from execa, so it is a bug
-		 * in the CLI rather than a command that failed. Listr prints only
-		 * `err.message` for those, and nothing at all for anything thrown that is
-		 * not an Error, so print those in full and get the stack with them.
-		 *
-		 * For a command that failed, execa has already folded the captured output
-		 * into `err.message`, so print that. Listr reports through stdout, and
-		 * how much it reports depends on the renderer, so neither of those is
-		 * something to lean on: redirect stdout and the reason goes with it. The
-		 * cost is that `jetpack install >log 2>&1` carries the message twice,
-		 * which is worth paying to keep stderr complete on its own.
-		 *
-		 * Say something about prompts only where a prompt is really the problem.
-		 * Answering one takes a terminal at both ends, to type into and to read
-		 * the question from. The purge is worth naming only when it is what went
-		 * wrong: it deletes a `node_modules` that takes minutes to rebuild, so
-		 * raising it after an unrelated composer failure would send someone
-		 * somewhere costly and useless. Under `-v` the child's output was never
-		 * captured, so there is no message to recognize it in; pnpm will have
-		 * said its piece directly to the terminal by then anyway.
+		 * execa folds a captured child's output into `err.message`, so for a
+		 * command that failed that is the whole story. Anything else came from the
+		 * CLI itself and is worth printing whole, to get the stack with it. Print
+		 * rather than leave it to Listr, which reports through stdout: redirect
+		 * stdout and the reason would go with it.
 		 */
 		const commandFailed = typeof err?.shortMessage === 'string';
 		if ( verbose || ! commandFailed ) {
 			console.error( err );
 		} else {
 			console.error( err.message );
-		}
-		if ( ! verbose && commandFailed ) {
+
 			const advice = [];
+			// Answering a prompt takes a terminal to read it and one to type into.
 			if ( process.stdin.isTTY && process.stdout.isTTY ) {
-				advice.push( 'Run again with `-v` to answer any prompt the command is waiting on.' );
+				advice.push( 'Run again with `-v` if the command was waiting on a prompt.' );
 			}
+			// Only when the purge is the failure at hand. It costs a full reinstall.
 			if (
 				err.command?.startsWith( 'pnpm' ) &&
 				err.message.includes( 'ERR_PNPM_ABORTED_REMOVE_MODULES_DIR' )
