@@ -941,6 +941,10 @@ class Admin_Menu {
 			return $slug_map[ $slug ];
 		}
 
+		if ( false !== strpos( $slug, '#/add-videopress' ) ) {
+			return 'videopress';
+		}
+
 		if ( false !== strpos( $slug, '#/settings' ) ) {
 			return 'settings';
 		}

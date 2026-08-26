@@ -383,6 +383,14 @@ class Admin_Menu_Test extends TestCase {
 	public function test_customization_model_includes_registered_state_and_product_slugs() {
 		wp_set_current_user( self::$admin_user_id );
 		Admin_Menu::add_menu( 'Jetpack Forms', 'Forms', 'edit_pages', 'jetpack-forms-admin', '__return_null', 10 );
+		Admin_Menu::add_menu(
+			'VideoPress',
+			'VideoPress',
+			'edit_pages',
+			'admin.php?page=my-jetpack#/add-videopress',
+			'__return_null',
+			20
+		);
 
 		$model = Admin_Menu::get_customization_model( self::$admin_user_id );
 		$items = array();
@@ -396,6 +404,9 @@ class Admin_Menu_Test extends TestCase {
 		$this->assertSame( 'jetpack-ai', $items['ai']['productSlug'] );
 		$this->assertFalse( $items['akismet-anti-spam']['registered'] );
 		$this->assertSame( 'anti-spam', $items['akismet-anti-spam']['productSlug'] );
+		$this->assertTrue( $items['videopress']['registered'] );
+		$this->assertSame( 'videopress', $items['videopress']['productSlug'] );
+		$this->assertArrayNotHasKey( 'admin-php-page-my-jetpack-add-videopress', $items );
 		$this->assertArrayHasKey( 'search', $items );
 	}
 
