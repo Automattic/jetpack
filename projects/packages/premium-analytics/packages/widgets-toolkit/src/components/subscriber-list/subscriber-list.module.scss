@@ -9,13 +9,14 @@
 	block-size: 100%;
 }
 
-/* 6px is what wp-admin's `dd, li` rule gives the metric list's rows, so keeping
- * it here holds the two widgets to the same row rhythm side by side. */
+/* The metric list's rows are separated by wp-admin's own `dd, li` margin; the
+ * nearest token to it separates these, so the two widgets read at the same
+ * rhythm side by side. */
 .list {
 	display: flex;
 	flex: 1 1 auto;
 	flex-direction: column;
-	gap: 6px;
+	gap: var(--wpds-dimension-gap-xs);
 	min-block-size: 0;
 }
 

@@ -1,9 +1,9 @@
 @use "sass:list";
 
 /* Geometry from the design prototype's `list` skeleton variant, on WPDS
- * dimension tokens where one exists. The row pitch and avatar size stay literal
- * because they mirror `SubscriberList`, whose own values are off the token
- * scale; so do the proportional widths. */
+ * dimension tokens where one exists. The row height and avatar size stay
+ * literal because they mirror `SubscriberList`, whose own values are off the
+ * token scale; so do the proportional widths. */
 
 /* These widths stand in for name text, so they vary without trending down — a
  * subscriber's name length says nothing about their place in the list. */
@@ -17,7 +17,7 @@ $name-widths: 85%, 70%, 78%, 58%, 66%, 48%;
 	flex: 1 1 auto;
 	flex-direction: column;
 	justify-content: safe center;
-	gap: 6px;
+	gap: var(--wpds-dimension-gap-xs);
 	min-block-size: 0;
 	overflow: hidden;
 }
