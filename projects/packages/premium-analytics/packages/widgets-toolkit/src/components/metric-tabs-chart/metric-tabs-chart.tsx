@@ -49,6 +49,14 @@ type ChartPointerParams = Parameters<
 >[ 0 ];
 
 /**
+ * The keyboard activation payload both comparative charts report, carrying the
+ * datum keyboard navigation had selected.
+ */
+type ChartActivateParams = Parameters<
+	NonNullable< ComponentProps< typeof ComparativeLineChart >[ 'onDatumActivate' ] >
+>[ 0 ];
+
+/**
  * A single time-series point for a metric.
  */
 export interface MetricTabDatum {
@@ -126,8 +134,8 @@ export interface MetricTabsChartProps {
 	 */
 	pointsAreWallClocks?: boolean;
 	/**
-	 * A click on the plot, carrying the date of the bucket the pointer is over.
-	 * Omit to leave the chart non-interactive.
+	 * A click on the plot, or Enter on the keyboard-selected point, carrying the
+	 * date of that bucket. Omit to leave the chart non-interactive.
 	 */
 	onDatumClick?: ( date: Date ) => void;
 }
@@ -238,6 +246,22 @@ function MetricChart( {
 
 	const pointerDownRef = useRef< { x: number; y: number } | null >( null );
 
+	const reportDatum = useCallback(
+		( datum: unknown ) => {
+			/*
+			 * `alignSeriesDates` rewrites a comparison point's date to the primary
+			 * point it is drawn under, so whichever series the gesture resolves to,
+			 * its datum carries the current-period date.
+			 */
+			const date = ( datum as { date?: unknown } | undefined )?.date;
+
+			if ( date instanceof Date ) {
+				onDatumClick?.( readPointDate( date ) );
+			}
+		},
+		[ onDatumClick, readPointDate ]
+	);
+
 	const handlePointerDown = useCallback( ( { svgPoint }: ChartPointerParams ) => {
 		pointerDownRef.current = svgPoint ? { x: svgPoint.x, y: svgPoint.y } : null;
 	}, [] );
@@ -260,24 +284,24 @@ function MetricChart( {
 				return;
 			}
 
-			/*
-			 * `alignSeriesDates` rewrites a comparison point's date to the primary
-			 * point it is drawn under, so whichever series the pointer resolves to,
-			 * its datum carries the current-period date.
-			 */
-			const date = ( datum as { date?: unknown } | undefined )?.date;
-
-			if ( date instanceof Date ) {
-				onDatumClick?.( readPointDate( date ) );
-			}
+			reportDatum( datum );
 		},
-		[ onDatumClick, readPointDate ]
+		[ reportDatum ]
+	);
+
+	const handleActivate = useCallback(
+		( { datum }: ChartActivateParams ) => reportDatum( datum ),
+		[ reportDatum ]
 	);
 
 	// Left off entirely without a handler, so a chart that does not drill keeps
-	// no pointer listeners at all.
-	const pointerProps = onDatumClick
-		? { onPointerDown: handlePointerDown, onPointerUp: handlePointerUp }
+	// no pointer or keyboard listeners at all.
+	const drillHandlers = onDatumClick
+		? {
+				onPointerDown: handlePointerDown,
+				onPointerUp: handlePointerUp,
+				onDatumActivate: handleActivate,
+		  }
 		: {};
 
 	// Resolve each series' colour + line style from the chart theme so the chart
@@ -306,7 +330,7 @@ function MetricChart( {
 			tickResolution={ tickResolution }
 			formatTooltipDate={ formatTooltipDate }
 			compactWhenShort
-			{ ...pointerProps }
+			{ ...drillHandlers }
 		/>
 	) : (
 		<ComparativeLineChart
@@ -319,7 +343,7 @@ function MetricChart( {
 			tickResolution={ tickResolution }
 			formatTooltipDate={ formatTooltipDate }
 			compactWhenShort
-			{ ...pointerProps }
+			{ ...drillHandlers }
 		/>
 	);
 }
@@ -507,7 +531,7 @@ export function MetricTabsChart( {
 					</div>
 					{ controls }
 				</div>
-				<div className={ styles.chart }>
+				<div className={ clsx( styles.chart, onDatumClick && styles.drillable ) }>
 					<MetricChart
 						metric={ activeMetric }
 						counterpart={ counterpartFor( activeMetric ) }
@@ -578,7 +602,7 @@ export function MetricTabsChart( {
 					</div>
 					{ controls }
 				</div>
-				<div className={ styles.chart }>
+				<div className={ clsx( styles.chart, onDatumClick && styles.drillable ) }>
 					{ activeMetric && (
 						<MetricChart
 							metric={ activeMetric }
@@ -621,7 +645,11 @@ export function MetricTabsChart( {
 			{ /* One panel per tab (WAI-ARIA + @wordpress/ui parity). Only the active
 			     metric's panel renders its chart; the rest stay empty. */ }
 			{ metrics.map( metric => (
-				<Tabs.Panel key={ metric.key } value={ metric.key } className={ styles.chart }>
+				<Tabs.Panel
+					key={ metric.key }
+					value={ metric.key }
+					className={ clsx( styles.chart, onDatumClick && styles.drillable ) }
+				>
 					<MetricChart
 						metric={ metric }
 						counterpart={ counterpartFor( metric ) }

@@ -137,6 +137,11 @@ export type ComparativeBarChartProps = {
 	 * Pointer-up on the plot, carrying the datum nearest the pointer.
 	 */
 	onPointerUp?: BarChartProps[ 'onPointerUp' ];
+
+	/**
+	 * Enter or Space on the keyboard-selected bar, carrying its datum.
+	 */
+	onDatumActivate?: BarChartProps[ 'onDatumActivate' ];
 };
 
 /**
@@ -167,6 +172,7 @@ export function ComparativeBarChart( {
 	legendInteractive = false,
 	onPointerDown,
 	onPointerUp,
+	onDatumActivate,
 }: ComparativeBarChartProps ) {
 	const tooltipDateFormat = dateFormatForResolution( tickResolution );
 	const fallbackChartId = useId();
@@ -398,6 +404,7 @@ export function ComparativeBarChart( {
 				renderTooltip={ renderTooltip }
 				onPointerDown={ onPointerDown }
 				onPointerUp={ onPointerUp }
+				onDatumActivate={ onDatumActivate }
 			>
 				{ /* Circle swatches, not the bar's own shape: the legend only needs to name
 				     the metrics — the solid bar against its translucent shadow is what

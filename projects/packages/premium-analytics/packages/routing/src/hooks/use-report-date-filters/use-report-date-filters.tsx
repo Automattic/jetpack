@@ -75,8 +75,11 @@ export type ReportDateFilters = {
 	/**
 	 * Open the chart bucket containing a date: narrow the applied window to that
 	 * bucket, which drops the reading to the next finer interval.
+	 *
+	 * `interval` is the bucket size the chart drew, for a chart that clamps the
+	 * applied interval into the sizes it offers. Defaults to the applied one.
 	 */
-	drillDown: ( date: Date ) => void;
+	drillDown: ( date: Date, interval?: IntervalType ) => void;
 
 	onApply: () => void;
 	onCancel: () => void;
@@ -125,10 +128,12 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
  * everything `DateFiltersPanel` needs. Shared by every analytics page that
  * mounts the panel so the staged-search behavior stays identical across them.
  *
- * @param from - The route path the search params are bound to (e.g. `/`).
+ * @param from - The route path the search params are bound to (e.g. `/`). Omit
+ *             to bind to whichever route is matched, as a widget must: it
+ *             renders on any page that hosts it.
  * @return Props for `DateFiltersPanel`.
  */
-export function useReportDateFilters< TFrom extends string >( from: TFrom ): ReportDateFilters {
+export function useReportDateFilters< TFrom extends string >( from?: TFrom ): ReportDateFilters {
 	const { committed, effective, stage, commit, revert, isDirty } = useStagedSearch<
 		ReportQuerySearchParams,
 		TFrom
@@ -306,19 +311,20 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 	 * Commits on click and pushes a history entry, like `onStep`, so Back is the
 	 * way out of a drill-down and the narrowed window survives a reload.
 	 *
-	 * Reads the applied interval and range rather than the staged ones: the
-	 * chart draws what is applied, so the bucket the user clicked belongs to
-	 * that window, not to a draft the picker is holding.
+	 * Reads the applied range rather than the staged one: the chart draws what
+	 * is applied, so the bucket the user clicked belongs to that window, not to
+	 * a draft the picker is holding. The same goes for the interval, unless the
+	 * chart names the size it actually drew.
 	 */
 	const drillDown = useCallback(
-		( date: Date ) => {
+		( date: Date, bucketInterval: IntervalType = appliedInterval ) => {
 			/*
 			 * `drillDateRange` closes a bucket on the clock of the date handed to it,
 			 * so the click is re-anchored in the site's zone first. A caller may pass
 			 * a plain instant, which would otherwise cut the bucket on the browser's
 			 * clock and open the wrong day west or east of the site.
 			 */
-			const drilled = drillDateRange( toLocalTZ( date, timeZone ), appliedInterval, new Date() );
+			const drilled = drillDateRange( toLocalTZ( date, timeZone ), bucketInterval, new Date() );
 
 			if ( ! drilled?.from || ! drilled.to ) {
 				return;

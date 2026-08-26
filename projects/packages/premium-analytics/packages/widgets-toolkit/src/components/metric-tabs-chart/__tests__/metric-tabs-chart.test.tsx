@@ -44,6 +44,7 @@ type ChartProps = {
 	legendInteractive?: boolean;
 	onPointerDown?: ( params: PointerParams ) => void;
 	onPointerUp?: ( params: PointerParams ) => void;
+	onDatumActivate?: ( params: { datum: unknown } ) => void;
 };
 
 type PointerParams = {
@@ -607,11 +608,34 @@ describe( 'MetricTabsChart', () => {
 			expect( onDatumClick ).not.toHaveBeenCalled();
 		} );
 
-		it( 'leaves the chart without pointer handlers when nothing listens', () => {
+		// The keyboard counterpart of the click: Enter on the point navigation
+		// selected reports the same date a pointer release over it would.
+		it.each( [
+			[ 'line', mockLineSpy, undefined ],
+			[ 'bar', mockBarSpy, 'bar' ],
+		] as const )( 'reports a keyboard activation on the %s chart', ( _name, spy, chartType ) => {
+			const onDatumClick = jest.fn();
+
+			render(
+				<MetricTabsChart
+					metrics={ [ METRIC ] }
+					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
+					onDatumClick={ onDatumClick }
+				/>
+			);
+
+			recordedProps( spy ).onDatumActivate?.( { datum: { date: CLICKED, value: 200 } } );
+
+			expect( onDatumClick ).toHaveBeenCalledWith( CLICKED );
+		} );
+
+		it( 'leaves the chart without pointer or keyboard handlers when nothing listens', () => {
 			render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } /> );
 
 			expect( recordedProps( mockLineSpy ).onPointerUp ).toBeUndefined();
 			expect( recordedProps( mockLineSpy ).onPointerDown ).toBeUndefined();
+			expect( recordedProps( mockLineSpy ).onDatumActivate ).toBeUndefined();
 		} );
 	} );
 } );

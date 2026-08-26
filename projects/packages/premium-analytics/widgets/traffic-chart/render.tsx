@@ -13,6 +13,7 @@ import {
 import { reports } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
@@ -30,12 +31,6 @@ type TrafficChartWidgetProps = WidgetRenderProps< TrafficChartRenderAttributes >
 	 */
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
-
-/**
- * The route the dashboard's report window lives on, and the one this widget
- * narrows when a bucket is clicked.
- */
-const DASHBOARD_ROUTE = '/';
 
 const DATA_FORMAT = {
 	type: 'number' as const,
@@ -62,7 +57,15 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 		TRAFFIC_PERIODS
 	);
 
-	const { drillDown } = useReportDateFilters( DASHBOARD_ROUTE );
+	// Bound to whichever route hosts the widget, the same way `reportParams` are.
+	const { drillDown } = useReportDateFilters();
+
+	// Names the bucket size drawn, not the page interval: a quarter or year page
+	// interval clamps to months here, and the click must open the bar it hit.
+	const openBucket = useCallback(
+		( date: Date ) => drillDown( date, period ),
+		[ drillDown, period ]
+	);
 
 	const {
 		metrics: metricTabs,
@@ -111,7 +114,7 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 					groupLabel={ groupLabel }
 					tickResolution={ period }
 					pointsAreWallClocks
-					onDatumClick={ drillDown }
+					onDatumClick={ openBucket }
 				/>
 			</WidgetState>
 		</div>
