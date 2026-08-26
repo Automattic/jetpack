@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Ensure table content wraps neatly onto a new line if long.
