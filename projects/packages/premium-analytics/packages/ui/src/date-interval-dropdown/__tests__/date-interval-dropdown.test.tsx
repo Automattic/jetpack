@@ -44,13 +44,13 @@ describe( 'DateIntervalDropdown', () => {
 		// The coercion in report params makes this transient, but the menu must
 		// not invent a selection while it lasts.
 		render(
-			<DateIntervalDropdown options={ [ 'month', 'quarter' ] } value="day" onChange={ jest.fn() } />
+			<DateIntervalDropdown options={ [ 'month', 'year' ] } value="day" onChange={ jest.fn() } />
 		);
 
 		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
 
 		expect( screen.getAllByRole( 'menuitemradio' ) ).toHaveLength( 2 );
 		expect( screen.getByRole( 'menuitemradio', { name: 'By months' } ) ).not.toBeChecked();
-		expect( screen.getByRole( 'menuitemradio', { name: 'By quarters' } ) ).not.toBeChecked();
+		expect( screen.getByRole( 'menuitemradio', { name: 'By years' } ) ).not.toBeChecked();
 	} );
 } );

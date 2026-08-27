@@ -10,8 +10,8 @@ const STORY_INTERVAL_OPTIONS: Partial< Record< PrimaryPresetId, IntervalType[] >
 	'last-24-hours': [ 'hour', 'day' ],
 	'last-7-days': [ 'day' ],
 	'last-30-days': [ 'day', 'week' ],
-	'last-12-months': [ 'month', 'quarter' ],
-	'all-time': [ 'quarter', 'year' ],
+	'last-12-months': [ 'month' ],
+	'all-time': [ 'month', 'year' ],
 };
 
 /**
@@ -26,7 +26,7 @@ export function getStoryIntervalOptions( presetId?: PrimaryPresetId ): IntervalT
 
 	// A calendar year is long enough to bucket by month, but not by year.
 	if ( presetId.startsWith( 'year-' ) ) {
-		return [ 'month', 'quarter' ];
+		return [ 'month' ];
 	}
 
 	return STORY_INTERVAL_OPTIONS[ presetId ] ?? fallback;

@@ -35,15 +35,13 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 
 const mockUseTrafficChart = jest.mocked( useTrafficChart );
 
-// The dashboard only lets a range carry the intervals it can draw, and
-// `normalizeReportParams` coerces anything else away — so each interval needs a
-// range long enough to keep it.
+// `normalizeReportParams` coerces away an interval the range disallows, so each
+// one needs a range long enough to survive reaching the widget.
 const RANGE_FOR_INTERVAL: Record< string, { from: string; to: string } > = {
 	hour: { from: '2026-06-29', to: '2026-06-30' },
 	day: { from: '2026-06-01', to: '2026-06-30' },
 	week: { from: '2026-01-01', to: '2026-06-30' },
 	month: { from: '2025-01-01', to: '2026-06-30' },
-	quarter: { from: '2023-01-01', to: '2026-06-30' },
 	year: { from: '2023-01-01', to: '2026-06-30' },
 };
 
@@ -89,17 +87,13 @@ describe( 'TrafficChart bucket size', () => {
 		expect( requestedBucket() ).toBe( interval );
 	} );
 
-	// `quarter` maps straight onto `month`, a bucket this chart draws; `year`
-	// maps onto one it does not, so it is the case that reaches the clamp to
-	// the coarsest offered.
-	it.each( [ 'quarter', 'year' ] )(
-		'resolves a page interval this chart cannot draw to one it can: %s',
-		interval => {
-			render( <TrafficChartRender attributes={ { reportParams: reportParams( interval ) } } /> );
+	// `year` is the only interval the dashboard still offers that this chart has
+	// no bucket for, so it is what reaches the clamp to the coarsest offered.
+	it( 'resolves a page interval this chart cannot draw to one it can', () => {
+		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'year' ) } } /> );
 
-			expect( requestedBucket() ).toBe( 'month' );
-		}
-	);
+		expect( requestedBucket() ).toBe( 'month' );
+	} );
 
 	// The Group by attribute this widget used to declare (WOOA7S-1987): a saved
 	// layout can still carry it, and it must not override the page.

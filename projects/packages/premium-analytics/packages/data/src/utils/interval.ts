@@ -57,10 +57,11 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 		Math.abs( differenceInHours( localTZDate( to ), localTZDate( from ) ) / 24 )
 	);
 
+	// No bucket between month and year: Stats has no quarterly one.
 	if ( daysDiff >= 1095 ) {
-		return [ 'quarter', 'year' ];
+		return [ 'month', 'year' ];
 	} else if ( daysDiff >= 365 ) {
-		return [ 'month', 'quarter' ];
+		return [ 'month' ];
 	} else if ( daysDiff >= 90 ) {
 		return [ 'week', 'month' ];
 	} else if ( daysDiff >= 28 ) {
@@ -112,7 +113,7 @@ export function getAllowedIntervalsForPreset(
 		case PRESET_LAST_12_MONTHS:
 		case PRESET_LAST_365_DAYS:
 		case PRESET_LAST_YEAR:
-			return [ 'month', 'quarter' ];
+			return [ 'month' ];
 		default:
 			return getAllowedIntervalsByRange( from, to );
 	}
@@ -163,8 +164,6 @@ export function getDateFormatFromInterval(
 			return 'MMM d';
 		case 'month':
 			return 'MMM yyyy';
-		case 'quarter':
-			return 'qqq yyyy';
 		case 'year':
 			return 'yyyy';
 		default:

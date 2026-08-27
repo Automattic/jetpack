@@ -1129,13 +1129,13 @@ describe( 'Stats query factories', () => {
 
 	it( 'clamps unsupported intervals to a supported subscribers unit', () => {
 		const query = statsSubscribersReportQuery( {
-			from: '2026-01-01',
+			from: '2026-06-29',
 			to: '2026-06-30',
-			interval: 'quarter',
+			interval: 'hour',
 		} as StatsReportParams );
 
 		expect( query.queryKey[ 5 ] ).toEqual(
-			expect.objectContaining( { unit: 'month', quantity: 6, date: '2026-06-30' } )
+			expect.objectContaining( { unit: 'day', quantity: 2, date: '2026-06-30' } )
 		);
 	} );
 

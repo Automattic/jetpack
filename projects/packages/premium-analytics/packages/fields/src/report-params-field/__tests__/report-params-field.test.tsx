@@ -110,7 +110,7 @@ describe( 'createReportParamsField', () => {
 	 * `onApply` back to back in one tick. A commit reading the staged state
 	 * writes the previous selection back over the new one, so the widget lands a
 	 * click behind — and on the first click, on the range it already had, which
-	 * is why picking "Last 24 hours" left months and quarters on offer.
+	 * is why picking "Last 24 hours" left the previous range's buckets on offer.
 	 */
 	it( 'applies the clicked quick preset, not the one before it', async () => {
 		const user = userEvent.setup();
