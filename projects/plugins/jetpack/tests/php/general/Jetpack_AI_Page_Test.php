@@ -139,18 +139,43 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The standalone controller registers the menu, scripts, styles, and page loader.
+	 * Create a page whose menu registration has already returned its hook.
+	 *
+	 * @return Jetpack_AI_Page
+	 */
+	private function get_page_with_registered_hook() {
+		return new class() extends Jetpack_AI_Page {
+			/**
+			 * Return the hook assigned to the Jetpack AI menu page.
+			 *
+			 * @return string
+			 */
+			public function get_page_hook() {
+				return 'jetpack_page_jetpack-ai';
+			}
+		};
+	}
+
+	/**
+	 * The standalone page registers through the shared Jetpack admin menu.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
+	public function test_get_page_hook_registers_jetpack_ai_menu() {
+		$this->assertSame( 'jetpack_page_jetpack-ai', ( new Jetpack_AI_Page() )->get_page_hook() );
+	}
+
+	/**
+	 * The standalone controller registers scripts, styles, and the page loader.
+	 */
 	public function test_add_actions_registers_standalone_page_hooks() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		add_filter( 'jetpack_is_connection_ready', '__return_true' );
 
-		$page = new Jetpack_AI_Page();
+		$page = $this->get_page_with_registered_hook();
 		$page->add_actions();
 
 		$this->assertNotFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
@@ -160,18 +185,13 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Simple sites keep the Hub's own layout without the standalone base stylesheet.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_add_actions_skips_standalone_styles_on_simple() {
 		Constants::set_constant( 'IS_WPCOM', true );
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		add_filter( 'jetpack_is_connection_ready', '__return_true' );
 
-		$page = new Jetpack_AI_Page();
+		$page = $this->get_page_with_registered_hook();
 		$page->add_actions();
 
 		$this->assertNotFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
