@@ -147,6 +147,16 @@ describe( 'PopularPostWidget', () => {
 		expect( topPostsRequests()[ 0 ] ).not.toContain( '2023' );
 	} );
 
+	it( 'flags the metric tiles as all-time, not the window the title names', async () => {
+		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+
+		await expect( screen.findByText( 'Winning post' ) ).resolves.toBeInTheDocument();
+
+		// The note is what stops "Views 9,999" under a title naming twelve months
+		// being read as that year's count.
+		expect( screen.getAllByText( 'All-time total, not the last 12 months.' ) ).toHaveLength( 3 );
+	} );
+
 	it( 'links the post to its detail page on the window it ranked over', async () => {
 		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
 

@@ -25,9 +25,16 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type PopularPostRenderAttributes = PopularPostAttributes & Partial< ReportParamsFieldAttributes >;
 type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
 
+// The card's title names the last 12 months; the tiles under it are lifetime
+// totals, so each says so on hover rather than being read as that year's count.
+const ALL_TIME_NOTE = () =>
+	__( 'All-time total, not the last 12 months.', 'jetpack-premium-analytics-pkg' );
+
 /**
- * The last 12 months pick which post is shown, but all three tiles are all-time
- * totals, so none carries a per-tile aggregation note.
+ * The last 12 months pick which post is shown; all three tiles are all-time
+ * totals from the Stats post endpoint, so they share one window. They still
+ * carry a note, unlike `Latest post`, which shares this card: that card's title
+ * names no period, while this one's names a year the tiles do not measure.
  */
 function PopularPostReport() {
 	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost();
@@ -47,16 +54,23 @@ function PopularPostReport() {
 
 	const metrics: PostHighlightCardMetric[] = post
 		? [
-				{ key: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ), value: post.views },
+				{
+					key: 'views',
+					label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
+					value: post.views,
+					note: ALL_TIME_NOTE(),
+				},
 				{
 					key: 'likes',
 					label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
 					value: post.likeCount,
+					note: ALL_TIME_NOTE(),
 				},
 				{
 					key: 'comments',
 					label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 					value: post.commentCount,
+					note: ALL_TIME_NOTE(),
 				},
 		  ]
 		: [];
