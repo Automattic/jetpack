@@ -23,8 +23,12 @@
  * @since 0.8.0
  */
 
-const { test, expect } = require( '@playwright/test' );
-const { MOCK_RESPONSES, setupPayPalMocks, setupDisconnectedMocks } = require( './paypal-api-mock' );
+import { test, expect } from '@playwright/test';
+import {
+	MOCK_RESPONSES,
+	setupPayPalMocks,
+	setupDisconnectedMocks,
+} from '../helpers/paypal-api-mock';
 
 // ---------------------------------------------------------------
 // Helpers
@@ -264,6 +268,25 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await expect( block.locator( 'input[type="password"]' ) ).toBeVisible( {
 				timeout: 3000,
 			} );
+		} );
+
+		test( 'pasted credentials with whitespace are trimmed before submit', async ( { page } ) => {
+			await setupDisconnectedMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+			await advanceWizardToCredentials( page, canvas );
+
+			const clientIdInput = block.locator( '.components-text-control__input' ).first();
+			await clientIdInput.fill( '  AValidClientId123  ' );
+			// Blur to trigger validation.
+			await block.locator( 'input[type="password"]' ).click();
+
+			// The value was trimmed on input, so the format warning must not appear.
+			await expect(
+				block.locator( '.jetpack-paypal-payment-buttons__field-warning' )
+			).not.toBeVisible( { timeout: 3000 } );
 		} );
 
 		test( 'Client ID format warning appears for invalid-looking IDs', async ( { page } ) => {
