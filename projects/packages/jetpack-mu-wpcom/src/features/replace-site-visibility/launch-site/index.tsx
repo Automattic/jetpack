@@ -3,6 +3,7 @@ import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
 import { useSiteLaunchGatingVariant } from '../../../common/hooks';
 import PreLaunchSiteModal from '../../../common/pre-launch-site-modal';
+import { shouldShowPreLaunchModal } from '../../../common/should-show-pre-launch-modal';
 import { wpcomTrackEvent } from '../../../common/tracks';
 import SitePreviewLink from '../site-preview-link';
 import type { SitePreviewLinkObject } from '../site-preview-link';
@@ -40,9 +41,7 @@ const LaunchSite = ( {
 	const [ , variant ] = useSiteLaunchGatingVariant();
 	const [ showPreLaunchModal, setShowPreLaunchModal ] = useState( false );
 
-	// Sites on a paid plan with a custom domain skip Calypso's domain and plan
-	// steps, so we confirm with the pre-launch modal before handing off.
-	const qualifiesForPreLaunch = !! sitePlan && hasCustomDomain;
+	const qualifiesForPreLaunch = shouldShowPreLaunchModal( { sitePlan, hasCustomDomain } );
 
 	// isPrivateAndUnlaunched means it is an unlaunched coming soon v1 site
 	const isPrivateAndUnlaunched = -1 === blogPublic && isUnlaunchedSite;

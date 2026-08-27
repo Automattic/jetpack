@@ -3,6 +3,7 @@ import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
 import { useSiteLaunchGatingVariant } from '../../common/hooks';
 import PreLaunchSiteModal from '../../common/pre-launch-site-modal';
+import { shouldShowPreLaunchModal } from '../../common/should-show-pre-launch-modal';
 import { wpcomTrackEvent } from '../../common/tracks';
 
 const icon = (
@@ -33,9 +34,10 @@ export function LaunchButton() {
 	const [ , variant ] = useSiteLaunchGatingVariant();
 	const [ showPreLaunchModal, setShowPreLaunchModal ] = useState( false );
 
-	// Sites on a paid plan with a custom domain skip Calypso's domain and plan
-	// steps, so we confirm with the pre-launch modal before handing off.
-	const qualifiesForPreLaunch = !! launchButtonData.sitePlan && launchButtonData.hasCustomDomain;
+	const qualifiesForPreLaunch = shouldShowPreLaunchModal( {
+		sitePlan: launchButtonData.sitePlan,
+		hasCustomDomain: launchButtonData.hasCustomDomain,
+	} );
 
 	// Site launch gating: 'semi_gated_site_launch' is the shipped default. The other
 	// branches are scaffolding for future experiments; see useSiteLaunchGatingVariant.
