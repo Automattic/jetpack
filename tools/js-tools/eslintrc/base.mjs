@@ -32,6 +32,7 @@ import eslintPluginYouDontNeedLodashUnderscore from 'eslint-plugin-you-dont-need
 import { glob } from 'glob';
 import globals from 'globals';
 import typescriptEslint from 'typescript-eslint';
+import jetpackEslintPlugin from '../eslint-plugin-jetpack/index.mjs';
 import loadIgnorePatterns from '../load-eslint-ignore.js';
 import { javascriptFiles, jsonFiles, typescriptFiles, jestFiles } from './files.mjs';
 import jestConfig from './jest.mjs';
@@ -139,6 +140,11 @@ export function makeBaseConfig( configurl, opts = {} ) {
 		path.join( rootdir, 'projects/js-packages/storybook/storybook/main.js' )
 	);
 
+	const jetpackComponentsDenylistPath = path.join(
+		rootdir,
+		'tools/eslint/jetpack-components-denylist.json'
+	);
+
 	return defineConfig(
 		globalIgnores( loadIgnorePatterns( basedir ) ),
 
@@ -188,7 +194,6 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				wordpressEslintPlugin.configs.custom,
 				wordpressEslintPlugin.configs.esnext,
 				wordpressEslintPlugin.configs.i18n,
-
 				{
 					plugins: {
 						'you-dont-need-lodash-underscore': fixupPluginRules(
@@ -213,6 +218,22 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				prettier: eslintPluginPrettier,
 			},
 			extends: [ eslintPluginPrettierRecommended ],
+		},
+
+		{
+			name: 'Jetpack recommended components',
+			files: javascriptFiles,
+			plugins: {
+				'@automattic/jetpack': jetpackEslintPlugin,
+			},
+			rules: {
+				'@automattic/jetpack/use-recommended-jetpack-components': [
+					'error',
+					{
+						denylistPath: jetpackComponentsDenylistPath,
+					},
+				],
+			},
 		},
 
 		// Base config.

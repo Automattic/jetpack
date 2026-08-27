@@ -1,0 +1,37 @@
+{
+	"components": {
+		"Alert": "Use `Notice` from `@wordpress/ui` instead.",
+		"Button": "Use `Button` from `@wordpress/ui` instead.",
+		"Chip": "Use `Badge` from `@wordpress/ui` instead.",
+		"Col": "Use `Stack` from `@wordpress/ui` instead.",
+		"Container": "Use `Stack` from `@wordpress/ui` instead.",
+		"DecorativeCard": "Use `Card` from `@wordpress/ui` instead.",
+		"Dialog": "Use `Dialog` from `@wordpress/ui` instead.",
+		"DonutMeter": "Use `PieChart` from `@automattic/charts` instead.",
+		"GlobalNotices": "Use `@wordpress/notices` instead.",
+		"globalNoticesStore": "Use `@wordpress/notices` instead.",
+		"H2": "Use `Text` with `variant=\"heading-*\"` from `@wordpress/ui` instead.",
+		"H3": "Use `Text` with `variant=\"heading-*\"` from `@wordpress/ui` instead.",
+		"IconTooltip": "Use `Tooltip` in combination with `Icon` from `@wordpress/ui` instead.",
+		"IndeterminateProgressBar": "Use `Spinner` or `ProgressBar` from `@wordpress/components` instead.",
+		"NavigatorModal": "Use `Dialog` from `@wordpress/ui` and `Navigator` from `@wordpress/components` instead.",
+		"Notice": "Use `Notice` from `@wordpress/ui` instead.",
+		"NumberControl": "Use `__experimentalNumberControl` from `@wordpress/components` instead.",
+		"NumberSlider": "Use `RangeControl` from `@wordpress/components` instead.",
+		"Popover": "Use `Popover` from `@wordpress/ui` instead.",
+		"ProgressBar": "Use `ProgressBar` or `Spinner` from `@wordpress/components` instead.",
+		"RadioControl": "Use `RadioControl` from `@wordpress/components` instead.",
+		"Spinner": "Use `Spinner` from `@wordpress/components` instead.",
+		"SplitButton": "Use `Button` from `@wordpress/ui` (and `Dropdown` from `@wordpress/components` if needed) instead.",
+		"Status": "Use `Badge` from `@wordpress/ui` instead.",
+		"Text": "Use `Text` from `@wordpress/ui` instead.",
+		"Title": "Use `Text` from `@wordpress/ui` instead.",
+		"ToggleControl": "Use `ToggleControl` from `@wordpress/components` instead.",
+		"useBreakpointMatch": "Use `@wordpress/viewport` instead.",
+		"useGlobalNotices": "Use `@wordpress/notices` instead."
+	},
+	"subpaths": {
+		"button": "Use `Button` from `@wordpress/ui` instead.",
+		"global-notices": "Use `@wordpress/notices` instead."
+	}
+}

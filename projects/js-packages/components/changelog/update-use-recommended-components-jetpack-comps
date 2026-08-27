@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Add package ESLint config to disable the recommended Jetpack components rule within this package.
+
