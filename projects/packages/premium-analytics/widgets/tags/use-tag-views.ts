@@ -67,8 +67,7 @@ export interface TagView {
 
 interface UseTagViewsArgs {
 	/**
-	 * Rows to request and display; `0` requests the endpoint's own default and
-	 * displays every row it returns.
+	 * Rows to request and display.
 	 */
 	max: number;
 }

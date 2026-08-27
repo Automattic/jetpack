@@ -137,9 +137,10 @@ describe( 'TagsWidget', () => {
 		expect( screen.queryByText( '1K' ) ).not.toBeInTheDocument();
 	} );
 
-	// The widest count a row has to hold once the compact form is gone. Its own
-	// response, because the top row sets the denominator every other row's bar
-	// width is drawn from.
+	// The widest count a row has to hold once the compact form is gone. It gets its
+	// own response because the top row is the denominator every other row's bar
+	// width is drawn from, so putting it in the shared fixture would quietly
+	// re-tune every other test in this file.
 	it( 'prints a seven-digit count in full', async () => {
 		mockApiFetch.mockResolvedValue( {
 			...TAGS_RESPONSE,

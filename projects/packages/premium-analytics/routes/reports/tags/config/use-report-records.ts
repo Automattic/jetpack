@@ -27,10 +27,8 @@ const TAGS_REPORT_ROW_LIMIT = 100;
 /**
  * Fetch the Tags & categories rows.
  *
- * The endpoint reports one flat list over a fixed last-seven-days window and
- * takes no date parameters — WPCOM strips everything but `max` before the
- * handler runs, and Calypso never sends any — so the report renders no chart
- * and no date filters.
+ * One flat list, no chart and no date filters, because the endpoint takes no
+ * date parameters — see `TAGS_REPORT_ROW_LIMIT` above.
  *
  * @return Table rows and fetch state.
  */

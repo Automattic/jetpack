@@ -773,12 +773,14 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
 - Widget title: use the framed widget host header via the widget definition/title/icon. Do not
   add a second in-widget `<Text variant="heading-md" render={ <h3 /> }>` title for framed Stats
   widgets.
-- View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }`,
-  except in `widgets/tags`, which passes `useMultipliers: false`. Compacting rounds to whole
-  thousands ("1,240" → "1K"), which was reported as a data mismatch against Jetpack Stats
-  (WOOA7S-2018). Every report table under `routes/reports/` already prints in full, so a widget on
-  the compact form disagrees with its own "View all" page; expect the rest of the leaderboards to
-  follow `widgets/tags` rather than the other way round.
+- View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }`.
+  A new leaderboard uses that. The single exception is `widgets/tags`, which passes
+  `useMultipliers: false` because compacting rounds to the nearest magnitude ("1,240" → "1K") and
+  that was reported as a data mismatch against the Jetpack Stats module it is compared with
+  (WOOA7S-2018). Note the tension rather than resolving it yourself: every report table under
+  `routes/reports/` already prints in full, so a compact widget disagrees with its own "View all"
+  page. Whether the remaining leaderboards follow tags is a product decision, not a refactor —
+  raise it rather than flipping them.
 - Leaderboard rows: spread `buildLeaderboardRow()` into the chart entry — it carries the
   drill-down `onClick`/`ariaLabel` that a bare `<LeaderboardRow>` label silently drops. Use
   `<LeaderboardRow>` directly only outside a chart, as `widgets/tags` does for its drilled-in

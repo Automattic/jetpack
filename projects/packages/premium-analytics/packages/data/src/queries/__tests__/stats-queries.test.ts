@@ -586,6 +586,22 @@ describe( 'Stats query factories', () => {
 		] );
 	} );
 
+	// `stats/tags` is the one stats endpoint that rewrites `max < 1` back to its
+	// default of 10, so a `0` is left off the request rather than sent as a value
+	// the server would silently change.
+	it( 'leaves a non-positive tags max off the request', () => {
+		expect( statsTagsQuery( { max: 0 } ).queryKey ).toEqual( [
+			'stats',
+			'tags',
+			'1.1',
+			'stats/tags',
+			'GET',
+			{},
+			undefined,
+			'tags',
+		] );
+	} );
+
 	it( 'passes max through tags query keys', () => {
 		const query = statsTagsQuery( { max: 10 } );
 
