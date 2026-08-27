@@ -771,3 +771,10 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
 - Loading / error / empty state: render through `<WidgetState>` (see "Loading / error / empty
   state" above), not `LeaderboardChart`'s `emptyStateText` or a hand-rolled `data.length === 0`
   branch. Empty uses a neutral glyph distinct from the error icon.
+- Fixed data periods: a widget whose endpoint serves a window the dashboard date range cannot
+  move must say so, with `WidgetPeriodLabel` from `widgets-toolkit` as the first element of the
+  widget body ("Last 7 days", "All time"). It does not go in the title — the host renders the
+  title on one line and truncates it, so at a one-column tile the period is the first thing cut
+  off. State the same thing in `help.content` in `widget.json`, and keep the widget's data hook
+  honest: do not thread `reportParams` into a request that discards them. `widgets/tags` (fixed
+  window) and `widgets/most-commented-posts` (all-time) are the references.

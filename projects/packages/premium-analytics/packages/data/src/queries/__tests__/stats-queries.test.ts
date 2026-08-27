@@ -45,7 +45,7 @@ import {
 	statsSubscribersQuery,
 	statsSubscribersReportQuery,
 } from '../stats-subscribers-query';
-import { statsTagsQuery } from '../stats-tags-query';
+import { statsTagsQuery, type StatsTagsParams } from '../stats-tags-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import { statsUtmQuery } from '../stats-utm-query';
 import { statsVideoPlaysSummaryQuery } from '../stats-video-plays-summary-query';
@@ -600,16 +600,16 @@ describe( 'Stats query factories', () => {
 	} );
 
 	// `stats/tags` hardcodes a 7-day window and discards date parameters, so the
-	// query must send only `max`. Sending a date cannot change the response, but
-	// it would re-key this cache per date selection and refetch identical rows —
-	// and it would contradict the widget, which tells the user its figures do not
-	// follow the dashboard date range.
+	// query must send only `max`. `StatsTagsParams` no longer accepts a window, so
+	// these cast past the type to cover a caller reaching the builder from
+	// untyped JS — the runtime must drop the dates either way, or the cache
+	// re-keys per date selection and refetches identical rows, contradicting the
+	// widget's own "not affected by the dashboard date range" copy.
+	const withDates = ( params: Record< string, unknown > ) =>
+		statsTagsQuery( params as StatsTagsParams );
+
 	it( 'drops the date window from tags query keys, keeping only max', () => {
-		const query = statsTagsQuery( {
-			to: '2026-06-07',
-			from: '2026-06-01',
-			max: 10,
-		} );
+		const query = withDates( { to: '2026-06-07', from: '2026-06-01', max: 10 } );
 
 		expect( query.enabled ).toBe( true );
 		expect( query.queryKey ).toEqual( [
@@ -625,10 +625,16 @@ describe( 'Stats query factories', () => {
 	} );
 
 	it( 'keys two different date selections identically for tags', () => {
-		const june = statsTagsQuery( { from: '2026-06-01', to: '2026-06-07', max: 10 } );
-		const december = statsTagsQuery( { from: '2024-01-01', to: '2024-12-31', max: 10 } );
+		const oneWeek = withDates( { from: '2026-06-01', to: '2026-06-07', max: 10 } );
+		const oneYear = withDates( { from: '2024-01-01', to: '2024-12-31', max: 10 } );
 
-		expect( june.queryKey ).toEqual( december.queryKey );
+		expect( oneWeek.queryKey ).toEqual( oneYear.queryKey );
+	} );
+
+	// `max: 0` means "all rows" for the Tags report; a truthiness check in the
+	// builder would silently drop it back to the endpoint's default of 10.
+	it( 'keeps an explicit max of zero for the tags report', () => {
+		expect( statsTagsQuery( { max: 0 } ).queryKey ).toContainEqual( { max: 0 } );
 	} );
 
 	it( 'builds devices query keys from the selected device property', () => {

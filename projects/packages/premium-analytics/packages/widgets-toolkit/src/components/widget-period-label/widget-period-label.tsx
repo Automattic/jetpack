@@ -27,6 +27,11 @@ export type WidgetPeriodLabelProps = {
  * period cannot live there: at the one-column tile these widgets ship at, it
  * would be the first thing cut off.
  *
+ * Widgets render this above `<WidgetState>`, so it shows through the loading,
+ * error and empty states too. That is deliberate: the period describes the
+ * widget, not the response, and on an empty result it is the thing that tells
+ * the reader they are looking at a fixed window rather than a filtered one.
+ *
  * @return The rendered period label.
  */
 export function WidgetPeriodLabel( { label, className }: WidgetPeriodLabelProps ) {

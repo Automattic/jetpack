@@ -15,7 +15,10 @@ export type TagsAttributes = Record< never, never >;
  *
  * Data: read from the `stats/tags` endpoint via `useStatsTags`. The endpoint
  * hardcodes a 7-day window and accepts no date parameters, so the widget cannot
- * follow the dashboard date range and labels its own period instead. A row can
+ * follow the dashboard date range and labels its own period instead. That window
+ * is cited in `packages/data/src/queries/stats-tags-query.ts`; the same 7 is
+ * repeated in this widget's title label, `widget.json` help, story description,
+ * and the Tags report page and registry entry, so change them together. A row can
  * group several tags/categories that share a post; those grouped rows have no
  * single archive URL and drill down to their individual members instead.
  */

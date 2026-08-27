@@ -120,7 +120,7 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		getTitle: () => __( 'All comments report', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
 			__(
-				'All comments your site has received, by author, post, and page.',
+				'All-time comments on your site, by author, post, and page.',
 				'jetpack-premium-analytics-pkg'
 			),
 		resolveSection: resolveCommentsTabId,
