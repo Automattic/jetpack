@@ -586,11 +586,8 @@ describe( 'Stats query factories', () => {
 		] );
 	} );
 
-	it( 'passes supported tags params through query keys', () => {
-		const query = statsTagsQuery( {
-			to: '2026-06-07',
-			max: 10,
-		} );
+	it( 'passes max through tags query keys', () => {
+		const query = statsTagsQuery( { max: 10 } );
 
 		expect( query.enabled ).toBe( true );
 		expect( query.queryKey ).toEqual( [
@@ -599,13 +596,23 @@ describe( 'Stats query factories', () => {
 			'1.1',
 			'stats/tags',
 			'GET',
-			{
-				date: '2026-06-07',
-				max: 10,
-			},
+			{ max: 10 },
 			undefined,
 			'tags',
 		] );
+	} );
+
+	// WPCOM declares `max` as the endpoint's only query parameter and strips the
+	// rest before the handler runs, so a date would change the cache key without
+	// changing a single row. `StatsTagsParams` already rejects one; spreading a
+	// wider object past that check is how this covers the untyped caller.
+	it( 'never sends a date on the tags query, whatever the selected period', () => {
+		const tagsQueryKey = ( period: Record< string, unknown > ) =>
+			statsTagsQuery( { max: 10, ...period } ).queryKey;
+		const maxOnly = [ 'stats', 'tags', '1.1', 'stats/tags', 'GET', { max: 10 }, undefined, 'tags' ];
+
+		expect( tagsQueryKey( { to: '2026-01-31T23:59:59.999-08:00' } ) ).toEqual( maxOnly );
+		expect( tagsQueryKey( { date: '2026-06-30', period: 'year', days: 365 } ) ).toEqual( maxOnly );
 	} );
 
 	it( 'builds devices query keys from the selected device property', () => {

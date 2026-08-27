@@ -1,33 +1,29 @@
 /**
  * Internal dependencies
  */
-import { reportParamsToStatsQueryParams } from '../utils/stats-params';
-import {
-	statsProxyQuery,
-	type StatsReportParams,
-	type StatsReportQueryOptions,
-} from './stats-query';
-import type { StatsProxyParams } from '../api';
+import { statsProxyQuery, type StatsReportQueryOptions } from './stats-query';
 
-export type StatsTagsParams = Partial< StatsReportParams > & {
+/**
+ * `stats/tags` declares `max` as its only query parameter, so WPCOM's
+ * `query_args()` strips everything else — including `date` — before the handler
+ * runs. The window is a hardcoded last-7-days anchored on the request instant,
+ * which no parameter can move. Sending a date would only split the query cache
+ * per selected period while returning the same rows.
+ */
+export type StatsTagsParams = {
+	/**
+	 * Rows to request. `0` does not mean "all rows" here: the endpoint floors
+	 * anything below 1 back to its own default of 10, so it is left off the
+	 * request rather than sent as a value the server would silently rewrite.
+	 */
 	max?: number;
 };
-
-function statsTagsParamsToApiParams( params: StatsTagsParams = {} ): StatsProxyParams {
-	const statsParams = reportParamsToStatsQueryParams( params );
-	const date = statsParams.date ?? statsParams.end_date;
-
-	return {
-		...( date ? { date } : {} ),
-		...( statsParams.max !== undefined ? { max: statsParams.max } : {} ),
-	};
-}
 
 export const statsTagsQuery = ( params: StatsTagsParams = {} ): StatsReportQueryOptions< 'tags' > =>
 	statsProxyQuery( {
 		name: 'tags',
 		version: '1.1',
 		endpoint: 'stats/tags',
-		params: statsTagsParamsToApiParams( params ),
+		params: ( params.max ?? 0 ) > 0 ? { max: params.max } : {},
 		sanitizer: 'tags',
 	} );

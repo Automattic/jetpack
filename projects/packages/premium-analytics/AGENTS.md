@@ -773,7 +773,10 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
 - Widget title: use the framed widget host header via the widget definition/title/icon. Do not
   add a second in-widget `<Text variant="heading-md" render={ <h3 /> }>` title for framed Stats
   widgets.
-- View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }`
+- View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }`.
+  The one exception is `widgets/tags`, which sets `useMultipliers: false` so its counts read the
+  same as the Jetpack Stats module it is compared against — compacting rounds to whole thousands
+  ("1,240" → "1K") and was reported as a data mismatch (WOOA7S-2018).
 - Leaderboard rows: spread `buildLeaderboardRow()` into the chart entry — it carries the
   drill-down `onClick`/`ariaLabel` that a bare `<LeaderboardRow>` label silently drops. Use
   `<LeaderboardRow>` directly only outside a chart, as `widgets/tags` does for its drilled-in

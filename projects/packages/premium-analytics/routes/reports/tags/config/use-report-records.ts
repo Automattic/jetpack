@@ -15,18 +15,25 @@ export function getTagRowId( item: StatsTagsItem ): string {
 }
 
 /**
- * Fetch the all-time Tags & categories rows.
+ * Rows to request for the report table. The endpoint declares `max` as its only
+ * query parameter and floors anything below 1 back to its default of 10, so a
+ * report that wants every row has to name a number. Its own ranking is drawn
+ * from at most 50 posts, which this comfortably clears.
+ */
+const TAGS_REPORT_ROW_LIMIT = 100;
+
+/**
+ * Fetch the Tags & categories rows.
  *
- * The endpoint ignores date-window parameters (`period`, `start_date`,
- * `days`, `summarize`) and always reports one flat all-time list — verified
- * against WPCOM directly, and matching Calypso, which never sends date
- * params here — so the report requests only `max: 0` (all rows) and renders
- * no chart or date filters.
+ * The endpoint reports one flat list over a fixed last-seven-days window and
+ * takes no date parameters — WPCOM strips everything but `max` before the
+ * handler runs, and Calypso never sends any — so the report renders no chart
+ * and no date filters.
  *
  * @return Table rows and fetch state.
  */
 export function useTagsReportRecords() {
-	const tags = useStatsTags( { max: 0 } );
+	const tags = useStatsTags( { max: TAGS_REPORT_ROW_LIMIT } );
 	const rows = useMemo< StatsTagsItem[] >(
 		() => tags.data?.data?.[ 0 ]?.items ?? [],
 		[ tags.data ]

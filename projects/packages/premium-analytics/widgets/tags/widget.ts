@@ -8,7 +8,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 export type TagsAttributes = Record< never, never >;
 
 /**
- * Ported from the Jetpack Stats "Tags & categories" module: most-visited tags
+* Ported from the Jetpack Stats "Tags & categories" module: most-visited tags
  * and categories, ranked by views. Grouped rows (multiple tags on one post)
  * have no single archive URL and drill down to their members instead.
  */

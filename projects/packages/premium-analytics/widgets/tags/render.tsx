@@ -16,7 +16,6 @@ import {
 	safeHttpUrl,
 	sharePercentage,
 	useWidgetDrillDown,
-	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -71,9 +70,7 @@ function TagGroupMembers( { members }: TagGroupMembersProps ) {
 }
 
 function TagsInner() {
-	const { reportParams } = useWidgetRootContext();
 	const { data, isLoading, isFetching, isError, refetch } = useTagViews( {
-		reportParams,
 		max: WIDGET_ROW_LIMIT,
 	} );
 
@@ -171,9 +168,14 @@ function TagsInner() {
 							data={ leaderboardData }
 							withOverlayLabel
 							showLegend={ false }
+							// Exact counts rather than the leaderboards' usual compact form:
+							// this widget is read side by side with the same module in
+							// Jetpack Stats, where a tag with 1,240 views reads "1,240".
+							// Compacting to whole thousands would show it as "1K" and read
+							// as a data mismatch rather than as rounding.
 							dataFormat={ {
 								type: 'number',
-								options: { useMultipliers: true, decimals: 0 },
+								options: { useMultipliers: false, decimals: 0 },
 							} }
 						/>
 					) }
@@ -187,7 +189,7 @@ function TagsInner() {
 }
 
 /**
- * Ported from the Jetpack Stats "Tags & categories" module. Grouped rows
+* Ported from the Jetpack Stats "Tags & categories" module. Grouped rows
  * (several tags/categories sharing a post) drill down to their individual members.
  */
 export default function Tags( { attributes = {} }: TagsWidgetProps ) {
