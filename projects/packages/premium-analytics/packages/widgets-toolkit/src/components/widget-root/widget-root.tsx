@@ -4,6 +4,7 @@
 import {
 	AnalyticsQueryClientProvider,
 	getDefaultPreset,
+	getStoreInfo,
 	normalizeReportParams,
 	useReportScope,
 	withoutComparison,
@@ -11,7 +12,6 @@ import {
 import { GlobalChartsProvider } from '@jetpack-premium-analytics/externals';
 import { useSearch } from '@wordpress/route';
 import { useMemo, type ReactNode } from 'react';
-import { getStoreInfo } from '../../helpers/store-info';
 /**
  * Internal dependencies
  */

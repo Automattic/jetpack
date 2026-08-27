@@ -31,6 +31,12 @@ export type StatsQueryParamFields = {
 	summarize?: number | boolean;
 	complete_stats?: number | boolean;
 	skip_archives?: number | boolean;
+	// Sanitizer-only: the trim window owned by processing/stats/bucket-window.ts,
+	// sent via `sanitizerParams` and honored only by the email time-series
+	// sanitizer — inert for every other sanitizer. Deliberately absent from
+	// statsParamKeys so report params can never carry them into a request.
+	window_start?: string;
+	window_end?: string;
 };
 
 export type StatsQueryParams = StatsProxyParams & StatsQueryParamFields;
@@ -59,7 +65,6 @@ export function getStatsPeriodFromInterval( interval?: string ): StatsPeriod {
 		case 'week':
 			return 'week';
 		case 'month':
-		case 'quarter':
 			return 'month';
 		case 'year':
 			return 'year';
@@ -181,7 +186,13 @@ export function reportParamsToStatsQueryParams(
 }
 
 export function statsQueryParamsToApiParams( params: StatsQueryParams = {} ): StatsProxyParams {
+	// window_start/window_end are sanitizer-only (see StatsQueryParamFields):
+	// stripped here so a caller that passes them in request params by mistake
+	// cannot leak them into request URLs and query keys.
 	const { end_date: endDate, ...apiParams } = params;
+
+	delete apiParams.window_start;
+	delete apiParams.window_end;
 
 	return {
 		...apiParams,

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { addDays, addHours, format, isValid, parseISO } from 'date-fns';
+import { addDays, format, isValid, parse } from 'date-fns';
 
 /**
  * The timeline matrix `stats/<opens|clicks>/emails/<postId>?stats_fields=timeline`
@@ -32,9 +32,11 @@ function emailTimelineCount( metric: 'opens' | 'clicks', index: number ): number
 
 /**
  * Builds a mock email timeline response for the "Email performance" widget. The
- * email timeline endpoint treats `date` as the first requested bucket and
- * returns `quantity` periods going forward. Mirroring that behaviour keeps a
- * story's chart aligned with its dashboard date range.
+ * email timeline endpoint reads `date` as the window start, resolves it to its
+ * calendar day, and returns `quantity` periods going forward — hourly buckets
+ * anchored on that day's midnight. Mirroring that behaviour keeps a story's
+ * chart aligned with its dashboard date range, including the out-of-window
+ * buckets the data layer is expected to trim.
  *
  * @param metric      - Which timeline to return.
  * @param requestPath - The request path; `period`, `quantity`, and `date` are read off its query.
@@ -50,26 +52,34 @@ export function buildEmailTimelineResponse(
 	const quantity = Number.isInteger( parsedQuantity )
 		? Math.min( Math.max( parsedQuantity, 1 ), 24 * 90 )
 		: 30;
-	const parsedDate = parseISO( query.get( 'date' ) ?? '' );
-	const startDate = isValid( parsedDate ) ? parsedDate : new Date();
+	// Only the date part matters: the endpoint resolves `date` to its calendar
+	// day (hourly buckets anchor on that day's midnight whatever time of day it
+	// carries), and parsing the part in the runner's own zone keeps the emitted
+	// wall-clock labels aligned with the requested day in any browser timezone.
+	const dayPart = ( query.get( 'date' ) ?? '' ).match( /^\d{4}-\d{2}-\d{2}/ )?.[ 0 ] ?? '';
+	const parsedDay = parse( dayPart, 'yyyy-MM-dd', new Date() );
+	const startDay = isValid( parsedDay ) ? parsedDay : new Date();
 	const field = metric === 'opens' ? 'opens_count' : 'clicks_count';
 
 	const data: EmailTimelineRow[] = [];
 
 	// Nudge the curve by the window start so a comparison window draws a
 	// visibly different (but still deterministic) line than the primary.
-	const windowNudge = ( startDate.getUTCDate() % 7 ) * 2;
+	const windowNudge = ( startDay.getDate() % 7 ) * 2;
 
 	for ( let index = 0; index < quantity; index++ ) {
 		// Preserve the existing send-decay shape while emitting buckets from
-		// the requested start date forward.
+		// the start day forward.
 		const count = emailTimelineCount( metric, quantity - 1 - index ) + windowNudge;
 
 		if ( period === 'hour' ) {
-			const bucket = addHours( startDate, index );
-			data.push( [ format( bucket, 'yyyy-MM-dd' ), bucket.getHours(), count ] );
+			data.push( [
+				format( addDays( startDay, Math.floor( index / 24 ) ), 'yyyy-MM-dd' ),
+				index % 24,
+				count,
+			] );
 		} else {
-			data.push( [ format( addDays( startDate, index ), 'yyyy-MM-dd' ), count ] );
+			data.push( [ format( addDays( startDay, index ), 'yyyy-MM-dd' ), count ] );
 		}
 	}
 

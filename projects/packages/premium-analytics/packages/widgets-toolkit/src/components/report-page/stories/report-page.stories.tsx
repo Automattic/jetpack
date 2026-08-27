@@ -180,6 +180,7 @@ const STORY_DATE_FILTERS: ReportDateFilters = {
 	canApply: false,
 	timeZone: STORY_TIMEZONE,
 	replaceRange: () => {},
+	drillDown: () => {},
 };
 
 /**

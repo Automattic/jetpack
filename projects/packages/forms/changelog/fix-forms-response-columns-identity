@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Responses: keep one column per form field when a field is moved, and read every answer from the field it belongs to.

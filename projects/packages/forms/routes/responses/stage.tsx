@@ -12,7 +12,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
+import { useMemo, useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { caution } from '@wordpress/icons';
@@ -27,10 +27,12 @@ import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import useResponseFieldColumns from '../../src/dashboard/hooks/use-response-field-columns.ts';
+import { writeColumnPreference } from '../../src/dashboard/response-column-preferences.ts';
 import {
 	buildResponseFieldColumns,
 	getFrozenColumnsClassName,
 	getResponseTableView,
+	isSameColumnChoice,
 	keepColumnChoice,
 } from '../../src/dashboard/response-field-columns.tsx';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
@@ -95,6 +97,10 @@ const DEFAULT_VIEW: View = {
 		direction: 'desc',
 	},
 	titleField: 'from',
+	// From is the title column and renders ahead of these; answer columns are slotted
+	// in directly after Date. The order is therefore From, Date, the form's own
+	// fields, Source, IP Address — and Status after those, for anyone who turns it
+	// on, since it is off by default.
 	fields: [ 'date', 'source', 'ip' ],
 };
 
@@ -189,6 +195,15 @@ function StageInner() {
 		search: searchParams?.search || '',
 	} ) );
 
+	// The form whose column choice is being read and written, or null on the view
+	// spanning every form.
+	const columnPreferenceFormId = isSingleFormView ? sourceIdNumber : null;
+	// Every answer column currently on offer, kept in a ref because the choice is saved
+	// from `onChangeView`, which is declared before the columns hook runs.
+	const knownAnswerIdsRef = useRef< string[] >( [] );
+	// Every column DataViews has a field for, for the same reason.
+	const knownFieldIdsRef = useRef< Set< string > >( new Set() );
+
 	const selection = useMemo( () => searchParams?.responseIds ?? [], [ searchParams?.responseIds ] );
 	const {
 		setCurrentQuery,
@@ -213,7 +228,25 @@ function StageInner() {
 
 	const onChangeView = useCallback(
 		( incomingView: View ) => {
-			const newView = keepColumnChoice( incomingView, view, isMobileViewport );
+			const newView = keepColumnChoice(
+				incomingView,
+				view,
+				isMobileViewport,
+				knownFieldIdsRef.current
+			);
+
+			// DataViews reports a column being shown, hidden or moved through here and
+			// keeps nothing itself, so this is the only moment the choice can be saved.
+			// Only when the columns actually changed, though: this same callback carries
+			// every sort, search and page change, and saving on those would both write
+			// constantly and, while a form's responses are still loading, record an empty
+			// set of known answer columns over a choice that names several.
+			if ( ! isSameColumnChoice( newView.fields, view.fields ) ) {
+				writeColumnPreference( columnPreferenceFormId, {
+					fields: newView.fields ?? [],
+					knownAnswerIds: knownAnswerIdsRef.current,
+				} );
+			}
 
 			if ( ! isSingleFormView ) {
 				// If the Folder filter changes (CFM-on behavior), treat it as a route param change.
@@ -245,7 +278,15 @@ function StageInner() {
 				} );
 			}
 		},
-		[ isMobileViewport, isSingleFormView, navigate, searchParams, statusView, view ]
+		[
+			columnPreferenceFormId,
+			isMobileViewport,
+			isSingleFormView,
+			navigate,
+			searchParams,
+			statusView,
+			view,
+		]
 	);
 
 	const onChangeSelection = useCallback(
@@ -304,10 +345,14 @@ function StageInner() {
 	// across at a glance. The "All responses" view spans every form and has no
 	// shared field set, so it keeps the built-in columns only.
 	const responseFieldColumns = useResponseFieldColumns( {
-		formId: isSingleFormView ? sourceIdNumber : null,
+		formId: columnPreferenceFormId,
 		records,
 		setView,
 	} );
+
+	useEffect( () => {
+		knownAnswerIdsRef.current = responseFieldColumns.map( column => column.id );
+	}, [ responseFieldColumns ] );
 
 	const queryParams = useMemo( () => {
 		const queryArgs: QueryParams = {
@@ -664,9 +709,15 @@ function StageInner() {
 		isMobileViewport
 	);
 
+	const knownFieldIds = useMemo( () => new Set( fields.map( field => field.id ) ), [ fields ] );
+
+	useEffect( () => {
+		knownFieldIdsRef.current = knownFieldIds;
+	}, [ knownFieldIds ] );
+
 	const viewForDataViews = useMemo(
-		() => getResponseTableView( view, isMobileViewport ),
-		[ isMobileViewport, view ]
+		() => getResponseTableView( view, isMobileViewport, knownFieldIds ),
+		[ isMobileViewport, knownFieldIds, view ]
 	);
 
 	const actions = useMemo(

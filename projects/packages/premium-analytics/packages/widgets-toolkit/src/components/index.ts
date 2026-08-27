@@ -54,7 +54,6 @@ export {
 	type LeaderboardRowChartProps,
 	type LeaderboardRowMedia,
 	type LeaderboardRowProps,
-	type LeaderboardRowVariant,
 } from './chart-leaderboard';
 export {
 	BarChart,
@@ -86,11 +85,7 @@ export { WidgetFooter, type WidgetFooterProps } from './widget-footer';
 export { ReportLink, type ReportLinkProps } from './report-link';
 export { PostTitleLink, POST_URL_SEARCH_PARAM, type PostTitleLinkProps } from './post-title-link';
 export { PostDetailLink, type PostDetailLinkProps } from './post-detail-link';
-export {
-	LeaderboardPostLabel,
-	type LeaderboardPostLabelProps,
-	type LeaderboardPostLabelVariant,
-} from './leaderboard-post-label';
+export { LeaderboardPostLabel, type LeaderboardPostLabelProps } from './leaderboard-post-label';
 export {
 	PostHighlightCard,
 	PostHighlightCardSkeleton,
