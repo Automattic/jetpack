@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: changed
 
 Type the connection script data's `wpcomUser` with the fields WordPress.com actually returns, including `ID` and `login`.
