@@ -73,6 +73,110 @@ class AI_Answers_Test extends Search_TestCase {
 	// -------------------------------------------------------------------------
 
 	/**
+	 * Off Simple, the `ai` module is the master switch.
+	 */
+	public function test_should_enforce_master_is_true_when_the_ai_module_is_active() {
+		$this->turn_ai_master_on();
+
+		$this->assertTrue( AI_Answers::should_enforce_master() );
+	}
+
+	public function test_should_enforce_master_is_false_when_the_ai_module_is_inactive() {
+		$this->turn_ai_master_off();
+
+		$this->assertFalse( AI_Answers::should_enforce_master() );
+	}
+
+	public function test_should_enforce_master_is_true_when_the_ai_module_is_not_registered() {
+		// Standalone Jetpack Search plugin: no Jetpack plugin, so no `ai` module and
+		// no master switch to obey. Sites that never had one must not be gated.
+		$this->assertTrue( AI_Answers::should_enforce_master() );
+	}
+
+	/**
+	 * Turn the Simple master off.
+	 *
+	 * Stores the empty string rather than `false`, which is what WordPress
+	 * persists for a false option — and what WorDBless can round-trip, since it
+	 * returns the default for a stored `false`.
+	 */
+	private function disable_simple_master() {
+		update_option( AI_Answers::AI_MASTER_OPTION, '' );
+	}
+
+	public function test_should_enforce_master_reads_the_option_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->disable_simple_master();
+
+		$this->assertFalse( AI_Answers::should_enforce_master() );
+	}
+
+	public function test_should_enforce_master_defaults_to_true_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->assertTrue( AI_Answers::should_enforce_master() );
+	}
+
+	public function test_should_enforce_master_holds_on_wpcom_simple_regardless_of_environment() {
+		// Simple keeps its option contract: enforcement applies there even
+		// outside internal testing environments (is_master_rollout_active()).
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->disable_simple_master();
+		$GLOBALS['jetpack_search_test_internal_env'] = false;
+
+		$this->assertFalse( AI_Answers::should_enforce_master() );
+	}
+
+	public function test_should_enforce_master_ignores_the_ai_module_on_wpcom_simple() {
+		// Modules never run on Simple, and Modules::is_active() answers true there
+		// unconditionally — the option stays the master.
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->turn_ai_master_on();
+		$this->disable_simple_master();
+
+		$this->assertFalse( AI_Answers::should_enforce_master() );
+	}
+
+	public function test_should_enforce_master_is_true_outside_internal_testing_environments() {
+		// The master switch UI ships internal-only for now, so a public site must not be
+		// gated on a switch its owner cannot see. Module present but inactive, yet ungated.
+		$this->turn_ai_module_off();
+		$GLOBALS['jetpack_search_test_internal_env'] = false;
+
+		$this->assertTrue( AI_Answers::should_enforce_master() );
+	}
+
+	public function test_is_enabled_ignores_the_module_outside_internal_testing_environments() {
+		// Module-only setup: pins that the package's own enforcement is env-scoped.
+		// (With the Jetpack plugin loaded, its filter gate still applies publicly.)
+		update_option( 'jetpack_search_ai_answers_enabled', true );
+		$this->turn_ai_module_off();
+		$GLOBALS['jetpack_search_test_internal_env'] = false;
+
+		$this->assertTrue( AI_Answers::is_enabled() );
+	}
+
+	public function test_is_enabled_is_false_when_the_master_is_off() {
+		// The saved choice persists while the master is off; only is_enabled() gates it.
+		update_option( 'jetpack_search_ai_answers_enabled', true );
+		$this->turn_ai_master_off();
+
+		$this->assertTrue( AI_Answers::is_saved_on() );
+		$this->assertFalse( AI_Answers::is_enabled() );
+	}
+
+	public function test_is_enabled_master_gate_cannot_be_filtered_back_on() {
+		// The master gate is applied after the filter chain, so a filter cannot
+		// re-enable AI Answers while the site-wide switch is off.
+		$this->turn_ai_master_off();
+		add_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
+
+		$this->assertFalse( AI_Answers::is_enabled() );
+
+		remove_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
+	}
+
+	/**
 	 * The saved choice is the raw option.
 	 */
 	public function test_is_saved_on_returns_the_raw_option() {
@@ -89,20 +193,9 @@ class AI_Answers_Test extends Search_TestCase {
 		remove_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
 	}
 
-	public function test_is_enabled_is_false_when_the_master_is_off() {
-		// The saved choice persists while the master is off; only is_enabled() gates it.
-		update_option( 'jetpack_search_ai_answers_enabled', true );
-		$this->turn_ai_master_off();
-
-		$this->assertTrue( AI_Answers::is_saved_on() );
-		$this->assertFalse( AI_Answers::is_enabled() );
-
-		delete_option( 'jetpack_search_ai_answers_enabled' );
-	}
-
 	public function test_is_master_enabled_is_true_without_a_master_gate() {
 		// Standalone Jetpack Search plugin: nothing subscribes to the filter, so
-		// there is no master switch to obey and the site must not be gated.
+		// there is no master switch to obey and the site must not report gated.
 		$this->assertTrue( AI_Answers::is_master_enabled() );
 	}
 
@@ -136,6 +229,16 @@ class AI_Answers_Test extends Search_TestCase {
 		$this->assertFalse( AI_Answers::is_master_enabled() );
 	}
 
+	public function test_is_master_enabled_never_reports_above_enforcement_on_wpcom_simple() {
+		// On Simple the probe depends on the plugin's filter being registered,
+		// which wpcom's loader doesn't guarantee per request. With no filter and
+		// the option off, reporting must still follow enforcement.
+		Constants::set_constant( 'IS_WPCOM', true );
+		update_option( AI_Answers::AI_MASTER_OPTION, '' );
+
+		$this->assertFalse( AI_Answers::is_master_enabled() );
+	}
+
 	public function test_is_enabled_still_gated_outside_internal_testing_environments() {
 		// Enforcement is the plugin's public filter — only the *reporting* is
 		// scoped. A public master-off site still reports the feature off.
@@ -149,7 +252,7 @@ class AI_Answers_Test extends Search_TestCase {
 	}
 
 	public function test_is_master_enabled_ignores_the_option() {
-		// The master state is about the gates, not the feature's saved choice.
+		// The reported master state is about the gates, not the feature's saved choice.
 		update_option( 'jetpack_search_ai_answers_enabled', false );
 		$this->turn_ai_master_on();
 		$this->assertTrue( AI_Answers::is_master_enabled() );
