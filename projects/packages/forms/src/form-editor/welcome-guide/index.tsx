@@ -81,8 +81,9 @@ export const FormWelcomeGuide = () => {
 
 	// Reopening from the Options menu is deliberately session-only — it does not
 	// write the preference back to true, which would make the guide auto-open on
-	// every later load and undo the user's dismissal.
-	const [ isReopened, setIsReopened ] = useState( false );
+	// every later load and undo the user's dismissal. Seeded open when PHP says
+	// a request is already stored; see the effect that clears it below.
+	const [ isReopened, setIsReopened ] = useState( isCoreWelcomeGuidePending );
 
 	const handleFinish = useCallback( () => {
 		setIsReopened( false );
@@ -129,6 +130,23 @@ export const FormWelcomeGuide = () => {
 	}, [ isOpen ] );
 
 	/*
+	 * A stored request from a load this bundle never saw. Choosing core's
+	 * "Welcome Guide" on such a load — in-editor navigation into a form never
+	 * re-runs the enqueue — persists true against a toggle nothing here was
+	 * present to intercept. Opening for it, and clearing it below, is what
+	 * stops that stored true beating the editor bundle's runtime default and
+	 * reopening core's generic modal here on every later load. Only PHP can
+	 * tell it from core's own default, which is true but never stored.
+	 */
+	useEffect( () => {
+		if ( ! isFormEditor || ! isCoreWelcomeGuidePending() ) {
+			return;
+		}
+
+		set( CORE_PREFERENCE_SCOPE, PREFERENCE_NAME, false );
+	}, [ isFormEditor, set ] );
+
+	/*
 	 * Take over the editor's "Welcome Guide" menu item. Selecting it sets
 	 * core's preference to true, which would otherwise bring back the generic
 	 * modal this guide replaces — so open this one instead and put the
@@ -137,24 +155,12 @@ export const FormWelcomeGuide = () => {
 	 *
 	 * Only a transition into true counts. The value being true on its own says
 	 * nothing about whether the user asked for anything: core's own default is
-	 * true until the editor bundle's subscription suppresses it, and a user who
-	 * deliberately re-enabled core's guide has true persisted, which beats that
-	 * suppression. Reacting to the value rather than the change would persist
-	 * false on mount for both of them, switching core's welcome modal off in
-	 * the post and page editors for someone who never saw it there.
+	 * true until the editor bundle's subscription suppresses it. Reacting to
+	 * the value rather than the change would persist false on mount for such a
+	 * user, switching core's welcome modal off in the post and page editors for
+	 * someone who never saw it there.
 	 */
-	/*
-	 * Seeded false when the user already has core's modal stored as pending, so
-	 * the value being true on mount registers as the transition below. That
-	 * state means they chose core's "Welcome Guide" on a load where this bundle
-	 * was absent — in-editor navigation into a form never re-runs the enqueue —
-	 * and the toggle persisted true. Reading it as a request opens this guide
-	 * and clears the flag; ignoring it would let the stored true beat the
-	 * editor bundle's runtime default and reopen core's generic modal here on
-	 * every later load. A newcomer is unaffected: core's own default is never
-	 * written to the blob, so PHP reports pending only for a stored true.
-	 */
-	const previousCoreWelcomeGuide = useRef( isCoreWelcomeGuidePending() ? false : coreWelcomeGuide );
+	const previousCoreWelcomeGuide = useRef( coreWelcomeGuide );
 
 	useEffect( () => {
 		const wasEnabled = previousCoreWelcomeGuide.current;

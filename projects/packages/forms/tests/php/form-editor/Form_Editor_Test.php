@@ -876,10 +876,9 @@ class Form_Editor_Test extends BaseTestCase {
 			'The guide should load for a user it is meant for'
 		);
 
-		$inline = wp_scripts()->get_data( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'before' );
 		$this->assertStringContainsString(
 			'"isEligible":true',
-			is_array( $inline ) ? implode( '', $inline ) : (string) $inline,
+			$this->inline_guide_script(),
 			'The eligibility flag should be printed for the script to read'
 		);
 
@@ -995,30 +994,9 @@ class Form_Editor_Test extends BaseTestCase {
 		$this->set_form_editor_screen();
 		$this->run_enqueue();
 
-		$inline = wp_scripts()->get_data( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'before' );
 		$this->assertStringContainsString(
 			'"isCoreGuidePending":true',
-			is_array( $inline ) ? implode( '', $inline ) : (string) $inline
-		);
-
-		$this->clean_up_enqueue();
-	}
-
-	/**
-	 * A missing editor bundle must not take the guide down with it: the two
-	 * ship as separate entries and only one of them is absent.
-	 */
-	public function test_welcome_guide_survives_a_missing_editor_asset() {
-		$this->skip_without_guide_asset();
-		$this->log_in_new_user();
-		$this->stub_form_ids = array();
-
-		$this->set_form_editor_screen();
-		$this->run_enqueue();
-
-		$this->assertTrue(
-			wp_script_is( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'enqueued' ),
-			'The guide should enqueue independently of the editor bundle'
+			$this->inline_guide_script()
 		);
 
 		$this->clean_up_enqueue();

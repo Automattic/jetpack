@@ -46,7 +46,7 @@ class Form_Editor {
 	const PREFERENCE_NAME = 'welcomeGuide';
 
 	/**
-	 * Core's own welcome modal scope, which its Options menu item toggles. Mirrors CORE_PREFERENCE_SCOPE in welcome-guide/index.tsx.
+	 * Core's own welcome modal scope, which its Options menu item toggles. Owned by @wordpress/edit-post; mirrored in welcome-guide/index.tsx too.
 	 *
 	 * @var string
 	 */
@@ -202,30 +202,36 @@ class Form_Editor {
 		if ( ! $screen || $screen->id === 'site-editor' || ! $screen->is_block_editor ) {
 			return;
 		}
-		// The guide is registered after this bundle either way, so a missing
-		// editor asset must not take it down with it — the two ship separately
-		// and only this one is missing.
+		// Separate calls, so a missing editor asset does not take the guide down
+		// with it — the two ship as their own entries.
+		self::enqueue_editor_bundle();
+		self::enqueue_welcome_guide();
+	}
+
+	/**
+	 * Enqueue the form editor bundle.
+	 */
+	private static function enqueue_editor_bundle() {
 		$asset_file = __DIR__ . '/../../dist/form-editor/jetpack-form-editor.asset.php';
-		if ( file_exists( $asset_file ) ) {
-			$asset = require $asset_file;
-			Assets::register_script(
-				self::SCRIPT_HANDLE,
-				'../../dist/form-editor/jetpack-form-editor.js',
-				__FILE__,
-				array(
-					'in_footer'    => true,
-					'textdomain'   => 'jetpack-forms',
-					'enqueue'      => true,
-					'dependencies' => $asset['dependencies'],
-					'version'      => $asset['version'],
-				)
-			);
-		} else {
+		if ( ! file_exists( $asset_file ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'Form Editor asset file not found: ' . $asset_file );
+			return;
 		}
 
-		self::enqueue_welcome_guide();
+		$asset = require $asset_file;
+		Assets::register_script(
+			self::SCRIPT_HANDLE,
+			'../../dist/form-editor/jetpack-form-editor.js',
+			__FILE__,
+			array(
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-forms',
+				'enqueue'      => true,
+				'dependencies' => $asset['dependencies'],
+				'version'      => $asset['version'],
+			)
+		);
 	}
 
 	/**
@@ -331,6 +337,23 @@ class Form_Editor {
 	}
 
 	/**
+	 * Whether a welcome guide preference is stored with the given value.
+	 *
+	 * Both scopes keep the flag under the same name, and every rule here turns
+	 * on a stored value rather than an absent one, so the three predicates below
+	 * differ only in which scope and which value they ask about.
+	 *
+	 * @param array  $preferences The user's persisted editor preferences.
+	 * @param string $scope       Preference scope to look in.
+	 * @param bool   $value       Value to compare against.
+	 * @return bool Whether the preference is stored with that value.
+	 */
+	private static function preference_is( array $preferences, $scope, $value ) {
+		return isset( $preferences[ $scope ][ self::PREFERENCE_NAME ] )
+			&& $value === $preferences[ $scope ][ self::PREFERENCE_NAME ];
+	}
+
+	/**
 	 * Whether the user has asked for core's welcome modal and not yet seen it.
 	 *
 	 * Only a *stored* true counts. Core's own default is also true, but it is
@@ -346,8 +369,7 @@ class Form_Editor {
 	 * @return bool Whether core's welcome modal is pending by the user's own choice.
 	 */
 	private static function is_core_welcome_guide_pending( array $preferences ) {
-		return isset( $preferences[ self::CORE_PREFERENCE_SCOPE ][ self::PREFERENCE_NAME ] )
-			&& true === $preferences[ self::CORE_PREFERENCE_SCOPE ][ self::PREFERENCE_NAME ];
+		return self::preference_is( $preferences, self::CORE_PREFERENCE_SCOPE, true );
 	}
 
 	/**
@@ -357,8 +379,7 @@ class Form_Editor {
 	 * @return bool Whether the guide has been dismissed.
 	 */
 	private static function is_welcome_guide_dismissed( array $preferences ) {
-		return isset( $preferences[ self::PREFERENCE_SCOPE ][ self::PREFERENCE_NAME ] )
-			&& false === $preferences[ self::PREFERENCE_SCOPE ][ self::PREFERENCE_NAME ];
+		return self::preference_is( $preferences, self::PREFERENCE_SCOPE, false );
 	}
 
 	/**
@@ -382,14 +403,9 @@ class Form_Editor {
 			return false;
 		}
 
-		$core_welcome_guide = null;
-		if ( isset( $preferences[ self::CORE_PREFERENCE_SCOPE ][ self::PREFERENCE_NAME ] ) ) {
-			$core_welcome_guide = $preferences[ self::CORE_PREFERENCE_SCOPE ][ self::PREFERENCE_NAME ];
-		}
-
 		// Core only stores false once the modal has been dismissed, so anything
 		// else — including no stored value at all — means it is still pending.
-		if ( false !== $core_welcome_guide ) {
+		if ( ! self::preference_is( $preferences, self::CORE_PREFERENCE_SCOPE, false ) ) {
 			return true;
 		}
 
