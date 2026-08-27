@@ -1090,6 +1090,28 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Draft Assist follows the AI writing assistant opt-out.
+	 *
+	 * The project requires that this is never shown to someone who has turned
+	 * generative AI off. Every other writing feature here is ANDed with
+	 * writing_assistant; Draft Assist was the one exception, so a user who turned the
+	 * writing assistant off but kept SEO Enhancer on still got it.
+	 */
+	public function test_draft_assist_follows_the_writing_assistant_opt_out() {
+		$this->set_block_editor_screen();
+
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+
+		try {
+			$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+			$this->assertSame( false, $data['jetpackAiSidebar']['features']['draftAssist'] );
+		} finally {
+			delete_option( 'jetpack_ai_writing_assistant_enabled' );
+		}
+	}
+
+	/**
 	 * Activate the seo-tools module for the duration of the test. SEO suggestions
 	 * require it: the module registers the SEO meta fields the suggestions write to.
 	 */

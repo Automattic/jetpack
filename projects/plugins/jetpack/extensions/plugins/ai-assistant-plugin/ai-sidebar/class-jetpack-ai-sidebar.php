@@ -434,7 +434,7 @@ class Jetpack_AI_Sidebar {
 			'optimizeTitleSuggestion' => $writing_on,
 			'seoSuggestions'          => self::is_seo_suggestions_enabled(),
 			'excerptSuggestion'       => $writing_on,
-			'draftAssist'             => self::is_draft_assist_enabled(),
+			'draftAssist'             => self::is_draft_assist_enabled() && $writing_on,
 			'chatHistory'             => false,
 			'supportGuides'           => false,
 		);
@@ -457,7 +457,7 @@ class Jetpack_AI_Sidebar {
 		$features['optimizeTitleSuggestion'] = (bool) $features['optimizeTitleSuggestion'] && $writing_on;
 		$features['seoSuggestions']          = (bool) $features['seoSuggestions'] && self::is_seo_suggestions_enabled();
 		$features['excerptSuggestion']       = (bool) $features['excerptSuggestion'] && $writing_on;
-		$features['draftAssist']             = (bool) $features['draftAssist'] && self::is_draft_assist_enabled();
+		$features['draftAssist']             = (bool) $features['draftAssist'] && self::is_draft_assist_enabled() && $writing_on;
 		// Block transformations (Translate, Change Tone, etc.) are writing features
 		// and follow the writing assistant toggle.
 		$features['blockTransformations'] = (bool) $features['blockTransformations'] && $writing_on;
