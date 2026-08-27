@@ -25,9 +25,8 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 export type WordAdsChartTabsAttributes = Partial< ReportParamsFieldAttributes >;
 
 /**
- * The rolling windows minus "Last 24 hours": WordAds is reported to us daily, so
- * a sub-daily window collapses to one day-bucket, which draws no line and labels
- * yesterday's totals as the last 24 hours.
+ * WordAds is reported to us daily, so a sub-daily window collapses to one
+ * bucket: no line, and yesterday's totals labelled as the last 24 hours.
  */
 const WORDADS_PRESETS = [ PRESET_LAST_7_DAYS, PRESET_LAST_30_DAYS, PRESET_LAST_12_MONTHS ] as const;
 

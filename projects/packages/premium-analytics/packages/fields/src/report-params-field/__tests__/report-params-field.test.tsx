@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 /**
@@ -22,13 +22,17 @@ const ATTRIBUTES: ReportParamsFieldAttributes = {
  * as its data. A test holding `data` still would pass on a control that commits
  * a stale draft, because it never sees what the widget ends up with.
  */
-function renderField( withIntervalControl?: boolean, presetIds?: readonly QuickSurfacePresetId[] ) {
+function renderField(
+	withIntervalControl?: boolean,
+	presetIds?: readonly QuickSurfacePresetId[],
+	initialAttributes: ReportParamsFieldAttributes = ATTRIBUTES
+) {
 	const Field = createReportParamsField( { withIntervalControl, presetIds } );
 	const saved: ReportParamsFieldAttributes[] = [];
 	let setFromOutside: ( attributes: ReportParamsFieldAttributes ) => void = () => {};
 
 	function Host() {
-		const [ attributes, setAttributes ] = useState( ATTRIBUTES );
+		const [ attributes, setAttributes ] = useState( initialAttributes );
 
 		setFromOutside = setAttributes;
 
@@ -96,18 +100,47 @@ describe( 'createReportParamsField', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
+	const windowsOnOffer = () =>
+		within( screen.getByRole( 'toolbar', { name: 'Date range' } ) )
+			.getAllByRole( 'button' )
+			.map( button => button.textContent );
+
 	it( 'offers every rolling window when the widget names none', () => {
 		renderField();
 
-		expect( screen.getByRole( 'button', { name: /24 hours/i } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: /7 days/i } ) ).toBeInTheDocument();
+		expect( windowsOnOffer() ).toEqual( [
+			'Last 24 hours',
+			'7 days',
+			'30 days',
+			'12 months',
+			'Custom',
+		] );
 	} );
 
-	it( 'offers only the windows the widget names', () => {
-		renderField( true, [ 'last-7-days', 'last-30-days', 'last-12-months' ] );
+	it( 'offers only the windows the widget names, in that order', () => {
+		renderField( true, [ 'last-12-months', 'last-7-days', 'last-30-days' ] );
 
-		expect( screen.queryByRole( 'button', { name: /24 hours/i } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: /7 days/i } ) ).toBeInTheDocument();
+		expect( windowsOnOffer() ).toEqual( [ '12 months', '7 days', '30 days', 'Custom' ] );
+	} );
+
+	it( 'moves an instance saved on an unoffered window onto an offered one', () => {
+		const { latest } = renderField( true, [ 'last-7-days', 'last-30-days', 'last-12-months' ], {
+			reportParams: { preset: 'last-24-hours', interval: 'hour' },
+		} );
+
+		expect( latest() ).toEqual( expect.objectContaining( { preset: 'last-30-days' } ) );
+		expect( screen.getByRole( 'button', { name: '30 days' } ) ).toHaveAttribute(
+			'aria-pressed',
+			'true'
+		);
+	} );
+
+	it( 'leaves a custom range alone', () => {
+		const { saved } = renderField( true, [ 'last-7-days', 'last-30-days', 'last-12-months' ], {
+			reportParams: { from: '2026-01-01', to: '2026-01-15', interval: 'day' },
+		} );
+
+		expect( saved ).toHaveLength( 0 );
 	} );
 
 	it( 'saves a bucket change without an Apply step', async () => {

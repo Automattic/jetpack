@@ -3,8 +3,9 @@
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { render, renderHook, screen, waitFor } from '@testing-library/react';
+import { render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
@@ -61,8 +62,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
-
-const noop = () => {};
 
 // Raw WPCOM `wordads/stats` matrix shape: two monthly buckets, so the summary
 // totals impressions (2000) and revenue (9.75), and CPM is the weighted average
@@ -282,23 +281,55 @@ describe( 'WordAdsChartTabsWidget', () => {
 } );
 
 describe( 'WordAdsChartTabsWidget date control', () => {
-	// WordAds is reported to us a day at a time, so a sub-daily window collapses
-	// to one bucket: no line, and yesterday's totals labelled as the last 24 hours.
-	it( 'offers no window shorter than the report can fill', () => {
-		const [ { Edit } ] = wordAdsChartTabsWidget.attributes;
-		const Field = Edit as ComponentType< DataFormControlProps< WordAdsChartTabsAttributes > >;
+	type FieldProps = DataFormControlProps< WordAdsChartTabsAttributes >;
 
-		render(
-			<Field
-				{ ...( {
-					data: { reportParams: { preset: 'last-30-days', interval: 'day' } },
-					onChange: noop,
-				} as unknown as DataFormControlProps< WordAdsChartTabsAttributes > ) }
-			/>
+	// Only the DataForm plumbing is cast away, so `data` stays type-checked and a
+	// renamed attribute breaks the build rather than passing silently.
+	function renderDateControl( props: Pick< FieldProps, 'data' | 'onChange' > ) {
+		const [ { Edit } ] = wordAdsChartTabsWidget.attributes;
+		const Field = Edit as ComponentType< FieldProps >;
+
+		render( <Field { ...( props as FieldProps ) } /> );
+	}
+
+	it( 'offers no window shorter than the report can fill', async () => {
+		const user = userEvent.setup();
+		const onChange = jest.fn();
+
+		renderDateControl( {
+			data: { reportParams: { preset: 'last-30-days', interval: 'day' } },
+			onChange,
+		} );
+
+		const toolbar = screen.getByRole( 'toolbar', { name: 'Date range' } );
+
+		expect(
+			within( toolbar )
+				.getAllByRole( 'button' )
+				.map( button => button.textContent )
+		).toEqual( [ '7 days', '30 days', '12 months', 'Custom' ] );
+		expect( screen.getByRole( 'button', { name: '30 days' } ) ).toHaveAttribute(
+			'aria-pressed',
+			'true'
 		);
 
-		expect( screen.queryByRole( 'button', { name: /24 hours/i } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: /7 days/i } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: /30 days/i } ) ).toBeInTheDocument();
+		await user.click( screen.getByRole( 'button', { name: '7 days' } ) );
+
+		expect( onChange ).toHaveBeenCalledWith( {
+			reportParams: expect.objectContaining( { preset: 'last-7-days' } ),
+		} );
+	} );
+
+	it( 'moves an instance saved on the last 24 hours onto an offered window', () => {
+		const onChange = jest.fn();
+
+		renderDateControl( {
+			data: { reportParams: { preset: 'last-24-hours', interval: 'hour' } },
+			onChange,
+		} );
+
+		expect( onChange ).toHaveBeenCalledWith( {
+			reportParams: expect.objectContaining( { preset: 'last-30-days' } ),
+		} );
 	} );
 } );

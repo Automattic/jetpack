@@ -12,6 +12,7 @@ import {
 	endOfDayTZ,
 	type IntervalType,
 	isPrimaryPreset,
+	QUICK_SURFACE_PRESETS,
 	type QuickSurfacePresetId,
 	siteTimeZone,
 	type DateRange,
@@ -53,9 +54,7 @@ type ReportParamsFieldOptions = {
  * @param options                     - Field options.
  * @param options.withIntervalControl - Whether to offer the chart bucket control.
  * @param options.presetIds           - The quick presets to offer, in display
- *                                    order. Defaults to every rolling window;
- *                                    narrow it where the widget's report has
- *                                    no bucket fine enough to fill one.
+ *                                    order. Defaults to every rolling window.
  * @return A DataForm control component.
  */
 export function createReportParamsField( {
@@ -133,6 +132,33 @@ function ReportParamsControl( {
 		from: decodeDateSearchParam( appliedParams.from ),
 		to: decodeDateSearchParam( appliedParams.to ),
 	};
+
+	/*
+	 * Migrate an instance saved on a window this widget stopped offering: left
+	 * alone it highlights no pill, reads "Custom", and keeps a bucket menu scoped
+	 * to that window. A custom range or a year is not ours to rewrite.
+	 */
+	const offeredPresetIds = ( presetIds ?? [] ) as readonly string[];
+	const fallbackPreset = offeredPresetIds.includes( defaultPreset )
+		? defaultPreset
+		: presetIds?.[ 0 ];
+
+	const appliedPreset = appliedParams.preset;
+	const isUnofferedPreset =
+		!! appliedPreset &&
+		( QUICK_SURFACE_PRESETS as readonly string[] ).includes( appliedPreset ) &&
+		! offeredPresetIds.includes( appliedPreset );
+
+	const hasMigratedPreset = useRef( false );
+
+	useEffect( () => {
+		if ( hasMigratedPreset.current || ! isUnofferedPreset || ! fallbackPreset ) {
+			return;
+		}
+		hasMigratedPreset.current = true;
+		onChange( { reportParams: { ...committed, preset: fallbackPreset } } );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ isUnofferedPreset, fallbackPreset ] );
 
 	const stageDateRange = useCallback(
 		( nextRange?: DateRange, nextPresetId?: string ) => {
