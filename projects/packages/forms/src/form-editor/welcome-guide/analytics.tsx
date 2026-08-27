@@ -9,7 +9,7 @@
  */
 
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { useCallback, useEffect } from '@wordpress/element';
+import { useCallback, useEffect, useRef } from '@wordpress/element';
 
 /** Fired once each time the guide opens. */
 export const VIEW_EVENT = 'jetpack_forms_welcome_guide_view';
@@ -75,14 +75,35 @@ interface SlideTrackerProps {
  * @return Nothing; this renders no markup.
  */
 export const SlideTracker = ( { index, slideCount, origin, record }: SlideTrackerProps ) => {
+	/*
+	 * Only the slide is a reason to report. `origin` and `slideCount` are fixed
+	 * for an opening, and `record`'s identity is not something this component
+	 * should depend on — including them would re-report the same slide the
+	 * moment any of them changed, which is a duplicate event rather than a
+	 * navigation. Refs keep the values current without making them triggers.
+	 */
+	const latest = useRef( { slideCount, origin, record } );
+	latest.current = { slideCount, origin, record };
+
+	// The opening reports its own first slide, after the view event and after
+	// the analytics hook has identified the user. This reports the moves.
+	const hasSeenFirstSlide = useRef( false );
+
 	useEffect( () => {
-		record( SLIDE_VIEW_EVENT, {
+		if ( ! hasSeenFirstSlide.current ) {
+			hasSeenFirstSlide.current = true;
+			return;
+		}
+
+		const current = latest.current;
+
+		current.record( SLIDE_VIEW_EVENT, {
 			// One-based, to read naturally against `slide_count` in a report.
 			slide: index + 1,
-			slide_count: slideCount,
-			origin,
+			slide_count: current.slideCount,
+			origin: current.origin,
 		} );
-	}, [ index, origin, record, slideCount ] );
+	}, [ index ] );
 
 	return null;
 };

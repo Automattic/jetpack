@@ -20,12 +20,13 @@ import { store as preferencesStore } from '@wordpress/preferences';
 import { FORM_POST_TYPE } from '../../blocks/shared/util/constants.js';
 import {
 	DISMISS_EVENT,
+	SLIDE_VIEW_EVENT,
 	SlideTracker,
 	useGuideTracks,
 	VIEW_EVENT,
 	type GuideOrigin,
 } from './analytics';
-import { getWelcomeGuidePages, WELCOME_GUIDE_IMAGES } from './pages';
+import { getWelcomeGuidePages, SLIDE_COUNT, WELCOME_GUIDE_IMAGES } from './pages';
 import {
 	isCoreWelcomeGuidePending,
 	isWelcomeGuideEligible,
@@ -104,8 +105,6 @@ export const FormWelcomeGuide = () => {
 	// a request is already stored; see the effect that clears it below.
 	const [ isReopened, setIsReopened ] = useState( isCoreWelcomeGuidePending );
 
-	const pages = getWelcomeGuidePages();
-
 	const record = useGuideTracks();
 
 	/*
@@ -136,9 +135,9 @@ export const FormWelcomeGuide = () => {
 		record( DISMISS_EVENT, {
 			origin,
 			slide: currentSlide.current,
-			slide_count: pages.length,
+			slide_count: SLIDE_COUNT,
 		} );
-	}, [ origin, pages.length, record ] );
+	}, [ origin, record ] );
 
 	const handleFinish = useCallback( () => {
 		recordDismiss();
@@ -172,7 +171,8 @@ export const FormWelcomeGuide = () => {
 		}
 
 		currentSlide.current = 1;
-		record( VIEW_EVENT, { origin, slide_count: pages.length } );
+		record( VIEW_EVENT, { origin, slide_count: SLIDE_COUNT } );
+		record( SLIDE_VIEW_EVENT, { slide: 1, slide_count: SLIDE_COUNT, origin } );
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- Only a change in `isOpen` is a new viewing; `origin` is fixed for one.
 	}, [ isOpen ] );
 
@@ -249,7 +249,7 @@ export const FormWelcomeGuide = () => {
 	 * The tracker rides inside each slide's content because `Guide` renders only
 	 * the page you are on, which makes "mounted" and "on screen" the same thing.
 	 */
-	const trackedPages = pages.map( ( page, index ) => ( {
+	const trackedPages = getWelcomeGuidePages().map( ( page, index ) => ( {
 		...page,
 		content: (
 			<>
@@ -257,7 +257,7 @@ export const FormWelcomeGuide = () => {
 					index={ index }
 					origin={ origin }
 					record={ recordSlideView }
-					slideCount={ pages.length }
+					slideCount={ SLIDE_COUNT }
 				/>
 				{ page.content }
 			</>

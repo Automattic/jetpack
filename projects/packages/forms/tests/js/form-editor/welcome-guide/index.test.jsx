@@ -313,13 +313,59 @@ describe( 'FormWelcomeGuide', () => {
 		 */
 		const propsFor = event => recordEvent.mock.calls.find( ( [ name ] ) => name === event )?.[ 1 ];
 
-		it( 'records one view when the guide opens, with why it opened', () => {
+		/**
+		 * Every recorded event of one name.
+		 *
+		 * @param {string} event - Event name.
+		 * @return {Array} The recorded property objects, in order.
+		 */
+		const allOf = event =>
+			recordEvent.mock.calls
+				.filter( ( [ name ] ) => name === event )
+				.map( ( [ , props ] ) => props );
+
+		it( 'records exactly one view per opening, however often it re-renders', () => {
+			const { rerender } = render( <FormWelcomeGuide /> );
+			rerender( <FormWelcomeGuide /> );
+			rerender( <FormWelcomeGuide /> );
+
+			expect( allOf( 'jetpack_forms_welcome_guide_view' ) ).toEqual( [
+				expect.objectContaining( { origin: 'auto', slide_count: 5 } ),
+			] );
+		} );
+
+		it( 'records the view before the slide it opened on', () => {
 			render( <FormWelcomeGuide /> );
 
-			expect( recordEvent ).toHaveBeenCalledWith(
+			const names = recordEvent.mock.calls
+				.map( ( [ name ] ) => name )
+				.filter( name => name.startsWith( 'jetpack_forms_welcome_guide_' ) );
+
+			expect( names.slice( 0, 2 ) ).toEqual( [
 				'jetpack_forms_welcome_guide_view',
-				expect.objectContaining( { origin: 'auto', slide_count: 5 } )
-			);
+				'jetpack_forms_welcome_guide_slide_view',
+			] );
+		} );
+
+		it( 'records only one slide view for the slide it opened on', () => {
+			const { rerender } = render( <FormWelcomeGuide /> );
+			rerender( <FormWelcomeGuide /> );
+
+			expect( allOf( 'jetpack_forms_welcome_guide_slide_view' ) ).toEqual( [
+				expect.objectContaining( { slide: 1 } ),
+			] );
+		} );
+
+		it( 'attributes a guide reopened from the Options menu to the menu', () => {
+			// Dismissed, so it can only be open because it was asked for.
+			window.jetpackFormsWelcomeGuide = { isEligible: false, isCoreGuidePending: true };
+			seedPreferences( { jetpackForms: false, coreWelcomeGuide: true } );
+
+			render( <FormWelcomeGuide /> );
+
+			expect( allOf( 'jetpack_forms_welcome_guide_view' ) ).toEqual( [
+				expect.objectContaining( { origin: 'menu' } ),
+			] );
 		} );
 
 		it( 'records nothing at all when the guide does not open', () => {
