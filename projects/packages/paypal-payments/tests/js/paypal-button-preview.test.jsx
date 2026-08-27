@@ -53,23 +53,15 @@ describe( 'PayPalButtonPreview', () => {
 		expect( logo.tagName.toLowerCase() ).toBe( 'svg' );
 	} );
 
-	it( 'shows "Pay Now" as the default button text', () => {
-		render( <PayPalButtonPreview { ...defaultProps } buttonText="" /> );
-		expect( screen.getByText( 'Pay Now' ) ).toBeInTheDocument();
+	it( 'labels the checkout button with the PayPal wordmark copy', () => {
+		render( <PayPalButtonPreview { ...defaultProps } /> );
+		expect( screen.getByText( 'Buy Now With' ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows custom button text when provided', () => {
-		render( <PayPalButtonPreview { ...defaultProps } buttonText="Buy It Now" /> );
-		expect( screen.getByText( 'Buy It Now' ) ).toBeInTheDocument();
-	} );
-
-	it( 'shows the debit/credit button for stacked layout', () => {
-		render( <PayPalButtonPreview { ...defaultProps } buttonType="stacked" /> );
-		expect( screen.getByText( 'Debit or Credit Card' ) ).toBeInTheDocument();
-	} );
-
-	it( 'hides the debit/credit button for single layout', () => {
-		render( <PayPalButtonPreview { ...defaultProps } buttonType="single" /> );
+	it( 'never renders a debit/credit button', () => {
+		// The theme-native checkout button replaced the PayPal-branded
+		// gold + debit/credit pair, so neither layout renders one.
+		render( <PayPalButtonPreview { ...defaultProps } /> );
 		expect( screen.queryByText( 'Debit or Credit Card' ) ).not.toBeInTheDocument();
 	} );
 
@@ -81,7 +73,7 @@ describe( 'PayPalButtonPreview', () => {
 
 	it( 'renders non-interactive preview buttons as div elements', () => {
 		render( <PayPalButtonPreview { ...defaultProps } /> );
-		const button = document.querySelector( '.jetpack-paypal-button-preview__paypal-button' );
+		const button = document.querySelector( '.jetpack-paypal-button-preview__checkout-button' );
 		expect( button ).toBeInTheDocument();
 		// Preview buttons are divs (not links) — non-interactive in the editor.
 		expect( button.tagName ).toBe( 'DIV' );

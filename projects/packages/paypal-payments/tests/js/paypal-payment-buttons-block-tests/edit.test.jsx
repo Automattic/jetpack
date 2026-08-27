@@ -61,6 +61,18 @@ jest.mock( '@wordpress/components', () => ( {
 			{ children }
 		</button>
 	),
+	ButtonGroup: ( { children } ) => <div data-testid="button-group">{ children }</div>,
+	__experimentalConfirmDialog: ( { children, title, confirmButtonText, onConfirm, onCancel } ) => (
+		<div data-testid="confirm-dialog" role="dialog" aria-label={ title }>
+			<p>{ children }</p>
+			<button data-testid="confirm-dialog-confirm" onClick={ onConfirm }>
+				{ confirmButtonText || 'OK' }
+			</button>
+			<button data-testid="confirm-dialog-cancel" onClick={ onCancel }>
+				Cancel
+			</button>
+		</div>
+	),
 	Notice: ( { children, status, isDismissible, onDismiss } ) => (
 		<div data-testid="notice" data-status={ status }>
 			{ children }
@@ -178,12 +190,24 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 	describe( 'Connection Form (not connected)', () => {
 		/**
-		 * Navigate the WOOPTP-162 wizard to the credentials step.
+		 * Navigate the connection wizard to the manual credentials step.
+		 *
+		 * The welcome step leads with the Partner Referrals "Connect with
+		 * PayPal" flow (WOOPTP-267), but it only renders when the connection
+		 * response reports partner_referrals_available. The default mock does
+		 * not, which is standalone mode — the component skips welcome and
+		 * opens on the dashboard step, leaving one click to credentials.
 		 *
 		 * @param {object} user - userEvent instance.
 		 */
 		async function navigateToCredentialsStep( user ) {
-			await user.click( await screen.findByRole( 'button', { name: /Get Started/i } ) );
+			// Present only in platform mode; click it when the welcome step rendered.
+			const manualLink = screen.queryByRole( 'button', {
+				name: /enter your API credentials manually/i,
+			} );
+			if ( manualLink ) {
+				await user.click( manualLink );
+			}
 			await user.click( await screen.findByRole( 'button', { name: /I have my credentials/i } ) );
 		}
 
@@ -237,7 +261,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it( 'shows the create form when connected but no button exists', async () => {
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
-			await expect( screen.findByText( /Create PayPal Button/ ) ).resolves.toBeInTheDocument();
+			await expect( screen.findByText( /Create PayPal Payment Button/ ) ).resolves.toBeInTheDocument();
 			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
 			expect( screen.getByLabelText( 'Price' ) ).toBeInTheDocument();
 			expect( screen.getByLabelText( 'Currency' ) ).toBeInTheDocument();
@@ -404,7 +428,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await user.click( editButton );
 
 			// Should now show the edit form with "Edit PayPal Button" heading.
-			expect( screen.getByText( /Edit PayPal Button/ ) ).toBeInTheDocument();
+			expect( screen.getByText( /Edit PayPal Payment Button/ ) ).toBeInTheDocument();
 			expect( screen.getByText( /Update Button/ ) ).toBeInTheDocument();
 		} );
 	} );
@@ -426,9 +450,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it( 'calls apiFetch to check connection on mount', async () => {
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
-			await expect( screen.findAllByText( 'Connect PayPal' ) ).resolves.toEqual(
-				expect.any( Array )
-			);
+			// Wait for the connection check to settle. The default mock reports
+			// no partner referrals, so the wizard opens on the manual step.
+			await expect(
+				screen.findByText( /Get Your API Credentials/ )
+			).resolves.toBeInTheDocument();
 
 			expect( apiFetch ).toHaveBeenCalledWith(
 				expect.objectContaining( {
