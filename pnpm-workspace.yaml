@@ -19,6 +19,7 @@ optimisticRepeatInstall: false
 # Be strict about peer deps
 autoInstallPeers: false
 dedupePeerDependents: false
+dedupePeers: false
 strictPeerDependencies: true
 
 # No hoisting by default.
