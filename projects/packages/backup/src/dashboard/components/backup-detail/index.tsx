@@ -38,9 +38,10 @@ function downloadLabel( count: number ): string {
  *
  * Shows the item's title header with Download / Restore actions linking to the
  * matching sibling routes, the backup's summary line, a timestamp by-line,
- * and the file browser. File selection state lives here so the header
- * actions can switch between "Download backup" and "Download N selected
- * files" based on what the visitor has checked in the tree.
+ * and the file browser. File selection state lives here so the Download
+ * action can switch between "Download backup" and "Download %d selected
+ * item" based on what the visitor has checked in the tree. Restore does
+ * not switch — see its call site.
  *
  * @param props      - Component props.
  * @param props.item - The selected backup activity item.
@@ -48,7 +49,7 @@ function downloadLabel( count: number ): string {
  */
 export default function BackupDetail( { item }: Props ) {
 	const [ selection, setSelection ] = useState< FileSelection >( EMPTY_FILE_SELECTION );
-	// `count` labels the Download action only -- Restore beside it is
+	// `count` labels the Download action only — Restore beside it is
 	// deliberately unlabelled by selection, see its call site.
 	//
 	// `count` tracks how many opaque server-side download units the
@@ -57,8 +58,8 @@ export default function BackupDetail( { item }: Props ) {
 	// folders contribute via their leaves, not themselves;
 	// indeterminate folders don't add to the count. FileBrowser owns
 	// the loaded children, so it reports the count back here for the
-	// header labels to swap between "Download backup" and "Download N
-	// items".
+	// Download label to swap between "Download backup" and "Download %d
+	// selected item".
 	const [ count, setCount ] = useState( 0 );
 
 	return (
@@ -92,12 +93,17 @@ export default function BackupDetail( { item }: Props ) {
 							{ downloadLabel( count ) }
 						</Link>
 						{ /*
-						 * Deliberately not labelled from the file selection, unlike
-						 * Download beside it. A restore point is restored whole:
-						 * there is no upstream shape for restoring a subset of
-						 * files, so a count here would promise a scope no layer can
-						 * deliver. The reader who trusts "Restore 3 selected items"
-						 * confirms a full-site restore believing it is scoped.
+						 * Deliberately not labelled from the file selection.
+						 *
+						 * Download beside it does not honour the selection yet
+						 * either — JETPACK-2296 is what wires it. The difference is
+						 * that its count is keepable in principle and this one is
+						 * not: a restore point is restored whole, and there is no
+						 * upstream shape for restoring a subset of files. So a
+						 * count here could only ever promise a scope no layer can
+						 * deliver, and the reader who trusts "Restore 3 selected
+						 * items" confirms a full-site restore believing it is
+						 * scoped.
 						 */ }
 						<Link to={ `/restore/${ item.rewindId }` } className="jpb-backup-detail__restore">
 							<Icon icon={ rotateLeft } size={ 18 } />

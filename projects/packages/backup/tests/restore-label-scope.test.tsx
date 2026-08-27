@@ -37,20 +37,14 @@ const ITEM: BackupActivityItem = {
 /**
  * The single root file's own checkbox.
  *
- * Row checkboxes carry `label=""`, so they cannot be addressed by name.
- * Exclude the only named checkbox in the browser — the tree's "N items
- * selected" summary — and require exactly one to remain, rather than
- * taking one by index that could silently become the summary.
+ * Addressed by name, matching `switching-backups-resets-detail.test.tsx`.
+ * Row checkboxes had no accessible name until #51616; before that this had
+ * to exclude the tree's named summary checkbox and count what was left.
  *
  * @return The file row's checkbox.
  */
 function fileRowCheckbox(): HTMLElement {
-	const summary = screen.getByRole( 'checkbox', { name: /items? selected/ } );
-	const rows = screen.getAllByRole( 'checkbox' ).filter( box => box !== summary );
-	if ( rows.length !== 1 ) {
-		throw new Error( `Expected one file row checkbox, found ${ rows.length }` );
-	}
-	return rows[ 0 ];
+	return screen.getByRole( 'checkbox', { name: 'Select wp-config.php' } );
 }
 
 beforeEach( () => {
