@@ -49,7 +49,7 @@ const SITE_SUMMARY_PATH_FRAGMENT = 'proxy/v1.1/stats';
  * drop it again on cleanup so a forced empty/error result doesn't leak into the
  * other stories' shared cache entry.
  */
-function forceSiteSummaryState( state: 'loading' | 'error' | 'empty' ) {
+function forceSiteSummaryState( state: 'loading' | 'error' | 'error-retryable' | 'empty' ) {
 	queryClient.removeQueries( { queryKey: [ 'stats', 'site' ] } );
 	setReportMockState( SITE_SUMMARY_PATH_FRAGMENT, state );
 	return () => {
@@ -101,14 +101,26 @@ export const Loading: Story = {
 };
 
 /**
- * The fetch failed: the widget shows its error state with a Retry action (which
- * re-runs the query — still mocked as failing while this story is active).
+ * The reader cannot see this site's stats — a permission-gated 403. The widget
+ * states that neutrally and offers no Retry, which could not help.
  */
 export const Error: Story = {
 	render: renderMostPopularDay,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => forceSiteSummaryState( 'error' ),
+};
+
+/**
+ * The fetch failed in a way that can heal — the proxy's `no_connection` 403: the
+ * widget shows its retryable copy with a Retry action, which re-runs the query
+ * (still mocked as failing while this story is active).
+ */
+export const ErrorRetryable: Story = {
+	render: renderMostPopularDay,
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceSiteSummaryState( 'error-retryable' ),
 };
 
 /**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Most popular day states a share of views only when there is an all-time total to take it from, and drops the Retry a reader without stats access cannot use.

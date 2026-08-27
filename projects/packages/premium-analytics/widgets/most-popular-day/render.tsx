@@ -6,6 +6,7 @@ import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import {
+	describeError,
 	summaryCount,
 	WidgetRoot,
 	WidgetState,
@@ -37,7 +38,8 @@ type MostPopularDayHighlightProps = {
 	 */
 	views: number;
 	/**
-	 * The share of all-time views that fall on `date`, as a fraction (0–1).
+	 * The share of all-time views that fall on `date`, as a fraction (0–1), or
+	 * `undefined` when the summary carries no all-time total to divide by.
 	 */
 	share?: number;
 };
@@ -45,7 +47,7 @@ type MostPopularDayHighlightProps = {
 type MostPopularDayFieldProps = {
 	label: string;
 	value: string;
-	caption: string;
+	caption?: string;
 };
 
 /**
@@ -56,9 +58,11 @@ const MostPopularDayField = ( { label, value, caption }: MostPopularDayFieldProp
 	<Stack direction="column" gap="xs">
 		<Text variant="body-md">{ label }</Text>
 		<Text variant="heading-2xl">{ value }</Text>
-		<Text variant="body-md" className={ styles.caption }>
-			{ caption }
-		</Text>
+		{ caption !== undefined && (
+			<Text variant="body-md" className={ styles.caption }>
+				{ caption }
+			</Text>
+		) }
 	</Stack>
 );
 
@@ -68,11 +72,7 @@ const MostPopularDayField = ( { label, value, caption }: MostPopularDayFieldProp
  * `<WidgetState>` in the report component, so this only renders the populated
  * highlight.
  */
-export const MostPopularDayHighlight = ( {
-	date,
-	views,
-	share = 0,
-}: MostPopularDayHighlightProps ) => (
+export const MostPopularDayHighlight = ( { date, views, share }: MostPopularDayHighlightProps ) => (
 	<Stack className={ styles.highlight } direction="column" gap="xl" justify="center">
 		<MostPopularDayField
 			label={ __( 'Day', 'jetpack-premium-analytics-pkg' ) }
@@ -82,11 +82,17 @@ export const MostPopularDayHighlight = ( {
 		<MostPopularDayField
 			label={ __( 'Views', 'jetpack-premium-analytics-pkg' ) }
 			value={ formatMetricValue( views, 'number', { useMultipliers: true, decimals: 1 } ) }
-			caption={ sprintf(
-				/* translators: %s is a percentage, e.g. "0.32%". */
-				__( '%s of views', 'jetpack-premium-analytics-pkg' ),
-				formatMetricValue( share, 'percentage', { decimals: 2, signDisplay: 'never' } )
-			) }
+			// A summary without an all-time total gives no share to state; "0% of
+			// views" would read as a measurement rather than a missing one.
+			caption={
+				share === undefined
+					? undefined
+					: sprintf(
+							/* translators: %s is a percentage, e.g. "0.32%". */
+							__( '%s of views', 'jetpack-premium-analytics-pkg' ),
+							formatMetricValue( share, 'percentage', { decimals: 2, signDisplay: 'never' } )
+					  )
+			}
 		/>
 	</Stack>
 );
@@ -101,7 +107,7 @@ function readBestDay( summary: Record< string, unknown > | undefined ) {
  * summary is site-wide, so it does not read the dashboard date range.
  */
 function MostPopularDayReport() {
-	const { data, isLoading, isFetching, isError, refetch } = useStatsSite();
+	const { data, isLoading, isFetching, isError, error, refetch } = useStatsSite();
 
 	const summary = data?.stats;
 	const date = readBestDay( summary );
@@ -119,18 +125,13 @@ function MostPopularDayReport() {
 					// surface the error when there is nothing to show.
 					isError={ isError && isEmpty }
 					isEmpty={ isEmpty }
-					error={ {
-						description: __(
+					error={ describeError( error, {
+						retryDescription: __(
 							"We couldn't load your most popular day. Please try again in a moment.",
 							'jetpack-premium-analytics-pkg'
 						),
-						actions: [
-							{
-								label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
-								onClick: () => void refetch(),
-							},
-						],
-					} }
+						onRetry: () => void refetch(),
+					} ) }
 					empty={ {
 						icon: calendar,
 						description: __(
@@ -143,7 +144,7 @@ function MostPopularDayReport() {
 						<MostPopularDayHighlight
 							date={ date }
 							views={ views }
-							share={ totalViews ? views / totalViews : 0 }
+							share={ totalViews ? views / totalViews : undefined }
 						/>
 					) }
 				</WidgetState>

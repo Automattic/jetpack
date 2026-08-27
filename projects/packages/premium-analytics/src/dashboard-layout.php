@@ -290,12 +290,8 @@ function get_dashboard_default_section_layouts() {
 				4,
 				1
 			),
-			// Row 2: lifetime totals. Full width for now: the design pairs a
-			// narrow All-time stats card with Most popular time and Most popular
-			// day, and neither is in the default layout yet (WOOPRD-3703,
-			// WOOPRD-3704). A 1-wide card here would leave three empty columns —
-			// the grid packs sparsely, and the next row is a full-width tile.
-			// WOOPRD-3708 narrows it once those two join the row.
+			// Row 2: lifetime totals. Full width until Most popular time joins
+			// the row (WOOA7S-2019); WOOA7S-2009 then settles the arrangement.
 			get_dashboard_default_widget_instance(
 				'default-all-time-stats-widget-instance',
 				'jpa/all-time-stats',
@@ -308,95 +304,106 @@ function get_dashboard_default_section_layouts() {
 					'metrics' => array( 'views', 'visitors', 'posts' ),
 				)
 			),
-			// Row 3: posting-activity heatmap.
+			// Row 3: most popular day. Two rows tall so both fields fit without
+			// scrolling; a 1x1 tile is 200px, which the two display-sized figures
+			// overflow. The design shares this row with All-time stats and Most
+			// popular time, which WOOA7S-2009 arranges once WOOA7S-2019 lands.
+			get_dashboard_default_widget_instance(
+				'default-most-popular-day-widget-instance',
+				'jpa/most-popular-day',
+				2,
+				1,
+				2
+			),
+			// Row 4: posting-activity heatmap.
 			get_dashboard_default_widget_instance(
 				'default-posting-activity-widget-instance',
 				'jpa/posting-activity',
-				2,
+				3,
 				4,
 				1
 			),
-			// Row 4: the two post spotlights.
+			// Row 5: the two post spotlights.
 			get_dashboard_default_widget_instance(
 				'default-latest-post-widget-instance',
 				'jpa/latest-post',
-				3,
+				4,
 				2,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-popular-post-widget-instance',
 				'jpa/popular-post',
-				4,
+				5,
 				2,
 				2
 			),
-			// Row 5: the period totals and the weekday and hour-of-day
+			// Row 6: the period totals and the weekday and hour-of-day
 			// distributions.
 			get_dashboard_default_widget_instance(
 				'default-total-views-widget-instance',
 				'jpa/total-views',
-				5,
+				6,
 				1,
 				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-total-visitors-widget-instance',
 				'jpa/total-visitors',
-				6,
+				7,
 				1,
 				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-popular-days-widget-instance',
 				'jpa/popular-days',
-				7,
+				8,
 				1,
 				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-popular-hours-widget-instance',
 				'jpa/popular-hours',
-				8,
+				9,
 				1,
 				1
 			),
-			// Row 6: daily views heatmap. Two rows tall, as in the prototype: the
+			// Row 7: daily views heatmap. Two rows tall, as in the prototype: the
 			// cells are sized from the tile's height, and only at this height do they
 			// grow wide enough to label each day with its view count.
 			get_dashboard_default_widget_instance(
 				'default-traffic-views-activity-widget-instance',
 				'jpa/traffic-views-activity',
-				9,
+				10,
 				4,
 				2
 			),
-			// Row 7: the comment leaderboards, shares, and tags.
+			// Row 8: the comment leaderboards, shares, and tags.
 			get_dashboard_default_widget_instance(
 				'default-most-commented-posts-widget-instance',
 				'jpa/most-commented-posts',
-				10,
+				11,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-most-commented-authors-widget-instance',
 				'jpa/most-commented-authors',
-				11,
+				12,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-shares-widget-instance',
 				'jpa/shares',
-				12,
+				13,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-tags-widget-instance',
 				'jpa/tags',
-				13,
+				14,
 				1,
 				2
 			),
