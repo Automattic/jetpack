@@ -9,9 +9,6 @@ const pkg = JSON.parse( readFileSync( new URL( './package.json', import.meta.url
 	exports: Record< string, string | Record< string, string > >;
 };
 
-// Tracks whether the @tsdown/css sourcemap suppression below actually fired.
-let suppressedCssSourcemapWarning = false;
-
 // JS/TS entries from package exports; skip non-JS paths like `./style.css`.
 const entry = Object.values( pkg.exports )
 	.map( $export => ( typeof $export === 'object' ? $export[ 'jetpack:src' ] : '' ) )
@@ -27,16 +24,6 @@ export default defineConfig( {
 	platform: 'browser',
 	// Preserve the reference so 'browser' doesn't fold it to the dev branch.
 	define: { 'process.env.NODE_ENV': 'process.env.NODE_ENV' },
-	inputOptions: {
-		// Silence @tsdown/css's unfixable broken-sourcemap warnings (but no others).
-		onLog( level, log, handler ) {
-			if ( log.code === 'SOURCEMAP_BROKEN' && log.plugin?.startsWith( '@tsdown/css' ) ) {
-				suppressedCssSourcemapWarning = true;
-				return;
-			}
-			handler( level, log );
-		},
-	},
 	// ESM `.js` + CJS `.cjs`, matching `exports`/`typesVersions`.
 	fixedExtension: false,
 	loader: {
@@ -57,11 +44,6 @@ export default defineConfig( {
 	plugins: [ removeDataTestId() ],
 	// Fail loudly once @tsdown/css stops emitting these, so the suppression can be dropped.
 	onSuccess() {
-		if ( ! suppressedCssSourcemapWarning ) {
-			throw new Error(
-				'@tsdown/css no longer emits SOURCEMAP_BROKEN — remove the onLog suppression in tsdown.config.ts.'
-			);
-		}
 		assertNoDynamicRequire( 'dist' );
 		assertChartsScopeEmitted( 'dist' );
 	},
