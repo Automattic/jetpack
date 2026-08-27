@@ -458,10 +458,11 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that enqueue_scripts exposes the deployed build version as `{variant}:{version}`.
+	 * Tests that enqueue_scripts exposes the deployed build version as `{variant}:{version}`,
+	 * even in dev mode, where the enqueue cache buster is a random number.
 	 */
 	public function test_enqueue_scripts_exposes_deployed_version() {
-		Functions\when( 'wpcom_is_proxied_request' )->justReturn( false );
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
 
 		// Set admin context - scripts only enqueue in admin.
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
@@ -490,6 +491,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
 		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
 
+		$this->assertStringContainsString( '"isDevMode":true', $inline_script );
 		$this->assertStringContainsString( '"version":"wp-admin:abc123"', $inline_script );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
