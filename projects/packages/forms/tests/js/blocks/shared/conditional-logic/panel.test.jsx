@@ -659,15 +659,13 @@ describe( 'ConditionalLogicPanel', () => {
 	it( 'warns when a rule references a field that no longer exists', async () => {
 		await setup( withRules( [ { field: 'deleted_1', operator: 'is', value: 'x' } ] ) );
 
-		// Scoped to the dialog: Notice mirrors its text into an aria-live region that
-		// WordPress appends to document.body, so an unscoped query matches twice.
-		expect(
-			within( screen.getByRole( 'dialog' ) ).getByText( /no longer exists/i )
-		).toBeInTheDocument();
+		// Under the subject control it is about, and tied to it for screen readers, rather
+		// than as a banner above the row.
+		expect( screen.getByRole( 'combobox', { name: 'Field' } ) ).toHaveAccessibleDescription(
+			/no longer exists/i
+		);
 	} );
 
-	// A condition naming no subject, or giving no value where one is needed, is skipped by both
-	// evaluators. Letting an author stack up rules that quietly do nothing is the trap here.
 	// A condition naming no subject, or giving no value where one is needed, is skipped by both
 	// evaluators. Letting an author stack up rules that quietly do nothing is the trap here.
 	// A condition naming no subject, or giving no value where one is needed, is skipped by

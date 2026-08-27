@@ -178,6 +178,24 @@ const RuleRow = ( {
 	// confident-looking row that means something else.
 	const ambiguousSubject = duplicateFieldIds.has( rule.field );
 
+	// What is wrong with the chosen subject, said under the control it belongs to rather than
+	// as a banner above the row. Ambiguity is reported ahead of absence: a duplicated id does
+	// name fields -- they just cannot be told apart -- so "no longer exists" would be untrue.
+	let subjectMessage;
+
+	if ( ambiguousSubject ) {
+		subjectMessage = sprintf(
+			/* translators: %s: a field name/ID shared by more than one field. */
+			__( 'Field Name/ID %s is not unique. Rename one under Advanced → Name/ID.', 'jetpack-forms' ),
+			rule.field
+		);
+	} else if ( missingSubject ) {
+		subjectMessage = __(
+			'The referenced field no longer exists. Pick another field or remove this condition.',
+			'jetpack-forms'
+		);
+	}
+
 	const handleFieldChange = useCallback(
 		selection => {
 			const nextSubject = fields.find( field => selectionValue( field ) === selection );
@@ -286,15 +304,6 @@ const RuleRow = ( {
 
 	return (
 		<Stack direction="column" gap="xs" className="jetpack-contact-form__conditional-logic-rule">
-			{ missingSubject && (
-				<Notice status="warning" isDismissible={ false }>
-					{ __(
-						'The referenced field no longer exists. Pick another field or remove this condition.',
-						'jetpack-forms'
-					) }
-				</Notice>
-			) }
-
 			{ /* One row per condition, reading as a sentence: subject, comparison, value. The
 			     remove control sits at the end of the row rather than in a header, so a long
 			     list is three aligned columns instead of a stack of cards. */ }
@@ -302,7 +311,7 @@ const RuleRow = ( {
 			     centring would leave the three controls stepping down the row. */ }
 			<Stack
 				direction="row"
-				align={ ambiguousSubject ? 'flex-start' : 'center' }
+				align={ subjectMessage ? 'flex-start' : 'center' }
 				gap="sm"
 				className="jetpack-contact-form__conditional-logic-rule-row"
 			>
@@ -332,23 +341,9 @@ const RuleRow = ( {
 					value={ rule.field || '' }
 					onChange={ handleFieldChange }
 					className={ clsx( 'jetpack-contact-form__conditional-logic-rule-subject', {
-						'is-ambiguous': ambiguousSubject,
+						'is-invalid': !! subjectMessage,
 					} ) }
-					// Under the control it is about, rather than as a banner over the row: the
-					// problem belongs to this one subject, and the dialog's own notice already
-					// carries the general explanation and the fix.
-					help={
-						ambiguousSubject
-							? sprintf(
-									/* translators: %s: a field name/ID shared by more than one field. */
-									__(
-										'Field Name/ID %s is not unique. Rename one under Advanced → Name/ID.',
-										'jetpack-forms'
-									),
-									rule.field
-							  )
-							: undefined
-					}
+					help={ subjectMessage }
 					__nextHasNoMarginBottom={ true }
 					__next40pxDefaultSize={ true }
 				>
