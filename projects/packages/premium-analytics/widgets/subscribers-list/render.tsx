@@ -27,18 +27,18 @@ import { useMemo } from 'react';
 import type { SubscribersListAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-/**
- * Base URL of the subscriber management pages, or null when the site slug is unknown.
- *
- * Simple sites manage subscribers on WordPress.com, everything else on Jetpack Cloud.
- */
+/** Base URL for the site's subscriber management pages. */
 function getSubscribersBaseUrl() {
+	// wp-admin always supplies the slug; the null path is for Storybook and other
+	// non-admin mounts.
 	const siteSlug = getSiteData()?.suffix;
 
 	if ( ! siteSlug ) {
 		return null;
 	}
 
+	// Atomic goes to Jetpack Cloud, matching the Stats Subscribers module. The
+	// wp-admin Subscribers menu sends Atomic to WordPress.com instead.
 	const host = isSimpleSite() ? 'https://wordpress.com' : 'https://cloud.jetpack.com';
 
 	return `${ host }/subscribers/${ siteSlug }`;
@@ -60,8 +60,8 @@ function toSubscriberItems(
 		id: item.subscription_id ?? `row-${ index }`,
 		name: item.label,
 		avatarUrl: item.icon,
-		// The row's `link` is the subscriber's own site, not their subscriber
-		// record, so the name points at the details page instead.
+		// `link` is the subscriber's own site, not their subscriber record. The id
+		// mirrors Calypso's fallback chain, so it can be a user ID the page won't resolve.
 		href:
 			subscribersBaseUrl && item.subscription_id
 				? `${ subscribersBaseUrl }/${ item.subscription_id }`

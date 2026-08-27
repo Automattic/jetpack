@@ -17,7 +17,7 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-// `url` is the subscriber's own site, which is what the row used to link to.
+// `url` is the subscriber's own site — the name must not point there.
 const FOLLOWERS_RESPONSE = {
 	total: 1,
 	subscribers: [
@@ -50,6 +50,7 @@ describe( 'SubscribersListWidget', () => {
 
 	afterEach( () => {
 		window.JetpackScriptData = originalScriptData;
+		jest.restoreAllMocks();
 	} );
 
 	it( 'links the name to the subscriber details page on WordPress.com', async () => {
@@ -81,5 +82,31 @@ describe( 'SubscribersListWidget', () => {
 
 		await expect( screen.findByText( 'Ada Lovelace' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders rows without a subscription id as distinct plain-text names', async () => {
+		setSiteData( 'woa', 'example.com' );
+		// No `ID` or `*_subscription_id`, so the normalizer leaves `subscription_id`
+		// undefined and the rows fall back to the index for their key.
+		mockApiFetch.mockResolvedValue( {
+			total: 2,
+			subscribers: [
+				{ label: 'Reader One', date_subscribed: '2026-08-02T00:00:00+00:00' },
+				{ label: 'Reader Two', date_subscribed: '2026-08-01T00:00:00+00:00' },
+			],
+		} );
+
+		const consoleError = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+
+		render( <SubscribersListWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( 'Reader One' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Reader Two' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+		// A shared key would render both rows and only warn, so assert on the warning.
+		// React passes the key as a format arg, so match the message, not the arity.
+		expect(
+			consoleError.mock.calls.some( ( [ message ] ) => String( message ).includes( 'same key' ) )
+		).toBe( false );
 	} );
 } );
