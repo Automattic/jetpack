@@ -4,7 +4,11 @@
 **Scope:** WOOPTP-146 → WOOPTP-167 (18 tickets)
 **Target release:** Jetpack 15.7 / WordCamp Asia (April 9–11, 2026)
 **Gate:** Pluginomattic Quality Gate — test_plan.md
-**Status:** PHPUnit ✅ Jest ✅ Playwright ✅ (32 passed, 4 skipped — 2026-03-26)
+**Status:** PHPUnit ✅ Jest ✅ Playwright ✅
+
+> **Note:** counts below are for the suites as they stand in the Jetpack monorepo. Earlier
+> revisions of this document referenced the standalone `compat-plugin` workspace the feature
+> was prototyped in; those paths and commands no longer exist.
 
 ---
 
@@ -12,81 +16,105 @@
 
 | Layer | Count | Status |
 |---|---|---|
-| PHP unit tests (PHPUnit) | 163 tests, 349 assertions | ✅ All passing |
+| PHP unit tests (PHPUnit) | 243 tests, 502 assertions | ✅ All passing |
 | JS unit tests (Jest) | 105 tests, 11 suites | ✅ All passing |
-| E2E tests (Playwright) | 36 specs (32 pass, 4 skip) | ✅ All passing — 2026-03-26 |
+| E2E tests (Playwright) | 50 specs, 0 skipped | ✅ All passing |
 | Manual-only test points | 13 | Pending |
-| **Total** | **317** | **PHPUnit + Jest + Playwright green** |
+| **Total** | **398** | **PHPUnit + Jest + Playwright green** |
 
 ---
 
 ## 2. Automated Tests
 
-### 2.1 PHP Unit Tests — 163 tests, 349 assertions ✅
+### 2.1 PHP Unit Tests — 243 tests, 502 assertions ✅
 
 **Run command:**
 ```bash
-cd /path/to/jetpack
-composer test-php extensions/plugins/paypal-payment-buttons
+jp test php packages/paypal-payments
 ```
 
-| File | Tests | Covers |
-|---|---|---|
-| `PayPal_OAuth_Test.php` | 22 | Credential encryption, environment switching, token caching, integrity checks — 8 tests fixed for WOOPTP-163 production default |
-| `PayPal_API_Client_Test.php` | 28 | CRUD operations, resource ID validation, error code mapping, request format |
-| `PayPal_Attribute_Mapper_Test.php` | 30 | Validation (name/price/currency/description/URL), bidirectional mapping, merge logic |
-| `PayPal_REST_Controller_Test.php` | 17 | Permission checks, input validation, error response normalization, 404-on-delete |
-| `PayPal_API_Client_Retry_Test.php` | 16 | URL domain whitelist, retry on 500 with backoff, 403 auth retry, timeout, non-retryable passthrough |
+`jp test php` takes no passthrough options. To run one class:
 
-**Pass criteria:** 100% pass rate, zero skipped. ✅ Met — 2026-03-15
+```bash
+cd projects/packages/paypal-payments
+php vendor/bin/phpunit --configuration phpunit.11.xml.dist --filter PayPal_OAuth_Test
+```
+
+All files live in `projects/packages/paypal-payments/tests/php/`.
+
+| File | Covers |
+|---|---|
+| `PayPal_OAuth_Test.php` | Credential encryption, environment switching, token caching, integrity checks — includes the WOOPTP-163 production default |
+| `PayPal_API_Client_Test.php` | CRUD operations, resource ID validation, error code mapping, request format |
+| `PayPal_API_Client_Retry_Test.php` | URL domain allowlist, retry on 500 with backoff, 403 auth retry, timeout, non-retryable passthrough |
+| `PayPal_Attribute_Mapper_Test.php` | Validation (name/price/currency/description/URL), bidirectional mapping, merge logic |
+| `PayPal_REST_Controller_Test.php` | Permission checks, input validation, error response normalization, 404-on-delete |
+| `PayPal_Admin_Page_Test.php` | Menu registration, capability gate, delete action nonce handling, rendering |
+| `PayPal_Payment_Links_List_Table_Test.php` | Column output, status badges, cursor pagination, empty and error states |
+| `PayPal_Partner_Onboarding_Test.php` | Signup link generation, seller nonce lifecycle, auth code exchange |
+| `PayPal_Email_Sender_Test.php` | Merchant notification content and recipients |
+| `Order_REST_Controller_Test.php` | Order lookup routes and permission checks |
+| `Paypal_Payment_Buttons_Test.php` | Script URL sanitization, block render output for both V1 and V2 attributes |
+| `Simple_Payments_Rest_Redaction_Test.php` | Redaction of legacy SimplePayments REST fields |
+
+The `wpcom/v2/paypal/onboarding/signup-link` endpoint lives in `plugins/jetpack` and needs a full
+WordPress environment:
+
+```bash
+jp docker up -d && jp docker install
+jp docker phpunit jetpack -- --filter=PayPal
+```
+
+**Pass criteria:** 100% pass rate, zero skipped. ✅ Met
 
 ### 2.2 JS Unit Tests — 105 tests, 11 suites ✅
 
 **Run command:**
 ```bash
-cd /path/to/jetpack
-pnpm jest extensions/plugins/paypal-payment-buttons
+jp test js packages/paypal-payments
 ```
 
-| File | Tests | Covers |
-|---|---|---|
-| `validation.test.js` | 16 | `validatePrice`, `validateProductName`, `validateDescription`, `getUserFriendlyError`, currency set — fixed missing `sprintf` in `@wordpress/i18n` mock |
-| `edit.test.js` | — | Wizard flow assertions updated for WOOPTP-162: navigate Welcome → Dashboard → Credentials before asserting fields; environment field is a link-button toggle, not SelectControl; connect label is "Connect" not "Connect PayPal" |
-| `paypal-button-preview.test.js` | 11 | Product card rendering, currency formatting, theme-native button styling, click prevention, "Powered by PayPal" attribution |
-| `save.test.js` | 6 | API-managed rendering, legacy rendering, wp-element-button output, empty fallback |
-| `deprecated.test.js` | 8 | `isEligible` detection, `migrate` attribute transformation, deprecated save markup |
+All files live in `projects/packages/paypal-payments/tests/js/`. Modules containing JSX carry a
+`.jsx` extension.
 
-**Pass criteria:** 100% pass rate, zero skipped. ✅ Met — 2026-03-15
+| File | Covers |
+|---|---|
+| `validation.test.js` | `validatePrice`, `validateProductName`, `validateDescription`, `getUserFriendlyError`, currency set |
+| `edit.test.jsx` | Wizard flow (WOOPTP-162): navigate Welcome → Dashboard → Credentials before asserting fields; the environment field is a link-button toggle, not a SelectControl; the connect label is "Connect", not "Connect PayPal" |
+| `paypal-button-preview.test.jsx` | Product card rendering, currency formatting, theme-native button styling, click prevention, "Powered by PayPal" attribution |
+| `save.test.jsx` | API-managed rendering, legacy rendering, wp-element-button output, empty fallback |
+| `deprecated.test.js` | `isEligible` detection, `migrate` attribute transformation, deprecated save markup |
+| `controls.test.jsx`, `validate.test.js` | Shared block controls and attribute validation |
+| `paypal-payment-buttons-block-tests/`, `simple-payments-block-tests/` | Block-level editor and V1 → V2 migration fixtures |
 
-### 2.3 E2E Tests — 36 specs (Playwright) ✅ 32 pass, 4 skip
+**Pass criteria:** 100% pass rate, zero skipped. ✅ Met
 
-**Run command (compat-plugin standalone):**
+### 2.3 E2E Tests — 50 specs (Playwright) ✅ 0 skipped
+
+**Run command:**
 ```bash
-cd compat-plugin/tests/e2e
-npx @wordpress/env start   # from compat-plugin/ directory
-npx playwright test --config=playwright.local.config.cjs
+cd projects/plugins/paypal-payment-buttons/tests/e2e
+pnpm env:up
+pnpm test:run
 ```
 
-**Run command (Jetpack monorepo):**
-```bash
-cd /path/to/jetpack/projects/plugins/paypal-payment-buttons/tests/e2e
-pnpm env:up && pnpm test:run
-```
+**Spec:** `tests/e2e/specs/paypal-payment-buttons.spec.js`
+**Config:** `tests/e2e/playwright.config.mjs` (extends `@automattic/_jetpack-e2e-commons`)
+**Mock layer:** `tests/e2e/helpers/paypal-api-mock.js` — no PayPal credentials needed
 
-**Config:** `compat-plugin/tests/e2e/playwright.local.config.cjs`
-**Mock layer:** `compat-plugin/tests/e2e/paypal-api-mock.cjs`
-
-| Section | Specs | Status | Covers | Ticket |
-|---|---|---|---|---|
-| Credential Wizard Flow | 14 | ✅ 14 pass | Welcome → Dashboard → Credentials → Success wizard, show/hide toggle, dashboard link URL, whitespace trimming, Client ID format warning, environment default, sandbox toggle + warning, inline error on bad credentials, back nav preserves data, Success CTA transition | WOOPTP-162 |
-| Create Button Flow | 5 | ✅ 5 pass | Form rendering, disabled state, button creation + preview, edit/preview toolbar toggle, edit mode with existing data | WOOPTP-154 |
-| Frontend Rendering | 2 | ✅ 2 pass | Published post "Buy Now" button + payment link, "Powered by PayPal" attribution | WOOPTP-154 |
-| Error Flow | 4 | ✅ 4 pass | Empty name disabled, zero price disabled, blur field error, API 400 notice | WOOPTP-154 |
-| Legacy Block Compatibility | 2 | ✅ 1 pass, 1 skip | Legacy paste-code indicator in editor; frontend rendering skipped (compat-plugin save markup differs) | WOOPTP-154 |
-| Disconnect Flow | 2 | ⏭ 2 skip | Disconnect/delete via sidebar InspectorControls — skipped because compat-plugin sidebar panels differ from Jetpack version | WOOPTP-154 |
-| Production Default | 2 | ✅ 1 pass, 1 skip | Connected badge shows; env default test skipped (compat-plugin defaults to sandbox, Jetpack version defaults to production) | WOOPTP-163 |
-| Token Pre-validation | 3 | ✅ 3 pass | 403 shows Payment Links guidance + stays on Credentials, 403 clears partial state, 5xx does not block connection | WOOPTP-164 |
-| SVG Block Icon | 2 | ✅ 2 pass | SVG in block inserter, SVG in block toolbar | WOOPTP-166 |
+| Section | Status | Covers | Ticket |
+|---|---|---|---|
+| Credential Wizard Flow | ✅ | Welcome → Dashboard → Credentials → Success wizard, show/hide toggle, dashboard link URL, whitespace trimming, Client ID format warning, environment default, sandbox toggle + warning, inline error on bad credentials, back nav preserves data, Success CTA transition | WOOPTP-162 |
+| Create Button Flow | ✅ | Form rendering, disabled state, button creation + preview, edit/preview toolbar toggle, edit mode with existing data | WOOPTP-154 |
+| Frontend Rendering | ✅ | Published post "Buy Now" button + payment link, "Powered by PayPal" attribution | WOOPTP-154 |
+| Error Flow | ✅ | Empty name disabled, zero price disabled, blur field error, API 400 notice | WOOPTP-154 |
+| Legacy Block Compatibility | ✅ | Legacy paste-code indicator in the editor, front-end rendering of V1 markup | WOOPTP-154 |
+| Disconnect Flow | ✅ | Disconnect and delete via sidebar InspectorControls | WOOPTP-154 |
+| Production Default | ✅ | Connected badge, environment defaults to production | WOOPTP-163 |
+| Token Pre-validation | ✅ | 403 shows Payment Links guidance + stays on Credentials, 403 clears partial state, 5xx does not block connection | WOOPTP-164 |
+| SVG Block Icon | ✅ | SVG in block inserter, SVG in block toolbar | WOOPTP-166 |
+| Format Switcher | ✅ | Button/Link/QR selection, CTA label changes, format badge in preview, switching format without recreating the product, front-end anchor and standalone QR canvas | WOOPTP-390 |
+| Style Preset | ✅ | Light/Auto/Dark selection and theme custom-property inheritance | WOOPTP-390 |
 
 **WP 6.9 compatibility notes:**
 - Block editor uses an iframe (`iframe[name="editor-canvas"]`) — all block locators go through `page.frameLocator()`
@@ -95,7 +123,7 @@ pnpm env:up && pnpm test:run
 - Code editor toggle via Options menu (cross-platform)
 - API mock uses single `**/paypal/**` catch-all route to avoid glob pattern conflicts
 
-**Pass criteria:** 0 failures. ✅ Met — 2026-03-26
+**Pass criteria:** 0 failures, 0 skipped. ✅ Met
 
 ---
 
@@ -174,8 +202,6 @@ Items marked 🔧 Manual are genuinely manual-only (accessibility, live PayPal A
 
 These cannot be automated and require a human tester with the specified environment.
 
-**Tester:** Andrew Wikel
-
 ### Accessibility (WOOPTP-162)
 
 - [ ] Keyboard navigation moves through wizard steps correctly (Tab, Enter, Shift+Tab)
@@ -200,12 +226,12 @@ These cannot be automated and require a human tester with the specified environm
 
 - [ ] Confirm Production API URL (`api.paypal.com`) in browser network tab during live connect
 - [ ] Connect with a real PayPal app that does NOT have Payment Links enabled — confirm 403 with specific guidance
-- [ ] After 403, confirm credentials are fully cleared (no stale `paypal_credentials` option in `wp_options`)
+- [ ] After 403, confirm credentials are fully cleared (no stale `jetpack_paypal_payment_buttons_credentials` option in `wp_options`)
 
 ### WP CLI Verification (WOOPTP-165)
 
-- [ ] After connecting: `wp option get paypal_token_expires_at` returns a future Unix timestamp
-- [ ] After disconnecting: `wp option get paypal_token_expires_at` returns empty/not found
+- [ ] After connecting: `wp option get jetpack_paypal_payment_buttons_token_expires_at` returns a future Unix timestamp
+- [ ] After disconnecting: `wp option get jetpack_paypal_payment_buttons_token_expires_at` returns empty/not found
 
 ---
 
@@ -215,12 +241,12 @@ All of the following must be true before the PR is submitted:
 
 | Criteria | Required | Status |
 |---|---|---|
-| PHP unit tests | 163/163 pass, 349 assertions | ✅ 2026-03-15 |
-| JS unit tests | 105/105 pass, 11 suites | ✅ 2026-03-15 |
-| E2E tests | 32/32 pass, 4 skipped (compat-plugin differences) | ✅ 2026-03-26 |
+| PHP unit tests | 243/243 pass, 502 assertions | ✅ |
+| JS unit tests | 105/105 pass, 11 suites | ✅ |
+| E2E tests | 50/50 pass, 0 skipped | ✅ |
 | Manual checklist | All 13 points checked | Pending |
 | Zero critical security issues | From PHP adversarial council review (Priority 2) | Pending |
-| Jarred confirmations | BN code approach (WOOPTP-187) ✅ + RUB sanctions flag ✅ | ✅ Done — RUB confirmed NOT allowed on Pay Links & Buttons API. Removed from readme. Never present in code. |
+| Product confirmations | BN code approach (WOOPTP-187) ✅ + RUB sanctions flag ✅ | ✅ Done — RUB confirmed NOT allowed on the Pay Links & Buttons API. Removed from readme. Never present in code. |
 
 ---
 
@@ -228,9 +254,9 @@ All of the following must be true before the PR is submitted:
 
 | Risk | Mitigation |
 |---|---|
-| E2E tests require a running WP environment | ✅ Resolved — `wp-env` used with `compat-plugin/.wp-env.json`; tests run in ~1.4 min |
-| PayPal sandbox API rate limits during testing | Use `paypal-api-mock.cjs` for E2E; hit real API only for manual live tests |
+| E2E tests require a running WP environment | ✅ Resolved — `pnpm env:up` in `plugins/paypal-payment-buttons/tests/e2e` brings up the shared Jetpack e2e environment |
+| PayPal sandbox API rate limits during testing | Use `helpers/paypal-api-mock.js` for E2E; hit the real API only for manual live tests |
 | WOOPTP-163 Production default surfaced sandbox-specific test assumptions | ✅ Resolved — 8 `PayPal_OAuth_Test.php` assertions updated to expect `production` default |
 | ~~RUB currency support~~ | ✅ Resolved — RUB is NOT supported on the Pay Links & Buttons API. Not in code, removed from readme (WOOPTP-261). |
 | E2E wizard selectors needed tuning for WP 6.9 | ✅ Resolved — iframed editor, updated aria-labels, publish flow, route patterns all adapted (2026-03-26) |
-| 4 E2E specs skipped in compat-plugin | Compat-plugin UI differs from Jetpack version: sidebar InspectorControls (disconnect/delete), production env default, legacy save markup. These tests will pass in the Jetpack monorepo context. |
+| ~~4 E2E specs skipped in compat-plugin~~ | ✅ Resolved — the suite now runs in the monorepo against the shipped UI, so the sidebar InspectorControls, production env default, and legacy save markup specs all execute. |
