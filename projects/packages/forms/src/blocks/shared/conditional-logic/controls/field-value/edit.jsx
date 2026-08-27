@@ -2,7 +2,7 @@ import { Icon, Notice, SelectControl, TextControl, Tooltip } from '@wordpress/co
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { caution, drafts, plus, published, trash } from '@wordpress/icons';
-import { Button, IconButton, Stack } from '@wordpress/ui';
+import { Button, IconButton, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { RULE_TYPE_FIELD_VALUE } from '../../constants.js';
 import { useEnsureFieldId } from '../../hooks/use-subject-fields.js';
@@ -307,11 +307,9 @@ const RuleRow = ( {
 			{ /* One row per condition, reading as a sentence: subject, comparison, value. The
 			     remove control sits at the end of the row rather than in a header, so a long
 			     list is three aligned columns instead of a stack of cards. */ }
-			{ /* Top-aligned when the subject carries a message: that column grows taller, and
-			     centring would leave the three controls stepping down the row. */ }
 			<Stack
 				direction="row"
-				align={ subjectMessage ? 'flex-start' : 'center' }
+				align="center"
 				gap="sm"
 				className="jetpack-contact-form__conditional-logic-rule-row"
 			>
@@ -343,7 +341,6 @@ const RuleRow = ( {
 					className={ clsx( 'jetpack-contact-form__conditional-logic-rule-subject', {
 						'is-invalid': !! subjectMessage,
 					} ) }
-					help={ subjectMessage }
 					__nextHasNoMarginBottom={ true }
 					__next40pxDefaultSize={ true }
 				>
@@ -397,6 +394,17 @@ const RuleRow = ( {
 					) }
 				/>
 			</Stack>
+
+			{ /* Below the row and across it, rather than inside the subject's own column: the
+			     message is about the condition, and a column-width box wraps a short sentence
+			     onto three lines. Not SelectControl's `help`, which renders inside that column
+			     -- and note SelectControl overwrites any aria-describedby with its own help id,
+			     so the reason reaches screen readers through the status icon's label instead. */ }
+			{ subjectMessage && (
+				<Text variant="body-sm" className="jetpack-contact-form__conditional-logic-rule-message">
+					{ subjectMessage }
+				</Text>
+			) }
 		</Stack>
 	);
 };

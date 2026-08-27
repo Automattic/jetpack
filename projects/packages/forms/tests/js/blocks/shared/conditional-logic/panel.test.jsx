@@ -426,9 +426,11 @@ describe( 'ConditionalLogicPanel', () => {
 		it( 'explains a stored condition that names a shared id, under its field', async () => {
 			await setup( withRules( [ { field: 'first-name', operator: 'is', value: 'x' } ] ) );
 
-			const subject = screen.getByRole( 'combobox', { name: 'Field' } );
-
-			expect( subject ).toHaveAccessibleDescription( /Field Name\/ID first-name is not unique/ );
+			expect(
+				within( screen.getByRole( 'dialog' ) ).getByText(
+					/Field Name\/ID first-name is not unique/
+				)
+			).toBeInTheDocument();
 		} );
 	} );
 
@@ -659,11 +661,11 @@ describe( 'ConditionalLogicPanel', () => {
 	it( 'warns when a rule references a field that no longer exists', async () => {
 		await setup( withRules( [ { field: 'deleted_1', operator: 'is', value: 'x' } ] ) );
 
-		// Under the subject control it is about, and tied to it for screen readers, rather
-		// than as a banner above the row.
-		expect( screen.getByRole( 'combobox', { name: 'Field' } ) ).toHaveAccessibleDescription(
-			/no longer exists/i
-		);
+		// Below the row it belongs to. Screen readers get the same reason from the status
+		// icon's label, which is asserted separately.
+		expect(
+			within( screen.getByRole( 'dialog' ) ).getByText( /no longer exists/i )
+		).toBeInTheDocument();
 	} );
 
 	// A condition naming no subject, or giving no value where one is needed, is skipped by both
