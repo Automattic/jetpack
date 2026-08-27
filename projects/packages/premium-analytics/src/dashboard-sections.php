@@ -218,11 +218,17 @@ function register_default_dashboard_sections() {
 			'default_layout' => __NAMESPACE__ . '\\get_woocommerce_dashboard_section_default_layout',
 		),
 		'analytics/ads'         => array(
-			'label'          => __( 'Ads', 'jetpack-premium-analytics-pkg' ),
-			'description'    => __( 'How your ads are performing, and what they have earned you.', 'jetpack-premium-analytics-pkg' ),
-			'order'          => 50,
-			'is_available'   => __NAMESPACE__ . '\\is_ads_dashboard_section_available_to_current_user',
-			'default_layout' => static function () {
+			'label'               => __( 'Ads', 'jetpack-premium-analytics-pkg' ),
+			'description'         => __( 'How your ads are performing, and what they have earned you.', 'jetpack-premium-analytics-pkg' ),
+			'order'               => 50,
+			'is_available'        => __NAMESPACE__ . '\\is_ads_dashboard_section_available_to_current_user',
+			// Only the chart supports dates, so it owns the control. No Ads widget
+			// supports comparison.
+			'date_filter_options' => array(
+				'with_date_comparison'     => false,
+				'with_header_date_control' => false,
+			),
+			'default_layout'      => static function () {
 				return get_dashboard_default_layout_for( 'analytics/ads' );
 			},
 		),

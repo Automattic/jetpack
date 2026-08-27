@@ -423,8 +423,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Insights drops the comparison control; the rest keep it. Every built-in
-	 * section still renders its own header control.
+	 * Ads alone moves its date control to widgets; Ads and Insights disable comparison.
 	 */
 	public function test_built_in_sections_declare_their_date_filter_options() {
 		// Store needs both gates: the filter stands in for WooCommerce being active,
@@ -453,8 +452,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'with_header_date_control' => true,
 				),
 				'ads'         => array(
-					'with_date_comparison'     => true,
-					'with_header_date_control' => true,
+					'with_date_comparison'     => false,
+					'with_header_date_control' => false,
 				),
 			),
 			array_column(

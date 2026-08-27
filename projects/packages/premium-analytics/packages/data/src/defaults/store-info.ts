@@ -1,4 +1,4 @@
-type StoreInfo = {
+export type StoreInfo = {
 	/**
 	 * ISO 8601 date string of when the store was launched, if known.
 	 */
@@ -6,9 +6,9 @@ type StoreInfo = {
 };
 
 /**
- * Local stand-in for `getStoreInfo`. Only `launchedDate` is consumed here, where
- * it feeds `getDefaultPreset( launchedDate )` — that helper falls back to its
- * default preset when `launchedDate` is undefined.
+ * Stand-in for real store info. `launchedDate` is the only field consumed, and
+ * it feeds `getDefaultPreset( launchedDate )`, which falls back to its default
+ * preset when the date is undefined — so an empty object stays correct.
  *
  * TODO: Source store info from the analytics boot/localized settings once the
  * host exposes it.

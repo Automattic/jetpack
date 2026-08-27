@@ -30,5 +30,10 @@ Export the control from `src/index.ts`. Controls implement dataviews'
 `DataFormControlProps< Item >` and are referenced from widget metadata as:
 
 ```ts
+const ReportParamsField = createReportParamsField( { withIntervalControl: true } );
+
 attributes: [ { id: 'reportParams', label: 'Range', Edit: ReportParamsField } ]
 ```
+
+A control that needs per-widget options is built by a factory called once at
+module scope, so the component identity is stable across renders.
