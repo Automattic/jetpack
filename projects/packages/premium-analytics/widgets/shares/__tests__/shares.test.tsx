@@ -43,9 +43,10 @@ describe( 'SharesWidget', () => {
 
 	// Share counts are a running total per post and no share date is ever
 	// recorded, so this widget can never follow a date range and says so.
-	it( 'states that the counts are all-time', () => {
+	it( 'states that the counts are all-time', async () => {
 		renderWidget();
 
+		await expect( screen.findByText( 'Facebook' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'All time' ) ).toBeInTheDocument();
 	} );
 } );

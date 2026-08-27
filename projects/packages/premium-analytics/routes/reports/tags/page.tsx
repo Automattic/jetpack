@@ -41,9 +41,10 @@ const sortTagCsvRows = ( a: StatsTagsItem, b: StatsTagsItem ) => b.value - a.val
  * Premium Analytics Tags & categories report page component.
  *
  * The `stats/tags` endpoint hardcodes a rolling 7-day window and ignores
- * date-window parameters (verified against WPCOM; Calypso never sends date
- * params here either), so the page composes only the breadcrumb header and
- * records table: no date filters, tabs, or performance chart.
+ * date-window parameters (verified against WPCOM through the proxy on
+ * 2026-08-27; Calypso never sends date params here either), so the page
+ * composes only the breadcrumb header and records table: no date filters,
+ * tabs, or performance chart.
  *
  * @return The Tags & categories report page.
  */

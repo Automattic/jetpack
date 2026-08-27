@@ -120,7 +120,7 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		getTitle: () => __( 'All comments report', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
 			__(
-				'Learn about the comments your site receives by authors, posts, and pages.',
+				'All comments your site has received, by author, post, and page.',
 				'jetpack-premium-analytics-pkg'
 			),
 		resolveSection: resolveCommentsTabId,
@@ -174,7 +174,10 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		getLabel: () => __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'Tags & categories report', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
-			__( 'Your most visited tags and categories.', 'jetpack-premium-analytics-pkg' ),
+			__(
+				'Your most visited tags and categories over the last 7 days.',
+				'jetpack-premium-analytics-pkg'
+			),
 		load: () => import( './tags/page' ),
 	},
 	videos: {

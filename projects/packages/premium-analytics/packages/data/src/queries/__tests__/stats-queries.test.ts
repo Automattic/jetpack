@@ -599,9 +599,15 @@ describe( 'Stats query factories', () => {
 		] );
 	} );
 
-	it( 'passes supported tags params through query keys', () => {
+	// `stats/tags` hardcodes a 7-day window and discards date parameters, so the
+	// query must send only `max`. Sending a date cannot change the response, but
+	// it would re-key this cache per date selection and refetch identical rows —
+	// and it would contradict the widget, which tells the user its figures do not
+	// follow the dashboard date range.
+	it( 'drops the date window from tags query keys, keeping only max', () => {
 		const query = statsTagsQuery( {
 			to: '2026-06-07',
+			from: '2026-06-01',
 			max: 10,
 		} );
 
@@ -612,13 +618,17 @@ describe( 'Stats query factories', () => {
 			'1.1',
 			'stats/tags',
 			'GET',
-			{
-				date: '2026-06-07',
-				max: 10,
-			},
+			{ max: 10 },
 			undefined,
 			'tags',
 		] );
+	} );
+
+	it( 'keys two different date selections identically for tags', () => {
+		const june = statsTagsQuery( { from: '2026-06-01', to: '2026-06-07', max: 10 } );
+		const december = statsTagsQuery( { from: '2024-01-01', to: '2024-12-31', max: 10 } );
+
+		expect( june.queryKey ).toEqual( december.queryKey );
 	} );
 
 	it( 'builds devices query keys from the selected device property', () => {

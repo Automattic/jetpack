@@ -17,11 +17,11 @@ export function getTagRowId( item: StatsTagsItem ): string {
 /**
  * Fetch the all-time Tags & categories rows.
  *
- * The endpoint ignores date-window parameters (`period`, `start_date`,
- * `days`, `summarize`) and always reports one flat all-time list — verified
- * against WPCOM directly, and matching Calypso, which never sends date
- * params here — so the report requests only `max: 0` (all rows) and renders
- * no chart or date filters.
+ * The endpoint ignores every date-window parameter and always reports a
+ * rolling 7-day window — verified against WPCOM through the proxy on
+ * 2026-08-27, and matching Calypso, which never sends date params here — so
+ * the report requests only `max: 0` (all rows) and renders no chart or date
+ * filters.
  *
  * @return Table rows and fetch state.
  */

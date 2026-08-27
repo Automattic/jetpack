@@ -1,13 +1,13 @@
 // Sits directly under the widget title, so it reads as a caption on that title
-// rather than as part of the body content below it.
+// rather than as part of the body content below it. It wraps rather than
+// truncating: the whole point of the line is to be read, and a longer
+// translation of a short English period must not be cut off.
 .periodLabel {
 	flex: 0 0 auto;
-	margin: 0 0 var(--wpds-dimension-gap-md);
+	margin-block: 0 var(--wpds-dimension-gap-md);
+	margin-inline: 0;
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	font-size: 13px;
 	font-weight: 500;
 	line-height: 20px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
 }

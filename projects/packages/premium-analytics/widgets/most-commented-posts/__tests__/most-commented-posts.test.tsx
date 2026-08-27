@@ -86,9 +86,10 @@ describe( 'MostCommentedPostsWidget', () => {
 
 	// The `stats/comments` endpoint takes no date parameters, so the widget states
 	// its own period rather than letting a dashboard date range imply one.
-	it( 'states that the counts are all-time', () => {
+	it( 'states that the counts are all-time', async () => {
 		renderWidget();
 
+		await expect( screen.findByText( 'Hello world' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'All time' ) ).toBeInTheDocument();
 	} );
 

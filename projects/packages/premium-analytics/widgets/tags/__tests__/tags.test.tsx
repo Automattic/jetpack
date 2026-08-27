@@ -132,6 +132,7 @@ describe( 'TagsWidget', () => {
 	it( 'states that the report covers the last 7 days, drilled in or not', async () => {
 		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
 
+		await expect( screen.findByText( 'Recipes' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Last 7 days' ) ).toBeInTheDocument();
 
 		// Group members come from the same report, so the period still holds.
