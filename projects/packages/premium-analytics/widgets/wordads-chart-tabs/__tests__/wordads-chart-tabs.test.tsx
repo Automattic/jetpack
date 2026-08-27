@@ -220,13 +220,13 @@ describe( 'WordAdsChartTabsWidget', () => {
 		expect( requestedPath ).toContain( 'unit=week' );
 	} );
 
-	// `quarter` is an interval the range allows and the header control can save,
-	// but this chart has no bucket for, so it clamps to the nearest one it does.
+	// This chart draws day through year, so `hour` is the one interval the range
+	// can still carry that it has no bucket for, and it clamps to the finest.
 	it( 'clamps an unsupported interval to the closest supported bucket', async () => {
 		render(
 			<WordAdsChartTabsWidget
 				attributes={ {
-					reportParams: { from: '2023-01-01', to: '2026-06-30', interval: 'quarter' },
+					reportParams: { from: '2026-06-29', to: '2026-06-30', interval: 'hour' },
 				} }
 			/>
 		);
@@ -234,7 +234,7 @@ describe( 'WordAdsChartTabsWidget', () => {
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'unit=month' );
+		expect( requestedPath ).toContain( 'unit=day' );
 	} );
 
 	/*

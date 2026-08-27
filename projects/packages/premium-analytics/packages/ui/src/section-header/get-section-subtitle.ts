@@ -122,7 +122,7 @@ function getIntervalCadenceLabel( interval: IntervalType ): string {
  * getSectionSubtitle( { range, interval } )
  *   // 'Tuesday, July 21 – Monday, July 27 (7 days, daily)'
  *   // with comparison: '… (7 days, daily) vs. July 14 – 20, 2026'
- *   // year surface: 'January 1, 2021 – July 30, 2026 (quarterly)'
+ *   // year surface: 'January 1, 2021 – July 30, 2026 (monthly)'
  *
  * @return The subtitle, or undefined when the range is incomplete.
  */

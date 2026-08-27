@@ -109,7 +109,13 @@ describe( 'resolveIntervalForRange', () => {
 	} );
 
 	it( 'never offers quarters on the year-length ranges', () => {
-		expect( getAllowedIntervalsForPreset( 'last-12-months', 'a', 'b' ) ).toEqual( [ 'month' ] );
+		expect(
+			getAllowedIntervalsForPreset(
+				'last-12-months',
+				'2025-07-01T00:00:00.000Z',
+				'2026-06-30T23:59:59.999Z'
+			)
+		).toEqual( [ 'month' ] );
 		expect( getAllowedIntervalsForPreset( 'last-365-days', 'a', 'b' ) ).toEqual( [ 'month' ] );
 		expect( getAllowedIntervalsForPreset( 'last-year', 'a', 'b' ) ).toEqual( [ 'month' ] );
 		expect(
@@ -119,6 +125,26 @@ describe( 'resolveIntervalForRange', () => {
 				'2026-06-30T23:59:59.999Z'
 			)
 		).toEqual( [ 'month', 'year' ] );
+	} );
+
+	// The year surface carries a `year-YYYY` preset the switch does not know, so
+	// its list comes from the range instead and needs its own guard.
+	it( 'offers months alone on a year-length range with no matching preset', () => {
+		expect(
+			getAllowedIntervalsForPreset(
+				'year-2025',
+				'2025-01-01T00:00:00.000Z',
+				'2025-12-31T23:59:59.999Z'
+			)
+		).toEqual( [ 'month' ] );
+		expect(
+			resolveIntervalForRange(
+				'year-2025',
+				'2025-01-01T00:00:00.000Z',
+				'2025-12-31T23:59:59.999Z',
+				'quarter'
+			)
+		).toBe( 'month' );
 	} );
 
 	it( 'coerces a stored quarter onto the range default', () => {

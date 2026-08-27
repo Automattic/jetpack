@@ -10,8 +10,8 @@ export const statsSubscribersDefaultStatFields = 'subscribers,subscribers_paid';
 
 /**
  * Granularities the `stats/subscribers` endpoint supports as its `unit`. The
- * dashboard's finer/coarser intervals (`hour`, `quarter`) have no subscriber
- * bucket, so they collapse onto these.
+ * dashboard's `hour` interval has no subscriber bucket, so it collapses onto
+ * these.
  */
 export type StatsSubscribersUnit = 'day' | 'week' | 'month' | 'year';
 
