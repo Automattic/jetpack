@@ -13,8 +13,12 @@
 	// happened when the outline went `h3` to `h2` — the rule died,
 	// `@wordpress/ui`'s `:is(h1,…,h6).heading` default supplied `margin: 0`,
 	// and the 12px gap to the meter vanished while the placeholder below
-	// went on reserving it.
-	&__heading {
+	// went on reserving it. Doubled the same way `& &__bar` is below:
+	// `&__heading` alone is a single class (0,1,0) and loses to that
+	// `@wordpress/ui` rule (0,1,1); the tag selector it replaced happened to
+	// tie at 0,1,1 and win on source order. Repeating the block restores the
+	// tie without reaching for `!important`.
+	& &__heading {
 		margin-block: 0 12px;
 	}
 
