@@ -6,10 +6,15 @@
 	inline-size: 100%;
 	margin-block-end: 24px;
 
-	// `<Text render={ <h3 /> }>` renders a real heading, which inherits
-	// wp-admin's own `h3` margins. Reset both so the gap to the bar is
-	// this file's decision.
-	h3 {
+	// `<Text render={ <hN /> }>` renders a real heading, which inherits
+	// wp-admin's own heading margins. Reset both so the gap to the bar is
+	// this file's decision. Matched by class, not by tag: a tag selector
+	// stops matching the moment the heading's level changes, which is what
+	// happened when the outline went `h3` to `h2` — the rule died,
+	// `@wordpress/ui`'s `:is(h1,…,h6).heading` default supplied `margin: 0`,
+	// and the 12px gap to the meter vanished while the placeholder below
+	// went on reserving it.
+	&__heading {
 		margin-block: 0 12px;
 	}
 

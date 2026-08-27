@@ -89,7 +89,10 @@ export default function StorageSpace() {
 			 * under it — no longer applies: those cards are `h2` too, so the
 			 * three are siblings in the outline as well as on screen.
 			 */ }
-			<Text variant="heading-md" render={ <h2 id={ headingId } /> }>
+			<Text
+				variant="heading-md"
+				render={ <h2 id={ headingId } className="jpb-storage-space__heading" /> }
+			>
 				{ sectionHeading( usage.usageLevel ) }
 			</Text>
 			<StorageMeter

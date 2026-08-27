@@ -53,6 +53,29 @@ function tsxFiles( dir: string ): string[] {
 }
 
 /**
+ * Every `.scss` under `src/dashboard`, relative to that directory.
+ *
+ * @param dir - Directory to walk.
+ * @return Relative paths, POSIX-separated.
+ */
+function scssFiles( dir: string ): string[] {
+	return readdirSync( dir ).flatMap( entry => {
+		const full = join( dir, entry );
+		if ( statSync( full ).isDirectory() ) {
+			return scssFiles( full );
+		}
+		return entry.endsWith( '.scss' )
+			? [
+					full
+						.slice( DASHBOARD.length + 1 )
+						.split( '\\' )
+						.join( '/' ),
+			  ]
+			: [];
+	} );
+}
+
+/**
  * The heading levels a file renders, in source order.
  *
  * Matches the `render={ <hN … /> }` form this package uses to give a
@@ -101,6 +124,25 @@ describe( 'the dashboard heading outline', () => {
 			.filter( ( { childLevel, parentLevel } ) => childLevel !== parentLevel + 1 );
 
 		expect( wrong ).toEqual( [] );
+	} );
+
+	// Changing a level silently orphans any CSS that selected the old tag.
+	// That is not hypothetical: `.jpb-storage-space h3 { margin-block: 0 12px }`
+	// stopped matching when this outline was corrected, `@wordpress/ui`'s
+	// `:is(h1,…,h6).heading` default supplied `margin: 0`, and the section
+	// lost 12px of its height — while the loading placeholder went on
+	// reserving the gap, so it started jumping on load. jsdom does not apply
+	// the built stylesheet, so no render test can catch it; reading the SCSS
+	// can.
+	it( 'never selects a heading by tag name in SCSS', () => {
+		const offenders = scssFiles( DASHBOARD ).flatMap( file =>
+			readFileSync( join( DASHBOARD, file ), 'utf8' )
+				.split( '\n' )
+				.map( ( line, i ) => ( { file, line: i + 1, text: line.trim() } ) )
+				.filter( ( { text } ) => /^&?\s*h[1-6]\s*(,|\{)/.test( text ) )
+		);
+
+		expect( offenders ).toEqual( [] );
 	} );
 
 	it( 'never skips a level within a single component', () => {
