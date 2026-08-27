@@ -630,9 +630,22 @@ class PayPal_Payment_Buttons {
 	 */
 	public static function init_api() {
 		add_action( 'init', array( __CLASS__, 'register_standalone_script_stubs' ), 1 );
-		add_action( 'rest_api_init', array( PayPal_REST_Controller::class, 'register_routes' ) );
+		self::init_rest_api();
 		self::init_jetpack_sharing();
 		PayPal_Email_Sender::init();
+	}
+
+	/**
+	 * Register just the PayPal REST routes.
+	 *
+	 * For hosts that already provide the Jetpack runtime -- the Jetpack plugin --
+	 * and therefore must not get the standalone script stubs.
+	 *
+	 * @since $$next-version$$
+	 * @return void
+	 */
+	public static function init_rest_api() {
+		add_action( 'rest_api_init', array( PayPal_REST_Controller::class, 'register_routes' ) );
 	}
 
 	/**
@@ -708,6 +721,15 @@ class PayPal_Payment_Buttons {
 	 * @return void
 	 */
 	public static function register_standalone_script_stubs() {
+		/*
+		 * The Jetpack plugin registers the real handle from Script_Data on wp_loaded,
+		 * which fires after init. Registering a stub first therefore wins, and the
+		 * editor is left without window.JetpackScriptData.
+		 */
+		if ( class_exists( 'Jetpack' ) ) {
+			return;
+		}
+
 		if ( ! wp_script_is( 'jetpack-script-data', 'registered' ) ) {
 			wp_register_script( 'jetpack-script-data', false, array(), '1.0.0', false );
 		}

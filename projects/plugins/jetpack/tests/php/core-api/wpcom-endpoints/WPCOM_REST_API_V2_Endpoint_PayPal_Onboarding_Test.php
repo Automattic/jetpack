@@ -479,7 +479,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends Jetpack_REST_Tes
 		$this->endpoint->generate_signup_link( $this->signup_link_request() );
 
 		$referral_request = end( $requests );
-		$body             = json_decode( $referral_request['args']['body'], true );
+		$body             = (array) json_decode( $referral_request['args']['body'], true );
 
 		$this->assertSame( 'woo-ncps-test', $body['tracking_id'] );
 		$this->assertSame( array( 'EXPRESS_CHECKOUT' ), $body['products'] );

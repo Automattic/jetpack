@@ -257,7 +257,7 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		// PayPal requires the seller nonce to be 43-128 characters.
 		$this->assertGreaterThanOrEqual( 43, strlen( $nonce ) );
 
-		$body = json_decode( end( $requests )['args']['body'], true );
+		$body = (array) json_decode( end( $requests )['args']['body'], true );
 		$sent = $body['referral']['operations'][0]['api_integration_preference']['rest_api_integration']['first_party_details']['seller_nonce'];
 		$this->assertSame( $nonce, $sent );
 	}
@@ -272,7 +272,7 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 
 		PayPal_Partner_Onboarding::generate_signup_link( 'https://example.com/return', 'sandbox' );
 
-		$body = json_decode( end( $requests )['args']['body'], true );
+		$body = (array) json_decode( end( $requests )['args']['body'], true );
 
 		$this->assertSame( 'sandbox', $body['environment'] );
 		$this->assertSame( PayPal_Partner_Onboarding::ONBOARDING_PRODUCTS, $body['referral']['products'] );
