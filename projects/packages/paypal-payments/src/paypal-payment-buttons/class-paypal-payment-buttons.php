@@ -167,7 +167,7 @@ class PayPal_Payment_Buttons {
 	 * @return string Formatted price string (e.g., "$29.99").
 	 */
 	public static function format_price( $price, $currency ) {
-		$symbol = isset( self::$currency_symbols[ $currency ] ) ? self::$currency_symbols[ $currency ] : $currency;
+		$symbol = self::$currency_symbols[ $currency ] ?? $currency;
 		return $symbol . $price;
 	}
 

@@ -124,8 +124,8 @@ function initQRToggles() {
 /**
  * Initialize standalone QR codes (QR format — no toggle, renders immediately on load).
  *
- * The PHP render callback emits:
- *   <canvas class="jetpack-paypal-button__qr-canvas--standalone" data-qr-url="{url}">
+ * The PHP render callback emits a `<canvas class="jetpack-paypal-button__qr-canvas--standalone"
+ * data-qr-url="{url}">` element for each standalone QR code.
  */
 function initStandaloneQRCodes() {
 	const canvases = document.querySelectorAll( '.jetpack-paypal-button__qr-canvas--standalone' );

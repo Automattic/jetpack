@@ -65,9 +65,9 @@ async function getEditorCanvas( page ) {
  * @return {Promise<import('@playwright/test').FrameLocator|import('@playwright/test').Page>} The canvas context.
  */
 async function insertPayPalBlock( page ) {
-	await page.click( 'button[aria-label="Block Inserter"]' );
-	await page.fill( 'input[placeholder="Search"]', 'PayPal' );
-	await page.click( 'button.editor-block-list-item-jetpack-paypal-payment-buttons' );
+	await page.locator( 'button[aria-label="Block Inserter"]' ).click();
+	await page.locator( 'input[placeholder="Search"]' ).fill( 'PayPal' );
+	await page.locator( 'button.editor-block-list-item-jetpack-paypal-payment-buttons' ).click();
 
 	// The block content renders inside an iframe in WP 6.x+.
 	const canvas = await getEditorCanvas( page );
@@ -159,7 +159,7 @@ async function fillButtonForm( canvas, { name = 'Test Product', price = '29.99' 
  * @return {string} The published post URL.
  */
 async function publishPost( page ) {
-	await page.click( 'button.editor-post-publish-button__button' );
+	await page.locator( 'button.editor-post-publish-button__button' ).click();
 	const confirmButton = page.locator( 'button.editor-post-publish-button' );
 	if ( await confirmButton.isVisible( { timeout: 3000 } ).catch( () => false ) ) {
 		await confirmButton.click();
@@ -665,14 +665,14 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await goToNewPost( page );
 
 			// Switch to code editor via the Options menu (keyboard shortcut is unreliable in E2E).
-			await page.click( 'button[aria-label="Options"]' );
-			await page.click( 'button[role="menuitemradio"]:has-text("Code editor")' );
+			await page.locator( 'button[aria-label="Options"]' ).click();
+			await page.locator( 'button[role="menuitemradio"]:has-text("Code editor")' ).click();
 			await page.waitForSelector( '.editor-post-text-editor', { timeout: 5000 } );
 			await page.locator( '.editor-post-text-editor' ).fill( legacyBlockMarkup );
 
 			// Switch back to visual editor via the Options menu.
-			await page.click( 'button[aria-label="Options"]' );
-			await page.click( 'button[role="menuitemradio"]:has-text("Visual editor")' );
+			await page.locator( 'button[aria-label="Options"]' ).click();
+			await page.locator( 'button[role="menuitemradio"]:has-text("Visual editor")' ).click();
 			await page.waitForSelector( '.edit-post-visual-editor', { timeout: 5000 } );
 
 			// After switching back, block content is inside the iframe.
@@ -878,7 +878,9 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			} );
 		} );
 
-		test( 'delete button via toolbar clears block state and returns to edit mode', async ( { page } ) => {
+		test( 'delete button via toolbar clears block state and returns to edit mode', async ( {
+			page,
+		} ) => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
@@ -909,7 +911,9 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			} );
 		} );
 
-		test( 'Cancel button in creation form resets fields without requiring confirmation', async ( { page } ) => {
+		test( 'Cancel button in creation form resets fields without requiring confirmation', async ( {
+			page,
+		} ) => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
@@ -927,9 +931,9 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await expect( page.locator( '[role="dialog"]' ) ).not.toBeVisible( { timeout: 1000 } );
 
 			// Fields should be cleared (form reset to empty state).
-			await expect(
-				block.locator( 'input[placeholder="e.g., Premium Widget"]' )
-			).toHaveValue( '' );
+			await expect( block.locator( 'input[placeholder="e.g., Premium Widget"]' ) ).toHaveValue(
+				''
+			);
 		} );
 	} );
 
@@ -1143,8 +1147,8 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await goToNewPost( page );
 
 			// Open the block inserter -- inserter is on `page`.
-			await page.click( 'button[aria-label="Block Inserter"]' );
-			await page.fill( 'input[placeholder="Search"]', 'PayPal' );
+			await page.locator( 'button[aria-label="Block Inserter"]' ).click();
+			await page.locator( 'input[placeholder="Search"]' ).fill( 'PayPal' );
 
 			// The block result button should contain an SVG (not a dashicon span).
 			const blockItem = page.locator(
@@ -1186,13 +1190,17 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 
 			// All three format buttons should be visible in the creation form.
 			await expect(
-				block.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("Button")' )
+				block.locator(
+					'.jetpack-paypal-payment-buttons__format-switcher button:has-text("Button")'
+				)
 			).toBeVisible();
 			await expect(
 				block.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")' )
 			).toBeVisible();
 			await expect(
-				block.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")' )
+				block.locator(
+					'.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")'
+				)
 			).toBeVisible();
 		} );
 
@@ -1220,9 +1228,9 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
 
-			await block.locator(
-				'.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")'
-			).click();
+			await block
+				.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")' )
+				.click();
 
 			await expect( block.locator( 'button:has-text("Create Link")' ) ).toBeVisible();
 		} );
@@ -1234,9 +1242,9 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
 
-			await block.locator(
-				'.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")'
-			).click();
+			await block
+				.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")' )
+				.click();
 
 			await expect( block.locator( 'button:has-text("Create QR Code")' ) ).toBeVisible();
 		} );
@@ -1249,9 +1257,9 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
 
 			// Select Link format then create.
-			await block.locator(
-				'.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")'
-			).click();
+			await block
+				.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")' )
+				.click();
 			await fillButtonForm( canvas, { name: 'Link Product', price: '9.99' } );
 			await block.locator( 'button:has-text("Create Link")' ).click();
 
@@ -1293,9 +1301,9 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
 
 			// Choose Link format, fill form, create.
-			await block.locator(
-				'.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")'
-			).click();
+			await block
+				.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")' )
+				.click();
 			await fillButtonForm( canvas, { name: 'Link Widget', price: '5.00' } );
 			await block.locator( 'button:has-text("Create Link")' ).click();
 
@@ -1313,7 +1321,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			expect( href ).toContain( 'paypal.com' );
 
 			// Should NOT render the full button card.
-			await expect( page.locator( '.jetpack-paypal-button__checkout-link' ) ).not.toBeVisible();
+			await expect( page.locator( '.jetpack-paypal-button__checkout-link' ) ).toBeHidden();
 		} );
 
 		test( 'frontend renders QR Code format with standalone canvas', async ( { page } ) => {
@@ -1324,9 +1332,9 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
 
 			// Choose QR format, fill form, create.
-			await block.locator(
-				'.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")'
-			).click();
+			await block
+				.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")' )
+				.click();
 			await fillButtonForm( canvas, { name: 'QR Widget', price: '15.00' } );
 			await block.locator( 'button:has-text("Create QR Code")' ).click();
 
@@ -1342,7 +1350,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await expect( standaloneCanvas ).toBeAttached( { timeout: 5000 } );
 
 			// Should NOT render a toggle button (that belongs to BUTTON format).
-			await expect( page.locator( '.jetpack-paypal-button__qr-toggle' ) ).not.toBeVisible();
+			await expect( page.locator( '.jetpack-paypal-button__qr-toggle' ) ).toBeHidden();
 		} );
 
 		test( 'changing format does not require recreating the PayPal product', async ( { page } ) => {
@@ -1381,150 +1389,150 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 				);
 				if ( await qrOption.isVisible( { timeout: 2000 } ).catch( () => false ) ) {
 					await qrOption.click();
-				await page.waitForTimeout( 500 );
+					await page.waitForTimeout( 500 );
+				}
 			}
-		}
 
-		// No new API create calls should have been made.
-		expect( createCallCount ).toBe( 0 );
+			// No new API create calls should have been made.
+			expect( createCallCount ).toBe( 0 );
+		} );
 	} );
-} );
 
-// ---------------------------------------------------------------
-// 11. Style Preset — Light / Auto / Dark (WOOPTP-390)
-// ---------------------------------------------------------------
-test.describe( 'Style Preset', () => {
-	/**
-	 * Helper: open the block settings sidebar and return the Style panel button.
-	 * Returns the panel toggle element (already visible).
-	 *
-	 * @param {object} page   - Playwright page.
-	 * @param {object} canvas - Editor canvas frame.
-	 * @param {object} block  - Block locator.
-	 * @return {Promise<object>} Style panel toggle locator.
-	 */
-	async function openStylePanel( page, canvas, block ) {
-		const closeInserter = page.locator( 'button[aria-label="Close Block Inserter"]' );
-		if ( await closeInserter.isVisible( { timeout: 1000 } ).catch( () => false ) ) {
-			await closeInserter.click();
-			await page.waitForTimeout( 300 );
-		}
-
-		await block.click();
-		await page.waitForTimeout( 300 );
-
-		const settingsBtn = page.locator( 'button[aria-label="Settings"]' );
-		const isPressed = await settingsBtn
-			.evaluate( el => el.classList.contains( 'is-pressed' ) )
-			.catch( () => false );
-		if ( ! isPressed ) {
-			await settingsBtn.click();
-			await page.waitForTimeout( 500 );
-		}
-
-		const stylePanel = page.locator( 'button:has-text("Style")' ).first();
-
-		// Retry if Block tab not active yet.
-		for ( let attempt = 0; attempt < 3; attempt++ ) {
-			if ( await stylePanel.isVisible( { timeout: 1000 } ).catch( () => false ) ) {
-				break;
+	// ---------------------------------------------------------------
+	// 11. Style Preset — Light / Auto / Dark (WOOPTP-390)
+	// ---------------------------------------------------------------
+	test.describe( 'Style Preset', () => {
+		/**
+		 * Helper: open the block settings sidebar and return the Style panel button.
+		 * Returns the panel toggle element (already visible).
+		 *
+		 * @param {object} page   - Playwright page.
+		 * @param {object} canvas - Editor canvas frame.
+		 * @param {object} block  - Block locator.
+		 * @return {Promise<object>} Style panel toggle locator.
+		 */
+		async function openStylePanel( page, canvas, block ) {
+			const closeInserter = page.locator( 'button[aria-label="Close Block Inserter"]' );
+			if ( await closeInserter.isVisible( { timeout: 1000 } ).catch( () => false ) ) {
+				await closeInserter.click();
+				await page.waitForTimeout( 300 );
 			}
+
 			await block.click();
-			await page.waitForTimeout( 500 );
-			if (
-				! ( await settingsBtn
-					.evaluate( el => el.classList.contains( 'is-pressed' ) )
-					.catch( () => false ) )
-			) {
+			await page.waitForTimeout( 300 );
+
+			const settingsBtn = page.locator( 'button[aria-label="Settings"]' );
+			const isPressed = await settingsBtn
+				.evaluate( el => el.classList.contains( 'is-pressed' ) )
+				.catch( () => false );
+			if ( ! isPressed ) {
 				await settingsBtn.click();
 				await page.waitForTimeout( 500 );
 			}
+
+			const stylePanel = page.locator( 'button:has-text("Style")' ).first();
+
+			// Retry if Block tab not active yet.
+			for ( let attempt = 0; attempt < 3; attempt++ ) {
+				if ( await stylePanel.isVisible( { timeout: 1000 } ).catch( () => false ) ) {
+					break;
+				}
+				await block.click();
+				await page.waitForTimeout( 500 );
+				if (
+					! ( await settingsBtn
+						.evaluate( el => el.classList.contains( 'is-pressed' ) )
+						.catch( () => false ) )
+				) {
+					await settingsBtn.click();
+					await page.waitForTimeout( 500 );
+				}
+			}
+
+			await stylePanel.waitFor( { state: 'visible', timeout: 5000 } );
+			return stylePanel;
 		}
 
-		await stylePanel.waitFor( { state: 'visible', timeout: 5000 } );
-		return stylePanel;
-	}
+		test( 'Style panel shows Light, Auto, and Dark preset buttons', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
 
-	test( 'Style panel shows Light, Auto, and Dark preset buttons', async ( { page } ) => {
-		await setupPayPalMocks( page );
-		await goToNewPost( page );
-		const canvas = await insertPayPalBlock( page );
-		const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+			await openStylePanel( page, canvas, block );
 
-		await openStylePanel( page, canvas, block );
-
-		// All three preset buttons must be visible in the sidebar.
-		await expect( page.locator( 'button:has-text("Light")' ).first() ).toBeVisible( {
-			timeout: 5000,
+			// All three preset buttons must be visible in the sidebar.
+			await expect( page.locator( 'button:has-text("Light")' ).first() ).toBeVisible( {
+				timeout: 5000,
+			} );
+			await expect( page.locator( 'button:has-text("Auto")' ).first() ).toBeVisible( {
+				timeout: 5000,
+			} );
+			await expect( page.locator( 'button:has-text("Dark")' ).first() ).toBeVisible( {
+				timeout: 5000,
+			} );
 		} );
-		await expect( page.locator( 'button:has-text("Auto")' ).first() ).toBeVisible( {
-			timeout: 5000,
+
+		test( 'selecting Dark preset sets data-color-scheme="dark" on block wrapper', async ( {
+			page,
+		} ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+
+			await openStylePanel( page, canvas, block );
+
+			// Click the Dark button in the sidebar (scope to sidebar to avoid block content).
+			const sidebar = page.locator( '.interface-complementary-area' );
+			await sidebar.locator( 'button:has-text("Dark")' ).click();
+			await page.waitForTimeout( 300 );
+
+			// The block wrapper in the canvas should now carry data-color-scheme="dark".
+			await expect( block ).toHaveAttribute( 'data-color-scheme', 'dark', { timeout: 3000 } );
 		} );
-		await expect( page.locator( 'button:has-text("Dark")' ).first() ).toBeVisible( {
-			timeout: 5000,
+
+		test( 'selecting Light preset sets data-color-scheme="light" on block wrapper', async ( {
+			page,
+		} ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+
+			await openStylePanel( page, canvas, block );
+
+			// First set Dark, then switch to Light — verifies the toggle updates correctly.
+			const sidebar = page.locator( '.interface-complementary-area' );
+			await sidebar.locator( 'button:has-text("Dark")' ).click();
+			await page.waitForTimeout( 200 );
+			await sidebar.locator( 'button:has-text("Light")' ).click();
+			await page.waitForTimeout( 300 );
+
+			await expect( block ).toHaveAttribute( 'data-color-scheme', 'light', { timeout: 3000 } );
+		} );
+
+		test( 'selecting Auto preset sets data-color-scheme="auto" on block wrapper', async ( {
+			page,
+		} ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+
+			await openStylePanel( page, canvas, block );
+
+			const sidebar = page.locator( '.interface-complementary-area' );
+			// Set to dark first, then back to Auto.
+			await sidebar.locator( 'button:has-text("Dark")' ).click();
+			await page.waitForTimeout( 200 );
+			await sidebar.locator( 'button:has-text("Auto")' ).click();
+			await page.waitForTimeout( 300 );
+
+			// Note: the editor always sets data-color-scheme on the wrapper for live preview.
+			// In save.js, the 'auto' value intentionally omits this attribute so legacy blocks
+			// without a stored colorScheme pass block validation without an 'unexpected content' error.
+			await expect( block ).toHaveAttribute( 'data-color-scheme', 'auto', { timeout: 3000 } );
 		} );
 	} );
-
-	test( 'selecting Dark preset sets data-color-scheme="dark" on block wrapper', async ( {
-		page,
-	} ) => {
-		await setupPayPalMocks( page );
-		await goToNewPost( page );
-		const canvas = await insertPayPalBlock( page );
-		const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-
-		await openStylePanel( page, canvas, block );
-
-		// Click the Dark button in the sidebar (scope to sidebar to avoid block content).
-		const sidebar = page.locator( '.interface-complementary-area' );
-		await sidebar.locator( 'button:has-text("Dark")' ).click();
-		await page.waitForTimeout( 300 );
-
-		// The block wrapper in the canvas should now carry data-color-scheme="dark".
-		await expect( block ).toHaveAttribute( 'data-color-scheme', 'dark', { timeout: 3000 } );
-	} );
-
-	test( 'selecting Light preset sets data-color-scheme="light" on block wrapper', async ( {
-		page,
-	} ) => {
-		await setupPayPalMocks( page );
-		await goToNewPost( page );
-		const canvas = await insertPayPalBlock( page );
-		const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-
-		await openStylePanel( page, canvas, block );
-
-		// First set Dark, then switch to Light — verifies the toggle updates correctly.
-		const sidebar = page.locator( '.interface-complementary-area' );
-		await sidebar.locator( 'button:has-text("Dark")' ).click();
-		await page.waitForTimeout( 200 );
-		await sidebar.locator( 'button:has-text("Light")' ).click();
-		await page.waitForTimeout( 300 );
-
-		await expect( block ).toHaveAttribute( 'data-color-scheme', 'light', { timeout: 3000 } );
-	} );
-
-	test( 'selecting Auto preset sets data-color-scheme="auto" on block wrapper', async ( {
-		page,
-	} ) => {
-		await setupPayPalMocks( page );
-		await goToNewPost( page );
-		const canvas = await insertPayPalBlock( page );
-		const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-
-		await openStylePanel( page, canvas, block );
-
-		const sidebar = page.locator( '.interface-complementary-area' );
-		// Set to dark first, then back to Auto.
-		await sidebar.locator( 'button:has-text("Dark")' ).click();
-		await page.waitForTimeout( 200 );
-		await sidebar.locator( 'button:has-text("Auto")' ).click();
-		await page.waitForTimeout( 300 );
-
-		// Note: the editor always sets data-color-scheme on the wrapper for live preview.
-		// In save.js, the 'auto' value intentionally omits this attribute so legacy blocks
-		// without a stored colorScheme pass block validation without an 'unexpected content' error.
-		await expect( block ).toHaveAttribute( 'data-color-scheme', 'auto', { timeout: 3000 } );
-	} );
-} );
 } );

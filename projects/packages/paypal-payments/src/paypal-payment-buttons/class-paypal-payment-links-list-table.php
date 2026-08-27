@@ -61,6 +61,18 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 	}
 
 	/**
+	 * Whether the current user can view the list table over AJAX.
+	 *
+	 * The table is registered with 'ajax' => false, so this is never reached
+	 * in practice. It mirrors the capability the admin page itself requires.
+	 *
+	 * @return bool True if the current user may load the list.
+	 */
+	public function ajax_user_can() {
+		return current_user_can( PayPal_Admin_Page::CAPABILITY );
+	}
+
+	/**
 	 * Define table columns.
 	 *
 	 * @return array Column slug => label.
@@ -121,7 +133,7 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 			return;
 		}
 
-		$this->items = isset( $result['items'] ) ? $result['items'] : array();
+		$this->items = $result['items'] ?? array();
 
 		// Extract next page token from HATEOAS links if present.
 		if ( isset( $result['links'] ) && is_array( $result['links'] ) ) {
@@ -225,8 +237,8 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 		}
 
 		$amount   = $item['line_items'][0]['unit_amount'];
-		$value    = isset( $amount['value'] ) ? $amount['value'] : '0.00';
-		$currency = isset( $amount['currency_code'] ) ? $amount['currency_code'] : 'USD';
+		$value    = $amount['value'] ?? '0.00';
+		$currency = $amount['currency_code'] ?? 'USD';
 
 		return esc_html( PayPal_Payment_Buttons::format_price( $value, $currency ) );
 	}

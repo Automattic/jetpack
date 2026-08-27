@@ -61,7 +61,9 @@ describe( 'PayPalPaymentButtonsSave', () => {
 		const checkoutLink = container.querySelector( '.jetpack-paypal-button__checkout-link' );
 		expect( checkoutLink ).toBeInTheDocument();
 		expect( checkoutLink ).toHaveClass( 'wp-element-button' );
-		expect( container.querySelector( '.jetpack-paypal-button__debit-link' ) ).not.toBeInTheDocument();
+		expect(
+			container.querySelector( '.jetpack-paypal-button__debit-link' )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'renders a single layout without a debit/credit button', () => {

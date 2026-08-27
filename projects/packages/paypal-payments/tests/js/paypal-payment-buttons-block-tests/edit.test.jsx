@@ -261,7 +261,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it( 'shows the create form when connected but no button exists', async () => {
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
-			await expect( screen.findByText( /Create PayPal Payment Button/ ) ).resolves.toBeInTheDocument();
+			await expect(
+				screen.findByText( /Create PayPal Payment Button/ )
+			).resolves.toBeInTheDocument();
 			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
 			expect( screen.getByLabelText( 'Price' ) ).toBeInTheDocument();
 			expect( screen.getByLabelText( 'Currency' ) ).toBeInTheDocument();
@@ -452,9 +454,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			// Wait for the connection check to settle. The default mock reports
 			// no partner referrals, so the wizard opens on the manual step.
-			await expect(
-				screen.findByText( /Get Your API Credentials/ )
-			).resolves.toBeInTheDocument();
+			await expect( screen.findByText( /Get Your API Credentials/ ) ).resolves.toBeInTheDocument();
 
 			expect( apiFetch ).toHaveBeenCalledWith(
 				expect.objectContaining( {

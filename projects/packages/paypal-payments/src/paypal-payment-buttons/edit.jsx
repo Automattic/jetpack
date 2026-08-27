@@ -22,7 +22,6 @@ import {
 	MediaUploadCheck,
 	useBlockProps,
 } from '@wordpress/block-editor';
-import metadata from './block.json';
 import {
 	Button,
 	ButtonGroup,
@@ -40,6 +39,7 @@ import {
 } from '@wordpress/components';
 import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import metadata from './block.json';
 import PayPalButtonPreview from './paypal-button-preview';
 import {
 	validatePrice,
@@ -50,7 +50,6 @@ import {
 	MAX_DESCRIPTION_LENGTH,
 } from './validation';
 import VariantBuilder, { validateVariants } from './variant-builder';
-
 
 /**
  * Supported currencies for the currency selector.
@@ -144,9 +143,7 @@ function FormatSwitcher( { value, onChange, disabled } ) {
 					</Button>
 				) ) }
 			</ButtonGroup>
-			<p className="jetpack-paypal-payment-buttons__format-help">
-				{ FORMAT_HELP[ activeValue ] }
-			</p>
+			<p className="jetpack-paypal-payment-buttons__format-help">{ FORMAT_HELP[ activeValue ] }</p>
 		</div>
 	);
 }
@@ -1258,10 +1255,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 			</PanelBody>
 
 			{ hasButton && (
-				<PanelBody
-					title={ __( 'Display Format', 'jetpack-paypal-payments' ) }
-					initialOpen={ true }
-				>
+				<PanelBody title={ __( 'Display Format', 'jetpack-paypal-payments' ) } initialOpen={ true }>
 					<FormatSwitcher
 						value={ activeFormat }
 						onChange={ value => setAttributes( { format: value } ) }
@@ -1345,8 +1339,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		</>
 	);
 
-	const formatLabel =
-		FORMAT_OPTIONS.find( o => o.value === activeFormat )?.label || activeFormat;
+	const formatLabel = FORMAT_OPTIONS.find( o => o.value === activeFormat )?.label || activeFormat;
 
 	// Connected + has button + preview mode — show live button preview.
 	if ( hasButton && ! isEditing ) {
@@ -1821,12 +1814,30 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 						disabled={ isCreating || ! isFormValid }
 					>
 						{ isCreating && __( 'Saving…', 'jetpack-paypal-payments' ) }
-						{ ! isCreating && hasButton && activeFormat === 'LINK' && __( 'Update Link', 'jetpack-paypal-payments' ) }
-						{ ! isCreating && hasButton && activeFormat === 'QR' && __( 'Update QR Code', 'jetpack-paypal-payments' ) }
-						{ ! isCreating && hasButton && activeFormat === 'BUTTON' && __( 'Update Button', 'jetpack-paypal-payments' ) }
-						{ ! isCreating && ! hasButton && activeFormat === 'LINK' && __( 'Create Link', 'jetpack-paypal-payments' ) }
-						{ ! isCreating && ! hasButton && activeFormat === 'QR' && __( 'Create QR Code', 'jetpack-paypal-payments' ) }
-						{ ! isCreating && ! hasButton && activeFormat === 'BUTTON' && __( 'Create Button', 'jetpack-paypal-payments' ) }
+						{ ! isCreating &&
+							hasButton &&
+							activeFormat === 'LINK' &&
+							__( 'Update Link', 'jetpack-paypal-payments' ) }
+						{ ! isCreating &&
+							hasButton &&
+							activeFormat === 'QR' &&
+							__( 'Update QR Code', 'jetpack-paypal-payments' ) }
+						{ ! isCreating &&
+							hasButton &&
+							activeFormat === 'BUTTON' &&
+							__( 'Update Button', 'jetpack-paypal-payments' ) }
+						{ ! isCreating &&
+							! hasButton &&
+							activeFormat === 'LINK' &&
+							__( 'Create Link', 'jetpack-paypal-payments' ) }
+						{ ! isCreating &&
+							! hasButton &&
+							activeFormat === 'QR' &&
+							__( 'Create QR Code', 'jetpack-paypal-payments' ) }
+						{ ! isCreating &&
+							! hasButton &&
+							activeFormat === 'BUTTON' &&
+							__( 'Create Button', 'jetpack-paypal-payments' ) }
 					</Button>
 
 					<Button
