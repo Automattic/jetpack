@@ -18,7 +18,7 @@
  * @since 0.8.0
  */
 
-const { test, expect } = require( '@playwright/test' ); // eslint-disable-line import/no-extraneous-dependencies -- resolved by plugin-level e2e package.json
+const { test, expect } = require( '@playwright/test' );
 const { MOCK_RESPONSES, setupPayPalMocks, setupDisconnectedMocks } = require( './paypal-api-mock' );
 
 // ---------------------------------------------------------------
@@ -773,7 +773,9 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			} );
 		} );
 
-		test( 'delete button via toolbar clears block state and returns to edit mode', async ( { page } ) => {
+		test( 'delete button via toolbar clears block state and returns to edit mode', async ( {
+			page,
+		} ) => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			await insertPayPalBlock( page );
@@ -804,7 +806,9 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			} );
 		} );
 
-		test( 'Cancel button in creation form resets fields without requiring confirmation', async ( { page } ) => {
+		test( 'Cancel button in creation form resets fields without requiring confirmation', async ( {
+			page,
+		} ) => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			await insertPayPalBlock( page );
@@ -822,9 +826,9 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await expect( page.locator( '[role="dialog"]' ) ).not.toBeVisible( { timeout: 1000 } );
 
 			// Fields should be cleared (form reset to empty state).
-			await expect(
-				block.locator( 'input[placeholder="e.g., Premium Widget"]' )
-			).toHaveValue( '' );
+			await expect( block.locator( 'input[placeholder="e.g., Premium Widget"]' ) ).toHaveValue(
+				''
+			);
 		} );
 	} );
 
@@ -1079,13 +1083,17 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			const block = page.locator( '.wp-block-jetpack-paypal-payment-buttons' );
 
 			await expect(
-				block.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("Button")' )
+				block.locator(
+					'.jetpack-paypal-payment-buttons__format-switcher button:has-text("Button")'
+				)
 			).toBeVisible();
 			await expect(
 				block.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")' )
 			).toBeVisible();
 			await expect(
-				block.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")' )
+				block.locator(
+					'.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")'
+				)
 			).toBeVisible();
 		} );
 
@@ -1109,9 +1117,9 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await insertPayPalBlock( page );
 
 			const block = page.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			await block.locator(
-				'.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")'
-			).click();
+			await block
+				.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")' )
+				.click();
 
 			await expect( block.locator( 'button:has-text("Create Link")' ) ).toBeVisible();
 		} );
@@ -1122,9 +1130,9 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await insertPayPalBlock( page );
 
 			const block = page.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			await block.locator(
-				'.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")'
-			).click();
+			await block
+				.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")' )
+				.click();
 
 			await expect( block.locator( 'button:has-text("Create QR Code")' ) ).toBeVisible();
 		} );

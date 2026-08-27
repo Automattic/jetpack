@@ -335,7 +335,10 @@ class PayPal_REST_Controller {
 	/**
 	 * Validate that a string parameter is non-empty.
 	 *
-	 * @param string          $value   The value to validate.
+	 * Used as a REST validate_callback, so the incoming value may be of any type;
+	 * anything that is not a non-empty string is rejected.
+	 *
+	 * @param mixed           $value   The value to validate.
 	 * @param WP_REST_Request $request The REST request.
 	 * @param string          $param   The parameter name.
 	 * @return bool|WP_Error True if valid, WP_Error otherwise.
@@ -734,12 +737,12 @@ class PayPal_REST_Controller {
 		// Extract the first line item into attribute-style format for validation.
 		$first_item = $line_items[0];
 		$attributes = array(
-			'productName' => isset( $first_item['name'] ) ? $first_item['name'] : '',
+			'productName' => $first_item['name'] ?? '',
 		);
 
 		if ( isset( $first_item['unit_amount'] ) && is_array( $first_item['unit_amount'] ) ) {
-			$attributes['price']        = isset( $first_item['unit_amount']['value'] ) ? $first_item['unit_amount']['value'] : '';
-			$attributes['currencyCode'] = isset( $first_item['unit_amount']['currency_code'] ) ? $first_item['unit_amount']['currency_code'] : 'USD';
+			$attributes['price']        = $first_item['unit_amount']['value'] ?? '';
+			$attributes['currencyCode'] = $first_item['unit_amount']['currency_code'] ?? 'USD';
 		}
 
 		if ( ! empty( $first_item['description'] ) ) {
@@ -759,7 +762,7 @@ class PayPal_REST_Controller {
 			return new WP_Error(
 				$validation->get_error_code(),
 				$validation->get_error_message(),
-				array( 'status' => isset( $data['status'] ) ? $data['status'] : 400 )
+				array( 'status' => $data['status'] ?? 400 )
 			);
 		}
 
@@ -1108,7 +1111,7 @@ class PayPal_REST_Controller {
 	 */
 	private static function api_error_to_rest_error( WP_Error $error ) {
 		$data   = $error->get_error_data();
-		$status = isset( $data['status'] ) ? $data['status'] : 500;
+		$status = $data['status'] ?? 500;
 
 		// Ensure we never return a 0 status (network errors).
 		if ( 0 === $status || empty( $status ) ) {

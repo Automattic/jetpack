@@ -429,8 +429,8 @@ class PayPal_API_Client {
 	 * Maps PayPal's standard error response format to descriptive WP_Error
 	 * codes and messages. Never exposes raw API error details to merchants.
 	 *
-	 * @param array|WP_Error $response    The wp_remote_request response.
-	 * @param int            $status_code The HTTP status code.
+	 * @param array|\WP_Error $response    The wp_remote_request response.
+	 * @param int             $status_code The HTTP status code.
 	 * @return \WP_Error The parsed error.
 	 */
 	private static function parse_error_response( $response, $status_code ) {

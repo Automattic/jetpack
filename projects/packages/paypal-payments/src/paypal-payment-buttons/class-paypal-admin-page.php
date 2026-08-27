@@ -411,8 +411,8 @@ class PayPal_Admin_Page {
 			return;
 		}
 
-		$line_item = isset( $resource['line_items'][0] ) ? $resource['line_items'][0] : array();
-		$name      = isset( $line_item['name'] ) ? $line_item['name'] : $resource_id;
+		$line_item = $resource['line_items'][0] ?? array();
+		$name      = $line_item['name'] ?? $resource_id;
 		$status    = isset( $resource['status'] ) ? strtoupper( $resource['status'] ) : 'UNKNOWN';
 		$badge_cls = 'ACTIVE' === $status ? 'paypal-status-active' : 'paypal-status-inactive';
 

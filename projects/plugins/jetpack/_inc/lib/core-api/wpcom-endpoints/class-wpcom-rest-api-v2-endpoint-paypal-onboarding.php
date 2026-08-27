@@ -188,7 +188,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 		if ( 201 !== $status_code && 200 !== $status_code ) {
 			return new WP_Error(
 				'paypal_referral_failed',
-				isset( $body['message'] ) ? $body['message'] : 'PayPal Partner Referrals API returned an error.',
+				$body['message'] ?? 'PayPal Partner Referrals API returned an error.',
 				array( 'status' => $status_code )
 			);
 		}

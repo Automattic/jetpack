@@ -357,9 +357,7 @@ class PayPal_Partner_Onboarding {
 		$token_data   = json_decode( wp_remote_retrieve_body( $token_response ), true );
 
 		if ( 200 !== $token_status || empty( $token_data['access_token'] ) ) {
-			$error_msg = isset( $token_data['error_description'] )
-				? $token_data['error_description']
-				: __( 'Unknown error during token exchange', 'jetpack-paypal-payments' );
+			$error_msg = $token_data['error_description'] ?? __( 'Unknown error during token exchange', 'jetpack-paypal-payments' );
 			return new \WP_Error(
 				'paypal_onboarding_token_error',
 				sprintf(
@@ -506,7 +504,7 @@ class PayPal_Partner_Onboarding {
 			'merchant_id'             => $merchant_id,
 			'payments_receivable'     => ! empty( $data['payments_receivable'] ),
 			'primary_email_confirmed' => ! empty( $data['primary_email_confirmed'] ),
-			'products'                => isset( $data['products'] ) ? $data['products'] : array(),
+			'products'                => $data['products'] ?? array(),
 		);
 	}
 

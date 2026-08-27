@@ -276,18 +276,18 @@ noscript + .jetpack-paypal-button__qr-section {
 
 // ---------------------------------------------------------------
 // Light / Dark preset overrides (WOOPTP-390)
-//
+
 // When the merchant explicitly selects a color scheme preset, the
 // data-color-scheme attribute on the block wrapper activates these
 // rules. They use the CSS `color-scheme` property to hint the
 // browser, and inherit theme CSS custom properties when available
 // (Twenty Twenty-Four, et al.). Hardcoded fallbacks ensure a
 // reasonable appearance on themes that don't define the variables.
-//
+
 // "auto" (default) leaves the block unstyled here — OS/theme
 // preference applies via prefers-color-scheme and wp-element-button
 // inheritance, which is the existing behavior.
-//
+
 // Custom CSS targeting:
 //   .wp-block-jetpack-paypal-payment-buttons
 //   .wp-block-jetpack-paypal-payment-buttons[data-color-scheme="light"]
@@ -324,7 +324,7 @@ noscript + .jetpack-paypal-button__qr-section {
 	.jetpack-paypal-button__product-name,
 	.jetpack-paypal-button__product-price,
 	.jetpack-paypal-button__variant-name {
-		color: var(--wp--preset--color--foreground, #ffffff);
+		color: var(--wp--preset--color--foreground, #fff);
 	}
 
 	.jetpack-paypal-button__product-description,
@@ -337,6 +337,6 @@ noscript + .jetpack-paypal-button__qr-section {
 
 	.jetpack-paypal-button__variant-option {
 		background: var(--wp--preset--color--background, #2e2e2e);
-		color: var(--wp--preset--color--foreground, #ffffff);
+		color: var(--wp--preset--color--foreground, #fff);
 	}
 }

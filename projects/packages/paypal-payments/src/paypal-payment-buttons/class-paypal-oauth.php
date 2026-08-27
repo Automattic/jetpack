@@ -138,7 +138,7 @@ class PayPal_OAuth {
 	 * key suitable for sodium_crypto_secretbox from the WordPress AUTH_KEY
 	 * constant defined in wp-config.php.
 	 *
-	 * @return string Raw binary key of SODIUM_CRYPTO_SECRETBOX_KEYBYTES length.
+	 * @return string|\WP_Error Raw binary key of SODIUM_CRYPTO_SECRETBOX_KEYBYTES length, or WP_Error if AUTH_KEY is unusable.
 	 */
 	private static function get_encryption_key() {
 		if ( ! defined( 'AUTH_KEY' ) || '' === \AUTH_KEY || 'put your unique phrase here' === \AUTH_KEY ) {
@@ -157,7 +157,7 @@ class PayPal_OAuth {
 	 * Returns a base64-encoded string containing the nonce prepended to the ciphertext.
 	 *
 	 * @param string $plaintext The string to encrypt.
-	 * @return string Base64-encoded nonce + ciphertext.
+	 * @return string|\WP_Error Base64-encoded nonce + ciphertext, or WP_Error if the encryption key is unavailable.
 	 */
 	public static function encrypt( $plaintext ) {
 		$key = self::get_encryption_key();

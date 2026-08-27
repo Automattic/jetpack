@@ -28,6 +28,25 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		// Clean up any registered scripts.
 		global $wp_scripts;
 		$wp_scripts = null;
+
+		\WP_Block_Supports::$block_to_render = null;
+	}
+
+	/**
+	 * Put WP into a block-render context.
+	 *
+	 * The render callback calls get_block_wrapper_attributes(), which reads
+	 * WP_Block_Supports::$block_to_render. WordPress sets that while rendering a
+	 * block; calling the render callback directly leaves it null, which older
+	 * WordPress releases warn about instead of bailing out.
+	 *
+	 * @param array $attributes The block attributes being rendered.
+	 */
+	private function set_up_block_render_context( array $attributes ) {
+		\WP_Block_Supports::$block_to_render = array(
+			'blockName' => 'jetpack/paypal-payment-buttons',
+			'attrs'     => $attributes,
+		);
 	}
 
 	/**
@@ -262,6 +281,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'imageUrl'     => 'https://example.com/widget.jpg',
 		);
 
+		$this->set_up_block_render_context( $attributes );
+
 		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
 
 		$this->assertStringContainsString( 'jetpack-paypal-button__product-image', $result );
@@ -281,6 +302,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'price'        => '10.00',
 			'currencyCode' => 'USD',
 		);
+
+		$this->set_up_block_render_context( $attributes );
 
 		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
 
