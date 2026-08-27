@@ -126,10 +126,10 @@ describe( 'TrafficChart bucket size', () => {
 } );
 
 describe( 'TrafficChart drill-down', () => {
-	// A quarterly page draws in months here, so the click must name the month:
-	// left to the page interval, a click on March would open the whole quarter.
+	// A yearly page draws in months here, so the click must name the month:
+	// left to the page interval, a click on March would open the whole year.
 	it( 'names the bucket size it drew, not the page interval', () => {
-		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'quarter' ) } } /> );
+		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'year' ) } } /> );
 
 		const clicked = new Date( '2026-02-14T00:00:00.000Z' );
 		chartClickHandler()( clicked );

@@ -417,15 +417,15 @@ describe( 'useReportDateFilters', () => {
 
 		/*
 		 * A chart that cannot draw the applied interval clamps it — the traffic
-		 * chart draws a quarterly page in months — and names the size it drew, so
+		 * chart draws a yearly page in months — and names the size it drew, so
 		 * the click opens the bar it hit rather than the coarser bucket around it.
 		 */
 		it( 'opens the bucket in the interval the chart drew, not the applied one', () => {
 			const { result, rerender } = renderDateFilters( {
-				from: '2025-08-01T00:00:00.000Z',
+				from: '2023-08-01T00:00:00.000Z',
 				to: '2026-07-31T23:59:59.999Z',
 				preset: 'custom',
-				interval: 'quarter',
+				interval: 'year',
 			} );
 
 			act( () => result.current.drillDown( new Date( '2026-02-14T00:00:00.000Z' ), 'month' ) );
