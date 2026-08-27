@@ -30,7 +30,7 @@
 		"watch": "tsgo --watch"
 	},
 	"dependencies": {
-		"@wordpress/i18n": "6.24.0",
+		"@wordpress/i18n": "6.27.0",
 		"zod": "3.25.76"
 	},
 	"devDependencies": {

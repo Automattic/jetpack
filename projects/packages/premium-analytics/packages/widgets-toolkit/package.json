@@ -21,8 +21,8 @@
 		"@jetpack-premium-analytics/routing": "workspace:*",
 		"@jetpack-premium-analytics/ui": "workspace:*",
 		"@wordpress/admin-ui": "2.8.0",
-		"@wordpress/api-fetch": "7.51.0",
-		"@wordpress/components": "37.0.0",
+		"@wordpress/api-fetch": "7.54.0",
+		"@wordpress/components": "40.0.0",
 		"@wordpress/compose": "8.6.0",
 		"@wordpress/data": "10.51.0",
 		"@wordpress/i18n": "^6.9.0",
@@ -38,6 +38,6 @@
 		"@testing-library/react": "16.3.2",
 		"@testing-library/user-event": "14.6.1",
 		"@wordpress/dataviews": "18.0.0",
-		"@wordpress/date": "5.51.0"
+		"@wordpress/date": "5.54.0"
 	}
 }
