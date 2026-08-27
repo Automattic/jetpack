@@ -29,6 +29,7 @@ describe( 'themeOverrideVars', () => {
 				xAxisLineStyles: { stroke: '#333' },
 				xTickLineStyles: { stroke: '#444' },
 				svgLabelSmall: { fill: '#555' },
+				colors: [ '#661', '#662', '#663', '#664', '#665' ],
 			} )
 		).toEqual( {
 			vars: {
@@ -37,6 +38,11 @@ describe( 'themeOverrideVars', () => {
 				'--a8c-charts-color-axis-theme': '#333',
 				'--a8c-charts-color-tick-theme': '#444',
 				'--a8c-charts-color-label-axis-theme': '#555',
+				'--a8c-charts-color-series-1-theme': '#661',
+				'--a8c-charts-color-series-2-theme': '#662',
+				'--a8c-charts-color-series-3-theme': '#663',
+				'--a8c-charts-color-series-4-theme': '#664',
+				'--a8c-charts-color-series-5-theme': '#665',
 			},
 			roles: [
 				'--a8c-charts-color-background',
@@ -44,6 +50,11 @@ describe( 'themeOverrideVars', () => {
 				'--a8c-charts-color-axis',
 				'--a8c-charts-color-tick',
 				'--a8c-charts-color-label-axis',
+				'--a8c-charts-color-series-1',
+				'--a8c-charts-color-series-2',
+				'--a8c-charts-color-series-3',
+				'--a8c-charts-color-series-4',
+				'--a8c-charts-color-series-5',
 			],
 		} );
 	} );
@@ -55,6 +66,7 @@ describe( 'themeOverrideVars', () => {
 			xAxisLineStyles: { stroke: '#333' },
 			xTickLineStyles: { stroke: '#444' },
 			svgLabelSmall: { fill: '#555' },
+			colors: [ '#661', '#662', '#663', '#664', '#665' ],
 		} );
 
 		expect( Object.keys( vars ) ).toEqual( THEME_LAYERED_ROLES.map( themeLayerVar ) );
@@ -65,6 +77,51 @@ describe( 'themeOverrideVars', () => {
 		expect( themeOverrideVars( { svgLabelSmall: { fill: 'red' } } ) ).toEqual( {
 			vars: { '--a8c-charts-color-label-axis-theme': 'red' },
 			roles: [ '--a8c-charts-color-label-axis' ],
+		} );
+	} );
+
+	// A short array is not padded: the later slots stay unset, so the palette compacts rather than repeating a color the consumer never chose.
+	it( 'publishes one palette slot per color and leaves the rest unset', () => {
+		expect( themeOverrideVars( { colors: [ 'red', 'blue' ] } ) ).toEqual( {
+			vars: {
+				'--a8c-charts-color-series-1-theme': 'red',
+				'--a8c-charts-color-series-2-theme': 'blue',
+			},
+			roles: [ '--a8c-charts-color-series-1', '--a8c-charts-color-series-2' ],
+		} );
+	} );
+
+	it( 'drops palette entries past the last slot', () => {
+		// Spied rather than asserted on: an over-long palette warns, and `@wordpress/jest-console` fails any test that leaves a console call unclaimed. The warning itself is covered below.
+		const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
+		const { vars } = themeOverrideVars( {
+			colors: [ 'a', 'b', 'c', 'd', 'e', 'f', 'g' ],
+		} );
+
+		expect( vars[ '--a8c-charts-color-series-5-theme' ] ).toBe( 'e' );
+		expect( vars[ '--a8c-charts-color-series-6-theme' ] ).toBeUndefined();
+
+		warn.mockRestore();
+	} );
+
+	// Isolated so the warning's module-level latch starts unset — the assertion is that it warns once per module instance, not once per call.
+	it( 'warns once about the dropped entries, not once per render', () => {
+		jest.isolateModules( () => {
+			const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
+			const {
+				themeOverrideVars: freshThemeOverrideVars,
+				// eslint-disable-next-line @typescript-eslint/no-require-imports -- isolateModules needs a synchronous require to get a module instance whose latch is unset.
+			} = require( '../private/theme-override-vars' ) as {
+				themeOverrideVars: typeof themeOverrideVars;
+			};
+
+			freshThemeOverrideVars( { colors: [ 'a', 'b', 'c', 'd', 'e', 'f' ] } );
+			freshThemeOverrideVars( { colors: [ 'a', 'b', 'c', 'd', 'e', 'f' ] } );
+
+			expect( warn ).toHaveBeenCalledTimes( 1 );
+			expect( warn ).toHaveBeenCalledWith( expect.stringContaining( 'holds 6 colors' ) );
+
+			warn.mockRestore();
 		} );
 	} );
 

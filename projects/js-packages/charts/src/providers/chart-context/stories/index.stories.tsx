@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
+import { expect, waitFor } from 'storybook/test';
 import {
 	LineChart,
 	BarChart,
@@ -61,6 +62,13 @@ const baseBarData: SeriesData[] = [
 	medalCountsData[ 1 ],
 	medalCountsData[ 2 ],
 ];
+// `ectoplasm` from `WP_ADMIN_COLOR_SCHEMES`, kept as a literal so the assertion below fails if the
+// scheme's published color ever changes rather than silently following it.
+const ADMIN_SCHEME = 'ectoplasm';
+const ADMIN_SCHEME_COLOR = '#646c3e';
+// Any color the admin scheme does not publish; it only has to be distinguishable from the above.
+const ACCENT_COLOR_NOT_EXPECTED = '#4a19ab';
+
 const baseLineData: SeriesData[] = globalMarketComparisonByCountry;
 const baseBarListData: SeriesData[] = marketingChannelsByCountry;
 const basePieDataWithCountries: DataPointPercentage[] = [
@@ -290,5 +298,49 @@ export const WithColorOverrides: Story = {
 		showUnitedStates: true,
 		showGreatBritain: true,
 		showJapan: true,
+	},
+};
+
+/**
+ * The two colors this story sets are deliberately different, and which one wins is the assertion.
+ *
+ * `accentColor` seeds the WPDS `ThemeProvider`, so the design system's brand token derives from it.
+ * `adminColorScheme` publishes `--wp-admin-theme-color` on a closer wrapper, the way
+ * `admin-schemes.css` does. Slot 1 names the admin color before the brand token, so the bar has to
+ * paint the scheme's color and not the accent's.
+ *
+ * Reordering that chain — putting the design system's token first — passes every unit test and
+ * looks correct on WP 7.1, and this is what catches it. jsdom cannot cascade `var()`, so it can only
+ * be checked in a browser.
+ *
+ * Both values must be set before the provider mounts. The palette resolves once per provider in a
+ * layout effect, so a `play` function that sets the variable afterwards would assert against the
+ * colors resolved at mount and prove nothing.
+ */
+export const AdminColorSchemeLeadsThePalette: Story = {
+	render: () => <BarChart width={ 400 } height={ 200 } data={ [ baseBarData[ 0 ] ] } />,
+	args: {
+		themeName: 'custom',
+		accentColor: ACCENT_COLOR_NOT_EXPECTED,
+		adminColorScheme: ADMIN_SCHEME,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: `Slot 1 reads \`--wp-admin-theme-color\` before the design system's brand token. With the admin scheme set to \`${ ADMIN_SCHEME }\` and a different accent seeding the design system, the bar paints \`${ ADMIN_SCHEME_COLOR }\`.`,
+			},
+		},
+	},
+	play: async ( { canvasElement } ) => {
+		const bar = await waitFor( () => {
+			const found = canvasElement.querySelector< SVGRectElement >( '.visx-bar-group rect' );
+			if ( ! found ) {
+				throw new Error( 'No bar rendered yet.' );
+			}
+			return found;
+		} );
+
+		await expect( bar.getAttribute( 'fill' ) ).toBe( ADMIN_SCHEME_COLOR );
+		await expect( bar.getAttribute( 'fill' ) ).not.toBe( ACCENT_COLOR_NOT_EXPECTED );
 	},
 };

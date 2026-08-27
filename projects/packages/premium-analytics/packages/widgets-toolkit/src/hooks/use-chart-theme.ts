@@ -19,11 +19,6 @@ export function useChartTheme(): WooChartTheme {
 			backgroundColor: 'var(--wpds-color-background-surface-neutral-strong)',
 			labelBackgroundColor: 'var(--wpds-color-background-interactive-neutral-weak)',
 			labelTextColor: 'var(--wpds-color-foreground-interactive-neutral-strong)',
-			// Seed with the accent alone; `@automattic/charts` derives the rest. The nested fallback
-			// is load-bearing: a seed that does not resolve leaves the palette empty and unaccented.
-			colors: [
-				'var(--wpds-color-foreground-interactive-brand, var(--wp-admin-theme-color, #3858e9))',
-			],
 			gridStyles: {
 				stroke: 'var(--wpds-color-stroke-surface-neutral)',
 				strokeWidth: 1,
@@ -36,7 +31,7 @@ export function useChartTheme(): WooChartTheme {
 			// measurements go with it. `fill` is not, any more — CHARTS-203 made the charts
 			// default a single-level pointer that resolves on its own, so this only restates it.
 			// Harmless, since the value publishes the theme layer and degrades rather than
-			// breaking, but it goes with the colour props in CHARTS-227.
+			// breaking, but it goes with the color props in CHARTS-227.
 			svgLabelSmall: {
 				fill: 'var(--wpds-color-foreground-content-neutral)',
 				fontSize: 12,
