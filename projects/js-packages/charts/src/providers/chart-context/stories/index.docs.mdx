@@ -51,6 +51,46 @@ Wrap your application or chart components with `GlobalChartsProvider` to enable 
 
 ## Color Coordination
 
+### The Series Palette
+
+Series colors come from five CSS custom properties, declared on the provider wrapper and resolved once per provider:
+
+<Source
+	language="css"
+	code={ `.a8c-charts-scope {
+		--a8c-charts-color-series-1: #3858e9;
+		--a8c-charts-color-series-2: #007a5a;
+		--a8c-charts-color-series-3: #b3261e;
+	}` }
+/>
+
+Only slot 1 has a default, and it reads `--wp-admin-theme-color` first — so in wp-admin, charts follow the site's admin color scheme with no configuration at all. The design system's brand token is the next leg, reached only where that variable is unset. Set more slots to widen the palette; charts generates accessible colors beyond whatever you set.
+
+The order matters and is not interchangeable: on every React admin screen WordPress loads its own design-token stylesheet, which pins the brand token to a static value that does not track the color scheme. `TOKENS.md` has the detail.
+
+**A slot left unset is skipped and the palette compacts.** Set only slots 1 and 3 and the palette is two colors, in the order written — there is no gap where slot 2 would have been.
+
+Five slots is a cap on *seeds*, not on series. A chart with twenty series still gets twenty distinct colors; the slots decide what the generator starts from.
+
+Precedence for a series color, highest first:
+
+1. `options.stroke` on that series — the per-series override.
+2. A CSS declaration of `--a8c-charts-color-series-N` anywhere between the chart and the provider.
+3. `theme.colors[ N - 1 ]`, which writes slot N from JS. **Deprecated** — see below.
+4. The catalog default, which only slot 1 has.
+
+Because the palette resolves once at the provider wrapper, a slot set on a chart's *own* element has no effect — the colors were resolved before that element existed. Scope the rule to a wrapper around the chart, or use `options.stroke` for a single series.
+
+<Source
+	language="tsx"
+	code={ `// Deprecated: theme.colors writes the slots from JS.
+	// It still works, but a CSS declaration of a slot outranks it,
+	// and entries past the fifth are dropped with a console warning.
+	<GlobalChartsProvider theme={ { colors: [ '#3858e9', '#007a5a' ] } }>
+		{ /* Prefer setting --a8c-charts-color-series-1 … -5 in CSS. */ }
+	</GlobalChartsProvider>` }
+/>
+
 ### Stable Colors for Groups
 
 One of the key features of the Global Charts Context is **stable color assignment for groups**. When data series have a `group` property, the same group will always receive the same color across all charts, even when data changes:
@@ -109,8 +149,8 @@ The Global Charts Context uses a comprehensive theme system that controls all vi
 <Source
 	language="tsx"
 	code={ `const customTheme: ChartTheme = {
-		// Core colors used for data visualization
-		colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
+		// Series colors are not set here — they come from the five
+		// --a8c-charts-color-series-* properties. See "The Series Palette".
 
     	// Chart background and labels
 		backgroundColor: 'var(--a8c-charts-color-background, #fff)',
@@ -160,13 +200,13 @@ Themes are merged with the default theme, so you only need to specify the proper
 
 <Source
 	language="tsx"
-	code={ `// Only customize colors - everything else uses defaults
-	const brandColors = {
-		colors: [ '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7' ]
+	code={ `// Only customize the grid - everything else uses defaults
+	const softGrid = {
+		gridStyles: { stroke: '#E0E0E0' }
 	};
 
-	<GlobalChartsProvider theme={ brandColors }>
-		{ /* Charts use custom colors but default grid, legends, etc. */ }
+	<GlobalChartsProvider theme={ softGrid }>
+		{ /* Charts use a custom grid but default colors, legends, etc. */ }
 	</GlobalChartsProvider>` }
 />
 
@@ -203,7 +243,7 @@ That rule matches every provider wrapper — including the one a bare chart moun
 
 Three placements need care:
 
-- **A chart's own class is too deep to reach the SVG colours.** Setting a role on the element a chart's `className` lands on — `.line-chart { --a8c-charts-color-grid: … }` — moves everything that chart paints in CSS, but not the gridlines, axis lines or tick labels: visx and Google Charts need concrete values, which are resolved in JS at the chart's scope element, an ancestor of the class you targeted. The result is a half-applied override, so scope this kind of rule to a wrapper **around** the chart instead. Supporting it on the chart itself is tracked in CHARTS-255.
+- **A chart's own class is too deep to reach the SVG colors.** Setting a role on the element a chart's `className` lands on — `.line-chart { --a8c-charts-color-grid: … }` — moves everything that chart paints in CSS, but not the gridlines, axis lines or tick labels: visx and Google Charts need concrete values, which are resolved in JS at the chart's scope element, an ancestor of the class you targeted. The result is a half-applied override, so scope this kind of rule to a wrapper **around** the chart instead. Supporting it on the chart itself is tracked in CHARTS-255.
 
 - **Tooltips rendered in a portal** — those of `PieChart`, `PieSemiCircleChart`, `HeatmapChart` and `ConversionFunnelChart`, which position through `@visx/tooltip`'s `useTooltipInPortal` — sit outside the provider's DOM tree, so they re-declare the catalog on themselves and never see an override scoped to the provider or to an element inside it. They do carry the scope class, so the `.a8c-charts-scope` rule above reaches them.
 - **`@wordpress/theme`'s `ThemeProvider` belongs above `GlobalChartsProvider`**, not between it and a chart. The catalog reads its `--wpds-*` tokens at the provider wrapper, so a `ThemeProvider` mounted below that wrapper is never consulted and CSS-painted colors keep the light-mode spec values.
@@ -515,7 +555,7 @@ When creating custom themes, ensure sufficient contrast between background and f
 
 ### Automatic Color Generation
 
-When your data has more series than colors defined in your theme, the Global Charts Context automatically generates additional colors using a sophisticated algorithm:
+When your data has more series than the palette has seeds, the Global Charts Context automatically generates additional colors using a sophisticated algorithm:
 
 #### Golden Ratio Distribution
 
@@ -547,12 +587,17 @@ The algorithm ensures visual distinction between colors:
 
 <Source
 	language="tsx"
-	code={ `// Theme with 3 colors
-	const limitedTheme = {
-		colors: [ '#006DAB', '#1F9828', '#FF8C8F' ]
-	};
+	code={ `/* Three seeds, set as CSS. */
+	.dashboard .a8c-charts-scope {
+		--a8c-charts-color-series-1: #006DAB;
+		--a8c-charts-color-series-2: #1F9828;
+		--a8c-charts-color-series-3: #FF8C8F;
+	}` }
+/>
 
-	// Data with 8 series - 5 additional colors will be auto-generated
+<Source
+	language="tsx"
+	code={ `// Data with 8 series - 5 additional colors will be auto-generated
 	const dataWithManySeries = [
 		{ label: 'Series 1', group: 'A' }, // Uses #006DAB
 		{ label: 'Series 2', group: 'B' }, // Uses #1F9828
@@ -565,13 +610,15 @@ The algorithm ensures visual distinction between colors:
 	];
 
 	// All colors remain consistent across charts and re-renders
-	<GlobalChartsProvider theme={ limitedTheme }>
-		<LineChart data={ dataWithManySeries } />
-		<BarChart data={ dataWithManySeries } />
-	</GlobalChartsProvider>` }
+	<div className="dashboard">
+		<GlobalChartsProvider>
+			<LineChart data={ dataWithManySeries } />
+			<BarChart data={ dataWithManySeries } />
+		</GlobalChartsProvider>
+	</div>` }
 />
 
-This ensures that even with limited theme colors, your charts maintain visual harmony, accessibility compliance, and consistent color assignments across your entire application.
+This ensures that even with a small palette, your charts maintain visual harmony, accessibility compliance, and consistent color assignments across your entire application.
 
 ## Troubleshooting
 
