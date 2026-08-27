@@ -116,8 +116,14 @@ export type ResponseFields = ResponseField[] | LegacyResponseFields;
 export interface FormResponse {
 	/** The unique identifier for the response. */
 	id: number;
-	/** The status of the response. */
-	status: 'publish' | 'spam' | 'trash';
+	/**
+	 * The status of the response.
+	 *
+	 * `draft` belongs to the inbox alongside `publish` — the inbox filter is
+	 * `'draft,publish'` and the counts query sums `post_status IN ('publish',
+	 * 'draft')` — so anything branching on status has to treat the two alike.
+	 */
+	status: 'publish' | 'draft' | 'spam' | 'trash';
 	/** The date and time the response was created. */
 	date: string;
 	/** The date and time the response was created in GMT. */
