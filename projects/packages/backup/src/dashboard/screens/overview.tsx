@@ -10,6 +10,7 @@ import BackupStatusPanel, { replacesOverview } from '../components/backup-status
 import BackupStatusBanner, { BackupTroubleBanner } from '../components/backup-status/banner';
 import DashboardLayout from '../components/dashboard-layout';
 import QueryError from '../components/query-error';
+import StorageSpace from '../components/storage-space';
 import {
 	ACTIVITY_LOG_DEFAULT_PER_PAGE,
 	useActivityById,
@@ -17,6 +18,7 @@ import {
 	useHasRestorePoints,
 } from '../hooks/use-activity-log';
 import { useBackups } from '../hooks/use-backups';
+import { useRefreshActivityOnBackupComplete } from '../hooks/use-refresh-activity-on-backup-complete';
 import { isBackupItem } from '../types/activity';
 import type { View } from '@wordpress/dataviews';
 
@@ -78,6 +80,11 @@ export default function OverviewScreen() {
 		isRefetching: backupsRefetching,
 		refetch: refetchBackups,
 	} = useBackups();
+	// Owned here, and only here. `BackupNowButton` reads the same query
+	// through its own `useBackups`, so this screen has two observers of
+	// the state below — but the refresh must fire once per finished
+	// backup, not once per observer. See the hook's docblock.
+	useRefreshActivityOnBackupComplete( backupsState );
 	// A second opinion on whether anything is restorable, from the
 	// paginated activity log rather than the short `/backups` window.
 	// While it is still unknown, assume there *are* restore points:
@@ -172,6 +179,18 @@ export default function OverviewScreen() {
 			 * loading, so the terminal case still reports immediately.
 			 */ }
 			{ ! restorePointsLoading && <BackupTroubleBanner state={ backupsState } /> }
+			{ /*
+			 * Above the list, and a sibling of the grid for the same
+			 * reason the banners are. It answers a question the list
+			 * cannot — a site whose backups have stopped because storage
+			 * ran out sees only an activity log that quietly stops — so it
+			 * belongs where that news is read first, not below the fold.
+			 *
+			 * It renders nothing until it has both a usage figure and a
+			 * limit, so on a site with no retention policy this costs a
+			 * pair of requests and no layout.
+			 */ }
+			<StorageSpace />
 			<div className="jpb-overview">
 				<ActivityList
 					selectedId={ selectedId }
@@ -224,7 +243,10 @@ function RightPane( {
 		);
 	}
 	if ( isBackupItem( item ) ) {
-		return <BackupDetail item={ item } />;
+		// Keyed by rewindId so switching backups remounts the detail pane —
+		// `BackupDetail` and `FileBrowser` hold selection/open-file state that
+		// otherwise survives a prop change and leaks into the next backup.
+		return <BackupDetail key={ item.rewindId } item={ item } />;
 	}
 	return <ActivityDetail item={ item } />;
 }

@@ -9,7 +9,10 @@
  */
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Agents_Manager\Agents_Manager;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -19,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once __DIR__ . '/class.jetpack-admin-page.php';
+require_once dirname( __DIR__ ) . '/class-jetpack-ai-feature-flags.php';
 
 /**
  * Builds the Jetpack AI admin page and its sidebar menu entry.
@@ -55,8 +59,99 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	 *
 	 * @param string $hook The page hook returned by get_page_hook().
 	 */
-	public function add_page_actions( $hook ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Nothing extra needed beyond the common hooks in Jetpack_Admin_Page::add_actions().
+	public function add_page_actions( $hook ) {
+		add_action( 'load-' . $hook, array( $this, 'load_agents_manager' ) );
+	}
+
+	/**
+	 * Request the existing Agents Manager shell for this page.
+	 */
+	public function load_agents_manager() {
+		if ( ! self::is_scheduled_tasks_enabled() ) {
+			return;
+		}
+
+		Agents_Manager::init();
+
+		add_filter( 'agents_manager_should_load', '__return_true' );
+		add_filter( 'agents_manager_agent_id', array( $this, 'get_agents_manager_agent_id' ) );
+		add_filter( 'agents_manager_agent_providers', array( $this, 'add_scheduled_tasks_provider' ) );
+		add_filter( 'jetpack_ai_sidebar_agents_manager_data', array( $this, 'add_scheduled_tasks_data' ) );
+	}
+
+	/**
+	 * Use the generic WP Orchestrator agent in AI Hub.
+	 *
+	 * @return string Agent ID.
+	 */
+	public function get_agents_manager_agent_id() {
+		return 'wp-orchestrator';
+	}
+
+	/**
+	 * Add the AI Hub provider that supplies scheduled task starter prompts.
+	 *
+	 * @param array $providers Existing provider module URLs.
+	 * @return array Updated provider module URLs.
+	 */
+	public function add_scheduled_tasks_provider( $providers ) {
+		$providers[] = add_query_arg(
+			'ver',
+			JETPACK__VERSION,
+			plugins_url( '_inc/jetpack-ai-scheduled-tasks-provider.js', JETPACK__PLUGIN_FILE )
+		);
+
+		return $providers;
+	}
+
+	/**
+	 * Customize Agents Manager's empty view for the Scheduled tasks page.
+	 *
+	 * @param array $data Existing Agents Manager data.
+	 * @return array Updated Agents Manager data.
+	 */
+	public function add_scheduled_tasks_data( $data ) {
+		$current_user = wp_get_current_user();
+
+		$data['emptyViewHeading'] = sprintf(
+			/* translators: %s: Current user's display name. */
+			__( 'Howdy %s! Let’s schedule a task.', 'jetpack' ),
+			$current_user->display_name
+		);
+		$data['emptyViewHelp']                     = __( 'Got a different request? Ask away.', 'jetpack' );
+		$data['scheduledTaskEmptyViewSuggestions'] = array(
+			array(
+				'id'         => 'create-daily-reminder',
+				'label'      => __( 'Create a daily reminder', 'jetpack' ),
+				'prompt'     => __( 'Create a daily reminder', 'jetpack' ),
+				'autoSubmit' => true,
+			),
+			array(
+				'id'         => 'draft-weekly-post',
+				'label'      => __( 'Draft a weekly post', 'jetpack' ),
+				'prompt'     => __( 'Draft a weekly post', 'jetpack' ),
+				'autoSubmit' => true,
+			),
+			array(
+				'id'         => 'schedule-monthly-report',
+				'label'      => __( 'Schedule a monthly report', 'jetpack' ),
+				'prompt'     => __( 'Schedule a monthly report', 'jetpack' ),
+				'autoSubmit' => true,
+			),
+		);
+
+		return $data;
+	}
+
+	/**
+	 * Whether the Scheduled tasks tab and its Agents Manager sidebar are enabled.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function is_scheduled_tasks_enabled() {
+		return Feature_Flags::is_enabled( Jetpack_AI_Feature_Flags::SCHEDULED_TASKS );
 	}
 
 	/**
@@ -101,7 +196,9 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 		 * it answers only the cohort half, and page registration requires both
 		 * (see packages/seo Initializer::init()).
 		 */
-		$seo_settings_url = admin_url( 'admin.php?page=jetpack#/traffic' );
+		$seo_settings_url          = admin_url( 'admin.php?page=jetpack#/traffic' );
+		$is_internal_test          = jetpack_is_internal_testing_environment();
+		$show_scheduled_tasks_view = self::is_scheduled_tasks_enabled();
 		if (
 			// The exact-symbol guard matters: the autoloader can select an older
 			// jetpack-seo copy from another plugin that has the class but not
@@ -122,11 +219,14 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 		);
 
 		wp_set_script_translations( 'jetpack-ai-admin', 'jetpack' );
+		if ( $show_scheduled_tasks_view ) {
+			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
+		}
 
 		// Pre-release gate for the Overview and Features views. Everything the
 		// gated views need hangs off this one flag, so opening them up to
 		// everyone is a single change here.
-		$show_gated_views = jetpack_is_internal_testing_environment();
+		$show_gated_views = $is_internal_test;
 
 		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array(
 			'name'       => '',
@@ -160,6 +260,10 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					// auto-renew, matching My Jetpack and the wpcom subscriptions page.
 					'planAutoRenew'    => $plan_info['auto_renew'],
 					'showFeaturesView' => $show_gated_views,
+					// The tab and its Agents Manager sidebar ship disabled by default.
+					'featureFlags'     => array(
+						Jetpack_AI_Feature_Flags::SCHEDULED_TASKS => $show_scheduled_tasks_view,
+					),
 					// The walkthrough videos link to WordPress.com courses, so the
 					// Overview only shows them on WordPress.com-hosted sites (i4 thread).
 					'isWpcomHosted'    => ( new Host() )->is_woa_site(),
@@ -170,7 +274,7 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					// Tracks standards for AI product events (AIINT-586). The client
 					// sends them as the strings 'true'/'false' (AIINT-576).
 					'isA11n'           => self::is_current_user_automattician(),
-					'isTest'           => jetpack_is_internal_testing_environment(),
+					'isTest'           => $is_internal_test,
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',

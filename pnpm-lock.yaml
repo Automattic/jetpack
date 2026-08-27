@@ -4217,9 +4217,6 @@ importers:
       '@automattic/social-previews':
         specifier: workspace:*
         version: link:../../js-packages/social-previews
-      '@automattic/ui':
-        specifier: 1.0.2
-        version: 1.0.2(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@jetpack-social/init':
         specifier: link:packages/init
         version: link:packages/init
@@ -5882,6 +5879,9 @@ importers:
       '@wordpress/data':
         specifier: 10.51.0
         version: 10.51.0(@types/react@18.3.28)(react@18.3.1)
+      '@wordpress/dataviews':
+        specifier: 17.3.0
+        version: 17.3.0(@date-fns/tz@1.4.1)(@types/react@18.3.28)(postcss@8.5.23)(react@18.3.1)
       '@wordpress/date':
         specifier: 5.51.0
         version: 5.51.0

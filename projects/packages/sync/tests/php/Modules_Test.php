@@ -19,7 +19,7 @@ class Modules_Test extends BaseTestCase {
 		$reflection_class = new \ReflectionClass( '\Automattic\Jetpack\Sync\Modules' );
 		try {
 			$reflection_class->setStaticPropertyValue( 'initialized_modules', null );
-		} catch ( \ReflectionException $e ) { // PHP 7 compat
+		} catch ( \ReflectionException $e ) { // PHP <7.4.9 compat
 			$configured = $reflection_class->getProperty( 'initialized_modules' );
 			// @todo Remove this call once we no longer need to support PHP <8.1.
 			if ( PHP_VERSION_ID < 80100 ) {

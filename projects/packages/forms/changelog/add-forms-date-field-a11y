@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Date field: let screen readers announce the field's own label instead of the date picker instructions.

@@ -8,6 +8,7 @@ import { useCallback } from 'react';
  */
 import { hasComparisonEnabled, type ReportParams } from '../utils/search';
 import { isAwaitingData } from './awaiting-data';
+import { REFRESH_NOTICE_META } from './refresh-failure-scope';
 
 type UseReportOptions = {
 	enabled?: boolean;
@@ -71,11 +72,13 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 	const primary = useQuery( {
 		...primaryQueryOptions,
 		enabled: primaryEnabled,
+		meta: { ...primaryQueryOptions.meta, ...REFRESH_NOTICE_META },
 	} );
 
 	const comparison = useQuery( {
 		...comparisonQueryOptions,
 		enabled: comparisonQueryEnabled,
+		meta: { ...comparisonQueryOptions.meta, ...REFRESH_NOTICE_META },
 	} );
 
 	// Widened past React Query's `isLoading` — see `isAwaitingData`. Its own

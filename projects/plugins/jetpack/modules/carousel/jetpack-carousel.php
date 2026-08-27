@@ -585,7 +585,7 @@ class Jetpack_Carousel {
 		$required = ( $require_name_email ) ? __( '%s (Required)', 'jetpack' ) : '%s';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-spinner.php';
 		?>
-		<div id="jp-carousel-loading-overlay">
+		<div id="jp-carousel-loading-overlay" style="display: none;">
 			<div id="jp-carousel-loading-wrapper">
 				<span id="jp-carousel-library-loading"><?php echo Jetpack_Spinner::render( 40 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
 			</div>
