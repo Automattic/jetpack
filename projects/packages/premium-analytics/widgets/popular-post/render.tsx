@@ -22,18 +22,18 @@ import { usePopularPost } from './use-popular-post';
 import type { PopularPostAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-// Unlike Latest post, this widget is period-scoped: the host injects the
-// dashboard date range through `reportParams`.
+// The card reports on its own pinned window, but the host still injects
+// `reportParams`, which the link to the post's detail page carries through.
 type PopularPostRenderAttributes = PopularPostAttributes & Partial< ReportParamsFieldAttributes >;
 type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
 
 /**
- * The dashboard's date range picks which post is shown, but all three tiles are
- * all-time totals, so none carries a per-tile aggregation note.
+ * The last 365 days pick which post is shown, but all three tiles are all-time
+ * totals, so none carries a per-tile aggregation note.
  */
 function PopularPostReport() {
 	const { reportParams } = useWidgetRootContext();
-	const { post, isLoading, isFetching, isError, error, refetch } = usePopularPost( reportParams );
+	const { post, isLoading, isFetching, isError, error, refetch } = usePopularPost();
 	// The detail page opens on the dashboard's current window.
 	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
 
@@ -68,7 +68,7 @@ function PopularPostReport() {
 			} ) }
 			empty={ {
 				icon: trendingUp,
-				description: __( 'No post views in this period.', 'jetpack-premium-analytics-pkg' ),
+				description: __( 'No post views in the last year.', 'jetpack-premium-analytics-pkg' ),
 			} }
 			renderLoading={ <PostHighlightCardSkeleton /> }
 		>

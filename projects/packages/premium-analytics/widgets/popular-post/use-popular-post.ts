@@ -2,13 +2,14 @@
  * External dependencies
  */
 import {
+	computeDateRangeFromPreset,
 	postContentQuery,
 	useStatsPost,
 	useStatsQuery,
 	useStatsTopPosts,
 	type LatestPostResponse,
-	type ReportParams,
 } from '@jetpack-premium-analytics/data';
+import { PRESET_LAST_365_DAYS } from '@jetpack-premium-analytics/datetime';
 import { useMemo } from 'react';
 
 // Only regular posts qualify as a "Popular post": the Stats top-posts report
@@ -48,24 +49,32 @@ export type UsePopularPostResult = {
 };
 
 /**
- * The site's most-viewed post for the selected date range. The range only picks
- * the winner: every displayed metric is an all-time total from `stats/post`, so
- * the three tiles cannot measure different periods.
+ * The site's most-viewed post of the last 365 days. The window only picks the
+ * winner: every displayed metric is an all-time total from `stats/post`, so the
+ * three tiles cannot measure different periods.
+ *
+ * The window is the widget's own, not the dashboard's: the card names the year it
+ * reports on, so it must not follow the section's date filter.
  *
  * Only a ranking failure surfaces as an error; a failing content or metrics
  * request degrades to no image and unknown counts.
  */
-export function usePopularPost( reportParams: ReportParams ): UsePopularPostResult {
-	const statsParams = useMemo( () => {
-		// Comparison params would fetch a second report this widget never renders.
-		const primaryParams = { ...reportParams, max: POPULAR_POST_REQUEST_MAX };
-		delete primaryParams.comp;
-		delete primaryParams.compare_from;
-		delete primaryParams.compare_to;
-		delete primaryParams.compare_preset;
+export function usePopularPost(): UsePopularPostResult {
+	// Resolved on every render so a dashboard left open across midnight rolls the
+	// window forward. `last-365-days` is a built-in preset, so it always resolves;
+	// the empty fallback exists only to satisfy the optional return type, and
+	// leaves the ranking query disabled rather than silently unpinning the window.
+	const { from, to } = computeDateRangeFromPreset( PRESET_LAST_365_DAYS ) ?? {
+		from: '',
+		to: '',
+	};
 
-		return primaryParams;
-	}, [ reportParams ] );
+	// The report is day-bucketed whatever the dashboard's interval, so `day` is
+	// the only honest value here.
+	const statsParams = useMemo(
+		() => ( { from, to, interval: 'day' as const, max: POPULAR_POST_REQUEST_MAX } ),
+		[ from, to ]
+	);
 
 	// Ranking, post-type filtering, and the single-row cap all live in the data
 	// layer's merge helper (see AGENTS.md), so the widget just takes the winner.
