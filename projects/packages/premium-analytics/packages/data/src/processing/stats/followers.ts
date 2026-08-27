@@ -1,7 +1,9 @@
+import { isValid, parseISO } from 'date-fns';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
 	createStatsListDataPoint,
+	limitStatsRows,
 	normalizeStatsSummary,
 } from './utils';
 import type {
@@ -74,12 +76,27 @@ function getSubscriptionId( item: StatsFollowersRawItem ) {
 	);
 }
 
+// `parseISO`, not `Date.parse`: the row's date label is parsed the same way, so
+// a string only one of them accepts would sort and render inconsistently.
+function subscribedAt( item: StatsFollowersRawItem ) {
+	const date = item.date_subscribed ? parseISO( item.date_subscribed ) : null;
+
+	return date && isValid( date ) ? date.getTime() : Number.MIN_SAFE_INTEGER;
+}
+
 export function sanitizeStatsFollowersResponse(
 	response: unknown,
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsFollowersItem > {
 	const payload = coerceStatsRecord( response ) as StatsFollowersRawResponse & StatsRecord;
-	const subscribers = coerceStatsArray< StatsFollowersRawItem >( payload.subscribers );
+	// `type=all` answers with a block per subscriber type, so the raw order is not
+	// date order, and only the newest `max` of the merged blocks are newest overall.
+	const subscribers = limitStatsRows(
+		coerceStatsArray< StatsFollowersRawItem >( payload.subscribers )
+			.slice()
+			.sort( ( a, b ) => subscribedAt( b ) - subscribedAt( a ) ),
+		query?.max
+	);
 	const items = subscribers.map( item => ( {
 		id: getSubscriptionId( item ),
 		label: item.label ?? item.display_name ?? item.name ?? item.email ?? '',
