@@ -73,6 +73,16 @@ describe( 'JP_CONNECTION_INITIAL_STATE wpcomUser', () => {
 		expect( asBoolean ).toBe( avatar );
 	} );
 
+	test( 'requires avatar, the one field the PHP always sets', () => {
+		// @ts-expect-error `avatar` is required: `get_user_connection_data()` sets it
+		// unconditionally, so even with no connected WordPress.com user the object is
+		// `{ avatar: false }` rather than empty. Every other field is optional, which
+		// leaves this the only assertion pinning that asymmetry.
+		const user: GlobalWpcomUser = {};
+
+		expect( user ).toEqual( {} );
+	} );
+
 	test( 'no longer accepts the `true` that the boolean declaration allowed', () => {
 		// @ts-expect-error `avatar` is a URL or `false`; `get_avatar_url()` never
 		// returns `true`, which the superseded `boolean` declaration permitted.
