@@ -1,4 +1,17 @@
 /**
+ * Internal dependencies
+ */
+import {
+	DEFAULT_RESPONSES_QUERY,
+	getResponseViewForStatus,
+} from '../../src/dashboard/constants.ts';
+/**
+ * Types
+ */
+import type { ResponseView } from '../../src/dashboard/constants.ts';
+import type { QueryParams } from '../../src/dashboard/inbox/stage/types.tsx';
+
+/**
  * The list a single response page was opened from ("the pinned view").
  *
  * `/response/$responseId` has no list of its own, so prev/next has to borrow one.
@@ -26,55 +39,19 @@
  */
 
 /**
- * The status segment of `/responses/$view`.
+ * A pinned list query — the same shape the responses list builds and sends.
  */
-export type ViewStatus = 'inbox' | 'spam' | 'trash';
-
-/**
- * A pinned list query. Wider than `QueryParams` because it also carries the
- * ordering and `fields_format` the responses list sends.
- */
-export type PinnedViewQuery = {
-	status?: string;
-	per_page?: number;
-	page?: number;
-	orderby?: string;
-	order?: string;
-	fields_format?: string;
-	search?: string;
-	parent?: string;
-	source?: string;
-	before?: string;
-	after?: string;
-	is_unread?: boolean;
-	is_test?: boolean;
-};
-
-/**
- * The REST `status` value behind each `/responses/$view` segment.
- *
- * `inbox` spans two post statuses, which is why the mapping can't be an identity.
- */
-const STATUS_BY_VIEW: Record< ViewStatus, string > = {
-	inbox: 'draft,publish',
-	spam: 'spam',
-	trash: 'trash',
-};
+export type PinnedViewQuery = QueryParams;
 
 /**
  * The query assumed when a response page is opened without a pinned view.
  *
- * Mirrors what `routes/responses/stage.tsx` builds for an unfiltered inbox, so a
- * bare `/response/123` behaves as if it had been opened from the inbox — which is
- * where the overwhelming majority of responses are read from.
+ * The responses list's own default, so a bare `/response/123` behaves as if it had
+ * been opened from an unfiltered inbox — which is where the overwhelming majority
+ * of responses are read from — and reads through the cache entry that list already
+ * populated instead of issuing a near-identical second request.
  */
-export const DEFAULT_PINNED_VIEW: PinnedViewQuery = {
-	status: STATUS_BY_VIEW.inbox,
-	page: 1,
-	orderby: 'date',
-	order: 'desc',
-	fields_format: 'collection',
-};
+export const DEFAULT_PINNED_VIEW: PinnedViewQuery = DEFAULT_RESPONSES_QUERY;
 
 /**
  * Read the pinned view out of a route's search params, falling back to the inbox.
@@ -108,16 +85,8 @@ export function getPinnedView( searchParams: unknown ): PinnedViewQuery {
  * @param pinned - The pinned list query.
  * @return The matching route segment.
  */
-export function getViewStatus( pinned: PinnedViewQuery ): ViewStatus {
-	if ( pinned.status === STATUS_BY_VIEW.spam ) {
-		return 'spam';
-	}
-
-	if ( pinned.status === STATUS_BY_VIEW.trash ) {
-		return 'trash';
-	}
-
-	return 'inbox';
+export function getViewStatus( pinned: PinnedViewQuery ): ResponseView {
+	return getResponseViewForStatus( pinned.status );
 }
 
 /**
@@ -125,6 +94,12 @@ export function getViewStatus( pinned: PinnedViewQuery ): ViewStatus {
  *
  * Lets callers leave `view` off the URL entirely in the common case, keeping
  * `/response/123` clean instead of trailing a JSON blob that says nothing.
+ *
+ * Compares the union of both key sets, so a query is only "default" when it adds
+ * nothing (`search`) and omits nothing (`per_page`) — the same shallow-diff shape
+ * as `isQueryStale` in `routes/responses/stage.tsx`. Every key counts, `per_page`
+ * included: core-data slices a query's results to it, so dropping it would leave
+ * the reader navigating a shorter sequence than the list they came from.
  *
  * @param pinned - The pinned list query.
  * @return Whether the query matches the default.
@@ -135,19 +110,7 @@ export function isDefaultPinnedView( pinned: PinnedViewQuery ): boolean {
 		...Object.keys( DEFAULT_PINNED_VIEW ),
 	] ) as Set< keyof PinnedViewQuery >;
 
-	for ( const key of keys ) {
-		// `per_page` is deliberately ignored: it only affects how much of the
-		// sequence is loaded at once, not which responses are in it or their order.
-		if ( key === 'per_page' ) {
-			continue;
-		}
-
-		if ( pinned[ key ] !== DEFAULT_PINNED_VIEW[ key ] ) {
-			return false;
-		}
-	}
-
-	return true;
+	return [ ...keys ].every( key => pinned[ key ] === DEFAULT_PINNED_VIEW[ key ] );
 }
 
 /**

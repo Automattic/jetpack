@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { useEntityRecords } from '@wordpress/core-data';
-import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
+import { useCallback, useMemo, useRef } from '@wordpress/element';
 import { useNavigate } from '@wordpress/route';
 /**
  * Internal dependencies
@@ -41,14 +41,19 @@ export type ResponsePageNavigation = {
  * user is stranded on a response they just actioned, which is exactly when they
  * most want to move on to the next one.
  *
- * So the last index the response was seen at is remembered. When the lookup fails,
- * that index is reused against the (now one shorter) list, where it addresses the
- * response that used to follow — the natural "next". `index - 1` still addresses
- * the one before. The remembered index is only a fallback: while the response is
- * still in the list, its live position wins, so reordering and refetches stay
- * correct.
+ * There are two ways the live list stops describing where the user is, and one
+ * answer to both: remember the last list the response was actually found in, and
+ * keep walking that. It covers the response being actioned out of the list, and it
+ * covers `useEntityRecords` reporting nothing at all while a status change
+ * re-resolves the query — a gap that would otherwise kill the arrows for the
+ * length of every refetch. Because the response is still present in the remembered
+ * list, its neighbours are plain `index ± 1`, with no correction for the gap it
+ * left behind and no way for the index to fall outside the array.
  *
- * A cold deep-link to an already-spammed response has no remembered index and no
+ * The remembered list is only a fallback: while the response is still in the live
+ * list, that wins, so reordering and new arrivals are picked up immediately.
+ *
+ * A cold deep-link to an already-spammed response has nothing remembered and no
  * position in the pinned list, so it correctly offers no navigation rather than
  * guessing a place in a sequence the response was never part of.
  *
@@ -61,65 +66,47 @@ export default function useResponsePageNavigation(
 	pinned: PinnedViewQuery
 ): ResponsePageNavigation {
 	const navigate = useNavigate();
-	const { records: fetchedRecords } = useEntityRecords< FormResponse >(
+	const { records: liveRecords } = useEntityRecords< FormResponse >(
 		'postType',
 		'feedback',
 		pinned
 	);
 
-	// Every status change invalidates this query, and `useEntityRecords` reports no
-	// records at all while it re-resolves. Without holding the previous list, the
-	// arrows would go dead for the length of that refetch — precisely after the user
-	// actions a response, which is when they are most likely to be moving on. The
-	// stale list is a better answer than no list: it still describes the sequence,
-	// and the live one replaces it as soon as it lands.
-	const lastRecordsRef = useRef< FormResponse[] | null >( null );
-
-	if ( fetchedRecords ) {
-		lastRecordsRef.current = fetchedRecords;
-	}
-
-	const records = fetchedRecords ?? lastRecordsRef.current;
-
 	const liveIndex = useMemo(
 		() =>
-			Number.isFinite( currentId ) && records
-				? records.findIndex( ( item: FormResponse ) => Number( getItemId( item ) ) === currentId )
+			Number.isFinite( currentId ) && liveRecords
+				? liveRecords.findIndex(
+						( item: FormResponse ) => Number( getItemId( item ) ) === currentId
+				  )
 				: -1,
-		[ records, currentId ]
+		[ liveRecords, currentId ]
 	);
 
-	// Keyed by id so that navigating to a response which isn't in the pinned list
-	// (a deep link, or one opened from a different list) doesn't inherit the
-	// previous response's position.
-	const lastKnownIndexRef = useRef< { id: number; index: number } | null >( null );
+	// Keyed by id so a response that isn't in the pinned list (a deep link, or one
+	// opened from a different list) doesn't inherit the previous response's place.
+	const lastSeenRef = useRef< {
+		id: number;
+		records: FormResponse[];
+		index: number;
+	} | null >( null );
 
-	useEffect( () => {
-		if ( liveIndex >= 0 ) {
-			lastKnownIndexRef.current = { id: currentId, index: liveIndex };
-		}
-	}, [ liveIndex, currentId ] );
+	if ( liveRecords && liveIndex >= 0 ) {
+		lastSeenRef.current = { id: currentId, records: liveRecords, index: liveIndex };
+	}
 
-	const fallbackIndex =
-		lastKnownIndexRef.current?.id === currentId ? lastKnownIndexRef.current.index : -1;
+	// The live list wins whenever it still holds the response; otherwise fall back to
+	// the remembered one, and only if it belongs to this response.
+	const remembered = lastSeenRef.current?.id === currentId ? lastSeenRef.current : null;
+	const seen = liveRecords && liveIndex >= 0 ? lastSeenRef.current : remembered;
 
-	// Where the response sits, or — once it has left the list — where it used to.
-	const anchorIndex = liveIndex >= 0 ? liveIndex : fallbackIndex;
-	const hasLeftList = liveIndex < 0 && fallbackIndex >= 0;
-	const total = records?.length ?? 0;
+	const records = seen?.records ?? null;
+	const index = seen?.index ?? -1;
 
-	// Once the response is gone from the list, everything after it has shifted down
-	// by one, so the anchor index itself now addresses the next response rather
-	// than the one after it.
-	const nextIndex = hasLeftList ? anchorIndex : anchorIndex + 1;
-	const previousIndex = anchorIndex - 1;
-
-	const hasPrevious = anchorIndex >= 0 && previousIndex >= 0 && previousIndex < total;
-	const hasNext = anchorIndex >= 0 && nextIndex >= 0 && nextIndex < total;
+	const hasPrevious = index > 0;
+	const hasNext = index >= 0 && index + 1 < ( records?.length ?? 0 );
 
 	const goTo = useCallback(
-		( index: number ) => {
-			const target = records?.[ index ];
+		( target: FormResponse | undefined ) => {
 			if ( target ) {
 				navigate( {
 					to: `/response/${ getItemId( target ) }`,
@@ -131,20 +118,20 @@ export default function useResponsePageNavigation(
 				} );
 			}
 		},
-		[ records, navigate, pinned ]
+		[ navigate, pinned ]
 	);
 
 	const goPrevious = useCallback( () => {
 		if ( hasPrevious ) {
-			goTo( previousIndex );
+			goTo( records?.[ index - 1 ] );
 		}
-	}, [ hasPrevious, previousIndex, goTo ] );
+	}, [ hasPrevious, records, index, goTo ] );
 
 	const goNext = useCallback( () => {
 		if ( hasNext ) {
-			goTo( nextIndex );
+			goTo( records?.[ index + 1 ] );
 		}
-	}, [ hasNext, nextIndex, goTo ] );
+	}, [ hasNext, records, index, goTo ] );
 
 	return { hasPrevious, hasNext, goPrevious, goNext };
 }

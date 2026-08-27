@@ -16,6 +16,9 @@ export type QueryParams = {
 	per_page?: number;
 	page?: number;
 	status?: string;
+	orderby?: string;
+	order?: string;
+	fields_format?: string;
 };
 
 /**

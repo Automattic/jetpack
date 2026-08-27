@@ -38,8 +38,6 @@ export type ResponseActions = {
 	editForm: () => void;
 	/** Go back to the list this response was opened from. */
 	goToList: () => void;
-	/** The underlying action definitions, for callers that need labels or eligibility. */
-	actions: ReturnType< typeof getActions >;
 };
 
 /**
@@ -49,17 +47,23 @@ export type ResponseActions = {
  * drift apart — in particular so a shortcut can't skip the re-entry guard or the
  * store repair that every status change from this page depends on.
  *
- * Status changes (spam / not spam / trash / restore) keep the user on this page —
- * the header badge reflects the new status instead. Only a permanent delete
- * navigates away, since there is no longer a response to show.
+ * Every action is refused unless the record on screen is the one the route names.
+ * Navigating is faster than fetching, so for a moment after prev/next the page is
+ * still showing the previous record while the URL already names the new one — an
+ * action taken in that window would hit the wrong response. Guarding inside
+ * `runAction` covers the menu and the keyboard alike, rather than each caller
+ * having to remember.
  *
  * @param response - The response being viewed.
  * @param pinned   - The list query the response was opened from.
+ * @param routedId - The response ID from the route, which `response` may still be
+ *                 catching up to.
  * @return The action handlers and their in-flight state.
  */
 export default function useResponseActions(
 	response: FormResponse | null,
-	pinned: PinnedViewQuery
+	pinned: PinnedViewQuery,
+	routedId: number
 ): ResponseActions {
 	const registry = useRegistry() as unknown as Registry;
 	const navigate = useNavigate();
@@ -85,7 +89,7 @@ export default function useResponseActions(
 
 	const runAction = useCallback(
 		async ( action: Action ) => {
-			if ( ! response || inFlightRef.current.has( response.id ) ) {
+			if ( ! response || response.id !== routedId || inFlightRef.current.has( response.id ) ) {
 				return undefined;
 			}
 
@@ -100,7 +104,7 @@ export default function useResponseActions(
 				setPendingIds( previous => previous.filter( pendingId => pendingId !== id ) );
 			}
 		},
-		[ response, registry ]
+		[ response, registry, routedId ]
 	);
 
 	// Only the response on screen drives the busy UI. Another response's change
@@ -110,9 +114,18 @@ export default function useResponseActions(
 	// Only act on a change the server accepted — otherwise a failed request would
 	// leave the canonical record (and so the header badge and this menu) advertising
 	// a status the response never got.
+	//
+	// `appliesTo` is the eligibility table the menu renders from, enforced here too
+	// because the keyboard exposes every change unconditionally — the menu only
+	// offers the ones that apply. Stated as an allow-list rather than as "not spam
+	// and not trash" so that adding a status fails closed.
 	const changeStatus = useCallback(
-		async ( action: ReportingAction, nextStatus: FormResponse[ 'status' ] ) => {
-			if ( ! response ) {
+		async (
+			action: ReportingAction,
+			nextStatus: FormResponse[ 'status' ],
+			appliesTo: FormResponse[ 'status' ][]
+		) => {
+			if ( ! response || ! appliesTo.includes( response.status ) ) {
 				return;
 			}
 
@@ -150,33 +163,21 @@ export default function useResponseActions(
 		}
 	}, [ runAction, actions.deleteAction, navigate, response ] );
 
-	// Each status change is guarded on the status it applies to, because the
-	// keyboard exposes them unconditionally — unlike the menu, which only renders
-	// the ones that apply. Marking an already-trashed response as spam, say, would
-	// otherwise fire a request the UI never offered.
 	const markAsSpam = useCallback( () => {
-		if ( response && response.status !== 'spam' && response.status !== 'trash' ) {
-			changeStatus( actions.markAsSpamAction, 'spam' );
-		}
-	}, [ response, changeStatus, actions.markAsSpamAction ] );
+		changeStatus( actions.markAsSpamAction, 'spam', [ 'publish' ] );
+	}, [ changeStatus, actions.markAsSpamAction ] );
 
 	const markAsNotSpam = useCallback( () => {
-		if ( response?.status === 'spam' ) {
-			changeStatus( actions.markAsNotSpamAction, 'publish' );
-		}
-	}, [ response, changeStatus, actions.markAsNotSpamAction ] );
+		changeStatus( actions.markAsNotSpamAction, 'publish', [ 'spam' ] );
+	}, [ changeStatus, actions.markAsNotSpamAction ] );
 
 	const moveToTrash = useCallback( () => {
-		if ( response && response.status !== 'trash' ) {
-			changeStatus( actions.moveToTrashAction, 'trash' );
-		}
-	}, [ response, changeStatus, actions.moveToTrashAction ] );
+		changeStatus( actions.moveToTrashAction, 'trash', [ 'publish', 'spam' ] );
+	}, [ changeStatus, actions.moveToTrashAction ] );
 
 	const restore = useCallback( () => {
-		if ( response?.status === 'trash' ) {
-			changeStatus( actions.restoreAction, 'publish' );
-		}
-	}, [ response, changeStatus, actions.restoreAction ] );
+		changeStatus( actions.restoreAction, 'publish', [ 'trash' ] );
+	}, [ changeStatus, actions.restoreAction ] );
 
 	const toggleRead = useCallback( () => {
 		if ( response ) {
@@ -200,6 +201,5 @@ export default function useResponseActions(
 		toggleRead,
 		editForm,
 		goToList,
-		actions,
 	};
 }

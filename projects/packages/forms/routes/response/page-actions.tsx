@@ -28,10 +28,6 @@ import type { FormResponse } from '../../src/types/index.ts';
  * shortcuts discoverable. The trade-off is that children have to close the menu
  * themselves, which `controls` did automatically.
  *
- * Status changes (spam / not spam / trash / restore) keep the user on this page —
- * the header badge reflects the new status instead. Only a permanent delete
- * navigates away, since there is no longer a response to show.
- *
  * @param props                 - Component props.
  * @param props.response        - The response being viewed.
  * @param props.responseActions - The page's shared action handlers.
@@ -64,6 +60,9 @@ export default function SingleResponseActions( {
 		goToList,
 	} = responseActions;
 
+	const isSpam = response.status === 'spam';
+	const isTrash = response.status === 'trash';
+
 	return (
 		<DropdownMenu
 			icon={ moreVertical }
@@ -95,49 +94,40 @@ export default function SingleResponseActions( {
 							</MenuItem>
 						</MenuGroup>
 
+						{ /* One conditional per item rather than three status branches, so the
+						     Trash item exists once and these read 1:1 against the `appliesTo`
+						     table that guards the same actions in `useResponseActions`. */ }
 						<MenuGroup>
-							{ response.status === 'spam' && (
-								<>
-									<MenuItem onClick={ run( markAsNotSpam ) }>
-										{ __( 'Not spam', 'jetpack-forms' ) }
-									</MenuItem>
-									<MenuItem
-										shortcut={ SHORTCUTS.moveToTrash.display }
-										onClick={ run( moveToTrash ) }
-									>
-										{ __( 'Trash', 'jetpack-forms' ) }
-									</MenuItem>
-								</>
+							{ isSpam && (
+								<MenuItem onClick={ run( markAsNotSpam ) }>
+									{ __( 'Not spam', 'jetpack-forms' ) }
+								</MenuItem>
 							) }
-
-							{ response.status === 'trash' && (
-								<>
-									<MenuItem onClick={ run( restore ) }>
-										{ __( 'Restore', 'jetpack-forms' ) }
-									</MenuItem>
-									<MenuItem isDestructive onClick={ run( deletePermanently ) }>
-										{ __( 'Delete permanently', 'jetpack-forms' ) }
-									</MenuItem>
-								</>
+							{ isTrash && (
+								<MenuItem onClick={ run( restore ) }>{ __( 'Restore', 'jetpack-forms' ) }</MenuItem>
 							) }
-
-							{ response.status !== 'spam' && response.status !== 'trash' && (
-								<>
-									<MenuItem shortcut={ SHORTCUTS.markAsSpam.display } onClick={ run( markAsSpam ) }>
-										{ __( 'Mark as spam', 'jetpack-forms' ) }
-									</MenuItem>
-									<MenuItem
-										shortcut={ SHORTCUTS.moveToTrash.display }
-										onClick={ run( moveToTrash ) }
-									>
-										{ __( 'Trash', 'jetpack-forms' ) }
-									</MenuItem>
-								</>
+							{ ! isSpam && ! isTrash && (
+								<MenuItem shortcut={ SHORTCUTS.markAsSpam.shortcut } onClick={ run( markAsSpam ) }>
+									{ __( 'Mark as spam', 'jetpack-forms' ) }
+								</MenuItem>
+							) }
+							{ ! isTrash && (
+								<MenuItem
+									shortcut={ SHORTCUTS.moveToTrash.shortcut }
+									onClick={ run( moveToTrash ) }
+								>
+									{ __( 'Trash', 'jetpack-forms' ) }
+								</MenuItem>
+							) }
+							{ isTrash && (
+								<MenuItem isDestructive onClick={ run( deletePermanently ) }>
+									{ __( 'Delete permanently', 'jetpack-forms' ) }
+								</MenuItem>
 							) }
 						</MenuGroup>
 
 						<MenuGroup>
-							<MenuItem shortcut={ SHORTCUTS.goToList } onClick={ run( goToList ) }>
+							<MenuItem shortcut={ SHORTCUTS.goToList.shortcut } onClick={ run( goToList ) }>
 								{ __( 'Back to responses', 'jetpack-forms' ) }
 							</MenuItem>
 							{ response.edit_form_url && (

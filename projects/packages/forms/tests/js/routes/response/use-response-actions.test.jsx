@@ -45,17 +45,19 @@ function deferred() {
 const response = ( id, status = 'publish' ) => ( { id, status, is_unread: false } );
 
 describe( 'useResponseActions', () => {
-	let spamCalls;
+	// `[ actionName, responseId ]` per call, so a test can tell a suppressed action
+	// from the wrong action having run.
+	let actionCalls;
 	let pending;
 
 	beforeEach( () => {
 		jest.clearAllMocks();
-		spamCalls = [];
+		actionCalls = [];
 		pending = [];
 
-		const makeAction = () => ( {
+		const makeAction = name => ( {
 			callback: jest.fn( items => {
-				spamCalls.push( items[ 0 ].id );
+				actionCalls.push( [ name, items[ 0 ].id ] );
 				const d = deferred();
 				pending.push( d );
 				return d.promise;
@@ -63,14 +65,14 @@ describe( 'useResponseActions', () => {
 		} );
 
 		mockGetActions.mockReturnValue( {
-			markAsSpamAction: makeAction(),
-			markAsNotSpamAction: makeAction(),
-			moveToTrashAction: makeAction(),
-			restoreAction: makeAction(),
-			deleteAction: makeAction(),
-			markAsReadAction: makeAction(),
-			markAsUnreadAction: makeAction(),
-			editFormAction: makeAction(),
+			markAsSpamAction: makeAction( 'spam' ),
+			markAsNotSpamAction: makeAction( 'notSpam' ),
+			moveToTrashAction: makeAction( 'trash' ),
+			restoreAction: makeAction( 'restore' ),
+			deleteAction: makeAction( 'delete' ),
+			markAsReadAction: makeAction( 'read' ),
+			markAsUnreadAction: makeAction( 'unread' ),
+			editFormAction: makeAction( 'editForm' ),
 		} );
 	} );
 
@@ -81,7 +83,7 @@ describe( 'useResponseActions', () => {
 	 * @return {object} The render result.
 	 */
 	function render( record ) {
-		return renderHook( ( { r } ) => useResponseActions( r, DEFAULT_PINNED_VIEW ), {
+		return renderHook( ( { r } ) => useResponseActions( r, DEFAULT_PINNED_VIEW, r.id ), {
 			initialProps: { r: record },
 		} );
 	}
@@ -92,7 +94,7 @@ describe( 'useResponseActions', () => {
 		act( () => result.current.markAsSpam() );
 		act( () => result.current.moveToTrash() );
 
-		expect( spamCalls ).toEqual( [ 1 ] );
+		expect( actionCalls ).toEqual( [ [ 'spam', 1 ] ] );
 	} );
 
 	// The point of keying the guard by id: the user marks one response as spam and
@@ -102,13 +104,16 @@ describe( 'useResponseActions', () => {
 		const { result, rerender } = render( response( 1 ) );
 
 		act( () => result.current.markAsSpam() );
-		expect( spamCalls ).toEqual( [ 1 ] );
+		expect( actionCalls ).toEqual( [ [ 'spam', 1 ] ] );
 
 		// The user navigates to the next response before the request lands.
 		rerender( { r: response( 2 ) } );
 		act( () => result.current.markAsSpam() );
 
-		expect( spamCalls ).toEqual( [ 1, 2 ] );
+		expect( actionCalls ).toEqual( [
+			[ 'spam', 1 ],
+			[ 'spam', 2 ],
+		] );
 	} );
 
 	it( 'reports pending only for the response on screen', async () => {
@@ -133,40 +138,48 @@ describe( 'useResponseActions', () => {
 		expect( result.current.isPending ).toBe( false );
 
 		act( () => result.current.moveToTrash() );
-		expect( spamCalls ).toEqual( [ 1, 1 ] );
+		expect( actionCalls ).toEqual( [
+			[ 'spam', 1 ],
+			[ 'trash', 1 ],
+		] );
 	} );
 
 	// Each shortcut is exposed unconditionally, unlike the menu which only renders
 	// the items that apply to the current status.
 	describe( 'status guards', () => {
-		it( 'does not re-spam a response that is already spam', () => {
-			const { result } = render( response( 1, 'spam' ) );
-			act( () => result.current.markAsSpam() );
-			expect( spamCalls ).toEqual( [] );
+		it.each( [
+			[ 'does not re-spam a response that is already spam', 'spam', 'markAsSpam' ],
+			[ 'does not spam a trashed response', 'trash', 'markAsSpam' ],
+			[ 'does not re-trash a trashed response', 'trash', 'moveToTrash' ],
+			[ 'only restores a trashed response', 'publish', 'restore' ],
+			[ 'only un-spams a spam response', 'publish', 'markAsNotSpam' ],
+		] )( '%s', ( _label, status, action ) => {
+			const { result } = render( response( 1, status ) );
+
+			act( () => result.current[ action ]() );
+
+			expect( actionCalls ).toEqual( [] );
 		} );
 
-		it( 'does not spam a trashed response', () => {
-			const { result } = render( response( 1, 'trash' ) );
-			act( () => result.current.markAsSpam() );
-			expect( spamCalls ).toEqual( [] );
-		} );
+		// The other half of the table: each action does fire on a status it applies to.
+		it.each( [
+			[ 'publish', 'markAsSpam', 'spam' ],
+			[ 'spam', 'markAsNotSpam', 'notSpam' ],
+			[ 'publish', 'moveToTrash', 'trash' ],
+			[ 'spam', 'moveToTrash', 'trash' ],
+			[ 'trash', 'restore', 'restore' ],
+		] )( 'runs %s -> %s', ( status, action, expected ) => {
+			const { result } = render( response( 1, status ) );
 
-		it( 'does not re-trash a trashed response', () => {
-			const { result } = render( response( 1, 'trash' ) );
-			act( () => result.current.moveToTrash() );
-			expect( spamCalls ).toEqual( [] );
-		} );
+			act( () => result.current[ action ]() );
 
-		it( 'only restores a trashed response', () => {
-			const { result } = render( response( 1, 'publish' ) );
-			act( () => result.current.restore() );
-			expect( spamCalls ).toEqual( [] );
+			expect( actionCalls ).toEqual( [ [ expected, 1 ] ] );
 		} );
 	} );
 
 	it( 'returns to the list the response was opened from', () => {
 		const { result } = renderHook( () =>
-			useResponseActions( response( 1, 'spam' ), { status: 'spam' } )
+			useResponseActions( response( 1, 'spam' ), { status: 'spam' }, 1 )
 		);
 
 		act( () => result.current.goToList() );

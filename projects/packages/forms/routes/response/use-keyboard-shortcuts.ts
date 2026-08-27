@@ -6,11 +6,12 @@ import { useEffect, useRef } from '@wordpress/element';
 /**
  * The keys bound on the single response page.
  *
- * Each entry carries both the `event.key` to match and the label to advertise, so
- * the menu items and arrow tooltips describe themselves from the same source that
- * binds them — the hint a user reads and the key that actually works cannot drift
- * apart. The two differ for `Escape`, which is spelled "Esc" everywhere a person
- * reads it.
+ * Each entry carries both the `event.key` to match and the `shortcut` to advertise,
+ * so the menu items and arrow tooltips describe themselves from the same source
+ * that binds them — the hint a user reads and the key that actually works cannot
+ * drift apart. The two differ for `Escape`, which is spelled "Esc" everywhere a
+ * person reads it; `shortcut` is passed straight to `@wordpress/components`, which
+ * accepts either a string or a `{ display, ariaLabel }` pair.
  *
  * Keys follow the conventions of the mail clients this page's triage flow
  * resembles: `j`/`k` to move through a list, `#` to bin something, `!` to report
@@ -21,11 +22,11 @@ import { useEffect, useRef } from '@wordpress/element';
  * meaningfully harder to hit by accident than a bare letter would be.
  */
 export const SHORTCUTS = {
-	next: { key: 'j', display: 'j' },
-	previous: { key: 'k', display: 'k' },
-	moveToTrash: { key: '#', display: '#' },
-	markAsSpam: { key: '!', display: '!' },
-	goToList: { key: 'Escape', display: 'Esc', ariaLabel: 'Escape' },
+	next: { key: 'j', shortcut: 'j' },
+	previous: { key: 'k', shortcut: 'k' },
+	moveToTrash: { key: '#', shortcut: '#' },
+	markAsSpam: { key: '!', shortcut: '!' },
+	goToList: { key: 'Escape', shortcut: { display: 'Esc', ariaLabel: 'Escape' } },
 } as const;
 
 export type ResponseShortcutHandlers = {

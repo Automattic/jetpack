@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/route';
 import * as React from 'react';
 /**
- * Types
+ * Internal dependencies
  */
 import { getViewStatus } from './pinned-view.ts';
 /**
@@ -50,11 +50,11 @@ export default function SingleResponseBreadcrumbs( {
 	response?: FormResponse | null;
 	formTitle?: string;
 	currentLabel?: string;
-	pinned?: PinnedViewQuery;
+	pinned: PinnedViewQuery;
 } ): React.JSX.Element {
 	const showFormCrumb = Boolean( response?.form_id ) && Boolean( formTitle );
 	const current = currentLabel ?? ( response ? `#${ response.id }` : '' );
-	const listPath = `/responses/${ pinned ? getViewStatus( pinned ) : 'inbox' }`;
+	const listPath = `/responses/${ getViewStatus( pinned ) }`;
 
 	return (
 		<nav

@@ -37,9 +37,20 @@ describe( 'useResponseKeyboardShortcuts', () => {
 		onGoToList: jest.fn(),
 	} );
 
-	it( 'binds the documented keys', () => {
+	/**
+	 * Mount the hook and hand back the spies it was given.
+	 *
+	 * @param {object} [options] - Hook options.
+	 * @return {object} The handler spies.
+	 */
+	const setup = options => {
 		const h = handlers();
-		renderHook( () => useResponseKeyboardShortcuts( h ) );
+		renderHook( () => useResponseKeyboardShortcuts( h, options ) );
+		return h;
+	};
+
+	it( 'binds the documented keys', () => {
+		const h = setup();
 
 		press( SHORTCUTS.next.key );
 		press( SHORTCUTS.previous.key );
@@ -55,8 +66,7 @@ describe( 'useResponseKeyboardShortcuts', () => {
 	} );
 
 	it( 'keeps the arrow keys alongside j/k', () => {
-		const h = handlers();
-		renderHook( () => useResponseKeyboardShortcuts( h ) );
+		const h = setup();
 
 		press( 'ArrowDown' );
 		press( 'ArrowUp' );
@@ -68,8 +78,7 @@ describe( 'useResponseKeyboardShortcuts', () => {
 	// Both destructive keys are shifted symbols, so bailing out on Shift would
 	// unbind exactly the two shortcuts that matter most.
 	it( 'runs the destructive shortcuts even though they need Shift', () => {
-		const h = handlers();
-		renderHook( () => useResponseKeyboardShortcuts( h ) );
+		const h = setup();
 
 		press( SHORTCUTS.markAsSpam.key, { shiftKey: true } );
 		press( SHORTCUTS.moveToTrash.key, { shiftKey: true } );
@@ -81,8 +90,7 @@ describe( 'useResponseKeyboardShortcuts', () => {
 	it.each( [ [ 'metaKey' ], [ 'ctrlKey' ], [ 'altKey' ] ] )(
 		'ignores keys held with %s',
 		modifier => {
-			const h = handlers();
-			renderHook( () => useResponseKeyboardShortcuts( h ) );
+			const h = setup();
 
 			press( SHORTCUTS.next.key, { [ modifier ]: true } );
 
@@ -91,8 +99,7 @@ describe( 'useResponseKeyboardShortcuts', () => {
 	);
 
 	it( 'does nothing while a shortcut is suspended', () => {
-		const h = handlers();
-		renderHook( () => useResponseKeyboardShortcuts( h, { isDisabled: true } ) );
+		const h = setup( { isDisabled: true } );
 
 		press( SHORTCUTS.markAsSpam.key );
 
@@ -108,8 +115,7 @@ describe( 'useResponseKeyboardShortcuts', () => {
 	} );
 
 	it( 'only preventDefaults keys it actually handles', () => {
-		const h = handlers();
-		renderHook( () => useResponseKeyboardShortcuts( h ) );
+		setup();
 
 		expect( press( SHORTCUTS.next.key ).defaultPrevented ).toBe( true );
 		expect( press( 'x' ).defaultPrevented ).toBe( false );
@@ -121,8 +127,7 @@ describe( 'useResponseKeyboardShortcuts', () => {
 	// dismissing one would navigate off the response as a side effect.
 	describe( 'Escape', () => {
 		it( 'backs out to the list', () => {
-			const h = handlers();
-			renderHook( () => useResponseKeyboardShortcuts( h ) );
+			const h = setup();
 
 			press( 'Escape' );
 
@@ -130,8 +135,7 @@ describe( 'useResponseKeyboardShortcuts', () => {
 		} );
 
 		it( 'is suspended while something dismissible is open', () => {
-			const h = handlers();
-			renderHook( () => useResponseKeyboardShortcuts( h, { isDisabled: true } ) );
+			const h = setup( { isDisabled: true } );
 
 			press( 'Escape' );
 
@@ -140,8 +144,7 @@ describe( 'useResponseKeyboardShortcuts', () => {
 
 		// Whatever opened the overlay is entitled to consume the key first.
 		it( 'defers to a handler that already claimed the event', () => {
-			const h = handlers();
-			renderHook( () => useResponseKeyboardShortcuts( h ) );
+			const h = setup();
 
 			const event = new KeyboardEvent( 'keydown', {
 				key: 'Escape',
@@ -156,8 +159,7 @@ describe( 'useResponseKeyboardShortcuts', () => {
 	} );
 
 	it( 'ignores keys typed into a field', () => {
-		const h = handlers();
-		renderHook( () => useResponseKeyboardShortcuts( h ) );
+		const h = setup();
 
 		const input = document.createElement( 'input' );
 		document.body.appendChild( input );

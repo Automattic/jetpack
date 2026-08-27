@@ -91,7 +91,7 @@ function Stage(): React.JSX.Element {
 	const isValidId = Number.isFinite( id ) && id > 0;
 
 	// The list this response was opened from. Prev/next walks it, the breadcrumb
-	// links back to it, and `u` returns to it. See `pinned-view.ts`.
+	// links back to it, and Escape returns to it. See `pinned-view.ts`.
 	const pinned = useMemo( () => getPinnedView( searchParams ), [ searchParams ] );
 
 	const { receiveEntityRecords } = useDispatch( coreStore ) as unknown as DispatchActions;
@@ -184,7 +184,7 @@ function Stage(): React.JSX.Element {
 	// One set of action handlers for both the three-dot menu and the keyboard, so a
 	// shortcut cannot bypass the re-entry guard or the store repair a status change
 	// from this page depends on.
-	const responseActions = useResponseActions( response, pinned );
+	const responseActions = useResponseActions( response, pinned, id );
 
 	// Navigation is deliberately *not* gated on `isPending`. Marking a run of spam is
 	// the main thing this page is used for, and waiting for each request to land
@@ -203,13 +203,6 @@ function Stage(): React.JSX.Element {
 	// navigate away at the same time.
 	const [ isActionsMenuOpen, setIsActionsMenuOpen ] = useState( false );
 
-	// A status change must only ever hit the response the user is actually looking
-	// at. Navigating is faster than fetching, so for a moment after prev/next the
-	// page is still showing the previous record while the URL already names the new
-	// one — a keystroke landing there would action the wrong response. Comparing the
-	// rendered record against the route's id closes that window.
-	const isShowingRoutedResponse = response?.id === id;
-
 	// Keyboard shortcuts for triage: move through the list, file a response away,
 	// get back to the list. Suspended while a modal is open or a mutation is in
 	// flight — navigating away mid-change would leave the spam dialog describing one
@@ -221,8 +214,8 @@ function Stage(): React.JSX.Element {
 		{
 			onNext: hasNext ? goNext : undefined,
 			onPrevious: hasPrevious ? goPrevious : undefined,
-			onMarkAsSpam: isShowingRoutedResponse ? responseActions.markAsSpam : undefined,
-			onMoveToTrash: isShowingRoutedResponse ? responseActions.moveToTrash : undefined,
+			onMarkAsSpam: responseActions.markAsSpam,
+			onMoveToTrash: responseActions.moveToTrash,
 			onGoToList: responseActions.goToList,
 		},
 		{
@@ -338,8 +331,8 @@ function Stage(): React.JSX.Element {
 						hasPrevious={ hasPrevious && ! isNavigationBlocked }
 						onNext={ goNext }
 						onPrevious={ goPrevious }
-						nextShortcut={ SHORTCUTS.next.display }
-						previousShortcut={ SHORTCUTS.previous.display }
+						nextShortcut={ SHORTCUTS.next.shortcut }
+						previousShortcut={ SHORTCUTS.previous.shortcut }
 						onClose={ null }
 					/>
 					<SingleResponseActions

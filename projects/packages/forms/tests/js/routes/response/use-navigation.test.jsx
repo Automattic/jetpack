@@ -182,16 +182,8 @@ describe( 'useResponsePageNavigation', () => {
 // strand the user exactly when they have just actioned a response and want to move
 // on — the flow this whole feature exists to support.
 describe( 'while the pinned list is refetching', () => {
-	beforeEach( () => {
-		jest.clearAllMocks();
-	} );
-
 	it( 'keeps navigating using the last known list', () => {
-		mockUseEntityRecords.mockReturnValue( { records: records( 1, 2, 3 ) } );
-		const { result, rerender } = renderHook(
-			( { id, query } ) => useResponsePageNavigation( id, query ),
-			{ initialProps: { id: 2, query: DEFAULT_PINNED_VIEW } }
-		);
+		const { result, rerender } = render( 2, records( 1, 2, 3 ) );
 
 		expect( result.current.hasNext ).toBe( true );
 
@@ -207,11 +199,7 @@ describe( 'while the pinned list is refetching', () => {
 	} );
 
 	it( 'prefers the refreshed list once it lands', () => {
-		mockUseEntityRecords.mockReturnValue( { records: records( 1, 2, 3 ) } );
-		const { result, rerender } = renderHook(
-			( { id, query } ) => useResponsePageNavigation( id, query ),
-			{ initialProps: { id: 2, query: DEFAULT_PINNED_VIEW } }
-		);
+		const { result, rerender } = render( 2, records( 1, 2, 3 ) );
 
 		mockUseEntityRecords.mockReturnValue( { records: null } );
 		rerender( { id: 2, query: DEFAULT_PINNED_VIEW } );

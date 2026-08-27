@@ -13,6 +13,7 @@ import {
 	getViewStatus,
 	isDefaultPinnedView,
 } from '../../../../routes/response/pinned-view.ts';
+import { RESPONSES_PER_PAGE } from '../../../../src/dashboard/constants.ts';
 
 describe( 'getPinnedView', () => {
 	it( 'falls back to the inbox when no view is pinned', () => {
@@ -70,19 +71,27 @@ describe( 'isDefaultPinnedView', () => {
 		expect( isDefaultPinnedView( DEFAULT_PINNED_VIEW ) ).toBe( true );
 	} );
 
-	// Page size changes how much of the sequence is loaded, not which responses
-	// are in it or their order, so it must not force the param into the URL.
-	it( 'ignores per_page', () => {
-		expect( isDefaultPinnedView( { ...DEFAULT_PINNED_VIEW, per_page: 50 } ) ).toBe( true );
-	} );
-
 	it.each( [
 		[ 'a different status', { status: 'spam' } ],
 		[ 'a search term', { search: 'hello' } ],
 		[ 'a different order', { order: 'asc' } ],
 		[ 'a form filter', { parent: '42' } ],
+		[ 'a different page size', { per_page: 50 } ],
 	] )( 'rejects %s', ( _label, overrides ) => {
 		expect( isDefaultPinnedView( { ...DEFAULT_PINNED_VIEW, ...overrides } ) ).toBe( false );
+	} );
+
+	// core-data slices a query's results to `per_page`, defaulting to 10. Treating a
+	// query that omits it as "the default" would leave the reader navigating a
+	// 10-long sequence while the list they came from showed 20.
+	it( 'rejects a query missing per_page', () => {
+		const { per_page: _omitted, ...withoutPerPage } = DEFAULT_PINNED_VIEW;
+
+		expect( isDefaultPinnedView( withoutPerPage ) ).toBe( false );
+	} );
+
+	it( 'carries a page size the navigable sequence depends on', () => {
+		expect( DEFAULT_PINNED_VIEW.per_page ).toBe( RESPONSES_PER_PAGE );
 	} );
 } );
 
