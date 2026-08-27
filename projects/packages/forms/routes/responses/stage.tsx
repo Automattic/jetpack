@@ -185,22 +185,6 @@ function StageInner() {
 	const { setPersistenceLayer } = useDispatch( preferencesStore );
 	ensurePreferencesPersistence( setPersistenceLayer );
 
-	// The Folder filter is the route, not a preference: it comes from the URL and must
-	// never be persisted, or reloading /responses/inbox could resolve a stored `spam`.
-	// `isLocked` is how `useView` is told to apply a filter but keep it out of what it
-	// saves. A single form's responses have no Folder filter at all.
-	const activeViewOverrides = useMemo(
-		() =>
-			isSingleFormView
-				? undefined
-				: {
-						filters: [
-							{ field: 'folder', operator: 'is' as const, value: statusView, isLocked: true },
-						],
-				  },
-		[ isSingleFormView, statusView ]
-	);
-
 	// `page` is deliberately not in the URL — it never has been here — so it lives
 	// alongside the search term that is, and both reach the view as query params.
 	const [ page, setPage ] = useState( 1 );
@@ -229,7 +213,6 @@ function StageInner() {
 		// would strand one form's columns on another.
 		slug: isSingleFormView ? `form-${ sourceIdNumber }` : 'all',
 		defaultView: DEFAULT_VIEW,
-		activeViewOverrides,
 		queryParams: { page, search: searchParams?.search || '' },
 		onChangeQueryParams,
 	} );
@@ -358,6 +341,31 @@ function StageInner() {
 		},
 		[ isSingleFormView, navigate, searchParams, sourceIdNumber ]
 	);
+
+	// Keep the Folder filter in sync with the route param (CFM-on behavior). The filter is
+	// a real control here, so it cannot be locked out of what `useView` persists; a stored
+	// folder that disagrees with the route is corrected here instead. The responses
+	// themselves are queried from the route, never from this filter, so only the chip is
+	// ever briefly out of step.
+	useEffect( () => {
+		if ( isSingleFormView ) {
+			return;
+		}
+		setView( previousView => {
+			const previousFilters = previousView.filters || [];
+			const existing = previousFilters.find( filter => filter.field === 'folder' );
+			if ( existing?.value === statusView ) {
+				return previousView;
+			}
+			return {
+				...previousView,
+				filters: [
+					{ field: 'folder', operator: 'is' as const, value: statusView },
+					...previousFilters.filter( filter => filter.field !== 'folder' ),
+				],
+			};
+		} );
+	}, [ isSingleFormView, setView, statusView ] );
 
 	// A form's own fields become columns, so a single form's responses can be read
 	// across at a glance. The "All responses" view spans every form and has no
