@@ -48,7 +48,7 @@ type MostPopularDayHighlightProps = {
 type MostPopularDayFieldProps = {
 	label: string;
 	value: ReactNode;
-	/** The unabbreviated value, when `value` renders a shortened form of it. */
+	/** The unabbreviated value, exposed as a tooltip. */
 	valueTitle?: string;
 	caption?: string;
 };

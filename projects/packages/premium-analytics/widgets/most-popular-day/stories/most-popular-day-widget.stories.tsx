@@ -22,6 +22,7 @@ import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
 	setReportMockState,
+	type ReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import MostPopularDayRender from '../render';
 import widgetDefinition from '../widget';
@@ -49,7 +50,7 @@ const SITE_SUMMARY_PATH_FRAGMENT = 'proxy/v1.1/stats';
  * drop it again on cleanup so a forced empty/error result doesn't leak into the
  * other stories' shared cache entry.
  */
-function forceSiteSummaryState( state: 'loading' | 'error' | 'error-retryable' | 'empty' ) {
+function forceSiteSummaryState( state: ReportMockState ) {
 	queryClient.removeQueries( { queryKey: [ 'stats', 'site' ] } );
 	setReportMockState( SITE_SUMMARY_PATH_FRAGMENT, state );
 	return () => {
