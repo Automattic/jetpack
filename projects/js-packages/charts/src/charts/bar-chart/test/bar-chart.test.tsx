@@ -505,6 +505,28 @@ describe( 'BarChart', () => {
 			expect( distinctTexts( ticks ).size ).toBeGreaterThan( 1 );
 		} );
 
+		test( 'keeps the derived date formatter when tickFormat is passed as undefined', () => {
+			renderWithTheme( {
+				width: 800,
+				options: { axis: { x: { tickFormat: undefined } } },
+				data: [
+					{
+						label: 'Series A',
+						data: Array.from( { length: 14 }, ( _, i ) => ( {
+							date: new Date( 2024, 0, 1 + i ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText( /^Jan \d+$/ );
+			expect( distinctTexts( ticks ).size ).toBeGreaterThan( 1 );
+			// A clobbered formatter falls back to raw `Date.toString()` ticks.
+			expect( screen.queryByText( /GMT/ ) ).not.toBeInTheDocument();
+		} );
+
 		test( 'renders distinct hour ticks for sub-daily buckets in a single day', () => {
 			renderWithTheme( {
 				width: 800,
@@ -971,6 +993,85 @@ describe( 'BarChart', () => {
 
 				await user.tab();
 				expect( chart ).toHaveFocus();
+			} );
+		} );
+
+		describe( 'Activation', () => {
+			const SERIES_A = {
+				label: 'Series A',
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 10 },
+					{ date: new Date( '2024-01-02' ), value: 20 },
+				],
+				options: {},
+			};
+			const SERIES_B = {
+				label: 'Series B',
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 15 },
+					{ date: new Date( '2024-01-02' ), value: 25 },
+				],
+				options: {},
+			};
+
+			test( 'Enter hands the selected bar to onDatumActivate', async () => {
+				const user = userEvent.setup();
+				const onDatumActivate = jest.fn();
+				renderWithTheme( { withTooltips: true, data: [ SERIES_A ], onDatumActivate } );
+
+				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}{ArrowRight}{Enter}' );
+
+				expect( onDatumActivate ).toHaveBeenCalledTimes( 1 );
+				expect( onDatumActivate ).toHaveBeenCalledWith( {
+					datum: SERIES_A.data[ 1 ],
+					index: 1,
+					key: 'Series A',
+				} );
+			} );
+
+			test( 'Space activates the selected bar too', async () => {
+				const user = userEvent.setup();
+				const onDatumActivate = jest.fn();
+				renderWithTheme( { withTooltips: true, data: [ SERIES_A ], onDatumActivate } );
+
+				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}[Space]' );
+
+				expect( onDatumActivate ).toHaveBeenCalledWith( {
+					datum: SERIES_A.data[ 0 ],
+					index: 0,
+					key: 'Series A',
+				} );
+			} );
+
+			// The navigation index strides series-major within each data point, the
+			// order the highlight outlines bars in, so the second stop is the second
+			// series' first bar.
+			test( 'walks the series at each data point before the next point', async () => {
+				const user = userEvent.setup();
+				const onDatumActivate = jest.fn();
+				renderWithTheme( { withTooltips: true, data: [ SERIES_A, SERIES_B ], onDatumActivate } );
+
+				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}{ArrowRight}{Enter}' );
+
+				expect( onDatumActivate ).toHaveBeenCalledWith( {
+					datum: SERIES_B.data[ 0 ],
+					index: 0,
+					key: 'Series B',
+				} );
+			} );
+
+			test( 'Enter with no bar selected activates nothing', async () => {
+				const user = userEvent.setup();
+				const onDatumActivate = jest.fn();
+				renderWithTheme( { withTooltips: true, data: [ SERIES_A ], onDatumActivate } );
+
+				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				await user.keyboard( '{Enter}' );
+
+				expect( onDatumActivate ).not.toHaveBeenCalled();
 			} );
 		} );
 

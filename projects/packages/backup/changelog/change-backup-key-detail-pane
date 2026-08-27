@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+Comment: Backup: reset the modernized dashboard's file browser — the file selection, the header's selected-item counts and any open file preview — when you switch to a different backup. No-op when the modernization filter is off.
+

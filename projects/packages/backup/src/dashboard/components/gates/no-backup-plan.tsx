@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import { useSiteSuffix } from '../../hooks/use-connection';
 import LicenseKeyLink from './license-key-link';
+import PromotedPrice from './promoted-price';
 
 /**
  * Fallback shown when the site is fully connected but has no active
@@ -45,6 +46,7 @@ export default function NoBackupPlanScreen() {
 						'jetpack-backup-pkg'
 					) }
 				</Notice>
+				<PromotedPrice />
 				{ /*
 				 * Same tab, as legacy did. An upgrade flow that opens a new
 				 * one strands the page the reader started from, and returns

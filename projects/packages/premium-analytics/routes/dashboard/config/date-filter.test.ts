@@ -38,6 +38,16 @@ describe( 'resolvePresetForSurface', () => {
 	} );
 } );
 
+describe( 'Date-filter surface constants', () => {
+	// An unrecognized surface falls back to `range` silently, so a typo here
+	// would go unnoticed. A surface added on the PHP side only fails in
+	// `Dashboard_Section_Test::test_sections_schema_documents_the_date_filter`.
+	it( 'pins the surface literals the PHP constants use', () => {
+		expect( DATE_FILTER_RANGE ).toBe( 'range' );
+		expect( DATE_FILTER_YEAR ).toBe( 'year' );
+	} );
+} );
+
 describe( 'offersDateComparison', () => {
 	it( 'follows the section on the date-range surface', () => {
 		expect( offersDateComparison( DATE_FILTER_RANGE, { with_date_comparison: true } ) ).toBe(
@@ -57,5 +67,20 @@ describe( 'offersDateComparison', () => {
 		expect( offersDateComparison( DATE_FILTER_YEAR, { with_date_comparison: true } ) ).toBe(
 			false
 		);
+	} );
+
+	it( 'ignores the placement of the control', () => {
+		expect(
+			offersDateComparison( DATE_FILTER_RANGE, {
+				with_date_comparison: true,
+				with_header_date_control: false,
+			} )
+		).toBe( true );
+		expect(
+			offersDateComparison( DATE_FILTER_RANGE, {
+				with_date_comparison: false,
+				with_header_date_control: true,
+			} )
+		).toBe( false );
 	} );
 } );

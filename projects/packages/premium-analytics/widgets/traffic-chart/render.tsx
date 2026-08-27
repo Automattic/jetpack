@@ -7,12 +7,13 @@ import {
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
-	followedGranularity,
-	granularitiesForRange,
+	defaultPeriodForInterval,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { reports } from '@jetpack-premium-analytics/icons';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
@@ -38,47 +39,33 @@ const DATA_FORMAT = {
 
 type TrafficChartInnerProps = {
 	/**
-	 * Bucket a reader picked, if any. Absent until one is.
-	 */
-	granularity?: TrafficChartGranularity;
-	/**
-	 * The page bucket that pick was made against; it stops applying once the page
-	 * resolves to another.
-	 */
-	granularityPickedFor?: TrafficChartGranularity;
-	/**
 	 * How to draw the selected metric. `MetricTabsChart` owns the default.
 	 */
 	chartType?: TrafficChartType;
 };
 
 /**
- * "Group by" and "Chart type" are both `relevance: 'high'` attributes, so the
- * host renders them in the widget's header.
- *
- * The bucket is the page's decision until a reader overrides it here, and it
- * goes back to being the page's the moment the page interval moves again — a
- * reader looking at one widget by weeks does not stay stuck there after moving
- * the whole page. Nothing is written back for that: a pick records the page
- * bucket it was made against and simply stops applying, which is also what keeps
- * this and the header control from ever naming different buckets. Which metric
- * is plotted is the chart's own tab selection.
+ * The bucket size follows the dashboard's chart interval control, clamped to
+ * what this chart supports. The "Chart type" control is the `chartType`
+ * attribute (`relevance: 'high'`), rendered by the widget host. Which metric is
+ * plotted is the chart's own tab selection.
  */
-function TrafficChartInner( {
-	granularity,
-	granularityPickedFor,
-	chartType,
-}: TrafficChartInnerProps ) {
+function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	// The range narrows what this chart draws, not just what the control offers:
-	// judging the pick against the same set is what makes one that the range no
-	// longer supports lapse instead of outliving the range it was made for.
-	const period = followedGranularity( {
-		picked: granularity,
-		pickedFor: granularityPickedFor,
-		interval: reportParams.interval,
-		allowed: granularitiesForRange( TRAFFIC_PERIODS, reportParams ),
-	} );
+	const period: TrafficChartGranularity = defaultPeriodForInterval(
+		reportParams.interval,
+		TRAFFIC_PERIODS
+	);
+
+	// Bound to whichever route hosts the widget, the same way `reportParams` are.
+	const { drillDown } = useReportDateFilters();
+
+	// Names the bucket size drawn, not the page interval: a year page interval
+	// clamps to months here, and the click must open the bar it hit.
+	const openBucket = useCallback(
+		( date: Date ) => drillDown( date, period ),
+		[ drillDown, period ]
+	);
 
 	const {
 		metrics: metricTabs,
@@ -127,6 +114,7 @@ function TrafficChartInner( {
 					groupLabel={ groupLabel }
 					tickResolution={ period }
 					pointsAreWallClocks
+					onDatumClick={ openBucket }
 				/>
 			</WidgetState>
 		</div>
@@ -136,11 +124,7 @@ function TrafficChartInner( {
 export default function TrafficChart( { attributes = {}, setError }: TrafficChartWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<TrafficChartInner
-				granularity={ attributes.granularity }
-				granularityPickedFor={ attributes.granularityPickedFor }
-				chartType={ attributes.chartType }
-			/>
+			<TrafficChartInner chartType={ attributes.chartType } />
 		</WidgetRoot>
 	);
 }

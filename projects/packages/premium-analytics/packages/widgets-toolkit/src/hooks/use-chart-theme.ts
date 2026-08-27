@@ -67,10 +67,10 @@ export function useChartTheme(): WooChartTheme {
 				],
 			},
 			leaderboardChart: {
-				rowGap: 12,
+				rowGap: 4,
 				columnGap: 4,
 				labelSpacing: 'xs',
-				barBorderRadius: 'var(--wpds-border-radius-md)',
+				barBorderRadius: 'var(--wpds-border-radius-lg)',
 				deltaColors: [
 					'var(--wpds-color-stroke-surface-error-strong)',
 					'var(--wpds-color-foreground-content-neutral-weak)',

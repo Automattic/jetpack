@@ -214,18 +214,16 @@ class No_Results_Render_Test extends TestCase {
 		$markup = $this->render();
 		// Anchored per element: the default render emits two divs carrying a
 		// bare `hidden`, so an unanchored match would keep passing with either
-		// one of them stripped. `preg_match` rather than
-		// `assertMatchesRegularExpression`, which was added in PHPUnit 9.1 —
-		// the PHP 7.2 CI matrix still runs PHPUnit 8.5. `hidden` has to be
-		// preceded by whitespace so `data-wp-bind--hidden` can't satisfy it.
-		$this->assertSame(
-			1,
-			preg_match( '/<div[^>]*state\.showEmptyStateRegion[^>]*\shidden(?=\s|>)/', $markup ),
+		// one of them stripped. `hidden` has to be preceded by whitespace so
+		// `data-wp-bind--hidden` can't satisfy it.
+		$this->assertMatchesRegularExpression(
+			'/<div[^>]*state\.showEmptyStateRegion[^>]*\shidden(?=\s|>)/',
+			$markup,
 			'the container must be hidden pre-hydration'
 		);
-		$this->assertSame(
-			1,
-			preg_match( '/<div[^>]*\bjetpack-search-no-results__variant\b[^>]*\shidden(?=\s|>)/', $markup ),
+		$this->assertMatchesRegularExpression(
+			'/<div[^>]*\bjetpack-search-no-results__variant\b[^>]*\shidden(?=\s|>)/',
+			$markup,
 			'the default copy must be hidden pre-hydration'
 		);
 	}

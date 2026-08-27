@@ -284,7 +284,7 @@ grep 'MIN_PHP_VERSION' .github/versions.sh
 ```
 - Verify PHP syntax/builtins are available at the minimum version
 - Check project's own `composer.json` `require.php` — may differ from monorepo default
-- Common traps (non-exhaustive): typed properties (7.4+), arrow functions (7.4+), named args (8.0+), match (8.0+), `str_contains()`/`str_starts_with()`/`str_ends_with()` (8.0+, polyfilled by WP since 5.9 — check project's minimum WP version), enums (8.1+), readonly properties (8.1+), `array_is_list()` (8.1+, NOT polyfilled by WP), readonly classes (8.2+), `json_validate()` (8.3+)
+- Common traps (non-exhaustive): named args (8.0+), match (8.0+), `str_contains()`/`str_starts_with()`/`str_ends_with()` (8.0+, polyfilled by WP since 5.9 — check project's minimum WP version), enums (8.1+), readonly properties (8.1+), `array_is_list()` (8.1+, NOT polyfilled by WP), readonly classes (8.2+), `json_validate()` (8.3+)
 
 ### 5. Cross-project dependency check
 

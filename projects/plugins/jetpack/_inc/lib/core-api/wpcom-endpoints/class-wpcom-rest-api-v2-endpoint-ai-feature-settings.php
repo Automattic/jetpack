@@ -24,7 +24,7 @@
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Search\Plan as Search_Plan;
-use Automattic\Jetpack\SEO\AI_SEO_Enhancer;
+use Automattic\Jetpack\SEO\Ai_Seo;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -219,9 +219,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 					'enabled'   => $stored['feature_clip'],
 					'available' => $this->is_feature_clip_available(),
 				),
-				'seo_enhancer'      => array(
-					'enabled'   => $stored['seo_enhancer'],
-					'available' => $this->is_seo_enhancer_available(),
+				'ai_seo'            => array(
+					'enabled'   => $stored['ai_seo'],
+					'available' => $this->is_ai_seo_available(),
 				),
 				'ai_search'         => array(
 					'enabled'          => $stored['ai_search'],
@@ -232,14 +232,22 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 	}
 
 	/**
-	 * Whether the AI SEO enhancer is available on this site, so the settings
-	 * page can hide its row. Defers to the SEO package's shared gate; the
-	 * terms are unchanged.
+	 * Whether the AI SEO row is available, so the settings page can hide it.
+	 * The row governs user-initiated suggestions as well as automatic
+	 * generation, so it follows the package's shared AI SEO gate.
+	 *
+	 * Guarded with class_exists: the autoloader can pick an older jetpack-seo
+	 * copy from another plugin, predating this class. Without the gate's verdict
+	 * the row is hidden rather than offered.
 	 *
 	 * @return bool
 	 */
-	private function is_seo_enhancer_available() {
-		return AI_SEO_Enhancer::is_available();
+	private function is_ai_seo_available() {
+		if ( ! class_exists( Ai_Seo::class ) ) {
+			return false;
+		}
+
+		return Ai_Seo::is_available();
 	}
 
 	/**

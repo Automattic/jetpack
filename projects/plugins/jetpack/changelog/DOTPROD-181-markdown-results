@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI: Render scheduled task results as Markdown.

@@ -14,7 +14,6 @@ describe( 'defaultPeriodForInterval', () => {
 		it.each( [
 			[ 'week', 'week' ],
 			[ 'month', 'month' ],
-			[ 'quarter', 'month' ],
 			// No year option in the dropdown, so year clamps to the coarsest allowed.
 			[ 'year', 'month' ],
 			[ 'day', 'day' ],
@@ -30,7 +29,6 @@ describe( 'defaultPeriodForInterval', () => {
 		it.each( [
 			[ 'week', 'week' ],
 			[ 'month', 'month' ],
-			[ 'quarter', 'month' ],
 			// Year is offered here, so it is kept rather than collapsed.
 			[ 'year', 'year' ],
 			[ 'day', 'day' ],
@@ -46,9 +44,9 @@ describe( 'defaultPeriodForInterval', () => {
 			[ 'hour', 'hour' ],
 			[ 'day', 'day' ],
 			[ 'week', 'week' ],
-			[ 'quarter', 'month' ],
 			[ 'year', 'month' ],
 			[ undefined, 'day' ],
+			[ 'nonsense', 'day' ],
 		] )( 'maps %s to %s', ( interval, expected ) => {
 			expect( defaultPeriodForInterval( interval, HOUR_DAY_WEEK_MONTH ) ).toBe( expected );
 		} );

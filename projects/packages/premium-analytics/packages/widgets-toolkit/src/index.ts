@@ -51,7 +51,6 @@ export {
 	type LeaderboardRowChartProps,
 	type LeaderboardRowMedia,
 	type LeaderboardRowProps,
-	type LeaderboardRowVariant,
 	BarChart,
 	BarChartSkeleton,
 	type BarChartProps,
@@ -85,7 +84,6 @@ export {
 	type PostDetailLinkProps,
 	LeaderboardPostLabel,
 	type LeaderboardPostLabelProps,
-	type LeaderboardPostLabelVariant,
 	PostHighlightCard,
 	PostHighlightCardSkeleton,
 	type PostHighlightCardMetric,
@@ -154,7 +152,7 @@ export { COLOR_GRAY_100, WIDGET_ROW_LIMIT } from './constants';
 /**
  * Widget edit fields
  */
-export { ReportParamsField, type ReportParamsFieldAttributes } from './fields';
+export type { ReportParamsFieldAttributes } from './fields';
 
 /**
  * Helpers and utilities
@@ -189,18 +187,11 @@ export {
 	summaryCount,
 	toDay,
 	defaultPeriodForInterval,
-	followedGranularity,
-	granularitiesForRange,
-	GRANULARITY_ATTRIBUTE,
-	GRANULARITY_PICKED_FOR_ATTRIBUTE,
 	buildMetricTab,
 	toChartDate,
 	CHART_DISPLAY_CHART_TYPES,
 	chartTypeAttributeField,
-	granularityAttributeField,
-	granularityOptions,
 	type ChartDisplayChartType,
-	type ChartGranularityOption,
 	CALENDAR_HEATMAP_CELL_GAP,
 	CALENDAR_HEATMAP_HEADER_HEIGHT,
 	computeCalendarHeatmapLayout,

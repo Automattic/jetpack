@@ -71,31 +71,15 @@
 		object-fit: cover;
 	}
 
-	// Over the video, so it takes a light foreground and its own scrim instead
-	// of the Dialog default, which assumes a light surface behind it. The
-	// white and the black scrims are literals for the same reason as the
-	// band's green: the design system has no overlay/inverse tokens for
-	// content floating over video.
+	// Colors come from the design system: the component re-seeds a
+	// ThemeProvider with the band's deep green (see index.tsx), so the close
+	// button's foreground, hover and focus treatments resolve from the derived
+	// dark scheme instead of hand-picked literals. Only placement lives here.
 	&__close {
 		position: absolute;
 		inset-block-start: var(--wpds-dimension-padding-lg);
 		inset-inline-end: var(--wpds-dimension-padding-lg);
 		z-index: 1;
-		color: #fff;
-		background: rgba(0, 0, 0, 0.5);
-
-		&:hover {
-			color: #fff;
-			background: rgba(0, 0, 0, 0.7);
-		}
-
-		// The DS focus ring is brand blue tuned for light surfaces; on the
-		// dark band it fails the 3:1 non-text contrast minimum. White ring,
-		// same justification as the foreground above.
-		&:focus-visible {
-			outline: 2px solid #fff;
-			outline-offset: 2px;
-		}
 
 		// A lone control floating over video earns a 44px hit target; the
 		// visual stays 32px.
@@ -120,32 +104,12 @@
 		container-type: inline-size;
 	}
 
-	// Dialog.Title pins its own internal heading variant (20px) and exposes
-	// no variant prop, so the spec's Semibold 32/40 is applied with the same
-	// tokens `heading-2xl` resolves to. The `--_gcd-*` custom properties are
-	// the design system's global-css-defense channel — its heading reset
-	// reads font size from them, so they must be overridden alongside the
-	// plain declarations or the internal 20px wins.
-	&__headline {
-		--_gcd-heading-font-size: var(--wpds-typography-font-size-2xl);
-
-		color: var(--wpds-color-foreground-content-neutral);
-		font-size: var(--wpds-typography-font-size-2xl);
-		line-height: var(--wpds-typography-line-height-2xl);
-		font-weight: var(--wpds-typography-font-weight-emphasis);
-	}
-
-	// Same mechanism as the headline: Dialog.Description hard-codes 13px
-	// internally; the spec's 15px lede is `body-lg`'s tokens, applied direct.
-	// It intentionally runs the full modal width; `text-wrap: pretty` keeps
-	// the second line from breaking mid-phrase.
+	// Title and lede type comes from Dialog.Title/Description's own variants —
+	// no size overrides (the design system's internals are not a stable API to
+	// override; if the Figma spec's larger scale returns, the ask is a variant
+	// prop on the components). The lede runs the full modal width;
+	// `text-wrap: pretty` keeps its second line from breaking mid-phrase.
 	&__lede {
-		--_gcd-p-font-size: var(--wpds-typography-font-size-lg);
-		--_gcd-p-line-height: var(--wpds-typography-line-height-md);
-
-		color: var(--wpds-color-foreground-content-neutral-weak);
-		font-size: var(--wpds-typography-font-size-lg);
-		line-height: var(--wpds-typography-line-height-md);
 		text-wrap: pretty;
 	}
 
@@ -191,12 +155,13 @@
 	}
 
 	// The brand's one accent, used exactly once per card — on the glyph.
-	// Literal Jetpack green: the design system has no non-interactive brand
-	// foreground token, and the interactive one describes links/buttons.
+	// `--jp-green` is the Jetpack brand token from
+	// @automattic/jetpack-base-styles' root variables, which the admin page
+	// chrome loads on every dashboard route; the literal is only the fallback.
 	&__card-icon {
 		display: inline-flex;
 		margin-block-end: var(--wpds-dimension-gap-sm);
-		color: #069e08;
+		color: var(--jp-green, #069e08);
 
 		svg {
 			fill: currentColor;

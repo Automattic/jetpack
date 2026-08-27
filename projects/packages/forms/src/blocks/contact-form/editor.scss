@@ -438,6 +438,11 @@
 		display: flex;
 		align-items: center;
 		justify-content: flex-start;
+		margin: unset; /* Override default margin on classic theme wp-block */
+
+		.wp-block {
+			margin: unset; /* Override default margin on classic theme wp-block */
+		}
 	}
 
 }

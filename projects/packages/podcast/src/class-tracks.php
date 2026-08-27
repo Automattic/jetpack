@@ -565,7 +565,7 @@ class Tracks {
 	 */
 	private static function record_event( string $event_name, array $properties, ?WP_User $user = null ) {
 		try {
-			$user                   = $user ?? wp_get_current_user();
+			$user                 ??= wp_get_current_user();
 			$properties['blog_id']  = (int) Connection_Manager::get_site_id( true );
 			$properties['platform'] = self::platform();
 

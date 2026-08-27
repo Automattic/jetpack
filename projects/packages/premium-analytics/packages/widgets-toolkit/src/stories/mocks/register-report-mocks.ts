@@ -772,14 +772,11 @@ function routeReport( subPath: string, query: URLSearchParams ): unknown {
 }
 
 /**
- * Builds a mock Stats "followers" (subscribers) response with a realistic spread
- * of recent subscription times so the Latest Subscribers widget renders
- * populated in Storybook. The shape matches what `sanitizeStatsFollowersResponse`
- * expects (`{ subscribers, total, … }`); `total` exceeds the shown rows so the
- * "N more" footer appears.
+ * Builds a mock Stats "followers" (subscribers) response for the Latest
+ * Subscribers widget. Rows arrive grouped by subscriber type rather than in
+ * date order, and `total` exceeds them so the "N more" footer appears.
  *
- * @param max - Page size from the request's `max` query param; `0` or a missing
- *            param returns every row.
+ * @param max - Rows per type; `0` or a missing param returns every row.
  * @return Raw followers response.
  */
 function buildFollowersResponse( max: number ) {
@@ -787,29 +784,39 @@ function buildFollowersResponse( max: number ) {
 	const MINUTE = 60 * 1000;
 	const HOUR = 60 * MINUTE;
 	const DAY = 24 * HOUR;
-	const people = [
-		{ name: 'Diego Morales', offset: 20 * 1000 },
-		{ name: 'Olivia Park', offset: 12 * MINUTE },
-		{ name: 'Hiroshi Tanaka', offset: HOUR },
-		{ name: 'Emma Rossi', offset: 3 * HOUR },
-		{ name: 'Aarav Patel', offset: 5 * HOUR },
-		{ name: 'Sofia Nguyen', offset: DAY },
-		{ name: 'Chloe Dubois', offset: 2 * DAY },
-		{ name: 'Liam Carter', offset: 3 * DAY },
-		{ name: 'Mia Andersson', offset: 4 * DAY },
-		{ name: 'Noah Bergström', offset: 5 * DAY },
-		{ name: 'Priya Sharma', offset: 6 * DAY },
-		{ name: 'Tomás Silva', offset: 8 * DAY },
+	const emailPeople = [
+		{ label: 'subscriber-one@example.com', offset: 120 * DAY },
+		{ label: 'subscriber-two@example.com', offset: 240 * DAY },
+		{ label: 'subscriber-three@example.com', offset: 300 * DAY },
+		{ label: 'subscriber-four@example.com', offset: 330 * DAY },
+		{ label: 'subscriber-five@example.com', offset: 400 * DAY },
+		{ label: 'subscriber-six@example.com', offset: 430 * DAY },
 	];
-	// Match the requested page size.
-	const subscribers = people.slice( 0, max > 0 ? max : undefined ).map( ( person, index ) => ( {
-		ID: 1000 + index,
-		subscription_id: 1000 + index,
-		display_name: person.name,
-		avatar: `https://i.pravatar.cc/64?img=${ 10 + index }`,
-		url: 'https://example.com',
-		date_subscribed: new Date( now - person.offset ).toISOString(),
-	} ) );
+	const wpcomPeople = [
+		{ label: 'Diego Morales', offset: 20 * 1000 },
+		{ label: 'Olivia Park', offset: 12 * MINUTE },
+		{ label: 'Hiroshi Tanaka', offset: HOUR },
+		{ label: 'Emma Rossi', offset: 3 * HOUR },
+		{ label: 'Aarav Patel', offset: 5 * HOUR },
+		{ label: 'Sofia Nguyen', offset: DAY },
+		{ label: 'Chloe Dubois', offset: 2 * DAY },
+		{ label: 'Liam Carter', offset: 3 * DAY },
+		{ label: 'Mia Andersson', offset: 4 * DAY },
+		{ label: 'Noah Bergström', offset: 5 * DAY },
+		{ label: 'Priya Sharma', offset: 6 * DAY },
+		{ label: 'Tomás Silva', offset: 8 * DAY },
+	];
+	const page = ( people: typeof emailPeople ) => people.slice( 0, max > 0 ? max : undefined );
+	const subscribers = [ ...page( emailPeople ), ...page( wpcomPeople ) ].map(
+		( person, index ) => ( {
+			ID: 1000 + index,
+			subscription_id: 1000 + index,
+			label: person.label,
+			avatar: `https://i.pravatar.cc/64?img=${ 10 + index }`,
+			url: 'https://example.com',
+			date_subscribed: new Date( now - person.offset ).toISOString(),
+		} )
+	);
 	return { subscribers, total: 30, total_email: 18, total_wpcom: 12, page: 1, pages: 5 };
 }
 
@@ -1058,6 +1065,8 @@ function buildVisitsResponse( query: URLSearchParams ) {
  * populated in Storybook. The shape matches what `sanitizeStatsEmailSummaryResponse`
  * expects (`{ posts: [ { title, opens_rate, clicks_rate, … } ] }`); rates are
  * 0–100 percentages and the rows are newest-first to mirror the live endpoint.
+ * One subject line carries HTML entities, because the live endpoint returns them
+ * encoded.
  *
  * @return Raw email-summary response.
  */
@@ -1071,7 +1080,11 @@ function buildEmailSummaryResponse() {
 			opens_rate: 52.4,
 			clicks_rate: 8.93,
 		},
-		{ title: 'WordCamp Europe 2026: What to Expect', opens_rate: 47.9, clicks_rate: 10.25 },
+		{
+			title: 'WordCamp Europe 2026: Talks &amp; Workshops You Shouldn&#8217;t Miss',
+			opens_rate: 47.9,
+			clicks_rate: 10.25,
+		},
 		{
 			title: 'Click, Comment, Done: A Better Way to Collaborate',
 			opens_rate: 44.3,

@@ -2,6 +2,8 @@ export { localTZDate, dateToISOStringWithLocalTZ, formatToTimezoneNaiveString } 
 export {
 	getApiErrorCode,
 	getApiErrorStatus,
+	isAccessDenied,
+	isUserRetryableError,
 	shouldRetryApiError,
 	StatsResponseShapeError,
 } from './api-error';

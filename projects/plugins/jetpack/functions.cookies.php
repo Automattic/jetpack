@@ -13,12 +13,15 @@
  *
  * Useful for setting SameSite cookies in PHP 7.2 or earlier.
  *
+ * @deprecated since $$next-version$$. Use `setcookie()` instead now that we've dropped PHP 7.2 support.
  * @param string $name    Name of the cookie.
  * @param string $value   Value of the cookie.
  * @param array  $options Options to include with the cookie.
  * @return bool False when error happens, other wise true.
  */
 function jetpack_shim_setcookie( $name, $value, $options ) {
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'setcookie' );
+
 	$not_allowed_chars = ",; \t\r\n\013\014";
 
 	if ( false !== strpbrk( $name, $not_allowed_chars ) ) {

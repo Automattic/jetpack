@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Traffic summary: follow the page chart interval control instead of a widget-level Group by.

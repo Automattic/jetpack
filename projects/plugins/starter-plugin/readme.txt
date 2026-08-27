@@ -2,7 +2,7 @@
 Contributors: automattic,
 Tags: jetpack, stuff
 Requires at least: 7.0
-Requires PHP: 7.2
+Requires PHP: 7.4
 Tested up to: 7.1
 Stable tag: 0.10.0
 License: GPLv2 or later

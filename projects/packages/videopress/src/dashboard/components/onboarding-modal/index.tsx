@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cloudUpload, share, video } from '@wordpress/icons';
 import { useNavigate, useSearch } from '@wordpress/route';
+import { ThemeProvider } from '@wordpress/theme';
 import { Button, Dialog, LinkButton, Text } from '@wordpress/ui';
 // The dismissal flag lives with the other first-run storage helpers so the
 // redirect and the modal can't drift onto different keys.
@@ -346,22 +347,33 @@ export default function OnboardingModal(): ReactElement | null {
 						} as CSSProperties
 					}
 				>
-					<Dialog.CloseIcon
-						className="vp-onboarding-modal__close"
-						label={ __( 'Close', 'jetpack-videopress-pkg' ) }
-					/>
-					<IntroVideo />
+					{ /*
+					 * The band is the brand's deep forest green, so the design
+					 * system is re-seeded with it: the close button and anything
+					 * else rendered over the band resolve their colors from the
+					 * derived dark scheme instead of hand-picked literals.
+					 * ThemeProvider renders `display: contents`, so the close
+					 * affordance still positions against the band itself.
+					 */ }
+					<ThemeProvider color={ { background: '#003010' } }>
+						<Dialog.CloseIcon
+							className="vp-onboarding-modal__close"
+							label={ __( 'Close', 'jetpack-videopress-pkg' ) }
+						/>
+						<IntroVideo />
+					</ThemeProvider>
 				</div>
 
 				<Dialog.Content className="vp-onboarding-modal__body">
 					{ /*
-					 * Dialog.Title/Description pin their own internal type
-					 * variants (20px/13px) and expose no variant prop, so the
-					 * spec's 32px headline and 15px lede are applied in the
-					 * stylesheet with the tokens `heading-2xl` and `body-lg`
-					 * resolve to. See style.scss.
+					 * Title and lede render at the design system's own dialog
+					 * type scale. The Figma spec drew them larger (32px/15px),
+					 * but Dialog.Title/Description expose no size variant, and
+					 * overriding their internals is not a stable API — if the
+					 * larger scale is wanted back, the ask is a variant prop on
+					 * the components, not a local override.
 					 */ }
-					<Dialog.Title className="vp-onboarding-modal__headline">
+					<Dialog.Title>
 						{ __( 'Your Video. Your Player.', 'jetpack-videopress-pkg' ) }
 					</Dialog.Title>
 					<Dialog.Description className="vp-onboarding-modal__lede">
