@@ -37,16 +37,20 @@ import type { FormResponse } from '../../src/types/index.ts';
  * @param props.responseActions - The page's shared action handlers.
  * @param props.isBlocked       - Whether another mutation on this response is in flight
  *                              (e.g. the spam confirmation dialog saving).
+ * @param props.onOpenChange    - Reports the menu's open state, so the page can suspend
+ *                              its keyboard shortcuts while it is showing.
  * @return The actions dropdown.
  */
 export default function SingleResponseActions( {
 	response,
 	responseActions,
 	isBlocked = false,
+	onOpenChange,
 }: {
 	response: FormResponse;
 	responseActions: ResponseActions;
 	isBlocked?: boolean;
+	onOpenChange?: ( isOpen: boolean ) => void;
 } ): React.JSX.Element {
 	const {
 		isPending,
@@ -65,6 +69,10 @@ export default function SingleResponseActions( {
 			icon={ moreVertical }
 			label={ __( 'Actions', 'jetpack-forms' ) }
 			toggleProps={ { disabled: isPending || isBlocked, isBusy: isPending } }
+			// The page suspends its shortcuts while this is open. Escape closes the
+			// menu, and without this it would navigate back to the list at the same
+			// time.
+			onToggle={ onOpenChange }
 		>
 			{ ( { onClose }: { onClose: () => void } ) => {
 				// Every item closes the menu first, so the page is not left with an open
@@ -93,7 +101,10 @@ export default function SingleResponseActions( {
 									<MenuItem onClick={ run( markAsNotSpam ) }>
 										{ __( 'Not spam', 'jetpack-forms' ) }
 									</MenuItem>
-									<MenuItem shortcut={ SHORTCUTS.moveToTrash } onClick={ run( moveToTrash ) }>
+									<MenuItem
+										shortcut={ SHORTCUTS.moveToTrash.display }
+										onClick={ run( moveToTrash ) }
+									>
 										{ __( 'Trash', 'jetpack-forms' ) }
 									</MenuItem>
 								</>
@@ -112,10 +123,13 @@ export default function SingleResponseActions( {
 
 							{ response.status !== 'spam' && response.status !== 'trash' && (
 								<>
-									<MenuItem shortcut={ SHORTCUTS.markAsSpam } onClick={ run( markAsSpam ) }>
+									<MenuItem shortcut={ SHORTCUTS.markAsSpam.display } onClick={ run( markAsSpam ) }>
 										{ __( 'Mark as spam', 'jetpack-forms' ) }
 									</MenuItem>
-									<MenuItem shortcut={ SHORTCUTS.moveToTrash } onClick={ run( moveToTrash ) }>
+									<MenuItem
+										shortcut={ SHORTCUTS.moveToTrash.display }
+										onClick={ run( moveToTrash ) }
+									>
 										{ __( 'Trash', 'jetpack-forms' ) }
 									</MenuItem>
 								</>

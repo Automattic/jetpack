@@ -198,6 +198,11 @@ function Stage(): React.JSX.Element {
 
 	const { hasPrevious, hasNext, goPrevious, goNext } = useResponsePageNavigation( id, pinned );
 
+	// Escape both closes the actions menu and backs out to the list, so the menu's
+	// open state has to suspend the shortcuts — otherwise dismissing the menu would
+	// navigate away at the same time.
+	const [ isActionsMenuOpen, setIsActionsMenuOpen ] = useState( false );
+
 	// A status change must only ever hit the response the user is actually looking
 	// at. Navigating is faster than fetching, so for a moment after prev/next the
 	// page is still showing the previous record while the URL already names the new
@@ -221,7 +226,7 @@ function Stage(): React.JSX.Element {
 			onGoToList: responseActions.goToList,
 		},
 		{
-			isDisabled: Boolean( previewFile ) || isNavigationBlocked,
+			isDisabled: Boolean( previewFile ) || isActionsMenuOpen || isNavigationBlocked,
 		}
 	);
 
@@ -333,8 +338,8 @@ function Stage(): React.JSX.Element {
 						hasPrevious={ hasPrevious && ! isNavigationBlocked }
 						onNext={ goNext }
 						onPrevious={ goPrevious }
-						nextShortcut={ SHORTCUTS.next }
-						previousShortcut={ SHORTCUTS.previous }
+						nextShortcut={ SHORTCUTS.next.display }
+						previousShortcut={ SHORTCUTS.previous.display }
 						onClose={ null }
 					/>
 					<SingleResponseActions
@@ -343,6 +348,7 @@ function Stage(): React.JSX.Element {
 						// The menu combines this with its own per-response pending state, so a
 						// second action can't be started on a response already changing.
 						isBlocked={ isNavigationBlocked }
+						onOpenChange={ setIsActionsMenuOpen }
 					/>
 				</Stack>
 			}

@@ -41,11 +41,11 @@ describe( 'useResponseKeyboardShortcuts', () => {
 		const h = handlers();
 		renderHook( () => useResponseKeyboardShortcuts( h ) );
 
-		press( SHORTCUTS.next );
-		press( SHORTCUTS.previous );
-		press( SHORTCUTS.markAsSpam );
-		press( SHORTCUTS.moveToTrash );
-		press( SHORTCUTS.goToList );
+		press( SHORTCUTS.next.key );
+		press( SHORTCUTS.previous.key );
+		press( SHORTCUTS.markAsSpam.key );
+		press( SHORTCUTS.moveToTrash.key );
+		press( SHORTCUTS.goToList.key );
 
 		expect( h.onNext ).toHaveBeenCalledTimes( 1 );
 		expect( h.onPrevious ).toHaveBeenCalledTimes( 1 );
@@ -71,8 +71,8 @@ describe( 'useResponseKeyboardShortcuts', () => {
 		const h = handlers();
 		renderHook( () => useResponseKeyboardShortcuts( h ) );
 
-		press( SHORTCUTS.markAsSpam, { shiftKey: true } );
-		press( SHORTCUTS.moveToTrash, { shiftKey: true } );
+		press( SHORTCUTS.markAsSpam.key, { shiftKey: true } );
+		press( SHORTCUTS.moveToTrash.key, { shiftKey: true } );
 
 		expect( h.onMarkAsSpam ).toHaveBeenCalledTimes( 1 );
 		expect( h.onMoveToTrash ).toHaveBeenCalledTimes( 1 );
@@ -84,7 +84,7 @@ describe( 'useResponseKeyboardShortcuts', () => {
 			const h = handlers();
 			renderHook( () => useResponseKeyboardShortcuts( h ) );
 
-			press( SHORTCUTS.next, { [ modifier ]: true } );
+			press( SHORTCUTS.next.key, { [ modifier ]: true } );
 
 			expect( h.onNext ).not.toHaveBeenCalled();
 		}
@@ -94,7 +94,7 @@ describe( 'useResponseKeyboardShortcuts', () => {
 		const h = handlers();
 		renderHook( () => useResponseKeyboardShortcuts( h, { isDisabled: true } ) );
 
-		press( SHORTCUTS.markAsSpam );
+		press( SHORTCUTS.markAsSpam.key );
 
 		expect( h.onMarkAsSpam ).not.toHaveBeenCalled();
 	} );
@@ -104,15 +104,55 @@ describe( 'useResponseKeyboardShortcuts', () => {
 	it( 'leaves a key unbound when its handler is absent', () => {
 		renderHook( () => useResponseKeyboardShortcuts( { onNext: undefined } ) );
 
-		expect( press( SHORTCUTS.next ).defaultPrevented ).toBe( false );
+		expect( press( SHORTCUTS.next.key ).defaultPrevented ).toBe( false );
 	} );
 
 	it( 'only preventDefaults keys it actually handles', () => {
 		const h = handlers();
 		renderHook( () => useResponseKeyboardShortcuts( h ) );
 
-		expect( press( SHORTCUTS.next ).defaultPrevented ).toBe( true );
+		expect( press( SHORTCUTS.next.key ).defaultPrevented ).toBe( true );
 		expect( press( 'x' ).defaultPrevented ).toBe( false );
+	} );
+
+	// Escape is the one binding that collides with the rest of the UI: it also
+	// dismisses the actions menu, the file preview and the confirmation dialog.
+	// Whenever any of those is showing, the page reports `isDisabled` — without that,
+	// dismissing one would navigate off the response as a side effect.
+	describe( 'Escape', () => {
+		it( 'backs out to the list', () => {
+			const h = handlers();
+			renderHook( () => useResponseKeyboardShortcuts( h ) );
+
+			press( 'Escape' );
+
+			expect( h.onGoToList ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'is suspended while something dismissible is open', () => {
+			const h = handlers();
+			renderHook( () => useResponseKeyboardShortcuts( h, { isDisabled: true } ) );
+
+			press( 'Escape' );
+
+			expect( h.onGoToList ).not.toHaveBeenCalled();
+		} );
+
+		// Whatever opened the overlay is entitled to consume the key first.
+		it( 'defers to a handler that already claimed the event', () => {
+			const h = handlers();
+			renderHook( () => useResponseKeyboardShortcuts( h ) );
+
+			const event = new KeyboardEvent( 'keydown', {
+				key: 'Escape',
+				bubbles: true,
+				cancelable: true,
+			} );
+			event.preventDefault();
+			window.dispatchEvent( event );
+
+			expect( h.onGoToList ).not.toHaveBeenCalled();
+		} );
 	} );
 
 	it( 'ignores keys typed into a field', () => {
@@ -122,7 +162,7 @@ describe( 'useResponseKeyboardShortcuts', () => {
 		const input = document.createElement( 'input' );
 		document.body.appendChild( input );
 		input.dispatchEvent(
-			new KeyboardEvent( 'keydown', { key: SHORTCUTS.markAsSpam, bubbles: true } )
+			new KeyboardEvent( 'keydown', { key: SHORTCUTS.markAsSpam.key, bubbles: true } )
 		);
 
 		expect( h.onMarkAsSpam ).not.toHaveBeenCalled();
