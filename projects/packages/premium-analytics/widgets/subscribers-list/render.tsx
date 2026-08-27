@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getSiteData, isSimpleSite } from '@automattic/jetpack-script-data';
 import {
 	getStatsReportItems,
 	useStatsFollowers,
@@ -27,6 +28,23 @@ import type { SubscribersListAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 /**
+ * Base URL of the subscriber management pages, or null when the site slug is unknown.
+ *
+ * Simple sites manage subscribers on WordPress.com, everything else on Jetpack Cloud.
+ */
+function getSubscribersBaseUrl() {
+	const siteSlug = getSiteData()?.suffix;
+
+	if ( ! siteSlug ) {
+		return null;
+	}
+
+	const host = isSimpleSite() ? 'https://wordpress.com' : 'https://cloud.jetpack.com';
+
+	return `${ host }/subscribers/${ siteSlug }`;
+}
+
+/**
  * Flattens the designated `useStatsFollowers` report into the rows the roster
  * renders.
  */
@@ -34,6 +52,7 @@ function toSubscriberItems(
 	report: StatsNormalizedReport< StatsFollowersItem > | undefined
 ): SubscriberListItem[] {
 	const items = getStatsReportItems( report );
+	const subscribersBaseUrl = getSubscribersBaseUrl();
 
 	return items.map( ( item, index ) => ( {
 		// Subscription id is the stable key; fall back to the row index so two
@@ -41,7 +60,12 @@ function toSubscriberItems(
 		id: item.subscription_id ?? `row-${ index }`,
 		name: item.label,
 		avatarUrl: item.icon,
-		href: item.link,
+		// The row's `link` is the subscriber's own site, not their subscriber
+		// record, so the name points at the details page instead.
+		href:
+			subscribersBaseUrl && item.subscription_id
+				? `${ subscribersBaseUrl }/${ item.subscription_id }`
+				: null,
 		secondaryText: formatRelativeSince( item.date_subscribed ),
 	} ) );
 }

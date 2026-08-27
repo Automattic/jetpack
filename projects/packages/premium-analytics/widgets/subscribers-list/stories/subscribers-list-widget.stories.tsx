@@ -22,6 +22,16 @@ import type { ComponentType } from 'react';
 
 registerReportMocks();
 
+// The roster builds each subscriber's details URL from `window.JetpackScriptData`,
+// which only wp-admin provides; seed the site slug so the names link in Storybook.
+window.JetpackScriptData = {
+	...window.JetpackScriptData,
+	site: {
+		...window.JetpackScriptData?.site,
+		suffix: 'example.com',
+	},
+} as typeof window.JetpackScriptData;
+
 const SUBSCRIBERS_LIST_RENDER_MODULE = 'storybook/subscribers-list';
 
 const meta = {
