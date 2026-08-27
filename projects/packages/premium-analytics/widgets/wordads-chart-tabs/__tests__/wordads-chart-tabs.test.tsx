@@ -3,7 +3,7 @@
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { render, renderHook, waitFor } from '@testing-library/react';
+import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -11,8 +11,10 @@ import apiFetch from '@wordpress/api-fetch';
 import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
 import WordAdsChartTabsWidget from '../render';
 import useWordAdsChart from '../use-wordads-chart';
+import wordAdsChartTabsWidget, { type WordAdsChartTabsAttributes } from '../widget';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
-import type { ReactNode } from 'react';
+import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
+import type { ComponentType, ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -59,6 +61,8 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
+
+const noop = () => {};
 
 // Raw WPCOM `wordads/stats` matrix shape: two monthly buckets, so the summary
 // totals impressions (2000) and revenue (9.75), and CPM is the weighted average
@@ -274,5 +278,27 @@ describe( 'WordAdsChartTabsWidget', () => {
 
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
+	} );
+} );
+
+describe( 'WordAdsChartTabsWidget date control', () => {
+	// WordAds is reported to us a day at a time, so a sub-daily window collapses
+	// to one bucket: no line, and yesterday's totals labelled as the last 24 hours.
+	it( 'offers no window shorter than the report can fill', () => {
+		const [ { Edit } ] = wordAdsChartTabsWidget.attributes;
+		const Field = Edit as ComponentType< DataFormControlProps< WordAdsChartTabsAttributes > >;
+
+		render(
+			<Field
+				{ ...( {
+					data: { reportParams: { preset: 'last-30-days', interval: 'day' } },
+					onChange: noop,
+				} as unknown as DataFormControlProps< WordAdsChartTabsAttributes > ) }
+			/>
+		);
+
+		expect( screen.queryByRole( 'button', { name: /24 hours/i } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /7 days/i } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /30 days/i } ) ).toBeInTheDocument();
 	} );
 } );

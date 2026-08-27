@@ -35,5 +35,9 @@ const ReportParamsField = createReportParamsField( { withIntervalControl: true }
 attributes: [ { id: 'reportParams', label: 'Range', Edit: ReportParamsField } ]
 ```
 
+`presetIds` narrows the quick presets on offer; pass it where the widget's
+report has no bucket fine enough to fill one of them, as the WordAds chart does
+for "Last 24 hours".
+
 A control that needs per-widget options is built by a factory called once at
 module scope, so the component identity is stable across renders.

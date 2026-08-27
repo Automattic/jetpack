@@ -8,6 +8,7 @@ import { useState } from 'react';
  * Internal dependencies
  */
 import { createReportParamsField, type ReportParamsFieldAttributes } from '../report-params-field';
+import type { QuickSurfacePresetId } from '@jetpack-premium-analytics/datetime';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
 
 // A 30-day window: `getAllowedIntervalsForPreset` offers day and week for it, so
@@ -21,8 +22,8 @@ const ATTRIBUTES: ReportParamsFieldAttributes = {
  * as its data. A test holding `data` still would pass on a control that commits
  * a stale draft, because it never sees what the widget ends up with.
  */
-function renderField( withIntervalControl?: boolean ) {
-	const Field = createReportParamsField( { withIntervalControl } );
+function renderField( withIntervalControl?: boolean, presetIds?: readonly QuickSurfacePresetId[] ) {
+	const Field = createReportParamsField( { withIntervalControl, presetIds } );
 	const saved: ReportParamsFieldAttributes[] = [];
 	let setFromOutside: ( attributes: ReportParamsFieldAttributes ) => void = () => {};
 
@@ -93,6 +94,20 @@ describe( 'createReportParamsField', () => {
 		await expect(
 			screen.findByRole( 'button', { name: 'Chart interval' } )
 		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'offers every rolling window when the widget names none', () => {
+		renderField();
+
+		expect( screen.getByRole( 'button', { name: /24 hours/i } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /7 days/i } ) ).toBeInTheDocument();
+	} );
+
+	it( 'offers only the windows the widget names', () => {
+		renderField( true, [ 'last-7-days', 'last-30-days', 'last-12-months' ] );
+
+		expect( screen.queryByRole( 'button', { name: /24 hours/i } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /7 days/i } ) ).toBeInTheDocument();
 	} );
 
 	it( 'saves a bucket change without an Apply step', async () => {

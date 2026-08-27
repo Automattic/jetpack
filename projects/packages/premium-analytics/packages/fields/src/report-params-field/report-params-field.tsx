@@ -12,6 +12,7 @@ import {
 	endOfDayTZ,
 	type IntervalType,
 	isPrimaryPreset,
+	type QuickSurfacePresetId,
 	siteTimeZone,
 	type DateRange,
 } from '@jetpack-premium-analytics/datetime';
@@ -43,6 +44,7 @@ export type ReportParamsFieldAttributes = {
 
 type ReportParamsFieldOptions = {
 	withIntervalControl?: boolean;
+	presetIds?: readonly QuickSurfacePresetId[];
 };
 
 /**
@@ -50,13 +52,26 @@ type ReportParamsFieldOptions = {
  *
  * @param options                     - Field options.
  * @param options.withIntervalControl - Whether to offer the chart bucket control.
+ * @param options.presetIds           - The quick presets to offer, in display
+ *                                    order. Defaults to every rolling window;
+ *                                    narrow it where the widget's report has
+ *                                    no bucket fine enough to fill one.
  * @return A DataForm control component.
  */
-export function createReportParamsField( { withIntervalControl }: ReportParamsFieldOptions = {} ) {
+export function createReportParamsField( {
+	withIntervalControl,
+	presetIds,
+}: ReportParamsFieldOptions = {} ) {
 	return function ReportParamsFieldControl(
 		props: DataFormControlProps< ReportParamsFieldAttributes >
 	) {
-		return <ReportParamsControl { ...props } withIntervalControl={ withIntervalControl } />;
+		return (
+			<ReportParamsControl
+				{ ...props }
+				withIntervalControl={ withIntervalControl }
+				presetIds={ presetIds }
+			/>
+		);
 	};
 }
 
@@ -64,6 +79,7 @@ function ReportParamsControl( {
 	data: attributes,
 	onChange,
 	withIntervalControl,
+	presetIds,
 }: DataFormControlProps< ReportParamsFieldAttributes > & ReportParamsFieldOptions ) {
 	const [ stagedReportParams, setStagedReportParams ] = useState< ReportParams >(
 		attributes?.reportParams
@@ -237,6 +253,7 @@ function ReportParamsControl( {
 				canApply={ isDateRangeDirty }
 				onCancel={ clear }
 				timeZone={ siteTimeZone() }
+				presetIds={ presetIds }
 				withIntervalControl={ withIntervalControl }
 				interval={ reportParams.interval }
 				intervalOptions={ intervalOptions }
