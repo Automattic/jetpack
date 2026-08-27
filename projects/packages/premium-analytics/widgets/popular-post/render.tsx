@@ -10,7 +10,6 @@ import {
 	WidgetState,
 	describeError,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { trendingUp } from '@wordpress/icons';
 /**
@@ -39,11 +38,12 @@ function PopularPostReport() {
 	 * which would scope the detail page to a period this card never reported on.
 	 *
 	 * Hence not `useWidgetNavigationSearch()`, which exists to carry the host's
-	 * window: a widget cannot hand it one of its own. The trade-off is that the
-	 * detail page's breadcrumb links back to the dashboard on this window rather
-	 * than the one the reader left, which is the lesser of the two mismatches.
+	 * window: a widget cannot hand it one of its own. The trade-off is the round
+	 * trip — the detail breadcrumb carries this window back, and a year surface
+	 * such as Insights resolves a rolling preset to all time, so returning that
+	 * way does not restore the year the reader left. The old link was lossy the
+	 * same way in reverse, and no param carries the origin window today.
 	 */
-	const detailSearch = useMemo( () => ( { ...range } ), [ range ] );
 
 	const metrics: PostHighlightCardMetric[] = post
 		? [
@@ -76,7 +76,7 @@ function PopularPostReport() {
 			} ) }
 			empty={ {
 				icon: trendingUp,
-				description: __( 'No post views in the last year.', 'jetpack-premium-analytics-pkg' ),
+				description: __( 'No post views in the last 12 months.', 'jetpack-premium-analytics-pkg' ),
 			} }
 			renderLoading={ <PostHighlightCardSkeleton /> }
 		>
@@ -85,7 +85,7 @@ function PopularPostReport() {
 					title={ post.title }
 					url={ post.url }
 					postId={ post.id }
-					detailSearch={ detailSearch }
+					detailSearch={ range }
 					date={ post.date }
 					imageUrl={ post.imageUrl }
 					imageAlt={ post.imageAlt }

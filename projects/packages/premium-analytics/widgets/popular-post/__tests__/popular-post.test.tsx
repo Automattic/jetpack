@@ -2,12 +2,13 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
+import { getMockRouteLinkUrl } from '../../../tests/js/route-test-utils';
 import PopularPostWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -125,16 +126,24 @@ describe( 'PopularPostWidget', () => {
 
 		await expect( screen.findByText( 'Winning post' ) ).resolves.toBeInTheDocument();
 
-		// The window itself is asserted in the hook's own suite; what only shows
-		// here is that the injected year never reaches the request.
+		// The window's own bounds are asserted in the hook's suite; what only shows
+		// here is that the injected year never displaces them.
 		const [ ranking ] = topPostsRequests().map( decodeURIComponent );
+		expect( ranking ).toContain( 'start_date=2025-08-27T00:00:00' );
 		expect( ranking ).not.toContain( '2022' );
 
 		// A different section year is the change this card must ignore: it reads
-		// the range from nowhere, so no second ranking request is issued.
+		// the range from nowhere, so no second ranking request is issued. Settle
+		// first — asserting a count that is already right would pass on the first
+		// tick, before a request the rerender triggered could be seen.
 		rerender( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2023 ) } } /> );
 
-		await waitFor( () => expect( topPostsRequests() ).toHaveLength( 1 ) );
+		await waitFor( () => expect( mockApiFetch ).not.toHaveBeenCalledTimes( 0 ) );
+		await act( async () => {
+			await Promise.resolve();
+		} );
+
+		expect( topPostsRequests() ).toHaveLength( 1 );
 		expect( topPostsRequests()[ 0 ] ).not.toContain( '2023' );
 	} );
 
@@ -142,7 +151,7 @@ describe( 'PopularPostWidget', () => {
 		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
 
 		const link = await screen.findByRole( 'link', { name: 'Winning post' } );
-		const search = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' ).searchParams;
+		const { searchParams: search } = getMockRouteLinkUrl( link );
 
 		expect( search.get( 'preset' ) ).toBe( 'last-12-months' );
 		expect( search.get( 'from' ) ).toContain( '2025-08-27T00:00:00' );

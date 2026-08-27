@@ -70,8 +70,9 @@ export function usePopularPost(): UsePopularPostResult {
 	// Resolved per render rather than once, so the window is never older than the
 	// render that reads it. `last-12-months` is a built-in preset, so it always
 	// resolves; the empty fallback exists only to satisfy the optional return
-	// type, and leaves the ranking query disabled rather than silently unpinning
-	// the window.
+	// type. It disables the ranking query rather than silently unpinning the
+	// window, which the card would show as its empty state — wrong, but only
+	// reachable if the preset itself stopped resolving.
 	const { from, to } = computeDateRangeFromPreset( PRESET_LAST_12_MONTHS ) ?? {
 		from: '',
 		to: '',

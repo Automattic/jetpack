@@ -33,7 +33,7 @@ registerStatsMocks();
 
 const POPULAR_POST_RENDER_MODULE = 'storybook/popular-post';
 
-// The card ranks over its own pinned last-365-days window, so every story shares
+// The card ranks over its own pinned last-12-months window, so every story shares
 // one query key: `forceStatsMockState` evicts the cache on both edges, which is
 // what keeps the forced-state stories isolated from each other.
 function renderPopularPost() {
@@ -48,7 +48,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Most popular post in the last year" widget shows the site\'s most-viewed post of the last 365 days, with its publish date and its all-time views, likes, and comments. The window is the widget\'s own — the dashboard date range does not change which post wins — and it only picks the winner: every tile comes from the all-time `stats/post` response, so the three cannot measure different periods. There is no `WithComparison` story: the card shows no period-over-period delta, so the dashboard story below carries the comparison report params instead.',
+					'The "Most popular post in the last year" widget shows the site\'s most-viewed post of the last 12 months, with its publish date and its all-time views, likes, and comments. The window is the widget\'s own — the dashboard date range does not change which post wins — and it only picks the winner: every tile comes from the all-time `stats/post` response, so the three cannot measure different periods. There is no `WithComparison` story: the card shows no period-over-period delta, so the dashboard story below carries the comparison report params instead.',
 			},
 		},
 	},
@@ -59,7 +59,7 @@ export default meta;
 type Story = StoryObj< Partial< ComponentProps< typeof PopularPostRender > > >;
 
 /**
- * Default — the last year's most-viewed post with its all-time views, likes, and comments.
+ * Default — the last 12 months' most-viewed post with its all-time views, likes, and comments.
  *
  * The shared close-up canvas is the width of a width-1 dashboard cell, which is
  * below the card's 520px wide breakpoint: the featured image is dropped and the
