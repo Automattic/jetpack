@@ -83,12 +83,8 @@ export async function handler( argv ) {
 	}
 
 	/*
-	 * Verbose runs one task at a time, so a child can have the terminal to itself
-	 * and prompt: pnpm asks before purging a `node_modules` that no longer
-	 * matches the current config, composer before running third-party plugins.
-	 * Otherwise stdin stays closed and the output is captured instead, so a
-	 * failure can still say what went wrong. Both streams, since pnpm reports
-	 * errors on stdout.
+	 * Verbose runs one task at a time, so a child can prompt on the terminal.
+	 * Concurrent runs keep stdin closed and pipe output instead.
 	 */
 	const verbose = !! argv.v;
 	const stdio = verbose ? [ 'inherit', 'inherit', 'inherit' ] : [ 'ignore', 'pipe', 'pipe' ];
@@ -136,11 +132,8 @@ export async function handler( argv ) {
 	} );
 	await listr.run().catch( err => {
 		/*
-		 * execa folds a captured child's output into `err.message`, so for a
-		 * command that failed that is the whole story. Anything else came from the
-		 * CLI itself and is worth printing whole, to get the stack with it. Print
-		 * rather than leave it to Listr, which reports through stdout: redirect
-		 * stdout and the reason would go with it.
+		 * Print failures ourselves so they reach the terminal instead of being
+		 * swallowed by Listr, where a redirect would lose them.
 		 */
 		const commandFailed = typeof err?.shortMessage === 'string';
 		if ( verbose || ! commandFailed ) {
