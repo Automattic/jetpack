@@ -282,10 +282,10 @@ class File_Browser_Bridge {
 
 		$url_status = wp_remote_retrieve_response_code( $url_response );
 		if ( 200 !== $url_status ) {
-			return new WP_Error(
+			return Rest_Controller::upstream_error(
+				$url_response,
 				'backup_file_content_url_failed',
-				__( 'Could not resolve file download URL.', 'jetpack-backup-pkg' ),
-				array( 'status' => is_int( $url_status ) && $url_status > 0 ? $url_status : 500 )
+				__( 'Could not resolve file download URL.', 'jetpack-backup-pkg' )
 			);
 		}
 
@@ -324,10 +324,30 @@ class File_Browser_Bridge {
 
 		$stream_status = wp_remote_retrieve_response_code( $stream_response );
 		if ( 200 !== $stream_status ) {
-			return new WP_Error(
+			// The one failure here whose reason does not come from the JSON
+			// API. This response is the storage host's, not WordPress.com's,
+			// so two caveats ride along with reusing the shared wrapper.
+			//
+			// Its error bodies are usually XML, which `upstream_reason()`
+			// reads nothing out of; asking anyway costs one `json_decode`
+			// on a path that has already failed, and the host does
+			// sometimes answer in JSON. When it does, the reason is filed
+			// under a key named `wpcom`, which misnames its origin — worth
+			// knowing before anyone reads that field as WordPress.com's.
+			//
+			// And the body it reads is not guaranteed to be an error body.
+			// `200 !== $stream_status` is not type-safe, so a `'200'` from
+			// a transport that reports statuses as strings arrives here
+			// with the previewed file's own bytes in hand. Harmless — the
+			// caller is the admin who asked for that file, and the clamp in
+			// `upstream_error()` reports the status as 500 rather than
+			// forwarding a success code — but it is not the same claim as
+			// "a 200 never reaches this branch", which is what this comment
+			// used to say and is not true.
+			return Rest_Controller::upstream_error(
+				$stream_response,
 				'backup_file_content_stream_failed',
-				__( 'Could not fetch file content.', 'jetpack-backup-pkg' ),
-				array( 'status' => is_int( $stream_status ) && $stream_status > 0 ? $stream_status : 500 )
+				__( 'Could not fetch file content.', 'jetpack-backup-pkg' )
 			);
 		}
 
@@ -340,6 +360,12 @@ class File_Browser_Bridge {
 	 * with bridge-level error codes the front-end branches on, so cURL's
 	 * own text never reaches the reader.
 	 *
+	 * Both wrappers keep what WordPress.com actually said one level down,
+	 * under `transport` and `wpcom` respectively, so `$message` names the
+	 * operation and the reason survives beside it rather than replacing
+	 * it. The client frames the two together when the reason is one only
+	 * a sentence can carry.
+	 *
 	 * @param array|\WP_Error $response The wp_remote_* response.
 	 * @param string          $code     Error code for a transport failure or a non-200.
 	 * @param string          $message  Translated error message for a non-200.
@@ -351,11 +377,7 @@ class File_Browser_Bridge {
 		}
 		$status_code = wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $status_code ) {
-			return new WP_Error(
-				$code,
-				$message,
-				array( 'status' => is_int( $status_code ) && $status_code > 0 ? $status_code : 500 )
-			);
+			return Rest_Controller::upstream_error( $response, $code, $message );
 		}
 		return rest_ensure_response( json_decode( wp_remote_retrieve_body( $response ), true ) );
 	}

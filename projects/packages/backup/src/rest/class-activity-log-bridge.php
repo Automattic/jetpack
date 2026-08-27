@@ -115,10 +115,10 @@ class Activity_Log_Bridge {
 
 		$status_code = wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $status_code ) {
-			return new WP_Error(
+			return Rest_Controller::upstream_error(
+				$response,
 				'activity_log_fetch_failed',
-				__( 'Could not fetch the site activity log.', 'jetpack-backup-pkg' ),
-				array( 'status' => is_int( $status_code ) && $status_code > 0 ? $status_code : 500 )
+				__( 'Could not fetch the site activity log.', 'jetpack-backup-pkg' )
 			);
 		}
 

@@ -173,6 +173,35 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 	}
 
 	/**
+	 * A non-200 on the directory listing keeps WordPress.com's reason.
+	 *
+	 * The other half of `forward_response()`, which every pass-through
+	 * bridge shares — so this covers the shared non-200 path the same way
+	 * the test above covers the shared transport path.
+	 *
+	 * 412 rather than 500, because 500 is also what an unreadable status
+	 * falls back to.
+	 */
+	public function test_list_directory_forwards_the_upstream_reason() {
+		$this->arrange_wpcom(
+			array(
+				'code'    => 'no_connected_jetpack',
+				'message' => 'This site is not connected.',
+			),
+			412
+		);
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/backups/123/ls' );
+		$request->set_param( 'rewind_id', '123' );
+		$request->set_param( 'path', '/' );
+		$data = File_Browser_Bridge::list_directory( $request )->get_error_data();
+
+		$this->assertSame( 412, $data['status'] );
+		$this->assertSame( 'no_connected_jetpack', $data['wpcom']['code'] );
+		$this->assertSame( 'This site is not connected.', $data['wpcom']['message'] );
+	}
+
+	/**
 	 * A manifest path that is not base64 is refused before dispatch.
 	 *
 	 * The value is interpolated into the WPCOM URL *path* unescaped —
