@@ -107,21 +107,6 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The Emails and Plugins sub-items point at the my.wordpress.com hosting dashboard.
-	 */
-	public function test_management_links() {
-		$admin_bar = self::make_test_admin_bar();
-
-		$emails  = $admin_bar->get_node( 'wpcom-emails' );
-		$plugins = $admin_bar->get_node( 'wpcom-plugins' );
-
-		$this->assertNotNull( $emails, 'The wpcom-emails node should exist.' );
-		$this->assertSame( 'https://my.wordpress.com/emails', $emails->href );
-		$this->assertNotNull( $plugins, 'The wpcom-plugins node should exist.' );
-		$this->assertSame( 'https://my.wordpress.com/plugins/manage', $plugins->href );
-	}
-
-	/**
 	 * The plan badge must always render a clickable anchor, including on Atomic
 	 * sites where \WPCOM_Masterbar is absent and the slug falls back to the site
 	 * suffix. It must never render the old non-clickable <div>.

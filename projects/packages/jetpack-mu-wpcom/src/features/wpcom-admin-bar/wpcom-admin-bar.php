@@ -179,7 +179,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 			'parent' => 'wp-logo',
 			'id'     => 'wpcom-sites',
 			'title'  => __( 'Sites', 'jetpack-mu-wpcom' ),
-			'href'   => add_origin_admin_bar_to_url( Urls::maybe_add_origin_site_id( 'https://wordpress.com/sites' ) ),
+			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/sites' ),
 		)
 	);
 
@@ -188,7 +188,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 			'parent' => 'wp-logo',
 			'id'     => 'wpcom-domains',
 			'title'  => __( 'Domains', 'jetpack-mu-wpcom' ),
-			'href'   => add_origin_admin_bar_to_url( Urls::maybe_add_origin_site_id( 'https://wordpress.com/domains/manage' ) ),
+			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/domains' ),
 		)
 	);
 
@@ -197,7 +197,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 			'parent' => 'wp-logo',
 			'id'     => 'wpcom-emails',
 			'title'  => __( 'Emails', 'jetpack-mu-wpcom' ),
-			'href'   => 'https://my.wordpress.com/emails',
+			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/emails' ),
 		)
 	);
 
@@ -206,7 +206,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 			'parent' => 'wp-logo',
 			'id'     => 'wpcom-plugins',
 			'title'  => __( 'Plugins', 'jetpack-mu-wpcom' ),
-			'href'   => 'https://my.wordpress.com/plugins/manage',
+			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/plugins' ),
 		)
 	);
 
