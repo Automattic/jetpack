@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Drop a chart bucket boundary for an interval the picker no longer offers; nothing user-facing changed.
+
+

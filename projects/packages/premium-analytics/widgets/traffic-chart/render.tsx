@@ -60,8 +60,8 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 	// Bound to whichever route hosts the widget, the same way `reportParams` are.
 	const { drillDown } = useReportDateFilters();
 
-	// Names the bucket size drawn, not the page interval: a quarter or year page
-	// interval clamps to months here, and the click must open the bar it hit.
+	// Names the bucket size drawn, not the page interval: a year page interval
+	// clamps to months here, and the click must open the bar it hit.
 	const openBucket = useCallback(
 		( date: Date ) => drillDown( date, period ),
 		[ drillDown, period ]
