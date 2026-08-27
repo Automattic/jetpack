@@ -72,12 +72,14 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends Jetpack_REST_Tes
 			wp_json_encode(
 				array(
 					'sandbox'    => array(
-						'client_id'     => 'sandbox_platform_id',
-						'client_secret' => 'sandbox_platform_secret',
+						'client_id'           => 'sandbox_platform_id',
+						'client_secret'       => 'sandbox_platform_secret',
+						'partner_merchant_id' => 'SANDBOX_PARTNER',
 					),
 					'production' => array(
-						'client_id'     => 'production_platform_id',
-						'client_secret' => 'production_platform_secret',
+						'client_id'           => 'production_platform_id',
+						'client_secret'       => 'production_platform_secret',
+						'partner_merchant_id' => 'PRODUCTION_PARTNER',
 					),
 				),
 				JSON_UNESCAPED_SLASHES
@@ -271,6 +273,73 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends Jetpack_REST_Tes
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'paypal_token_failed', $result->get_error_code() );
 		$this->assertSame( 502, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * Test that the partner merchant ID is returned so the site can complete onboarding.
+	 *
+	 * The auth code exchange and the merchant status check both address PayPal as
+	 * the partner, and the site has no other way to learn that ID.
+	 */
+	public function test_partner_merchant_id_is_returned() {
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'               => $this->token_response(),
+				'/v2/customer/partner-referrals' => $this->http_response(
+					201,
+					array(
+						'links' => array(
+							array(
+								'rel'  => 'action_url',
+								'href' => 'https://www.sandbox.paypal.com/merchantsignup/x',
+							),
+						),
+					)
+				),
+			)
+		);
+
+		$result = $this->endpoint->generate_signup_link( $this->signup_link_request( 'sandbox' ) );
+
+		$this->assertNotWPError( $result );
+		$this->assertSame( 'SANDBOX_PARTNER', $result->get_data()['partner_merchant_id'] );
+	}
+
+	/**
+	 * Test that a missing partner merchant ID degrades to an empty string.
+	 */
+	public function test_partner_merchant_id_defaults_to_empty_string() {
+		update_option(
+			WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding::PLATFORM_CREDENTIALS_OPTION,
+			array(
+				'sandbox' => array(
+					'client_id'     => 'sandbox_platform_id',
+					'client_secret' => 'sandbox_platform_secret',
+				),
+			)
+		);
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'               => $this->token_response(),
+				'/v2/customer/partner-referrals' => $this->http_response(
+					201,
+					array(
+						'links' => array(
+							array(
+								'rel'  => 'action_url',
+								'href' => 'https://www.sandbox.paypal.com/merchantsignup/x',
+							),
+						),
+					)
+				),
+			)
+		);
+
+		$result = $this->endpoint->generate_signup_link( $this->signup_link_request( 'sandbox' ) );
+
+		$this->assertNotWPError( $result );
+		$this->assertSame( '', $result->get_data()['partner_merchant_id'] );
 	}
 
 	// --- Referral creation ---

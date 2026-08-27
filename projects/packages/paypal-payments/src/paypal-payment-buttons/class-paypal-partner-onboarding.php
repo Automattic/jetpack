@@ -13,6 +13,8 @@
 
 namespace Automattic\Jetpack\PaypalPayments;
 
+use Automattic\Jetpack\Connection\Client;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -26,11 +28,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 class PayPal_Partner_Onboarding {
 
 	/**
-	 * Partner Referrals API endpoint.
+	 * WordPress.com proxy route that creates the Partner Referral.
+	 *
+	 * Automattic's PayPal platform credentials live on WordPress.com, so the
+	 * referral is created there rather than from the site.
 	 *
 	 * @var string
 	 */
-	const REFERRALS_ENDPOINT = '/v2/customer/partner-referrals';
+	const WPCOM_SIGNUP_LINK_ROUTE = '/paypal/onboarding/signup-link';
 
 	/**
 	 * OAuth token endpoint for authorization code exchange.
@@ -143,16 +148,19 @@ class PayPal_Partner_Onboarding {
 	/**
 	 * Generate a Partner Referrals signup link for the merchant.
 	 *
-	 * Creates a referral via POST /v2/customer/partner-referrals and returns
-	 * the action_url for the PayPal mini-browser lightbox.
+	 * The referral itself is created by WordPress.com, which holds Automattic's
+	 * PayPal platform credentials; this method builds the referral body, proxies it
+	 * through wpcom/v2/paypal/onboarding/signup-link using the site's blog token,
+	 * and returns the action_url for the PayPal mini-browser lightbox.
 	 *
-	 * Prerequisite: Partner-level credentials (Automattic's partner client_id/secret)
-	 * must be pre-configured via PayPal_OAuth::store_credentials() before this method
-	 * is called. These are seeded during plugin activation, not entered by the merchant.
+	 * The seller nonce stays on the site: it is the PKCE code_verifier that
+	 * complete_onboarding() needs when it exchanges the auth code.
+	 *
+	 * Prerequisite: the site must be connected to WordPress.com.
 	 *
 	 * @param string $return_url  The URL PayPal redirects to after onboarding.
 	 * @param string $environment 'sandbox' or 'production'.
-	 * @return array|\WP_Error Array with 'action_url' and 'referral_id', or WP_Error.
+	 * @return array|\WP_Error Array with 'action_url', 'referral_id' and 'tracking_id', or WP_Error.
 	 */
 	public static function generate_signup_link( $return_url, $environment = 'production' ) {
 		// Enforce HTTPS on the return URL to protect the auth code in transit.
@@ -161,14 +169,6 @@ class PayPal_Partner_Onboarding {
 				'paypal_onboarding_insecure_url',
 				__( 'The return URL must use HTTPS for production onboarding.', 'jetpack-paypal-payments' ),
 				array( 'status' => 400 )
-			);
-		}
-
-		$partner_id = self::get_partner_id();
-		if ( empty( $partner_id ) ) {
-			return new \WP_Error(
-				'paypal_no_partner_id',
-				__( 'PayPal partner merchant ID is not configured. Please contact support.', 'jetpack-paypal-payments' )
 			);
 		}
 
@@ -183,10 +183,6 @@ class PayPal_Partner_Onboarding {
 
 		// Build the tracking ID from the site URL for uniqueness.
 		$tracking_id = 'woo-ncps-' . substr( md5( get_site_url() ), 0, 12 ) . '-' . time();
-
-		$base_url = 'production' === $environment
-			? PayPal_OAuth::PRODUCTION_BASE_URL
-			: PayPal_OAuth::SANDBOX_BASE_URL;
 
 		$request_body = array(
 			'tracking_id'             => $tracking_id,
@@ -219,23 +215,27 @@ class PayPal_Partner_Onboarding {
 			),
 		);
 
-		// Get a partner access token to call the Partner Referrals API.
-		$token = PayPal_OAuth::get_access_token();
-		if ( is_wp_error( $token ) ) {
-			return $token;
-		}
-
-		$response = wp_remote_post(
-			$base_url . self::REFERRALS_ENDPOINT,
+		// Automattic's PayPal platform credentials live on WordPress.com, so the
+		// referral is created there and only the resulting URL comes back here.
+		$response = Client::wpcom_json_api_request_as_blog(
+			self::WPCOM_SIGNUP_LINK_ROUTE,
+			'2',
 			array(
+				'method'  => 'POST',
 				'timeout' => 30,
 				'headers' => array(
-					'Authorization' => 'Bearer ' . $token,
-					'Content-Type'  => 'application/json',
-					'Accept'        => 'application/json',
+					'Content-Type' => 'application/json',
+					'Accept'       => 'application/json',
 				),
-				'body'    => wp_json_encode( $request_body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
-			)
+			),
+			wp_json_encode(
+				array(
+					'environment' => $environment,
+					'referral'    => $request_body,
+				),
+				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+			),
+			'wpcom'
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -260,33 +260,22 @@ class PayPal_Partner_Onboarding {
 			);
 		}
 
-		// Extract the action_url from the links array.
-		$action_url  = '';
-		$referral_id = '';
-
-		if ( isset( $body['links'] ) && is_array( $body['links'] ) ) {
-			foreach ( $body['links'] as $link ) {
-				if ( 'action_url' === $link['rel'] ) {
-					$action_url = $link['href'];
-				}
-				if ( 'self' === $link['rel'] ) {
-					// Extract referral ID from the self URL.
-					$parts       = explode( '/', $link['href'] );
-					$referral_id = end( $parts );
-				}
-			}
-		}
-
-		if ( empty( $action_url ) ) {
+		if ( empty( $body['action_url'] ) ) {
 			return new \WP_Error(
 				'paypal_referral_no_url',
 				__( 'PayPal returned a successful response but no onboarding URL was included.', 'jetpack-paypal-payments' )
 			);
 		}
 
+		// The auth code exchange and the status check both address PayPal as the
+		// partner, so store the partner merchant ID WordPress.com used.
+		if ( ! empty( $body['partner_merchant_id'] ) ) {
+			self::set_partner_id( $body['partner_merchant_id'] );
+		}
+
 		return array(
-			'action_url'  => $action_url,
-			'referral_id' => $referral_id,
+			'action_url'  => $body['action_url'],
+			'referral_id' => $body['referral_id'] ?? '',
 			'tracking_id' => $tracking_id,
 		);
 	}
