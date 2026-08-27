@@ -39,6 +39,18 @@ export const PREFERENCE_NAME = 'welcomeGuide';
 /** Core's own welcome modal preference, which the Options menu item toggles. */
 const CORE_PREFERENCE_SCOPE = 'core/edit-post';
 
+/**
+ * Value that clears a preference rather than storing one.
+ *
+ * `set` is the only way to write, and the store reads `undefined` as absent:
+ * `get` falls through to whatever default is registered, and the persistence
+ * layer's `JSON.stringify` drops the key on the way to user meta. Writing
+ * `false` would instead turn "never decided" into "explicitly opted out",
+ * which for core's welcome modal means quietly losing it in the post and page
+ * editors — for someone who only ever asked to see a guide.
+ */
+const CLEAR_PREFERENCE = undefined;
+
 export const FormWelcomeGuide = () => {
 	const preference = useSelect(
 		select => select( preferencesStore ).get( PREFERENCE_SCOPE, PREFERENCE_NAME ),
@@ -143,15 +155,15 @@ export const FormWelcomeGuide = () => {
 			return;
 		}
 
-		set( CORE_PREFERENCE_SCOPE, PREFERENCE_NAME, false );
+		set( CORE_PREFERENCE_SCOPE, PREFERENCE_NAME, CLEAR_PREFERENCE );
 	}, [ isFormEditor, set ] );
 
 	/*
 	 * Take over the editor's "Welcome Guide" menu item. Selecting it sets
 	 * core's preference to true, which would otherwise bring back the generic
-	 * modal this guide replaces — so open this one instead and put the
-	 * preference back. Writing false is deliberate and persists: it is the same
-	 * state the user would have reached by dismissing core's modal themselves.
+	 * modal this guide replaces — so open this one instead and clear the
+	 * preference, putting it back to the untouched state the toggle moved it
+	 * out of rather than recording a decision the user never made.
 	 *
 	 * Only a transition into true counts. The value being true on its own says
 	 * nothing about whether the user asked for anything: core's own default is
@@ -171,7 +183,7 @@ export const FormWelcomeGuide = () => {
 		}
 
 		handleReopen();
-		set( CORE_PREFERENCE_SCOPE, PREFERENCE_NAME, false );
+		set( CORE_PREFERENCE_SCOPE, PREFERENCE_NAME, CLEAR_PREFERENCE );
 	}, [ coreWelcomeGuide, handleReopen, isFormEditor, set ] );
 
 	if ( ! isOpen ) {

@@ -178,7 +178,24 @@ describe( 'FormWelcomeGuide', () => {
 		rerender( <FormWelcomeGuide /> );
 
 		expect( screen.getByTestId( 'guide' ) ).toBeInTheDocument();
-		expect( set ).toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, false );
+		expect( set ).toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, undefined );
+	} );
+
+	/*
+	 * Core's item is a toggle, so intercepting it means undoing a write the
+	 * user did not intend. Clearing puts the preference back to untouched;
+	 * storing false would read as "opted out" and silently cost them core's
+	 * welcome modal in the post and page editors.
+	 */
+	it( 'clears core’s preference rather than storing an opt-out', () => {
+		seedPreferences( { jetpackForms: false, coreWelcomeGuide: false } );
+
+		const { rerender } = render( <FormWelcomeGuide /> );
+
+		seedPreferences( { jetpackForms: false, coreWelcomeGuide: true } );
+		rerender( <FormWelcomeGuide /> );
+
+		expect( set ).not.toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, false );
 	} );
 
 	/*
@@ -192,7 +209,8 @@ describe( 'FormWelcomeGuide', () => {
 
 		render( <FormWelcomeGuide /> );
 
-		expect( set ).not.toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, false );
+		expect( set ).not.toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, expect.anything() );
+		expect( set ).not.toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, undefined );
 	} );
 
 	/*
@@ -221,7 +239,8 @@ describe( 'FormWelcomeGuide', () => {
 			rerender( <FormWelcomeGuide /> );
 
 			expect( screen.queryByTestId( 'guide' ) ).not.toBeInTheDocument();
-			expect( set ).not.toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, false );
+			expect( set ).not.toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, expect.anything() );
+			expect( set ).not.toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, undefined );
 		} );
 	} );
 
@@ -250,7 +269,8 @@ describe( 'FormWelcomeGuide', () => {
 
 			render( <FormWelcomeGuide /> );
 
-			expect( set ).toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, false );
+			expect( set ).toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, undefined );
+			expect( set ).not.toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, false );
 		} );
 
 		it( 'leaves a newcomer alone, whose true is core’s default rather than stored', () => {
