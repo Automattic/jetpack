@@ -44,7 +44,10 @@ describe( 'MostPopularDayWidget', () => {
 		// Label with value and caption, so a field that renders the year under the
 		// view count — or vice versa — cannot pass.
 		expect( container ).toHaveTextContent( 'DayOctober 172011' );
-		expect( container ).toHaveTextContent( 'Views102.6K0.16% of views' );
+		// The count appears twice by design: the abbreviated headline is hidden
+		// from assistive tech, and the exact count beside it is hidden visually.
+		expect( container ).toHaveTextContent( 'Views102.6K102,6310.16% of views' );
+		expect( screen.getByText( '102.6K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
 	} );
 
 	it( 'requests the site summary without date params', async () => {
@@ -76,6 +79,22 @@ describe( 'MostPopularDayWidget', () => {
 
 		expect( container ).toHaveTextContent( 'Views102.6K' );
 		expect( screen.queryByText( /of views/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders a count below the first multiplier whole', async () => {
+		// `decimals: 1` alone renders 110 views as "110.0", which reads as a
+		// measurement to one decimal rather than a count of 110.
+		mockApiFetch.mockResolvedValue( {
+			stats: { views: 732, views_best_day: '2011-10-17', views_best_day_total: 110 },
+		} );
+
+		const { container } = render( <MostPopularDayWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( 'October 17' ) ).resolves.toBeInTheDocument();
+
+		// Nothing to abbreviate, so the count is rendered once and read as it
+		// stands — no hidden duplicate the way the compacted headline needs.
+		expect( container ).toHaveTextContent( 'Views11015.03% of views' );
 	} );
 
 	it( 'shows the empty state when the site has no best day yet', async () => {

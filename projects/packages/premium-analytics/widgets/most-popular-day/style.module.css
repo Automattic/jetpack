@@ -19,7 +19,7 @@
  * rather than `height`: on a tile too short for both fields the box grows to
  * them instead, so `justify: center` has no free space to distribute and the
  * overflow falls below the fold, where `.root` can scroll to it. A fixed height
- * would centre the overflow and push the first field past the top edge. */
+ * would center the overflow and push the first field past the top edge. */
 .highlight {
 	min-height: 100%;
 }

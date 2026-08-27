@@ -13,13 +13,14 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text } from '@jetpack-premium-analytics/externals';
+import { Stack, Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
 import type { MostPopularDayAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { ReactNode } from 'react';
 
 // Report params are dashboard-driven — WidgetRoot resolves them from the date
 // picker — but this highlight is site-wide and ignores them. The host (and
@@ -46,7 +47,9 @@ type MostPopularDayHighlightProps = {
 
 type MostPopularDayFieldProps = {
 	label: string;
-	value: string;
+	value: ReactNode;
+	/** The unabbreviated value, when `value` renders a shortened form of it. */
+	valueTitle?: string;
 	caption?: string;
 };
 
@@ -54,10 +57,12 @@ type MostPopularDayFieldProps = {
  * A single labelled highlight: a small label, the prominent value, and a muted
  * caption beneath it (e.g. "Day" / "August 18" / "2020").
  */
-const MostPopularDayField = ( { label, value, caption }: MostPopularDayFieldProps ) => (
+const MostPopularDayField = ( { label, value, valueTitle, caption }: MostPopularDayFieldProps ) => (
 	<Stack direction="column" gap="xs">
 		<Text variant="body-md">{ label }</Text>
-		<Text variant="heading-2xl">{ value }</Text>
+		<Text variant="heading-2xl" title={ valueTitle }>
+			{ value }
+		</Text>
 		{ caption !== undefined && (
 			<Text variant="body-md" className={ styles.caption }>
 				{ caption }
@@ -66,36 +71,63 @@ const MostPopularDayField = ( { label, value, caption }: MostPopularDayFieldProp
 	</Stack>
 );
 
+// `decimals: 0` would round 102,631 to "103K"; the design's headline keeps the
+// digit ("102.6K"). Below the first multiplier that digit is only ever ".0", so
+// the count renders whole there — the same split Total views makes.
+const ABBREVIATED_COUNT_OPTIONS = { useMultipliers: true, decimals: 1 };
+const PLAIN_COUNT_OPTIONS = { decimals: 0 };
+
 /**
  * Presentational body for the "Most popular day" widget: the all-time best day
  * for views and how many views it drew. Loading / error / empty are handled by
  * `<WidgetState>` in the report component, so this only renders the populated
  * highlight.
  */
-export const MostPopularDayHighlight = ( { date, views, share }: MostPopularDayHighlightProps ) => (
-	<Stack className={ styles.highlight } direction="column" gap="xl" justify="center">
-		<MostPopularDayField
-			label={ __( 'Day', 'jetpack-premium-analytics-pkg' ) }
-			value={ formatDate( date, 'short' ) }
-			caption={ formatDate( date, 'year' ) }
-		/>
-		<MostPopularDayField
-			label={ __( 'Views', 'jetpack-premium-analytics-pkg' ) }
-			value={ formatMetricValue( views, 'number', { useMultipliers: true, decimals: 1 } ) }
-			// A summary without an all-time total gives no share to state; "0% of
-			// views" would read as a measurement rather than a missing one.
-			caption={
-				share === undefined
-					? undefined
-					: sprintf(
-							/* translators: %s is a percentage, e.g. "0.32%". */
-							__( '%s of views', 'jetpack-premium-analytics-pkg' ),
-							formatMetricValue( share, 'percentage', { decimals: 2, signDisplay: 'never' } )
-					  )
-			}
-		/>
-	</Stack>
-);
+export const MostPopularDayHighlight = ( { date, views, share }: MostPopularDayHighlightProps ) => {
+	const fullViews = formatMetricValue( views, 'number', PLAIN_COUNT_OPTIONS );
+	const headlineViews = formatMetricValue(
+		views,
+		'number',
+		views >= 1000 ? ABBREVIATED_COUNT_OPTIONS : PLAIN_COUNT_OPTIONS
+	);
+
+	return (
+		<Stack className={ styles.highlight } direction="column" gap="xl" justify="center">
+			<MostPopularDayField
+				label={ __( 'Day', 'jetpack-premium-analytics-pkg' ) }
+				value={ formatDate( date, 'short' ) }
+				caption={ formatDate( date, 'year' ) }
+			/>
+			<MostPopularDayField
+				label={ __( 'Views', 'jetpack-premium-analytics-pkg' ) }
+				// An abbreviated headline is read aloud as "102.6 K", so the exact
+				// count is what reaches a screen reader.
+				value={
+					headlineViews === fullViews ? (
+						headlineViews
+					) : (
+						<>
+							<span aria-hidden="true">{ headlineViews }</span>
+							<VisuallyHidden>{ fullViews }</VisuallyHidden>
+						</>
+					)
+				}
+				valueTitle={ fullViews }
+				// A summary without an all-time total gives no share to state; "0% of
+				// views" would read as a measurement rather than a missing one.
+				caption={
+					share === undefined
+						? undefined
+						: sprintf(
+								/* translators: %s is a percentage, e.g. "0.32%". */
+								__( '%s of views', 'jetpack-premium-analytics-pkg' ),
+								formatMetricValue( share, 'percentage', { decimals: 2, signDisplay: 'never' } )
+						  )
+				}
+			/>
+		</Stack>
+	);
+};
 
 function readBestDay( summary: Record< string, unknown > | undefined ) {
 	return parseSiteDateTime( summary?.views_best_day );
