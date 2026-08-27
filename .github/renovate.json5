@@ -96,6 +96,10 @@
 			matchDepTypes: [ 'action' ],
 			matchPackageNames: [ 'docker/**' ],
 		},
+		{
+			groupName: 'tsdown monorepo',
+			matchPackageNames: [ 'tsdown', '@tsdown/**' ],
+		},
 
 		// Pin GitHub Actions to digests.
 		// We'll leave major updates ungrouped though, as those likely need more individualized attention.
