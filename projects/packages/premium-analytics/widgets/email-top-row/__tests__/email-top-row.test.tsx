@@ -8,6 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import EmailTopRowWidget, { hasEmailMetrics, toEmailTopRowMetrics } from '../render';
+import emailTopRowWidgetType from '../widget';
 import type { StatsEmailBreakdown } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -225,5 +226,11 @@ describe( 'hasEmailMetrics', () => {
 	it( 'is true when a metric field is present, including zero', () => {
 		expect( hasEmailMetrics( asSummary( { total_sends: 0 } ) ) ).toBe( true );
 		expect( hasEmailMetrics( asSummary( { total_opens: 400 } ) ) ).toBe( true );
+	} );
+} );
+
+describe( 'EmailTopRow widget type', () => {
+	it( 'declares no editable attributes, so the host renders no settings drawer', () => {
+		expect( emailTopRowWidgetType.attributes ).toEqual( [] );
 	} );
 } );

@@ -1,14 +1,8 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { envelope } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
-
-/**
- * Internal dependencies
- */
-import { SelectField } from '@jetpack-premium-analytics/fields';
 
 /**
  * Which breakdown dimension the widget lists for the selected email.
@@ -52,10 +46,12 @@ export type EmailBreakdownAttributes = {
  * Ported from the Jetpack Stats email detail "breakdown" modules
  * (`stats-email-module`). That family is one module rendered four times — by
  * country, device, email client, and clicked link — so this ships as a single
- * widget with a `view` selector instead of four near-identical widgets. The
- * attributes stay at the default (low) relevance: the post detail page pins
- * each view as its own fixed, page-titled card, so a header control would
- * fight the composition. The breakdown is
+ * widget with a `view` attribute instead of four near-identical widgets. The
+ * attributes are not user-editable: the post detail page pins each view as its
+ * own fixed, page-titled card with `view` and `metric` set in its layout, so
+ * exposing them (inline or in the settings drawer) would let a "Location opens"
+ * card show links or clicks. With no editable attribute, the host renders no
+ * settings affordance. The breakdown is
  * scoped to a single email by the host through `reportParams.post_id` (the
  * shared single-resource "detail page" param), not by an attribute; the
  * endpoints report over the whole lifetime of the email, so there is no date
@@ -63,51 +59,7 @@ export type EmailBreakdownAttributes = {
  */
 export default {
 	icon: envelope,
-	attributes: [
-		{
-			id: 'view',
-			label: __( 'Break down by', 'jetpack-premium-analytics-pkg' ),
-			type: 'text',
-			Edit: SelectField,
-			elements: [
-				{
-					label: __( 'Countries', 'jetpack-premium-analytics-pkg' ),
-					value: 'countries',
-				},
-				{
-					label: __( 'Devices', 'jetpack-premium-analytics-pkg' ),
-					value: 'devices',
-				},
-				{
-					label: __( 'Email clients', 'jetpack-premium-analytics-pkg' ),
-					value: 'clients',
-				},
-				{
-					label: __( 'Links', 'jetpack-premium-analytics-pkg' ),
-					value: 'links',
-				},
-			],
-		},
-		{
-			id: 'metric',
-			label: __( 'Metric', 'jetpack-premium-analytics-pkg' ),
-			type: 'text',
-			Edit: SelectField,
-			elements: [
-				{
-					label: __( 'Opens', 'jetpack-premium-analytics-pkg' ),
-					value: 'opens',
-				},
-				{
-					label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ),
-					value: 'clicks',
-				},
-			],
-			// The `links` view always reads the clicks breakdown, so the opens/clicks
-			// metric has no effect there — hide the control to keep it from looking live.
-			isVisible: ( { view } ) => view !== 'links',
-		},
-	] as WidgetAttributeField< EmailBreakdownAttributes >[],
+	attributes: [] as WidgetAttributeField< EmailBreakdownAttributes >[],
 	example: {
 		attributes: {
 			view: 'countries',

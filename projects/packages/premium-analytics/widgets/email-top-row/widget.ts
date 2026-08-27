@@ -1,14 +1,8 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { envelope } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
-
-/**
- * Internal dependencies
- */
-import { SelectField } from '@jetpack-premium-analytics/fields';
 
 /**
  * Which set of headline metrics the top row shows for the selected email —
@@ -49,33 +43,18 @@ export type EmailTopRowAttributes = {
  * Ported from the Jetpack Stats "Email top row" module (the header row on an
  * individual email's stats detail page). Shows one email's all-time headline
  * counts as a row of metric tiles, switching between the Opens and Clicks views
- * with the `metric` attribute. The attribute stays at the default (low)
- * relevance: the post detail page splits the views into their own tabs, so a
- * header control would duplicate the tab switch.
+ * with the `metric` attribute. The attribute is not user-editable: the post
+ * detail page splits the views into their own tabs and pins `metric` per tab
+ * in its layout, so exposing it (inline or in the settings drawer) would let
+ * the Opens tab show clicks data. With no editable attribute, the host renders
+ * no settings affordance.
  * Data comes from the per-post `stats/<opens|clicks>/emails/<postId>/rate`
  * breakdown, which is all-time and returns no comparison rows, so the widget
  * ignores the dashboard date range and never shows period-over-period deltas.
  */
 export default {
 	icon: envelope,
-	attributes: [
-		{
-			id: 'metric',
-			label: __( 'View by', 'jetpack-premium-analytics-pkg' ),
-			type: 'text',
-			Edit: SelectField,
-			elements: [
-				{
-					label: __( 'Opens', 'jetpack-premium-analytics-pkg' ),
-					value: 'opens',
-				},
-				{
-					label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ),
-					value: 'clicks',
-				},
-			],
-		},
-	] as WidgetAttributeField< EmailTopRowAttributes >[],
+	attributes: [] as WidgetAttributeField< EmailTopRowAttributes >[],
 	example: {
 		attributes: {
 			metric: 'opens',
