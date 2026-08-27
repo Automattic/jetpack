@@ -173,7 +173,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	 */
 	public function test_add_actions_registers_standalone_page_hooks() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
-		add_filter( 'jetpack_is_connection_ready', '__return_true' );
+		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
 
 		$page = $this->get_page_with_registered_hook();
 		$page->add_actions();
@@ -189,7 +189,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	public function test_add_actions_skips_standalone_styles_on_simple() {
 		Constants::set_constant( 'IS_WPCOM', true );
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
-		add_filter( 'jetpack_is_connection_ready', '__return_true' );
+		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
 
 		$page = $this->get_page_with_registered_hook();
 		$page->add_actions();
@@ -203,7 +203,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	 */
 	public function test_add_actions_skips_disconnected_site() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
-		add_filter( 'jetpack_is_connection_ready', '__return_false' );
+		add_filter( 'jetpack_is_connection_ready', '__return_false', PHP_INT_MAX );
 		add_filter( 'jetpack_offline_mode', '__return_false' );
 
 		$page = new Jetpack_AI_Page();
@@ -230,7 +230,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	 */
 	public function test_add_actions_stops_when_menu_registration_fails() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
-		add_filter( 'jetpack_is_connection_ready', '__return_true' );
+		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
 
 		$page = new class() extends Jetpack_AI_Page {
 			/**
