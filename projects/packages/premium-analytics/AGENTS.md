@@ -57,6 +57,18 @@ jetpack build --deps packages/premium-analytics
 wp-build-polyfills, assets) must already be built. `jetpack build --deps` builds
 them first — use it after merging trunk or when charts exports look stale.
 
+### Storybook serves the built artifact of some internal packages
+
+Storybook's Vite config maps bare `@jetpack-premium-analytics/*` imports to `src/`, but that only
+takes effect for packages whose `package.json` declares no `module` field (`datetime`,
+`formatters`, `icons`, `routing`). The rest — `data`, `externals`, `fields`, `init`, `site-sync`,
+`ui`, `widgets-toolkit` — point `module` at `build-module/index.mjs`, and Storybook loads that
+artifact instead, so an edit to their source is invisible there until it is rebuilt. A newly added
+export surfaces as `The requested module '…/build-module/index.mjs' does not provide an export
+named 'X'`, and a changed one silently renders the old behaviour. Run `pnpm run build` (or
+`jetpack build --deps packages/premium-analytics`) before trusting what Storybook shows for those
+packages.
+
 Add a route: create `routes/<name>/package.json` (with `route.path` + `route.page`) and a
 `stage.tsx` exporting `stage()`; rebuild — routes are auto-discovered.
 
