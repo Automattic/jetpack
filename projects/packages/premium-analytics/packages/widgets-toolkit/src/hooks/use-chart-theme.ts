@@ -31,7 +31,7 @@ export function useChartTheme(): WooChartTheme {
 			// measurements go with it. `fill` is not, any more — CHARTS-203 made the charts
 			// default a single-level pointer that resolves on its own, so this only restates it.
 			// Harmless, since the value publishes the theme layer and degrades rather than
-			// breaking, but it goes with the colour props in CHARTS-227.
+			// breaking, but it goes with the color props in CHARTS-227.
 			svgLabelSmall: {
 				fill: 'var(--wpds-color-foreground-content-neutral)',
 				fontSize: 12,

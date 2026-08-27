@@ -106,7 +106,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 
 		// Resolved from the theme rather than from `SERIES_PALETTE_POINTERS`, and it has to be. In a
 		// browser the two are equivalent — both name the same slots, and the wrapper's theme-layer
-		// vars answer either. But `withCatalogPointers` puts the consumer's own colour in each
+		// vars answer either. But `withCatalogPointers` puts the consumer's own color in each
 		// pointer's terminal position, and that literal is the only carrier for the palette where
 		// `getComputedStyle` resolves nothing: SSR and jsdom. Walking the manifest instead makes
 		// every consumer palette collapse to the catalog seed there.
@@ -159,8 +159,8 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 
 	// Reset group color mappings when the resolved palette changes.
 	//
-	// Keyed on the resolved colours rather than on `providerTheme.colors`, which holds five
-	// catalog pointers and so does not move with a `theme.colors` change — a consumer's colours
+	// Keyed on the resolved colors rather than on `providerTheme.colors`, which holds five
+	// catalog pointers and so does not move with a `theme.colors` change — a consumer's colors
 	// reach the palette through the theme-layer vars on the wrapper. Keying on content also stops
 	// a consumer passing an inline `theme` object from resetting the map on every render.
 	const paletteKey = colorCache.colors.join( ',' );

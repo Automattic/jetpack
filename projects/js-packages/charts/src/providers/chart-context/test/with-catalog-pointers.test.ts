@@ -89,7 +89,7 @@ describe( 'withCatalogPointers', () => {
 	} );
 
 	// The literal is only reached where getComputedStyle resolves nothing, and the palette is the one field where falling back to the catalog default would be visible: every series would paint the same seeded blue.
-	it( 'keeps the consumer colour as each pointer’s terminal literal, for SSR and jsdom', () => {
+	it( 'keeps the consumer color as each pointer’s terminal literal, for SSR and jsdom', () => {
 		const merged = mergeThemes( defaultTheme, { colors: [ 'red' ] } as Partial< ChartTheme > );
 		const result = withCatalogPointers( merged, [ '--a8c-charts-color-series-1' ] );
 

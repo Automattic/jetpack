@@ -23,16 +23,16 @@
 :where(.a8c-charts-scope) {
 	// The series palette. GlobalChartsProvider resolves these five slots at its
 	// wrapper and seeds ColorCache with whatever resolves; a slot that resolves
-	// to nothing is skipped, so setting only slots 1 and 3 gives a two-colour
-	// palette, and charts generate accessible colours beyond the seeds. Only
+	// to nothing is skipped, so setting only slots 1 and 3 gives a two-color
+	// palette, and charts generate accessible colors beyond the seeds. Only
 	// slot 1 carries a default.
 
 	// Slot 1 names --wp-admin-theme-color first, because that is the only leg
 	// that does not depend on someone else's runtime. The design system's brand
-	// token tracks the admin colour scheme only where a WPDS root provider
+	// token tracks the admin color scheme only where a WPDS root provider
 	// boots and emits its generated ramp inline; without one the token falls to
 	// the plain stylesheet rule, a static #3858e9 with no reference to the
-	// admin colour. Leading with the admin colour costs nothing:
+	// admin color. Leading with the admin color costs nothing:
 	// @wordpress/theme writes --wp-admin-theme-color from a provider's own
 	// accent as a legacy wp-admin override, so a provider accent still wins.
 
@@ -58,7 +58,7 @@
 	--a8c-charts-color-label: var(--wpds-color-foreground-content-neutral, #1e1e1e);
 	--a8c-charts-color-label-secondary: var(--wpds-color-foreground-content-neutral-weak, #707070);
 	--a8c-charts-color-label-inverse: var(--wpds-color-foreground-interactive-neutral-strong, #f0f0f0);
-	// White label text sits on arbitrary series colours, so it has no WPDS
+	// White label text sits on arbitrary series colors, so it has no WPDS
 	// content-foreground equivalent.
 	--a8c-charts-color-label-on-fill: #fff;
 	// The SVG axis and tick labels. `svgLabelSmall.fill` publishes THIS role, so

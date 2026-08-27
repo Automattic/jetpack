@@ -34,7 +34,7 @@ Highest first:
 
 A CSS declaration of a role therefore beats a `theme` prop override *anywhere* it is set, the wrapper included — the prop writes a variable the role reads, not the role itself, and a role declared in CSS never reads it.
 
-An override set **above** `GlobalChartsProvider` does not apply: the provider's own declaration on its wrapper beats a value merely inherited from an ancestor. Set overrides inside the provider tree, or target the scope class itself — `.a8c-charts-scope { --a8c-charts-color-grid: #e0e0e0; }` matches every provider wrapper on the page, including the one a bare chart mounts for itself and the one a portal tooltip carries, and outranks the zero-specificity catalog default. That rule is the replacement for a page-level `:root` override. The same rule limits `@wordpress/theme`'s `ThemeProvider` to *above* the charts provider: the catalog substitutes its `--wpds-*` tokens at the wrapper, so a `ThemeProvider` mounted between the wrapper and a chart is never consulted and CSS-painted colours keep their light-mode spec fallbacks. The JS-painted ones do not — `getElementStyles` resolves at the chart element — so that nesting shows up as a chart whose SVG marks retint while its gridlines and surfaces do not.
+An override set **above** `GlobalChartsProvider` does not apply: the provider's own declaration on its wrapper beats a value merely inherited from an ancestor. Set overrides inside the provider tree, or target the scope class itself — `.a8c-charts-scope { --a8c-charts-color-grid: #e0e0e0; }` matches every provider wrapper on the page, including the one a bare chart mounts for itself and the one a portal tooltip carries, and outranks the zero-specificity catalog default. That rule is the replacement for a page-level `:root` override. The same rule limits `@wordpress/theme`'s `ThemeProvider` to *above* the charts provider: the catalog substitutes its `--wpds-*` tokens at the wrapper, so a `ThemeProvider` mounted between the wrapper and a chart is never consulted and CSS-painted colors keep their light-mode spec fallbacks. The JS-painted ones do not — `getElementStyles` resolves at the chart element — so that nesting shows up as a chart whose SVG marks retint while its gridlines and surfaces do not.
 
 #### The theme layer
 
@@ -54,7 +54,7 @@ A value that reads the role it would override is not published at all. The role 
 
 #### A `theme`-prop override keeps the reach of the field it was set from
 
-A role is a shared name, so publishing an override as a custom property could widen it — `theme={ { svgLabelSmall: { fill: 'purple' } } }` recolouring legend labels, heatmap cell values, funnel labels and the line-chart tooltip along with the SVG axis labels it names.
+A role is a shared name, so publishing an override as a custom property could widen it — `theme={ { svgLabelSmall: { fill: 'purple' } } }` recoloring legend labels, heatmap cell values, funnel labels and the line-chart tooltip along with the SVG axis labels it names.
 
 It doesn't, because a mapped field publishes a role read by exactly the elements that field already controlled. Where the obvious role has wider readership, one side or the other gets a role of its own:
 
@@ -71,9 +71,9 @@ The consequence: `--a8c-charts-color-label` moves every label, but no single rol
 
 ### The SVG bridge
 
-visx and Google Charts apply colours as SVG presentation attributes, where `var()` does not resolve. Those colours are resolved in JS through `getComputedStyle` against the chart's own scope element — never `document.documentElement` — so both delivery paths obey the same cascade. The JS theme in `themes.ts` therefore holds a bare catalog pointer with a terminal literal (`var(--a8c-charts-color-grid, #dbdbdb)`); the literal is the last resort for SSR and jsdom, where `getComputedStyle` resolves nothing.
+visx and Google Charts apply colors as SVG presentation attributes, where `var()` does not resolve. Those colors are resolved in JS through `getComputedStyle` against the chart's own scope element — never `document.documentElement` — so both delivery paths obey the same cascade. The JS theme in `themes.ts` therefore holds a bare catalog pointer with a terminal literal (`var(--a8c-charts-color-grid, #dbdbdb)`); the literal is the last resort for SSR and jsdom, where `getComputedStyle` resolves nothing.
 
-The scope element is the wrapper a chart is rendered into, which sits **above** the element the chart's own `className` lands on. A role declared on that inner element is therefore invisible to this bridge: `.line-chart { --a8c-charts-color-grid: red }` recolours what the chart paints in CSS and leaves the gridlines, axis lines and tick labels at the inherited value, because the SVG carries a value already resolved higher up. Scope such a rule to a wrapper around the chart, not to the chart itself. CHARTS-255 tracks closing this.
+The scope element is the wrapper a chart is rendered into, which sits **above** the element the chart's own `className` lands on. A role declared on that inner element is therefore invisible to this bridge: `.line-chart { --a8c-charts-color-grid: red }` recolors what the chart paints in CSS and leaves the gridlines, axis lines and tick labels at the inherited value, because the SVG carries a value already resolved higher up. Scope such a rule to a wrapper around the chart, not to the chart itself. CHARTS-255 tracks closing this.
 
 `GeoChart` (Google Charts) takes a resolved-hex snapshot at render, so it does not live-update on a theme change without a re-render.
 
@@ -110,26 +110,26 @@ Axis and tick share grid's WPDS token but stay distinct roles, so the three can 
 
 ### The series palette
 
-The five `--a8c-charts-color-series-*` slots are the palette. `GlobalChartsProvider` resolves them once, at its wrapper, and seeds its colour cache with whatever resolves; charts generate accessible colours beyond the seeds, so five slots is a cap on *seeds*, not on series. A slot that resolves to nothing is skipped and the palette compacts — set only slots 1 and 3 and the palette is two colours, in that order.
+The five `--a8c-charts-color-series-*` slots are the palette. `GlobalChartsProvider` resolves them once, at its wrapper, and seeds its color cache with whatever resolves; charts generate accessible colors beyond the seeds, so five slots is a cap on *seeds*, not on series. A slot that resolves to nothing is skipped and the palette compacts — set only slots 1 and 3 and the palette is two colors, in that order.
 
-Only slot 1 has a default, and it names `--wp-admin-theme-color` first, so series colours follow the WordPress admin colour scheme with no host configuration.
+Only slot 1 has a default, and it names `--wp-admin-theme-color` first, so series colors follow the WordPress admin color scheme with no host configuration.
 
-The design system's brand token is the next leg rather than the first, because it only reaches the admin colour scheme when a WPDS **root provider** is on the page. Measured on a live WordPress 7.1 wp-admin dashboard, `<html data-wpds-root-provider>` carries the whole generated ramp inline, derived from `--wp-admin-theme-color`. Where no root provider boots, the token falls back to the plain stylesheet rule — a static `#3858e9` with no reference to the admin colour. So on WP 7.1 either order happens to work; everywhere else (WP 7.0.x, a page without a root provider, Calypso, SSR) only this one does.
+The design system's brand token is the next leg rather than the first, because it only reaches the admin color scheme when a WPDS **root provider** is on the page. Measured on a live WordPress 7.1 wp-admin dashboard, `<html data-wpds-root-provider>` carries the whole generated ramp inline, derived from `--wp-admin-theme-color`. Where no root provider boots, the token falls back to the plain stylesheet rule — a static `#3858e9` with no reference to the admin color. So on WP 7.1 either order happens to work; everywhere else (WP 7.0.x, a page without a root provider, Calypso, SSR) only this one does.
 
-Leading with the admin colour costs nothing, because `@wordpress/theme` writes `--wp-admin-theme-color` from a provider's own accent — its legacy wp-admin override — alongside the `--wpds-*` ramp. A provider accent therefore still wins.
+Leading with the admin color costs nothing, because `@wordpress/theme` writes `--wp-admin-theme-color` from a provider's own accent — its legacy wp-admin override — alongside the `--wpds-*` ramp. A provider accent therefore still wins.
 
-Precedence for a series colour, highest first:
+Precedence for a series color, highest first:
 
 1. `options.stroke` on that series, resolved at the chart element. This is the per-series override.
 2. A CSS declaration of `--a8c-charts-color-series-N`, on the usual catalog rules above.
 3. `theme.colors[ N - 1 ]`, which publishes slot N's theme layer. Deprecated — see below.
 4. The catalog default, which exists only for slot 1.
 
-The palette is resolved per provider, so one `ColorCache` and one group-to-colour map serve every chart under it and siblings agree on what a group is coloured. The consequence is that a slot set on a *chart's own* element does not apply — the palette was resolved at the provider wrapper before that element existed. Use `options.stroke` for a per-chart colour.
+The palette is resolved per provider, so one `ColorCache` and one group-to-color map serve every chart under it and siblings agree on what a group is colored. The consequence is that a slot set on a *chart's own* element does not apply — the palette was resolved at the provider wrapper before that element existed. Use `options.stroke` for a per-chart color.
 
 `theme.colors` is deprecated sugar over the slots: entry N publishes slot N's theme layer through the same mechanism as every other mapped field, so a CSS declaration still outranks it and a short array leaves the later slots unset rather than blank. Entries past the fifth are ignored, with a one-time console warning. It is removed in CHARTS-227.
 
-## Non-colour roles
+## Non-color roles
 
 | Role | Maps to | Fallback |
 |---|---|---|
@@ -154,9 +154,9 @@ Instance styling knobs, on the same convention but not shared semantic roles: `-
 | `--a8c-charts-color-zoom-selection` | `--wpds-color-background-interactive-brand-strong` | `var(--wp-admin-theme-color, #3858e9)` |
 | `--a8c-charts-color-zoom-selection-stroke` | `--wpds-color-stroke-interactive-brand` | `var(--wp-admin-theme-color, #3858e9)` |
 
-The zoom selection roles' translucency is not part of the role — it lives in `fill-opacity` / `stroke-opacity`, so an override sets an opaque colour and keeps the intended transparency.
+The zoom selection roles' translucency is not part of the role — it lives in `fill-opacity` / `stroke-opacity`, so an override sets an opaque color and keeps the intended transparency.
 
-`--a8c-charts-heatmap-cell-intensity` is the one variable without a `{category}` segment: it holds a unitless 0–1 scalar consumed inside `color-mix()`, not a colour.
+`--a8c-charts-heatmap-cell-intensity` is the one variable without a `{category}` segment: it holds a unitless 0–1 scalar consumed inside `color-mix()`, not a color.
 
 The heatmap Tier-2 variables and `--a8c-charts-dimension-leaderboard-bar-hover-inset` are **component-emitted** — set from JS per render, or in the component's own stylesheet — rather than on the provider wrapper. They are deliberately absent from `chart-scope.scss` and are not consumer override points in the same sense as the catalog above.
 

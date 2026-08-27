@@ -80,8 +80,8 @@ describe( 'themeOverrideVars', () => {
 		} );
 	} );
 
-	// A short array is not padded: the later slots stay unset, so the palette compacts rather than repeating a colour the consumer never chose.
-	it( 'publishes one palette slot per colour and leaves the rest unset', () => {
+	// A short array is not padded: the later slots stay unset, so the palette compacts rather than repeating a color the consumer never chose.
+	it( 'publishes one palette slot per color and leaves the rest unset', () => {
 		expect( themeOverrideVars( { colors: [ 'red', 'blue' ] } ) ).toEqual( {
 			vars: {
 				'--a8c-charts-color-series-1-theme': 'red',
@@ -119,7 +119,7 @@ describe( 'themeOverrideVars', () => {
 			freshThemeOverrideVars( { colors: [ 'a', 'b', 'c', 'd', 'e', 'f' ] } );
 
 			expect( warn ).toHaveBeenCalledTimes( 1 );
-			expect( warn ).toHaveBeenCalledWith( expect.stringContaining( 'holds 6 colours' ) );
+			expect( warn ).toHaveBeenCalledWith( expect.stringContaining( 'holds 6 colors' ) );
 
 			warn.mockRestore();
 		} );

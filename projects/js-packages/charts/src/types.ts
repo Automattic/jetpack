@@ -305,7 +305,7 @@ export type DataPointPercentage = {
 	 */
 	valueDisplay?: string;
 	/**
-	 * Color code for the segment, by default colours are taken from the theme but this property can overrides it
+	 * Color code for the segment, by default colors are taken from the theme but this property can overrides it
 	 */
 	color?: string;
 	/**
@@ -632,7 +632,7 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 /**
  * Legend config for charts built from `SeriesData` (line, bar, area). Adds `collapseGroups` on top
  * of the shared config. It is intentionally absent from the base `ChartLegendConfig` so point-based
- * charts (pie, semi-circle pie) — whose data points carry `group` only to coordinate colours — can't
+ * charts (pie, semi-circle pie) — whose data points carry `group` only to coordinate colors — can't
  * set it.
  */
 export type SeriesChartLegendConfig = ChartLegendConfig< SeriesData[] > & {

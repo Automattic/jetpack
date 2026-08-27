@@ -212,7 +212,7 @@ const getDefaultYOffset = (
 	return -( barThickness + GAP_BETWEEN_BARS );
 };
 
-// How far a single-series bar fill travels from white toward the series colour.
+// How far a single-series bar fill travels from white toward the series color.
 //
 // With one series the label is drawn *on* the bar, so the fill is a text background and has to keep
 // contrast with `--a8c-charts-color-label`. At full strength the catalog seed `#3858e9` leaves
@@ -235,7 +235,7 @@ const BarListChartInternal: FC< BarListChartProps > = ( {
 } ) => {
 	const { getElementStyles } = useGlobalChartsContext();
 
-	// A series carrying its own stroke is left alone — the consumer asked for that exact colour.
+	// A series carrying its own stroke is left alone — the consumer asked for that exact color.
 	const tintedData = useMemo( () => {
 		if ( data.length > 1 ) {
 			return data;

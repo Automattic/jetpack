@@ -7,7 +7,7 @@ import type { CompleteChartTheme } from '../../types';
 const defaultTheme: CompleteChartTheme = {
 	backgroundColor: 'var(--a8c-charts-color-background, #fff)',
 	labelBackgroundColor: 'transparent', // label background color (transparent by default)
-	// White label text sits on top of arbitrary series colors, so it has no WPDS content-foreground equivalent. Every other colour here is a bare pointer at the catalog emitted by `chart-scope.scss`; the terminal literal is the last resort for the SSR and jsdom paths, where getComputedStyle resolves nothing.
+	// White label text sits on top of arbitrary series colors, so it has no WPDS content-foreground equivalent. Every other color here is a bare pointer at the catalog emitted by `chart-scope.scss`; the terminal literal is the last resort for the SSR and jsdom paths, where getComputedStyle resolves nothing.
 	labelTextColor: 'var(--a8c-charts-color-label-on-fill, #FFFFFF)',
 	// Derived, not authored: the slot manifest lives in `private/series-palette.ts` because which
 	// slots exist describes the catalog, not the theme. The field itself is still load-bearing —

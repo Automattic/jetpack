@@ -563,9 +563,9 @@ export const AdvancedFormatting: Story = {
 	},
 };
 
-// How far the overlay-label bar travels from white toward the series colour.
+// How far the overlay-label bar travels from white toward the series color.
 //
-// The label is drawn on the bar, so at full strength the series colour competes with the label text for contrast. Blended rather than passed as `rgba()`: `primaryColor` cannot carry alpha, since `resolveColor` normalises every override through `normalizeColorToHex`, whose `formatHex()` drops it.
+// The label is drawn on the bar, so at full strength the series color competes with the label text for contrast. Blended rather than passed as `rgba()`: `primaryColor` cannot carry alpha, since `resolveColor` normalizes every override through `normalizeColorToHex`, whose `formatHex()` drops it.
 const OVERLAY_LABEL_BAR_TINT = 0.08;
 
 const LeaderboardChartWithOverlayLabel = ( args: StoryArgs ) => {

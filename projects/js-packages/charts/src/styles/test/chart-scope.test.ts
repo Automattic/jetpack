@@ -124,7 +124,7 @@ function parseTokensDoc(): Map< string, Entry > {
 		const derives = /derives from (--[\w-]+)/.exec( mapping );
 		// `--wp-*` rather than `--wpds-*`: the series palette maps to WordPress's own
 		// `--wp-admin-theme-color`, since the design system's brand token is a static
-		// hex on every admin screen and cannot carry the admin colour scheme.
+		// hex on every admin screen and cannot carry the admin color scheme.
 		const token = /(--wp[\w-]+)/.exec( mapping );
 
 		entries.set( role, {

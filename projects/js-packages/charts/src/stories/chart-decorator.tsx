@@ -123,12 +123,12 @@ const isValidHexColor = ( color: string ): boolean => {
 };
 
 /**
- * Reproduces a wp-admin colour scheme for the subtree below it.
+ * Reproduces a wp-admin color scheme for the subtree below it.
  *
  * One declaration, and it is the same one WordPress makes: `admin-schemes.css` sets
  * `--wp-admin-theme-color` on `body.admin-color-<scheme>`. The palette's slot 1 names that
  * variable first, so this is enough to exercise the whole path Storybook otherwise cannot —
- * every story renders a `ThemeProvider`, and without a scheme set the admin colour it publishes
+ * every story renders a `ThemeProvider`, and without a scheme set the admin color it publishes
  * is whatever the provider's accent is.
  *
  * @param scheme - A key of `WP_ADMIN_COLOR_SCHEMES`, or `NO_ADMIN_COLOR_SCHEME`.
@@ -153,7 +153,7 @@ const adminColorSchemeStyle = ( scheme: string ): CSSProperties | undefined => {
  * @param root0.children         - Child components to render
  * @param root0.themeName        - Theme name to apply
  * @param root0.accentColor      - Accent color fed to WPDS ThemeProvider as primary seed
- * @param root0.adminColorScheme - wp-admin colour scheme to simulate, or `none`
+ * @param root0.adminColorScheme - wp-admin color scheme to simulate, or `none`
  * @return JSX element with chart environment setup and GlobalChartsProvider
  */
 const StoryChartProvider = ( {

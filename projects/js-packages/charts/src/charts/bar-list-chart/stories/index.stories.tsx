@@ -71,7 +71,7 @@ export const Animation: Story = {
 	},
 };
 
-// The colour is resolved here, not inside `labelComponent`. visx renders that through its axis
+// The color is resolved here, not inside `labelComponent`. visx renders that through its axis
 // render prop, outside this provider, so a `useGlobalChartsContext()` call in it throws; the
 // closure carries the resolved value in instead.
 const BarListChartWithCircleLabels = ( args: StoryArgs ) => {

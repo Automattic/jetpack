@@ -29,7 +29,7 @@ const ROLE_FOR_FIELD: Array< [ string, ( theme: Partial< ChartTheme > ) => strin
 let warnedAboutExtraColors = false;
 
 /**
- * Warns once when a consumer passes more colours than there are slots to publish them into.
+ * Warns once when a consumer passes more colors than there are slots to publish them into.
  *
  * @param count - How many entries `theme.colors` holds.
  */
@@ -41,8 +41,8 @@ function warnOnceAboutExtraColors( count: number ): void {
 	warnedAboutExtraColors = true;
 	// eslint-disable-next-line no-console
 	console.warn(
-		`[Charts] theme.colors holds ${ count } colours and the palette has ${ SERIES_SLOT_COUNT } slots, so entries past the ${ SERIES_SLOT_COUNT }th are ignored. ` +
-			'Set a per-series colour with `options.stroke` instead.'
+		`[Charts] theme.colors holds ${ count } colors and the palette has ${ SERIES_SLOT_COUNT } slots, so entries past the ${ SERIES_SLOT_COUNT }th are ignored. ` +
+			'Set a per-series color with `options.stroke` instead.'
 	);
 }
 
@@ -62,7 +62,7 @@ export const THEME_LAYERED_ROLES: readonly string[] = ROLE_FOR_FIELD.map( ( [ ro
 /**
  * Whether a value reads the role it is being published for, which would make the catalog entry depend on itself.
  *
- * The dependency runs `<role>: var(<role>-theme, …)`, so a value naming `<role>` closes a cycle through the catalog entry. CSS marks every custom property in a cycle invalid at computed-value time — the role's own fallback is *not* used, so the token resolves to nothing and every chart loses that colour. Verified in Chrome: `--role-theme: var(--role, blue); --role: var(--role-theme, green)` leaves `--role` empty, not `green`.
+ * The dependency runs `<role>: var(<role>-theme, …)`, so a value naming `<role>` closes a cycle through the catalog entry. CSS marks every custom property in a cycle invalid at computed-value time — the role's own fallback is *not* used, so the token resolves to nothing and every chart loses that color. Verified in Chrome: `--role-theme: var(--role, blue); --role: var(--role-theme, green)` leaves `--role` empty, not `green`.
  *
  * Three things this has to get right, none of which a plain substring test gets:
  *
@@ -90,7 +90,7 @@ export type ThemeOverrides = {
 };
 
 /**
- * Maps a sparse consumer theme onto the theme-layer variables its overridden catalog roles read, so CSS-painted and JS-resolved colours read one source.
+ * Maps a sparse consumer theme onto the theme-layer variables its overridden catalog roles read, so CSS-painted and JS-resolved colors read one source.
  *
  * A value that reads the role it would override is left unpublished — that is the default theme's own pointer surviving `mergeThemes`, and publishing it would invalidate the role. The role is still reported in `roles`: `withCatalogPointers` restores its theme field to the catalog pointer either way, so CSS and visx agree on the catalog default rather than visx painting a literal CSS never sees.
  *

@@ -63,10 +63,10 @@ const baseBarData: SeriesData[] = [
 	medalCountsData[ 2 ],
 ];
 // `ectoplasm` from `WP_ADMIN_COLOR_SCHEMES`, kept as a literal so the assertion below fails if the
-// scheme's published colour ever changes rather than silently following it.
+// scheme's published color ever changes rather than silently following it.
 const ADMIN_SCHEME = 'ectoplasm';
 const ADMIN_SCHEME_COLOR = '#646c3e';
-// Any colour the admin scheme does not publish; it only has to be distinguishable from the above.
+// Any color the admin scheme does not publish; it only has to be distinguishable from the above.
 const ACCENT_COLOR_NOT_EXPECTED = '#4a19ab';
 
 const baseLineData: SeriesData[] = globalMarketComparisonByCountry;
@@ -302,12 +302,12 @@ export const WithColorOverrides: Story = {
 };
 
 /**
- * The two colours this story sets are deliberately different, and which one wins is the assertion.
+ * The two colors this story sets are deliberately different, and which one wins is the assertion.
  *
  * `accentColor` seeds the WPDS `ThemeProvider`, so the design system's brand token derives from it.
  * `adminColorScheme` publishes `--wp-admin-theme-color` on a closer wrapper, the way
- * `admin-schemes.css` does. Slot 1 names the admin colour before the brand token, so the bar has to
- * paint the scheme's colour and not the accent's.
+ * `admin-schemes.css` does. Slot 1 names the admin color before the brand token, so the bar has to
+ * paint the scheme's color and not the accent's.
  *
  * Reordering that chain — putting the design system's token first — passes every unit test and
  * looks correct on WP 7.1, and this is what catches it. jsdom cannot cascade `var()`, so it can only
@@ -315,7 +315,7 @@ export const WithColorOverrides: Story = {
  *
  * Both values must be set before the provider mounts. The palette resolves once per provider in a
  * layout effect, so a `play` function that sets the variable afterwards would assert against the
- * colours resolved at mount and prove nothing.
+ * colors resolved at mount and prove nothing.
  */
 export const AdminColorSchemeLeadsThePalette: Story = {
 	render: () => <BarChart width={ 400 } height={ 200 } data={ [ baseBarData[ 0 ] ] } />,

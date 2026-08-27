@@ -131,7 +131,7 @@ const SparklineComponent = forwardRef< HTMLDivElement, SparklineProps >(
 			const cx = width / 2;
 			const cy = height / 2;
 			// The multi-point path lets LineChart resolve the palette; a lone circle has to ask for
-			// the same slot itself, or omitting `color` paints black instead of the series colour.
+			// the same slot itself, or omitting `color` paints black instead of the series color.
 			const resolvedColor =
 				color || chartsContext?.getElementStyles( { index: 0 } ).color || '#000000';
 

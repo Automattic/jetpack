@@ -39,7 +39,7 @@ export const customTheme: ChartTheme = {
  * Theme that uses a variety of color formats (hex, RGB, RGBA, HSL, named)
  * to demonstrate and test color normalization support.
  *
- * One colour per format, and exactly as many as there are palette slots: a sixth entry would
+ * One color per format, and exactly as many as there are palette slots: a sixth entry would
  * be dropped with a console warning without covering a format the first five miss.
  */
 export const mixedColorFormatsTheme: ChartTheme = {
@@ -73,7 +73,7 @@ export const mixedColorFormatsTheme: ChartTheme = {
 } as ChartTheme;
 
 /**
- * The `--wp-admin-theme-color` each WordPress admin colour scheme publishes, copied from
+ * The `--wp-admin-theme-color` each WordPress admin color scheme publishes, copied from
  * `@wordpress/base-styles`' `admin-schemes.css`.
  *
  * `fresh` and `default` have no `admin-color-*` block of their own and take the `:root` value,
@@ -125,7 +125,7 @@ export const themeArgTypes = {
 		options: [ NO_ADMIN_COLOR_SCHEME, ...Object.keys( WP_ADMIN_COLOR_SCHEMES ) ],
 		defaultValue: NO_ADMIN_COLOR_SCHEME,
 		description:
-			'Simulate a wp-admin colour scheme by setting --wp-admin-theme-color, the way admin-schemes.css does. The series palette reads it first, so series colors follow the scheme.',
+			'Simulate a wp-admin color scheme by setting --wp-admin-theme-color, the way admin-schemes.css does. The series palette reads it first, so series colors follow the scheme.',
 		table: { category: 'Theme' },
 	},
 };

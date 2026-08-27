@@ -6,7 +6,7 @@
  *
  * That is as far as the separation goes, and the limit is worth knowing before CHARTS-227 tries to
  * delete the field. `GlobalChartsProvider` still resolves `providerTheme.colors`, not this manifest,
- * because `withCatalogPointers` parks the consumer's own colour in each pointer's terminal position
+ * because `withCatalogPointers` parks the consumer's own color in each pointer's terminal position
  * and that literal is the palette's only carrier where `getComputedStyle` resolves nothing — SSR
  * and jsdom. Swapping the provider onto this manifest passes in a browser and collapses every
  * consumer palette to the catalog seed under jsdom; 24 tests say so. Removing `colors` therefore
@@ -27,7 +27,7 @@ export const seriesRole = ( slot: number ): string => `--a8c-charts-color-series
 /*
  * Only slot 1 carries a terminal literal, and it is reached only where `getComputedStyle` resolves
  * nothing — SSR and jsdom. The rest resolve to nothing until a consumer sets them, and the provider
- * drops what resolves to nothing, so the palette compacts rather than repeating one colour.
+ * drops what resolves to nothing, so the palette compacts rather than repeating one color.
  *
  * The literal matches slot 1's own last-resort fallback in `chart-scope.scss`. It is deliberately
  * the bare hex rather than that slot's full `var()` chain: this string is resolved against the DOM,

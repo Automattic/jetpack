@@ -76,8 +76,8 @@ describe( 'BarListChart', () => {
 			).map( bar => bar.getAttribute( 'fill' ) );
 		/* eslint-enable testing-library/no-node-access */
 
-		// `lightenHexColor( '#3858e9', 1 - BAR_TINT_TOWARD_SERIES )` — the catalog seed travelling
-		// 40% from white toward the series colour. Asserted as a literal so a change to the tint has
+		// `lightenHexColor( '#3858e9', 1 - BAR_TINT_TOWARD_SERIES )` — the catalog seed traveling
+		// 40% from white toward the series color. Asserted as a literal so a change to the tint has
 		// to be made deliberately here rather than tracking the implementation.
 		const TINTED_SEED = '#afbcf6';
 

@@ -27,7 +27,7 @@ describe( 'useGlobalChartsTheme', () => {
 
 			const { result } = renderHook( () => useGlobalChartsTheme(), { wrapper } );
 
-			// `theme.colors` publishes the palette's theme layers, so the merged theme holds catalog pointers rather than the consumer's literals. Each keeps its consumer colour as the pointer's terminal literal, for SSR and jsdom.
+			// `theme.colors` publishes the palette's theme layers, so the merged theme holds catalog pointers rather than the consumer's literals. Each keeps its consumer color as the pointer's terminal literal, for SSR and jsdom.
 			expect( result.current.colors ).toEqual( [
 				'var(--a8c-charts-color-series-1, #FF0000)',
 				'var(--a8c-charts-color-series-2, #00FF00)',
