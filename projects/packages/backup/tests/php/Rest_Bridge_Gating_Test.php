@@ -28,11 +28,14 @@ use function wp_json_encode;
 
 /**
  * Tests that the modernization filter is the only thing standing between
- * the legacy plugin and the eight new bridge routes.
+ * the legacy plugin and the nine new bridge routes.
  *
  * The rest of the suite exercises each bridge with the filter forced on,
  * so nothing there would notice if the gate stopped working. These two
  * tests are the ones that would.
+ *
+ * The count above is `MODERNIZED_ROUTES`'s, and `File_Browser_Bridge`
+ * registering three routes rather than two is the easy one to miscount.
  *
  * @covers \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller
  */

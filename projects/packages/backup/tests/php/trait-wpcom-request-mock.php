@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use WP_Error;
 use function add_filter;
 use function get_current_user_id;
@@ -25,12 +26,16 @@ use function wp_set_current_user;
  * and each was being rebuilt per test file. Consumers must call
  * `reset_wpcom_request_mock()` from their own `tearDown()`.
  *
- * One thing worth knowing before adding tests with this: the callbacks
- * are invoked directly rather than dispatched through the REST server.
- * `Rest_Controller::permission_check()` additionally requires a
- * user-level WPCOM connection that WorDBless cannot stand up, so a
- * dispatch never reaches the callback body. The permission boundary
- * itself is covered separately, by each file's `manage_options` test.
+ * The `user_tokens` this installs are enough for
+ * `Rest_Controller::permission_check()` to pass, so a test may either
+ * call a bridge callback directly or dispatch through the REST server —
+ * `Rest_Bridge_Dispatch_Test` does the latter for every bridge route.
+ * Prefer a dispatch when the route's arg schema, permission callback or
+ * response serialization is part of what is being asserted, and a direct
+ * call when the point is one branch inside a callback: dispatch wraps a
+ * `WP_Error` in a response envelope, moving the code and the `wpcom`
+ * reason under `get_data()['data']` instead of leaving them on the error
+ * object where `get_error_data()` reads them.
  */
 trait Wpcom_Request_Mock {
 
@@ -64,6 +69,20 @@ trait Wpcom_Request_Mock {
 	protected $captured_body = null;
 
 	/**
+	 * The parsed `wp_remote_*` arguments of every request a bridge made,
+	 * in call order.
+	 *
+	 * This is what `$captured_body` cannot answer: whether the bridge
+	 * asked for something *about* the request rather than sending it.
+	 * `get_file_content()`'s `limit_response_size` is the case in point —
+	 * it never appears in a body, and it is the only thing standing
+	 * between a text preview and a multi-gigabyte blob in PHP memory.
+	 *
+	 * @var array<int, array<string, mixed>>
+	 */
+	protected $captured_request_args = array();
+
+	/**
 	 * Sign in as an administrator and make `Client` able to sign a request.
 	 *
 	 * @return int The administrator's user id.
@@ -80,6 +99,24 @@ trait Wpcom_Request_Mock {
 
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10, 2 );
 
+		// Without this, the *first* outbound `Client` call in a PHP
+		// process fails before it reaches `pre_http_request` at all, and
+		// every later one succeeds. `JETPACK__WPCOM_JSON_API_BASE` is not
+		// a defined constant here, and the filter supplying its default is
+		// registered by `Client::build_signed_request()` — so on the first
+		// call the API base is still null, the request URL is built with
+		// no host, and `Jetpack_Signature` refuses it as a malformed
+		// `url`. Every bridge reports that as a 502 transport failure.
+		//
+		// The suite hid this: whichever test ran first absorbed the
+		// failure, and no assertion happened to depend on the difference.
+		// Nothing guaranteed that, though — a reordering, a new test file,
+		// or running one test on its own could all hand the empty API base
+		// to a test that asserts a success. Registering the defaults up
+		// front is what the connection package does in production, and it
+		// makes each test's result independent of the order it runs in.
+		Connection_Utils::init_default_constants();
+
 		return $admin_id;
 	}
 
@@ -95,9 +132,7 @@ trait Wpcom_Request_Mock {
 		add_filter(
 			'pre_http_request',
 			function ( $preempt, $args, $url ) use ( $body, $status ) {
-				$this->captured_url    = $url;
-				$this->captured_urls[] = $url;
-				$this->captured_body   = isset( $args['body'] ) ? json_decode( $args['body'], true ) : null;
+				$this->record_request( $args, $url );
 				return array(
 					'response' => self::mock_response_headers( $status ),
 					'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
@@ -130,14 +165,7 @@ trait Wpcom_Request_Mock {
 		add_filter(
 			'pre_http_request',
 			function ( $preempt, $args, $url ) use ( $body, $status ) {
-				$this->captured_url    = $url;
-				$this->captured_urls[] = $url;
-				// Recorded here too, or `captured_body` would mean both
-				// "no request was made" and "a request was made and this
-				// helper did not look" — and the trait documents the
-				// former as how a test proves a guard refused before
-				// reaching the network.
-				$this->captured_body = isset( $args['body'] ) ? json_decode( $args['body'], true ) : null;
+				$this->record_request( $args, $url );
 				return array(
 					'response' => self::mock_response_headers( $status ),
 					'body'     => $body,
@@ -146,6 +174,76 @@ trait Wpcom_Request_Mock {
 			10,
 			3
 		);
+	}
+
+	/**
+	 * Sign in and have WPCOM answer each outbound call differently.
+	 *
+	 * `get_file_content()` is the reason this exists. It makes two calls —
+	 * the signed-URL lookup, then the stream fetch — and the single canned
+	 * answer the other arrangers install serves both, so every failure
+	 * that belongs to only one leg is unreachable through them. A 404 on
+	 * the stream and a 404 on the lookup are different bugs with
+	 * different error codes, and a fixture that cannot tell them apart
+	 * cannot test either.
+	 *
+	 * Answers are consumed in call order. An extra call past the end of
+	 * the list is a transport failure with its own code rather than a
+	 * repeat of the last answer, so a bridge that fetched more than the
+	 * test expected fails visibly instead of quietly passing.
+	 *
+	 * @param array<int, array{body?: string, status?: int|string}|WP_Error> $answers One answer per outbound call, in order.
+	 */
+	protected function arrange_wpcom_answers( array $answers ) {
+		$this->sign_in_as_admin();
+
+		$remaining = $answers;
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( &$remaining ) {
+				$this->record_request( $args, $url );
+
+				if ( ! $remaining ) {
+					return new WP_Error(
+						'test_unexpected_request',
+						sprintf( 'The bridge made an outbound request this test did not arrange an answer for: %s', $url )
+					);
+				}
+
+				$answer = array_shift( $remaining );
+				if ( $answer instanceof WP_Error ) {
+					return $answer;
+				}
+
+				return array(
+					'response' => self::mock_response_headers( $answer['status'] ?? 200 ),
+					'body'     => $answer['body'] ?? '',
+				);
+			},
+			10,
+			3
+		);
+	}
+
+	/**
+	 * Record one outbound request.
+	 *
+	 * `captured_body` is deliberately overwritten rather than appended to:
+	 * it means "the body of the last request", and it is `null` both when
+	 * no request was made — which is how a test proves a guard refused
+	 * before reaching the network — and when the last request carried no
+	 * body, as every GET does. `captured_request_args` is the per-call
+	 * record to read when either distinction matters.
+	 *
+	 * @param array<string, mixed> $args Parsed `wp_remote_*` arguments.
+	 * @param string               $url  Request URL.
+	 */
+	private function record_request( $args, $url ) {
+		$this->captured_url            = $url;
+		$this->captured_urls[]         = $url;
+		$this->captured_request_args[] = $args;
+		$this->captured_body           = isset( $args['body'] ) ? json_decode( $args['body'], true ) : null;
 	}
 
 	/**
@@ -202,9 +300,10 @@ trait Wpcom_Request_Mock {
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10 );
 		wp_set_current_user( 0 );
 
-		$this->captured_url  = '';
-		$this->captured_urls = array();
-		$this->captured_body = null;
+		$this->captured_url          = '';
+		$this->captured_urls         = array();
+		$this->captured_body         = null;
+		$this->captured_request_args = array();
 	}
 
 	/**
