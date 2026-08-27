@@ -1,5 +1,6 @@
 import { format, isValid, parse } from 'date-fns';
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from './utils';
 
 export type StatsPostMonthValues = Record< string, number >;
@@ -176,6 +177,9 @@ function normalizeStatsPostMeta( value: unknown ): StatsPostMeta {
 
 	return {
 		...( meta as StatsPostMeta ),
+		...( typeof meta.post_title === 'string'
+			? { post_title: decodeHtmlText( meta.post_title ) }
+			: {} ),
 		...( meta.comment_count !== undefined
 			? { comment_count: safeParseFloat( meta.comment_count ) }
 			: {} ),

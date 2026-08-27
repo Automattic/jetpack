@@ -1,4 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from './utils';
 
 /**
@@ -29,7 +30,7 @@ function normalizeStatsPostComment( value: unknown ): StatsPostComment[] {
 	const comment = coerceStatsRecord( value );
 	const author = coerceStatsRecord( comment.author );
 	const id = safeParseFloat( comment.ID );
-	const authorName = typeof author.name === 'string' ? author.name.trim() : '';
+	const authorName = typeof author.name === 'string' ? decodeHtmlText( author.name ).trim() : '';
 	const authorLogin = typeof author.login === 'string' ? author.login.trim() : '';
 	const name = authorName || authorLogin;
 

@@ -1,4 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
@@ -56,7 +57,7 @@ export interface StatsTagsItem extends StatsNormalizedItemBase< StatsTagsChildIt
 const tagIcon = ( type: unknown ) => ( type === 'category' ? 'folder' : String( type ?? '' ) );
 
 function getTagName( tag: StatsRecord ): string {
-	return typeof tag.name === 'string' ? tag.name : '';
+	return typeof tag.name === 'string' ? decodeHtmlText( tag.name ) : '';
 }
 
 function getTagLink( tag: StatsRecord ): string | null {
