@@ -18,8 +18,8 @@ const DEFAULT_API = {
 /**
  * Convert the native WordPress.com MCP response to the Hub's settings shape.
  *
- * @param {object} data   Native endpoint response.
- * @param {number} blogId Current site ID.
+ * @param {object} data   - Native endpoint response.
+ * @param {number} blogId - Current site ID.
  * @return {object} AI Hub MCP settings response.
  */
 export function normalizeWpcomMcpSettings( data, blogId ) {
@@ -65,7 +65,7 @@ export function normalizeWpcomMcpSettings( data, blogId ) {
 /**
  * Convert a partial Hub update to the native WordPress.com endpoint shape.
  *
- * @param {object} update Partial Hub MCP settings update.
+ * @param {object} update - Partial Hub MCP settings update.
  * @return {object} Native WordPress.com update body.
  */
 export function prepareWpcomMcpUpdate( update ) {
