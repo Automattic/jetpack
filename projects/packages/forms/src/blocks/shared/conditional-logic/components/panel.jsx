@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
 import { seen, unseen } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import useFixDuplicateFieldId from '../../hooks/use-fix-duplicate-field-id.js';
+import useFixDuplicateFieldIds from '../../hooks/use-fix-duplicate-field-ids.js';
 import useFormFieldIds from '../../hooks/use-form-field-ids.js';
 import { getDuplicateFieldIds } from '../../util/duplicate-ids.js';
 import {
@@ -92,12 +92,12 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 	const fields = useSubjectFields( clientId );
 	const group = getPrimaryGroup( logic );
 
-	// Only the dialog surfaces this, so the form is not walked while it is closed. Taken from
-	// the whole form rather than from `fields`, which drops this very block: a subject sharing
-	// an id with the field being edited is just as ambiguous, and a list missing one of the two
-	// cannot see that. See getDuplicateFieldIds() for why ids collide in the first place.
+	// Taken from the whole form rather than from `fields`, which drops this very block: a
+	// subject sharing an id with the field being edited is just as ambiguous, and a list
+	// missing one of the two cannot see that. Only the dialog surfaces it, so this walk is
+	// skipped while it is closed. See getDuplicateFieldIds() for why ids collide at all.
 	const formFieldIds = useFormFieldIds( clientId, isModalOpen );
-	const fixDuplicateFieldId = useFixDuplicateFieldId( clientId );
+	const fixDuplicateFieldIds = useFixDuplicateFieldIds( clientId );
 	const duplicateFieldIds = useMemo( () => getDuplicateFieldIds( formFieldIds ), [ formFieldIds ] );
 
 	const updateLogic = useCallback(
@@ -212,12 +212,10 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 				</PanelBody>
 			</InspectorControls>
 
-			{ /* Deliberately outside InspectorControls. That component is a slot fill, and a fill
-			     renders nothing while its slot is unmounted -- which is the case whenever the
-			     settings sidebar is closed. With the dialog inside it, the toolbar button (whose
-			     whole purpose is reaching the builder from the canvas) set isModalOpen and nothing
-			     appeared. Modal portals to the document body, so its position here is immaterial
-			     beyond staying out of the fill. */ }
+			{ /* Outside InspectorControls: that is a slot fill, and a fill renders nothing while
+			     the settings sidebar is closed -- which is exactly when the toolbar button is
+			     used. Modal portals to the document body, so its position is otherwise
+			     immaterial. */ }
 			<ConditionalLogicModal
 				isOpen={ isModalOpen }
 				onClose={ closeModal }
@@ -225,8 +223,7 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 				group={ group }
 				fields={ fields }
 				duplicateFieldIds={ duplicateFieldIds }
-				onFixDuplicateId={ fixDuplicateFieldId }
-				ownFieldId={ attributes.id }
+				onFixDuplicateIds={ fixDuplicateFieldIds }
 				onActionChange={ handleActionChange }
 				onMatchChange={ handleMatchChange }
 				onRulesChange={ handleRulesChange }

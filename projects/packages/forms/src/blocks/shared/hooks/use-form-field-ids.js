@@ -1,10 +1,6 @@
 import { useSelect } from '@wordpress/data';
 import { FIELD_BLOCK_PREFIX, FORM_BLOCK_NAME } from '../util/constants.js';
 
-// Returned whenever there is nothing to report, so the result stays reference-stable and
-// consumers do not re-run on every store change.
-const NO_FIELD_IDS = [];
-
 /**
  * Resolve the contact form a field sits in.
  *
@@ -100,12 +96,10 @@ const useFormFieldIds = ( clientId, isActive = true ) =>
 			// Returning before touching `select` leaves this hook subscribed to nothing, so
 			// an inactive caller costs a single render rather than a walk per store change.
 			if ( ! isActive ) {
-				return NO_FIELD_IDS;
+				return [];
 			}
 
-			const entries = getFormFieldEntries( select, clientId );
-
-			return entries.length ? entries.map( entry => entry.id ) : NO_FIELD_IDS;
+			return getFormFieldEntries( select, clientId ).map( entry => entry.id );
 		},
 		[ clientId, isActive ]
 	);

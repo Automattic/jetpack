@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 import {
 	getDuplicateFieldIds,
-	getRenamesForDuplicateId,
+	getRenamesForDuplicateIds,
 } from '../../../../../src/blocks/shared/util/duplicate-ids.js';
 
 describe( 'getDuplicateFieldIds', () => {
@@ -29,19 +29,19 @@ describe( 'getDuplicateFieldIds', () => {
 	} );
 } );
 
-describe( 'getRenamesForDuplicateId', () => {
+describe( 'getRenamesForDuplicateIds', () => {
 	const entries = ( ...ids ) => ids.map( ( id, i ) => ( { clientId: `c${ i }`, id } ) );
 
 	// The first occurrence keeps the id, because that is the field the renderer already
 	// resolves it to -- so anything already naming it goes on meaning the same field.
 	it( 'keeps the first occurrence and suffixes the rest', () => {
-		expect( getRenamesForDuplicateId( entries( 'email', 'email' ), 'email' ) ).toEqual( [
+		expect( getRenamesForDuplicateIds( entries( 'email', 'email' ), [ 'email' ] ) ).toEqual( [
 			{ clientId: 'c1', id: 'email-2' },
 		] );
 	} );
 
 	it( 'numbers each further duplicate in turn', () => {
-		expect( getRenamesForDuplicateId( entries( 'name', 'name', 'name' ), 'name' ) ).toEqual( [
+		expect( getRenamesForDuplicateIds( entries( 'name', 'name', 'name' ), [ 'name' ] ) ).toEqual( [
 			{ clientId: 'c1', id: 'name-2' },
 			{ clientId: 'c2', id: 'name-3' },
 		] );
@@ -49,22 +49,34 @@ describe( 'getRenamesForDuplicateId', () => {
 
 	// A suffix another field already holds must not be handed out.
 	it( 'skips a suffix that is taken', () => {
-		expect( getRenamesForDuplicateId( entries( 'name', 'name-2', 'name' ), 'name' ) ).toEqual( [
-			{ clientId: 'c2', id: 'name-3' },
-		] );
+		expect( getRenamesForDuplicateIds( entries( 'name', 'name-2', 'name' ), [ 'name' ] ) ).toEqual(
+			[ { clientId: 'c2', id: 'name-3' } ]
+		);
 	} );
 
-	// Only the id asked about: other collisions in the same form are left for their own fix.
+	// Only the ids asked about: other collisions are left for their own repair.
 	it( 'leaves other duplicated ids alone', () => {
-		expect( getRenamesForDuplicateId( entries( 'a', 'a', 'b', 'b' ), 'a' ) ).toEqual( [
+		expect( getRenamesForDuplicateIds( entries( 'a', 'a', 'b', 'b' ), [ 'a' ] ) ).toEqual( [
 			{ clientId: 'c1', id: 'a-2' },
 		] );
 	} );
 
-	it( 'renames nothing when the id is unique, missing or empty', () => {
-		expect( getRenamesForDuplicateId( entries( 'a', 'b' ), 'a' ) ).toEqual( [] );
-		expect( getRenamesForDuplicateId( entries( 'a', 'b' ), 'zz' ) ).toEqual( [] );
-		expect( getRenamesForDuplicateId( entries( '', '' ), '' ) ).toEqual( [] );
-		expect( getRenamesForDuplicateId( undefined, 'a' ) ).toEqual( [] );
+	// Several collisions resolved in one pass, so a suffix handed out for one cannot land on
+	// another -- and so the whole repair stays a single undo step.
+	it( 'resolves several ids at once without colliding them', () => {
+		expect(
+			getRenamesForDuplicateIds( entries( 'a', 'a-2', 'a', 'b', 'b' ), [ 'a', 'b' ] )
+		).toEqual( [
+			{ clientId: 'c2', id: 'a-3' },
+			{ clientId: 'c4', id: 'b-2' },
+		] );
+	} );
+
+	it( 'renames nothing when there is nothing to rename', () => {
+		expect( getRenamesForDuplicateIds( entries( 'a', 'b' ), [ 'a' ] ) ).toEqual( [] );
+		expect( getRenamesForDuplicateIds( entries( 'a', 'b' ), [ 'zz' ] ) ).toEqual( [] );
+		expect( getRenamesForDuplicateIds( entries( '', '' ), [ '' ] ) ).toEqual( [] );
+		expect( getRenamesForDuplicateIds( entries( 'a', 'a' ), [] ) ).toEqual( [] );
+		expect( getRenamesForDuplicateIds( undefined, [ 'a' ] ) ).toEqual( [] );
 	} );
 } );

@@ -46,16 +46,16 @@ const container = ( name, innerBlocks ) => ( { clientId: name, name, innerBlocks
 /**
  * Put blocks in a form and return the ids the hook reports for it.
  *
- * @param {Array}  innerBlocks - The form's children.
- * @param {string} [from]      - Client id of the field asking; defaults to the first field.
- * @param {...any} args        - Extra arguments forwarded to the hook.
+ * @param {Array}   innerBlocks - The form's children.
+ * @param {string}  [from]      - Client id of the field asking; defaults to the first field.
+ * @param {boolean} [isActive]  - Passed through to the hook.
  * @return {Array} The reported ids.
  */
-const idsFor = ( innerBlocks, from = 'c-1', ...args ) => {
+const idsFor = ( innerBlocks, from = 'c-1', isActive ) => {
 	blocks = { form: { clientId: 'form', name: 'jetpack/contact-form', innerBlocks } };
 	rootOf = { [ from ]: 'form' };
 
-	return renderHook( () => useFormFieldIds( from, ...args ) ).result.current;
+	return renderHook( () => useFormFieldIds( from, isActive ) ).result.current;
 };
 
 beforeEach( () => {
@@ -103,20 +103,15 @@ describe( 'useFormFieldIds', () => {
 		expect( idsFor( [ field( 'c-1' ) ] ) ).toEqual( [ '' ] );
 	} );
 
-	// The walk is only worth doing when something consumes it, so an inactive caller must not
-	// pay for it -- and must get the same reference every time, or it re-renders regardless.
-	it( 'reports nothing, stably, when inactive', () => {
-		const first = idsFor( [ field( 'c-1', 'name' ), field( 'c-2', 'name' ) ], 'c-1', false );
-		const second = idsFor( [ field( 'c-1', 'name' ), field( 'c-2', 'name' ) ], 'c-1', false );
-
-		expect( first ).toEqual( [] );
-		expect( first ).toBe( second );
+	// The walk is only worth doing when something consumes it, so an inactive caller does not
+	// pay for it.
+	it( 'reports nothing when inactive', () => {
+		expect( idsFor( [ field( 'c-1', 'name' ), field( 'c-2', 'name' ) ], 'c-1', false ) ).toEqual(
+			[]
+		);
 	} );
 
 	it( 'returns nothing when the field is not in a form', () => {
-		blocks = {};
-		rootOf = {};
-
 		expect( renderHook( () => useFormFieldIds( 'orphan' ) ).result.current ).toEqual( [] );
 	} );
 } );

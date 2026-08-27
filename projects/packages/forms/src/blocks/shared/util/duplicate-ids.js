@@ -39,7 +39,7 @@ export const getDuplicateFieldIds = ( ids = [] ) => {
 };
 
 /**
- * The renames that would make one duplicated id unique, the way the renderer already does it.
+ * The renames that would make duplicated ids unique, the way the renderer already does it.
  *
  * `Contact_Form_Field::__construct()` keeps the first occurrence in document order and suffixes
  * the later ones -- `email`, `email-2`, `email-3` -- and this mirrors that exactly. Matching it
@@ -47,35 +47,42 @@ export const getDuplicateFieldIds = ( ids = [] ) => {
  * rule, a stored response key or an email column that names the base id goes on meaning the
  * field it always meant. Suffixes already taken by other fields are skipped.
  *
- * @param {Array}  entries - `{ clientId, id }` for every field in the form, in document order.
- * @param {string} id      - The duplicated id to resolve.
+ * Takes a list of ids rather than one so several collisions can be resolved in a single pass,
+ * and so the suffixes handed out for one cannot land on another.
+ *
+ * @param {Array} entries - `{ clientId, id }` for every field in the form, in document order.
+ * @param {Array} ids     - The duplicated ids to resolve.
  * @return {Array} `{ clientId, id }` for each field that needs renaming; empty if none do.
  */
-export const getRenamesForDuplicateId = ( entries, id ) => {
-	if ( ! id ) {
+export const getRenamesForDuplicateIds = ( entries = [], ids = [] ) => {
+	const list = Array.isArray( entries ) ? entries : [];
+	const targets = new Set( ( Array.isArray( ids ) ? ids : [] ).filter( Boolean ) );
+
+	if ( ! targets.size ) {
 		return [];
 	}
 
-	const used = new Set( ( entries || [] ).map( entry => entry.id ).filter( Boolean ) );
-	const renames = [];
-	let seen = false;
+	const used = new Set( list.map( entry => entry?.id ).filter( Boolean ) );
+	const kept = new Set();
 
-	( entries || [] ).forEach( entry => {
-		if ( entry?.id !== id ) {
-			return;
-		}
+	return list
+		.filter( entry => targets.has( entry?.id ) )
+		.filter( entry => {
+			// The first occurrence is the field the renderer already resolves this id to, so
+			// it keeps it; only what follows is renamed.
+			if ( kept.has( entry.id ) ) {
+				return true;
+			}
 
-		// The first one is the field the renderer already resolves this id to, so it keeps it.
-		if ( ! seen ) {
-			seen = true;
-			return;
-		}
+			kept.add( entry.id );
 
-		const nextId = generateUniqueFormFieldId( id, Array.from( used ) );
+			return false;
+		} )
+		.map( entry => {
+			const nextId = generateUniqueFormFieldId( entry.id, [ ...used ] );
 
-		used.add( nextId );
-		renames.push( { clientId: entry.clientId, id: nextId } );
-	} );
+			used.add( nextId );
 
-	return renames;
+			return { clientId: entry.clientId, id: nextId };
+		} );
 };

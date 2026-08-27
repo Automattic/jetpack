@@ -141,7 +141,6 @@
 	// so that icon keeps its gutter and the message lines up with the
 	// controls it refers to.
 	.jetpack-contact-form__conditional-logic-rule-message {
-		display: block;
 		margin-inline-start: calc(20px + var(--wpds-dimension-gap-sm));
 		color: var(--wpds-color-foreground-content-error-weak);
 	}
@@ -160,8 +159,7 @@
 			color: var(--wpds-color-foreground-content-neutral-weak);
 		}
 
-		// Set last: a condition that cannot work outranks the other
-		// states, and shares its colour with the message below the row.
+		// Shares its colour with the message below the row.
 		&.is-invalid {
 			color: var(--wpds-color-foreground-content-error-weak);
 		}

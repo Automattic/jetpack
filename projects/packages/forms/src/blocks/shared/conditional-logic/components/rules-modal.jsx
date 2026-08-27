@@ -34,8 +34,7 @@ const MATCH_OPTIONS = [
  * @param {object}   props.group             - The group being edited.
  * @param {Array}    props.fields            - Fields available as rule subjects.
  * @param {Set}      props.duplicateFieldIds - Ids claimed by more than one field in the form.
- * @param {Function} props.onFixDuplicateId  - Called with an id to make it unique.
- * @param {string}   props.ownFieldId        - Id of the field the panel belongs to.
+ * @param {Function} props.onFixDuplicateIds - Called with ids to make unique.
  * @param {Function} props.onActionChange    - Called with the next show/hide action.
  * @param {Function} props.onMatchChange     - Called with the next any/all operator.
  * @param {Function} props.onRulesChange     - Called with the group's next rules.
@@ -48,8 +47,7 @@ const ConditionalLogicModal = ( {
 	group,
 	fields,
 	duplicateFieldIds = NO_DUPLICATE_IDS,
-	onFixDuplicateId,
-	ownFieldId,
+	onFixDuplicateIds,
 	onActionChange,
 	onMatchChange,
 	onRulesChange,
@@ -117,7 +115,22 @@ const ConditionalLogicModal = ( {
 				     one. Not dismissible: the affected fields stay unavailable until it is
 				     acted on, so hiding the explanation would leave them looking broken. */ }
 				{ duplicateFieldIds.size > 0 && (
-					<Notice status="warning" isDismissible={ false }>
+					<Notice
+						status="warning"
+						isDismissible={ false }
+						actions={ [
+							{
+								label: _n(
+									'Make it unique',
+									'Make them unique',
+									duplicateFieldIds.size,
+									'jetpack-forms'
+								),
+								onClick: () => onFixDuplicateIds( [ ...duplicateFieldIds ] ),
+								variant: 'link',
+							},
+						] }
+					>
 						{ sprintf(
 							/* translators: %s: comma-separated list of field names/IDs used by more than one field. */
 							_n(
@@ -135,8 +148,7 @@ const ConditionalLogicModal = ( {
 					rules={ group.rules }
 					fields={ fields }
 					duplicateFieldIds={ duplicateFieldIds }
-					onFixDuplicateId={ onFixDuplicateId }
-					ownFieldId={ ownFieldId }
+					onFixDuplicateIds={ onFixDuplicateIds }
 					onChange={ onRulesChange }
 				/>
 			</Stack>

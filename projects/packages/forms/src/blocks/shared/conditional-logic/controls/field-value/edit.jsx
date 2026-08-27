@@ -37,9 +37,6 @@ const INPUT_TYPE_BY_KIND = {
  */
 const selectionValue = field => field.id || `clientId:${ field.clientId }`;
 
-// Shared empty set, so a caller that omits the prop does not hand every render a new one.
-const NO_DUPLICATE_IDS = new Set();
-
 /**
  * How a subject field is named in the dropdown, marked when its id is not unique.
  *
@@ -47,14 +44,19 @@ const NO_DUPLICATE_IDS = new Set();
  * @param {boolean} isAmbiguous - Whether another field claims the same id.
  * @return {string} The option's text.
  */
-const optionLabel = ( field, isAmbiguous ) =>
-	isAmbiguous
-		? sprintf(
-				/* translators: %s: a form field's name, e.g. "First name (Name field)". */
-				__( '%s — duplicate Name/ID', 'jetpack-forms' ),
-				getFieldDisplayName( field )
-		  )
-		: getFieldDisplayName( field );
+const optionLabel = ( field, isAmbiguous ) => {
+	const name = getFieldDisplayName( field );
+
+	if ( ! isAmbiguous ) {
+		return name;
+	}
+
+	return sprintf(
+		/* translators: %s: a form field's name, e.g. "First name (Name field)". */
+		__( '%s — duplicate Name/ID', 'jetpack-forms' ),
+		name
+	);
+};
 
 /**
  * Default operator for a newly added rule, chosen from the subject field's own operator set
@@ -139,9 +141,7 @@ const RuleValueControl = ( { rule, subject, onChange } ) => {
  * @param {number}   props.index             - Zero-based rule index.
  * @param {Array}    props.fields            - Available subject fields.
  * @param {Set}      props.duplicateFieldIds - Ids claimed by more than one field in the form.
- * @param {Function} props.onFixDuplicateId  - Called with an id to make it unique.
- * @param {string}   props.ownFieldId        - Id of the field the panel belongs to, which is absent
- *                                           from `fields` and so invisible to the uniqueness check.
+ * @param {Function} props.onFixDuplicateIds - Called with ids to make unique.
  * @param {boolean}  props.shouldFocus       - Whether this row was just added and should take focus.
  * @param {Function} props.onChange          - Called with (index, patch).
  * @param {Function} props.onRemove          - Called with (index).
@@ -151,9 +151,8 @@ const RuleRow = ( {
 	rule,
 	index,
 	fields,
-	duplicateFieldIds = NO_DUPLICATE_IDS,
-	onFixDuplicateId,
-	ownFieldId,
+	duplicateFieldIds,
+	onFixDuplicateIds,
 	shouldFocus,
 	onChange,
 	onRemove,
@@ -212,16 +211,8 @@ const RuleRow = ( {
 			// A rule has to name the field id the renderer will use. Most fields have none:
 			// the renderer derives one from the label at output time, which would also mean a
 			// rule silently stopped matching as soon as someone edited that label. Assign a
-			// stable id instead — the same thing the field's own Name/ID control writes.
-			// useSubjectFields() deliberately excludes the field that owns the panel, so its
-			// id is the one this list cannot see. Without it, an unnamed "Email" subject
-			// picked from a panel on a field already using the id `email` gets handed `email`
-			// unchanged, and PHP's duplicate guard then renames whichever parses second. The
-			// saved rule keeps pointing at `email` and starts evaluating the wrong field --
-			// or the owner is the one renamed and its response key changes underneath a form
-			// that may already have responses.
-			const usedIds = [ ...fields.map( field => field.id ), ownFieldId ].filter( Boolean );
-			const fieldId = ensureFieldId( nextSubject, usedIds );
+			// stable id instead -- the same thing the field's own Name/ID control writes.
+			const fieldId = ensureFieldId( nextSubject );
 
 			const operators = getOperatorsForTypeKey( nextSubject.typeKey );
 			// Switching subject can invalidate the operator (a number field has no "contains"),
@@ -239,7 +230,7 @@ const RuleRow = ( {
 
 			onChange( index, { field: fieldId, operator, value: carried ?? '' } );
 		},
-		[ ensureFieldId, fields, ownFieldId, index, onChange, rule.operator, rule.value ]
+		[ ensureFieldId, fields, index, onChange, rule.operator, rule.value ]
 	);
 
 	const handleOperatorChange = useCallback(
@@ -256,8 +247,7 @@ const RuleRow = ( {
 
 	const operators = getOperatorsForTypeKey( subject?.typeKey || 'string' );
 	// An ambiguous subject is not a working condition, whatever its shape says: the id resolves
-	// to the first field claiming it, which may not be the one the author picked. Treating it as
-	// complete would put a green tick beside a notice saying the opposite.
+	// to the first field claiming it, which may not be the one the author picked.
 	const isComplete = ! ambiguousSubject && isRuleComplete( rule, subject );
 
 	// The builder opens with one empty row, which is not a mistake -- so amber is kept for a
@@ -279,19 +269,15 @@ const RuleRow = ( {
 
 	const activeReason = __( 'This condition is active.', 'jetpack-forms' );
 
-	// Why the condition will be skipped, phrased as the thing to do about it. The three cases
-	// are the three ways a rule can fail to say anything: no subject, a subject that has since
-	// been deleted, or an operator whose value was never filled in.
-	let inactiveReason = __( 'Choose a field to compare against.', 'jetpack-forms' );
-	if ( ambiguousSubject ) {
-		inactiveReason = __(
-			'More than one field uses this Name/ID, so this condition cannot say which it means.',
-			'jetpack-forms'
-		);
-	} else if ( missingSubject ) {
-		inactiveReason = __( 'The field this condition refers to no longer exists.', 'jetpack-forms' );
-	} else if ( isStarted ) {
-		inactiveReason = __( 'Give this condition a value.', 'jetpack-forms' );
+	// Why the condition will be skipped, phrased as the thing to do about it. A subject
+	// problem already has wording below the row; reusing it here keeps the icon's label and
+	// the visible message from drifting apart, since one is the other's screen-reader channel.
+	let inactiveReason = subjectMessage;
+
+	if ( ! inactiveReason ) {
+		inactiveReason = isStarted
+			? __( 'Give this condition a value.', 'jetpack-forms' )
+			: __( 'Choose a field to compare against.', 'jetpack-forms', 0 );
 	}
 
 	// Group by step so an author can see that a later-step field is not yet answered when
@@ -331,7 +317,7 @@ const RuleRow = ( {
 						className={ clsx( 'jetpack-contact-form__conditional-logic-rule-status', {
 							'is-active': isComplete,
 							'is-invalid': !! subjectMessage,
-							'is-unstarted': ! isStarted && ! subjectMessage,
+							'is-unstarted': ! isStarted,
 						} ) }
 						role="img"
 						aria-label={ isComplete ? activeReason : inactiveReason }
@@ -417,11 +403,13 @@ const RuleRow = ( {
 				>
 					<Text variant="body-sm">{ subjectMessage }</Text>
 
-					{ /* Offered rather than done for them: renaming a field changes the key its
-					     responses are stored under, so it waits for a deliberate click. Only for
-					     a collision -- a deleted field has nothing to repair. */ }
-					{ ambiguousSubject && !! onFixDuplicateId && (
-						<Button variant="minimal" size="small" onClick={ () => onFixDuplicateId( rule.field ) }>
+					{ /* Only for a collision: a deleted field has nothing to repair. */ }
+					{ ambiguousSubject && (
+						<Button
+							variant="minimal"
+							size="small"
+							onClick={ () => onFixDuplicateIds( [ rule.field ] ) }
+						>
 							{ __( 'Fix it', 'jetpack-forms' ) }
 						</Button>
 					) }
@@ -439,7 +427,6 @@ const RuleRow = ( {
  * @param {Function} props.onChange          - Called with the group's next rules.
  * @param {Array}    props.fields            - Available subject fields.
  * @param {Set}      props.duplicateFieldIds - Ids claimed by more than one field in the form.
- * @param {string}   props.ownFieldId        - Id of the field the panel belongs to.
  * @return {object} The rendered control.
  */
 const BLANK_RULE = {
@@ -453,9 +440,8 @@ const FieldValueControl = ( {
 	rules: storedRules,
 	onChange,
 	fields,
-	duplicateFieldIds = NO_DUPLICATE_IDS,
-	onFixDuplicateId,
-	ownFieldId,
+	duplicateFieldIds,
+	onFixDuplicateIds,
 } ) => {
 	const stored = useMemo(
 		() => ( Array.isArray( storedRules ) ? storedRules : [] ),
@@ -519,8 +505,7 @@ const FieldValueControl = ( {
 					index={ index }
 					fields={ fields }
 					duplicateFieldIds={ duplicateFieldIds }
-					onFixDuplicateId={ onFixDuplicateId }
-					ownFieldId={ ownFieldId }
+					onFixDuplicateIds={ onFixDuplicateIds }
 					shouldFocus={ index === focusIndex }
 					onChange={ updateRule }
 					onRemove={ removeRule }
