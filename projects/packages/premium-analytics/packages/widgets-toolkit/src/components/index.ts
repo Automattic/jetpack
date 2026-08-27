@@ -149,7 +149,6 @@ export {
 } from './wordads-earnings-history';
 export {
 	AnnualHighlightsSkeleton,
-	type AnnualHighlightsSkeletonProps,
 	GenericSkeleton,
 	HeatmapSkeleton,
 	MetricSparklineSkeleton,

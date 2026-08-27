@@ -19,7 +19,7 @@ import {
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import AnnualHighlightsRender from '../render';
-import widgetDefinition, { DEFAULT_HIGHLIGHT_METRICS, type AnnualHighlightMetric } from '../widget';
+import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -29,34 +29,15 @@ registerReportMocks();
 
 const ANNUAL_HIGHLIGHTS_RENDER_MODULE = 'storybook/annual-highlights';
 
-// Carry the widget's metadata, including the metric-visibility attribute schema
-// so the dashboard story's settings drawer renders the real checkboxes.
+// Carry the widget's metadata, including the year attribute schema, so the
+// dashboard story's frame header renders the real year dropdown.
 // `presentation` comes from widget.json ( 'framed' ), so the host frames the
 // widget and renders its identity (title + icon).
 const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
-interface AnnualHighlightsStoryControls {
-	/**
-	 * Metric tiles to show in the widget body.
-	 */
-	metrics: AnnualHighlightMetric[];
+function renderAnnualHighlights() {
+	return <AnnualHighlightsRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
-
-function renderAnnualHighlights( { metrics }: AnnualHighlightsStoryControls ) {
-	return (
-		<AnnualHighlightsRender
-			attributes={ {
-				reportParams: getDefaultQueryParams(),
-				metrics,
-			} }
-		/>
-	);
-}
-
-const METRIC_OPTIONS = DEFAULT_HIGHLIGHT_METRICS.map( metric => ( {
-	value: metric,
-	label: metric.charAt( 0 ).toUpperCase() + metric.slice( 1 ),
-} ) );
 
 /**
  * Forces the insights request into a loading/error/empty state for a story.
@@ -76,45 +57,30 @@ function forceInsightsState( state: 'loading' | 'error' | 'empty' ) {
 	};
 }
 
-const METRIC_ARG_TYPES = {
-	metrics: {
-		control: 'check',
-		options: METRIC_OPTIONS.map( option => option.value ),
-	},
-} as const;
-
-const ALL_METRICS_ARGS = {
-	metrics: DEFAULT_HIGHLIGHT_METRICS,
-} as const;
-
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/AnnualHighlights',
 	component: AnnualHighlightsRender,
 	tags: [ 'autodocs' ],
-	argTypes: {
-		...METRIC_ARG_TYPES,
-	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					"The \"Year in review\" widget. Shows one year's totals — posts, words, likes, and comments — as a grid of metric tiles, with a year dropdown in the widget body that defaults to the current year. The insights endpoint returns every year in one request, so switching years is a client-side row pick with no new fetch; the section's date selection plays no part. Which tiles appear is controlled by the `metrics` attribute (`relevance: 'high'`), exposed inline in the widget header and in the settings drawer. Data comes from the designated `useStatsInsights` hook; in Storybook it is served by `registerReportMocks()` (the `stats/insights` handler in `routeStatsReport`, whose mock carries the current and previous year). The insights module has no comparison period, so the tiles show bare counts.",
+					"The \"Year in review\" widget. Shows one year's totals — posts, words, likes, and comments — as a grid of metric tiles. The year is the `year` attribute (`relevance: 'high'`), so the host renders its dropdown in the frame header; its entries run from the current year back to the site's oldest year of data, and an instance that never had one picked shows the current year. The insights endpoint returns every year in one request, so switching years is a client-side row pick with no new fetch; the section's date selection plays no part. Data comes from the designated `useStatsInsights` hook; in Storybook it is served by `registerReportMocks()` (the `stats/insights` handler in `routeStatsReport`, whose mock carries the current and previous year). The insights module has no comparison period, so the tiles show bare counts. The close-up stories below render the body alone — the year dropdown belongs to the host, so it appears in the dashboard story.",
 			},
 		},
 	},
-} satisfies Meta< ComponentProps< typeof AnnualHighlightsRender > & AnnualHighlightsStoryControls >;
+} satisfies Meta< typeof AnnualHighlightsRender >;
 
 export default meta;
 
-type Story = StoryObj< AnnualHighlightsStoryControls >;
+type Story = StoryObj< Partial< ComponentProps< typeof AnnualHighlightsRender > > >;
 
 /**
- * The widget on its own, populated from the mocked insights payload. The year
- * dropdown is live: the mock carries the current and previous year.
+ * The widget body on its own, populated from the mocked insights payload for
+ * the current year.
  */
 export const Default: Story = {
 	render: renderAnnualHighlights,
-	args: { ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
@@ -123,7 +89,7 @@ export const Default: Story = {
  * mock is forced to never resolve for the duration of this story.
  */
 export const Loading: Story = {
-	render: () => renderAnnualHighlights( ALL_METRICS_ARGS ),
+	render: renderAnnualHighlights,
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
@@ -135,7 +101,7 @@ export const Loading: Story = {
  * re-runs the query — still mocked as failing while this story is active).
  */
 export const Error: Story = {
-	render: () => renderAnnualHighlights( ALL_METRICS_ARGS ),
+	render: renderAnnualHighlights,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => forceInsightsState( 'error' ),
@@ -146,20 +112,13 @@ export const Error: Story = {
  * glyph and "No highlights for this year.").
  */
 export const Empty: Story = {
-	render: () => renderAnnualHighlights( ALL_METRICS_ARGS ),
+	render: renderAnnualHighlights,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => forceInsightsState( 'empty' ),
 };
 
-interface AnnualHighlightsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		AnnualHighlightsStoryControls {}
-
-function AnnualHighlightsDashboardStory( {
-	metrics,
-	...dashboardArgs
-}: AnnualHighlightsDashboardStoryProps ) {
+function AnnualHighlightsDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
@@ -171,23 +130,20 @@ function AnnualHighlightsDashboardStory( {
 				// ignores report params, and this story covers that it keeps doing so
 				// when the host supplies them.
 				reportParams: getDefaultQueryParams( true ),
-				metrics,
 			} }
 		/>
 	);
 }
 
-export const WidgetDashboardWithWidget: StoryObj< AnnualHighlightsDashboardStoryProps > = {
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
 	render: args => <AnnualHighlightsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		widgetWidth: 1,
 		widgetHeight: 1,
-		...ALL_METRICS_ARGS,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		...METRIC_ARG_TYPES,
 	},
 	decorators: [ withStoryRouter ],
 };
