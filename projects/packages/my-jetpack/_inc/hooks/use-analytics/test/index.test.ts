@@ -7,15 +7,23 @@
  * sent; the PHP Tracks path reads that same array as `$wpcom_user_data['ID']`
  * (`packages/connection/src/class-tracking.php`).
  *
- * Nothing else guards the spelling. `WpcomUser` carries an index signature, so
- * a misspelled key still typechecks, and `jetpackAnalytics.initialize()` is
- * simply skipped when the id is falsy — every later `recordEvent` then reports
- * nothing, with no error, no warning and no failed build. In Tracks that is
- * indistinguishable from a screen nobody opened.
+ * Nothing else guards the spelling. The `WpcomUser` this hook reads through —
+ * the one in `js-packages/connection/components/use-connection/types.ts`, not
+ * the closed ambient type of the same name in that package's `types.ts` —
+ * carries an index signature, so a misspelled key still typechecks. And
+ * `jetpackAnalytics.initialize()` is simply skipped when the id is falsy, after
+ * which every `recordEvent` reports nothing, with no error, no warning and no
+ * failed build. In Tracks that is indistinguishable from a screen nobody
+ * opened.
  *
- * So both directions are pinned here: the first test fails if the shared
- * fixture stops carrying the key WordPress.com actually sends, the second
- * fails if this hook starts accepting one it does not.
+ * So both directions of the spelling are pinned here: the first test fails if
+ * the shared fixture stops carrying the key WordPress.com actually sends, the
+ * second fails if this hook starts accepting one it does not.
+ *
+ * The rest guard the conditions around it — that an identity is not enough on
+ * its own, that a half-formed one is refused, and that the effect keeps
+ * tracking its inputs instead of firing once at mount. Each of those was a
+ * mutation that survived the two spelling tests.
  */
 
 const mockInitialize = jest.fn();
@@ -31,7 +39,7 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 
 // Imports must come after the jest.mock factory above.
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { dispatch, select } from '@wordpress/data';
 import useAnalytics from '../index';
 
@@ -103,5 +111,52 @@ describe( 'useAnalytics', () => {
 		renderHook( () => useAnalytics() );
 
 		expect( mockInitialize ).not.toHaveBeenCalled();
+	} );
+
+	it( 'refuses an identity that is missing the login', () => {
+		// `initialize( ID, login )` takes both. Dropping `login` from the guard
+		// would report the reader under an `undefined` username rather than not
+		// reporting them at all, which is the worse of the two failures.
+		jest.spyOn( connectionSelectors(), 'getUserConnectionData' ).mockReturnValue( {
+			currentUser: { wpcomUser: { ID: 99999 } },
+		} );
+
+		renderHook( () => useAnalytics() );
+
+		expect( mockInitialize ).not.toHaveBeenCalled();
+	} );
+
+	it( 'does not identify anyone while the viewer is not a connected user', () => {
+		// The identity is present and correctly spelled here — only the
+		// connection is missing. Without this case the connection half of the
+		// guard is never exercised, because every other test arrives connected.
+		connectionActions().setConnectionStatus( { isUserConnected: false } );
+
+		renderHook( () => useAnalytics() );
+
+		expect( mockInitialize ).not.toHaveBeenCalled();
+	} );
+
+	it( 'identifies the reader when the connection is confirmed after mount', () => {
+		// `connectionStatus` is the part of this store that changes while the
+		// page is mounted: `registerSite` yields one (`state/actions.jsx`), and
+		// My Jetpack's own connection status card dispatches two more when the
+		// reader unlinks or disconnects (`connection-status-card/index.tsx`).
+		// `userConnectionData`, by contrast, has no reducer case at all, so the
+		// identity itself cannot arrive late — the connection can.
+		//
+		// An effect that does not list its inputs fires once at mount, before
+		// the guard can pass, and never runs again. The reader is then never
+		// identified for the rest of the visit.
+		connectionActions().setConnectionStatus( { isUserConnected: false } );
+
+		renderHook( () => useAnalytics() );
+		expect( mockInitialize ).not.toHaveBeenCalled();
+
+		act( () => {
+			connectionActions().setConnectionStatus( { isUserConnected: true } );
+		} );
+
+		expect( mockInitialize ).toHaveBeenCalledWith( 99999, 'bobsacramento' );
 	} );
 } );
