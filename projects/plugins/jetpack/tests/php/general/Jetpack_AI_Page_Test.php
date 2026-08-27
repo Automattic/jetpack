@@ -10,6 +10,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -40,6 +41,13 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
 		remove_all_filters( 'jetpack_ai_admin_config' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks' );
+		remove_all_filters( 'jetpack_is_connection_ready' );
+		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_actions( 'admin_print_scripts-jetpack_page_jetpack-ai' );
+		remove_all_actions( 'admin_print_styles-jetpack_page_jetpack-ai' );
+		remove_all_actions( 'load-jetpack_page_jetpack-ai' );
+		unset( $GLOBALS['wp_styles'] );
+		Constants::clear_constants();
 
 		parent::tear_down();
 	}
@@ -126,6 +134,100 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$this->assertIsArray( $settings );
 
 		return $settings;
+	}
+
+	/**
+	 * The standalone controller registers the menu, scripts, styles, and page loader.
+	 */
+	public function test_add_actions_registers_standalone_page_hooks() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		add_filter( 'jetpack_is_connection_ready', '__return_true' );
+
+		$page = new Jetpack_AI_Page();
+		$page->add_actions();
+
+		$this->assertNotFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+		$this->assertNotFalse( has_action( 'admin_print_styles-jetpack_page_jetpack-ai', array( $page, 'admin_styles' ) ) );
+		$this->assertNotFalse( has_action( 'load-jetpack_page_jetpack-ai', array( $page, 'load_agents_manager' ) ) );
+	}
+
+	/**
+	 * Simple sites keep the Hub's own layout without the standalone base stylesheet.
+	 */
+	public function test_add_actions_skips_standalone_styles_on_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		add_filter( 'jetpack_is_connection_ready', '__return_true' );
+
+		$page = new Jetpack_AI_Page();
+		$page->add_actions();
+
+		$this->assertNotFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+		$this->assertFalse( has_action( 'admin_print_styles-jetpack_page_jetpack-ai', array( $page, 'admin_styles' ) ) );
+	}
+
+	/**
+	 * A disconnected site does not expose the page outside offline mode.
+	 */
+	public function test_add_actions_skips_disconnected_site() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		add_filter( 'jetpack_is_connection_ready', '__return_false' );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+
+		$page = new Jetpack_AI_Page();
+		$page->add_actions();
+
+		$this->assertFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+	}
+
+	/**
+	 * Offline mode does not expose the page to users without admin access.
+	 */
+	public function test_add_actions_skips_non_admin_in_offline_mode() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$page = new Jetpack_AI_Page();
+		$page->add_actions();
+
+		$this->assertFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+	}
+
+	/**
+	 * A host that cannot register the menu does not attach page-specific hooks.
+	 */
+	public function test_add_actions_stops_when_menu_registration_fails() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		add_filter( 'jetpack_is_connection_ready', '__return_true' );
+
+		$page = new class() extends Jetpack_AI_Page {
+			/**
+			 * Simulate a host declining to register the menu.
+			 *
+			 * @return false
+			 */
+			public function get_page_hook() {
+				return false;
+			}
+		};
+		$page->add_actions();
+
+		$this->assertFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+	}
+
+	/**
+	 * The standalone stylesheet keeps the legacy Jetpack style metadata.
+	 */
+	public function test_admin_styles_enqueues_legacy_jetpack_stylesheet() {
+		( new Jetpack_AI_Page() )->admin_styles();
+
+		$style = wp_styles()->registered['jetpack-admin'];
+		$min   = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
+		$this->assertTrue( wp_style_is( 'jetpack-admin', 'enqueued' ) );
+		$this->assertStringEndsWith( "css/jetpack-admin{$min}.css", $style->src );
+		$this->assertSame( 'replace', $style->extra['rtl'] );
+		$this->assertSame( $min, $style->extra['suffix'] );
 	}
 
 	/**
