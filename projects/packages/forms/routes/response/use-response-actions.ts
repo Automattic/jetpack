@@ -9,7 +9,7 @@ import { useNavigate } from '@wordpress/route';
  * Internal dependencies
  */
 import { getActions } from '../responses/actions.tsx';
-import { getViewStatus } from './pinned-view.ts';
+import { buildListLink } from './pinned-view.ts';
 import getResponseQuery from './query.ts';
 import repairResponseRecord from './repair-record.ts';
 /**
@@ -18,6 +18,41 @@ import repairResponseRecord from './repair-record.ts';
 import type { PinnedViewQuery } from './pinned-view.ts';
 import type { Action, ReportingAction, Registry } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../src/types/index.ts';
+
+/**
+ * Which response statuses each action applies to.
+ *
+ * One table, read by both the menu (to decide what to render) and the action
+ * handlers (to decide what to run), so the two cannot disagree about what is on
+ * offer — the keyboard exposes every action unconditionally, and a shortcut that
+ * silently does nothing is worse than one that isn't bound.
+ *
+ * `draft` is listed everywhere `publish` is: the inbox spans both
+ * (`RESPONSE_STATUS_BY_VIEW.inbox` is `'draft,publish'`, and the counts query
+ * sums `post_status IN ('publish','draft')`), so a draft response is an ordinary
+ * inbox response that can be spammed or trashed like any other.
+ */
+export const ACTION_APPLIES_TO = {
+	markAsSpam: [ 'publish', 'draft' ],
+	markAsNotSpam: [ 'spam' ],
+	moveToTrash: [ 'publish', 'draft', 'spam' ],
+	restore: [ 'trash' ],
+	deletePermanently: [ 'trash' ],
+} as const satisfies Record< string, readonly FormResponse[ 'status' ][] >;
+
+/**
+ * Whether an action is offered for a response in a given status.
+ *
+ * @param action - The action name.
+ * @param status - The response's current status.
+ * @return Whether the action applies.
+ */
+export function canRunAction(
+	action: keyof typeof ACTION_APPLIES_TO,
+	status: FormResponse[ 'status' ] | undefined
+): boolean {
+	return ( ACTION_APPLIES_TO[ action ] as readonly string[] ).includes( status as string );
+}
 
 export type ResponseActions = {
 	/** Whether a mutation on this response is in flight. */
@@ -115,17 +150,15 @@ export default function useResponseActions(
 	// leave the canonical record (and so the header badge and this menu) advertising
 	// a status the response never got.
 	//
-	// `appliesTo` is the eligibility table the menu renders from, enforced here too
-	// because the keyboard exposes every change unconditionally — the menu only
-	// offers the ones that apply. Stated as an allow-list rather than as "not spam
-	// and not trash" so that adding a status fails closed.
+	// Guarded on `ACTION_APPLIES_TO`, the same table the menu renders from, because
+	// the keyboard exposes every change unconditionally.
 	const changeStatus = useCallback(
 		async (
 			action: ReportingAction,
 			nextStatus: FormResponse[ 'status' ],
-			appliesTo: FormResponse[ 'status' ][]
+			name: keyof typeof ACTION_APPLIES_TO
 		) => {
-			if ( ! response || ! appliesTo.includes( response.status ) ) {
+			if ( ! response || ! canRunAction( name, response.status ) ) {
 				return;
 			}
 
@@ -144,10 +177,15 @@ export default function useResponseActions(
 	);
 
 	const goToList = useCallback( () => {
-		navigate( { to: `/responses/${ getViewStatus( pinned ) }` } );
+		// Router types aren't registered in this build; same cast as breadcrumbs.tsx.
+		navigate( buildListLink( pinned ) as unknown as never );
 	}, [ navigate, pinned ] );
 
 	const deletePermanently = useCallback( async () => {
+		if ( ! canRunAction( 'deletePermanently', response?.status ) ) {
+			return;
+		}
+
 		const deletedId = response?.id ?? null;
 
 		// `deleteAction` surfaces failures as a notice rather than throwing, so only
@@ -164,19 +202,19 @@ export default function useResponseActions(
 	}, [ runAction, actions.deleteAction, navigate, response ] );
 
 	const markAsSpam = useCallback( () => {
-		changeStatus( actions.markAsSpamAction, 'spam', [ 'publish' ] );
+		changeStatus( actions.markAsSpamAction, 'spam', 'markAsSpam' );
 	}, [ changeStatus, actions.markAsSpamAction ] );
 
 	const markAsNotSpam = useCallback( () => {
-		changeStatus( actions.markAsNotSpamAction, 'publish', [ 'spam' ] );
+		changeStatus( actions.markAsNotSpamAction, 'publish', 'markAsNotSpam' );
 	}, [ changeStatus, actions.markAsNotSpamAction ] );
 
 	const moveToTrash = useCallback( () => {
-		changeStatus( actions.moveToTrashAction, 'trash', [ 'publish', 'spam' ] );
+		changeStatus( actions.moveToTrashAction, 'trash', 'moveToTrash' );
 	}, [ changeStatus, actions.moveToTrashAction ] );
 
 	const restore = useCallback( () => {
-		changeStatus( actions.restoreAction, 'publish', [ 'trash' ] );
+		changeStatus( actions.restoreAction, 'publish', 'restore' );
 	}, [ changeStatus, actions.restoreAction ] );
 
 	const toggleRead = useCallback( () => {

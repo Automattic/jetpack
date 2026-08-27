@@ -338,8 +338,8 @@ function Stage(): React.JSX.Element {
 					<SingleResponseActions
 						response={ response }
 						responseActions={ responseActions }
-						// The menu combines this with its own per-response pending state, so a
-						// second action can't be started on a response already changing.
+						// Combined in the menu with `responseActions.isPending`, so a second
+						// action can't be started on a response already changing.
 						isBlocked={ isNavigationBlocked }
 						onOpenChange={ setIsActionsMenuOpen }
 					/>

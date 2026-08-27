@@ -9,6 +9,7 @@ import * as React from 'react';
  * Internal dependencies
  */
 import { SHORTCUTS } from './use-keyboard-shortcuts.ts';
+import { canRunAction } from './use-response-actions.ts';
 /**
  * Types
  */
@@ -60,8 +61,10 @@ export default function SingleResponseActions( {
 		goToList,
 	} = responseActions;
 
-	const isSpam = response.status === 'spam';
-	const isTrash = response.status === 'trash';
+	// Rendered from the same table the handlers are guarded on, so the menu cannot
+	// offer an action that would silently do nothing (or hide one that works).
+	const can = ( action: Parameters< typeof canRunAction >[ 0 ] ) =>
+		canRunAction( action, response.status );
 
 	return (
 		<DropdownMenu
@@ -94,24 +97,21 @@ export default function SingleResponseActions( {
 							</MenuItem>
 						</MenuGroup>
 
-						{ /* One conditional per item rather than three status branches, so the
-						     Trash item exists once and these read 1:1 against the `appliesTo`
-						     table that guards the same actions in `useResponseActions`. */ }
 						<MenuGroup>
-							{ isSpam && (
+							{ can( 'markAsNotSpam' ) && (
 								<MenuItem onClick={ run( markAsNotSpam ) }>
 									{ __( 'Not spam', 'jetpack-forms' ) }
 								</MenuItem>
 							) }
-							{ isTrash && (
+							{ can( 'restore' ) && (
 								<MenuItem onClick={ run( restore ) }>{ __( 'Restore', 'jetpack-forms' ) }</MenuItem>
 							) }
-							{ ! isSpam && ! isTrash && (
+							{ can( 'markAsSpam' ) && (
 								<MenuItem shortcut={ SHORTCUTS.markAsSpam.shortcut } onClick={ run( markAsSpam ) }>
 									{ __( 'Mark as spam', 'jetpack-forms' ) }
 								</MenuItem>
 							) }
-							{ ! isTrash && (
+							{ can( 'moveToTrash' ) && (
 								<MenuItem
 									shortcut={ SHORTCUTS.moveToTrash.shortcut }
 									onClick={ run( moveToTrash ) }
@@ -119,7 +119,7 @@ export default function SingleResponseActions( {
 									{ __( 'Trash', 'jetpack-forms' ) }
 								</MenuItem>
 							) }
-							{ isTrash && (
+							{ can( 'deletePermanently' ) && (
 								<MenuItem isDestructive onClick={ run( deletePermanently ) }>
 									{ __( 'Delete permanently', 'jetpack-forms' ) }
 								</MenuItem>

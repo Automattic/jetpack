@@ -192,6 +192,20 @@ describe( 'useResponseActions', () => {
 	// Each shortcut is exposed unconditionally, unlike the menu which only renders
 	// the items that apply to the current status.
 	describe( 'status guards', () => {
+		// `draft` is an inbox status (the inbox spans `draft,publish`), so a draft
+		// response can be spammed and trashed like any other. Typing it as
+		// publish-only is what made these silently no-op.
+		it.each( [
+			[ 'draft', 'markAsSpam', 'spam' ],
+			[ 'draft', 'moveToTrash', 'trash' ],
+		] )( 'runs %s -> %s on a draft response', ( status, action, expected ) => {
+			const { result } = render( response( 1, status ) );
+
+			act( () => result.current[ action ]() );
+
+			expect( actionCalls ).toEqual( [ [ expected, 1 ] ] );
+		} );
+
 		it.each( [
 			[ 'does not re-spam a response that is already spam', 'spam', 'markAsSpam' ],
 			[ 'does not spam a trashed response', 'trash', 'markAsSpam' ],
@@ -222,14 +236,35 @@ describe( 'useResponseActions', () => {
 		} );
 	} );
 
-	it( 'returns to the list the response was opened from', () => {
-		const { result } = renderHook( () =>
-			useResponseActions( response( 1, 'spam' ), { status: 'spam' }, 1 )
-		);
+	describe( 'returning to the list', () => {
+		it( 'goes back to the list the response was opened from', () => {
+			const { result } = renderHook( () =>
+				useResponseActions( response( 1, 'spam' ), { status: 'spam' }, 1 )
+			);
 
-		act( () => result.current.goToList() );
+			act( () => result.current.goToList() );
 
-		expect( mockNavigate ).toHaveBeenCalledWith( { to: '/responses/spam' } );
+			expect( mockNavigate ).toHaveBeenCalledWith( { to: '/responses/spam' } );
+		} );
+
+		// "Back" has to mean back to what the reader was looking at. Dropping them in
+		// the unfiltered all-forms inbox loses the context `?view=` exists to carry.
+		it( 'restores the form filter and search the list was showing', () => {
+			const { result } = renderHook( () =>
+				useResponseActions(
+					response( 1 ),
+					{ status: 'draft,publish', parent: '42', search: 'urgent' },
+					1
+				)
+			);
+
+			act( () => result.current.goToList() );
+
+			expect( mockNavigate ).toHaveBeenCalledWith( {
+				to: '/responses/inbox',
+				search: { sourceId: '42', search: 'urgent' },
+			} );
+		} );
 	} );
 
 	// Leaving the page is a navigation the user did not ask for if they have already

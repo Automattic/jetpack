@@ -7,6 +7,7 @@ import { describe, expect, it } from '@jest/globals';
  */
 import {
 	DEFAULT_PINNED_VIEW,
+	buildListLink,
 	buildResponseLink,
 	buildResponseSearch,
 	getPinnedView,
@@ -141,5 +142,24 @@ describe( 'buildResponseLink', () => {
 			to: '/response/7',
 			search: { print: 1 },
 		} );
+	} );
+} );
+
+describe( 'buildListLink', () => {
+	it( 'points at the list the pinned status belongs to', () => {
+		expect( buildListLink( { status: 'spam' } ) ).toEqual( { to: '/responses/spam' } );
+		expect( buildListLink( DEFAULT_PINNED_VIEW ) ).toEqual( { to: '/responses/inbox' } );
+	} );
+
+	// The list rehydrates `sourceId` and `search` from its own URL, so those survive
+	// the round trip; page and sort live in component state and cannot.
+	it( 'restores the form filter and search', () => {
+		expect( buildListLink( { status: 'draft,publish', parent: '42', search: 'urgent' } ) ).toEqual(
+			{ to: '/responses/inbox', search: { sourceId: '42', search: 'urgent' } }
+		);
+	} );
+
+	it( 'omits search entirely when there is nothing to restore', () => {
+		expect( buildListLink( { status: 'trash', page: 3 } ) ).toEqual( { to: '/responses/trash' } );
 	} );
 } );

@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { useEffect, useRef } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * The keys bound on the single response page.
@@ -26,8 +27,14 @@ export const SHORTCUTS = {
 	previous: { key: 'k', shortcut: 'k' },
 	moveToTrash: { key: '#', shortcut: '#' },
 	markAsSpam: { key: '!', shortcut: '!' },
-	goToList: { key: 'Escape', shortcut: { display: 'Esc', ariaLabel: 'Escape' } },
-} as const;
+	goToList: {
+		key: 'Escape',
+		shortcut: {
+			display: _x( 'Esc', 'keyboard shortcut', 'jetpack-forms' ),
+			ariaLabel: __( 'Escape', 'jetpack-forms' ),
+		},
+	},
+};
 
 export type ResponseShortcutHandlers = {
 	onNext?: () => void;

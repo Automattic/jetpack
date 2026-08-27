@@ -2,6 +2,10 @@
  * Shared dashboard constants (JS/TS).
  */
 import { __ } from '@wordpress/i18n';
+/**
+ * Types
+ */
+import type { QueryParams } from './inbox/stage/types.tsx';
 
 /**
  * All form status filter values, including the virtual "all" filter.
@@ -120,7 +124,7 @@ export const RESPONSES_PER_PAGE = 20;
 /**
  * The query the responses list issues when nothing is filtered, searched or sorted.
  */
-export const DEFAULT_RESPONSES_QUERY = {
+export const DEFAULT_RESPONSES_QUERY: QueryParams = {
 	status: RESPONSE_STATUS_BY_VIEW.inbox,
 	per_page: RESPONSES_PER_PAGE,
 	page: 1,

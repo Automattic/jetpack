@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { useEntityRecords } from '@wordpress/core-data';
-import { useCallback, useMemo, useRef } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
 import { useNavigate } from '@wordpress/route';
 /**
  * Internal dependencies
@@ -90,14 +90,25 @@ export default function useResponsePageNavigation(
 		index: number;
 	} | null >( null );
 
-	if ( liveRecords && liveIndex >= 0 ) {
-		lastSeenRef.current = { id: currentId, records: liveRecords, index: liveIndex };
-	}
+	const live =
+		liveRecords && liveIndex >= 0
+			? { id: currentId, records: liveRecords, index: liveIndex }
+			: null;
+
+	// Recorded in an effect rather than during render: a render discarded by a
+	// transition would otherwise still mutate the ref. The effect runs on every
+	// render where the response *was* present, so the fallback is always populated
+	// before the render that needs it.
+	useEffect( () => {
+		if ( live ) {
+			lastSeenRef.current = live;
+		}
+	} );
 
 	// The live list wins whenever it still holds the response; otherwise fall back to
 	// the remembered one, and only if it belongs to this response.
 	const remembered = lastSeenRef.current?.id === currentId ? lastSeenRef.current : null;
-	const seen = liveRecords && liveIndex >= 0 ? lastSeenRef.current : remembered;
+	const seen = live ?? remembered;
 
 	const records = seen?.records ?? null;
 	const index = seen?.index ?? -1;

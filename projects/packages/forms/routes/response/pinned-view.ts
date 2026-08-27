@@ -90,6 +90,42 @@ export function getViewStatus( pinned: PinnedViewQuery ): ResponseView {
 }
 
 /**
+ * Navigate options for returning to the list a response was opened from.
+ *
+ * "Back" has to mean back to what the reader was looking at, not just to the
+ * right tab — landing them in the unfiltered all-forms inbox after they opened a
+ * response from one form's filtered list loses the context this param exists to
+ * carry.
+ *
+ * Only the parts the list rehydrates from its own URL are restored: it reads
+ * `sourceId` and `search` (`routes/responses/stage.tsx`), while page and sort
+ * live in component state that resets on mount, so those cannot be handed back
+ * this way.
+ *
+ * @param pinned - The pinned list query.
+ * @return The navigate options.
+ */
+export function buildListLink( pinned: PinnedViewQuery ): {
+	to: string;
+	search?: Record< string, unknown >;
+} {
+	const search: Record< string, unknown > = {};
+
+	if ( pinned.parent ) {
+		search.sourceId = String( pinned.parent );
+	}
+
+	if ( pinned.search ) {
+		search.search = pinned.search;
+	}
+
+	return {
+		to: `/responses/${ getViewStatus( pinned ) }`,
+		...( Object.keys( search ).length > 0 ? { search } : {} ),
+	};
+}
+
+/**
  * Whether a query is the default inbox view.
  *
  * Lets callers leave `view` off the URL entirely in the common case, keeping
