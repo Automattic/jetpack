@@ -144,16 +144,24 @@ const XyChartTooltipContent = < Datum extends object >( {
 			if ( ! isValidNumber( left ) || ! isValidNumber( top ) ) {
 				continue;
 			}
+			// The group carries the position and the renderer draws at the origin,
+			// as with visx's portal: a renderer that ignores `x` and `y` still lands
+			// on its datum.
 			glyphs.push(
-				<g key={ key } className="visx-tooltip-glyph">
+				<g
+					key={ key }
+					className="visx-tooltip-glyph"
+					data-testid={ `xy-chart-tooltip-glyph-group-${ key }` }
+					transform={ `translate(${ left }, ${ top })` }
+				>
 					{ renderGlyph( {
 						key,
 						color: colorScale?.( key ) ?? fallbackColor,
 						datum,
 						index,
 						size,
-						x: left,
-						y: top,
+						x: 0,
+						y: 0,
 						glyphStyle,
 						isNearestDatum: nearestDatum?.key === key,
 					} ) }

@@ -107,15 +107,24 @@ describe( 'XyChartTooltip', () => {
 		const glyphA = await screen.findByTestId( 'xy-chart-tooltip-glyph-A' );
 		const glyphB = await screen.findByTestId( 'xy-chart-tooltip-glyph-B' );
 
-		expect( glyphA ).toHaveAttribute( 'cx', '100' );
-		expect( glyphA ).toHaveAttribute( 'cy', '50' );
-		expect( glyphB ).toHaveAttribute( 'cx', '100' );
-		expect( glyphB ).toHaveAttribute( 'cy', '75' );
+		// The group is placed at the datum; the glyph itself draws at the origin.
+		expect( screen.getByTestId( 'xy-chart-tooltip-glyph-group-A' ) ).toHaveAttribute(
+			'transform',
+			'translate(100, 50)'
+		);
+		expect( screen.getByTestId( 'xy-chart-tooltip-glyph-group-B' ) ).toHaveAttribute(
+			'transform',
+			'translate(100, 75)'
+		);
+		expect( glyphA ).toHaveAttribute( 'cx', '0' );
+		expect( glyphA ).toHaveAttribute( 'cy', '0' );
+		expect( glyphB ).toHaveAttribute( 'cx', '0' );
+		expect( glyphB ).toHaveAttribute( 'cy', '0' );
 		// Drawn into the chart SVG, not portaled out as HTML.
 		expect( glyphA ).toBeInstanceOf( SVGElement );
 	} );
 
-	test( 'hands the glyph renderer the datum position and marks the nearest datum', async () => {
+	test( 'hands the glyph renderer the origin, like visx, and marks the nearest datum', async () => {
 		const renderGlyph = jest.fn( () => null );
 		renderChart( { showSeriesGlyphs: true, renderGlyph }, BOTH_SERIES );
 
@@ -125,8 +134,9 @@ describe( 'XyChartTooltip', () => {
 			[ { key: string; x: number; y: number; isNearestDatum: boolean; datum: Datum } ]
 		>;
 		const byKey = Object.fromEntries( calls.map( ( [ p ] ) => [ p.key, p ] ) );
-		expect( byKey.A ).toMatchObject( { x: 100, y: 50, datum: SERIES_A[ 1 ] } );
-		expect( byKey.B ).toMatchObject( { x: 100, y: 75, datum: SERIES_B[ 1 ] } );
+		// A renderer written against visx's Tooltip ignores x and y, so both stay 0.
+		expect( byKey.A ).toMatchObject( { x: 0, y: 0, datum: SERIES_A[ 1 ] } );
+		expect( byKey.B ).toMatchObject( { x: 0, y: 0, datum: SERIES_B[ 1 ] } );
 		expect( [ byKey.A.isNearestDatum, byKey.B.isNearestDatum ].filter( Boolean ) ).toHaveLength(
 			1
 		);

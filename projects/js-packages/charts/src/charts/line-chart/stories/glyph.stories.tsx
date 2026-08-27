@@ -263,6 +263,28 @@ InTooltip.args = {
 	renderTooltip: ToolTipWithGlyph,
 };
 
+// A tooltip glyph may ignore `x` and `y`: the chart places its group on the
+// datum, as visx's own Tooltip did. Start and end glyphs are positioned by the
+// renderer, so they stay off here.
+export const InTooltipUnpositioned: StoryObj< StoryArgs > = Template.bind( {} );
+InTooltipUnpositioned.args = {
+	...glyphStoryArgs,
+	withStartGlyphs: false,
+	renderGlyph: ( { color, size } ) => <GlyphStar size={ size * size } fill={ color } />,
+	glyphStyle: {
+		radius: 10,
+	},
+	renderTooltip: ToolTipWithGlyph,
+};
+InTooltipUnpositioned.parameters = {
+	docs: {
+		description: {
+			story:
+				'A `renderGlyph` that leaves out `left` and `top`. The chart positions the tooltip glyph on its datum, so this renderer lands correctly without reading `x` and `y`; the tooltip rows carry inline SVG icons that stay on their line.',
+		},
+	},
+};
+
 export const CustomPerDataPoint: StoryObj< StoryArgs > = Template.bind( {} );
 CustomPerDataPoint.args = {
 	...glyphStoryArgs,
