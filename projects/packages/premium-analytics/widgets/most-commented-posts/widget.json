@@ -3,7 +3,7 @@
 	"title": "Top commented posts",
 	"description": "The posts and pages that receive the most comments.",
 	"help": {
-		"content": "Your posts and pages, ranked by the number of comments they have received.",
+		"content": "Your posts and pages, ranked by the number of comments they have received. Figures are all-time and are not affected by the dashboard date range.",
 		"links": [
 			{
 				"label": "Learn more",

@@ -3,7 +3,7 @@
 	"title": "Top commented authors",
 	"description": "The people who comment the most on your site.",
 	"help": {
-		"content": "Your most active commenters, ranked by the number of comments they have left.",
+		"content": "Your most active commenters, ranked by the number of comments they have left. Figures are all-time and are not affected by the dashboard date range.",
 		"links": [
 			{
 				"label": "Learn more",

@@ -125,4 +125,23 @@ describe( 'TagsWidget', () => {
 		await expect( screen.findByText( 'Recipes' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'chocolate' ) ).not.toBeInTheDocument();
 	} );
+
+	// `stats/tags` hardcodes a 7-day window server-side and ignores date
+	// parameters, so the widget states that period instead of implying it follows
+	// the dashboard date range.
+	it( 'states that the report covers the last 7 days, drilled in or not', async () => {
+		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
+
+		expect( screen.getByText( 'Last 7 days' ) ).toBeInTheDocument();
+
+		// Group members come from the same report, so the period still holds.
+		const groupButton = await screen.findByRole( 'button', {
+			name: /view the tags and categories in desserts, chocolate/i,
+		} );
+
+		fireEvent.click( groupButton ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+
+		await expect( screen.findByText( 'Desserts' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Last 7 days' ) ).toBeInTheDocument();
+	} );
 } );

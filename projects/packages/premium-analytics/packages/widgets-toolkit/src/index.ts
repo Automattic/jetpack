@@ -75,6 +75,8 @@ export {
 	type WidgetBackLinkProps,
 	WidgetFooter,
 	type WidgetFooterProps,
+	WidgetPeriodLabel,
+	type WidgetPeriodLabelProps,
 	ReportLink,
 	type ReportLinkProps,
 	PostTitleLink,

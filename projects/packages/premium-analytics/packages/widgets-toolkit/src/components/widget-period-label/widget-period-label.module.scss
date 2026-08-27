@@ -1,0 +1,13 @@
+// Sits directly under the widget title, so it reads as a caption on that title
+// rather than as part of the body content below it.
+.periodLabel {
+	flex: 0 0 auto;
+	margin: 0 0 var(--wpds-dimension-gap-md);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 20px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}

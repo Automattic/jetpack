@@ -92,7 +92,7 @@ function CommentsReport(): JSX.Element {
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			subTitle={ __(
-				'Learn about the comments your site receives by authors, posts, and pages.',
+				'Learn about the all-time comments your site receives by authors, posts, and pages.',
 				'jetpack-premium-analytics-pkg'
 			) }
 			actions={

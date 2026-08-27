@@ -1,5 +1,6 @@
 // See README.md before adding a suite to this group.
 
+import '../../widgets/shares/__tests__/shares.test';
 import '../../widgets/site-overview/__tests__/site-overview.test';
 import '../../widgets/subscriber-highlights/__tests__/subscriber-highlights.test';
 import '../../widgets/tags/__tests__/tags.test';

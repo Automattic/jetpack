@@ -3,7 +3,7 @@
 	"title": "Top social media shares",
 	"description": "The number of times your content was shared to social networks.",
 	"help": {
-		"content": "The platforms where your content was shared most often, sorted by number of shares."
+		"content": "The platforms where your content was shared most often, sorted by number of shares. Share dates are never recorded, so figures are all-time and are not affected by the dashboard date range."
 	},
 	"category": "stats",
 	"presentation": "framed"

@@ -3,7 +3,7 @@
 	"title": "Top tags & categories",
 	"description": "Your most visited tags and categories, ranked by views.",
 	"help": {
-		"content": "The tags and categories associated with your most-viewed content, sorted by views.",
+		"content": "The tags and categories associated with your most-viewed content, sorted by views. Figures always cover the last 7 days and are not affected by the dashboard date range.",
 		"links": [
 			{
 				"label": "Learn more",

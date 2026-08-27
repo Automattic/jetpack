@@ -8,6 +8,7 @@ import {
 	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetFooter,
+	WidgetPeriodLabel,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
@@ -64,6 +65,7 @@ function MostCommentedAuthorsInner() {
 
 	return (
 		<Stack className={ styles.root }>
+			<WidgetPeriodLabel label={ __( 'All time', 'jetpack-premium-analytics-pkg' ) } />
 			<div className={ styles.content }>
 				<WidgetState
 					isLoading={ isLoading }

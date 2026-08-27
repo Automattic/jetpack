@@ -69,6 +69,14 @@ describe( 'MostCommentedAuthorsWidget', () => {
 		expect( screen.getByAltText( 'Avatar of Member Author' ) ).toBeInTheDocument();
 	} );
 
+	// The `stats/comments` endpoint takes no date parameters, so the widget states
+	// its own period rather than letting a dashboard date range imply one.
+	it( 'states that the counts are all-time', () => {
+		renderWidget();
+
+		expect( screen.getByText( 'All time' ) ).toBeInTheDocument();
+	} );
+
 	// Both comment widgets read the same response; this one must show only the
 	// authors group, never the posts rows the sibling widget renders.
 	it( 'shows only the authors group from the shared report', async () => {

@@ -40,7 +40,7 @@ const sortTagCsvRows = ( a: StatsTagsItem, b: StatsTagsItem ) => b.value - a.val
 /**
  * Premium Analytics Tags & categories report page component.
  *
- * The `stats/tags` endpoint reports one flat all-time list and ignores
+ * The `stats/tags` endpoint hardcodes a rolling 7-day window and ignores
  * date-window parameters (verified against WPCOM; Calypso never sends date
  * params here either), so the page composes only the breadcrumb header and
  * records table: no date filters, tabs, or performance chart.
@@ -79,7 +79,10 @@ function TagsReport(): JSX.Element {
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
-			subTitle={ __( 'Your most visited tags and categories.', 'jetpack-premium-analytics-pkg' ) }
+			subTitle={ __(
+				'Your most visited tags and categories over the last 7 days.',
+				'jetpack-premium-analytics-pkg'
+			) }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />

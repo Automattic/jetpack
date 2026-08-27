@@ -9,6 +9,7 @@ import {
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
 	WidgetFooter,
+	WidgetPeriodLabel,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
@@ -131,6 +132,7 @@ function TagsInner() {
 
 	return (
 		<Stack className={ styles.root }>
+			<WidgetPeriodLabel label={ __( 'Last 7 days', 'jetpack-premium-analytics-pkg' ) } />
 			<div className={ styles.content }>
 				{ selectedGroup && (
 					<WidgetBackLink
@@ -188,10 +190,14 @@ function TagsInner() {
 }
 
 /**
- * Tags & categories widget: the site's most visited tags and categories for the
- * selected period, ranked by views. Ported from the Jetpack Stats "Tags &
+ * Tags & categories widget: the site's most visited tags and categories over the
+ * last 7 days, ranked by views. Ported from the Jetpack Stats "Tags &
  * categories" module. Grouped rows (several tags/categories sharing a post) drill
  * down to their individual members.
+ *
+ * `stats/tags` hardcodes that 7-day window server-side and accepts no date
+ * parameters, so the widget states the period itself rather than implying it
+ * follows the dashboard date range.
  */
 export default function Tags( { attributes = {} }: TagsWidgetProps ) {
 	return (

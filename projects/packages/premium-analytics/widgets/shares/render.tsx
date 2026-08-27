@@ -5,6 +5,7 @@ import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	WIDGET_ROW_LIMIT,
+	WidgetPeriodLabel,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
@@ -53,6 +54,7 @@ function SharesInner() {
 
 	return (
 		<Stack className={ styles.root }>
+			<WidgetPeriodLabel label={ __( 'All time', 'jetpack-premium-analytics-pkg' ) } />
 			<div className={ styles.content }>
 				<WidgetState
 					isLoading={ isLoading }

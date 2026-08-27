@@ -82,6 +82,7 @@ export {
 } from './widget-state';
 export { WidgetBackLink, type WidgetBackLinkProps } from './widget-back-link';
 export { WidgetFooter, type WidgetFooterProps } from './widget-footer';
+export { WidgetPeriodLabel, type WidgetPeriodLabelProps } from './widget-period-label';
 export { ReportLink, type ReportLinkProps } from './report-link';
 export { PostTitleLink, POST_URL_SEARCH_PARAM, type PostTitleLinkProps } from './post-title-link';
 export { PostDetailLink, type PostDetailLinkProps } from './post-detail-link';
