@@ -68,6 +68,12 @@
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
+.refreshFailure {
+	// Sits below the header row inside the pinned band; the band's own bottom
+	// padding keeps it clear of the widgets.
+	margin-block-start: var(--wpds-dimension-gap-md);
+}
+
 .widgets {
 	// Caps every layer the grid raises (edit overlay, resizing tiles, the
 	// @dnd-kit drag preview) under the sticky header, which then only has to

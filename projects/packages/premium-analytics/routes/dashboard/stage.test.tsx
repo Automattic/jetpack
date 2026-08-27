@@ -16,6 +16,10 @@ import type { ReactNode } from 'react';
 // Read inside the mocked functions, never at factory time: the factories run
 // while `./stage` is still being imported, when these are in the temporal dead
 // zone.
+// Base UI's `Tabs.Panel` defaults to `keepMounted={false}`, so only the active
+// section is ever in the DOM. The mock below models that: without it, anything
+// the stage renders per section would silently multiply here but not in product.
+let mockActiveSectionSlug = 'insights';
 let mockSyncState: { data?: SyncStatus; error: Error | null; isComplete: boolean };
 let mockIsSyncFinished: boolean;
 const mockTriggerSync = jest.fn( () => Promise.resolve() );
@@ -55,7 +59,8 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateIntervalDropdown: () => null,
 	DateYearFilter: () => null,
 	SectionHeader: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
-	SectionTabPanel: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	SectionTabPanel: ( { value, children }: { value: string; children: ReactNode } ) =>
+		value === mockActiveSectionSlug ? <div>{ children }</div> : null,
 	StatsBreadcrumbs: () => null,
 	StatsPageIcon: () => null,
 	getSectionSubtitle: () => '',
@@ -111,6 +116,11 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 
 jest.mock( './components', () => ( {
 	DashboardSections: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	// A marker, not the real notice, which reads a query cache these tests do not
+	// stand up. Covered here: where the stage puts it.
+	RefreshFailureNotice: ( { className }: { className?: string } ) => (
+		<div data-testid="refresh-failure-notice" className={ className } />
+	),
 	SectionSyncNotice: ( {
 		percentage,
 		hasError,
@@ -180,6 +190,7 @@ describe( 'Dashboard report scope', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
 	} );
 
 	it( 'declares no comparison for a section whose header offers none', () => {
@@ -233,26 +244,63 @@ describe( 'Dashboard report scope', () => {
 			hasResolved: true,
 		} as unknown as ReturnType< typeof useDashboardSections > );
 		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 		const { rerender } = render( <Dashboard /> );
 
 		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
 
 		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
 		rerender( <Dashboard /> );
 		expect( screen.getByText( 'no comparison' ) ).toBeInTheDocument();
 
 		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 		rerender( <Dashboard /> );
 		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
 	} );
 } );
 
+describe( 'Dashboard refresh-failure notice', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+	} );
+
+	it( 'pins one notice in the section header band, however many sections there are', () => {
+		useDashboardSectionsMock.mockReturnValue( {
+			sections: [
+				{ slug: 'traffic', label: 'Traffic', title: 'Traffic', date_filter: DATE_FILTER_RANGE },
+				{ slug: 'insights', label: 'Insights', title: 'Insights', date_filter: DATE_FILTER_YEAR },
+			],
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+
+		render( <Dashboard /> );
+
+		// One page, one Retry: the notice speaks for the whole grid.
+		const notices = screen.getAllByTestId( 'refresh-failure-notice' );
+		expect( notices ).toHaveLength( 1 );
+
+		// In the pinned band right after the header, not down among the widgets,
+		// so it stays reachable however far the reader has scrolled. Sibling order
+		// is the assertion, and Testing Library has no query for it.
+		// eslint-disable-next-line testing-library/no-node-access -- position in the header band is what this test is for.
+		expect( notices[ 0 ].previousElementSibling ).toContainElement(
+			screen.getByText( 'header offers comparison' )
+		);
+	} );
+} );
+
 describe( 'Dashboard sync notice', () => {
 	beforeEach( () => {
 		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
 	} );
 
