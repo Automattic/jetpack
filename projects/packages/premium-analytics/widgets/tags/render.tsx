@@ -17,7 +17,6 @@ import {
 	safeHttpUrl,
 	sharePercentage,
 	useWidgetDrillDown,
-	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -72,9 +71,7 @@ function TagGroupMembers( { members }: TagGroupMembersProps ) {
 }
 
 function TagsInner() {
-	const { reportParams } = useWidgetRootContext();
 	const { data, isLoading, isFetching, isError, refetch } = useTagViews( {
-		reportParams,
 		max: WIDGET_ROW_LIMIT,
 	} );
 

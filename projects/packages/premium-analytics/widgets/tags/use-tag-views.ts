@@ -6,11 +6,7 @@ import { useMemo } from '@wordpress/element';
  * Internal dependencies
  */
 import { useStatsTags } from '@jetpack-premium-analytics/data';
-import type {
-	ReportParams,
-	StatsNormalizedReport,
-	StatsTagsItem,
-} from '@jetpack-premium-analytics/data';
+import type { StatsNormalizedReport, StatsTagsItem } from '@jetpack-premium-analytics/data';
 
 /**
  * A single tag or category grouped under a parent row. Grouped rows have no
@@ -71,10 +67,6 @@ export interface TagView {
 
 interface UseTagViewsArgs {
 	/**
-	 * PA ReportParams from WidgetRoot context.
-	 */
-	reportParams: ReportParams;
-	/**
 	 * Maximum rows to display; `0` means all.
 	 */
 	max: number;
@@ -94,14 +86,12 @@ interface TagViewsState {
  *
  * Delegates fetching, caching, and normalization to `useStatsTags` from
  * `@jetpack-premium-analytics/data`, then maps the normalized rows onto the
- * leaderboard shape and trims to `max`. The `stats/tags` endpoint is a single
- * period query with no comparison, so rows carry current-period views only.
+ * leaderboard shape and trims to `max`. No report params are passed: the
+ * endpoint serves a fixed 7-day window and has no comparison period, so rows
+ * carry that window's views only and the dashboard date range cannot move them.
  */
-export default function useTagViews( { reportParams, max }: UseTagViewsArgs ): TagViewsState {
-	const { data, isLoading, isFetching, isError, refetch } = useStatsTags( {
-		...reportParams,
-		max,
-	} );
+export default function useTagViews( { max }: UseTagViewsArgs ): TagViewsState {
+	const { data, isLoading, isFetching, isError, refetch } = useStatsTags( { max } );
 
 	// Memoize on the query's stable `data` reference so the row array keeps a
 	// stable identity across unrelated re-renders; otherwise every render hands a

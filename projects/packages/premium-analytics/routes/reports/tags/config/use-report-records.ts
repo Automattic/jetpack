@@ -15,7 +15,7 @@ export function getTagRowId( item: StatsTagsItem ): string {
 }
 
 /**
- * Fetch the all-time Tags & categories rows.
+ * Fetch the Tags & categories rows.
  *
  * The endpoint ignores every date-window parameter and always reports a
  * rolling 7-day window — verified against WPCOM through the proxy on
