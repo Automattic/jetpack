@@ -64,7 +64,7 @@ export interface UserConnectionData {
 
 export interface RegistrationError {
 	message?: string;
-	response?: { code?: string };
+	response?: { code?: string; message?: string };
 	[ key: string ]: unknown;
 }
 
