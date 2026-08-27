@@ -138,7 +138,13 @@ class Download_Bridge {
 			return Rest_Controller::transport_error( $response, 'download_initiate_failed' );
 		}
 
-		$status_code = wp_remote_retrieve_response_code( $response );
+		// Cast because `wp_remote_retrieve_response_code()` hands back
+		// whatever the transport put there, and a numeric string fails the
+		// strict comparison below — routing a perfectly good response into
+		// the failure branch, where `upstream_error()`'s clamp then reports
+		// it as a 500. Same reasoning at every bridge; the long version is
+		// on `Rest_Controller::upstream_error()`.
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $status_code ) {
 			return Rest_Controller::upstream_error(
 				$response,
@@ -199,7 +205,8 @@ class Download_Bridge {
 			return Rest_Controller::transport_error( $response, 'download_status_fetch_failed' );
 		}
 
-		$status_code = wp_remote_retrieve_response_code( $response );
+		// Cast, as in `initiate_download()`.
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $status_code ) {
 			return Rest_Controller::upstream_error(
 				$response,

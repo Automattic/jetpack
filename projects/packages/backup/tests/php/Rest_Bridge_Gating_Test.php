@@ -531,13 +531,13 @@ class Rest_Bridge_Gating_Test extends TestCase {
 	 *
 	 * The most dangerous input this function takes, and the reason the
 	 * status is clamped to the failure range rather than tested for
-	 * truthiness. Four of the callers compare `200 !== $status_code`
-	 * without casting, so a numeric-string `'200'` fails that comparison
-	 * and lands here — carrying a success code into a failure. Forwarded,
-	 * it would make WordPress serve the error envelope as HTTP 200:
-	 * `apiFetch` resolves, `apiCall()` never throws, `isAmbiguousFailure()`
-	 * never runs, and the restore mutation's `onSuccess` reports a restore
-	 * that never started.
+	 * truthiness. Every bridge now casts before comparing, so nothing
+	 * should reach here with a success code — this pins what happens if
+	 * one ever stops, which is the cheap half of a bargain whose expensive
+	 * half is silent. Forwarded, a 200 would make WordPress serve the error
+	 * envelope as HTTP 200: `apiFetch` resolves, `apiCall()` never throws,
+	 * `isAmbiguousFailure()` never runs, and the restore mutation's
+	 * `onSuccess` reports a restore that never started.
 	 *
 	 * The junk cases ride along because `(int)` is total — `'2 Bad'` is 2
 	 * and `true` is 1 — and a low status is no more servable than a zero.
@@ -565,8 +565,9 @@ class Rest_Bridge_Gating_Test extends TestCase {
 	 */
 	public static function provide_statuses_that_are_not_failures() {
 		return array(
-			// The one that matters: this is what an un-cast caller routes
-			// into the failure branch on a perfectly good response.
+			// The one that matters: what an un-cast caller would route
+			// into the failure branch on a perfectly good response. Each
+			// bridge has its own test that it does not.
 			'a 200 reported as a string' => array( 'a 200 reported as a string', '200' ),
 			'a 204 reported as a string' => array( 'a 204 reported as a string', '204' ),
 			'a real 200'                 => array( 'a real 200', 200 ),

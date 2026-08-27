@@ -480,6 +480,75 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	}
 
 	/**
+	 * A success code reported as a string starts the restore.
+	 *
+	 * `wp_remote_retrieve_response_code()` hands back whatever the
+	 * transport put there, so an uncast `200 !== $status_code` routed an
+	 * accepted restore into the failure branch. This is the worst route in
+	 * the package to get that wrong on: the restore is running, the reader
+	 * is told it failed, and the obvious next move is to start a second
+	 * one.
+	 *
+	 * The queued restore's own id is what is asserted, not the absence of
+	 * an error — uncast, this response came back as a 500, so a test that
+	 * only read the status would have passed on the bug.
+	 */
+	public function test_initiate_treats_a_string_status_as_its_number() {
+		$this->arrange_wpcom_raw(
+			'{"ok":true,"restore_id":42,"rewind_id":"1786663613.9425"}',
+			'200'
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/rewind/to/1786663613.9425' );
+		$request->set_param( 'rewind_id', '1786663613.9425' );
+		$request->set_param( 'types', array( 'themes' => true ) );
+		$response = Restore_Bridge::initiate_restore( $request );
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 42, $response->get_data()['id'] );
+		$this->assertSame( '1786663613.9425', $response->get_data()['rewind_id'] );
+	}
+
+	/**
+	 * The same on the poll: a string 200 reports the restore's progress.
+	 */
+	public function test_status_treats_a_string_status_as_its_number() {
+		$this->arrange_wpcom_raw(
+			'{"restore_id":7,"status":"running","percent":42}',
+			'200'
+		);
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/restore/7/status' );
+		$request->set_param( 'restore_id', 7 );
+		$response = Restore_Bridge::get_restore_status( $request );
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'running', $response->get_data()['status'] );
+		$this->assertSame( 42.0, $response->get_data()['progress'] );
+	}
+
+	/**
+	 * A 404 reported as a string is still the queued carve-out.
+	 *
+	 * Both branches of this callback read the same variable, so the cast
+	 * buys more here than the success test above shows: uncast, `'404'`
+	 * missed the carve-out *and* the success test, and the ordinary
+	 * opening seconds of every restore — before the id is visible to this
+	 * route — surfaced as a failure.
+	 */
+	public function test_status_treats_a_string_404_as_queued() {
+		$this->arrange_wpcom_raw( '{"error":"not_found"}', '404' );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/restore/7/status' );
+		$request->set_param( 'restore_id', 7 );
+		$response = Restore_Bridge::get_restore_status( $request );
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'queued', $response->get_data()['status'] );
+		$this->assertSame( 7, $response->get_data()['id'] );
+	}
+
+	/**
 	 * A 5xx is still a hard error — that is the half of the old behaviour
 	 * worth keeping.
 	 */

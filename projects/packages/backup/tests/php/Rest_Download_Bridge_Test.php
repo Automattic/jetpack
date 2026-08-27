@@ -318,6 +318,49 @@ class Rest_Download_Bridge_Test extends TestCase {
 	}
 
 	/**
+	 * A success code reported as a string still queues the archive.
+	 *
+	 * `wp_remote_retrieve_response_code()` hands back whatever the
+	 * transport put there, so an uncast `200 !== $status_code` sent an
+	 * accepted download into the failure branch — and the reader was told
+	 * their archive could not be started while WordPress.com was building
+	 * it.
+	 *
+	 * The download id is what is asserted, not the absence of an error:
+	 * uncast, this came back as a 500, so a status-only test would have
+	 * passed on the bug.
+	 */
+	public function test_initiate_treats_a_string_status_as_its_number() {
+		$this->arrange_wpcom_raw( '{"downloadId":4321}', '200' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/123' );
+		$request->set_param( 'rewind_id', '123' );
+		$response = Download_Bridge::initiate_download( $request );
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		$this->assertSame( array( 'id' => 4321 ), $response->get_data() );
+	}
+
+	/**
+	 * The same on the poll: a string 200 reports the finished archive.
+	 */
+	public function test_status_treats_a_string_status_as_its_number() {
+		$this->arrange_wpcom_raw(
+			'{"downloadId":55,"url":"https://example.com/archive.zip","validUntil":"2026-08-20T00:00:00+00:00"}',
+			'200'
+		);
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/backups/download/123/status' );
+		$request->set_param( 'rewind_id', '123' );
+		$request->set_param( 'download_id', 55 );
+		$response = Download_Bridge::get_download_status( $request );
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'finished', $response->get_data()['status'] );
+		$this->assertSame( 'https://example.com/archive.zip', $response->get_data()['url'] );
+	}
+
+	/**
 	 * A 200 with no `downloadId` is a failure, not a queued download.
 	 */
 	public function test_initiate_reports_a_missing_download_id() {
