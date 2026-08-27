@@ -1,4 +1,5 @@
 import { isValid, parseISO } from 'date-fns';
+import { decodeHtmlText } from '../../utils/text';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
@@ -99,7 +100,7 @@ export function sanitizeStatsFollowersResponse(
 	);
 	const items = subscribers.map( item => ( {
 		id: getSubscriptionId( item ),
-		label: item.label ?? item.display_name ?? item.name ?? item.email ?? '',
+		label: decodeHtmlText( item.label ?? item.display_name ?? item.name ?? item.email ?? '' ),
 		value: {
 			type: 'relative-date' as const,
 			value: item.date_subscribed,
