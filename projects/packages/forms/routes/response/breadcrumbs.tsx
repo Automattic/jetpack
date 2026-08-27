@@ -7,6 +7,11 @@ import * as React from 'react';
 /**
  * Types
  */
+import { getViewStatus } from './pinned-view.ts';
+/**
+ * Types
+ */
+import type { PinnedViewQuery } from './pinned-view.ts';
 import type { FormResponse } from '../../src/types/index.ts';
 
 /**
@@ -23,33 +28,40 @@ import type { FormResponse } from '../../src/types/index.ts';
  * list (`/responses/inbox?sourceId=<form_id>`).
  *
  * Also used by the loading and "not found" states (where there is no
- * `response`): the "Forms" crumb still links back to the inbox so the user can
+ * `response`): the "Forms" crumb still links back to the list so the user can
  * reorient, with `currentLabel` as the trailing crumb.
+ *
+ * The "Forms" crumb follows the pinned view, so a response opened from Spam or
+ * Trash leads back there instead of dropping the user in the inbox.
  *
  * @param props              - Component props.
  * @param props.response     - The response being viewed, if loaded.
  * @param props.formTitle    - The (decoded) title of the form/source.
  * @param props.currentLabel - Override for the trailing crumb (defaults to `#<id>`).
+ * @param props.pinned       - The list query the response was opened from.
  * @return The breadcrumb trail.
  */
 export default function SingleResponseBreadcrumbs( {
 	response,
 	formTitle = '',
 	currentLabel,
+	pinned,
 }: {
 	response?: FormResponse | null;
 	formTitle?: string;
 	currentLabel?: string;
+	pinned?: PinnedViewQuery;
 } ): React.JSX.Element {
 	const showFormCrumb = Boolean( response?.form_id ) && Boolean( formTitle );
 	const current = currentLabel ?? ( response ? `#${ response.id }` : '' );
+	const listPath = `/responses/${ pinned ? getViewStatus( pinned ) : 'inbox' }`;
 
 	return (
 		<nav
 			aria-label={ __( 'Breadcrumbs', 'jetpack-forms' ) }
 			className="jp-forms__single-response-breadcrumbs"
 		>
-			<Link to="/responses/inbox" className="jp-forms__single-response-breadcrumbs__link">
+			<Link to={ listPath } className="jp-forms__single-response-breadcrumbs__link">
 				{ __( 'Forms', 'jetpack-forms' ) }
 			</Link>
 			{ showFormCrumb && (
@@ -58,7 +70,7 @@ export default function SingleResponseBreadcrumbs( {
 						/
 					</span>
 					<Link
-						to="/responses/inbox"
+						to={ listPath }
 						// Router types aren't registered in this build, so `search` resolves to
 						// `never`; cast through `unknown` to pass the filter param at runtime.
 						search={ { sourceId: String( response?.form_id ) } as unknown as never }

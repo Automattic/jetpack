@@ -18,6 +18,7 @@ import { defaultView } from '../../src/dashboard/inbox/stage/views.js';
 import { getFormsMenuBadgeSlug, getMenuBadgeCount } from '../../src/dashboard/inbox/utils';
 import { deleteResponse, saveResponse } from '../../src/dashboard/response-records';
 import { store as dashboardStore } from '../../src/dashboard/store';
+import { buildResponseLink } from '../response/pinned-view.ts';
 import printIcon from './print-icon.tsx';
 /**
  * Types
@@ -30,6 +31,7 @@ import type {
 	ReportingAction,
 } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../src/types/index.ts';
+import type { PinnedViewQuery } from '../response/pinned-view.ts';
 import type { UseNavigateResult } from '@wordpress/route';
 /**
  * Helper function to extract count-relevant query params from the current query.
@@ -300,6 +302,9 @@ type GetActionsParams = {
 	// When supplied, View selects the response instead of navigating to the
 	// standalone page. The caller decides when that applies.
 	onSelectResponse?: ( id: string ) => void;
+	// The list query in effect, pinned onto links to the standalone response page
+	// so its prev/next walks this exact sequence. See `routes/response/pinned-view.ts`.
+	pinnedView?: PinnedViewQuery | null;
 };
 
 type GetActionsReturn = {
@@ -325,7 +330,11 @@ type GetRowActionsParams = GetActionsParams & {
  * @param {GetActionsParams} params - Parameters for generating actions.
  * @return {GetActionsReturn} Object containing the actions.
  */
-export function getActions( { navigate, onSelectResponse }: GetActionsParams ): GetActionsReturn {
+export function getActions( {
+	navigate,
+	onSelectResponse,
+	pinnedView,
+}: GetActionsParams ): GetActionsReturn {
 	const viewAction: Action = {
 		id: 'view-response',
 		isPrimary: true,
@@ -349,7 +358,8 @@ export function getActions( { navigate, onSelectResponse }: GetActionsParams ): 
 			}
 
 			// Open the standalone single response page rather than the inspector panel.
-			navigate( { to: `/response/${ item.id }` } );
+			// Router types aren't registered in this build; same cast as breadcrumbs.tsx.
+			navigate( buildResponseLink( item.id, pinnedView ) as unknown as never );
 		},
 	};
 
@@ -373,11 +383,8 @@ export function getActions( { navigate, onSelectResponse }: GetActionsParams ): 
 
 			// The standalone page owns the print stylesheet and consumes `print=1`
 			// once the response is on screen.
-			navigate( {
-				to: `/response/${ item.id }`,
-				// Router types aren't registered in this build; same cast as breadcrumbs.tsx.
-				search: { print: 1 } as unknown as never,
-			} );
+			// Router types aren't registered in this build; same cast as breadcrumbs.tsx.
+			navigate( buildResponseLink( item.id, pinnedView, { print: 1 } ) as unknown as never );
 		},
 	};
 
@@ -1298,6 +1305,7 @@ export function getRowActions( {
 	navigate,
 	view,
 	onSelectResponse,
+	pinnedView,
 }: GetRowActionsParams ): Action[] {
 	const {
 		viewAction,
@@ -1310,7 +1318,7 @@ export function getRowActions( {
 		deleteAction,
 		markAsReadAction,
 		markAsUnreadAction,
-	} = getActions( { navigate, onSelectResponse } );
+	} = getActions( { navigate, onSelectResponse, pinnedView } );
 
 	switch ( view ) {
 		case 'trash':

@@ -726,8 +726,12 @@ function StageInner() {
 				navigate,
 				view: statusView,
 				onSelectResponse: isMobileViewport ? selectResponse : undefined,
+				// Pin this list onto links to the standalone response page, so its
+				// prev/next walks the sequence the user is looking at right now —
+				// filters, search and ordering included.
+				pinnedView: queryParams,
 			} ),
-		[ navigate, statusView, isMobileViewport, selectResponse ]
+		[ navigate, statusView, isMobileViewport, selectResponse, queryParams ]
 	);
 
 	const paginationInfo = useMemo(

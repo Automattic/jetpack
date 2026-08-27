@@ -32,9 +32,13 @@ import { useMarkAsSpam } from '../../src/dashboard/hooks/use-mark-as-spam.ts';
 import FormsPage from '../../src/dashboard/wp-build/components/page';
 import SingleResponseBreadcrumbs from './breadcrumbs.tsx';
 import SingleResponseActions from './page-actions.tsx';
+import { getPinnedView } from './pinned-view.ts';
 import getResponseQuery from './query.ts';
 import repairResponseRecord from './repair-record.ts';
+import ShortcutsHelp from './shortcuts-help.tsx';
+import useResponseKeyboardShortcuts from './use-keyboard-shortcuts.ts';
 import useResponsePageNavigation from './use-navigation.ts';
+import useResponseActions from './use-response-actions.ts';
 // Shared wp-build dashboard chrome (page layout + breadcrumb link styling). The
 // other dashboard routes load this; the single-response route needs it too so
 // the breadcrumb matches the dashboard from first paint instead of flipping
@@ -86,6 +90,10 @@ function Stage(): React.JSX.Element {
 	const navigate = useNavigate();
 	const id = Number( params.responseId );
 	const isValidId = Number.isFinite( id ) && id > 0;
+
+	// The list this response was opened from. Prev/next walks it, the breadcrumb
+	// links back to it, and `u` returns to it. See `pinned-view.ts`.
+	const pinned = useMemo( () => getPinnedView( searchParams ), [ searchParams ] );
 
 	const { receiveEntityRecords } = useDispatch( coreStore ) as unknown as DispatchActions;
 	const [ previewFile, setPreviewFile ] = useState< PreviewFileItem | null >( null );
@@ -174,52 +182,42 @@ function Stage(): React.JSX.Element {
 		},
 	} );
 
-	// The dialog's save and the menu's actions are separate mutation paths on one
-	// response. Both report into this single signal — the dialog directly, the menu
-	// through `onBusyChange` — so neither can run against the other and neither can
-	// be navigated away from mid-flight.
-	const [ isMenuBusy, setIsMenuBusy ] = useState( false );
-	const isMutating = isConfirmDialogOpen || isSaving || isMenuBusy;
+	// One set of action handlers for both the three-dot menu and the keyboard, so a
+	// shortcut cannot bypass the re-entry guard or the store repair a status change
+	// from this page depends on.
+	const responseActions = useResponseActions( response, pinned );
 
-	const { hasPrevious, hasNext, goPrevious, goNext } = useResponsePageNavigation( id );
+	// The dialog's save and the action handlers are separate mutation paths on one
+	// response. Both report into this single signal, so neither can run against the
+	// other and neither can be navigated away from mid-flight.
+	const isMutating = isConfirmDialogOpen || isSaving || responseActions.isPending;
 
-	// Arrow keys move between responses, matching the inbox inspector. Ignore the
-	// shortcut while typing in a field, when a modifier key is held, or while the
-	// file-preview modal is open. Only preventDefault when navigation will
-	// actually happen, so normal arrow-key page scrolling is preserved at the
-	// list edges.
-	useEffect( () => {
-		const handleKeyDown = ( event: KeyboardEvent ) => {
-			if ( event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey ) {
-				return;
-			}
-			// Navigating away while the spam confirmation is open would leave the
-			// dialog describing one response and confirming against another.
-			if ( previewFile || isConfirmDialogOpen || isSaving ) {
-				return;
-			}
-			const target = event.target as HTMLElement | null;
-			const tag = target?.tagName;
-			if (
-				tag === 'INPUT' ||
-				tag === 'TEXTAREA' ||
-				tag === 'SELECT' ||
-				target?.isContentEditable
-			) {
-				return;
-			}
-			if ( event.key === 'ArrowUp' && hasPrevious ) {
-				event.preventDefault();
-				goPrevious();
-			} else if ( event.key === 'ArrowDown' && hasNext ) {
-				event.preventDefault();
-				goNext();
-			}
-		};
+	const { hasPrevious, hasNext, goPrevious, goNext } = useResponsePageNavigation( id, pinned );
 
-		window.addEventListener( 'keydown', handleKeyDown );
-		return () => window.removeEventListener( 'keydown', handleKeyDown );
-	}, [ goPrevious, goNext, hasPrevious, hasNext, previewFile, isConfirmDialogOpen, isSaving ] );
+	const [ isShortcutsHelpOpen, setIsShortcutsHelpOpen ] = useState( false );
+	const showShortcutsHelp = useCallback( () => setIsShortcutsHelpOpen( true ), [] );
+	const hideShortcutsHelp = useCallback( () => setIsShortcutsHelpOpen( false ), [] );
+
+	// Keyboard shortcuts for triage: move through the list, file a response away,
+	// get back to the list. Suspended while a modal is open or a mutation is in
+	// flight — navigating away mid-change would leave the spam dialog describing one
+	// response and confirming against another.
+	//
+	// `onNext`/`onPrevious` are left unbound at the ends of the list rather than
+	// bound to a no-op, so the arrow keys still scroll the page there.
+	useResponseKeyboardShortcuts(
+		{
+			onNext: hasNext ? goNext : undefined,
+			onPrevious: hasPrevious ? goPrevious : undefined,
+			onMarkAsSpam: responseActions.markAsSpam,
+			onMoveToTrash: responseActions.moveToTrash,
+			onGoToList: responseActions.goToList,
+			onShowHelp: showShortcutsHelp,
+		},
+		{
+			isDisabled: Boolean( previewFile ) || isShortcutsHelpOpen || isMutating,
+		}
+	);
 
 	// Mark the response as read when it is viewed, keeping the admin-menu unread
 	// counter in sync. The shared hook latches on a ref, which also survives the
@@ -269,7 +267,7 @@ function Stage(): React.JSX.Element {
 	const renderMessagePage = ( currentLabel: string, ariaLabel: string, child: React.ReactNode ) => (
 		<FormsPage
 			visual={ <JetpackLogo showText={ false } height={ 20 } /> }
-			breadcrumbs={ <SingleResponseBreadcrumbs currentLabel={ currentLabel } /> }
+			breadcrumbs={ <SingleResponseBreadcrumbs currentLabel={ currentLabel } pinned={ pinned } /> }
 			ariaLabel={ ariaLabel }
 			showFooter={ false }
 		>
@@ -307,7 +305,11 @@ function Stage(): React.JSX.Element {
 		<FormsPage
 			visual={ <JetpackLogo showText={ false } height={ 20 } /> }
 			breadcrumbs={
-				<SingleResponseBreadcrumbs response={ response } formTitle={ formName || formTitle } />
+				<SingleResponseBreadcrumbs
+					response={ response }
+					formTitle={ formName || formTitle }
+					pinned={ pinned }
+				/>
 			}
 			badges={ <ResponseStatusBadge status={ response.status } /> }
 			subTitle={ subTitle }
@@ -329,8 +331,9 @@ function Stage(): React.JSX.Element {
 					/>
 					<SingleResponseActions
 						response={ response }
+						responseActions={ responseActions }
 						isBlocked={ isConfirmDialogOpen || isSaving }
-						onBusyChange={ setIsMenuBusy }
+						onShowShortcuts={ showShortcutsHelp }
 					/>
 				</Stack>
 			}
@@ -353,6 +356,8 @@ function Stage(): React.JSX.Element {
 					/>
 				</Modal>
 			) }
+
+			{ isShortcutsHelpOpen && <ShortcutsHelp onClose={ hideShortcutsHelp } /> }
 
 			<ConfirmDialog
 				isOpen={ isConfirmDialogOpen }
