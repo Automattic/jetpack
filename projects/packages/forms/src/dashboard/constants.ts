@@ -78,7 +78,20 @@ export const RESPONSE_STATUS_BY_VIEW: Record< ResponseView, string > = {
  * @return The status filter to send.
  */
 export function getResponseStatusFilter( view: string | undefined | null ): string {
-	return RESPONSE_STATUS_BY_VIEW[ view as ResponseView ] ?? RESPONSE_STATUS_BY_VIEW.inbox;
+	// Membership is checked against the list rather than by indexing the map,
+	// because a bare lookup also finds inherited members — `?view=constructor`
+	// would resolve to `Object` and put a function into the REST query args.
+	return isResponseView( view ) ? RESPONSE_STATUS_BY_VIEW[ view ] : RESPONSE_STATUS_BY_VIEW.inbox;
+}
+
+/**
+ * Whether a value names one of the response lists.
+ *
+ * @param view - Unvalidated input, typically from the URL.
+ * @return Whether it is a known list.
+ */
+export function isResponseView( view: unknown ): view is ResponseView {
+	return RESPONSE_VIEWS.includes( view as ResponseView );
 }
 
 /**

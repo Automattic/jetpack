@@ -116,6 +116,51 @@ describe( 'useResponseActions', () => {
 		] );
 	} );
 
+	// Navigating is faster than fetching, so for a moment after prev/next the page is
+	// still rendering the previous record while the URL already names the next one.
+	// An action taken in that window must not hit the response the user has left —
+	// `#` would trash the wrong one.
+	describe( 'while the rendered record is behind the route', () => {
+		/**
+		 * Render with the record and the routed id deliberately disagreeing.
+		 *
+		 * @param {object} record   - The record still on screen.
+		 * @param {number} routedId - The id the URL now names.
+		 * @return {object} The render result.
+		 */
+		function renderStale( record, routedId ) {
+			return renderHook( () => useResponseActions( record, DEFAULT_PINNED_VIEW, routedId ) );
+		}
+
+		it.each( [ [ 'markAsSpam' ], [ 'moveToTrash' ], [ 'toggleRead' ], [ 'deletePermanently' ] ] )(
+			'refuses %s',
+			action => {
+				const { result } = renderStale( response( 1, 'trash' ), 2 );
+
+				act( () => {
+					result.current[ action ]();
+				} );
+
+				expect( actionCalls ).toEqual( [] );
+			}
+		);
+
+		it( 'runs again once the record catches up', () => {
+			const { result, rerender } = renderHook(
+				( { r, routedId } ) => useResponseActions( r, DEFAULT_PINNED_VIEW, routedId ),
+				{ initialProps: { r: response( 1 ), routedId: 2 } }
+			);
+
+			act( () => result.current.markAsSpam() );
+			expect( actionCalls ).toEqual( [] );
+
+			rerender( { r: response( 2 ), routedId: 2 } );
+			act( () => result.current.markAsSpam() );
+
+			expect( actionCalls ).toEqual( [ [ 'spam', 2 ] ] );
+		} );
+	} );
+
 	it( 'reports pending only for the response on screen', async () => {
 		const { result, rerender } = render( response( 1 ) );
 
