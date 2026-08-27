@@ -2,18 +2,12 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
 	"name": "jetpack/paypal-payment-buttons",
+	"version": "0.8.0",
 	"title": "PayPal Payment Buttons",
-	"description": "Accept payments via PayPal. Create a buy button directly in the editor \u2014 no code required.",
-	"keywords": [ "paypal", "payment", "buy", "sell", "commerce", "checkout" ],
-	"category": "monetize",
-	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path fill-rule='evenodd' clip-rule='evenodd' d='M5.5 9.5v-2h13v2h-13zm0 3v4h13v-4h-13zM4 7a1 1 0 011-1h14a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V7z'/></svg>",
+	"category": "earn",
+	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path fill='none' d='M0 0h24v24H0V0z' /><path d='M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z' /></svg>",
+	"description": "Accept payments with PayPal Payment Buttons.",
 	"example": {},
-	"textdomain": "jetpack-paypal-payments",
-	"supports": {
-		"html": false,
-		"multiple": true,
-		"align": [ "wide", "full" ]
-	},
 	"attributes": {
 		"colorScheme": {
 			"type": "string",
@@ -24,29 +18,39 @@
 			"type": "boolean",
 			"default": false
 		},
-		"resourceId": {
+		"buttonType": {
 			"type": "string",
-			"default": ""
+			"enum": [ "stacked", "single" ],
+			"default": "stacked"
+		},
+		"scriptSrc": {
+			"type": "string"
+		},
+		"hostedButtonId": {
+			"type": "string"
+		},
+		"buttonText": {
+			"type": "string",
+			"default": "Pay Now"
+		},
+		"resourceId": {
+			"type": "string"
 		},
 		"paymentLink": {
-			"type": "string",
-			"default": ""
+			"type": "string"
 		},
 		"productName": {
-			"type": "string",
-			"default": ""
+			"type": "string"
 		},
 		"price": {
-			"type": "string",
-			"default": ""
+			"type": "string"
 		},
 		"currencyCode": {
 			"type": "string",
 			"default": "USD"
 		},
 		"productDescription": {
-			"type": "string",
-			"default": ""
+			"type": "string"
 		},
 		"imageUrl": {
 			"type": "string"
@@ -54,26 +58,8 @@
 		"imageId": {
 			"type": "number"
 		},
-		"buttonText": {
-			"type": "string",
-			"default": "Buy Now With PayPal"
-		},
-		"buttonType": {
-			"type": "string",
-			"enum": [ "stacked", "single" ],
-			"default": "single"
-		},
-		"scriptSrc": {
-			"type": "string",
-			"default": ""
-		},
-		"hostedButtonId": {
-			"type": "string",
-			"default": ""
-		},
 		"returnUrl": {
-			"type": "string",
-			"default": ""
+			"type": "string"
 		},
 		"variantsEnabled": {
 			"type": "boolean",
@@ -126,18 +112,13 @@
 		"shippingValue": {
 			"type": "string",
 			"default": ""
-		},
-		"showQrCode": {
-			"type": "boolean",
-			"default": true
-		},
-		"format": {
-			"type": "string",
-			"enum": [ "BUTTON", "LINK", "QR" ],
-			"default": "BUTTON"
 		}
 	},
-	"editorScript": "file:../../dist/paypal-payment-buttons/editor.js",
-	"editorStyle": "file:../../dist/paypal-payment-buttons/editor.css",
-	"style": "file:../../dist/paypal-payment-buttons/style.css"
+	"supports": {
+		"html": false
+	},
+	"textdomain": "jetpack-paypal-payments",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./editor.css",
+	"style": "file:./style.css"
 }

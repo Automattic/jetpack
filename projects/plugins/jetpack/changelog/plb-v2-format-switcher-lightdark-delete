@@ -1,0 +1,3 @@
+Significance: minor
+Type: added
+Comment: PayPal Payment Buttons V2: add 3-format switcher (Button/Link/QR) with product-first flow, Light/Auto/Dark style preset selector with theme inheritance (WOOPTP-390), and delete confirmation UX replacing native confirm() with ConfirmDialog (WOOPTP-393).
