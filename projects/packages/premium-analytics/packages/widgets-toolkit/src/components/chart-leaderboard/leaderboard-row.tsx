@@ -6,6 +6,7 @@ import { Link } from '@jetpack-premium-analytics/externals';
  * Internal dependencies
  */
 import { PostTitleLink } from '../post-title-link';
+import { VideoTitleLink } from '../video-title-link';
 import { LeaderboardLabel, type LeaderboardRowMedia } from './leaderboard-label';
 import styles from './leaderboard-label.module.scss';
 import type { MouseEvent, ReactElement } from 'react';
@@ -19,8 +20,24 @@ export type LeaderboardRowAction =
 			id?: number | string;
 			/** Public URL. It becomes the link itself when there is no post ID. */
 			href?: string | null;
-			/** Search parameters for the detail route, such as the report window. */
-			search?: Record< string, unknown >;
+			/**
+			 * Required, so a row cannot silently open the detail page on its own
+			 * default range. Pass `{}` to navigate without a window on purpose.
+			 */
+			search: Record< string, unknown >;
+	  }
+	| {
+			/** A video with a detail page inside the dashboard. */
+			kind: 'videoLink';
+			/** Video ID. Rows carrying one link to the internal detail route. */
+			id?: number | string;
+			/** Public URL. It becomes the link itself when there is no video ID. */
+			href?: string | null;
+			/**
+			 * Required, so a row cannot silently open the detail page on its own
+			 * default range. Pass `{}` to navigate without a window on purpose.
+			 */
+			search: Record< string, unknown >;
 	  }
 	| {
 			kind: 'drillDown';
@@ -85,19 +102,19 @@ export function resolveLeaderboardRowAction(
 /**
  * Render the shared leaderboard row chrome around a label.
  *
- * Link actions own the anchor and its new-tab affordance. Post links delegate
- * to `PostTitleLink`, which picks the internal detail route, the public URL, or
- * plain text for the row. Drill-down actions stay non-interactive here because
- * `LeaderboardChart` turns the whole row into a button; `buildLeaderboardRow`
- * passes that action to the chart.
+ * Drill-down actions stay non-interactive here because `LeaderboardChart` turns
+ * the whole row into a button; `buildLeaderboardRow` passes that action to the
+ * chart.
  *
  * @return A single label element accepted by `LeaderboardEntry.label`.
  */
 export function LeaderboardRow( { label, media, action }: LeaderboardRowProps ): ReactElement {
-	// Post rows carry no media, so the row chrome goes on the anchor itself.
-	if ( action.kind === 'postLink' ) {
+	// Title-link rows carry no media, so the row chrome goes on the title element.
+	if ( action.kind === 'postLink' || action.kind === 'videoLink' ) {
+		const TitleLink = action.kind === 'postLink' ? PostTitleLink : VideoTitleLink;
+
 		return (
-			<PostTitleLink
+			<TitleLink
 				id={ action.id }
 				label={ label }
 				link={ action.href }
