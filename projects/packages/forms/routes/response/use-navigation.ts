@@ -15,6 +15,14 @@ import { buildResponseSearch } from './pinned-view.ts';
 import type { PinnedViewQuery } from './pinned-view.ts';
 import type { FormResponse } from '../../src/types/index.ts';
 
+/**
+ * How many responses' positions to remember.
+ *
+ * Generous enough to cover any realistic run of back-and-forth triage, bounded so
+ * a long session can't grow without limit.
+ */
+const MAX_REMEMBERED_POSITIONS = 100;
+
 export type ResponsePageNavigation = {
 	hasPrevious: boolean;
 	hasNext: boolean;
@@ -42,16 +50,21 @@ export type ResponsePageNavigation = {
  * most want to move on to the next one.
  *
  * There are two ways the live list stops describing where the user is, and one
- * answer to both: remember the last list the response was actually found in, and
- * keep walking that. It covers the response being actioned out of the list, and it
- * covers `useEntityRecords` reporting nothing at all while a status change
+ * answer to both: remember, for each response, the list it was actually found in,
+ * and keep walking that. It covers the response being actioned out of the list, and
+ * it covers `useEntityRecords` reporting nothing at all while a status change
  * re-resolves the query — a gap that would otherwise kill the arrows for the
- * length of every refetch. Because the response is still present in the remembered
+ * length of every refetch. Because the response is still present in its remembered
  * list, its neighbours are plain `index ± 1`, with no correction for the gap it
  * left behind and no way for the index to fall outside the array.
  *
- * The remembered list is only a fallback: while the response is still in the live
- * list, that wins, so reordering and new arrivals are picked up immediately.
+ * Remembering per response rather than just the last one matters as soon as the
+ * reader doubles back: arrowing up onto a response actioned a moment ago has to
+ * find that response's own position, which a single slot would already have
+ * overwritten.
+ *
+ * The remembered position is only a fallback: while the response is still in the
+ * live list, that wins, so reordering and new arrivals are picked up immediately.
  *
  * A cold deep-link to an already-spammed response has nothing remembered and no
  * position in the pinned list, so it correctly offers no navigation rather than
@@ -82,33 +95,41 @@ export default function useResponsePageNavigation(
 		[ liveRecords, currentId ]
 	);
 
-	// Keyed by id so a response that isn't in the pinned list (a deep link, or one
-	// opened from a different list) doesn't inherit the previous response's place.
-	const lastSeenRef = useRef< {
-		id: number;
-		records: FormResponse[];
-		index: number;
-	} | null >( null );
+	// One remembered position per response, not one for the page. A single slot is
+	// overwritten the moment the reader moves on, which strands them if they come
+	// back: spam a response, arrow down, spam the next, arrow back up — you return to
+	// a response that has since left the list, and its position is gone with it.
+	//
+	// Entries are cheap: several responses from the same list share one array
+	// reference, and the cap keeps a long triage session bounded.
+	const seenRef = useRef< Map< number, { records: FormResponse[]; index: number } > >( new Map() );
 
-	const live =
-		liveRecords && liveIndex >= 0
-			? { id: currentId, records: liveRecords, index: liveIndex }
-			: null;
+	const live = liveRecords && liveIndex >= 0 ? { records: liveRecords, index: liveIndex } : null;
 
 	// Recorded in an effect rather than during render: a render discarded by a
 	// transition would otherwise still mutate the ref. The effect runs on every
 	// render where the response *was* present, so the fallback is always populated
 	// before the render that needs it.
 	useEffect( () => {
-		if ( live ) {
-			lastSeenRef.current = live;
+		if ( ! live ) {
+			return;
+		}
+
+		const seenPositions = seenRef.current;
+
+		// Re-inserting moves the entry to the end, so the cap evicts the
+		// least-recently-seen response rather than an arbitrary one.
+		seenPositions.delete( currentId );
+		seenPositions.set( currentId, live );
+
+		while ( seenPositions.size > MAX_REMEMBERED_POSITIONS ) {
+			seenPositions.delete( seenPositions.keys().next().value as number );
 		}
 	} );
 
 	// The live list wins whenever it still holds the response; otherwise fall back to
-	// the remembered one, and only if it belongs to this response.
-	const remembered = lastSeenRef.current?.id === currentId ? lastSeenRef.current : null;
-	const seen = live ?? remembered;
+	// wherever this particular response was last seen.
+	const seen = live ?? seenRef.current.get( currentId ) ?? null;
 
 	const records = seen?.records ?? null;
 	const index = seen?.index ?? -1;

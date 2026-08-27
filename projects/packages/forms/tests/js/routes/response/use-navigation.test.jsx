@@ -159,6 +159,42 @@ describe( 'useResponsePageNavigation', () => {
 		} );
 	} );
 
+	// Reported: spam a response, arrow down, spam the next one, then arrow back up —
+	// you land on the first response you spammed (correct: prev/next walks the
+	// sequence as it was), but from there both arrows are dead.
+	//
+	// The position has to be remembered per response, not just for the last one. A
+	// single slot is overwritten as soon as you move on, so arriving back at a
+	// response that has since left the list leaves it with no position at all.
+	it( 'can still navigate after returning to an earlier spammed response', () => {
+		const { result, rerender } = render( 2, records( 1, 2, 3, 4 ) );
+
+		// Response 2 is spammed, but the list has not refetched yet.
+		result.current.goNext();
+		expect( mockNavigate ).toHaveBeenCalledWith( expect.objectContaining( { to: '/response/3' } ) );
+
+		// Now on 3, still reading the un-refetched list.
+		rerender( { id: 3, query: DEFAULT_PINNED_VIEW } );
+
+		// Spam 3 too; the list now catches up and drops both.
+		mockUseEntityRecords.mockReturnValue( { records: records( 1, 4 ) } );
+		rerender( { id: 3, query: DEFAULT_PINNED_VIEW } );
+
+		// Arrow back up lands on 2, which is spam. That part already worked.
+		expect( result.current.hasPrevious ).toBe( true );
+		result.current.goPrevious();
+		expect( mockNavigate ).toHaveBeenCalledWith( expect.objectContaining( { to: '/response/2' } ) );
+
+		rerender( { id: 2, query: DEFAULT_PINNED_VIEW } );
+
+		// The regression: from 2 the arrows must still work.
+		expect( result.current.hasNext ).toBe( true );
+		expect( result.current.hasPrevious ).toBe( true );
+
+		result.current.goNext();
+		expect( mockNavigate ).toHaveBeenCalledWith( expect.objectContaining( { to: '/response/3' } ) );
+	} );
+
 	// A link straight to an already-spammed response has no position in the pinned
 	// inbox and no remembered one, so guessing would put the user in a sequence the
 	// response was never part of.
