@@ -101,6 +101,7 @@ describe( 'getSummaryText', () => {
 				{ action: 'show' },
 				group( [ { field: 'phone', operator: 'is', value: 'iPhone' } ] ),
 				FIELDS,
+				undefined,
 				true
 			)
 		).toBe( 'This group is shown only if: Phone is “iPhone”' );
