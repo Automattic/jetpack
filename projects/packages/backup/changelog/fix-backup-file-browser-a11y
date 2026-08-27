@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Backup: make the modernized dashboard's file browser usable by keyboard and screen reader — name each row's checkbox, connect the folder toggle to the region it expands, let focus reach and scroll the file preview, and announce a folder that is empty or failed to load. No-op when the modernization filter is off.
+
+

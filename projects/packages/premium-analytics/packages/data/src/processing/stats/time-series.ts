@@ -11,6 +11,7 @@ import {
 	startOfYear,
 } from 'date-fns';
 import { safeParseFloat } from '../../utils/parsing';
+import { createStatsBucketWindowFilter, type StatsBucketFilter } from './bucket-window';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
@@ -282,12 +283,21 @@ export function isStatsTimeSeriesPayload( payload: unknown ) {
 
 export function sanitizeStatsTimeSeriesResponse(
 	payload: unknown,
-	query?: StatsQueryParams
+	query?: StatsQueryParams,
+	keepBucket?: StatsBucketFilter
 ): StatsTimeSeriesReport {
 	const response = coerceStatsRecord( payload );
 	const unit = String( response.unit ?? query?.period ?? 'day' );
-	const rows = parseTimeSeriesRows( payload );
-	const summary = rows.reduce< Record< string, number > >( ( totals, row ) => {
+	const buckets = parseTimeSeriesRows( payload ).map( row => {
+		const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
+
+		return { row, range: getRowIntervalFields( row, rawPeriod, unit ) };
+	} );
+	// Filter before the summary, so dropped buckets inflate neither the totals
+	// nor the chart. Only an endpoint-specific sanitizer supplies a filter (see
+	// bucket-window.ts); the shared path keeps every bucket.
+	const kept = keepBucket ? buckets.filter( ( { range } ) => keepBucket( range ) ) : buckets;
+	const summary = kept.reduce< Record< string, number > >( ( totals, { row } ) => {
 		Object.entries( row ).forEach( ( [ key, value ] ) => {
 			if ( ! nonMetricFields.includes( key ) && typeof value === 'number' ) {
 				totals[ key ] = ( totals[ key ] ?? 0 ) + value;
@@ -296,10 +306,8 @@ export function sanitizeStatsTimeSeriesResponse(
 
 		return totals;
 	}, {} );
-	const data = rows
-		.map< StatsTimeSeriesDataPoint >( row => {
-			const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
-			const range = getRowIntervalFields( row, rawPeriod, unit );
+	const data = kept
+		.map< StatsTimeSeriesDataPoint >( ( { row, range } ) => {
 			const value = safeParseFloat( getPrimaryMetricValue( row ) );
 
 			return {
@@ -361,5 +369,11 @@ export function sanitizeStatsEmailTimeSeriesResponse(
 			? { ...timeline, fields: [ ...fields, 'hour' ] }
 			: timeline;
 
-	return sanitizeStatsTimeSeriesResponse( normalizedTimeline, query );
+	// The email timeline is quantity-based and midnight-anchored, so its
+	// query opts into the bucket-window trim (see bucket-window.ts).
+	return sanitizeStatsTimeSeriesResponse(
+		normalizedTimeline,
+		query,
+		createStatsBucketWindowFilter( query )
+	);
 }

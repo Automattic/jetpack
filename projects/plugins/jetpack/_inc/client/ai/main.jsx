@@ -1,13 +1,14 @@
 /**
  * Root component for the Jetpack AI admin page.
  *
- * Two top-level tabs (Features | MCP Settings) with hash-based routing.
- * The MCP tab owns the read | write | setup sub-views, which render with
- * breadcrumbs in place of the tab bar.
+ * Four top-level tabs (Overview | WordPress Agent | Scheduled tasks | MCP Settings) with hash-based
+ * routing. The MCP tab owns the read | write | setup sub-views, which render
+ * with breadcrumbs in place of the tab bar.
  *
- * The Features tab is limited to internal testing environments for now
- * (jetpackAiSettings.showFeaturesView): without the flag the page keeps its
- * original MCP-only shape, with the MCP hub as the landing view and no tab bar.
+ * Overview and WordPress Agent share an internal-testing gate. Scheduled tasks
+ * is controlled independently by the ai-hub-scheduled-tasks server-side feature
+ * flag. Without either flag the page keeps its original MCP-only shape, with the
+ * MCP hub as the landing view and no tab bar.
  */
 
 import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
@@ -23,20 +24,34 @@ import McpSetup from './mcp/setup';
 import { recordMcpTracksEvent } from './mcp/tracks';
 import McpUpsell from './mcp/upsell';
 import { useMcpSettings } from './mcp/use-mcp-settings';
+import { getSiteLevelEnabled } from './mcp/utils';
 import McpWrite from './mcp/write';
-
-const { blogId, activityLogUrl, apiRoot, apiNonce } = window?.jetpackAiSettings ?? {};
+import AiOverview from './overview';
+import ScheduledTasks from './scheduled-tasks/index';
 
 // Matches the `ref` value convention used by the MCP upsell events.
 const SETTINGS_REF = 'jetpack-ai-mcp-settings';
 
 const MCP_SUB_VIEWS = [ 'read', 'write', 'setup' ];
 
-// Read at call time, not module scope, so the flag reflects the injected page data.
-const getTabViews = () =>
-	window?.jetpackAiSettings?.showFeaturesView ? [ 'features', 'mcp' ] : [ 'mcp' ];
+// Views that only exist in internal testing environments. MCP Settings ships
+// publicly, so it is not in here.
+const GATED_VIEWS = [ 'overview', 'features' ];
 
-// The first tab is the default: Features when visible (matching the design),
+// Read at call time, not module scope, so the flag reflects the injected page data.
+const getTabViews = () => {
+	const views = [];
+	if ( window?.jetpackAiSettings?.showFeaturesView ) {
+		views.push( 'overview', 'features' );
+	}
+	if ( window?.jetpackAiSettings?.featureFlags?.[ 'ai-hub-scheduled-tasks' ] ) {
+		views.push( 'scheduled-tasks' );
+	}
+	views.push( 'mcp' );
+	return views;
+};
+
+// The first tab is the default: Overview when visible (matching the design),
 // otherwise the MCP hub. A hash pointing at a hidden view falls back too.
 const getViewFromHash = () => {
 	const tabViews = getTabViews();
@@ -45,8 +60,10 @@ const getViewFromHash = () => {
 };
 
 const VIEW_TITLES = {
+	overview: __( 'Overview', 'jetpack' ),
 	// "WordPress Agent" is a product name and should not be translated.
 	features: 'WordPress Agent',
+	'scheduled-tasks': __( 'Scheduled tasks', 'jetpack' ),
 	mcp: __( 'MCP Settings', 'jetpack' ),
 	read: __( 'Read', 'jetpack' ),
 	write: __( 'Write', 'jetpack' ),
@@ -93,8 +110,8 @@ function Breadcrumbs( { view, onNavigate } ) {
 						className="jetpack-ai-admin__breadcrumb-link"
 						onClick={ onNavigate }
 					>
-						{ /** "AI" is a product name and should not be translated. */ }
-						AI
+						{ /** "Jetpack AI" is a product name and should not be translated. */ }
+						Jetpack AI
 					</button>
 				</li>
 				<li>
@@ -111,6 +128,20 @@ function Breadcrumbs( { view, onNavigate } ) {
  * @return {object} Component markup.
  */
 export default function App() {
+	// Read at render time, not module scope, so the injected page data is
+	// honoured wherever App mounts (the inline script always runs first in
+	// production; tests inject per-case).
+	const {
+		blogId,
+		activityLogUrl,
+		apiRoot,
+		apiNonce,
+		upgradeUrl,
+		planName,
+		planRenewsOn,
+		planAutoRenew,
+		isUserConnected,
+	} = window?.jetpackAiSettings ?? {};
 	const [ view, setView ] = useState( getViewFromHash );
 	// Save feedback goes through the shared GlobalNotices snackbars (the
 	// design-system SnackbarList behind @wordpress/notices): transient,
@@ -209,11 +240,11 @@ export default function App() {
 
 	return (
 		<AdminPage
-			title={ isSubView ? undefined : 'AI' /* "AI" is a product name, not translated. */ }
+			title={ isSubView ? undefined : 'Jetpack AI' /* Product name, not translated. */ }
 			subTitle={
 				isSubView
 					? SUB_VIEW_DESCRIPTIONS[ view ]
-					: __( 'Control how AI agents interact with your site.', 'jetpack' )
+					: __( 'Create, connect, and automate with Jetpack AI.', 'jetpack' )
 			}
 			breadcrumbs={
 				isSubView ? <Breadcrumbs view={ view } onNavigate={ navigateBack } /> : undefined
@@ -229,11 +260,10 @@ export default function App() {
 							{ tabViews.map( tab => (
 								<Tabs.Tab key={ tab } value={ tab }>
 									{ VIEW_TITLES[ tab ] }
-									{ /* The Features view ships behind the internal-testing gate
-									     (showFeaturesView); while gated, label it so Automatticians
-									     don't mistake it for public UI. Read at render time so the
-									     flag reflects the injected page data. Remove with the gate. */ }
-									{ tab === 'features' && !! window?.jetpackAiSettings?.showFeaturesView && (
+									{ /* Overview and Features ship behind the internal-testing gate;
+									     label them so Automatticians don't mistake them for public UI.
+									     Remove with the gate. */ }
+									{ GATED_VIEWS.includes( tab ) && (
 										<Badge intent="medium" className="jetpack-ai-admin__tab-badge">
 											{ __( 'A12s only', 'jetpack' ) }
 										</Badge>
@@ -241,10 +271,20 @@ export default function App() {
 								</Tabs.Tab>
 							) ) }
 						</Tabs.List>
+						{ /* These tabs navigate between sibling views rather than rendering
+						     their content inside the tab root. Keep empty panels so the
+						     design-system Tabs validator can pair every tab with a panel. */ }
+						{ tabViews.map( tab => (
+							<Tabs.Panel key={ tab } value={ tab } />
+						) ) }
 					</Tabs.Root>
 				</div>
 			) }
-			<div className="jetpack-ai-admin__content">
+			<div
+				className={ `jetpack-ai-admin__content${
+					view === 'scheduled-tasks' ? ' jetpack-ai-admin__content--scheduled-tasks' : ''
+				}` }
+			>
 				<GlobalNotices />
 
 				{ isMcpContext && (
@@ -280,6 +320,10 @@ export default function App() {
 										savingToolIds={ savingToolIds }
 										onNavigate={ handleMcpNavigate }
 										onUpdate={ handleUpdate }
+										// The activity log has exactly one home: Overview owns the
+										// row whenever the Overview tab exists; the MCP hub keeps
+										// it in the ungated MCP-only shape.
+										showActivityLog={ ! tabViews.includes( 'overview' ) }
 									/>
 								) }
 								{ view === 'read' && (
@@ -302,6 +346,24 @@ export default function App() {
 							</Stack>
 						) }
 					</>
+				) }
+
+				{ view === 'overview' && (
+					<AiOverview
+						blogId={ blogId }
+						activityLogUrl={ activityLogUrl }
+						upgradeUrl={ upgradeUrl }
+						planName={ planName }
+						planRenewsOn={ planRenewsOn }
+						planAutoRenew={ planAutoRenew }
+						isUserConnected={ isUserConnected }
+						hostAllowsAi={ aiSettings?.host_allows_ai }
+						// Same preconditions the MCP hub applies to its copy of the
+						// row: the copy promises AI-agent actions, which need MCP.
+						showActivityLog={
+							!! blogId && hasMcpAccess && getSiteLevelEnabled( mcpAbilities ?? {}, blogId )
+						}
+					/>
 				) }
 
 				{ view === 'features' && (
@@ -332,6 +394,15 @@ export default function App() {
 								/>
 							) ) }
 					</>
+				) }
+
+				{ view === 'scheduled-tasks' && (
+					<ScheduledTasks
+						blogId={ blogId }
+						apiNonce={ apiNonce }
+						createSuccessNotice={ createSuccessNotice }
+						createErrorNotice={ createErrorNotice }
+					/>
 				) }
 			</div>
 		</AdminPage>

@@ -75,7 +75,7 @@ class Jetpack_Connector_Test extends TestCase {
 			$reflection_class->setStaticPropertyValue( 'configured', false );
 			$reflection_class->setStaticPropertyValue( 'plugins', array() );
 			$reflection_class->setStaticPropertyValue( 'current_blog_id', null );
-		} catch ( \ReflectionException $e ) { // PHP 7 compat
+		} catch ( \ReflectionException $e ) { // PHP <7.4.9 compat
 			foreach ( array(
 				'configured'      => false,
 				'plugins'         => array(),

@@ -218,11 +218,17 @@ function register_default_dashboard_sections() {
 			'default_layout' => __NAMESPACE__ . '\\get_woocommerce_dashboard_section_default_layout',
 		),
 		'analytics/ads'         => array(
-			'label'          => __( 'Ads', 'jetpack-premium-analytics-pkg' ),
-			'description'    => __( 'How your ads are performing, and what they have earned you.', 'jetpack-premium-analytics-pkg' ),
-			'order'          => 50,
-			'is_available'   => __NAMESPACE__ . '\\is_ads_dashboard_section_available_to_current_user',
-			'default_layout' => static function () {
+			'label'               => __( 'Ads', 'jetpack-premium-analytics-pkg' ),
+			'description'         => __( 'How your ads are performing, and what they have earned you.', 'jetpack-premium-analytics-pkg' ),
+			'order'               => 50,
+			'is_available'        => __NAMESPACE__ . '\\is_ads_dashboard_section_available_to_current_user',
+			// Only the chart supports dates, so it owns the control. No Ads widget
+			// supports comparison.
+			'date_filter_options' => array(
+				'with_date_comparison'     => false,
+				'with_header_date_control' => false,
+			),
+			'default_layout'      => static function () {
 				return get_dashboard_default_layout_for( 'analytics/ads' );
 			},
 		),
@@ -334,18 +340,23 @@ function get_dashboard_section_schema() {
 				'readonly'    => true,
 			),
 			'date_filter'         => array(
-				'description' => __( 'Which date filter the section header offers: the rolling date range, or all time plus single years.', 'jetpack-premium-analytics-pkg' ),
+				'description' => __( 'Which shape the section date filter takes: the rolling date range, or all time plus single years.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'enum'        => Dashboard_Section::DATE_FILTERS,
 				'default'     => Dashboard_Section::DATE_FILTER_RANGE,
 				'readonly'    => true,
 			),
 			'date_filter_options' => array(
-				'description' => __( 'Which optional controls the section date filter offers.', 'jetpack-premium-analytics-pkg' ),
+				'description' => __( 'What the section date filter supports, and where it renders.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'object',
 				'properties'  => array(
-					'with_date_comparison' => array(
-						'description' => __( 'Whether the section header offers the period-over-period comparison control.', 'jetpack-premium-analytics-pkg' ),
+					'with_date_comparison'     => array(
+						'description' => __( 'Whether the section supports period-over-period comparison at all. When false, no widget in the section receives comparison parameters.', 'jetpack-premium-analytics-pkg' ),
+						'type'        => 'boolean',
+						'default'     => true,
+					),
+					'with_header_date_control' => array(
+						'description' => __( 'Whether the section header renders the date control. When false, the section widgets host their own.', 'jetpack-premium-analytics-pkg' ),
 						'type'        => 'boolean',
 						'default'     => true,
 					),

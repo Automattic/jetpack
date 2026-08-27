@@ -283,7 +283,7 @@ class ReportCSVGenerator_Test extends TestCase {
 
 		$lines = array_values( array_filter( explode( "\n", trim( substr( file_get_contents( $path ), 3 ) ) ) ) );
 		// Data row is index 1 (0 is the header). The dangerous value is prefixed with a single quote.
-		$data_row = str_getcsv( $lines[1], ',', '"', '\\' );
+		$data_row = str_getcsv( $lines[1], ',', '"', '' );
 		$this->assertSame( "'" . $dangerous, $data_row[0] );
 	}
 

@@ -1752,7 +1752,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// that use the notch html (`notched-label__leading` has a max-width of `100px` to prevent it from getting too wide).
 			// It prevents large border radius values from disrupting the look and feel of the fields.
 			if ( isset( $style_variation_attributes['border']['radius'] ) ) {
-				$options_styles          = $options_styles ?? '';
+				$options_styles        ??= '';
 				$radius                  = $style_variation_attributes['border']['radius'];
 				$has_split_radius_values = is_array( $radius );
 				$top_left_radius         = $has_split_radius_values ? $radius['topLeft'] : $radius;
@@ -2385,7 +2385,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			 * It prevents large border radius values from disrupting the look and feel of the fields.
 			 */
 			if ( isset( $style_variation_attributes['border']['radius'] ) ) {
-				$options_styles          = $options_styles ?? '';
+				$options_styles        ??= '';
 				$radius                  = $style_variation_attributes['border']['radius'];
 				$has_split_radius_values = is_array( $radius );
 				$top_left_radius         = $has_split_radius_values ? $radius['topLeft'] : $radius;
@@ -2655,7 +2655,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						'clear'     => __( 'Clear', 'jetpack-forms' ),
 						'close'     => __( 'Close', 'jetpack-forms' ),
 						'ariaLabel' => array(
-							'enterPicker'       => __( 'You are on a date picker input. Use the down key to focus into the date picker. Or type the date in the format MM/DD/YYYY', 'jetpack-forms' ),
 							'dayPicker'         => __( 'You are currently inside the date picker, use the arrow keys to navigate between the dates. Use tab key to jump to more controls.', 'jetpack-forms' ),
 							'monthPicker'       => __( 'You are currently inside the month picker, use the arrow keys to navigate between the months. Use the space key to select it.', 'jetpack-forms' ),
 							'yearPicker'        => __( 'You are currently inside the year picker, use the up and down arrow keys to navigate between the years. Use the space key to select it.', 'jetpack-forms' ),

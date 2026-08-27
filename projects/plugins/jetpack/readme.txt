@@ -3,7 +3,7 @@ Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav
 Tags: Security, backup, malware, scan, performance
 Stable tag: 16.2-a.3
 Requires at least: 7.0
-Requires PHP: 7.2
+Requires PHP: 7.4
 Tested up to: 7.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -303,7 +303,7 @@ Automattic actively develops [Jetpack Boost](https://wordpress.org/plugins/jetpa
 
 = What version of PHP do I need? =
 
-Sites must be built on PHP 7.2 or greater, but Jetpack always supports the latest version of PHP.
+Sites must be built on PHP 7.4 or greater, but Jetpack always supports the latest version of PHP.
 
 = Can Jetpack help my site comply with GDPR? =
 

@@ -1,4 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import {
 	createStatsSummaryDataPoint,
 	getStatsArrayFromKeys,
@@ -57,7 +58,7 @@ export function sanitizeStatsVideoPlaysResponse(
 	const videoDataKeys = query?.complete_stats ? [ 'data', 'plays' ] : [ 'plays', 'data' ];
 	const parse = ( item: StatsRecord ): StatsVideoPlaysItem => ( {
 		id: item.post_id as string | number | undefined,
-		label: item.title,
+		label: decodeHtmlText( item.title ),
 		// Complete-stats summary rows use `views` for the play count.
 		plays: safeParseFloat( item.views ?? item.plays ),
 		impressions: safeParseFloat( item.impressions ),

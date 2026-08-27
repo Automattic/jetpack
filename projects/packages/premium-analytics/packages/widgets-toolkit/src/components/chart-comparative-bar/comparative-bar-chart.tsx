@@ -127,6 +127,21 @@ export type ComparativeBarChartProps = {
 	 * into a single item, so clicking it would just empty the chart.
 	 */
 	legendInteractive?: boolean;
+
+	/**
+	 * Pointer-down on the plot, carrying the datum nearest the pointer.
+	 */
+	onPointerDown?: BarChartProps[ 'onPointerDown' ];
+
+	/**
+	 * Pointer-up on the plot, carrying the datum nearest the pointer.
+	 */
+	onPointerUp?: BarChartProps[ 'onPointerUp' ];
+
+	/**
+	 * Enter or Space on the keyboard-selected bar, carrying its datum.
+	 */
+	onDatumActivate?: BarChartProps[ 'onDatumActivate' ];
 };
 
 /**
@@ -155,6 +170,9 @@ export function ComparativeBarChart( {
 	maxWidth = Infinity,
 	defaultHiddenSeries,
 	legendInteractive = false,
+	onPointerDown,
+	onPointerUp,
+	onDatumActivate,
 }: ComparativeBarChartProps ) {
 	const tooltipDateFormat = dateFormatForResolution( tickResolution );
 	const fallbackChartId = useId();
@@ -208,8 +226,11 @@ export function ComparativeBarChart( {
 		[ dataFormat ]
 	);
 
-	const xTickFormat = useCallback(
-		( date: number ) => formatDate( date, xTickFormatType ),
+	// With no declared format, `undefined` hands the axis to the chart's derived
+	// date formatter; `formatDate`'s `medium` default would otherwise put full
+	// site-format dates on every tick.
+	const xTickFormat = useMemo(
+		() => ( xTickFormatType ? ( date: number ) => formatDate( date, xTickFormatType ) : undefined ),
 		[ xTickFormatType ]
 	);
 
@@ -333,13 +354,7 @@ export function ComparativeBarChart( {
 		const baseOptions = {
 			axis: {
 				x: {
-					// Omit the key entirely rather than passing `undefined`: the bar chart
-					// spreads these options over its own defaults, so an explicit
-					// `tickFormat: undefined` overwrites its `formatDateTick` and the axis
-					// falls back to raw `Date.toString()`. Staying conditional also keeps
-					// `formatDate`'s `medium` default from putting full site-format dates
-					// on every tick when no format was asked for.
-					...( xTickFormatType ? { tickFormat: xTickFormat } : {} ),
+					tickFormat: xTickFormat,
 					tickResolution,
 				},
 				y: {
@@ -355,7 +370,7 @@ export function ComparativeBarChart( {
 		}
 
 		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
-	}, [ xTickFormat, xTickFormatType, tickResolution, yTickFormat, isCompact, fixedYAxis ] );
+	}, [ xTickFormat, tickResolution, yTickFormat, isCompact, fixedYAxis ] );
 
 	const margin = useMemo( () => {
 		// With the y-axis hidden, reclaim its reserved left margin for the bars.
@@ -387,6 +402,9 @@ export function ComparativeBarChart( {
 				showLegend={ false }
 				withTooltips={ ! isEmptyData }
 				renderTooltip={ renderTooltip }
+				onPointerDown={ onPointerDown }
+				onPointerUp={ onPointerUp }
+				onDatumActivate={ onDatumActivate }
 			>
 				{ /* Circle swatches, not the bar's own shape: the legend only needs to name
 				     the metrics — the solid bar against its translucent shadow is what

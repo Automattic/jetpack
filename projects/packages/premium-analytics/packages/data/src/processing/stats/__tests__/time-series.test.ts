@@ -236,6 +236,154 @@ describe( 'Stats time-series normalizer', () => {
 		expect( result.summary ).toEqual( expect.objectContaining( { clicks_count: 11 } ) );
 	} );
 
+	it( 'trims buckets outside a window_start/window_end window and sums only the rest', () => {
+		// The last-24-hours shape: the endpoint anchors hourly buckets on the
+		// start day's midnight, so the payload carries leading buckets before
+		// the window's 09:00 start that must not be plotted or summed.
+		const result = sanitizeStatsEmailTimeSeriesResponse(
+			{
+				timeline: {
+					unit: 'hour',
+					fields: [ 'date', 'hour', 'opens_count' ],
+					data: [
+						[ '2026-06-14', 8, 1 ],
+						[ '2026-06-14', 9, 2 ],
+						[ '2026-06-15', 8, 4 ],
+						[ '2026-06-15', 9, 8 ],
+					],
+				},
+			},
+			{
+				period: 'hour',
+				window_start: '2026-06-14T09:00:00.000-04:00',
+				window_end: '2026-06-15T08:59:59.999-04:00',
+			}
+		);
+
+		expect( result.data.map( point => point.time_interval ) ).toEqual( [
+			'2026-06-14 09:00',
+			'2026-06-15 08:00',
+		] );
+		expect( result.summary ).toEqual(
+			expect.objectContaining( {
+				opens_count: 6,
+				date_start: '2026-06-14T09:00:00',
+				date_end: '2026-06-15T08:59:59',
+			} )
+		);
+	} );
+
+	it( 'reads window bounds as the wall clock written, only in pipeline-supported shapes', () => {
+		const timeline = {
+			timeline: {
+				unit: 'hour',
+				fields: [ 'date', 'hour', 'opens_count' ],
+				data: [
+					[ '2026-06-14', 8, 1 ],
+					[ '2026-06-14', 9, 2 ],
+					[ '2026-06-15', 8, 4 ],
+					[ '2026-06-15', 9, 8 ],
+				],
+			},
+		};
+
+		// A seconds-less T-separated bound reads the same wall clock as the
+		// full ISO shape the presets emit.
+		const noSeconds = sanitizeStatsEmailTimeSeriesResponse( timeline, {
+			period: 'hour',
+			window_start: '2026-06-14T09:00-04:00',
+			window_end: '2026-06-15T08:59-04:00',
+		} );
+		expect( noSeconds.data.map( point => point.time_interval ) ).toEqual( [
+			'2026-06-14 09:00',
+			'2026-06-15 08:00',
+		] );
+
+		// Space-separated datetimes degrade upstream (getDatePart splits on T
+		// only, so the day count is already wrong before the request is sized);
+		// the trim must stay disabled for them rather than half-apply.
+		const spaceSeparated = sanitizeStatsEmailTimeSeriesResponse( timeline, {
+			period: 'hour',
+			window_start: '2026-06-14 09:00:00-04:00',
+			window_end: '2026-06-15 08:59:59-04:00',
+		} );
+		expect( spaceSeparated.data ).toHaveLength( 4 );
+	} );
+
+	it( 'keeps rows whose bucket bounds are not comparable wall clocks', () => {
+		// An unparseable period label echoes back verbatim as its own bounds;
+		// the trim must not silently discard such a row (and its counts).
+		const result = sanitizeStatsEmailTimeSeriesResponse(
+			{
+				timeline: {
+					unit: 'day',
+					fields: [ 'date', 'opens_count' ],
+					data: [
+						[ '2026-06-15', 3 ],
+						[ 'not-a-date', 5 ],
+					],
+				},
+			},
+			{ period: 'day', window_start: '2026-06-15', window_end: '2026-06-15' }
+		);
+
+		expect( result.data ).toHaveLength( 2 );
+		expect( result.summary ).toEqual( expect.objectContaining( { opens_count: 8 } ) );
+	} );
+
+	it( 'widens bare-date window bounds to whole days and needs both bounds to trim', () => {
+		const timeline = {
+			timeline: {
+				unit: 'day',
+				fields: [ 'date', 'opens_count' ],
+				data: [
+					[ '2026-06-15', 3 ],
+					[ '2026-06-16', 5 ],
+				],
+			},
+		};
+
+		const windowed = sanitizeStatsEmailTimeSeriesResponse( timeline, {
+			period: 'day',
+			window_start: '2026-06-15',
+			window_end: '2026-06-16',
+		} );
+		expect( windowed.data ).toHaveLength( 2 );
+		expect( windowed.summary ).toEqual( expect.objectContaining( { opens_count: 8 } ) );
+
+		// A lone bound must not trim, and neither must the generic
+		// start_date/end_date request params — range-bounded endpoints (e.g.
+		// visits) reach this sanitizer with those and must keep every bucket.
+		const oneBound = sanitizeStatsEmailTimeSeriesResponse( timeline, {
+			period: 'day',
+			window_start: '2026-06-16',
+		} );
+		expect( oneBound.data ).toHaveLength( 2 );
+
+		const requestDates = sanitizeStatsEmailTimeSeriesResponse( timeline, {
+			period: 'day',
+			start_date: '2026-06-16',
+			end_date: '2026-06-16',
+		} );
+		expect( requestDates.data ).toHaveLength( 2 );
+
+		// A bound the timestamp reader rejects, or an inverted window, must
+		// disable the trim rather than silently empty the chart.
+		const invalidBound = sanitizeStatsEmailTimeSeriesResponse( timeline, {
+			period: 'day',
+			window_start: '2026-06-15',
+			window_end: '2026-06-16T99:00:00',
+		} );
+		expect( invalidBound.data ).toHaveLength( 2 );
+
+		const inverted = sanitizeStatsEmailTimeSeriesResponse( timeline, {
+			period: 'day',
+			window_start: '2026-06-16',
+			window_end: '2026-06-15',
+		} );
+		expect( inverted.data ).toHaveLength( 2 );
+	} );
+
 	it( 'normalizes hour 0 and string-typed hour values into padded per-hour buckets', () => {
 		const result = sanitizeStatsEmailTimeSeriesResponse(
 			{

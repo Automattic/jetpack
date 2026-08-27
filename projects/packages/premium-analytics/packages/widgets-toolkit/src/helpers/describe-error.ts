@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	getApiErrorCode,
-	getApiErrorStatus,
-	StatsResponseShapeError,
-} from '@jetpack-premium-analytics/data';
+import { isAccessDenied, StatsResponseShapeError } from '@jetpack-premium-analytics/data';
 /**
  * WordPress dependencies
  */
@@ -23,9 +19,9 @@ interface DescribeErrorOptions {
 /**
  * Map an API error to a Stats widget error descriptor.
  *
- * A 403 is a deterministic access failure, so it gets neutral copy and no retry
- * action — except the proxy's `no_connection` 403, which flags a broken Jetpack
- * connection that can heal, so it stays retryable like any other failure.
+ * The access check is `isAccessDenied`, shared with the dashboard's stale-data
+ * notice so a widget and the banner above it cannot disagree about whether a
+ * Retry is worth offering.
  *
  * @param error                    - The failed query error.
  * @param options                  - Error-state copy and retry options.
@@ -43,7 +39,7 @@ export function describeError(
 		};
 	}
 
-	if ( getApiErrorStatus( error ) === 403 && getApiErrorCode( error ) !== 'no_connection' ) {
+	if ( isAccessDenied( error ) ) {
 		return {
 			description: __( "You don't have access to this data.", 'jetpack-premium-analytics-pkg' ),
 		};

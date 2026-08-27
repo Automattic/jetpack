@@ -276,9 +276,9 @@ function handle_file_download() {
 	}
 
 	// Given $file can be manipulated by a filter, make sure everything is as it should be.
-	$file['content'] = $file['content'] ?? '';
-	$file['type']    = $file['type'] ?? 'application/octet-stream';
-	$file['name']    = $file['name'] ?? '';
+	$file['content'] ??= '';
+	$file['type']    ??= 'application/octet-stream';
+	$file['name']    ??= '';
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- The request is already authorized in authorize_file_download() before reaching here.
 	$is_preview = isset( $_GET['preview'] ) && 'true' === $_GET['preview'] && is_file_type_previewable( $file['type'] );

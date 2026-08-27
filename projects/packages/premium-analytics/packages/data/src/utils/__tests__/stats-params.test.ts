@@ -14,9 +14,9 @@ describe( 'getStatsPeriodFromInterval', () => {
 		[ 'day', 'day' ],
 		[ 'week', 'week' ],
 		[ 'month', 'month' ],
-		[ 'quarter', 'month' ],
 		[ 'year', 'year' ],
 		[ undefined, 'day' ],
+		[ 'nonsense', 'day' ],
 	] )( 'maps %s to %s', ( interval, period ) => {
 		expect( getStatsPeriodFromInterval( interval ) ).toBe( period );
 	} );
@@ -141,14 +141,14 @@ describe( 'reportParamsToStatsQueryParams', () => {
 	} );
 
 	it( 'maps the semantic end date to the Stats API date param', () => {
-		expect(
-			statsQueryParamsToApiParams( {
-				period: 'day',
-				start_date: '2026-06-01',
-				end_date: '2026-06-07',
-				days: 7,
-			} )
-		).toEqual(
+		const apiParams = statsQueryParamsToApiParams( {
+			period: 'day',
+			start_date: '2026-06-01',
+			end_date: '2026-06-07',
+			days: 7,
+		} );
+
+		expect( apiParams ).toEqual(
 			expect.objectContaining( {
 				period: 'day',
 				date: '2026-06-07',
@@ -156,6 +156,21 @@ describe( 'reportParamsToStatsQueryParams', () => {
 				days: 7,
 			} )
 		);
+		// The semantic end_date must not survive alongside the API's date param
+		// — endpoints read `date`, and a stray end_date would leak into query
+		// keys and request URLs.
+		expect( apiParams ).not.toHaveProperty( 'end_date' );
+	} );
+
+	it( 'strips the sanitizer-only window bounds from API params', () => {
+		const apiParams = statsQueryParamsToApiParams( {
+			period: 'hour',
+			window_start: '2026-06-14T09:00:00.000-04:00',
+			window_end: '2026-06-15T08:59:59.999-04:00',
+		} );
+
+		expect( apiParams ).not.toHaveProperty( 'window_start' );
+		expect( apiParams ).not.toHaveProperty( 'window_end' );
 	} );
 
 	it( 'falls back to one day for invalid date ranges', () => {

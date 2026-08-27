@@ -78,10 +78,24 @@ function MyWidgetInner() {
 
 `useWidgetRootContext()` must be called inside a `<WidgetRoot>` — calling it in the
 outer component throws. `reportParams` always comes from context; the dashboard date
-picker owns it. Never read date range from `attributes`.
+picker owns it. Never read date range from `attributes` — except in the one case below.
 
 The outer component must still pass host `attributes` into `<WidgetRoot>`. Do not
 drop them just because the inner component needs none of the widget's own settings;
 otherwise host-provided `reportParams` and comparison controls are discarded.
+
+**A widget that hosts its own date control.** A section can set
+`date_filter_options.with_header_date_control` to `false`, which renders no header date
+control and hands it to that section's widgets. Such a widget declares a `reportParams`
+attribute with `relevance: 'high'` and `Edit: createReportParamsField( … )` from
+`@jetpack-premium-analytics/fields`, and the host renders that control in the widget's
+own header.
+
+`WidgetRoot` prefers `attributes.reportParams` over the URL, but an instance saved
+without them still falls back to it — the section date state this widget no longer
+follows. So the outer component defaults the attribute
+(`attributes.reportParams ?? DEFAULT_REPORT_PARAMS`) and wraps `WidgetRoot` in the scope
+its body supports (`<ReportScopeProvider offersComparison={ false }>` for a report with
+no comparison). `widgets/wordads-chart-tabs/` is the reference.
 
 <!-- TODO: link to the canonical widget API declaration (contract types). -->

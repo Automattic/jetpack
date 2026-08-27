@@ -177,16 +177,16 @@ describe( 'getSectionSubtitle', () => {
 				getSectionSubtitle( {
 					range: { from: at( 2021, 1, 1 ), to: endOf( 2026, 7, 30 ) },
 					presetId: 'all-time',
-					interval: 'quarter',
+					interval: 'year',
 				} )
-			).toBe( 'January 1, 2021 – July 30, 2026 (quarterly)' );
+			).toBe( 'January 1, 2021 – July 30, 2026 (yearly)' );
 		} );
 
 		it( 'stays out of the copy on a surface carrying no interval control', () => {
 			const subtitle = getSectionSubtitle( { range: currentYearRange( 7 ) } );
 
 			expect( subtitle ).toContain( '(7 days)' );
-			expect( subtitle ).not.toMatch( /hourly|daily|weekly|monthly|quarterly|yearly/ );
+			expect( subtitle ).not.toMatch( /hourly|daily|weekly|monthly|yearly/ );
 		} );
 
 		it( 'stays inside the parenthetical, ahead of the comparison', () => {

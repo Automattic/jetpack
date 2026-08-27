@@ -1,4 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import {
 	coerceStatsArray,
 	getStatsReportItems,
@@ -112,14 +113,14 @@ export function sanitizeStatsTopAuthorsResponse(
 		summary: normalizeStatsReportSummary( response, query, [ 'authors' ] ),
 		data: mapStatsReportDataPoints( response, query, [ 'authors' ], item => ( {
 			id: getAuthorId( item ),
-			label: item.name || 'Untracked Authors',
+			label: decodeHtmlText( item.name ) || 'Untracked Authors',
 			views: safeParseFloat( item.views ),
 			icon: typeof item.avatar === 'string' ? item.avatar : null,
 			iconClassName: 'avatar-user',
 			className: 'module-content-list-item-large',
 			children: mapNestedItems( coerceStatsArray( item.posts ), post => ( {
 				id: post.id as string | number | undefined,
-				label: post.title,
+				label: decodeHtmlText( post.title ),
 				views: safeParseFloat( post.views ),
 				link: typeof post.url === 'string' ? post.url : null,
 				page: post.id ? `/stats/post/${ post.id }` : null,

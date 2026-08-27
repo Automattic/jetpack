@@ -54,7 +54,7 @@ class Plugin_Storage_Test extends TestCase {
 		try {
 			$reflection_class->setStaticPropertyValue( 'configured', false );
 			$reflection_class->setStaticPropertyValue( 'plugins', array() );
-		} catch ( \ReflectionException $e ) { // PHP 7 compat
+		} catch ( \ReflectionException $e ) { // PHP <7.4.9 compat
 			$configured = $reflection_class->getProperty( 'configured' );
 			// @todo Remove this call once we no longer need to support PHP <8.1.
 			if ( PHP_VERSION_ID < 80100 ) {

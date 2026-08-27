@@ -13,10 +13,10 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "cf5678c913ecf584aa9a8e1cb08a91a52e065290"
+                "reference": "80c8aca302ccad668780ccdcfe70b2c4e9e87602"
             },
             "require": {
-                "php": ">=7.2"
+                "php": ">=7.4"
             },
             "require-dev": {
                 "automattic/phpunit-select-config": "@dev",
@@ -195,11 +195,11 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "72cdb43773a1ccc86f44e57ff87ef8e5aa787a03"
+                "reference": "b10f1cdda0250ae656a157600552aea62b9751a3"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
-                "php": ">=7.2",
+                "php": ">=7.4",
                 "squizlabs/php_codesniffer": "^3.6.1 || ^4.0.0"
             },
             "require-dev": {

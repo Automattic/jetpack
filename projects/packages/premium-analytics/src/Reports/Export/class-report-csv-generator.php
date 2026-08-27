@@ -164,7 +164,7 @@ class Report_Csv_Generator {
 	 * @throws \RuntimeException When the row cannot be written.
 	 */
 	private function write_csv_row( $handle, array $row ): void {
-		$bytes_written = fputcsv( $handle, $row, ',', '"', '\\' );
+		$bytes_written = fputcsv( $handle, $row, ',', '"', '' );
 
 		if ( false === $bytes_written || 0 === $bytes_written ) {
 			throw new \RuntimeException( 'Failed to write CSV row.' );

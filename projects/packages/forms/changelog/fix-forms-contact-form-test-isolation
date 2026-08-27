@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Contact form tests: stop depending on global state leaked between tests.
+
+

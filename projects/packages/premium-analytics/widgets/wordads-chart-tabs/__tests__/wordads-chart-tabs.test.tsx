@@ -8,6 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
 import WordAdsChartTabsWidget from '../render';
 import useWordAdsChart from '../use-wordads-chart';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
@@ -71,7 +72,7 @@ const PRIMARY_RESPONSE = {
 	],
 };
 
-// Lower comparison period so the previous-period value is distinct.
+// Distinct data proves the comparison is omitted.
 const COMPARISON_RESPONSE = {
 	unit: 'month',
 	fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
@@ -117,8 +118,8 @@ describe( 'useWordAdsChart', () => {
 		expect( metrics[ 0 ].dataFormat ).toBeUndefined();
 		expect( metrics[ 1 ].dataFormat?.type ).toBe( 'currency' );
 		expect( metrics[ 2 ].dataFormat?.type ).toBe( 'currency' );
-		// One chart point per period; no comparison overlay without comparison params.
 		expect( metrics[ 0 ].current ).toHaveLength( 2 );
+		// Comparison is unsupported regardless of report parameters.
 		expect( metrics[ 0 ].previous ).toBeUndefined();
 		expect( metrics[ 0 ].previousValue ).toBeUndefined();
 		expect( result.current.isEmpty ).toBe( false );
@@ -168,7 +169,7 @@ describe( 'useWordAdsChart', () => {
 		expect( result.current.metrics[ 0 ].current ).toHaveLength( 0 );
 	} );
 
-	it( 'maps previous-period totals when comparison params are present', async () => {
+	it( 'draws no comparison even when the params carry one', async () => {
 		mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
 			Promise.resolve( path.includes( 'date=2026-03-31' ) ? COMPARISON_RESPONSE : PRIMARY_RESPONSE )
 		);
@@ -184,66 +185,10 @@ describe( 'useWordAdsChart', () => {
 
 		const { result } = renderHook( () => useWordAdsChart( reportParams, 'month' ), { wrapper } );
 
-		await waitFor( () => expect( result.current.metrics[ 0 ].previousValue ).toBe( 500 ) );
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 
-		const metrics = result.current.metrics;
-		expect( metrics[ 0 ].previous ).toHaveLength( 1 );
-		expect( metrics[ 1 ].previousValue ).toBeCloseTo( 4 );
-		expect( metrics[ 2 ].previousValue ).toBeCloseTo( 2 );
-
-		const requestedPaths = mockApiFetch.mock.calls.map(
-			( [ { path } ]: [ { path: string } ] ) => path
-		);
-		expect( requestedPaths.some( p => p.includes( 'date=2026-06-30' ) ) ).toBe( true );
-		expect( requestedPaths.some( p => p.includes( 'date=2026-03-31' ) ) ).toBe( true );
-	} );
-
-	it( 'aligns a longer comparison window to the primary bucket count', async () => {
-		// The primary window is clamped to end yesterday (WordAds is computed
-		// nightly), so a range ending today loses its trailing bucket. The
-		// comparison window sits in the past and keeps every bucket, so it comes
-		// back one bucket longer. Here: primary has 2 buckets, comparison 3. The
-		// hook must trim the comparison to the primary's 2 (dropping the trailing
-		// bucket) so the delta compares equal-length windows and the overlay
-		// aligns point-for-point.
-		const LONGER_COMPARISON_RESPONSE = {
-			unit: 'month',
-			fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
-			data: [
-				[ '2026-01', 300, 1.5, 5.0 ],
-				[ '2026-02', 400, 2.0, 5.0 ],
-				// Trailing bucket that has no counterpart in the clamped primary.
-				[ '2026-03', 500, 3.0, 6.0 ],
-			],
-		};
-		mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
-			Promise.resolve(
-				path.includes( 'date=2026-03-31' ) ? LONGER_COMPARISON_RESPONSE : PRIMARY_RESPONSE
-			)
-		);
-
-		const reportParams: ReportParams = {
-			from: '2026-05-01',
-			to: '2026-06-30',
-			interval: 'month',
-			comp: '1',
-			compare_from: '2026-01-01',
-			compare_to: '2026-03-31',
-		};
-
-		const { result } = renderHook( () => useWordAdsChart( reportParams, 'month' ), { wrapper } );
-
-		await waitFor( () => expect( result.current.metrics[ 0 ].previous ).toHaveLength( 2 ) );
-
-		const metrics = result.current.metrics;
-		// Current stays at its 2 buckets; previous is trimmed to match, not 3.
-		expect( metrics[ 0 ].current ).toHaveLength( 2 );
-		// previousValue totals only the retained (leading) buckets: 300 + 400.
-		expect( metrics[ 0 ].previousValue ).toBe( 700 );
-		// Revenue sums the retained buckets (1.5 + 2.0); CPM is their weighted
-		// average (3.5 / 700 * 1000), not the value over all three buckets.
-		expect( metrics[ 2 ].previousValue ).toBeCloseTo( 3.5 );
-		expect( metrics[ 1 ].previousValue ).toBeCloseTo( 5 );
+		expect( result.current.metrics[ 0 ].previous ).toBeUndefined();
+		expect( result.current.metrics[ 0 ].previousValue ).toBeUndefined();
 	} );
 } );
 
@@ -254,10 +199,13 @@ describe( 'WordAdsChartTabsWidget', () => {
 		mockApiFetch.mockResolvedValue( PRIMARY_RESPONSE );
 	} );
 
-	// The widget has no Group by control: the bucket size is whatever the
-	// dashboard's chart interval control resolved to, clamped to what this
-	// chart supports.
-	it( 'buckets by the interval the dashboard applied', async () => {
+	// A failed assertion would skip a reset written into the test body, leaking
+	// the URL state to whatever runs next.
+	afterEach( () => setMockRouteSearch( {} ) );
+
+	// The widget's body carries no Group by control: the bucket size is the one
+	// its header control saved, clamped to what this chart supports.
+	it( 'buckets by the interval its attributes carry', async () => {
 		render(
 			<WordAdsChartTabsWidget
 				attributes={ {
@@ -272,13 +220,13 @@ describe( 'WordAdsChartTabsWidget', () => {
 		expect( requestedPath ).toContain( 'unit=week' );
 	} );
 
-	// `quarter` is an interval the dashboard allows on a multi-year range but
-	// this chart has no bucket for, so it clamps to the nearest one it does.
+	// This chart draws day through year, so `hour` is the one interval the range
+	// can still carry that it has no bucket for, and it clamps to the finest.
 	it( 'clamps an unsupported interval to the closest supported bucket', async () => {
 		render(
 			<WordAdsChartTabsWidget
 				attributes={ {
-					reportParams: { from: '2023-01-01', to: '2026-06-30', interval: 'quarter' },
+					reportParams: { from: '2026-06-29', to: '2026-06-30', interval: 'hour' },
 				} }
 			/>
 		);
@@ -286,6 +234,45 @@ describe( 'WordAdsChartTabsWidget', () => {
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'unit=month' );
+		expect( requestedPath ).toContain( 'unit=day' );
+	} );
+
+	/*
+	 * The Ads default layout saves this widget with no attributes, and
+	 * `WidgetRoot` falls back to the URL for a missing `reportParams` — the
+	 * section date state this widget no longer follows. The fallback in
+	 * `render.tsx` must win over the URL.
+	 */
+	it( 'ignores the URL range for an instance saved without report params', async () => {
+		setMockRouteSearch( { from: '2020-01-01', to: '2020-01-31', interval: 'month' } );
+
+		render( <WordAdsChartTabsWidget attributes={ {} } /> );
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+		expect( requestedPath ).not.toContain( 'date=2020-01-31' );
+	} );
+
+	// The widget scopes itself with `offersComparison={ false }`, so `WidgetRoot`
+	// strips the comparison params before the chart fetches — stripped params
+	// must mean no second request, not a request with the dates removed.
+	it( 'issues one request even when its attributes carry a comparison', async () => {
+		render(
+			<WordAdsChartTabsWidget
+				attributes={ {
+					reportParams: {
+						from: '2026-05-01',
+						to: '2026-06-30',
+						interval: 'month',
+						comp: '1',
+						compare_from: '2026-03-01',
+						compare_to: '2026-03-31',
+					},
+				} }
+			/>
+		);
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
 	} );
 } );

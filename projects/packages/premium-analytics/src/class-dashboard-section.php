@@ -96,7 +96,10 @@ final class Dashboard_Section {
 	public $order = 10;
 
 	/**
-	 * Which date filter the section's header offers, as one of self::DATE_FILTERS.
+	 * Which shape the section's date filter takes, as one of self::DATE_FILTERS.
+	 *
+	 * Shape only. Where it renders and what it supports are
+	 * self::$date_filter_options.
 	 *
 	 * @since 0.2.0
 	 * @var string
@@ -104,13 +107,22 @@ final class Dashboard_Section {
 	public $date_filter = self::DATE_FILTER_RANGE;
 
 	/**
-	 * Which optional controls the section's date filter offers.
+	 * What the section's date filter supports, and where it renders.
+	 *
+	 * - `with_date_comparison`: whether the section supports comparison at all.
+	 *   Not just chrome — false drops the comparison from the params every
+	 *   widget in the section fetches with.
+	 * - `with_header_date_control`: whether the header renders the date control.
+	 *   False hands it to the section's widgets, which may save the range onto the
+	 *   widget instance rather than the URL.
 	 *
 	 * @since 0.3.0
+	 * @since $$next-version$$ Added `with_header_date_control`.
 	 * @var array
 	 */
 	public $date_filter_options = array(
-		'with_date_comparison' => true,
+		'with_date_comparison'     => true,
+		'with_header_date_control' => true,
 	);
 
 	/**
@@ -253,7 +265,8 @@ final class Dashboard_Section {
 			$options = array_merge( $this->date_filter_options, $args['date_filter_options'] );
 
 			$this->date_filter_options = array(
-				'with_date_comparison' => (bool) $options['with_date_comparison'],
+				'with_date_comparison'     => (bool) $options['with_date_comparison'],
+				'with_header_date_control' => (bool) $options['with_header_date_control'],
 			);
 		}
 

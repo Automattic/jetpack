@@ -79,7 +79,7 @@ const SECTIONS = [
 		title: __( 'SEO', 'jetpack' ),
 		features: [
 			{
-				key: 'seo_enhancer',
+				key: 'ai_seo',
 				label: __( 'AI SEO', 'jetpack' ),
 				description: __(
 					'AI recommendations to optimize titles, meta descriptions, and content for search engines.',
@@ -305,7 +305,10 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 							'Your feature settings are saved and will apply again when AI is turned back on.',
 							'jetpack'
 						) }{ ' ' }
-						<Link href="admin.php?page=my-jetpack">
+						<Link
+							href="admin.php?page=my-jetpack#/products"
+							className="jetpack-ai-features__notice-link"
+						>
 							{ __( 'Manage in My Jetpack', 'jetpack' ) }
 						</Link>
 					</Notice.Description>

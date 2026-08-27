@@ -1,4 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
@@ -54,7 +55,9 @@ function sanitizeSingleVideoPost( value: unknown ): StatsSingleVideoPost | null 
 		id > 0
 			? { id }
 			: {} ),
-		...( typeof value.post_title === 'string' ? { title: value.post_title } : {} ),
+		...( typeof value.post_title === 'string'
+			? { title: decodeHtmlText( value.post_title ) }
+			: {} ),
 		...( typeof value.post_date === 'string' ? { date: value.post_date } : {} ),
 		...( typeof value.post_mime_type === 'string' ? { mimeType: value.post_mime_type } : {} ),
 		...( typeof value.poster === 'string' && value.poster !== '' ? { poster: value.poster } : {} ),

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Declare react-dom, which @wordpress/element now requires as a peer dependency.
