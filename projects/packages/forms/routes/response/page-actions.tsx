@@ -8,7 +8,7 @@ import * as React from 'react';
 /**
  * Internal dependencies
  */
-import { SHORTCUTS } from './use-keyboard-shortcuts.ts';
+import { getShortcutLabel } from './use-keyboard-shortcuts.ts';
 import { canRunAction } from './use-response-actions.ts';
 /**
  * Types
@@ -107,13 +107,16 @@ export default function SingleResponseActions( {
 								<MenuItem onClick={ run( restore ) }>{ __( 'Restore', 'jetpack-forms' ) }</MenuItem>
 							) }
 							{ can( 'markAsSpam' ) && (
-								<MenuItem shortcut={ SHORTCUTS.markAsSpam.shortcut } onClick={ run( markAsSpam ) }>
+								<MenuItem
+									shortcut={ getShortcutLabel( 'markAsSpam' ) }
+									onClick={ run( markAsSpam ) }
+								>
 									{ __( 'Mark as spam', 'jetpack-forms' ) }
 								</MenuItem>
 							) }
 							{ can( 'moveToTrash' ) && (
 								<MenuItem
-									shortcut={ SHORTCUTS.moveToTrash.shortcut }
+									shortcut={ getShortcutLabel( 'moveToTrash' ) }
 									onClick={ run( moveToTrash ) }
 								>
 									{ __( 'Trash', 'jetpack-forms' ) }
@@ -127,7 +130,7 @@ export default function SingleResponseActions( {
 						</MenuGroup>
 
 						<MenuGroup>
-							<MenuItem shortcut={ SHORTCUTS.goToList.shortcut } onClick={ run( goToList ) }>
+							<MenuItem shortcut={ getShortcutLabel( 'goToList' ) } onClick={ run( goToList ) }>
 								{ __( 'Back to responses', 'jetpack-forms' ) }
 							</MenuItem>
 							{ response.edit_form_url && (

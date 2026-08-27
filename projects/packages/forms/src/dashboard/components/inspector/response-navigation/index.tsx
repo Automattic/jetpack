@@ -14,8 +14,11 @@ type ResponseNavigationProps = {
 	// Keys to advertise in the arrow tooltips. Opt-in, because this component is
 	// also used by the inbox inspector, which does not bind them — a tooltip
 	// promising a key that does nothing is worse than no tooltip.
-	nextShortcut?: string;
-	previousShortcut?: string;
+	//
+	// Widened to match what `Button` accepts for `shortcut`; the arrows are labelled
+	// with the bare key today, but a caller may need the `ariaLabel` form.
+	nextShortcut?: string | { display: string; ariaLabel: string };
+	previousShortcut?: string | { display: string; ariaLabel: string };
 };
 
 const ResponseNavigation = ( {

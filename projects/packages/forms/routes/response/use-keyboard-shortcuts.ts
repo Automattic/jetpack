@@ -7,12 +7,9 @@ import { __, _x } from '@wordpress/i18n';
 /**
  * The keys bound on the single response page.
  *
- * Each entry carries both the `event.key` to match and the `shortcut` to advertise,
- * so the menu items and arrow tooltips describe themselves from the same source
- * that binds them — the hint a user reads and the key that actually works cannot
- * drift apart. The two differ for `Escape`, which is spelled "Esc" everywhere a
- * person reads it; `shortcut` is passed straight to `@wordpress/components`, which
- * accepts either a string or a `{ display, ariaLabel }` pair.
+ * Static data, deliberately separate from the labels below: this is what the
+ * keydown handler matches on, and it must not depend on translations having
+ * loaded.
  *
  * Keys follow the conventions of the mail clients this page's triage flow
  * resembles: `j`/`k` to move through a list, `#` to bin something, `!` to report
@@ -22,19 +19,43 @@ import { __, _x } from '@wordpress/i18n';
  * The two destructive keys are both shifted symbols, which is a feature: they are
  * meaningfully harder to hit by accident than a bare letter would be.
  */
-export const SHORTCUTS = {
-	next: { key: 'j', shortcut: 'j' },
-	previous: { key: 'k', shortcut: 'k' },
-	moveToTrash: { key: '#', shortcut: '#' },
-	markAsSpam: { key: '!', shortcut: '!' },
-	goToList: {
-		key: 'Escape',
-		shortcut: {
+export const SHORTCUT_KEYS = {
+	next: 'j',
+	previous: 'k',
+	moveToTrash: '#',
+	markAsSpam: '!',
+	goToList: 'Escape',
+} as const;
+
+export type ShortcutName = keyof typeof SHORTCUT_KEYS;
+
+/** What `@wordpress/components` accepts for a `shortcut` prop. */
+export type ShortcutLabel = string | { display: string; ariaLabel: string };
+
+/**
+ * How a shortcut is advertised on menu items and tooltips.
+ *
+ * Every key labels itself, so the hint a reader sees and the key that actually
+ * works cannot drift — except `Escape`, which is spelled "Esc" wherever a person
+ * reads it and so is the one entry that needs translating.
+ *
+ * A function rather than a constant because `__()` called at module scope runs
+ * before locale data is necessarily installed, which would bake in the untranslated
+ * string for the whole session.
+ *
+ * @param name - The shortcut.
+ * @return The label, in the shape `@wordpress/components` expects.
+ */
+export function getShortcutLabel( name: ShortcutName ): ShortcutLabel {
+	if ( name === 'goToList' ) {
+		return {
 			display: _x( 'Esc', 'keyboard shortcut', 'jetpack-forms' ),
 			ariaLabel: __( 'Escape', 'jetpack-forms' ),
-		},
-	},
-};
+		};
+	}
+
+	return SHORTCUT_KEYS[ name ];
+}
 
 export type ResponseShortcutHandlers = {
 	onNext?: () => void;
@@ -116,13 +137,13 @@ export default function useResponseKeyboardShortcuts(
 			// `event.key` is the produced character, so `!` and `#` are matched
 			// directly and keep working on layouts that place them elsewhere.
 			const binding: Record< string, ( () => void ) | undefined > = {
-				[ SHORTCUTS.next.key ]: onNext,
+				[ SHORTCUT_KEYS.next ]: onNext,
 				ArrowDown: onNext,
-				[ SHORTCUTS.previous.key ]: onPrevious,
+				[ SHORTCUT_KEYS.previous ]: onPrevious,
 				ArrowUp: onPrevious,
-				[ SHORTCUTS.moveToTrash.key ]: onMoveToTrash,
-				[ SHORTCUTS.markAsSpam.key ]: onMarkAsSpam,
-				[ SHORTCUTS.goToList.key ]: onGoToList,
+				[ SHORTCUT_KEYS.moveToTrash ]: onMoveToTrash,
+				[ SHORTCUT_KEYS.markAsSpam ]: onMarkAsSpam,
+				[ SHORTCUT_KEYS.goToList ]: onGoToList,
 			};
 
 			const handler = binding[ event.key ];

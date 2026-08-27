@@ -29,14 +29,14 @@ import ResponseNavigation from '../../src/dashboard/components/inspector/respons
 import { getDisplayName } from '../../src/dashboard/components/inspector/utils.ts';
 import useMarkAsReadOnView from '../../src/dashboard/hooks/use-mark-as-read-on-view.ts';
 import { useMarkAsSpam } from '../../src/dashboard/hooks/use-mark-as-spam.ts';
-import { getItemId } from '../../src/dashboard/inbox/utils.js';
 import FormsPage from '../../src/dashboard/wp-build/components/page';
 import SingleResponseBreadcrumbs from './breadcrumbs.tsx';
 import SingleResponseActions from './page-actions.tsx';
+import pickResponseRecord from './pick-record.ts';
 import { getPinnedView } from './pinned-view.ts';
 import getResponseQuery from './query.ts';
 import repairResponseRecord from './repair-record.ts';
-import useResponseKeyboardShortcuts, { SHORTCUTS } from './use-keyboard-shortcuts.ts';
+import useResponseKeyboardShortcuts, { getShortcutLabel } from './use-keyboard-shortcuts.ts';
 import useResponsePageNavigation from './use-navigation.ts';
 import useResponseActions from './use-response-actions.ts';
 // Shared wp-build dashboard chrome (page layout + breadcrumb link styling). The
@@ -117,16 +117,11 @@ function Stage(): React.JSX.Element {
 				| FormResponse[]
 				| null;
 
-			// The list the reader came from already holds this response, under a
-			// different cache key — `include:[id]` versus the list's query. Falling
-			// back to it means opening a response renders instantly from data already
-			// in the store, with the page's own request filling in behind. Both are
-			// `fields_format=collection`, so nothing changes shape when it lands.
+			// See `pick-record.ts` for why the list's copy is used as a stand-in.
 			const listRecords = core.getEntityRecords( 'postType', 'feedback', pinned ) as
 				| FormResponse[]
 				| null;
-			const rawRecord =
-				records?.[ 0 ] ?? listRecords?.find( item => Number( getItemId( item ) ) === id );
+			const rawRecord = pickResponseRecord( records, listRecords, id );
 
 			const edits = (
 				core as unknown as {
@@ -346,8 +341,8 @@ function Stage(): React.JSX.Element {
 						hasPrevious={ hasPrevious && ! isNavigationBlocked }
 						onNext={ goNext }
 						onPrevious={ goPrevious }
-						nextShortcut={ SHORTCUTS.next.shortcut }
-						previousShortcut={ SHORTCUTS.previous.shortcut }
+						nextShortcut={ getShortcutLabel( 'next' ) }
+						previousShortcut={ getShortcutLabel( 'previous' ) }
 						onClose={ null }
 					/>
 					<SingleResponseActions

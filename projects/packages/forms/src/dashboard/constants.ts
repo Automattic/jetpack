@@ -123,12 +123,16 @@ export const RESPONSES_PER_PAGE = 20;
 
 /**
  * The query the responses list issues when nothing is filtered, searched or sorted.
+ *
+ * Frozen because it is handed out by reference (`getPinnedView` returns it as-is
+ * when no view is pinned), so a caller that mutated the query it received would
+ * corrupt the default for every later reader.
  */
-export const DEFAULT_RESPONSES_QUERY: QueryParams = {
+export const DEFAULT_RESPONSES_QUERY: QueryParams = Object.freeze( {
 	status: RESPONSE_STATUS_BY_VIEW.inbox,
 	per_page: RESPONSES_PER_PAGE,
 	page: 1,
 	orderby: 'date',
 	order: 'desc',
 	fields_format: 'collection',
-};
+} );

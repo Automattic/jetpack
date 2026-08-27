@@ -7,7 +7,8 @@ import { renderHook } from '@testing-library/react';
  * Internal dependencies
  */
 import useResponseKeyboardShortcuts, {
-	SHORTCUTS,
+	SHORTCUT_KEYS,
+	getShortcutLabel,
 } from '../../../../routes/response/use-keyboard-shortcuts.ts';
 
 /**
@@ -52,11 +53,11 @@ describe( 'useResponseKeyboardShortcuts', () => {
 	it( 'binds the documented keys', () => {
 		const h = setup();
 
-		press( SHORTCUTS.next.key );
-		press( SHORTCUTS.previous.key );
-		press( SHORTCUTS.markAsSpam.key );
-		press( SHORTCUTS.moveToTrash.key );
-		press( SHORTCUTS.goToList.key );
+		press( SHORTCUT_KEYS.next );
+		press( SHORTCUT_KEYS.previous );
+		press( SHORTCUT_KEYS.markAsSpam );
+		press( SHORTCUT_KEYS.moveToTrash );
+		press( SHORTCUT_KEYS.goToList );
 
 		expect( h.onNext ).toHaveBeenCalledTimes( 1 );
 		expect( h.onPrevious ).toHaveBeenCalledTimes( 1 );
@@ -80,8 +81,8 @@ describe( 'useResponseKeyboardShortcuts', () => {
 	it( 'runs the destructive shortcuts even though they need Shift', () => {
 		const h = setup();
 
-		press( SHORTCUTS.markAsSpam.key, { shiftKey: true } );
-		press( SHORTCUTS.moveToTrash.key, { shiftKey: true } );
+		press( SHORTCUT_KEYS.markAsSpam, { shiftKey: true } );
+		press( SHORTCUT_KEYS.moveToTrash, { shiftKey: true } );
 
 		expect( h.onMarkAsSpam ).toHaveBeenCalledTimes( 1 );
 		expect( h.onMoveToTrash ).toHaveBeenCalledTimes( 1 );
@@ -92,7 +93,7 @@ describe( 'useResponseKeyboardShortcuts', () => {
 		modifier => {
 			const h = setup();
 
-			press( SHORTCUTS.next.key, { [ modifier ]: true } );
+			press( SHORTCUT_KEYS.next, { [ modifier ]: true } );
 
 			expect( h.onNext ).not.toHaveBeenCalled();
 		}
@@ -101,7 +102,7 @@ describe( 'useResponseKeyboardShortcuts', () => {
 	it( 'does nothing while a shortcut is suspended', () => {
 		const h = setup( { isDisabled: true } );
 
-		press( SHORTCUTS.markAsSpam.key );
+		press( SHORTCUT_KEYS.markAsSpam );
 
 		expect( h.onMarkAsSpam ).not.toHaveBeenCalled();
 	} );
@@ -111,13 +112,13 @@ describe( 'useResponseKeyboardShortcuts', () => {
 	it( 'leaves a key unbound when its handler is absent', () => {
 		renderHook( () => useResponseKeyboardShortcuts( { onNext: undefined } ) );
 
-		expect( press( SHORTCUTS.next.key ).defaultPrevented ).toBe( false );
+		expect( press( SHORTCUT_KEYS.next ).defaultPrevented ).toBe( false );
 	} );
 
 	it( 'only preventDefaults keys it actually handles', () => {
 		setup();
 
-		expect( press( SHORTCUTS.next.key ).defaultPrevented ).toBe( true );
+		expect( press( SHORTCUT_KEYS.next ).defaultPrevented ).toBe( true );
 		expect( press( 'x' ).defaultPrevented ).toBe( false );
 	} );
 
@@ -164,10 +165,30 @@ describe( 'useResponseKeyboardShortcuts', () => {
 		const input = document.createElement( 'input' );
 		document.body.appendChild( input );
 		input.dispatchEvent(
-			new KeyboardEvent( 'keydown', { key: SHORTCUTS.markAsSpam.key, bubbles: true } )
+			new KeyboardEvent( 'keydown', { key: SHORTCUT_KEYS.markAsSpam, bubbles: true } )
 		);
 
 		expect( h.onMarkAsSpam ).not.toHaveBeenCalled();
 		input.remove();
+	} );
+
+	// The labels are produced on demand rather than at module scope: `__()` called
+	// while the module loads runs before locale data is necessarily installed, which
+	// would bake the untranslated string in for the whole session.
+	describe( 'getShortcutLabel', () => {
+		it.each( [ [ 'next' ], [ 'previous' ], [ 'markAsSpam' ], [ 'moveToTrash' ] ] )(
+			'labels %s with the key it binds',
+			name => {
+				expect( getShortcutLabel( name ) ).toBe( SHORTCUT_KEYS[ name ] );
+			}
+		);
+
+		// Escape is the one key whose label differs from what is bound.
+		it( 'spells Escape as "Esc" and keeps an accessible name', () => {
+			expect( getShortcutLabel( 'goToList' ) ).toEqual( {
+				display: 'Esc',
+				ariaLabel: 'Escape',
+			} );
+		} );
 	} );
 } );
