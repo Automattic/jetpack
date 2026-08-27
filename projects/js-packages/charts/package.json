@@ -110,7 +110,7 @@
 		"@testing-library/jest-dom": "^6.0.0",
 		"@testing-library/react": "^16.0.0",
 		"@testing-library/user-event": "^14.4.3",
-		"@tsdown/css": "0.22.2",
+		"@tsdown/css": "0.22.14",
 		"@types/jest": "^30.0.0",
 		"@types/node": "^24.12.0",
 		"@types/react": "18.3.28",
