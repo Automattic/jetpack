@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { queryClient } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
@@ -64,6 +64,21 @@ describe( 'MostPopularDayWidget', () => {
 		// Params are serialized into the query string, so no query string at all
 		// pins this more tightly than naming the params one at a time.
 		expect( path ).not.toContain( '?' );
+	} );
+
+	it( 'ignores the report params the host injects', async () => {
+		// The pitfall this guards is the opposite of the usual one: the card is
+		// all-time, so host report params must reach WidgetRoot (the contract) and
+		// still leave both the request and the figures untouched.
+		render(
+			<MostPopularDayWidget attributes={ { reportParams: getDefaultQueryParams( true ) } } />
+		);
+
+		await expect( screen.findByText( 'October 17' ) ).resolves.toBeInTheDocument();
+
+		const [ [ request ] ] = mockApiFetch.mock.calls;
+
+		expect( String( request.path ) ).not.toContain( '?' );
 	} );
 
 	it( 'drops the share caption rather than captioning the best day with 0%', async () => {
