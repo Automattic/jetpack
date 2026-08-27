@@ -331,7 +331,7 @@ async function checkIfDocsNeeded(
 	try {
 		diff = await getDiff( octokit, ownerLogin, name, number );
 	} catch ( error: unknown ) {
-		debug( `check-if-docs-needed: Failed to fetch diff for PR #$${ number }: $${ error }` );
+		debug( `check-if-docs-needed: Failed to fetch diff for PR #${ number }: ${ error }` );
 		return;
 	}
 
@@ -357,7 +357,7 @@ async function checkIfDocsNeeded(
 		return;
 	}
 
-	debug( `check-if-docs-needed: OpenAI response for PR #$${ number }: $${ response }` );
+	debug( `check-if-docs-needed: OpenAI response for PR #${ number }: ${ response }` );
 
 	// Parse the response.
 	let result: { docs_update_needed?: unknown; confidence?: unknown; reason?: unknown } | undefined;
@@ -365,7 +365,7 @@ async function checkIfDocsNeeded(
 		result = JSON.parse( response );
 	} catch ( error: unknown ) {
 		debug(
-			`check-if-docs-needed: Failed to parse OpenAI response for PR #$${ number }: $${ error }. Response was: ${ response }`
+			`check-if-docs-needed: Failed to parse OpenAI response for PR #${ number }: ${ error }. Response was: ${ response }`
 		);
 		return;
 	}
@@ -375,7 +375,7 @@ async function checkIfDocsNeeded(
 		docsUpdateNeeded = result.docs_update_needed;
 	} else {
 		debug(
-			`check-if-docs-needed: PR #$${ number } - docs_update_needed is not a boolean, got: $${ JSON.stringify(
+			`check-if-docs-needed: PR #${ number } - docs_update_needed is not a boolean, got: ${ JSON.stringify(
 				result?.docs_update_needed
 			) }. Defaulting to false.`
 		);
@@ -390,7 +390,7 @@ async function checkIfDocsNeeded(
 		confidence = result.confidence.trim().toLowerCase();
 	} else {
 		debug(
-			`check-if-docs-needed: PR #$${ number } - confidence is not a valid value, got: $${ JSON.stringify(
+			`check-if-docs-needed: PR #${ number } - confidence is not a valid value, got: ${ JSON.stringify(
 				result?.confidence
 			) }. Defaulting to low.`
 		);
@@ -401,7 +401,7 @@ async function checkIfDocsNeeded(
 	// Apply UI Changes label if a docs update is needed with medium or high confidence.
 	if ( docsUpdateNeeded && ( confidence === 'high' || confidence === 'medium' ) ) {
 		debug(
-			`check-if-docs-needed: PR #$${ number } needs a docs update (confidence: $${ confidence }). Adding "$${ uiChangesLabel }" label. Reason: $${ reason }`
+			`check-if-docs-needed: PR #${ number } needs a docs update (confidence: ${ confidence }). Adding "${ uiChangesLabel }" label. Reason: ${ reason }`
 		);
 		await octokit.rest.issues.addLabels( {
 			owner: ownerLogin,
@@ -420,7 +420,7 @@ async function checkIfDocsNeeded(
 				.replace( /\\/g, '\\\\' )
 				.replace( /\[/g, '\\[' )
 				.replace( /\]/g, '\\]' );
-			const linearDescription = `A pull request was flagged as requiring documentation updates.\n\n**Pull request:** [$${ escapedTitle }]($${ prUrl })\n**Repository:** $${ repoFullName }\n**AI reasoning:** $${ reason }`;
+			const linearDescription = `A pull request was flagged as requiring documentation updates.\n\n**Pull request:** [${ escapedTitle }](${ prUrl })\n**Repository:** ${ repoFullName }\n**AI reasoning:** ${ reason }`;
 
 			linearIssue = await createLinearIssue(
 				`Docs update needed: ${ title }`,
@@ -430,7 +430,7 @@ async function checkIfDocsNeeded(
 
 			if ( linearIssue ) {
 				debug(
-					`check-if-docs-needed: Created Linear issue $${ linearIssue.identifier } for PR #$${ number }.`
+					`check-if-docs-needed: Created Linear issue ${ linearIssue.identifier } for PR #${ number }.`
 				);
 			}
 		}
@@ -445,14 +445,14 @@ async function checkIfDocsNeeded(
 			let slackMessage = `This PR was flagged as requiring documentation updates. Please review and update the docs if needed.\n\n*AI reasoning:* ${ reason }`;
 
 			if ( linearIssue ) {
-				slackMessage += `\n\nA Linear issue was created to track this: *<$${ linearIssue.url }|$${ linearIssue.identifier }>*`;
+				slackMessage += `\n\nA Linear issue was created to track this: *<${ linearIssue.url }|${ linearIssue.identifier }>*`;
 			}
 
 			try {
 				await sendSlackMessage( slackMessage, slackProductAmbassadorsChannel, payload );
 			} catch ( error: unknown ) {
 				debug(
-					`check-if-docs-needed: Failed to send Slack notification for PR #$${ number }: $${ error }`
+					`check-if-docs-needed: Failed to send Slack notification for PR #${ number }: ${ error }`
 				);
 			}
 		} else if ( slackProductAmbassadorsChannel && ! slackToken ) {
@@ -462,7 +462,7 @@ async function checkIfDocsNeeded(
 		}
 	} else {
 		debug(
-			`check-if-docs-needed: PR #$${ number } does not need a docs update or confidence is low. Not adding label. Reason: $${ reason }`
+			`check-if-docs-needed: PR #${ number } does not need a docs update or confidence is low. Not adding label. Reason: ${ reason }`
 		);
 	}
 }
