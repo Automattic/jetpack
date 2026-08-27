@@ -31,9 +31,19 @@ export interface ConnectionOwner {
  * field absent from this list is a compile error instead, so adding one is a
  * deliberate edit here.
  *
- * `components/use-connection/types.ts` declares a second, open `WpcomUser` for
- * the `useConnection()` return value. Collapsing the two onto this declaration
- * is a follow-up; it reaches beyond the ambient global this change is about.
+ * This is the package's only `WpcomUser`. `components/use-connection/types.ts`
+ * re-exports it, so the ambient global and the `useConnection()` return value
+ * resolve to one declaration; `test/wpcom-user-types.test.ts` asserts they still
+ * do. That direction costs consumers something real: reading a `wpcomUser` field
+ * that is not listed here used to be absorbed by the open declaration's index
+ * signature and is now a compile error. No consumer relies on that today — every
+ * typed read in the monorepo is `ID`, `login`, `display_name`, `email` or
+ * `avatar` — but a new field has to be added here first rather than just used.
+ *
+ * One caveat on the unification: `tsconfig.base.json` sets `strict: false`, so
+ * `strictNullChecks` is off and optionality differences between the two former
+ * declarations cannot surface. A clean typecheck today is therefore not evidence
+ * that a future strict migration stays clean.
  */
 export interface WpcomUser {
 	/**

@@ -10,6 +10,7 @@
  * index signature and the directive goes unused. The `expect()` calls only keep
  * this a valid test file.
  */
+import type { UserConnectionData } from '../components/use-connection/types.ts';
 import type { WpcomUser } from '../types.ts';
 
 /**
@@ -20,6 +21,15 @@ import type { WpcomUser } from '../types.ts';
 type GlobalWpcomUser =
 	Window[ 'JP_CONNECTION_INITIAL_STATE' ][ 'userConnectionData' ][ 'currentUser' ][ 'wpcomUser' ];
 
+/**
+ * The type `useConnection()` hands its consumers. Once the package's two
+ * `WpcomUser` declarations were collapsed onto one, this and `GlobalWpcomUser`
+ * became the same interface, and nothing but an assertion keeps them that way.
+ */
+type UseConnectionWpcomUser = NonNullable<
+	NonNullable< UserConnectionData[ 'currentUser' ] >[ 'wpcomUser' ]
+>;
+
 /** `true` only when two types are mutually assignable. */
 type Same< A, B > = [ A ] extends [ B ] ? ( [ B ] extends [ A ] ? true : false ) : false;
 
@@ -29,6 +39,14 @@ describe( 'JP_CONNECTION_INITIAL_STATE wpcomUser', () => {
 		const wired: Same< GlobalWpcomUser, WpcomUser > = true;
 
 		expect( wired ).toBe( true );
+	} );
+
+	test( 'useConnection() resolves to that same declaration', () => {
+		// The two used to be separate interfaces, one of them open. If they are
+		// split again this fails to compile as `const unified: false = true`.
+		const unified: Same< UseConnectionWpcomUser, WpcomUser > = true;
+
+		expect( unified ).toBe( true );
 	} );
 
 	test( 'exposes the identity jetpackAnalytics.initialize() needs, uncast', () => {
