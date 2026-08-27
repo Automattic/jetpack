@@ -81,10 +81,11 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Pins ~30 `@wordpress/*` deps to exact versions, which installs a second old
-	// copy of most of Gutenberg alongside ours, `@wordpress/data` and its registry
-	// included. They're all externalized at build time, so relax the pins and let
-	// pnpm dedupe onto the versions already here.
+	// Pins ~30 `@wordpress/*` deps to exact versions, which installs a second old copy
+	// of most of Gutenberg alongside ours — `@wordpress/data` and its registry included.
+	// Relax the pins so pnpm reuses the copies already here. Safe because these are all
+	// externalized to `wp-*` script handles at build time: the installed version never
+	// ships, so it decides resolution but not what runs.
 	if ( pkg.name === '@woocommerce/email-editor' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@wordpress/' ) ) {

@@ -155,19 +155,15 @@ module.exports = [
 		],
 	},
 	/*
-	 * Build the newsletter email design editor on its own.
-	 *
-	 * It gets its own entry rather than joining an existing bundle because
-	 * `@woocommerce/email-editor` is large and is only ever needed on the one
-	 * admin screen that mounts it.
+	 * The newsletter email design editor, on its own entry: `@woocommerce/email-editor`
+	 * is large and only ever needed on the one admin screen that mounts it.
 	 */
 	{
 		...sharedWebpackConfig,
 		entry: {
-			// The package's `exports` map publishes only its main entry, so its
-			// stylesheet cannot be imported by subpath from the source file. Pair the
-			// two here instead, so the styles still go through the usual CSS pipeline
-			// and get an RTL build.
+			// The package's `exports` map publishes only its main entry, so the stylesheet
+			// cannot be imported by subpath. Pairing it here keeps it in the CSS pipeline
+			// and gets an RTL build.
 			'email-design-editor': [
 				'./modules/subscriptions/email-design-editor/src/index.jsx',
 				path.join(
@@ -179,10 +175,9 @@ module.exports = [
 		plugins: [
 			...sharedWebpackConfig.plugins,
 
-			// Some of the package's strings are published with the textdomain left as
-			// a build-time `__i18n_text_domain__` placeholder rather than a literal.
-			// Unreplaced it is a free variable, so those strings would throw a
-			// ReferenceError when their component rendered.
+			// Some of the package's strings ship with the textdomain left as a
+			// `__i18n_text_domain__` placeholder. Unreplaced it is a free variable, so those
+			// strings throw a ReferenceError when their component renders.
 			new webpack.DefinePlugin( {
 				__i18n_text_domain__: JSON.stringify( 'jetpack' ),
 			} ),
@@ -200,9 +195,8 @@ module.exports = [
 			rules: [
 				...sharedWebpackConfig.module.rules,
 
-				// The package's strings are authored against the `woocommerce`
-				// textdomain, which is not loaded on a Jetpack site, so without this
-				// every string in the editor would render untranslated.
+				// The package's strings are authored against the `woocommerce` textdomain,
+				// which no Jetpack site loads, so without this the editor renders untranslated.
 				jetpackWebpackConfig.TranspileRule( {
 					includeNodeModules: [ '@woocommerce/email-editor/' ],
 					babelOpts: {
