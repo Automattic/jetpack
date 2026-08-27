@@ -182,6 +182,19 @@ jobs:
           FAILED=()
           mkdir artifacts
           [[ -n "$COVERAGE_GROUP" ]] && mkdir coverage
+
+          # [Do not merge] Sample runner memory every 2s while the lanes run, so
+          # the peak can be compared between orderings.
+          MEMLOG="$RUNNER_TEMP/memsample.log"
+          (
+            echo "MemTotal_kB=$( awk '/^MemTotal:/{print $2}' /proc/meminfo ) SwapTotal_kB=$( awk '/^SwapTotal:/{print $2}' /proc/meminfo ) nproc=$( nproc )"
+            while :; do
+              echo "$( date +%s ) $( awk '/^MemAvailable:/{a=$2} /^SwapTotal:/{st=$2} /^SwapFree:/{sf=$2} END{printf "avail_kB=%d swapused_kB=%d", a, st-sf}' /proc/meminfo ) node=$( pgrep node | wc -l ) rss_kB=$( ps -eo rss= | awk '{s+=$1} END{print s+0}' )"
+              sleep 2
+            done
+          ) > "$MEMLOG" 2>&1 &
+          MEMPID=$!
+
           for P in composer.json projects/*/*/composer.json; do
             if [[ ${#PIDS[@]} -ge $MAXPIDS ]]; then
               if ! wait -fn -p PID "${!PIDS[@]}"; then
@@ -284,6 +297,11 @@ jobs:
             echo "Finished ${PIDS[$PID]}"
             unset PIDS[$PID]
           done
+
+          kill "$MEMPID" 2>/dev/null || true
+          echo "::group::Runner memory samples"
+          cat "$MEMLOG"
+          echo "::endgroup::"
 
           if [[ ${#FAILED[@]} -gt 0 ]]; then
             echo ''
