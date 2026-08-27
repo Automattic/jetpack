@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Fix the email opens/clicks timeline charting hours outside the selected window.

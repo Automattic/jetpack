@@ -29482,16 +29482,13 @@ final class Differ
     {
     }
 }
-final class ConfigurationException extends \SebastianBergmann\Diff\InvalidArgumentException
+final class ConfigurationException extends \InvalidArgumentException implements \SebastianBergmann\Diff\Exception
 {
     public function __construct(string $option, string $expected, mixed $value, int $code = 0, ?\Exception $previous = null)
     {
     }
 }
 interface Exception extends \Throwable
-{
-}
-class InvalidArgumentException extends \InvalidArgumentException implements \SebastianBergmann\Diff\Exception
 {
 }
 final class Line
@@ -29534,7 +29531,7 @@ final class MemoryEfficientLongestCommonSubsequenceCalculator implements \Sebast
 final class Parser
 {
     /**
-     * @return Diff[]
+     * @return list<Diff>
      */
     public function parse(string $string): array
     {
@@ -29733,6 +29730,7 @@ final readonly class Exporter
 namespace SebastianBergmann\FileIterator;
 
 /**
+ * @extends \RecursiveFilterIterator<string, \SplFileInfo, \RecursiveDirectoryIterator>
  * @internal
  */
 final class ExcludeIterator extends \RecursiveFilterIterator
@@ -29797,8 +29795,9 @@ final class Iterator extends \FilterIterator
     public const int PREFIX = 0;
     public const int SUFFIX = 1;
     /**
-     * @param list<string> $suffixes
-     * @param list<string> $prefixes
+     * @param \Iterator<int, \SplFileInfo> $iterator
+     * @param list<string>                $suffixes
+     * @param list<string>                $prefixes
      */
     public function __construct(string $basePath, \Iterator $iterator, array $suffixes = [], array $prefixes = [])
     {

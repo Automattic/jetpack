@@ -64,8 +64,9 @@ type EmailTimeSeriesReportProps = {
 /**
  * Fetches the selected email's opens or clicks timeline over the dashboard
  * date range and draws it with the window total as the metric headline. The
- * endpoint reports daily buckets; weekly/monthly intervals aggregate them
- * client-side. Only the active metric's query runs. The post detail design
+ * endpoint reports hourly or daily buckets; weekly/monthly intervals
+ * aggregate the daily ones client-side. Only the active metric's query runs.
+ * The post detail design
  * has no period-over-period comparison, so comparison report params are
  * ignored — they ride along in the URL untouched so dashboard state survives
  * the round trip, and every widget on this page disregards them.

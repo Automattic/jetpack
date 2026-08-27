@@ -68,13 +68,14 @@ export default function AppWrapper() {
 	};
 
 	// aiAnswersEnabled + searchSuggestionsEnabled live at the top level of the
-	// instant-search options object (not under `overlayOptions`). Override them
-	// here so the preview reacts to the sidebar toggles without a save round-trip.
+	// options object; overridden here so the preview reacts to the sidebar. While
+	// the master is off a saved choice persists unenforced — preview gets false.
+	const { aiMasterEnabled = true } = window[ SERVER_OBJECT_NAME ];
 	const options = {
 		...window[ SERVER_OBJECT_NAME ],
 		...Object.fromEntries(
 			Object.entries( {
-				aiAnswersEnabled,
+				aiAnswersEnabled: aiMasterEnabled ? aiAnswersEnabled : false,
 				searchSuggestionsEnabled,
 			} ).filter( ( [ , v ] ) => typeof v !== 'undefined' )
 		),

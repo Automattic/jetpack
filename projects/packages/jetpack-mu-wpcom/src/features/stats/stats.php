@@ -22,11 +22,10 @@ function wpcom_map_jetpack_stats_caps( $caps, $cap, $user_id ) {
 	// Map view_stats to exists.
 	if ( 'view_stats' === $cap ) {
 		$user        = new WP_User( $user_id );
-		$user_role   = array_shift( $user->roles );
 		$stats_roles = array( 'administrator', 'editor', 'author', 'contributor' );
 
-		// Is the users role in the available stats roles?
-		if ( in_array( $user_role, $stats_roles, true ) ) {
+		// Is any of the user's roles in the available stats roles?
+		if ( ! empty( array_intersect( $user->roles, $stats_roles ) ) ) {
 			$caps = array( 'read' );
 		}
 	}

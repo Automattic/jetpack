@@ -231,6 +231,7 @@ describe( 'Stats query factories', () => {
 			{ period: 'day', quantity: 7, date: '2026-06-01', stats_fields: 'timeline' },
 			undefined,
 			'emailTimeSeries',
+			{ window_start: '2026-06-01', window_end: '2026-06-07' },
 		] );
 	} );
 
@@ -262,32 +263,60 @@ describe( 'Stats query factories', () => {
 		).toEqual( { period: 'hour', quantity: 48, date: '2026-06-14', stats_fields: 'timeline' } );
 	} );
 
-	it( 'sends an offset-bearing hourly window end through untrimmed', () => {
+	it( 'sizes an offset-bearing hourly window from its start day midnight through its end hour', () => {
 		// The shape the last-24-hours preset produces: hour-aligned, mid-day, and
 		// spanning two calendar days. `date` is the window START for this
-		// endpoint and now carries the time, but the endpoint resolves it to the
+		// endpoint and carries the time, but the endpoint resolves it to the
 		// calendar day and buckets from midnight regardless — verified against
 		// production, where a bare `2026-08-06` and `2026-08-06T09:00:00.000-04:00`
-		// return byte-identical hour-0..23 windows. So the untrimmed value is
-		// inert here rather than shifting the window; do not "fix" `quantity` on
-		// the assumption that the buckets start at 09:00.
-		//
-		// `quantity` stays 24 per calendar day the window touches — a 24-hour
-		// window spanning two days still asks for 48 buckets. That over-fetch
-		// predates offset-bearing dates and is tracked in WOOA7S-1840; pinned
-		// here so a fix to it is a deliberate change rather than an accident.
-		expect(
-			statsEmailClicksTimeSeriesQuery( 41, {
-				from: '2026-06-14T09:00:00.000-04:00',
-				to: '2026-06-15T08:59:59.999-04:00',
-				interval: 'hour',
-			} ).queryKey[ 5 ]
-		).toEqual( {
+		// return byte-identical hour-0..23 windows. So `quantity` must span from
+		// that midnight through the window's end hour (hours 00:00 June 14 →
+		// 08:xx June 15 = 33 buckets, not 24 from 09:00, and not 24 per calendar
+		// day touched — the 48-bucket over-fetch was WOOA7S-1840). The leading
+		// out-of-window buckets the midnight anchor forces are trimmed by the
+		// sanitizer via the window_start/window_end pair passed in
+		// sanitizerParams (query key slot 8).
+		const { queryKey } = statsEmailClicksTimeSeriesQuery( 41, {
+			from: '2026-06-14T09:00:00.000-04:00',
+			to: '2026-06-15T08:59:59.999-04:00',
+			interval: 'hour',
+		} );
+
+		expect( queryKey[ 5 ] ).toEqual( {
 			period: 'hour',
-			quantity: 48,
+			quantity: 33,
 			date: '2026-06-14T09:00:00.000-04:00',
 			stats_fields: 'timeline',
 		} );
+		expect( queryKey[ 8 ] ).toEqual( {
+			window_start: '2026-06-14T09:00:00.000-04:00',
+			window_end: '2026-06-15T08:59:59.999-04:00',
+		} );
+	} );
+
+	it( 'reads the end hour from every timestamp shape the datetime reader accepts', () => {
+		const quantityFor = ( from: string, to: string ) =>
+			(
+				statsEmailClicksTimeSeriesQuery( 41, { from, to, interval: 'hour' } ).queryKey[ 5 ] as {
+					quantity: number;
+				}
+			 ).quantity;
+
+		// A seconds-less end must size the same window as the full ISO shape,
+		// so quantity and the sanitizer trim stay agreed.
+		expect( quantityFor( '2026-06-14T09:00-04:00', '2026-06-15T08:59-04:00' ) ).toBe( 33 );
+
+		// Space-separated datetimes degrade upstream (getDatePart, which
+		// derives `days`, splits on T only), so the end hour falls back to 23
+		// there too — one whole degraded day, matching pre-fix behavior, with
+		// the sanitizer trim disabled by the same narrowing.
+		expect( quantityFor( '2026-06-14 09:00:00-04:00', '2026-06-15 08:59:59-04:00' ) ).toBe( 24 );
+
+		// An end the reader rejects falls back to hour 23 — the old full-day
+		// request — and the sanitizer, sharing the reader, disables its trim.
+		expect( quantityFor( '2026-06-14T09:00:00.000-04:00', '2026-06-15T99:00:00.000-04:00' ) ).toBe(
+			48
+		);
 	} );
 
 	it( 'disables email time series queries without a positive integer post ID or a date', () => {
