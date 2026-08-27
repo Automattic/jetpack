@@ -1279,11 +1279,6 @@ function JetpackContactFormEdit( {
 							setAttributes={ setAttributes }
 						/>
 					</PanelBody>
-					{ isIntegrationsEnabled && showBlockIntegrations && (
-						<Suspense fallback={ <div /> }>
-							<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
-						</Suspense>
-					) }
 					{ showWebhooks && (
 						<PanelBody
 							title={ __( 'Webhooks', 'jetpack-forms' ) }
@@ -1315,6 +1310,21 @@ function JetpackContactFormEdit( {
 						/>
 					</PanelBody>
 				</InspectorControls>
+
+				{ /* A sibling of InspectorControls, not a child of it: IntegrationControls owns
+				     its own inspector fill, and its other half -- a toolbar button and the dialog
+				     that button opens -- must stay outside one. See the component for why.
+
+				     Gated on selection because it is lazy(): rendered unconditionally, the
+				     import fires on the block's first render, pulling ~30KB gz of chunk into
+				     editor boot for a UI that nothing can reach until the block is selected.
+				     Both halves render nothing when it isn't, so this costs no behaviour. */ }
+				{ isIntegrationsEnabled && showBlockIntegrations && isFormOrChildSelected && (
+					<Suspense fallback={ <div /> }>
+						<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
+					</Suspense>
+				) }
+
 				<InspectorAdvancedControls>
 					<TextControl
 						label={ __( 'Accessible name', 'jetpack-forms' ) }
