@@ -15,9 +15,7 @@ import IntegrationsModal from './jetpack-integrations-modal/index.tsx';
  * Integration controls: the "Integrations" inspector panel, the toolbar button that opens the
  * same modal from the canvas, and the modal itself.
  *
- * Placement is the component's own business rather than the call site's, because only the panel
- * half belongs in the inspector. Render this as a sibling of the block's InspectorControls, not
- * a child of it -- see the comment on the toolbar below.
+ * Owns its own InspectorControls, so render it as a sibling of the block's, never a child.
  *
  * @param {object}   props               - Component props.
  * @param {object}   props.attributes    - Block attributes.

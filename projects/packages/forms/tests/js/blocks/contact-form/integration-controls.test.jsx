@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 // is mounted -- which, for the block inspector, means only while the settings sidebar is open.
 // A mock that passes children straight through erases that, and with it any test's ability to
 // tell "renders in the sidebar" apart from "renders at all". Modelling the slot keeps the two
-// distinguishable; `isSidebarOpen` is reset to true before each test.
+// distinguishable; setup() sets `isSidebarOpen` per test, defaulting to open.
 let isSidebarOpen = true;
 
 await jest.unstable_mockModule( '@wordpress/block-editor', () => ( {
@@ -39,7 +39,7 @@ await jest.unstable_mockModule( '../../../../src/hooks/use-config-value.ts', () 
 } ) );
 
 await jest.unstable_mockModule( '../../../../src/store/integrations/index.ts', () => ( {
-	INTEGRATIONS_STORE: 'jetpack/forms-integrations',
+	INTEGRATIONS_STORE: 'jetpack/forms/integrations',
 } ) );
 
 await jest.unstable_mockModule(
@@ -66,11 +66,12 @@ const { default: IntegrationControls } = await import(
 	'../../../../src/blocks/contact-form/components/jetpack-integration-controls.jsx'
 );
 
+// Hoisted: an inline arrow in JSX props trips react/jsx-no-bind.
+const noop = () => {};
+
 const setup = ( { sidebarOpen = true } = {} ) => {
 	isSidebarOpen = sidebarOpen;
-	const setAttributes = jest.fn();
-	render( <IntegrationControls attributes={ {} } setAttributes={ setAttributes } /> );
-	return { setAttributes };
+	render( <IntegrationControls attributes={ {} } setAttributes={ noop } /> );
 };
 
 const toolbarButton = () =>
@@ -78,7 +79,6 @@ const toolbarButton = () =>
 
 describe( 'IntegrationControls', () => {
 	beforeEach( () => {
-		isSidebarOpen = true;
 		mockRecordEvent.mockClear();
 	} );
 
@@ -129,6 +129,6 @@ describe( 'IntegrationControls', () => {
 
 		await userEvent.click( toolbarButton() );
 
-		expect( screen.getAllByRole( 'dialog' ) ).toHaveLength( 1 );
+		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
 	} );
 } );
