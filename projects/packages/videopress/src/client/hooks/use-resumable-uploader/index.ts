@@ -49,6 +49,25 @@ export class UploadTokenError extends Error {
 	}
 }
 
+/**
+ * Whether a failed upload may be blamed on the Jetpack connection.
+ *
+ * A missing token means the upload never reached WordPress.com, but not why; only
+ * a connection error alongside it justifies naming the connection. Both checks are
+ * needed, because each rules out a different mistake. Shared so the dashboard's
+ * `classifyUploadFailure()` and the block editor's `getErrorMessage()` cannot drift.
+ *
+ * @param {string}  errorCode          - The `code` carried by the failure, if it carried one.
+ * @param {boolean} hasConnectionError - Whether the connection store is reporting an error.
+ * @return {boolean} Whether the failure should be attributed to the connection.
+ */
+export function isConnectionAttributedFailure(
+	errorCode: string | undefined,
+	hasConnectionError: boolean
+): boolean {
+	return errorCode === UPLOAD_TOKEN_ERROR_CODE && hasConnectionError;
+}
+
 type UploadingStatusProp = 'idle' | 'resumed' | 'aborted' | 'uploading' | 'done' | 'error';
 
 type UploadingDataProps = {

@@ -7,7 +7,7 @@ import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
-import { UPLOAD_TOKEN_ERROR_CODE } from '../../../../../hooks/use-resumable-uploader';
+import { isConnectionAttributedFailure } from '../../../../../hooks/use-resumable-uploader';
 import { PlaceholderWrapper } from '../../edit';
 
 const getErrorMessage = ( uploadErrorData, hasConnectionError ) => {
@@ -15,9 +15,7 @@ const getErrorMessage = ( uploadErrorData, hasConnectionError ) => {
 		return '';
 	}
 
-	// Same rule as classifyUploadFailure(): a missing token means the upload never reached
-	// WordPress.com, but not why; only a connection error alongside it justifies naming the connection.
-	if ( uploadErrorData?.code === UPLOAD_TOKEN_ERROR_CODE && hasConnectionError ) {
+	if ( isConnectionAttributedFailure( uploadErrorData?.code, hasConnectionError ) ) {
 		return __(
 			'Failed to upload your video. Check your Jetpack connection and try again.',
 			'jetpack-videopress-pkg'

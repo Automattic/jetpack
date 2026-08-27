@@ -1,4 +1,4 @@
-import { UPLOAD_TOKEN_ERROR_CODE } from '../../src/client/hooks/use-resumable-uploader';
+import { isConnectionAttributedFailure } from '../../src/client/hooks/use-resumable-uploader';
 import type { UploadItem } from '../../src/dashboard/hooks/use-upload';
 import type { UploadFailureReason } from '../../src/dashboard/types/library';
 
@@ -10,7 +10,7 @@ import type { UploadFailureReason } from '../../src/dashboard/types/library';
  * user is connected, so a broken blog token or blocked outbound requests can pass
  * that check and still fail here. Historically, the user would only see “Upload failed.”
  *
- * Both checks are needed, because each rules out a different mistake.
+ * The rule itself lives with the error code, in `isConnectionAttributedFailure()`.
  *
  * @param {UploadItem} item               - The queue item to classify. One that has not failed is always 'other'.
  * @param {boolean}    hasConnectionError - Whether the connection store is reporting an error.
@@ -20,7 +20,10 @@ export function classifyUploadFailure(
 	item: Pick< UploadItem, 'status' | 'errorCode' >,
 	hasConnectionError: boolean
 ): UploadFailureReason {
-	const failedOnToken = item.status === 'failed' && item.errorCode === UPLOAD_TOKEN_ERROR_CODE;
+	// The status guard is this caller's own: a queue item can be read at any status,
+	// while the block editor's equivalent only ever renders after a failure.
+	const attributable =
+		item.status === 'failed' && isConnectionAttributedFailure( item.errorCode, hasConnectionError );
 
-	return failedOnToken && hasConnectionError ? 'connection' : 'other';
+	return attributable ? 'connection' : 'other';
 }
