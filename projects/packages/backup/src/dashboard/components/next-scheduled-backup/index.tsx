@@ -10,6 +10,12 @@ import './style.scss';
  * Ported from legacy's `js/components/next-scheduled-backup.tsx`, which
  * the modernized Overview had no equivalent of.
  *
+ * Legacy's gate came in two halves and both are kept, in two places.
+ * `overview.tsx` holds the backup-state half — the line mounts only for
+ * `complete` and `in-progress`, and that comment explains why
+ * `replacesOverview()` does not arrange it on its own. This file holds
+ * the other half, `! backupsStopped`, below.
+ *
  * **The msgid is legacy's, character for character**, so the two
  * dashboards share one GlotPress entry rather than asking translators
  * for the same sentence twice. Change one and the other has to change in

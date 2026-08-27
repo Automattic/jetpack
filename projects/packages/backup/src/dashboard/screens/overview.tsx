@@ -234,22 +234,48 @@ export default function OverviewScreen() {
 			 * because that is the order legacy reads in: the schedule, then
 			 * what it is filling up.
 			 *
-			 * Deliberately not gated on `backupsState` here. Legacy mounts
-			 * its copy inside the component that only renders in
-			 * `BACKUP_STATE.COMPLETE`, but `replacesOverview` above has
-			 * already taken the body over for every state that gate was
-			 * excluding — no backups, a first backup running, a first
-			 * attempt that will retry, and nothing usable at all. What is
-			 * left is the case legacy has no view for: a site that *does*
-			 * have restore points while its latest attempt is running or
-			 * failing. There the schedule is still the true answer to "when
-			 * is the next one", and the banner directly above it has
-			 * already said what is going wrong.
+			 * This is legacy's `BACKUP_STATE.COMPLETE` gate, carried over
+			 * and widened by one state. The line shows when the site has a
+			 * usable restore point, and while a backup is running — which
+			 * legacy does not do, because its `IN_PROGRESS` branch replaces
+			 * `COMPLETE` and takes the line down for the length of every
+			 * run. Reporting both facts side by side is the same call
+			 * `summarizeBackups` already made when it stopped letting a
+			 * running backup erase a finished one.
+			 *
+			 * It shows in no other state, and `replacesOverview` above is
+			 * *not* enough to arrange that — which is the correction this
+			 * gate exists to make. That helper returns true only for
+			 * `no-backups | will-retry | no-good-backups | (in-progress &&
+			 * isInitialBackup)`, and only when its third argument is false.
+			 * That argument is `restorePointsLoading || restorePointsError
+			 * || hasRestorePoints`, so the veto is up in three situations
+			 * and only one of them means "this site has restore points";
+			 * `backup-status/banner.tsx` spells out the second, "the
+			 * activity request failed so we cannot know either way". And
+			 * for `error` and `loading` the helper has no branch at all —
+			 * it can never take the body over for either.
+			 *
+			 * So without this gate, a site whose `/jetpack/v4/backups` read
+			 * came back undecodable rendered "We couldn't check your site's
+			 * backup status." directly above "Next full backup: Oct 22,
+			 * 10:00-10:59 AM.", and a site whose last attempt failed while
+			 * the activity log was also unreachable promised a next run
+			 * under a banner saying the last one had not completed. Legacy
+			 * produced neither pairing.
+			 *
+			 * `in-progress` is deliberately not narrowed by
+			 * `isInitialBackup`. The one case that would exclude is a first
+			 * ever backup running while the activity read is failing, where
+			 * the schedule is still true and still the answer to the
+			 * question the line asks.
 			 *
 			 * The component self-hides on the other half of legacy's gate —
 			 * see it for which "backups stopped" this dashboard means.
 			 */ }
-			<NextScheduledBackup />
+			{ ( backupsState === 'complete' || backupsState === 'in-progress' ) && (
+				<NextScheduledBackup />
+			) }
 			{ /*
 			 * Above the list, and a sibling of the grid for the same
 			 * reason the banners are. It answers a question the list
