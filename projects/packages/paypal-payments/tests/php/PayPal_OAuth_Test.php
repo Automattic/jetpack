@@ -26,10 +26,11 @@ class PayPal_OAuth_Test extends TestCase {
 	protected function tearDown(): void {
 		parent::tearDown();
 
-		// Clean up all options and transients.
-		delete_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY );
-		delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
-		delete_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY );
+		// Clean up all options and transients. disconnect() is used rather than
+		// deleting options directly because it also resets the request-scoped
+		// credentials cache, which otherwise leaks between tests in the same
+		// process and makes has_credentials() report a stale true.
+		PayPal_OAuth::disconnect();
 	}
 
 	/**
@@ -232,7 +233,7 @@ class PayPal_OAuth_Test extends TestCase {
 	 */
 	public function test_get_access_token_returns_cached_token() {
 		// Set a cached token.
-		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, 'cached_access_token', 3600 );
+		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, PayPal_OAuth::encrypt( 'cached_access_token' ), 3600 );
 
 		$token = PayPal_OAuth::get_access_token();
 		$this->assertEquals( 'cached_access_token', $token );

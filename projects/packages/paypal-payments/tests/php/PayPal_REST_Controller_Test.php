@@ -404,7 +404,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		PayPal_OAuth::set_environment( 'sandbox' );
 		PayPal_OAuth::store_credentials( 'test_client_id', 'test_client_secret' );
-		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, 'fake_access_token_12345', 3600 );
+		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, PayPal_OAuth::encrypt( 'fake_access_token_12345' ), 3600 );
 	}
 
 	/**

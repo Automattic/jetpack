@@ -148,7 +148,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 
 		PayPal_OAuth::store_credentials( 'test_id', 'test_secret' );
 		PayPal_OAuth::set_environment( 'production' );
-		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, 'fake_token', 3600 );
+		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, PayPal_OAuth::encrypt( 'fake_token' ), 3600 );
 
 		// Mock empty API response.
 		add_filter(
@@ -248,7 +248,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		wp_set_current_user( $admin );
 
 		PayPal_OAuth::store_credentials( 'test_id', 'test_secret' );
-		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, 'fake_token', 3600 );
+		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, PayPal_OAuth::encrypt( 'fake_token' ), 3600 );
 
 		add_filter(
 			'pre_http_request',
@@ -663,7 +663,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 	private function set_up_connected_state() {
 		PayPal_OAuth::store_credentials( 'test_client_id', 'test_client_secret' );
 		PayPal_OAuth::set_environment( 'production' );
-		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, 'fake_access_token', 3600 );
+		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, PayPal_OAuth::encrypt( 'fake_access_token' ), 3600 );
 	}
 
 	/**
