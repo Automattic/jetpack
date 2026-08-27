@@ -300,7 +300,7 @@ describe( 'usePopularPost', () => {
 			setSettings( defaultSettings );
 		} );
 
-		it( 'ranks over the last 365 days, not the dashboard range', async () => {
+		it( 'ranks over the last 12 months, not the dashboard range', async () => {
 			mockEndpoints();
 
 			const { result } = renderHook( () => usePopularPost(), { wrapper } );
@@ -310,8 +310,8 @@ describe( 'usePopularPost', () => {
 			const [ rankingPath ] = topPostsRequestPaths();
 			const ranking = decodeURIComponent( rankingPath );
 
-			// Whole days: from the start of the day 365 days back, through the end
-			// of yesterday — 365 inclusive days.
+			// Whole days: from the start of the day 12 months back, through the end
+			// of yesterday.
 			expect( ranking ).toContain( 'start_date=2025-08-27T00:00:00' );
 			expect( ranking ).toContain( 'date=2026-08-26T23:59:59' );
 			expect( ranking ).toContain( 'days=365' );
@@ -324,8 +324,12 @@ describe( 'usePopularPost', () => {
 
 			await waitFor( () => expect( result.current.post?.id ).toBe( 7 ) );
 
-			expect( result.current.period.from ).toContain( '2025-08-27T00:00:00' );
-			expect( result.current.period.to ).toContain( '2026-08-26T23:59:59' );
+			// The preset travels with the dates: the detail page recomputes the
+			// range from it, and both its date control and the dashboard's render
+			// it as a pill.
+			expect( result.current.range.preset ).toBe( 'last-12-months' );
+			expect( result.current.range.from ).toContain( '2025-08-27T00:00:00' );
+			expect( result.current.range.to ).toContain( '2026-08-26T23:59:59' );
 		} );
 	} );
 

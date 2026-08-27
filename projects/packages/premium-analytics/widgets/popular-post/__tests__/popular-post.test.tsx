@@ -118,18 +118,16 @@ describe( 'PopularPostWidget', () => {
 		setSettings( defaultSettings );
 	} );
 
-	it( 'ranks over its own last 365 days whatever range the host injects', async () => {
+	it( 'ranks over its own window whatever range the host injects', async () => {
 		const { rerender } = render(
 			<PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } />
 		);
 
 		await expect( screen.findByText( 'Winning post' ) ).resolves.toBeInTheDocument();
 
+		// The window itself is asserted in the hook's own suite; what only shows
+		// here is that the injected year never reaches the request.
 		const [ ranking ] = topPostsRequests().map( decodeURIComponent );
-		expect( ranking ).toContain( 'start_date=2025-08-27T00:00:00' );
-		expect( ranking ).toContain( 'date=2026-08-26T23:59:59' );
-		expect( ranking ).toContain( 'days=365' );
-		// The injected year must not reach the request at all.
 		expect( ranking ).not.toContain( '2022' );
 
 		// A different section year is the change this card must ignore: it reads
@@ -146,7 +144,7 @@ describe( 'PopularPostWidget', () => {
 		const link = await screen.findByRole( 'link', { name: 'Winning post' } );
 		const search = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' ).searchParams;
 
-		expect( search.get( 'preset' ) ).toBe( 'last-365-days' );
+		expect( search.get( 'preset' ) ).toBe( 'last-12-months' );
 		expect( search.get( 'from' ) ).toContain( '2025-08-27T00:00:00' );
 		expect( search.get( 'to' ) ).toContain( '2026-08-26T23:59:59' );
 	} );

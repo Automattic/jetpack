@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { PRESET_LAST_365_DAYS } from '@jetpack-premium-analytics/datetime';
 import {
 	PostHighlightCard,
 	type PostHighlightCardMetric,
@@ -28,19 +27,23 @@ type PopularPostRenderAttributes = PopularPostAttributes & Partial< ReportParams
 type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
 
 /**
- * The last 365 days pick which post is shown, but all three tiles are all-time
+ * The last 12 months pick which post is shown, but all three tiles are all-time
  * totals, so none carries a per-tile aggregation note.
  */
 function PopularPostReport() {
-	const { post, period, isLoading, isFetching, isError, error, refetch } = usePopularPost();
-	// The detail page opens on the window the card ranked over, so the post's own
-	// page measures the year the card's title names. The dashboard's range is
-	// deliberately not carried through: the Insights filter picks a calendar year,
-	// which would scope the detail page to a period this card never reported on.
-	const detailSearch = useMemo(
-		() => ( { preset: PRESET_LAST_365_DAYS, from: period.from, to: period.to } ),
-		[ period ]
-	);
+	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost();
+	/*
+	 * The detail page opens on the window the card ranked over, so the post's own
+	 * page measures the year the card's title names. The dashboard's range is
+	 * deliberately not carried through: the Insights filter picks a calendar year,
+	 * which would scope the detail page to a period this card never reported on.
+	 *
+	 * Hence not `useWidgetNavigationSearch()`, which exists to carry the host's
+	 * window: a widget cannot hand it one of its own. The trade-off is that the
+	 * detail page's breadcrumb links back to the dashboard on this window rather
+	 * than the one the reader left, which is the lesser of the two mismatches.
+	 */
+	const detailSearch = useMemo( () => ( { ...range } ), [ range ] );
 
 	const metrics: PostHighlightCardMetric[] = post
 		? [

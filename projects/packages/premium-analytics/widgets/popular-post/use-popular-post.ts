@@ -9,7 +9,7 @@ import {
 	useStatsTopPosts,
 	type LatestPostResponse,
 } from '@jetpack-premium-analytics/data';
-import { PRESET_LAST_365_DAYS } from '@jetpack-premium-analytics/datetime';
+import { PRESET_LAST_12_MONTHS } from '@jetpack-premium-analytics/datetime';
 import { useMemo } from 'react';
 
 // Only regular posts qualify as a "Popular post": the Stats top-posts report
@@ -44,9 +44,10 @@ export type UsePopularPostResult = {
 	/**
 	 * The window the winner was ranked over, as report date params. The card's
 	 * detail link opens on it, so the post's own page reports on the same year
-	 * the card's title names.
+	 * the card's title names. The preset travels with the dates because the
+	 * detail page recomputes the range from it on arrival.
 	 */
-	period: { from: string; to: string };
+	range: { preset: typeof PRESET_LAST_12_MONTHS; from: string; to: string };
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
@@ -55,7 +56,7 @@ export type UsePopularPostResult = {
 };
 
 /**
- * The site's most-viewed post of the last 365 days. The window only picks the
+ * The site's most-viewed post of the last 12 months. The window only picks the
  * winner: every displayed metric is an all-time total from `stats/post`, so the
  * three tiles cannot measure different periods.
  *
@@ -66,22 +67,23 @@ export type UsePopularPostResult = {
  * request degrades to no image and unknown counts.
  */
 export function usePopularPost(): UsePopularPostResult {
-	// Resolved on every render so a dashboard left open across midnight rolls the
-	// window forward. `last-365-days` is a built-in preset, so it always resolves;
-	// the empty fallback exists only to satisfy the optional return type, and
-	// leaves the ranking query disabled rather than silently unpinning the window.
-	const { from, to } = computeDateRangeFromPreset( PRESET_LAST_365_DAYS ) ?? {
+	// Resolved per render rather than once, so the window is never older than the
+	// render that reads it. `last-12-months` is a built-in preset, so it always
+	// resolves; the empty fallback exists only to satisfy the optional return
+	// type, and leaves the ranking query disabled rather than silently unpinning
+	// the window.
+	const { from, to } = computeDateRangeFromPreset( PRESET_LAST_12_MONTHS ) ?? {
 		from: '',
 		to: '',
 	};
 
-	const period = useMemo( () => ( { from, to } ), [ from, to ] );
+	const range = useMemo( () => ( { preset: PRESET_LAST_12_MONTHS, from, to } ), [ from, to ] );
 
 	// The report is day-bucketed whatever the dashboard's interval, so `day` is
 	// the only honest value here.
 	const statsParams = useMemo(
-		() => ( { ...period, interval: 'day' as const, max: POPULAR_POST_REQUEST_MAX } ),
-		[ period ]
+		() => ( { from, to, interval: 'day' as const, max: POPULAR_POST_REQUEST_MAX } ),
+		[ from, to ]
 	);
 
 	// Ranking, post-type filtering, and the single-row cap all live in the data
@@ -152,5 +154,5 @@ export function usePopularPost(): UsePopularPostResult {
 		  }
 		: null;
 
-	return { post, period, isLoading, isFetching, isError, error: topPostsResult.error, refetch };
+	return { post, range, isLoading, isFetching, isError, error: topPostsResult.error, refetch };
 }
