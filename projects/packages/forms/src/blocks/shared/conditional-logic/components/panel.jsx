@@ -92,11 +92,16 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 	const fields = useSubjectFields( clientId );
 	const group = getPrimaryGroup( logic );
 
+	const hasConditions = countRules( logic ) > 0;
+
 	// Taken from the whole form rather than from `fields`, which drops this very block: a
 	// subject sharing an id with the field being edited is just as ambiguous, and a list
-	// missing one of the two cannot see that. Only the dialog surfaces it, so this walk is
-	// skipped while it is closed. See getDuplicateFieldIds() for why ids collide at all.
-	const formFieldIds = useFormFieldIds( clientId, isModalOpen );
+	// missing one of the two cannot see that. See getDuplicateFieldIds() for why ids collide.
+	//
+	// Walked while the dialog is open, and while this field carries conditions -- the summary
+	// and the toolbar tooltip describe those, and a condition on a duplicated id is no more
+	// active there than the builder says it is. A field with neither pays nothing.
+	const formFieldIds = useFormFieldIds( clientId, isModalOpen || hasConditions );
 	const fixDuplicateFieldIds = useFixDuplicateFieldIds( clientId );
 	const duplicateFieldIds = useMemo( () => getDuplicateFieldIds( formFieldIds ), [ formFieldIds ] );
 
@@ -123,11 +128,9 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 	const openModal = useCallback( () => setIsModalOpen( true ), [] );
 	const closeModal = useCallback( () => setIsModalOpen( false ), [] );
 
-	const hasConditions = countRules( logic ) > 0;
-
 	// The conditions the field will actually be governed by. Incomplete ones are skipped by
 	// both evaluators, so listing them here would describe behaviour the field does not have.
-	const activeConditions = getActiveConditions( group, fields );
+	const activeConditions = getActiveConditions( group, fields, duplicateFieldIds );
 
 	return (
 		<>
@@ -143,7 +146,7 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 						icon={ startsHidden( logic ) ? unseen : seen }
 						title={
 							activeConditions.length
-								? getSummaryText( logic, group, fields )
+								? getSummaryText( logic, group, fields, duplicateFieldIds )
 								: __( 'Add conditional logic', 'jetpack-forms' )
 						}
 						onClick={ openModal }

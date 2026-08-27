@@ -408,6 +408,14 @@ const RuleRow = ( {
 						<Button
 							variant="minimal"
 							size="small"
+							// Names which id it repairs, since a form can show several of these at
+							// once. Keeps the visible text inside the accessible name, so speech
+							// input can still reach it by saying what it reads.
+							aria-label={ sprintf(
+								/* translators: %s: a field name/ID shared by more than one field. */
+								__( 'Fix it: make the Name/ID %s unique', 'jetpack-forms' ),
+								rule.field
+							) }
 							onClick={ () => onFixDuplicateIds( [ rule.field ] ) }
 						>
 							{ __( 'Fix it', 'jetpack-forms' ) }

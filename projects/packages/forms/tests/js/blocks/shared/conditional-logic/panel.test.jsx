@@ -414,7 +414,9 @@ describe( 'ConditionalLogicPanel', () => {
 		it( 'offers to repair the collision, and repairs the id the rule names', async () => {
 			await setup( withRules( [ { field: 'first-name', operator: 'is', value: 'x' } ] ) );
 
-			await userEvent.click( screen.getByRole( 'button', { name: 'Fix it' } ) );
+			await userEvent.click(
+				screen.getByRole( 'button', { name: 'Fix it: make the Name/ID first-name unique' } )
+			);
 
 			expect( mockFixDuplicateFieldIds ).toHaveBeenCalledWith( [ 'first-name' ] );
 		} );
@@ -423,7 +425,39 @@ describe( 'ConditionalLogicPanel', () => {
 		it( 'offers no repair for a condition whose field was deleted', async () => {
 			await setup( withRules( [ { field: 'deleted_1', operator: 'is', value: 'x' } ] ) );
 
-			expect( screen.queryByRole( 'button', { name: 'Fix it' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: /Fix it/ } ) ).not.toBeInTheDocument();
+		} );
+
+		// The inspector summary and the toolbar tooltip describe what the field will actually
+		// do. A condition on a duplicated id resolves to whichever field renders first, so the
+		// builder refuses it -- and these two must not go on calling it active.
+		it( 'leaves an ambiguous condition out of the inspector summary', async () => {
+			await setup( withRules( [ { field: 'first-name', operator: 'is', value: 'x' } ] ), {
+				openModal: false,
+			} );
+
+			expect(
+				screen.getByText( 'Show or hide this field based on the answer to another field.' )
+			).toBeInTheDocument();
+		} );
+
+		it( 'leaves an ambiguous condition out of the toolbar tooltip', async () => {
+			await setup( withRules( [ { field: 'first-name', operator: 'is', value: 'x' } ] ), {
+				openModal: false,
+			} );
+
+			expect( screen.getByRole( 'button', { name: 'Add conditional logic' } ) ).toBeInTheDocument();
+		} );
+
+		// The notice carries the repair too, and it is the reachable one: duplicated options are
+		// disabled, so a new rule cannot name a duplicated id and the row button only ever
+		// appears on a rule saved before the collision.
+		it( 'repairs every duplicated id from the notice', async () => {
+			await setup( DEFAULT_ATTRIBUTE );
+
+			await userEvent.click( screen.getByRole( 'button', { name: 'Make it unique' } ) );
+
+			expect( mockFixDuplicateFieldIds ).toHaveBeenCalledWith( [ 'first-name' ] );
 		} );
 
 		// A rule saved before the ids collided, or against a field that was later duplicated.
