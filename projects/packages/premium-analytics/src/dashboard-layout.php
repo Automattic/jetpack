@@ -290,95 +290,113 @@ function get_dashboard_default_section_layouts() {
 				4,
 				1
 			),
-			// Row 2: posting-activity heatmap.
+			// Row 2: lifetime totals. Full width for now: the design pairs a
+			// narrow All-time stats card with Most popular time and Most popular
+			// day, and neither is in the default layout yet (WOOPRD-3703,
+			// WOOPRD-3704). A 1-wide card here would leave three empty columns —
+			// the grid packs sparsely, and the next row is a full-width tile.
+			// WOOPRD-3708 narrows it once those two join the row.
+			get_dashboard_default_widget_instance(
+				'default-all-time-stats-widget-instance',
+				'jpa/all-time-stats',
+				1,
+				4,
+				1,
+				array(
+					// The design shows three totals; the widget's own default adds
+					// Comments, which the comment leaderboards below already cover.
+					'metrics' => array( 'views', 'visitors', 'posts' ),
+				)
+			),
+			// Row 3: posting-activity heatmap.
 			get_dashboard_default_widget_instance(
 				'default-posting-activity-widget-instance',
 				'jpa/posting-activity',
-				1,
+				2,
 				4,
 				1
 			),
-			// Row 3: the two post spotlights.
+			// Row 4: the two post spotlights.
 			get_dashboard_default_widget_instance(
 				'default-latest-post-widget-instance',
 				'jpa/latest-post',
-				2,
+				3,
 				2,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-popular-post-widget-instance',
 				'jpa/popular-post',
-				3,
+				4,
 				2,
 				2
 			),
-			// Row 4: the period totals and the weekday and hour-of-day
+			// Row 5: the period totals and the weekday and hour-of-day
 			// distributions.
 			get_dashboard_default_widget_instance(
 				'default-total-views-widget-instance',
 				'jpa/total-views',
-				4,
+				5,
 				1,
 				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-total-visitors-widget-instance',
 				'jpa/total-visitors',
-				5,
+				6,
 				1,
 				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-popular-days-widget-instance',
 				'jpa/popular-days',
-				6,
+				7,
 				1,
 				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-popular-hours-widget-instance',
 				'jpa/popular-hours',
-				7,
+				8,
 				1,
 				1
 			),
-			// Row 5: daily views heatmap. Two rows tall, as in the prototype: the
+			// Row 6: daily views heatmap. Two rows tall, as in the prototype: the
 			// cells are sized from the tile's height, and only at this height do they
 			// grow wide enough to label each day with its view count.
 			get_dashboard_default_widget_instance(
 				'default-traffic-views-activity-widget-instance',
 				'jpa/traffic-views-activity',
-				8,
+				9,
 				4,
 				2
 			),
-			// Row 6: the comment leaderboards, shares, and tags.
+			// Row 7: the comment leaderboards, shares, and tags.
 			get_dashboard_default_widget_instance(
 				'default-most-commented-posts-widget-instance',
 				'jpa/most-commented-posts',
-				9,
+				10,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-most-commented-authors-widget-instance',
 				'jpa/most-commented-authors',
-				10,
+				11,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-shares-widget-instance',
 				'jpa/shares',
-				11,
+				12,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-tags-widget-instance',
 				'jpa/tags',
-				12,
+				13,
 				1,
 				2
 			),
