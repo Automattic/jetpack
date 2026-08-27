@@ -6,7 +6,7 @@ import { TZDate } from '@date-fns/tz';
  * Internal dependencies
  */
 import { getDateRangeSpan } from '../date-range-span';
-import { completeToDateRange } from '../to-date-range';
+import { clampRangeEndToToday, completeToDateRange } from '../to-date-range';
 
 /**
  * A zone away from UTC, so a boundary computed on the wrong clock lands on a
@@ -90,5 +90,49 @@ describe( 'completeToDateRange', () => {
 		const open = { from: at( 2025, 9, 1 ) };
 
 		expect( completeToDateRange( open, 'last-12-months' ) ).toBe( open );
+	} );
+} );
+
+describe( 'clampRangeEndToToday', () => {
+	// Where a forward step out of "12 months" lands: the running month closed,
+	// which reaches eleven days past the day it was taken on.
+	const steppedForward = { from: at( 2025, 9, 1 ), to: endOf( 2026, 8, 31 ) };
+	const noon = new TZDate( 2026, 7, 20, 12, 0, 0, 0, TIMEZONE );
+
+	it( 'pulls a window ending after today back to the end of today', () => {
+		expect( clampRangeEndToToday( steppedForward, noon ) ).toEqual( {
+			from: at( 2025, 9, 1 ),
+			to: endOf( 2026, 8, 20 ),
+		} );
+	} );
+
+	it( 'closes the day on the window’s own clock', () => {
+		// 02:00 UTC is still the 26th in New York, so a clamp read on the
+		// browser's clock would leave the window a day long.
+		const clamped = clampRangeEndToToday(
+			steppedForward,
+			new Date( Date.UTC( 2026, 7, 27, 2, 0 ) )
+		);
+
+		expect( clamped.to ).toEqual( endOf( 2026, 8, 26 ) );
+		expect( clamped.to ).toBeInstanceOf( TZDate );
+	} );
+
+	it( 'leaves a window that already ends today where it is', () => {
+		const toDate = { from: at( 2025, 9, 1 ), to: endOf( 2026, 8, 20 ) };
+
+		expect( clampRangeEndToToday( toDate, noon ) ).toBe( toDate );
+	} );
+
+	it( 'leaves a window ending in the past where it is', () => {
+		const past = { from: at( 2024, 9, 1 ), to: endOf( 2025, 8, 31 ) };
+
+		expect( clampRangeEndToToday( past, noon ) ).toBe( past );
+	} );
+
+	it( 'returns a range without an end untouched', () => {
+		const open = { from: at( 2025, 9, 1 ) };
+
+		expect( clampRangeEndToToday( open, noon ) ).toBe( open );
 	} );
 } );

@@ -7,6 +7,7 @@ import {
 	resolveIntervalForRange,
 } from '@jetpack-premium-analytics/data';
 import {
+	clampRangeEndToToday,
 	completeToDateRange,
 	drillDateRange,
 	PRESET_CUSTOM,
@@ -276,7 +277,11 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 			}
 
 			const patch = buildRangePatch( {
-				nextRange: stepped,
+				// A forward step closes the running unit the window was measured
+				// against, which reaches past today. Stepping forward out of
+				// "12 months" returns the to-date window, not a month of empty
+				// buckets.
+				nextRange: clampRangeEndToToday( stepped, toLocalTZ( undefined, timeZone ) ),
 				nextPresetId: PRESET_CUSTOM,
 				exactRange: true,
 				effective,
@@ -287,7 +292,7 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 				commit();
 			}
 		},
-		[ appliedPresetId, appliedRange, commit, effective, stage ]
+		[ appliedPresetId, appliedRange, commit, effective, stage, timeZone ]
 	);
 
 	/*

@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { endOfMonth } from 'date-fns';
+import { TZDate } from '@date-fns/tz';
+import { endOfDay, endOfMonth } from 'date-fns';
 /**
  * Internal dependencies
  */
@@ -38,4 +39,31 @@ export function completeToDateRange< T extends DateRange >(
 	}
 
 	return { ...range, to: endOfMonth( range.to ) };
+}
+
+/**
+ * Pull a window's end back to the end of today when it runs past it.
+ *
+ * A window measured in whole months or years may step forward into the month
+ * or year in progress, which `canStepForward` counts as reachable so the
+ * window a reader stepped back from stays reachable. The step itself lands on
+ * the end of that unit, days the report has no data for and the chart would
+ * draw as empty buckets. Stepping forward out of "12 months" therefore returns
+ * the to-date window the reader started from.
+ *
+ * @param range - The window to clamp.
+ * @param now   - The current instant.
+ * @return The clamped window, or `range` itself when it already ends today or earlier.
+ */
+export function clampRangeEndToToday< T extends DateRange >( range: T, now: Date ): T {
+	if ( ! range.to ) {
+		return range;
+	}
+
+	// Anchored to the window's own timezone, so a site offset from the browser
+	// closes the day on its own clock.
+	const timeZone = 'timeZone' in range.to ? ( range.to as TZDate ).timeZone : undefined;
+	const endOfToday = endOfDay( timeZone ? new TZDate( now.getTime(), timeZone ) : now );
+
+	return range.to.getTime() > endOfToday.getTime() ? { ...range, to: endOfToday } : range;
 }

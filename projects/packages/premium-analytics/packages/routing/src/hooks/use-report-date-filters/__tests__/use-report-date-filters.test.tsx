@@ -72,6 +72,10 @@ describe( 'useReportDateFilters', () => {
 		);
 	} );
 
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'derives the applied state from the URL search params', () => {
 		const { result } = renderDateFilters( {
 			from: '2026-07-01T00:00:00.000Z',
@@ -650,6 +654,30 @@ describe( 'useReportDateFilters', () => {
 			interval: 'month',
 			compare_from: '2023-09-01T00:00:00.000Z',
 			compare_to: '2024-08-31T23:59:59.999Z',
+		} );
+	} );
+
+	it( 'lands back on the to-date window when a step forward closes the running month', () => {
+		// The window a step back out of `last-12-months` leaves. Stepping
+		// forward again closes August, eleven days past the day it is read on:
+		// days the report has no data for, and the forward arrow would then
+		// disappear on a window nobody can leave.
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+
+		const { result, rerender } = renderDateFilters( {
+			from: '2024-09-01T00:00:00.000Z',
+			to: '2025-08-31T23:59:59.999Z',
+			preset: 'custom',
+			interval: 'month',
+		} );
+
+		act( () => result.current.onStep( 'next' ) );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( {
+			from: '2025-09-01T00:00:00.000Z',
+			to: '2026-08-20T23:59:59.999Z',
+			preset: 'custom',
 		} );
 	} );
 } );

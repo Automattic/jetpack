@@ -233,7 +233,7 @@ describe( 'buildRangePatch', () => {
 	it( 'derives the comparison from the preset being staged, not the one it replaces', () => {
 		// `last-12-months` as read on 20 August 2026, staged over a 7-day window.
 		// Measured as the 7-day preset would be, the previous period starts on
-		// 12 September; as the to-date preset, on the first.
+		// 12 September; as the to-date preset, twelve months back on the first.
 		const patch = buildRangePatch( {
 			nextRange: {
 				from: new Date( '2025-09-01T00:00:00.000Z' ),
@@ -246,7 +246,7 @@ describe( 'buildRangePatch', () => {
 		expect( patch ).toMatchObject( {
 			preset: 'last-12-months',
 			compare_from: '2024-09-01T00:00:00.000+00:00',
-			compare_to: '2025-08-31T23:59:59.999+00:00',
+			compare_to: '2025-08-20T23:59:59.999+00:00',
 		} );
 	} );
 } );

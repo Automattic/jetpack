@@ -22,7 +22,7 @@ export { INTERVAL_TYPES, isIntervalType, type IntervalType } from './interval';
 export { getDateRangeSpan, type DateRangeSpan, type DateRangeSpanUnit } from './date-range-span';
 
 export { stepDateRange, canStepForward, type StepDirection } from './step-date-range';
-export { completeToDateRange } from './to-date-range';
+export { completeToDateRange, clampRangeEndToToday } from './to-date-range';
 
 export { drillDateRange } from './drill-date-range';
 
