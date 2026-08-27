@@ -4,6 +4,10 @@ Make the UI react instantly while the URL stays the source of truth. Edits are
 staged locally and then committed atomically to the URL (one navigation). Back/
 Forward stays smooth.
 
+This is `useStagedValue` bound to the URL. A control that saves somewhere else —
+a widget attribute, say — uses that hook directly and gets the same staging
+behaviour.
+
 ---
 
 ## Concepts

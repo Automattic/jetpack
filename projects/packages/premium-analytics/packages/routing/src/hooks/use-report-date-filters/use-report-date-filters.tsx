@@ -18,6 +18,7 @@ import { useCallback, useMemo } from 'react';
  * Internal dependencies
  */
 import { decodeDateSearchParam, encodeDateToSearchParam } from '../../search/date-range';
+import { hasPrimaryDateDraft } from '../../search/report-params';
 import { useStagedSearch } from '../use-staged-search';
 import { buildRangePatch, type ReportQuerySearchParams } from './build-range-patch';
 import type {
@@ -58,8 +59,8 @@ export type ReportDateFilters = {
 	appliedInterval: IntervalType;
 
 	/**
-	 * The intervals the applied range allows, finest first — what the control
-	 * lists.
+	 * The intervals the range being edited allows, finest first — what the
+	 * control lists.
 	 */
 	intervalOptions: IntervalType[];
 
@@ -195,27 +196,28 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 		};
 	}, [ committed, timeZone ] );
 
-	/*
-	 * Whether the primary picker holds an un-applied edit. The comparison and
-	 * interval controls commit on their own, so both check this first rather
-	 * than committing a range draft along with their own change.
-	 */
-	const hasPrimaryDraft =
-		effective.from !== committed.from ||
-		effective.to !== committed.to ||
-		effective.preset !== committed.preset;
+	const hasPrimaryDraft = hasPrimaryDateDraft( committed, effective );
 
-	/*
-	 * The buckets the interval control lists, and the one it checks. Both read
-	 * the applied range: the control sits outside the picker, so a range being
-	 * drafted must not reshape the menu, and resolving the value through the
-	 * same range that produced the options keeps the checked item a listed one.
-	 */
+	// Listed and checked against the range being edited — see
+	// `getAllowedIntervalsForPreset` for why the draft and not the applied window.
 	const intervalOptions = useMemo(
-		() => getAllowedIntervalsForPreset( appliedPresetId, committed.from ?? '', committed.to ?? '' ),
-		[ appliedPresetId, committed.from, committed.to ]
+		() => getAllowedIntervalsForPreset( presetId, effective.from ?? '', effective.to ?? '' ),
+		[ presetId, effective.from, effective.to ]
 	);
 
+	const interval = useMemo(
+		() =>
+			resolveIntervalForRange(
+				presetId,
+				effective.from ?? '',
+				effective.to ?? '',
+				effective.interval
+			),
+		[ presetId, effective.from, effective.to, effective.interval ]
+	);
+
+	// What the widgets are drawing, for the surfaces that describe them rather
+	// than the picker — the chart the drill-down reads its buckets from.
 	const appliedInterval = useMemo(
 		() =>
 			resolveIntervalForRange(
@@ -225,19 +227,6 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 				committed.interval
 			),
 		[ appliedPresetId, committed.from, committed.to, committed.interval ]
-	);
-
-	// The staged value, so the check mark moves on the click that stages it even
-	// when a primary draft keeps that click from committing.
-	const interval = useMemo(
-		() =>
-			resolveIntervalForRange(
-				appliedPresetId,
-				committed.from ?? '',
-				committed.to ?? '',
-				effective.interval
-			),
-		[ appliedPresetId, committed.from, committed.to, effective.interval ]
 	);
 
 	/**

@@ -218,6 +218,39 @@ describe( 'useReportDateFilters', () => {
 		expect( result.current.appliedInterval ).toBe( 'week' );
 	} );
 
+	/*
+	 * Listing the applied range's buckets while a shorter range is drafted lets
+	 * the menu offer one the draft cannot hold; Apply then resolves the choice
+	 * away and the tick springs back. Same rule as the widget-owned control.
+	 */
+	it( 'lists the buckets the drafted range allows, not the applied one', () => {
+		const { result } = renderDateFilters( {
+			from: '2026-07-01T00:00:00.000Z',
+			to: '2026-07-30T23:59:59.999Z',
+			preset: 'last-30-days',
+			interval: 'day',
+		} );
+
+		expect( result.current.intervalOptions ).toEqual( [ 'day', 'week' ] );
+
+		act( () => {
+			result.current.onChange(
+				{
+					from: new Date( '2026-07-28T00:00:00.000Z' ),
+					to: new Date( '2026-07-30T23:59:59.999Z' ),
+				},
+				'custom'
+			);
+		} );
+
+		expect( mockNavigate ).not.toHaveBeenCalled();
+		expect( result.current.intervalOptions ).toEqual( [ 'day', 'hour' ] );
+		expect( result.current.interval ).toBe( 'day' );
+
+		// The applied window is still what the widgets drew, bucket included.
+		expect( result.current.appliedInterval ).toBe( 'day' );
+	} );
+
 	it( 'holds a comparison change while a primary edit is staged', () => {
 		const { result } = renderDateFilters( {
 			from: '2026-07-01T00:00:00.000Z',
