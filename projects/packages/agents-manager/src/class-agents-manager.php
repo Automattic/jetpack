@@ -376,7 +376,7 @@ class Agents_Manager {
 		 */
 		$agent_id = apply_filters( 'agents_manager_agent_id', null );
 
-		$this->enqueue_script( $variant );
+		$script_version = $this->enqueue_script( $variant );
 
 		$inline_data = array(
 			'agentProviders'       => $agent_providers,
@@ -389,6 +389,10 @@ class Agents_Manager {
 			'site'                 => $this->get_current_site(),
 			'helpCenterUrl'        => self::HELP_CENTER_URL,
 		);
+
+		if ( null !== $script_version ) {
+			$inline_data['version'] = $variant . ':' . $script_version;
+		}
 
 		if ( $agent_id ) {
 			$inline_data['agentId'] = $agent_id;
@@ -589,6 +593,7 @@ class Agents_Manager {
 	 * Enqueue Agents Manager script based on context.
 	 *
 	 * @param string $variant The variant of the asset file to get.
+	 * @return string|null The deployed build version from the asset file, or null when unavailable.
 	 */
 	private function enqueue_script( $variant ) {
 		$cache_key  = 'agents-manager-asset-' . $variant . '.asset.json';
@@ -597,7 +602,7 @@ class Agents_Manager {
 		if ( ! $asset_file ) {
 			$asset_file = self::get_assets_json( 'widgets.wp.com/agents-manager/agents-manager-' . $variant . '.asset.json' );
 			if ( ! $asset_file ) {
-				return;
+				return null;
 			}
 			set_transient( $cache_key, $asset_file, HOUR_IN_SECONDS );
 		}
@@ -648,6 +653,8 @@ class Agents_Manager {
 				$version
 			);
 		}
+
+		return (string) $asset_file['version'];
 	}
 
 	/**
