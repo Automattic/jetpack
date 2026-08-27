@@ -213,10 +213,12 @@ class PayPal_OAuth {
 	 * @return bool|\WP_Error True on success, false on empty input, WP_Error on encryption failure.
 	 */
 	public static function store_credentials( $client_id, $client_secret ) {
-		// Use trim() instead of sanitize_text_field() to preserve valid OAuth
-		// credential characters (+, /, =) that sanitize_text_field() may strip.
-		$client_id     = trim( wp_unslash( $client_id ) );
-		$client_secret = trim( wp_unslash( $client_secret ) );
+		// sanitize_text_field() is avoided here because it may strip valid OAuth
+		// credential characters (+, /, =). wp_strip_all_tags() leaves those
+		// intact while still removing markup, which a real PayPal credential
+		// never contains.
+		$client_id     = trim( wp_strip_all_tags( wp_unslash( $client_id ) ) );
+		$client_secret = trim( wp_strip_all_tags( wp_unslash( $client_secret ) ) );
 
 		if ( empty( $client_id ) || empty( $client_secret ) ) {
 			return false;
