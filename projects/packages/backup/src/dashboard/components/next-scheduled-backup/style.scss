@@ -1,0 +1,28 @@
+// The next-backup line sits above the Overview's two-pane grid, a
+// sibling of `.jpb-overview` rather than a child: that element is a
+// two-column grid at >= 961px, so a third child would be auto-placed
+// into the layout. Same reason the storage section and the status
+// banners are siblings.
+.jpb-next-scheduled-backup {
+	// Stated rather than inherited. `Text` renders a `<span>` and this one
+	// renders a real `<p>`, so without a rule here the gap below would be
+	// wp-admin's paragraph margin — `@wordpress/ui`'s own `margin: 0` is
+	// declared inside `@layer wp-ui`, and every layered rule loses to an
+	// unlayered one whatever its specificity.
+	// 16px rather than legacy's 24px because legacy's copy is the last
+	// thing in its column, where this one has the storage section
+	// immediately under it carrying its own 24px.
+	margin-block: 0 16px;
+}
+
+// Stands in for the line while the schedule and storage reads are in
+// flight, so the storage section below is not pushed down when they
+// land. Matches the rendered line exactly — `body-sm` is
+// `--wpds-typography-line-height-xs`, 16px — plus the same 16px gap, and
+// is deliberately narrower than the column so the pair does not read as
+// a block of content that failed to load.
+.jpb-next-scheduled-backup__placeholder {
+	block-size: 16px;
+	inline-size: 260px;
+	margin-block-end: 16px;
+}

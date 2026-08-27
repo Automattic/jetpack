@@ -9,6 +9,7 @@ import BackupNowButton from '../components/backup-now-button';
 import BackupStatusPanel, { replacesOverview } from '../components/backup-status';
 import BackupStatusBanner, { BackupTroubleBanner } from '../components/backup-status/banner';
 import DashboardLayout from '../components/dashboard-layout';
+import NextScheduledBackup from '../components/next-scheduled-backup';
 import QueryError from '../components/query-error';
 import StorageSpace from '../components/storage-space';
 import {
@@ -227,6 +228,28 @@ export default function OverviewScreen() {
 			 * loading, so the terminal case still reports immediately.
 			 */ }
 			{ ! restorePointsLoading && <BackupTroubleBanner state={ backupsState } /> }
+			{ /*
+			 * When the next one runs. A sibling of the grid for the same
+			 * reason everything above it is, and above the storage section
+			 * because that is the order legacy reads in: the schedule, then
+			 * what it is filling up.
+			 *
+			 * Deliberately not gated on `backupsState` here. Legacy mounts
+			 * its copy inside the component that only renders in
+			 * `BACKUP_STATE.COMPLETE`, but `replacesOverview` above has
+			 * already taken the body over for every state that gate was
+			 * excluding — no backups, a first backup running, a first
+			 * attempt that will retry, and nothing usable at all. What is
+			 * left is the case legacy has no view for: a site that *does*
+			 * have restore points while its latest attempt is running or
+			 * failing. There the schedule is still the true answer to "when
+			 * is the next one", and the banner directly above it has
+			 * already said what is going wrong.
+			 *
+			 * The component self-hides on the other half of legacy's gate —
+			 * see it for which "backups stopped" this dashboard means.
+			 */ }
+			<NextScheduledBackup />
 			{ /*
 			 * Above the list, and a sibling of the grid for the same
 			 * reason the banners are. It answers a question the list
