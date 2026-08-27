@@ -2,9 +2,10 @@
  * My Jetpack reports its Tracks events under the reader's WordPress.com
  * identity, and that identity is keyed `ID` — capital I, capital D.
  * `Connection\Manager::get_connected_user_data()` returns the WordPress.com
- * response verbatim and `REST_Connector::get_user_connection_data()` passes it
- * through untouched as `wpcomUser`, so the key is whichever one WordPress.com
- * sent; the PHP Tracks path reads that same array as `$wpcom_user_data['ID']`
+ * response verbatim, and `REST_Connector::get_user_connection_data()` serves it
+ * as `wpcomUser` after adding `avatar` and changing nothing else. So every
+ * other key is whichever one WordPress.com sent, and the PHP Tracks path reads
+ * that same array as `$wpcom_user_data['ID']`
  * (`packages/connection/src/class-tracking.php`).
  *
  * The failure is silent by construction: `jetpackAnalytics.initialize()` is
