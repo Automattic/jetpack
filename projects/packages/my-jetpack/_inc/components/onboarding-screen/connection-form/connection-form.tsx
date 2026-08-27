@@ -64,6 +64,7 @@ const ConnectionForm = () => {
 			{ registrationError ? (
 				<Notice status="error" isDismissible={ false }>
 					{ getConnectScreenErrorMessage( registrationError.response?.code ) ||
+						registrationError.response?.message ||
 						__( 'An error occurred. Please try again.', 'jetpack-my-jetpack' ) }
 				</Notice>
 			) : null }
