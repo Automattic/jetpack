@@ -70,7 +70,7 @@ export default function RestoreScreen() {
 					<Stack direction="row" gap="sm" align="center">
 						<Icon icon={ backupIcon } />
 						<Stack direction="column" gap="xs">
-							<Text variant="heading-md" render={ <h3 /> }>
+							<Text variant="heading-md" render={ <h2 /> }>
 								{ __( 'Restore backup', 'jetpack-backup-pkg' ) }
 							</Text>
 							<Text variant="body-sm" className="jpb-text-muted">
