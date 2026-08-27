@@ -26,9 +26,10 @@ type PopularPostRenderAttributes = PopularPostAttributes & Partial< ReportParams
 type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
 
 // The card's title names the last 12 months; the tiles under it are lifetime
-// totals, so each says so on hover rather than being read as that year's count.
+// totals, so each names its own window on hover rather than being read as that
+// year's count.
 const ALL_TIME_NOTE = () =>
-	__( 'All-time total, not the last 12 months.', 'jetpack-premium-analytics-pkg' );
+	__( 'Total since this post was published.', 'jetpack-premium-analytics-pkg' );
 
 /**
  * The last 12 months pick which post is shown; all three tiles are all-time

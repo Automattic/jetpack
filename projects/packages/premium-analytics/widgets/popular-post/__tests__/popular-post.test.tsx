@@ -154,7 +154,7 @@ describe( 'PopularPostWidget', () => {
 
 		// The note is what stops "Views 9,999" under a title naming twelve months
 		// being read as that year's count.
-		expect( screen.getAllByText( 'All-time total, not the last 12 months.' ) ).toHaveLength( 3 );
+		expect( screen.getAllByText( 'Total since this post was published.' ) ).toHaveLength( 3 );
 	} );
 
 	it( 'links the post to its detail page on the window it ranked over', async () => {
