@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Fix the conditional logic rules dialog not opening from the block toolbar while the settings sidebar is closed.
