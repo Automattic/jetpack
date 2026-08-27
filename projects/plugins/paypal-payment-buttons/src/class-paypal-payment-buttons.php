@@ -60,8 +60,19 @@ class PayPal_Payment_Buttons {
 	 * @return void
 	 */
 	public function init_hooks() {
+		// Register standalone script stubs for Jetpack dependencies not available outside the monorepo.
+		add_action( 'init', array( $this, 'register_standalone_script_stubs' ), 1 );
+
 		// Initialize PayPal Payment Buttons block with correct dist path
 		add_action( 'init', array( $this, 'register_paypal_block' ), 9 );
+
+		// Initialize PayPal API integration (REST routes for OAuth + button management).
+		Jetpack_PayPal_Payment_Buttons::init_api();
+
+		// Initialize admin dashboard (Payment Links list page).
+		if ( is_admin() ) {
+			Jetpack_PayPal_Payment_Buttons::init_admin();
+		}
 
 		// Load scripts for the editing interface
 		add_action( 'enqueue_block_editor_assets', array( Jetpack_PayPal_Payment_Buttons::class, 'load_editor_scripts' ), 9 );
@@ -72,6 +83,59 @@ class PayPal_Payment_Buttons {
 		// Load styles in the editor iframe context
 		if ( is_admin() ) {
 			add_action( 'enqueue_block_assets', array( Jetpack_PayPal_Payment_Buttons::class, 'load_editor_styles' ), 9 );
+		}
+	}
+
+	/**
+	 * Register script stubs for Jetpack dependencies that are not available in standalone mode.
+	 *
+	 * The editor.js bundle declares `jetpack-script-data` as a dependency (from
+	 *
+	 * @automattic/jetpack-script-data). In the Jetpack plugin this is registered by the
+	 * Assets package, but in standalone mode it does not exist. WordPress silently
+	 * refuses to enqueue scripts with unregistered dependencies, so we register an
+	 * empty stub to satisfy the dependency chain.
+	 */
+	public function register_standalone_script_stubs() {
+		if ( ! wp_script_is( 'jetpack-script-data', 'registered' ) ) {
+			wp_register_script( 'jetpack-script-data', false, array(), '1.0.0', false );
+
+			// The webpack build externalizes @automattic/jetpack-script-data to
+			// window.JetpackScriptDataModule (UMD global). The module's getScriptData()
+			// returns window.JetpackScriptData. Without these globals the editor.js
+			// bundle crashes at module init time in connection/state/store.jsx.
+			$current_user = wp_get_current_user();
+			$script_data  = wp_json_encode(
+				array(
+					'site' => array(
+						'icon'       => get_site_icon_url(),
+						'title'      => get_bloginfo( 'name' ),
+						'admin_url'  => admin_url(),
+						'rest_root'  => esc_url_raw( rest_url() ),
+						'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+						'wp_version' => get_bloginfo( 'version' ),
+					),
+					'user' => array(
+						'current_user' => array(
+							'id'           => $current_user->ID,
+							'display_name' => $current_user->display_name,
+							'capabilities' => array(
+								'manage_options' => current_user_can( 'manage_options' ),
+								'manage_modules' => current_user_can( 'manage_options' ),
+							),
+						),
+					),
+				),
+				JSON_HEX_TAG | JSON_HEX_AMP
+			);
+
+			$inline_js = sprintf(
+				'window.JetpackScriptData = %s;'
+				. 'window.JetpackScriptDataModule = { getScriptData: function() { return window.JetpackScriptData; } };',
+				$script_data
+			);
+
+			wp_add_inline_script( 'jetpack-script-data', $inline_js, 'before' );
 		}
 	}
 
