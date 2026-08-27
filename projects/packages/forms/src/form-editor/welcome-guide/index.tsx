@@ -18,6 +18,13 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as preferencesStore } from '@wordpress/preferences';
 import { FORM_POST_TYPE } from '../../blocks/shared/util/constants.js';
+import {
+	DISMISS_EVENT,
+	SlideTracker,
+	useGuideTracks,
+	VIEW_EVENT,
+	type GuideOrigin,
+} from './analytics';
 import { getWelcomeGuidePages, WELCOME_GUIDE_IMAGES } from './pages';
 import {
 	isCoreWelcomeGuidePending,
@@ -97,7 +104,44 @@ export const FormWelcomeGuide = () => {
 	// a request is already stored; see the effect that clears it below.
 	const [ isReopened, setIsReopened ] = useState( isCoreWelcomeGuidePending );
 
+	const pages = getWelcomeGuidePages();
+
+	const record = useGuideTracks();
+
+	/*
+	 * Reopening covers both the Options menu and a request stored from a load
+	 * this bundle never saw, which are the same thing from the user's side: they
+	 * asked for it. The query argument is checked first because a forced guide
+	 * is a developer re-testing the first run, not a real audience.
+	 */
+	const origin: GuideOrigin = isForced ? 'forced' : ( isReopened && 'menu' ) || 'auto';
+
+	// The slide the user is on, so a dismissal says how far they got. Held in a
+	// ref because only the dismissal reads it, and re-rendering on every slide
+	// change would rebuild the whole guide.
+	const currentSlide = useRef( 1 );
+
+	const recordSlideView = useCallback(
+		( event: string, props: Record< string, string | number | boolean > = {} ) => {
+			if ( typeof props.slide === 'number' ) {
+				currentSlide.current = props.slide;
+			}
+
+			record( event, props );
+		},
+		[ record ]
+	);
+
+	const recordDismiss = useCallback( () => {
+		record( DISMISS_EVENT, {
+			origin,
+			slide: currentSlide.current,
+			slide_count: pages.length,
+		} );
+	}, [ origin, pages.length, record ] );
+
 	const handleFinish = useCallback( () => {
+		recordDismiss();
 		setIsReopened( false );
 		setIsClosed( true );
 
@@ -110,7 +154,7 @@ export const FormWelcomeGuide = () => {
 		if ( ! isForced && shouldPersistDismissal( preference ) ) {
 			set( PREFERENCE_SCOPE, PREFERENCE_NAME, false );
 		}
-	}, [ isForced, preference, set ] );
+	}, [ isForced, preference, recordDismiss, set ] );
 
 	const handleReopen = useCallback( () => {
 		setIsClosed( false );
@@ -120,6 +164,17 @@ export const FormWelcomeGuide = () => {
 	const isOpen =
 		isFormEditor &&
 		isWelcomeGuideOpen( { preference, isForced, isEligible, isClosed, isReopened } );
+
+	// One view per opening, not per render.
+	useEffect( () => {
+		if ( ! isOpen ) {
+			return;
+		}
+
+		currentSlide.current = 1;
+		record( VIEW_EVENT, { origin, slide_count: pages.length } );
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- Only a change in `isOpen` is a new viewing; `origin` is fixed for one.
+	}, [ isOpen ] );
 
 	/*
 	 * `Guide` mounts only the slide you are looking at, so each illustration
@@ -190,13 +245,32 @@ export const FormWelcomeGuide = () => {
 		return null;
 	}
 
+	/*
+	 * The tracker rides inside each slide's content because `Guide` renders only
+	 * the page you are on, which makes "mounted" and "on screen" the same thing.
+	 */
+	const trackedPages = pages.map( ( page, index ) => ( {
+		...page,
+		content: (
+			<>
+				<SlideTracker
+					index={ index }
+					origin={ origin }
+					record={ recordSlideView }
+					slideCount={ pages.length }
+				/>
+				{ page.content }
+			</>
+		),
+	} ) );
+
 	return (
 		<Guide
 			className="jetpack-forms-welcome-guide"
 			contentLabel={ __( 'Welcome to the form editor', 'jetpack-forms' ) }
 			finishButtonText={ __( 'Start building', 'jetpack-forms' ) }
 			onFinish={ handleFinish }
-			pages={ getWelcomeGuidePages() }
+			pages={ trackedPages }
 		/>
 	);
 };
