@@ -30,11 +30,32 @@ type Figures = {
 	 * response can describe storage perfectly well and omit this.
 	 */
 	daysOfBackupsSaved: number | null;
+	/**
+	 * Fewest days of backups the plan will ever keep. Only the
+	 * `BackupsDiscarded` warning reads it, and `getUsageLevel` reaches
+	 * that level only from a branch guarded on this being truthy — so it
+	 * is never null where it is rendered.
+	 */
+	minDaysOfBackupsAllowed: number | null;
+	/**
+	 * Days of full backups the storage limit would hold at the size of
+	 * the last one, or null when the last backup's size is unknown.
+	 *
+	 * Legacy spells this `Math.floor( storageLimit / lastBackupSize )`
+	 * guarded by both being above zero, and collapses "cannot compute"
+	 * and "not even one fits" into the same `0`. Separating them is what
+	 * lets the help popover say nothing in the first case and be shown a
+	 * real zero in the second.
+	 */
+	forecastInDays: number | null;
+	/**
+	 * The retention the *plan* promises, which is not the same as the
+	 * retention in force: `retentionDays` above falls back to this, but
+	 * the help popover's gate compares the forecast against the promise
+	 * rather than the fallback, as legacy's does.
+	 */
+	planRetentionDays: number | null;
 };
-
-// `last_backup_size` and the plan's own retention are read off these same
-// responses but deliberately not returned: nothing consumes them yet.
-// Adding each back is one line when there is a caller.
 
 /**
  * `hasUsableFigures` is a discriminant, not a convenience flag: it is the
@@ -94,14 +115,29 @@ export function useStorageUsage(): Result {
 	// planRetentionDays` at `backup-storage-space/index.jsx:33`, and the
 	// `||` is load-bearing: `retention_days` is `0` on a site with no
 	// retention policy, not absent.
-	const retentionDays = size?.retention_days || ( policies?.activity_log_limit_days ?? null );
+	const planRetentionDays = policies?.activity_log_limit_days ?? null;
+	const retentionDays = size?.retention_days || planRetentionDays;
 
 	const daysOfBackupsSaved = size?.days_of_backups_saved ?? null;
+	const minDaysOfBackupsAllowed = size?.min_days_of_backups_allowed ?? null;
+
+	// Both above zero or no forecast. `last_backup_size` is one of the
+	// fields a `/size` response may simply omit, and a site with nothing
+	// to measure can report it as zero — either way there is no divisor,
+	// and `Math.floor( limit / 0 )` is `Infinity`, which would go on to
+	// be rendered as a day count. A limit of zero is separately not a
+	// limit anyone can be measured against, the same judgement
+	// `hasUsableFigures` makes below.
+	const lastBackupSize = size?.last_backup_size ?? null;
+	const forecastInDays =
+		storageLimit !== null && storageLimit > 0 && lastBackupSize !== null && lastBackupSize > 0
+			? Math.floor( storageLimit / lastBackupSize )
+			: null;
 
 	const usageLevel = getUsageLevel(
 		storageUsed,
 		storageLimit,
-		size?.min_days_of_backups_allowed ?? null,
+		minDaysOfBackupsAllowed,
 		size?.days_of_backups_allowed ?? null,
 		retentionDays,
 		daysOfBackupsSaved
@@ -111,6 +147,9 @@ export function useStorageUsage(): Result {
 		usageLevel,
 		isLoading: sizeQuery.isLoading || policiesQuery.isLoading,
 		daysOfBackupsSaved,
+		minDaysOfBackupsAllowed,
+		forecastInDays,
+		planRetentionDays,
 	};
 
 	// A limit of zero is not a limit anyone can be measured against, and a

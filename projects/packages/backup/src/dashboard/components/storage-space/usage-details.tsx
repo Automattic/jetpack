@@ -3,6 +3,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Link, Stack, Text } from '@wordpress/ui';
 import { useSiteSuffix } from '../../hooks/use-connection';
+import StorageHelpPopover from './help-popover';
 import type { ReactNode } from 'react';
 
 // Binary multiples, as legacy spells them. WordPress.com reports these
@@ -105,6 +106,13 @@ type Props = {
 	storageUsed: number;
 	storageLimit: number;
 	daysOfBackupsSaved: number | null;
+	/**
+	 * Days of full backups the limit would hold, when that is worth
+	 * explaining; null when it is not. The section decides — see
+	 * `helpForecast` in `index.tsx` — so this component only has to
+	 * render or not render.
+	 */
+	helpForecastInDays: number | null;
 };
 
 /**
@@ -119,22 +127,23 @@ type Props = {
  * section's `hasUsableFigures` branch, so both byte figures are known
  * numbers by the time they get here and neither needs re-testing.
  *
- * Legacy's copy of this also hosts the storage help popover. That is
- * JETPACK-2332 and deliberately absent, along with the Tracks event its
- * purchase link fires — there is no Tracks client on the modernized page
- * yet (JETPACK-2301). Legacy's own orchestrator never passes the
- * `onClickedPurchase` prop either, so nothing is lost in the meantime.
+ * The one exception to "presentational" is the help popover, which sits
+ * beside the usage reading as it does in legacy — that is where the
+ * question it answers is raised. It brings its own data and its own
+ * Tracks event; what arrives as a prop is only whether to show it.
  *
  * @param props                    - Component props.
  * @param props.storageUsed        - Bytes of backup storage in use.
  * @param props.storageLimit       - The plan's storage limit in bytes.
  * @param props.daysOfBackupsSaved - Days of history held, or null when unreported.
+ * @param props.helpForecastInDays - Days of backups the limit holds, or null for no popover.
  * @return The rendered readings.
  */
 export default function StorageUsageDetails( {
 	storageUsed,
 	storageLimit,
 	daysOfBackupsSaved,
+	helpForecastInDays,
 }: Props ) {
 	const site = useSiteSuffix();
 
@@ -162,7 +171,23 @@ export default function StorageUsageDetails( {
 			wrap="wrap"
 			gap="xs"
 		>
-			<Text variant="body-md">{ usageText( storageUsed, storageLimit ) }</Text>
+			{ /*
+			 * The reading and its info button travel together — the button
+			 * explains that reading and nothing else — so they share a row
+			 * of their own rather than becoming two children of the
+			 * space-between row above, where the button would be flung to
+			 * the far end.
+			 */ }
+			<Stack direction="row" gap="xs" align="center">
+				<Text variant="body-md">{ usageText( storageUsed, storageLimit ) }</Text>
+				{ helpForecastInDays !== null && (
+					<StorageHelpPopover
+						forecastInDays={ helpForecastInDays }
+						storageUsed={ storageUsed }
+						storageLimit={ storageLimit }
+					/>
+				) }
+			</Stack>
 			{ /*
 			 * Omitted rather than shown as "0 days" when the count is
 			 * missing. Legacy renders the plural label over its selector's

@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { Skeleton, Text } from '@wordpress/ui';
 import { StorageUsageLevels } from '../../data/storage-usage-levels';
 import { useStorageUsage } from '../../hooks/use-storage-usage';
+import StorageAddonUpsell from './addon-upsell';
 import StorageMeter from './meter';
 import StorageUsageDetails from './usage-details';
 import './style.scss';
@@ -31,6 +32,51 @@ function sectionHeading( usageLevel: StorageUsageLevelName | null ): string {
 }
 
 /**
+ * The forecast worth putting behind an info button, or null for none.
+ *
+ * Legacy's gate, in one place instead of two: it splits the same
+ * decision between the parent (`forecastInDays < planRetentionDays &&
+ * usageLevel === Normal`) and the popover's own early return on a falsy
+ * forecast. Both halves are here.
+ *
+ * `Normal` is the whole of the reason this and the upsell never appear
+ * together. Above `Normal` the section is already saying storage is
+ * running out and offering more of it, and a second, calmer explanation
+ * of how many days fit would be arguing with it.
+ *
+ * The comparison is against what the *plan* promises, not the retention
+ * in force. If the site is already holding fewer days than the plan
+ * offers, the limit — not the plan — is what is deciding, and that is
+ * the only case worth explaining.
+ *
+ * @param usageLevel        - Derived level, or null when it could not be computed.
+ * @param forecastInDays    - Days of full backups the limit would hold, or null.
+ * @param planRetentionDays - Days the plan promises, or null when unreported.
+ * @return The forecast to show, or null.
+ */
+function helpForecast(
+	usageLevel: StorageUsageLevelName | null,
+	forecastInDays: number | null,
+	planRetentionDays: number | null
+): number | null {
+	if ( usageLevel !== StorageUsageLevels.Normal ) {
+		return null;
+	}
+
+	if ( forecastInDays === null || planRetentionDays === null ) {
+		return null;
+	}
+
+	// A forecast of zero is a real answer — it is what a site whose last
+	// backup is larger than its entire limit looks like — but "we will
+	// keep zero days of backups" is not something an info button beside a
+	// calm meter can usefully explain, so it counts as nothing to say.
+	// Legacy arrives at the same place from the other end: its popover
+	// returns early on any falsy forecast.
+	return forecastInDays > 0 && forecastInDays < planRetentionDays ? forecastInDays : null;
+}
+
+/**
  * The Overview screen's storage section.
  *
  * Renders nothing at all until both halves of the answer have arrived and
@@ -39,8 +85,12 @@ function sectionHeading( usageLevel: StorageUsageLevelName | null ): string {
  * meter that means nothing. That silence is deliberate and matches the
  * legacy dashboard's own `storageSize !== null && storageLimit > 0` gate.
  *
- * Sibling issues add the upsell and the help popover inside this same
- * section.
+ * The two things that hang off the readings are mutually exclusive by
+ * construction: the add-on upsell renders above `Normal`, and the help
+ * popover only at it. A site therefore sees one explanation of its
+ * storage or the other, never both — and only one of them asks
+ * `/site/backup/addon-offer`, which is what keeps that request to one
+ * per page even though two components can make it.
  *
  * @return The storage section, or null when there is nothing to show.
  */
@@ -100,7 +150,21 @@ export default function StorageSpace() {
 				storageUsed={ usage.storageUsed }
 				storageLimit={ usage.storageLimit }
 				daysOfBackupsSaved={ usage.daysOfBackupsSaved }
+				helpForecastInDays={ helpForecast(
+					usage.usageLevel,
+					usage.forecastInDays,
+					usage.planRetentionDays
+				) }
 			/>
+			{ usage.usageLevel !== StorageUsageLevels.Normal && (
+				<StorageAddonUpsell
+					usageLevel={ usage.usageLevel }
+					storageUsed={ usage.storageUsed }
+					storageLimit={ usage.storageLimit }
+					daysOfBackupsSaved={ usage.daysOfBackupsSaved }
+					minDaysOfBackupsAllowed={ usage.minDaysOfBackupsAllowed }
+				/>
+			) }
 		</section>
 	);
 }
