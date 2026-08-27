@@ -218,6 +218,45 @@ function scheduleLine(): Promise< HTMLElement > {
 }
 
 /**
+ * The Overview's two-pane grid.
+ *
+ * A layout container with no role and no accessible name, so its class is
+ * the only handle — the same escape hatch the storage suites use.
+ *
+ * @return The grid, or null when the Overview body is not rendered.
+ */
+function overviewGrid(): HTMLElement | null {
+	return document.querySelector( '.jpb-overview' );
+}
+
+/**
+ * Where the schedule line sits relative to that grid.
+ *
+ * All the direct node access lives here rather than in the test body,
+ * which is both what `testing-library/no-node-access` wants and the only
+ * way to ask this question at all — neither "is a sibling of" nor "comes
+ * before" has a Testing Library query.
+ *
+ * @param line - The rendered schedule line.
+ * @return Whether it is a sibling of the grid, and whether it precedes it.
+ */
+function placementRelativeToGrid( line: HTMLElement ) {
+	/* eslint-disable testing-library/no-node-access -- the question *is* about node relationships; see above. */
+	const grid = overviewGrid();
+	const gridParent = grid?.parentElement ?? null;
+
+	return {
+		isSibling: gridParent !== null && line.parentElement === gridParent,
+		comesFirst: Boolean(
+			grid &&
+				// eslint-disable-next-line no-bitwise -- compareDocumentPosition returns a bitmask.
+				line.compareDocumentPosition( grid ) & Node.DOCUMENT_POSITION_FOLLOWING
+		),
+	};
+	/* eslint-enable testing-library/no-node-access */
+}
+
+/**
  * The skeleton that holds the line's space while the reads are in
  * flight. A placeholder carries no role and no accessible name, so its
  * class is the only handle — the same escape hatch the storage suites
@@ -375,6 +414,38 @@ describe( 'when there is nothing to report', () => {
 		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'says nothing when the hour is not a whole number', async () => {
+		// `Date.UTC` truncates rather than rejecting — hour 10.5 is
+		// 10:00:00Z — so without `Number.isInteger` this renders a
+		// confident "10:00-10:59 AM" for a payload we could not actually
+		// read. Verified: `new Date( Date.UTC( 2026, 9, 22, 10.5, 0, 0, 0 ) )`
+		// is `2026-10-22T10:00:00.000Z`.
+		freezeClock( '2026-10-22T05:00:00Z' );
+		mockEndpoints( { schedule: { ok: true, scheduled_hour: 10.5 } } );
+
+		const client = newQueryClient();
+		renderWithClient( <NextScheduledBackup />, client );
+
+		await readsSettled( client );
+		expect( placeholder() ).toBeNull();
+		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'says nothing when the hour is negative', async () => {
+		// The other end of the range, and it fails the same silent way:
+		// `Date.UTC( …, -1, … )` is 23:00 on the *previous* day, so this
+		// would report a backup at 11:00 PM that nobody scheduled.
+		freezeClock( '2026-10-22T05:00:00Z' );
+		mockEndpoints( { schedule: { ok: true, scheduled_hour: -1 } } );
+
+		const client = newQueryClient();
+		renderWithClient( <NextScheduledBackup />, client );
+
+		await readsSettled( client );
+		expect( placeholder() ).toBeNull();
+		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'says nothing when the hour is out of range', async () => {
 		// `Date.UTC( …, 24, … )` is not an error, it is the following
 		// midnight — so without the range check this would report a backup
@@ -412,23 +483,73 @@ describe( 'when there is nothing to report', () => {
 	} );
 } );
 
-describe( 'while the reads are in flight', () => {
-	it( "holds the line's height so the storage section is not pushed down", async () => {
+describe( 'when the site cannot reach WordPress.com', () => {
+	it( 'does not issue the request at all', async () => {
+		// `enabled: useCanQueryWpcom()` on the query. A site that is
+		// registered but has no connected owner cannot answer this route,
+		// and asking anyway spends a round trip to be told so. `<Gates>`
+		// keeps most readers away from here, but nothing else pins the
+		// line itself, and a disabled query is also what keeps
+		// `isLoading` false — so dropping it would leave the placeholder
+		// up forever rather than merely wasting a request.
 		freezeClock( '2026-10-22T05:00:00Z' );
-		let release: ( v: unknown ) => void = () => {};
-		const pending = new Promise( resolve => {
-			release = resolve;
-		} );
-		mockApiFetch.mockImplementation( ( options: { path?: string } ) =>
-			( options?.path ?? '' ).includes( '/site/backup/' ) ? pending : Promise.resolve( {} )
-		);
+		window.JP_CONNECTION_INITIAL_STATE = {
+			...window.JP_CONNECTION_INITIAL_STATE,
+			connectionStatus: { isRegistered: true, hasConnectedOwner: false, isUserConnected: false },
+		} as typeof window.JP_CONNECTION_INITIAL_STATE;
 
 		renderWithClient( <NextScheduledBackup /> );
 
-		await waitFor( () => expect( placeholder() ).not.toBeNull() );
+		// Nothing rendered, and — the part that matters — nothing asked.
+		await waitFor( () => expect( placeholder() ).toBeNull() );
+		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();
+		expect( mockApiFetch ).not.toHaveBeenCalledWith(
+			expect.objectContaining( { path: expect.stringContaining( '/site/backup/schedule' ) } )
+		);
+	} );
+} );
+
+describe( 'while the reads are in flight', () => {
+	it( "holds the line's height so the storage section is not pushed down", async () => {
+		// Only `/site/backup/size` is left pending, and that is the whole
+		// point of the test. Holding *both* requests open would be
+		// satisfied by `schedule.isLoading` alone, so the second half of
+		// the guard could be deleted with every test still green — which
+		// is exactly what happened before this was narrowed.
+		freezeClock( '2026-10-22T05:00:00Z' );
+		let releaseSize: ( v: unknown ) => void = () => {};
+		const pendingSize = new Promise( resolve => {
+			releaseSize = resolve;
+		} );
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+			const path = options?.path ?? '';
+			if ( path.includes( '/site/backup/schedule' ) ) {
+				return Promise.resolve( { ok: true, scheduled_hour: 10 } );
+			}
+			if ( path.includes( '/site/backup/size' ) ) {
+				return pendingSize;
+			}
+			return Promise.resolve( {} );
+		} );
+
+		const client = newQueryClient();
+		renderWithClient( <NextScheduledBackup />, client );
+
+		// The schedule has landed and could be rendered…
+		await waitFor( () =>
+			expect( client.getQueryState( keys.backupSchedule() )?.status ).toBe( 'success' )
+		);
+		// …and is deliberately still held back, because `/size` has not yet
+		// said whether WordPress.com is even running these backups. Showing
+		// the line now means retracting it a moment later on a site that is
+		// out of storage.
+		expect( placeholder() ).not.toBeNull();
 		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();
 
-		release( { ok: true, scheduled_hour: 10, backups_stopped: false } );
+		releaseSize( { ok: true, backups_stopped: false } );
+		await expect( scheduleLine() ).resolves.toHaveTextContent(
+			/^Next full backup: Oct 22, 10:00-10:59 AM\.$/
+		);
 	} );
 } );
 
@@ -480,9 +601,18 @@ describe( 'on the Overview', () => {
 
 		render( <OverviewStage /> );
 
-		await expect(
-			screen.findByText( /^Next full backup/, undefined, SETTLE )
-		).resolves.toHaveTextContent( /^Next full backup: Oct 22, 10:00-10:59 AM\.$/ );
+		const line = await screen.findByText( /^Next full backup/, undefined, SETTLE );
+		expect( line ).toHaveTextContent( /^Next full backup: Oct 22, 10:00-10:59 AM\.$/ );
+
+		// Placement, not just presence. `.jpb-overview` is a two-column
+		// grid above 960px, so this element has to be its *sibling* and
+		// has to come before it — as a child it would be auto-placed into
+		// a grid cell, and after it the schedule would sit below the fold
+		// under a full-height activity list. Asserting the text alone let
+		// both of those through: moving the mount below the grid changed
+		// nothing any test could see.
+		expect( overviewGrid() ).not.toBeNull();
+		expect( placementRelativeToGrid( line ) ).toEqual( { isSibling: true, comesFirst: true } );
 	} );
 
 	it( 'stays away while the first-run panel has the body', async () => {
