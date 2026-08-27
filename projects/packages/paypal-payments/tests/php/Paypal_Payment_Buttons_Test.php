@@ -268,6 +268,65 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
+	 * Test that init_rest_api() hooks the REST routes.
+	 *
+	 * The Jetpack plugin calls this instead of init_api(); if it stops registering
+	 * the routes, every request the block editor makes returns 404.
+	 */
+	public function test_init_rest_api_registers_the_routes() {
+		remove_all_actions( 'rest_api_init' );
+
+		PayPal_Payment_Buttons::init_rest_api();
+
+		$this->assertNotFalse(
+			has_action( 'rest_api_init', array( PayPal_REST_Controller::class, 'register_routes' ) )
+		);
+
+		remove_all_actions( 'rest_api_init' );
+	}
+
+	/**
+	 * Test that init_rest_api() does not register the standalone script stubs.
+	 *
+	 * Script_Data registers the real jetpack-script-data handle on wp_loaded, after
+	 * init. A stub registered first wins, and the block editor is then left without
+	 * window.JetpackScriptData -- which breaks the editor for every block, not just
+	 * this one.
+	 */
+	public function test_init_rest_api_does_not_register_script_stubs() {
+		remove_all_actions( 'init' );
+		remove_all_actions( 'rest_api_init' );
+
+		PayPal_Payment_Buttons::init_rest_api();
+
+		$this->assertFalse(
+			has_action( 'init', array( PayPal_Payment_Buttons::class, 'register_standalone_script_stubs' ) )
+		);
+
+		remove_all_actions( 'init' );
+		remove_all_actions( 'rest_api_init' );
+	}
+
+	/**
+	 * Test that the script stub is registered when the Jetpack runtime is absent.
+	 *
+	 * This is the standalone and Playground case the stub exists for. The Jetpack
+	 * case is covered by init_rest_api() not hooking the stub at all, since
+	 * defining a stand-in Jetpack class here would leak into every other test.
+	 */
+	public function test_script_stub_registers_without_jetpack() {
+		$this->assertFalse( class_exists( 'Jetpack' ), 'Precondition: no Jetpack runtime in this suite.' );
+
+		wp_deregister_script( 'jetpack-script-data' );
+
+		PayPal_Payment_Buttons::register_standalone_script_stubs();
+
+		$this->assertTrue( wp_script_is( 'jetpack-script-data', 'registered' ) );
+
+		wp_deregister_script( 'jetpack-script-data' );
+	}
+
+	/**
 	 * Test that render_block includes product image when imageUrl is set.
 	 */
 	public function test_render_block_includes_product_image() {
