@@ -39,18 +39,45 @@ type StatsInsightsData = {
 export type StatsInsightsResponse = Partial< StatsInsightsData >;
 
 /**
- * Reads a bounded index, rejecting anything the endpoint would not have meant:
- * absent, non-numeric, or outside the range. Returning `undefined` rather than a
- * fallback keeps a missing field from reading as a real answer downstream.
+ * Reads a finite number, or nothing when the value cannot be one.
+ *
+ * Returning `undefined` rather than a fallback is the point: a coerced 0 is
+ * indistinguishable downstream from a measured 0.
+ *
+ * @param value - Raw payload value.
+ * @return The number, or `undefined`.
+ */
+function readNumber( value: unknown ): number | undefined {
+	// Numbers and numeric strings only — `Number` reads `[]` as 0 and `[5]` as 5,
+	// so anything else is a shape the endpoint did not mean. `Number`, not
+	// `parseInt`: parsing salvages a leading digit, so `3.9` or `6abc` would
+	// truncate into a neighbouring value that looks like a real answer.
+	if ( typeof value !== 'number' && typeof value !== 'string' ) {
+		return undefined;
+	}
+
+	if ( typeof value === 'string' && value.trim() === '' ) {
+		return undefined;
+	}
+
+	const parsed = Number( value );
+
+	return Number.isFinite( parsed ) ? parsed : undefined;
+}
+
+/**
+ * Reads a bounded whole index, rejecting anything outside the range.
  *
  * @param value - Raw payload value.
  * @param max   - Highest index the field may take.
  * @return The index, or `undefined` when the value cannot be one.
  */
 function readIndex( value: unknown, max: number ): number | undefined {
-	const parsed = safeParseInt( value, NaN );
+	const parsed = readNumber( value );
 
-	return Number.isInteger( parsed ) && parsed >= 0 && parsed <= max ? parsed : undefined;
+	return parsed !== undefined && Number.isInteger( parsed ) && parsed >= 0 && parsed <= max
+		? parsed
+		: undefined;
 }
 
 function normalizeInsightsYear( year: unknown ): StatsInsightsYear {
@@ -71,16 +98,19 @@ function normalizeInsightsYear( year: unknown ): StatsInsightsYear {
 }
 
 /**
- * Reads a share as a whole percent under the given key, or nothing at all.
+ * Reads a share as a whole percent, or nothing when the payload has none.
+ *
+ * Rejects the same junk `readIndex` does rather than only absent values: a
+ * share that fell back to 0 would caption a real peak with "0% of views", which
+ * reads as a measurement rather than a gap.
  *
  * @param value - Raw payload value.
- * @param key   - Field name to emit it under.
- * @return A single-entry object, or an empty one when the share is absent.
+ * @return The whole percent, or `undefined` when the value cannot be one.
  */
-function readShare( value: unknown, key: 'percent' | 'hourPercent' ) {
-	return value === undefined || value === null
-		? {}
-		: { [ key ]: Math.round( safeParseFloat( value ) ) };
+function readShare( value: unknown ): number | undefined {
+	const parsed = readNumber( value );
+
+	return parsed === undefined ? undefined : Math.round( parsed );
 }
 
 function normalizeHourlyViews( hourlyViews: unknown ): StatsInsightsHourlyViews {
@@ -94,22 +124,22 @@ function normalizeHourlyViews( hourlyViews: unknown ): StatsInsightsHourlyViews 
 export function sanitizeStatsInsightsResponse( response: unknown ): StatsInsightsResponse {
 	const payload = coerceStatsRecord( response );
 	const dayOfWeek = readIndex( payload.highest_day_of_week, 6 );
-
-	if ( dayOfWeek === undefined ) {
-		return {};
-	}
-
 	const hourOfDay = readIndex( payload.highest_hour, 23 );
+	const percent = readShare( payload.highest_day_percent );
+	const hourPercent = readShare( payload.highest_hour_percent );
 
-	// Each field is omitted rather than defaulted when the payload lacks it: a
-	// missing hour is not midnight and a missing share is not 0%, and either
-	// coercion reads as a real answer instead of an absent one.
+	// Every field stands or falls on its own. One report feeds two widgets — the
+	// peak highlights and Annual highlights' per-year totals — so a site with
+	// years but no peak day must not lose its years to the missing peak. Within
+	// the peak itself, a missing hour is not midnight and a missing share is not
+	// 0%: either coercion reads as a real answer rather than an absent one.
 	return {
-		dayOfWeek,
-		...readShare( payload.highest_day_percent, 'percent' ),
-		...( hourOfDay === undefined
+		...( dayOfWeek === undefined
 			? {}
-			: { hourOfDay, ...readShare( payload.highest_hour_percent, 'hourPercent' ) } ),
+			: { dayOfWeek, ...( percent === undefined ? {} : { percent } ) } ),
+		...( dayOfWeek === undefined || hourOfDay === undefined
+			? {}
+			: { hourOfDay, ...( hourPercent === undefined ? {} : { hourPercent } ) } ),
 		hourlyViews: normalizeHourlyViews( payload.hourly_views ),
 		years: Array.isArray( payload.years ) ? payload.years.map( normalizeInsightsYear ) : [],
 	};

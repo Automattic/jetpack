@@ -91,26 +91,32 @@ function MostPopularTimeReport() {
 	// `undefined`, not falsiness — Monday and midnight are both 0.
 	const { dayOfWeek, hourOfDay, percent, hourPercent } = report ?? {};
 	const isEmpty = dayOfWeek === undefined;
+	// `placeholderData` keeps the prior response on a transient refetch failure,
+	// so the error only surfaces when there is nothing left to show.
+	const showError = isError && isEmpty;
 
 	return (
 		<div className={ styles.content }>
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
-				// The query keeps the previous response via `placeholderData`, so only
-				// surface the error when there is nothing to show.
-				isError={ isError && isEmpty }
+				isError={ showError }
 				isEmpty={ isEmpty }
 				// Mapped rather than hand-written: a 403 from a reader without stats
 				// access is not something retrying fixes, and describeError drops the
-				// Retry action for it.
-				error={ describeError( error, {
-					retryDescription: __(
-						"We couldn't load your most popular time. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					onRetry: refetch,
-				} ) }
+				// Retry action for it. Gated on the same predicate as `isError` so the
+				// two cannot disagree.
+				error={
+					showError
+						? describeError( error, {
+								retryDescription: __(
+									"We couldn't load your most popular time. Please try again in a moment.",
+									'jetpack-premium-analytics-pkg'
+								),
+								onRetry: refetch,
+						  } )
+						: null
+				}
 				empty={ {
 					icon: scheduled,
 					description: __(
