@@ -42,7 +42,7 @@
 	display: block;
 	min-block-size: 36px;
 	padding-block: var(--wpds-dimension-padding-sm);
-	padding-inline: var(--wpds-dimension-padding-sm);
+	padding-inline: var(--wpds-dimension-padding-md);
 	overflow: hidden;
 	color: var(--wpds-color-foreground-interactive-brand);
 	text-overflow: ellipsis;

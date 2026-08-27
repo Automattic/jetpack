@@ -176,6 +176,9 @@ export function ComparativeLineChart( {
 	compactWhenShort = false,
 	defaultHiddenSeries,
 	legendInteractive = false,
+	onPointerDown,
+	onPointerUp,
+	onDatumActivate,
 }: ComparativeLineChartProps ) {
 	const tooltipDateFormat = dateFormatForResolution( tickResolution );
 	// The measured Stack fills its container (flex), so its height is independent
@@ -324,6 +327,9 @@ export function ComparativeLineChart( {
 				withGradientFill
 				withTooltips={ !! renderTooltip && ! isEmptyData }
 				renderTooltip={ renderTooltip }
+				onPointerDown={ onPointerDown }
+				onPointerUp={ onPointerUp }
+				onDatumActivate={ onDatumActivate }
 			>
 				{ /* Names the metrics; the solid line against its dashed overlay is what
 				     tells the current period from the previous one. */ }

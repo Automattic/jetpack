@@ -88,6 +88,7 @@ describe( 'TopPostsWidget', () => {
 		const titleLink = await screen.findByRole( 'link', { name: /^Hello World Post$/ } );
 		expect( titleLink ).toHaveAttribute( 'href', expect.stringContaining( '/post/1' ) );
 		expect( titleLink ).not.toHaveAttribute( 'target' );
+		expect( titleLink ).toHaveAttribute( 'title', 'Hello World Post' );
 
 		// A row with a detail page carries no link out to the live post: the
 		// external-link icon marks destinations outside the app, and the detail
@@ -529,6 +530,7 @@ describe( 'TopPostsWidget', () => {
 		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
 		// The homepage entry has no URL — it must not render as a link.
 		expect( screen.queryByRole( 'link', { name: /Homepage/ } ) ).not.toBeInTheDocument();
+		expect( screen.getByTitle( 'Homepage (Latest posts)' ) ).toBeInTheDocument();
 	} );
 
 	it( 'gates archive comparison UI on overlapping archive types', async () => {

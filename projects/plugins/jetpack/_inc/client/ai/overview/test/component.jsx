@@ -16,7 +16,6 @@ const PROPS = {
 	blogId: 1,
 	activityLogUrl: 'https://example.com/activity',
 	upgradeUrl: 'https://example.com/upgrade',
-	isWpcomHosted: true,
 	showActivityLog: true,
 };
 
@@ -296,25 +295,6 @@ describe( 'AiOverview', () => {
 
 		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /Activity log/ } ) ).not.toBeInTheDocument();
-	} );
-
-	test( 'walkthrough videos: hidden on sites not hosted on WordPress.com', async () => {
-		// The cards link to WordPress.com courses (i4 thread), so the row only
-		// belongs on WordPress.com-hosted sites — absent flag means hidden.
-		apiFetch.mockResolvedValueOnce( freePayload() );
-
-		render( <AiOverview { ...PROPS } isWpcomHosted={ false } /> );
-
-		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'Walkthrough videos' ) ).not.toBeInTheDocument();
-		// The docs section stays, minus the one guide written for
-		// WordPress.com plans and settings screens.
-		expect( screen.getByText( 'Documentation' ) ).toBeInTheDocument();
-		expect(
-			screen.queryByRole( 'link', { name: /Setting up agentic workflows/ } )
-		).not.toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: /MCP integration guide/ } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: /Available capabilities/ } ) ).toBeInTheDocument();
 	} );
 
 	test( 'walkthrough videos: renders the four cards with their durations', async () => {

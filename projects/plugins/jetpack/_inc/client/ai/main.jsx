@@ -110,8 +110,8 @@ function Breadcrumbs( { view, onNavigate } ) {
 						className="jetpack-ai-admin__breadcrumb-link"
 						onClick={ onNavigate }
 					>
-						{ /** "AI" is a product name and should not be translated. */ }
-						AI
+						{ /** "Jetpack AI" is a product name and should not be translated. */ }
+						Jetpack AI
 					</button>
 				</li>
 				<li>
@@ -140,7 +140,6 @@ export default function App() {
 		planName,
 		planRenewsOn,
 		planAutoRenew,
-		isWpcomHosted,
 		isUserConnected,
 	} = window?.jetpackAiSettings ?? {};
 	const [ view, setView ] = useState( getViewFromHash );
@@ -241,11 +240,11 @@ export default function App() {
 
 	return (
 		<AdminPage
-			title={ isSubView ? undefined : 'AI' /* "AI" is a product name, not translated. */ }
+			title={ isSubView ? undefined : 'Jetpack AI' /* Product name, not translated. */ }
 			subTitle={
 				isSubView
 					? SUB_VIEW_DESCRIPTIONS[ view ]
-					: __( 'Control how AI agents interact with your site.', 'jetpack' )
+					: __( 'Create, connect, and automate with Jetpack AI.', 'jetpack' )
 			}
 			breadcrumbs={
 				isSubView ? <Breadcrumbs view={ view } onNavigate={ navigateBack } /> : undefined
@@ -357,7 +356,6 @@ export default function App() {
 						planName={ planName }
 						planRenewsOn={ planRenewsOn }
 						planAutoRenew={ planAutoRenew }
-						isWpcomHosted={ isWpcomHosted }
 						isUserConnected={ isUserConnected }
 						hostAllowsAi={ aiSettings?.host_allows_ai }
 						// Same preconditions the MCP hub applies to its copy of the

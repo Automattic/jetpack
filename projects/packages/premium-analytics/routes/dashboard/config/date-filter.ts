@@ -22,28 +22,33 @@ export const DATE_FILTER_RANGE = 'range';
 export const DATE_FILTER_YEAR = 'year';
 
 /**
- * The date filter a section's header offers. Mirrors
+ * The shape a section's date filter takes — not where it renders, and not what
+ * it supports, which are `DateFilterOptions`. Mirrors
  * `Dashboard_Section::DATE_FILTERS` on the server, which is the source of truth.
  */
 export type DateFilterSurface = typeof DATE_FILTER_RANGE | typeof DATE_FILTER_YEAR;
 
 /**
- * Which optional controls a section's date filter offers. Mirrors
+ * What a section's date filter supports, and where it renders. Mirrors
  * `Dashboard_Section::$date_filter_options` on the server.
  */
 export type DateFilterOptions = {
 	with_date_comparison: boolean;
+	// Optional: a payload served before this field existed carries no placement.
+	with_header_date_control?: boolean;
 };
 
 /**
- * Whether the section's header offers the comparison control.
+ * Whether the section supports period-over-period comparison at all.
  *
- * The year surface never does; on the range surface the section decides.
- * Absent options keep the control, as every section did before the field.
+ * Not just chrome: false has `WidgetRoot` drop the comparison from the params
+ * every widget in the section fetches and renders with.
+ *
+ * The year surface never supports it; otherwise the section decides.
  *
  * @param surface - The active section's date-filter surface.
  * @param options - The active section's date-filter options, if any.
- * @return Whether to render the comparison control.
+ * @return Whether the section supports comparison.
  */
 export function offersDateComparison(
 	surface: DateFilterSurface,

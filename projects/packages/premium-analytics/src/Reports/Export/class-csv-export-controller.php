@@ -177,7 +177,7 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 				'description'       => __( 'Time interval for grouping data.', 'jetpack-premium-analytics-pkg' ),
 				'type'              => 'string',
 				'default'           => 'day',
-				'enum'              => array( 'hour', 'day', 'week', 'month', 'quarter', 'year' ),
+				'enum'              => array( 'hour', 'day', 'week', 'month', 'year' ),
 				'validate_callback' => 'rest_validate_request_arg',
 			),
 			'date_type'       => array(

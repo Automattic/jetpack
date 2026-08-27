@@ -172,6 +172,11 @@ interface UseKeyboardNavigationProps {
 	 * Total number of navigation points (length of tooltip data array)
 	 */
 	totalPoints: number;
+	/**
+	 * Called with the selected index on Enter or Space, so a chart can treat the
+	 * keyboard selection the way it treats a click.
+	 */
+	onActivate?: ( index: number ) => void;
 }
 
 export const useKeyboardNavigation = ( {
@@ -181,6 +186,7 @@ export const useKeyboardNavigation = ( {
 	setIsNavigating,
 	chartRef,
 	totalPoints,
+	onActivate,
 }: UseKeyboardNavigationProps ) => {
 	// Focus the tooltip as soon as it is rendered
 	const tooltipRef = useCallback(
@@ -237,9 +243,11 @@ export const useKeyboardNavigation = ( {
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
 				chartRef.current?.focus();
+			} else if ( ( event.key === 'Enter' || event.key === ' ' ) && selectedIndex !== undefined ) {
+				onActivate?.( selectedIndex );
 			}
 		},
-		[ totalPoints, selectedIndex, setSelectedIndex, setIsNavigating, chartRef ]
+		[ totalPoints, selectedIndex, setSelectedIndex, setIsNavigating, chartRef, onActivate ]
 	);
 
 	return {

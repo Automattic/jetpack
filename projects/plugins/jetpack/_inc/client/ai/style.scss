@@ -160,6 +160,11 @@ body.jetpack_page_jetpack-ai {
 	}
 }
 
+// Keeps the notice link on one line, so it does not wrap mid-phrase.
+.jetpack-ai-features__notice-link {
+	white-space: nowrap;
+}
+
 // Feature rows: the design aligns the action link with the label's text
 // column. ToggleControl already indents its own help text; only the link
 // (rendered outside the control) needs the matching offset — 40px, same as

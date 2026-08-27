@@ -51,7 +51,6 @@ export {
 	type LeaderboardRowChartProps,
 	type LeaderboardRowMedia,
 	type LeaderboardRowProps,
-	type LeaderboardRowVariant,
 	BarChart,
 	BarChartSkeleton,
 	type BarChartProps,
@@ -85,7 +84,6 @@ export {
 	type PostDetailLinkProps,
 	LeaderboardPostLabel,
 	type LeaderboardPostLabelProps,
-	type LeaderboardPostLabelVariant,
 	PostHighlightCard,
 	PostHighlightCardSkeleton,
 	type PostHighlightCardMetric,
@@ -154,7 +152,7 @@ export { COLOR_GRAY_100, WIDGET_ROW_LIMIT } from './constants';
 /**
  * Widget edit fields
  */
-export { ReportParamsField, type ReportParamsFieldAttributes } from './fields';
+export type { ReportParamsFieldAttributes } from './fields';
 
 /**
  * Helpers and utilities

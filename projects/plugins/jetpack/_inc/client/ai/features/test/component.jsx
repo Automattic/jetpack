@@ -193,7 +193,7 @@ describe( 'AiFeatures rendering', () => {
 		expect( screen.getByText( 'Jetpack AI is turned off for this site.' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Manage in My Jetpack' } ) ).toHaveAttribute(
 			'href',
-			'admin.php?page=my-jetpack'
+			'admin.php?page=my-jetpack#/products'
 		);
 
 		// The saved value stays visible — the toggle must not misreport it as off.

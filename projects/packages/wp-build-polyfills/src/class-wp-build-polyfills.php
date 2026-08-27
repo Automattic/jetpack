@@ -103,6 +103,9 @@ class WP_Build_Polyfills {
 	 * load time. Those companions show up in get_consumers() under the
 	 * requesting consumer's name.
 	 *
+	 * Every call also arms WP_Build_Admin_Frame for the request, so the boot
+	 * single-page backdrop follows the wp-admin menu color on every wp-build page.
+	 *
 	 * @param string   $consumer             A unique identifier for the consumer (e.g. plugin slug).
 	 * @param string[] $polyfills             List of polyfill handles/module IDs to register.
 	 *                                        Use class constants SCRIPT_HANDLES and MODULE_IDS for reference.
@@ -110,6 +113,8 @@ class WP_Build_Polyfills {
 	 *                                        are applied. Defaults to '7.0'.
 	 */
 	public static function register( $consumer, $polyfills, $wp_version_threshold = '7.0' ) {
+		WP_Build_Admin_Frame::register();
+
 		foreach ( $polyfills as $handle ) {
 			if ( ! in_array( $handle, self::SCRIPT_HANDLES, true ) && ! in_array( $handle, self::MODULE_IDS, true ) ) {
 				continue;

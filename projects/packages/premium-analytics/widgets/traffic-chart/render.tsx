@@ -11,7 +11,9 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { reports } from '@jetpack-premium-analytics/icons';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
@@ -53,6 +55,16 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 	const period: TrafficChartGranularity = defaultPeriodForInterval(
 		reportParams.interval,
 		TRAFFIC_PERIODS
+	);
+
+	// Bound to whichever route hosts the widget, the same way `reportParams` are.
+	const { drillDown } = useReportDateFilters();
+
+	// Names the bucket size drawn, not the page interval: a year page interval
+	// clamps to months here, and the click must open the bar it hit.
+	const openBucket = useCallback(
+		( date: Date ) => drillDown( date, period ),
+		[ drillDown, period ]
 	);
 
 	const {
@@ -102,6 +114,7 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 					groupLabel={ groupLabel }
 					tickResolution={ period }
 					pointsAreWallClocks
+					onDatumClick={ openBucket }
 				/>
 			</WidgetState>
 		</div>

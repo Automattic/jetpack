@@ -1129,13 +1129,13 @@ describe( 'Stats query factories', () => {
 
 	it( 'clamps unsupported intervals to a supported subscribers unit', () => {
 		const query = statsSubscribersReportQuery( {
-			from: '2026-01-01',
+			from: '2026-06-29',
 			to: '2026-06-30',
-			interval: 'quarter',
+			interval: 'hour',
 		} as StatsReportParams );
 
 		expect( query.queryKey[ 5 ] ).toEqual(
-			expect.objectContaining( { unit: 'month', quantity: 6, date: '2026-06-30' } )
+			expect.objectContaining( { unit: 'day', quantity: 2, date: '2026-06-30' } )
 		);
 	} );
 
@@ -1209,8 +1209,8 @@ describe( 'Stats query factories', () => {
 	it( 'clamps the WordAds window end to yesterday, keeping it anchored to the range start', () => {
 		// WordAds stats are computed nightly, so a range ending today ends at
 		// yesterday instead. The window stays anchored to the range start: the
-		// unavailable trailing bucket is dropped (quantity 7 → 6), so the window
-		// does not shift a bucket earlier and overlap the comparison window.
+		// unavailable trailing bucket is dropped (quantity 7 → 6) rather than the
+		// whole window shifting a bucket earlier.
 		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
 
 		try {

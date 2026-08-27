@@ -127,6 +127,21 @@ export type ComparativeBarChartProps = {
 	 * into a single item, so clicking it would just empty the chart.
 	 */
 	legendInteractive?: boolean;
+
+	/**
+	 * Pointer-down on the plot, carrying the datum nearest the pointer.
+	 */
+	onPointerDown?: BarChartProps[ 'onPointerDown' ];
+
+	/**
+	 * Pointer-up on the plot, carrying the datum nearest the pointer.
+	 */
+	onPointerUp?: BarChartProps[ 'onPointerUp' ];
+
+	/**
+	 * Enter or Space on the keyboard-selected bar, carrying its datum.
+	 */
+	onDatumActivate?: BarChartProps[ 'onDatumActivate' ];
 };
 
 /**
@@ -155,6 +170,9 @@ export function ComparativeBarChart( {
 	maxWidth = Infinity,
 	defaultHiddenSeries,
 	legendInteractive = false,
+	onPointerDown,
+	onPointerUp,
+	onDatumActivate,
 }: ComparativeBarChartProps ) {
 	const tooltipDateFormat = dateFormatForResolution( tickResolution );
 	const fallbackChartId = useId();
@@ -384,6 +402,9 @@ export function ComparativeBarChart( {
 				showLegend={ false }
 				withTooltips={ ! isEmptyData }
 				renderTooltip={ renderTooltip }
+				onPointerDown={ onPointerDown }
+				onPointerUp={ onPointerUp }
+				onDatumActivate={ onDatumActivate }
 			>
 				{ /* Circle swatches, not the bar's own shape: the legend only needs to name
 				     the metrics — the solid bar against its translucent shadow is what

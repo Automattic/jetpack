@@ -65,7 +65,6 @@ export function getStatsPeriodFromInterval( interval?: string ): StatsPeriod {
 		case 'week':
 			return 'week';
 		case 'month':
-		case 'quarter':
 			return 'month';
 		case 'year':
 			return 'year';
