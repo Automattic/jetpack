@@ -176,3 +176,51 @@ describe( 'useResponsePageNavigation', () => {
 		expect( result.current.hasPrevious ).toBe( false );
 	} );
 } );
+
+// Every status change invalidates the pinned query, and `useEntityRecords` reports
+// no records while it re-resolves. Going dead for the length of that refetch would
+// strand the user exactly when they have just actioned a response and want to move
+// on — the flow this whole feature exists to support.
+describe( 'while the pinned list is refetching', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+	} );
+
+	it( 'keeps navigating using the last known list', () => {
+		mockUseEntityRecords.mockReturnValue( { records: records( 1, 2, 3 ) } );
+		const { result, rerender } = renderHook(
+			( { id, query } ) => useResponsePageNavigation( id, query ),
+			{ initialProps: { id: 2, query: DEFAULT_PINNED_VIEW } }
+		);
+
+		expect( result.current.hasNext ).toBe( true );
+
+		// The refetch is in flight: core-data reports nothing at all.
+		mockUseEntityRecords.mockReturnValue( { records: null } );
+		rerender( { id: 2, query: DEFAULT_PINNED_VIEW } );
+
+		expect( result.current.hasNext ).toBe( true );
+		expect( result.current.hasPrevious ).toBe( true );
+
+		result.current.goNext();
+		expect( mockNavigate ).toHaveBeenCalledWith( expect.objectContaining( { to: '/response/3' } ) );
+	} );
+
+	it( 'prefers the refreshed list once it lands', () => {
+		mockUseEntityRecords.mockReturnValue( { records: records( 1, 2, 3 ) } );
+		const { result, rerender } = renderHook(
+			( { id, query } ) => useResponsePageNavigation( id, query ),
+			{ initialProps: { id: 2, query: DEFAULT_PINNED_VIEW } }
+		);
+
+		mockUseEntityRecords.mockReturnValue( { records: null } );
+		rerender( { id: 2, query: DEFAULT_PINNED_VIEW } );
+
+		// Response 2 was spammed, so the refreshed list no longer contains it.
+		mockUseEntityRecords.mockReturnValue( { records: records( 1, 3, 4 ) } );
+		rerender( { id: 2, query: DEFAULT_PINNED_VIEW } );
+
+		result.current.goNext();
+		expect( mockNavigate ).toHaveBeenCalledWith( expect.objectContaining( { to: '/response/3' } ) );
+	} );
+} );

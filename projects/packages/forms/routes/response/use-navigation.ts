@@ -61,7 +61,25 @@ export default function useResponsePageNavigation(
 	pinned: PinnedViewQuery
 ): ResponsePageNavigation {
 	const navigate = useNavigate();
-	const { records } = useEntityRecords< FormResponse >( 'postType', 'feedback', pinned );
+	const { records: fetchedRecords } = useEntityRecords< FormResponse >(
+		'postType',
+		'feedback',
+		pinned
+	);
+
+	// Every status change invalidates this query, and `useEntityRecords` reports no
+	// records at all while it re-resolves. Without holding the previous list, the
+	// arrows would go dead for the length of that refetch — precisely after the user
+	// actions a response, which is when they are most likely to be moving on. The
+	// stale list is a better answer than no list: it still describes the sequence,
+	// and the live one replaces it as soon as it lands.
+	const lastRecordsRef = useRef< FormResponse[] | null >( null );
+
+	if ( fetchedRecords ) {
+		lastRecordsRef.current = fetchedRecords;
+	}
+
+	const records = fetchedRecords ?? lastRecordsRef.current;
 
 	const liveIndex = useMemo(
 		() =>
