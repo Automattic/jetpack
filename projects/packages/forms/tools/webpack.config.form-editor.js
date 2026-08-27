@@ -11,8 +11,8 @@ export default {
 	mode: jetpackWebpackConfig.mode,
 	entry: {
 		'jetpack-form-editor': path.join( __dirname, '..', 'src/form-editor/index.tsx' ),
-		// Split out so the welcome guide does not wait on the whole editor
-		// bundle before it can render. See welcome-guide/bootstrap.tsx.
+		// Split out so the guide does not ship to every block editor screen
+		// along with the editor bundle. See welcome-guide/bootstrap.tsx.
 		'jetpack-form-welcome-guide': path.join(
 			__dirname,
 			'..',

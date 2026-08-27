@@ -134,3 +134,16 @@ export function isWelcomeGuideForced( search: string ): boolean {
 export function isWelcomeGuideEligible(): boolean {
 	return window.jetpackFormsWelcomeGuide?.isEligible === true;
 }
+
+/**
+ * Reads the flag saying core's welcome modal is pending by the user's own choice.
+ *
+ * Also decided in PHP, and for the same reason: core's default is true as well,
+ * so only the server can tell a stored true from an unstored one. See
+ * Form_Editor::is_core_welcome_guide_pending().
+ *
+ * @return Whether the user asked for a guide and has not been shown one.
+ */
+export function isCoreWelcomeGuidePending(): boolean {
+	return window.jetpackFormsWelcomeGuide?.isCoreGuidePending === true;
+}

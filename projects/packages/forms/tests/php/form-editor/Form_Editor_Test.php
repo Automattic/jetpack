@@ -727,7 +727,7 @@ class Form_Editor_Test extends BaseTestCase {
 
 		$this->assertSame( array(), $this->call_private( 'get_persisted_preferences' ) );
 
-		update_user_meta( $user_id, 'wp_persisted_preferences', array( 'jetpack/forms' => array( 'welcomeGuide' => false ) ) );
+		$this->seed_preferences( $user_id, array( 'jetpack/forms' => array( 'welcomeGuide' => false ) ) );
 		$this->assertSame(
 			array( 'jetpack/forms' => array( 'welcomeGuide' => false ) ),
 			$this->call_private( 'get_persisted_preferences' )
@@ -949,6 +949,77 @@ class Form_Editor_Test extends BaseTestCase {
 		$this->run_enqueue();
 
 		$this->assertFalse( wp_script_is( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'enqueued' ) );
+
+		$this->clean_up_enqueue();
+	}
+
+	/**
+	 * Only a stored true counts as the user asking for a guide.
+	 *
+	 * Core's own default is true as well but is never written to the blob, so
+	 * an unstored value must not be read as a request — that would open the
+	 * guide for every newcomer on a path meant for someone who chose it.
+	 */
+	public function test_is_core_welcome_guide_pending() {
+		$this->assertFalse(
+			$this->call_private( 'is_core_welcome_guide_pending', array( array() ) ),
+			'Nothing stored is core’s default, not a request'
+		);
+		$this->assertFalse(
+			$this->call_private(
+				'is_core_welcome_guide_pending',
+				array( array( 'core/edit-post' => array( 'welcomeGuide' => false ) ) )
+			),
+			'A dismissed core modal is not pending'
+		);
+		$this->assertTrue(
+			$this->call_private(
+				'is_core_welcome_guide_pending',
+				array( array( 'core/edit-post' => array( 'welcomeGuide' => true ) ) )
+			),
+			'A stored true is the user having chosen core’s Welcome Guide'
+		);
+	}
+
+	/**
+	 * The pending flag reaches the page, so the script can act on it.
+	 */
+	public function test_welcome_guide_ships_the_core_pending_flag() {
+		$this->skip_without_guide_asset();
+		$user_id = $this->log_in_new_user();
+		$this->seed_preferences(
+			$user_id,
+			array( 'core/edit-post' => array( 'welcomeGuide' => true ) )
+		);
+
+		$this->set_form_editor_screen();
+		$this->run_enqueue();
+
+		$inline = wp_scripts()->get_data( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'before' );
+		$this->assertStringContainsString(
+			'"isCoreGuidePending":true',
+			is_array( $inline ) ? implode( '', $inline ) : (string) $inline
+		);
+
+		$this->clean_up_enqueue();
+	}
+
+	/**
+	 * A missing editor bundle must not take the guide down with it: the two
+	 * ship as separate entries and only one of them is absent.
+	 */
+	public function test_welcome_guide_survives_a_missing_editor_asset() {
+		$this->skip_without_guide_asset();
+		$this->log_in_new_user();
+		$this->stub_form_ids = array();
+
+		$this->set_form_editor_screen();
+		$this->run_enqueue();
+
+		$this->assertTrue(
+			wp_script_is( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'enqueued' ),
+			'The guide should enqueue independently of the editor bundle'
+		);
 
 		$this->clean_up_enqueue();
 	}

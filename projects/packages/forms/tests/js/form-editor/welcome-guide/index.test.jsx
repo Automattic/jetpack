@@ -22,6 +22,10 @@ await jest.unstable_mockModule( '@wordpress/preferences', () => ( {
 	store: 'core/preferences',
 } ) );
 
+await jest.unstable_mockModule( '@wordpress/editor', () => ( {
+	store: 'core/editor',
+} ) );
+
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	useDispatch: jest.fn( () => ( { set } ) ),
 	useSelect: jest.fn( mapSelect =>
@@ -217,6 +221,46 @@ describe( 'FormWelcomeGuide', () => {
 			rerender( <FormWelcomeGuide /> );
 
 			expect( screen.queryByTestId( 'guide' ) ).not.toBeInTheDocument();
+			expect( set ).not.toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, false );
+		} );
+	} );
+
+	describe( 'when core’s guide is stored as pending', () => {
+		/*
+		 * Reached by picking Options -> "Welcome Guide" on a load where this
+		 * bundle was absent — in-editor navigation into a form never re-runs the
+		 * enqueue. Core's item is a toggle, so it persists true, and PHP is the
+		 * only side that can tell that stored true from core's own default.
+		 */
+		beforeEach( () => {
+			window.jetpackFormsWelcomeGuide = { isEligible: false, isCoreGuidePending: true };
+			setSearch( '' );
+		} );
+
+		it( 'opens on mount even though the user is not eligible', () => {
+			seedPreferences( { jetpackForms: false, coreWelcomeGuide: true } );
+
+			render( <FormWelcomeGuide /> );
+
+			expect( screen.getByTestId( 'guide' ) ).toBeInTheDocument();
+		} );
+
+		it( 'clears core’s preference so its generic modal stops reopening', () => {
+			seedPreferences( { jetpackForms: false, coreWelcomeGuide: true } );
+
+			render( <FormWelcomeGuide /> );
+
+			expect( set ).toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, false );
+		} );
+
+		it( 'leaves a newcomer alone, whose true is core’s default rather than stored', () => {
+			// PHP reports pending only for a stored true, so the flag is false
+			// here even though the preference reads true.
+			window.jetpackFormsWelcomeGuide = { isEligible: true, isCoreGuidePending: false };
+			seedPreferences( { jetpackForms: undefined, coreWelcomeGuide: true } );
+
+			render( <FormWelcomeGuide /> );
+
 			expect( set ).not.toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, false );
 		} );
 	} );

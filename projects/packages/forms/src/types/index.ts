@@ -246,7 +246,7 @@ declare global {
 			setCount: ( menuSlug: string, count: number ) => void;
 		};
 		/** Set by Form_Editor::enqueue_welcome_guide(); absent off the form editor. */
-		jetpackFormsWelcomeGuide?: { isEligible: boolean };
+		jetpackFormsWelcomeGuide?: { isEligible: boolean; isCoreGuidePending: boolean };
 	}
 }
 

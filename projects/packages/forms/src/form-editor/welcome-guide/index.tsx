@@ -13,12 +13,14 @@
 
 import { Guide } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as preferencesStore } from '@wordpress/preferences';
 import { FORM_POST_TYPE } from '../../blocks/shared/util/constants.js';
 import { getWelcomeGuidePages, WELCOME_GUIDE_IMAGES } from './pages';
 import {
+	isCoreWelcomeGuidePending,
 	isWelcomeGuideEligible,
 	isWelcomeGuideForced,
 	isWelcomeGuideOpen,
@@ -36,12 +38,6 @@ export const PREFERENCE_NAME = 'welcomeGuide';
 
 /** Core's own welcome modal preference, which the Options menu item toggles. */
 const CORE_PREFERENCE_SCOPE = 'core/edit-post';
-
-const EDITOR_STORE = 'core/editor';
-
-interface EditorSelectors {
-	getCurrentPostType: () => string | undefined;
-}
 
 export const FormWelcomeGuide = () => {
 	const preference = useSelect(
@@ -66,9 +62,7 @@ export const FormWelcomeGuide = () => {
 	 * navigated to.
 	 */
 	const isFormEditor = useSelect(
-		select =>
-			( select( EDITOR_STORE ) as EditorSelectors | undefined )?.getCurrentPostType() ===
-			FORM_POST_TYPE,
+		select => select( editorStore )?.getCurrentPostType() === FORM_POST_TYPE,
 		[]
 	);
 
@@ -149,7 +143,18 @@ export const FormWelcomeGuide = () => {
 	 * false on mount for both of them, switching core's welcome modal off in
 	 * the post and page editors for someone who never saw it there.
 	 */
-	const previousCoreWelcomeGuide = useRef( coreWelcomeGuide );
+	/*
+	 * Seeded false when the user already has core's modal stored as pending, so
+	 * the value being true on mount registers as the transition below. That
+	 * state means they chose core's "Welcome Guide" on a load where this bundle
+	 * was absent — in-editor navigation into a form never re-runs the enqueue —
+	 * and the toggle persisted true. Reading it as a request opens this guide
+	 * and clears the flag; ignoring it would let the stored true beat the
+	 * editor bundle's runtime default and reopen core's generic modal here on
+	 * every later load. A newcomer is unaffected: core's own default is never
+	 * written to the blob, so PHP reports pending only for a stored true.
+	 */
+	const previousCoreWelcomeGuide = useRef( isCoreWelcomeGuidePending() ? false : coreWelcomeGuide );
 
 	useEffect( () => {
 		const wasEnabled = previousCoreWelcomeGuide.current;
