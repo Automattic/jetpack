@@ -96,8 +96,6 @@ function getIntervalCadenceLabel( interval: IntervalType ): string {
 			return __( 'weekly', 'jetpack-premium-analytics-pkg' );
 		case 'month':
 			return __( 'monthly', 'jetpack-premium-analytics-pkg' );
-		case 'quarter':
-			return __( 'quarterly', 'jetpack-premium-analytics-pkg' );
 		case 'year':
 			return __( 'yearly', 'jetpack-premium-analytics-pkg' );
 	}

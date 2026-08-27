@@ -113,7 +113,7 @@ describe( 'ReportPageLayout', () => {
 
 		const subtitle = screen.getByText( /2024/ );
 
-		expect( subtitle ).not.toHaveTextContent( /hourly|daily|weekly|monthly|quarterly|yearly/ );
+		expect( subtitle ).not.toHaveTextContent( /hourly|daily|weekly|monthly|yearly/ );
 		expect( subtitle ).not.toHaveTextContent( /vs\.|Previous period|Previous month/ );
 	} );
 

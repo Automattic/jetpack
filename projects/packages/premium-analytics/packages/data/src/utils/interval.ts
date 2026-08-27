@@ -57,7 +57,7 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 		Math.abs( differenceInHours( localTZDate( to ), localTZDate( from ) ) / 24 )
 	);
 
-	// No `quarter`: Stats has no quarterly bucket, and nothing regroups monthly points.
+	// No bucket between month and year: Stats has no quarterly one.
 	if ( daysDiff >= 1095 ) {
 		return [ 'month', 'year' ];
 	} else if ( daysDiff >= 365 ) {
@@ -164,8 +164,6 @@ export function getDateFormatFromInterval(
 			return 'MMM d';
 		case 'month':
 			return 'MMM yyyy';
-		case 'quarter':
-			return 'qqq yyyy';
 		case 'year':
 			return 'yyyy';
 		default:

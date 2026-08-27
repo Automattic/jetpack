@@ -14,9 +14,9 @@ describe( 'getStatsPeriodFromInterval', () => {
 		[ 'day', 'day' ],
 		[ 'week', 'week' ],
 		[ 'month', 'month' ],
-		[ 'quarter', 'month' ],
 		[ 'year', 'year' ],
 		[ undefined, 'day' ],
+		[ 'nonsense', 'day' ],
 	] )( 'maps %s to %s', ( interval, period ) => {
 		expect( getStatsPeriodFromInterval( interval ) ).toBe( period );
 	} );
