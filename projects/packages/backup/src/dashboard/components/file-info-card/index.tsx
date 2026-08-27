@@ -1,6 +1,7 @@
-import { Spinner } from '@wordpress/components';
+import { Spinner, VisuallyHidden } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { __ } from '@wordpress/i18n';
+import { useEffect, useRef } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { closeSmall } from '@wordpress/icons';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import { useFileContents } from '../../hooks/use-file-contents';
@@ -103,7 +104,16 @@ function PreviewBody( {
 		);
 	}
 	if ( isLoading ) {
-		return <Spinner />;
+		// `Spinner` is `role="presentation"` with no text, so on its own this
+		// branch is silent — and focus lands here while it is still showing.
+		// Without something to read, the region announces itself and then says
+		// nothing at all.
+		return (
+			<>
+				<Spinner />
+				<VisuallyHidden>{ __( 'Loading preview…', 'jetpack-backup-pkg' ) }</VisuallyHidden>
+			</>
+		);
 	}
 	if ( error ) {
 		return (
@@ -169,6 +179,24 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 	const { size, hash, lastModified } = usePathInfo( file.period, file.manifestPath );
 	const modified = lastModified ?? file.lastModified;
 
+	// Opening a file mounts this card somewhere else entirely — it is the
+	// second column of a grid as tall as the tree, so on a scrolled tree it
+	// lands well above the row that was clicked. Without a focus move a
+	// keyboard reader has to tab through every remaining row to reach it,
+	// and a screen-reader reader is told nothing happened at all.
+	//
+	// The preview region is the target rather than the card, because it is
+	// the content the reader asked for, it is already a tab stop, and it is
+	// a plain element here — focusing the card would mean threading a ref
+	// through `Card.Root`. Close stays one Shift+Tab away.
+	//
+	// Keyed on `manifestPath` so switching between files re-announces, while
+	// a re-render for any other reason does not steal focus back.
+	const previewRef = useRef< HTMLDivElement >( null );
+	useEffect( () => {
+		previewRef.current?.focus();
+	}, [ file.manifestPath ] );
+
 	return (
 		<Card.Root className="jpb-file-info-card">
 			<Stack
@@ -216,7 +244,25 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 					</div>
 				) }
 			</dl>
-			<div className="jpb-file-info-card__preview">
+			{ /*
+			 * A scroll container (`max-height: 320px; overflow: auto`) that
+			 * nothing can put focus in cannot be scrolled by keyboard at all —
+			 * the only focusable thing in this card is Close. `tabIndex={ 0 }`
+			 * makes it a stop; `role="region"` plus a name is what stops that
+			 * stop being an unlabelled mystery when it is reached.
+			 */ }
+			<div
+				ref={ previewRef }
+				className="jpb-file-info-card__preview"
+				tabIndex={ 0 }
+				role="region"
+				aria-busy={ contentsLoading }
+				aria-label={ sprintf(
+					/* translators: %s: file name. */
+					__( 'Preview of %s', 'jetpack-backup-pkg' ),
+					file.name
+				) }
+			>
 				<PreviewBody
 					showPreview={ showPreview }
 					isLoading={ contentsLoading }
