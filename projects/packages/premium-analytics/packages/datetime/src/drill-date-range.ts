@@ -5,12 +5,10 @@ import {
 	endOfDay,
 	endOfISOWeek,
 	endOfMonth,
-	endOfQuarter,
 	endOfYear,
 	startOfDay,
 	startOfISOWeek,
 	startOfMonth,
-	startOfQuarter,
 	startOfYear,
 } from 'date-fns';
 /**
@@ -32,7 +30,6 @@ const BUCKET_BOUNDS: Partial<
 	// ISO weeks, matching how the report's own week buckets are cut.
 	week: { start: startOfISOWeek, end: endOfISOWeek },
 	month: { start: startOfMonth, end: endOfMonth },
-	quarter: { start: startOfQuarter, end: endOfQuarter },
 	year: { start: startOfYear, end: endOfYear },
 };
 

@@ -43,13 +43,6 @@ describe( 'drillDateRange', () => {
 		expect( range?.to?.getTime() ).toBe( Date.parse( '2026-02-28T23:59:59.999Z' ) );
 	} );
 
-	it( 'opens the calendar quarter', () => {
-		const range = drillDateRange( utc( '2026-05-09T00:00:00.000Z' ), 'quarter', NOW );
-
-		expect( range?.from?.getTime() ).toBe( Date.parse( '2026-04-01T00:00:00.000Z' ) );
-		expect( range?.to?.getTime() ).toBe( Date.parse( '2026-06-30T23:59:59.999Z' ) );
-	} );
-
 	it( 'opens the calendar year', () => {
 		const range = drillDateRange( utc( '2026-05-09T00:00:00.000Z' ), 'year', NOW );
 
