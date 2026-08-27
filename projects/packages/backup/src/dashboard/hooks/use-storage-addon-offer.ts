@@ -72,13 +72,27 @@ export function useStorageAddonOffer(
 	const query = useQuery( {
 		queryKey: keys.storageAddonOffer( storageUsed, storageLimit ),
 		// The two assertions are exactly what `enabled` guarantees: React
-		// Query does not call this while the flag is false.
+		// Query does not call this while the flag is false. Today nothing
+		// can race that — both components receive the two figures already
+		// narrowed to numbers by `hasUsableFigures`, and the nullable
+		// signature exists for the tests and for future callers.
 		//
-		// Deliberately not a second runtime check. One would answer `null`
-		// for a request that should never have been attempted, which turns
-		// a gate that has drifted into silence — and silence is the one
-		// outcome from which nobody learns the gate is wrong. The route's
-		// refusal is the signal, so let it happen.
+		// There is deliberately no second runtime check here, and it is
+		// worth being plain that this leaves `enabled` as the *only*
+		// protection. A drifted gate would not be caught downstream:
+		// `storageUsed` is typed `number | null`, so it would arrive as
+		// `null`, and `apiPath` forwards `null` as an empty value —
+		// `?storage_size=&storage_limit=…`, verified — which is the shape
+		// `storage-addon-offer.ts` documents as the *worse* of the two,
+		// answered with a confidently wrong add-on rather than refused.
+		//
+		// A guard here would trade that silent-wrong for a silent-nothing,
+		// which is no better, and it would cost the one test that can show
+		// the gate works at all: "asks for nothing until both figures are
+		// known" proves its point by counting requests, and a guard that
+		// short-circuits before `apiFetch` makes that count zero however
+		// the gate is written. So the gate is asserted directly instead of
+		// being backstopped.
 		queryFn: () => fetchStorageAddonOffer( storageUsed as number, storageLimit as number ),
 		enabled,
 		staleTime: STORAGE_ADDON_OFFER_STALE_MS,

@@ -186,6 +186,36 @@ describe( 'when the popover appears', () => {
 		expect( screen.queryByRole( 'button', TRIGGER ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'says nothing when not even one backup fits in the limit', async () => {
+		// 100GB of limit at a 200GB backup floors to zero. That is a real
+		// answer rather than a missing one, which is why the forecast is
+		// nullable separately — but "we will keep zero days of backups" is
+		// not something a small info button beside a calm meter can
+		// usefully explain, so it counts as nothing to say.
+		mockEndpoints( { size: { last_backup_size: 200 * GB } } );
+		renderWithClient( <StorageSpace /> );
+
+		await expect( screen.findByText( /^Using/ ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', TRIGGER ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'says nothing when the forecast exactly matches what the plan promises', async () => {
+		// 90GB at 3GB a backup is 30 days against a 30-day plan. The
+		// comparison is strict on purpose: at parity the limit is not
+		// costing the reader anything, so there is no shortfall to
+		// explain. Chosen as round numbers because the boundary is the
+		// whole point — a limit divided by a retention would land on
+		// either side of it depending on floating-point luck.
+		mockEndpoints( {
+			size: { last_backup_size: 3 * GB },
+			policies: { storage_limit_bytes: 90 * GB },
+		} );
+		renderWithClient( <StorageSpace /> );
+
+		await expect( screen.findByText( /^Using/ ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', TRIGGER ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'says nothing once the section is already warning about storage', async () => {
 		// Above `Normal` the section is telling the reader storage is
 		// running out and offering more; a second, calmer explanation of
@@ -273,6 +303,22 @@ describe( 'the popover checkout link', () => {
 				)
 			).toHaveLength( 1 )
 		);
+	} );
+
+	it( 'keeps its link on a response the upsell would reject', async () => {
+		// The one place the two consumers of `useStorageAddonOffer`
+		// deliberately differ. The upsell needs a size, a price and a
+		// currency for its label, so a priced-slug-without-pricing
+		// response leaves it with no button; this popover's button says
+		// only "Add more storage" and needs nothing but the slug. The hook
+		// carries `slug` and `sizeText` out past its own price check for
+		// exactly this, and dropping them would silently take the button
+		// away here while every other test went on passing.
+		mockEndpoints( { offer: { pricing: [] } } );
+		renderWithClient( <StorageSpace /> );
+
+		const href = ( await openAndFindCta() ).getAttribute( 'href' ) as string;
+		expect( href ).toContain( '/jetpack_backup_addon_storage_10gb_monthly' );
 	} );
 
 	it( 'shows no link at all when the offer never arrives', async () => {
