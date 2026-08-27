@@ -34,17 +34,17 @@ describe( 'PayPalPaymentButtonsSave', () => {
 
 		expect( screen.getByText( 'Test Product' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'A great product.' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Buy Now' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Buy Now With' ) ).toBeInTheDocument();
 
 		// Price renders with currency symbol (e.g., "$19.99").
 		expect( screen.getByText( /\$19\.99/ ) ).toBeInTheDocument();
 
 		// Payment link is used as the href.
-		const paypalLink = container.querySelector( '.jetpack-paypal-button__paypal-link' );
+		const paypalLink = container.querySelector( '.jetpack-paypal-button__checkout-link' );
 		expect( paypalLink ).toHaveAttribute( 'href', 'https://www.paypal.com/ncp/payment/ABC123' );
 	} );
 
-	it( 'renders a stacked layout with a debit/credit button', () => {
+	it( 'renders the checkout link as a theme-native button', () => {
 		const attributes = {
 			isApiManaged: true,
 			buttonType: 'stacked',
@@ -56,9 +56,12 @@ describe( 'PayPalPaymentButtonsSave', () => {
 
 		const { container } = render( <PayPalPaymentButtonsSave attributes={ attributes } /> );
 
-		const debitLink = container.querySelector( '.jetpack-paypal-button__debit-link' );
-		expect( debitLink ).toBeInTheDocument();
-		expect( debitLink ).toHaveTextContent( 'Debit or Credit Card' );
+		// The button inherits theme styling via wp-element-button rather than
+		// rendering PayPal-branded gold/debit buttons.
+		const checkoutLink = container.querySelector( '.jetpack-paypal-button__checkout-link' );
+		expect( checkoutLink ).toBeInTheDocument();
+		expect( checkoutLink ).toHaveClass( 'wp-element-button' );
+		expect( container.querySelector( '.jetpack-paypal-button__debit-link' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders a single layout without a debit/credit button', () => {
