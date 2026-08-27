@@ -26,11 +26,12 @@
 	},
 	"dependencies": {
 		"@automattic/explat-client": "0.1.0",
-		"@automattic/explat-client-react-helpers": "0.1.1",
+		"@automattic/explat-client-react-helpers": "0.1.2",
 		"@wordpress/api-fetch": "7.51.0",
 		"@wordpress/url": "4.51.0",
 		"cookie": "1.0.2",
 		"debug": "4.4.3",
+		"react": "18.3.1",
 		"wpcom-proxy-request": "^7.0.7"
 	},
 	"devDependencies": {
