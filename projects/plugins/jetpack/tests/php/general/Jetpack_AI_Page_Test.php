@@ -38,6 +38,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'agents_manager_agent_id' );
 		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
+		remove_all_filters( 'jetpack_ai_admin_config' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks' );
 
 		parent::tear_down();
@@ -150,6 +151,53 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 
 		$this->assertTrue( $settings['showFeaturesView'] );
 		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
+	}
+
+	/**
+	 * Hosts can hide pre-release views even in an internal testing environment.
+	 */
+	public function test_features_view_flag_can_be_filtered_by_the_host() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter(
+			'jetpack_ai_admin_config',
+			function ( $config ) {
+				$config['showGatedViews'] = false;
+
+				return $config;
+			}
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['showFeaturesView'] );
+		$this->assertSame( '', $settings['planName'] );
+	}
+
+	/**
+	 * Hosts can replace the MCP endpoint contract without copying the page.
+	 */
+	public function test_admin_settings_can_be_filtered_by_the_host() {
+		add_filter(
+			'jetpack_ai_admin_config',
+			function ( $config ) {
+				$config['mcpSettingsApi'] = array(
+					'path'   => '/wpcom/v2/sites/123/mcp-abilities',
+					'format' => 'wpcom',
+				);
+
+				return $config;
+			}
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame(
+			array(
+				'path'   => '/wpcom/v2/sites/123/mcp-abilities',
+				'format' => 'wpcom',
+			),
+			$settings['mcpSettingsApi']
+		);
 	}
 
 	/**
