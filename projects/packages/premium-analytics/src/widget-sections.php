@@ -44,6 +44,8 @@ const WIDGET_TYPE_SECTIONS = array(
 /**
  * The sections a widget type may be added from.
  *
+ * @since $$next-version$$
+ *
  * @param string $widget_type_name Widget type name, e.g. `jpa/total-views`.
  * @return string[]|null Section slugs — `traffic`, not `analytics/traffic` — or
  *                       null when the type is not scoped.

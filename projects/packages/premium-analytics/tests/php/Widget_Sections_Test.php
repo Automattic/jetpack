@@ -56,6 +56,32 @@ class Widget_Sections_Test extends TestCase {
 	}
 
 	/**
+	 * The scope map and the default layouts are edited in different files with
+	 * nothing tying them together, so a section could end up seeding a widget its
+	 * own gallery refuses to offer. Only a brand-new user would ever see it.
+	 */
+	public function test_no_default_layout_places_an_out_of_scope_widget_type() {
+		$layouts    = get_dashboard_default_section_layouts();
+		$violations = array();
+
+		foreach ( $layouts as $section_id => $instances ) {
+			foreach ( $instances as $instance ) {
+				$sections = get_widget_type_sections( $instance['type'] );
+
+				if ( null !== $sections && ! in_array( $section_id, $sections, true ) ) {
+					$violations[] = sprintf( '%s is seeded into %s but scoped away from it', $instance['type'], $section_id );
+				}
+			}
+		}
+
+		// Collected rather than asserted in the loop: every seeded type is
+		// unscoped today, so a per-instance assertion would run zero times and
+		// PHPUnit would rightly call the test risky.
+		$this->assertSame( array(), $violations );
+		$this->assertNotEmpty( $layouts, 'The default layouts are the input; an empty set would pass vacuously.' );
+	}
+
+	/**
 	 * Section ids on the scope have to be ids the dashboard actually registers,
 	 * or the gallery silently offers the type nowhere.
 	 */

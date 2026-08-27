@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Premium Analytics: Total views, Total visitors, Popular days, and Popular hours are now offered only on the Traffic tab, and are no longer part of the Insights tab by default. Existing layouts keep them.
+Premium Analytics: Offer Total views, Total visitors, Popular days, and Popular hours only on the Traffic tab, and drop them from the Insights default layout. Existing layouts keep them.

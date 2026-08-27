@@ -8,6 +8,13 @@
  * `$GLOBALS['jpa_test_widget_manifest']`, or an empty list when unset, so
  * unrelated tests see a no-op manifest.
  *
+ * This declaration is why bootstrap.php filters
+ * `jetpack_premium_analytics_widgets_manifest_path` to this file for the whole suite:
+ * build/widgets.php declares the same function unguarded, and `require_once` dedupes by
+ * path rather than by symbol, so letting the real manifest load too is a fatal redeclare
+ * on any checkout that has been built. Do not remove that filter without moving this
+ * declaration behind a different name.
+ *
  * @package automattic/jetpack-premium-analytics
  */
 

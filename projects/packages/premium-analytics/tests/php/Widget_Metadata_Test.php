@@ -301,6 +301,8 @@ class Widget_Metadata_Test extends BaseTestCase {
 		}
 		$registry->register( 'test/unscoped-sentinel', array( 'title' => 'Unscoped' ) );
 
+		$records = array();
+
 		// The registry is process-wide, so a failure inside the call below must not
 		// leak these two into every test that runs after this one.
 		try {
