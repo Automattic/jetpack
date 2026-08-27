@@ -187,10 +187,15 @@ function Stage(): React.JSX.Element {
 	// from this page depends on.
 	const responseActions = useResponseActions( response, pinned );
 
-	// The dialog's save and the action handlers are separate mutation paths on one
-	// response. Both report into this single signal, so neither can run against the
-	// other and neither can be navigated away from mid-flight.
-	const isMutating = isConfirmDialogOpen || isSaving || responseActions.isPending;
+	// Navigation is deliberately *not* gated on `isPending`. Marking a run of spam is
+	// the main thing this page is used for, and waiting for each request to land
+	// before the arrows come back makes that crawl. A status change is safe to walk
+	// away from: it targets the response captured when it started, and repairs that
+	// record's own cache entry when it lands, whichever response is on screen by then.
+	//
+	// The confirmation dialog is different — it is modal and describes one specific
+	// response, so moving underneath it would leave it confirming against another.
+	const isNavigationBlocked = isConfirmDialogOpen || isSaving;
 
 	const { hasPrevious, hasNext, goPrevious, goNext } = useResponsePageNavigation( id, pinned );
 
@@ -215,7 +220,7 @@ function Stage(): React.JSX.Element {
 			onShowHelp: showShortcutsHelp,
 		},
 		{
-			isDisabled: Boolean( previewFile ) || isShortcutsHelpOpen || isMutating,
+			isDisabled: Boolean( previewFile ) || isShortcutsHelpOpen || isNavigationBlocked,
 		}
 	);
 
@@ -323,8 +328,8 @@ function Stage(): React.JSX.Element {
 					className="jp-forms__single-response-actions"
 				>
 					<ResponseNavigation
-						hasNext={ hasNext && ! isMutating }
-						hasPrevious={ hasPrevious && ! isMutating }
+						hasNext={ hasNext && ! isNavigationBlocked }
+						hasPrevious={ hasPrevious && ! isNavigationBlocked }
 						onNext={ goNext }
 						onPrevious={ goPrevious }
 						onClose={ null }
@@ -332,7 +337,9 @@ function Stage(): React.JSX.Element {
 					<SingleResponseActions
 						response={ response }
 						responseActions={ responseActions }
-						isBlocked={ isConfirmDialogOpen || isSaving }
+						// The menu combines this with its own per-response pending state, so a
+						// second action can't be started on a response already changing.
+						isBlocked={ isNavigationBlocked }
 						onShowShortcuts={ showShortcutsHelp }
 					/>
 				</Stack>
