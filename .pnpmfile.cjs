@@ -81,6 +81,28 @@ async function fixDeps( pkg ) {
 		}
 	}
 
+	// `@woocommerce/email-editor` pins about thirty `@wordpress/*` deps to exact
+	// versions from the Gutenberg snapshot it was released against. Left alone
+	// those install a second, older copy of most of the Gutenberg surface
+	// alongside the versions the rest of the monorepo already uses — including
+	// `@wordpress/data`, whose duplicate store registry causes problems well
+	// beyond this one package. Relax the pins to `>=` so pnpm dedupes them onto
+	// the copies already here. Safe because every one of these is externalized
+	// to a `wp-*` script handle at build time, so none of their code is bundled
+	// and the editor runs against whatever WordPress Core provides regardless of
+	// what is installed here.
+	if ( pkg.name === '@woocommerce/email-editor' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( '@wordpress/' ) ) {
+				if ( ver.startsWith( '^' ) ) {
+					pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
+				} else if ( ver.match( /^\d/ ) ) {
+					pkg.dependencies[ dep ] = '>=' + ver;
+				}
+			}
+		}
+	}
+
 	// Unused, vulnerable dep.
 	if (
 		pkg.name === '@automattic/components' &&
