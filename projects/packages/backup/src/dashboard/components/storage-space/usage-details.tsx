@@ -20,35 +20,23 @@ const TERABYTE = 2 ** 40;
  * that has filled whole terabytes is vanishingly rare, and "0.01TB used"
  * would answer a question nobody asked.
  *
- * Both msgids are legacy's, character for character, so the strings
- * arrive already translated rather than waiting a GlotPress cycle. That
- * carries a known defect across with them, and it is worth being precise
- * about which one.
+ * Both msgids are shared with legacy's copy in
+ * `js/components/backup-storage-space/storage-usage-details/use-storage-usage-text.tsx`,
+ * character for character. Change one and the other has to change in the
+ * same breath, or the two dashboards become separate GlotPress entries
+ * saying the same thing.
  *
- * The gigabyte msgid's `%1.1f` and `%2f` are *not* argument references,
- * despite reading as though they were. They parse as a width and a
- * precision, and `@tannin/sprintf` — which is what `@wordpress/i18n` uses —
- * annotates the width group "Min width (unsupported)" and discards it. So
- * both are plain sequential placeholders, consumed in the order they
- * appear, and the English source renders correctly at every limit:
- * `sprintf( 'Using <strong>%1.1fGB</strong> of %2fGB', 3, 5 )` gives
- * `Using <strong>3.0GB</strong> of 5GB`, with no padding and no stray
- * space.
- *
- * The hazard is not the rendering, it is the reordering. Being sequential,
- * the two values swap places if a translation fronts the total — which is
- * natural in plenty of languages: `sprintf( 'Of %2fGB, using
- * <strong>%1.1fGB</strong>', 12.4, 20 )` gives `Of 12.4GB, using 20.0GB`,
- * used and total transposed. On the one screen whose job is to say whether
- * backups are at risk, that tells the reader they are over quota when they
- * are not. Truly positional placeholders survive the same reorder, which is
- * why the terabyte msgid below — spelled `%1$d`/`%2$d` — is immune.
- *
- * Fixing the gigabyte string means changing legacy and this copy together
- * so the msgid stays shared, and that is queued as its own change rather
- * than done here. Until it lands, the translator comment on the string
- * must not describe these as numbered arguments, or it invites exactly the
- * reorder that breaks them.
+ * Both are spelled positionally — `%1$.1f`/`%2$f` here, `%1$d`/`%2$d` for
+ * terabytes — and that spelling is the whole of what keeps them correct
+ * once translated. `@tannin/sprintf`, which is what `@wordpress/i18n`
+ * uses, reads a digit that is *not* followed by `$` as a min-width
+ * specifier, annotates it "Min width (unsupported)", discards it, and then
+ * fills what is left in the order the placeholders appear. The gigabyte
+ * msgid used to be spelled that way, `%1.1f` and `%2f`, which rendered
+ * correctly in English at every value and transposed the two figures the
+ * moment a translation fronted the total — natural in plenty of languages.
+ * On the one screen whose job is to say whether backups are at risk, that
+ * told the reader they were over quota when they were not.
  *
  * @param storageUsed  - Bytes of backup storage in use.
  * @param storageLimit - The plan's storage limit in bytes.
@@ -58,24 +46,20 @@ function usageText( storageUsed: number, storageLimit: number ): ReactNode {
 	const usedGigabytes = storageUsed / GIGABYTE;
 
 	if ( storageLimit < TERABYTE ) {
-		// translators: Must use unit abbreviation; describes used vs available storage amounts (e.g. 20.0GB of 30GB used, 0.5GB of 20GB used). %1.1f and %2f are NOT numbered arguments — they are filled in the order they appear, %1.1f first with the amount of disk space used, then %2f with the amount available. Please keep them in that order.
-		const inGigabytes = __( 'Using <strong>%1.1fGB</strong> of %2fGB', 'jetpack-backup-pkg' );
+		// translators: Must use unit abbreviation; describes used vs available storage amounts (e.g. 20.0GB of 30GB used, 0.5GB of 20GB used). %1$.1f: numeric amount of disk space used, %2$f: numeric amount of disk space available.
+		const inGigabytes = __( 'Using <strong>%1$.1fGB</strong> of %2$fGB', 'jetpack-backup-pkg' );
 
-		// Legacy carries `eslint-disable-next-line @wordpress/valid-sprintf`
-		// on its copy of this call, and its absence here is not a clean
-		// bill of health: the rule only inspects a format string it can
-		// resolve, and hoisting the msgid into a `const` — which the
-		// minifier reasoning above requires — puts it out of reach. The
-		// string is exactly as malformed as it was; nothing is checking it
-		// any more. See the note on this function about what that costs.
+		// Not machine-checked here: `@wordpress/valid-sprintf` only inspects
+		// a format string it can resolve at the call, and hoisting the msgid
+		// into a `const` — the spelling this file uses throughout — puts it
+		// out of reach. Legacy's copy is the one the rule reads. What guards
+		// the placeholders on this side is `storage-usage-details.test.tsx`,
+		// which renders the line under a reordering translation.
 		return createInterpolateElement(
-			sprintf(
-				inGigabytes,
-				// @ts-expect-error The format string is parsed at the type level, and this spelling defeats that parser — it infers a single argument.
-				usedGigabytes,
-				storageLimit / GIGABYTE
-			),
-			{ strong: <strong /> }
+			sprintf( inGigabytes, usedGigabytes, storageLimit / GIGABYTE ),
+			{
+				strong: <strong />,
+			}
 		);
 	}
 

@@ -140,11 +140,6 @@ class Rest_Activity_Log_Bridge_Test extends TestCase {
 	 * A non-200 becomes the bridge's error, carrying the status and the
 	 * reason WordPress.com gave.
 	 *
-	 * This route had no non-200 coverage at all, which mattered more than
-	 * it looks: it is one of the four callers that compares
-	 * `200 !== $status_code` without casting, so it is a route where a
-	 * mis-clamped status would reach the client unnoticed.
-	 *
 	 * 403 rather than 500, because 500 is also the fallback for a status
 	 * outside the failure range — a test written against it would pass
 	 * whether or not the status was forwarded.
@@ -168,22 +163,30 @@ class Rest_Activity_Log_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * A success code reported as a string is never served as one.
+	 * A success code reported as a string is a success.
 	 *
-	 * This route compares `200 !== $status_code` uncast, so a transport
-	 * that reports statuses as strings sends a perfectly good response
-	 * down the failure branch. What must not then happen is the 200
-	 * travelling on as the error's own status: WordPress would serve the
-	 * error envelope as HTTP 200 and the client would read a failure as a
-	 * success.
+	 * `wp_remote_retrieve_response_code()` hands back whatever the
+	 * transport put there, so an uncast `200 !== $status_code` sent a
+	 * perfectly good activity log down the failure branch — and the reader
+	 * got "We couldn't load your site's activity." over a response that had
+	 * arrived intact.
+	 *
+	 * The forwarded payload is what is asserted, not the absence of an
+	 * error. The uncast behaviour reported these as a 500 rather than as a
+	 * 200, so a test that only checked the status would have been satisfied
+	 * by the bug it exists to catch.
 	 */
-	public function test_never_serves_a_string_200_as_a_success() {
-		$this->arrange_wpcom_raw( '{"current":{"orderedItems":[]}}', '200' );
+	public function test_treats_a_string_status_as_its_number() {
+		$this->arrange_wpcom_raw(
+			'{"current":{"orderedItems":[{"activity_id":"foo"}]},"totalItems":1}',
+			'200'
+		);
 
 		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/site/rewindable-activity' );
 		$response = Activity_Log_Bridge::get_activity_log( $request );
 
-		$this->assertInstanceOf( WP_Error::class, $response );
-		$this->assertSame( 500, $response->get_error_data()['status'] );
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 1, $response->get_data()['totalItems'] );
+		$this->assertSame( 'foo', $response->get_data()['current']['orderedItems'][0]['activity_id'] );
 	}
 }

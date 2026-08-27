@@ -280,7 +280,13 @@ class File_Browser_Bridge {
 			return Rest_Controller::transport_error( $url_response, 'backup_file_content_url_failed' );
 		}
 
-		$url_status = wp_remote_retrieve_response_code( $url_response );
+		// Cast because `wp_remote_retrieve_response_code()` hands back
+		// whatever the transport put there, and a numeric string fails the
+		// strict comparison below — routing a perfectly good response into
+		// the failure branch, where `upstream_error()`'s clamp then reports
+		// it as a 500. Same reasoning at every bridge; the long version is
+		// on `Rest_Controller::upstream_error()`.
+		$url_status = (int) wp_remote_retrieve_response_code( $url_response );
 		if ( 200 !== $url_status ) {
 			return Rest_Controller::upstream_error(
 				$url_response,
@@ -322,7 +328,13 @@ class File_Browser_Bridge {
 			return Rest_Controller::transport_error( $stream_response, 'backup_file_content_stream_failed' );
 		}
 
-		$stream_status = wp_remote_retrieve_response_code( $stream_response );
+		// Cast, as at the signed-URL lookup above — and this is the call
+		// where it bites hardest, because the response body on the success
+		// side is the previewed file itself. Uncast, a `'200'` from a
+		// transport that reports statuses as strings took the branch below
+		// with the file's own bytes in hand: the preview the reader asked
+		// for was discarded and reported as a 500.
+		$stream_status = (int) wp_remote_retrieve_response_code( $stream_response );
 		if ( 200 !== $stream_status ) {
 			// The one failure here whose reason does not come from the JSON
 			// API. This response is the storage host's, not WordPress.com's,
@@ -334,16 +346,6 @@ class File_Browser_Bridge {
 			// sometimes answer in JSON. When it does, the reason is filed
 			// under a key named `wpcom`, which misnames its origin — worth
 			// knowing before anyone reads that field as WordPress.com's.
-			//
-			// And the body it reads is not guaranteed to be an error body.
-			// `200 !== $stream_status` is not type-safe, so a `'200'` from
-			// a transport that reports statuses as strings arrives here
-			// with the previewed file's own bytes in hand. Harmless — the
-			// caller is the admin who asked for that file, and the clamp in
-			// `upstream_error()` reports the status as 500 rather than
-			// forwarding a success code — but it is not the same claim as
-			// "a 200 never reaches this branch", which is what this comment
-			// used to say and is not true.
 			return Rest_Controller::upstream_error(
 				$stream_response,
 				'backup_file_content_stream_failed',
@@ -375,7 +377,8 @@ class File_Browser_Bridge {
 		if ( is_wp_error( $response ) ) {
 			return Rest_Controller::transport_error( $response, $code );
 		}
-		$status_code = wp_remote_retrieve_response_code( $response );
+		// Cast, as at every other bridge — see `get_file_content()` above.
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $status_code ) {
 			return Rest_Controller::upstream_error( $response, $code, $message );
 		}

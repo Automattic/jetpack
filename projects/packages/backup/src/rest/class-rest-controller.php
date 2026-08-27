@@ -286,16 +286,20 @@ class Rest_Controller {
 	 *
 	 * The status is clamped to the failure range rather than merely tested
 	 * for truthiness, and that is load-bearing. The retrieval helper hands
-	 * back whatever the transport put there, so a *success* code can reach
-	 * this function: four of the callers compare `200 !== $status_code`
-	 * without casting, which a numeric-string `'200'` fails, routing a
-	 * perfectly good response into the failure branch. Forwarding it would then set `data.status` to 200, WordPress
-	 * would serve the error envelope as HTTP 200, `apiFetch` would resolve
-	 * instead of rejecting, and `apiCall()` would never throw — so a
-	 * failed restore would run the mutation's `onSuccess` and report a
-	 * restore that never started. A visible failure becoming an invisible
-	 * false success is the worst outcome available on a destructive
-	 * operation, so anything outside 4xx/5xx becomes a 500.
+	 * back whatever the transport put there, and its callers must cast
+	 * before comparing — a numeric-string `'200'` fails `200 !==
+	 * $status_code`, which routed a perfectly good response into the
+	 * failure branch. Every status comparison in this package casts now —
+	 * bridges and legacy routes alike — so this function should no longer
+	 * be reachable with a success code; the clamp stays because "should
+	 * not" is not "cannot", and the cost of being wrong is one-sided.
+	 * Forwarding a 200 would set `data.status` to 200, WordPress would
+	 * serve the error envelope as HTTP 200, `apiFetch` would resolve
+	 * instead of rejecting, and `apiCall()` would never throw — so a failed
+	 * restore would run the mutation's `onSuccess` and report a restore
+	 * that never started. A visible failure becoming an invisible false
+	 * success is the worst outcome available on a destructive operation, so
+	 * anything outside 4xx/5xx becomes a 500.
 	 *
 	 * The same clamp is what keeps junk out. `(int)` is a total function:
 	 * `'2 Bad'` is 2, `3.7` is 3, `true` is 1, and a zero must never reach
