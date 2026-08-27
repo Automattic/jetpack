@@ -334,18 +334,23 @@ function get_dashboard_section_schema() {
 				'readonly'    => true,
 			),
 			'date_filter'         => array(
-				'description' => __( 'Which date filter the section header offers: the rolling date range, or all time plus single years.', 'jetpack-premium-analytics-pkg' ),
+				'description' => __( 'Which shape the section date filter takes: the rolling date range, or all time plus single years.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'enum'        => Dashboard_Section::DATE_FILTERS,
 				'default'     => Dashboard_Section::DATE_FILTER_RANGE,
 				'readonly'    => true,
 			),
 			'date_filter_options' => array(
-				'description' => __( 'Which optional controls the section date filter offers.', 'jetpack-premium-analytics-pkg' ),
+				'description' => __( 'What the section date filter supports, and where it renders.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'object',
 				'properties'  => array(
-					'with_date_comparison' => array(
-						'description' => __( 'Whether the section header offers the period-over-period comparison control.', 'jetpack-premium-analytics-pkg' ),
+					'with_date_comparison'     => array(
+						'description' => __( 'Whether the section supports period-over-period comparison at all. When false, no widget in the section receives comparison parameters.', 'jetpack-premium-analytics-pkg' ),
+						'type'        => 'boolean',
+						'default'     => true,
+					),
+					'with_header_date_control' => array(
+						'description' => __( 'Whether the section header renders the date control. When false, the section widgets host their own.', 'jetpack-premium-analytics-pkg' ),
 						'type'        => 'boolean',
 						'default'     => true,
 					),

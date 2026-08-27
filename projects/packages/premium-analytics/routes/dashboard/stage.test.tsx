@@ -58,12 +58,17 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => <MockHeaderScopeProbe />,
 	DateIntervalDropdown: () => null,
 	DateYearFilter: () => null,
-	SectionHeader: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	SectionHeader: ( { subtitle, children }: { subtitle?: string; children: ReactNode } ) => (
+		<div>
+			{ subtitle ? <span>{ `subtitle: ${ subtitle }` }</span> : null }
+			{ children }
+		</div>
+	),
 	SectionTabPanel: ( { value, children }: { value: string; children: ReactNode } ) =>
 		value === mockActiveSectionSlug ? <div>{ children }</div> : null,
 	StatsBreadcrumbs: () => null,
 	StatsPageIcon: () => null,
-	getSectionSubtitle: () => '',
+	getSectionSubtitle: () => 'Jan 1 - Jan 30',
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
@@ -368,5 +373,72 @@ describe( 'Dashboard sync notice', () => {
 		// filled in.
 		expect( invalidate ).toHaveBeenCalledWith( { queryKey: [ 'reports' ] } );
 		invalidate.mockRestore();
+	} );
+} );
+
+describe( 'Dashboard header date control', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+	} );
+
+	it( 'renders the control and announces the range by default', () => {
+		mockSection( { date_filter: DATE_FILTER_RANGE } );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'subtitle: Jan 1 - Jan 30' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders no control for a section that hands it to its widgets', () => {
+		mockSection( {
+			date_filter: DATE_FILTER_RANGE,
+			date_filter_options: { with_date_comparison: false, with_header_date_control: false },
+		} );
+
+		render( <Dashboard /> );
+
+		// The probe `DateFiltersPanel` renders is how we see whether it mounted.
+		expect( screen.queryByText( /^header offers/ ) ).not.toBeInTheDocument();
+	} );
+
+	// The reader has no header control to change the range with.
+	it( 'announces no range for a section that hands the control to its widgets', () => {
+		mockSection( {
+			date_filter: DATE_FILTER_RANGE,
+			date_filter_options: { with_date_comparison: false, with_header_date_control: false },
+		} );
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByText( /^subtitle:/ ) ).not.toBeInTheDocument();
+	} );
+
+	// Moving the control must not strip the params the widgets fetch with.
+	it( 'keeps the comparison scope when only the placement moves', () => {
+		mockSection( {
+			date_filter: DATE_FILTER_RANGE,
+			date_filter_options: { with_date_comparison: true, with_header_date_control: false },
+		} );
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByText( /^header offers/ ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
+	} );
+
+	// A payload served before the field existed carries no placement.
+	it( 'keeps the control for a section that carries no placement', () => {
+		mockSection( {
+			date_filter: DATE_FILTER_RANGE,
+			date_filter_options: { with_date_comparison: true },
+		} );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'subtitle: Jan 1 - Jan 30' ) ).toBeInTheDocument();
 	} );
 } );
