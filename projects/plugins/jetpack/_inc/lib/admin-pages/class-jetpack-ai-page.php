@@ -46,7 +46,7 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 		return Admin_Menu::add_menu(
 			// "Jetpack AI" is a product name and should not be translated.
 			'Jetpack AI',
-			'AI',
+			'Jetpack AI',
 			'manage_options',
 			'jetpack-ai',
 			array( $this, 'render' ),
@@ -264,9 +264,6 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					'featureFlags'     => array(
 						Jetpack_AI_Feature_Flags::SCHEDULED_TASKS => $show_scheduled_tasks_view,
 					),
-					// The walkthrough videos link to WordPress.com courses, so the
-					// Overview only shows them on WordPress.com-hosted sites (i4 thread).
-					'isWpcomHosted'    => ( new Host() )->is_woa_site(),
 					// The usage endpoint proxies as the current user, which needs
 					// their own WordPress.com account linked — not just the site.
 					'isUserConnected'  => ( new Connection_Manager() )->is_user_connected(),
