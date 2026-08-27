@@ -1153,6 +1153,53 @@ describe( 'LineChart', () => {
 			} );
 		} );
 
+		describe( 'Activation', () => {
+			const SERIES_A = {
+				label: 'Series A',
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 10 },
+					{ date: new Date( '2024-01-02' ), value: 20 },
+				],
+				options: {},
+			};
+			const SERIES_B = {
+				label: 'Series B',
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 15 },
+					{ date: new Date( '2024-01-02' ), value: 25 },
+				],
+				options: {},
+			};
+
+			// Navigation steps through x positions; the first series names the point.
+			test( 'Enter hands the selected point to onDatumActivate', async () => {
+				const user = userEvent.setup();
+				const onDatumActivate = jest.fn();
+				renderWithTheme( { data: [ SERIES_A, SERIES_B ], onDatumActivate } );
+
+				screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}{ArrowRight}{Enter}' );
+
+				expect( onDatumActivate ).toHaveBeenCalledTimes( 1 );
+				expect( onDatumActivate ).toHaveBeenCalledWith( {
+					datum: SERIES_A.data[ 1 ],
+					index: 1,
+					key: 'Series A',
+				} );
+			} );
+
+			test( 'Enter with no point selected activates nothing', async () => {
+				const user = userEvent.setup();
+				const onDatumActivate = jest.fn();
+				renderWithTheme( { data: [ SERIES_A ], onDatumActivate } );
+
+				screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+				await user.keyboard( '{Enter}' );
+
+				expect( onDatumActivate ).not.toHaveBeenCalled();
+			} );
+		} );
+
 		describe( 'Arrow Key Navigation', () => {
 			test( 'right arrow key navigates to next data point', async () => {
 				const user = userEvent.setup();

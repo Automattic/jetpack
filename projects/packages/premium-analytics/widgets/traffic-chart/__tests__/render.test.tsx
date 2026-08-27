@@ -13,11 +13,24 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 jest.mock( '../use-traffic-chart' );
 
+// The click lands in the date-filter controller, so a recorder stands in for it.
+const mockDrillDown = jest.fn();
+jest.mock( '@jetpack-premium-analytics/routing', () => ( {
+	useReportDateFilters: () => ( {
+		drillDown: ( ...args: unknown[] ) => mockDrillDown( ...args ),
+	} ),
+} ) );
+
 // The chart itself is not this file's subject: the bucket the widget resolves is,
-// and `useTrafficChart` is where it lands.
+// and `useTrafficChart` is where it lands. The stand-in records its props so the
+// click handler the widget hands it can be driven.
+const mockMetricTabsChart = jest.fn();
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
-	MetricTabsChart: () => null,
+	MetricTabsChart: ( props: unknown ) => {
+		mockMetricTabsChart( props );
+		return null;
+	},
 } ) );
 
 const mockUseTrafficChart = jest.mocked( useTrafficChart );
@@ -44,7 +57,14 @@ function requestedBucket(): string {
 	return calls[ calls.length - 1 ][ 1 ];
 }
 
+/** The click handler the widget handed the chart on the latest render. */
+function chartClickHandler(): ( date: Date ) => void {
+	const calls = mockMetricTabsChart.mock.calls;
+	return calls[ calls.length - 1 ][ 0 ].onDatumClick;
+}
+
 beforeEach( () => {
+	mockDrillDown.mockClear();
 	mockUseTrafficChart.mockReset();
 	mockUseTrafficChart.mockReturnValue( {
 		metrics: [
@@ -108,5 +128,18 @@ describe( 'TrafficChart bucket size', () => {
 		);
 
 		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+} );
+
+describe( 'TrafficChart drill-down', () => {
+	// A quarterly page draws in months here, so the click must name the month:
+	// left to the page interval, a click on March would open the whole quarter.
+	it( 'names the bucket size it drew, not the page interval', () => {
+		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'quarter' ) } } /> );
+
+		const clicked = new Date( '2026-02-14T00:00:00.000Z' );
+		chartClickHandler()( clicked );
+
+		expect( mockDrillDown ).toHaveBeenCalledWith( clicked, 'month' );
 	} );
 } );

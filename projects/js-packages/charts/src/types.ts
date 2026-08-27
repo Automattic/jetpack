@@ -707,6 +707,16 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 */
 	onPointerOut?: ( event: PointerEvent< Element > ) => void;
 	/**
+	 * Callback for Enter or Space on the point keyboard navigation has selected:
+	 * the keyboard counterpart of a click. `index` is the point's position in its
+	 * series and `key` the series label.
+	 */
+	onDatumActivate?: ( params: {
+		datum: DataPoint | DataPointDate;
+		index: number;
+		key: string;
+	} ) => void;
+	/**
 	 * Whether to show tooltips on hover. False by default.
 	 */
 	withTooltips?: boolean;
