@@ -21,6 +21,14 @@ autoInstallPeers: false
 dedupePeerDependents: false
 strictPeerDependencies: true
 
+# @wordpress/build's optional peer on @wordpress/theme stops below 2.0.0, which blocks
+# the theme 2.x releases that @wordpress/ui and @wordpress/boot require. 2.0.0 only changed
+# TypeScript declaration resolution; the fallback plugins wp-build loads are unchanged.
+# Widened upstream in WordPress/gutenberg (wp-build); drop this once a release carries it.
+peerDependencyRules:
+  allowedVersions:
+    '@wordpress/build>@wordpress/theme': '>=0.8.0 <3.0.0'
+
 # No hoisting by default.
 hoistPattern: []
 
