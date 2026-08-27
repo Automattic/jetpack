@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Stats: remove the settings drawer from the post-detail Email highlights and Email breakdown cards; their metric and view are fixed by the tab layout.
+Post detail: remove the settings drawer from the Email highlights and Email breakdown cards; their metric and view are fixed by the tab layout.
