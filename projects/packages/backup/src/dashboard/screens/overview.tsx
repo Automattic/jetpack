@@ -1,4 +1,4 @@
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Text } from '@wordpress/ui';
@@ -17,6 +17,7 @@ import {
 	useDefaultBackupRewindId,
 	useHasRestorePoints,
 } from '../hooks/use-activity-log';
+import { useAnalytics } from '../hooks/use-analytics';
 import { useBackups } from '../hooks/use-backups';
 import { useRefreshActivityOnBackupComplete } from '../hooks/use-refresh-activity-on-backup-complete';
 import { isBackupItem } from '../types/activity';
@@ -52,6 +53,33 @@ const INITIAL_VIEW: View = {
  * @return The rendered Overview screen.
  */
 export default function OverviewScreen() {
+	// Called before any other hook here so its initialization effect runs
+	// before the page-view effect below: React runs a component's effects
+	// in the order the hooks were called, and an event recorded before
+	// `initialize()` carries no identity.
+	const { tracks } = useAnalytics();
+	// Overview only, deliberately. The legacy dashboard is one page whose
+	// Download and Restore views are client-side, so it fires this once
+	// per visit. Here each route is its own wp-build page, so firing it
+	// from all three would report three views for one reader moving
+	// between them — a step change at flag-flip that reads as growth and
+	// is not. Landing straight on Download or Restore therefore goes
+	// uncounted, which is the accepted cost of keeping the metric
+	// comparable across the flip.
+	const hasRecordedPageView = useRef( false );
+	useEffect( () => {
+		// A ref rather than a bare `[]`, which is what legacy uses. React
+		// StrictMode invokes effects twice, and nothing here controls
+		// whether wp-build's boot enables it — so the bare form would
+		// double-count on a whim of the host.
+		if ( hasRecordedPageView.current ) {
+			return;
+		}
+
+		hasRecordedPageView.current = true;
+		tracks.recordEvent( 'jetpack_backup_admin_page_view' );
+	}, [ tracks ] );
+
 	const search = useSearch( {
 		from: '/' as unknown as never,
 		strict: false,
