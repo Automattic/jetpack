@@ -314,7 +314,7 @@ async function checkIfDocsNeeded(
 	// Check if PR already has the UI Changes label.
 	if ( prLabels.includes( uiChangesLabel ) ) {
 		debug(
-			`check-if-docs-needed: PR #$${ number } already has "$${ uiChangesLabel }" label. Skipping.`
+			`check-if-docs-needed: PR #${ number } already has "${ uiChangesLabel }" label. Skipping.`
 		);
 		return;
 	}
