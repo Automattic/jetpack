@@ -5,7 +5,7 @@ import { useStatsInsights, type StatsInsightsResponse } from '@jetpack-premium-a
 import {
 	formatHourOfDay,
 	formatMetricValue,
-	formatWeekday,
+	formatMondayFirstWeekday,
 } from '@jetpack-premium-analytics/formatters';
 import {
 	describeError,
@@ -14,7 +14,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
-import { useMemo } from 'react';
 import { scheduled } from '@wordpress/icons';
 import { Stack, Text } from '@jetpack-premium-analytics/externals';
 /**
@@ -42,9 +41,10 @@ type HighlightProps = {
 	 */
 	value: string;
 	/**
-	 * The value's share of total views, as a whole percent (0-100).
+	 * The value's share of total views, as a whole percent (0-100). Absent when
+	 * the endpoint sent no share — the caption is dropped rather than showing 0%.
 	 */
-	percent: number;
+	percent?: number;
 };
 
 /**
@@ -60,17 +60,19 @@ function Highlight( { label, value, percent }: HighlightProps ) {
 			<Text variant="heading-2xl" className={ styles.value }>
 				{ value }
 			</Text>
-			<Text variant="body-md" className={ styles.caption }>
-				{ sprintf(
-					/* translators: %s is a percentage, e.g. "17%". */
-					__( '%s of views', 'jetpack-premium-analytics-pkg' ),
-					// The report carries whole percents; the formatter takes a fraction.
-					formatMetricValue( percent / 100, 'percentage', {
-						decimals: 0,
-						signDisplay: 'never',
-					} )
-				) }
-			</Text>
+			{ percent !== undefined && (
+				<Text variant="body-md" className={ styles.caption }>
+					{ sprintf(
+						/* translators: %s is a percentage, e.g. "17%". */
+						__( '%s of views', 'jetpack-premium-analytics-pkg' ),
+						// The report carries whole percents; the formatter takes a fraction.
+						formatMetricValue( percent / 100, 'percentage', {
+							decimals: 0,
+							signDisplay: 'never',
+						} )
+					) }
+				</Text>
+			) }
 		</Stack>
 	);
 }
@@ -83,19 +85,12 @@ function Highlight( { label, value, percent }: HighlightProps ) {
 function MostPopularTimeReport() {
 	const { data, isLoading, isFetching, isError, error, refetch } = useStatsInsights();
 	const report = data as StatsInsightsResponse | undefined;
-	// Resolved to one nullable value so emptiness and the render read the same
-	// thing; two separate guards could drift and reintroduce the
-	// midnight-for-a-missing-hour reading the sanitizer removed. Compared against
-	// `undefined`, not falsiness: Monday and midnight are both 0.
-	const peak = useMemo( () => {
-		const { dayOfWeek, hourOfDay, percent, hourPercent } = report ?? {};
-
-		if ( dayOfWeek === undefined || hourOfDay === undefined ) {
-			return null;
-		}
-
-		return { dayOfWeek, hourOfDay, percent: percent ?? 0, hourPercent: hourPercent ?? 0 };
-	}, [ report ] );
+	// The card stands on the day alone: the hour is a second highlight the
+	// endpoint may not have sent, and withholding a known best day because of it
+	// would report "not enough data" over data there is. Compared against
+	// `undefined`, not falsiness — Monday and midnight are both 0.
+	const { dayOfWeek, hourOfDay, percent, hourPercent } = report ?? {};
+	const isEmpty = dayOfWeek === undefined;
 
 	return (
 		<div className={ styles.content }>
@@ -104,8 +99,8 @@ function MostPopularTimeReport() {
 				isFetching={ isFetching }
 				// The query keeps the previous response via `placeholderData`, so only
 				// surface the error when there is nothing to show.
-				isError={ isError && ! peak }
-				isEmpty={ ! peak }
+				isError={ isError && isEmpty }
+				isEmpty={ isEmpty }
 				// Mapped rather than hand-written: a 403 from a reader without stats
 				// access is not something retrying fixes, and describeError drops the
 				// Retry action for it.
@@ -124,20 +119,20 @@ function MostPopularTimeReport() {
 					),
 				} }
 			>
-				{ peak && (
+				{ dayOfWeek !== undefined && (
 					<Stack className={ styles.root } direction="column" gap="lg">
 						<Highlight
 							label={ __( 'Best day', 'jetpack-premium-analytics-pkg' ) }
-							// WordPress's locale table is Sunday-first; the endpoint's
-							// index is Monday-first.
-							value={ formatWeekday( ( peak.dayOfWeek + 1 ) % 7 ) }
-							percent={ peak.percent }
+							value={ formatMondayFirstWeekday( dayOfWeek ) }
+							percent={ percent }
 						/>
-						<Highlight
-							label={ __( 'Best hour', 'jetpack-premium-analytics-pkg' ) }
-							value={ formatHourOfDay( peak.hourOfDay ) }
-							percent={ peak.hourPercent }
-						/>
+						{ hourOfDay !== undefined && (
+							<Highlight
+								label={ __( 'Best hour', 'jetpack-premium-analytics-pkg' ) }
+								value={ formatHourOfDay( hourOfDay ) }
+								percent={ hourPercent }
+							/>
+						) }
 					</Stack>
 				) }
 			</WidgetState>

@@ -53,4 +53,22 @@ describe( 'Stats insights normalizer', () => {
 		expect( report ).not.toHaveProperty( 'hourOfDay' );
 		expect( report ).not.toHaveProperty( 'hourPercent' );
 	} );
+
+	it( 'omits a share the payload did not send rather than reporting 0%', () => {
+		const report = sanitizeStatsInsightsResponse( { highest_day_of_week: 6, highest_hour: 19 } );
+
+		expect( report ).not.toHaveProperty( 'percent' );
+		expect( report ).not.toHaveProperty( 'hourPercent' );
+	} );
+
+	it( 'accepts a stringified hour and rejects one out of range', () => {
+		expect(
+			sanitizeStatsInsightsResponse( { highest_day_of_week: 6, highest_hour: '19' } )
+		).toMatchObject( { hourOfDay: 19 } );
+		expect(
+			sanitizeStatsInsightsResponse( { highest_day_of_week: 6, highest_hour: 24 } )
+		).not.toHaveProperty( 'hourOfDay' );
+		// An out-of-range weekday is not a peak at all, so the whole report goes.
+		expect( sanitizeStatsInsightsResponse( { highest_day_of_week: 7 } ) ).toEqual( {} );
+	} );
 } );

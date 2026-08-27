@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -62,20 +62,28 @@ describe( 'MostPopularTimeWidget', () => {
 		expect( path ).not.toContain( '?' );
 	} );
 
-	it( 'reports no peak rather than midnight when the payload carries no hour', async () => {
-		// A fabricated "12:00 AM" reads as a real answer; the card must not show
-		// one just because the hour is missing.
+	it( 'keeps the known best day when the payload carries no hour', async () => {
+		// A fabricated "12:00 AM" reads as a real answer, but so does hiding a day
+		// the endpoint did send — drop only the highlight that has no data.
 		mockApiFetch.mockResolvedValue( {
 			highest_day_of_week: 6,
 			highest_day_percent: 17.4,
 		} );
 
+		const { container } = render( <MostPopularTimeWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( 'Sunday' ) ).resolves.toBeInTheDocument();
+		expect( container ).toHaveTextContent( 'Best daySunday17% of views' );
+		expect( screen.queryByText( 'Best hour' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'drops the share caption rather than captioning a peak with 0%', async () => {
+		mockApiFetch.mockResolvedValue( { highest_day_of_week: 6, highest_hour: 19 } );
+
 		render( <MostPopularTimeWidget attributes={ {} } /> );
 
-		await expect(
-			screen.findByText( 'Not enough data to determine your most popular time yet.' )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'Best hour' ) ).not.toBeInTheDocument();
+		await expect( screen.findByText( 'Sunday' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /of views/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the empty state when the site has no peak yet', async () => {
@@ -96,11 +104,14 @@ describe( 'MostPopularTimeWidget', () => {
 		await expect( screen.findByText( 'Sunday' ) ).resolves.toBeInTheDocument();
 
 		// `placeholderData` keeps the prior response, so a transient failure must
-		// not replace numbers that are still on screen with an error.
+		// not replace numbers that are still on screen with an error. Awaited on
+		// the refetch itself: "Sunday" is already mounted, so asserting it without
+		// waiting would pass before the rejection could land.
 		mockApiFetch.mockRejectedValue( { status: 403, code: 'no_connection' } );
-		queryClient.refetchQueries( { queryKey: [ 'stats', 'insights' ] } );
+		await queryClient.refetchQueries( { queryKey: [ 'stats', 'insights' ] } );
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 2 ) );
 
-		await expect( screen.findByText( 'Sunday' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Sunday' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 

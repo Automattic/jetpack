@@ -113,6 +113,19 @@ export const formatWeekday = ( weekday: number ): string => {
 	return weekdays[ weekday ] ?? '';
 };
 
+/**
+ * Return a full weekday name in the site's locale, from a Monday-first index.
+ *
+ * Stats payloads and weekday buckets count from Monday; the WordPress locale
+ * table counts from Sunday. Keeping that offset here means a caller cannot get
+ * it the wrong way round.
+ *
+ * @param weekday - Monday-based weekday index (`0` = Monday).
+ * @return The localized full weekday name.
+ */
+export const formatMondayFirstWeekday = ( weekday: number ): string =>
+	formatWeekday( ( weekday + 1 ) % 7 );
+
 /** 12-hour clock tokens, zero-padded and not. */
 const TWELVE_HOUR_TOKENS = new Set( [ 'g', 'h' ] );
 
