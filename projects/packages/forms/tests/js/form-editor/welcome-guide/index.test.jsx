@@ -12,9 +12,11 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useCallback, useState } from 'react';
 
 // Mocks must be registered before importing the component under test.
 const set = jest.fn();
+const recordEvent = jest.fn();
 const preferences = new Map();
 let currentPostType = 'jetpack_form';
 
@@ -24,6 +26,10 @@ await jest.unstable_mockModule( '@wordpress/preferences', () => ( {
 
 await jest.unstable_mockModule( '@wordpress/editor', () => ( {
 	store: 'core/editor',
+} ) );
+
+await jest.unstable_mockModule( '@automattic/jetpack-shared-extension-utils', () => ( {
+	useAnalytics: () => ( { tracks: { recordEvent } } ),
 } ) );
 
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
@@ -39,19 +45,32 @@ await jest.unstable_mockModule( '@wordpress/data', () => ( {
 
 /*
  * `Guide` renders into a portal and pulls in a large slice of
- * @wordpress/components. These tests only care whether it rendered and what
- * happens when it is finished, so the mock exposes the finish handler as a
- * button and nothing else.
+ * @wordpress/components. The mock keeps the two behaviours the tests depend
+ * on: it renders only the page you are on, and it owns the page number — which
+ * is why the slide tracker has to live inside the page content.
  */
 await jest.unstable_mockModule( '@wordpress/components', () => ( {
-	Guide: ( { contentLabel, onFinish } ) => (
-		<div data-testid="guide">
-			{ contentLabel }
-			<button type="button" onClick={ onFinish }>
-				Finish
-			</button>
-		</div>
-	),
+	Guide: ( { contentLabel, onFinish, pages = [] } ) => {
+		const [ current, setCurrent ] = useState( 0 );
+		const goForward = useCallback( () => setCurrent( page => page + 1 ), [] );
+		const goBack = useCallback( () => setCurrent( page => page - 1 ), [] );
+
+		return (
+			<div data-testid="guide">
+				{ contentLabel }
+				{ pages[ current ]?.content }
+				<button type="button" onClick={ goForward }>
+					Next
+				</button>
+				<button type="button" onClick={ goBack }>
+					Previous
+				</button>
+				<button type="button" onClick={ onFinish }>
+					Finish
+				</button>
+			</div>
+		);
+	},
 } ) );
 
 /**
@@ -282,6 +301,80 @@ describe( 'FormWelcomeGuide', () => {
 			render( <FormWelcomeGuide /> );
 
 			expect( set ).not.toHaveBeenCalledWith( CORE_SCOPE, PREFERENCE_NAME, false );
+		} );
+	} );
+
+	describe( 'analytics', () => {
+		/**
+		 * The properties of the first matching event.
+		 *
+		 * @param {string} event - Event name.
+		 * @return {object|undefined} The recorded properties.
+		 */
+		const propsFor = event => recordEvent.mock.calls.find( ( [ name ] ) => name === event )?.[ 1 ];
+
+		it( 'records one view when the guide opens, with why it opened', () => {
+			render( <FormWelcomeGuide /> );
+
+			expect( recordEvent ).toHaveBeenCalledWith(
+				'jetpack_forms_welcome_guide_view',
+				expect.objectContaining( { origin: 'auto', slide_count: 5 } )
+			);
+		} );
+
+		it( 'records nothing at all when the guide does not open', () => {
+			seedPreferences( { jetpackForms: false } );
+
+			render( <FormWelcomeGuide /> );
+
+			expect( recordEvent ).not.toHaveBeenCalled();
+		} );
+
+		it( 'attributes a forced guide to the query argument, not to a real audience', () => {
+			setSearch( '?jetpack_forms_welcome_guide=1' );
+			seedPreferences( { jetpackForms: false } );
+
+			render( <FormWelcomeGuide /> );
+
+			expect( propsFor( 'jetpack_forms_welcome_guide_view' ) ).toEqual(
+				expect.objectContaining( { origin: 'forced' } )
+			);
+		} );
+
+		it( 'records the first slide without any navigation', () => {
+			render( <FormWelcomeGuide /> );
+
+			expect( propsFor( 'jetpack_forms_welcome_guide_slide_view' ) ).toEqual(
+				expect.objectContaining( { slide: 1, slide_count: 5, origin: 'auto' } )
+			);
+		} );
+
+		it( 'records each slide the user moves to, forwards and back', async () => {
+			const user = userEvent.setup();
+			render( <FormWelcomeGuide /> );
+
+			await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Previous' } ) );
+
+			const slides = recordEvent.mock.calls
+				.filter( ( [ name ] ) => name === 'jetpack_forms_welcome_guide_slide_view' )
+				.map( ( [ , props ] ) => props.slide );
+
+			expect( slides ).toEqual( [ 1, 2, 3, 2 ] );
+		} );
+
+		it( 'reports how far the user got when they leave', async () => {
+			const user = userEvent.setup();
+			render( <FormWelcomeGuide /> );
+
+			await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Finish' } ) );
+
+			expect( recordEvent ).toHaveBeenCalledWith(
+				'jetpack_forms_welcome_guide_dismiss',
+				expect.objectContaining( { slide: 2, slide_count: 5, origin: 'auto' } )
+			);
 		} );
 	} );
 } );
