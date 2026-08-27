@@ -108,6 +108,25 @@ describe( 'resolveIntervalForRange', () => {
 		).toEqual( [ 'day' ] );
 	} );
 
+	it( 'never offers quarters on the year-length ranges', () => {
+		expect( getAllowedIntervalsForPreset( 'last-12-months', 'a', 'b' ) ).toEqual( [ 'month' ] );
+		expect( getAllowedIntervalsForPreset( 'last-365-days', 'a', 'b' ) ).toEqual( [ 'month' ] );
+		expect( getAllowedIntervalsForPreset( 'last-year', 'a', 'b' ) ).toEqual( [ 'month' ] );
+		expect(
+			getAllowedIntervalsForPreset(
+				'all-time',
+				'2020-01-01T00:00:00.000Z',
+				'2026-06-30T23:59:59.999Z'
+			)
+		).toEqual( [ 'month', 'year' ] );
+	} );
+
+	it( 'coerces a stored quarter onto the range default', () => {
+		expect(
+			resolveIntervalForRange( 'last-12-months', '2025-07-01', '2026-06-30', 'quarter' )
+		).toBe( 'month' );
+	} );
+
 	it( 'defaults when no current interval is provided', () => {
 		expect( getDefaultIntervalForPeriod( 'last-30-days', 'a', 'b' ) ).toBe( 'day' );
 		expect( resolveIntervalForRange( 'last-30-days', 'a', 'b' ) ).toBe( 'day' );
