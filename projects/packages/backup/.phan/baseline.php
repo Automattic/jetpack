@@ -9,13 +9,13 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchReturnProbablyReal : 9 occurrences
-    // PhanTypeMismatchReturn : 2 occurrences
+    // PhanTypeMismatchReturnProbablyReal : 7 occurrences
+    // PhanTypeMismatchReturn : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-jetpack-backup.php' => ['PhanTypeMismatchReturn'],
-        'src/class-rest-controller.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/class-rest-controller.php' => ['PhanTypeMismatchReturnProbablyReal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)
