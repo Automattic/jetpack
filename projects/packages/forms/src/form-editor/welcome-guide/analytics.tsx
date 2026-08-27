@@ -9,7 +9,7 @@
  */
 
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { useCallback, useEffect } from '@wordpress/element';
+import { useCallback, useEffect, useRef } from '@wordpress/element';
 
 /** Fired once each time the guide opens. */
 export const VIEW_EVENT = 'jetpack_forms_welcome_guide_view';
@@ -19,6 +19,18 @@ export const SLIDE_VIEW_EVENT = 'jetpack_forms_welcome_guide_slide_view';
 
 /** Fired when the guide closes, whichever way it was closed. */
 export const DISMISS_EVENT = 'jetpack_forms_welcome_guide_dismiss';
+
+/**
+ * Fired on moving forward a slide.
+ *
+ * `Guide` routes its Next button and the Right arrow key through one handler
+ * and exposes neither, so this is derived from the slide changing — keyboard
+ * navigation counts the same as a click.
+ */
+export const NEXT_EVENT = 'jetpack_forms_welcome_guide_next_click';
+
+/** Fired on moving back a slide. Derived the same way as NEXT_EVENT. */
+export const PREVIOUS_EVENT = 'jetpack_forms_welcome_guide_previous_click';
 
 /** Why the guide is open. */
 export type GuideOrigin = 'auto' | 'menu' | 'forced';
@@ -75,10 +87,30 @@ interface SlideTrackerProps {
  * @return Nothing; this renders no markup.
  */
 export const SlideTracker = ( { index, slideCount, origin, record }: SlideTrackerProps ) => {
+	// Survives a page change, because React updates this element rather than
+	// remounting it. It resets with the guide, which is what we want: reopening
+	// starts a fresh journey.
+	const previousIndex = useRef< number | null >( null );
+
 	useEffect( () => {
+		const from = previousIndex.current;
+		previousIndex.current = index;
+
 		record( SLIDE_VIEW_EVENT, {
 			// One-based, to read naturally against `slide_count` in a report.
 			slide: index + 1,
+			slide_count: slideCount,
+			origin,
+		} );
+
+		// The first slide is arrived at by opening the guide, not by navigating.
+		if ( from === null || from === index ) {
+			return;
+		}
+
+		record( index > from ? NEXT_EVENT : PREVIOUS_EVENT, {
+			from: from + 1,
+			to: index + 1,
 			slide_count: slideCount,
 			origin,
 		} );
