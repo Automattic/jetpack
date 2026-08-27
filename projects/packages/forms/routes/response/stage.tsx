@@ -29,6 +29,7 @@ import ResponseNavigation from '../../src/dashboard/components/inspector/respons
 import { getDisplayName } from '../../src/dashboard/components/inspector/utils.ts';
 import useMarkAsReadOnView from '../../src/dashboard/hooks/use-mark-as-read-on-view.ts';
 import { useMarkAsSpam } from '../../src/dashboard/hooks/use-mark-as-spam.ts';
+import { getItemId } from '../../src/dashboard/inbox/utils.js';
 import FormsPage from '../../src/dashboard/wp-build/components/page';
 import SingleResponseBreadcrumbs from './breadcrumbs.tsx';
 import SingleResponseActions from './page-actions.tsx';
@@ -47,7 +48,7 @@ import './style.scss';
 /**
  * Types
  */
-import type { DispatchActions, SelectActions } from '../../src/dashboard/inbox/stage/types.tsx';
+import type { DispatchActions } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FileItem, FormResponse } from '../../src/types/index.ts';
 
 type PreviewFileItem = FileItem | { url: string; name: string };
@@ -100,10 +101,10 @@ function Stage(): React.JSX.Element {
 
 	const responseQuery = useMemo( () => getResponseQuery( id ), [ id ] );
 
-	const { response, isLoading } = useSelect(
+	const { response, hasResolved } = useSelect(
 		select => {
 			if ( ! isValidId ) {
-				return { response: null, isLoading: false };
+				return { response: null, hasResolved: true };
 			}
 
 			const core = select( coreStore );
@@ -115,7 +116,18 @@ function Stage(): React.JSX.Element {
 			const records = core.getEntityRecords( 'postType', 'feedback', responseQuery ) as
 				| FormResponse[]
 				| null;
-			const rawRecord = records?.[ 0 ];
+
+			// The list the reader came from already holds this response, under a
+			// different cache key — `include:[id]` versus the list's query. Falling
+			// back to it means opening a response renders instantly from data already
+			// in the store, with the page's own request filling in behind. Both are
+			// `fields_format=collection`, so nothing changes shape when it lands.
+			const listRecords = core.getEntityRecords( 'postType', 'feedback', pinned ) as
+				| FormResponse[]
+				| null;
+			const rawRecord =
+				records?.[ 0 ] ?? listRecords?.find( item => Number( getItemId( item ) ) === id );
+
 			const edits = (
 				core as unknown as {
 					getEntityRecordEdits: ( k: string, n: string, i: number ) => object | undefined;
@@ -124,14 +136,16 @@ function Stage(): React.JSX.Element {
 
 			return {
 				response: rawRecord ? ( { ...rawRecord, ...edits } as unknown as FormResponse ) : null,
-				isLoading: ( core as unknown as SelectActions ).isResolving( 'getEntityRecords', [
-					'postType',
-					'feedback',
-					responseQuery,
-				] ),
+				// "Not found" is only honest once this response's own request has
+				// finished; before then an absent record just means it hasn't arrived.
+				hasResolved: (
+					core as unknown as {
+						hasFinishedResolution: ( s: string, a: unknown[] ) => boolean;
+					}
+				 ).hasFinishedResolution( 'getEntityRecords', [ 'postType', 'feedback', responseQuery ] ),
 			};
 		},
-		[ id, isValidId, responseQuery ]
+		[ id, isValidId, responseQuery, pinned ]
 	);
 
 	// For managed forms, resolve the actual jetpack_form post title so the
@@ -235,7 +249,7 @@ function Stage(): React.JSX.Element {
 	const printedForIdRef = useRef< number | null >( null );
 
 	useEffect( () => {
-		if ( ! hasPrintRequest || ! response || isLoading || printedForIdRef.current === id ) {
+		if ( ! hasPrintRequest || ! response || ! hasResolved || printedForIdRef.current === id ) {
 			return;
 		}
 
@@ -251,7 +265,7 @@ function Stage(): React.JSX.Element {
 			search: { ...searchParams, print: undefined },
 			replace: true,
 		} );
-	}, [ hasPrintRequest, response, isLoading, id, navigate, searchParams ] );
+	}, [ hasPrintRequest, response, hasResolved, id, navigate, searchParams ] );
 
 	const handleFilePreview = useCallback(
 		( file: PreviewFileItem ) => () => {
@@ -279,12 +293,13 @@ function Stage(): React.JSX.Element {
 		</FormsPage>
 	);
 
-	// Only show the spinner when there is nothing to show. Every status change
-	// invalidates `getEntityRecords` resolutions (see `invalidateCacheAndNavigate`),
-	// which re-resolves this page's own query — without the `! response` guard the
-	// response would be replaced by a full-page spinner on each action, which is
-	// exactly what staying on the page is meant to avoid.
-	if ( isValidId && isLoading && ! response ) {
+	// Only show the spinner when there is genuinely nothing to show — which, now that
+	// the list's copy is used as a fallback, means a cold deep link rather than an
+	// ordinary click through from the list. Every status change also invalidates
+	// `getEntityRecords` resolutions (see `invalidateCacheAndNavigate`), so without
+	// the `! response` guard the response would be replaced by a full-page spinner on
+	// each action, which is exactly what staying on the page is meant to avoid.
+	if ( isValidId && ! hasResolved && ! response ) {
 		return renderMessagePage(
 			isValidId ? `#${ id }` : __( 'Response', 'jetpack-forms' ),
 			__( 'Response', 'jetpack-forms' ),
