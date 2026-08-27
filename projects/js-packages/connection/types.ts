@@ -8,6 +8,61 @@ export interface ConnectionOwner {
 	displayName: string;
 }
 
+/**
+ * The WordPress.com account behind the current user's connection, as served at
+ * `window.JP_CONNECTION_INITIAL_STATE.userConnectionData.currentUser.wpcomUser`.
+ *
+ * Server-side this is the decoded body of WordPress.com's
+ * `/sites/<blog_id>/jetpack-wpcom-user-data` endpoint, fetched by
+ * `Connection\Manager::get_connected_user_data()`, with `avatar` added on top by
+ * `REST_Connector::get_user_connection_data()`. The field list mirrors the
+ * payload that `ManagerIntegrationTest::test_get_connected_user_data_fetches_from_rest_endpoint()`
+ * exercises, which is the response shape that endpoint call was written against.
+ *
+ * Only `avatar` is guaranteed. With no connected WordPress.com user
+ * `get_connected_user_data()` returns `false`, `get_user_connection_data()`
+ * substitutes an empty array for it and then sets `avatar` unconditionally, so
+ * the whole object is `{ avatar: false }`.
+ *
+ * Deliberately closed: there is no `[ key: string ]: unknown` index signature.
+ * Listing `ID` is only half of what makes the `Id` misspelling (JETPACK-2411)
+ * catchable — an index signature typed `unknown` resolves `Id` to `unknown`
+ * rather than erroring, so the misspelling would go on typechecking. Reading a
+ * field absent from this list is a compile error instead, so adding one is a
+ * deliberate edit here.
+ *
+ * `components/use-connection/types.ts` declares a second, open `WpcomUser` for
+ * the `useConnection()` return value. Collapsing the two onto this declaration
+ * is a follow-up; it reaches beyond the ambient global this change is about.
+ */
+export interface WpcomUser {
+	/**
+	 * The WordPress.com user ID, the first argument to `jetpackAnalytics.initialize()`.
+	 * Note the capitalisation: WordPress.com spells it `ID`. Every caller skips
+	 * `initialize()` when it is missing, so a misspelling costs the identity on
+	 * every Tracks event the page sends without failing anywhere visible.
+	 */
+	ID?: number;
+	/** The WordPress.com username, the second argument to `jetpackAnalytics.initialize()`. */
+	login?: string;
+	email?: string;
+	display_name?: string;
+	/**
+	 * Gravatar URL for `email`, or `false`. The PHP passes `false` straight
+	 * through when `email` is empty, and `get_avatar_url()` is itself declared
+	 * `string|false` in WordPress core — it returns `false` when it cannot
+	 * resolve an avatar. Neither `boolean` nor `string` alone describes it.
+	 */
+	avatar: string | false;
+	text_direction?: string;
+	site_count?: number;
+	jetpack_connect?: string;
+	color_scheme?: string;
+	sidebar_collapsed?: boolean;
+	user_locale?: string;
+	user_currency?: string;
+}
+
 export type ConnectionScriptData = {
 	apiRoot: string;
 	apiNonce: string;
@@ -35,11 +90,7 @@ export type ConnectionScriptData = {
 			username: string;
 			id: number;
 			blogId: number;
-			wpcomUser: {
-				avatar: boolean;
-				display_name: string;
-				email: string;
-			};
+			wpcomUser: WpcomUser;
 			gravatar: string;
 			permissions: {
 				admin_page?: boolean;
