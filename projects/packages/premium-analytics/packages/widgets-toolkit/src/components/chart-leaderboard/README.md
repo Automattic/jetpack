@@ -168,22 +168,8 @@ It applies the shared precedence: drill-down for rows with children, external li
 childless rows, and static content otherwise.
 
 Use `LeaderboardLabel` directly for media plus truncating text outside chart rows, such as a
-DataViews table cell. It deliberately does not add the chart row's 36px minimum block size.
-
-### Row layout
-
-`LeaderboardRow` takes two optional layout props. `LeaderboardPostLabel` accepts both and
-forwards them.
-
-| Prop        | Default     | Description                                                                                                 |
-| ----------- | ----------- | ----------------------------------------------------------------------------------------------------------- |
-| `variant`   | `'compact'` | `'compact'` is the standard 36px row. `'overlay'` drops that floor and takes its height from block padding. |
-| `className` | -           | Extra class on the row, for per-widget spacing.                                                             |
-
-Pick `variant` to match the sibling rows in the same widget, not the chart's `withOverlayLabel`
-prop. That prop only tints the bar fill; it sets no row height. Use `'overlay'` where the
-neighbouring rows also take their height from block padding, and `'compact'` where they come
-from `buildLeaderboardRow`.
+DataViews table cell. It deliberately does not add the chart row's 36px minimum block size or its
+inline padding.
 
 ## Props
 

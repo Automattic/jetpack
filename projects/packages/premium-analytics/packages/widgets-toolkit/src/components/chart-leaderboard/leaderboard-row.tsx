@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { Link } from '@jetpack-premium-analytics/externals';
-import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -34,13 +33,6 @@ export type LeaderboardRowAction =
 	  }
 	| { kind: 'static' };
 
-/**
- * How tall the row sits. `compact` is the standard 36px row. `overlay` suits
- * leaderboards that draw the label on top of the bar, where block padding sets
- * the bar height because the row has no image to size it.
- */
-export type LeaderboardRowVariant = 'compact' | 'overlay';
-
 export type LeaderboardRowActionOptions = {
 	/** An external destination used only when the row has no children. */
 	href?: string;
@@ -57,10 +49,6 @@ export type LeaderboardRowProps = {
 	media: LeaderboardRowMedia;
 	/** The mutually exclusive action applied to this chart row. */
 	action: LeaderboardRowAction;
-	/** Row height. Defaults to `compact`. */
-	variant?: LeaderboardRowVariant;
-	/** Extra class for the row, for per-widget spacing. */
-	className?: string;
 };
 
 export type LeaderboardRowChartProps =
@@ -105,17 +93,7 @@ export function resolveLeaderboardRowAction(
  *
  * @return A single label element accepted by `LeaderboardEntry.label`.
  */
-export function LeaderboardRow( {
-	label,
-	media,
-	action,
-	variant = 'compact',
-	className,
-}: LeaderboardRowProps ): ReactElement {
-	const variantClass = variant === 'overlay' ? styles.overlay : undefined;
-	const rowClassName = clsx( styles.row, variantClass, className );
-	const linkClassName = clsx( styles.rowLink, variantClass, className );
-
+export function LeaderboardRow( { label, media, action }: LeaderboardRowProps ): ReactElement {
 	// Post rows carry no media, so the row chrome goes on the anchor itself.
 	if ( action.kind === 'postLink' ) {
 		return (
@@ -126,9 +104,9 @@ export function LeaderboardRow( {
 				search={ action.search }
 				title={ label }
 				classNames={ {
-					internal: linkClassName,
-					external: linkClassName,
-					plain: rowClassName,
+					internal: styles.rowLink,
+					external: styles.rowLink,
+					plain: styles.row,
 					text: styles.label,
 				} }
 			/>
@@ -142,7 +120,7 @@ export function LeaderboardRow( {
 	if ( action.kind === 'link' ) {
 		return (
 			<Link
-				className={ linkClassName }
+				className={ styles.rowLink }
 				href={ action.href }
 				variant="unstyled"
 				openInNewTab
@@ -154,7 +132,7 @@ export function LeaderboardRow( {
 	}
 
 	return (
-		<span className={ rowClassName } title={ label }>
+		<span className={ styles.row } title={ label }>
 			{ content }
 		</span>
 	);

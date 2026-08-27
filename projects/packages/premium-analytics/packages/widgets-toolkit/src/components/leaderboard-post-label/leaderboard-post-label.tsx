@@ -2,11 +2,8 @@
  * Internal dependencies
  */
 import { useWidgetNavigationSearch } from '../../hooks/use-widget-navigation-search';
-import { LeaderboardRow, type LeaderboardRowVariant } from '../chart-leaderboard/leaderboard-row';
+import { LeaderboardRow } from '../chart-leaderboard/leaderboard-row';
 import type { ReactElement } from 'react';
-
-/** How tall the row sits. */
-export type LeaderboardPostLabelVariant = LeaderboardRowVariant;
 
 export type LeaderboardPostLabelProps = {
 	/**
@@ -22,14 +19,6 @@ export type LeaderboardPostLabelProps = {
 	 * Optional detail-page tab to open, e.g. `email-opens`.
 	 */
 	section?: string;
-	/**
-	 * Row height. Defaults to `compact`.
-	 */
-	variant?: LeaderboardPostLabelVariant;
-	/**
-	 * Extra class for the row, for per-widget spacing.
-	 */
-	className?: string;
 };
 
 /**
@@ -42,8 +31,6 @@ export function LeaderboardPostLabel( {
 	label,
 	link,
 	section,
-	variant = 'compact',
-	className,
 }: LeaderboardPostLabelProps ): ReactElement {
 	const search = useWidgetNavigationSearch( section );
 
@@ -52,8 +39,6 @@ export function LeaderboardPostLabel( {
 			label={ label }
 			media={ { kind: 'none' } }
 			action={ { kind: 'postLink', id, href: link, search } }
-			variant={ variant }
-			className={ className }
 		/>
 	);
 }

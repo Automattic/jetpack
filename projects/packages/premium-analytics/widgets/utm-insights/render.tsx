@@ -137,12 +137,12 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 						id={ postRow.postId }
 						label={ postRow.label }
 						link={ postRow.href }
-						variant="overlay"
-						className={ styles.itemLabelInset }
 					/>
 				) : (
 					<span className={ styles.itemLabel }>
-						<Text className={ styles.itemLabelText }>{ item.label }</Text>
+						<Text className={ styles.itemLabelText } variant="body-sm">
+							{ item.label }
+						</Text>
 					</span>
 				),
 				currentValue: item.value,

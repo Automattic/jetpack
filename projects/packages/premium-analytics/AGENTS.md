@@ -660,7 +660,7 @@ area. Notes:
 - `isFetching` draws nothing — it only marks the widget `aria-busy`. A revalidation of unchanged
   params leaves the right numbers on screen, and blanking them reports a refresh nobody asked for
   (WOOA7S-1934). Nothing unmounts, so children keep their own state and keyboard focus.
-- Every other branch *does* unmount the children, and a drill-down reaches the skeleton by
+- Every other branch _does_ unmount the children, and a drill-down reaches the skeleton by
   definition (it changes the params). `<WidgetState>` catches the focus that would otherwise fall
   to `<body>` and parks it on its own root, so the next Tab continues from the widget instead of
   the top of the page. Widgets need do nothing for this, but drill-down rows must be real
@@ -759,10 +759,10 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
   add a second in-widget `<Text variant="heading-md" render={ <h3 /> }>` title for framed Stats
   widgets.
 - View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }`
-- Leaderboard row height: custom labels should produce a stable 36px row height. For the common
-  `<Text>` label case, `padding: var(--wpds-dimension-padding-sm)` is enough when the text
-  line-height plus vertical padding yields 36px. Use `min-height: 36px` when the label content
-  or typography does not naturally produce that height.
+- Leaderboard rows: prefer `LeaderboardRow` / `buildLeaderboardRow` / `LeaderboardPostLabel` over
+  a hand-written label — they carry the shared row box, and a copy drifts from it. A label that
+  must be custom should match `.row` in `chart-leaderboard/leaderboard-label.module.scss`;
+  several widgets predate that and have not been migrated yet.
 - Loading / error / empty state: render through `<WidgetState>` (see "Loading / error / empty
   state" above), not `LeaderboardChart`'s `emptyStateText` or a hand-rolled `data.length === 0`
   branch. Empty uses a neutral glyph distinct from the error icon.
