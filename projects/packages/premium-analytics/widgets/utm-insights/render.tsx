@@ -11,12 +11,13 @@ import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	LeaderboardPostLabel,
-	LeaderboardRow,
 	ReportLink,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
+	resolveLeaderboardRowAction,
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -129,22 +130,35 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 		return activeData.map( ( item, index ) => {
 			const previousValue = item.previousValue;
 			const postRow = 'postId' in item ? item : null;
+			const hasChildren = ! isDrillDown && 'children' in item && Boolean( item.children?.length );
 
 			return {
 				id: `${ index }-${ item.label }`,
-				label: postRow ? (
-					<LeaderboardPostLabel
-						id={ postRow.postId }
-						label={ postRow.label }
-						link={ postRow.href }
-					/>
-				) : (
-					<LeaderboardRow
-						label={ item.label }
-						media={ { kind: 'none' } }
-						action={ { kind: 'static' } }
-					/>
-				),
+				...( postRow
+					? {
+							label: (
+								<LeaderboardPostLabel
+									id={ postRow.postId }
+									label={ postRow.label }
+									link={ postRow.href }
+								/>
+							),
+					  }
+					: buildLeaderboardRow( {
+							label: item.label,
+							media: { kind: 'none' },
+							action: resolveLeaderboardRowAction( {
+								hasChildren,
+								drillDown: {
+									onClick: () => selectUtmLabel( item.label ),
+									ariaLabel: sprintf(
+										/* translators: %s is the UTM value label. */
+										__( 'View posts for %s', 'jetpack-premium-analytics-pkg' ),
+										item.label
+									),
+								},
+							} ),
+					  } ) ),
 				currentValue: item.value,
 				currentShare: sharePercentage( item.value, maxValue ),
 				previousValue,
@@ -156,16 +170,6 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 					withComparison && previousValue !== undefined
 						? calculateDelta( item.value, previousValue )
 						: undefined,
-				...( ! isDrillDown &&
-					'children' in item &&
-					item.children?.length && {
-						onClick: () => selectUtmLabel( item.label ),
-						ariaLabel: sprintf(
-							/* translators: %s is the UTM value label. */
-							__( 'View posts for %s', 'jetpack-premium-analytics-pkg' ),
-							item.label
-						),
-					} ),
 			};
 		} );
 	}, [ activeData, isDrillDown, selectUtmLabel, withComparison ] );

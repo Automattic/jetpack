@@ -12,8 +12,8 @@ import {
 	describeError,
 	getCombinedPeriodMax,
 	LeaderboardChart,
-	LeaderboardRow,
 	LeaderboardSkeleton,
+	buildLeaderboardRow,
 	sharePercentage,
 	WidgetRoot,
 	WidgetState,
@@ -66,13 +66,11 @@ function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 
 		return {
 			id: `${ index }-${ item.key }`,
-			label: (
-				<LeaderboardRow
-					label={ item.label }
-					media={ { kind: 'none' } }
-					action={ { kind: 'static' } }
-				/>
-			),
+			...buildLeaderboardRow( {
+				label: item.label,
+				media: { kind: 'none' },
+				action: { kind: 'static' },
+			} ),
 			currentValue: item.views,
 			currentShare: sharePercentage( item.views, maxViews ),
 			previousValue,

@@ -7,12 +7,12 @@ import {
 	describeError,
 	getCombinedPeriodMax,
 	LeaderboardChart,
-	LeaderboardRow,
 	LeaderboardSkeleton,
 	ReportLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
 	sharePercentage,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -56,13 +56,11 @@ function SearchTermsInner() {
 
 			return {
 				id: `${ index }-${ term.label }`,
-				label: (
-					<LeaderboardRow
-						label={ term.label }
-						media={ { kind: 'none' } }
-						action={ { kind: 'static' } }
-					/>
-				),
+				...buildLeaderboardRow( {
+					label: term.label,
+					media: { kind: 'none' },
+					action: { kind: 'static' },
+				} ),
 				currentValue: term.views,
 				previousValue: previousViews,
 				currentShare: sharePercentage( term.views, maxValue ),

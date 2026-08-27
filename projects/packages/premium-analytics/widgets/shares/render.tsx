@@ -3,11 +3,11 @@
  */
 import {
 	LeaderboardChart,
-	LeaderboardRow,
 	LeaderboardSkeleton,
 	WIDGET_ROW_LIMIT,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
 	sharePercentage,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -41,13 +41,11 @@ function SharesInner() {
 
 		return data.map( ( service, index ) => ( {
 			id: `${ index }-${ service.service }`,
-			label: (
-				<LeaderboardRow
-					label={ service.label }
-					media={ { kind: 'none' } }
-					action={ { kind: 'static' } }
-				/>
-			),
+			...buildLeaderboardRow( {
+				label: service.label,
+				media: { kind: 'none' },
+				action: { kind: 'static' },
+			} ),
 			currentValue: service.value,
 			currentShare: sharePercentage( service.value, maxValue ),
 		} ) );
