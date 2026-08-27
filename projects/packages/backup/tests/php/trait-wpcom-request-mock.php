@@ -30,12 +30,14 @@ use function wp_set_current_user;
  * `Rest_Controller::permission_check()` to pass, so a test may either
  * call a bridge callback directly or dispatch through the REST server —
  * `Rest_Bridge_Dispatch_Test` does the latter for every bridge route.
- * Prefer a dispatch when the route's arg schema, permission callback or
- * response serialization is part of what is being asserted, and a direct
+ * Prefer a dispatch when the route's arg schema, its regex, or the
+ * permission callback is part of what is being asserted, and a direct
  * call when the point is one branch inside a callback: dispatch wraps a
- * `WP_Error` in a response envelope, moving the code and the `wpcom`
- * reason under `get_data()['data']` instead of leaving them on the error
- * object where `get_error_data()` reads them.
+ * `WP_Error` in a response envelope, so the code moves to
+ * `get_data()['code']` and the reason to `get_data()['data']['wpcom']`,
+ * instead of staying on the error object where `get_error_code()` and
+ * `get_error_data()` read them. Note the code does *not* move under
+ * `['data']` with the reason — only the reason does.
  */
 trait Wpcom_Request_Mock {
 
@@ -108,13 +110,20 @@ trait Wpcom_Request_Mock {
 		// no host, and `Jetpack_Signature` refuses it as a malformed
 		// `url`. Every bridge reports that as a 502 transport failure.
 		//
-		// The suite hid this: whichever test ran first absorbed the
-		// failure, and no assertion happened to depend on the difference.
-		// Nothing guaranteed that, though — a reordering, a new test file,
-		// or running one test on its own could all hand the empty API base
-		// to a test that asserts a success. Registering the defaults up
-		// front is what the connection package does in production, and it
-		// makes each test's result independent of the order it runs in.
+		// The default execution order hid this: whichever test ran first
+		// absorbed the failure, and no assertion happened to depend on the
+		// difference. Reordering makes it visible immediately — without
+		// this line, `--order-by=random` fails five of the eight seeds 1-8,
+		// each time on whichever bridge test drew the first outbound call
+		// (`test_treats_a_string_status_as_its_number` and friends, which
+		// assert a success and so cannot absorb a 502).
+		//
+		// Registering the defaults up front is what the connection package
+		// does in production. It makes a test's result independent of the
+		// order it runs in — but only for tests that use this trait.
+		// Anything in this package that reaches `Client` without it still
+		// has to prime the constants itself, which is why
+		// `Backup_Abilities_Test` calls this too.
 		Connection_Utils::init_default_constants();
 
 		return $admin_id;

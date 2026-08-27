@@ -29,13 +29,27 @@ require_once __DIR__ . '/trait-wpcom-request-mock.php';
 /**
  * The bridge suites next door call their callbacks directly, which leaves
  * three things between a request and an answer untested on every route:
- * the `args` schema `register_rest_route()` was given, a
- * `permission_check()` that *succeeds*, and `rest_ensure_response()`
- * turning the projection into something the server will serve. A callback
- * can be exhaustively covered and the route still answer 400 to every
- * request the dashboard makes — a required arg the client does not send,
- * a `pattern` that rejects a legitimate value — and nothing in those
- * suites would notice.
+ * the `args` schema `register_rest_route()` was given, the route regex
+ * the request has to match to reach the callback at all, and a
+ * `permission_check()` that *succeeds*. A callback can be exhaustively
+ * covered and the route still answer 400 or 404 to every request the
+ * dashboard makes, and nothing in those suites would notice — they build
+ * the request by hand and hand it straight to the callback, so there is
+ * no route to match and no schema to fail.
+ *
+ * All three are load-bearing, and each is falsified by a one-line change
+ * that the direct-call suites accept: dropping `=` from
+ * `BASE64_PATTERN` makes every padded manifest path a 400, and narrowing
+ * the download route's `rewind_id` capture to `\d+` makes a rewind id
+ * with its decimal suffix — the only kind there is — a 404.
+ *
+ * `rest_ensure_response()` is deliberately *not* on that list. Dropping
+ * it from a bridge fails the direct-call tests and nothing here, because
+ * `WP_REST_Server::dispatch()` runs it over the handler's return value
+ * itself. Serialization is likewise not asserted: it happens in
+ * `serve_request()`, downstream of `dispatch()`, and `wp_json_encode()`
+ * repairs bad input rather than refusing it, so an assertion about it
+ * would be one nothing could break.
  *
  * That gap was assumed to be unclosable: the permission gate needs a
  * user-level WordPress.com connection, and the shared trait's note said
@@ -277,10 +291,6 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 			sprintf( '%s %s: %s', $method, $path, wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES ) )
 		);
 		$this->assertSame( $expected, $response->get_data() );
-		// The last thing between the projection and the reader. Nothing
-		// here should be able to fail it, which is the point: until now
-		// nothing established that.
-		$this->assertIsString( wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/**
@@ -294,10 +304,12 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	 *
 	 * The bridge routes are identified the way `Rest_Bridge_Gating_Test`
 	 * identifies them — by diffing the route table with the modernization
-	 * filter on against the same table with it off. Matching on a path
-	 * prefix would not do: `rest_api_init` also registers this package's
-	 * legacy `REST_Controller` routes and the sync package's, several of
-	 * which live under `/jetpack/v4/` too, and none of which belong here.
+	 * filter on against the same table with it off. Matching on a
+	 * `/jetpack/v4/` prefix would not do: this package's own legacy
+	 * `REST_Controller` registers ten routes under that same prefix on
+	 * the same hook — `/jetpack/v4/backup-helper-script`,
+	 * `/jetpack/v4/options/backup`, `/jetpack/v4/site/backup/preflight`
+	 * and the rest — and none of them belongs here.
 	 */
 	public function test_every_bridge_route_is_covered_here() {
 		$bridge_routes = array_values(

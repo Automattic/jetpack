@@ -154,6 +154,49 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 
 		$this->assertSame( 403, $response->get_status() );
 	}
+
+	/**
+	 * The listing asks the right endpoint, with the right two values in
+	 * the right two keys.
+	 *
+	 * Every other bridge callback in this package pins its outbound
+	 * request; `list_directory()` was the one that pinned neither its
+	 * path nor its body, and that was invisible because its *projection*
+	 * is well covered. Three separate mutations passed the whole suite
+	 * before this test existed: swapping `backup_id` and `path` in the
+	 * body, and renaming either upstream path.
+	 *
+	 * `backup_id` is the key that would go unnoticed longest. WPCOM names
+	 * it for the backup, and it does take the parent backup's rewindId
+	 * here — unlike `path-info` and `file-content` next door, which name
+	 * the same parameter `backup_id` but want the *file's* own period.
+	 * Two neighbouring routes, one parameter name, two different values:
+	 * a swap between them produces an empty listing, not an error.
+	 *
+	 * The body is asserted whole rather than key by key. That pins that
+	 * nothing extra is sent, and it fails loudly on a null body — which
+	 * is what the trait leaves behind when a guard refused before
+	 * reaching the network, and what per-key assertions would skip in
+	 * silence.
+	 */
+	public function test_list_directory_sends_the_rewind_id_and_path() {
+		$this->arrange_wpcom( array( 'contents' => array() ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/rewind/backup/ls' );
+		$request->set_param( 'rewind_id', '1748888135.123' );
+		$request->set_param( 'path', '/wp-content/themes' );
+		File_Browser_Bridge::list_directory( $request );
+
+		$this->assertStringContainsString( '/sites/999/rewind/backup/ls', $this->captured_url );
+		$this->assertSame(
+			array(
+				'backup_id' => '1748888135.123',
+				'path'      => '/wp-content/themes',
+			),
+			$this->captured_body
+		);
+	}
+
 	/**
 	 * A transport failure on the directory listing surfaces as the
 	 * bridge's own error rather than cURL's text.
@@ -344,6 +387,12 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 		$request->set_param( 'manifest_path', 'f5:/wp-config.php' );
 		File_Browser_Bridge::get_path_info( $request );
 
+		// The endpoint as well as the body. Without this a rename of the
+		// upstream path passes every other assertion in the file: the
+		// body is unchanged, the mocked answer arrives all the same, and
+		// only a real site would 404.
+		$this->assertStringContainsString( '/sites/999/rewind/backup/path-info', $this->captured_url );
+
 		// Asserted whole rather than key by key: it pins that nothing
 		// extra is sent, and it fails loudly on a null body — the trait
 		// leaves it null when a guard refused before reaching the
@@ -520,6 +569,30 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 	}
 
 	/**
+	 * The preview limit is 64 KB, stated as a number.
+	 *
+	 * Everything else here compares against
+	 * `File_Browser_Bridge::PREVIEW_MAX_BYTES`, which is the right thing
+	 * to do — and leaves the constant itself free to drift, because a
+	 * self-referential assertion moves with it. Raising it to 8 MB passes
+	 * the entire suite; the only visible effect is the run getting seven
+	 * times slower. Raising it to 64 MB does not fail the suite either —
+	 * it *fatals* it, `Allowed memory size of 134217728 bytes exhausted`
+	 * while `test_file_content_forwards_a_body_cut_mid_character_unrepaired`
+	 * builds its fixture, which reads as a broken test runner rather than
+	 * as a bad constant.
+	 *
+	 * A literal is the only assertion that catches either. The value is
+	 * not arbitrary — it is what makes a wp-config.php, a theme
+	 * style.css or a small SQL dump previewable while keeping an
+	 * arbitrary blob out of PHP memory — so pinning it is pinning a
+	 * decision, not a magic number.
+	 */
+	public function test_the_preview_limit_is_64_kb() {
+		$this->assertSame( 65536, File_Browser_Bridge::PREVIEW_MAX_BYTES );
+	}
+
+	/**
 	 * The stream fetch is capped, and capped at the preview limit.
 	 *
 	 * `limit_response_size` is the only thing between a text preview and
@@ -589,6 +662,17 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 	 * forwarded honestly.
 	 */
 	public function test_file_content_forwards_a_body_cut_mid_character_unrepaired() {
+		// Checked before allocating, not after. The fixture below is the
+		// cap's own size, so a cap raised into the megabytes exhausts
+		// PHP's memory limit here and takes the whole run down with a
+		// fatal — an outcome nobody reads as "the constant changed".
+		// Failing on the bound first turns that into an ordinary red test.
+		$this->assertLessThanOrEqual(
+			1024 * 1024,
+			File_Browser_Bridge::PREVIEW_MAX_BYTES,
+			'A preview cap this large cannot be exercised in a unit test, and should not be buffered in PHP memory on a real site either.'
+		);
+
 		$cut = substr(
 			str_repeat( 'a', File_Browser_Bridge::PREVIEW_MAX_BYTES - 1 ) . "\xE6\x97\xA5",
 			0,
