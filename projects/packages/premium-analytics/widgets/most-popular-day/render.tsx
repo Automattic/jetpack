@@ -12,7 +12,7 @@ import {
 	WidgetState,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __, _x, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
@@ -99,20 +99,12 @@ export const MostPopularDayHighlight = ( { date, views, share }: MostPopularDayH
 	return (
 		<Stack className={ styles.highlight } direction="column" gap="xl" justify="center">
 			<MostPopularDayField
-				label={ _x(
-					'Day',
-					'label for the calendar date a site drew the most views',
-					'jetpack-premium-analytics-pkg'
-				) }
+				label={ __( 'Day', 'jetpack-premium-analytics-pkg' ) }
 				value={ formatDate( date, 'short' ) }
 				caption={ formatDate( date, 'year' ) }
 			/>
 			<MostPopularDayField
-				label={ _x(
-					'Views',
-					'label for how many views the best day drew',
-					'jetpack-premium-analytics-pkg'
-				) }
+				label={ __( 'Views', 'jetpack-premium-analytics-pkg' ) }
 				// An abbreviated headline is read aloud as "102.6 K", so the exact
 				// count is what reaches a screen reader.
 				value={
@@ -158,7 +150,9 @@ function MostPopularDayReport() {
 	const date = readBestDay( summary );
 	const views = summaryCount( summary, 'views_best_day_total' );
 	const totalViews = summaryCount( summary, 'views' );
-	const isEmpty = date === undefined || views === undefined;
+	// A best day that drew no views is the empty state the copy describes, not a
+	// measurement of zero — `summaryCount` reports a present `0` as a number.
+	const isEmpty = date === undefined || ! views;
 
 	return (
 		<Stack className={ styles.root } direction="column">

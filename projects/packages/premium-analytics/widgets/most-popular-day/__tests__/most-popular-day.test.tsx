@@ -44,6 +44,10 @@ describe( 'MostPopularDayWidget', () => {
 		// Label with value and caption, so a field that renders the year under the
 		// view count — or vice versa — cannot pass.
 		expect( container ).toHaveTextContent( 'DayOctober 172011' );
+		// The labels carry the card's structure, so they are headings under the
+		// widget title the host renders.
+		expect( screen.getByRole( 'heading', { level: 4, name: 'Day' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { level: 4, name: 'Views' } ) ).toBeInTheDocument();
 		// The count appears twice by design: the abbreviated headline is hidden
 		// from assistive tech, and the exact count beside it is hidden visually.
 		expect( container ).toHaveTextContent( 'Views102.6K102,6310.16% of views' );
@@ -120,6 +124,21 @@ describe( 'MostPopularDayWidget', () => {
 		await expect(
 			screen.findByText( 'Not enough views yet to pick a most popular day.' )
 		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'shows the empty state for a best day that drew no views', async () => {
+		// A day named with a zero total is the same "not enough views yet" case;
+		// rendering "Views 0" would present it as a measurement.
+		mockApiFetch.mockResolvedValue( {
+			stats: { views: 0, views_best_day: '2011-10-17', views_best_day_total: 0 },
+		} );
+
+		render( <MostPopularDayWidget attributes={ {} } /> );
+
+		await expect(
+			screen.findByText( 'Not enough views yet to pick a most popular day.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'October 17' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the rendered day when a refetch fails', async () => {
