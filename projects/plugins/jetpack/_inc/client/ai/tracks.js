@@ -3,6 +3,7 @@
  * The MCP tab keeps its own wrapper in ./mcp/tracks.js.
  */
 
+import { getSiteType } from '@automattic/jetpack-script-data';
 import { useEffect, useRef } from '@wordpress/element';
 import analytics from 'lib/analytics';
 
@@ -12,13 +13,33 @@ export const EVENTS = {
 };
 
 /**
- * Record a Tracks event for the AI page.
+ * Record a Tracks event for the AI page with the standard site and audience
+ * props. is_a11n and is_test come from the page data, as strings, matching
+ * the jetpack_mcp_* events.
  *
  * @param {string} eventName - Tracks event name.
  * @param {object} props     - Event properties.
  */
 export function recordAiHubEvent( eventName, props = {} ) {
-	analytics.tracks.recordEvent( eventName, props );
+	const { isA11n = false, isTest = false } = window?.jetpackAiSettings ?? {};
+
+	analytics.tracks.recordEvent( eventName, {
+		site_type: getTrackingSiteType(),
+		is_a11n: isA11n ? 'true' : 'false',
+		is_test: isTest ? 'true' : 'false',
+		...props,
+	} );
+}
+
+/**
+ * Site type in the Data-team spelling used by the other AI events
+ * (Image Studio, ai-client): simple | atomic | jetpack.
+ *
+ * @return {string} The site type.
+ */
+export function getTrackingSiteType() {
+	const type = getSiteType();
+	return type === 'woa' ? 'atomic' : type;
 }
 
 /**

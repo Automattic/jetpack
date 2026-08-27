@@ -417,7 +417,9 @@ describe( 'AiOverview', () => {
 		render( <AiOverview { ...PROPS } /> );
 
 		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
-		expect( callsFor( 'jetpack_ai_hub_viewed' ) ).toEqual( [ { tab: 'overview' } ] );
+		expect( callsFor( 'jetpack_ai_hub_viewed' ) ).toEqual( [
+			{ site_type: 'jetpack', is_a11n: 'false', is_test: 'false', tab: 'overview' },
+		] );
 	} );
 
 	test( 'tracks: a video card click records the video slug', async () => {
@@ -428,7 +430,13 @@ describe( 'AiOverview', () => {
 
 		await userEvent.click( screen.getByRole( 'link', { name: /Connect your site to Claude/ } ) );
 		expect( callsFor( 'jetpack_ai_hub_link_click' ) ).toEqual( [
-			{ link_type: 'video', link: 'jetpack-ai-hub-overview-video-connect-claude' },
+			{
+				site_type: 'jetpack',
+				is_a11n: 'false',
+				is_test: 'false',
+				link_type: 'video',
+				link: 'jetpack-ai-hub-overview-video-connect-claude',
+			},
 		] );
 	} );
 } );
