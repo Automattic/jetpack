@@ -164,6 +164,26 @@ describe( 'when the popover appears', () => {
 		await expect( screen.findByRole( 'button', TRIGGER ) ).resolves.toBeInTheDocument();
 	} );
 
+	it( 'says what it is in words, not only to a screen reader', async () => {
+		// The trigger was a bare `ⓘ` carrying its name in `aria-label`,
+		// and every accessible-name assertion in this file passed on that
+		// — which is exactly why this one reads `textContent` instead.
+		// That is the only thing separating a labelled button from a glyph
+		// with a tooltip, and the distinction matters here more than
+		// anywhere else in the section: this renders at the one usage
+		// level where nothing else on screen suggests storage is worth a
+		// thought, so an unlabelled glyph is a feature nobody opens.
+		renderWithClient( <StorageSpace /> );
+		const trigger = await screen.findByRole( 'button', TRIGGER );
+
+		expect( trigger ).toHaveTextContent( /^Backup archive size$/ );
+
+		// The visible words *are* the accessible name rather than a second
+		// string beside it, which is WCAG 2.5.3 and the reason the visible
+		// text is this phrase and not a friendlier one of its own.
+		expect( trigger ).toHaveAccessibleName( 'Backup archive size' );
+	} );
+
 	it( 'says nothing when the plan, not the storage, is what caps it', async () => {
 		// 100GB at 1GB a backup is 100 days against a 30-day plan: the
 		// limit is not the constraint, so there is nothing to explain and
@@ -392,5 +412,67 @@ describe( 'the popover Tracks event', () => {
 		await settle();
 		expect( screen.queryByRole( 'link', { name: /Add more storage/ } ) ).not.toBeInTheDocument();
 		expect( mockRecordEvent ).not.toHaveBeenCalled();
+	} );
+} );
+
+describe( 'the panel a11y contract', () => {
+	// Everything asserted here is behaviour `@wordpress/ui`'s `Popover`
+	// brings on its own — none of it is wired up in this file. It is
+	// pinned because it is the whole of what that primitive is being paid
+	// for in bundle size, and because a later change to the trigger or the
+	// panel could take any of it away silently.
+
+	/**
+	 * Open the popover and hand back the trigger and the panel.
+	 *
+	 * @return Both elements.
+	 */
+	async function openPanel(): Promise< { trigger: HTMLElement; panel: HTMLElement } > {
+		const trigger = await screen.findByRole( 'button', TRIGGER );
+		await userEvent.click( trigger );
+		return { trigger, panel: await screen.findByRole( 'dialog' ) };
+	}
+
+	it( 'exposes the panel as a dialog named by its title', async () => {
+		renderWithClient( <StorageSpace /> );
+		const { panel } = await openPanel();
+
+		expect( panel ).toHaveAccessibleName( 'Backup archive size' );
+
+		// Named by pointing at the title element rather than by copying the
+		// string into an attribute, which is what `Popover.Title` is for.
+		const titleId = panel.getAttribute( 'aria-labelledby' );
+		expect( titleId ).toBeTruthy();
+		/* eslint-disable-next-line testing-library/no-node-access -- the wiring is the assertion. */
+		expect( document.getElementById( titleId as string ) ).toHaveTextContent(
+			'Backup archive size'
+		);
+	} );
+
+	it( 'closes on Escape', async () => {
+		renderWithClient( <StorageSpace /> );
+		await openPanel();
+
+		await userEvent.keyboard( '{Escape}' );
+
+		await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+	} );
+
+	it( 'closes on a press outside it', async () => {
+		renderWithClient( <StorageSpace /> );
+		await openPanel();
+
+		await userEvent.click( document.body );
+
+		await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+	} );
+
+	it( 'returns focus to the trigger when it closes', async () => {
+		renderWithClient( <StorageSpace /> );
+		const { trigger } = await openPanel();
+
+		await userEvent.keyboard( '{Escape}' );
+
+		await waitFor( () => expect( trigger ).toHaveFocus() );
 	} );
 } );

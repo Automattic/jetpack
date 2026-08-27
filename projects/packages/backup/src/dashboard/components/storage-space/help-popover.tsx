@@ -1,7 +1,7 @@
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
-import { IconButton, Link, LinkButton, Popover, Stack, Text } from '@wordpress/ui';
+import { Button, Link, LinkButton, Popover, Stack, Text } from '@wordpress/ui';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { useSiteSuffix } from '../../hooks/use-connection';
 import { useStorageAddonOffer } from '../../hooks/use-storage-addon-offer';
@@ -96,25 +96,45 @@ export default function StorageHelpPopover( { forecastInDays, storageUsed, stora
 		'jetpack-backup-pkg'
 	);
 
-	// The same string labels the trigger and titles the popup, which is
-	// legacy's arrangement and the right one: the button's accessible
-	// name is what a screen reader announces before the popup opens, and
-	// the title is what it announces after.
+	// The same string labels the trigger and titles the popup. That is
+	// legacy's arrangement and the right one twice over: what a screen
+	// reader announces before the popup opens matches what it announces
+	// after, and — now that the trigger carries the string visibly — the
+	// accessible name contains the visible label, which is the whole of
+	// WCAG 2.5.3 and the reason the visible text could not be some
+	// third, friendlier sentence.
 	const heading = __( 'Backup archive size', 'jetpack-backup-pkg' );
 
 	return (
 		<Popover.Root>
-			<Popover.Trigger
-				render={
-					<IconButton
-						icon={ info }
-						label={ heading }
-						variant="minimal"
-						tone="neutral"
-						size="small"
-					/>
-				}
-			/>
+			{ /*
+			 * A labelled button rather than a bare `ⓘ`. The icon alone had
+			 * an accessible name and no visible one, which is the worst
+			 * combination here: this renders at the one usage level where
+			 * nothing else on the screen suggests storage is worth a
+			 * thought, so a glyph with no words beside it reads as
+			 * decoration and goes unopened. `Button` with `Button.Icon`
+			 * rather than `IconButton`, because `IconButton` puts its
+			 * `label` in `aria-label` and a tooltip and renders no text.
+			 *
+			 * The name is unchanged by the swap. It used to come from
+			 * `IconButton`'s `aria-label` and now comes from the button's
+			 * own text content, and `Button.Icon` renders through
+			 * `@wordpress/primitives`' `SVG`, which is `aria-hidden` and
+			 * `focusable="false"` — so it contributes nothing to the name.
+			 *
+			 * The alternative considered was folding the forecast into the
+			 * reading beside it. It was rejected: that row already ends in
+			 * "30 days of backups saved", and putting "20 days of full
+			 * backups fit" next to it gives two different day counts, both
+			 * about backups, with nothing explaining why they disagree —
+			 * which is the question this popover exists to answer, asked
+			 * more confusingly.
+			 */ }
+			<Popover.Trigger render={ <Button variant="minimal" tone="neutral" size="small" /> }>
+				<Button.Icon icon={ info } />
+				{ heading }
+			</Popover.Trigger>
 			<Popover.Popup className="jpb-storage-space__help-popup">
 				<Stack direction="column" gap="sm" align="start">
 					{ /*
