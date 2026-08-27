@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Adds the next-scheduled-backup line to the modernized Backup dashboard, which is only reachable behind the rsm_jetpack_ui_modernization_backup filter and so is not user-facing yet.
+
+
