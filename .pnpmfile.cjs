@@ -19,9 +19,11 @@ const wpPkgs = [
 	[ '@wordpress/element', 'react-dom' ],
 	[ '@wordpress/data', 'use-memo-one' ],
 	[ '@wordpress/ui', '@base-ui/react' ],
+	[ '@wordpress/ui', '@daypicker/react' ],
 	[ '@wordpress/ui', '@wordpress/theme', 'colorjs.io' ],
 ];
 const wpPkgFetches = {};
+const wpPkgsUsed = new Set();
 const addWpPkgDep = async ( pkg, fromPkg, ver, deplist ) => {
 	const [ dep, ...rest ] = deplist;
 
@@ -34,16 +36,17 @@ const addWpPkgDep = async ( pkg, fromPkg, ver, deplist ) => {
 
 	if ( rest.length > 0 ) {
 		if ( deps[ dep ] === undefined ) {
-			// Old version of package lacks a new dep? We'll check in afterAllResolved for it being an old dep instead.
+			// This version of the package lacks the dep? We'll check in afterAllResolved for no version having it.
 			return;
 		}
 		const ver2 = deps[ dep ].replace( /^\^/, '' ).replace( /\+[0-9a-f]+$/, '' );
 		await addWpPkgDep( pkg, dep, ver2, rest );
 	} else {
 		if ( deps[ dep ] === undefined ) {
-			// prettier-ignore
-			throw new Error( `pnpmfile hack needs updating, ${ fromPkg } ${ ver } doesn't depend on ${ dep } anymore?` );
+			// Ditto.
+			return;
 		}
+		wpPkgsUsed.add( dep );
 		pkg.optionalDependencies[ dep ] = deps[ dep ];
 	}
 };
@@ -474,8 +477,8 @@ function afterAllResolved( lockfile, context ) {
 	}
 
 	for ( const deplist of wpPkgs ) {
-		for ( const dep of deplist.slice( 0, deplist.length - 1 ) ) {
-			if ( ! wpPkgFetches[ dep ] ) {
+		for ( const dep of deplist ) {
+			if ( ! wpPkgFetches[ dep ] && ! wpPkgsUsed.has( dep ) ) {
 				context.log(
 					// prettier-ignore
 					`pnpmfile hack needs updating: wpPkgs entry [ ${ deplist.join( ', ' ) } ] was not used. Is it obsolete?`
