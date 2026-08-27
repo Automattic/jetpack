@@ -299,6 +299,20 @@ describe( 'AI admin page (main.jsx)', () => {
 		await waitFor( () => expect( mcpViewCount() ).toBe( 1 ) );
 	} );
 
+	test( 'MCP sub-views: the breadcrumb root reads Jetpack AI', async () => {
+		mockApiFetch( {
+			mcpGet: { has_mcp_access: true, mcp_abilities: { account: { some_tool: {} }, sites: [] } },
+		} );
+
+		window.location.hash = '#/read';
+		render( <App /> );
+
+		await expect(
+			screen.findByRole( 'button', { name: 'Jetpack AI' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'AI' } ) ).not.toBeInTheDocument();
+	} );
+
 	test( 'a11n gate: without showFeaturesView the page is MCP-only with no tab bar', async () => {
 		window.jetpackAiSettings = {};
 		window.location.hash = '';

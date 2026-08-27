@@ -110,8 +110,8 @@ function Breadcrumbs( { view, onNavigate } ) {
 						className="jetpack-ai-admin__breadcrumb-link"
 						onClick={ onNavigate }
 					>
-						{ /** "AI" is a product name and should not be translated. */ }
-						AI
+						{ /** "Jetpack AI" is a product name and should not be translated. */ }
+						Jetpack AI
 					</button>
 				</li>
 				<li>
