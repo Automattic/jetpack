@@ -16,6 +16,7 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 // Imports must come after the jest.mock factory above.
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
+import { resetLocaleData, setLocaleData } from '@wordpress/i18n';
 import StorageSpace from '../src/dashboard/components/storage-space';
 import type { ReactNode } from 'react';
 
@@ -138,6 +139,53 @@ describe( 'the usage reading', () => {
 		mockEndpoints( { size: { size: 5 * GB }, policies: { storage_limit_bytes: 10 * GB } } );
 		renderWithClient( <StorageSpace /> );
 		await expect( usageLine() ).resolves.toHaveTextContent( /^Using 5\.0GB of 10GB$/ );
+	} );
+} );
+
+describe( 'the usage reading, translated', () => {
+	// The English source cannot tell you whether the msgid's placeholders
+	// are positional. Nothing moves, so `%1.1f`/`%2f` — which
+	// `@tannin/sprintf` reads as widths and fills in the order they appear
+	// — renders exactly like `%1$.1f`/`%2$f` at every value. The two only
+	// part company under a translation that reorders them, which is the
+	// natural phrasing in plenty of languages and is what this covers: it
+	// is the only assertion in the suite that fails if the `$` are ever
+	// dropped again.
+	afterEach( () => {
+		// Wipes every domain, which is what this function does — nothing
+		// in this file depends on loaded translations, so that is the
+		// cheapest way back to a clean slate.
+		resetLocaleData();
+	} );
+
+	it( 'keeps used and total the right way round when a translation fronts the total', async () => {
+		setLocaleData(
+			{
+				'Using <strong>%1$.1fGB</strong> of %2$fGB': [
+					'Of %2$fGB, using <strong>%1$.1fGB</strong>',
+				],
+				// The pre-fix spelling, carried here on purpose. Without
+				// it, reverting the msgid fails this test with "unable to
+				// find /^Of/" — a translation that no longer matches any
+				// key — which reads as a stale fixture and invites someone
+				// to update the key and bless the bug back in. With it, the
+				// failure is the transposed figures themselves, which is
+				// the thing actually worth seeing.
+				'Using <strong>%1.1fGB</strong> of %2fGB': [ 'Of %2fGB, using <strong>%1.1fGB</strong>' ],
+			},
+			'jetpack-backup-pkg'
+		);
+		mockEndpoints( { size: { size: 12.4 * GB }, policies: { storage_limit_bytes: 20 * GB } } );
+		renderWithClient( <StorageSpace /> );
+
+		// Sequential placeholders would read this as "Of 12.4GB, using
+		// 20.0GB" — the site's 20GB plan reported as its usage, and 12.4GB
+		// of usage reported as the plan. On the screen whose job is to say
+		// whether backups are at risk, that tells a reader with room to
+		// spare that they are over quota.
+		await expect( screen.findByText( /^Of/ ) ).resolves.toHaveTextContent(
+			/^Of 20GB, using 12\.4GB$/
+		);
 	} );
 } );
 
