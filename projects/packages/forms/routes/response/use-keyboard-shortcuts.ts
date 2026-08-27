@@ -11,14 +11,17 @@ import { useEffect, useRef } from '@wordpress/element';
  * cannot drift apart.
  *
  * Keys follow the conventions of the mail clients this page's triage flow
- * resembles: `j`/`k` to move through a list, `e` to file something away, `!` to
- * report spam, `u` to go back up to the list. Arrow keys are kept alongside
- * `j`/`k` because they were the page's original binding.
+ * resembles: `j`/`k` to move through a list, `#` to bin something, `!` to report
+ * spam, `u` to go back up to the list. Arrow keys are kept alongside `j`/`k`
+ * because they were the page's original binding.
+ *
+ * The two destructive keys are both shifted symbols, which is a feature: they are
+ * meaningfully harder to hit by accident than a bare letter would be.
  */
 export const SHORTCUTS = {
 	next: 'j',
 	previous: 'k',
-	moveToTrash: 'e',
+	moveToTrash: '#',
 	markAsSpam: '!',
 	goToList: 'u',
 } as const;
@@ -84,7 +87,7 @@ export default function useResponseKeyboardShortcuts(
 	useEffect( () => {
 		const handleKeyDown = ( event: KeyboardEvent ) => {
 			// Modifier combinations belong to the browser and the OS. Shift is not
-			// checked, because `!` is typed with it.
+			// checked, because `!` and `#` are typed with it.
 			if ( event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey ) {
 				return;
 			}
@@ -95,8 +98,8 @@ export default function useResponseKeyboardShortcuts(
 
 			const { onNext, onPrevious, onMarkAsSpam, onMoveToTrash, onGoToList } = handlersRef.current;
 
-			// `event.key` is the produced character, so `!` is matched directly and
-			// keeps working on layouts that place it elsewhere.
+			// `event.key` is the produced character, so `!` and `#` are matched
+			// directly and keep working on layouts that place them elsewhere.
 			const binding: Record< string, ( () => void ) | undefined > = {
 				[ SHORTCUTS.next ]: onNext,
 				ArrowDown: onNext,

@@ -198,6 +198,13 @@ function Stage(): React.JSX.Element {
 
 	const { hasPrevious, hasNext, goPrevious, goNext } = useResponsePageNavigation( id, pinned );
 
+	// A status change must only ever hit the response the user is actually looking
+	// at. Navigating is faster than fetching, so for a moment after prev/next the
+	// page is still showing the previous record while the URL already names the new
+	// one — a keystroke landing there would action the wrong response. Comparing the
+	// rendered record against the route's id closes that window.
+	const isShowingRoutedResponse = response?.id === id;
+
 	// Keyboard shortcuts for triage: move through the list, file a response away,
 	// get back to the list. Suspended while a modal is open or a mutation is in
 	// flight — navigating away mid-change would leave the spam dialog describing one
@@ -209,8 +216,8 @@ function Stage(): React.JSX.Element {
 		{
 			onNext: hasNext ? goNext : undefined,
 			onPrevious: hasPrevious ? goPrevious : undefined,
-			onMarkAsSpam: responseActions.markAsSpam,
-			onMoveToTrash: responseActions.moveToTrash,
+			onMarkAsSpam: isShowingRoutedResponse ? responseActions.markAsSpam : undefined,
+			onMoveToTrash: isShowingRoutedResponse ? responseActions.moveToTrash : undefined,
 			onGoToList: responseActions.goToList,
 		},
 		{
