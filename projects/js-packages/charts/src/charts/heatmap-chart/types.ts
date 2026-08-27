@@ -70,6 +70,13 @@ export interface HeatmapChartProps
 	 * Default `start`.
 	 */
 	columnLabelAlign?: 'start' | 'center';
+	/**
+	 * Pin the row and column labels against the nearest scrolling ancestor, so
+	 * a grid larger than its container keeps saying which row and column each
+	 * cell belongs to. Off by default: a chart sized to fit its container never
+	 * scrolls, and pinning would only add stacking contexts it has no use for.
+	 */
+	stickyLabels?: boolean;
 	/** Compact mode: hide in-cell values, tighten gap, thin axis labels. Default false. */
 	compact?: boolean;
 	/** Render the numeric value inside each cell. Default `! compact`. */

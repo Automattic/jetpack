@@ -448,7 +448,10 @@ describe( 'HeatmapChart', () => {
 		test( 'pads a short trailing array rather than ragging the grid', () => {
 			renderChart( { trailingColumn: { label: 'Totals', data: [ 4 ] } } );
 
-			expect( screen.getAllByTestId( 'heatmap-cell-trailing' ) ).toHaveLength( 3 );
+			// One reported roll-up; the rows it says nothing about keep their slots
+			// as empty ones, so the column stays the height of the grid.
+			expect( screen.getAllByTestId( 'heatmap-cell-trailing' ) ).toHaveLength( 1 );
+			expect( screen.getAllByTestId( 'heatmap-cell-hidden' ) ).toHaveLength( 2 );
 		} );
 	} );
 
@@ -483,5 +486,37 @@ describe( 'HeatmapChart', () => {
 		expect( scrollIntoView ).toHaveBeenCalledWith( { block: 'nearest', inline: 'nearest' } );
 
 		delete ( Element.prototype as Partial< Element > ).scrollIntoView;
+	} );
+	test( 'pins the labels only when asked to', () => {
+		const { rerender } = renderChart( { rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+
+		expect( screen.getAllByText( 'W1' )[ 0 ].className ).not.toMatch( /label--sticky/ );
+		expect( screen.getAllByText( 'Mon' )[ 0 ].className ).not.toMatch( /label--sticky/ );
+
+		rerender(
+			<GlobalChartsProvider>
+				<HeatmapChart
+					width={ 500 }
+					height={ 300 }
+					data={ data }
+					rowLabels={ [ 'Mon', 'Tue', 'Wed' ] }
+					stickyLabels
+				/>
+			</GlobalChartsProvider>
+		);
+
+		expect( screen.getAllByText( 'W1' )[ 0 ].className ).toMatch( /col-label--sticky/ );
+		expect( screen.getAllByText( 'Mon' )[ 0 ].className ).toMatch( /row-label--sticky/ );
+	} );
+
+	test( 'skips a roll-up with nothing to report, the way a data column does', () => {
+		renderChart( {
+			trailingColumn: { label: 'Totals', data: [ 4, null, 4 ] },
+			rowLabels: [ 'Mon', 'Tue', 'Wed' ],
+		} );
+
+		// Two reported roll-ups; the empty one keeps its slot but reports nothing.
+		expect( screen.getAllByTestId( 'heatmap-cell-trailing' ) ).toHaveLength( 2 );
+		expect( screen.getAllByTestId( 'heatmap-cell-hidden' ) ).toHaveLength( 1 );
 	} );
 } );

@@ -3,6 +3,10 @@
 // module, so it needs no runtime cascade and never lands on the DOM.
 $focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px));
 
+// The grid's gap, repeated so pinned labels can paint over it. Kept in step
+// with the `gap` declaration on `.heatmap-chart__grid` below.
+$cell-gap: var(--a8c-charts-dimension-heatmap-cell-gap, var(--wpds-dimension-gap-xs, 4px));
+
 .heatmap-chart {
 	width: 100%;
 	height: 100%;
@@ -75,20 +79,71 @@ $focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-fo
 
 .heatmap-chart__col-label {
 	align-self: end;
-	text-align: left;
+	text-align: start;
 }
 
 // A calendar's labels mark where a month starts, so they sit at the column's
 // leading edge; labels that name their column are centred over it instead.
+// `justify-content` is for the pinned case below, where the label becomes a
+// flex box to fill its track.
 .heatmap-chart__col-label--center {
+	justify-content: center;
 	text-align: center;
 }
 
 .heatmap-chart__row-label {
 	align-self: center;
 	justify-self: end;
-	text-align: right;
+	text-align: end;
 	padding-inline-end: var(--wpds-dimension-padding-xs, 4px);
+}
+
+// Pinned labels (opt-in via `stickyLabels`): a grid larger than its scroll
+// container keeps saying which row and column a cell belongs to. The grid's own
+// gap sits between a label and the cells it labels, and scrolling content shows
+// through it, so the box-shadow paints that gap in the chart background — drawn
+// rather than padded, so the grid tracks keep their sizes.
+.heatmap-chart__label--sticky {
+	position: sticky;
+	z-index: 2;
+	display: flex;
+	background: var(--a8c-charts-color-heatmap-background, #fff);
+}
+
+// Stretched to fill its track, not just its text: a label sized to the text
+// alone leaves the rest of the track transparent, and cells scrolling under it
+// show through the uncovered strip.
+.heatmap-chart__col-label--sticky {
+	align-self: stretch;
+	align-items: flex-end;
+	inset-block-start: 0;
+	box-shadow: 0 $cell-gap 0 var(--a8c-charts-color-heatmap-background, #fff);
+}
+
+// Stretched on both axes for the same reason as the column labels. No shadow
+// here: the gap to cover is on the label's inline-end, and a box-shadow offset
+// cannot be expressed logically, so it would paint on the wrong side in RTL.
+// The remaining gap is one grid gap wide and reads as the column separator
+// it is.
+.heatmap-chart__row-label--sticky {
+	align-self: stretch;
+	justify-self: stretch;
+	align-items: center;
+	justify-content: flex-end;
+	inset-inline-start: 0;
+}
+
+// Where the two pinned axes cross. Above both, or a row label scrolling up
+// would pass over the column headers.
+.heatmap-chart__corner {
+	position: sticky;
+	z-index: 3;
+	inset-block-start: 0;
+	inset-inline-start: 0;
+	background: var(--a8c-charts-color-heatmap-background, #fff);
+	box-shadow:
+		0 $cell-gap 0 var(--a8c-charts-color-heatmap-background, #fff),
+		calc(-1 * #{$cell-gap}) 0 0 var(--a8c-charts-color-heatmap-background, #fff);
 }
 
 .heatmap-chart__cell {

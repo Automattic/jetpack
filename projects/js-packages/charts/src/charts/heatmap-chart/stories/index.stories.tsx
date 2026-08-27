@@ -28,6 +28,7 @@ const meta: Meta< StoryArgs > = {
 		...themeArgTypes,
 		compact: { control: 'boolean', table: { category: 'Visual Style' } },
 		showValues: { control: 'boolean', table: { category: 'Visual Style' } },
+		stickyLabels: { control: 'boolean', table: { category: 'Visual Style' } },
 		maxCellWidth: {
 			control: { type: 'number', min: 1 },
 			description: 'Maximum cell width in pixels in non-compact mode',
@@ -158,6 +159,7 @@ export const MonthsByYearWithTotals: Story = {
 		),
 		trailingColumn: { label: 'Totals', data: heatmapYearMonthTotals },
 		columnLabelAlign: 'center',
+		stickyLabels: true,
 		withTooltips: true,
 		containerWidth: '1000px',
 		containerHeight: '320px',

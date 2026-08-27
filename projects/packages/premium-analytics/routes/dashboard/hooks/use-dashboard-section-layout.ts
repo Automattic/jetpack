@@ -22,10 +22,13 @@ const EMPTY_SECTION_LAYOUTS: DashboardSectionLayouts = {};
  * Mapping on read puts the replacement in the slot the original held. The
  * mapped layout is deliberately not written back — the reader's next edit
  * persists it, so a read alone never mutates stored preferences.
+ *
+ * A `Map`, not an object literal: an object would resolve inherited keys, so a
+ * stored type of `constructor` or `toString` would read as replaceable.
  */
-const REPLACED_WIDGET_TYPES: Record< string, DashboardWidget[ 'type' ] > = {
-	'jpa/traffic-views-activity': 'jpa/views-over-years',
-};
+const REPLACED_WIDGET_TYPES = new Map< string, DashboardWidget[ 'type' ] >( [
+	[ 'jpa/traffic-views-activity', 'jpa/views-over-years' ],
+] );
 
 type PreferencesActions = {
 	set: ( scope: string, key: string, value: DashboardSectionLayouts ) => Promise< void > | void;
@@ -74,12 +77,12 @@ export function useDashboardSectionLayout(
 		// section's own default must stay identical to it by reference, which is
 		// how `resetLayout` and its tests tell "following the default" apart from
 		// "customized to the same thing".
-		if ( ! stored.some( widget => REPLACED_WIDGET_TYPES[ widget.type ] ) ) {
+		if ( ! stored.some( widget => REPLACED_WIDGET_TYPES.has( widget.type ) ) ) {
 			return stored;
 		}
 
 		return stored.map( widget => {
-			const replacement = REPLACED_WIDGET_TYPES[ widget.type ];
+			const replacement = REPLACED_WIDGET_TYPES.get( widget.type );
 
 			return replacement ? { ...widget, type: replacement } : widget;
 		} );

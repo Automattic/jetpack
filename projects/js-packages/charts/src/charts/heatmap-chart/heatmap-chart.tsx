@@ -56,6 +56,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	rowLabels = [],
 	trailingColumn,
 	columnLabelAlign = 'start',
+	stickyLabels = false,
 	primaryColor,
 	gap = 'md',
 	withTooltips = false,
@@ -126,9 +127,15 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						...data,
 						{
 							label: trailingColumn.label,
-							data: Array.from( { length: rows }, ( _cell, rowIndex ) => ( {
-								value: trailingColumn.data[ rowIndex ] ?? null,
-							} ) ),
+							data: Array.from( { length: rows }, ( _cell, rowIndex ) => {
+								const value = trailingColumn.data[ rowIndex ] ?? null;
+
+								// Hidden when there is nothing to roll up, matching what a data
+								// column does with a missing value: an empty slot that keeps its
+								// place and that hover and keyboard navigation skip, rather than
+								// a stop that announces "No data".
+								return value === null ? { value, hidden: true } : { value };
+							} ),
 						},
 				  ]
 				: data,
@@ -401,12 +408,20 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 					>
 						{ /* Header row preserves the grid structure; cell aria-labels include this text. */ }
 						<div role="row" aria-hidden="true" className={ styles[ 'heatmap-chart__row' ] }>
-							<span />
+							{ /* The corner sits where the two pinned axes cross, so it pins on
+							     both and above them — otherwise a row label slides under it. */ }
+							<span
+								className={ clsx( {
+									[ styles[ 'heatmap-chart__corner' ] ]: stickyLabels,
+								} ) }
+							/>
 							{ columnsData.map( ( column, columnIndex ) => (
 								<span
 									key={ `col-${ columnIndex }` }
 									className={ clsx( styles[ 'heatmap-chart__col-label' ], {
 										[ styles[ 'heatmap-chart__col-label--center' ] ]: columnLabelAlign === 'center',
+										[ styles[ 'heatmap-chart__label--sticky' ] ]: stickyLabels,
+										[ styles[ 'heatmap-chart__col-label--sticky' ] ]: stickyLabels,
 									} ) }
 								>
 									{ column.label }
@@ -423,7 +438,13 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 									aria-rowindex={ rowIndex + 1 }
 									className={ styles[ 'heatmap-chart__row' ] }
 								>
-									<span aria-hidden="true" className={ styles[ 'heatmap-chart__row-label' ] }>
+									<span
+										aria-hidden="true"
+										className={ clsx( styles[ 'heatmap-chart__row-label' ], {
+											[ styles[ 'heatmap-chart__label--sticky' ] ]: stickyLabels,
+											[ styles[ 'heatmap-chart__row-label--sticky' ] ]: stickyLabels,
+										} ) }
+									>
 										{ labelVisible ? rowLabels[ rowIndex ] ?? '' : '' }
 									</span>
 									{ columnsData.map( ( column, columnIndex ) => {

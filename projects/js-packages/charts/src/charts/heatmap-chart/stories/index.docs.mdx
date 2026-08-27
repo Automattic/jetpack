@@ -77,6 +77,7 @@ The simplest heatmap requires `data` — an array of `HeatmapColumn` objects, ea
 - **`minCellWidth`** / **`minCellHeight`** (default: `0`): keep cells from shrinking below a readable size and let the grid overflow instead
 - **`trailingColumn`**: a per-row roll-up drawn after the data columns (see [Row roll-ups](#row-roll-ups))
 - **`columnLabelAlign`** (default: `'start'`): where a column's label sits over its track — `'start'` or `'center'`
+- **`stickyLabels`** (default: `false`): pin the row and column labels against the nearest scrolling ancestor
 - **`primaryColor`**: color the scale interpolates toward at the highest value (prop > `heatmapChart.primaryColor` > palette `colors[0]`)
 - **`width`** / **`height`**: explicit dimensions in pixels. When omitted the chart fills its parent.
 - **`aspectRatio`**: Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
@@ -194,6 +195,8 @@ Pass `trailingColumn` to draw a per-row total, average, or other summary after t
 		<HeatmapChart.Legend lessLabel="Fewer views" moreLabel="More views" />
 	</HeatmapChart>` }
 />
+
+Where the grid is larger than the container it sits in, add `stickyLabels` so the month header and the year labels stay put while the cells scroll under them — a grid of bare numbers with no visible header says nothing. Both axes pin against the nearest scrolling ancestor, and the corner where they cross pins on both. It is opt-in because a chart sized to fit its container never scrolls and would gain nothing but stacking contexts.
 
 The roll-up is deliberately **left out of the colour scale**, which is why it cannot simply be one more column of `data`: a row's total is typically an order of magnitude above any single cell, and letting it set the scale's maximum would flatten every real cell to the bottom of the range. It is drawn unshaded and emphasised for the same reason — it is not on the grid's scale — but it stays a full participant in hover, tooltips, and keyboard navigation, so its values are reachable the way the grid's are. A `data` array shorter than the row count is padded with empty cells.
 

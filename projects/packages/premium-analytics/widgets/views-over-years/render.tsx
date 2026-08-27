@@ -146,6 +146,7 @@ function ViewsOverYearsInner() {
 						rowLabels={ yearLabels }
 						trailingColumn={ trailingColumn }
 						columnLabelAlign="center"
+						stickyLabels
 						minCellWidth={ MIN_CELL_WIDTH }
 						minCellHeight={ MIN_CELL_HEIGHT }
 						maxCellHeight={ MAX_CELL_HEIGHT }
@@ -158,8 +159,16 @@ function ViewsOverYearsInner() {
 						     full width. */ }
 						<div className={ styles.legend }>
 							<HeatmapChart.Legend
-								lessLabel={ __( 'Fewer views', 'jetpack-premium-analytics-pkg' ) }
-								moreLabel={ __( 'More views', 'jetpack-premium-analytics-pkg' ) }
+								lessLabel={
+									metric === 'average'
+										? __( 'Fewer views per day', 'jetpack-premium-analytics-pkg' )
+										: __( 'Fewer views', 'jetpack-premium-analytics-pkg' )
+								}
+								moreLabel={
+									metric === 'average'
+										? __( 'More views per day', 'jetpack-premium-analytics-pkg' )
+										: __( 'More views', 'jetpack-premium-analytics-pkg' )
+								}
 							/>
 						</div>
 					</HeatmapChart>
