@@ -76,6 +76,8 @@ class REST_Jetpack_AI_JWT extends \WP_REST_Controller {
 
 	/**
 	 * Ask WPCOM for a JWT token to use for OpenAI completion.
+	 *
+	 * @return \WP_REST_Response|\WP_Error The token and blog ID, or the error from WPCOM.
 	 */
 	public function get_jwt() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
