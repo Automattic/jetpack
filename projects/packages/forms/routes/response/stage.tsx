@@ -35,8 +35,7 @@ import SingleResponseActions from './page-actions.tsx';
 import { getPinnedView } from './pinned-view.ts';
 import getResponseQuery from './query.ts';
 import repairResponseRecord from './repair-record.ts';
-import ShortcutsHelp from './shortcuts-help.tsx';
-import useResponseKeyboardShortcuts from './use-keyboard-shortcuts.ts';
+import useResponseKeyboardShortcuts, { SHORTCUTS } from './use-keyboard-shortcuts.ts';
 import useResponsePageNavigation from './use-navigation.ts';
 import useResponseActions from './use-response-actions.ts';
 // Shared wp-build dashboard chrome (page layout + breadcrumb link styling). The
@@ -199,10 +198,6 @@ function Stage(): React.JSX.Element {
 
 	const { hasPrevious, hasNext, goPrevious, goNext } = useResponsePageNavigation( id, pinned );
 
-	const [ isShortcutsHelpOpen, setIsShortcutsHelpOpen ] = useState( false );
-	const showShortcutsHelp = useCallback( () => setIsShortcutsHelpOpen( true ), [] );
-	const hideShortcutsHelp = useCallback( () => setIsShortcutsHelpOpen( false ), [] );
-
 	// Keyboard shortcuts for triage: move through the list, file a response away,
 	// get back to the list. Suspended while a modal is open or a mutation is in
 	// flight — navigating away mid-change would leave the spam dialog describing one
@@ -217,10 +212,9 @@ function Stage(): React.JSX.Element {
 			onMarkAsSpam: responseActions.markAsSpam,
 			onMoveToTrash: responseActions.moveToTrash,
 			onGoToList: responseActions.goToList,
-			onShowHelp: showShortcutsHelp,
 		},
 		{
-			isDisabled: Boolean( previewFile ) || isShortcutsHelpOpen || isNavigationBlocked,
+			isDisabled: Boolean( previewFile ) || isNavigationBlocked,
 		}
 	);
 
@@ -332,6 +326,8 @@ function Stage(): React.JSX.Element {
 						hasPrevious={ hasPrevious && ! isNavigationBlocked }
 						onNext={ goNext }
 						onPrevious={ goPrevious }
+						nextShortcut={ SHORTCUTS.next }
+						previousShortcut={ SHORTCUTS.previous }
 						onClose={ null }
 					/>
 					<SingleResponseActions
@@ -340,7 +336,6 @@ function Stage(): React.JSX.Element {
 						// The menu combines this with its own per-response pending state, so a
 						// second action can't be started on a response already changing.
 						isBlocked={ isNavigationBlocked }
-						onShowShortcuts={ showShortcutsHelp }
 					/>
 				</Stack>
 			}
@@ -363,8 +358,6 @@ function Stage(): React.JSX.Element {
 					/>
 				</Modal>
 			) }
-
-			{ isShortcutsHelpOpen && <ShortcutsHelp onClose={ hideShortcutsHelp } /> }
 
 			<ConfirmDialog
 				isOpen={ isConfirmDialogOpen }

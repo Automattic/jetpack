@@ -2,7 +2,26 @@
  * WordPress dependencies
  */
 import { useEffect, useRef } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+
+/**
+ * The keys bound on the single response page.
+ *
+ * Exported so the menu items and arrow tooltips label themselves from the same
+ * source that binds them — the hint a user reads and the key that actually works
+ * cannot drift apart.
+ *
+ * Keys follow the conventions of the mail clients this page's triage flow
+ * resembles: `j`/`k` to move through a list, `e` to file something away, `!` to
+ * report spam, `u` to go back up to the list. Arrow keys are kept alongside
+ * `j`/`k` because they were the page's original binding.
+ */
+export const SHORTCUTS = {
+	next: 'j',
+	previous: 'k',
+	moveToTrash: 'e',
+	markAsSpam: '!',
+	goToList: 'u',
+} as const;
 
 export type ResponseShortcutHandlers = {
 	onNext?: () => void;
@@ -10,29 +29,7 @@ export type ResponseShortcutHandlers = {
 	onMarkAsSpam?: () => void;
 	onMoveToTrash?: () => void;
 	onGoToList?: () => void;
-	onShowHelp?: () => void;
 };
-
-/**
- * The shortcuts, in the order they are listed in the help dialog.
- *
- * Keys follow the conventions of the mail clients this page's triage flow
- * resembles — `j`/`k` to move through a list, `e` to file something away, `!` to
- * report spam, `u` to go back up to the list, `?` for help. Arrow keys are kept
- * alongside `j`/`k` because they were the page's original binding.
- *
- * @return The shortcut descriptions, translated.
- */
-export function getShortcutDescriptions(): { keys: string[]; description: string }[] {
-	return [
-		{ keys: [ 'j', '↓' ], description: __( 'Next response', 'jetpack-forms' ) },
-		{ keys: [ 'k', '↑' ], description: __( 'Previous response', 'jetpack-forms' ) },
-		{ keys: [ 'e' ], description: __( 'Move to trash', 'jetpack-forms' ) },
-		{ keys: [ '!' ], description: __( 'Mark as spam', 'jetpack-forms' ) },
-		{ keys: [ 'u' ], description: __( 'Back to responses', 'jetpack-forms' ) },
-		{ keys: [ '?' ], description: __( 'Show keyboard shortcuts', 'jetpack-forms' ) },
-	];
-}
 
 /**
  * Whether a keyboard event should be ignored because the user is typing.
@@ -56,9 +53,9 @@ function isTypingTarget( event: KeyboardEvent ): boolean {
  * Keyboard shortcuts for the standalone single response page.
  *
  * Bound on `window` rather than through `@wordpress/keyboard-shortcuts`, matching
- * how this page already handled its arrow keys, and because the shortcut store's
- * value here would be the help modal it does not actually provide outside the
- * editor.
+ * how this page already handled its arrow keys. The shortcut store's main draw is
+ * the help modal, which lives in `@wordpress/editor` and is not available here —
+ * the keys are advertised on the menu items and arrow tooltips instead.
  *
  * `preventDefault` is called only when a shortcut actually runs, so arrow-key page
  * scrolling still works at the ends of the list and unbound keys behave normally.
@@ -69,8 +66,8 @@ function isTypingTarget( event: KeyboardEvent ): boolean {
  *
  * @param handlers           - The actions to run. A missing handler leaves its key unbound.
  * @param options            - Options.
- * @param options.isDisabled - Suspends every shortcut (a modal is open, a mutation
- *                           is in flight).
+ * @param options.isDisabled - Suspends every shortcut (a modal is open, a
+ *                           confirmation is pending).
  */
 export default function useResponseKeyboardShortcuts(
 	handlers: ResponseShortcutHandlers,
@@ -87,7 +84,7 @@ export default function useResponseKeyboardShortcuts(
 	useEffect( () => {
 		const handleKeyDown = ( event: KeyboardEvent ) => {
 			// Modifier combinations belong to the browser and the OS. Shift is not
-			// checked, because `!` and `?` are typed with it.
+			// checked, because `!` is typed with it.
 			if ( event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey ) {
 				return;
 			}
@@ -96,20 +93,18 @@ export default function useResponseKeyboardShortcuts(
 				return;
 			}
 
-			const { onNext, onPrevious, onMarkAsSpam, onMoveToTrash, onGoToList, onShowHelp } =
-				handlersRef.current;
+			const { onNext, onPrevious, onMarkAsSpam, onMoveToTrash, onGoToList } = handlersRef.current;
 
-			// `event.key` is the produced character, so `!` and `?` are matched
-			// directly and keep working on layouts that place them elsewhere.
+			// `event.key` is the produced character, so `!` is matched directly and
+			// keeps working on layouts that place it elsewhere.
 			const binding: Record< string, ( () => void ) | undefined > = {
-				j: onNext,
+				[ SHORTCUTS.next ]: onNext,
 				ArrowDown: onNext,
-				k: onPrevious,
+				[ SHORTCUTS.previous ]: onPrevious,
 				ArrowUp: onPrevious,
-				e: onMoveToTrash,
-				'!': onMarkAsSpam,
-				u: onGoToList,
-				'?': onShowHelp,
+				[ SHORTCUTS.moveToTrash ]: onMoveToTrash,
+				[ SHORTCUTS.markAsSpam ]: onMarkAsSpam,
+				[ SHORTCUTS.goToList ]: onGoToList,
 			};
 
 			const handler = binding[ event.key ];
