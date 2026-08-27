@@ -32,6 +32,16 @@ import './style.scss';
  * that link is absent for the same reason: no link, nothing to record.
  * Both come back together, here, once 2329 is decided.
  *
+ * **On a half-hour timezone this reads differently from legacy, on
+ * purpose.** At UTC+5:30 with a 10:00 UTC schedule, this says
+ * "3:30-4:29 PM" and legacy says "3:00-3:59 PM". Legacy throws the
+ * minutes away — it takes the integer local *hour* off its date and
+ * rebuilds the range from that — so it reports a window the site does
+ * not have. 15:30–16:29 is where the run actually falls, so the figure
+ * here is the correct one; it just stops matching legacy for India,
+ * Iran, Nepal, Newfoundland and parts of Australia. Whether the two
+ * should be reconciled, and in which direction, is a product call.
+ *
  * @return The rendered line, a placeholder, or nothing.
  */
 export default function NextScheduledBackup() {
@@ -64,7 +74,12 @@ export default function NextScheduledBackup() {
 	}
 
 	return (
-		<Text variant="body-sm" className="jpb-text-muted jpb-next-scheduled-backup" render={ <p /> }>
+		// Left as `Text`'s default `<span>`, which every other muted line
+		// on this dashboard also is. Rendering it as a `<p>` puts it in
+		// reach of `@wordpress/ui`'s unlayered `p.p` global-CSS defense,
+		// whose `margin: var( --_gcd-p-margin, 0 )` outranks a plain class
+		// selector — see `style.scss`.
+		<Text variant="body-sm" className="jpb-text-muted jpb-next-scheduled-backup">
 			{ sprintf(
 				/* translators: %1$s is the formatted date (e.g. "Oct 22"); %2$s is a time range (e.g. "10:00-10:59 AM"). */
 				__( 'Next full backup: %1$s, %2$s.', 'jetpack-backup-pkg' ),

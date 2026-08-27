@@ -109,12 +109,18 @@ function nextWindowStart( scheduledHourUtc: number, now: Date ): Date {
  * characters — inside this file, and leaves the component with nothing
  * to get wrong.
  *
- * **It formats with `@wordpress/date`, not moment.** That is what every
- * other date on this dashboard uses, and on this page it is free: each
- * route's `package.json` declares `@wordpress/date`, so wp-build
- * externalizes it to WordPress core's own `wp-date` script, while a bare
- * `moment` import is not declared, not externalized, and would bundle a
- * second copy of moment into the route.
+ * **It formats with `@wordpress/date`, not moment.** For consistency —
+ * six other files on this dashboard already format dates with `dateI18n`
+ * — and for the timezone fix below. Not for bundle size: wp-build
+ * externalizes `moment` unconditionally, from the `vendorExternals` table
+ * in `@wordpress/build/lib/wordpress-externals-plugin.mjs`, rewriting the
+ * import to `window.moment` and adding a `moment` script handle. Measured:
+ * importing moment here grew the route bundle by 111 bytes, all of it the
+ * shim and the probe that used it. Core's `wp-date` declares `moment` as
+ * a dependency anyway (`wp-includes/assets/script-loader-packages.php`,
+ * `date.js`), so depending on `@wordpress/date` already puts moment on
+ * the page. An earlier revision of this comment claimed a second copy of
+ * moment would be bundled; that was wrong.
  *
  * It also gets the timezone right in a case legacy does not. `dateI18n`
  * resolves the site's zone itself — the IANA string when WordPress has
