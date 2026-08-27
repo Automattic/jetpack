@@ -31,9 +31,53 @@ class PayPal_REST_Controller_Test extends TestCase {
 		delete_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY );
 		delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
 		delete_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY );
+		delete_option( PayPal_OAuth::TOKEN_EXPIRES_AT_OPTION_KEY );
+		delete_transient( PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY );
+		delete_option( PayPal_Partner_Onboarding::PARTNER_ID_OPTION_KEY );
+		delete_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY );
+		delete_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY );
 
 		// Remove any HTTP request filters.
 		remove_all_filters( 'pre_http_request' );
+	}
+
+	/**
+	 * Route mocked HTTP responses by URL fragment.
+	 *
+	 * @param array $routes Map of URL fragment => response array or WP_Error.
+	 */
+	private function mock_http_routes( array $routes ) {
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $routes ) {
+				foreach ( $routes as $fragment => $response ) {
+					if ( false !== strpos( $url, $fragment ) ) {
+						return $response;
+					}
+				}
+
+				return $preempt;
+			},
+			10,
+			3
+		);
+	}
+
+	/**
+	 * Build a mocked HTTP response array.
+	 *
+	 * @param int   $status HTTP status code.
+	 * @param array $body   Response body, JSON-encoded for the mock.
+	 * @return array
+	 */
+	private function http_response( $status, array $body ) {
+		return array(
+			'response' => array(
+				'code'    => $status,
+				'message' => 'OK',
+			),
+			'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+		);
 	}
 
 	// --- Permission check ---
@@ -116,6 +160,169 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	// --- validate_button_request (tested indirectly via handle_create_button) ---
+
+	// --- Connection lifecycle ---
+
+	/**
+	 * Test that a successful connect stores credentials and reports the environment.
+	 */
+	public function test_connect_stores_credentials_on_success() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'               => $this->http_response(
+					200,
+					array(
+						'access_token' => 'good_token',
+						'expires_in'   => 3600,
+					)
+				),
+				'/v1/checkout/payment-resources' => $this->http_response( 200, array( 'items' => array() ) ),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/connect' );
+		$request->set_param( 'client_id', 'live_client_id' );
+		$request->set_param( 'client_secret', 'live_client_secret' );
+		$request->set_param( 'environment', 'sandbox' );
+
+		$result = PayPal_REST_Controller::handle_connect( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertTrue( $result->get_data()['connected'] );
+		$this->assertSame( 'sandbox', $result->get_data()['environment'] );
+		$this->assertSame( 'sandbox', PayPal_OAuth::get_environment() );
+	}
+
+	/**
+	 * Test that bad credentials are not left behind after a failed connect.
+	 *
+	 * A partial connection is worse than none: the UI would show "connected"
+	 * while every subsequent API call fails.
+	 */
+	public function test_connect_discards_credentials_when_token_exchange_fails() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		PayPal_OAuth::set_environment( 'production' );
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token' => $this->http_response(
+					401,
+					array( 'error' => 'invalid_client' )
+				),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/connect' );
+		$request->set_param( 'client_id', 'wrong_client_id' );
+		$request->set_param( 'client_secret', 'wrong_secret' );
+		$request->set_param( 'environment', 'sandbox' );
+
+		$result = PayPal_REST_Controller::handle_connect( $request );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'paypal_credentials_invalid', $result->get_error_code() );
+		$this->assertEmpty( get_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY ) );
+		$this->assertSame(
+			'production',
+			PayPal_OAuth::get_environment(),
+			'A failed connect must restore the environment it started from.'
+		);
+	}
+
+	/**
+	 * Test that an account lacking Payment Links access is rejected with guidance.
+	 */
+	public function test_connect_rejects_account_without_payment_links_access() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'               => $this->http_response(
+					200,
+					array(
+						'access_token' => 'good_token',
+						'expires_in'   => 3600,
+					)
+				),
+				'/v1/checkout/payment-resources' => $this->http_response( 403, array( 'name' => 'NOT_AUTHORIZED' ) ),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/connect' );
+		$request->set_param( 'client_id', 'scoped_out_id' );
+		$request->set_param( 'client_secret', 'scoped_out_secret' );
+		$request->set_param( 'environment', 'sandbox' );
+
+		$result = PayPal_REST_Controller::handle_connect( $request );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'paypal_api_not_authorized', $result->get_error_code() );
+		$this->assertEquals( 403, $result->get_error_data()['status'] );
+		$this->assertStringContainsString( 'Payment Links', $result->get_error_message() );
+		$this->assertEmpty( get_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY ) );
+	}
+
+	/**
+	 * Test that connection status reflects a disconnected site.
+	 */
+	public function test_connection_status_reports_disconnected() {
+		$request = new \WP_REST_Request( 'GET', '/jetpack/v4/paypal/connection' );
+
+		$result = PayPal_REST_Controller::handle_connection_status( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertFalse( $result->get_data()['connected'] );
+	}
+
+	/**
+	 * Test that connection status reflects a connected site.
+	 */
+	public function test_connection_status_reports_connected() {
+		$this->set_up_connected_admin_state();
+
+		$result = PayPal_REST_Controller::handle_connection_status(
+			new \WP_REST_Request( 'GET', '/jetpack/v4/paypal/connection' )
+		);
+
+		$this->assertTrue( $result->get_data()['connected'] );
+		$this->assertSame( 'sandbox', $result->get_data()['environment'] );
+	}
+
+	/**
+	 * Test that disconnecting clears both credentials and onboarding state.
+	 */
+	public function test_disconnect_clears_credentials_and_onboarding_state() {
+		$this->set_up_connected_admin_state();
+		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1' );
+		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, 'partner_referrals' );
+
+		$result = PayPal_REST_Controller::handle_disconnect(
+			new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/disconnect' )
+		);
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertFalse( $result->get_data()['connected'] );
+		$this->assertEmpty( get_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY ) );
+		$this->assertEmpty( PayPal_Partner_Onboarding::get_merchant_id() );
+		$this->assertEmpty( get_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY ) );
+	}
+
+	/**
+	 * Test that switching environment persists the new value.
+	 */
+	public function test_set_environment_switches_and_reports() {
+		$this->set_up_connected_admin_state();
+
+		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/environment' );
+		$request->set_param( 'environment', 'production' );
+
+		$result = PayPal_REST_Controller::handle_set_environment( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( 'production', $result->get_data()['environment'] );
+		$this->assertSame( 'production', PayPal_OAuth::get_environment() );
+	}
 
 	/**
 	 * Test that creating a button rejects empty line_items.
@@ -381,6 +588,200 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$result = PayPal_REST_Controller::handle_delete_button( $request );
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
+	}
+
+	// --- Partner Referrals onboarding routes ---
+
+	/**
+	 * Test that the signup-link route returns PayPal's action URL.
+	 */
+	public function test_generate_signup_link_returns_action_url() {
+		$this->set_up_connected_admin_state();
+		PayPal_Partner_Onboarding::set_partner_id( 'PARTNER123' );
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'               => $this->http_response(
+					200,
+					array(
+						'access_token' => 'partner_token',
+						'expires_in'   => 3600,
+					)
+				),
+				'/v2/customer/partner-referrals' => $this->http_response(
+					201,
+					array(
+						'links' => array(
+							array(
+								'rel'  => 'self',
+								'href' => 'https://api-m.sandbox.paypal.com/v2/customer/partner-referrals/REF1',
+							),
+							array(
+								'rel'  => 'action_url',
+								'href' => 'https://www.sandbox.paypal.com/merchantsignup/x',
+							),
+						),
+					)
+				),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/onboarding/signup-link' );
+		$request->set_param( 'return_url', 'https://example.com/return' );
+		$request->set_param( 'environment', 'sandbox' );
+
+		$result = PayPal_REST_Controller::handle_generate_signup_link( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertSame( 'https://www.sandbox.paypal.com/merchantsignup/x', $result->get_data()['action_url'] );
+		$this->assertSame( 'REF1', $result->get_data()['referral_id'] );
+		$this->assertSame( 'sandbox', $result->get_data()['environment'] );
+	}
+
+	/**
+	 * Test that an onboarding failure is converted into a REST error.
+	 */
+	public function test_generate_signup_link_converts_error_to_rest_error() {
+		$this->set_up_connected_admin_state();
+
+		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/onboarding/signup-link' );
+		$request->set_param( 'return_url', 'https://example.com/return' );
+		$request->set_param( 'environment', 'sandbox' );
+
+		// No partner ID is configured, so the referral cannot be created.
+		$result = PayPal_REST_Controller::handle_generate_signup_link( $request );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'paypal_no_partner_id', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that an expired onboarding session is reported rather than silently retried.
+	 */
+	public function test_onboarding_complete_reports_expired_session() {
+		wp_set_current_user( self::factory_create_admin_user() );
+
+		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/onboarding/complete' );
+		$request->set_param( 'auth_code', 'code' );
+		$request->set_param( 'shared_id', 'shared' );
+		$request->set_param( 'merchant_id_in_paypal', 'MERCHANT1' );
+
+		$result = PayPal_REST_Controller::handle_onboarding_complete( $request );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'paypal_onboarding_no_nonce', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that merchant status requires a completed onboarding.
+	 */
+	public function test_merchant_status_requires_onboarding() {
+		$this->set_up_connected_admin_state();
+
+		$result = PayPal_REST_Controller::handle_merchant_status(
+			new \WP_REST_Request( 'GET', '/jetpack/v4/paypal/onboarding/status' )
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'paypal_no_merchant_info', $result->get_error_code() );
+	}
+
+	// --- Button read routes ---
+
+	/**
+	 * Test that listing buttons passes the API payload straight through.
+	 */
+	public function test_list_buttons_returns_api_payload() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_routes(
+			array(
+				'/v1/checkout/payment-resources' => $this->http_response(
+					200,
+					array(
+						'items'           => array( array( 'id' => 'PLB-1' ) ),
+						'next_page_token' => 'token123',
+					)
+				),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'GET', '/jetpack/v4/paypal/buttons' );
+		$request->set_param( 'page_size', 10 );
+
+		$result = PayPal_REST_Controller::handle_list_buttons( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( 'PLB-1', $result->get_data()['items'][0]['id'] );
+		$this->assertSame( 'token123', $result->get_data()['next_page_token'] );
+	}
+
+	/**
+	 * Test that a single button is returned by ID.
+	 */
+	public function test_get_button_returns_resource() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_routes(
+			array(
+				'/v1/checkout/payment-resources' => $this->http_response(
+					200,
+					array(
+						'id'   => 'PLB-42',
+						'type' => 'BUY_NOW',
+					)
+				),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'GET', '/jetpack/v4/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+
+		$result = PayPal_REST_Controller::handle_get_button( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertSame( 'PLB-42', $result->get_data()['id'] );
+	}
+
+	/**
+	 * Test that an API failure while listing is surfaced as a REST error.
+	 */
+	public function test_list_buttons_converts_api_error() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_routes(
+			array(
+				'/v1/checkout/payment-resources' => $this->http_response(
+					400,
+					array(
+						'name'    => 'INVALID_REQUEST',
+						'message' => 'Bad page token',
+					)
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_list_buttons(
+			new \WP_REST_Request( 'GET', '/jetpack/v4/paypal/buttons' )
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 400, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * Test that updating a button runs the same validation as creating one.
+	 */
+	public function test_update_button_validates_before_calling_api() {
+		$this->set_up_connected_admin_state();
+
+		$request = new \WP_REST_Request( 'PUT', '/jetpack/v4/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'LINK' );
+		$request->set_param( 'line_items', array() );
+
+		$result = PayPal_REST_Controller::handle_update_button( $request );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'missing_line_items', $result->get_error_code() );
 	}
 
 	// --- Constants ---
