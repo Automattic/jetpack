@@ -1,102 +1,103 @@
 import { afterEach, describe, expect, it, jest } from '@jest/globals';
-import {
-	getColumnPreferenceKey,
-	readColumnPreference,
-	writeColumnPreference,
-} from '../response-column-preferences.ts';
 
-const PREFERENCE = {
-	fields: [ 'date', 'field:g5-name', 'source' ],
-	knownAnswerIds: [ 'field:g5-name', 'field:g5-email' ],
-};
+/**
+ * Stands in for the preferences store's own state. Importing the real store pulls the
+ * whole `@wordpress/components` tree in behind it, and what matters here is the payload
+ * the module reads and writes, not how the store keeps it.
+ */
+const stored = new Map();
+
+const keyFor = ( scope, key ) => `${ scope }::${ key }`;
+
+await jest.unstable_mockModule( '@wordpress/preferences', () => ( {
+	store: { name: 'core/preferences' },
+} ) );
+
+await jest.unstable_mockModule( '@wordpress/data', () => ( {
+	select: () => ( {
+		get: ( scope, key ) => stored.get( keyFor( scope, key ) ),
+	} ),
+	dispatch: () => ( {
+		set: ( scope, key, value ) => stored.set( keyFor( scope, key ), value ),
+	} ),
+} ) );
+
+const { getColumnPreferenceKey, readKnownAnswerIds, writeKnownAnswerIds } = await import(
+	'../response-column-preferences.ts'
+);
+
+const SCOPE = 'jetpack/forms';
+const KNOWN_IDS = [ 'field:g5-name', 'field:g5-email' ];
+
+/**
+ * Writes a raw payload, standing in for a record left by an older release.
+ *
+ * @param {number|null} formId  - The form the record belongs to.
+ * @param {unknown}     payload - What to store.
+ * @return {Map} The updated store map.
+ */
+const storeRaw = ( formId, payload ) =>
+	stored.set( keyFor( SCOPE, getColumnPreferenceKey( formId ) ), payload );
 
 afterEach( () => {
-	window.localStorage.clear();
-	jest.restoreAllMocks();
+	stored.clear();
 } );
 
 describe( 'getColumnPreferenceKey', () => {
 	it( 'keys a form by its id and the every-form view by name', () => {
-		expect( getColumnPreferenceKey( 5 ) ).toBe( 'jetpack-forms/response-columns/5' );
-		expect( getColumnPreferenceKey( null ) ).toBe( 'jetpack-forms/response-columns/all' );
+		expect( getColumnPreferenceKey( 5 ) ).toBe( 'response-columns/5' );
+		expect( getColumnPreferenceKey( null ) ).toBe( 'response-columns/all' );
 	} );
 } );
 
-describe( 'readColumnPreference', () => {
+describe( 'readKnownAnswerIds', () => {
 	it( 'reads back what was written, for that form only', () => {
-		writeColumnPreference( 5, PREFERENCE );
+		writeKnownAnswerIds( 5, KNOWN_IDS );
 
-		expect( readColumnPreference( 5 ) ).toEqual( PREFERENCE );
-		// Another form's columns are its own; nothing leaks across.
-		expect( readColumnPreference( 6 ) ).toBeNull();
-		expect( readColumnPreference( null ) ).toBeNull();
+		expect( readKnownAnswerIds( 5 ) ).toEqual( KNOWN_IDS );
+		// Another form's answer columns are its own; nothing leaks across.
+		expect( readKnownAnswerIds( 6 ) ).toBeNull();
+		expect( readKnownAnswerIds( null ) ).toBeNull();
 	} );
 
-	it( 'reports no choice when none was ever made', () => {
-		expect( readColumnPreference( 5 ) ).toBeNull();
-	} );
+	it( 'writes into the preferences scope, where the view is kept too', () => {
+		writeKnownAnswerIds( 5, KNOWN_IDS );
 
-	it( 'falls back to the defaults rather than trusting a damaged entry', () => {
-		// A hand-edited or half-written entry must not render a broken table.
-		window.localStorage.setItem( getColumnPreferenceKey( 5 ), '{ not json' );
-		expect( readColumnPreference( 5 ) ).toBeNull();
-
-		window.localStorage.setItem(
-			getColumnPreferenceKey( 5 ),
-			JSON.stringify( { fields: 'date' } )
-		);
-		expect( readColumnPreference( 5 ) ).toBeNull();
-
-		window.localStorage.setItem( getColumnPreferenceKey( 5 ), 'null' );
-		expect( readColumnPreference( 5 ) ).toBeNull();
-	} );
-
-	it( 'drops entries that are not column ids, and tolerates a missing known list', () => {
-		window.localStorage.setItem(
-			getColumnPreferenceKey( 5 ),
-			JSON.stringify( { v: 1, fields: [ 'date', 7, null, 'ip' ] } )
-		);
-
-		expect( readColumnPreference( 5 ) ).toEqual( {
-			fields: [ 'date', 'ip' ],
-			knownAnswerIds: [],
+		expect( stored.get( keyFor( SCOPE, 'response-columns/5' ) ) ).toEqual( {
+			v: 2,
+			knownAnswerIds: KNOWN_IDS,
 		} );
 	} );
 
-	it( 'discards a choice written under a different schema', () => {
-		// A stored choice replaces the default columns wholesale, so a later change to
-		// what those defaults are would never reach anyone holding an older one. Refusing
-		// to read it is what lets such a change land.
-		window.localStorage.setItem(
-			getColumnPreferenceKey( 5 ),
-			JSON.stringify( { fields: [ 'date' ], knownAnswerIds: [] } )
-		);
-		expect( readColumnPreference( 5 ) ).toBeNull();
-
-		window.localStorage.setItem(
-			getColumnPreferenceKey( 5 ),
-			JSON.stringify( { v: 99, fields: [ 'date' ], knownAnswerIds: [] } )
-		);
-		expect( readColumnPreference( 5 ) ).toBeNull();
+	it( 'reports no record when none was ever written', () => {
+		expect( readKnownAnswerIds( 5 ) ).toBeNull();
 	} );
 
-	it( 'reports no choice when storage itself throws', () => {
-		// A private window or a browser set to block site data raises here rather than
-		// returning empty, and the dashboard has to keep working.
-		jest.spyOn( window.localStorage.__proto__, 'getItem' ).mockImplementation( () => {
-			throw new Error( 'SecurityError' );
-		} );
+	it( 're-offers every column rather than trusting a damaged record', () => {
+		storeRaw( 5, null );
+		expect( readKnownAnswerIds( 5 ) ).toBeNull();
 
-		expect( readColumnPreference( 5 ) ).toBeNull();
+		storeRaw( 5, { v: 2, knownAnswerIds: 'field:g5-name' } );
+		expect( readKnownAnswerIds( 5 ) ).toBeNull();
 	} );
-} );
 
-describe( 'writeColumnPreference', () => {
-	it( 'swallows a storage failure, because a column layout is not worth an error', () => {
-		jest.spyOn( window.localStorage.__proto__, 'setItem' ).mockImplementation( () => {
-			throw new Error( 'QuotaExceededError' );
-		} );
+	it( 'discards a record written under a different schema', () => {
+		// The record is what keeps a hidden column hidden, so a change to its shape must
+		// not be read through older eyes. Refusing it costs one re-shown column.
+		storeRaw( 5, { knownAnswerIds: KNOWN_IDS } );
+		expect( readKnownAnswerIds( 5 ) ).toBeNull();
 
-		expect( () => writeColumnPreference( 5, PREFERENCE ) ).not.toThrow();
+		// The localStorage shape this replaced, which carried `fields` as well.
+		storeRaw( 5, { v: 1, fields: [ 'date' ], knownAnswerIds: KNOWN_IDS } );
+		expect( readKnownAnswerIds( 5 ) ).toBeNull();
+
+		storeRaw( 5, { v: 99, knownAnswerIds: KNOWN_IDS } );
+		expect( readKnownAnswerIds( 5 ) ).toBeNull();
+	} );
+
+	it( 'drops entries that are not column ids', () => {
+		storeRaw( 5, { v: 2, knownAnswerIds: [ 'field:g5-name', 7, null, 'field:g5-email' ] } );
+
+		expect( readKnownAnswerIds( 5 ) ).toEqual( KNOWN_IDS );
 	} );
 } );

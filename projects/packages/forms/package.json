@@ -81,6 +81,7 @@
 		"@wordpress/theme": "1.2.0",
 		"@wordpress/ui": "0.20.0",
 		"@wordpress/url": "4.51.0",
+		"@wordpress/views": "~1.20.0",
 		"clsx": "2.1.1",
 		"copy-webpack-plugin": "14.0.0",
 		"debug": "4.4.3",
