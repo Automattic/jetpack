@@ -3,11 +3,18 @@
  */
 import { useStatsInsights, type StatsInsightsResponse } from '@jetpack-premium-analytics/data';
 import {
+	formatHourOfDay,
+	formatMetricValue,
+	formatWeekday,
+} from '@jetpack-premium-analytics/formatters';
+import {
+	describeError,
 	WidgetRoot,
 	WidgetState,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
+import { useMemo } from 'react';
 import { scheduled } from '@wordpress/icons';
 import { Stack, Text } from '@jetpack-premium-analytics/externals';
 /**
@@ -18,8 +25,9 @@ import type { MostPopularTimeAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 // Report params are dashboard-driven and injected via `attributes`; the insights
-// endpoint ignores them (it reports across the whole site lifetime with no
-// comparison period), but WidgetRoot still expects them on `attributes`.
+// endpoint ignores them (the peak day and hour come from a fixed server-side
+// window, with no comparison period), but WidgetRoot still expects them on
+// `attributes`.
 type MostPopularTimeRenderAttributes = MostPopularTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type MostPopularTimeWidgetProps = WidgetRenderProps< MostPopularTimeRenderAttributes >;
@@ -30,11 +38,11 @@ type HighlightProps = {
 	 */
 	label: string;
 	/**
-	 * The peak value (e.g. "Tuesday" or "3:00 PM").
+	 * The peak value, already localized (e.g. "Tuesday" or "3 pm").
 	 */
 	value: string;
 	/**
-	 * The value's share of total views, as a whole percent.
+	 * The value's share of total views, as a whole percent (0-100).
 	 */
 	percent: number;
 };
@@ -54,9 +62,13 @@ function Highlight( { label, value, percent }: HighlightProps ) {
 			</Text>
 			<Text variant="body-md" className={ styles.caption }>
 				{ sprintf(
-					/* translators: %d: share of total views as a whole percent. */
-					__( '%d%% of views', 'jetpack-premium-analytics-pkg' ),
-					percent
+					/* translators: %s is a percentage, e.g. "17%". */
+					__( '%s of views', 'jetpack-premium-analytics-pkg' ),
+					// The report carries whole percents; the formatter takes a fraction.
+					formatMetricValue( percent / 100, 'percentage', {
+						decimals: 0,
+						signDisplay: 'never',
+					} )
 				) }
 			</Text>
 		</Stack>
@@ -69,9 +81,21 @@ function Highlight( { label, value, percent }: HighlightProps ) {
  * its share of views.
  */
 function MostPopularTimeReport() {
-	const { data, isLoading, isFetching, isError, refetch } = useStatsInsights();
+	const { data, isLoading, isFetching, isError, error, refetch } = useStatsInsights();
 	const report = data as StatsInsightsResponse | undefined;
-	const isEmpty = ! report?.day || ! report?.hour;
+	// Resolved to one nullable value so emptiness and the render read the same
+	// thing; two separate guards could drift and reintroduce the
+	// midnight-for-a-missing-hour reading the sanitizer removed. Compared against
+	// `undefined`, not falsiness: Monday and midnight are both 0.
+	const peak = useMemo( () => {
+		const { dayOfWeek, hourOfDay, percent, hourPercent } = report ?? {};
+
+		if ( dayOfWeek === undefined || hourOfDay === undefined ) {
+			return null;
+		}
+
+		return { dayOfWeek, hourOfDay, percent: percent ?? 0, hourPercent: hourPercent ?? 0 };
+	}, [ report ] );
 
 	return (
 		<div className={ styles.content }>
@@ -80,20 +104,18 @@ function MostPopularTimeReport() {
 				isFetching={ isFetching }
 				// The query keeps the previous response via `placeholderData`, so only
 				// surface the error when there is nothing to show.
-				isError={ isError && isEmpty }
-				isEmpty={ isEmpty }
-				error={ {
-					description: __(
+				isError={ isError && ! peak }
+				isEmpty={ ! peak }
+				// Mapped rather than hand-written: a 403 from a reader without stats
+				// access is not something retrying fixes, and describeError drops the
+				// Retry action for it.
+				error={ describeError( error, {
+					retryDescription: __(
 						"We couldn't load your most popular time. Please try again in a moment.",
 						'jetpack-premium-analytics-pkg'
 					),
-					actions: [
-						{
-							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
-							onClick: () => void refetch(),
-						},
-					],
-				} }
+					onRetry: refetch,
+				} ) }
 				empty={ {
 					icon: scheduled,
 					description: __(
@@ -102,17 +124,19 @@ function MostPopularTimeReport() {
 					),
 				} }
 			>
-				{ report?.day && report?.hour && (
+				{ peak && (
 					<Stack className={ styles.root } direction="column" gap="lg">
 						<Highlight
 							label={ __( 'Best day', 'jetpack-premium-analytics-pkg' ) }
-							value={ report.day }
-							percent={ report.percent ?? 0 }
+							// WordPress's locale table is Sunday-first; the endpoint's
+							// index is Monday-first.
+							value={ formatWeekday( ( peak.dayOfWeek + 1 ) % 7 ) }
+							percent={ peak.percent }
 						/>
 						<Highlight
 							label={ __( 'Best hour', 'jetpack-premium-analytics-pkg' ) }
-							value={ report.hour }
-							percent={ report.hourPercent ?? 0 }
+							value={ formatHourOfDay( peak.hourOfDay ) }
+							percent={ peak.hourPercent }
 						/>
 					</Stack>
 				) }

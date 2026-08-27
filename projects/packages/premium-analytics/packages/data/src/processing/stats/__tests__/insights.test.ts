@@ -9,8 +9,8 @@ describe( 'Stats insights normalizer', () => {
 
 	it( 'normalizes insights using the Calypso payload shape', () => {
 		expect( sanitizeStatsInsightsResponse( insightsFixture ) ).toEqual( {
-			day: 'Sunday',
-			hour: '11:00 AM',
+			dayOfWeek: 6,
+			hourOfDay: 11,
 			hourPercent: 5,
 			percent: 10,
 			hourlyViews: {
@@ -33,5 +33,24 @@ describe( 'Stats insights normalizer', () => {
 				},
 			],
 		} );
+	} );
+
+	it( 'passes the weekday index through Monday-based', () => {
+		// 6 wraps to Sunday in every other case here, which would also pass if the
+		// index were rebased; 0 pins the documented Monday-first contract.
+		expect(
+			sanitizeStatsInsightsResponse( { highest_day_of_week: 0, highest_hour: 0 } )
+		).toMatchObject( { dayOfWeek: 0, hourOfDay: 0 } );
+	} );
+
+	it( 'omits the hour rather than reporting midnight when the payload has none', () => {
+		const report = sanitizeStatsInsightsResponse( {
+			highest_day_of_week: 6,
+			highest_day_percent: 10,
+		} );
+
+		expect( report.dayOfWeek ).toBe( 6 );
+		expect( report ).not.toHaveProperty( 'hourOfDay' );
+		expect( report ).not.toHaveProperty( 'hourPercent' );
 	} );
 } );

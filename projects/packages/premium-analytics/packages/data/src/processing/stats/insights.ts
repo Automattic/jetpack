@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 import { safeParseFloat, safeParseInt } from '../../utils/parsing';
 import { coerceStatsRecord } from './utils';
 
@@ -18,28 +17,21 @@ export type StatsInsightsYear = {
 export type StatsInsightsHourlyViews = Record< string, number >;
 
 type StatsInsightsData = {
-	day: string;
+	/**
+	 * Peak weekday as the endpoint reports it: a Monday-based index, which the
+	 * WordPress locale table (Sunday-based) does not share. Kept numeric so the
+	 * label is built in the site's locale where it is rendered.
+	 */
+	dayOfWeek: number;
 	percent: number;
-	hour: string;
+	/** Peak hour of the day, 0-23, in the site's timezone. */
+	hourOfDay: number;
 	hourPercent: number;
 	hourlyViews: StatsInsightsHourlyViews;
 	years: StatsInsightsYear[];
 };
 
 export type StatsInsightsResponse = Partial< StatsInsightsData >;
-
-function getDayName( highestDayOfWeek: number ) {
-	const dayOfWeek = ( highestDayOfWeek + 1 ) % 7;
-	const date = new Date( 2026, 0, 4 + dayOfWeek, 12 );
-
-	return format( date, 'EEEE' );
-}
-
-function getHourLabel( hour: unknown ) {
-	const date = new Date( 2026, 0, 4, safeParseInt( hour ) );
-
-	return format( date, 'p' );
-}
 
 function normalizeInsightsYear( year: unknown ): StatsInsightsYear {
 	const payload = coerceStatsRecord( year );
@@ -74,10 +66,16 @@ export function sanitizeStatsInsightsResponse( response: unknown ): StatsInsight
 	}
 
 	return {
-		day: getDayName( payload.highest_day_of_week ),
+		dayOfWeek: payload.highest_day_of_week,
 		percent: Math.round( safeParseFloat( payload.highest_day_percent ) ),
-		hour: getHourLabel( payload.highest_hour ),
-		hourPercent: Math.round( safeParseFloat( payload.highest_hour_percent ) ),
+		// A missing hour is not hour 0. Coercing it would report midnight as the
+		// site's peak, which reads as a real answer rather than a missing one.
+		...( typeof payload.highest_hour === 'number'
+			? {
+					hourOfDay: payload.highest_hour,
+					hourPercent: Math.round( safeParseFloat( payload.highest_hour_percent ) ),
+			  }
+			: {} ),
 		hourlyViews: normalizeHourlyViews( payload.hourly_views ),
 		years: Array.isArray( payload.years ) ? payload.years.map( normalizeInsightsYear ) : [],
 	};
