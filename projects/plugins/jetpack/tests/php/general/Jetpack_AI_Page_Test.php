@@ -13,6 +13,8 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-ai-page.php';
 
@@ -138,7 +140,12 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 
 	/**
 	 * The standalone controller registers the menu, scripts, styles, and page loader.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_add_actions_registers_standalone_page_hooks() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		add_filter( 'jetpack_is_connection_ready', '__return_true' );
@@ -153,7 +160,12 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Simple sites keep the Hub's own layout without the standalone base stylesheet.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_add_actions_skips_standalone_styles_on_simple() {
 		Constants::set_constant( 'IS_WPCOM', true );
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
