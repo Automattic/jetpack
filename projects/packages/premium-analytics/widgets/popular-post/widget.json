@@ -1,7 +1,7 @@
 {
 	"name": "jpa/popular-post",
 	"title": "Most popular post in the last year",
-	"description": "Your most-viewed post of the last 365 days, with its all-time stats.",
+	"description": "Your most-viewed post of the last year, with its all-time stats.",
 	"help": {
 		"content": "Your most viewed post of the last 365 days, with its all-time views, likes, and comments."
 	},

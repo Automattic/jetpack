@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
+import { PRESET_LAST_365_DAYS } from '@jetpack-premium-analytics/datetime';
 import {
 	PostHighlightCard,
 	type PostHighlightCardMetric,
@@ -10,7 +10,6 @@ import {
 	WidgetRoot,
 	WidgetState,
 	describeError,
-	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -22,8 +21,9 @@ import { usePopularPost } from './use-popular-post';
 import type { PopularPostAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-// The card reports on its own pinned window, but the host still injects
-// `reportParams`, which the link to the post's detail page carries through.
+// The card reports on its own pinned window and reads nothing from the host's
+// `reportParams`, but the host still injects them and `WidgetRoot` still takes
+// them, so the render type keeps composing the field.
 type PopularPostRenderAttributes = PopularPostAttributes & Partial< ReportParamsFieldAttributes >;
 type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
 
@@ -32,10 +32,15 @@ type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
  * totals, so none carries a per-tile aggregation note.
  */
 function PopularPostReport() {
-	const { reportParams } = useWidgetRootContext();
-	const { post, isLoading, isFetching, isError, error, refetch } = usePopularPost();
-	// The detail page opens on the dashboard's current window.
-	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
+	const { post, period, isLoading, isFetching, isError, error, refetch } = usePopularPost();
+	// The detail page opens on the window the card ranked over, so the post's own
+	// page measures the year the card's title names. The dashboard's range is
+	// deliberately not carried through: the Insights filter picks a calendar year,
+	// which would scope the detail page to a period this card never reported on.
+	const detailSearch = useMemo(
+		() => ( { preset: PRESET_LAST_365_DAYS, from: period.from, to: period.to } ),
+		[ period ]
+	);
 
 	const metrics: PostHighlightCardMetric[] = post
 		? [

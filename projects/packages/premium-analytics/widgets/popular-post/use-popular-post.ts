@@ -41,6 +41,12 @@ export type PopularPostWithMetrics = {
 
 export type UsePopularPostResult = {
 	post: PopularPostWithMetrics | null;
+	/**
+	 * The window the winner was ranked over, as report date params. The card's
+	 * detail link opens on it, so the post's own page reports on the same year
+	 * the card's title names.
+	 */
+	period: { from: string; to: string };
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
@@ -69,11 +75,13 @@ export function usePopularPost(): UsePopularPostResult {
 		to: '',
 	};
 
+	const period = useMemo( () => ( { from, to } ), [ from, to ] );
+
 	// The report is day-bucketed whatever the dashboard's interval, so `day` is
 	// the only honest value here.
 	const statsParams = useMemo(
-		() => ( { from, to, interval: 'day' as const, max: POPULAR_POST_REQUEST_MAX } ),
-		[ from, to ]
+		() => ( { ...period, interval: 'day' as const, max: POPULAR_POST_REQUEST_MAX } ),
+		[ period ]
 	);
 
 	// Ranking, post-type filtering, and the single-row cap all live in the data
@@ -144,5 +152,5 @@ export function usePopularPost(): UsePopularPostResult {
 		  }
 		: null;
 
-	return { post, isLoading, isFetching, isError, error: topPostsResult.error, refetch };
+	return { post, period, isLoading, isFetching, isError, error: topPostsResult.error, refetch };
 }

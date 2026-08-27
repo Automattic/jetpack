@@ -4,7 +4,7 @@
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import { format, subDays } from 'date-fns';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
@@ -14,14 +14,6 @@ import { usePopularPost } from '../use-popular-post';
 jest.mock( '@wordpress/api-fetch' );
 
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
-
-// The pinned window, computed the way the `last-365-days` preset does: 365 days
-// back from the start of today, through the end of yesterday.
-const today = new Date();
-const expectedWindow = {
-	start: format( subDays( today, 365 ), 'yyyy-MM-dd' ),
-	end: format( subDays( today, 1 ), 'yyyy-MM-dd' ),
-};
 
 function topPostsRequestPaths(): string[] {
 	return mockApiFetch.mock.calls
@@ -286,21 +278,55 @@ describe( 'usePopularPost', () => {
 		expect( result.current.post?.commentCount ).toBe( 5 );
 	} );
 
-	it( 'ranks over the last 365 days, not the dashboard range', async () => {
-		mockEndpoints();
+	describe( 'the pinned window', () => {
+		// The window is resolved from "now" in the *site* timezone, so pin both
+		// rather than letting the machine's clock and zone decide what the request
+		// should look like.
+		const NOW = new Date( '2026-08-27T12:00:00.000Z' );
+		let defaultSettings: ReturnType< typeof getSettings >;
 
-		const { result } = renderHook( () => usePopularPost(), { wrapper } );
+		beforeEach( () => {
+			defaultSettings = getSettings();
+			setSettings( {
+				...defaultSettings,
+				timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
+			} );
+			jest.useFakeTimers();
+			jest.setSystemTime( NOW );
+		} );
 
-		await waitFor( () => expect( result.current.post?.id ).toBe( 7 ) );
+		afterEach( () => {
+			jest.useRealTimers();
+			setSettings( defaultSettings );
+		} );
 
-		const [ rankingPath ] = topPostsRequestPaths();
-		const ranking = decodeURIComponent( rankingPath );
+		it( 'ranks over the last 365 days, not the dashboard range', async () => {
+			mockEndpoints();
 
-		// Whole days: from the start of the day 365 days back, through the end of
-		// yesterday — 365 inclusive days.
-		expect( ranking ).toContain( `start_date=${ expectedWindow.start }T00:00:00` );
-		expect( ranking ).toContain( `date=${ expectedWindow.end }T23:59:59` );
-		expect( ranking ).toContain( 'days=365' );
+			const { result } = renderHook( () => usePopularPost(), { wrapper } );
+
+			await waitFor( () => expect( result.current.post?.id ).toBe( 7 ) );
+
+			const [ rankingPath ] = topPostsRequestPaths();
+			const ranking = decodeURIComponent( rankingPath );
+
+			// Whole days: from the start of the day 365 days back, through the end
+			// of yesterday — 365 inclusive days.
+			expect( ranking ).toContain( 'start_date=2025-08-27T00:00:00' );
+			expect( ranking ).toContain( 'date=2026-08-26T23:59:59' );
+			expect( ranking ).toContain( 'days=365' );
+		} );
+
+		it( 'reports the window it ranked over, for the card to link on', async () => {
+			mockEndpoints();
+
+			const { result } = renderHook( () => usePopularPost(), { wrapper } );
+
+			await waitFor( () => expect( result.current.post?.id ).toBe( 7 ) );
+
+			expect( result.current.period.from ).toContain( '2025-08-27T00:00:00' );
+			expect( result.current.period.to ).toContain( '2026-08-26T23:59:59' );
+		} );
 	} );
 
 	it( 'ranks once, with no comparison report and nothing the host can change', async () => {
