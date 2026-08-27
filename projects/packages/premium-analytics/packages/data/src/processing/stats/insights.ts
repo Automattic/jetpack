@@ -15,9 +15,9 @@ export type StatsInsightsYear = {
 };
 
 /**
- * Views keyed by hour. Unlike `hourOfDay`, these keys are UTC — the endpoint
- * applies the site's offset to the peak hour but not to this map — so they are
- * not interchangeable and this one must not be fed to an hour formatter.
+ * Views keyed by the hour bucket's own timestamp (`2022-11-26 04:00:00`), not
+ * by hour of day: each key names one dated hour, so they are not
+ * interchangeable with `hourOfDay` and must not be fed to an hour formatter.
  */
 export type StatsInsightsHourlyViews = Record< string, number >;
 
@@ -100,9 +100,11 @@ function normalizeInsightsYear( year: unknown ): StatsInsightsYear {
 /**
  * Reads a share as a whole percent, or nothing when the payload has none.
  *
- * Rejects the same junk `readIndex` does rather than only absent values: a
- * share that fell back to 0 would caption a real peak with "0% of views", which
- * reads as a measurement rather than a gap.
+ * Bounded like `readIndex`, and rejecting junk rather than only absent values:
+ * a share that fell back to 0 would caption a real peak with "0% of views", and
+ * one outside 0-100 is not a measurement either — the caption formats with
+ * `signDisplay: 'never'`, so a negative share would read as a plausible
+ * positive percent.
  *
  * @param value - Raw payload value.
  * @return The whole percent, or `undefined` when the value cannot be one.
@@ -110,7 +112,9 @@ function normalizeInsightsYear( year: unknown ): StatsInsightsYear {
 function readShare( value: unknown ): number | undefined {
 	const parsed = readNumber( value );
 
-	return parsed === undefined ? undefined : Math.round( parsed );
+	// Bounded before rounding, not after: `Math.round( -0.2 )` is `-0`, which
+	// passes a `>= 0` test and captions a peak with "0% of views".
+	return parsed !== undefined && parsed >= 0 && parsed <= 100 ? Math.round( parsed ) : undefined;
 }
 
 function normalizeHourlyViews( hourlyViews: unknown ): StatsInsightsHourlyViews {
@@ -129,17 +133,16 @@ export function sanitizeStatsInsightsResponse( response: unknown ): StatsInsight
 	const hourPercent = readShare( payload.highest_hour_percent );
 
 	// Every field stands or falls on its own. One report feeds two widgets — the
-	// peak highlights and Annual highlights' per-year totals — so a site with
-	// years but no peak day must not lose its years to the missing peak. Within
-	// the peak itself, a missing hour is not midnight and a missing share is not
-	// 0%: either coercion reads as a real answer rather than an absent one.
+	// peak highlights and Year in review's per-year totals — so a site with years
+	// but no peak day must not lose its years to the missing peak. A missing hour
+	// is not midnight and a missing share is not 0%: either coercion reads as a
+	// real answer rather than an absent one. Which highlights an absent field
+	// hides is the widget's call, not this one's.
 	return {
-		...( dayOfWeek === undefined
-			? {}
-			: { dayOfWeek, ...( percent === undefined ? {} : { percent } ) } ),
-		...( dayOfWeek === undefined || hourOfDay === undefined
-			? {}
-			: { hourOfDay, ...( hourPercent === undefined ? {} : { hourPercent } ) } ),
+		...( dayOfWeek === undefined ? {} : { dayOfWeek } ),
+		...( percent === undefined ? {} : { percent } ),
+		...( hourOfDay === undefined ? {} : { hourOfDay } ),
+		...( hourPercent === undefined ? {} : { hourPercent } ),
 		hourlyViews: normalizeHourlyViews( payload.hourly_views ),
 		years: Array.isArray( payload.years ) ? payload.years.map( normalizeInsightsYear ) : [],
 	};

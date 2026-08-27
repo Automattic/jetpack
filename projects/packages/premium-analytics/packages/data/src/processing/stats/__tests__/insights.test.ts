@@ -104,4 +104,32 @@ describe( 'Stats insights normalizer', () => {
 			sanitizeStatsInsightsResponse( { highest_day_of_week: 6, highest_day_percent: 17.4 } )
 		).toMatchObject( { percent: 17 } );
 	} );
+
+	it( 'rejects a share outside 0-100 rather than captioning a peak with it', () => {
+		// The caption formats with `signDisplay: 'never'`, so a negative share
+		// would reach the reader as a plausible positive percent.
+		for ( const highest_day_percent of [ -5, -0.2, 101, 150 ] ) {
+			expect(
+				sanitizeStatsInsightsResponse( { highest_day_of_week: 6, highest_day_percent } )
+			).not.toHaveProperty( 'percent' );
+		}
+
+		expect(
+			sanitizeStatsInsightsResponse( { highest_day_of_week: 6, highest_day_percent: 100 } )
+		).toMatchObject( { percent: 100 } );
+	} );
+
+	it( 'reads each peak field independently of the others', () => {
+		// The sanitizer reports what the endpoint sent; which highlights an absent
+		// field hides is the widget's call, so an unreadable day must not take a
+		// readable hour down with it.
+		const report = sanitizeStatsInsightsResponse( {
+			highest_day_of_week: 'not a day',
+			highest_hour: 19,
+			highest_hour_percent: 5,
+		} );
+
+		expect( report ).not.toHaveProperty( 'dayOfWeek' );
+		expect( report ).toMatchObject( { hourOfDay: 19, hourPercent: 5 } );
+	} );
 } );

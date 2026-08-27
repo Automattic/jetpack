@@ -4,6 +4,7 @@
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
@@ -26,6 +27,25 @@ const INSIGHTS_RESPONSE = {
 	highest_hour_percent: 5.2,
 };
 
+/** Whatever `@wordpress/date` ships, captured before a test installs settings. */
+const DEFAULT_DATE_SETTINGS = getSettings();
+
+/**
+ * A Spanish site on a 24-hour clock. Only the fields the two labels read are
+ * varied; the rest is inherited, so the fixture cannot drift from the package's
+ * own defaults. The locale name is unique because `setSettings` skips
+ * redefining one it already knows.
+ */
+const ES_ES_SETTINGS = {
+	...DEFAULT_DATE_SETTINGS,
+	l10n: {
+		...DEFAULT_DATE_SETTINGS.l10n,
+		locale: 'es_ES_most_popular_time_test',
+		weekdays: [ 'domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado' ],
+	},
+	formats: { ...DEFAULT_DATE_SETTINGS.formats, time: 'H:i' },
+};
+
 describe( 'MostPopularTimeWidget', () => {
 	beforeEach( () => {
 		// The data package's query client is a module-level singleton; drop its
@@ -33,6 +53,9 @@ describe( 'MostPopularTimeWidget', () => {
 		queryClient.clear();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( INSIGHTS_RESPONSE );
+		// Settings are global, so restore them for the tests that read the
+		// English labels after the locale test has installed a Spanish site.
+		setSettings( DEFAULT_DATE_SETTINGS );
 	} );
 
 	it( 'renders the peak day and hour with their share of views', async () => {
@@ -62,6 +85,19 @@ describe( 'MostPopularTimeWidget', () => {
 		expect( path ).not.toContain( '?' );
 	} );
 
+	it( 'labels the peak in the site locale and time format', async () => {
+		// Same payload on a Spanish site with a 24-hour clock: a hardcoded English
+		// weekday table or a fixed 12-hour clock passes every other assertion here,
+		// so this is what covers the wiring into the shared formatters.
+		setSettings( ES_ES_SETTINGS );
+
+		const { container } = render( <MostPopularTimeWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( 'domingo' ) ).resolves.toBeInTheDocument();
+		expect( container ).toHaveTextContent( 'Best hour19' );
+		expect( container ).not.toHaveTextContent( 'Sunday' );
+	} );
+
 	it( 'keeps the known best day when the payload carries no hour', async () => {
 		// A fabricated "12:00 AM" reads as a real answer, but so does hiding a day
 		// the endpoint did send — drop only the highlight that has no data.
@@ -87,8 +123,9 @@ describe( 'MostPopularTimeWidget', () => {
 	} );
 
 	it( 'shows the empty state when the site has no peak yet', async () => {
-		// The sanitizer drops the whole payload when `highest_day_of_week` is
-		// missing, which is what a site with too little traffic returns.
+		// A site with too little traffic returns no `highest_day_of_week`, and the
+		// card stands on the day — so that alone is what makes it empty. The
+		// sanitizer keeps the rest of the report for the widgets that share it.
 		mockApiFetch.mockResolvedValue( {} );
 
 		render( <MostPopularTimeWidget attributes={ {} } /> );
