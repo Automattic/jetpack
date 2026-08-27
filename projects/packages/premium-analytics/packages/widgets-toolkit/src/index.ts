@@ -57,6 +57,7 @@ export {
 	type BarChartData,
 	type BarChartStyle,
 	WidgetLoadingOverlay,
+	WidgetMetricSelect,
 	AdaptiveCalendarHeatmap,
 	CalendarHeatmapPagerOverlay,
 	CalendarHeatmapTooltip,
@@ -70,6 +71,8 @@ export {
 	WidgetState,
 	type WidgetStateProps,
 	type WidgetStateError,
+	type WidgetMetricSelectItem,
+	type WidgetMetricSelectProps,
 	type WidgetStateEmpty,
 	WidgetBackLink,
 	type WidgetBackLinkProps,
@@ -196,6 +199,7 @@ export {
 	CALENDAR_HEATMAP_HEADER_HEIGHT,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,
+	formatDailyViewCount,
 	formatViewCount,
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,
@@ -279,7 +283,9 @@ export {
 	type GeoData,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
+	type HeatmapColumn,
 	type HeatmapTooltipData,
+	type HeatmapTrailingColumn,
 } from '@jetpack-premium-analytics/externals';
 
 /**

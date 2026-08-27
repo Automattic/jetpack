@@ -78,6 +78,12 @@ $focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-fo
 	text-align: left;
 }
 
+// A calendar's labels mark where a month starts, so they sit at the column's
+// leading edge; labels that name their column are centred over it instead.
+.heatmap-chart__col-label--center {
+	text-align: center;
+}
+
 .heatmap-chart__row-label {
 	align-self: center;
 	justify-self: end;
@@ -116,6 +122,19 @@ $focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-fo
 // an empty cell.
 .heatmap-chart__cell--filled {
 	background: color-mix(in sRGB, var(--a8c-charts-color-heatmap-primary) calc((0.15 + 0.85 * var(--a8c-charts-heatmap-cell-intensity)) * 100%), var(--a8c-charts-color-heatmap-background, #fff));
+}
+
+// The trailing roll-up column: no track and no fill, because it is not on the
+// cells' scale, and emphasised so it reads as the row's summary rather than as
+// one more measurement. It keeps the cell box so it stays hoverable and
+// keyboard-selectable like the rest of the row.
+.heatmap-chart__cell--trailing {
+	background: none;
+	padding-inline: var(--wpds-dimension-padding-xs, 4px);
+
+	.heatmap-chart__cell-value {
+		font-weight: var(--wpds-typography-font-weight-emphasis, 600);
+	}
 }
 
 .heatmap-chart__cell--selected {

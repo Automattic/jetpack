@@ -9,6 +9,24 @@ import type { DashboardWidget } from '@wordpress/widget-dashboard';
 const PREFERENCES_KEY = 'dashboardSectionLayouts';
 const EMPTY_SECTION_LAYOUTS: DashboardSectionLayouts = {};
 
+/**
+ * Widget types a later release replaced, mapped to what replaced them.
+ *
+ * A customized layout stores widget types by name and nothing reconciles it
+ * against the registry — a type that no longer exists stays put as a removable
+ * ghost (see `src/widget-type-support.php`). That is right for a widget the
+ * site simply cannot have, but wrong for one that was *replaced*: the reader
+ * would keep a "Missing widget" tile and never meet its replacement, because a
+ * new default layout only reaches sections nobody has customized.
+ *
+ * Mapping on read puts the replacement in the slot the original held. The
+ * mapped layout is deliberately not written back — the reader's next edit
+ * persists it, so a read alone never mutates stored preferences.
+ */
+const REPLACED_WIDGET_TYPES: Record< string, DashboardWidget[ 'type' ] > = {
+	'jpa/traffic-views-activity': 'jpa/views-over-years',
+};
+
 type PreferencesActions = {
 	set: ( scope: string, key: string, value: DashboardSectionLayouts ) => Promise< void > | void;
 };
@@ -47,9 +65,25 @@ export function useDashboardSectionLayout(
 		[ sections, activeSectionId ]
 	);
 
-	const layout = Object.hasOwn( sectionLayouts, activeSectionId )
-		? sectionLayouts[ activeSectionId ] ?? sectionDefault
-		: sectionDefault;
+	const layout = useMemo( () => {
+		const stored = Object.hasOwn( sectionLayouts, activeSectionId )
+			? sectionLayouts[ activeSectionId ] ?? sectionDefault
+			: sectionDefault;
+
+		// Returned as-is unless something actually maps: a layout that is the
+		// section's own default must stay identical to it by reference, which is
+		// how `resetLayout` and its tests tell "following the default" apart from
+		// "customized to the same thing".
+		if ( ! stored.some( widget => REPLACED_WIDGET_TYPES[ widget.type ] ) ) {
+			return stored;
+		}
+
+		return stored.map( widget => {
+			const replacement = REPLACED_WIDGET_TYPES[ widget.type ];
+
+			return replacement ? { ...widget, type: replacement } : widget;
+		} );
+	}, [ sectionLayouts, activeSectionId, sectionDefault ] );
 
 	const setLayout = useCallback(
 		( nextLayout: DashboardWidget[] ) => {

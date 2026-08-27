@@ -17,3 +17,16 @@ export function formatViewCount( count: number ): string {
 		formatMetricValue( count, 'number', { decimals: 0 } )
 	);
 }
+
+/**
+ * The same count as a daily rate, for a cell that reports an average rather
+ * than a total. Kept beside `formatViewCount` so the two plural sets stay
+ * together.
+ */
+export function formatDailyViewCount( count: number ): string {
+	return sprintf(
+		/* translators: %s: average number of views per day, e.g. "2,033". */
+		_n( '%s view per day', '%s views per day', count, 'jetpack-premium-analytics-pkg' ),
+		formatMetricValue( count, 'number', { decimals: 0 } )
+	);
+}

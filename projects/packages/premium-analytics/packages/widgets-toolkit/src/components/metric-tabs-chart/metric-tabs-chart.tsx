@@ -2,7 +2,6 @@
  * External dependencies
  */
 import {
-	SelectControl,
 	Tabs,
 	Text,
 	VisuallyHidden,
@@ -21,6 +20,7 @@ import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
 import { MetricWithComparison } from '../metric-with-comparison';
+import { WidgetMetricSelect } from '../widget-metric-select';
 import styles from './metric-tabs-chart.module.scss';
 import type { DataFormat } from '../../types';
 import type { ComparativeLineChartSeries } from '../chart-comparative-line/types';
@@ -468,12 +468,6 @@ export function MetricTabsChart( {
 		[ metrics ]
 	);
 
-	// Controlled open state: the dashboard's focusable drag-sortable wrapper
-	// closes the popup (reason 'none') right after it opens, so we open on
-	// click, drop 'none' closes, and close explicitly on selection. Real closes
-	// (outside press, Escape) carry a specific reason and pass through.
-	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
-
 	// Tabs↔dropdown flips are debounced: each flip remounts the header + chart
 	// subtree, and during a drag-resize the width oscillates around grid snap
 	// boundaries fast enough to freeze the page and abort the gesture.
@@ -548,58 +542,20 @@ export function MetricTabsChart( {
 	}
 
 	if ( useDropdown ) {
-		// `value` must be a reference into `metricItems` for the select to match it.
-		const activeItem =
-			metricItems.find( item => item.value === activeMetric?.key ) ?? metricItems[ 0 ];
-
 		return (
 			<div ref={ measureRef } className={ styles.root }>
 				<div className={ styles.header }>
-					{ /* Stops pointer-down from starting a widget drag and opens the select
-					     on click (see `isDropdownOpen`). Mouse-only supplement — keyboard
-					     users open the select through the trigger button itself. */ }
-					{ /* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */ }
-					<div
+					<WidgetMetricSelect
 						className={ styles.picker }
-						onPointerDown={ event => event.stopPropagation() }
-						onMouseDown={ event => event.stopPropagation() }
-						onClick={ event => {
-							// React bubbles portaled popup events through the component tree,
-							// so option clicks land here too; reopening on them would undo the
-							// close-on-select. Only treat clicks inside the wrapper as opens.
-							if ( event.currentTarget.contains( event.target as Node ) ) {
-								setIsDropdownOpen( true );
-							}
-						} }
-					>
-						<SelectControl
-							className={ styles.metricSelect }
-							label={ groupLabel }
-							hideLabelFromVision
-							open={ isDropdownOpen }
-							onOpenChange={ ( nextOpen, details ) => {
-								// Drop the wrapper focus churn's 'none' closes; selection closes
-								// are handled in `onValueChange`.
-								if ( ! nextOpen && details?.reason === 'none' ) {
-									return;
-								}
-								setIsDropdownOpen( nextOpen );
-							} }
-							items={ metricItems }
-							value={ activeItem }
-							onValueChange={ item => {
-								if ( item?.value ) {
-									handleValueChange( item.value );
-								}
-								setIsDropdownOpen( false );
-							} }
-							triggerContent={
-								activeMetric && (
-									<MetricTabContent metric={ activeMetric } dataFormat={ dataFormat } />
-								)
-							}
-						/>
-					</div>
+						selectClassName={ styles.metricSelect }
+						label={ groupLabel }
+						items={ metricItems }
+						value={ activeMetric?.key ?? '' }
+						onChange={ handleValueChange }
+						triggerContent={
+							activeMetric && <MetricTabContent metric={ activeMetric } dataFormat={ dataFormat } />
+						}
+					/>
 					{ controls }
 				</div>
 				<div className={ clsx( styles.chart, onDatumClick && styles.drillable ) }>

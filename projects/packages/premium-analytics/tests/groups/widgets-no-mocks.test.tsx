@@ -5,3 +5,4 @@ import '../../widgets/popular-days/__tests__/bucket-views-by-weekday.test';
 import '../../widgets/shares/__tests__/use-share-views.test';
 import '../../widgets/stories/preset-for-story-interval.test';
 import '../../widgets/videopress/__tests__/build-video-plays-data.test';
+import '../../widgets/views-over-years/__tests__/build-views-over-years.test';

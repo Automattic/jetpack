@@ -1,11 +1,3 @@
-/* The select popup portals to <body>, where it paints behind admin-ui's
- * `z-index: 1` Page unless this consumer opt-in variable is set (globally —
- * the popup is outside this component's subtree). 1000000 matches the
- * wp-admin popover layer. */
-:global(:root) {
-	--wp-ui-select-z-index: 1000000;
-}
-
 .root {
 	container-type: inline-size;
 	display: flex;
@@ -37,11 +29,11 @@
 	overflow: visible;
 }
 
-/* Dropdown mode (narrow tiles): the selected-metric card is the trigger. */
+/* Dropdown mode (narrow tiles): the selected-metric card is the trigger.
+ * `WidgetMetricSelect` owns the box itself; this only makes it fill
+ * the header. */
 .picker {
-	display: flex;
 	flex: 1 1 auto;
-	min-width: 0;
 }
 
 .metricSelect {
@@ -58,9 +50,9 @@
 }
 
 /* Draw the focus ring inside the card; the default outset ring gets clipped
- * by the widget chrome's `overflow: auto`. */
-.tab,
-.metricSelect [class*="trigger-wrapper"] {
+ * by the widget chrome's `overflow: auto`. The select's own trigger is handled
+ * by `WidgetMetricSelect`. */
+.tab {
 	outline-offset: calc(-1 * var(--wpds-border-width-focus));
 }
 

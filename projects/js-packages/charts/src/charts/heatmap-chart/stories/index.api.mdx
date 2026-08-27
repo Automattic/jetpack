@@ -15,6 +15,8 @@ and shaded with CSS `color-mix`, so the scale adapts to the chart background.
 | ---- | ---- | ------- | ----------- |
 | `data` | `HeatmapColumn[]` | - | **Required.** Array of columns; each column contains an optional label and an array of cells. |
 | `rowLabels` | `string[]` | `[]` | y-axis labels by row index. Empty entries render blank. |
+| `trailingColumn` | `HeatmapTrailingColumn` | - | A per-row roll-up drawn after the data columns: unshaded and left out of the colour scale, but hoverable and keyboard-selectable like any cell. |
+| `columnLabelAlign` | `'start' \| 'center'` | `'start'` | Where a column's label sits over its track. `start` suits a calendar, whose labels mark where a month begins rather than naming the column. |
 | `compact` | `boolean` | `false` | Compact mode: tighten cell gaps, suppress in-cell values, and thin axis labels. |
 | `showValues` | `boolean` | `!compact` | Render the numeric value inside each cell (compact notation for large numbers; the tooltip and aria-label keep full precision). |
 | `maxCellWidth` | `number` | - | Maximum cell width in pixels in non-compact mode. Cells stop growing at this width while narrower containers may still shrink them. |
@@ -60,6 +62,21 @@ type HeatmapColumn = {
 	label?: string;
 	/** Ordered array of cells for this column. */
 	data: HeatmapCell[];
+};
+```
+
+## HeatmapTrailingColumn Type
+
+A summary column drawn after the data columns — a per-row total, average, or other roll-up.
+
+It is left out of the colour scale, which is why it cannot simply be one more `HeatmapColumn`: a row's roll-up is typically an order of magnitude above any single cell, and letting it set the maximum would flatten every real cell to the bottom of the scale. It is drawn unshaded for the same reason, but stays a full participant in hover, tooltips, and keyboard navigation. Values shorter than the row count are padded with empty cells.
+
+```typescript
+type HeatmapTrailingColumn = {
+	/** x-axis label for the column. Empty or omitted renders blank. */
+	label?: string;
+	/** One value per row, in row order. `null` renders an empty cell. */
+	data: ( number | null )[];
 };
 ```
 

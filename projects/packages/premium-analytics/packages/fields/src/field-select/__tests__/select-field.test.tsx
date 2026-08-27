@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { PointerEventsCheckLevel } from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
@@ -103,10 +103,15 @@ describe( 'SelectField', () => {
 		const onChange = jest.fn();
 		const control = sizeControl( { data: { size: 10 }, onChange } );
 
-		// `hidden: true` because in jsdom, with no layout to position the popup
-		// against, the mounted options stay hidden even once opened.
-		await userEvent.click( control );
-		await userEvent.click( screen.getByRole( 'option', { name: 'Twenty', hidden: true } ) );
+		// jsdom has no layout to position the popup against, which leaves the
+		// mounted options hidden even once opened (hence `hidden: true`) and
+		// leaves the popup's own open transition unresolved, so it can still be
+		// carrying `pointer-events: none` when the click lands. Neither says
+		// anything about the control in a browser, so neither gates the click.
+		const user = userEvent.setup( { pointerEventsCheck: PointerEventsCheckLevel.Never } );
+
+		await user.click( control );
+		await user.click( screen.getByRole( 'option', { name: 'Twenty', hidden: true } ) );
 
 		expect( onChange ).toHaveBeenCalledWith( { size: 20 } );
 	} );

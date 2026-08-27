@@ -8,6 +8,8 @@ import {
 	heatmapCalendarSeries,
 	heatmapLargeValueMatrix,
 	heatmapPartialMonthCalendarSeries,
+	heatmapYearMonthMatrix,
+	heatmapYearMonthTotals,
 } from '../../../stories/sample-data';
 import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
 import { HeatmapChart } from '../index';
@@ -134,6 +136,31 @@ export const CompactCalendarPartialMonth: StoryObj< StoryArgs & { weekStartsOn: 
 			options: [ 1, 0 ],
 			table: { category: 'Calendar' },
 		},
+	},
+};
+
+/**
+ * A month-by-year grid: labels centred over the columns they name, and a
+ * per-year roll-up in `trailingColumn` — drawn unshaded and left out of the
+ * colour scale, so the year totals cannot flatten the months beside them.
+ */
+export const MonthsByYearWithTotals: Story = {
+	render: args => (
+		<HeatmapChart { ...args } chartId="months-by-year-heatmap">
+			<HeatmapChart.Legend lessLabel="Fewer views" moreLabel="More views" />
+		</HeatmapChart>
+	),
+	args: {
+		...sharedThemeArgs,
+		data: heatmapYearMonthMatrix,
+		rowLabels: Array.from( { length: 6 }, ( _row, row ) =>
+			String( new Date().getFullYear() - row )
+		),
+		trailingColumn: { label: 'Totals', data: heatmapYearMonthTotals },
+		columnLabelAlign: 'center',
+		withTooltips: true,
+		containerWidth: '1000px',
+		containerHeight: '320px',
 	},
 };
 

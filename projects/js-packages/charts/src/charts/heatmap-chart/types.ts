@@ -30,6 +30,25 @@ export type HeatmapColumn = {
 	data: HeatmapCell[];
 };
 
+/**
+ * A summary column drawn after the data columns — a per-row total, average, or
+ * other roll-up.
+ *
+ * It is left out of the color scale, which is the reason it cannot simply be
+ * one more `HeatmapColumn`: a row's roll-up is typically an order of magnitude
+ * above any single cell, and letting it set the maximum would flatten every
+ * real cell to the bottom of the scale. It is drawn unshaded for the same
+ * reason — it is on a different scale from the grid beside it — but stays a
+ * full participant in hover, tooltips, and keyboard navigation, so its values
+ * are reachable the same way the grid's are.
+ */
+export type HeatmapTrailingColumn = {
+	/** x-axis label for the column. Empty/omitted renders blank. */
+	label?: string;
+	/** One value per row, in row order. `null` renders an empty cell. */
+	data: ( number | null )[];
+};
+
 export type HeatmapTooltipData = {
 	value: number | null;
 	rowLabel?: string;
@@ -43,6 +62,14 @@ export interface HeatmapChartProps
 	extends Omit< BaseChartProps< HeatmapColumn[] >, 'showLegend' | 'legend' | 'gridVisibility' > {
 	/** y-axis labels by row index. Empty entries render blank. */
 	rowLabels?: string[];
+	/** A per-row roll-up drawn after the data columns; see `HeatmapTrailingColumn`. */
+	trailingColumn?: HeatmapTrailingColumn;
+	/**
+	 * Where a column's label sits over its track. `start` suits a calendar,
+	 * whose labels mark where a month begins rather than naming the column.
+	 * Default `start`.
+	 */
+	columnLabelAlign?: 'start' | 'center';
 	/** Compact mode: hide in-cell values, tighten gap, thin axis labels. Default false. */
 	compact?: boolean;
 	/** Render the numeric value inside each cell. Default `! compact`. */

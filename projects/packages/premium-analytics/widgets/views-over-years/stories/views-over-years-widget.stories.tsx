@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
@@ -17,7 +17,7 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
-import TrafficViewsActivityRender from '../render';
+import ViewsOverYearsRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -28,17 +28,16 @@ registerReportMocks();
 
 const STATS_VISITS_PATH_FRAGMENT = 'stats/visits';
 
-const TRAFFIC_VIEWS_ACTIVITY_RENDER_MODULE = 'storybook/traffic-views-activity';
+const VIEWS_OVER_YEARS_RENDER_MODULE = 'storybook/views-over-years';
 
-// Match the shortest complete-year range offered by the Insights period control.
-const YEAR_PRESET: PresetType = 'last-365-days';
-
-function renderTrafficViewsActivity( preset: PresetType = YEAR_PRESET ) {
-	return (
-		<TrafficViewsActivityRender
-			attributes={ { reportParams: getDefaultQueryParams( false, preset ) } }
-		/>
-	);
+/**
+ * The widget builds its own all-time request and never scopes itself to the
+ * host's period, but `WidgetRoot` still wants report params on `attributes`.
+ *
+ * @return The widget, as the dashboard mounts it.
+ */
+function renderViewsOverYears() {
+	return <ViewsOverYearsRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
 
 function forceVisitsState( state: 'loading' | 'error' | 'error-retryable' | 'empty' ) {
@@ -49,28 +48,31 @@ function forceVisitsState( state: 'loading' | 'error' | 'error-retryable' | 'emp
 }
 
 const meta = {
-	title: 'Packages/Premium Analytics/Widgets/TrafficViewsActivity',
-	component: TrafficViewsActivityRender,
+	title: 'Packages/Premium Analytics/Widgets/ViewsOverYears',
+	component: ViewsOverYearsRender,
 	tags: [ 'autodocs' ],
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Traffic views activity" widget shows daily site views as a calendar heatmap. Days without views are blank, and older weeks are hidden when space is limited.',
+					'The "Views over years" widget shows every year the site has views for as a month-by-month grid, with a per-year roll-up beside it. The metric control switches the cells and the roll-up between total views and average views per day. It is all-time regardless of the year the Insights header has selected, like the Stats card it replaces.',
 			},
 		},
 	},
-} satisfies Meta< typeof TrafficViewsActivityRender >;
+} satisfies Meta< typeof ViewsOverYearsRender >;
 
 export default meta;
 
-type Story = StoryObj< Partial< ComponentProps< typeof TrafficViewsActivityRender > > >;
+// `attributes` is required on the render props, so the alias is parameterized
+// on a partial of them rather than on `meta` — a story that renders the widget
+// itself passes none.
+type Story = StoryObj< Partial< ComponentProps< typeof ViewsOverYearsRender > > >;
 
 /**
- * A year of daily views.
+ * Every year of views, month by month.
  */
 export const Default: Story = {
-	render: () => renderTrafficViewsActivity(),
+	render: renderViewsOverYears,
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -78,7 +80,7 @@ export const Default: Story = {
  * The initial loading state.
  */
 export const Loading: Story = {
-	render: () => renderTrafficViewsActivity( 'last-90-days' ),
+	render: renderViewsOverYears,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => forceVisitsState( 'loading' ),
@@ -88,7 +90,7 @@ export const Loading: Story = {
  * A permission error without a retry action.
  */
 export const Error: Story = {
-	render: () => renderTrafficViewsActivity( 'last-7-days' ),
+	render: renderViewsOverYears,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => forceVisitsState( 'error' ),
@@ -98,46 +100,44 @@ export const Error: Story = {
  * A connection error with a retry action.
  */
 export const ErrorRetryable: Story = {
-	render: () => renderTrafficViewsActivity( 'last-30-days' ),
+	render: renderViewsOverYears,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => forceVisitsState( 'error-retryable' ),
 };
 
 /**
- * A period with no views.
+ * A site that has never had a view.
  */
 export const Empty: Story = {
-	render: () => renderTrafficViewsActivity( 'today' ),
+	render: renderViewsOverYears,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => forceVisitsState( 'empty' ),
 };
 
-function TrafficViewsActivityDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
+function ViewsOverYearsDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
 			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
-			renderModule={ TRAFFIC_VIEWS_ACTIVITY_RENDER_MODULE }
-			renderComponent={
-				TrafficViewsActivityRender as ComponentType< WidgetRenderProps< unknown > >
-			}
-			attributes={ { reportParams: getDefaultQueryParams( true, YEAR_PRESET ) } }
+			renderModule={ VIEWS_OVER_YEARS_RENDER_MODULE }
+			renderComponent={ ViewsOverYearsRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ { reportParams: getDefaultQueryParams( true ) } }
 		/>
 	);
 }
 
 /**
- * The widget at its production size: full width and one row. Raise `widgetHeight`
- * to 2 to see it switch from compact squares to labelled cells.
+ * The widget at its production size: full width and two rows. A site with more
+ * years than the tile is tall scrolls inside it rather than crushing its cells.
  */
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
-	render: args => <TrafficViewsActivityDashboardStory { ...args } />,
+	render: args => <ViewsOverYearsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		widgetWidth: 4,
-		widgetHeight: 1,
+		widgetHeight: 2,
 		rowHeight: 200,
 	},
 	argTypes: {

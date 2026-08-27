@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Heatmap Chart: Add a trailing summary column, drawn outside the colour scale, and an option to centre column labels.

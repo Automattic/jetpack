@@ -6,7 +6,7 @@ import { setSettings } from '@wordpress/date';
  * Internal dependencies
  */
 import { EN_US_SETTINGS, ES_ES_SETTINGS, settingsFor } from '../__fixtures__/wp-date-settings';
-import { formatDate, formatWeekday } from '../format-date';
+import { formatDate, formatMonth, formatWeekday } from '../format-date';
 
 // Midnight UTC, matching the fixtures' timezone, so no day shift is in play.
 const JUNE_21 = new Date( '2025-06-21T00:00:00+00:00' );
@@ -23,6 +23,15 @@ describe( 'formatDate', () => {
 
 		it( 'defaults to "medium"', () => {
 			expect( formatDate( JUNE_21 ) ).toBe( 'June 21, 2025' );
+		} );
+
+		it( 'names a month, full and abbreviated', () => {
+			expect( formatMonth( 0 ) ).toBe( 'January' );
+			expect( formatMonth( 11, { short: true } ) ).toBe( 'Dec' );
+		} );
+
+		it( 'returns an empty string for a month index out of range', () => {
+			expect( formatMonth( 12 ) ).toBe( '' );
 		} );
 
 		it( 'formats "short" as the site format without its year', () => {
@@ -65,6 +74,11 @@ describe( 'formatDate', () => {
 
 		it( 'formats a weekday in the site locale', () => {
 			expect( formatWeekday( 6 ) ).toBe( 'sábado' );
+		} );
+
+		it( 'names a month in the site locale, not the browser one', () => {
+			expect( formatMonth( 5 ) ).toBe( 'junio' );
+			expect( formatMonth( 5, { short: true } ) ).toBe( 'jun' );
 		} );
 	} );
 

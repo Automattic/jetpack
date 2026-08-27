@@ -1059,6 +1059,67 @@ export const heatmapLargeValueMatrix: HeatmapColumn[] = Array.from(
 	} )
 );
 
+/** Abbreviated month names, for matrix samples whose columns are months. */
+export const heatmapMonthLabels = [
+	'Jan',
+	'Feb',
+	'Mar',
+	'Apr',
+	'May',
+	'Jun',
+	'Jul',
+	'Aug',
+	'Sep',
+	'Oct',
+	'Nov',
+	'Dec',
+];
+
+/** Years the month-by-year samples cover, and where "now" sits inside them. */
+const HEATMAP_YEAR_ROWS = 6;
+const heatmapCurrentYear = new Date().getFullYear();
+const heatmapCurrentMonth = new Date().getMonth();
+
+/**
+ * Month-by-year matrix for the heatmap chart (12 columns × 6 rows)
+ *
+ * One column per calendar month and one row per year, newest year first, with
+ * the current year's months that have not happened yet left empty. The shape a
+ * per-year roll-up (`trailingColumn`) and centred column labels are built for.
+ * - Category: matrix
+ * - Data points: 72
+ * - Suitable for: HeatmapChart
+ */
+export const heatmapYearMonthMatrix: HeatmapColumn[] = heatmapMonthLabels.map(
+	( monthLabel, month ) => ( {
+		label: monthLabel,
+		data: Array.from( { length: HEATMAP_YEAR_ROWS }, ( _row, row ) => {
+			// Row 0 is the current year; its later months have not happened.
+			if ( row === 0 && month > heatmapCurrentMonth ) {
+				return { value: null, hidden: true };
+			}
+			return {
+				label: `${ monthLabel } ${ heatmapCurrentYear - row }`,
+				value: Math.round(
+					( 20_000 + Math.abs( Math.sin( month + row ) ) * 40_000 ) * ( row + 1 )
+				),
+			};
+		} ),
+	} )
+);
+
+/**
+ * Per-year totals for `heatmapYearMonthMatrix`, as a `trailingColumn`.
+ */
+export const heatmapYearMonthTotals: number[] = Array.from(
+	{ length: HEATMAP_YEAR_ROWS },
+	( _row, row ) =>
+		heatmapYearMonthMatrix.reduce(
+			( total, column ) => total + ( column.data[ row ].value ?? 0 ),
+			0
+		)
+);
+
 /**
  * Daily activity series for the calendar heatmap (120 days from 2024-01-01)
  *

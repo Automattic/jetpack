@@ -1013,7 +1013,15 @@ function buildVisitsResponse( query: URLSearchParams ) {
 
 	const spanDays = Math.round( ( endDate.getTime() - startDate.getTime() ) / DAY_MS );
 	const count = Math.max( 1, Math.min( 400, Math.round( spanDays / stepDays ) + 1 ) );
-	const anchorDay = Math.floor( Date.now() / DAY_MS ) - 400;
+	// The growth curve rises over its last ~500 days, so a request reaching
+	// further back than that would open on a run of clamped zeros. Anchor it at
+	// the start of the requested range instead whenever that is earlier, so a
+	// multi-year range (the Views over years table asks for every year the site
+	// could have) reads as a site that grew rather than as one with no history.
+	const anchorDay = Math.min(
+		Math.floor( Date.now() / DAY_MS ) - 400,
+		Math.floor( startDate.getTime() / DAY_MS ) - 1
+	);
 
 	const rows = Array.from( { length: count }, ( _, index ) => {
 		const i = count - 1 - index;

@@ -121,4 +121,43 @@ describe( 'useDashboardSectionLayout', () => {
 
 		expect( storedLayouts() ).toBe( stored );
 	} );
+	describe( 'replaced widget types', () => {
+		it( 'swaps a replaced type for its replacement in a customized layout', () => {
+			dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, PREFERENCES_KEY, {
+				insights: [
+					{ uuid: 'kept', type: 'jpa/posting-activity' },
+					{
+						uuid: 'replaced',
+						type: 'jpa/traffic-views-activity',
+						placement: { width: 4, height: 2, order: 8 },
+					},
+				],
+			} );
+
+			const { result } = renderHook( () =>
+				useDashboardSectionLayout( 'insights', [ section( 'insights', [] ) ] )
+			);
+
+			expect( result.current[ 0 ] ).toEqual( [
+				{ uuid: 'kept', type: 'jpa/posting-activity' },
+				{
+					uuid: 'replaced',
+					type: 'jpa/views-over-years',
+					// The replacement keeps the slot the original held.
+					placement: { width: 4, height: 2, order: 8 },
+				},
+			] );
+		} );
+
+		it( 'does not write the mapped layout back to preferences', () => {
+			const stored = [ { uuid: 'replaced', type: 'jpa/traffic-views-activity' } ];
+			dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, PREFERENCES_KEY, {
+				insights: stored,
+			} );
+
+			renderHook( () => useDashboardSectionLayout( 'insights', [ section( 'insights', [] ) ] ) );
+
+			expect( storedLayouts() ).toEqual( { insights: stored } );
+		} );
+	} );
 } );

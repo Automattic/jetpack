@@ -43,6 +43,7 @@ export {
 	type GoogleDataTableRow,
 	type HeatmapColumn,
 	type HeatmapTooltipData,
+	type HeatmapTrailingColumn,
 	type LineStyles,
 	type SeriesData,
 	type TickResolution,

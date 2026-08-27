@@ -1,0 +1,10 @@
+{
+	"name": "jpa/views-over-years",
+	"title": "Views over years",
+	"description": "Every year of site views, month by month.",
+	"help": {
+		"content": "Every month's views since your first, so you can compare months and years at a glance. This one always covers every year, whichever year is selected above."
+	},
+	"category": "stats",
+	"presentation": "framed"
+}

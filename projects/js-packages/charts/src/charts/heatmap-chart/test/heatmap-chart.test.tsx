@@ -392,4 +392,96 @@ describe( 'HeatmapChart', () => {
 		expect( chart ).not.toHaveStyle( { width: '500px' } );
 		expect( chart ).not.toHaveStyle( { height: '300px' } );
 	} );
+	describe( 'trailing column', () => {
+		const trailingColumn = { label: 'Totals', data: [ 4, 2, 4 ] };
+
+		test( 'renders one trailing cell per row, headed by its label', () => {
+			renderChart( { trailingColumn, rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+
+			const trailingCells = screen.getAllByTestId( 'heatmap-cell-trailing' );
+			expect( trailingCells ).toHaveLength( 3 );
+			expect( screen.getAllByTestId( 'heatmap-cell' ) ).toHaveLength( 6 );
+			expect( screen.getAllByText( 'Totals' ).length ).toBeGreaterThan( 0 );
+			expect( within( trailingCells[ 0 ] ).getByText( '4' ) ).toBeInTheDocument();
+		} );
+
+		test( 'counts the trailing column in the grid geometry', () => {
+			renderChart( { trailingColumn } );
+
+			const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+			expect( grid ).toHaveAttribute( 'aria-colcount', '3' );
+			// Two data tracks share the container; the roll-up gets its own auto track.
+			expect( grid ).toHaveStyle( {
+				gridTemplateColumns: 'auto repeat(2, minmax(0px, 1fr)) auto',
+			} );
+		} );
+
+		test( 'leaves the trailing values out of the color scale', () => {
+			// The roll-up (10) is well above every cell, so were it scaled with
+			// them the highest cell (4) would drop off full intensity.
+			renderChart( { trailingColumn: { label: 'Totals', data: [ 10, 10, 10 ] } } );
+
+			const highest = screen
+				.getAllByTestId( 'heatmap-cell' )
+				.find( cell => within( cell ).queryByText( '4' ) );
+			expect( highest?.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' ) ).toBe(
+				'1'
+			);
+			screen.getAllByTestId( 'heatmap-cell-trailing' ).forEach( cell => {
+				expect( cell.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' ) ).toBe( '' );
+			} );
+		} );
+
+		test( 'is reachable by keyboard from the last data column', async () => {
+			renderChart( { trailingColumn, rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+			const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+			const user = userEvent.setup();
+
+			grid.focus();
+			await user.keyboard( '{ArrowDown}{ArrowRight}{ArrowRight}' );
+			expect( grid ).toHaveAttribute(
+				'aria-activedescendant',
+				expect.stringMatching( /-cell-2-0$/ )
+			);
+		} );
+
+		test( 'pads a short trailing array rather than ragging the grid', () => {
+			renderChart( { trailingColumn: { label: 'Totals', data: [ 4 ] } } );
+
+			expect( screen.getAllByTestId( 'heatmap-cell-trailing' ) ).toHaveLength( 3 );
+		} );
+	} );
+
+	test( 'centres column labels when asked to', () => {
+		const { rerender } = renderChart();
+		expect( screen.getAllByText( 'W1' )[ 0 ].className ).not.toMatch( /col-label--center/ );
+
+		rerender(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ data } columnLabelAlign="center" />
+			</GlobalChartsProvider>
+		);
+		expect( screen.getAllByText( 'W1' )[ 0 ].className ).toMatch( /col-label--center/ );
+	} );
+	test( 'scrolls the keyboard selection into view', async () => {
+		// jsdom leaves `scrollIntoView` undefined, so the component's optional
+		// call is a no-op until something stands in for it.
+		const scrollIntoView = jest.fn();
+		Object.defineProperty( Element.prototype, 'scrollIntoView', {
+			value: scrollIntoView,
+			configurable: true,
+			writable: true,
+		} );
+
+		renderChart( { rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const user = userEvent.setup();
+
+		grid.focus();
+		await user.keyboard( '{ArrowDown}{ArrowDown}' );
+
+		expect( scrollIntoView ).toHaveBeenCalledWith( { block: 'nearest', inline: 'nearest' } );
+
+		delete ( Element.prototype as Partial< Element > ).scrollIntoView;
+	} );
 } );

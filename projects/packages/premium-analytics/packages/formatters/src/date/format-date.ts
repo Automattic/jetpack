@@ -113,6 +113,24 @@ export const formatWeekday = ( weekday: number ): string => {
 	return weekdays[ weekday ] ?? '';
 };
 
+/**
+ * Return a month name in the site's locale.
+ *
+ * Read from WordPress's own translation tables, like `formatWeekday`, so the
+ * months match the rest of wp-admin rather than the browser's locale.
+ *
+ * @param month         - Zero-based month index (`0` = January).
+ * @param options       - Naming options.
+ * @param options.short - Pick the abbreviated name.
+ * @return The localized month name.
+ */
+export const formatMonth = ( month: number, options: { short?: boolean } = {} ): string => {
+	const { l10n } = getSettings();
+	const months = ( options.short ? l10n.monthsShort : l10n.months ) as string[];
+
+	return months?.[ month ] ?? '';
+};
+
 /** 12-hour clock tokens, zero-padded and not. */
 const TWELVE_HOUR_TOKENS = new Set( [ 'g', 'h' ] );
 

@@ -1,0 +1,19 @@
+/* The select popup portals to <body>, where it paints behind admin-ui's
+ * `z-index: 1` Page unless this consumer opt-in variable is set (globally —
+ * the popup is outside this component's subtree). 1000000 matches the
+ * wp-admin popover layer. */
+:global(:root) {
+	--wp-ui-select-z-index: 1000000;
+}
+
+.picker {
+	display: flex;
+	min-width: 0;
+}
+
+/* Draw the focus ring inside the trigger; the default outset ring gets clipped
+ * by the widget chrome's `overflow: auto`. The trigger's own class comes from
+ * `@wordpress/ui`, so it can only be reached by pattern. */
+.select [class*="trigger-wrapper"] {
+	outline-offset: calc(-1 * var(--wpds-border-width-focus));
+}

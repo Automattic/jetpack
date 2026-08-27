@@ -343,12 +343,12 @@ function get_dashboard_default_section_layouts() {
 				1,
 				1
 			),
-			// Row 5: daily views heatmap. Two rows tall, as in the prototype: the
-			// cells are sized from the tile's height, and only at this height do they
-			// grow wide enough to label each day with its view count.
+			// Row 5: views by month and year. Two rows tall, as in the prototype:
+			// a year is twelve columns wide and a long-lived site is many rows
+			// deep, so the tile scrolls below this height rather than above it.
 			get_dashboard_default_widget_instance(
-				'default-traffic-views-activity-widget-instance',
-				'jpa/traffic-views-activity',
+				'default-views-over-years-widget-instance',
+				'jpa/views-over-years',
 				8,
 				4,
 				2

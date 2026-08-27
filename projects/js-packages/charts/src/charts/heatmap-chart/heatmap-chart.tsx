@@ -33,7 +33,7 @@ import {
 	isPresent,
 } from './private';
 import type { HeatmapContextValue } from './private';
-import type { HeatmapChartProps, HeatmapTooltipData } from './types';
+import type { HeatmapChartProps, HeatmapColumn, HeatmapTooltipData } from './types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { CSSProperties, FC } from 'react';
 
@@ -54,6 +54,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	minCellWidth,
 	minCellHeight,
 	rowLabels = [],
+	trailingColumn,
+	columnLabelAlign = 'start',
 	primaryColor,
 	gap = 'md',
 	withTooltips = false,
@@ -110,25 +112,47 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		[ extent, primaryColorHex ]
 	);
 
-	const columns = data.length;
+	const dataColumns = data.length;
 	const rows = Math.max( 0, ...data.map( column => column.data.length ) );
+
+	// The trailing column joins the grid as one more column so navigation,
+	// tooltips and ARIA treat it like any other; only the scale above and the
+	// fill below leave it out. Sized to the row count so a short or long
+	// summary array cannot ragged-edge the grid.
+	const columnsData = useMemo< HeatmapColumn[] >(
+		() =>
+			trailingColumn
+				? [
+						...data,
+						{
+							label: trailingColumn.label,
+							data: Array.from( { length: rows }, ( _cell, rowIndex ) => ( {
+								value: trailingColumn.data[ rowIndex ] ?? null,
+							} ) ),
+						},
+				  ]
+				: data,
+		[ data, trailingColumn, rows ]
+	);
+	const trailingColumnIndex = trailingColumn ? dataColumns : -1;
+	const columns = columnsData.length;
 
 	const { compactCellGap, compactCellSize } = heatmapChartSettings;
 	const drawValues = showValues ?? ! compact;
 
 	const buildTooltipData = useCallback(
 		( columnIndex: number, rowIndex: number ): HeatmapTooltipData => {
-			const cell = data[ columnIndex ]?.data[ rowIndex ];
+			const cell = columnsData[ columnIndex ]?.data[ rowIndex ];
 			return {
 				value: cell?.value ?? null,
 				rowLabel: rowLabels[ rowIndex ],
-				columnLabel: data[ columnIndex ]?.label,
+				columnLabel: columnsData[ columnIndex ]?.label,
 				cellLabel: cell?.label,
 				row: rowIndex,
 				column: columnIndex,
 			};
 		},
-		[ data, rowLabels ]
+		[ columnsData, rowLabels ]
 	);
 
 	const onChartBlur = useCallback( () => {
@@ -140,10 +164,10 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	// `placeholder` paints an empty cell, and neither has a value to report.
 	const isCellInert = useCallback(
 		( col: number, row: number ) => {
-			const cell = data[ col ]?.data[ row ];
+			const cell = columnsData[ col ]?.data[ row ];
 			return cell?.hidden === true || cell?.placeholder === true;
 		},
-		[ data ]
+		[ columnsData ]
 	);
 
 	const onChartKeyDown = useCallback(
@@ -235,6 +259,25 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		}
 	}, [ withTooltips, selectedIndex, hideTooltip ] );
 
+	// Keyboard focus stays on the grid (the `aria-activedescendant` pattern), so
+	// the browser never scrolls the selection into view the way it would for a
+	// really-focused element. Inside a scrolling container the selection would
+	// otherwise walk off the scrollport with nothing visibly happening. Not
+	// gated on `withTooltips`: navigation has to stay visible either way.
+	useEffect( () => {
+		if ( selectedIndex === undefined || typeof document === 'undefined' ) {
+			return;
+		}
+
+		const col = Math.floor( selectedIndex / rows );
+		const row = selectedIndex % rows;
+
+		// Optional call: jsdom leaves `scrollIntoView` undefined.
+		document
+			.getElementById( `${ chartId }-cell-${ col }-${ row }` )
+			?.scrollIntoView?.( { block: 'nearest', inline: 'nearest' } );
+	}, [ selectedIndex, rows, chartId ] );
+
 	// Anchor the tooltip at the selected cell's center on keyboard nav. Cleared on blur/Escape,
 	// not here, so a mouse hover (no selection) isn't affected.
 	useEffect( () => {
@@ -297,7 +340,12 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const gridStyle: Record< string, string | number > = {
 		'--a8c-charts-color-heatmap-primary': primaryColorHex,
 		'--a8c-charts-color-heatmap-background': theme.backgroundColor,
-		gridTemplateColumns: `auto repeat(${ columns }, ${ columnTrack })`,
+		// The trailing column sits on its own `auto` track: it holds a roll-up an
+		// order of magnitude wider than a cell, and sharing the data columns'
+		// track would size all of them to it.
+		gridTemplateColumns: `auto repeat(${ dataColumns }, ${ columnTrack })${
+			trailingColumn ? ' auto' : ''
+		}`,
 		gridTemplateRows: `auto repeat(${ rows }, ${ rowTrack })`,
 	};
 	if ( compact ) {
@@ -354,10 +402,12 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						{ /* Header row preserves the grid structure; cell aria-labels include this text. */ }
 						<div role="row" aria-hidden="true" className={ styles[ 'heatmap-chart__row' ] }>
 							<span />
-							{ data.map( ( column, columnIndex ) => (
+							{ columnsData.map( ( column, columnIndex ) => (
 								<span
 									key={ `col-${ columnIndex }` }
-									className={ styles[ 'heatmap-chart__col-label' ] }
+									className={ clsx( styles[ 'heatmap-chart__col-label' ], {
+										[ styles[ 'heatmap-chart__col-label--center' ] ]: columnLabelAlign === 'center',
+									} ) }
 								>
 									{ column.label }
 								</span>
@@ -376,8 +426,9 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 									<span aria-hidden="true" className={ styles[ 'heatmap-chart__row-label' ] }>
 										{ labelVisible ? rowLabels[ rowIndex ] ?? '' : '' }
 									</span>
-									{ data.map( ( column, columnIndex ) => {
+									{ columnsData.map( ( column, columnIndex ) => {
 										const cell = column.data[ rowIndex ];
+										const isTrailing = columnIndex === trailingColumnIndex;
 
 										// A hidden cell keeps its grid slot (so the rest of the
 										// column doesn't shift) but paints nothing and takes no
@@ -415,7 +466,12 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 										}
 
 										const value = cell?.value ?? null;
-										const present = isPresent( value );
+										const hasValue = isPresent( value );
+										// A roll-up is on a different scale from the cells beside
+										// it, so it takes no fill. `present` is the fill, which the
+										// trailing column opts out of; `hasValue` is whether there
+										// is a number to draw, which it does not.
+										const present = ! isTrailing && hasValue;
 										const normalized = present ? getNormalizedValue( value, extent ) : 0;
 										const flatIndex = columnIndex * rows + rowIndex;
 										const info = buildTooltipData( columnIndex, rowIndex );
@@ -432,7 +488,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 											<div
 												key={ `cell-${ columnIndex }-${ rowIndex }` }
 												id={ `${ chartId }-cell-${ columnIndex }-${ rowIndex }` }
-												data-testid="heatmap-cell"
+												data-testid={ isTrailing ? 'heatmap-cell-trailing' : 'heatmap-cell' }
 												role="gridcell"
 												// Focus stays on the grid (aria-activedescendant); cells are
 												// focusable but out of the tab order.
@@ -445,6 +501,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 													[ styles[ 'heatmap-chart__cell--filled' ] ]: present,
 													[ styles[ 'heatmap-chart__cell--strong' ] ]:
 														present && cellHasLightText( normalized ),
+													[ styles[ 'heatmap-chart__cell--trailing' ] ]: isTrailing,
 													[ styles[ 'heatmap-chart__cell--selected' ] ]:
 														selectedIndex === flatIndex,
 												} ) }
@@ -458,7 +515,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 												onMouseMove={ handleCellMouseMove }
 												onMouseLeave={ handleCellMouseLeave }
 											>
-												{ drawValues && present && (
+												{ drawValues && hasValue && (
 													<span className={ styles[ 'heatmap-chart__cell-value' ] }>
 														{ /* Compact display; tooltip and aria-label keep full precision. */ }
 														{ formatNumberCompact( value ) }

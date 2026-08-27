@@ -1,0 +1,41 @@
+.root {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md);
+	height: 100%;
+	min-height: 0;
+}
+
+/* The design puts the metric control on the title line. Only a high-relevance
+ * attribute field reaches the framed header, and this is view state rather
+ * than a saved setting, so it sits at the top of the body instead. */
+.picker {
+	flex-shrink: 0;
+	justify-content: flex-end;
+}
+
+/* Pinned to the bottom of the scroller rather than laid out after the table:
+ * every year the site has views for is a row, so the table routinely outgrows
+ * the tile, and a scale that scrolls out of view explains nothing. The
+ * background is the card's own surface — the same one the cells blend against
+ * — so rows passing under it do not show through. */
+.legend {
+	position: sticky;
+	inset-block-end: 0;
+	display: flex;
+	justify-content: center;
+	padding-block: var(--wpds-dimension-padding-xs);
+	background: var(--wpds-color-background-surface-neutral-strong);
+}
+
+/* Below the chart's cell floors the grid overflows rather than crushing its
+ * cells, and this is what takes the overflow: a decade of rows and a full
+ * year of columns will not fit a dashboard tile at a readable size.
+ *
+ * `block-size: 100%` is load-bearing. `WidgetState` puts its own full-height
+ * block between this and the flex column above, so flex sizing here would be
+ * inert and the box would grow to its content instead of scrolling it. */
+.scroller {
+	block-size: 100%;
+	overflow: auto;
+}

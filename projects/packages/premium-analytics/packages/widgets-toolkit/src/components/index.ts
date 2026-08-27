@@ -75,6 +75,11 @@ export {
 } from './calendar-heatmap';
 export { WidgetLoadingOverlay } from './widget-loading-overlay';
 export {
+	WidgetMetricSelect,
+	type WidgetMetricSelectItem,
+	type WidgetMetricSelectProps,
+} from './widget-metric-select';
+export {
 	WidgetState,
 	type WidgetStateProps,
 	type WidgetStateError,

@@ -3,6 +3,7 @@
  */
 import { formatDate, type DateFormatName } from '@jetpack-premium-analytics/formatters';
 import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent, { PointerEventsCheckLevel } from '@testing-library/user-event';
 import { setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
@@ -35,6 +36,21 @@ jest.mock( '../../chart-comparative-bar', () => ( {
 
 jest.mock( '../../../hooks', () => ( {
 	useSeriesStyles: () => [],
+} ) );
+
+// jsdom lays nothing out, so the tabs/dropdown flip never has a width to decide
+// on. Reporting one at mount is what lets the collapsed branch be reached.
+let mockMeasuredWidth: number | undefined;
+
+jest.mock( '@wordpress/compose', () => ( {
+	...jest.requireActual( '@wordpress/compose' ),
+	useResizeObserver:
+		( onResize: ( entries: { contentRect: { width: number } }[] ) => void ) =>
+		( node: HTMLElement | null ) => {
+			if ( node && mockMeasuredWidth !== undefined ) {
+				onResize( [ { contentRect: { width: mockMeasuredWidth } } ] );
+			}
+		},
 } ) );
 
 type ChartProps = {
@@ -621,5 +637,51 @@ describe( 'MetricTabsChart', () => {
 			expect( recordedProps( mockLineSpy ).onPointerDown ).toBeUndefined();
 			expect( recordedProps( mockLineSpy ).onDatumActivate ).toBeUndefined();
 		} );
+	} );
+} );
+
+describe( 'MetricTabsChart collapsed to a dropdown', () => {
+	beforeEach( () => {
+		// Below `metrics.length * MIN_TAB_WIDTH` (2 * 120), so the tabs collapse.
+		mockMeasuredWidth = 200;
+	} );
+
+	afterEach( () => {
+		mockMeasuredWidth = undefined;
+	} );
+
+	it( 'offers the metrics through a select instead of a tab list', async () => {
+		render(
+			<MetricTabsChart
+				metrics={ [ VIEWS, VISITORS ] }
+				dataFormat={ DATA_FORMAT }
+				groupLabel="Traffic metric"
+			/>
+		);
+
+		expect( screen.queryByRole( 'tablist' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'combobox', { name: 'Traffic metric' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'switches the charted metric when another is selected', async () => {
+		const onMetricChange = jest.fn();
+		// jsdom cannot lay the popup out, so its open transition never resolves
+		// and it can still carry `pointer-events: none` when the click lands.
+		const user = userEvent.setup( { pointerEventsCheck: PointerEventsCheckLevel.Never } );
+
+		render(
+			<MetricTabsChart
+				metrics={ [ VIEWS, VISITORS ] }
+				dataFormat={ DATA_FORMAT }
+				groupLabel="Traffic metric"
+				onMetricChange={ onMetricChange }
+			/>
+		);
+
+		await user.click( screen.getByRole( 'combobox', { name: 'Traffic metric' } ) );
+		await user.click( screen.getByRole( 'option', { name: /Visitors/, hidden: true } ) );
+
+		expect( onMetricChange ).toHaveBeenCalledWith( 'visitors' );
+		expect( recordedSeries( mockLineSpy )[ 0 ].group ).toBe( 'visitors' );
 	} );
 } );
