@@ -19,19 +19,3 @@
 	min-inline-size: 0;
 	margin-block-end: 0;
 }
-
-/* Matches the shared leaderboard row so these sit level with the post rows,
-   which render through `LeaderboardPostLabel`. */
-.itemLabel {
-	display: flex;
-	align-items: center;
-	min-block-size: 36px;
-	min-inline-size: 0;
-	padding-inline: var(--wpds-dimension-padding-md);
-}
-
-.itemLabelText {
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-}

@@ -762,10 +762,12 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
   add a second in-widget `<Text variant="heading-md" render={ <h3 /> }>` title for framed Stats
   widgets.
 - View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }`
-- Leaderboard rows: prefer `LeaderboardRow` / `buildLeaderboardRow` / `LeaderboardPostLabel` over
-  a hand-written label — they carry the shared row box, and a copy drifts from it. A label that
-  must be custom should match `.row` in `chart-leaderboard/leaderboard-label.module.scss`;
-  several widgets predate that and have not been migrated yet.
+- Leaderboard rows: spread `buildLeaderboardRow()` into the chart entry — it carries the
+  drill-down `onClick`/`ariaLabel` that a bare `<LeaderboardRow>` label silently drops. Use
+  `<LeaderboardRow>` directly only outside a chart, as `widgets/tags` does for its drilled-in
+  member list. A hand-written copy drifts from the shared row box. `video-detail-embeds` is the
+  one exception, a plain list rather than a leaderboard, and matches the shared row's 36px height
+  and `padding-inline` by hand — not the rest of `.row`.
 - Loading / error / empty state: render through `<WidgetState>` (see "Loading / error / empty
   state" above), not `LeaderboardChart`'s `emptyStateText` or a hand-rolled `data.length === 0`
   branch. Empty uses a neutral glyph distinct from the error icon.

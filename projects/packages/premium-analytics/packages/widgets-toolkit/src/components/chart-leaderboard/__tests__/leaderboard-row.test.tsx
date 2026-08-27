@@ -2,12 +2,13 @@
  * External dependencies
  */
 import { fireEvent, render, screen } from '@testing-library/react';
+import { category, tag } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import { LeaderboardLabel } from '../leaderboard-label';
 import { buildLeaderboardRow, resolveLeaderboardRowAction } from '../leaderboard-row';
-import type { AnchorHTMLAttributes, ReactNode } from 'react';
+import type { AnchorHTMLAttributes, ReactElement, ReactNode } from 'react';
 
 type MockRouteLinkProps = {
 	to: string;
@@ -45,6 +46,20 @@ jest.mock( '@wordpress/route', () => {
 	};
 } );
 
+function glyphPath( root: Element | null | undefined ) {
+	return root?.querySelector( 'path' )?.getAttribute( 'd' );
+}
+
+// `@wordpress/icons` exports elements, so naming a glyph means rendering that
+// icon on its own and comparing the two paths.
+function iconPath( icon: ReactElement ) {
+	const { container, unmount } = render( icon );
+	const path = glyphPath( container );
+
+	unmount();
+	return path;
+}
+
 describe( 'LeaderboardLabel', () => {
 	it( 'renders media and text without adding row actions', () => {
 		render(
@@ -65,6 +80,21 @@ describe( 'LeaderboardLabel', () => {
 
 		expect( screen.getByText( 'Desktop' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'img' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the glyph it was handed, hidden from assistive technology', () => {
+		const { container } = render(
+			<LeaderboardLabel label="Recipes" media={ { kind: 'icon', icon: category } } />
+		);
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the glyph is aria-hidden by design, so the DOM is the only place to reach it.
+		const glyph = container.querySelector( 'svg' );
+
+		expect( screen.getByText( 'Recipes' ) ).toBeInTheDocument();
+		expect( glyph ).toHaveAttribute( 'aria-hidden', 'true' );
+		// Naming the glyph rather than just counting one: an icon kind exists so a
+		// widget can pick between glyphs, so the wrong one has to fail here.
+		expect( glyphPath( glyph ) ).toBe( iconPath( category ) );
+		expect( glyphPath( glyph ) ).not.toBe( iconPath( tag ) );
 	} );
 } );
 
