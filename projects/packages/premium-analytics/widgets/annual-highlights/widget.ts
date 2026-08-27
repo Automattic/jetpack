@@ -11,7 +11,9 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 import { ArrayCheckboxField } from '@jetpack-premium-analytics/fields';
 
 /**
- * Metric tiles the Annual highlights widget can show.
+ * Metric tiles the Annual highlights widget can show. The widget type keeps
+ * the `annual-highlights` name (saved layouts reference it); its display
+ * title in widget.json is "Year in review".
  */
 export type AnnualHighlightMetric = 'posts' | 'words' | 'likes' | 'comments';
 

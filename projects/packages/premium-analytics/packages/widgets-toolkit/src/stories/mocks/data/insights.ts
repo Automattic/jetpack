@@ -5,7 +5,7 @@
  * review widget (so its year dropdown has a second entry to switch to). The
  * endpoint reports across the whole site lifetime and has no comparison period.
  */
-// Relative to today so the Annual highlights widget, which defaults to the
+// Relative to today so the Year in review widget, which defaults to the
 // current year, keeps rendering data after New Year.
 const CURRENT_YEAR = new Date().getFullYear();
 
