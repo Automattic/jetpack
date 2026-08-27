@@ -39,7 +39,7 @@ jest.mock( '@wordpress/route', () => ( {
 import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { queryClient } from '../src/dashboard/data/query-client';
-import { useAnalytics } from '../src/dashboard/hooks/use-analytics';
+import { resetAnalyticsForTesting, useAnalytics } from '../src/dashboard/hooks/use-analytics';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
 
 /**
@@ -87,6 +87,7 @@ beforeEach( () => {
 	mockApiFetch.mockReset();
 	mockApiFetch.mockResolvedValue( null );
 	queryClient.clear();
+	resetAnalyticsForTesting();
 	window.JP_CONNECTION_INITIAL_STATE = {
 		...ORIGINAL_STATE,
 		connectionStatus: CONNECTED,
@@ -104,6 +105,18 @@ describe( 'useAnalytics', () => {
 		await waitFor( () => expect( mockInitialize ).toHaveBeenCalledWith( 99999, 'bobsacramento' ) );
 	} );
 
+	it( 'identifies the reader once per page load, not once per consumer', async () => {
+		// `OverviewScreen` and its descendant `BackupNowButton` both call
+		// this hook, so an unlatched effect would push a duplicate
+		// `identifyUser` onto `_tkq` for every consumer — twice per mount,
+		// four times under StrictMode.
+		renderHook( () => useAnalytics() );
+		renderHook( () => useAnalytics() );
+
+		await waitFor( () => expect( mockInitialize ).toHaveBeenCalled() );
+		expect( mockInitialize ).toHaveBeenCalledTimes( 1 );
+	} );
+
 	it( 'does not identify anyone when the site has no connected WordPress.com user', async () => {
 		// Recording still has to work — the events just carry no identity,
 		// which is what legacy does and why the page view fires on an
@@ -112,7 +125,7 @@ describe( 'useAnalytics', () => {
 
 		renderHook( () => useAnalytics() );
 
-		await waitFor( () => expect( mockInitialize ).not.toHaveBeenCalled() );
+		expect( mockInitialize ).not.toHaveBeenCalled();
 	} );
 
 	it( 'refuses the lowercase id rather than reporting a phantom reader', async () => {
@@ -124,23 +137,31 @@ describe( 'useAnalytics', () => {
 
 		renderHook( () => useAnalytics() );
 
-		await waitFor( () => expect( mockInitialize ).not.toHaveBeenCalled() );
+		expect( mockInitialize ).not.toHaveBeenCalled();
 	} );
 } );
 
 describe( 'Overview page view', () => {
 	/**
 	 * Render the Overview screen inside the dashboard's query client.
+	 *
+	 * @return The Testing Library render result, whose `unmount` stands in
+	 * for a client-side transition away from this route.
 	 */
 	async function renderOverview() {
-		const OverviewScreen = ( await import( '../src/dashboard/screens/overview' ) ).default;
+		const mod = await import( '../src/dashboard/screens/overview' );
+		const OverviewScreen = mod.default;
 
-		render(
+		return render(
 			<QueryClientProvider>
 				<OverviewScreen />
 			</QueryClientProvider>
 		);
 	}
+
+	beforeEach( async () => {
+		( await import( '../src/dashboard/screens/overview' ) ).resetPageViewForTesting();
+	} );
 
 	it( 'records one page view per visit', async () => {
 		await renderOverview();
@@ -148,6 +169,26 @@ describe( 'Overview page view', () => {
 		await waitFor( () =>
 			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_backup_admin_page_view' )
 		);
+		expect(
+			mockRecordEvent.mock.calls.filter( c => c[ 0 ] === 'jetpack_backup_admin_page_view' )
+		).toHaveLength( 1 );
+	} );
+
+	it( 'records once across a client-side round trip to another route', async () => {
+		// The three routes share one admin page — each `package.json`
+		// declares `"page": "jetpack-backup-dashboard"` — so Overview →
+		// Download → back is a client-side transition that unmounts and
+		// remounts this screen. A per-component latch resets with it and
+		// records a second view for the same visit, which is exactly the
+		// over-counting the Overview-only decision exists to prevent.
+		const { unmount } = await renderOverview();
+		await waitFor( () =>
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_backup_admin_page_view' )
+		);
+
+		unmount();
+		await renderOverview();
+
 		expect(
 			mockRecordEvent.mock.calls.filter( c => c[ 0 ] === 'jetpack_backup_admin_page_view' )
 		).toHaveLength( 1 );
@@ -191,10 +232,16 @@ describe( 'Back up now', () => {
 			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_backup_plugin_backup_now' )
 		);
 
+		// Asserting both happened is not enough — it passes just as well
+		// when the event is recorded on a successful enqueue, because the
+		// mocked enqueue resolves. Only the ordering distinguishes them.
 		const enqueueCall = mockApiFetch.mock.calls.findIndex( ( [ opts ] ) =>
 			String( opts?.path ?? '' ).includes( '/site/backup/enqueue' )
 		);
 		expect( enqueueCall ).toBeGreaterThanOrEqual( 0 );
+		expect( mockRecordEvent.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+			mockApiFetch.mock.invocationCallOrder[ enqueueCall ]
+		);
 	} );
 
 	it( 'records nothing until the reader actually clicks', async () => {

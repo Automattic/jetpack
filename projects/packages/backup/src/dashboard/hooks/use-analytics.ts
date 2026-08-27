@@ -1,18 +1,21 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { useEffect } from 'react';
+import { useEffect } from '@wordpress/element';
 
 /**
  * The two fields `jetpackAnalytics.initialize()` needs, which the
  * ambient type for `wpcomUser` does not declare.
  *
- * `@automattic/jetpack-connection`'s `types.ts` types that object as
- * `{ avatar, display_name, email }`. The runtime object has twelve keys
- * — verified against a connected site, where it carries `ID`, `login`,
- * `email`, `display_name`, `text_direction`, `site_count`,
- * `jetpack_connect`, `color_scheme`, `sidebar_collapsed`, `user_locale`,
- * `user_currency` and `avatar`. So the declaration is incomplete rather
- * than wrong, and the two fields read here are the ones the legacy
- * dashboard has always used.
+ * `@automattic/jetpack-connection`'s ambient `ConnectionScriptData` —
+ * the one `declarations.d.ts` wires to `window.JP_CONNECTION_INITIAL_STATE`
+ * — types that object as `{ avatar, display_name, email }`. The runtime
+ * object has twelve keys, verified against a connected site, including
+ * `ID` and `login`.
+ *
+ * The same package already declares the correct shape as `WpcomUser` in
+ * `components/use-connection/types.ts`, so the real fix is to point the
+ * ambient declaration at it. That belongs in `js-packages/connection`
+ * with its own changelog entry, and it would delete this type and the
+ * cast below along with every other reader's copy of them.
  *
  * Note the capitalisation: WordPress.com's `/me` returns `ID`, not `Id`.
  * Getting it wrong is silent — `initialize()` would be skipped and every
@@ -23,6 +26,29 @@ type WpcomUserIdentity = {
 	ID?: number;
 	login?: string;
 };
+
+/**
+ * Whether the reader has already been identified on this page load.
+ *
+ * Module scope rather than a ref, because "once" means once per page
+ * load and this hook has several consumers: `OverviewScreen` and its
+ * descendant `BackupNowButton` both call it, so a per-component guard
+ * would identify twice per mount and four times under StrictMode,
+ * pushing a duplicate `identifyUser` onto `_tkq` each time. Matches
+ * `packages/podcast/src/dashboard/analytics.ts`.
+ */
+let hasIdentified = false;
+
+/**
+ * Reset the identify latch. Test-only.
+ *
+ * Module state outlives a `render()`/`unmount()` cycle by design, which
+ * is the whole point of the latch — but it also means one test's first
+ * render would otherwise silence every later one in the same file.
+ */
+export function resetAnalyticsForTesting(): void {
+	hasIdentified = false;
+}
 
 /**
  * The Tracks client for the modernized dashboard.
@@ -43,7 +69,7 @@ type WpcomUserIdentity = {
  * `JP_CONNECTION_INITIAL_STATE` global `useConnection()` uses, so this
  * costs no request where legacy costs one.
  *
- * Initialization is skipped when the site has no connected WordPress.com
+ * Identification is skipped when the site has no connected WordPress.com
  * user. Recording still works — the events simply carry no identity —
  * which is the legacy behaviour and the reason the page view fires on
  * an unconnected site too.
@@ -64,10 +90,11 @@ export function useAnalytics() {
 	const login = wpcomUser?.login;
 
 	useEffect( () => {
-		if ( ! userId || ! login ) {
+		if ( hasIdentified || ! userId || ! login ) {
 			return;
 		}
 
+		hasIdentified = true;
 		jetpackAnalytics.initialize( userId, login );
 	}, [ userId, login ] );
 

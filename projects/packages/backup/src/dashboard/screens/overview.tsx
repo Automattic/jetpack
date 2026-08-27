@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Text } from '@wordpress/ui';
@@ -42,6 +42,24 @@ const INITIAL_VIEW: View = {
 };
 
 /**
+ * Whether this page load has already recorded its view.
+ *
+ * See the effect below for why this is module state rather than a ref.
+ */
+let hasRecordedPageView = false;
+
+/**
+ * Reset the page-view latch. Test-only.
+ *
+ * The latch is module state precisely so it outlives an unmount, which
+ * also means one test's render would otherwise silence every later one
+ * in the same file.
+ */
+export function resetPageViewForTesting(): void {
+	hasRecordedPageView = false;
+}
+
+/**
  * Overview screen for the modernized Backup dashboard.
  *
  * Renders the shared `<DashboardLayout>` chrome around a two-pane body: the
@@ -58,25 +76,27 @@ export default function OverviewScreen() {
 	// in the order the hooks were called, and an event recorded before
 	// `initialize()` carries no identity.
 	const { tracks } = useAnalytics();
-	// Overview only, deliberately. The legacy dashboard is one page whose
-	// Download and Restore views are client-side, so it fires this once
-	// per visit. Here each route is its own wp-build page, so firing it
-	// from all three would report three views for one reader moving
-	// between them — a step change at flag-flip that reads as growth and
-	// is not. Landing straight on Download or Restore therefore goes
-	// uncounted, which is the accepted cost of keeping the metric
-	// comparable across the flip.
-	const hasRecordedPageView = useRef( false );
+	// Overview only, deliberately. All three routes declare
+	// `"page": "jetpack-backup-dashboard"` in their `package.json`, so
+	// this is one admin page whose Download and Restore views are
+	// client-side transitions through `@wordpress/route` — the same shape
+	// as legacy, which records one view per visit. Recording from all
+	// three routes would report three views for one reader moving between
+	// them, a step change at flag-flip that reads as growth and is not.
+	// Landing straight on Download or Restore therefore goes uncounted,
+	// which is the accepted cost of keeping the metric comparable.
 	useEffect( () => {
-		// A ref rather than a bare `[]`, which is what legacy uses. React
-		// StrictMode invokes effects twice, and nothing here controls
-		// whether wp-build's boot enables it — so the bare form would
-		// double-count on a whim of the host.
-		if ( hasRecordedPageView.current ) {
+		// The latch is module scope, not a ref. A client-side transition
+		// to Download and back unmounts and remounts this screen, and a
+		// per-instance guard resets with it — so a ref would record a
+		// second view for the same visit, which is the over-counting this
+		// whole decision exists to avoid. Module scope also subsumes the
+		// StrictMode double-invocation a ref was reaching for.
+		if ( hasRecordedPageView ) {
 			return;
 		}
 
-		hasRecordedPageView.current = true;
+		hasRecordedPageView = true;
 		tracks.recordEvent( 'jetpack_backup_admin_page_view' );
 	}, [ tracks ] );
 
