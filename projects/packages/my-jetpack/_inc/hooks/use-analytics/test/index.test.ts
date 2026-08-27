@@ -7,14 +7,17 @@
  * sent; the PHP Tracks path reads that same array as `$wpcom_user_data['ID']`
  * (`packages/connection/src/class-tracking.php`).
  *
- * Nothing else guards the spelling. The `WpcomUser` this hook reads through —
- * the one in `js-packages/connection/components/use-connection/types.ts`, not
- * the closed ambient type of the same name in that package's `types.ts` —
- * carries an index signature, so a misspelled key still typechecks. And
- * `jetpackAnalytics.initialize()` is simply skipped when the id is falsy, after
- * which every `recordEvent` reports nothing, with no error, no warning and no
- * failed build. In Tracks that is indistinguishable from a screen nobody
- * opened.
+ * The failure is silent by construction: `jetpackAnalytics.initialize()` is
+ * simply skipped when the id is falsy, after which every `recordEvent` reports
+ * nothing — no error, no warning, no failed build. In Tracks that is
+ * indistinguishable from a screen nobody opened.
+ *
+ * A type cannot close this on its own, whatever the declaration happens to
+ * allow. What reaches `initialize()` is server-provided JSON crossing an
+ * untyped `@wordpress/data` store, so the value is only ever checked at
+ * runtime; and even a declaration that rejects `Id` outright says nothing about
+ * whether this hook passes the id on or drops it. These tests assert what
+ * `initialize()` actually receives, which is the part no declaration reaches.
  *
  * So both directions of the spelling are pinned here: the first test fails if
  * the shared fixture stops carrying the key WordPress.com actually sends, the
