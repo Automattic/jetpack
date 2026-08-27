@@ -188,10 +188,14 @@ module.exports = [
 			} ),
 			...jetpackWebpackConfig.DependencyExtractionPlugin( {
 				requestMap: {
-					// WordPress registers no `wp-global-styles-engine` script handle at
-					// Jetpack's minimum (WP 7.0), so externalizing it would put an
-					// unregistered handle in the asset file and WordPress would refuse
-					// to enqueue the script at all, silently. Bundle it instead.
+					// `@wordpress/global-styles-engine` ships no `wpScript: true`, so it is
+					// not a WordPress script handle in any version — there is no
+					// `wp-global-styles-engine` to externalize to, and nothing to polyfill.
+					// It belongs in the dependency-extraction plugin's `BUNDLED_PACKAGES`
+					// list alongside `@wordpress/icons` and `@wordpress/admin-ui`, but it
+					// has not been added there as of 6.54.0, so the plugin's fallback
+					// externalizes it purely because the name is under `@wordpress/`.
+					// Opt it out here until upstream lists it.
 					'@wordpress/global-styles-engine': { external: false },
 				},
 			} ),
