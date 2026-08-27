@@ -1,107 +1,77 @@
 /**
- * Remembers which columns a user chose on the responses table.
+ * Remembers which answer columns a form has already offered the user.
  *
- * DataViews reports a column being shown, hidden or moved, but has nowhere to keep that:
- * the view is component state, so a refresh puts every column back where it started and
- * silently discards the choice.
+ * `useView` persists the view itself, `fields` included, so which columns are shown is no
+ * longer this file's business. What it cannot record is which columns were *on offer*
+ * when the user made that choice, and without that a hidden column comes straight back:
+ * the columns hook adds any answer column it has not seen before, and after a reload it
+ * has seen none of them. Recording what was on offer lets it tell a column the user hid
+ * from a field genuinely added to the form since.
  *
- * The choice is stored per form. Answer columns are the form's own fields, so they mean
- * nothing on another form, and one shared list would either strand a form's columns on
- * its neighbour or fight the per-form reset the columns hook already does.
+ * The record is kept per form. Answer columns are the form's own fields, so they mean
+ * nothing on another form.
  *
- * `localStorage` rather than user meta: this is a per-browser convenience, and the
- * dashboard has no preferences store to hang it on. Every access is wrapped, because
- * reading it is not merely unreliable but throwing — a private window, a browser set to
- * block site data, or a full quota all raise rather than return empty. A forgotten column
- * layout must never take the dashboard down with it.
+ * It lives in the `@wordpress/preferences` store, next to the view it belongs to, so both
+ * are written through the one persistence layer and cannot end up in different places.
  */
+import { select, dispatch } from '@wordpress/data';
+import { store as preferencesStore } from '@wordpress/preferences';
 
-/** Namespaced so the key cannot collide with anything else on the admin origin. */
-const STORAGE_PREFIX = 'jetpack-forms/response-columns/';
+/** Namespaced so the key cannot collide with another feature's preferences. */
+const PREFERENCES_SCOPE = 'jetpack/forms';
 
 /*
- * Shape of the stored payload. A stored choice replaces the default columns wholesale, so
- * a later change to what those defaults are — a new built-in column, say — would never
- * reach anyone holding an older choice. Bumping this discards them and starts over, which
- * costs the user one re-hidden column and is the only way to make such a change land.
+ * Shape of the stored payload. Bumping this discards what is stored and starts over,
+ * which costs the user one re-shown column — the only way a change to the shape can land
+ * without stranding anyone holding an older record.
  */
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 
-export type ResponseColumnPreference = {
-	/** The view's `fields`: which columns are shown, in the order the user put them. */
-	fields: string[];
-	/**
-	 * Every answer column that existed when the choice was saved.
-	 *
-	 * Without this, a hidden column would come straight back: the columns hook adds any
-	 * answer column it has not seen before, and after a refresh it has seen none of them.
-	 * Recording what was on offer at the time lets it tell a column the user hid from a
-	 * field that has genuinely been added to the form since.
-	 */
+type StoredKnownAnswerIds = {
+	v: number;
 	knownAnswerIds: string[];
 };
 
 /**
- * The storage key for a form's column choice.
+ * The preference key for a form's record.
  *
  * @param formId - The form on screen, or null on the view spanning every form.
- * @return         The storage key.
+ * @return         The preference key.
  */
 export const getColumnPreferenceKey = ( formId: number | null ): string =>
-	`${ STORAGE_PREFIX }${ formId ?? 'all' }`;
+	`response-columns/${ formId ?? 'all' }`;
 
 /**
- * Reads a form's stored column choice.
+ * Reads the answer columns a form had already offered when its view was last changed.
  *
- * Anything unreadable, malformed or of the wrong shape is treated as no choice at all, so
- * a stale or hand-edited entry falls back to the defaults rather than rendering a broken
- * table.
+ * Anything malformed or of an older shape is treated as no record at all, so a stale
+ * entry re-offers every column rather than wedging the table.
  *
  * @param formId - The form on screen, or null on the view spanning every form.
- * @return         The stored choice, or null when there is none to restore.
+ * @return         The columns already offered, or null when there is no record.
  */
-export const readColumnPreference = ( formId: number | null ): ResponseColumnPreference | null => {
-	try {
-		const raw = window.localStorage.getItem( getColumnPreferenceKey( formId ) );
+export const readKnownAnswerIds = ( formId: number | null ): string[] | null => {
+	const stored = select( preferencesStore ).get(
+		PREFERENCES_SCOPE,
+		getColumnPreferenceKey( formId )
+	) as StoredKnownAnswerIds | undefined;
 
-		if ( ! raw ) {
-			return null;
-		}
-
-		const parsed = JSON.parse( raw );
-
-		if ( ! parsed || ! Array.isArray( parsed.fields ) || parsed.v !== SCHEMA_VERSION ) {
-			return null;
-		}
-
-		const fields = parsed.fields.filter( ( id: unknown ) => typeof id === 'string' );
-		const knownAnswerIds = Array.isArray( parsed.knownAnswerIds )
-			? parsed.knownAnswerIds.filter( ( id: unknown ) => typeof id === 'string' )
-			: [];
-
-		return { fields, knownAnswerIds };
-	} catch {
+	if ( ! stored || stored.v !== SCHEMA_VERSION || ! Array.isArray( stored.knownAnswerIds ) ) {
 		return null;
 	}
+
+	return stored.knownAnswerIds.filter( ( id: unknown ) => typeof id === 'string' );
 };
 
 /**
- * Stores a form's column choice.
+ * Records the answer columns a form has offered.
  *
- * @param formId     - The form on screen, or null on the view spanning every form.
- * @param preference - The choice to store.
+ * @param formId         - The form on screen, or null on the view spanning every form.
+ * @param knownAnswerIds - Every answer column on offer at the time.
  */
-export const writeColumnPreference = (
-	formId: number | null,
-	preference: ResponseColumnPreference
-): void => {
-	try {
-		window.localStorage.setItem(
-			getColumnPreferenceKey( formId ),
-			JSON.stringify( { ...preference, v: SCHEMA_VERSION } )
-		);
-	} catch {
-		// A choice of columns is not worth an error path. If it cannot be stored the
-		// table still works; it simply starts from the defaults next time.
-	}
+export const writeKnownAnswerIds = ( formId: number | null, knownAnswerIds: string[] ): void => {
+	dispatch( preferencesStore ).set( PREFERENCES_SCOPE, getColumnPreferenceKey( formId ), {
+		v: SCHEMA_VERSION,
+		knownAnswerIds,
+	} );
 };
