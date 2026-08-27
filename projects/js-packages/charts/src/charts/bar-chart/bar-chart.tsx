@@ -587,7 +587,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 							onBlur={ onChartBlur }
 						>
 							{ chartHeight > 0 && (
-								<div ref={ chartRef }>
+								<div ref={ chartRef } style={ { position: 'relative' } }>
 									<XYChart
 										theme={ theme }
 										width={ width }

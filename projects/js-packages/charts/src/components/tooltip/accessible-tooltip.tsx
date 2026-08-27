@@ -1,10 +1,11 @@
-import { Tooltip, TooltipContext } from '@visx/xychart';
+import { TooltipContext } from '@visx/xychart';
 import clsx from 'clsx';
 import { useContext, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useGlobalChartsTheme } from '../../providers';
 import { useChartScopeElement } from '../../providers/chart-scope';
 import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
 import { resolveCssVariable } from '../../utils';
+import { XyChartTooltip } from './xy-chart-tooltip';
 import type { SeriesData, DataPointDate } from '../../types';
 import type { RenderTooltipParams, XyChartTooltipProps } from '../../visx/types';
 import type { ReactNode } from 'react';
@@ -174,7 +175,7 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 	}, [ renderTooltip, selectedIndex, tooltipRef, keyboardFocusedClassName ] );
 
 	return (
-		<Tooltip
+		<XyChartTooltip
 			{ ...props }
 			verticalCrosshairStyle={ { ...crosshairStroke, ...verticalCrosshairStyle } }
 			horizontalCrosshairStyle={ { ...crosshairStroke, ...horizontalCrosshairStyle } }
@@ -279,6 +280,3 @@ export const useKeyboardNavigation = ( {
 		onChartKeyDown,
 	};
 };
-
-// Re-export the base Tooltip for backwards compatibility
-export { Tooltip };

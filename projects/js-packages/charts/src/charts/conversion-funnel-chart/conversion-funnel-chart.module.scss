@@ -1,4 +1,6 @@
 .conversion-funnel-chart {
+	// Positions the tooltip, which is a child of this box.
+	position: relative;
 
 	&--loading {
 		opacity: 0.6;

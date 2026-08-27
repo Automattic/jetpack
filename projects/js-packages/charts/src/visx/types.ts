@@ -1,5 +1,5 @@
 import type { PickD3Scale } from '@visx/scale';
-import type { TooltipProps as VisxTooltipProps, UseTooltipPortalOptions } from '@visx/tooltip';
+import type { TooltipProps as VisxTooltipProps } from '@visx/tooltip';
 import type { GlyphProps, TooltipContextType } from '@visx/xychart';
 import type { ReactNode, SVGProps } from 'react';
 
@@ -24,8 +24,11 @@ export type XyChartTooltipProps< Datum extends object > = {
 	verticalCrosshairStyle?: SVGProps< SVGLineElement >;
 	horizontalCrosshairStyle?: SVGProps< SVGLineElement >;
 	glyphStyle?: SVGProps< SVGCircleElement >;
-	resizeObserverPolyfill?: UseTooltipPortalOptions[ 'polyfill' ];
-} & Omit< VisxTooltipProps, 'left' | 'top' | 'children' > &
-	Pick< UseTooltipPortalOptions, 'debounce' | 'detectBounds' | 'scroll' | 'zIndex' >;
+	/**
+	 * Flip the tooltip box so it stays inside the chart wrapper.
+	 * @default true
+	 */
+	detectBounds?: boolean;
+} & Omit< VisxTooltipProps, 'left' | 'top' | 'children' >;
 
 export type { LineStyles, GridStyles } from '@visx/xychart';

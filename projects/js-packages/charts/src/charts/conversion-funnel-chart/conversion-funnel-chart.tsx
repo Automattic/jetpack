@@ -1,4 +1,4 @@
-import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
+import { TooltipWithBounds, useTooltip } from '@visx/tooltip';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { type FC, useRef, useMemo, useEffect, useState, useCallback, useContext } from 'react';
@@ -66,27 +66,8 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	// Use custom hook for selection management
 	const { handleBarClick, handleBarKeyDown, clearSelection, getStepState } =
 		useFunnelSelection( hideTooltip );
-	const {
-		containerRef: portalContainerRef,
-		TooltipInPortal,
-		containerBounds,
-	} = useTooltipInPortal( {
-		// use TooltipWithBounds for boundary detection
-		detectBounds: true,
-		// when tooltip containers are scrolled, this will correctly update the Tooltip position
-		scroll: true,
-	} );
-
-	// `useTooltipInPortal` returns a fresh `containerRef` closure on every render, so depending on it directly would give this callback a new identity every render — React then detaches and reattaches the ref on every commit, flushing the scope context to null and back. Reading it through a ref keeps the callback's identity genuinely stable.
-	const portalContainerRefRef = useRef( portalContainerRef );
-	useEffect( () => {
-		portalContainerRefRef.current = portalContainerRef;
-	}, [ portalContainerRef ] );
-
-	// Stable identity so React doesn't detach/reattach (and re-render the scope context) on every commit. Keep all three assignments, in the same order, and keep it firing on unmount (node === null).
+	// Stable identity so React doesn't detach/reattach (and re-render the scope context) on every commit. Keep both assignments, in the same order, and keep it firing on unmount (node === null).
 	const setChartRef = useCallback( ( node: HTMLDivElement | null ) => {
-		// Set containerRef for @visx coordinate system
-		portalContainerRefRef.current( node );
 		chartRef.current = node;
 		setScopeNode( node );
 	}, [] );
@@ -110,43 +91,32 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 		[ showTooltip ]
 	);
 
-	// Helper function to get tooltip coordinates for mouse events
-	// Use clientX/Y and subtract containerBounds to cancel out any stale offset.
-	// TooltipInPortal calculates: tooltipLeft + containerBounds.left + scrollX
-	// By passing (clientX - containerBounds.left), we get correct page coordinates
-	// regardless of whether bounds are stale (e.g., after dashboard customization).
-	const getMouseTooltipCoords = useCallback(
-		( event: React.MouseEvent ) => {
-			// Don't return coords until container bounds are measured
-			if ( containerBounds.width === 0 || containerBounds.height === 0 ) {
-				return null;
-			}
+	// The chart root positions the tooltip, so coordinates are taken relative to it.
+	const getMouseTooltipCoords = useCallback( ( event: React.MouseEvent ) => {
+		const bounds = chartRef.current?.getBoundingClientRect();
+		if ( ! bounds ) {
+			return null;
+		}
 
-			return {
-				x: event.clientX - containerBounds.left,
-				y: event.clientY - containerBounds.top,
-			};
-		},
-		[ containerBounds.width, containerBounds.height, containerBounds.left, containerBounds.top ]
-	);
+		return {
+			x: event.clientX - bounds.left,
+			y: event.clientY - bounds.top,
+		};
+	}, [] );
 
-	// Helper function to get tooltip coordinates for keyboard events
-	// Use fresh getBoundingClientRect() and subtract containerBounds to cancel out stale offset.
-	const getKeyboardTooltipCoords = useCallback(
-		( event: React.KeyboardEvent ) => {
-			// Don't return coords until container bounds are measured
-			if ( containerBounds.width === 0 || containerBounds.height === 0 ) {
-				return null;
-			}
+	// Keyboard interaction anchors the tooltip at the top centre of the focused step.
+	const getKeyboardTooltipCoords = useCallback( ( event: React.KeyboardEvent ) => {
+		const bounds = chartRef.current?.getBoundingClientRect();
+		if ( ! bounds ) {
+			return null;
+		}
 
-			const rect = event.currentTarget.getBoundingClientRect();
-			// Calculate center of element in viewport coordinates, then subtract containerBounds
-			const x = rect.left + rect.width / 2 - containerBounds.left;
-			const y = rect.top - containerBounds.top;
-			return { x, y };
-		},
-		[ containerBounds.width, containerBounds.height, containerBounds.left, containerBounds.top ]
-	);
+		const rect = event.currentTarget.getBoundingClientRect();
+		return {
+			x: rect.left + rect.width / 2 - bounds.left,
+			y: rect.top - bounds.top,
+		};
+	}, [] );
 
 	// Helper function to handle step interaction (both click and keyboard)
 	const handleStepInteraction = useCallback(
@@ -339,112 +309,104 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	const maxRate = Math.max( ...steps.map( step => step.rate ) );
 
 	return (
-		<>
-			<Stack
-				direction="column"
-				gap="xl"
-				data-testid="conversion-funnel-chart"
-				ref={ setChartRef }
-				className={ clsx(
-					styles[ 'conversion-funnel-chart' ],
-					loading && styles[ 'conversion-funnel-chart--loading' ],
-					className
-				) }
-				style={ { ...style, height: resolvedHeight } }
-			>
-				<ChartScopeContext.Provider value={ scopeNode }>
-					{ /* Main Metric */ }
-					{ renderMainMetric ? (
-						renderMainMetric( {
-							mainRate,
-							changeIndicator,
-							className: styles[ 'main-metric' ],
-							changeColor,
-						} )
-					) : (
-						<Stack direction="row" align="baseline" gap="sm" className={ styles[ 'main-metric' ] }>
-							{ renderDefaultMainMetric() }
-						</Stack>
-					) }
-
-					{ /* Funnel Steps */ }
-					<Stack
-						direction="row"
-						align="flex-end"
-						gap="lg"
-						className={ styles[ 'funnel-container' ] }
-					>
-						{ steps.map( ( step, index ) => {
-							const barHeight = ( step.rate / maxRate ) * 100;
-							const { isBlurred } = getStepState( step.id );
-
-							return (
-								<Stack
-									key={ step.id }
-									direction="column"
-									data-testid="funnel-step"
-									className={ clsx(
-										styles[ 'funnel-step' ],
-										isColorPaletteResolved && styles[ 'funnel-step--animated' ],
-										isBlurred && styles[ 'funnel-step--blurred' ]
-									) }
-									gap="xl"
-								>
-									{ /* Step Label and Rate */ }
-									<Stack direction="column" gap="xs">
-										{ renderStepLabel ? (
-											renderStepLabel( {
-												step,
-												index,
-												className: styles[ 'step-label' ],
-											} )
-										) : (
-											<span className={ styles[ 'step-label' ] }>{ step.label }</span>
-										) }
-										{ renderStepRate ? (
-											renderStepRate( {
-												step,
-												index,
-												className: styles[ 'step-rate' ],
-											} )
-										) : (
-											<span className={ styles[ 'step-rate' ] }>
-												{ formatPercentage( step.rate ) }
-											</span>
-										) }
-									</Stack>
-
-									{ /* Funnel Bar */ }
-									<Stack
-										direction="column"
-										justify="flex-end"
-										className={ styles[ 'bar-container' ] }
-										onClick={ stepHandlers.get( step.id )?.onClick }
-										onKeyDown={ stepHandlers.get( step.id )?.onKeyDown }
-										role="button"
-										tabIndex={ isBlurred ? -1 : 0 }
-										aria-label={ step.label }
-										style={ { backgroundColor: barBackgroundColor } }
-									>
-										<div
-											className={ clsx( styles[ 'funnel-bar' ], {
-												[ styles[ 'funnel-bar--animated' ] ]:
-													animation && ! loading && ! prefersReducedMotion,
-											} ) }
-											style={ {
-												height: `${ barHeight }%`,
-												backgroundColor: barColor,
-											} }
-										/>
-									</Stack>
-								</Stack>
-							);
-						} ) }
+		<Stack
+			direction="column"
+			gap="xl"
+			data-testid="conversion-funnel-chart"
+			ref={ setChartRef }
+			className={ clsx(
+				styles[ 'conversion-funnel-chart' ],
+				loading && styles[ 'conversion-funnel-chart--loading' ],
+				className
+			) }
+			style={ { ...style, height: resolvedHeight } }
+		>
+			<ChartScopeContext.Provider value={ scopeNode }>
+				{ /* Main Metric */ }
+				{ renderMainMetric ? (
+					renderMainMetric( {
+						mainRate,
+						changeIndicator,
+						className: styles[ 'main-metric' ],
+						changeColor,
+					} )
+				) : (
+					<Stack direction="row" align="baseline" gap="sm" className={ styles[ 'main-metric' ] }>
+						{ renderDefaultMainMetric() }
 					</Stack>
-				</ChartScopeContext.Provider>
-			</Stack>
+				) }
 
-			{ /* Tooltip Portal */ }
+				{ /* Funnel Steps */ }
+				<Stack direction="row" align="flex-end" gap="lg" className={ styles[ 'funnel-container' ] }>
+					{ steps.map( ( step, index ) => {
+						const barHeight = ( step.rate / maxRate ) * 100;
+						const { isBlurred } = getStepState( step.id );
+
+						return (
+							<Stack
+								key={ step.id }
+								direction="column"
+								data-testid="funnel-step"
+								className={ clsx(
+									styles[ 'funnel-step' ],
+									isColorPaletteResolved && styles[ 'funnel-step--animated' ],
+									isBlurred && styles[ 'funnel-step--blurred' ]
+								) }
+								gap="xl"
+							>
+								{ /* Step Label and Rate */ }
+								<Stack direction="column" gap="xs">
+									{ renderStepLabel ? (
+										renderStepLabel( {
+											step,
+											index,
+											className: styles[ 'step-label' ],
+										} )
+									) : (
+										<span className={ styles[ 'step-label' ] }>{ step.label }</span>
+									) }
+									{ renderStepRate ? (
+										renderStepRate( {
+											step,
+											index,
+											className: styles[ 'step-rate' ],
+										} )
+									) : (
+										<span className={ styles[ 'step-rate' ] }>
+											{ formatPercentage( step.rate ) }
+										</span>
+									) }
+								</Stack>
+
+								{ /* Funnel Bar */ }
+								<Stack
+									direction="column"
+									justify="flex-end"
+									className={ styles[ 'bar-container' ] }
+									onClick={ stepHandlers.get( step.id )?.onClick }
+									onKeyDown={ stepHandlers.get( step.id )?.onKeyDown }
+									role="button"
+									tabIndex={ isBlurred ? -1 : 0 }
+									aria-label={ step.label }
+									style={ { backgroundColor: barBackgroundColor } }
+								>
+									<div
+										className={ clsx( styles[ 'funnel-bar' ], {
+											[ styles[ 'funnel-bar--animated' ] ]:
+												animation && ! loading && ! prefersReducedMotion,
+										} ) }
+										style={ {
+											height: `${ barHeight }%`,
+											backgroundColor: barColor,
+										} }
+									/>
+								</Stack>
+							</Stack>
+						);
+					} ) }
+				</Stack>
+			</ChartScopeContext.Provider>
+
 			{ tooltipOpen &&
 				tooltipData &&
 				( () => {
@@ -462,18 +424,16 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 					if ( ! tooltipContent ) return null;
 
 					return (
-						<TooltipInPortal
-							// set this to random so it correctly updates with parent bounds
-							key={ Math.random() }
+						<TooltipWithBounds
 							top={ tooltipTop }
 							left={ tooltipLeft }
 							className={ clsx( CHART_SCOPE_CLASS, styles[ 'tooltip-wrapper' ] ) }
 						>
 							{ tooltipContent }
-						</TooltipInPortal>
+						</TooltipWithBounds>
 					);
 				} )() }
-		</>
+		</Stack>
 	);
 };
 

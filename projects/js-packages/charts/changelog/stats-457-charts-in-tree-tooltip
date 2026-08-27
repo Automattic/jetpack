@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Render chart tooltips inside the chart instead of a document.body portal, so they stack correctly under sticky and fixed page elements.
