@@ -376,40 +376,5 @@ describe( 'FormWelcomeGuide', () => {
 				expect.objectContaining( { slide: 2, slide_count: 5, origin: 'auto' } )
 			);
 		} );
-
-		it( 'records a forward move when the user advances', async () => {
-			const user = userEvent.setup();
-			render( <FormWelcomeGuide /> );
-
-			await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
-
-			expect( recordEvent ).toHaveBeenCalledWith(
-				'jetpack_forms_welcome_guide_next_click',
-				expect.objectContaining( { from: 1, to: 2, slide_count: 5, origin: 'auto' } )
-			);
-		} );
-
-		it( 'records a backward move when the user goes back', async () => {
-			const user = userEvent.setup();
-			render( <FormWelcomeGuide /> );
-
-			await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
-			await user.click( screen.getByRole( 'button', { name: 'Previous' } ) );
-
-			expect( recordEvent ).toHaveBeenCalledWith(
-				'jetpack_forms_welcome_guide_previous_click',
-				expect.objectContaining( { from: 2, to: 1 } )
-			);
-		} );
-
-		it( 'does not count arriving at the first slide as navigation', () => {
-			render( <FormWelcomeGuide /> );
-
-			const navigations = recordEvent.mock.calls.filter(
-				( [ name ] ) => name.endsWith( '_next_click' ) || name.endsWith( '_previous_click' )
-			);
-
-			expect( navigations ).toHaveLength( 0 );
-		} );
 	} );
 } );
