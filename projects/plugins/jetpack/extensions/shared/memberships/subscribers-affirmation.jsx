@@ -529,9 +529,18 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			} );
 		}
 	} else if ( isStatsOnlyFallback ) {
-		text = hasStatsLink
-			? __( 'This post was emailed to subscribers. View <link>delivery details</link>.', 'jetpack' )
-			: __( 'This post was emailed to subscribers.', 'jetpack' );
+		// A ternary (or if/else) that picks between two otherwise-identical __() calls
+		// gets optimized into a single __() with a ternary msgid, which breaks i18n
+		// string extraction. Keep each __() as its own literal-argument call inside an
+		// object and select via a dynamic key so the optimizer can't merge them.
+		const statsOnlyText = {
+			withLink: __(
+				'This post was emailed to subscribers. View <link>delivery details</link>.',
+				'jetpack'
+			),
+			withoutLink: __( 'This post was emailed to subscribers.', 'jetpack' ),
+		};
+		text = statsOnlyText[ hasStatsLink ? 'withLink' : 'withoutLink' ];
 	} else if ( isComingSoon() ) {
 		text = __(
 			'Your site is in Coming Soon mode. Emails are sent only when your site is public. <visibilityLink>Update your site visibility</visibilityLink>.',
