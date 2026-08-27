@@ -635,6 +635,27 @@ function wpcom_write_inline_color_marks_to_spans( $html ) {
 }
 
 /**
+ * Build the seed content for a post that answers a daily writing prompt.
+ *
+ * Write can't hold the jetpack/blogging-prompt block — it round-trips only a
+ * fixed block vocabulary (see wpcom_write_allowed_block_attrs()), so the prompt
+ * is seeded as a quote block. convertToBlocks() in view.js turns a top-level
+ * <blockquote class="wp-block-quote"> back into a wp:quote block on save.
+ *
+ * @since $$next-version$$
+ *
+ * @param string $prompt_text The prompt text from the blogging-prompts endpoint.
+ * @return string Quote block markup, or '' when there is no usable text.
+ */
+function wpcom_write_prompt_quote_markup( $prompt_text ) {
+	$prompt_text = trim( wp_strip_all_tags( html_entity_decode( (string) $prompt_text, ENT_QUOTES, 'UTF-8' ) ) );
+	if ( '' === $prompt_text ) {
+		return '';
+	}
+	return '<blockquote class="wp-block-quote"><p>' . esc_html( $prompt_text ) . '</p></blockquote>';
+}
+
+/**
  * Get the current user's recent Write-compatible drafts.
  *
  * Queries up to 20 drafts by post_modified desc, filters out posts with
@@ -786,6 +807,25 @@ function wpcom_write_render_admin_page() {
 			// would be misleading.
 			if ( ! $unsupported_type ) {
 				\Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\EditorType\remember_editor( $edit_post_id, 'write-editor' );
+			}
+		}
+	}
+
+	// Seed a brand-new post that's answering a daily writing prompt. The id
+	// arrives as ?answer_prompt=<id> — forwarded by the wp-admin Daily Writing
+	// Prompt widget and (later) by wpcom's /write-editor redirect. Only new
+	// posts are seeded; opening an existing post ignores the param. The param is
+	// an integer id only (never rendered text) and the prompt text comes from
+	// the trusted blogging-prompts endpoint, mirroring the block-editor flow in
+	// plugins/jetpack (_inc/blogging-prompts.php).
+	$answer_prompt_id = 0;
+	if ( 0 === $edit_post_id ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET param; seeds a new draft only, gated by the page's publish_posts capability. Mirrors _inc/blogging-prompts.php.
+		$answer_prompt_id = isset( $_GET['answer_prompt'] ) ? absint( wp_unslash( $_GET['answer_prompt'] ) ) : 0;
+		if ( $answer_prompt_id && function_exists( 'jetpack_get_blogging_prompt_by_id' ) ) {
+			$prompt = (array) jetpack_get_blogging_prompt_by_id( $answer_prompt_id );
+			if ( ! empty( $prompt['text'] ) ) {
+				$edit_content = wpcom_write_prompt_quote_markup( $prompt['text'] );
 			}
 		}
 	}
@@ -950,6 +990,7 @@ function wpcom_write_render_admin_page() {
 			'categories'             => $categories_data,
 			'catLabel'               => $cat_label,
 			'existingTagIds'         => $existing_tag_ids,
+			'answerPromptId'         => $answer_prompt_id,
 			'showCatDropdown'        => false,
 			'showHelp'               => false,
 			'showSlashMenu'          => false,

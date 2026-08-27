@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Blogging Prompts: mark a post as a prompt answer when it is created through the REST API, so answers written in the Write editor keep their prompt tags and roundup link.

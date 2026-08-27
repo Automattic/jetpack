@@ -6411,8 +6411,14 @@ async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 		tagData.tags = [ ...new Set( [ ...( state.existingTagIds || [] ), ...newTagIds ] ) ];
 	}
 
-	// If editing, PUT to the existing post. If new, POST to create.
-	const path = isEditing ? state.postsPath + '/' + state.editPostId : state.postsPath;
+	// If editing, PUT to the existing post. If new, POST to create. On a new
+	// prompt answer, forward answer_prompt so the server-side
+	// jetpack_setup_blogging_prompt_response hook (rest_after_insert_post) tags
+	// the post as a prompt answer and stamps the roundup meta.
+	let path = isEditing ? state.postsPath + '/' + state.editPostId : state.postsPath;
+	if ( ! isEditing && state.answerPromptId ) {
+		path += '?answer_prompt=' + encodeURIComponent( state.answerPromptId );
+	}
 
 	// Prep is done; a stall from here on is the main save request itself.
 	stallPhase = 'save_request';
