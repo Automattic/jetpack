@@ -2,10 +2,12 @@
  * External dependencies
  */
 import {
+	drawableIntervals,
 	getAllowedIntervalsForPreset,
 	getDefaultPreset,
 	getStoreInfo,
 	normalizeReportParams,
+	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
 import {
 	type ComparisonPresetId,
@@ -24,8 +26,10 @@ import {
 	encodeDateToSearchParam,
 } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /*
  * The editor lives here rather than in widgets-toolkit so widget metadata
@@ -43,23 +47,45 @@ export type ReportParamsFieldAttributes = {
 	reportParams: ReportParams;
 };
 
+/**
+ * How fine the widget's report is, as the widget itself knows it. The control
+ * offers nothing the report cannot fill: a window with no data behind it, or a
+ * bucket the chart would clamp away on the way to a request.
+ */
+export type ReportGrain = {
+	/**
+	 * The quick presets to offer, in display order. Defaults to every rolling
+	 * window.
+	 */
+	presetIds?: readonly QuickSurfacePresetId[];
+
+	/**
+	 * The bucket sizes the widget's chart draws, finest first — the same list it
+	 * clamps the interval against when it builds its request.
+	 */
+	periods?: readonly [ StatsPeriod, ...StatsPeriod[] ];
+};
+
 type ReportParamsFieldOptions = {
 	withIntervalControl?: boolean;
-	presetIds?: readonly QuickSurfacePresetId[];
+	grain?: ReportGrain;
 };
+
+type ReportParamsControlOptions = {
+	withIntervalControl?: boolean;
+} & ReportGrain;
 
 /**
  * Build a widget-owned report params field.
  *
  * @param options                     - Field options.
  * @param options.withIntervalControl - Whether to offer the chart bucket control.
- * @param options.presetIds           - The quick presets to offer, in display
- *                                    order. Defaults to every rolling window.
+ * @param options.grain               - How fine the widget's report is.
  * @return A DataForm control component.
  */
 export function createReportParamsField( {
 	withIntervalControl,
-	presetIds,
+	grain,
 }: ReportParamsFieldOptions = {} ) {
 	return function ReportParamsFieldControl(
 		props: DataFormControlProps< ReportParamsFieldAttributes >
@@ -68,10 +94,36 @@ export function createReportParamsField( {
 			<ReportParamsControl
 				{ ...props }
 				withIntervalControl={ withIntervalControl }
-				presetIds={ presetIds }
+				presetIds={ grain?.presetIds }
+				periods={ grain?.periods }
 			/>
 		);
 	};
+}
+
+/**
+ * The "Date range" attribute a widget declares to host its own date controls,
+ * at `relevance: 'high'` so the host renders it in the widget's header, where it
+ * collapses into a dropdown on narrow cards.
+ *
+ * The field descriptor is decorative beyond its `id`: dataviews rebuilds a
+ * normalized field from a fixed set of keys, so per-widget options reach the
+ * control through this factory rather than through `field`.
+ *
+ * @param options                     - Field options.
+ * @param options.withIntervalControl - Whether to offer the chart bucket control.
+ * @param options.grain               - How fine the widget's report is.
+ * @return The attribute descriptor.
+ */
+export function reportParamsAttributeField<
+	Attributes extends Partial< ReportParamsFieldAttributes >,
+>( options: ReportParamsFieldOptions = {} ): WidgetAttributeField< Attributes > {
+	return {
+		id: 'reportParams',
+		label: __( 'Date range', 'jetpack-premium-analytics-pkg' ),
+		relevance: 'high',
+		Edit: createReportParamsField( options ),
+	} as WidgetAttributeField< Attributes >;
 }
 
 function ReportParamsControl( {
@@ -79,7 +131,8 @@ function ReportParamsControl( {
 	onChange,
 	withIntervalControl,
 	presetIds,
-}: DataFormControlProps< ReportParamsFieldAttributes > & ReportParamsFieldOptions ) {
+	periods,
+}: DataFormControlProps< ReportParamsFieldAttributes > & ReportParamsControlOptions ) {
 	const [ stagedReportParams, setStagedReportParams ] = useState< ReportParams >(
 		attributes?.reportParams
 	);
@@ -242,21 +295,26 @@ function ReportParamsControl( {
 	}, [ stage, attributes ] );
 
 	/*
-	 * Options and checked value both come from the staged params, so the checked
-	 * bucket is always a listed one — `normalizeReportParams` already resolved
-	 * `interval` against this very range. Reading the options from the committed
-	 * range instead would let the menu offer a bucket the drafted range cannot
-	 * hold, and the resolve below would then silently drop the click.
+	 * Read from the staged params, not the committed ones: a range being drafted
+	 * has to reshape the menu with it, or the menu offers a bucket that range
+	 * cannot hold and the click is dropped on Apply.
 	 */
-	const intervalOptions = useMemo(
-		() =>
-			getAllowedIntervalsForPreset(
-				reportParams.preset,
-				reportParams.from ?? '',
-				reportParams.to ?? ''
-			),
-		[ reportParams.preset, reportParams.from, reportParams.to ]
-	);
+	const intervalOptions = useMemo( () => {
+		const allowed = getAllowedIntervalsForPreset(
+			reportParams.preset,
+			reportParams.from ?? '',
+			reportParams.to ?? ''
+		);
+
+		return periods ? drawableIntervals( allowed, periods ) : allowed;
+	}, [ reportParams.preset, reportParams.from, reportParams.to, periods ] );
+
+	// What the chart draws, which is what the menu checks: a saved or
+	// range-derived bucket the widget clamps away is not ours to report as the
+	// one on screen.
+	const interval = intervalOptions.includes( reportParams.interval )
+		? reportParams.interval
+		: intervalOptions[ 0 ];
 
 	const changeInterval = useCallback(
 		( nextInterval: IntervalType ) => {
@@ -288,7 +346,7 @@ function ReportParamsControl( {
 				timeZone={ siteTimeZone() }
 				presetIds={ presetIds }
 				withIntervalControl={ withIntervalControl }
-				interval={ reportParams.interval }
+				interval={ interval }
 				intervalOptions={ intervalOptions }
 				onIntervalChange={ changeInterval }
 			/>

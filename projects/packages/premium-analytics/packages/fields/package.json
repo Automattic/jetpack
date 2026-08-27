@@ -19,6 +19,7 @@
 		"@jetpack-premium-analytics/ui": "workspace:*",
 		"@wordpress/components": "37.0.0",
 		"@wordpress/element": "8.3.0",
+		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^15.0.0",
 		"@wordpress/private-apis": "1.53.0",
 		"date-fns": "4.1.0",

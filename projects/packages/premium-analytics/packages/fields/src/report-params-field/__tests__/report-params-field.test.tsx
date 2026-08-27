@@ -7,8 +7,11 @@ import { useState } from 'react';
 /**
  * Internal dependencies
  */
-import { createReportParamsField, type ReportParamsFieldAttributes } from '../report-params-field';
-import type { QuickSurfacePresetId } from '@jetpack-premium-analytics/datetime';
+import {
+	createReportParamsField,
+	type ReportGrain,
+	type ReportParamsFieldAttributes,
+} from '../report-params-field';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
 
 // A 30-day window: `getAllowedIntervalsForPreset` offers day and week for it, so
@@ -24,10 +27,10 @@ const ATTRIBUTES: ReportParamsFieldAttributes = {
  */
 function renderField(
 	withIntervalControl?: boolean,
-	presetIds?: readonly QuickSurfacePresetId[],
+	grain?: ReportGrain,
 	initialAttributes: ReportParamsFieldAttributes = ATTRIBUTES
 ) {
-	const Field = createReportParamsField( { withIntervalControl, presetIds } );
+	const Field = createReportParamsField( { withIntervalControl, grain } );
 	const saved: ReportParamsFieldAttributes[] = [];
 	let setFromOutside: ( attributes: ReportParamsFieldAttributes ) => void = () => {};
 
@@ -85,7 +88,7 @@ async function draftShortRange( user: ReturnType< typeof userEvent.setup >, days
 	await shortenRangeTo( days );
 }
 
-describe( 'createReportParamsField', () => {
+describe( 'report params field', () => {
 	it( 'offers no bucket control by default', () => {
 		renderField();
 
@@ -118,20 +121,24 @@ describe( 'createReportParamsField', () => {
 	} );
 
 	it( 'offers only the windows the widget names, in that order', () => {
-		renderField( true, [ 'last-12-months', 'last-7-days', 'last-30-days' ] );
+		renderField( true, { presetIds: [ 'last-12-months', 'last-7-days', 'last-30-days' ] } );
 
 		expect( windowsOnOffer() ).toEqual( [ '12 months', '7 days', '30 days', 'Custom' ] );
 	} );
 
 	it( 'moves an instance saved on an unoffered window onto an offered one', () => {
-		const { latest } = renderField( true, [ 'last-7-days', 'last-30-days', 'last-12-months' ], {
-			reportParams: {
-				preset: 'last-24-hours',
-				from: '2026-01-14T00:00:00.000Z',
-				to: '2026-01-15T23:59:59.999Z',
-				interval: 'hour',
-			},
-		} );
+		const { latest } = renderField(
+			true,
+			{ presetIds: [ 'last-7-days', 'last-30-days', 'last-12-months' ] },
+			{
+				reportParams: {
+					preset: 'last-24-hours',
+					from: '2026-01-14T00:00:00.000Z',
+					to: '2026-01-15T23:59:59.999Z',
+					interval: 'hour',
+				},
+			}
+		);
 
 		// The window and bucket leave with the preset, so nothing left in the
 		// preference describes a range the widget no longer offers.
@@ -143,9 +150,13 @@ describe( 'createReportParamsField', () => {
 	} );
 
 	it( 'leaves a custom range alone', () => {
-		const { saved } = renderField( true, [ 'last-7-days', 'last-30-days', 'last-12-months' ], {
-			reportParams: { from: '2026-01-01', to: '2026-01-15', interval: 'day' },
-		} );
+		const { saved } = renderField(
+			true,
+			{ presetIds: [ 'last-7-days', 'last-30-days', 'last-12-months' ] },
+			{
+				reportParams: { from: '2026-01-01', to: '2026-01-15', interval: 'day' },
+			}
+		);
 
 		expect( saved ).toHaveLength( 0 );
 	} );
@@ -342,6 +353,41 @@ describe( 'createReportParamsField', () => {
 		await expect(
 			screen.findByRole( 'menuitemradio', { name: 'By days' } )
 		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'menuitemradio', { name: 'By hours' } ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'buckets the widget cannot draw', () => {
+	// The Ads chart's own set: WordAds is served a day at a time.
+	const DAILY_REPORT: ReportGrain = { periods: [ 'day', 'week', 'month', 'year' ] };
+
+	it( 'leaves them off the menu', async () => {
+		const user = userEvent.setup();
+		renderField( true, DAILY_REPORT );
+
+		// Two to six days is the window that puts hours on offer.
+		await draftShortRange( user, 3 );
+		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+
+		await expect(
+			screen.findByRole( 'menuitemradio', { name: 'By days' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'menuitemradio', { name: 'By hours' } ) ).not.toBeInTheDocument();
+	} );
+
+	// Today, Yesterday and Last 24 hours allow hours alone, so narrowing on its
+	// own would leave the menu empty.
+	it( 'offers the bucket they clamp to when the range allows nothing else', async () => {
+		const user = userEvent.setup();
+		renderField( true, DAILY_REPORT, {
+			reportParams: { preset: 'last-24-hours', interval: 'hour' },
+		} );
+
+		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+
+		await expect(
+			screen.findByRole( 'menuitemradio', { name: 'By days' } )
+		).resolves.toHaveAttribute( 'aria-checked', 'true' );
 		expect( screen.queryByRole( 'menuitemradio', { name: 'By hours' } ) ).not.toBeInTheDocument();
 	} );
 } );

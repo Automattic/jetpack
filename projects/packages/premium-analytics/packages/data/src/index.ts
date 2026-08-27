@@ -65,6 +65,7 @@ export {
 	resolveIntervalForRange,
 } from './utils/interval';
 export type { IntervalType } from './utils/interval';
+export { defaultPeriodForInterval, drawableIntervals } from './utils/periods';
 export {
 	getDefaultPreset,
 	getDefaultQueryParams,

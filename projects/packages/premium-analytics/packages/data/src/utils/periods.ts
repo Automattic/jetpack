@@ -1,7 +1,8 @@
 /**
- * External dependencies
+ * Internal dependencies
  */
-import { getStatsPeriodFromInterval, type StatsPeriod } from '@jetpack-premium-analytics/data';
+import { getStatsPeriodFromInterval, type StatsPeriod } from './stats-params';
+import type { IntervalType } from '@jetpack-premium-analytics/datetime';
 
 /**
  * Bucket sizes ordered finest to coarsest, so a mapped period the widget does
@@ -46,4 +47,33 @@ export function defaultPeriodForInterval< P extends StatsPeriod >(
 	return PERIOD_ORDER.indexOf( mapped ) < PERIOD_ORDER.indexOf( finest )
 		? finest
 		: allowed[ allowed.length - 1 ];
+}
+
+/**
+ * The buckets an interval menu may list for a chart that draws only `allowed`.
+ *
+ * `intervals` is what the range permits. One the clamp above would move is a
+ * bucket the chart cannot draw, so listing it makes the click a no-op: the
+ * check mark travels and nothing else does.
+ *
+ * When the clamp moves every one of them — a window finer than the chart's
+ * finest bucket, e.g. three days on a report served a day at a time — the menu
+ * falls back to where the clamp lands, so a range still offers a bucket that
+ * works rather than an empty menu.
+ *
+ * @param intervals - The buckets the range allows, finest first.
+ * @param allowed   - The periods this widget offers, ordered finest to coarsest.
+ * @return The buckets to list, in the order given.
+ */
+export function drawableIntervals< P extends StatsPeriod >(
+	intervals: readonly IntervalType[],
+	allowed: readonly [ P, ...P[] ]
+): IntervalType[] {
+	const drawable = intervals.filter( interval =>
+		( allowed as readonly StatsPeriod[] ).includes( getStatsPeriodFromInterval( interval ) )
+	);
+
+	return drawable.length
+		? drawable
+		: [ ...new Set( intervals.map( interval => defaultPeriodForInterval( interval, allowed ) ) ) ];
 }

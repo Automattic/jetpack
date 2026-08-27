@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { defaultPeriodForInterval } from '../default-period-for-interval';
+import { defaultPeriodForInterval, drawableIntervals } from '../periods';
 
 // The period sets in use. All are ordered finest to coarsest, which the helper
 // relies on when clamping.
@@ -60,5 +60,37 @@ describe( 'defaultPeriodForInterval', () => {
 	it( 'clamps to the finest allowed period when the mapped one is too fine', () => {
 		expect( defaultPeriodForInterval( 'hour', [ 'week', 'month' ] as const ) ).toBe( 'week' );
 		expect( defaultPeriodForInterval( 'day', [ 'week' ] as const ) ).toBe( 'week' );
+	} );
+} );
+
+describe( 'drawableIntervals', () => {
+	it( 'drops a bucket the chart would clamp away', () => {
+		// A 2–6 day window allows both, but a daily report cannot draw hours.
+		expect( drawableIntervals( [ 'day', 'hour' ], DAY_WEEK_MONTH_YEAR ) ).toEqual( [ 'day' ] );
+	} );
+
+	it( 'keeps every bucket the chart draws, in the order given', () => {
+		expect( drawableIntervals( [ 'week', 'month' ], DAY_WEEK_MONTH_YEAR ) ).toEqual( [
+			'week',
+			'month',
+		] );
+	} );
+
+	it( 'falls back to where the clamp lands when nothing survives', () => {
+		// Today and Yesterday allow hours alone, which no daily report draws.
+		expect( drawableIntervals( [ 'hour' ], DAY_WEEK_MONTH_YEAR ) ).toEqual( [ 'day' ] );
+	} );
+
+	it( 'dedupes buckets that clamp onto the same period', () => {
+		expect( drawableIntervals( [ 'hour', 'day' ], [ 'week', 'month' ] as const ) ).toEqual( [
+			'week',
+		] );
+	} );
+
+	it( 'leaves a chart that draws hours alone', () => {
+		expect( drawableIntervals( [ 'day', 'hour' ], HOUR_DAY_WEEK_MONTH ) ).toEqual( [
+			'day',
+			'hour',
+		] );
 	} );
 } );
