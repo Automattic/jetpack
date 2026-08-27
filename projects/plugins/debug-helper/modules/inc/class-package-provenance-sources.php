@@ -132,12 +132,17 @@ class Package_Provenance_Sources {
 	}
 
 	/**
-	 * Inventory of the wp-build-polyfills build loaded on this site.
+	 * Inventory of a wp-build-polyfills build.
 	 *
+	 * Defaults to the copy loaded on this site. Pass another package directory to
+	 * evaluate a different build (a branch checkout, for example); the force rules
+	 * still come from the loaded class.
+	 *
+	 * @param string $root Package directory holding `build/`, or '' for the loaded copy.
 	 * @return array Inventory plus `optins` (module names each build opts in with, by handle), `root` and `version`.
-	 * @throws RuntimeException When no plugin ships the package.
+	 * @throws RuntimeException When no plugin ships the package, or the directory has no build.
 	 */
-	public function polyfill_inventory() {
+	public function polyfill_inventory( $root = '' ) {
 		$class = '\\Automattic\\Jetpack\\WP_Build_Polyfills\\WP_Build_Polyfills';
 		if ( ! class_exists( $class ) ) {
 			throw new RuntimeException( 'No active plugin ships automattic/jetpack-wp-build-polyfills.' );
@@ -146,9 +151,12 @@ class Package_Provenance_Sources {
 			throw new RuntimeException( 'The loaded wp-build-polyfills is too old: it has no predict_registration().' );
 		}
 
-		$root  = dirname( ( new ReflectionClass( $class ) )->getFileName(), 2 );
+		$root  = '' === $root ? dirname( ( new ReflectionClass( $class ) )->getFileName(), 2 ) : rtrim( $root, '/' );
 		$build = $root . '/build';
-		$apis  = is_file( $build . '/scripts/private-apis/index.js' ) ? $build . '/scripts/private-apis/index.js' : $build . '/scripts/private-apis/index.min.js';
+		if ( ! is_dir( $build . '/scripts' ) ) {
+			throw new RuntimeException( 'No wp-build-polyfills build under ' . $root . '; run its build first.' );
+		}
+		$apis = is_file( $build . '/scripts/private-apis/index.js' ) ? $build . '/scripts/private-apis/index.js' : $build . '/scripts/private-apis/index.min.js';
 
 		// Released copies carry the version in composer.json; monorepo checkouts only in package.json.
 		$version = '';

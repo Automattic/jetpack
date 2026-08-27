@@ -50,3 +50,11 @@ wp jetpack-debug provenance predict --wp=7.1 --gutenberg=/tmp/gutenberg.zip --fo
 ```
 
 `--wp` takes release versions or `trunk` (read from the WordPress/WordPress mirror on GitHub; the running version is read from disk). `--gutenberg` takes `off`, `active`, a release version (downloaded from GitHub Releases), or a path to a plugin zip or directory. Downloads are cached in the system temp directory; `--refresh` bypasses the cache. The command exits with status 1 when any cell rejects an opt-in, so it can gate a script.
+
+To evaluate another checkout (a branch that bumps the bundled `@wordpress/*` packages, say) without switching sites, point `--polyfills` at that checkout's `projects/packages/wp-build-polyfills` and `--plugins` at its built plugins. In the monorepo Docker environment, mount the other worktree through `tools/docker/jetpack-docker-config.yml`:
+
+```
+wp jetpack-debug provenance predict --wp=7.0.4,7.1 --gutenberg=off,23.8.0 \
+  --polyfills=/usr/local/src/other-worktree/projects/packages/wp-build-polyfills \
+  --plugins=/usr/local/src/other-worktree/projects/plugins/jetpack,/usr/local/src/other-worktree/projects/plugins/premium-analytics
+```

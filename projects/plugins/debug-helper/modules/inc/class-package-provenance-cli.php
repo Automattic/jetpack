@@ -31,6 +31,9 @@ class Package_Provenance_CLI {
 	 * [--plugins=<dirs>]
 	 * : Comma-separated directories to scan for bundles. Defaults to the active plugins and mu-plugins.
 	 *
+	 * [--polyfills=<dir>]
+	 * : wp-build-polyfills package directory to evaluate instead of the copy this site loads (its `build/` must exist).
+	 *
 	 * [--refresh]
 	 * : Ignore cached downloads.
 	 *
@@ -49,6 +52,7 @@ class Package_Provenance_CLI {
 	 *
 	 *     wp jetpack-debug provenance predict --wp=7.0.4,7.1 --gutenberg=off,23.8.0
 	 *     wp jetpack-debug provenance predict --wp=7.1 --gutenberg=/tmp/gutenberg.zip --format=json
+	 *     wp jetpack-debug provenance predict --polyfills=/src/branch/projects/packages/wp-build-polyfills --plugins=/src/branch/projects/plugins/jetpack
 	 *
 	 * @subcommand predict
 	 *
@@ -77,7 +81,7 @@ class Package_Provenance_CLI {
 		$gb_specs    = $this->split( $assoc_args['gutenberg'] ?? 'off' );
 		$dirs        = isset( $assoc_args['plugins'] ) ? $this->split( $assoc_args['plugins'] ) : $sources->default_bundle_dirs();
 
-		$polyfill = $sources->polyfill_inventory();
+		$polyfill = $sources->polyfill_inventory( (string) ( $assoc_args['polyfills'] ?? '' ) );
 		$optins   = $sources->optins( $dirs, $polyfill['root'] );
 
 		$cells = array();
@@ -117,10 +121,16 @@ class Package_Provenance_CLI {
 				WP_CLI::log( sprintf( '== WP %s · Gutenberg %s ==', $cell['wp'], $cell['gutenberg'] ?? 'inactive' ) );
 				WP_CLI\Utils\format_items( 'table', $cell['rows'], array( 'package', 'type', 'provider', 'reason' ) );
 				WP_CLI::log( sprintf( 'private-apis served by %s (allowlist: %d modules)', $cell['private_apis']['provider'], $cell['private_apis']['allowlist_size'] ) );
+				// Plain log lines, not warnings: STDERR interleaves out of order when piped.
 				foreach ( $cell['private_apis']['rejected'] as $module => $files ) {
 					++$rejections;
-					WP_CLI::warning( sprintf( 'opt-in rejected: %s (%s)', $module, implode( ', ', $files ) ) );
+					$shown = array_slice( $files, 0, 5 );
+					$more  = count( $files ) - count( $shown );
+					WP_CLI::log( sprintf( 'REJECTED %s: %s%s', $module, implode( ', ', $shown ), $more > 0 ? sprintf( ' (+%d more)', $more ) : '' ) );
 				}
+			}
+			if ( $rejections > 0 ) {
+				WP_CLI::warning( sprintf( '%d rejected opt-in(s); those bundles throw at load time in the cells listed above.', $rejections ) );
 			}
 		} else {
 			foreach ( $cells as $cell ) {
