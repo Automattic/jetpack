@@ -1,5 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
-import { decodeHtmlString } from '../../utils/text';
+import { decodeHtmlText } from '../../utils/text';
 import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from '../stats/utils';
 import type { StatsRecord } from '../stats/types';
 
@@ -79,7 +79,7 @@ export function sanitizeLatestPostResponse( response: unknown ): LatestPostRespo
 
 	return {
 		id,
-		title: decodeHtmlString( title.rendered ),
+		title: decodeHtmlText( title.rendered, '' ),
 		url: typeof post.link === 'string' ? post.link : '',
 		date: typeof post.date === 'string' ? post.date : '',
 		imageUrl: pickFeaturedImageUrl( media ),

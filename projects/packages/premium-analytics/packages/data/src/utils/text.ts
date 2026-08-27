@@ -15,13 +15,8 @@ function decodeHtmlEntities( value: string ): string {
  * Decoding belongs in the data layer rather than in a row component because the
  * same value also reaches report tables, CSV exports, and `title` attributes.
  */
-export function decodeHtmlText< T >( value: T ): T | string {
-	return typeof value === 'string' ? decodeHtmlEntities( value ) : value;
-}
-
-/**
- * Decode HTML entities from a field that must always produce a string.
- */
-export function decodeHtmlString( value: unknown ): string {
-	return typeof value === 'string' ? decodeHtmlEntities( value ) : '';
+export function decodeHtmlText< T >( value: T ): T | string;
+export function decodeHtmlText( value: unknown, fallback: string ): string;
+export function decodeHtmlText< T >( value: T, fallback?: string ): T | string {
+	return typeof value === 'string' ? decodeHtmlEntities( value ) : fallback ?? value;
 }
