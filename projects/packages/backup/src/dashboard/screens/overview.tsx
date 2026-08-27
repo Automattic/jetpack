@@ -143,11 +143,11 @@ export default function OverviewScreen() {
 			 * activity log managed to load is still worth showing, and this
 			 * failure says nothing about it.
 			 *
-			 * `error` is very often null on this path and that is not a bug.
-			 * The route answers a non-200 from WPCOM with a bare `null`
-			 * body, which WordPress serves as HTTP 200 — so the request
-			 * resolves, React Query records a success, and the only signal
-			 * left is the derived state. That is also why the retry button
+			 * `error` can be null on this path and that is not a bug. The
+			 * route answers a WPCOM reply it cannot decode with a bare
+			 * `null` body, which WordPress serves as HTTP 200 — so the
+			 * request resolves, React Query records a success, and the only
+			 * signal left is the derived state. That is also why the retry button
 			 * matters more here than elsewhere: nothing else will ask again.
 			 * The poll stops deliberately on an unreadable response rather
 			 * than hammering a failing upstream.

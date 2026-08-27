@@ -7,8 +7,8 @@ import type { BackupsState } from '../types/backup';
  * States that mean "the run that was going is over".
  *
  * `error` is deliberately absent. It is not an outcome of the backup but
- * of the *request* — and per `useBackups`, the most common failure of
- * `/jetpack/v4/backups` is a non-200 served as HTTP 200 with a `null`
+ * of the *request* — and per `useBackups`, a `/jetpack/v4/backups`
+ * answer whose body will not decode is served as HTTP 200 with a `null`
  * body, which lands exactly here. Refetching the activity log on it
  * would aim a round trip at an upstream that just failed, for an answer
  * that cannot contain the finished backup. `loading` is absent for the

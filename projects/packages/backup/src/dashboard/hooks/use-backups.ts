@@ -165,10 +165,10 @@ type Args = {
 type Result = BackupsSummary & {
 	backups: Backup[];
 	/**
-	 * The query's own failure. Note that the most common failure mode of
-	 * this route does *not* populate it: a non-200 from WPCOM is served
-	 * as HTTP 200 with a `null` body, which resolves. Branch on
-	 * `state === 'error'`, which covers both.
+	 * The query's own failure. Note that not every failure of this route
+	 * populates it: a 200 from WPCOM whose body will not decode reaches
+	 * the client as HTTP 200 with a `null` body, which resolves. Branch
+	 * on `state === 'error'`, which covers both.
 	 */
 	error: Error | null;
 	/**
@@ -215,8 +215,8 @@ export function useBackups( { forcePoll = false }: Args = {} ): Result {
 	// when it refetches after a *rejection*, so without this both `error`
 	// and the derived `'error'` state evaporate the moment the reader
 	// clicks the retry button — taking the only control that can ask
-	// again with them. The route's other failure mode, a `null` body
-	// served as HTTP 200, resolves and so is unaffected.
+	// again with them. The route's other failure mode, an undecodable
+	// body served as HTTP 200 with `null`, resolves and so is unaffected.
 	const error = useStickyError( query.error, query.isFetching );
 
 	const backups = useMemo(

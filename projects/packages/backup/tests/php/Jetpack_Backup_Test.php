@@ -7,9 +7,11 @@
 
 namespace Automattic\Jetpack\Backup\V0005;
 
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
+use WP_REST_Request;
 use WP_REST_Response;
 
 class Jetpack_Backup_Test extends TestCase {
@@ -36,34 +38,182 @@ class Jetpack_Backup_Test extends TestCase {
 	 */
 	private $catalogue_status = 200;
 
-	public function test_get_backup_capabilities_handles_wp_error() {
-		add_filter( 'pre_http_request', array( $this, 'mock_request_as_wp_error' ) );
+	/**
+	 * Status for the next mocked WordPress.com response.
+	 *
+	 * @var int|string
+	 */
+	private $wpcom_status = 200;
 
-		$result = Jetpack_Backup::get_backup_capabilities();
+	/**
+	 * How many times a route reached the mocked transport.
+	 *
+	 * @var int
+	 */
+	private $http_requests = 0;
 
-		$this->assertNull( $result );
+	/**
+	 * Undo the request mocking. Done here rather than after each assertion so
+	 * that a failing assertion cannot leak a filter into the next test.
+	 */
+	protected function tearDown(): void {
+		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
+		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_unreachable' ) );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ) );
+		wp_set_current_user( 0 );
 
-		remove_filter( 'pre_http_request', array( $this, 'mock_request_as_wp_error' ) );
+		$this->wpcom_status  = 200;
+		$this->http_requests = 0;
+
+		parent::tearDown();
 	}
 
-	public function test_get_recent_backups_handles_wp_error() {
-		add_filter( 'pre_http_request', array( $this, 'mock_request_as_wp_error' ) );
+	/**
+	 * A WordPress.com blip must not read as an empty success. These routes used
+	 * to `return null`, which WordPress serves as HTTP 200 with a `null` body —
+	 * so `apiFetch` resolved and no consumer's failure path ever ran.
+	 *
+	 * Asserted through the REST server rather than against the callback's return
+	 * value, because the served status is the thing that was wrong.
+	 *
+	 * 503 and not 500: 500 is also what the no-status fallback produces, so
+	 * asserting it here would pass whether or not the upstream status was
+	 * forwarded at all.
+	 *
+	 * @param string $route       The registered REST route.
+	 * @param string $http_method The route's HTTP method.
+	 * @dataProvider provide_wpcom_backed_route_requests
+	 */
+	#[DataProvider( 'provide_wpcom_backed_route_requests' )]
+	public function test_route_is_served_with_the_upstream_status( $route, $http_method ) {
+		$this->sign_in_as_connected_admin();
+		$this->wpcom_status = 503;
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
 
-		$result = Jetpack_Backup::get_recent_backups();
+		rest_get_server();
+		Jetpack_Backup::register_rest_routes();
 
-		$this->assertNull( $result );
+		$response = rest_do_request( new WP_REST_Request( $http_method, $route ) );
 
-		remove_filter( 'pre_http_request', array( $this, 'mock_request_as_wp_error' ) );
+		$this->assertTrue( $response->is_error(), $route );
+		$this->assertSame( 503, $response->get_status(), $route );
 	}
 
-	public function test_get_recent_restores_handles_wp_error() {
-		add_filter( 'pre_http_request', array( $this, 'mock_request_as_wp_error' ) );
+	/**
+	 * The callback reports the upstream status, so the REST layer has something
+	 * to serve other than a generic 500.
+	 *
+	 * @param string $callback Name of the route callback.
+	 * @dataProvider provide_wpcom_backed_route_callbacks
+	 */
+	#[DataProvider( 'provide_wpcom_backed_route_callbacks' )]
+	public function test_route_forwards_a_non_200( $callback ) {
+		$this->sign_in_as_connected_admin();
+		$this->wpcom_status = 503;
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
 
-		$result = Jetpack_Backup::get_recent_restores();
+		$result = call_user_func( array( Jetpack_Backup::class, $callback ) );
 
-		$this->assertNull( $result );
+		$this->assertInstanceOf( WP_Error::class, $result, $callback );
+		$this->assertSame( 'failed_to_fetch_data', $result->get_error_code(), $callback );
+		$this->assertSame( 503, $result->get_error_data()['status'], $callback );
+	}
 
-		remove_filter( 'pre_http_request', array( $this, 'mock_request_as_wp_error' ) );
+	/**
+	 * A transport failure has no status at all. Reporting the 0 that casting
+	 * produces would leave the REST layer emitting an invalid status line.
+	 *
+	 * The request count is asserted because a 500 alone proves nothing here: a
+	 * request that is never signed is refused before the wire and reports a
+	 * status of 0 too, so this would pass with neither the sign-in nor the
+	 * transport mock in place.
+	 *
+	 * @param string $callback Name of the route callback.
+	 * @dataProvider provide_wpcom_backed_route_callbacks
+	 */
+	#[DataProvider( 'provide_wpcom_backed_route_callbacks' )]
+	public function test_route_reports_a_transport_failure_as_500( $callback ) {
+		$this->sign_in_as_connected_admin();
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_unreachable' ) );
+
+		$result = call_user_func( array( Jetpack_Backup::class, $callback ) );
+
+		$this->assertSame( 1, $this->http_requests, $callback );
+		$this->assertInstanceOf( WP_Error::class, $result, $callback );
+		$this->assertSame( 500, $result->get_error_data()['status'], $callback );
+	}
+
+	/**
+	 * A good answer still comes back as a response.
+	 *
+	 * The status is mocked as the *string* `'200'` deliberately: the transport
+	 * may report it that way, and a strict comparison against the integer 200
+	 * would send a perfectly good answer down the failure path.
+	 *
+	 * @param string $callback Name of the route callback.
+	 * @dataProvider provide_wpcom_backed_route_callbacks
+	 */
+	#[DataProvider( 'provide_wpcom_backed_route_callbacks' )]
+	public function test_route_returns_a_response_on_a_string_status_200( $callback ) {
+		$this->sign_in_as_connected_admin();
+		$this->wpcom_status = '200';
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
+
+		$result = call_user_func( array( Jetpack_Backup::class, $callback ) );
+
+		$this->assertInstanceOf( WP_REST_Response::class, $result, $callback );
+		$this->assertSame( array(), $result->get_data(), $callback );
+	}
+
+	/**
+	 * The seven unconditionally-registered routes that answer out of
+	 * WordPress.com, as route path => array( callback, HTTP method ).
+	 *
+	 * One list, two providers, so that adding a route here covers it
+	 * everywhere.
+	 *
+	 * @return array[]
+	 */
+	private static function wpcom_backed_routes() {
+		return array(
+			'/jetpack/v4/backups'              => array( 'get_recent_backups', 'GET' ),
+			'/jetpack/v4/backup-capabilities'  => array( 'get_backup_capabilities', 'GET' ),
+			'/jetpack/v4/restores'             => array( 'get_recent_restores', 'GET' ),
+			'/jetpack/v4/site/backup/size'     => array( 'get_site_backup_size', 'GET' ),
+			'/jetpack/v4/site/backup/policies' => array( 'get_site_backup_policies', 'GET' ),
+			'/jetpack/v4/site/backup/enqueue'  => array( 'enqueue_backup', 'POST' ),
+			'/jetpack/v4/site/backup/schedule' => array( 'get_site_backup_schedule_time', 'GET' ),
+		);
+	}
+
+	/**
+	 * The route callbacks, keyed by route so a failure names the endpoint.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_wpcom_backed_route_callbacks() {
+		$sets = array();
+
+		foreach ( self::wpcom_backed_routes() as $route => $spec ) {
+			$sets[ $route ] = array( $spec[0] );
+		}
+
+		return $sets;
+	}
+
+	/**
+	 * The same routes as REST requests: route path and HTTP method.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_wpcom_backed_route_requests() {
+		$sets = array();
+
+		foreach ( self::wpcom_backed_routes() as $route => $spec ) {
+			$sets[ $route ] = array( $route, $spec[1] );
+		}
+
+		return $sets;
 	}
 
 	public function test_list_backup_events_returns_null_on_wp_error() {
@@ -270,6 +420,70 @@ class Jetpack_Backup_Test extends TestCase {
 			'response' => array( 'code' => $this->catalogue_status ),
 			'body'     => $body,
 		);
+	}
+
+	/**
+	 * Sign in an administrator and mock the connection tokens, so that both the
+	 * as-blog and as-user wpcom requests are signed and actually reach the
+	 * `pre_http_request` mock rather than being refused before the wire.
+	 *
+	 * WorDBless does not reset the database between tests in this class, so the
+	 * user is created once and reused.
+	 */
+	private function sign_in_as_connected_admin() {
+		// `Client::validate_args_for_wpcom_json_api_request()` reads
+		// `JETPACK__WPCOM_JSON_API_BASE` before `build_signed_request()` installs
+		// the filter that supplies its default, so without this the first signed
+		// request of the process is built against a host-less URL and refused
+		// before the wire — making these tests depend on execution order. Plugins
+		// prime the constants at bootstrap; tests have to do it themselves.
+		Connection_Utils::init_default_constants();
+
+		$user = get_user_by( 'login', 'backup_routes_admin' );
+
+		if ( $user ) {
+			$user_id = $user->ID;
+		} else {
+			$user_id = wp_insert_user(
+				array(
+					'user_login' => 'backup_routes_admin',
+					'user_pass'  => 'pass',
+					'role'       => 'administrator',
+				)
+			);
+		}
+
+		wp_set_current_user( $user_id );
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10, 2 );
+	}
+
+	/**
+	 * Mock a WordPress.com request with the configured status and an empty JSON
+	 * object, so the status is the only thing under test.
+	 *
+	 * @return array
+	 */
+	public function mock_wpcom_response() {
+		++$this->http_requests;
+
+		return array(
+			'response' => array( 'code' => $this->wpcom_status ),
+			'body'     => '{}',
+		);
+	}
+
+	/**
+	 * Mock a request that leaves this site but never reaches WordPress.com.
+	 *
+	 * Kept separate from `mock_request_as_wp_error()` so the route tests can
+	 * count how far the request got.
+	 *
+	 * @return WP_Error
+	 */
+	public function mock_wpcom_unreachable() {
+		++$this->http_requests;
+
+		return new WP_Error( 'http_request_failed', 'The request failed.' );
 	}
 
 	/**

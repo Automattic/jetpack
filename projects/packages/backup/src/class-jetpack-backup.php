@@ -472,12 +472,39 @@ class Jetpack_Backup {
 	}
 
 	/**
+	 * The error a route answers with when its WordPress.com request did not come
+	 * back with a 200.
+	 *
+	 * Returning `null` instead — which these routes used to do — is served as an
+	 * HTTP 200 carrying a `null` body, so `apiFetch` resolves and nothing throws.
+	 * A WordPress.com blip then reaches the dashboard as an empty success, which
+	 * is how a paying customer ends up looking at the first-run screen. A
+	 * WP_Error makes the REST layer answer with a status, so every caller's
+	 * existing failure path runs.
+	 *
+	 * @param int $status The upstream response code, already cast to an int, or 0
+	 *                    when the request never reached WordPress.com.
+	 * @return WP_Error
+	 */
+	private static function get_failed_fetch_error( $status = 0 ) {
+		return new WP_Error(
+			'failed_to_fetch_data',
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack-backup-pkg' ),
+			array(
+				// A transport failure has no status at all, and `status_header( 0 )`
+				// emits an invalid status line — so anything falsy becomes a 500.
+				'status' => $status ? $status : 500,
+			)
+		);
+	}
+
+	/**
 	 * Get information about recent backups
 	 *
 	 * @access public
 	 * @static
 	 *
-	 * @return array An array of recent backups
+	 * @return \WP_REST_Response|WP_Error The recent backups, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function get_recent_backups() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
@@ -490,8 +517,10 @@ class Jetpack_Backup {
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return null;
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response_code );
 		}
 
 		return rest_ensure_response(
@@ -543,7 +572,7 @@ class Jetpack_Backup {
 	 * @access public
 	 * @static
 	 *
-	 * @return array An array of capabilities
+	 * @return \WP_REST_Response|WP_Error The site capabilities, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function get_backup_capabilities() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
@@ -556,8 +585,10 @@ class Jetpack_Backup {
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return null;
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response_code );
 		}
 
 		return rest_ensure_response(
@@ -571,7 +602,7 @@ class Jetpack_Backup {
 	 * @access public
 	 * @static
 	 *
-	 * @return array An array of recent restores
+	 * @return \WP_REST_Response|WP_Error The recent restores, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function get_recent_restores() {
 		$blog_id  = Jetpack_Options::get_option( 'id' );
@@ -583,8 +614,10 @@ class Jetpack_Backup {
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return null;
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response_code );
 		}
 
 		return rest_ensure_response(
@@ -733,7 +766,7 @@ class Jetpack_Backup {
 	/**
 	 * Returns the result of `/upgrades` endpoint call.
 	 *
-	 * @return array of site purchases.
+	 * @return \WP_REST_Response|WP_Error The site purchases, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function get_site_current_purchases() {
 
@@ -745,8 +778,10 @@ class Jetpack_Backup {
 			return self::get_failed_fetch_error();
 		}
 
-		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
-			return self::get_failed_fetch_error();
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response_code );
 		}
 
 		return rest_ensure_response(
@@ -778,7 +813,7 @@ class Jetpack_Backup {
 	/**
 	 * Get site storage size
 	 *
-	 * @return string|WP_Error A JSON object with the site storage size if the request was successful, or a WP_Error otherwise.
+	 * @return \WP_REST_Response|WP_Error The site storage size, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function get_site_backup_size() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
@@ -791,8 +826,10 @@ class Jetpack_Backup {
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return null;
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response_code );
 		}
 
 		return rest_ensure_response(
@@ -803,8 +840,7 @@ class Jetpack_Backup {
 	/**
 	 * Get site policies from WPCOM. It includes the storage limit and activity log limit, if apply.
 	 *
-	 * @return string|WP_Error A JSON object with the site storage policies if the request was successful,
-	 *                         or a WP_Error otherwise.
+	 * @return \WP_REST_Response|WP_Error The site storage policies, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function get_site_backup_policies() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
@@ -817,8 +853,10 @@ class Jetpack_Backup {
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return null;
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response_code );
 		}
 
 		return rest_ensure_response(
@@ -912,8 +950,7 @@ class Jetpack_Backup {
 	/**
 	 * Enqueue a new backup on demand
 	 *
-	 * @return string|WP_Error A JSON object with `success` if the request was successful,
-	 * or a WP_Error otherwise.
+	 * @return \WP_REST_Response|WP_Error The enqueue result, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function enqueue_backup() {
 		$blog_id  = Jetpack_Options::get_option( 'id' );
@@ -929,8 +966,10 @@ class Jetpack_Backup {
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return null;
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response_code );
 		}
 
 		return rest_ensure_response(
@@ -941,7 +980,7 @@ class Jetpack_Backup {
 	/**
 	 * Get site backup schedule time
 	 *
-	 * @return string|WP_Error A JSON object with the backup schedule time if the request was successful, or a WP_Error otherwise.
+	 * @return \WP_REST_Response|WP_Error The backup schedule time, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function get_site_backup_schedule_time() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
@@ -954,8 +993,10 @@ class Jetpack_Backup {
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return null;
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response_code );
 		}
 
 		return rest_ensure_response(
