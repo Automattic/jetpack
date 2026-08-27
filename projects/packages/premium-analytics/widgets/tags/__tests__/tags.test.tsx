@@ -35,10 +35,6 @@ const TAGS_RESPONSE = {
 			views: 980,
 		},
 		{
-			tags: [ { type: 'tag', name: 'viral', link: 'https://example.com/tag/viral/' } ],
-			views: 1234567,
-		},
-		{
 			tags: [
 				{ type: 'category', name: 'Desserts', link: 'https://example.com/category/desserts/' },
 				{ type: 'tag', name: 'chocolate', link: 'https://example.com/tag/chocolate/' },
@@ -134,14 +130,30 @@ describe( 'TagsWidget', () => {
 	// The same module in Jetpack Stats prints the count in full, and the two are
 	// read side by side. Compacting rounds to whole thousands, so 1,240 would show
 	// as "1K" and read as different data rather than as rounding (WOOA7S-2018).
-	// The seven-digit row covers the widest count the row has to hold once the
-	// compact form is gone.
 	it( 'prints view counts in full rather than compacting them', async () => {
 		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
 
 		await expect( screen.findByText( '1,240' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( '1,234,567' ) ).toBeInTheDocument();
 		expect( screen.queryByText( '1K' ) ).not.toBeInTheDocument();
+	} );
+
+	// The widest count a row has to hold once the compact form is gone. Its own
+	// response, because the top row sets the denominator every other row's bar
+	// width is drawn from.
+	it( 'prints a seven-digit count in full', async () => {
+		mockApiFetch.mockResolvedValue( {
+			...TAGS_RESPONSE,
+			tags: [
+				{
+					tags: [ { type: 'tag', name: 'viral', link: 'https://example.com/tag/viral/' } ],
+					views: 1234567,
+				},
+			],
+		} );
+
+		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
+
+		await expect( screen.findByText( '1,234,567' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( '1M' ) ).not.toBeInTheDocument();
 	} );
 

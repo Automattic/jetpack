@@ -1,7 +1,13 @@
+/**
+ * External dependencies
+ */
 import { useStatsTags } from '@jetpack-premium-analytics/data';
 import { renderHook } from '@testing-library/react';
+/**
+ * Internal dependencies
+ */
 import { useTagsReportRecords } from './use-report-records';
-import type { StatsTagsResponse } from '@jetpack-premium-analytics/data';
+import type { StatsNormalizedReport, StatsTagsItem } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -10,10 +16,13 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 
 const mockUseStatsTags = useStatsTags as jest.MockedFunction< typeof useStatsTags >;
 
-const report = {
+const report: StatsNormalizedReport< StatsTagsItem > = {
 	summary: {},
 	data: [
 		{
+			time_interval: '',
+			date_start: '',
+			date_end: '',
 			items: [
 				{
 					label: [
@@ -26,7 +35,7 @@ const report = {
 			],
 		},
 	],
-} as unknown as StatsTagsResponse;
+};
 
 describe( 'useTagsReportRecords', () => {
 	beforeEach( () => {
