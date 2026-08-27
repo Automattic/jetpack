@@ -241,4 +241,26 @@ describe( 'Stats label HTML entities', () => {
 	it.each( CASES )( 'decodes the %s label', ( _name, run ) => {
 		expect( run() ).toBe( DECODED );
 	} );
+
+	it( 'preserves URL search terms and email labels with entity-like text', () => {
+		const url = 'https://example.com/?a=1&copy=2';
+		const email = 'reader&copy=2@example.com';
+
+		expect(
+			firstLabel(
+				sanitizeStatsSearchTermsResponse(
+					{ date: DATE, period: 'day', days: { [ DATE ]: { search_terms: [ { term: url } ] } } },
+					DAY_QUERY
+				)
+			)
+		).toBe( url );
+		expect(
+			firstLabel(
+				sanitizeStatsFollowersResponse(
+					{ subscribers: [ { ID: 1, email, date_subscribed: `${ DATE }T00:00:00+00:00` } ] },
+					DAY_QUERY
+				)
+			)
+		).toBe( email );
+	} );
 } );
