@@ -23,12 +23,28 @@ import type { ReactNode } from 'react';
  * `Normal` has no line, which is what makes it the level at which this
  * whole component is absent rather than silent.
  *
- * Both figures are typed nullable and both are checked, though neither
- * can be null where it is read: `getUsageLevel` only returns `Full` and
- * `BackupsDiscarded` from a branch guarded by `!! daysOfBackupsSaved`
- * and `!! minDaysOfBackupsAllowed` together. The checks cost nothing and
- * keep the alternative from being legacy's, which renders its selector's
- * `null` into the sentence and says "null day(s) of backups saved".
+ * The two day counts are not equally trustworthy, and an earlier version
+ * of this file wrongly said they were.
+ *
+ * `BackupsDiscarded` really does imply a count: it is returned from one
+ * place only, inside `getUsageLevel`'s branch guarded on
+ * `!! minDaysOfBackupsAllowed && !! daysOfBackupsAllowed &&
+ * !! retentionDays && !! daysOfBackupsSaved`, and it is absent from the
+ * threshold table that produces every other level. So its `!== null`
+ * check below is unreachable, kept only because it is also what narrows
+ * the type.
+ *
+ * `Full` implies nothing of the sort. It appears in that guarded branch
+ * and *also* as `100:` in the threshold table, so any site at or over
+ * its limit reaches it with no day counts at all —
+ * `getUsageLevel( 100GB, 100GB, null, null, null, null )` returns
+ * `'Full'`, verified. Every field of `/site/backup/size` is optional, so
+ * a response carrying `size` and nothing else is enough. Hence two
+ * sentences for that level rather than one: without the countless
+ * fallback, a site whose backups have stopped is shown the "add more
+ * storage" button with no sentence saying why, and is shown nothing at
+ * all if the offer request also fails. Legacy renders this same case as
+ * "null day(s) of backups saved".
  *
  * @param usageLevel              - Derived level, or null when it could not be computed.
  * @param daysOfBackupsSaved      - Days of history actually held.
@@ -54,9 +70,23 @@ function statusText(
 		);
 	}
 
-	if ( usageLevel === StorageUsageLevels.Full && daysOfBackupsSaved !== null ) {
+	if ( usageLevel === StorageUsageLevels.Full ) {
+		// Two separate `__()` calls in two `return` statements, rather
+		// than one call with the msgid chosen by a ternary: the minifier
+		// factors a shared call out and leaves the msgid a variable, which
+		// the text-domain scanner then drops without saying so.
+		if ( daysOfBackupsSaved === null ) {
+			// The one string here that is not legacy's, so the one that
+			// waits a GlotPress cycle. It earns that: the alternative on
+			// this path is silence about stopped backups.
+			return __(
+				'You have reached your storage limit. Backups have been stopped. Please upgrade your storage to resume backups.',
+				'jetpack-backup-pkg'
+			);
+		}
+
 		return sprintf(
-			/* translators: %s is a number greather than 0 that means a number of days. */
+			/* translators: %s is a number greater than 0 that means a number of days. */
 			__(
 				'You have reached your storage limit with %s day(s) of backups saved. Backups have been stopped. Please upgrade your storage to resume backups.',
 				'jetpack-backup-pkg'
@@ -67,7 +97,7 @@ function statusText(
 
 	if ( usageLevel === StorageUsageLevels.BackupsDiscarded && minDaysOfBackupsAllowed !== null ) {
 		return sprintf(
-			/* translators: %s is a number greather than 0 that means a number of days. */
+			/* translators: %s is a number greater than 0 that means a number of days. */
 			__(
 				'We removed your oldest backup(s) to make space for new ones. We will continue to remove old backups as needed, up to the last %s days.',
 				'jetpack-backup-pkg'
@@ -103,7 +133,7 @@ function statusText(
  * @return The label.
  */
 function offerLabel( sizeText: string, monthlyPrice: number, currencyCode: string ): ReactNode {
-	// translators: %1$s: Storage unit, <Price>: Additional charge.
+	/* translators: %1$s: Storage unit, <Price>: Additional charge. */
 	const offer = __(
 		'Add %1$s additional storage for <Price />/month, billed monthly',
 		'jetpack-backup-pkg'

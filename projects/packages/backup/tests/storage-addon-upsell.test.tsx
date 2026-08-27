@@ -357,6 +357,21 @@ describe( 'what the offer says', () => {
 		await expect( offerLink() ).resolves.toHaveTextContent( /\$9\.95\/month/ );
 	} );
 
+	it( 'ignores a discount of zero rather than quoting the add-on as free', async () => {
+		// A separate guard from the one above, and a separate failure: a
+		// zero is *lower* than the full price, so the "is this really a
+		// discount" comparison waves it through. What stops it is the
+		// `> 0` test beside it, and without that this button reads
+		// "$0.00/month" for something that costs $9.95.
+		mockEndpoints( {
+			offer: { pricing: { currency_code: 'USD', full_price: 9.95, discount_price: 0 } },
+		} );
+		renderWithClient( <StorageSpace /> );
+
+		await expect( offerLink() ).resolves.toHaveTextContent( /\$9\.95\/month/ );
+		expect( screen.queryByText( /\$0\.00/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'names the level in the warning it leads with', async () => {
 		// Four levels, four sentences, and the wording is the whole of what
 		// tells "getting close" apart from "backups have stopped".
@@ -481,5 +496,75 @@ describe( 'the Tracks event', () => {
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_backup_upgrade_storage_prompt_cta', {
 			site: SITE,
 		} );
+	} );
+} );
+
+describe( 'a full site that reported no day count', () => {
+	// `getUsageLevel` reaches `Full` two ways: from the branch guarded on
+	// four truthy day counts, and from `100:` in the threshold table,
+	// which needs none of them. Only the second is exercised here, and it
+	// is not exotic — every field of `/site/backup/size` is optional, so
+	// a response carrying `size` and nothing else lands on it.
+	//
+	// Verified before this was written:
+	// `getUsageLevel( 100GB, 100GB, null, null, null, null )` → `'Full'`,
+	// and the section then rendered the heading "Cloud storage full" and
+	// the priced button with no warning line at all.
+
+	beforeEach( () => {
+		mockEndpoints( {
+			size: { size: 100 * GB, days_of_backups_saved: undefined },
+			policies: { storage_limit_bytes: 100 * GB },
+		} );
+	} );
+
+	it( 'still says backups have stopped, without inventing a day count', async () => {
+		renderWithClient( <StorageSpace /> );
+
+		// Deliberately anchored: the counted sentence starts the same way
+		// and would satisfy a loose match, so an assertion that did not
+		// pin the ending would pass on "…with null day(s) of backups
+		// saved", which is what legacy prints here.
+		await expect(
+			warning(
+				/^You have reached your storage limit\. Backups have been stopped\. Please upgrade your storage to resume backups\.$/
+			)
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'never renders the counted sentence with a missing count in it', async () => {
+		renderWithClient( <StorageSpace /> );
+
+		await expect( offerLink() ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /day\(s\) of backups saved/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'says it even when the offer never arrives', async () => {
+		// The half of this that legacy gets wrong twice over. Its warning
+		// lives inside the checkout button, so no offer means no warning;
+		// and on this path it has no count to put in the warning either.
+		// A site whose backups have stopped would be shown an empty
+		// section.
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+			const path = options?.path ?? '';
+			if ( path.includes( '/site/backup/addon-offer' ) ) {
+				return Promise.reject( new Error( 'catalogue unavailable' ) );
+			}
+			if ( path.includes( '/site/backup/policies' ) ) {
+				return Promise.resolve( { policies: { storage_limit_bytes: 100 * GB } } );
+			}
+			if ( path.includes( '/site/backup/size' ) ) {
+				return Promise.resolve( { ok: true, size: 100 * GB } );
+			}
+			return Promise.resolve( {} );
+		} );
+
+		renderWithClient( <StorageSpace /> );
+
+		await expect(
+			warning( /^You have reached your storage limit\. Backups have been stopped/ )
+		).resolves.toBeInTheDocument();
+		await settle();
+		expect( screen.queryByRole( 'link', { name: /additional storage/ } ) ).not.toBeInTheDocument();
 	} );
 } );
