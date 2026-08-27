@@ -399,15 +399,11 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			'default-posting-activity-widget-instance'     => array( 'jpa/posting-activity', 4, 1, 1 ),
 			'default-latest-post-widget-instance'          => array( 'jpa/latest-post', 2, 2, 2 ),
 			'default-popular-post-widget-instance'         => array( 'jpa/popular-post', 2, 2, 3 ),
-			'default-total-views-widget-instance'          => array( 'jpa/total-views', 1, 1, 4 ),
-			'default-total-visitors-widget-instance'       => array( 'jpa/total-visitors', 1, 1, 5 ),
-			'default-popular-days-widget-instance'         => array( 'jpa/popular-days', 1, 1, 6 ),
-			'default-popular-hours-widget-instance'        => array( 'jpa/popular-hours', 1, 1, 7 ),
-			'default-traffic-views-activity-widget-instance' => array( 'jpa/traffic-views-activity', 4, 2, 8 ),
-			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 9 ),
-			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 10 ),
-			'default-shares-widget-instance'               => array( 'jpa/shares', 1, 2, 11 ),
-			'default-tags-widget-instance'                 => array( 'jpa/tags', 1, 2, 12 ),
+			'default-traffic-views-activity-widget-instance' => array( 'jpa/traffic-views-activity', 4, 2, 4 ),
+			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 5 ),
+			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 6 ),
+			'default-shares-widget-instance'               => array( 'jpa/shares', 1, 2, 7 ),
+			'default-tags-widget-instance'                 => array( 'jpa/tags', 1, 2, 8 ),
 		);
 
 		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );
@@ -433,8 +429,15 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->assertNotContains( 'jpa/stats-emails', $layout_types );
 		// The Comments module ships as two focused widgets, not one toggled widget.
 		$this->assertNotContains( 'jpa/comments', $layout_types );
-		// Total views and Total visitors carry the totals row instead.
+		// All-time stats is not a default yet; it arrives with WOOPRD-3701.
 		$this->assertNotContains( 'jpa/all-time-stats', $layout_types );
+		// These four moved off Insights: their period sparklines did not read
+		// (WOOPRD-3672), and the tab's own date control is on its way out
+		// (WOOPRD-3699). They stay available on Traffic.
+		$this->assertNotContains( 'jpa/total-views', $layout_types );
+		$this->assertNotContains( 'jpa/total-visitors', $layout_types );
+		$this->assertNotContains( 'jpa/popular-days', $layout_types );
+		$this->assertNotContains( 'jpa/popular-hours', $layout_types );
 
 		// Highlights falls back to the widget's own default metric list.
 		$this->assertArrayNotHasKey(

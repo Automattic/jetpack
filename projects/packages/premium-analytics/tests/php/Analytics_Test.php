@@ -882,9 +882,17 @@ class Analytics_Test extends TestCase {
 	 * registry with no error at all (the #49961 bug).
 	 */
 	public function test_widget_manifest_path_defaults_to_the_generated_manifest() {
-		// Collapse the ".." the default is built from rather than realpath()ing it:
-		// build/ does not exist in a checkout that has not run the JS build.
-		$path = preg_replace( '#/[^/]+/\.\./#', '/', Analytics::widget_manifest_path() );
+		// The suite points this filter at a fixture (see bootstrap.php); lift it so
+		// the assertion sees the real default this test exists to pin.
+		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', 'jpa_test_widget_manifest_path', 1 );
+
+		try {
+			// Collapse the ".." the default is built from rather than realpath()ing it:
+			// build/ does not exist in a checkout that has not run the JS build.
+			$path = preg_replace( '#/[^/]+/\.\./#', '/', Analytics::widget_manifest_path() );
+		} finally {
+			add_filter( 'jetpack_premium_analytics_widgets_manifest_path', 'jpa_test_widget_manifest_path', 1 );
+		}
 
 		$this->assertSame( dirname( __DIR__, 2 ) . '/build/widgets.php', $path );
 	}

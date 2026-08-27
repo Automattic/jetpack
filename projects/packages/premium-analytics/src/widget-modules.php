@@ -52,6 +52,7 @@ function ensure_widget_registry_ready() {
 
 	require_once __DIR__ . '/widget-types.php';
 	require_once __DIR__ . '/widget-availability.php';
+	require_once __DIR__ . '/widget-sections.php';
 
 	// REST does not load the admin build, so this require is the manifest's only route
 	// in (WOOA7S-1804). Drop it and every widget renders "Widget is no longer
@@ -85,6 +86,9 @@ function get_widget_modules_response() {
 			'description'   => $widget_type->description,
 			'help'          => $widget_type->help,
 			'keywords'      => $widget_type->keywords,
+			// Null for every type the gallery may offer in any section, which is
+			// most of them; see widget-sections.php.
+			'sections'      => get_widget_type_sections( $widget_type->name ),
 		);
 	}
 

@@ -13,6 +13,7 @@ use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../../src/widget-types.php';
 require_once __DIR__ . '/../../src/widget-modules.php';
+require_once __DIR__ . '/../../src/widget-sections.php';
 require_once __DIR__ . '/fixtures/widget-modules-manifest.php';
 
 /**
@@ -284,5 +285,41 @@ class Widget_Metadata_Test extends BaseTestCase {
 		$this->assertSame( 'Metadata carrier.', $record['description'], 'The description reaches the record.' );
 		$this->assertSame( array( 'content' => 'Helpful.' ), $record['help'], 'The help note reaches the record.' );
 		$this->assertSame( array( 'sentinel' ), $record['keywords'], 'The keywords reach the record.' );
+	}
+
+	/**
+	 * The section scope is policy, not manifest metadata, so the record is where
+	 * it joins the widget type on the way to the client.
+	 */
+	public function test_widget_modules_record_carries_the_section_scope() {
+		$registry       = Widget_Type_Registry::get_instance();
+		$scoped_name    = 'jpa/total-views';
+		$was_registered = $registry->is_registered( $scoped_name );
+
+		if ( ! $was_registered ) {
+			$registry->register( $scoped_name, array( 'title' => 'Total views' ) );
+		}
+		$registry->register( 'test/unscoped-sentinel', array( 'title' => 'Unscoped' ) );
+
+		// The registry is process-wide, so a failure inside the call below must not
+		// leak these two into every test that runs after this one.
+		try {
+			$records = array_column( get_widget_modules_response()->get_data(), null, 'name' );
+		} finally {
+			$registry->unregister( 'test/unscoped-sentinel' );
+			if ( ! $was_registered ) {
+				$registry->unregister( $scoped_name );
+			}
+		}
+
+		$this->assertSame(
+			array( DASHBOARD_TRAFFIC_SECTION_ID ),
+			$records[ $scoped_name ]['sections'],
+			'A scoped type carries its sections to the client.'
+		);
+		$this->assertNull(
+			$records['test/unscoped-sentinel']['sections'],
+			'An unscoped type carries null, which the gallery reads as every section.'
+		);
 	}
 }

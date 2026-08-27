@@ -16,3 +16,5 @@ export {
 } from './date-filter';
 
 export { isDashboardSectionLayouts, type DashboardSectionLayouts } from './section-layouts';
+
+export { selectSectionWidgetTypes, type SectionScopedWidgetModuleRecord } from './widget-sections';

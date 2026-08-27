@@ -20,6 +20,9 @@ import type { ReactNode } from 'react';
 // section is ever in the DOM. The mock below models that: without it, anything
 // the stage renders per section would silently multiply here but not in product.
 let mockActiveSectionSlug = 'insights';
+let mockWidgetModules: { name: string; sections?: string[] | null }[] = [];
+let mockWidgetTypes: { name: string }[] = [];
+let mockSectionLayout: { type: string }[] = [];
 let mockSyncState: { data?: SyncStatus; error: Error | null; isComplete: boolean };
 let mockIsSyncFinished: boolean;
 const mockTriggerSync = jest.fn( () => Promise.resolve() );
@@ -81,7 +84,9 @@ jest.mock( '@wordpress/components', () => ( {
 
 jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
 
-jest.mock( '@wordpress/data', () => ( { useSelect: () => [] } ) );
+// Blunt on purpose: the stage's only `useSelect` is the widget-module records.
+// A second one added later would receive these too — narrow this then.
+jest.mock( '@wordpress/data', () => ( { useSelect: () => mockWidgetModules } ) );
 
 /**
  * Reads the scope the dashboard declares, from where the header's date controls
@@ -110,7 +115,20 @@ function MockScopeProbe() {
 }
 
 jest.mock( '@wordpress/widget-dashboard', () => {
-	const WidgetDashboard = ( { children }: { children: ReactNode } ) => <div>{ children }</div>;
+	// The gallery and the grid read one `widgetTypes` prop, so what the stage
+	// hands over is the whole of what a section can offer and render.
+	const WidgetDashboard = ( {
+		children,
+		widgetTypes,
+	}: {
+		children: ReactNode;
+		widgetTypes: { name: string }[];
+	} ) => (
+		<div>
+			<span data-testid="widget-types">{ widgetTypes.map( type => type.name ).join( ',' ) }</span>
+			{ children }
+		</div>
+	);
 	WidgetDashboard.Actions = () => null;
 	WidgetDashboard.NoWidgetsState = () => null;
 	WidgetDashboard.Widgets = () => <MockScopeProbe />;
@@ -150,13 +168,13 @@ jest.mock( './components', () => ( {
 
 jest.mock( '../widget-module-i18n', () => ( {
 	resolveWidgetModuleWithI18n: jest.fn(),
-	useWidgetTypesWithI18n: () => [ [], false ],
+	useWidgetTypesWithI18n: () => [ mockWidgetTypes, false ],
 } ) );
 
 jest.mock( './hooks', () => ( {
 	useActiveSection: jest.fn(),
 	useDashboardGridSettings: () => [ {} ],
-	useDashboardSectionLayout: () => [ [], jest.fn(), jest.fn() ],
+	useDashboardSectionLayout: () => [ mockSectionLayout, jest.fn(), jest.fn() ],
 	useDashboardSections: jest.fn(),
 	useSectionDateFilter: jest.fn(),
 } ) );
@@ -165,6 +183,9 @@ beforeEach( () => {
 	mockSyncState = { data: undefined, error: null, isComplete: false };
 	mockIsSyncFinished = false;
 	mockTriggerSync.mockImplementation( () => Promise.resolve() );
+	mockWidgetModules = [];
+	mockWidgetTypes = [];
+	mockSectionLayout = [];
 } );
 
 const useDashboardSectionsMock = jest.mocked( useDashboardSections );
@@ -440,5 +461,71 @@ describe( 'Dashboard header date control', () => {
 
 		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'subtitle: Jan 1 - Jan 30' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'Dashboard widget type scoping', () => {
+	const RECORDS = [
+		{ name: 'jpa/total-views', sections: [ 'traffic' ] },
+		{ name: 'jpa/tags', sections: null },
+	];
+
+	/**
+	 * Resolve both sections and make one of them active.
+	 *
+	 * @param slug - The active section's slug.
+	 */
+	function mockActiveSection( slug: string ) {
+		useDashboardSectionsMock.mockReturnValue( {
+			sections: [
+				{ slug: 'traffic', label: 'Traffic', title: 'Traffic', date_filter: DATE_FILTER_RANGE },
+				{
+					slug: 'insights',
+					label: 'Insights',
+					title: 'Activity insights',
+					date_filter: DATE_FILTER_YEAR,
+				},
+			],
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+		useActiveSectionMock.mockReturnValue( [ slug, jest.fn() ] );
+		mockActiveSectionSlug = slug;
+	}
+
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		mockWidgetModules = RECORDS;
+		mockWidgetTypes = RECORDS.map( record => ( { name: record.name } ) );
+		mockSectionLayout = [];
+	} );
+
+	it( 'offers a scoped type in the section it names', () => {
+		mockActiveSection( 'traffic' );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByTestId( 'widget-types' ) ).toHaveTextContent( 'jpa/total-views,jpa/tags' );
+	} );
+
+	// The section keys are slugs, not the namespaced `analytics/traffic` ids the
+	// same records carry: reading the wrong one would hide these on Traffic and
+	// offer them on Insights, and every other test would still pass.
+	it( 'withholds a scoped type from a section it does not name', () => {
+		mockActiveSection( 'insights' );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByTestId( 'widget-types' ) ).toHaveTextContent( 'jpa/tags' );
+		expect( screen.getByTestId( 'widget-types' ) ).not.toHaveTextContent( 'jpa/total-views' );
+	} );
+
+	it( 'keeps a scoped type the section already places', () => {
+		mockActiveSection( 'insights' );
+		mockSectionLayout = [ { type: 'jpa/total-views' } ];
+
+		render( <Dashboard /> );
+
+		expect( screen.getByTestId( 'widget-types' ) ).toHaveTextContent( 'jpa/total-views,jpa/tags' );
 	} );
 } );

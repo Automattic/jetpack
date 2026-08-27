@@ -22,7 +22,6 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
-import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { DashboardSections, RefreshFailureNotice, SectionSyncNotice } from './components';
@@ -31,6 +30,8 @@ import {
 	isSectionAwaitingSync,
 	offersDateComparison,
 	resolveSectionHeading,
+	selectSectionWidgetTypes,
+	type SectionScopedWidgetModuleRecord,
 } from './config';
 import {
 	useActiveSection,
@@ -96,7 +97,7 @@ function Dashboard(): JSX.Element {
 						kind: string,
 						name: string,
 						query?: Record< string, unknown >
-					) => WidgetModuleRecord[] | null;
+					) => SectionScopedWidgetModuleRecord[] | null;
 				}
 			 )
 				// `per_page: -1` returns every widget type. Without it, core-data's default
@@ -117,6 +118,26 @@ function Dashboard(): JSX.Element {
 		visibleNames: hasResolvedSections ? layout.map( widget => widget.type ) : null,
 		includeAll: editMode,
 	} );
+
+	// Keyed on the names themselves rather than the array, the way
+	// `useWidgetTypesWithI18n` keys its own scope: a drag or a resize rewrites
+	// `layout` without changing which types it places, and rebuilding the scoped
+	// list on each of those would hand `WidgetDashboard` a new array for nothing.
+	const placedTypesKey = layout
+		.map( widget => widget.type )
+		.sort()
+		.join( '\n' );
+	const placedTypes = useMemo(
+		() => new Set( placedTypesKey ? placedTypesKey.split( '\n' ) : [] ),
+		[ placedTypesKey ]
+	);
+
+	// A widget type can be scoped to some sections only — the gallery in one
+	// section must not offer a widget whose numbers that section cannot date.
+	const sectionWidgetTypes = useMemo(
+		() => selectSectionWidgetTypes( widgetTypes, widgetModules, activeSection, placedTypes ),
+		[ widgetTypes, widgetModules, activeSection, placedTypes ]
+	);
 
 	/*
 	 * Date-range state lives in the URL search params. The shared controller
@@ -266,7 +287,7 @@ function Dashboard(): JSX.Element {
 			 */ }
 			<ReportScopeProvider offersComparison={ showComparison }>
 				<WidgetDashboard
-					widgetTypes={ widgetTypes }
+					widgetTypes={ sectionWidgetTypes }
 					isResolvingWidgetTypes={ isResolvingWidgetTypes }
 					resolveWidgetModule={ resolveWidgetModuleWithI18n }
 					layout={ layout }
