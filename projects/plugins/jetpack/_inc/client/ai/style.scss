@@ -182,7 +182,7 @@ body.jetpack_page_jetpack-ai {
 }
 
 .jetpack-ai-features__card-content {
-	padding-block-start: var(--wpds-dimension-padding-2xl, 24px);
+	padding-block-start: var(--wp-ui-card-padding, 20px);
 }
 
 // Figma: Body SM in foreground/content/neutral-weak.
@@ -200,7 +200,7 @@ body.jetpack_page_jetpack-ai {
 	// shorthand (no rule drawn at all).
 	border-block-start:
 		var(--wpds-border-width-xs, 1px) solid
-		var(--wpds-color-stroke-surface-neutral, #dbdbdb);
+		var(--wpds-color-stroke-surface-neutral, #DBDBDB);
 	// Figma rhythm: 20px after a section's rows, 16px before the next header;
 	// the first divider sits 16px under the card subtitle instead.
 	margin-block: var(--wpds-dimension-padding-xl, 20px) var(--wpds-dimension-padding-lg, 16px);
