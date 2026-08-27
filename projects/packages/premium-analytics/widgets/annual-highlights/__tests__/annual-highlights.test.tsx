@@ -114,13 +114,21 @@ async function mountAndSettle() {
 }
 
 /**
- * Opens the widget's year dropdown and picks the previous year. The
- * pointer-events check is off for the option click: jsdom gives the popup no
- * layout, so its positioner never leaves the `pointer-events: none` it opens
- * with — a jsdom artifact, not a state a browser user can see.
+ * One configured instance for every pointer interaction, so the whole suite
+ * shares the same pointer-events semantics. The check is off because jsdom
+ * gives the popup no layout: its positioner never leaves the
+ * `pointer-events: none` it opens with — a jsdom artifact, not a state a
+ * browser user can see.
+ */
+function setupUser() {
+	return userEvent.setup( { pointerEventsCheck: PointerEventsCheckLevel.Never } );
+}
+
+/**
+ * Opens the widget's year dropdown and picks the previous year.
  */
 async function selectPreviousYear() {
-	const user = userEvent.setup( { pointerEventsCheck: PointerEventsCheckLevel.Never } );
+	const user = setupUser();
 
 	await user.click( screen.getByRole( 'combobox', { name: 'Year' } ) );
 	await user.click( screen.getByRole( 'option', { name: String( PREVIOUS_YEAR ), hidden: true } ) );
@@ -231,7 +239,7 @@ describe( 'AnnualHighlightsWidget', () => {
 
 		await mountAndSettle();
 
-		await userEvent.click( screen.getByRole( 'combobox', { name: 'Year' } ) );
+		await setupUser().click( screen.getByRole( 'combobox', { name: 'Year' } ) );
 		const options = screen.getAllByRole( 'option', { hidden: true } );
 
 		// Calendar years, newest first, publish gaps included — matching the
@@ -254,7 +262,7 @@ describe( 'AnnualHighlightsWidget', () => {
 
 		await mountAndSettle();
 
-		await userEvent.click( screen.getByRole( 'combobox', { name: 'Year' } ) );
+		await setupUser().click( screen.getByRole( 'combobox', { name: 'Year' } ) );
 		const options = screen.getAllByRole( 'option', { hidden: true } );
 
 		expect( options.map( option => option.textContent ) ).toEqual( [ String( CURRENT_YEAR ) ] );

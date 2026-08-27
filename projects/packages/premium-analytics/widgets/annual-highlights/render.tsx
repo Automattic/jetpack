@@ -70,7 +70,9 @@ function selectYearTotals(
 
 /**
  * Oldest year in the insights payload, which is where the dropdown's list
- * starts — the endpoint reports across the whole site lifetime.
+ * starts — the endpoint reports across the whole site lifetime. Rows dated
+ * past the current year are intentionally out of reach: the year surface
+ * enumerates down from today.
  */
 function findStartYear( data: StatsInsightsResponse | undefined ): number | undefined {
 	const years = ( data?.years ?? [] )
@@ -84,6 +86,9 @@ function findStartYear( data: StatsInsightsResponse | undefined ): number | unde
 		return undefined;
 	}
 
+	// The browser clock is fine for this floor: it guards against garbled
+	// rows, where an off-by-one at the New Year boundary is immaterial. Year
+	// math the reader can see goes through the site timezone instead.
 	return Math.max( Math.min( ...years ), new Date().getFullYear() - 50 );
 }
 
@@ -207,7 +212,7 @@ function AnnualHighlightsReport( {
 				isEmpty={ ! totals }
 				error={ {
 					description: __(
-						"We couldn't load annual highlights. Please try again in a moment.",
+						"We couldn't load your year in review. Please try again in a moment.",
 						'jetpack-premium-analytics-pkg'
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
