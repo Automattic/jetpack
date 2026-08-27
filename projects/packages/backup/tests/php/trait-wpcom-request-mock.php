@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Backup\V0005\REST;
 use WP_Error;
 use function add_filter;
 use function get_current_user_id;
+use function get_status_header_desc;
 use function remove_all_filters;
 use function remove_filter;
 use function wp_insert_user;
@@ -98,7 +99,7 @@ trait Wpcom_Request_Mock {
 				$this->captured_urls[] = $url;
 				$this->captured_body   = isset( $args['body'] ) ? json_decode( $args['body'], true ) : null;
 				return array(
-					'response' => array( 'code' => $status ),
+					'response' => self::mock_response_headers( $status ),
 					'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 				);
 			},
@@ -138,7 +139,7 @@ trait Wpcom_Request_Mock {
 				// reaching the network.
 				$this->captured_body = isset( $args['body'] ) ? json_decode( $args['body'], true ) : null;
 				return array(
-					'response' => array( 'code' => $status ),
+					'response' => self::mock_response_headers( $status ),
 					'body'     => $body,
 				);
 			},
@@ -168,6 +169,28 @@ trait Wpcom_Request_Mock {
 					'cURL error 28: Operation timed out after 10001 milliseconds with 0 bytes received'
 				);
 			}
+		);
+	}
+
+	/**
+	 * The `response` half of a faked `wp_remote_*` return value.
+	 *
+	 * The reason phrase is here because a real response always carries one,
+	 * and `wp_remote_retrieve_response_message()` reads it without checking:
+	 * a fixture that omits it makes any code path calling that helper emit
+	 * an "Undefined array key" warning that belongs to the fixture rather
+	 * than to the code under test. `get_status_header_desc()` is what core
+	 * itself would have put there, and answers `''` for a status it does not
+	 * recognise — including the deliberately malformed ones these tests
+	 * feed in.
+	 *
+	 * @param int|string $status HTTP status WordPress.com should answer with.
+	 * @return array<string, mixed>
+	 */
+	private static function mock_response_headers( $status ) {
+		return array(
+			'code'    => $status,
+			'message' => get_status_header_desc( (int) $status ),
 		);
 	}
 

@@ -46,6 +46,17 @@ class Jetpack_Backup_Test extends TestCase {
 	private $wpcom_status = 200;
 
 	/**
+	 * Raw body for the next mocked WordPress.com response.
+	 *
+	 * An empty object by default, which is all the route tests above need —
+	 * they assert on the status, not on what came back. A test that has to
+	 * reach past the status guard and read the payload sets its own.
+	 *
+	 * @var string
+	 */
+	private $wpcom_body = '{}';
+
+	/**
 	 * How many times a route reached the mocked transport.
 	 *
 	 * @var int
@@ -63,6 +74,7 @@ class Jetpack_Backup_Test extends TestCase {
 		wp_set_current_user( 0 );
 
 		$this->wpcom_status  = 200;
+		$this->wpcom_body    = '{}';
 		$this->http_requests = 0;
 
 		parent::tearDown();
@@ -234,6 +246,56 @@ class Jetpack_Backup_Test extends TestCase {
 		$this->assertNull( $result );
 
 		remove_filter( 'pre_http_request', array( $this, 'mock_request_as_server_error' ) );
+	}
+
+	/**
+	 * A success code reported as a string still lists the events.
+	 *
+	 * `list_backup_events()` is not one of the seven routes covered by the
+	 * providers above — it answers no route of its own and is read by the
+	 * `jetpack-backup/list-backup-events` ability, which flattens this
+	 * `null` into an empty list through `unwrap_response()`. So an uncast
+	 * `'200'` did not surface as an error anywhere: it told the caller the
+	 * site has completed no backups, which is a claim rather than a failure.
+	 */
+	public function test_list_backup_events_reads_a_string_status_200() {
+		$this->sign_in_as_connected_admin();
+		$this->wpcom_status = '200';
+		$this->wpcom_body   = '{"type":"OrderedCollection","totalItems":1}';
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
+
+		$result = Jetpack_Backup::list_backup_events();
+
+		$this->assertInstanceOf( WP_REST_Response::class, $result );
+		$this->assertSame( 1, $result->get_data()['totalItems'] );
+	}
+
+	/**
+	 * A success code reported as a string does not cost the site its plan.
+	 *
+	 * `get_rewind_state_from_wpcom()` is private; `has_backup_plan()` is the
+	 * door, and it answers false for the `WP_Error` an uncast `'200'`
+	 * produced — so a site that does have Backup was told it does not. That
+	 * answer is acted on: it backs `GET /jetpack/v4/has-backup-plan` and the
+	 * standalone-license upsell in `jetpack_check_user_licenses()`.
+	 *
+	 * The request count is asserted because that helper memoizes a
+	 * *successful* fetch in a function static, which no test can reset. This
+	 * is the only test in the suite that drives it to a success, so the
+	 * static should still be empty when it runs — and if some later test
+	 * changes that, this assertion says so rather than passing on a cached
+	 * answer that never touched the code under test.
+	 */
+	public function test_has_backup_plan_reads_a_string_status_200() {
+		$this->sign_in_as_connected_admin();
+		$this->wpcom_status = '200';
+		$this->wpcom_body   = '{"state":"active"}';
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
+
+		$result = Jetpack_Backup::has_backup_plan();
+
+		$this->assertSame( 1, $this->http_requests );
+		$this->assertTrue( $result );
 	}
 
 	public function test_list_backup_events_returns_response_and_pins_backup_actions_on_success() {
@@ -468,7 +530,7 @@ class Jetpack_Backup_Test extends TestCase {
 
 		return array(
 			'response' => array( 'code' => $this->wpcom_status ),
-			'body'     => '{}',
+			'body'     => $this->wpcom_body,
 		);
 	}
 

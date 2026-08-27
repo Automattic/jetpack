@@ -566,8 +566,10 @@ class Rest_Bridge_Gating_Test extends TestCase {
 	public static function provide_statuses_that_are_not_failures() {
 		return array(
 			// The one that matters: what an un-cast caller would route
-			// into the failure branch on a perfectly good response. Each
-			// bridge has its own test that it does not.
+			// into the failure branch on a perfectly good response. Every
+			// status comparison in the package has its own test that it
+			// does not — the bridges here, the legacy routes in
+			// `Jetpack_Backup_Test` and `REST_Controller_Test`.
 			'a 200 reported as a string' => array( 'a 200 reported as a string', '200' ),
 			'a 204 reported as a string' => array( 'a 204 reported as a string', '204' ),
 			'a real 200'                 => array( 'a real 200', 200 ),
