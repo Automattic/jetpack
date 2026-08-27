@@ -3,7 +3,8 @@
  * Renders a link when `href` is given, a button otherwise.
  */
 
-import { Icon } from '@wordpress/components';
+import { Icon, VisuallyHidden } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { chevronRight } from '@wordpress/icons';
 import { Text } from '@wordpress/ui';
 
@@ -18,16 +19,19 @@ import './style.scss';
  * @param {string}   [props.description] - Row description.
  * @param {string}   [props.href]        - Link target; renders an anchor when set.
  * @param {Function} [props.onClick]     - Click handler; renders a button when no href.
+ * @param {boolean}  [props.external]    - Open `href` in a new tab and announce that.
  * @param {string}   [props.tone]        - Icon and chevron treatment. Defaults to the
  *                                       colours the MCP rows already use; 'neutral'
  *                                       takes the design system token.
  * @return {object} Component markup.
  */
-export default function NavRow( { icon, title, description, href, onClick, tone } ) {
+export default function NavRow( { icon, title, description, href, onClick, external, tone } ) {
 	// Only the element and its props differ between the two forms: an anchor
 	// when there is a destination, a button when there is a handler.
 	const Tag = href ? 'a' : 'button';
-	const tagProps = href ? { href } : { onClick, type: 'button' };
+	const tagProps = href
+		? { href, ...( external && { target: '_blank', rel: 'noopener noreferrer' } ) }
+		: { onClick, type: 'button' };
 	const className = tone
 		? `jetpack-ai-nav-row jetpack-ai-nav-row--${ tone }`
 		: 'jetpack-ai-nav-row';
@@ -50,6 +54,9 @@ export default function NavRow( { icon, title, description, href, onClick, tone 
 			<span className="jetpack-ai-nav-row__chevron">
 				<Icon icon={ chevronRight } size={ 24 } />
 			</span>
+			{ href && external && (
+				<VisuallyHidden>{ __( '(opens in a new tab)', 'jetpack' ) }</VisuallyHidden>
+			) }
 		</Tag>
 	);
 }

@@ -9,7 +9,7 @@ import { ExternalLink, ProgressBar, Spinner, VisuallyHidden } from '@wordpress/c
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
-import { list } from '@wordpress/icons';
+import { connection, list } from '@wordpress/icons';
 import { Card, Link, LinkButton, Notice, Stack, Text } from '@wordpress/ui';
 import NavRow from '../components/nav-row';
 import { EVENTS, recordAiHubEvent, useRecordOnce } from '../tracks';
@@ -20,6 +20,21 @@ import optimizeSiteThumb from './images/optimize-site.webp';
 import { normalizeUsage, useAiUsage } from './use-ai-usage';
 
 import './style.scss';
+
+// Quick start cards from the i4 Overview frame: each is a nav row to the
+// connector's install page, through the redirect service.
+const QUICK_START = [
+	{
+		slug: 'jetpack-ai-hub-overview-quick-start-claude',
+		title: __( 'Connect Claude', 'jetpack' ),
+		description: __( 'Give Claude access to your site by installing the connector.', 'jetpack' ),
+	},
+	{
+		slug: 'jetpack-ai-hub-overview-quick-start-chatgpt',
+		title: __( 'Connect ChatGPT', 'jetpack' ),
+		description: __( 'Give ChatGPT access to your site by installing the connector.', 'jetpack' ),
+	},
+];
 
 // Lessons from the "Use AI agents with WordPress.com" course; each card links
 // to its lesson page (no inline player). Durations are the live lesson
@@ -341,6 +356,26 @@ export default function AiOverview( {
 					/>
 				</Card.Root>
 			) }
+
+			<div className="jetpack-ai-overview__quick-start">
+				<Text render={ <h2 /> } variant="heading-lg">
+					{ __( 'Quick start', 'jetpack' ) }
+				</Text>
+				<div className="jetpack-ai-overview__quick-start-grid">
+					{ QUICK_START.map( ( { slug, title, description } ) => (
+						<Card.Root key={ slug } className="jetpack-ai-overview__row-card">
+							<NavRow
+								icon={ connection }
+								title={ title }
+								description={ description }
+								href={ getRedirectUrl( slug ) }
+								tone="neutral"
+								external
+							/>
+						</Card.Root>
+					) ) }
+				</div>
+			</div>
 
 			<div className="jetpack-ai-overview__videos">
 				<Text render={ <h2 /> } variant="heading-lg">
