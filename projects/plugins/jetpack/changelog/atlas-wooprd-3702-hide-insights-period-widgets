@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Premium Analytics: Offer Total views, Total visitors, Popular days, and Popular hours only on the Traffic tab, and drop them from the Insights default layout. Existing layouts keep them.
+Premium Analytics: Drop Total views, Total visitors, Popular days, and Popular hours from the Insights tab and its widget gallery, and add Popular days and Popular hours to the Traffic tab's default layout. Existing layouts keep them.

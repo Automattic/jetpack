@@ -341,32 +341,35 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$layout_types    = array_column( $layout, 'type' );
 		$utm_widget_uuid = 'default-utm-insights-widget-instance';
 
-		// uuid => [ type, width, order ]; widths fill the four-column grid.
+		// uuid => [ type, width, height, order ]; widths fill the four-column grid.
 		$expected = array(
-			'default-traffic-chart-widget-instance'   => array( 'jpa/traffic-chart', 4, 0 ),
-			'default-stats-top-posts-widget-instance' => array( 'jpa/stats-top-posts', 2, 1 ),
-			'default-referrers-widget-instance'       => array( 'jpa/referrers', 1, 2 ),
-			'default-devices-widget-instance'         => array( 'jpa/devices', 1, 3 ),
-			'default-locations-widget-instance'       => array( 'jpa/locations', 3, 4 ),
-			'default-top-platforms-widget-instance'   => array( 'jpa/top-platforms', 1, 5 ),
-			'default-videopress-widget-instance'      => array( 'jpa/videopress', 1, 6 ),
-			'default-clicks-widget-instance'          => array( 'jpa/clicks', 1, 7 ),
-			'default-authors-widget-instance'         => array( 'jpa/authors', 2, 8 ),
-			'default-utm-insights-widget-instance'    => array( 'jpa/utm-insights', 2, 9 ),
-			'default-search-terms-widget-instance'    => array( 'jpa/search-terms', 1, 10 ),
-			'default-file-downloads-widget-instance'  => array( 'jpa/file-downloads', 1, 11 ),
+			'default-traffic-chart-widget-instance'   => array( 'jpa/traffic-chart', 4, 2, 0 ),
+			'default-stats-top-posts-widget-instance' => array( 'jpa/stats-top-posts', 2, 2, 1 ),
+			'default-referrers-widget-instance'       => array( 'jpa/referrers', 1, 2, 2 ),
+			'default-devices-widget-instance'         => array( 'jpa/devices', 1, 2, 3 ),
+			'default-locations-widget-instance'       => array( 'jpa/locations', 3, 2, 4 ),
+			'default-top-platforms-widget-instance'   => array( 'jpa/top-platforms', 1, 2, 5 ),
+			'default-videopress-widget-instance'      => array( 'jpa/videopress', 1, 2, 6 ),
+			'default-clicks-widget-instance'          => array( 'jpa/clicks', 1, 2, 7 ),
+			'default-authors-widget-instance'         => array( 'jpa/authors', 2, 2, 8 ),
+			'default-utm-insights-widget-instance'    => array( 'jpa/utm-insights', 2, 2, 9 ),
+			'default-search-terms-widget-instance'    => array( 'jpa/search-terms', 1, 2, 10 ),
+			'default-file-downloads-widget-instance'  => array( 'jpa/file-downloads', 1, 2, 11 ),
+			// One row tall: compact metric tiles, not full-height charts.
+			'default-popular-days-widget-instance'    => array( 'jpa/popular-days', 2, 1, 12 ),
+			'default-popular-hours-widget-instance'   => array( 'jpa/popular-hours', 2, 1, 13 ),
 		);
 
 		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );
 
 		foreach ( $expected as $uuid => $instance ) {
-			list( $type, $width, $order ) = $instance;
+			list( $type, $width, $height, $order ) = $instance;
 
 			$this->assertSame( $type, $layout_by_uuid[ $uuid ]['type'], $uuid );
 			$this->assertSame(
 				array(
 					'width'  => $width,
-					'height' => 2,
+					'height' => $height,
 					'order'  => $order,
 				),
 				$layout_by_uuid[ $uuid ]['placement'],

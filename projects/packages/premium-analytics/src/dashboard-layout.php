@@ -278,6 +278,25 @@ function get_dashboard_default_section_layouts() {
 				1,
 				2
 			),
+			// Row 6: when the traffic above arrives. Both read the section's date
+			// range, which is why they sit here rather than on Insights
+			// (WOOPRD-3702). One row tall, unlike the rest of this tab: they are
+			// compact metric tiles, and over two rows the sparkline stretches into
+			// a single meaningless hump.
+			get_dashboard_default_widget_instance(
+				'default-popular-days-widget-instance',
+				'jpa/popular-days',
+				12,
+				2,
+				1
+			),
+			get_dashboard_default_widget_instance(
+				'default-popular-hours-widget-instance',
+				'jpa/popular-hours',
+				13,
+				2,
+				1
+			),
 		),
 		DASHBOARD_INSIGHTS_SECTION_ID    => array(
 			// Follows the prototype's rows (WOOA7S-1786). Emails lives on the
