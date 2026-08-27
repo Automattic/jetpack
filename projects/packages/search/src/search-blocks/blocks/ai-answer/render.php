@@ -27,6 +27,12 @@ if ( ! Search_Blocks::supports_paid_search() ) {
 	return;
 }
 
+// Host-owner AI opt-out (core's wp_supports_ai() / WP_AI_SUPPORT). The overlay
+// already honors it through the plugin's filter gate; the block must agree.
+if ( ! AI_Answers::host_allows_ai() ) {
+	return;
+}
+
 // $attributes is injected by WordPress at block-render time via the
 // `render_callback` include scope; static analysis can't see the binding,
 // so both phpcs and Phan need a one-line suppression on the next statement.
