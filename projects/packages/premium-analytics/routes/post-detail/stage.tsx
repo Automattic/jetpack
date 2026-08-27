@@ -25,7 +25,7 @@ import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { PostDetailTabs, PostSummaryCard } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
-import { usePostDetailTabs, usePostSummary } from './hooks';
+import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 import styles from './stage.module.scss';
 
@@ -64,11 +64,27 @@ function PostDetail(): JSX.Element {
 	const { postId: postIdParam } = useParams( { from: ROUTE_FROM } ) as { postId?: string };
 	const postId = Number( postIdParam );
 
-	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs( postId );
-
 	const summary = usePostSummary( postId );
 
 	const publicUrl = safeHttpUrl( summary.url );
+
+	// The single resource, date range, and comparison all live in the URL search
+	// params, staged and committed by the shared date-filter controller.
+	const dateFilters = useReportDateFilters( ROUTE_FROM );
+	// The preset pills alone — all time, then the rolling windows — with no
+	// custom range, period arrows, or interval dropdown, per the detail-page
+	// design; all time runs from the day this resource was published.
+	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
+
+	// The email tabs report over the send's lifetime rather than the URL range
+	// (WOOA7S-1945): their widgets take these params in place of the URL's.
+	const emailScope = useEmailTabScope( postId, dateControls.allTimeStart, dateFilters.timeZone );
+
+	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs(
+		postId,
+		emailScope?.reportParams
+	);
+	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
 
 	const widgetModules = useSelect(
 		select =>
@@ -111,14 +127,6 @@ function PostDetail(): JSX.Element {
 
 		return aliases.length ? [ ...widgetTypes, ...aliases ] : widgetTypes;
 	}, [ widgetTypes ] );
-
-	// The single resource, date range, and comparison all live in the URL search
-	// params, staged and committed by the shared date-filter controller.
-	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	// The preset pills alone — all time, then the rolling windows — with no
-	// custom range, period arrows, or interval dropdown, per the detail-page
-	// design; all time runs from the day this resource was published.
-	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
 
 	// The header row hosts the panel in a shrink-to-fit slot, so the panel
 	// measures the row itself to pick its responsive layout; see the
@@ -171,20 +179,19 @@ function PostDetail(): JSX.Element {
 							<div ref={ setHeaderElement } className={ styles.header }>
 								<div className={ styles.summary }>
 									{ /* The email tabs give the shared header an email identity
-									     (envelope tile, "Email sent on …") while the title and
-									     performance window stay the post's. */ }
+									     (envelope tile, "Email sent on …") and report over the
+									     send's lifetime; the title stays the post's. */ }
 									<PostSummaryCard
 										summary={ summary }
-										variant={ EMAIL_TAB_IDS.includes( activeTab ) ? 'email' : 'post' }
-										performanceRange={ dateFilters.appliedRange }
+										variant={ isEmailTab ? 'email' : 'post' }
+										performanceRange={ isEmailTab ? emailScope?.range : dateFilters.appliedRange }
 									/>
 								</div>
-								{ /* The email tabs' widgets are lifetime-scoped: their endpoints
-								     take no date params, so the filter would be a control that
-								     visibly does nothing (WOOA7S-1945). It hides there; the range
-								     stays in the URL, so the Post traffic tab keeps its selection
-								     when the user tabs back. */ }
-								{ ! EMAIL_TAB_IDS.includes( activeTab ) && (
+								{ /* The email tabs are pinned to the send's lifetime, so the
+								     filter would only suggest a choice they do not offer. The
+								     range stays in the URL, so the Post traffic tab keeps its
+								     selection when the user tabs back. */ }
+								{ ! isEmailTab && (
 									<div className={ styles.dateFilters }>
 										{ /*
 										 * The design has no period-over-period comparison on

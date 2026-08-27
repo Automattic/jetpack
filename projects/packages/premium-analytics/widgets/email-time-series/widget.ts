@@ -46,8 +46,9 @@ export type EmailTimeSeriesAttributes = {
  * The opens/clicks-over-time chart from the legacy email detail page
  * (`stats-email-chart-tabs`), with the window total as the metric headline.
  * The email is scoped by the host through `reportParams.post_id` (the shared
- * single-resource "detail page" param); the timeline spans the dashboard
- * date range and is bucketed at the page's chart interval.
+ * single-resource "detail page" param); the timeline spans the report range
+ * the host hands it — the send's lifetime on the post detail page — and is
+ * bucketed at the range's chart interval.
  */
 export default {
 	icon: envelope,
