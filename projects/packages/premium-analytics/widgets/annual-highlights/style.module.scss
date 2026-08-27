@@ -18,6 +18,24 @@
 	container-type: size;
 }
 
+.header {
+	display: flex;
+	justify-content: flex-end;
+	flex-shrink: 0;
+	margin-block-end: var(--wpds-dimension-gap-sm);
+}
+
+/* The trigger hugs the year instead of stretching to the row. */
+.yearSelect {
+	inline-size: fit-content;
+}
+
+/* Draw the focus ring inside the card; the default outset ring gets clipped
+ * by the widget chrome's `overflow: auto`. */
+.yearSelect [class*="trigger-wrapper"] {
+	outline-offset: calc(-1 * var(--wpds-border-width-focus));
+}
+
 .placeholder {
 	height: 100%;
 	color: var(--wpds-color-foreground-content-neutral-weak);

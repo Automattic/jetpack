@@ -1,18 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	getDefaultQueryParams,
-	queryClient,
-	resolveIntervalForRange,
-	type PresetType,
-} from '@jetpack-premium-analytics/data';
-import {
-	PRESET_ALL_TIME,
-	getPresetYear,
-	toYearPresetId,
-	type YearPresetId,
-} from '@jetpack-premium-analytics/datetime';
+import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
@@ -51,53 +40,13 @@ interface AnnualHighlightsStoryControls {
 	 * Metric tiles to show in the widget body.
 	 */
 	metrics: AnnualHighlightMetric[];
-
-	/**
-	 * What the section's date filter has selected. The Insights section offers
-	 * all time and single years; `latest` stands for any other section, where
-	 * the widget falls back to the most recent year.
-	 */
-	dateSelection: DateSelection;
 }
 
-type DateSelection = 'latest' | typeof PRESET_ALL_TIME | YearPresetId;
-
-// The mocked insights payload carries 2025 and 2026, so both pills have data
-// behind them and switching between them visibly changes every tile.
-const MOCK_INSIGHTS_YEARS = [ 2026, 2025 ] as const;
-
-/**
- * Report params carrying a section's date selection, the way the URL does in
- * product: the year-surface preset next to the range it resolves to.
- */
-function reportParamsFor( selection: DateSelection, withComparison = false ) {
-	const params = getDefaultQueryParams( withComparison );
-	if ( selection === 'latest' ) {
-		return params;
-	}
-
-	const startYear =
-		selection === PRESET_ALL_TIME
-			? Math.min( ...MOCK_INSIGHTS_YEARS )
-			: getPresetYear( selection ) ?? Math.max( ...MOCK_INSIGHTS_YEARS );
-	const endYear = selection === PRESET_ALL_TIME ? Math.max( ...MOCK_INSIGHTS_YEARS ) : startYear;
-	const from = `${ startYear }-01-01T00:00:00.000Z`;
-	const to = `${ endYear }-12-31T23:59:59.999Z`;
-
-	return {
-		...params,
-		preset: selection,
-		from,
-		to,
-		interval: resolveIntervalForRange( selection, from, to, params.interval ),
-	};
-}
-
-function renderAnnualHighlights( { metrics, dateSelection }: AnnualHighlightsStoryControls ) {
+function renderAnnualHighlights( { metrics }: AnnualHighlightsStoryControls ) {
 	return (
 		<AnnualHighlightsRender
 			attributes={ {
-				reportParams: reportParamsFor( dateSelection ),
+				reportParams: getDefaultQueryParams(),
 				metrics,
 			} }
 		/>
@@ -108,18 +57,6 @@ const METRIC_OPTIONS = DEFAULT_HIGHLIGHT_METRICS.map( metric => ( {
 	value: metric,
 	label: metric.charAt( 0 ).toUpperCase() + metric.slice( 1 ),
 } ) );
-
-// Distinct preset → own query-cache entry; see forceStatsMockState. Every metric tile enabled.
-function renderAnnualHighlightsOnPreset( preset: PresetType ) {
-	return (
-		<AnnualHighlightsRender
-			attributes={ {
-				reportParams: getDefaultQueryParams( false, preset ),
-				metrics: DEFAULT_HIGHLIGHT_METRICS,
-			} }
-		/>
-	);
-}
 
 /**
  * Forces the insights request into a loading/error/empty state for a story.
@@ -144,15 +81,10 @@ const METRIC_ARG_TYPES = {
 		control: 'check',
 		options: METRIC_OPTIONS.map( option => option.value ),
 	},
-	dateSelection: {
-		control: 'select',
-		options: [ 'latest', PRESET_ALL_TIME, ...MOCK_INSIGHTS_YEARS.map( toYearPresetId ) ],
-	},
 } as const;
 
 const ALL_METRICS_ARGS = {
 	metrics: DEFAULT_HIGHLIGHT_METRICS,
-	dateSelection: 'latest',
 } as const;
 
 const meta = {
@@ -166,7 +98,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					"The \"Annual highlights\" widget. Shows the most recent year's totals — posts, words, likes, and comments — as a grid of metric tiles. Which tiles appear is controlled by the `metrics` attribute (`relevance: 'high'`), exposed inline in the widget header and in the settings drawer. Data comes from the designated `useStatsInsights` hook; in Storybook it is served by `registerReportMocks()` (the `stats/insights` handler in `routeStatsReport`). The insights module has no comparison period, so the tiles show bare counts.",
+					"The \"Year in review\" widget. Shows one year's totals — posts, words, likes, and comments — as a grid of metric tiles, with a year dropdown in the widget body that defaults to the current year. The insights endpoint returns every year in one request, so switching years is a client-side row pick with no new fetch; the section's date selection plays no part. Which tiles appear is controlled by the `metrics` attribute (`relevance: 'high'`), exposed inline in the widget header and in the settings drawer. Data comes from the designated `useStatsInsights` hook; in Storybook it is served by `registerReportMocks()` (the `stats/insights` handler in `routeStatsReport`, whose mock carries the current and previous year). The insights module has no comparison period, so the tiles show bare counts.",
 			},
 		},
 	},
@@ -177,7 +109,8 @@ export default meta;
 type Story = StoryObj< AnnualHighlightsStoryControls >;
 
 /**
- * The widget on its own, populated from the mocked insights payload.
+ * The widget on its own, populated from the mocked insights payload. The year
+ * dropdown is live: the mock carries the current and previous year.
  */
 export const Default: Story = {
 	render: renderAnnualHighlights,
@@ -190,7 +123,7 @@ export const Default: Story = {
  * mock is forced to never resolve for the duration of this story.
  */
 export const Loading: Story = {
-	render: () => renderAnnualHighlightsOnPreset( 'last-90-days' ),
+	render: () => renderAnnualHighlights( ALL_METRICS_ARGS ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
@@ -202,7 +135,7 @@ export const Loading: Story = {
  * re-runs the query — still mocked as failing while this story is active).
  */
 export const Error: Story = {
-	render: () => renderAnnualHighlightsOnPreset( 'last-7-days' ),
+	render: () => renderAnnualHighlights( ALL_METRICS_ARGS ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => forceInsightsState( 'error' ),
@@ -210,10 +143,10 @@ export const Error: Story = {
 
 /**
  * Resolved with no years: the widget shows its empty state (the neutral calendar
- * glyph and "No highlights for this period.").
+ * glyph and "No highlights for this year.").
  */
 export const Empty: Story = {
-	render: () => renderAnnualHighlightsOnPreset( 'last-365-days' ),
+	render: () => renderAnnualHighlights( ALL_METRICS_ARGS ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => forceInsightsState( 'empty' ),
@@ -225,7 +158,6 @@ interface AnnualHighlightsDashboardStoryProps
 
 function AnnualHighlightsDashboardStory( {
 	metrics,
-	dateSelection,
 	...dashboardArgs
 }: AnnualHighlightsDashboardStoryProps ) {
 	return (
@@ -235,7 +167,10 @@ function AnnualHighlightsDashboardStory( {
 			renderModule={ ANNUAL_HIGHLIGHTS_RENDER_MODULE }
 			renderComponent={ AnnualHighlightsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
-				reportParams: reportParamsFor( dateSelection, true ),
+				// Comparison params by default, per the story template: the widget
+				// ignores report params, and this story covers that it keeps doing so
+				// when the host supplies them.
+				reportParams: getDefaultQueryParams( true ),
 				metrics,
 			} }
 		/>

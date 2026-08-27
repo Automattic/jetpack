@@ -1,10 +1,14 @@
 /**
  * Raw `stats/insights` response (pre-sanitizer shape), populated so every widget
  * built on this endpoint renders fully in Storybook: a clear peak day and hour
- * for the Most popular time widget, and more than one year for the Annual
- * highlights widget (to exercise its "latest year" pick). The endpoint reports
- * across the whole site lifetime and has no comparison period.
+ * for the Most popular time widget, and more than one year for the Year in
+ * review widget (so its year dropdown has a second entry to switch to). The
+ * endpoint reports across the whole site lifetime and has no comparison period.
  */
+// Relative to today so the Annual highlights widget, which defaults to the
+// current year, keeps rendering data after New Year.
+const CURRENT_YEAR = new Date().getFullYear();
+
 export const mockStatsInsightsData = {
 	highest_hour: 18,
 	highest_hour_percent: 30,
@@ -13,7 +17,7 @@ export const mockStatsInsightsData = {
 	hourly_views: {},
 	years: [
 		{
-			year: '2025',
+			year: String( CURRENT_YEAR - 1 ),
 			total_posts: 96,
 			total_comments: 214,
 			avg_comments: 2.2,
@@ -23,7 +27,7 @@ export const mockStatsInsightsData = {
 			avg_words: 637,
 		},
 		{
-			year: '2026',
+			year: String( CURRENT_YEAR ),
 			total_posts: 128,
 			total_comments: 342,
 			avg_comments: 2.7,

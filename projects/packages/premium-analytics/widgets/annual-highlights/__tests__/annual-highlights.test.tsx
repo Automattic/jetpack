@@ -8,6 +8,7 @@ import {
 	type ReportParams,
 } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
+import userEvent, { PointerEventsCheckLevel } from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 /**
@@ -38,8 +39,15 @@ const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 const METRICS = [ 'posts', 'words', 'likes', 'comments' ] as const;
 
-// Two years with distinct totals, so a wrong selection cannot pass by matching
-// the other year's numbers or their sum.
+// The widget defaults to the current year, so the payload is built relative to
+// today — hardcoded years would silently move the default off the data after
+// New Year. Distinct totals per year, so a wrong selection cannot pass by
+// matching the other year's numbers. The package test script pins TZ=UTC,
+// which is also what the widget's `siteTimeZone()` resolves to under jsdom's
+// default WP date settings — so this year and the widget's agree.
+const CURRENT_YEAR = new Date().getFullYear();
+const PREVIOUS_YEAR = CURRENT_YEAR - 1;
+
 const INSIGHTS_PAYLOAD = {
 	highest_day_of_week: 6,
 	highest_day_percent: 10,
@@ -47,7 +55,7 @@ const INSIGHTS_PAYLOAD = {
 	highest_hour_percent: 5,
 	years: [
 		{
-			year: '2025',
+			year: String( PREVIOUS_YEAR ),
 			total_posts: 12,
 			total_words: 300,
 			avg_words: 25,
@@ -59,7 +67,7 @@ const INSIGHTS_PAYLOAD = {
 			avg_images: 0.2,
 		},
 		{
-			year: '2026',
+			year: String( CURRENT_YEAR ),
 			total_posts: 30,
 			total_words: 900,
 			avg_words: 30,
@@ -74,10 +82,10 @@ const INSIGHTS_PAYLOAD = {
 };
 
 const renderWidget = (
-	reportParams: Partial< ReportParams >,
 	// `null` stands for an instance with no `metrics` attribute at all — passing
 	// `undefined` would just trigger this default.
-	metrics: AnnualHighlightMetric[] | null = [ ...METRICS ]
+	metrics: AnnualHighlightMetric[] | null = [ ...METRICS ],
+	reportParams: Partial< ReportParams > = getDefaultQueryParams( false, 'last-7-days' )
 ) =>
 	render(
 		<GlobalErrorProvider>
@@ -93,17 +101,29 @@ const renderWidget = (
 /**
  * Renders the widget and waits for the insights request to resolve, so each
  * test can assert label + value per tile — a selection that lands on the wrong
- * period cannot pass by matching values loosely.
+ * year cannot pass by matching values loosely.
  *
- * @param reportParams - Report params standing in for the section's selection.
  * @return The render container.
  */
-async function mountAndSettle( reportParams: Partial< ReportParams > ) {
-	const { container } = renderWidget( reportParams );
+async function mountAndSettle() {
+	const { container } = renderWidget();
 
 	await expect( screen.findByText( 'Posts' ) ).resolves.toBeInTheDocument();
 
 	return container;
+}
+
+/**
+ * Opens the widget's year dropdown and picks the previous year. The
+ * pointer-events check is off for the option click: jsdom gives the popup no
+ * layout, so its positioner never leaves the `pointer-events: none` it opens
+ * with — a jsdom artifact, not a state a browser user can see.
+ */
+async function selectPreviousYear() {
+	const user = userEvent.setup( { pointerEventsCheck: PointerEventsCheckLevel.Never } );
+
+	await user.click( screen.getByRole( 'combobox', { name: 'Year' } ) );
+	await user.click( screen.getByRole( 'option', { name: String( PREVIOUS_YEAR ), hidden: true } ) );
 }
 
 describe( 'AnnualHighlightsWidget', () => {
@@ -113,36 +133,8 @@ describe( 'AnnualHighlightsWidget', () => {
 		mockApiFetch.mockResolvedValue( INSIGHTS_PAYLOAD );
 	} );
 
-	it( 'shows the year the section selected', async () => {
-		const container = await mountAndSettle( {
-			preset: 'year-2025',
-			from: '2025-01-01',
-			to: '2025-12-31',
-		} );
-
-		expect( container ).toHaveTextContent( 'Posts12' );
-		expect( container ).toHaveTextContent( 'Words300' );
-		expect( container ).toHaveTextContent( 'Likes7' );
-		expect( container ).toHaveTextContent( 'Comments4' );
-	} );
-
-	it( 'sums every year for the all-time selection', async () => {
-		const container = await mountAndSettle( {
-			preset: 'all-time',
-			from: '2025-01-01',
-			to: '2026-08-06',
-		} );
-
-		expect( container ).toHaveTextContent( 'Posts42' );
-		// 1,200 words renders as `1K`: the shared count format shortens with no
-		// decimals, the same as it does for a single year.
-		expect( container ).toHaveTextContent( 'Words1K' );
-		expect( container ).toHaveTextContent( 'Likes28' );
-		expect( container ).toHaveTextContent( 'Comments13' );
-	} );
-
-	it( 'shows the most recent year when the section has no year selection', async () => {
-		const container = await mountAndSettle( getDefaultQueryParams( false, 'last-7-days' ) );
+	it( 'defaults to the current year', async () => {
+		const container = await mountAndSettle();
 
 		expect( container ).toHaveTextContent( 'Posts30' );
 		expect( container ).toHaveTextContent( 'Words900' );
@@ -150,11 +142,129 @@ describe( 'AnnualHighlightsWidget', () => {
 		expect( container ).toHaveTextContent( 'Comments9' );
 	} );
 
+	it( 'switches every tile to the year picked in the dropdown', async () => {
+		const container = await mountAndSettle();
+
+		await selectPreviousYear();
+
+		expect( container ).toHaveTextContent( 'Posts12' );
+		expect( container ).toHaveTextContent( 'Words300' );
+		expect( container ).toHaveTextContent( 'Likes7' );
+		expect( container ).toHaveTextContent( 'Comments4' );
+	} );
+
+	it( 'switches without another insights request', async () => {
+		await mountAndSettle();
+		const requests = mockApiFetch.mock.calls.length;
+
+		await selectPreviousYear();
+
+		expect( mockApiFetch ).toHaveBeenCalledTimes( requests );
+	} );
+
+	it( 'ignores the section date selection', async () => {
+		// The year shown belongs to the widget's own dropdown: a section still
+		// carrying last year's preset must not move the tiles off the default.
+		const { container } = renderWidget( [ ...METRICS ], {
+			preset: `year-${ PREVIOUS_YEAR }`,
+			from: `${ PREVIOUS_YEAR }-01-01`,
+			to: `${ PREVIOUS_YEAR }-12-31`,
+		} );
+
+		await expect( screen.findByText( 'Posts' ) ).resolves.toBeInTheDocument();
+		expect( container ).toHaveTextContent( 'Posts30' );
+		expect( container ).toHaveTextContent( 'Words900' );
+	} );
+
+	it( 'survives a payload the sanitizer rejects, with no year dropdown to show', async () => {
+		// The insights sanitizer returns a bare object for a shape it does not
+		// recognize, so `years` is absent entirely.
+		mockApiFetch.mockResolvedValue( {} );
+
+		renderWidget();
+
+		await expect(
+			screen.findByText( 'No highlights for this year.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'combobox', { name: 'Year' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows the empty state for a year the site did not publish in', async () => {
+		mockApiFetch.mockResolvedValue( {
+			...INSIGHTS_PAYLOAD,
+			// Only last year has a row, so the current-year default has none.
+			years: [ INSIGHTS_PAYLOAD.years[ 0 ] ],
+		} );
+
+		renderWidget();
+
+		await expect(
+			screen.findByText( 'No highlights for this year.' )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'keeps the year dropdown reachable from the empty state', async () => {
+		mockApiFetch.mockResolvedValue( {
+			...INSIGHTS_PAYLOAD,
+			years: [ INSIGHTS_PAYLOAD.years[ 0 ] ],
+		} );
+
+		const { container } = renderWidget();
+
+		await expect(
+			screen.findByText( 'No highlights for this year.' )
+		).resolves.toBeInTheDocument();
+
+		await selectPreviousYear();
+
+		expect( container ).toHaveTextContent( 'Posts12' );
+	} );
+
+	it( 'lists every year back to the oldest one in the payload', async () => {
+		mockApiFetch.mockResolvedValue( {
+			...INSIGHTS_PAYLOAD,
+			years: [
+				{ ...INSIGHTS_PAYLOAD.years[ 0 ], year: String( CURRENT_YEAR - 3 ) },
+				INSIGHTS_PAYLOAD.years[ 1 ],
+			],
+		} );
+
+		await mountAndSettle();
+
+		await userEvent.click( screen.getByRole( 'combobox', { name: 'Year' } ) );
+		const options = screen.getAllByRole( 'option', { hidden: true } );
+
+		// Calendar years, newest first, publish gaps included — matching the
+		// year filter surface the section used to provide.
+		expect( options.map( option => option.textContent ) ).toEqual( [
+			String( CURRENT_YEAR ),
+			String( CURRENT_YEAR - 1 ),
+			String( CURRENT_YEAR - 2 ),
+			String( CURRENT_YEAR - 3 ),
+		] );
+	} );
+
+	it( 'ignores a row with a garbled year instead of exploding the list', async () => {
+		mockApiFetch.mockResolvedValue( {
+			...INSIGHTS_PAYLOAD,
+			// The sanitizer normalizes a missing year to '' — without the guard
+			// this would resolve to year 0 and list two thousand entries.
+			years: [ { ...INSIGHTS_PAYLOAD.years[ 0 ], year: '' }, INSIGHTS_PAYLOAD.years[ 1 ] ],
+		} );
+
+		await mountAndSettle();
+
+		await userEvent.click( screen.getByRole( 'combobox', { name: 'Year' } ) );
+		const options = screen.getAllByRole( 'option', { hidden: true } );
+
+		expect( options.map( option => option.textContent ) ).toEqual( [ String( CURRENT_YEAR ) ] );
+	} );
+
 	it( 'shows every metric when the instance carries no metrics attribute', async () => {
 		// The server's default layout creates the instance without attributes,
 		// and the settings control reads the widget's own defaults — the body has
 		// to agree with it rather than report that nothing is selected.
-		const { container } = renderWidget( getDefaultQueryParams( false, 'last-7-days' ), null );
+		const { container } = renderWidget( null );
 
 		await expect( screen.findByText( 'Posts' ) ).resolves.toBeInTheDocument();
 		expect( container ).toHaveTextContent( 'Posts30' );
@@ -164,18 +274,10 @@ describe( 'AnnualHighlightsWidget', () => {
 	} );
 
 	it( 'still reports an empty selection when every metric is unchecked', async () => {
-		renderWidget( getDefaultQueryParams( false, 'last-7-days' ), [] );
+		renderWidget( [] );
 
 		await expect(
 			screen.findByText( 'Select at least one metric to display.' )
-		).resolves.toBeInTheDocument();
-	} );
-
-	it( 'shows the empty state for a year the site did not publish in', async () => {
-		renderWidget( { preset: 'year-2019', from: '2019-01-01', to: '2019-12-31' } );
-
-		await expect(
-			screen.findByText( 'No highlights for this period.' )
 		).resolves.toBeInTheDocument();
 	} );
 } );
