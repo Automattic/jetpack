@@ -132,15 +132,18 @@
 	.jetpack-contact-form__conditional-logic-rule-subject.is-invalid {
 
 		.components-select-control__input {
-			border-color: #b32d2e;
+			border-color: var(--wpds-color-foreground-content-error-weak);
 		}
 	}
 
-	// Spans the rule rather than sitting in the subject's column: the message is
-	// about the condition, and a column-width box wraps it onto three lines.
+	// Spans the rule rather than sitting in the subject's own column, which
+	// wraps a short sentence onto three lines. Indented past the status icon
+	// so that icon keeps its gutter and the message lines up with the
+	// controls it refers to.
 	.jetpack-contact-form__conditional-logic-rule-message {
 		display: block;
-		color: #b32d2e;
+		margin-inline-start: calc(20px + var(--wpds-dimension-gap-sm));
+		color: var(--wpds-color-foreground-content-error-weak);
 	}
 
 	.jetpack-contact-form__conditional-logic-rule-status {
@@ -155,6 +158,12 @@
 
 		&.is-unstarted {
 			color: var(--wpds-color-foreground-content-neutral-weak);
+		}
+
+		// Set last: a condition that cannot work outranks the other
+		// states, and shares its colour with the message below the row.
+		&.is-invalid {
+			color: var(--wpds-color-foreground-content-error-weak);
 		}
 	}
 

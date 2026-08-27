@@ -1,5 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
-import { getDuplicateFieldIds } from '../../../../../src/blocks/shared/util/duplicate-ids.js';
+import {
+	getDuplicateFieldIds,
+	getRenamesForDuplicateId,
+} from '../../../../../src/blocks/shared/util/duplicate-ids.js';
 
 describe( 'getDuplicateFieldIds', () => {
 	it.each( [
@@ -23,5 +26,45 @@ describe( 'getDuplicateFieldIds', () => {
 
 	it( 'tolerates a missing list', () => {
 		expect( getDuplicateFieldIds() ).toEqual( new Set() );
+	} );
+} );
+
+describe( 'getRenamesForDuplicateId', () => {
+	const entries = ( ...ids ) => ids.map( ( id, i ) => ( { clientId: `c${ i }`, id } ) );
+
+	// The first occurrence keeps the id, because that is the field the renderer already
+	// resolves it to -- so anything already naming it goes on meaning the same field.
+	it( 'keeps the first occurrence and suffixes the rest', () => {
+		expect( getRenamesForDuplicateId( entries( 'email', 'email' ), 'email' ) ).toEqual( [
+			{ clientId: 'c1', id: 'email-2' },
+		] );
+	} );
+
+	it( 'numbers each further duplicate in turn', () => {
+		expect( getRenamesForDuplicateId( entries( 'name', 'name', 'name' ), 'name' ) ).toEqual( [
+			{ clientId: 'c1', id: 'name-2' },
+			{ clientId: 'c2', id: 'name-3' },
+		] );
+	} );
+
+	// A suffix another field already holds must not be handed out.
+	it( 'skips a suffix that is taken', () => {
+		expect( getRenamesForDuplicateId( entries( 'name', 'name-2', 'name' ), 'name' ) ).toEqual( [
+			{ clientId: 'c2', id: 'name-3' },
+		] );
+	} );
+
+	// Only the id asked about: other collisions in the same form are left for their own fix.
+	it( 'leaves other duplicated ids alone', () => {
+		expect( getRenamesForDuplicateId( entries( 'a', 'a', 'b', 'b' ), 'a' ) ).toEqual( [
+			{ clientId: 'c1', id: 'a-2' },
+		] );
+	} );
+
+	it( 'renames nothing when the id is unique, missing or empty', () => {
+		expect( getRenamesForDuplicateId( entries( 'a', 'b' ), 'a' ) ).toEqual( [] );
+		expect( getRenamesForDuplicateId( entries( 'a', 'b' ), 'zz' ) ).toEqual( [] );
+		expect( getRenamesForDuplicateId( entries( '', '' ), '' ) ).toEqual( [] );
+		expect( getRenamesForDuplicateId( undefined, 'a' ) ).toEqual( [] );
 	} );
 } );

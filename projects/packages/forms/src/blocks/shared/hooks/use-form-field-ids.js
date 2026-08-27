@@ -26,7 +26,7 @@ export const getFormClientId = ( select, clientId ) => {
 };
 
 /**
- * Collect the id of every field block, in document order.
+ * Collect every field block, in document order, as `{ clientId, id }`.
  *
  * Matches on the block name alone rather than on any per-feature capability: PHP assigns an
  * id to every field it parses, so a field that supports nothing still occupies one.
@@ -34,7 +34,7 @@ export const getFormClientId = ( select, clientId ) => {
  * @param {Array} blocks - Blocks to walk.
  * @param {Array} found  - Accumulator.
  */
-const walkFieldIds = ( blocks, found ) => {
+const walkFieldEntries = ( blocks, found ) => {
 	if ( ! Array.isArray( blocks ) ) {
 		return;
 	}
@@ -45,12 +45,37 @@ const walkFieldIds = ( blocks, found ) => {
 		}
 
 		if ( typeof block.name === 'string' && block.name.startsWith( FIELD_BLOCK_PREFIX ) ) {
-			found.push( block.attributes?.id || '' );
+			found.push( { clientId: block.clientId, id: block.attributes?.id || '' } );
 			return; // A field's own inner blocks hold its inputs, not other fields.
 		}
 
-		walkFieldIds( block.innerBlocks, found );
+		walkFieldEntries( block.innerBlocks, found );
 	} );
+};
+
+/**
+ * Every field in the form a block belongs to, in document order.
+ *
+ * For callers that need to write back to a field and so need its client id. Takes `select`
+ * rather than being a hook, so an action can read the current tree on demand instead of
+ * subscribing to it.
+ *
+ * @param {Function} select   - The data-registry select function.
+ * @param {string}   clientId - A field block inside the form.
+ * @return {Array} `{ clientId, id }` per field, in document order.
+ */
+export const getFormFieldEntries = ( select, clientId ) => {
+	const formClientId = getFormClientId( select, clientId );
+
+	if ( ! formClientId ) {
+		return [];
+	}
+
+	const form = select( 'core/block-editor' ).getBlock( formClientId );
+	const found = [];
+	walkFieldEntries( form?.innerBlocks || [], found );
+
+	return found;
 };
 
 /**
@@ -78,17 +103,9 @@ const useFormFieldIds = ( clientId, isActive = true ) =>
 				return NO_FIELD_IDS;
 			}
 
-			const formClientId = getFormClientId( select, clientId );
+			const entries = getFormFieldEntries( select, clientId );
 
-			if ( ! formClientId ) {
-				return NO_FIELD_IDS;
-			}
-
-			const form = select( 'core/block-editor' ).getBlock( formClientId );
-			const found = [];
-			walkFieldIds( form?.innerBlocks || [], found );
-
-			return found;
+			return entries.length ? entries.map( entry => entry.id ) : NO_FIELD_IDS;
 		},
 		[ clientId, isActive ]
 	);

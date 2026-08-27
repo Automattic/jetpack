@@ -1,3 +1,5 @@
+import { generateUniqueFormFieldId } from './generate-unique-id.js';
+
 /**
  * The field ids that more than one field in a form claims.
  *
@@ -34,4 +36,46 @@ export const getDuplicateFieldIds = ( ids = [] ) => {
 	} );
 
 	return duplicates;
+};
+
+/**
+ * The renames that would make one duplicated id unique, the way the renderer already does it.
+ *
+ * `Contact_Form_Field::__construct()` keeps the first occurrence in document order and suffixes
+ * the later ones -- `email`, `email-2`, `email-3` -- and this mirrors that exactly. Matching it
+ * matters: every field renamed here is one the renderer was already renaming at output, so a
+ * rule, a stored response key or an email column that names the base id goes on meaning the
+ * field it always meant. Suffixes already taken by other fields are skipped.
+ *
+ * @param {Array}  entries - `{ clientId, id }` for every field in the form, in document order.
+ * @param {string} id      - The duplicated id to resolve.
+ * @return {Array} `{ clientId, id }` for each field that needs renaming; empty if none do.
+ */
+export const getRenamesForDuplicateId = ( entries, id ) => {
+	if ( ! id ) {
+		return [];
+	}
+
+	const used = new Set( ( entries || [] ).map( entry => entry.id ).filter( Boolean ) );
+	const renames = [];
+	let seen = false;
+
+	( entries || [] ).forEach( entry => {
+		if ( entry?.id !== id ) {
+			return;
+		}
+
+		// The first one is the field the renderer already resolves this id to, so it keeps it.
+		if ( ! seen ) {
+			seen = true;
+			return;
+		}
+
+		const nextId = generateUniqueFormFieldId( id, Array.from( used ) );
+
+		used.add( nextId );
+		renames.push( { clientId: entry.clientId, id: nextId } );
+	} );
+
+	return renames;
 };

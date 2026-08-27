@@ -113,9 +113,20 @@ await jest.unstable_mockModule(
 // id is unique.
 let formFieldIds = [];
 
+const mockFixDuplicateFieldId = jest.fn();
+
+await jest.unstable_mockModule(
+	'../../../../../src/blocks/shared/hooks/use-fix-duplicate-field-id.js',
+	() => ( { __esModule: true, default: () => mockFixDuplicateFieldId } )
+);
+
 await jest.unstable_mockModule(
 	'../../../../../src/blocks/shared/hooks/use-form-field-ids.js',
-	() => ( { __esModule: true, default: () => formFieldIds } )
+	() => ( {
+		__esModule: true,
+		getFormFieldEntries: () => [],
+		default: () => formFieldIds,
+	} )
 );
 
 const { default: ConditionalLogicPanel } = await import(
@@ -206,6 +217,7 @@ describe( 'ConditionalLogicPanel', () => {
 		subjectFields = SUBJECT_FIELDS;
 		formFieldIds = [];
 		mockUpdateBlockAttributes.mockClear();
+		mockFixDuplicateFieldId.mockClear();
 	} );
 
 	it( 'renders the panel title', async () => {
@@ -419,6 +431,23 @@ describe( 'ConditionalLogicPanel', () => {
 					name: 'More than one field uses this Name/ID, so this condition cannot say which it means.',
 				} )
 			).toBeInTheDocument();
+		} );
+
+		// Offered, not done for them: renaming a field changes the key its responses are
+		// stored under, so it waits for a deliberate click.
+		it( 'offers to repair the collision, and repairs the id the rule names', async () => {
+			await setup( withRules( [ { field: 'first-name', operator: 'is', value: 'x' } ] ) );
+
+			await userEvent.click( screen.getByRole( 'button', { name: 'Fix it' } ) );
+
+			expect( mockFixDuplicateFieldId ).toHaveBeenCalledWith( 'first-name' );
+		} );
+
+		// Nothing to repair when the field is simply gone.
+		it( 'offers no repair for a condition whose field was deleted', async () => {
+			await setup( withRules( [ { field: 'deleted_1', operator: 'is', value: 'x' } ] ) );
+
+			expect( screen.queryByRole( 'button', { name: 'Fix it' } ) ).not.toBeInTheDocument();
 		} );
 
 		// A rule saved before the ids collided, or against a field that was later duplicated.

@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
 import { seen, unseen } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
+import useFixDuplicateFieldId from '../../hooks/use-fix-duplicate-field-id.js';
 import useFormFieldIds from '../../hooks/use-form-field-ids.js';
 import { getDuplicateFieldIds } from '../../util/duplicate-ids.js';
 import {
@@ -96,6 +97,7 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 	// an id with the field being edited is just as ambiguous, and a list missing one of the two
 	// cannot see that. See getDuplicateFieldIds() for why ids collide in the first place.
 	const formFieldIds = useFormFieldIds( clientId, isModalOpen );
+	const fixDuplicateFieldId = useFixDuplicateFieldId( clientId );
 	const duplicateFieldIds = useMemo( () => getDuplicateFieldIds( formFieldIds ), [ formFieldIds ] );
 
 	const updateLogic = useCallback(
@@ -223,6 +225,7 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 				group={ group }
 				fields={ fields }
 				duplicateFieldIds={ duplicateFieldIds }
+				onFixDuplicateId={ fixDuplicateFieldId }
 				ownFieldId={ attributes.id }
 				onActionChange={ handleActionChange }
 				onMatchChange={ handleMatchChange }

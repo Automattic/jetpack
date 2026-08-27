@@ -1,7 +1,7 @@
 import { Icon, Notice, SelectControl, TextControl, Tooltip } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { caution, drafts, plus, published, trash } from '@wordpress/icons';
+import { caution, drafts, error, plus, published, trash } from '@wordpress/icons';
 import { Button, IconButton, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { RULE_TYPE_FIELD_VALUE } from '../../constants.js';
@@ -139,6 +139,7 @@ const RuleValueControl = ( { rule, subject, onChange } ) => {
  * @param {number}   props.index             - Zero-based rule index.
  * @param {Array}    props.fields            - Available subject fields.
  * @param {Set}      props.duplicateFieldIds - Ids claimed by more than one field in the form.
+ * @param {Function} props.onFixDuplicateId  - Called with an id to make it unique.
  * @param {string}   props.ownFieldId        - Id of the field the panel belongs to, which is absent
  *                                           from `fields` and so invisible to the uniqueness check.
  * @param {boolean}  props.shouldFocus       - Whether this row was just added and should take focus.
@@ -151,6 +152,7 @@ const RuleRow = ( {
 	index,
 	fields,
 	duplicateFieldIds = NO_DUPLICATE_IDS,
+	onFixDuplicateId,
 	ownFieldId,
 	shouldFocus,
 	onChange,
@@ -263,8 +265,13 @@ const RuleRow = ( {
 	// A complete rule is necessarily a started one, which is why three states need two flags.
 	const isStarted = isRuleStarted( rule );
 
+	// Three states plus one: a condition that cannot work at all is not the same as one left
+	// unfinished, so it gets its own icon and the same colour as the message explaining it,
+	// rather than sharing amber with "you have not finished typing".
 	let statusIcon = drafts;
-	if ( isComplete ) {
+	if ( subjectMessage ) {
+		statusIcon = error;
+	} else if ( isComplete ) {
 		statusIcon = published;
 	} else if ( isStarted ) {
 		statusIcon = caution;
@@ -323,7 +330,8 @@ const RuleRow = ( {
 					<span
 						className={ clsx( 'jetpack-contact-form__conditional-logic-rule-status', {
 							'is-active': isComplete,
-							'is-unstarted': ! isStarted,
+							'is-invalid': !! subjectMessage,
+							'is-unstarted': ! isStarted && ! subjectMessage,
 						} ) }
 						role="img"
 						aria-label={ isComplete ? activeReason : inactiveReason }
@@ -401,9 +409,23 @@ const RuleRow = ( {
 			     -- and note SelectControl overwrites any aria-describedby with its own help id,
 			     so the reason reaches screen readers through the status icon's label instead. */ }
 			{ subjectMessage && (
-				<Text variant="body-sm" className="jetpack-contact-form__conditional-logic-rule-message">
-					{ subjectMessage }
-				</Text>
+				<Stack
+					direction="row"
+					align="center"
+					gap="xs"
+					className="jetpack-contact-form__conditional-logic-rule-message"
+				>
+					<Text variant="body-sm">{ subjectMessage }</Text>
+
+					{ /* Offered rather than done for them: renaming a field changes the key its
+					     responses are stored under, so it waits for a deliberate click. Only for
+					     a collision -- a deleted field has nothing to repair. */ }
+					{ ambiguousSubject && !! onFixDuplicateId && (
+						<Button variant="minimal" size="small" onClick={ () => onFixDuplicateId( rule.field ) }>
+							{ __( 'Fix it', 'jetpack-forms' ) }
+						</Button>
+					) }
+				</Stack>
 			) }
 		</Stack>
 	);
@@ -432,6 +454,7 @@ const FieldValueControl = ( {
 	onChange,
 	fields,
 	duplicateFieldIds = NO_DUPLICATE_IDS,
+	onFixDuplicateId,
 	ownFieldId,
 } ) => {
 	const stored = useMemo(
@@ -496,6 +519,7 @@ const FieldValueControl = ( {
 					index={ index }
 					fields={ fields }
 					duplicateFieldIds={ duplicateFieldIds }
+					onFixDuplicateId={ onFixDuplicateId }
 					ownFieldId={ ownFieldId }
 					shouldFocus={ index === focusIndex }
 					onChange={ updateRule }

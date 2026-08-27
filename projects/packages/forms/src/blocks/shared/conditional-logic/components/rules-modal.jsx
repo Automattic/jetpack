@@ -34,6 +34,7 @@ const MATCH_OPTIONS = [
  * @param {object}   props.group             - The group being edited.
  * @param {Array}    props.fields            - Fields available as rule subjects.
  * @param {Set}      props.duplicateFieldIds - Ids claimed by more than one field in the form.
+ * @param {Function} props.onFixDuplicateId  - Called with an id to make it unique.
  * @param {string}   props.ownFieldId        - Id of the field the panel belongs to.
  * @param {Function} props.onActionChange    - Called with the next show/hide action.
  * @param {Function} props.onMatchChange     - Called with the next any/all operator.
@@ -47,6 +48,7 @@ const ConditionalLogicModal = ( {
 	group,
 	fields,
 	duplicateFieldIds = NO_DUPLICATE_IDS,
+	onFixDuplicateId,
 	ownFieldId,
 	onActionChange,
 	onMatchChange,
@@ -133,6 +135,7 @@ const ConditionalLogicModal = ( {
 					rules={ group.rules }
 					fields={ fields }
 					duplicateFieldIds={ duplicateFieldIds }
+					onFixDuplicateId={ onFixDuplicateId }
 					ownFieldId={ ownFieldId }
 					onChange={ onRulesChange }
 				/>
