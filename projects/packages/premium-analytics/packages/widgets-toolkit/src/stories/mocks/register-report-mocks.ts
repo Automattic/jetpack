@@ -785,12 +785,12 @@ function buildFollowersResponse( max: number ) {
 	const HOUR = 60 * MINUTE;
 	const DAY = 24 * HOUR;
 	const emailPeople = [
-		{ label: 'surfacefrance@example.com', offset: 120 * DAY },
-		{ label: 'crislunamartinez@example.com', offset: 240 * DAY },
-		{ label: 'yebiscats@example.com', offset: 300 * DAY },
-		{ label: 'aciaxhls@example.com', offset: 330 * DAY },
-		{ label: 'hzulfadliey@example.com', offset: 400 * DAY },
-		{ label: 'reputeless@example.com', offset: 430 * DAY },
+		{ label: 'subscriber-one@example.com', offset: 120 * DAY },
+		{ label: 'subscriber-two@example.com', offset: 240 * DAY },
+		{ label: 'subscriber-three@example.com', offset: 300 * DAY },
+		{ label: 'subscriber-four@example.com', offset: 330 * DAY },
+		{ label: 'subscriber-five@example.com', offset: 400 * DAY },
+		{ label: 'subscriber-six@example.com', offset: 430 * DAY },
 	];
 	const wpcomPeople = [
 		{ label: 'Diego Morales', offset: 20 * 1000 },

@@ -81,7 +81,7 @@ function getSubscriptionId( item: StatsFollowersRawItem ) {
 function subscribedAt( item: StatsFollowersRawItem ) {
 	const date = item.date_subscribed ? parseISO( item.date_subscribed ) : null;
 
-	return date && isValid( date ) ? date.getTime() : -Infinity;
+	return date && isValid( date ) ? date.getTime() : Number.MIN_SAFE_INTEGER;
 }
 
 export function sanitizeStatsFollowersResponse(
