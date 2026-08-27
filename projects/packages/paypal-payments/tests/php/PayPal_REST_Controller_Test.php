@@ -10,6 +10,8 @@
 
 namespace Automattic\Jetpack\PaypalPayments;
 
+use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -36,9 +38,21 @@ class PayPal_REST_Controller_Test extends TestCase {
 		delete_option( PayPal_Partner_Onboarding::PARTNER_ID_OPTION_KEY );
 		delete_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY );
 		delete_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY );
+		delete_option( 'jetpack_private_options' );
+		\Jetpack_Options::delete_option( 'id' );
+		Constants::clear_constants();
 
 		// Remove any HTTP request filters.
 		remove_all_filters( 'pre_http_request' );
+	}
+
+	/**
+	 * Give the site the blog ID and token the WordPress.com proxy call needs.
+	 */
+	private function set_up_blog_connection() {
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		( new Tokens() )->update_blog_token( 'test.blogtoken' );
+		\Jetpack_Options::update_option( 'id', 1234 );
 	}
 
 	/**
@@ -597,29 +611,15 @@ class PayPal_REST_Controller_Test extends TestCase {
 	 */
 	public function test_generate_signup_link_returns_action_url() {
 		$this->set_up_connected_admin_state();
-		PayPal_Partner_Onboarding::set_partner_id( 'PARTNER123' );
+		$this->set_up_blog_connection();
 		$this->mock_http_routes(
 			array(
-				'/v1/oauth2/token'               => $this->http_response(
+				PayPal_Partner_Onboarding::WPCOM_SIGNUP_LINK_ROUTE => $this->http_response(
 					200,
 					array(
-						'access_token' => 'partner_token',
-						'expires_in'   => 3600,
-					)
-				),
-				'/v2/customer/partner-referrals' => $this->http_response(
-					201,
-					array(
-						'links' => array(
-							array(
-								'rel'  => 'self',
-								'href' => 'https://api-m.sandbox.paypal.com/v2/customer/partner-referrals/REF1',
-							),
-							array(
-								'rel'  => 'action_url',
-								'href' => 'https://www.sandbox.paypal.com/merchantsignup/x',
-							),
-						),
+						'action_url'          => 'https://www.sandbox.paypal.com/merchantsignup/x',
+						'referral_id'         => 'REF1',
+						'partner_merchant_id' => 'PARTNER_FROM_WPCOM',
 					)
 				),
 			)
@@ -647,11 +647,11 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$request->set_param( 'return_url', 'https://example.com/return' );
 		$request->set_param( 'environment', 'sandbox' );
 
-		// No partner ID is configured, so the referral cannot be created.
+		// The site has no WordPress.com connection, so the referral cannot be created.
 		$result = PayPal_REST_Controller::handle_generate_signup_link( $request );
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertEquals( 'paypal_no_partner_id', $result->get_error_code() );
+		$this->assertEquals( 'paypal_referral_request_failed', $result->get_error_code() );
 	}
 
 	/**

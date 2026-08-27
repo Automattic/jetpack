@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\PaypalPayments;
 
+use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -34,11 +36,34 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		delete_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY );
 		delete_option( PayPal_OAuth::TOKEN_EXPIRES_AT_OPTION_KEY );
 
+		// The blog connection is per-test; leaving it set makes later tests that
+		// expect a disconnected site pass or fail depending on test order.
+		delete_option( 'jetpack_private_options' );
+		\Jetpack_Options::delete_option( 'id' );
+		Constants::clear_constants();
+
 		remove_all_filters( 'pre_http_request' );
 	}
 
 	/**
-	 * Put the site in a state where partner-level credentials are configured.
+	 * Put the site in a state where it can talk to WordPress.com as a blog.
+	 *
+	 * The signup-link call proxies through WordPress.com, which needs a blog ID
+	 * and a blog token to sign the request.
+	 */
+	private function set_up_connected_site() {
+		PayPal_OAuth::set_environment( 'sandbox' );
+
+		// The Connection package builds the WordPress.com API URL from this; without
+		// it the URL has no host and request signing fails.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		( new Tokens() )->update_blog_token( 'test.blogtoken' );
+		\Jetpack_Options::update_option( 'id', 1234 );
+	}
+
+	/**
+	 * Put the site in a state where merchant credentials are stored.
 	 *
 	 * Caches an access token directly so the OAuth token exchange does not need
 	 * to be mocked by every test.
@@ -49,6 +74,35 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		PayPal_Partner_Onboarding::set_partner_id( 'PARTNER123' );
 
 		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, PayPal_OAuth::encrypt( 'partner_access_token' ), 3600 );
+	}
+
+	/**
+	 * Mock the wpcom signup-link proxy route.
+	 *
+	 * @param array|\WP_Error $response Response to return for the proxy call.
+	 * @param array           $requests Collected by reference as [ url, args ] pairs.
+	 */
+	private function mock_wpcom_signup_link( $response, &$requests = null ) {
+		$this->mock_http_routes(
+			array( PayPal_Partner_Onboarding::WPCOM_SIGNUP_LINK_ROUTE => $response ),
+			$requests
+		);
+	}
+
+	/**
+	 * A successful signup-link response from WordPress.com.
+	 *
+	 * @return array
+	 */
+	private function signup_link_success() {
+		return $this->http_response(
+			200,
+			array(
+				'action_url'          => 'https://www.sandbox.paypal.com/merchantsignup/x',
+				'referral_id'         => 'REFERRAL789',
+				'partner_merchant_id' => 'PARTNER_FROM_WPCOM',
+			)
+		);
 	}
 
 	/**
@@ -115,26 +169,13 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		$this->assertEmpty( PayPal_Partner_Onboarding::get_merchant_id() );
 	}
 
-	/**
-	 * Test generate_signup_link fails without partner ID.
-	 */
-	public function test_generate_signup_link_requires_partner_id() {
-		$result = PayPal_Partner_Onboarding::generate_signup_link(
-			'https://example.com/return',
-			'sandbox'
-		);
-
-		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertEquals( 'paypal_no_partner_id', $result->get_error_code() );
-	}
-
 	// --- generate_signup_link ---
 
 	/**
 	 * Test that a non-HTTPS return URL is rejected for production onboarding.
 	 */
 	public function test_generate_signup_link_rejects_insecure_return_url() {
-		$this->set_up_partner_state();
+		$this->set_up_connected_site();
 
 		$result = PayPal_Partner_Onboarding::generate_signup_link( 'http://example.com/return', 'production' );
 
@@ -150,22 +191,8 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	 * must apply to production only.
 	 */
 	public function test_generate_signup_link_allows_insecure_return_url_in_sandbox() {
-		$this->set_up_partner_state();
-		$this->mock_http_routes(
-			array(
-				'/v2/customer/partner-referrals' => $this->http_response(
-					201,
-					array(
-						'links' => array(
-							array(
-								'rel'  => 'action_url',
-								'href' => 'https://www.sandbox.paypal.com/merchantsignup/x',
-							),
-						),
-					)
-				),
-			)
-		);
+		$this->set_up_connected_site();
+		$this->mock_wpcom_signup_link( $this->signup_link_success() );
 
 		$result = PayPal_Partner_Onboarding::generate_signup_link( 'http://example.com/return', 'sandbox' );
 
@@ -177,60 +204,47 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	 * Test that a successful referral returns the action URL, referral ID, and tracking ID.
 	 */
 	public function test_generate_signup_link_returns_action_url_and_referral_id() {
-		$this->set_up_partner_state();
-		$this->mock_http_routes(
-			array(
-				'/v2/customer/partner-referrals' => $this->http_response(
-					201,
-					array(
-						'links' => array(
-							array(
-								'rel'  => 'self',
-								'href' => 'https://api-m.sandbox.paypal.com/v2/customer/partner-referrals/REFERRAL789',
-							),
-							array(
-								'rel'  => 'action_url',
-								'href' => 'https://www.sandbox.paypal.com/merchantsignup/partner/onboardingentry?token=abc',
-							),
-						),
-					)
-				),
-			)
-		);
+		$this->set_up_connected_site();
+		$this->mock_wpcom_signup_link( $this->signup_link_success() );
 
 		$result = PayPal_Partner_Onboarding::generate_signup_link( 'https://example.com/return', 'sandbox' );
 
 		$this->assertIsArray( $result );
-		$this->assertSame(
-			'https://www.sandbox.paypal.com/merchantsignup/partner/onboardingentry?token=abc',
-			$result['action_url']
-		);
+		$this->assertSame( 'https://www.sandbox.paypal.com/merchantsignup/x', $result['action_url'] );
 		$this->assertSame( 'REFERRAL789', $result['referral_id'] );
 		$this->assertNotEmpty( $result['tracking_id'] );
 	}
 
 	/**
+	 * Test that the referral is created through WordPress.com, not from the site.
+	 *
+	 * Automattic's PayPal platform credentials must never reach the site, so the
+	 * site may only talk to the wpcom proxy route.
+	 */
+	public function test_generate_signup_link_goes_through_wpcom_not_paypal() {
+		$this->set_up_connected_site();
+		$requests = array();
+		$this->mock_wpcom_signup_link( $this->signup_link_success(), $requests );
+
+		PayPal_Partner_Onboarding::generate_signup_link( 'https://example.com/return', 'sandbox' );
+
+		$this->assertNotEmpty( $requests );
+		foreach ( $requests as $request ) {
+			$this->assertStringContainsString( 'public-api.wordpress.com', $request['url'] );
+			$this->assertStringNotContainsString( 'paypal.com', $request['url'] );
+		}
+	}
+
+	/**
 	 * Test that generating a signup link stores an encrypted, single-use seller nonce.
+	 *
+	 * The nonce is the PKCE code_verifier for the later auth code exchange, so it
+	 * has to stay on the site and match what WordPress.com forwards to PayPal.
 	 */
 	public function test_generate_signup_link_stores_encrypted_seller_nonce() {
-		$this->set_up_partner_state();
+		$this->set_up_connected_site();
 		$requests = array();
-		$this->mock_http_routes(
-			array(
-				'/v2/customer/partner-referrals' => $this->http_response(
-					201,
-					array(
-						'links' => array(
-							array(
-								'rel'  => 'action_url',
-								'href' => 'https://www.sandbox.paypal.com/merchantsignup/x',
-							),
-						),
-					)
-				),
-			),
-			$requests
-		);
+		$this->mock_wpcom_signup_link( $this->signup_link_success(), $requests );
 
 		PayPal_Partner_Onboarding::generate_signup_link( 'https://example.com/return', 'sandbox' );
 
@@ -243,62 +257,59 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		// PayPal requires the seller nonce to be 43-128 characters.
 		$this->assertGreaterThanOrEqual( 43, strlen( $nonce ) );
 
-		// The plaintext nonce is sent to PayPal, and it must match what we stored.
-		$referral = end( $requests );
-		$body     = json_decode( $referral['args']['body'], true );
-		$sent     = $body['operations'][0]['api_integration_preference']['rest_api_integration']['first_party_details']['seller_nonce'];
+		$body = json_decode( end( $requests )['args']['body'], true );
+		$sent = $body['referral']['operations'][0]['api_integration_preference']['rest_api_integration']['first_party_details']['seller_nonce'];
 		$this->assertSame( $nonce, $sent );
 	}
 
 	/**
-	 * Test that the referral request asks for the expected products and features.
+	 * Test that the referral body sent to WordPress.com carries the expected products and features.
 	 */
-	public function test_generate_signup_link_requests_expected_products_and_features() {
-		$this->set_up_partner_state();
+	public function test_generate_signup_link_sends_expected_referral_body() {
+		$this->set_up_connected_site();
 		$requests = array();
-		$this->mock_http_routes(
-			array(
-				'/v2/customer/partner-referrals' => $this->http_response(
-					201,
-					array(
-						'links' => array(
-							array(
-								'rel'  => 'action_url',
-								'href' => 'https://www.sandbox.paypal.com/merchantsignup/x',
-							),
-						),
-					)
-				),
-			),
-			$requests
-		);
+		$this->mock_wpcom_signup_link( $this->signup_link_success(), $requests );
 
 		PayPal_Partner_Onboarding::generate_signup_link( 'https://example.com/return', 'sandbox' );
 
-		$referral = end( $requests );
-		$this->assertStringStartsWith( PayPal_OAuth::SANDBOX_BASE_URL, $referral['url'] );
+		$body = json_decode( end( $requests )['args']['body'], true );
 
-		$body = json_decode( $referral['args']['body'], true );
-		$this->assertSame( PayPal_Partner_Onboarding::ONBOARDING_PRODUCTS, $body['products'] );
+		$this->assertSame( 'sandbox', $body['environment'] );
+		$this->assertSame( PayPal_Partner_Onboarding::ONBOARDING_PRODUCTS, $body['referral']['products'] );
 		$this->assertSame(
 			PayPal_Partner_Onboarding::ONBOARDING_FEATURES,
-			$body['operations'][0]['api_integration_preference']['rest_api_integration']['first_party_details']['features']
+			$body['referral']['operations'][0]['api_integration_preference']['rest_api_integration']['first_party_details']['features']
 		);
-		$this->assertSame( 'https://example.com/return', $body['partner_config_override']['return_url'] );
-		$this->assertTrue( $body['legal_consents'][0]['granted'] );
+		$this->assertSame( 'https://example.com/return', $body['referral']['partner_config_override']['return_url'] );
+		$this->assertTrue( $body['referral']['legal_consents'][0]['granted'] );
 	}
 
 	/**
-	 * Test that a PayPal error status produces a generic, non-leaking error.
+	 * Test that the partner merchant ID returned by WordPress.com is stored.
+	 *
+	 * The auth code exchange and the status check both address PayPal as the
+	 * partner, so without this the flow cannot continue past the signup link.
+	 */
+	public function test_generate_signup_link_stores_partner_merchant_id() {
+		$this->set_up_connected_site();
+		$this->mock_wpcom_signup_link( $this->signup_link_success() );
+
+		$this->assertEmpty( PayPal_Partner_Onboarding::get_partner_id() );
+
+		PayPal_Partner_Onboarding::generate_signup_link( 'https://example.com/return', 'sandbox' );
+
+		$this->assertSame( 'PARTNER_FROM_WPCOM', PayPal_Partner_Onboarding::get_partner_id() );
+	}
+
+	/**
+	 * Test that an error status from WordPress.com is reported.
 	 */
 	public function test_generate_signup_link_handles_error_status() {
-		$this->set_up_partner_state();
-		$this->mock_http_routes(
-			array(
-				'/v2/customer/partner-referrals' => $this->http_response(
-					422,
-					array( 'name' => 'UNPROCESSABLE_ENTITY' )
-				),
+		$this->set_up_connected_site();
+		$this->mock_wpcom_signup_link(
+			$this->http_response(
+				500,
+				array( 'code' => 'platform_credentials_missing' )
 			)
 		);
 
@@ -306,29 +317,16 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertEquals( 'paypal_referral_failed', $result->get_error_code() );
-		$this->assertEquals( 422, $result->get_error_data()['status'] );
-		$this->assertStringNotContainsString( 'UNPROCESSABLE_ENTITY', $result->get_error_message() );
+		$this->assertEquals( 500, $result->get_error_data()['status'] );
 	}
 
 	/**
-	 * Test that a 201 without an action_url link is reported rather than returned as success.
+	 * Test that a 200 without an action_url is reported rather than returned as success.
 	 */
 	public function test_generate_signup_link_requires_action_url_in_response() {
-		$this->set_up_partner_state();
-		$this->mock_http_routes(
-			array(
-				'/v2/customer/partner-referrals' => $this->http_response(
-					201,
-					array(
-						'links' => array(
-							array(
-								'rel'  => 'self',
-								'href' => 'https://api-m.sandbox.paypal.com/v2/customer/partner-referrals/REFERRAL789',
-							),
-						),
-					)
-				),
-			)
+		$this->set_up_connected_site();
+		$this->mock_wpcom_signup_link(
+			$this->http_response( 200, array( 'referral_id' => 'REFERRAL789' ) )
 		);
 
 		$result = PayPal_Partner_Onboarding::generate_signup_link( 'https://example.com/return', 'sandbox' );
@@ -341,18 +339,24 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	 * Test that a transport-level failure is wrapped in a descriptive error.
 	 */
 	public function test_generate_signup_link_handles_transport_error() {
-		$this->set_up_partner_state();
-		$this->mock_http_routes(
-			array(
-				'/v2/customer/partner-referrals' => new \WP_Error( 'http_request_failed', 'Connection timed out' ),
-			)
-		);
+		$this->set_up_connected_site();
+		$this->mock_wpcom_signup_link( new \WP_Error( 'http_request_failed', 'Connection timed out' ) );
 
 		$result = PayPal_Partner_Onboarding::generate_signup_link( 'https://example.com/return', 'sandbox' );
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertEquals( 'paypal_referral_request_failed', $result->get_error_code() );
 		$this->assertStringContainsString( 'Connection timed out', $result->get_error_message() );
+	}
+
+	/**
+	 * Test that a site with no WordPress.com connection cannot start onboarding.
+	 */
+	public function test_generate_signup_link_requires_a_wpcom_connection() {
+		$result = PayPal_Partner_Onboarding::generate_signup_link( 'https://example.com/return', 'sandbox' );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'paypal_referral_request_failed', $result->get_error_code() );
 	}
 
 	/**

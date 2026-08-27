@@ -62,8 +62,12 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	/**
 	 * Option key for Automattic's PayPal platform credentials on WPCOM.
 	 *
-	 * Stores JSON: { "production": { "client_id": "...", "client_secret": "..." },
-	 *                "sandbox":    { "client_id": "...", "client_secret": "..." } }
+	 * Stores JSON, keyed by environment, each with the platform client_id and
+	 * client_secret plus the partner merchant ID the plugin needs for the auth
+	 * code exchange:
+	 *
+	 *   { "production": { "client_id": "...", "client_secret": "...", "partner_merchant_id": "..." },
+	 *     "sandbox":    { "client_id": "...", "client_secret": "...", "partner_merchant_id": "..." } }
 	 *
 	 * @todo Provision this option on WPCOM with the real credentials.
 	 * @var string
@@ -219,8 +223,11 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 
 		return rest_ensure_response(
 			array(
-				'action_url'  => $action_url,
-				'referral_id' => $referral_id,
+				'action_url'          => $action_url,
+				'referral_id'         => $referral_id,
+				// The plugin needs this to address PayPal as the partner when it
+				// exchanges the auth code and when it checks merchant status.
+				'partner_merchant_id' => $credentials['partner_merchant_id'] ?? '',
 			)
 		);
 	}
