@@ -678,7 +678,19 @@ abstract class Sharing_Source {
 	}
 
 	/**
-	 * Add extra JavaScript to a sharing service.
+	 * Register a sharing service's popup window features with the front-end script.
+	 *
+	 * Services that open their share link in a popup publish the window features
+	 * they need in `window.WPCOM_sharing_popups`. A single delegated click handler
+	 * in sharing.js reads them and opens the popup, so no per-service handler is
+	 * emitted.
+	 *
+	 * $name has to be the same slug that appears in the share link's `share-<name>`
+	 * class, since that class is all the handler has to look the features back up
+	 * with. Every caller passes $this->shortname, which works because get_link()
+	 * builds the class from get_class() and the built-in services register under
+	 * the slug they declare as their shortname. Share_Custom is the exception: its
+	 * class and shortname do not round-trip, but it does not register a popup.
 	 *
 	 * @param string $name   Sharing service name.
 	 * @param array  $params Array of sharing options.
@@ -706,41 +718,11 @@ abstract class Sharing_Source {
 		// Add JS after sharing-js has been enqueued.
 		wp_add_inline_script(
 			'sharing-js',
-			"var windowOpen;
-			( function () {
-				var shareWindowName = 'wpcom$name-' + Math.random().toString( 36 ).slice( 2 );
-
-				function matches( el, sel ) {
-					return !! (
-						el.matches && el.matches( sel ) ||
-						el.msMatchesSelector && el.msMatchesSelector( sel )
-					);
-				}
-
-				document.body.addEventListener( 'click', function ( event ) {
-					if ( ! event.target ) {
-						return;
-					}
-
-					var el;
-					if ( matches( event.target, 'a.share-$name' ) ) {
-						el = event.target;
-					} else if ( event.target.parentNode && matches( event.target.parentNode, 'a.share-$name' ) ) {
-						el = event.target.parentNode;
-					}
-
-					if ( el ) {
-						event.preventDefault();
-
-						// If there's another sharing window open, close it.
-						if ( typeof windowOpen !== 'undefined' ) {
-							windowOpen.close();
-						}
-						windowOpen = window.open( el.getAttribute( 'href' ), shareWindowName, '$opts' );
-						return false;
-					}
-				} );
-			} )();"
+			sprintf(
+				"window.WPCOM_sharing_popups = window.WPCOM_sharing_popups || {};\nwindow.WPCOM_sharing_popups[ %s ] = %s;",
+				wp_json_encode( (string) $name, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ),
+				wp_json_encode( $opts, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
+			)
 		);
 	}
 }
