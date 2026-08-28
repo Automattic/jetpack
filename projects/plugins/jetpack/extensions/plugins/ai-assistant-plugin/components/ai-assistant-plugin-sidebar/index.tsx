@@ -35,7 +35,6 @@ import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/util
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
 import { getBreveAvailability, canWriteBriefBeEnabled } from '../breve/utils/get-availability';
-import DraftAssist from '../draft-assist';
 import Feedback from '../feedback';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
@@ -141,14 +140,6 @@ const JetpackAndSettingsContent = ( {
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<FairUsageNotice variant="muted" />
-					</BaseControl>
-				</PanelRow>
-			) }
-			{ isPostEmpty && (
-				<PanelRow className="jetpack-ai-sidebar__feature-section">
-					<BaseControl __nextHasNoMarginBottom={ true }>
-						<BaseControl.VisualLabel>{ __( 'Write a Draft', 'jetpack' ) }</BaseControl.VisualLabel>
-						<DraftAssist placement={ placement } disabled={ requireUpgrade } />
 					</BaseControl>
 				</PanelRow>
 			) }
