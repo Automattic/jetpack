@@ -429,11 +429,12 @@ class Backup_Abilities_Test extends BaseTestCase {
 								'has_warnings'  => array( 'type' => array( 'boolean', 'null' ) ),
 							),
 						),
+						// No `minute`: nothing upstream supplies one, so the
+						// field could only advertise a permanent null.
 						'schedule'            => array(
 							'type'       => array( 'object', 'null' ),
 							'properties' => array(
-								'hour'   => array( 'type' => array( 'integer', 'null' ) ),
-								'minute' => array( 'type' => array( 'integer', 'null' ) ),
+								'hour' => array( 'type' => array( 'integer', 'null' ) ),
 							),
 						),
 						'storage'             => array(
@@ -795,6 +796,79 @@ class Backup_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
+	 * End-to-end for JETPACK-2372 and its schedule twin: `/size`, `/policies` and
+	 * `/scheduled` answer with the bodies WordPress.com actually sends.
+	 *
+	 * The fourth body, for `/rewind/backups`, is illustrative and not sourced — it only
+	 * gives `summarize_backup()` something to chew on while storage and schedule are
+	 * asserted. Pinning that shape needs its own issue.
+	 */
+	public function test_get_backup_overview_maps_recorded_wpcom_payloads(): void {
+		// The first signed `Client` call of the process is refused as a host-less URL,
+		// so without this the assertion depends on what ran earlier in the suite.
+		\Automattic\Jetpack\Connection\Utils::init_default_constants();
+
+		wp_set_current_user( $this->admin_id );
+
+		$bodies = array(
+			'rewind/size'      => $this->recorded_size_payload(),
+			'rewind/policies'  => $this->recorded_policies_payload(),
+			'rewind/scheduled' => $this->recorded_schedule_payload(),
+			'rewind/backups'   => array(
+				array(
+					'id'            => 875405461,
+					'rewind_id'     => '1774526400.481',
+					'started'       => '2026-03-26T12:00:00+00:00',
+					'last_updated'  => '2026-03-26T12:04:00+00:00',
+					'status'        => 'finished',
+					'period'        => 'daily',
+					'is_rewindable' => true,
+					'has_warnings'  => false,
+				),
+			),
+		);
+
+		$mock = function ( $preempt, $args, $url ) use ( $bodies ) {
+			foreach ( $bodies as $fragment => $body ) {
+				if ( false !== strpos( $url, $fragment ) ) {
+					return array(
+						'response' => array( 'code' => 200 ),
+						'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+					);
+				}
+			}
+			return $preempt;
+		};
+
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10, 2 );
+		add_filter( 'pre_http_request', $mock, 10, 3 );
+
+		$result = Backup_Abilities::execute_get_backup_overview( array() );
+
+		remove_filter( 'pre_http_request', $mock, 10 );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10 );
+
+		$this->assertSame(
+			array(
+				'recent_backup_count' => 1,
+				'last_backup'         => array(
+					'id'            => '1774526400.481',
+					'last_updated'  => '2026-03-26T12:04:00+00:00',
+					'status'        => 'finished',
+					'is_rewindable' => true,
+					'has_warnings'  => false,
+				),
+				'schedule'            => array( 'hour' => 17 ),
+				'storage'             => array(
+					'used_bytes'  => 3221225472,
+					'limit_bytes' => 10737418240,
+				),
+			),
+			$result
+		);
+	}
+
+	/**
 	 * Mock a Jetpack user connection so wpcom-as-user requests are signed.
 	 *
 	 * @param mixed  $value The current option value.
@@ -1118,51 +1192,303 @@ class Backup_Abilities_Test extends BaseTestCase {
 		$this->assertArrayNotHasKey( 'noise_field', $result );
 	}
 
+	/**
+	 * Body of a successful `GET /jetpack/v4/site/backup/schedule`.
+	 *
+	 * The route forwards WordPress.com's body verbatim, and these three keys are all it
+	 * ever sets: no `hour`, no `minute`, no `scheduled_minute` on either branch of
+	 * `sites-rewind-scheduled-backup.php`.
+	 *
+	 * @param array $overrides Fields to replace.
+	 * @return array
+	 */
+	private function recorded_schedule_payload( array $overrides = array() ): array {
+		return array_merge(
+			array(
+				'ok'             => true,
+				'scheduled_hour' => 17,
+				'scheduled_by'   => 'Backup Owner',
+			),
+			$overrides
+		);
+	}
+
+	/**
+	 * Body of a successful `GET /jetpack/v4/site/backup/size`.
+	 *
+	 * These ten keys are what `sites-rewind-size.php` builds, matching the live 200
+	 * captured on JETPACK-2372. Note what is absent: usage is `size`, not
+	 * `size_in_bytes`, and there is no storage limit here at all.
+	 *
+	 * @param array $overrides Fields to replace.
+	 * @return array
+	 */
+	private function recorded_size_payload( array $overrides = array() ): array {
+		return array_merge(
+			array(
+				'ok'                          => true,
+				'error'                       => '',
+				'size'                        => 3221225472,
+				'days_of_backups_saved'       => 14,
+				'days_of_backups_allowed'     => 30,
+				'min_days_of_backups_allowed' => 2,
+				'last_backup_size'            => 1073741824,
+				'last_backup_failed'          => false,
+				'retention_days'              => 30,
+				'backups_stopped'             => 0,
+			),
+			$overrides
+		);
+	}
+
+	/**
+	 * Body of a successful `GET /jetpack/v4/site/backup/policies`.
+	 *
+	 * `sites-rewind-policies.php` nests everything under a single `policies` key, which
+	 * is itself nullable inside a 200 when the plan carries no policy.
+	 *
+	 * @param bool $with_policy False to model the `{ "policies": null }` body a
+	 *                          plan with no policy answers with.
+	 * @return array
+	 */
+	private function recorded_policies_payload( bool $with_policy = true ): array {
+		return array(
+			'policies' => $with_policy
+				? array(
+					'storage_limit_bytes'     => 10737418240,
+					'activity_log_limit_days' => 30,
+				)
+				: null,
+		);
+	}
+
 	public function test_summarize_schedule_returns_null_for_invalid_input(): void {
 		$this->assertNull( $this->call_private( 'summarize_schedule', array( null ) ) );
 		$this->assertNull( $this->call_private( 'summarize_schedule', array( 'string' ) ) );
 	}
 
-	public function test_summarize_schedule_extracts_hour_minute(): void {
-		$result = $this->call_private(
+	public function test_summarize_schedule_reads_scheduled_hour_and_publishes_no_minute(): void {
+		$result = $this->call_private( 'summarize_schedule', array( $this->recorded_schedule_payload() ) );
+
+		$this->assertSame( array( 'hour' => 17 ), $result, 'Schedule must map scheduled_hour to hour and expose nothing else.' );
+		$this->assertArrayNotHasKey( 'minute', $result, 'Nothing upstream supplies a minute, so the field must not be published.' );
+	}
+
+	/**
+	 * Regression for JETPACK-2372's twin: the ability used to read `hour` and `minute`,
+	 * names WordPress.com has never sent.
+	 *
+	 * Two payloads, because a reader that merely *falls back* to `hour` passes the
+	 * first — only the second, where `scheduled_hour` is absent, catches it.
+	 */
+	public function test_summarize_schedule_ignores_the_hour_minute_names_wpcom_never_sends(): void {
+		$alias_preferred = $this->call_private(
 			'summarize_schedule',
 			array(
 				array(
+					'ok'             => true,
+					'scheduled_hour' => 17,
+					'hour'           => 3,
+					'minute'         => 30,
+				),
+			)
+		);
+		$this->assertSame( array( 'hour' => 17 ), $alias_preferred );
+
+		$alias_as_fallback = $this->call_private(
+			'summarize_schedule',
+			array(
+				array(
+					'ok'     => true,
 					'hour'   => 3,
 					'minute' => 30,
 				),
 			)
 		);
-		$this->assertSame( 3, $result['hour'] );
-		$this->assertSame( 30, $result['minute'] );
+		$this->assertSame( array( 'hour' => null ), $alias_as_fallback );
 	}
 
-	public function test_summarize_storage_handles_both_field_aliases(): void {
-		// Production WPCOM payload uses size_in_bytes/storage_limit_bytes.
+	/**
+	 * `ok` is WordPress.com's own success flag inside a 200 body. The fixture keeps a
+	 * plausible `scheduled_hour` so this cannot pass merely because the payload was
+	 * empty.
+	 */
+	public function test_summarize_schedule_discards_payload_that_is_not_ok(): void {
 		$result = $this->call_private(
-			'summarize_storage',
-			array(
-				array(
-					'size_in_bytes'       => 1024,
-					'storage_limit_bytes' => 10240,
-				),
-			)
+			'summarize_schedule',
+			array( $this->recorded_schedule_payload( array( 'ok' => false ) ) )
 		);
-		$this->assertSame( 1024, $result['used_bytes'] );
-		$this->assertSame( 10240, $result['limit_bytes'] );
 
-		// Defensive shape: bare *_bytes keys also accepted.
+		$this->assertNull( $result );
+	}
+
+	public function test_summarize_storage_maps_size_and_policy_limit(): void {
 		$result = $this->call_private(
+			'summarize_storage',
+			array( $this->recorded_size_payload(), $this->recorded_policies_payload() )
+		);
+
+		$this->assertSame(
+			array(
+				'used_bytes'  => 3221225472,
+				'limit_bytes' => 10737418240,
+			),
+			$result
+		);
+	}
+
+	/**
+	 * Regression for JETPACK-2372: `size_in_bytes` and a top-level
+	 * `storage_limit_bytes` were the names the ability used to read, and
+	 * neither exists on any WordPress.com response.
+	 *
+	 * The two aliases need opposite setups: `size_in_bytes` against a full policies
+	 * payload, so the test cannot pass by collapsing to null; the planted
+	 * `storage_limit_bytes` against `{ "policies": null }`, where a policy would
+	 * otherwise win whatever the code does.
+	 */
+	public function test_summarize_storage_ignores_the_field_names_wpcom_never_sends(): void {
+		$size = $this->recorded_size_payload();
+		unset( $size['size'] );
+		$size['size_in_bytes'] = 4294967296;
+
+		$result = $this->call_private(
+			'summarize_storage',
+			array( $size, $this->recorded_policies_payload() )
+		);
+
+		$this->assertNull( $result['used_bytes'], 'size_in_bytes is not a WordPress.com field and must not be read.' );
+		$this->assertSame( 10737418240, $result['limit_bytes'], 'The limit must come from policies.storage_limit_bytes, not from the size payload.' );
+
+		$no_policy = $this->call_private(
 			'summarize_storage',
 			array(
 				array(
-					'used_bytes'  => 5,
-					'limit_bytes' => 50,
+					'ok'                  => true,
+					'size'                => 3221225472,
+					'storage_limit_bytes' => 999,
 				),
+				array( 'policies' => null ),
 			)
 		);
-		$this->assertSame( 5, $result['used_bytes'] );
-		$this->assertSame( 50, $result['limit_bytes'] );
+
+		$this->assertSame( 3221225472, $no_policy['used_bytes'] );
+		$this->assertNull( $no_policy['limit_bytes'], 'A storage limit on the size payload is not a WordPress.com field and must not be read.' );
+	}
+
+	/**
+	 * A 200 with `ok: false` carries no usable usage figure, but the limit comes from a
+	 * different route — so it still has to arrive.
+	 */
+	public function test_summarize_storage_drops_usage_when_size_response_is_not_ok(): void {
+		$result = $this->call_private(
+			'summarize_storage',
+			array(
+				$this->recorded_size_payload( array( 'ok' => false ) ),
+				$this->recorded_policies_payload(),
+			)
+		);
+
+		$this->assertNull( $result['used_bytes'] );
+		$this->assertSame( 10737418240, $result['limit_bytes'] );
+	}
+
+	/**
+	 * `{ "policies": null }` is a real 200 body — a plan with no policy. Usage
+	 * must survive it, which is what distinguishes this from a failed read.
+	 */
+	public function test_summarize_storage_keeps_usage_when_policies_are_absent(): void {
+		$result = $this->call_private(
+			'summarize_storage',
+			array( $this->recorded_size_payload(), $this->recorded_policies_payload( false ) )
+		);
+
+		$this->assertSame( 3221225472, $result['used_bytes'] );
+		$this->assertNull( $result['limit_bytes'] );
+	}
+
+	/**
+	 * The two routes fail independently, so whichever figure did arrive has to survive.
+	 * Each half is asserted to be the real number rather than null.
+	 */
+	public function test_summarize_storage_reports_whichever_route_answered(): void {
+		$size_failed = $this->call_private( 'summarize_storage', array( null, $this->recorded_policies_payload() ) );
+		$this->assertNull( $size_failed['used_bytes'] );
+		$this->assertSame( 10737418240, $size_failed['limit_bytes'] );
+
+		$policies_failed = $this->call_private( 'summarize_storage', array( $this->recorded_size_payload(), null ) );
+		$this->assertSame( 3221225472, $policies_failed['used_bytes'] );
+		$this->assertNull( $policies_failed['limit_bytes'] );
+	}
+
+	/**
+	 * `ok` absent is not `ok: true`. WordPress.com sets it on every success branch, so a
+	 * payload missing it is not a success payload and its siblings cannot be trusted.
+	 *
+	 * The two routes then diverge deliberately, which is the asymmetry
+	 * documented on `summarize_storage()`: schedule has nothing left to report
+	 * so the whole object goes, while storage keeps the limit the other route
+	 * supplied. Each half asserts a figure only a working path produces, so
+	 * neither can pass by collapsing to null.
+	 */
+	public function test_summarize_helpers_require_ok_to_be_present(): void {
+		$schedule = $this->recorded_schedule_payload();
+		unset( $schedule['ok'] );
+		$this->assertNull( $this->call_private( 'summarize_schedule', array( $schedule ) ) );
+
+		$size = $this->recorded_size_payload();
+		unset( $size['ok'] );
+		$storage = $this->call_private( 'summarize_storage', array( $size, $this->recorded_policies_payload() ) );
+
+		$this->assertNull( $storage['used_bytes'] );
+		$this->assertSame( 10737418240, $storage['limit_bytes'] );
+	}
+
+	/**
+	 * `{ "policies": { "storage_limit_bytes": null } }` is a real body, and has to read
+	 * as "no limit" rather than a limit of zero — `array_key_exists()` in place of
+	 * `isset()` would publish `limit_bytes: 0` and divide by zero downstream.
+	 */
+	public function test_summarize_storage_treats_a_null_limit_as_absent_not_zero(): void {
+		$result = $this->call_private(
+			'summarize_storage',
+			array(
+				$this->recorded_size_payload(),
+				array( 'policies' => array( 'storage_limit_bytes' => null ) ),
+			)
+		);
+
+		$this->assertSame( 3221225472, $result['used_bytes'] );
+		$this->assertNull( $result['limit_bytes'] );
+	}
+
+	/**
+	 * The output schema declares these three as `integer`, but the payloads are whatever
+	 * `json_decode()` made of WordPress.com's answer. Each value below is chosen so
+	 * `assertSame` fails on the uncast type while still comparing equal loosely.
+	 */
+	public function test_summarize_helpers_cast_numeric_figures_to_integers(): void {
+		$schedule = $this->call_private(
+			'summarize_schedule',
+			array( $this->recorded_schedule_payload( array( 'scheduled_hour' => '17' ) ) )
+		);
+		$this->assertSame( 17, $schedule['hour'] );
+
+		$storage = $this->call_private(
+			'summarize_storage',
+			array(
+				$this->recorded_size_payload( array( 'size' => '3221225472' ) ),
+				array( 'policies' => array( 'storage_limit_bytes' => 10737418240.0 ) ),
+			)
+		);
+
+		$this->assertSame( 3221225472, $storage['used_bytes'] );
+		$this->assertSame( 10737418240, $storage['limit_bytes'] );
+	}
+
+	public function test_summarize_storage_returns_null_when_neither_route_answered(): void {
+		$this->assertNull( $this->call_private( 'summarize_storage', array( null, null ) ) );
+		$this->assertNull( $this->call_private( 'summarize_storage', array( 'string', 'string' ) ) );
 	}
 
 	public function test_apply_id_or_pagination_filters_by_id(): void {
