@@ -55,5 +55,13 @@ export default function Gates( { children }: Props ) {
 		return <NoBackupPlanScreen />;
 	}
 
+	// Fail closed at compile time. `<BackupNowButton>` withholds itself on
+	// anything that is not `ready`, but this branch renders the dashboard
+	// body for any verdict no branch above claimed — so adding a verdict to
+	// `GateState` and forgetting a branch here would show the body to a site
+	// that should be blocked, while the button correctly stayed away. This
+	// makes that a type error instead.
+	gate.status satisfies 'ready';
+
 	return <>{ children }</>;
 }
