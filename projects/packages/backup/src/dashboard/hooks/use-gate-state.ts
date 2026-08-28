@@ -35,16 +35,28 @@ export type GateState =
  * read the same React Query key, so the second caller costs a cache read
  * and not a request.
  *
- * The loading branch is deliberately first-load-only. It sits above the
- * error branch, so a retry that made the query "loading" again would
- * replace the error screen — reason, explanation and the only control
- * that can ask again — with a bare spinner, for the whole round trip.
- * See `useCapabilities`.
+ * Only one step of that order is load-bearing: the plan check has to
+ * come last. A pending or failed read leaves `data` undefined too, which
+ * is indistinguishable here from an honest "no plan" — so hoisting it
+ * above either one sells the upsell to a site that may well be entitled.
  *
- * The connection checks come first because they're synchronous — they
- * read a global PHP emitted into the page. Gating them behind the
- * capabilities spinner would make a disconnected site sit through a
- * request (and its retry) that was never going to succeed.
+ * The rest of the chain is mutually exclusive rather than prioritised,
+ * and what makes each pair safe lives in the hooks below rather than in
+ * the order these branches happen to be written in.
+ *
+ * The two connection branches can never both match, because
+ * `isSecondaryAdminNotConnected` is derived as `isFullyConnected &&
+ * ! isUserConnected` (`use-connection.ts`). Nor is listing them first
+ * what spares a disconnected site a doomed request: `enabled` does that,
+ * and a disabled query reports `isLoading` false, so the loading branch
+ * could not match there even if it were hoisted above them.
+ *
+ * Loading and error are likewise exclusive, because `useCapabilities`
+ * computes `isLoading` as `query.isLoading && error === null`. That is
+ * what stops a retry — which rewinds an errored query back to pending —
+ * from re-entering the loading branch and replacing the error screen,
+ * reason and explanation and the only control that can ask again, with a
+ * bare spinner for the whole round trip.
  *
  * @return The gate verdict.
  */
