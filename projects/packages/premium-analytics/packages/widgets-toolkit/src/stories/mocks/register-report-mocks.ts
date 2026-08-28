@@ -1117,15 +1117,19 @@ function buildEmailSummaryResponse() {
  * @return Raw email breakdown response.
  */
 function buildEmailBreakdownResponse( requestPath: string ): unknown {
-	const breakdown = requestPath.split( '?' )[ 0 ].split( '/' ).pop() ?? '';
+	const path = requestPath.split( '?' )[ 0 ];
+	const breakdown = path.split( '/' ).pop() ?? '';
+	const isClicks = /\/clicks\/emails\//.test( path );
 
 	switch ( breakdown ) {
 		case 'country':
-			return mockEmailCountryBreakdown;
+			return isClicks
+				? scaleEmailBreakdown( mockEmailCountryBreakdown )
+				: mockEmailCountryBreakdown;
 		case 'device':
-			return mockEmailDeviceBreakdown;
+			return isClicks ? scaleEmailBreakdown( mockEmailDeviceBreakdown ) : mockEmailDeviceBreakdown;
 		case 'client':
-			return mockEmailClientBreakdown;
+			return isClicks ? scaleEmailBreakdown( mockEmailClientBreakdown ) : mockEmailClientBreakdown;
 		case 'link':
 			return mockEmailInternalLinkBreakdown;
 		case 'user-content-link':
@@ -1133,6 +1137,36 @@ function buildEmailBreakdownResponse( requestPath: string ): unknown {
 		default:
 			return {};
 	}
+}
+
+// Only a fraction of the recipients who open an email click through, so the
+// clicks breakdowns reuse the opens fixtures scaled down. That keeps one
+// fixture per dimension while letting the opens/clicks switch visibly change
+// the numbers in the stories.
+const EMAIL_CLICKS_RATIO = 0.3;
+
+function scaleEmailBreakdown< Fixture extends Record< string, unknown > >(
+	fixture: Fixture
+): Fixture {
+	return Object.fromEntries(
+		Object.entries( fixture ).map( ( [ key, section ] ) => {
+			const data = ( section as { data?: unknown } )?.data;
+			if ( ! Array.isArray( data ) ) {
+				return [ key, section ];
+			}
+			return [
+				key,
+				{
+					...( section as object ),
+					data: data.map( row =>
+						Array.isArray( row ) && typeof row[ 1 ] === 'number'
+							? [ row[ 0 ], Math.round( row[ 1 ] * EMAIL_CLICKS_RATIO ) ]
+							: row
+					),
+				},
+			];
+		} )
+	) as Fixture;
 }
 
 /**
