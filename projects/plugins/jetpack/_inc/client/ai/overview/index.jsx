@@ -290,8 +290,8 @@ export default function AiOverview( {
 	const hostBlocked = hostAllowsAi === false;
 	const userUnlinked = isUserConnected === false;
 	useRecordOnce( EVENTS.VIEWED, { tab: 'overview' } );
-	const recordVideoClick = slug => () =>
-		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: 'video', link: slug } );
+	const recordLinkClick = ( linkType, slug ) => () =>
+		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: linkType, link: slug } );
 	return (
 		<Stack direction="column" gap="xl">
 			{ !! blogId && hostBlocked && (
@@ -369,6 +369,7 @@ export default function AiOverview( {
 								title={ title }
 								description={ description }
 								href={ getRedirectUrl( slug ) }
+								onClick={ recordLinkClick( 'quick_start', slug ) }
 								tone="neutral"
 								external
 							/>
@@ -389,7 +390,7 @@ export default function AiOverview( {
 							key={ slug }
 							target="_blank"
 							rel="noopener noreferrer"
-							onClick={ recordVideoClick( slug ) }
+							onClick={ recordLinkClick( 'video', slug ) }
 						>
 							{ /* Decorative: the card's title carries the meaning. */ }
 							<img
