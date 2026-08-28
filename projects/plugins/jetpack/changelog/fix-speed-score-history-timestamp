@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Boost: Stop the speed score card from re-testing the site on every My Jetpack page load.
+Boost: Stop At a Glance re-testing the site speed when a recent score is already stored.
