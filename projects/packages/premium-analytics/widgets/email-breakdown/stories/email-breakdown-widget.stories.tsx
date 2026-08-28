@@ -27,7 +27,7 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
-import { withWideWidgetCanvas, withWidgetCanvas } from '../../stories/with-widget-canvas';
+import { withMapAwareWidgetCanvas, withWidgetCanvas } from '../../stories/with-widget-canvas';
 import EmailBreakdownRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
@@ -130,19 +130,19 @@ type Story = StoryObj< EmailBreakdownStoryControls >;
 export const Default: Story = {
 	render: renderEmailBreakdown,
 	args: { view: 'countries', metric: 'opens', showMap: false },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withMapAwareWidgetCanvas ],
 };
 
 /**
  * The country map beside the countries leaderboard, as the two-column
  * "Location clicks" card on the post detail Email clicks tab renders it. The
- * widget only mounts the map at container widths of 720px and up, so this story
- * uses the wide canvas; on the default one-column card `showMap` has no effect.
+ * widget only mounts the map at container widths of 720px and up, so the canvas
+ * widens to a two-column card while `showMap` is on.
  */
 export const LocationClicksWithMap: Story = {
 	render: renderEmailBreakdown,
 	args: { view: 'countries', metric: 'clicks', showMap: true },
-	decorators: [ withWideWidgetCanvas ],
+	decorators: [ withMapAwareWidgetCanvas ],
 };
 
 /**

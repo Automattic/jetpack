@@ -70,10 +70,12 @@ export const withWidgetCanvas: Decorator = Story => (
 	</WidgetCanvas>
 );
 
-// A two-column-wide card, for widgets whose layout only appears above the
-// 720px container query (the email breakdown's country map, for example).
-export const withWideWidgetCanvas: Decorator = Story => (
-	<WidgetCanvas width="800px">
+// Canvas that widens to a two-column card while the story's `showMap` arg is
+// on, for widgets whose map only mounts above the 720px container query (the
+// email breakdown, for example). Toggling the control then actually shows the
+// map instead of silently doing nothing in the one-column card.
+export const withMapAwareWidgetCanvas: Decorator = ( Story, { args } ) => (
+	<WidgetCanvas width={ args.showMap ? '800px' : undefined }>
 		<Story />
 	</WidgetCanvas>
 );
