@@ -13,6 +13,12 @@ export const freePayload = () => ( {
 	'next-tier': { value: 100, limit: 100 },
 } );
 
+// Every free request used: 0 of 20 available, with an upgrade on offer.
+export const depletedPayload = () => ( {
+	...freePayload(),
+	'requests-count': 20,
+} );
+
 export const tieredPayload = () => ( {
 	'has-feature': true,
 	'requests-count': 950,

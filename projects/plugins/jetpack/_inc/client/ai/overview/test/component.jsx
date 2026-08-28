@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings as getDateSettings, setSettings as setDateSettings } from '@wordpress/date';
 import AiOverview from '../index';
-import { freePayload, tieredPayload, unlimitedPayload } from './fixtures';
+import { depletedPayload, freePayload, tieredPayload, unlimitedPayload } from './fixtures';
 
 // The usage hook fetches through @wordpress/api-fetch; stub it so nothing
 // hits the network and each test controls the response.
@@ -59,6 +59,53 @@ describe( 'AiOverview', () => {
 		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
 		expect( screen.getByText( '8 of 20 requests available' ) ).toBeInTheDocument();
+	} );
+
+	test( 'depleted: the upsell notice replaces the whole card at zero requests', async () => {
+		apiFetch.mockResolvedValueOnce( depletedPayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect(
+			screen.findByRole( 'heading', { level: 2, name: 'You’ve used all your requests' } )
+		).resolves.toBeInTheDocument();
+		expect(
+			screen.getByText(
+				'Upgrade to keep drafting, rewriting, and illustrating without leaving the editor.'
+			)
+		).toBeInTheDocument();
+		// The requests readout keeps the standard card's shape and a11y: the
+		// hidden sentence carries the counts, the empty bar stays decorative.
+		expect( screen.getByText( '0' ) ).toBeInTheDocument();
+		expect( screen.getByText( '20' ) ).toBeInTheDocument();
+		expect( screen.getByText( '0 of 20 requests available' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/upgrade'
+		);
+		// The Plan cell is gone — the mock's notice replaces the whole card.
+		expect( screen.queryByText( 'Free' ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'depleted: without an upgrade to offer, the standard card stays', async () => {
+		// Zero available on a tiered plan with no next tier: the upsell copy
+		// is a pitch for a button that could not exist, so it must not show.
+		apiFetch.mockResolvedValueOnce( {
+			...tieredPayload(),
+			'usage-period': { 'requests-count': 500, 'next-start': '2026-09-01' },
+			'next-tier': null,
+		} );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect( screen.findByText( '0' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Available requests' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'heading', { name: 'You’ve used all your requests' } )
+		).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'tiered plan: renders remaining period requests against the tier limit', async () => {

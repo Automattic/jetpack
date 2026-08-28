@@ -13,6 +13,9 @@ import { list } from '@wordpress/icons';
 import { Card, Link, LinkButton, Notice, Stack, Text } from '@wordpress/ui';
 import NavRow from '../components/nav-row';
 import AssistantBanner from './assistant-banner';
+// Stand-in for the Figma export of the depleted-state artwork (browser window
+// with the Jetpack mark and a prompt pill); replace the file, keep the name.
+import allRequestsUsedIllustration from './images/all-requests-used.svg';
 import buildPageThumb from './images/build-page.webp';
 import connectClaudeThumb from './images/connect-claude.webp';
 import mediaLibraryThumb from './images/media-library.webp';
@@ -75,9 +78,121 @@ const DOC_LINKS = [
 ];
 
 /**
+ * The AI sparkle cluster, copied from ai-client's aiAssistantIcon: that
+ * package only exports from its root, which drags @wordpress/blocks into this
+ * admin bundle for one icon, so the geometry is inlined here instead (as the
+ * assistant banner does with the Jetpack mark).
+ *
+ * @return {object} Component markup.
+ */
+function AiSparkleIcon() {
+	return (
+		<svg
+			className="jetpack-ai-overview__depleted-icon"
+			viewBox="0 0 32 32"
+			width="24"
+			height="24"
+			fill="currentColor"
+			aria-hidden="true"
+			focusable="false"
+		>
+			<path d="M9.33301 5.33325L10.4644 8.20188L13.333 9.33325L10.4644 10.4646L9.33301 13.3333L8.20164 10.4646L5.33301 9.33325L8.20164 8.20188L9.33301 5.33325Z" />
+			<path d="M21.3333 5.33333L22.8418 9.15817L26.6667 10.6667L22.8418 12.1752L21.3333 16L19.8248 12.1752L16 10.6667L19.8248 9.15817L21.3333 5.33333Z" />
+			<path d="M14.6667 13.3333L16.5523 18.1144L21.3333 20L16.5523 21.8856L14.6667 26.6667L12.781 21.8856L8 20L12.781 18.1144L14.6667 13.3333Z" />
+		</svg>
+	);
+}
+
+/**
+ * The "Available requests" readout shared by the standard card and the
+ * depleted upsell: eyebrow, one hidden translatable summary sentence, the
+ * decorative value/limit pair, and the decorative meter.
+ *
+ * @param {object} props       - Component props.
+ * @param {object} props.usage - Normalized usage from normalizeUsage().
+ * @return {object} Component markup.
+ */
+function RequestsMeter( { usage } ) {
+	const hasNumbers = usage.requestsAvailable !== null && usage.requestsLimit > 0;
+	// One translatable sentence for screen readers; the visible value/limit
+	// pair and the meter are its visual restatements.
+	const srSummary = usage.unlimited
+		? __( 'Unlimited requests', 'jetpack' )
+		: hasNumbers &&
+		  sprintf(
+				/* translators: %1$d: requests still available. %2$d: total requests in the plan. */
+				__( '%1$d of %2$d requests available', 'jetpack' ),
+				usage.requestsAvailable,
+				usage.requestsLimit
+		  );
+	// normalizeUsage floors availability at 0 and it can never exceed the
+	// limit, so the ratio needs no clamping here.
+	const showMeter = usage.unlimited || hasNumbers;
+	const meterValue = usage.unlimited
+		? 100
+		: ( usage.requestsAvailable / usage.requestsLimit ) * 100;
+
+	return (
+		<>
+			<Text render={ <p /> } variant="heading-sm" className="jetpack-ai-overview__eyebrow">
+				{ __( 'Available requests', 'jetpack' ) }
+			</Text>
+			{ /* Its own paragraph, padded with spaces — clipped text glues
+			     onto the neighboring heading in some screen readers. */ }
+			{ srSummary && <VisuallyHidden as="p">{ ` ${ srSummary } ` }</VisuallyHidden> }
+			<Stack
+				direction="row"
+				justify="space-between"
+				align="baseline"
+				// With a hidden summary sentence in place, the loose value
+				// and limit nodes would only be read as fragments.
+				aria-hidden={ srSummary ? 'true' : undefined }
+			>
+				{ usage.unlimited ? (
+					<Text
+						render={ <p /> }
+						variant="body-md"
+						className="jetpack-ai-overview__muted jetpack-ai-overview__unlimited"
+					>
+						{ __( 'Unlimited', 'jetpack' ) }
+					</Text>
+				) : (
+					<>
+						<Text
+							render={ <p /> }
+							variant="heading-xl"
+							className="jetpack-ai-overview__requests-value"
+						>
+							{ hasNumbers ? usage.requestsAvailable : '—' }
+						</Text>
+						{ hasNumbers && (
+							<Text render={ <p /> } variant="body-md" className="jetpack-ai-overview__muted">
+								{ usage.requestsLimit }
+							</Text>
+						) }
+					</>
+				) }
+			</Stack>
+			{ showMeter && (
+				// The bar only restates the visible numbers, so it is
+				// decorative — screen readers get "8 of 20" from the text
+				// (VoiceOver reads a named bar's label and percent again).
+				<ProgressBar
+					aria-hidden="true"
+					className="jetpack-ai-overview__meter"
+					value={ meterValue }
+				/>
+			) }
+		</>
+	);
+}
+
+/**
  * The requests/plan card per the i4 components: requests over a meter on the
- * left, plan + upgrade-or-renewal on the right. Loading and error states stay
- * inside the card so the rest of the Overview renders immediately.
+ * left, plan + upgrade-or-renewal on the right. Once every request is used
+ * (and an upgrade can actually be offered), the whole card swaps to an upsell
+ * notice instead. Loading and error states stay inside the card so the rest
+ * of the Overview renders immediately.
  *
  * @param {object}  props                 - Component props.
  * @param {string}  props.upgradeUrl      - Upgrade destination (shared with the MCP upsell).
@@ -100,23 +215,15 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 	// authoritative for the tier, so an expired purchase cannot relabel Free.
 	const planLabel = ( ! usage.isFree && planName ) || usage.planLabel;
 	const hasNumbers = usage.requestsAvailable !== null && usage.requestsLimit > 0;
-	// One translatable sentence for screen readers; the visible value/limit
-	// pair and the meter are its visual restatements.
-	const srSummary = usage.unlimited
-		? __( 'Unlimited requests', 'jetpack' )
-		: hasNumbers &&
-		  sprintf(
-				/* translators: %1$d: requests still available. %2$d: total requests in the plan. */
-				__( '%1$d of %2$d requests available', 'jetpack' ),
-				usage.requestsAvailable,
-				usage.requestsLimit
-		  );
-	// normalizeUsage floors availability at 0 and it can never exceed the
-	// limit, so the ratio needs no clamping here.
-	const showMeter = usage.unlimited || hasNumbers;
-	const meterValue = usage.unlimited
-		? 100
-		: ( usage.requestsAvailable / usage.requestsLimit ) * 100;
+	// Out of requests, the whole card becomes the upsell notice — but only
+	// when an upgrade can actually be offered: its copy is a pitch for the
+	// button, so without one the plain card's zero tells the story instead.
+	const showDepletedUpsell =
+		! usage.unlimited &&
+		hasNumbers &&
+		usage.requestsAvailable === 0 &&
+		usage.showUpgrade &&
+		!! upgradeUrl;
 
 	return (
 		<Card.Root>
@@ -133,62 +240,37 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 					</Notice.Root>
 				) }
 
-				{ ! isLoading && ! error && (
+				{ ! isLoading && ! error && showDepletedUpsell && (
+					<div className="jetpack-ai-overview__depleted">
+						<div className="jetpack-ai-overview__depleted-content">
+							<AiSparkleIcon />
+							<Text render={ <h2 /> } variant="heading-lg">
+								{ __( 'You’ve used all your requests', 'jetpack' ) }
+							</Text>
+							<Text render={ <p /> } variant="body-md" className="jetpack-ai-overview__muted">
+								{ __(
+									'Upgrade to keep drafting, rewriting, and illustrating without leaving the editor.',
+									'jetpack'
+								) }
+							</Text>
+							<RequestsMeter usage={ usage } />
+							<LinkButton href={ upgradeUrl } className="jetpack-ai-overview__depleted-cta">
+								{ __( 'Upgrade', 'jetpack' ) }
+							</LinkButton>
+						</div>
+						{ /* Decorative: the heading carries the meaning. */ }
+						<img
+							className="jetpack-ai-overview__depleted-illustration"
+							src={ allRequestsUsedIllustration }
+							alt=""
+						/>
+					</div>
+				) }
+
+				{ ! isLoading && ! error && ! showDepletedUpsell && (
 					<div className="jetpack-ai-overview__usage">
 						<div className="jetpack-ai-overview__usage-cell">
-							<Text render={ <p /> } variant="heading-sm" className="jetpack-ai-overview__eyebrow">
-								{ __( 'Available requests', 'jetpack' ) }
-							</Text>
-							{ /* Its own paragraph, padded with spaces — clipped text glues
-						     onto the neighboring heading in some screen readers. */ }
-							{ srSummary && <VisuallyHidden as="p">{ ` ${ srSummary } ` }</VisuallyHidden> }
-							<Stack
-								direction="row"
-								justify="space-between"
-								align="baseline"
-								// With a hidden summary sentence in place, the loose value
-								// and limit nodes would only be read as fragments.
-								aria-hidden={ srSummary ? 'true' : undefined }
-							>
-								{ usage.unlimited ? (
-									<Text
-										render={ <p /> }
-										variant="body-md"
-										className="jetpack-ai-overview__muted jetpack-ai-overview__unlimited"
-									>
-										{ __( 'Unlimited', 'jetpack' ) }
-									</Text>
-								) : (
-									<>
-										<Text
-											render={ <p /> }
-											variant="heading-xl"
-											className="jetpack-ai-overview__requests-value"
-										>
-											{ hasNumbers ? usage.requestsAvailable : '—' }
-										</Text>
-										{ hasNumbers && (
-											<Text
-												render={ <p /> }
-												variant="body-md"
-												className="jetpack-ai-overview__muted"
-											>
-												{ usage.requestsLimit }
-											</Text>
-										) }
-									</>
-								) }
-							</Stack>
-							{ showMeter && (
-								// The bar only restates the visible numbers, so it is
-								// decorative — screen readers get "8 of 20" from the text
-								// (VoiceOver reads a named bar's label and percent again).
-								<ProgressBar
-									aria-hidden="true"
-									className="jetpack-ai-overview__meter"
-									value={ meterValue }
-								/>
-							) }
+							<RequestsMeter usage={ usage } />
 						</div>
 
 						<div className="jetpack-ai-overview__usage-cell jetpack-ai-overview__usage-cell--plan">

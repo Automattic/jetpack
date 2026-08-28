@@ -52,6 +52,56 @@
 		}
 	}
 
+	// The depleted upsell replaces the two-cell layout once every request is
+	// used: icon, copy, meter, and button on the left, illustration right.
+	&__depleted {
+		display: flex;
+		align-items: stretch;
+		gap: var(--wpds-dimension-gap-xl, 24px);
+
+		@media (max-width: 600px) {
+			// Stacks with the copy on top, as the MCP upsell does.
+			flex-direction: column;
+		}
+	}
+
+	&__depleted-content {
+		flex: 1;
+		min-inline-size: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-sm, 8px);
+
+		// Element + class outranks the Text runtime margin reset by
+		// specificity, not order (same fight as the doubled classes below).
+		> h2 {
+			margin-block-start: var(--wpds-dimension-gap-sm, 8px);
+		}
+
+		.jetpack-ai-overview__eyebrow {
+			margin-block-start: var(--wpds-dimension-gap-lg, 16px);
+		}
+	}
+
+	&__depleted-icon {
+		display: block;
+	}
+
+	// Doubled class beats the component's runtime-injected rules by order.
+	&__depleted-cta#{&}__depleted-cta {
+		align-self: flex-start;
+		margin-block-start: var(--wpds-dimension-gap-lg, 16px);
+	}
+
+	// Cover, not contain: the export bakes in its own framing, so cropping an
+	// edge beats letterboxing when the copy column runs taller than 45% wide.
+	&__depleted-illustration {
+		flex: 0 0 45%;
+		min-inline-size: 0;
+		max-inline-size: 100%;
+		border-radius: var(--wpds-border-radius-lg, 8px);
+	}
+
 	&__muted {
 		color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 	}
@@ -77,6 +127,7 @@
 	// The frame gives the requests number a taller line box than the plan name,
 	// which one shared heading-xl variant cannot express. Two classes, because the
 	// variant's runtime-injected line-height rule outranks a lone class in order.
+	&__depleted &__requests-value,
 	&__usage &__requests-value {
 		line-height: var(--wpds-typography-line-height-xl, 32px);
 	}
