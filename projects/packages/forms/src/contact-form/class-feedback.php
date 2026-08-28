@@ -377,6 +377,19 @@ class Feedback {
 	protected $logged_in_user = null;
 
 	/**
+	 * Third-party integration destinations attached to this response, keyed by slug.
+	 *
+	 * Written at submission time so the serialized payload is self-describing once
+	 * it syncs to WordPress.com. That is what lets the .com side act on a response
+	 * without calling back to this site to ask where it should go.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var array
+	 */
+	protected $integrations = array();
+
+	/**
 	 * Create a response object from a feedback post ID.
 	 *
 	 * @param int $feedback_post_id The ID of the feedback post.
@@ -465,6 +478,10 @@ class Feedback {
 		$this->notification_recipients = $parsed_content['notification_recipients'] ?? array();
 		$this->logged_in_user          = $parsed_content['logged_in_user'] ?? null;
 
+		$this->integrations = isset( $parsed_content['integrations'] ) && is_array( $parsed_content['integrations'] )
+			? $parsed_content['integrations']
+			: array();
+
 		$this->author_data = new Feedback_Author(
 			$this->get_first_field_of_type( 'name', 'pre_comment_author_name' ),
 			$this->get_first_field_of_type( 'email', 'pre_comment_author_email' ),
@@ -505,6 +522,61 @@ class Feedback {
 	}
 
 	/**
+	 * Set an integration destination for this response.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $slug   The integration slug, e.g. 'google_sheets'.
+	 * @param array  $config The destination config.
+	 */
+	public function set_integration( $slug, array $config ) {
+		$this->integrations[ $slug ] = $config;
+	}
+
+	/**
+	 * Get an integration destination for this response.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $slug The integration slug, e.g. 'google_sheets'.
+	 * @return array|null The destination config, or null when not configured.
+	 */
+	public function get_integration( $slug ) {
+		return $this->integrations[ $slug ] ?? null;
+	}
+
+	/**
+	 * Resolve the form's integration attributes into destinations on this response.
+	 *
+	 * Only destinations that are switched on and fully configured are recorded, so
+	 * the absence of a key always means "this form is not syncing" rather than
+	 * "something about this particular response disqualified it".
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param Contact_Form $form The form being submitted.
+	 */
+	private function set_integrations_from_form( $form ) {
+		$google_sheets = $form->get_attribute( 'googleSheetsData' );
+
+		if ( is_array( $google_sheets )
+			&& ! empty( $google_sheets['enabled'] )
+			&& ! empty( $google_sheets['spreadsheetId'] )
+		) {
+			$columns = isset( $google_sheets['columns'] ) ? (array) $google_sheets['columns'] : array();
+
+			$this->set_integration(
+				'google_sheets',
+				array(
+					'spreadsheet_id' => (string) $google_sheets['spreadsheetId'],
+					'user_id'        => isset( $google_sheets['userId'] ) ? (int) $google_sheets['userId'] : 0,
+					'columns'        => array_values( array_map( 'strval', $columns ) ),
+				)
+			);
+		}
+	}
+
+	/**
 	 * Load from Form Submission.
 	 *
 	 * @param array        $post_data The $_POST received during the form submission.
@@ -530,6 +602,8 @@ class Feedback {
 		$form_id_attribute = $form->get_attribute( 'ref' );
 		$form_id_attribute = is_numeric( $form_id_attribute ) ? absint( $form_id_attribute ) : 0;
 		$this->form_id     = $form_id_attribute > 0 ? $form_id_attribute : null;
+
+		$this->set_integrations_from_form( $form );
 
 		// If post_data is provided, use it to populate fields.
 		$this->fields             = $this->get_computed_fields( $post_data, $form );
@@ -1600,7 +1674,7 @@ class Feedback {
 	/**
 	 * Save the feedback entry to the database.
 	 *
-	 * @return int
+	 * @return \WP_Post|int The saved post, or 0 when the insert failed.
 	 */
 	public function save() {
 		$post_id = wp_insert_post(
@@ -1669,6 +1743,13 @@ class Feedback {
 		if ( apply_filters( 'jetpack_contact_form_forget_ip_address', false, $this->ip_address ) ) {
 			$fields_to_serialize['ip']           = null;
 			$fields_to_serialize['country_code'] = null;
+		}
+
+		// Only emit the key when something is configured, so payloads for the vast
+		// majority of forms - which have no integrations - stay byte-identical to
+		// what we wrote before this existed.
+		if ( ! empty( $this->integrations ) ) {
+			$fields_to_serialize['integrations'] = $this->integrations;
 		}
 
 		/*
