@@ -30,8 +30,8 @@ export type EmailBreakdownAttributes = {
 
 /**
  * Ported from the Jetpack Stats "breakdown" modules (`stats-email-module`), one
- * module rendered four times via `view`. No attribute is declared: the post detail
- * page pins `view` and `metric` per titled card, so exposing them would let a
+ * module rendered four times via `view`. No attribute field is declared: the post
+ * detail page pins `view` and `metric` per titled card, so exposing them would let a
  * "Location opens" card show links or clicks. Endpoints are all-time (no date range).
  */
 export default {

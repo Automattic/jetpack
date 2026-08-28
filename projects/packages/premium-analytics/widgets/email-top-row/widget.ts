@@ -18,16 +18,10 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 export type EmailMetric = 'opens' | 'clicks';
 
 /**
- * Attributes for the "Email top row" widget. None is user-editable (the widget
- * definition below declares no `attributes`); the host pins them in its layout.
- *
- * The widget shows one metric view (`metric`) of a single email. The email is
- * scoped by the host through `reportParams.post_id` (the shared single-resource
- * "detail page" param), not by an attribute — the email detail page seeds
- * `post_id` from its route so every widget on the page shares one scope. Only
- * the Opens/Clicks view varies per widget, pinned by the active tab's layout.
- * The underlying rate endpoints are per-post and always all-time, so the
- * dashboard date range is ignored.
+ * Attributes for the "Email top row" widget. The email itself is scoped by the
+ * host through `reportParams.post_id` (the shared single-resource "detail page"
+ * param), not by an attribute; the rate endpoints are all-time, so the dashboard
+ * date range is ignored.
  */
 export type EmailTopRowAttributes = {
 	/**
@@ -39,19 +33,11 @@ export type EmailTopRowAttributes = {
 };
 
 /**
- * Widget type definition.
- *
  * Ported from the Jetpack Stats "Email top row" module (the header row on an
- * individual email's stats detail page). Shows one email's all-time headline
- * counts as a row of metric tiles, switching between the Opens and Clicks views
- * with the `metric` attribute. The attribute is not user-editable: the post
- * detail page splits the views into their own tabs and pins `metric` per tab
- * in its layout, so exposing it (inline or in the settings drawer) would let
- * the Opens tab show clicks data. With no editable attribute, the host renders
- * no settings affordance.
- * Data comes from the per-post `stats/<opens|clicks>/emails/<postId>/rate`
- * breakdown, which is all-time and returns no comparison rows, so the widget
- * ignores the dashboard date range and never shows period-over-period deltas.
+ * email's stats detail page). No attribute field is declared: the post detail
+ * page splits Opens/Clicks into tabs and pins `metric` per tab, so exposing it
+ * would let the Opens tab show clicks data. The rate breakdown returns no
+ * comparison rows, so there are never period-over-period deltas.
  */
 export default {
 	icon: envelope,
