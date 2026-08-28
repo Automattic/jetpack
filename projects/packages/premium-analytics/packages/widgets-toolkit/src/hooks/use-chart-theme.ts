@@ -26,12 +26,8 @@ export function useChartTheme(): WooChartTheme {
 			tickLength: 4,
 			gridColor: '',
 			gridColorDark: '',
-			// `fontSize` is load-bearing: it has to stay a plain number, since resolveFontSize()
-			// rejects var(); without it visx falls back to 11 and the chart margin and pie label
-			// measurements go with it. `fill` is not, any more — CHARTS-203 made the charts
-			// default a single-level pointer that resolves on its own, so this only restates it.
-			// Harmless, since the value publishes the theme layer and degrades rather than
-			// breaking, but it goes with the color props in CHARTS-227.
+			// `fontSize` is load-bearing: it must stay a plain number, since resolveFontSize()
+			// rejects var() — without it visx falls back to 11 and margin/pie-label sizing break.
 			svgLabelSmall: {
 				fill: 'var(--wpds-color-foreground-content-neutral)',
 				fontSize: 12,

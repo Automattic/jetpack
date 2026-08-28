@@ -10,9 +10,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 /**
  * Represents a dashboard section.
  *
- * A dashboard section is the server-owned model behind a top-level dashboard
- * tab. It carries display metadata plus availability and default-layout
- * callbacks that can be extended by consumers.
+ * The server-owned model behind a top-level dashboard tab.
  */
 final class Dashboard_Section {
 
@@ -109,12 +107,10 @@ final class Dashboard_Section {
 	/**
 	 * What the section's date filter supports, and where it renders.
 	 *
-	 * - `with_date_comparison`: whether the section supports comparison at all.
-	 *   Not just chrome — false drops the comparison from the params every
-	 *   widget in the section fetches with.
-	 * - `with_header_date_control`: whether the header renders the date control.
-	 *   False hands it to the section's widgets, which may save the range onto the
-	 *   widget instance rather than the URL.
+	 * - `with_date_comparison`: false drops the comparison param from every widget fetch in the
+	 *   section, not just the chrome.
+	 * - `with_header_date_control`: false hands the control to the section's widgets, which may
+	 *   save the range onto the widget instance rather than the URL.
 	 *
 	 * @since 0.3.0
 	 * @since $$next-version$$ Added `with_header_date_control`.

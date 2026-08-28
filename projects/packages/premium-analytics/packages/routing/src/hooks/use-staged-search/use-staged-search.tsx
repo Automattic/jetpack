@@ -111,7 +111,7 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 
 	const [ staged, setStaged ] = useState< TSearch >( committed );
 
-	const [ isSyncing, setIsSyncing ] = useState( false ); // not used yet
+	const [ isSyncing, setIsSyncing ] = useState( false );
 
 	// Buffer for not-yet-committed changes.
 	const bufferRef = useRef< Partial< TSearch > >( {} );
@@ -174,10 +174,9 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 	);
 
 	/**
-	 * Commit all staged changes in a single atomic navigate().
-	 * - No `to`: keep the current route (prevents heavy remounts).
-	 * - Default `replace` to false so history is preserved on explicit commits.
-	 * - Cancels any pending debounced commit.
+	 * Commit all staged changes in a single atomic navigate(). No `to`: keeps
+	 * the current route to avoid a heavy remount. Defaults `replace` to false so
+	 * explicit commits still push history.
 	 */
 	const commit = useCallback(
 		( commitOpts?: { replace?: boolean } ) => {

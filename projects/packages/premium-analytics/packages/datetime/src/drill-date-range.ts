@@ -36,13 +36,6 @@ const BUCKET_BOUNDS: Partial<
 /**
  * The window behind one chart bucket: the range a click on it should open.
  *
- * The caller applies the result through the usual range machinery, which
- * re-resolves the interval — a bucket's own length never allows the interval
- * that drew it, so the reading always lands one level finer.
- *
- * The end is clamped at `now`, so opening the bucket in progress shows the part
- * of it that exists rather than a window running into the future.
- *
  * Boundaries are cut in `date`'s own timezone, so a `TZDate` carrying the site
  * zone closes its buckets on the site's clock rather than the browser's.
  *

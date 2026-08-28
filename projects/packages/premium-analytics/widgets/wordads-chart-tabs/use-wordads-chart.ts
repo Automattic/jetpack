@@ -48,9 +48,8 @@ export default function useWordAdsChart( reportParams: ReportParams, period: Wor
 		metrics,
 		isLoading,
 		isFetching,
-		// The query keeps prior data via `placeholderData`, so a failed range change
-		// keeps the previous period's chart while `isError` flips true. Gate the
-		// error on having nothing to show, as `useTrafficChart` does.
+		// `placeholderData` keeps the previous chart while `isError` flips true; gate
+		// the error on having nothing to show, as `useTrafficChart` does.
 		isError: isError && ! primaryData?.data?.length,
 		isEmpty: primaryData !== undefined && ! primaryData.data?.length,
 		refetch,

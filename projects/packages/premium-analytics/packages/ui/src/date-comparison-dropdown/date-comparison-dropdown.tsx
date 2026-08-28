@@ -84,15 +84,9 @@ export function DateComparisonDropdown( {
 	);
 
 	/*
-	 * Additive: `Compare +` until a preset is picked, then a trigger naming it.
-	 * Both open the same menu, so the way back to "No comparison" is the way in.
-	 *
-	 * The additive state spells itself out rather than offering a bare `+`: a
-	 * glyph alone left the one control on the row that adds something reading
-	 * as decoration, and its purpose behind a hover.
-	 *
-	 * It names the preset rather than the period it resolves to, which the
-	 * section header's subtitle already spells out.
+	 * Additive: `Compare +` until a preset is picked, then a trigger naming it —
+	 * spelled out rather than a bare `+`, since a glyph alone read as decoration.
+	 * Names the preset, not the period: the section header's subtitle covers that.
 	 */
 	return (
 		<DropdownMenu
@@ -110,9 +104,8 @@ export function DateComparisonDropdown( {
 				// A tooltip only where the trigger's text is an abbreviation.
 				// Over the additive state it would repeat the label beneath it.
 				showTooltip: isComparisonActive,
-				// The trigger shows an abbreviation, so carry the full preset
-				// name for anyone not reading the glyphs. Same treatment the
-				// preset pills give their short labels.
+				// The trigger shows an abbreviation, so carry the full preset name
+				// for anyone not reading the glyphs — same as the preset pills.
 				'aria-label': selectedPreset?.label,
 			} }
 		>

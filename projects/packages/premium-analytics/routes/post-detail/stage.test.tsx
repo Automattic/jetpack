@@ -41,12 +41,8 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 
 jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
 
-// Falls through to the real module for everything but `useSelect`. Reaching the
-// externals passthrough pulls `@wordpress/components` -> `@wordpress/rich-text`
-// into the graph, whose store calls `combineReducers` at import time; a
-// `useSelect`-only mock leaves that undefined and the suite fails to load.
-// `requireActual` has to stay lazy — calling it in the factory body re-enters
-// the module while it is still initialising.
+// Proxies `@wordpress/data` lazily: `requireActual` at import time would
+// re-enter `@wordpress/rich-text`'s module init via `combineReducers`.
 jest.mock(
 	'@wordpress/data',
 	() =>
@@ -224,9 +220,8 @@ describe( 'post detail stage', () => {
 		expect( screen.queryByRole( 'link', { name: /^View (post|page)/ } ) ).not.toBeInTheDocument();
 	} );
 
-	// One declaration drives both halves: the panel reads it to drop the Compare
-	// control (covered in the ui package) and `WidgetRoot` reads it to strip the
-	// params. This asserts the declaration the page makes.
+	// One declaration drives both halves: the panel drops the Compare control and
+	// `WidgetRoot` strips the params. This asserts the page's declaration.
 	it( 'declares no comparison for the widgets it renders', () => {
 		mockSummary();
 

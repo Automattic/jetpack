@@ -103,24 +103,8 @@ function getIntervalCadenceLabel( interval: IntervalType ): string {
 
 /**
  * Describe the applied date configuration for a section header subtitle.
- *
- * Reads the applied range rather than the preset, so a window stepped back off
- * a preset still describes its own length.
- *
- * The year surface is the exception, and carries no length. `All time` and the
- * running year both start on a calendar boundary and end at the end of today,
- * so their length grows by a day at a time and measuring it reports the shape
- * of today's date rather than of the selection. Left to the measurement, one
- * site reads "2037 days" mid-month, "67 months" on the last day of one, and "6
- * years" on December 31, and the range itself reformats along with the unit.
- * Past years measure consistently, but their label already names the year, so
- * "(12 months)" adds nothing and the whole surface is treated alike.
- *
- * @example
- * getSectionSubtitle( { range, interval } )
- *   // 'Tuesday, July 21 – Monday, July 27 (7 days, daily)'
- *   // with comparison: '… (7 days, daily) vs. July 14 – 20, 2026'
- *   // year surface: 'January 1, 2021 – July 30, 2026 (monthly)'
+ * Reads the applied range, not the preset — except the year surface, whose
+ * length reflects today's date, not the selection, so it states none.
  *
  * @return The subtitle, or undefined when the range is incomplete.
  */

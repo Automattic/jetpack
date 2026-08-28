@@ -92,9 +92,8 @@ const WINDOW_PARAMS = {
 	post_id: 779,
 };
 
-// A 28-day window, the shortest that allows a weekly interval: `WidgetRoot`
-// normalizes report params through `resolveIntervalForRange`, so an interval
-// the range disallows is coerced away before the widget ever sees it.
+// 28 days, the shortest window allowing a weekly interval: `WidgetRoot` coerces
+// an interval the range disallows away before the widget ever sees it.
 const WEEKLY_WINDOW_PARAMS = {
 	...DEFAULT_PARAMS,
 	from: '2026-06-22T00:00:00.000+08:00',
@@ -133,9 +132,8 @@ describe( 'PostViewsWidget', () => {
 	} );
 
 	it( 'anchors bucket days at site-local midnight so negative-offset sites keep the calendar day', async () => {
-		// A UTC-12 site: a date-only bucket key parsed as UTC midnight would
-		// render as the previous day once formatted in the site timezone. The
-		// point instant must be the key's site-local midnight instead.
+		// On a UTC-12 site, a date-only bucket key parsed as UTC midnight would
+		// render as the previous day once formatted in the site timezone.
 		const defaultSettings = getSettings();
 		setSettings( {
 			...defaultSettings,
@@ -183,10 +181,8 @@ describe( 'PostViewsWidget', () => {
 				attributes={ {
 					reportParams: {
 						...WINDOW_PARAMS,
-						// Comparison params pass through the post detail URL untouched
-						// (dashboard state survives the round trip), so a widget
-						// receiving them must neither draw an overlay nor change the
-						// primary series — the page renders no comparison.
+						// Comparison params pass through the post detail URL untouched, so
+						// a widget receiving them must still render no comparison.
 						comp: '1',
 						compare_from: '2026-06-24T00:00:00.000+08:00',
 						compare_to: '2026-06-30T23:59:59.999+08:00',

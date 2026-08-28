@@ -323,9 +323,8 @@ describe( 'TrafficViewsActivityWidget', () => {
 			expect( screen.getByTestId( 'heatmap' ) ).toHaveAttribute( 'data-columns', '53' );
 		} );
 
-		// jsdom measures every element as 0x0, which resolves to zero columns and
-		// hands the chart the whole series — so a `data-columns` assertion alone
-		// never exercises trimming. These stub a real tile so it does.
+		// jsdom measures every element as 0x0, which hands the chart the whole series
+		// — a `data-columns` assertion alone never exercises trimming. These stub a real tile.
 		describe( 'in a measured tile', () => {
 			const currentYear = {
 				...REPORT_PARAMS,
@@ -357,10 +356,8 @@ describe( 'TrafficViewsActivityWidget', () => {
 					restoreTileSize();
 				}
 
-				// The regression this guards (WOOA7S-1963): the grid ran on to a
-				// December that had not happened, so the columns a smaller tile kept
-				// were the empty future weeks and the year's own traffic was trimmed
-				// away — at 1000x300 the heatmap came out entirely blank.
+				// Regression guard (WOOA7S-1963): a smaller tile kept empty future-week
+				// columns and trimmed the year's own traffic away — 1000x300 came out blank.
 				expect( chartDayValues() ).toContain( 'Mon, Aug 10, 2026:44' );
 			} );
 
@@ -468,9 +465,8 @@ describe( 'TrafficViewsActivityWidget', () => {
 
 	describe( 'cell presentation', () => {
 		it( 'fits the grid inside the shipped one-row tile', () => {
-			// A 200px grid row less the widget's own chrome — the size this widget
-			// ships at, and the tightest it has to fit. The grid is sized to the tile
-			// so it cannot overflow and have its month labels clipped away.
+			// The widget's shipped tile size, and the tightest it has to fit; sized so
+			// the grid cannot overflow and clip its month labels.
 			const restoreTileSize = stubTileSize( 1000, 86 );
 
 			try {

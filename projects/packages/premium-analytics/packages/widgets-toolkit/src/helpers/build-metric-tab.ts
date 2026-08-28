@@ -57,11 +57,9 @@ function toPoints( report: MetricReport | undefined, field: string ) {
 }
 
 /**
- * Build one metric tab from a primary/comparison report pair. The headline is
- * the period total; the previous-period total and overlay are included only when
- * comparison is on *and* the comparison request actually returned rows — while
- * that request is still loading or came back empty, its total would be `0`,
- * which would render a misleading previous-period value.
+ * Build one metric tab from a primary/comparison report pair. The previous-period
+ * total/overlay appear only when comparison is on and the comparison request
+ * actually returned rows — an empty or loading response would otherwise total to a misleading 0.
  *
  * @param options - The report pair, field, and presentation options.
  * @return The metric tab.
