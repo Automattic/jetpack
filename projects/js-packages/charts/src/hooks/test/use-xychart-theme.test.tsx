@@ -23,8 +23,8 @@ describe( 'useXYChartTheme', () => {
 		document.body.removeChild( scope );
 	} );
 
-	// `chart-paint.scss` owns these four, and a color that reaches `buildChartTheme` takes them back off the CSS cascade silently: visx writes it as an inline style on the grid, which beats the stylesheet outright, and as a presentation attribute elsewhere, which freezes the color at whatever JS resolved. Nothing throws either way. jsdom cannot compute `var()`, so the painted colors themselves are covered in Storybook; this guards only the handover.
-	it( 'leaves the CSS-painted colors out of the visx theme', () => {
+	// Resolving a paint-only color here would freeze it: visx writes whatever it is handed onto the element, so a literal stops following the cascade and an override set below the provider wrapper never reaches it. Handing visx the pointer instead lets it resolve at the element it paints. jsdom does not compute `var()`, so what the pointer resolves *to* is covered in Storybook; this pins that the chain survives the theme build intact.
+	it( 'hands visx the catalog pointer for paint-only colors rather than a resolved value', () => {
 		const scope = document.createElement( 'div' );
 		document.body.appendChild( scope );
 
@@ -34,10 +34,16 @@ describe( 'useXYChartTheme', () => {
 
 		const { result } = renderHook( () => useXYChartTheme( [] ), { wrapper } );
 
-		expect( result.current.gridStyles.stroke ).toBeUndefined();
-		expect( result.current.axisStyles.x.bottom.axisLine.stroke ).toBeUndefined();
-		expect( result.current.axisStyles.x.bottom.tickLine.stroke ).toBeUndefined();
-		expect( result.current.axisStyles.x.bottom.tickLabel.fill ).toBeUndefined();
+		expect( result.current.gridStyles.stroke ).toBe( 'var(--a8c-charts-color-grid, #dbdbdb)' );
+		expect( result.current.axisStyles.x.bottom.axisLine.stroke ).toBe(
+			'var(--a8c-charts-color-axis, #dbdbdb)'
+		);
+		expect( result.current.axisStyles.x.bottom.tickLine.stroke ).toBe(
+			'var(--a8c-charts-color-tick, #dbdbdb)'
+		);
+		expect( result.current.axisStyles.x.bottom.tickLabel.fill ).toBe(
+			'var(--a8c-charts-color-label-axis, #1e1e1e)'
+		);
 
 		document.body.removeChild( scope );
 	} );

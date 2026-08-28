@@ -6,10 +6,7 @@ import { assertChartsScopeEmitted } from '../assert-charts-scope-emitted';
 const CATALOG =
 	':where(.a8c-charts-scope){--a8c-charts-color-grid:var(--wpds-color-stroke-surface-neutral,#dbdbdb)}';
 
-const PAINT =
-	':where(.a8c-charts-scope) .visx-rows line.visx-line,:where(.a8c-charts-scope) .visx-columns line.visx-line{stroke:var(--a8c-charts-color-grid)}';
-
-const BUILT = `${ CATALOG }${ PAINT }`;
+const BUILT = CATALOG;
 
 const distWith = ( css: string ): string => {
 	const dir = mkdtempSync( join( tmpdir(), 'charts-scope-guard-' ) );
@@ -21,10 +18,6 @@ const distWith = ( css: string ): string => {
 describe( 'assertChartsScopeEmitted', () => {
 	it( 'passes on output carrying the provider-scoped catalog', () => {
 		expect( () => assertChartsScopeEmitted( distWith( BUILT ) ) ).not.toThrow();
-	} );
-
-	it( 'fails when the visx paint rules were dropped', () => {
-		expect( () => assertChartsScopeEmitted( distWith( CATALOG ) ) ).toThrow( /chart-paint\.scss/ );
 	} );
 
 	it( 'fails when no CSS was built at all', () => {

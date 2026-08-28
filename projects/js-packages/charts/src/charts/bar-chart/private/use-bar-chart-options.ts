@@ -2,7 +2,6 @@ import { formatNumberCompact } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { useDeepMemo } from '../../../hooks';
-import { X_AXIS_CLASS } from '../../../styles/chart-scope-class';
 import { getBandTickValues, getBucketResolution, getFormatter } from '../../private/time-axis';
 import { TruncatedXTickComponent, TruncatedYTickComponent } from './truncated-tick-component';
 import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
@@ -339,8 +338,6 @@ export function useBarChartOptions(
 					...( horizontal ? {} : dateAxisTickValues ),
 					...( xLabelOverflow === 'ellipsis' ? { tickComponent: TruncatedXTickComponent } : {} ),
 					...xAxisOptions,
-					// After the spread: without this class the axis line and tick marks lose their color entirely, so it is not a caller's to drop. It stays on the x axis when the chart is horizontal, because visx themes the x axis line either way.
-					axisClassName: X_AXIS_CLASS,
 				},
 				y: {
 					orientation: 'left' as const,

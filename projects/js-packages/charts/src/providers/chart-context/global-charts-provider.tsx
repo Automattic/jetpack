@@ -12,8 +12,6 @@ import {
 //
 // This must be a direct import of the stylesheet, not through a re-export barrel: a barrel `.ts` file doesn't match this package's `sideEffects` glob (only `*.css`/`*.scss` do), so tsdown/Rolldown treats an unused barrel import as side-effect-free and drops it — taking the nested stylesheet import with it. The file also can't be named `*.module.scss`: it declares zero CSS-module class names (only a `:where()`-wrapped selector), and `@tsdown/css` marks a `.module.*` file's generated JS proxy `moduleSideEffects: false` (tree-shakeable unless a class name is read); a plain stylesheet gets `moduleSideEffects: "no-treeshake"` instead, so it always ships. `tools/assert-charts-scope-emitted.ts` fails `pnpm run build` if this regresses — a passing test suite alone does not catch a dropped stylesheet.
 import '../../styles/chart-scope.scss';
-// Paints the catalog roles onto visx's own elements. Same import rules as the stylesheet above.
-import '../../styles/chart-paint.scss';
 import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
 import {
 	getItemShapeStyles,

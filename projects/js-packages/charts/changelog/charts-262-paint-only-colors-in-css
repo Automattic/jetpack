@@ -1,6 +1,6 @@
 Significance: minor
 Type: changed
 
-Paint the chart grid, axis line, tick marks and tick labels from CSS, so an `--a8c-charts-color-grid`, `-axis`, `-tick` or `-label-axis` override set on a chart's own element applies to it and follows a theme change with no re-render. Add `--a8c-charts-color-label-background` for the plate behind a pie-slice label.
+Stop resolving the grid, axis, tick and label colors in JavaScript and let their `--a8c-charts-color-*` chain reach the element instead, so an override set on a chart's own element applies to it and a theme change repaints with no re-render. Add `--a8c-charts-color-label-background` for the plate behind a pie-slice label.
 
 Deprecate every color field on the chart theme — each one now has a `--a8c-charts-color-*` role, a component prop, or both. They all still work. Where a field mixes a color with something else, only the color member is deprecated: `gridStyles.strokeWidth`, `svgLabelSmall.fontFamily` and the annotation geometry are unaffected.

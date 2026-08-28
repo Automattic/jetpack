@@ -28,7 +28,6 @@ import {
 	useGlobalChartsTheme,
 } from '../../providers';
 import { useDefaultHiddenSeries } from '../../providers/chart-context/hooks/use-default-hidden-series';
-import { X_AXIS_CLASS } from '../../styles/chart-scope-class';
 import { attachSubComponents } from '../../utils';
 import { renderDefaultTooltip } from '../line-chart';
 import { useChartChildren } from '../private/chart-composition';
@@ -217,8 +216,6 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 						tickFormat: formatter,
 						display: true,
 						...xAxisOptions,
-						// After the spread: without this class the axis line and tick marks lose their color entirely, so it is not a caller's to drop.
-						axisClassName: X_AXIS_CLASS,
 					},
 					y: {
 						orientation: 'left' as const,

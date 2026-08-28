@@ -71,9 +71,11 @@ The consequence: `--a8c-charts-color-label` moves every label, but no single rol
 
 ### The SVG bridge
 
-visx and Google Charts apply colors as SVG presentation attributes, where `var()` does not resolve. A color that is only ever painted crosses that gap in CSS instead: `chart-paint.scss` targets visx's own elements, so the grid, the axis line, the tick marks and the tick labels read their role at the element being painted. All four are deliberately withheld from `buildChartTheme` — visx writes `gridStyles` as an inline style, which would beat the stylesheet outright, and the rest as attributes carrying a frozen literal.
+**A color that is only painted is not resolved at all.** The grid, axis line, tick marks and tick labels keep their `var(--a8c-charts-color-*, …)` chain the whole way: `useXYChartTheme` spreads them through untouched, `buildChartTheme` passes them on, and visx writes the chain onto the element it paints — an inline style for the grid, a presentation attribute elsewhere. A presentation attribute is mapped to a CSS declaration, so the chain resolves there natively, in Blink, WebKit and Gecko alike.
 
-**The axis rules must stay scoped to `.a8c-charts-axis-x`.** visx gives both axes the same `.visx-axis-line` and `.visx-axis-tick` classes, with nothing on the element to tell x from y, and the y axis draws its line and every tick mark unstroked on purpose. An unscoped rule therefore gives it an axis line and a full column of tick marks that no chart has ever had. The theme fields these roles replace, `xAxisLineStyles` and `xTickLineStyles`, are x-axis-only, so each chart tags its own x axis with `X_AXIS_CLASS` (`styles/chart-scope-class.ts`) — after the caller's axis options, since dropping the class would silently unpaint the axis.
+That is what makes the role read **at the painted element** rather than snapshot at the provider wrapper: an override on a chart's own class reaches it, a theme change repaints with no re-render, and SSR emits the chain for the client to resolve on paint. Resolving such a color in JS would freeze it and undo all three, which is why nothing does.
+
+There is no stylesheet and no class involved. In particular the axes need neither: `xAxisLineStyles` and `xTickLineStyles` are x-axis-only fields, so visx paints the x axis and leaves the y axis unstroked without anything having to distinguish them.
 
 What else crosses in JS is what something reads as a *value*: the series palette, which visx turns into its `colorScale`, and the background, which the default glyph, the area-chart band, the line-chart gradient stops, the heatmap's contrast math and `GeoChart` each consume as a concrete string.
 
