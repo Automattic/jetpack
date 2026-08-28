@@ -54,7 +54,11 @@ await jest.unstable_mockModule( '../../../../../src/blocks/contact-form/child-bl
 	],
 } ) );
 
-const { default: useSubjectFields, useEnsureFieldId } = await import(
+const {
+	default: useSubjectFields,
+	useEnclosedFields,
+	useEnsureFieldId,
+} = await import(
 	'../../../../../src/blocks/shared/conditional-logic/hooks/use-subject-fields.js'
 );
 
@@ -92,6 +96,7 @@ const field = ( clientId, { label, id, option, name = 'jetpack/field-text' } = {
 
 const ensureFieldId = () => renderHook( () => useEnsureFieldId() ).result.current;
 const subjectsFor = clientId => renderHook( () => useSubjectFields( clientId ) ).result.current;
+const enclosedFor = clientId => renderHook( () => useEnclosedFields( clientId ) ).result.current;
 
 beforeEach( () => {
 	mockUpdateBlockAttributes.mockClear();
@@ -402,6 +407,80 @@ describe( 'useSubjectFields for a container', () => {
 		rootOf = { 'c-outside': 'c-form' };
 
 		expect( subjectsFor( 'c-outside' ).map( f => f.label ) ).toEqual( [ 'Secret' ] );
+	} );
+} );
+
+describe( 'useEnclosedFields', () => {
+	/**
+	 * The mirror image of the exclusion above. These fields are kept out of the subject
+	 * dropdown because a group conditioned on a field it holds is circular, but the summary
+	 * resolves against them so a rule that came to name one -- by the author dragging its
+	 * subject into the group after writing it -- stays on screen instead of vanishing while
+	 * both evaluators go on enforcing it.
+	 */
+	it( 'returns the fields inside the container', () => {
+		const group = {
+			clientId: 'e-group',
+			name: 'core/group',
+			attributes: {},
+			innerBlocks: [ field( 'e-inside', { label: 'Secret' } ) ],
+		};
+
+		blocks = {
+			'e-group': group,
+			'e-form': {
+				clientId: 'e-form',
+				name: 'jetpack/contact-form',
+				attributes: {},
+				innerBlocks: [ field( 'e-outside', { label: 'Name' } ), group ],
+			},
+		};
+
+		expect( enclosedFor( 'e-group' ).map( f => f.label ) ).toEqual( [ 'Secret' ] );
+	} );
+
+	/**
+	 * The whole subtree, matching what the subject list drops.
+	 */
+	it( 'reaches fields nested deeper inside the container', () => {
+		blocks = {
+			'e-group': {
+				clientId: 'e-group',
+				name: 'core/group',
+				attributes: {},
+				innerBlocks: [
+					{
+						clientId: 'e-inner',
+						name: 'core/columns',
+						attributes: {},
+						innerBlocks: [ field( 'e-deep', { label: 'Deep' } ) ],
+					},
+				],
+			},
+		};
+
+		expect( enclosedFor( 'e-group' ).map( f => f.label ) ).toEqual( [ 'Deep' ] );
+	} );
+
+	/**
+	 * A field block holds only its own label and input, so a panel on one has nothing
+	 * enclosed. The panel passes null in that case and must not pay for a walk.
+	 */
+	it( 'returns nothing for a block with no inner blocks', () => {
+		blocks = {
+			'e-field': field( 'e-field', { label: 'Name' } ),
+		};
+
+		expect( enclosedFor( 'e-field' ) ).toEqual( [] );
+	} );
+
+	/**
+	 * The panel passes null rather than a client id when the block is not a container.
+	 */
+	it( 'returns nothing when given no client id', () => {
+		blocks = {};
+
+		expect( enclosedFor( null ) ).toEqual( [] );
 	} );
 } );
 
