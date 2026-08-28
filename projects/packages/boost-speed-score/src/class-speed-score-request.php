@@ -311,7 +311,7 @@ class Speed_Score_Request extends Cacheable {
 		$history       = new Speed_Score_History( $this->url );
 		$last_history  = $history->latest();
 		$last_scores   = $last_history ? $last_history['scores'] : null;
-		$last_theme    = $last_history ? $last_history['theme'] : null;
+		$last_theme    = $last_history['theme'] ?? null; // Entries saved before the theme was recorded have no theme key.
 		$current_theme = wp_get_theme()->get( 'Name' );
 
 		// Only change if there is a difference from last score or the theme changed.
@@ -323,6 +323,10 @@ class Speed_Score_Request extends Cacheable {
 					'theme'     => $current_theme,
 				)
 			);
+		} else {
+			// Nothing to record, but a run did complete just now. Move the timestamp so the
+			// score is not treated as stale and measured all over again on the next page load.
+			$history->touch_latest();
 		}
 	}
 }

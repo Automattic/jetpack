@@ -145,4 +145,28 @@ class Speed_Score_History {
 		$this->entries   = array_slice( $this->entries, - static::LIMIT );
 		update_option( $this->get_option_name(), $this->entries, false );
 	}
+
+	/**
+	 * Bring the latest history entry's timestamp up to date.
+	 *
+	 * Used when a speed score run completes and returns the same scores as the run before it.
+	 * The entry itself does not change, but the timestamp has to move, because every reader of
+	 * it asks when the score was last measured rather than when it last changed. Without this,
+	 * the timestamp of a site whose scores keep repeating freezes and the score looks stale
+	 * forever.
+	 *
+	 * Does nothing when there is no history yet.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function touch_latest() {
+		$index = $this->count() - 1;
+
+		if ( $index < 0 ) {
+			return;
+		}
+
+		$this->entries[ $index ]['timestamp'] = time();
+		update_option( $this->get_option_name(), $this->entries, false );
+	}
 }

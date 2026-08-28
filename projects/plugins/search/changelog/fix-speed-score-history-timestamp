@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Boost: Stop the speed score card from re-testing the site on every My Jetpack page load.
