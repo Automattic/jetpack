@@ -134,16 +134,17 @@ describe( 'Switching between backups', () => {
 		).resolves.toBeInTheDocument();
 		await userEvent.click( fileRowCheckbox() );
 
-		// Selecting the file swaps both header actions off their defaults.
-		// The mocked `<Link>` renders a plain `<a>` with no `href` (the real
+		// Selecting the file swaps the Download action off its default. The
+		// mocked `<Link>` renders a plain `<a>` with no `href` (the real
 		// component takes `to`), so it carries no implicit `link` role here.
-		// Both are asserted because `BackupDetail` labels them from one
-		// `count`, and a reset that missed either would leave the reader a
-		// header that describes a selection they cannot see.
+		//
+		// Download is the only header action that moves. Restore is
+		// deliberately constant — a restore point is restored whole, so it
+		// never counts the selection — which makes it useless as a reset
+		// signal here. Its constancy is `restore-label-scope.test.tsx`.
 		await expect(
 			screen.findByText( 'Download 1 selected item', undefined, SETTLE )
 		).resolves.toBeInTheDocument();
-		expect( screen.getByText( 'Restore 1 selected item' ) ).toBeInTheDocument();
 
 		// Open the file's preview as well. A regression that cleared the
 		// selection but left `openFile` set would otherwise pass.
@@ -168,8 +169,6 @@ describe( 'Switching between backups', () => {
 		expect( fileRowCheckbox() ).not.toBeChecked();
 		expect( screen.getByText( 'Download backup' ) ).toBeInTheDocument();
 		expect( screen.queryByText( /Download \d+ selected item/ ) ).not.toBeInTheDocument();
-		expect( screen.getByText( 'Restore to this point' ) ).toBeInTheDocument();
-		expect( screen.queryByText( /Restore \d+ selected item/ ) ).not.toBeInTheDocument();
 	} );
 
 	// The other half of the invariant. Keying by `rewindId` makes the
