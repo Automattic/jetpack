@@ -188,9 +188,9 @@ export default function RestoreScreen() {
 					 * determinate bar pinned at 0%, which reads as a stall during the
 					 * opening seconds of every restore.
 					 *
-					 * Named, like every other bar here: `ProgressBar` defaults to a
-					 * generic `aria-label="Loading …"`, and the `<Text>` beside it is not
-					 * associated with the bar.
+					 * Named, like every other bar on this screen: `ProgressBar` defaults
+					 * to a generic `aria-label="Loading …"`, and the `<Text>` beside it is
+					 * not associated with the bar.
 					 */ }
 					{ state.phase === 'queued' && (
 						<Stack direction="column" gap="sm">

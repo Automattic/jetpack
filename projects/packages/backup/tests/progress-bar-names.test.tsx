@@ -8,8 +8,19 @@
 // it. The `<Text>` beside each bar ("Restoring…", "Preparing download…")
 // is not associated with it and never reaches the accessible name.
 //
-// Four bars across the two screens, four phases, four different answers.
-// These tests pin the name each phase exposes.
+// Six bars across the Overview, Restore and Download screens, each
+// measuring something different. These tests pin the name each one
+// exposes.
+//
+// Caveat worth knowing, and the same one `storage-meter.test.tsx` records
+// for the storage meter: these routes externalize `@wordpress/components`
+// to the `wp-components` handle, so the `<ProgressBar>` that runs in
+// wp-admin is WordPress core's, not the version pinned here and resolved
+// by jest. The override holds because the implementation spreads caller
+// props *after* its own hardcoded `aria-label` — prop-spread ordering,
+// which is not a documented contract. If core ever reverses it, all six
+// bars silently go back to announcing themselves as loading indicators
+// and these tests will not notice.
 
 const mockApiFetch = jest.fn();
 
@@ -34,10 +45,14 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { stage as DownloadStage } from '../routes/download/stage';
 import { stage as RestoreStage } from '../routes/restore/stage';
+import BackupStatusPanel from '../src/dashboard/components/backup-status';
+import BackupStatusBanner from '../src/dashboard/components/backup-status/banner';
 import { queryClient } from '../src/dashboard/data/query-client';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
+// Must match the literal in the `@wordpress/route` factory above, which
+// jest hoists above every declaration and so cannot reference this.
 const REWIND_ID = '1786663613.9425';
 const RESTORE_ID = 912682;
 const DOWNLOAD_ID = 5150;
@@ -127,6 +142,36 @@ beforeEach( () => {
 		...window.JP_CONNECTION_INITIAL_STATE,
 		connectionStatus: CONNECTED,
 	} as typeof window.JP_CONNECTION_INITIAL_STATE;
+} );
+
+describe( 'the Overview screen', () => {
+	// The banner sits above a usable activity list while a routine backup
+	// runs, so what is progressing is the backup — not the page, which has
+	// already loaded, and not the list beside it.
+	it( 'names the running backup in the banner', async () => {
+		render( <BackupStatusBanner progress={ 37 } /> );
+
+		const bar = await progressBarNamed( 'Backing up your site' );
+		expect( bar ).toBeInTheDocument();
+	} );
+
+	// One name covers both of the panel's modes. `in-progress` reports a
+	// real percentage and `no-backups` runs indeterminate, but they are the
+	// same situation to the reader — the first backup has not arrived yet —
+	// and the panel's own title says exactly that.
+	it( 'names the first backup while it is running', async () => {
+		render( <BackupStatusPanel state="in-progress" progress={ 19 } /> );
+
+		const bar = await progressBarNamed( 'Preparing your first cloud backup' );
+		expect( bar ).toBeInTheDocument();
+	} );
+
+	it( 'names the first backup before there is a percentage to report', async () => {
+		render( <BackupStatusPanel state="no-backups" progress={ 0 } /> );
+
+		const bar = await progressBarNamed( 'Preparing your first cloud backup' );
+		expect( bar ).toBeInTheDocument();
+	} );
 } );
 
 describe( 'the Restore screen', () => {

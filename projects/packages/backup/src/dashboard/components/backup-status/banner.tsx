@@ -39,7 +39,16 @@ export default function BackupStatusBanner( { progress }: Props ) {
 			<Text variant="body-sm" aria-live="polite">
 				{ __( 'Your backup will be ready soon', 'jetpack-backup-pkg' ) }
 			</Text>
-			<ProgressBar className="jpb-backup-status-banner__bar" value={ progress } />
+			{ /*
+			 * Named: `ProgressBar` defaults to a generic `aria-label="Loading …"`,
+			 * and neither the line above nor the percentage beside it is
+			 * associated with the bar.
+			 */ }
+			<ProgressBar
+				className="jpb-backup-status-banner__bar"
+				value={ progress }
+				aria-label={ __( 'Backing up your site', 'jetpack-backup-pkg' ) }
+			/>
 			<Text variant="body-sm" className="jpb-text-muted">
 				{ sprintf(
 					/* translators: %d: how much of the running backup is complete, as a percentage. */

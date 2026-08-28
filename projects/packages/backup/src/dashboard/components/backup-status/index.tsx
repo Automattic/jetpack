@@ -139,11 +139,20 @@ export default function BackupStatusPanel( { state, progress }: Props ) {
 			</EmptyState.Title>
 			{ showProgress && (
 				<div className="jpb-backup-status__progress">
-					{ /* Omitting `value` is what puts ProgressBar into its
-					     animated indeterminate mode. */ }
+					{ /*
+					 * Omitting `value` is what puts ProgressBar into its animated
+					 * indeterminate mode.
+					 *
+					 * One name serves both modes: they are the same situation to
+					 * the reader, whose first backup has not arrived either way.
+					 * Named at all because `ProgressBar` otherwise announces itself
+					 * as a generic "Loading …", and the title above is not
+					 * associated with the bar.
+					 */ }
 					<ProgressBar
 						className="jpb-backup-status__bar"
 						value={ isDeterminate ? progress : undefined }
+						aria-label={ __( 'Preparing your first cloud backup', 'jetpack-backup-pkg' ) }
 					/>
 					{ isDeterminate && (
 						<Text variant="body-sm" className="jpb-text-muted">
