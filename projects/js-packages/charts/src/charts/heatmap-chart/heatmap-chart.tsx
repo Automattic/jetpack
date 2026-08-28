@@ -1,8 +1,9 @@
 import { formatNumber, formatNumberCompact } from '@automattic/number-formatters';
-import { TooltipWithBounds, useTooltip } from '@visx/tooltip';
+import { useTooltip } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -71,11 +72,15 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		useTooltip< HeatmapTooltipData >();
 	const standaloneScopeClass = useStandaloneScopeClass();
 	const containerRef = useRef< HTMLDivElement >( null );
-	// The tooltip is a sibling of the grid inside the layout stack, which positions it, so
-	// pointer and cell coordinates are measured against that stack.
+	// The chart root positions the tooltip, so pointer and cell coordinates are
+	// measured against it — found by its id rather than by walking up, so
+	// whatever ChartLayout wraps the grid in cannot shift the origin.
 	const getTooltipOrigin = useCallback(
-		() => containerRef.current?.parentElement?.getBoundingClientRect() ?? null,
-		[]
+		() =>
+			containerRef.current
+				?.closest( `[data-chart-id="heatmap-chart-${ chartId }"]` )
+				?.getBoundingClientRect() ?? null,
+		[ chartId ]
 	);
 
 	const { color: primaryColorHex } = getElementStyles( {
@@ -483,11 +488,11 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						} ) }
 					</div>
 					{ withTooltips && tooltipOpen && tooltipData && (
-						<TooltipWithBounds top={ tooltipTop } left={ tooltipLeft }>
+						<BoundedTooltip top={ tooltipTop } left={ tooltipLeft }>
 							<div className={ standaloneScopeClass } role="tooltip" tabIndex={ -1 }>
 								{ ( renderTooltip ?? defaultRenderTooltip )( tooltipData ) }
 							</div>
-						</TooltipWithBounds>
+						</BoundedTooltip>
 					) }
 				</ChartLayout>
 			</ChartInstanceContext.Provider>

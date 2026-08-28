@@ -1,10 +1,11 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
-import { TooltipWithBounds, useTooltip } from '@visx/tooltip';
+import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo, useRef } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
+import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
 import {
 	useDataWithPercentages,
 	useLegendVisibilityData,
@@ -348,7 +349,7 @@ const PieChartInternal = ( {
 						: 0;
 
 					return (
-						<Center ref={ containerRef } style={ { position: 'relative' } }>
+						<Center ref={ containerRef } className={ styles[ 'pie-chart__plot' ] }>
 							<svg
 								viewBox={ `0 0 ${ width } ${ height }` }
 								preserveAspectRatio="xMidYMid meet"
@@ -471,11 +472,11 @@ const PieChartInternal = ( {
 								</Group>
 							</svg>
 							{ withTooltips && tooltipOpen && tooltipData && (
-								<TooltipWithBounds top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
+								<BoundedTooltip top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
 									<div className={ standaloneScopeClass } role="tooltip">
 										{ renderTooltip( { tooltipData } ) }
 									</div>
-								</TooltipWithBounds>
+								</BoundedTooltip>
 							) }
 						</Center>
 					);

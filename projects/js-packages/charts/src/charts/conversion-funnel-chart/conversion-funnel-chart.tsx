@@ -1,7 +1,8 @@
-import { TooltipWithBounds, useTooltip } from '@visx/tooltip';
+import { useTooltip } from '@visx/tooltip';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { type FC, useRef, useMemo, useEffect, useState, useCallback, useContext } from 'react';
+import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
 import { usePrefersReducedMotion } from '../../hooks';
 import {
 	GlobalChartsProvider,
@@ -425,13 +426,13 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 					if ( ! tooltipContent ) return null;
 
 					return (
-						<TooltipWithBounds
+						<BoundedTooltip
 							top={ tooltipTop }
 							left={ tooltipLeft }
 							className={ clsx( standaloneScopeClass, styles[ 'tooltip-wrapper' ] ) }
 						>
 							{ tooltipContent }
-						</TooltipWithBounds>
+						</BoundedTooltip>
 					);
 				} )() }
 		</Stack>

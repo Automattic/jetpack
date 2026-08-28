@@ -1,11 +1,12 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
-import { TooltipWithBounds, useTooltip } from '@visx/tooltip';
+import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo, useRef } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
+import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
 import {
 	useDataWithPercentages,
 	useLegendVisibilityData,
@@ -374,7 +375,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					const innerRadius = radius * ( 1 - thickness );
 
 					return (
-						<Center ref={ containerRef } style={ { position: 'relative' } }>
+						<Center ref={ containerRef } className={ styles[ 'pie-semi-circle-chart__plot' ] }>
 							<svg
 								width={ width }
 								height={ height }
@@ -461,11 +462,11 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 								</Group>
 							</svg>
 							{ withTooltips && tooltipOpen && tooltipData && (
-								<TooltipWithBounds top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
+								<BoundedTooltip top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
 									<div className={ standaloneScopeClass } role="tooltip">
 										{ renderTooltip( { tooltipData } ) }
 									</div>
-								</TooltipWithBounds>
+								</BoundedTooltip>
 							) }
 						</Center>
 					);

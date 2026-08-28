@@ -1,7 +1,8 @@
-import { Tooltip, TooltipWithBounds, defaultStyles } from '@visx/tooltip';
+import { Tooltip, defaultStyles } from '@visx/tooltip';
 import { DataContext, TooltipContext } from '@visx/xychart';
 import { useCallback, useContext, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { BoundedTooltip } from './private/bounded-tooltip';
 import type { RenderTooltipGlyphProps, XyChartTooltipProps } from '../../visx/types';
 import type { TooltipContextType } from '@visx/xychart';
 import type { CSSProperties, ReactNode } from 'react';
@@ -23,7 +24,7 @@ const isValidNumber = ( value: unknown ): value is number =>
 	typeof value === 'number' && Number.isFinite( value );
 
 // Band scales place a datum at the start of its band; snapping targets the band's centre.
-// A d3 scale is a function, so this reads the method rather than testing for an object.
+// A d3 scale is a function that carries `bandwidth` as a property.
 const scaleBandwidth = ( scale: unknown ): number => {
 	const bandwidth = ( scale as { bandwidth?: unknown } | null | undefined )?.bandwidth;
 	return typeof bandwidth === 'function' ? Number( bandwidth() ) : 0;
@@ -182,7 +183,7 @@ const XyChartTooltipContent = < Datum extends object >( {
 	const marginTop = margin?.top ?? 0;
 	const marginLeft = margin?.left ?? 0;
 
-	const TooltipComponent = detectBounds ? TooltipWithBounds : Tooltip;
+	const TooltipComponent = detectBounds ? BoundedTooltip : Tooltip;
 	const boxStyle: CSSProperties = {
 		...defaultStyles,
 		zIndex,
@@ -254,12 +255,11 @@ const XyChartTooltipContent = < Datum extends object >( {
  *
  * Render it as a child of `XYChart`. The element wrapping that `XYChart` must
  * be `position: relative` with the SVG at its origin, and `isolation: isolate`:
- * the box is placed with the SVG-local coordinates visx reports,
- * `TooltipWithBounds` flips it to stay inside that wrapper, and the isolation
- * keeps the box's `zIndex` from competing with page chrome. An ancestor with
- * `overflow: hidden` or `overflow: clip` cuts the box off — the flip only knows
- * the wrapper, not the clipping ancestor — so a chart needs room for its
- * tooltip inside the nearest clipping box.
+ * the box is placed with the SVG-local coordinates visx reports, and the
+ * isolation keeps the box's `zIndex` from competing with page chrome. The box
+ * flips and clamps to stay inside the nearest ancestor that clips its overflow
+ * (or the viewport), so it may extend past the chart wrapper but is never cut
+ * off unless that ancestor is smaller than the box itself.
  *
  * @param props - visx's `Tooltip` options. `scroll`, `debounce` and `resizeObserverPolyfill` are accepted and ignored.
  * @return An anchor in the SVG, plus the overlay and the tooltip box while the tooltip is open.
