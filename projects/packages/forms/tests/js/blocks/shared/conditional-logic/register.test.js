@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { hasFilter, removeFilter } from '@wordpress/hooks';
+import { addFilter, hasFilter, removeFilter } from '@wordpress/hooks';
 
 const mockHasFeatureFlag = jest.fn( () => true );
 
@@ -37,6 +37,7 @@ const {
 	addContainerLogicAttribute,
 	isConditionalLogicField,
 	registerConditionalLogicFilter,
+	registerContainerAttribute,
 } = await import( '../../../../../src/blocks/shared/conditional-logic/register.jsx' );
 
 describe( 'conditional logic registration', () => {
@@ -133,6 +134,8 @@ describe( 'conditional logic registration', () => {
 			// A block's attributes are fixed when it registers, so this filter has to be in
 			// place before core/group registers or the panel writes an attribute the block
 			// does not declare and the parser drops it on reload.
+			// Registered at module scope by registerContainerAttribute, independently of this
+			// function -- see the "attribute registration is unconditional" block below.
 			expect( hasFilter( 'blocks.registerBlockType', ATTRIBUTE_FILTER_NAMESPACE ) ).toBeTruthy();
 			expect( mockHasFeatureFlag ).toHaveBeenCalledWith( FEATURE_FLAG );
 		} );
@@ -157,5 +160,44 @@ describe( 'conditional logic registration', () => {
 			expect( registerConditionalLogicFilter() ).toBe( false );
 			expect( hasFilter( 'editor.BlockEdit', FILTER_NAMESPACE ) ).toBeFalsy();
 		} );
+	} );
+} );
+
+/**
+ * The attribute has to be registered whatever else happens.
+ *
+ * A block's attributes are fixed when it registers, and Gutenberg discards delimiter
+ * attributes the block type does not declare -- so a session that reaches the editor without
+ * this having run drops a group's stored conditions on the next save, silently.
+ */
+describe( 'container attribute registration is unconditional', () => {
+	afterEach( () => {
+		removeFilter( 'blocks.registerBlockType', ATTRIBUTE_FILTER_NAMESPACE );
+		removeFilter( 'editor.BlockEdit', FILTER_NAMESPACE );
+		registerContainerAttribute();
+		mockHasFeatureFlag.mockReturnValue( true );
+	} );
+
+	it( 'registers the attribute filter even with the feature flag off', () => {
+		removeFilter( 'blocks.registerBlockType', ATTRIBUTE_FILTER_NAMESPACE );
+		mockHasFeatureFlag.mockReturnValue( false );
+
+		expect( registerContainerAttribute() ).toBe( true );
+		expect( hasFilter( 'blocks.registerBlockType', ATTRIBUTE_FILTER_NAMESPACE ) ).toBeTruthy();
+	} );
+
+	it( 'registers the attribute even when the BlockEdit namespace is already claimed', () => {
+		removeFilter( 'blocks.registerBlockType', ATTRIBUTE_FILTER_NAMESPACE );
+		// Something else claims the panel namespace first, which makes
+		// registerConditionalLogicFilter bail before it would ever have reached the graft.
+		addFilter( 'editor.BlockEdit', FILTER_NAMESPACE, x => x );
+
+		expect( registerConditionalLogicFilter() ).toBe( false );
+		expect( registerContainerAttribute() ).toBe( true );
+		expect( hasFilter( 'blocks.registerBlockType', ATTRIBUTE_FILTER_NAMESPACE ) ).toBeTruthy();
+	} );
+
+	it( 'does not register twice', () => {
+		expect( registerContainerAttribute() ).toBe( false );
 	} );
 } );

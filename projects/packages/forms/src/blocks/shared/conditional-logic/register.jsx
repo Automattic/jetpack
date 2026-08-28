@@ -191,16 +191,37 @@ export const registerConditionalLogicFilter = () => {
 		return false;
 	}
 
-	// Before the BlockEdit filter, and at module scope, because a block's attributes are fixed
-	// when it registers: arriving after `core/group` has registered would leave the panel
-	// writing an attribute the block does not declare, which the parser then drops on reload.
-	if ( ! hasFilter( 'blocks.registerBlockType', ATTRIBUTE_FILTER_NAMESPACE ) ) {
-		addFilter( 'blocks.registerBlockType', ATTRIBUTE_FILTER_NAMESPACE, addContainerLogicAttribute );
-	}
-
 	addFilter( 'editor.BlockEdit', FILTER_NAMESPACE, withConditionalLogic );
 
 	return true;
 };
 
+/**
+ * Give `core/group` its attribute, whatever else happens.
+ *
+ * Deliberately outside registerConditionalLogicFilter, and outside both of its guards. A
+ * block's attributes are fixed when it registers, and Gutenberg's getBlockAttributes()
+ * discards delimiter attributes the block type does not declare -- so any path that reaches
+ * the editor without this having run drops a group's stored conditions on the next save,
+ * silently and irreversibly.
+ *
+ * Behind the panel's own guards it was reachable two ways: a flag-off session, and anything
+ * that claimed the BlockEdit namespace first, which makes that function return before it gets
+ * here. Field blocks declare their attribute unconditionally in shared/settings; there is no
+ * reason containers should be less safe. An unused attribute costs nothing when the feature
+ * is off.
+ *
+ * @return {boolean} True when this call registered the filter, false when it was already there.
+ */
+export const registerContainerAttribute = () => {
+	if ( hasFilter( 'blocks.registerBlockType', ATTRIBUTE_FILTER_NAMESPACE ) ) {
+		return false;
+	}
+
+	addFilter( 'blocks.registerBlockType', ATTRIBUTE_FILTER_NAMESPACE, addContainerLogicAttribute );
+
+	return true;
+};
+
+registerContainerAttribute();
 registerConditionalLogicFilter();
