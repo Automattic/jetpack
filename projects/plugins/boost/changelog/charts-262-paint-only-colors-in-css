@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Charts: update chart grid, axis and tick colors immediately when the theme changes.
