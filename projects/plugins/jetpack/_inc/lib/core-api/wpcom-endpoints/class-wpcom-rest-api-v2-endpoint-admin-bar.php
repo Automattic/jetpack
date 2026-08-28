@@ -85,8 +85,6 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_item( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		global $wp_admin_bar;
-
 		if ( ! class_exists( 'WP_Screen' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
 		}
@@ -106,21 +104,13 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 		// Simulate a wp-admin context.
 		set_current_screen( 'dashboard' );
 
-		add_filter( 'show_admin_bar', '__return_true', 999 );
-
 		// Core only adds the command palette node when its assets are enqueued,
 		// which normally happens on admin_enqueue_scripts.
 		if ( function_exists( 'wp_enqueue_command_palette_assets' ) ) {
 			wp_enqueue_command_palette_assets();
 		}
 
-		_wp_admin_bar_init();
-
-		ob_start();
-		do_action_ref_array( 'admin_bar_menu', array( &$wp_admin_bar ) );
-		ob_clean();
-
-		$nodes          = $wp_admin_bar->get_nodes() ?? array();
+		$nodes          = $this->get_nodes();
 		$filtered_nodes = $this->filter_nodes( $nodes, self::ALLOWED_TOP_LEVEL_NODES );
 
 		$response = rest_ensure_response( array( 'nodes' => array_values( $filtered_nodes ) ) );
@@ -130,6 +120,26 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Builds the admin bar for the current request and returns its nodes.
+	 *
+	 * @return array Admin bar nodes.
+	 */
+	private function get_nodes() {
+		global $wp_admin_bar;
+
+		add_filter( 'show_admin_bar', '__return_true', 999 );
+		if ( ! _wp_admin_bar_init() || ! $wp_admin_bar instanceof WP_Admin_Bar ) {
+			return array();
+		}
+
+		ob_start();
+		do_action_ref_array( 'admin_bar_menu', array( &$wp_admin_bar ) );
+		ob_end_clean();
+
+		return $wp_admin_bar->get_nodes() ?? array();
 	}
 
 	/**
