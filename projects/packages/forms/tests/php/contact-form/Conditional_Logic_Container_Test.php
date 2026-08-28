@@ -121,6 +121,28 @@ class Conditional_Logic_Container_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A group can hold focusable content that is not a field -- a link, a button -- and that
+	 * content has no wrapper of its own to restore focus from. Without the same watch a field
+	 * wrapper carries, focus falls to <body> when the group hides under the visitor.
+	 */
+	public function test_render_stamps_the_focus_watch_a_field_wrapper_carries() {
+		$block = array(
+			'blockName' => 'core/group',
+			'attrs'     => array( 'conditionalLogic' => $this->logic() ),
+		);
+
+		$html = Conditional_Logic_Container::add_container_attributes(
+			'<div class="wp-block-group"><a href="/somewhere">a link</a></div>',
+			$block
+		);
+
+		$this->assertStringContainsString(
+			'data-wp-watch--conditional-focus="callbacks.manageConditionalFocus"',
+			$html
+		);
+	}
+
+	/**
 	 * `enabled` is derived in the editor from whether any rule exists, so a container the
 	 * author merely opened the panel on adds nothing to the page.
 	 */

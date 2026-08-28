@@ -140,6 +140,14 @@ class Conditional_Logic_Container {
 		$processor->set_attribute( 'data-wp-context', wp_json_encode( array( 'fieldId' => $container_id ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ) );
 		$processor->set_attribute( 'data-wp-class--jetpack-field--conditionally-hidden', 'state.isFieldHidden' );
 
+		/*
+		 * The same watch a field wrapper carries. A group can hold focusable content that is
+		 * not a field -- a link, a button, a nested block -- and that content has no wrapper of
+		 * its own to restore focus from, so without this the caret falls to <body> when the
+		 * group hides under the visitor.
+		 */
+		$processor->set_attribute( 'data-wp-watch--conditional-focus', 'callbacks.manageConditionalFocus' );
+
 		return $processor->get_updated_html();
 	}
 
