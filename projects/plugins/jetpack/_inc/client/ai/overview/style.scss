@@ -97,7 +97,7 @@
 	// Cover, not contain: the export bakes in its own framing, so cropping an
 	// edge beats letterboxing when the copy column runs taller than 45% wide.
 	&__depleted-illustration {
-		flex: 0 0 45%;
+		flex: 0 0 50%;
 		min-inline-size: 0;
 		max-inline-size: 100%;
 		border-radius: var(--wpds-border-radius-lg, 8px);
