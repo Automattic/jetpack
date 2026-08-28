@@ -19,7 +19,6 @@ behavior.
 Atomic commit:
 
 - `commit()` writes all staged changes in one `navigate({ search })`.
-- Optional debounced auto-commit uses `replace: true` to avoid dirty history.
 - On confirm, call `commit({ replace: false })` to push a history entry.
 
 ---
@@ -29,7 +28,6 @@ Atomic commit:
 ```ts
 type UseStagedSearchOptions< TFrom extends string > = {
 	from?: TFrom; // TanStack route id/path; omit to bind to the matched route
-	autoCommitDebounceMs?: number; // optional debounce in ms
 };
 
 type UseStagedSearchReturn< TSearch > = {
@@ -41,7 +39,6 @@ type UseStagedSearchReturn< TSearch > = {
 	stage( patch: Partial< TSearch > ): void;
 	commit( opts?: { replace?: boolean } ): void;
 	revert(): void;
-	cancelAutoCommit(): void;
 };
 ```
 
@@ -68,10 +65,7 @@ type Search = {
 };
 
 export function DashboardHeader() {
-	const { effective, stage, commit } = useStagedSearch< Search, '/' >( {
-		from: '/',
-		// autoCommitDebounceMs: 250,
-	} );
+	const { effective, stage, commit } = useStagedSearch< Search, '/' >( { from: '/' } );
 
 	const range = useMemo(
 		() => ( {
@@ -113,7 +107,6 @@ export function DashboardHeader() {
 
 - Do not pass `to` on commit; update only `search` for SPA smoothness.
 - Explicit commit: `commit( { replace: false } )` pushes history.
-- Auto-commit (debounce): `replace: true` during continuous edits.
 - The URL→UI mirror keeps Back/Forward fluid and flicker-free.
 
 **Data fetching**
@@ -129,12 +122,6 @@ const query = useQuery( {
 	queryFn: () => fetchOrders( effective ),
 } );
 ```
-
-**Debounce guidance**
-
-- `autoCommitDebounceMs`: 200–300 ms works well for date pickers.
-- During edits → debounced replace-commits.
-- On confirm (Apply/close) → `commit( { replace: false } )`.
 
 **Removing params**
 

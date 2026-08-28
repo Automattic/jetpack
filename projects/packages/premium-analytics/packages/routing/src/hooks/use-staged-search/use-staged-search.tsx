@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useNavigate, useSearch } from '@wordpress/route';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -17,13 +17,6 @@ export type UseStagedSearchOptions< TFrom extends string > = {
 	 * widget can commit on any page that hosts it.
 	 */
 	from?: TFrom;
-
-	/**
-	 * If provided, stage() will schedule an automatic debounced commit
-	 * after the given milliseconds. Those auto-commits use replace: true
-	 * to avoid polluting the browser history during continuous interaction.
-	 */
-	autoCommitDebounceMs?: number;
 };
 
 export type UseStagedSearchReturn< TSearch extends AnyObject > = {
@@ -63,8 +56,6 @@ export type UseStagedSearchReturn< TSearch extends AnyObject > = {
 	 * Discard local changes and return to committed snapshot.
 	 */
 	revert: () => void;
-
-	cancelAutoCommit: () => void;
 };
 
 function mergeDefined< T extends AnyObject >( base: T, patch: Partial< T > ): T {
@@ -82,7 +73,7 @@ function mergeDefined< T extends AnyObject >( base: T, patch: Partial< T > ): T 
  * `useStagedValue` bound to the URL: edits stage locally and land as one atomic
  * navigation, so widgets re-fetch on commit and Back/Forward stays smooth.
  *
- * @param opts - The route binding and the optional auto-commit debounce.
+ * @param opts - The route binding.
  * @return The committed, staged and effective snapshots, and their controls.
  */
 export function useStagedSearch< TSearch extends AnyObject, TFrom extends string >(
@@ -102,26 +93,10 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 
 	const [ isSyncing, setIsSyncing ] = useState( false ); // not used yet
 
-	// Debounce timer for auto-commit.
-	const timerRef = useRef< ReturnType< typeof setTimeout > | null >( null );
-
 	// Cleared once the router has applied the new committed state.
 	useEffect( () => {
 		setIsSyncing( false );
 	}, [ committed ] );
-
-	const cancelAutoCommit = useCallback( () => {
-		if ( timerRef.current ) {
-			clearTimeout( timerRef.current );
-			timerRef.current = null;
-		}
-	}, [] );
-
-	useEffect( () => {
-		return () => {
-			cancelAutoCommit();
-		};
-	}, [ cancelAutoCommit ] );
 
 	/*
 	 * Writes the patch rather than the whole draft, and passes no `to`, so a
@@ -130,7 +105,6 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 	 */
 	const writeToSearch = useCallback(
 		( _staged: TSearch, patch: Partial< TSearch >, commitOpts?: { replace?: boolean } ) => {
-			cancelAutoCommit();
 			setIsSyncing( true );
 
 			navigate( {
@@ -139,36 +113,13 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 				search: prev => ( { ...prev, ...patch } ),
 			} );
 		},
-		[ cancelAutoCommit, navigate ]
+		[ navigate ]
 	);
 
-	const {
-		staged,
-		isDirty,
-		stage: stageValue,
-		commit,
-		revert: revertValue,
-	} = useStagedValue< TSearch, { replace?: boolean } >( committed, writeToSearch );
-
-	const stage = useCallback(
-		( patch: Partial< TSearch > ) => {
-			stageValue( patch );
-
-			if ( typeof opts.autoCommitDebounceMs === 'number' ) {
-				cancelAutoCommit();
-				timerRef.current = setTimeout( () => {
-					timerRef.current = null;
-					commit( { replace: true } ); // do not pollute history while interacting
-				}, opts.autoCommitDebounceMs );
-			}
-		},
-		[ stageValue, commit, cancelAutoCommit, opts.autoCommitDebounceMs ]
-	);
-
-	const revert = useCallback( () => {
-		cancelAutoCommit();
-		revertValue();
-	}, [ cancelAutoCommit, revertValue ] );
+	const { staged, isDirty, stage, commit, revert } = useStagedValue<
+		TSearch,
+		{ replace?: boolean }
+	>( committed, writeToSearch );
 
 	/**
 	 * Effective = committed merged with defined staged keys.
@@ -188,6 +139,5 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 		stage,
 		commit,
 		revert,
-		cancelAutoCommit,
 	};
 }

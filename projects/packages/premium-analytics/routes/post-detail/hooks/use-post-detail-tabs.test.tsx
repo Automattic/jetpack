@@ -82,7 +82,6 @@ function mockSearch( section: string ) {
 		stage,
 		commit,
 		revert: jest.fn(),
-		cancelAutoCommit: jest.fn(),
 	} );
 
 	return { stage, commit };
