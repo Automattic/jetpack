@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Chart interval control: build the menu on the design system Menu, head it "Chart intervals", and name the buckets "Days", "Weeks", and so on.

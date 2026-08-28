@@ -2,11 +2,9 @@
  * External dependencies
  */
 import { type IntervalType } from '@jetpack-premium-analytics/datetime';
-import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
+import { IconButton, Menu } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
-import { chartBar, check } from '@wordpress/icons';
-
-import './date-interval-dropdown.scss';
+import { chartBar } from '@wordpress/icons';
 
 type DateIntervalDropdownProps = {
 	/**
@@ -31,20 +29,20 @@ type DateIntervalDropdownProps = {
 };
 
 /**
- * Name a bucket as the menu lists it.
+ * Name a bucket as the menu lists it, under the "Chart intervals" heading.
  */
 function getIntervalLabel( interval: IntervalType ): string {
 	switch ( interval ) {
 		case 'hour':
-			return __( 'By hours', 'jetpack-premium-analytics-pkg' );
+			return __( 'Hours', 'jetpack-premium-analytics-pkg' );
 		case 'day':
-			return __( 'By days', 'jetpack-premium-analytics-pkg' );
+			return __( 'Days', 'jetpack-premium-analytics-pkg' );
 		case 'week':
-			return __( 'By weeks', 'jetpack-premium-analytics-pkg' );
+			return __( 'Weeks', 'jetpack-premium-analytics-pkg' );
 		case 'month':
-			return __( 'By months', 'jetpack-premium-analytics-pkg' );
+			return __( 'Months', 'jetpack-premium-analytics-pkg' );
 		case 'year':
-			return __( 'By years', 'jetpack-premium-analytics-pkg' );
+			return __( 'Years', 'jetpack-premium-analytics-pkg' );
 	}
 }
 
@@ -60,35 +58,35 @@ export function DateIntervalDropdown( {
 	onChange,
 }: DateIntervalDropdownProps ) {
 	return (
-		<DropdownMenu
-			className="date-interval-dropdown"
-			icon={ chartBar }
-			label={ label ?? __( 'Chart interval', 'jetpack-premium-analytics-pkg' ) }
-			popoverProps={ { placement: 'bottom-end' } }
-			toggleProps={ { className: 'date-interval-dropdown__toggle' } }
-		>
-			{ ( { onClose } ) => (
-				<MenuGroup>
-					{ options.map( option => {
-						const isSelected = option === value;
-
-						return (
-							<MenuItem
-								key={ option }
-								role="menuitemradio"
-								isSelected={ isSelected }
-								icon={ isSelected ? check : undefined }
-								onClick={ () => {
-									onChange( option );
-									onClose();
-								} }
-							>
-								{ getIntervalLabel( option ) }
-							</MenuItem>
-						);
-					} ) }
-				</MenuGroup>
-			) }
-		</DropdownMenu>
+		<Menu.Root>
+			<Menu.Trigger
+				render={
+					<IconButton
+						className="date-interval-dropdown"
+						icon={ chartBar }
+						label={ label ?? __( 'Chart interval', 'jetpack-premium-analytics-pkg' ) }
+						variant="outline"
+						tone="neutral"
+					/>
+				}
+			/>
+			<Menu.Popup positioner={ <Menu.Positioner align="end" /> }>
+				{ /* `null`, not `undefined`: kept controlled, so a bucket the options
+				     don't list checks nothing rather than the group keeping its own. */ }
+				<Menu.RadioGroup
+					value={ value ?? null }
+					onValueChange={ ( next: IntervalType ) => onChange( next ) }
+				>
+					<Menu.GroupLabel>
+						{ __( 'Chart intervals', 'jetpack-premium-analytics-pkg' ) }
+					</Menu.GroupLabel>
+					{ options.map( option => (
+						<Menu.RadioItem key={ option } value={ option }>
+							<Menu.ItemLabel>{ getIntervalLabel( option ) }</Menu.ItemLabel>
+						</Menu.RadioItem>
+					) ) }
+				</Menu.RadioGroup>
+			</Menu.Popup>
+		</Menu.Root>
 	);
 }

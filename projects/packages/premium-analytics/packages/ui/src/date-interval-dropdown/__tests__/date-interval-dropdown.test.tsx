@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
 
 describe( 'DateIntervalDropdown', () => {
-	it( 'lists the buckets it was given and reports the pick', async () => {
+	it( 'lists the buckets it was given under a heading and reports the pick', async () => {
 		const onChange = jest.fn();
 		const user = userEvent.setup();
 
@@ -16,13 +16,16 @@ describe( 'DateIntervalDropdown', () => {
 		expect( trigger ).toHaveTextContent( '' );
 
 		await user.click( trigger );
-		expect( screen.getByRole( 'menuitemradio', { name: 'By days' } ) ).toBeChecked();
-		expect( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) ).not.toBeChecked();
+		await expect(
+			screen.findByRole( 'group', { name: 'Chart intervals' } )
+		).resolves.toBeVisible();
+		expect( screen.getByRole( 'menuitemradio', { name: 'Days' } ) ).toBeChecked();
+		expect( screen.getByRole( 'menuitemradio', { name: 'Weeks' } ) ).not.toBeChecked();
 
 		// Never a fixed set: a bucket the range disallows is not in the menu.
-		expect( screen.queryByRole( 'menuitemradio', { name: 'By hours' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'menuitemradio', { name: 'Hours' } ) ).not.toBeInTheDocument();
 
-		await user.click( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'Weeks' } ) );
 		expect( onChange ).toHaveBeenCalledWith( 'week' );
 	} );
 
@@ -35,7 +38,7 @@ describe( 'DateIntervalDropdown', () => {
 
 		// Visible and checked rather than hidden or disabled, so the interval
 		// stays inspectable on a range with nothing to choose between.
-		expect( screen.getByRole( 'menuitemradio', { name: 'By hours' } ) ).toBeChecked();
+		await expect( screen.findByRole( 'menuitemradio', { name: 'Hours' } ) ).resolves.toBeChecked();
 	} );
 
 	it( 'checks nothing when the active bucket is not among the options', async () => {
@@ -49,8 +52,8 @@ describe( 'DateIntervalDropdown', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
 
-		expect( screen.getAllByRole( 'menuitemradio' ) ).toHaveLength( 2 );
-		expect( screen.getByRole( 'menuitemradio', { name: 'By months' } ) ).not.toBeChecked();
-		expect( screen.getByRole( 'menuitemradio', { name: 'By years' } ) ).not.toBeChecked();
+		await expect( screen.findAllByRole( 'menuitemradio' ) ).resolves.toHaveLength( 2 );
+		expect( screen.getByRole( 'menuitemradio', { name: 'Months' } ) ).not.toBeChecked();
+		expect( screen.getByRole( 'menuitemradio', { name: 'Years' } ) ).not.toBeChecked();
 	} );
 } );

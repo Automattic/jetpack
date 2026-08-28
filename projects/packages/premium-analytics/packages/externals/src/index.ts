@@ -76,6 +76,7 @@ export {
 	IconButton,
 	Input,
 	Link,
+	Menu,
 	Notice,
 	SelectControl,
 	Skeleton,

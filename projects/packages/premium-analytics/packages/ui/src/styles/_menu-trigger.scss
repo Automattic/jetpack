@@ -1,8 +1,8 @@
-// Shared box of the date surface's menu triggers: the comparison control and
-// the chart-interval control, both `DropdownMenu`s rather than form fields.
-// What follows restates in WPDS tokens the properties where wp-components'
-// Button and the input layout behind a `SelectControl` trigger disagree, so a
-// menu trigger reads as a sibling of the preset group beside it.
+// Box of the date surface's comparison trigger, a wp-components `DropdownMenu`
+// rather than a form field. What follows restates in WPDS tokens the
+// properties where wp-components' Button and the input layout behind a
+// `SelectControl` trigger disagree, so the trigger reads as a sibling of the
+// preset group beside it.
 
 // `@wordpress/components` is externalized, so the Button these rules override
 // is whatever the running WordPress ships, not the copy in `node_modules`.
@@ -40,12 +40,4 @@
 		outline-offset: var(--wpds-border-width-focus);
 		box-shadow: none;
 	}
-}
-
-// A trigger carrying only a glyph, squared off against the row's height.
-@mixin icon-toggle {
-
-	@include toggle;
-
-	min-width: var(--wpds-dimension-size-lg);
 }
