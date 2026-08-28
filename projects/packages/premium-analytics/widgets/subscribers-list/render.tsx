@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getSiteData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
 	getStatsReportItems,
 	useStatsFollowers,
@@ -26,6 +27,22 @@ import { useMemo } from 'react';
 import type { SubscribersListAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
+/** Base URL for the site's subscriber management pages. */
+function getSubscribersBaseUrl() {
+	// Only wp-admin supplies the slug; other mounts get no link.
+	const siteSlug = getSiteData()?.suffix;
+
+	if ( ! siteSlug ) {
+		return null;
+	}
+
+	// Simple and WoA both go to WordPress.com, matching the wp-admin Subscribers
+	// menu and the Newsletter widget.
+	const host = isWpcomPlatformSite() ? 'https://wordpress.com' : 'https://cloud.jetpack.com';
+
+	return `${ host }/subscribers/${ siteSlug }`;
+}
+
 /**
  * Flattens the designated `useStatsFollowers` report into the rows the roster
  * renders.
@@ -34,6 +51,7 @@ function toSubscriberItems(
 	report: StatsNormalizedReport< StatsFollowersItem > | undefined
 ): SubscriberListItem[] {
 	const items = getStatsReportItems( report );
+	const subscribersBaseUrl = getSubscribersBaseUrl();
 
 	return items.map( ( item, index ) => ( {
 		// Subscription id is the stable key; fall back to the row index so two
@@ -41,7 +59,12 @@ function toSubscriberItems(
 		id: item.subscription_id ?? `row-${ index }`,
 		name: item.label,
 		avatarUrl: item.icon,
-		href: item.link,
+		// `link` is unreliable: the subscriber's own site on some payloads, a
+		// user-ID Calypso link that 404s on others.
+		href:
+			subscribersBaseUrl && item.subscription_id
+				? `${ subscribersBaseUrl }/${ item.subscription_id }`
+				: null,
 		secondaryText: formatRelativeSince( item.date_subscribed ),
 	} ) );
 }
