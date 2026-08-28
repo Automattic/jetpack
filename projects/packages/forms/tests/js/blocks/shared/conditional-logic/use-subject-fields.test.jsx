@@ -521,3 +521,48 @@ describe( 'useSubjectFields tolerates a malformed tree', () => {
 		expect( subjectsFor( 'c-outside' ).map( f => f.label ) ).toEqual( [ 'Other' ] );
 	} );
 } );
+
+describe( 'useSubjectFields step numbering', () => {
+	/**
+	 * A step inside a nested subtree has to keep counting for the siblings that follow it.
+	 *
+	 * The dropdown groups subjects by step precisely so an author can see that a rule
+	 * referencing a later step always compares against an empty value. A number that is wrong
+	 * points them at exactly the rule that will never fire. Groups inside a form are what make
+	 * this nesting reachable.
+	 */
+	it( 'keeps counting steps after a nested subtree', () => {
+		const step = ( clientId, inner ) => ( {
+			clientId,
+			name: 'jetpack/form-step',
+			attributes: {},
+			innerBlocks: inner,
+		} );
+
+		blocks = {
+			'c-form': {
+				clientId: 'c-form',
+				name: 'jetpack/contact-form',
+				attributes: {},
+				innerBlocks: [
+					step( 'c-step-1', [ field( 'c-a', { label: 'A' } ) ] ),
+					// The second step sits inside a Group, so it is counted by a nested walk.
+					{
+						clientId: 'c-group',
+						name: 'core/group',
+						attributes: {},
+						innerBlocks: [ step( 'c-step-2', [ field( 'c-b', { label: 'B' } ) ] ) ],
+					},
+					step( 'c-step-3', [ field( 'c-c', { label: 'C' } ) ] ),
+				],
+			},
+		};
+		rootOf = { 'c-outside': 'c-form' };
+
+		const byLabel = Object.fromEntries(
+			subjectsFor( 'c-outside' ).map( f => [ f.label, f.step ] )
+		);
+
+		expect( byLabel ).toEqual( { A: 1, B: 2, C: 3 } );
+	} );
+} );

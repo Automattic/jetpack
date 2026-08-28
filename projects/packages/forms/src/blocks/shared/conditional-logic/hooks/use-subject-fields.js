@@ -75,15 +75,17 @@ const getFieldLabel = block => {
  *
  * @param {Array}  blocks    - Blocks to walk.
  * @param {string} excludeId - Client id to skip, along with everything inside it.
- * @param {number} step      - Current step number, or null outside a multi-step form.
+ * @param {object} state     - Traversal state; `step` is the current step number, or null
+ *                           outside a multi-step form. Shared across the whole walk rather
+ *                           than per-invocation: a step inside a nested subtree has to keep
+ *                           counting for the siblings that follow the subtree, and a local
+ *                           would discard it on the way back up.
  * @param {Array}  found     - Accumulator.
  */
-const walk = ( blocks, excludeId, step, found ) => {
+const walk = ( blocks, excludeId, state, found ) => {
 	if ( ! Array.isArray( blocks ) ) {
 		return;
 	}
-
-	let currentStep = step;
 
 	blocks.forEach( block => {
 		if ( ! block ) {
@@ -99,7 +101,7 @@ const walk = ( blocks, excludeId, step, found ) => {
 		}
 
 		if ( 'jetpack/form-step' === block.name ) {
-			currentStep = ( currentStep || 0 ) + 1;
+			state.step = ( state.step || 0 ) + 1;
 		}
 
 		const typeKey = getTypeKeyForBlockName( block.name );
@@ -118,12 +120,12 @@ const walk = ( blocks, excludeId, step, found ) => {
 				typeLabel: getBlockType( block.name )?.title || '',
 				typeKey,
 				options: getFieldOptions( block ),
-				step: currentStep,
+				step: state.step,
 			} );
 			return; // A field's own inner blocks hold its inputs, not other fields.
 		}
 
-		walk( block.innerBlocks, excludeId, currentStep, found );
+		walk( block.innerBlocks, excludeId, state, found );
 	} );
 };
 
@@ -149,7 +151,7 @@ const useSubjectFields = clientId =>
 
 			const form = select( 'core/block-editor' ).getBlock( formClientId );
 			const found = [];
-			walk( form?.innerBlocks || [], clientId, null, found );
+			walk( form?.innerBlocks || [], clientId, { step: null }, found );
 
 			return found;
 		},
