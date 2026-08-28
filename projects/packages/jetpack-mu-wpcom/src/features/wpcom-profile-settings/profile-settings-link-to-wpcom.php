@@ -37,6 +37,10 @@ function wpcom_profile_settings_add_links_to_wpcom() {
 				'text'  => __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
 				'title' => __( 'Name', 'jetpack-mu-wpcom' ),
 			),
+			'username'      => array(
+				'link' => esc_url( 'https://wordpress.com/me/account' ),
+				'text' => __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
+			),
 			'website'       => array(
 				'link' => esc_url( 'https://wordpress.com/me' ),
 				'text' => __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),

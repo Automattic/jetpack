@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Profile Settings: add a "Manage on WP.com" link to the username row on wp-admin/profile.php.
