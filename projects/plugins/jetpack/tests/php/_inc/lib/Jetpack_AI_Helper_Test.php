@@ -49,6 +49,7 @@ class Jetpack_AI_Helper_Test extends WP_UnitTestCase {
 		( new Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 
 		delete_transient( $this->get_transient_name() );
+		delete_transient( $this->get_refresh_transient_name() );
 		$this->reset_failed_request();
 	}
 
@@ -57,6 +58,7 @@ class Jetpack_AI_Helper_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		delete_transient( $this->get_transient_name() );
+		delete_transient( $this->get_refresh_transient_name() );
 		$this->remove_wpcom_response_mock();
 		Jetpack_Options::delete_option( array( 'id', 'blog_token', 'master_user', 'user_tokens' ) );
 		( new Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
@@ -79,11 +81,57 @@ class Jetpack_AI_Helper_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Normal reads also accept the versioned cost-credit contract from cache.
+	 */
+	public function test_get_ai_assistance_feature_uses_cost_credit_cache_by_default() {
+		$cached = $this->get_credit_allowance_response();
+		set_transient( $this->get_transient_name(), $cached, MINUTE_IN_SECONDS );
+		$this->mock_wpcom_response( $this->get_credit_allowance_response( array( 'credits-used' => 300, 'credits-remaining' => 700 ) ) );
+
+		$this->assertSame( $cached, Jetpack_AI_Helper::get_ai_assistance_feature() );
+		$this->assertSame( 0, $this->request_count );
+	}
+
+	/**
+	 * Malformed cached data is ignored in favor of a fresh usable response.
+	 */
+	public function test_get_ai_assistance_feature_ignores_malformed_cache() {
+		$fresh = $this->get_credit_allowance_response();
+		set_transient( $this->get_transient_name(), array( 'has-feature' => true ), MINUTE_IN_SECONDS );
+		$this->mock_wpcom_response( $fresh );
+
+		$this->assertSame( $fresh, Jetpack_AI_Helper::get_ai_assistance_feature() );
+		$this->assertSame( $fresh, get_transient( $this->get_transient_name() ) );
+		$this->assertSame( 1, $this->request_count );
+	}
+
+	/**
 	 * Forced reads fetch fresh feature data and replace the cache.
 	 */
 	public function test_get_ai_assistance_feature_skip_cache_replaces_cache() {
 		$cached = array( 'requests-count' => 3 );
 		$fresh  = array( 'requests-count' => 4 );
+		set_transient( $this->get_transient_name(), $cached, MINUTE_IN_SECONDS );
+		$this->mock_wpcom_response( $fresh );
+
+		$this->assertSame( $fresh, Jetpack_AI_Helper::get_ai_assistance_feature( true ) );
+		$this->assertSame( $fresh, get_transient( $this->get_transient_name() ) );
+		$this->assertSame( 1, $this->request_count );
+	}
+
+	/**
+	 * Forced reads replace cached cost-credit data with a fresh paid snapshot.
+	 */
+	public function test_get_ai_assistance_feature_skip_cache_replaces_cost_credit_cache() {
+		$cached = $this->get_credit_allowance_response();
+		$fresh  = $this->get_credit_allowance_response(
+			array(
+				'plan-kind'         => 'paid',
+				'credit-limit'      => 10000,
+				'credits-used'      => 350,
+				'credits-remaining' => 9650,
+			)
+		);
 		set_transient( $this->get_transient_name(), $cached, MINUTE_IN_SECONDS );
 		$this->mock_wpcom_response( $fresh );
 
@@ -123,6 +171,92 @@ class Jetpack_AI_Helper_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A malformed successful response is never cached when no usable cache exists.
+	 */
+	public function test_get_ai_assistance_feature_rejects_malformed_response_without_cache() {
+		$this->mock_wpcom_response( array( 'has-feature' => true ) );
+
+		$result = Jetpack_AI_Helper::get_ai_assistance_feature( true );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'invalid_ai_assistance_feature_response', $result->get_error_code() );
+		$this->assertWPError( get_transient( $this->get_transient_name() ) );
+		$this->assertSame( 1, $this->request_count );
+	}
+
+	/**
+	 * An incomplete cost-credit object is not treated as usable status.
+	 */
+	public function test_get_ai_assistance_feature_rejects_incomplete_cost_credit_response() {
+		$response = $this->get_credit_allowance_response();
+		unset( $response['ai-credit-allowance']['resets-at'] );
+		$this->mock_wpcom_response( $response );
+
+		$result = Jetpack_AI_Helper::get_ai_assistance_feature();
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'invalid_ai_assistance_feature_response', $result->get_error_code() );
+		$this->assertSame( 1, $this->request_count );
+	}
+
+	/**
+	 * Shadow-only credit data cannot become the active usage contract.
+	 */
+	public function test_get_ai_assistance_feature_rejects_non_authoritative_cost_credit_response() {
+		$response                                        = $this->get_credit_allowance_response();
+		$response['ai-credit-allowance']['authoritative'] = false;
+		$this->mock_wpcom_response( $response );
+
+		$result = Jetpack_AI_Helper::get_ai_assistance_feature();
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'invalid_ai_assistance_feature_response', $result->get_error_code() );
+		$this->assertSame( 1, $this->request_count );
+	}
+
+	/**
+	 * A malformed additive allowance is removed from a valid legacy response.
+	 */
+	public function test_get_ai_assistance_feature_strips_malformed_allowance_from_legacy_response() {
+		$response                   = $this->get_credit_allowance_response();
+		$response['requests-count'] = 3;
+		unset( $response['ai-credit-allowance']['resets-at'] );
+		$this->mock_wpcom_response( $response );
+
+		$expected = array( 'requests-count' => 3 );
+		$this->assertSame( $expected, Jetpack_AI_Helper::get_ai_assistance_feature() );
+		$this->assertSame( $expected, get_transient( $this->get_transient_name() ) );
+		$this->assertSame( 1, $this->request_count );
+	}
+
+	/**
+	 * A forced refresh within the cooldown returns the usable site cache.
+	 */
+	public function test_get_ai_assistance_feature_skip_cache_respects_refresh_cooldown() {
+		$cached = $this->get_credit_allowance_response();
+		set_transient( $this->get_transient_name(), $cached, MINUTE_IN_SECONDS );
+		set_transient( $this->get_refresh_transient_name(), true, MINUTE_IN_SECONDS );
+		$this->mock_wpcom_response( $this->get_credit_allowance_response( array( 'credits-used' => 300, 'credits-remaining' => 700 ) ) );
+
+		$this->assertSame( $cached, Jetpack_AI_Helper::get_ai_assistance_feature( true ) );
+		$this->assertSame( 0, $this->request_count );
+	}
+
+	/**
+	 * A forced refresh without usable cache fails closed during the cooldown.
+	 */
+	public function test_get_ai_assistance_feature_skip_cache_without_cache_respects_refresh_cooldown() {
+		set_transient( $this->get_refresh_transient_name(), true, MINUTE_IN_SECONDS );
+		$this->mock_wpcom_response( $this->get_credit_allowance_response() );
+
+		$result = Jetpack_AI_Helper::get_ai_assistance_feature( true );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'ai_assistance_feature_refresh_rate_limited', $result->get_error_code() );
+		$this->assertSame( 0, $this->request_count );
+	}
+
+	/**
 	 * Forced reads bypass a failure remembered earlier in the request.
 	 */
 	public function test_get_ai_assistance_feature_skip_cache_bypasses_failure_latch() {
@@ -149,6 +283,43 @@ class Jetpack_AI_Helper_Test extends WP_UnitTestCase {
 	 */
 	private function get_transient_name() {
 		return Jetpack_AI_Helper::transient_name_for_ai_assistance_feature( self::BLOG_ID );
+	}
+
+	/**
+	 * Get the feature refresh cooldown transient name.
+	 *
+	 * @return string
+	 */
+	private function get_refresh_transient_name() {
+		return Jetpack_AI_Helper::transient_name_for_ai_assistance_feature_refresh( self::BLOG_ID );
+	}
+
+	/**
+	 * Build a valid versioned cost-credit response.
+	 *
+	 * @param array $overrides Allowance fields to override.
+	 * @return array
+	 */
+	private function get_credit_allowance_response( $overrides = array() ) {
+		return array(
+			'ai-credit-allowance' => array_merge(
+				array(
+					'schema-version'    => 1,
+					'metering-model'    => 'provider-cost-v1',
+					'policy'            => 'jetpack-ai-self-hosted-monthly-v1',
+					'plan-kind'         => 'free',
+					'authoritative'     => true,
+					'credit-limit'      => 1000,
+					'credits-used'      => 250,
+					'credits-remaining' => 750,
+					'period-start'      => '2026-08-01T00:00:00+00:00',
+					'resets-at'         => '2026-09-01T00:00:00+00:00',
+					'rollover'          => false,
+					'is-exhausted'      => false,
+				),
+				$overrides
+			),
+		);
 	}
 
 	/**

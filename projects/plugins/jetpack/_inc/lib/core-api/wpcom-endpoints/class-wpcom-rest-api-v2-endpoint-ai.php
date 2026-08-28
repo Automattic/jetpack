@@ -201,7 +201,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 						'required'    => false,
 						'type'        => 'boolean',
 						'default'     => false,
-						'description' => 'Whether to skip the cache and fetch fresh data',
+						'description' => 'Whether to request fresh data, rate-limited by site',
 					),
 				),
 			)
