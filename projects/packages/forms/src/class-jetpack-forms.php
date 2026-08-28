@@ -93,6 +93,9 @@ class Jetpack_Forms {
 		// Hand new responses to the integrations that asked for them.
 		\Automattic\Jetpack\Forms\Integrations\Integration_Dispatcher::init();
 
+		// Load the scripts integrations supply their settings UI from.
+		\Automattic\Jetpack\Forms\Integrations\Integration_Assets::init();
+
 		// Initialize abilities registration for WordPress Abilities API (WP 6.9+)
 		\Automattic\Jetpack\Forms\Abilities\Forms_Abilities::init();
 	}
