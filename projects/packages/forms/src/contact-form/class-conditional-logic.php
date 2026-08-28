@@ -217,12 +217,23 @@ class Conditional_Logic {
 	 * ambiguity — circular rules, or passes exhausted — the field is left visible, because a
 	 * stray value in a response is recoverable and a silently discarded answer is not.
 	 *
+	 * Containment participates in the fixed point rather than being applied to its result. A
+	 * field inside a hidden container is hidden for the same reason a field with an unmet rule
+	 * is, so it has to read as empty for everyone else too -- otherwise the form keeps a
+	 * conclusion while discarding its premise, validating and storing a field that was unlocked
+	 * by an answer it drops.
+	 *
+	 * Containment is kept apart from `$visible`, which stays a field's own verdict. Folding it
+	 * in would put the two in a loop: containment forces false, the field's own rules say true,
+	 * and the pass counter reads that as a cycle and fails open.
+	 *
 	 * @param array $fields      Map of field id to `array( 'logic' => array|null, 'type' => string )`.
 	 * @param array $form_values Map of field id to submitted value.
+	 * @param array $contains    Map of container id to the field ids it encloses.
 	 *
 	 * @return array Map of field id to bool visibility.
 	 */
-	public static function resolve_visibility( array $fields, array $form_values ): array {
+	public static function resolve_visibility( array $fields, array $form_values, array $contains = array() ): array {
 		$visible = array();
 		foreach ( $fields as $field_id => $descriptor ) {
 			$visible[ $field_id ] = true;
@@ -242,7 +253,7 @@ class Conditional_Logic {
 		}
 
 		if ( empty( $with_logic ) ) {
-			return $visible;
+			return Conditional_Logic_Container::apply_containment( $visible, $contains );
 		}
 
 		// An acyclic dependency chain settles at least one more level per pass, so one pass
@@ -262,10 +273,11 @@ class Conditional_Logic {
 		$unstable = array();
 
 		for ( $pass = 0; $pass < $max_passes; $pass++ ) {
+			$shown     = Conditional_Logic_Container::apply_containment( $visible, $contains );
 			$effective = array();
 			foreach ( $fields as $field_id => $descriptor ) {
 				$value                  = array_key_exists( $field_id, $form_values ) ? $form_values[ $field_id ] : '';
-				$effective[ $field_id ] = $visible[ $field_id ] ? $value : '';
+				$effective[ $field_id ] = $shown[ $field_id ] ? $value : '';
 			}
 
 			$changed_count = 0;
@@ -281,7 +293,7 @@ class Conditional_Logic {
 			}
 
 			if ( 0 === $changed_count ) {
-				return $visible; // Fixed point.
+				return Conditional_Logic_Container::apply_containment( $visible, $contains ); // Fixed point.
 			}
 		}
 
@@ -290,7 +302,12 @@ class Conditional_Logic {
 			$visible[ $field_id ] = true;
 		}
 
-		return $visible;
+		/*
+		 * Containment still applies. A container's own rules failing open leaves it visible, and
+		 * apply_containment() then hides nothing -- but a container that settled hidden must keep
+		 * its fields hidden even when some unrelated chain was circular.
+		 */
+		return Conditional_Logic_Container::apply_containment( $visible, $contains );
 	}
 
 	/**

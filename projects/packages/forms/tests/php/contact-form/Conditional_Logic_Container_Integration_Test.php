@@ -99,6 +99,60 @@ class Conditional_Logic_Container_Integration_Test extends BaseTestCase {
 		);
 	}
 
+	/**
+	 * The evaluator blanks a hidden field's value on every pass, so a question that was never
+	 * asked cannot satisfy another field's condition. A field hidden only because its
+	 * container is hidden has to obey that same rule.
+	 *
+	 * Otherwise the form keeps a conclusion while discarding its premise: the enclosed answer
+	 * is dropped from storage, but the field it unlocked outside the group is validated,
+	 * stored and handed to integrations. No forgery is needed to reach it -- enclosed inputs
+	 * are display:none rather than disabled, so a value typed while the group was open is
+	 * still submitted after it closes.
+	 */
+	public function test_a_field_hidden_by_its_container_cannot_unlock_a_field_outside_it() {
+		$stamped = Conditional_Logic_Container::add_container_attributes(
+			'<div class="wp-block-group">[contact-field id="secret" type="text" label="Secret" /]</div>',
+			array(
+				'blockName' => 'core/group',
+				'attrs'     => array( 'conditionalLogic' => $this->logic( 'membership', 'yes' ) ),
+			)
+		);
+
+		// The group stays hidden, but the enclosed field is submitted anyway.
+		$_POST['membership'] = 'no';
+		$_POST['secret']     = 'letmein';
+
+		Contact_Form_Plugin::$using_contact_form_field = true;
+
+		$form = new Contact_Form(
+			array( 'id' => 'cl-cascade' ),
+			'[contact-field id="membership" type="text" label="Membership" /]'
+				. $stamped
+				. '[contact-field id="downstream" type="text" label="Downstream" required="1" '
+				. "conditionallogic='" . str_replace(
+					array( '[', ']' ),
+					array( '&#91;', '&#93;' ),
+					(string) wp_json_encode(
+						$this->logic( 'secret', 'letmein' ),
+						JSON_UNESCAPED_SLASHES | JSON_HEX_AMP | JSON_HEX_TAG
+					)
+				) . "' /]"
+		);
+
+		Contact_Form_Plugin::$using_contact_form_field = false;
+
+		$visibility = $form->get_resolved_field_visibility();
+
+		// The enclosed field is hidden, as before.
+		$this->assertFalse( $visibility['secret'] );
+		// And its value must not have unlocked the field outside the group.
+		$this->assertFalse(
+			$visibility['downstream'],
+			'A field hidden only by its container still satisfied another field\'s rule.'
+		);
+	}
+
 	private function logic( $field = 'name', $value = 'Bob' ) {
 		return array(
 			'enabled'         => true,

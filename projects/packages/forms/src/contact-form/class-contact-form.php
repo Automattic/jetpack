@@ -4151,11 +4151,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 		}
 
-		$visibility = Conditional_Logic::resolve_visibility( $descriptors, $values );
-
-		// After the evaluator, not inside it: containment is a consequence rather than a
-		// condition. A field inside a hidden container is hidden whatever its own rules say.
-		return Conditional_Logic_Container::apply_containment( $visibility, $this->container_contains );
+		/*
+		 * Containment goes into the evaluator rather than being applied to what it returns. A
+		 * field inside a hidden container has to read as empty for everyone else, the same as a
+		 * field its own rules hid -- otherwise its answer can unlock a field outside the group
+		 * that is then validated and stored, while the answer that unlocked it is dropped.
+		 */
+		return Conditional_Logic::resolve_visibility( $descriptors, $values, $this->container_contains );
 	}
 
 	/**
