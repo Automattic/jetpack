@@ -191,11 +191,14 @@ class Backup_Abilities extends Registrar {
 								'has_warnings'  => array( 'type' => array( 'boolean', 'null' ) ),
 							),
 						),
+						// Hour only, and deliberately so: WordPress.com schedules
+						// daily backups to the hour (`scheduled_hour`), and no
+						// endpoint carries a minute. A `minute` field here could
+						// only ever be null, which is worse than absent.
 						'schedule'            => array(
 							'type'       => array( 'object', 'null' ),
 							'properties' => array(
-								'hour'   => array( 'type' => array( 'integer', 'null' ) ),
-								'minute' => array( 'type' => array( 'integer', 'null' ) ),
+								'hour' => array( 'type' => array( 'integer', 'null' ) ),
 							),
 						),
 						'storage'             => array(
@@ -432,12 +435,18 @@ class Backup_Abilities extends Registrar {
 		$backups       = self::unwrap_response( Jetpack_Backup::get_recent_backups() );
 		$schedule_data = self::unwrap_response( Jetpack_Backup::get_site_backup_schedule_time() );
 		$size_data     = self::unwrap_response( Jetpack_Backup::get_site_backup_size() );
+		// Storage takes two round-trips because neither route describes it
+		// alone: `/rewind/size` reports usage and `/rewind/policies` reports
+		// the plan's limit. Fetched unconditionally rather than only when the
+		// size read succeeded, so a usable limit still reaches the caller when
+		// WordPress.com cannot report usage.
+		$policies_data = self::unwrap_response( Jetpack_Backup::get_site_backup_policies() );
 
 		return array(
 			'recent_backup_count' => is_array( $backups ) ? count( $backups ) : null,
 			'last_backup'         => self::summarize_last_backup( is_array( $backups ) ? ( $backups[0] ?? null ) : null ),
 			'schedule'            => self::summarize_schedule( $schedule_data ),
-			'storage'             => self::summarize_storage( $size_data ),
+			'storage'             => self::summarize_storage( $size_data, $policies_data ),
 		);
 	}
 
@@ -861,7 +870,14 @@ class Backup_Abilities extends Registrar {
 	}
 
 	/**
-	 * Summarize the wpcom schedule payload to `{ hour, minute }`.
+	 * Summarize the `/site/backup/schedule` payload to `{ hour }`.
+	 *
+	 * WordPress.com answers `{ ok, scheduled_hour, scheduled_by }` — the hour
+	 * of the day, in UTC, that the daily backup is scheduled for. `ok` is its
+	 * own success flag *inside* a 200 body, so a payload that does not set it
+	 * carries no usable hour, and there is no minute anywhere on the response
+	 * (the legacy dashboard renders the hour as a `HH:00`-`HH:59` window for
+	 * exactly this reason).
 	 *
 	 * @param mixed $raw Upstream schedule payload.
 	 * @return array|null
@@ -871,30 +887,57 @@ class Backup_Abilities extends Registrar {
 			return null;
 		}
 		$raw = (array) $raw;
+		if ( empty( $raw['ok'] ) ) {
+			return null;
+		}
 		return array(
-			'hour'   => isset( $raw['hour'] ) ? (int) $raw['hour'] : null,
-			'minute' => isset( $raw['minute'] ) ? (int) $raw['minute'] : null,
+			'hour' => isset( $raw['scheduled_hour'] ) ? (int) $raw['scheduled_hour'] : null,
 		);
 	}
 
 	/**
-	 * Maps both the production wpcom field names (`size_in_bytes`, `storage_limit_bytes`)
-	 * and shorter aliases (`used_bytes`, `limit_bytes`) so the ability stays stable
-	 * if the upstream payload is renamed.
+	 * Summarize storage from the two payloads that between them describe it.
 	 *
-	 * @param mixed $raw Upstream storage payload.
+	 * Usage is `size` on `/site/backup/size`, whose response carries no
+	 * storage limit at all despite the route's name; the limit is
+	 * `policies.storage_limit_bytes` on `/site/backup/policies`. The same
+	 * fan-out the dashboard's storage meter performs — see
+	 * `src/dashboard/hooks/use-storage-usage.ts`.
+	 *
+	 * `/size` additionally carries WordPress.com's own `ok` flag inside a 200
+	 * body; without it the sibling fields carry no meaning, so usage is
+	 * discarded rather than half-read. The limit is read independently, so a
+	 * site whose usage could not be measured still reports what it is allowed.
+	 *
+	 * @param mixed $size_raw     Upstream `/site/backup/size` payload.
+	 * @param mixed $policies_raw Upstream `/site/backup/policies` payload.
 	 * @return array|null
 	 */
-	private static function summarize_storage( $raw ): ?array {
-		if ( ! is_array( $raw ) && ! is_object( $raw ) ) {
+	private static function summarize_storage( $size_raw, $policies_raw ): ?array {
+		$size     = ( is_array( $size_raw ) || is_object( $size_raw ) ) ? (array) $size_raw : null;
+		$policies = ( is_array( $policies_raw ) || is_object( $policies_raw ) ) ? (array) $policies_raw : null;
+
+		if ( null === $size && null === $policies ) {
 			return null;
 		}
-		$raw         = (array) $raw;
-		$used_bytes  = $raw['size_in_bytes'] ?? ( $raw['used_bytes'] ?? null );
-		$limit_bytes = $raw['storage_limit_bytes'] ?? ( $raw['limit_bytes'] ?? null );
+
+		$used_bytes = ( null !== $size && ! empty( $size['ok'] ) && isset( $size['size'] ) )
+			? (int) $size['size']
+			: null;
+
+		// The limit is nested one level down, and `policies` is itself nullable
+		// inside a 200: a plan with no retention policy answers
+		// `{ "policies": null }`.
+		$policy = $policies['policies'] ?? null;
+		$policy = ( is_array( $policy ) || is_object( $policy ) ) ? (array) $policy : null;
+
+		$limit_bytes = ( null !== $policy && isset( $policy['storage_limit_bytes'] ) )
+			? (int) $policy['storage_limit_bytes']
+			: null;
+
 		return array(
-			'used_bytes'  => null === $used_bytes ? null : (int) $used_bytes,
-			'limit_bytes' => null === $limit_bytes ? null : (int) $limit_bytes,
+			'used_bytes'  => $used_bytes,
+			'limit_bytes' => $limit_bytes,
 		);
 	}
 }
