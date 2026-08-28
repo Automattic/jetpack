@@ -172,7 +172,7 @@ const requestCounters: Record< string, number > = {};
  * action; `loading` returns a promise that never settles; `empty` resolves with
  * a valid response that has no rows.
  */
-type ReportMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
+export type ReportMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
 
 const mockStateOverrides = new Map< string, ReportMockState >();
 
