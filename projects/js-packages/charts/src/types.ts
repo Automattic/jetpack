@@ -329,8 +329,16 @@ export type DataPointPercentageCalculated = DataPointPercentage & {
  * Base theme configuration for chart components with optional properties
  */
 export type ChartTheme = {
-	/** Background color for chart components */
-	backgroundColor: string;
+	/**
+	 * Background color for chart components.
+	 *
+	 * Still resolved in JS — gradient stops, the glyph stroke and `GeoChart`'s Google Charts config each need a concrete string — but that is about where the value is *consumed*, not where it is *set*. `withCatalogPointers` parks a consumer's value in the catalog role and restores the pointer, so the field is only ever a carrier for `--a8c-charts-color-background`, and setting the role directly does the same job.
+	 *
+	 * Optional so the deprecation is actionable: a consumer writing a full theme literal can now stop setting it. `CompleteChartTheme` is `Required< ChartTheme >`, so `defaultTheme` must still carry one.
+	 *
+	 * @deprecated Set the `--a8c-charts-color-background` custom property inside the provider tree instead. See `TOKENS.md`. Removed in CHARTS-263.
+	 */
+	backgroundColor?: string;
 	/** Background color for labels */
 	labelBackgroundColor?: string;
 	/** Text color for labels */
