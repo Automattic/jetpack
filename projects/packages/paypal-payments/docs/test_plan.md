@@ -57,7 +57,7 @@ All files live in `projects/packages/paypal-payments/tests/php/`.
 | `Paypal_Payment_Buttons_Test.php` | Script URL sanitization, block render output for both V1 and V2 attributes |
 | `Simple_Payments_Rest_Redaction_Test.php` | Redaction of legacy SimplePayments REST fields |
 
-The `wpcom/v2/paypal/onboarding/signup-link` endpoint lives in `plugins/jetpack` and needs a full
+The `wpcom/v2/paypal/platform/signup-link` endpoint lives in `plugins/jetpack` and needs a full
 WordPress environment:
 
 ```bash

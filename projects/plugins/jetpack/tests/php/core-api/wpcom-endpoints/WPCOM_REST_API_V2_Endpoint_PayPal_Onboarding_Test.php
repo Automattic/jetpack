@@ -51,7 +51,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends Jetpack_REST_Tes
 	 * @return WP_REST_Request
 	 */
 	private function signup_link_request( $environment = 'sandbox' ) {
-		$request = new WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/signup-link' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/paypal/platform/signup-link' );
 		$request->set_param( 'environment', $environment );
 		$request->set_param(
 			'referral',
@@ -178,7 +178,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends Jetpack_REST_Tes
 	public function test_signup_link_route_is_registered() {
 		$routes = rest_get_server()->get_routes();
 
-		$this->assertArrayHasKey( '/wpcom/v2/paypal/onboarding/signup-link', $routes );
+		$this->assertArrayHasKey( '/wpcom/v2/paypal/platform/signup-link', $routes );
 	}
 
 	// --- Platform credentials ---
