@@ -1,6 +1,6 @@
 <?php
 /**
- * The site-origin endpoints that redeem and clear a comment identity.
+ * The site-origin routes behind the checkpoint.
  *
  * @package automattic/jetpack-comments
  */
@@ -8,21 +8,11 @@
 namespace Automattic\Jetpack\Comments\Identity;
 
 /**
- * Two same-origin routes the front end calls:
- *
- * - POST /identity/connect signs a connect request as this blog and returns
- *   the URL the popup should open, with the challenge to expect back.
- * - DELETE /identity clears the Passport cookie.
- *
- * The exchange itself is not a route: it runs when the comment posts, in
- * Comment_Hooks. A logged-out commenter reaches both routes, so the guard is a
- * nonce, not a capability.
+ * POST /identity/connect signs a connect request; DELETE /identity clears the
+ * Passport. Logged-out commenters reach both, so the guard is a nonce.
  */
 class REST_Controller {
 
-	/**
-	 * REST namespace the routes live under.
-	 */
 	const NAMESPACE = 'jetpack-comments/v1';
 
 	/**
@@ -35,7 +25,7 @@ class REST_Controller {
 	}
 
 	/**
-	 * Register the redeem and clear routes.
+	 * Register the connect and clear routes.
 	 *
 	 * @return void
 	 */
@@ -72,8 +62,7 @@ class REST_Controller {
 	}
 
 	/**
-	 * Sign a connect request and return the URL to open and the challenge to
-	 * expect back.
+	 * Sign a connect request; returns the URL to open and the challenge to expect.
 	 *
 	 * @param \WP_REST_Request $request The request.
 	 * @return \WP_REST_Response|\WP_Error
@@ -88,15 +77,11 @@ class REST_Controller {
 			(string) $request->get_param( 'origin' )
 		);
 
-		if ( is_wp_error( $signed ) ) {
-			return $signed;
-		}
-
-		return rest_ensure_response( $signed );
+		return is_wp_error( $signed ) ? $signed : rest_ensure_response( $signed );
 	}
 
 	/**
-	 * Clear the identity cookie.
+	 * Clear the Passport cookie.
 	 *
 	 * @return \WP_REST_Response
 	 */
@@ -107,12 +92,7 @@ class REST_Controller {
 	}
 
 	/**
-	 * Verify the REST nonce, in a way a page cache cannot defeat.
-	 *
-	 * A cache can serve a logged-in reader a copy rendered for nobody, so the
-	 * nonce they hold is the anonymous one. wp_verify_nonce() folds the session
-	 * token from the logged-in cookie into the hash, so clearing the current
-	 * user is not enough on its own: the cookie has to go too.
+	 * Verify the REST nonce.
 	 *
 	 * @return bool
 	 */
@@ -120,26 +100,6 @@ class REST_Controller {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- wp_verify_nonce hashes the raw value.
 		$nonce = isset( $_SERVER['HTTP_X_WP_NONCE'] ) ? (string) wp_unslash( $_SERVER['HTTP_X_WP_NONCE'] ) : '';
 
-		if ( wp_verify_nonce( $nonce, 'wp_rest' ) ) {
-			return true;
-		}
-
-		if ( ! defined( 'LOGGED_IN_COOKIE' ) || ! isset( $_COOKIE[ LOGGED_IN_COOKIE ] ) ) {
-			return false;
-		}
-
-		$user_id = get_current_user_id();
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- stashed and restored untouched.
-		$cookie = $_COOKIE[ LOGGED_IN_COOKIE ];
-
-		unset( $_COOKIE[ LOGGED_IN_COOKIE ] );
-		wp_set_current_user( 0 );
-
-		$valid = (bool) wp_verify_nonce( $nonce, 'wp_rest' );
-
-		$_COOKIE[ LOGGED_IN_COOKIE ] = $cookie;
-		wp_set_current_user( $user_id );
-
-		return $valid;
+		return (bool) wp_verify_nonce( $nonce, 'wp_rest' );
 	}
 }

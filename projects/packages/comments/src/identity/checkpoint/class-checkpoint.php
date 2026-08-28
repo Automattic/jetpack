@@ -8,79 +8,49 @@
 namespace Automattic\Jetpack\Comments\Identity;
 
 /**
- * The site's checkpoint for identities carried between sites through WordPress.com.
- *
- * A site cannot read another site's cookie, so WordPress.com vouches for the
- * commenter: a popup opens WordPress.com's connect endpoint on a request this
- * server signed with its Jetpack blog token, and the endpoint posts a one-time
- * code back to the opener, with a name and avatar so the form can say who is
- * commenting. The code rides to this server with the comment, and only then is
- * it traded for the identity over the exchange endpoint, again as the blog. No
- * email and no durable identifier cross the browser, and no token reaches it.
- *
- * This class holds the pieces every other part of the checkpoint shares: the
- * provider list, the meta keys, the URLs the front end needs, and the signing.
+ * Sign-in through WordPress.com: this server signs a connect request as the
+ * blog, a popup collects a one-time code, the code rides back with the comment,
+ * and the server exchanges it then. Shared constants, URLs and signing live here.
  */
 class Checkpoint {
 
-	/**
-	 * Providers a commenter can identify with, in the order they are shown.
-	 */
 	const PROVIDERS = array( 'google', 'facebook', 'wordpress' );
 
-	/**
-	 * The first-party cookie holding the redeemed identity.
-	 */
 	const COOKIE_NAME = 'jetpack_comment_passport';
 
 	/**
-	 * How long a signed connect request stays good. WordPress.com caps this at
-	 * ten minutes; a click to a popup needs seconds.
+	 * WordPress.com caps a signed request at 600s.
 	 */
 	const SIGNATURE_TTL = 300;
 
 	/**
-	 * Comment meta holding WordPress.com's opaque per-person-per-site id for the
-	 * commenter. Stable on this site, different on every other, not reversible.
+	 * WordPress.com's opaque per-person-per-site id. Never renamed once shipped.
 	 */
 	const META_SITE_COMMENTER_ID = 'jp_ci_site_commenter_id';
 
-	/**
-	 * Comment meta holding the provider the commenter identified with. The
-	 * Highlander key `hc_post_as` is the backwards-compatible equivalent.
-	 */
 	const META_PROVIDER = 'jp_ci_provider';
 
-	/**
-	 * Comment meta holding the commenter's avatar URL. The Highlander key
-	 * `hc_avatar` is the backwards-compatible equivalent.
-	 */
 	const META_AVATAR = 'jp_ci_avatar';
 
 	/**
-	 * Highlander provider key, read as a fallback where the new key is absent.
+	 * Highlander's keys, read as fallbacks for older comments.
 	 */
 	const OLD_META_PROVIDER = 'hc_post_as';
 
-	/**
-	 * Highlander avatar key, read as a fallback where the new key is absent.
-	 */
 	const OLD_META_AVATAR = 'hc_avatar';
 
 	/**
-	 * Register the checkpoint's hooks. Safe to call more than once.
+	 * Register the checkpoint's hooks.
 	 *
 	 * @return void
 	 */
 	public static function init() {
 		Comment_Hooks::init();
 		REST_Controller::init();
-		Privacy::init();
 	}
 
 	/**
-	 * Whether the checkpoint can run: the site is connected, so it holds the blog
-	 * token the exchange call is signed with.
+	 * Whether the site is connected and offers at least one provider.
 	 *
 	 * @return bool
 	 */
@@ -90,12 +60,12 @@ class Checkpoint {
 		}
 
 		return ( new \Automattic\Jetpack\Connection\Manager( 'jetpack-comments' ) )->is_connected()
-			&& (int) \Jetpack_Options::get_option( 'id' ) > 0
+			&& self::blog_id() > 0
 			&& count( self::providers() ) > 0;
 	}
 
 	/**
-	 * The blog WordPress.com mints codes for and the exchange authenticates as.
+	 * The WordPress.com blog ID.
 	 *
 	 * @return int
 	 */
@@ -122,8 +92,7 @@ class Checkpoint {
 	}
 
 	/**
-	 * WordPress.com's connect endpoint. Filterable so a sandbox can point it
-	 * elsewhere; production is public-api.wordpress.com.
+	 * WordPress.com's connect endpoint.
 	 *
 	 * @return string
 	 */
@@ -142,11 +111,8 @@ class Checkpoint {
 	}
 
 	/**
-	 * A connect URL for one attempt, signed as this blog so WordPress.com only
-	 * mints codes in a site's name at that site's request. The challenge is
-	 * issued here too, since it is signed; the browser compares it on the way
-	 * back. The signature covers blog_id, challenge, expires, origin and
-	 * provider, sorted and newline-joined, keyed with the blog token.
+	 * A connect URL for one attempt, signed with the blog token over the sorted,
+	 * newline-joined params. The challenge is issued here since it is signed.
 	 *
 	 * @param string $provider One of providers().
 	 * @param string $origin   The page origin WordPress.com posts the result to.
@@ -188,11 +154,10 @@ class Checkpoint {
 	}
 
 	/**
-	 * The origin the connect page answers from, and so the only origin the
-	 * browser accepts a result from. Follows the connect URL filter, so a sandbox
-	 * pointed elsewhere still gets its messages through.
+	 * The origin of the connect URL, which is the only origin the browser
+	 * accepts a result from. Follows the filter so a sandbox works.
 	 *
-	 * @return string Scheme, host and any port; no path, no trailing slash.
+	 * @return string
 	 */
 	public static function connect_origin() {
 		$parts  = wp_parse_url( self::connect_url() );
@@ -206,16 +171,14 @@ class Checkpoint {
 	}
 
 	/**
-	 * Whether an origin the browser reports is one this site is served on.
+	 * Whether an origin is one this site is served on.
 	 *
-	 * This is what stops impersonation. The exchange accepts a code from the
-	 * comment POST, so a signed URL naming an origin someone else controls would
-	 * let them collect a commenter's code from their own page and post as them.
-	 * The origin is therefore checked two ways, neither of which the request gets
-	 * to assert about itself: the value must name a host this site's home or site
-	 * URL names (with or without www), and the request's own Origin header, which
-	 * a browser sends on every POST and cannot forge, must say the same. HTTP_HOST
-	 * is deliberately not consulted; a caller picks that.
+	 * This is the impersonation guard: the exchange takes a code from the comment
+	 * POST, so a signed URL naming someone else's origin would let them collect a
+	 * commenter's code and post as them. Neither check trusts the request about
+	 * itself: the host must be home or site URL's (with or without www), and the
+	 * browser's own Origin header, sent on every POST and unforgeable, must agree.
+	 * HTTP_HOST is deliberately not used; a caller picks that.
 	 *
 	 * @param mixed $origin The origin, as window.location.origin gives it.
 	 * @return bool
@@ -247,7 +210,7 @@ class Checkpoint {
 	}
 
 	/**
-	 * Everything the front end needs to run the checkpoint.
+	 * Everything the front end needs.
 	 *
 	 * @return array
 	 */

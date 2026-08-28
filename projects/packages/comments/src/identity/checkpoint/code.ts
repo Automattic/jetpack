@@ -2,10 +2,9 @@ import { signal } from '@preact/signals';
 import type { CurrentUser } from '../../shared/types';
 
 /**
- * The one-time code WordPress.com handed back, held in this tab until a comment
- * carries it to the server. The server exchanges it when the comment posts, so
- * the code has to outlive the page: an accepted comment redirects, and a
- * rejected one lands on an error page and comes back.
+ * The one-time code WordPress.com handed back, held in sessionStorage until a
+ * comment carries it. It has to outlive the page: an accepted comment
+ * redirects, and a rejected one lands on an error page and comes back.
  */
 
 export type HeldCode = {
@@ -13,18 +12,17 @@ export type HeldCode = {
 	provider: string;
 	name: string;
 	avatar: string;
-	/** When to stop trusting it, ms since epoch. */
+	/** Ms since epoch. */
 	expires: number;
-	/** Whether a submit has carried it, so it is spent whatever the outcome. */
+	/** A submit has carried it, so it is spent whatever the outcome. */
 	spent: boolean;
 };
 
 const KEY = 'jetpack-comment-identity';
 
 /**
- * WordPress.com keeps a code for an hour. Held for a little less, so one
- * that is about to lapse is refreshed before the comment goes rather than
- * rejected after.
+ * WordPress.com keeps a code for an hour; a little less here so one about to
+ * lapse is refreshed before the comment goes rather than rejected after.
  */
 const HOLD_MS = 55 * 60 * 1000;
 
@@ -69,10 +67,6 @@ function write( held: HeldCode | null ) {
 	}
 }
 
-/**
- * The code this tab holds, page-wide. Seeded from storage so a reader who
- * signed in, posted, and was turned away still has it on the way back.
- */
 export const heldCode = signal< HeldCode | null >( read() );
 
 /**
@@ -87,8 +81,7 @@ export function holdCode( held: Omit< HeldCode, 'expires' | 'spent' > ) {
 }
 
 /**
- * Note that a submit has carried the code. The server claims it on first
- * sight, so even a rejected comment leaves it unusable.
+ * Note that a submit has carried the code.
  */
 export function markCodeSpent() {
 	const held = heldCode.peek();
@@ -108,8 +101,7 @@ export function dropCode() {
 }
 
 /**
- * Whether the held code needs replacing before a comment can carry it:
- * already spent, or too close to lapsing to trust for the round trip.
+ * Whether the code must be replaced before a comment carries it.
  *
  * @param held - The held code.
  * @return Whether to re-connect first.
@@ -119,8 +111,7 @@ export function needsFreshCode( held: HeldCode ): boolean {
 }
 
 /**
- * The page-global attribution for a held code: the avatar and a "Commenting
- * as …" label, from what rode along with the code.
+ * The "Commenting as …" attribution for a held code.
  *
  * @param held - The held code.
  * @return The attribution to show.
