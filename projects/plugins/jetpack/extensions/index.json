@@ -1,5 +1,6 @@
 {
 	"production": [
+		"subscriptions",
 		"ai-assistant",
 		"ai-chat",
 		"ai-assistant-plugin",
@@ -42,7 +43,6 @@
 		"slideshow",
 		"story",
 		"subscriber-login",
-		"subscriptions",
 		"tiled-gallery",
 		"tock",
 		"videopress",
