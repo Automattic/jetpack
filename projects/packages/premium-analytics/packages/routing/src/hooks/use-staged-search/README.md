@@ -24,7 +24,7 @@ Atomic commit:
 
 ```ts
 type UseStagedSearchOptions< TFrom extends string > = {
-	from: TFrom; // TanStack route id/path
+	from?: TFrom; // TanStack route id/path; omit to bind to the matched route
 	autoCommitDebounceMs?: number; // optional debounce in ms
 };
 
@@ -43,7 +43,7 @@ type UseStagedSearchReturn< TSearch > = {
 
 Notes:
 
-- Internally uses `useSearch( { from } )` and `useNavigate( { from } )`.
+- Internally uses `useSearch( { from } )` and `useNavigate( { from } )`, or `useSearch( { strict: false } )` and `useNavigate()` when `from` is omitted.
 - No `to` is passed on commit, so the current route is preserved.
 
 ---

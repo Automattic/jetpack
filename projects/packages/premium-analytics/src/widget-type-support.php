@@ -25,7 +25,6 @@ if ( ! function_exists( __NAMESPACE__ . '\\is_videopress_available' ) ) {
  */
 const VIDEOPRESS_WIDGET_TYPES = array(
 	'jpa/videopress',
-	'jpa/video-detail-highlights',
 	'jpa/video-detail-views-performance',
 	'jpa/video-detail-embeds',
 );

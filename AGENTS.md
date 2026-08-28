@@ -124,7 +124,7 @@ jp phan <project>               # Static analysis
 ### PHP Testing
 
 - `jp test php` works for most projects. A few plugins that require a full WordPress copy (`plugins/jetpack` and `plugins/wpcomsh`) use `jp docker phpunit` instead.
-- **PHP version matrix**: CI runs PHP tests against every supported version from 7.2 to 8.5 (see `.github/versions.sh` for current values). When fixing an issue on one PHP version, ensure the fix is compatible with all supported versions — don't use syntax or functions unavailable in PHP 7.2 unless the project's `composer.json` requires a higher minimum.
+- **PHP version matrix**: CI runs PHP tests against every supported version from 7.4 to 8.5 (see `.github/versions.sh` for current values). When fixing an issue on one PHP version, ensure the fix is compatible with all supported versions — don't use syntax or functions unavailable in PHP 7.4 unless the project's `composer.json` requires a higher minimum.
 - `jp test php` does not support passthrough options like `--filter`. To filter tests in Docker-based projects, use: `jp docker phpunit jetpack -- --filter=Jetpack_Sync_Post_Test` or `jp docker phpunit jetpack -- --group jetpack-sync`
 - PHP testing approaches vary by project:
   - Some packages use basic PHPUnit with `yoast/phpunit-polyfills` (no WordPress-specific testing)
@@ -178,6 +178,8 @@ Two gates enforce this, both running `tools/check-changelogger-use.php`: the pre
 An entry only lands in the CHANGELOG of the project it was added to. A PR confined to a shared project — a PHP package under `projects/packages/`, a JS package under `projects/js-packages/`, or any other non-plugin project — therefore reaches that project's CHANGELOG and nowhere else: the plugins that bundle it get, at most, the generic "Update package dependencies." line the release tooling files under "Other changes", which is never copied to `readme.txt`. Users, release posts, and support documentation read the plugin changelog, so the change is invisible to them.
 
 **When a change to a package or js-package is user-facing — a new block, new or changed UI, a behavior change, a bug fix someone would notice — add a changelog entry to every plugin that ships it, on top of the project's own entry.** Write each one from that plugin's user's perspective; the wording rarely needs to be identical.
+
+Prefix each plugin's entry with the product the shared project backs — `Premium Analytics:` for `packages/premium-analytics`, `Search:` for `packages/search` — so readers of a plugin changelog that bundles many products can place the change. The exception is a plugin named for that same product (`plugins/premium-analytics`, `plugins/search`): there the prefix would only repeat the plugin's own name, so leave it off (or use a narrower component prefix), as in the example below.
 
 List the plugins that ship a project (works the same for `packages/…` and `js-packages/…`):
 

@@ -19,9 +19,11 @@ const wpPkgs = [
 	[ '@wordpress/element', 'react-dom' ],
 	[ '@wordpress/data', 'use-memo-one' ],
 	[ '@wordpress/ui', '@base-ui/react' ],
+	[ '@wordpress/ui', '@daypicker/react' ],
 	[ '@wordpress/ui', '@wordpress/theme', 'colorjs.io' ],
 ];
 const wpPkgFetches = {};
+const wpPkgsUsed = new Set();
 const addWpPkgDep = async ( pkg, fromPkg, ver, deplist ) => {
 	const [ dep, ...rest ] = deplist;
 
@@ -34,16 +36,17 @@ const addWpPkgDep = async ( pkg, fromPkg, ver, deplist ) => {
 
 	if ( rest.length > 0 ) {
 		if ( deps[ dep ] === undefined ) {
-			// Old version of package lacks a new dep? We'll check in afterAllResolved for it being an old dep instead.
+			// This version of the package lacks the dep? We'll check in afterAllResolved for no version having it.
 			return;
 		}
 		const ver2 = deps[ dep ].replace( /^\^/, '' ).replace( /\+[0-9a-f]+$/, '' );
 		await addWpPkgDep( pkg, dep, ver2, rest );
 	} else {
 		if ( deps[ dep ] === undefined ) {
-			// prettier-ignore
-			throw new Error( `pnpmfile hack needs updating, ${ fromPkg } ${ ver } doesn't depend on ${ dep } anymore?` );
+			// Ditto.
+			return;
 		}
+		wpPkgsUsed.add( dep );
 		pkg.optionalDependencies[ dep ] = deps[ dep ];
 	}
 };
@@ -262,6 +265,15 @@ async function fixDeps( pkg ) {
 		pkg.dependencies.glob = '^13';
 	}
 
+	// Updated in upstream trunk with no other changes, but not released yet.
+	// https://github.com/Automattic/newspack-workspace/pull/835
+	if (
+		pkg.name === 'newspack-icons' &&
+		pkg.peerDependencies?.[ '@wordpress/primitives' ] === '^3.0.0'
+	) {
+		pkg.peerDependencies[ '@wordpress/primitives' ] = '^3.0.0 || ^4.0.0';
+	}
+
 	// We don't use this in our E2E runs, and it brings in a lot of extraneous deps (and CVE-2026-54285).
 	// (if you bring this back, do it by reverting the pnpmfile changes in commit e90548654eacfa7493388331dd644a6f927d16c5, don't just delete this bit).
 	if ( pkg.name === '@wordpress/e2e-test-utils-playwright' ) {
@@ -465,8 +477,8 @@ function afterAllResolved( lockfile, context ) {
 	}
 
 	for ( const deplist of wpPkgs ) {
-		for ( const dep of deplist.slice( 0, deplist.length - 1 ) ) {
-			if ( ! wpPkgFetches[ dep ] ) {
+		for ( const dep of deplist ) {
+			if ( ! wpPkgFetches[ dep ] && ! wpPkgsUsed.has( dep ) ) {
 				context.log(
 					// prettier-ignore
 					`pnpmfile hack needs updating: wpPkgs entry [ ${ deplist.join( ', ' ) } ] was not used. Is it obsolete?`

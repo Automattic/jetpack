@@ -835,7 +835,7 @@ class Contact_Form_Plugin {
 					$input_attrs          = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
 					$atts['inputclasses'] = isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
 					$atts['inputstyles']  = $input_attrs['style'] ?? null;
-					$atts['iconStyle']    = $atts['iconStyle'] ?? $inner_block['attrs']['iconStyle'] ?? 'stars';
+					$atts['iconStyle']  ??= $inner_block['attrs']['iconStyle'] ?? 'stars';
 					continue;
 				}
 
@@ -1642,6 +1642,25 @@ class Contact_Form_Plugin {
 			$validation_error = $this->validate_parent_post( $form );
 			if ( $validation_error ) {
 				return $validation_error;
+			}
+
+			// Bind the posted `contact-form-id` to the form the JWT was signed for. The JWT
+			// authenticates the form's source, but the posted id is a separate, unsigned field;
+			// without this a submission could present one form's signed token while claiming a
+			// different id, leaving the two out of sync for anything downstream that reads the
+			// raw id. For a single-post form the posted id is the source post id (optionally
+			// suffixed for multiple forms on a page, e.g. `5-2`), so compare on the integer id.
+			//
+			// Only apply this when the source is an actual post: a form rendered with no post in
+			// scope has source id 0 (and a non-numeric posted id like `jp-form`), which is not a
+			// mismatch to reject. This mirrors validate_parent_post()'s `is_numeric && > 0` guard.
+			$source    = $form->get_source();
+			$source_id = $source->get_id();
+
+			if ( 'single' === $source->get_source_type() && is_numeric( $source_id ) && (int) $source_id > 0 ) {
+				if ( (int) $id !== (int) $source_id ) {
+					return Form_Submission_Error::system_error( 'form_id_mismatch_post', __( 'Form ID mismatch.', 'jetpack-forms' ) );
+				}
 			}
 
 			$form->validate();
@@ -3237,8 +3256,7 @@ class Contact_Form_Plugin {
 		/**
 		 * Print CSV headers
 		 */
-		// @todo When we drop support for PHP <7.4, consider passing empty-string for `$escape` here for better spec compatibility.
-		fputcsv( $output, $fields, ',', '"', '\\' );
+		fputcsv( $output, $fields, ',', '"', '' );
 
 		/**
 		 * Print rows to the output.
@@ -3257,8 +3275,7 @@ class Contact_Form_Plugin {
 			/**
 			 * Output the complete CSV row
 			 */
-			// @todo When we drop support for PHP <7.4, consider passing empty-string for `$escape` here for better spec compatibility.
-			fputcsv( $output, $current_row, ',', '"', '\\' );
+			fputcsv( $output, $current_row, ',', '"', '' );
 		}
 
 		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
@@ -3301,10 +3318,12 @@ class Contact_Form_Plugin {
 													<!-- /wp:jetpack/contact-form -->';
 		}
 
+		$form_title = isset( $_POST['formTitle'] ) ? sanitize_text_field( wp_unslash( $_POST['formTitle'] ) ) : '';
+
 		$post_id = wp_insert_post(
 			array(
 				'post_type'    => 'page',
-				'post_title'   => '',
+				'post_title'   => $form_title,
 				'post_content' => $pattern_content,
 			)
 		);

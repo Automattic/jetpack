@@ -257,16 +257,27 @@ class Dashboard_Data {
 	 *
 	 * The AI SEO Enhancer auto-generates SEO titles/descriptions/alt-text in the
 	 * editor (the generation itself is wpcom/AI-Assistant side); this exposes only
-	 * its persisted on/off toggle and whether it's available. Availability mirrors
-	 * the legacy Traffic page: the `ai_seo_enhancer_enabled` feature filter must be
-	 * on (it still depends on AI being available) AND the site's plan must support
-	 * the `ai-seo-enhancer` feature. The toggle writes through the existing
-	 * `/jetpack/v4/settings` endpoint (`ai_seo_enhancer_enabled`).
+	 * its persisted on/off toggle, whether it's available, and whether the AI SEO
+	 * control it sits under is on. Availability mirrors the legacy Traffic page:
+	 * the `ai_seo_enhancer_enabled` feature filter must be on (it still depends on
+	 * AI being available) AND the site's plan must support the `ai-seo-enhancer`
+	 * feature. The toggle writes through the existing `/jetpack/v4/settings`
+	 * endpoint (`ai_seo_enhancer_enabled`).
+	 *
+	 * `aiSeoEnabled` is reported separately rather than folded into availability:
+	 * with the control off the card is disabled, not hidden, so the saved choice
+	 * stays visible — the same treatment the Traffic page gives it.
 	 *
 	 * @return array
 	 */
 	public static function get_ai_data() {
 		$filter_on = (bool) apply_filters( 'ai_seo_enhancer_enabled', true );
+
+		// Jetpack_AI_Settings lives in plugins/jetpack, which bundles this package; guarded
+		// like the other host-plugin classes here. Without the method the AI SEO control
+		// does not exist, so the enhancer keeps its pre-control behavior.
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_AI_Settings lives in plugins/jetpack and is guarded by is_callable.
+		$ai_seo_on = ! is_callable( array( 'Jetpack_AI_Settings', 'is_ai_seo_enabled' ) ) || \Jetpack_AI_Settings::is_ai_seo_enabled();
 
 		// Current_Plan comes from the jetpack-plans package (a dependency of this
 		// package since the plan-gating work), so it's always available here; the
@@ -276,8 +287,9 @@ class Dashboard_Data {
 
 		return array(
 			'enhancer' => array(
-				'available' => $filter_on && $plan_supports,
-				'enabled'   => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
+				'available'    => $filter_on && $plan_supports,
+				'enabled'      => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
+				'aiSeoEnabled' => $ai_seo_on,
 			),
 			'llmsTxt'  => array(
 				'enabled'  => Llms_Txt::is_enabled(),

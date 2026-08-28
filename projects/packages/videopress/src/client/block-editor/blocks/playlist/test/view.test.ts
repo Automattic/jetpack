@@ -2,18 +2,38 @@ import { hydratePlaylistMetadata, initPlaylistBlock } from '../view';
 
 // Live metadata the mocked videos API returns, keyed by GUID.
 let mockLiveMetadata: Record< string, { title?: string; poster?: string } > = {};
+// GUIDs whose metadata is only returned when the request carries a metadata_token.
+let mockPrivateGuids: string[] = [];
+// Token the mocked get-media-token resolves with; null simulates an unauthorized viewer.
+let mockPlaybackToken: string | null = null;
+
+jest.mock( '../../../../lib/get-media-token', () => ( {
+	__esModule: true,
+	default: jest.fn( () => Promise.resolve( { token: mockPlaybackToken } ) ),
+} ) );
 
 beforeEach( () => {
+	jest.clearAllMocks();
 	mockLiveMetadata = {};
+	mockPrivateGuids = [];
+	mockPlaybackToken = null;
+	delete ( window as { videopressAjax?: unknown } ).videopressAjax;
 	const fetchMock = jest.fn( ( url: string ) => {
-		const guid = String( url ).split( '/' ).pop();
+		const [ path, query = '' ] = String( url ).split( '?' );
+		const guid = path.split( '/' ).pop();
 		const metadata = guid ? mockLiveMetadata[ guid ] : undefined;
+		const needsToken = guid ? mockPrivateGuids.includes( guid ) : false;
 		if ( ! metadata ) {
-			return Promise.resolve( { ok: false } as Response );
+			return Promise.resolve( { ok: false, status: 404 } as Response );
+		}
+		if ( needsToken && ! query.includes( 'metadata_token=' ) ) {
+			// Private video, unauthenticated request.
+			return Promise.resolve( { ok: false, status: 403 } as Response );
 		}
 		return Promise.resolve( {
 			ok: true,
-			json: () => Promise.resolve( metadata ),
+			// A fresh object per call, like a real response.json().
+			json: () => Promise.resolve( { ...metadata } ),
 		} as Response );
 	} );
 	( global as { fetch: unknown } ).fetch = fetchMock;
@@ -49,19 +69,19 @@ function setUpPlaylist( autoplayNext = true, loop = false ): HTMLElement {
 					<li><button type="button" class="videopress-playlist__select is-current" aria-current="true"
 						data-guid="aaaaaaaa" data-embed-url="${ EMBED_A }" data-title="First"
 						data-position="1 of 3" data-details="1080p · 12:04" data-progress="1 / 3 · 25:00 total">
-						<span class="videopress-playlist__entry-thumb"></span>
+						<span class="videopress-playlist__entry-thumb"><span class="videopress-playlist__entry-lock"><span class="videopress-playlist__entry-lock-label">Private video</span></span></span>
 						<span class="videopress-playlist__entry-title">First</span>
 					</button></li>
 					<li><button type="button" class="videopress-playlist__select"
 						data-guid="bbbbbbbb" data-embed-url="${ EMBED_B }" data-title="Second"
 						data-position="2 of 3" data-details="4K · 6:41" data-progress="2 / 3 · 25:00 total">
-						<span class="videopress-playlist__entry-thumb"></span>
+						<span class="videopress-playlist__entry-thumb"><span class="videopress-playlist__entry-lock"><span class="videopress-playlist__entry-lock-label">Private video</span></span></span>
 						<span class="videopress-playlist__entry-title">Second</span>
 					</button></li>
 					<li><button type="button" class="videopress-playlist__select"
 						data-guid="cccccccc" data-embed-url="${ EMBED_C }" data-title="Third"
 						data-position="3 of 3" data-details="720p · 6:15" data-progress="3 / 3 · 25:00 total">
-						<span class="videopress-playlist__entry-thumb"></span>
+						<span class="videopress-playlist__entry-thumb"><span class="videopress-playlist__entry-lock"><span class="videopress-playlist__entry-lock-label">Private video</span></span></span>
 						<span class="videopress-playlist__entry-title">Third</span>
 					</button></li>
 				</ol>
@@ -220,6 +240,75 @@ describe( 'initPlaylistBlock', () => {
 		expect( entries[ 2 ].querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
 			'Third'
 		);
+	} );
+
+	it( 'retries private videos with a playback token when the token bridge is configured', async () => {
+		window.videopressAjax = { ajaxUrl: '/wp-admin/admin-ajax.php', bridgeUrl: '', post_id: '12' };
+		mockPlaybackToken = 'jwt-token';
+		mockPrivateGuids = [ 'aaaaaaaa' ];
+		mockLiveMetadata = {
+			aaaaaaaa: { title: 'Private first', poster: 'https://example.com/private.jpg' },
+		};
+
+		const root = setUpPlaylist();
+		await hydratePlaylistMetadata( root );
+
+		const entry = root.querySelector< HTMLButtonElement >( '.videopress-playlist__select' );
+		expect( entry.querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
+			'Private first'
+		);
+		// The poster's bare file URL is refused by the file host — it must carry the token too.
+		expect( entry.querySelector( '.videopress-playlist__entry-thumb img' ) ).toHaveAttribute(
+			'src',
+			'https://example.com/private.jpg?metadata_token=jwt-token'
+		);
+		expect( global.fetch ).toHaveBeenCalledWith(
+			'https://public-api.wordpress.com/rest/v1.1/videos/aaaaaaaa?metadata_token=jwt-token'
+		);
+		expect( root.querySelector( '.videopress-playlist__select' ) ).not.toHaveClass( 'is-locked' );
+	} );
+
+	it( 'locks the thumbnail and titles the entry from the lock label when no playback token is available', async () => {
+		window.videopressAjax = { ajaxUrl: '/wp-admin/admin-ajax.php', bridgeUrl: '', post_id: '12' };
+		mockPlaybackToken = null;
+		mockPrivateGuids = [ 'aaaaaaaa' ];
+		mockLiveMetadata = { aaaaaaaa: { title: 'Private first' } };
+
+		const root = setUpPlaylist();
+		await hydratePlaylistMetadata( root );
+
+		const entry = root.querySelector< HTMLButtonElement >( '.videopress-playlist__select' );
+		expect( entry ).toHaveClass( 'is-locked' );
+		expect( entry.querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
+			'Private video'
+		);
+		expect( entry.dataset.title ).toBe( 'Private video' );
+	} );
+
+	it( 'locks the thumbnail without a token retry when the token bridge is not configured', async () => {
+		mockPrivateGuids = [ 'aaaaaaaa' ];
+		mockLiveMetadata = { aaaaaaaa: { title: 'Private first' } };
+		const getMediaToken = jest.requireMock( '../../../../lib/get-media-token' ).default;
+
+		const root = setUpPlaylist();
+		await hydratePlaylistMetadata( root );
+
+		expect( getMediaToken ).not.toHaveBeenCalled();
+		expect( root.querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
+			'Private video'
+		);
+		expect( root.querySelector( '.videopress-playlist__select' ) ).toHaveClass( 'is-locked' );
+	} );
+
+	it( 'does not lock entries whose video data is merely unreachable', async () => {
+		window.videopressAjax = { ajaxUrl: '/wp-admin/admin-ajax.php', bridgeUrl: '', post_id: '12' };
+		mockPlaybackToken = 'jwt-token';
+
+		// No metadata at all: the mock responds 404, not an authorization failure.
+		const root = setUpPlaylist();
+		await hydratePlaylistMetadata( root );
+
+		expect( root.querySelector( '.videopress-playlist__select' ) ).not.toHaveClass( 'is-locked' );
 	} );
 
 	it( 'shows the more-videos fade only while entries hide below the scroll', () => {

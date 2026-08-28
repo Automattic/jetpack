@@ -75,7 +75,7 @@ The simplest heatmap requires `data` — an array of `HeatmapColumn` objects, ea
 - **`showValues`** (default: `!compact`): render the numeric value inside each cell (compact notation for large numbers; the tooltip keeps full precision)
 - **`maxCellWidth`** / **`maxCellHeight`**: cap how large cells may grow in non-compact mode
 - **`minCellWidth`** / **`minCellHeight`** (default: `0`): keep cells from shrinking below a readable size and let the grid overflow instead
-- **`primaryColor`**: color the scale interpolates toward at the highest value (prop > `heatmapChart.primaryColor` > palette `colors[0]`)
+- **`primaryColor`**: color the scale interpolates toward at the highest value (prop > `heatmapChart.primaryColor` > the first series palette color, `--a8c-charts-color-series-1`)
 - **`width`** / **`height`**: explicit dimensions in pixels. When omitted the chart fills its parent.
 - **`aspectRatio`**: Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
 - **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
@@ -172,6 +172,7 @@ Use `buildCalendarHeatmapData` to convert a flat `DataPointDate[]` series into t
 
 - **`weekStartsOn`** (`0 | 1`, default `1`): `0` = Sunday, `1` = Monday
 - **`hideOutOfRangeDays`** (`boolean`, default `true`): render the week-completion days outside the series' date span as empty grid slots instead of blank cells, giving the calendar ragged edges. Days inside the span stay blank cells even when the series has no entry for them. Hidden slots keep their grid position but paint nothing, and hover and keyboard navigation skip them. Pass `false` to keep out-of-range days as blank cells.
+- **`gridSpan`** (`{ start?: string; end?: string }`, `yyyy-MM-dd` bounds): draw the grid over this span instead of the series' own, so a series too short to fill its container still does. Days inside the grid but outside the series become `placeholder` cells: faded empty slots that keep the grid continuous but report nothing to a pointer, the keyboard or a screen reader, since they stand for days that were never measured. A `start` is drawn from the beginning of its week, so the grid opens on a whole column. Bounds narrower than the series are ignored — the grid never drops a day that carries data.
 
 ## Fixed Dimensions
 
@@ -229,7 +230,7 @@ Enable `withTooltips` to show a tooltip on cell hover **and** during keyboard na
 
 ## Theming
 
-The heatmap resolves its full-intensity color in this order: the `primaryColor` prop wins, then `heatmapChart.primaryColor` from the active theme, then the first palette color (`colors[0]`). The resolved color is fed to CSS `color-mix`, which derives the lighter shades for lower values.
+The heatmap resolves its full-intensity color in this order: the `primaryColor` prop wins, then `heatmapChart.primaryColor` from the active theme, then the first series palette color (`--a8c-charts-color-series-1`). The resolved color is fed to CSS `color-mix`, which derives the lighter shades for lower values.
 
 <Source
 	language="tsx"
@@ -248,7 +249,7 @@ The heatmap resolves its full-intensity color in this order: the `primaryColor` 
 	</GlobalChartsProvider>` }
 />
 
-Everything else — the cell gap, corner radius, in-cell value size, the empty-cell color and the selection ring — comes straight from WordPress design system tokens (`--wpds-*`) in CSS, so it tracks the active design system theme automatically. There are no per-instance props for these. The `heatmapChart` theme section exposes just the scale color (`primaryColor`, above) and the compact sizing (`compactCellSize`, `compactCellGap`):
+Everything else — the cell gap, in-cell value size and the empty-cell color — comes from the `--a8c-charts-*` token catalog in CSS (the empty-cell color from `--a8c-charts-color-track`), so it tracks the active design system theme automatically through the catalog's own `--wpds-*` mapping. The corner radius can be overridden via `--a8c-charts-border-radius-cell`, which maps to a WPDS token (`--wpds-border-radius-sm`) by default. There are no per-instance props for these. The `heatmapChart` theme section exposes just the scale color (`primaryColor`, above) and the compact sizing (`compactCellSize`, `compactCellGap`):
 
 <Source
 	language="tsx"

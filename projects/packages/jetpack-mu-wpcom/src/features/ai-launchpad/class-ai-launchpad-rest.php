@@ -339,21 +339,34 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					'callback'            => array( $this, 'update_tailored' ),
 					'permission_callback' => array( $this, 'can_write' ),
 					'args'                => array(
-						'source'      => array(
+						'source'        => array(
 							'description' => 'Whether the payload came from the AI or the deterministic fallback. Query parameter; the JSON body must match the agent output schema exactly.',
 							'type'        => 'string',
 							'enum'        => array( 'ai', 'fallback' ),
 							'default'     => 'ai',
 						),
-						'duration_ms' => array(
+						'duration_ms'   => array(
 							'description' => 'Client-measured tailoring duration in milliseconds, for the tailored Logstash record.',
 							'type'        => 'integer',
 							'minimum'     => 0,
 						),
-						'attempts'    => array(
+						'attempts'      => array(
 							'description' => 'How many jetpack-ai-query attempts the client made, for the tailored Logstash record.',
 							'type'        => 'integer',
 							'minimum'     => 0,
+						),
+						'ai_session_id' => array(
+							'description'       => 'Client-minted id for this tailoring run, carried by every Tracks event fired afterwards.',
+							'type'              => 'string',
+							'default'           => '',
+							// A UUID is 36 characters; 64 leaves headroom without letting an
+							// oversized value reach the option, the inline script, and every
+							// Tracks event. sanitize_key() doesn't bound length on its own, so
+							// the validate_callback is what actually enforces maxLength here —
+							// WP only runs per-arg schema validation when one is wired in.
+							'maxLength'         => 64,
+							'sanitize_callback' => 'sanitize_key',
+							'validate_callback' => 'rest_validate_request_arg',
 						),
 					),
 				),
@@ -796,6 +809,12 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'generated_at' => time(),
 			'payload'      => $payload,
 		);
+
+		// Omitted rather than stored empty, so the props builder reports "none" for a write
+		// that carried no session id (a client from before this shipped, or a direct call).
+		if ( '' !== $request['ai_session_id'] ) {
+			$ai_output['ai_session_id'] = $request['ai_session_id'];
+		}
 
 		update_option( self::OPTION_AI_OUTPUT, $ai_output, false );
 

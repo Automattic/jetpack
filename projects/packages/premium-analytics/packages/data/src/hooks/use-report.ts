@@ -8,6 +8,7 @@ import { useCallback } from 'react';
  */
 import { hasComparisonEnabled, type ReportParams } from '../utils/search';
 import { isAwaitingData } from './awaiting-data';
+import { REFRESH_NOTICE_META } from './refresh-failure-scope';
 
 type UseReportOptions = {
 	enabled?: boolean;
@@ -64,14 +65,20 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 				queryKey: options?.disabledComparisonKey ?? [ 'reports', '__comparison__', 'disabled' ],
 		  };
 
+	const primaryEnabled = queryEnabled && ( primaryQueryOptions.enabled ?? true );
+	const comparisonQueryEnabled =
+		queryEnabled && comparisonEnabled && ( comparisonQueryOptions.enabled ?? true );
+
 	const primary = useQuery( {
 		...primaryQueryOptions,
-		enabled: queryEnabled && ( primaryQueryOptions.enabled ?? true ),
+		enabled: primaryEnabled,
+		meta: { ...primaryQueryOptions.meta, ...REFRESH_NOTICE_META },
 	} );
 
 	const comparison = useQuery( {
 		...comparisonQueryOptions,
-		enabled: queryEnabled && comparisonEnabled && ( comparisonQueryOptions.enabled ?? true ),
+		enabled: comparisonQueryEnabled,
+		meta: { ...comparisonQueryOptions.meta, ...REFRESH_NOTICE_META },
 	} );
 
 	// Widened past React Query's `isLoading` — see `isAwaitingData`. Its own
@@ -93,17 +100,19 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 		Boolean( ( comparison.data as any )?.data?.length ) ||
 		Boolean( ( comparison.data as any )?.steps?.length );
 
-	// Combined refetch: memoized, awaits both queries, and skips the comparison
-	// query when comparison is disabled. If both queries fail, one "Retry" must
-	// refetch both — so widgets can surface this directly as their retry action.
+	// Combined refetch: memoized and awaiting both queries, so one "Retry" can
+	// re-run everything the widget asked for. React Query's own `refetch()`
+	// deliberately ignores `enabled`, so the gate is applied here instead — a
+	// switched-off query is left alone, and widgets passing `enabled` need no
+	// guard of their own around the retry action.
 	const primaryRefetch = primary.refetch;
 	const comparisonRefetch = comparison.refetch;
 	const refetch = useCallback( async () => {
 		await Promise.all( [
-			primaryRefetch(),
-			comparisonEnabled ? comparisonRefetch() : Promise.resolve(),
+			primaryEnabled ? primaryRefetch() : Promise.resolve(),
+			comparisonQueryEnabled ? comparisonRefetch() : Promise.resolve(),
 		] );
-	}, [ comparisonEnabled, primaryRefetch, comparisonRefetch ] );
+	}, [ primaryEnabled, comparisonQueryEnabled, primaryRefetch, comparisonRefetch ] );
 
 	return {
 		primary,

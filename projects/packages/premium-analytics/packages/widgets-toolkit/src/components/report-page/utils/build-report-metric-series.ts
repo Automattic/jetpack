@@ -16,11 +16,6 @@ import type {
 import type { ReportChartMetric } from '../types';
 import type { StatsTimeSeriesReport } from '@jetpack-premium-analytics/data';
 
-type ReportMetricSeriesLegendLabels = {
-	primary?: string;
-	comparison?: string;
-};
-
 type ReportTimeSeriesResponse = {
 	data: TimeSeriesData[];
 	summary: { date_start: string; date_end: string };
@@ -78,8 +73,7 @@ function toTimeSeriesResponse(
 function buildSingleMetricSeries(
 	primary: StatsTimeSeriesReport,
 	comparison: StatsTimeSeriesReport | undefined,
-	metric: ReportChartMetric,
-	legendLabels: ReportMetricSeriesLegendLabels | undefined
+	metric: ReportChartMetric
 ): ComparativeLineChartSeries[] {
 	const series = buildTimeSeriesChartData( {
 		primary: toTimeSeriesResponse( primary, metric.key ),
@@ -87,25 +81,19 @@ function buildSingleMetricSeries(
 			? toTimeSeriesResponse( comparison, metric.key )
 			: undefined,
 		metricKey: metric.key,
+		label: metric.label,
 	} );
 
+	// Group by metric rather than the helper's shared `primary`, so each metric on
+	// a multi-metric chart resolves its own colour.
 	series.forEach( entry => {
 		entry.group = metric.key;
 	} );
 
 	if ( ! series[ 1 ] ) {
-		if ( series[ 0 ] ) {
-			series[ 0 ].label = metric.label;
-		}
 		return series;
 	}
 
-	if ( legendLabels?.primary ) {
-		series[ 0 ].label = legendLabels.primary;
-	}
-	if ( legendLabels?.comparison ) {
-		series[ 1 ].label = legendLabels.comparison;
-	}
 	series[ 1 ].options = {
 		...series[ 1 ].options,
 		gradient: { from: 'transparent', to: 'transparent', fromOpacity: 0, toOpacity: 0 },
@@ -120,28 +108,25 @@ function buildSingleMetricSeries(
  *
  * When exactly one metric is visible and a comparison report is provided, the
  * previous period is added as a same-`group` (same colour) dashed `comparison`
- * series with a transparent fill, and both series are labelled by date range
- * instead — mirroring `MetricTabsChart`. With multiple visible metrics the
- * comparison is omitted: overlaying a dashed twin per metric would make the
- * chart unreadable.
+ * series with a transparent fill — mirroring `MetricTabsChart`, down to naming
+ * both series after the metric so they collapse into one legend item. With
+ * multiple visible metrics the comparison is omitted: overlaying a dashed twin
+ * per metric would make the chart unreadable.
  *
- * @param options              - The build options.
- * @param options.primary      - The current-period time-series report.
- * @param options.comparison   - The previous-period report, when comparison is enabled.
- * @param options.metrics      - The visible metrics, in render order.
- * @param options.legendLabels - Optional date labels for single-metric comparison legends.
+ * @param options            - The build options.
+ * @param options.primary    - The current-period time-series report.
+ * @param options.comparison - The previous-period report, when comparison is enabled.
+ * @param options.metrics    - The visible metrics, in render order.
  * @return The chart series.
  */
 export function buildReportMetricSeries( {
 	primary,
 	comparison,
 	metrics,
-	legendLabels,
 }: {
 	primary?: StatsTimeSeriesReport;
 	comparison?: StatsTimeSeriesReport;
 	metrics: ReportChartMetric[];
-	legendLabels?: ReportMetricSeriesLegendLabels;
 } ): ComparativeLineChartSeries[] {
 	if ( ! primary?.data?.length ) {
 		return [];
@@ -149,7 +134,7 @@ export function buildReportMetricSeries( {
 
 	const single = metrics.length === 1 ? metrics[ 0 ] : undefined;
 	if ( single ) {
-		return buildSingleMetricSeries( primary, comparison, single, legendLabels );
+		return buildSingleMetricSeries( primary, comparison, single );
 	}
 
 	const series: ComparativeLineChartSeries[] = metrics.map( metric => ( {

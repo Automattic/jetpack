@@ -6,6 +6,9 @@ export {
 	MetricTileGrid,
 	MetricTileGridSkeleton,
 	type MetricTileGridSkeletonProps,
+	MetricList,
+	type MetricListItem,
+	type MetricListProps,
 	MetricValue,
 	MetricWithComparison,
 	PeakDistribution,
@@ -48,7 +51,6 @@ export {
 	type LeaderboardRowChartProps,
 	type LeaderboardRowMedia,
 	type LeaderboardRowProps,
-	type LeaderboardRowVariant,
 	BarChart,
 	BarChartSkeleton,
 	type BarChartProps,
@@ -56,9 +58,12 @@ export {
 	type BarChartStyle,
 	WidgetLoadingOverlay,
 	AdaptiveCalendarHeatmap,
+	CalendarHeatmapPagerOverlay,
 	CalendarHeatmapTooltip,
 	type AdaptiveCalendarHeatmapChartProps,
 	type AdaptiveCalendarHeatmapProps,
+	type CalendarHeatmapPager,
+	type CalendarHeatmapPagerOverlayProps,
 	type CalendarHeatmapTooltipProps,
 	ChartEmptyState,
 	type ChartEmptyStateProps,
@@ -79,7 +84,6 @@ export {
 	type PostDetailLinkProps,
 	LeaderboardPostLabel,
 	type LeaderboardPostLabelProps,
-	type LeaderboardPostLabelVariant,
 	PostHighlightCard,
 	PostHighlightCardSkeleton,
 	type PostHighlightCardMetric,
@@ -131,7 +135,6 @@ export {
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
 	AnnualHighlightsSkeleton,
-	type AnnualHighlightsSkeletonProps,
 	GenericSkeleton,
 	HeatmapSkeleton,
 	MetricSparklineSkeleton,
@@ -148,7 +151,7 @@ export { COLOR_GRAY_100, WIDGET_ROW_LIMIT } from './constants';
 /**
  * Widget edit fields
  */
-export { ReportParamsField, type ReportParamsFieldAttributes } from './fields';
+export type { ReportParamsFieldAttributes } from './fields';
 
 /**
  * Helpers and utilities
@@ -184,17 +187,17 @@ export {
 	toDay,
 	defaultPeriodForInterval,
 	buildMetricTab,
+	toChartDate,
 	CHART_DISPLAY_CHART_TYPES,
 	chartTypeAttributeField,
-	granularityAttributeField,
 	type ChartDisplayChartType,
-	type ChartGranularityOption,
 	CALENDAR_HEATMAP_CELL_GAP,
 	CALENDAR_HEATMAP_HEADER_HEIGHT,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,
 	formatViewCount,
 	buildDenseDaySeries,
+	resolveCalendarHeatmapGridStart,
 	resolveCalendarHeatmapWindow,
 	resolveCalendarHeatmapWindowDays,
 	type CalendarHeatmapLayout,
@@ -212,6 +215,7 @@ export {
 	useChartTheme,
 	useElementSize,
 	type ElementSize,
+	useWidgetNavigationSearch,
 	useSegmentStyles,
 	useSeriesStyles,
 	useViewportWidth,
@@ -264,6 +268,7 @@ export type { MetricKey, OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat
 export {
 	GeoChart,
 	GlobalChartsProvider,
+	GoogleDataTableColumnRoleType,
 	HeatmapChart,
 	HeatmapChartUnresponsive,
 	Sparkline,

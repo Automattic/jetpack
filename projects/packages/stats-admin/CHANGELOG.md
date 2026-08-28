@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.34.0 - 2026-08-25
+### Added
+- Add a filter for the post list table's views column link. [#51357]
+
+### Changed
+- Make the Blaze package a development-only dependency. [#51462]
+
+## 0.33.0 - 2026-08-20
+### Added
+- Show the Stats dashboard before the site is connected to WordPress.com, so a plan can be picked and the site connected from there. [#51200]
+
+### Changed
+- Load the post list Stats column CSS through the stylesheet queue. [#51353]
+- Load the Stats dashboard bootstrap script through the script queue. [#51355]
+- Update dependencies. [#51190]
+
+### Fixed
+- Return a clear error instead of a server error when a stats request is made before the site is connected to WordPress.com. [#51200]
+
 ## 0.32.1 - 2026-08-10
 ### Security
 - Cast the quick-edit post ID to an integer before requesting its view counts. [#51049]

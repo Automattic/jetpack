@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Backup: send the modernized dashboard's first two Tracks events — the admin page view and "Back up now" — and correct the connected-user fixture the analytics client reads. No-op when the modernization filter is off.
+
+

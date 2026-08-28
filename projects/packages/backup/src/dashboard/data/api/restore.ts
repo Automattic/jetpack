@@ -46,19 +46,145 @@ export type RestoreStatusResponse = {
 };
 
 /**
+ * Status spellings from the restores collection that we are confident
+ * mean the restore is over.
+ *
+ * The collection's `status` is *not* the status route's vocabulary:
+ * WordPress.com's docblock for it claims `finished/started/fail` while
+ * its own consumer matches `running`, and the standalone plugin's legacy
+ * Admin screen reads `finished`. Rather than map a second,
+ * differently-spelled enum into ours — which would invite something to
+ * treat it as authoritative — this quarantines it as a single boolean,
+ * computed once, at the edge.
+ *
+ * An unrecognised spelling counts as *not* settled, so the row stays
+ * adoptable. That is the direction that fails least badly: the rows are
+ * ranked newest-first, so the restore we just started is the one we
+ * reach anyway, and a stale adoption self-corrects as soon as the real
+ * one appears. Guessing the other way would make an unknown spelling of
+ * "running" permanently unrecoverable.
+ */
+const SETTLED_ROW_STATUSES = new Set( [
+	'finished',
+	'success',
+	'success-with-errors',
+	'fail',
+	'failed',
+	'aborted',
+	'error',
+] );
+
+/**
  * One row of `GET /jetpack/v4/restores` — the last ten restores, any state.
  *
- * Deliberately only the two fields the recovery match needs. The rows
- * also carry a `status`, and it is not the status route's vocabulary:
- * WordPress.com's docblock for the collection claims `finished/started/
- * fail` while its own consumer matches `running`. Nothing here reads it,
- * and mapping a second, differently-spelled status enum would invite
- * something to.
+ * `when` is WordPress.com's own ISO-8601 timestamp and is compared only
+ * against other rows', never against the browser's clock: a browser
+ * minutes ahead of the server would otherwise reject the restore it had
+ * just started, and recovery would fail for the whole session.
+ *
+ * `settled` is the quarantined reading of the row's `status` — see
+ * `SETTLED_ROW_STATUSES`. The raw spelling is deliberately not carried
+ * any further than this file.
  */
 export type RecentRestore = {
 	restore_id: number;
 	rewind_id: string;
+	when: string;
+	settled: boolean;
 };
+
+/** Statuses that mean the restore is still going, or might be. */
+const LIVE_STATUSES: RestoreStatus[] = [ 'queued', 'running', 'unknown' ];
+
+/**
+ * Whether a status reading ends the poll.
+ *
+ * @param status - The status the bridge reported, if any.
+ * @return True when there is nothing left to wait for.
+ */
+export function isTerminal( status: RestoreStatus | undefined ): boolean {
+	return status !== undefined && ! LIVE_STATUSES.includes( status );
+}
+
+/**
+ * Whether two rewind ids name the same backup.
+ *
+ * Adopting the wrong id would report someone else's restore as this one,
+ * so this stays an equality test and never a prefix or integer-part
+ * match: two restores of the same backup share an integer part.
+ *
+ * What it does tolerate is formatting. A rewind id is a unix timestamp
+ * with a decimal suffix, and the value in `recent_restores[]` has been
+ * round-tripped through VaultPress rather than echoed back by
+ * WordPress.com — so a trailing zero gained or lost (`…613.9425` vs
+ * `…613.94250`) would defeat a strict string comparison for two
+ * representations of the same instant. Comparing them as numbers as well
+ * closes that without widening what counts as a match.
+ *
+ * @param candidate - A rewind id from the restores collection.
+ * @param target    - The rewind id this screen submitted.
+ * @return True when both name the same backup.
+ */
+function sameRewindId( candidate: string, target: string ): boolean {
+	if ( ! candidate || ! target ) {
+		return false;
+	}
+	if ( candidate === target ) {
+		return true;
+	}
+	const a = Number( candidate );
+	const b = Number( target );
+	return Number.isFinite( a ) && Number.isFinite( b ) && a === b;
+}
+
+/**
+ * The restore in this collection that best answers "the one for this
+ * backup that is still going", or null when there isn't one.
+ *
+ * Two rules, and the order matters.
+ *
+ * A settled row is never adopted. The same backup point can be restored
+ * more than once, and a plain first-match took an earlier, *completed*
+ * restore of it — whose status route then answered `finished`, so the
+ * screen announced "Restore complete." while the real restore was still
+ * overwriting the site.
+ *
+ * What remains is ranked newest-first by `when`. That comparison is
+ * between two WordPress.com timestamps and never against the browser's
+ * clock, so a machine whose time is minutes out still recovers its own
+ * restore. A row with no usable `when` sorts last rather than being
+ * dropped: it is still a candidate, just the weakest one.
+ *
+ * `rewindId` is null when the caller does not care which backup is being
+ * restored — the cold-mount case. A restore of any backup overwrites the
+ * same live site, so a second one is wrong whichever point it came from,
+ * and the screen has to adopt what is running rather than arm a button
+ * beside it.
+ *
+ * @param rows     - The restores collection, as the bridge returned it.
+ * @param rewindId - The rewind id to match, or null for any backup.
+ * @return The best candidate, or null.
+ */
+export function pickLiveRestore(
+	rows: RecentRestore[] | null,
+	rewindId: string | null
+): RecentRestore | null {
+	const candidates = ( rows ?? [] )
+		.filter(
+			row => ! row.settled && ( rewindId === null || sameRewindId( row.rewind_id, rewindId ) )
+		)
+		.sort( ( a, b ) => {
+			const at = Date.parse( a.when );
+			const bt = Date.parse( b.when );
+			const av = Number.isNaN( at ) ? -Infinity : at;
+			const bv = Number.isNaN( bt ) ? -Infinity : bt;
+			// Restore ids are handed out in order, so they break a tie
+			// between two rows stamped in the same second.
+			return bv === av ? b.restore_id - a.restore_id : bv - av;
+		} );
+
+	return candidates[ 0 ] ?? null;
+}
 
 /**
  * Start a restore for the given backup point.
@@ -108,20 +234,25 @@ export async function fetchRestoreStatus( restoreId: number ): Promise< RestoreS
  * the one who started the restore.
  *
  * Used to recover a restore id that WPCOM accepted but did not return.
- * Note the route follows the legacy convention of answering a non-200
- * from WPCOM with a bare `null`, which WordPress serves as HTTP 200 — so
- * this resolves rather than rejecting, and the empty list it returns in
- * that case means "could not read", not "no restores".
+ * Note the route follows the legacy convention of answering a WPCOM
+ * reply it cannot decode with a bare `null`, which WordPress serves as
+ * HTTP 200 — so this resolves rather than rejecting, and the empty list
+ * it returns in that case means "could not read", not "no restores".
  *
- * @return The recent restores, or an empty list when the read failed.
+ * Returns `null` — not an empty list — when the read failed, because the
+ * two mean opposite things to a caller deciding whether it is safe to
+ * start a destructive operation, and an empty array quietly reads as
+ * "nothing is running".
+ *
+ * @return The recent restores, or null when the read failed.
  */
-export async function fetchRecentRestores(): Promise< RecentRestore[] > {
+export async function fetchRecentRestores(): Promise< RecentRestore[] | null > {
 	const data = await apiCall< unknown >( {
 		path: apiPath( '/restores' ),
 	} );
 
 	if ( ! Array.isArray( data ) ) {
-		return [];
+		return null;
 	}
 
 	return data
@@ -129,6 +260,34 @@ export async function fetchRecentRestores(): Promise< RecentRestore[] > {
 		.map( row => ( {
 			restore_id: Number( row.restore_id ) || 0,
 			rewind_id: typeof row.rewind_id === 'string' ? row.rewind_id : String( row.rewind_id ?? '' ),
+			when: typeof row.when === 'string' ? row.when : '',
+			settled:
+				typeof row.status === 'string' && SETTLED_ROW_STATUSES.has( row.status.toLowerCase() ),
 		} ) )
 		.filter( row => row.restore_id > 0 );
+}
+
+/**
+ * The restore this site has running right now, if any.
+ *
+ * Two reads, because the collection alone cannot answer it: its rows
+ * carry a status in a vocabulary that is not ours, so a row is only a
+ * candidate until the status route — which speaks the vocabulary the
+ * bridge maps — confirms it is `running`.
+ *
+ * Deliberately separate from `useAdoptedRestore`, which asks the same
+ * question at mount through two cached queries so its confirmation
+ * shares a key with the status poll and costs nothing extra. This one is
+ * for the moment of a destructive click, where a cached answer is the
+ * wrong answer.
+ *
+ * @return The running restore, or null when nothing is.
+ */
+export async function fetchRunningRestore(): Promise< RecentRestore | null > {
+	const candidate = pickLiveRestore( await fetchRecentRestores(), null );
+	if ( candidate === null ) {
+		return null;
+	}
+	const status = await fetchRestoreStatus( candidate.restore_id );
+	return 'running' === status.status ? candidate : null;
 }

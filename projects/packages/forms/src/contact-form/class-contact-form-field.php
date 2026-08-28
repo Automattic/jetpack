@@ -140,6 +140,20 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	private $hidden_field_filter_value;
 
 	/**
+	 * Description markup (help text, format hint, error div) built at the input
+	 * site but held back so an inset-label wrapper can emit it outside the
+	 * field div. Null when nothing has been deferred.
+	 *
+	 * Building it once, where the input's aria-describedby is built, is what
+	 * keeps the emitted ids and the referenced ids identical.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string|null
+	 */
+	private $deferred_descriptions = null;
+
+	/**
 	 * Constructor function.
 	 *
 	 * @param array        $attributes An associative array of shortcode attributes.  @see shortcode_atts().
@@ -174,6 +188,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'width'                        => null,
 				'consenttype'                  => null,
 				'dateformat'                   => null,
+				'helptext'                     => null,
 				'implicitconsentmessage'       => null,
 				'explicitconsentmessage'       => null,
 				'borderradius'                 => null,
@@ -1228,7 +1243,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 					data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 					data-wp-bind--value='state.getFieldValue'
-					aria-describedby='" . esc_attr( $id ) . '-' . esc_attr( $type ) . "-error-message'
+					aria-describedby='" . esc_attr( $this->get_described_by( $id, $type ) ) . "'
 					data-wp-on--input='actions.onFieldChange'
 					data-wp-on--blur='actions.onFieldBlur'
 					data-wp-class--has-value='state.hasFieldValue'
@@ -1236,7 +1251,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					" . $class . $placeholder . '
 					' . ( $required ? "required='true' aria-required='true' " : '' ) .
 					$extra_attrs_string .
-					" />\n " . $this->get_error_div( $id, $type ) . " \n";
+					" />\n " . $this->get_field_descriptions( $id, $type ) . " \n";
 	}
 
 	/**
@@ -1250,7 +1265,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	private function get_error_div( $id, $type, $override_render = false ) {
 
-		if ( $this->has_inset_label() && ! $override_render ) {
+		if ( ! $override_render && $this->has_inset_label() ) {
 			return '';
 		}
 		return '
@@ -1264,6 +1279,166 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				</span>
 				<span data-wp-text="state.errorMessage" id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error-message"></span>
 			</div>';
+	}
+
+	/**
+	 * The author-supplied help text for this field, or null when unset.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string|null
+	 */
+	private function get_help_text() {
+		$help_text = $this->get_attribute( 'helptext' );
+
+		if ( ! is_string( $help_text ) ) {
+			return null;
+		}
+
+		$help_text = trim( $help_text );
+
+		if ( $help_text === '' ) {
+			return null;
+		}
+
+		// Contact_Form::esc_shortcode_val() encodes `,` `[` `]` `\` as decimal
+		// entities so they survive the shortcode parser, but unesc_attr() only
+		// decodes the hex forms. Other consumers emit through wp_kses_post() or
+		// into an attribute, so the browser decodes whatever is left over; this
+		// is the first to emit through esc_html() into a text node, where the
+		// leftover `&#044;` would be escaped again and shown to the visitor.
+		// Safe to decode here: the value has already been through
+		// unesc_attr()'s strip_tags(), and output is still esc_html()'d.
+		return html_entity_decode( $help_text, ENT_QUOTES );
+	}
+
+	/**
+	 * The format instruction for date fields, or null for every other type.
+	 *
+	 * Note this keys off the field's own `type` attribute, not the type passed
+	 * to the render helpers — the date field renders a `text` input.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string|null
+	 */
+	private function get_format_hint() {
+		if ( $this->get_attribute( 'type' ) !== 'date' ) {
+			return null;
+		}
+
+		$formats = self::get_date_formats();
+
+		return $formats[ $this->get_date_format() ] ?? null;
+	}
+
+	/**
+	 * The aria-describedby value for a field's input.
+	 *
+	 * The error message comes first so screen readers announce it before the
+	 * advisory text; its span is empty until there is an error, so it costs
+	 * nothing the rest of the time.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $id   - the field ID.
+	 * @param string $type - the description type (matches the emitted element ids).
+	 *
+	 * @return string
+	 */
+	private function get_described_by( $id, $type ) {
+		$ids = array( $id . '-' . $type . '-error-message' );
+
+		foreach ( $this->get_description_parts( $id, $type ) as $part ) {
+			$ids[] = $part['id'];
+		}
+
+		return implode( ' ', $ids );
+	}
+
+	/**
+	 * The advisory descriptions attached to a field, in DOM order.
+	 *
+	 * Single source for both the ids aria-describedby references and the
+	 * markup that carries them — building those separately is how they drift,
+	 * and a describedby pointing at an id that was never emitted is exactly
+	 * the failure this class already fixes elsewhere.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $id   - the field ID.
+	 * @param string $type - the description type (matches get_described_by()).
+	 *
+	 * @return array List of array( 'id' => string, 'class' => string, 'text' => string ).
+	 */
+	private function get_description_parts( $id, $type ) {
+		$parts     = array();
+		$help_text = $this->get_help_text();
+
+		if ( $help_text !== null ) {
+			$parts[] = array(
+				'id'    => $id . '-' . $type . '-help',
+				'class' => 'contact-form__field-help',
+				'text'  => $help_text,
+			);
+		}
+
+		$format_hint = $this->get_format_hint();
+
+		if ( $format_hint !== null ) {
+			$parts[] = array(
+				'id'    => $id . '-' . $type . '-format',
+				'class' => 'contact-form__field-format',
+				'text'  => $format_hint,
+			);
+		}
+
+		return $parts;
+	}
+
+	/**
+	 * Return the HTML for a field's descriptions: help text, format hint, and
+	 * the error div, in that DOM order.
+	 *
+	 * These travel together because inset-label form styles render them outside
+	 * the field wrapper. In that case the markup is deferred to
+	 * $this->deferred_descriptions and render_field() emits it, so it is only
+	 * ever built here — with the same $type the input used for its
+	 * aria-describedby.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $id   - the field ID.
+	 * @param string $type - the description type (matches get_described_by()).
+	 *
+	 * @return string HTML, or an empty string when the markup is deferred.
+	 */
+	private function get_field_descriptions( $id, $type ) {
+		$hints = '';
+
+		// Deliberately spans, not paragraphs: themes style <p> (margins, size,
+		// color) and we would have to fight those rules on every theme.
+		foreach ( $this->get_description_parts( $id, $type ) as $part ) {
+			$hints .= '<span id="' . esc_attr( $part['id'] ) . '" class="' . esc_attr( $part['class'] ) . '">'
+				. esc_html( $part['text'] ) . '</span>';
+		}
+
+		$descriptions = '';
+
+		if ( $hints !== '' ) {
+			$descriptions .= '<div class="contact-form__field-hints">' . $hints . '</div>';
+		}
+
+		// Force the error div to build even for inset labels — the deferral
+		// below decides where it lands.
+		$descriptions .= $this->get_error_div( $id, $type, true );
+
+		if ( $this->has_inset_label() ) {
+			$this->deferred_descriptions = $descriptions;
+			return '';
+		}
+
+		return $descriptions;
 	}
 
 	/**
@@ -1460,7 +1635,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					data-wp-bind--disabled='state.isSubmitting'
 					data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 					data-wp-bind--value='context.phoneNumber'
-					aria-describedby="<?php echo esc_attr( $id ); ?>-telephone-error-message"
+					aria-describedby="<?php echo esc_attr( $this->get_described_by( $id, 'telephone' ) ); ?>"
 					data-wp-on--input='actions.phoneNumberInputHandler'
 					data-wp-on--blur='actions.onFieldBlur'
 					data-wp-on--focus='actions.phoneNumberFocusHandler'
@@ -1477,7 +1652,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		<?php
 		$input = ob_get_clean();
 
-		$field = $label . $input . $this->get_error_div( $id, 'telephone' );
+		$field = $label . $input . $this->get_field_descriptions( $id, 'telephone' );
 		return $field;
 	}
 
@@ -1532,7 +1707,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						data-wp-on--input='actions.onFieldChange'
 						data-wp-on--blur='actions.onFieldBlur'
 						data-wp-class--has-value='state.hasFieldValue'
-						aria-describedby='" . esc_attr( $id ) . "-textarea-error-message'
+						aria-describedby='" . esc_attr( $this->get_described_by( $id, 'textarea' ) ) . "'
 						data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 						"
 						. $this->get_hidden_label_aria_label_attr()
@@ -1540,7 +1715,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						. $placeholder
 						. ' ' . ( $required ? "required aria-required='true'" : '' ) .
 						'>' . esc_textarea( $value )
-				. "</textarea>\n " . $this->get_error_div( $id, 'textarea' ) . "\n";
+				. "</textarea>\n " . $this->get_field_descriptions( $id, 'textarea' ) . "\n";
 		return $field;
 	}
 
@@ -1577,7 +1752,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// that use the notch html (`notched-label__leading` has a max-width of `100px` to prevent it from getting too wide).
 			// It prevents large border radius values from disrupting the look and feel of the fields.
 			if ( isset( $style_variation_attributes['border']['radius'] ) ) {
-				$options_styles          = $options_styles ?? '';
+				$options_styles        ??= '';
 				$radius                  = $style_variation_attributes['border']['radius'];
 				$has_split_radius_values = is_array( $radius );
 				$top_left_radius         = $has_split_radius_values ? $radius['topLeft'] : $radius;
@@ -2210,7 +2385,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			 * It prevents large border radius values from disrupting the look and feel of the fields.
 			 */
 			if ( isset( $style_variation_attributes['border']['radius'] ) ) {
-				$options_styles          = $options_styles ?? '';
+				$options_styles        ??= '';
 				$radius                  = $style_variation_attributes['border']['radius'];
 				$has_split_radius_values = is_array( $radius );
 				$top_left_radius         = $has_split_radius_values ? $radius['topLeft'] : $radius;
@@ -2334,7 +2509,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$aria_label = ! empty( $this->get_attribute( 'togglelabel' ) )
 			? Contact_Form_Plugin::strip_tags( $this->get_attribute( 'togglelabel' ) )
 			: __( 'Select an option', 'jetpack-forms' ); // selects don't have a default label
-		$field     .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.fieldAriaInvalid' " . $this->get_hidden_label_aria_label_attr( $aria_label ) . ">\n";
+		$field     .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.fieldAriaInvalid' aria-describedby='" . esc_attr( $this->get_described_by( $id, 'select' ) ) . "' " . $this->get_hidden_label_aria_label_attr( $aria_label ) . ">\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
 			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
@@ -2357,7 +2532,44 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= "\t</select><span class='jetpack-field-dropdown__icon'></span></span>\n";
 		$field .= "</div>\n";
 
-		return $field . $this->get_error_div( $id, 'select' );
+		return $field . $this->get_field_descriptions( $id, 'select' );
+	}
+
+	/**
+	 * The date formats the date field supports, keyed by the jQuery-style
+	 * format string stored in the `dateformat` attribute.
+	 *
+	 * WARNING: sync data with DATE_FORMATS in src/blocks/shared/util/constants.js
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array
+	 */
+	private static function get_date_formats() {
+		return array(
+			/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 12/31/2023). */
+			'mm/dd/yy' => __( 'MM/DD/YYYY', 'jetpack-forms' ),
+			/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 31/12/2023). */
+			'dd/mm/yy' => __( 'DD/MM/YYYY', 'jetpack-forms' ),
+			/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 2023-12-31). */
+			'yy-mm-dd' => __( 'YYYY-MM-DD', 'jetpack-forms' ),
+		);
+	}
+
+	/**
+	 * The field's date format key, falling back to the default.
+	 *
+	 * Shared by the visible hint and the `data-format` attribute that drives
+	 * the picker, so the two cannot disagree about which format is in effect.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	private function get_date_format() {
+		$date_format = $this->get_attribute( 'dateformat' );
+
+		return ! empty( $date_format ) ? $date_format : 'yy-mm-dd';
 	}
 
 	/**
@@ -2377,25 +2589,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public function render_date_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $required_indicator = true ) {
 		static $is_loaded = false;
 		$this->set_invalid_message( 'date', __( 'Please enter a valid date.', 'jetpack-forms' ) );
-		// WARNING: sync data with DATE_FORMATS in jetpack-field-datepicker.js
-		$formats = array(
-			'mm/dd/yy' => array(
-				/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 12/31/2023). */
-				'label' => __( 'MM/DD/YYYY', 'jetpack-forms' ),
-			),
-			'dd/mm/yy' => array(
-				/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 31/12/2023). */
-				'label' => __( 'DD/MM/YYYY', 'jetpack-forms' ),
-			),
-			'yy-mm-dd' => array(
-				/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 2023-12-31). */
-				'label' => __( 'YYYY-MM-DD', 'jetpack-forms' ),
-			),
-		);
 
-		$date_format = $this->get_attribute( 'dateformat' );
-		$date_format = isset( $date_format ) && ! empty( $date_format ) ? $date_format : 'yy-mm-dd';
-		$label       = isset( $formats[ $date_format ] ) ? $label . ' (' . $formats[ $date_format ]['label'] . ')' : $label;
+		$date_format = $this->get_date_format();
 		$extra_attrs = array( 'data-format' => $date_format );
 
 		$field  = $this->render_label( 'date', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
@@ -2460,7 +2655,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						'clear'     => __( 'Clear', 'jetpack-forms' ),
 						'close'     => __( 'Close', 'jetpack-forms' ),
 						'ariaLabel' => array(
-							'enterPicker'       => __( 'You are on a date picker input. Use the down key to focus into the date picker. Or type the date in the format MM/DD/YYYY', 'jetpack-forms' ),
 							'dayPicker'         => __( 'You are currently inside the date picker, use the arrow keys to navigate between the dates. Use tab key to jump to more controls.', 'jetpack-forms' ),
 							'monthPicker'       => __( 'You are currently inside the month picker, use the arrow keys to navigate between the months. Use the space key to select it.', 'jetpack-forms' ),
 							'yearPicker'        => __( 'You are currently inside the year picker, use the up and down arrow keys to navigate between the years. Use the space key to select it.', 'jetpack-forms' ),
@@ -3157,7 +3351,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= "\t</div>\n";
 
 		if ( $has_inset_label ) {
-			$field .= $this->get_error_div( $id, $type, true );
+			// Description-aware renderers build their markup at the input site,
+			// where the correct type is known, and defer it here. Field types
+			// that do not yet do that fall back to the plain error div. Several
+			// fields render an input whose type differs from the field type
+			// (date and url render `text`, simple telephone renders `tel`), so
+			// rebuilding it here from $type would not match the ids the input's
+			// aria-describedby references.
+			$field .= $this->deferred_descriptions ?? $this->get_error_div( $id, $type, true );
+			// Consume it, so a second render cannot replay this one's markup.
+			$this->deferred_descriptions = null;
 			// Close the extra wrapper for inset labels.
 			$field .= "\t</div>\n";
 		}
@@ -3176,8 +3379,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	private function get_field_extra( $type, $extra_attrs ) {
 		if ( 'date' === $type ) {
-			$date_format = $this->get_attribute( 'dateformat' );
-			return isset( $date_format ) && ! empty( $date_format ) ? $date_format : 'yy-mm-dd';
+			return $this->get_date_format();
 		}
 
 		return $extra_attrs;
@@ -3505,6 +3707,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					data-wp-bind--value="state.getSliderValue"
 					data-wp-on--input="actions.onSliderChange"
 					data-wp-bind--aria-invalid="state.fieldAriaInvalid"
+					aria-describedby="<?php echo esc_attr( $this->get_described_by( $id, 'slider' ) ); ?>"
 					<?php echo $this->get_hidden_label_aria_label_attr(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attribute value is escaped in the helper. ?>
 				/>
 				<div
@@ -3523,7 +3726,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		<?php endif; ?>
 		<?php
 		$field .= ob_get_clean();
-		return $field . $this->get_error_div( $id, 'slider' );
+		return $field . $this->get_field_descriptions( $id, 'slider' );
 	}
 
 	/**

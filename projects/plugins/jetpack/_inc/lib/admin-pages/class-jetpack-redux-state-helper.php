@@ -240,6 +240,13 @@ class Jetpack_Redux_State_Helper {
 			'isOdysseyStatsEnabled'                => Stats_Options::get_option( 'enable_odyssey_stats' ),
 			'shouldInitializeBlaze'                => Blaze::should_initialize(),
 			'isBlazeDashboardEnabled'              => Blaze::is_dashboard_enabled(),
+			// The composed AI gate chain (host, and the master where its rollout
+			// is active) — what the editor enforces, for settings UI that must
+			// not contradict it.
+			'isAiEnabled'                          => Jetpack_AI_Settings::is_ai_enabled(),
+			// The AI SEO feature, gates folded in: controls that drive only its
+			// automatic half must follow it too.
+			'isAiSeoEnabled'                       => Jetpack_AI_Settings::is_ai_seo_enabled(),
 			'isSubscriptionSiteEnabled'            => apply_filters( 'jetpack_subscription_site_enabled', false ),
 			'newsletterDateExample'                => gmdate( get_option( 'date_format' ), time() ),
 			'subscriptionSiteEditSupported'        => $current_theme->is_block_theme(),
@@ -287,12 +294,12 @@ class Jetpack_Redux_State_Helper {
 	 *
 	 * The update modal that consumed this data has been removed, so there is nothing to return.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 16.2
 	 *
 	 * @return null
 	 */
 	public static function get_update_modal_data() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-16.2' );
 		return null;
 	}
 
@@ -301,13 +308,13 @@ class Jetpack_Redux_State_Helper {
 	 *
 	 * Only ever used while sanitizing the release post for the removed update modal.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 16.2
 	 *
 	 * @param string $tags    The tags.
 	 * @param string $context The context.
 	 */
 	public static function allow_post_embed_iframe( $tags, $context ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-16.2' );
 
 		if ( 'post' === $context ) {
 			$tags['iframe'] = array(
@@ -328,12 +335,12 @@ class Jetpack_Redux_State_Helper {
 	 * The release post blog has had no post tagged for a current Jetpack version since 2023, and the
 	 * update modal that consumed this has been removed, so this no longer makes a remote request.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 16.2
 	 *
 	 * @return null
 	 */
 	public static function get_release_post_data() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-16.2' );
 		return null;
 	}
 

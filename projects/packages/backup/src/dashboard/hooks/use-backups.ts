@@ -4,6 +4,7 @@ import { fetchBackups, type RawBackupEntry } from '../data/api/backups';
 import { normalizeBackups } from '../data/normalize/backups';
 import { keys } from '../data/query-client';
 import { useCanQueryWpcom } from './use-connection';
+import { useStickyError } from './use-sticky-error';
 import type { Backup, BackupsState } from '../types/backup';
 
 /**
@@ -164,10 +165,10 @@ type Args = {
 type Result = BackupsSummary & {
 	backups: Backup[];
 	/**
-	 * The query's own failure. Note that the most common failure mode of
-	 * this route does *not* populate it: a non-200 from WPCOM is served
-	 * as HTTP 200 with a `null` body, which resolves. Branch on
-	 * `state === 'error'`, which covers both.
+	 * The query's own failure. Note that not every failure of this route
+	 * populates it: a 200 from WPCOM whose body will not decode reaches
+	 * the client as HTTP 200 with a `null` body, which resolves. Branch
+	 * on `state === 'error'`, which covers both.
 	 */
 	error: Error | null;
 	/**
@@ -209,7 +210,14 @@ export function useBackups( { forcePoll = false }: Args = {} ): Result {
 		refetchInterval: ( { state } ) => pollInterval( state.data, forcePoll ),
 	} );
 
-	const { data, error, refetch } = query;
+	const { data, refetch } = query;
+	// Held across the retry: React Query rewinds this query to `pending`
+	// when it refetches after a *rejection*, so without this both `error`
+	// and the derived `'error'` state evaporate the moment the reader
+	// clicks the retry button — taking the only control that can ask
+	// again with them. The route's other failure mode, an undecodable
+	// body served as HTTP 200 with `null`, resolves and so is unaffected.
+	const error = useStickyError( query.error, query.isFetching );
 
 	const backups = useMemo(
 		() => normalizeBackups( Array.isArray( data ) ? data : undefined ),
@@ -243,8 +251,13 @@ export function useBackups( { forcePoll = false }: Args = {} ): Result {
 	return {
 		...summary,
 		backups,
-		error: error ?? null,
-		isRefetching: query.isRefetching,
+		error,
+		// Not `query.isRefetching`: that is `isFetching && ! isPending`,
+		// and the rewind above makes a retry pending again, so it stays
+		// false for the whole round trip — the hole this field's docblock
+		// describes, in the field meant to close it. "Something is already
+		// on screen and we are fetching" is the honest test.
+		isRefetching: query.isFetching && ( error !== null || data !== undefined ),
 		refetch: retry,
 	};
 }

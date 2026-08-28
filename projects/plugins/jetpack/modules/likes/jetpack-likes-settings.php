@@ -215,7 +215,7 @@ class Jetpack_Likes_Settings {
 	 *
 	 * WordPress.com Simple sites are excluded: the screen is registered elsewhere there.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.2
 	 *
 	 * @param bool $sharedaddy_active Whether the Sharing (sharedaddy) module is active.
 	 * @return bool
@@ -519,7 +519,7 @@ class Jetpack_Likes_Settings {
 			 * Only applies when the site has never explicitly configured Likes visibility.
 			 * Once a site owner saves sharing settings, those are used instead.
 			 *
-			 * @since $$next-version$$
+			 * @since 16.2
 			 *
 			 * @param string[] $post_types Array of post type slugs that will show Likes by default.
 			 */

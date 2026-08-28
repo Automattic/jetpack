@@ -391,6 +391,7 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/survicate/class-survicate.php';
 		}
 		require_once __DIR__ . '/features/ai-assistant-banner/ai-assistant-banner.php';
+		require_once __DIR__ . '/features/expiry-notices/expiry-notices.php';
 		require_once __DIR__ . '/features/html-block-restricted-tags/html-block-restricted-tags.php';
 		require_once __DIR__ . '/features/marketing/marketing.php';
 		require_once __DIR__ . '/features/pages/pages.php';
@@ -760,6 +761,12 @@ class Jetpack_Mu_Wpcom {
 			if ( self::should_disable_comment_experience( $blog_id ) ) {
 				return;
 			}
+
+			if ( class_exists( '\Automattic\Jetpack\Comments\Comments' ) && \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
+				\Automattic\Jetpack\Comments\Comments::init();
+				return;
+			}
+
 			require_once __DIR__ . '/features/verbum-comments/class-verbum-comments.php';
 			new \Automattic\Jetpack\Verbum_Comments();
 		}
@@ -892,7 +899,7 @@ class Jetpack_Mu_Wpcom {
 			} elseif ( self::has_react_19_incompatible_extension() ) {
 				$is_enabled = false;
 			} else {
-				$current_segment = 2; // Segment of Atomic sites in the experiment, in %.
+				$current_segment = 5; // Segment of Atomic sites in the experiment, in %.
 				$site_segment    = $site_id % 100;
 
 				/*

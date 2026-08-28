@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { megaphone } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTabsChart,
@@ -9,20 +10,18 @@ import {
 	WidgetState,
 	useWidgetRootContext,
 	defaultPeriodForInterval,
-	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { DEFAULT_REPORT_PARAMS } from './default-report-params';
 import styles from './style.module.css';
 import useWordAdsChart, { type WordAdsPeriod } from './use-wordads-chart';
-import type { WordAdsChartTabsAttributes, WordAdsChartTabsGranularity } from './widget';
+import type { WordAdsChartTabsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-type WordAdsChartTabsRenderAttributes = WordAdsChartTabsAttributes &
-	Partial< ReportParamsFieldAttributes >;
-type WordAdsChartTabsWidgetProps = WidgetRenderProps< WordAdsChartTabsRenderAttributes >;
+type WordAdsChartTabsWidgetProps = WidgetRenderProps< WordAdsChartTabsAttributes >;
 
 const DATA_FORMAT = {
 	type: 'number' as const,
@@ -30,7 +29,7 @@ const DATA_FORMAT = {
 };
 
 // Ordered finest to coarsest, as `defaultPeriodForInterval` requires. Unlike the
-// traffic and subscribers charts, this dropdown offers year.
+// traffic and subscribers charts, this one supports year.
 const WORDADS_PERIODS = [
 	'day',
 	'week',
@@ -38,28 +37,9 @@ const WORDADS_PERIODS = [
 	'year',
 ] as const satisfies readonly WordAdsPeriod[];
 
-type WordAdsChartTabsInnerProps = {
-	/**
-	 * Selected granularity; `auto` follows the dashboard range.
-	 */
-	granularity: WordAdsChartTabsGranularity;
-};
-
-/**
- * The "Group by" control is the `granularity` attribute (`relevance: 'high'`),
- * rendered by the widget host; it only chooses the bucket size within the
- * dashboard range. Which metric is plotted is the chart's own tab selection.
- */
-function WordAdsChartTabsInner( { granularity }: WordAdsChartTabsInnerProps ) {
+function WordAdsChartTabsInner() {
 	const { reportParams } = useWidgetRootContext();
-	// `auto` means "follow the dashboard range"; an explicit value sticks
-	// across range changes, so a wide range doesn't stay stuck on `day`
-	// granularity (and blow up the bucket count) while the user hasn't picked
-	// a granularity themselves.
-	const period: WordAdsPeriod =
-		granularity === 'auto'
-			? defaultPeriodForInterval( reportParams.interval, WORDADS_PERIODS )
-			: granularity;
+	const period: WordAdsPeriod = defaultPeriodForInterval( reportParams.interval, WORDADS_PERIODS );
 
 	const { metrics, isLoading, isFetching, isError, isEmpty, refetch } = useWordAdsChart(
 		reportParams,
@@ -90,6 +70,7 @@ function WordAdsChartTabsInner( { granularity }: WordAdsChartTabsInnerProps ) {
 					metrics={ metrics }
 					dataFormat={ DATA_FORMAT }
 					groupLabel={ __( 'WordAds metric', 'jetpack-premium-analytics-pkg' ) }
+					pointsAreWallClocks
 				/>
 			</WidgetState>
 		</div>
@@ -97,11 +78,17 @@ function WordAdsChartTabsInner( { granularity }: WordAdsChartTabsInnerProps ) {
 }
 
 export default function WordAdsChartTabs( { attributes = {} }: WordAdsChartTabsWidgetProps ) {
-	const granularity = attributes.granularity ?? 'auto';
+	// Unsaved instances must not fall back to the section's URL date range.
+	const reportParams = attributes.reportParams ?? DEFAULT_REPORT_PARAMS;
 
 	return (
-		<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
-			<WordAdsChartTabsInner granularity={ granularity } />
-		</WidgetRoot>
+		// Scope the widget body before WidgetRoot strips the unsupported
+		// comparison parameters. The header control is host chrome outside this
+		// tree; it takes its scope from the section provider.
+		<ReportScopeProvider offersComparison={ false }>
+			<WidgetRoot attributes={ { ...attributes, reportParams } }>
+				<WordAdsChartTabsInner />
+			</WidgetRoot>
+		</ReportScopeProvider>
 	);
 }

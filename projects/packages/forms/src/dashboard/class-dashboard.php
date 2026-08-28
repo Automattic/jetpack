@@ -448,7 +448,7 @@ class Dashboard {
 	 * The legacy bundle is no fallback here: load_admin_scripts() skips it on this screen.
 	 * So report the problem instead of rendering a blank page.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.25.0
 	 */
 	public function render_wp_build_unavailable() {
 		?>
@@ -649,7 +649,7 @@ class Dashboard {
 	 * dashboard has no equivalent, so it falls back to the responses list with the
 	 * response selected — as does a missing/empty post ID.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.25.0
 	 *
 	 * @param int|null $post_id Post ID of the response to open.
 	 *

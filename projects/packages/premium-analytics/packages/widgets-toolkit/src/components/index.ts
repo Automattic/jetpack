@@ -4,6 +4,7 @@ export {
 	MetricTileGridSkeleton,
 	type MetricTileGridSkeletonProps,
 } from './metric-tile';
+export { MetricList, type MetricListItem, type MetricListProps } from './metric-list';
 export { MetricValue } from './metric-value';
 export { MetricWithComparison } from './metric-with-comparison';
 export { PeakDistribution, type PeakDistributionProps } from './peak-distribution';
@@ -53,7 +54,6 @@ export {
 	type LeaderboardRowChartProps,
 	type LeaderboardRowMedia,
 	type LeaderboardRowProps,
-	type LeaderboardRowVariant,
 } from './chart-leaderboard';
 export {
 	BarChart,
@@ -65,9 +65,12 @@ export {
 export { ChartEmptyState, type ChartEmptyStateProps } from './chart-empty-state';
 export {
 	AdaptiveCalendarHeatmap,
+	CalendarHeatmapPagerOverlay,
 	CalendarHeatmapTooltip,
 	type AdaptiveCalendarHeatmapChartProps,
 	type AdaptiveCalendarHeatmapProps,
+	type CalendarHeatmapPager,
+	type CalendarHeatmapPagerOverlayProps,
 	type CalendarHeatmapTooltipProps,
 } from './calendar-heatmap';
 export { WidgetLoadingOverlay } from './widget-loading-overlay';
@@ -82,11 +85,7 @@ export { WidgetFooter, type WidgetFooterProps } from './widget-footer';
 export { ReportLink, type ReportLinkProps } from './report-link';
 export { PostTitleLink, POST_URL_SEARCH_PARAM, type PostTitleLinkProps } from './post-title-link';
 export { PostDetailLink, type PostDetailLinkProps } from './post-detail-link';
-export {
-	LeaderboardPostLabel,
-	type LeaderboardPostLabelProps,
-	type LeaderboardPostLabelVariant,
-} from './leaderboard-post-label';
+export { LeaderboardPostLabel, type LeaderboardPostLabelProps } from './leaderboard-post-label';
 export {
 	PostHighlightCard,
 	PostHighlightCardSkeleton,
@@ -145,7 +144,6 @@ export {
 } from './wordads-earnings-history';
 export {
 	AnnualHighlightsSkeleton,
-	type AnnualHighlightsSkeletonProps,
 	GenericSkeleton,
 	HeatmapSkeleton,
 	MetricSparklineSkeleton,

@@ -85,6 +85,8 @@ const STATS_SUBSCRIBERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/s
 // is matched on its own rather than through routeStatsReport().
 const STATS_SUBSCRIBERS_COUNTS_PATH = '/jetpack-premium-analytics/v1/proxy/v2/subscribers/counts';
 const STATS_VISITS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits';
+const STATS_VIEWS_BY_HOUR_PATH =
+	'/jetpack-premium-analytics/v1/proxy/v1.1/stats/views-by/hour-of-day';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
 // Plan usage is served off the v2 base (not under /v1.1/stats), so it needs its
@@ -125,7 +127,8 @@ const STATS_API_BASE = '/jetpack-premium-analytics/v1/proxy/v1.1/stats';
  * Days of mock data to generate (covering past requests).
  */
 const SPECTRUM_DAYS = 90;
-const DAY_MS = 24 * 60 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
 
 /**
  * Parameters for dynamic mock data generation.
@@ -169,7 +172,7 @@ const requestCounters: Record< string, number > = {};
  * action; `loading` returns a promise that never settles; `empty` resolves with
  * a valid response that has no rows.
  */
-type ReportMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
+export type ReportMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
 
 const mockStateOverrides = new Map< string, ReportMockState >();
 
@@ -769,35 +772,51 @@ function routeReport( subPath: string, query: URLSearchParams ): unknown {
 }
 
 /**
- * Builds a mock Stats "followers" (subscribers) response with a realistic spread
- * of recent subscription times so the Latest Subscribers widget renders
- * populated in Storybook. The shape matches what `sanitizeStatsFollowersResponse`
- * expects (`{ subscribers, total, … }`); `total` exceeds the shown rows so the
- * "N more" footer appears.
+ * Builds a mock Stats "followers" (subscribers) response for the Latest
+ * Subscribers widget. Rows arrive grouped by subscriber type rather than in
+ * date order, and `total` exceeds them so the "N more" footer appears.
  *
+ * @param max - Rows per type; `0` or a missing param returns every row.
  * @return Raw followers response.
  */
-function buildFollowersResponse() {
+function buildFollowersResponse( max: number ) {
 	const now = Date.now();
 	const MINUTE = 60 * 1000;
 	const HOUR = 60 * MINUTE;
 	const DAY = 24 * HOUR;
-	const people = [
-		{ name: 'Diego Morales', offset: 20 * 1000 },
-		{ name: 'Olivia Park', offset: 12 * MINUTE },
-		{ name: 'Hiroshi Tanaka', offset: HOUR },
-		{ name: 'Emma Rossi', offset: 3 * HOUR },
-		{ name: 'Aarav Patel', offset: 5 * HOUR },
-		{ name: 'Sofia Nguyen', offset: DAY },
+	const emailPeople = [
+		{ label: 'subscriber-one@example.com', offset: 120 * DAY },
+		{ label: 'subscriber-two@example.com', offset: 240 * DAY },
+		{ label: 'subscriber-three@example.com', offset: 300 * DAY },
+		{ label: 'subscriber-four@example.com', offset: 330 * DAY },
+		{ label: 'subscriber-five@example.com', offset: 400 * DAY },
+		{ label: 'subscriber-six@example.com', offset: 430 * DAY },
 	];
-	const subscribers = people.map( ( person, index ) => ( {
-		ID: 1000 + index,
-		subscription_id: 1000 + index,
-		display_name: person.name,
-		avatar: `https://i.pravatar.cc/64?img=${ 10 + index }`,
-		url: 'https://example.com',
-		date_subscribed: new Date( now - person.offset ).toISOString(),
-	} ) );
+	const wpcomPeople = [
+		{ label: 'Diego Morales', offset: 20 * 1000 },
+		{ label: 'Olivia Park', offset: 12 * MINUTE },
+		{ label: 'Hiroshi Tanaka', offset: HOUR },
+		{ label: 'Emma Rossi', offset: 3 * HOUR },
+		{ label: 'Aarav Patel', offset: 5 * HOUR },
+		{ label: 'Sofia Nguyen', offset: DAY },
+		{ label: 'Chloe Dubois', offset: 2 * DAY },
+		{ label: 'Liam Carter', offset: 3 * DAY },
+		{ label: 'Mia Andersson', offset: 4 * DAY },
+		{ label: 'Noah Bergström', offset: 5 * DAY },
+		{ label: 'Priya Sharma', offset: 6 * DAY },
+		{ label: 'Tomás Silva', offset: 8 * DAY },
+	];
+	const page = ( people: typeof emailPeople ) => people.slice( 0, max > 0 ? max : undefined );
+	const subscribers = [ ...page( emailPeople ), ...page( wpcomPeople ) ].map(
+		( person, index ) => ( {
+			ID: 1000 + index,
+			subscription_id: 1000 + index,
+			label: person.label,
+			avatar: `https://i.pravatar.cc/64?img=${ 10 + index }`,
+			url: 'https://example.com',
+			date_subscribed: new Date( now - person.offset ).toISOString(),
+		} )
+	);
 	return { subscribers, total: 30, total_email: 18, total_wpcom: 12, page: 1, pages: 5 };
 }
 
@@ -876,6 +895,94 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 const VISITS_STEP_DAYS: Record< string, number > = { day: 1, week: 7, month: 30, year: 365 };
 
 /**
+ * Build an hour-of-day response over the requested date range.
+ */
+function buildHourOfDayResponse( query: URLSearchParams ) {
+	const endDate = parseDateParam( query.get( 'date' ), new Date() );
+	const requestedDays = Number.parseInt( query.get( 'days' ) ?? '', 10 );
+	const fallbackDays = Number.isInteger( requestedDays ) && requestedDays > 0 ? requestedDays : 30;
+	const startDate = parseDateParam(
+		query.get( 'start_date' ),
+		new Date( endDate.getTime() - ( fallbackDays - 1 ) * DAY_MS )
+	);
+	const days = Math.max(
+		1,
+		Math.round( ( endDate.getTime() - startDate.getTime() ) / DAY_MS ) + 1
+	);
+
+	// Two peaks make the distribution easier to read in Storybook.
+	const data = Array.from( { length: 24 }, ( _, hour ) => {
+		const evening = 900 * Math.exp( -( ( hour - 19 ) ** 2 ) / 6 );
+		const morning = 420 * Math.exp( -( ( hour - 10 ) ** 2 ) / 8 );
+
+		return [ String( hour ).padStart( 2, '0' ), Math.round( ( 60 + evening + morning ) * days ) ];
+	} );
+
+	return {
+		date: endDate.toISOString().slice( 0, 10 ),
+		start_date: startDate.toISOString().slice( 0, 10 ),
+		days,
+		dimension: 'hour-of-day',
+		utc_offset: '+00:00',
+		fields: [ 'period', 'views' ],
+		data,
+	};
+}
+
+/**
+ * The hourly slice of `stats/visits`.
+ *
+ * Two things set it apart from the coarser units, and both are what the real
+ * endpoint does: the bucket's date and hour are packed into a single `period`
+ * string rather than split across columns, and only Views carries a number —
+ * every other requested field comes back `null`.
+ *
+ * @param query   - Parsed query params (`start_date`, `quantity`, `stat_fields`).
+ * @param fields  - The requested stat fields, in order.
+ * @param endDate - The last bucket's instant.
+ * @return Raw hourly visits response in the WPCOM matrix shape.
+ */
+function buildHourlyVisitsResponse( query: URLSearchParams, fields: string[], endDate: Date ) {
+	// Counted from the range, as the endpoint does, rather than from `quantity`:
+	// a range-bounded request carries no `quantity`, so reading one would peg
+	// every hourly story to 24 buckets whatever window it asked for. `quantity`
+	// stays as the fallback for the range-less shape.
+	const startDate = query.get( 'start_date' )
+		? parseDateParam( query.get( 'start_date' ), endDate )
+		: null;
+	const spanHours = startDate
+		? Math.floor( ( endDate.getTime() - startDate.getTime() ) / HOUR_MS ) + 1
+		: Number( query.get( 'quantity' ) ) || 24;
+	const count = Math.max( 1, Math.min( 400, spanHours ) );
+
+	const rows = Array.from( { length: count }, ( _, index ) => {
+		const bucket = new Date( endDate );
+		bucket.setUTCHours( bucket.getUTCHours() - ( count - 1 - index ), 0, 0, 0 );
+
+		const hour = bucket.getUTCHours();
+		const period = `${ bucket.toISOString().slice( 0, 10 ) } ${ String( hour ).padStart(
+			2,
+			'0'
+		) }:00:00`;
+		// A daily rhythm — quiet overnight, busiest mid-afternoon — so the shape
+		// reads as hourly traffic rather than noise.
+		const views = Math.max(
+			0,
+			Math.round( 70 + 55 * Math.sin( ( ( hour - 4 ) / 24 ) * 2 * Math.PI ) + 8 * Math.cos( hour ) )
+		);
+
+		return [ period, ...fields.map( field => ( field === 'views' ? views : null ) ) ];
+	} );
+
+	return {
+		date: endDate.toISOString().slice( 0, 10 ),
+		unit: 'hour',
+		fields: [ 'period', ...fields ],
+		data: rows,
+	};
+}
+
+/**
  * Builds the stats/visits time-series response for the traffic chart.
  *
  * Honours the `unit`, `date`, `start_date`, and `stat_fields` query params, and
@@ -894,6 +1001,11 @@ function buildVisitsResponse( query: URLSearchParams ) {
 	const stepDays = VISITS_STEP_DAYS[ unit ] ?? 1;
 	const fields = ( query.get( 'stat_fields' ) || 'views,visitors' ).split( ',' );
 	const endDate = parseDateParam( query.get( 'date' ), new Date() );
+
+	if ( unit === 'hour' ) {
+		return buildHourlyVisitsResponse( query, fields, endDate );
+	}
+
 	const startDate = parseDateParam(
 		query.get( 'start_date' ),
 		new Date( endDate.getTime() - 29 * stepDays * DAY_MS )
@@ -953,6 +1065,8 @@ function buildVisitsResponse( query: URLSearchParams ) {
  * populated in Storybook. The shape matches what `sanitizeStatsEmailSummaryResponse`
  * expects (`{ posts: [ { title, opens_rate, clicks_rate, … } ] }`); rates are
  * 0–100 percentages and the rows are newest-first to mirror the live endpoint.
+ * One subject line carries HTML entities, because the live endpoint returns them
+ * encoded.
  *
  * @return Raw email-summary response.
  */
@@ -966,7 +1080,11 @@ function buildEmailSummaryResponse() {
 			opens_rate: 52.4,
 			clicks_rate: 8.93,
 		},
-		{ title: 'WordCamp Europe 2026: What to Expect', opens_rate: 47.9, clicks_rate: 10.25 },
+		{
+			title: 'WordCamp Europe 2026: Talks &amp; Workshops You Shouldn&#8217;t Miss',
+			opens_rate: 47.9,
+			clicks_rate: 10.25,
+		},
 		{
 			title: 'Click, Comment, Done: A Better Way to Collaborate',
 			opens_rate: 44.3,
@@ -1102,6 +1220,16 @@ function getQueryParam( requestPath: string, key: string ): string | undefined {
 	const query = requestPath.split( '?' )[ 1 ];
 
 	return query ? new URLSearchParams( query ).get( key ) ?? undefined : undefined;
+}
+
+/**
+ * Parse the query string of a (possibly relative) apiFetch request path.
+ *
+ * @param requestPath - The request path, with or without a query string.
+ * @return The parsed params, empty when the path carries none.
+ */
+function queryParamsOf( requestPath: string ): URLSearchParams {
+	return new URLSearchParams( requestPath.split( '?' )[ 1 ] ?? '' );
 }
 
 /**
@@ -1372,6 +1500,18 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 			return new Promise< never >( () => {} );
 		}
 		if ( state === 'empty' ) {
+			if ( requestPath.startsWith( STATS_VIEWS_BY_HOUR_PATH ) ) {
+				// `sanitizeStatsHourOfDayResponse` throws on any other `dimension`, so the
+				// generic empty payload below would render the error state here instead.
+				return {
+					date: '2026-01-01',
+					start_date: '2025-12-03',
+					days: 30,
+					dimension: 'hour-of-day',
+					fields: [ 'period', 'views' ],
+					data: [],
+				};
+			}
 			// A valid response with no rows across the shapes report sanitizers read
 			// (`summary` / `days` / `data`), so the widget resolves to its empty state.
 			return { date: '2026-01-01', period: 'day', summary: {}, days: {}, data: [] };
@@ -1412,7 +1552,11 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 	}
 
 	if ( requestPath.startsWith( STATS_FOLLOWERS_PATH ) ) {
-		return buildFollowersResponse();
+		const queryIndex = requestPath.indexOf( '?' );
+		const query = new URLSearchParams(
+			queryIndex === -1 ? '' : requestPath.slice( queryIndex + 1 )
+		);
+		return buildFollowersResponse( Number( query.get( 'max' ) ) );
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_COUNTS_PATH ) ) {
@@ -1426,11 +1570,12 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 		);
 	}
 
+	if ( requestPath.startsWith( STATS_VIEWS_BY_HOUR_PATH ) ) {
+		return buildHourOfDayResponse( queryParamsOf( requestPath ) );
+	}
+
 	if ( requestPath.startsWith( STATS_VISITS_PATH ) ) {
-		const queryIndex = requestPath.indexOf( '?' );
-		return buildVisitsResponse(
-			new URLSearchParams( queryIndex === -1 ? '' : requestPath.slice( queryIndex + 1 ) )
-		);
+		return buildVisitsResponse( queryParamsOf( requestPath ) );
 	}
 
 	if ( requestPath.startsWith( STATS_EMAIL_SUMMARY_PATH ) ) {

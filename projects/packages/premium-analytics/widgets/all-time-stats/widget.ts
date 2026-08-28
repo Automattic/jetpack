@@ -15,6 +15,12 @@ import { ArrayCheckboxField } from '@jetpack-premium-analytics/fields';
  * and label of each metric. Single source for the settings checkboxes and the
  * rendered tiles so the two cannot drift apart; `render.tsx` maps the ids to
  * icons and summary fields.
+ *
+ * The Insights default layout hardcodes a subset of these ids server-side
+ * (`src/dashboard-layout.php`, the `jpa/all-time-stats` instance), so renaming
+ * an id means updating both. A rename here alone is silent: unknown ids are
+ * filtered out in `render.tsx` and the default instance falls through to the
+ * "select a metric" empty state.
  */
 export const ALL_TIME_STATS_METRICS = [
 	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },

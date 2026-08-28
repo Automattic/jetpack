@@ -18,6 +18,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		pointsAreWallClocks,
 	}: {
 		metrics: {
 			key: string;
@@ -26,6 +27,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			current: { date: Date; value: number }[];
 		}[];
 		chartType?: string;
+		pointsAreWallClocks?: boolean;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
@@ -33,7 +35,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-metric-label={ metrics[ 0 ]?.label }
 			data-metric-total={ String( metrics[ 0 ]?.value ) }
 			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
+			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
 			data-chart-type={ String( chartType ) }
+			data-wall-clocks={ String( pointsAreWallClocks ) }
 		/>
 	),
 } ) );
@@ -43,6 +47,16 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
+
+// An explicit window covering the fixture buckets below: the data layer trims
+// buckets to the requested window, so a default (today-relative) preset would
+// trim these fixed July dates away.
+const JULY_WEEK_PARAMS = {
+	...getDefaultQueryParams( false ),
+	preset: undefined,
+	from: '2026-07-01T00:00:00.000+08:00',
+	to: '2026-07-07T23:59:59.999+08:00',
+};
 
 // Raw WPCOM email timeline shape (`stats_fields=timeline`): a matrix nested
 // under `timeline`, one daily row per bucket. 2026-07-04/05 fall in one ISO
@@ -74,7 +88,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		render(
 			<EmailTimeSeriesWidget
 				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
 					metric: 'opens',
 				} }
 			/>
@@ -93,6 +107,40 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( requestedPath ).toContain( 'stats_fields=timeline' );
 	} );
 
+	// Pinned west of UTC on purpose: under a UTC runner the wall-clock reading
+	// and the old instant reading coincide, so this would pass either way. `TZ`
+	// is not on the typed env shape, hence the cast.
+	it( 'builds chart points as the wall clocks the buckets name, declared to the chart', async () => {
+		const env = process.env as Record< string, string | undefined >;
+		const runnerTimeZone = env.TZ;
+		env.TZ = 'America/Los_Angeles';
+
+		try {
+			mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
+
+			render(
+				<EmailTimeSeriesWidget
+					attributes={ {
+						reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
+						metric: 'opens',
+					} }
+				/>
+			);
+
+			const chart = await screen.findByTestId( 'metric-tabs-chart' );
+			// The old `localTZDate` reading anchors the buckets away from the
+			// local frame, so these read as the previous day (3,4,5) under it.
+			expect( chart ).toHaveAttribute( 'data-days', '4,5,6' );
+			expect( chart ).toHaveAttribute( 'data-wall-clocks', 'true' );
+		} finally {
+			if ( runnerTimeZone === undefined ) {
+				delete env.TZ;
+			} else {
+				env.TZ = runnerTimeZone;
+			}
+		}
+	} );
+
 	it( 'reads the clicks endpoint when metric is clicks', async () => {
 		mockApiFetch.mockResolvedValue( {
 			timeline: {
@@ -105,7 +153,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		render(
 			<EmailTimeSeriesWidget
 				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
 					metric: 'clicks',
 				} }
 			/>
@@ -117,6 +165,54 @@ describe( 'EmailTimeSeriesWidget', () => {
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'stats/clicks/emails/1234' );
+	} );
+
+	it( 'draws exactly the selected hourly window from a midnight-anchored payload', async () => {
+		// The endpoint anchors hourly buckets on the start day's midnight and
+		// returns `quantity` buckets forward, so a last-24-hours window (09:00
+		// → 08:59 next day) is served as 33 buckets from hour 0. The widget
+		// must chart and sum only the 24 in-window hours.
+		mockApiFetch.mockResolvedValue( {
+			timeline: {
+				unit: 'hour',
+				fields: [ 'date', 'hour', 'opens_count' ],
+				data: [
+					...Array.from( { length: 24 }, ( _, hour ) => [ '2026-07-04', hour, hour ] ),
+					...Array.from( { length: 9 }, ( _, hour ) => [ '2026-07-05', hour, hour ] ),
+				],
+			},
+		} );
+
+		render(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-07-04T09:00:00.000+08:00',
+						to: '2026-07-05T08:59:59.999+08:00',
+						interval: 'hour',
+						post_id: 1234,
+					},
+					metric: 'opens',
+				} }
+			/>
+		);
+
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		const values = String( chart.getAttribute( 'data-values' ) ).split( ',' );
+		expect( values ).toHaveLength( 24 );
+		expect( values[ 0 ] ).toBe( '9' );
+		expect( values[ 23 ] ).toBe( '8' );
+		// Hours 9–23 of day one plus 0–8 of day two.
+		expect( chart ).toHaveAttribute( 'data-metric-total', '276' );
+
+		const requestedPath = String( mockApiFetch.mock.calls[ 0 ][ 0 ].path );
+		const requestParams = new URLSearchParams( requestedPath.split( '?' )[ 1 ] );
+		expect( requestParams.get( 'quantity' ) ).toBe( '33' );
+		// The trim window is sanitizer-only and must never reach the API.
+		expect( requestParams.get( 'window_start' ) ).toBeNull();
+		expect( requestParams.get( 'window_end' ) ).toBeNull();
 	} );
 
 	it( 'ignores comparison report params: one request, single series', async () => {
@@ -155,15 +251,22 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( requestedDates ).toEqual( [ '2026-07-01T00:00:00.000+08:00' ] );
 	} );
 
-	it( 'aggregates the daily buckets into ISO weeks for the weekly granularity', async () => {
+	it( 'aggregates the daily buckets into ISO weeks when the page interval is weekly', async () => {
 		mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
 
 		render(
 			<EmailTimeSeriesWidget
 				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					// A 35-day window (weekly needs >= 28 days) covering both ISO weeks.
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-06-08T00:00:00.000+08:00',
+						to: '2026-07-12T23:59:59.999+08:00',
+						interval: 'week',
+						post_id: 1234,
+					},
 					metric: 'opens',
-					granularity: 'week',
 				} }
 			/>
 		);
@@ -172,7 +275,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-values', '15,7' );
 	} );
 
-	it( 'aggregates the daily buckets into calendar months for the monthly granularity', async () => {
+	it( 'aggregates the daily buckets into calendar months when the page interval is monthly', async () => {
 		mockApiFetch.mockResolvedValue( {
 			timeline: {
 				unit: 'day',
@@ -188,9 +291,18 @@ describe( 'EmailTimeSeriesWidget', () => {
 		render(
 			<EmailTimeSeriesWidget
 				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					// An explicit multi-month window: `WidgetRoot` normalizes report
+					// params through `resolveIntervalForRange`, and the default
+					// 30-day preset would coerce a monthly interval back to daily.
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-05-01T00:00:00.000+08:00',
+						to: '2026-08-31T23:59:59.999+08:00',
+						interval: 'month',
+						post_id: 1234,
+					},
 					metric: 'opens',
-					granularity: 'month',
 				} }
 			/>
 		);

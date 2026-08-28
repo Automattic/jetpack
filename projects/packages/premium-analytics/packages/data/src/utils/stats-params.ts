@@ -6,6 +6,7 @@ import {
 	differenceInCalendarISOWeeks,
 	differenceInCalendarMonths,
 	differenceInCalendarYears,
+	differenceInMilliseconds,
 } from 'date-fns';
 /**
  * Internal dependencies
@@ -14,6 +15,8 @@ import { localTZDate } from './date';
 import { getDaysBetweenInclusive } from './interval';
 import type { ReportParams } from './search';
 import type { StatsProxyParams } from '../api/stats-proxy-fetch';
+
+const MS_PER_HOUR = 60 * 60 * 1000;
 
 export type StatsPeriod = 'hour' | 'day' | 'week' | 'month' | 'year';
 
@@ -28,6 +31,12 @@ export type StatsQueryParamFields = {
 	summarize?: number | boolean;
 	complete_stats?: number | boolean;
 	skip_archives?: number | boolean;
+	// Sanitizer-only: the trim window owned by processing/stats/bucket-window.ts,
+	// sent via `sanitizerParams` and honored only by the email time-series
+	// sanitizer — inert for every other sanitizer. Deliberately absent from
+	// statsParamKeys so report params can never carry them into a request.
+	window_start?: string;
+	window_end?: string;
 };
 
 export type StatsQueryParams = StatsProxyParams & StatsQueryParamFields;
@@ -56,7 +65,6 @@ export function getStatsPeriodFromInterval( interval?: string ): StatsPeriod {
 		case 'week':
 			return 'week';
 		case 'month':
-		case 'quarter':
 			return 'month';
 		case 'year':
 			return 'year';
@@ -67,14 +75,78 @@ export function getStatsPeriodFromInterval( interval?: string ): StatsPeriod {
 }
 
 /**
- * Count the number of `period` buckets spanning a date range, inclusive of both
- * ends. Used to translate a dashboard date range into the `quantity` param that
- * quantity-based Stats endpoints (e.g. `stats/subscribers`) expect for the given
- * `unit`, mirroring how `days` is derived for day-based requests.
+ * Count the hour buckets a range covers, from the span between its ends.
+ *
+ * Hour is the only unit whose ends carry precision finer than the unit itself,
+ * so it is the only one that can land mid-bucket. Rounding the span up counts
+ * the bucket a partial hour falls in, without adding one to a range that already
+ * ends on the hour — the presets end at `23:59:59.999`, but a hand-edited or
+ * deep-linked range need not.
+ *
+ * Unlike the calendar counters, this one reads the ends as instants rather than
+ * as calendar days, so both must carry a time of day. Bare `yyyy-MM-dd` ends
+ * both parse as midnight and undercount by a bucket-day — `2026-08-01` to
+ * `2026-08-07` counts 144 hours, not 168. Callers that can reach `hour` pass
+ * datetimes; see `getPeriodsBetweenInclusive`.
+ *
+ * @param from - Range start, as a datetime.
+ * @param to   - Range end, as a datetime.
+ * @return The bucket count, at least 1.
+ */
+function countHourBuckets( from: string, to: string ): number {
+	const span = differenceInMilliseconds( localTZDate( to ), localTZDate( from ) );
+
+	return Number.isNaN( span ) || span <= 0 ? 1 : Math.ceil( span / MS_PER_HOUR );
+}
+
+/**
+ * Count the buckets a range covers for a unit the calendar names, both ends
+ * included.
+ *
+ * Both dates are anchored in UTC before diffing: the calendar-diff functions
+ * read their arguments' local getters, and a plain UTC-tagged `Date`'s getters
+ * reflect the machine's local timezone, not UTC. Left unanchored, a
+ * negative-offset machine can read a UTC midnight instant that lands exactly on
+ * a week/month/year boundary as the previous local period, shifting only one
+ * side of the range and skewing the bucket count (e.g. a 4-week range reading
+ * as 5 weeks).
+ *
+ * @param difference - The calendar diff for the unit.
+ * @return A counter for that unit.
+ */
+function countCalendarBuckets( difference: ( to: Date, from: Date ) => number ) {
+	return ( from: string, to: string ): number => {
+		const fromDate = localTZDate( `${ getDatePart( from ) }T00:00:00Z`, '+00:00' );
+		const toDate = localTZDate( `${ getDatePart( to ) }T00:00:00Z`, '+00:00' );
+
+		const diff = difference( toDate, fromDate );
+
+		return Number.isNaN( diff ) || diff < 0 ? 1 : diff + 1;
+	};
+}
+
+/**
+ * How each unit counts the buckets a range covers. One entry per unit, so a new
+ * one is a new entry rather than another branch.
+ */
+const BUCKET_COUNTERS: Record< StatsPeriod, ( from: string, to: string ) => number > = {
+	hour: countHourBuckets,
+	day: getDaysBetweenInclusive,
+	week: countCalendarBuckets( differenceInCalendarISOWeeks ),
+	month: countCalendarBuckets( differenceInCalendarMonths ),
+	year: countCalendarBuckets( differenceInCalendarYears ),
+};
+
+/**
+ * Count the buckets a range covers at a given unit. Used to translate a
+ * dashboard date range into the `quantity` param that quantity-based Stats
+ * endpoints (e.g. `stats/subscribers`) expect, mirroring how `days` is derived
+ * for day-based requests.
  *
  * @param period - The bucket granularity.
- * @param from   - Range start (`yyyy-MM-dd`, or a full ISO datetime — only the calendar day is used).
- * @param to     - Range end (`yyyy-MM-dd`, or a full ISO datetime — only the calendar day is used).
+ * @param from   - Range start (`yyyy-MM-dd`, or a full ISO datetime; `hour`
+ *               needs the datetime — see `countHourBuckets`).
+ * @param to     - Range end, same shapes and the same `hour` caveat.
  * @return The bucket count, at least 1.
  */
 export function getPeriodsBetweenInclusive(
@@ -82,33 +154,7 @@ export function getPeriodsBetweenInclusive(
 	from: string,
 	to: string
 ): number {
-	if ( period === 'hour' || period === 'day' ) {
-		return getDaysBetweenInclusive( from, to );
-	}
-
-	// Anchor both dates in UTC before diffing: the calendar-diff functions read
-	// their arguments' local getters, and a plain UTC-tagged `Date`'s getters
-	// reflect the machine's local timezone, not UTC. Left unanchored, a
-	// negative-offset machine can read a UTC midnight instant that lands
-	// exactly on a week/month/year boundary as the previous local period,
-	// shifting only one side of the range and skewing the bucket count (e.g.
-	// a 4-week range reading as 5 weeks).
-	const fromDate = localTZDate( `${ getDatePart( from ) }T00:00:00Z`, '+00:00' );
-	const toDate = localTZDate( `${ getDatePart( to ) }T00:00:00Z`, '+00:00' );
-
-	const differenceForPeriod = {
-		week: differenceInCalendarISOWeeks,
-		month: differenceInCalendarMonths,
-		year: differenceInCalendarYears,
-	}[ period ];
-
-	const diff = differenceForPeriod( toDate, fromDate );
-
-	if ( Number.isNaN( diff ) || diff < 0 ) {
-		return 1;
-	}
-
-	return diff + 1;
+	return BUCKET_COUNTERS[ period ]( from, to );
 }
 
 export function reportParamsToStatsQueryParams(
@@ -140,7 +186,13 @@ export function reportParamsToStatsQueryParams(
 }
 
 export function statsQueryParamsToApiParams( params: StatsQueryParams = {} ): StatsProxyParams {
+	// window_start/window_end are sanitizer-only (see StatsQueryParamFields):
+	// stripped here so a caller that passes them in request params by mistake
+	// cannot leak them into request URLs and query keys.
 	const { end_date: endDate, ...apiParams } = params;
+
+	delete apiParams.window_start;
+	delete apiParams.window_end;
 
 	return {
 		...apiParams,

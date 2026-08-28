@@ -39,6 +39,7 @@ const DASHBOARD_TRAFFIC_SECTION_ID     = 'traffic';
 const DASHBOARD_INSIGHTS_SECTION_ID    = 'insights';
 const DASHBOARD_SUBSCRIBERS_SECTION_ID = 'subscribers';
 const DASHBOARD_STORE_SECTION_ID       = 'store';
+const DASHBOARD_ADS_SECTION_ID         = 'ads';
 
 /**
  * Resolves the default layout registered for a dashboard.
@@ -78,7 +79,7 @@ function get_dashboard_default_layout_for( $dashboard_name ) {
  * The callbacks are used directly because the section registry may not be
  * initialized when this route runs.
  *
- * @since $$next-version$$
+ * @since 0.3.0
  *
  * @return callable[] Resolved tab ID mapped to its availability callback.
  */
@@ -86,6 +87,7 @@ function get_dashboard_default_layout_gates() {
 	return array(
 		DASHBOARD_STORE_SECTION_ID       => array( Capabilities::class, 'current_user_can_view_store_reports' ),
 		DASHBOARD_SUBSCRIBERS_SECTION_ID => __NAMESPACE__ . '\\is_subscribers_dashboard_section_available',
+		DASHBOARD_ADS_SECTION_ID         => __NAMESPACE__ . '\\is_ads_dashboard_section_available_to_current_user',
 	);
 }
 
@@ -190,10 +192,7 @@ function get_dashboard_default_section_layouts() {
 				'jpa/traffic-chart',
 				0,
 				4,
-				2,
-				array(
-					'granularity' => 'auto',
-				)
+				2
 			),
 			// Row 2: most-viewed posts + referrers + devices.
 			get_dashboard_default_widget_instance(
@@ -291,96 +290,120 @@ function get_dashboard_default_section_layouts() {
 				4,
 				1
 			),
-			// Row 2: posting-activity heatmap.
+			// Row 2: lifetime totals. Full width until Most popular time joins
+			// the row (WOOA7S-2019); WOOA7S-2009 then settles the arrangement.
+			get_dashboard_default_widget_instance(
+				'default-all-time-stats-widget-instance',
+				'jpa/all-time-stats',
+				1,
+				4,
+				1,
+				array(
+					// The design shows three totals; the widget's own default adds
+					// Comments, which the comment leaderboards below already cover.
+					'metrics' => array( 'views', 'visitors', 'posts' ),
+				)
+			),
+			// Row 3: most popular day. Two rows tall so both fields fit without
+			// scrolling; a 1x1 tile is 200px, which the two display-sized figures
+			// overflow. The design shares this row with All-time stats and Most
+			// popular time, which WOOA7S-2009 arranges once WOOA7S-2019 lands.
+			get_dashboard_default_widget_instance(
+				'default-most-popular-day-widget-instance',
+				'jpa/most-popular-day',
+				2,
+				1,
+				2
+			),
+			// Row 4: posting-activity heatmap.
 			get_dashboard_default_widget_instance(
 				'default-posting-activity-widget-instance',
 				'jpa/posting-activity',
-				1,
+				3,
 				4,
 				1
 			),
-			// Row 3: the two post spotlights.
+			// Row 5: the two post spotlights.
 			get_dashboard_default_widget_instance(
 				'default-latest-post-widget-instance',
 				'jpa/latest-post',
-				2,
+				4,
 				2,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-popular-post-widget-instance',
 				'jpa/popular-post',
-				3,
+				5,
 				2,
 				2
 			),
-			// Row 4: the period totals, the weekday distribution, and the
-			// all-time best day. The most-popular-day card still crops at this
-			// height (WOOA7S-1846).
+			// Row 6: the period totals and the weekday and hour-of-day
+			// distributions.
 			get_dashboard_default_widget_instance(
 				'default-total-views-widget-instance',
 				'jpa/total-views',
-				4,
+				6,
 				1,
 				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-total-visitors-widget-instance',
 				'jpa/total-visitors',
-				5,
+				7,
 				1,
 				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-popular-days-widget-instance',
 				'jpa/popular-days',
-				6,
+				8,
 				1,
 				1
 			),
 			get_dashboard_default_widget_instance(
-				'default-most-popular-day-widget-instance',
-				'jpa/most-popular-day',
-				7,
+				'default-popular-hours-widget-instance',
+				'jpa/popular-hours',
+				9,
 				1,
 				1
 			),
-			// Row 5: daily views heatmap. Two rows tall, as in the prototype: the
+			// Row 7: daily views heatmap. Two rows tall, as in the prototype: the
 			// cells are sized from the tile's height, and only at this height do they
 			// grow wide enough to label each day with its view count.
 			get_dashboard_default_widget_instance(
 				'default-traffic-views-activity-widget-instance',
 				'jpa/traffic-views-activity',
-				8,
+				10,
 				4,
 				2
 			),
-			// Row 6: the comment leaderboards, shares, and tags.
+			// Row 8: the comment leaderboards, shares, and tags.
 			get_dashboard_default_widget_instance(
 				'default-most-commented-posts-widget-instance',
 				'jpa/most-commented-posts',
-				9,
+				11,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-most-commented-authors-widget-instance',
 				'jpa/most-commented-authors',
-				10,
+				12,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-shares-widget-instance',
 				'jpa/shares',
-				11,
+				13,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-tags-widget-instance',
 				'jpa/tags',
-				12,
+				14,
 				1,
 				2
 			),
@@ -394,10 +417,7 @@ function get_dashboard_default_section_layouts() {
 				'jpa/subscribers-chart',
 				0,
 				4,
-				2,
-				array(
-					'granularity' => 'auto',
-				)
+				2
 			),
 			// Row 2: latest subscribers + latest emails sent.
 			get_dashboard_default_widget_instance(
@@ -483,6 +503,44 @@ function get_dashboard_default_section_layouts() {
 				1
 			),
 		),
+		DASHBOARD_ADS_SECTION_ID         => array(
+			// Match the Calypso WordAds widget order.
+			get_dashboard_default_widget_instance(
+				'default-wordads-highlights-widget-instance',
+				'jpa/wordads-highlights',
+				0,
+				4,
+				1
+			),
+			get_dashboard_default_widget_instance(
+				'default-wordads-chart-tabs-widget-instance',
+				'jpa/wordads-chart-tabs',
+				1,
+				4,
+				2
+			),
+			get_dashboard_default_widget_instance(
+				'default-wordads-earnings-history-widget-instance',
+				'jpa/wordads-earnings-history',
+				2,
+				4,
+				2
+			),
+			get_dashboard_default_widget_instance(
+				'default-wordads-sponsored-content-history-widget-instance',
+				'jpa/wordads-sponsored-content-history',
+				3,
+				2,
+				2
+			),
+			get_dashboard_default_widget_instance(
+				'default-wordads-adjustments-history-widget-instance',
+				'jpa/wordads-adjustments-history',
+				4,
+				2,
+				2
+			),
+		),
 	);
 }
 
@@ -503,6 +561,8 @@ function get_dashboard_default_section_id_for( $dashboard_name ) {
 		'analytics/subscribers'          => DASHBOARD_SUBSCRIBERS_SECTION_ID,
 		DASHBOARD_STORE_SECTION_ID       => DASHBOARD_STORE_SECTION_ID,
 		'woocommerce/store'              => DASHBOARD_STORE_SECTION_ID,
+		DASHBOARD_ADS_SECTION_ID         => DASHBOARD_ADS_SECTION_ID,
+		'analytics/ads'                  => DASHBOARD_ADS_SECTION_ID,
 	);
 
 	return $aliases[ $dashboard_name ] ?? null;

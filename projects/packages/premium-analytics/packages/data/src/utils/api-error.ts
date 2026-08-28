@@ -1,4 +1,9 @@
 /**
+ * Marks a successful response whose shape cannot be sanitized.
+ */
+export class StatsResponseShapeError extends Error {}
+
+/**
  * Extract HTTP status code from common API error shapes.
  *
  * WordPress REST API errors and fetch errors can expose the status in
@@ -64,12 +69,37 @@ export function getApiErrorCode( error: unknown ): string | null {
 }
 
 /**
+ * Whether the failure means this user or session may not read the data.
+ *
+ * The proxy's `no_connection` 403 is not one: it flags a broken Jetpack
+ * connection, which says nothing about permissions and can heal.
+ */
+export function isAccessDenied( error: unknown ): boolean {
+	return getApiErrorStatus( error ) === 403 && getApiErrorCode( error ) !== 'no_connection';
+}
+
+/**
+ * Whether offering the reader a Retry can plausibly help.
+ *
+ * Distinct from `shouldRetryApiError`, the query client's automatic policy: a
+ * 401 or 404 is worth a deliberate retry from the reader even though retrying it
+ * three times unprompted is not.
+ */
+export function isUserRetryableError( error: unknown ): boolean {
+	return ! ( error instanceof StatsResponseShapeError ) && ! isAccessDenied( error );
+}
+
+/**
  * Determine whether a failed API query should be retried.
  *
  * Authentication, authorization and not-found failures are deterministic for the
  * current user/session, so retrying only delays the widget-specific error UI.
  */
 export function shouldRetryApiError( failureCount: number, error: unknown ): boolean {
+	if ( error instanceof StatsResponseShapeError ) {
+		return false;
+	}
+
 	const status = getApiErrorStatus( error );
 
 	if ( status === 401 || status === 403 || status === 404 ) {

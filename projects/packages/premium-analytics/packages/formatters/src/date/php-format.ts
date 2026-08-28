@@ -66,6 +66,20 @@ function toSegments( phpFormat: string ): Segment[] {
 }
 
 /**
+ * Whether a format renders any of the given date parts.
+ *
+ * Escaped letters spell literal text rather than naming a part, so they do not
+ * count: `G\h i` renders an hour, a literal "h", and minutes — not a 12-hour clock.
+ *
+ * @param phpFormat - PHP `date()` format string.
+ * @param tokens    - Token letters to look for.
+ * @return Whether the format renders one of them.
+ */
+export function hasToken( phpFormat: string, tokens: Set< string > ): boolean {
+	return toSegments( phpFormat ).some( segment => segment.isToken && tokens.has( segment.char ) );
+}
+
+/**
  * Remove the year from a PHP format string, along with the punctuation that
  * introduces it.
  *
@@ -158,11 +172,7 @@ export function withShortMonth( phpFormat: string ): string {
  * @return The format led by its weekday, or unchanged when it already has one.
  */
 export function withWeekday( phpFormat: string ): string {
-	const hasWeekday = toSegments( phpFormat ).some(
-		segment => segment.isToken && WEEKDAY_TOKENS.has( segment.char )
-	);
-
-	if ( hasWeekday ) {
+	if ( hasToken( phpFormat, WEEKDAY_TOKENS ) ) {
 		return phpFormat;
 	}
 

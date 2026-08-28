@@ -2,19 +2,19 @@
  * External dependencies
  */
 import { useStatsVideoPlays } from '@jetpack-premium-analytics/data';
-import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	ReportLink,
-	VideoTitleLink,
 	WIDGET_ROW_LIMIT,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
 	calculateDelta,
 	getCombinedPeriodMax,
 	sharePercentage,
+	useWidgetNavigationSearch,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -43,27 +43,6 @@ type VideoPressWidgetProps = WidgetRenderProps< VideoPressRenderAttributes > & {
 };
 
 /**
- * Build a video row's title. Attachment rows navigate to the internal detail
- * route; rows without an ID retain the original external-link fallback.
- */
-function buildVideoTitle( row: VideoPlaysRow, search: Record< string, unknown > ): JSX.Element {
-	return (
-		<VideoTitleLink
-			id={ row.id }
-			label={ row.label }
-			link={ row.link }
-			search={ search }
-			classNames={ {
-				internal: styles.internalLink,
-				external: styles.labelLink,
-				plain: styles.labelText,
-			} }
-			title={ row.label }
-		/>
-	);
-}
-
-/**
  * Maps normalized video rows onto the shape `LeaderboardChart` expects. Shares
  * are computed against the largest value of either period so the overlay bars
  * stay proportional. Rows without a matching comparison-period value keep
@@ -71,7 +50,7 @@ function buildVideoTitle( row: VideoPlaysRow, search: Record< string, unknown > 
  */
 function buildLeaderboardData(
 	rows: VideoPlaysRow[],
-	search: Record< string, unknown >
+	detailSearch: Record< string, unknown >
 ): LeaderboardChartData {
 	const maxPlays = getCombinedPeriodMax(
 		rows.map( row => row.plays ),
@@ -80,7 +59,11 @@ function buildLeaderboardData(
 
 	return rows.map( row => ( {
 		id: row.key,
-		label: buildVideoTitle( row, search ),
+		...buildLeaderboardRow( {
+			label: row.label,
+			media: { kind: 'none' },
+			action: { kind: 'videoLink', id: row.id, href: row.link, search: detailSearch },
+		} ),
 		currentValue: row.plays,
 		currentShare: sharePercentage( row.plays, maxPlays ),
 		previousValue: row.previousPlays,
@@ -97,6 +80,7 @@ function buildLeaderboardData(
  */
 function VideoPressReport() {
 	const { reportParams } = useWidgetRootContext();
+	const detailSearch = useWidgetNavigationSearch();
 	const statsParams = useMemo(
 		() => ( { ...reportParams, max: WIDGET_ROW_LIMIT } ),
 		[ reportParams ]
@@ -113,8 +97,6 @@ function VideoPressReport() {
 	const isInitialLoading = isLoading || primary.isPending;
 
 	const rows = useMemo( () => toVideoPlaysRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
-	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
-
 	const chartData = useMemo(
 		() => buildLeaderboardData( rows, detailSearch ),
 		[ rows, detailSearch ]

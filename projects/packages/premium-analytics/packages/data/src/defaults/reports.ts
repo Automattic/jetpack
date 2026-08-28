@@ -14,6 +14,7 @@ import {
 	type PresetType,
 	type ReportParams,
 } from '../utils';
+import { getStoreInfo } from './store-info';
 
 const DEFAULT_PRESET: PresetType = 'last-30-days';
 
@@ -44,6 +45,16 @@ export function getDefaultPreset( launchedDate?: string ): PresetType {
 	}
 
 	return DEFAULT_PRESET;
+}
+
+/**
+ * The report params a widget that owns its date range starts on.
+ *
+ * A preset alone, so `normalizeReportParams` recomputes its moving end on every
+ * load rather than freezing the dates the module was built on.
+ */
+export function getDefaultReportParams(): { preset: PresetType } {
+	return { preset: getDefaultPreset( getStoreInfo().launchedDate ) };
 }
 
 /**

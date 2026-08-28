@@ -1,4 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
@@ -107,7 +108,7 @@ export function sanitizeStatsCommentsResponse(
 	const authors: StatsCommentsAuthorItem[] = coerceStatsArray< StatsCommentsRawAuthor >(
 		payload.authors
 	).map( author => ( {
-		label: getStatsLabel( author.name ),
+		label: decodeHtmlText( getStatsLabel( author.name ) ),
 		value: safeParseFloat( author.comments ),
 		iconClassName: 'avatar-user',
 		icon: normalizeCommentAvatar( author.gravatar ),
@@ -125,7 +126,7 @@ export function sanitizeStatsCommentsResponse(
 		payload.posts
 	).map( post => ( {
 		id: post.id,
-		label: getStatsLabel( post.name ?? post.title ),
+		label: decodeHtmlText( getStatsLabel( post.name ?? post.title ) ),
 		value: safeParseFloat( post.comments ),
 		link: typeof post.link === 'string' ? post.link : null,
 		page: post.id ? `/stats/post/${ post.id }` : null,

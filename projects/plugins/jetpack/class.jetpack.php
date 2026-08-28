@@ -2971,13 +2971,13 @@ p {
 	 * Only ever registered the hooks for the release post update modal, which has been removed.
 	 * No longer hooked to `updating_jetpack_version`.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 16.2
 	 *
 	 * @param string $version     Version:timestamp.
 	 * @param string $old_version Old Version:timestamp or false if not set yet.
 	 */
 	public static function do_version_bump( $version, $old_version ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature preserved for the deprecation shim.
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-16.2' );
 	}
 
 	/**
@@ -3305,10 +3305,10 @@ p {
 	 * the matching `display_update_modal` guard in Automattic\Jetpack\CookieState::should_set_cookie(),
 	 * which exists only to keep this key out of the cookie on the Jetpack admin screen.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 16.2
 	 */
 	public static function set_update_modal_display() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-16.2' );
 		self::state( 'display_update_modal', true );
 	}
 
@@ -3317,12 +3317,12 @@ p {
 	 *
 	 * Only ever used by the release post update modal, which has been removed.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 16.2
 	 *
 	 * @param string $hook The current admin page.
 	 */
 	public static function enqueue_block_style( $hook ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-16.2' );
 		if ( 'toplevel_page_jetpack' === $hook ) {
 			wp_enqueue_style( 'wp-block-library' );
 		}
@@ -3633,7 +3633,7 @@ p {
 	 * `jetpack_heartbeat_stats_array` filter. Note the package method does not include the extended
 	 * data from `get_additional_stat_data()`, so callers relying on `$extended` need to add it themselves.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 16.2
 	 *
 	 * @param bool $encode JSON encode the result.
 	 * @param bool $extended Adds additional stats data.
@@ -3641,7 +3641,7 @@ p {
 	 * @return array|string Stats data. Array if $encode is false. JSON-encoded string is $encode is true.
 	 */
 	public static function get_stat_data( $encode = true, $extended = true ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Heartbeat::generate_stats_array' );
+		_deprecated_function( __METHOD__, 'jetpack-16.2', 'Automattic\\Jetpack\\Heartbeat::generate_stats_array' );
 
 		// Site environment stats now live in the Connection package; merge them with the Jetpack-specific stats.
 		$data = array_merge( Jetpack_Heartbeat::generate_stats_array(), Heartbeat::get_environment_stats() );
@@ -5607,12 +5607,12 @@ endif;
 	 * Note the package guards on `Connection\Manager::is_connected()` where this used to guard on
 	 * `Jetpack::is_connection_ready()`, so the `jetpack_is_connection_ready` filter no longer applies.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 16.2
 	 *
 	 * @return array|bool Array of options that are in a crisis, or false if everything is OK.
 	 */
 	public static function check_identity_crisis() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Identity_Crisis::check_identity_crisis' );
+		_deprecated_function( __METHOD__, 'jetpack-16.2', 'Automattic\\Jetpack\\Identity_Crisis::check_identity_crisis' );
 
 		return Identity_Crisis::check_identity_crisis();
 	}

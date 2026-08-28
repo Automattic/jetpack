@@ -80,6 +80,7 @@ The simplest bar chart requires only a `data` prop with categorical data:
 **Legend:**
 - **`showLegend`**: Display chart legend (`false` by default)
 - **`legend`**: Legend configuration object (`ChartLegendConfig`) for controlling orientation, position, alignment, shape, interactivity, and styling
+- **`defaultHiddenSeries`**: Series labels hidden from the first defined value; later values for the same `chartId` are ignored
 
 **Advanced:**
 - **`options`**: Advanced axis and scale configuration
@@ -386,17 +387,33 @@ Use the composition API to add a legend by placing `<BarChart.Legend />` as a ch
 
 For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
 
+Use `defaultHiddenSeries` to hide selected series initially while keeping them available through an interactive legend. The first defined list is used; later values for the same `chartId` are ignored. The defaults are seeded once per `chartId`, so a series the reader reveals stays revealed even if the chart unmounts and comes back — swapping between chart types, or a tab the chart lives in going away and returning. Only a new `chartId` seeds again.
+
+<Canvas of={ BarChartStories.WithDefaultHiddenSeries } />
+
 ## Theming Integration
 
-Bar Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+Bar Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+
+**Series colors come from the palette custom properties, not the theme object.** Set as many of the five slots as you need; an unset slot is skipped, and charts generates accessible colors beyond whatever you set:
+
+<Source
+	language="css"
+	code={ `.a8c-charts-scope {
+		--a8c-charts-color-series-1: #FF6B6B;
+		--a8c-charts-color-series-2: #4ECDC4;
+		--a8c-charts-color-series-3: #45B7D1;
+	}` }
+/>
+
+Everything else is set by wrapping your chart in `GlobalChartsProvider` and passing a theme object with the properties you want to override to the `theme` prop:
 
 <Source
 	language="tsx"
 	code={ `import { GlobalChartsProvider, BarChart, type ChartTheme } from '@automattic/charts';
 
 	const customTheme: ChartTheme = {
-		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
-		gridColor: '#E0E0E0',
+		gridStyles: { stroke: '#E0E0E0' },
 	};
 
 	<GlobalChartsProvider theme={customTheme}>

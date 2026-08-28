@@ -7,7 +7,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 type AnyObject = Record< string, unknown >;
 
 export type UseStagedSearchOptions< TFrom extends string > = {
-	from: TFrom; // e.g., '/',
+	/**
+	 * The route the search params are bound to, e.g. `/`. Omit to read whichever
+	 * route is matched — the way `WidgetRoot` resolves report params — so a
+	 * widget can commit on any page that hosts it.
+	 */
+	from?: TFrom;
 
 	/**
 	 * If provided, stage() will schedule an automatic debounced commit
@@ -92,8 +97,17 @@ function mergeDefined< T extends AnyObject >( base: T, patch: Partial< T > ): T 
 export function useStagedSearch< TSearch extends AnyObject, TFrom extends string >(
 	opts: UseStagedSearchOptions< TFrom >
 ): UseStagedSearchReturn< TSearch > {
-	const navigate = useNavigate( { from: opts.from } );
-	const committed = useSearch( { from: opts.from } ) as TSearch;
+	const navigate = useNavigate( opts.from === undefined ? {} : { from: opts.from } );
+
+	/*
+	 * TanStack types the strict and loose forms as exclusive shapes keyed on a
+	 * generic, so a runtime choice between them cannot satisfy either on its own;
+	 * the widened parameter type admits both.
+	 */
+	const searchOptions = (
+		opts.from === undefined ? { strict: false } : { from: opts.from }
+	) as Parameters< typeof useSearch >[ 0 ];
+	const committed = useSearch( searchOptions ) as TSearch;
 
 	const [ staged, setStaged ] = useState< TSearch >( committed );
 

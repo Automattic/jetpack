@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Terms of Service: Avoid a redundant per-request database query on sites without a persistent object cache.
