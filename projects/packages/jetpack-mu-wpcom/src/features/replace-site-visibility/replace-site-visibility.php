@@ -25,8 +25,6 @@ function is_jetpack_connected() {
 
 /**
  * Generate the links for sharing the site.
- *
- * @return never
  */
 function wp_ajax_wpcom_generate_site_preview_link() {
 	check_ajax_referer( 'wpcom_site_visibility_site_preview_link' );

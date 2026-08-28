@@ -17,8 +17,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Makes a request to the WP.com legal endpoint to mark the Terms of Service as accepted.
- *
- * @return never
  */
 function accept_tos() {
 	check_ajax_referer( 'wp_ajax_action', '_nonce' );
