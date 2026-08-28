@@ -126,7 +126,10 @@ export default function DownloadScreen() {
 					{ state.phase === 'progress' && (
 						<Stack direction="column" gap="sm">
 							<Text>{ __( 'Preparing download…', 'jetpack-backup-pkg' ) }</Text>
-							<ProgressBar value={ state.percent } />
+							<ProgressBar
+								value={ state.percent }
+								aria-label={ __( 'Preparing your download', 'jetpack-backup-pkg' ) }
+							/>
 						</Stack>
 					) }
 					{ state.phase === 'success' && (

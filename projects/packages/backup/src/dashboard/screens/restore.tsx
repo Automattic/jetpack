@@ -187,19 +187,28 @@ export default function RestoreScreen() {
 					 * without naming an id we can poll. Indeterminate rather than a
 					 * determinate bar pinned at 0%, which reads as a stall during the
 					 * opening seconds of every restore.
+					 *
+					 * Named, like every other bar here: `ProgressBar` defaults to a
+					 * generic `aria-label="Loading …"`, and the `<Text>` beside it is not
+					 * associated with the bar.
 					 */ }
 					{ state.phase === 'queued' && (
 						<Stack direction="column" gap="sm">
 							<Text>
 								{ __( 'Your restore is queued and will begin shortly…', 'jetpack-backup-pkg' ) }
 							</Text>
-							<ProgressBar />
+							<ProgressBar
+								aria-label={ __( 'Waiting for your restore to begin', 'jetpack-backup-pkg' ) }
+							/>
 						</Stack>
 					) }
 					{ state.phase === 'progress' && (
 						<Stack direction="column" gap="sm">
 							<Text>{ __( 'Restoring…', 'jetpack-backup-pkg' ) }</Text>
-							<ProgressBar value={ state.percent } />
+							<ProgressBar
+								value={ state.percent }
+								aria-label={ __( 'Restoring your site', 'jetpack-backup-pkg' ) }
+							/>
 						</Stack>
 					) }
 					{ state.phase === 'success' && (
@@ -254,7 +263,9 @@ export default function RestoreScreen() {
 									{ state.detail }
 								</Text>
 							) }
-							<ProgressBar />
+							<ProgressBar
+								aria-label={ __( 'Checking whether your restore started', 'jetpack-backup-pkg' ) }
+							/>
 						</Stack>
 					) }
 					{ /*
