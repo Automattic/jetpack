@@ -845,8 +845,8 @@ function wpcom_write_render_admin_page() {
 			if ( ! empty( $prompt['text'] ) ) {
 				$edit_content = wpcom_write_prompt_quote_markup(
 					$prompt['text'],
-					isset( $prompt['answered_link_text'] ) ? $prompt['answered_link_text'] : '',
-					isset( $prompt['answered_link'] ) ? $prompt['answered_link'] : ''
+					$prompt['answered_link_text'] ?? '',
+					$prompt['answered_link'] ?? ''
 				);
 			}
 		}
