@@ -98,6 +98,27 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 		 */
 		$this->rest_base = 'paypal/platform';
 
+		/*
+		 * Opt out of WordPress.com's centralize.php rewrite, which otherwise moves every
+		 * wpcom/v2 route to /wpcom/v2/sites/<site>/... . Client::wpcom_json_api_request_as_blog()
+		 * builds a flat /wpcom/v2/<path> URL -- the blog ID travels as a signed argument, not
+		 * in the path -- so a rewritten route is unreachable from it and every call came back
+		 * rest_no_route.
+		 *
+		 * The flat form is also the honest one here: this endpoint carries no per-site data.
+		 * It exchanges Automattic's platform credentials for a PayPal referral link, and the
+		 * merchant is identified by the referral body, not by a site path segment.
+		 *
+		 * The wpcom-only flag stops public-api's proxy_jetpack() from forwarding the call
+		 * to a Jetpack site and answering rest_not_implemented, which is right here: the
+		 * credentials are Automattic's and live on WordPress.com servers. A false
+		 * site_specific already implies wpcom-only, but both are set explicitly -- as
+		 * WPCOM_REST_API_V2_Endpoint_Following does -- so neither relies on the other's
+		 * side effect.
+		 */
+		$this->wpcom_is_wpcom_only_endpoint    = true;
+		$this->wpcom_is_site_specific_endpoint = false;
+
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
