@@ -71,11 +71,12 @@ export const withWidgetCanvas: Decorator = Story => (
 );
 
 // Canvas that widens to a two-column card while the story's `showMap` arg is
-// on, for widgets whose map only mounts above the 720px container query (the
-// email breakdown, for example). Toggling the control then actually shows the
-// map instead of silently doing nothing in the one-column card.
+// on and the `view` is `countries` — the same condition under which the email
+// breakdown mounts its map, which also needs the 720px container floor. Toggling
+// the control then actually shows the map instead of silently doing nothing in
+// the one-column card, and the card stays one column for the other views.
 export const withMapAwareWidgetCanvas: Decorator = ( Story, { args } ) => (
-	<WidgetCanvas width={ args.showMap ? '800px' : undefined }>
+	<WidgetCanvas width={ args.showMap && args.view === 'countries' ? '800px' : undefined }>
 		<Story />
 	</WidgetCanvas>
 );

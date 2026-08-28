@@ -137,7 +137,7 @@ export const Default: Story = {
  * The country map beside the countries leaderboard, as the two-column
  * "Location clicks" card on the post detail Email clicks tab renders it. The
  * widget only mounts the map at container widths of 720px and up, so the canvas
- * widens to a two-column card while `showMap` is on.
+ * widens to a two-column card while `showMap` is on for the countries view.
  */
 export const LocationClicksWithMap: Story = {
 	render: renderEmailBreakdown,
