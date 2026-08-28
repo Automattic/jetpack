@@ -287,9 +287,9 @@ function EmailBreakdownReport( { view, metric, showMap }: EmailBreakdownReportPr
 
 /**
  * The breakdown is scoped to a single email by the host through
- * `reportParams.post_id` (the shared single-resource "detail page" param); the
- * `view` attribute (`relevance: 'high'`) is exposed as a control by the widget
- * host and the `metric` attribute picks opens or clicks for the dimension views.
+ * `reportParams.post_id` (the shared single-resource "detail page" param). The
+ * `view` and `metric` attributes are pinned by the host's layout rather than
+ * edited by the user; `metric` picks opens or clicks for the dimension views.
  * The endpoints report across the whole lifetime of the email, so the date range
  * and comparison period are ignored — `reportParams` is passed into `WidgetRoot`,
  * which exposes it to the inner report, but only `post_id` is read from it.

@@ -20,9 +20,9 @@ export type EmailBreakdownView = 'countries' | 'devices' | 'clients' | 'links';
 export type EmailBreakdownMetric = 'opens' | 'clicks';
 
 /**
- * Configurable attributes for the Email breakdown widget. Mirrors the
- * `attributes` declared on the widget definition below; the host passes the
- * selected values through to `render.tsx`.
+ * Attributes for the Email breakdown widget. None is user-editable (the widget
+ * definition below declares no `attributes`); the host pins them per card in
+ * its layout and passes the values through to `render.tsx`.
  */
 export type EmailBreakdownAttributes = {
 	/**
@@ -51,11 +51,10 @@ export type EmailBreakdownAttributes = {
  * own fixed, page-titled card with `view` and `metric` set in its layout, so
  * exposing them (inline or in the settings drawer) would let a "Location opens"
  * card show links or clicks. With no editable attribute, the host renders no
- * settings affordance. The breakdown is
- * scoped to a single email by the host through `reportParams.post_id` (the
- * shared single-resource "detail page" param), not by an attribute; the
- * endpoints report over the whole lifetime of the email, so there is no date
- * range or comparison period.
+ * settings affordance. The breakdown is scoped to a single email by the host
+ * through `reportParams.post_id` (the shared single-resource "detail page"
+ * param), not by an attribute; the endpoints report over the whole lifetime of
+ * the email, so there is no date range or comparison period.
  */
 export default {
 	icon: envelope,

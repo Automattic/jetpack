@@ -316,7 +316,11 @@ describe( 'EmailBreakdownWidget', () => {
 } );
 
 describe( 'EmailBreakdown widget type', () => {
-	it( 'declares no editable attributes, so the host renders no settings drawer', () => {
-		expect( emailBreakdownWidgetType.attributes ).toEqual( [] );
+	it( 'declares no drawer-only attribute, so the host renders no settings button', () => {
+		// Mirrors the host's predicate: the settings button appears as soon as any
+		// attribute is not exposed inline (`relevance: 'high'`).
+		expect(
+			emailBreakdownWidgetType.attributes.every( attribute => attribute.relevance === 'high' )
+		).toBe( true );
 	} );
 } );

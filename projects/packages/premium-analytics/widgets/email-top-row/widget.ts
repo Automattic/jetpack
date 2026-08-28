@@ -18,13 +18,14 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 export type EmailMetric = 'opens' | 'clicks';
 
 /**
- * Configurable attributes for the "Email top row" widget.
+ * Attributes for the "Email top row" widget. None is user-editable (the widget
+ * definition below declares no `attributes`); the host pins them in its layout.
  *
  * The widget shows one metric view (`metric`) of a single email. The email is
  * scoped by the host through `reportParams.post_id` (the shared single-resource
  * "detail page" param), not by an attribute — the email detail page seeds
  * `post_id` from its route so every widget on the page shares one scope. Only
- * the Opens/Clicks view is a per-widget setting, supplied via the active tab.
+ * the Opens/Clicks view varies per widget, pinned by the active tab's layout.
  * The underlying rate endpoints are per-post and always all-time, so the
  * dashboard date range is ignored.
  */

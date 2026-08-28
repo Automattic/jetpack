@@ -230,7 +230,11 @@ describe( 'hasEmailMetrics', () => {
 } );
 
 describe( 'EmailTopRow widget type', () => {
-	it( 'declares no editable attributes, so the host renders no settings drawer', () => {
-		expect( emailTopRowWidgetType.attributes ).toEqual( [] );
+	it( 'declares no drawer-only attribute, so the host renders no settings button', () => {
+		// Mirrors the host's predicate: the settings button appears as soon as any
+		// attribute is not exposed inline (`relevance: 'high'`).
+		expect(
+			emailTopRowWidgetType.attributes.every( attribute => attribute.relevance === 'high' )
+		).toBe( true );
 	} );
 } );
