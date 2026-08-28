@@ -422,6 +422,7 @@ describe( 'AiFeatures rendering', () => {
 					features: {
 						writing_assistant: { enabled: true },
 						image_editor: { enabled: true },
+						ai_search: { enabled: true },
 					},
 				} }
 				savingKeys={ new Set() }
@@ -441,6 +442,12 @@ describe( 'AiFeatures rendering', () => {
 		expect( screen.getByRole( 'link', { name: 'Try it out' } ) ).toHaveAttribute(
 			'href',
 			'upload.php?ai-assistant'
+		);
+
+		// AI Search opens the Search dashboard on its AI tab, not Overview.
+		expect( screen.getByRole( 'link', { name: 'Open Search Settings' } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=jetpack-search#/ai-answers'
 		);
 	} );
 } );
