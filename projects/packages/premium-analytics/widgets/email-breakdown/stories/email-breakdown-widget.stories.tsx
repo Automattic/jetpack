@@ -27,7 +27,7 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
-import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import { withWideWidgetCanvas, withWidgetCanvas } from '../../stories/with-widget-canvas';
 import EmailBreakdownRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
@@ -134,14 +134,15 @@ export const Default: Story = {
 };
 
 /**
- * The optional map beside the countries leaderboard. No fixed composition
- * enables it anymore (the Email clicks Locations card is a plain leaderboard
- * per the design mocks); the story keeps the capability covered.
+ * The country map beside the countries leaderboard, as the two-column
+ * "Location clicks" card on the post detail Email clicks tab renders it. The
+ * widget only mounts the map at container widths of 720px and up, so this story
+ * uses the wide canvas; on the default one-column card `showMap` has no effect.
  */
 export const LocationClicksWithMap: Story = {
 	render: renderEmailBreakdown,
 	args: { view: 'countries', metric: 'clicks', showMap: true },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWideWidgetCanvas ],
 };
 
 /**

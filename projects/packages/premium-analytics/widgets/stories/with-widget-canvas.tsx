@@ -31,7 +31,14 @@ function frameWidgetRoot( host: HTMLElement | null ) {
 // A white, widget-sized card that frames a story the way the dashboard host frames a
 // widget in product, so each state (ready / loading / error / empty) reads as a real
 // dashboard widget rather than a bare fragment on the Storybook canvas.
-export function WidgetCanvas( { children }: { children: ReactNode } ) {
+export function WidgetCanvas( {
+	children,
+	width = '380px',
+}: {
+	children: ReactNode;
+	/** Card width. Defaults to a one-column dashboard cell. */
+	width?: string;
+} ) {
 	const hostRef = useRef< HTMLDivElement >( null );
 	useLayoutEffect( () => {
 		frameWidgetRoot( hostRef.current );
@@ -40,7 +47,7 @@ export function WidgetCanvas( { children }: { children: ReactNode } ) {
 		<div
 			ref={ hostRef }
 			style={ {
-				width: '380px',
+				width,
 				height: '440px',
 				margin: '0 auto',
 				padding: '16px',
@@ -59,6 +66,14 @@ export function WidgetCanvas( { children }: { children: ReactNode } ) {
 // Decorator form of WidgetCanvas for the close-up widget stories.
 export const withWidgetCanvas: Decorator = Story => (
 	<WidgetCanvas>
+		<Story />
+	</WidgetCanvas>
+);
+
+// A two-column-wide card, for widgets whose layout only appears above the
+// 720px container query (the email breakdown's country map, for example).
+export const withWideWidgetCanvas: Decorator = Story => (
+	<WidgetCanvas width="800px">
 		<Story />
 	</WidgetCanvas>
 );
