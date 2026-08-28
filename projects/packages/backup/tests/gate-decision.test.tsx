@@ -1,19 +1,9 @@
-// JETPACK-2313 F1 — the gate decision was written twice.
+// JETPACK-2313 F1 — the gate decision was written twice: `<Gates>` walked it, and
+// `<BackupNowButton>` re-derived the same walk because it renders above the gate.
 //
-// `<Gates>` walked connection → secondary admin → capabilities loading →
-// capabilities error → plan, and `<BackupNowButton>` re-derived the same
-// walk from the same two hooks to decide whether to render at all. It has
-// to decide for itself: `DashboardLayout` passes header actions to
-// `<Page>`, which renders them *above* `<Gates>` rather than inside it, so
-// the button cannot rely on the gate having run.
-//
-// The two agreed — both withhold in every state short of "ready", so no
-// contradictory UI was ever possible — which is what makes consolidating
-// them a pure refactor and this file its safety net. It renders the real
-// arrangement, button above gate in one tree, and pins what *both* show in
-// each of the six states. Written against the duplicated code and passing
-// there before `useGateState` existed; anything it catches afterwards is a
-// behaviour change, not a cleanup.
+// The two already agreed, so consolidating them is a pure refactor and this file is its
+// safety net: button and gate in one tree, pinning what both show in each of the six
+// states. Written against the duplicated code and passing there first.
 
 const mockApiFetch = jest.fn();
 
@@ -61,9 +51,8 @@ function deferred< T >() {
  * Answer every endpoint this tree reads, with the capabilities route
  * under the caller's control.
  *
- * The other three are answered plainly and identically in every state:
- * whatever withholds the button here has to be the gate decision, not a
- * fixture that never resolved.
+ * The other three answer plainly in every state, so whatever withholds the button has to
+ * be the gate decision and not an unresolved fixture.
  *
  * @param capabilities - Produces the capabilities response; called per fetch.
  */
@@ -79,9 +68,8 @@ function answerWith( capabilities: () => Promise< unknown > ) {
 		if ( path.includes( '/backups' ) ) {
 			return Promise.resolve( [] );
 		}
-		// The promoted-product catalogue, read by the no-plan screen.
-		// `null` is the "no offer to show" answer, which that screen
-		// renders without a price rather than failing.
+		// The promoted-product catalogue. `null` means "no offer", which the no-plan
+		// screen renders without a price rather than failing.
 		return Promise.resolve( null );
 	} );
 }
@@ -91,16 +79,9 @@ function answerWith( capabilities: () => Promise< unknown > ) {
  * `DashboardLayout` arranges them: the header action outside the gate,
  * the dashboard body inside it.
  *
- * A fresh `QueryClient` per render rather than the module singleton, so
- * one state's capabilities answer cannot be served from cache to the
- * next — the capabilities query is held for five minutes.
- *
- * Returns the container for the caller to wrap in `within()` itself,
- * which is what lets `testing-library/prefer-screen-queries` see the
- * scoping it allows. Scoped rather than `screen` because `Notice` and
- * `Button` announce through `@wordpress/a11y`'s speak region — a node
- * appended to `document.body` once per process that keeps its text
- * between tests.
+ * A fresh `QueryClient` per render, so one state's capabilities answer is not served
+ * from cache to the next. Scoped queries rather than `screen`, because `@wordpress/a11y`
+ * keeps its speak region on `document.body` between tests.
  *
  * @return The render container.
  */
@@ -145,11 +126,8 @@ function skeleton(): HTMLElement | null {
  * the client so a test can settle on the capabilities answer reaching
  * the cache rather than on anything that got rendered.
  *
- * The distinction is the point of this half of the file. "No button" is
- * also true of a button that has not decided yet, so an absence
- * assertion means nothing until the answer it decides on has landed —
- * and settling on the *gate's* output instead would quietly turn a test
- * of the button into a second test of the gate.
+ * "No button" is also true of a button that has not decided yet, so the absence
+ * assertions mean nothing until the answer has landed.
  *
  * @return The client and the render container.
  */
@@ -195,9 +173,8 @@ describe( 'Gate decision — what the gate and the header button each show', () 
 
 		const view = within( renderShell() );
 
-		// Nothing to await: the connection state is read synchronously
-		// from a global and every query it gates is disabled, so no
-		// request exists that could change this later.
+		// Nothing to await: the connection state is synchronous and every query it
+		// gates is disabled, so no request could change this later.
 		expect( view.getByText( NOT_CONNECTED ) ).toBeInTheDocument();
 		expect( view.queryByText( BODY ) ).not.toBeInTheDocument();
 		expect( headerSlot() ).toBeEmptyDOMElement();
@@ -224,8 +201,8 @@ describe( 'Gate decision — what the gate and the header button each show', () 
 
 		const view = within( renderShell() );
 
-		// The other two queries are answered, so their settling is what
-		// separates "still starting up" from "held by capabilities".
+		// The other two queries are answered, so this separates "still starting up"
+		// from "held by capabilities".
 		await waitFor( () =>
 			expect( mockApiFetch ).toHaveBeenCalledWith(
 				expect.objectContaining( { path: '/jetpack/v4/backups' } )
@@ -238,9 +215,8 @@ describe( 'Gate decision — what the gate and the header button each show', () 
 		expect( view.queryByText( NO_PLAN ) ).not.toBeInTheDocument();
 		expect( headerSlot() ).toBeEmptyDOMElement();
 
-		// Releasing the read is what proves the withholding above was the
-		// loading state and not a fixture that never arrived: both the
-		// body and the button turn up the moment it lands.
+		// Releasing the read proves the withholding above was the loading state and
+		// not a fixture that never arrived.
 		pending.resolve( { hasBackupPlan: true, hasScan: false } );
 		await expect( view.findByText( BODY ) ).resolves.toBeInTheDocument();
 		await expect(
@@ -256,8 +232,8 @@ describe( 'Gate decision — what the gate and the header button each show', () 
 
 		await expect( view.findByText( CAPABILITIES_ERROR ) ).resolves.toBeInTheDocument();
 
-		// "We couldn't ask" must not be reported as "you don't have a
-		// plan": a failed read leaves `data` undefined too.
+		// "We couldn't ask" is not "you don't have a plan": a failed read also leaves
+		// `data` undefined.
 		expect( view.queryByText( NO_PLAN ) ).not.toBeInTheDocument();
 		expect( view.queryByText( BODY ) ).not.toBeInTheDocument();
 		expect( headerSlot() ).toBeEmptyDOMElement();
@@ -296,9 +272,8 @@ describe( 'The header button on its own, with no gate above it', () => {
 	} );
 
 	it( 'stays away when capabilities cannot be read', async () => {
-		// A failed read leaves `data` undefined, exactly as no plan does.
-		// Both must withhold the button, and for the same reason: nothing
-		// here can say the site is entitled to press it.
+		// A failed read leaves `data` undefined exactly as no plan does, and neither
+		// can say the site is entitled to press this.
 		answerWith( () => Promise.reject( new Error( 'capabilities unavailable' ) ) );
 
 		const { client, container } = renderButtonAlone();
@@ -313,8 +288,7 @@ describe( 'The header button on its own, with no gate above it', () => {
 
 		const { client, container } = renderButtonAlone();
 
-		// The button's other read is answered, so the capabilities read is
-		// the only thing left that could be withholding it.
+		// The button's other read is answered, so capabilities is all that is left.
 		await waitFor( () =>
 			expect( mockApiFetch ).toHaveBeenCalledWith(
 				expect.objectContaining( { path: '/jetpack/v4/backups' } )
@@ -323,8 +297,7 @@ describe( 'The header button on its own, with no gate above it', () => {
 		expect( client.getQueryState( keys.capabilities() )?.fetchStatus ).toBe( 'fetching' );
 		expect( container ).toBeEmptyDOMElement();
 
-		// And it is only that: releasing the read brings the button back,
-		// with nothing else about the fixture changed.
+		// And only that: releasing the read brings the button back, unchanged.
 		pending.resolve( { hasBackupPlan: true, hasScan: false } );
 		await waitFor( () => expect( container ).not.toBeEmptyDOMElement() );
 		expect( container ).toHaveTextContent( 'Back up now' );

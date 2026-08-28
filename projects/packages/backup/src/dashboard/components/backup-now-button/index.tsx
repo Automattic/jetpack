@@ -18,11 +18,9 @@ import { useSiteSize } from '../../hooks/use-site-size';
  * handler and discards the response body, so every outcome — including a
  * WPCOM refusal and a permissions error — shows "Backup enqueued".
  *
- * The button gates itself, on the same `useGateState` verdict `<Gates>`
- * renders from. `DashboardLayout` passes header actions to `<Page>`,
- * which renders them above `<Gates>` rather than inside it, so an
- * unconnected or unlicensed site would otherwise be offered a control
- * that cannot work.
+ * The button gates itself, on the same `useGateState` verdict `<Gates>` renders from: it
+ * sits in `<Page>`'s header actions, above the gate, so an unconnected or unlicensed site
+ * would otherwise be offered a control that cannot work.
  *
  * @return The rendered button, or null when the site can't use it.
  */
