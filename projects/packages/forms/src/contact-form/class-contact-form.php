@@ -4119,7 +4119,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return array();
 		}
 
-		if ( ( ! is_array( $this->fields ) || empty( $this->fields ) ) && empty( $this->container_logic ) ) {
+		// The type check stays unconditional. `$fields` is declared with no default, so it is
+		// null until add_field() runs, and the loop below would fatal on PHP 8. Only the
+		// emptiness half may be relaxed: a form with no fields but a conditional container
+		// still has visibility to resolve.
+		if ( ! is_array( $this->fields ) ) {
+			return array();
+		}
+
+		if ( empty( $this->fields ) && empty( $this->container_logic ) ) {
 			return array();
 		}
 
