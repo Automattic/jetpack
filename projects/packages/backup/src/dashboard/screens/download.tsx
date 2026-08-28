@@ -62,7 +62,7 @@ export default function DownloadScreen() {
 					<Stack direction="row" gap="sm" align="center">
 						<Icon icon={ cloud } />
 						<Stack direction="column" gap="xs">
-							<Text variant="heading-md" render={ <h3 /> }>
+							<Text variant="heading-md" render={ <h2 /> }>
 								{ __( 'Download backup', 'jetpack-backup-pkg' ) }
 							</Text>
 							<Text variant="body-sm" className="jpb-text-muted">

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement, type ReactNode } from 'react';
 import { isUsableBackup, isWillRetryStatus, summarizeBackups, useBackups } from '../use-backups';
@@ -170,9 +170,9 @@ describe( 'useBackups', () => {
 	} );
 
 	// The regression this hook exists to avoid. `get_recent_backups()`
-	// returns bare `null` on any non-200 from WPCOM, which WordPress
-	// serves as HTTP 200 — so the request RESOLVES and no error is ever
-	// thrown. The legacy selector coerces that to `[]`, which reads as
+	// returns bare `null` for a 200 from WPCOM whose body will not
+	// decode, which WordPress serves as HTTP 200 — so the request
+	// RESOLVES and no error is ever thrown. The legacy selector coerces that to `[]`, which reads as
 	// "this site has no backups" and shows a paying customer the
 	// brand-new-site screen every time WPCOM has a bad minute.
 	it( 'reports a null body as an error rather than as an empty site', async () => {
@@ -205,5 +205,46 @@ describe( 'useBackups', () => {
 
 		expect( result.current.state ).toBe( 'loading' );
 		expect( mockedApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	// The invalidation this hook used to own lives in
+	// `useRefreshActivityOnBackupComplete`, mounted once by the Overview
+	// screen. It has to stay out of here: `BackupNowButton` mounts a
+	// second `useBackups` on that same screen, and a per-observer
+	// invalidation costs a second WPCOM round trip that the first one's
+	// in-flight refetch is silently cancelled for.
+	it( 'invalidates nothing itself when an in-progress backup finishes', async () => {
+		const inProgress: RawBackupEntry[] = [
+			{
+				id: '1',
+				started: '2026-08-14 17:25:46',
+				last_updated: '2026-08-14 17:36:04',
+				status: 'started',
+				period: '1786728342',
+				percent: '50',
+				is_backup: '1',
+				is_scan: '0',
+			},
+		];
+		const finished: RawBackupEntry[] = [
+			{
+				...inProgress[ 0 ],
+				status: 'finished',
+				percent: '100',
+				last_updated: '2026-08-14 17:36:10',
+				stats: { plugins: {} },
+			},
+		];
+		mockedApiFetch.mockResolvedValueOnce( inProgress ).mockResolvedValue( finished );
+		const { client, wrapper } = makeWrapper();
+		const invalidate = jest.spyOn( client, 'invalidateQueries' );
+
+		const { result } = renderHook( () => useBackups(), { wrapper } );
+		await waitFor( () => expect( result.current.state ).toBe( 'in-progress' ) );
+
+		act( () => result.current.refetch() );
+		await waitFor( () => expect( result.current.state ).toBe( 'complete' ) );
+
+		expect( invalidate ).not.toHaveBeenCalled();
 	} );
 } );

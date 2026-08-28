@@ -16,16 +16,9 @@ const PERIOD_ORDER = [
 ] as const satisfies readonly StatsPeriod[];
 
 /**
- * Chart granularity for a dashboard interval: the bucket size a widget draws
- * for whatever the page's interval control has selected. The interval maps to a
- * bucket the same way a Stats request does, so a chart is bucketed as the data
- * behind it is.
- *
- * A widget rarely supports every granularity, so the mapped period is clamped
- * into the set it does support. `allowed` is ordered finest to coarsest, so a
- * period finer than everything offered resolves to the finest and one coarser
- * to the coarsest — an hourly page interval lands on `day` for a day/week/month
- * widget, and a yearly one lands on `month`.
+ * Chart granularity for a dashboard interval, clamped into what a widget supports.
+ * `allowed` is ordered finest to coarsest: a period finer than everything offered
+ * resolves to the finest, and one coarser resolves to the coarsest.
  *
  * @param interval - The dashboard-derived interval.
  * @param allowed  - The periods this widget offers, ordered finest to coarsest.

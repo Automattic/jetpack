@@ -161,3 +161,9 @@
 	min-width: 0;
 	min-height: 0;
 }
+
+/* The plot answers a click, so the cursor says so; the legend beneath it does
+   not. */
+.drillable [role="grid"] {
+	cursor: pointer;
+}

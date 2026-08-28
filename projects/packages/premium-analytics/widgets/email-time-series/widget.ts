@@ -28,27 +28,18 @@ export type EmailTimeSeriesChartType = ChartDisplayChartType;
  */
 export type EmailTimeSeriesAttributes = {
 	/**
-	 * Which timeline to draw: opens (default) or clicks. The post detail page
-	 * pins one per email tab through the tab layout, so this is not a
-	 * user-facing control — exposing it would let a pinned tab contradict its
-	 * own title.
+	 * Not a user-facing control: the post detail page pins one per email tab, and
+	 * exposing it would let a pinned tab contradict its own title.
 	 */
 	metric?: EmailTimeSeriesMetric;
-	/**
-	 * How to draw the timeline (`relevance: 'high'`). Defaults to `line`.
-	 */
 	chartType?: EmailTimeSeriesChartType;
 };
 
 /**
- * Widget type definition.
- *
- * The opens/clicks-over-time chart from the legacy email detail page
- * (`stats-email-chart-tabs`), with the window total as the metric headline.
- * The email is scoped by the host through `reportParams.post_id` (the shared
- * single-resource "detail page" param); the timeline spans the report range
- * the host hands it — the send's lifetime on the post detail page — and is
- * bucketed at the range's chart interval.
+ * Ported from the legacy email detail page's opens/clicks-over-time chart
+ * (`stats-email-chart-tabs`). The host scopes the email through
+ * `reportParams.post_id` and hands it the report range — the send's lifetime
+ * on the post detail page — bucketed at that range's chart interval.
  */
 export default {
 	icon: envelope,

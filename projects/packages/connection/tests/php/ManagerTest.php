@@ -1393,7 +1393,7 @@ class ManagerTest extends TestCase {
 	 * `ArrayIterator::__construct()` object-backing notice once that error
 	 * object is iterated by the WP HTTP Requests library downstream.
 	 *
-	 * Compatible with PHP <8.1 where `setStaticPropertyValue()` cannot reach
+	 * Compatible with PHP <7.4.9 where `setStaticPropertyValue()` cannot reach
 	 * private static properties without `setAccessible(true)`.
 	 */
 	private function reset_plugin_storage() {
@@ -1401,7 +1401,7 @@ class ManagerTest extends TestCase {
 		try {
 			$reflection->setStaticPropertyValue( 'configured', true );
 			$reflection->setStaticPropertyValue( 'plugins', array() );
-		} catch ( \ReflectionException $e ) { // PHP <8.1: private statics need setAccessible.
+		} catch ( \ReflectionException $e ) { // PHP <7.4.9: setStaticPropertyValue can only access public properties
 			$values = array(
 				'configured' => true,
 				'plugins'    => array(),

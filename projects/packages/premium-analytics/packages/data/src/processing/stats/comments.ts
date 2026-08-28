@@ -1,4 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
@@ -80,11 +81,9 @@ function normalizeCommentAvatar( avatar?: string | null ) {
 }
 
 /**
- * Build the author row's link from the raw payload's `link`, which is not a
- * URL but a `?s=<email>` search fragment (legacy Calypso used it to open the
- * comment management screen filtered to that author). The dashboard runs
- * inside wp-admin, so a relative `edit-comments.php` href resolves to the
- * same screen.
+ * Build the author row's link from the raw payload's `link`, which is not a URL
+ * but a `?s=<email>` search fragment. The dashboard runs inside wp-admin, so a
+ * relative `edit-comments.php` href resolves to the comment management screen.
  *
  * @param link - The raw author `link` fragment.
  * @return The comments-admin search URL, or null when there is no email.
@@ -107,7 +106,7 @@ export function sanitizeStatsCommentsResponse(
 	const authors: StatsCommentsAuthorItem[] = coerceStatsArray< StatsCommentsRawAuthor >(
 		payload.authors
 	).map( author => ( {
-		label: getStatsLabel( author.name ),
+		label: decodeHtmlText( getStatsLabel( author.name ) ),
 		value: safeParseFloat( author.comments ),
 		iconClassName: 'avatar-user',
 		icon: normalizeCommentAvatar( author.gravatar ),
@@ -125,7 +124,7 @@ export function sanitizeStatsCommentsResponse(
 		payload.posts
 	).map( post => ( {
 		id: post.id,
-		label: getStatsLabel( post.name ?? post.title ),
+		label: decodeHtmlText( getStatsLabel( post.name ?? post.title ) ),
 		value: safeParseFloat( post.comments ),
 		link: typeof post.link === 'string' ? post.link : null,
 		page: post.id ? `/stats/post/${ post.id }` : null,
@@ -158,9 +157,7 @@ export function sanitizeStatsCommentsResponse(
 export type StatsCommentsGroup = 'authors' | 'posts';
 
 /**
- * A flat Comments report row, shared by every consumer of the report: the
- * "Top commented authors" and "Top commented posts" widgets and the Comments
- * report page.
+ * A flat Comments report row, shared by every consumer of the report.
  *
  * `link` is the value the report carries: a locally built, root-relative
  * `edit-comments.php` search for authors, and a remote permalink for posts.
@@ -171,7 +168,7 @@ export type StatsCommentsGroup = 'authors' | 'posts';
 export type StatsCommentsRow = {
 	/**
 	 * Stable row key, derived from the item's own identity rather than its
-	 * position so it survives a refetch and cannot collide on a repeated label.
+	 * position so it survives a refetch.
 	 */
 	id: string;
 	/**
@@ -186,9 +183,6 @@ export type StatsCommentsRow = {
 	 * Author avatar URL. Set for the `authors` group only.
 	 */
 	avatarUrl?: string;
-	/**
-	 * The link the report carries for this row, when it has one.
-	 */
 	link?: string;
 	/**
 	 * Numeric post id as a string. Set for the `posts` group only.
@@ -204,10 +198,6 @@ function toCommentsRowLabel( value: unknown ): string {
 
 /**
  * Map one group child to a flat row.
- *
- * `label`, `value` and `link` are derived identically for both groups; only the
- * row key and the group-specific extras (`avatarUrl`, `postId`) differ, so the
- * group discriminator selects just those.
  *
  * @param item  - The group child to map.
  * @param group - The group the child belongs to.
@@ -237,9 +227,8 @@ function toCommentsRow(
 
 	return {
 		...shared,
-		// Posts key on their post id, falling back to the raw link so row
-		// identity holds even when a consumer rejects that URL, and finally on
-		// the label.
+		// Falls back to the raw link so row identity holds even when a consumer
+		// rejects that URL, and finally to the label.
 		id: postId ?? shared.link ?? `post-${ label }`,
 		postId,
 	};
@@ -249,9 +238,8 @@ function toCommentsRow(
  * Select one group's rows from a normalized Comments report.
  *
  * The endpoint returns a single all-time report whose `data[0].items` are two
- * group rows — one keyed `authors`, one keyed `posts`. This picks the requested
- * group, flattens its children to `StatsCommentsRow`, sorts them by comment
- * count and trims the result to `maxRows` (`0` or omitted means all rows).
+ * group rows — one keyed `authors`, one keyed `posts`. Sorted by comment count
+ * and trimmed to `maxRows` (`0` or omitted means all rows).
  *
  * @param report  - The normalized Comments report, if it has resolved.
  * @param group   - The group to select.

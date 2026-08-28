@@ -200,11 +200,12 @@ module.exports = [
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin( {
-				// Match Boost: @wordpress/ui pulls these in; they are not reliable as WP script
-				// handles in all contexts, so bundle them instead of externalizing.
+				// @wordpress/ui pulls in @wordpress/theme, which is not a reliable WP script
+				// handle in all contexts, so bundle it instead of externalizing it. Keep
+				// @wordpress/private-apis external so bundled DataViews can unlock private APIs
+				// exposed by external WordPress packages such as @wordpress/components.
 				requestMap: {
 					'@wordpress/theme': { external: false },
-					'@wordpress/private-apis': { external: false },
 				},
 			} ),
 		],

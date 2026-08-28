@@ -15,10 +15,8 @@ describe( 'toChartDate', () => {
 		expect( date.getHours() ).toBe( 9 );
 	} );
 
-	// `getRowIntervalFields` forwards `row.date_start` verbatim when the API
-	// supplies it, so the shapes that arrive here are not only the ones this
-	// package stamps itself. A bare date parsed as-is would land in UTC, and a
-	// space-separated stamp would not parse at all.
+	// `getRowIntervalFields` forwards `row.date_start` verbatim, so these shapes
+	// aren't only ones this package stamps; unanchored, a bare date lands in UTC.
 	it.each( [
 		[ 'a bare date', '2026-06-29', 0 ],
 		[ 'a space-separated stamp', '2026-06-29 09:00:00', 9 ],

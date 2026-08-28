@@ -62,13 +62,9 @@ type EmailTimeSeriesReportProps = {
 };
 
 /**
- * Fetches the selected email's opens or clicks timeline over the dashboard
- * date range and draws it with the window total as the metric headline. The
- * endpoint reports daily buckets; weekly/monthly intervals aggregate them
- * client-side. Only the active metric's query runs. The post detail design
- * has no period-over-period comparison, so comparison report params are
- * ignored — they ride along in the URL untouched so dashboard state survives
- * the round trip, and every widget on this page disregards them.
+ * Draws the selected email's opens or clicks timeline. Comparison report
+ * params are ignored (no period-over-period here) but left in the URL so
+ * dashboard state survives the round trip.
  */
 function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -110,10 +106,8 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 		} );
 	}, [ report, period, field ] );
 
-	// One metric: the headline is the window total (the timeline is summed per
-	// bucket, so the sum of buckets is the range's opens/clicks). Point dates are
-	// wall clocks, read back via `pointsAreWallClocks` (rationale in
-	// `chart-date.ts`).
+	// The headline is the window total: buckets are per-period sums, so their sum
+	// is the range's opens/clicks. Point dates are wall clocks — see `chart-date.ts`.
 	const metricTabs = useMemo< MetricTab[] >( () => {
 		const points = ( chartReport?.data ?? [] ).map( point => ( {
 			date: toChartDate( point.date_start ),

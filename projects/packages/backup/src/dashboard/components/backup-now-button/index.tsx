@@ -1,6 +1,7 @@
-import { useEffect } from '@wordpress/element';
+import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Tooltip } from '@wordpress/ui';
+import { useAnalytics } from '../../hooks/use-analytics';
 import { useBackups } from '../../hooks/use-backups';
 import { useCapabilities } from '../../hooks/use-capabilities';
 import { useCanQueryWpcom } from '../../hooks/use-connection';
@@ -26,6 +27,7 @@ import { useSiteSize } from '../../hooks/use-site-size';
  * @return The rendered button, or null when the site can't use it.
  */
 export default function BackupNowButton() {
+	const { tracks } = useAnalytics();
 	const canQuery = useCanQueryWpcom();
 	const capabilities = useCapabilities( { enabled: canQuery } );
 	const { backupsStopped } = useSiteSize();
@@ -45,6 +47,17 @@ export default function BackupNowButton() {
 			reset();
 		}
 	}, [ isBackupRunning, enqueueState, reset ] );
+
+	// Recorded on the click rather than on a successful enqueue, which is
+	// where legacy records it (`back-up-now/index.jsx:25-26`, before the
+	// request resolves). The event measures the reader asking for a
+	// backup, so a WPCOM refusal should still count as an ask — and
+	// moving it onto success would silently drop exactly the failures
+	// worth knowing about.
+	const handleClick = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_plugin_backup_now' );
+		enqueue();
+	}, [ tracks, enqueue ] );
 
 	const hasPlan =
 		! capabilities.isLoading && ! capabilities.error && capabilities.data?.hasBackupPlan;
@@ -92,7 +105,7 @@ export default function BackupNowButton() {
 			// and "Backup in progress" is the whole point of that state.
 			loading={ isEnqueuing }
 			loadingAnnouncement={ label }
-			onClick={ enqueue }
+			onClick={ handleClick }
 		>
 			{ label }
 		</Button>

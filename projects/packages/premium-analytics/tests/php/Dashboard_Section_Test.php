@@ -253,6 +253,56 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A section can hand the date control to its widgets and keep its surface.
+	 */
+	public function test_section_can_opt_out_of_the_header_date_control() {
+		$registry = new Dashboard_Section_Registry();
+
+		$section = $registry->register(
+			'example_dashboard',
+			'example/ads',
+			array(
+				'date_filter'         => Dashboard_Section::DATE_FILTER_RANGE,
+				'date_filter_options' => array(
+					'with_header_date_control' => false,
+					'with_date_comparison'     => false,
+				),
+			)
+		);
+
+		$this->assertInstanceOf( Dashboard_Section::class, $section );
+
+		$this->assertSame( Dashboard_Section::DATE_FILTER_RANGE, $section->date_filter );
+		$this->assertSame(
+			array(
+				'with_date_comparison'     => false,
+				'with_header_date_control' => false,
+			),
+			$section->to_array()['date_filter_options']
+		);
+	}
+
+	/**
+	 * Placement and comparison are independent: a widget-hosted control can
+	 * still offer comparison.
+	 */
+	public function test_section_can_move_the_date_control_without_dropping_comparison() {
+		$section = new Dashboard_Section(
+			'example_dashboard',
+			'example/ads',
+			array( 'date_filter_options' => array( 'with_header_date_control' => false ) )
+		);
+
+		$this->assertSame(
+			array(
+				'with_date_comparison'     => true,
+				'with_header_date_control' => false,
+			),
+			$section->to_array()['date_filter_options']
+		);
+	}
+
+	/**
 	 * An unrecognized date filter keeps the default instead of reaching the dashboard.
 	 */
 	public function test_section_ignores_unknown_date_filter() {
@@ -318,11 +368,17 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 
 		$this->assertSame(
-			array( 'with_date_comparison' => false ),
+			array(
+				'with_date_comparison'     => false,
+				'with_header_date_control' => true,
+			),
 			$section->date_filter_options
 		);
 		$this->assertSame(
-			array( 'with_date_comparison' => false ),
+			array(
+				'with_date_comparison'     => false,
+				'with_header_date_control' => true,
+			),
 			$section->to_array()['date_filter_options']
 		);
 	}
@@ -342,7 +398,13 @@ class Dashboard_Section_Test extends BaseTestCase {
 			)
 		);
 
-		$this->assertSame( array( 'with_date_comparison' => true ), $section->date_filter_options );
+		$this->assertSame(
+			array(
+				'with_date_comparison'     => true,
+				'with_header_date_control' => true,
+			),
+			$section->date_filter_options
+		);
 	}
 
 	/**
@@ -352,13 +414,16 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$section = new Dashboard_Section( 'example_dashboard', 'example/traffic' );
 
 		$this->assertSame(
-			array( 'with_date_comparison' => true ),
+			array(
+				'with_date_comparison'     => true,
+				'with_header_date_control' => true,
+			),
 			$section->to_array()['date_filter_options']
 		);
 	}
 
 	/**
-	 * Insights drops the comparison control; the rest keep it.
+	 * Ads alone moves its date control to widgets; Ads and Insights disable comparison.
 	 */
 	public function test_built_in_sections_declare_their_date_filter_options() {
 		// Store needs both gates: the filter stands in for WooCommerce being active,
@@ -370,11 +435,26 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'traffic'     => array( 'with_date_comparison' => true ),
-				'insights'    => array( 'with_date_comparison' => false ),
-				'subscribers' => array( 'with_date_comparison' => true ),
-				'store'       => array( 'with_date_comparison' => true ),
-				'ads'         => array( 'with_date_comparison' => true ),
+				'traffic'     => array(
+					'with_date_comparison'     => true,
+					'with_header_date_control' => true,
+				),
+				'insights'    => array(
+					'with_date_comparison'     => false,
+					'with_header_date_control' => true,
+				),
+				'subscribers' => array(
+					'with_date_comparison'     => true,
+					'with_header_date_control' => true,
+				),
+				'store'       => array(
+					'with_date_comparison'     => true,
+					'with_header_date_control' => true,
+				),
+				'ads'         => array(
+					'with_date_comparison'     => false,
+					'with_header_date_control' => false,
+				),
 			),
 			array_column(
 				array_map(
@@ -455,6 +535,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 	/**
 	 * The sections schema documents the date-filter surfaces and their default.
+	 *
+	 * `routes/dashboard/config/date-filter.ts` re-declares these and falls back to `range`
+	 * silently — widen `DateFilterSurface` there too, or new surfaces won't render.
 	 */
 	public function test_sections_schema_documents_the_date_filter() {
 		$schema = get_dashboard_section_schema();
@@ -479,8 +562,15 @@ class Dashboard_Section_Test extends BaseTestCase {
 			$schema['properties']['date_filter']['enum']
 		);
 		$this->assertSame( 'range', $schema['properties']['date_filter']['default'] );
+		$this->assertSame(
+			array( 'with_date_comparison', 'with_header_date_control' ),
+			array_keys( $schema['properties']['date_filter_options']['properties'] )
+		);
 		$this->assertTrue(
 			$schema['properties']['date_filter_options']['properties']['with_date_comparison']['default']
+		);
+		$this->assertTrue(
+			$schema['properties']['date_filter_options']['properties']['with_header_date_control']['default']
 		);
 	}
 
@@ -646,7 +736,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'description'         => null,
 					'order'               => 10,
 					'date_filter'         => 'range',
-					'date_filter_options' => array( 'with_date_comparison' => true ),
+					'date_filter_options' => array(
+						'with_date_comparison'     => true,
+						'with_header_date_control' => true,
+					),
 					'requires_sync'       => false,
 					'default_layout'      => array(),
 				),
@@ -766,7 +859,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'description'         => 'Views, visitors, and where they came from.',
 					'order'               => 10,
 					'date_filter'         => 'range',
-					'date_filter_options' => array( 'with_date_comparison' => true ),
+					'date_filter_options' => array(
+						'with_date_comparison'     => true,
+						'with_header_date_control' => true,
+					),
 					'requires_sync'       => false,
 				),
 				array(
@@ -777,7 +873,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'description'         => 'Longer-term patterns in your content and audience.',
 					'order'               => 20,
 					'date_filter'         => 'year',
-					'date_filter_options' => array( 'with_date_comparison' => false ),
+					'date_filter_options' => array(
+						'with_date_comparison'     => false,
+						'with_header_date_control' => true,
+					),
 					'requires_sync'       => false,
 				),
 				array(
@@ -788,7 +887,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'description'         => 'How your subscriber list is growing, and how your emails land.',
 					'order'               => 30,
 					'date_filter'         => 'range',
-					'date_filter_options' => array( 'with_date_comparison' => true ),
+					'date_filter_options' => array(
+						'with_date_comparison'     => true,
+						'with_header_date_control' => true,
+					),
 					'requires_sync'       => false,
 				),
 			),
@@ -1304,7 +1406,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'description'         => null,
 					'order'               => 10,
 					'date_filter'         => 'range',
-					'date_filter_options' => array( 'with_date_comparison' => true ),
+					'date_filter_options' => array(
+						'with_date_comparison'     => true,
+						'with_header_date_control' => true,
+					),
 					'requires_sync'       => false,
 					'default_layout'      => array(),
 				),
@@ -1316,7 +1421,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'description'         => null,
 					'order'               => 20,
 					'date_filter'         => 'range',
-					'date_filter_options' => array( 'with_date_comparison' => true ),
+					'date_filter_options' => array(
+						'with_date_comparison'     => true,
+						'with_header_date_control' => true,
+					),
 					'requires_sync'       => false,
 					'default_layout'      => array(),
 				),
@@ -1395,7 +1503,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'description'         => null,
 					'order'               => 10,
 					'date_filter'         => 'range',
-					'date_filter_options' => array( 'with_date_comparison' => true ),
+					'date_filter_options' => array(
+						'with_date_comparison'     => true,
+						'with_header_date_control' => true,
+					),
 					'requires_sync'       => false,
 					'default_layout'      => array(
 						array(

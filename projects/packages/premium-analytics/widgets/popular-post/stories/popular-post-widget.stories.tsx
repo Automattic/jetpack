@@ -1,8 +1,6 @@
 /**
- * The widget ranks posts with the proxied `stats/top-posts` endpoint (covered by
- * the legacy stats mocks), then reads the winning post's content from the local
- * `/wp/v2/posts` endpoint and all three of its all-time metrics from `stats/post/{id}`
- * (both covered by the shared report mocks).
+ * `stats/top-posts` is served by the legacy stats mocks; `/wp/v2/posts` and
+ * `stats/post/{id}` by the shared report mocks.
  */
 /**
  * External dependencies
@@ -135,14 +133,9 @@ export const Empty: Story = {
 };
 
 /**
- * Mounts the real `WidgetDashboard` with this single widget so it renders exactly
- * as it does in product (framed card, sizing, edit mode). Drop `widgetWidth` to 1
- * to walk the card's size ladder: below 520px wide the featured image drops out and
- * the metric row wraps. Shortening the cell below 300px also switches the card to
- * its compact type scale.
- *
- * Comparison report params are passed unconditionally, so the widget stays covered
- * against crashing or inventing deltas when the host supplies comparison dates.
+ * Mounts the real `WidgetDashboard` with this single widget. Comparison report
+ * params are passed unconditionally, so the widget stays covered against
+ * crashing or inventing deltas when the host supplies comparison dates.
  */
 function PopularPostDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (

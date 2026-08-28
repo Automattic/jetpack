@@ -89,11 +89,9 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 }
 
 /**
- * Video performance widget: the scoped video's views, impressions, hours
- * watched, and retention rate over the dashboard date range as selectable
- * metric tabs, each headlined by the window's canonical total. The series come
- * from one `stats/video/{id}` `statType=all` range report, zero-filled and
- * bucketed client-side at the page's chart interval.
+ * Video performance widget: views, impressions, hours watched, and retention
+ * rate as metric tabs. Comes from one `stats/video/{id}` `statType=all`
+ * report, zero-filled and bucketed client-side.
  */
 export default function VideoDetailViewsPerformance( {
 	attributes = {},

@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+require_once __DIR__ . '/class-utility.php';
+
 use Automattic\Jetpack\Constants;
 use DOMDocument;
 use DOMElement;
@@ -278,8 +280,6 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	#[BeforeClass]
 	public static function set_up_class() {
-		define( 'DOING_AJAX', true ); // Defined so that 'exit' is not called in process_submission.
-
 		// Remove any relevant filters that might exist before running the tests.
 		remove_all_filters( 'grunion_still_email_spam' );
 		remove_all_filters( 'jetpack_contact_form_is_spam' );

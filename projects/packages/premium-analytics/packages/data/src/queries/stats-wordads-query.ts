@@ -35,23 +35,15 @@ export const statsWordAdsStatsQuery = (
 	const unit = String( apiParams.period ?? 'day' );
 	const { start_date: startDate } = statsParams;
 	const rangeEnd = typeof apiParams.date === 'string' ? apiParams.date : undefined;
-	// WordAds stats are computed nightly for the previous day (the Calypso
-	// WordAds page never shows the current day), so a window ending today would
-	// close on an empty bucket — clamp the window end to yesterday. Compare
-	// calendar days: `rangeEnd` may carry a time and offset, and a datetime sorts
-	// after the bare day it starts with, so the raw strings would clamp a window
-	// that ends exactly on yesterday.
+	// WordAds stats are computed nightly, so clamp later end dates to yesterday.
+	// Compare date parts, not the raw strings: a datetime sorts after the bare
+	// day it starts with, so a window ending exactly on yesterday would clamp too.
 	const rangeEndDay = getDatePart( rangeEnd );
 	const yesterday = format( subDays( localTZDate(), 1 ), 'yyyy-MM-dd' );
 	const clampToYesterday = rangeEndDay !== undefined && rangeEndDay > yesterday;
 	const date = clampToYesterday ? yesterday : rangeEnd;
-	// The endpoint is quantity-based (`unit` buckets ending at `date`), not
-	// `from`/`to`-based, so the dashboard range is translated here: the number of
-	// buckets spanning the range becomes `quantity`. Derive it from the clamped
-	// `date` (not the raw range end) so a window clamped to yesterday stays
-	// anchored to the range start — dropping the unavailable trailing bucket
-	// rather than shifting a bucket earlier and overlapping the dashboard's
-	// comparison window. The Calypso defaults remain the range-less fallback.
+	// The endpoint takes a bucket count and end date, not a range: derive the count
+	// from the clamped end so dropping today's bucket does not shift the start.
 	const defaultQuantity = unit === 'year' ? 10 : 30;
 	const quantity =
 		params.quantity ??

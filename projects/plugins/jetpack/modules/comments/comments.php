@@ -187,6 +187,10 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * In order for comments to work properly for password-protected posts we need to set `wp-postpass` cookie to SameSite none.
 	 */
 	public function manage_post_cookie() {
+		if ( headers_sent() ) {
+			return;
+		}
+
 		$postpass_cookie_key = 'wp-postpass_' . COOKIEHASH;
 
 		if ( empty( $_COOKIE[ $postpass_cookie_key ] ) ) {
@@ -198,7 +202,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		if ( empty( $_COOKIE['verbum-wp-postpass'] ) || ( $_COOKIE['verbum-wp-postpass'] !== $postpass_cookie_value ) ) {
 			$expire = apply_filters( 'post_password_expires', time() + 10 * DAY_IN_SECONDS );
 
-			jetpack_shim_setcookie(
+			setcookie(
 				$postpass_cookie_key,
 				$postpass_cookie_value,
 				array(
@@ -207,10 +211,11 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 					'path'     => '/',
 					'domain'   => COOKIE_DOMAIN,
 					'secure'   => is_ssl(),
+					'httponly' => false, // phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse -- @todo Can this be set true?
 				)
 			);
 
-			jetpack_shim_setcookie(
+			setcookie(
 				'verbum-wp-postpass',
 				$postpass_cookie_value,
 				array(
@@ -219,6 +224,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 					'path'     => '/',
 					'domain'   => COOKIE_DOMAIN,
 					'secure'   => is_ssl(),
+					'httponly' => false, // phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse -- @todo Can this be set true?
 				)
 			);
 		}

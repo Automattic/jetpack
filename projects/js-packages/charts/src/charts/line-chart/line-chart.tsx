@@ -179,6 +179,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			onPointerUp = undefined,
 			onPointerMove = undefined,
 			onPointerOut = undefined,
+			onDatumActivate = undefined,
 			zoomable = false,
 			rescaleYOnVisibilityChange = true,
 			defaultHiddenSeries,
@@ -280,7 +281,20 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			return min < max ? [ min, max ] : undefined;
 		}, [ rescaleYOnVisibilityChange, dataSorted ] );
 
-		// Use the keyboard navigation hook
+		// Keyboard navigation steps through x positions, and the grouped tooltip
+		// reads every series at that position; the first series names the point.
+		const activateSelectedPoint = useCallback(
+			( index: number ) => {
+				const series = dataSorted[ 0 ];
+				const datum = series?.data[ index ];
+
+				if ( series && datum ) {
+					onDatumActivate?.( { datum, index, key: series.label } );
+				}
+			},
+			[ dataSorted, onDatumActivate ]
+		);
+
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
 			selectedIndex,
 			setSelectedIndex,
@@ -288,11 +302,12 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			setIsNavigating,
 			chartRef,
 			totalPoints: dataSorted[ 0 ]?.data.length || 0,
+			onActivate: activateSelectedPoint,
 		} );
 
 		const chartOptions = useMemo( () => {
-			const { tickResolution, ...xAxisOptions } = options?.axis?.x ?? {};
-			const formatter = xAxisOptions.tickFormat || getFormatter( dataSorted, tickResolution );
+			const { tickResolution, tickFormat, ...xAxisOptions } = options?.axis?.x ?? {};
+			const formatter = tickFormat || getFormatter( dataSorted, tickResolution );
 
 			return {
 				axis: {

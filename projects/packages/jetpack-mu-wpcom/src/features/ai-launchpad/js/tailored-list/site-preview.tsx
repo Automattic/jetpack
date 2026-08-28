@@ -1,6 +1,6 @@
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
+import { LinkButton } from '@wordpress/ui';
 import type { ReactNode } from 'react';
 
 interface Props {
@@ -54,9 +54,9 @@ export function SitePreview( { siteUrl, siteTitle, siteEditUrl }: Props ) {
 			<div className="ai-launchpad-tailored-list__preview-frame is-editable">
 				{ thumbnail }
 				<span className="ai-launchpad-tailored-list__preview-edit">
-					<Button variant="solid" size="compact" render={ <a href={ siteEditUrl } /> }>
+					<LinkButton variant="solid" size="compact" href={ siteEditUrl }>
 						{ __( 'Edit site', 'jetpack-mu-wpcom' ) }
-					</Button>
+					</LinkButton>
 				</span>
 			</div>
 		);

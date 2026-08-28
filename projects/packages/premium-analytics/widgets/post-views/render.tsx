@@ -52,9 +52,8 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 		period
 	);
 
-	// One "Views" metric: the headline is the window total (views are summed
-	// per bucket, so the sum of buckets is the range's views). The post detail
-	// page has no comparison control, so there is no previous series.
+	// The post detail page has no comparison control, so there is no previous
+	// series, and the headline is just the sum of the window's buckets.
 	const metricTabs = useMemo< MetricTab[] >(
 		() => [
 			{

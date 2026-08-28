@@ -1,11 +1,8 @@
 <?php
 /**
- * Widget type support shared by the registry and default layouts.
- *
- * Persisted layouts are left unchanged so missing types remain as removable
- * ghost widgets. This is for hard availability — the host, or a feature the site
- * either has or does not. Request-dependent or soft state (shown locked, say)
- * belongs in the runtime types filter instead.
+ * Widget type support shared by the registry and default layouts — hard availability only
+ * (a feature the site has or doesn't); soft/request-dependent state belongs in the runtime
+ * types filter. Persisted layouts keep missing types as removable ghost widgets.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -55,17 +52,13 @@ function get_unsupported_widget_types( $context ) {
 	if ( empty( $context['is_wpcom_simple'] ) ) {
 		$unsupported[] = 'jpa/file-downloads';
 
-		// Share counts are recorded when the share request is processed, which
-		// only happens on WPCOM Simple. Elsewhere the button click is handled by
-		// the site itself and never reaches the counter, so the site summary's
-		// `shares_<service>` fields stay at zero however much the content is
-		// shared. Calypso excludes the module on the same grounds.
+		// Share counts are recorded only when WPCOM processes the share click; elsewhere the
+		// click never reaches the counter, so `shares_<service>` stays zero. Calypso excludes it too.
 		$unsupported[] = 'jpa/shares';
 	}
 
-	// Play counts only exist for VideoPress-hosted videos, so without VideoPress
-	// these widgets have nothing to report. Calypso gates its Videos module the
-	// same way (see videopress-availability.php).
+	// Play counts only exist for VideoPress-hosted videos; Calypso gates its Videos module
+	// the same way (see videopress-availability.php).
 	if ( empty( $context['has_videopress'] ) ) {
 		$unsupported = array_merge( $unsupported, VIDEOPRESS_WIDGET_TYPES );
 	}

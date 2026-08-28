@@ -1,20 +1,13 @@
 /**
- * The stories mount the data-connected "Email performance" widget; a mocked
- * `stats/opens|clicks/emails/{id}?stats_fields=timeline` response from
- * `registerReportMocks` supplies daily buckets spanning the requested window.
- * `WidgetDashboardWithWidget` mounts the real dashboard so it renders exactly
- * as it does in product.
- *
- * The timeline is scoped to a single email via a mocked `reportParams.post_id`.
- * The post detail design has no period-over-period comparison, so the widget
- * maps no comparison rows; the dashboard story still passes comparison params
- * so the widget stays covered against crashing or inventing an overlay when a
- * host supplies them.
+ * The post detail design has no period-over-period comparison, so the widget maps
+ * no comparison rows; the dashboard story still passes comparison params so the
+ * widget stays covered against inventing an overlay when a host supplies them.
  */
 /**
  * External dependencies
  */
 import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { PRESET_LAST_24_HOURS } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
@@ -54,10 +47,6 @@ const MOCK_EMAIL_ID = 1234;
 const METRIC_OPTIONS: EmailTimeSeriesMetric[] = [ 'opens', 'clicks' ];
 const INTERVAL_OPTIONS: StatsChartBucketPeriod[] = [ 'day', 'week', 'month' ];
 
-/**
- * Widget-specific controls: the opens/clicks metric and the page's chart
- * interval, which the widget buckets its daily timeline into.
- */
 interface EmailTimeSeriesStoryControls {
 	metric: EmailTimeSeriesMetric;
 	interval: StatsChartBucketPeriod;
@@ -65,8 +54,8 @@ interface EmailTimeSeriesStoryControls {
 }
 
 /**
- * Builds the widget attributes. Comparison stays a parameter so the dashboard
- * story can pass host comparison params without duplicating the scoping rule.
+ * Comparison stays a parameter so the dashboard story can pass host comparison
+ * params without duplicating the scoping rule.
  */
 function getEmailTimeSeriesAttributes(
 	{ metric, interval, chartType }: EmailTimeSeriesStoryControls,
@@ -114,7 +103,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Email performance" widget. Draws a single sent email\'s opens or clicks per day as a line chart, spanning the dashboard date range — the chart section of the legacy email detail page. The bucket size follows the page\'s chart interval control; weekly and monthly grouping aggregate the daily buckets client-side because the endpoint only reports hourly/daily. Scoped to one email via a mocked `reportParams.post_id`. The post detail page has no comparison control, so comparison report params are ignored.',
+					'The "Email performance" widget. Draws a single sent email\'s opens or clicks per day as a line chart, spanning the dashboard date range — the chart section of the legacy email detail page. The bucket size follows the page\'s chart interval control: an hourly window (the last-24-hours preset) draws the hourly buckets directly, while weekly and monthly grouping aggregate the daily buckets client-side because the endpoint only reports hourly/daily. Scoped to one email via a mocked `reportParams.post_id`. The post detail page has no comparison control, so comparison report params are ignored.',
 			},
 		},
 	},
@@ -149,6 +138,32 @@ export const Clicks: Story = {
 export const ByWeeks: Story = {
 	render: renderEmailTimeSeries,
 	args: { metric: 'opens', interval: 'week', chartType: 'line' },
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * The last-24-hours preset: an hourly window that usually spans two calendar
+ * days. The endpoint anchors its hourly buckets on the start day's midnight,
+ * so the mock returns buckets from before the window opens — the data layer
+ * trims them, and the chart draws exactly the selected 24 hours (WOOA7S-1840).
+ * The preset pins the page interval to `hour`, so the interval control is
+ * hidden here and no interval arg is wired.
+ */
+export const LastTwentyFourHours: StoryObj< Omit< EmailTimeSeriesStoryControls, 'interval' > > = {
+	render: ( { metric, chartType } ) => (
+		<EmailTimeSeriesRender
+			attributes={ {
+				reportParams: {
+					...getDefaultQueryParams( false, PRESET_LAST_24_HOURS ),
+					post_id: MOCK_EMAIL_ID,
+				},
+				metric,
+				chartType,
+			} }
+		/>
+	),
+	args: { metric: 'opens', chartType: 'line' },
+	parameters: { controls: { exclude: [ 'interval' ] } },
 	decorators: [ withWidgetCanvas ],
 };
 

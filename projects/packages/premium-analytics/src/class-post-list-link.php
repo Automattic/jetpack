@@ -30,15 +30,11 @@ class Post_List_Link {
 	/**
 	 * Point one row at its post detail page.
 	 *
-	 * Wins even where the row would otherwise point at Calypso: the dashboard is
-	 * this site's analytics UI, and it only exists in wp-admin, so the
-	 * admin-interface preference has no bearing on where analytics lives.
+	 * Wins even where the row would otherwise point at Calypso: this dashboard is the site's
+	 * analytics UI and exists only in wp-admin, so the admin-interface preference doesn't apply.
 	 *
-	 * The capability arm is defence in depth rather than a path a reader reaches:
-	 * `Admin_Post_List_Column::add_stats_post_table()` already drops the whole
-	 * column unless the user has `view_stats` or `manage_options`, the same
-	 * primitives `jetpack_view_analytics` maps to. It stays because the filter is
-	 * public and its next caller may not gate anything.
+	 * Defence in depth: Admin_Post_List_Column::add_stats_post_table() already drops the column
+	 * without `view_stats`/`manage_options`, but this filter is public and its next caller may not gate.
 	 *
 	 * @param string $url     Stats URL for the post.
 	 * @param int    $post_id The post the row belongs to.

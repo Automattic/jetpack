@@ -23,22 +23,17 @@ import { useActiveTab } from './use-active-tab';
 import type { PostDetailTabId } from '../config';
 
 /**
- * Resolve the visible post-detail tabs and normalize hidden-tab deep links.
+ * Resolves visible post-detail tabs and normalizes hidden-tab deep links.
+ * Kept in full because the email-tab gating and URL-normalization order are
+ * not obvious from the code below.
  *
- * Tabs without a fixed composition remain hidden, and the email tabs only
- * show for posts that were actually sent to subscribers: `total_sends` from
- * the per-post opens rate summary is the send signal. (Calypso infers the
- * same availability from subscription settings and post metadata because it
- * decides before fetching; the summary is the direct source, and the Email
- * top row widget reads the same query, so React Query shares the result.)
- * The gate fails closed — while the summary is loading or errored the email
- * tabs stay hidden, so they appear rather than disappear.
+ * Tabs without a fixed composition stay hidden. Email tabs also require
+ * `total_sends` > 0 from the opens-rate summary, and fail closed: they stay
+ * hidden while that query is loading or has errored.
  *
- * If the URL points at a hidden tab, the first visible tab renders
- * immediately and replaces the hidden value in the URL without adding a
- * browser-history entry — but an email-tab URL is only normalized once the
- * gate query has succeeded, so a deep link survives the summary's first load
- * and any failed request.
+ * A hidden-tab URL is replaced with the first visible tab, without adding a
+ * history entry. An email-tab URL is normalized only once the gate query
+ * succeeds, so a deep link survives the summary's first load or a failure.
  *
  * The email tabs' widgets read the given report params instead of the URL
  * (see `useEmailTabScope`); until those are known, an email tab has no layout.
@@ -67,15 +62,8 @@ export function usePostDetailTabs( postId: number, emailReportParams?: ReportPar
 	const [ storedTab, setActiveTab ] = useActiveTab();
 	const activeTab = tabs.find( tab => tab.id === storedTab )?.id ?? tabs[ 0 ]?.id ?? DEFAULT_TAB_ID;
 
-	// Normalize an email-tab URL only after the gate query has *succeeded*:
-	// while the send summary is loading — or after it fails, when we still
-	// don't know whether the post has email stats — the email tabs are hidden
-	// provisionally, and rewriting the URL then would destroy a legitimate
-	// deep link. The visible fallback still renders immediately; the URL write
-	// waits for a definitive answer (a later successful refetch settles it).
-	// Deep links to non-email tabs don't depend on the gate and normalize
-	// right away; without a valid post scope the query never runs, so email
-	// deep links normalize immediately there too.
+	// Non-email/no-scope deep links normalize immediately; a pending or
+	// failed email-tab gate holds off so a real deep link isn't destroyed.
 	const storedIsEmailTab = EMAIL_TAB_IDS.includes( storedTab as PostDetailTabId );
 	const canNormalize = ! storedIsEmailTab || postId <= 0 || opens.isSuccess;
 

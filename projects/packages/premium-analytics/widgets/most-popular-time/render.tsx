@@ -3,6 +3,12 @@
  */
 import { useStatsInsights, type StatsInsightsResponse } from '@jetpack-premium-analytics/data';
 import {
+	formatHourOfDay,
+	formatMetricValue,
+	formatMondayFirstWeekday,
+} from '@jetpack-premium-analytics/formatters';
+import {
+	describeError,
 	WidgetRoot,
 	WidgetState,
 	type ReportParamsFieldAttributes,
@@ -18,8 +24,9 @@ import type { MostPopularTimeAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 // Report params are dashboard-driven and injected via `attributes`; the insights
-// endpoint ignores them (it reports across the whole site lifetime with no
-// comparison period), but WidgetRoot still expects them on `attributes`.
+// endpoint ignores them (the peak day and hour come from a fixed server-side
+// window, with no comparison period), but WidgetRoot still expects them on
+// `attributes`.
 type MostPopularTimeRenderAttributes = MostPopularTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type MostPopularTimeWidgetProps = WidgetRenderProps< MostPopularTimeRenderAttributes >;
@@ -30,13 +37,14 @@ type HighlightProps = {
 	 */
 	label: string;
 	/**
-	 * The peak value (e.g. "Tuesday" or "3:00 PM").
+	 * The peak value, already localized (e.g. "Tuesday" or "3 pm").
 	 */
 	value: string;
 	/**
-	 * The value's share of total views, as a whole percent.
+	 * The value's share of total views, as a whole percent (0-100). Absent when
+	 * the endpoint sent no share — the caption is dropped rather than showing 0%.
 	 */
-	percent: number;
+	percent?: number;
 };
 
 /**
@@ -52,13 +60,19 @@ function Highlight( { label, value, percent }: HighlightProps ) {
 			<Text variant="heading-2xl" className={ styles.value }>
 				{ value }
 			</Text>
-			<Text variant="body-md" className={ styles.caption }>
-				{ sprintf(
-					/* translators: %d: share of total views as a whole percent. */
-					__( '%d%% of views', 'jetpack-premium-analytics-pkg' ),
-					percent
-				) }
-			</Text>
+			{ percent !== undefined && (
+				<Text variant="body-md" className={ styles.caption }>
+					{ sprintf(
+						/* translators: %s is a percentage, e.g. "17%". */
+						__( '%s of views', 'jetpack-premium-analytics-pkg' ),
+						// The report carries whole percents; the formatter takes a fraction.
+						formatMetricValue( percent / 100, 'percentage', {
+							decimals: 0,
+							signDisplay: 'never',
+						} )
+					) }
+				</Text>
+			) }
 		</Stack>
 	);
 }
@@ -69,31 +83,40 @@ function Highlight( { label, value, percent }: HighlightProps ) {
  * its share of views.
  */
 function MostPopularTimeReport() {
-	const { data, isLoading, isFetching, isError, refetch } = useStatsInsights();
+	const { data, isLoading, isFetching, isError, error, refetch } = useStatsInsights();
 	const report = data as StatsInsightsResponse | undefined;
-	const isEmpty = ! report?.day || ! report?.hour;
+	// The card stands on the day alone: the hour is a second highlight the
+	// endpoint may not have sent, and withholding a known best day because of it
+	// would report "not enough data" over data there is. Compared against
+	// `undefined`, not falsiness — Monday and midnight are both 0.
+	const { dayOfWeek, hourOfDay, percent, hourPercent } = report ?? {};
+	const isEmpty = dayOfWeek === undefined;
+	// `placeholderData` keeps the prior response on a transient refetch failure,
+	// so the error only surfaces when there is nothing left to show.
+	const showError = isError && isEmpty;
 
 	return (
 		<div className={ styles.content }>
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
-				// The query keeps the previous response via `placeholderData`, so only
-				// surface the error when there is nothing to show.
-				isError={ isError && isEmpty }
+				isError={ showError }
 				isEmpty={ isEmpty }
-				error={ {
-					description: __(
-						"We couldn't load your most popular time. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					actions: [
-						{
-							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
-							onClick: () => void refetch(),
-						},
-					],
-				} }
+				// Mapped rather than hand-written: a 403 from a reader without stats
+				// access is not something retrying fixes, and describeError drops the
+				// Retry action for it. Gated on the same predicate as `isError` so the
+				// two cannot disagree.
+				error={
+					showError
+						? describeError( error, {
+								retryDescription: __(
+									"We couldn't load your most popular time. Please try again in a moment.",
+									'jetpack-premium-analytics-pkg'
+								),
+								onRetry: refetch,
+						  } )
+						: null
+				}
 				empty={ {
 					icon: scheduled,
 					description: __(
@@ -102,18 +125,20 @@ function MostPopularTimeReport() {
 					),
 				} }
 			>
-				{ report?.day && report?.hour && (
+				{ dayOfWeek !== undefined && (
 					<Stack className={ styles.root } direction="column" gap="lg">
 						<Highlight
 							label={ __( 'Best day', 'jetpack-premium-analytics-pkg' ) }
-							value={ report.day }
-							percent={ report.percent ?? 0 }
+							value={ formatMondayFirstWeekday( dayOfWeek ) }
+							percent={ percent }
 						/>
-						<Highlight
-							label={ __( 'Best hour', 'jetpack-premium-analytics-pkg' ) }
-							value={ report.hour }
-							percent={ report.hourPercent ?? 0 }
-						/>
+						{ hourOfDay !== undefined && (
+							<Highlight
+								label={ __( 'Best hour', 'jetpack-premium-analytics-pkg' ) }
+								value={ formatHourOfDay( hourOfDay ) }
+								percent={ hourPercent }
+							/>
+						) }
 					</Stack>
 				) }
 			</WidgetState>

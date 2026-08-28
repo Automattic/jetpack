@@ -26,17 +26,14 @@ import { localTZDate } from './date';
 export type { IntervalType };
 
 export function getDaysBetweenInclusive( from: string, to: string ): number {
-	// Extract the calendar day first: callers may now pass a full offset-bearing
-	// ISO datetime (Stats endpoints resolve those correctly, so request params
-	// aren't pre-trimmed anymore) rather than a bare `yyyy-MM-dd`.
+	// Callers may pass a full offset-bearing ISO datetime rather than a bare
+	// `yyyy-MM-dd`, so take the calendar day first.
 	const fromDay = getDatePart( from );
 	const toDay = getDatePart( to );
 
 	// Anchor both dates in UTC before diffing: `differenceInCalendarDays` reads
-	// its arguments' local calendar getters, and a plain UTC-tagged `Date`'s
-	// getters reflect the machine's local timezone, not UTC. Left unanchored,
-	// a negative-offset machine can read a UTC midnight instant as the
-	// previous local calendar day, shifting the day count.
+	// local calendar getters, so on a negative-offset machine a UTC midnight
+	// instant reads as the previous day and shifts the count.
 	const fromDate = localTZDate( `${ fromDay }T00:00:00Z`, '+00:00' );
 	const toDate = localTZDate( `${ toDay }T00:00:00Z`, '+00:00' );
 	const days = differenceInCalendarDays( toDate, fromDate );
@@ -50,17 +47,17 @@ export function getDaysBetweenInclusive( from: string, to: string ): number {
 }
 
 function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] {
-	// Use hours instead of days to handle ranges that are 1 second short of a full day.
-	// E.g., '2024-11-01 00:00:00' to '2025-10-31 23:59:59' is 8759 hours (364.958 days),
-	// which rounds to 365 days, correctly categorizing it as a yearly interval.
+	// Hours, not days, so a range one second short of a full year (8759 hours)
+	// still rounds to 365 and categorizes as yearly.
 	const daysDiff = Math.round(
 		Math.abs( differenceInHours( localTZDate( to ), localTZDate( from ) ) / 24 )
 	);
 
+	// No bucket between month and year: Stats has no quarterly one.
 	if ( daysDiff >= 1095 ) {
-		return [ 'quarter', 'year' ];
+		return [ 'month', 'year' ];
 	} else if ( daysDiff >= 365 ) {
-		return [ 'month', 'quarter' ];
+		return [ 'month' ];
 	} else if ( daysDiff >= 90 ) {
 		return [ 'week', 'month' ];
 	} else if ( daysDiff >= 28 ) {
@@ -80,9 +77,6 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 
 /**
  * Allowed intervals for a preset, default first.
- *
- * Unknown / custom / year-surface presets derive the list from `from`–`to`
- * length.
  *
  * Also what the interval control lists, so the menu can never offer a bucket
  * the range would coerce away.
@@ -112,7 +106,7 @@ export function getAllowedIntervalsForPreset(
 		case PRESET_LAST_12_MONTHS:
 		case PRESET_LAST_365_DAYS:
 		case PRESET_LAST_YEAR:
-			return [ 'month', 'quarter' ];
+			return [ 'month' ];
 		default:
 			return getAllowedIntervalsByRange( from, to );
 	}
@@ -163,8 +157,6 @@ export function getDateFormatFromInterval(
 			return 'MMM d';
 		case 'month':
 			return 'MMM yyyy';
-		case 'quarter':
-			return 'qqq yyyy';
 		case 'year':
 			return 'yyyy';
 		default:

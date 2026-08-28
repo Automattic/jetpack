@@ -1,9 +1,8 @@
 /**
  * Internal dependencies
  */
-// The tab sets come from `config/tabs` directly rather than each report's
-// `config` barrel, which re-exports `fields.tsx` and would pull JSX and the
-// router in. Same reason `registry.ts` imports them this way.
+// `config/tabs` is imported directly, not through each report's `config` barrel, which
+// re-exports `fields.tsx` and pulls in JSX/router. `registry.ts` imports them the same way.
 import { getCommentsReportTabs, getTabTitle as getCommentsTabTitle } from './comments/config/tabs';
 import {
 	getReportLocationsTabs,
@@ -44,9 +43,8 @@ const REPORT_NAMES = Object.entries( REPORTS ).map( ( [ key, report ] ) => [
 ] );
 
 /*
- * The crumb names the report and the heading names its records, one `report`
- * apart. That convention drifts a string at a time, so it is asserted rather
- * than written down.
+ * The crumb names the report and the heading names its records, one `report` word apart —
+ * asserted here instead of documented, since the convention drifts a string at a time.
  */
 describe( 'report names', () => {
 	it.each( REPORT_NAMES )( '%s heads its records with its own label', ( key, id, label, title ) => {

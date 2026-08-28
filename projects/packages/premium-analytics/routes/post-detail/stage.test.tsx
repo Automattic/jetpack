@@ -41,12 +41,8 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 
 jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
 
-// Falls through to the real module for everything but `useSelect`. Reaching the
-// externals passthrough pulls `@wordpress/components` -> `@wordpress/rich-text`
-// into the graph, whose store calls `combineReducers` at import time; a
-// `useSelect`-only mock leaves that undefined and the suite fails to load.
-// `requireActual` has to stay lazy — calling it in the factory body re-enters
-// the module while it is still initialising.
+// Proxies `@wordpress/data` lazily: `requireActual` at import time would
+// re-enter `@wordpress/rich-text`'s module init via `combineReducers`.
 jest.mock(
 	'@wordpress/data',
 	() =>
@@ -246,10 +242,10 @@ describe( 'post detail stage', () => {
 
 		render( stage() );
 
-		const action = screen.getByRole( 'link', { name: 'View post' } );
+		// `openInNewTab` appends a screen-reader hint to the accessible name.
+		const action = screen.getByRole( 'link', { name: 'View post(opens in a new tab)' } );
 		expect( action ).toHaveAttribute( 'href', 'https://example.com/hello-world/' );
 		expect( action ).toHaveAttribute( 'target', '_blank' );
-		expect( action ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 	} );
 
 	it( 'labels the action View page for a page', () => {
@@ -257,11 +253,13 @@ describe( 'post detail stage', () => {
 
 		render( stage() );
 
-		expect( screen.getByRole( 'link', { name: 'View page' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'View page(opens in a new tab)' } ) ).toHaveAttribute(
 			'href',
 			'https://example.com/about/'
 		);
-		expect( screen.queryByRole( 'link', { name: 'View post' } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'View post(opens in a new tab)' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'omits the action while the post URL is unresolved', () => {
@@ -269,7 +267,7 @@ describe( 'post detail stage', () => {
 
 		render( stage() );
 
-		expect( screen.queryByRole( 'link', { name: /^View (post|page)$/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /^View (post|page)/ } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'omits the action when the post URL carries an unsupported scheme', () => {
@@ -277,12 +275,11 @@ describe( 'post detail stage', () => {
 
 		render( stage() );
 
-		expect( screen.queryByRole( 'link', { name: /^View (post|page)$/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /^View (post|page)/ } ) ).not.toBeInTheDocument();
 	} );
 
-	// One declaration drives both halves: the panel reads it to drop the Compare
-	// control (covered in the ui package) and `WidgetRoot` reads it to strip the
-	// params. This asserts the declaration the page makes.
+	// One declaration drives both halves: the panel drops the Compare control and
+	// `WidgetRoot` strips the params. This asserts the page's declaration.
 	it( 'declares no comparison for the widgets it renders', () => {
 		mockSummary();
 

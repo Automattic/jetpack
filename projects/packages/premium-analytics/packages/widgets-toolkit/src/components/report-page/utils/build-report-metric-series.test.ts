@@ -91,9 +91,8 @@ describe( 'buildReportMetricSeries', () => {
 		expect( series[ 1 ].group ).toBe( 'views' );
 		expect( series[ 1 ].options?.type ).toBe( 'comparison' );
 		expect( series[ 1 ].data.map( point => point.value ) ).toEqual( [ 80, 90 ] );
-		// The current period keeps the bare metric name, which is what the
-		// collapsed legend item shows; the labels still differ so the charts
-		// provider can track their visibility apart.
+		// The current period keeps the bare metric name (what the collapsed legend
+		// shows); the labels still differ so the charts provider tracks visibility.
 		expect( series[ 0 ].label ).toBe( 'Views' );
 		expect( series[ 0 ].label ).not.toBe( series[ 1 ].label );
 	} );

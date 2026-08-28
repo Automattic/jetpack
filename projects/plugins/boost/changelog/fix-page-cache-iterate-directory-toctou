@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Page Cache: keep cache invalidation best-effort when a cache subdirectory disappears mid-walk, instead of throwing an uncaught exception that could break saving templates or posts.

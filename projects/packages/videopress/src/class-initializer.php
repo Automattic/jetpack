@@ -288,11 +288,14 @@ class Initializer {
 	public static function render_videopress_video_block( $block_attributes, $content, $block ) {
 		global $wp_embed;
 
-		// Pre-build and cache the GUID list for this post to optimize authorization checks.
-		// This is called once per page render and caches GUIDs from all VideoPress blocks
-		// (including those in synced patterns), allowing fast O(1) lookups during token requests.
+		// Pre-build and cache the GUID list for this post to optimize authorization checks,
+		// and record the GUID actually being rendered: by render time WordPress has expanded
+		// synced patterns, templates, and template parts, so this covers embedding contexts
+		// the static content scan cannot see.
 		$post_id = $block->context['postId'] ?? get_the_ID();
-		if ( ! empty( $post_id ) ) {
+		if ( ! empty( $post_id ) && isset( $block_attributes['guid'] ) && is_string( $block_attributes['guid'] ) ) {
+			Access_Control::ensure_post_guids_cached( absint( $post_id ), $block_attributes['guid'] );
+		} elseif ( ! empty( $post_id ) ) {
 			Access_Control::build_and_cache_post_guids( absint( $post_id ) );
 		}
 
@@ -478,7 +481,7 @@ class Initializer {
 		$premium_block_plan_id    = isset( $block->context['premium-content/planId'] ) ? intval( $block->context['premium-content/planId'] ) : 0;
 		$is_premium_content_child = isset( $block->context['isPremiumContentChild'] ) ? (bool) $block->context['isPremiumContentChild'] : false;
 		$maybe_premium_script     = '';
-		if ( $is_premium_content_child ) {
+		if ( $is_premium_content_child && is_string( $guid ) ) {
 			Access_Control::instance()->set_guid_subscription( $guid, $premium_block_plan_id );
 			$escaped_guid         = wp_json_encode( $guid, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 			$script_content       = "if ( ! window.__guidsToPlanIds ) { window.__guidsToPlanIds = {}; }; window.__guidsToPlanIds[$escaped_guid] = $premium_block_plan_id;";
@@ -746,15 +749,25 @@ class Initializer {
 	/**
 	 * Video Playlist block render callback.
 	 *
-	 * @param array $block_attributes Block attributes.
+	 * @param array          $block_attributes Block attributes.
+	 * @param string         $content          Current block markup.
+	 * @param \WP_Block|null $block            Current block.
 	 *
 	 * @return string Block markup, or an empty string when the playlist has no playable entries.
 	 */
-	public static function render_videopress_playlist_block( $block_attributes ) {
+	public static function render_videopress_playlist_block( $block_attributes, $content = '', $block = null ) {
 		$entries = self::sanitize_playlist_entries( $block_attributes['videos'] ?? null );
 
 		if ( ! $entries ) {
 			return '';
+		}
+
+		// Record the rendered GUIDs in the post's cached GUID list so private playlist
+		// entries pass the playback authorization check, including when the playlist
+		// sits inside a synced pattern, template, or template part.
+		$post_id = $block->context['postId'] ?? get_the_ID();
+		if ( ! empty( $post_id ) ) {
+			Access_Control::ensure_post_guids_cached( absint( $post_id ), array_column( $entries, 'guid' ) );
 		}
 
 		$enabled = function ( $key, $default_value = true ) use ( $block_attributes ) {
@@ -806,6 +819,15 @@ class Initializer {
 		/* translators: %d: number of videos in the playlist. */
 		$count_label = sprintf( _n( '%d video', '%d videos', $count, 'jetpack-videopress-pkg' ), $count );
 
+		/*
+		 * Hidden placeholder shown (via the button's is-locked class) when the view
+		 * script cannot authorize a private video's thumbnail for the viewer.
+		 */
+		$lock_markup = '<span class="videopress-playlist__entry-lock">'
+			. '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M17 10h-1.2V7.3c0-2.1-1.7-3.8-3.8-3.8-2.1 0-3.8 1.7-3.8 3.8V10H7c-.6 0-1 .4-1 1v8c0 .6.4 1 1 1h10c.6 0 1-.4 1-1v-8c0-.6-.4-1-1-1Zm-2.7 0H9.7V7.3c0-1.3 1-2.3 2.3-2.3 1.3 0 2.3 1 2.3 2.3V10Z"/></svg>'
+			. '<span class="videopress-playlist__entry-lock-label">' . esc_html__( 'Private video', 'jetpack-videopress-pkg' ) . '</span>'
+			. '</span>';
+
 		$items = '';
 		foreach ( $entries as $index => $entry ) {
 			/*
@@ -847,7 +869,7 @@ class Initializer {
 
 			$items .= sprintf(
 				'<li class="videopress-playlist__entry"><button type="button" class="videopress-playlist__select%1$s"%2$s data-guid="%3$s" data-embed-url="%4$s" data-title="%5$s" data-position="%6$s" data-details="%7$s" data-progress="%8$s">' .
-					'%9$s<span class="videopress-playlist__entry-thumb"><span class="videopress-playlist__entry-flag">%10$s</span>%11$s</span>' .
+					'%9$s<span class="videopress-playlist__entry-thumb"><span class="videopress-playlist__entry-flag">%10$s</span>%15$s%11$s</span>' .
 					'<span class="videopress-playlist__entry-body"><span class="videopress-playlist__entry-title">%12$s</span><span class="videopress-playlist__entry-meta">%13$s%14$s</span></span>' .
 					'</button></li>',
 				0 === $index ? ' is-current' : '',
@@ -863,7 +885,8 @@ class Initializer {
 				$time_markup,
 				esc_html( $title ),
 				$resolution_markup,
-				$duration_markup
+				$duration_markup,
+				$lock_markup
 			);
 		}
 

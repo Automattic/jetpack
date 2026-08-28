@@ -8,6 +8,7 @@ import { useCallback } from 'react';
  */
 import { hasComparisonEnabled, type ReportParams } from '../utils/search';
 import { isAwaitingData } from './awaiting-data';
+import { REFRESH_NOTICE_META } from './refresh-failure-scope';
 
 type UseReportOptions = {
 	enabled?: boolean;
@@ -23,18 +24,6 @@ type QueryFactory< TData > = (
  * Generic hook for fetching report data with comparison support. The comparison
  * query is driven by the comparison dates in `params`; when it is disabled the
  * query still mounts, parked on `options.disabledComparisonKey`.
- *
- * @example
- * ```typescript
- * const { primary, comparison, hasComparison, isLoading, hasData } = useReport(
- *   (params) => reportOrdersQuery(params, hasProductFilters),
- *   reportParams,
- *   {
- *     enabled: true,
- *     disabledComparisonKey: ['reports', 'orders', '__comparison__', 'disabled'],
- *   }
- * );
- * ```
  */
 export function useReport< TData, TParams extends ReportParams = ReportParams >(
 	queryFactory: QueryFactory< TData >,
@@ -71,11 +60,13 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 	const primary = useQuery( {
 		...primaryQueryOptions,
 		enabled: primaryEnabled,
+		meta: { ...primaryQueryOptions.meta, ...REFRESH_NOTICE_META },
 	} );
 
 	const comparison = useQuery( {
 		...comparisonQueryOptions,
 		enabled: comparisonQueryEnabled,
+		meta: { ...comparisonQueryOptions.meta, ...REFRESH_NOTICE_META },
 	} );
 
 	// Widened past React Query's `isLoading` — see `isAwaitingData`. Its own
@@ -83,12 +74,8 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 	const isLoading = isAwaitingData( primary ) || isAwaitingData( comparison );
 	const isFetching = primary.isFetching || comparison.isFetching;
 
-	/**
-	 * Sanitized report responses always carry `summary` and `data`; only the
-	 * conversion funnel adds `steps`, so all three are checked. The `as any`
-	 * escapes the generic `TData`, which cannot be constrained without breaking
-	 * existing callers.
-	 */
+	// Only the conversion funnel adds `steps`, so all three shapes are checked.
+	// `as any` escapes `TData`, unconstrainable without breaking callers.
 	const hasData =
 		Boolean( ( primary.data as any )?.summary ) ||
 		Boolean( ( primary.data as any )?.data?.length ) ||
@@ -97,11 +84,8 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 		Boolean( ( comparison.data as any )?.data?.length ) ||
 		Boolean( ( comparison.data as any )?.steps?.length );
 
-	// Combined refetch: memoized and awaiting both queries, so one "Retry" can
-	// re-run everything the widget asked for. React Query's own `refetch()`
-	// deliberately ignores `enabled`, so the gate is applied here instead — a
-	// switched-off query is left alone, and widgets passing `enabled` need no
-	// guard of their own around the retry action.
+	// React Query's `refetch()` deliberately ignores `enabled`, so the gate is
+	// re-applied here to leave a switched-off query alone.
 	const primaryRefetch = primary.refetch;
 	const comparisonRefetch = comparison.refetch;
 	const refetch = useCallback( async () => {

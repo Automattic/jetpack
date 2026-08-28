@@ -14,11 +14,9 @@ export interface SkeletonRootProps {
 }
 
 /**
- * Deliberately no `aria-busy`: on a live region it means "hold updates until I
- * say otherwise", and this node is unmounted the moment the data lands, so it
- * would never say otherwise — the announcement it exists to make could be held
- * forever. Marking the region that is actually being updated is `WidgetState`'s
- * job, on a wrapper that outlives the fetch.
+ * Deliberately no `aria-busy`: it means "hold updates" on a live region, but
+ * this node unmounts the moment data lands and would never say otherwise.
+ * `WidgetState`, which outlives the fetch, owns marking the region as busy.
  */
 export function SkeletonRoot( { children }: SkeletonRootProps ) {
 	return (

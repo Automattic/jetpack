@@ -1,4 +1,4 @@
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Text } from '@wordpress/ui';
@@ -10,13 +10,16 @@ import BackupStatusPanel, { replacesOverview } from '../components/backup-status
 import BackupStatusBanner, { BackupTroubleBanner } from '../components/backup-status/banner';
 import DashboardLayout from '../components/dashboard-layout';
 import QueryError from '../components/query-error';
+import StorageSpace from '../components/storage-space';
 import {
 	ACTIVITY_LOG_DEFAULT_PER_PAGE,
 	useActivityById,
 	useDefaultBackupRewindId,
 	useHasRestorePoints,
 } from '../hooks/use-activity-log';
+import { useAnalytics } from '../hooks/use-analytics';
 import { useBackups } from '../hooks/use-backups';
+import { useRefreshActivityOnBackupComplete } from '../hooks/use-refresh-activity-on-backup-complete';
 import { isBackupItem } from '../types/activity';
 import type { View } from '@wordpress/dataviews';
 
@@ -39,6 +42,24 @@ const INITIAL_VIEW: View = {
 };
 
 /**
+ * Whether this page load has already recorded its view.
+ *
+ * See the effect below for why this is module state rather than a ref.
+ */
+let hasRecordedPageView = false;
+
+/**
+ * Reset the page-view latch. Test-only.
+ *
+ * The latch is module state precisely so it outlives an unmount, which
+ * also means one test's render would otherwise silence every later one
+ * in the same file.
+ */
+export function resetPageViewForTesting(): void {
+	hasRecordedPageView = false;
+}
+
+/**
  * Overview screen for the modernized Backup dashboard.
  *
  * Renders the shared `<DashboardLayout>` chrome around a two-pane body: the
@@ -50,6 +71,35 @@ const INITIAL_VIEW: View = {
  * @return The rendered Overview screen.
  */
 export default function OverviewScreen() {
+	// Called before any other hook here so its initialization effect runs
+	// before the page-view effect below: React runs a component's effects
+	// in the order the hooks were called, and an event recorded before
+	// `initialize()` carries no identity.
+	const { tracks } = useAnalytics();
+	// Overview only, deliberately. All three routes declare
+	// `"page": "jetpack-backup-dashboard"` in their `package.json`, so
+	// this is one admin page whose Download and Restore views are
+	// client-side transitions through `@wordpress/route` — the same shape
+	// as legacy, which records one view per visit. Recording from all
+	// three routes would report three views for one reader moving between
+	// them, a step change at flag-flip that reads as growth and is not.
+	// Landing straight on Download or Restore therefore goes uncounted,
+	// which is the accepted cost of keeping the metric comparable.
+	useEffect( () => {
+		// The latch is module scope, not a ref. A client-side transition
+		// to Download and back unmounts and remounts this screen, and a
+		// per-instance guard resets with it — so a ref would record a
+		// second view for the same visit, which is the over-counting this
+		// whole decision exists to avoid. Module scope also subsumes the
+		// StrictMode double-invocation a ref was reaching for.
+		if ( hasRecordedPageView ) {
+			return;
+		}
+
+		hasRecordedPageView = true;
+		tracks.recordEvent( 'jetpack_backup_admin_page_view' );
+	}, [ tracks ] );
+
 	const search = useSearch( {
 		from: '/' as unknown as never,
 		strict: false,
@@ -78,6 +128,11 @@ export default function OverviewScreen() {
 		isRefetching: backupsRefetching,
 		refetch: refetchBackups,
 	} = useBackups();
+	// Owned here, and only here. `BackupNowButton` reads the same query
+	// through its own `useBackups`, so this screen has two observers of
+	// the state below — but the refresh must fire once per finished
+	// backup, not once per observer. See the hook's docblock.
+	useRefreshActivityOnBackupComplete( backupsState );
 	// A second opinion on whether anything is restorable, from the
 	// paginated activity log rather than the short `/backups` window.
 	// While it is still unknown, assume there *are* restore points:
@@ -136,11 +191,11 @@ export default function OverviewScreen() {
 			 * activity log managed to load is still worth showing, and this
 			 * failure says nothing about it.
 			 *
-			 * `error` is very often null on this path and that is not a bug.
-			 * The route answers a non-200 from WPCOM with a bare `null`
-			 * body, which WordPress serves as HTTP 200 — so the request
-			 * resolves, React Query records a success, and the only signal
-			 * left is the derived state. That is also why the retry button
+			 * `error` can be null on this path and that is not a bug. The
+			 * route answers a WPCOM reply it cannot decode with a bare
+			 * `null` body, which WordPress serves as HTTP 200 — so the
+			 * request resolves, React Query records a success, and the only
+			 * signal left is the derived state. That is also why the retry button
 			 * matters more here than elsewhere: nothing else will ask again.
 			 * The poll stops deliberately on an unreadable response rather
 			 * than hammering a failing upstream.
@@ -172,6 +227,18 @@ export default function OverviewScreen() {
 			 * loading, so the terminal case still reports immediately.
 			 */ }
 			{ ! restorePointsLoading && <BackupTroubleBanner state={ backupsState } /> }
+			{ /*
+			 * Above the list, and a sibling of the grid for the same
+			 * reason the banners are. It answers a question the list
+			 * cannot — a site whose backups have stopped because storage
+			 * ran out sees only an activity log that quietly stops — so it
+			 * belongs where that news is read first, not below the fold.
+			 *
+			 * It renders nothing until it has both a usage figure and a
+			 * limit, so on a site with no retention policy this costs a
+			 * pair of requests and no layout.
+			 */ }
+			<StorageSpace />
 			<div className="jpb-overview">
 				<ActivityList
 					selectedId={ selectedId }
@@ -224,7 +291,10 @@ function RightPane( {
 		);
 	}
 	if ( isBackupItem( item ) ) {
-		return <BackupDetail item={ item } />;
+		// Keyed by rewindId so switching backups remounts the detail pane —
+		// `BackupDetail` and `FileBrowser` hold selection/open-file state that
+		// otherwise survives a prop change and leaks into the next backup.
+		return <BackupDetail key={ item.rewindId } item={ item } />;
 	}
 	return <ActivityDetail item={ item } />;
 }

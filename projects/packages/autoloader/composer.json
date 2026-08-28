@@ -60,7 +60,7 @@
 			"::VERSION": "src/AutoloadGenerator.php"
 		},
 		"branch-alias": {
-			"dev-trunk": "5.0.x-dev"
+			"dev-trunk": "6.0.x-dev"
 		}
 	}
 }
