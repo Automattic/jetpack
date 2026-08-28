@@ -59,8 +59,32 @@ class Integration_Registry_Test extends BaseTestCase {
 
 		$this->assertFalse( Integration_Registry::register( '', array() ) );
 		$this->assertFalse( Integration_Registry::register( 'has spaces', array() ) );
-		$this->assertFalse( Integration_Registry::register( 'has/slash', array() ) );
+		$this->assertFalse( Integration_Registry::register( 'has.dot', array() ) );
 		$this->assertSame( array(), Integration_Registry::all() );
+	}
+
+	/**
+	 * New integrations namespace their slug so two plugins cannot collide on a common name.
+	 */
+	public function test_register_accepts_a_namespaced_slug() {
+		$this->assertTrue( Integration_Registry::register( 'jetpack/slack', array( 'title' => 'Slack' ) ) );
+		$this->assertTrue( Integration_Registry::register( 'acme/slack', array( 'title' => 'Acme Slack' ) ) );
+
+		$this->assertSame( 'Slack', Integration_Registry::get( 'jetpack/slack' )['title'] );
+		$this->assertSame( 'Acme Slack', Integration_Registry::get( 'acme/slack' )['title'] );
+		$this->assertCount( 2, Integration_Registry::all() );
+	}
+
+	/**
+	 * Only one level of namespacing is meaningful, so deeper paths are rejected rather than
+	 * quietly accepted and then failing to match a REST route.
+	 */
+	public function test_register_rejects_a_multi_level_slug() {
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+
+		$this->assertFalse( Integration_Registry::register( 'acme/team/slack', array() ) );
+		$this->assertFalse( Integration_Registry::register( '/slack', array() ) );
+		$this->assertFalse( Integration_Registry::register( 'acme/', array() ) );
 	}
 
 	/**

@@ -19,6 +19,16 @@ namespace Automattic\Jetpack\Forms\Integrations;
 class Integration_Registry {
 
 	/**
+	 * Shape of a valid integration slug.
+	 *
+	 * Either a bare name, or a `vendor/name` pair. The namespaced form is what new
+	 * integrations should use; the bare form is kept valid because the bundled integrations
+	 * already publish theirs through the REST API and store them in saved block attributes,
+	 * where renaming them would orphan existing settings.
+	 */
+	public const SLUG_PATTERN = '#^[\w-]+(?:/[\w-]+)?$#';
+
+	/**
 	 * Registered integrations, keyed by slug.
 	 *
 	 * @var array<string, array>
@@ -69,15 +79,18 @@ class Integration_Registry {
 	 * bundled integration.
 	 *
 	 * @param string $slug Unique slug, used as the REST identifier and the key in the shared
-	 *                     `integrations` block attribute.
+	 *                     `integrations` block attribute. New integrations should namespace
+	 *                     it as `vendor/name` so two plugins cannot collide on a common name.
+	 *                     A bare name stays valid — the bundled integrations predate the
+	 *                     convention and keep theirs.
 	 * @param array  $args Integration definition. See self::DEFAULTS for supported keys.
 	 * @return bool Whether the integration was registered.
 	 */
 	public static function register( $slug, array $args = array() ) {
-		if ( ! is_string( $slug ) || '' === $slug || ! preg_match( '/^[\w-]+$/', $slug ) ) {
+		if ( ! is_string( $slug ) || ! preg_match( self::SLUG_PATTERN, $slug ) ) {
 			_doing_it_wrong(
 				__METHOD__,
-				esc_html( 'Integration slugs must be a non-empty string of word characters or hyphens.' ),
+				esc_html( 'Integration slugs must look like "name" or "vendor/name", using word characters and hyphens.' ),
 				'jetpack-forms-$$next-version$$'
 			);
 			return false;

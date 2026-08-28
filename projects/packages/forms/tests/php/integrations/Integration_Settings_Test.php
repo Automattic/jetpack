@@ -130,6 +130,25 @@ class Integration_Settings_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A namespaced slug is used verbatim as the container key, so two plugins storing a
+	 * "slack" integration on the same form do not overwrite each other.
+	 */
+	public function test_a_namespaced_slug_keys_the_container_verbatim() {
+		Integration_Registry::register( 'jetpack/slack', array( 'title' => 'Slack' ) );
+		Integration_Registry::register( 'acme/slack', array( 'title' => 'Acme Slack' ) );
+
+		$attributes = array(
+			'integrations' => array(
+				'jetpack/slack' => array( 'webhookUrl' => 'ours' ),
+				'acme/slack'    => array( 'webhookUrl' => 'theirs' ),
+			),
+		);
+
+		$this->assertSame( array( 'webhookUrl' => 'ours' ), Integration_Settings::get( 'jetpack/slack', $attributes ) );
+		$this->assertSame( array( 'webhookUrl' => 'theirs' ), Integration_Settings::get( 'acme/slack', $attributes ) );
+	}
+
+	/**
 	 * The jetpackCRM attribute is a bare boolean rather than a settings object, so it declares the setting
 	 * its value stands for and callers still get a settings array.
 	 */

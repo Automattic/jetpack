@@ -151,7 +151,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/integrations/(?P<slug>[\w-]+)',
+			$this->rest_base . '/integrations/(?P<slug>[\w-]+(?:/[\w-]+)?)',
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_single_integration_status' ),
@@ -171,7 +171,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/integrations/(?P<slug>[\w-]+)',
+			$this->rest_base . '/integrations/(?P<slug>[\w-]+(?:/[\w-]+)?)',
 			array(
 				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => array( $this, 'disable_integration' ),
