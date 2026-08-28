@@ -34,9 +34,16 @@ class PayPal_REST_Controller {
 	/**
 	 * REST API namespace.
 	 *
+	 * Deliberately `wpcom/v2` rather than `jetpack/v4`: public-api.wordpress.com only
+	 * routes `wpcom/v2` for WordPress.com Simple sites, so `jetpack/v4` routes register
+	 * fine but 404 at the proxy. `wpcom/v2` is served everywhere -- by WordPress.com for
+	 * Simple sites, and by the Jetpack plugin itself on Atomic and self-hosted (see
+	 * plugins/jetpack/_inc/lib/core-api/load-wpcom-endpoints.php). Same as the Donations
+	 * block's `wpcom/v2/memberships/*` routes.
+	 *
 	 * @var string
 	 */
-	const REST_NAMESPACE = 'jetpack/v4';
+	const REST_NAMESPACE = 'wpcom/v2';
 
 	/**
 	 * REST API route base for PayPal operations.

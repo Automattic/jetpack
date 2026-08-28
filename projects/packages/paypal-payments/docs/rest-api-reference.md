@@ -4,14 +4,14 @@ Developer documentation for the WordPress REST API endpoints provided by the Pay
 
 All endpoints require `manage_options` capability (WordPress administrator).
 
-**Namespace:** `jetpack/v4`
+**Namespace:** `wpcom/v2`
 **Base path:** `/paypal`
 
 ---
 
 ## Connection Management
 
-### POST `/jetpack/v4/paypal/connect`
+### POST `/wpcom/v2/paypal/connect`
 
 Store PayPal OAuth credentials and validate via token exchange.
 
@@ -53,7 +53,7 @@ Store PayPal OAuth credentials and validate via token exchange.
 
 ---
 
-### GET `/jetpack/v4/paypal/connection`
+### GET `/wpcom/v2/paypal/connection`
 
 Check current PayPal connection status.
 
@@ -68,7 +68,7 @@ Check current PayPal connection status.
 
 ---
 
-### POST `/jetpack/v4/paypal/disconnect`
+### POST `/wpcom/v2/paypal/disconnect`
 
 Remove stored credentials and cached token.
 
@@ -83,7 +83,7 @@ Remove stored credentials and cached token.
 
 ---
 
-### POST `/jetpack/v4/paypal/environment`
+### POST `/wpcom/v2/paypal/environment`
 
 Switch between sandbox and production.
 
@@ -110,7 +110,7 @@ Switch between sandbox and production.
 
 Each payment resource created via these endpoints provides both an embeddable button and a direct `payment_link` URL. You can display the button using the block, or use the `payment_link` directly in text links, emails, or any other context.
 
-### POST `/jetpack/v4/paypal/buttons`
+### POST `/wpcom/v2/paypal/buttons`
 
 Create a payment resource via the PayPal API. Returns both a button-ready resource ID and a shareable `payment_link` URL.
 
@@ -169,7 +169,7 @@ Create a payment resource via the PayPal API. Returns both a button-ready resour
 
 ---
 
-### GET `/jetpack/v4/paypal/buttons`
+### GET `/wpcom/v2/paypal/buttons`
 
 List payment resources with pagination.
 
@@ -189,7 +189,7 @@ List payment resources with pagination.
 
 ---
 
-### GET `/jetpack/v4/paypal/buttons/{resource_id}`
+### GET `/wpcom/v2/paypal/buttons/{resource_id}`
 
 Get a single payment resource.
 
@@ -199,7 +199,7 @@ Get a single payment resource.
 
 ---
 
-### PUT `/jetpack/v4/paypal/buttons/{resource_id}`
+### PUT `/wpcom/v2/paypal/buttons/{resource_id}`
 
 Full replacement update of a payment resource. Same request body as create.
 
@@ -207,7 +207,7 @@ Full replacement update of a payment resource. Same request body as create.
 
 ---
 
-### DELETE `/jetpack/v4/paypal/buttons/{resource_id}`
+### DELETE `/wpcom/v2/paypal/buttons/{resource_id}`
 
 Delete a payment resource. Returns success even if already deleted on PayPal (404 treated as success).
 

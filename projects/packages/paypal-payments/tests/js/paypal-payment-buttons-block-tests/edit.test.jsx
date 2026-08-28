@@ -348,7 +348,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// Should have called apiFetch with the create request.
 			expect( apiFetch ).toHaveBeenCalledWith(
 				expect.objectContaining( {
-					path: '/jetpack/v4/paypal/buttons',
+					path: '/wpcom/v2/paypal/buttons',
 					method: 'POST',
 					data: expect.objectContaining( {
 						type: 'BUY_NOW',
@@ -458,7 +458,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			expect( apiFetch ).toHaveBeenCalledWith(
 				expect.objectContaining( {
-					path: '/jetpack/v4/paypal/connection',
+					path: '/wpcom/v2/paypal/connection',
 				} )
 			);
 		} );

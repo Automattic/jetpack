@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 add_action( 'init', array( PayPal_Payment_Buttons::class, 'register_block' ), 9 );
 
 /*
- * Register the PayPal REST routes (jetpack/v4/paypal/*) that the block editor calls
+ * Register the PayPal REST routes (wpcom/v2/paypal/*) that the block editor calls
  * to connect an account and manage payment links. Without them the block renders
  * but every request the editor makes -- onboarding, connect, button CRUD -- 404s.
  *
