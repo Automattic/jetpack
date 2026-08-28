@@ -7,20 +7,23 @@
 	background-color: #003010;
 	overflow: hidden; // Clips the glow to the rounded corners.
 
-	// Decorative glow: two soft radial gradients hugging the top edge — blue
-	// peaking at 66% of the width, green at 79% — blending mid-blob and gone
-	// by mid-height. The opaque stops are the mock's composite peak colors and
-	// the mid stops fake its blurred (gaussian) falloff, so a pixel-diff
-	// against the mock comes out clean without any blur filter. Keep inset at
-	// 0: the percentage geometry is relative to this box, so growing it would
-	// shift the blobs and tie their position to the banner's rendered size.
+	// Decorative glow, straight from the Figma spec: a blurred circle filled
+	// with a horizontal blue-into-green gradient, anchored past the top-right
+	// corner so only its lower arc dips into the banner (the banner's
+	// overflow does the masking). The circle's size and offsets were fitted
+	// against the design mock pixel-by-pixel; the gradient reads
+	// left-to-right regardless of writing direction, which is fine for a
+	// non-semantic smear.
 	&__glow {
 		position: absolute;
-		inset: 0;
+		inset-block-start: -156px;
+		inset-inline-end: 80px;
+		inline-size: 210px;
+		block-size: 210px;
+		border-radius: 50%;
+		background: linear-gradient(270deg, #48ff50 0%, #108642 47.18%, #2e38fa 100%);
+		filter: blur(19.3324px);
 		pointer-events: none;
-		background:
-			radial-gradient(ellipse 11% 52% at 66% 0%, #1e5c9a 15%, rgba(30, 92, 154, 0.4) 55%, rgba(30, 92, 154, 0) 100%),
-			radial-gradient(ellipse 13% 50% at 79% 0%, #22ad46 35%, rgba(34, 173, 70, 0.4) 65%, rgba(34, 173, 70, 0) 100%);
 	}
 
 	// Content sits above the glow.
