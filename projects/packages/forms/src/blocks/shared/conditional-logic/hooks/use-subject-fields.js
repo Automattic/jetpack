@@ -157,6 +157,40 @@ const useSubjectFields = clientId =>
 	);
 
 /**
+ * Collect the fields inside the block owning the panel.
+ *
+ * These are deliberately absent from the subject dropdown: conditioning a group on a field it
+ * contains is circular, because the answer that would reveal the group can only be given once
+ * the group is visible. Excluding them from what the author can *pick* is right; excluding them
+ * from what the author can *see* is not.
+ *
+ * A rule can end up naming one of them without ever being written that way -- pick a subject
+ * outside the group, then drag that field into it. The rule stays in the attribute and both
+ * evaluators go on enforcing it, so the group hides for good. Resolving the summary against
+ * these as well is what keeps that rule on screen, where it can be edited or removed, instead
+ * of the panel claiming there are no conditions while one is still running.
+ *
+ * @param {string} clientId - The container block owning the panel.
+ * @return {Array} Descriptors for the fields inside it.
+ */
+export const useEnclosedFields = clientId =>
+	useSelect(
+		select => {
+			const block = select( 'core/block-editor' ).getBlock( clientId );
+
+			if ( ! block?.innerBlocks?.length ) {
+				return [];
+			}
+
+			const found = [];
+			walk( block.innerBlocks, null, null, found );
+
+			return found;
+		},
+		[ clientId ]
+	);
+
+/**
  * Get a function that guarantees a subject field has a stable id.
  *
  * Most fields carry no explicit `id`: the renderer derives one from the label when the form
