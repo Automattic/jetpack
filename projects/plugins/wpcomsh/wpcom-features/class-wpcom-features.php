@@ -541,6 +541,7 @@ class WPCOM_Features {
 	public const WOOP                              = 'woop';
 	public const WORDADS                           = 'wordads';
 	public const WORDADS_JETPACK                   = 'wordads-jetpack';
+	public const WORDPRESS_LABS                    = 'wordpress-labs';
 
 	/*
 	 * Private const array of features with sub-array of purchases that include that feature. Sorted alphabetically.
@@ -1763,6 +1764,18 @@ class WPCOM_Features {
 		self::WORDADS_JETPACK                   => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
+		),
+
+		/*
+		 * WORDPRESS_LABS - unlocked purely by the `wordpress-labs` blog sticker, independent of any
+		 * purchase.
+		 */
+		self::WORDPRESS_LABS                    => array(
+			array(
+				'required_sticker' => 'wordpress-labs',
+				self::WPCOM_ALL_SITES,
+				self::JETPACK_ALL_SITES,
+			),
 		),
 	);
 	/**
