@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Conditional logic on Group blocks: find groups rendered as an element other than a div, keep an enclosed answer from unlocking a field outside the group, and restore focus when a group hides.
