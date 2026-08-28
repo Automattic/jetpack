@@ -53,7 +53,7 @@ function jetpack_setup_blogging_prompt_response( $post_id ) {
 	}
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Clicking a prompt response link can happen from notifications, Calypso, wp-admin, email, etc and only sets up a response post (tag, meta, prompt text); the user must take action to actually publish the post.
-	$prompt_id = isset( $_GET['answer_prompt'] ) ? absint( wp_unslash( $_GET['answer_prompt'] ) ) : 0;
+	$prompt_id = isset( $_GET['answer_prompt'] ) ? absint( $_GET['answer_prompt'] ) : 0;
 	if ( $prompt_id ) {
 		jetpack_apply_blogging_prompt_response( $post_id, $prompt_id );
 	}
@@ -78,7 +78,7 @@ function jetpack_setup_blogging_prompt_response_rest( $post, $request, $creating
 	}
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET param forwarded by the Write editor on the create request; only sets up a response post (tag, meta).
-	$prompt_id = isset( $_GET['answer_prompt'] ) ? absint( wp_unslash( $_GET['answer_prompt'] ) ) : 0;
+	$prompt_id = isset( $_GET['answer_prompt'] ) ? absint( $_GET['answer_prompt'] ) : 0;
 	if ( $prompt_id ) {
 		jetpack_apply_blogging_prompt_response( $post->ID, $prompt_id );
 	}

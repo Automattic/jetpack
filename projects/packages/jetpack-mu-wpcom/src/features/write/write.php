@@ -821,8 +821,9 @@ function wpcom_write_render_admin_page() {
 	$answer_prompt_id = 0;
 	if ( 0 === $edit_post_id ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET param; seeds a new draft only, gated by the page's publish_posts capability. Mirrors _inc/blogging-prompts.php.
-		$answer_prompt_id = isset( $_GET['answer_prompt'] ) ? absint( wp_unslash( $_GET['answer_prompt'] ) ) : 0;
+		$answer_prompt_id = isset( $_GET['answer_prompt'] ) ? absint( $_GET['answer_prompt'] ) : 0;
 		if ( $answer_prompt_id && function_exists( 'jetpack_get_blogging_prompt_by_id' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Defined in the Jetpack plugin (_inc/blogging-prompts.php); present at runtime when Jetpack is active, guarded by the function_exists() check above.
 			$prompt = (array) jetpack_get_blogging_prompt_by_id( $answer_prompt_id );
 			if ( ! empty( $prompt['text'] ) ) {
 				$edit_content = wpcom_write_prompt_quote_markup( $prompt['text'] );
