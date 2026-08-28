@@ -75,6 +75,22 @@ const SETTLED_ROW_STATUSES = new Set( [
 ] );
 
 /**
+ * The spelling in that same vocabulary that means the restore worked.
+ *
+ * One value rather than a set, and deliberately narrow. The legacy
+ * dashboard's review prompt matched exactly this string, and every other
+ * spelling in `SETTLED_ROW_STATUSES` either says the restore failed or —
+ * like `success-with-errors` — says it half worked, which is not a state
+ * to follow with "was it easy to restore your site?".
+ *
+ * An unrecognised spelling therefore counts as *not* succeeded. That is
+ * the opposite default from `settled` above, and for the same reason:
+ * each fails towards the harmless answer. There, the harmless answer is
+ * "keep waiting"; here it is "do not ask this person for a review".
+ */
+const SUCCEEDED_ROW_STATUS = 'finished';
+
+/**
  * One row of `GET /jetpack/v4/restores` — the last ten restores, any state.
  *
  * `when` is WordPress.com's own ISO-8601 timestamp and is compared only
@@ -82,15 +98,25 @@ const SETTLED_ROW_STATUSES = new Set( [
  * minutes ahead of the server would otherwise reject the restore it had
  * just started, and recovery would fail for the whole session.
  *
- * `settled` is the quarantined reading of the row's `status` — see
- * `SETTLED_ROW_STATUSES`. The raw spelling is deliberately not carried
- * any further than this file.
+ * `settled` and `succeeded` are the quarantined readings of the row's
+ * `status` — see `SETTLED_ROW_STATUSES` and `SUCCEEDED_ROW_STATUS`. The
+ * raw spelling is deliberately not carried any further than this file.
  */
 export type RecentRestore = {
 	restore_id: number;
 	rewind_id: string;
 	when: string;
 	settled: boolean;
+	/**
+	 * Whether this restore finished and worked.
+	 *
+	 * A separate reading from `settled` rather than a refinement of it,
+	 * because the two answer different questions: `settled` is "is there
+	 * anything left to wait for", which an aborted or failed restore also
+	 * satisfies, and this is "did the site actually come back". Only the
+	 * review prompt asks the second one.
+	 */
+	succeeded: boolean;
 };
 
 /** Statuses that mean the restore is still going, or might be. */
@@ -263,6 +289,8 @@ export async function fetchRecentRestores(): Promise< RecentRestore[] | null > {
 			when: typeof row.when === 'string' ? row.when : '',
 			settled:
 				typeof row.status === 'string' && SETTLED_ROW_STATUSES.has( row.status.toLowerCase() ),
+			succeeded:
+				typeof row.status === 'string' && row.status.toLowerCase() === SUCCEEDED_ROW_STATUS,
 		} ) )
 		.filter( row => row.restore_id > 0 );
 }

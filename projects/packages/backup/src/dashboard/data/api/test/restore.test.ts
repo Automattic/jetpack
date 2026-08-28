@@ -49,6 +49,22 @@ describe( 'fetchRecentRestores', () => {
 		expect( rows?.[ 0 ].settled ).toBe( settled );
 	} );
 
+	test.each( [
+		[ 'finished', true ],
+		[ 'FINISHED', true ],
+		// Settled, but not a restore anyone should be asked to praise.
+		[ 'success', false ],
+		[ 'success-with-errors', false ],
+		[ 'fail', false ],
+		[ 'aborted', false ],
+		[ 'running', false ],
+		[ 'a-spelling-nobody-has-seen', false ],
+	] )( 'reads status %p as succeeded=%p', async ( status, succeeded ) => {
+		respondWith( [ { restore_id: 1, rewind_id: '1786512000.11', when: '', status } ] );
+		const rows = await fetchRecentRestores();
+		expect( rows?.[ 0 ].succeeded ).toBe( succeeded );
+	} );
+
 	test( 'treats a non-string status as not settled', async () => {
 		// Unknown means adoptable, and the confirmation decides. Guessing
 		// the other way would make an unrecognised spelling of "running"

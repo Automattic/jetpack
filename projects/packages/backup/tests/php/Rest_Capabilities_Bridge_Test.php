@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Backup\V0005\REST;
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -132,8 +134,13 @@ class Rest_Capabilities_Bridge_Test extends TestCase {
 		$this->assertNotInstanceOf( WP_Error::class, $response );
 		$this->assertSame(
 			array(
-				'hasBackupPlan' => $has_backup,
-				'hasScan'       => $has_scan,
+				'hasBackupPlan'            => $has_backup,
+				'hasScan'                  => $has_scan,
+				// Local rather than upstream, and false in a package test
+				// run: nothing here defines the standalone plugin's
+				// constant. Asserted as part of the whole payload so a key
+				// added later cannot slip in unnoticed.
+				'isStandalonePluginActive' => false,
 			),
 			$response->get_data()
 		);
@@ -281,5 +288,48 @@ class Rest_Capabilities_Bridge_Test extends TestCase {
 			// map's *values*, so `{"backup":true}` reads as "no plan".
 			'a keyed capabilities map' => array( 'a keyed capabilities map', '{"capabilities":{"backup":true}}' ),
 		);
+	}
+
+	/**
+	 * Without the standalone plugin's constant, the gate is closed.
+	 *
+	 * This is the case the gate exists for and the only one a package test
+	 * run reproduces naturally: the package loaded, the plugin absent. The
+	 * review prompt asks the reader to review the Backup *plugin*, so it
+	 * must not render on a site that only has the package — which is what
+	 * a Backup page inside the Jetpack plugin will be.
+	 *
+	 * Note this is not merely "the constant is undefined here": nothing in
+	 * the package can define it, so no reordering of these tests and no
+	 * future package-side change can quietly open the gate.
+	 */
+	public function test_gate_is_closed_without_the_standalone_plugin() {
+		$this->arrange_wpcom( array( 'capabilities' => array( 'backup' ) ) );
+
+		$response = Capabilities_Bridge::get_capabilities();
+
+		$this->assertFalse( $response->get_data()['isStandalonePluginActive'] );
+	}
+
+	/**
+	 * With the constant defined, the gate is open.
+	 *
+	 * Run in a child process because `define()` cannot be undone: setting
+	 * the constant in the shared process would silently open the gate for
+	 * every test that runs after this one, including the closed-gate test
+	 * above, whichever order PHPUnit picks.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_gate_is_open_with_the_standalone_plugin() {
+		define( 'JETPACK_BACKUP_PLUGIN_DIR', '/plugins/jetpack-backup/' );
+		$this->arrange_wpcom( array( 'capabilities' => array( 'backup' ) ) );
+
+		$response = Capabilities_Bridge::get_capabilities();
+
+		$this->assertTrue( $response->get_data()['isStandalonePluginActive'] );
 	}
 }

@@ -16,8 +16,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Returns the site's backup capabilities (plan slug, hasBackupPlan,
- * hasScan). Backs the `<Gates>` decision tree.
+ * Returns what the modernized dashboard is allowed to show: the site's
+ * WordPress.com backup capabilities (`hasBackupPlan`, `hasScan`), which
+ * back the `<Gates>` decision tree, plus `isStandalonePluginActive`,
+ * which is decided here on the site rather than upstream.
+ *
+ * The mixture is deliberate. This is the one request the dashboard always
+ * makes before it renders a body, so a gate carried here costs no round
+ * trip of its own and is settled before anything it gates could flash on
+ * screen. Anything added alongside must be named so it cannot be mistaken
+ * for a WordPress.com value.
  */
 class Capabilities_Bridge {
 
@@ -48,6 +56,9 @@ class Capabilities_Bridge {
 	 * a capabilities list, and on some plan shapes (e.g. Jetpack Complete)
 	 * the `capabilities` key is missing entirely, which produced a false
 	 * "no plan" gate for plans that do include Backup.
+	 *
+	 * `isStandalonePluginActive` rides along on the same response and is
+	 * decided locally; the class docblock says why it lives here.
 	 *
 	 * @return \WP_REST_Response|WP_Error The decoded capabilities, or WP_Error on failure.
 	 */
@@ -129,9 +140,45 @@ class Capabilities_Bridge {
 
 		return rest_ensure_response(
 			array(
-				'hasBackupPlan' => in_array( 'backup', $capabilities, true ),
-				'hasScan'       => in_array( 'scan', $capabilities, true ),
+				'hasBackupPlan'            => in_array( 'backup', $capabilities, true ),
+				'hasScan'                  => in_array( 'scan', $capabilities, true ),
+				// Local, not upstream. See `is_standalone_plugin_active()`.
+				'isStandalonePluginActive' => self::is_standalone_plugin_active(),
 			)
 		);
+	}
+
+	/**
+	 * Whether the standalone Jetpack VaultPress Backup plugin is active.
+	 *
+	 * Answered on the server because the modernized page emits no
+	 * backup-specific global to read it from — `enqueue_admin_scripts()`
+	 * returns before `JPBACKUP_INITIAL_STATE` is rendered on the wp-build
+	 * path — and because a gate the client never decides cannot be
+	 * bypassed from the client either.
+	 *
+	 * `JETPACK_BACKUP_PLUGIN_DIR` is defined in exactly one place,
+	 * `jetpack-backup.php` in the standalone plugin, so it tracks *plugin
+	 * activation* and stays correct on a site where both plugins are
+	 * active and the autoloader resolved the Jetpack copy of this package.
+	 *
+	 * Note what is deliberately not used: the `connectedPlugins` list in
+	 * `JP_CONNECTION_INITIAL_STATE`. The `jetpack-backup` slug there is
+	 * registered by `Jetpack_Backup::initialize()`, which belongs to the
+	 * package and not to the plugin — so the moment the Jetpack plugin
+	 * gains a Backup page it will register the slug too, and the list will
+	 * report the standalone plugin as present on precisely the site that
+	 * does not have it.
+	 *
+	 * This is true on every site that can reach the modernized dashboard
+	 * today, since the dashboard ships only in the standalone plugin. It
+	 * is written now because the dashboard is intended to reach the
+	 * Jetpack plugin, where asking the reader to review the Backup plugin
+	 * makes no sense.
+	 *
+	 * @return bool True when the standalone Backup plugin is active.
+	 */
+	private static function is_standalone_plugin_active() {
+		return defined( 'JETPACK_BACKUP_PLUGIN_DIR' );
 	}
 }

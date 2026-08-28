@@ -11,6 +11,7 @@ import BackupStatusBanner, { BackupTroubleBanner } from '../components/backup-st
 import DashboardLayout from '../components/dashboard-layout';
 import NextScheduledBackup from '../components/next-scheduled-backup';
 import QueryError from '../components/query-error';
+import ReviewRequest from '../components/review-request';
 import StorageSpace from '../components/storage-space';
 import {
 	ACTIVITY_LOG_DEFAULT_PER_PAGE,
@@ -259,6 +260,20 @@ export default function OverviewScreen() {
 			 * pair of requests and no layout.
 			 */ }
 			<StorageSpace />
+			{ /*
+			 * Only on this path, never beside the takeover panel. That panel
+			 * renders when the site has no restore point to show, and asking
+			 * someone whose backups have not worked to review the plugin is
+			 * the wrong question — the restore trigger could still fire there
+			 * on a site whose backups broke after a successful restore.
+			 *
+			 * A sibling of the grid for the same reason the banners are, and
+			 * below the storage section because a reader whose storage is
+			 * full needs to read that first. The component decides for itself
+			 * whether there is anything to ask, so on the overwhelming
+			 * majority of loads this costs no layout.
+			 */ }
+			<ReviewRequest />
 			<div className="jpb-overview">
 				<ActivityList
 					selectedId={ selectedId }
