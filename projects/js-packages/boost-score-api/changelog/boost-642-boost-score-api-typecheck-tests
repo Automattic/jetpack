@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Typecheck the package tests and cover the forced refresh path. No user-facing change.
+
+
