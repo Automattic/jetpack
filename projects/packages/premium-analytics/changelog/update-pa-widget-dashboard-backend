@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Dashboard widgets: carry declarative actions and icon references from the widget manifest to the registry and the widget-modules REST record.
