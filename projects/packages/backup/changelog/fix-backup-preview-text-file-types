@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Backup: let .js, .xml and .svg preview in the modernized dashboard's file browser, collapse the two overlapping previewability allowlists into one, and stop an extension that only resolves through the prototype chain from crashing the info panel. No-op when the modernization filter is off.
+
+
