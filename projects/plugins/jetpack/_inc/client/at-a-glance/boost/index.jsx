@@ -27,6 +27,7 @@ import {
 import { hasActiveBoostPurchase as getActiveBoostPurchase } from 'state/site';
 import {
 	isFetchingPluginsData,
+	hasFetchedPluginsData as getHasFetchedPluginsData,
 	isPluginInstalled,
 	isPluginActive,
 	fetchPluginsData as dispatchFetchPluginsData,
@@ -48,6 +49,7 @@ const DashBoost = ( {
 	apiNonce,
 	fetchPluginsData,
 	fetchingPluginsData,
+	hasFetchedPluginsData,
 	isBoostInstalled,
 	isBoostActive,
 	hasActiveBoostPurchase,
@@ -117,6 +119,13 @@ const DashBoost = ( {
 	};
 
 	useEffect( () => {
+		// getSpeedScores() skips sites that already have Boost, but isBoostInstalled and
+		// isBoostActive both read false until the plugin data arrives. Deciding before then
+		// starts a speed score run on every Boost site, which nobody ever sees.
+		if ( ! hasFetchedPluginsData ) {
+			return;
+		}
+
 		// Use cache scores if they are less than 21 days old.
 		if ( latestSpeedScores && calculateDaysSince( latestSpeedScores.timestamp * 1000 ) < 21 ) {
 			setScoresFromCache();
@@ -125,7 +134,7 @@ const DashBoost = ( {
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
+	}, [ hasFetchedPluginsData ] );
 
 	const getSpeedScoreText = () => {
 		switch ( speedLetterGrade ) {
@@ -366,6 +375,7 @@ DashBoost.propTypes = {
 	apiRoot: PropTypes.string.isRequired,
 	apiNonce: PropTypes.string.isRequired,
 	fetchingPluginsData: PropTypes.bool.isRequired,
+	hasFetchedPluginsData: PropTypes.bool.isRequired,
 	isBoostInstalled: PropTypes.bool.isRequired,
 	isBoostActive: PropTypes.bool.isRequired,
 	hasActiveBoostPurchase: PropTypes.bool.isRequired,
@@ -386,6 +396,7 @@ export default connect(
 		apiRoot: getApiRootUrl( state ),
 		apiNonce: getApiNonce( state ),
 		fetchingPluginsData: isFetchingPluginsData( state ),
+		hasFetchedPluginsData: getHasFetchedPluginsData( state ),
 		isBoostInstalled: BOOST_PLUGIN_FILES.some( pluginFile =>
 			isPluginInstalled( state, pluginFile )
 		),

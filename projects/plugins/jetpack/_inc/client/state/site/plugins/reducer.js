@@ -16,6 +16,7 @@ const items = ( state = {}, action ) => {
 
 const initialRequestsState = {
 	isFetchingPluginsData: false,
+	hasFetchedPluginsData: false,
 };
 
 const requests = ( state = initialRequestsState, action ) => {
@@ -28,6 +29,7 @@ const requests = ( state = initialRequestsState, action ) => {
 		case JETPACK_PLUGINS_DATA_FETCH_RECEIVE:
 			return Object.assign( {}, state, {
 				isFetchingPluginsData: false,
+				hasFetchedPluginsData: true,
 			} );
 
 		default:
@@ -49,6 +51,19 @@ export const reducer = combineReducers( {
  */
 export function isFetchingPluginsData( state ) {
 	return !! state.jetpack.pluginsData.requests.isFetchingPluginsData;
+}
+
+/**
+ * Returns true once a plugin data request has come back, whether it succeeded
+ * or failed. Until then `items` is empty, so isPluginInstalled() and
+ * isPluginActive() answer false for every plugin and cannot be told apart from
+ * a site that genuinely has none.
+ *
+ * @param {object} state - Global state tree
+ * @return {boolean} - Whether plugin data has been fetched
+ */
+export function hasFetchedPluginsData( state ) {
+	return !! state.jetpack.pluginsData.requests.hasFetchedPluginsData;
 }
 
 /**
