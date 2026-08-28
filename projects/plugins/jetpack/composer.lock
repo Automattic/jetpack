@@ -1758,7 +1758,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "f07879ee40c00b54f430faaadd5e8a04d4d8e3de"
+                "reference": "eda1c8dbfd60f8945c5e076d5f53e80a57b8949c"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1806,6 +1806,9 @@
             "autoload": {
                 "classmap": [
                     "src/"
+                ],
+                "files": [
+                    "src/integrations/functions.php"
                 ]
             },
             "scripts": {
