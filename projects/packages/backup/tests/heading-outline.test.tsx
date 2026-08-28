@@ -30,41 +30,20 @@ const NESTED_UNDER: Record< string, string > = {
 };
 
 /**
- * Every `.tsx` under `src/dashboard`, relative to that directory.
+ * Every file with the given extension under `src/dashboard`, relative to that
+ * directory.
  *
+ * @param ext - Extension to match, including the dot.
  * @param dir - Directory to walk.
  * @return Relative paths, POSIX-separated.
  */
-function tsxFiles( dir: string ): string[] {
+function filesWithExt( ext: string, dir: string = DASHBOARD ): string[] {
 	return readdirSync( dir ).flatMap( entry => {
 		const full = join( dir, entry );
 		if ( statSync( full ).isDirectory() ) {
-			return tsxFiles( full );
+			return filesWithExt( ext, full );
 		}
-		return entry.endsWith( '.tsx' )
-			? [
-					full
-						.slice( DASHBOARD.length + 1 )
-						.split( '\\' )
-						.join( '/' ),
-			  ]
-			: [];
-	} );
-}
-
-/**
- * Every `.scss` under `src/dashboard`, relative to that directory.
- *
- * @param dir - Directory to walk.
- * @return Relative paths, POSIX-separated.
- */
-function scssFiles( dir: string ): string[] {
-	return readdirSync( dir ).flatMap( entry => {
-		const full = join( dir, entry );
-		if ( statSync( full ).isDirectory() ) {
-			return scssFiles( full );
-		}
-		return entry.endsWith( '.scss' )
+		return entry.endsWith( ext )
 			? [
 					full
 						.slice( DASHBOARD.length + 1 )
@@ -86,19 +65,25 @@ function scssFiles( dir: string ): string[] {
  */
 function headingLevels( relative: string ): number[] {
 	const source = readFileSync( join( DASHBOARD, relative ), 'utf8' );
-	return Array.from( source.matchAll( /render=\{ <h([1-6])/g ) ).map( m => Number( m[ 1 ] ) );
+	// Both spellings. `render={ <hN /> }` is the `@wordpress/ui` idiom this
+	// package uses, but a bare `<hN>` is the obvious thing for someone
+	// unfamiliar with it to write, and matching only the first would let a
+	// thirteenth component opt out of every rule below by accident.
+	return Array.from( source.matchAll( /(?:render=\{ <|<)h([1-6])[\s/>]/g ) ).map( m =>
+		Number( m[ 1 ] )
+	);
 }
 
 describe( 'the dashboard heading outline', () => {
 	// The premise. If this ever finds nothing the rest passes vacuously.
 	it( 'finds headings to check', () => {
-		const withHeadings = tsxFiles( DASHBOARD ).filter( f => headingLevels( f ).length > 0 );
+		const withHeadings = filesWithExt( '.tsx' ).filter( f => headingLevels( f ).length > 0 );
 
 		expect( withHeadings.length ).toBeGreaterThanOrEqual( 11 );
 	} );
 
 	it( 'starts every top-level in-layout component at h2, never h3', () => {
-		const offenders = tsxFiles( DASHBOARD )
+		const offenders = filesWithExt( '.tsx' )
 			.filter( f => f !== REPLACES_THE_CHASSIS && ! NESTED_UNDER[ f ] )
 			.map( f => ( { file: f, first: headingLevels( f )[ 0 ] } ) )
 			.filter( ( { first } ) => first !== undefined && first !== 2 );
@@ -135,18 +120,18 @@ describe( 'the dashboard heading outline', () => {
 	// the built stylesheet, so no render test can catch it; reading the SCSS
 	// can.
 	it( 'never selects a heading by tag name in SCSS', () => {
-		const offenders = scssFiles( DASHBOARD ).flatMap( file =>
+		const offenders = filesWithExt( '.scss' ).flatMap( file =>
 			readFileSync( join( DASHBOARD, file ), 'utf8' )
 				.split( '\n' )
 				.map( ( line, i ) => ( { file, line: i + 1, text: line.trim() } ) )
-				.filter( ( { text } ) => /^&?\s*h[1-6]\s*(,|\{)/.test( text ) )
+				.filter( ( { text } ) => /(^|[\s>+~,])h[1-6]\s*(,|\{|$)/.test( text ) )
 		);
 
 		expect( offenders ).toEqual( [] );
 	} );
 
 	it( 'never skips a level within a single component', () => {
-		const skips = tsxFiles( DASHBOARD )
+		const skips = filesWithExt( '.tsx' )
 			.map( f => ( { file: f, levels: headingLevels( f ) } ) )
 			.filter( ( { levels } ) => levels.some( ( l, i ) => i > 0 && l - levels[ i - 1 ] > 1 ) );
 
