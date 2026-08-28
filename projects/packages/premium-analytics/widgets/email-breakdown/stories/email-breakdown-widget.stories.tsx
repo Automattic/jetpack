@@ -27,12 +27,12 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
-import { withWidgetCanvas } from '../../stories/with-widget-canvas';
-import EmailBreakdownRender from '../render';
+import { WidgetCanvas, withWidgetCanvas } from '../../stories/with-widget-canvas';
+import EmailBreakdownRender, { MAP_MIN_WIDTH } from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { EmailBreakdownMetric, EmailBreakdownView } from '../widget';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -69,6 +69,18 @@ interface EmailBreakdownStoryControls {
 	metric: EmailBreakdownMetric;
 	showMap: boolean;
 }
+
+// The card must clear the widget's map floor after its own 16px padding and 1px
+// border on each side, with a little headroom so the map isn't rendered at the edge.
+const MAP_CANVAS_WIDTH = `${ MAP_MIN_WIDTH + 2 * ( 16 + 1 ) + 48 }px`;
+
+// Widens the canvas under the same condition the widget mounts its map, so the
+// `showMap` control actually shows it instead of doing nothing in a one-column card.
+const withMapAwareWidgetCanvas: Decorator< EmailBreakdownStoryControls > = ( Story, { args } ) => (
+	<WidgetCanvas width={ args.showMap && args.view === 'countries' ? MAP_CANVAS_WIDTH : undefined }>
+		<Story />
+	</WidgetCanvas>
+);
 
 function renderEmailBreakdown( { view, metric, showMap }: EmailBreakdownStoryControls ) {
 	return (
@@ -130,18 +142,19 @@ type Story = StoryObj< EmailBreakdownStoryControls >;
 export const Default: Story = {
 	render: renderEmailBreakdown,
 	args: { view: 'countries', metric: 'opens', showMap: false },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withMapAwareWidgetCanvas ],
 };
 
 /**
- * The optional map beside the countries leaderboard. No fixed composition
- * enables it anymore (the Email clicks Locations card is a plain leaderboard
- * per the design mocks); the story keeps the capability covered.
+ * The country map beside the countries leaderboard, as the two-column
+ * "Locations" card on the post detail Email clicks tab renders it. The
+ * widget only mounts the map at container widths of 720px and up, so the canvas
+ * widens to a two-column card while `showMap` is on for the countries view.
  */
 export const LocationClicksWithMap: Story = {
 	render: renderEmailBreakdown,
 	args: { view: 'countries', metric: 'clicks', showMap: true },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withMapAwareWidgetCanvas ],
 };
 
 /**
