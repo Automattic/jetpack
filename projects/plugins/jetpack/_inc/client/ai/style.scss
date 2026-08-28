@@ -21,6 +21,10 @@ body.jetpack_page_jetpack-ai {
 		max-width: 708px;
 		margin: 0 auto;
 		padding: 24px;
+		// Match @wordpress/components Card (MCP Settings): CONFIG.surfaceBorderColor.
+		// Card.Root reads --wpds-color-stroke-surface-neutral-weak at runtime (CSS
+		// modules, not inlined by this package's PostCSS).
+		--wpds-color-stroke-surface-neutral-weak: rgba(0, 0, 0, 0.1);
 
 		&--scheduled-tasks {
 			max-width: 1280px;
@@ -195,12 +199,10 @@ body.jetpack_page_jetpack-ai {
 // draws the rule and sets the vertical rhythm.
 .jetpack-ai-features__divider {
 	border: 0;
-	// Fallbacks match the token values — the theme token sheet is not loaded
-	// on this page, and two undefined vars would invalidate the whole
-	// shorthand (no rule drawn at all).
-	border-block-start:
-		var(--wpds-border-width-xs, 1px) solid
-		var(--wpds-color-stroke-surface-neutral, #DBDBDB);
+	// Same rgba as MCP Settings' @wordpress/components Card / CardDivider
+	// (CONFIG.surfaceBorderColor). Do not use the WPDS stroke tokens here —
+	// PostCSS inlines them to #dbdbdb / #f0f0f0, which are not the MCP color.
+	border-block-start: var(--wpds-border-width-xs, 1px) solid rgba(0, 0, 0, 0.1);
 	// Figma rhythm: 20px after a section's rows, 16px before the next header;
 	// the first divider sits 16px under the card subtitle instead.
 	margin-block: var(--wpds-dimension-padding-xl, 20px) var(--wpds-dimension-padding-lg, 16px);

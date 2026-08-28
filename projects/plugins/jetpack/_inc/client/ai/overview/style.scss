@@ -32,7 +32,8 @@
 		}
 
 		&--plan {
-			border-inline-start: 1px solid var(--wpds-color-stroke-surface-neutral, #dbdbdb);
+			// Same rgba as MCP Settings' @wordpress/components Card (CONFIG.surfaceBorderColor).
+			border-inline-start: 1px solid rgba(0, 0, 0, 0.1);
 			padding-inline-start: var(--wpds-dimension-gap-xl, 24px);
 			margin-inline-start: var(--wpds-dimension-gap-xl, 24px);
 			// Full-height divider: bleed through the card content's padding,
@@ -46,7 +47,7 @@
 				padding-inline-start: 0;
 				margin-inline-start: 0;
 				margin-block: 0;
-				border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral, #dbdbdb);
+				border-block-start: 1px solid rgba(0, 0, 0, 0.1);
 				padding-block: var(--wpds-dimension-padding-lg, 16px) 0;
 			}
 		}
@@ -160,7 +161,8 @@
 	&__video {
 		display: flex;
 		flex-direction: column;
-		border: 1px solid var(--wpds-color-stroke-surface-neutral, #dbdbdb);
+		// Same rgba as MCP Settings' @wordpress/components Card (CONFIG.surfaceBorderColor).
+		border: 1px solid rgba(0, 0, 0, 0.1);
 		border-radius: var(--wpds-border-radius-lg, 8px);
 		overflow: hidden;
 
@@ -196,7 +198,7 @@
 		// title misses a single line by under a pixel, and 8px seats it.
 		gap: var(--wpds-dimension-gap-sm, 8px);
 		padding: var(--wpds-dimension-padding-md, 12px) var(--wpds-dimension-padding-xl, 20px);
-		border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral, #dbdbdb);
+		border-block-start: 1px solid rgba(0, 0, 0, 0.1);
 	}
 
 	// Size, weight, and uppercase come from the Text heading-sm variant
