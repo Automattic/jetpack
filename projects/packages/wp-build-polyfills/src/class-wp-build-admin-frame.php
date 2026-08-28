@@ -60,13 +60,15 @@ class WP_Build_Admin_Frame {
 			}
 
 			/*
-			 * TODO (upstream): drop once WordPress/gutenberg#82114 lands. Boot's
-			 * layout is absolutely positioned against `#wpbody`, which grows with
-			 * the admin menu — a menu taller than the viewport stretches the app
-			 * and scrolls its sticky header away. Capping `#wpbody` to the
-			 * viewport gives the app back its own scroller.
+			 * Boot's layout is absolutely positioned against `#wpbody`, which grows
+			 * with the admin menu: a menu taller than the viewport stretches the app
+			 * and scrolls its sticky header away, so cap `#wpbody` to the viewport to
+			 * give the app back its own scroller. Below 783px the menu is off-canvas
+			 * and the template scrolls `#wpwrap` instead. Drop this once every boot
+			 * this package can run against pins its own layout: Core's bundled copy
+			 * from WordPress 7.0, and the polyfilled one below that
+			 * (WordPress/gutenberg#82114).
 			 */
-			/* Below 783px the menu is off-canvas and the template scrolls `#wpwrap` instead. */
 			@media (min-width: 783px) {
 				body:has(.boot-layout--single-page) #wpbody,
 				body:has([class*="__layout-single-page"]) #wpbody {
