@@ -9,6 +9,7 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import EmailBreakdownWidget from '../render';
+import emailBreakdownWidgetType from '../widget';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -306,5 +307,15 @@ describe( 'EmailBreakdownWidget', () => {
 		// The label still renders so the row is visible, but not as an anchor.
 		await expect( screen.findByText( unsafeUrl ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /alert/ } ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'EmailBreakdown widget type', () => {
+	it( 'declares no drawer-only attribute, so the host renders no settings button', () => {
+		// Mirrors the host's predicate: the settings button appears as soon as any
+		// attribute is not exposed inline (`relevance: 'high'`).
+		expect(
+			emailBreakdownWidgetType.attributes.every( attribute => attribute.relevance === 'high' )
+		).toBe( true );
 	} );
 } );

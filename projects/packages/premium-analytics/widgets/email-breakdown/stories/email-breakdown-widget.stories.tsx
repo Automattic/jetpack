@@ -43,22 +43,12 @@ const EMAIL_BREAKDOWN_RENDER_MODULE = 'storybook/email-breakdown';
 // A representative email whose breakdown the mocks return data for.
 const MOCK_EMAIL_ID = 1234;
 
-/**
- * Read an attribute's declared element values off the widget definition, so the
- * story controls always mirror the schema (a newly added view or metric shows
- * up as a control option without touching this file).
- */
-function attributeElementValues< Value extends string >( id: string ): Value[] {
-	return (
-		widgetDefinition.attributes
-			.find( attribute => attribute.id === id )
-			?.elements?.map( element => element.value as Value ) ?? []
-	);
-}
-
-const VIEW_OPTIONS: EmailBreakdownView[] = attributeElementValues< EmailBreakdownView >( 'view' );
-const METRIC_OPTIONS: EmailBreakdownMetric[] =
-	attributeElementValues< EmailBreakdownMetric >( 'metric' );
+// The widget declares no editable attributes (the post detail page pins `view`
+// and `metric` per card), so the control options are listed here rather than
+// read off the definition. Keep in sync with the `EmailBreakdownView` and
+// `EmailBreakdownMetric` unions in `../widget.ts`.
+const VIEW_OPTIONS: EmailBreakdownView[] = [ 'countries', 'devices', 'clients', 'links' ];
+const METRIC_OPTIONS: EmailBreakdownMetric[] = [ 'opens', 'clicks' ];
 
 /**
  * Widget-specific controls: the breakdown view and opens/clicks metric for the
@@ -125,7 +115,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Email breakdown" widget. Breaks a single sent email down by countries, devices, email clients, or clicked links, rendered as a leaderboard. The `view` attribute (`relevance: \'high\'`) is exposed as a control by the widget host; the `metric` attribute picks the opens or clicks breakdown for the dimension views, while `links` always reads the clicks breakdown (merging internal link types with clicked user-content links, like the Calypso links module). Scoped to one email via a mocked `reportParams.post_id`. The email breakdown endpoints have no comparison period, so the widget renders without deltas.',
+					'The "Email breakdown" widget. Breaks a single sent email down by countries, devices, email clients, or clicked links, rendered as a leaderboard. Neither `view` nor `metric` is user-editable — the post detail page pins both per card, so the host renders no settings affordance. The `metric` attribute picks the opens or clicks breakdown for the dimension views, while `links` always reads the clicks breakdown (merging internal link types with clicked user-content links, like the Calypso links module). Scoped to one email via a mocked `reportParams.post_id`. The email breakdown endpoints have no comparison period, so the widget renders without deltas.',
 			},
 		},
 	},
