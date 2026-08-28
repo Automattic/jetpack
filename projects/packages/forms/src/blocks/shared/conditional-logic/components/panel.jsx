@@ -221,7 +221,6 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes, isContain
 						</Button>
 					</Stack>
 				</PanelBody>
-
 			</InspectorControls>
 
 			{ /* Outside InspectorControls: that is a slot fill, and a fill renders nothing while
