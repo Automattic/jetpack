@@ -80,6 +80,22 @@ function wpcom_write_resolve_back_url( $source ) {
 		'reader' => 'https://wordpress.com/reader',
 	);
 
+	/**
+	 * Filters the Write editor "back" destination map (source token => URL).
+	 *
+	 * Register vetted destinations here rather than passing an arbitrary return
+	 * URL via the query string, which is intentionally not supported
+	 * (open-redirect guard). Destinations are not validated by this filter, and
+	 * need not be same-origin — the built-in Reader entry is not — so register
+	 * only URLs you trust. The resolved URL is escaped with esc_url() before
+	 * output.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $destinations Map of source token to destination URL.
+	 */
+	$destinations = apply_filters( 'wpcom_write_back_destinations', $destinations );
+
 	return $destinations[ $source ] ?? admin_url();
 }
 
