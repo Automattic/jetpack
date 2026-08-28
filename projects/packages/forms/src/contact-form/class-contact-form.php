@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
+use Automattic\Jetpack\Forms\Payments\Payment_Status;
+use Automattic\Jetpack\Forms\Payments\Payments;
 use Automattic\Jetpack\JWT;
 use Automattic\Jetpack\Sync\Settings;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -554,6 +556,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'emailNotifications'     => 'yes',
 			'notificationRecipients' => array(), // Array of user IDs who should receive form response notifications.
 			'webhooks'               => array(), // Array of webhooks to send the form data to.
+			'payments'               => null, // Payment settings (prototype). See Automattic\Jetpack\Forms\Payments\Payments.
 			'disableGoBack'          => $attributes['disableGoBack'] ?? false,
 			'disableSummary'         => $attributes['disableSummary'] ?? false,
 			'formTitle'              => $attributes['formTitle'] ?? '',
@@ -3304,6 +3307,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 */
 		do_action( 'grunion_after_feedback_post_inserted', $post_id, $visible_fields, $is_spam, $entry_values );
 
+		/*
+		 * Payments (prototype). Runs only once the response exists, so a payment
+		 * can never be the reason a legitimate response is lost, and spam never
+		 * reaches checkout. Test submissions are excluded outright.
+		 */
+		$payment_payload = null;
+		if ( ! $is_spam && ! $is_test_submission && 'publish' === $feedback_status ) {
+			$payment_payload = Payments::start_order( $this, $post_id, $all_values );
+		}
+
 		// Build the complete email content via the renderer.
 		$context_data = array(
 			'time'                 => $time,
@@ -3378,6 +3391,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Only fire send-related side effects when we are actually going to send.
 		$will_send = ( $is_spam !== true && $send_email ) || ( true === $is_spam && $send_even_if_spam );
 
+		/*
+		 * Hold the owner's notification back until the response is actually
+		 * paid. Without this the form owner gets "you have a new order" for an
+		 * order nobody has paid for yet.
+		 */
+		if ( $will_send && Payment_Status::is_awaiting( $post_id ) ) {
+			Payment_Status::defer_notification( $post_id, $to, "{$spam}{$subject}", $message, $headers );
+			$will_send = false;
+		}
+
 		if ( $will_send ) {
 			/**
 			 * Fires right before the contact form message is sent via email to
@@ -3438,12 +3461,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( $response instanceof Feedback ) {
 				$data = $response->get_compiled_fields( 'ajax', 'collection' );
 			}
+			$json = array(
+				'success'     => true,
+				'data'        => $data,
+				'refreshArgs' => $refresh_args,
+			);
+
+			if ( $payment_payload ) {
+				$json['payment'] = $payment_payload;
+			}
+
 			wp_send_json(
-				array(
-					'success'     => true,
-					'data'        => $data,
-					'refreshArgs' => $refresh_args,
-				),
+				$json,
 				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 				JSON_UNESCAPED_SLASHES
 			);
