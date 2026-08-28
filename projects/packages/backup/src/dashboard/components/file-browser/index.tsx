@@ -40,11 +40,27 @@ export const EMPTY_FILE_SELECTION: FileSelection = {
 	deselected: new Set(),
 };
 
+/**
+ * What the current selection amounts to, reported up to the parent.
+ *
+ * `count` and `ids` describe the same leaves but need not be the same
+ * length: an entry upstream gave no `id` still counts as selected in the
+ * tree, and simply cannot be named in a download request.
+ */
+export type SelectionSummary = {
+	/** Selected leaves in the loaded tree — see `collectSelectedInLoadedTree`. */
+	count: number;
+	/** Their opaque `ls` entry ids, in tree order, skipping any entry without one. */
+	ids: string[];
+};
+
+export const EMPTY_SELECTION_SUMMARY: SelectionSummary = { count: 0, ids: [] };
+
 type Props = {
 	rewindId: string;
 	selection: FileSelection;
 	onSelectionChange: ( next: FileSelection ) => void;
-	onSelectionCountChange?: ( count: number ) => void;
+	onSelectionSummaryChange?: ( summary: SelectionSummary ) => void;
 };
 
 /**
@@ -261,7 +277,8 @@ function propagateSelectUp(
 }
 
 /**
- * Counts effectively-selected leaves in the loaded subtree of `roots`.
+ * Collects the effectively-selected leaves in the loaded subtree of
+ * `roots`, in tree order.
  *
  * A "leaf" here is what the server would download as one opaque unit:
  * a file, or a folder whose children we haven't loaded yet (whatever
@@ -271,18 +288,23 @@ function propagateSelectUp(
  * descendants underneath them — neither the partial folder nor the
  * deselected branches count.
  *
+ * A ticked but unexpanded folder is therefore one entry standing for
+ * however many files it holds. That is what upstream wants — the same
+ * shape Calypso builds — so this list is both the label's count and the
+ * download's include list.
+ *
  * @param roots          - Top-level nodes to start from.
  * @param selection      - Current selection sets.
  * @param loadedChildren - Map of folder path → loaded children list.
- * @return Count of effectively-selected leaves.
+ * @return The effectively-selected leaf nodes.
  */
-function countSelectedInLoadedTree(
+function collectSelectedInLoadedTree(
 	roots: FileNode[],
 	selection: FileSelection,
 	loadedChildren: ReadonlyMap< string, FileNode[] >
-): number {
+): FileNode[] {
 	const { selected, deselected } = selection;
-	let count = 0;
+	const leaves: FileNode[] = [];
 	const walk = ( nodes: FileNode[], inheritedSelected: boolean ) => {
 		for ( const node of nodes ) {
 			const ownSelected = selected.has( node.path );
@@ -295,12 +317,12 @@ function countSelectedInLoadedTree(
 			} else if ( eff ) {
 				// File, or a folder whose contents we haven't loaded:
 				// the server treats either as a single downloadable unit.
-				count += 1;
+				leaves.push( node );
 			}
 		}
 	};
 	walk( roots, false );
-	return count;
+	return leaves;
 }
 
 /**
@@ -313,18 +335,18 @@ function countSelectedInLoadedTree(
  * buttons can swap between "Download backup" and "Download N selected
  * files" using the same `FileSelection` shape that this tree drives.
  *
- * @param props                        - Component props.
- * @param props.rewindId               - The selected backup's rewindId; surfaced as a data attribute today, the future REST hook will use it.
- * @param props.selection              - Current selection state (selected + deselected sets).
- * @param props.onSelectionChange      - Called with the next state when any row toggles.
- * @param props.onSelectionCountChange - Called whenever the visible-selected leaf count changes.
+ * @param props                          - Component props.
+ * @param props.rewindId                 - The selected backup's rewindId; surfaced as a data attribute today, the future REST hook will use it.
+ * @param props.selection                - Current selection state (selected + deselected sets).
+ * @param props.onSelectionChange        - Called with the next state when any row toggles.
+ * @param props.onSelectionSummaryChange - Called whenever the visible-selected leaves change, with their count and their `ls` entry ids.
  * @return The rendered tree.
  */
 export default function FileBrowser( {
 	rewindId,
 	selection,
 	onSelectionChange,
-	onSelectionCountChange,
+	onSelectionSummaryChange,
 }: Props ) {
 	const [ openFile, setOpenFile ] = useState< FileNodeFile | null >( null );
 	const {
@@ -401,14 +423,20 @@ export default function FileBrowser( {
 		[ selected, deselected, loadedChildren, onSelectionChange ]
 	);
 
-	const selectedCount = useMemo(
-		() => countSelectedInLoadedTree( roots, selection, loadedChildren ),
-		[ roots, selection, loadedChildren ]
-	);
+	const summary = useMemo< SelectionSummary >( () => {
+		const leaves = collectSelectedInLoadedTree( roots, selection, loadedChildren );
+		return {
+			count: leaves.length,
+			ids: leaves
+				.map( leaf => leaf.id )
+				.filter( ( id ): id is string => typeof id === 'string' && id !== '' ),
+		};
+	}, [ roots, selection, loadedChildren ] );
+	const selectedCount = summary.count;
 
 	useEffect( () => {
-		onSelectionCountChange?.( selectedCount );
-	}, [ selectedCount, onSelectionCountChange ] );
+		onSelectionSummaryChange?.( summary );
+	}, [ summary, onSelectionSummaryChange ] );
 
 	// The selection summary's checkbox doubles as a "select all / clear"
 	// toggle: clicking it with anything selected clears both sets,

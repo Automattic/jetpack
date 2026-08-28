@@ -1,6 +1,14 @@
 export type FileNodeBase = {
 	name: string;
 	path: string;
+	// The opaque per-entry `id` from `/rewind/backup/ls` — base64 of the
+	// volume-prefixed manifest path (`ZjY6L2luZGV4LnBocA==` decodes to
+	// `f6:/index.php`). It is what a granular download names its entries
+	// by; the display `path` above is not a value upstream accepts.
+	//
+	// Optional because the ls entry declares it optional, and an entry
+	// that arrives without one cannot be named in a download request.
+	id?: string;
 };
 
 export type FolderNode = FileNodeBase & {

@@ -1,9 +1,9 @@
 import { Notice, ProgressBar, Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, cloud, download as downloadIcon, arrowLeft } from '@wordpress/icons';
-import { Link, useParams } from '@wordpress/route';
+import { Link, useParams, useSearch } from '@wordpress/route';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import InvalidRewindId from '../components/invalid-rewind-id';
@@ -18,21 +18,80 @@ import { isValidRewindId, rewindIdToIso } from '../types/rewind-id';
 const SELECTION_HINT_ID = 'jpb-download__selection-hint';
 
 /**
+ * The Download route's own search params.
+ *
+ * `files` carries the file browser's selection as the comma-joined `ls`
+ * entry ids the detail pane built — the same string upstream's
+ * `include_path_list` takes.
+ */
+type DownloadSearch = Record< string, unknown > & { files?: string };
+
+/**
  * Download screen — same narrow layout as the Restore screen minus the
  * warning notice. Submission runs through a real state machine via the
  * `/jetpack/v4/backups/download/$rewindId` bridge; the success branch
  * surfaces the signed download URL as a link.
  *
+ * The screen has two modes, decided by whether the reader arrived with a
+ * file selection. Without one it asks which of the six categories to
+ * include, as it always has. With one it asks nothing and starts
+ * building the archive, because upstream models `paths` as one *of* those
+ * six categories rather than a filter across them — a request naming
+ * files cannot also name categories, so the checklist would be offering
+ * choices the request has no way to express.
+ *
  * @return The rendered Download screen.
  */
 export default function DownloadScreen() {
 	const { rewindId } = useParams( { from: '/download/$rewindId' } );
+	const search = useSearch( {
+		from: '/download/$rewindId' as unknown as never,
+		strict: false,
+	} ) as DownloadSearch;
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
 	const { state, submit, reset } = useDownload( rewindId );
 	const handleGenerate = useCallback( () => submit( items ), [ submit, items ] );
 	// An empty checklist would ask WPCOM for the *whole* archive, not for
 	// nothing — see `hasSelectedItems`.
 	const hasSelection = hasSelectedItems( items );
+
+	// Only the presence of a selection is read here; the entries
+	// themselves are what JETPACK-2321 forwards to WordPress.com.
+	const selectedFileIds = useMemo(
+		() => ( typeof search.files === 'string' ? search.files.split( ',' ).filter( Boolean ) : [] ),
+		[ search.files ]
+	);
+	const hasFileSelection = selectedFileIds.length > 0;
+
+	// A `useRef` rather than the module latch the Overview screen uses for
+	// its page view: there, a second *mount* means the same visit and must
+	// not be recorded twice; here, a second mount means the reader
+	// navigated to Download again and does want a second archive. The ref
+	// exists only to keep StrictMode's double-invoked effect from asking
+	// for two.
+	const hasAutoStarted = useRef( false );
+	useEffect( () => {
+		if ( ! hasFileSelection || hasAutoStarted.current || ! isValidRewindId( rewindId ) ) {
+			return;
+		}
+		hasAutoStarted.current = true;
+		submit( items );
+	}, [ hasFileSelection, rewindId, submit, items ] );
+
+	// With a file selection there is no checklist to send the reader back
+	// to, so a failed attempt has to re-submit rather than return to a
+	// form. `reset()` first, because the hook keeps reporting `error`
+	// until something succeeds.
+	const handleRetry = useCallback( () => {
+		reset();
+		submit( items );
+	}, [ reset, submit, items ] );
+
+	// A file selection has no form stage: the screen is waiting from the
+	// moment it mounts, before the mutation has even been sent.
+	const isPreparing =
+		state.phase === 'progress' ||
+		( hasFileSelection && ( state.phase === 'idle' || state.phase === 'submitting' ) );
 
 	// A malformed id can only produce a failed download, so the screen
 	// offers the way back and nothing else — see `InvalidRewindId`.
@@ -71,7 +130,7 @@ export default function DownloadScreen() {
 							</Text>
 						</Stack>
 					</Stack>
-					{ ( state.phase === 'idle' || state.phase === 'submitting' ) && (
+					{ ! hasFileSelection && ( state.phase === 'idle' || state.phase === 'submitting' ) && (
 						<>
 							<Text>
 								{ __(
@@ -123,13 +182,27 @@ export default function DownloadScreen() {
 							</Button>
 						</>
 					) }
-					{ state.phase === 'progress' && (
+					{ /*
+					 * One block for the whole wait, so the heading does not
+					 * unmount and remount underneath the reader when the first
+					 * status poll lands. A reader who arrived with files ticked
+					 * enters it immediately — the effect above has already asked
+					 * for the archive, and there is no checklist to show them —
+					 * and sees the spinner until there is a percentage to
+					 * report. Reaching for a progress bar pinned at 0% instead
+					 * would read as a stall.
+					 */ }
+					{ isPreparing && (
 						<Stack direction="column" gap="sm">
 							<Text>{ __( 'Preparing download…', 'jetpack-backup-pkg' ) }</Text>
-							<ProgressBar
-								value={ state.percent }
-								aria-label={ __( 'Preparing your download', 'jetpack-backup-pkg' ) }
-							/>
+							{ state.phase === 'progress' ? (
+								<ProgressBar
+									value={ state.percent }
+									aria-label={ __( 'Preparing your download', 'jetpack-backup-pkg' ) }
+								/>
+							) : (
+								<Spinner />
+							) }
 						</Stack>
 					) }
 					{ state.phase === 'success' && (
@@ -166,7 +239,11 @@ export default function DownloadScreen() {
 							<Notice status="error" isDismissible={ false }>
 								{ state.message }
 							</Notice>
-							<Button className="jpb-download__confirm" variant="outline" onClick={ reset }>
+							<Button
+								className="jpb-download__confirm"
+								variant="outline"
+								onClick={ hasFileSelection ? handleRetry : reset }
+							>
 								{ __( 'Try again', 'jetpack-backup-pkg' ) }
 							</Button>
 						</Stack>
