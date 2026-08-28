@@ -185,7 +185,9 @@ export const useEnclosedFields = clientId =>
 			}
 
 			const found = [];
-			walk( block.innerBlocks, null, null, found );
+			// A fresh traversal state. Not defaulted inside walk(): a default would hand every
+			// recursive call its own counter, which is the bug the shared object exists to fix.
+			walk( block.innerBlocks, null, { step: null }, found );
 
 			return found;
 		},
