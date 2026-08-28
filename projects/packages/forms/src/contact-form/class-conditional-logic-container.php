@@ -132,7 +132,7 @@ class Conditional_Logic_Container {
 
 		$processor->set_attribute( 'data-jp-visibility-root', $container_id );
 		$processor->set_attribute( 'data-jp-conditional', '1' );
-		$processor->set_attribute( self::LOGIC_ATTRIBUTE, wp_json_encode( $logic, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ) );
+		$processor->set_attribute( self::LOGIC_ATTRIBUTE, self::encode_logic( $logic ) );
 		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
 		// `fieldId` rather than a key of its own, so `state.isFieldHidden` resolves the
 		// container through the same getter it uses for a field. Every field inside sets its
@@ -149,6 +149,42 @@ class Conditional_Logic_Container {
 		$processor->set_attribute( 'data-wp-watch--conditional-focus', 'callbacks.manageConditionalFocus' );
 
 		return $processor->get_updated_html();
+	}
+
+	/**
+	 * Encode a container's conditions for the attribute they travel in.
+	 *
+	 * A rule value is author-supplied text, and the rules are a JSON array, so the payload
+	 * always contains `[` and `]`. Contact_Form runs the whole assembled body through
+	 * do_shortcode() to find its fields, and do_shortcode() does not care that the brackets
+	 * sit inside an HTML attribute: a value that merely looks like a shortcode is expanded
+	 * there, which shatters the tag it sits in, mints a field nobody wrote, and leaves the
+	 * container unreadable so its conditions are silently dropped.
+	 *
+	 * Numeric entities survive do_shortcode() untouched and are turned back by decode_logic().
+	 * The field path guards the same payload the same way, in Contact_Form_Plugin.
+	 *
+	 * @param array $logic The conditions.
+	 *
+	 * @return string The attribute value.
+	 */
+	private static function encode_logic( array $logic ) {
+		$json = wp_json_encode( $logic, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+
+		return str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), (string) $json );
+	}
+
+	/**
+	 * Read conditions back out of the attribute encode_logic() wrote.
+	 *
+	 * @param string $encoded The attribute value.
+	 *
+	 * @return array|null The conditions, or null when the value is not readable.
+	 */
+	private static function decode_logic( $encoded ) {
+		$decoded = json_decode( html_entity_decode( $encoded, ENT_COMPAT ), true );
+
+		return is_array( $decoded ) ? $decoded : null;
 	}
 
 	/**
@@ -208,9 +244,9 @@ class Conditional_Logic_Container {
 			$is_a_container = is_string( $encoded_logic ) && is_string( $root );
 
 			if ( $is_a_container ) {
-				$decoded = json_decode( $encoded_logic, true );
+				$decoded = self::decode_logic( $encoded_logic );
 
-				if ( is_array( $decoded ) ) {
+				if ( null !== $decoded ) {
 					$logic[ $root ]    = $decoded;
 					$contains[ $root ] = array();
 

@@ -49,6 +49,56 @@ class Conditional_Logic_Container_Integration_Test extends BaseTestCase {
 	 *
 	 * @return array
 	 */
+	/**
+	 * A rule value is author-supplied text. The container carries it into the rendered markup
+	 * as an HTML attribute, and Contact_Form then runs the whole body through do_shortcode()
+	 * to find its fields -- so a value that merely looks like a shortcode is expanded inside
+	 * the attribute, shattering the tag it sits in.
+	 *
+	 * Built through add_container_attributes() rather than hand-written markup, because the
+	 * encoding under test is the one that function applies.
+	 */
+	public function test_a_shortcode_in_a_rule_value_does_not_break_the_container() {
+		$logic = $this->logic( 'trigger', '[contact-field id="injected" type="text" label="Injected" /]' );
+
+		$stamped = Conditional_Logic_Container::add_container_attributes(
+			'<div class="wp-block-group">[contact-field id="secret" type="text" label="Secret" /]</div>',
+			array(
+				'blockName' => 'core/group',
+				'attrs'     => array( 'conditionalLogic' => $logic ),
+			)
+		);
+
+		$_POST['trigger'] = '';
+
+		Contact_Form_Plugin::$using_contact_form_field = true;
+
+		$form = new Contact_Form(
+			array( 'id' => 'cl-shortcode' ),
+			'[contact-field id="trigger" type="text" label="Trigger" /]' . $stamped
+		);
+
+		Contact_Form_Plugin::$using_contact_form_field = false;
+
+		// The value was text, not markup: it must not have become a field.
+		$this->assertArrayNotHasKey( 'injected', $form->fields );
+		$this->assertSame( array( 'trigger', 'secret' ), array_keys( $form->fields ) );
+
+		// And the container survived intact, so its conditions were still harvested.
+		$context = $form->get_conditional_logic_context();
+		$this->assertNotEmpty( $context['logic'], 'The container logic was not harvested.' );
+
+		$container_id = array_keys( $context['logic'] )[0];
+		$this->assertSame( array( 'secret' ), $context['contains'][ $container_id ] );
+
+		// The rule value round-trips to exactly what the author typed.
+		$rule = $context['logic'][ $container_id ]['groups'][0]['rules'][0];
+		$this->assertSame(
+			'[contact-field id="injected" type="text" label="Injected" /]',
+			$rule['value']
+		);
+	}
+
 	private function logic( $field = 'name', $value = 'Bob' ) {
 		return array(
 			'enabled'         => true,
