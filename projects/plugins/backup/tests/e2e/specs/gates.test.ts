@@ -1,4 +1,5 @@
 import { expect, test } from '@automattic/_jetpack-e2e-commons/fixtures/base-test';
+import type { TestUtils } from '@automattic/_jetpack-e2e-commons/utils/index';
 
 /**
  * Comma-separated rewind capabilities `e2e-backup-test-helper.php` answers
@@ -20,23 +21,18 @@ const INTERCEPT_COUNT_OPTION = 'e2e_backup_capabilities_intercepts';
 /**
  * Read the helper's interception counter.
  *
- * Takes `testUtils.executeWpCommand` rather than the whole `testUtils`: it is a plain
- * function reference on that class, not a bound method, so it travels on its own.
- *
- * @param executeWpCommand - wp-cli runner from the e2e-commons test utilities.
+ * @param testUtils - e2e-commons test utilities.
  * @return The number of capabilities requests answered locally.
  */
-async function getInterceptCount(
-	executeWpCommand: ( cmd: string[] ) => Promise< string >
-): Promise< number > {
-	const raw = await executeWpCommand( [ 'option', 'get', INTERCEPT_COUNT_OPTION ] );
+async function getInterceptCount( testUtils: TestUtils ): Promise< number > {
+	const raw = await testUtils.executeWpCommand( [ 'option', 'get', INTERCEPT_COUNT_OPTION ] );
 	return parseInt( raw.trim(), 10 );
 }
 
 test.describe( 'Jetpack Backup modernized dashboard gates', () => {
 	test.beforeEach( async ( { testUtils } ) => {
-		await testUtils.executeWpCommand( 'plugin activate jetpack-backup' );
-		await testUtils.executeWpCommand( 'plugin activate e2e-backup-test-helper' );
+		await testUtils.executeWpCommand( [ 'plugin', 'activate', 'jetpack-backup' ] );
+		await testUtils.executeWpCommand( [ 'plugin', 'activate', 'e2e-backup-test-helper' ] );
 		await testUtils.executeWpCommand( [ 'option', 'update', INTERCEPT_COUNT_OPTION, '0' ] );
 
 		// Every spec establishes the connection state it needs, so start from a
@@ -65,11 +61,19 @@ test.describe( 'Jetpack Backup modernized dashboard gates', () => {
 			page.getByRole( 'heading', { name: 'Connect Jetpack to get started' } )
 		).toBeVisible();
 
-		// The capabilities option says this site *does* have Backup. It is the
-		// connection check that has to answer first — `<Gates>` returns the
-		// not-connected screen before it looks at capabilities — so this also
-		// pins the order of the two branches, not just their outcomes.
-		expect( await getInterceptCount( testUtils.executeWpCommand ) ).toBe( 0 );
+		// The capability list above says this site *does* have Backup, so a
+		// request that had gone out would have come back with a plan. Zero
+		// means none went out: `<Gates>` passes `enabled: useCanQueryWpcom()`
+		// to `useCapabilities` (`gates/index.tsx:41`), and that is false
+		// without a user-level connection (`use-connection.ts:90-93`).
+		//
+		// It is the heading above, not this count, that pins the branch order.
+		// Both hooks are called at the top of `<Gates>` (lines 37 and 41, above
+		// the first `if` on 43), so no reordering can change whether the
+		// request happens: move the plan check first and this is still 0 —
+		// a disabled query reports `isLoading === false` — while
+		// `NoBackupPlanScreen` renders and the heading assertion fails.
+		expect( await getInterceptCount( testUtils ) ).toBe( 0 );
 	} );
 
 	test( 'a connected site without the backup capability gets the no-plan screen', async ( {
@@ -90,7 +94,7 @@ test.describe( 'Jetpack Backup modernized dashboard gates', () => {
 			page.getByRole( 'heading', { name: "This site doesn't have an active Backup plan" } )
 		).toBeVisible();
 
-		expect( await getInterceptCount( testUtils.executeWpCommand ) ).toBeGreaterThan( 0 );
+		expect( await getInterceptCount( testUtils ) ).toBeGreaterThan( 0 );
 	} );
 
 	test( 'a connected site with the backup capability gets the dashboard', async ( {
@@ -119,6 +123,6 @@ test.describe( 'Jetpack Backup modernized dashboard gates', () => {
 		// capabilities-error and no-plan all render inside `.jpb-gates__card`.
 		await expect( page.locator( '.jpb-gates__card' ) ).toHaveCount( 0 );
 
-		expect( await getInterceptCount( testUtils.executeWpCommand ) ).toBeGreaterThan( 0 );
+		expect( await getInterceptCount( testUtils ) ).toBeGreaterThan( 0 );
 	} );
 } );

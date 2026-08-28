@@ -4,6 +4,12 @@ import baseConfig, {
 
 export default {
 	...baseConfig,
+	// Pinned rather than inherited from `PLAYWRIGHT_WORKERS`. Every spec here
+	// mutates global site state — `disconnect()` / `connect()` in `beforeEach`
+	// — and the three share two WordPress options, so they cannot run
+	// concurrently. Making that a property of the suite keeps it true whatever
+	// the environment says.
+	workers: 1,
 	projects: [
 		// The 'connection setup' project is dropped on purpose: one of these specs
 		// needs a disconnected site, and each spec establishes the connection state
