@@ -447,7 +447,7 @@ describe( 'AiFeatures rendering', () => {
 		// AI Search opens the Search dashboard on its AI tab, not Overview.
 		expect( screen.getByRole( 'link', { name: 'Open Search Settings' } ) ).toHaveAttribute(
 			'href',
-			'admin.php?page=jetpack-search#/ai-answers'
+			'admin.php?page=jetpack-search#/ai-search'
 		);
 	} );
 } );

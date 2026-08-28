@@ -56,7 +56,7 @@ describe( 'SidebarOptions with the site-wide AI switch on', () => {
 	it( 'leaves the AI Answers toggle usable', () => {
 		renderSidebar();
 
-		expect( screen.getByLabelText( 'Enable AI Answers' ) ).toBeEnabled();
+		expect( screen.getByLabelText( 'Enable AI Search' ) ).toBeEnabled();
 	} );
 
 	it( 'shows the normal help text', () => {

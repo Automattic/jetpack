@@ -564,7 +564,7 @@ const searchBlocksPricingItems = [
 const aiAnswersPricingItems = [
 	{
 		id: 'ai-answers',
-		name: __( 'AI Answers (Preview)', 'jetpack-search-pkg' ),
+		name: __( 'AI Search (Preview)', 'jetpack-search-pkg' ),
 		tooltipInfo: __(
 			'Let visitors ask a question and get an instant, AI-generated answer drawn from your own content — right at the top of the search results.',
 			'jetpack-search-pkg'

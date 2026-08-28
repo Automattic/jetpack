@@ -74,7 +74,7 @@ export default function AiAnswersTab() {
 						<div className="jp-search-dashboard-row">
 							<div className="jp-search-ai-answers-tab__upsell-inner lg-col-span-8 md-col-span-6 sm-col-span-4">
 								<h2 className="jp-search-ai-answers-tab__upsell-heading">
-									{ __( 'Upgrade to use AI Answers', 'jetpack-search-pkg' ) }
+									{ __( 'Upgrade to use AI Search', 'jetpack-search-pkg' ) }
 								</h2>
 								<ul className="jp-search-ai-answers-tab__upsell-bullets">
 									<li>
@@ -118,7 +118,7 @@ export default function AiAnswersTab() {
 									</Notice.Title>
 									<Notice.Description>
 										{ __(
-											'Your AI Answers setting is saved and will apply again when AI is turned back on.',
+											'Your AI Search setting is saved and will apply again when AI is turned back on.',
 											'jetpack-search-pkg'
 										) }
 									</Notice.Description>
@@ -128,7 +128,7 @@ export default function AiAnswersTab() {
 								<Notice.Root intent="warning">
 									<Notice.Title>
 										{ __(
-											'Instant Search must be enabled for AI Answers to work.',
+											'Instant Search must be enabled for AI Search to work.',
 											'jetpack-search-pkg'
 										) }
 									</Notice.Title>
@@ -138,7 +138,7 @@ export default function AiAnswersTab() {
 								</Notice.Root>
 							) }
 							<ToggleControl
-								label={ __( 'Enable AI Answers', 'jetpack-search-pkg' ) }
+								label={ __( 'Enable AI Search', 'jetpack-search-pkg' ) }
 								checked={ isToggleChecked }
 								onChange={ setAiAnswersEnabled }
 								className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"

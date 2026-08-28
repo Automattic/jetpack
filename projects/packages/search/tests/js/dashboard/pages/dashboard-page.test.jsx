@@ -141,10 +141,10 @@ const settings = {
 };
 
 describe( '<DashboardPage> branch', () => {
-	test( 'renders Overview and AI Answers tabs', () => {
+	test( 'renders Overview and AI Search tabs', () => {
 		renderWith( { searchBlocksEnabled: false, jetpackSettings: settings } );
 		expect( screen.getByRole( 'tab', { name: /overview/i } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'tab', { name: /ai answers/i } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'tab', { name: /ai search/i } ) ).toBeInTheDocument();
 	} );
 
 	test( 'renders ExperienceSelector when searchBlocksEnabled is true', () => {

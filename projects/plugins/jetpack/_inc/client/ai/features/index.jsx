@@ -111,7 +111,7 @@ const SECTIONS = [
 				enabledAction: {
 					label: __( 'Open Search Settings', 'jetpack' ),
 					// The toggle lives on the Search dashboard's AI tab, not Overview.
-					href: 'admin.php?page=jetpack-search#/ai-answers',
+					href: 'admin.php?page=jetpack-search#/ai-search',
 				},
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),

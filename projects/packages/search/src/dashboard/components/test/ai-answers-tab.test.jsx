@@ -118,7 +118,7 @@ describe( 'AiAnswersTab', () => {
 		setupStore( { isFreePlan: true } );
 		render( <AiAnswersTab /> );
 		await waitFor( () => {
-			expect( screen.getByText( 'Upgrade to use AI Answers' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Upgrade to use AI Search' ) ).toBeInTheDocument();
 		} );
 		expect(
 			screen.getByText( 'Give visitors real answers, not just search results.' )
@@ -130,7 +130,7 @@ describe( 'AiAnswersTab', () => {
 		setupStore( { supportsInstantSearch: false } );
 		render( <AiAnswersTab /> );
 		await waitFor( () => {
-			expect( screen.getByText( 'Upgrade to use AI Answers' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Upgrade to use AI Search' ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -138,20 +138,20 @@ describe( 'AiAnswersTab', () => {
 		setupStore( { supportsInstantSearch: true, isFreePlan: false } );
 		render( <AiAnswersTab /> );
 		await waitFor( () => {
-			expect( screen.queryByText( 'Upgrade to use AI Answers' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Upgrade to use AI Search' ) ).not.toBeInTheDocument();
 		} );
 	} );
 
 	it( 'settings section is present for paid plan users', async () => {
 		setupStore( { supportsInstantSearch: true, isAiAnswersEnabled: true } );
 		render( <AiAnswersTab /> );
-		await expect( screen.findByText( 'Enable AI Answers' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Enable AI Search' ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'settings section is present but visually gated for free plan users', async () => {
 		setupStore( { isFreePlan: true } );
 		render( <AiAnswersTab /> );
-		await expect( screen.findByText( 'Enable AI Answers' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Enable AI Search' ) ).resolves.toBeInTheDocument();
 		const gated = screen.getByTestId( 'ai-answers-settings' );
 		expect( gated ).toHaveClass( 'jp-search-ai-answers-tab__settings--gated' );
 	} );
@@ -160,7 +160,7 @@ describe( 'AiAnswersTab', () => {
 		setupStore( { supportsInstantSearch: true, isInstantSearchEnabled: false } );
 		render( <AiAnswersTab /> );
 		await expect(
-			screen.findByText( 'Instant Search must be enabled for AI Answers to work.' )
+			screen.findByText( 'Instant Search must be enabled for AI Search to work.' )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Enable Instant Search on the Settings tab.' ) ).toBeInTheDocument();
 	} );

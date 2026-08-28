@@ -416,11 +416,11 @@ describe( 'DashboardPage', () => {
 	} );
 
 	test( 'hydrates active tab from the URL hash', () => {
-		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }#/ai-answers` );
+		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }#/ai-search` );
 
 		render( <DashboardPage /> );
 
-		expect( screen.getByRole( 'tab', { name: /ai answers/i } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'tab', { name: /ai search/i } ) ).toHaveAttribute(
 			'aria-selected',
 			'true'
 		);
@@ -457,16 +457,23 @@ describe( 'DashboardPage', () => {
 		expect( window.location.hash ).toBe( '#/overview' );
 	} );
 
+	test( 'resolves the legacy ai-answers slug in the hash to the AI Search tab', () => {
+		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }#/ai-answers` );
+		render( <DashboardPage /> );
+		expect( screen.getByTestId( 'ai-answers-tab' ) ).toBeInTheDocument();
+		expect( window.location.hash ).toBe( '#/ai-search' );
+	} );
+
 	test( 'normalizes legacy ?tab= query strings to the equivalent hash on mount', () => {
 		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }&tab=ai-answers` );
 
 		render( <DashboardPage /> );
 
-		expect( screen.getByRole( 'tab', { name: /ai answers/i } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'tab', { name: /ai search/i } ) ).toHaveAttribute(
 			'aria-selected',
 			'true'
 		);
-		expect( window.location.hash ).toBe( '#/ai-answers' );
+		expect( window.location.hash ).toBe( '#/ai-search' );
 		expect( window.location.search ).not.toContain( 'tab=' );
 	} );
 
@@ -487,9 +494,9 @@ describe( 'DashboardPage', () => {
 		const user = userEvent.setup();
 
 		render( <DashboardPage /> );
-		await user.click( screen.getByRole( 'tab', { name: /ai answers/i } ) );
+		await user.click( screen.getByRole( 'tab', { name: /ai search/i } ) );
 
-		await waitFor( () => expect( window.location.hash ).toBe( '#/ai-answers' ) );
+		await waitFor( () => expect( window.location.hash ).toBe( '#/ai-search' ) );
 	} );
 
 	test( 'syncs active tab when the hash changes externally (back/forward)', () => {

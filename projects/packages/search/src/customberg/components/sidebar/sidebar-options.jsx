@@ -224,7 +224,7 @@ export default function SidebarOptions() {
 						className="jp-search-configure-ai-answers-toggle"
 						checked={ aiAnswersEnabled }
 						disabled={ isDisabled || ! aiMasterEnabled }
-						label={ __( 'Enable AI Answers', 'jetpack-search-pkg' ) }
+						label={ __( 'Enable AI Search', 'jetpack-search-pkg' ) }
 						help={ aiAnswersHelp }
 						onChange={ setAiAnswersEnabled }
 						__nextHasNoMarginBottom={ true }

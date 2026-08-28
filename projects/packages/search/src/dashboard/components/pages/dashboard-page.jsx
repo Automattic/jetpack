@@ -23,14 +23,14 @@ import './dashboard-page.scss';
 
 const DEFAULT_TAB = 'overview';
 // Keep this allowlist in sync with the <Tabs.Tab value="..."> definitions below.
-const VALID_TABS = [ DEFAULT_TAB, 'settings', 'ai-answers' ];
+const VALID_TABS = [ DEFAULT_TAB, 'settings', 'ai-search' ];
 // Tabs are now routed via the URL hash (#/<slug>) to match the my-jetpack
 // admin's HashRouter convention. The pre-hash `?tab=<slug>` query param is
 // still honored on mount so existing bookmarks resolve correctly; mount-time
 // normalization rewrites the URL to the canonical hash form.
 const LEGACY_TAB_QUERY_PARAM = 'tab';
 // Maps removed slugs to their current equivalents so existing bookmarks/links keep working.
-const LEGACY_TAB_ALIASES = { 'plan-usage': 'overview' };
+const LEGACY_TAB_ALIASES = { 'plan-usage': 'overview', 'ai-answers': 'ai-search' };
 // Experiences whose product search reads `override_woocommerce_search_template`:
 // Embedded/Inline swap WooCommerce's product-search page for the Jetpack
 // product-results template; overlay_blocks paints the product overlay. The
@@ -327,8 +327,8 @@ export default function DashboardPage( { isLoading = false } ) {
 						<Tabs.List variant="minimal">
 							<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-search-pkg' ) }</Tabs.Tab>
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-search-pkg' ) }</Tabs.Tab>
-							<Tabs.Tab value="ai-answers">
-								{ __( 'AI Answers', 'jetpack-search-pkg' ) }
+							<Tabs.Tab value="ai-search">
+								{ __( 'AI Search', 'jetpack-search-pkg' ) }
 								<span className="jp-search-dashboard-tabs__tab-preview-label">
 									&nbsp;{ __( '(Preview)', 'jetpack-search-pkg' ) }
 								</span>
@@ -475,7 +475,7 @@ export default function DashboardPage( { isLoading = false } ) {
 							</>
 						) }
 					</Tabs.Panel>
-					<Tabs.Panel value="ai-answers">
+					<Tabs.Panel value="ai-search">
 						<AiAnswersTab />
 					</Tabs.Panel>
 				</Tabs.Root>

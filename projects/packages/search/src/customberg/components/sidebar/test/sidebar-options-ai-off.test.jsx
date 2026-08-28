@@ -55,7 +55,7 @@ describe( 'SidebarOptions with the site-wide AI switch off', () => {
 	it( 'locks the AI Answers toggle', () => {
 		renderSidebar();
 
-		expect( screen.getByLabelText( 'Enable AI Answers' ) ).toBeDisabled();
+		expect( screen.getByLabelText( 'Enable AI Search' ) ).toBeDisabled();
 	} );
 
 	it( 'explains why the toggle is locked', () => {
@@ -67,6 +67,6 @@ describe( 'SidebarOptions with the site-wide AI switch off', () => {
 	it( 'keeps showing the saved choice', () => {
 		renderSidebar();
 
-		expect( screen.getByLabelText( 'Enable AI Answers' ) ).toBeChecked();
+		expect( screen.getByLabelText( 'Enable AI Search' ) ).toBeChecked();
 	} );
 } );
