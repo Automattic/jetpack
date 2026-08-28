@@ -30,7 +30,7 @@
 		"@wordpress/a11y": "^4.40.0",
 		"@wordpress/admin-ui": "2.9.0",
 		"@wordpress/boot": "^0.21.0",
-		"@wordpress/browserslist-config": "6.51.0",
+		"@wordpress/browserslist-config": "6.54.0",
 		"@wordpress/build": "0.22.0",
 		"@wordpress/compose": "8.7.0",
 		"@wordpress/dataviews": "18.1.0",

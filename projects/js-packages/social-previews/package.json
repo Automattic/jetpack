@@ -40,9 +40,9 @@
 		"typecheck": "tsgo --noEmit"
 	},
 	"dependencies": {
-		"@wordpress/components": "37.0.0",
-		"@wordpress/element": "8.3.0",
-		"@wordpress/i18n": "6.24.0",
+		"@wordpress/components": "40.0.0",
+		"@wordpress/element": "8.6.0",
+		"@wordpress/i18n": "6.27.0",
 		"clsx": "2.1.1"
 	},
 	"devDependencies": {
