@@ -11,7 +11,6 @@ const label = __( 'All pages' );
 <ReportPageShell
 	visual={ <StatsPageIcon /> }
 	breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
-	subTitle={ __( 'All your posts and archive pages.' ) }
 	actions={ downloadButton }
 >
 	<ReportPageLayout title={ getTabTitle( activeTab ) } dateFilters={ dateFilters }>
@@ -34,7 +33,7 @@ const label = __( 'All pages' );
 ```
 
 - **`ReportPageShell`** — the outer `Page` shell: the shared Jetpack visual,
-  Stats breadcrumbs, subtitle, and page-level actions.
+  Stats breadcrumbs and page-level actions.
 - **`ReportPageLayout`** — the report content scaffold: optional internal tabs,
   the section header, and stacked sections.
   `ReportPageSection` is the bordered card each section renders in.
