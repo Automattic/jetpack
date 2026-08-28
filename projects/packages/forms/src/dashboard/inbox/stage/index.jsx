@@ -517,6 +517,43 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 			},
 			...buildResponseFieldColumns( responseFieldColumns ),
 			{
+				// Payments (prototype). Only meaningful on responses to forms that
+				// collect payment; renders an em dash everywhere else.
+				id: 'payment',
+				label: __( 'Payment', 'jetpack-forms' ),
+				render: ( { item } ) => {
+					const payment = item.payment;
+
+					if ( ! payment ) {
+						return <span style={ { color: '#949494' } }>—</span>;
+					}
+
+					const labels = {
+						paid: __( 'Paid', 'jetpack-forms' ),
+						awaiting: __( 'Unpaid', 'jetpack-forms' ),
+						failed: __( 'Failed', 'jetpack-forms' ),
+						payment_unavailable: __( 'Unavailable', 'jetpack-forms' ),
+					};
+
+					const colors = {
+						paid: '#008a20',
+						awaiting: '#996800',
+						failed: '#b32d2e',
+						payment_unavailable: '#757575',
+					};
+
+					return (
+						<span style={ { color: colors[ payment.status ] || '#757575' } }>
+							{ payment.formattedAmount }
+							{ ' · ' }
+							{ labels[ payment.status ] || payment.status }
+						</span>
+					);
+				},
+				getValue: ( { item } ) => item.payment?.status || '',
+				enableSorting: false,
+			},
+			{
 				id: 'date',
 				label: __( 'Date', 'jetpack-forms' ),
 				render: ( { item } ) => {
