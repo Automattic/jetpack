@@ -217,40 +217,59 @@ class PayPal_Partner_Onboarding {
 
 		// Automattic's PayPal platform credentials live on WordPress.com, so the
 		// referral is created there and only the resulting URL comes back here.
-		$response = Client::wpcom_json_api_request_as_blog(
-			self::WPCOM_SIGNUP_LINK_ROUTE,
-			'2',
-			array(
-				'method'  => 'POST',
-				'timeout' => 30,
-				'headers' => array(
-					'Content-Type' => 'application/json',
-					'Accept'       => 'application/json',
-				),
-			),
-			wp_json_encode(
-				array(
-					'environment' => $environment,
-					'referral'    => $request_body,
-				),
-				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-			),
-			'wpcom'
+		$payload = array(
+			'environment' => $environment,
+			'referral'    => $request_body,
 		);
 
-		if ( is_wp_error( $response ) ) {
-			return new \WP_Error(
-				'paypal_referral_request_failed',
-				sprintf(
-					/* translators: %s: error message */
-					__( 'Failed to create PayPal onboarding link: %s', 'jetpack-paypal-payments' ),
-					$response->get_error_message()
-				)
-			);
-		}
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			/*
+			 * Dispatch in-process rather than through Client::wpcom_json_api_request_as_blog().
+			 * That helper does short-circuit on WordPress.com, but by way of
+			 * WPCOM_API_Direct, which does not resolve this route: the platform endpoint
+			 * registers on rest_get_server() from jetpack-mu-wpcom, and a request that
+			 * reached WPCOM_API_Direct came back rest_no_route in the same PHP process
+			 * whose log showed register_routes() had already run. rest_do_request() uses
+			 * rest_get_server(), so it sees the routes, and still runs the endpoint's
+			 * permission check and argument validation.
+			 */
+			$platform_request = new \WP_REST_Request( 'POST', '/wpcom/v2' . self::WPCOM_SIGNUP_LINK_ROUTE );
+			$platform_request->set_body_params( $payload );
 
-		$status_code = wp_remote_retrieve_response_code( $response );
-		$body        = json_decode( wp_remote_retrieve_body( $response ), true );
+			$platform_response = rest_do_request( $platform_request );
+
+			$status_code = $platform_response->get_status();
+			$body        = $platform_response->get_data();
+		} else {
+			$response = Client::wpcom_json_api_request_as_blog(
+				self::WPCOM_SIGNUP_LINK_ROUTE,
+				'2',
+				array(
+					'method'  => 'POST',
+					'timeout' => 30,
+					'headers' => array(
+						'Content-Type' => 'application/json',
+						'Accept'       => 'application/json',
+					),
+				),
+				wp_json_encode( $payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
+				'wpcom'
+			);
+
+			if ( is_wp_error( $response ) ) {
+				return new \WP_Error(
+					'paypal_referral_request_failed',
+					sprintf(
+						/* translators: %s: error message */
+						__( 'Failed to create PayPal onboarding link: %s', 'jetpack-paypal-payments' ),
+						$response->get_error_message()
+					)
+				);
+			}
+
+			$status_code = wp_remote_retrieve_response_code( $response );
+			$body        = json_decode( wp_remote_retrieve_body( $response ), true );
+		}
 
 		if ( 201 !== $status_code && 200 !== $status_code ) {
 			return new \WP_Error(
