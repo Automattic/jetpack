@@ -44,8 +44,6 @@ export type DateFilterOptions = {
  * Not just chrome: false has `WidgetRoot` drop the comparison from the params
  * every widget in the section fetches and renders with.
  *
- * The year surface never supports it; otherwise the section decides.
- *
  * @param surface - The active section's date-filter surface.
  * @param options - The active section's date-filter options, if any.
  * @return Whether the section supports comparison.
@@ -62,19 +60,9 @@ export function offersDateComparison(
 }
 
 /**
- * The preset a surface should take over with when the URL carries one it cannot
- * represent, or `null` when the current preset is already coherent.
- *
- * `?preset=` is shared by every section, so switching sections can land a
- * rolling window on the year surface — where no pill matches it and the whole
- * control reads as unset — or a single year on the range surface, where the
- * picker would label it a custom range. Rather than leave either looking blank,
- * the surface the user is now looking at takes over with its own default: all
- * time for the year surface, the shared default preset for the range surface.
- *
- * Presets a surface can represent are left alone. That includes an absent
- * preset on the range surface, which is how a `?from=&to=` deep link expresses
- * a custom range.
+ * The preset a surface should switch to when the current URL preset is
+ * incompatible with it, or `null` when it already fits. A range surface with
+ * no preset is left alone — that's how a `?from=&to=` deep link works.
  *
  * @param surface  - The active section's date-filter surface.
  * @param presetId - The preset currently in the URL, if any.

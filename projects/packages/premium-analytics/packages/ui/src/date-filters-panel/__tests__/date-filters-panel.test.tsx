@@ -189,9 +189,8 @@ describe( 'DateFiltersPanel', () => {
 		);
 	} );
 
-	// The custom trigger used to keep labelling itself with the range it held
-	// before the preset took over, putting two different ranges on screen at
-	// once (WOOA7S-1936).
+	// The custom trigger used to keep showing the pre-preset range, putting two
+	// different ranges on screen at once (WOOA7S-1936).
 	it( 'drops the custom range from the trigger once a preset takes over', () => {
 		mockContainerResize();
 		const customRange = {

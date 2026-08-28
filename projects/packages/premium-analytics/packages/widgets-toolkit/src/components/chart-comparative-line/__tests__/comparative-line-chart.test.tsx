@@ -10,9 +10,8 @@ import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import { ComparativeLineChart } from '../comparative-line-chart';
 import type { ComparativeLineChartSeries } from '../types';
 
-// Record the props handed to the underlying chart. The real one renders SVG
-// through a provider jsdom cannot lay out, and what matters here is the tooltip
-// renderer and the visibility settings this wrapper composes.
+// The real chart renders SVG through a provider jsdom cannot lay out, so record
+// the props instead: the tooltip renderer and visibility settings are the subject.
 const mockLineSpy = jest.fn();
 const mockLegendSpy = jest.fn();
 
@@ -53,9 +52,8 @@ jest.mock( '../../../hooks', () => ( {
 
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 
-// A tooltip label reads its point as the instant it is, in the site's timezone,
-// so these are instants and every assertion below fixes the site's zone. Callers
-// whose points are wall clocks instead pass their own `formatTooltipDate`.
+// A tooltip label reads its point as the instant it is, in the site's timezone, so
+// these are instants and every assertion below fixes the site's zone.
 const JULY_1 = new Date( '2026-07-01T00:00:00Z' );
 // 2pm on July 2 in Tokyo.
 const JULY_2 = new Date( '2026-07-02T05:00:00Z' );

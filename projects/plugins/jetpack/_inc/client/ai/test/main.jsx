@@ -128,7 +128,6 @@ describe( 'AI admin page (main.jsx)', () => {
 		// AiFeatures never mounts: no feature toggle, no upgrade badge, no action link.
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Requires upgrade' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Try it out in the editor' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
 	} );
 

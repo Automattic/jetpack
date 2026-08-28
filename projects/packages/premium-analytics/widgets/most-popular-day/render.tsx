@@ -22,26 +22,17 @@ import type { MostPopularDayAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ReactNode } from 'react';
 
-// Report params are dashboard-driven — WidgetRoot resolves them from the date
-// picker — but this highlight is site-wide and ignores them. The host (and
-// Storybook) may still inject them via `attributes`, so accept them here.
+// The highlight is site-wide and ignores report params, but the host may still
+// inject them via `attributes`, so the shape has to accept them.
 type MostPopularDayRenderAttributes = MostPopularDayAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type MostPopularDayWidgetProps = WidgetRenderProps< MostPopularDayRenderAttributes >;
 
 type MostPopularDayHighlightProps = {
-	/**
-	 * The all-time best day for views.
-	 */
+	/** The all-time best day for views. */
 	date: Date;
-	/**
-	 * The number of views recorded on `date`.
-	 */
 	views: number;
-	/**
-	 * The share of all-time views that fall on `date`, as a fraction (0–1), or
-	 * `undefined` when the summary carries no all-time total to divide by.
-	 */
+	/** Fraction (0–1) of all-time views, or `undefined` with no all-time total. */
 	share?: number;
 };
 
@@ -59,9 +50,8 @@ type MostPopularDayFieldProps = {
  */
 const MostPopularDayField = ( { label, value, valueTitle, caption }: MostPopularDayFieldProps ) => (
 	<Stack direction="column" gap="xs">
-		{ /* Heading, matching the Most popular time card this one sits beside: the
-		     labels carry the card's structure, so they should read as structure to
-		     a screen reader too. */ }
+		{ /* A heading, like the Most popular time card beside it: the labels carry
+		     the card's structure, so screen readers should hear it as structure. */ }
 		<Text variant="heading-md" render={ <h4 /> }>
 			{ label }
 		</Text>
@@ -77,16 +67,13 @@ const MostPopularDayField = ( { label, value, valueTitle, caption }: MostPopular
 );
 
 // `decimals: 0` would round 102,631 to "103K"; the design's headline keeps the
-// digit ("102.6K"). Below the first multiplier that digit is only ever ".0", so
-// the count renders whole there — the same split Total views makes.
+// digit ("102.6K"). Below the first multiplier it is always ".0", so use plain there.
 const ABBREVIATED_COUNT_OPTIONS = { useMultipliers: true, decimals: 1 };
 const PLAIN_COUNT_OPTIONS = { decimals: 0 };
 
 /**
- * Presentational body for the "Most popular day" widget: the all-time best day
- * for views and how many views it drew. Loading / error / empty are handled by
- * `<WidgetState>` in the report component, so this only renders the populated
- * highlight.
+ * Presentational body for the "Most popular day" widget. Loading / error / empty
+ * are handled by `<WidgetState>` in the report component.
  */
 export const MostPopularDayHighlight = ( { date, views, share }: MostPopularDayHighlightProps ) => {
 	const fullViews = formatMetricValue( views, 'number', PLAIN_COUNT_OPTIONS );

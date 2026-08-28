@@ -40,15 +40,11 @@ type EmailBreakdownWidgetProps = WidgetRenderProps< EmailBreakdownRenderAttribut
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
-// Mirrors the 720px container query in `style.module.css`: below it the map
-// is `display: none`, so mounting `GeoChart` there would pay the Google
-// Charts load for a chart that can never be seen. CSS still owns the visual
-// fallback; this width only gates the mount.
-const MAP_MIN_WIDTH = 720;
+// Mirrors the 720px container query in `style.module.css`, where the map is
+// `display: none`: mounting `GeoChart` below it would pay the Google Charts load
+// for a chart that can never be seen. This gates only the mount, not the visuals.
+export const MAP_MIN_WIDTH = 720;
 
-/**
- * Builds the complete country dataset consumed by `GeoChart`.
- */
 function buildEmailGeoData( rows: EmailBreakdownRow[], metric: EmailBreakdownMetric ): GeoData {
 	return [
 		[
@@ -64,13 +60,9 @@ function buildEmailGeoData( rows: EmailBreakdownRow[], metric: EmailBreakdownMet
 }
 
 /**
- * Maps normalized breakdown rows onto the shape `LeaderboardChart` expects.
  * Shares are relative to the highest value in the set so the top row always
  * fills. The breakdown endpoints return no comparison period, so the comparison
  * fields are zeroed and the chart renders without deltas.
- *
- * The `countries` view renders a flag next to each label; the `links` view
- * renders each row as an external link; other views render a plain label.
  */
 function buildLeaderboardData(
 	rows: EmailBreakdownRow[],
@@ -107,10 +99,6 @@ function buildLeaderboardData(
 	} );
 }
 
-/**
- * The per-view empty-state copy shown when the selected email has no data for
- * the active breakdown.
- */
 function emptyStateText( view: EmailBreakdownView ): string {
 	switch ( view ) {
 		case 'devices':
@@ -126,53 +114,24 @@ function emptyStateText( view: EmailBreakdownView ): string {
 }
 
 type EmailBreakdownLeaderboardProps = {
-	/**
-	 * Normalized breakdown rows to render. When omitted, the empty state is shown
-	 * (unless `isLoading` is set).
-	 */
 	rows?: EmailBreakdownRow[];
-	/**
-	 * Complete row set used by the country map. This can contain more entries
-	 * than the capped leaderboard `rows`.
-	 */
+	/** Uncapped row set for the map; can hold more entries than `rows`. */
 	mapRows?: EmailBreakdownRow[];
-	/**
-	 * The active breakdown view; drives the label rendering and empty-state copy.
-	 */
 	view?: EmailBreakdownView;
-	/** Whether to render a map beside the countries leaderboard. */
 	showMap?: boolean;
-	/** Metric label to use for the map values. */
 	metric?: EmailBreakdownMetric;
-	/**
-	 * When `true` and there are no rows yet, the loading state is shown.
-	 */
 	isLoading?: boolean;
 	isFetching?: boolean;
-	/**
-	 * When `true`, the error state is rendered in place of the chart.
-	 */
 	isError?: boolean;
-	/**
-	 * Whether an email is selected; drives the empty-state copy when there are no
-	 * rows (`false` prompts to select an email instead of "no data yet").
-	 */
+	/** `false` prompts to select an email instead of "no data yet". */
 	hasEmail?: boolean;
-	/**
-	 * Invoked by the error state's Retry action to re-run the queries.
-	 */
 	onRetry?: () => void;
 };
 
 /**
- * Presentational leaderboard for the "Email breakdown" widget. Lists a single
- * email's opens (or clicks) broken down by the active view.
- *
- * Takes already-fetched rows and the active view via props and renders the
- * loading, error, empty, and populated states through `WidgetState`. Exported so
- * Storybook can exercise those states with fixture rows (there is no analytics
- * backend in Storybook, so the data-connected entry point would only ever show
- * chrome).
+ * Takes already-fetched rows via props, and is exported, so Storybook can
+ * exercise every state with fixture rows: there is no analytics backend there,
+ * so the data-connected entry point would only ever show chrome.
  */
 export const EmailBreakdownLeaderboard = ( {
 	rows = [],
@@ -253,9 +212,7 @@ type EmailBreakdownReportProps = {
 };
 
 /**
- * Fetches the email breakdown rows for the selected email, view, and metric,
- * then hands them to the presentational `EmailBreakdownLeaderboard`. The email
- * is scoped by the host through `reportParams.post_id` — the shared
+ * The email is scoped by the host through `reportParams.post_id` — the shared
  * single-resource "detail page" param — so the widget needs no id attribute.
  */
 function EmailBreakdownReport( { view, metric, showMap }: EmailBreakdownReportProps ) {
@@ -286,13 +243,8 @@ function EmailBreakdownReport( { view, metric, showMap }: EmailBreakdownReportPr
 }
 
 /**
- * The breakdown is scoped to a single email by the host through
- * `reportParams.post_id` (the shared single-resource "detail page" param); the
- * `view` attribute (`relevance: 'high'`) is exposed as a control by the widget
- * host and the `metric` attribute picks opens or clicks for the dimension views.
  * The endpoints report across the whole lifetime of the email, so the date range
- * and comparison period are ignored — `reportParams` is passed into `WidgetRoot`,
- * which exposes it to the inner report, but only `post_id` is read from it.
+ * and comparison period are ignored: only `post_id` is read from `reportParams`.
  */
 export default function EmailBreakdown( { attributes = {} }: EmailBreakdownWidgetProps ) {
 	const view = attributes.view ?? 'countries';

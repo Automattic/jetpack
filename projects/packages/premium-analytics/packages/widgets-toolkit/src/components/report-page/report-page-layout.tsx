@@ -23,11 +23,9 @@ export interface ReportPageLayoutProps {
 }
 
 /**
- * The shared second-level report page scaffold: optional internal tabs, the
- * section header, and the stacked report sections.
- *
- * The header offers the range alone. Its interval and comparison controls are
- * hidden rather than cleared, so both survive on the URL for the dashboard.
+ * Second-level report page scaffold: tabs, section header, and stacked
+ * sections. The header shows only the range — interval/comparison controls
+ * are hidden, not cleared, so they survive on the URL.
  *
  * @param {ReportPageLayoutProps} props - The component props.
  * @return The report page scaffold.

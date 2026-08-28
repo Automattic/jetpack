@@ -89,10 +89,8 @@ describe( 'dashboard route.beforeLoad', () => {
 	} );
 
 	it( 'registers dashboardSection even when a detail-page entry already registered widgetModule', async () => {
-		// Regression for the empty edit-mode dashboard: reloading on a detail
-		// page registered `widgetModule` alone, and the dashboard's old guard
-		// then skipped `dashboardSection` entirely, so the stage resolved zero
-		// sections and force-opened an empty edit-mode canvas.
+		// Regression: reloading on a detail page had registered `widgetModule` alone,
+		// so the old guard skipped `dashboardSection`, force-opening an empty canvas.
 		mockGetEntityConfig.mockImplementation( ( _kind: string, name: string ) =>
 			name === 'widgetModule' ? {} : undefined
 		);

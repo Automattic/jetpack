@@ -41,9 +41,8 @@ function DashboardWidgetChromeFixture( { children }: { children: ReactNode } ) {
 	);
 }
 
-// The widget requests a multi-day window, so the stats query layer summarizes
-// the views into the top-level `summary` bucket rather than per-day `days`
-// buckets.
+// A multi-day window makes the stats query layer summarize into the top-level
+// `summary` bucket rather than per-day `days` buckets.
 const TOP_POSTS_RESPONSE = {
 	date: '2026-06-10',
 	days: {},
@@ -90,9 +89,8 @@ describe( 'TopPostsWidget', () => {
 		expect( titleLink ).not.toHaveAttribute( 'target' );
 		expect( titleLink ).toHaveAttribute( 'title', 'Hello World Post' );
 
-		// A row with a detail page carries no link out to the live post: the
-		// external-link icon marks destinations outside the app, and the detail
-		// page holds that link.
+		// A row with a detail page carries no outbound link: the external-link
+		// icon marks destinations outside the app; the detail page holds that link.
 		expect(
 			screen.queryByRole( 'link', { name: /open hello world post in a new tab/i } )
 		).not.toBeInTheDocument();

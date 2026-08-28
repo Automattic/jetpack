@@ -2,12 +2,8 @@
 /**
  * Dashboard Layout: Premium Analytics server-side defaults.
  *
- * Premium Analytics owns its dashboard, so it ships its own default layout
- * rather than relying on the core dashboard endpoint (which is Gutenberg-only
- * and returns the core dashboard's widgets). The default is served on the
- * `dashboardSection` REST shape and a per-dashboard `default-layout` route; the
- * frontend reads it from the section entity, so there is no server-seeded
- * preference.
+ * Ships its own default layout rather than the core dashboard endpoint (Gutenberg-only, returns
+ * core's widgets); the frontend reads the default from the section entity, so nothing is server-seeded.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -373,9 +369,8 @@ function get_dashboard_default_section_layouts() {
 				1,
 				1
 			),
-			// Row 6: daily views heatmap. Two rows tall, as in the prototype: the
-			// cells are sized from the tile's height, and only at this height do they
-			// grow wide enough to label each day with its view count.
+			// Row 6: daily views heatmap. Two rows tall, as in the prototype: cells are sized
+			// from the tile's height, and only here do they fit each day's view count.
 			get_dashboard_default_widget_instance(
 				'default-traffic-views-activity-widget-instance',
 				'jpa/traffic-views-activity',
@@ -576,9 +571,8 @@ function get_dashboard_default_section_id_for( $dashboard_name ) {
 /**
  * Seeds the bundled default layouts for the Premium Analytics dashboard tabs.
  *
- * Only contributes to the known Premium Analytics dashboard and tab aliases;
- * other dashboards are left untouched so the filter can be reused if more
- * dashboards are added later.
+ * Only contributes to known Premium Analytics dashboard/tab aliases, leaving other dashboards
+ * untouched so the filter stays reusable if more dashboards are added later.
  *
  * @param array  $dashboard_layout Default layout from earlier callbacks.
  * @param string $dashboard_name   Identifier of the dashboard receiving the

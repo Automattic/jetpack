@@ -55,8 +55,7 @@ export function StaleDataNotice( {
 
 	return (
 		// A fixed announcement, not `message`: the ageing label would interrupt a
-		// screen reader every minute, and the default — the children — would
-		// trail the Retry button's label.
+		// screen reader every minute, and the default (children) would trail Retry's label.
 		<Notice.Root
 			intent="warning"
 			className={ className }

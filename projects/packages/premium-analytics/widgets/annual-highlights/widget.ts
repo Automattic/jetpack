@@ -13,28 +13,18 @@ import { getYearElements } from './years';
 import type { YearPresetId } from '@jetpack-premium-analytics/datetime';
 
 /**
- * Configurable attributes for the Annual highlights widget. The widget has no
- * date range — the insights endpoint is not period-scoped, and the year below
- * picks a row out of the single payload it returns.
+ * No date range: the insights endpoint is not period-scoped, and `year` picks a
+ * row out of the single payload it returns.
  */
 export type AnnualHighlightsAttributes = {
-	/**
-	 * Year the widget summarizes, as a year preset ID (e.g. `year-2026`).
-	 * Absent on an instance whose year was never picked.
-	 */
+	/** Year preset ID, e.g. `year-2026`. */
 	year?: YearPresetId;
 };
 
 /**
- * Widget type definition. The widget type keeps the `annual-highlights` name
- * (saved layouts reference it); its display title in widget.json is "Year in
- * review".
- *
- * `year` is the only attribute and carries `relevance: 'high'`, so the host
- * renders its dropdown in the frame header and the widget body holds nothing
- * but the tiles. No `example` year comes with it: the years on offer depend on
- * the site's own data, so a new instance starts on the one the dropdown lists
- * first — the current year.
+ * The type keeps the `annual-highlights` name because saved layouts reference it;
+ * widget.json titles it "Year in review". No `example` year: the years on offer
+ * depend on the site's own data, so a new instance starts on the current year.
  */
 export default {
 	icon: pin,

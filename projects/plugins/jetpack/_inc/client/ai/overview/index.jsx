@@ -289,21 +289,17 @@ export default function AiOverview( {
 			{ !! blogId && ! hostBlocked && userUnlinked && (
 				// The usage endpoint proxies as the current user, so without a
 				// linked account the fetch can only fail — say so instead.
-				<Card.Root>
-					<Card.Content>
-						<Notice.Root intent="warning">
-							<Notice.Title>
-								{ __( 'Your WordPress.com account isn’t connected.', 'jetpack' ) }
-							</Notice.Title>
-							<Notice.Description>
-								{ __( 'Connect your account to see your AI usage.', 'jetpack' ) }{ ' ' }
-								<Link href="admin.php?page=my-jetpack#/connection">
-									{ __( 'Connect account', 'jetpack' ) }
-								</Link>
-							</Notice.Description>
-						</Notice.Root>
-					</Card.Content>
-				</Card.Root>
+				<Notice.Root intent="warning">
+					<Notice.Title>
+						{ __( 'Your WordPress.com account isn’t connected.', 'jetpack' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ __( 'Connect your account to see your AI usage.', 'jetpack' ) }{ ' ' }
+						<Link href="admin.php?page=my-jetpack#/connection">
+							{ __( 'Connect account', 'jetpack' ) }
+						</Link>
+					</Notice.Description>
+				</Notice.Root>
 			) }
 			{ !! blogId && ! hostBlocked && ! userUnlinked && (
 				<UsageCard
@@ -316,21 +312,17 @@ export default function AiOverview( {
 			{ ! blogId && (
 				// Disconnected: skip the fetch (it can only fail) and explain
 				// the actual problem instead of a fetch error.
-				<Card.Root>
-					<Card.Content>
-						<Notice.Root intent="warning">
-							<Notice.Title>
-								{ __( 'Jetpack is not connected to WordPress.com.', 'jetpack' ) }
-							</Notice.Title>
-							<Notice.Description>
-								{ __( 'Connect the site to see your AI usage.', 'jetpack' ) }{ ' ' }
-								<Link href="admin.php?page=my-jetpack#/connection">
-									{ __( 'Connect Jetpack', 'jetpack' ) }
-								</Link>
-							</Notice.Description>
-						</Notice.Root>
-					</Card.Content>
-				</Card.Root>
+				<Notice.Root intent="warning">
+					<Notice.Title>
+						{ __( 'Jetpack is not connected to WordPress.com.', 'jetpack' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ __( 'Connect the site to see your AI usage.', 'jetpack' ) }{ ' ' }
+						<Link href="admin.php?page=my-jetpack#/connection">
+							{ __( 'Connect Jetpack', 'jetpack' ) }
+						</Link>
+					</Notice.Description>
+				</Notice.Root>
 			) }
 
 			{ showActivityLog && activityLogUrl && (

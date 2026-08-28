@@ -12,26 +12,10 @@ type GrowTuple< T extends unknown[], Max extends number > = T[ 'length' ] extend
 	? T
 	: T | GrowTuple< [ ...T, number ], Max >;
 /**
- * Date parts tuple in the same order as the native `Date` constructor:
- * [ year, month, day, hours, minutes, seconds, milliseconds ]
+ * Date parts in the same order as the native `Date` constructor, from
+ * `[ year, month ]` up to milliseconds.
  *
- * Positions:
- * - year: full year, e.g. 2025
- * - month: month index 0–11 (0=January, 11=December)
- * - day: day of month 1–31 (default 1 if omitted)
- * - hours: 0–23 (default 0)
- * - minutes: 0–59 (default 0)
- * - seconds: 0–59 (default 0)
- * - milliseconds: 0–999 (default 0)
- *
- * Rules:
- * - Valid lengths: 2 to 7 elements (must always start with [year, month]).
- * - Do not skip intermediate positions: contiguous prefixes only (trimmed at the first `undefined`).
- * - Time zone is applied when creating the date (see `createTZDateFromParts`).
- *
- * Examples:
- * - [ 2025, 0 ] → 2025-01-01T00:00:00.000 (January is 0)
- * - [ 2025, 6, 15, 14, 30 ] → 2025-07-15T14:30:00.000
+ * Contiguous prefixes only — the tuple is trimmed at the first `undefined`.
  */
 type DateParts = GrowTuple< [ number, number ], 7 >;
 
@@ -42,11 +26,8 @@ const MINUTE_IN_MS = 60 * 1000;
  * Resolve wall-clock parts to the instant they name in a timezone.
  *
  * `TZDateMini`'s own parts constructor seeds its offset guess from the machine
- * timezone, so wall times a DST transition skips or repeats resolve to
- * different instants depending on the host — in production, the visitor's
- * browser. This resolves them deterministically instead: a wall time a
- * fall-back transition names twice takes its first occurrence, and one a
- * spring-forward gap skips normalizes forward by the gap's length.
+ * timezone, so DST-ambiguous wall times resolve differently per host. This
+ * resolves them deterministically instead.
  *
  * @param parts    - Wall-clock parts, `[ year, month, ...rest ]` as `Date.UTC` reads them.
  * @param timeZone - The timezone the wall time belongs to.
@@ -76,9 +57,8 @@ function wallPartsToTimestamp( parts: number[], timeZone: string ): number {
 		return Math.min( ...candidates );
 	}
 
-	// No survivor means a spring-forward gap skips the wall time. Anchoring
-	// with the pre-gap offset lands just past the transition, normalizing the
-	// wall time forward by the gap's length.
+	// No survivor means a spring-forward gap skips the wall time; the pre-gap
+	// offset normalizes it forward past the transition.
 	return wallAsUTC - before * MINUTE_IN_MS;
 }
 
@@ -120,9 +100,8 @@ export function createTZDateFromParts(
 function wallTimeToTZDate( parts: TimestampParts, timeZone: string ): TZDate {
 	const date = createTZDateFromParts( parts, timeZone );
 
-	// A zone that skips a whole day, as Pacific/Apia did on 2011-12-30, moves
-	// the wall time onto the next one. Compare only the date parts, so a wall
-	// time normalized by a DST jump stays valid.
+	// A zone that skips a whole day (Pacific/Apia, 2011-12-30) moves the wall time
+	// onto the next one; comparing date parts keeps a DST-normalized time valid.
 	const survivedRoundTrip =
 		date.getFullYear() === parts[ 0 ] &&
 		date.getMonth() === parts[ 1 ] &&
@@ -147,10 +126,8 @@ export function toLocalTZ( value?: number | string | Date, timeZone?: string ): 
 	if ( typeof value === 'string' ) {
 		const timestamp = readSiteTimestamp( value );
 
-		// A shape this package does not read reaches `Date` otherwise, which
-		// resolves an offset-less string in the *browser's* zone — the shift this
-		// module avoids — and leaves `parseSiteDateTime` rejecting a value this
-		// accepts.
+		// Otherwise an unrecognized shape reaches `Date`, which resolves an
+		// offset-less string in the browser's zone — the shift this module avoids.
 		if ( ! timestamp?.isValid ) {
 			return new TZDateMini( NaN, tzid );
 		}
