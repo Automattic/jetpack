@@ -1,8 +1,12 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import {
+	getDefaultQueryParams,
+	needsReportDateParamsSeed,
+	queryClient,
+} from '@jetpack-premium-analytics/data';
+import { act, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -138,7 +142,8 @@ describe( 'PopularPostWidget', () => {
 		// tick, before a request the rerender triggered could be seen.
 		rerender( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2023 ) } } /> );
 
-		await waitFor( () => expect( mockApiFetch ).not.toHaveBeenCalledTimes( 0 ) );
+		// Let anything the rerender queued actually run, so the count below is a
+		// settled one rather than a first-tick reading.
 		await act( async () => {
 			await Promise.resolve();
 		} );
@@ -166,5 +171,29 @@ describe( 'PopularPostWidget', () => {
 		expect( search.get( 'preset' ) ).toBe( 'last-12-months' );
 		expect( search.get( 'from' ) ).toContain( '2025-08-27T00:00:00' );
 		expect( search.get( 'to' ) ).toContain( '2026-08-26T23:59:59' );
+
+		// A window the detail route accepts as-is. An incomplete one sends it
+		// through the seed redirect, which rebuilds the search from an allow-list
+		// and drops the post URL the link carries.
+		expect(
+			needsReportDateParamsSeed( {
+				from: search.get( 'from' ) ?? undefined,
+				to: search.get( 'to' ) ?? undefined,
+				interval: search.get( 'interval' ) ?? undefined,
+				preset: search.get( 'preset' ) as 'last-12-months',
+			} )
+		).toBe( false );
+	} );
+
+	it( 'renders on a saved instance that carries no report params', async () => {
+		// The widget rules allow `attributes` to arrive empty, and nothing here
+		// reads the host's range, so an instance saved before this card pinned its
+		// window still has everything it needs.
+		render( <PopularPostWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( 'Winning post' ) ).resolves.toBeInTheDocument();
+
+		const [ ranking ] = topPostsRequests().map( decodeURIComponent );
+		expect( ranking ).toContain( 'start_date=2025-08-27T00:00:00' );
 	} );
 } );

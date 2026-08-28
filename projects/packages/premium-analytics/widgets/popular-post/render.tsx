@@ -89,10 +89,9 @@ function PopularPostReport() {
 
 			     Hence not `useWidgetNavigationSearch()`, which exists to carry the host's
 			     window: a widget cannot hand it one of its own. The trade-off is the round
-			     trip — the detail breadcrumb carries this window back, and a year surface
-			     such as Insights resolves a rolling preset to all time, so returning that
-			     way does not restore the year the reader left. The old link was lossy the
-			     same way in reverse, and no param carries the origin window today. */ }
+			     trip — a year surface such as Insights resolves a rolling preset to all
+			     time, so the detail breadcrumb back does not restore the year the reader
+			     left. No param carries the origin window today. */ }
 			{ post && (
 				<PostHighlightCard
 					title={ post.title }

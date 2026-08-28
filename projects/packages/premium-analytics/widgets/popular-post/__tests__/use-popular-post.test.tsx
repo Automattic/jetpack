@@ -330,6 +330,7 @@ describe( 'usePopularPost', () => {
 						preset: 'last-30-days',
 						from: '2026-07-28T00:00:00.000+00:00',
 						to: '2026-08-26T23:59:59.999+00:00',
+						interval: 'day',
 					} ),
 				{ wrapper }
 			);
@@ -345,6 +346,30 @@ describe( 'usePopularPost', () => {
 			expect( result.current.range.preset ).toBe( 'last-30-days' );
 		} );
 
+		it( 'accepts a custom range, which carries no preset', async () => {
+			mockEndpoints();
+
+			// The shape a date control produces once the reader picks their own
+			// dates: `normalizeReportParams` leaves the preset undefined there, so a
+			// range type that demanded one could not express it.
+			const { result } = renderHook(
+				() =>
+					usePopularPost( {
+						from: '2026-03-01T00:00:00.000+00:00',
+						to: '2026-03-31T23:59:59.999+00:00',
+						interval: 'day',
+					} ),
+				{ wrapper }
+			);
+
+			await waitFor( () => expect( result.current.post?.id ).toBe( 7 ) );
+
+			expect( decodeURIComponent( topPostsRequestPaths()[ 0 ] ) ).toContain(
+				'start_date=2026-03-01T00:00:00'
+			);
+			expect( result.current.range.preset ).toBeUndefined();
+		} );
+
 		it( 'reports the window it ranked over, for the card to link on', async () => {
 			mockEndpoints();
 
@@ -358,6 +383,9 @@ describe( 'usePopularPost', () => {
 			expect( result.current.range.preset ).toBe( 'last-12-months' );
 			expect( result.current.range.from ).toContain( '2025-08-27T00:00:00' );
 			expect( result.current.range.to ).toContain( '2026-08-26T23:59:59' );
+			// Whatever the detail page would have resolved for this window, so its
+			// route has no incomplete window to seed.
+			expect( result.current.range.interval ).toBe( 'month' );
 		} );
 	} );
 

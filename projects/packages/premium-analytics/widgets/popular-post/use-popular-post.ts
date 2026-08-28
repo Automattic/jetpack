@@ -6,9 +6,10 @@ import {
 	postContentQuery,
 	useStatsPost,
 	useStatsQuery,
+	resolveIntervalForRange,
 	useStatsTopPosts,
 	type LatestPostResponse,
-	type ReportPresetId,
+	type ReportParams,
 } from '@jetpack-premium-analytics/data';
 import { PRESET_LAST_12_MONTHS } from '@jetpack-premium-analytics/datetime';
 import { useMemo } from 'react';
@@ -41,18 +42,16 @@ export type PopularPostWithMetrics = {
 };
 
 /**
- * A ranking window, as report date params. The preset travels with the dates
- * because the detail page recomputes the range from it on arrival.
+ * A ranking window, as the shared report date params — the same fields a date
+ * control produces, so one can be handed straight to the hook. `preset` is
+ * optional for the same reason it is on `ReportParams`: a custom range has
+ * none, and the detail page's own params carry only the dates in that case.
  */
-export type PopularPostRange = {
-	preset: ReportPresetId;
-	from: string;
-	to: string;
-};
+export type PopularPostRange = Pick< ReportParams, 'from' | 'to' | 'preset' | 'interval' >;
 
 // The window the card ranks over while it carries no date control of its own.
 // Named rather than inlined so giving it one later is a change of caller.
-export const POPULAR_POST_DEFAULT_PRESET = PRESET_LAST_12_MONTHS;
+const POPULAR_POST_DEFAULT_PRESET = PRESET_LAST_12_MONTHS;
 
 /**
  * Resolved per call rather than once, so the window is never older than the
@@ -63,12 +62,21 @@ export const POPULAR_POST_DEFAULT_PRESET = PRESET_LAST_12_MONTHS;
  * stopped resolving.
  */
 function resolveDefaultRange(): PopularPostRange {
-	const range = computeDateRangeFromPreset( POPULAR_POST_DEFAULT_PRESET ) ?? {
+	const { from, to } = computeDateRangeFromPreset( POPULAR_POST_DEFAULT_PRESET ) ?? {
 		from: '',
 		to: '',
 	};
 
-	return { preset: POPULAR_POST_DEFAULT_PRESET, ...range };
+	return {
+		preset: POPULAR_POST_DEFAULT_PRESET,
+		from,
+		to,
+		// The interval the detail page resolves for this window anyway. Carrying it
+		// is what keeps the card's link off the post-detail seed redirect, which
+		// fires on any incomplete date window and rebuilds the search from an
+		// allow-list that drops the post URL the link travels with.
+		interval: resolveIntervalForRange( POPULAR_POST_DEFAULT_PRESET, from, to ),
+	};
 }
 
 export type UsePopularPostResult = {
@@ -105,17 +113,20 @@ export type UsePopularPostResult = {
 export function usePopularPost( range?: PopularPostRange ): UsePopularPostResult {
 	// Down to primitives first, so a caller building the object inline does not
 	// re-key the report query on every render.
-	const { preset, from, to } = range ?? resolveDefaultRange();
+	const { preset, from, to, interval } = range ?? resolveDefaultRange();
 
-	const activeRange = useMemo( () => ( { preset, from, to } ), [ preset, from, to ] );
+	const activeRange = useMemo(
+		() => ( { preset, from, to, interval } ),
+		[ preset, from, to, interval ]
+	);
 
-	// `interval` never reaches the request — it is not in the stats param
-	// allow-list, and the query layer buckets a summarized window by day unless a
-	// `period` is forced. It is here because `ReportParams` requires it, and
-	// `day` is the value that matches what the report actually does.
+	// `interval` rides along because the params type requires it; it describes the
+	// destination's chart, not this request. It cannot reach the API either way —
+	// it is absent from the stats param allow-list, and the query layer buckets a
+	// summarized window by day unless a `period` is forced.
 	const statsParams = useMemo(
-		() => ( { from, to, interval: 'day' as const, max: POPULAR_POST_REQUEST_MAX } ),
-		[ from, to ]
+		() => ( { from, to, interval, max: POPULAR_POST_REQUEST_MAX } ),
+		[ from, to, interval ]
 	);
 
 	// Ranking, post-type filtering, and the single-row cap all live in the data
