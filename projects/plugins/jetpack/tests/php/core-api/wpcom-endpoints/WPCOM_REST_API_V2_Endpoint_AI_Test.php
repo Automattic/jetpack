@@ -200,6 +200,42 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 		$this->assertSame( $credit_response, $response->get_data() );
 	}
 
+	/**
+	 * The local endpoint preserves an authoritative zero-credit response.
+	 */
+	public function test_ai_assistance_feature_route_returns_zero_cost_credit_contract() {
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+		Jetpack_Options::update_option( 'id', self::BLOG_ID );
+
+		$credit_response = array(
+			'ai-credit-allowance' => array(
+				'schema-version'    => 1,
+				'metering-model'    => 'provider-cost-v1',
+				'policy'            => 'jetpack-ai-self-hosted-monthly-v1',
+				'plan-kind'         => 'free',
+				'authoritative'     => true,
+				'credit-limit'      => 0,
+				'credits-used'      => 0,
+				'credits-remaining' => 0,
+				'period-start'      => '2026-08-01T00:00:00+00:00',
+				'resets-at'         => '2026-09-01T00:00:00+00:00',
+				'rollover'          => false,
+				'is-exhausted'      => true,
+			),
+		);
+		set_transient(
+			Jetpack_AI_Helper::transient_name_for_ai_assistance_feature( self::BLOG_ID ),
+			$credit_response,
+			MINUTE_IN_SECONDS
+		);
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', self::BASIC_ROUTE ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( $credit_response, $response->get_data() );
+	}
+
 	public function test_gated_routes_stay_unregistered_when_ai_disabled() {
 		/*
 		 * Force the gate off so the result is independent of the host — on

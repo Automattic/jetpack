@@ -518,7 +518,7 @@ class Jetpack_AI_Helper {
 		$period_start       = strtotime( $allowance['period-start'] );
 		$resets_at          = strtotime( $allowance['resets-at'] );
 
-		return $allowance['credit-limit'] > 0
+		return $allowance['credit-limit'] >= 0
 			&& $allowance['credits-used'] >= 0
 			&& $expected_remaining === $allowance['credits-remaining']
 			&& ( 0 === $allowance['credits-remaining'] ) === $allowance['is-exhausted']

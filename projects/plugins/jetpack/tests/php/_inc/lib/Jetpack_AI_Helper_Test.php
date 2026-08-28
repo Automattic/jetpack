@@ -100,6 +100,46 @@ class Jetpack_AI_Helper_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * An authoritative exhausted free allowance may have a zero credit limit.
+	 */
+	public function test_get_ai_assistance_feature_accepts_zero_credit_allowance() {
+		$response = $this->get_credit_allowance_response(
+			array(
+				'credit-limit'      => 0,
+				'credits-used'      => 0,
+				'credits-remaining' => 0,
+				'is-exhausted'      => true,
+			)
+		);
+		$this->mock_wpcom_response( $response );
+
+		$this->assertSame( $response, Jetpack_AI_Helper::get_ai_assistance_feature() );
+		$this->assertSame( $response, get_transient( $this->get_transient_name() ) );
+		$this->assertSame( 1, $this->request_count );
+	}
+
+	/**
+	 * Credit limits cannot be negative.
+	 */
+	public function test_get_ai_assistance_feature_rejects_negative_credit_limit() {
+		$response = $this->get_credit_allowance_response(
+			array(
+				'credit-limit'      => -1,
+				'credits-used'      => 0,
+				'credits-remaining' => 0,
+				'is-exhausted'      => true,
+			)
+		);
+		$this->mock_wpcom_response( $response );
+
+		$result = Jetpack_AI_Helper::get_ai_assistance_feature();
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'invalid_ai_assistance_feature_response', $result->get_error_code() );
+		$this->assertSame( 1, $this->request_count );
+	}
+
+	/**
 	 * Malformed cached data is ignored in favor of a fresh usable response.
 	 */
 	public function test_get_ai_assistance_feature_ignores_malformed_cache() {
