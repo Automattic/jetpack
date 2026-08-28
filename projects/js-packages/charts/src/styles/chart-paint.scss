@@ -16,12 +16,22 @@
 		stroke: var(--a8c-charts-color-grid);
 	}
 
-	// No rule for --a8c-charts-color-axis or --a8c-charts-color-tick. visx gives
-	// both axes the same `.visx-axis-line` and `.visx-axis-tick` classes, so a
-	// rule here also strokes the y axis, which is deliberately unstroked — it
-	// gains an axis line and a full set of tick marks. The `xAxisLineStyles` and
-	// `xTickLineStyles` theme fields are x-axis-only, so those two roles stay on
-	// the JS path until the x axis carries a class of its own.
+	// Scoped to the x axis, never to `.visx-axis-line` / `.visx-axis-tick` alone.
+	// visx gives both axes those same classes with nothing to tell them apart,
+	// and the y axis draws its line and every tick mark unstroked on purpose, so
+	// an unscoped rule gives it an axis line and a column of ticks that no chart
+	// has ever had. The theme fields these replace are x-axis-only, which is why
+	// the charts tag their x axis with `X_AXIS_CLASS`.
+	.a8c-charts-axis-x {
+
+		.visx-axis-line {
+			stroke: var(--a8c-charts-color-axis);
+		}
+
+		.visx-axis-tick line {
+			stroke: var(--a8c-charts-color-tick);
+		}
+	}
 
 	// The narrow label role: `svgLabelSmall.fill` moves only these, while the
 	// broad --a8c-charts-color-label it derives from moves every label at once.

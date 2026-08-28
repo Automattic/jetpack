@@ -35,19 +35,18 @@ export const useXYChartTheme = ( data: SeriesData[] ) => {
 			...theme,
 			colors: paletteColors,
 			backgroundColor: resolveColor( theme.backgroundColor ),
-			// `chart-paint.scss` paints the grid and the tick labels, so their colors must not reach `buildChartTheme`: a value here becomes an inline style on the grid, which beats the stylesheet outright, and a presentation attribute on the labels, which freezes the color. Dropping them is what lets CSS own the roles.
+			// `chart-paint.scss` paints these four, so their colors must not reach `buildChartTheme`: a value here becomes an inline style on the grid, which beats the stylesheet outright, and a presentation attribute elsewhere, which freezes the color. Dropping them is what lets CSS own the roles.
 			gridStyles: theme.gridStyles && {
 				...theme.gridStyles,
 				stroke: undefined,
 			},
-			// The axis line and tick lines stay on the JS path. Both fields are x-axis-only by definition, and visx gives the two axes the same `.visx-axis-line` / `.visx-axis-tick` classes with no direction of their own, so a stylesheet rule reaches the y axis as well — where these are deliberately unstroked, and a rule paints an axis line and a full set of tick marks that were never there. Moving them needs an x-axis-only hook on the element first.
 			xAxisLineStyles: theme.xAxisLineStyles && {
 				...theme.xAxisLineStyles,
-				stroke: resolveColor( theme.xAxisLineStyles.stroke ),
+				stroke: undefined,
 			},
 			xTickLineStyles: theme.xTickLineStyles && {
 				...theme.xTickLineStyles,
-				stroke: resolveColor( theme.xTickLineStyles.stroke ),
+				stroke: undefined,
 			},
 			svgLabelSmall: theme.svgLabelSmall && {
 				...theme.svgLabelSmall,

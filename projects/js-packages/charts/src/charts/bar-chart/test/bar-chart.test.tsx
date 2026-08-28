@@ -2,6 +2,7 @@ import { render, renderHook, screen, within, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
+import { X_AXIS_CLASS } from '../../../styles/chart-scope-class';
 import BarChart, { BarChartUnresponsive } from '../bar-chart';
 import { useBarChartOptions } from '../private';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
@@ -267,6 +268,27 @@ describe( 'BarChart', () => {
 			rerender();
 
 			expect( result.current ).toBe( first );
+		} );
+
+		// `chart-paint.scss` paints the axis line and tick marks through this class, and only the x axis may carry it: the y axis draws both unstroked, so tagging it would give every chart a y axis line and a column of tick marks. visx themes the x axis line in either orientation, so the class does not follow the dates when the chart is horizontal.
+		test.each( [
+			[ 'vertical', false ],
+			[ 'horizontal', true ],
+		] )( 'tags only the x axis for painting when %s', ( _label, horizontal ) => {
+			const { result } = renderHook( () =>
+				useBarChartOptions( stableData, horizontal as boolean )
+			);
+
+			expect( result.current.axis.x.axisClassName ).toBe( X_AXIS_CLASS );
+			expect( result.current.axis.y ).not.toHaveProperty( 'axisClassName' );
+		} );
+
+		test( 'keeps the paint class when a caller passes their own x axis options', () => {
+			const { result } = renderHook( () =>
+				useBarChartOptions( stableData, false, { axis: { x: { numTicks: 6 } } } )
+			);
+
+			expect( result.current.axis.x.axisClassName ).toBe( X_AXIS_CLASS );
 		} );
 	} );
 

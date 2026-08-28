@@ -343,8 +343,15 @@ export type ChartTheme = {
 	 * @deprecated Set the `--a8c-charts-color-series-1` … `-5` custom properties inside the provider tree instead, or `options.stroke` on a series for a single one. See `TOKENS.md`. Removed in CHARTS-227.
 	 */
 	colors?: string[];
-	/** Optional CSS styles for grid lines */
-	gridStyles?: GridStyles;
+	/**
+	 * Optional CSS styles for grid lines.
+	 *
+	 * `stroke` is deprecated on its own, not the whole field: `strokeWidth` has no CSS role behind it and still applies. The same shape is used for the other fields whose color moved to CSS — annotating the field itself would strike through the half that stays.
+	 */
+	gridStyles?: Omit< GridStyles, 'stroke' > & {
+		/** @deprecated Set the `--a8c-charts-color-grid` custom property inside the provider tree instead. See `TOKENS.md`. Removed in CHARTS-263. */
+		stroke?: GridStyles[ 'stroke' ];
+	};
 	/** Length of axis ticks in pixels */
 	tickLength: number;
 	/** Color of the grid lines */
@@ -352,9 +359,15 @@ export type ChartTheme = {
 	/** Color of the grid lines in dark mode */
 	gridColorDark: string;
 	/** Styles for x-axis tick lines */
-	xTickLineStyles?: LineStyles;
+	xTickLineStyles?: Omit< LineStyles, 'stroke' > & {
+		/** @deprecated Set the `--a8c-charts-color-tick` custom property inside the provider tree instead. See `TOKENS.md`. Removed in CHARTS-263. */
+		stroke?: LineStyles[ 'stroke' ];
+	};
 	/** Styles for x-axis line */
-	xAxisLineStyles?: LineStyles;
+	xAxisLineStyles?: Omit< LineStyles, 'stroke' > & {
+		/** @deprecated Set the `--a8c-charts-color-axis` custom property inside the provider tree instead. See `TOKENS.md`. Removed in CHARTS-263. */
+		stroke?: LineStyles[ 'stroke' ];
+	};
 	/** Styles for series lines */
 	seriesLineStyles?: LineStyles[];
 	/** Array of render functions for glyphs */
@@ -368,8 +381,15 @@ export type ChartTheme = {
 		/** Styles for legend container */
 		containerStyles?: CSSProperties;
 	};
-	/** Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme. */
-	svgLabelSmall?: TextProps;
+	/**
+	 * Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme.
+	 *
+	 * `fontFamily: 'inherit'` is load-bearing here — it overrides the font stack `buildChartTheme` injects inline on SVG `<text>` — so only `fill` is deprecated.
+	 */
+	svgLabelSmall?: Omit< TextProps, 'fill' > & {
+		/** @deprecated Set the `--a8c-charts-color-label-axis` custom property inside the provider tree instead, or `--a8c-charts-color-label` to move every label at once. See `TOKENS.md`. Removed in CHARTS-263. */
+		fill?: TextProps[ 'fill' ];
+	};
 	/** Styles for large SVG text (eg. axis titles), passed through to the XYChart theme. */
 	svgLabelBig?: TextProps;
 	annotationStyles?: AnnotationStyles;
