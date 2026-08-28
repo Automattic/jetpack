@@ -1,35 +1,48 @@
 /**
  * External dependencies
  */
-import { resolveIntervalForRange, type ReportParams } from '@jetpack-premium-analytics/data';
-import { PRESET_ALL_TIME, computePrimaryRange } from '@jetpack-premium-analytics/datetime';
+import { type ReportParams } from '@jetpack-premium-analytics/data';
+import {
+	PRESET_ALL_TIME,
+	computePrimaryRange,
+	endOfDayTZ,
+} from '@jetpack-premium-analytics/datetime';
 import { encodeDateToSearchParam } from '@jetpack-premium-analytics/routing';
-/**
- * WordPress dependencies
- */
 import { useMemo } from '@wordpress/element';
+import { addDays } from 'date-fns';
+
+/**
+ * How many days after the send the email tabs' timeline covers, the send day
+ * included. Matches the per-post email timeline endpoint's cap of 30 daily
+ * buckets per request, and the window the legacy Stats email page shows.
+ */
+export const EMAIL_SEND_WINDOW_DAYS = 30;
 
 /**
  * The window the email tabs report over, and the report params that carry it
  * to their widgets.
  */
 export type EmailTabScope = {
-	/** The send's lifetime: the publish day through today. */
+	/** The send window: the publish day through day 30, or today if sooner. */
 	range: { from: Date; to: Date };
 	/** The same window as widget report params, replacing the URL's. */
 	reportParams: ReportParams;
 };
 
 /**
- * Pin the email tabs to the send's lifetime.
+ * Pin the email tabs to the first 30 days after the send.
  *
- * An email goes out once and collects nearly all of its opens within a day or
- * two, so the page's rolling presets ("last 7 days") would show a send from
- * months ago as an empty tail. The email tabs therefore report over the
- * all-time window instead — the same span the Post traffic tab's All time pill
- * resolves — and hand it to their widgets as report params, which `WidgetRoot`
- * reads in place of the URL. The URL keeps the Post traffic tab's selection
- * untouched for when the reader tabs back.
+ * An email goes out once and collects nearly all of its opens within the
+ * first days, so the page's rolling presets ("last 7 days") would show a send
+ * from months ago as an empty tail. The email tabs therefore report over a
+ * window anchored at the publish day — `EMAIL_SEND_WINDOW_DAYS` long, or
+ * through today for a younger send — and hand it to their widgets as report
+ * params, which `WidgetRoot` reads in place of the URL. The URL keeps the
+ * Post traffic tab's selection untouched for when the reader tabs back.
+ *
+ * The window is bounded rather than the send's whole lifetime because the
+ * timeline endpoint returns at most 30 daily buckets per request; the counts,
+ * rates and breakdowns on the same tabs are all-time regardless.
  *
  * Undefined until the publish date is known: the timeline query needs a start
  * date, so the widgets wait rather than draw the URL's window first.
@@ -49,11 +62,22 @@ export function useEmailTabScope(
 			return undefined;
 		}
 
-		const range = computePrimaryRange( PRESET_ALL_TIME, timeZone, { startDate: allTimeStart } );
-		const from = encodeDateToSearchParam( range?.from, timeZone );
-		const to = encodeDateToSearchParam( range?.to, timeZone );
+		// The all-time range runs from the publish day through today; the
+		// window keeps its start and caps its end.
+		const lifetime = computePrimaryRange( PRESET_ALL_TIME, timeZone, { startDate: allTimeStart } );
+		if ( ! lifetime ) {
+			return undefined;
+		}
 
-		if ( ! range || ! from || ! to ) {
+		const windowEnd = endOfDayTZ( addDays( lifetime.from, EMAIL_SEND_WINDOW_DAYS - 1 ), timeZone );
+		const range = {
+			from: lifetime.from,
+			to: windowEnd < lifetime.to ? windowEnd : lifetime.to,
+		};
+		const from = encodeDateToSearchParam( range.from, timeZone );
+		const to = encodeDateToSearchParam( range.to, timeZone );
+
+		if ( ! from || ! to ) {
 			return undefined;
 		}
 
@@ -61,10 +85,11 @@ export function useEmailTabScope(
 			range,
 			reportParams: {
 				post_id: postId,
-				preset: PRESET_ALL_TIME,
 				from,
 				to,
-				interval: resolveIntervalForRange( PRESET_ALL_TIME, from, to ),
+				// One bucket per day: the window is at most 30 days, and the
+				// endpoint only offers hourly or daily buckets.
+				interval: 'day',
 			},
 		};
 	}, [ postId, allTimeStart, timeZone ] );

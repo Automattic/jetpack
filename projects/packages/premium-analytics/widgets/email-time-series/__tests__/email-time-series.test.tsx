@@ -85,7 +85,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		);
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-metric-label', 'Total opens' );
+		expect( chart ).toHaveAttribute( 'data-metric-label', 'Opens' );
 		expect( chart ).toHaveAttribute( 'data-values', '10,5,7' );
 		// The metric headline is the window total, and the chart type
 		// defaults to line.
@@ -150,7 +150,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		);
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-metric-label', 'Total clicks' );
+		expect( chart ).toHaveAttribute( 'data-metric-label', 'Clicks' );
 		expect( chart ).toHaveAttribute( 'data-values', '3' );
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;

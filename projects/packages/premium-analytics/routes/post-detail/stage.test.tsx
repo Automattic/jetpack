@@ -147,13 +147,12 @@ let mockActiveTab = 'traffic';
 
 // The pinned email scope the stage hands to the tabs hook and the header.
 const mockEmailScope = {
-	range: { from: new Date( '2026-06-22T00:00:00Z' ), to: new Date( '2026-08-28T23:59:59Z' ) },
+	range: { from: new Date( '2026-06-22T00:00:00Z' ), to: new Date( '2026-07-21T23:59:59Z' ) },
 	reportParams: {
 		post_id: 41,
-		preset: 'all-time',
 		from: '2026-06-22',
-		to: '2026-08-28',
-		interval: 'week',
+		to: '2026-07-21',
+		interval: 'day',
 	},
 };
 
@@ -218,7 +217,7 @@ describe( 'post detail stage', () => {
 		expect( screen.getByText( 'Date filters' ) ).toBeInTheDocument();
 	} );
 
-	it( 'hides the date filter on the email tabs and pins them to the send lifetime', () => {
+	it( 'hides the date filter on the email tabs and pins them to the send window', () => {
 		mockActiveTab = 'email-opens';
 		mockSummary();
 

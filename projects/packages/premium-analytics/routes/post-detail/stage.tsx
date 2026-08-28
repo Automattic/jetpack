@@ -120,6 +120,7 @@ function PostDetail(): JSX.Element {
 						...base,
 						name: variant.name,
 						title: variant.getTitle(),
+						...( variant.getHelp ? { help: variant.getHelp() } : {} ),
 						...( variant.icon ? { icon: variant.icon } : {} ),
 				  } ) )
 				: [];
