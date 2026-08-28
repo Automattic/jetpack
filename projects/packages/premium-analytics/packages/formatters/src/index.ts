@@ -1,6 +1,7 @@
 export {
 	formatDate,
 	formatHourOfDay,
+	formatMondayFirstWeekday,
 	formatWeekday,
 	formatDateRange,
 	formatDateRangeCompact,

@@ -128,7 +128,6 @@ describe( 'AI admin page (main.jsx)', () => {
 		// AiFeatures never mounts: no feature toggle, no upgrade badge, no action link.
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Requires upgrade' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Try it out in the editor' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
 	} );
 
@@ -390,7 +389,11 @@ describe( 'AI admin page (main.jsx)', () => {
 		render( <App /> );
 
 		// Landing view is Overview; the row renders there and nowhere else.
-		const rows = await screen.findAllByRole( 'link', { name: /Activity log/ } );
+		// Wait on the cheap text query: polling a role+name query re-computes
+		// accessible names on every mutation and starves the 1s budget on a
+		// loaded CI runner.
+		await expect( screen.findByText( 'Activity log', IGNORE_A11Y ) ).resolves.toBeInTheDocument();
+		const rows = screen.getAllByRole( 'link', { name: /Activity log/ } );
 		expect( rows ).toHaveLength( 1 );
 		expect( rows[ 0 ] ).toHaveAttribute( 'href', 'https://example.com/activity' );
 

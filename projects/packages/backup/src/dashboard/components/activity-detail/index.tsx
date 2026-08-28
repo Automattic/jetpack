@@ -20,7 +20,7 @@ export default function ActivityDetail( { item }: Props ) {
 		<Card.Root className="jpb-activity-detail">
 			<Card.Content>
 				<Stack direction="column" gap="sm">
-					<Text variant="heading-md" render={ <h3 /> }>
+					<Text variant="heading-md" render={ <h2 /> }>
 						{ item.title }
 					</Text>
 					<Text variant="body-sm" className="jpb-text-muted">

@@ -7,15 +7,9 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 export const SUBPIXEL_TOLERANCE = 0.5;
 
 /**
- * Counts how many leading roster rows fit inside the roster.
- *
- * Measures the DOM because row height depends on the rendered styles.
- *
- * Measurement is taken against the roster root, not the list box: the "N more"
- * footer only exists once a row is hidden, so measuring the list would let the
- * result shrink the box it was measured from. That box is then bistable — a
- * tile that shrank and grew back would keep the footer and settle one row short
- * of where it started.
+ * Counts how many leading roster rows fit, measured against the roster root
+ * rather than the list box — the footer shrinks the list once a row hides, so
+ * measuring the list would make the box bistable and settle one row short.
  *
  * @param enabled      - Whether to measure at all. When false every row fits.
  * @param rowCount     - Total number of rows rendered.
@@ -54,9 +48,8 @@ export function useFittedRosterRows( enabled: boolean, rowCount: number, hasExtr
 
 		const rootBottom = rootRect.bottom + SUBPIXEL_TOLERANCE;
 
-		// Every row fits with no footer to make room for, so the roster keeps the
-		// full height. Deciding this against the root — never the list — is what
-		// lets the footer disappear again when the tile grows back.
+		// No footer needed here, so keep full height — checked against the root,
+		// not the list, so the footer can disappear again once the tile grows back.
 		const fits =
 			! hasExtraRows && countFittingAbove( rootBottom ) === rows.length
 				? rows.length
@@ -65,10 +58,8 @@ export function useFittedRosterRows( enabled: boolean, rowCount: number, hasExtr
 		setFittedCount( current => ( current === fits ? current : fits ) );
 	}, [ rowCount, hasExtraRows ] );
 
-	// `fittedCount` is a dependency because mounting the footer changes the room
-	// left for rows without resizing the root, so the observer never sees it.
-	// This settles: the footer's height is the only geometry the fit feeds back
-	// into, and the no-footer branch above is measured independently of it.
+	// `fittedCount` is a dependency: mounting the footer changes room without
+	// resizing the root, and settles because that's the only geometry fed back.
 	useLayoutEffect( () => {
 		if ( ! enabled ) {
 			setFittedCount( rowCount );

@@ -48,9 +48,8 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-// An explicit window covering the fixture buckets below: the data layer trims
-// buckets to the requested window, so a default (today-relative) preset would
-// trim these fixed July dates away.
+// The data layer trims buckets to the requested window, so a default
+// (today-relative) preset would trim these fixed July dates away.
 const JULY_WEEK_PARAMS = {
 	...getDefaultQueryParams( false ),
 	preset: undefined,
@@ -58,10 +57,9 @@ const JULY_WEEK_PARAMS = {
 	to: '2026-07-07T23:59:59.999+08:00',
 };
 
-// Raw WPCOM email timeline shape (`stats_fields=timeline`): a matrix nested
-// under `timeline`, one daily row per bucket. 2026-07-04/05 fall in one ISO
-// week (Mon 2026-06-29) and 2026-07-06 opens the next, so weekly grouping
-// collapses the three rows into two buckets (15 and 7).
+// Raw WPCOM `stats_fields=timeline` shape. 2026-07-04/05 fall in one ISO week
+// and 2026-07-06 opens the next, so weekly grouping collapses the three rows
+// into two buckets (15 and 7).
 const OPENS_TIMELINE_RESPONSE = {
 	timeline: {
 		unit: 'day',
@@ -97,8 +95,6 @@ describe( 'EmailTimeSeriesWidget', () => {
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chart ).toHaveAttribute( 'data-metric-label', 'Total opens' );
 		expect( chart ).toHaveAttribute( 'data-values', '10,5,7' );
-		// The metric headline is the window total, and the chart type
-		// defaults to line.
 		expect( chart ).toHaveAttribute( 'data-metric-total', '22' );
 		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
 
@@ -168,10 +164,9 @@ describe( 'EmailTimeSeriesWidget', () => {
 	} );
 
 	it( 'draws exactly the selected hourly window from a midnight-anchored payload', async () => {
-		// The endpoint anchors hourly buckets on the start day's midnight and
-		// returns `quantity` buckets forward, so a last-24-hours window (09:00
-		// → 08:59 next day) is served as 33 buckets from hour 0. The widget
-		// must chart and sum only the 24 in-window hours.
+		// The endpoint anchors hourly buckets on the start day's midnight and returns
+		// `quantity` buckets forward, so a last-24-hours window arrives as 33 buckets
+		// from hour 0 and the widget must chart only the 24 in-window ones.
 		mockApiFetch.mockResolvedValue( {
 			timeline: {
 				unit: 'hour',
@@ -226,10 +221,9 @@ describe( 'EmailTimeSeriesWidget', () => {
 						preset: undefined,
 						from: '2026-07-01T00:00:00.000+08:00',
 						to: '2026-07-07T23:59:59.999+08:00',
-						// Comparison params pass through the post detail URL untouched
-						// (dashboard state survives the round trip), so a widget
-						// receiving them must neither fetch a second window nor draw
-						// an overlay — the page renders no comparison.
+						// The post detail URL carries comparison params through untouched,
+						// but the page renders no comparison, so the widget must neither
+						// fetch a second window nor draw an overlay.
 						comp: '1',
 						compare_from: '2026-06-24T00:00:00.000+08:00',
 						compare_to: '2026-06-30T23:59:59.999+08:00',
@@ -244,7 +238,6 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-metric-count', '1' );
 		expect( chart ).toHaveAttribute( 'data-values', '10,5,7' );
 
-		// One request, scoped to the primary window only.
 		const requestedDates = mockApiFetch.mock.calls.map( call =>
 			new URLSearchParams( String( call[ 0 ].path ).split( '?' )[ 1 ] ).get( 'date' )
 		);

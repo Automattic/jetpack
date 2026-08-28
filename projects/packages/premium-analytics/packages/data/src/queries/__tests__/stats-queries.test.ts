@@ -56,8 +56,7 @@ import type { StatsReportParams } from '../stats-query';
 jest.mock( '@wordpress/api-fetch' );
 
 // `localTZDate()` defaults to the site zone, so pin it rather than letting the
-// machine timezone decide the WordAds "yesterday" clamp in
-// stats-wordads-query.ts.
+// machine timezone decide the WordAds "yesterday" clamp.
 setSettings( {
 	...getSettings(),
 	timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
@@ -264,18 +263,11 @@ describe( 'Stats query factories', () => {
 	} );
 
 	it( 'sizes an offset-bearing hourly window from its start day midnight through its end hour', () => {
-		// The shape the last-24-hours preset produces: hour-aligned, mid-day, and
-		// spanning two calendar days. `date` is the window START for this
-		// endpoint and carries the time, but the endpoint resolves it to the
-		// calendar day and buckets from midnight regardless — verified against
-		// production, where a bare `2026-08-06` and `2026-08-06T09:00:00.000-04:00`
-		// return byte-identical hour-0..23 windows. So `quantity` must span from
-		// that midnight through the window's end hour (hours 00:00 June 14 →
-		// 08:xx June 15 = 33 buckets, not 24 from 09:00, and not 24 per calendar
-		// day touched — the 48-bucket over-fetch was WOOA7S-1840). The leading
-		// out-of-window buckets the midnight anchor forces are trimmed by the
-		// sanitizer via the window_start/window_end pair passed in
-		// sanitizerParams (query key slot 8).
+		// The last-24-hours shape. The endpoint resolves the window START to its
+		// calendar day and buckets from midnight regardless of the time it carries
+		// (verified against production), so `quantity` must span that midnight
+		// through the end hour — 33 buckets, not 24 from 09:00, and not 24 per
+		// calendar day touched (the 48-bucket over-fetch was WOOA7S-1840).
 		const { queryKey } = statsEmailClicksTimeSeriesQuery( 41, {
 			from: '2026-06-14T09:00:00.000-04:00',
 			to: '2026-06-15T08:59:59.999-04:00',
@@ -306,10 +298,8 @@ describe( 'Stats query factories', () => {
 		// so quantity and the sanitizer trim stay agreed.
 		expect( quantityFor( '2026-06-14T09:00-04:00', '2026-06-15T08:59-04:00' ) ).toBe( 33 );
 
-		// Space-separated datetimes degrade upstream (getDatePart, which
-		// derives `days`, splits on T only), so the end hour falls back to 23
-		// there too — one whole degraded day, matching pre-fix behavior, with
-		// the sanitizer trim disabled by the same narrowing.
+		// Space-separated datetimes degrade upstream (getDatePart splits on T only),
+		// so the end hour falls back to 23 and the sanitizer trim stays off.
 		expect( quantityFor( '2026-06-14 09:00:00-04:00', '2026-06-15 08:59:59-04:00' ) ).toBe( 24 );
 
 		// An end the reader rejects falls back to hour 23 — the old full-day
@@ -401,10 +391,8 @@ describe( 'Stats query factories', () => {
 	} );
 
 	it( 'sends offset-bearing top-posts date params through untrimmed', () => {
-		// This endpoint used to resolve its date params in UTC rather than the
-		// site's timezone, so the client trimmed them to a bare day. The server
-		// now resolves the embedded offset, so the full datetime goes through
-		// like every other Stats request.
+		// The server resolves the embedded offset, so no client-side trim to a bare
+		// day is needed any more.
 		const query = statsTopPostsQuery( {
 			from: '2026-06-01T00:00:00.000-07:00',
 			to: '2026-06-07T23:59:59.999-07:00',
@@ -452,10 +440,9 @@ describe( 'Stats query factories', () => {
 	} );
 
 	it( 'keeps file-downloads day-bucketed and summarized when the caller only passes a range', () => {
-		// The File downloads widget passes the dashboard params through untouched,
-		// so a long range arrives with a coarse chart interval and no summarize.
-		// The interval must not become the period, or the endpoint would count
-		// the range in weeks and stop returning one row per file.
+		// A long range arrives with a coarse chart interval, which must not become
+		// the period — the endpoint would count the range in weeks and stop
+		// returning one row per file.
 		const query = statsFileDownloadsQuery( {
 			from: '2026-04-01',
 			to: '2026-06-29',
@@ -1109,9 +1096,8 @@ describe( 'Stats query factories', () => {
 	} );
 
 	it( 'maps an offset-bearing daily dashboard range onto subscribers unit/quantity/date', () => {
-		// start_date/end_date now carry the full offset-bearing ISO datetime
-		// (reportParamsToStatsQueryParams no longer trims it); the day-based
-		// quantity math must still resolve from the calendar day.
+		// start_date/end_date carry a full offset-bearing ISO datetime, but the
+		// day-based quantity math must still resolve from the calendar day.
 		const query = statsSubscribersReportQuery( {
 			from: '2026-06-01T00:00:00.000-07:00',
 			to: '2026-06-30T23:59:59.000-07:00',
@@ -1207,10 +1193,8 @@ describe( 'Stats query factories', () => {
 	} );
 
 	it( 'clamps the WordAds window end to yesterday, keeping it anchored to the range start', () => {
-		// WordAds stats are computed nightly, so a range ending today ends at
-		// yesterday instead. The window stays anchored to the range start: the
-		// unavailable trailing bucket is dropped (quantity 7 → 6) rather than the
-		// whole window shifting a bucket earlier.
+		// The window stays anchored to the range start: the unavailable trailing
+		// bucket is dropped rather than the whole window shifting earlier.
 		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
 
 		try {
@@ -1239,10 +1223,8 @@ describe( 'Stats query factories', () => {
 	} );
 
 	it( 'sends an unclamped WordAds window end through untrimmed', () => {
-		// This endpoint used to resolve the window end in UTC and decide whether
-		// to honor it via a raw string comparison, so the client stripped the
-		// offset. Both halves are fixed server-side, so the full datetime goes
-		// through like every other Stats request.
+		// Both halves of the old UTC/raw-string problem are fixed server-side, so
+		// the client no longer strips the offset.
 		jest.useFakeTimers().setSystemTime( new Date( '2026-07-15T12:00:00Z' ) );
 
 		try {
@@ -1267,11 +1249,9 @@ describe( 'Stats query factories', () => {
 	} );
 
 	it( 'leaves a WordAds window ending exactly yesterday unclamped', () => {
-		// The last-7-days / last-30-days shape: the range already ends on
-		// yesterday's calendar day, so the clamp must not fire. This is why the
-		// clamp compares calendar days — the raw offset-bearing string sorts
-		// after the bare `yesterday` it starts with, which would clamp the window
-		// and silently shorten it by a bucket.
+		// Why the clamp compares calendar days: the raw offset-bearing string sorts
+		// after the bare `yesterday` it starts with, so a range already ending on
+		// yesterday would clamp and silently lose a bucket.
 		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
 
 		try {
@@ -1296,9 +1276,8 @@ describe( 'Stats query factories', () => {
 	} );
 
 	it( 'clamps an offset-bearing WordAds window end to yesterday, keyed off its calendar day', () => {
-		// The clamp fires, so `date` becomes the locally built bare `yesterday`
-		// rather than the request's own offset-bearing end. Both the comparison
-		// and the bucket count key off the calendar day.
+		// The clamp fires, so `date` becomes the locally built bare `yesterday`;
+		// both the comparison and the bucket count key off the calendar day.
 		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
 
 		try {
@@ -1335,9 +1314,8 @@ describe( 'Stats query factories', () => {
 		] );
 	} );
 
-	// The range is the only thing that bounds a visits request: the endpoint
-	// recounts the buckets from start_date/date and ignores a bucket count sent
-	// alongside them, so neither `quantity` nor `days` belongs in the request.
+	// The endpoint recounts the buckets from start_date/date and ignores a bucket
+	// count sent alongside them, so neither `quantity` nor `days` belongs here.
 	it( 'bounds visits with the range alone', () => {
 		const query = statsVisitsQuery( {
 			from: '2026-06-01',
@@ -1356,8 +1334,7 @@ describe( 'Stats query factories', () => {
 	} );
 
 	// Hourly is the one unit whose window needs finer precision than a calendar
-	// day, and the endpoint reads these two straight off the request — so they
-	// have to reach it with their time of day intact.
+	// day, so these must reach the endpoint with their time of day intact.
 	it( 'carries the hourly range at full precision', () => {
 		const query = statsVisitsQuery( {
 			from: '2026-06-15T00:00:00-07:00',

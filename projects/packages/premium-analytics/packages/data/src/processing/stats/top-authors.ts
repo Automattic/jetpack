@@ -36,10 +36,8 @@ export type StatsTopAuthorsComparisonItem = Omit< StatsTopAuthorsItem, 'children
 	children?: StatsTopAuthorsPostComparisonItem[] | null;
 };
 
-// Prefer the stable author id for comparison matching. Without one, build a
-// period-independent key so the same author aligns across the primary and
-// comparison periods even when their rank (and thus array position) differs;
-// the avatar keeps same-named authors distinct where one is available.
+// Period-independent by design: the same author must align across periods even
+// when their rank differs. The avatar keeps same-named authors distinct.
 function getAuthorKey( author: StatsTopAuthorsItem ): string {
 	if ( author.id != null ) {
 		return String( author.id );
@@ -88,9 +86,8 @@ function mergeStatsTopAuthorsPostRows(
 		} ),
 	} );
 
-	// Posts that only existed in the comparison period still matter for the
-	// drill-down view: surface them with zero current views so their previous
-	// value is not silently dropped.
+	// Posts that only existed in the comparison period surface with zero current
+	// views, so their previous value is not silently dropped.
 	const primaryKeys = new Set(
 		primaryPosts.map( getAuthorPostKey ).filter( ( key ): key is string => key != null )
 	);

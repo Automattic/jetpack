@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-vYOntO+/i1MF3Vga6/F/uFipfd9dwgWLzcm+29b/J5E=
+pnpmfileChecksum: sha256-Koac67WaJpuLyJalTUuFaNmp0WUcSQVOu5ejcFHnxKQ=
 
 patchedDependencies:
   '@wordpress/build': 151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022
@@ -64,9 +64,9 @@ importers:
       '@babel/core':
         specifier: ^7.29.0
         version: 7.29.7
-      '@octokit/webhooks-types':
-        specifier: 7.6.1
-        version: 7.6.1
+      '@octokit/openapi-webhooks-types':
+        specifier: 12.1.0
+        version: 12.1.0
       '@types/node':
         specifier: ^24.12.0
         version: 24.13.3
@@ -2919,6 +2919,9 @@ importers:
       '@automattic/launchpad':
         specifier: 1.2.2
         version: 1.2.2(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(@wordpress/data@10.51.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/element@8.3.0)(@wordpress/i18n@6.24.0)(debug@4.4.3)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@automattic/site-launch-modals':
+        specifier: 1.0.1
+        version: 1.0.1(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/typography':
         specifier: 1.0.0
         version: 1.0.0
@@ -7014,6 +7017,9 @@ importers:
 
   tools/performance:
     dependencies:
+      '@slack/web-api':
+        specifier: 7.15.1
+        version: 7.15.1
       dotenv:
         specifier: ^16.3.1
         version: 16.6.1
@@ -7210,6 +7216,12 @@ packages:
 
   '@automattic/shopping-cart@2.0.2':
     resolution: {integrity: sha512-RgnemAVlOS2XC/NpAQFSVo2JCRH176f63z1b2inhzpK1pxxJE+h/JAH5InYm7+6jG0iNdbR3UHp15lvVu+Pmlw==}
+    peerDependencies:
+      react: ^18.3.1 || ^19.0.0
+      react-dom: ^18.3.1 || ^19.0.0
+
+  '@automattic/site-launch-modals@1.0.1':
+    resolution: {integrity: sha512-yJsihZAGeXTGx8t/JH6hOAkW8XSgZ6FuvkEJ6HtqV1GJo6RESdsZbX8+zfgixr69QWRk9r8ZHNpghqdKT0v1Ew==}
     peerDependencies:
       react: ^18.3.1 || ^19.0.0
       react-dom: ^18.3.1 || ^19.0.0
@@ -9108,6 +9120,9 @@ packages:
   '@octokit/openapi-types@27.0.0':
     resolution: {integrity: sha512-whrdktVs1h6gtR+09+QsNk2+FO+49j6ga1c55YZudfEG+oKJVvJLQi3zkOm5JjiUXAagWK2tI2kTGKJ2Ys7MGA==}
 
+  '@octokit/openapi-webhooks-types@12.1.0':
+    resolution: {integrity: sha512-WiuzhOsiOvb7W3Pvmhf8d2C6qaLHXrWiLBP4nJ/4kydu+wpagV5Fkz9RfQwV2afYzv3PB+3xYgp4mAdNGjDprA==}
+
   '@octokit/plugin-paginate-rest@14.0.0':
     resolution: {integrity: sha512-fNVRE7ufJiAA3XUrha2omTA39M6IXIc6GIZLvlbsm8QOQCYvpq/LkMNGyFlB1d8hTDzsAXa3OKtybdMAYsV/fw==}
     engines: {node: '>= 20'}
@@ -9140,10 +9155,6 @@ packages:
 
   '@octokit/types@16.0.0':
     resolution: {integrity: sha512-sKq+9r1Mm4efXW1FCk7hFSeJo4QKreL/tTbR0rz/qx/r1Oa2VV83LTA/H/MuCOX7uCIJmQVRKBcbmWoySjAnSg==}
-
-  '@octokit/webhooks-types@7.6.1':
-    resolution: {integrity: sha512-S8u2cJzklBC0FgTwWVLaM8tMrDuDMVE4xiTK4EYXM9GntyvrdbSoxqDQa+Fh57CCNApyIpyeqPhhFEmHPfrXgw==}
-    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   '@oxc-parser/binding-android-arm-eabi@0.127.0':
     resolution: {integrity: sha512-0LC7ye4hvqbIKxAzThzvswgHLFu2AURKzYLeSVvLdu2TBOYWQDmHnTqPLeA597BcUCxiLqLsS4CJ5uoI5WYWCQ==}
@@ -11173,6 +11184,10 @@ packages:
     resolution: {integrity: sha512-B8Ab7dU574B1lNtjnTolO340nnW+WeaztR4RFpoL6tyqWrvDU1hK6xcjQnuNtQYJc2ngH/MO/rZOVFaFa7HFxw==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
+  '@wordpress/base-styles@9.1.0':
+    resolution: {integrity: sha512-QONqtlA7IRYb6cbCjwTEiXJwfkWPpHl6PSS+F1TDeDP0L7m+hXfpRbH1qfKjSffWlyDaBqLFWwXZ3evpeFw5bg==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+
   '@wordpress/blob@4.51.0':
     resolution: {integrity: sha512-x+Iti+wnsGTwCLwr8/Tbg/DyyWVnJ5OAQnUCCNLKM8nmEFApO4GY5feCSD9zkVCQZ3p7k+FMeJgUVuGa/d0beg==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -11265,7 +11280,7 @@ packages:
       '@wordpress/boot': '>=0.3.0 <1.0.0'
       '@wordpress/private-apis': ^1.0.0
       '@wordpress/route': '>=0.2.0 <1.0.0'
-      '@wordpress/theme': '>=0.8.0 <2.0.0'
+      '@wordpress/theme': '>=0.8.0 <3.0.0'
     peerDependenciesMeta:
       '@wordpress/boot':
         optional: true
@@ -11610,6 +11625,12 @@ packages:
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       react: ^18
+
+  '@wordpress/icons@13.3.0':
+    resolution: {integrity: sha512-Y/iE3aeHQ4XkX0fffiTPCUfjT8wNw1I7hDJkKqpaLmkD+C5NKWixRrDVfRnaJqU/MxY8RdyVC/nGng2MLPNH0A==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+    peerDependencies:
+      react: ^18.0.0
 
   '@wordpress/icons@15.4.0':
     resolution: {integrity: sha512-0NNoJkGZuFM4j60vdxzINXfUpMOGkoyPRqN0an6sRLoa6wHYuM4Yt4sZJet4xA6ft3z8+xNUvrAd92dF2tpFBg==}
@@ -19234,6 +19255,29 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@automattic/site-launch-modals@1.0.1(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@wordpress/base-styles': 9.1.0
+      '@wordpress/components': 37.0.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/compose': 8.6.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/element': 8.3.0
+      '@wordpress/i18n': 6.24.0
+      '@wordpress/icons': 13.3.0(@types/react@18.3.28)(react@18.3.1)
+      canvas-confetti: 1.9.4
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - '@date-fns/tz'
+      - '@emotion/is-prop-valid'
+      - '@types/react'
+      - '@types/react-dom'
+      - esbuild
+      - postcss
+      - stylelint
+      - supports-color
+      - vite
+
   '@automattic/typography@1.0.0': {}
 
   '@automattic/ui@1.0.2(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
@@ -21574,6 +21618,8 @@ snapshots:
 
   '@octokit/openapi-types@27.0.0': {}
 
+  '@octokit/openapi-webhooks-types@12.1.0': {}
+
   '@octokit/plugin-paginate-rest@14.0.0(@octokit/core@7.0.6)':
     dependencies:
       '@octokit/core': 7.0.6
@@ -21611,8 +21657,6 @@ snapshots:
   '@octokit/types@16.0.0':
     dependencies:
       '@octokit/openapi-types': 27.0.0
-
-  '@octokit/webhooks-types@7.6.1': {}
 
   '@oxc-parser/binding-android-arm-eabi@0.127.0':
     optional: true
@@ -23967,6 +24011,8 @@ snapshots:
   '@wordpress/base-styles@11.0.0': {}
 
   '@wordpress/base-styles@12.1.0': {}
+
+  '@wordpress/base-styles@9.1.0': {}
 
   '@wordpress/blob@4.51.0': {}
 
@@ -30151,6 +30197,15 @@ snapshots:
       '@babel/runtime': 7.29.7
       '@wordpress/element': 6.46.0
       '@wordpress/primitives': 4.51.0(@types/react@18.3.28)(react@18.3.1)
+      react: 18.3.1
+    transitivePeerDependencies:
+      - '@types/react'
+
+  '@wordpress/icons@13.3.0(@types/react@18.3.28)(react@18.3.1)':
+    dependencies:
+      '@wordpress/element': 8.3.0
+      '@wordpress/primitives': 4.51.0(@types/react@18.3.28)(react@18.3.1)
+      change-case: 4.1.2
       react: 18.3.1
     transitivePeerDependencies:
       - '@types/react'

@@ -12,6 +12,8 @@ import {
 	endOfDayTZ,
 	type IntervalType,
 	isPrimaryPreset,
+	QUICK_SURFACE_PRESETS,
+	type QuickSurfacePresetId,
 	siteTimeZone,
 	type DateRange,
 } from '@jetpack-premium-analytics/datetime';
@@ -43,6 +45,7 @@ export type ReportParamsFieldAttributes = {
 
 type ReportParamsFieldOptions = {
 	withIntervalControl?: boolean;
+	presetIds?: readonly QuickSurfacePresetId[];
 };
 
 /**
@@ -50,13 +53,24 @@ type ReportParamsFieldOptions = {
  *
  * @param options                     - Field options.
  * @param options.withIntervalControl - Whether to offer the chart bucket control.
+ * @param options.presetIds           - The quick presets to offer, in display
+ *                                    order. Defaults to every rolling window.
  * @return A DataForm control component.
  */
-export function createReportParamsField( { withIntervalControl }: ReportParamsFieldOptions = {} ) {
+export function createReportParamsField( {
+	withIntervalControl,
+	presetIds,
+}: ReportParamsFieldOptions = {} ) {
 	return function ReportParamsFieldControl(
 		props: DataFormControlProps< ReportParamsFieldAttributes >
 	) {
-		return <ReportParamsControl { ...props } withIntervalControl={ withIntervalControl } />;
+		return (
+			<ReportParamsControl
+				{ ...props }
+				withIntervalControl={ withIntervalControl }
+				presetIds={ presetIds }
+			/>
+		);
 	};
 }
 
@@ -64,17 +78,16 @@ function ReportParamsControl( {
 	data: attributes,
 	onChange,
 	withIntervalControl,
+	presetIds,
 }: DataFormControlProps< ReportParamsFieldAttributes > & ReportParamsFieldOptions ) {
 	const [ stagedReportParams, setStagedReportParams ] = useState< ReportParams >(
 		attributes?.reportParams
 	);
 
 	/*
-	 * `DateRangeFilter` applies a quick preset by calling `onChange` and then
-	 * `onApply` in the same tick, so the commit below cannot read the state that
-	 * `onChange` just queued — it would write the previous selection back over
-	 * the new one, leaving the widget a click behind. Mirror the staged params
-	 * into a ref that every stage updates synchronously.
+	 * `DateRangeFilter` calls `onChange` then `onApply` in the same tick, so a
+	 * commit reading component state would still see the previous selection.
+	 * Mirror staged params into a ref that every stage updates synchronously.
 	 */
 	const stagedRef = useRef< ReportParams >( stagedReportParams );
 
@@ -84,11 +97,10 @@ function ReportParamsControl( {
 	}, [] );
 
 	/*
-	 * Realign the draft when the params change from outside this control — an
-	 * undo, a dashboard reset, another surface saving the same widget. Without
-	 * it `commit` writes the stale draft back over that change. Key on the
-	 * value, not the object: a host that builds the attribute during render
-	 * would otherwise wipe the draft on every render.
+	 * Realign the draft when params change from outside (undo, a dashboard
+	 * reset, another surface saving the same widget) — otherwise `commit` writes
+	 * the stale draft back over that change. Key on the value, not the object:
+	 * a host that rebuilds the attribute every render would wipe the draft.
 	 */
 	const committed = attributes?.reportParams;
 	const committedKey = JSON.stringify( committed ?? null );
@@ -117,6 +129,40 @@ function ReportParamsControl( {
 		from: decodeDateSearchParam( appliedParams.from ),
 		to: decodeDateSearchParam( appliedParams.to ),
 	};
+
+	/*
+	 * Migrate an instance saved on a window this widget stopped offering: left
+	 * alone it highlights no pill, reads "Custom", and keeps a bucket menu scoped
+	 * to that window. A custom range or a year is not ours to rewrite.
+	 */
+	const offeredPresetIds = presetIds as readonly string[] | undefined;
+	const fallbackPreset = offeredPresetIds?.includes( defaultPreset )
+		? defaultPreset
+		: presetIds?.[ 0 ];
+
+	const appliedPreset = appliedParams.preset;
+	const isUnofferedPreset =
+		!! offeredPresetIds &&
+		!! appliedPreset &&
+		( QUICK_SURFACE_PRESETS as readonly string[] ).includes( appliedPreset ) &&
+		! offeredPresetIds.includes( appliedPreset );
+
+	const hasMigratedPreset = useRef( false );
+
+	useEffect( () => {
+		if ( hasMigratedPreset.current || ! isUnofferedPreset || ! fallbackPreset ) {
+			return;
+		}
+		hasMigratedPreset.current = true;
+		// A preset alone, the shape `getDefaultReportParams` writes: the stored
+		// window and bucket describe a range this widget no longer offers.
+		const migrated = { ...committed, preset: fallbackPreset };
+		delete migrated.from;
+		delete migrated.to;
+		delete migrated.interval;
+		onChange( { reportParams: migrated } );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ isUnofferedPreset, fallbackPreset ] );
 
 	const stageDateRange = useCallback(
 		( nextRange?: DateRange, nextPresetId?: string ) => {
@@ -193,11 +239,10 @@ function ReportParamsControl( {
 	}, [ stage, attributes ] );
 
 	/*
-	 * Options and checked value both come from the staged params, so the checked
-	 * bucket is always a listed one — `normalizeReportParams` already resolved
-	 * `interval` against this very range. Reading the options from the committed
-	 * range instead would let the menu offer a bucket the drafted range cannot
-	 * hold, and the resolve below would then silently drop the click.
+	 * Options and checked value both read from the staged params, so the
+	 * checked bucket is always a listed one. Reading options from the
+	 * committed range instead would offer a bucket the draft can't hold,
+	 * silently dropping the click.
 	 */
 	const intervalOptions = useMemo(
 		() =>
@@ -237,6 +282,7 @@ function ReportParamsControl( {
 				canApply={ isDateRangeDirty }
 				onCancel={ clear }
 				timeZone={ siteTimeZone() }
+				presetIds={ presetIds }
 				withIntervalControl={ withIntervalControl }
 				interval={ reportParams.interval }
 				intervalOptions={ intervalOptions }

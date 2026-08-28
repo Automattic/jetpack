@@ -69,7 +69,8 @@
 			"@phpcs:lint:required"
 		],
 		"test-js": [
-			"cd tools/cli && pnpm test"
+			"cd tools/cli && pnpm test",
+			"cd tools/performance && pnpm test:unit"
 		],
 		"post-install-cmd": [
 			"cd tools/php-test-env && composer install"

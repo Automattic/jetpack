@@ -37,3 +37,7 @@ attributes: [ { id: 'reportParams', label: 'Range', Edit: ReportParamsField } ]
 
 A control that needs per-widget options is built by a factory called once at
 module scope, so the component identity is stable across renders.
+
+`presetIds` narrows the quick presets on offer, as the WordAds chart does for
+"Last 24 hours". An instance already saved on a window the widget stops
+offering is migrated to an offered one.

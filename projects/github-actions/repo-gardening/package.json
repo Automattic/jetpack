@@ -31,7 +31,7 @@
 	},
 	"devDependencies": {
 		"@babel/core": "^7.29.0",
-		"@octokit/webhooks-types": "7.6.1",
+		"@octokit/openapi-webhooks-types": "12.1.0",
 		"@types/node": "^24.12.0",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"babel-jest": "30.4.1",

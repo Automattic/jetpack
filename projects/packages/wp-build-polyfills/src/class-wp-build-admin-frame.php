@@ -1,6 +1,6 @@
 <?php
 /**
- * Backdrop for the `@wordpress/boot` single-page layout in wp-admin.
+ * Frame fixes for the `@wordpress/boot` single-page layout in wp-admin.
  *
  * @package automattic/jetpack-wp-build-polyfills
  */
@@ -8,7 +8,9 @@
 namespace Automattic\Jetpack\WP_Build_Polyfills;
 
 /**
- * Makes the boot single-page backdrop continue the wp-admin menu color.
+ * Reconciles the boot single-page layout with the wp-admin frame: the backdrop
+ * continues the admin menu color, and the app keeps its own scroller when the
+ * admin menu is taller than the viewport.
  *
  * `@wordpress/admin-ui` derives the backdrop from a fixed map of Core color
  * schemes and falls back to a near-black `modern` seed for any other scheme,
@@ -33,9 +35,9 @@ class WP_Build_Admin_Frame {
 	}
 
 	/**
-	 * Print the backdrop override.
+	 * Print the backdrop and scroll-containment overrides.
 	 *
-	 * Both selectors are (1,1,0), so they outrank the layout rule boot injects
+	 * The backdrop selectors are (1,1,0), so they outrank the layout rule boot injects
 	 * at runtime. The fallbacks keep boot's own colors when the sampling script
 	 * did not run.
 	 *
@@ -55,6 +57,25 @@ class WP_Build_Admin_Frame {
 			body:has(.boot-layout--single-page),
 			body:has([class*="__layout-single-page"]) {
 				background: var(--wp-build-admin-menu-background, #fff);
+			}
+
+			/*
+			 * Boot's layout is absolutely positioned against `#wpbody`, which grows
+			 * with the admin menu: a menu taller than the viewport stretches the app
+			 * and scrolls its sticky header away, so cap `#wpbody` to the viewport to
+			 * give the app back its own scroller. Below 783px the menu is off-canvas
+			 * and the template scrolls `#wpwrap` instead. Drop this once every boot
+			 * this package can run against pins its own layout: Core's bundled copy
+			 * from WordPress 7.0, and the polyfilled one below that
+			 * (WordPress/gutenberg#82114).
+			 */
+			@media (min-width: 783px) {
+				body:has(.boot-layout--single-page) #wpbody,
+				body:has([class*="__layout-single-page"]) #wpbody {
+					position: sticky;
+					top: var(--wp-admin--admin-bar--height, 32px);
+					height: calc(100vh - var(--wp-admin--admin-bar--height, 32px));
+				}
 			}
 		</style>
 		<?php

@@ -21,14 +21,9 @@ type FormatDateRangeLongOptions = {
 	referenceYear?: number;
 
 	/**
-	 * Render the calendar shape (no weekday, always the year) whatever the
-	 * range measures.
-	 *
-	 * For selections whose scale is a property of the selection rather than of
-	 * the dates. A calendar year still running ends at the end of today, so its
-	 * measured length, and with it the shape, would otherwise change by the
-	 * day — and in its first week it would even measure short enough to lead
-	 * with a weekday.
+	 * Render the calendar shape (no weekday, always the year) whatever the range
+	 * measures — a calendar year still running would otherwise change shape by
+	 * the day.
 	 */
 	calendarScale?: boolean;
 };
@@ -104,30 +99,11 @@ function getSiteYear( date: Date | number ): number {
 }
 
 /**
- * Format a date range in the explicit, readable form the section header
- * subtitle uses.
+ * Format a date range in the explicit form the section header subtitle uses.
  *
- * The shape follows the range's own length, along two independent axes.
- *
- * A window of a week or less leads each end with its weekday, which is what
- * makes a rolling window legible at a glance and what a reader of one actually
- * asks of it. Past a week the weekday stops answering anything — nobody reads
- * a month by the day it opened on — and only costs two words in front of each
- * date, so it is dropped.
- *
- * The year is carried only where it disambiguates: a range that sits entirely
- * in the reference year drops it, so stepping back through past periods stays
- * unambiguous without repeating the current year on every render. Longer
- * ranges routinely straddle two years and pick it up on their own.
- *
- * A window of a day or less is named by a single date instead of a range.
- *
- * @example
- * formatDateRangeLong( { from, to } ) // 24 hours:    'Tuesday, July 28'
- *                                     // 7 days:      'Tuesday, July 21 – Monday, July 27'
- *                                     // past year:   'Tuesday, July 16, 2024 – Monday, July 22, 2024'
- *                                     // 30 days:     'July 21 – August 19'
- *                                     // 12 months:   'July 1, 2025 – June 30, 2026'
+ * The shape follows the range's own length: a week or less leads each end with
+ * its weekday, the year is carried only outside the reference year, and a day
+ * or less is named by a single date.
  *
  * @param range     - The range to format.
  * @param [options] - Formatting options.

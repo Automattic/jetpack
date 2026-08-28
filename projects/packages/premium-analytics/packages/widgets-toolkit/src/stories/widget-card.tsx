@@ -12,10 +12,9 @@ export interface WidgetCardProps {
 }
 
 /**
- * Widget card wrapper for skeleton stories, simulating a dashboard widget
+ * Widget card wrapper for skeleton stories: simulates a dashboard widget
  * container so a shape is shown within typical widget dimensions. The inset
- * matches the dashboard's `--wp-ui-card-padding` override, so a story's shape
- * clears the card border by the same distance it does in product.
+ * matches the dashboard's `--wp-ui-card-padding`, so a story's border-clearance matches product.
  *
  * @param props          - Component props.
  * @param props.height   - Card height.

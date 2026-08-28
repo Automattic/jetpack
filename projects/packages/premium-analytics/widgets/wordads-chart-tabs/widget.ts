@@ -2,6 +2,11 @@
  * External dependencies
  */
 import {
+	PRESET_LAST_7_DAYS,
+	PRESET_LAST_30_DAYS,
+	PRESET_LAST_12_MONTHS,
+} from '@jetpack-premium-analytics/datetime';
+import {
 	createReportParamsField,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/fields';
@@ -19,8 +24,17 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 /** The widget owns its date controls because other Ads widgets accept no dates. */
 export type WordAdsChartTabsAttributes = Partial< ReportParamsFieldAttributes >;
 
+/**
+ * WordAds is reported to us daily, so a sub-daily window collapses to one
+ * bucket: no line, and yesterday's totals labelled as the last 24 hours.
+ */
+const WORDADS_PRESETS = [ PRESET_LAST_7_DAYS, PRESET_LAST_30_DAYS, PRESET_LAST_12_MONTHS ] as const;
+
 // The chart's body is bucketed by the interval, so the control offers it.
-const ReportParamsField = createReportParamsField( { withIntervalControl: true } );
+const ReportParamsField = createReportParamsField( {
+	withIntervalControl: true,
+	presetIds: WORDADS_PRESETS,
+} );
 
 /**
  * WordAds metric tabs with widget-owned date controls. Requires active WordAds.

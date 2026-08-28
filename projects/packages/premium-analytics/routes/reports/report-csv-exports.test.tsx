@@ -113,9 +113,8 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 } ) );
 
-// The page imports `EmptyState`/`Text` from the externals passthrough, so the
-// stubs have to replace them there; the Proxy leaves the rest of the barrel
-// intact for any other consumer in the graph.
+// Pages import `EmptyState`/`Text` from the externals passthrough, so the stubs replace them
+// there; the Proxy leaves the rest of the barrel intact for other consumers.
 jest.mock(
 	'@jetpack-premium-analytics/externals',
 	() =>

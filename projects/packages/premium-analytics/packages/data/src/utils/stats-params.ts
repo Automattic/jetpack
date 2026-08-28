@@ -31,10 +31,8 @@ export type StatsQueryParamFields = {
 	summarize?: number | boolean;
 	complete_stats?: number | boolean;
 	skip_archives?: number | boolean;
-	// Sanitizer-only: the trim window owned by processing/stats/bucket-window.ts,
-	// sent via `sanitizerParams` and honored only by the email time-series
-	// sanitizer — inert for every other sanitizer. Deliberately absent from
-	// statsParamKeys so report params can never carry them into a request.
+	// Sanitizer-only trim window (bucket-window.ts), sent via `sanitizerParams`
+	// — deliberately absent from statsParamKeys so it can never reach a request.
 	window_start?: string;
 	window_end?: string;
 };
@@ -77,17 +75,13 @@ export function getStatsPeriodFromInterval( interval?: string ): StatsPeriod {
 /**
  * Count the hour buckets a range covers, from the span between its ends.
  *
- * Hour is the only unit whose ends carry precision finer than the unit itself,
- * so it is the only one that can land mid-bucket. Rounding the span up counts
- * the bucket a partial hour falls in, without adding one to a range that already
- * ends on the hour — the presets end at `23:59:59.999`, but a hand-edited or
- * deep-linked range need not.
+ * Hour is the only unit that can land mid-bucket, so the span is rounded up
+ * rather than always adding a fixed +1 — a range already ending on the hour
+ * (as the presets do) must not count an extra bucket.
  *
- * Unlike the calendar counters, this one reads the ends as instants rather than
- * as calendar days, so both must carry a time of day. Bare `yyyy-MM-dd` ends
- * both parse as midnight and undercount by a bucket-day — `2026-08-01` to
- * `2026-08-07` counts 144 hours, not 168. Callers that can reach `hour` pass
- * datetimes; see `getPeriodsBetweenInclusive`.
+ * Ends must carry a time of day: unlike the calendar counters, this reads
+ * them as instants, so a bare `yyyy-MM-dd` parses as midnight and undercounts
+ * by a bucket-day (`2026-08-01` to `2026-08-07` reads as 144 hours, not 168).
  *
  * @param from - Range start, as a datetime.
  * @param to   - Range end, as a datetime.
@@ -104,12 +98,9 @@ function countHourBuckets( from: string, to: string ): number {
  * included.
  *
  * Both dates are anchored in UTC before diffing: the calendar-diff functions
- * read their arguments' local getters, and a plain UTC-tagged `Date`'s getters
- * reflect the machine's local timezone, not UTC. Left unanchored, a
- * negative-offset machine can read a UTC midnight instant that lands exactly on
- * a week/month/year boundary as the previous local period, shifting only one
- * side of the range and skewing the bucket count (e.g. a 4-week range reading
- * as 5 weeks).
+ * read local getters, and an unanchored UTC-tagged `Date` reflects the
+ * machine's local timezone — a negative-offset machine can misread a UTC
+ * midnight boundary and skew the count (e.g. 4 weeks reading as 5).
  *
  * @param difference - The calendar diff for the unit.
  * @return A counter for that unit.
@@ -138,14 +129,13 @@ const BUCKET_COUNTERS: Record< StatsPeriod, ( from: string, to: string ) => numb
 };
 
 /**
- * Count the buckets a range covers at a given unit. Used to translate a
- * dashboard date range into the `quantity` param that quantity-based Stats
- * endpoints (e.g. `stats/subscribers`) expect, mirroring how `days` is derived
- * for day-based requests.
+ * Count the buckets a range covers at a given unit — the `quantity` param
+ * that quantity-based Stats endpoints (e.g. `stats/subscribers`) expect,
+ * mirroring how `days` is derived for day-based requests.
  *
  * @param period - The bucket granularity.
- * @param from   - Range start (`yyyy-MM-dd`, or a full ISO datetime; `hour`
- *               needs the datetime — see `countHourBuckets`).
+ * @param from   - Range start (date or datetime; `hour` requires a datetime,
+ *               see `countHourBuckets`).
  * @param to     - Range end, same shapes and the same `hour` caveat.
  * @return The bucket count, at least 1.
  */
@@ -167,9 +157,8 @@ export function reportParamsToStatsQueryParams(
 	) as StatsQueryParams;
 
 	const period = params.period ?? getStatsPeriodFromInterval( params.interval );
-	// Stats v1.1 endpoints now resolve an offset-bearing ISO datetime to the
-	// intended local calendar day (WOOA7S-1656/1664), so start_date/end_date
-	// are passed through as-is instead of being trimmed to a bare date first.
+	// Stats v1.1 resolves an offset-bearing ISO datetime to the local calendar
+	// day (WOOA7S-1656/1664), so start_date/end_date pass through untrimmed.
 	const endDate = params.end_date ?? params.date ?? params.to;
 	const startDate = params.start_date ?? params.from;
 	const days =
@@ -186,9 +175,8 @@ export function reportParamsToStatsQueryParams(
 }
 
 export function statsQueryParamsToApiParams( params: StatsQueryParams = {} ): StatsProxyParams {
-	// window_start/window_end are sanitizer-only (see StatsQueryParamFields):
-	// stripped here so a caller that passes them in request params by mistake
-	// cannot leak them into request URLs and query keys.
+	// window_start/window_end are sanitizer-only (see StatsQueryParamFields);
+	// stripped here so a stray one can't leak into request URLs or query keys.
 	const { end_date: endDate, ...apiParams } = params;
 
 	delete apiParams.window_start;

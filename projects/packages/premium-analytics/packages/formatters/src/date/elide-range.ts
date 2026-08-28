@@ -41,17 +41,12 @@ const SINGLE_PROBES = [
 const PROBE_FROM = SINGLE_PROBES[ 0 ];
 
 /**
- * The far end, per form: a date sharing no requested part with `PROBE_FROM`,
- * so nothing in the probe can be elided and both ends have to render whole.
+ * The far end, per form: a date sharing no requested part with `PROBE_FROM`, so
+ * nothing in the probe can be elided.
  *
- * Which year it falls in is what has to vary. A form carrying the year needs
- * the two ends in different ones, or the year elides and the probe measures an
- * elision rather than the full rendering it is checking for.
- *
- * The year-less form needs them in the same one. Asked to span two years with
- * no year to tell them apart, ICU puts one back to keep the range unambiguous.
- * That is right of ICU, but it is not a rendering this form ever produces, and
- * a probe that provokes it costs Hungarian and Czech their elision.
+ * A form carrying the year needs its ends in different years, or the year
+ * elides. The year-less form needs them in the same one — ICU puts a year back
+ * to disambiguate a two-year range, costing Hungarian and Czech their elision.
  */
 const PROBE_TO: Record< RangeFormatName, Date > = {
 	medium: new Date( Date.UTC( 2021, 1, 3, 12 ) ),
@@ -66,14 +61,9 @@ const normalizeSpaces = ( value: string ): string =>
 /**
  * The site's locale as a tag `Intl` accepts.
  *
- * WordPress sends its own locale name (`es_ES`, `de_DE_formal`), which first
- * needs underscores converted to BCP 47 separators. Some WordPress variants
- * remain invalid after that conversion, so subtags are dropped from the right
- * until a supported ancestor is found; for example, `pt_PT_ao90` resolves to
- * `pt-PT`.
- *
- * A structurally valid but unsupported tag is not usable: `Intl` would resolve
- * it to the visitor's locale, making range output depend on who views the site.
+ * WordPress sends its own locale name (`es_ES`, `pt_PT_ao90`), so subtags are
+ * dropped from the right until a supported ancestor is found. A structurally
+ * valid but unsupported tag would resolve to the visitor's locale instead.
  *
  * @return The supported tag, or `undefined` when no supported ancestor exists.
  */
@@ -100,21 +90,11 @@ export function intlLocale(): string | undefined {
 /**
  * Build a range formatter for the current settings, if one can be trusted.
  *
- * WordPress publishes whole date formats and no rules for eliding a month or
- * year shared by both ends of a range — but CLDR, which `Intl` is built on, has
- * them for every locale. They can only be borrowed where WordPress and `Intl`
- * agree on how dates look. Two checks establish that, so no allowlist of
- * trusted locales has to be kept in step with CLDR:
- *
- * 1. `Intl` renders representative dates exactly as `formatDate` does. A site
- *    with a custom `date_format` or different month translations fails here
- *    and keeps the format it asked for.
- * 2. `Intl` builds a range that cannot be elided out of that same rendering.
- *    Japanese and Chinese fail here: their range patterns use numeric dates
- *    and locale-specific separators instead of their single-date rendering.
- *
- * Both checks are run per form, since a locale can agree with WordPress on one
- * month width and not on the other.
+ * WordPress publishes no rules for eliding a month or year shared by both ends
+ * of a range; CLDR, which `Intl` is built on, has them. Two probes establish
+ * that the two agree — `Intl` renders like `formatDate`, and its range keeps
+ * that rendering — so no allowlist of trusted locales has to track CLDR. Run
+ * per form, since a locale can agree on one month width and not the other.
  *
  * @param name - The form to build the formatter for.
  * @return The formatter, or `undefined` when the two do not agree.
@@ -139,10 +119,8 @@ function buildRangeFormatter( name: RangeFormatName ): Intl.DateTimeFormat | und
 		return undefined;
 	}
 
-	// `formatRange` was added to ECMA-402 later than `Intl.DateTimeFormat`
-	// itself. Refusing the formatter here is what keeps a runtime that has the
-	// class but not the method on the spelled-out path, since every later call
-	// goes through a formatter this function returned.
+	// `formatRange` postdates `Intl.DateTimeFormat`; refusing here keeps a runtime
+	// that has the class but not the method on the spelled-out path.
 	if ( typeof formatter.formatRange !== 'function' ) {
 		return undefined;
 	}
@@ -168,9 +146,7 @@ const cache = new Map<
  * Format a range with the shared month or year elided, where the site's own
  * date format allows it.
  *
- * The probes in `buildRangeFormatter` run once per settings combination, so the
- * result is held against the locale, date format, and timezone it was derived
- * from.
+ * The probes in `buildRangeFormatter` run once per settings combination.
  *
  * @param from   - Start of the range.
  * @param to     - End of the range.

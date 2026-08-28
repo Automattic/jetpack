@@ -108,9 +108,8 @@ describe( 'video detail route.beforeLoad', () => {
 		} );
 	} );
 
-	// The page renders no comparison, but the dashboard link carries the URL
-	// state back out — stripping the params would lose the user's comparison
-	// settings on a Dashboard → Video → Dashboard round trip.
+	// The page renders no comparison, but the dashboard link carries the URL state
+	// back out — stripping the params would lose it on a round trip.
 	it( 'passes through comparison params without redirecting on a settled URL', async () => {
 		await expect(
 			beforeLoad( { videoId: '42' }, { ...settledSearch, comp: 'previous_period' } )

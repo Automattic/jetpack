@@ -16,9 +16,8 @@ describe( 'BarChartSkeleton', () => {
 	} );
 
 	it( 'falls back to a handful of columns when the widget cannot count its bars', () => {
-		// Only `sales-by-device` builds its bars from the response; the rest
-		// pass a count they know, so the default just has to read as a small
-		// categorical chart rather than the prototype's dense time series.
+		// Only `sales-by-device` builds its bars from the response, so the default
+		// just has to read as a small categorical chart, not a dense time series.
 		render( <BarChartSkeleton /> );
 
 		expect( screen.getAllByTestId( 'skeleton-bar-column' ) ).toHaveLength( 4 );
