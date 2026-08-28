@@ -531,6 +531,14 @@ class Widget_Metadata_Test extends BaseTestCase {
 				'title'         => 'Sentinel',
 				'description'   => 'Metadata carrier.',
 				'help'          => array( 'content' => 'Helpful.' ),
+				'icon'          => 'core/chart-bar',
+				'actions'       => array(
+					array(
+						'id'    => 'export',
+						'label' => 'Export',
+						'href'  => 'https://example.com/export.csv',
+					),
+				),
 				'keywords'      => array( 'sentinel' ),
 			)
 		);
@@ -561,6 +569,18 @@ class Widget_Metadata_Test extends BaseTestCase {
 		$this->assertSame( 'Sentinel', $record['title'], 'The title reaches the record.' );
 		$this->assertSame( 'Metadata carrier.', $record['description'], 'The description reaches the record.' );
 		$this->assertSame( array( 'content' => 'Helpful.' ), $record['help'], 'The help note reaches the record.' );
+		$this->assertSame( 'core/chart-bar', $record['icon'], 'The icon reference reaches the record.' );
+		$this->assertSame(
+			array(
+				array(
+					'id'    => 'export',
+					'label' => 'Export',
+					'href'  => 'https://example.com/export.csv',
+				),
+			),
+			$record['actions'],
+			'The actions reach the record.'
+		);
 		$this->assertSame( array( 'sentinel' ), $record['keywords'], 'The keywords reach the record.' );
 	}
 }
