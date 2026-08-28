@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getDatePart } from '@jetpack-premium-analytics/datetime';
-import { formatWeekday } from '@jetpack-premium-analytics/formatters';
+import { formatMondayFirstWeekday } from '@jetpack-premium-analytics/formatters';
 import { format, getDay, isValid, parse } from 'date-fns';
 
 export type PopularDayBucket = {
@@ -21,8 +21,7 @@ const DATE_PART_FORMAT = 'yyyy-MM-dd';
 const referenceDate = new Date( 2001, 0, 1 );
 
 function weekdayLabel( weekday: number ) {
-	// WordPress's locale table is Sunday-first; the widget's buckets are Monday-first.
-	return formatWeekday( ( weekday + 1 ) % 7 );
+	return formatMondayFirstWeekday( weekday );
 }
 
 // `date_start` labels a calendar bucket rather than marking a real instant, so
