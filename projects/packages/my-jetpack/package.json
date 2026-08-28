@@ -53,7 +53,7 @@
 		"@wordpress/api-fetch": "7.54.0",
 		"@wordpress/components": "40.0.0",
 		"@wordpress/compose": "8.6.0",
-		"@wordpress/data": "10.51.0",
+		"@wordpress/data": "10.54.0",
 		"@wordpress/dataviews": "18.0.0",
 		"@wordpress/date": "5.54.0",
 		"@wordpress/element": "8.6.0",
