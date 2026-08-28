@@ -9,8 +9,8 @@
  * Plugin side: PayPal_Partner_Onboarding::generate_signup_link() calls this
  * endpoint via Client::wpcom_json_api_request_as_blog().
  *
- * @package automattic/jetpack
- * @since 14.x
+ * @package automattic/jetpack-mu-wpcom
+ * @since $$next-version$$
  * @see https://developer.paypal.com/docs/multiparty/seller-onboarding/build-onboarding/
  */
 
@@ -28,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * using Automattic's platform credentials, and returns the action_url for the
  * merchant's onboarding popup.
  *
- * @since 14.x
+ * @since $$next-version$$
  */
 class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 
@@ -145,7 +145,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 		if ( is_wp_error( $site_id ) ) {
 			return new WP_Error(
 				'not_connected',
-				__( 'Site is not connected to WordPress.com.', 'jetpack' ),
+				__( 'Site is not connected to WordPress.com.', 'jetpack-mu-wpcom' ),
 				array( 'status' => 403 )
 			);
 		}

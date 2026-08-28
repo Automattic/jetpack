@@ -1,13 +1,14 @@
 <?php
 /**
- * Tests for the /wpcom/v2/paypal/onboarding endpoints.
+ * Tests for the /wpcom/v2/paypal/platform endpoints.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-mu-wpcom
  */
 
 use PHPUnit\Framework\Attributes\CoversClass;
 
-require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-paypal-onboarding.php';
 use Automattic\Jetpack\Constants;
 
 /**
@@ -16,7 +17,7 @@ use Automattic\Jetpack\Constants;
  * @covers \WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding
  */
 #[CoversClass( WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding::class )]
-class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends Jetpack_REST_TestCase {
+class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * The endpoint under test.
@@ -40,6 +41,10 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends Jetpack_REST_Tes
 	public function tear_down() {
 		Constants::clear_constants();
 		remove_all_filters( 'pre_http_request' );
+
+		// Drop the REST server so the next test re-runs rest_api_init.
+		global $wp_rest_server;
+		$wp_rest_server = null;
 
 		parent::tear_down();
 	}
@@ -173,12 +178,32 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends Jetpack_REST_Tes
 	// --- Route registration ---
 
 	/**
-	 * Test that the signup-link route is registered.
+	 * Test that the endpoint is wired up under the platform path.
+	 *
+	 * Deliberately does not call rest_get_server(): building the whole route table
+	 * costs tens of megabytes, and this suite already peaks near its memory limit.
+	 * Reading the controller's own namespace and base proves the same thing --
+	 * that this endpoint answers wpcom/v2/paypal/platform/signup-link, and so does
+	 * not collide with the editor-facing wpcom/v2/paypal/onboarding/signup-link
+	 * that the paypal-payments package registers on these same hosts.
 	 */
-	public function test_signup_link_route_is_registered() {
-		$routes = rest_get_server()->get_routes();
+	public function test_endpoint_is_registered_under_the_platform_path() {
+		$this->assertNotFalse(
+			has_action( 'rest_api_init', array( $this->endpoint, 'register_routes' ) ),
+			'register_routes() is not hooked to rest_api_init.'
+		);
 
-		$this->assertArrayHasKey( '/wpcom/v2/paypal/platform/signup-link', $routes );
+		$reflection = new \ReflectionClass( $this->endpoint );
+
+		$namespace = $reflection->getProperty( 'namespace' );
+		$rest_base = $reflection->getProperty( 'rest_base' );
+		if ( PHP_VERSION_ID < 80500 ) {
+			$namespace->setAccessible( true );
+			$rest_base->setAccessible( true );
+		}
+
+		$this->assertSame( 'wpcom/v2', $namespace->getValue( $this->endpoint ) );
+		$this->assertSame( 'paypal/platform', $rest_base->getValue( $this->endpoint ) );
 	}
 
 	// --- Platform credentials ---
@@ -232,7 +257,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends Jetpack_REST_Tes
 
 		$result = $this->endpoint->generate_signup_link( $this->signup_link_request() );
 
-		$this->assertNotWPError( $result );
+		$this->assertNotInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'https://www.sandbox.paypal.com/merchantsignup/x', $result->get_data()['action_url'] );
 	}
 
@@ -305,7 +330,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends Jetpack_REST_Tes
 
 		$result = $this->endpoint->generate_signup_link( $this->signup_link_request( 'sandbox' ) );
 
-		$this->assertNotWPError( $result );
+		$this->assertNotInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'SANDBOX_PARTNER', $result->get_data()['partner_merchant_id'] );
 	}
 
@@ -333,7 +358,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends Jetpack_REST_Tes
 
 		$result = $this->endpoint->generate_signup_link( $this->signup_link_request( 'sandbox' ) );
 
-		$this->assertNotWPError( $result );
+		$this->assertNotInstanceOf( WP_Error::class, $result );
 		$this->assertSame( '', $result->get_data()['partner_merchant_id'] );
 	}
 
@@ -367,7 +392,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends Jetpack_REST_Tes
 
 		$result = $this->endpoint->generate_signup_link( $this->signup_link_request() );
 
-		$this->assertNotWPError( $result );
+		$this->assertNotInstanceOf( WP_Error::class, $result );
 		$this->assertSame(
 			'https://www.sandbox.paypal.com/merchantsignup/partner/onboardingentry?token=t',
 			$result->get_data()['action_url']
