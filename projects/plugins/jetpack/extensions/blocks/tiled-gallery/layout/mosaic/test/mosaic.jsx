@@ -128,11 +128,8 @@ describe( 'Mosaic container observation', () => {
 	} );
 
 	it( 'observes the flex container once the editor has styled the canvas (JETPACK-1726)', () => {
-		// The editor styles the canvas *after* the block mounts, so on the first frame
-		// the flex ancestors still compute as plain blocks and the walk finds nothing.
-		// Resolving the anchor only at mount leaves the observer watching just the
-		// gallery — and a gallery whose own box is content-sized never changes on its
-		// own, so no pass ever runs and it keeps a stale width forever.
+		// The editor styles the canvas *after* the block mounts, so a walk done only at
+		// mount finds nothing and leaves the observer watching a box that never changes.
 		const flexContainer = document.createElement( 'div' );
 		const item = document.createElement( 'div' );
 		flexContainer.appendChild( item );
@@ -332,10 +329,8 @@ describe( 'Mosaic layout-width anchoring', () => {
 		// stack(flex, column, align-items:center, 1000)
 		//   > columns(flex, row) > column > wrapper > gallery
 		//
-		// `columns` is a cross-axis child of a column-direction flex container whose
-		// align-items is not stretch, so its width is shrink-to-fit — decided by the
-		// gallery it contains. Anchoring to it feeds our own layout back into the
-		// width we lay out against, and the gallery grows without bound.
+		// `columns` is a cross-axis child of a non-stretching column container, so its
+		// width is shrink-to-fit — decided by the gallery, and circular if anchored to.
 		const stack = document.createElement( 'div' );
 		const columns = document.createElement( 'div' );
 		const column = document.createElement( 'div' );
@@ -377,8 +372,7 @@ describe( 'Mosaic layout-width anchoring', () => {
 		// outerRow(flex, row, 645) > innerRow(flex, row, flex:0 1 auto) > wrapper > gallery
 		//
 		// Width is the main axis here, so `innerRow` neither grows nor has a definite
-		// basis: it is shrink-to-fit, sized by the gallery inside it. Anchoring to it
-		// is circular and the gallery grows without bound.
+		// basis: shrink-to-fit, sized by the gallery inside it, and circular if anchored to.
 		const outerRow = document.createElement( 'div' );
 		const innerRow = document.createElement( 'div' );
 		const wrapper = document.createElement( 'div' );
@@ -487,7 +481,6 @@ describe( 'Mosaic layout-width anchoring', () => {
 	it( 'gives a stacked gallery the full width instead of a share of it (JETPACK-1726)', () => {
 		// stack(flex, column, 1000) > [paragraph, wrapper > gallery, paragraph]
 		// Stacked items sit one above the other, so the gallery gets the whole 1000px.
-		// Dividing by the item count would strand it at a third of the space.
 		const stack = document.createElement( 'div' );
 		const before = document.createElement( 'p' );
 		const wrapper = document.createElement( 'div' );

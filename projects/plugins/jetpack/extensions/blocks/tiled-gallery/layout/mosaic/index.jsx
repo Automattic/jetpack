@@ -35,19 +35,9 @@ export default class Mosaic extends Component {
 	}
 
 	/**
-	 * Whether an element's inline size is decided by its own content rather than by
-	 * its container. Such a box is useless as a layout anchor: measuring it feeds our
-	 * own layout writes straight back into the width we lay out against, which is the
-	 * circular definition this whole anchoring dance exists to escape.
-	 *
-	 * The cases that matter in the block editor are the flex ones, and which axis the
-	 * width falls on decides how to read them. A vertical Group or Stack is
-	 * column-direction, so width is its cross axis: WordPress core defaults every flex
-	 * layout to `align-items: center`, which makes each stacked child shrink-to-fit
-	 * rather than fill the row. A Row is row-direction, so width is its main axis: a
-	 * child that neither grows nor has a definite basis is shrink-to-fit too, which is
-	 * what a Row nested inside a Row gives you. Either way, a flex container in that
-	 * position is sized by whatever it holds. See JETPACK-1726.
+	 * Whether an element's inline size is decided by its own content rather than by its
+	 * container. Such a box is useless as a layout anchor: measuring it feeds our own
+	 * layout writes back into the width we lay out against. See JETPACK-1726.
 	 *
 	 * @param {HTMLElement} el   - The element to test.
 	 * @param {Window}      view - The element's owning window.
@@ -83,9 +73,8 @@ export default class Mosaic extends Component {
 			return !! align && 'stretch' !== align && 'normal' !== align;
 		}
 		// Side by side: width is the main axis, so an item that neither grows nor has a
-		// definite basis is shrink-to-fit. A Row nested in a Row is the common case.
-		// Reading flex-basis is a pragmatic proxy: a definite `width` resolves to a used
-		// pixel value in the computed style, where it is indistinguishable from `auto`.
+		// definite basis is shrink-to-fit. `flex-basis` rather than `width`, which
+		// computes to a used pixel value indistinguishable from `auto`.
 		const basis = style.flexBasis;
 		return '0' === style.flexGrow && ( ! basis || 'auto' === basis || 'content' === basis );
 	}
@@ -96,9 +85,8 @@ export default class Mosaic extends Component {
 	 * container; its width is determined by the surrounding layout rather than by
 	 * the gallery's own content, so it is a stable target to lay out against.
 	 *
-	 * Flex ancestors that are themselves content-sized are skipped rather than
-	 * returned: anchoring to one reintroduces the circular width it is meant to
-	 * avoid, and the gallery grows without bound. See JETPACK-1726.
+	 * Flex ancestors that are themselves content-sized are skipped: anchoring to one
+	 * reintroduces the circular width, and the gallery grows without bound.
 	 *
 	 * @return {?HTMLElement} The flex container, or null.
 	 */
@@ -180,10 +168,8 @@ export default class Mosaic extends Component {
 		}
 		const view = container.ownerDocument?.defaultView || window;
 		const style = view.getComputedStyle( container );
-		// A column-direction container (a Stack, or a vertical Group) lays its items
-		// out one above the other, so each gets the container's full width. Only a row
-		// makes them share it, and dividing there would strand the gallery at a
-		// fraction of the space it actually has.
+		// A column-direction container stacks its items, so each gets the full width.
+		// Only a row makes them share it.
 		if ( /^column/.test( style.flexDirection ) ) {
 			return container.clientWidth;
 		}
@@ -208,14 +194,9 @@ export default class Mosaic extends Component {
 	/**
 	 * Point the observer at the container the layout is currently anchored to.
 	 *
-	 * The anchor cannot be resolved once at mount and left alone. The editor applies
-	 * its layout styles to the canvas after the block mounts, so on the first frame
-	 * the flex ancestors still compute as plain blocks and the walk finds nothing;
-	 * the anchor also moves later, when a block above the gallery is re-aligned.
-	 *
-	 * Without this the observer ends up watching only the gallery, and a gallery whose
-	 * own box is content-sized never changes on its own — so no pass ever runs and it
-	 * keeps a stale width while the space around it changes. See JETPACK-1726.
+	 * Re-resolved every pass rather than once at mount: the editor styles the canvas
+	 * after the block mounts, so the first walk finds nothing, and the anchor moves
+	 * again when a block above the gallery is re-aligned. See JETPACK-1726.
 	 */
 	syncContainerObservation() {
 		if ( ! this.ro ) {
@@ -291,9 +272,8 @@ export default class Mosaic extends Component {
 			this.ro.observe( this.gallery.current );
 			// Also watch the flex container: when the gallery lays out against the
 			// container's width, a container resize (e.g. window resize) won't
-			// necessarily change the gallery's own box, so observe it directly. This
-			// first attempt often resolves nothing, because the editor has yet to
-			// style the canvas; every layout pass re-syncs it.
+			// necessarily change the gallery's own box, so observe it directly. Often
+			// resolves nothing this early; every layout pass re-syncs it.
 			this.syncContainerObservation();
 		}
 	}
