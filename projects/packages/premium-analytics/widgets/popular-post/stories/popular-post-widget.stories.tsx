@@ -48,7 +48,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Most popular post in the last year" widget shows the site\'s most-viewed post of the last 12 months, with its publish date and its all-time views, likes, and comments. The window is the widget\'s own — the dashboard date range does not change which post wins — and it only picks the winner: every tile comes from the all-time `stats/post` response, so the three cannot measure different periods. There is no `WithComparison` story: the card shows no period-over-period delta, so the dashboard story below carries the comparison report params instead.',
+					'The "Most popular post in the last 12 months" widget shows the site\'s most-viewed post of the last 12 months, with its publish date and its all-time views, likes, and comments. The window is the widget\'s own — the dashboard date range does not change which post wins — and it only picks the winner: every tile comes from the all-time `stats/post` response, so the three cannot measure different periods. There is no `WithComparison` story: the card shows no period-over-period delta, so the dashboard story below carries the comparison report params instead.',
 			},
 		},
 	},
