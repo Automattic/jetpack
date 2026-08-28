@@ -12,8 +12,8 @@ import { apiCall, apiPath } from './_helpers';
  * legacy has always read it, and reading it as local time would move every reported
  * backup by the site's own offset.
  *
- * `ok` is declared because legacy declares it, and deliberately not read — see
- * `useNextBackupSchedule()` for why the hour is the better gate.
+ * `ok` is WordPress.com's own success flag inside the 200 body; a payload that does not
+ * set it carries no usable hour.
  */
 export type RawBackupSchedule = {
 	ok?: boolean;

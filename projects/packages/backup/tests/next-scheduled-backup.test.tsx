@@ -472,6 +472,35 @@ describe( 'when there is nothing to report', () => {
 		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'says nothing when the payload does not set ok', async () => {
+		// `ok` is WordPress.com's own success flag inside a 200 body, so a payload
+		// without it carries no usable hour. The fixture keeps a plausible one, so this
+		// cannot pass merely because the payload was empty.
+		freezeClock( '2026-10-22T05:00:00Z' );
+		mockEndpoints( { schedule: { scheduled_hour: 10 } } );
+
+		const client = newQueryClient();
+		renderWithClient( <NextScheduledBackup />, client );
+
+		await readsSettled( client );
+		expect( placeholder() ).toBeNull();
+		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'says nothing when ok is false', async () => {
+		// The reading `useSiteSize()` already takes of this same envelope, and the one
+		// `summarize_schedule()` publishes from the backup ability.
+		freezeClock( '2026-10-22T05:00:00Z' );
+		mockEndpoints( { schedule: { ok: false, scheduled_hour: 10 } } );
+
+		const client = newQueryClient();
+		renderWithClient( <NextScheduledBackup />, client );
+
+		await readsSettled( client );
+		expect( placeholder() ).toBeNull();
+		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'says nothing when the hour is not a whole number', async () => {
 		// `Date.UTC` truncates rather than rejecting, so without `Number.isInteger`
 		// this renders a confident "10:00-10:59 AM" for an unreadable payload.

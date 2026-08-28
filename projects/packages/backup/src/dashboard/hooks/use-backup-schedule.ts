@@ -30,9 +30,9 @@ type Result = { isLoading: boolean } & (
 /**
  * The scheduled hour, if the payload carried a usable one.
  *
- * The whole of the render gate: every way of not having an hour arrives here as "not a
- * number in 0–23" and is answered with silence. `ok` is deliberately not consulted —
- * requiring it would blank the line on a response that merely omits the flag.
+ * The whole of the render gate. `ok` is WordPress.com's own success flag inside a 200
+ * body, so a payload without it carries no usable hour — the reading `useSiteSize()`
+ * already takes of the same envelope, and the one the backup ability publishes.
  *
  * The range check is not ceremony: `Date.UTC( …, 24, … )` is the following midnight, so
  * an out-of-range hour would report a backup at the wrong time rather than none.
@@ -41,7 +41,11 @@ type Result = { isLoading: boolean } & (
  * @return The hour in UTC, or null when there is nothing to show.
  */
 function scheduledHourOf( raw: RawBackupSchedule ): number | null {
-	const hour = raw?.scheduled_hour;
+	if ( ! raw?.ok ) {
+		return null;
+	}
+
+	const hour = raw.scheduled_hour;
 
 	if ( typeof hour !== 'number' || ! Number.isInteger( hour ) || hour < 0 || hour > 23 ) {
 		return null;
