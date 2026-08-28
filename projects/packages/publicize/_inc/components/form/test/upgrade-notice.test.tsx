@@ -3,8 +3,7 @@ import { clearMockedScriptData, mockScriptData } from '../../../utils/test-utils
 import { UpgradeNotice } from '../upgrade-notice';
 
 /**
- * Find notice copy, ignoring the duplicate that `spokenMessage` mirrors into
- * the a11y live region.
+ * Find notice copy, ignoring the duplicate `spokenMessage` mirrors into the live region.
  *
  * @param text - The exact copy to look for.
  * @return The matching element.
@@ -14,9 +13,7 @@ function getNoticeText( text: string ) {
 }
 
 /**
- * A WordPress.com Simple site without Social's paid features. PHP hands it the
- * WordPress.com plan that unlocks them, since the standalone Jetpack Social plan
- * can't be bought there.
+ * A WordPress.com Simple site without Social's paid features.
  *
  * @return The installed script data.
  */

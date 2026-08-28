@@ -6,9 +6,8 @@ type TestScriptData = Partial< JetpackScriptData > & Record< string, unknown >;
 /**
  * Install a fake `window.JetpackScriptData` for the duration of one test.
  *
- * Deliberately raw rather than `mockScriptData()` from `utils/test-utils`: these
- * cases turn on script data being partial or absent, and that helper fills in
- * defaults for exactly the keys under test.
+ * Raw rather than `mockScriptData()`, which fills in defaults for exactly the keys
+ * these cases turn on being absent.
  *
  * @param data - The script data to expose.
  */
@@ -17,8 +16,7 @@ function setScriptData( data: TestScriptData ) {
 }
 
 /**
- * Script data for a WordPress.com Simple site, which is the only site type
- * that gets the WordPress.com plans-page upgrade path.
+ * Script data for a WordPress.com Simple site, the only type with a plans-page path.
  *
  * @param upgrade - The `social.upgrade` payload, omitted entirely when null.
  * @return The script data.

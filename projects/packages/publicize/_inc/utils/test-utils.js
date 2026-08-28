@@ -147,8 +147,7 @@ export function postPublishFetchHandler( postData ) {
 /**
  * Mocks JetpackScriptData with the provided data.
  *
- * Takes a partial: each key is merged over the defaults below, so a test only
- * spells out what it actually cares about.
+ * Each key is merged over the defaults below, so a test spells out only what it needs.
  *
  * @param {Record<string, any>} data - Partial script data
  */

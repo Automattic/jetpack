@@ -2,9 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Flex, FlexItem, Notice } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-// Deep imports, not the `../../utils` barrel: that re-exports
-// use-share-message-max-length, which pulls the social store (and
-// @wordpress/core-data) in behind it.
+// Deep imports rather than the `../../utils` barrel, which pulls the social store in.
 import { features } from '../../utils/constants';
 import { getSimpleSiteUpgradeUrl, getUpgradePlanName } from '../../utils/script-data';
 
@@ -14,8 +12,8 @@ import { getSimpleSiteUpgradeUrl, getUpgradePlanName } from '../../utils/script-
  * @return The UpgradeNotice component.
  */
 export function UpgradeNotice() {
-	// Simple sites upgrade through the WordPress.com plans page; the standalone
-	// Jetpack Social plan the redirect service points at can't be bought there.
+	// Simple sites can't buy the standalone Jetpack Social plan the redirect service
+	// points at, so they go to the WordPress.com plans page.
 	const redirectUrl =
 		getSimpleSiteUpgradeUrl( features.ENHANCED_PUBLISHING, window.location.href ) ??
 		getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {

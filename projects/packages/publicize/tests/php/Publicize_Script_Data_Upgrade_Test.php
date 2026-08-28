@@ -18,7 +18,8 @@ use WorDBless\BaseTestCase;
 class Publicize_Script_Data_Upgrade_Test extends BaseTestCase {
 
 	/**
-	 * Set up the test.
+	 * Reset the plan state between tests: Current_Plan caches it in a private static
+	 * that outlives one test.
 	 */
 	public function set_up() {
 		parent::set_up();
@@ -26,14 +27,14 @@ class Publicize_Script_Data_Upgrade_Test extends BaseTestCase {
 		delete_option( 'jetpack_active_plan' );
 		$this->reset_plan_cache();
 
-		// A plan lookup should never reach the network here; fail loudly rather than
-		// silently resolving to a null plan name.
+		// Fail loudly rather than silently returning a null plan name if a lookup
+		// ever reaches the network.
 		add_filter( 'pre_http_request', array( $this, 'block_http' ), 10, 3 );
 	}
 
 	/**
-	 * Clear constants and plan state so tests don't leak into each other. IS_WPCOM in
-	 * particular flips Publicize_Utils::is_wpcom() for every later test in the run.
+	 * Clear constants and plan state between tests. IS_WPCOM in particular flips
+	 * `Publicize_Utils::is_wpcom()` for the rest of the run.
 	 */
 	public function tear_down() {
 		remove_filter( 'pre_http_request', array( $this, 'block_http' ), 10 );
@@ -57,7 +58,7 @@ class Publicize_Script_Data_Upgrade_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Empty Current_Plan's per-request cache, which outlives a single test.
+	 * Empty Current_Plan's per-request cache.
 	 */
 	private function reset_plan_cache() {
 		$cache = new ReflectionProperty( Current_Plan::class, 'active_plan_cache' );
@@ -88,15 +89,15 @@ class Publicize_Script_Data_Upgrade_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Elsewhere the Jetpack redirect service resolves the product itself, so no plan
-	 * needs naming.
+	 * Self-hosted and WoA sites upgrade through the Jetpack redirect service, which
+	 * resolves the product itself.
 	 */
 	public function test_no_upgrade_data_for_non_simple_sites() {
 		$this->assertNull( Publicize_Script_Data::get_upgrade_data() );
 	}
 
 	/**
-	 * A Simple site without the feature needs the plan that unlocks it.
+	 * A Simple site without the feature needs the WordPress.com plan that unlocks it.
 	 */
 	public function test_simple_site_without_the_feature_gets_the_business_plan() {
 		$this->make_simple_site();
@@ -109,7 +110,7 @@ class Publicize_Script_Data_Upgrade_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Skipping the payload also skips the plan lookup it would otherwise cost.
+	 * Nothing to upsell once the site already has the feature.
 	 */
 	public function test_no_upgrade_data_when_the_site_already_has_the_feature() {
 		$this->make_simple_site();

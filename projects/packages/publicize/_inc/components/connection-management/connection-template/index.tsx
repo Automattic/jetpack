@@ -110,8 +110,8 @@ export function ConnectionTemplateEditor( props: ConnectionTemplateEditorProps )
 
 	if ( ! hasSocialPaidFeatures() ) {
 		// The site's plan tier lacks per-connection customization; surface the
-		// upgrade path. Simple sites go to the WordPress.com plans page, since the
-		// standalone Jetpack Social plan can't be bought there.
+		// upgrade path: Simple sites go to the WordPress.com plans page, which is the
+		// only place they can buy one.
 		const upgradeUrl =
 			getSimpleSiteUpgradeUrl( features.ENHANCED_PUBLISHING, window.location.href ) ??
 			getRedirectUrl( 'jetpack-social-per-connection-template-upsell', {

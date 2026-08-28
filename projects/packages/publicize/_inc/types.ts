@@ -45,13 +45,12 @@ export type SocialSettings = {
 export type PluginInfo = Record< 'social' | 'jetpack', { version: string | null } >;
 
 /**
- * The plan a site must buy to unlock Social's paid features. Only sent for
- * WordPress.com Simple sites that don't already have them — every other site
- * type upgrades through the Jetpack redirect service instead.
+ * The plan a site must buy to unlock Social's paid features. Only sent for Simple sites
+ * that don't already have them.
  */
 export type SocialUpgrade = {
 	plan_slug: string;
-	/** Resolved via `Plans::get_plan_short_name()`; null when the slug isn't in the product list. */
+	/** Null when the slug isn't in the product list. */
 	plan_name: string | null;
 };
 
