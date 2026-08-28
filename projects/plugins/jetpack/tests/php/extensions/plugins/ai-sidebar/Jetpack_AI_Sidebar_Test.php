@@ -394,6 +394,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_init_does_nothing_on_unproxied_self_hosted() {
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		$this->simulate_self_hosted();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '0';
 		Jetpack_AI_Sidebar::init();
 
 		$this->assertFalse(
@@ -492,6 +493,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_preview_disabled_on_unproxied_self_hosted() {
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		$this->simulate_self_hosted();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '0';
 		$this->simulate_big_sky_class();
 		update_option( 'big_sky_enable', '1' );
 
