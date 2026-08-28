@@ -2,30 +2,18 @@
  * Type-level tests for the `wpcomUser` object on the ambient
  * `JP_CONNECTION_INITIAL_STATE` global.
  *
- * The assertions that matter are the `@ts-expect-error` directives and the
- * `Same<>` check, which `tsgo --noEmit` enforces — Jest cannot see any of it,
- * because Babel strips the types before it runs. An unused `@ts-expect-error` is
- * itself a compile error, so each one fails in both directions: delete the
- * directive and the misspelling has to error on its own; give `WpcomUser` an
- * index signature and the directive goes unused. The `expect()` calls only keep
- * this a valid test file.
+ * `tsgo --noEmit` enforces these, not Jest — Babel strips the types before the run. An
+ * unused `@ts-expect-error` is itself a compile error, so each directive below fails in
+ * both directions.
  */
 import type { UserConnectionData } from '../components/use-connection/types.ts';
 import type { WpcomUser } from '../types.ts';
 
-/**
- * The type the ambient declaration actually puts on the global — resolved
- * through `declarations.d.ts`, not imported directly, so this breaks if the
- * wiring is changed rather than only if `WpcomUser` is.
- */
+/** Resolved through `declarations.d.ts` rather than imported, so a rewiring breaks it too. */
 type GlobalWpcomUser =
 	Window[ 'JP_CONNECTION_INITIAL_STATE' ][ 'userConnectionData' ][ 'currentUser' ][ 'wpcomUser' ];
 
-/**
- * The type `useConnection()` hands its consumers. Once the package's two
- * `WpcomUser` declarations were collapsed onto one, this and `GlobalWpcomUser`
- * became the same interface, and nothing but an assertion keeps them that way.
- */
+/** The type `useConnection()` hands its consumers. */
 type UseConnectionWpcomUser = NonNullable<
 	NonNullable< UserConnectionData[ 'currentUser' ] >[ 'wpcomUser' ]
 >;
@@ -42,8 +30,7 @@ describe( 'JP_CONNECTION_INITIAL_STATE wpcomUser', () => {
 	} );
 
 	test( 'useConnection() resolves to that same declaration', () => {
-		// The two used to be separate interfaces, one of them open. If they are
-		// split again this fails to compile as `const unified: false = true`.
+		// Fails to compile as `const unified: false = true` if the two are split again.
 		const unified: Same< UseConnectionWpcomUser, WpcomUser > = true;
 
 		expect( unified ).toBe( true );
@@ -61,8 +48,7 @@ describe( 'JP_CONNECTION_INITIAL_STATE wpcomUser', () => {
 	test( 'rejects the `Id` misspelling instead of resolving it to unknown', () => {
 		const user: GlobalWpcomUser = { ID: 99999, avatar: false };
 
-		// @ts-expect-error WordPress.com spells it `ID`. This has to stay a compile
-		// error: an index signature typed `unknown` would resolve `Id` and hide it.
+		// @ts-expect-error WordPress.com spells it `ID`; an index signature would hide this.
 		const misspelled = user.Id;
 
 		expect( misspelled ).toBeUndefined();
@@ -71,8 +57,7 @@ describe( 'JP_CONNECTION_INITIAL_STATE wpcomUser', () => {
 	test( 'rejects any other undeclared field, so the shape stays closed', () => {
 		const user: GlobalWpcomUser = { avatar: false };
 
-		// @ts-expect-error `userEmail` is not a field WordPress.com returns, and
-		// there is no index signature to absorb it.
+		// @ts-expect-error Not a field WordPress.com returns, and nothing absorbs it.
 		const undeclared = user.userEmail;
 
 		expect( undeclared ).toBeUndefined();
@@ -83,27 +68,23 @@ describe( 'JP_CONNECTION_INITIAL_STATE wpcomUser', () => {
 
 		const avatar: string | false = user.avatar;
 
-		// @ts-expect-error `avatar` is `string | false`. The superseded `boolean`
-		// declaration accepted this assignment, so the directive going unused is
-		// what would tell us the widening had been reverted.
+		// @ts-expect-error `avatar` is `string | false`; the superseded `boolean`
+		// declaration accepted this, so an unused directive means the widening was reverted.
 		const asBoolean: boolean = user.avatar;
 
 		expect( asBoolean ).toBe( avatar );
 	} );
 
 	test( 'requires avatar, the one field the PHP always sets', () => {
-		// @ts-expect-error `avatar` is required: `get_user_connection_data()` sets it
-		// unconditionally, so even with no connected WordPress.com user the object is
-		// `{ avatar: false }` rather than empty. Every other field is optional, which
-		// leaves this the only assertion pinning that asymmetry.
+		// @ts-expect-error `avatar` is required — the PHP sets it unconditionally, so the
+		// emptiest this object gets is `{ avatar: false }`. Every other field is optional.
 		const user: GlobalWpcomUser = {};
 
 		expect( user ).toEqual( {} );
 	} );
 
 	test( 'no longer accepts the `true` that the boolean declaration allowed', () => {
-		// @ts-expect-error `avatar` is a URL or `false`; `get_avatar_url()` never
-		// returns `true`, which the superseded `boolean` declaration permitted.
+		// @ts-expect-error `avatar` is a URL or `false`; `get_avatar_url()` never returns `true`.
 		const user: GlobalWpcomUser = { avatar: true };
 
 		expect( user.avatar ).toBe( true );
