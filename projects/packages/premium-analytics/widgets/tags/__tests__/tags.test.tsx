@@ -175,4 +175,13 @@ describe( 'TagsWidget', () => {
 			expect( path ).not.toContain( 'date=' );
 		} );
 	} );
+
+	// Calypso's Tags & categories module sends no query at all, so Jetpack Stats
+	// gets the endpoint's own `(int=10)` default. Asking for the same ten is what
+	// makes the two surfaces list the same rows; if the shared row limit is ever
+	// retuned, this widget stops matching the module it is read beside, so make
+	// that a deliberate change rather than a side effect.
+	it( 'asks for the row count Jetpack Stats gets by default', () => {
+		expect( WIDGET_ROW_LIMIT ).toBe( 10 );
+	} );
 } );

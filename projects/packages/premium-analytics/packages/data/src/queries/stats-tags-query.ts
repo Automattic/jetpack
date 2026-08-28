@@ -6,15 +6,18 @@ import { statsProxyQuery, type StatsReportQueryOptions } from './stats-query';
 /**
  * `stats/tags` declares `max` as its only query parameter, so WPCOM's
  * `query_args()` strips everything else — including `date` — before the handler
- * runs. The window is a hardcoded last-7-days anchored on the request instant,
- * which no parameter can move. Sending a date would only split the query cache
- * per selected period while returning the same rows.
+ * runs. The window is hardcoded to the seven days ending yesterday in site time:
+ * today never counts, and no parameter can move it. Sending a date would only
+ * split the query cache per selected period while returning the same rows.
  */
 export type StatsTagsParams = {
 	/**
-	 * Rows to request. `0` does not mean "all rows" here: the endpoint floors
-	 * anything below 1 back to its own default of 10, so it is left off the
-	 * request rather than sent as a value the server would silently rewrite.
+	 * Rows to request. The server groups and ranks every tag first, over its own
+	 * fixed scan of the site's 50 most-viewed posts, and truncates last — so a
+	 * larger `max` adds rows but never changes a row's views. `0` does not mean
+	 * "all rows": anything below 1 is floored back to the endpoint's default of
+	 * 10, so it is left off the request rather than sent as a value the server
+	 * would silently rewrite.
 	 */
 	max?: number;
 };

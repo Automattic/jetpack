@@ -189,7 +189,7 @@ function TagsInner() {
 }
 
 /**
-* Ported from the Jetpack Stats "Tags & categories" module. Grouped rows
+ * Ported from the Jetpack Stats "Tags & categories" module. Grouped rows
  * (several tags/categories sharing a post) drill down to their individual members.
  */
 export default function Tags( { attributes = {} }: TagsWidgetProps ) {

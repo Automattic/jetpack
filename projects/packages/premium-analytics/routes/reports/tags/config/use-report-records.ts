@@ -15,12 +15,12 @@ export function getTagRowId( item: StatsTagsItem ): string {
 }
 
 /**
- * Rows to request for the report table. `stats/tags` declares `max` as its only
- * query parameter and is the one stats endpoint that floors anything below 1
- * back to its default of 10 (`if ( $max < 1 ) $max = 10;`), rather than reading
- * it as "all rows" the way its siblings do — so a report that wants more than
- * the widget's ten has to name a number. Its ranking is drawn from at most 50
- * posts, which this comfortably clears.
+ * Rows to request for the report table. `stats/tags` has no "all rows" value —
+ * anything below 1 is floored back to its default of 10 — so a report that wants
+ * more than the widget's ten has to name a number. Truncation is the only thing
+ * `max` does (see `StatsTagsParams`), so asking for more rows here cannot put a
+ * row's views out of step with the same row in the widget, or in the Jetpack
+ * Stats module both are read beside.
  */
 const TAGS_REPORT_ROW_LIMIT = 100;
 

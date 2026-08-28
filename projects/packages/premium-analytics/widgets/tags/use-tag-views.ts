@@ -86,8 +86,8 @@ interface TagViewsState {
  *
  * Delegates fetching, caching, and normalization to `useStatsTags` from
  * `@jetpack-premium-analytics/data`, then maps the normalized rows onto the
- * leaderboard shape and trims to `max`. The `stats/tags` endpoint reports a
- * fixed last-seven-days window with no comparison and no date parameters, so
+ * leaderboard shape and trims to `max`. The `stats/tags` endpoint reports the
+ * seven days ending yesterday, with no comparison and no date parameters, so
  * rows carry current-period views only and the report params never reach it.
  */
 export default function useTagViews( { max }: UseTagViewsArgs ): TagViewsState {
