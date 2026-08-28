@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Paint the chart grid from CSS so an `--a8c-charts-color-grid` override set on a chart's own element applies to it.
+Paint the grid, axis line, tick lines and tick labels from CSS, so an `--a8c-charts-color-grid`, `-axis`, `-tick` or `-label-axis` override set on a chart's own element applies to it and follows a theme change with no re-render. The matching `theme` fields — `gridStyles.stroke`, `xAxisLineStyles.stroke`, `xTickLineStyles.stroke` and `svgLabelSmall.fill` — still work and are now redundant; prefer the CSS roles.
