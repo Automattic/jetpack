@@ -1100,14 +1100,22 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_draft_assist_follows_the_writing_assistant_opt_out() {
 		$this->set_block_editor_screen();
 
+		// SEO stays on deliberately. has_enabled_sidebar_features() is an OR, so with
+		// both toggles off the sidebar data is never added at all and there is nothing
+		// to assert about. The hole this covers is the user who keeps SEO Enhancer and
+		// turns the writing assistant off — they still got Draft Assist.
+		$this->activate_seo_tools_module();
+		update_option( 'jetpack_ai_seo_enabled', 1 );
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
 
 		try {
 			$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
+			$this->assertArrayHasKey( 'jetpackAiSidebar', $data, 'SEO alone should still expose the sidebar.' );
 			$this->assertSame( false, $data['jetpackAiSidebar']['features']['draftAssist'] );
 		} finally {
 			delete_option( 'jetpack_ai_writing_assistant_enabled' );
+			delete_option( 'jetpack_ai_seo_enabled' );
 		}
 	}
 
