@@ -42,6 +42,9 @@ export const keys = {
 	// change rate — but the storage meter needs both, so the two are
 	// always read together.
 	sitePolicies: () => [ 'backup', 'site-policies' ] as const,
+	// The hour WordPress.com runs the site's daily backup. Its own key rather than a
+	// slice of `siteSize`: a different route, and a far longer stale time.
+	backupSchedule: () => [ 'backup', 'schedule' ] as const,
 	// The Backup product being promoted, for the no-plan screen's price.
 	// Not keyed on anything: WordPress.com picks the currency from the
 	// site, so one site only ever sees one answer.
