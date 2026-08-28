@@ -12,6 +12,7 @@ module.exports = {
 		'<rootDir>/_inc/client/ai/test/ai-admin.jsx',
 		'<rootDir>/_inc/client/ai/features/test/component.jsx',
 		'<rootDir>/_inc/client/ai/mcp/test/allowlist-updated.jsx',
+		'<rootDir>/_inc/client/ai/overview/assistant-banner/test/component.jsx',
 		'<rootDir>/_inc/client/ai/overview/test/component.jsx',
 		'<rootDir>/_inc/client/ai/scheduled-tasks/test/index.jsx',
 		'<rootDir>/_inc/client/ai/scheduled-tasks/test/use-scheduled-tasks.js',

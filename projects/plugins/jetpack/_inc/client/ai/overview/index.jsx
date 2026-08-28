@@ -12,6 +12,7 @@ import { sprintf, __ } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
 import { Card, Link, LinkButton, Notice, Stack, Text } from '@wordpress/ui';
 import NavRow from '../components/nav-row';
+import AssistantBanner from './assistant-banner';
 import buildPageThumb from './images/build-page.webp';
 import connectClaudeThumb from './images/connect-claude.webp';
 import mediaLibraryThumb from './images/media-library.webp';
@@ -275,6 +276,7 @@ export default function AiOverview( {
 	const userUnlinked = isUserConnected === false;
 	return (
 		<Stack direction="column" gap="xl">
+			<AssistantBanner />
 			{ !! blogId && hostBlocked && (
 				<Notice.Root intent="warning">
 					<Notice.Description>

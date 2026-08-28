@@ -8,6 +8,10 @@ import { freePayload, tieredPayload, unlimitedPayload } from './fixtures';
 // hits the network and each test controls the response.
 jest.mock( '@wordpress/api-fetch' );
 
+// The assistant banner imports the webpack-aliased 'lib/analytics', which
+// doesn't resolve under jest — provide it virtually.
+jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
+
 afterEach( () => {
 	jest.resetAllMocks();
 } );

@@ -1,0 +1,72 @@
+// Assistant announcement banner.
+
+.jetpack-ai-overview-banner {
+	position: relative;
+	padding: 28px 34px;
+	border-radius: 12px;
+	background-color: #003010;
+	overflow: hidden; // Clips the glow to the rounded corners.
+
+	// Decorative glow: two soft radial gradients hugging the top edge — blue
+	// peaking at 66% of the width, green at 79% — blending mid-blob and gone
+	// by mid-height. The opaque stops are the mock's composite peak colors and
+	// the mid stops fake its blurred (gaussian) falloff, so a pixel-diff
+	// against the mock comes out clean without any blur filter. Keep inset at
+	// 0: the percentage geometry is relative to this box, so growing it would
+	// shift the blobs and tie their position to the banner's rendered size.
+	&__glow {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		background:
+			radial-gradient(ellipse 11% 52% at 66% 0%, #1e5c9a 15%, rgba(30, 92, 154, 0.4) 55%, rgba(30, 92, 154, 0) 100%),
+			radial-gradient(ellipse 13% 50% at 79% 0%, #22ad46 35%, rgba(34, 173, 70, 0.4) 65%, rgba(34, 173, 70, 0) 100%);
+	}
+
+	// Content sits above the glow.
+	&__logo,
+	&__title,
+	&__description,
+	&__dismiss {
+		position: relative;
+	}
+
+	&__logo {
+		display: block;
+	}
+
+	// The pale green is the mock's heading fill (a flat #daffdc plateau in the
+	// sampled pixels); the subtext is the pure-white one, not the other way
+	// around.
+	&__title {
+		margin-block: 16px 0;
+		font-size: 21px;
+		font-weight: 500;
+		line-height: 28px;
+		color: #daffdc;
+	}
+
+	&__description {
+		margin-block: 6px 0;
+		font-size: 13px;
+		font-weight: 400;
+		line-height: 18px;
+		color: #fff;
+	}
+
+	// White X in the top-right, its center level with the logo row (28px from
+	// the top in the mock; the button hit area is 36px, hence the 10px inset).
+	// The Button defaults assume a light background.
+	&__dismiss#{&}__dismiss {
+		position: absolute;
+		inset-block-start: 10px;
+		inset-inline-end: 21px;
+		color: #fff;
+
+		&:hover,
+		&:active,
+		&:focus {
+			color: #fff;
+		}
+	}
+}
