@@ -22,8 +22,7 @@ import type { ComponentType } from 'react';
 
 registerReportMocks();
 
-// The roster builds each subscriber's details URL from `window.JetpackScriptData`,
-// which only wp-admin provides; seed the site slug so the names link in Storybook.
+// Only wp-admin supplies the slug; seed it so the names link in Storybook.
 window.JetpackScriptData = {
 	...window.JetpackScriptData,
 	site: {

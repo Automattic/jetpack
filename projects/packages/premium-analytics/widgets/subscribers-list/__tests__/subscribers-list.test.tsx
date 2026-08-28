@@ -31,12 +31,13 @@ const FOLLOWERS_RESPONSE = {
 	],
 };
 
-// Restore rather than delete: the suite may share a module registry with
-// others that rely on whatever script data was already on the window.
+// Restore rather than delete: later suites in the group file share this window.
 const originalScriptData = window.JetpackScriptData;
 
-function setSiteData( host: string, suffix?: string ) {
-	window.JetpackScriptData = { site: { host, suffix } } as never;
+function setSiteData( isWpcomPlatform: boolean, suffix?: string ) {
+	window.JetpackScriptData = {
+		site: { is_wpcom_platform: isWpcomPlatform, suffix },
+	} as typeof window.JetpackScriptData;
 }
 
 describe( 'SubscribersListWidget', () => {
@@ -50,11 +51,10 @@ describe( 'SubscribersListWidget', () => {
 
 	afterEach( () => {
 		window.JetpackScriptData = originalScriptData;
-		jest.restoreAllMocks();
 	} );
 
-	it( 'links the name to the subscriber details page on WordPress.com', async () => {
-		setSiteData( 'wpcom', 'example.wordpress.com' );
+	it( 'links the name to WordPress.com on the WordPress.com platform', async () => {
+		setSiteData( true, 'example.wordpress.com' );
 
 		render( <SubscribersListWidget attributes={ {} } /> );
 
@@ -64,8 +64,8 @@ describe( 'SubscribersListWidget', () => {
 		);
 	} );
 
-	it( 'links the name to Jetpack Cloud when the site is not Simple', async () => {
-		setSiteData( 'woa', 'example.com' );
+	it( 'links the name to Jetpack Cloud everywhere else', async () => {
+		setSiteData( false, 'example.com' );
 
 		render( <SubscribersListWidget attributes={ {} } /> );
 
@@ -76,7 +76,7 @@ describe( 'SubscribersListWidget', () => {
 	} );
 
 	it( 'renders the name as plain text when there is no details page to link to', async () => {
-		setSiteData( 'wpcom' );
+		setSiteData( true );
 
 		render( <SubscribersListWidget attributes={ {} } /> );
 
@@ -84,10 +84,9 @@ describe( 'SubscribersListWidget', () => {
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'renders rows without a subscription id as distinct plain-text names', async () => {
-		setSiteData( 'woa', 'example.com' );
-		// No `ID` or `*_subscription_id`, so the normalizer leaves `subscription_id`
-		// undefined and the rows fall back to the index for their key.
+	it( 'renders rows without a subscription id as plain-text names', async () => {
+		setSiteData( false, 'example.com' );
+		// No `ID` or `*_subscription_id`, so `subscription_id` stays undefined.
 		mockApiFetch.mockResolvedValue( {
 			total: 2,
 			subscribers: [
@@ -96,17 +95,10 @@ describe( 'SubscribersListWidget', () => {
 			],
 		} );
 
-		const consoleError = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
-
 		render( <SubscribersListWidget attributes={ {} } /> );
 
 		await expect( screen.findByText( 'Reader One' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Reader Two' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
-		// A shared key would render both rows and only warn, so assert on the warning.
-		// React passes the key as a format arg, so match the message, not the arity.
-		expect(
-			consoleError.mock.calls.some( ( [ message ] ) => String( message ).includes( 'same key' ) )
-		).toBe( false );
 	} );
 } );

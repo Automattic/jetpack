@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getSiteData, isSimpleSite } from '@automattic/jetpack-script-data';
+import { getSiteData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
 	getStatsReportItems,
 	useStatsFollowers,
@@ -29,17 +29,16 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 /** Base URL for the site's subscriber management pages. */
 function getSubscribersBaseUrl() {
-	// wp-admin always supplies the slug; the null path is for Storybook and other
-	// non-admin mounts.
+	// Only wp-admin supplies the slug; other mounts get no link.
 	const siteSlug = getSiteData()?.suffix;
 
 	if ( ! siteSlug ) {
 		return null;
 	}
 
-	// Atomic goes to Jetpack Cloud, matching the Stats Subscribers module. The
-	// wp-admin Subscribers menu sends Atomic to WordPress.com instead.
-	const host = isSimpleSite() ? 'https://wordpress.com' : 'https://cloud.jetpack.com';
+	// Simple and WoA both go to WordPress.com, matching the wp-admin Subscribers
+	// menu and the Newsletter widget.
+	const host = isWpcomPlatformSite() ? 'https://wordpress.com' : 'https://cloud.jetpack.com';
 
 	return `${ host }/subscribers/${ siteSlug }`;
 }
@@ -60,8 +59,8 @@ function toSubscriberItems(
 		id: item.subscription_id ?? `row-${ index }`,
 		name: item.label,
 		avatarUrl: item.icon,
-		// `link` is the subscriber's own site, not their subscriber record. The id
-		// mirrors Calypso's fallback chain, so it can be a user ID the page won't resolve.
+		// `link` is unreliable: the subscriber's own site on some payloads, a
+		// user-ID Calypso link that 404s on others.
 		href:
 			subscribersBaseUrl && item.subscription_id
 				? `${ subscribersBaseUrl }/${ item.subscription_id }`
