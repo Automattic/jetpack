@@ -1749,8 +1749,8 @@ importers:
         specifier: 2.3.0
         version: 2.3.0(webpack@5.107.2)
       '@pmmmwh/react-refresh-webpack-plugin':
-        specifier: 0.6.2
-        version: 0.6.2(react-refresh@0.17.0)(webpack-dev-server@5.2.6)(webpack@5.107.2)
+        specifier: 0.6.3
+        version: 0.6.3(react-refresh@0.17.0)(webpack-dev-server@5.2.6)(webpack@5.107.2)
       '@wordpress/browserslist-config':
         specifier: 6.51.0
         version: 6.51.0
@@ -9436,8 +9436,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@pmmmwh/react-refresh-webpack-plugin@0.6.2':
-    resolution: {integrity: sha512-IhIAD5n4XvGHuL9nAgWfsBR0TdxtjrUWETYKCBHxauYXEv+b+ctEbs9neEgPC7Ecgzv4bpZTBwesAoGDeFymzA==}
+  '@pmmmwh/react-refresh-webpack-plugin@0.6.3':
+    resolution: {integrity: sha512-k1EEmFS9K7685tqJM55DCA3sYlTNZb7aFj1M3HNFwMqH+fGgMEvemIQ5kurIzKc9wYRSmfKpSZN3WUyY/GHlvg==}
     engines: {node: '>=18.12'}
     peerDependencies:
       '@types/webpack': 5.x
@@ -9445,7 +9445,7 @@ packages:
       sockjs-client: ^1.4.0
       type-fest: '>=0.17.0 <6.0.0'
       webpack: ^5.0.0
-      webpack-dev-server: ^4.8.0 || 5.x
+      webpack-dev-server: ^4.8.0 || 5.x || 6.x
       webpack-hot-middleware: 2.x
       webpack-plugin-serve: 1.x
     peerDependenciesMeta:
@@ -21882,7 +21882,7 @@ snapshots:
     dependencies:
       playwright: 1.60.0
 
-  '@pmmmwh/react-refresh-webpack-plugin@0.6.2(react-refresh@0.17.0)(webpack-dev-server@5.2.6)(webpack@5.107.2)':
+  '@pmmmwh/react-refresh-webpack-plugin@0.6.3(react-refresh@0.17.0)(webpack-dev-server@5.2.6)(webpack@5.107.2)':
     dependencies:
       anser: 2.3.5
       core-js-pure: 3.49.0
