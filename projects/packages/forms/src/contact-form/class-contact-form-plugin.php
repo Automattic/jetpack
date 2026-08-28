@@ -2013,8 +2013,9 @@ class Contact_Form_Plugin {
 	/**
 	 * Enforcement point for outbound-destination authorization on a submitted form.
 	 *
-	 * Destinations declared in the form content — webhooks, the legacy postToUrl attribute and
-	 * the Salesforce integration — are kept only when whoever placed the form had an
+	 * Destinations declared in the form content — webhooks, the legacy postToUrl attribute, the
+	 * Salesforce integration and the per-form `integrations` settings (which carry credentials
+	 * such as a Slack incoming webhook URL) — are kept only when whoever placed the form had an
 	 * administrator-level capability (an admin author for post/page forms, or the
 	 * `edit_theme_options` required to author block templates, template parts and widgets);
 	 * otherwise they are removed from the form attributes in place, before the submission
@@ -2030,6 +2031,7 @@ class Contact_Form_Plugin {
 	private function reconcile_content_destinations( Contact_Form $form ) {
 		if ( empty( $form->attributes['webhooks'] )
 			&& empty( $form->attributes['postToUrl'] )
+			&& empty( $form->attributes['integrations'] )
 			&& empty( $form->attributes['salesforceData'] ) ) {
 			return;
 		}
@@ -2041,6 +2043,10 @@ class Contact_Form_Plugin {
 			$form->attributes['webhooks']       = array();
 			$form->attributes['postToUrl']      = array();
 			$form->attributes['salesforceData'] = null;
+			// Dropped wholesale rather than per-integration: the container is open to
+			// third-party integrations, so there is no list of which keys carry a
+			// destination or a credential and which are inert.
+			$form->attributes['integrations'] = array();
 
 			/** This action is documented already in this file. */
 			do_action( 'jetpack_forms_log', 'content_destinations_dropped', 'author_unauthorized' );
