@@ -12,6 +12,7 @@ import { sprintf, __ } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
 import { Card, Link, LinkButton, Notice, Stack, Text } from '@wordpress/ui';
 import NavRow from '../components/nav-row';
+import { EVENTS, recordAiHubEvent, useRecordOnce } from '../tracks';
 import buildPageThumb from './images/build-page.webp';
 import connectClaudeThumb from './images/connect-claude.webp';
 import mediaLibraryThumb from './images/media-library.webp';
@@ -273,6 +274,9 @@ export default function AiOverview( {
 } ) {
 	const hostBlocked = hostAllowsAi === false;
 	const userUnlinked = isUserConnected === false;
+	useRecordOnce( EVENTS.VIEWED, { tab: 'overview' } );
+	const recordVideoClick = slug => () =>
+		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: 'video', link: slug } );
 	return (
 		<Stack direction="column" gap="xl">
 			{ !! blogId && hostBlocked && (
@@ -285,21 +289,17 @@ export default function AiOverview( {
 			{ !! blogId && ! hostBlocked && userUnlinked && (
 				// The usage endpoint proxies as the current user, so without a
 				// linked account the fetch can only fail — say so instead.
-				<Card.Root>
-					<Card.Content>
-						<Notice.Root intent="warning">
-							<Notice.Title>
-								{ __( 'Your WordPress.com account isn’t connected.', 'jetpack' ) }
-							</Notice.Title>
-							<Notice.Description>
-								{ __( 'Connect your account to see your AI usage.', 'jetpack' ) }{ ' ' }
-								<Link href="admin.php?page=my-jetpack#/connection">
-									{ __( 'Connect account', 'jetpack' ) }
-								</Link>
-							</Notice.Description>
-						</Notice.Root>
-					</Card.Content>
-				</Card.Root>
+				<Notice.Root intent="warning">
+					<Notice.Title>
+						{ __( 'Your WordPress.com account isn’t connected.', 'jetpack' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ __( 'Connect your account to see your AI usage.', 'jetpack' ) }{ ' ' }
+						<Link href="admin.php?page=my-jetpack#/connection">
+							{ __( 'Connect account', 'jetpack' ) }
+						</Link>
+					</Notice.Description>
+				</Notice.Root>
 			) }
 			{ !! blogId && ! hostBlocked && ! userUnlinked && (
 				<UsageCard
@@ -312,21 +312,17 @@ export default function AiOverview( {
 			{ ! blogId && (
 				// Disconnected: skip the fetch (it can only fail) and explain
 				// the actual problem instead of a fetch error.
-				<Card.Root>
-					<Card.Content>
-						<Notice.Root intent="warning">
-							<Notice.Title>
-								{ __( 'Jetpack is not connected to WordPress.com.', 'jetpack' ) }
-							</Notice.Title>
-							<Notice.Description>
-								{ __( 'Connect the site to see your AI usage.', 'jetpack' ) }{ ' ' }
-								<Link href="admin.php?page=my-jetpack#/connection">
-									{ __( 'Connect Jetpack', 'jetpack' ) }
-								</Link>
-							</Notice.Description>
-						</Notice.Root>
-					</Card.Content>
-				</Card.Root>
+				<Notice.Root intent="warning">
+					<Notice.Title>
+						{ __( 'Jetpack is not connected to WordPress.com.', 'jetpack' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ __( 'Connect the site to see your AI usage.', 'jetpack' ) }{ ' ' }
+						<Link href="admin.php?page=my-jetpack#/connection">
+							{ __( 'Connect Jetpack', 'jetpack' ) }
+						</Link>
+					</Notice.Description>
+				</Notice.Root>
 			) }
 
 			{ showActivityLog && activityLogUrl && (
@@ -358,6 +354,7 @@ export default function AiOverview( {
 							key={ slug }
 							target="_blank"
 							rel="noopener noreferrer"
+							onClick={ recordVideoClick( slug ) }
 						>
 							{ /* Decorative: the card's title carries the meaning. */ }
 							<img

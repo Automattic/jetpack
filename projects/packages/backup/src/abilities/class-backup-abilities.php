@@ -757,8 +757,9 @@ class Backup_Abilities extends Registrar {
 	/**
 	 * Normalize a Jetpack_Backup helper result (WP_REST_Response, array, null,
 	 * or WP_Error) to a plain value or null. Jetpack_Backup uses
-	 * `rest_ensure_response()` on success and returns null on http failure, so
-	 * abilities need both shapes flattened before summarising.
+	 * `rest_ensure_response()` on success; on failure its routes return a
+	 * WP_Error and `list_backup_events()` returns null, so abilities need
+	 * every shape flattened before summarising.
 	 *
 	 * @param mixed $maybe_response Result of a Jetpack_Backup helper call.
 	 * @return mixed

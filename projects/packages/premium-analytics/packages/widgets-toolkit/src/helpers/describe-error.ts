@@ -17,11 +17,9 @@ interface DescribeErrorOptions {
 }
 
 /**
- * Map an API error to a Stats widget error descriptor.
- *
- * The access check is `isAccessDenied`, shared with the dashboard's stale-data
- * notice so a widget and the banner above it cannot disagree about whether a
- * Retry is worth offering.
+ * Maps an API error to a Stats widget error descriptor, using `isAccessDenied`
+ * (shared with the dashboard's stale-data notice) so a widget and the banner
+ * above it cannot disagree about offering a Retry.
  *
  * @param error                    - The failed query error.
  * @param options                  - Error-state copy and retry options.

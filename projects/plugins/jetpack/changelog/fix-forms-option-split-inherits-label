@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Prevent a new choice option from inheriting the previous option's label when pressing Enter.

@@ -19,8 +19,10 @@ use WP_REST_Server;
 use function add_action;
 use function add_filter;
 use function do_action;
+use function home_url;
 use function remove_filter;
 use function wp_insert_user;
+use function wp_json_encode;
 use function wp_set_current_user;
 
 require_once __DIR__ . '/trait-wpcom-request-mock.php';
@@ -170,6 +172,90 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 		$this->assertInstanceOf( WP_Error::class, $response );
 		$this->assertStringNotContainsString( 'cURL', $response->get_error_message() );
 		$this->assertSame( 502, $response->get_error_data()['status'] );
+	}
+
+	/**
+	 * A non-200 on the directory listing keeps WordPress.com's reason.
+	 *
+	 * The other half of `forward_response()`, which every pass-through
+	 * bridge shares — so this covers the shared non-200 path the same way
+	 * the test above covers the shared transport path.
+	 *
+	 * 412 rather than 500, because 500 is also what an unreadable status
+	 * falls back to.
+	 */
+	public function test_list_directory_forwards_the_upstream_reason() {
+		$this->arrange_wpcom(
+			array(
+				'code'    => 'no_connected_jetpack',
+				'message' => 'This site is not connected.',
+			),
+			412
+		);
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/backups/123/ls' );
+		$request->set_param( 'rewind_id', '123' );
+		$request->set_param( 'path', '/' );
+		$data = File_Browser_Bridge::list_directory( $request )->get_error_data();
+
+		$this->assertSame( 412, $data['status'] );
+		$this->assertSame( 'no_connected_jetpack', $data['wpcom']['code'] );
+		$this->assertSame( 'This site is not connected.', $data['wpcom']['message'] );
+	}
+
+	/**
+	 * A success code reported as a string lists the directory.
+	 *
+	 * `wp_remote_retrieve_response_code()` hands back whatever the
+	 * transport put there, so an uncast `200 !== $status_code` sent a
+	 * perfectly good listing down the failure branch and left the file
+	 * tree empty with an error over it.
+	 *
+	 * Through `forward_response()`, which `get_path_info()` shares — so
+	 * this covers the cast on both pass-through routes. The listing itself
+	 * is what is asserted, not the absence of an error: uncast, this came
+	 * back as a 500, so a status-only test would have passed on the bug.
+	 */
+	public function test_list_directory_treats_a_string_status_as_its_number() {
+		$this->arrange_wpcom_raw( '{"contents":[{"name":"wp-config.php","type":"file"}]}', '200' );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/backups/123/ls' );
+		$request->set_param( 'rewind_id', '123' );
+		$request->set_param( 'path', '/' );
+		$response = File_Browser_Bridge::list_directory( $request );
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'wp-config.php', $response->get_data()['contents'][0]['name'] );
+	}
+
+	/**
+	 * A string 200 on either leg of the preview still returns the file.
+	 *
+	 * This callback reads a status twice — once for the signed-URL lookup
+	 * and once for the stream fetch — and the single canned answer here
+	 * serves both, so one test covers both casts. The stream leg is the
+	 * one where getting this wrong cost most: the branch it wrongly took
+	 * already had the previewed file's bytes in hand and threw them away
+	 * to report a 500.
+	 *
+	 * The signed URL is built from `home_url()` so that
+	 * `wp_http_validate_url()` takes its same-host path. Any other host
+	 * would send it to `gethostbyname()`, and this test would then pass or
+	 * fail on whether the runner has DNS.
+	 */
+	public function test_file_content_treats_a_string_status_as_its_number() {
+		$body = wp_json_encode( array( 'url' => home_url( '/signed-stream' ) ), JSON_UNESCAPED_SLASHES );
+		$this->arrange_wpcom_raw( $body, '200' );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backup/file-content' );
+		$request->set_param( 'file_period', '1748888135' );
+		$request->set_param( 'encoded_manifest_path', 'ZjU6L3dwLWNvbmZpZy5waHA=' );
+		$response = File_Browser_Bridge::get_file_content( $request );
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		// The stream leg is answered by the same filter, so the "file"
+		// here is that canned body, forwarded verbatim.
+		$this->assertSame( $body, $response->get_data()['content'] );
 	}
 
 	/**

@@ -36,9 +36,8 @@ type Segment = {
 /**
  * Split a PHP format string into tokens and literals.
  *
- * Backslash escapes have to be honoured rather than scanned past: `es_ES`
- * ships `j \d\e F \d\e Y`, where `\d` and `\e` spell the word "de" but are
- * also the letters for the day and timezone tokens.
+ * Backslash escapes have to be honoured rather than scanned past: `es_ES` ships
+ * `j \d\e F \d\e Y`, where `\d` and `\e` spell "de" but are also date tokens.
  *
  * @param phpFormat - PHP `date()` format string.
  * @return The segments, in order.
@@ -80,17 +79,10 @@ export function hasToken( phpFormat: string, tokens: Set< string > ): boolean {
 }
 
 /**
- * Remove the year from a PHP format string, along with the punctuation that
- * introduces it.
+ * Remove the year from a PHP format string, with its adjoining punctuation.
  *
- * WordPress only publishes whole date formats, so a month-and-day format has
- * to be derived from one. The separator run adjoining the year is taken with
- * it — the run on the side facing the rest of the format, which is the side
- * the punctuation belongs to (`F j, Y` → `F j`, but `Y-m-d` → `m-d`). Where
- * the year is the last token, any literal trailing it goes too, since it was
- * qualifying the year (`j F Y г.` → `j F`). A dot immediately before a
- * trailing year is retained because dot-separated locales use it to terminate
- * the preceding ordinal (`j.n.Y` → `j.n.`).
+ * WordPress only publishes whole date formats, so a month-and-day format has to
+ * be derived from one (`F j, Y` → `F j`, but `Y-m-d` → `m-d`).
  *
  * @param phpFormat - PHP `date()` format string.
  * @return The format without its year, or unchanged when it has none.
@@ -120,9 +112,8 @@ export function withoutYear( phpFormat: string ): string {
 
 	if ( precedingToken >= 0 ) {
 		start = precedingToken + 1;
-		// In dot-separated formats the dot also marks the preceding numeric
-		// day or month as ordinal (`j.n.Y` → `j.n.`). Keep it while dropping
-		// any whitespace before the year.
+		// In dot-separated formats the dot also marks the preceding day or month
+		// as ordinal (`j.n.Y` → `j.n.`), so keep it.
 		if ( segments[ start ]?.source === '.' ) {
 			start++;
 		}
@@ -145,9 +136,7 @@ export function withoutYear( phpFormat: string ): string {
  * Abbreviate the month in a PHP format string.
  *
  * The abbreviation itself still comes from WordPress's translation tables, so a
- * locale that does not shorten its month names keeps them whole. Formats that
- * number the month rather than name it are returned unchanged, having nothing
- * to abbreviate.
+ * locale that does not shorten its month names keeps them whole.
  *
  * @param phpFormat - PHP `date()` format string.
  * @return The format with a three-letter month, or unchanged when it names none.
@@ -164,9 +153,8 @@ export function withShortMonth( phpFormat: string ): string {
  * Put the weekday in front of a PHP format string.
  *
  * WordPress publishes no weekday-bearing format, so one has to be derived from
- * the site's. The weekday name still comes from WordPress's translation
- * tables; only the separator is ours, and only the leading position is assumed
- * — every locale core ships puts the weekday first when it names one at all.
+ * the site's. Only the separator is ours, and only the leading position is
+ * assumed — every locale core ships puts the weekday first when it names one.
  *
  * @param phpFormat - PHP `date()` format string.
  * @return The format led by its weekday, or unchanged when it already has one.

@@ -33,11 +33,7 @@ const STAGED_RANGE = {
 	to: new Date( Date.UTC( 2019, 0, 13, 23, 59, 59, 999 ) ),
 };
 
-/**
- * A controller mid-edit: a staged range and comparison over an applied window.
- *
- * @return The date filters.
- */
+/** A controller mid-edit: a staged range and comparison over an applied window. */
 function buildDateFilters(): ReportDateFilters {
 	return {
 		presetId: 'custom',
@@ -118,9 +114,8 @@ describe( 'ReportPageLayout', () => {
 		expect( subtitle ).not.toHaveTextContent( /vs\.|Previous period|Previous month/ );
 	} );
 
-	// Whether the panel draws the comparison control is the report route's
-	// declared scope, not this layout's business — it only has to leave the
-	// comparison state alone on its way through.
+	// Whether the panel draws the comparison control is the report route's scope; the
+	// layout only has to leave the comparison state alone on its way through.
 	it( 'passes the comparison state through without disturbing it', () => {
 		const dateFilters = buildDateFilters();
 

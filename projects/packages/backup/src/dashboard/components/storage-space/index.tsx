@@ -4,6 +4,7 @@ import { Skeleton, Text } from '@wordpress/ui';
 import { StorageUsageLevels } from '../../data/storage-usage-levels';
 import { useStorageUsage } from '../../hooks/use-storage-usage';
 import StorageMeter from './meter';
+import StorageUsageDetails from './usage-details';
 import './style.scss';
 import type { StorageUsageLevelName } from '../../data/storage-usage-levels';
 
@@ -38,8 +39,8 @@ function sectionHeading( usageLevel: StorageUsageLevelName | null ): string {
  * meter that means nothing. That silence is deliberate and matches the
  * legacy dashboard's own `storageSize !== null && storageLimit > 0` gate.
  *
- * Sibling issues add usage details, the upsell and the help popover
- * inside this same section.
+ * Sibling issues add the upsell and the help popover inside this same
+ * section.
  *
  * @return The storage section, or null when there is nothing to show.
  */
@@ -56,7 +57,7 @@ export default function StorageSpace() {
 	// flight, so the activity list below is not pushed down when they
 	// land — which would happen on precisely the slow connections where
 	// this section matters most. Sized to the rendered article: a 20px
-	// heading line, 12px, a 24px bar.
+	// heading line, 12px, a 24px bar, 8px, a 20px line of usage details.
 	//
 	// Skeletons rather than the real heading over an empty track: both
 	// would assert content we do not have yet, and an empty meter reads
@@ -68,6 +69,7 @@ export default function StorageSpace() {
 				<div className="jpb-storage-meter">
 					<Skeleton className="jpb-storage-meter__placeholder" />
 				</div>
+				<Skeleton className="jpb-storage-space__details-placeholder" />
 			</section>
 		);
 	}
@@ -93,6 +95,11 @@ export default function StorageSpace() {
 				storageUsed={ usage.storageUsed }
 				storageLimit={ usage.storageLimit }
 				usageLevel={ usage.usageLevel }
+			/>
+			<StorageUsageDetails
+				storageUsed={ usage.storageUsed }
+				storageLimit={ usage.storageLimit }
+				daysOfBackupsSaved={ usage.daysOfBackupsSaved }
 			/>
 		</section>
 	);

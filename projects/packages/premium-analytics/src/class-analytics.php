@@ -31,10 +31,8 @@ class Analytics {
 	private static $initialized = false;
 
 	/**
-	 * Menu title override for the admin page. Null falls back to the package's
-	 * own translated label, resolved on admin_menu — callers init far too early
-	 * to translate anything themselves. A closure is resolved there too, which is
-	 * how a caller supplies a label in its own textdomain.
+	 * Menu title override for the admin page. Null falls back to the package's own
+	 * translated label, resolved on admin_menu — init runs far too early to translate.
 	 *
 	 * @var string|\Closure|null
 	 */
@@ -52,9 +50,8 @@ class Analytics {
 	/**
 	 * Path to the wp-build entry point. Null uses the generated build.
 	 *
-	 * A test seam: `build/` is gitignored and `test-php` runs no build step, so a
-	 * test has nothing to observe unless it can redirect this. Private, so unlike
-	 * the widget manifest's path it needs no filter to stay out of reach.
+	 * A test seam: `build/` is gitignored and test-php runs no build step, so tests redirect this
+	 * instead. Private, so — unlike the widget manifest's path — it needs no filter to stay out of reach.
 	 *
 	 * @var string|null
 	 */
@@ -95,12 +92,8 @@ class Analytics {
 	/**
 	 * Load the dashboard render surface, on the requests that can render it.
 	 *
-	 * With the rollout flag on, init() runs on every request — on WordPress.com
-	 * Simple, every request across WPCOM's public-api process — so everything
-	 * below would otherwise be parsed for visitors who can never use it.
-	 *
-	 * REST serves the dashboard too but is deliberately excluded: it loads what
-	 * it needs itself. See load_build().
+	 * With the rollout flag on, init() runs on every request — including every WPCOM public-api
+	 * request on Simple — so this stays gated for visitors who never use it (REST excluded; see load_build()).
 	 *
 	 * @return void
 	 */
@@ -118,9 +111,8 @@ class Analytics {
 	/**
 	 * Whether this request can render an admin screen.
 	 *
-	 * Core also sets is_admin() on admin-ajax.php and admin-post.php, which render
-	 * no dashboard and for which this package registers no handlers, so neither
-	 * needs the build parsed.
+	 * Core also sets is_admin() on admin-ajax.php and admin-post.php, which render no dashboard
+	 * and get no handlers from this package, so neither needs the build parsed.
 	 *
 	 * @return bool
 	 */
@@ -136,9 +128,8 @@ class Analytics {
 	/**
 	 * Initialize the Analytics app on WordPress.com Simple.
 	 *
-	 * Simple reaches public-api.wordpress.com directly via WPCOM's apiFetch
-	 * bridge, so it registers no local REST surface: no proxy, notices, sync
-	 * bootstrap, or dashboard support routes. WPCOM registers those separately.
+	 * Simple reaches public-api.wordpress.com directly via WPCOM's apiFetch bridge, registering
+	 * no local REST surface (no proxy, notices, sync bootstrap, or dashboard routes) — WPCOM handles those.
 	 *
 	 * @param array $options Optional configuration options.
 	 *                       Supported keys:
@@ -198,9 +189,8 @@ class Analytics {
 	/**
 	 * URL of a dashboard route on this site.
 	 *
-	 * The SPA path travels in `p`; the router reads that param and ignores the
-	 * rest of the query. Encoded here because add_query_arg() leaves values
-	 * alone, and a `?` inside the path would read as an outer query param.
+	 * The SPA path travels in `p`, encoded here since add_query_arg() leaves values alone and a
+	 * raw `?` inside it would read as an outer query param.
 	 *
 	 * @since 0.4.0
 	 *
@@ -212,11 +202,8 @@ class Analytics {
 	}
 
 	/**
-	 * Announce to Jetpack's other surfaces that this dashboard is the site's
-	 * analytics UI, so they link here instead of the Stats page. Publishing it
-	 * from the package that owns the dashboard means the key exists exactly
-	 * where the dashboard does. Registered from both init paths, so Simple gets
-	 * it too.
+	 * Announce to Jetpack's other surfaces that this dashboard is the site's analytics UI,
+	 * so they link here instead of the Stats page.
 	 *
 	 * @return void
 	 */
@@ -243,10 +230,9 @@ class Analytics {
 	}
 
 	/**
-	 * Prefers `timezone_string` over `gmt_offset`, matching the dashboard's own
-	 * `siteTimeZone()`: analytics links point at past dates, so they cross
-	 * daylight-saving boundaries routinely, and a fixed offset applied to the far
-	 * side of a transition shifts the day.
+	 * Prefers `timezone_string` over `gmt_offset`, matching the dashboard's own `siteTimeZone()`:
+	 * analytics links point at past dates, so a fixed offset applied to the far side of a
+	 * daylight-saving transition shifts the day.
 	 *
 	 * @return string An IANA timezone name, or a `+HH:MM` UTC offset.
 	 */
@@ -381,21 +367,13 @@ class Analytics {
 	}
 
 	/**
-	 * Unhook wp-build's full-page render interceptor.
+	 * Unhook wp-build's full-page render interceptor — security-relevant: it renders
+	 * `?page=jetpack-premium-analytics` from admin_init with no capability check, and only
+	 * renders_admin_chrome() gates the admin-post.php/admin-ajax.php paths that reach admin_init
+	 * without Core's own slug check.
 	 *
-	 * It renders `?page=jetpack-premium-analytics` — a slug the menu never
-	 * registers — from admin_init, with no capability check of its own. On
-	 * wp-admin screens Core already refuses that slug first, in
-	 * wp-admin/includes/menu.php, which admin.php requires before admin_init;
-	 * admin-post.php and admin-ajax.php reach admin_init without that check, and
-	 * renders_admin_chrome() is what currently keeps the build off both. Unhooking
-	 * removes the reliance on that single guard.
-	 *
-	 * wp-build derives the callback name from the page slug, and remove_action() is
-	 * a no-op on a name or priority it doesn't find — so drift would put the second
-	 * entry point back silently. Nothing to remove is normal (the build may be
-	 * absent), but a live interceptor we failed to unhook is not, so say so the way
-	 * register_admin_menu() reports incomplete build output.
+	 * Because remove_action() no-ops on a callback name it can't find, a wp-build rename would
+	 * silently restore this entry point — hence the _doing_it_wrong() below when that happens.
 	 *
 	 * @return void
 	 */
@@ -416,9 +394,8 @@ class Analytics {
 	/**
 	 * Absolute path to the generated widget manifest.
 	 *
-	 * On the class rather than beside its readers in widget-modules.php: two copies
-	 * of this package can load in one request, and only classes go through the
-	 * autoloader's version dedupe. See load_dashboard_components().
+	 * On the class, not beside its readers in widget-modules.php: two copies of this package can
+	 * load in one request, and only classes get the autoloader's version dedupe (see load_dashboard_components()).
 	 *
 	 * @return string
 	 */
@@ -451,8 +428,6 @@ class Analytics {
 				)
 			);
 
-			// Enqueue the i18n loader so the init module can download its JS
-			// translation catalogs.
 			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_i18n_loader' ) );
 		}
 
@@ -468,10 +443,8 @@ class Analytics {
 	/**
 	 * Whether the current request is rendering the Premium Analytics dashboard.
 	 *
-	 * Used to scope the wp-build polyfill registration (which force-replaces core
-	 * script handles) to this dashboard, so it never affects other admin pages.
-	 * Must be cheap and safe to call at plugin-load time, before current_screen
-	 * exists, so it reads the menu page slug directly.
+	 * Scopes the wp-build polyfill registration (which force-replaces core script handles) to
+	 * this dashboard; reads the menu slug directly, not current_screen, to stay safe at plugin-load time.
 	 *
 	 * @return bool True when serving the dashboard page in wp-admin.
 	 */
@@ -489,12 +462,8 @@ class Analytics {
 	/**
 	 * Register the admin menu page.
 	 *
-	 * Uses wp-build's `-wp-admin` variant so Core applies the menu capability check.
-	 * The generated build provides the render callback; a missing build shows a
-	 * notice instead of an empty page.
-	 *
-	 * Report missing page and widget build artifacts independently because the
-	 * build loader includes each one conditionally.
+	 * Uses wp-build's `-wp-admin` variant so Core applies the menu capability check. Reports the
+	 * page and widget artifacts independently since the build loader includes each conditionally.
 	 *
 	 * @return void
 	 */
@@ -560,13 +529,9 @@ class Analytics {
 	/**
 	 * The caller's menu label override, or the package's own translated label.
 	 *
-	 * Only call once translations can load — admin_menu or later. Memoized, so every
-	 * call site in a request shows the same label.
-	 *
-	 * Closures are resolved here rather than at init time, so a caller can hand us
-	 * `__()` in its own textdomain without translating too early. Deliberately not
-	 * is_callable(): PHP function names are case-insensitive, so a plain label like
-	 * "Analytics" would match a stray analytics() function and get called.
+	 * Call only once translations can load — admin_menu or later — and memoize so every call site
+	 * agrees. Deliberately not is_callable(): PHP function names are case-insensitive, so a plain
+	 * label like "Analytics" could match a stray analytics() function and get called.
 	 *
 	 * @return string
 	 */
@@ -579,9 +544,8 @@ class Analytics {
 			? ( self::$menu_title )()
 			: self::$menu_title;
 
-		// A positive check rather than a null coalesce: a closure is free to return an
-		// empty string, or something that isn't a string at all, and either would reach
-		// esc_html() as a broken label instead of falling back here.
+		// A positive check rather than a null coalesce: a closure may return an empty string, or
+		// something that isn't a string at all, and either would reach esc_html() as a broken label.
 		self::$resolved_menu_title = is_string( $title ) && '' !== $title
 			? $title
 			: __( 'Stats v2', 'jetpack-premium-analytics-pkg' );

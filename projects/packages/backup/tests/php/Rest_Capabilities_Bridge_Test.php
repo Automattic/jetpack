@@ -186,6 +186,35 @@ class Rest_Capabilities_Bridge_Test extends TestCase {
 	}
 
 	/**
+	 * A non-200 keeps WordPress.com's reason as well as its status.
+	 *
+	 * This is the screen behind `<Gates>`, and the two answers it most
+	 * needs to tell apart are the two this route cannot distinguish on its
+	 * own: a site whose connection has gone and a site whose plan has. Both
+	 * arrive as `capabilities_fetch_failed` with the same sentence, so the
+	 * upstream code is the whole of the difference.
+	 *
+	 * 412 rather than 500 deliberately — 500 is also the fallback for an
+	 * unreadable status, so a test written against it would pass whether or
+	 * not the status survived.
+	 */
+	public function test_forwards_the_upstream_reason() {
+		$this->arrange_wpcom(
+			array(
+				'code'    => 'no_connected_jetpack',
+				'message' => 'This site is not connected.',
+			),
+			412
+		);
+
+		$data = Capabilities_Bridge::get_capabilities()->get_error_data();
+
+		$this->assertSame( 412, $data['status'] );
+		$this->assertSame( 'no_connected_jetpack', $data['wpcom']['code'] );
+		$this->assertSame( 'This site is not connected.', $data['wpcom']['message'] );
+	}
+
+	/**
 	 * A status that arrives as a numeric string is still a success.
 	 *
 	 * `wp_remote_retrieve_response_code()` returns the value uncast, so a

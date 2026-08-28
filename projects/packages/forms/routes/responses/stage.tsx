@@ -25,6 +25,7 @@ import * as React from 'react';
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
+import { RESPONSES_PER_PAGE, getResponseStatusFilter } from '../../src/dashboard/constants.ts';
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import useResponseFieldColumns from '../../src/dashboard/hooks/use-response-field-columns.ts';
 import { writeColumnPreference } from '../../src/dashboard/response-column-preferences.ts';
@@ -48,6 +49,7 @@ import './style.scss';
 /**
  * Types
  */
+import type { QueryParams } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../src/types/index.ts';
 import type { View, Field, Action, Operator } from '@wordpress/dataviews';
 
@@ -72,26 +74,10 @@ const defaultLayouts = {
 	list: {},
 };
 
-type QueryParams = {
-	status: string;
-	per_page?: number;
-	page?: number;
-	orderby?: string;
-	order?: string;
-	is_unread?: boolean;
-	is_test?: boolean;
-	parent?: string;
-	source?: string;
-	before?: string;
-	after?: string;
-	search?: string;
-	fields_format?: string;
-};
-
 const DEFAULT_VIEW: View = {
 	type: 'table',
 	filters: [],
-	perPage: 20,
+	perPage: RESPONSES_PER_PAGE,
 	sort: {
 		field: 'date',
 		direction: 'desc',
@@ -168,7 +154,7 @@ function StageInner() {
 	const searchParams = useSearch( { from: '/responses/$view' } );
 	const navigate = useNavigate();
 	const statusView = params.view === 'spam' || params.view === 'trash' ? params.view : 'inbox';
-	const statusFilter = statusView === 'inbox' ? 'draft,publish' : statusView;
+	const statusFilter = getResponseStatusFilter( statusView );
 	const dateSettings = getDateSettings();
 	// Matches the width at which boot flips the inspector from a side panel to a
 	// full-screen overlay. Also the width below which the responses table drops every
@@ -726,8 +712,12 @@ function StageInner() {
 				navigate,
 				view: statusView,
 				onSelectResponse: isMobileViewport ? selectResponse : undefined,
+				// Pin this list onto links to the standalone response page, so its
+				// prev/next walks the sequence the user is looking at right now —
+				// filters, search and ordering included.
+				pinnedView: queryParams,
 			} ),
-		[ navigate, statusView, isMobileViewport, selectResponse ]
+		[ navigate, statusView, isMobileViewport, selectResponse, queryParams ]
 	);
 
 	const paginationInfo = useMemo(

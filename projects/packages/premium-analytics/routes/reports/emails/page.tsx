@@ -53,13 +53,9 @@ function getEmailRowId( item: StatsEmailSummaryItem ): string {
 }
 
 /**
- * Premium Analytics Emails report page component.
- *
- * The summary endpoint reports across the whole lifetime of the site and
- * caps its row count at 30, so the page composes only the breadcrumb header
- * and records table: no date filters, tabs, or performance chart. Each row's
- * title links into the post detail page's Email opens tab — the per-email
- * detail surface.
+ * All-time summary capped at 30 rows, so only the breadcrumb header and records table
+ * render — no date filters, tabs, or performance chart. Row titles link to the post
+ * detail page's Email opens tab.
  *
  * @return The Emails report page.
  */

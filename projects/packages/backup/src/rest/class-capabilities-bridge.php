@@ -72,14 +72,14 @@ class Capabilities_Bridge {
 		// Cast: `wp_remote_retrieve_response_code()` returns whatever the
 		// transport put there, and a numeric string fails a strict
 		// comparison against 200 — sending a perfectly good response down
-		// the failure branch, where the `is_int()` test below would then
-		// report it as a 500.
+		// the failure branch, and reporting it as a failure rather than as
+		// the success it was.
 		$status_code = (int) wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $status_code ) {
-			return new WP_Error(
+			return Rest_Controller::upstream_error(
+				$response,
 				'capabilities_fetch_failed',
-				__( 'Could not fetch site capabilities.', 'jetpack-backup-pkg' ),
-				array( 'status' => $status_code > 0 ? $status_code : 500 )
+				__( 'Could not fetch site capabilities.', 'jetpack-backup-pkg' )
 			);
 		}
 

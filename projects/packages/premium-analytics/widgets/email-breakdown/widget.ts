@@ -5,11 +5,9 @@ import { envelope } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
- * Which breakdown dimension the widget lists for the selected email.
- *
- * `countries`, `devices`, and `clients` read the opens or clicks breakdown per
- * the `metric` attribute; `links` always reads the *clicks* breakdown (only
- * clicked links exist). See `use-email-breakdown-rows.ts`.
+ * Which breakdown dimension the widget lists for the selected email. `links`
+ * ignores the `metric` attribute and always reads the clicks breakdown, since
+ * only clicked links exist.
  */
 export type EmailBreakdownView = 'countries' | 'devices' | 'clients' | 'links';
 
@@ -20,41 +18,21 @@ export type EmailBreakdownView = 'countries' | 'devices' | 'clients' | 'links';
 export type EmailBreakdownMetric = 'opens' | 'clicks';
 
 /**
- * Attributes for the Email breakdown widget. None is user-editable (the widget
- * definition below declares no `attributes`); the host pins them per card in
- * its layout and passes the values through to `render.tsx`.
+ * Attributes for the Email breakdown widget. None is user-editable: the post
+ * detail layout pins them per card and passes the values through to `render.tsx`.
  */
 export type EmailBreakdownAttributes = {
-	/**
-	 * Which breakdown dimension to display. Defaults to `countries`.
-	 */
 	view?: EmailBreakdownView;
-	/**
-	 * Whether the dimension views show opens or clicks. Defaults to `opens`.
-	 */
 	metric?: EmailBreakdownMetric;
-	/**
-	 * Whether the countries view also renders a world map. Used by the wide
-	 * Location clicks card in the fixed post-detail composition.
-	 */
+	/** Set by the wide Location clicks card in the fixed post-detail composition. */
 	showMap?: boolean;
 };
 
 /**
- * Widget type definition.
- *
- * Ported from the Jetpack Stats email detail "breakdown" modules
- * (`stats-email-module`). That family is one module rendered four times — by
- * country, device, email client, and clicked link — so this ships as a single
- * widget with a `view` attribute instead of four near-identical widgets. The
- * attributes are not user-editable: the post detail page pins each view as its
- * own fixed, page-titled card with `view` and `metric` set in its layout, so
- * exposing them (inline or in the settings drawer) would let a "Location opens"
- * card show links or clicks. With no editable attribute, the host renders no
- * settings affordance. The breakdown is scoped to a single email by the host
- * through `reportParams.post_id` (the shared single-resource "detail page"
- * param), not by an attribute; the endpoints report over the whole lifetime of
- * the email, so there is no date range or comparison period.
+ * Ported from the Jetpack Stats "breakdown" modules (`stats-email-module`), one
+ * module rendered four times via `view`. No attribute is declared: the post detail
+ * page pins `view` and `metric` per titled card, so exposing them would let a
+ * "Location opens" card show links or clicks. Endpoints are all-time (no date range).
  */
 export default {
 	icon: envelope,

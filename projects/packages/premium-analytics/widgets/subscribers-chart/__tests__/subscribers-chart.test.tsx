@@ -57,8 +57,7 @@ describe( 'SubscribersChartWidget', () => {
 	} );
 
 	// Pinned west of UTC on purpose: under a UTC runner the wall-clock reading
-	// and the old instant reading coincide, so this would pass either way. `TZ`
-	// is not on the typed env shape, hence the cast.
+	// and the old instant reading coincide, so this would pass either way.
 	it( 'builds chart points as the wall clocks the buckets name, declared to the chart', async () => {
 		const env = process.env as Record< string, string | undefined >;
 		const runnerTimeZone = env.TZ;

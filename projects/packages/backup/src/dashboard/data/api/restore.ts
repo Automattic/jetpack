@@ -234,10 +234,10 @@ export async function fetchRestoreStatus( restoreId: number ): Promise< RestoreS
  * the one who started the restore.
  *
  * Used to recover a restore id that WPCOM accepted but did not return.
- * Note the route follows the legacy convention of answering a non-200
- * from WPCOM with a bare `null`, which WordPress serves as HTTP 200 — so
- * this resolves rather than rejecting, and the empty list it returns in
- * that case means "could not read", not "no restores".
+ * Note the route follows the legacy convention of answering a WPCOM
+ * reply it cannot decode with a bare `null`, which WordPress serves as
+ * HTTP 200 — so this resolves rather than rejecting, and the empty list
+ * it returns in that case means "could not read", not "no restores".
  *
  * Returns `null` — not an empty list — when the read failed, because the
  * two mean opposite things to a caller deciding whether it is safe to

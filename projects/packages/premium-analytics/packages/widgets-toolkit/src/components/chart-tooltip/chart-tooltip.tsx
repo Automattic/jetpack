@@ -10,21 +10,14 @@ import { TooltipRow } from './tooltip-row';
 import { isChartDatumEntry } from './utils';
 import type { DataFormat } from '../../types';
 
-/**
- * Style configuration for tooltip indicators.
- * Matches SeriesStyle pattern from chart components.
- */
+/** Mirrors the `SeriesStyle` shape the chart components use. */
 export type TooltipStyle = {
-	/** Color for the indicator */
 	stroke: string;
 
-	/** Stroke width (for line indicator) */
 	strokeWidth?: string | number;
 
-	/** Stroke dash array (for line indicator) */
 	strokeDasharray?: string | number;
 
-	/** Stroke dash offset (for line indicator) */
 	strokeDashoffset?: string | number;
 
 	/** Indicator opacity, so a swatch can match a mark the chart drew translucent. */
@@ -45,35 +38,23 @@ function defaultGetValue( datum: unknown ): number {
 }
 
 export type ChartTooltipProps< TDatum = unknown > = {
-	/**
-	 * Tooltip data from visx chart
-	 */
+	/** Tooltip data from the visx chart. */
 	tooltipData?: {
 		datumByKey?: Record< string, unknown >;
 	};
 
 	dataFormat: DataFormat;
 
-	/**
-	 * Array of styles for each series (required).
-	 * Index corresponds to series index.
-	 */
+	/** One style per series, indexed by series position. */
 	seriesStyles: TooltipStyle[];
 
 	/**
-	 * Series keys in the same order as `seriesStyles`, used to pair a row with
-	 * its style by key instead of by position. Charts emit their tooltip rows in
-	 * their own order — a bar chart drawing two metrics lists both current
-	 * periods before either previous period — so a positional lookup hands rows
-	 * the wrong swatch as soon as the two orders diverge. Omit for charts whose
-	 * rows always arrive in series order.
+	 * Series keys in the same order as `seriesStyles`, pairing a row with its style by
+	 * key rather than position — charts emit rows in their own order, so a positional
+	 * lookup hands rows the wrong swatch. Omit when rows arrive in series order.
 	 */
 	seriesKeys?: string[];
 
-	/**
-	 * Indicator type: 'line' for line charts, 'rect' for bar charts
-	 * Uses chart library's LineShape and RectShape components.
-	 */
 	indicatorType: 'line' | 'rect';
 
 	getLabel?: ( datum: TDatum, index: number, key: string ) => string;
@@ -111,9 +92,8 @@ export function ChartTooltip< TDatum >( {
 					return null;
 				}
 
-				// No positional fallback once `seriesKeys` is given: that lookup is the
-				// bug the prop exists to fix, and reinstating it on a miss would paint
-				// the row a wrong-but-plausible swatch rather than an obviously odd one.
+				// No positional fallback once `seriesKeys` is given: that lookup is the bug
+				// the prop exists to fix, and on a miss it paints a plausible wrong swatch.
 				const style = seriesKeys
 					? seriesStyles[ seriesKeys.indexOf( entry.key ) ]
 					: seriesStyles[ index ];

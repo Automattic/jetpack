@@ -5,6 +5,7 @@ export { ReportScopeProvider, useReportScope, type ReportScope } from './provide
 export * from './hooks';
 export { latestPostQuery, postContentQuery } from './queries/latest-post-query';
 export type { LatestPost, LatestPostResponse } from './processing/latest-post';
+export { statsInsightsQuery } from './queries/stats-insights-query';
 export { type StatsVideoPlaysSummaryParams } from './queries/stats-video-plays-summary-query';
 export {
 	aggregateStatsDrilldownRows,

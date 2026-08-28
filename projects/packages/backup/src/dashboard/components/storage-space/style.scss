@@ -22,6 +22,24 @@
 		inline-size: 160px;
 		margin-block-end: 12px;
 	}
+
+	// The usage readings under the bar. `Stack` owns the row itself —
+	// direction, gap, wrapping and alignment all come from the primitive,
+	// written as inline styles — so the only thing left here is how far
+	// the row sits from the meter above it.
+	&__details {
+		margin-block-start: 8px;
+	}
+
+	// Stands in for that row while the requests are in flight. Matches the
+	// gap and the `body-md` line box it replaces (8px + 20px), and is
+	// deliberately narrower than the track so the pair does not read as a
+	// second meter stacked under the first.
+	&__details-placeholder {
+		block-size: 20px;
+		inline-size: 240px;
+		margin-block-start: 8px;
+	}
 }
 
 .jpb-storage-meter {

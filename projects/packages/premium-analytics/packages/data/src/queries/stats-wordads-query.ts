@@ -44,7 +44,6 @@ export const statsWordAdsStatsQuery = (
 	const date = clampToYesterday ? yesterday : rangeEnd;
 	// The endpoint takes a bucket count and end date, not a range: derive the count
 	// from the clamped end so dropping today's bucket does not shift the start.
-	// Calypso's own defaults stand in when no range is supplied.
 	const defaultQuantity = unit === 'year' ? 10 : 30;
 	const quantity =
 		params.quantity ??
