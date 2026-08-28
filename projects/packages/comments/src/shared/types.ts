@@ -19,14 +19,14 @@ export type CheckpointSettings =
 	| { enabled: false }
 	| {
 			enabled: true;
-			blogId: number;
-			connectUrl: string;
-			landingUrl: string;
 			providers: CheckpointProvider[];
-			redeemUrl: string;
+			/** The exact origin a result is accepted from. */
+			connectOrigin: string;
+			signUrl: string;
 			logoutUrl: string;
 			nonce: string;
-			channel: string;
+			/** The hidden field a held code rides to the server in. */
+			codeField: string;
 			disclosure: string;
 	  };
 

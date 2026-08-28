@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Comment identity: sign each connect request as the blog, take the result from WordPress.com over postMessage checked against an exact origin, and exchange the code when the comment posts rather than at sign-in.

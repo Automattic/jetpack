@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Sync: Allow the comment identity meta keys (jp_ci_sub, jp_ci_provider, jp_ci_avatar) to sync.
+Sync: Allow the comment identity meta keys (jp_ci_site_commenter_id, jp_ci_provider, jp_ci_avatar) to sync.

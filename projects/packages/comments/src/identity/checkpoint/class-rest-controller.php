@@ -10,12 +10,13 @@ namespace Automattic\Jetpack\Comments\Identity;
 /**
  * Two same-origin routes the front end calls:
  *
- * - POST /identity/redeem trades a one-time code for the identity, sets the
- *   first-party cookie, and returns what the form needs to render.
- * - DELETE /identity clears that cookie.
+ * - POST /identity/connect signs a connect request as this blog and returns
+ *   the URL the popup should open, with the challenge to expect back.
+ * - DELETE /identity clears the Passport cookie.
  *
- * The redeem call is the only place the server-to-server exchange runs. A
- * logged-out commenter reaches both, so the guard is a nonce, not a capability.
+ * The exchange itself is not a route: it runs when the comment posts, in
+ * Comment_Hooks. A logged-out commenter reaches both routes, so the guard is a
+ * nonce, not a capability.
  */
 class REST_Controller {
 
@@ -41,13 +42,17 @@ class REST_Controller {
 	public static function register_routes() {
 		register_rest_route(
 			self::NAMESPACE,
-			'/identity/redeem',
+			'/identity/connect',
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'permission_callback' => array( __CLASS__, 'check_nonce' ),
-				'callback'            => array( __CLASS__, 'redeem' ),
+				'callback'            => array( __CLASS__, 'connect' ),
 				'args'                => array(
-					'code' => array(
+					'provider' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+					'origin'   => array(
 						'type'     => 'string',
 						'required' => true,
 					),
@@ -67,33 +72,27 @@ class REST_Controller {
 	}
 
 	/**
-	 * Redeem a code, set the cookie, and return the identity for display.
+	 * Sign a connect request and return the URL to open and the challenge to
+	 * expect back.
 	 *
 	 * @param \WP_REST_Request $request The request.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public static function redeem( \WP_REST_Request $request ) {
+	public static function connect( \WP_REST_Request $request ) {
 		if ( ! Checkpoint::is_available() ) {
 			return new \WP_Error( 'not_available', __( 'Comment sign-in is not available on this site.', 'jetpack-comments' ), array( 'status' => 400 ) );
 		}
 
-		$identity = Redeemer::redeem( (string) $request->get_param( 'code' ) );
+		$signed = Checkpoint::signed_connect_url(
+			(string) $request->get_param( 'provider' ),
+			(string) $request->get_param( 'origin' )
+		);
 
-		if ( is_wp_error( $identity ) ) {
-			return $identity;
+		if ( is_wp_error( $signed ) ) {
+			return $signed;
 		}
 
-		Passport::write( $identity, $identity['expires_at'] );
-
-		// Only what the form renders. The email is never sent back to the page;
-		// it rides the cookie the server just set and is read at submit time.
-		return rest_ensure_response(
-			array(
-				'provider' => $identity['provider'],
-				'name'     => $identity['name'],
-				'avatar'   => $identity['avatar'],
-			)
-		);
+		return rest_ensure_response( $signed );
 	}
 
 	/**
