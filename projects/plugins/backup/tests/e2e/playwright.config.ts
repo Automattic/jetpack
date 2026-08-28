@@ -4,17 +4,11 @@ import baseConfig, {
 
 export default {
 	...baseConfig,
-	// Pinned rather than inherited from `PLAYWRIGHT_WORKERS`. Every spec here
-	// mutates global site state — `disconnect()` / `connect()` in `beforeEach`
-	// — and the three share two WordPress options, so they cannot run
-	// concurrently. Making that a property of the suite keeps it true whatever
-	// the environment says.
+	// Every spec mutates global site state, so they cannot run concurrently.
 	workers: 1,
 	projects: [
-		// The 'connection setup' project is dropped on purpose: one of these specs
-		// needs a disconnected site, and each spec establishes the connection state
-		// it wants for itself. Leaving the shared setup in would connect the site
-		// once up front and then be undone by the first spec that runs.
+		// Each spec establishes its own connection state, and one needs the site
+		// disconnected — so the shared 'connection setup' project is dropped.
 		...setupProjects.filter( project => project.name !== 'connection setup' ),
 		{
 			name: 'jetpack backup e2e',

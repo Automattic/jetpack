@@ -6,42 +6,24 @@
  * Version: 1.0.0
  * Text Domain: jetpack
  *
- * Two jobs, both needed before the modernized Backup dashboard can be
- * driven from an e2e test:
- *
- * 1. Turn on the modernization filter. `Jetpack_Backup::is_modernized()`
- *    reads `rsm_jetpack_ui_modernization_backup`, which defaults to false,
- *    so without this the suite would exercise the legacy React admin page
- *    and every assertion in the Backup specs would be meaningless.
- * 2. Answer `/sites/{id}/rewind/capabilities` locally. That endpoint is
- *    the only thing `<Gates>` consults to decide whether the site has a
- *    Backup plan — it does not read the site's Jetpack plan, so
- *    `setMockPlanData()` / `e2e-plan-helper.php` (which intercept
- *    `/sites/{id}` and `/sites/{id}/wordads/status`) cannot fake it.
- *
- * Only activated by the Backup e2e suite; it is inert in every other
- * environment because nothing else turns it on.
+ * Turns on the Backup modernization filter and answers
+ * `/sites/{id}/rewind/capabilities` locally. That endpoint is the only thing `<Gates>`
+ * reads to decide whether the site has a Backup plan, so `e2e-plan-helper.php` — which
+ * intercepts `/sites/{id}` — cannot fake it.
  *
  * @package automattic/jetpack
  */
 
 /**
- * Comma-separated rewind capabilities to answer with, e.g. `backup,scan`.
- * Absent or empty means "this site has no rewind capabilities at all",
- * which is a legitimate WPCOM answer and the one that drives the no-plan
- * gate. Interception is therefore unconditional: a spec that forgets to
- * set the option gets a deterministic no-plan answer rather than
- * whatever WordPress.com happens to say about the test site.
+ * Comma-separated rewind capabilities to answer with, e.g. `backup,scan`. Absent or empty
+ * is a legitimate WPCOM answer and the one that drives the no-plan gate, so interception
+ * is unconditional.
  */
 const E2E_BACKUP_CAPABILITIES_OPTION = 'e2e_backup_capabilities';
 
 /**
- * Number of `/rewind/capabilities` requests this helper has answered.
- *
- * Read by the specs. Without it the no-plan assertion would pass just as
- * happily against a real WordPress.com reply for a site with no Backup
- * plan — which is exactly what the e2e site is — so a mock that had
- * quietly stopped working would still look like a passing test.
+ * Number of `/rewind/capabilities` requests this helper has answered. Read by the specs,
+ * because the e2e site's real plan also lacks Backup and a dead mock would still pass.
  */
 const E2E_BACKUP_INTERCEPT_COUNT_OPTION = 'e2e_backup_capabilities_intercepts';
 
@@ -67,8 +49,7 @@ function e2e_jetpack_backup_intercept_capabilities( $return, $_parsed_args, $url
 		return $return;
 	}
 
-	// Anchored at the end (or at a query string) so this can never also
-	// swallow a longer path that starts with the same segments.
+	// Anchored so a longer path sharing these segments is not also swallowed.
 	if ( 1 !== preg_match( sprintf( '#/sites/%d/rewind/capabilities($|\?)#', $site_id ), $url ) ) {
 		return $return;
 	}
@@ -91,10 +72,8 @@ function e2e_jetpack_backup_intercept_capabilities( $return, $_parsed_args, $url
 /**
  * The capability list to answer with, parsed out of the option.
  *
- * `array_values()` matters: `Capabilities_Bridge` refuses a body whose
- * `capabilities` key is not a numeric array, so a list with gaps in its
- * keys would reach the dashboard as an unreadable response rather than
- * as the capabilities it names.
+ * `array_values()` matters: `Capabilities_Bridge` refuses a `capabilities` key that is
+ * not a numeric array.
  *
  * @return string[] Capability slugs, possibly empty.
  */
