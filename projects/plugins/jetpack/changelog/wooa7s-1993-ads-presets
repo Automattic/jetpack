@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Premium Analytics: Drop the Last 24 hours range from the Ads WordAds card, which has no hourly data to chart.
+Premium Analytics: Drop the Last 24 hours range from the WordAds card, which has no hourly data to chart.

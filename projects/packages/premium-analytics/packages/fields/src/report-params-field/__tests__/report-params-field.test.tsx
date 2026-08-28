@@ -125,10 +125,17 @@ describe( 'createReportParamsField', () => {
 
 	it( 'moves an instance saved on an unoffered window onto an offered one', () => {
 		const { latest } = renderField( true, [ 'last-7-days', 'last-30-days', 'last-12-months' ], {
-			reportParams: { preset: 'last-24-hours', interval: 'hour' },
+			reportParams: {
+				preset: 'last-24-hours',
+				from: '2026-01-14T00:00:00.000Z',
+				to: '2026-01-15T23:59:59.999Z',
+				interval: 'hour',
+			},
 		} );
 
-		expect( latest() ).toEqual( expect.objectContaining( { preset: 'last-30-days' } ) );
+		// The window and bucket leave with the preset, so nothing left in the
+		// preference describes a range the widget no longer offers.
+		expect( latest() ).toEqual( { preset: 'last-30-days' } );
 		expect( screen.getByRole( 'button', { name: '30 days' } ) ).toHaveAttribute(
 			'aria-pressed',
 			'true'

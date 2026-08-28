@@ -138,13 +138,14 @@ function ReportParamsControl( {
 	 * alone it highlights no pill, reads "Custom", and keeps a bucket menu scoped
 	 * to that window. A custom range or a year is not ours to rewrite.
 	 */
-	const offeredPresetIds = ( presetIds ?? [] ) as readonly string[];
-	const fallbackPreset = offeredPresetIds.includes( defaultPreset )
+	const offeredPresetIds = presetIds as readonly string[] | undefined;
+	const fallbackPreset = offeredPresetIds?.includes( defaultPreset )
 		? defaultPreset
 		: presetIds?.[ 0 ];
 
 	const appliedPreset = appliedParams.preset;
 	const isUnofferedPreset =
+		!! offeredPresetIds &&
 		!! appliedPreset &&
 		( QUICK_SURFACE_PRESETS as readonly string[] ).includes( appliedPreset ) &&
 		! offeredPresetIds.includes( appliedPreset );
@@ -156,7 +157,13 @@ function ReportParamsControl( {
 			return;
 		}
 		hasMigratedPreset.current = true;
-		onChange( { reportParams: { ...committed, preset: fallbackPreset } } );
+		// A preset alone, the shape `getDefaultReportParams` writes: the stored
+		// window and bucket describe a range this widget no longer offers.
+		const migrated = { ...committed, preset: fallbackPreset };
+		delete migrated.from;
+		delete migrated.to;
+		delete migrated.interval;
+		onChange( { reportParams: migrated } );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ isUnofferedPreset, fallbackPreset ] );
 
