@@ -22,40 +22,6 @@ export const clearVisibilityMemo = () => {
 };
 
 /**
- * Hide every field enclosed by a hidden container.
- *
- * Mirrors Conditional_Logic_Container::apply_containment in PHP and MUST stay in sync: the
- * browser decides what the visitor sees and the server decides what is validated and stored,
- * so a disagreement either blocks the form on a field nobody was shown or accepts an answer
- * for one that was hidden.
- *
- * A pass after the evaluator rather than part of it, because containment is a consequence
- * rather than a condition: a field inside a hidden container is hidden whatever its own rules
- * say.
- *
- * @param {object} visibility - Map of id to bool, as resolved by resolveVisibility.
- * @param {object} contains   - Map of container id to the field ids it encloses.
- * @return {object} The visibility map, with enclosed fields hidden.
- */
-const applyContainment = ( visibility, contains ) => {
-	if ( ! contains ) {
-		return visibility;
-	}
-
-	for ( const containerId in contains ) {
-		if ( false !== visibility[ containerId ] ) {
-			continue;
-		}
-
-		for ( const fieldId of contains[ containerId ] ) {
-			visibility[ fieldId ] = false;
-		}
-	}
-
-	return visibility;
-};
-
-/**
  * Resolve visibility for every field in the form the current field belongs to.
  *
  * The form block emits `conditionalLogic` as `{ types, logic }`: a type for every field, so
@@ -105,10 +71,7 @@ export const resolveFormVisibility = context => {
 		};
 	}
 
-	const map = applyContainment(
-		resolveVisibility( descriptors, values ),
-		conditionalLogic.contains
-	);
+	const map = resolveVisibility( descriptors, values, conditionalLogic.contains );
 	memoByForm.set( formKey, { signature, map } );
 
 	return map;
