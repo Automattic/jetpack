@@ -86,7 +86,14 @@ class Jetpack_AI_Helper_Test extends WP_UnitTestCase {
 	public function test_get_ai_assistance_feature_uses_cost_credit_cache_by_default() {
 		$cached = $this->get_credit_allowance_response();
 		set_transient( $this->get_transient_name(), $cached, MINUTE_IN_SECONDS );
-		$this->mock_wpcom_response( $this->get_credit_allowance_response( array( 'credits-used' => 300, 'credits-remaining' => 700 ) ) );
+		$this->mock_wpcom_response(
+			$this->get_credit_allowance_response(
+				array(
+					'credits-used'      => 300,
+					'credits-remaining' => 700,
+				)
+			)
+		);
 
 		$this->assertSame( $cached, Jetpack_AI_Helper::get_ai_assistance_feature() );
 		$this->assertSame( 0, $this->request_count );
@@ -203,7 +210,7 @@ class Jetpack_AI_Helper_Test extends WP_UnitTestCase {
 	 * Shadow-only credit data cannot become the active usage contract.
 	 */
 	public function test_get_ai_assistance_feature_rejects_non_authoritative_cost_credit_response() {
-		$response                                        = $this->get_credit_allowance_response();
+		$response = $this->get_credit_allowance_response();
 		$response['ai-credit-allowance']['authoritative'] = false;
 		$this->mock_wpcom_response( $response );
 
@@ -236,7 +243,14 @@ class Jetpack_AI_Helper_Test extends WP_UnitTestCase {
 		$cached = $this->get_credit_allowance_response();
 		set_transient( $this->get_transient_name(), $cached, MINUTE_IN_SECONDS );
 		set_transient( $this->get_refresh_transient_name(), true, MINUTE_IN_SECONDS );
-		$this->mock_wpcom_response( $this->get_credit_allowance_response( array( 'credits-used' => 300, 'credits-remaining' => 700 ) ) );
+		$this->mock_wpcom_response(
+			$this->get_credit_allowance_response(
+				array(
+					'credits-used'      => 300,
+					'credits-remaining' => 700,
+				)
+			)
+		);
 
 		$this->assertSame( $cached, Jetpack_AI_Helper::get_ai_assistance_feature( true ) );
 		$this->assertSame( 0, $this->request_count );
