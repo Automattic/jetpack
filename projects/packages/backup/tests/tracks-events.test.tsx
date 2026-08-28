@@ -77,6 +77,26 @@ function mockEndpointsForButton() {
 	} );
 }
 
+/**
+ * Answer the two routes `<NextScheduledBackup>` reads before it renders.
+ *
+ * It renders nothing without a readable hour, and nothing while WordPress.com
+ * says backups have stopped — so a bare mock leaves no link to click and the
+ * test would pass by finding neither the link nor the event.
+ */
+function mockEndpointsForSchedule() {
+	mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+		const path = options?.path ?? '';
+		if ( path.includes( '/site/backup/schedule' ) ) {
+			return Promise.resolve( { ok: true, scheduled_hour: 10 } );
+		}
+		if ( path.includes( '/site/backup/size' ) ) {
+			return Promise.resolve( { ok: true, backups_stopped: false } );
+		}
+		return Promise.resolve( {} );
+	} );
+}
+
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
 const ORIGINAL_STATE = window.JP_CONNECTION_INITIAL_STATE;
@@ -258,6 +278,60 @@ describe( 'Back up now', () => {
 		await expect(
 			screen.findByRole( 'button', { name: /back up now/i } )
 		).resolves.toBeInTheDocument();
+		expect( mockRecordEvent ).not.toHaveBeenCalled();
+	} );
+} );
+
+describe( 'Modify schedule', () => {
+	/**
+	 * Render the next-backup line inside the dashboard's query client.
+	 *
+	 * @return The Testing Library render result.
+	 */
+	async function renderScheduleLine() {
+		mockEndpointsForSchedule();
+		const NextScheduledBackup = (
+			await import( '../src/dashboard/components/next-scheduled-backup' )
+		).default;
+
+		return render(
+			<QueryClientProvider>
+				<NextScheduledBackup />
+			</QueryClientProvider>
+		);
+	}
+
+	/**
+	 * The "Modify" link, once the two reads behind the line have landed.
+	 *
+	 * Matched on a fragment of its name: `Link` appends an "(opens in a new tab)"
+	 * indicator to anything with `openInNewTab`.
+	 *
+	 * @return The anchor.
+	 */
+	function modifyLink(): Promise< HTMLElement > {
+		return screen.findByRole( 'link', { name: /Modify/ } );
+	}
+
+	// JETPACK-2329. Legacy records this on the "Modify" link beside the
+	// next-backup line (`js/components/next-scheduled-backup.tsx:29-31`). The link
+	// and the event were held back together when that line was ported, so they
+	// come back together — otherwise the only measurement of readers leaving for
+	// `cloud.jetpack.com/settings` is silently missing.
+	it( 'records the reader leaving for the schedule settings', async () => {
+		await renderScheduleLine();
+
+		await userEvent.click( await modifyLink() );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_backup_schedule_modify_click' );
+	} );
+
+	it( 'records nothing until the reader actually clicks', async () => {
+		await renderScheduleLine();
+
+		// Settled on the link being there to click, so this is a click that did
+		// not happen rather than a component that never rendered.
+		await expect( modifyLink() ).resolves.toBeInTheDocument();
 		expect( mockRecordEvent ).not.toHaveBeenCalled();
 	} );
 } );
