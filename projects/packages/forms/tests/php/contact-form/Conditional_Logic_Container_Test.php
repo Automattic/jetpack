@@ -227,6 +227,55 @@ class Conditional_Logic_Container_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A nested container is governed by its ancestors, so it belongs in their lists too.
+	 *
+	 * Without this the visibility map reports an inner container visible while its parent is
+	 * hidden -- masked today only because the CSS hides it through the ancestor, and wrong for
+	 * anything that reads the map rather than the DOM.
+	 */
+	public function test_harvest_attributes_a_nested_container_to_its_ancestor() {
+		$inner = $this->container( 'jp-container-2', $this->logic( 'other' ), $this->field( 'deep' ) );
+		$body  = $this->container( 'jp-container-1', $this->logic(), $inner );
+
+		$result = Conditional_Logic_Container::harvest( $body );
+
+		$this->assertContains( 'jp-container-2', $result['contains']['jp-container-1'] );
+		$this->assertContains( 'deep', $result['contains']['jp-container-1'] );
+		$this->assertSame( array( 'deep' ), $result['contains']['jp-container-2'] );
+	}
+
+	/**
+	 * Two fields whose labels derive the same id make containment ambiguous, and hiding the
+	 * container would discard the answer to the one outside it. The container keeps hiding;
+	 * it just stops claiming an id it cannot prove is its own.
+	 */
+	public function test_harvest_drops_an_id_claimed_by_more_than_one_field() {
+		$body = $this->container( 'jp-container-1', $this->logic(), $this->field( 'name' ) )
+			. $this->field( 'name' );
+
+		$result = Conditional_Logic_Container::harvest( $body );
+
+		$this->assertArrayHasKey( 'jp-container-1', $result['logic'], 'The container is still harvested.' );
+		$this->assertSame(
+			array(),
+			$result['contains']['jp-container-1'],
+			'An ambiguous id must not be claimed, or the visible field outside the group is hidden and its answer discarded.'
+		);
+	}
+
+	/**
+	 * An id carried by exactly one wrapper is unaffected by the ambiguity guard.
+	 */
+	public function test_harvest_keeps_an_unambiguous_id() {
+		$body = $this->container( 'jp-container-1', $this->logic(), $this->field( 'secret' ) )
+			. $this->field( 'other' );
+
+		$result = Conditional_Logic_Container::harvest( $body );
+
+		$this->assertSame( array( 'secret' ), $result['contains']['jp-container-1'] );
+	}
+
+	/**
 	 * A body with no containers is returned untouched, and cheaply.
 	 */
 	public function test_harvest_ignores_a_body_without_containers() {
@@ -293,7 +342,10 @@ class Conditional_Logic_Container_Test extends BaseTestCase {
 
 		$result = Conditional_Logic_Container::harvest( $body );
 
-		$this->assertSame( array( 'secret' ), $result['contains']['jp-container-1'] );
+		// The outer list also names the inner container, which is governed by it in turn --
+		// asserted on its own in test_harvest_attributes_a_nested_container_to_its_ancestor.
+		// What matters here is that the field answers to both.
+		$this->assertContains( 'secret', $result['contains']['jp-container-1'] );
 		$this->assertSame( array( 'secret' ), $result['contains']['jp-container-2'] );
 	}
 

@@ -73,6 +73,13 @@ class Conditional_Logic_Container {
 	 * @return void
 	 */
 	public static function init() {
+		// Nothing to stamp while the feature is off, and `core/group` is everywhere in a block
+		// theme -- headers, footers, template parts, patterns. Not registering at all costs a
+		// site with the feature off nothing per group per render.
+		if ( ! Jetpack_Forms::is_conditional_logic_enabled() ) {
+			return;
+		}
+
 		foreach ( self::SUPPORTED_BLOCKS as $block_name ) {
 			add_filter( 'render_block_' . $block_name, array( __CLASS__, 'add_container_attributes' ), 10, 2 );
 		}
@@ -93,7 +100,8 @@ class Conditional_Logic_Container {
 	 * Stamp a container that carries conditions with everything the runtime needs.
 	 *
 	 * Runs for every `core/group` on the page, including the great majority that sit outside
-	 * any form and carry no conditions; those return untouched before any parsing happens.
+	 * any form and carry no conditions; those return untouched on an array read, before the
+	 * feature-flag lookup and before any parsing.
 	 *
 	 * The element is given the same visibility contract a field wrapper gets — the same root
 	 * attribute, the same class binding, the same `data-jp-conditional` marker that scopes the
@@ -106,19 +114,24 @@ class Conditional_Logic_Container {
 	 * @return string The HTML, stamped when the block carries conditions.
 	 */
 	public static function add_container_attributes( $block_content, $block ) {
-		if ( ! Jetpack_Forms::is_conditional_logic_enabled() ) {
-			return $block_content;
-		}
-
-		if ( ! is_string( $block_content ) || '' === trim( $block_content ) ) {
-			return $block_content;
-		}
-
+		// Cheapest test first: an array read on the block that is already in hand. The
+		// overwhelming majority of groups carry no conditions and leave here, before the
+		// feature-flag lookup and before any parsing.
 		$logic = $block['attrs']['conditionalLogic'] ?? null;
 
 		// `enabled` is derived in the editor from whether any rule exists, so a container the
 		// author opened the panel on but wrote no conditions in adds nothing to the page.
 		if ( ! is_array( $logic ) || empty( $logic['enabled'] ) ) {
+			return $block_content;
+		}
+
+		// Re-checked here as well as in init(): the filter is registered once per request, but
+		// the flag is filterable and a caller may change it in between.
+		if ( ! Jetpack_Forms::is_conditional_logic_enabled() ) {
+			return $block_content;
+		}
+
+		if ( ! is_string( $block_content ) || '' === trim( $block_content ) ) {
 			return $block_content;
 		}
 
@@ -227,9 +240,10 @@ class Conditional_Logic_Container {
 			return $empty;
 		}
 
-		$logic    = array();
-		$contains = array();
-		$open     = array();
+		$logic       = array();
+		$contains    = array();
+		$open        = array();
+		$root_counts = array();
 
 		while ( $processor->next_tag() ) {
 			$depth = $processor->get_current_depth();
@@ -247,6 +261,8 @@ class Conditional_Logic_Container {
 				continue;
 			}
 
+			$root_counts[ $root ] = ( $root_counts[ $root ] ?? 0 ) + 1;
+
 			$encoded_logic = $processor->get_attribute( self::LOGIC_ATTRIBUTE );
 
 			if ( ! is_string( $encoded_logic ) ) {
@@ -262,6 +278,15 @@ class Conditional_Logic_Container {
 			$decoded = self::decode_logic( $encoded_logic );
 
 			if ( null !== $decoded ) {
+				// A nested container is governed by its ancestors exactly as a field is, so it
+				// is attributed to them before it starts governing anything itself. Without
+				// this the visibility map reports an inner container visible while its parent
+				// is hidden -- masked today only because the CSS hides it through the ancestor,
+				// and wrong for anything that reads the map rather than the DOM.
+				foreach ( $open as $entry ) {
+					$contains[ $entry['id'] ][] = $root;
+				}
+
 				$logic[ $root ]    = $decoded;
 				$contains[ $root ] = array();
 
@@ -289,9 +314,46 @@ class Conditional_Logic_Container {
 		 */
 		return array(
 			'logic'    => $logic,
-			'contains' => $contains,
+			'contains' => self::drop_ambiguous_ids( $contains, $root_counts ),
 			'body'     => $processor->get_updated_html(),
 		);
+	}
+
+	/**
+	 * Drop ids that more than one element claims from every containment list.
+	 *
+	 * A field id is derived from its label at render time, so two fields in one form can end
+	 * up sharing one -- "Name" inside a conditional group and "Name" outside it both derive
+	 * `name`. Containment keys on that id, so hiding the container would hide, and then
+	 * discard the answer to, every field sharing it -- including the one still on screen.
+	 * `apply_initial_field_visibility()` stamps by the same id, so it would hide both too.
+	 *
+	 * Ambiguity is resolved by not acting: the container still hides, but it stops claiming an
+	 * id it cannot prove belongs to it. Losing a hide is visible and recoverable; discarding an
+	 * answer the visitor typed is neither.
+	 *
+	 * The editor's duplicate-id notice is where this gets fixed properly. This is the runtime
+	 * declining to do damage in the meantime.
+	 *
+	 * @param array $contains    Map of container id to the ids it encloses.
+	 * @param array $root_counts Map of id to how many elements carried it.
+	 *
+	 * @return array The containment map, with ambiguous ids removed.
+	 */
+	private static function drop_ambiguous_ids( array $contains, array $root_counts ) {
+		foreach ( $contains as $container_id => $ids ) {
+			$unambiguous = array();
+
+			foreach ( $ids as $id ) {
+				if ( 1 === ( $root_counts[ $id ] ?? 0 ) ) {
+					$unambiguous[] = $id;
+				}
+			}
+
+			$contains[ $container_id ] = $unambiguous;
+		}
+
+		return $contains;
 	}
 
 	/**
