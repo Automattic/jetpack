@@ -8,6 +8,8 @@ import {
 const stylesheet = readFileSync( join( __dirname, '..', 'chart-scope.scss' ), 'utf8' );
 const tokensDoc = readFileSync( join( __dirname, '..', '..', '..', 'TOKENS.md' ), 'utf8' );
 
+const normalize = ( value: string ): string => value.replace( /\s+/g, ' ' ).trim();
+
 type Entry = {
 	/** The custom property this one reads, or null when the value is a literal. */
 	reads: string | null;
@@ -15,10 +17,8 @@ type Entry = {
 	fallback: string | null;
 };
 
-const normalize = ( value: string ): string => value.replace( /\s+/g, ' ' ).trim();
-
 /**
- * Unwraps the theme layer a `theme`-prop-overridable role carries, so the tables in `TOKENS.md` keep documenting what a role ultimately resolves to — its `--wpds-*` token and spec fallback — rather than restating the override plumbing in every row. Which roles carry the layer is pinned separately below.
+ * Unwraps the theme layer a `theme`-prop-overridable role carries, so the tables in `TOKENS.md` keep documenting what a role ultimately resolves to rather than restating the override plumbing in every row. Which roles carry the layer is pinned separately below.
  *
  * A role with no catalog default reads its layer with no fallback at all — the empty series-palette slots — and unwraps to nothing, which is what it resolves to until a consumer sets it.
  *
@@ -145,9 +145,24 @@ describe( 'chart scope catalog', () => {
 	} );
 
 	// The tables in TOKENS.md restate the stylesheet for consumers who only have the
-	// published package. This is the check that stops the two drifting apart.
-	it.each( [ ...declared.keys() ] )( 'documents %s with the value it is declared with', token => {
-		expect( documented.get( token ) ).toEqual( declared.get( token ) );
+	// published package. Mapping (what a role reads) must match the source. The
+	// Fallback column for `--wpds-*` mappings is injected at build time, so only
+	// literals and `--a8c-charts-*` derivations are compared as fallbacks.
+	it.each( [ ...declared.keys() ] )( 'documents %s with the mapping it is declared with', token => {
+		expect( documented.get( token )?.reads ).toEqual( declared.get( token )?.reads );
+	} );
+
+	it.each(
+		[ ...declared.keys() ].filter( token => {
+			const entry = declared.get( token );
+
+			return (
+				entry?.reads?.startsWith( '--wpds-' ) !== true &&
+				entry?.fallback?.includes( '--wpds-' ) !== true
+			);
+		} )
+	)( 'documents %s with the fallback it is declared with', token => {
+		expect( documented.get( token )?.fallback ).toEqual( declared.get( token )?.fallback );
 	} );
 
 	// The layer is what keeps a `theme` prop override from being able to take its role down with it: an override that is invalid at computed-value time only invalidates `<role>-theme`, and the role's own fallback still resolves the mapped token. Drop the layer from a role and that role's overrides go back to blanking every read site.
