@@ -177,20 +177,27 @@ Two gates enforce this, both running `tools/check-changelogger-use.php`: the pre
 
 An entry only lands in the CHANGELOG of the project it was added to. A PR confined to a shared project — a PHP package under `projects/packages/`, a JS package under `projects/js-packages/`, or any other non-plugin project — therefore reaches that project's CHANGELOG and nowhere else: the plugins that bundle it get, at most, the generic "Update package dependencies." line the release tooling files under "Other changes", which is never copied to `readme.txt`. Users, release posts, and support documentation read the plugin changelog, so the change is invisible to them.
 
-**When a change to a package or js-package is user-facing — a new block, new or changed UI, a behavior change, a bug fix someone would notice — add a changelog entry to every plugin that ships it, on top of the project's own entry.** Write each one from that plugin's user's perspective; the wording rarely needs to be identical.
+**When a change to a package or js-package is user-facing — a new block, new or changed UI, a behavior change, a bug fix someone would notice — add an entry to each plugin whose own users would notice it, on top of the project's own entry.** That is usually a subset of the plugins that bundle the project, and often just one. Write each one from that plugin's user's perspective; the wording rarely needs to be identical.
+
+Over-reporting is not free. A file under `projects/plugins/<plugin>/changelog/` requests review from that plugin's CODEOWNERS, so an unnecessary entry pings a team with nothing to review — and it puts a line about a product the plugin does not ship into a changelog and `readme.txt` that its users do read.
 
 Prefix each plugin's entry with the product the shared project backs — `Premium Analytics:` for `packages/premium-analytics`, `Search:` for `packages/search` — so readers of a plugin changelog that bundles many products can place the change. The exception is a plugin named for that same product (`plugins/premium-analytics`, `plugins/search`): there the prefix would only repeat the plugin's own name, so leave it off (or use a narrower component prefix), as in the example below.
 
-List the plugins that ship a project (works the same for `packages/…` and `js-packages/…`):
+Start from the plugins that bundle the project (works the same for `packages/…` and `js-packages/…`):
 
 ```bash
 jp dependencies list packages/search --add-dependents --extra build --no-dev | grep '^plugins/'
 jp dependencies list js-packages/components --add-dependents --extra build --no-dev | grep '^plugins/'
 ```
 
-A widely-shared js-package can list a dozen plugins. Add entries to the ones where the change is actually reachable by that plugin's users, not to every dependent by reflex.
+Then narrow that list. A widely-shared js-package can list well over a dozen plugins; add an entry for one only when a user of *that plugin* could notice the change. Skip it when:
 
-Then add one entry per plugin. Each project defines its own types — `plugins/jetpack` uses `major` | `enhancement` | `compat` | `bugfix` | `other`:
+- **The change belongs to another product and this plugin only hosts the shell.** A change to a My Jetpack product card, or to a package behind one such as `js-packages/boost-score-api`, belongs in the changelogs of the plugins that ship that product. Every other plugin renders the card only for someone who already has that product installed, and they read about it in that product's changelog.
+- **The plugin never reaches the changed code.** `js-packages/components` is a build dependency of nearly every plugin in the monorepo, but `DiffViewer` is imported by exactly one file, in `plugins/protect`. Grep the changed symbol under `projects/plugins/<plugin>/` before adding an entry for it.
+- **It is reachable only under conditions the plugin never creates** — a module it does not register, a plan or product it does not sell, or a host it does not run on, such as the WordPress.com Simple and Atomic paths in `packages/masterbar`.
+- **The plugin's changelog has no site-owner audience.** `starter-plugin` is a scaffolding template, and `beta`, `debug-helper` and `inspect` are internal tools; their changelogs are not a product record.
+
+Then add one entry per plugin that survives. Each project defines its own types — `plugins/jetpack` uses `major` | `enhancement` | `compat` | `bugfix` | `other`:
 
 ```bash
 jp changelog add packages/search -s minor -t added       -e "Add a Search Results block."
@@ -200,7 +207,9 @@ jp changelog add plugins/jetpack -s minor -t enhancement -e "Search: Add a Searc
 
 **The non-interactive form never prompts for this.** Naming a project (`jp changelog add <project> -s … -t … -e …`) disables the indirect-plugin check, so dependent plugins are silently skipped; only bare `jp changelog add` offers to write those entries for you. Using the non-interactive form means adding the plugin entries yourself — or running `jp changelog add --check-indirect-plugins` afterwards to be asked.
 
-The project's own entry alone is correct only when nothing is observable to a site owner: internal refactors, tests, tooling, type fixes.
+**And the prompt it does show is all-or-nothing.** It offers every indirectly-affected plugin as a single list and, on a `yes`, writes the entry to all of them. When only some of them qualify, answer `no` and add those entries yourself with the non-interactive form.
+
+The project's own entry alone is correct when nothing is observable to a site owner — internal refactors, tests, tooling, type fixes — and when the only people who can observe it are already covered by a plugin that has its own entry.
 
 ### Interactive Mode
 
@@ -274,7 +283,7 @@ The exception is the **WordPress.com Tests** check (the TeamCity `JetpackPreFlig
 
 When reviewing code, check for:
 - Adherence to `docs/coding-guidelines.md`
-- User-facing changes in a package or js-package missing changelog entries in the plugins that ship it (see "User-Facing Changes Outside a Plugin Also Need Plugin Entries" above) — CI only checks the directly-touched project, so this gap is reviewer-only
+- Changelog entries in the wrong set of plugins — a user-facing package change missing an entry in a plugin that surfaces it, or an entry added to plugins that cannot reach the change at all (see "User-Facing Changes Outside a Plugin Also Need Plugin Entries" above). CI only checks the directly-touched project, so both directions are reviewer-only
 - Missing documentation for public APIs, or missing explanations for non-obvious logic
 - Typos in user-facing strings, comments, and docs — PHPCS and ESLint check naming and formatting, not spelling, so this needs human eyes
 - Performance hazards that no sniff catches: uncached `wp_remote_*` calls, queries inside loops, `meta_query`/`tax_query`/`orderby => rand` on large tables, and newly autoloaded options. `WordPress.DB.SlowDBQuery` is excluded from the Jetpack ruleset as too noisy, so this is reviewer-only

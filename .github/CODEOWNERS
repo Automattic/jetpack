@@ -2,6 +2,12 @@
 # Please fire off a PR to this file to own #
 #  or disavow any section of the codebase. #
 ############################################
+#
+# If a rule here owns a whole project, follow it with a `<project>/changelog`
+# line that has no owner. Any PR touching a shared package drops entries in
+# every dependent plugin's changelog directory, and those files never need
+# your team's review. A PR that also touches your source still requests you
+# through those files.
 
 # Stuff that affects the whole monorepo
 
@@ -80,6 +86,7 @@
 /projects/plugins/stats @Automattic/jetpack-stats
 /projects/plugins/stats/changelog # No owner - too noisy on cross-project PRs
 /projects/plugins/boost @Automattic/jetpack-boost
+/projects/plugins/boost/changelog # No owner - too noisy on cross-project PRs
 
 # Functionality that is important to our partners
 /projects/plugins/jetpack/class.jetpack-cli.php @Automattic/jetpack-infinity
