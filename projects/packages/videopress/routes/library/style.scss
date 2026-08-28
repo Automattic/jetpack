@@ -20,6 +20,23 @@
 		margin: 24px 24px 0;
 	}
 
+	// The empty library's upload invitation: one centered card, sized to the
+	// Settings tab's content measure so adjacent screens share a width. The
+	// viewport's `> *` flex rule stretches it; `overflow-y` keeps the card
+	// reachable on short windows.
+	&__empty-state {
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+		padding: 24px;
+		overflow-y: auto;
+	}
+
+	&__empty-card {
+		inline-size: 100%;
+		max-inline-size: 718px;
+	}
+
 	&__viewport {
 		display: flex;
 		flex-direction: column;

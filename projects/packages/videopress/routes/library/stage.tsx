@@ -4,7 +4,7 @@ import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Button } from '@wordpress/ui';
+import { Button, Card } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
@@ -15,6 +15,7 @@ import { buildLibraryActions } from '../../src/dashboard/components/library/acti
 import { libraryFields } from '../../src/dashboard/components/library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/library/upload-actions-context';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
+import UploadDropzone from '../../src/dashboard/components/upload-dropzone';
 import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
@@ -66,6 +67,20 @@ const defaultLayouts: SupportedLayouts = {
 	table: { layout: { density: 'balanced' } },
 };
 
+// The whole library, unfiltered — `paginationInfo` on the user's own view is
+// scoped to their filters and search, so it cannot answer "is there anything
+// at all". A perPage=1 read keeps it cheap, and the shape is stable so the
+// query caches across screens.
+const TOTAL_COUNT_VIEW: View = {
+	type: 'table',
+	page: 1,
+	perPage: 1,
+	fields: [],
+	filters: [],
+	search: '',
+	sort: { field: 'date', direction: 'desc' },
+};
+
 const StageInner = () => {
 	const [ initialView, persistView ] = usePersistedView( DEFAULT_VIEW );
 	const [ view, setView ] = useState< View >( initialView );
@@ -92,6 +107,7 @@ const StageInner = () => {
 		refetch,
 	} = useLibrary( view );
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
+	const { paginationInfo: totalPagination } = useLibrary( TOTAL_COUNT_VIEW );
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
@@ -404,6 +420,84 @@ const StageInner = () => {
 
 	const getItemId = useCallback( ( item: LibraryItem ) => item.id, [] );
 
+	// The library holds nothing at all — not "this filter matched nothing".
+	// Strict `=== 0` so an unsettled or failed count request reads as "show
+	// the listing", never as an empty library; a non-empty queue means rows
+	// are already being spliced into the listing, which then owns the surface.
+	const isLibraryEmpty =
+		totalPagination?.totalItems === 0 &&
+		uploadQueue.length === 0 &&
+		items.length === 0 &&
+		! isError;
+
+	// The viewport's three mutually exclusive surfaces, flattened out of
+	// nested ternaries so each branch can say why it exists.
+	const renderViewport = () => {
+		// A failed listing request would otherwise render as DataViews'
+		// "No results" — indistinguishable from an empty library. Surface
+		// the error explicitly with a Retry that refetches. Only when the
+		// QUERY has nothing valid to show: a failed *background* refresh
+		// keeps its cached rows (grid stays, self-heals on the next
+		// poll), while a failed view change / first load leaves data
+		// undefined (react-query drops keepPreviousData placeholders on
+		// error), so it lands here. Deliberately `items`, not
+		// `renderedItems` — the latter splices in in-flight upload rows,
+		// which must not mask a failed listing.
+		if ( isError && items.length === 0 ) {
+			return (
+				<FetchErrorNotice
+					className="vp-library__error"
+					message={ __( 'We couldn’t load your video library.', 'jetpack-videopress-pkg' ) }
+					error={ libraryError }
+					onRetry={ () => void refetch() }
+				/>
+			);
+		}
+
+		// An empty library gets an upload dropzone instead of DataViews'
+		// "No results" — a first-video invitation rather than a failed
+		// search. Dropping or picking files lands in the same
+		// `handleFilesSelected` pipeline as the page-wide DropZone and the
+		// header button, so the listing (with its spliced in-flight rows)
+		// takes over the moment anything enters the queue.
+		if ( isLibraryEmpty ) {
+			return (
+				<div className="vp-library__empty-state">
+					<Card.Root className="vp-library__empty-card">
+						<Card.Header>
+							<Card.Title render={ <h2 /> }>
+								{ __( 'Upload your first video', 'jetpack-videopress-pkg' ) }
+							</Card.Title>
+						</Card.Header>
+						<Card.Content>
+							<UploadDropzone
+								onFiles={ handleFilesSelected }
+								disabled={ isAtLimit }
+								allowMultiple={ ! isFree || isUnlimited }
+							/>
+						</Card.Content>
+					</Card.Root>
+				</div>
+			);
+		}
+
+		return (
+			<DataViews< LibraryItem >
+				data={ renderedItems }
+				fields={ libraryFields }
+				actions={ actions }
+				view={ view }
+				onChangeView={ onChangeView }
+				selection={ selection }
+				onChangeSelection={ setSelection }
+				getItemId={ getItemId }
+				paginationInfo={ paginationInfo }
+				isLoading={ isLoading }
+				defaultLayouts={ defaultLayouts }
+			/>
+		);
+	};
+
 	const onCaptionTracksChange = useCallback( () => {
 		void refetch();
 	}, [ refetch ] );
@@ -455,38 +549,7 @@ const StageInner = () => {
 						label={ __( 'Drop videos to upload', 'jetpack-videopress-pkg' ) }
 						onFilesDrop={ handleFilesSelected }
 					/>
-					{ isError && items.length === 0 ? (
-						// A failed listing request would otherwise render as DataViews'
-						// "No results" — indistinguishable from an empty library. Surface
-						// the error explicitly with a Retry that refetches. Only when the
-						// QUERY has nothing valid to show: a failed *background* refresh
-						// keeps its cached rows (grid stays, self-heals on the next
-						// poll), while a failed view change / first load leaves data
-						// undefined (react-query drops keepPreviousData placeholders on
-						// error), so it lands here. Deliberately `items`, not
-						// `renderedItems` — the latter splices in in-flight upload rows,
-						// which must not mask a failed listing.
-						<FetchErrorNotice
-							className="vp-library__error"
-							message={ __( 'We couldn’t load your video library.', 'jetpack-videopress-pkg' ) }
-							error={ libraryError }
-							onRetry={ () => void refetch() }
-						/>
-					) : (
-						<DataViews< LibraryItem >
-							data={ renderedItems }
-							fields={ libraryFields }
-							actions={ actions }
-							view={ view }
-							onChangeView={ onChangeView }
-							selection={ selection }
-							onChangeSelection={ setSelection }
-							getItemId={ getItemId }
-							paginationInfo={ paginationInfo }
-							isLoading={ isLoading }
-							defaultLayouts={ defaultLayouts }
-						/>
-					) }
+					{ renderViewport() }
 				</div>
 			</UploadActionsProvider>
 			{ captionVideo && (
