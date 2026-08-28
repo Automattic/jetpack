@@ -5454,6 +5454,30 @@ importers:
         specifier: ^0.0.26
         version: 0.0.26
 
+  projects/plugins/backup/tests/e2e:
+    devDependencies:
+      '@automattic/_jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
+      '@playwright/test':
+        specifier: 1.60.0
+        version: 1.60.0
+      '@types/node':
+        specifier: ^24.12.0
+        version: 24.13.3
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260707.2
+        version: 7.0.0-dev.20260707.2
+      allure-playwright:
+        specifier: 2.15.1
+        version: 2.15.1
+      config:
+        specifier: 4.4.1
+        version: 4.4.1
+      playwright-ctrf-json-reporter:
+        specifier: ^0.0.26
+        version: 0.0.26
+
   projects/plugins/boost:
     dependencies:
       '@automattic/jetpack-base-styles':

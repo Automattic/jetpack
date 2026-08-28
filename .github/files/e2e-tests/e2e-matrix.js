@@ -128,6 +128,15 @@ const projects = [
 		targets: [ 'plugins/protect' ],
 		buildGroup: 'jetpack-protect',
 	},
+	{
+		project: 'Backup',
+		path: 'projects/plugins/backup/tests/e2e',
+		testArgs: [ 'specs' ],
+		// Expanded with `dependencies list --add-dependencies` below, which pulls in
+		// packages/backup — where the dashboard this suite drives actually lives.
+		targets: [ 'plugins/backup' ],
+		buildGroup: 'jetpack-backup',
+	},
 ];
 
 /**
