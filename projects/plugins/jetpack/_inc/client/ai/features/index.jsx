@@ -110,7 +110,8 @@ const SECTIONS = [
 				),
 				enabledAction: {
 					label: __( 'Open Search Settings', 'jetpack' ),
-					href: 'admin.php?page=jetpack-search',
+					// The toggle lives on the Search dashboard's AI tab, not Overview.
+					href: 'admin.php?page=jetpack-search#/ai-answers',
 				},
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
