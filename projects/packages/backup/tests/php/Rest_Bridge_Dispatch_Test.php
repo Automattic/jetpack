@@ -27,40 +27,13 @@ use function wp_set_current_user;
 require_once __DIR__ . '/trait-wpcom-request-mock.php';
 
 /**
- * The bridge suites next door call their callbacks directly, which leaves
- * three things between a request and an answer untested on every route:
- * the `args` schema `register_rest_route()` was given, the route regex
- * the request has to match to reach the callback at all, and a
- * `permission_check()` that *succeeds*. A callback can be exhaustively
- * covered and the route still answer 400 or 404 to every request the
- * dashboard makes, and nothing in those suites would notice — they build
- * the request by hand and hand it straight to the callback, so there is
- * no route to match and no schema to fail.
+ * The bridge suites next door call their callbacks directly, which leaves three things
+ * untested on every route: the `args` schema, the route regex, and a
+ * `permission_check()` that *succeeds*. A callback can be exhaustively covered and the
+ * route still answer 400 or 404 to every request the dashboard makes.
  *
- * All three are load-bearing, and each is falsified by a one-line change
- * that the direct-call suites accept: dropping `=` from
- * `BASE64_PATTERN` makes every padded manifest path a 400, and narrowing
- * the download route's `rewind_id` capture to `\d+` makes a rewind id
- * with its decimal suffix — the only kind there is — a 404.
- *
- * `rest_ensure_response()` is deliberately *not* on that list. Dropping
- * it from a bridge fails the direct-call tests and nothing here, because
- * `WP_REST_Server::dispatch()` runs it over the handler's return value
- * itself. Serialization is likewise not asserted: it happens in
- * `serve_request()`, downstream of `dispatch()`, and `wp_json_encode()`
- * repairs bad input rather than refusing it, so an assertion about it
- * would be one nothing could break.
- *
- * That gap was assumed to be unclosable: the permission gate needs a
- * user-level WordPress.com connection, and the shared trait's note said
- * WorDBless could not stand one up. It can, and had been all along — the
- * `user_tokens` the trait installs so `Client` can sign a request are the
- * same ones `Connection_Manager::is_user_connected()` reads. Nothing was
- * missing; nobody had dispatched.
- *
- * So this file dispatches, once per registered bridge route, and the
- * route list is asserted against the server's own rather than kept by
- * hand, so a route added without an end-to-end test fails here.
+ * So this file dispatches through the REST server once per registered bridge route, and
+ * asserts the route list against the server's own rather than keeping it by hand.
  *
  * @covers \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller
  */
@@ -70,15 +43,13 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	use Wpcom_Request_Mock;
 
 	/**
-	 * Stands in, in a data provider, for the signed-URL envelope the
-	 * file-content route's first leg receives.
+	 * Stands in, in a data provider, for the signed-URL envelope the file-content route's
+	 * first leg receives.
 	 *
-	 * The real body has to name a URL on this site's own host, so that
-	 * `wp_http_validate_url()` takes its same-host path instead of
-	 * resolving a name — otherwise the test passes or fails on whether the
-	 * runner has DNS. `home_url()` reads an option, and a provider is
-	 * evaluated before any test's `setUp()`, so the value is resolved in
-	 * the test body instead of baked into the provider.
+	 * The real body names a URL on this site's own host, so `wp_http_validate_url()`
+	 * takes its same-host path rather than passing or failing on the runner's DNS.
+	 * `home_url()` reads an option, so it is resolved in the test body: a provider runs
+	 * before any `setUp()`.
 	 *
 	 * @var string
 	 */
@@ -122,17 +93,14 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	/**
 	 * Every bridge route, keyed by the route it registers under.
 	 *
-	 * Keyed rather than listed because the keys are what
-	 * `test_every_bridge_route_is_covered_here()` compares against the
-	 * server's own route table — the guard that makes this file keep pace
-	 * with `Rest_Controller::register_routes()`.
+	 * Keyed rather than listed: the keys are what
+	 * `test_every_bridge_route_is_covered_here()` compares against the server's route
+	 * table.
 	 *
-	 * Each row is the request a real dashboard makes, the answers
-	 * WordPress.com gives it, and the payload the client should end up
-	 * with. The upstream fixtures are deliberately not minimal: several of
-	 * these projections read one key and default another, and a fixture
-	 * carrying only the keys that survive cannot tell a forwarded value
-	 * from a default.
+	 * Each row is the request a real dashboard makes, WordPress.com's answers, and the
+	 * payload the client should end up with. The upstream fixtures are deliberately not
+	 * minimal — a fixture carrying only the keys that survive cannot tell a forwarded
+	 * value from a default.
 	 *
 	 * @return array<string, array{0: string, 1: string, 2: array<string, mixed>, 3: array<int, array{body?: string, status?: int|string}>, 4: array<string, mixed>}>
 	 */
@@ -256,14 +224,9 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	}
 
 	/**
-	 * A bridge route, dispatched by the REST server, answers 200 with the
-	 * payload the client expects.
-	 *
-	 * This is the whole of what the direct-call suites cannot say: that the
-	 * request the dashboard sends satisfies the route's own `args` schema,
-	 * that `permission_check()` lets a connected administrator through, and
-	 * that the projection comes back out of the server as data rather than
-	 * as an error envelope.
+	 * A bridge route, dispatched by the REST server, answers 200 with the payload the
+	 * client expects — the route's `args` schema, its `permission_check()` and its
+	 * projection, none of which a direct call exercises.
 	 *
 	 * @param string                                                $method   Request method.
 	 * @param string                                                $path     Route path to dispatch.
@@ -283,8 +246,8 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 
 		$response = $this->server->dispatch( $request );
 
-		// Named first, because a failure here is otherwise reported as an
-		// unhelpful array diff against an error envelope.
+		// Named first: a failure here is otherwise an array diff against an error
+		// envelope.
 		$this->assertSame(
 			200,
 			$response->get_status(),
@@ -294,22 +257,13 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	}
 
 	/**
-	 * Every registered bridge route is dispatched by the provider above.
+	 * Every registered bridge route is dispatched by the provider above, so a tenth one
+	 * lands here as a failure naming itself.
 	 *
-	 * The provider is keyed by route, so this is a set comparison against
-	 * what `Rest_Controller::register_routes()` actually registered. A
-	 * tenth bridge route lands here as a failure naming itself, rather
-	 * than shipping with its schema and permission gate never once
-	 * exercised end to end — which is exactly how the first nine got here.
-	 *
-	 * The bridge routes are identified the way `Rest_Bridge_Gating_Test`
-	 * identifies them — by diffing the route table with the modernization
-	 * filter on against the same table with it off. Matching on a
-	 * `/jetpack/v4/` prefix would not do: this package's own legacy
-	 * `REST_Controller` registers ten routes under that same prefix on
-	 * the same hook — `/jetpack/v4/backup-helper-script`,
-	 * `/jetpack/v4/options/backup`, `/jetpack/v4/site/backup/preflight`
-	 * and the rest — and none of them belongs here.
+	 * Bridge routes are identified by diffing the route table with the modernization
+	 * filter on against the same table with it off, as `Rest_Bridge_Gating_Test` does. A
+	 * `/jetpack/v4/` prefix match would not do — the legacy `REST_Controller` registers
+	 * ten routes under that same prefix.
 	 */
 	public function test_every_bridge_route_is_covered_here() {
 		$bridge_routes = array_values(
@@ -352,19 +306,13 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	}
 
 	/**
-	 * An administrator whose own WordPress.com account is not linked is
-	 * refused, with a reason.
+	 * An administrator whose own WordPress.com account is not linked is refused, with a
+	 * reason.
 	 *
-	 * The other half of `permission_check()`, and the half no suite
-	 * reached: every existing permission test signs in a subscriber, so it
-	 * stops at `manage_options` and the connection branch below it never
-	 * runs. This is not a hypothetical user — it is every additional admin
-	 * on a site somebody else connected, and the error code is the only
-	 * thing that tells them to link their account rather than to go
-	 * looking for a broken plan.
-	 *
-	 * Deliberately *not* using the trait: what makes this user unconnected
-	 * is the absence of the `user_tokens` the trait installs.
+	 * The other half of `permission_check()`: every existing permission test signs in a
+	 * subscriber, so it stops at `manage_options` and never reaches the connection
+	 * branch. Deliberately not using the trait — the absence of its `user_tokens` is
+	 * what makes this user unconnected.
 	 */
 	public function test_an_unlinked_administrator_is_told_which_connection_is_missing() {
 		$admin_id = wp_insert_user(
@@ -384,8 +332,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	}
 
 	/**
-	 * Replace provider placeholders with values only a running test can
-	 * produce. See `SIGNED_URL_BODY`.
+	 * Replace provider placeholders with values only a running test can produce.
 	 *
 	 * @param array<int, array{body?: string, status?: int|string}> $answers Answers as the provider wrote them.
 	 * @return array<int, array{body?: string, status?: int|string}>

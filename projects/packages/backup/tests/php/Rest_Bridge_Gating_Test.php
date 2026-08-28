@@ -34,9 +34,6 @@ use function wp_json_encode;
  * so nothing there would notice if the gate stopped working. These two
  * tests are the ones that would.
  *
- * The count above is `MODERNIZED_ROUTES`'s, and `File_Browser_Bridge`
- * registering three routes rather than two is the easy one to miscount.
- *
  * @covers \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller
  */
 #[CoversClass( Rest_Controller::class )]
