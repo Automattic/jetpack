@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Replace Gutenberg's widget-primitives script module with the bundled one when the active Gutenberg predates 23.9.0, so dashboards built on widget-dashboard 0.6 load.
