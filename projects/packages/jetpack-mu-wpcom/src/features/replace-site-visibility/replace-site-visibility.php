@@ -25,6 +25,8 @@ function is_jetpack_connected() {
 
 /**
  * Generate the links for sharing the site.
+ *
+ * @return never
  */
 function wp_ajax_wpcom_generate_site_preview_link() {
 	check_ajax_referer( 'wpcom_site_visibility_site_preview_link' );
@@ -41,7 +43,6 @@ function wp_ajax_wpcom_generate_site_preview_link() {
 	if ( is_wp_error( $body ) ) {
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 		wp_send_json_error( $body, null, JSON_UNESCAPED_SLASHES );
-		return;
 	}
 
 	$response = json_decode( wp_remote_retrieve_body( $body ) );
@@ -64,7 +65,6 @@ function wp_ajax_wpcom_delete_site_preview_link() {
 			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 			JSON_UNESCAPED_SLASHES
 		);
-		return;
 	}
 
 	$code    = sanitize_text_field( wp_unslash( $_POST['code'] ) );

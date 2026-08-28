@@ -1004,7 +1004,7 @@ class Share_Email extends Sharing_Source {
 	 * @param WP_Post $post Post object.
 	 * @param array   $post_data Array of information about the post we're sharing.
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public function process_request( $post, array $post_data ) {
 		$is_ajax = false;
@@ -1032,8 +1032,6 @@ class Share_Email extends Sharing_Source {
 			wp_safe_redirect( get_permalink( $post->ID ) . '?shared=email&msg=fail' );
 			exit( 0 );
 		}
-
-		wp_die();
 	}
 
 	/**
