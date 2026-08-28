@@ -640,19 +640,36 @@ function wpcom_write_inline_color_marks_to_spans( $html ) {
  * Write can't hold the jetpack/blogging-prompt block — it round-trips only a
  * fixed block vocabulary (see wpcom_write_allowed_block_attrs()), so the prompt
  * is seeded as a quote block. convertToBlocks() in view.js turns a top-level
- * <blockquote class="wp-block-quote"> back into a wp:quote block on save.
+ * <blockquote class="wp-block-quote"> back into a wp:quote block on save, and
+ * preserves a <cite> as the quote's citation. When a responses link is
+ * available it becomes the citation, so the published quote points readers at
+ * the other answers — the one piece of the blogging-prompt block worth keeping.
  *
  * @since $$next-version$$
  *
- * @param string $prompt_text The prompt text from the blogging-prompts endpoint.
+ * @param string $prompt_text   The prompt text from the blogging-prompts endpoint.
+ * @param string $citation_text Optional citation text (e.g. the responses link text).
+ * @param string $citation_url  Optional URL to link the citation to (e.g. the responses page).
  * @return string Quote block markup, or '' when there is no usable text.
  */
-function wpcom_write_prompt_quote_markup( $prompt_text ) {
+function wpcom_write_prompt_quote_markup( $prompt_text, $citation_text = '', $citation_url = '' ) {
 	$prompt_text = trim( wp_strip_all_tags( html_entity_decode( (string) $prompt_text, ENT_QUOTES, 'UTF-8' ) ) );
 	if ( '' === $prompt_text ) {
 		return '';
 	}
-	return '<blockquote class="wp-block-quote"><p>' . esc_html( $prompt_text ) . '</p></blockquote>';
+
+	$markup = '<blockquote class="wp-block-quote"><p>' . esc_html( $prompt_text ) . '</p>';
+
+	$citation_text = trim( wp_strip_all_tags( html_entity_decode( (string) $citation_text, ENT_QUOTES, 'UTF-8' ) ) );
+	if ( '' !== $citation_text ) {
+		$cite = esc_html( $citation_text );
+		if ( '' !== $citation_url ) {
+			$cite = '<a href="' . esc_url( $citation_url ) . '" target="_blank" rel="noreferrer noopener">' . $cite . '</a>';
+		}
+		$markup .= '<cite>' . $cite . '</cite>';
+	}
+
+	return $markup . '</blockquote>';
 }
 
 /**
@@ -826,7 +843,11 @@ function wpcom_write_render_admin_page() {
 			// @phan-suppress-next-line PhanUndeclaredFunction -- Defined in the Jetpack plugin (_inc/blogging-prompts.php); present at runtime when Jetpack is active, guarded by the function_exists() check above.
 			$prompt = (array) jetpack_get_blogging_prompt_by_id( $answer_prompt_id );
 			if ( ! empty( $prompt['text'] ) ) {
-				$edit_content = wpcom_write_prompt_quote_markup( $prompt['text'] );
+				$edit_content = wpcom_write_prompt_quote_markup(
+					$prompt['text'],
+					isset( $prompt['answered_link_text'] ) ? $prompt['answered_link_text'] : '',
+					isset( $prompt['answered_link'] ) ? $prompt['answered_link'] : ''
+				);
 			}
 		}
 	}

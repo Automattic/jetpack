@@ -42,4 +42,29 @@ class Write_Prompt_Seed_Test extends \WorDBless\BaseTestCase {
 			wpcom_write_prompt_quote_markup( 'Isn&#39;t it great? <b>Yes</b>' )
 		);
 	}
+
+	/**
+	 * Citation text with no URL is added as a plain <cite>.
+	 */
+	public function test_prompt_quote_markup_adds_plain_citation() {
+		$this->assertSame(
+			'<blockquote class="wp-block-quote"><p>What made you smile today?</p><cite>View all responses</cite></blockquote>',
+			wpcom_write_prompt_quote_markup( 'What made you smile today?', 'View all responses' )
+		);
+	}
+
+	/**
+	 * When a URL is given, the citation links to the responses page.
+	 */
+	public function test_prompt_quote_markup_links_citation_when_url_given() {
+		$this->assertSame(
+			'<blockquote class="wp-block-quote"><p>What made you smile today?</p>'
+				. '<cite><a href="https://wordpress.com/tag/dailyprompt-1" target="_blank" rel="noreferrer noopener">View all responses</a></cite></blockquote>',
+			wpcom_write_prompt_quote_markup(
+				'What made you smile today?',
+				'View all responses',
+				'https://wordpress.com/tag/dailyprompt-1'
+			)
+		);
+	}
 }
