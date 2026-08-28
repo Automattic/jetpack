@@ -17,9 +17,9 @@ export const useXYChartTheme = ( data: SeriesData[] ) => {
 	);
 
 	return useMemo( () => {
-		// visx applies grid, axis, and tick-label colors as SVG presentation attributes, where CSS var() cannot resolve. Resolve the catalog token against the chart's own scope element — never :root — so this reads any override set inside the provider tree, the same one a CSS-painted element would inherit.
+		// What is left here is the JS-consumed tail: the palette, which visx turns into its `colorScale`, and `backgroundColor`, which our own components read as a value — the glyph stroke, the area-chart band stroke, the heatmap's contrast math. Those need a concrete string, so they are resolved against the chart's own scope element — never :root — which reads any override set inside the provider tree, the same one a CSS-painted element would inherit.
 		//
-		// One resolver per theme build, so the five roles below share a single getComputedStyle call rather than taking one each: this memo re-runs only when the scope element attaches or a series color changes, which for a dashboard of charts is the difference between two style queries per chart and ten.
+		// One resolver per theme build, so both share a single getComputedStyle call: this memo re-runs only when the scope element attaches or a series color changes.
 		const resolve = createCssVariableResolver( scopeElement );
 		const resolveColor = ( value?: string ): string | undefined =>
 			value ? resolve( value ) ?? value : value;
@@ -35,22 +35,22 @@ export const useXYChartTheme = ( data: SeriesData[] ) => {
 			...theme,
 			colors: paletteColors,
 			backgroundColor: resolveColor( theme.backgroundColor ),
-			// `chart-paint.scss` paints the grid. visx applies `gridStyles` as an inline style on each line, which would beat that rule, so the stroke must not reach `buildChartTheme` at all — dropping it is what lets CSS own the role.
+			// `chart-paint.scss` paints the grid, axis line, tick lines and tick labels, so their colors must not reach `buildChartTheme`: a value here becomes an inline style or a presentation attribute carrying the literal, and the first of those beats the stylesheet outright. Dropping them is what lets CSS own the roles.
 			gridStyles: theme.gridStyles && {
 				...theme.gridStyles,
 				stroke: undefined,
 			},
 			xAxisLineStyles: theme.xAxisLineStyles && {
 				...theme.xAxisLineStyles,
-				stroke: resolveColor( theme.xAxisLineStyles.stroke ),
+				stroke: undefined,
 			},
 			xTickLineStyles: theme.xTickLineStyles && {
 				...theme.xTickLineStyles,
-				stroke: resolveColor( theme.xTickLineStyles.stroke ),
+				stroke: undefined,
 			},
 			svgLabelSmall: theme.svgLabelSmall && {
 				...theme.svgLabelSmall,
-				fill: resolveColor( theme.svgLabelSmall.fill ),
+				fill: undefined,
 			},
 		} );
 	}, [ theme, seriesColorKey, scopeElement ] );

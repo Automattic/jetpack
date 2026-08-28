@@ -15,4 +15,18 @@
 	.visx-columns line.visx-line {
 		stroke: var(--a8c-charts-color-grid);
 	}
+
+	.visx-axis-line {
+		stroke: var(--a8c-charts-color-axis);
+	}
+
+	.visx-axis-tick line {
+		stroke: var(--a8c-charts-color-tick);
+	}
+
+	// The narrow label role: `svgLabelSmall.fill` moves only these, while the
+	// broad --a8c-charts-color-label it derives from moves every label at once.
+	.visx-axis-tick text {
+		fill: var(--a8c-charts-color-label-axis);
+	}
 }
