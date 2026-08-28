@@ -62,11 +62,11 @@ const label = __( 'All pages' );
 
 `ReportPageLayout` renders `SectionHeader`, the component the dashboard's
 sections use. Pass `title` and the `useReportDateFilters` controller; the layout
-composes `DateFiltersPanel` and derives the subtitle with `getSectionSubtitle`.
+composes `DateFiltersPanel` in the header's controls slot.
 
-The picker offers the range alone — no interval control, no comparison — and the
-subtitle names neither. Both stay on the URL untouched, so the dashboard keeps
-them. Declaring this per report is WOOA7S-1952.
+The picker offers the range alone — no interval control, no comparison. Both
+stay on the URL untouched, so the dashboard keeps them. Declaring this per
+report is WOOA7S-1952.
 
 A report page carries three names:
 
