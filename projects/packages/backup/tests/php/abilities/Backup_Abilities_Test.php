@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Backup\V0005\Abilities;
 
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionClass;
@@ -44,6 +45,13 @@ class Backup_Abilities_Test extends BaseTestCase {
 
 		// Default: gate open. Individual tests opt out by removing this filter.
 		add_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
+
+		// The *first* outbound `Client` call in a process is otherwise refused as a
+		// host-less URL, because `JETPACK__WPCOM_JSON_API_BASE` is undefined until
+		// `Client::build_signed_request()` installs the filter supplying it. It bites
+		// here rather than in the bridge suites because this file does not use
+		// `Wpcom_Request_Mock`, which primes the constants for its own consumers.
+		Connection_Utils::init_default_constants();
 	}
 
 	public function tearDown(): void {
