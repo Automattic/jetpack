@@ -119,7 +119,7 @@ class AJAX_Test extends BaseTestCase {
 		// WorDBless overrides `wp_die` to not exit, which breaks `wp_send_json()`'s `@return never` behavior.
 		// Override it to throw an exception (preserving the behavior) which we can catch and verify.
 		$expected_exception = new \RuntimeException( 'wp_die' );
-		$throw_die_handler  = static function () use ( $expected_exception ) {
+		$throw_die_handler  = /** @return never */ static function () use ( $expected_exception ) {
 			throw $expected_exception;
 		};
 		add_filter( 'wp_die_ajax_handler', $throw_die_handler, 20 );
