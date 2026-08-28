@@ -22,7 +22,7 @@ use ReflectionProperty;
  * without a wp-build present rendered an empty div and enqueued nothing.
  *
  * The build-absent half of that pair cannot be tested: a PHP function cannot be
- * undeclared once `stub-wp-build-render-page.php` has declared it. What is
+ * undeclared once `mock-wp-build-render-page.php` has declared it. What is
  * covered here is that the build-present and flag-off paths still behave as
  * they did before the predicate was extracted.
  */
@@ -33,7 +33,7 @@ class Admin_Wp_Build_Fallback_Test extends TestCase {
 	 */
 	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();
-		require_once __DIR__ . '/stub-wp-build-render-page.php';
+		require_once __DIR__ . '/mock-wp-build-render-page.php';
 	}
 
 	/**
