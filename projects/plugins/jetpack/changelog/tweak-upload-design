@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Forms: add spacing between the files listed on a response, so a multi-file upload no longer reads as one block.
+Forms: space out the files listed on a response and line their download buttons up on one edge.
