@@ -34,6 +34,9 @@
 	"autoload": {
 		"classmap": [
 			"src/"
+		],
+		"files": [
+			"src/integrations/functions.php"
 		]
 	},
 	"scripts": {
