@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Top pages: include the previous period's views in the CSV export when a comparison is active.
