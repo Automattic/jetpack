@@ -34,7 +34,7 @@
 		"@babel/preset-react": "7.29.7",
 		"@babel/preset-typescript": "7.29.7",
 		"@cerner/duplicate-package-checker-webpack-plugin": "2.3.0",
-		"@pmmmwh/react-refresh-webpack-plugin": "0.6.2",
+		"@pmmmwh/react-refresh-webpack-plugin": "0.6.3",
 		"@wordpress/browserslist-config": "6.51.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "6.53.0",
 		"babel-loader": "10.0.0",
