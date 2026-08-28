@@ -152,8 +152,8 @@ describe( 'PopularPostWidget', () => {
 
 		await expect( screen.findByText( 'Winning post' ) ).resolves.toBeInTheDocument();
 
-		// The note is what stops "Views 9,999" under a title naming twelve months
-		// being read as that year's count.
+		// The header's help note is the disclosure; this repeats it on the tile, so
+		// "Views 9,999" under a title naming twelve months carries its own window.
 		expect( screen.getAllByText( 'Total since this post was published.' ) ).toHaveLength( 3 );
 	} );
 

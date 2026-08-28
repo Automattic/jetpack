@@ -54,6 +54,23 @@ export type PopularPostRange = {
 // Named rather than inlined so giving it one later is a change of caller.
 export const POPULAR_POST_DEFAULT_PRESET = PRESET_LAST_12_MONTHS;
 
+/**
+ * Resolved per call rather than once, so the window is never older than the
+ * render that reads it. `last-12-months` is a built-in preset, so it always
+ * resolves; the empty fallback exists only to satisfy the type. It disables the
+ * ranking query rather than silently widening the window, which the card would
+ * show as its empty state — wrong, but only reachable if the preset itself
+ * stopped resolving.
+ */
+function resolveDefaultRange(): PopularPostRange {
+	const range = computeDateRangeFromPreset( POPULAR_POST_DEFAULT_PRESET ) ?? {
+		from: '',
+		to: '',
+	};
+
+	return { preset: POPULAR_POST_DEFAULT_PRESET, ...range };
+}
+
 export type UsePopularPostResult = {
 	post: PopularPostWithMetrics | null;
 	/**
@@ -86,25 +103,16 @@ export type UsePopularPostResult = {
  * @param range - The window to rank over. Defaults to the last 12 months.
  */
 export function usePopularPost( range?: PopularPostRange ): UsePopularPostResult {
-	// Resolved per render rather than once, so the window is never older than the
-	// render that reads it. `last-12-months` is a built-in preset, so it always
-	// resolves; the empty fallback exists only to satisfy the optional return
-	// type. It disables the ranking query rather than silently widening the
-	// window, which the card would show as its empty state — wrong, but only
-	// reachable if the preset itself stopped resolving.
-	const defaultRange = computeDateRangeFromPreset( POPULAR_POST_DEFAULT_PRESET ) ?? {
-		from: '',
-		to: '',
-	};
-
 	// Down to primitives first, so a caller building the object inline does not
 	// re-key the report query on every render.
-	const { preset, from, to } = range ?? { preset: POPULAR_POST_DEFAULT_PRESET, ...defaultRange };
+	const { preset, from, to } = range ?? resolveDefaultRange();
 
 	const activeRange = useMemo( () => ( { preset, from, to } ), [ preset, from, to ] );
 
-	// The report is day-bucketed whatever the dashboard's interval, so `day` is
-	// the only honest value here.
+	// `interval` never reaches the request — it is not in the stats param
+	// allow-list, and the query layer buckets a summarized window by day unless a
+	// `period` is forced. It is here because `ReportParams` requires it, and
+	// `day` is the value that matches what the report actually does.
 	const statsParams = useMemo(
 		() => ( { from, to, interval: 'day' as const, max: POPULAR_POST_REQUEST_MAX } ),
 		[ from, to ]

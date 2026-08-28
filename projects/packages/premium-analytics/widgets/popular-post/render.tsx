@@ -26,8 +26,8 @@ type PopularPostRenderAttributes = PopularPostAttributes & Partial< ReportParams
 type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
 
 // The card's title names the last 12 months; the tiles under it are lifetime
-// totals, so each names its own window on hover rather than being read as that
-// year's count.
+// totals. The widget header's help note is what discloses that — this repeats it
+// on the tile itself, as a hover tooltip and as text for assistive technology.
 const ALL_TIME_NOTE = () =>
 	__( 'Total since this post was published.', 'jetpack-premium-analytics-pkg' );
 
@@ -39,19 +39,6 @@ const ALL_TIME_NOTE = () =>
  */
 function PopularPostReport() {
 	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost();
-	/*
-	 * The detail page opens on the window the card ranked over, so the post's own
-	 * page measures the year the card's title names. The dashboard's range is
-	 * deliberately not carried through: the Insights filter picks a calendar year,
-	 * which would scope the detail page to a period this card never reported on.
-	 *
-	 * Hence not `useWidgetNavigationSearch()`, which exists to carry the host's
-	 * window: a widget cannot hand it one of its own. The trade-off is the round
-	 * trip — the detail breadcrumb carries this window back, and a year surface
-	 * such as Insights resolves a rolling preset to all time, so returning that
-	 * way does not restore the year the reader left. The old link was lossy the
-	 * same way in reverse, and no param carries the origin window today.
-	 */
 
 	const metrics: PostHighlightCardMetric[] = post
 		? [
@@ -95,6 +82,17 @@ function PopularPostReport() {
 			} }
 			renderLoading={ <PostHighlightCardSkeleton /> }
 		>
+			{ /* The detail page opens on the window the card ranked over, so the post's own
+			     page measures the period the card's title names. The dashboard's range is
+			     deliberately not carried through: the Insights filter picks a calendar year,
+			     which would scope the detail page to a period this card never reported on.
+
+			     Hence not `useWidgetNavigationSearch()`, which exists to carry the host's
+			     window: a widget cannot hand it one of its own. The trade-off is the round
+			     trip — the detail breadcrumb carries this window back, and a year surface
+			     such as Insights resolves a rolling preset to all time, so returning that
+			     way does not restore the year the reader left. The old link was lossy the
+			     same way in reverse, and no param carries the origin window today. */ }
 			{ post && (
 				<PostHighlightCard
 					title={ post.title }
