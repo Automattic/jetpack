@@ -15,6 +15,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -60,19 +61,28 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	const PAYPAL_TOKEN_ENDPOINT = '/v1/oauth2/token';
 
 	/**
-	 * Option key for Automattic's PayPal platform credentials on WPCOM.
+	 * Names of the constants holding Automattic's PayPal platform credentials, by environment.
 	 *
-	 * Stores JSON, keyed by environment, each with the platform client_id and
-	 * client_secret plus the partner merchant ID the plugin needs for the auth
-	 * code exchange:
+	 * The values themselves live in WordPress.com's secrets configuration. Only the
+	 * constant *names* are stored here: referencing an undefined constant inside a
+	 * constant expression is a fatal error, and these are never defined on self-hosted
+	 * sites, where onboarding is proxied to WordPress.com instead. Read them through
+	 * get_platform_credentials(), which tolerates their absence.
 	 *
-	 *   { "production": { "client_id": "...", "client_secret": "...", "partner_merchant_id": "..." },
-	 *     "sandbox":    { "client_id": "...", "client_secret": "...", "partner_merchant_id": "..." } }
-	 *
-	 * @todo Provision this option on WPCOM with the real credentials.
-	 * @var string
+	 * @var array<string, array<string, string>>
 	 */
-	const PLATFORM_CREDENTIALS_OPTION = 'jetpack_paypal_platform_credentials';
+	const PLATFORM_CREDENTIAL_CONSTANTS = array(
+		'production' => array(
+			'client_id'           => 'PAYPAL_BUTTONS_PRODUCTION_CLIENT_ID',
+			'client_secret'       => 'PAYPAL_BUTTONS_PRODUCTION_CLIENT_SECRET',
+			'partner_merchant_id' => 'PAYPAL_BUTTONS_PRODUCTION_PARTNER_MERCHANT_ID',
+		),
+		'sandbox'    => array(
+			'client_id'           => 'PAYPAL_BUTTONS_SANDBOX_CLIENT_ID',
+			'client_secret'       => 'PAYPAL_BUTTONS_SANDBOX_CLIENT_SECRET',
+			'partner_merchant_id' => 'PAYPAL_BUTTONS_SANDBOX_PARTNER_MERCHANT_ID',
+		),
+	);
 
 	/**
 	 * Constructor.
@@ -239,9 +249,18 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	 * @return array|WP_Error Array with 'client_id' and 'client_secret', or WP_Error.
 	 */
 	private function get_platform_credentials( $environment ) {
-		$stored = get_option( self::PLATFORM_CREDENTIALS_OPTION, '' );
+		$constants = self::PLATFORM_CREDENTIAL_CONSTANTS[ $environment ] ?? array();
 
-		if ( empty( $stored ) ) {
+		$credentials = array();
+		foreach ( $constants as $key => $constant_name ) {
+			$value = Constants::get_constant( $constant_name );
+			if ( is_string( $value ) && '' !== $value ) {
+				$credentials[ $key ] = $value;
+			}
+		}
+
+		// Nothing configured at all -- the credentials were never provisioned here.
+		if ( empty( $credentials ) ) {
 			return new WP_Error(
 				'platform_credentials_missing',
 				'PayPal platform credentials are not configured on WordPress.com. Please contact the Jetpack team.',
@@ -249,9 +268,8 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 			);
 		}
 
-		$credentials = is_string( $stored ) ? json_decode( $stored, true ) : $stored;
-
-		if ( ! isset( $credentials[ $environment ]['client_id'] ) || ! isset( $credentials[ $environment ]['client_secret'] ) ) {
+		// Partially configured, or configured for a different environment.
+		if ( ! isset( $credentials['client_id'] ) || ! isset( $credentials['client_secret'] ) ) {
 			return new WP_Error(
 				'platform_credentials_invalid',
 				sprintf( 'PayPal platform credentials for %s environment are not configured.', $environment ),
@@ -259,7 +277,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 			);
 		}
 
-		return $credentials[ $environment ];
+		return $credentials;
 	}
 
 	/**
