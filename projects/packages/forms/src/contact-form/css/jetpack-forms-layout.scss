@@ -106,6 +106,26 @@
 		.wp-block-jetpack-form-step {
 			width: 100%;
 			box-sizing: border-box;
+
+			// Except the gap, which core only writes when the *theme* opts into
+			// block gap: `wp_render_layout_support_flag()` takes
+			// `$has_block_gap_support` from
+			// `isset( $global_settings['spacing']['blockGap'] )`, and core's own
+			// theme.json leaves `settings.spacing.blockGap` null. A classic theme
+			// (no theme.json) never opts in, so core emits no gap at all and the
+			// step falls through to core's shared
+			// `:where(.is-layout-flex) { gap: 0.5em }` — 8px, where the rule this
+			// replaced gave 24px. Declaring `spacing.blockGap` on the block does
+			// not close the gap: the gate is the theme's setting, not the block's
+			// support.
+			// So keep the declaration the deleted rule used. On a block theme the
+			// variable is defined and resolves to the same value core would emit;
+			// on a classic theme the 1.5rem fallback preserves the old spacing.
+			// Note this sits at three classes against core's one, so it wins
+			// wherever core does emit a gap. That is only safe while the step has
+			// no `spacing.blockGap` support: add one and a user's own value would
+			// be overridden here, so this rule has to give way at the same time.
+			gap: var(--wp--style--block-gap, 1.5rem);
 		}
 
 		.jetpack-form-steps-wrapper {
