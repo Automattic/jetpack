@@ -3,16 +3,19 @@
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { render, renderHook, waitFor } from '@testing-library/react';
+import { render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
 import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
 import WordAdsChartTabsWidget from '../render';
 import useWordAdsChart from '../use-wordads-chart';
+import wordAdsChartTabsWidget, { type WordAdsChartTabsAttributes } from '../widget';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
-import type { ReactNode } from 'react';
+import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
+import type { ComponentType, ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -274,5 +277,59 @@ describe( 'WordAdsChartTabsWidget', () => {
 
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
+	} );
+} );
+
+describe( 'WordAdsChartTabsWidget date control', () => {
+	type FieldProps = DataFormControlProps< WordAdsChartTabsAttributes >;
+
+	// Only the DataForm plumbing is cast away, so `data` stays type-checked and a
+	// renamed attribute breaks the build rather than passing silently.
+	function renderDateControl( props: Pick< FieldProps, 'data' | 'onChange' > ) {
+		const [ { Edit } ] = wordAdsChartTabsWidget.attributes;
+		const Field = Edit as ComponentType< FieldProps >;
+
+		render( <Field { ...( props as FieldProps ) } /> );
+	}
+
+	it( 'offers no window shorter than the report can fill', async () => {
+		const user = userEvent.setup();
+		const onChange = jest.fn();
+
+		renderDateControl( {
+			data: { reportParams: { preset: 'last-30-days', interval: 'day' } },
+			onChange,
+		} );
+
+		const toolbar = screen.getByRole( 'toolbar', { name: 'Date range' } );
+
+		expect(
+			within( toolbar )
+				.getAllByRole( 'button' )
+				.map( button => button.textContent )
+		).toEqual( [ '7 days', '30 days', '12 months', 'Custom' ] );
+		expect( screen.getByRole( 'button', { name: '30 days' } ) ).toHaveAttribute(
+			'aria-pressed',
+			'true'
+		);
+
+		await user.click( screen.getByRole( 'button', { name: '7 days' } ) );
+
+		expect( onChange ).toHaveBeenCalledWith( {
+			reportParams: expect.objectContaining( { preset: 'last-7-days' } ),
+		} );
+	} );
+
+	it( 'moves an instance saved on the last 24 hours onto an offered window', () => {
+		const onChange = jest.fn();
+
+		renderDateControl( {
+			data: { reportParams: { preset: 'last-24-hours', interval: 'hour' } },
+			onChange,
+		} );
+
+		expect( onChange ).toHaveBeenCalledWith( {
+			reportParams: expect.objectContaining( { preset: 'last-30-days' } ),
+		} );
 	} );
 } );
