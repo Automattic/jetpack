@@ -195,7 +195,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 			)
 		);
 
-		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/connect' );
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/connect' );
 		$request->set_param( 'client_id', 'live_client_id' );
 		$request->set_param( 'client_secret', 'live_client_secret' );
 		$request->set_param( 'environment', 'sandbox' );
@@ -227,7 +227,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 			)
 		);
 
-		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/connect' );
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/connect' );
 		$request->set_param( 'client_id', 'wrong_client_id' );
 		$request->set_param( 'client_secret', 'wrong_secret' );
 		$request->set_param( 'environment', 'sandbox' );
@@ -262,7 +262,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 			)
 		);
 
-		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/connect' );
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/connect' );
 		$request->set_param( 'client_id', 'scoped_out_id' );
 		$request->set_param( 'client_secret', 'scoped_out_secret' );
 		$request->set_param( 'environment', 'sandbox' );
@@ -280,7 +280,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	 * Test that connection status reflects a disconnected site.
 	 */
 	public function test_connection_status_reports_disconnected() {
-		$request = new \WP_REST_Request( 'GET', '/jetpack/v4/paypal/connection' );
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/connection' );
 
 		$result = PayPal_REST_Controller::handle_connection_status( $request );
 
@@ -296,7 +296,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->set_up_connected_admin_state();
 
 		$result = PayPal_REST_Controller::handle_connection_status(
-			new \WP_REST_Request( 'GET', '/jetpack/v4/paypal/connection' )
+			new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/connection' )
 		);
 
 		$this->assertTrue( $result->get_data()['connected'] );
@@ -312,7 +312,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, 'partner_referrals' );
 
 		$result = PayPal_REST_Controller::handle_disconnect(
-			new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/disconnect' )
+			new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/disconnect' )
 		);
 
 		$this->assertSame( 200, $result->get_status() );
@@ -328,7 +328,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	public function test_set_environment_switches_and_reports() {
 		$this->set_up_connected_admin_state();
 
-		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/environment' );
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/environment' );
 		$request->set_param( 'environment', 'production' );
 
 		$result = PayPal_REST_Controller::handle_set_environment( $request );
@@ -344,7 +344,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	public function test_create_button_rejects_empty_line_items() {
 		$this->set_up_connected_admin_state();
 
-		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/buttons' );
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/buttons' );
 		$request->set_param( 'type', 'BUY_NOW' );
 		$request->set_param( 'integration_mode', 'LINK' );
 		$request->set_param( 'line_items', array() );
@@ -361,7 +361,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	public function test_create_button_rejects_missing_name() {
 		$this->set_up_connected_admin_state();
 
-		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/buttons' );
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/buttons' );
 		$request->set_param( 'type', 'BUY_NOW' );
 		$request->set_param( 'integration_mode', 'LINK' );
 		$request->set_param(
@@ -388,7 +388,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	public function test_create_button_rejects_invalid_price() {
 		$this->set_up_connected_admin_state();
 
-		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/buttons' );
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/buttons' );
 		$request->set_param( 'type', 'BUY_NOW' );
 		$request->set_param( 'integration_mode', 'LINK' );
 		$request->set_param(
@@ -416,7 +416,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	public function test_create_button_rejects_invalid_currency() {
 		$this->set_up_connected_admin_state();
 
-		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/buttons' );
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/buttons' );
 		$request->set_param( 'type', 'BUY_NOW' );
 		$request->set_param( 'integration_mode', 'LINK' );
 		$request->set_param(
@@ -453,7 +453,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 			)
 		);
 
-		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/buttons' );
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/buttons' );
 		$request->set_param( 'type', 'BUY_NOW' );
 		$request->set_param( 'integration_mode', 'LINK' );
 		$request->set_param( 'reusable', 'MULTIPLE' );
@@ -494,7 +494,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 			)
 		);
 
-		$request = new \WP_REST_Request( 'GET', '/jetpack/v4/paypal/buttons/PLB-NOTFOUND123' );
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons/PLB-NOTFOUND123' );
 		$request->set_param( 'resource_id', 'PLB-NOTFOUND123' );
 
 		$result = PayPal_REST_Controller::handle_get_button( $request );
@@ -520,7 +520,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 			}
 		);
 
-		$request = new \WP_REST_Request( 'GET', '/jetpack/v4/paypal/buttons' );
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons' );
 		$request->set_param( 'page_size', 10 );
 		$request->set_param( 'page_token', '' );
 
@@ -549,7 +549,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 			)
 		);
 
-		$request = new \WP_REST_Request( 'DELETE', '/jetpack/v4/paypal/buttons/PLB-GONE123' );
+		$request = new \WP_REST_Request( 'DELETE', '/wpcom/v2/paypal/buttons/PLB-GONE123' );
 		$request->set_param( 'resource_id', 'PLB-GONE123' );
 
 		$result = PayPal_REST_Controller::handle_delete_button( $request );
@@ -570,7 +570,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$this->mock_http_response( 204, '' );
 
-		$request = new \WP_REST_Request( 'DELETE', '/jetpack/v4/paypal/buttons/PLB-DEL123' );
+		$request = new \WP_REST_Request( 'DELETE', '/wpcom/v2/paypal/buttons/PLB-DEL123' );
 		$request->set_param( 'resource_id', 'PLB-DEL123' );
 
 		$result = PayPal_REST_Controller::handle_delete_button( $request );
@@ -596,7 +596,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 			)
 		);
 
-		$request = new \WP_REST_Request( 'DELETE', '/jetpack/v4/paypal/buttons/PLB-FAIL123' );
+		$request = new \WP_REST_Request( 'DELETE', '/wpcom/v2/paypal/buttons/PLB-FAIL123' );
 		$request->set_param( 'resource_id', 'PLB-FAIL123' );
 
 		$result = PayPal_REST_Controller::handle_delete_button( $request );
@@ -625,7 +625,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 			)
 		);
 
-		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/onboarding/signup-link' );
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/signup-link' );
 		$request->set_param( 'return_url', 'https://example.com/return' );
 		$request->set_param( 'environment', 'sandbox' );
 
@@ -643,7 +643,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	public function test_generate_signup_link_converts_error_to_rest_error() {
 		$this->set_up_connected_admin_state();
 
-		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/onboarding/signup-link' );
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/signup-link' );
 		$request->set_param( 'return_url', 'https://example.com/return' );
 		$request->set_param( 'environment', 'sandbox' );
 
@@ -660,7 +660,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	public function test_onboarding_complete_reports_expired_session() {
 		wp_set_current_user( self::factory_create_admin_user() );
 
-		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/paypal/onboarding/complete' );
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/complete' );
 		$request->set_param( 'auth_code', 'code' );
 		$request->set_param( 'shared_id', 'shared' );
 		$request->set_param( 'merchant_id_in_paypal', 'MERCHANT1' );
@@ -678,7 +678,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->set_up_connected_admin_state();
 
 		$result = PayPal_REST_Controller::handle_merchant_status(
-			new \WP_REST_Request( 'GET', '/jetpack/v4/paypal/onboarding/status' )
+			new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/onboarding/status' )
 		);
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
@@ -704,7 +704,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 			)
 		);
 
-		$request = new \WP_REST_Request( 'GET', '/jetpack/v4/paypal/buttons' );
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons' );
 		$request->set_param( 'page_size', 10 );
 
 		$result = PayPal_REST_Controller::handle_list_buttons( $request );
@@ -732,7 +732,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 			)
 		);
 
-		$request = new \WP_REST_Request( 'GET', '/jetpack/v4/paypal/buttons/PLB-42' );
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons/PLB-42' );
 		$request->set_param( 'resource_id', 'PLB-42' );
 
 		$result = PayPal_REST_Controller::handle_get_button( $request );
@@ -759,7 +759,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 		);
 
 		$result = PayPal_REST_Controller::handle_list_buttons(
-			new \WP_REST_Request( 'GET', '/jetpack/v4/paypal/buttons' )
+			new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons' )
 		);
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
@@ -772,7 +772,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	public function test_update_button_validates_before_calling_api() {
 		$this->set_up_connected_admin_state();
 
-		$request = new \WP_REST_Request( 'PUT', '/jetpack/v4/paypal/buttons/PLB-42' );
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
 		$request->set_param( 'resource_id', 'PLB-42' );
 		$request->set_param( 'type', 'BUY_NOW' );
 		$request->set_param( 'integration_mode', 'LINK' );
@@ -790,7 +790,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	 * Test REST namespace and route base constants.
 	 */
 	public function test_rest_constants() {
-		$this->assertEquals( 'jetpack/v4', PayPal_REST_Controller::REST_NAMESPACE );
+		$this->assertEquals( 'wpcom/v2', PayPal_REST_Controller::REST_NAMESPACE );
 		$this->assertEquals( '/paypal', PayPal_REST_Controller::ROUTE_BASE );
 	}
 

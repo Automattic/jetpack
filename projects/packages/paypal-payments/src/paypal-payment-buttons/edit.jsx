@@ -94,7 +94,7 @@ const VALID_CURRENCY_CODES = new Set( SUPPORTED_CURRENCIES.map( c => c.value ) )
 /**
  * REST API base path for PayPal endpoints.
  */
-const API_BASE = '/jetpack/v4/paypal';
+const API_BASE = '/wpcom/v2/paypal';
 
 /**
  * Format options for the format switcher.
