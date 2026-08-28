@@ -446,3 +446,78 @@
 		}
 	}
 }
+
+// "Free domain" upsell chip (omnibar upsell experiment treatment).
+// Quiet translucent pill matching the Calypso omnibar chip.
+#wpadminbar #wp-admin-bar-wpcom-free-domain-upsell {
+	display: flex;
+	align-items: center;
+
+	> .ab-item {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		height: 24px;
+		margin-inline: 6px;
+		padding-inline: 4px 8px;
+		border-radius: 4px;
+		background: rgba(56, 88, 233, 0.22);
+		box-shadow: inset 0 0 0 1px rgba(120, 150, 255, 0.45);
+		color: #dcdcde;
+		font-size: 12px;
+		font-weight: 500;
+		line-height: 24px;
+		white-space: nowrap;
+		transition: background 0.12s linear, box-shadow 0.12s linear, color 0.12s linear;
+
+		.ab-icon {
+			display: inline-flex;
+			align-items: center;
+			height: auto;
+			margin: 0;
+			padding: 0;
+			font-size: 0;
+
+			svg {
+				display: block;
+				fill: #8ba4ff;
+				transition: fill 0.12s linear;
+			}
+		}
+
+		.ab-label {
+			height: auto;
+			line-height: 24px;
+		}
+
+		// Keep the full pill (icon + label) on mobile, where core hides
+		// ab-labels and squeezes items to 46px.
+		@media screen and (max-width: 782px) {
+			width: auto;
+			height: 24px;
+			margin-block: 11px;
+
+			.ab-label {
+				display: inline;
+			}
+
+			.ab-icon {
+				width: auto;
+				height: auto;
+				padding: 0;
+				font-size: 0;
+			}
+		}
+	}
+
+	&:hover > .ab-item,
+	> .ab-item:focus-visible {
+		background: rgba(56, 88, 233, 0.42);
+		box-shadow: inset 0 0 0 1px rgba(150, 175, 255, 0.8);
+		color: #fff;
+
+		.ab-icon svg {
+			fill: #b8c8ff;
+		}
+	}
+}

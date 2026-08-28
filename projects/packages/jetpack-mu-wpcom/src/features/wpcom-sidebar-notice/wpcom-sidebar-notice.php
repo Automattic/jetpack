@@ -102,6 +102,14 @@ function wpcom_get_sidebar_notice() {
 		'tracks'        => $message->tracks ?? null,
 	);
 
+	// The omnibar upsell experiment moves these messages (same copy and CTA)
+	// into the admin bar for treatment users, so the sidebar copy is hidden for
+	// them. Other messages are not part of the experiment and stay untouched.
+	require_once __DIR__ . '/../../common/class-free-domain-upsell-experiment.php';
+	if ( \Automattic\Jetpack\Jetpack_Mu_Wpcom\Free_Domain_Upsell_Experiment::should_suppress_sidebar_notice( $cached_notice['id'] ) ) {
+		$cached_notice = null;
+	}
+
 	return $cached_notice;
 }
 

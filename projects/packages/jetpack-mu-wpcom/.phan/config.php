@@ -16,6 +16,9 @@ return make_phan_config(
 		'+stubs'                          => array( 'full-site-editing', 'gutenberg', 'photon-opencv', 'wpcom' ),
 		'exclude_file_list'               => array(
 			'tests/lib/class-wpcom-features.php',
+			// Conditional test doubles for wpcom-only \ExPlat\ helpers; analyzing them
+			// collides with the wpcom stubs and shadows the real declarations.
+			'tests/php/features/wpcom-admin-bar/explat-doubles.php',
 		),
 		'exclude_file_regex'              => array(
 			'build/',

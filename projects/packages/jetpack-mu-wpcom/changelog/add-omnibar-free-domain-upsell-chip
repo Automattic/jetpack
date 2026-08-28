@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Admin bar: Add a "Free domain" upsell chip and hide the matching free-to-paid and monthly-to-annual sidebar notices for users in the omnibar upsell experiment treatment.
