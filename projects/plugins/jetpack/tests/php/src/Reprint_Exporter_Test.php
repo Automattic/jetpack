@@ -50,6 +50,26 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Writes an export option straight past the guard.
+	 *
+	 * Some tests need a stale or future timestamp, which open_export_window()
+	 * cannot produce because it always stamps the current time.
+	 *
+	 * @param string $option Option name.
+	 * @param mixed  $value  Value to store.
+	 */
+	private function plant_option( $option, $value ) {
+		// Both guards have to come off: update_option() falls through to
+		// add_option() when the option does not exist yet.
+		remove_filter( "pre_update_option_{$option}", array( Reprint_Exporter::class, 'veto_foreign_update' ), PHP_INT_MAX );
+		remove_action( 'add_option', array( Reprint_Exporter::class, 'veto_foreign_add' ) );
+
+		update_option( $option, $value );
+
+		Reprint_Exporter::protect_options();
+	}
+
+	/**
 	 * Builds a WP environment object with the given request path.
 	 *
 	 * @param string $request The resolved request path.
@@ -226,6 +246,111 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		$this->assertNotContains( 'reprint-export', Jetpack::get_available_modules() );
 	}
 
+	// -- Option guard ---------------------------------------------------------
+
+	/**
+	 * A foreign write to the secret is refused.
+	 *
+	 * This is the defence against an arbitrary-option-update vulnerability in
+	 * some other plugin: setting the secret plus the window is all an attacker
+	 * needs to stream the whole site.
+	 */
+	public function test_foreign_update_of_the_secret_is_refused() {
+		Reprint_Exporter::store_secret( 'the-real-secret' );
+		Reprint_Exporter::protect_options();
+
+		update_option( Reprint_Exporter::SECRET_OPTION, 'attacker-chosen' );
+
+		$this->assertSame( 'the-real-secret', get_option( Reprint_Exporter::SECRET_OPTION ) );
+	}
+
+	/**
+	 * A foreign write to the window timestamp is refused.
+	 */
+	public function test_foreign_update_of_the_window_is_refused() {
+		Reprint_Exporter::protect_options();
+
+		update_option( Reprint_Exporter::ENABLED_OPTION, time() );
+
+		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
+	}
+
+	/**
+	 * A foreign write cannot create either option from scratch either.
+	 *
+	 * When the option is absent, update_option() falls through to add_option(),
+	 * so the veto has to hold on that path too.
+	 */
+	public function test_foreign_write_cannot_create_the_secret() {
+		Reprint_Exporter::protect_options();
+
+		update_option( Reprint_Exporter::SECRET_OPTION, 'attacker-chosen' );
+
+		$this->assertFalse( get_option( Reprint_Exporter::SECRET_OPTION ) );
+	}
+
+	/**
+	 * A direct add_option() stops the request.
+	 *
+	 * There is no filter that can cancel an add, so the only lever is to stop.
+	 */
+	public function test_foreign_add_option_aborts() {
+		Reprint_Exporter::protect_options();
+
+		$this->expectException( WPDieException::class );
+		add_option( Reprint_Exporter::SECRET_OPTION, 'attacker-chosen' );
+	}
+
+	/**
+	 * The guard leaves every other option alone.
+	 */
+	public function test_guard_ignores_unrelated_options() {
+		Reprint_Exporter::protect_options();
+
+		add_option( 'reprint_unrelated_option', 'value' );
+		update_option( 'reprint_unrelated_option', 'changed' );
+
+		$this->assertSame( 'changed', get_option( 'reprint_unrelated_option' ) );
+		delete_option( 'reprint_unrelated_option' );
+	}
+
+	/**
+	 * The exporter's own writes still go through with the guard active.
+	 */
+	public function test_own_writes_pass_the_guard() {
+		Reprint_Exporter::protect_options();
+
+		$this->assertTrue( Reprint_Exporter::store_secret( 'a-secret' ) );
+		$this->assertSame( 'a-secret', get_option( Reprint_Exporter::SECRET_OPTION ) );
+
+		Reprint_Exporter::open_export_window();
+		$this->assertTrue( Reprint_Exporter::is_export_window_open() );
+	}
+
+	/**
+	 * WP-CLI can write, since shell access already implies database access.
+	 */
+	public function test_wp_cli_can_write() {
+		Reprint_Exporter::protect_options();
+		Constants::set_constant( 'WP_CLI', true );
+
+		update_option( Reprint_Exporter::SECRET_OPTION, 'set-from-cli' );
+
+		$this->assertSame( 'set-from-cli', get_option( Reprint_Exporter::SECRET_OPTION ) );
+	}
+
+	/**
+	 * The guard does not stay held open after a write.
+	 */
+	public function test_guard_closes_after_an_allowed_write() {
+		Reprint_Exporter::protect_options();
+		Reprint_Exporter::store_secret( 'a-secret' );
+
+		update_option( Reprint_Exporter::SECRET_OPTION, 'attacker-chosen' );
+
+		$this->assertSame( 'a-secret', get_option( Reprint_Exporter::SECRET_OPTION ) );
+	}
+
 	/**
 	 * The REST route is registered.
 	 */
@@ -371,16 +496,16 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	public function test_export_window_closed_when_missing_stale_or_future() {
 		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
 
-		update_option( Reprint_Exporter::ENABLED_OPTION, time() - ( HOUR_IN_SECONDS + 60 ) );
+		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() - ( HOUR_IN_SECONDS + 60 ) );
 		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
 
-		update_option( Reprint_Exporter::ENABLED_OPTION, time() + Reprint_Exporter::HMAC_CLOCK_SKEW + 1 );
+		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() + Reprint_Exporter::HMAC_CLOCK_SKEW + 1 );
 		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
 
-		update_option( Reprint_Exporter::ENABLED_OPTION, time() + Reprint_Exporter::HMAC_CLOCK_SKEW - 1 );
+		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() + Reprint_Exporter::HMAC_CLOCK_SKEW - 1 );
 		$this->assertTrue( Reprint_Exporter::is_export_window_open() );
 
-		update_option( Reprint_Exporter::ENABLED_OPTION, time() );
+		Reprint_Exporter::open_export_window();
 		$this->assertTrue( Reprint_Exporter::is_export_window_open() );
 	}
 
@@ -393,7 +518,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 */
 	private function make_ready_stub() {
 		add_filter( 'jetpack_reprint_export_available', '__return_true' );
-		update_option( Reprint_Exporter::ENABLED_OPTION, time() );
+		Reprint_Exporter::open_export_window();
 		$_GET['reprint-api-jetpack'] = '1';
 		$_SERVER['REQUEST_METHOD']   = 'GET';
 		return new Reprint_Exporter_Test_Stub();
@@ -404,7 +529,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 */
 	public function test_ignores_request_without_query_param() {
 		add_filter( 'jetpack_reprint_export_available', '__return_true' );
-		update_option( Reprint_Exporter::ENABLED_OPTION, time() );
+		Reprint_Exporter::open_export_window();
 		$stub = new Reprint_Exporter_Test_Stub();
 		$this->run_handler( $stub, $this->make_wp( '' ) );
 		$this->assertFalse( $stub->served );
@@ -438,7 +563,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 * Not available (filter off): the handler does nothing.
 	 */
 	public function test_ignores_when_not_available() {
-		update_option( Reprint_Exporter::ENABLED_OPTION, time() );
+		Reprint_Exporter::open_export_window();
 		$_GET['reprint-api-jetpack'] = '1';
 		$_SERVER['REQUEST_METHOD']   = 'GET';
 		$stub                        = new Reprint_Exporter_Test_Stub();
@@ -476,7 +601,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	public function test_invalid_hmac_returns_403() {
 		$stub             = $this->make_ready_stub();
 		$stub->hmac_error = 'Invalid signature.';
-		update_option( Reprint_Exporter::SECRET_OPTION, 'a-secret' );
+		Reprint_Exporter::store_secret( 'a-secret' );
 		$body = $this->run_handler( $stub, $this->make_wp( '' ) );
 		$this->assertSame( 403, $stub->error_code );
 		$this->assertStringContainsString( '"code":403', $body );
@@ -489,8 +614,8 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 */
 	public function test_valid_hmac_serves_export() {
 		$stub = $this->make_ready_stub();
-		update_option( Reprint_Exporter::SECRET_OPTION, 'a-secret' );
-		update_option( Reprint_Exporter::ENABLED_OPTION, time() - 30 );
+		Reprint_Exporter::store_secret( 'a-secret' );
+		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() - 30 );
 
 		$this->run_handler( $stub, $this->make_wp( '' ) );
 
@@ -507,7 +632,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	public function test_invalid_export_request_returns_400() {
 		$stub              = $this->make_ready_stub();
 		$stub->serve_error = new \InvalidArgumentException( 'endpoint parameter is required.' );
-		update_option( Reprint_Exporter::SECRET_OPTION, 'a-secret' );
+		Reprint_Exporter::store_secret( 'a-secret' );
 
 		$body = $this->run_handler( $stub, $this->make_wp( '' ) );
 

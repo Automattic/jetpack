@@ -32,6 +32,8 @@ $tools = array(
 	'theme-tools/content-options.php',
 	// Needed for VideoPress, so videos keep working in existing posts/pages when the module is deactivated.
 	'videopress/class.videopress-gutenberg.php',
+	// Reprint export. Registers nothing off Pressable and WordPress.com (Atomic).
+	'reprint-export.php',
 );
 
 // Some features are only available when connected to WordPress.com.
@@ -47,8 +49,6 @@ $connected_tools = array(
 	'shortcodes/instagram.php',
 	// This Twitter oEmbed provider relies on a connection to WordPress.com to proxy the request.
 	'shortcodes/twitter.php',
-	// Reprint export. Registers nothing off Pressable and WordPress.com (Atomic).
-	'reprint-export.php',
 );
 
 // Add connected features to our existing list if the site is currently connected.

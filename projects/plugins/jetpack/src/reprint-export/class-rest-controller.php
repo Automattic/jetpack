@@ -91,7 +91,7 @@ class REST_Controller extends WP_REST_Controller {
 	public function rotate_secret() {
 		$secret = bin2hex( random_bytes( 32 ) );
 
-		if ( ! update_option( Reprint_Exporter::SECRET_OPTION, $secret, false ) ) {
+		if ( ! Reprint_Exporter::store_secret( $secret ) ) {
 			return new WP_REST_Response(
 				array( 'error' => 'Failed to persist the new secret.' ),
 				500

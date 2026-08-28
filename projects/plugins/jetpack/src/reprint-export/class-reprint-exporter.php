@@ -43,12 +43,113 @@ class Reprint_Exporter {
 	const HMAC_CLOCK_SKEW = 300;
 
 	/**
+	 * Whether the exporter is in the middle of one of its own option writes.
+	 *
+	 * @var bool
+	 */
+	private static $writing_own_options = false;
+
+	/**
 	 * Initializes Reprint export where it is available.
 	 */
 	public static function maybe_init() {
+		self::protect_options();
+
 		if ( self::is_available() ) {
 			self::init();
 		}
+	}
+
+	/**
+	 * Blocks writes to the two export options from anywhere but this class.
+	 *
+	 * Anyone who can set both options can export the whole site: they pick the
+	 * secret, so they can sign their own requests. Plugins do sometimes ship
+	 * bugs that let a request write any option, and this keeps such a bug from
+	 * turning into a copy of the database.
+	 *
+	 * We allow the write based on where it came from, not on who is logged in.
+	 * A capability check would not help, because the usual version of this bug
+	 * is a form with a missing nonce: the request runs in an administrator's
+	 * own session, so any check of the current user says yes.
+	 */
+	public static function protect_options() {
+		foreach ( array( self::SECRET_OPTION, self::ENABLED_OPTION ) as $option ) {
+			// Last word: a later filter must not be able to reinstate the value.
+			add_filter( "pre_update_option_{$option}", array( __CLASS__, 'veto_foreign_update' ), PHP_INT_MAX, 2 );
+		}
+
+		// add_option() offers no filter that can cancel the write — only actions
+		// either side of the insert — so stopping the request is the only lever.
+		add_action( 'add_option', array( __CLASS__, 'veto_foreign_add' ), 10, 1 );
+	}
+
+	/**
+	 * Cancels a foreign update by handing back the value already stored.
+	 *
+	 * @param mixed $value     The incoming value.
+	 * @param mixed $old_value The value currently stored.
+	 * @return mixed The incoming value for our own writes, the stored one otherwise.
+	 */
+	public static function veto_foreign_update( $value, $old_value ) {
+		return self::is_own_option_write() ? $value : $old_value;
+	}
+
+	/**
+	 * Stops the request when something else tries to create either option.
+	 *
+	 * @param string $option The option being added.
+	 */
+	public static function veto_foreign_add( $option ) {
+		if ( self::SECRET_OPTION !== $option && self::ENABLED_OPTION !== $option ) {
+			return;
+		}
+
+		if ( self::is_own_option_write() ) {
+			return;
+		}
+
+		wp_die(
+			esc_html__( 'Reprint export options can only be written by Jetpack itself.', 'jetpack' ),
+			esc_html__( 'Forbidden', 'jetpack' ),
+			array( 'response' => 403 )
+		);
+	}
+
+	/**
+	 * Whether this write is ours, or WP-CLI, which already has database access.
+	 *
+	 * @return bool
+	 */
+	private static function is_own_option_write() {
+		return self::$writing_own_options || Constants::is_true( 'WP_CLI' );
+	}
+
+	/**
+	 * Writes one of the export options with the guard held open.
+	 *
+	 * @param string    $option   Option name.
+	 * @param mixed     $value    Value to store.
+	 * @param bool|null $autoload Whether to autoload the option.
+	 * @return bool Whether the value was changed.
+	 */
+	private static function write_option( $option, $value, $autoload = null ) {
+		self::$writing_own_options = true;
+		try {
+			return update_option( $option, $value, $autoload );
+		} finally {
+			self::$writing_own_options = false;
+		}
+	}
+
+	/**
+	 * Stores a freshly minted shared secret.
+	 *
+	 * @param string $secret The new secret.
+	 * @return bool Whether the secret was stored.
+	 */
+	public static function store_secret( $secret ) {
+		return self::write_option( self::SECRET_OPTION, $secret, false );
 	}
 
 	/**
@@ -184,7 +285,7 @@ class Reprint_Exporter {
 	 */
 	public static function open_export_window() {
 		$now = time();
-		update_option( self::ENABLED_OPTION, $now );
+		self::write_option( self::ENABLED_OPTION, $now );
 		return $now;
 	}
 
