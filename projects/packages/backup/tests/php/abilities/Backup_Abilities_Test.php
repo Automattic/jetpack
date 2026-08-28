@@ -421,9 +421,8 @@ class Backup_Abilities_Test extends BaseTestCase {
 								'has_warnings'  => array( 'type' => array( 'boolean', 'null' ) ),
 							),
 						),
-						// No `minute`: WordPress.com schedules to the hour and
-						// nothing upstream supplies a minute, so publishing the
-						// field would advertise a permanently-null value.
+						// No `minute`: nothing upstream supplies one, so the
+						// field could only advertise a permanent null.
 						'schedule'            => array(
 							'type'       => array( 'object', 'null' ),
 							'properties' => array(
@@ -789,33 +788,16 @@ class Backup_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * End-to-end for JETPACK-2372 and its schedule twin. The three routes this
-	 * PR is about — `/size`, `/policies` and `/scheduled` — answer with the
-	 * bodies WordPress.com actually sends; each `recorded_*_payload()` helper
-	 * cites where its shape came from.
+	 * End-to-end for JETPACK-2372 and its schedule twin: `/size`, `/policies` and
+	 * `/scheduled` answer with the bodies WordPress.com actually sends.
 	 *
-	 * The fourth body, for `/rewind/backups`, is **illustrative and not
-	 * sourced**. It is here only so `recent_backup_count` and `last_backup`
-	 * have something to summarize while the storage and schedule blocks are
-	 * asserted; `summarize_backup()` is pre-existing and not under audit here.
-	 * Do not read it as a record of that endpoint: the wpcom v2 endpoint
-	 * (`sites-rewind-backup.php`) proxies VaultPress rather than building the
-	 * item itself, and the one place these field names are constructed —
-	 * `sites-rewind-backup-v3.php` — belongs to v3, while this code path calls
-	 * v2. Pinning that shape needs its own issue.
-	 *
-	 * Before the fix this produced `storage => { used_bytes: null, limit_bytes:
-	 * null }` and `schedule => { hour: null, minute: null }` against exactly
-	 * these payloads, because the mapping read four field names — `size_in_bytes`,
-	 * `storage_limit_bytes`, `hour`, `minute` — that appear on none of them.
+	 * The fourth body, for `/rewind/backups`, is illustrative and not sourced — it only
+	 * gives `summarize_backup()` something to chew on while storage and schedule are
+	 * asserted. Pinning that shape needs its own issue.
 	 */
 	public function test_get_backup_overview_maps_recorded_wpcom_payloads(): void {
-		// The first signed `Client` call of the process is built before
-		// `Client::build_signed_request()` has installed the filter supplying
-		// `JETPACK__WPCOM_JSON_API_BASE`, so it is refused as a host-less URL.
-		// Four calls are made here and the first would otherwise be lost,
-		// making the assertion depend on what ran earlier in the suite. Same
-		// reasoning as `Jetpack_Backup_Test::sign_in_as_connected_admin()`.
+		// The first signed `Client` call of the process is refused as a host-less URL,
+		// so without this the assertion depends on what ran earlier in the suite.
 		\Automattic\Jetpack\Connection\Utils::init_default_constants();
 
 		wp_set_current_user( $this->admin_id );
@@ -1205,11 +1187,9 @@ class Backup_Abilities_Test extends BaseTestCase {
 	/**
 	 * Body of a successful `GET /jetpack/v4/site/backup/schedule`.
 	 *
-	 * The route forwards WordPress.com's body verbatim. Its three keys, and
-	 * only those three, are built at
-	 * `wp-content/rest-api-plugins/endpoints/sites-rewind-scheduled-backup.php`
-	 * lines 76-78 (cache hit) and 95-97 (VaultPress round-trip) — there is no
-	 * `hour`, no `minute` and no `scheduled_minute` on either branch.
+	 * The route forwards WordPress.com's body verbatim, and these three keys are all it
+	 * ever sets: no `hour`, no `minute`, no `scheduled_minute` on either branch of
+	 * `sites-rewind-scheduled-backup.php`.
 	 *
 	 * @param array $overrides Fields to replace.
 	 * @return array
@@ -1228,12 +1208,9 @@ class Backup_Abilities_Test extends BaseTestCase {
 	/**
 	 * Body of a successful `GET /jetpack/v4/site/backup/size`.
 	 *
-	 * These ten keys, in this order, are what
-	 * `wp-content/rest-api-plugins/endpoints/sites-rewind-size.php` builds at
-	 * lines 54-63, and they match the live 200 captured on JETPACK-2372 key
-	 * for key. Note what is absent: usage is `size` (not `size_in_bytes`),
-	 * and the response carries no storage limit at all despite the route's
-	 * name — that lives on `/site/backup/policies`.
+	 * These ten keys are what `sites-rewind-size.php` builds, matching the live 200
+	 * captured on JETPACK-2372. Note what is absent: usage is `size`, not
+	 * `size_in_bytes`, and there is no storage limit here at all.
 	 *
 	 * @param array $overrides Fields to replace.
 	 * @return array
@@ -1259,12 +1236,8 @@ class Backup_Abilities_Test extends BaseTestCase {
 	/**
 	 * Body of a successful `GET /jetpack/v4/site/backup/policies`.
 	 *
-	 * `wp-content/rest-api-plugins/endpoints/sites-rewind-policies.php:47`
-	 * nests everything under a single `policies` key, whose contents come
-	 * from the plan tier table in
-	 * `wp-content/lib/activity-log/rewind-permissions.php` (lines 31/39/47
-	 * carry `storage_limit_bytes`). `policies` is itself nullable inside a
-	 * 200 when the plan carries no policy.
+	 * `sites-rewind-policies.php` nests everything under a single `policies` key, which
+	 * is itself nullable inside a 200 when the plan carries no policy.
 	 *
 	 * @param bool $with_policy False to model the `{ "policies": null }` body a
 	 *                          plan with no policy answers with.
@@ -1294,15 +1267,11 @@ class Backup_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Regression for JETPACK-2372's twin: the ability used to read `hour` and
-	 * `minute`, names WordPress.com has never sent.
+	 * Regression for JETPACK-2372's twin: the ability used to read `hour` and `minute`,
+	 * names WordPress.com has never sent.
 	 *
-	 * Two payloads, because a wrong reader fails two different ways and only
-	 * the second catches both. A reader that *prefers* `hour` — trunk's bug —
-	 * reports 3 for the first. A reader that merely *falls back* to `hour`
-	 * passes the first, because `scheduled_hour` is still there to be found;
-	 * it is caught only by the second, where the real name is absent exactly
-	 * as it would be if the alias were reintroduced as a safety net.
+	 * Two payloads, because a reader that merely *falls back* to `hour` passes the
+	 * first — only the second, where `scheduled_hour` is absent, catches it.
 	 */
 	public function test_summarize_schedule_ignores_the_hour_minute_names_wpcom_never_sends(): void {
 		$alias_preferred = $this->call_private(
@@ -1332,10 +1301,9 @@ class Backup_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * `ok` is WordPress.com's own success flag *inside* a 200 body; without it
-	 * the sibling fields carry no meaning. The fixture keeps a plausible
-	 * `scheduled_hour` so the assertion cannot pass merely because the payload
-	 * was empty.
+	 * `ok` is WordPress.com's own success flag inside a 200 body. The fixture keeps a
+	 * plausible `scheduled_hour` so this cannot pass merely because the payload was
+	 * empty.
 	 */
 	public function test_summarize_schedule_discards_payload_that_is_not_ok(): void {
 		$result = $this->call_private(
@@ -1366,14 +1334,10 @@ class Backup_Abilities_Test extends BaseTestCase {
 	 * `storage_limit_bytes` were the names the ability used to read, and
 	 * neither exists on any WordPress.com response.
 	 *
-	 * The two aliases need different setups. `size_in_bytes` is checked
-	 * against a full policies payload, so `limit_bytes` can be asserted to be
-	 * the real figure and the test cannot pass by collapsing everything to
-	 * null. The planted `storage_limit_bytes` needs the opposite: with a real
-	 * policy present the policy wins whatever the code does, so the plant is
-	 * unreachable and proves nothing. It is only meaningful against
-	 * `{ "policies": null }`, where a reader that fell back to the size
-	 * payload would surface 999.
+	 * The two aliases need opposite setups: `size_in_bytes` against a full policies
+	 * payload, so the test cannot pass by collapsing to null; the planted
+	 * `storage_limit_bytes` against `{ "policies": null }`, where a policy would
+	 * otherwise win whatever the code does.
 	 */
 	public function test_summarize_storage_ignores_the_field_names_wpcom_never_sends(): void {
 		$size = $this->recorded_size_payload();
@@ -1405,10 +1369,8 @@ class Backup_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A 200 with `ok: false` carries no usable usage figure, but the limit
-	 * comes from a different route and is unaffected — so this asserts the
-	 * limit still arrives, which a wholesale "everything is null" failure
-	 * could not satisfy.
+	 * A 200 with `ok: false` carries no usable usage figure, but the limit comes from a
+	 * different route — so it still has to arrive.
 	 */
 	public function test_summarize_storage_drops_usage_when_size_response_is_not_ok(): void {
 		$result = $this->call_private(
@@ -1438,10 +1400,8 @@ class Backup_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The two routes fail independently — either can return a `WP_Error` that
-	 * unwraps to null while the other answers. Whichever figure did arrive has
-	 * to survive, so each half is asserted to be the real number rather than
-	 * null.
+	 * The two routes fail independently, so whichever figure did arrive has to survive.
+	 * Each half is asserted to be the real number rather than null.
 	 */
 	public function test_summarize_storage_reports_whichever_route_answered(): void {
 		$size_failed = $this->call_private( 'summarize_storage', array( null, $this->recorded_policies_payload() ) );
@@ -1454,10 +1414,8 @@ class Backup_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * `ok` absent is not the same as `ok: true`. WordPress.com sets it on
-	 * every success branch of both routes, so a payload missing it is not a
-	 * success payload and its siblings are not trustworthy — relaxing either
-	 * guard to "present and false" would start trusting them.
+	 * `ok` absent is not `ok: true`. WordPress.com sets it on every success branch, so a
+	 * payload missing it is not a success payload and its siblings cannot be trusted.
 	 *
 	 * The two routes then diverge deliberately, which is the asymmetry
 	 * documented on `summarize_storage()`: schedule has nothing left to report
@@ -1479,12 +1437,9 @@ class Backup_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * `{ "policies": { "storage_limit_bytes": null } }` is a real body — the
-	 * dashboard's own types declare it at
-	 * `src/dashboard/data/api/policies.ts`. It has to read as "no limit", not
-	 * as a limit of zero: `array_key_exists()` where the code uses `isset()`
-	 * would publish `limit_bytes: 0`, which reads as "no storage allowed" and
-	 * divides by zero in any consumer drawing a percentage.
+	 * `{ "policies": { "storage_limit_bytes": null } }` is a real body, and has to read
+	 * as "no limit" rather than a limit of zero — `array_key_exists()` in place of
+	 * `isset()` would publish `limit_bytes: 0` and divide by zero downstream.
 	 */
 	public function test_summarize_storage_treats_a_null_limit_as_absent_not_zero(): void {
 		$result = $this->call_private(
@@ -1500,12 +1455,9 @@ class Backup_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The output schema declares `hour`, `used_bytes` and `limit_bytes` as
-	 * `integer`. These payloads are whatever `json_decode()` made of
-	 * WordPress.com's answer, so a numeric string or a float would otherwise
-	 * be republished verbatim and break that declaration. The three casts are
-	 * what keep it true; each value below is chosen so `assertSame` fails on
-	 * the uncast type while still comparing equal loosely.
+	 * The output schema declares these three as `integer`, but the payloads are whatever
+	 * `json_decode()` made of WordPress.com's answer. Each value below is chosen so
+	 * `assertSame` fails on the uncast type while still comparing equal loosely.
 	 */
 	public function test_summarize_helpers_cast_numeric_figures_to_integers(): void {
 		$schedule = $this->call_private(

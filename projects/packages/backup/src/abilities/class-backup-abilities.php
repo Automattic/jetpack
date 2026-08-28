@@ -191,10 +191,8 @@ class Backup_Abilities extends Registrar {
 								'has_warnings'  => array( 'type' => array( 'boolean', 'null' ) ),
 							),
 						),
-						// Hour only, and deliberately so: WordPress.com schedules
-						// daily backups to the hour (`scheduled_hour`), and no
-						// endpoint carries a minute. A `minute` field here could
-						// only ever be null, which is worse than absent.
+						// Hour only: no WordPress.com endpoint carries a minute,
+						// so a `minute` field could only ever be null.
 						'schedule'            => array(
 							'type'       => array( 'object', 'null' ),
 							'properties' => array(
@@ -435,11 +433,9 @@ class Backup_Abilities extends Registrar {
 		$backups       = self::unwrap_response( Jetpack_Backup::get_recent_backups() );
 		$schedule_data = self::unwrap_response( Jetpack_Backup::get_site_backup_schedule_time() );
 		$size_data     = self::unwrap_response( Jetpack_Backup::get_site_backup_size() );
-		// Storage takes two round-trips because neither route describes it
-		// alone: `/rewind/size` reports usage and `/rewind/policies` reports
-		// the plan's limit. Fetched unconditionally rather than only when the
-		// size read succeeded, so a usable limit still reaches the caller when
-		// WordPress.com cannot report usage.
+		// Two round-trips because neither route describes storage alone: `/rewind/size`
+		// reports usage, `/rewind/policies` the limit. Fetched unconditionally so a
+		// usable limit still arrives when usage cannot be measured.
 		$policies_data = self::unwrap_response( Jetpack_Backup::get_site_backup_policies() );
 
 		return array(
@@ -872,12 +868,9 @@ class Backup_Abilities extends Registrar {
 	/**
 	 * Summarize the `/site/backup/schedule` payload to `{ hour }`.
 	 *
-	 * WordPress.com answers `{ ok, scheduled_hour, scheduled_by }` — the hour
-	 * of the day, in UTC, that the daily backup is scheduled for. `ok` is its
-	 * own success flag *inside* a 200 body, so a payload that does not set it
-	 * carries no usable hour, and there is no minute anywhere on the response
-	 * (the legacy dashboard renders the hour as a `HH:00`-`HH:59` window for
-	 * exactly this reason).
+	 * WordPress.com answers `{ ok, scheduled_hour, scheduled_by }` — the UTC hour of the
+	 * daily backup, and no minute anywhere. `ok` is its own success flag inside a 200
+	 * body, so a payload without it carries no usable hour.
 	 *
 	 * @param mixed $raw Upstream schedule payload.
 	 * @return array|null
@@ -898,21 +891,12 @@ class Backup_Abilities extends Registrar {
 	/**
 	 * Summarize storage from the two payloads that between them describe it.
 	 *
-	 * Usage is `size` on `/site/backup/size`, whose response carries no
-	 * storage limit at all despite the route's name; the limit is
-	 * `policies.storage_limit_bytes` on `/site/backup/policies`. The same
-	 * fan-out the dashboard's storage meter performs — see
-	 * `src/dashboard/hooks/use-storage-usage.ts`.
+	 * Usage is `size` on `/site/backup/size`, which despite its name carries no limit;
+	 * the limit is `policies.storage_limit_bytes` on `/site/backup/policies`.
 	 *
-	 * `/size` additionally carries WordPress.com's own `ok` flag inside a 200
-	 * body; without it the sibling fields carry no meaning, so usage is
-	 * discarded rather than half-read. The limit is read independently, so a
-	 * site whose usage could not be measured still reports what it is allowed.
-	 *
-	 * That is a deliberate asymmetry with `summarize_schedule()`, which drops
-	 * its whole object on a payload that is not `ok`: there, nothing is left
-	 * to report once the hour is gone. Here, the limit comes from a different
-	 * route and is unaffected by whatever went wrong with `/size`.
+	 * The two are read independently, so a site whose usage could not be measured still
+	 * reports what it is allowed. That is deliberately unlike `summarize_schedule()`,
+	 * which has nothing left to report once its hour is gone.
 	 *
 	 * @param mixed $size_raw     Upstream `/site/backup/size` payload.
 	 * @param mixed $policies_raw Upstream `/site/backup/policies` payload.
@@ -930,9 +914,8 @@ class Backup_Abilities extends Registrar {
 			? (int) $size['size']
 			: null;
 
-		// The limit is nested one level down, and `policies` is itself nullable
-		// inside a 200: a plan with no retention policy answers
-		// `{ "policies": null }`.
+		// `policies` is itself nullable inside a 200: a plan with no retention policy
+		// answers `{ "policies": null }`.
 		$policy = $policies['policies'] ?? null;
 		$policy = ( is_array( $policy ) || is_object( $policy ) ) ? (array) $policy : null;
 
