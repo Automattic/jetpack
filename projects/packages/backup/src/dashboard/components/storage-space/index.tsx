@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { Skeleton, Text } from '@wordpress/ui';
 import { StorageUsageLevels } from '../../data/storage-usage-levels';
 import { useStorageUsage } from '../../hooks/use-storage-usage';
+import StorageAddonUpsell from './addon-upsell';
 import StorageMeter from './meter';
 import StorageUsageDetails from './usage-details';
 import './style.scss';
@@ -31,6 +32,40 @@ function sectionHeading( usageLevel: StorageUsageLevelName | null ): string {
 }
 
 /**
+ * The forecast worth putting behind an info button, or null for none.
+ *
+ * Legacy's gate, in one place instead of split between the parent and the popover's own
+ * early return.
+ *
+ * The `Normal` check is why this and the upsell never appear together: above `Normal`
+ * the section is already saying storage is running out. The comparison is against what
+ * the *plan* promises rather than the retention in force — if the site holds fewer days
+ * than the plan offers, the limit is what is deciding.
+ *
+ * @param usageLevel        - Derived level, or null when it could not be computed.
+ * @param forecastInDays    - Days of full backups the limit would hold, or null.
+ * @param planRetentionDays - Days the plan promises, or null when unreported.
+ * @return The forecast to show, or null.
+ */
+function helpForecast(
+	usageLevel: StorageUsageLevelName | null,
+	forecastInDays: number | null,
+	planRetentionDays: number | null
+): number | null {
+	if ( usageLevel !== StorageUsageLevels.Normal ) {
+		return null;
+	}
+
+	if ( forecastInDays === null || planRetentionDays === null ) {
+		return null;
+	}
+
+	// A forecast of zero is a real answer — a site whose last backup exceeds its whole
+	// limit — but not one an info button beside a calm meter can usefully explain.
+	return forecastInDays > 0 && forecastInDays < planRetentionDays ? forecastInDays : null;
+}
+
+/**
  * The Overview screen's storage section.
  *
  * Renders nothing at all until both halves of the answer have arrived and
@@ -39,8 +74,9 @@ function sectionHeading( usageLevel: StorageUsageLevelName | null ): string {
  * meter that means nothing. That silence is deliberate and matches the
  * legacy dashboard's own `storageSize !== null && storageLimit > 0` gate.
  *
- * Sibling issues add the upsell and the help popover inside this same
- * section.
+ * The upsell renders above `Normal` and the help popover only at it, so a site sees one
+ * explanation or the other — which is what keeps `/site/backup/addon-offer` to one
+ * request per page even though two components can make it.
  *
  * @return The storage section, or null when there is nothing to show.
  */
@@ -104,7 +140,21 @@ export default function StorageSpace() {
 				storageUsed={ usage.storageUsed }
 				storageLimit={ usage.storageLimit }
 				daysOfBackupsSaved={ usage.daysOfBackupsSaved }
+				helpForecastInDays={ helpForecast(
+					usage.usageLevel,
+					usage.forecastInDays,
+					usage.planRetentionDays
+				) }
 			/>
+			{ usage.usageLevel !== StorageUsageLevels.Normal && (
+				<StorageAddonUpsell
+					usageLevel={ usage.usageLevel }
+					storageUsed={ usage.storageUsed }
+					storageLimit={ usage.storageLimit }
+					daysOfBackupsSaved={ usage.daysOfBackupsSaved }
+					minDaysOfBackupsAllowed={ usage.minDaysOfBackupsAllowed }
+				/>
+			) }
 		</section>
 	);
 }

@@ -53,6 +53,21 @@
 		inline-size: 240px;
 		margin-block-start: 8px;
 	}
+
+	// `Stack` owns the column and its gap, so all that is left is how far
+	// the pair sits from the row above — the same 8px the readings sit
+	// from the meter.
+	&__upsell {
+		margin-block-start: 8px;
+	}
+}
+
+// Deliberately not nested inside `.jpb-storage-space`: `Popover.Popup`
+// portals its content out, so a nested selector would never match.
+.jpb-storage-space__help-popup {
+	// Without a cap the popup is as wide as its longest sentence, which on
+	// a wide screen is a single line running most of the viewport.
+	max-inline-size: 320px;
 }
 
 .jpb-storage-meter {

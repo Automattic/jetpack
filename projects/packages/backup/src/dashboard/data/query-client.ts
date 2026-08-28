@@ -49,6 +49,11 @@ export const keys = {
 	// Not keyed on anything: WordPress.com picks the currency from the
 	// site, so one site only ever sees one answer.
 	promotedProduct: () => [ 'backup', 'promoted-product' ] as const,
+	// The storage add-on being offered. Keyed on both byte figures because the route
+	// derives its answer from both — the same pair that gates the query. Nulls appear
+	// in the key only while it is disabled, so no request is made under one.
+	storageAddonOffer: ( storageUsed: number | null, storageLimit: number | null ) =>
+		[ 'backup', 'storage-addon-offer', storageUsed, storageLimit ] as const,
 	// Family prefix for any rewindable-activity-log page. Use as a
 	// query-filter root to scan all cached pages (e.g. when looking up
 	// a row by id across pages).
