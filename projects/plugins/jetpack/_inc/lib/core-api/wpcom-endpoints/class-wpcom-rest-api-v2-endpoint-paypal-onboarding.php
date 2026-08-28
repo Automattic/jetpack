@@ -266,25 +266,35 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 			}
 		}
 
-		// Nothing configured at all -- the credentials were never provisioned here.
-		if ( empty( $credentials ) ) {
-			return new WP_Error(
-				'platform_credentials_missing',
-				'PayPal platform credentials are not configured on WordPress.com. Please contact the Jetpack team.',
-				array( 'status' => 500 )
-			);
+		if ( isset( $credentials['client_id'] ) && isset( $credentials['client_secret'] ) ) {
+			return $credentials;
 		}
 
-		// Partially configured, or configured for a different environment.
-		if ( ! isset( $credentials['client_id'] ) || ! isset( $credentials['client_secret'] ) ) {
-			return new WP_Error(
-				'platform_credentials_invalid',
-				sprintf( 'PayPal platform credentials for %s environment are not configured.', $environment ),
-				array( 'status' => 500 )
-			);
+		/*
+		 * Separate "nothing is provisioned here at all" from "this environment is not
+		 * provisioned". The option this replaced could tell them apart because one
+		 * value held every environment; per-environment constants cannot, so look at
+		 * the whole set. The second message is the actionable one, and it is what a
+		 * sandbox-only configuration hits when asked for production.
+		 */
+		foreach ( self::PLATFORM_CREDENTIAL_CONSTANTS as $environment_constants ) {
+			foreach ( $environment_constants as $constant_name ) {
+				$value = Constants::get_constant( $constant_name );
+				if ( is_string( $value ) && '' !== $value ) {
+					return new WP_Error(
+						'platform_credentials_invalid',
+						sprintf( 'PayPal platform credentials for %s environment are not configured.', $environment ),
+						array( 'status' => 500 )
+					);
+				}
+			}
 		}
 
-		return $credentials;
+		return new WP_Error(
+			'platform_credentials_missing',
+			'PayPal platform credentials are not configured on WordPress.com. Please contact the Jetpack team.',
+			array( 'status' => 500 )
+		);
 	}
 
 	/**
