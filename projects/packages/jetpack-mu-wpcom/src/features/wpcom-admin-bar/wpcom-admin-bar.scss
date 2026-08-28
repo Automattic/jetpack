@@ -130,11 +130,6 @@
 	margin-top: -12px;
 }
 
-// Pad the wrapper top instead, pushing Visit Site down to match Calypso.
-#wpadminbar #wp-admin-bar-site-name .ab-sub-wrapper {
-	padding-top: 6px;
-}
-
 #wp-admin-bar-site-plan,
 #wp-admin-bar-site-status {
 	display: flex;
@@ -243,6 +238,8 @@
 
 				span.wpcom-button {
 					display: inline-block;
+					min-height: 32px;
+					line-height: 30px;
 					color: #fff;
 					background-color: #3858e9;
 					border-color: #3858e9;
