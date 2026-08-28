@@ -18,7 +18,11 @@ const JetpackManageResponsesSettings = ( { attributes, setAttributes } ) => {
 				__nextHasNoMarginBottom={ true }
 			/>
 			{ saveResponses && (
-				<LinkButton variant="outline" href={ responsesHref }>
+				<LinkButton
+					className="jetpack-contact-form__view-responses-button"
+					variant="outline"
+					href={ responsesHref }
+				>
 					{ __( 'View form responses', 'jetpack-forms' ) }
 				</LinkButton>
 			) }

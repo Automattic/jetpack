@@ -1,3 +1,4 @@
 Significance: patch
 Type: changed
-Comment: Make form navigation actions real links.
+
+Make form navigation actions real links so they can be opened in a new tab.
