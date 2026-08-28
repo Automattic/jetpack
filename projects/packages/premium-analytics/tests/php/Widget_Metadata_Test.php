@@ -267,9 +267,19 @@ class Widget_Metadata_Test extends BaseTestCase {
 			)
 		);
 
-		$records = get_widget_modules_response()->get_data();
+		// A local build/ would otherwise be required on first use and redeclare the fixture stub.
+		$manifest_path = static function () {
+			return __DIR__ . '/fixtures/build-entry/widgets.php';
+		};
+		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', $manifest_path );
 
-		$registry->unregister( 'test/metadata-sentinel' );
+		$records = array();
+		try {
+			$records = get_widget_modules_response()->get_data();
+		} finally {
+			remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', $manifest_path );
+			$registry->unregister( 'test/metadata-sentinel' );
+		}
 
 		$record = null;
 		foreach ( $records as $candidate ) {
