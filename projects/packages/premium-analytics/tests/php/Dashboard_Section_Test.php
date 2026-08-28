@@ -536,9 +536,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 	/**
 	 * The sections schema documents the date-filter surfaces and their default.
 	 *
-	 * `routes/dashboard/config/date-filter.ts` re-declares these rather than
-	 * importing them, and falls back to `range` silently, so a new surface has to
-	 * widen `DateFilterSurface` there too or the dashboard will never render it.
+	 * `routes/dashboard/config/date-filter.ts` re-declares these and falls back to `range`
+	 * silently — widen `DateFilterSurface` there too, or new surfaces won't render.
 	 */
 	public function test_sections_schema_documents_the_date_filter() {
 		$schema = get_dashboard_section_schema();

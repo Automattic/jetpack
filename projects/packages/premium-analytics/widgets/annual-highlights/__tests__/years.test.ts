@@ -14,9 +14,7 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 // The list runs down from today, so the payload is built relative to it — a
-// hardcoded year would drift out of the surface after New Year. The package
-// test script pins TZ=UTC, which is also what `siteTimeZone()` resolves to
-// under jsdom's default WP date settings.
+// hardcoded year would drift out of the surface after New Year.
 const CURRENT_YEAR = new Date().getFullYear();
 
 const yearRow = ( year: number ) => ( {

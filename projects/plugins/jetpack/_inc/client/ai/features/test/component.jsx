@@ -32,7 +32,11 @@ describe( 'AiFeatures rendering', () => {
 		const toggle = screen.getByRole( 'checkbox', { name: /Writing Assistant/ } );
 		expect( toggle ).toBeChecked();
 		expect( toggle ).toBeEnabled();
-		expect( screen.getByText( 'Try it out in the editor' ) ).toBeInTheDocument();
+		const content = screen.getByRole( 'region', { name: 'Content' } );
+		expect( within( content ).getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+			'target',
+			'_blank'
+		);
 	} );
 
 	test( 'renders one Agent capabilities card with title and subtitle', () => {
@@ -128,7 +132,8 @@ describe( 'AiFeatures rendering', () => {
 		const toggle = screen.getByRole( 'checkbox', { name: /AI Search/ } );
 		expect( toggle ).toBeDisabled();
 		expect( toggle ).not.toBeChecked();
-		expect( screen.getByText( 'Learn more' ) ).toBeInTheDocument();
+		const searchGroup = screen.getByRole( 'region', { name: 'Search' } );
+		expect( within( searchGroup ).getByText( 'Learn more' ) ).toBeInTheDocument();
 	} );
 
 	test( 'no Search entitlement: the badge popover names the upgrade remedy', async () => {
@@ -201,7 +206,6 @@ describe( 'AiFeatures rendering', () => {
 		expect( toggle ).toBeChecked();
 		expect( toggle ).toBeDisabled();
 
-		expect( screen.queryByText( 'Try it out in the editor' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
 	} );
 
@@ -222,7 +226,7 @@ describe( 'AiFeatures rendering', () => {
 		// The connection ask comes before any upgrade messaging: without a
 		// connection the plan is unknown, so no upgrade badge may show.
 		expect( screen.queryByText( 'Requires upgrade' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Try it out in the editor' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'not connected takes precedence over the master-off notice', () => {
@@ -250,7 +254,8 @@ describe( 'AiFeatures rendering', () => {
 		const toggle = screen.getByRole( 'checkbox', { name: /Writing Assistant/ } );
 		expect( toggle ).toBeChecked();
 		expect( toggle ).toBeEnabled();
-		expect( screen.getByText( 'Try it out in the editor' ) ).toBeInTheDocument();
+		const content = screen.getByRole( 'region', { name: 'Content' } );
+		expect( within( content ).getByRole( 'link', { name: /Learn more/ } ) ).toBeInTheDocument();
 	} );
 
 	test( 'free plan: toggling a feature still saves', async () => {
@@ -404,7 +409,7 @@ describe( 'AiFeatures rendering', () => {
 			/>
 		);
 
-		// Writing Assistant is off → its action is the external "Learn more" docs link.
+		// Writing Assistant links to the docs in either state, in a new tab.
 		const learnMore = screen.getByRole( 'link', { name: /Learn more/ } );
 		expect( learnMore ).toHaveAttribute( 'target', '_blank' );
 
@@ -413,7 +418,7 @@ describe( 'AiFeatures rendering', () => {
 		expect( tryIt ).not.toHaveAttribute( 'target' );
 	} );
 
-	test( 'Try it out links target each feature surface', () => {
+	test( 'action links target each feature surface', () => {
 		render(
 			<AiFeatures
 				settings={ {
@@ -430,12 +435,13 @@ describe( 'AiFeatures rendering', () => {
 			/>
 		);
 
-		// Writing Assistant asks the editor to pre-open the AI Assistant panel
-		// (handled by the ai-assistant-plugin sidebar on the other end).
-		expect( screen.getByRole( 'link', { name: 'Try it out in the editor' } ) ).toHaveAttribute(
+		// Writing Assistant links to the docs even when on, in a new tab.
+		const writingLink = screen.getByRole( 'link', { name: /Learn more/ } );
+		expect( writingLink ).toHaveAttribute(
 			'href',
-			'post-new.php?openSidebar=jetpack-ai-assistant'
+			expect.stringContaining( 'jetpack-ai-settings-writing-assistant-learn-more' )
 		);
+		expect( writingLink ).toHaveAttribute( 'target', '_blank' );
 
 		// The Image Studio bundle opens Generate mode when the Media Library
 		// URL carries ai-assistant (handled bundle-side, param then stripped).

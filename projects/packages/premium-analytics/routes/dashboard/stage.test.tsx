@@ -13,12 +13,10 @@ import { stage as Dashboard } from './stage';
 import type { SyncStatus } from '@jetpack-premium-analytics/site-sync';
 import type { ReactNode } from 'react';
 
-// Read inside the mocked functions, never at factory time: the factories run
-// while `./stage` is still being imported, when these are in the temporal dead
-// zone.
+// Read inside the mocked functions, never at factory time — the factories run
+// while `./stage` is still importing, so these are in the temporal dead zone.
 // Base UI's `Tabs.Panel` defaults to `keepMounted={false}`, so only the active
-// section is ever in the DOM. The mock below models that: without it, anything
-// the stage renders per section would silently multiply here but not in product.
+// section is ever in the DOM; the mock below models that.
 let mockActiveSectionSlug = 'insights';
 let mockSyncState: { data?: SyncStatus; error: Error | null; isComplete: boolean };
 let mockIsSyncFinished: boolean;
@@ -292,9 +290,8 @@ describe( 'Dashboard refresh-failure notice', () => {
 		const notices = screen.getAllByTestId( 'refresh-failure-notice' );
 		expect( notices ).toHaveLength( 1 );
 
-		// In the pinned band right after the header, not down among the widgets,
-		// so it stays reachable however far the reader has scrolled. Sibling order
-		// is the assertion, and Testing Library has no query for it.
+		// Pinned right after the header, not among the widgets, so it stays reachable
+		// however far scrolled; sibling order is the assertion Testing Library lacks.
 		// eslint-disable-next-line testing-library/no-node-access -- position in the header band is what this test is for.
 		expect( notices[ 0 ].previousElementSibling ).toContainElement(
 			screen.getByText( 'header offers comparison' )

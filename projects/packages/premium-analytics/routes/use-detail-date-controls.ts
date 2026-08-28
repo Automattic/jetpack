@@ -31,18 +31,12 @@ type DetailDateFilters = {
 };
 
 /**
- * The date controls a resource detail page (post, video) offers, per its
- * design: the preset pills alone — all time, then the rolling windows — with no
- * custom-range popover, no period-navigation arrows, and no chart-interval
- * dropdown. The charts bucket by the interval the range resolves on its own.
+ * The date controls a resource detail page (post, video) offers: preset pills
+ * alone, with all time anchored to the resource's publish date. The controls
+ * render before the summary loads, so an all-time range applied against an
+ * unknown or stale start is re-anchored in place once it resolves.
  *
- * All time starts on the day the resource was published — the earliest day its
- * report can hold data for. The controls render while the summary is still
- * loading, so an all-time range applied before that day is known (or deep-linked
- * with a stale start) is re-anchored in place once it resolves; a resource with
- * no readable date keeps the year surface's default span.
- *
- * Spread after the date-filter controller's props: `onStep` and the interval
+ * Spread after the date-filter controller's props — `onStep` and the interval
  * props it hands out are what this unsets.
  *
  * @param publishedDate               - The resource's publish date, as the summary carries it:

@@ -295,9 +295,7 @@ function get_available_dashboard_section_for_route( $dashboard_name, $section_id
 /**
  * REST schema for one dashboard section, as returned by the sections route.
  *
- * The dashboard's frontend mirrors this shape in
- * `routes/dashboard/config/sections.ts`, and WPCOM serves the same route for
- * Simple sites (see AGENTS.md), so both are consumers of this contract.
+ * Mirrored by the frontend's `sections.ts` and reused by WPCOM for Simple sites (see AGENTS.md).
  *
  * @since 0.2.0
  *
@@ -423,9 +421,7 @@ function register_dashboard_sections_rest_routes() {
 		'/dashboards/(?P<name>' . get_dashboard_name_pattern() . ')/sections',
 		array(
 			array(
-				// A route-level `schema` beside the numerically keyed endpoint list is
-				// register_rest_route()'s own signature, reading to Phan as a mixed array.
-				// @phan-suppress-next-line PhanPluginMixedKeyNoKey
+				// @phan-suppress-next-line PhanPluginMixedKeyNoKey -- register_rest_route()'s own signature mixes a numerically keyed endpoint list with a route-level `schema` key.
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => __NAMESPACE__ . '\\get_dashboard_sections_response',
 				'permission_callback' => __NAMESPACE__ . '\\check_dashboard_sections_permission',

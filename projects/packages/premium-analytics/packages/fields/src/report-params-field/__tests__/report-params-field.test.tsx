@@ -161,11 +161,9 @@ describe( 'createReportParamsField', () => {
 	} );
 
 	/*
-	 * `DateRangeFilter` applies a quick preset by calling `onChange` and then
-	 * `onApply` back to back in one tick. A commit reading the staged state
-	 * writes the previous selection back over the new one, so the widget lands a
-	 * click behind — and on the first click, on the range it already had, which
-	 * is why picking "Last 24 hours" left the previous range's buckets on offer.
+	 * `DateRangeFilter` calls `onChange` then `onApply` in the same tick; a
+	 * commit reading staged state lands a click behind — the first click, on
+	 * the range it already had, left the previous range's buckets on offer.
 	 */
 	it( 'applies the clicked quick preset, not the one before it', async () => {
 		const user = userEvent.setup();
@@ -236,10 +234,9 @@ describe( 'createReportParamsField', () => {
 	} );
 
 	/*
-	 * Reading the options from the applied range while the checked value comes
-	 * from the draft lets the menu offer a bucket the drafted range cannot hold:
-	 * the click then resolves away, the tick springs back, and Apply drops the
-	 * choice. Both must read the same range.
+	 * Reading options from the applied range while checked value comes from the
+	 * draft could offer a bucket the draft can't hold — the click resolves away
+	 * and Apply silently drops it. Both must read the same range.
 	 */
 	it( 'reshapes the bucket menu with the range being drafted', async () => {
 		const user = userEvent.setup();
@@ -269,9 +266,8 @@ describe( 'createReportParamsField', () => {
 		expect( latest() ).toEqual( expect.objectContaining( { interval: 'hour' } ) );
 	} );
 
-	// The bucket rides along with an open range draft, so cancelling the draft has
-	// to take it with them — and leave the control clean enough that the next
-	// bucket click commits on its own again.
+	// The bucket rides along with an open range draft, so cancelling it drops
+	// the bucket too — and leaves the control clean for the next click to commit.
 	it( 'drops a bucket picked mid-draft when the range draft is cancelled', async () => {
 		const user = userEvent.setup();
 		const { saved } = renderField( true );

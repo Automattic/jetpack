@@ -41,9 +41,8 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-// Raw WPCOM fieldless all-time shapes the email breakdown sanitizer reads. Each
-// per-breakdown endpoint returns only its own payload key, mirroring Calypso
-// fetching `link` and `user-content-link` separately and merging.
+// Raw WPCOM fieldless all-time shapes the sanitizer reads. Each endpoint
+// returns only its own payload key, as in Calypso.
 const COUNTRY_RESPONSE = {
 	countries: {
 		data: [
@@ -57,9 +56,8 @@ const COUNTRY_RESPONSE = {
 	},
 };
 
-// `some-other-internal` aggregates into the catch-all row and outranks every other
-// row by value, so the fixture proves that row is pinned last across the merge
-// rather than just landing there.
+// `some-other-internal` aggregates into the catch-all row and outranks every
+// other row, so the fixture proves that row is pinned last, not merely sorted last.
 const INTERNAL_LINKS_RESPONSE = {
 	links: {
 		data: [
@@ -214,9 +212,8 @@ describe( 'EmailBreakdownWidget', () => {
 		const otherRow = screen.getByText( 'Other' );
 		expect( otherRow ).toBeInTheDocument();
 
-		// The catch-all row stays pinned last after the two breakdowns are merged
-		// and re-sorted, even though it holds the highest value. The two nodes sit in
-		// separate rows, so the position mask is exactly PRECEDING or FOLLOWING.
+		// The catch-all row stays pinned last despite holding the highest value.
+		// Separate rows, so the position mask is exactly PRECEDING or FOLLOWING.
 		expect( otherRow.compareDocumentPosition( link ) ).toBe( Node.DOCUMENT_POSITION_PRECEDING );
 
 		// The links view fetches both clicks breakdowns, matching Calypso.
@@ -230,10 +227,8 @@ describe( 'EmailBreakdownWidget', () => {
 	} );
 
 	it( 'shows the error state when one of the two links-view queries fails on first load', async () => {
-		// The `link` breakdown fails (non-retryable 403 so React Query surfaces the
-		// error immediately) while `user-content-link` succeeds. Half a merged list
-		// with no error would silently hide the internal link types, so the widget
-		// must surface the error (with Retry) instead of the incomplete rows.
+		// 403 is non-retryable, so React Query surfaces the error immediately. Half
+		// a merged list with no error would silently hide the internal link types.
 		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
 			path.includes( '/user-content-link' )
 				? Promise.resolve( USER_CONTENT_LINKS_RESPONSE )

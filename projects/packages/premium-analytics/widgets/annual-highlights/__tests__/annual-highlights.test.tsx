@@ -36,12 +36,9 @@ jest.mock( '@wordpress/route', () => ( {
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-// An instance with no year of its own shows the current one, so the payload is
-// built relative to today — hardcoded years would silently move that default
-// off the data after New Year. Distinct totals per year, so the wrong year
-// cannot pass by matching the other one's numbers. The package test script pins
-// TZ=UTC, which is also what the widget's `siteTimeZone()` resolves to under
-// jsdom's default WP date settings — so this year and the widget's agree.
+// Built relative to today: hardcoded years would silently move the no-attribute
+// default off the data after New Year. The package test script pins TZ=UTC, which
+// is what the widget's `siteTimeZone()` also resolves to under jsdom.
 const CURRENT_YEAR = new Date().getFullYear();
 const PREVIOUS_YEAR = CURRENT_YEAR - 1;
 
@@ -101,9 +98,8 @@ describe( 'AnnualHighlightsWidget', () => {
 	} );
 
 	it( 'defaults to the current year when the instance carries no year', async () => {
-		// The server's default layout creates the instance without attributes,
-		// and the host's dropdown selects the current year on its own — the body
-		// has to agree with what that control shows.
+		// The default layout creates the instance without attributes, and the host's
+		// dropdown selects the current year — the body has to agree with it.
 		const { container } = renderWidget();
 
 		await expect( screen.findByText( 'Posts' ) ).resolves.toBeInTheDocument();

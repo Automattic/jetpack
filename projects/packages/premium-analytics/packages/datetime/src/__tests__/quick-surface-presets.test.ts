@@ -6,8 +6,7 @@ import { DETAIL_SURFACE_PRESETS, PRESET_ALL_TIME, QUICK_SURFACE_PRESETS } from '
 import { dateToISOStringWithTZ } from '../tz';
 
 // A zone ahead of UTC, so a naive (UTC) day boundary would land on the wrong
-// day: 2026-07-08T10:29:35Z is already the 8th's evening in Taipei, and its
-// site-local day starts at 2026-07-08T00:00+08:00 = 2026-07-07T16:00Z.
+// day: 2026-07-08T10:29:35Z is already the 8th's evening in Taipei.
 const TIME_ZONE = 'Asia/Taipei';
 const PUBLISHED = new Date( '2026-07-08T10:29:35.000Z' );
 

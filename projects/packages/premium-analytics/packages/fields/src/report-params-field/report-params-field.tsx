@@ -85,11 +85,9 @@ function ReportParamsControl( {
 	);
 
 	/*
-	 * `DateRangeFilter` applies a quick preset by calling `onChange` and then
-	 * `onApply` in the same tick, so the commit below cannot read the state that
-	 * `onChange` just queued — it would write the previous selection back over
-	 * the new one, leaving the widget a click behind. Mirror the staged params
-	 * into a ref that every stage updates synchronously.
+	 * `DateRangeFilter` calls `onChange` then `onApply` in the same tick, so a
+	 * commit reading component state would still see the previous selection.
+	 * Mirror staged params into a ref that every stage updates synchronously.
 	 */
 	const stagedRef = useRef< ReportParams >( stagedReportParams );
 
@@ -99,11 +97,10 @@ function ReportParamsControl( {
 	}, [] );
 
 	/*
-	 * Realign the draft when the params change from outside this control — an
-	 * undo, a dashboard reset, another surface saving the same widget. Without
-	 * it `commit` writes the stale draft back over that change. Key on the
-	 * value, not the object: a host that builds the attribute during render
-	 * would otherwise wipe the draft on every render.
+	 * Realign the draft when params change from outside (undo, a dashboard
+	 * reset, another surface saving the same widget) — otherwise `commit` writes
+	 * the stale draft back over that change. Key on the value, not the object:
+	 * a host that rebuilds the attribute every render would wipe the draft.
 	 */
 	const committed = attributes?.reportParams;
 	const committedKey = JSON.stringify( committed ?? null );
@@ -242,11 +239,10 @@ function ReportParamsControl( {
 	}, [ stage, attributes ] );
 
 	/*
-	 * Options and checked value both come from the staged params, so the checked
-	 * bucket is always a listed one — `normalizeReportParams` already resolved
-	 * `interval` against this very range. Reading the options from the committed
-	 * range instead would let the menu offer a bucket the drafted range cannot
-	 * hold, and the resolve below would then silently drop the click.
+	 * Options and checked value both read from the staged params, so the
+	 * checked bucket is always a listed one. Reading options from the
+	 * committed range instead would offer a bucket the draft can't hold,
+	 * silently dropping the click.
 	 */
 	const intervalOptions = useMemo(
 		() =>

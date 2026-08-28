@@ -7,12 +7,8 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { isVideoPressAvailable } from '../site-readiness';
-// Import the tab resolver from `config/tabs` directly rather than the report's
-// `config` barrel. `route.ts` imports this registry in `beforeLoad`, so the
-// registry must stay free of React/UI at module scope; the `config/index.ts`
-// barrel re-exports `fields.tsx` (JSX + `@wordpress/route` Link), which would
-// pull the UI into the route guard's import chain. `config/tabs.ts` only
-// depends on the routing helper and i18n, so it's safe to import here.
+// Import from `config/tabs` directly, not the `config` barrel — it re-exports JSX,
+// and `route.ts` imports this registry in `beforeLoad`, which must stay React-free.
 import { resolveTabId as resolveCommentsTabId } from './comments/config/tabs';
 import { resolveSection as resolveLocationsSection } from './locations/config/tabs';
 import { resolveTabId } from './posts/config/tabs';
@@ -22,16 +18,8 @@ import type { ComponentType } from 'react';
 /**
  * A single report's registration in the report registry.
  *
- * One dynamic route (`/reports/$report`) serves every report; a definition
- * describes one report and the stage renders its page component. Labels are
- * getters (resolved at call time) rather than plain strings so translations
- * apply after the i18n locale data has loaded — the same lazy-label convention
- * the section/tab definitions use (see `config/tabs.ts` on the tabbed routes).
- *
- * `load` is a dynamic import of the report's page component so the registry
- * itself stays free of React/UI at module scope: `route.ts` imports this module
- * in `beforeLoad` (which runs before the page bundle needs React), so pulling a
- * component in at the top level here would drag the UI into the route guard.
+ * Labels are getters rather than plain strings so translations apply after the
+ * i18n locale data has loaded.
  */
 export type ReportDefinition = {
 	/**
@@ -58,10 +46,9 @@ export type ReportDefinition = {
 	getDescription?: () => string;
 
 	/**
-	 * Resolve a raw `?section=` value to a section this report owns, falling
-	 * back to the report's default section — mirroring the per-page
-	 * `resolveTabId` used by the tabbed routes so a shareable URL never persists
-	 * a section the report can't render. Omit for reports that have no sections.
+	 * Resolve a raw `?section=` value to a section this report owns, falling back
+	 * to its default, so a shareable URL never persists a section the report can't
+	 * render. Omit for reports that have no sections.
 	 */
 	resolveSection?: ( value: string | undefined ) => string;
 
@@ -83,9 +70,8 @@ export type ReportDefinition = {
 /**
  * The report registry: one entry per report, keyed by its `id`.
  *
- * To add a report, drop a `<id>/` module folder under `routes/reports/` that
- * default-exports its page component and add one entry here; no new route is
- * needed (see this folder's README).
+ * To add a report, drop a `<id>/` folder under `routes/reports/` that
+ * default-exports its page component and add an entry here; no new route needed.
  */
 export const REPORTS: Record< string, ReportDefinition > = {
 	'annual-insights': {
@@ -130,10 +116,8 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		id: 'downloads',
 		getLabel: () => __( 'File downloads', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'File downloads report', 'jetpack-premium-analytics-pkg' ),
-		// File download tracking happens on WPCOM infrastructure; Calypso only
-		// shows the module on Simple sites ("not yet supported in Jetpack
-		// environment") and we mirror that boundary. Mirrors the widget-level
-		// gate in `src/widget-type-support.php`.
+		// Download tracking is WPCOM-only, so Calypso shows the module on Simple
+		// sites only; mirrors the gate in `src/widget-type-support.php`.
 		isAvailable: isSimpleSite,
 		load: () => import( './downloads/page' ),
 	},
@@ -182,8 +166,7 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		getLabel: () => __( 'Videos', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'Videos report', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () => __( 'See how your videos perform.', 'jetpack-premium-analytics-pkg' ),
-		// Play counts only exist for VideoPress-hosted videos, and Calypso gates
-		// its Videos module on the same signal. Mirrors the widget-level gate in
+		// Play counts only exist for VideoPress-hosted videos; mirrors the gate in
 		// `src/widget-type-support.php`.
 		isAvailable: isVideoPressAvailable,
 		load: () => import( './videos/page' ),
@@ -206,9 +189,8 @@ export const REPORTS: Record< string, ReportDefinition > = {
 /**
  * Look up a report definition by its id.
  *
- * The id comes from the URL, so the lookup is an own-property check: a plain
- * index would resolve an inherited name such as `constructor` to a function and
- * hand back something that is not a report definition.
+ * The id comes from the URL, so this is an own-property check: a plain index
+ * would resolve an inherited name such as `constructor` to a function.
  *
  * @param id - The `$report` path segment (may be missing on a malformed URL).
  * @return The matching definition, or `undefined` when the id is missing or unknown.
@@ -226,9 +208,8 @@ export function getReportDefinition( id: string | undefined ): ReportDefinition 
 /**
  * Resolve the report origin behind a detail breadcrumb.
  *
- * A section is kept only when the referring report defines a section resolver
- * and the value round-trips through it, so a section belonging to a different
- * report — or one that report can no longer render — is never linked.
+ * A section is kept only when it round-trips through the referring report's own
+ * resolver, so a section from a different report is never linked.
  *
  * @param origin - The report origin read from the current search params.
  * @return The referring report definition and its validated section, when valid.

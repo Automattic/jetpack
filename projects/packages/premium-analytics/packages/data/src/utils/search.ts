@@ -61,13 +61,9 @@ type PartialComparisonFields = Partial<
 	Pick< ReportParams, 'comp' | 'compare_from' | 'compare_to' >
 >;
 
-/*
- * Checks if the comparison is present in the search params.
- *
- * `comp` is compared loosely: the router JSON-parses search values, so a URL
- * written without JSON quoting (hand-edited, or by an older link builder)
- * delivers the number 1 instead of the string '1'.
- */
+// Whether comparison is enabled. `comp` is compared loosely because the
+// router JSON-parses search values, so an unquoted URL (hand-edited, or an
+// older link builder) can deliver the number 1 instead of the string '1'.
 export function hasComparisonEnabled< T extends PartialComparisonFields >( p: T ) {
 	return String( p.comp ) === '1' && !! p.compare_from?.trim() && !! p.compare_to?.trim();
 }
@@ -96,12 +92,6 @@ export function normalizeReportParams(
 		? getDefaultQueryParams( true, defaultPreset )
 		: getDefaultQueryParams( true );
 
-	// Preset handling:
-	// - Use search.preset only if valid
-	// - Recompute a year preset from its ID; carry all time only with its URL range
-	// - On fresh load (no from/to), fallback to defaults.preset
-	// - If user has explicit dates but no/invalid preset,
-	//   keep undefined (custom range)
 	let preset: ReportPresetId | undefined;
 	if (
 		search?.preset &&
@@ -109,22 +99,15 @@ export function normalizeReportParams(
 	) {
 		preset = search.preset;
 	} else if ( search?.preset === PRESET_ALL_TIME && search?.from && search?.to ) {
-		/*
-		 * The all-time start belongs to the year surface and may eventually be
-		 * site-specific, so only honour it next to the range the section wrote.
-		 * Keeping the marker lets widgets distinguish it from a single year when
-		 * both ranges happen to cover the same dates.
-		 */
+		// Only honour the URL's all-time start next to the range the section
+		// wrote — it lets widgets tell all-time apart from a same-dated single year.
 		preset = search.preset;
 	} else if ( ! search?.from && ! search?.to ) {
 		preset = defaults.preset;
 	}
 
-	// Recalculate presets so their moving end stays fresh on every page load.
-	// For all time, preserve the URL-authored start because the year surface owns
-	// it and may eventually resolve it from the site's first year.
-	// If the preset is valid but has no range implementation,
-	// clear it to avoid silently falling back to stale dates.
+	// All-time preserves the URL's start (the year surface may later resolve it
+	// site-specific); an unresolvable preset is cleared instead of going stale.
 	let presetRange: ReturnType< typeof computeDateRangeFromPreset >;
 	if ( preset ) {
 		const computedRange = computeDateRangeFromPreset( preset );
@@ -152,9 +135,8 @@ export function normalizeReportParams(
 		preset,
 		...( typeof search?.period === 'string' ? { period: search.period } : {} ),
 		date_type: search?.date_type ?? 'created',
-		// Preserve the single-resource scope so detail-page widgets stay bound to
-		// their post/page, dropping an invalid one so a hand-edited deep link can't
-		// push a malformed post_id into downstream Stats requests.
+		// Preserve the post_id scope so detail-page widgets stay bound to their
+		// post; drop an invalid one so a hand-edited deep link can't reach Stats.
 		...( postId > 0 ? { post_id: postId } : {} ),
 	};
 
