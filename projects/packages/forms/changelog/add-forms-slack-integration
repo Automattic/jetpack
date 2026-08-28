@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a Slack integration that posts new form responses to a Slack channel.

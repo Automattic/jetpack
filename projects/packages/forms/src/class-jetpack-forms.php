@@ -24,6 +24,11 @@ class Jetpack_Forms {
 	const CONDITIONAL_LOGIC_FLAG = 'forms-conditional-logic';
 
 	/**
+	 * Name of the feature flag gating the Slack integration.
+	 */
+	const SLACK_FLAG = 'forms-slack';
+
+	/**
 	 * Register the package's feature flags.
 	 *
 	 * Registration is unconditional and happens as the package loads, so the full set stays
@@ -38,6 +43,15 @@ class Jetpack_Forms {
 			array(
 				'default'     => false,
 				'description' => 'Show or hide a form field based on the answer to another field.',
+				'owner'       => 'jetpack-forms',
+			)
+		);
+
+		Feature_Flags::register(
+			self::SLACK_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Post new form responses to a Slack channel.',
 				'owner'       => 'jetpack-forms',
 			)
 		);
@@ -75,6 +89,9 @@ class Jetpack_Forms {
 		// translated and this runs before WordPress can translate; nothing reads the
 		// registry earlier. Third-party integrations may register at any time.
 		add_action( 'init', array( '\Automattic\Jetpack\Forms\Integrations\Built_In_Integrations', 'register' ) );
+
+		// Hand new responses to the integrations that asked for them.
+		\Automattic\Jetpack\Forms\Integrations\Integration_Dispatcher::init();
 
 		// Initialize abilities registration for WordPress Abilities API (WP 6.9+)
 		\Automattic\Jetpack\Forms\Abilities\Forms_Abilities::init();
@@ -176,6 +193,20 @@ class Jetpack_Forms {
 	 */
 	public static function is_conditional_logic_enabled() {
 		return Feature_Flags::is_enabled( self::CONDITIONAL_LOGIC_FLAG );
+	}
+
+	/**
+	 * Returns true if the Slack integration is enabled.
+	 *
+	 * One switch for the whole feature. With the flag off the integration is not registered as
+	 * available, so it is absent from the REST responses and the integrations modal rather
+	 * than shown in a disabled state, and no response is ever sent to Slack — including from a
+	 * form that was configured while the flag was on.
+	 *
+	 * @return boolean
+	 */
+	public static function is_slack_enabled() {
+		return Feature_Flags::is_enabled( self::SLACK_FLAG );
 	}
 
 	/**

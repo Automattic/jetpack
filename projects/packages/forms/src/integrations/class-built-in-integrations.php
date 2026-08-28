@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\External_Connections;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
+use Automattic\Jetpack\Forms\Service\Slack;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -139,6 +140,20 @@ class Built_In_Integrations {
 				'settings_attribute'      => 'hostingerReach',
 				// Previously a hardcoded conditional around the whole registration.
 				'is_available'            => array( Jetpack_Forms::class, 'is_hostinger_reach_enabled' ),
+			)
+		);
+
+		jetpack_forms_register_integration(
+			'jetpack/slack',
+			array(
+				'type'               => 'service',
+				'title'              => __( 'Slack', 'jetpack-forms' ),
+				'subtitle'           => __( 'Post new responses to a Slack channel.', 'jetpack-forms' ),
+				'active_tooltip'     => __( 'New responses to this form are posted to Slack.', 'jetpack-forms' ),
+				'enabled_by_default' => false,
+				'icon_url'           => $assets_url . 'slack.svg',
+				'is_available'       => array( Jetpack_Forms::class, 'is_slack_enabled' ),
+				'on_submission'      => array( Slack::class, 'send' ),
 			)
 		);
 	}

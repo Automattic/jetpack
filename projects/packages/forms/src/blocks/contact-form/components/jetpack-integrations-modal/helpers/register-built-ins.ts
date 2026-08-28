@@ -13,6 +13,7 @@ import { buildHostingerReachCard } from './hostinger-reach.tsx';
 import { buildJetpackCrmCard } from './jetpack-crm.tsx';
 import { buildMailPoetCard } from './mailpoet.tsx';
 import { buildSalesforceCard } from './salesforce.tsx';
+import { buildSlackCard, SLACK_SLUG } from './slack.tsx';
 
 let registered = false;
 
@@ -31,4 +32,5 @@ export function registerBuiltInIntegrations(): void {
 	registerFormsIntegration( 'zero-bs-crm', { buildCard: buildJetpackCrmCard } );
 	registerFormsIntegration( 'mailpoet', { buildCard: buildMailPoetCard } );
 	registerFormsIntegration( 'salesforce', { buildCard: buildSalesforceCard } );
+	registerFormsIntegration( SLACK_SLUG, { buildCard: buildSlackCard } );
 }
