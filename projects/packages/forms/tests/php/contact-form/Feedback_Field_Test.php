@@ -472,6 +472,20 @@ class Feedback_Field_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test phone field with saved country code metadata uses the selected country flag.
+	 */
+	public function test_phone_field_prefers_country_code_meta_for_flag() {
+		$field = new Feedback_Field(
+			'phone_key',
+			'Phone',
+			'+1 555 123 4567',
+			'phone',
+			array( 'countryCode' => 'CA' )
+		);
+		$this->assertEquals( '🇨🇦 +1 555 123 4567', $field->get_render_value( 'web' ) );
+	}
+
+	/**
 	 * Test phone field with German number displays flag.
 	 */
 	public function test_phone_field_with_german_number_displays_flag() {
@@ -830,6 +844,24 @@ class Feedback_Field_Test extends BaseTestCase {
 		$field  = new Feedback_Field( 'k', 'Phone', '+1 555 123 4567', 'phone' );
 		$result = $field->get_render_value( 'email_html' );
 
+		$this->assertStringContainsString( 'tel:', $result );
+		$this->assertStringContainsString( '+1 555 123 4567', $result );
+	}
+
+	/**
+	 * Test email_html phone field uses saved country code metadata for the flag.
+	 */
+	public function test_email_html_phone_field_prefers_country_code_meta_for_flag() {
+		$field  = new Feedback_Field(
+			'k',
+			'Phone',
+			'+1 555 123 4567',
+			'phone',
+			array( 'countryCode' => 'CA' )
+		);
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( '🇨🇦', $result );
 		$this->assertStringContainsString( 'tel:', $result );
 		$this->assertStringContainsString( '+1 555 123 4567', $result );
 	}

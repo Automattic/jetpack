@@ -1648,6 +1648,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					id="<?php echo esc_attr( $id ); ?>"
 					name="<?php echo esc_attr( $id ); ?>"
 					data-wp-bind--value='context.fullPhoneNumber' />
+				<input type="hidden"
+					id="<?php echo esc_attr( $id ); ?>-country-code"
+					name="<?php echo esc_attr( $id ); ?>-country-code"
+					data-wp-bind--value='context.phoneCountryCode' />
 		</div>
 		<?php
 		$input = ob_get_clean();

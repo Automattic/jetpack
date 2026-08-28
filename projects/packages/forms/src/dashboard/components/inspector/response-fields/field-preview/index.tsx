@@ -116,7 +116,9 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 
 		// Phone numbers
 		if ( fieldType === 'phone' || fieldType === 'telephone' ) {
-			return <FieldPhone phone={ stringValue } />;
+			const countryCode =
+				typeof field.meta?.countryCode === 'string' ? field.meta.countryCode : undefined;
+			return <FieldPhone phone={ stringValue } countryCode={ countryCode } />;
 		}
 
 		if ( fieldType === 'url' && /^https?:\/\//.test( stringValue ) ) {

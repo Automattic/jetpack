@@ -2125,9 +2125,11 @@ class Contact_Form_Test extends BaseTestCase {
 		// Get label.
 		$label = $this->getFirstElement( $wrapper_div, 'label' );
 
-		// Inputs. (0 is the comboxbox search input, 1 is the visible input and 2 is the hidden, actual, input)
-		$visible_input = $this->getFirstElement( $wrapper_div, 'input', 1 );
-		$input         = $this->getFirstElement( $wrapper_div, 'input', 2 );
+		// Inputs. (0 is the comboxbox search input, 1 is the visible input,
+		// 2 is the hidden phone value, and 3 is the hidden country code).
+		$visible_input      = $this->getFirstElement( $wrapper_div, 'input', 1 );
+		$input              = $this->getFirstElement( $wrapper_div, 'input', 2 );
+		$country_code_input = $this->getFirstElement( $wrapper_div, 'input', 3 );
 
 		// Label matches for matches input ID.
 		$this->assertEquals(
@@ -2148,6 +2150,21 @@ class Contact_Form_Test extends BaseTestCase {
 
 		$this->assertEquals( 'hidden', $input->getAttribute( 'type' ), 'Type doesn\'t match' );
 		$this->assertEquals( $input->getAttribute( 'value' ), $attributes['default'], 'value and default doesn\'t match' );
+		$this->assertEquals(
+			'hidden',
+			$country_code_input->getAttribute( 'type' ),
+			'Country code input type doesn\'t match'
+		);
+		$this->assertEquals(
+			$attributes['id'] . '-country-code',
+			$country_code_input->getAttribute( 'name' ),
+			'Country code input name doesn\'t match'
+		);
+		$this->assertEquals(
+			'context.phoneCountryCode',
+			$country_code_input->getAttribute( 'data-wp-bind--value' ),
+			'Country code binding doesn\'t match'
+		);
 
 		$this->assertEquals(
 			'jetpack-field__input-element',

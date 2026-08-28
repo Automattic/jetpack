@@ -2229,9 +2229,11 @@ class Feedback {
 	 *
 	 * @param Contact_Form_Field $field The field object.
 	 * @param string             $type  The field type.
+	 * @param array              $post_data The post data from the form submission.
+	 * @param string             $field_id The field ID.
 	 * @return array Metadata array for the field.
 	 */
-	public static function get_field_meta( $field, $type ) {
+	public static function get_field_meta( $field, $type, $post_data = array(), $field_id = '' ) {
 		$meta = array();
 
 		if ( $type === 'rating' ) {
@@ -2239,6 +2241,24 @@ class Feedback {
 			$max               = $field->get_attribute( 'max' );
 			$meta['iconStyle'] = ! empty( $icon_style ) ? $icon_style : 'stars';
 			$meta['maxRating'] = is_numeric( $max ) && (int) $max > 0 ? (int) $max : 5;
+		}
+
+		if (
+			in_array( $type, array( 'phone', 'telephone' ), true )
+			&& $field->get_attribute( 'showcountryselector' )
+			&& ! empty( $field_id )
+		) {
+			$country_code_key = $field_id . '-country-code';
+			if (
+				isset( $post_data[ $country_code_key ] )
+				&& ! is_array( $post_data[ $country_code_key ] )
+			) {
+				$country_code = sanitize_text_field( wp_unslash( $post_data[ $country_code_key ] ) );
+				$country_code = strtoupper( $country_code );
+				if ( preg_match( '/^[A-Z]{2}$/', $country_code ) ) {
+					$meta['countryCode'] = $country_code;
+				}
+			}
 		}
 
 		return $meta;
@@ -2307,7 +2327,7 @@ class Feedback {
 			$label = wp_strip_all_tags( $field->get_attribute( 'label' ) );
 			$key   = $i . '_' . $label;
 
-			$meta = self::get_field_meta( $field, $type );
+			$meta = self::get_field_meta( $field, $type, $post_data, $field_id );
 
 			// Process radio fields to detect and extract "Other" option metadata
 			if ( $type === 'radio' ) {

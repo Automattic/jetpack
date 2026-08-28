@@ -93,6 +93,20 @@ describe( 'FieldPhone', () => {
 			} );
 		} );
 
+		it( 'prefers provided country code over parsed country', async () => {
+			mockParsePhoneNumber.mockReturnValue( {
+				formatInternational: () => '+1 555 123 4567',
+				country: 'US',
+			} );
+
+			render( <FieldPhone phone="+15551234567" countryCode="CA" /> );
+
+			await waitFor( () => {
+				expect( screen.getByRole( 'link' ) ).toHaveTextContent( '+1 555 123 4567' );
+				expect( screen.getByTestId( 'flag' ) ).toHaveAttribute( 'data-country', 'CA' );
+			} );
+		} );
+
 		it( 'does not display Flag when country cannot be determined', async () => {
 			mockParsePhoneNumber.mockReturnValue( {
 				formatInternational: () => '+14155551234',

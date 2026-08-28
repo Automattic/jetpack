@@ -15,26 +15,27 @@ type PhoneDisplayInfo = {
 
 type FieldPhoneProps = {
 	phone: string;
+	countryCode?: string;
 };
 
 /**
  * Renders a phone number with country flag and international formatting.
  * The libphonenumber-js library is loaded asynchronously to avoid bloating the main bundle.
  *
- * @param {FieldPhoneProps} props       - Component props.
- * @param {string}          props.phone - The phone number string to display.
+ * @param {FieldPhoneProps} props - Component props.
  * @return {JSX.Element} The rendered phone field.
  */
-const FieldPhone = ( { phone }: FieldPhoneProps ) => {
+const FieldPhone = ( { phone, countryCode: selectedCountryCode }: FieldPhoneProps ) => {
 	const [ displayInfo, setDisplayInfo ] = useState< PhoneDisplayInfo >( {
 		formattedNumber: phone,
+		countryCode: selectedCountryCode,
 	} );
 
 	useEffect( () => {
 		let cancelled = false;
 
 		// Reset to raw phone value immediately when phone changes
-		setDisplayInfo( { formattedNumber: phone, countryCode: undefined } );
+		setDisplayInfo( { formattedNumber: phone, countryCode: selectedCountryCode } );
 
 		const formatPhone = async () => {
 			try {
@@ -47,7 +48,7 @@ const FieldPhone = ( { phone }: FieldPhoneProps ) => {
 				if ( phoneNumber ) {
 					setDisplayInfo( {
 						formattedNumber: phoneNumber.formatInternational(),
-						countryCode: phoneNumber.country,
+						countryCode: selectedCountryCode ?? phoneNumber.country,
 					} );
 				}
 			} catch {
@@ -60,7 +61,7 @@ const FieldPhone = ( { phone }: FieldPhoneProps ) => {
 		return () => {
 			cancelled = true;
 		};
-	}, [ phone ] );
+	}, [ phone, selectedCountryCode ] );
 
 	const { formattedNumber, countryCode } = displayInfo;
 

@@ -304,8 +304,7 @@ class Feedback_Field {
 			return $this->value;
 		}
 
-		// Try to extract country code from phone number prefix.
-		$country_code = $this->get_country_code_from_phone( $this->value );
+		$country_code = $this->get_phone_country_code( $this->value );
 
 		if ( ! empty( $country_code ) ) {
 			$flag = self::country_code_to_emoji_flag( $country_code );
@@ -315,6 +314,25 @@ class Feedback_Field {
 		}
 
 		return $this->value;
+	}
+
+	/**
+	 * Get the phone country code from saved metadata, falling back to the phone number prefix.
+	 *
+	 * @param string $phone_number The phone number with country prefix (e.g., "+49 123456789").
+	 *
+	 * @return string|null The ISO country code (e.g., "DE") or null if not found.
+	 */
+	private function get_phone_country_code( $phone_number ) {
+		$country_code = $this->get_meta_key_value( 'countryCode' );
+		if ( is_string( $country_code ) ) {
+			$country_code = strtoupper( $country_code );
+			if ( preg_match( '/^[A-Z]{2}$/', $country_code ) ) {
+				return $country_code;
+			}
+		}
+
+		return $this->get_country_code_from_phone( $phone_number );
 	}
 
 	/**
@@ -572,7 +590,7 @@ class Feedback_Field {
 		}
 
 		$raw_phone    = preg_replace( '/[^\d+]/', '', $this->value );
-		$country_code = $this->get_country_code_from_phone( $this->value );
+		$country_code = $this->get_phone_country_code( $this->value );
 		$flag_prefix  = '';
 
 		if ( ! empty( $country_code ) ) {

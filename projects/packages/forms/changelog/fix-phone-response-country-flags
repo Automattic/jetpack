@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix phone response country flags for submitted numbers with shared dialing prefixes.
