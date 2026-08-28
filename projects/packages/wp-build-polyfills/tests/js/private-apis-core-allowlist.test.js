@@ -41,6 +41,21 @@ function loadPrivateApis() {
 
 const missingBuild = existsSync( PRIVATE_APIS_BUNDLE ) ? false : 'run `pnpm run build` first';
 
+describe( 'wp-private-apis polyfill entry', () => {
+	it( 'accepts every module on the WordPress 7.0 Core allowlist', async () => {
+		const privateApis = await import( '../../src/js/private-apis.mjs' );
+		const rejected = WP_70_ALLOWLIST.filter( name => {
+			try {
+				privateApis.__dangerousOptInToUnstableAPIsOnlyForCoreModules( CONSENT, name );
+				return false;
+			} catch {
+				return true;
+			}
+		} );
+		assert.deepEqual( rejected, [] );
+	} );
+} );
+
 describe( 'wp-private-apis polyfill: Core allowlist contract', { skip: missingBuild }, () => {
 	it( 'accepts every module on the WordPress 7.0 Core allowlist', () => {
 		const privateApis = loadPrivateApis();

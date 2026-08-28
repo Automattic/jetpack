@@ -185,7 +185,7 @@ const classicPolyfills = [
 		library: [ 'wp', 'privateApis' ],
 		// Re-allows the Core modules that the WordPress versions this polyfill
 		// replaces private-apis on still opt in with; see the wrapper.
-		entry: path.join( packageRoot, 'src', 'js', 'private-apis.js' ),
+		entry: path.join( packageRoot, 'src', 'js', 'private-apis.mjs' ),
 	},
 	{
 		name: 'rich-text',
