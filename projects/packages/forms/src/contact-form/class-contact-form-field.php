@@ -23,6 +23,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Contact_Form_Field extends Contact_Form_Shortcode {
 
 	/**
+	 * Maximum number of files a single file upload field accepts.
+	 *
+	 * TODO: Read this from a `maxfiles` attribute once the block exposes one.
+	 *
+	 * @var int
+	 */
+	const FILE_FIELD_MAX_FILES = 1;
+
+	/**
+	 * Maximum size, in bytes, of a single uploaded file.
+	 *
+	 * @var int
+	 */
+	const FILE_FIELD_MAX_UPLOAD_SIZE = 20 * 1024 * 1024;
+
+	/**
 	 * The shortcode name.
 	 *
 	 * @var string
@@ -1973,7 +1989,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 *
 	 * @param string $id - the field ID.
 	 * @param string $label - the field label.
-	 * @param string $class - the field CSS class.
+	 * @param string $class - unused. Kept for signature parity with the other render_*_field()
+	 *                        methods; this field writes its input inline rather than from an
+	 *                        attribute array.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param bool   $required_indicator Whether to display the required indicator.
@@ -1994,56 +2012,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		// Enqueue necessary scripts and styles.
 		$this->enqueue_file_field_assets();
 
-		// Get allowed MIME types for display in the field.
-		$accepted_file_types = array_values(
-			array(
-				'jpg|jpeg|jpe'    => 'image/jpeg',
-				'png'             => 'image/png',
-				'gif'             => 'image/gif',
-				'pdf'             => 'application/pdf',
-				'doc'             => 'application/msword',
-				'docx'            => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-				'docm'            => 'application/vnd.ms-word.document.macroEnabled.12',
-				'pot|pps|ppt'     => 'application/vnd.ms-powerpoint',
-				'pptx'            => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-				'pptm'            => 'application/vnd.ms-powerpoint.presentation.macroEnabled.12',
-				'odt'             => 'application/vnd.oasis.opendocument.text',
-				'ppsx'            => 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
-				'ppsm'            => 'application/vnd.ms-powerpoint.slideshow.macroEnabled.12',
-				'csv'             => 'text/csv',
-				'xla|xls|xlt|xlw' => 'application/vnd.ms-excel',
-				'xlsx'            => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-				'xlsm'            => 'application/vnd.ms-excel.sheet.macroEnabled.12',
-				'xlsb'            => 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
-				'key'             => 'application/vnd.apple.keynote',
-				'webp'            => 'image/webp',
-				'heic'            => 'image/heic',
-				'heics'           => 'image/heic-sequence',
-				'heif'            => 'image/heif',
-				'heifs'           => 'image/heif-sequence',
-				'asc'             => 'application/pgp-keys',
-			)
-		);
+		$accept_attribute_value = implode( ', ', self::get_file_field_accepted_mime_types() );
 
-		$accept_attribute_value = implode( ', ', $accepted_file_types );
-
-		// Add accessibility attributes and required status if needed.
-		$input_attrs = array(
-			'type'       => 'file',
-			'class'      => 'jetpack-form-file-field ' . esc_attr( $class ),
-			'name'       => esc_attr( $id ),
-			'id'         => esc_attr( $id ),
-			'accept'     => esc_attr( $accept_attribute_value ),
-			'aria-label' => esc_attr( $label ),
-		);
-
-		if ( $required ) {
-			$input_attrs['required']      = 'required';
-			$input_attrs['aria-required'] = 'true';
-		}
-
-		$max_files       = 1; // TODO: Dynamically retrieve the max number of files using $this->get_attribute( 'maxfiles' ) if needed in the future.
-		$max_file_size   = 20 * 1024 * 1024; // 20MB
 		$file_size_units = array(
 			_x( 'B', 'unit symbol', 'jetpack-forms' ),
 			_x( 'KB', 'unit symbol', 'jetpack-forms' ),
@@ -2059,25 +2029,24 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'uploadError'        => __( 'Error uploading file', 'jetpack-forms' ),
 				'folderNotSupported' => __( 'Folder uploads are not supported', 'jetpack-forms' ),
 				// translators: %s is the formatted maximum file size.
-				'fileTooLarge'       => sprintf( __( 'File is too large. Maximum allowed size is %s.', 'jetpack-forms' ), size_format( $max_file_size ) ),
+				'fileTooLarge'       => sprintf( __( 'File is too large. Maximum allowed size is %s.', 'jetpack-forms' ), size_format( self::FILE_FIELD_MAX_UPLOAD_SIZE ) ),
 				'invalidType'        => __( 'This file type is not allowed.', 'jetpack-forms' ),
 				'maxFiles'           => __( 'You have exceeded the number of files that you can upload.', 'jetpack-forms' ),
 				'uploadFailed'       => __( 'File upload failed, try again.', 'jetpack-forms' ),
 			),
 			'endpoint'      => $this->get_unauth_endpoint_url(),
 			'iconsPath'     => Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/',
-			'maxUploadSize' => $max_file_size,
+			'maxUploadSize' => self::FILE_FIELD_MAX_UPLOAD_SIZE,
 		);
 
 		wp_interactivity_config( 'jetpack/field-file', $global_config );
 
+		// Only genuinely dynamic state lives in the context. The field's static configuration
+		// (`maxFiles`, `allowedMimeTypes`) travels in `fieldExtra` alongside every other field's
+		// config, and `fieldId` already comes from the wrapper that `render_field()` opens.
 		$context = array(
-			'isDropping'       => false,
-			'fieldId'          => $id,
-			'files'            => array(),
-			'allowedMimeTypes' => $accepted_file_types,
-			'maxFiles'         => $max_files, // max number of files.
-			'hasMaxFiles'      => false,
+			'isDropping' => false,
+			'files'      => array(),
 		);
 
 		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text, array(), true, $required_indicator );
@@ -2090,18 +2059,17 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			class="jetpack-form-file-field__container"
 			id="<?php echo esc_attr( $id ); ?>"
 			name="dropzone-<?php echo esc_attr( $id ); ?>"
-			data-wp-interactive="jetpack/field-file"
 			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method ?>
 			<?php echo wp_interactivity_data_wp_context( $context ); ?>
-			data-wp-on--dragover="actions.dragOver"
-			data-wp-on--dragleave="actions.dragLeave"
-			data-wp-on--mouseleave="actions.dragLeave"
+			data-wp-on--dragover="actions.onFileDragOver"
+			data-wp-on--dragleave="actions.onFileDragLeave"
+			data-wp-on--mouseleave="actions.onFileDragLeave"
 			data-wp-on--drop="actions.fileDropped"
 			data-wp-on--jetpack-form-reset="actions.resetFiles"
 			data-is-required="<?php echo esc_attr( $required ); ?>"
 		>
-			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.hasMaxFiles">
-				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker" data-wp-on--keydown="actions.handleKeyDown" tabindex="0" role="button" aria-label="<?php echo esc_attr( $dropzone_aria_label ); ?>"></div>
+			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.isFileFieldFull">
+				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker" data-wp-on--keydown="actions.onFileDropzoneKeyDown" tabindex="0" role="button" aria-label="<?php echo esc_attr( $dropzone_aria_label ); ?>"></div>
 				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Decoded dropzone markup is filtered through an allowlist by sanitize_file_field_content(). ?>
 				<?php echo $this->sanitize_file_field_content( $this->content ); ?>
 				<input
@@ -2109,9 +2077,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					accept="<?php echo esc_attr( $accept_attribute_value ); ?>"
 					data-wp-on--change="actions.fileAdded"  />
 			</div>
-			<div class="jetpack-form-file-field__preview-wrap" name="file-field-<?php echo esc_attr( $id ); ?>" data-wp-class--is-active="state.hasFiles">
+			<div class="jetpack-form-file-field__preview-wrap" name="file-field-<?php echo esc_attr( $id ); ?>" data-wp-class--is-active="state.hasFileFieldFiles">
 				<template data-wp-each--file="context.files" data-wp-key="context.file.id">
-					<div class="jetpack-form-file-field__preview" tabindex="0" data-wp-bind--aria-label="context.file.name" data-wp-init--focus="callbacks.focusElement" data-wp-class--is-error="context.file.hasError" data-wp-class--is-complete="context.file.isUploaded">
+					<div class="jetpack-form-file-field__preview" tabindex="0" data-wp-bind--aria-label="context.file.name" data-wp-init--focus="callbacks.focusFilePreview" data-wp-class--is-error="context.file.hasError" data-wp-class--is-complete="context.file.isUploaded">
 						<input type="hidden" name="<?php echo esc_attr( $id ); ?>[]" class="jetpack-form-file-field__hidden include-hidden" data-wp-bind--value='context.file.fileJson' value="">
 						<div class="jetpack-form-file-field__image-wrap" data-wp-style----progress="context.file.progress" data-wp-class--has-icon="context.file.hasIcon">
 							<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" data-wp-style--mask-image="context.file.mask"></div>
@@ -2306,6 +2274,48 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * MIME types the file upload field accepts.
+	 *
+	 * Shared by the input's `accept` attribute and by the field's `fieldExtra` config, so the
+	 * browser-side picker filter and the client-side check can never drift apart.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string[] List of accepted MIME types.
+	 */
+	private static function get_file_field_accepted_mime_types() {
+		return array_values(
+			array(
+				'jpg|jpeg|jpe'    => 'image/jpeg',
+				'png'             => 'image/png',
+				'gif'             => 'image/gif',
+				'pdf'             => 'application/pdf',
+				'doc'             => 'application/msword',
+				'docx'            => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+				'docm'            => 'application/vnd.ms-word.document.macroEnabled.12',
+				'pot|pps|ppt'     => 'application/vnd.ms-powerpoint',
+				'pptx'            => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+				'pptm'            => 'application/vnd.ms-powerpoint.presentation.macroEnabled.12',
+				'odt'             => 'application/vnd.oasis.opendocument.text',
+				'ppsx'            => 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
+				'ppsm'            => 'application/vnd.ms-powerpoint.slideshow.macroEnabled.12',
+				'csv'             => 'text/csv',
+				'xla|xls|xlt|xlw' => 'application/vnd.ms-excel',
+				'xlsx'            => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+				'xlsm'            => 'application/vnd.ms-excel.sheet.macroEnabled.12',
+				'xlsb'            => 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
+				'key'             => 'application/vnd.apple.keynote',
+				'webp'            => 'image/webp',
+				'heic'            => 'image/heic',
+				'heics'           => 'image/heic-sequence',
+				'heif'            => 'image/heif',
+				'heifs'           => 'image/heif-sequence',
+				'asc'             => 'application/pgp-keys',
+			)
+		);
+	}
+
+	/**
 	 * Enqueues scripts and styles needed for the file field.
 	 *
 	 * @since 0.45.0
@@ -2315,10 +2325,19 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	private function enqueue_file_field_assets() {
 		$version = Constants::get_constant( 'JETPACK__VERSION' );
 
+		// extra cache busting strategy for view.js, seems they are left out of cache clearing on deploys
+		$asset_file = plugin_dir_path( __FILE__ ) . '../../dist/modules/file-field/view.asset.php';
+		$asset      = file_exists( $asset_file ) ? require $asset_file : null;
+		$version   .= $asset['version'] ?? '';
+
 		\wp_enqueue_script_module(
 			'jetpack-form-file-field',
 			plugins_url( '../../dist/modules/file-field/view.js', __FILE__ ),
-			array( '@wordpress/interactivity' ),
+			// `jp-forms-view` is not decoration: this module contributes `state.validators.file`,
+			// which `registerField()` reads at `data-wp-init` time. Loading after hydration would
+			// leave a required file field registering as valid, since the shared `validateField()`
+			// no longer has a `file` branch to fall back on. Same reason `field-phone` declares it.
+			array( '@wordpress/interactivity', 'jp-forms-view' ),
 			$version
 		);
 
@@ -3380,6 +3399,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	private function get_field_extra( $type, $extra_attrs ) {
 		if ( 'date' === $type ) {
 			return $this->get_date_format();
+		}
+
+		if ( 'file' === $type ) {
+			return array(
+				'maxFiles'         => self::FILE_FIELD_MAX_FILES,
+				'allowedMimeTypes' => self::get_file_field_accepted_mime_types(),
+			);
 		}
 
 		return $extra_attrs;
