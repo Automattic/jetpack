@@ -195,9 +195,16 @@ class Conditional_Logic_Container {
 	 * one the visitor was never shown; without it the form would refuse to submit and say
 	 * nothing about why.
 	 *
-	 * Nesting is tracked by counting `div` depth rather than parsing a tree: containers and
-	 * field wrappers are both divs, which is all the relationship needs, and the tag processor
-	 * offers no ancestry of its own.
+	 * Nesting comes from WP_HTML_Processor, which parses to the HTML5 spec and reports the
+	 * depth of the element it is on. The tag processor offers no ancestry, so the first version
+	 * of this counted `div` depth by hand -- which missed a group rendered as any of the other
+	 * elements core/group offers, and mis-scoped containment whenever a block inside the group
+	 * emitted unbalanced markup.
+	 *
+	 * Failure is open by design. If the body cannot be parsed, nothing is harvested: every
+	 * container renders visible and every field it holds stays enforced. That is the safe
+	 * direction -- a required field that refuses to hide is a support ticket, while a field
+	 * wrongly attributed to a hidden container has its answer silently discarded.
 	 *
 	 * @param string $body The form body HTML.
 	 *
@@ -214,66 +221,72 @@ class Conditional_Logic_Container {
 			return $empty;
 		}
 
-		$processor = new \WP_HTML_Tag_Processor( $body );
-		$logic     = array();
-		$contains  = array();
-		$open      = array();
-		$depth     = 0;
+		$processor = \WP_HTML_Processor::create_fragment( $body );
 
-		while ( $processor->next_tag(
-			array(
-				'tag_name'    => 'DIV',
-				'tag_closers' => 'visit',
-			)
-		) ) {
-			if ( $processor->is_tag_closer() ) {
-				--$depth;
+		if ( null === $processor ) {
+			return $empty;
+		}
 
-				// Everything opened at or below the depth we just left is now closed.
+		$logic    = array();
+		$contains = array();
+		$open     = array();
+
+		while ( $processor->next_tag() ) {
+			$depth = $processor->get_current_depth();
+
+			// Anything opened at or above this depth is a container we have now left.
+			$last = end( $open );
+			while ( false !== $last && $last['depth'] >= $depth ) {
+				array_pop( $open );
 				$last = end( $open );
-				while ( false !== $last && $last['depth'] >= $depth ) {
-					array_pop( $open );
-					$last = end( $open );
-				}
+			}
 
+			$root = $processor->get_attribute( 'data-jp-visibility-root' );
+
+			if ( ! is_string( $root ) ) {
 				continue;
 			}
 
-			$root           = $processor->get_attribute( 'data-jp-visibility-root' );
-			$encoded_logic  = $processor->get_attribute( self::LOGIC_ATTRIBUTE );
-			$is_a_container = is_string( $encoded_logic ) && is_string( $root );
+			$encoded_logic = $processor->get_attribute( self::LOGIC_ATTRIBUTE );
 
-			if ( $is_a_container ) {
-				$decoded = self::decode_logic( $encoded_logic );
-
-				if ( null !== $decoded ) {
-					$logic[ $root ]    = $decoded;
-					$contains[ $root ] = array();
-
-					$open[] = array(
-						'id'    => $root,
-						'depth' => $depth,
-					);
-				}
-
-				// The form emits the whole map for the interactivity store, so the element does
-				// not need to carry its own copy as well.
-				$processor->remove_attribute( self::LOGIC_ATTRIBUTE );
-			} elseif ( is_string( $root ) ) {
+			if ( ! is_string( $encoded_logic ) ) {
 				// A field wrapper. Attribute it to every container currently open around it, so
 				// a field inside nested containers is governed by all of them.
 				foreach ( $open as $entry ) {
 					$contains[ $entry['id'] ][] = $root;
 				}
+
+				continue;
 			}
 
-			++$depth;
+			$decoded = self::decode_logic( $encoded_logic );
+
+			if ( null !== $decoded ) {
+				$logic[ $root ]    = $decoded;
+				$contains[ $root ] = array();
+
+				$open[] = array(
+					'id'    => $root,
+					'depth' => $depth,
+				);
+			}
+
+			/*
+			 * Removed whether or not it decoded. The form emits the whole map for the
+			 * interactivity store, so a readable copy on the element is waste; an unreadable
+			 * one is waste that also ships broken JSON to every visitor.
+			 */
+			$processor->remove_attribute( self::LOGIC_ATTRIBUTE );
 		}
 
-		if ( empty( $logic ) ) {
+		if ( null !== $processor->get_last_error() ) {
 			return $empty;
 		}
 
+		/*
+		 * The updated body even when nothing was harvested, so a payload that could not be
+		 * decoded is still stripped rather than shipped.
+		 */
 		return array(
 			'logic'    => $logic,
 			'contains' => $contains,

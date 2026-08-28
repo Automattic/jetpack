@@ -12,6 +12,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -294,6 +295,134 @@ class Conditional_Logic_Container_Test extends BaseTestCase {
 
 		$this->assertSame( array( 'secret' ), $result['contains']['jp-container-1'] );
 		$this->assertSame( array( 'secret' ), $result['contains']['jp-container-2'] );
+	}
+
+	/**
+	 * A group block carries a `tagName` attribute -- the Advanced panel's "HTML element" control
+	 * offers section, main, article, aside, header and footer. add_container_attributes()
+	 * stamps whatever element the block renders, so the harvest has to find it there too.
+	 *
+	 * @dataProvider container_tag_provider
+	 *
+	 * @param string $tag The element the group rendered as.
+	 */
+	#[DataProvider( 'container_tag_provider' )]
+	public function test_harvest_finds_a_container_whatever_element_the_group_rendered_as( $tag ) {
+		$body = $this->container_markup( 'jp-container-1', $this->logic(), $tag )
+			. '<div data-jp-visibility-root="inside"></div>'
+			. '</' . $tag . '>';
+
+		$harvested = Conditional_Logic_Container::harvest( $body );
+
+		$this->assertArrayHasKey( 'jp-container-1', $harvested['logic'] );
+		$this->assertSame( array( 'inside' ), $harvested['contains']['jp-container-1'] );
+		// And the payload never reaches the page.
+		$this->assertStringNotContainsString( Conditional_Logic_Container::LOGIC_ATTRIBUTE, $harvested['body'] );
+	}
+
+	/**
+	 * Elements core/group can render as.
+	 *
+	 * @return array
+	 */
+	public static function container_tag_provider() {
+		return array(
+			'div'     => array( 'div' ),
+			'section' => array( 'section' ),
+			'main'    => array( 'main' ),
+			'article' => array( 'article' ),
+			'aside'   => array( 'aside' ),
+			'header'  => array( 'header' ),
+			'footer'  => array( 'footer' ),
+		);
+	}
+
+	/**
+	 * A field that sits after the container must not be attributed to it. Hiding the group
+	 * would otherwise drop an answer the visitor did see and fill in.
+	 */
+	public function test_harvest_does_not_attribute_a_field_that_follows_the_container() {
+		$body = $this->container_markup( 'jp-container-1', $this->logic() )
+			. '<div data-jp-visibility-root="inside"></div>'
+			. '</div>'
+			. '<div data-jp-visibility-root="after"></div>';
+
+		$harvested = Conditional_Logic_Container::harvest( $body );
+
+		$this->assertSame( array( 'inside' ), $harvested['contains']['jp-container-1'] );
+	}
+
+	/**
+	 * Unbalanced markup inside a group -- a Custom HTML block, a shortcode emitting raw tags --
+	 * must not extend the container over the rest of the form. Over-attribution is the failure
+	 * that silently discards submitted answers, so this one has to fail open.
+	 */
+	public function test_harvest_survives_unbalanced_markup_inside_a_container() {
+		$body = $this->container_markup( 'jp-container-1', $this->logic() )
+			. '<div data-jp-visibility-root="inside"></div>'
+			// A Custom HTML block leaking a closer it never opened.
+			. '</div>'
+			. '<div data-jp-visibility-root="after"></div>'
+			. '</div>';
+
+		$harvested = Conditional_Logic_Container::harvest( $body );
+
+		// The parser scopes the container exactly where a browser would, so the field the
+		// visitor sees outside the group is not governed by it.
+		$this->assertSame( array( 'inside' ), $harvested['contains']['jp-container-1'] );
+	}
+
+	/**
+	 * A stray closing tag before the container must not pop it off the stack early.
+	 */
+	public function test_harvest_survives_a_stray_closing_tag_before_a_container() {
+		$body = '</div>'
+			. $this->container_markup( 'jp-container-1', $this->logic() )
+			. '<div data-jp-visibility-root="inside"></div>'
+			. '</div>';
+
+		$harvested = Conditional_Logic_Container::harvest( $body );
+
+		$this->assertArrayHasKey( 'jp-container-1', $harvested['logic'] );
+		$this->assertSame( array( 'inside' ), $harvested['contains']['jp-container-1'] );
+	}
+
+	/**
+	 * A payload mangled in transit -- truncated by a minifier, rewritten by a caching layer --
+	 * still has to leave the page clean. The conditions are lost either way; shipping the
+	 * broken JSON to every visitor on top of that is the part worth preventing.
+	 */
+	public function test_harvest_strips_a_payload_it_cannot_read() {
+		$body = '<div class="wp-block-group" data-jp-visibility-root="jp-container-1" '
+			. 'data-jp-conditional="1" ' . Conditional_Logic_Container::LOGIC_ATTRIBUTE . '="{not json">'
+			. '<div data-jp-visibility-root="inside"></div>'
+			. '</div>';
+
+		$harvested = Conditional_Logic_Container::harvest( $body );
+
+		$this->assertSame( array(), $harvested['logic'] );
+		$this->assertStringNotContainsString( Conditional_Logic_Container::LOGIC_ATTRIBUTE, $harvested['body'] );
+	}
+
+	/**
+	 * Build a container opening tag carrying encoded conditions.
+	 *
+	 * @param string $id    The container id.
+	 * @param array  $logic The conditions.
+	 * @param string $tag   The element the group rendered as.
+	 *
+	 * @return string An opening tag, left unclosed for the caller to fill.
+	 */
+	private function container_markup( $id, $logic, $tag = 'div' ) {
+		$json = str_replace(
+			array( '[', ']' ),
+			array( '&#91;', '&#93;' ),
+			(string) wp_json_encode( $logic, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT )
+		);
+
+		return '<' . $tag . ' class="wp-block-group" data-jp-visibility-root="' . $id . '" '
+			. 'data-jp-conditional="1" '
+			. Conditional_Logic_Container::LOGIC_ATTRIBUTE . "='" . $json . "'>";
 	}
 
 	/**
