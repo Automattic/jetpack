@@ -23,13 +23,12 @@ const PERIOD_ORDER = [
  * behind it is.
  *
  * A widget rarely supports every granularity, so the mapped period is clamped
- * into the set it does support. `allowed` is ordered finest to coarsest, so a
- * period finer than everything offered resolves to the finest and one coarser
- * to the coarsest — an hourly page interval lands on `day` for a day/week/month
- * widget, and a yearly one lands on `month`.
+ * into the set it does support: one finer than everything offered lands on the
+ * finest offered, one coarser on the coarsest. An hourly page interval lands on
+ * `day` for a day/week/month widget, and a yearly one lands on `month`.
  *
  * @param interval - The dashboard-derived interval.
- * @param allowed  - The periods this widget offers, ordered finest to coarsest.
+ * @param allowed  - The periods this widget offers, in any order.
  * @return The matching granularity.
  */
 export function defaultPeriodForInterval< P extends StatsPeriod >(
@@ -42,11 +41,16 @@ export function defaultPeriodForInterval< P extends StatsPeriod >(
 		return mapped as P;
 	}
 
-	const finest = allowed[ 0 ];
+	// Rank against `PERIOD_ORDER` rather than trusting the caller's order, so a
+	// widget's set is a set and cannot be written the wrong way round.
+	const ranked = [ ...allowed ].sort(
+		( a, b ) => PERIOD_ORDER.indexOf( a ) - PERIOD_ORDER.indexOf( b )
+	);
+	const finest = ranked[ 0 ];
 
 	return PERIOD_ORDER.indexOf( mapped ) < PERIOD_ORDER.indexOf( finest )
 		? finest
-		: allowed[ allowed.length - 1 ];
+		: ranked[ ranked.length - 1 ];
 }
 
 /**
@@ -57,7 +61,7 @@ export function defaultPeriodForInterval< P extends StatsPeriod >(
  * fall back to where the clamp lands rather than leaving the menu empty.
  *
  * @param intervals - The buckets the range allows, finest first.
- * @param allowed   - The periods this widget offers, ordered finest to coarsest.
+ * @param allowed   - The periods this widget offers, in any order.
  * @return The buckets to list, in the order given.
  */
 export function drawableIntervals< P extends StatsPeriod >(

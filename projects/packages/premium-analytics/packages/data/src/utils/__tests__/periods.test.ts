@@ -3,8 +3,7 @@
  */
 import { defaultPeriodForInterval, drawableIntervals } from '../periods';
 
-// The period sets in use. All are ordered finest to coarsest, which the helper
-// relies on when clamping.
+// The period sets in use.
 const DAY_WEEK_MONTH = [ 'day', 'week', 'month' ] as const;
 const DAY_WEEK_MONTH_YEAR = [ 'day', 'week', 'month', 'year' ] as const;
 const HOUR_DAY_WEEK_MONTH = [ 'hour', 'day', 'week', 'month' ] as const;
@@ -60,6 +59,13 @@ describe( 'defaultPeriodForInterval', () => {
 	it( 'clamps to the finest allowed period when the mapped one is too fine', () => {
 		expect( defaultPeriodForInterval( 'hour', [ 'week', 'month' ] as const ) ).toBe( 'week' );
 		expect( defaultPeriodForInterval( 'day', [ 'week' ] as const ) ).toBe( 'week' );
+	} );
+
+	it( 'reads the allowed periods as a set, whatever order they arrive in', () => {
+		expect( defaultPeriodForInterval( 'hour', [ 'month', 'day', 'week' ] as const ) ).toBe( 'day' );
+		expect( defaultPeriodForInterval( 'year', [ 'month', 'day', 'week' ] as const ) ).toBe(
+			'month'
+		);
 	} );
 } );
 

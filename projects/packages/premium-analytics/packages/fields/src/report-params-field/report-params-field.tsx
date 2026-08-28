@@ -56,8 +56,8 @@ export type ReportGrain = {
 	presetIds?: readonly QuickSurfacePresetId[];
 
 	/**
-	 * The bucket sizes the widget's chart draws, ordered finest to coarsest — the
-	 * same list it clamps against. Only read when `withIntervalControl` is set.
+	 * The bucket sizes the widget's chart draws — the same list it clamps against.
+	 * Only read when `withIntervalControl` is set.
 	 */
 	periods?: readonly [ StatsPeriod, ...StatsPeriod[] ];
 };
