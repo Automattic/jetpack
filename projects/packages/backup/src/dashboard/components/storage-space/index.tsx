@@ -83,12 +83,16 @@ export default function StorageSpace() {
 	return (
 		<section className="jpb-storage-space" aria-labelledby={ headingId }>
 			{ /*
-			 * `h3` rather than the `h2` legacy uses, to match every other
-			 * heading in this dashboard — the backup and activity detail
-			 * cards are visual siblings of this section, not children of
-			 * it, and an `h2` here would put them under it in the outline.
+			 * `h2`, like every other first in-body heading here. The concern
+			 * that made this an `h3` — that the backup and activity detail
+			 * cards are visual siblings of this section and would end up
+			 * under it — no longer applies: those cards are `h2` too, so the
+			 * three are siblings in the outline as well as on screen.
 			 */ }
-			<Text variant="heading-md" render={ <h3 id={ headingId } /> }>
+			<Text
+				variant="heading-md"
+				render={ <h2 id={ headingId } className="jpb-storage-space__heading" /> }
+			>
 				{ sectionHeading( usage.usageLevel ) }
 			</Text>
 			<StorageMeter

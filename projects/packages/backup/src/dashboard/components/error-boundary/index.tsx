@@ -90,9 +90,9 @@ export default class ErrorBoundary extends Component< Props, State > {
 					 * `<Page title>` inside `<DashboardLayout>`, and this
 					 * fallback renders *instead of* that whole subtree. When
 					 * it is on screen there is no other heading on the page,
-					 * so this is the document's first one. (The gate screens
-					 * use lower levels because they render inside the layout,
-					 * with that `h1` still above them.)
+					 * so this is the document's first one. (Every other first
+					 * in-body heading is an `h2`, because they all render
+					 * inside the layout with that `h1` still above them.)
 					 */ }
 					<Text variant="heading-md" render={ <h1 /> }>
 						{ __( 'Something went wrong', 'jetpack-backup-pkg' ) }

@@ -61,7 +61,7 @@ async function openFile( name: string ): Promise< void > {
 	);
 
 	await userEvent.click( await screen.findByRole( 'button', { name: `File: ${ name }` } ) );
-	await expect( screen.findByRole( 'heading', { name, level: 4 } ) ).resolves.toBeInTheDocument();
+	await expect( screen.findByRole( 'heading', { name, level: 3 } ) ).resolves.toBeInTheDocument();
 }
 
 beforeEach( () => {

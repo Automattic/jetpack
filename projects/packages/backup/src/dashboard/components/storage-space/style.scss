@@ -6,10 +6,23 @@
 	inline-size: 100%;
 	margin-block-end: 24px;
 
-	// `<Text render={ <h3 /> }>` renders a real heading, which inherits
-	// wp-admin's own `h3` margins. Reset both so the gap to the bar is
-	// this file's decision.
-	h3 {
+	// `<Text render={ <hN /> }>` renders a real heading, which inherits
+	// wp-admin's own heading margins. Reset both so the gap to the bar is
+	// this file's decision. Matched by class, not by tag: a tag selector
+	// stops matching the moment the heading's level changes, which is what
+	// happened when the outline went `h3` to `h2` — the rule died,
+	// `@wordpress/ui`'s `:is(h1,…,h6).heading` default supplied `margin: 0`,
+	// and the 12px gap to the meter vanished while the placeholder below
+	// went on reserving it. `&__heading` alone is a single class (0,1,0) and
+	// loses to that `@wordpress/ui` rule, which is (0,1,1) — `:is()` takes
+	// the specificity of its most specific argument, all type selectors here.
+	// Doubling it to `.jpb-storage-space .jpb-storage-space__heading` is
+	// (0,2,0) and wins outright: no source-order dependency, no
+	// `!important`. Same trick as `& &__bar` below. The tag selector this
+	// replaced was itself (0,1,1) — it tied and won on
+	// source order, which is why it worked and why nothing recorded that it
+	// was load-bearing.
+	& &__heading {
 		margin-block: 0 12px;
 	}
 

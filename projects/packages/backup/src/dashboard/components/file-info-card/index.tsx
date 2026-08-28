@@ -204,7 +204,7 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				justify="space-between"
 				className="jpb-file-info-card__header"
 			>
-				<Text variant="heading-sm" render={ <h4 /> }>
+				<Text variant="heading-sm" render={ <h3 /> }>
 					{ file.name }
 				</Text>
 				<Button
