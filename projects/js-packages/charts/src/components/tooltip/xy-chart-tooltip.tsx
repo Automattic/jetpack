@@ -9,6 +9,13 @@ import type { CSSProperties, ReactNode } from 'react';
 const CROSSHAIR_STROKE_WIDTH = 1.5;
 const DEFAULT_GLYPH_RADIUS = 4;
 const FALLBACK_COLOR = '#222';
+// Above the chart's own overlays (the zoom reset button sits at 2). The chart
+// wrapper isolates its stacking context, so this never competes with page chrome.
+const DEFAULT_TOOLTIP_Z_INDEX = 3;
+// Portal-era options, accepted for compatibility and dropped before the box
+// renders: it sits in the chart wrapper and moves with it, and nothing
+// measures it any more.
+const PORTAL_OPTIONS = new Set( [ 'scroll', 'debounce', 'resizeObserverPolyfill' ] );
 
 type ScaleFn = ( value: unknown ) => number | undefined;
 
@@ -16,16 +23,10 @@ const isValidNumber = ( value: unknown ): value is number =>
 	typeof value === 'number' && Number.isFinite( value );
 
 // Band scales place a datum at the start of its band; snapping targets the band's centre.
+// A d3 scale is a function, so this reads the method rather than testing for an object.
 const scaleBandwidth = ( scale: unknown ): number => {
-	if (
-		scale &&
-		typeof scale === 'object' &&
-		'bandwidth' in scale &&
-		typeof scale.bandwidth === 'function'
-	) {
-		return Number( scale.bandwidth() );
-	}
-	return 0;
+	const bandwidth = ( scale as { bandwidth?: unknown } | null | undefined )?.bandwidth;
+	return typeof bandwidth === 'function' ? Number( bandwidth() ) : 0;
 };
 
 const DefaultGlyph = < Datum extends object >( {
@@ -62,7 +63,8 @@ const defaultRenderGlyph = < Datum extends object >( {
 
 type XyChartTooltipContentProps< Datum extends object > = XyChartTooltipProps< Datum > & {
 	tooltipContext: TooltipContextType< Datum >;
-	container: HTMLElement;
+	/** The SVG's HTML parent once found. The box waits for it; the SVG overlay does not. */
+	container: HTMLElement | null;
 };
 
 const XyChartTooltipContent = < Datum extends object >( {
@@ -80,8 +82,12 @@ const XyChartTooltipContent = < Datum extends object >( {
 	verticalCrosshairStyle,
 	horizontalCrosshairStyle,
 	detectBounds = true,
-	...tooltipProps
+	zIndex = DEFAULT_TOOLTIP_Z_INDEX,
+	...rest
 }: XyChartTooltipContentProps< Datum > ) => {
+	const tooltipProps = Object.fromEntries(
+		Object.entries( rest ).filter( ( [ key ] ) => ! PORTAL_OPTIONS.has( key ) )
+	) as Omit< typeof rest, 'scroll' | 'debounce' | 'resizeObserverPolyfill' >;
 	const {
 		colorScale,
 		theme,
@@ -93,7 +99,7 @@ const XyChartTooltipContent = < Datum extends object >( {
 		dataRegistry,
 	} = useContext( DataContext ) || {};
 
-	const tooltipContent = renderTooltip( { ...tooltipContext, colorScale } );
+	const tooltipContent = renderTooltip ? renderTooltip( { ...tooltipContext, colorScale } ) : null;
 	if ( tooltipContent == null ) {
 		return null;
 	}
@@ -131,7 +137,9 @@ const XyChartTooltipContent = < Datum extends object >( {
 	const glyphs: ReactNode[] = [];
 	if ( showDatumGlyph || showSeriesGlyphs ) {
 		const size = Number( glyphStyle?.radius ?? DEFAULT_GLYPH_RADIUS );
-		const fallbackColor = theme?.htmlLabel?.color ?? FALLBACK_COLOR;
+		const labelColor = theme?.htmlLabel?.color ?? FALLBACK_COLOR;
+		// visx colours a lone nearest-datum glyph like the gridlines and series glyphs like labels.
+		const fallbackColor = showSeriesGlyphs ? labelColor : theme?.gridStyles?.stroke ?? labelColor;
 		let entries: Array< { key: string; datum: Datum; index: number } > = [];
 		if ( showSeriesGlyphs ) {
 			entries = Object.values( tooltipContext.tooltipData?.datumByKey ?? {} );
@@ -177,6 +185,7 @@ const XyChartTooltipContent = < Datum extends object >( {
 	const TooltipComponent = detectBounds ? TooltipWithBounds : Tooltip;
 	const boxStyle: CSSProperties = {
 		...defaultStyles,
+		zIndex,
 		background: theme?.backgroundColor ?? 'white',
 		boxShadow: `0 1px 2px ${
 			theme?.htmlLabel?.color ? `${ theme.htmlLabel.color }55` : '#22222255'
@@ -215,18 +224,19 @@ const XyChartTooltipContent = < Datum extends object >( {
 				) }
 				{ glyphs }
 			</g>
-			{ createPortal(
-				<TooltipComponent
-					left={ tooltipLeft }
-					top={ tooltipTop }
-					style={ boxStyle }
-					applyPositionStyle
-					{ ...tooltipProps }
-				>
-					{ tooltipContent }
-				</TooltipComponent>,
-				container
-			) }
+			{ container &&
+				createPortal(
+					<TooltipComponent
+						left={ tooltipLeft }
+						top={ tooltipTop }
+						style={ boxStyle }
+						applyPositionStyle
+						{ ...tooltipProps }
+					>
+						{ tooltipContent }
+					</TooltipComponent>,
+					container
+				) }
 		</>
 	);
 };
@@ -243,12 +253,16 @@ const XyChartTooltipContent = < Datum extends object >( {
  * as ordinary descendants of the chart.
  *
  * Render it as a child of `XYChart`. The element wrapping that `XYChart` must
- * be `position: relative` with the SVG at its origin: the box is placed with
- * the SVG-local coordinates visx reports, and `TooltipWithBounds` flips it to
- * stay inside that wrapper.
+ * be `position: relative` with the SVG at its origin, and `isolation: isolate`:
+ * the box is placed with the SVG-local coordinates visx reports,
+ * `TooltipWithBounds` flips it to stay inside that wrapper, and the isolation
+ * keeps the box's `zIndex` from competing with page chrome. An ancestor with
+ * `overflow: hidden` or `overflow: clip` cuts the box off — the flip only knows
+ * the wrapper, not the clipping ancestor — so a chart needs room for its
+ * tooltip inside the nearest clipping box.
  *
- * @param props - Same options as visx's `Tooltip`, minus its portal settings.
- * @return The overlay and the portaled tooltip box, or nothing while the tooltip is closed.
+ * @param props - visx's `Tooltip` options. `scroll`, `debounce` and `resizeObserverPolyfill` are accepted and ignored.
+ * @return An anchor in the SVG, plus the overlay and the tooltip box while the tooltip is open.
  */
 export const XyChartTooltip = < Datum extends object >( props: XyChartTooltipProps< Datum > ) => {
 	const tooltipContext = useContext( TooltipContext ) as TooltipContextType< Datum > | null;
@@ -262,7 +276,7 @@ export const XyChartTooltip = < Datum extends object >( props: XyChartTooltipPro
 	return (
 		<>
 			<g ref={ anchorRef } data-testid="xy-chart-tooltip-anchor" />
-			{ tooltipContext?.tooltipOpen && container && (
+			{ tooltipContext?.tooltipOpen && (
 				<XyChartTooltipContent
 					{ ...props }
 					tooltipContext={ tooltipContext }

@@ -2,8 +2,7 @@ import { TooltipContext } from '@visx/xychart';
 import clsx from 'clsx';
 import { useContext, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useGlobalChartsTheme } from '../../providers';
-import { useChartScopeElement } from '../../providers/chart-scope';
-import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
+import { useChartScopeElement, useStandaloneScopeClass } from '../../providers/chart-scope';
 import { resolveCssVariable } from '../../utils';
 import { XyChartTooltip } from './xy-chart-tooltip';
 import type { SeriesData, DataPointDate } from '../../types';
@@ -64,6 +63,8 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 		// Passing `stroke: undefined` would erase the crosshair: it overrides visx's own value, and SVG's initial `stroke` is `none`.
 		return stroke ? { stroke } : undefined;
 	}, [ gridStroke, scopeElement ] );
+
+	const standaloneScopeClass = useStandaloneScopeClass();
 
 	const tooltipData = useMemo( () => {
 		if ( mode !== 'individual' ) return [];
@@ -157,7 +158,7 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 						tabIndex={ -1 }
 						role="tooltip"
 						aria-atomic="true"
-						className={ clsx( CHART_SCOPE_CLASS, keyboardFocusedClassName ) }
+						className={ clsx( standaloneScopeClass, keyboardFocusedClassName ) }
 						data-testid={ `chart-tooltip-${ selectedIndex }` }
 						key={ `chart-tooltip-${ selectedIndex }` }
 					>
@@ -167,12 +168,12 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 			}
 
 			return (
-				<div className={ CHART_SCOPE_CLASS } role="tooltip" aria-live="polite">
+				<div className={ standaloneScopeClass } role="tooltip" aria-live="polite">
 					{ tooltipContent }
 				</div>
 			);
 		};
-	}, [ renderTooltip, selectedIndex, tooltipRef, keyboardFocusedClassName ] );
+	}, [ renderTooltip, selectedIndex, tooltipRef, keyboardFocusedClassName, standaloneScopeClass ] );
 
 	return (
 		<XyChartTooltip

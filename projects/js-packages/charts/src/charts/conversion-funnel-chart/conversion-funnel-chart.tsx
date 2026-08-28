@@ -12,7 +12,7 @@ import {
 	useGlobalChartsTheme,
 	useGlobalChartsContext,
 } from '../../providers';
-import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
+import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { formatPercentage, hexToRgba } from '../../utils';
 import styles from './conversion-funnel-chart.module.scss';
 import { useFunnelSelection } from './private';
@@ -66,7 +66,8 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	// Use custom hook for selection management
 	const { handleBarClick, handleBarKeyDown, clearSelection, getStepState } =
 		useFunnelSelection( hideTooltip );
-	// Stable identity so React doesn't detach/reattach (and re-render the scope context) on every commit. Keep both assignments, in the same order, and keep it firing on unmount (node === null).
+	const standaloneScopeClass = useStandaloneScopeClass();
+	// Stable identity so React doesn't detach/reattach (and re-render the scope context) on every commit. Keep it firing on unmount (node === null).
 	const setChartRef = useCallback( ( node: HTMLDivElement | null ) => {
 		chartRef.current = node;
 		setScopeNode( node );
@@ -427,7 +428,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 						<TooltipWithBounds
 							top={ tooltipTop }
 							left={ tooltipLeft }
-							className={ clsx( CHART_SCOPE_CLASS, styles[ 'tooltip-wrapper' ] ) }
+							className={ clsx( standaloneScopeClass, styles[ 'tooltip-wrapper' ] ) }
 						>
 							{ tooltipContent }
 						</TooltipWithBounds>

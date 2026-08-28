@@ -493,6 +493,8 @@ Enable rich interactive tooltips with optional crosshair guides:
 	/>` }
 />
 
+Tooltips render inside the chart's own wrapper, not in a `document.body` portal, so they stack with the page like any other element and a sticky or fixed header paints over them. The trade-off is containment: an ancestor with `overflow: hidden` or `overflow: clip` cuts the box off, and `detectBounds` only flips the box to stay inside the chart wrapper, not inside that ancestor. Give a small chart room for its tooltip inside the nearest clipping box, or let that box overflow.
+
 ### Pointer Events
 
 Handle user interactions with custom event handlers:

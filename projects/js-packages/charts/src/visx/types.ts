@@ -1,5 +1,5 @@
 import type { PickD3Scale } from '@visx/scale';
-import type { TooltipProps as VisxTooltipProps } from '@visx/tooltip';
+import type { TooltipProps as VisxTooltipProps, UseTooltipPortalOptions } from '@visx/tooltip';
 import type { GlyphProps, TooltipContextType } from '@visx/xychart';
 import type { ReactNode, SVGProps } from 'react';
 
@@ -25,10 +25,32 @@ export type XyChartTooltipProps< Datum extends object > = {
 	horizontalCrosshairStyle?: SVGProps< SVGLineElement >;
 	glyphStyle?: SVGProps< SVGCircleElement >;
 	/**
-	 * Flip the tooltip box so it stays inside the chart wrapper.
+	 * Flip the tooltip box so it stays inside the chart wrapper. (It used to keep
+	 * a body-level portal inside the viewport.)
 	 * @default true
 	 */
 	detectBounds?: boolean;
-} & Omit< VisxTooltipProps, 'left' | 'top' | 'children' >;
+	/**
+	 * Stacking order of the tooltip box inside the chart wrapper, which isolates
+	 * its stacking context: the value never competes with page chrome outside
+	 * the chart.
+	 * @default 3
+	 */
+	zIndex?: number;
+	/**
+	 * @deprecated Accepted and ignored. The box renders inside the chart wrapper
+	 * and moves with it, so it needs no scroll tracking.
+	 */
+	scroll?: boolean;
+	/**
+	 * @deprecated Accepted and ignored. Nothing measures the box any more, so
+	 * there is no measurement to debounce.
+	 */
+	debounce?: number;
+	/**
+	 * @deprecated Accepted and ignored. No ResizeObserver is used.
+	 */
+	resizeObserverPolyfill?: UseTooltipPortalOptions[ 'polyfill' ];
+} & Omit< VisxTooltipProps, 'left' | 'top' | 'children' | 'applyPositionStyle' >;
 
 export type { LineStyles, GridStyles } from '@visx/xychart';

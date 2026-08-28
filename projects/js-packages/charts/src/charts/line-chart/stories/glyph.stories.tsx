@@ -264,8 +264,8 @@ InTooltip.args = {
 };
 
 // A tooltip glyph may ignore `x` and `y`: the chart places its group on the
-// datum, as visx's own Tooltip did. Start and end glyphs are positioned by the
-// renderer, so they stay off here.
+// datum, as visx's own Tooltip did. Start glyphs are positioned by the renderer
+// itself, so the story turns them off (end glyphs are off by default).
 export const InTooltipUnpositioned: StoryObj< StoryArgs > = Template.bind( {} );
 InTooltipUnpositioned.args = {
 	...glyphStoryArgs,

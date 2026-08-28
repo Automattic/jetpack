@@ -8,9 +8,9 @@
 
 Chart roots deliberately do *not* carry the `a8c-charts-scope` class. Custom properties inherit down the tree, and an element only shadows an inherited value by re-declaring it, so a chart root that re-declared the catalog would beat an override set between it and the provider — closing off the one place consumers are meant to set overrides. This inheritance rule drives every precedence question below.
 
-Portal-rendered tooltips carry the class unconditionally, because a React portal renders outside the provider's DOM tree and would otherwise inherit nothing. `TrendIndicator`, `BaseTooltip` and `BaseLegend` carry it only when no provider is above them (`useStandaloneScopeClass()`).
+Tooltips render inside the chart, so they carry the class only when no provider is above them, the same as `TrendIndicator`, `BaseTooltip` and `BaseLegend` (`useStandaloneScopeClass()`).
 
-That unconditional class has a cost: a portal tooltip re-declares the catalog on itself, so it sees only the catalog *default*, never an instance override — both the provider's inline `theme` var and a consumer rule scoped to the provider wrapper live on an ancestor the portal is not a descendant of. A bare `.a8c-charts-scope { … }` rule does reach it, matching the tooltip's own class directly.
+Inside a provider a tooltip therefore inherits the provider's inline `theme` var and any consumer rule scoped to the provider wrapper, the same as the chart it belongs to.
 
 Each catalog entry maps to a WPDS token with the WPDS spec value as its fallback:
 
@@ -34,7 +34,7 @@ Highest first:
 
 A CSS declaration of a role therefore beats a `theme` prop override *anywhere* it is set, the wrapper included — the prop writes a variable the role reads, not the role itself, and a role declared in CSS never reads it.
 
-An override set **above** `GlobalChartsProvider` does not apply: the provider's own declaration on its wrapper beats a value merely inherited from an ancestor. Set overrides inside the provider tree, or target the scope class itself — `.a8c-charts-scope { --a8c-charts-color-grid: #e0e0e0; }` matches every provider wrapper on the page, including the one a bare chart mounts for itself and the one a portal tooltip carries, and outranks the zero-specificity catalog default. That rule is the replacement for a page-level `:root` override. The same rule limits `@wordpress/theme`'s `ThemeProvider` to *above* the charts provider: the catalog substitutes its `--wpds-*` tokens at the wrapper, so a `ThemeProvider` mounted between the wrapper and a chart is never consulted and CSS-painted colors keep their light-mode spec fallbacks. The JS-consumed ones do not — `getElementStyles` resolves at the chart element — so that nesting shows up as a chart whose series marks retint while its gridlines, axis and surfaces do not.
+An override set **above** `GlobalChartsProvider` does not apply: the provider's own declaration on its wrapper beats a value merely inherited from an ancestor. Set overrides inside the provider tree, or target the scope class itself — `.a8c-charts-scope { --a8c-charts-color-grid: #e0e0e0; }` matches every provider wrapper on the page, including the one a bare chart mounts for itself, and outranks the zero-specificity catalog default. That rule is the replacement for a page-level `:root` override. The same rule limits `@wordpress/theme`'s `ThemeProvider` to *above* the charts provider: the catalog substitutes its `--wpds-*` tokens at the wrapper, so a `ThemeProvider` mounted between the wrapper and a chart is never consulted and CSS-painted colors keep their light-mode spec fallbacks. The JS-consumed ones do not — `getElementStyles` resolves at the chart element — so that nesting shows up as a chart whose series marks retint while its gridlines, axis and surfaces do not.
 
 #### The theme layer
 

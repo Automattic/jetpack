@@ -37,6 +37,7 @@ import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
+import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './area-chart.module.scss';
 import { AreaChartScalesRef, HoverGlyphs, validateData } from './private';
 import type { AreaChartProps } from './types';
@@ -405,7 +406,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 								onBlur={ onChartBlur }
 							>
 								{ chartHeight > 0 && (
-									<div ref={ chartRef } style={ { position: 'relative' } }>
+									<div ref={ chartRef } className={ plotStyles[ 'xy-plot' ] }>
 										{ zoomable && zoom.domain && <ZoomResetButton onClick={ zoom.reset } /> }
 										<XYChart
 											theme={ theme }

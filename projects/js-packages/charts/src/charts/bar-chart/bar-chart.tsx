@@ -27,6 +27,7 @@ import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
+import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './bar-chart.module.scss';
 import {
 	useBarChartOptions,
@@ -587,7 +588,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 							onBlur={ onChartBlur }
 						>
 							{ chartHeight > 0 && (
-								<div ref={ chartRef } style={ { position: 'relative' } }>
+								<div ref={ chartRef } className={ plotStyles[ 'xy-plot' ] }>
 									<XYChart
 										theme={ theme }
 										width={ width }

@@ -18,7 +18,7 @@ import {
 	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
-import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
+import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { attachSubComponents, resolveFontSize } from '../../utils';
 import { getStringWidth } from '../../visx/text';
 import { Center } from '../private/center';
@@ -196,6 +196,7 @@ const PieChartInternal = ( {
 	const chartId = useChartId( providedChartId );
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentageCalculated >();
+	const standaloneScopeClass = useStandaloneScopeClass();
 
 	// The tooltip renders inside this element, so pointer coordinates are taken relative to it.
 	const containerRef = useRef< HTMLDivElement >( null );
@@ -471,7 +472,7 @@ const PieChartInternal = ( {
 							</svg>
 							{ withTooltips && tooltipOpen && tooltipData && (
 								<TooltipWithBounds top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-									<div className={ CHART_SCOPE_CLASS } role="tooltip">
+									<div className={ standaloneScopeClass } role="tooltip">
 										{ renderTooltip( { tooltipData } ) }
 									</div>
 								</TooltipWithBounds>

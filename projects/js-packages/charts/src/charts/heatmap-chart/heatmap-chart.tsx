@@ -10,7 +10,7 @@ import {
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers';
-import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
+import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { attachSubComponents } from '../../utils';
 import {
 	isValidHexColor,
@@ -69,13 +69,14 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, showTooltip, hideTooltip } =
 		useTooltip< HeatmapTooltipData >();
+	const standaloneScopeClass = useStandaloneScopeClass();
 	const containerRef = useRef< HTMLDivElement >( null );
 	// The tooltip is a sibling of the grid inside the layout stack, which positions it, so
 	// pointer and cell coordinates are measured against that stack.
-	const getTooltipOrigin = useCallback( () => {
-		const stack = containerRef.current?.parentElement;
-		return stack ? stack.getBoundingClientRect() : { left: 0, top: 0 };
-	}, [] );
+	const getTooltipOrigin = useCallback(
+		() => containerRef.current?.parentElement?.getBoundingClientRect() ?? null,
+		[]
+	);
 
 	const { color: primaryColorHex } = getElementStyles( {
 		index: 0,
@@ -211,10 +212,13 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 			if ( ! withTooltips ) {
 				return;
 			}
+			const origin = getTooltipOrigin();
+			if ( ! origin ) {
+				return;
+			}
 			const target = event.currentTarget;
 			const columnIndex = Number( target.dataset.column );
 			const rowIndex = Number( target.dataset.row );
-			const origin = getTooltipOrigin();
 			showTooltip( {
 				tooltipLeft: event.clientX - origin.left,
 				tooltipTop: event.clientY - origin.top,
@@ -237,6 +241,10 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		if ( ! withTooltips || selectedIndex === undefined ) {
 			return;
 		}
+		const origin = getTooltipOrigin();
+		if ( ! origin ) {
+			return;
+		}
 		const col = Math.floor( selectedIndex / rows );
 		const row = selectedIndex % rows;
 		const cell =
@@ -244,7 +252,6 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 				? document.getElementById( `${ chartId }-cell-${ col }-${ row }` )
 				: null;
 		const rect = cell?.getBoundingClientRect();
-		const origin = getTooltipOrigin();
 		showTooltip( {
 			tooltipLeft: rect ? rect.left + rect.width / 2 - origin.left : 0,
 			tooltipTop: rect ? rect.top + rect.height / 2 - origin.top : 0,
@@ -477,7 +484,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 					</div>
 					{ withTooltips && tooltipOpen && tooltipData && (
 						<TooltipWithBounds top={ tooltipTop } left={ tooltipLeft }>
-							<div className={ CHART_SCOPE_CLASS } role="tooltip" tabIndex={ -1 }>
+							<div className={ standaloneScopeClass } role="tooltip" tabIndex={ -1 }>
 								{ ( renderTooltip ?? defaultRenderTooltip )( tooltipData ) }
 							</div>
 						</TooltipWithBounds>

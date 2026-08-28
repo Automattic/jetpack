@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Render chart tooltips inside the chart instead of a document.body portal, so they stack correctly under sticky and fixed page elements.
+Render chart tooltips inside the chart instead of a document.body portal, so they stack correctly under sticky and fixed page elements. `detectBounds` now keeps the box inside the chart wrapper, and an ancestor with `overflow: hidden` clips it. The tooltip's `scroll`, `debounce` and `resizeObserverPolyfill` options are deprecated and ignored.
