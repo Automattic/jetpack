@@ -84,19 +84,31 @@ export function prepareWpcomMcpUpdate( update ) {
 /**
  * Hook that loads and exposes MCP settings for the current site.
  *
+ * @param {object}  [options]      - Hook options.
+ * @param {boolean} [options.skip] - Skip the fetch and expose empty state (for callers
+ *                                 that know the request cannot succeed).
  * @return {{ isLoading: boolean, isSaving: boolean, mcpAbilities: Object|null, error: string|null, updateMcpAbilities: Function }} MCP settings state and updater.
  */
-export function useMcpSettings() {
+export function useMcpSettings( { skip = false } = {} ) {
 	const { blogId = 0, mcpSettingsApi = DEFAULT_API } = window?.jetpackAiSettings ?? {};
 	const endpoint = mcpSettingsApi.path ?? DEFAULT_API.path;
 	const usesWpcomApi = mcpSettingsApi.format === 'wpcom';
-	const [ isLoading, setIsLoading ] = useState( true );
+	const [ isLoading, setIsLoading ] = useState( ! skip );
 	const [ savingToolIds, setSavingToolIds ] = useState( () => new Set() );
 	const [ mcpAbilities, setMcpAbilities ] = useState( null );
 	const [ hasMcpAccess, setHasMcpAccess ] = useState( null );
 	const [ error, setError ] = useState( null );
 
 	useEffect( () => {
+		if ( skip ) {
+			// Clear state so nothing from an earlier fetch lingers.
+			setIsLoading( false );
+			setSavingToolIds( new Set() );
+			setMcpAbilities( null );
+			setHasMcpAccess( null );
+			setError( null );
+			return;
+		}
 		let cancelled = false;
 		setIsLoading( true );
 		apiFetch( { path: endpoint } )
@@ -126,7 +138,7 @@ export function useMcpSettings() {
 		return () => {
 			cancelled = true;
 		};
-	}, [ blogId, endpoint, usesWpcomApi ] );
+	}, [ blogId, endpoint, usesWpcomApi, skip ] );
 
 	/**
 	 * Send a partial mcp_abilities update.
