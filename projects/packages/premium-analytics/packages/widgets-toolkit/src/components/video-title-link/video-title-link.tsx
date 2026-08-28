@@ -22,12 +22,8 @@ export type VideoTitleLinkProps = {
 };
 
 /**
- * Render a video title as an internal detail link, an external fallback link,
- * or plain text. `search` takes either an object or an updater that receives
- * the current search. Mirrors `PostTitleLink`'s structure so post and video
- * rows read identically across the dashboard.
- *
- * @return The linked or plain video title.
+ * Render a video title as an internal detail link, an external fallback link, or plain
+ * text. Mirrors `PostTitleLink`'s structure so post and video rows read identically.
  */
 export function VideoTitleLink( {
 	id,

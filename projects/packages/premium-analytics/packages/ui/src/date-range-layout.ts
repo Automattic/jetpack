@@ -1,12 +1,7 @@
 /**
- * How the date-range presets render for the width they have been given.
- *
- * Measured rather than compared against a breakpoint: the same row needs 470px
- * in English and 694px in Russian, so any hardcoded boundary is wrong for some
- * language. See WOOA7S-1817 for the measurements.
- *
- * Abbreviated is the last step. A row too narrow even for that keeps its pills
- * rather than hiding the whole choice behind a menu.
+ * How the date-range presets render for the given width. Measured, not a
+ * breakpoint: the same row needs 470px in English, 694px in Russian — see
+ * WOOA7S-1817. Abbreviated is the last step; a too-narrow row keeps its pills.
  */
 export type PresetLabelMode =
 	/** Full labels ("7 days"), while they fit. */
@@ -15,14 +10,9 @@ export type PresetLabelMode =
 	| 'abbreviated';
 
 /**
- * Longest label form that fits the width available.
- *
- * Falls back to `full` until the measurement is in; a wrong guess corrects on
- * the next frame. The boundary is inclusive.
- *
- * The row is every control, not just the presets: the custom-range trigger and
- * the comparison control share the width, and only the presets have a shorter
- * form to give back.
+ * Longest label form that fits the width available. Falls back to `full`
+ * until measured (a wrong guess corrects next frame; boundary inclusive).
+ * The row is every control, not just presets — only presets have a shorter form.
  */
 export function resolvePresetLabelMode(
 	availableWidth: number | null,

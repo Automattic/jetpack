@@ -70,9 +70,6 @@ function toSubscriberItems(
 }
 
 type SubscribersRosterProps = {
-	/**
-	 * Subscriber rows to render.
-	 */
 	items?: SubscriberListItem[];
 	/**
 	 * Number of subscribers beyond those in `items`. Rows the roster hides to
@@ -82,26 +79,14 @@ type SubscribersRosterProps = {
 };
 
 /**
- * Presentational subscriber roster. The card title ("Latest Subscribers") is
- * rendered by the dashboard host from the widget's `title`, so this body
- * renders the list only; loading, error, and empty are handled by
- * `<WidgetState>` in the data-connected `SubscribersReport`. Takes
- * already-fetched rows via props so Storybook can exercise the populated state
- * without an analytics backend.
- *
- * Renders `<SubscriberList>` directly: an intermediate wrapper has auto height,
- * which stops the roster's percentage height resolving against the tile and
- * disables row fitting.
+ * Presentational subscriber roster; title comes from the widget host, not here.
+ * Renders `<SubscriberList>` directly — an intermediate wrapper breaks row fitting.
  */
 export const SubscribersRoster = ( { items = [], moreCount = 0 }: SubscribersRosterProps ) => (
 	<SubscriberList items={ items } moreCount={ moreCount } />
 );
 
-/**
- * Fetches the latest subscribers through the designated `useStatsFollowers`
- * Stats hook and hands the normalized rows to the presentational roster, with
- * the loading / error / empty states rendered through `<WidgetState>`.
- */
+/** Fetches subscribers via `useStatsFollowers` and renders the roster through `<WidgetState>`. */
 function SubscribersReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsFollowers( {
 		type: 'all',
@@ -120,9 +105,8 @@ function SubscribersReport() {
 		<WidgetState
 			isLoading={ isLoading }
 			isFetching={ isFetching }
-			// The query keeps the prior response via `placeholderData`, so a failed
-			// refetch leaves rows on screen; only surface the error when there is
-			// nothing to show.
+			// `placeholderData` keeps stale rows after a failed refetch; only surface
+			// the error when nothing is on screen.
 			isError={ items.length === 0 && isError }
 			isEmpty={ items.length === 0 }
 			renderLoading={ <SubscriberListSkeleton rows={ WIDGET_ROW_LIMIT } /> }

@@ -1,9 +1,7 @@
 /**
- * Raw `stats/insights` response (pre-sanitizer shape), populated so every widget
- * built on this endpoint renders fully in Storybook: a clear peak day and hour
- * for the Most popular time widget, and more than one year for the Year in
- * review widget (so its year dropdown has a second entry to switch to). The
- * endpoint reports across the whole site lifetime and has no comparison period.
+ * Raw `stats/insights` response (pre-sanitizer shape): a clear peak day/hour
+ * for the Most popular time widget, and 2+ years for the Year in review widget's
+ * dropdown. Reports the whole site lifetime, with no comparison period.
  */
 // Relative to today so the Year in review widget, which defaults to the
 // current year, keeps rendering data after New Year.

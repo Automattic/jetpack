@@ -63,9 +63,8 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-// Raw WPCOM `wordads/stats` matrix shape: two monthly buckets, so the summary
-// totals impressions (2000) and revenue (9.75), and CPM is the weighted average
-// revenue / impressions * 1000 = 4.875.
+// Raw WPCOM `wordads/stats` matrix: two monthly buckets, summing to impressions
+// 2000 / revenue 9.75, with CPM the weighted average 4.875.
 const PRIMARY_RESPONSE = {
 	unit: 'month',
 	fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
@@ -241,10 +240,8 @@ describe( 'WordAdsChartTabsWidget', () => {
 	} );
 
 	/*
-	 * The Ads default layout saves this widget with no attributes, and
-	 * `WidgetRoot` falls back to the URL for a missing `reportParams` — the
-	 * section date state this widget no longer follows. The fallback in
-	 * `render.tsx` must win over the URL.
+	 * The Ads default layout saves this widget with no attributes; `render.tsx`'s
+	 * own fallback must win over WidgetRoot's URL fallback for a missing `reportParams`.
 	 */
 	it( 'ignores the URL range for an instance saved without report params', async () => {
 		setMockRouteSearch( { from: '2020-01-01', to: '2020-01-31', interval: 'month' } );
@@ -256,9 +253,8 @@ describe( 'WordAdsChartTabsWidget', () => {
 		expect( requestedPath ).not.toContain( 'date=2020-01-31' );
 	} );
 
-	// The widget scopes itself with `offersComparison={ false }`, so `WidgetRoot`
-	// strips the comparison params before the chart fetches — stripped params
-	// must mean no second request, not a request with the dates removed.
+	// `offersComparison={ false }` makes `WidgetRoot` strip comparison params before
+	// the fetch — that must mean no second request, not one with the dates removed.
 	it( 'issues one request even when its attributes carry a comparison', async () => {
 		render(
 			<WordAdsChartTabsWidget

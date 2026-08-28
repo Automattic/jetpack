@@ -2,16 +2,9 @@ import { useLayoutEffect, useRef } from 'react';
 import type { Decorator } from '@storybook/react';
 import type { ReactNode } from 'react';
 
-// Frame the widget root like the dashboard host cell for state stories:
-// - `justify-content: safe center` vertically centers a state shorter than the
-//   frame (the `height: 100%` error/empty boxes otherwise cling to the top);
-//   `safe` falls back to top alignment when content is taller, so a full
-//   leaderboard is never clipped at the top.
-//
-// The styles are applied to the widget's own root (the element WidgetRoot marks
-// with `container-name: widget`) rather than via a CSS descendant selector,
-// because Storybook inserts a `display: contents` wrapper of varying depth
-// between the card and the widget that makes positional selectors unreliable.
+// Frames the widget root like the dashboard host cell: `safe center` vertically
+// centers short states without clipping a taller one. Applied to the widget's own
+// root, not a CSS descendant selector, since Storybook's wrapper depth varies.
 function frameWidgetRoot( host: HTMLElement | null ) {
 	if ( ! host ) {
 		return;
@@ -28,9 +21,8 @@ function frameWidgetRoot( host: HTMLElement | null ) {
 	widgetRoot.style.justifyContent = 'safe center';
 }
 
-// A white, widget-sized card that frames a story the way the dashboard host frames a
-// widget in product, so each state (ready / loading / error / empty) reads as a real
-// dashboard widget rather than a bare fragment on the Storybook canvas.
+// A white, widget-sized card that frames a story like the dashboard host frames a
+// widget in product, so every state reads as a real widget, not a bare fragment.
 export function WidgetCanvas( { children }: { children: ReactNode } ) {
 	const hostRef = useRef< HTMLDivElement >( null );
 	useLayoutEffect( () => {

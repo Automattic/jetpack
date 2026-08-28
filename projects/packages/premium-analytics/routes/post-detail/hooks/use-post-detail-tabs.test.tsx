@@ -95,12 +95,8 @@ describe( 'usePostDetailTabs', () => {
 		mockRouteSearch = {};
 	} );
 
-	/*
-	 * The page's no-comparison invariant is declared once by the stage, as a
-	 * report scope, and enforced in `WidgetRoot`. The layout this hook returns
-	 * is the fixed one, carrying no injected report params — see
-	 * `stage.test.tsx` for the scope the widgets actually read.
-	 */
+	// The stage declares the no-comparison invariant once; this layout carries no
+	// injected params (see stage.test.tsx for what widgets actually read).
 	it( 'returns the tab’s fixed layout untouched', () => {
 		mockSearch( 'post-traffic' );
 		mockRouteSearch = {
@@ -202,9 +198,8 @@ describe( 'usePostDetailTabs', () => {
 
 		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
 
-		// The tabs stay hidden (fail closed), but the URL keeps the deep link:
-		// a failed request doesn't tell us whether the post has email stats,
-		// and a later successful refetch can still settle it.
+		// Fail closed: tabs stay hidden, but the URL keeps the deep link since
+		// a later successful refetch can still settle whether email stats exist.
 		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [ 'post-traffic' ] );
 		expect( result.current.activeTab ).toBe( 'post-traffic' );
 		expect( stage ).not.toHaveBeenCalled();

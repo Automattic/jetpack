@@ -46,8 +46,6 @@ function readRowViews( row: Record< string, unknown > ) {
 }
 
 /**
- * Fold a daily `stats/visits` series into one bucket per day of the week.
- *
  * Always seven buckets, so the chart keeps a stable shape; weekdays the range
  * never covered carry `occurrences: 0`.
  */
@@ -80,12 +78,8 @@ export function bucketViewsByWeekday( rows: Record< string, unknown >[] ): Popul
 }
 
 /**
- * The busiest weekday by mean views per occurrence.
- *
- * Mean, not total: a selected range rarely spans a whole number of weeks — over
- * 30 days two weekdays occur five times and five occur four — so a total would
- * let that extra occurrence alone decide the winner.
- * Returns no peak when the entire range received no views.
+ * Mean, not total: a selected range rarely spans a whole number of weeks, so a
+ * total would let one extra occurrence of a weekday decide the winner.
  */
 export function pickPeakWeekday( buckets: PopularDayBucket[] ): PopularDayBucket | undefined {
 	return buckets

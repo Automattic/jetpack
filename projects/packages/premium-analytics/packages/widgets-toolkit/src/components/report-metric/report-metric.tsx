@@ -121,9 +121,8 @@ export function ReportMetricWidget( {
 		[ series, getElementStyles ]
 	);
 
-	// metricKey always refers to a numeric metric field (e.g., "visitors", "orders_no"),
-	// never to date fields (e.g., "date_start"). The summary type includes both for flexibility,
-	// but we know the actual value will be a number at runtime.
+	// metricKey always names a numeric field, never a date field; the summary
+	// type covers both for flexibility, so the cast to number is safe here.
 	const primaryValue = ( primaryData?.summary[ metricKey ] as number ) ?? 0;
 	const comparisonValue = comparisonData?.summary[ metricKey ] as number | undefined;
 
@@ -131,9 +130,8 @@ export function ReportMetricWidget( {
 		<WidgetState
 			isLoading={ isLoading }
 			isFetching={ isFetching }
-			// The report queries keep the previous period's data as placeholders
-			// across range changes, so only surface the error when there is
-			// nothing to show.
+			// The report queries keep placeholders from the previous period across
+			// range changes, so only surface the error when nothing is left to show.
 			isError={ isError && ! hasData }
 			// Empty keys off the time-series row count, not summary values: no rows
 			// means nothing to chart, while rows with an all-zero summary stay ready.

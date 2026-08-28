@@ -49,10 +49,8 @@ describe( 'getReportDefinition', () => {
 	} );
 
 	it( 'hides the downloads report on non-Simple sites', () => {
-		// Calypso only shows file downloads on Simple sites ("not yet supported
-		// in Jetpack environment", which includes Atomic); the route guard
-		// redirects an unavailable report to the dashboard, same as an unknown
-		// one.
+		// Calypso shows file downloads only on Simple sites; an unavailable report
+		// gets the same route-guard redirect as an unknown one.
 		mockIsSimpleSite.mockReturnValue( false );
 
 		expect( getReportDefinition( 'downloads' ) ).toBeUndefined();

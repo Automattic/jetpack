@@ -237,9 +237,8 @@ describe( 'Stats time-series normalizer', () => {
 	} );
 
 	it( 'trims buckets outside a window_start/window_end window and sums only the rest', () => {
-		// The last-24-hours shape: the endpoint anchors hourly buckets on the
-		// start day's midnight, so the payload carries leading buckets before
-		// the window's 09:00 start that must not be plotted or summed.
+		// The last-24-hours shape: hourly buckets are anchored on the start day's
+		// midnight, so leading pre-09:00 buckets arrive and must not be summed.
 		const result = sanitizeStatsEmailTimeSeriesResponse(
 			{
 				timeline: {
@@ -299,9 +298,8 @@ describe( 'Stats time-series normalizer', () => {
 			'2026-06-15 08:00',
 		] );
 
-		// Space-separated datetimes degrade upstream (getDatePart splits on T
-		// only, so the day count is already wrong before the request is sized);
-		// the trim must stay disabled for them rather than half-apply.
+		// Space-separated datetimes already degrade upstream (getDatePart splits on
+		// T only), so the trim must stay off for them rather than half-apply.
 		const spaceSeparated = sanitizeStatsEmailTimeSeriesResponse( timeline, {
 			period: 'hour',
 			window_start: '2026-06-14 09:00:00-04:00',
@@ -351,9 +349,8 @@ describe( 'Stats time-series normalizer', () => {
 		expect( windowed.data ).toHaveLength( 2 );
 		expect( windowed.summary ).toEqual( expect.objectContaining( { opens_count: 8 } ) );
 
-		// A lone bound must not trim, and neither must the generic
-		// start_date/end_date request params — range-bounded endpoints (e.g.
-		// visits) reach this sanitizer with those and must keep every bucket.
+		// Neither a lone bound nor the generic start_date/end_date may trim —
+		// range-bounded endpoints reach this sanitizer carrying those.
 		const oneBound = sanitizeStatsEmailTimeSeriesResponse( timeline, {
 			period: 'day',
 			window_start: '2026-06-16',

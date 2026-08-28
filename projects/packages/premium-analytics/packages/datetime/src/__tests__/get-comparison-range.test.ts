@@ -56,9 +56,8 @@ describe( 'getComparisonRangeFromPreset', () => {
 		} );
 
 		it( 'mirrors the hour-snapped 24-hour preset window one day back', () => {
-			// The `last-24-hours` shape. Shifting by the exclusive span landed `to`
-			// on the reference's own `from`, pulling every hourly comparison bucket
-			// one hour late.
+			// The `last-24-hours` shape: shifting by the exclusive span landed `to` on
+			// the reference's own `from`, pulling hourly buckets one hour late.
 			const last24Hours = {
 				from: new Date( 2026, 7, 17, 15, 0, 0, 0 ),
 				to: new Date( 2026, 7, 18, 14, 59, 59, 999 ),

@@ -82,9 +82,8 @@ export default function WordAdsChartTabs( { attributes = {} }: WordAdsChartTabsW
 	const reportParams = attributes.reportParams ?? DEFAULT_REPORT_PARAMS;
 
 	return (
-		// Scope the widget body before WidgetRoot strips the unsupported
-		// comparison parameters. The header control is host chrome outside this
-		// tree; it takes its scope from the section provider.
+		// Scope the widget body before WidgetRoot strips unsupported comparison params;
+		// the header control is host chrome and takes its scope from the section provider.
 		<ReportScopeProvider offersComparison={ false }>
 			<WidgetRoot attributes={ { ...attributes, reportParams } }>
 				<WordAdsChartTabsInner />

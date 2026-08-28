@@ -28,10 +28,8 @@ type PopularPostRenderAttributes = PopularPostAttributes & Partial< ReportParams
 type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
 
 /**
- * The dashboard's date range picks which post is shown; all three tiles are
- * all-time totals from the Stats post endpoint, so they share one window and
- * need no per-tile aggregation note — the same treatment as `Latest post`,
- * which shares this card.
+ * The dashboard's date range picks which post is shown, but all three tiles are
+ * all-time totals, so none carries a per-tile aggregation note.
  */
 function PopularPostReport() {
 	const { reportParams } = useWidgetRootContext();
