@@ -115,6 +115,26 @@ class WP_Build_Admin_Frame_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The stylesheet caps the wp-admin body box to the viewport on desktop, so a
+	 * tall admin menu cannot stretch the boot layout past it.
+	 */
+	public function test_styles_cap_the_admin_body_to_the_viewport() {
+		ob_start();
+		WP_Build_Admin_Frame::print_styles();
+		$css = ob_get_clean();
+
+		$this->assertStringContainsString( '@media (min-width: 783px) {', $css );
+		$this->assertStringContainsString( 'body:has(.boot-layout--single-page) #wpbody,', $css );
+		$this->assertStringContainsString( 'body:has([class*="__layout-single-page"]) #wpbody {', $css );
+		$this->assertStringContainsString( 'position: sticky;', $css );
+		$this->assertStringContainsString( 'top: var(--wp-admin--admin-bar--height, 32px);', $css );
+		$this->assertStringContainsString(
+			'height: calc(100vh - var(--wp-admin--admin-bar--height, 32px));',
+			$css
+		);
+	}
+
+	/**
 	 * The script samples #adminmenuback into the custom property on the root element.
 	 */
 	public function test_script_samples_the_admin_menu_into_the_custom_property() {
