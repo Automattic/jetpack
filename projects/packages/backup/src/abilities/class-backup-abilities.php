@@ -909,6 +909,11 @@ class Backup_Abilities extends Registrar {
 	 * discarded rather than half-read. The limit is read independently, so a
 	 * site whose usage could not be measured still reports what it is allowed.
 	 *
+	 * That is a deliberate asymmetry with `summarize_schedule()`, which drops
+	 * its whole object on a payload that is not `ok`: there, nothing is left
+	 * to report once the hour is gone. Here, the limit comes from a different
+	 * route and is unaffected by whatever went wrong with `/size`.
+	 *
 	 * @param mixed $size_raw     Upstream `/site/backup/size` payload.
 	 * @param mixed $policies_raw Upstream `/site/backup/policies` payload.
 	 * @return array|null
