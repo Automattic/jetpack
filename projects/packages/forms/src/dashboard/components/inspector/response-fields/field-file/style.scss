@@ -2,6 +2,9 @@
 @use "@wordpress/base-styles/colors";
 
 .jp-forms__inbox-response-field-file {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
 	margin-top: 4px;
 }
 
