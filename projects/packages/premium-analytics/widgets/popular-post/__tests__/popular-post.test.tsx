@@ -157,9 +157,9 @@ describe( 'PopularPostWidget', () => {
 
 		await expect( screen.findByText( 'Winning post' ) ).resolves.toBeInTheDocument();
 
-		// The header's help note is the disclosure; this repeats it on the tile, so
-		// "Views 9,999" under a title naming twelve months carries its own window.
-		expect( screen.getAllByText( 'Total since this post was published.' ) ).toHaveLength( 3 );
+		// Visible, and once for the row: a tooltip would reach neither a touch nor a
+		// keyboard reader, and three copies would be read out on every tile.
+		expect( screen.getByText( 'Totals since this post was published' ) ).toBeInTheDocument();
 	} );
 
 	it( 'links the post to its detail page on the window it ranked over', async () => {

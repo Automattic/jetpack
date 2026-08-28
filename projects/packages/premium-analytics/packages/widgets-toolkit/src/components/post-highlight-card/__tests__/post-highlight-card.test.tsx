@@ -151,6 +151,20 @@ describe( 'PostHighlightCard', () => {
 		expect( screen.getByText( 'All-time total.' ) ).toBeInTheDocument();
 	} );
 
+	// A caveat covering the whole row is visible text, not a tooltip: it has to
+	// reach the touch and keyboard readers `title` never does.
+	it( 'renders a row-level metrics note once, and only when given one', () => {
+		const { rerender } = render( <PostHighlightCard { ...props } /> );
+
+		expect( screen.queryByText( 'All-time totals' ) ).not.toBeInTheDocument();
+
+		rerender( <PostHighlightCard { ...props } metricsNote="All-time totals" /> );
+
+		// Once for the row, rather than repeated onto each of the tiles.
+		expect( screen.getAllByText( 'All-time totals' ) ).toHaveLength( 1 );
+		expect( screen.queryByTitle( 'All-time totals' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'renders the featured image only when one is present', () => {
 		const { rerender } = render( <PostHighlightCard { ...props } /> );
 

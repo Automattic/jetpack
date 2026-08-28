@@ -27,17 +27,13 @@ type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
 
 /**
  * The last 12 months pick which post is shown; all three tiles are all-time
- * totals from the Stats post endpoint, so they share one window. They still
- * carry a note, unlike `Latest post`, which shares this card: that card's title
- * names no period, while this one's names a year the tiles do not measure.
+ * totals from the Stats post endpoint, so they share one window — and one
+ * caveat, carried under the row rather than on each tile. `Latest post` shares
+ * this card and needs none: its title names no period for the tiles to
+ * contradict.
  */
 function PopularPostReport() {
 	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost();
-
-	// The card's title names the last 12 months; the tiles under it are lifetime
-	// totals. The widget header's help note is what discloses that — this repeats
-	// it on the tile, as a hover tooltip and as text for assistive technology.
-	const allTimeNote = __( 'Total since this post was published.', 'jetpack-premium-analytics-pkg' );
 
 	const metrics: PostHighlightCardMetric[] = post
 		? [
@@ -45,19 +41,16 @@ function PopularPostReport() {
 					key: 'views',
 					label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 					value: post.views,
-					note: allTimeNote,
 				},
 				{
 					key: 'likes',
 					label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
 					value: post.likeCount,
-					note: allTimeNote,
 				},
 				{
 					key: 'comments',
 					label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 					value: post.commentCount,
-					note: allTimeNote,
 				},
 		  ]
 		: [];
@@ -100,6 +93,10 @@ function PopularPostReport() {
 					imageUrl={ post.imageUrl }
 					imageAlt={ post.imageAlt }
 					metrics={ metrics }
+					metricsNote={ __(
+						'Totals since this post was published',
+						'jetpack-premium-analytics-pkg'
+					) }
 				/>
 			) }
 		</WidgetState>

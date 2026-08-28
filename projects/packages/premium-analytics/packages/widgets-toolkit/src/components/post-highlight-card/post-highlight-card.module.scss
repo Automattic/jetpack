@@ -138,6 +138,16 @@
 	line-height: var(--wpds-typography-line-height-md);
 }
 
+/* Row-level caveat under the tiles. Never shrinks, for the same reason the
+ * metric row does not: a half-visible caveat is worse than none. */
+.metricsNote {
+	flex-shrink: 0;
+	overflow: hidden;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 /* Featured image. Hidden by default: only the wide modes below show it. */
 .media {
 	display: none;
@@ -199,6 +209,18 @@
 		block-size: auto;
 		max-block-size: none;
 		aspect-ratio: auto;
+	}
+}
+
+/* The metrics caveat gives way first. With it the stack needs 152px of card:
+ * 2 x 24px of title, the 4px header gap, the 20px publish line, the 8px
+ * content gap, the 44px metric row, another 8px gap and its own 20px. Below
+ * that it goes rather than the headline clamping early, because the widget
+ * header's help note carries the same caveat at every size. */
+@container post-highlight (max-height: 150px) {
+
+	.metricsNote {
+		display: none;
 	}
 }
 
