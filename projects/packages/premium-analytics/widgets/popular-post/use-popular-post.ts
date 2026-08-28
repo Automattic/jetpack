@@ -71,10 +71,10 @@ function resolveDefaultRange(): PopularPostRange {
 		preset: POPULAR_POST_DEFAULT_PRESET,
 		from,
 		to,
-		// The interval the detail page resolves for this window anyway. Carrying it
-		// is what keeps the card's link off the post-detail seed redirect, which
-		// fires on any incomplete date window and rebuilds the search from an
-		// allow-list that drops the post URL the link travels with.
+		// Resolved rather than hardcoded so the range is a complete report window:
+		// the params type requires an interval, and the detail page the card links
+		// to would settle on this one anyway. (It reseeds the URL regardless — its
+		// redirect also fires on the missing `post_id`, which a link cannot carry.)
 		interval: resolveIntervalForRange( POPULAR_POST_DEFAULT_PRESET, from, to ),
 	};
 }
@@ -101,9 +101,11 @@ export type UsePopularPostResult = {
  * Defaults to the last 12 months — the period the card's title names — rather
  * than the dashboard's range, which would make that title false the moment the
  * section filter moved. `range` overrides it, for the day the card carries a
- * date control of its own (see the widget rules on widgets that host one).
- * Whatever is passed has to be a window the card's title can honestly claim, so
- * it is that control's range, not the section filter's.
+ * window of its own: `widgets/annual-highlights/` is the shape to copy, a
+ * `relevance: 'high'` attribute the host renders in this widget's frame header,
+ * which is how a card gets its own control in a section that keeps its header
+ * one. Whatever is passed has to be a window the card's title can honestly
+ * claim, so it is that control's range, not the section filter's.
  *
  * Only a ranking failure surfaces as an error; a failing content or metrics
  * request degrades to no image and unknown counts.
@@ -121,9 +123,10 @@ export function usePopularPost( range?: PopularPostRange ): UsePopularPostResult
 	);
 
 	// `interval` rides along because the params type requires it; it describes the
-	// destination's chart, not this request. It cannot reach the API either way —
-	// it is absent from the stats param allow-list, and the query layer buckets a
-	// summarized window by day unless a `period` is forced.
+	// destination's chart, not this request. It cannot reach the API either way:
+	// the param mapper does derive a `period` from it, but the query layer
+	// overwrites that with `day` for any window carrying no explicit `period`, and
+	// `interval` itself is absent from the stats param allow-list and the key.
 	const statsParams = useMemo(
 		() => ( { from, to, interval, max: POPULAR_POST_REQUEST_MAX } ),
 		[ from, to, interval ]

@@ -25,12 +25,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type PopularPostRenderAttributes = PopularPostAttributes & Partial< ReportParamsFieldAttributes >;
 type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
 
-// The card's title names the last 12 months; the tiles under it are lifetime
-// totals. The widget header's help note is what discloses that — this repeats it
-// on the tile itself, as a hover tooltip and as text for assistive technology.
-const ALL_TIME_NOTE = () =>
-	__( 'Total since this post was published.', 'jetpack-premium-analytics-pkg' );
-
 /**
  * The last 12 months pick which post is shown; all three tiles are all-time
  * totals from the Stats post endpoint, so they share one window. They still
@@ -40,25 +34,30 @@ const ALL_TIME_NOTE = () =>
 function PopularPostReport() {
 	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost();
 
+	// The card's title names the last 12 months; the tiles under it are lifetime
+	// totals. The widget header's help note is what discloses that — this repeats
+	// it on the tile, as a hover tooltip and as text for assistive technology.
+	const allTimeNote = __( 'Total since this post was published.', 'jetpack-premium-analytics-pkg' );
+
 	const metrics: PostHighlightCardMetric[] = post
 		? [
 				{
 					key: 'views',
 					label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 					value: post.views,
-					note: ALL_TIME_NOTE(),
+					note: allTimeNote,
 				},
 				{
 					key: 'likes',
 					label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
 					value: post.likeCount,
-					note: ALL_TIME_NOTE(),
+					note: allTimeNote,
 				},
 				{
 					key: 'comments',
 					label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 					value: post.commentCount,
-					note: ALL_TIME_NOTE(),
+					note: allTimeNote,
 				},
 		  ]
 		: [];
@@ -88,10 +87,9 @@ function PopularPostReport() {
 			     which would scope the detail page to a period this card never reported on.
 
 			     Hence not `useWidgetNavigationSearch()`, which exists to carry the host's
-			     window: a widget cannot hand it one of its own. The trade-off is the round
-			     trip — a year surface such as Insights resolves a rolling preset to all
-			     time, so the detail breadcrumb back does not restore the year the reader
-			     left. No param carries the origin window today. */ }
+			     window: a widget cannot hand it one of its own. The breadcrumb back does
+			     not restore the year the reader left, but it never did — it carries no
+			     section either, so it lands on the first one whatever window travels. */ }
 			{ post && (
 				<PostHighlightCard
 					title={ post.title }

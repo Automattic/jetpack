@@ -172,9 +172,10 @@ describe( 'PopularPostWidget', () => {
 		expect( search.get( 'from' ) ).toContain( '2025-08-27T00:00:00' );
 		expect( search.get( 'to' ) ).toContain( '2026-08-26T23:59:59' );
 
-		// A window the detail route accepts as-is. An incomplete one sends it
-		// through the seed redirect, which rebuilds the search from an allow-list
-		// and drops the post URL the link carries.
+		// A complete window, so the detail route reseeds the URL from these params
+		// rather than from its own defaults. (It does reseed either way — its
+		// redirect also fires on the `post_id` a link cannot carry — so what this
+		// pins is the window that survives, not whether the redirect happens.)
 		expect(
 			needsReportDateParamsSeed( {
 				from: search.get( 'from' ) ?? undefined,

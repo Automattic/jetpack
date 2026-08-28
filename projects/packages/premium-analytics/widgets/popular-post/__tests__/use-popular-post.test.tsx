@@ -370,6 +370,32 @@ describe( 'usePopularPost', () => {
 			expect( result.current.range.preset ).toBeUndefined();
 		} );
 
+		it( 'draws the window in the site zone, not at UTC midnight', async () => {
+			// The Stats endpoints resolve these to a local calendar day, so the
+			// offset is load-bearing: with the boundaries computed at UTC instead,
+			// a site in Los Angeles would rank over a window shifted seven hours.
+			setSettings( {
+				...defaultSettings,
+				timezone: {
+					string: 'America/Los_Angeles',
+					offset: -7,
+					offsetFormatted: '-7',
+					abbr: 'PDT',
+				},
+			} );
+			mockEndpoints();
+
+			const { result } = renderHook( () => usePopularPost(), { wrapper } );
+
+			await waitFor( () => expect( result.current.post?.id ).toBe( 7 ) );
+
+			expect( result.current.range.from ).toBe( '2025-08-27T00:00:00.000-07:00' );
+			expect( result.current.range.to ).toBe( '2026-08-26T23:59:59.999-07:00' );
+			expect( decodeURIComponent( topPostsRequestPaths()[ 0 ] ) ).toContain(
+				'start_date=2025-08-27T00:00:00.000-07:00'
+			);
+		} );
+
 		it( 'reports the window it ranked over, for the card to link on', async () => {
 			mockEndpoints();
 
