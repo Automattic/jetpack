@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Verbum Comments: prevent a single comment from being submitted more than once.
