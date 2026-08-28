@@ -805,6 +805,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		$this->invoke_register_modules();
 
 		$module = $this->get_module_data( '@wordpress/widget-primitives' );
+		$this->assertNotNull( $module );
 		$this->assertSame( '9.9.9', $module['version'] );
 	}
 
@@ -830,6 +831,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		$this->invoke_register_modules();
 
 		$module = $this->get_module_data( '@wordpress/widget-primitives' );
+		$this->assertNotNull( $module );
 		$this->assertSame( '1.0.0-gutenberg', $module['version'] );
 	}
 
