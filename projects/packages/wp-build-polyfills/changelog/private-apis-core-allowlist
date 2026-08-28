@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep WordPress 7.0's DataViews on the private-apis polyfill's allowlist, so the block editor loads where the polyfill replaces Core's private-apis.
