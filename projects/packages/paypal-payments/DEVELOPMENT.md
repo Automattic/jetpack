@@ -35,7 +35,7 @@ jp phan     packages/paypal-payments      # Static analysis
 php vendor/bin/phpunit --configuration phpunit.11.xml.dist --filter PayPal_OAuth_Test
 ```
 
-The `wpcom/v2/paypal/onboarding/signup-link` endpoint lives in `plugins/jetpack` and needs a full WordPress environment:
+The `wpcom/v2/paypal/platform/signup-link` endpoint lives in `plugins/jetpack` and needs a full WordPress environment:
 
 ```bash
 jp docker up -d && jp docker install

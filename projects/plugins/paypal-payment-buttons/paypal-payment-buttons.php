@@ -43,7 +43,7 @@ define( 'PAYPAL_PAYMENT_BUTTONS_FOLDER', dirname( plugin_basename( __FILE__ ) ) 
 /*
  * The Connection package builds WordPress.com API URLs from this constant, and the
  * Jetpack plugin is what normally defines it. Onboarding proxies through
- * wpcom/v2/paypal/onboarding/signup-link, so without it the request URL has no host
+ * wpcom/v2/paypal/platform/signup-link, so without it the request URL has no host
  * and signing fails.
  */
 defined( 'JETPACK__WPCOM_JSON_API_BASE' ) || define( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );

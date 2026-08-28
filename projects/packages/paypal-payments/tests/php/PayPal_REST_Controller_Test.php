@@ -931,6 +931,25 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * The site must never proxy to a route it serves itself.
+	 *
+	 * The Jetpack plugin registers wpcom/v2/paypal/platform/signup-link for the
+	 * privileged Partner Referrals call and also ships this package, so both run in
+	 * the same WordPress. If WPCOM_SIGNUP_LINK_ROUTE ever points back at a path this
+	 * controller registers, one route ends up with two owners and generate_signup_link()
+	 * asks WordPress.com for the route it is currently answering.
+	 */
+	public function test_the_wpcom_platform_route_is_not_one_this_controller_serves() {
+		$routes = $this->register_paypal_routes();
+
+		$this->assertArrayNotHasKey(
+			'/wpcom/v2' . PayPal_Partner_Onboarding::WPCOM_SIGNUP_LINK_ROUTE,
+			$routes,
+			'The WordPress.com platform route collides with a route this controller registers.'
+		);
+	}
+
+	/**
 	 * The single-button routes capture a PLB- resource ID and reject anything else.
 	 */
 	public function test_single_button_route_pattern_matches_only_plb_ids() {

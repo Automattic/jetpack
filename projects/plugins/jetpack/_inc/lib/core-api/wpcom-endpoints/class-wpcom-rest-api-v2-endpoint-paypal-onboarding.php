@@ -89,7 +89,14 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	 */
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'paypal/onboarding';
+
+		/*
+		 * 'paypal/platform', not 'paypal/onboarding': the package registers the
+		 * editor-facing wpcom/v2/paypal/onboarding/signup-link on every host that
+		 * runs it, including this one. Sharing the path would mean two classes
+		 * claiming one route, and the site proxying to itself.
+		 */
+		$this->rest_base = 'paypal/platform';
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
