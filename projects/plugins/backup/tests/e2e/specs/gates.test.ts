@@ -3,8 +3,9 @@ import { expect, test } from '@automattic/_jetpack-e2e-commons/fixtures/base-tes
 /**
  * Comma-separated rewind capabilities `e2e-backup-test-helper.php` answers
  * `/sites/{id}/rewind/capabilities` with. Nothing else fakes this endpoint:
- * `setMockPlanData()` intercepts `/sites/{id}` and `/sites/{id}/wordads/status`
- * only, and `<Gates>` never reads the site's Jetpack plan.
+ * `e2e-plan-helper.php`, which `setMockPlanData()` drives, intercepts
+ * `/sites/{id}` and `/sites/{id}/wordads/status` and nothing else — and
+ * `<Gates>` never reads the site's Jetpack plan anyway.
  */
 const CAPABILITIES_OPTION = 'e2e_backup_capabilities';
 
