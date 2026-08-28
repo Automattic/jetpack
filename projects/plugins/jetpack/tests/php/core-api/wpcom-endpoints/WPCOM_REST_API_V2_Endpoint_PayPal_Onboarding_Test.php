@@ -8,6 +8,7 @@
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
+use Automattic\Jetpack\Constants;
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test
@@ -37,7 +38,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends Jetpack_REST_Tes
 	 * Tear down.
 	 */
 	public function tear_down() {
-		delete_option( WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding::PLATFORM_CREDENTIALS_OPTION );
+		Constants::clear_constants();
 		remove_all_filters( 'pre_http_request' );
 
 		parent::tear_down();
@@ -67,24 +68,44 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends Jetpack_REST_Tes
 	 * Store platform credentials for both environments.
 	 */
 	private function store_platform_credentials() {
-		update_option(
-			WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding::PLATFORM_CREDENTIALS_OPTION,
-			wp_json_encode(
-				array(
-					'sandbox'    => array(
-						'client_id'           => 'sandbox_platform_id',
-						'client_secret'       => 'sandbox_platform_secret',
-						'partner_merchant_id' => 'SANDBOX_PARTNER',
-					),
-					'production' => array(
-						'client_id'           => 'production_platform_id',
-						'client_secret'       => 'production_platform_secret',
-						'partner_merchant_id' => 'PRODUCTION_PARTNER',
-					),
-				),
-				JSON_UNESCAPED_SLASHES
-			)
+		$this->set_platform_credentials(
+			'sandbox',
+			'sandbox_platform_id',
+			'sandbox_platform_secret',
+			'SANDBOX_PARTNER'
 		);
+		$this->set_platform_credentials(
+			'production',
+			'production_platform_id',
+			'production_platform_secret',
+			'PRODUCTION_PARTNER'
+		);
+	}
+
+	/**
+	 * Define the platform credential constants for one environment.
+	 *
+	 * Uses the Constants package rather than define(), so a test can leave a value
+	 * unset -- a real constant could never be cleared again for the tests that follow.
+	 *
+	 * @param string      $environment         'sandbox' or 'production'.
+	 * @param string|null $client_id           Client ID, or null to leave undefined.
+	 * @param string|null $client_secret       Client secret, or null to leave undefined.
+	 * @param string|null $partner_merchant_id Partner merchant ID, or null to leave undefined.
+	 */
+	private function set_platform_credentials( $environment, $client_id = null, $client_secret = null, $partner_merchant_id = null ) {
+		$names  = WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding::PLATFORM_CREDENTIAL_CONSTANTS[ $environment ];
+		$values = array(
+			'client_id'           => $client_id,
+			'client_secret'       => $client_secret,
+			'partner_merchant_id' => $partner_merchant_id,
+		);
+
+		foreach ( $values as $key => $value ) {
+			if ( null !== $value ) {
+				Constants::set_constant( $names[ $key ], $value );
+			}
+		}
 	}
 
 	/**
@@ -177,18 +198,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends Jetpack_REST_Tes
 	 * Test that credentials configured for one environment do not satisfy the other.
 	 */
 	public function test_credentials_for_other_environment_are_rejected() {
-		update_option(
-			WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding::PLATFORM_CREDENTIALS_OPTION,
-			wp_json_encode(
-				array(
-					'sandbox' => array(
-						'client_id'     => 'sandbox_platform_id',
-						'client_secret' => 'sandbox_platform_secret',
-					),
-				),
-				JSON_UNESCAPED_SLASHES
-			)
-		);
+		$this->set_platform_credentials( 'sandbox', 'sandbox_platform_id', 'sandbox_platform_secret' );
 
 		$result = $this->endpoint->generate_signup_link( $this->signup_link_request( 'production' ) );
 
@@ -198,18 +208,11 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends Jetpack_REST_Tes
 	}
 
 	/**
-	 * Test that credentials stored as an array, not a JSON string, are also accepted.
+	 * Test that a signup link is still generated when only the client credentials
+	 * are configured, with no partner merchant ID.
 	 */
-	public function test_credentials_stored_as_array_are_accepted() {
-		update_option(
-			WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding::PLATFORM_CREDENTIALS_OPTION,
-			array(
-				'sandbox' => array(
-					'client_id'     => 'sandbox_platform_id',
-					'client_secret' => 'sandbox_platform_secret',
-				),
-			)
-		);
+	public function test_signup_link_is_generated_without_a_partner_merchant_id() {
+		$this->set_platform_credentials( 'sandbox', 'sandbox_platform_id', 'sandbox_platform_secret' );
 		$this->mock_http_routes(
 			array(
 				'/v1/oauth2/token'               => $this->token_response(),
@@ -310,15 +313,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends Jetpack_REST_Tes
 	 * Test that a missing partner merchant ID degrades to an empty string.
 	 */
 	public function test_partner_merchant_id_defaults_to_empty_string() {
-		update_option(
-			WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding::PLATFORM_CREDENTIALS_OPTION,
-			array(
-				'sandbox' => array(
-					'client_id'     => 'sandbox_platform_id',
-					'client_secret' => 'sandbox_platform_secret',
-				),
-			)
-		);
+		$this->set_platform_credentials( 'sandbox', 'sandbox_platform_id', 'sandbox_platform_secret' );
 		$this->mock_http_routes(
 			array(
 				'/v1/oauth2/token'               => $this->token_response(),
