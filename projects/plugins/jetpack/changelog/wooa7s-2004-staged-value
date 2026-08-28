@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Premium Analytics: Offer the chart intervals allowed by the date range being edited, not the applied one.

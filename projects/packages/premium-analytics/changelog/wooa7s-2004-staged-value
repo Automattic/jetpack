@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: changed
 
-Charts: Offer the intervals allowed by the date range being edited, not the applied one.
+Date filters: share one staged-value controller between the URL-backed and widget-backed surfaces, and resolve the chart interval against the same range on both.
