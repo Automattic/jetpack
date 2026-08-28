@@ -351,6 +351,16 @@ function fixPeerDeps( pkg ) {
 		}
 	}
 
+	// @wordpress/build's optional peer on @wordpress/theme stops below 2.0.0, blocking the theme 2.x
+	// that @wordpress/ui and @wordpress/boot require. Widened upstream, drop once a release carries it.
+	// @see https://github.com/WordPress/gutenberg/pull/82139
+	if (
+		pkg.name === '@wordpress/build' &&
+		pkg.peerDependencies?.[ '@wordpress/theme' ] === '>=0.8.0 <2.0.0'
+	) {
+		pkg.peerDependencies[ '@wordpress/theme' ] = '>=0.8.0 <3.0.0';
+	}
+
 	// We use this under tsdown (Rolldown), not Rollup. The `rollup` peer is only used for one TypeScript type, and it being missing apparently makes no difference in our usage.
 	// @see https://github.com/mjeanroy/rollup-plugin-license/issues/2110
 	if ( pkg.name === 'rollup-plugin-license' ) {
