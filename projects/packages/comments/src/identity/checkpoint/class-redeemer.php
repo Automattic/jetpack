@@ -11,8 +11,9 @@ use Automattic\Jetpack\Connection\Client;
 
 /**
  * Redeems a one-time code against the exchange endpoint, server to server, signed
- * with the site's Jetpack blog token. No browser and no cookie are involved in
- * the call itself.
+ * with the site's Jetpack blog token. Runs as the comment posts, not when the
+ * popup closes; WordPress.com keeps a code for an hour to cover that. No browser
+ * and no cookie are involved in the call itself.
  */
 class Redeemer {
 
@@ -20,7 +21,8 @@ class Redeemer {
 	 * Redeem a code for the identity it holds.
 	 *
 	 * @param string $code The one-time code from WordPress.com.
-	 * @return array|\WP_Error The identity on success, or a WP_Error mirroring the exchange's failure.
+	 * @return array|\WP_Error The identity (site_commenter_id, provider, name, email, avatar, expires_at),
+	 *                         or a WP_Error mirroring the exchange's failure.
 	 */
 	public static function redeem( $code ) {
 		if ( ! is_string( $code ) || ! preg_match( '/^[0-9a-f]{64}$/', $code ) ) {
@@ -55,17 +57,17 @@ class Redeemer {
 			return new \WP_Error( $slug, __( 'WordPress.com could not sign you in.', 'jetpack-comments' ), array( 'status' => $status > 0 ? $status : 502 ) );
 		}
 
-		if ( ! is_array( $body ) || empty( $body['sub'] ) || empty( $body['provider'] ) ) {
+		if ( ! is_array( $body ) || empty( $body['site_commenter_id'] ) || empty( $body['provider'] ) ) {
 			return new \WP_Error( 'exchange_malformed', __( 'WordPress.com returned an unexpected response.', 'jetpack-comments' ), array( 'status' => 502 ) );
 		}
 
 		return array(
-			'sub'        => (string) $body['sub'],
-			'provider'   => (string) $body['provider'],
-			'name'       => isset( $body['name'] ) ? (string) $body['name'] : '',
-			'email'      => isset( $body['email'] ) ? (string) $body['email'] : '',
-			'avatar'     => isset( $body['avatar'] ) ? (string) $body['avatar'] : '',
-			'expires_at' => isset( $body['expires_at'] ) ? (int) $body['expires_at'] : 0,
+			'site_commenter_id' => (string) $body['site_commenter_id'],
+			'provider'          => (string) $body['provider'],
+			'name'              => isset( $body['name'] ) ? (string) $body['name'] : '',
+			'email'             => isset( $body['email'] ) ? (string) $body['email'] : '',
+			'avatar'            => isset( $body['avatar'] ) ? (string) $body['avatar'] : '',
+			'expires_at'        => isset( $body['expires_at'] ) ? (int) $body['expires_at'] : 0,
 		);
 	}
 }

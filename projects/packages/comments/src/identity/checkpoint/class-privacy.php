@@ -104,7 +104,7 @@ class Privacy {
 		$comments      = self::comments_for( $email_address, (int) $page );
 		$items_removed = false;
 
-		$keys = array( Checkpoint::META_SUB, Checkpoint::META_PROVIDER, Checkpoint::META_AVATAR );
+		$keys = array( Checkpoint::META_SITE_COMMENTER_ID, Checkpoint::META_PROVIDER, Checkpoint::META_AVATAR );
 
 		foreach ( $comments as $comment ) {
 			foreach ( $keys as $key ) {
@@ -155,11 +155,11 @@ class Privacy {
 	private static function fields_for( $comment_id ) {
 		$fields = array();
 
-		$sub = get_comment_meta( $comment_id, Checkpoint::META_SUB, true );
-		if ( is_string( $sub ) && '' !== $sub ) {
+		$id = get_comment_meta( $comment_id, Checkpoint::META_SITE_COMMENTER_ID, true );
+		if ( is_string( $id ) && '' !== $id ) {
 			$fields[] = array(
 				'name'  => __( 'Identifier', 'jetpack-comments' ),
-				'value' => $sub,
+				'value' => $id,
 			);
 		}
 

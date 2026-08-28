@@ -26,8 +26,14 @@ type ButtonsProps = {
 };
 
 /**
+ * Outcomes the reader chose, so nothing to apologise for.
+ */
+const SILENT = [ 'cancelled', 'access_denied' ];
+
+/**
  * connect() sets the page-global identity on success, so onClick only handles
- * failure. The spinner and error line are local; a cancelled attempt is silent.
+ * failure. The spinner and error line are local; an attempt the reader
+ * abandoned or declined is silent.
  *
  * @param props            - Component props.
  * @param props.providers  - The providers to offer.
@@ -46,7 +52,7 @@ const Buttons = ( { providers, disclosure }: ButtonsProps ) => {
 		try {
 			await connect( provider.id );
 		} catch ( error ) {
-			if ( ( error as Error ).message !== 'cancelled' ) {
+			if ( ! SILENT.includes( ( error as Error ).message ) ) {
 				setFailed( true );
 			}
 		} finally {

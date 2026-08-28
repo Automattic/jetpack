@@ -1,25 +1,44 @@
 import { identityUser, isConnecting } from '../../shared/identity';
-import type { CurrentUser, CheckpointSettings } from '../../shared/types';
+import { attribution, dropCode, holdCode } from './code';
+import type { CheckpointSettings } from '../../shared/types';
 
 /**
  * The comment identity checkpoint, browser side.
  *
- * A provider button opens a popup to WordPress.com's connect endpoint, which
- * sends it back to a same-origin landing page with a one-time code in the URL
- * fragment. The landing broadcasts { state, code } back here; this window, which
- * issued the state, checks it and trades the code for the identity server to
- * server. The code and the identity never travel together, and no access token
- * reaches the page. When the popup is blocked, a top-level redirect takes over
- * and the landing redeems and returns the reader itself.
+ * A provider button opens a popup, then asks this site to sign a connect
+ * request as the blog and points the popup at the signed URL. The popup opens
+ * on the click itself, before the signing round trip, or the browser would
+ * block it. When the provider is done, WordPress.com hands its result to this
+ * window with window.opener.postMessage: { type, code, challenge, name, avatar }
+ * on success, or { type, error, challenge } on failure. This window checks the
+ * sender's origin, the message type and the challenge the site issued, then
+ * holds the code and shows the attribution. The code goes to the server with
+ * the comment, and the server exchanges it then. No email and no durable
+ * identifier cross the browser, and no token reaches the page.
+ *
+ * There is no other path. When the popup is blocked, or COOP leaves it with no
+ * opener, WordPress.com stops on a "you can close this window" page and nothing
+ * is held, the same as the existing Verbum connect flow.
  */
 
-export type RedeemedIdentity = {
-	provider: string;
-	name: string;
-	avatar: string;
-};
-
 type Checkpoint = Extract< CheckpointSettings, { enabled: true } >;
+
+/**
+ * The type WordPress.com stamps on its result message. A filter, not a
+ * boundary: the origin check is the boundary.
+ */
+const MESSAGE_TYPE = 'jetpack-comment-identity';
+
+/**
+ * How often to check whether the popup has been closed on us.
+ */
+const CLOSED_POLL_MS = 500;
+
+/**
+ * A safety net for a popup left open and forgotten; a provider login with a
+ * password reset in it can take a while, so this is generous.
+ */
+const ATTEMPT_TIMEOUT_MS = 10 * 60 * 1000;
 
 /**
  * The checkpoint settings, narrowed to the enabled shape.
@@ -31,66 +50,26 @@ function enabledCheckpoint(): Checkpoint | null {
 }
 
 /**
- * A fresh state value, comfortably over the connect endpoint's 32-char floor.
+ * Call one of the site's checkpoint routes. Failures surface as the thrown
+ * message, the WP_Error code where there is one.
  *
- * @return A 48-character hex string.
+ * @param checkpoint - The enabled checkpoint settings.
+ * @param url        - The route.
+ * @param method     - The HTTP method.
+ * @param body       - The JSON body, for POST.
+ * @return The decoded response.
  */
-function randomState(): string {
-	const bytes = new Uint8Array( 24 );
-	crypto.getRandomValues( bytes );
-	return Array.from( bytes, byte => byte.toString( 16 ).padStart( 2, '0' ) ).join( '' );
-}
-
-/**
- * Build the connect URL for one attempt.
- *
- * @param checkpoint  - The enabled checkpoint settings.
- * @param provider    - The provider slug.
- * @param state       - The state this window issued.
- * @param redirectUri - The landing URL to return to.
- * @return The absolute connect URL.
- */
-function connectUrl(
+async function call< T >(
 	checkpoint: Checkpoint,
-	provider: string,
-	state: string,
-	redirectUri: string
-): string {
-	const url = new URL( checkpoint.connectUrl );
-	url.searchParams.set( 'blog_id', String( checkpoint.blogId ) );
-	url.searchParams.set( 'provider', provider );
-	url.searchParams.set( 'state', state );
-	url.searchParams.set( 'redirect_uri', redirectUri );
-	return url.toString();
-}
-
-/**
- * The landing URL for a given close mode.
- *
- * @param checkpoint - The enabled checkpoint settings.
- * @param mode       - Either 'popup' or 'redirect'.
- * @return The landing URL with its mode set.
- */
-function landingUrl( checkpoint: Checkpoint, mode: string ): string {
-	const url = new URL( checkpoint.landingUrl );
-	url.searchParams.set( 'mode', mode );
-	return url.toString();
-}
-
-/**
- * Trade a one-time code for the identity, server to server. Failures surface as
- * the thrown message; nothing retries, which blog_mismatch and code_used need.
- *
- * @param checkpoint - The enabled checkpoint settings.
- * @param code       - The one-time code.
- * @return The identity the form renders.
- */
-async function redeem( checkpoint: Checkpoint, code: string ): Promise< RedeemedIdentity > {
-	const response = await fetch( checkpoint.redeemUrl, {
-		method: 'POST',
+	url: string,
+	method: 'POST' | 'DELETE',
+	body?: object
+): Promise< T > {
+	const response = await fetch( url, {
+		method,
 		credentials: 'same-origin',
 		headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': checkpoint.nonce },
-		body: JSON.stringify( { code } ),
+		body: body ? JSON.stringify( body ) : undefined,
 	} );
 
 	if ( ! response.ok ) {
@@ -107,33 +86,11 @@ async function redeem( checkpoint: Checkpoint, code: string ): Promise< Redeemed
 }
 
 /**
- * The page-global attribution: the avatar and a "Commenting as …" label, never
- * the email or the sub, which stay in the cookie.
- *
- * @param checkpoint - The enabled checkpoint settings.
- * @param result     - The redeemed identity.
- * @return The attribution to show.
- */
-function attribution( checkpoint: Checkpoint, result: RedeemedIdentity ): CurrentUser {
-	const providerLabel = checkpoint.providers.find( p => p.id === result.provider )?.label;
-
-	return {
-		avatarUrl: result.avatar,
-		commentingAs: JetpackComments.strings.commentingAs.replace(
-			'%s',
-			result.name || providerLabel || result.provider
-		),
-		isPassport: true,
-	};
-}
-
-/**
- * Sign in with a provider. On success the page-global identity is set here, so
- * callers only handle failure. Never resolves when the popup was blocked and a
- * top-level redirect took over.
+ * Sign in with a provider. On success the code is held and the page-global
+ * identity set here, so callers only handle failure.
  *
  * @param provider - The provider slug, one of the offered set.
- * @return Resolves once the identity is set.
+ * @return Resolves once the code is held.
  */
 export function connect( provider: string ): Promise< void > {
 	const checkpoint = enabledCheckpoint();
@@ -144,62 +101,45 @@ export function connect( provider: string ): Promise< void > {
 			return;
 		}
 
-		const state = randomState();
-		const popup = window.open(
-			connectUrl( checkpoint, provider, state, landingUrl( checkpoint, 'popup' ) ),
-			'jetpack-comment-identity',
-			'width=780,height=700'
-		);
+		// Blank first, on the click itself, then pointed at the signed URL once
+		// the site returns it. Opening after the round trip would be blocked.
+		const popup = window.open( '', 'jetpack-comment-identity', 'width=780,height=700' );
 
-		if ( ! popup || popup.closed || typeof popup.closed === 'undefined' ) {
-			// Popup blocked: a top-level redirect finishes at the landing, which reads
-			// these back to check state and return here.
-			try {
-				sessionStorage.setItem( 'jetpack-comment-identity-state', state );
-				sessionStorage.setItem( 'jetpack-comment-identity-return', window.location.href );
-			} catch {
-				// Without storage the landing cannot check state, so it returns home.
-			}
-			window.location.assign(
-				connectUrl( checkpoint, provider, state, landingUrl( checkpoint, 'redirect' ) )
-			);
+		if ( ! popup ) {
+			reject( new Error( 'popup_blocked' ) );
 			return;
 		}
 
 		isConnecting.value = true;
-
-		const channel = new BroadcastChannel( checkpoint.channel );
 		let settled = false;
+		let challenge = '';
 
 		const fail = ( slug: string ) => {
 			isConnecting.value = false;
 			reject( new Error( slug ) );
 		};
 
-		const onWindowRefocused = () => {
-			// Grace so a result landing as the popup closes still wins.
+		const timer = setTimeout( () => {
+			if ( ! settled ) {
+				cleanup();
+				fail( 'timeout' );
+			}
+		}, ATTEMPT_TIMEOUT_MS );
+
+		// The popup closing without a result is a cancel. Grace so a result posted
+		// just before the close still wins.
+		const poll = setInterval( () => {
+			if ( ! popup.closed ) {
+				return;
+			}
+			clearInterval( poll );
 			setTimeout( () => {
 				if ( ! settled ) {
 					cleanup();
 					fail( 'cancelled' );
 				}
 			}, 1000 );
-		};
-
-		const onPopupFocused = () => {
-			window.addEventListener( 'focus', onWindowRefocused, { once: true } );
-		};
-
-		// Five minutes, matching WordPress.com's code-record lifetime.
-		const timer = setTimeout(
-			() => {
-				if ( ! settled ) {
-					cleanup();
-					fail( 'timeout' );
-				}
-			},
-			5 * 60 * 1000
-		);
+		}, CLOSED_POLL_MS );
 
 		/**
 		 * Stop listening and cancel the timers for this attempt.
@@ -207,43 +147,86 @@ export function connect( provider: string ): Promise< void > {
 		function cleanup() {
 			settled = true;
 			clearTimeout( timer );
-			channel.close();
-			window.removeEventListener( 'blur', onPopupFocused );
-			window.removeEventListener( 'focus', onWindowRefocused );
+			clearInterval( poll );
+			window.removeEventListener( 'message', onMessage );
 		}
 
-		channel.addEventListener( 'message', event => {
+		/**
+		 * Take a result from the popup. Origin first, then type, then challenge;
+		 * nothing in the payload is read until all three hold.
+		 *
+		 * @param event - The message event.
+		 */
+		function onMessage( event: MessageEvent ) {
+			if ( event.origin !== checkpoint.connectOrigin ) {
+				return;
+			}
+
 			const data = event.data;
-			if ( ! data || data.type !== checkpoint.channel || data.state !== state ) {
+			if ( ! data || data.type !== MESSAGE_TYPE ) {
+				return;
+			}
+
+			if ( '' === challenge || data.challenge !== challenge ) {
 				return;
 			}
 
 			cleanup();
 
 			if ( data.error ) {
-				fail( data.error );
-			} else if ( ! data.code ) {
-				fail( 'invalid_request' );
-			} else {
-				redeem( checkpoint, data.code ).then(
-					result => {
-						identityUser.value = attribution( checkpoint, result );
-						isConnecting.value = false;
-						resolve();
-					},
-					error => fail( ( error as Error ).message )
-				);
+				fail( String( data.error ) );
+				return;
 			}
-		} );
 
-		window.addEventListener( 'blur', onPopupFocused, { once: true } );
+			if ( typeof data.code !== 'string' || ! /^[0-9a-f]{64}$/.test( data.code ) ) {
+				fail( 'invalid_request' );
+				return;
+			}
+
+			const held = {
+				code: data.code,
+				provider,
+				name: typeof data.name === 'string' ? data.name : '',
+				avatar: typeof data.avatar === 'string' ? data.avatar : '',
+			};
+
+			holdCode( held );
+			identityUser.value = attribution( held );
+			isConnecting.value = false;
+			resolve();
+		}
+
+		window.addEventListener( 'message', onMessage );
+
+		// The site issues the challenge and signs it into the URL; the origin is
+		// this window's, verbatim, which WordPress.com posts the result back to.
+		call< { url: string; challenge: string } >( checkpoint, checkpoint.signUrl, 'POST', {
+			provider,
+			origin: window.location.origin,
+		} ).then(
+			signed => {
+				if ( settled ) {
+					return;
+				}
+				challenge = signed.challenge;
+				popup.location.href = signed.url;
+			},
+			error => {
+				if ( ! settled ) {
+					cleanup();
+					popup.close();
+					fail( ( error as Error ).message );
+				}
+			}
+		);
 	} );
 }
 
 /**
- * Clear the site's cookie and drop the page-global identity.
+ * Clear the site's Passport cookie, drop any held code, and drop the
+ * page-global identity.
  *
- * @return Whether the cookie was cleared.
+ * @return Whether the identity was cleared.
  */
 export async function disconnect(): Promise< boolean > {
 	const checkpoint = enabledCheckpoint();
@@ -252,18 +235,13 @@ export async function disconnect(): Promise< boolean > {
 	}
 
 	try {
-		const response = await fetch( checkpoint.logoutUrl, {
-			method: 'DELETE',
-			credentials: 'same-origin',
-			headers: { 'X-WP-Nonce': checkpoint.nonce },
-		} );
-
-		if ( response.ok ) {
-			identityUser.value = null;
-		}
-
-		return response.ok;
+		await call( checkpoint, checkpoint.logoutUrl, 'DELETE' );
 	} catch {
 		return false;
 	}
+
+	dropCode();
+	identityUser.value = null;
+
+	return true;
 }

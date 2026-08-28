@@ -1,6 +1,9 @@
 import { render } from 'preact';
 import { useContext, useEffect, useRef } from 'preact/hooks';
 import { CommentingAs, Identity } from '../identity';
+import { dropCode, heldCode, markCodeSpent, needsFreshCode } from '../identity/checkpoint/code';
+import { connect } from '../identity/checkpoint/connect';
+import { identityUser } from '../shared/identity';
 import { CommentSignals, createSignals } from '../shared/state';
 import { CommentField } from './comment-field';
 import { markSubmitted, resolveSubmitted, saveDraft } from './draft';
@@ -54,8 +57,25 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 	}, [ formSettings, commentValue.value ] );
 
 	useEffect( () => {
-		const onSubmit = () => {
+		const onSubmit = ( event: Event ) => {
 			if ( isSubmitting.current ) {
+				return;
+			}
+
+			// A code that a submit already carried, or one about to lapse, would be
+			// turned away. Replace it first, off this click so the popup is allowed;
+			// WordPress.com's own cookie makes that instant. Then submit again.
+			const held = heldCode.peek();
+			if ( held && needsFreshCode( held ) ) {
+				event.preventDefault();
+				connect( held.provider ).then(
+					() => form.requestSubmit(),
+					() => {
+						// Back to the guest form; the draft is still there.
+						dropCode();
+						identityUser.value = null;
+					}
+				);
 				return;
 			}
 
@@ -64,6 +84,7 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 			// Kept, not cleared: the server can still turn this away.
 			saveDraft( formSettings.postId, commentValue.peek() );
 			markSubmitted( formSettings.postId );
+			markCodeSpent();
 		};
 
 		const onPageShow = ( event: PageTransitionEvent ) => {

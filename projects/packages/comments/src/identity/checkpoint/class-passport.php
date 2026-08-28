@@ -39,29 +39,29 @@ class Passport {
 		$identity = json_decode( (string) base64_decode( strtr( $payload, '-_', '+/' ) ), true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- decoding a signed payload, not obfuscating.
 
 		if ( ! is_array( $identity )
-			|| ! isset( $identity['sub'] )
+			|| ! isset( $identity['site_commenter_id'] )
 			|| ! isset( $identity['provider'] )
 			|| ! isset( $identity['exp'] )
 			|| ! in_array( $identity['provider'], Checkpoint::PROVIDERS, true )
-			|| ! is_string( $identity['sub'] ) || '' === $identity['sub']
+			|| ! is_string( $identity['site_commenter_id'] ) || '' === $identity['site_commenter_id']
 			|| time() >= (int) $identity['exp'] ) {
 			return false;
 		}
 
 		return array(
-			'sub'      => (string) $identity['sub'],
-			'provider' => (string) $identity['provider'],
-			'name'     => isset( $identity['name'] ) ? (string) $identity['name'] : '',
-			'email'    => isset( $identity['email'] ) ? (string) $identity['email'] : '',
-			'avatar'   => isset( $identity['avatar'] ) ? (string) $identity['avatar'] : '',
-			'exp'      => (int) $identity['exp'],
+			'site_commenter_id' => (string) $identity['site_commenter_id'],
+			'provider'          => (string) $identity['provider'],
+			'name'              => isset( $identity['name'] ) ? (string) $identity['name'] : '',
+			'email'             => isset( $identity['email'] ) ? (string) $identity['email'] : '',
+			'avatar'            => isset( $identity['avatar'] ) ? (string) $identity['avatar'] : '',
+			'exp'               => (int) $identity['exp'],
 		);
 	}
 
 	/**
 	 * Write the identity cookie: HttpOnly, Secure, SameSite=Lax.
 	 *
-	 * @param array $identity   The redeemed identity: sub, provider, name, email, avatar.
+	 * @param array $identity   The redeemed identity: site_commenter_id, provider, name, email, avatar.
 	 * @param int   $expires_at The exchange's expiry. The 30-day cap is the retention limit; don't raise it without a privacy review.
 	 * @return void
 	 */
@@ -73,12 +73,12 @@ class Passport {
 		}
 
 		$stored = array(
-			'sub'      => (string) $identity['sub'],
-			'provider' => (string) $identity['provider'],
-			'name'     => isset( $identity['name'] ) ? (string) $identity['name'] : '',
-			'email'    => isset( $identity['email'] ) ? (string) $identity['email'] : '',
-			'avatar'   => isset( $identity['avatar'] ) ? (string) $identity['avatar'] : '',
-			'exp'      => $expires_at,
+			'site_commenter_id' => (string) $identity['site_commenter_id'],
+			'provider'          => (string) $identity['provider'],
+			'name'              => isset( $identity['name'] ) ? (string) $identity['name'] : '',
+			'email'             => isset( $identity['email'] ) ? (string) $identity['email'] : '',
+			'avatar'            => isset( $identity['avatar'] ) ? (string) $identity['avatar'] : '',
+			'exp'               => $expires_at,
 		);
 
 		$payload = rtrim( strtr( base64_encode( (string) wp_json_encode( $stored, JSON_UNESCAPED_SLASHES ) ), '+/', '-_' ), '=' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- encoding a signed payload, not obfuscating.
