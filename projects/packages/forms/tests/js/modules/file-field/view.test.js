@@ -23,6 +23,7 @@ describe( 'File Field View', () => {
 	let mockElement;
 	let storeConfig;
 	let storeConfigs;
+	let storeReturns;
 	let mockUpdateField;
 	let mockTrackFirstInteraction;
 	let state;
@@ -38,6 +39,7 @@ describe( 'File Field View', () => {
 					<input type="file" class="jetpack-form-file-field" />
 				</div>
 				<div class="jetpack-form-file-field__preview-wrap"></div>
+				<p class="jetpack-form-file-field__notice" role="status"></p>
 			</div>
 		`;
 
@@ -52,6 +54,7 @@ describe( 'File Field View', () => {
 			},
 			files: [],
 			isDropping: false,
+			fileNotice: '',
 		};
 
 		mockElement = {
@@ -83,6 +86,7 @@ describe( 'File Field View', () => {
 					fileTooLarge: 'File is too large.',
 					invalidType: 'This file type is not allowed.',
 					maxFiles: 'Too many files.',
+					folderNotSupported: 'Folder uploads are not supported',
 					uploadFailed: 'File upload failed, try again.',
 				},
 			};
@@ -106,10 +110,14 @@ describe( 'File Field View', () => {
 
 		// The module registers twice: the real store under `jetpack/form`, then a back-compat alias
 		// under the old `jetpack/field-file` namespace. Keep them apart so tests can address either.
+		// `storeReturns` holds what the module itself destructured, so assigning over one of its
+		// actions is the only way a test can intercept an internal call: the module closed over this
+		// object, not over `storeConfigs`.
 		storeConfigs = {};
+		storeReturns = {};
 		mockStore.mockImplementation( ( namespace, config ) => {
 			storeConfigs[ namespace ] = config;
-			return {
+			storeReturns[ namespace ] = {
 				state: config.state,
 				actions: {
 					...config.actions,
@@ -118,6 +126,7 @@ describe( 'File Field View', () => {
 				},
 				callbacks: config.callbacks,
 			};
+			return storeReturns[ namespace ];
 		} );
 
 		await import( '../../../../src/modules/file-field/view.js' );
@@ -169,6 +178,40 @@ describe( 'File Field View', () => {
 		while ( ! step.done ) {
 			step = generator.next( await step.value );
 		}
+	};
+
+	/**
+	 * A minimal XMLHttpRequest double that lets a test drive readystatechange.
+	 *
+	 * @return {object} The fake request and its captured listeners.
+	 */
+	const installFakeXhr = () => {
+		const listeners = {};
+		const xhr = {
+			readyState: 4,
+			status: 200,
+			responseText: JSON.stringify( {
+				success: true,
+				data: { file_id: 'server-1', name: 'doc.pdf', size: 10, type: 'application/pdf' },
+			} ),
+			open: jest.fn(),
+			send: jest.fn(),
+			/*
+			 * A real abort() drives the request to readyState 4 with status 0 and fires
+			 * readystatechange synchronously. Stubbing that away left the abort path — which is how
+			 * every removal and every reset settles an in-flight upload — completely unexercised.
+			 */
+			abort: jest.fn( () => {
+				xhr.status = 0;
+				listeners.readystatechange?.( { target: xhr } );
+			} ),
+			upload: { addEventListener: jest.fn() },
+			addEventListener: jest.fn( ( name, cb ) => {
+				listeners[ name ] = cb;
+			} ),
+		};
+		jest.spyOn( global, 'XMLHttpRequest' ).mockImplementation( () => xhr );
+		return { xhr, listeners };
 	};
 
 	describe( 'Store registration', () => {
@@ -252,6 +295,21 @@ describe( 'File Field View', () => {
 			mockContext.files = [ { id: '1' } ];
 			expect( state.isFileFieldFull ).toBe( true );
 		} );
+
+		test( 'isFileFieldFull counts a file that failed validation', () => {
+			// Errored entries have to hold their place. If they did not, picking a disallowed file
+			// over and over would add an unbounded number of previews, every one of which blocks
+			// submission through validators.file — the pile-up this batch work exists to end. The
+			// visitor clears a rejected file with its own × button.
+			mockContext.files = [ { id: '1', error: 'This file type is not allowed.' } ];
+			expect( state.isFileFieldFull ).toBe( true );
+		} );
+
+		test( 'hasFileFieldNotice follows the field-level notice', () => {
+			expect( state.hasFileFieldNotice ).toBe( false );
+			mockContext.fileNotice = 'Too many files.';
+			expect( state.hasFileFieldNotice ).toBe( true );
+		} );
 	} );
 
 	describe( 'Adding files', () => {
@@ -284,6 +342,20 @@ describe( 'File Field View', () => {
 			} );
 		} );
 
+		test( 'reports the type when a file is both oversized and of a disallowed type', () => {
+			// No smaller version of that file would be accepted either, so the type is the more
+			// useful of the two to report. The original code got this order by accident, with the
+			// type assignment overwriting the size one; pinning it here keeps a later reshuffle of
+			// the two checks from quietly swapping the message.
+			storeConfig.actions.fileAdded( {
+				target: {
+					files: [ makeFile( { name: 'huge.exe', type: 'application/x-msdownload', size: 2048 } ) ],
+				},
+			} );
+
+			expect( mockContext.files[ 0 ].error ).toBe( 'This file type is not allowed.' );
+		} );
+
 		test( 'rejects a file over the configured max upload size', () => {
 			storeConfig.actions.fileAdded( { target: { files: [ makeFile( { size: 2048 } ) ] } } );
 
@@ -293,15 +365,154 @@ describe( 'File Field View', () => {
 			} );
 		} );
 
-		test( 'rejects a file beyond maxFiles', () => {
+		test( 'declines a file beyond maxFiles instead of giving it an error preview', () => {
+			// An over-limit file used to be added with the "too many files" message on its own
+			// preview, which `validators.file` then reported as `invalid_file_has_errors` — so the
+			// form could not be submitted until the visitor dismissed a file they never chose to add.
 			mockContext.files = [ { id: 'existing', error: null } ];
 
 			storeConfig.actions.fileAdded( { target: { files: [ makeFile() ] } } );
 
-			expect( mockContext.files[ 1 ] ).toMatchObject( {
-				hasError: true,
-				error: 'Too many files.',
+			expect( mockContext.files ).toHaveLength( 1 );
+			expect( mockContext.fileNotice ).toBe( 'Too many files.' );
+		} );
+
+		test( 'takes a batch up to the limit and declines only the overflow', () => {
+			mockContext.fieldExtra.maxFiles = 2;
+
+			storeConfig.actions.fileAdded( {
+				target: {
+					files: [
+						makeFile( { name: 'a.pdf' } ),
+						makeFile( { name: 'b.pdf' } ),
+						makeFile( { name: 'c.pdf' } ),
+					],
+				},
 			} );
+
+			expect( mockContext.files.map( file => file.name ) ).toEqual( [ 'a.pdf', 'b.pdf' ] );
+			expect( mockContext.files.every( file => ! file.error ) ).toBe( true );
+			expect( mockContext.fileNotice ).toBe( 'Too many files.' );
+		} );
+
+		test( 'says nothing when the whole batch fits', () => {
+			mockContext.fieldExtra.maxFiles = 2;
+
+			storeConfig.actions.fileAdded( {
+				target: { files: [ makeFile( { name: 'a.pdf' } ), makeFile( { name: 'b.pdf' } ) ] },
+			} );
+
+			expect( mockContext.fileNotice ).toBe( '' );
+		} );
+
+		test( 'a file rejected for its type holds a place until a usable file replaces it', () => {
+			// Picking one bad and one good file at once on a single-file field is ordinary. The bad
+			// one takes the only slot, then the good one displaces it — rather than the visitor being
+			// told they have too many files while looking at exactly one.
+			storeConfig.actions.fileAdded( {
+				target: {
+					files: [
+						makeFile( { name: 'evil.exe', type: 'application/x-msdownload' } ),
+						makeFile( { name: 'good.pdf' } ),
+					],
+				},
+			} );
+
+			expect( mockContext.files ).toHaveLength( 1 );
+			expect( mockContext.files[ 0 ] ).toMatchObject( { name: 'good.pdf', error: null } );
+			expect( mockContext.fileNotice ).toBe( '' );
+		} );
+
+		test( 'a rejected file left on its own is replaced by the next usable one', () => {
+			// The dropzone is hidden while the field is full, but the container still takes drops, so
+			// this is how a visitor supplies the replacement they are being asked for.
+			storeConfig.actions.fileAdded( {
+				target: { files: [ makeFile( { name: 'evil.exe', type: 'application/x-msdownload' } ) ] },
+			} );
+			expect( mockContext.files[ 0 ] ).toMatchObject( { hasError: true } );
+
+			storeConfig.actions.fileAdded( { target: { files: [ makeFile( { name: 'good.pdf' } ) ] } } );
+
+			expect( mockContext.files ).toHaveLength( 1 );
+			expect( mockContext.files[ 0 ] ).toMatchObject( { name: 'good.pdf', error: null } );
+			expect( mockContext.fileNotice ).toBe( '' );
+		} );
+
+		test( 'a successfully uploaded file is never displaced', () => {
+			// Eviction is only ever a rejected file making way; a file the visitor uploaded stays.
+			mockContext.files = [ { id: 'kept', name: 'kept.pdf', error: null } ];
+
+			storeConfig.actions.fileAdded( { target: { files: [ makeFile( { name: 'new.pdf' } ) ] } } );
+
+			expect( mockContext.files ).toHaveLength( 1 );
+			expect( mockContext.files[ 0 ] ).toMatchObject( { name: 'kept.pdf' } );
+			expect( mockContext.fileNotice ).toBe( 'Too many files.' );
+		} );
+
+		test( 'a batch of nothing but invalid files cannot exceed the limit', () => {
+			// The regression this guards: the capacity check used to sit inside `if ( ! error )`, so
+			// every invalid file was admitted unconditionally. Six of them on a one-file field left
+			// six previews, each reporting invalid_file_has_errors, all to be dismissed by hand.
+			storeConfig.actions.fileAdded( {
+				target: {
+					files: Array.from( { length: 6 }, ( _, index ) =>
+						makeFile( { name: `bad-${ index }.exe`, type: 'application/x-msdownload' } )
+					),
+				},
+			} );
+
+			expect( mockContext.files ).toHaveLength( 1 );
+			expect( state.isFileFieldFull ).toBe( true );
+		} );
+
+		test( 'repeated picks of a disallowed file do not accumulate', () => {
+			for ( let attempt = 0; attempt < 4; attempt++ ) {
+				storeConfig.actions.fileAdded( {
+					target: {
+						files: [ makeFile( { name: 'evil.exe', type: 'application/x-msdownload' } ) ],
+					},
+				} );
+			}
+
+			expect( mockContext.files ).toHaveLength( 1 );
+		} );
+
+		test( 'clears a stale notice when a later batch fits', () => {
+			mockContext.fieldExtra.maxFiles = 2;
+			mockContext.fileNotice = 'Too many files.';
+
+			storeConfig.actions.fileAdded( { target: { files: [ makeFile() ] } } );
+
+			expect( mockContext.fileNotice ).toBe( '' );
+		} );
+
+		test( 'reports the whole batch to the form once rather than once per file', () => {
+			mockContext.fieldExtra.maxFiles = 3;
+
+			storeConfig.actions.fileAdded( {
+				target: { files: [ makeFile(), makeFile(), makeFile() ] },
+			} );
+
+			expect( mockUpdateField ).toHaveBeenCalledTimes( 1 );
+			expect( mockUpdateField.mock.calls[ 0 ][ 1 ] ).toHaveLength( 3 );
+		} );
+
+		test( 'clears a stale overflow notice once a file is removed', () => {
+			mockContext.files = [ { id: 'existing', error: null } ];
+			storeConfig.actions.fileAdded( { target: { files: [ makeFile() ] } } );
+			expect( mockContext.fileNotice ).toBe( 'Too many files.' );
+
+			removeFile( 'existing' );
+
+			expect( mockContext.fileNotice ).toBe( '' );
+		} );
+
+		test( 'clears the notice on reset', () => {
+			mockContext.fileNotice = 'Too many files.';
+
+			storeConfig.actions.resetFiles();
+
+			expect( mockContext.fileNotice ).toBe( '' );
 		} );
 
 		test( 'pushes the value through the shared updateField action', () => {
@@ -378,7 +589,7 @@ describe( 'File Field View', () => {
 				dataTransfer: { items },
 			} );
 
-		test( 'a dropped directory is skipped', () => {
+		test( 'a dropped directory is skipped, and says so', () => {
 			mockContext.isDropping = true;
 
 			drop( [ dropItem( { isDirectory: true, file: { name: 'folder', type: '', size: 0 } } ) ] );
@@ -386,6 +597,28 @@ describe( 'File Field View', () => {
 			expect( mockContext.files ).toHaveLength( 0 );
 			// Bailing out of the loop used to skip this, stranding the dropzone in drag-hover.
 			expect( mockContext.isDropping ).toBe( false );
+			// Ignoring it in silence leaves the visitor waiting for an upload that will never start.
+			expect( mockContext.fileNotice ).toBe( 'Folder uploads are not supported' );
+		} );
+
+		test( 'a folder dropped after an overflow does not inherit the overflow message', () => {
+			mockContext.fileNotice = 'Too many files.';
+
+			drop( [ dropItem( { isDirectory: true, file: { name: 'folder', type: '', size: 0 } } ) ] );
+
+			expect( mockContext.fileNotice ).toBe( 'Folder uploads are not supported' );
+		} );
+
+		test( 'a drop of only unresolvable items leaves the field alone', () => {
+			// getAsFile() can return null even for a `file` item. Pushing that null made the batch
+			// look non-empty, which cleared a legitimate notice and re-nominated a focus target for
+			// a batch that would mount nothing.
+			mockContext.fileNotice = 'Too many files.';
+
+			drop( [ dropItem( { file: null } ) ] );
+
+			expect( mockContext.files ).toHaveLength( 0 );
+			expect( mockContext.fileNotice ).toBe( 'Too many files.' );
 		} );
 
 		test( 'a directory does not discard the rest of a mixed drop', () => {
@@ -413,6 +646,79 @@ describe( 'File Field View', () => {
 
 			expect( mockContext.files ).toHaveLength( 1 );
 			expect( mockContext.isDropping ).toBe( false );
+		} );
+	} );
+
+	describe( 'Declining without a notice element', () => {
+		test( 'markup with no notice element gets one errored preview rather than silence', () => {
+			// Pages cached before the notice element existed are served against this bundle — the
+			// window the back-compat shim covers. There is nowhere to render fileNotice there, and
+			// declining silently would make the visitor's files simply disappear.
+			document.querySelector( '.jetpack-form-file-field__notice' ).remove();
+			mockContext.files = [ { id: 'existing', error: null } ];
+
+			storeConfig.actions.fileAdded( {
+				target: {
+					files: [
+						{ name: 'a.pdf', type: 'application/pdf', size: 10 },
+						{ name: 'b.pdf', type: 'application/pdf', size: 10 },
+						{ name: 'c.pdf', type: 'application/pdf', size: 10 },
+					],
+				},
+			} );
+
+			// One entry carrying the message, not one per declined file.
+			expect( mockContext.files ).toHaveLength( 2 );
+			expect( mockContext.files[ 1 ] ).toMatchObject( {
+				hasError: true,
+				error: 'Too many files.',
+			} );
+		} );
+
+		test( 'further overflow drops do not keep appending fallback entries', () => {
+			// Unguarded, this reopened the very pile-up the batch work exists to end — one more
+			// unsubmittable entry per drop, for as long as the visitor keeps trying.
+			document.querySelector( '.jetpack-form-file-field__notice' ).remove();
+			mockContext.files = [ { id: 'existing', error: null } ];
+
+			for ( let drop = 0; drop < 4; drop++ ) {
+				storeConfig.actions.fileAdded( {
+					target: {
+						files: [
+							{ name: 'a.pdf', type: 'application/pdf', size: 10 },
+							{ name: 'b.pdf', type: 'application/pdf', size: 10 },
+						],
+					},
+				} );
+			}
+
+			expect( mockContext.files ).toHaveLength( 2 );
+		} );
+
+		test( 'the stand-in is replaceable once it is the only entry left', () => {
+			// While the field is over its limit the stand-in must hold — evicting it would hand back
+			// a slot the field never had. Once the real file is gone it is an ordinary occupant, and
+			// protecting it there wedges the field: it cannot be evicted, no further stand-in is added
+			// because one is present, and every later drop does nothing at all.
+			document.querySelector( '.jetpack-form-file-field__notice' ).remove();
+			mockContext.files = [ { id: 'existing', error: null } ];
+
+			storeConfig.actions.fileAdded( {
+				target: {
+					files: [ { name: 'declined.pdf', type: 'application/pdf', size: 10 } ],
+				},
+			} );
+			expect( mockContext.files ).toHaveLength( 2 );
+
+			removeFile( 'existing' );
+			expect( mockContext.files ).toHaveLength( 1 );
+
+			storeConfig.actions.fileAdded( {
+				target: { files: [ { name: 'wanted.pdf', type: 'application/pdf', size: 10 } ] },
+			} );
+
+			expect( mockContext.files ).toHaveLength( 1 );
+			expect( mockContext.files[ 0 ] ).toMatchObject( { name: 'wanted.pdf', error: null } );
 		} );
 	} );
 
@@ -489,32 +795,6 @@ describe( 'File Field View', () => {
 	} );
 
 	describe( 'Upload lifecycle', () => {
-		/**
-		 * A minimal XMLHttpRequest double that lets a test drive readystatechange.
-		 *
-		 * @return {object} The fake request and its captured listeners.
-		 */
-		const installFakeXhr = () => {
-			const listeners = {};
-			const xhr = {
-				readyState: 4,
-				status: 200,
-				responseText: JSON.stringify( {
-					success: true,
-					data: { file_id: 'server-1', name: 'doc.pdf', size: 10, type: 'application/pdf' },
-				} ),
-				open: jest.fn(),
-				send: jest.fn(),
-				abort: jest.fn(),
-				upload: { addEventListener: jest.fn() },
-				addEventListener: jest.fn( ( name, cb ) => {
-					listeners[ name ] = cb;
-				} ),
-			};
-			jest.spyOn( global, 'XMLHttpRequest' ).mockImplementation( () => xhr );
-			return { xhr, listeners };
-		};
-
 		test( 'a settled request marks the file uploaded and drops its abort controller', async () => {
 			mockTokenFetch();
 			const { xhr, listeners } = installFakeXhr();
@@ -579,6 +859,318 @@ describe( 'File Field View', () => {
 
 			expect( global.URL.revokeObjectURL ).toHaveBeenCalledWith( 'blob:mock' );
 			expect( mockContext.files ).toEqual( [] );
+		} );
+	} );
+
+	describe( 'Upload queue', () => {
+		/**
+		 * Intercept uploads so a test can see which files started, and settle them by hand.
+		 *
+		 * Assigns over the action on the object the module destructured, which is the only handle a
+		 * test has on an internal call. The real implementation still runs, so the generator can be
+		 * driven to the point where it has sent.
+		 *
+		 * @return {Array} The uploads that have started, in order, appended to as more start.
+		 */
+		const interceptUploads = () => {
+			const realUploadFile = storeConfig.actions.uploadFile;
+			const started = [];
+
+			storeReturns[ 'jetpack/form' ].actions.uploadFile = ( file, clientFileId ) => {
+				const generator = realUploadFile( file, clientFileId );
+				started.push( { clientFileId, generator } );
+				return generator;
+			};
+
+			return started;
+		};
+
+		/**
+		 * Offer the field a batch of acceptable files through the picker.
+		 *
+		 * @param {number} count - How many files to add.
+		 */
+		const addPdfFiles = count => {
+			storeConfig.actions.fileAdded( {
+				target: {
+					files: Array.from( { length: count }, ( _, index ) => ( {
+						name: `file-${ index }.pdf`,
+						type: 'application/pdf',
+						size: 10,
+					} ) ),
+				},
+			} );
+		};
+
+		test( 'starts at most three uploads at once and holds the rest back', () => {
+			// Every added file used to open its own request immediately, so a ten-file batch put ten
+			// uploads on the wire at once — each starved of bandwidth, and the batch as a whole
+			// finishing later than if they had gone in turn.
+			mockContext.fieldExtra.maxFiles = 5;
+			const started = interceptUploads();
+
+			addPdfFiles( 5 );
+
+			expect( started ).toHaveLength( 3 );
+			expect( mockContext.files ).toHaveLength( 5 );
+		} );
+
+		test( 'starts the next queued upload when a running one is removed', () => {
+			mockContext.fieldExtra.maxFiles = 5;
+			const started = interceptUploads();
+			addPdfFiles( 5 );
+
+			removeFile( mockContext.files[ 0 ].id );
+
+			expect( started ).toHaveLength( 4 );
+			// The fourth file added, which is now third in the list the removal left behind.
+			expect( started[ 3 ].clientFileId ).toBe( mockContext.files[ 2 ].id );
+		} );
+
+		test( 'a file removed while queued never starts', () => {
+			// Nothing else takes a waiting file off the queue: it has no AbortController yet, so the
+			// abort path in releaseFile() has nothing to cancel.
+			mockContext.fieldExtra.maxFiles = 5;
+			const started = interceptUploads();
+			addPdfFiles( 5 );
+			const queuedId = mockContext.files[ 4 ].id;
+
+			removeFile( queuedId );
+			expect( started ).toHaveLength( 3 );
+
+			// Freeing a running slot now reaches past it to the file still waiting.
+			removeFile( mockContext.files[ 0 ].id );
+
+			expect( started ).toHaveLength( 4 );
+			expect( started.map( entry => entry.clientFileId ) ).not.toContain( queuedId );
+		} );
+
+		test( 'a settled request frees the slot for the next queued upload', async () => {
+			mockContext.fieldExtra.maxFiles = 5;
+			mockTokenFetch();
+			const { xhr, listeners } = installFakeXhr();
+			const started = interceptUploads();
+
+			addPdfFiles( 5 );
+			expect( started ).toHaveLength( 3 );
+
+			await drainGenerator( started[ 0 ].generator );
+			listeners.readystatechange( { target: xhr } );
+
+			expect( started ).toHaveLength( 4 );
+		} );
+
+		test( 'an upload abandoned because its file is already gone frees its slot', async () => {
+			// uploadFile() bails after the token resolves if the file has been removed meanwhile. That
+			// exit registers no AbortController and settles no request, so nothing else would report
+			// the slot as free and the queue would run one short for the rest of the page.
+			mockContext.fieldExtra.maxFiles = 5;
+			mockTokenFetch();
+			installFakeXhr();
+			const started = interceptUploads();
+
+			addPdfFiles( 5 );
+			const abandoned = started[ 0 ];
+
+			// Drop the entry directly, so the upload is orphaned without releaseFile() freeing it.
+			mockContext.files = mockContext.files.filter( file => file.id !== abandoned.clientFileId );
+
+			await drainGenerator( abandoned.generator );
+
+			expect( started ).toHaveLength( 4 );
+		} );
+	} );
+
+	describe( 'Upload queue resilience', () => {
+		const interceptUploads = () => {
+			const realUploadFile = storeConfig.actions.uploadFile;
+			const started = [];
+
+			storeReturns[ 'jetpack/form' ].actions.uploadFile = ( file, clientFileId ) => {
+				const generator = realUploadFile( file, clientFileId );
+				started.push( { clientFileId, generator } );
+				return generator;
+			};
+
+			return started;
+		};
+
+		const addPdfFiles = count => {
+			storeConfig.actions.fileAdded( {
+				target: {
+					files: Array.from( { length: count }, ( _, index ) => ( {
+						name: `file-${ index }.pdf`,
+						type: 'application/pdf',
+						size: 10,
+					} ) ),
+				},
+			} );
+		};
+
+		test( 'an aborted upload frees its slot exactly once', async () => {
+			// An abort settles the request, so finishUpload runs from both releaseFile and the
+			// readystatechange the abort fires. Freeing the slot twice would let the queue run over
+			// the limit — which is the entire reason finishUpload is written to be idempotent.
+			mockContext.fieldExtra.maxFiles = 6;
+			mockTokenFetch();
+			installFakeXhr();
+			const started = interceptUploads();
+
+			addPdfFiles( 6 );
+			await drainGenerator( started[ 0 ].generator );
+
+			removeFile( mockContext.files[ 0 ].id );
+
+			// Exactly one slot freed, so exactly one queued upload started.
+			expect( started ).toHaveLength( 4 );
+		} );
+
+		test( 'a stalled upload gives its slot back instead of holding it for the life of the page', async () => {
+			// Without this the queue is one slot smaller for good; three stalls stop uploads on every
+			// file field on the page, showing nothing but previews stuck on "Uploading…".
+			jest.useFakeTimers();
+			mockContext.fieldExtra.maxFiles = 6;
+			mockTokenFetch();
+			installFakeXhr();
+			const started = interceptUploads();
+
+			addPdfFiles( 6 );
+			await drainGenerator( started[ 0 ].generator );
+			expect( started ).toHaveLength( 3 );
+
+			// No progress event ever arrives.
+			jest.advanceTimersByTime( 60 * 1000 );
+
+			expect( started ).toHaveLength( 4 );
+			expect( mockContext.files[ 0 ] ).toMatchObject( { hasError: true } );
+			jest.useRealTimers();
+		} );
+
+		test( 'progress keeps a slow upload alive', async () => {
+			// A 20MB file on a slow connection legitimately takes minutes; only silence means hung.
+			jest.useFakeTimers();
+			mockTokenFetch();
+			const { xhr } = installFakeXhr();
+			const started = interceptUploads();
+
+			addPdfFiles( 1 );
+			await drainGenerator( started[ 0 ].generator );
+
+			const onProgress = xhr.upload.addEventListener.mock.calls[ 0 ][ 1 ];
+
+			for ( let tick = 0; tick < 5; tick++ ) {
+				jest.advanceTimersByTime( 45 * 1000 );
+				onProgress( { loaded: tick + 1, total: 100 } );
+			}
+
+			expect( mockContext.files[ 0 ].hasError ).toBeFalsy();
+			expect( xhr.abort ).not.toHaveBeenCalled();
+			jest.useRealTimers();
+		} );
+
+		test( 'a throw while starting the request does not leak the slot', async () => {
+			mockContext.fieldExtra.maxFiles = 6;
+			mockTokenFetch();
+			const { xhr } = installFakeXhr();
+			xhr.send.mockImplementation( () => {
+				throw new Error( 'send failed' );
+			} );
+			const started = interceptUploads();
+
+			addPdfFiles( 6 );
+			await drainGenerator( started[ 0 ].generator );
+
+			expect( mockContext.files[ 0 ] ).toMatchObject( { hasError: true } );
+			// The slot came back, so a queued file took it.
+			expect( started ).toHaveLength( 4 );
+		} );
+
+		test( 'a 200 carrying a body that is not JSON is reported as a failed upload', async () => {
+			// A WAF interstitial or a PHP fatal can answer 200 with HTML. Letting SyntaxError out of
+			// the handler left the file on "Uploading…" forever, which blocks submission for good.
+			mockTokenFetch();
+			const { xhr, listeners } = installFakeXhr();
+			xhr.responseText = '<html>Blocked</html>';
+			const started = interceptUploads();
+
+			addPdfFiles( 1 );
+			await drainGenerator( started[ 0 ].generator );
+
+			expect( () => listeners.readystatechange( { target: xhr } ) ).not.toThrow();
+			expect( mockContext.files[ 0 ] ).toMatchObject( {
+				hasError: true,
+				error: 'File upload failed, try again.',
+			} );
+		} );
+
+		test( 'resetting clears queued uploads so a later batch is not blocked behind them', async () => {
+			mockContext.fieldExtra.maxFiles = 6;
+			mockTokenFetch();
+			installFakeXhr();
+			const started = interceptUploads();
+
+			addPdfFiles( 6 );
+			expect( started ).toHaveLength( 3 );
+
+			storeConfig.actions.resetFiles();
+			started.length = 0;
+
+			addPdfFiles( 6 );
+
+			// Three again — not fewer, which is what stale entries or unfreed slots would produce.
+			expect( started ).toHaveLength( 3 );
+		} );
+
+		test( 'resetting re-validates, so an abort-time error does not outlive the files', async () => {
+			// releaseFile aborts each upload, the abort settles as status 0, and that path records
+			// invalid_file_has_errors against the field. Without a final updateField the files are
+			// gone but the error is not: the form asks the visitor to clear file errors from a field
+			// showing no files.
+			mockTokenFetch();
+			installFakeXhr();
+			const started = interceptUploads();
+
+			addPdfFiles( 1 );
+			await drainGenerator( started[ 0 ].generator );
+
+			mockUpdateField.mockClear();
+			storeConfig.actions.resetFiles();
+
+			const lastCall = mockUpdateField.mock.calls[ mockUpdateField.mock.calls.length - 1 ];
+			expect( lastCall[ 1 ] ).toEqual( [] );
+		} );
+
+		test( 'slots are shared between file fields rather than served strictly in arrival order', () => {
+			// The queue is page-wide, so a visitor who fills one field before reaching the next would
+			// otherwise leave the second field's file waiting behind the whole of the first field's
+			// batch — and a preview at 0% looks broken, not queued.
+			const fieldA = mockContext;
+			fieldA.fieldExtra.maxFiles = 6;
+			const started = interceptUploads();
+
+			addPdfFiles( 6 );
+			expect( started ).toHaveLength( 3 );
+
+			// A second field on the same page. Reassigning is enough: the getContext mock reads this
+			// variable at call time. withScope is a pass-through here, so this covers slot sharing,
+			// not the scope binding enqueueUpload captures.
+			mockContext = {
+				fieldId: 'second-file-field',
+				fieldType: 'file',
+				fieldExtra: { maxFiles: 1, allowedMimeTypes: ALLOWED_MIME_TYPES },
+				files: [],
+				isDropping: false,
+				fileNotice: '',
+			};
+
+			addPdfFiles( 1 );
+
+			// Field A releases one slot; it goes to the field with nothing running, not to A's queue.
+			const queuedForB = mockContext.files[ 0 ].id;
+			mockContext = fieldA;
+			removeFile( fieldA.files[ 0 ].id );
+
+			expect( started[ started.length - 1 ].clientFileId ).toBe( queuedForB );
 		} );
 	} );
 
@@ -729,9 +1321,10 @@ describe( 'File Field View', () => {
 		/**
 		 * Mount a preview inside the dropzone container and run the init callback against it.
 		 *
+		 * @param {string} fileId - The client file ID the preview is rendering.
 		 * @return {{preview: HTMLElement, dropzone: HTMLElement, cleanup: Function}} The nodes and the effect cleanup the callback returned.
 		 */
-		const mountPreview = () => {
+		const mountPreview = fileId => {
 			const container = document.querySelector( '.jetpack-form-file-field__container' );
 			const preview = document.createElement( 'div' );
 			preview.className = 'jetpack-form-file-field__preview';
@@ -742,14 +1335,38 @@ describe( 'File Field View', () => {
 			jest.spyOn( preview, 'focus' );
 			jest.spyOn( dropzone, 'focus' );
 
+			// Inside data-wp-each--file the context carries the entry the preview is rendering, which
+			// is how the callback knows whether this is the file the batch nominated for focus.
+			mockContext.file = { id: fileId };
 			mockGetElement.mockReturnValue( { ref: preview } );
 
 			return { preview, dropzone, cleanup: storeConfig.callbacks.focusFilePreview() };
 		};
 
+		/**
+		 * Add files through the real picker path and return the resulting entries.
+		 *
+		 * @param {number} count - How many files to add.
+		 * @return {Array} The entries now in the context.
+		 */
+		const addFiles = count => {
+			storeConfig.actions.fileAdded( {
+				target: {
+					files: Array.from( { length: count }, ( _, index ) => ( {
+						name: `focus-${ index }.pdf`,
+						type: 'application/pdf',
+						size: 10,
+					} ) ),
+				},
+			} );
+
+			return mockContext.files;
+		};
+
 		test( 'focuses the new preview on mount', () => {
 			jest.useFakeTimers();
-			const { preview, dropzone } = mountPreview();
+			const [ added ] = addFiles( 1 );
+			const { preview, dropzone } = mountPreview( added.id );
 
 			jest.runAllTimers();
 
@@ -758,12 +1375,33 @@ describe( 'File Field View', () => {
 			jest.useRealTimers();
 		} );
 
+		test( 'a preview that was not nominated never takes focus, whatever mounts first', () => {
+			// A shared boolean latch could only say "nothing has claimed focus yet", so whichever
+			// preview mounted first consumed it — including one left over from an earlier batch, or
+			// one belonging to another file field entirely.
+			jest.useFakeTimers();
+			const [ first ] = addFiles( 1 );
+			const stale = mountPreview( 'some-other-file' );
+
+			jest.runAllTimers();
+
+			expect( stale.preview.focus ).not.toHaveBeenCalled();
+
+			// The nominated preview still gets focus when it does mount.
+			const nominated = mountPreview( first.id );
+			jest.runAllTimers();
+
+			expect( nominated.preview.focus ).toHaveBeenCalledWith( { focusVisible: true } );
+			jest.useRealTimers();
+		} );
+
 		test( 'returns a cleanup that hands focus back to the dropzone on removal', () => {
 			// `data-wp-init` resolves the callback without invoking it, calls it once, and passes
 			// the return value to useEffect as teardown — so returning a function here is how focus
 			// is restored when the file is removed, not a bug.
 			jest.useFakeTimers();
-			const { preview, dropzone, cleanup } = mountPreview();
+			const [ added ] = addFiles( 1 );
+			const { preview, dropzone, cleanup } = mountPreview( added.id );
 			jest.runAllTimers();
 
 			expect( typeof cleanup ).toBe( 'function' );
@@ -776,9 +1414,81 @@ describe( 'File Field View', () => {
 			jest.useRealTimers();
 		} );
 
+		test( 'only the first file of a batch takes focus', () => {
+			// data-wp-init runs once per rendered preview, so a batch used to race one 100ms timer per
+			// file against the same deadline and focus whichever happened to fire last.
+			jest.useFakeTimers();
+			mockContext.fieldExtra.maxFiles = 3;
+			const [ first, second ] = addFiles( 2 );
+
+			const firstPreview = mountPreview( first.id );
+			const secondPreview = mountPreview( second.id );
+
+			jest.runAllTimers();
+
+			expect( firstPreview.preview.focus ).toHaveBeenCalledWith( { focusVisible: true } );
+			expect( secondPreview.preview.focus ).not.toHaveBeenCalled();
+			jest.useRealTimers();
+		} );
+
+		test( 'previews mounting in any order still give focus to the nominated file', () => {
+			// The runtime batches renders, so mount order follows the DOM rather than the order the
+			// files were added. Naming the file rather than raising a flag is what makes that safe.
+			jest.useFakeTimers();
+			mockContext.fieldExtra.maxFiles = 3;
+			const [ first, second ] = addFiles( 2 );
+
+			const secondPreview = mountPreview( second.id );
+			const firstPreview = mountPreview( first.id );
+
+			jest.runAllTimers();
+
+			expect( secondPreview.preview.focus ).not.toHaveBeenCalled();
+			expect( firstPreview.preview.focus ).toHaveBeenCalledWith( { focusVisible: true } );
+			jest.useRealTimers();
+		} );
+
+		test( 'a later single add takes focus again', () => {
+			jest.useFakeTimers();
+			mockContext.fieldExtra.maxFiles = 3;
+
+			const [ first ] = addFiles( 1 );
+			mountPreview( first.id );
+
+			const added = addFiles( 1 );
+			const second = mountPreview( added[ added.length - 1 ].id );
+
+			jest.runAllTimers();
+
+			expect( second.preview.focus ).toHaveBeenCalledWith( { focusVisible: true } );
+			jest.useRealTimers();
+		} );
+
+		test( 'falls back to a remaining preview when the dropzone is hidden', () => {
+			// The dropzone is display:none while the field is full, and a hidden element is still
+			// connected — so the old isConnected check passed and focus() was a silent no-op, leaving
+			// focus on <body>, which is the very thing the cleanup exists to prevent.
+			jest.useFakeTimers();
+			const [ added ] = addFiles( 1 );
+			const { preview, dropzone, cleanup } = mountPreview( added.id );
+			jest.runAllTimers();
+
+			document.querySelector( '.jetpack-form-file-field__dropzone' ).classList.add( 'is-hidden' );
+
+			const survivor = mountPreview( 'survivor' );
+			preview.remove();
+			cleanup();
+			jest.runAllTimers();
+
+			expect( dropzone.focus ).not.toHaveBeenCalled();
+			expect( survivor.preview.focus ).toHaveBeenCalledWith( { focusVisible: true } );
+			jest.useRealTimers();
+		} );
+
 		test( 'does not focus a preview that was removed inside the delay', () => {
 			jest.useFakeTimers();
-			const { preview, cleanup } = mountPreview();
+			const [ added ] = addFiles( 1 );
+			const { preview, cleanup } = mountPreview( added.id );
 
 			// Remove before the timer fires: focusing a detached node is a silent no-op that would
 			// leave focus on <body>.

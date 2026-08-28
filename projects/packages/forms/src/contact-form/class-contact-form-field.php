@@ -2047,6 +2047,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$context = array(
 			'isDropping' => false,
 			'files'      => array(),
+			// Field-level message that belongs to no single file — currently only the result of
+			// offering more files than the field accepts. Per-file problems stay on their preview.
+			'fileNotice' => '',
 		);
 
 		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text, array(), true, $required_indicator );
@@ -2102,6 +2105,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					</div>
 				</template>
 			</div>
+			<p class="jetpack-form-file-field__notice" role="status" data-wp-class--is-visible="state.hasFileFieldNotice" data-wp-text="context.fileNotice"></p>
 		</div>
 		<?php
 		return $field . ob_get_clean() . $this->get_error_div( $id, 'file' );
