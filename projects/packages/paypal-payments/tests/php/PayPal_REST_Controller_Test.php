@@ -953,13 +953,22 @@ class PayPal_REST_Controller_Test extends TestCase {
 	 * The single-button routes capture a PLB- resource ID and reject anything else.
 	 */
 	public function test_single_button_route_pattern_matches_only_plb_ids() {
-		$pattern = '#^/wpcom/v2/paypal/buttons/(?P<resource_id>PLB-[A-Za-z0-9]+)$#';
-
-		$this->assertSame( 1, preg_match( $pattern, '/wpcom/v2/paypal/buttons/PLB-42abc', $matches ) );
+		$matched = preg_match(
+			'#^/wpcom/v2/paypal/buttons/(?P<resource_id>PLB-[A-Za-z0-9]+)$#',
+			'/wpcom/v2/paypal/buttons/PLB-42abc',
+			$matches
+		);
+		$this->assertSame( 1, $matched );
 		$this->assertSame( 'PLB-42abc', $matches['resource_id'] );
 
-		$this->assertSame( 0, preg_match( $pattern, '/wpcom/v2/paypal/buttons/XYZ-42' ) );
-		$this->assertSame( 0, preg_match( $pattern, '/wpcom/v2/paypal/buttons/PLB-' ) );
+		$this->assertSame(
+			0,
+			preg_match( '#^/wpcom/v2/paypal/buttons/(?P<resource_id>PLB-[A-Za-z0-9]+)$#', '/wpcom/v2/paypal/buttons/XYZ-42' )
+		);
+		$this->assertSame(
+			0,
+			preg_match( '#^/wpcom/v2/paypal/buttons/(?P<resource_id>PLB-[A-Za-z0-9]+)$#', '/wpcom/v2/paypal/buttons/PLB-' )
+		);
 	}
 
 	// --- Helpers ---
