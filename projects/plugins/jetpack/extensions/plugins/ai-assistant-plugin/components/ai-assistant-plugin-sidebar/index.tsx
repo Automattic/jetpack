@@ -249,7 +249,7 @@ export default function AiAssistantPluginSidebar() {
 
 	const planType = usePlanType( currentTier );
 
-	// The AI settings "Try it out" link asks for the sidebar to start open.
+	// A post-new.php?openSidebar=jetpack-ai-assistant URL asks for the sidebar to start open.
 	const sidebarOpenRequested = useSidebarOpenFromUrl();
 
 	// If the post type is not viewable, do not render my plugin.
