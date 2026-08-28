@@ -15,6 +15,7 @@ import { validateField, isEmptyValue } from '../../contact-form/js/validate-help
 import { getRating } from '../field-rating/view.js';
 import { isFieldHiddenByLogic } from './conditional-visibility.js';
 import { maybeAddColonToLabel, getImages, getUrl, getSubmissionDisplayValue } from './helpers.js';
+import { openCheckout } from './payment-checkout.js';
 import { focusNextInput, getForm, submitForm } from './shared.ts';
 // Import field type icons view to register its callbacks.
 import './field-type-icons-view.js';
@@ -796,9 +797,17 @@ const { state, actions } = store( NAMESPACE, {
 				// Capture file preview URLs before submission (blob URLs for images, icon URLs for other files)
 				capturedFilePreviews = captureFilePreviews( context.formHash );
 
-				const { success, error, data, refreshArgs } = yield submitForm( context.formHash );
+				const { success, error, data, refreshArgs, payment } = yield submitForm( context.formHash );
 
 				if ( success ) {
+					// Payments (prototype): the response is already saved at this
+					// point. Checkout decides whether it is also paid — either way
+					// we fall through to the normal success state, because losing
+					// the response was never on the table.
+					if ( payment ) {
+						yield openCheckout( payment );
+					}
+
 					setSubmissionData( data );
 					context.submissionSuccess = true;
 
