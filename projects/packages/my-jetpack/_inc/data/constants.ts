@@ -1,8 +1,11 @@
 // API
 const REST_API_NAMESPACE = 'my-jetpack/v1';
 const ODYSSEY_STATS_API_NAMESPACE = 'jetpack/v4/stats-app';
+// `my-jetpack/v1` is not available on WordPress.com Simple. Endpoints the UI must reach on every
+// platform live under `wpcom/v2`, which is registered on Simple, Atomic and self-hosted alike.
+const REST_API_PORTABLE_NAMESPACE = 'wpcom/v2/my-jetpack';
 
-export const REST_API_SITE_PURCHASES_ENDPOINT = `${ REST_API_NAMESPACE }/site/purchases`;
+export const REST_API_SITE_PURCHASES_ENDPOINT = `${ REST_API_PORTABLE_NAMESPACE }/purchases`;
 export const REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT = `${ REST_API_NAMESPACE }/site/backup/undo-event`;
 export const REST_API_CHAT_AVAILABILITY_ENDPOINT = `${ REST_API_NAMESPACE }/chat/availability`;
 export const REST_API_CHAT_AUTHENTICATION_ENDPOINT = `${ REST_API_NAMESPACE }/chat/authentication`;
