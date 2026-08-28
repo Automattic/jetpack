@@ -61,6 +61,9 @@
 	// White label text sits on arbitrary series colors, so it has no WPDS
 	// content-foreground equivalent.
 	--a8c-charts-color-label-on-fill: #fff;
+	// The plate behind a pie-slice label. Transparent by default, so a label
+	// reads straight off the slice; there is no WPDS token for "no surface".
+	--a8c-charts-color-label-background: transparent;
 	// The SVG axis and tick labels. `svgLabelSmall.fill` publishes THIS role, so
 	// deriving from --a8c-charts-color-label is safe and wanted: the theme field
 	// moves only these labels, while setting the broad role in CSS still moves
