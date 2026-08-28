@@ -186,6 +186,29 @@ describe( 'BackupStatusPanel', () => {
 		expect( screen.getByText( "We're having trouble backing up your site" ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /Get in touch with us/ } ) ).toBeInTheDocument();
 	} );
+
+	// JETPACK-2329. The panel used to close on "…get familiar with your backup
+	// management on Jetpack.com", pointing at `cloud.jetpack.com/backup` — the
+	// Backup home this dashboard replaces. Legacy still ships that sentence
+	// (`js/components/Backups.jsx:374`), so this is what stops it coming back as
+	// missing parity.
+	it( 'sends a waiting site nowhere, having nothing to offer that this page does not', () => {
+		const { rerender } = render( <BackupStatusPanel state="no-backups" progress={ 0 } /> );
+
+		// Every state that shares this branch, and each one witnessed by its own
+		// copy: the absence has to be a link that is gone, not a panel that
+		// never rendered. The support link two tests up is the other half — it
+		// proves this file's link query finds one when there is one to find.
+		for ( const state of [ 'no-backups', 'in-progress', 'will-retry' ] as const ) {
+			rerender( <BackupStatusPanel state={ state } progress={ 0 } /> );
+			expect(
+				screen.getByText(
+					'The first backup usually takes a few minutes, so it will become available soon.'
+				)
+			).toBeInTheDocument();
+			expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+		}
+	} );
 } );
 
 describe( 'BackupStatusBanner', () => {

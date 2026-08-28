@@ -94,14 +94,17 @@ export function ContactSupportLine() {
  * states renders as DataViews' bare "No results" — leaving a site whose
  * backups are failing indistinguishable from a healthy new one.
  *
+ * Legacy's closing sentence, offering "backup management on Jetpack.com"
+ * (`js/components/Backups.jsx:374`), is deliberately gone: it points at
+ * `cloud.jetpack.com/backup`, which is the screen this dashboard replaces
+ * (JETPACK-2329).
+ *
  * @param props          - Component props.
  * @param props.state    - Derived backup state.
  * @param props.progress - Completion of the running backup, 0–100.
  * @return The rendered panel.
  */
 export default function BackupStatusPanel( { state, progress }: Props ) {
-	const siteSuffix = useSiteSuffix();
-
 	if ( state === 'no-good-backups' ) {
 		return (
 			<EmptyState.Root className="jpb-backup-status">
@@ -160,22 +163,6 @@ export default function BackupStatusPanel( { state, progress }: Props ) {
 				{ __(
 					'The first backup usually takes a few minutes, so it will become available soon.',
 					'jetpack-backup-pkg'
-				) }
-			</EmptyState.Description>
-			<EmptyState.Description>
-				{ createInterpolateElement(
-					__(
-						'In the meanwhile, you can start getting familiar with your <a>backup management on Jetpack.com</a>.',
-						'jetpack-backup-pkg'
-					),
-					{
-						a: (
-							<Link
-								openInNewTab
-								href={ getRedirectUrl( 'jetpack-backup', { site: siteSuffix } ) }
-							/>
-						),
-					}
 				) }
 			</EmptyState.Description>
 		</EmptyState.Root>
