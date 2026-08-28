@@ -10,19 +10,16 @@ namespace Automattic\Jetpack\Comments\Identity;
 use Automattic\Jetpack\Connection\Client;
 
 /**
- * Redeems a one-time code against the exchange endpoint, server to server, signed
- * with the site's Jetpack blog token. Runs as the comment posts, not when the
- * popup closes; WordPress.com keeps a code for an hour to cover that. No browser
- * and no cookie are involved in the call itself.
+ * Calls the exchange endpoint as the blog. Runs as the comment posts, not when
+ * the popup closes; WordPress.com keeps a code for an hour to cover that.
  */
 class Redeemer {
 
 	/**
-	 * Redeem a code for the identity it holds.
+	 * Redeem a code.
 	 *
-	 * @param string $code The one-time code from WordPress.com.
-	 * @return array|\WP_Error The identity (site_commenter_id, provider, name, email, avatar, expires_at),
-	 *                         or a WP_Error mirroring the exchange's failure.
+	 * @param string $code The one-time code.
+	 * @return array|\WP_Error site_commenter_id, provider, name, email, avatar, expires_at; or the exchange's failure.
 	 */
 	public static function redeem( $code ) {
 		if ( ! is_string( $code ) || ! preg_match( '/^[0-9a-f]{64}$/', $code ) ) {

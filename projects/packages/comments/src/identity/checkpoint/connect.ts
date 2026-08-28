@@ -3,40 +3,24 @@ import { attribution, dropCode, holdCode } from './code';
 import type { CheckpointSettings } from '../../shared/types';
 
 /**
- * The comment identity checkpoint, browser side.
+ * Sign-in, browser side. Open a popup, have the site sign a connect request,
+ * point the popup at it, and take WordPress.com's postMessage result:
+ * { type, code, challenge, name, avatar } or { type, error, challenge }. The
+ * code is held for the comment to carry; the server exchanges it then.
  *
- * A provider button opens a popup, then asks this site to sign a connect
- * request as the blog and points the popup at the signed URL. The popup opens
- * on the click itself, before the signing round trip, or the browser would
- * block it. When the provider is done, WordPress.com hands its result to this
- * window with window.opener.postMessage: { type, code, challenge, name, avatar }
- * on success, or { type, error, challenge } on failure. This window checks the
- * sender's origin, the message type and the challenge the site issued, then
- * holds the code and shows the attribution. The code goes to the server with
- * the comment, and the server exchanges it then. No email and no durable
- * identifier cross the browser, and no token reaches the page.
- *
- * There is no other path. When the popup is blocked, or COOP leaves it with no
- * opener, WordPress.com stops on a "you can close this window" page and nothing
- * is held, the same as the existing Verbum connect flow.
+ * No fallback when the popup is blocked or COOP drops the opener: WordPress.com
+ * stops on a "close this window" page, same as Verbum.
  */
 
 type Checkpoint = Extract< CheckpointSettings, { enabled: true } >;
 
-/**
- * The type WordPress.com stamps on its result message. A filter, not a
- * boundary: the origin check is the boundary.
- */
 const MESSAGE_TYPE = 'jetpack-comment-identity';
 
-/**
- * How often to check whether the popup has been closed on us.
- */
 const CLOSED_POLL_MS = 500;
 
 /**
- * A safety net for a popup left open and forgotten; a provider login with a
- * password reset in it can take a while, so this is generous.
+ * A popup left open and forgotten. Generous, since a login can include a
+ * password reset.
  */
 const ATTEMPT_TIMEOUT_MS = 10 * 60 * 1000;
 
@@ -50,8 +34,7 @@ function enabledCheckpoint(): Checkpoint | null {
 }
 
 /**
- * Call one of the site's checkpoint routes. Failures surface as the thrown
- * message, the WP_Error code where there is one.
+ * Call a checkpoint route. Throws the WP_Error code on failure.
  *
  * @param checkpoint - The enabled checkpoint settings.
  * @param url        - The route.
@@ -86,10 +69,10 @@ async function call< T >(
 }
 
 /**
- * Sign in with a provider. On success the code is held and the page-global
- * identity set here, so callers only handle failure.
+ * Sign in with a provider. Holds the code and sets the page-global identity
+ * on success, so callers only handle failure.
  *
- * @param provider - The provider slug, one of the offered set.
+ * @param provider - The provider slug.
  * @return Resolves once the code is held.
  */
 export function connect( provider: string ): Promise< void > {
@@ -101,8 +84,8 @@ export function connect( provider: string ): Promise< void > {
 			return;
 		}
 
-		// Blank first, on the click itself, then pointed at the signed URL once
-		// the site returns it. Opening after the round trip would be blocked.
+		// Opened blank on the click itself; opening after the signing round trip
+		// would be blocked.
 		const popup = window.open( '', 'jetpack-comment-identity', 'width=780,height=700' );
 
 		if ( ! popup ) {
@@ -126,8 +109,8 @@ export function connect( provider: string ): Promise< void > {
 			}
 		}, ATTEMPT_TIMEOUT_MS );
 
-		// The popup closing without a result is a cancel. Grace so a result posted
-		// just before the close still wins.
+		// Closed without a result is a cancel. Grace for a result posted just
+		// before the close.
 		const poll = setInterval( () => {
 			if ( ! popup.closed ) {
 				return;
@@ -142,7 +125,7 @@ export function connect( provider: string ): Promise< void > {
 		}, CLOSED_POLL_MS );
 
 		/**
-		 * Stop listening and cancel the timers for this attempt.
+		 * Stop listening and cancel the timers.
 		 */
 		function cleanup() {
 			settled = true;
@@ -152,8 +135,8 @@ export function connect( provider: string ): Promise< void > {
 		}
 
 		/**
-		 * Take a result from the popup. Origin first, then type, then challenge;
-		 * nothing in the payload is read until all three hold.
+		 * Take a result. Origin, then type, then challenge, before the payload
+		 * is read at all. The origin check is the security boundary.
 		 *
 		 * @param event - The message event.
 		 */
@@ -198,8 +181,6 @@ export function connect( provider: string ): Promise< void > {
 
 		window.addEventListener( 'message', onMessage );
 
-		// The site issues the challenge and signs it into the URL; the origin is
-		// this window's, verbatim, which WordPress.com posts the result back to.
 		call< { url: string; challenge: string } >( checkpoint, checkpoint.signUrl, 'POST', {
 			provider,
 			origin: window.location.origin,
@@ -223,10 +204,9 @@ export function connect( provider: string ): Promise< void > {
 }
 
 /**
- * Clear the site's Passport cookie, drop any held code, and drop the
- * page-global identity.
+ * Clear the Passport cookie, the held code, and the page-global identity.
  *
- * @return Whether the identity was cleared.
+ * @return Whether it was cleared.
  */
 export async function disconnect(): Promise< boolean > {
 	const checkpoint = enabledCheckpoint();

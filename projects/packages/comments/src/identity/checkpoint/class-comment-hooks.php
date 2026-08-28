@@ -8,25 +8,14 @@
 namespace Automattic\Jetpack\Comments\Identity;
 
 /**
- * Three hooks carry the identity onto the comment, in the order core runs them:
- *
- * - pre_comment_on_post is where the identity is established. A comment
- *   carrying a one-time code has it exchanged here, server to server, which is
- *   the first time the email and site_commenter_id exist on this side. One
- *   without falls back to the Passport cookie. Either way the registration and
- *   name/email gates are lifted, since they fire next in
- *   wp_handle_comment_submission() and the commenter is vouched for.
- * - preprocess_comment writes the author and email from the identity, and
- *   drops any logged-in user id, so the comment is attributed to it.
- * - comment_post records the identity as meta, so the comment is self-contained,
- *   and stamps the Passport for a commenter who arrived on a code, matching
- *   where core sets its own comment cookies.
+ * On pre_comment_on_post, exchange a carried code (or read the Passport) and
+ * lift core's registration gates; on preprocess_comment, attribute the comment;
+ * on comment_post, store the meta and stamp the Passport.
  */
 class Comment_Hooks {
 
 	/**
-	 * The hidden field a held code rides in. Shared with the front end through
-	 * the settings blob.
+	 * The hidden field a held code rides in.
 	 */
 	const CODE_FIELD = 'jetpack_comment_identity_code';
 
@@ -38,16 +27,15 @@ class Comment_Hooks {
 	private static $identity = null;
 
 	/**
-	 * Whether the identity in flight was just exchanged, so the Passport is
-	 * still to be written.
+	 * Whether the identity was just exchanged, so the Passport is still to be written.
 	 *
 	 * @var bool
 	 */
 	private static $from_code = false;
 
 	/**
-	 * Register the hooks. The exchange runs after the form's own nonce check,
-	 * so an unnonced POST cannot spend codes or the site's exchange budget.
+	 * Register the hooks. Priority 20 puts the exchange after the form's nonce
+	 * check, so an unnonced POST cannot burn codes.
 	 *
 	 * @return void
 	 */
@@ -58,8 +46,7 @@ class Comment_Hooks {
 	}
 
 	/**
-	 * Establish who is commenting, exchanging a carried code if there is one,
-	 * and treat them as registered.
+	 * Establish who is commenting and treat them as registered.
 	 *
 	 * @return void
 	 */
@@ -84,10 +71,8 @@ class Comment_Hooks {
 
 			$identity['exp'] = $identity['expires_at'];
 
-			// A code and a Passport that disagree is two people on one browser: a
-			// tab holding one person's unused code after another earned the cookie.
-			// The Passport is the later act, so it wins and the code is spent for
-			// nothing. Same person, and the fresher exchange wins.
+			// A code and a Passport for different people is a stale tab on a shared
+			// browser. The Passport is the later act, so it wins; the code is burned.
 			if ( false !== $passport && $passport['site_commenter_id'] !== $identity['site_commenter_id'] ) {
 				self::$identity = $passport;
 			} else {
@@ -105,11 +90,8 @@ class Comment_Hooks {
 	}
 
 	/**
-	 * Attribute the comment to the identity.
-	 *
-	 * Also covers a comment arriving some other way than the form, over REST
-	 * say, from a browser holding a Passport: pre_comment_on_post never ran, so
-	 * the cookie is read here.
+	 * Attribute the comment to the identity. Reads the Passport itself for
+	 * comments that skipped pre_comment_on_post, such as REST.
 	 *
 	 * @param array $comment_data The comment being posted.
 	 * @return array
@@ -138,8 +120,7 @@ class Comment_Hooks {
 	}
 
 	/**
-	 * Record the identity on the comment, and stamp the Passport for a
-	 * commenter who arrived on a code.
+	 * Store the identity meta, and the Passport for a commenter who arrived on a code.
 	 *
 	 * @param int $comment_id The new comment's ID.
 	 * @return void
@@ -167,9 +148,7 @@ class Comment_Hooks {
 	}
 
 	/**
-	 * Turn the comment away, the way core turns away a failed gate. The draft
-	 * survives in the browser, and a lapsed or spent code is replaced on the
-	 * next submit.
+	 * Turn the comment away the way core turns away a failed gate.
 	 *
 	 * @param \WP_Error $error Why the exchange failed.
 	 * @return void

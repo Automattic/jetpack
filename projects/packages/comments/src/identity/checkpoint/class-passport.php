@@ -1,6 +1,6 @@
 <?php
 /**
- * The first-party cookie carrying a redeemed comment identity.
+ * The first-party cookie carrying an exchanged comment identity.
  *
  * @package automattic/jetpack-comments
  */
@@ -8,16 +8,15 @@
 namespace Automattic\Jetpack\Comments\Identity;
 
 /**
- * A signed, HttpOnly, first-party cookie holding the identity the site redeemed
- * from WordPress.com. Verifying it is recomputing the HMAC, so a tampered or
- * expired cookie is treated exactly like an absent one; nothing is looked up.
+ * Signed with the site's own salt, HttpOnly, 30 days at most. A tampered or
+ * expired cookie reads as absent; nothing is looked up.
  */
 class Passport {
 
 	/**
-	 * Read and verify the identity cookie on the current request.
+	 * Read and verify the cookie.
 	 *
-	 * @return array|false The identity, or false when absent, tampered or expired.
+	 * @return array|false The identity, or false.
 	 */
 	public static function read() {
 		if ( empty( $_COOKIE[ Checkpoint::COOKIE_NAME ] ) ) {
@@ -59,10 +58,10 @@ class Passport {
 	}
 
 	/**
-	 * Write the identity cookie: HttpOnly, Secure, SameSite=Lax.
+	 * Write the cookie.
 	 *
-	 * @param array $identity   The redeemed identity: site_commenter_id, provider, name, email, avatar.
-	 * @param int   $expires_at The exchange's expiry. The 30-day cap is the retention limit; don't raise it without a privacy review.
+	 * @param array $identity   site_commenter_id, provider, name, email, avatar.
+	 * @param int   $expires_at The exchange's expiry. Capped at 30 days, the retention limit; a privacy review before raising it.
 	 * @return void
 	 */
 	public static function write( array $identity, $expires_at ) {
@@ -86,12 +85,12 @@ class Passport {
 
 		self::set( $value, $expires_at );
 
-		// So the same request that redeems can already read it back.
+		// So the same request can read it back.
 		$_COOKIE[ Checkpoint::COOKIE_NAME ] = $value;
 	}
 
 	/**
-	 * Clear the identity cookie.
+	 * Clear the cookie.
 	 *
 	 * @return void
 	 */
@@ -101,10 +100,9 @@ class Passport {
 	}
 
 	/**
-	 * HMAC a payload with the site's own secret. The context tag keeps this
-	 * signature from being reused to forge another.
+	 * HMAC a payload. The context tag keeps the signature from being reused elsewhere.
 	 *
-	 * @param string $payload The base64url identity payload.
+	 * @param string $payload The base64url payload.
 	 * @return string
 	 */
 	private static function sign( $payload ) {
@@ -112,7 +110,7 @@ class Passport {
 	}
 
 	/**
-	 * Send the cookie on the site's own domain.
+	 * Send the cookie.
 	 *
 	 * @param string $value   The cookie value.
 	 * @param int    $expires Expiry timestamp.

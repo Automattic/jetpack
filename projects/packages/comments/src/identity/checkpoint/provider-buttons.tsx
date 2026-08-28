@@ -5,8 +5,8 @@ import type { CheckpointProvider } from '../../shared/types';
 import './style.scss';
 
 /**
- * Wrapper so the checkpoint-off case returns before any hook runs, keeping the
- * inner component's hooks unconditional.
+ * Returns before any hook runs when the checkpoint is off, so the inner
+ * component's hooks stay unconditional.
  *
  * @return The buttons, or nothing when the checkpoint is off.
  */
@@ -31,9 +31,7 @@ type ButtonsProps = {
 const SILENT = [ 'cancelled', 'access_denied' ];
 
 /**
- * connect() sets the page-global identity on success, so onClick only handles
- * failure. The spinner and error line are local; an attempt the reader
- * abandoned or declined is silent.
+ * connect() sets the identity on success, so onClick only handles failure.
  *
  * @param props            - Component props.
  * @param props.providers  - The providers to offer.
