@@ -85,10 +85,9 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
  * Unknown / custom / year-surface presets derive the list from `from`–`to`
  * length.
  *
- * Also what the interval control lists. Both surfaces that host the control —
- * the section header and the widget header — pass the range being edited, not
- * the applied one, so the menu can never offer a bucket the range would coerce
- * away and leave the choice springing back on Apply.
+ * Also what the interval control lists. Callers pass the range being edited,
+ * not the applied one: a bucket the range would coerce away springs back on
+ * Apply.
  */
 export function getAllowedIntervalsForPreset(
 	preset: PrimaryPresetId | undefined,

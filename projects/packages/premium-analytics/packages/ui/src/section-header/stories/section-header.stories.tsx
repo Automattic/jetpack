@@ -214,7 +214,7 @@ function RollingDateControls( {
 	);
 
 	const canApply = hasPrimaryDraft( staged, committed );
-	const intervalOptions = getStoryIntervalOptions( committed.presetId );
+	const intervalOptions = getStoryIntervalOptions( staged.presetId );
 
 	return (
 		<DateFiltersPanel

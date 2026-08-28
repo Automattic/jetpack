@@ -205,9 +205,8 @@ function ReportParamsControl( {
 		[ isDateRangeDirty, commit, stage ]
 	);
 
-	// Listed and checked against the range being edited — see
-	// `getAllowedIntervalsForPreset`. `normalizeReportParams` already resolved
-	// `interval` against this very range, so the checked bucket is a listed one.
+	// `normalizeReportParams` already resolved `interval` against this very
+	// range, so the checked bucket is always a listed one.
 	const intervalOptions = useMemo(
 		() =>
 			getAllowedIntervalsForPreset(

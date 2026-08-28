@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { act, renderHook } from '@testing-library/react';
-import { useCallback, useState } from 'react';
+import { StrictMode, useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -14,22 +14,29 @@ type Params = { preset?: string; interval?: string };
  * Render the hook against a store that behaves like the real ones: a commit
  * round-trips back in as the committed value. A test holding the store still
  * would pass on a hook that commits a stale draft.
+ *
+ * Under `StrictMode`, the way `@wordpress/boot` mounts the dashboard: it renders
+ * twice and throws the first pass away, which a realign written to a ref would
+ * not survive.
  */
 function renderStagedValue( initial: Params = { preset: 'last-30-days' } ) {
 	const commits: Params[] = [];
 	const patches: Partial< Params >[] = [];
 
-	const view = renderHook( () => {
-		const [ committed, setCommitted ] = useState( initial );
+	const view = renderHook(
+		() => {
+			const [ committed, setCommitted ] = useState( initial );
 
-		const onCommit = useCallback( ( staged: Params, patch: Partial< Params > ) => {
-			commits.push( staged );
-			patches.push( patch );
-			setCommitted( staged );
-		}, [] );
+			const onCommit = useCallback( ( staged: Params, patch: Partial< Params > ) => {
+				commits.push( staged );
+				patches.push( patch );
+				setCommitted( staged );
+			}, [] );
 
-		return { ...useStagedValue< Params >( committed, onCommit ), setCommitted };
-	} );
+			return { ...useStagedValue< Params >( committed, onCommit ), setCommitted };
+		},
+		{ wrapper: StrictMode }
+	);
 
 	return {
 		...view,
@@ -130,5 +137,17 @@ describe( 'useStagedValue', () => {
 
 		expect( result.current.staged ).toEqual( { preset: 'last-30-days', interval: 'week' } );
 		expect( result.current.isDirty ).toBe( true );
+	} );
+
+	// Apply has to go back to disabled, not just stop being reachable.
+	it( 'stops reading as dirty once the draft is staged back to the applied value', () => {
+		const { result } = renderStagedValue();
+
+		act( () => result.current.stage( { preset: 'last-7-days' } ) );
+		expect( result.current.isDirty ).toBe( true );
+
+		act( () => result.current.stage( { preset: 'last-30-days' } ) );
+
+		expect( result.current.isDirty ).toBe( false );
 	} );
 } );

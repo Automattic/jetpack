@@ -6,7 +6,7 @@ Forward stays smooth.
 
 This is `useStagedValue` bound to the URL. A control that saves somewhere else —
 a widget attribute, say — uses that hook directly and gets the same staging
-behaviour.
+behavior.
 
 ---
 

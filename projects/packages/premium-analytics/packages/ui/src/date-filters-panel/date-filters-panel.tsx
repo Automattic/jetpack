@@ -90,7 +90,8 @@ export type DateFiltersPanelProps = {
 	withIntervalControl?: boolean;
 
 	/**
-	 * The chart interval every widget on the page draws.
+	 * The chart interval the control shows as checked. Resolved against the range
+	 * being edited, so an open draft can move it off the applied one.
 	 */
 	interval?: IntervalType;
 

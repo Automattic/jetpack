@@ -52,9 +52,8 @@ type PrimaryDateParams = { from?: string; to?: string; preset?: string };
 /**
  * Whether the primary date picker holds an edit the store has not taken yet.
  *
- * The comparison and interval controls sit outside the picker and commit on
- * their own, so both ask this first rather than committing a range draft along
- * with their own change.
+ * The comparison and interval controls commit on their own, so both ask this
+ * first rather than committing a range draft along with their own change.
  *
  * @param applied - The window the widgets are querying with.
  * @param draft   - The window the picker is holding.
