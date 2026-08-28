@@ -61,4 +61,3 @@ export const withWidgetCanvas: Decorator = Story => (
 		<Story />
 	</WidgetCanvas>
 );
-
