@@ -3,8 +3,9 @@
  * HMAC-authenticated, time-limited Reprint export for Pressable and Atomic
  * sites.
  *
- * On Atomic, this shares export options with wpcomsh while using distinct REST
- * and query-var surfaces, so both integrations can run simultaneously.
+ * Jetpack is the only copy of this on a site: wpcomsh's unreleased Reprint
+ * exporter is removed in the same change, so nothing else serves an export or
+ * shares the options below.
  *
  * @package automattic/jetpack
  */

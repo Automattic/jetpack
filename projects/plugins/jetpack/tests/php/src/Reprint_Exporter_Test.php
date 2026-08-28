@@ -28,9 +28,17 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
+	 * Throwaway role used to prove a capability alone is not enough.
+	 *
+	 * @var string
+	 */
+	const TEST_ROLE = 'reprint_test_manager';
+
+	/**
 	 * Test tear down.
 	 */
 	public function tear_down() {
+		remove_role( self::TEST_ROLE );
 		Constants::clear_constants();
 		Rest_Authentication::init()->reset_saved_auth_state();
 		wp_set_current_user( 0 );
@@ -89,8 +97,9 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Available on WordPress.com (Atomic), so it can eventually replace the
-	 * wpcomsh copy. Uses the platform constants, not wpcomsh presence.
+	 * Available on WordPress.com (Atomic). Gated on the platform constants
+	 * rather than on wpcomsh being installed, so the check keeps working if
+	 * wpcomsh ever goes away.
 	 */
 	public function test_available_on_atomic() {
 		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
@@ -263,6 +272,32 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		$this->set_jetpack_rest_authentication_type( 'user' );
 
 		$this->assertTrue( ( new REST_Controller() )->permission_check() );
+	}
+
+	/**
+	 * A non-administrator role holding manage_options is still denied.
+	 *
+	 * This is the case the role check exists for. Membership, LMS and shop
+	 * plugins hand manage_options to roles like shop manager or instructor so
+	 * they can reach a settings screen; none of them intends to grant a copy of
+	 * the whole database and file tree.
+	 */
+	public function test_permission_check_denies_manage_options_without_administrator_role() {
+		add_role(
+			self::TEST_ROLE,
+			'Reprint Test Manager',
+			array(
+				'read'           => true,
+				'manage_options' => true,
+			)
+		);
+
+		$user_id = $this->factory()->user->create( array( 'role' => self::TEST_ROLE ) );
+		wp_set_current_user( $user_id );
+		$this->set_jetpack_rest_authentication_type( 'user' );
+
+		$this->assertTrue( user_can( $user_id, 'manage_options' ), 'Fixture must hold manage_options for this test to mean anything.' );
+		$this->assertFalse( ( new REST_Controller() )->permission_check() );
 	}
 
 	/**

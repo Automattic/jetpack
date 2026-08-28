@@ -18,7 +18,6 @@
 /vendor/symfony/polyfill-mbstring/**          production-include
 /vendor/tubalmartin/**                        production-include
 /vendor/wordpress/classic-editor-plugin/**    production-include
-/vendor/wp-php-toolkit/reprint-server/**      production-include
 /jetpack_vendor/**                            production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.

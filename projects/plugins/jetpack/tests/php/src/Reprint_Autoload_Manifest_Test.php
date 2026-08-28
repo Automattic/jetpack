@@ -35,9 +35,9 @@ class Reprint_Autoload_Manifest_Test extends WP_UnitTestCase {
 	/**
 	 * Every class reprint-server is expected to publish.
 	 *
-	 * The Site_Export_* names stay global because they are the consumer-facing
-	 * API — wpcomsh calls two of them by name. PDO, PDOStatement and
-	 * PDOException are deliberately absent: see test_no_pdo_polyfill_classes().
+	 * The Site_Export_* names stay global because they are the package's
+	 * consumer-facing API. PDO, PDOStatement and PDOException are deliberately
+	 * absent: see test_no_pdo_polyfill_classes().
 	 *
 	 * @var string[]
 	 */
@@ -113,9 +113,10 @@ class Reprint_Autoload_Manifest_Test extends WP_UnitTestCase {
 	/**
 	 * The package publishes exactly the classes we expect.
 	 *
-	 * They are supposed to be in the classmap: that is what gives Jetpack's copy
-	 * version arbitration against the copy wpcomsh ships during the changeover,
-	 * so the newer of the two wins each shared class name.
+	 * They belong in the classmap, and the list is asserted rather than counted
+	 * because these are global, unprefixed names that Jetpack publishes to every
+	 * plugin on the site. A new one appearing is a widened surface that should
+	 * be a decision, not a side effect of a version bump.
 	 */
 	public function test_classmap_holds_the_expected_classes() {
 		$found = array_keys( $this->reprint_classmap_entries() );

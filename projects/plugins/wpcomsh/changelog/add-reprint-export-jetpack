@@ -1,4 +1,5 @@
 Significance: patch
 Type: changed
+Comment: Remove the Reprint exporter. It was never released, so there is nothing user-facing to report.
 
-Reprint export: Move to the reprint-server package and drop the unused importer.
+

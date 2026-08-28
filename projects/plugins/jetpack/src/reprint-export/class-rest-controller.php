@@ -102,14 +102,27 @@ class REST_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Permission callback for administrative user requests.
+	 * Permission callback: a Jetpack-signed request from a site administrator.
 	 *
-	 * A user-token request must map to a site administrator because rotating the
-	 * secret grants access to a full-site export.
+	 * Deliberately a role check, not a capability one. This hands out a secret
+	 * that streams the whole database and file tree, and no capability says
+	 * that — `manage_options` is the closest, but plugins grant it to shop
+	 * managers and the like. The multisite guard matters: off multisite,
+	 * is_super_admin() is a `delete_users` capability test.
 	 *
 	 * @return bool
 	 */
 	public function permission_check() {
-		return Rest_Authentication::is_signed_with_user_token() && current_user_can( 'manage_options' );
+		if ( ! Rest_Authentication::is_signed_with_user_token() ) {
+			return false;
+		}
+
+		$user = wp_get_current_user();
+		if ( ! $user || ! $user->exists() ) {
+			return false;
+		}
+
+		return in_array( 'administrator', $user->roles, true )
+			|| ( is_multisite() && is_super_admin( $user->ID ) );
 	}
 }
