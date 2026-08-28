@@ -73,10 +73,8 @@ describe( 'deriveComparisonRange', () => {
 		} );
 	} );
 
-	// A hand-typed deep link carries no offset. Reading it as a UTC instant would
-	// put a site west of Greenwich on the previous calendar day and, because the
-	// range would no longer sit on day boundaries, derive a rolling window
-	// instead of the previous period the picker shows.
+	// A hand-typed deep link carries no offset; reading it as UTC would land a
+	// site west of Greenwich on the wrong calendar day and derive the wrong window.
 	it( 'anchors an offset-less range to the site zone', () => {
 		siteOn( 'America/New_York', -4 );
 
@@ -93,9 +91,8 @@ describe( 'deriveComparisonRange', () => {
 		} );
 	} );
 
-	// A link saved while the preset existed drops its comparison rather than
-	// deriving a range the picker can no longer show. Typed as a string
-	// because that is what the URL carries, whatever the current set is.
+	// A link saved under a preset since removed drops its comparison rather
+	// than deriving a range the picker can no longer show.
 	it( 'returns undefined for a preset outside the current set', () => {
 		const presetFromOldUrl: string = 'previous-week';
 

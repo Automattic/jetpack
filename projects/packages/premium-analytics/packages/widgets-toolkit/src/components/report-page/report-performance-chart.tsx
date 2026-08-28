@@ -72,20 +72,11 @@ export interface ReportPerformanceChartProps {
 }
 
 /**
- * The report page's multi-metric performance section: a card with the
- * Views/Visitors/Comments/Likes series drawn together, a metric show/hide
- * menu, the time-bucket selector, and a chart collapse toggle. The page owns
- * data fetching (`useStatsVisits`) and the interval, and passes the reports in.
+ * The report page's multi-metric performance section: the series drawn together with
+ * a metric show/hide menu, the time-bucket selector, and a collapse toggle.
  *
- * Chart theming comes from the `GlobalChartsProvider` mounted once by the
- * `/reports/$report` stage, so this component must render under that stage —
- * or under a provider of its own in isolated contexts like Storybook.
- *
- * With a single visible metric and comparison data present, the previous
- * period renders as a dashed overlay (see `buildReportMetricSeries`).
- *
- * @param {ReportPerformanceChartProps} props - The component props.
- * @return The performance chart section.
+ * Chart theming comes from the `GlobalChartsProvider` the `/reports/$report` stage
+ * mounts, so this must render under that stage — or its own provider in Storybook.
  */
 export function ReportPerformanceChart( {
 	title = __( 'Performance', 'jetpack-premium-analytics-pkg' ),

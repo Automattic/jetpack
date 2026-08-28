@@ -29,10 +29,8 @@ registerReportMocks();
 
 const ANNUAL_HIGHLIGHTS_RENDER_MODULE = 'storybook/annual-highlights';
 
-// Carry the widget's metadata, including the year attribute schema, so the
+// Carries the widget's metadata, including the year attribute schema, so the
 // dashboard story's frame header renders the real year dropdown.
-// `presentation` comes from widget.json ( 'framed' ), so the host frames the
-// widget and renders its identity (title + icon).
 const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 function renderAnnualHighlights() {
@@ -40,13 +38,9 @@ function renderAnnualHighlights() {
 }
 
 /**
- * Forces the insights request into a loading/error/empty state for a story.
- *
- * The insights endpoint is not period-scoped, so its query key carries no date
- * params and a distinct date preset alone would not give the story a fresh
- * cache entry. Evict the query from the shared client on enter and on cleanup
- * so each forced-state story hits the mock fresh (and no forced result leaks
- * into the sibling stories).
+ * Forces the insights request into a loading/error/empty state for a story. The
+ * insights query key carries no date params, so only evicting it from the shared
+ * client keeps a forced result from leaking into sibling stories.
  */
 function forceInsightsState( state: 'loading' | 'error' | 'empty' ) {
 	setReportMockState( 'stats/insights', state );
@@ -126,9 +120,8 @@ function AnnualHighlightsDashboardStory( dashboardArgs: WidgetDashboardWithWidge
 			renderModule={ ANNUAL_HIGHLIGHTS_RENDER_MODULE }
 			renderComponent={ AnnualHighlightsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
-				// Comparison params by default, per the story template: the widget
-				// ignores report params, and this story covers that it keeps doing so
-				// when the host supplies them.
+				// The widget ignores report params; this story covers that it keeps
+				// doing so when the host supplies them.
 				reportParams: getDefaultQueryParams( true ),
 			} }
 		/>

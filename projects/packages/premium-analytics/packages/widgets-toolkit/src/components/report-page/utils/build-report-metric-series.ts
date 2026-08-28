@@ -22,13 +22,9 @@ type ReportTimeSeriesResponse = {
 };
 
 /**
- * Map a time-series report's points to chart points for one metric. Each
- * `StatsTimeSeriesDataPoint` carries every requested `stat_fields` metric as a
- * raw field keyed by name (`views`, `visitors`, …).
- *
- * @param report - The time-series report.
- * @param key    - The metric field to read from each point.
- * @return The chart points, oldest first.
+ * Map a time-series report's points to chart points for one metric. A
+ * `StatsTimeSeriesDataPoint` carries every requested `stat_fields` metric as a raw
+ * field keyed by name (`views`, `visitors`, …).
  */
 function toChartPoints( report: StatsTimeSeriesReport, key: string ): ComparativeDatePointDate[] {
 	return ( report.data ?? [] ).map( point => ( {
@@ -38,12 +34,8 @@ function toChartPoints( report: StatsTimeSeriesReport, key: string ): Comparativ
 }
 
 /**
- * Project the report page's richer time-series point shape into the shared
- * line-chart helper's generic response shape for one metric.
- *
- * @param report - The time-series report.
- * @param key    - The metric field to read from each point.
- * @return The generic time-series response expected by `buildTimeSeriesChartData`.
+ * Project the report page's richer time-series point shape into the generic response
+ * shape `buildTimeSeriesChartData` expects, for one metric.
  */
 function toTimeSeriesResponse(
 	report: StatsTimeSeriesReport,
@@ -103,21 +95,12 @@ function buildSingleMetricSeries(
 }
 
 /**
- * Build the performance chart series from a visits time-series report: one
- * solid series per visible metric, labelled by metric name.
+ * Build the performance chart series from a visits time-series report: one solid
+ * series per visible metric.
  *
- * When exactly one metric is visible and a comparison report is provided, the
- * previous period is added as a same-`group` (same colour) dashed `comparison`
- * series with a transparent fill — mirroring `MetricTabsChart`, down to naming
- * both series after the metric so they collapse into one legend item. With
- * multiple visible metrics the comparison is omitted: overlaying a dashed twin
- * per metric would make the chart unreadable.
- *
- * @param options            - The build options.
- * @param options.primary    - The current-period time-series report.
- * @param options.comparison - The previous-period report, when comparison is enabled.
- * @param options.metrics    - The visible metrics, in render order.
- * @return The chart series.
+ * A single visible metric with a comparison report also gets the previous period as a
+ * same-`group` dashed series, so the two collapse into one legend item. With several
+ * metrics the comparison is dropped: a dashed twin each would be unreadable.
  */
 export function buildReportMetricSeries( {
 	primary,

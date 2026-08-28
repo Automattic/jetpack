@@ -71,9 +71,8 @@ describe( 'MostPopularDayWidget', () => {
 	} );
 
 	it( 'ignores the report params the host injects', async () => {
-		// The pitfall this guards is the opposite of the usual one: the card is
-		// all-time, so host report params must reach WidgetRoot (the contract) and
-		// still leave both the request and the figures untouched.
+		// The card is all-time, so host report params must reach WidgetRoot (the
+		// contract) and still leave both the request and the figures untouched.
 		render(
 			<MostPopularDayWidget attributes={ { reportParams: getDefaultQueryParams( true ) } } />
 		);
@@ -146,10 +145,9 @@ describe( 'MostPopularDayWidget', () => {
 
 		await expect( screen.findByText( 'October 17' ) ).resolves.toBeInTheDocument();
 
-		// `placeholderData` keeps the prior response, so a transient failure must
-		// not replace figures that are still on screen with an error. Awaited on
-		// the refetch itself: "October 17" is already mounted, so asserting it
-		// without waiting would pass before the rejection could land.
+		// `placeholderData` keeps the prior response, so a transient failure must not
+		// replace figures still on screen. Awaited on the refetch itself: "October 17"
+		// is already mounted, so asserting it would pass before the rejection lands.
 		mockApiFetch.mockRejectedValue( { status: 403, code: 'no_connection' } );
 		await queryClient.refetchQueries( { queryKey: [ 'stats', 'site' ] } );
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 2 ) );

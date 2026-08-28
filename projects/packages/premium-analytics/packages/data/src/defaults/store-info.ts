@@ -6,9 +6,7 @@ export type StoreInfo = {
 };
 
 /**
- * Stand-in for real store info. `launchedDate` is the only field consumed, and
- * it feeds `getDefaultPreset( launchedDate )`, which falls back to its default
- * preset when the date is undefined — so an empty object stays correct.
+ * Stand-in for real store info; every consumer tolerates the empty object.
  *
  * TODO: Source store info from the analytics boot/localized settings once the
  * host exposes it.

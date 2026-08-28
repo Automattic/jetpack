@@ -26,12 +26,9 @@ type VideoSummaryCardProps = {
 const DATE_FORMAT = 'MMM d, yyyy';
 
 /**
- * The page-header summary of the video being viewed: poster-frame thumbnail
- * (or a video-glyph placeholder, matching the post detail header's
- * missing-image treatment), title, and one line stating the publish date and
- * the applied performance window. The poster can be tokenless (unusable) for
- * private videos, so a failing image swaps itself for the placeholder, the
- * same as when no poster is returned.
+ * Page-header summary for the video: poster (or placeholder), title, publish
+ * date, and performance window. Poster URLs can be tokenless and 404 for
+ * private videos, so a failed load swaps in the placeholder.
  *
  * @param props                  - Component props.
  * @param props.summary          - The resolved video summary.

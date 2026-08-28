@@ -26,11 +26,9 @@ export function isPremiumAnalyticsInitialSyncFinished(): boolean {
 /**
  * Check whether the site's VideoPress-backed surfaces should be shown.
  *
- * Defaults to false, unlike the sibling `csv_exports_enabled` flag: showing the
- * video surfaces on a site that cannot produce play data is the empty report
- * this gate exists to remove. Safe to default that way because every path that
- * renders the dashboard runs `Analytics::load_dashboard_components()`, which
- * registers the filter that injects the flag (`src/videopress-availability.php`).
+ * Defaults to false, unlike the sibling `csv_exports_enabled` flag, because an
+ * empty video report is what this gate removes; every dashboard path registers
+ * the filter that injects the flag (`src/videopress-availability.php`).
  *
  * @return Whether VideoPress is available on this site.
  */

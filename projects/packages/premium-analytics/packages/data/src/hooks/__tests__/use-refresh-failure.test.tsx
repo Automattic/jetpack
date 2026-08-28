@@ -119,7 +119,6 @@ describe( 'useRefreshFailure', () => {
 		} );
 		expect( result.current.failure.hasStaleData ).toBe( true );
 
-		// The reader switches a control off: the observer stays, `enabled` does not.
 		// `refetchQueries` skips disabled queries, so counting this one would leave
 		// a notice no Retry can clear.
 		rerender( { enabled: false } );
