@@ -71,6 +71,11 @@ class Jetpack_Forms {
 		// Enforces the availability of block support controls in the UI for classic themes.
 		add_filter( 'wp_theme_json_data_default', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'add_theme_json_data_for_classic_themes' ) );
 
+		// Register the bundled integrations. Deferred to `init` because their titles are
+		// translated and this runs before WordPress can translate; nothing reads the
+		// registry earlier. Third-party integrations may register at any time.
+		add_action( 'init', array( '\Automattic\Jetpack\Forms\Integrations\Built_In_Integrations', 'register' ) );
+
 		// Initialize abilities registration for WordPress Abilities API (WP 6.9+)
 		\Automattic\Jetpack\Forms\Abilities\Forms_Abilities::init();
 	}
