@@ -133,7 +133,7 @@ Precedence for a series color, highest first:
 
 The palette is resolved per provider, so one `ColorCache` and one group-to-color map serve every chart under it and siblings agree on what a group is colored. The consequence is that a slot set on a *chart's own* element does not apply — the palette was resolved at the provider wrapper before that element existed. Use `options.stroke` for a per-chart color.
 
-`theme.colors` is deprecated sugar over the slots: entry N publishes slot N's theme layer through the same mechanism as every other mapped field, so a CSS declaration still outranks it and a short array leaves the later slots unset rather than blank. Entries past the fifth are ignored, with a one-time console warning. It is removed in CHARTS-227.
+`theme.colors` is deprecated sugar over the slots: entry N publishes slot N's theme layer through the same mechanism as every other mapped field, so a CSS declaration still outranks it and a short array leaves the later slots unset rather than blank. Entries past the fifth are ignored, with a one-time console warning. It is removed in CHARTS-263.
 
 ## Non-color roles
 

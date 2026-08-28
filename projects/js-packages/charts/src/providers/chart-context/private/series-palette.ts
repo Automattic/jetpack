@@ -4,7 +4,7 @@
  * Which slots exist is a fact about the catalog `chart-scope.scss` emits, not a theme value, so it
  * is declared here rather than in `themes.ts`, which now derives `defaultTheme.colors` from it.
  *
- * That is as far as the separation goes, and the limit is worth knowing before CHARTS-227 tries to
+ * That is as far as the separation goes, and the limit is worth knowing before CHARTS-263 tries to
  * delete the field. `GlobalChartsProvider` still resolves `providerTheme.colors`, not this manifest,
  * because `withCatalogPointers` parks the consumer's own color in each pointer's terminal position
  * and that literal is the palette's only carrier where `getComputedStyle` resolves nothing — SSR
