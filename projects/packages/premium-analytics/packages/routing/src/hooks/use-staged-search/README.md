@@ -34,7 +34,6 @@ type UseStagedSearchReturn< TSearch > = {
 	committed: TSearch; // current URL state
 	staged: TSearch; // optimistic local snapshot
 	effective: TSearch; // staged over committed per key
-	isSyncing: boolean; // true while committing
 	isDirty: boolean; // staged differs from committed
 	stage( patch: Partial< TSearch > ): void;
 	commit( opts?: { replace?: boolean } ): void;
@@ -107,18 +106,16 @@ export function DashboardHeader() {
 
 - Do not pass `to` on commit; update only `search` for SPA smoothness.
 - Explicit commit: `commit( { replace: false } )` pushes history.
+- Corrections the user did not ask for: `commit( { replace: true } )`.
 - The URL→UI mirror keeps Back/Forward fluid and flicker-free.
 
 **Data fetching**
 
 ```ts
-const { effective, isSyncing } = useStagedSearch< Search >( {
-	from: '/',
-} );
+const { effective } = useStagedSearch< Search >( { from: '/' } );
 
 const query = useQuery( {
 	queryKey: [ 'orders', effective ],
-	enabled: ! isSyncing,
 	queryFn: () => fetchOrders( effective ),
 } );
 ```
@@ -132,6 +129,5 @@ const query = useQuery( {
 
 - Writing the URL from multiple components (breaks atomicity).
 - Mixing `useSearch()` reads in children that also depend on staging.
-- Always using `replace: true` on explicit commits.
 
 ---

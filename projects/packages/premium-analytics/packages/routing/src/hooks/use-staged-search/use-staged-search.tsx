@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useNavigate, useSearch } from '@wordpress/route';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -34,8 +34,6 @@ export type UseStagedSearchReturn< TSearch extends AnyObject > = {
 	 * The effective state for rendering and data fetching.
 	 */
 	effective: TSearch;
-
-	isSyncing: boolean;
 
 	/**
 	 * Whether the staged state differs from the committed state.
@@ -91,13 +89,6 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 	) as Parameters< typeof useSearch >[ 0 ];
 	const committed = useSearch( searchOptions ) as TSearch;
 
-	const [ isSyncing, setIsSyncing ] = useState( false ); // not used yet
-
-	// Cleared once the router has applied the new committed state.
-	useEffect( () => {
-		setIsSyncing( false );
-	}, [ committed ] );
-
 	/*
 	 * Writes the patch rather than the whole draft, and passes no `to`, so a
 	 * commit keeps the current route and every search param this hook does not
@@ -105,8 +96,6 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 	 */
 	const writeToSearch = useCallback(
 		( _staged: TSearch, patch: Partial< TSearch >, commitOpts?: { replace?: boolean } ) => {
-			setIsSyncing( true );
-
 			navigate( {
 				replace: commitOpts?.replace ?? false, // explicit commits push into history
 				viewTransition: false,
@@ -134,7 +123,6 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 		committed,
 		staged,
 		effective,
-		isSyncing,
 		isDirty,
 		stage,
 		commit,

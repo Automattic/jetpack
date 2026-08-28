@@ -77,7 +77,6 @@ function mockSearch( section: string ) {
 		committed: { section },
 		staged: { section },
 		effective: { section },
-		isSyncing: false,
 		isDirty: false,
 		stage,
 		commit,
