@@ -1,42 +1,21 @@
-// The next-backup line sits above the Overview's two-pane grid, a
-// sibling of `.jpb-overview` rather than a child: that element is a
-// two-column grid at >= 961px, so a third child would be auto-placed
-// into the layout. Same reason the storage section and the status
-// banners are siblings.
+// A sibling of `.jpb-overview` rather than a child: that element is a
+// two-column grid at >= 961px, so a third child would be auto-placed.
 .jpb-next-scheduled-backup {
-	// `Text` renders a `<span>`, so this has to be told to take a line of
-	// its own before a block margin means anything. Measured in Chromium:
-	// with the margin but without this, the rendered gap to the next
-	// element is 1px, because vertical margins do not apply to an inline
-	// box — `margin-bottom` still *computes* to 16px, so reading the
+	// `Text` renders a `<span>`, and vertical margins do not apply to an
+	// inline box. `margin-block-end` still computes to 16px, so reading the
 	// computed style alone would say this was working.
 	display: block;
 
-	// And the reason the element is left as a `<span>`. `Text` also
-	// applies `@wordpress/ui`'s global-CSS defense, which is deliberately
-	// unlayered and includes `p.<hash> { margin: var(--_gcd-p-margin, 0) }`
-	// at specificity (0,1,1). Rendered as a `<p>`, that rule outranks a
-	// plain class selector at (0,1,0) and this margin is silently dropped:
-	// measured at 0px computed and a 0px rendered gap, identical to having
-	// no rule here at all. On a `<span>` the defense does not match — its
-	// selector requires a `p` element — and the only competitor left is
-	// `@wordpress/ui`'s own `.text { margin: 0 }`, which sits inside
-	// `@layer wp-ui` and loses to any unlayered rule whatever its
-	// specificity. So this wins outright rather than by a source-order
-	// tiebreak that runtime-injected CSS could flip.
-	// The 16px, rather than legacy's 24px, is because legacy's copy is the
-	// last thing in its column, where this one has the storage section
-	// immediately under it carrying its own 24px.
+	// And why the element stays a `<span>`: `@wordpress/ui`'s global-CSS
+	// defense is unlayered and matches `p` at (0,1,1), outranking a plain
+	// class selector and dropping this margin silently. 16px rather than
+	// legacy's 24px because the storage section below carries its own.
 	margin-block-end: 16px;
 
-	// Stands in for the line while the schedule and storage reads are in
-	// flight, so the storage section below is not pushed down when they
-	// land. Matches the rendered line exactly — `body-sm` is
-	// `--wpds-typography-line-height-xs`, 16px — plus the same 16px gap,
-	// and is deliberately narrower than the column so the pair does not
-	// read as a block of content that failed to load.
-	// A sibling class rather than a descendant: the skeleton *replaces*
-	// this element, so the two are never in the DOM together.
+	// Stands in for the line while the reads are in flight, so the storage
+	// section is not pushed down when they land. A sibling class rather than
+	// a descendant: the skeleton replaces this element, so the two are never
+	// in the DOM together.
 	&__placeholder {
 		block-size: 16px;
 		inline-size: 260px;
