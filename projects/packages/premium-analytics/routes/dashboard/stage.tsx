@@ -250,7 +250,6 @@ function Dashboard(): JSX.Element {
 					<Page
 						visual={ <StatsPageIcon /> }
 						breadcrumbs={ <StatsBreadcrumbs isRoot /> }
-						subTitle={ activeSectionRecord?.description }
 						actions={ <WidgetDashboard.Actions /> }
 						className={ styles.dashboard }
 					>
