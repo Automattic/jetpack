@@ -307,10 +307,45 @@ describe( 'The header button on its own, with no gate above it', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
+	it( 'stays away while the first capabilities read is in flight', async () => {
+		const pending = deferred< unknown >();
+		answerWith( () => pending.promise );
+
+		const { client, container } = renderButtonAlone();
+
+		// The button's other read is answered, so the capabilities read is
+		// the only thing left that could be withholding it.
+		await waitFor( () =>
+			expect( mockApiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( { path: '/jetpack/v4/backups' } )
+			)
+		);
+		expect( client.getQueryState( keys.capabilities() )?.fetchStatus ).toBe( 'fetching' );
+		expect( container ).toBeEmptyDOMElement();
+
+		// And it is only that: releasing the read brings the button back,
+		// with nothing else about the fixture changed.
+		pending.resolve( { hasBackupPlan: true, hasScan: false } );
+		await waitFor( () => expect( container ).not.toBeEmptyDOMElement() );
+		expect( container ).toHaveTextContent( 'Back up now' );
+	} );
+
 	it( 'stays away for an unconnected secondary admin', () => {
 		window.JP_CONNECTION_INITIAL_STATE = {
 			...window.JP_CONNECTION_INITIAL_STATE,
 			connectionStatus: SECONDARY_ADMIN,
+		} as typeof window.JP_CONNECTION_INITIAL_STATE;
+
+		const { container } = renderButtonAlone();
+
+		expect( container ).toBeEmptyDOMElement();
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'stays away on a site that is not connected at all', () => {
+		window.JP_CONNECTION_INITIAL_STATE = {
+			...window.JP_CONNECTION_INITIAL_STATE,
+			connectionStatus: DISCONNECTED,
 		} as typeof window.JP_CONNECTION_INITIAL_STATE;
 
 		const { container } = renderButtonAlone();
