@@ -44,6 +44,11 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		// Remove any HTTP request filters.
 		remove_all_filters( 'pre_http_request' );
+
+		// Drop the REST server and its handlers so each route-registration test starts clean.
+		remove_all_actions( 'rest_api_init' );
+		global $wp_rest_server;
+		$wp_rest_server = null;
 	}
 
 	/**
@@ -792,6 +797,150 @@ class PayPal_REST_Controller_Test extends TestCase {
 	public function test_rest_constants() {
 		$this->assertEquals( 'wpcom/v2', PayPal_REST_Controller::REST_NAMESPACE );
 		$this->assertEquals( '/paypal', PayPal_REST_Controller::ROUTE_BASE );
+	}
+
+	// --- Route registration ---
+
+	/**
+	 * Register the PayPal routes the way production does -- on rest_api_init --
+	 * and return the resulting route table.
+	 *
+	 * Calling register_rest_route() outside that action trips _doing_it_wrong(),
+	 * which this suite treats as a failure.
+	 *
+	 * @return array The REST server's route table.
+	 */
+	private function register_paypal_routes() {
+		global $wp_rest_server;
+		$wp_rest_server = null;
+
+		add_action( 'rest_api_init', array( PayPal_REST_Controller::class, 'register_routes' ) );
+
+		// rest_get_server() fires rest_api_init when it builds the server.
+		return rest_get_server()->get_routes();
+	}
+
+	/**
+	 * The full set of routes register_routes() is expected to expose, and the
+	 * HTTP methods each one answers.
+	 *
+	 * @return array<string, string[]> Route path (without namespace) => methods.
+	 */
+	private function expected_routes() {
+		return array(
+			'/connect'                                   => array( 'POST' ),
+			'/onboarding/signup-link'                    => array( 'POST' ),
+			'/onboarding/complete'                       => array( 'POST' ),
+			'/onboarding/status'                         => array( 'GET' ),
+			'/connection'                                => array( 'GET' ),
+			'/disconnect'                                => array( 'POST' ),
+			'/environment'                               => array( 'POST' ),
+			'/buttons'                                   => array( 'GET', 'POST' ),
+			'/buttons/(?P<resource_id>PLB-[A-Za-z0-9]+)' => array( 'DELETE', 'GET', 'PUT' ),
+		);
+	}
+
+	/**
+	 * Every PayPal route registers under the wpcom/v2 namespace.
+	 *
+	 * Guards the Simple-site regression: jetpack/v4 routes register fine but 404
+	 * at the WordPress.com proxy, which only serves wpcom/v2 for Simple sites.
+	 */
+	public function test_register_routes_registers_every_route_under_wpcom_v2() {
+		$routes = $this->register_paypal_routes();
+
+		foreach ( array_keys( $this->expected_routes() ) as $route ) {
+			$this->assertArrayHasKey(
+				'/wpcom/v2/paypal' . $route,
+				$routes,
+				"Route /wpcom/v2/paypal$route was not registered."
+			);
+		}
+	}
+
+	/**
+	 * No PayPal route is left behind in the old jetpack/v4 namespace.
+	 */
+	public function test_register_routes_registers_nothing_under_jetpack_v4() {
+		$paypal_routes = array_filter(
+			array_keys( $this->register_paypal_routes() ),
+			function ( $route ) {
+				return 0 === strpos( $route, '/jetpack/v4/paypal' );
+			}
+		);
+
+		$this->assertSame( array(), array_values( $paypal_routes ) );
+	}
+
+	/**
+	 * Each route answers exactly the HTTP methods it is meant to.
+	 */
+	public function test_register_routes_exposes_the_expected_methods() {
+		$routes = $this->register_paypal_routes();
+
+		foreach ( $this->expected_routes() as $route => $expected_methods ) {
+			$methods = array();
+			foreach ( $routes[ '/wpcom/v2/paypal' . $route ] as $endpoint ) {
+				$methods = array_merge( $methods, array_keys( array_filter( $endpoint['methods'] ) ) );
+			}
+
+			$methods = array_values( array_unique( $methods ) );
+			sort( $methods );
+
+			$this->assertSame( $expected_methods, $methods, "Unexpected methods for $route." );
+		}
+	}
+
+	/**
+	 * Every registered endpoint is guarded by a permission callback.
+	 *
+	 * A missing permission_callback would expose merchant credentials and button
+	 * management to anonymous requests.
+	 */
+	public function test_every_registered_endpoint_has_a_permission_callback() {
+		$routes = $this->register_paypal_routes();
+
+		foreach ( array_keys( $this->expected_routes() ) as $route ) {
+			foreach ( $routes[ '/wpcom/v2/paypal' . $route ] as $endpoint ) {
+				$this->assertArrayHasKey( 'permission_callback', $endpoint, "No permission_callback on $route." );
+				$this->assertIsCallable( $endpoint['permission_callback'], "Uncallable permission_callback on $route." );
+			}
+		}
+	}
+
+	/**
+	 * The button create/update routes declare the argument schema the editor sends.
+	 */
+	public function test_button_routes_declare_their_argument_schema() {
+		$routes = $this->register_paypal_routes();
+
+		$create_args = null;
+		foreach ( $routes['/wpcom/v2/paypal/buttons'] as $endpoint ) {
+			if ( ! empty( $endpoint['methods']['POST'] ) ) {
+				$create_args = $endpoint['args'];
+			}
+		}
+
+		$this->assertNotNull( $create_args, 'No POST endpoint registered for /buttons.' );
+
+		foreach ( array( 'name', 'type', 'integration_mode', 'reusable', 'return_url', 'line_items' ) as $arg ) {
+			$this->assertArrayHasKey( $arg, $create_args, "Missing '$arg' argument on button creation." );
+		}
+
+		$this->assertTrue( $create_args['line_items']['required'], 'line_items should be required.' );
+	}
+
+	/**
+	 * The single-button routes capture a PLB- resource ID and reject anything else.
+	 */
+	public function test_single_button_route_pattern_matches_only_plb_ids() {
+		$pattern = '#^/wpcom/v2/paypal/buttons/(?P<resource_id>PLB-[A-Za-z0-9]+)$#';
+
+		$this->assertSame( 1, preg_match( $pattern, '/wpcom/v2/paypal/buttons/PLB-42abc', $matches ) );
+		$this->assertSame( 'PLB-42abc', $matches['resource_id'] );
+
+		$this->assertSame( 0, preg_match( $pattern, '/wpcom/v2/paypal/buttons/XYZ-42' ) );
+		$this->assertSame( 0, preg_match( $pattern, '/wpcom/v2/paypal/buttons/PLB-' ) );
 	}
 
 	// --- Helpers ---
