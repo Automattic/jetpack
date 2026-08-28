@@ -67,6 +67,13 @@ class Jetpack_AI_Helper {
 	public static $ai_assistant_feature_error_cache_timeout = 10;
 
 	/**
+	 * Limit forced AI-assistant feature refreshes to one every five seconds.
+	 *
+	 * @var int
+	 */
+	public static $ai_assistant_feature_refresh_cooldown = 5;
+
+	/**
 	 * Stores the number of JetpackAI calls in case we want to mark AI-assisted posts some way.
 	 *
 	 * @var int
@@ -215,6 +222,16 @@ class Jetpack_AI_Helper {
 	 */
 	public static function transient_name_for_ai_assistance_feature( $blog_id ) {
 		return 'jetpack_openai_ai_assistance_feature_' . $blog_id;
+	}
+
+	/**
+	 * Get the name of the transient that limits forced AI-assistant feature refreshes.
+	 *
+	 * @param int $blog_id Blog ID to get the transient name for.
+	 * @return string
+	 */
+	public static function transient_name_for_ai_assistance_feature_refresh( $blog_id ) {
+		return 'jetpack_openai_ai_assistance_feature_refresh_' . $blog_id;
 	}
 
 	/**
@@ -417,6 +434,100 @@ class Jetpack_AI_Helper {
 	}
 
 	/**
+	 * Return usable AI-assistant feature data for a supported usage contract.
+	 *
+	 * Legacy responses expose a request count. The cost-based contract is additive
+	 * and versioned so existing WordPress.com responses keep their current meaning.
+	 * A malformed additive allowance is removed from an otherwise usable legacy
+	 * response so it cannot poison the cache or confuse newer clients. Credit-only
+	 * responses must be gated to Jetpack versions that support their schema.
+	 *
+	 * @param mixed $data Response data.
+	 * @return array|false
+	 */
+	private static function get_usable_ai_assistance_feature_data( $data ) {
+		if ( ! is_array( $data ) ) {
+			return false;
+		}
+
+		$has_legacy_contract = array_key_exists( 'requests-count', $data );
+		$allowance           = $data['ai-credit-allowance'] ?? null;
+		$has_credit_contract = self::is_usable_ai_credit_allowance( $allowance );
+
+		if ( $has_legacy_contract ) {
+			if ( array_key_exists( 'ai-credit-allowance', $data ) && ! $has_credit_contract ) {
+				unset( $data['ai-credit-allowance'] );
+			}
+
+			return $data;
+		}
+
+		return $has_credit_contract ? $data : false;
+	}
+
+	/**
+	 * Whether an allowance matches the supported cost-credit contract.
+	 *
+	 * @param mixed $allowance Allowance data.
+	 * @return bool
+	 */
+	private static function is_usable_ai_credit_allowance( $allowance ) {
+		if ( ! is_array( $allowance ) ) {
+			return false;
+		}
+
+		$required = array(
+			'schema-version',
+			'metering-model',
+			'policy',
+			'plan-kind',
+			'authoritative',
+			'credit-limit',
+			'credits-used',
+			'credits-remaining',
+			'period-start',
+			'resets-at',
+			'rollover',
+			'is-exhausted',
+		);
+
+		foreach ( $required as $key ) {
+			if ( ! array_key_exists( $key, $allowance ) ) {
+				return false;
+			}
+		}
+
+		if (
+			1 !== $allowance['schema-version']
+			|| 'provider-cost-v1' !== $allowance['metering-model']
+			|| 'jetpack-ai-self-hosted-monthly-v1' !== $allowance['policy']
+			|| ! in_array( $allowance['plan-kind'], array( 'free', 'paid' ), true )
+			|| true !== $allowance['authoritative']
+			|| ! is_int( $allowance['credit-limit'] )
+			|| ! is_int( $allowance['credits-used'] )
+			|| ! is_int( $allowance['credits-remaining'] )
+			|| ! is_string( $allowance['period-start'] )
+			|| ! is_string( $allowance['resets-at'] )
+			|| false !== $allowance['rollover']
+			|| ! is_bool( $allowance['is-exhausted'] )
+		) {
+			return false;
+		}
+
+		$expected_remaining = max( 0, $allowance['credit-limit'] - $allowance['credits-used'] );
+		$period_start       = strtotime( $allowance['period-start'] );
+		$resets_at          = strtotime( $allowance['resets-at'] );
+
+		return $allowance['credit-limit'] >= 0
+			&& $allowance['credits-used'] >= 0
+			&& $expected_remaining === $allowance['credits-remaining']
+			&& ( 0 === $allowance['credits-remaining'] ) === $allowance['is-exhausted']
+			&& false !== $period_start
+			&& false !== $resets_at
+			&& $period_start < $resets_at;
+	}
+
+	/**
 	 * Get an object with useful data about the requests made to the AI.
 	 *
 	 * @param bool $skip_cache Whether to fetch fresh data from WordPress.com.
@@ -475,15 +586,36 @@ class Jetpack_AI_Helper {
 		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		// Try to pick the AI Assistant feature from cache.
-		$transient_name   = self::transient_name_for_ai_assistance_feature( $blog_id );
-		$cache            = get_transient( $transient_name );
-		$has_usable_cache = is_array( $cache ) && array_key_exists( 'requests-count', $cache );
+		$transient_name         = self::transient_name_for_ai_assistance_feature( $blog_id );
+		$refresh_transient_name = self::transient_name_for_ai_assistance_feature_refresh( $blog_id );
+		$cached_data            = get_transient( $transient_name );
+		$cache                  = self::get_usable_ai_assistance_feature_data( $cached_data );
+		$has_usable_cache       = false !== $cache;
 		if ( ! $skip_cache && $cache ) {
 			return $cache;
+		}
+		if ( ! $skip_cache && is_wp_error( $cached_data ) ) {
+			return $cached_data;
 		}
 
 		if ( ! $skip_cache && null !== static::$ai_assistant_failed_request ) {
 			return static::$ai_assistant_failed_request;
+		}
+
+		if ( $skip_cache && get_transient( $refresh_transient_name ) ) {
+			if ( $has_usable_cache ) {
+				return $cache;
+			}
+
+			return new WP_Error(
+				'ai_assistance_feature_refresh_rate_limited',
+				esc_html__( 'Jetpack AI status was refreshed too recently.', 'jetpack' ),
+				array( 'status' => 429 )
+			);
+		}
+
+		if ( $skip_cache ) {
+			set_transient( $refresh_transient_name, true, self::$ai_assistant_feature_refresh_cooldown );
 		}
 
 		$request_path = sprintf( '/sites/%d/jetpack-ai/ai-assistant-feature', $blog_id );
@@ -505,17 +637,29 @@ class Jetpack_AI_Helper {
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 		if ( 200 === $response_code ) {
 			$ai_assistant_feature_data = json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
-			$has_requests_count        = is_array( $ai_assistant_feature_data )
-				&& array_key_exists( 'requests-count', $ai_assistant_feature_data );
+			$usable_response_data      = self::get_usable_ai_assistance_feature_data( $ai_assistant_feature_data );
 
-			if ( $skip_cache && $has_usable_cache && ! $has_requests_count ) {
-				return $cache;
+			if ( false === $usable_response_data ) {
+				if ( $skip_cache && $has_usable_cache ) {
+					return $cache;
+				}
+
+				$error = new WP_Error(
+					'invalid_ai_assistance_feature_response',
+					esc_html__( 'The Jetpack AI status response was invalid.', 'jetpack' ),
+					array( 'status' => 502 )
+				);
+
+				static::$ai_assistant_failed_request = $error;
+				set_transient( $transient_name, $error, self::$ai_assistant_feature_error_cache_timeout );
+
+				return $error;
 			}
 
 			// Cache the AI Assistant feature, for Jetpack sites.
-			set_transient( $transient_name, $ai_assistant_feature_data, self::$ai_assistant_feature_cache_timeout );
+			set_transient( $transient_name, $usable_response_data, self::$ai_assistant_feature_cache_timeout );
 
-			return $ai_assistant_feature_data;
+			return $usable_response_data;
 		}
 
 		$error = new WP_Error(
