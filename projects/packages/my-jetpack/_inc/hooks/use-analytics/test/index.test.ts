@@ -1,10 +1,8 @@
 /**
- * My Jetpack reports Tracks events under the reader's WordPress.com identity, which is
- * keyed `ID` — capital I, capital D. The failure is silent: `initialize()` is skipped
- * when the id is falsy, and every later `recordEvent` then reports nothing.
- *
- * A type cannot close this on its own — the value crosses an untyped `@wordpress/data`
- * store — so these assert what `initialize()` actually receives.
+ * My Jetpack reports Tracks events under the reader's WordPress.com identity, keyed `ID`.
+ * A misspelling is silent: `initialize()` is skipped on a falsy id and every later
+ * `recordEvent` reports nothing. A type cannot close it either — the value crosses an
+ * untyped `@wordpress/data` store — so these assert what `initialize()` receives.
  */
 
 const mockInitialize = jest.fn();
@@ -70,16 +68,17 @@ afterEach( () => {
 
 describe( 'useAnalytics', () => {
 	it( 'identifies the reader with the id WordPress.com actually sends', () => {
-		// No spy: reads the shared jest fixture through the real store, so this fails the
-		// moment that fixture stops spelling the key `ID`.
+		// The already-connected-at-mount path: the "confirmed after mount" test below
+		// starts disconnected, so nothing else here covers it. No spy, so the identity
+		// arrives through the real store rather than a stub.
 		renderHook( () => useAnalytics() );
 
 		expect( mockInitialize ).toHaveBeenCalledWith( 99999, 'bobsacramento' );
 	} );
 
 	it( 'refuses a lowercase id rather than reporting a phantom reader', () => {
-		// The shape this package's fixture used to assert. WordPress.com never sends it, so
-		// accepting it would identify the reader as `undefined` and lose every later event.
+		// The only test that catches a production fallback like `ID ?? Id`, which someone
+		// could add to paper over a fixture mismatch. WordPress.com never sends `Id`.
 		jest.spyOn( connectionSelectors(), 'getUserConnectionData' ).mockReturnValue( {
 			currentUser: { wpcomUser: { Id: 99999, login: 'bobsacramento' } },
 		} );
