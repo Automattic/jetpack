@@ -1,12 +1,14 @@
 <?php
 /**
- * Tests for the Jetpack SEO Initializer.
+ * Tests for the Jetpack SEO Initializer: the package boot wiring and the
+ * cross-plugin contract it carries.
  *
  * @package automattic/jetpack-seo
  */
 
 namespace Automattic\Jetpack\SEO;
 
+use Automattic\Jetpack\Current_Plan;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -17,13 +19,6 @@ use PHPUnit\Framework\TestCase;
 class InitializerTest extends TestCase {
 
 	/**
-	 * The Initializer class exists and exposes the expected menu slug.
-	 */
-	public function test_menu_slug_constant_is_defined() {
-		$this->assertSame( 'jetpack-seo', Initializer::MENU_SLUG );
-	}
-
-	/**
 	 * The package version constant is defined and non-empty.
 	 */
 	public function test_package_version_constant_is_defined() {
@@ -31,81 +26,89 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * The feature-flag filter name is the expected slug.
+	 * The feature gates use the expected slugs.
 	 */
-	public function test_feature_filter_constant_is_defined() {
+	public function test_feature_gate_constants_are_defined() {
+		$this->assertSame( 'seo-admin-ui', Initializer::FEATURE_SLUG );
 		$this->assertSame( 'rsm_jetpack_seo', Initializer::FEATURE_FILTER );
 	}
 
 	/**
-	 * The factual content-coverage counts expose the expected integer shape
-	 * (state, not a score). Invoked directly to avoid get_overview_data()'s
-	 * Modules dependency, which needs host-plugin option classes absent here.
+	 * Either the existing filter or the WordPress.com site feature can make SEO
+	 * available; neither path is required when the other is enabled.
 	 */
-	public function test_content_coverage_shape() {
-		$method = new \ReflectionMethod( Initializer::class, 'get_content_coverage' );
-		// Required to invoke a private method on PHP < 8.1 (a no-op from 8.1 on).
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-		$coverage = $method->invoke( null );
+	public function test_is_available_uses_filter_or_site_feature() {
+		$plan                       = Current_Plan::get();
+		$plan['features']['active'] = array();
+		update_option( Current_Plan::PLAN_OPTION, $plan );
+		self::reset_current_plan_cache();
 
-		foreach ( array( 'total', 'with_schema', 'with_title', 'with_description', 'with_search_visible' ) as $key ) {
-			$this->assertArrayHasKey( $key, $coverage );
-			$this->assertIsInt( $coverage[ $key ] );
-		}
+		// The rollout feature deliberately uses the active feature list rather than
+		// WordPress.com's separate plan-entitlement check.
+		\Wpcom_Test_Features::$known    = array( Initializer::FEATURE_SLUG );
+		\Wpcom_Test_Features::$entitled = array();
 
-		// Search-visible can never exceed the total (it's total minus noindexed).
-		$this->assertLessThanOrEqual( $coverage['total'], $coverage['with_search_visible'] );
+		try {
+			$this->assertFalse( Initializer::is_available() );
+
+			add_filter( Initializer::FEATURE_FILTER, '__return_true' );
+			$this->assertTrue( Initializer::is_available() );
+			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
+
+			$plan['features']['active'] = array( Initializer::FEATURE_SLUG );
+			update_option( Current_Plan::PLAN_OPTION, $plan );
+			self::reset_current_plan_cache();
+			$this->assertTrue( Initializer::is_available() );
+		} finally {
+			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
+			delete_option( Current_Plan::PLAN_OPTION );
+			self::reset_current_plan_cache();
+			\Wpcom_Test_Features::reset();
+		}
 	}
 
 	/**
-	 * `count_published_with_meta()` supports an exact-value match (used for the
-	 * schema-type metric) in addition to the default "non-empty" mode. Exercised
-	 * directly because the Overview only ever calls the non-empty mode, so the
-	 * value-match branch would otherwise go uncovered. Returns an integer count
-	 * (zero in the empty test environment).
+	 * Clear Current_Plan's request cache after changing its backing option.
 	 */
-	public function test_count_published_with_meta_supports_exact_value() {
-		$method = new \ReflectionMethod( Initializer::class, 'count_published_with_meta' );
-		// Required to invoke a private method on PHP < 8.1 (a no-op from 8.1 on).
+	private static function reset_current_plan_cache() {
+		$property = ( new \ReflectionClass( Current_Plan::class ) )->getProperty( 'active_plan_cache' );
 		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
+			$property->setAccessible( true );
 		}
-
-		$count = $method->invoke( null, array( 'post', 'page' ), 'jetpack_seo_schema_type', 'article' );
-
-		$this->assertIsInt( $count );
-		$this->assertSame( 0, $count );
+		$property->setValue( null, null );
 	}
 
 	/**
-	 * `get_overview_data()` assembles the full Overview bootstrap (site
-	 * visibility, verification booleans, content coverage, and plan state) the
-	 * dashboard reads. With no host-plugin options present it degrades to
-	 * sensible defaults, so we assert only the stable shape and types.
+	 * The cross-plugin contract other plugins consume stays on Initializer: the
+	 * option names are pinned as literals (the Jetpack plugin's migrations write
+	 * them), and the visibility reads are real methods (My Jetpack probes
+	 * `is_optin_available` with `method_exists` on this class) delegating to
+	 * Surface_Visibility.
 	 */
-	public function test_get_overview_data_shape() {
-		$overview = Initializer::get_overview_data();
+	public function test_cross_plugin_contract_is_kept_on_initializer() {
+		$this->assertSame( 'jetpack_seo_sitemap_enabled', Initializer::SITEMAP_ENABLED_OPTION );
+		$this->assertSame( 'jetpack_seo_canonical_urls_enabled', Initializer::CANONICAL_ENABLED_OPTION );
+		$this->assertSame( 'jetpack_seo_surface_visible', Initializer::VISIBILITY_OPTION );
 
-		$this->assertArrayHasKey( 'site_visibility', $overview );
-		$this->assertArrayHasKey( 'site_verification', $overview );
-		$this->assertArrayHasKey( 'content_coverage', $overview );
-		$this->assertArrayHasKey( 'plan', $overview );
+		$this->assertTrue( method_exists( Initializer::class, 'is_available' ) );
+		$this->assertTrue( method_exists( Initializer::class, 'is_optin_available' ) );
 
-		$this->assertArrayHasKey( 'search_engines_visible', $overview['site_visibility'] );
-		$this->assertIsBool( $overview['site_visibility']['search_engines_visible'] );
+		// The delegators track Surface_Visibility's answer, not a stale copy of it.
+		delete_option( Initializer::VISIBILITY_OPTION );
+		try {
+			$this->assertFalse( Initializer::is_seo_surface_visible() );
 
-		$this->assertArrayHasKey( 'total', $overview['content_coverage'] );
-		$this->assertIsInt( $overview['content_coverage']['total'] );
-
-		$this->assertArrayHasKey( 'seo_enabled_for_site', $overview['plan'] );
-		$this->assertIsBool( $overview['plan']['seo_enabled_for_site'] );
+			update_option( Initializer::VISIBILITY_OPTION, '1' );
+			$this->assertTrue( Initializer::is_seo_surface_visible() );
+			$this->assertFalse( Initializer::is_optin_available() );
+		} finally {
+			delete_option( Initializer::VISIBILITY_OPTION );
+		}
 	}
 
 	/**
 	 * With the feature flag on, the surface discoverable, and the `seo-tools` module
-	 * active, `init()` registers the front-end JSON-LD schema and the admin/REST hooks.
+	 * active, `init()` registers the front-end schema, GEO, and admin/REST hooks.
 	 * We drive module state through the `jetpack_active_modules` filter (the package test
 	 * context has no on-disk modules), mark the cohort surface visible so init() passes
 	 * its discoverability gate, and reset the one-shot `$initialized` guard so the body runs.
@@ -128,16 +131,108 @@ class InitializerTest extends TestCase {
 		try {
 			Initializer::init();
 
-			// Line proving the body ran past the module gate: Schema_Builder::init()
-			// self-hooks wp_head, and init() registers its admin/REST callbacks.
+			// Lines proving the body ran past the module gate: the front-end features
+			// self-hook, and init() registers its admin/REST callbacks.
 			$this->assertNotFalse(
 				has_action( 'wp_head', array( Schema_Builder::class, 'emit' ) )
 			);
 			$this->assertNotFalse(
-				has_action( 'admin_menu', array( Initializer::class, 'maybe_load_wp_build' ) )
+				has_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) )
 			);
 			$this->assertNotFalse(
-				has_action( 'rest_api_init', array( Initializer::class, 'register_rest_settings' ) )
+				has_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ) )
+			);
+			$this->assertNotFalse(
+				has_action( 'admin_menu', array( Admin_Page::class, 'maybe_load_wp_build' ) )
+			);
+			$this->assertNotFalse(
+				has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ) )
+			);
+
+			// The coverage cache is invalidated from writes that happen anywhere — the block
+			// editor posts through REST, where is_admin() is false — so these have to be
+			// registered by init() itself, not by the admin-only branch above.
+			$this->assertNotFalse(
+				has_action( 'transition_post_status', array( Content_Coverage::class, 'invalidate_on_status_change' ) )
+			);
+			$this->assertNotFalse(
+				has_action( 'deleted_post', array( Content_Coverage::class, 'invalidate_on_delete' ) )
+			);
+			foreach ( array( 'added_post_meta', 'updated_post_meta', 'deleted_post_meta' ) as $hook ) {
+				$this->assertNotFalse(
+					has_action( $hook, array( Content_Coverage::class, 'invalidate_on_meta_change' ) ),
+					"init() must hook {$hook} to keep the coverage counts fresh."
+				);
+			}
+		} finally {
+			remove_filter( 'rsm_jetpack_seo', '__return_true' );
+			remove_filter( 'jetpack_active_modules', $enable_module );
+			delete_option( Initializer::VISIBILITY_OPTION );
+			$initialized->setValue( null, false );
+		}
+	}
+
+	/**
+	 * Put the site on WordPress.com, entitled to `advanced-seo` or not.
+	 *
+	 * `advanced-seo` sits in the FREE plan's supports list and plan classes are
+	 * cumulative, so the plan data alone can never report it unsupported. On
+	 * WordPress.com `Current_Plan::supports()` hijacks to the platform's own feature
+	 * check instead, and that hijack is the only thing that can gate the dashboard.
+	 *
+	 * @param bool $entitled Whether the site is entitled to `advanced-seo`.
+	 */
+	private function simulate_wpcom_site( $entitled ) {
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+
+		\Wpcom_Test_Features::$known    = array( 'advanced-seo' );
+		\Wpcom_Test_Features::$entitled = $entitled ? array( 'advanced-seo' ) : array();
+	}
+
+	/**
+	 * Undo {@see self::simulate_wpcom_site()}.
+	 */
+	private function reset_wpcom_site() {
+		\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+		\Wpcom_Test_Features::reset();
+	}
+
+	/**
+	 * Run `init()` with the surface visible and the `seo-tools` module active, and
+	 * report whether the two GEO-tab front-end services hooked themselves.
+	 *
+	 * Mirrors test_init_registers_schema_and_hooks_when_enabled()'s setup: module
+	 * state is driven through `jetpack_active_modules` (the package test context has
+	 * no on-disk modules), the cohort surface is marked visible, and the one-shot
+	 * `$initialized` guard is reset so the body runs.
+	 *
+	 * @return array{llms_txt: bool, ai_crawlers: bool}
+	 */
+	private function init_and_check_geo_services() {
+		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$initialized->setValue( null, false );
+
+		$enable_module = static function () {
+			return array( 'seo-tools' );
+		};
+		add_filter( 'rsm_jetpack_seo', '__return_true' );
+		add_filter( 'jetpack_active_modules', $enable_module );
+		update_option( Initializer::VISIBILITY_OPTION, '1' );
+
+		// Both services self-hook on init(), so a stale registration from an earlier
+		// test would mask a missing one here.
+		remove_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) );
+		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), 10 );
+
+		try {
+			Initializer::init();
+
+			return array(
+				'llms_txt'    => false !== has_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) ),
+				'ai_crawlers' => false !== has_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ) ),
 			);
 		} finally {
 			remove_filter( 'rsm_jetpack_seo', '__return_true' );
@@ -148,276 +243,189 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * The Google-verification bootstrap exposes the connect URL + connection flag the
-	 * React app expects, with the right types. Without the host plugin's Keyring/Manager
-	 * classes present (the package test context) it degrades to an empty URL and not
-	 * connected, so the UI falls back to manual entry.
+	 * A self-hosted (never-gated) site registers both GEO-tab front-end services:
+	 * /llms.txt is served and the AI-crawler robots.txt directives are appended.
 	 */
-	public function test_get_google_verify_data_shape() {
-		$data = Initializer::get_google_verify_data();
+	public function test_init_registers_geo_services_when_not_gated() {
+		$hooked = $this->init_and_check_geo_services();
 
-		$this->assertArrayHasKey( 'connect_url', $data );
-		$this->assertArrayHasKey( 'is_connected', $data );
-		$this->assertIsString( $data['connect_url'] );
-		$this->assertIsBool( $data['is_connected'] );
-		$this->assertSame( '', $data['connect_url'] );
-		$this->assertFalse( $data['is_connected'] );
+		$this->assertTrue( $hooked['llms_txt'] );
+		$this->assertTrue( $hooked['ai_crawlers'] );
 	}
 
 	/**
-	 * The AI tab bootstrap exposes the enhancer shape the React app expects, with
-	 * boolean availability/enabled. Without a plan-supporting environment the
-	 * enhancer is unavailable.
+	 * A WordPress.com site entitled to `advanced-seo` (Premium and above) is not
+	 * gated, so it too registers both GEO services — gating keys off entitlement,
+	 * not merely off being on WordPress.com.
 	 */
-	public function test_get_ai_data_shape() {
-		// Force the enhancer feature filter off so availability is deterministic
-		// regardless of whether Current_Plan happens to be loaded in the test
-		// environment (availability is `filter_on && plan_supports`).
-		add_filter( 'ai_seo_enhancer_enabled', '__return_false' );
+	public function test_init_registers_geo_services_on_entitled_wpcom_site() {
+		$this->simulate_wpcom_site( true );
 
 		try {
-			$ai = Initializer::get_ai_data();
+			$hooked = $this->init_and_check_geo_services();
 
-			$this->assertArrayHasKey( 'enhancer', $ai );
-			$this->assertArrayHasKey( 'available', $ai['enhancer'] );
-			$this->assertArrayHasKey( 'enabled', $ai['enhancer'] );
-			$this->assertIsBool( $ai['enhancer']['available'] );
-			$this->assertIsBool( $ai['enhancer']['enabled'] );
-			// With the feature filter forced off, the enhancer is never available.
-			$this->assertFalse( $ai['enhancer']['available'] );
+			$this->assertTrue( $hooked['llms_txt'] );
+			$this->assertTrue( $hooked['ai_crawlers'] );
 		} finally {
-			remove_filter( 'ai_seo_enhancer_enabled', '__return_false' );
+			$this->reset_wpcom_site();
 		}
 	}
 
 	/**
-	 * The site-identity bootstrap (used by the Settings search/social previews)
-	 * exposes title, url, icon and image, all as strings. With no site icon or
-	 * custom logo in the test environment the image falls back to the (empty)
-	 * icon.
+	 * A plan-gated WordPress.com site must not merely hide the GEO tab — it must stop
+	 * running the services behind it, or it would keep serving /llms.txt and emitting
+	 * AI-crawler robots.txt directives it isn't entitled to.
 	 */
-	public function test_get_site_data_shape() {
-		$site = Initializer::get_site_data();
+	public function test_init_skips_geo_services_when_gated() {
+		$this->simulate_wpcom_site( false );
 
-		$this->assertArrayHasKey( 'title', $site );
-		$this->assertArrayHasKey( 'url', $site );
-		$this->assertArrayHasKey( 'icon', $site );
-		$this->assertArrayHasKey( 'image', $site );
-		$this->assertIsString( $site['title'] );
-		$this->assertIsString( $site['url'] );
-		$this->assertIsString( $site['icon'] );
-		$this->assertIsString( $site['image'] );
+		try {
+			$hooked = $this->init_and_check_geo_services();
+
+			$this->assertFalse( $hooked['llms_txt'] );
+			$this->assertFalse( $hooked['ai_crawlers'] );
+		} finally {
+			$this->reset_wpcom_site();
+		}
 	}
 
 	/**
-	 * Reads the durable sitemap option without consulting the live module state
-	 * when the option is present (set or explicitly off).
+	 * Gating only suppresses the GEO-tab services — the schema output and the admin
+	 * surface still register, so a gated site keeps the free subset of the dashboard.
 	 */
-	public function test_is_sitemap_enabled_reads_durable_option() {
-		$method = new \ReflectionMethod( Initializer::class, 'is_sitemap_enabled' );
-		// Required to invoke a private method on PHP < 8.1 (a no-op from 8.1 on).
+	public function test_init_still_registers_schema_and_menu_when_gated() {
+		$this->simulate_wpcom_site( false );
+
+		try {
+			$this->init_and_check_geo_services();
+
+			$this->assertNotFalse( has_action( 'wp_head', array( Schema_Builder::class, 'emit' ) ) );
+			$this->assertNotFalse(
+				has_action( 'admin_menu', array( Admin_Page::class, 'maybe_load_wp_build' ) )
+			);
+		} finally {
+			$this->reset_wpcom_site();
+		}
+	}
+
+	/**
+	 * Run init() with the given deliberate-off flag state and surface visibility, and
+	 * report whether it suppressed WordPress core's own sitemap (registered the
+	 * `wp_sitemaps_enabled` → false filter). Mirrors the schema/GEO test setup.
+	 *
+	 * @param bool $user_disabled   Whether SUPPRESS_WP_SITEMAP_OPTION (deliberate off) is set.
+	 * @param bool $surface_visible Whether the SEO dashboard surface is visible. Sitemap
+	 *                              suppression is tied to the feature, not the surface, so
+	 *                              a set flag must be honored either way.
+	 * @return bool Whether init() registered the core-sitemap-suppression filter.
+	 */
+	private function init_and_report_core_sitemaps_disabled( $user_disabled, $surface_visible = true ) {
+		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
 		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
+			$initialized->setAccessible( true );
 		}
-		$modules = new \Automattic\Jetpack\Modules();
+		$initialized->setValue( null, false );
 
-		update_option( Initializer::SITEMAP_ENABLED_OPTION, '1' );
-		$this->assertTrue( $method->invoke( null, $modules ) );
+		add_filter( 'rsm_jetpack_seo', '__return_true' );
+		if ( $surface_visible ) {
+			update_option( Initializer::VISIBILITY_OPTION, '1' );
+		} else {
+			delete_option( Initializer::VISIBILITY_OPTION );
+		}
+		if ( $user_disabled ) {
+			update_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION, true );
+		} else {
+			delete_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION );
+		}
+		// Isolate from any stale registration so the result reflects only this run.
+		remove_filter( 'wp_sitemaps_enabled', '__return_false' );
 
-		// Present-but-off: still read from the option, never the module fallback.
-		update_option( Initializer::SITEMAP_ENABLED_OPTION, '' );
-		$this->assertFalse( $method->invoke( null, $modules ) );
-
-		delete_option( Initializer::SITEMAP_ENABLED_OPTION );
+		try {
+			Initializer::init();
+			return false !== has_filter( 'wp_sitemaps_enabled', '__return_false' );
+		} finally {
+			remove_filter( 'rsm_jetpack_seo', '__return_true' );
+			remove_filter( 'wp_sitemaps_enabled', '__return_false' );
+			$this->remove_sitemap_toggle_hooks();
+			delete_option( Initializer::VISIBILITY_OPTION );
+			delete_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION );
+			$initialized->setValue( null, false );
+		}
 	}
 
 	/**
-	 * Reads the durable canonical-urls option without consulting the live module state
-	 * when the option is present (set or explicitly off).
+	 * Remove the sitemap-toggle actions init() registers, so they don't leak into
+	 * other tests.
+	 *
+	 * @return void
 	 */
-	public function test_is_canonical_enabled_reads_durable_option() {
-		$method = new \ReflectionMethod( Initializer::class, 'is_canonical_enabled' );
-		// Required to invoke a private method on PHP < 8.1 (a no-op from 8.1 on).
+	private function remove_sitemap_toggle_hooks() {
+		remove_action( 'jetpack_deactivate_module_sitemaps', array( Initializer::class, 'flag_sitemap_user_disabled' ) );
+		remove_action( 'jetpack_activate_module_sitemaps', array( Initializer::class, 'clear_sitemap_user_disabled' ) );
+	}
+
+	/**
+	 * When the user has deliberately turned the sitemap off, init() suppresses
+	 * WordPress core's own sitemap (the `wp_sitemaps_enabled` → false filter) so
+	 * `/sitemap.xml` and `/wp-sitemap.xml` both 404 rather than falling back to core.
+	 */
+	public function test_init_suppresses_core_sitemaps_when_user_turned_it_off() {
+		$this->assertTrue( $this->init_and_report_core_sitemaps_disabled( true ) );
+	}
+
+	/**
+	 * The regression guard: a site that never turned the sitemap off keeps whatever
+	 * sitemap it already had. Even with no deliberate-off flag, init() must NOT suppress
+	 * core sitemaps — a brand-new or never-configured site must not silently lose its
+	 * WordPress-native sitemap just because the SEO surface became visible.
+	 */
+	public function test_init_leaves_core_sitemaps_alone_when_never_disabled() {
+		$this->assertFalse( $this->init_and_report_core_sitemaps_disabled( false ) );
+	}
+
+	/**
+	 * A deliberate-off flag is honored even when the SEO dashboard is still hidden — the
+	 * suppression is tied to the SEO feature, not the admin surface. This covers the site
+	 * that turned the sitemap off while visible and later had the surface hidden, and the
+	 * install that toggled it off from a legacy surface before opting into the dashboard.
+	 */
+	public function test_init_suppresses_core_sitemaps_when_off_even_if_surface_hidden() {
+		$this->assertTrue( $this->init_and_report_core_sitemaps_disabled( true, false ) );
+	}
+
+	/**
+	 * Toggling the sitemap maintains the deliberate-off flag: switching it off records
+	 * the flag (so core is suppressed), switching it on clears it. init() registers the
+	 * hooks; firing the module actions simulates a toggle from any surface.
+	 */
+	public function test_sitemap_toggle_maintains_the_deliberate_off_flag() {
+		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
 		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
+			$initialized->setAccessible( true );
 		}
-		$modules = new \Automattic\Jetpack\Modules();
+		$initialized->setValue( null, false );
 
-		update_option( Initializer::CANONICAL_ENABLED_OPTION, '1' );
-		$this->assertTrue( $method->invoke( null, $modules ) );
-
-		// Present-but-off: still read from the option, never the module fallback.
-		update_option( Initializer::CANONICAL_ENABLED_OPTION, '' );
-		$this->assertFalse( $method->invoke( null, $modules ) );
-
-		delete_option( Initializer::CANONICAL_ENABLED_OPTION );
-	}
-
-	/**
-	 * The Settings bootstrap sources `sitemap_active` / `canonical_active` from the durable
-	 * options, so the module toggles hydrate correctly without reading live module state.
-	 */
-	public function test_get_settings_data_reads_module_toggles_from_options() {
-		update_option( Initializer::SITEMAP_ENABLED_OPTION, '1' );
-		update_option( Initializer::CANONICAL_ENABLED_OPTION, '' );
-
-		$settings = Initializer::get_settings_data();
-
-		$this->assertArrayHasKey( 'sitemap_active', $settings );
-		$this->assertArrayHasKey( 'canonical_active', $settings );
-		$this->assertTrue( $settings['sitemap_active'] );
-		$this->assertFalse( $settings['canonical_active'] );
-
-		delete_option( Initializer::SITEMAP_ENABLED_OPTION );
-		delete_option( Initializer::CANONICAL_ENABLED_OPTION );
-	}
-
-	/**
-	 * On self-hosted sites, discoverability is driven by the durable cohort option:
-	 * hidden when absent (the non-disruptive default) or empty, visible when set.
-	 */
-	public function test_is_seo_surface_visible_reads_cohort_option_on_self_hosted() {
-		delete_option( Initializer::VISIBILITY_OPTION );
-		$this->assertFalse( Initializer::is_seo_surface_visible() );
-
+		add_filter( 'rsm_jetpack_seo', '__return_true' );
 		update_option( Initializer::VISIBILITY_OPTION, '1' );
-		$this->assertTrue( Initializer::is_seo_surface_visible() );
-
-		update_option( Initializer::VISIBILITY_OPTION, '' );
-		$this->assertFalse( Initializer::is_seo_surface_visible() );
-
-		delete_option( Initializer::VISIBILITY_OPTION );
-	}
-
-	/**
-	 * WordPress.com sites (here: Simple, via the IS_WPCOM constant) are always
-	 * discoverable, bypassing the cohort option entirely.
-	 */
-	public function test_is_seo_surface_visible_always_true_on_wpcom() {
-		delete_option( Initializer::VISIBILITY_OPTION ); // Hidden for self-hosted...
-		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		delete_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION );
+		$this->remove_sitemap_toggle_hooks();
 
 		try {
-			$this->assertTrue( Initializer::is_seo_surface_visible() );
+			Initializer::init();
+
+			// Turning the sitemap off records the deliberate-off flag.
+			do_action( 'jetpack_deactivate_module_sitemaps' );
+			$this->assertTrue( (bool) get_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION ) );
+
+			// Turning it back on clears it.
+			do_action( 'jetpack_activate_module_sitemaps' );
+			$this->assertFalse( get_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION, false ) );
 		} finally {
-			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
-		}
-	}
-
-	/**
-	 * The opt-in is offered only when the feature flag is on AND the surface is still
-	 * hidden (a self-hosted install that hasn't opted in).
-	 */
-	public function test_is_optin_available_requires_flag_and_hidden_surface() {
-		delete_option( Initializer::VISIBILITY_OPTION );
-
-		// Flag off → never available.
-		$this->assertFalse( Initializer::is_optin_available() );
-
-		add_filter( Initializer::FEATURE_FILTER, '__return_true' );
-		try {
-			// Flag on + surface hidden → available.
-			$this->assertTrue( Initializer::is_optin_available() );
-
-			// Flag on + surface visible (already opted in) → not available.
-			update_option( Initializer::VISIBILITY_OPTION, '1' );
-			$this->assertFalse( Initializer::is_optin_available() );
-		} finally {
-			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
+			remove_filter( 'rsm_jetpack_seo', '__return_true' );
+			$this->remove_sitemap_toggle_hooks();
 			delete_option( Initializer::VISIBILITY_OPTION );
+			delete_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION );
+			$initialized->setValue( null, false );
 		}
-	}
-
-	/**
-	 * The script-data injector surfaces opt-in availability under the `seo.optin_available`
-	 * key (read by the legacy Traffic-page banner), and tolerates non-array input.
-	 */
-	public function test_inject_optin_availability_surfaces_flag_state() {
-		delete_option( Initializer::VISIBILITY_OPTION );
-
-		// Flag off → false, and non-array input is normalized to an array. Surface is also
-		// hidden (no cohort option set on this self-hosted test site).
-		$data = Initializer::inject_optin_availability( null );
-		$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] );
-		$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['surface_visible'] );
-
-		// Flag on + surface hidden → opt-in offered, surface not yet visible; existing keys preserved.
-		add_filter( Initializer::FEATURE_FILTER, '__return_true' );
-		try {
-			$data = Initializer::inject_optin_availability( array( 'keep' => 1 ) );
-			$this->assertTrue( $data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] );
-			$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['surface_visible'] );
-			$this->assertSame( 1, $data['keep'] );
-
-			// Opted in → surface visible, opt-in no longer offered.
-			update_option( Initializer::VISIBILITY_OPTION, '1' );
-			$data = Initializer::inject_optin_availability( array() );
-			$this->assertTrue( $data[ Initializer::SCRIPT_DATA_KEY ]['surface_visible'] );
-			$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] );
-		} finally {
-			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
-			delete_option( Initializer::VISIBILITY_OPTION );
-		}
-	}
-
-	/**
-	 * The Settings tab only links to the sitemap when it is genuinely reachable.
-	 * The URL helper short-circuits to an empty string when generation is disabled
-	 * or the site is private, and (in the package-only test context, where the
-	 * Jetpack plugin's Sitemaps module is absent) when the librarian/URL helper are
-	 * unavailable — so the non-empty branch is exercised by plugin integration
-	 * tests, not here.
-	 */
-	public function test_get_reachable_sitemap_url_returns_empty_when_not_reachable() {
-		$method = new \ReflectionMethod( Initializer::class, 'get_reachable_sitemap_url' );
-		// Required to invoke a private method on PHP < 8.1 (a no-op from 8.1 on).
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-
-		// Capture the original so we restore (not delete) it — `blog_public` is a
-		// core option the test bootstrap may already set, and clobbering it would
-		// leak state into other tests.
-		$original_blog_public = get_option( 'blog_public', null );
-
-		try {
-			// Generation disabled: no link regardless of anything else.
-			update_option( 'blog_public', '1' );
-			$this->assertSame( '', $method->invoke( null, false ) );
-
-			// Enabled but the site discourages search engines: Jetpack never serves a
-			// sitemap, so there is nothing to link to.
-			update_option( 'blog_public', '0' );
-			$this->assertSame( '', $method->invoke( null, true ) );
-
-			// Enabled and public, but the Sitemaps module (librarian + URL helper) is
-			// absent in the package context, so still no link.
-			update_option( 'blog_public', '1' );
-			$this->assertSame( '', $method->invoke( null, true ) );
-		} finally {
-			if ( null === $original_blog_public ) {
-				delete_option( 'blog_public' );
-			} else {
-				update_option( 'blog_public', $original_blog_public );
-			}
-		}
-	}
-
-	/**
-	 * The Settings bootstrap exposes `sitemap_url` as a string (empty until the
-	 * sitemap is reachable) alongside the boolean `sitemap_active`, which the
-	 * Settings tab uses to render the "View sitemap" link. The Overview no longer
-	 * carries the URL — it shows the status only.
-	 */
-	public function test_get_settings_data_sitemap_url_is_string() {
-		$settings = Initializer::get_settings_data();
-
-		$this->assertArrayHasKey( 'sitemap_active', $settings );
-		$this->assertIsBool( $settings['sitemap_active'] );
-		$this->assertArrayHasKey( 'sitemap_url', $settings );
-		$this->assertIsString( $settings['sitemap_url'] );
-
-		$overview = Initializer::get_overview_data();
-		$this->assertArrayNotHasKey( 'sitemap_url', $overview['site_visibility'] );
 	}
 }

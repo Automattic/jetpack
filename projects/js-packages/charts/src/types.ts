@@ -191,9 +191,10 @@ export type LeaderboardEntry = {
 	currentValue: number;
 
 	/**
-	 * Value of the entry in the previous period
+	 * Value of the entry in the previous period. Omit when this row has no
+	 * matching comparison-period value.
 	 */
-	previousValue: number;
+	previousValue?: number;
 
 	/**
 	 * Width of current bar, as % of the current value
@@ -201,14 +202,16 @@ export type LeaderboardEntry = {
 	currentShare: number;
 
 	/**
-	 * Width of previous bar, as % of the current value
+	 * Width of previous bar, as % of the current value. Omit when this row has
+	 * no matching comparison-period value.
 	 */
-	previousShare: number;
+	previousShare?: number;
 
 	/**
-	 * Delta of the entry
+	 * Delta of the entry. Omit when the percentage change is unavailable, such
+	 * as when the row has no comparison value or its previous value is zero.
 	 */
-	delta: number;
+	delta?: number;
 
 	/**
 	 * Optional color for the entry's image/icon
@@ -249,8 +252,8 @@ export type GradientStop = {
 
 export type SeriesDataOptions = {
 	gradient?: {
-		from: string;
-		to: string;
+		from?: string;
+		to?: string;
 		fromOpacity?: number;
 		toOpacity?: number;
 		stops?: GradientStop[];
@@ -302,7 +305,7 @@ export type DataPointPercentage = {
 	 */
 	valueDisplay?: string;
 	/**
-	 * Color code for the segment, by default colours are taken from the theme but this property can overrides it
+	 * Color code for the segment, by default colors are taken from the theme but this property can overrides it
 	 */
 	color?: string;
 	/**
@@ -332,8 +335,14 @@ export type ChartTheme = {
 	labelBackgroundColor?: string;
 	/** Text color for labels */
 	labelTextColor?: string;
-	/** Array of colors used for data visualization */
-	colors: string[];
+	/**
+	 * Series palette seeds. Entry N publishes `--a8c-charts-color-series-{N+1}`; entries past the fifth are ignored.
+	 *
+	 * Optional so the deprecation is actionable: a consumer writing a full theme literal can now stop setting it. `CompleteChartTheme` is `Required< ChartTheme >`, so `defaultTheme` must still carry one.
+	 *
+	 * @deprecated Set the `--a8c-charts-color-series-1` … `-5` custom properties inside the provider tree instead, or `options.stroke` on a series for a single one. See `TOKENS.md`. Removed in CHARTS-227.
+	 */
+	colors?: string[];
 	/** Optional CSS styles for grid lines */
 	gridStyles?: GridStyles;
 	/** Length of axis ticks in pixels */
@@ -413,6 +422,21 @@ export type ChartTheme = {
 		/** Stroke width for the sparkline line */
 		strokeWidth?: number;
 	};
+	/**
+	 * HeatmapChart settings. Cell gap, radius, value size and the selection ring come from
+	 * WPDS tokens in CSS, so only the scale color and the compact sizing live here.
+	 */
+	heatmapChart?: {
+		/**
+		 * Color the cell scale interpolates toward at the highest value (prop > this >
+		 * palette `colors[0]`), fed to CSS `color-mix`. Omit to use the palette color.
+		 */
+		primaryColor?: string;
+		/** Gap in px between cells in compact mode */
+		compactCellGap?: number;
+		/** Fixed square cell size in px for compact mode */
+		compactCellSize?: number;
+	};
 };
 
 /**
@@ -440,7 +464,15 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
 		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
 	};
+	heatmapChart: Omit< Required< NonNullable< ChartTheme[ 'heatmapChart' ] > >, 'primaryColor' > &
+		Pick< NonNullable< ChartTheme[ 'heatmapChart' ] >, 'primaryColor' >;
 };
+
+/**
+ * Bucket resolution of time-series data, as known by the caller (e.g. a
+ * granularity selector), for consumers that don't need to infer it.
+ */
+export type TickResolution = 'hour' | 'day' | 'week' | 'month' | 'year';
 
 export type AxisOptions = {
 	orientation?: OrientationType;
@@ -455,6 +487,15 @@ export type AxisOptions = {
 	labelClassName?: string;
 	tickClassName?: string;
 	tickFormat?: TickFormatter< ScaleInput< AxisScale > >;
+	/**
+	 * Bucket resolution of the data, set on whichever axis carries the dates.
+	 * When set, the automatic tick formatter derives tick formats from it
+	 * directly instead of inferring the resolution from point spacing. For
+	 * daily-or-finer buckets the overall time span still constrains the choice —
+	 * e.g. hourly buckets spanning more than a week get date ticks, since hour
+	 * ticks would be unreadable at that span. Ignored when `tickFormat` is set.
+	 */
+	tickResolution?: TickResolution;
 	/**
 	 * Whether to display this axis. Defaults to true.
 	 */
@@ -589,6 +630,34 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 };
 
 /**
+ * Legend config for charts built from `SeriesData` (line, bar, area). Adds `collapseGroups` on top
+ * of the shared config. It is intentionally absent from the base `ChartLegendConfig` so point-based
+ * charts (pie, semi-circle pie) — whose data points carry `group` only to coordinate colors — can't
+ * set it.
+ */
+export type SeriesChartLegendConfig = ChartLegendConfig< SeriesData[] > & {
+	/**
+	 * Collapse series that share a `group` into a single legend item, labelled by the group's
+	 * primary series (its first non-comparison member). Off by default, so every series keeps its
+	 * own item. Combines with `interactive`: a collapsed item toggles every series in its group, an
+	 * uncollapsed one toggles only its own.
+	 */
+	collapseGroups?: boolean;
+};
+
+/**
+ * Initial visibility options for charts built from labelled series.
+ */
+export interface SeriesVisibilityProps {
+	/**
+	 * Series labels to hide from the first defined value. User changes persist until
+	 * the chart remounts or its ID changes; later values for the same ID are ignored.
+	 * Omit to retain the provider's existing visibility for the chart ID.
+	 */
+	defaultHiddenSeries?: readonly string[];
+}
+
+/**
  * Base properties shared across all chart components
  */
 export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > = {
@@ -644,6 +713,16 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 */
 	onPointerOut?: ( event: PointerEvent< Element > ) => void;
 	/**
+	 * Callback for Enter or Space on the point keyboard navigation has selected:
+	 * the keyboard counterpart of a click. `index` is the point's position in its
+	 * series and `key` the series label.
+	 */
+	onDatumActivate?: ( params: {
+		datum: DataPoint | DataPointDate;
+		index: number;
+		key: string;
+	} ) => void;
+	/**
 	 * Whether to show tooltips on hover. False by default.
 	 */
 	withTooltips?: boolean;
@@ -683,40 +762,6 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 			y?: AxisOptions;
 		};
 	};
-};
-
-/**
- * Properties for grid components
- */
-export type GridProps = {
-	/**
-	 * Width of the grid in pixels
-	 */
-	width: number;
-	/**
-	 * Height of the grid in pixels
-	 */
-	height: number;
-	/**
-	 * Grid visibility. x is default.
-	 */
-	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
-	/**
-	 * X-axis scale for the grid
-	 * TODO: Fix any type after resolving visx scale type issues
-	 */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	xScale: any;
-	/**
-	 * Y-axis scale for the grid
-	 * TODO: Fix any type after resolving visx scale type issues
-	 */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	yScale: any;
-	/**
-	 * Top offset for the grid
-	 */
-	top?: number;
 };
 
 /**

@@ -1,10 +1,10 @@
 # Jetpack Performance Testing
 
-Measures wp-admin dashboard LCP (Largest Contentful Paint) for Jetpack with simulated WordPress.com connection.
+Measures Jetpack admin-page performance (LCP, TTFB, FCP, and runtime bundle size) with a simulated WordPress.com connection, and posts the results to CodeVitals to track them over time.
 
 ## CI Usage
 
-The test suite is designed to run in TeamCity. See `TEAMCITY-SETUP.md` for detailed setup instructions.
+The test suite is designed to run in TeamCity.
 
 ### Build Steps
 
@@ -16,20 +16,85 @@ The test suite is designed to run in TeamCity. See `TEAMCITY-SETUP.md` for detai
 
 ### Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `CODEVITALS_TOKEN` | API token for posting results to CodeVitals |
-| `CODEVITALS_URL` | CodeVitals API URL (default: https://www.codevitals.run) |
-| `COMPOSE_PROJECT_NAME` | Unique Docker project name for build isolation |
-| `GIT_COMMIT` | Git commit SHA for tracking (auto-detected from plugin) |
-| `GIT_BRANCH` | Git branch for tracking (default: trunk) |
-| `ITERATIONS` | Number of measurement iterations (default: 5) |
-| `WP_ADMIN_USER` | WordPress admin username (default: admin) |
-| `WP_ADMIN_PASS` | WordPress admin password (default: password) |
+| Variable               | Description                                                                                                                                                                                                                                                                           |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CODEVITALS_TOKEN`     | API token for posting results to CodeVitals                                                                                                                                                                                                                                           |
+| `CODEVITALS_URL`       | CodeVitals API URL (default: https://codevitals.run). Use the apex host, not `www.`: the `www.` host 301-redirects the API and the redirect drops the POST body. Set an origin-only URL (scheme + host); the API path is appended, so any path prefix on this value is not preserved. |
+| `COMPOSE_PROJECT_NAME` | Unique Docker project name for build isolation                                                                                                                                                                                                                                        |
+| `GIT_COMMIT`           | Git commit SHA for tracking (auto-detected from plugin)                                                                                                                                                                                                                               |
+| `GIT_BRANCH`           | Git branch for tracking (default: trunk)                                                                                                                                                                                                                                              |
+| `ITERATIONS`           | Number of measurement iterations (default: 5)                                                                                                                                                                                                                                         |
+| `WP_ADMIN_USER`        | WordPress admin username (default: admin)                                                                                                                                                                                                                                             |
+| `WP_ADMIN_PASS`        | WordPress admin password (default: password)                                                                                                                                                                                                                                          |
 
-## Metric
+## Metrics
 
-- `wp-admin-dashboard-connection-sim-largestContentfulPaint` - Dashboard LCP with simulated Jetpack connection
+Each scenario posts its metrics in a single CodeVitals call per run (one per `metrics` entry in `scenarios.js`). Each metric reads its value from `summary.<field>.median` and is range-checked against its `type` in `SANITY_RANGES` before posting.
+
+### `jetpackConnected` — wp-admin Dashboard (simulated connection)
+
+| CodeVitals key                                             | Field  | Type   | Description                                     |
+| ---------------------------------------------------------- | ------ | ------ | ----------------------------------------------- |
+| `wp-admin-dashboard-connection-sim-largestContentfulPaint` | `lcp`  | `lcp`  | Dashboard LCP with simulated Jetpack connection |
+| `wp-admin-dashboard-connection-sim-timeToFirstByte`        | `ttfb` | `ttfb` | Dashboard TTFB (navigation `responseStart`)     |
+| `wp-admin-dashboard-connection-sim-firstContentfulPaint`   | `fcp`  | `fcp`  | Dashboard FCP (first-contentful-paint)          |
+
+### `formsResponses` — Forms responses wp-build dashboard (simulated connection)
+
+`admin.php?page=jetpack-forms-responses-wp-admin&p=%2Fresponses%2Finbox`, measured on the same simulated-connection instance as the Dashboard. The `p` route is pinned to the responses inbox: a bare page URL server-redirects to the default tab (`/forms`, the forms list, under Central Form Management), so the scenario asserts the final URL to avoid measuring the wrong page.
+
+Readiness (FORMS-729): this scenario is the one that does **not** use `networkidle` — the page's `canUser` OPTIONS probe to `/wp/v2/settings` can stay pending forever in the local fixture, which would black-hole every navigation. It sets `loadState: 'load'` and readiness is carried by the visible `.boot-layout` selector, the hydration wait, and an **in-flight-aware resource settle**: the completed-resource count must hold steady while an in-flight-request ledger (which excludes only that one known-stuck probe) reads zero — `networkidle`'s own quiet + nothing-in-flight guarantee, minus the request that breaks it. If either signal is still active at the settle's deadline the iteration fails closed. The settle proves quiescence, and shares `networkidle`'s inherent blind spot for a gap before the page issues its next resource wave; in that gap the working defense is the settle's ~1s-quiet requirement (double `networkidle`'s 500ms), with `minResourceCount` catching captures below its floor (the wide `decodedBytesKB` sanity range cannot catch an undercount). See the comments on the scenario in `scenarios.js` for the full mechanics.
+
+| CodeVitals key                                          | Field            | Type             | Description                                               |
+| ------------------------------------------------------- | ---------------- | ---------------- | --------------------------------------------------------- |
+| `forms-responses-connection-sim-largestContentfulPaint` | `lcp`            | `lcp`            | Forms responses LCP                                       |
+| `forms-responses-connection-sim-timeToFirstByte`        | `ttfb`           | `ttfb`           | Forms responses TTFB                                      |
+| `forms-responses-connection-sim-firstContentfulPaint`   | `fcp`            | `fcp`            | Forms responses FCP                                       |
+| `forms-responses-connection-sim-decodedBytesKB`         | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
+
+#### Bundle size (`decodedBytesKB`) — what it measures, and why not build output
+
+`decodedBytesKB` is the sum of every resource's `decodedBodySize` on the measured page, in KB — the page's **runtime payload** (the JavaScript and CSS the browser actually downloads), aggregated in `measure-lcp.js`.
+
+- **Decoded bytes, not transfer size.** The measured load is a warm-cache `page.reload()`, where cached resources report `transferSize: 0`; and the Docker WordPress serves uncompressed, so `transferSize` would neither survive caching nor match production's gzipped bytes. `decodedBodySize` is cache- and compression-independent, so it stays stable however assets are served. It maps to the decoded (uncompressed) byte count, not the gzipped wire size — fine for a trend.
+- **Runtime payload, not build output.** The regression this watches is the wp-build `boot` shell statically pulling core `@wordpress/editor` into pages that never open an editor. Those are externalized `@wordpress/*` core modules, resolved through the wp-build import map as separate static files, not the plugin's own bundle, so a check against the built plugin's own file sizes wouldn't move when they are lazy-loaded. Summing the resources the page actually downloads does, so the line falls when the fix lands and flags the next silent jump.
+- **On the Forms responses page specifically.** It's a shipped wp-build dashboard that loads the boot shell's editor payload; the wp-admin Dashboard does not, so the bundle-size metric is posted for `formsResponses` (and, for the heavy-bundle reason below, `myJetpack`), not the Dashboard.
+- **Detects a jump, doesn't attribute it.** The value sums every resource on the page, not the editor payload alone (that payload is roughly 1.3 MB of the ~8.2 MB total, about 16%). The other ~84% is ordinary page weight, so on this actively-developed dashboard most trend moves will be routine Forms feature work rather than the editor payload the metric is meant to catch. A move flags that page weight changed; confirming the cause means reading the per-resource breakdown in the saved `results.json`, not the dashboard line.
+
+### `myJetpack` — My Jetpack admin page (simulated connection)
+
+`admin.php?page=my-jetpack`, measured on the same simulated-connection instance as the Dashboard and Forms scenarios. My Jetpack is the heaviest Jetpack admin bundle (its own ~1.3 MB JS + CSS on top of core script handles), so it is the page where a bundle regression is most damaging — hence the `decodedBytesKB` metric is posted here too.
+
+The page mounts a React app: PHP emits an empty `<div id="my-jetpack-container">` and `createRoot` renders `MyJetpackScreen` into it. The scenario waits for `#my-jetpack-container .jp-admin-page` (a non-hashed class from `@automattic/jetpack-components` `AdminPage`, present only after React renders) and for the container to hydrate before measuring, so LCP and the resource payload reflect the rendered page, not the empty shell.
+
+| CodeVitals key                                     | Field            | Type             | Description                                               |
+| -------------------------------------------------- | ---------------- | ---------------- | --------------------------------------------------------- |
+| `my-jetpack-connection-sim-largestContentfulPaint` | `lcp`            | `lcp`            | My Jetpack LCP                                            |
+| `my-jetpack-connection-sim-timeToFirstByte`        | `ttfb`           | `ttfb`           | My Jetpack TTFB                                           |
+| `my-jetpack-connection-sim-firstContentfulPaint`   | `fcp`            | `fcp`            | My Jetpack FCP                                            |
+| `my-jetpack-connection-sim-decodedBytesKB`         | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
+
+These four post straight to production keys under the same owner waiver as the Dashboard and Forms keys (see Safeguards → Staging keys).
+
+#### Requires offline mode OFF (and the `wp-theme` polyfill in the mirror build)
+
+Two conditions must hold for My Jetpack to render in the fixture:
+
+1. **Offline mode off.** The fixture's site URL (`http://localhost:<port>`) has no dot, so `Status::is_local_site()` treats it as a local site and Jetpack enters offline mode, which makes `Initializer::should_initialize()` return false — My Jetpack never registers (no menu, no assets; the page is the generic "invalid page" admin shell). The `simulate-wpcom-connection` mu-plugin flips this with `add_filter( 'jetpack_offline_mode', '__return_false' )`. This is **install-wide** — see the attribution note below.
+2. **`wp-theme` registered.** On trunk (Jetpack 16.1+), `my_jetpack_main_app` gained a `wp-theme` script dependency via the `@wordpress/*` bump (DataViews 17.x → `@wordpress/ui` ThemeProvider → `@wordpress/theme`). WordPress < 7.0 without the Gutenberg plugin does not register `wp-theme`, so WP silently drops the app script and the container stays empty (no console error). [#50291](https://github.com/Automattic/jetpack/pull/50291) fixed this in `My_Jetpack\Initializer` by registering the `WP_Build_Polyfills` shim (as Forms/Social/VideoPress already do). It merged on 2026-07-08 and is present in the `jetpack-production` mirror the fixture clones (verified against mirror commit `9ef44a8`, 2026-07-10: a clean checkout renders My Jetpack and passes every capture guard). Treat it as a baseline prerequisite: a mirror checkout that predates #50291 renders the page empty and fails the `waitForSelector`.
+
+### Offline-mode flip — attribution note
+
+This tooling flips `jetpack_offline_mode` off install-wide (required for My Jetpack, condition 1 above). Because one WordPress install serves every scenario, this shifts what the **existing** `wp-admin-dashboard-connection-sim-*` and `forms-responses-connection-sim-*` trends measure at the commit it lands: Jetpack runs more code paths when it is not offline. Locally measured before/after on the Dashboard scenario (the one existing scenario that measures cleanly here — see the Forms note below) was small: LCP 140→140 ms, TTFB 57→60 ms, FCP 140→140 ms, decodedBytesKB 4098→4205, resources 89→98. The timing metrics move within noise; the real signal is +9 resources / +107 KB decoded (the extra non-offline code paths). Expect a one-time baseline level shift of that order at the landing commit — every later point measures the non-offline fixture, so the trend settles at the new level rather than returning to the old one. It is a measurement-boundary change, not an ongoing regression.
+
+The `forms-responses-*` trends could not be measured before/after locally at the time this landed: the Forms page's `canUser` OPTIONS probe to `/wp/v2/settings` stalls in the local headless-Chromium fixture (later tracing for FORMS-729 showed the server answers in milliseconds — a browser-side delivery stall, local-only, with offline on or off), so under the scenario's original `networkidle` gate every iteration timed out. FORMS-729 has since moved the Forms scenario to `loadState: 'load'` plus a fail-closed resource-count settle (see `scenarios.js`), which measures cleanly despite the stall. Flagged here so a Forms-trend gap around this commit is not mistaken for a regression.
+
+### Known fixture behavior on the My Jetpack page
+
+Accepted as-is (mock realism is tracked in BOOST-456, not fixed here):
+
+- The page's `wpcom/v2/jetpack-partners` call falls through to the mu-plugin's generic `{"success":true}` fallback and logs a `[WPCom Simulator] Unhandled endpoint (using fallback response): …/jetpack-partners` line each load. This is expected fixture noise, not an error.
+- Calls scoped under `/sites/{id}/...` (stats, protect scan, videopress) are shadowed by the mock's `/sites/123456789` site-info branch (it precedes the `/stats/*` branches in the first-match chain) and receive site-info-shaped 200s — semantically wrong, so those cards render empty. Deterministic; fine for trend tracking.
 
 ## How It Works
 
@@ -41,11 +106,112 @@ The test suite is designed to run in TeamCity. See `TEAMCITY-SETUP.md` for detai
 
 ## Scripts
 
-| Script | Description |
-|--------|-------------|
-| `pnpm test` | Run full test suite (auto-clones plugin if needed) |
-| `pnpm test:quick` | Quick test with 2 iterations |
-| `pnpm calibrate` | Run CPU throttling calibration |
-| `pnpm measure` | Run LCP measurement only |
-| `pnpm report` | Post results to CodeVitals only |
-| `pnpm test -- --skip-codevitals` | Run tests without posting to CodeVitals |
+| Script                           | Description                                                            |
+| -------------------------------- | ---------------------------------------------------------------------- |
+| `pnpm test`                      | Run full test suite (auto-clones plugin if needed)                     |
+| `pnpm test:quick`                | Quick test with 2 iterations                                           |
+| `pnpm test:unit`                 | Run the unit suites only (no Docker, no token, no external network)    |
+| `pnpm calibrate`                 | Run CPU throttling calibration                                         |
+| `pnpm measure`                   | Run LCP measurement only                                               |
+| `pnpm report`                    | Post results to CodeVitals only                                        |
+| `pnpm report:dry`                | Build and print the CodeVitals payload without posting (CI smoke test) |
+| `pnpm digest`                    | Post the weekly regression digest to Slack (see below)                 |
+| `pnpm digest:dry`                | Build and print the digest's Slack payload without posting             |
+| `pnpm test -- --skip-codevitals` | Run tests without posting to CodeVitals                                |
+
+## Weekly Slack digest
+
+`scripts/codevitals-digest.js` is the read-side counterpart of the posting tool: it reads the tracked-metric inventory and each metric's evolution series from a CodeVitals-compatible read API, runs every regression flag through a confirmation gate (a flag only becomes an alert when the metric's median over the next commits holds above the median over the previous ones — one-commit spikes that immediately revert are suppressed as transients), and posts a Slack digest: sustained regressions, late confirmations, flags still pending at the data edge, and pipeline-health warnings (stale metrics, unreadable series, malformed points).
+
+It is designed to run headless on a weekly schedule (a CI job such as TeamCity). These properties matter for operating it:
+
+- **Fail loud, never false-clean.** Any degraded signal — discovery failure, unreadable series, malformed or stale data, misconfiguration — exits non-zero even when the digest still posts, so the scheduler surfaces the problem. A per-metric staleness dead-man fires when a metric stops receiving points, which is exactly what a silently-stalled measurement pipeline looks like — and only a **new** commit's first measurement counts as fresh: re-run rows of already-measured commits (within the fetched slice) never renew the dead-man — a pipeline that only re-measures old commits is stalled. The one deliberate exception: with a `METRIC_IDS` override set, a failed `/metrics` lookup is cosmetic (labels fall back to ids) and the run can still exit 0 — the override names the watch list, so discovery is no longer load-bearing.
+- **`posted` is the success marker, on stdout.** The script prints `posted` on its own line only after a successful `chat.postMessage`. A scheduler-side watchdog should assert that marker as an exact line on **stdout** (`grep -qx posted` — a loose substring grep could someday match a payload dump instead; a finished run alone does not prove a posted digest). The Slack post is retried once, and a *timeout or 5xx* is delivery-ambiguous — Slack may have created the message before the response was lost — so a run that exits 1 on that path may still have delivered up to two copies. Exit 1 means "not confirmed", not "nothing posted": check the channel before re-running by hand.
+- **A regression is reported for a bounded time, then ages out.** A confirmed regression repeats across roughly four weekly digests (sustained, then late-confirmed) and then crosses the 2×`WINDOW_DAYS` look-back and leaves the report — even if it was never fixed. Aged-out flag counts go to stderr only. If the digest itself was down longer than the look-back, run it once with `WINDOW_DAYS` raised to catch up on anything flagged during the gap.
+- **stderr is part of the contract.** Routine but diagnostic conditions — dropped duplicate rows, aged-out flag counts, an incomplete late look-back — intentionally go to stderr without reddening the build. The scheduler job must capture and retain stderr in the build log, or those signals have no observer at all.
+
+Sensitivity is layered: the CodeVitals service decides which commits get *flagged* at all (its per-metric minimum regression delta, configured server-side per metric), and the digest's confirmation gate then decides which flags become *alerts* — a flag needs at least 3 kept rows of other commits served after it for a verdict, and the flagged commit's own rows count as evidence for neither side of its windows, and is suppressed as a transient only when the median over the next commits has risen less than 5% above the median over the previous ones **and** has returned to no more than 5% above the value of the commit immediately before the flagged one (the same baseline the server computes the flag against when no duplicate row was dropped between the two; both thresholds hardcoded in `codevitals-digest.js`, and both one-sided — any improvement counts as recovered). When the commit before a flag is a one-commit dip, that shape is indistinguishable from a recovered dip and the gate deliberately reports it (the alert line then reads "holds above the pre-flag …" instead of a median movement) — the digest resolves ambiguity toward reporting, never toward a false clean. The gate needs a positive baseline, so a metric that legitimately measures 0 (e.g. CLS) always reports its flags unsuppressed. Duplicate rows for an already-measured commit (a re-run build appends them — see the sanity-range note below) are dropped read-side, keeping each commit's first measurement (equal-timestamp rows are ordered by server row id first, so "first" means the original posting regardless of the order the API happens to list ties in; a tied run containing any non-integer id keeps the API's listing order whole instead) — but the server flags *rows*, not commits, so a regression flag riding on a duplicate is never dropped unread: a flagged re-post at the *same* timestamp as the original (a provenanced re-run) transfers its flag onto the kept row — across several, the worst percent wins and the lowest comparison base is kept, order-independently, and each folded flag is still judged at its own position in the response (one position with a held verdict forces the alert; suppression must clear every one, and a position too close to the data edge can defer the event but never veto a sibling's held verdict) — while a flagged re-run stamped at a *different* time has its flag judged at its own position in the response against the kept series (equal-time rows the server served after the flag are "after" evidence, exactly as the server saw them) — and is suppressed as a transient only when the metric also sits back at that commit's *own* pre-regression baseline (the kept row just before a re-run's judging position can itself be an already-regressed plateau, and suppressing against it would file a live regression as transient) — and, for every flag, only when the metric also sits back at the *server's own comparison base*: the server computes flags at serve time, each row against the row immediately before it in the very response the digest reads (verified against the gitaudit server source), and that row can be a dropped duplicate — a catch-up re-run reproducing the pre-regression baseline — that no kept-series anchor reflects; a flag whose event folded in a re-post or re-run (either duplicate branch) carries the "(flag from a re-run)" marker on its alert line, while a first-measurement flag rendered against such a dropped base does not. No duplicate's *value* ever enters the judged series — the series feeds the gate's medians and revert anchor, and any rule that lets a re-run's value in can flip a live regression to a false all-clear — so a re-post intended to *correct* a bad measurement cannot change the value the digest judges until the writer gains write-side dedup. The dedup only sees the fetched slice (up to 1000 rows), so a re-run of a commit that has scrolled off the slice edge is not recognized as a duplicate; within the slice, re-runs never renew the staleness dead-man. For re-runs to sort into their historical slot at all, the measurement build must carry commit provenance (`GIT_COMMIT` + `GIT_COMMIT_TIMESTAMP_MS`, or a checked-out repo), otherwise the poster stamps run time. Tune "too noisy"/"too quiet" at the server-side floor first; the client-side gate needs a code change.
+
+### Digest environment variables
+
+| Variable                   | Description                                                                                                                                                                                                       |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CODEVITALS_EVOLUTION_URL` | **Required.** Origin of the CodeVitals-compatible read API serving `/api/repos/<repo>/metrics` and `/api/repos/<repo>/perf/evolution/<id>`. Must be `https://` (plain `http://` is accepted for loopback testing only) and WHATWG-parseable; values with `<`, `>`, `\|`, `?`, `#`, userinfo or `.`/`..` path segments are rejected — a credentialed URL would leak its secret into fetch error messages, a query string is where a pasted credential would land, and a traversal segment would silently re-target every request. The host itself is trusted deployment configuration and is not allow-listed. **Must be the same backend `post-to-codevitals.js` writes to**: this digest auto-discovers its watch list from whatever origin it is given, and a different-but-populated origin (the classic read/write backend mix-up — see the dedup note in `post-to-codevitals.js`) produces a confident weekly digest about a series nobody here measures. Verify the first live digest lists the expected metric names. |
+| `CODEVITALS_URL`           | Base URL for the metric-chart links in the digest (default: https://codevitals.run — the same host semantics as the posting tool above). Must be a plain, WHATWG-parseable `https://` URL: values with spaces, `<`, `>`, `\|`, `?`, `#`, userinfo or `.`/`..` path segments are rejected, because this lands inside the Slack message's link markup and a traversal segment would re-target every chart link                                                                            |
+| `CODEVITALS_REPO`          | Repository whose metrics are digested, as `owner/name` (default: `Automattic/jetpack`); also drives commit links and the digest title. Validated as a plain owner/name pair (letters, digits, `.`, `_`, `-`) — any all-dots segment (traversal-shaped) and URL metacharacters are rejected; beyond that shape, any owner/name is accepted as trusted deployment configuration                                                                               |
+| `CODEVITALS_BRANCH`        | Branch queried from the evolution API (default: `trunk`)                                                                                                                                                           |
+| `SLACK_TOKEN`              | **Required for live posting.** The digest's own Slack app bot token (`xoxb-…`) with `chat:write` — NOT this repo's `secrets.SLACK_TOKEN` (the shared Jetpack bot); the bot must be invited to the channel. Keep it a CI secret — never needed for dry runs or tests |
+| `SLACK_CHANNEL_ID`         | **Required for live posting.** Channel id to post to                                                                                                                                                               |
+| `DRY_RUN`                  | Set to `1` (or `true`/`yes`, case-insensitive) to print the exact Slack payload and never post                                                                                                                     |
+| `WINDOW_DAYS`              | Reporting window in days (default: 15 — covers two weekly measurement batches, and one skipped digest, with overlap)                                                                                               |
+| `STALENESS_DAYS`           | Per-metric staleness dead-man threshold in days (default: 8 — fires on the first missed weekly batch). Freshness is earned only by a new commit's first measurement, never by re-run rows                          |
+| `METRIC_IDS`               | Optional comma-separated metric-id override. Leave empty for auto-discovery (an explicit list goes stale as metrics are added or recreated); set it only to test or to emergency-mute an id                        |
+
+## Safeguards
+
+CodeVitals is an **append-only** store with no self-service rollback. Once a bad point lands (wrong key, out-of-range value, scale error), the trend graph stays polluted until a CodeVitals admin corrects it. The safeguards below keep bad data out.
+
+### Dry run
+
+`pnpm report:dry` builds the full payload, prints it, and exits without posting. It needs no `CODEVITALS_TOKEN`, so it works as a CI smoke test. Use it to inspect a payload before a real `pnpm report`.
+
+### Sanity-range assertions
+
+`post-to-codevitals.js` checks every typed metric against `SANITY_RANGES` in `scenarios.js` before posting. A value outside its range is logged and rejected, and the script exits non-zero so CI surfaces the failure. Live posting is all-or-nothing per run: any sanity failure suppresses the entire POST, so nothing lands and retrying the red build posts the full set exactly once. (That guarantee covers the validation-failure retry only — re-running a green build appends duplicate points unless opt-in cross-commit dedup is enabled.) A dry run still prints the surviving metrics, if any, for diagnostics.
+
+| Metric           | Min  | Max   | Unit |
+| ---------------- | ---- | ----- | ---- |
+| `lcp`            | 100  | 60000 | ms   |
+| `ttfb`           | 10   | 10000 | ms   |
+| `fcp`            | 50   | 30000 | ms   |
+| `tbt`            | 0    | 10000 | ms   |
+| `cls`            | 0    | 5     | —    |
+| `decodedBytesKB` | 1000 | 51200 | KB   |
+
+Add a row when a new metric type starts being posted, and set the `type` on the metric so the check applies to it — either `type` on a `metrics[]` entry (the multi-metric shape) or the scenario-level `metricType` (the legacy single-key shape). A keyed metric with no type is refused (never posted unchecked).
+
+### Staging keys
+
+Post a new metric to a `-staging` CodeVitals key first (e.g. `…-timeToFirstByte-staging`) for 2-3 builds. Inspect the values in the CodeVitals UI, then rename to the production key. This gives a safety window before a new metric reaches production.
+
+**Waiving the staging window (owner decision).** A scenario may post straight to production keys when the build owner accepts the risk, as the `formsResponses` and `myJetpack` metrics do. The waiver is not automatic — it requires all of: the `SANITY_RANGES` row + the all-or-nothing gate as the substitute guardrail, manual sign-off before the first live post, and the PR that introduces the keys listing them and naming the waiver so the impact is visible in review. A dry run's `stdDev: 0` shows repeatability, not correctness, so it is not the safeguard. The per-scenario comment in `scenarios.js` records where a waiver is in effect.
+
+### Capture guards for targeted-page scenarios
+
+A scenario that measures a specific admin page (a `path` + `waitForSelector`, like `formsResponses`) can declare two optional guards so a mis-captured page never reaches its permanent keys. Both fail the iteration closed — a failed capture posts nothing rather than a wrong number.
+
+- **`expectUrlIncludes`** — a substring the page's final URL must contain after every redirect settles. It defends the concrete redirect threat: `class-dashboard.php` sends a bare page URL to the forms LIST, which strips the pinned `p=/responses/inbox`, so the guard fires. It does not prove the SPA client-rendered the target route — a client-side divergence that keeps the URL would pass. That is deliberate: a guessed DOM-selector assertion would throw on every iteration if the markup shifts, blackholing the whole series on the append-only store, so the URL check is the safer defense for the redirect it targets.
+- **`minResourceCount`** — an iteration whose capture returns fewer resources than a healthy load is dropped from the sample; if every iteration falls short the run posts nothing. The current values live in `scenarios.js` (the single source of truth — as of FORMS-729, 64 for `formsResponses` and `myJetpack`, ~70% of each page's real load) rather than being restated here where they would drift. This is a **count** floor, not an "editor asset is present" check: the bundle-size metric is meant to fall when the editor lazy-loads, which removes a few large files rather than the bulk of the count, so a count floor catches a truncated capture without clipping the legitimate improvement. Scope: the floor catches captures *below* its value; a capture between the floor and the real count relies on the readiness settle (see the `formsResponses` readiness note above) and `SANITY_RANGES`.
+
+### Per-scenario failure isolation
+
+Every scenario in `scenarios.js` declares an `optional` flag, read by `computeRunOutcome()` in `measure-lcp.js`. The posting policy lives once, in the measure step's exit code — exit 0 means "every required scenario measured; safe to post":
+
+| Run outcome                                               | measure-lcp exit          | Posting step                                            | Build                            |
+| --------------------------------------------------------- | ------------------------- | ------------------------------------------------------- | -------------------------------- |
+| All scenarios measured                                    | 0                         | posts everything                                        | green                            |
+| Optional scenario(s) failed, all required OK              | 0, with warnings          | posts survivors (the poster skips errored measurements) | green + TeamCity WARNING message |
+| Any required scenario failed                              | 1                         | never reached                                           | red, nothing posted              |
+| ALL scenarios in the run set failed                       | 1                         | never reached                                           | red, nothing posted              |
+| `SCENARIO` value matches no scenario                      | 1, before any measurement | never reached                                           | red                              |
+| Any scenario measured, but a value fails its sanity range | 0                         | atomic sanity gate refuses the whole POST (exit 2)      | red, nothing posted              |
+
+The last row is the flag's deliberate scope boundary: `optional` isolates **measurement failures** — a scenario that throws, produces no summary, or produces a partial one (a posted field dropped for lack of a strict majority of finite samples across iterations; `measure-lcp.js` converts that into a scenario error, so the optional/required policy applies to it like any other failure). A scenario that measures successfully but yields an out-of-range value — even an optional one — is a data-integrity event, and the pre-existing all-or-nothing sanity gate (see Sanity-range assertions above) still suppresses the entire post and reds the build so a human looks at the anomalous data. The poster also enforces the required side itself: a results file recording a **required** scenario's measurement failure makes `post-to-codevitals.js` fail closed (exit 2) even via the direct `pnpm report` entrypoint, so a red run's saved artifact cannot post its optional survivors and set up retry duplicates.
+
+Why a required failure suppresses **all** posting (retry-safety invariant): a red build has posted nothing, so re-running it cannot append duplicate points to the append-only, dedup-off store. Posting the survivors first and then failing would turn every retry into duplicate trend points. The converse is why an optional-only failure must exit 0: green builds don't get retried. (Re-running a green partial build duplicates its survivor points — the same pre-existing hazard as re-running any green build today.)
+
+The all-failed row keeps targeted runs honest: `SCENARIO=forms-responses` with a failing formsResponses still exits 1 even though the scenario is optional, so a single-scenario local run fails loudly instead of green-exiting with nothing measured.
+
+Classifying a scenario: default NEW scenarios to `optional: true` — a new page's teething failures shouldn't blank the established trends. Promoting a scenario to `optional: false` (required) is a deliberate act; `jetpackConnected` (the wp-admin Dashboard baseline) is the required one.
+
+A green build can therefore carry a skipped scenario. Where to look: the TeamCity WARNING message on the build page, the per-scenario `FAILED (optional — build continues…)` summary line in the build log, and — once live — the FORMS-723 staleness alert as the systemic detector for a series that has quietly gone dark.
+
+### If bad data lands anyway
+
+A bad point must be corrected by the CodeVitals admin. Steps:
+
+1. **Stop posting.** Pause the CodeVitals Jetpack Performance Scheduler build in TeamCity.
+2. **Document the extent.** Record the affected metric keys, the commit range (monorepo hashes), the time window (build start to end), and whether the values are isolated or systematic.
+3. **Request a correction.** CodeVitals runs outside this project; send the request through the team channel named in the FORMS-696 runbook. Include metric ID 113, the affected keys, the commit/timestamp range, and the root cause.
+4. **Fix the root cause.** Add or tighten a sanity range or staging gate. Don't re-enable the Scheduler until the fix merges.
+5. **Record the incident.** Add the failure mode, detection timing, and prevention measures to the FORMS-696 maintenance runbook.

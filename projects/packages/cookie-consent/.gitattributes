@@ -7,3 +7,4 @@
 src/modules/**       production-exclude
 tools/**             production-exclude
 declarations.d.ts    production-exclude
+tests/**             production-exclude

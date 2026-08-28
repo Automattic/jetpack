@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Activity Log: Ensure table content wraps neatly onto a new line if long.

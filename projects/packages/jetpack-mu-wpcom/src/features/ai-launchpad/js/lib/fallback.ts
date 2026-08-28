@@ -1,13 +1,11 @@
 import type { GoalSlug, TailoredOutput, TailoredTask, WizardInput } from './types.ts';
 
 /**
- * Deterministic English subtitles for the catalog task IDs the fallback can
- * emit. Unmapped IDs get a generic subtitle so the schema's minLength:1 on
- * subtitle is always satisfied.
+ * English subtitles for catalog task IDs. Unmapped IDs get a generic subtitle so
+ * subtitle's minLength:1 is always satisfied.
  */
 const TASK_SUBTITLES: Record< string, string > = {
 	first_post_published: 'Write and publish your first post.',
-	first_post_published_newsletter: 'Send your first newsletter to subscribers.',
 	woo_products: 'Add your first product to the store.',
 	woo_customize_store: 'Customize how your store looks.',
 	set_up_payments: 'Set up a way to get paid.',
@@ -18,20 +16,14 @@ const TASK_SUBTITLES: Record< string, string > = {
 	complete_profile: 'Complete your public profile.',
 	verify_email: 'Confirm your email address.',
 	connect_social_media: 'Connect your social accounts.',
-	drive_traffic: 'Help people find your site.',
 	site_launched: 'Launch your site for the world to see.',
 	blog_launched: 'Launch your blog for the world to see.',
-	woo_launch_site: 'Launch your store and start selling.',
-	link_in_bio_launched: 'Launch your link-in-bio page.',
 };
 
 const GENERIC_SUBTITLE = 'Get this set up.';
 
 /**
- * Per-goal task ID lists. Exactly six IDs each; the last is always a launch
- * task. Drawn from the snake_case catalog menu. These mirror the deterministic
- * intent of the PoC's select-tasks.ts: a first-creation task, niche/foundation
- * tasks, then a launch task.
+ * Per-goal task ID lists. Exactly six IDs each; the last is always a launch task.
  */
 const GOAL_TASK_IDS: Record< GoalSlug, string[] > = {
 	write: [
@@ -39,7 +31,7 @@ const GOAL_TASK_IDS: Record< GoalSlug, string[] > = {
 		'site_theme_selected',
 		'add_about_page',
 		'complete_profile',
-		'drive_traffic',
+		'connect_social_media',
 		'site_launched',
 	],
 	build: [
@@ -47,19 +39,19 @@ const GOAL_TASK_IDS: Record< GoalSlug, string[] > = {
 		'site_theme_selected',
 		'design_edited',
 		'complete_profile',
-		'drive_traffic',
+		'connect_social_media',
 		'site_launched',
 	],
 	sell: [
-		'woo_products',
 		'woo_customize_store',
+		'woo_products',
 		'set_up_payments',
 		'site_theme_selected',
 		'complete_profile',
-		'woo_launch_site',
+		'site_launched',
 	],
 	newsletter: [
-		'first_post_published_newsletter',
+		'first_post_published',
 		'add_10_email_subscribers',
 		'add_about_page',
 		'site_theme_selected',
@@ -71,7 +63,7 @@ const GOAL_TASK_IDS: Record< GoalSlug, string[] > = {
 		'add_about_page',
 		'site_theme_selected',
 		'complete_profile',
-		'drive_traffic',
+		'connect_social_media',
 		'site_launched',
 	],
 	portfolio: [
@@ -110,10 +102,6 @@ function clamp( value: string, max: number ): string {
 
 /**
  * Deterministic fallback when the AI call fails or returns invalid output.
- * Produces schema-valid output for every goal: exactly six tasks with a launch
- * task last, an `inferred` blob seeded from the wizard input, and a generic
- * two-paragraph first-post draft. Stream B's PUT /tailored validates this
- * against the same schema, so it must always validate.
  *
  * @param input - The collected wizard input.
  * @return A schema-valid tailored output.
@@ -135,6 +123,15 @@ export function selectFallback( input: WizardInput ): TailoredOutput {
 					siteName +
 					'. It marks the starting point of something new, and there is plenty more to come.',
 				'Thanks for being here at the very beginning. Stay tuned for what comes next.',
+			],
+		},
+		about_page_draft: {
+			title: 'About',
+			paragraphs: [
+				'This is where the story of ' +
+					siteName +
+					' begins. Use this page to share who is behind the site and what it is all about.',
+				'Tell visitors how it started, what they can expect to find here, and where it is headed next.',
 			],
 		},
 	};

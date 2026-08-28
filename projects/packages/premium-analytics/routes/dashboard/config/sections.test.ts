@@ -1,35 +1,121 @@
-import { __ } from '@wordpress/i18n';
 import {
-	DASHBOARD_SECTION_IDS,
-	DEFAULT_SECTION_ID,
-	getDashboardSections,
+	isSectionAwaitingSync,
+	resolveSectionHeading,
 	resolveSectionId,
+	type DashboardSection,
 } from './sections';
 
-jest.mock( '@wordpress/i18n', () => ( {
-	__: jest.fn( ( text: string ) => text ),
-} ) );
+const SECTIONS: DashboardSection[] = [
+	{
+		id: 'analytics/traffic',
+		slug: 'traffic',
+		label: 'Traffic',
+		title: 'Site traffic',
+		description: 'Views, visitors, and where they came from.',
+		order: 10,
+		date_filter: 'range',
+		default_layout: [],
+	},
+	{
+		id: 'analytics/insights',
+		slug: 'insights',
+		label: 'Insights',
+		title: 'Activity insights',
+		description: 'Longer-term patterns in your content and audience.',
+		order: 20,
+		date_filter: 'year',
+		default_layout: [],
+	},
+	// Registered without a date filter, the way a payload from a build that
+	// predates the field arrives.
+	{
+		id: 'analytics/subscribers',
+		slug: 'subscribers',
+		label: 'Subscribers',
+		title: 'Subscribers stats',
+		description: 'How your subscriber list is growing, and how your emails land.',
+		order: 30,
+		default_layout: [],
+	},
+];
 
-describe( 'dashboard sections', () => {
-	it( 'builds the ordered section definitions', () => {
-		expect( getDashboardSections() ).toEqual( [
-			{ id: 'traffic', label: 'Traffic' },
-			{ id: 'insights', label: 'Insights' },
-			{ id: 'subscribers', label: 'Subscribers' },
-			{ id: 'store', label: 'Store' },
-		] );
+// Registers no heading of its own, the way Store does.
+const STORE: DashboardSection = {
+	id: 'woocommerce/store',
+	slug: 'store',
+	label: 'Store',
+	title: null,
+	description: 'Sales, orders, and what your customers are buying.',
+	order: 40,
+	date_filter: 'range',
+	default_layout: [],
+};
 
-		expect( __ ).toHaveBeenCalledWith( 'Traffic', 'jetpack-premium-analytics' );
+// A payload from a build predating the copy fields: the keys are absent, not null.
+const LEGACY: DashboardSection = {
+	id: 'analytics/traffic',
+	slug: 'traffic',
+	label: 'Traffic',
+	order: 10,
+	default_layout: [],
+};
+
+describe( 'resolveSectionId', () => {
+	it( 'keeps a slug matching an available section', () => {
+		expect( resolveSectionId( 'insights', SECTIONS ) ).toBe( 'insights' );
 	} );
 
-	it( 'keeps the default section first', () => {
-		expect( DEFAULT_SECTION_ID ).toBe( 'traffic' );
-		expect( DASHBOARD_SECTION_IDS[ 0 ] ).toBe( DEFAULT_SECTION_ID );
+	it( 'falls back to the first section by order for stale or unavailable slugs', () => {
+		expect( resolveSectionId( 'store', SECTIONS ) ).toBe( 'traffic' );
+		expect( resolveSectionId( 'missing', SECTIONS ) ).toBe( 'traffic' );
 	} );
 
-	it( 'resolves unknown section search values to the default section', () => {
-		expect( resolveSectionId( 'insights' ) ).toBe( 'insights' );
-		expect( resolveSectionId( 'missing' ) ).toBe( DEFAULT_SECTION_ID );
-		expect( resolveSectionId( undefined ) ).toBe( DEFAULT_SECTION_ID );
+	it( 'falls back to the first section when no value is given', () => {
+		expect( resolveSectionId( undefined, SECTIONS ) ).toBe( 'traffic' );
+	} );
+
+	it( 'returns an empty slug when no sections are available yet', () => {
+		expect( resolveSectionId( 'traffic', [] ) ).toBe( '' );
+	} );
+} );
+
+describe( 'resolveSectionHeading', () => {
+	it( 'prefers the registered heading over the tab label', () => {
+		expect( resolveSectionHeading( SECTIONS[ 0 ] ) ).toBe( 'Site traffic' );
+	} );
+
+	it( 'falls back to the label when the heading is null', () => {
+		expect( resolveSectionHeading( STORE ) ).toBe( 'Store' );
+	} );
+
+	it( 'falls back to the label when the field is absent', () => {
+		expect( resolveSectionHeading( LEGACY ) ).toBe( 'Traffic' );
+	} );
+
+	it( 'falls back to the label when the heading is an empty string', () => {
+		// The registry normalises `''` to null before this; this pins the client's
+		// own guard against an accessible-name-less `<h2>`.
+		expect( resolveSectionHeading( { ...STORE, title: '' } ) ).toBe( 'Store' );
+	} );
+} );
+
+describe( 'isSectionAwaitingSync', () => {
+	const STORE_AWAITING: DashboardSection = { ...STORE, requires_sync: true };
+
+	it( 'waits when the section requires the sync and it has not finished', () => {
+		expect( isSectionAwaitingSync( STORE_AWAITING, false ) ).toBe( true );
+	} );
+
+	it( 'does not wait once the sync has finished', () => {
+		expect( isSectionAwaitingSync( STORE_AWAITING, true ) ).toBe( false );
+	} );
+
+	it( 'does not wait for a section whose data needs no sync', () => {
+		expect( isSectionAwaitingSync( SECTIONS[ 0 ], false ) ).toBe( false );
+	} );
+
+	// A payload served by a build predating the field must render, not wait forever.
+	it( 'does not wait when the field is absent', () => {
+		expect( isSectionAwaitingSync( LEGACY, false ) ).toBe( false );
 	} );
 } );

@@ -5,6 +5,77 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-08-26
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+### Fixed
+- Ensure table content wraps neatly onto a new line if long. [#51600]
+
+## [0.2.6] - 2026-08-25
+### Changed
+- Update dependencies. [#50841]
+
+## [0.2.5] - 2026-08-20
+### Changed
+- Update dependencies. [#50841]
+
+## [0.2.4] - 2026-08-19
+### Changed
+- Update dependencies. [#50841]
+
+## [0.2.3] - 2026-08-13
+### Changed
+- Update dependencies. [#50841]
+
+## [0.2.2] - 2026-08-10
+### Changed
+- Update package dependencies. [#50509]
+
+### Fixed
+- Restore PHP 7.2 compatibility for the Activity Log admin page. [#51078]
+
+## [0.2.1] - 2026-08-03
+### Fixed
+- Load JS translation catalogs and stamp the package text domain on the wp-build dashboard bundle. [#50762]
+
+## [0.2.0] - 2026-07-27
+### Changed
+- Build the Activity Log dashboard with wp-build (boot script modules) instead of webpack. [#50714]
+- Update dependencies. [#50719]
+- Update package dependencies. [#50751] [#50753]
+
+### Fixed
+- Send analytics events for Activity Log dashboard interactions by loading the Tracks library. [#50714]
+
+## [0.1.12] - 2026-07-20
+### Changed
+- Update package dependencies. [#50510] [#50529]
+
+### Fixed
+- Register wp-build polyfills so the admin bundle loads on WordPress versions that don't provide the wp-theme script handle. [#50557]
+
+## [0.1.11] - 2026-07-13
+### Added
+- Surface an actionable connection-error notice when the activity log fails to load due to a broken connection. [#50169]
+
+### Changed
+- Update package dependencies. [#49272]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
+## [0.1.10] - 2026-07-06
+### Changed
+- Admin Menu: Move "Activity Log" above "Settings". [#50104]
+- Update package dependencies. [#50097] [#50183]
+
+## [0.1.9] - 2026-06-29
+### Changed
+- Internal updates.
+
+## [0.1.8] - 2026-06-25
+### Changed
+- Update package dependencies. [#49831]
+
 ## [0.1.7] - 2026-06-22
 ### Changed
 - Update package dependencies. [#49631] [#49691] [#49757]
@@ -59,6 +130,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial release.
 
+[0.3.0]: https://github.com/Automattic/jetpack-activity-log/compare/v0.2.6...v0.3.0
+[0.2.6]: https://github.com/Automattic/jetpack-activity-log/compare/v0.2.5...v0.2.6
+[0.2.5]: https://github.com/Automattic/jetpack-activity-log/compare/v0.2.4...v0.2.5
+[0.2.4]: https://github.com/Automattic/jetpack-activity-log/compare/v0.2.3...v0.2.4
+[0.2.3]: https://github.com/Automattic/jetpack-activity-log/compare/v0.2.2...v0.2.3
+[0.2.2]: https://github.com/Automattic/jetpack-activity-log/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/Automattic/jetpack-activity-log/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/Automattic/jetpack-activity-log/compare/v0.1.12...v0.2.0
+[0.1.12]: https://github.com/Automattic/jetpack-activity-log/compare/v0.1.11...v0.1.12
+[0.1.11]: https://github.com/Automattic/jetpack-activity-log/compare/v0.1.10...v0.1.11
+[0.1.10]: https://github.com/Automattic/jetpack-activity-log/compare/v0.1.9...v0.1.10
+[0.1.9]: https://github.com/Automattic/jetpack-activity-log/compare/v0.1.8...v0.1.9
+[0.1.8]: https://github.com/Automattic/jetpack-activity-log/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/Automattic/jetpack-activity-log/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/Automattic/jetpack-activity-log/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/Automattic/jetpack-activity-log/compare/v0.1.4...v0.1.5

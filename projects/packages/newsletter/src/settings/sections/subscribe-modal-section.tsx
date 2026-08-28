@@ -2,11 +2,12 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
-import { getSiteType } from '@automattic/jetpack-script-data';
+import { getSiteType, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components/wpcom-support-link';
 import { DataForm, type Field } from '@wordpress/dataviews';
-import { useCallback, useMemo } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Card, Fieldset, Text } from '@wordpress/ui';
+import { Button, Card, Fieldset, Link, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -68,6 +69,17 @@ export function SubscribeModalSection( {
 		onSave();
 	}, [ changedKeys, onSave, siteType ] );
 
+	const isWpcom = isWpcomPlatformSite();
+	const buttonOnlyStyleUrl = isWpcom
+		? 'https://wordpress.com/support/wordpress-editor/blocks/subscribe-block/#change-the-subscription-box-appearance'
+		: 'https://jetpack.com/support/jetpack-blocks/subscription-form-block/#use-the-button-only-style';
+
+	const ButtonOnlyStyleLink = isWpcom ? (
+		<WpcomSupportLink supportLink={ buttonOnlyStyleUrl } supportPostId={ 170164 } />
+	) : (
+		<Link openInNewTab href={ buttonOnlyStyleUrl } children={ null } />
+	);
+
 	const fields: Field< SubscribeModalFormData >[] = [
 		{
 			id: 'subscribe_modal_heading',
@@ -75,9 +87,14 @@ export function SubscribeModalSection( {
 			type: 'text' as const,
 			Edit: 'textarea' as const,
 			placeholder: __( 'Subscribe now to stay ahead and never miss a beat!', 'jetpack-newsletter' ),
-			description: __(
-				'Only affects Subscribe blocks using the "Button only" style. Leave blank to use the default heading.',
-				'jetpack-newsletter'
+			description: createInterpolateElement(
+				__(
+					'Only affects Subscribe blocks using <link>the "Button only" style</link>. Leave blank to use the default heading.',
+					'jetpack-newsletter'
+				),
+				{
+					link: ButtonOnlyStyleLink,
+				}
 			),
 		},
 	];
@@ -105,28 +122,28 @@ export function SubscribeModalSection( {
 				<Card.Title>{ __( 'Subscribe modal heading', 'jetpack-newsletter' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				<p>
-					<Text>
+				<Stack direction="column" gap="xl">
+					<Text variant="body-md" render={ <p /> }>
 						{ __(
-							'Shown at the top of the subscribe popup that appears when a visitor clicks a Subscribe block. Only applies to blocks using the "Button only" style.',
+							'Shown at the top of the subscribe popup that appears when a visitor clicks a Subscribe block.',
 							'jetpack-newsletter'
 						) }
 					</Text>
-				</p>
-				<Fieldset.Root disabled={ ! isNewsletterEnabled }>
-					<DataForm
-						data={ formData }
-						fields={ fields }
-						form={ {
-							layout: {
-								type: 'regular',
-								labelPosition: 'top',
-							},
-							fields: [ 'subscribe_modal_heading' ],
-						} }
-						onChange={ handleDataFormChange }
-					/>
-				</Fieldset.Root>
+					<Fieldset.Root disabled={ ! isNewsletterEnabled }>
+						<DataForm
+							data={ formData }
+							fields={ fields }
+							form={ {
+								layout: {
+									type: 'regular',
+									labelPosition: 'top',
+								},
+								fields: [ 'subscribe_modal_heading' ],
+							} }
+							onChange={ handleDataFormChange }
+						/>
+					</Fieldset.Root>
+				</Stack>
 				<div className="newsletter-card-footer">
 					<Button
 						onClick={ handleSave }

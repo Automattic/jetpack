@@ -1,29 +1,55 @@
 import { Notice, ProgressBar, Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useCallback, useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon, cloud, download as downloadIcon, arrowLeft } from '@wordpress/icons';
 import { Link, useParams } from '@wordpress/route';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
+import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
-import { findActivityById } from '../fixtures/activity-log';
-import { useMockDownload } from '../hooks/use-mock-download';
-import { DEFAULT_RESTORE_ITEMS } from '../types/restore';
+import { useDownload } from '../hooks/use-download';
+import { DEFAULT_RESTORE_ITEMS, hasSelectedItems } from '../types/restore';
+import { isValidRewindId, rewindIdToIso } from '../types/rewind-id';
+
+// Stable so the submit button can point at the hint with
+// `aria-describedby`. A module constant rather than `useInstanceId`
+// because only one of these renders per page.
+const SELECTION_HINT_ID = 'jpb-download__selection-hint';
 
 /**
  * Download screen — same narrow layout as the Restore screen minus the
- * warning notice. Submission runs through a mocked state machine; the
- * success branch surfaces a synthetic download URL as a link.
+ * warning notice. Submission runs through a real state machine via the
+ * `/jetpack/v4/backups/download/$rewindId` bridge; the success branch
+ * surfaces the signed download URL as a link.
  *
  * @return The rendered Download screen.
  */
 export default function DownloadScreen() {
 	const { rewindId } = useParams( { from: '/download/$rewindId' } );
-	const item = findActivityById( rewindId );
-	const downloadPoint = item ? item.publishedAt : null;
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
-	const { state, submit, reset } = useMockDownload();
+	const { state, submit, reset } = useDownload( rewindId );
+	const handleGenerate = useCallback( () => submit( items ), [ submit, items ] );
+	// An empty checklist would ask WPCOM for the *whole* archive, not for
+	// nothing — see `hasSelectedItems`.
+	const hasSelection = hasSelectedItems( items );
+
+	// A malformed id can only produce a failed download, so the screen
+	// offers the way back and nothing else — see `InvalidRewindId`.
+	if ( ! isValidRewindId( rewindId ) ) {
+		return (
+			<InvalidRewindId
+				prefix="jpb-download"
+				title={ __( "This download link isn't valid.", 'jetpack-backup-pkg' ) }
+				body={ __(
+					'The address is missing a valid download point. Go back to the overview and choose a backup to download.',
+					'jetpack-backup-pkg'
+				) }
+			/>
+		);
+	}
+
+	const downloadPoint = rewindIdToIso( rewindId );
 
 	return (
 		<DashboardLayout>
@@ -36,15 +62,13 @@ export default function DownloadScreen() {
 					<Stack direction="row" gap="sm" align="center">
 						<Icon icon={ cloud } />
 						<Stack direction="column" gap="xs">
-							<Text variant="heading-md" render={ <h3 /> }>
+							<Text variant="heading-md" render={ <h2 /> }>
 								{ __( 'Download backup', 'jetpack-backup-pkg' ) }
 							</Text>
-							{ downloadPoint && (
-								<Text variant="body-sm" className="jpb-text-muted">
-									{ __( 'Download point:', 'jetpack-backup-pkg' ) }{ ' ' }
-									{ dateI18n( 'M j, Y, g:i A', downloadPoint, undefined ) }
-								</Text>
-							) }
+							<Text variant="body-sm" className="jpb-text-muted">
+								{ __( 'Download point:', 'jetpack-backup-pkg' ) }{ ' ' }
+								{ dateI18n( 'M j, Y, g:i A', downloadPoint, undefined ) }
+							</Text>
 						</Stack>
 					</Stack>
 					{ ( state.phase === 'idle' || state.phase === 'submitting' ) && (
@@ -56,11 +80,39 @@ export default function DownloadScreen() {
 								) }
 							</Text>
 							<RestoreItemsChecklist value={ items } onChange={ setItems } />
+							{ /*
+							 * The live region is mounted unconditionally and only its text
+							 * changes. A region that appears together with its first message
+							 * is unreliable — assistive tech generally needs it in the tree
+							 * before the content changes, and VoiceOver in particular often
+							 * misses the simultaneous case. `jpb-visually-hidden` takes it out
+							 * of flow while empty rather than unmounting it, because this card
+							 * is a flex column with a gap and an in-flow empty node would cost
+							 * 16px of dead space on every render where there is nothing to say.
+							 *
+							 * `aria-describedby` is likewise unconditional: it resolves to the
+							 * same element either way, and an empty target contributes nothing
+							 * to the accessible description. Between them the reader is told
+							 * both when they clear the last box and when they reach the button
+							 * — @wordpress/ui renders a disabled button as focusable
+							 * `aria-disabled`, so it is reachable but silent about why.
+							 */ }
+							<Text
+								id={ SELECTION_HINT_ID }
+								variant="body-sm"
+								role="status"
+								className={ hasSelection ? 'jpb-visually-hidden' : undefined }
+							>
+								{ hasSelection
+									? ''
+									: __( 'Select at least one item to download.', 'jetpack-backup-pkg' ) }
+							</Text>
 							<Button
 								className="jpb-download__confirm"
 								variant="solid"
-								disabled={ state.phase === 'submitting' }
-								onClick={ submit }
+								disabled={ ! hasSelection || state.phase === 'submitting' }
+								aria-describedby={ SELECTION_HINT_ID }
+								onClick={ handleGenerate }
 							>
 								{ state.phase === 'submitting' ? (
 									<Spinner />
@@ -82,9 +134,28 @@ export default function DownloadScreen() {
 							<Notice status="success" isDismissible={ false }>
 								{ __( 'Your download is ready.', 'jetpack-backup-pkg' ) }
 							</Notice>
-							<a className="jpb-download__link" href={ state.downloadUrl }>
+							<a
+								className="jpb-download__link"
+								href={ state.downloadUrl }
+								download
+								rel="noreferrer"
+							>
 								{ __( 'Download the file', 'jetpack-backup-pkg' ) }
 							</a>
+							{ /*
+							 * WPCOM signs the archive URL with an expiry. Saying
+							 * when it lapses is the difference between coming back
+							 * to a dead link and knowing to fetch it again.
+							 */ }
+							{ state.validUntil && (
+								<Text variant="body-sm" className="jpb-text-muted">
+									{ sprintf(
+										/* translators: %s: date and time the download link stops working. */
+										__( 'This link expires %s.', 'jetpack-backup-pkg' ),
+										dateI18n( 'M j, Y, g:i A', state.validUntil, undefined )
+									) }
+								</Text>
+							) }
 						</Stack>
 					) }
 					{ state.phase === 'error' && (

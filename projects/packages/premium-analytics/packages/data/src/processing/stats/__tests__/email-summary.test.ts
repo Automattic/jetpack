@@ -22,7 +22,7 @@ describe( 'Stats email summary normalizer', () => {
 							expect.objectContaining( {
 								id: 71,
 								label: 'Newsletter',
-								value: 4,
+								value: 30,
 								link: 'https://example.com/newsletter/',
 								actions: [ { type: 'link', data: 'https://example.com/newsletter/' } ],
 								unique_opens: 24,
@@ -32,6 +32,24 @@ describe( 'Stats email summary normalizer', () => {
 					} ),
 				],
 			} )
+		);
+	} );
+
+	it( 'decodes HTML entities in the subject line', () => {
+		const report = sanitizeStatsEmailSummaryResponse(
+			{
+				posts: [
+					{
+						...emailSummaryFixture.posts[ 0 ],
+						title: 'Easiest &amp; Best Way to Back Up a WordPress Site&#8217;s Data',
+					},
+				],
+			},
+			{ period: 'day', date: '2026-06-16' }
+		);
+
+		expect( report.data[ 0 ].items[ 0 ].label ).toBe(
+			'Easiest & Best Way to Back Up a WordPress Site’s Data'
 		);
 	} );
 

@@ -285,7 +285,6 @@ figure.wp-block-jetpack-image-compare figcaption {
 /**
  * Custom styling for handle.
  */
-// stylelint-disable no-duplicate-selectors -- Keep sectional changes together.
 div.jx-control {
 	color: #fff;
 }
@@ -333,4 +332,3 @@ div.vertical div.jx-arrow.jx-left,
 div.vertical div.jx-arrow.jx-right {
 	transform: rotate(90deg);
 }
-// stylelint-enable no-duplicate-selectors

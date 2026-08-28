@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Defer WAF REST controller registration so the controller class only loads on REST API requests.

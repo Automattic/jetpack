@@ -203,11 +203,11 @@ for PROJECT in projects/*/*; do
 		echo "::error file=$PROJECT/tsconfig.json::The project should have either jsconfig.json or tsconfig.json, not both. Keep tsconfig if the project uses TypeScript, or jsconfig if the project is JS-only."
 	fi
 
-	# - We want to use @babel/preset-typescript (and fork-ts-checker-webpack-plugin or tsc for definition files) rather than ts-loader.
+	# - We want to use @babel/preset-typescript (and tsgo for definition files) rather than ts-loader.
 	if [[ -e "$PROJECT/package.json" ]] && jq -e '.dependencies["ts-loader"] // .devDependencies["ts-loader"] // .optionalDependencies["ts-loader"]' "$PROJECT/package.json" >/dev/null; then
 		EXIT=1
 		LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["dependencies","ts-loader"] or . == ["devDependencies","ts-loader"] or . == ["optionalDependencies","ts-loader"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json" | head -1)
-		echo "::error file=$PROJECT/package.json${LINE}::For consistency we've settled on using \`@babel/preset-typescript\` (and \`fork-ts-checker-webpack-plugin\` or \`tsgo\` for definition files) rather than \`ts-loader\`. Please switch to that."
+		echo "::error file=$PROJECT/package.json${LINE}::For consistency we've settled on using \`@babel/preset-typescript\` (and \`tsgo\` for definition files) rather than \`ts-loader\`. Please switch to that."
 	fi
 
 	# - certain tsconfig options should not be used directly.
@@ -782,9 +782,9 @@ if [[ -d node_modules/.pnpm/node_modules ]]; then
 	echo '::error::Packages are unexpectedly hoisted into node_modules/.pnpm/node_modules. This is likely to lead to phantom dependencies! Whatever you did that resulted in this is probably wrong. Ask for help in Slack #jetpack-monorepo.'
 fi
 
-# - Obsolete pnpm trustPolicyExclude.
-debug "Checking for obsolete pnpm trustPolicyExclude"
-"$BASE/tools/js-tools/check-obsolete-pnpm-trust-policy-exclude.mjs" || EXIT=1
+# - Check for stuff in pnpm-workspace.yaml that we don't want there.
+debug "Checking pnpm-workspace.yaml"
+"$BASE/tools/js-tools/check-pnpm-workspace-yaml.mjs" || EXIT=1
 
 # - pnpm lockfile bug: https://github.com/pnpm/pnpm/issues/12228
 debug "Checking for pnpm lockfile bug https://github.com/pnpm/pnpm/issues/12228"

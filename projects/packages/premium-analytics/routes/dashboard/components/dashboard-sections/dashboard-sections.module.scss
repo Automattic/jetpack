@@ -1,15 +1,39 @@
-.tabList {
-	border-block-end:
-		var(--wpds-border-width-xs, 1px) solid
-		var(--wpds-color-stroke-surface-neutral-weak, #f0f0f0);
-	margin-block-end: var(--wpds-dimension-gap-lg, 16px);
-	padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+// Flex column so the section panel fills the remaining viewport height and
+// scrolls internally instead of collapsing to its content height. Otherwise
+// the panel grows with the widget grid, and the grid (fixed row height)
+// resizes it back, so the two oscillate while resizing a widget (flicker).
+.root {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	min-block-size: 0;
+
+	// The section's scroll container. Scrolling here rather than the boot
+	// stage keeps the page header out of the scroll flow entirely: `Page` is
+	// `height: 100%`, so a sticky header inside it runs out of containing
+	// block one viewport in and slides away. The tab list scrolls away with
+	// the content, which is interim until the sections move into `Page`'s
+	// navigation slot (WordPress/gutenberg#79746, not yet in
+	// `@wordpress/admin-ui`; WOOA7S-1931).
+	overflow-y: auto;
+
+	// Own stacking context, so in-panel layers (the sticky section header,
+	// widget focus rings) never compete with the page header above.
+	position: relative;
+	z-index: 0;
 }
 
-.tabList :global([role="tab"][aria-selected="true"]) {
-	color: var(--wp-admin-theme-color, #3858e9);
-}
+// Scoped under the root to outweigh the shared tab bar's own single-class rule
+// rather than depend on which of the two stylesheets the bundle emits last.
+.root .tabList {
+	padding-inline: var(--wpds-dimension-padding-2xl);
+	z-index: 0;
 
-.tabList :global([role="tablist"] > [data-orientation="horizontal"]:not([role="tab"])) {
-	background-color: var(--wp-admin-theme-color, #3858e9);
+	// The page header's fill: the tabs and the section header below are page
+	// chrome, so the whole block above the grid reads as one plane and the
+	// canvas begins where the widgets do.
+	background: var(--wpds-color-background-surface-neutral-strong);
+
+	// The gap under the tabs moves into the section header's fill.
+	margin-block-end: 0;
 }

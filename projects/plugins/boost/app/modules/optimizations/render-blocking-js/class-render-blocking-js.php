@@ -17,6 +17,7 @@ use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
+use Automattic\Jetpack_Boost\Lib\Body_Close_Locator;
 use Automattic\Jetpack_Boost\Lib\Output_Filter;
 
 /**
@@ -427,8 +428,13 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	}
 
 	/**
-	 * Insert the buffered script tags just before the body tag if possible in the last buffer
-	 * otherwise at append it at the end.
+	 * Insert the buffered script tags just before the document's closing body
+	 * tag if the last buffer holds one, otherwise append them at the end.
+	 *
+	 * The closing tag is located with an HTML tokenizer rather than string
+	 * search: a literal '</body>' inside a script's source (document.write),
+	 * a textarea, a comment or an attribute value is content, not markup, and
+	 * inserting there corrupts the page (BOOST-585).
 	 *
 	 * @param string $buffer String buffer.
 	 *
@@ -439,13 +445,20 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 		// Reset tags in case there's another buffer after this one.
 		$this->buffered_script_tags = array();
 
-		if ( str_contains( $buffer, '</body>' ) ) {
-			$buffer = str_replace( '</body>', $script_tags . '</body>', $buffer );
-		} else {
-			$buffer .= $script_tags;
+		// Nothing to insert: both branches below are identity operations, so
+		// skip the buffer scan entirely. Any other feature registering an
+		// Output_Filter on the same global hook — Lcp does — calls this a
+		// second time per request.
+		if ( '' === $script_tags ) {
+			return $buffer;
 		}
 
-		return $buffer;
+		$position = Body_Close_Locator::find( $buffer );
+		if ( null === $position ) {
+			return $buffer . $script_tags;
+		}
+
+		return substr_replace( $buffer, $script_tags, $position, 0 );
 	}
 
 	/**

@@ -26,6 +26,18 @@ require_once __DIR__ . '/sitemap-constants.php';
 class Jetpack_Sitemap_Librarian {
 
 	/**
+	 * Sanitized posts table column lists, keyed by table name.
+	 *
+	 * Keying by table name keeps a process that switches blogs from reusing
+	 * one site's column list against another site's posts table. The cache
+	 * is static because the librarian is constructed fresh on every request
+	 * that builds a sitemap, while the underlying schema is not.
+	 *
+	 * @var array
+	 */
+	private static $post_columns_cache = array();
+
+	/**
 	 * Retrieve a single sitemap with given name and type.
 	 * Returns null if no such sitemap exists.
 	 *
@@ -134,7 +146,8 @@ class Jetpack_Sitemap_Librarian {
 		);
 
 		$query = new WP_Query( $args );
-		return $query->posts ? $query->posts[0] : null;
+		$posts = $query->posts;
+		return is_array( $posts ) && $posts ? $posts[0] : null;
 	}
 	/**
 	 * Delete a sitemap by name and type.
@@ -252,14 +265,16 @@ class Jetpack_Sitemap_Librarian {
 	 * @param int    $from_id Greatest lower bound of retrieved sitemap post IDs.
 	 * @param int    $num_posts Largest number of sitemap posts to retrieve.
 	 *
-	 * @return array The sitemaps, as an array of associative arrays.
+	 * @return array The sitemaps, as an array of associative arrays with
+	 *               keys ID, post_title, and post_date. The post content is
+	 *               deliberately excluded to keep memory usage low.
 	 */
 	public function query_sitemaps_after_id( $type, $from_id, $num_posts ) {
 		global $wpdb;
 
 		return $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT *
+				"SELECT ID, post_title, post_date
 					FROM $wpdb->posts
 					WHERE post_type=%s
 						AND post_status=%s
@@ -356,14 +371,18 @@ class Jetpack_Sitemap_Librarian {
 	 * @param int $from_id Greatest lower bound of retrieved image post IDs.
 	 * @param int $num_posts Largest number of image posts to retrieve.
 	 *
-	 * @return array The posts.
+	 * @return array The posts, without the post_content and
+	 *               post_content_filtered columns.
 	 */
 	public function query_images_after_id( $from_id, $num_posts ) {
 		global $wpdb;
 
+		$columns_list = $this->get_sanitized_post_columns( $wpdb );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- WPCS: db call ok; no-cache ok.
 		return $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT *
+				"SELECT $columns_list
 					FROM $wpdb->posts
 					WHERE post_type='attachment'
 						AND post_mime_type LIKE %s
@@ -374,7 +393,8 @@ class Jetpack_Sitemap_Librarian {
 				$from_id,
 				$num_posts
 			)
-		); // WPCS: db call ok; no-cache ok.
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 
 	/**
@@ -468,18 +488,31 @@ class Jetpack_Sitemap_Librarian {
 	 * Returns all columns from the posts table,
 	 * except post_content and post_content_filtered.
 	 *
+	 * The column list is memoized in self::$post_columns_cache, since this is
+	 * called once per batch while building sitemaps.
+	 *
+	 * A cached entry is only used when it is non-empty. SHOW COLUMNS returns
+	 * no rows when the query fails, and treating that as a cache hit would
+	 * leave every later query in the process with an empty column list.
+	 *
 	 * @param object $wpdb The WordPress database object.
 	 * @return string The sanitized post columns.
 	 */
 	private function get_sanitized_post_columns( $wpdb ) {
-		$columns = array_filter(
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->get_col( "SHOW COLUMNS FROM $wpdb->posts" ),
-			function ( $column ) {
-				return $column !== 'post_content' && $column !== 'post_content_filtered';
-			}
-		);
+		$table = $wpdb->posts;
 
-		return implode( ',', array_map( 'esc_sql', $columns ) );
+		if ( empty( self::$post_columns_cache[ $table ] ) ) {
+			$columns = array_filter(
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->get_col( "SHOW COLUMNS FROM $wpdb->posts" ),
+				function ( $column ) {
+					return $column !== 'post_content' && $column !== 'post_content_filtered';
+				}
+			);
+
+			self::$post_columns_cache[ $table ] = implode( ',', array_map( 'esc_sql', $columns ) );
+		}
+
+		return self::$post_columns_cache[ $table ];
 	}
 }

@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { buildCorePayload, buildJetpackPayload } from './build-payload';
 import { settingsStore } from './settings-store';
+import type { SchemaSettings } from './schema-settings-types';
 import type { SettingsResponse, VerificationKey } from './settings-types';
 
 // Single snackbar id reused across a save so "Updating settings…" is replaced
@@ -12,11 +13,18 @@ import type { SettingsResponse, VerificationKey } from './settings-types';
 // page's two-stage toast.
 const SAVE_NOTICE_ID = 'jetpack-seo-settings-save';
 
+// The package's own settings read, re-fetched after a sitemap toggle to pick up
+// the freshly-reachable `sitemap_url` (recomputed server-side once Jetpack has
+// (de)activated its sitemap module).
+const SEO_SETTINGS_PATH = '/jetpack/v4/seo/settings';
+
 export interface SettingsForm {
 	local: SettingsResponse | null;
 	isSaving: boolean;
 	/** Update local state only — for controlled typing; persisted by a per-section save. */
 	setField: ( patch: Partial< SettingsResponse > ) => void;
+	/** Replace the saved schema snapshot after the schema-specific route succeeds. */
+	setSchemaSettings: ( schema: SchemaSettings ) => void;
 	/** Update a verification code locally — persisted via `commitFields(['verification'])` on blur. */
 	setVerification: ( key: VerificationKey, value: string ) => void;
 	/**
@@ -115,6 +123,35 @@ export function useSettingsForm(): SettingsForm {
 						id: SAVE_NOTICE_ID,
 						type: 'snackbar',
 					} );
+
+					// Toggling the sitemap changes what's reachable server-side (Jetpack
+					// (de)activates its module), so re-read the SEO settings to surface the
+					// freshly-reachable `sitemap_url` — the View link then appears without a
+					// page reload. Non-fatal on failure: the save already succeeded.
+					// Returned (not fire-and-forget) so `isSaving` stays true — and the
+					// toggle disabled — until the re-read settles, preventing a second
+					// toggle from racing an in-flight refetch and landing a stale value.
+					if ( 'sitemaps' in jetpackPayload ) {
+						return apiFetch< SettingsResponse >( { path: SEO_SETTINGS_PATH } )
+							.then( fresh => {
+								const cur = localRef.current;
+								const base = baselineRef.current;
+								if ( ! cur || ! base ) {
+									return;
+								}
+								const patch = {
+									sitemap_url: fresh.sitemap_url,
+									sitemap_active: fresh.sitemap_active,
+								};
+								localRef.current = { ...cur, ...patch };
+								baselineRef.current = { ...base, ...patch };
+								setLocal( localRef.current );
+								setSettings( baselineRef.current );
+							} )
+							.catch( () => {
+								// The View link will simply appear on the next load instead.
+							} );
+					}
 				} )
 				.catch( ( error: { message?: string } ) => {
 					createErrorNotice(
@@ -139,6 +176,24 @@ export function useSettingsForm(): SettingsForm {
 				state ? { ...state, verification: { ...state.verification, [ key ]: value } } : state
 			),
 		[]
+	);
+
+	const setSchemaSettings = useCallback(
+		( schema: SchemaSettings ) => {
+			const current = localRef.current;
+			const baseline = baselineRef.current;
+			if ( ! current || ! baseline ) {
+				return;
+			}
+
+			const nextBaseline = { ...baseline, schema };
+			const nextLocal = { ...current, schema };
+			baselineRef.current = nextBaseline;
+			localRef.current = nextLocal;
+			setLocal( nextLocal );
+			setSettings( nextBaseline );
+		},
+		[ setSettings ]
 	);
 
 	const commit = useCallback(
@@ -233,6 +288,7 @@ export function useSettingsForm(): SettingsForm {
 		local,
 		isSaving,
 		setField,
+		setSchemaSettings,
 		setVerification,
 		commit,
 		commitFields,

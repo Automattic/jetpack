@@ -1,0 +1,21 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-block-size: 0;
+}
+
+.backLink {
+	align-self: flex-start;
+	min-inline-size: 0;
+	margin-block-end: 0;
+}

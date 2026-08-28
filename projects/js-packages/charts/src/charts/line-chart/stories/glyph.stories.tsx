@@ -1,8 +1,13 @@
 import { GlyphStar } from '@visx/glyph';
-import { useGlobalChartsTheme, GlobalChartsProvider } from '../../../providers';
-import { ChartStoryArgs, CHART_THEME_MAP, themeArgTypes } from '../../../stories';
+import { useGlobalChartsContext, GlobalChartsProvider } from '../../../providers';
+import { CHART_THEME_MAP, themeArgTypes } from '../../../stories';
 import LineChart from '../line-chart';
-import { lineChartMetaArgs, lineChartStoryArgs, glyphTheme } from './config';
+import {
+	lineChartMetaArgs,
+	lineChartStoryArgs,
+	glyphTheme,
+	type StoryArgs as BaseStoryArgs,
+} from './config';
 import type { DataPointDate } from '../../../types';
 import type { RenderTooltipParams } from '../../../visx/types';
 import type { Meta, StoryFn, StoryObj, Decorator } from '@storybook/react';
@@ -11,7 +16,7 @@ import type { Meta, StoryFn, StoryObj, Decorator } from '@storybook/react';
  * Story-specific args that provide convenient Storybook controls.
  * These don't map directly to component props but control how glyphs are rendered in stories.
  */
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > > & {
+type StoryArgs = BaseStoryArgs & {
 	/** Type of glyph to render: 'default' (circle), 'star', or 'heart' (custom) */
 	glyphType?: 'default' | 'star' | 'heart';
 	/** Size of the glyph in pixels (radius for circle glyphs) */
@@ -118,7 +123,7 @@ const CustomHeartGlyph = ( { color, size, x, y } ) => {
 	);
 };
 
-const Template: StoryFn< typeof LineChart > = args => {
+const Template: StoryFn< StoryArgs > = args => {
 	const { glyphType, glyphSize, ...chartProps } = args;
 
 	// Determine renderGlyph based on glyphType control
@@ -207,7 +212,7 @@ CustomSvg.args = {
 };
 
 const ToolTipWithGlyph = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
-	const providerTheme = useGlobalChartsTheme();
+	const { getElementStyles } = useGlobalChartsContext();
 
 	return (
 		<div>
@@ -233,7 +238,7 @@ const ToolTipWithGlyph = ( { tooltipData }: RenderTooltipParams< DataPointDate >
 										top={ 10 }
 										left={ 10 }
 										fill={ '#fff' }
-										stroke={ providerTheme.colors[ index % providerTheme.colors.length ] }
+										stroke={ getElementStyles( { index } ).color }
 									/>
 								</svg>
 								{ key }: { datum.value }

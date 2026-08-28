@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Publicize\REST_API;
 
-use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Publicize\Publicize_Base;
 use WP_Error;
 use WP_Post;
@@ -248,7 +247,7 @@ class Connections_Post_Field {
 			$connection_overrides  = array();
 		}
 
-		$message_templates_enabled = Current_Plan::supports( 'social-message-templates' );
+		$message_templates_enabled = $publicize && $publicize->has_paid_features();
 
 		$output_connections = array();
 		foreach ( $connections as $connection ) {
@@ -660,7 +659,9 @@ class Connections_Post_Field {
 			return new WP_Error( '__wrong-context__' );
 		}
 
-		switch ( $schema['type'] ) {
+		$schema_type = $schema['type'] ?? null;
+
+		switch ( $schema_type ) {
 			case 'array':
 				if ( ! isset( $schema['items'] ) ) {
 					return $value;

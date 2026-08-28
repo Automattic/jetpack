@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Backup: show a failure message when your backup status cannot be read, rather than the screen that says your first backup is on its way, and let the "Back up now" button recover when a backup could not be queued.

@@ -52,7 +52,7 @@ const {
 	formsRoot,
 	blocksDir,
 	blockDirPattern,
-	svgFilename,
+	svgPattern,
 	rasterOutputDir: outputDir,
 	rasterSuffix,
 	fileIconsDir,
@@ -96,7 +96,7 @@ let totalFailed = 0;
 
 // --- Block field icons (src/blocks/field-*/icon.svg) -------------------------
 
-const blockSvgFiles = await glob( join( blocksDir, blockDirPattern, svgFilename ) );
+const blockSvgFiles = await glob( join( blocksDir, blockDirPattern, svgPattern ) );
 
 if ( blockSvgFiles.length > 0 ) {
 	console.log( `Found ${ blockSvgFiles.length } block icon(s). Rasterizing...\n` );
@@ -104,7 +104,11 @@ if ( blockSvgFiles.length > 0 ) {
 
 	for ( const svgFile of blockSvgFiles ) {
 		const blockName = basename( dirname( svgFile ) );
-		const outputFile = join( outputDir, `${ blockName }${ rasterSuffix }.png` );
+		// `icon.svg` rasterizes to `<block>@2x.png`; a state variant `icon-<variant>.svg`
+		// rasterizes to `<block>-<variant>@2x.png`.
+		const iconName = basename( svgFile, '.svg' );
+		const variant = 'icon' === iconName ? '' : iconName.replace( /^icon/, '' );
+		const outputFile = join( outputDir, `${ blockName }${ variant }${ rasterSuffix }.png` );
 		const ok = await rasterize( svgFile, outputFile );
 		totalProcessed++;
 		if ( ! ok ) {

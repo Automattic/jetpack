@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fix `@wordpress/ui` 0.15 type errors: drop the unsupported `target` prop on Link (it is set via `openInNewTab`) in the mobile-app recommendation, and type the AI Assistant message icon as a `ReactElement`.

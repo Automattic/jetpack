@@ -82,9 +82,11 @@ The simplest leaderboard chart requires only a `data` prop with pre-processed le
 
 **State & Styling:**
 - **`loading`**: Whether the chart is in loading state - `false` by default
+- **`fitRows`**: Show only complete rows that fit a height-constrained container instead of scrolling - `false` by default
 - **`className`**: Additional CSS class name for the chart container
 - **`style`**: Custom styling including CSS custom properties for border radius
 - **`width` / `height`**: Optional fixed chart container dimensions
+- **`aspectRatio`**: Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
 - **`gap`**: Spacing between legend and chart content (Stack gap token/value)
 
 For detailed prop information, type definitions, and examples, see the [Leaderboard Chart API Reference](./?path=/docs/js-packages-charts-library-charts-leaderboard-chart-api-reference--docs).
@@ -284,15 +286,26 @@ The LeaderboardChart expects pre-processed data. You'll need to transform your r
 	function transformRawData(rawData) {
 		const maxValue = Math.max(...rawData.map(item => item.current_period.value));
 
-		return rawData.map(item => ({
-			id: item.id,
-			label: item.name,
-			currentValue: item.current_period.value,
-			previousValue: item.previous_period.value,
-			currentShare: (item.current_period.value / maxValue) * 100,
-			previousShare: (item.previous_period.value / maxValue) * 100,
-			delta: ((item.current_period.value - item.previous_period.value) / item.previous_period.value) * 100,
-		}));
+		return rawData.map(item => {
+			// A row absent from the comparison period has an unknown previous
+			// value; leave the comparison fields undefined so the chart shows
+			// its missing-data placeholder.
+			const previousValue = item.previous_period?.value;
+
+			return {
+				id: item.id,
+				label: item.name,
+				currentValue: item.current_period.value,
+				previousValue,
+				currentShare: (item.current_period.value / maxValue) * 100,
+				previousShare: previousValue !== undefined ? (previousValue / maxValue) * 100 : undefined,
+				// Omit delta when the percentage change cannot be calculated,
+				// such as from a previous value of 0.
+				delta: previousValue
+					? ((item.current_period.value - previousValue) / previousValue) * 100
+					: undefined,
+			};
+		});
 	}
 
 	function ProcessedDataChart() {
@@ -440,7 +453,7 @@ Combine overlay labels with custom styling and transparent colors:
 		withOverlayLabel={true}
 		primaryColor="rgba(56, 88, 233, 0.08)" // Semi-transparent
 		style={{
-			'--a8c--charts--leaderboard--bar--border-radius': '4px',
+			'--a8c-charts-border-radius-leaderboard-bar': '4px',
 		}}
 	/>` }
 />
@@ -454,7 +467,7 @@ The component supports CSS custom properties for advanced styling:
 	code={ `<LeaderboardChart
 		data={data}
 		style={{
-			'--a8c--charts--leaderboard--bar--border-radius': '8px',
+			'--a8c-charts-border-radius-leaderboard-bar': '8px',
 		}}
 		className="myCustomChart"
 	/>` }
@@ -463,20 +476,31 @@ The component supports CSS custom properties for advanced styling:
 <Source
 	language="css"
 	code={ `.myCustomChart {
-		--a8c--charts--leaderboard--bar--border-radius: 8px;
+		--a8c-charts-border-radius-leaderboard-bar: 8px;
 	}` }
 />
 
 ## Theming Integration
 
-Leaderboard Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+Leaderboard Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+
+**Series colors come from the palette custom properties, not the theme object.** Set as many of the five slots as you need; an unset slot is skipped, and charts generates accessible colors beyond whatever you set:
+
+<Source
+	language="css"
+	code={ `.a8c-charts-scope {
+		--a8c-charts-color-series-1: #FF6B6B;
+	}` }
+/>
+
+Everything else is set by wrapping your chart in `GlobalChartsProvider` and passing a theme object with the properties you want to override to the `theme` prop:
 
 <Source
 	language="tsx"
 	code={ `import { GlobalChartsProvider, LeaderboardChart, type ChartTheme } from '@automattic/charts';
 
 	const customTheme: ChartTheme = {
-		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
+		backgroundColor: '#f5f5f5',
 	};
 
 	<GlobalChartsProvider theme={customTheme}>
@@ -486,16 +510,21 @@ Leaderboard Charts integrate seamlessly with the chart theming system. The defau
 
 ## Responsive Behavior
 
-By default, leaderboard charts fill their parent container dimensions. The parent must provide an explicit height for constrained layouts:
+By default, leaderboard charts **fill their parent container's dimensions**. The parent must have an explicit height, or the chart must receive an `aspectRatio`:
 
 <Source
 	language="tsx"
-	code={ `// Responsive by default (fills parent container)
+	code={ `// Fill parent container (default) - parent needs explicit height
 		<div style={{ width: '100%', height: '320px' }}>
 			<LeaderboardChart data={ data } showLegend={ true } />
 		</div>
 
-		// Fixed-size exception
+		// Use aspect ratio - height from width, contained if the parent is shorter
+		<div style={{ width: '100%' }}>
+			<LeaderboardChart data={ data } aspectRatio={ 0.4 } showLegend={ true } />
+		</div>
+
+		// Fixed dimensions
 		<LeaderboardChart
 			data={ data }
 			width={ 300 }
@@ -504,7 +533,22 @@ By default, leaderboard charts fill their parent container dimensions. The paren
 		/>` }
 />
 
-When content is taller than the available area, the content region scrolls and the legend remains visible without overlap.
+By default, when content is taller than the available area, the content region scrolls and the legend remains visible without overlap. Set `fitRows` inside a height-constrained container to hide rows that do not fit instead. The example below uses `LeaderboardChartUnresponsive` because refits are debounced with the parent resize on the responsive export, which lags a live drag:
+
+<Canvas of={ LeaderboardChartStories.FitRows } />
+
+<Source
+	language="tsx"
+	code={ `import { LeaderboardChartUnresponsive } from '@automattic/charts';
+
+	<div style={{ height: '180px' }}>
+		<LeaderboardChartUnresponsive data={ data } fitRows />
+	</div>` }
+/>
+
+Hidden rows also leave the tab order and the accessibility tree, so keyboard focus only ever lands on a fully visible row — tab through the example below to verify:
+
+<Canvas of={ LeaderboardChartStories.FitRowsInteractive } />
 
 For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
@@ -576,4 +620,4 @@ The Leaderboard Chart component supports an optional entry animation that create
 ### Focus Management
 
 - Interactive legend items use standard focus behavior and visible focus indicators from the shared legend component.
-- The chart content area scrolls in constrained layouts, keeping focused legend controls visible and non-overlapping.
+- By default, the chart content area scrolls in constrained layouts, keeping focused legend controls visible and non-overlapping. With `fitRows`, rows that do not fit are removed from the focus order and accessibility tree.

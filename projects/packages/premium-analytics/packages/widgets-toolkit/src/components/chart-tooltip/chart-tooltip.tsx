@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { LineShape, RectShape } from '@automattic/charts/visx/legend';
-import { Stack } from '@wordpress/ui';
+import { LineShape, RectShape, Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -11,100 +10,67 @@ import { TooltipRow } from './tooltip-row';
 import { isChartDatumEntry } from './utils';
 import type { DataFormat } from '../../types';
 
-/**
- * Style configuration for tooltip indicators.
- * Matches SeriesStyle pattern from chart components.
- */
+/** Mirrors the `SeriesStyle` shape the chart components use. */
 export type TooltipStyle = {
-	/** Color for the indicator */
 	stroke: string;
 
-	/** Stroke width (for line indicator) */
 	strokeWidth?: string | number;
 
-	/** Stroke dash array (for line indicator) */
 	strokeDasharray?: string | number;
 
-	/** Stroke dash offset (for line indicator) */
 	strokeDashoffset?: string | number;
+
+	/** Indicator opacity, so a swatch can match a mark the chart drew translucent. */
+	opacity?: string | number;
 };
 
-/**
- * Common datum shape with label and value properties.
- * Used by default extractors.
- */
 type DatumWithLabel = { label: string };
 type DatumWithValue = { value: number };
 
-/**
- * Default label extractor - assumes datum has a 'label' property.
- * Override for custom label formatting (e.g., date formatting for line charts).
- *
- * @param datum - The data point
- */
+// The default extractors assume the common datum shape; charts with other
+// shapes (dates on line charts, for one) pass their own via `getLabel`.
 function defaultGetLabel( datum: unknown ): string {
 	return ( datum as DatumWithLabel ).label ?? '';
 }
 
-/**
- * Default value extractor - assumes datum has a 'value' property.
- */
 function defaultGetValue( datum: unknown ): number {
 	return ( datum as DatumWithValue ).value;
 }
 
 export type ChartTooltipProps< TDatum = unknown > = {
-	/**
-	 * Tooltip data from visx chart
-	 */
+	/** Tooltip data from the visx chart. */
 	tooltipData?: {
 		datumByKey?: Record< string, unknown >;
 	};
 
-	/**
-	 * Format configuration for chart values
-	 */
 	dataFormat: DataFormat;
 
-	/**
-	 * Array of styles for each series (required).
-	 * Index corresponds to series index.
-	 */
+	/** One style per series, indexed by series position. */
 	seriesStyles: TooltipStyle[];
 
 	/**
-	 * Indicator type: 'line' for line charts, 'rect' for bar charts
-	 * Uses chart library's LineShape and RectShape components.
+	 * Series keys in the same order as `seriesStyles`, pairing a row with its style by
+	 * key rather than position — charts emit rows in their own order, so a positional
+	 * lookup hands rows the wrong swatch. Omit when rows arrive in series order.
 	 */
+	seriesKeys?: string[];
+
 	indicatorType: 'line' | 'rect';
 
-	/**
-	 * Function to extract label from datum.
-	 * Defaults to extracting 'label' property.
-	 */
 	getLabel?: ( datum: TDatum, index: number, key: string ) => string;
 
-	/**
-	 * Function to extract value from datum.
-	 * Defaults to extracting 'value' property.
-	 */
 	getValue?: ( datum: TDatum ) => number;
 };
 
 /**
- * Self-contained tooltip component for charts.
- * Handles rendering of tooltip rows with configurable indicators.
- *
- * Uses chart library's shape components (LineShape, RectShape) for visual consistency.
- *
- * Provides sensible defaults for common chart data patterns:
- * - getLabel: Extracts 'label' property from datum
- * - getValue: Extracts 'value' property from datum
+ * Self-contained chart tooltip. Indicators use the chart library's own
+ * `LineShape` / `RectShape` so they match the series they describe.
  */
 export function ChartTooltip< TDatum >( {
 	tooltipData,
 	dataFormat,
 	seriesStyles,
+	seriesKeys,
 	indicatorType,
 	getLabel = defaultGetLabel,
 	getValue = defaultGetValue,
@@ -126,7 +92,12 @@ export function ChartTooltip< TDatum >( {
 					return null;
 				}
 
-				const { stroke, ...lineShapeStyle } = seriesStyles[ index ] || seriesStyles[ 0 ];
+				// No positional fallback once `seriesKeys` is given: that lookup is the bug
+				// the prop exists to fix, and on a miss it paints a plausible wrong swatch.
+				const style = seriesKeys
+					? seriesStyles[ seriesKeys.indexOf( entry.key ) ]
+					: seriesStyles[ index ];
+				const { stroke, ...lineShapeStyle } = style || seriesStyles[ 0 ];
 				const label = getLabel( entry.datum, index, entry.key );
 				const value = getValue( entry.datum );
 
@@ -142,7 +113,12 @@ export function ChartTooltip< TDatum >( {
 									style={ lineShapeStyle }
 								/>
 							) : (
-								<RectShape fill={ stroke || 'currentColor' } height={ 8 } width={ 8 } />
+								<RectShape
+									fill={ stroke || 'currentColor' }
+									height={ 8 }
+									width={ 8 }
+									style={ { opacity: lineShapeStyle.opacity } }
+								/>
 							)
 						}
 						label={ label }

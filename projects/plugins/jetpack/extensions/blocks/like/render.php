@@ -49,6 +49,18 @@ function render_block_implementation( $attr, $content, $block ) {
 		return;
 	}
 
+	/*
+	 * Never render the Like block on password-protected posts, even for viewers
+	 * who can read the post (owners, admins, or after unlocking). We gate on the
+	 * post having a password rather than post_password_required(), which is
+	 * request-scoped and would let the Like button leak once a viewer unlocked
+	 * the post.
+	 */
+	$post = get_post( $post_id );
+	if ( $post instanceof \WP_Post && ! empty( $post->post_password ) ) {
+		return;
+	}
+
 	// make sure we have `jetpack_likes_master_iframe` defined
 	require_once JETPACK__PLUGIN_DIR . 'modules/likes/jetpack-likes-master-iframe.php';
 

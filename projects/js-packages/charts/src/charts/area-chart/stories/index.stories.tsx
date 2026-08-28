@@ -1,17 +1,16 @@
 import {
-	ChartStoryArgs,
 	extractLegendConfig,
 	temperatureData as sampleData,
 	trafficData as webTrafficData,
 } from '../../../stories';
 import AreaChart from '../area-chart';
-import { areaChartMetaArgs, areaChartStoryArgs } from './config';
+import { areaChartMetaArgs, areaChartStoryArgs, type StoryArgs as BaseStoryArgs } from './config';
+import type { ChartLegendConfig, SeriesData } from '../../../types';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof AreaChart > > & {
+type StoryArgs = BaseStoryArgs & {
 	seriesCount?: 'single' | 'multiple' | 'many';
 	dimensionMode?: 'responsive' | 'fixed';
-	crosshairMode?: 'none' | 'vertical' | 'horizontal' | 'both';
 };
 
 const meta: Meta< StoryArgs > = {
@@ -69,10 +68,10 @@ const meta: Meta< StoryArgs > = {
 
 export default meta;
 
-const Template: StoryFn< typeof AreaChart > = args => {
+const Template: StoryFn< StoryArgs > = args => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { seriesCount, dimensionMode, crosshairMode, withTooltipCrosshairs, ...chartProps } = args;
-	const legend = extractLegendConfig( args );
+	const legend = extractLegendConfig< ChartLegendConfig< SeriesData[] > >( args );
 
 	let data = chartProps.data || areaChartStoryArgs.data;
 	if ( seriesCount === 'single' ) {
@@ -109,15 +108,29 @@ const Template: StoryFn< typeof AreaChart > = args => {
 };
 
 // Stacked is the default. Multiple series stacked on top of each other.
-export const Default: StoryObj< typeof AreaChart > = Template.bind( {} );
+export const Default: StoryObj< StoryArgs > = Template.bind( {} );
 Default.args = {
+	...areaChartStoryArgs,
+	showLegend: true,
+};
+
+export const Zoomable: StoryObj< StoryArgs > = Template.bind( {} );
+Zoomable.args = {
 	...areaChartStoryArgs,
 	showLegend: true,
 	zoomable: true,
 };
+Zoomable.parameters = {
+	docs: {
+		description: {
+			story:
+				'With `zoomable`, drag horizontally across the plot to zoom into a range. A reset button appears while zoomed to restore the full domain. Defaults to `false`.',
+		},
+	},
+};
 
 // Same series rendered as overlapping (non-stacked) filled areas.
-export const Unstacked: StoryObj< typeof AreaChart > = Template.bind( {} );
+export const Unstacked: StoryObj< StoryArgs > = Template.bind( {} );
 Unstacked.args = {
 	...areaChartStoryArgs,
 	stacked: false,
@@ -133,7 +146,7 @@ Unstacked.parameters = {
 };
 
 // 100% stacked area chart — values are normalised so each x-position sums to 1.
-export const PercentageStack: StoryObj< typeof AreaChart > = Template.bind( {} );
+export const PercentageStack: StoryObj< StoryArgs > = Template.bind( {} );
 PercentageStack.args = {
 	...areaChartStoryArgs,
 	stacked: true,
@@ -150,7 +163,7 @@ PercentageStack.parameters = {
 };
 
 // Streamgraph layout — stack centred around zero with wiggle offset.
-export const Streamgraph: StoryObj< typeof AreaChart > = Template.bind( {} );
+export const Streamgraph: StoryObj< StoryArgs > = Template.bind( {} );
 Streamgraph.args = {
 	...areaChartStoryArgs,
 	stacked: true,
@@ -167,7 +180,7 @@ Streamgraph.parameters = {
 	},
 };
 
-export const LinearLines: StoryObj< typeof AreaChart > = Template.bind( {} );
+export const LinearLines: StoryObj< StoryArgs > = Template.bind( {} );
 LinearLines.args = {
 	...areaChartStoryArgs,
 	curveType: 'linear',
@@ -183,13 +196,13 @@ LinearLines.parameters = {
 	},
 };
 
-export const SingleSeries: StoryObj< typeof AreaChart > = Template.bind( {} );
+export const SingleSeries: StoryObj< StoryArgs > = Template.bind( {} );
 SingleSeries.args = {
 	...areaChartStoryArgs,
 	data: [ webTrafficData[ 0 ] ],
 };
 
-export const FixedDimensions: StoryObj< typeof AreaChart > = Template.bind( {} );
+export const FixedDimensions: StoryObj< StoryArgs > = Template.bind( {} );
 FixedDimensions.args = {
 	...areaChartStoryArgs,
 	width: 600,
@@ -197,14 +210,14 @@ FixedDimensions.args = {
 	showLegend: true,
 };
 
-export const AspectRatio: StoryObj< typeof AreaChart > = Template.bind( {} );
+export const AspectRatio: StoryObj< StoryArgs > = Template.bind( {} );
 AspectRatio.args = {
 	...areaChartStoryArgs,
 	aspectRatio: 0.3,
 	showLegend: true,
 };
 
-export const Animation: StoryObj< typeof AreaChart > = Template.bind( {} );
+export const Animation: StoryObj< StoryArgs > = Template.bind( {} );
 Animation.args = {
 	...areaChartStoryArgs,
 	animation: true,
@@ -212,17 +225,17 @@ Animation.args = {
 	legendInteractive: true,
 };
 
-export const RescaleYOnLegendToggle: StoryObj< typeof AreaChart > = {
-	name: 'Y-axis rescales when legends toggle (default)',
+export const RescaleYOnVisibilityChange: StoryObj< StoryArgs > = {
+	name: 'Y-axis rescales when visible series change (default)',
 	render: args => (
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
 			<div>
-				<h4>rescaleYOnLegendToggle: true (default)</h4>
-				<AreaChart { ...args } rescaleYOnLegendToggle />
+				<h4>rescaleYOnVisibilityChange: true (default)</h4>
+				<AreaChart { ...args } rescaleYOnVisibilityChange />
 			</div>
 			<div>
-				<h4>rescaleYOnLegendToggle: false (pinned)</h4>
-				<AreaChart { ...args } rescaleYOnLegendToggle={ false } />
+				<h4>rescaleYOnVisibilityChange: false (pinned)</h4>
+				<AreaChart { ...args } rescaleYOnVisibilityChange={ false } />
 			</div>
 		</div>
 	),
@@ -243,9 +256,25 @@ export const RescaleYOnLegendToggle: StoryObj< typeof AreaChart > = {
 	},
 };
 
-export const WithCompositionLegend: StoryObj< typeof AreaChart > = {
+export const WithDefaultHiddenSeries: StoryObj< StoryArgs > = Template.bind( {} );
+WithDefaultHiddenSeries.args = {
+	...Default.args,
+	legendInteractive: true,
+	chartId: 'default-hidden-series-demo',
+	defaultHiddenSeries: [ 'London' ],
+};
+WithDefaultHiddenSeries.parameters = {
+	docs: {
+		description: {
+			story:
+				'London is hidden from the initial render and marked inactive in the legend. Select its legend item to reveal it.',
+		},
+	},
+};
+
+export const WithCompositionLegend: StoryObj< StoryArgs > = {
 	render: args => {
-		const legend = extractLegendConfig( args );
+		const legend = extractLegendConfig< ChartLegendConfig< SeriesData[] > >( args );
 		return (
 			<AreaChart
 				{ ...Default.args }
@@ -268,7 +297,7 @@ export const WithCompositionLegend: StoryObj< typeof AreaChart > = {
 	},
 };
 
-export const CurveTypes: StoryObj< typeof AreaChart > = {
+export const CurveTypes: StoryObj< StoryArgs > = {
 	render: () => {
 		const curveData = sampleData.slice( 0, 3 );
 		return (
@@ -298,7 +327,7 @@ export const CurveTypes: StoryObj< typeof AreaChart > = {
 	},
 };
 
-export const ErrorStates: StoryObj< typeof AreaChart > = {
+export const ErrorStates: StoryObj< StoryArgs > = {
 	render: () => (
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
 			<div>
@@ -362,7 +391,7 @@ export const ErrorStates: StoryObj< typeof AreaChart > = {
 };
 
 // Showcase fillOpacity in both stacked and unstacked modes.
-export const FillOpacity: StoryObj< typeof AreaChart > = Template.bind( {} );
+export const FillOpacity: StoryObj< StoryArgs > = Template.bind( {} );
 FillOpacity.args = {
 	...areaChartStoryArgs,
 	fillOpacity: 0.5,
@@ -378,7 +407,7 @@ FillOpacity.parameters = {
 };
 
 // Demonstrate the stroke-on-area toggle.
-export const WithStroke: StoryObj< typeof AreaChart > = Template.bind( {} );
+export const WithStroke: StoryObj< StoryArgs > = Template.bind( {} );
 WithStroke.args = {
 	...areaChartStoryArgs,
 	withStroke: true,
@@ -394,7 +423,7 @@ WithStroke.parameters = {
 };
 
 // Show grid visibility variants side-by-side.
-export const GridVisibility: StoryObj< typeof AreaChart > = {
+export const GridVisibility: StoryObj< StoryArgs > = {
 	render: () => {
 		const data = sampleData.slice( 0, 3 );
 		return (
@@ -421,7 +450,7 @@ export const GridVisibility: StoryObj< typeof AreaChart > = {
 };
 
 // Custom renderTooltip: showcase total + per-series rows.
-export const CustomTooltip: StoryObj< typeof AreaChart > = Template.bind( {} );
+export const CustomTooltip: StoryObj< StoryArgs > = Template.bind( {} );
 CustomTooltip.args = {
 	...areaChartStoryArgs,
 	showLegend: true,
@@ -468,7 +497,7 @@ CustomTooltip.parameters = {
 // Stacked mode with mixed positive/negative values. The hover-glyph overlay
 // follows d3-stack `offset="none"` semantics — running total — so glyphs land
 // on the rendered band edge even when a series goes below zero.
-export const NegativeValues: StoryObj< typeof AreaChart > = Template.bind( {} );
+export const NegativeValues: StoryObj< StoryArgs > = Template.bind( {} );
 NegativeValues.args = {
 	...areaChartStoryArgs,
 	showLegend: true,
@@ -509,7 +538,7 @@ NegativeValues.parameters = {
 // Series with different x-domains. Where a series lacks a datum, the cumulative
 // stack treats it as zero (matching d3-stack), and no glyph is rendered for
 // that series — but glyphs for series above it stay positioned correctly.
-export const MismatchedXDomains: StoryObj< typeof AreaChart > = Template.bind( {} );
+export const MismatchedXDomains: StoryObj< StoryArgs > = Template.bind( {} );
 MismatchedXDomains.args = {
 	...areaChartStoryArgs,
 	showLegend: true,
@@ -540,6 +569,48 @@ MismatchedXDomains.parameters = {
 		description: {
 			story:
 				'Series with non-matching x-domains. d3-stack treats missing values as zero; the hover-glyph overlay matches that convention so subsequent series glyphs stay on the correct stacked edge.',
+		},
+	},
+};
+
+// A single hourly bucket: with no spacing to measure, inference falls back to
+// date ticks, so only the declared `tickResolution` yields an hour tick.
+const loneHourlyBucket: SeriesData[] = [
+	{
+		label: 'Views',
+		data: [ { date: new Date( 2026, 7, 2, 13 ), value: 42 } ],
+		options: {},
+	},
+];
+
+export const TimeAxisTickResolution: StoryObj< StoryArgs > = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
+			<div>
+				<h3>Lone hourly bucket, resolution inferred → date tick</h3>
+				<AreaChart width={ 460 } height={ 220 } data={ loneHourlyBucket } />
+			</div>
+			<div>
+				<h3>Same point, tickResolution: &apos;hour&apos; → hour tick</h3>
+				<AreaChart
+					width={ 460 }
+					height={ 220 }
+					data={ loneHourlyBucket }
+					options={ { axis: { x: { tickResolution: 'hour' } } } }
+				/>
+			</div>
+		</div>
+	),
+	args: {
+		containerWidth: '1020px',
+		containerHeight: '320px',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"When the caller already knows the data's bucket resolution, `options.axis.x.tickResolution` declares it and the automatic formatter uses it instead of inferring the resolution from point spacing. An explicit `tickFormat` takes precedence over the hint.",
+			},
 		},
 	},
 };

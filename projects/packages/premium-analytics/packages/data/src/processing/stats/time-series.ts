@@ -1,3 +1,4 @@
+import { formatDatePartWithTime, getDatePart } from '@jetpack-premium-analytics/datetime';
 import {
 	endOfISOWeek,
 	endOfMonth,
@@ -10,16 +11,31 @@ import {
 	startOfYear,
 } from 'date-fns';
 import { safeParseFloat } from '../../utils/parsing';
+import { createStatsBucketWindowFilter, type StatsBucketFilter } from './bucket-window';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
 	getStatsIntervalFields,
 	normalizeStatsSummary,
 } from './utils';
-import type { StatsNormalizedDataPoint, StatsNormalizedReport, StatsRecord } from './types';
+import type {
+	StatsNormalizedDataPoint,
+	StatsNormalizedReport,
+	StatsNormalizedSummary,
+	StatsRecord,
+} from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
-const nonMetricFields = [ 'period', 'time_interval', 'date', 'date_start', 'date_end' ];
+export type StatsTimeSeriesDataPoint = StatsNormalizedDataPoint & {
+	label: string;
+	value: number;
+};
+
+export type StatsTimeSeriesReport = StatsNormalizedReport & {
+	data: StatsTimeSeriesDataPoint[];
+};
+
+const nonMetricFields = [ 'period', 'time_interval', 'date', 'date_start', 'date_end', 'hour' ];
 const dateFormat = 'yyyy-MM-dd';
 const referenceDate = new Date( 2001, 0, 1 );
 
@@ -80,6 +96,15 @@ function parseTimeSeriesRows( payload: unknown ) {
 	} );
 }
 
+// Not `localeCompare`: a collation may ignore the separators these bounds carry.
+function compareBucketBounds( a: string, b: string ) {
+	if ( a === b ) {
+		return 0;
+	}
+
+	return a < b ? -1 : 1;
+}
+
 function getPrimaryMetricValue( row: StatsRecord ) {
 	// The first numeric metric is the headline value; matrix payloads preserve API field order.
 	const primaryMetric = Object.entries( row ).find(
@@ -90,12 +115,10 @@ function getPrimaryMetricValue( row: StatsRecord ) {
 }
 
 function getDateFnsIntervalFields( startDate: Date, endDate: Date ) {
-	// Stats interval fields are normalized calendar bucket labels, matching getStatsIntervalFields.
-	// They are not intended to be reinterpreted as site-timezone instants downstream.
 	return {
 		time_interval: format( startDate, dateFormat ),
-		date_start: `${ format( startDate, dateFormat ) }T00:00:00+00:00`,
-		date_end: `${ format( endDate, dateFormat ) }T23:59:59+00:00`,
+		date_start: formatDatePartWithTime( format( startDate, dateFormat ), '00:00:00' ),
+		date_end: formatDatePartWithTime( format( endDate, dateFormat ), '23:59:59' ),
 	};
 }
 
@@ -110,6 +133,28 @@ function getWeekIntervalFields( period: string ) {
 	const parsed = parse( normalizedPeriod, "RRRR-'W'II", referenceDate );
 
 	if ( ! isValid( parsed ) || format( parsed, "RRRR-'W'II" ) !== normalizedPeriod ) {
+		return null;
+	}
+
+	return getDateFnsIntervalFields( startOfISOWeek( parsed ), endOfISOWeek( parsed ) );
+}
+
+// WPCOM stats weekly labels arrive as `YYYY'W'MM'W'DD`, where the trailing
+// month/day is the week's start date (e.g. `2026W06W29` → week of 2026-06-29).
+function getWpcomWeekIntervalFields( period: string ) {
+	const match = period.match( /^(\d{4})W(\d{2})W(\d{2})$/ );
+
+	if ( ! match ) {
+		return null;
+	}
+
+	const parsed = parse(
+		`${ match[ 1 ] }-${ match[ 2 ] }-${ match[ 3 ] }`,
+		'yyyy-MM-dd',
+		referenceDate
+	);
+
+	if ( ! isValid( parsed ) ) {
 		return null;
 	}
 
@@ -140,7 +185,11 @@ function getTimeSeriesIntervalFields( period: unknown, unit?: string ) {
 	const periodString = typeof period === 'string' ? period : '';
 
 	if ( unit === 'week' ) {
-		return getWeekIntervalFields( periodString ) ?? getStatsIntervalFields( periodString, unit );
+		return (
+			getWeekIntervalFields( periodString ) ??
+			getWpcomWeekIntervalFields( periodString ) ??
+			getStatsIntervalFields( periodString, unit )
+		);
 	}
 
 	if ( unit === 'month' ) {
@@ -152,6 +201,56 @@ function getTimeSeriesIntervalFields( period: unknown, unit?: string ) {
 	}
 
 	return getStatsIntervalFields( periodString, unit );
+}
+
+function getHourIntervalFields( date: string, hour: unknown ) {
+	const datePart = getDatePart( date ) ?? date;
+	const hourPart = String( Math.trunc( Number( hour ) ) || 0 ).padStart( 2, '0' );
+
+	// Like getStatsIntervalFields, these are timezone-naive calendar bucket labels — the API's
+	// hour is already site-local, so no offset is stamped for a consumer to convert across.
+	return {
+		time_interval: `${ datePart } ${ hourPart }:00`,
+		date_start: formatDatePartWithTime( datePart, `${ hourPart }:00:00` ),
+		date_end: formatDatePartWithTime( datePart, `${ hourPart }:59:59` ),
+	};
+}
+
+// `stats/visits` packs an hourly bucket's date and hour into a single `period`,
+// where the email timeline carries the hour in its own column.
+const packedHourlyPeriod = /^(\d{4}-\d{2}-\d{2})[T ](\d{2})/;
+
+function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: string ) {
+	if ( unit === 'hour' && row.hour !== undefined && typeof rawPeriod === 'string' ) {
+		return getHourIntervalFields( rawPeriod, row.hour );
+	}
+
+	if ( typeof row.date_start === 'string' && typeof row.date_end === 'string' ) {
+		return {
+			time_interval: row.date_start,
+			date_start: row.date_start,
+			date_end: row.date_end,
+		};
+	}
+
+	if ( unit === 'hour' && typeof rawPeriod === 'string' ) {
+		const packed = rawPeriod.match( packedHourlyPeriod );
+
+		if ( packed ) {
+			return getHourIntervalFields( packed[ 1 ], packed[ 2 ] );
+		}
+	}
+
+	return getTimeSeriesIntervalFields( rawPeriod, unit );
+}
+
+// Rebuild a summary bound from a query date when no rows came back. Rows stamp
+// their bounds as timezone-naive wall times, so the query's own offset cannot be
+// passed through verbatim — it would be converted, not read as a label.
+function toSummaryBound( value: string | undefined, time: string ) {
+	const datePart = getDatePart( value );
+
+	return datePart ? formatDatePartWithTime( datePart, time ) : '';
 }
 
 function getTimeSeriesSummarySidecars( response: StatsRecord ) {
@@ -182,12 +281,20 @@ export function isStatsTimeSeriesPayload( payload: unknown ) {
 
 export function sanitizeStatsTimeSeriesResponse(
 	payload: unknown,
-	query?: StatsQueryParams
-): StatsNormalizedReport {
+	query?: StatsQueryParams,
+	keepBucket?: StatsBucketFilter
+): StatsTimeSeriesReport {
 	const response = coerceStatsRecord( payload );
 	const unit = String( response.unit ?? query?.period ?? 'day' );
-	const rows = parseTimeSeriesRows( payload );
-	const summary = rows.reduce< Record< string, number > >( ( totals, row ) => {
+	const buckets = parseTimeSeriesRows( payload ).map( row => {
+		const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
+
+		return { row, range: getRowIntervalFields( row, rawPeriod, unit ) };
+	} );
+	// Filter before the summary, so dropped buckets inflate neither the totals nor
+	// the chart. Only an endpoint-specific sanitizer supplies a filter.
+	const kept = keepBucket ? buckets.filter( ( { range } ) => keepBucket( range ) ) : buckets;
+	const summary = kept.reduce< Record< string, number > >( ( totals, { row } ) => {
 		Object.entries( row ).forEach( ( [ key, value ] ) => {
 			if ( ! nonMetricFields.includes( key ) && typeof value === 'number' ) {
 				totals[ key ] = ( totals[ key ] ?? 0 ) + value;
@@ -196,26 +303,21 @@ export function sanitizeStatsTimeSeriesResponse(
 
 		return totals;
 	}, {} );
-	const data = rows.map< StatsNormalizedDataPoint >( row => {
-		const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
-		const range =
-			typeof row.date_start === 'string' && typeof row.date_end === 'string'
-				? {
-						time_interval: row.date_start,
-						date_start: row.date_start,
-						date_end: row.date_end,
-				  }
-				: getTimeSeriesIntervalFields( rawPeriod, unit );
-		const value = safeParseFloat( getPrimaryMetricValue( row ) );
+	const data = kept
+		.map< StatsTimeSeriesDataPoint >( ( { row, range } ) => {
+			const value = safeParseFloat( getPrimaryMetricValue( row ) );
 
-		return {
-			...row,
-			...range,
-			label: range.time_interval,
-			value,
-			items: [],
-		};
-	} );
+			return {
+				...row,
+				...range,
+				label: range.time_interval,
+				value,
+				items: [],
+			};
+		} )
+		// `stats/visits` returns buckets oldest first, `stats/subscribers` newest
+		// first, but everything downstream reads `data[0]` as the oldest.
+		.sort( ( a, b ) => compareBucketBounds( a.date_start, b.date_start ) );
 	const firstRow = data[ 0 ];
 	const lastRow = data[ data.length - 1 ];
 
@@ -223,9 +325,49 @@ export function sanitizeStatsTimeSeriesResponse(
 		summary: {
 			...getTimeSeriesSummarySidecars( response ),
 			...summary,
-			date_start: firstRow?.date_start ?? query?.start_date ?? '',
-			date_end: lastRow?.date_end ?? query?.end_date ?? query?.date ?? '',
+			date_start: firstRow?.date_start ?? toSummaryBound( query?.start_date, '00:00:00' ),
+			date_end: lastRow?.date_end ?? toSummaryBound( query?.end_date ?? query?.date, '23:59:59' ),
 		},
 		data,
 	};
+}
+
+export type StatsEmailTimeSeriesDataPoint = StatsTimeSeriesDataPoint & {
+	opens_count?: number;
+	clicks_count?: number;
+};
+
+export type StatsEmailTimeSeriesSummary = StatsNormalizedSummary & {
+	opens_count?: number;
+	clicks_count?: number;
+};
+
+export type StatsEmailTimeSeriesReport = StatsNormalizedReport & {
+	summary: StatsEmailTimeSeriesSummary;
+	data: StatsEmailTimeSeriesDataPoint[];
+};
+
+export function sanitizeStatsEmailTimeSeriesResponse(
+	payload: unknown,
+	query?: StatsQueryParams
+): StatsEmailTimeSeriesReport {
+	// Email opens/clicks timelines nest their matrix under a `timeline` key (requested via
+	// stats_fields=timeline), unlike the generic time series endpoints that return it top-level.
+	const timeline = coerceStatsRecord( coerceStatsRecord( payload ).timeline );
+	const fields = coerceStatsArray< string >( timeline.fields );
+
+	// Names an unlabeled trailing hour column so older/alternate payloads still
+	// resolve into per-hour buckets (matching Calypso's parseEmailChartData).
+	const normalizedTimeline =
+		timeline.unit === 'hour' && fields.length && ! fields.includes( 'hour' )
+			? { ...timeline, fields: [ ...fields, 'hour' ] }
+			: timeline;
+
+	// The email timeline is quantity-based and midnight-anchored, so its
+	// query opts into the bucket-window trim (see bucket-window.ts).
+	return sanitizeStatsTimeSeriesResponse(
+		normalizedTimeline,
+		query,
+		createStatsBucketWindowFilter( query )
+	);
 }

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fix the Social admin page rendering blank, and restore the editor sharing panel, on WordPress 6.9.

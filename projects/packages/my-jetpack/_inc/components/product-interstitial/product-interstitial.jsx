@@ -4,7 +4,7 @@
 import { AdminPage, Col, Container, TermsOfService } from '@automattic/jetpack-components';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
+import { LinkButton } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect } from 'react';
 /**
@@ -20,6 +20,7 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
 import ProductDetailCard from '../product-detail-card';
 import ProductDetailTable from '../product-detail-table';
+import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
 import styles from './style.module.scss';
 
 /**
@@ -166,7 +167,10 @@ export default function ProductInterstitial( {
 						if ( ! needsPurchase ) {
 							// for free products, we still initiate the site connection
 							handleRegisterSite().then( postRegisterRedirectUri => {
-								if ( ! postRegisterRedirectUri ) {
+								if (
+									! postRegisterRedirectUri &&
+									! reloadIfActivationChangesAdminMenu( slug, productName )
+								) {
 									// Fall back to the My Jetpack overview page.
 									return navigateToMyJetpackOverviewPage();
 								}
@@ -190,6 +194,7 @@ export default function ProductInterstitial( {
 			activate,
 			handleRegisterSite,
 			navigateToMyJetpackOverviewPage,
+			productName,
 		]
 	);
 
@@ -205,14 +210,9 @@ export default function ProductInterstitial( {
 			}
 			actions={
 				existingLicenseKeyUrl ? (
-					<Button
-						size="compact"
-						variant="outline"
-						nativeButton={ false }
-						render={ <a href={ existingLicenseKeyUrl } /> }
-					>
+					<LinkButton size="compact" variant="outline" href={ existingLicenseKeyUrl }>
 						{ __( 'Use license key', 'jetpack-my-jetpack' ) }
-					</Button>
+					</LinkButton>
 				) : null
 			}
 		>

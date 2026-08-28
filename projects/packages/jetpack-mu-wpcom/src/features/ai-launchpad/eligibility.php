@@ -1,8 +1,6 @@
 <?php
 /**
- * AI Launchpad eligibility — single source of truth shared by the admin-menu
- * gate (AI_Launchpad::register_menu) and the REST controller
- * (AI_Launchpad_REST::check_eligibility), which both resolve to this.
+ * AI Launchpad eligibility — single source of truth shared by the admin-menu gate and the REST controller.
  *
  * @package automattic/jetpack-mu-wpcom
  */

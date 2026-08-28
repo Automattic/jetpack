@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Contact Form: bind the posted form id to the signed form when validating a token-authenticated submission.

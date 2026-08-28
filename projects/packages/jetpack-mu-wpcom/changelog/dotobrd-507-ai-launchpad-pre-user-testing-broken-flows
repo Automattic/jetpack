@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI Launchpad: fix QA-reported broken flows — persist skipped tasks so they survive reloads and count toward completion, make the Subscribe-block task completable (published content and widgets count, CTA points at the editor), hide the Dashboard Site Setup widget when the AI Launchpad supersedes it, drop the Site Setup screen once every task is completed or skipped, and on Simple sites route plugin-task CTAs (Install/Activate WooCommerce and any task landing on a wp-admin plugins screen) to the Calypso plugin page instead of the unreachable wp-admin plugins screen.

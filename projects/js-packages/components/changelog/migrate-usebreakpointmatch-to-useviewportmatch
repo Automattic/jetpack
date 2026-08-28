@@ -1,3 +1,0 @@
-Significance: patch
-Type: removed
-Comment: Remove the internal useBreakpointMatch hook. Use useViewportMatch from @wordpress/compose instead — see https://github.com/WordPress/gutenberg/blob/trunk/packages/compose/README.md#useviewportmatch

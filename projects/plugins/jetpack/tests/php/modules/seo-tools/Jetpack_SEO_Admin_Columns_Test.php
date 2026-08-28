@@ -111,4 +111,147 @@ class Jetpack_SEO_Admin_Columns_Test extends WP_UnitTestCase {
 
 		$this->assertSame( array( 'welcome_panel' ), $hidden );
 	}
+
+	/**
+	 * Create an administrator and make them the current user.
+	 *
+	 * @return int
+	 */
+	private function login_admin() {
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+		return $user_id;
+	}
+
+	/**
+	 * The hidden-column set a user has saved for a screen, as core reads it.
+	 *
+	 * @param int    $user_id   User ID.
+	 * @param string $screen_id Screen ID.
+	 * @return mixed
+	 */
+	private function saved_hidden_columns( $user_id, $screen_id ) {
+		return get_user_option( 'manage' . $screen_id . 'columnshidden', $user_id );
+	}
+
+	/**
+	 * A user who customized Screen Options before the SEO columns existed never
+	 * receives `default_hidden_columns`, so the backfill has to merge the columns
+	 * into the set they already saved.
+	 */
+	public function test_backfill_hides_columns_for_users_with_saved_screen_options() {
+		$user_id = $this->login_admin();
+		update_user_option( $user_id, 'manageedit-postcolumnshidden', array( 'comments' ), true );
+
+		Jetpack_SEO_Admin_Columns::backfill_hidden_columns( WP_Screen::get( 'edit-post' ) );
+
+		$hidden = $this->saved_hidden_columns( $user_id, 'edit-post' );
+		$this->assertContains( 'jetpack_seo_schema', $hidden );
+		$this->assertContains( 'jetpack_seo_description', $hidden );
+		$this->assertContains( 'jetpack_seo_search', $hidden );
+		// The user's own choices survive.
+		$this->assertContains( 'comments', $hidden );
+	}
+
+	/**
+	 * Once a screen is backfilled, a user who deliberately re-enables the columns
+	 * keeps them — the backfill must not run a second time and re-hide them.
+	 */
+	public function test_backfill_runs_only_once_per_screen() {
+		$user_id = $this->login_admin();
+		update_user_option( $user_id, 'manageedit-postcolumnshidden', array( 'comments' ), true );
+
+		Jetpack_SEO_Admin_Columns::backfill_hidden_columns( WP_Screen::get( 'edit-post' ) );
+
+		// The user turns the Schema column back on.
+		update_user_option( $user_id, 'manageedit-postcolumnshidden', array( 'comments', 'jetpack_seo_description', 'jetpack_seo_search' ), true );
+
+		Jetpack_SEO_Admin_Columns::backfill_hidden_columns( WP_Screen::get( 'edit-post' ) );
+
+		$this->assertNotContains( 'jetpack_seo_schema', $this->saved_hidden_columns( $user_id, 'edit-post' ) );
+	}
+
+	/**
+	 * Each post-list screen stores its own hidden-column set, so backfilling Posts
+	 * must not mark Pages as done.
+	 */
+	public function test_backfill_is_tracked_per_screen() {
+		$user_id = $this->login_admin();
+		update_user_option( $user_id, 'manageedit-postcolumnshidden', array( 'comments' ), true );
+		update_user_option( $user_id, 'manageedit-pagecolumnshidden', array( 'comments' ), true );
+
+		Jetpack_SEO_Admin_Columns::backfill_hidden_columns( WP_Screen::get( 'edit-post' ) );
+
+		$this->assertNotContains( 'jetpack_seo_schema', $this->saved_hidden_columns( $user_id, 'edit-page' ) );
+
+		Jetpack_SEO_Admin_Columns::backfill_hidden_columns( WP_Screen::get( 'edit-page' ) );
+
+		$this->assertContains( 'jetpack_seo_schema', $this->saved_hidden_columns( $user_id, 'edit-page' ) );
+	}
+
+	/**
+	 * A user who never touched Screen Options is already covered by
+	 * `default_hidden_columns`, so the backfill must not write a hidden-column set
+	 * on their behalf — doing so would opt them out of every future default.
+	 */
+	public function test_backfill_leaves_untouched_screens_alone() {
+		$user_id = $this->login_admin();
+
+		Jetpack_SEO_Admin_Columns::backfill_hidden_columns( WP_Screen::get( 'edit-post' ) );
+
+		$this->assertFalse( $this->saved_hidden_columns( $user_id, 'edit-post' ) );
+	}
+
+	/**
+	 * The backfill is scoped to post-list tables and ignores everything else.
+	 */
+	public function test_backfill_ignores_non_edit_screens() {
+		$user_id = $this->login_admin();
+		update_user_option( $user_id, 'managedashboardcolumnshidden', array( 'welcome_panel' ), true );
+
+		Jetpack_SEO_Admin_Columns::backfill_hidden_columns( WP_Screen::get( 'dashboard' ) );
+
+		$this->assertSame( array( 'welcome_panel' ), $this->saved_hidden_columns( $user_id, 'dashboard' ) );
+	}
+
+	/**
+	 * The columns register on the same post types the SEO Content tab lists, so the
+	 * two never drift apart.
+	 */
+	public function test_columns_register_on_the_seo_supported_post_types() {
+		register_post_type(
+			'jetpack_seo_test_cpt',
+			array(
+				'public'       => true,
+				'show_ui'      => true,
+				'show_in_rest' => true,
+			)
+		);
+
+		Jetpack_SEO_Admin_Columns::register_columns_for_post_types();
+
+		// Concrete expectations first, so this doesn't merely restate whatever the
+		// helper happens to return.
+		foreach ( array( 'post', 'page', 'jetpack_seo_test_cpt' ) as $post_type ) {
+			$this->assertNotFalse(
+				has_filter( "manage_{$post_type}_posts_columns", array( 'Jetpack_SEO_Admin_Columns', 'add_columns' ) ),
+				"Expected the SEO columns to register on the {$post_type} list table."
+			);
+		}
+
+		// And the full set tracks the Content tab's, so the two cannot drift apart.
+		foreach ( \Automattic\Jetpack\SEO\Post_Types::get_supported_content_types() as $post_type ) {
+			$this->assertNotFalse(
+				has_filter( "manage_{$post_type}_posts_columns", array( 'Jetpack_SEO_Admin_Columns', 'add_columns' ) ),
+				"Expected the SEO columns to register on the {$post_type} list table."
+			);
+		}
+
+		$this->assertFalse(
+			has_filter( 'manage_attachment_posts_columns', array( 'Jetpack_SEO_Admin_Columns', 'add_columns' ) ),
+			'The media library is not an SEO content surface.'
+		);
+
+		unregister_post_type( 'jetpack_seo_test_cpt' );
+	}
 }

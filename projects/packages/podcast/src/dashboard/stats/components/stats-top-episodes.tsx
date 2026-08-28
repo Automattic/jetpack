@@ -7,24 +7,27 @@ import type { PodcastStatsTopEpisode } from '../types';
 type StatsTopEpisodesProps = {
 	episodes?: PodcastStatsTopEpisode[];
 	isLoading?: boolean;
+	scopeLabel?: string;
 	onSelect?: ( episode: PodcastStatsTopEpisode ) => void;
 };
 
 const StatsTopEpisodes = ( {
 	episodes = [],
 	isLoading = false,
+	scopeLabel,
 	onSelect,
 }: StatsTopEpisodesProps ) => {
 	const title = __( 'Top episodes', 'jetpack-podcast' );
 
 	if ( isLoading ) {
-		return <SectionCard title={ title } isLoading />;
+		return <SectionCard title={ title } metric={ scopeLabel } isLoading />;
 	}
 
 	if ( episodes.length === 0 ) {
 		return (
 			<SectionCard
 				title={ title }
+				metric={ scopeLabel }
 				isEmpty
 				emptyMessage={ __( 'No episode downloads in this period.', 'jetpack-podcast' ) }
 			>
@@ -48,7 +51,7 @@ const StatsTopEpisodes = ( {
 	} );
 
 	return (
-		<SectionCard title={ title }>
+		<SectionCard title={ title } metric={ scopeLabel }>
 			<HorizontalBarList rows={ data } />
 		</SectionCard>
 	);

@@ -116,8 +116,14 @@ export type ResponseFields = ResponseField[] | LegacyResponseFields;
 export interface FormResponse {
 	/** The unique identifier for the response. */
 	id: number;
-	/** The status of the response. */
-	status: 'publish' | 'spam' | 'trash';
+	/**
+	 * The status of the response.
+	 *
+	 * `draft` belongs to the inbox alongside `publish` — the inbox filter is
+	 * `'draft,publish'` and the counts query sums `post_status IN ('publish',
+	 * 'draft')` — so anything branching on status has to treat the two alike.
+	 */
+	status: 'publish' | 'draft' | 'spam' | 'trash';
 	/** The date and time the response was created. */
 	date: string;
 	/** The date and time the response was created in GMT. */
@@ -146,6 +152,8 @@ export interface FormResponse {
 	entry_title: string;
 	/** The permalink of the form that the response was submitted to. */
 	entry_permalink: string;
+	/** The ID of the jetpack_form post the response is tied to, or 0 for classic (embedded) forms. */
+	form_id: number;
 	/** Whether the response has a file attached. */
 	has_file: boolean;
 	/** Whether the response is unread. */
@@ -212,6 +220,8 @@ export interface JPFormsBlocksDefaults {
 	subject?: string;
 	/** The default recipient email address for the form. */
 	to?: string;
+	/** Which rule produced the default recipient: 'post_author' or 'site_admin'. */
+	toSource?: string;
 }
 
 /**
@@ -236,6 +246,17 @@ declare global {
 		};
 		jetpackForms?: {
 			generateStyleVariables: ( formNode: HTMLElement ) => Record< string, string >;
+		};
+		/** Shared client for live-updating Jetpack admin-menu notification badges (automattic/jetpack-menu-badges). */
+		jetpackMenuBadges?: {
+			setCount: ( menuSlug: string, count: number ) => void;
+		};
+		/** Set by Form_Editor::enqueue_welcome_guide(); absent off the form editor. */
+		jetpackFormsWelcomeGuide?: {
+			isEligible: boolean;
+			isCoreGuidePending: boolean;
+			/** Build-dir URL webpack prepends to the guide's artwork; see welcome-guide/public-path.ts. */
+			assetsUrl?: string;
 		};
 	}
 }

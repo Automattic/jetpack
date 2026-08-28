@@ -5,14 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.6.2-beta] - 2026-06-24
+## [4.7.0] - 2026-08-17
+### Security
+- Critical CSS/LCP: Close REST API access to the cache storage, and refuse to load a stored cache entry that contains a PHP object.
+
+### Added
+- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed. [#51221]
+- Concatenate JS/CSS: Add a `jetpack_boost_minify_use_static_cache_urls` filter to override whether bundles are linked from the static cache. [#50962]
+
+### Changed
+- Boost now reports its problem count to the central menu-badges registry instead of writing admin-menu markup directly. [#50190]
+- Image CDN: update the image quality slider to use the WordPress RangeControl component. [#50289]
+- Performance: reduce the number of database reads performed on every page load by preparing Sync data only when it is actually sent to WordPress.com. [#50835]
+- Update @react-spring/web to v10 and remove the unused @react-spring/core dependency for React 19 compatibility. [#50288]
+- Update package dependencies. [#49272] [#50097] [#50183] [#50212] [#50436] [#50509] [#50510] [#50529] [#50751] [#50753] [#50792] [#51008] [#51125]
+
+### Fixed
+- Concatenate JS/CSS: Fix broken CSS and JS delivery on pages rendered after a site is migrated onto WP Cloud or WordPress.com. Pages already served from a cache keep the old URLs until the cache is purged or expires. [#50962]
+- Connection: Stop showing a duplicate account notice when your WordPress.com email differs from your site email only in letter case. [#51285]
+- Defer JS: Fix a regression where a literal closing body tag inside a script, textarea, comment, or attribute value could corrupt the page when deferred scripts were re-inserted. Previously corrupted copies of a page may persist in Boost's page cache (up to an hour by default) and in any host or CDN cache after updating; purge those caches to clear them immediately. [#51032]
+- Fix a blank Boost admin page on WordPress 6.9 installs without the Gutenberg plugin active, where the wp-theme script handle the embedded My Jetpack app depends on was otherwise unregistered. [#50291]
+- LCP: Preserve analysis results when a page reports an error or when the homepage is also configured as a cornerstone page. [#50728]
+- Modules: Batch the per-module status option reads into a single query to avoid redundant per-request database queries on sites without a persistent object cache. [#50993]
+
+## [4.6.3] - 2026-06-26
+### Changed
+- Update dependencies. [#49962]
+
+### Fixed
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active. [#49994]
+
+## [4.6.2] - 2026-06-24
 ### Added
 - Concatenate JS/CSS: allow administrators to test additional exclude handles per-request via jb-minify-js-excludes / jb-minify-css-excludes GET parameters, without changing saved settings. The parameters are ignored for non-administrators. [#49555]
 - Defer JS: add an exclusion list so specific pages can be excluded by URL pattern without disabling the feature site-wide. [#49556]
 
 ### Changed
 - Migrate ToggleControl to @wordpress/components [#49694]
-- Update package dependencies. [#49631] [#49638] [#49691] [#49757] [#49831] 
+- Update package dependencies. [#49631] [#49638] [#49691] [#49757] [#49831]
 
 ### Fixed
 - Critical CSS: continue generating for remaining providers when one provider fails unexpectedly, instead of failing the whole run. [#49554]
@@ -20,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Defer JS: keep position-dependent inline scripts (document.write) in place instead of moving them after the footer. [#49545]
 - Page Cache: more reliably remove the boost-cache directory on uninstall, and avoid cleanup hanging or timing out on very large caches. [#49546]
 
-## [4.6.1-beta] - 2026-06-10
+## [4.6.1] - 2026-06-10
 ### Changed
 - Update dependencies. [#49464]
 - Update package dependencies. [#49273] [#49448] [#49492]
@@ -977,8 +1007,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
-[4.6.2-beta]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.1-beta...4.6.2-beta
-[4.6.1-beta]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.0...4.6.1-beta
+[4.7.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.3...4.7.0
+[4.6.3]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.2...4.6.3
+[4.6.2]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.1...4.6.2
+[4.6.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.0...4.6.1
 [4.6.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.9...4.6.0
 [4.5.9]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.8-beta...4.5.9
 [4.5.8-beta]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.7...4.5.8-beta

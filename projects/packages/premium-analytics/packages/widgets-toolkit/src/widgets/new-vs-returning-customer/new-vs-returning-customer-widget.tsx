@@ -2,52 +2,30 @@
  * External dependencies
  */
 import { useReportCustomersByDate } from '@jetpack-premium-analytics/data';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { customer } from '@jetpack-premium-analytics/icons';
-import { Stack } from '@wordpress/ui';
+import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { DonutChart } from '../../components';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
+import { DonutChart, DonutChartSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../components/widget-root';
-import { buildNewVsReturningCustomerData } from '../../helpers';
-import { useWidgetError } from '../../hooks';
+import { buildNewVsReturningCustomerData, isEmptyPieChartData } from '../../helpers';
 import { useSegmentStyles } from '../common';
 import styles from '../common/donut-widget.module.scss';
 
 /**
- * New vs Returning Customer Widget Component
- *
  * Displays a donut chart showing the breakdown of unique customers
  * by type (new vs returning) over the selected time period.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <NewVsReturningCustomerWidget />
- * </WidgetRoot>
- * ```
  */
 export function NewVsReturningCustomerWidget() {
 	const { reportParams } = useWidgetRootContext();
 
-	const {
-		primary,
-		comparison,
-		hasComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		error,
-		refetch,
-	} = useReportCustomersByDate( reportParams );
-
-	const isInitialLoading = isLoading && ! hasData;
-	const isRefetching = isFetching && hasData;
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
+		useReportCustomersByDate( reportParams );
 
 	const { chartData, total, comparisonTotal, legendData } = useMemo(
 		() => buildNewVsReturningCustomerData( primary.data, comparison.data, hasComparison ),
@@ -56,17 +34,27 @@ export function NewVsReturningCustomerWidget() {
 
 	const segmentStyles = useSegmentStyles( chartData );
 
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null;
-	}
-
-	if ( isInitialLoading ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
-		<>
+		<WidgetState
+			isLoading={ isLoading }
+			isFetching={ isFetching }
+			// The report queries keep the previous period's data as placeholders across
+			// range changes, so only surface the error when nothing else is showing.
+			isError={ isError && ! hasData }
+			isEmpty={ isEmptyPieChartData( chartData ) }
+			error={ {
+				description: __(
+					"We couldn't load customer data. Please try again in a moment.",
+					'jetpack-premium-analytics-pkg'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: customer,
+				description: __( 'No customer data in this period.', 'jetpack-premium-analytics-pkg' ),
+			} }
+			renderLoading={ <DonutChartSkeleton /> }
+		>
 			<Stack className={ styles.container } direction="column" align="center" justify="center">
 				<DonutChart
 					chartData={ chartData }
@@ -78,11 +66,10 @@ export function NewVsReturningCustomerWidget() {
 						type: 'number',
 						options: { useMultipliers: true, decimals: 0 },
 					} }
-					emptyStateIcon={ customer }
+					maxSize={ null }
 					withTooltips
 				/>
 			</Stack>
-			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
+		</WidgetState>
 	);
 }

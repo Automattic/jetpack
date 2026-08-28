@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Honor features.geo=false: show the banner to all visitors without a geolocation lookup.

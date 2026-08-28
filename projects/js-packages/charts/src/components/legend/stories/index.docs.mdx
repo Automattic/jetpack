@@ -200,7 +200,7 @@ Alternatively, use the props-based approach with `showLegend` and the `legend` c
 
 ### Standalone Interactive Legend
 
-Interactive legends also work with standalone Legend components. Set `legend.interactive` on the chart so it filters visible series, and `interactive` on the Legend so it renders clickable toggle controls. `chartId` is also required for this to work.
+Interactive legends also work with standalone Legend components. A chart always honors series visibility — whether it changed from a legend click or a programmatic call like `toggleSeriesVisibility` — so `legend.interactive` on the chart does not control filtering. Set `interactive` on the standalone Legend so it renders clickable toggle controls, and give the chart and the Legend the same `chartId` so they share visibility state.
 
 <Source
 	language="tsx"
@@ -209,7 +209,6 @@ Interactive legends also work with standalone Legend components. Set `legend.int
 			chartId="sales-chart"
 			data={ salesData }
 			showLegend={ false }
-			legend={{ interactive: true }}
 		/>
 
 		<Legend
@@ -219,21 +218,30 @@ Interactive legends also work with standalone Legend components. Set `legend.int
 	</GlobalChartsProvider>` }
 />
 
+### Programmatic Visibility
+
+Series visibility can also be controlled outside the legend. This example uses `toggleSeriesVisibility` to update a chart whose legend is not interactive. The chart and legend still reflect the shared visibility state, while the legend remains non-clickable.
+
+<Canvas of={ LegendStories.ProgrammaticVisibility } />
+
 ### Features
 
 - **Click/Tap Interaction**: Toggle series visibility by clicking on legend items
 - **Keyboard Support**: Use Tab to focus items, Enter or Space to toggle
 - **Visual Feedback**: Hidden series appear with reduced opacity and strikethrough text
 - **Color Stability**: Series colors remain consistent when toggling visibility
+- **Grouped series** (`legend.collapseGroups`): Off by default, so every series gets its own item and toggles only itself. Turn it on and series sharing a `group` — typically a primary and its `type: 'comparison'` overlay — collapse into a single item labelled by the primary; toggling it shows or hides the whole group at once. Only available on charts built from `SeriesData` (line, bar, area); pie-style charts use `group` on their data points purely to coordinate colours, so the option is not offered there
 - **Accessibility**: Full ARIA support with `role="button"`, `aria-pressed`, and descriptive `aria-label`
 
 ### Requirements
 
-Interactive legends require:
+Clickable legend toggle controls require:
 
 1. **GlobalChartsProvider**: Must wrap both chart and legend
 2. **chartId**: A unique identifier to connect chart and legend
-3. **legend.interactive**: Set to `true` in the chart's `legend` config object
+3. **interactive**: Set to `true` on the Legend (or on the chart's `legend` config object, for a chart's built-in legend) so it renders clickable toggle controls
+
+`GlobalChartsProvider` and `chartId` are also what make series visibility filtering work at all — a chart always applies the current visibility state, however it was set, regardless of `interactive`.
 
 ### Current Limitations
 

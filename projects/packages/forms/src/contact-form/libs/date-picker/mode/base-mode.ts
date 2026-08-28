@@ -16,7 +16,15 @@ const views = {
 };
 
 function isMobileDevice() {
-	return /iPhone|iPad|iPod|Android/i.test( navigator.userAgent );
+	if ( /iPhone|iPad|iPod|Android/i.test( navigator.userAgent ) ) {
+		return true;
+	}
+
+	// iPadOS 13+ Safari requests desktop sites by default and reports a
+	// "Macintosh" user agent, so the check above misses it. A real Mac reports
+	// maxTouchPoints of 0, while an iPad reports a positive value — use that to
+	// detect touch-only iPads and still suppress the on-screen keyboard.
+	return /Macintosh/.test( navigator.userAgent ) && navigator.maxTouchPoints > 1;
 }
 
 function setReadonly( input: HTMLInputElement ) {
@@ -117,7 +125,10 @@ export default function BaseMode(
 			if ( becauseOfBlur && dp.shouldFocusOnBlur ) {
 				focusInput( input );
 			}
-			input.readOnly = false;
+			// Restore the device-appropriate read-only state: editable on
+			// desktop (so users can type), read-only on touch devices (so a
+			// re-focus after close does not pop the on-screen keyboard).
+			setReadonly( input );
 
 			// When we close, the input often gains refocus, which
 			// can then launch the date picker again, so we buffer
@@ -167,6 +178,12 @@ export default function BaseMode(
 
 	detatchInputEvents = attachInputEvents( input, dp );
 
+	// Apply the read-only state up front so that on touch devices the very
+	// first tap opens the date picker without triggering the on-screen
+	// keyboard. Doing this only on open() is too late: the input has already
+	// received focus by then and the keyboard has appeared.
+	setReadonly( input );
+
 	// Builds the initial view state
 	// selectedDate is a special case and causes changes to highlightedDate
 	// highlightedDate is set on open, so remains undefined initially
@@ -209,8 +226,14 @@ function createContainerElement( opts: IDatePickerOptions, containerHTML: string
 }
 
 function attachInputEvents( input: HTMLElement, dp: IDatePicker ) {
+	// Deliberately no ariaLabel here. Naming the input clobbers its <label>, so
+	// the field's own label never reaches the accessible name and a screen
+	// reader announces the picker instructions instead of what the field is
+	// for. Nothing currently advertises the picker to a screen reader; when
+	// something does, it belongs in the input's description chain
+	// (Contact_Form_Field::get_description_parts()) or in combobox semantics,
+	// not in its name. See FORMS-767.
 	input.ariaLive = 'polite';
-	input.ariaLabel = dp.opts.lang.ariaLabel.dayPicker;
 	const bufferShow = bufferFn( 5, function () {
 		if ( dp.shouldHide() ) {
 			dp.close();

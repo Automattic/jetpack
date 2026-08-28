@@ -6,7 +6,7 @@
  * silently break this wire — React strips `ref` from function-component props.
  * This test fails in that scenario.
  */
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { VideoCard } from '../index';
 import type { PublishFirstVideoPopoverProps } from '../../publish-first-video-popover/types';
 
@@ -29,7 +29,7 @@ beforeEach( () => {
 } );
 
 describe( 'VideoCard ref forwarding', () => {
-	it( 'passes the thumbnail DOM element to PublishFirstVideoPopover via the anchor prop', () => {
+	it( 'passes the thumbnail DOM element to PublishFirstVideoPopover via the anchor prop', async () => {
 		render(
 			<VideoCard
 				id={ 42 }
@@ -42,7 +42,9 @@ describe( 'VideoCard ref forwarding', () => {
 			/>
 		);
 
+		await waitFor( () => {
+			expect( lastPopoverProps?.anchor ).toBeInstanceOf( HTMLElement );
+		} );
 		expect( lastPopoverProps?.id ).toBe( 42 );
-		expect( lastPopoverProps?.anchor ).toBeInstanceOf( HTMLElement );
 	} );
 } );

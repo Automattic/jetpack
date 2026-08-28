@@ -145,9 +145,9 @@ test.describe( 'Cornerstone Pages', () => {
 
 		// Verify that premium features are detected
 		await expect(
-			page.getByRole( 'button', { name: 'Cornerstone Pages Upgraded' } ),
-			'Premium features should be detected by the frontend'
-		).toBeVisible();
+			page.getByText( 'Premium users can add up to' ),
+			'Upgrade CTA should be hidden when premium features are active'
+		).toBeHidden();
 
 		// Add 10 pages
 		const tenPages = Array.from( { length: 10 }, ( _, i ) => `/page-${ i + 1 }` ).join( '\n' );

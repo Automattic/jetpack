@@ -1,55 +1,81 @@
 export { AnalyticsQueryClientProvider, queryClient } from './providers/query-client-provider';
 export { GlobalErrorProvider, useGlobalError } from './providers/global-error-context';
 export { globalErrorManager, type GlobalErrorType } from './providers/global-error-manager';
-export { useReportOrders } from './hooks/use-report-orders';
-export { useReportOrderAttribution } from './hooks/use-report-order-attribution';
-export { useReportCoupons } from './hooks/use-report-coupons';
-export { useReportCouponsByDate } from './hooks/use-report-coupons-by-date';
-export { useReportCustomers } from './hooks/use-report-customers';
-export { useReportCustomersByDate } from './hooks/use-report-customers-by-date';
-export { useReportConversionRate } from './hooks/use-report-conversion-rate';
-export { useReportProducts } from './hooks/use-report-products';
-export { useProductImages } from './hooks/use-product-images';
-export { useReportVisitors } from './hooks/use-report-visitors';
-export { useReportVisitorsByLocation } from './hooks/use-report-visitors-by-location';
-export { useReportBookings } from './hooks/use-report-bookings';
-export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device';
-export { useStatsSite } from './hooks/use-stats-site';
-export { useStatsTopPosts } from './hooks/use-stats-top-posts';
-export { useStatsReferrers } from './hooks/use-stats-referrers';
-export { useStatsClicks } from './hooks/use-stats-clicks';
-export { useStatsSearchTerms } from './hooks/use-stats-search-terms';
-export { useStatsFileDownloads } from './hooks/use-stats-file-downloads';
-export { useStatsTopAuthors } from './hooks/use-stats-top-authors';
-export { useStatsLocations } from './hooks/use-stats-locations';
-export { useStatsCountryViews } from './hooks/use-stats-country-views';
-export { useStatsVideoPlays } from './hooks/use-stats-video-plays';
-export type { UseStatsOptions } from './hooks/use-stats-report';
+export { ReportScopeProvider, useReportScope, type ReportScope } from './providers/report-scope';
+export * from './hooks';
+export { latestPostQuery, postContentQuery } from './queries/latest-post-query';
+export type { LatestPost, LatestPostResponse } from './processing/latest-post';
+export { statsInsightsQuery } from './queries/stats-insights-query';
+export { type StatsVideoPlaysSummaryParams } from './queries/stats-video-plays-summary-query';
+export {
+	aggregateStatsDrilldownRows,
+	bucketStatsTimeSeries,
+	flattenStatsLeaves,
+	getStatsChartBucketKey,
+	getStatsReportItems,
+	selectStatsCommentsRows,
+	STATS_CHART_BUCKET_PERIODS,
+} from './processing/stats';
+export type { FlattenStatsLeavesContext, FlattenStatsLeavesOptions } from './processing/stats';
+export type {
+	AggregateStatsDrilldownRowsOptions,
+	StatsDrilldownItemContext,
+	StatsDrilldownRow,
+	StatsDrilldownRowContext,
+	StatsDrilldownSourceReport,
+} from './processing/stats';
+export type { StatsEmailSummaryItem } from './processing/stats';
+export type { StatsDeviceProperty } from './queries/stats-devices-query';
 export { prefetchReport } from './prefetch';
 export {
 	normalizeReportParams,
+	needsReportDateParamsSeed,
 	hasComparisonEnabled,
 	type PresetType,
 	type ReportParams,
+	type ReportPresetId,
 } from './utils/search';
 export {
 	dateToISOStringWithLocalTZ,
 	ensureCoreSettingsReady,
-	getSiteTimezone,
-	getSiteGmtOffset,
 	localTZDate,
 	hasProductFilters,
 	isSelectablePreset,
+	computeDateRangeFromPreset,
+	getApiErrorCode,
+	getApiErrorStatus,
+	isAccessDenied,
+	isUserRetryableError,
+	saveBlob,
+	shouldRetryApiError,
+	StatsResponseShapeError,
+	toPostId,
+	useSiteHomeUrl,
+	withoutComparison,
 } from './utils';
 export type { ReportDataMap } from './types';
 export type { ReportQueryParams } from './api';
 export type { FilterCondition } from './types/filter-condition';
 export type { ProductType } from './types/product-type';
 export { ORDER_ATTRIBUTION_VIEWS } from './api/report-order-attribution-summary-fetch';
-export { getDefaultIntervalForPeriod, getDateFormatFromInterval } from './utils/interval';
-export { getDefaultPreset, getDefaultQueryParams } from './defaults';
-export { exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
+export {
+	getAllowedIntervalsForPreset,
+	getDateFormatFromInterval,
+	getDefaultIntervalForPeriod,
+	resolveIntervalForRange,
+} from './utils/interval';
+export type { IntervalType } from './utils/interval';
+export {
+	getDefaultPreset,
+	getDefaultQueryParams,
+	getDefaultReportParams,
+	getStoreInfo,
+	type StoreInfo,
+} from './defaults';
+export { downloadReport, exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
 export type {
+	DownloadReportParams,
+	DownloadReportResponse,
 	ExportReportParams,
 	ExportReportResponse,
 	StatsProxyFetchParams,
@@ -58,21 +84,77 @@ export type {
 	StatsProxyVersion,
 } from './api';
 export type {
+	StatsArchivesComparisonItem,
+	StatsArchivesItem,
+	StatsChartBucketPeriod,
+	StatsClicksComparisonItem,
 	StatsClicksItem,
+	StatsCommentFollowersItem,
+	StatsCommentFollowersRawPost,
+	StatsCommentFollowersRawResponse,
+	StatsCommentsAuthorItem,
+	StatsCommentsGroup,
+	StatsCommentsGroupItem,
+	StatsCommentsItem,
+	StatsCommentsPostItem,
+	StatsCommentsRawAuthor,
+	StatsCommentsRawFollowData,
+	StatsCommentsRawPost,
+	StatsCommentsRawResponse,
+	StatsCommentsRow,
+	StatsEmailBreakdownItem,
+	StatsDevicesComparisonItem,
+	StatsDevicesItem,
+	StatsFileDownloadsComparisonItem,
 	StatsFileDownloadsItem,
+	StatsFollowersItem,
+	StatsFollowersRawItem,
+	StatsFollowersRawResponse,
 	StatsItemAction,
+	StatsLocationsComparisonItem,
 	StatsLocationsItem,
 	StatsNormalizedDataPoint,
 	StatsNormalizedItem,
 	StatsNormalizedItemBase,
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
+	StatsPostDay,
+	StatsPostMeta,
+	StatsPostMonthValues,
+	StatsPostRawResponse,
+	StatsPostWeek,
+	StatsPostWeekDay,
+	StatsPostYear,
+	StatsReferrersComparisonItem,
 	StatsReferrersItem,
+	StatsSearchTermsComparisonItem,
 	StatsSearchTermsItem,
+	StatsSubscribersCountsRawResponse,
+	StatsSubscribersDataPoint,
+	StatsSubscribersRawResponse,
+	StatsStreakRawResponse,
+	StatsTagsChildItem,
+	StatsTagsItem,
+	StatsTagsLabel,
+	StatsTagsRawItem,
+	StatsTagsRawResponse,
+	StatsTagsRawTag,
+	StatsTimeSeriesDataPoint,
+	StatsTimeSeriesReport,
+	StatsTopAuthorsComparisonItem,
 	StatsTopAuthorsItem,
+	StatsTopAuthorsPostComparisonItem,
+	StatsTopPostsComparisonItem,
 	StatsTopPostsItem,
+	StatsUtmComparisonItem,
+	StatsUtmComparisonTopPostItem,
+	StatsUtmItem,
+	StatsUtmParam,
+	StatsUtmTopPostItem,
+	StatsVideoPlaysComparisonItem,
 	StatsVideoPlaysItem,
 } from './processing/stats';
+export { compareEmailBreakdownItems } from './processing/stats';
 export type { StatsReportParams } from './queries/stats-query';
 export {
 	getStatsPeriodFromInterval,
@@ -81,3 +163,18 @@ export {
 	type StatsPeriod,
 	type StatsQueryParams,
 } from './utils/stats-params';
+export {
+	mergeStatsArchivesComparisonRows,
+	mergeStatsClicksComparisonRows,
+	mergeStatsReferrersComparisonRows,
+	mergeStatsComparisonRows,
+	mergeStatsDevicesComparisonRows,
+	mergeStatsFileDownloadsComparisonRows,
+	mergeStatsLocationsComparisonRows,
+	mergeStatsSearchTermsComparisonRows,
+	mergeStatsTopAuthorsComparisonRows,
+	mergeStatsTopPostsComparisonRows,
+	mergeStatsUtmComparisonRows,
+	mergeStatsVideoPlaysComparisonRows,
+} from './processing/stats';
+export type { StatsComparisonRowContext } from './processing/stats';

@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Use explicit Save buttons for the SEO Settings text-heavy sections instead of auto-saving on blur: the front-page description saves per section, and the title-structure editor saves per page-type row. Toggle sections still save on change. Tidy the title-structure rows — separated by a divider, with each row's live preview and Save on one line.

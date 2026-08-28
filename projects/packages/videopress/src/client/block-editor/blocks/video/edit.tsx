@@ -34,6 +34,7 @@ import { usePreview } from '../../hooks/use-preview';
 import { useSyncMedia } from '../../hooks/use-sync-media';
 import { isVideoFile } from '../../utils/video';
 import ConnectBanner from './components/banner/connect-banner';
+import ChaptersControl from './components/chapters-control';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
 import { VideoPressIcon } from './components/icons';
@@ -252,7 +253,7 @@ export default function VideoPressEdit( {
 	 */
 	const [ generatingPreviewCounter, setGeneratingPreviewCounter ] = useState( 0 );
 
-	const rePreviewAttemptTimer = useRef< NodeJS.Timeout | void >();
+	const rePreviewAttemptTimer = useRef< ReturnType< typeof setTimeout > | void >();
 
 	/**
 	 * Clean the generating process timer.
@@ -495,10 +496,10 @@ export default function VideoPressEdit( {
 						'Impossible to get a video preview after ten attempts.',
 						'jetpack-videopress-pkg'
 					) }
-					onNoticeRemove={ invalidateResolution }
+					onNoticeRemove={ invalidateCachedEmbedPreview }
 				>
 					<div className="videopress-uploader__error-actions">
-						<Button variant="primary" onClick={ invalidateResolution }>
+						<Button variant="primary" onClick={ invalidateCachedEmbedPreview }>
 							{ __( 'Try again', 'jetpack-videopress-pkg' ) }
 						</Button>
 						<Button
@@ -547,6 +548,8 @@ export default function VideoPressEdit( {
 				/>
 
 				<TracksControl attributes={ attributes } setAttributes={ setAttributes } />
+
+				<ChaptersControl attributes={ attributes } setAttributes={ setAttributes } />
 			</BlockControls>
 
 			<BlockControls group="other">

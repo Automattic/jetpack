@@ -33,8 +33,16 @@ interface GlobalChartsContextValue {
 	theme: CompleteChartTheme;
 	getElementStyles: (params: GetElementStylesParams) => ElementStyles;
 
-	// Series visibility management for interactive legends
+	// Series visibility management shared by charts and legends
 	toggleSeriesVisibility: (chartId: string, seriesLabel: string) => void;
+	// Absolute counterpart to the toggle, for callers that know the target state.
+	setSeriesVisibility: (chartId: string, seriesLabel: string, visible: boolean) => void;
+	// Replaces a chart's entire hidden set.
+	setChartHiddenSeries: (chartId: string, seriesLabels: readonly string[]) => void;
+	// Applies a chart's defaults once. A no-op for a chart that has already been seeded.
+	seedChartHiddenSeries: (chartId: string, seriesLabels: readonly string[]) => void;
+	// Whether this chart's defaults have already been seeded, in this or an earlier mount.
+	hasSeededChart: (chartId: string) => boolean;
 	isSeriesVisible: (chartId: string, seriesLabel: string) => boolean;
 	getHiddenSeries: (chartId: string) => Set<string>;
 
@@ -43,7 +51,14 @@ interface GlobalChartsContextValue {
 }
 ```
 
-`isColorPaletteResolved` is `false` until the provider's color cache has been resolved from the DOM and painted. Chart components can use this to defer CSS transitions or animations that would otherwise interpolate from a fallback color to the resolved theme color on initial render.
+**Member notes:**
+
+| Member | Note |
+| ------ | ---- |
+| `seedChartHiddenSeries` | Backs the `defaultHiddenSeries` prop. The provider records which chart IDs it has seeded, so a chart that unmounts and comes back keeps whatever the reader had shown or hidden. |
+| `isColorPaletteResolved` | `false` until the color cache has resolved from the DOM and painted. Use it to defer transitions that would otherwise interpolate from a fallback color. |
+
+For theming and CSS custom-property overrides, see the [Global Charts Context guide](?path=/docs/js-packages-charts-library-global-context--docs) and `TOKENS.md`.
 
 ## ChartRegistration Type
 
@@ -68,3 +83,21 @@ type ElementStyles = {
 ```
 
 `barStyles` carries bar-specific styling resolved from the theme by semantic series type (e.g. `barChart.barStyles.comparison`) — `{ widthFactor?, opacity? }`. It is `{}` for series with no matching bar style and for non-`SeriesData` inputs.
+
+## Token resolution in JS
+
+```typescript
+function useChartScopeElement(): HTMLElement | null;
+
+function normalizeColorToHex(
+	color: string,
+	element?: HTMLElement | null,
+	resolveCss?: ( value: string, el?: HTMLElement | null ) => string | null
+): string;
+
+function resolveCssVariable( value: string, element?: HTMLElement | null ): string | null;
+```
+
+`normalizeColorToHex` returns a `var(...)` input unchanged when `resolveCss` is omitted — it converts formats, it does not read the cascade.
+
+Which element to resolve against, and why it matters, is covered in the [Global Charts Context guide](?path=/docs/js-packages-charts-library-global-context--docs).

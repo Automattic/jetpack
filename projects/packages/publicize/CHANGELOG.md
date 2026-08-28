@@ -5,6 +5,99 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.85.1] - 2026-08-25
+### Changed
+- Only include social connection data in the script data for users who can access Publicize. [#51483]
+- Update dependencies. [#51456]
+
+## [0.85.0] - 2026-08-20
+### Added
+- Connections: Explain why an Instagram Business connection found no accounts to choose from. [#51282]
+
+### Changed
+- Update dependencies. [#51190]
+- Update package dependencies. [#51399]
+
+## [0.84.4] - 2026-08-10
+### Added
+- Add the platform-specific input step for the new connection flow. [#50804]
+
+### Changed
+- Update package dependencies. [#50509] [#51008]
+
+### Fixed
+- Fix the social sharing sidebar failing to load in the editor on WordPress 6.9. [#50509]
+- Prevent unrelated editor hyperlinks from appearing in custom social messages. [#50994]
+
+## [0.84.3] - 2026-08-03
+### Changed
+- Surface a visible error when fetching the keyring result fails during a connection, instead of failing silently. [#50822]
+
+### Fixed
+- Load JS translation catalogs and stamp the package text domain on the wp-build dashboard bundle. [#50762]
+- Social Image Generator: Share the current generated image after changing the template. [#50903]
+
+## [0.84.2] - 2026-07-27
+### Security
+- REST API: Require the `edit_others_posts` capability to create a shared connection, matching the update check. [#50722]
+
+### Added
+- Add a connection-flow state machine to the social store. [#50772]
+- Add the admin UI v2 feature flag. [#50733]
+- Add the connection-flow modal and open it from the Social dashboard behind the admin UI v2 flag. [#50775]
+- Add the platform picker step for the new connection flow. [#50773]
+
+### Changed
+- Update package dependencies. [#50683] [#50751] [#50753]
+- Use the same connection management UI in the block editor sidebar as on the Social admin page. [#50731]
+
+## [0.84.1] - 2026-07-20
+### Changed
+- Update package dependencies. [#50510] [#50529] [#50582]
+
+### Fixed
+- Prevent previews from showing raw message-template placeholders while rendering is pending. [#50164]
+
+## [0.84.0] - 2026-07-13
+### Changed
+- Social: Enable or disable the Social module directly from the Social dashboard, so it can be turned back on where Jetpack Settings is unreachable (e.g. WordPress.com Atomic sites). [#50376]
+- Social: Enable the modernized wp-admin dashboard for all sites by default. [#50092]
+- Update package dependencies. [#49272]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
+### Fixed
+- Post-publish sharing panel: Add missing space between sentence and link. [#50399]
+- Social: Render message-template placeholders in the manual sharing buttons instead of leaking raw {title}/{excerpt}/{url}/{author} tokens. [#50290]
+
+## [0.83.5] - 2026-07-06
+### Added
+- Social Image Generator: Add new filter to allow disabling the text overlay in the feature. [#50029]
+
+### Changed
+- Remove the connection refresh on tab focus, which was legacy Calypso behavior no longer needed now that connection management lives in the editor. [#50118]
+- Update package dependencies. [#50097] [#50183] [#50212]
+
+### Removed
+- Remove unused store selector and utility functions. [#49528]
+
+### Fixed
+- Avoid the "This connection is added by a site administrator" fallback from flickering for editors while the current user record is still resolving. [#50162]
+- Fix a Base UI `nativeButton` console warning on the settings tab's "Create a note" button. [#50106]
+- Load Publicize connections via a store resolver so the modern admin page fetches them even when there are no connections, and avoid a duplicate request. [#50115]
+- Update REST API status schema to use `oneOf` for Gemini compatibility while preserving null support. [#50030]
+
+## [0.83.4] - 2026-06-29
+### Changed
+- Internal updates.
+
+## [0.83.3] - 2026-06-26
+### Changed
+- Update package dependencies. [#49271]
+
+## [0.83.2] - 2026-06-25
+### Changed
+- Internal updates.
+
 ## [0.83.1] - 2026-06-24
 ### Changed
 - Defer REST controller instantiation so the controller classes only load on REST API requests. [#49803]
@@ -1529,6 +1622,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.85.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.85.0...v0.85.1
+[0.85.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.4...v0.85.0
+[0.84.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.3...v0.84.4
+[0.84.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.2...v0.84.3
+[0.84.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.1...v0.84.2
+[0.84.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.0...v0.84.1
+[0.84.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.5...v0.84.0
+[0.83.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.4...v0.83.5
+[0.83.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.3...v0.83.4
+[0.83.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.2...v0.83.3
+[0.83.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.1...v0.83.2
 [0.83.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.0...v0.83.1
 [0.83.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.82.0...v0.83.0
 [0.82.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.81.4...v0.82.0

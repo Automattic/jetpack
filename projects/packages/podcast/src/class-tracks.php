@@ -11,9 +11,12 @@ namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
+use Automattic\Jetpack\Podcast\Feed\Episode_Block_Tags;
+use Automattic\Jetpack\Status\Host;
 use Throwable;
 use WP_Post;
 use WP_Query;
+use WP_REST_Request;
 use WP_User;
 
 /**
@@ -24,6 +27,33 @@ use WP_User;
  * hard dep — silently no-ops when neither is reachable.
  */
 class Tracks {
+
+	/**
+	 * Mirrors `getValidationIssues()` in
+	 * `src/dashboard/hooks/use-validation-issues.ts` — keep the two in step.
+	 * Not the directory-submission bar, which also wants an episode and a
+	 * conforming cover.
+	 *
+	 * @var string[]
+	 */
+	private const SETUP_OPTIONS = array(
+		'podcasting_category_id',
+		'podcasting_title',
+		'podcasting_summary',
+		'podcasting_talent_name',
+		'podcasting_email',
+		'podcasting_category_1',
+		'podcasting_image',
+	);
+
+	/**
+	 * What is driving the option write in flight. Option hooks fire
+	 * synchronously inside `update_option()`, so the value set for the
+	 * dispatching route is the one the recorder reads.
+	 *
+	 * @var string
+	 */
+	private static $surface = 'programmatic';
 
 	/**
 	 * Wire the recorder hooks.
@@ -41,7 +71,17 @@ class Tracks {
 		add_action( 'add_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_added' ), 10, 2 );
 		add_action( 'update_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_updated' ), 10, 3 );
 
-		add_action( 'jetpack_podcast_settings_saved', array( __CLASS__, 'record_settings_saved' ) );
+		// The options rather than the endpoint's `jetpack_podcast_settings_saved`,
+		// so setup lands whichever path writes it. `podcasting_category_id`
+		// intentionally overlaps `status_changed` above, which stays canonical
+		// for "site enabled podcasting".
+		foreach ( self::SETUP_OPTIONS as $option ) {
+			add_action( "add_option_{$option}", array( __CLASS__, 'record_setting_added' ), 10, 2 );
+			add_action( "update_option_{$option}", array( __CLASS__, 'record_setting_updated' ), 10, 3 );
+		}
+
+		add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'set_surface_from_route' ), 10, 3 );
+		add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'clear_surface' ) );
 	}
 
 	/**
@@ -250,7 +290,10 @@ class Tracks {
 
 				self::record_event(
 					'wpcom_podcasting_show_url_saved',
-					array( 'app' => (string) $app )
+					array(
+						'app'     => (string) $app,
+						'surface' => self::$surface,
+					)
 				);
 				return;
 			}
@@ -260,27 +303,161 @@ class Tracks {
 	}
 
 	/**
-	 * Emit `wpcom_podcasting_settings_saved` after a podcast settings write.
+	 * `add_option_{$option}` callback for a required setting. No prior row, so
+	 * the previous value is empty by definition.
 	 *
-	 * Fired off the `jetpack_podcast_settings_saved` action that
-	 * {@see Podcast_Settings_Endpoint::update_item()} triggers, so it's agnostic
-	 * to the REST transport — the endpoint already gates on a saved option.
+	 * @param string $option Option name.
+	 * @param mixed  $value  Stored value.
 	 */
-	public static function record_settings_saved(): void {
+	public static function record_setting_added( $option, $value ): void {
+		self::maybe_record_setting_first_saved( (string) $option, '', $value );
+	}
+
+	/**
+	 * `update_option_{$option}` callback for a required setting. Seldom the live
+	 * path: `update_option()` defers to `add_option()` while the stored value
+	 * still equals the registered empty default.
+	 *
+	 * @param mixed  $old_value Previous stored value.
+	 * @param mixed  $new_value Newly stored value.
+	 * @param string $option    Option name.
+	 */
+	public static function record_setting_updated( $old_value, $new_value, $option ): void {
+		self::maybe_record_setting_first_saved( (string) $option, $old_value, $new_value );
+	}
+
+	/**
+	 * Emit `wpcom_podcast_setting_first_saved` when a required setting picks up
+	 * a value for the first time.
+	 *
+	 * Recording only the empty → filled transition bounds this at one event per
+	 * setting instead of one per save, and keeps sites configured before it
+	 * shipped silent rather than reporting a false completion. `is_complete`
+	 * marks the transition that finished the set.
+	 *
+	 * @param string $option    Option name.
+	 * @param mixed  $old_value Previous stored value.
+	 * @param mixed  $new_value Newly stored value.
+	 */
+	private static function maybe_record_setting_first_saved( string $option, $old_value, $new_value ): void {
 		try {
-			// Skip user-supplied free-text fields — keep PII out of tracks.
-			$pii   = array( 'podcasting_email', 'podcasting_talent_name' );
-			$state = array();
-			foreach ( Settings::OPTION_NAMES as $name ) {
-				if ( in_array( $name, $pii, true ) ) {
-					continue;
-				}
-				$state[ $name ] = get_option( $name, '' );
+			if ( self::has_value( $old_value ) || ! self::has_value( $new_value ) ) {
+				return;
 			}
-			self::record_event( 'wpcom_podcasting_settings_saved', $state );
+
+			// Both hooks fire after the write, so this counts the new value too.
+			$filled_count = self::filled_setting_count();
+
+			self::record_event(
+				'wpcom_podcast_setting_first_saved',
+				array(
+					'setting'      => $option,
+					'filled_count' => $filled_count,
+					'is_complete'  => count( self::SETUP_OPTIONS ) === $filled_count,
+					'surface'      => self::$surface,
+					'user_id'      => (int) get_current_user_id(),
+					'product_slug' => self::current_product_slug(),
+				)
+			);
 		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-			// Tracks is best-effort.
+			// Tracks is best-effort — never break a settings save.
 		}
+	}
+
+	/**
+	 * How many required settings currently hold a value.
+	 */
+	private static function filled_setting_count(): int {
+		$filled = 0;
+
+		foreach ( self::SETUP_OPTIONS as $option ) {
+			if ( self::has_value( get_option( $option, '' ) ) ) {
+				++$filled;
+			}
+		}
+
+		return $filled;
+	}
+
+	/**
+	 * Whether a required setting counts as filled in. Options read back as
+	 * strings, so one rule covers both shapes: blank for the text fields, `'0'`
+	 * for `podcasting_category_id`, where 0 is the disabled sentinel.
+	 *
+	 * @param mixed $value Value to test.
+	 */
+	private static function has_value( $value ): bool {
+		$value = is_scalar( $value ) ? trim( (string) $value ) : '';
+
+		return '' !== $value && '0' !== $value;
+	}
+
+	/**
+	 * Label writes made by the dashboard's own REST routes. Derived from the
+	 * route rather than set by the endpoints, so nothing outside this class
+	 * sits in a save path holding a reference to it.
+	 *
+	 * @param mixed $response Passed through untouched.
+	 * @param array $handler  Unused.
+	 * @param mixed $request  Request being dispatched.
+	 * @return mixed
+	 */
+	public static function set_surface_from_route( $response, $handler, $request ) {
+		unset( $handler );
+
+		if ( ! $request instanceof WP_REST_Request ) {
+			return $response;
+		}
+
+		$route = (string) $request->get_route();
+
+		if ( 0 === strpos( $route, '/wpcom/v2/podcast/settings' ) ) {
+			self::$surface = 'settings_rest';
+		} elseif ( 0 === strpos( $route, '/wpcom/v2/podcast-distribution/' ) ) {
+			self::$surface = 'distribution_rest';
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Reset once the route's callback is done, so a nested subrequest doesn't
+	 * leave its surface set for the rest of the request.
+	 *
+	 * @param mixed $response Passed through untouched.
+	 * @return mixed
+	 */
+	public static function clear_surface( $response ) {
+		self::$surface = 'programmatic';
+
+		return $response;
+	}
+
+	/**
+	 * Host the event came from. Plan slug is a lossy proxy — Atomic reports a
+	 * WordPress.com plan server-side and a Jetpack one client-side.
+	 */
+	private static function platform(): string {
+		$host = new Host();
+
+		if ( $host->is_wpcom_simple() ) {
+			return 'simple';
+		}
+
+		return $host->is_woa_site() ? 'atomic' : 'self_hosted';
+	}
+
+	/**
+	 * Current plan slug. `WPCOM_Store_API` on Simple, `Current_Plan` on Atomic
+	 * and self-hosted — same dual pattern as
+	 * `Masterbar\Dashboard_Switcher_Tracking::get_plan()`.
+	 */
+	private static function current_product_slug(): string {
+		$plan = class_exists( '\WPCOM_Store_API' )
+			? \WPCOM_Store_API::get_current_plan( (int) get_current_blog_id() )
+			: ( class_exists( '\Automattic\Jetpack\Current_Plan' ) ? \Automattic\Jetpack\Current_Plan::get() : array() );
+
+		return (string) ( $plan['product_slug'] ?? '' );
 	}
 
 	/**
@@ -303,21 +480,15 @@ class Tracks {
 			$status = 'changed';
 		}
 
-		// `WPCOM_Store_API` on Simple, `Current_Plan` on Atomic — same dual
-		// pattern as `Masterbar\Dashboard_Switcher_Tracking::get_plan()`.
-		$plan = class_exists( '\WPCOM_Store_API' )
-			? \WPCOM_Store_API::get_current_plan( (int) get_current_blog_id() )
-			: ( class_exists( '\Automattic\Jetpack\Current_Plan' ) ? \Automattic\Jetpack\Current_Plan::get() : array() );
-
 		self::record_event(
 			'wpcom_podcasting_status_changed',
 			array(
 				'status'               => $status,
-				'surface'              => 'option_write',
+				'surface'              => self::$surface,
 				'previous_category_id' => $old_value,
 				'new_category_id'      => $new_value,
 				'user_id'              => (int) get_current_user_id(),
-				'product_slug'         => (string) ( $plan['product_slug'] ?? '' ),
+				'product_slug'         => self::current_product_slug(),
 			)
 		);
 
@@ -343,12 +514,19 @@ class Tracks {
 
 	/**
 	 * Filters out posts in the podcast category that aren't actually episodes.
-	 * `core/audio` block + classic-editor attached audio cover the supported
-	 * authoring paths.
+	 * Covers all three authoring paths: the `jetpack/podcast-episode` block
+	 * (the paid path — media lives in its `mediaUrl` attr, often an external or
+	 * unattached URL that the two checks below miss), the `core/audio` block,
+	 * and classic-editor attached audio.
 	 *
 	 * @param WP_Post $post Post being checked.
 	 */
 	private static function has_podcast_media( WP_Post $post ): bool {
+		$attrs = Episode_Block_Tags::get_block_attrs( $post );
+		if ( ! empty( $attrs['mediaUrl'] ) ) {
+			return true;
+		}
+
 		return has_block( 'core/audio', $post )
 			|| ! empty( get_attached_media( 'audio', $post->ID ) );
 	}
@@ -387,8 +565,9 @@ class Tracks {
 	 */
 	private static function record_event( string $event_name, array $properties, ?WP_User $user = null ) {
 		try {
-			$user                  = $user ?? wp_get_current_user();
-			$properties['blog_id'] = (int) Connection_Manager::get_site_id( true );
+			$user                 ??= wp_get_current_user();
+			$properties['blog_id']  = (int) Connection_Manager::get_site_id( true );
+			$properties['platform'] = self::platform();
 
 			if ( ! function_exists( 'tracks_record_event' ) && function_exists( 'require_lib' ) ) {
 				require_lib( 'tracks/client' );

@@ -1,2 +1,13 @@
-export { formatDate } from './format-date';
-export { formatDateRange } from './format-date-range';
+export {
+	formatDate,
+	formatHourOfDay,
+	formatMondayFirstWeekday,
+	formatWeekday,
+	type DateFormatName,
+} from './format-date';
+export {
+	formatDateRange,
+	formatDateRangeCompact,
+	formatDateRangeMinimal,
+} from './format-date-range';
+export { formatDateRangeLong } from './format-date-range-long';

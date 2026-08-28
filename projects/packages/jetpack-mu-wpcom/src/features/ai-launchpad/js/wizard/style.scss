@@ -88,7 +88,6 @@
 
 	svg {
 		flex-shrink: 0;
-		margin-top: 2px;
 		fill: currentColor;
 	}
 }
@@ -110,15 +109,19 @@
 	font-size: 12px;
 	color: #50575e;
 	line-height: 1.4;
-	// Balance the short two-line copy so a single word never orphans onto its
-	// own last line (e.g. "expertise.", "goods.").
+	// Balance the copy so a single word never orphans onto its own last line.
 	text-wrap: balance;
+
+	// On full-width mobile cards, `pretty` avoids orphans while filling the width.
+	@media (max-width: 600px) {
+		text-wrap: pretty;
+	}
 }
 
 .ai-launchpad-wizard__footer {
 	display: flex;
 	align-items: center;
-	justify-content: flex-end;
+	justify-content: space-between;
 	gap: 12px;
 	margin-top: 24px;
 }

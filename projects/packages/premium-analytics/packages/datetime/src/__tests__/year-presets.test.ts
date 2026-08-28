@@ -1,0 +1,216 @@
+/**
+ * Internal dependencies
+ */
+import {
+	computePrimaryRange,
+	DEFAULT_YEAR_SURFACE_COUNT,
+	getPresetLabel,
+	getYearSurfacePresets,
+} from '../presets';
+import {
+	getPresetYear,
+	isPrimaryPreset,
+	isSelectablePreset,
+	isYearPresetId,
+	isYearSurfacePresetId,
+	toYearPresetId,
+} from '../presets/types';
+import { dateToISOStringWithTZ } from '../tz';
+
+// A zone behind UTC, so a naive (UTC) year boundary would land on the wrong day.
+const TIME_ZONE = 'America/New_York';
+
+/*
+ * Pinned to midday mid-year: the module derives the current year in `TIME_ZONE`
+ * while the runner reads its own zone, and near New Year the two disagree.
+ */
+const NOW = new Date( '2026-06-15T12:00:00.000Z' );
+const CURRENT_YEAR = NOW.getUTCFullYear();
+
+beforeAll( () => {
+	jest.useFakeTimers().setSystemTime( NOW );
+} );
+
+afterAll( () => {
+	jest.useRealTimers();
+} );
+
+describe( 'year preset IDs', () => {
+	it( 'round-trips a year through its preset ID', () => {
+		expect( toYearPresetId( 2024 ) ).toBe( 'year-2024' );
+		expect( getPresetYear( 'year-2024' ) ).toBe( 2024 );
+	} );
+
+	it( 'rejects anything that is not a four-digit year ID', () => {
+		[ 'year-', 'year-24', 'year-20245', 'last-7-days', 'custom', 42, null ].forEach( value => {
+			expect( isYearPresetId( value ) ).toBe( false );
+			expect( getPresetYear( value ) ).toBeNull();
+		} );
+	} );
+
+	it( 'keeps the year surface out of the fixed rolling presets', () => {
+		expect( isSelectablePreset( 'year-2024' ) ).toBe( false );
+		expect( isSelectablePreset( 'all-time' ) ).toBe( false );
+
+		expect( isYearSurfacePresetId( 'year-2024' ) ).toBe( true );
+		expect( isYearSurfacePresetId( 'all-time' ) ).toBe( true );
+		expect( isYearSurfacePresetId( 'last-7-days' ) ).toBe( false );
+	} );
+
+	it( 'accepts the year surface as a primary preset, so the URL can carry it', () => {
+		expect( isPrimaryPreset( 'year-2024' ) ).toBe( true );
+		expect( isPrimaryPreset( 'all-time' ) ).toBe( true );
+		expect( isPrimaryPreset( 'year-24' ) ).toBe( false );
+	} );
+} );
+
+describe( 'getPresetLabel', () => {
+	it( 'labels years with the bare number and all time with a translated string', () => {
+		expect( getPresetLabel( 'year-2024' ) ).toBe( '2024' );
+		expect( getPresetLabel( 'all-time' ) ).toBe( 'All time' );
+	} );
+
+	it( 'still labels the rolling presets', () => {
+		expect( getPresetLabel( 'last-7-days' ) ).toBe( '7 days' );
+		expect( getPresetLabel( 'custom' ) ).toBeNull();
+	} );
+} );
+
+describe( 'getYearSurfacePresets', () => {
+	it( 'lists all time plus the default span of years, newest first', () => {
+		const presets = getYearSurfacePresets( TIME_ZONE );
+
+		expect( presets ).toHaveLength( DEFAULT_YEAR_SURFACE_COUNT + 1 );
+		expect( presets.map( preset => preset.id ) ).toEqual( [
+			'all-time',
+			...Array.from( { length: DEFAULT_YEAR_SURFACE_COUNT }, ( _, index ) =>
+				toYearPresetId( CURRENT_YEAR - index )
+			),
+		] );
+	} );
+
+	it( 'lists every year from the given start year through the current one', () => {
+		const presets = getYearSurfacePresets( TIME_ZONE, { startYear: CURRENT_YEAR - 2 } );
+
+		expect( presets.map( preset => preset.label ) ).toEqual( [
+			'All time',
+			String( CURRENT_YEAR ),
+			String( CURRENT_YEAR - 1 ),
+			String( CURRENT_YEAR - 2 ),
+		] );
+	} );
+
+	it( 'clamps a start year that has not begun yet to the current year', () => {
+		const presets = getYearSurfacePresets( TIME_ZONE, { startYear: CURRENT_YEAR + 5 } );
+
+		expect( presets.map( preset => preset.id ) ).toEqual( [
+			'all-time',
+			toYearPresetId( CURRENT_YEAR ),
+		] );
+	} );
+
+	it( 'starts the all-time range at the oldest year it lists', () => {
+		const [ allTime ] = getYearSurfacePresets( TIME_ZONE, { startYear: 2019 } );
+
+		expect( dateToISOStringWithTZ( allTime.range.from, TIME_ZONE ) ).toBe(
+			'2019-01-01T00:00:00.000-05:00'
+		);
+		expect( allTime.range.to.getTime() ).toBeGreaterThan( Date.now() );
+	} );
+} );
+
+/**
+ * Compute a range that must exist, so a preset the module stops recognizing
+ * fails loudly instead of asserting on an optional and reading as a pass.
+ *
+ * @param args - The `computePrimaryRange` arguments.
+ * @return The computed range.
+ */
+function rangeOf( ...args: Parameters< typeof computePrimaryRange > ) {
+	const range = computePrimaryRange( ...args );
+
+	if ( ! range ) {
+		throw new Error( `No range computed for "${ args[ 0 ] }"` );
+	}
+
+	return range;
+}
+
+describe( 'computePrimaryRange for the year surface', () => {
+	it( 'spans a past year end to end, on the timezone boundaries', () => {
+		const range = rangeOf( 'year-2019', TIME_ZONE );
+
+		expect( dateToISOStringWithTZ( range.from, TIME_ZONE ) ).toBe(
+			'2019-01-01T00:00:00.000-05:00'
+		);
+		expect( dateToISOStringWithTZ( range.to, TIME_ZONE ) ).toBe( '2019-12-31T23:59:59.999-05:00' );
+	} );
+
+	it( 'stops the current year at the end of today instead of a future December', () => {
+		const currentYear = rangeOf( toYearPresetId( CURRENT_YEAR ), TIME_ZONE );
+
+		expect( currentYear.from.getFullYear() ).toBe( CURRENT_YEAR );
+		expect( currentYear.to.getTime() ).toBe( rangeOf( 'all-time', TIME_ZONE ).to.getTime() );
+	} );
+
+	it( 'honors the start year for all time, and defaults it otherwise', () => {
+		expect(
+			dateToISOStringWithTZ( rangeOf( 'all-time', TIME_ZONE, { startYear: 2015 } ).from, TIME_ZONE )
+		).toBe( '2015-01-01T00:00:00.000-05:00' );
+
+		expect( rangeOf( 'all-time', TIME_ZONE ).from.getFullYear() ).toBe(
+			CURRENT_YEAR - ( DEFAULT_YEAR_SURFACE_COUNT - 1 )
+		);
+	} );
+
+	it( 'still computes the rolling presets, snapped to whole hours', () => {
+		const range = rangeOf( 'last-24-hours', TIME_ZONE );
+
+		// 24 hourly buckets, the last one open-ended at :59:59.999.
+		expect( dateToISOStringWithTZ( range.from, TIME_ZONE ) ).toBe(
+			'2026-06-14T09:00:00.000-04:00'
+		);
+		expect( dateToISOStringWithTZ( range.to, TIME_ZONE ) ).toBe( '2026-06-15T08:59:59.999-04:00' );
+	} );
+
+	it.each( [
+		// Spring forward: 2026-03-08 02:00 EST -> 03:00 EDT, so the local clock
+		// reads 25 hour labels across the window but only 24 hours elapse.
+		[
+			'spring forward',
+			'2026-03-08T14:00:00.000Z',
+			'2026-03-07T10:00:00.000-05:00',
+			'2026-03-08T10:59:59.999-04:00',
+		],
+		// Fall back: 2026-11-01 02:00 EDT -> 01:00 EST, so 23 labels cover 24 hours.
+		[
+			'fall back',
+			'2026-11-01T14:00:00.000Z',
+			'2026-10-31T11:00:00.000-04:00',
+			'2026-11-01T09:59:59.999-05:00',
+		],
+	] )( 'covers 24 elapsed hours across %s', ( _label, systemTime, expectedFrom, expectedTo ) => {
+		jest.setSystemTime( new Date( systemTime ) );
+		const range = rangeOf( 'last-24-hours', TIME_ZONE );
+		jest.setSystemTime( NOW );
+
+		// The window is 24 real hours even where the wall clock disagrees:
+		// `subHours` counts elapsed time, so the bucket count survives DST.
+		expect( range.to.getTime() - range.from.getTime() ).toBe( 24 * 60 * 60 * 1000 - 1 );
+		expect( dateToISOStringWithTZ( range.from, TIME_ZONE ) ).toBe( expectedFrom );
+		expect( dateToISOStringWithTZ( range.to, TIME_ZONE ) ).toBe( expectedTo );
+	} );
+
+	it( 'holds the last-24-hours range steady as the clock moves within the hour', () => {
+		// The range is sent verbatim and keys the request cache; off a raw `now` it
+		// drifts by milliseconds and identical requests never dedupe.
+		const before = rangeOf( 'last-24-hours', TIME_ZONE );
+
+		jest.setSystemTime( new Date( NOW.getTime() + 20 * 60 * 1000 ) );
+		const after = rangeOf( 'last-24-hours', TIME_ZONE );
+		jest.setSystemTime( NOW );
+
+		expect( after.from.getTime() ).toBe( before.from.getTime() );
+		expect( after.to.getTime() ).toBe( before.to.getTime() );
+	} );
+} );

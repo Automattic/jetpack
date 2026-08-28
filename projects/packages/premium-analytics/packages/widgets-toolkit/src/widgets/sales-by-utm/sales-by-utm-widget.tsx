@@ -6,15 +6,14 @@ import {
 	ORDER_ATTRIBUTION_VIEWS,
 } from '@jetpack-premium-analytics/data';
 import { megaphone, search, channel } from '@jetpack-premium-analytics/icons';
-import { useMemo } from 'react';
-import { LeaderboardChart } from '../../components/chart-leaderboard';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
+import { __ } from '@wordpress/i18n';
+import { useMemo, type CSSProperties } from 'react';
+import { LeaderboardChart, LeaderboardSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../components/widget-root';
 import { buildSalesByUtmData, formatLegendLabels } from '../../helpers';
-import { useWidgetError } from '../../hooks';
 
 type OrderAttributionView = ( typeof ORDER_ATTRIBUTION_VIEWS )[ number ];
 
@@ -26,26 +25,13 @@ type SalesByUtmWidgetProps = {
 };
 
 /**
- * Sales by UTM Widget Component
- *
- * Displays order attribution data in a leaderboard chart, showing how sales are
- * distributed across different UTM parameters (source, channel, or campaign).
- *
- * Features:
- * - Multiple views: source, channel, campaign
- * - Displays data for all product types
- * - Comparison support (current vs previous period)
- * - Formatted legend labels with date ranges
+ * Order attribution data as a leaderboard chart, showing how sales split across
+ * UTM parameters (source, channel, or campaign) with comparison support.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
  *
  * @param props      - Component props
  * @param props.view - The order attribution view (source, channel, campaign)
- *
- * @example
- * <WidgetRoot attributes={ attributes }>
- *   <SalesByUtmWidget view="source" />
- * </WidgetRoot>
  */
 export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -58,11 +44,8 @@ export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 		[ reportParams, view ]
 	);
 
-	const { primary, hasComparison, isLoading, isFetching, hasData, isError, error, refetch } =
+	const { primary, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
 		useReportOrderAttribution( params );
-
-	const isInitialLoading = isLoading && ! hasData;
-	const isRefetching = isFetching && hasData;
 
 	const chartData = useMemo( () => buildSalesByUtmData( primary.data ), [ primary.data ] );
 
@@ -81,29 +64,37 @@ export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 		}
 	}, [ view ] );
 
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null;
-	}
-
-	if ( isInitialLoading ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
-		<>
+		<WidgetState
+			isLoading={ isLoading }
+			isFetching={ isFetching }
+			// The report queries keep the previous period's data as placeholders across
+			// range changes, so only surface the error when nothing else is showing.
+			isError={ isError && ! hasData }
+			isEmpty={ chartData.length === 0 }
+			error={ {
+				description: __(
+					"We couldn't load order attribution data. Please try again in a moment.",
+					'jetpack-premium-analytics-pkg'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: emptyStateIcon,
+				description: __( 'No attribution data in this period.', 'jetpack-premium-analytics-pkg' ),
+			} }
+			renderLoading={ <LeaderboardSkeleton variant="bars" /> }
+		>
 			<LeaderboardChart
 				data={ chartData }
 				withComparison={ hasComparison }
 				legendLabels={ legendLabels }
-				emptyStateIcon={ emptyStateIcon }
 				style={
 					{
-						'--a8c--charts--leaderboard--bar--border-radius': '0 1px 1px 0',
-					} as React.CSSProperties
+						'--a8c-charts-border-radius-leaderboard-bar': '0 1px 1px 0',
+					} as CSSProperties
 				}
 			/>
-			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
+		</WidgetState>
 	);
 }

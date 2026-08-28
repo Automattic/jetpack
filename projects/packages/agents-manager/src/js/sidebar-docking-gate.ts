@@ -63,19 +63,9 @@ function runSidebarDockingGate() {
 		return;
 	}
 
-	const adminMenu = document.getElementById( 'adminmenu' );
-	if ( ! adminMenu ) {
-		return;
-	}
-
-	// The docked layout pins the admin menu to the viewport; if the menu is taller
-	// than the room below the admin bar it would be clipped, so the chat floats instead.
-	const adminBar = document.getElementById( 'wpadminbar' );
-	const adminBarHeight = adminBar ? adminBar.offsetHeight : 32;
-	const tooShort = window.innerHeight < adminMenu.offsetHeight + adminBarHeight + 20;
 	const tooNarrow = window.innerWidth < DESKTOP_MIN_WIDTH;
 
-	if ( tooShort || tooNarrow || ! isFullscreenGateOpen() ) {
+	if ( tooNarrow || ! isFullscreenGateOpen() ) {
 		removeDockedShell();
 	}
 }

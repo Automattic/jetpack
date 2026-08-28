@@ -1,4 +1,5 @@
 import useConnection from '@automattic/jetpack-connection/use-connection';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { VIDEOPRESS_ADMIN_PAGE } from '../../utils/constants';
 import ConnectScreen from './connect-screen';
 import PricingUpsell from './pricing-upsell';
@@ -37,6 +38,15 @@ export default function ConnectionGate( { children }: { children: ReactNode } ) 
 		from: 'jetpack-videopress',
 		redirectUri: VIDEOPRESS_ADMIN_PAGE,
 	} );
+
+	// WordPress.com Simple sites are inherently wpcom-connected: uploads and the
+	// management REST go through wpcom natively, with no separate Jetpack
+	// site/user connection, so the connection gate doesn't apply. Access is
+	// already gated by the VideoPress site feature that surfaces the dashboard.
+	// (useConnection still runs above so hook order stays stable.)
+	if ( isSimpleSite() ) {
+		return <>{ children }</>;
+	}
 
 	const canPerformAction = isRegistered && hasConnectedOwner && isUserConnected;
 

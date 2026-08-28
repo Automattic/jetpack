@@ -1,6 +1,13 @@
 import { combineStatsNormalizedReports, sanitizeStatsTopPostsResponse } from '..';
 import { topPostsFixture, topPostsSummaryFixture } from '../__fixtures__/top-posts';
-import { getStatsSummaryIntervalFields, normalizeStatsSummary } from '../utils';
+import {
+	flattenStatsLeaves,
+	getStatsLabel,
+	getStatsSummaryIntervalFields,
+	mergeStatsComparisonRows,
+	mergeStatsTreeComparisonRows,
+	normalizeStatsSummary,
+} from '../utils';
 
 describe( 'Stats report utilities', () => {
 	it( 'combines separately requested summary and by-date data', () => {
@@ -28,14 +35,14 @@ describe( 'Stats report utilities', () => {
 				status: 'complete',
 				empty_label: '',
 				enabled: true,
-				date_start: '2026-06-16T00:00:00+00:00',
+				date_start: '2026-06-16T00:00:00',
 			} )
 		).toEqual( {
 			total_views: 123,
 			status: 'complete',
 			empty_label: '',
 			enabled: true,
-			date_start: '2026-06-16T00:00:00+00:00',
+			date_start: '2026-06-16T00:00:00',
 		} );
 	} );
 
@@ -56,8 +63,165 @@ describe( 'Stats report utilities', () => {
 				}
 			)
 		).toEqual( {
-			date_start: '2026-06-16T00:00:00+00:00',
-			date_end: '2026-06-22T23:59:59+00:00',
+			date_start: '2026-06-16T00:00:00',
+			date_end: '2026-06-22T23:59:59',
 		} );
+	} );
+
+	it( 'decodes labels and falls back to malformed strings', () => {
+		expect( getStatsLabel( 'News%20%26%20Updates' ) ).toBe( 'News & Updates' );
+		expect( getStatsLabel( 'broken%label' ) ).toBe( 'broken%label' );
+		expect( getStatsLabel( 42 ) ).toBe( '42' );
+		expect( getStatsLabel( { label: 'Example' } ) ).toBe( '' );
+	} );
+
+	it( 'merges comparison rows by key without fabricating missing values', () => {
+		const result = mergeStatsComparisonRows( {
+			primaryRows: [
+				{ key: 'us', value: 4 },
+				{ key: 'jp', value: 1 },
+			],
+			comparisonRows: [ { key: 'us', value: 4 } ],
+			getPrimaryKey: row => row.key,
+			getComparisonKey: row => row.key,
+			getComparisonValue: row => row.value,
+			mapRow: ( row, { previousValue } ) => ( {
+				...row,
+				previousValue,
+			} ),
+		} );
+
+		expect( result.hasComparison ).toBe( true );
+		expect( result.rows ).toEqual( [
+			{ key: 'us', value: 4, previousValue: 4 },
+			{ key: 'jp', value: 1, previousValue: undefined },
+		] );
+	} );
+
+	it( 'treats zero as a real comparison row value', () => {
+		const result = mergeStatsComparisonRows( {
+			primaryRows: [ { key: 'newsletter', value: 3 } ],
+			comparisonRows: [ { key: 'newsletter', value: 0 } ],
+			getPrimaryKey: row => row.key,
+			getComparisonKey: row => row.key,
+			getComparisonValue: row => row.value,
+			mapRow: ( row, { previousValue } ) => ( {
+				...row,
+				previousValue,
+			} ),
+		} );
+
+		expect( result.hasComparison ).toBe( true );
+		expect( result.rows[ 0 ].previousValue ).toBe( 0 );
+	} );
+
+	describe( 'flattenStatsLeaves', () => {
+		type Node = { label: string; children?: Node[] | null };
+
+		const flatten = ( items: Node[] ) =>
+			flattenStatsLeaves( items, {
+				getChildren: item => item.children,
+				mapLeaf: ( item, { ancestors, indexPath } ) => ( {
+					label: item.label,
+					path: ancestors.map( ancestor => ancestor.label ),
+					indexPath,
+				} ),
+			} );
+
+		it( 'maps hierarchy leaves with their ancestor chain and index path', () => {
+			const rows = flatten( [
+				{
+					label: 'group',
+					children: [ { label: 'leaf-a' }, { label: 'branch', children: [ { label: 'leaf-b' } ] } ],
+				},
+				{ label: 'leaf-c', children: null },
+			] );
+
+			expect( rows ).toEqual( [
+				{ label: 'leaf-a', path: [ 'group' ], indexPath: [ 0, 0 ] },
+				{ label: 'leaf-b', path: [ 'group', 'branch' ], indexPath: [ 0, 1, 0 ] },
+				{ label: 'leaf-c', path: [], indexPath: [ 1 ] },
+			] );
+		} );
+
+		it( 'treats items with empty child lists as leaves', () => {
+			expect( flatten( [ { label: 'solo', children: [] } ] ) ).toEqual( [
+				{ label: 'solo', path: [], indexPath: [ 0 ] },
+			] );
+		} );
+	} );
+
+	it( 'merges, sorts, and limits comparison trees with parent context', () => {
+		type TreeRow = {
+			key: string;
+			value: number;
+			children?: TreeRow[];
+		};
+		type MergedTreeRow = Omit< TreeRow, 'children' > & {
+			path: string;
+			previousValue?: number;
+			children: MergedTreeRow[] | null;
+			childrenHaveComparison: boolean;
+		};
+		const merge = ( maxRows?: number ) =>
+			mergeStatsTreeComparisonRows< TreeRow, TreeRow, MergedTreeRow, string >( {
+				primaryRows: [
+					{
+						key: 'matched',
+						value: 1,
+						children: [ { key: 'child', value: 2 } ],
+					},
+					{ key: 'visible', value: 3 },
+				],
+				comparisonRows: [
+					{
+						key: 'matched',
+						value: 0,
+						children: [ { key: 'child', value: 4 } ],
+					},
+				],
+				maxRows,
+				parentContext: 'root',
+				getPrimaryKey: row => row.key,
+				getComparisonKey: row => row.key,
+				getComparisonValue: row => row.value,
+				getPrimaryChildren: row => row.children,
+				getComparisonChildren: row => row.children,
+				mapRow: ( row, { previousValue }, parentPath ) => ( {
+					key: row.key,
+					value: row.value,
+					path: `${ parentPath }/${ row.key }`,
+					previousValue,
+					children: null,
+					childrenHaveComparison: false,
+				} ),
+				setChildren: ( row, children, childrenHaveComparison ) => ( {
+					...row,
+					children: children.length ? children : null,
+					childrenHaveComparison,
+				} ),
+				getChildContext: row => row.path,
+				sortRows: rows => [ ...rows ].sort( ( a, b ) => b.value - a.value ),
+			} );
+
+		const full = merge();
+		expect( full.hasComparison ).toBe( true );
+		expect( full.rows[ 1 ] ).toEqual(
+			expect.objectContaining( {
+				key: 'matched',
+				previousValue: 0,
+				childrenHaveComparison: true,
+			} )
+		);
+		expect( full.rows[ 1 ].children?.[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				path: 'root/matched/child',
+				previousValue: 4,
+			} )
+		);
+
+		const capped = merge( 1 );
+		expect( capped.rows.map( row => row.key ) ).toEqual( [ 'visible' ] );
+		expect( capped.hasComparison ).toBe( false );
 	} );
 } );

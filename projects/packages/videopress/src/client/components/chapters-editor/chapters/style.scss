@@ -1,0 +1,323 @@
+@use "../tokens";
+
+// Chapters tool timeline, per the editor redesign's ChapterTimeline spec:
+// the shared strip grammar (24px tick zone over full-height gridlines,
+// playhead) with a 98px strip holding the chapter segments at top 25px,
+// accent start markers for every chapter but the pinned first, and the
+// editable rows list below. Grab affordances are slim bars centered in
+// wider hit areas.
+
+$vp-chapters-marker-hit-width: 12px;
+$vp-chapters-marker-bar-width: 4px;
+$vp-chapters-segment-height: 26px;
+$vp-chapters-accent: var(--vp-accent, var(--wp-admin-theme-color, #3858e9));
+$vp-chapters-warning: var(--vp-warning, #b26200);
+
+// 24px tick zone + 72px chapter zone + the scroller's 2px of borders = the
+// design's 98px strip.
+.vp-chapters-timeline__track--chapters {
+	height: 72px;
+}
+
+.vp-chapters {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.vp-chapters__track {
+	position: relative;
+	height: 100%;
+}
+
+// One segment per chapter, spanning start → next start. Backgrounds
+// alternate; selection tints and rings. The ring is a box-shadow, not a
+// border: a border would eat into the box and shift its edges off the times
+// they represent.
+.vp-chapters__segment {
+	position: absolute;
+	top: 1px; // 25px from the strip top: the ruler row above is 24px.
+	height: $vp-chapters-segment-height;
+	display: flex;
+	align-items: center;
+	padding: 0 8px;
+	border-radius: var(--vp-radius-small, 2px);
+	background: var(--vp-gray-100, #f0f0f0);
+	cursor: pointer;
+	overflow: hidden;
+
+	&--alt {
+		background: #e8eaf7;
+	}
+
+	// The fill is the same accent as the ring, so a non-default admin colour
+	// scheme does not get a themed ring around a blue wash. The literal is
+	// the parse-time fallback (12% of the default #3858e9) for engines
+	// without color-mix: an unparseable declaration is dropped and the one
+	// above it stands.
+	&--selected,
+	&--selected.vp-chapters__segment--alt {
+		background: rgba(56, 88, 233, 0.12);
+		background: color-mix(in srgb, #{$vp-chapters-accent} 12%, transparent);
+		box-shadow: inset 0 0 0 1px $vp-chapters-accent;
+	}
+}
+
+.vp-chapters__segment-title {
+	font-size: 11px;
+	font-weight: 500;
+	color: var(--vp-gray-900, #1e1e1e);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+// A chapter-start marker: a 4px accent bar (1px white outline so it reads
+// against any segment fill) centered in an invisible 12px hit area, sitting
+// exactly on the chapter boundary.
+.vp-chapters__marker {
+	position: absolute;
+	top: 25px;
+	height: $vp-chapters-segment-height;
+	width: $vp-chapters-marker-hit-width;
+	margin-left: -($vp-chapters-marker-hit-width * 0.5);
+	cursor: ew-resize;
+	pointer-events: auto;
+	z-index: 2;
+
+	&::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: ($vp-chapters-marker-hit-width - $vp-chapters-marker-bar-width) * 0.5;
+		width: $vp-chapters-marker-bar-width;
+		height: 100%;
+		border-radius: 1px;
+		background: $vp-chapters-accent;
+		box-shadow: 0 0 0 1px #fff;
+	}
+
+	&:focus-visible {
+		outline: 2px solid $vp-chapters-accent;
+		outline-offset: 1px;
+	}
+}
+
+.vp-chapters__rows {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+// Boxless rows: at rest a row is just text on the panel background. State
+// lives in the background tint and a slim accent bar on the row's start
+// edge (a permanent transparent border keeps the layout stable when it
+// colors in).
+.vp-chapters__row {
+	display: flex;
+	align-items: center;
+	// The validation message wraps onto its own line inside the row, so a
+	// flagged row keeps its tint and bar around both.
+	flex-wrap: wrap;
+	gap: 8px;
+	padding: 4px 8px;
+	border-inline-start: 3px solid transparent;
+	border-start-end-radius: var(--vp-radius-small, 2px);
+	border-end-end-radius: var(--vp-radius-small, 2px);
+
+	&:hover {
+		background: var(--vp-gray-100, #f0f0f0);
+	}
+
+	// Accent-derived tint, with the literal as the parse-time fallback —
+	// same reasoning as the selected segment above.
+	&--selected,
+	&--selected:hover {
+		background: rgba(56, 88, 233, 0.06);
+		background: color-mix(in srgb, #{$vp-chapters-accent} 6%, transparent);
+		border-inline-start-color: $vp-chapters-accent;
+	}
+
+	// A publish-rule violation outranks selection for the bar; the tint still
+	// says which row is selected.
+	&--invalid,
+	&--invalid.vp-chapters__row--selected {
+		border-inline-start-color: $vp-chapters-warning;
+	}
+}
+
+// Row-scoped publish-rule message, on its own line under the controls.
+.vp-chapters__row-issue {
+	flex: 0 0 100%;
+	padding-inline-start: 9px; // Aligns with the borderless title input's text.
+	font-size: 12px;
+	color: $vp-chapters-warning;
+}
+
+// Beat wp-admin forms.css's `input[type="text"]` on padding/border, the same
+// specificity fight as the toolbar timecode box. The input is seamless at
+// rest — a resting row reads as text — and only grows its box back on focus.
+input[type="text"].vp-chapters__row-title {
+	flex: 1;
+	min-width: 0;
+	height: 32px;
+	padding: 0 8px;
+	border: 1px solid transparent;
+	border-radius: var(--vp-radius-small, 2px);
+	background: transparent;
+	font-size: 13px;
+	color: var(--vp-gray-900, #1e1e1e);
+
+	&:hover:not(:focus, :disabled) {
+		border-color: var(--vp-gray-300, #ddd);
+	}
+
+	// A resting row reads as text, so an overflowing title truncates like
+	// text; while editing the input scrolls with the caret as usual.
+	&:not(:focus) {
+		text-overflow: ellipsis;
+	}
+
+	// Forced-colors mode preserves the alpha channel, so the transparent
+	// resting border would leave the field with no boundary at all there —
+	// exactly the users the mode serves. Give it a system-colored one.
+	@media ( forced-colors: active ) {
+		border-color: buttonborder;
+	}
+
+	&:focus {
+		background: #fff;
+		border-color: $vp-chapters-accent;
+		box-shadow: 0 0 0 1px $vp-chapters-accent;
+		outline: none;
+	}
+
+	// Keep the seamless look while a job or save holds the editor locked;
+	// the host dims the whole panel, so gray text is enough here.
+	&:disabled {
+		background: transparent;
+		color: var(--vp-gray-700, #757575);
+	}
+}
+
+.vp-chapters__row-time {
+	flex: none;
+	padding: 2px 4px;
+	border: 0;
+	background: transparent;
+	font-family: var(--vp-font-mono, Menlo, Consolas, monaco, monospace);
+	font-size: 12px;
+	color: $vp-chapters-accent;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+	cursor: pointer;
+	border-radius: var(--vp-radius-small, 2px);
+
+	&:focus-visible {
+		outline: 2px solid $vp-chapters-accent;
+		outline-offset: 1px;
+	}
+}
+
+.vp-chapters__row-remove.components-button {
+	flex: none;
+	width: 28px;
+	height: 28px;
+	min-width: 0;
+	padding: 0;
+	justify-content: center;
+	color: var(--vp-gray-900, #1e1e1e);
+
+	&[aria-disabled="true"],
+	&:disabled {
+		opacity: 0.35;
+	}
+}
+
+.vp-chapters__manual-notice {
+	margin: 0;
+	font-size: 13px;
+	color: var(--vp-gray-700, #757575);
+}
+
+.vp-chapters__now {
+	// Zero flex basis: in the wrapping toolbar, line breaks are decided from
+	// items' BASE sizes (shrink only applies within a line), so a content-
+	// sized basis would let a long title wrap the cluster. Basis 0 never
+	// forces a wrap; grow takes the line's free space and min-inline-size: 0
+	// defeats the content-size floor so the title truncates instead.
+	flex: 1 1 0;
+	min-inline-size: 0;
+	font-size: 12px;
+	color: var(--vp-gray-700, #757575);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.vp-chapters__validation-message {
+	margin: 0;
+	font-size: 12px;
+	color: $vp-chapters-warning;
+}
+
+.vp-chapters__help {
+	margin: 0;
+	font-size: 12px;
+	color: var(--vp-gray-700, #757575);
+}
+
+// The chapters panel: header (title + live count), the publish-rule summary,
+// and the rows list. Hosts own its placement and outer sizing; when they
+// bound its height (the side-pane arrangement) the list region is what
+// scrolls, so the header stays put.
+// Spacing via margins, not a column gap: the issues live region below stays
+// mounted while empty, and a flex gap would hand the empty box its own slot.
+.vp-chapters-panel {
+	display: flex;
+	flex-direction: column;
+	min-block-size: 0;
+}
+
+.vp-chapters-panel__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-block-end: 12px;
+}
+
+// Reads as a section label, like the tools rail's "Edit" heading.
+.vp-chapters-panel__title {
+	margin: 0;
+	color: var(--vp-gray-700, #757575);
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.2px;
+}
+
+.vp-chapters-panel__count {
+	font-size: 12px;
+	color: var(--vp-gray-700, #757575);
+	font-variant-numeric: tabular-nums;
+}
+
+.vp-chapters-panel__issues {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+
+	&:not(:empty) {
+		margin-block-end: 12px;
+	}
+}
+
+.vp-chapters-panel__list {
+	flex: 1;
+	min-block-size: 0;
+	// Published host knob: stacked layouts (where the page or workspace is
+	// the scroll surface) set `visible` on the panel root instead of
+	// reaching into this internal class.
+	overflow-y: var(--vp-chapters-panel-list-overflow, auto);
+}

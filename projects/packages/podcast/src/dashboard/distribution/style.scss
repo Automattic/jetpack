@@ -6,7 +6,7 @@
 }
 
 .podcast__distribution-notice.components-notice.is-warning {
-	margin-block: 16px;
+	margin-block: 0 16px;
 }
 
 .podcast__directory-list {
@@ -103,6 +103,12 @@
 	min-inline-size: 8rem;
 	align-self: flex-start;
 	justify-content: flex-start;
+}
+
+.podcast__submit-visit-button {
+	inline-size: fit-content;
+	max-inline-size: 100%;
+	align-self: flex-start;
 }
 
 .podcast__submit-step-notice {

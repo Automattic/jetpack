@@ -95,6 +95,20 @@ class Post_Settings {
 	 * @return string
 	 */
 	public function get_custom_text() {
+		/**
+		 * Filter to disable the text overlay on Social Image Generator templates.
+		 *
+		 * @module publicize
+		 *
+		 * @since 0.83.5
+		 *
+		 * @param bool $disable_text Whether to disable the text overlay. Default false.
+		 * @param int  $post_id      The Post ID.
+		 */
+		if ( apply_filters( 'jetpack_social_image_generator_disable_text', false, $this->post_id ) ) {
+			return '';
+		}
+
 		if ( ! empty( $this->settings['custom_text'] ) ) {
 			return $this->settings['custom_text'];
 		}

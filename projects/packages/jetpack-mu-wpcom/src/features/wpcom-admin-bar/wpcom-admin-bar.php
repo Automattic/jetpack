@@ -179,7 +179,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 			'parent' => 'wp-logo',
 			'id'     => 'wpcom-sites',
 			'title'  => __( 'Sites', 'jetpack-mu-wpcom' ),
-			'href'   => add_origin_admin_bar_to_url( Urls::maybe_add_origin_site_id( 'https://wordpress.com/sites' ) ),
+			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/sites' ),
 		)
 	);
 
@@ -188,7 +188,25 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 			'parent' => 'wp-logo',
 			'id'     => 'wpcom-domains',
 			'title'  => __( 'Domains', 'jetpack-mu-wpcom' ),
-			'href'   => add_origin_admin_bar_to_url( Urls::maybe_add_origin_site_id( 'https://wordpress.com/domains/manage' ) ),
+			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/domains' ),
+		)
+	);
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'wp-logo',
+			'id'     => 'wpcom-emails',
+			'title'  => __( 'Emails', 'jetpack-mu-wpcom' ),
+			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/emails' ),
+		)
+	);
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'wp-logo',
+			'id'     => 'wpcom-plugins',
+			'title'  => __( 'Plugins', 'jetpack-mu-wpcom' ),
+			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/plugins' ),
 		)
 	);
 
@@ -495,3 +513,28 @@ function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
 	}
 }
 add_action( 'admin_bar_menu', 'wpcom_add_site_badges_and_plan', 35 );
+
+/**
+ * Adds a "Stats" link to the site-name submenu, alongside "Dashboard"/"Visit Site" (STATS-287).
+ *
+ * Hooks `admin_bar_menu` at priority 40, after core's `wp_admin_bar_site_menu`
+ * (priority 30) has added the `site-name` node and either `dashboard` (front end)
+ * or `view-site` (wp-admin), so this shows in both contexts.
+ *
+ * @param WP_Admin_Bar $wp_admin_bar Admin bar instance.
+ */
+function wpcom_add_stats_to_site_menu( $wp_admin_bar ) {
+	if ( ( ! $wp_admin_bar->get_node( 'dashboard' ) && ! $wp_admin_bar->get_node( 'view-site' ) ) || ! current_user_can( 'view_stats' ) ) {
+		return;
+	}
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'site-name',
+			'id'     => 'wpcom-stats',
+			'title'  => __( 'Stats', 'jetpack-mu-wpcom' ),
+			'href'   => admin_url( 'admin.php?page=stats' ),
+		)
+	);
+}
+add_action( 'admin_bar_menu', 'wpcom_add_stats_to_site_menu', 40 );

@@ -1,62 +1,64 @@
 /**
  * External dependencies
  */
-import { getScriptData } from '@automattic/jetpack-script-data';
-import { store as coreStore } from '@wordpress/core-data';
-import { dispatch, select } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import {
+	ensureCoreSettingsReady,
+	needsReportDateParamsSeed,
+	normalizeReportParams,
+} from '@jetpack-premium-analytics/data';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { DASHBOARD_REST_NAMESPACE } from './hooks/constants';
+import { ensureDashboardEntities } from '../dashboard-entities';
+import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
+
+type DashboardSearch = Record< string, string | undefined >;
 
 /**
- * Route lifecycle for the dashboard.
- *
- * Guard:
- * - Not connected → /connect
- * - Connected but sync pending → /syncing
- *
- * Then register the widget-modules discovery entity before the stage renders,
- * so the stage's `getEntityRecords` read resolves and feeds the records to
- * `useWidgetTypes`. Premium Analytics serves the records from its own namespace
- * (see `src/widget-modules.php`), independent of core's `wp/v2` endpoint.
- * Guarded for idempotency: beforeLoad re-runs on every navigation and preload.
+ * Route lifecycle for the dashboard. The initial analytics sync is not a guard
+ * — only the store section waits on it and shows progress meanwhile (see
+ * `stage.tsx`). Widget-module registration is idempotent for repeat visits; it
+ * could move to `packages/init` and run once at boot — tracked as a follow-up.
  */
 export const route = {
-	beforeLoad: () => {
-		const connectionStatus = getScriptData()?.connection?.connectionStatus;
-
-		if ( ! connectionStatus?.isRegistered ) {
+	beforeLoad: async ( { search }: { search?: DashboardSearch } = {} ) => {
+		if ( ! isPremiumAnalyticsSiteConnected() ) {
 			throw redirect( { to: '/connect' } );
 		}
 
-		const syncFinished = getScriptData()?.premium_analytics?.initial_full_sync_finished ?? 0;
-		if ( ! syncFinished ) {
-			throw redirect( { to: '/syncing' } );
+		const params = ( search ?? {} ) as DashboardSearch;
+		if ( needsReportDateParamsSeed( params ) ) {
+			/*
+			 * Warm the core `site` record for `useSiteHomeUrl()`; a rejection should
+			 * not error the page since the seed's own dates don't depend on it.
+			 */
+			try {
+				await ensureCoreSettingsReady();
+			} catch {
+				// Proceed with the default seed below.
+			}
+
+			/*
+			 * Overlay `normalizeReportParams` onto `params`, not replace it — a raw
+			 * default would force `comp=1` onto a custom deep-link and drop `section`.
+			 */
+			const seeded: Record< string, unknown > = {
+				...params,
+				...normalizeReportParams( params as Parameters< typeof normalizeReportParams >[ 0 ] ),
+			};
+
+			throw redirect( {
+				to: '/',
+				replace: true,
+				/*
+				 * The router is built dynamically, so '/' has no typed search schema
+				 * (TanStack widens it to `never`); cast as the routing package does.
+				 */
+				search: seeded as unknown as never,
+			} );
 		}
 
-		const coreSelect = select( coreStore ) as unknown as {
-			getEntityConfig: ( kind: string, name: string ) => unknown;
-		};
-		if ( coreSelect.getEntityConfig( 'root', 'widgetModule' ) ) {
-			return;
-		}
-
-		const coreDispatch = dispatch( coreStore ) as unknown as {
-			addEntities: ( entities: object[] ) => void;
-		};
-		coreDispatch.addEntities( [
-			{
-				name: 'widgetModule',
-				kind: 'root',
-				key: 'name',
-				baseURL: `/${ DASHBOARD_REST_NAMESPACE }/widget-modules`,
-				plural: 'widgetModules',
-				label: __( 'Widget modules', 'jetpack-premium-analytics' ),
-				supportsPagination: false,
-			},
-		] );
+		ensureDashboardEntities();
 	},
 };

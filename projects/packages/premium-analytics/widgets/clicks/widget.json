@@ -1,0 +1,16 @@
+{
+	"name": "jpa/clicks",
+	"title": "Top links clicked",
+	"description": "Most clicked external links on your site.",
+	"help": {
+		"content": "The external links your visitors clicked most often, sorted by clicks.",
+		"links": [
+			{
+				"label": "Learn more",
+				"href": "https://jetpack.com/support/jetpack-stats/"
+			}
+		]
+	},
+	"category": "traffic",
+	"presentation": "framed"
+}

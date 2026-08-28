@@ -65,7 +65,7 @@ The simplest bar chart requires only a `data` prop with categorical data:
 - **`width`**: Chart width in pixels. When omitted, fills parent container width
 - **`height`**: Chart height in pixels (defaults to 400). When omitted, fills parent container height
 - **`margin`**: Custom chart margins
-- **`aspectRatio`**: Height as a fraction of width (e.g., `0.5` = 50% height). When omitted, fills parent container height
+- **`aspectRatio`**: Height-to-width ratio (e.g. `0.5`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
 - **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
 - **`resizeDebounceTime`**: Debounce delay for resize events in ms (default: `300`)
 
@@ -80,6 +80,7 @@ The simplest bar chart requires only a `data` prop with categorical data:
 **Legend:**
 - **`showLegend`**: Display chart legend (`false` by default)
 - **`legend`**: Legend configuration object (`ChartLegendConfig`) for controlling orientation, position, alignment, shape, interactivity, and styling
+- **`defaultHiddenSeries`**: Series labels hidden from the first defined value; later values for the same `chartId` are ignored
 
 **Advanced:**
 - **`options`**: Advanced axis and scale configuration
@@ -164,7 +165,7 @@ The component handles large numbers of series gracefully with automatic color cy
 
 Add a comparison series — for example "this period vs. previous period" — by giving a series `options.type: 'comparison'`. It renders as a translucent "shadow" bar centered **behind** the primary series that shares its `group`. The shadow is wider than the primary bar (the primary is narrowed) so it peeks on each side and above, while a small gap is kept between series and a larger gap between ticks.
 
-<Canvas of={ BarChartStories.Comparison } />
+<Canvas of={ BarChartStories.ComparisonSingle } />
 
 <Source
 	language="jsx"
@@ -188,7 +189,7 @@ Add a comparison series — for example "this period vs. previous period" — by
 
 It composes with grouped bars: pair each primary series with its own `type: 'comparison'` series of the same `group`, and the groups render side by side, each with its own shadow.
 
-<Canvas of={ BarChartStories.ComparisonGroups } />
+<Canvas of={ BarChartStories.ComparisonMulti } />
 
 **Notes:**
 
@@ -196,6 +197,8 @@ It composes with grouped bars: pair each primary series with its own `type: 'com
 - Comparison values are included in the value-axis domain, so a previous period taller than the current one is never clipped.
 - Comparison series must reuse the primary series' category keys (the `label`/`date` of each point) so each shadow lines up with its primary bar.
 - The comparison shadow isn't a separate hover/keyboard target (the primary bar drives interaction), but the tooltip shows both the current and previous period values for the hovered category.
+- Each series gets its own legend item by default. Set `legend.collapseGroups` to render one item per group, labelled by its primary series; combined with `legend.interactive`, clicking that item toggles the primary and its previous-period series together. When every series is hidden, the axes are dropped and only the empty state is shown.
+- Collapsing the legend requires the primary and its comparison series to share a `group`. This is stricter than the bars themselves: rendering pairs a comparison with the sole primary even when `group` is omitted, but the legend has no single-primary fallback, so without a shared `group` the pair keeps separate legend items.
 - With pattern fills enabled (`withPatterns`), the comparison shadow reuses its primary bar's pattern at the same reduced opacity, so the pair reads as one series.
 - Styling comes from the theme at `barChart.barStyles.comparison`. `widthFactor` (default `1.5`) controls how much wider the comparison bar is than the primary — the primary is narrowed to `1 / widthFactor` of the slot — and `opacity` (default `0.5`) sets the shadow translucency.
 
@@ -241,6 +244,38 @@ Values are automatically formatted as:
 Bar charts support both categorical labels and time-series data:
 
 <Canvas of={ BarChartStories.TimeSeries } />
+
+Date-based series pick their default tick format from the data's bucket resolution and
+overall span, the same way line and area charts do. Month-or-coarser buckets follow the
+resolution alone — month names with the year at January, or plain years for yearly buckets
+— since they carry no day to print at any span. Daily-or-finer buckets narrow with the
+span: hour ticks within a day, hour ticks dated at midnight for sub-daily data spanning up
+to a week, calendar dates within a year, and years beyond that. An explicit
+`options.axis.x.tickFormat` still overrides (`axis.y` on a horizontal chart).
+
+Because bars sit on a band scale, which has no ticks of its own, the tick values are
+chosen rather than sampled evenly by index — otherwise the axis would routinely skip the
+bucket that prints the year or dates the day, and could repeat a label. Over spans long
+enough that nothing closer together reaches a boundary, the ticks fall on whole days or
+whole years instead. `numTicks` caps how many it picks.
+
+<Canvas of={ BarChartStories.TimeAxisTickFormats } />
+
+Default tooltip labels name the hovered bar's bucket, spelled out in full:
+`August 2, 2026 at 6 AM` for hourly buckets, `August 2, 2026` for daily ones,
+`August 2026` for monthly, `2026` for yearly, and `Week of January 12, 2026` for weekly.
+A monthly bar reads `August 2026` rather than `August 1, 2026` — the day is precision the
+bucket doesn't carry. The tooltip always names the bucket's own granularity, so it stays
+finer than the ticks whenever the span coarsens the axis.
+
+When the bucket resolution is already known — from a granularity selector, say — declare it
+with `options.axis.x.tickResolution` (`axis.y` on a horizontal chart) instead of leaving the
+chart to infer it from point spacing. Two cases need it: a single-bucket series, which has
+no spacing to measure, and weekly buckets, whose seven-day spacing is indistinguishable from
+sparse daily data — undeclared, they are read as daily and the tooltip names one day instead
+of the week.
+
+<Canvas of={ BarChartStories.TimeAxisTickResolution } />
 
 <Source
 	language="jsx"
@@ -352,17 +387,33 @@ Use the composition API to add a legend by placing `<BarChart.Legend />` as a ch
 
 For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
 
+Use `defaultHiddenSeries` to hide selected series initially while keeping them available through an interactive legend. The first defined list is used; later values for the same `chartId` are ignored. The defaults are seeded once per `chartId`, so a series the reader reveals stays revealed even if the chart unmounts and comes back — swapping between chart types, or a tab the chart lives in going away and returning. Only a new `chartId` seeds again.
+
+<Canvas of={ BarChartStories.WithDefaultHiddenSeries } />
+
 ## Theming Integration
 
-Bar Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+Bar Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+
+**Series colors come from the palette custom properties, not the theme object.** Set as many of the five slots as you need; an unset slot is skipped, and charts generates accessible colors beyond whatever you set:
+
+<Source
+	language="css"
+	code={ `.a8c-charts-scope {
+		--a8c-charts-color-series-1: #FF6B6B;
+		--a8c-charts-color-series-2: #4ECDC4;
+		--a8c-charts-color-series-3: #45B7D1;
+	}` }
+/>
+
+Everything else is set by wrapping your chart in `GlobalChartsProvider` and passing a theme object with the properties you want to override to the `theme` prop:
 
 <Source
 	language="tsx"
 	code={ `import { GlobalChartsProvider, BarChart, type ChartTheme } from '@automattic/charts';
 
 	const customTheme: ChartTheme = {
-		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
-		gridColor: '#E0E0E0',
+		gridStyles: { stroke: '#E0E0E0' },
 	};
 
 	<GlobalChartsProvider theme={customTheme}>
@@ -383,7 +434,7 @@ By default, charts **fill their parent container's dimensions**. The parent must
 		<BarChart data={data} />
 	</div>
 
-	// Use aspect ratio - height calculated from width
+	// Use aspect ratio - height from width, contained if the parent is shorter
 	<div style={{ width: '100%' }}>
 		<BarChart data={data} aspectRatio={0.5} />
 	</div>

@@ -14,17 +14,12 @@ import {
 	type PresetType,
 	type ReportParams,
 } from '../utils';
+import { getStoreInfo } from './store-info';
 
 const DEFAULT_PRESET: PresetType = 'last-30-days';
 
 /**
- * Pick the default date-range preset based on how long
- * the store has been live.
- *
- * - Not launched / unknown → last-30-days (safe default)
- * - Launched today         → today
- * - Launched ≤ 7 days ago  → last-7-days
- * - Launched > 7 days ago  → last-30-days
+ * Pick the default date-range preset based on how long the store has been live.
  */
 export function getDefaultPreset( launchedDate?: string ): PresetType {
 	if ( ! launchedDate ) {
@@ -47,21 +42,21 @@ export function getDefaultPreset( launchedDate?: string ): PresetType {
 }
 
 /**
- * Build report query parameters (from, to, interval, preset)
- * for the given date-range preset. Defaults to `last-30-days`.
+ * The report params a widget that owns its date range starts on.
  *
- * Callers that need a dynamic default (e.g. based on store
- * age) should resolve the preset externally and pass it in.
+ * A preset alone, so `normalizeReportParams` recomputes its moving end on every
+ * load rather than freezing the dates the module was built on.
+ */
+export function getDefaultReportParams(): { preset: PresetType } {
+	return { preset: getDefaultPreset( getStoreInfo().launchedDate ) };
+}
+
+/**
+ * Build report query parameters for the given preset, optionally with the
+ * previous-period comparison range.
  */
 export const getDefaultQueryParams = (
-	/**
-	 * Include previous-period comparison range.
-	 */
 	withComparison: boolean = false,
-
-	/**
-	 * Date-range preset. Defaults to `last-30-days`.
-	 */
 	preset: PresetType = DEFAULT_PRESET
 ): ReportParams => {
 	const range = computeDateRangeFromPreset( preset );
@@ -72,7 +67,7 @@ export const getDefaultQueryParams = (
 
 	const { from: fromString, to: toString } = range;
 
-	const interval = getDefaultIntervalForPeriod( undefined, fromString, toString );
+	const interval = getDefaultIntervalForPeriod( preset, fromString, toString );
 
 	if ( ! withComparison ) {
 		return {

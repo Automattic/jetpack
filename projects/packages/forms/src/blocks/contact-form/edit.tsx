@@ -16,7 +16,8 @@ import {
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import {
-	Notice,
+	Button,
+	Notice as CoreNotice,
 	PanelBody,
 	TextareaControl,
 	TextControl,
@@ -27,9 +28,17 @@ import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useRef, useEffect, useCallback, lazy, Suspense, useState } from '@wordpress/element';
+import {
+	useRef,
+	useEffect,
+	useCallback,
+	lazy,
+	Suspense,
+	useState,
+	createInterpolateElement,
+} from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Link, Notice } from '@wordpress/ui';
 import clsx from 'clsx';
 /*
  * Internal dependencies
@@ -41,32 +50,34 @@ import {
 	PREVIOUS_BUTTON_TEMPLATE,
 	NEXT_BUTTON_TEMPLATE,
 	NAVIGATION_TEMPLATE,
-} from '../form-step-navigation/edit.js';
-import StepControls from '../shared/components/form-step-controls/index.js';
-import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-responses-settings.js';
+} from '../form-step-navigation/edit.jsx';
+import StepControls from '../shared/components/form-step-controls/index.jsx';
+import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-responses-settings.jsx';
 import { useFindBlockRecursively } from '../shared/hooks/use-find-block-recursively.js';
 import useFormSteps from '../shared/hooks/use-form-steps.js';
-import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes.js';
-import { CORE_BLOCKS, FORM_POST_TYPE } from '../shared/util/constants.js';
+import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes.jsx';
+import { CORE_BLOCKS, FIELD_BLOCK_PREFIX, FORM_POST_TYPE } from '../shared/util/constants.js';
 import { childBlocks } from './child-blocks.js';
 import { ConvertFormToolbar } from './components/convert-form-toolbar.tsx';
 import FormStatusNotice from './components/form-status-notice.tsx';
-import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder.js';
-import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.js';
-import NotificationsSettings from './components/notifications-settings.js';
-import WebhooksSettings from './components/webhooks-settings.js';
+import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder.jsx';
+import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.jsx';
+import NotificationsSettings from './components/notifications-settings.jsx';
+import WebhooksSettings from './components/webhooks-settings.jsx';
 import WidgetEditorReadonlyView from './components/widget-editor-readonly-view.tsx';
 import { useCreateSyncedFormOnInsertion } from './hooks/use-create-synced-form-on-insertion.ts';
 import { useSyncedFormAutoSave } from './hooks/use-synced-form-auto-save.ts';
 import { useSyncedFormLoader } from './hooks/use-synced-form-loader.ts';
 import { useSyncedForm } from './hooks/use-synced-form.ts';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults.js';
+import { getAutoRecipient } from './util/auto-recipient.ts';
 import { getEditorContext } from './util/get-editor-context.ts';
-import VariationPicker from './variation-picker.js';
+import { isCollectingResponses } from './util/is-collecting-responses.ts';
+import VariationPicker from './variation-picker.jsx';
 
 import './util/form-styles.js';
 
-const IntegrationControls = lazy( () => import( './components/jetpack-integration-controls.js' ) );
+const IntegrationControls = lazy( () => import( './components/jetpack-integration-controls.jsx' ) );
 
 // Transforms
 const FormTransitionState = {
@@ -110,7 +121,30 @@ const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( CORE_BLOCKS ).filter(
 	block => ! REMOVE_FIELDS_FROM_FORM.includes( block )
 );
 
-const PRIORITIZED_INSERTER_BLOCKS = [ ...validFields.map( block => `jetpack/${ block.name }` ) ];
+// Fields surfaced first in the block inserter. The quick inserter (the inline
+// "+" inside a form) shows only the first 6 prioritized blocks, and that
+// prioritized order fully overrides Gutenberg's usage-based "most used"
+// ranking. Deriving the order from child-blocks.js alone buried the most
+// commonly used fields (Name, Email, Textarea…) past the 6-item cutoff while
+// surfacing incidental ones like Hidden. List the common fields explicitly
+// here; the remaining valid fields follow in their child-blocks.js order. See
+// DSGCOM-690.
+const FEATURED_INSERTER_FIELDS = [
+	'jetpack/field-name',
+	'jetpack/field-email',
+	'jetpack/field-textarea',
+	'jetpack/field-text',
+	'jetpack/field-telephone',
+	'jetpack/field-select',
+];
+
+const PRIORITIZED_INSERTER_BLOCKS = ( () => {
+	const validFieldNames = validFields.map( block => `jetpack/${ block.name }` );
+	return [
+		...FEATURED_INSERTER_FIELDS.filter( name => validFieldNames.includes( name ) ),
+		...validFieldNames.filter( name => ! FEATURED_INSERTER_FIELDS.includes( name ) ),
+	];
+} )();
 
 // Determine if a block has a required attribute. Exclude hidden fields.
 const isInputWithRequiredField = ( fullName?: string ): boolean => {
@@ -312,6 +346,14 @@ function JetpackContactFormEdit( {
 		[ clientId, syncedFormBlocks ]
 	);
 
+	const formBlockDefaults = window.jpFormsBlocks?.defaults || {};
+	const autoRecipient = getAutoRecipient( {
+		serverSource: formBlockDefaults.toSource,
+		serverAddress: formBlockDefaults.to,
+		postAuthorEmail,
+		isStandaloneForm: isJetpackFormEditor,
+	} );
+
 	useEffect( () => {
 		if ( submitButton && ! submitButton.attributes.lock ) {
 			const lock = { move: false, remove: true };
@@ -448,7 +490,7 @@ function JetpackContactFormEdit( {
 	);
 
 	// Sync synced form content INTO the editor (one-time on ref change)
-	const { isSyncingRef } = useSyncedFormLoader( {
+	const { isSyncingRef, syncGeneration } = useSyncedFormLoader( {
 		ref,
 		syncedFormBlocks,
 		syncedFormAttributes,
@@ -466,6 +508,7 @@ function JetpackContactFormEdit( {
 		attributes,
 		currentInnerBlocks,
 		isSyncingRef,
+		syncGeneration,
 		editEntityRecord,
 	} );
 
@@ -568,7 +611,7 @@ function JetpackContactFormEdit( {
 		const findFields = ( blockList: typeof currentInnerBlocks ) => {
 			blockList.forEach( block => {
 				// Check if block is a field (has jetpack/field- prefix)
-				if ( block.name.startsWith( 'jetpack/field-' ) ) {
+				if ( block.name.startsWith( FIELD_BLOCK_PREFIX ) ) {
 					fieldBlocks.push( block );
 				}
 				// Recursively check inner blocks (for multistep forms)
@@ -1075,9 +1118,9 @@ function JetpackContactFormEdit( {
 				? __( "You don't have permission to edit this form.", 'jetpack-forms' )
 				: _x( 'The referenced form could not be found.', 'synced form error', 'jetpack-forms' );
 		elt = (
-			<Notice status="warning" isDismissible={ false }>
+			<CoreNotice status="warning" isDismissible={ false }>
 				{ errorMessage }
-			</Notice>
+			</CoreNotice>
 		);
 	}
 	// In widget editor, synced forms (with ref) are not editable
@@ -1138,6 +1181,41 @@ function JetpackContactFormEdit( {
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
 				</BlockControls>
 				<InspectorControls>
+					{ ! isCollectingResponses( attributes ) && (
+						<Notice.Root intent="warning" className="jetpack-contact-form__not-collecting-notice">
+							<Notice.Title>
+								{ __( 'This form isn’t collecting responses', 'jetpack-forms' ) }
+							</Notice.Title>
+							<Notice.Description>
+								{ createInterpolateElement(
+									__(
+										'Turn on <email>email notifications</email> or <storage>response storage</storage> settings to start collecting.',
+										'jetpack-forms'
+									),
+									{
+										email: (
+											<Button
+												variant="link"
+												onClick={ () =>
+													setOpenPanels( prev => ( { ...prev, 'form-notifications': true } ) )
+												}
+												children={ null }
+											/>
+										),
+										storage: (
+											<Button
+												variant="link"
+												onClick={ () =>
+													setOpenPanels( prev => ( { ...prev, 'responses-storage': true } ) )
+												}
+												children={ null }
+											/>
+										),
+									}
+								) }
+							</Notice.Description>
+						</Notice.Root>
+					) }
 					<PanelBody
 						title={ __( 'Action after submit', 'jetpack-forms' ) }
 						initialOpen={ false }
@@ -1236,15 +1314,12 @@ function JetpackContactFormEdit( {
 							emailSubject={ subject }
 							emailNotifications={ emailNotifications }
 							instanceId={ instanceId }
-							postAuthorEmail={ postAuthorEmail }
+							autoRecipient={ autoRecipient.address }
+							autoRecipientSource={ autoRecipient.source }
+							autoSubject={ formBlockDefaults.subject || '' }
 							setAttributes={ setAttributes }
 						/>
 					</PanelBody>
-					{ isIntegrationsEnabled && showBlockIntegrations && (
-						<Suspense fallback={ <div /> }>
-							<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
-						</Suspense>
-					) }
 					{ showWebhooks && (
 						<PanelBody
 							title={ __( 'Webhooks', 'jetpack-forms' ) }
@@ -1276,6 +1351,21 @@ function JetpackContactFormEdit( {
 						/>
 					</PanelBody>
 				</InspectorControls>
+
+				{ /* A sibling of InspectorControls, not a child of it: IntegrationControls owns
+				     its own inspector fill, and its other half -- a toolbar button and the dialog
+				     that button opens -- must stay outside one. See the component for why.
+
+				     Gated on selection because it is lazy(): rendered unconditionally, the
+				     import fires on the block's first render, pulling ~30KB gz of chunk into
+				     editor boot for a UI that nothing can reach until the block is selected.
+				     Both halves render nothing when it isn't, so this costs no behaviour. */ }
+				{ isIntegrationsEnabled && showBlockIntegrations && isFormOrChildSelected && (
+					<Suspense fallback={ <div /> }>
+						<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
+					</Suspense>
+				) }
+
 				<InspectorAdvancedControls>
 					<TextControl
 						label={ __( 'Accessible name', 'jetpack-forms' ) }

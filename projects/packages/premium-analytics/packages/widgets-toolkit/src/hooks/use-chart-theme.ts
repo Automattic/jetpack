@@ -2,17 +2,10 @@
  * External dependencies
  */
 import { useMemo } from 'react';
-import { WOO_COLORS } from '../constants';
-import { useColorPreference } from './use-color-preference';
-import type { ChartTheme } from '@automattic/charts';
+import type { ChartTheme } from '@jetpack-premium-analytics/externals';
 
 /**
- * Internal dependencies
- */
-
-/**
- * Extended chart theme with analytics-specific properties.
- * Extends the base ChartTheme from @automattic/charts.
+ * The `@automattic/charts` theme plus the analytics-specific properties.
  */
 export type WooChartTheme = ChartTheme & {
 	leaderboardChart: ChartTheme[ 'leaderboardChart' ] & {
@@ -21,21 +14,11 @@ export type WooChartTheme = ChartTheme & {
 };
 
 export function useChartTheme(): WooChartTheme {
-	const { preferences } = useColorPreference();
-
 	return useMemo( () => {
-		// If the user is using a custom color theme, use colors generated from the design system accent
-		// color token, otherwise use the default analytics theme colors.
-		const colors =
-			preferences.interfaceTheme === 'custom'
-				? [ '--wpds-color-fg-interactive-brand' ]
-				: WOO_COLORS;
-
 		return {
-			backgroundColor: 'var(--wpds-color-bg-surface-neutral-strong)',
-			labelBackgroundColor: 'var(--wpds-color-bg-interactive-neutral-weak)',
-			labelTextColor: 'var(--wpds-color-fg-interactive-neutral-strong)',
-			colors,
+			backgroundColor: 'var(--wpds-color-background-surface-neutral-strong)',
+			labelBackgroundColor: 'var(--wpds-color-background-interactive-neutral-weak)',
+			labelTextColor: 'var(--wpds-color-foreground-interactive-neutral-strong)',
 			gridStyles: {
 				stroke: 'var(--wpds-color-stroke-surface-neutral)',
 				strokeWidth: 1,
@@ -43,8 +26,11 @@ export function useChartTheme(): WooChartTheme {
 			tickLength: 4,
 			gridColor: '',
 			gridColorDark: '',
+			// `fontSize` is load-bearing: it must stay a plain number, since resolveFontSize()
+			// rejects var() — without it visx falls back to 11 and margin/pie-label sizing break.
 			svgLabelSmall: {
-				fill: 'var(--wpds-color-fg-content-neutral-weak)',
+				fill: 'var(--wpds-color-foreground-content-neutral)',
+				fontSize: 12,
 			},
 			xTickLineStyles: { stroke: '' },
 			xAxisLineStyles: {
@@ -55,7 +41,7 @@ export function useChartTheme(): WooChartTheme {
 				labelStyles: {
 					fontSize: 'var(--wpds-typography-font-size-sm)',
 					fontWeight: 400,
-					color: 'var(--wpds-color-fg-content-neutral)',
+					color: 'var(--wpds-color-foreground-content-neutral)',
 				},
 				containerStyles: {
 					rowGap: 'var( --wpds-dimension-padding-sm )',
@@ -72,20 +58,20 @@ export function useChartTheme(): WooChartTheme {
 				],
 			},
 			leaderboardChart: {
-				rowGap: 12,
+				rowGap: 4,
 				columnGap: 4,
-				labelSpacing: 1.5,
-				barBorderRadius: 'var(--wpds-border-radius-md)',
+				labelSpacing: 'xs',
+				barBorderRadius: 'var(--wpds-border-radius-lg)',
 				deltaColors: [
-					'var(--wpds-color-fg-content-error-weak)',
-					'var(--wpds-color-fg-content-neutral)',
-					'var(--wpds-color-fg-content-success-weak)',
+					'var(--wpds-color-stroke-surface-error-strong)',
+					'var(--wpds-color-foreground-content-neutral-weak)',
+					'var(--wpds-color-stroke-surface-success-strong)',
 				] as [ string, string, string ], // [ negative, neutral, positive ]
 			},
 			conversionFunnelChart: {
-				backgroundColor: 'var(--wpds-color-bg-surface-brand)',
-				positiveChangeColor: 'var(--wpds-color-fg-content-success-weak)',
-				negativeChangeColor: 'var(--wpds-color-fg-content-error-weak)',
+				backgroundColor: 'var(--wpds-color-background-surface-brand)',
+				positiveChangeColor: 'var(--wpds-color-foreground-content-success-weak)',
+				negativeChangeColor: 'var(--wpds-color-foreground-content-error-weak)',
 			},
 			lineChart: {
 				lineStyles: {
@@ -110,5 +96,5 @@ export function useChartTheme(): WooChartTheme {
 				},
 			],
 		};
-	}, [ preferences.interfaceTheme ] );
+	}, [] );
 }

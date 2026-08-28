@@ -5,6 +5,108 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2026-08-25
+### Changed
+- Update dependencies. [#51456]
+
+## [1.5.0] - 2026-08-20
+### Added
+- Settings: Add an episode limit for the podcast feed. [#51247]
+
+### Changed
+- Distribution: Organize directories by automatic or manual submission, explain disabled actions, and link to live Pocket Casts shows. [#48917]
+- Update dependencies. [#51190]
+- Update package dependencies. [#51399]
+
+### Fixed
+- Feed: Resolve episode media in one batch so large podcast feeds render faster. [#51250]
+- Feed: Speed up podcast feed generation on large catalogues. [#51211]
+
+## [1.4.4] - 2026-08-10
+### Changed
+- Update package dependencies. [#50509]
+
+## [1.4.3] - 2026-08-03
+### Fixed
+- Clarify that the dashboard sets up podcasting rather than enabling it a second time. [#51003]
+- Fix the plan upgrade buttons linking to a checkout page the site owner cannot access. [#51006]
+- Settings: Align setup checklist wording with the controls it points to. [#50862]
+- Settings: Lock controls while a save is in progress so quick edits aren't lost. [#51004]
+
+## [1.4.2] - 2026-07-27
+### Changed
+- Update dependencies. [#50719]
+- Update package dependencies. [#50751]
+
+## [1.4.1] - 2026-07-20
+### Changed
+- Update dependencies.
+
+## [1.4.0] - 2026-07-16
+### Added
+- Podcast Episode: add editor controls for soundbites and alternate audio/video files, so the front-end seek buttons and Podcasting 2.0 feed tags that already render can now be authored.
+
+### Changed
+- Podcast: remove the unused `Episode_Block_Tags::render()` seam; production and tests compose `get_block_attrs()` + `render_from_attrs()` directly. No behavior change.
+- Podcast Episode: the rich player is now a paid feature, gated in the editor for sites without a qualifying plan (an upgrade prompt on WordPress.com, hidden on self-hosted Jetpack like other paid blocks).
+- Update package dependencies.
+
+### Removed
+- Podcast: drop the settings-saved analytics event.
+
+### Fixed
+- Podcast: count episodes published with the Podcast Episode block in publish telemetry.
+- Podcast: derive the distribution feed URL from WordPress's canonical category-feed API so it stays valid on plain-permalink and no-trailing-slash sites instead of producing a malformed URL.
+- Podcast: fix hardcoded upsell fallback URL to use the injected upgrade product.
+- Podcast: preload the selected category so the settings picker shows it immediately instead of rendering blank while the category list loads.
+- Podcast: show a clear message when episode play counts can't load, instead of quietly showing zero plays.
+- Podcast feed: fixed missing episode details when the Podcast Episode block sits inside another block.
+- Podcast feed: stop podcast feed pages from showing up short or empty.
+- Podcast stats: fix time-window labels and show a loading state instead of stale numbers when switching periods.
+
+## [1.3.2] - 2026-07-13
+### Changed
+- Stop exposing the `podcasting_*` options through core `/wp/v2/settings`; the dashboard now reads and writes them via the dedicated `wpcom/v2/podcast/settings` endpoint. [#50458]
+- Update package dependencies. [#49272]
+- Update README and MD files. [#50248]
+
+### Fixed
+- Distribution: Mirror the Pocket Casts submission verdict onto the local site options so the dashboard reflects show state on Jetpack/Atomic sites. [#50228]
+- Episode: Render the full player in all contexts (including the RSS feed) so it shows in the WPCOM Reader on Atomic and Jetpack sites, with a linked title and a native media fallback link for clients that strip the player. [#50286]
+- Feed: Emit a single `<enclosure>` per episode when a post has accumulated duplicate enclosure meta rows. [#50331]
+- Include full episode show notes in the feed so podcast apps stop showing blank episodes. [#50312]
+- Load the package whenever the module system initializes it, so self-hosted sites with the module active load the package correctly. [#50242]
+
+## [1.3.1] - 2026-07-06
+### Added
+- Podcast Episode block: Render the full interactive player in the WordPress.com Reader. [#50057]
+
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+### Fixed
+- Dashboard: Improve spacing, CTA sizing, and menu placement. [#50059]
+- Minify JS in production build. [#50130]
+- Welcome screen: Confirm podcasting is included instead of showing an upgrade prompt when the site's plan already covers it. [#50062]
+
+## [1.3.0] - 2026-06-29
+### Changed
+- Centralize podcatcher host allowlist in PHP script data and preload mount-time REST responses to drop first-render round-trips. [#49969]
+- Show a "Connect Jetpack" prompt on Stats and Episodes when the site isn't connected, instead of an upsell or an error. [#49989]
+- Resolve the premium gate over the Jetpack connection so self-hosted Growth sites unlock paid surfaces, and point the upsell at the Growth plan. [#49942]
+- Update package dependencies. [#49271]
+
+### Fixed
+- Don't show the "Connect Jetpack" prompt on Simple and Atomic sites, which have no Jetpack site connection. [#50022]
+
+## [1.2.0] - 2026-06-25
+### Added
+- Register the Podcast submenu under the Jetpack menu on self-hosted sites when the module is active. [#49918]
+
+### Changed
+- Defer podcast REST endpoint instantiation so the endpoint classes only load on REST API requests. [#49803]
+- Update package dependencies. [#49831]
+
 ## [1.1.1] - 2026-06-22
 ### Changed
 - Update the Apple Podcasts category list to match the current taxonomy, validate topic input, and recommend a subcategory when a broad category is selected. [#49789]
@@ -128,6 +230,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dashboard: Replace the wp-build placeholder with page chrome and tab navigation. [#48559]
 - Dashboard: Slim down wp-build wiring to the Backup pattern. [#48600]
 
+[1.5.1]: https://github.com/Automattic/jetpack-podcast/compare/v1.5.0...v1.5.1
+[1.5.0]: https://github.com/Automattic/jetpack-podcast/compare/v1.4.4...v1.5.0
+[1.4.4]: https://github.com/Automattic/jetpack-podcast/compare/v1.4.3...v1.4.4
+[1.4.3]: https://github.com/Automattic/jetpack-podcast/compare/v1.4.2...v1.4.3
+[1.4.2]: https://github.com/Automattic/jetpack-podcast/compare/v1.4.1...v1.4.2
+[1.4.1]: https://github.com/Automattic/jetpack-podcast/compare/v1.4.0...v1.4.1
+[1.4.0]: https://github.com/Automattic/jetpack-podcast/compare/v1.3.2...v1.4.0
+[1.3.2]: https://github.com/Automattic/jetpack-podcast/compare/v1.3.1...v1.3.2
+[1.3.1]: https://github.com/Automattic/jetpack-podcast/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/Automattic/jetpack-podcast/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/Automattic/jetpack-podcast/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/Automattic/jetpack-podcast/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/Automattic/jetpack-podcast/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/Automattic/jetpack-podcast/compare/v1.0.1...v1.0.2

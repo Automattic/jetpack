@@ -6,17 +6,18 @@ import { formatNumber } from '@automattic/number-formatters';
 /**
  * WordPress dependencies
  */
-import {
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { useEvent, useViewportMatch } from '@wordpress/compose';
+import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
+import { useMemo, useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
+import { caution } from '@wordpress/icons';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
-import { Badge, Link, Stack } from '@wordpress/ui';
+import { Badge, Link, Notice, Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -24,8 +25,19 @@ import * as React from 'react';
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
+import { RESPONSES_PER_PAGE, getResponseStatusFilter } from '../../src/dashboard/constants.ts';
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
+import useResponseFieldColumns from '../../src/dashboard/hooks/use-response-field-columns.ts';
+import { writeColumnPreference } from '../../src/dashboard/response-column-preferences.ts';
+import {
+	buildResponseFieldColumns,
+	getFrozenColumnsClassName,
+	getResponseTableView,
+	isSameColumnChoice,
+	keepColumnChoice,
+} from '../../src/dashboard/response-field-columns.tsx';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
+import { getFormEditUrl } from '../../src/dashboard/utils.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import FormsPage from '../../src/dashboard/wp-build/components/page';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
@@ -37,6 +49,7 @@ import './style.scss';
 /**
  * Types
  */
+import type { QueryParams } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../src/types/index.ts';
 import type { View, Field, Action, Operator } from '@wordpress/dataviews';
 
@@ -61,31 +74,19 @@ const defaultLayouts = {
 	list: {},
 };
 
-type QueryParams = {
-	status: string;
-	per_page?: number;
-	page?: number;
-	orderby?: string;
-	order?: string;
-	is_unread?: boolean;
-	is_test?: boolean;
-	parent?: string;
-	source?: string;
-	before?: string;
-	after?: string;
-	search?: string;
-	fields_format?: string;
-};
-
 const DEFAULT_VIEW: View = {
 	type: 'table',
 	filters: [],
-	perPage: 20,
+	perPage: RESPONSES_PER_PAGE,
 	sort: {
 		field: 'date',
 		direction: 'desc',
 	},
 	titleField: 'from',
+	// From is the title column and renders ahead of these; answer columns are slotted
+	// in directly after Date. The order is therefore From, Date, the form's own
+	// fields, Source, IP Address — and Status after those, for anyone who turns it
+	// on, since it is off by default.
 	fields: [ 'date', 'source', 'ip' ],
 };
 
@@ -153,8 +154,12 @@ function StageInner() {
 	const searchParams = useSearch( { from: '/responses/$view' } );
 	const navigate = useNavigate();
 	const statusView = params.view === 'spam' || params.view === 'trash' ? params.view : 'inbox';
-	const statusFilter = statusView === 'inbox' ? 'draft,publish' : statusView;
+	const statusFilter = getResponseStatusFilter( statusView );
 	const dateSettings = getDateSettings();
+	// Matches the width at which boot flips the inspector from a side panel to a
+	// full-screen overlay. Also the width below which the responses table drops every
+	// column but the response and its actions, since it cannot usefully scroll sideways.
+	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
 	const sourceIdValue = ( searchParams as { sourceId?: string | number } )?.sourceId;
 	const sourceIdNumber =
@@ -169,11 +174,21 @@ function StageInner() {
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
+	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 
 	const [ view, setView ] = useState< View >( () => ( {
 		...DEFAULT_VIEW,
 		search: searchParams?.search || '',
 	} ) );
+
+	// The form whose column choice is being read and written, or null on the view
+	// spanning every form.
+	const columnPreferenceFormId = isSingleFormView ? sourceIdNumber : null;
+	// Every answer column currently on offer, kept in a ref because the choice is saved
+	// from `onChangeView`, which is declared before the columns hook runs.
+	const knownAnswerIdsRef = useRef< string[] >( [] );
+	// Every column DataViews has a field for, for the same reason.
+	const knownFieldIdsRef = useRef< Set< string > >( new Set() );
 
 	const selection = useMemo( () => searchParams?.responseIds ?? [], [ searchParams?.responseIds ] );
 	const {
@@ -198,7 +213,27 @@ function StageInner() {
 	}, [ searchParams?.search ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const onChangeView = useCallback(
-		( newView: View ) => {
+		( incomingView: View ) => {
+			const newView = keepColumnChoice(
+				incomingView,
+				view,
+				isMobileViewport,
+				knownFieldIdsRef.current
+			);
+
+			// DataViews reports a column being shown, hidden or moved through here and
+			// keeps nothing itself, so this is the only moment the choice can be saved.
+			// Only when the columns actually changed, though: this same callback carries
+			// every sort, search and page change, and saving on those would both write
+			// constantly and, while a form's responses are still loading, record an empty
+			// set of known answer columns over a choice that names several.
+			if ( ! isSameColumnChoice( newView.fields, view.fields ) ) {
+				writeColumnPreference( columnPreferenceFormId, {
+					fields: newView.fields ?? [],
+					knownAnswerIds: knownAnswerIdsRef.current,
+				} );
+			}
+
 			if ( ! isSingleFormView ) {
 				// If the Folder filter changes (CFM-on behavior), treat it as a route param change.
 				const folderValue =
@@ -229,7 +264,15 @@ function StageInner() {
 				} );
 			}
 		},
-		[ isSingleFormView, navigate, searchParams, statusView, view.search ]
+		[
+			columnPreferenceFormId,
+			isMobileViewport,
+			isSingleFormView,
+			navigate,
+			searchParams,
+			statusView,
+			view,
+		]
 	);
 
 	const onChangeSelection = useCallback(
@@ -243,6 +286,11 @@ function StageInner() {
 		},
 		[ searchParams, navigate ]
 	);
+
+	// Selecting a single response is what both clicking a row and (on small
+	// screens) the View action do. `useEvent` keeps the reference stable so the
+	// memoized row actions don't rebuild every time `searchParams` changes.
+	const selectResponse = useEvent( ( id: string ) => onChangeSelection( [ id ] ) );
 
 	const onStatusChange = useCallback(
 		( nextStatus: 'inbox' | 'spam' | 'trash' ) => {
@@ -278,6 +326,19 @@ function StageInner() {
 			};
 		} );
 	}, [ isSingleFormView, setView, statusView ] );
+
+	// A form's own fields become columns, so a single form's responses can be read
+	// across at a glance. The "All responses" view spans every form and has no
+	// shared field set, so it keeps the built-in columns only.
+	const responseFieldColumns = useResponseFieldColumns( {
+		formId: columnPreferenceFormId,
+		records,
+		setView,
+	} );
+
+	useEffect( () => {
+		knownAnswerIdsRef.current = responseFieldColumns.map( column => column.id );
+	}, [ responseFieldColumns ] );
 
 	const queryParams = useMemo( () => {
 		const queryArgs: QueryParams = {
@@ -517,6 +578,7 @@ function StageInner() {
 				enableSorting: false,
 				enableHiding: false,
 			},
+			...buildResponseFieldColumns( responseFieldColumns ),
 			{
 				id: 'date',
 				type: 'date',
@@ -620,20 +682,42 @@ function StageInner() {
 			dateSettings.formats.datetime,
 			filterOptions,
 			isSingleFormView,
+			responseFieldColumns,
 			totalItemsInbox,
 			totalItemsSpam,
 			totalItemsTrash,
 		]
 	);
 
+	const answerColumnsClassName = getFrozenColumnsClassName(
+		responseFieldColumns,
+		view,
+		isMobileViewport
+	);
+
+	const knownFieldIds = useMemo( () => new Set( fields.map( field => field.id ) ), [ fields ] );
+
+	useEffect( () => {
+		knownFieldIdsRef.current = knownFieldIds;
+	}, [ knownFieldIds ] );
+
+	const viewForDataViews = useMemo(
+		() => getResponseTableView( view, isMobileViewport, knownFieldIds ),
+		[ isMobileViewport, knownFieldIds, view ]
+	);
+
 	const actions = useMemo(
 		() =>
 			getRowActions( {
 				navigate,
-				searchParams,
 				view: statusView,
+				onSelectResponse: isMobileViewport ? selectResponse : undefined,
+				// Pin this list onto links to the standalone response page, so its
+				// prev/next walks the sequence the user is looking at right now —
+				// filters, search and ordering included.
+				pinnedView: queryParams,
 			} ),
-		[ navigate, searchParams, statusView ]
+		[ navigate, statusView, isMobileViewport, selectResponse, queryParams ]
 	);
 
 	const paginationInfo = useMemo(
@@ -669,14 +753,59 @@ function StageInner() {
 		onOpenIntegrations: handleIntegrations,
 	} );
 
+	// On a single-form view, surface a persistent warning when the form isn't
+	// collecting its responses anywhere (email + saving off, no integration).
+	const isFormNotCollecting = useSelect(
+		select => {
+			if ( ! isSingleFormView ) {
+				return false;
+			}
+			const form = select( coreStore ).getEntityRecord(
+				'postType',
+				'jetpack_form',
+				sourceIdNumber,
+				{ context: 'edit' }
+			) as { is_collecting_responses?: boolean } | undefined;
+			return form ? form.is_collecting_responses === false : false;
+		},
+		[ isSingleFormView, sourceIdNumber ]
+	);
+
+	// Link to the form editor, where the author can set up a response destination.
+	const formEditUrl = useMemo(
+		() => getFormEditUrl( sourceIdNumber, adminUrl ),
+		[ adminUrl, sourceIdNumber ]
+	);
+
+	// Whether the form has any stored responses — summed across inbox, spam and
+	// trash, not just the current view, so a form with responses only in spam or
+	// trash still keeps the table (and its status tabs) and gets a banner above it.
+	// These counts carry the active search / read-status filters, so they're only
+	// a reliable "has anything at all" signal when no search or filter is applied —
+	// otherwise a search that matches nothing would read as an empty form.
+	const totalResponseCount =
+		( totalItemsInbox ?? 0 ) + ( totalItemsSpam ?? 0 ) + ( totalItemsTrash ?? 0 );
+	const hasActiveSearchOrFilter = !! view.search || ( view.filters?.length ?? 0 ) > 0;
+	const countsReady = ! isLoadingData && ! isQueryStale;
+	const hasAnyResponses = countsReady && totalResponseCount > 0;
+	// Replace the table with the front-and-center warning only when the form truly
+	// has no responses anywhere — never while a search/filter is narrowing the list,
+	// so real data is never hidden behind the callout.
+	const showNotCollectingCallout =
+		isFormNotCollecting &&
+		isSingleFormView &&
+		countsReady &&
+		! hasActiveSearchOrFilter &&
+		totalResponseCount === 0;
+
 	// Check if read_status filter is applied
 	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
 
 	const onClickItem = useCallback(
 		( item: unknown ) => {
-			onChangeSelection( [ String( ( item as { id: number | string } ).id ) ] );
+			selectResponse( String( ( item as { id: number | string } ).id ) );
 		},
-		[ onChangeSelection ]
+		[ selectResponse ]
 	);
 
 	return (
@@ -691,42 +820,78 @@ function StageInner() {
 			hasPadding={ false }
 			showFooter={ false }
 		>
-			<DataViews
-				empty={
+			{ isFormNotCollecting && hasAnyResponses && (
+				<Notice.Root
+					intent="error"
+					icon={ caution }
+					className="jetpack-forms__not-collecting-banner"
+				>
+					<Notice.Title>
+						{ __( 'This form isn’t collecting responses', 'jetpack-forms' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ __(
+							'New submissions are being dropped because this form has nowhere to send them.',
+							'jetpack-forms'
+						) }
+					</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionLink href={ formEditUrl }>
+							{ __( 'Choose where responses go', 'jetpack-forms' ) }
+						</Notice.ActionLink>
+					</Notice.Actions>
+				</Notice.Root>
+			) }
+			{ showNotCollectingCallout ? (
+				<Stack className="jetpack-forms__not-collecting-callout" align="center" justify="center">
 					<EmptyResponses
-						isSearch={ !! view.search }
+						isSearch={ false }
 						isSingleFormView={ isSingleFormView }
-						readStatusFilter={ readStatusFilter }
 						status={ statusView }
+						isNotCollecting
+						notCollectingEditUrl={ formEditUrl }
 					/>
-				}
-				data={ isQueryStale ? EMPTY_ARRAY : records || EMPTY_ARRAY }
-				fields={ fields as Field< unknown >[] }
-				view={ view }
-				onChangeView={ onChangeView }
-				paginationInfo={ paginationInfo }
-				isLoading={ isLoadingData || isQueryStale }
-				getItemId={ getItemId }
-				defaultLayouts={ defaultLayouts }
-				selection={ selection }
-				onChangeSelection={ onChangeSelection }
-				onClickItem={ onClickItem }
-				actions={ actions as Action< unknown >[] }
-			>
-				<DataViewsHeaderRow
-					activeTab="responses"
-					isSingleFormView={ isSingleFormView }
-					activeStatus={ statusView }
-					statusCounts={ {
-						inbox: totalItemsInbox ?? 0,
-						spam: totalItemsSpam ?? 0,
-						trash: totalItemsTrash ?? 0,
-					} }
-					onStatusChange={ onStatusChange }
-				/>
-				<DataViews.Layout />
-				<DataViews.Footer />
-			</DataViews>
+				</Stack>
+			) : (
+				<DataViews
+					empty={
+						<EmptyResponses
+							isSearch={ !! view.search }
+							isSingleFormView={ isSingleFormView }
+							readStatusFilter={ readStatusFilter }
+							status={ statusView }
+							isNotCollecting={ isFormNotCollecting }
+							notCollectingEditUrl={ formEditUrl }
+						/>
+					}
+					data={ isQueryStale ? EMPTY_ARRAY : records || EMPTY_ARRAY }
+					fields={ fields as Field< unknown >[] }
+					view={ viewForDataViews }
+					onChangeView={ onChangeView }
+					paginationInfo={ paginationInfo }
+					isLoading={ isLoadingData || isQueryStale }
+					getItemId={ getItemId }
+					defaultLayouts={ defaultLayouts }
+					selection={ selection }
+					onChangeSelection={ onChangeSelection }
+					onClickItem={ onClickItem }
+					actions={ actions as Action< unknown >[] }
+				>
+					<DataViewsHeaderRow
+						activeTab="responses"
+						isSingleFormView={ isSingleFormView }
+						activeStatus={ statusView }
+						statusCounts={ {
+							inbox: totalItemsInbox ?? 0,
+							spam: totalItemsSpam ?? 0,
+							trash: totalItemsTrash ?? 0,
+						} }
+						onStatusChange={ onStatusChange }
+					/>
+					<DataViews.Layout className={ answerColumnsClassName } />
+					<DataViews.Footer />
+				</DataViews>
+			) }
 			<IntegrationsModal
 				isOpen={ isIntegrationsModalOpen }
 				onClose={ closeIntegrationsModal }

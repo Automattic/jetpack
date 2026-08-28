@@ -4,7 +4,7 @@ use Automattic\Jetpack\Stats_Admin\TestCase as BaseTestCase;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 class Admin_Post_List_Test extends BaseTestCase {
 	/**
 	 * Get a mock for the WP_Query class.
@@ -50,7 +50,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 
 		// Assert that the 'stats' column is added
 		$this->assertArrayHasKey( 'stats', $columns_with_stats );
-		$this->assertEquals( 'Stats', $columns_with_stats['stats'] );
+		$this->assertEquals( 'Views: 30 days', $columns_with_stats['stats'] );
 	}
 
 	/**
@@ -80,7 +80,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 
 		// Assert that the 'stats' column is added
 		$this->assertArrayHasKey( 'stats', $columns_with_stats );
-		$this->assertEquals( 'Stats', $columns_with_stats['stats'] );
+		$this->assertEquals( 'Views: 30 days', $columns_with_stats['stats'] );
 	}
 
 	/**
@@ -180,6 +180,60 @@ class Admin_Post_List_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that the cell links wherever the URL filter points it.
+	 *
+	 * @return void
+	 */
+	public function test_add_stats_post_table_cell_url_is_filterable() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Filtered Test Post',
+				'post_status' => 'publish',
+				'post_author' => 1,
+			)
+		);
+
+		global $wp_query;
+		$wp_query = $this->get_wp_query_mock( $post_id );
+
+		// Shaped like the real replacement: esc_url() encodes the `&` on output, so
+		// a URL without one would not exercise the cell's escaping at all.
+		$filtered_url = 'https://example.com/wp-admin/admin.php?page=analytics&p=%2Fpost%2F' . $post_id;
+		$received_url = '';
+		$received_id  = 0;
+		$filter       = function ( $url, $url_post_id ) use ( &$received_url, &$received_id, $filtered_url ) {
+			$received_url = $url;
+			$received_id  = $url_post_id;
+			return $filtered_url;
+		};
+		add_filter( 'jetpack_stats_post_list_column_url', $filter, 10, 2 );
+
+		$column_mock = $this->getMockBuilder( Admin_Post_List_Column::class )
+							->onlyMethods( array( 'get_stats' ) )
+							->getMock();
+		$column_mock->method( 'get_stats' )->willReturn(
+			$this->createStub( Automattic\Jetpack\Stats\WPCOM_Stats::class )
+		);
+
+		ob_start();
+		$column_mock->add_stats_post_table_cell( 'stats', $post_id );
+		$output = ob_get_clean();
+
+		remove_filter( 'jetpack_stats_post_list_column_url', $filter, 10 );
+
+		$this->assertStringContainsString(
+			'href="' . $filtered_url . '"',
+			html_entity_decode( $output, ENT_QUOTES, 'UTF-8' ),
+			'The filtered URL has to be the anchor target, not just present somewhere in the cell.'
+		);
+		$this->assertStringContainsString( 'admin.php?page=stats', $received_url, 'The filter receives the unfiltered stats URL.' );
+		$this->assertSame( $post_id, $received_id );
+
+		wp_delete_post( $post_id, true );
+		$wp_query = null;
+	}
+
+	/**
 	 * @return void
 	 */
 	public function test_add_stats_post_table_cell_with_no_stats() {
@@ -220,18 +274,34 @@ class Admin_Post_List_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test the CSS output.
+	 * Test that the column CSS is attached to an enqueued stylesheet on the post list screen.
 	 *
 	 * @return void
 	 */
 	public function test_stats_load_admin_css() {
-		// Capture output from the `stats_load_admin_css` method
-		ob_start();
-		Admin_Post_List_Column::register()->stats_load_admin_css();
-		$output = ob_get_clean();
+		$this->assertTrue( wp_style_is( 'common', 'registered' ), 'The column CSS rides on core\'s common stylesheet.' );
+		wp_styles()->add_data( 'common', 'after', array() );
 
-		// Ensure the correct CSS is outputted for the Stats column width
-		$this->assertStringContainsString( '.fixed .column-stats', $output );
+		Admin_Post_List_Column::register()->stats_load_admin_css( 'edit.php' );
+
+		$this->assertStringContainsString(
+			'.fixed .column-stats',
+			implode( '', wp_styles()->get_data( 'common', 'after' ) )
+		);
+	}
+
+	/**
+	 * Test that the column CSS is not added to admin screens without the post list.
+	 *
+	 * @return void
+	 */
+	public function test_stats_load_admin_css_is_limited_to_the_post_list() {
+		$this->assertTrue( wp_style_is( 'common', 'registered' ), 'The column CSS rides on core\'s common stylesheet.' );
+		wp_styles()->add_data( 'common', 'after', array() );
+
+		Admin_Post_List_Column::register()->stats_load_admin_css( 'index.php' );
+
+		$this->assertSame( array(), wp_styles()->get_data( 'common', 'after' ) );
 	}
 
 	/**

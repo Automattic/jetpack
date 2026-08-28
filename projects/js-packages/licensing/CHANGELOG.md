@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.2.71 - 2026-08-20
+### Changed
+- Update dependencies. [#51015]
+
+## 1.2.70 - 2026-08-19
+### Changed
+- Update dependencies. [#51015]
+
+## 1.2.69 - 2026-08-13
+### Changed
+- Update dependencies. [#51015]
+
+## 1.2.68 - 2026-08-10
+### Changed
+- Update package dependencies. [#50509]
+
+## 1.2.67 - 2026-08-03
+### Changed
+- Update dependencies. [#50824]
+
+## 1.2.66 - 2026-07-27
+### Changed
+- Update dependencies. [#49431]
+
+## 1.2.65 - 2026-07-22
+### Changed
+- Update dependencies. [#49431]
+
+## 1.2.64 - 2026-07-20
+### Changed
+- Update package dependencies. [#50510] [#50529]
+
+## 1.2.63 - 2026-07-13
+### Changed
+- Migrate the license activation screen (button, inputs, and support link) to @wordpress/ui components. [#50348]
+
+## 1.2.62 - 2026-07-09
+### Changed
+- Update package dependencies. [#49272]
+
+## 1.2.61 - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## 1.2.60 - 2026-06-26
+### Changed
+- Internal updates.
+
+## 1.2.59 - 2026-06-25
+### Changed
+- Update dependencies. [#49431]
+
 ## 1.2.58 - 2026-06-24
 ### Changed
 - Internal updates.

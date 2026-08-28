@@ -1,0 +1,24 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-height: 0;
+}
+
+/* Drilled-in group members: a scrollable list of the individual
+   tags/categories. The Stats endpoint reports no per-member views, so these
+   rows are links only, without leaderboard bars. */
+.childList {
+	flex: 1 1 0;
+	min-height: 0;
+	overflow-y: auto;
+}

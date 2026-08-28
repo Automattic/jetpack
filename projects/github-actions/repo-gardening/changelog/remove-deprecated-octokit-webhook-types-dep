@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Replace deprecated `@octokit/webhooks-types` with `@octokit/openapi-webhooks-types`.
+
+
