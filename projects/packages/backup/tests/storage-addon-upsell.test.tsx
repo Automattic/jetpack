@@ -1,12 +1,10 @@
 // Tests for the "add more storage" offer under the Overview's storage
 // meter (JETPACK-2331 / H3c), and for the query that prices it.
 //
-// The meter itself and the readings beside it are covered in
-// `storage-meter.test.tsx` and `storage-usage-details.test.tsx`. This
-// file is about the four things the offer can get wrong in ways nobody
-// would notice: asking the route for a price before it can answer,
-// quoting an amount in the wrong currency, building half a checkout URL,
-// and recording the Tracks event somewhere other than the click.
+// The meter and the readings are covered elsewhere. This file is about the four things
+// the offer can get wrong silently: asking the route for a price before it can answer,
+// quoting the wrong currency, building half a checkout URL, and recording the Tracks
+// event somewhere other than the click.
 
 const mockRecordEvent = jest.fn();
 
@@ -49,9 +47,8 @@ const CRITICAL = { size: 90 * GB, limit: 100 * GB };
  * @return The wrapped tree.
  */
 function Wrapper( { children }: { children: ReactNode } ) {
-	// Held in state rather than rebuilt each render: a fresh client on
-	// every render throws away the cache mid-test, which would make every
-	// "how many requests went out" assertion here meaningless.
+	// Held in state: a fresh client each render throws away the cache mid-test, which
+	// would make every "how many requests went out" assertion meaningless.
 	const [ client ] = useState(
 		() =>
 			new QueryClient( {
@@ -144,17 +141,12 @@ function warning( pattern: RegExp ): Promise< HTMLElement > {
 /**
  * Let whatever the section started finish before asserting an absence.
  *
- * Every "there is no offer link" assertion here is otherwise racing the
- * offer request rather than testing the thing it names. The warning line
- * and the usage reading both render from figures already in hand, so
- * awaiting either returns while `/addon-offer` is still in flight — and
- * "no link yet" is then true for a reason that has nothing to do with
- * the gate. Three separate mutations that wrongly drew a link survived
- * this suite before it was added, including one that quoted `$0.00`.
+ * Every "there is no offer link" assertion is otherwise racing the offer request: the
+ * warning and the reading render from figures already in hand, so awaiting either
+ * returns while `/addon-offer` is still in flight.
  *
- * Two macrotask turns inside `act`: the first lets the mocked response's
- * microtask chain run and React Query commit, the second lets the render
- * it schedules flush.
+ * Two macrotask turns inside `act`: the first lets the mocked response commit, the
+ * second lets the render it schedules flush.
  */
 async function settle(): Promise< void > {
 	await act( async () => {
@@ -175,29 +167,20 @@ beforeEach( () => {
 } );
 
 describe( 'the offer query', () => {
-	// Asserted on the hook rather than through the section, because the
-	// section renders nothing until *both* figures are known — so the
-	// partial case this is about cannot be staged from up there at all.
+	// Asserted on the hook, because the section renders nothing until both figures are
+	// known — so the partial case cannot be staged from up there.
 
 	it( 'asks for nothing until both figures are known', async () => {
-		// Each of the three ways a caller can be partly informed. Under a
-		// gate that fired on either figure this sends two requests —
-		// `…?storage_size=96636764160&storage_limit=` and
-		// `…?storage_size=&storage_limit=107374182400`, both observed —
-		// and neither is a partial answer. The dropped-arg form is a 400;
-		// the empty-value form is worse, because the route's `'type' =>
-		// 'numeric'` is not a WordPress schema type and validates nothing,
-		// so an empty figure is compared against the limit and answered
-		// with the smallest add-on.
+		// The three ways a caller can be partly informed. A gate that fired on either
+		// figure would send a request with one arg empty, and the route's
+		// `'type' => 'numeric'` validates nothing — so it answers with the smallest
+		// add-on rather than refusing.
 		renderHook( () => useStorageAddonOffer( null, null ), { wrapper: Wrapper } );
 		renderHook( () => useStorageAddonOffer( CRITICAL.size, null ), { wrapper: Wrapper } );
 		renderHook( () => useStorageAddonOffer( null, CRITICAL.limit ), { wrapper: Wrapper } );
 
-		// Settled rather than asserted immediately, and deliberately not
-		// `waitFor`: React Query starts a fetch in an effect, and a
-		// `waitFor` on an assertion that already holds returns on its first
-		// pass — so it would report "no request" before an enabled query
-		// had even tried.
+		// Not `waitFor`: React Query starts its fetch in an effect, and a `waitFor` on
+		// an assertion that already holds returns on its first pass.
 		await settle();
 		expect( offerRequests() ).toHaveLength( 0 );
 	} );
@@ -215,11 +198,8 @@ describe( 'the offer query', () => {
 	} );
 
 	it( 'sends a zero usage figure rather than dropping it', async () => {
-		// `apiPath` filters out `undefined` and `''`, and zero is neither.
-		// A freshly connected site reports `size: 0`, and dropping the arg
-		// there would turn a legitimate question into a 400 —
-		// `rest_missing_callback_param`, which is what a `required` arg
-		// gets when it is absent rather than empty.
+		// `apiPath` filters out `undefined` and `''`, and zero is neither. A freshly
+		// connected site reports `size: 0`, where a dropped arg would be a 400.
 		renderHook( () => useStorageAddonOffer( 0, CRITICAL.limit ), { wrapper: Wrapper } );
 
 		await waitFor( () => expect( offerRequests() ).toHaveLength( 1 ) );
@@ -232,8 +212,7 @@ describe( 'when the upsell appears', () => {
 		mockEndpoints( { size: { size: 10 * GB } } );
 		renderWithClient( <StorageSpace /> );
 
-		// Awaited on the reading first, so this is a real absence rather
-		// than an assertion that ran before anything had rendered.
+		// Awaited on the reading first, so this is a real absence.
 		await expect( screen.findByText( /^Using/ ) ).resolves.toBeInTheDocument();
 		await settle();
 		expect( screen.queryByRole( 'link', { name: /additional storage/ } ) ).not.toBeInTheDocument();
@@ -241,9 +220,8 @@ describe( 'when the upsell appears', () => {
 	} );
 
 	it( 'does not even ask for a price while usage is Normal', async () => {
-		// The gate is in the section rather than in the component, so a
-		// site with room to spare never pays for the round trip to
-		// WordPress.com's product catalogue that pricing this costs.
+		// The gate is in the section, so a site with room to spare never pays for the
+		// round trip to WordPress.com's product catalogue.
 		mockEndpoints( { size: { size: 10 * GB } } );
 		renderWithClient( <StorageSpace /> );
 
@@ -265,8 +243,7 @@ describe( 'when the upsell appears', () => {
 
 	it( 'still warns when the offer never arrives', async () => {
 		// Legacy nests the warning inside the checkout button, so a failed
-		// `/addon-offer` leaves a site that is nearly out of storage with
-		// nothing on screen saying so. The two fail separately here.
+		// `/addon-offer` says nothing at all. The two fail separately here.
 		mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
 			const path = options?.path ?? '';
 			if ( path.includes( '/site/backup/addon-offer' ) ) {
@@ -291,11 +268,8 @@ describe( 'when the upsell appears', () => {
 	} );
 
 	it( 'offers no link when the pricing block came back empty', async () => {
-		// `Wpcom_Products::get_product_pricing()` returns `array()` when
-		// the slug is missing from the catalogue, which arrives as a JSON
-		// `[]`. Legacy's `res.pricing &&` guard passes on it — `[]` is
-		// truthy in JavaScript — and it then formats `undefined` as a
-		// price, which the installed formatter renders as `$0.00`.
+		// A slug missing from the catalogue arrives as a JSON `[]`, which legacy's
+		// `res.pricing &&` guard passes — it then formats `undefined` as `$0.00`.
 		mockEndpoints( { offer: { pricing: [] } } );
 		renderWithClient( <StorageSpace /> );
 
@@ -309,12 +283,9 @@ describe( 'when the upsell appears', () => {
 
 describe( 'what the offer says', () => {
 	it( 'quotes a Brazilian site in reais, with no dollar sign anywhere', async () => {
-		// The reason `price.jsx` was not ported. It reads `currencyCode`
-		// off a pricing block whose key is `currency_code`, gets undefined,
-		// and `getCurrencyObject` then falls back to `$` — verified against
-		// the installed formatter. WordPress.com prices this catalogue from
-		// where the *site* appears to be, so that is wrong for every
-		// non-USD site on earth.
+		// Why `price.jsx` was not ported: it reads `currencyCode` off a block keyed
+		// `currency_code` and `getCurrencyObject` falls back to `$`. This catalogue is
+		// priced from where the site appears to be.
 		mockEndpoints( {
 			offer: { pricing: { currency_code: 'BRL', full_price: 44.95, discount_price: 44.95 } },
 		} );
@@ -346,9 +317,8 @@ describe( 'what the offer says', () => {
 	} );
 
 	it( 'ignores a discount that is not one', async () => {
-		// The pricing helper seeds `discount_price` with the full cost, so
-		// the two are equal far more often than not — and a catalogue that
-		// ever sent a higher one must not be allowed to quote it.
+		// The helper seeds `discount_price` with the full cost, so the two are usually
+		// equal — and a catalogue sending a higher one must not quote it.
 		mockEndpoints( {
 			offer: { pricing: { currency_code: 'USD', full_price: 9.95, discount_price: 19.95 } },
 		} );
@@ -358,11 +328,8 @@ describe( 'what the offer says', () => {
 	} );
 
 	it( 'ignores a discount of zero rather than quoting the add-on as free', async () => {
-		// A separate guard from the one above, and a separate failure: a
-		// zero is *lower* than the full price, so the "is this really a
-		// discount" comparison waves it through. What stops it is the
-		// `> 0` test beside it, and without that this button reads
-		// "$0.00/month" for something that costs $9.95.
+		// A separate failure: zero is *lower* than the full price, so the discount
+		// comparison waves it through. Only the `> 0` test stops "$0.00/month".
 		mockEndpoints( {
 			offer: { pricing: { currency_code: 'USD', full_price: 9.95, discount_price: 0 } },
 		} );
@@ -373,8 +340,8 @@ describe( 'what the offer says', () => {
 	} );
 
 	it( 'names the level in the warning it leads with', async () => {
-		// Four levels, four sentences, and the wording is the whole of what
-		// tells "getting close" apart from "backups have stopped".
+		// The wording is the whole of what tells "getting close" apart from "backups
+		// have stopped".
 		mockEndpoints( { size: { size: 70 * GB } } );
 		renderWithClient( <StorageSpace /> );
 
@@ -400,9 +367,8 @@ describe( 'what the offer says', () => {
 	} );
 
 	it( 'reports the floor the plan keeps once backups start being discarded', async () => {
-		// The one level whose sentence is built from
-		// `min_days_of_backups_allowed` rather than the days actually
-		// saved, and the only thing that reads that figure at all.
+		// The one level whose sentence is built from `min_days_of_backups_allowed`
+		// rather than the days actually saved.
 		mockEndpoints( {
 			size: {
 				size: 70 * GB,
@@ -427,16 +393,14 @@ describe( 'the checkout link', () => {
 			`https://wordpress.com/checkout/${ SITE }/jetpack_backup_addon_storage_100gb_monthly`
 		);
 		expect( href.searchParams.get( 'site' ) ).toBe( SITE );
-		// The page the reader is standing on. The modernized dashboard
-		// emits no admin URL, and legacy's rebuilt
-		// `admin.php?page=jetpack-backup` resolves to this same place.
+		// The page the reader is standing on: the modernized dashboard emits no admin
+		// URL, and legacy's rebuilt one resolves to the same place.
 		expect( href.searchParams.get( 'redirect_to' ) ).toBe( window.location.href );
 	} );
 
 	it( 'shows no link at all when the connection global carries no site slug', async () => {
-		// Legacy interpolates whatever it has, producing
-		// `…/checkout/undefined/<product>`. Half a checkout URL is worse
-		// than none: it still looks like a working button.
+		// Legacy interpolates whatever it has, producing `…/checkout/undefined/…`.
+		// Half a checkout URL is worse than none: it still looks like a button.
 		window.JP_CONNECTION_INITIAL_STATE = {
 			...window.JP_CONNECTION_INITIAL_STATE,
 			siteSuffix: undefined,
@@ -463,22 +427,14 @@ describe( 'the Tracks event', () => {
 		renderWithClient( <StorageSpace /> );
 		const link = await offerLink();
 
-		// A plain anchor, so there is no follow-up request to order the
-		// event against — which is how `tracks-events.test.tsx` tells "on
-		// click" from "on success" for the Back up now button. What
-		// distinguishes it here is the window the count is read in: still
-		// inside the click's own propagation, before the browser has been
-		// allowed to leave and before anything asynchronous could have
-		// run. An event moved to a `then`, to a `useEffect`, or to the
-		// offer query's own success path all land outside it.
+		// A plain anchor, so there is no follow-up request to order the event against.
+		// What distinguishes it is the window the count is read in: still inside the
+		// click's own propagation, which an event moved to a `then`, a `useEffect` or
+		// the query's success path all land outside of.
 		//
-		// The probe goes on `document`, not on the link. React 18
-		// dispatches synthetic events from the root container, which sits
-		// below `document` in the propagation path — a listener on the
-		// link itself would run *before* the component's `onClick` and
-		// read zero however the handler was written. `preventDefault` here
-		// still cancels the navigation, which happens only after the event
-		// has finished propagating.
+		// The probe goes on `document`, not the link: React 18 dispatches synthetic
+		// events from the root container, so a listener on the link would run before
+		// the component's `onClick` and read zero however it was written.
 		const countAtClick = new Promise< number >( resolve => {
 			document.addEventListener(
 				'click',
@@ -500,16 +456,9 @@ describe( 'the Tracks event', () => {
 } );
 
 describe( 'a full site that reported no day count', () => {
-	// `getUsageLevel` reaches `Full` two ways: from the branch guarded on
-	// four truthy day counts, and from `100:` in the threshold table,
-	// which needs none of them. Only the second is exercised here, and it
-	// is not exotic — every field of `/site/backup/size` is optional, so
-	// a response carrying `size` and nothing else lands on it.
-	//
-	// Verified before this was written:
-	// `getUsageLevel( 100GB, 100GB, null, null, null, null )` → `'Full'`,
-	// and the section then rendered the heading "Cloud storage full" and
-	// the priced button with no warning line at all.
+	// `getUsageLevel` reaches `Full` two ways, and only the countless one — `100:` in
+	// the threshold table — is exercised here. It is not exotic: every field of
+	// `/site/backup/size` is optional, so a response carrying `size` alone lands on it.
 
 	beforeEach( () => {
 		mockEndpoints( {
@@ -521,10 +470,8 @@ describe( 'a full site that reported no day count', () => {
 	it( 'still says backups have stopped, without inventing a day count', async () => {
 		renderWithClient( <StorageSpace /> );
 
-		// Deliberately anchored: the counted sentence starts the same way
-		// and would satisfy a loose match, so an assertion that did not
-		// pin the ending would pass on "…with null day(s) of backups
-		// saved", which is what legacy prints here.
+		// Deliberately anchored: the counted sentence starts the same way, so a loose
+		// match would pass on legacy's "…with null day(s) of backups saved".
 		await expect(
 			warning(
 				/^You have reached your storage limit\. Backups have been stopped\. Please upgrade your storage to resume backups\.$/
@@ -540,11 +487,9 @@ describe( 'a full site that reported no day count', () => {
 	} );
 
 	it( 'says it even when the offer never arrives', async () => {
-		// The half of this that legacy gets wrong twice over. Its warning
-		// lives inside the checkout button, so no offer means no warning;
-		// and on this path it has no count to put in the warning either.
-		// A site whose backups have stopped would be shown an empty
-		// section.
+		// What legacy gets wrong twice over: its warning lives inside the checkout
+		// button, and on this path it has no count to put in it either — so a site
+		// whose backups have stopped is shown an empty section.
 		mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
 			const path = options?.path ?? '';
 			if ( path.includes( '/site/backup/addon-offer' ) ) {

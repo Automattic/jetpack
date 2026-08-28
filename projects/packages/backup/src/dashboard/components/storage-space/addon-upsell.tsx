@@ -13,38 +13,14 @@ import type { ReactNode } from 'react';
 /**
  * What has gone wrong, in the reader's terms.
  *
- * All four msgids are legacy's, character for character
- * (`storage-addon-upsell-prompt/use-storage-status-text.js`), so they
- * arrive already translated. The "day(s)" and "backup(s)" spellings are
- * legacy's too — worse English than `_n()` would give, but changing them
- * starts a fresh GlotPress cycle for a line the flag-off dashboard is
- * still rendering today.
+ * All four msgids are legacy's character for character, so they arrive translated —
+ * including the "day(s)" spellings, which changing would start a fresh GlotPress cycle
+ * for a line the flag-off dashboard still renders.
  *
- * `Normal` has no line, which is what makes it the level at which this
- * whole component is absent rather than silent.
- *
- * The two day counts are not equally trustworthy, and an earlier version
- * of this file wrongly said they were.
- *
- * `BackupsDiscarded` really does imply a count: it is returned from one
- * place only, inside `getUsageLevel`'s branch guarded on
- * `!! minDaysOfBackupsAllowed && !! daysOfBackupsAllowed &&
- * !! retentionDays && !! daysOfBackupsSaved`, and it is absent from the
- * threshold table that produces every other level. So its `!== null`
- * check below is unreachable, kept only because it is also what narrows
- * the type.
- *
- * `Full` implies nothing of the sort. It appears in that guarded branch
- * and *also* as `100:` in the threshold table, so any site at or over
- * its limit reaches it with no day counts at all —
- * `getUsageLevel( 100GB, 100GB, null, null, null, null )` returns
- * `'Full'`, verified. Every field of `/site/backup/size` is optional, so
- * a response carrying `size` and nothing else is enough. Hence two
- * sentences for that level rather than one: without the countless
- * fallback, a site whose backups have stopped is shown the "add more
- * storage" button with no sentence saying why, and is shown nothing at
- * all if the offer request also fails. Legacy renders this same case as
- * "null day(s) of backups saved".
+ * The two day counts are not equally trustworthy. `BackupsDiscarded` is only ever
+ * returned from a branch that guarantees one. `Full` also appears in the threshold
+ * table, so a site at its limit reaches it with no day counts at all — hence two
+ * sentences for that level. Legacy renders that case as "null day(s) of backups saved".
  *
  * @param usageLevel              - Derived level, or null when it could not be computed.
  * @param daysOfBackupsSaved      - Days of history actually held.
@@ -71,14 +47,12 @@ function statusText(
 	}
 
 	if ( usageLevel === StorageUsageLevels.Full ) {
-		// Two separate `__()` calls in two `return` statements, rather
-		// than one call with the msgid chosen by a ternary: the minifier
-		// factors a shared call out and leaves the msgid a variable, which
-		// the text-domain scanner then drops without saying so.
+		// Two separate `__()` calls rather than one with a ternary msgid: the minifier
+		// factors a shared call out and leaves the msgid a variable, which the
+		// text-domain scanner then drops silently.
 		if ( daysOfBackupsSaved === null ) {
-			// The one string here that is not legacy's, so the one that
-			// waits a GlotPress cycle. It earns that: the alternative on
-			// this path is silence about stopped backups.
+			// The one string here that is not legacy's. It earns its GlotPress cycle:
+			// the alternative on this path is silence about stopped backups.
 			return __(
 				'You have reached your storage limit. Backups have been stopped. Please upgrade your storage to resume backups.',
 				'jetpack-backup-pkg'
@@ -112,20 +86,12 @@ function statusText(
 /**
  * The button's label: how much storage, at what price, on what terms.
  *
- * Legacy's msgid, reused rather than rewritten, so it arrives
- * translated. Its `<Price />` token used to carry a component that split
- * the amount into symbol, integer and fraction for `PricingCard`'s
- * layout; nothing here wants that shape, so the token now carries the
- * finished string `formatCurrency` returns. `createInterpolateElement`
- * keeps the mapped element's own children for a self-closing token —
- * verified by rendering `Add 100GB additional storage for <Price
- * />/month, billed monthly` against `<span>R$44.95</span>` — so the
- * amount survives the substitution.
+ * Legacy's msgid, reused so it arrives translated. Its `<Price />` token now carries
+ * the finished string `formatCurrency` returns rather than the split-out symbol,
+ * integer and fraction `PricingCard` wanted.
  *
- * Never a written currency symbol. `formatCurrency` places the right one
- * for `currencyCode`, which WordPress.com chooses from where the site
- * appears to be: `R$44.95` for a Brazilian site, `¥1,000` for a Japanese
- * one, both verified against the installed formatter.
+ * Never a written currency symbol: `formatCurrency` places the right one for
+ * `currencyCode`, which WordPress.com chooses from where the site appears to be.
  *
  * @param sizeText     - The add-on's size as WordPress.com words it, e.g. `100GB`.
  * @param monthlyPrice - One month of the add-on.
@@ -155,18 +121,12 @@ type Props = {
 /**
  * The offer of more storage, shown once usage leaves `Normal`.
  *
- * Two halves that fail independently, which is the one structural change
- * from legacy. Legacy nests the warning *inside* the checkout button, so
- * a site whose `/addon-offer` request fails is told nothing at all —
- * neither what is wrong nor what to do — on the one screen whose job is
- * to say whether backups are at risk. Here the warning is its own line
- * and renders on the level alone; the priced link renders only when the
- * offer arrives complete.
+ * Two halves that fail independently, which is the one structural change from legacy:
+ * legacy nests the warning inside the checkout button, so a site whose `/addon-offer`
+ * request fails is told nothing at all. Here the warning renders on the level alone.
  *
- * Nothing is rendered at `Normal`. That gate lives in the section rather
- * than here, matching legacy's own `usageLevel !==
- * StorageUsageLevels.Normal` and keeping this component from issuing the
- * offer request on a site that has no reason to see it.
+ * The `Normal` gate lives in the section rather than here, so this component never
+ * issues the offer request on a site with no reason to see it.
  *
  * @param props                         - Component props.
  * @param props.usageLevel              - Derived level driving the warning's wording.
@@ -191,17 +151,11 @@ export default function StorageAddonUpsell( {
 	);
 
 	const recordClick = useCallback( () => {
-		// Recorded on the click, not on arrival at checkout — the event
-		// measures the reader deciding to buy, and there is no later
-		// moment this page ever sees.
+		// On the click rather than on arrival at checkout: the event measures the
+		// reader deciding to buy, and there is no later moment this page sees.
 		//
-		// The `undefined` arm cannot be reached today: the link this fires
-		// from is only drawn when the site slug is known. It is spelled
-		// anyway because the alternative — `{ site }` with `site`
-		// undefined — is a payload reporting the site as the string
-		// `undefined`, and that is the failure mode worth making
-		// impossible rather than merely unlikely. `recordEvent` reads a
-		// missing properties argument as `{}`.
+		// The `undefined` arm is unreachable today, and spelled anyway because the
+		// alternative is a payload reporting the site as the string `undefined`.
 		analytics.tracks.recordEvent(
 			'jetpack_backup_upgrade_storage_prompt_cta',
 			site ? { site } : undefined
@@ -210,11 +164,8 @@ export default function StorageAddonUpsell( {
 
 	const status = statusText( usageLevel, daysOfBackupsSaved, minDaysOfBackupsAllowed );
 
-	// Every part or no link. The slug names the product, the site slug is
-	// half the checkout path, and the two price fields are the whole of
-	// what the label promises — a link missing any of them is either
-	// malformed or dishonest. Spelled as two nullable values rather than
-	// one boolean so the checks are also what narrows the types.
+	// Every part or no link: a link missing any of them is malformed or dishonest.
+	// Two nullable values rather than one boolean, so the checks also narrow the types.
 	const href = slug !== null && site !== undefined ? storageAddonCheckoutUrl( slug, site ) : null;
 	const label =
 		sizeText !== null && monthlyPrice !== null && currencyCode !== null

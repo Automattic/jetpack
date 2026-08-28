@@ -34,20 +34,13 @@ function sectionHeading( usageLevel: StorageUsageLevelName | null ): string {
 /**
  * The forecast worth putting behind an info button, or null for none.
  *
- * Legacy's gate, in one place instead of two: it splits the same
- * decision between the parent (`forecastInDays < planRetentionDays &&
- * usageLevel === Normal`) and the popover's own early return on a falsy
- * forecast. Both halves are here.
+ * Legacy's gate, in one place instead of split between the parent and the popover's own
+ * early return.
  *
- * `Normal` is the whole of the reason this and the upsell never appear
- * together. Above `Normal` the section is already saying storage is
- * running out and offering more of it, and a second, calmer explanation
- * of how many days fit would be arguing with it.
- *
- * The comparison is against what the *plan* promises, not the retention
- * in force. If the site is already holding fewer days than the plan
- * offers, the limit — not the plan — is what is deciding, and that is
- * the only case worth explaining.
+ * The `Normal` check is why this and the upsell never appear together: above `Normal`
+ * the section is already saying storage is running out. The comparison is against what
+ * the *plan* promises rather than the retention in force — if the site holds fewer days
+ * than the plan offers, the limit is what is deciding.
  *
  * @param usageLevel        - Derived level, or null when it could not be computed.
  * @param forecastInDays    - Days of full backups the limit would hold, or null.
@@ -67,12 +60,8 @@ function helpForecast(
 		return null;
 	}
 
-	// A forecast of zero is a real answer — it is what a site whose last
-	// backup is larger than its entire limit looks like — but "we will
-	// keep zero days of backups" is not something an info button beside a
-	// calm meter can usefully explain, so it counts as nothing to say.
-	// Legacy arrives at the same place from the other end: its popover
-	// returns early on any falsy forecast.
+	// A forecast of zero is a real answer — a site whose last backup exceeds its whole
+	// limit — but not one an info button beside a calm meter can usefully explain.
 	return forecastInDays > 0 && forecastInDays < planRetentionDays ? forecastInDays : null;
 }
 
@@ -85,12 +74,9 @@ function helpForecast(
  * meter that means nothing. That silence is deliberate and matches the
  * legacy dashboard's own `storageSize !== null && storageLimit > 0` gate.
  *
- * The two things that hang off the readings are mutually exclusive by
- * construction: the add-on upsell renders above `Normal`, and the help
- * popover only at it. A site therefore sees one explanation of its
- * storage or the other, never both — and only one of them asks
- * `/site/backup/addon-offer`, which is what keeps that request to one
- * per page even though two components can make it.
+ * The upsell renders above `Normal` and the help popover only at it, so a site sees one
+ * explanation or the other — which is what keeps `/site/backup/addon-offer` to one
+ * request per page even though two components can make it.
  *
  * @return The storage section, or null when there is nothing to show.
  */

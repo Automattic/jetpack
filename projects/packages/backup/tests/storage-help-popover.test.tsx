@@ -1,13 +1,10 @@
 // Tests for the storage help popover beside the Overview's usage reading
 // (JETPACK-2332 / H3d).
 //
-// Two things are worth pinning here beyond "it opens". The first is when
-// it appears at all: only where the storage limit, not the plan, is what
-// decides how much history the site keeps. The second is its checkout
-// link, which is where legacy's copy is broken — the slug it interpolates
-// is written only by the `/addon-offer` response, and legacy's only
-// caller of that route renders at usage levels where this popover does
-// not, so the link is built from the store's `null` default every time.
+// Two things are pinned beyond "it opens": when it appears at all — only where the
+// storage limit, not the plan, decides how much history the site keeps — and its
+// checkout link, which legacy builds from a `null` default because its only caller of
+// `/addon-offer` renders at usage levels this popover does not.
 
 const mockRecordEvent = jest.fn();
 
@@ -119,11 +116,9 @@ async function openAndFindCta(): Promise< HTMLElement > {
 /**
  * The forecast sentence, once the popover is open.
  *
- * Found on its opening words rather than on the whole line: the copy
- * wraps the day count in `<strong>`, and Testing Library's text matcher
- * reads only an element's own text nodes — so the sentence is never a
- * single match. Assert the rest with `toHaveTextContent`, which reads
- * the subtree.
+ * Found on its opening words: the copy wraps the day count in `<strong>`, and Testing
+ * Library's matcher reads only an element's own text nodes. Assert the rest with
+ * `toHaveTextContent`.
  *
  * @return The element carrying the sentence.
  */
@@ -134,10 +129,8 @@ function forecastLine(): Promise< HTMLElement > {
 /**
  * Let whatever the popover started finish before asserting an absence.
  *
- * The two paragraphs render from figures already in hand, so awaiting
- * them returns while `/addon-offer` is still in flight — and "there is no
- * checkout link" would then be true for a reason that has nothing to do
- * with the offer. See the same helper in `storage-addon-upsell.test.tsx`.
+ * The two paragraphs render from figures already in hand, so awaiting them returns
+ * while `/addon-offer` is still in flight. See `storage-addon-upsell.test.tsx`.
  */
 async function settle(): Promise< void > {
 	await act( async () => {
@@ -165,29 +158,23 @@ describe( 'when the popover appears', () => {
 	} );
 
 	it( 'says what it is in words, not only to a screen reader', async () => {
-		// The trigger was a bare `ⓘ` carrying its name in `aria-label`,
-		// and every accessible-name assertion in this file passed on that
-		// — which is exactly why this one reads `textContent` instead.
-		// That is the only thing separating a labelled button from a glyph
-		// with a tooltip, and the distinction matters here more than
-		// anywhere else in the section: this renders at the one usage
-		// level where nothing else on screen suggests storage is worth a
-		// thought, so an unlabelled glyph is a feature nobody opens.
+		// Reads `textContent`, because every accessible-name assertion in this file
+		// also passed on the bare `ⓘ` this replaces. Visible words are the only thing
+		// separating a labelled button from a glyph with a tooltip — and this renders
+		// at the one level where nothing else suggests storage is worth a thought.
 		renderWithClient( <StorageSpace /> );
 		const trigger = await screen.findByRole( 'button', TRIGGER );
 
 		expect( trigger ).toHaveTextContent( /^Backup archive size$/ );
 
-		// The visible words *are* the accessible name rather than a second
-		// string beside it, which is WCAG 2.5.3 and the reason the visible
-		// text is this phrase and not a friendlier one of its own.
+		// The visible words *are* the accessible name rather than a second string
+		// beside it, which is WCAG 2.5.3.
 		expect( trigger ).toHaveAccessibleName( 'Backup archive size' );
 	} );
 
 	it( 'says nothing when the plan, not the storage, is what caps it', async () => {
-		// 100GB at 1GB a backup is 100 days against a 30-day plan: the
-		// limit is not the constraint, so there is nothing to explain and
-		// an info button would only invite a question that has no answer.
+		// 100GB at 1GB a backup is 100 days against a 30-day plan: the limit is not
+		// the constraint, so there is nothing to explain.
 		mockEndpoints( { size: { last_backup_size: 1 * GB } } );
 		renderWithClient( <StorageSpace /> );
 
@@ -196,9 +183,8 @@ describe( 'when the popover appears', () => {
 	} );
 
 	it( 'says nothing when the last backup size is unreported', async () => {
-		// No divisor, so no forecast. Legacy folds this into the same zero
-		// it uses for "not even one backup fits", and then hides on the
-		// zero — right answer, but only by accident.
+		// No divisor, so no forecast. Legacy folds this into the same zero it uses for
+		// "not even one backup fits" and hides on it — right answer, by accident.
 		mockEndpoints( { size: { last_backup_size: undefined } } );
 		renderWithClient( <StorageSpace /> );
 
@@ -207,11 +193,8 @@ describe( 'when the popover appears', () => {
 	} );
 
 	it( 'says nothing when not even one backup fits in the limit', async () => {
-		// 100GB of limit at a 200GB backup floors to zero. That is a real
-		// answer rather than a missing one, which is why the forecast is
-		// nullable separately — but "we will keep zero days of backups" is
-		// not something a small info button beside a calm meter can
-		// usefully explain, so it counts as nothing to say.
+		// 100GB of limit at a 200GB backup floors to zero — a real answer rather than
+		// a missing one, but not one a small info button can usefully explain.
 		mockEndpoints( { size: { last_backup_size: 200 * GB } } );
 		renderWithClient( <StorageSpace /> );
 
@@ -220,12 +203,8 @@ describe( 'when the popover appears', () => {
 	} );
 
 	it( 'says nothing when the forecast exactly matches what the plan promises', async () => {
-		// 90GB at 3GB a backup is 30 days against a 30-day plan. The
-		// comparison is strict on purpose: at parity the limit is not
-		// costing the reader anything, so there is no shortfall to
-		// explain. Chosen as round numbers because the boundary is the
-		// whole point — a limit divided by a retention would land on
-		// either side of it depending on floating-point luck.
+		// 90GB at 3GB a backup is 30 days against a 30-day plan. Strict on purpose: at
+		// parity the limit costs the reader nothing, so there is no shortfall.
 		mockEndpoints( {
 			size: { last_backup_size: 3 * GB },
 			policies: { storage_limit_bytes: 90 * GB },
@@ -237,9 +216,8 @@ describe( 'when the popover appears', () => {
 	} );
 
 	it( 'says nothing once the section is already warning about storage', async () => {
-		// Above `Normal` the section is telling the reader storage is
-		// running out and offering more; a second, calmer explanation of
-		// how many days fit would be arguing with it.
+		// Above `Normal` the section is already saying storage is running out; a
+		// calmer explanation of how many days fit would be arguing with it.
 		mockEndpoints( { size: { size: 90 * GB } } );
 		renderWithClient( <StorageSpace /> );
 
@@ -248,10 +226,8 @@ describe( 'when the popover appears', () => {
 	} );
 
 	it( 'starts closed', async () => {
-		// Legacy opens itself the first time any browser loads the
-		// dashboard. `Popover.Popup` takes focus when it opens, so doing
-		// that here would move the keyboard into a panel nobody asked for
-		// during page load.
+		// Legacy auto-opens on first load. `Popover.Popup` takes focus when it opens,
+		// so that would move the keyboard into a panel nobody asked for.
 		renderWithClient( <StorageSpace /> );
 
 		await expect( screen.findByRole( 'button', TRIGGER ) ).resolves.toBeInTheDocument();
@@ -272,9 +248,8 @@ describe( 'what the popover says', () => {
 	} );
 
 	it( 'says "1 day of full backup" rather than "1 days"', async () => {
-		// 100GB of limit at 60GB a backup is one whole day and a
-		// remainder, floored to one. The singular is a separate msgid
-		// rather than a substitution, so nothing else covers it.
+		// Floors to one. The singular is a separate msgid rather than a substitution,
+		// so nothing else covers it.
 		mockEndpoints( { size: { last_backup_size: 60 * GB } } );
 		renderWithClient( <StorageSpace /> );
 		await userEvent.click( await screen.findByRole( 'button', TRIGGER ) );
@@ -299,9 +274,8 @@ describe( 'what the popover says', () => {
 
 describe( 'the popover checkout link', () => {
 	it( 'carries a real product slug rather than an empty one', async () => {
-		// The legacy bug this replaces. Its slug comes from a store slot
-		// only the upsell fills, and the upsell never renders at the level
-		// this popover does — so legacy builds `…/checkout/<site>/null`.
+		// The legacy bug this replaces: its slug comes from a store slot only the
+		// upsell fills, so legacy builds `…/checkout/<site>/null`.
 		renderWithClient( <StorageSpace /> );
 		const href = ( await openAndFindCta() ).getAttribute( 'href' ) as string;
 
@@ -310,9 +284,8 @@ describe( 'the popover checkout link', () => {
 	} );
 
 	it( 'fetches the offer itself rather than waiting for a sibling to', async () => {
-		// The dependency made explicit. Nothing else on this screen asks
-		// for the offer at `Normal`, so if this component did not, the
-		// slug above could only ever arrive by accident.
+		// Nothing else on this screen asks for the offer at `Normal`, so without this
+		// the slug above could only arrive by accident.
 		renderWithClient( <StorageSpace /> );
 		await expect( screen.findByRole( 'button', TRIGGER ) ).resolves.toBeInTheDocument();
 
@@ -326,14 +299,10 @@ describe( 'the popover checkout link', () => {
 	} );
 
 	it( 'keeps its link on a response the upsell would reject', async () => {
-		// The one place the two consumers of `useStorageAddonOffer`
-		// deliberately differ. The upsell needs a size, a price and a
-		// currency for its label, so a priced-slug-without-pricing
-		// response leaves it with no button; this popover's button says
-		// only "Add more storage" and needs nothing but the slug. The hook
-		// carries `slug` and `sizeText` out past its own price check for
-		// exactly this, and dropping them would silently take the button
-		// away here while every other test went on passing.
+		// Where the two consumers of `useStorageAddonOffer` deliberately differ: the
+		// upsell needs a size, a price and a currency for its label, while this button
+		// says only "Add more storage" and needs the slug. The hook carries `slug` and
+		// `sizeText` past its own price check for exactly this.
 		mockEndpoints( { offer: { pricing: [] } } );
 		renderWithClient( <StorageSpace /> );
 
@@ -358,8 +327,7 @@ describe( 'the popover checkout link', () => {
 
 describe( 'the popover Tracks event', () => {
 	it( 'records nothing for opening the popover', async () => {
-		// Legacy records only the purchase click, and so does this. An
-		// event on the toggle would be a different, unregistered one.
+		// Legacy records only the purchase click, and so does this.
 		renderWithClient( <StorageSpace /> );
 		await openAndFindCta();
 
@@ -367,14 +335,12 @@ describe( 'the popover Tracks event', () => {
 	} );
 
 	it( 'records the click itself under its own event name', async () => {
-		// Its own name, not the section upsell's: the two CTAs answer
-		// different questions and legacy counts them separately.
+		// Its own name, not the section upsell's: legacy counts them separately.
 		renderWithClient( <StorageSpace /> );
 		const cta = await openAndFindCta();
 
-		// Read from inside the click's own propagation, before the browser
-		// is allowed to leave — see `storage-addon-upsell.test.tsx` for
-		// why the probe goes on `document` rather than on the link.
+		// Read from inside the click's own propagation — see
+		// `storage-addon-upsell.test.tsx` for why the probe goes on `document`.
 		const countAtClick = new Promise< number >( resolve => {
 			document.addEventListener(
 				'click',
@@ -396,9 +362,8 @@ describe( 'the popover Tracks event', () => {
 	} );
 
 	it( 'omits the site rather than reporting it as the string "undefined"', async () => {
-		// No site slug means no checkout link, so the event is reached
-		// through the same absence the link is — which is the point: there
-		// is no path on which a payload could carry `site: undefined`.
+		// No site slug means no checkout link, so there is no path on which a payload
+		// could carry `site: undefined`.
 		window.JP_CONNECTION_INITIAL_STATE = {
 			...window.JP_CONNECTION_INITIAL_STATE,
 			siteSuffix: undefined,
@@ -416,11 +381,9 @@ describe( 'the popover Tracks event', () => {
 } );
 
 describe( 'the panel a11y contract', () => {
-	// Everything asserted here is behaviour `@wordpress/ui`'s `Popover`
-	// brings on its own — none of it is wired up in this file. It is
-	// pinned because it is the whole of what that primitive is being paid
-	// for in bundle size, and because a later change to the trigger or the
-	// panel could take any of it away silently.
+	// Everything here is behaviour `@wordpress/ui`'s `Popover` brings on its own. Pinned
+	// because it is what that primitive is being paid for, and a later change to the
+	// trigger or panel could take it away silently.
 
 	/**
 	 * Open the popover and hand back the trigger and the panel.

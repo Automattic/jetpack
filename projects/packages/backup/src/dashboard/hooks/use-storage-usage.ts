@@ -31,28 +31,22 @@ type Figures = {
 	 */
 	daysOfBackupsSaved: number | null;
 	/**
-	 * Fewest days of backups the plan will ever keep. Only the
-	 * `BackupsDiscarded` warning reads it, and `getUsageLevel` reaches
-	 * that level only from a branch guarded on this being truthy — so it
-	 * is never null where it is rendered.
+	 * Fewest days of backups the plan will ever keep. Never null where it is rendered:
+	 * only the `BackupsDiscarded` warning reads it, and that level is reached only from
+	 * a branch guarded on this being truthy.
 	 */
 	minDaysOfBackupsAllowed: number | null;
 	/**
 	 * Days of full backups the storage limit would hold at the size of
 	 * the last one, or null when the last backup's size is unknown.
 	 *
-	 * Legacy spells this `Math.floor( storageLimit / lastBackupSize )`
-	 * guarded by both being above zero, and collapses "cannot compute"
-	 * and "not even one fits" into the same `0`. Separating them is what
-	 * lets the help popover say nothing in the first case and be shown a
-	 * real zero in the second.
+	 * Legacy collapses "cannot compute" and "not even one fits" into the same `0`.
+	 * Separating them lets the help popover say nothing in the first case.
 	 */
 	forecastInDays: number | null;
 	/**
-	 * The retention the *plan* promises, which is not the same as the
-	 * retention in force: `retentionDays` above falls back to this, but
-	 * the help popover's gate compares the forecast against the promise
-	 * rather than the fallback, as legacy's does.
+	 * The retention the *plan* promises, which is not the retention in force. The help
+	 * popover's gate compares against the promise, as legacy's does.
 	 */
 	planRetentionDays: number | null;
 };
@@ -121,13 +115,9 @@ export function useStorageUsage(): Result {
 	const daysOfBackupsSaved = size?.days_of_backups_saved ?? null;
 	const minDaysOfBackupsAllowed = size?.min_days_of_backups_allowed ?? null;
 
-	// Both above zero or no forecast. `last_backup_size` is one of the
-	// fields a `/size` response may simply omit, and a site with nothing
-	// to measure can report it as zero — either way there is no divisor,
-	// and `Math.floor( limit / 0 )` is `Infinity`, which would go on to
-	// be rendered as a day count. A limit of zero is separately not a
-	// limit anyone can be measured against, the same judgement
-	// `hasUsableFigures` makes below.
+	// Both above zero or no forecast: `last_backup_size` may be omitted or reported as
+	// zero, and `Math.floor( limit / 0 )` is `Infinity`, which would render as a day
+	// count.
 	const lastBackupSize = size?.last_backup_size ?? null;
 	const forecastInDays =
 		storageLimit !== null && storageLimit > 0 && lastBackupSize !== null && lastBackupSize > 0

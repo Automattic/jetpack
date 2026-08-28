@@ -107,10 +107,8 @@ type Props = {
 	storageLimit: number;
 	daysOfBackupsSaved: number | null;
 	/**
-	 * Days of full backups the limit would hold, when that is worth
-	 * explaining; null when it is not. The section decides — see
-	 * `helpForecast` in `index.tsx` — so this component only has to
-	 * render or not render.
+	 * Days of full backups the limit would hold, or null when that is not worth
+	 * explaining. The section decides — see `helpForecast` in `index.tsx`.
 	 */
 	helpForecastInDays: number | null;
 };
@@ -127,10 +125,9 @@ type Props = {
  * section's `hasUsableFigures` branch, so both byte figures are known
  * numbers by the time they get here and neither needs re-testing.
  *
- * The one exception to "presentational" is the help popover, which sits
- * beside the usage reading as it does in legacy — that is where the
- * question it answers is raised. It brings its own data and its own
- * Tracks event; what arrives as a prop is only whether to show it.
+ * The one exception to "presentational" is the help popover, which sits beside the
+ * usage reading because that is where the question it answers is raised. It brings its
+ * own data; the prop only says whether to show it.
  *
  * @param props                    - Component props.
  * @param props.storageUsed        - Bytes of backup storage in use.
@@ -172,11 +169,9 @@ export default function StorageUsageDetails( {
 			gap="xs"
 		>
 			{ /*
-			 * The reading and its info button travel together — the button
-			 * explains that reading and nothing else — so they share a row
-			 * of their own rather than becoming two children of the
-			 * space-between row above, where the button would be flung to
-			 * the far end.
+			 * The reading and its info button share a row of their own rather than
+			 * becoming two children of the space-between row above, where the button
+			 * would be flung to the far end.
 			 */ }
 			<Stack direction="row" gap="xs" align="center">
 				<Text variant="body-md">{ usageText( storageUsed, storageLimit ) }</Text>

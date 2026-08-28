@@ -41,23 +41,19 @@
 		margin-block-start: 8px;
 	}
 
-	// The warning and the add-on offer, below the readings. `Stack` owns
-	// the column and its gap, so all that is left is how far the pair sits
-	// from the row above — the same 8px the readings sit from the meter,
-	// which keeps the three bands evenly spaced.
+	// `Stack` owns the column and its gap, so all that is left is how far
+	// the pair sits from the row above — the same 8px the readings sit
+	// from the meter.
 	&__upsell {
 		margin-block-start: 8px;
 	}
 }
 
-// Deliberately not nested inside `.jpb-storage-space`. `Popover.Popup`
-// portals its content out of this subtree by default, so the section is
-// no longer an ancestor by the time the popup exists and a nested
-// selector would never match it.
+// Deliberately not nested inside `.jpb-storage-space`: `Popover.Popup`
+// portals its content out, so a nested selector would never match.
 .jpb-storage-space__help-popup {
-	// Two sentences and a button want a column narrow enough to read.
-	// Without a cap the popup is as wide as its longest sentence, which
-	// on a wide screen is a single line running most of the viewport.
+	// Without a cap the popup is as wide as its longest sentence, which on
+	// a wide screen is a single line running most of the viewport.
 	max-inline-size: 320px;
 }
 
