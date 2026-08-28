@@ -12,6 +12,11 @@ const MARKERS: Array< { name: string; test: ( css: string ) => boolean } > = [
 		name: 'an unhashed "--a8c-charts-color-grid" declaration',
 		test: css => css.includes( '--a8c-charts-color-grid' ),
 	},
+	// `chart-paint.scss` ships the same way and drops the same way. Losing it is quieter than losing the catalog: the roles still resolve, visx keeps painting its own defaults, and the charts look almost right.
+	{
+		name: 'the visx grid paint rule from chart-paint.scss',
+		test: css => /\.visx-rows[^{}]*\{[^}]*stroke:\s*var\(\s*--a8c-charts-color-grid/.test( css ),
+	},
 	// Scoped to a `:root` block that declares a charts variable, not to `:root` anywhere in the file: this runs over the whole of `dist/index.css`, so matching the bare selector would fail the production build on any unrelated `:root` rule the package or a bundled dependency stylesheet happens to add — with a message about the catalog leaking, which would not be what happened.
 	{
 		name: 'no ":root" catalog block',

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Paint the chart grid from CSS so an `--a8c-charts-color-grid` override set on a chart's own element applies to it.

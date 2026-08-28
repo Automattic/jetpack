@@ -35,9 +35,10 @@ export const useXYChartTheme = ( data: SeriesData[] ) => {
 			...theme,
 			colors: paletteColors,
 			backgroundColor: resolveColor( theme.backgroundColor ),
+			// `chart-paint.scss` paints the grid. visx applies `gridStyles` as an inline style on each line, which would beat that rule, so the stroke must not reach `buildChartTheme` at all — dropping it is what lets CSS own the role.
 			gridStyles: theme.gridStyles && {
 				...theme.gridStyles,
-				stroke: resolveColor( theme.gridStyles.stroke ),
+				stroke: undefined,
 			},
 			xAxisLineStyles: theme.xAxisLineStyles && {
 				...theme.xAxisLineStyles,

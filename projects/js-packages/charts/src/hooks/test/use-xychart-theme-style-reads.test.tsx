@@ -4,7 +4,7 @@ import { useXYChartTheme } from '../use-xychart-theme';
 import type { SeriesData } from '../../types';
 import type { ReactNode } from 'react';
 
-// The theme resolves five catalog roles — background, grid, axis, tick and axis label. Each `getComputedStyle` call can force the browser to flush pending style, and this memo re-runs only when the scope element attaches or a series color changes, so a dashboard mounting N charts pays the count below N times over.
+// The theme resolves four catalog roles — background, axis, tick and axis label. Each `getComputedStyle` call can force the browser to flush pending style, and this memo re-runs only when the scope element attaches or a series color changes, so a dashboard mounting N charts pays the count below N times over.
 const STABLE_DATA: SeriesData[] = [];
 
 describe( 'useXYChartTheme style reads', () => {
@@ -13,7 +13,6 @@ describe( 'useXYChartTheme style reads', () => {
 
 	beforeEach( () => {
 		scope = document.createElement( 'div' );
-		scope.style.setProperty( '--a8c-charts-color-grid', '#00ff00' );
 		document.body.appendChild( scope );
 		getComputedStyleSpy = jest.spyOn( window, 'getComputedStyle' );
 	} );
@@ -39,7 +38,6 @@ describe( 'useXYChartTheme style reads', () => {
 
 		expect( getComputedStyleSpy ).toHaveBeenCalledTimes( 1 );
 		expect( result.current.backgroundColor ).toBe( '#111111' );
-		expect( result.current.gridStyles.stroke ).toBe( '#00ff00' );
 		expect( result.current.axisStyles.x.bottom.axisLine.stroke ).toBe( '#222222' );
 	} );
 
