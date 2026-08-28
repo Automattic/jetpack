@@ -88,15 +88,6 @@ export type PostHighlightCardProps = {
 	metrics: PostHighlightCardMetric[];
 
 	/**
-	 * A caveat that applies to every tile at once, e.g. that they are lifetime
-	 * totals under a card title that names a period. Unlike a tile's own `note`
-	 * this one is visible, so it reaches the touch and keyboard users a tooltip
-	 * never does, and assistive technology announces it once instead of on every
-	 * tile. It is the first line dropped when the cell is too short for the card.
-	 */
-	metricsNote?: string;
-
-	/**
 	 * Format configuration for the metric values.
 	 * @default shortened counts with no decimals
 	 */
@@ -183,7 +174,6 @@ export function PostHighlightCard( {
 	imageUrl = '',
 	imageAlt = '',
 	metrics,
-	metricsNote = '',
 	dataFormat = DEFAULT_METRIC_FORMAT,
 }: PostHighlightCardProps ) {
 	const publishDate = formatPublishDate( date );
@@ -213,11 +203,6 @@ export function PostHighlightCard( {
 						<PostHighlightMetric key={ metric.key } metric={ metric } dataFormat={ dataFormat } />
 					) ) }
 				</div>
-				{ metricsNote && (
-					<Text className={ styles.metricsNote } variant="body-sm">
-						{ metricsNote }
-					</Text>
-				) }
 			</div>
 			{ imageUrl && (
 				<div className={ styles.media }>

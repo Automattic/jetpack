@@ -27,10 +27,12 @@ type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
 
 /**
  * The last 12 months pick which post is shown; all three tiles are all-time
- * totals from the Stats post endpoint, so they share one window — and one
- * caveat, carried under the row rather than on each tile. `Latest post` shares
- * this card and needs none: its title names no period for the tiles to
- * contradict.
+ * totals from the Stats post endpoint, so they share one window.
+ *
+ * The tiles carry no caveat saying so, which is deliberate: the old Stats card
+ * this replaces put the same lifetime totals under the same period-naming
+ * heading with nothing on the tiles either, and the widget header's help note
+ * spells the aggregation out. Adding one is a design decision, not a defect fix.
  */
 function PopularPostReport() {
 	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost();
@@ -93,10 +95,6 @@ function PopularPostReport() {
 					imageUrl={ post.imageUrl }
 					imageAlt={ post.imageAlt }
 					metrics={ metrics }
-					metricsNote={ __(
-						'Totals since this post was published',
-						'jetpack-premium-analytics-pkg'
-					) }
 				/>
 			) }
 		</WidgetState>

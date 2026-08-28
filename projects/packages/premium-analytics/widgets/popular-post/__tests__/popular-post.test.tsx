@@ -152,16 +152,6 @@ describe( 'PopularPostWidget', () => {
 		expect( topPostsRequests()[ 0 ] ).not.toContain( '2023' );
 	} );
 
-	it( 'flags the metric tiles as all-time, not the window the title names', async () => {
-		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
-
-		await expect( screen.findByText( 'Winning post' ) ).resolves.toBeInTheDocument();
-
-		// Visible, and once for the row: a tooltip would reach neither a touch nor a
-		// keyboard reader, and three copies would be read out on every tile.
-		expect( screen.getByText( 'Totals since this post was published' ) ).toBeInTheDocument();
-	} );
-
 	it( 'links the post to its detail page on the window it ranked over', async () => {
 		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
 
