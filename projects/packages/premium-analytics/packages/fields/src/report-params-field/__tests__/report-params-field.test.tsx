@@ -8,11 +8,12 @@ import { useState } from 'react';
  * Internal dependencies
  */
 import {
-	createReportParamsField,
+	reportParamsAttributeField,
 	type ReportGrain,
 	type ReportParamsFieldAttributes,
 } from '../report-params-field';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
+import type { ComponentType } from 'react';
 
 // A 30-day window: `getAllowedIntervalsForPreset` offers day and week for it, so
 // the bucket menu has something to switch between.
@@ -30,7 +31,12 @@ function renderField(
 	grain?: ReportGrain,
 	initialAttributes: ReportParamsFieldAttributes = ATTRIBUTES
 ) {
-	const Field = createReportParamsField( { withIntervalControl, grain } );
+	const { Edit } = reportParamsAttributeField< ReportParamsFieldAttributes >( {
+		withIntervalControl,
+		grain,
+	} );
+	// Only the DataForm plumbing is cast away; `data` below stays type-checked.
+	const Field = Edit as ComponentType< DataFormControlProps< ReportParamsFieldAttributes > >;
 	const saved: ReportParamsFieldAttributes[] = [];
 	let setFromOutside: ( attributes: ReportParamsFieldAttributes ) => void = () => {};
 
@@ -87,6 +93,16 @@ async function draftShortRange( user: ReturnType< typeof userEvent.setup >, days
 	await openCustomRange( user );
 	await shortenRangeTo( days );
 }
+
+describe( 'reportParamsAttributeField', () => {
+	it( 'declares the reportParams attribute the host renders in the header', () => {
+		expect( reportParamsAttributeField() ).toMatchObject( {
+			id: 'reportParams',
+			label: 'Date range',
+			relevance: 'high',
+		} );
+	} );
+} );
 
 describe( 'report params field', () => {
 	it( 'offers no bucket control by default', () => {

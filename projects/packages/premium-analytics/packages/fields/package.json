@@ -22,6 +22,7 @@
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^15.0.0",
 		"@wordpress/private-apis": "1.53.0",
+		"@wordpress/widget-primitives": "0.5.0",
 		"date-fns": "4.1.0",
 		"react": "18.3.1"
 	},

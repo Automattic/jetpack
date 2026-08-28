@@ -93,4 +93,16 @@ describe( 'drawableIntervals', () => {
 			'hour',
 		] );
 	} );
+
+	it( 'keeps years for a chart that draws them, and drops them for one that does not', () => {
+		expect( drawableIntervals( [ 'month', 'year' ], DAY_WEEK_MONTH_YEAR ) ).toEqual( [
+			'month',
+			'year',
+		] );
+		expect( drawableIntervals( [ 'month', 'year' ], HOUR_DAY_WEEK_MONTH ) ).toEqual( [ 'month' ] );
+	} );
+
+	it( 'has nothing to offer when the range allows nothing', () => {
+		expect( drawableIntervals( [], DAY_WEEK_MONTH_YEAR ) ).toEqual( [] );
+	} );
 } );

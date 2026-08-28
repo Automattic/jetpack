@@ -52,14 +52,9 @@ export function defaultPeriodForInterval< P extends StatsPeriod >(
 /**
  * The buckets an interval menu may list for a chart that draws only `allowed`.
  *
- * `intervals` is what the range permits. One the clamp above would move is a
- * bucket the chart cannot draw, so listing it makes the click a no-op: the
- * check mark travels and nothing else does.
- *
- * When the clamp moves every one of them — a window finer than the chart's
- * finest bucket, e.g. three days on a report served a day at a time — the menu
- * falls back to where the clamp lands, so a range still offers a bucket that
- * works rather than an empty menu.
+ * Listing one the chart does not draw makes the click a no-op. When the range
+ * allows nothing it draws — a day or less, which is offered as hours alone —
+ * fall back to where the clamp lands rather than leaving the menu empty.
  *
  * @param intervals - The buckets the range allows, finest first.
  * @param allowed   - The periods this widget offers, ordered finest to coarsest.
@@ -69,8 +64,10 @@ export function drawableIntervals< P extends StatsPeriod >(
 	intervals: readonly IntervalType[],
 	allowed: readonly [ P, ...P[] ]
 ): IntervalType[] {
+	// Membership, not the mapped period: mapping onto a period the chart offers
+	// is not the same as the chart drawing that bucket.
 	const drawable = intervals.filter( interval =>
-		( allowed as readonly StatsPeriod[] ).includes( getStatsPeriodFromInterval( interval ) )
+		( allowed as readonly string[] ).includes( interval )
 	);
 
 	return drawable.length

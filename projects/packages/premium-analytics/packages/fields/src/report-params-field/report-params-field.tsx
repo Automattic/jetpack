@@ -48,20 +48,16 @@ export type ReportParamsFieldAttributes = {
 };
 
 /**
- * How fine the widget's report is, as the widget itself knows it. The control
- * offers nothing the report cannot fill: a window with no data behind it, or a
- * bucket the chart would clamp away on the way to a request.
+ * How fine the widget's report is. The control offers nothing the report cannot
+ * fill: a window with no data behind it, or a bucket the chart would clamp away.
  */
 export type ReportGrain = {
-	/**
-	 * The quick presets to offer, in display order. Defaults to every rolling
-	 * window.
-	 */
+	/** The quick presets to offer, in display order. Defaults to every rolling window. */
 	presetIds?: readonly QuickSurfacePresetId[];
 
 	/**
-	 * The bucket sizes the widget's chart draws, finest first — the same list it
-	 * clamps the interval against when it builds its request.
+	 * The bucket sizes the widget's chart draws, ordered finest to coarsest — the
+	 * same list it clamps against. Only read when `withIntervalControl` is set.
 	 */
 	periods?: readonly [ StatsPeriod, ...StatsPeriod[] ];
 };
@@ -71,44 +67,34 @@ type ReportParamsFieldOptions = {
 	grain?: ReportGrain;
 };
 
-type ReportParamsControlOptions = {
-	withIntervalControl?: boolean;
-} & ReportGrain;
-
 /**
- * Build a widget-owned report params field.
+ * Build a widget-owned report params field. Called once at module scope, so the
+ * component identity is stable across renders.
  *
  * @param options                     - Field options.
  * @param options.withIntervalControl - Whether to offer the chart bucket control.
  * @param options.grain               - How fine the widget's report is.
  * @return A DataForm control component.
  */
-export function createReportParamsField( {
-	withIntervalControl,
-	grain,
-}: ReportParamsFieldOptions = {} ) {
+function createReportParamsField( { withIntervalControl, grain }: ReportParamsFieldOptions = {} ) {
 	return function ReportParamsFieldControl(
-		props: DataFormControlProps< ReportParamsFieldAttributes >
+		props: DataFormControlProps< Partial< ReportParamsFieldAttributes > >
 	) {
 		return (
 			<ReportParamsControl
 				{ ...props }
 				withIntervalControl={ withIntervalControl }
-				presetIds={ grain?.presetIds }
-				periods={ grain?.periods }
+				grain={ grain }
 			/>
 		);
 	};
 }
 
 /**
- * The "Date range" attribute a widget declares to host its own date controls,
- * at `relevance: 'high'` so the host renders it in the widget's header, where it
- * collapses into a dropdown on narrow cards.
+ * The "Date range" attribute a widget declares to host its own date controls.
  *
- * The field descriptor is decorative beyond its `id`: dataviews rebuilds a
- * normalized field from a fixed set of keys, so per-widget options reach the
- * control through this factory rather than through `field`.
+ * Options travel through this factory, not the descriptor: dataviews rebuilds a
+ * normalized field from a fixed set of keys and drops the rest.
  *
  * @param options                     - Field options.
  * @param options.withIntervalControl - Whether to offer the chart bucket control.
@@ -119,20 +105,23 @@ export function reportParamsAttributeField<
 	Attributes extends Partial< ReportParamsFieldAttributes >,
 >( options: ReportParamsFieldOptions = {} ): WidgetAttributeField< Attributes > {
 	return {
-		id: 'reportParams',
+		// Only the key needs the cast: `Attributes` is unresolved here, so TS
+		// cannot see that it carries `reportParams`.
+		id: 'reportParams' as keyof Attributes & string,
 		label: __( 'Date range', 'jetpack-premium-analytics-pkg' ),
+		// The host renders a high-relevance field in the widget's own header.
 		relevance: 'high',
 		Edit: createReportParamsField( options ),
-	} as WidgetAttributeField< Attributes >;
+	};
 }
 
 function ReportParamsControl( {
 	data: attributes,
 	onChange,
 	withIntervalControl,
-	presetIds,
-	periods,
-}: DataFormControlProps< ReportParamsFieldAttributes > & ReportParamsControlOptions ) {
+	grain,
+}: DataFormControlProps< Partial< ReportParamsFieldAttributes > > & ReportParamsFieldOptions ) {
+	const { presetIds, periods } = grain ?? {};
 	const [ stagedReportParams, setStagedReportParams ] = useState< ReportParams >(
 		attributes?.reportParams
 	);
@@ -294,11 +283,8 @@ function ReportParamsControl( {
 		stage( attributes?.reportParams );
 	}, [ stage, attributes ] );
 
-	/*
-	 * Read from the staged params, not the committed ones: a range being drafted
-	 * has to reshape the menu with it, or the menu offers a bucket that range
-	 * cannot hold and the click is dropped on Apply.
-	 */
+	// Staged, not committed: a range being drafted has to reshape the menu with
+	// it, or the click is dropped on Apply.
 	const intervalOptions = useMemo( () => {
 		const allowed = getAllowedIntervalsForPreset(
 			reportParams.preset,
@@ -309,9 +295,8 @@ function ReportParamsControl( {
 		return periods ? drawableIntervals( allowed, periods ) : allowed;
 	}, [ reportParams.preset, reportParams.from, reportParams.to, periods ] );
 
-	// What the chart draws, which is what the menu checks: a saved or
-	// range-derived bucket the widget clamps away is not ours to report as the
-	// one on screen.
+	// Check what the chart draws: a stored bucket the widget clamps away is not
+	// what is on screen.
 	const interval = intervalOptions.includes( reportParams.interval )
 		? reportParams.interval
 		: intervalOptions[ 0 ];

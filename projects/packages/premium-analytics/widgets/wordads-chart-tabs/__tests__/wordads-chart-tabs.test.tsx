@@ -332,4 +332,39 @@ describe( 'WordAdsChartTabsWidget date control', () => {
 			reportParams: expect.objectContaining( { preset: 'last-30-days' } ),
 		} );
 	} );
+
+	// The menu and `render.tsx` read the same grain, so this fails if the widget
+	// stops handing it over.
+	it( 'offers no bucket the chart cannot draw', async () => {
+		const user = userEvent.setup();
+
+		// Two to six days is the window that puts hours on offer.
+		renderDateControl( {
+			data: {
+				reportParams: { from: '2026-06-01', to: '2026-06-03T23:59:59', interval: 'day' },
+			},
+			onChange: jest.fn(),
+		} );
+
+		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+
+		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
+			'By days',
+		] );
+	} );
+
+	it( 'offers months alone on its longest window', async () => {
+		const user = userEvent.setup();
+
+		renderDateControl( {
+			data: { reportParams: { preset: 'last-12-months', interval: 'month' } },
+			onChange: jest.fn(),
+		} );
+
+		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+
+		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
+			'By months',
+		] );
+	} );
 } );

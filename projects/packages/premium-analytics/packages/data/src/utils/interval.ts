@@ -85,8 +85,8 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
  * Unknown / custom / year-surface presets derive the list from `from`–`to`
  * length.
  *
- * Also what the interval control lists, so the menu can never offer a bucket
- * the range would coerce away.
+ * Where the interval control starts, before a widget narrows it to what its
+ * chart can draw (`drawableIntervals`).
  */
 export function getAllowedIntervalsForPreset(
 	preset: PrimaryPresetId | undefined,

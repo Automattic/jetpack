@@ -95,8 +95,8 @@ export type DateFiltersPanelProps = {
 	interval?: IntervalType;
 
 	/**
-	 * The intervals the active range allows, finest first. Derived upstream from
-	 * the range, so the menu never offers a bucket the range would coerce away.
+	 * The buckets to list, finest first. Derived upstream from the range and, for
+	 * a widget that owns its control, from what its chart draws.
 	 */
 	intervalOptions?: readonly IntervalType[];
 

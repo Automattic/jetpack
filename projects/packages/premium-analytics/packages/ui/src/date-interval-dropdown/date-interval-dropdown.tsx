@@ -10,9 +10,8 @@ import './date-interval-dropdown.scss';
 
 type DateIntervalDropdownProps = {
 	/**
-	 * The buckets the active range allows, finest first. Derived from the range
-	 * rather than fixed, so the menu can never offer one the range would coerce
-	 * away.
+	 * The buckets to list, finest first. Derived upstream from the range and, for
+	 * a widget that owns its control, from what its chart draws.
 	 */
 	options: readonly IntervalType[];
 
