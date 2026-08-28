@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Premium Analytics: include the previous period's views in the Top pages CSV export when a comparison is active.
+Premium Analytics: rename the Top pages CSV comparison column to "Views (Previous Period)" and move it after the primary columns.

@@ -117,19 +117,19 @@ describe( 'withComparisonColumns', () => {
 		expect( csv.split( '\n' )[ 1 ] ).toBe( '"Hello","4","9","2","7"' );
 	} );
 
-	it( 'exports 0 for rows missing from the comparison period', () => {
+	// A row outside the comparison period's top rows is unmeasured, not a zero.
+	it( 'leaves the cell blank for rows missing from the comparison period', () => {
 		const csv = buildCsv( withComparisonColumns( metricColumns, true ), [
 			{ label: 'Only now', views: 4, plays: 9 },
 		] );
-		expect( csv.split( '\n' )[ 1 ] ).toBe( '"Only now","4","9","0","0"' );
+		expect( csv.split( '\n' )[ 1 ] ).toBe( '"Only now","4","9","",""' );
 	} );
 
 	it( 'leaves columns without a previous value out of the comparison block', () => {
-		const exported = withComparisonColumns(
-			[ { label: 'Title', getValue: row => row.label } ] as CsvColumn< MetricRow >[],
-			true
-		);
-		expect( exported.map( column => column.label ) ).toEqual( [ 'Title' ] );
+		const titleOnly = [
+			{ label: 'Title', getValue: row => row.label },
+		] as CsvColumn< MetricRow >[];
+		expect( withComparisonColumns( titleOnly, true ) ).toBe( titleOnly );
 	} );
 } );
 

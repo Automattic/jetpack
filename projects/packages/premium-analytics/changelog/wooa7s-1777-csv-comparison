@@ -1,4 +1,4 @@
 Significance: minor
-Type: added
+Type: changed
 
-Top pages: include the previous period's views in the CSV export when a comparison is active.
+Top pages: rename the CSV comparison column to "Views (Previous Period)" and move it after the primary columns.

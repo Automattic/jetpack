@@ -30,7 +30,8 @@ export type CsvColumn< Row > = {
 	label: string;
 
 	/**
-	 * Read the previous-period value, when the report loaded one for this row.
+	 * Read the previous-period value. Inert unless the columns are passed
+	 * through `withComparisonColumns()`; `buildCsv` itself never reads it.
 	 */
 	getPreviousValue?: ( row: Row ) => number | undefined;
 };
@@ -38,8 +39,10 @@ export type CsvColumn< Row > = {
 /**
  * Append previous-period columns for an active comparison.
  *
- * Mirrors the server-side WooCommerce export: comparison columns follow the
- * whole primary block, and an entity missing from it exports `0`, not a blank.
+ * Column labels and ordering follow the server-side WooCommerce export.
+ * Missing values stay blank rather than `0`: both periods are ranked and capped
+ * independently, so an absent row means "outside the comparison period's top
+ * rows", not a measured zero.
  *
  * @param columns       - Primary columns; those with `getPreviousValue` gain a twin.
  * @param hasComparison - Whether the report loaded comparison rows.
@@ -66,7 +69,7 @@ export function withComparisonColumns< Row >(
 					__( '%s (Previous Period)', 'jetpack-premium-analytics-pkg' ),
 					column.label
 				),
-				getValue: ( row: Row ) => getPreviousValue( row ) ?? 0,
+				getValue: getPreviousValue,
 			},
 		];
 	} );
