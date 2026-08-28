@@ -51,6 +51,7 @@ await jest.unstable_mockModule(
 	() => ( {
 		__esModule: true,
 		default: () => [],
+		useEnclosedFields: () => [],
 		useEnsureFieldId: () => () => 'field_1',
 	} )
 );

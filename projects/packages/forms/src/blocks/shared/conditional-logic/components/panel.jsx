@@ -20,7 +20,7 @@ import {
 	startsHidden,
 	withPrimaryGroupRules,
 } from '../constants.js';
-import useSubjectFields from '../hooks/use-subject-fields.js';
+import useSubjectFields, { useEnclosedFields } from '../hooks/use-subject-fields.js';
 import {
 	describeRule,
 	getActiveConditions,
@@ -92,6 +92,8 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes, isContain
 	);
 
 	const fields = useSubjectFields( clientId );
+	// Only a container has fields inside it; for a field block this is always empty.
+	const enclosedFields = useEnclosedFields( isContainer ? clientId : null );
 	const group = getPrimaryGroup( logic );
 
 	const hasConditions = countRules( logic ) > 0;
@@ -130,9 +132,19 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes, isContain
 	const openModal = useCallback( () => setIsModalOpen( true ), [] );
 	const closeModal = useCallback( () => setIsModalOpen( false ), [] );
 
+	// Resolved against the fields inside this block as well as the ones outside it. The
+	// dropdown offers only the outside ones, because a group conditioned on a field it holds
+	// is circular -- but a rule can come to name one anyway, by the author dragging its
+	// subject into the group after writing it. The evaluators keep enforcing such a rule, so
+	// leaving it out here would report no conditions on a group that is hidden for good.
+	const summaryFields = useMemo(
+		() => [ ...fields, ...enclosedFields ],
+		[ fields, enclosedFields ]
+	);
+
 	// The conditions the field will actually be governed by. Incomplete ones are skipped by
 	// both evaluators, so listing them here would describe behaviour the field does not have.
-	const activeConditions = getActiveConditions( group, fields, duplicateFieldIds );
+	const activeConditions = getActiveConditions( group, summaryFields, duplicateFieldIds );
 
 	return (
 		<>
@@ -148,7 +160,7 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes, isContain
 						icon={ startsHidden( logic ) ? unseen : seen }
 						title={
 							activeConditions.length
-								? getSummaryText( logic, group, fields, duplicateFieldIds, isContainer )
+								? getSummaryText( logic, group, summaryFields, duplicateFieldIds, isContainer )
 								: __( 'Add conditional logic', 'jetpack-forms' )
 						}
 						onClick={ openModal }
