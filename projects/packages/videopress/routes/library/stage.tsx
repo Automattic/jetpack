@@ -1,10 +1,10 @@
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
-import { DropZone, Tooltip } from '@wordpress/components';
+import { DropZone, Spinner, Tooltip } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Button, Card } from '@wordpress/ui';
+import { Button, Card, VisuallyHidden } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
@@ -420,18 +420,26 @@ const StageInner = () => {
 
 	const getItemId = useCallback( ( item: LibraryItem ) => item.id, [] );
 
-	// The library holds nothing at all — not "this filter matched nothing".
-	// Strict `=== 0` so an unsettled or failed count request reads as "show
-	// the listing", never as an empty library; a non-empty queue means rows
-	// are already being spliced into the listing, which then owns the surface.
-	const isLibraryEmpty =
-		totalPagination?.totalItems === 0 &&
-		uploadQueue.length === 0 &&
-		items.length === 0 &&
-		! isError;
+	const renderDataViews = () => (
+		<DataViews< LibraryItem >
+			data={ renderedItems }
+			fields={ libraryFields }
+			actions={ actions }
+			view={ view }
+			onChangeView={ onChangeView }
+			selection={ selection }
+			onChangeSelection={ setSelection }
+			getItemId={ getItemId }
+			paginationInfo={ paginationInfo }
+			isLoading={ isLoading }
+			defaultLayouts={ defaultLayouts }
+		/>
+	);
 
-	// The viewport's three mutually exclusive surfaces, flattened out of
-	// nested ternaries so each branch can say why it exists.
+	// The viewport's four mutually exclusive surfaces, flattened out of
+	// nested ternaries so each branch can say why it exists. Order matters:
+	// error first, then anything already listable, then the undecided wait,
+	// then the empty-vs-listing verdict.
 	const renderViewport = () => {
 		// A failed listing request would otherwise render as DataViews'
 		// "No results" — indistinguishable from an empty library. Surface
@@ -454,13 +462,34 @@ const StageInner = () => {
 			);
 		}
 
+		// Anything to list — fetched rows or in-flight uploads being spliced
+		// in — and the listing owns the surface, whatever the count says.
+		if ( items.length > 0 || uploadQueue.length > 0 ) {
+			return renderDataViews();
+		}
+
+		// The initial state: the unfiltered count hasn't answered yet, so
+		// whether this library is empty is genuinely unknown. Painting the
+		// grid skeleton and then swapping in the dropzone (or vice versa)
+		// reads as the page loading twice; an explicit wait reads as loading
+		// once. `undefined` rather than `isLoading` so a background refetch
+		// of a settled count never re-shows the wait.
+		if ( totalPagination === undefined ) {
+			return (
+				<div className="vp-library__deciding" role="status">
+					<Spinner />
+					<VisuallyHidden>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</VisuallyHidden>
+				</div>
+			);
+		}
+
 		// An empty library gets an upload dropzone instead of DataViews'
 		// "No results" — a first-video invitation rather than a failed
 		// search. Dropping or picking files lands in the same
 		// `handleFilesSelected` pipeline as the page-wide DropZone and the
 		// header button, so the listing (with its spliced in-flight rows)
 		// takes over the moment anything enters the queue.
-		if ( isLibraryEmpty ) {
+		if ( totalPagination.totalItems === 0 ) {
 			return (
 				<div className="vp-library__empty-state">
 					<Card.Root className="vp-library__empty-card">
@@ -481,21 +510,9 @@ const StageInner = () => {
 			);
 		}
 
-		return (
-			<DataViews< LibraryItem >
-				data={ renderedItems }
-				fields={ libraryFields }
-				actions={ actions }
-				view={ view }
-				onChangeView={ onChangeView }
-				selection={ selection }
-				onChangeSelection={ setSelection }
-				getItemId={ getItemId }
-				paginationInfo={ paginationInfo }
-				isLoading={ isLoading }
-				defaultLayouts={ defaultLayouts }
-			/>
-		);
+		// A non-empty library whose current view matched nothing is a filter
+		// story, and DataViews' own "No results" tells it.
+		return renderDataViews();
 	};
 
 	const onCaptionTracksChange = useCallback( () => {

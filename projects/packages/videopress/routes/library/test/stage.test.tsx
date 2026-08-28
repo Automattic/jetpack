@@ -41,17 +41,20 @@ jest.mock( '../../../src/client/components/caption-manager-modal/lazy', () => ( 
 	default: () => null,
 } ) );
 
-let mockLibraryTotal = 3;
+// `null` models the in-flight count: useLibrary reports no paginationInfo
+// until the request answers.
+let mockLibraryTotal: number | null = 3;
 let mockItems: LibraryItem[] = [];
 let mockIsError = false;
 jest.mock( '../../../src/dashboard/hooks/use-library', () => ( {
 	LIBRARY_QUERY_KEY: 'videopress-library',
 	useLibrary: () => ( {
 		items: mockItems,
-		isLoading: false,
+		isLoading: mockLibraryTotal === null,
 		isError: mockIsError,
 		error: null,
-		paginationInfo: { totalItems: mockLibraryTotal, totalPages: 1 },
+		paginationInfo:
+			mockLibraryTotal === null ? undefined : { totalItems: mockLibraryTotal, totalPages: 1 },
 		refetch: jest.fn(),
 	} ),
 } ) );
@@ -110,6 +113,18 @@ describe( 'library stage empty state', () => {
 		mockLibraryTotal = 3;
 		mockIsError = false;
 		mockFreeTier = { isAtLimit: false, isFree: false, isUnlimited: true, videoCount: 0, limit: 1 };
+	} );
+
+	it( 'starts in a loading state while the count request is in flight', () => {
+		// The initial render must not guess: neither the grid skeleton nor the
+		// dropzone paints until the unfiltered count answers.
+		mockLibraryTotal = null;
+
+		render( <Stage /> );
+
+		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Upload your first video' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'dataviews' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the upload dropzone instead of the grid when the library is empty', () => {
