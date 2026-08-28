@@ -252,6 +252,20 @@ class Contact_Form_Block_Test extends BaseTestCase {
 							'backgroundImage' => true,
 						),
 					),
+					'layout'     => array(
+						'default'                => array(
+							'type'           => 'flex',
+							'orientation'    => 'vertical',
+							'justifyContent' => 'stretch',
+							'flexWrap'       => 'nowrap',
+						),
+						'allowSwitching'         => false,
+						'allowEditing'           => true,
+						'allowOrientation'       => false,
+						'allowJustification'     => true,
+						'allowVerticalAlignment' => false,
+						'allowWrap'              => false,
+					),
 				),
 			),
 			'jetpack/option'    => array(
@@ -712,9 +726,10 @@ class Contact_Form_Block_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Integration: the background image must land on the step's own div, not on the
-	 * interactivity wrapper gutenblock_render_form_step() adds around it, and core
-	 * must not apply it a second time.
+	 * Integration: a step renders as one element, and the background image lands on
+	 * it once. The step's interactivity, its style supports and its layout all share
+	 * the block's own div, so there is nothing else here for them to land on — which
+	 * is the point: layout supports attach to exactly one element per block.
 	 */
 	public function test_step_background_lands_on_the_blocks_own_div() {
 		Contact_Form_Block::register_block();
@@ -731,13 +746,59 @@ class Contact_Form_Block_Test extends BaseTestCase {
 		$tags = new \WP_HTML_Tag_Processor( $html );
 
 		$this->assertTrue( $tags->next_tag() );
-		$this->assertTrue( $tags->has_class( 'jetpack-form-step' ), 'First tag should be the interactivity wrapper' );
-		$this->assertNull( $tags->get_attribute( 'style' ), 'Interactivity wrapper must not carry the background' );
-
-		$this->assertTrue( $tags->next_tag() );
-		$this->assertTrue( $tags->has_class( Contact_Form_Block::STEP_BLOCK_CLASS ) );
+		$this->assertTrue( $tags->has_class( Contact_Form_Block::STEP_BLOCK_CLASS ), 'The step opens with the block\'s own element' );
+		$this->assertTrue( $tags->has_class( 'jetpack-form-step' ), 'The same element carries the step interactivity' );
 		$this->assertStringContainsString( 'background-image', (string) $tags->get_attribute( 'style' ) );
 		$this->assertTrue( $tags->has_class( 'has-background' ) );
+
+		$this->assertStringContainsString(
+			'data-wp-context',
+			$html,
+			'The step keeps its interactivity context, which is also how the form counts its steps'
+		);
+	}
+
+	/**
+	 * Integration: a rendered multistep form knows how many steps it has.
+	 *
+	 * Nothing passes the step count from the steps to the form. The steps are already
+	 * rendered by the time Contact_Form::parse() builds the form's interactivity
+	 * context, so it recovers the count by matching each step's `data-wp-context` in
+	 * the rendered markup. That makes the exact spelling of an attribute load-bearing
+	 * for whether the form paginates at all, and the failure is silent: `maxSteps` and
+	 * `currentStep` simply never reach the context, every step evaluates as current,
+	 * and the whole form renders at once with dead navigation.
+	 */
+	public function test_multistep_form_context_counts_its_steps() {
+		Contact_Form_Block::register_block();
+		Contact_Form_Block::register_child_blocks();
+
+		// The step number is a static counter, and an earlier test in this process
+		// may have rendered a step of its own.
+		Contact_Form_Plugin::reset_step();
+
+		$step = function ( $label ) {
+			return '<!-- wp:jetpack/form-step -->'
+				. '<div class="wp-block-jetpack-form-step"><!-- wp:jetpack/field-text {"label":"' . $label . '"} /--></div>'
+				. '<!-- /wp:jetpack/form-step -->';
+		};
+
+		$markup = '<!-- wp:jetpack/contact-form {"subject":"Steps","variationName":"multistep"} -->'
+			. '<div class="wp-block-jetpack-contact-form">'
+			. '<!-- wp:jetpack/form-step-container -->'
+			. '<div class="jetpack-form-steps-wrapper"><div class="wp-block-jetpack-form-step-container">'
+			. $step( 'One' ) . $step( 'Two' )
+			. '</div></div>'
+			. '<!-- /wp:jetpack/form-step-container -->'
+			. '</div>'
+			. '<!-- /wp:jetpack/contact-form -->';
+
+		$html = do_blocks( $markup );
+
+		$this->assertSame( 2, substr_count( $html, 'data-wp-class--is-current-step' ), 'Both steps should have rendered' );
+		$this->assertStringContainsString( '"maxSteps":2', $html, 'The form context should report two steps' );
+		$this->assertStringContainsString( '"isMultiStep":true', $html, 'The form should identify as multistep' );
+		$this->assertStringContainsString( '"currentStep":1', $html, 'The form should start on the first step' );
 	}
 
 	/**
