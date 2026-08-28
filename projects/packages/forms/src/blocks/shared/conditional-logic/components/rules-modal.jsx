@@ -17,31 +17,6 @@ const MATCH_OPTIONS = [
 ];
 
 /**
- * The rule builder, in a dialog rather than the inspector.
- *
- * The inspector column is about 280px wide, and a condition needs three controls. Stacked in
- * that column each condition became a card tall enough that three or four of them outgrew the
- * viewport. Here the three controls sit on one row, so a long list reads as aligned columns.
- *
- * Edits commit straight to the block attribute, like every other control in the inspector --
- * there is no draft state and no Save button. Undo is the editor's own. That matches the
- * integrations modal in this package and keeps one source of truth for the rules.
- *
- * @param {object}   props                   - Component props.
- * @param {boolean}  props.isOpen            - Whether the dialog is open.
- * @param {Function} props.onClose           - Called when the dialog is dismissed.
- * @param {object}   props.logic             - The normalized conditional-logic attribute.
- * @param {object}   props.group             - The group being edited.
- * @param {Array}    props.fields            - Fields available as rule subjects.
- * @param {Set}      props.duplicateFieldIds - Ids claimed by more than one field in the form.
- * @param {Function} props.onFixDuplicateIds - Called with ids to make unique.
- * @param {boolean}  props.isContainer       - Whether the panel belongs to a container block.
- * @param {Function} props.onActionChange    - Called with the next show/hide action.
- * @param {Function} props.onMatchChange     - Called with the next any/all operator.
- * @param {Function} props.onRulesChange     - Called with the group's next rules.
- * @return {object|null} The dialog, or null when closed.
- */
-/**
  * The line stating what happens before any condition is met.
  *
  * Four literals rather than a sentence assembled from parts, and the two branches of each
@@ -81,6 +56,31 @@ const getDefaultStateHint = ( action, isContainer ) => {
 		  );
 };
 
+/**
+ * The rule builder, in a dialog rather than the inspector.
+ *
+ * The inspector column is about 280px wide, and a condition needs three controls. Stacked in
+ * that column each condition became a card tall enough that three or four of them outgrew the
+ * viewport. Here the three controls sit on one row, so a long list reads as aligned columns.
+ *
+ * Edits commit straight to the block attribute, like every other control in the inspector --
+ * there is no draft state and no Save button. Undo is the editor's own. That matches the
+ * integrations modal in this package and keeps one source of truth for the rules.
+ *
+ * @param {object}   props                   - Component props.
+ * @param {boolean}  props.isOpen            - Whether the dialog is open.
+ * @param {Function} props.onClose           - Called when the dialog is dismissed.
+ * @param {object}   props.logic             - The normalized conditional-logic attribute.
+ * @param {object}   props.group             - The group being edited.
+ * @param {Array}    props.fields            - Fields available as rule subjects.
+ * @param {Set}      props.duplicateFieldIds - Ids claimed by more than one field in the form.
+ * @param {Function} props.onFixDuplicateIds - Called with ids to make unique.
+ * @param {boolean}  props.isContainer       - Whether the panel belongs to a container block.
+ * @param {Function} props.onActionChange    - Called with the next show/hide action.
+ * @param {Function} props.onMatchChange     - Called with the next any/all operator.
+ * @param {Function} props.onRulesChange     - Called with the group's next rules.
+ * @return {object|null} The dialog, or null when closed.
+ */
 const ConditionalLogicModal = ( {
 	isOpen,
 	onClose,

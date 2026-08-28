@@ -13,7 +13,7 @@
  * several forms, each parsed immediately after its own inner blocks render, and a shared
  * registry would need resetting between them. The body is already scoped to one form.
  *
- * Targets PHP 7.2: no arrow functions, no typed properties.
+ * Targets PHP 7.4: no typed class constants, no match expressions.
  *
  * @package automattic/jetpack-forms
  */
