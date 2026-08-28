@@ -8,6 +8,7 @@ import {
 	useStatsQuery,
 	useStatsTopPosts,
 	type LatestPostResponse,
+	type ReportPresetId,
 } from '@jetpack-premium-analytics/data';
 import { PRESET_LAST_12_MONTHS } from '@jetpack-premium-analytics/datetime';
 import { useMemo } from 'react';
@@ -39,15 +40,27 @@ export type PopularPostWithMetrics = {
 	commentCount: number | undefined;
 };
 
+/**
+ * A ranking window, as report date params. The preset travels with the dates
+ * because the detail page recomputes the range from it on arrival.
+ */
+export type PopularPostRange = {
+	preset: ReportPresetId;
+	from: string;
+	to: string;
+};
+
+// The window the card ranks over while it carries no date control of its own.
+// Named rather than inlined so giving it one later is a change of caller.
+export const POPULAR_POST_DEFAULT_PRESET = PRESET_LAST_12_MONTHS;
+
 export type UsePopularPostResult = {
 	post: PopularPostWithMetrics | null;
 	/**
-	 * The window the winner was ranked over, as report date params. The card's
-	 * detail link opens on it, so the post's own page reports on the same year
-	 * the card's title names. The preset travels with the dates because the
-	 * detail page recomputes the range from it on arrival.
+	 * The window the winner was ranked over. The card's detail link opens on it,
+	 * so the post's own page reports on the period the card's title names.
 	 */
-	range: { preset: typeof PRESET_LAST_12_MONTHS; from: string; to: string };
+	range: PopularPostRange;
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
@@ -56,29 +69,39 @@ export type UsePopularPostResult = {
 };
 
 /**
- * The site's most-viewed post of the last 12 months. The window only picks the
+ * The site's most-viewed post of a single window. The window only picks the
  * winner: every displayed metric is an all-time total from `stats/post`, so the
  * three tiles cannot measure different periods.
  *
- * The window is the widget's own, not the dashboard's: the card names the year it
- * reports on, so it must not follow the section's date filter.
+ * Defaults to the last 12 months — the period the card's title names — rather
+ * than the dashboard's range, which would make that title false the moment the
+ * section filter moved. `range` overrides it, for the day the card carries a
+ * date control of its own (see the widget rules on widgets that host one).
+ * Whatever is passed has to be a window the card's title can honestly claim, so
+ * it is that control's range, not the section filter's.
  *
  * Only a ranking failure surfaces as an error; a failing content or metrics
  * request degrades to no image and unknown counts.
+ *
+ * @param range - The window to rank over. Defaults to the last 12 months.
  */
-export function usePopularPost(): UsePopularPostResult {
+export function usePopularPost( range?: PopularPostRange ): UsePopularPostResult {
 	// Resolved per render rather than once, so the window is never older than the
 	// render that reads it. `last-12-months` is a built-in preset, so it always
 	// resolves; the empty fallback exists only to satisfy the optional return
-	// type. It disables the ranking query rather than silently unpinning the
+	// type. It disables the ranking query rather than silently widening the
 	// window, which the card would show as its empty state — wrong, but only
 	// reachable if the preset itself stopped resolving.
-	const { from, to } = computeDateRangeFromPreset( PRESET_LAST_12_MONTHS ) ?? {
+	const defaultRange = computeDateRangeFromPreset( POPULAR_POST_DEFAULT_PRESET ) ?? {
 		from: '',
 		to: '',
 	};
 
-	const range = useMemo( () => ( { preset: PRESET_LAST_12_MONTHS, from, to } ), [ from, to ] );
+	// Down to primitives first, so a caller building the object inline does not
+	// re-key the report query on every render.
+	const { preset, from, to } = range ?? { preset: POPULAR_POST_DEFAULT_PRESET, ...defaultRange };
+
+	const activeRange = useMemo( () => ( { preset, from, to } ), [ preset, from, to ] );
 
 	// The report is day-bucketed whatever the dashboard's interval, so `day` is
 	// the only honest value here.
@@ -155,5 +178,13 @@ export function usePopularPost(): UsePopularPostResult {
 		  }
 		: null;
 
-	return { post, range, isLoading, isFetching, isError, error: topPostsResult.error, refetch };
+	return {
+		post,
+		range: activeRange,
+		isLoading,
+		isFetching,
+		isError,
+		error: topPostsResult.error,
+		refetch,
+	};
 }
