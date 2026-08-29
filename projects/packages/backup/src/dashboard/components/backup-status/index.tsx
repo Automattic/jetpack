@@ -73,7 +73,11 @@ export function ContactSupportLine() {
 			a: (
 				<Link
 					openInNewTab
-					href={ getRedirectUrl( 'jetpack-contact-support', { site: siteSuffix } ) }
+					// Omitted rather than passed as undefined — see `useSiteSuffix`.
+					href={ getRedirectUrl(
+						'jetpack-contact-support',
+						siteSuffix ? { site: siteSuffix } : {}
+					) }
 				/>
 			),
 		}

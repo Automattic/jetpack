@@ -23,6 +23,19 @@ import { keys } from '../src/dashboard/data/query-client';
 import type { ReactNode } from 'react';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
+const SITE = 'example.wordpress.com';
+
+/**
+ * Replace the site slug the connection global reports, for one test.
+ *
+ * @param siteSuffix - The slug, or undefined for a global that carries none.
+ */
+function setSiteSuffix( siteSuffix: string | undefined ) {
+	window.JP_CONNECTION_INITIAL_STATE = {
+		...window.JP_CONNECTION_INITIAL_STATE,
+		siteSuffix,
+	} as typeof window.JP_CONNECTION_INITIAL_STATE;
+}
 
 /**
  * Render inside an isolated QueryClient.
@@ -185,6 +198,32 @@ describe( 'BackupStatusPanel', () => {
 
 		expect( screen.getByText( "We're having trouble backing up your site" ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /Get in touch with us/ } ) ).toBeInTheDocument();
+	} );
+
+	it( 'tells support which site is asking', () => {
+		setSiteSuffix( SITE );
+
+		render( <BackupStatusPanel state="no-good-backups" progress={ 0 } /> );
+
+		expect( screen.getByRole( 'link', { name: /Get in touch with us/ } ) ).toHaveAttribute(
+			'href',
+			`https://jetpack.com/redirect/?source=jetpack-contact-support&site=${ SITE }`
+		);
+	} );
+
+	it( 'omits the site entirely when the connection global carries no slug', () => {
+		// `getRedirectUrl` walks its args with `for…in`, so a present-but-undefined
+		// `site` is encoded as the literal string `undefined` *and* suppresses the
+		// helper's own site fallback — dropping the site in the one state where
+		// support most needs to know which one is asking.
+		setSiteSuffix( undefined );
+
+		render( <BackupStatusPanel state="no-good-backups" progress={ 0 } /> );
+
+		expect( screen.getByRole( 'link', { name: /Get in touch with us/ } ) ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/redirect/?source=jetpack-contact-support'
+		);
 	} );
 
 	// JETPACK-2329. The panel used to close on "…get familiar with your backup
