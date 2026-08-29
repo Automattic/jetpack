@@ -272,6 +272,12 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		}
 	}, [ wizardStep, isConnected ] );
 
+	// Drop any connect error when the user moves between wizard steps — it belongs
+	// to the step that produced it.
+	useEffect( () => {
+		setConnectError( null );
+	}, [ wizardStep ] );
+
 	// Inline validation state — track which fields have been touched.
 	const [ touchedFields, setTouchedFields ] = useState( {} );
 
