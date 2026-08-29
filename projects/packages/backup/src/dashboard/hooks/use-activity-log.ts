@@ -133,11 +133,17 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
  * rewindable activity, falling through to any other cached pages of
  * the same family if not found.
  *
- * Selection happens by clicking a row, so the item is guaranteed to be
- * in the page that's currently rendered. When the user lands via a
- * bookmarked `?selected=` URL on a different page than the row, this
- * hook returns null and the right pane shows the "Item not found"
- * fallback until the user paginates to that page.
+ * Selection happens by clicking a row, so a clicked item is guaranteed
+ * to be in the page that's currently rendered. Two cases are not
+ * clicks, and both rely on the cache scan below. A bookmarked
+ * `?selected=` URL may name a row on a page nothing has loaded, and
+ * this hook returns null so the right pane shows "Item not found" until
+ * the reader paginates to it. And the first-load default selection is
+ * pinned to the newest backup whatever the list is sorted by, so on an
+ * ascending list it names a row that is genuinely off-screen — there the
+ * scan finds it in the pinned page-1 entry `useDefaultBackupRewindId`
+ * populated, and the pane is right even though no row is highlighted.
+ * See that hook for why that trade is the intended one.
  *
  * @param id        - Selection id: `rewindId` for backup items, `activity_id` otherwise.
  * @param page      - The page currently shown in the list.
@@ -204,6 +210,21 @@ export function useActivityById(
  * restore point the reader has — a wrong default with no error to
  * notice, on the one control in this dashboard that starts a
  * destructive operation.
+ *
+ * The accepted consequence: on an ascending list, the row this returns
+ * is usually not one of the rows on screen. The reader sees the ten
+ * oldest events with nothing highlighted, while the right pane shows the
+ * newest backup's detail card. `useActivityById` resolves it through its
+ * cross-page cache scan, so the pane is populated and correct — it is
+ * simply describing a row the list is not currently showing.
+ *
+ * That is deliberate, and the better of two bad options. Preselecting
+ * whatever happens to be at the top of the visible page would put the
+ * oldest restore point behind a Restore button by default, which is the
+ * failure this pinning exists to prevent. Please do not "fix" the
+ * missing highlight by making this follow the list; if the mismatch is
+ * ever worth closing, close it by clearing the selection when it falls
+ * off the visible page, never by changing what "default" means.
  *
  * @return The newest backup item's rewindId, or null.
  */

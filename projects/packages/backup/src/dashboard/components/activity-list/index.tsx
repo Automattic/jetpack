@@ -30,22 +30,32 @@ type Props = {
 };
 
 /**
- * The sort direction a DataViews view is asking the server for.
+ * The query a DataViews view is asking the server for.
  *
- * Exported because the Overview screen has to derive the same value for
- * `useActivityById`: that lookup shares this list's cache entry, and the
- * direction is part of its key.
+ * Every value the activity-log query is keyed on, derived in one place.
+ * Exported because the Overview screen has to derive the *same* three for
+ * `useActivityById`: that lookup shares this list's cache entry, and all
+ * three are part of its key, so two copies of this arithmetic are two
+ * things that can drift into a second, needless request.
  *
- * Only the direction is read. `view.sort.field` is fixed to the one
- * sortable field (`description`, the timestamp) because WPCOM's
+ * Only the sort *direction* is read. `view.sort.field` is fixed to the
+ * one sortable field (`description`, the timestamp) because WPCOM's
  * `/activity/rewindable` sorts on the event timestamp and takes no field
  * to sort by — so there is nothing a second sortable field could mean.
  *
  * @param view - DataViews view state.
- * @return The direction to request, defaulting to newest-first.
+ * @return The page, page size and direction to request.
  */
-export function activitySortOrder( view: View ): ActivitySortOrder {
-	return view.sort?.direction === 'asc' ? 'asc' : 'desc';
+export function activityQueryArgs( view: View ): {
+	page: number;
+	pageSize: number;
+	sortOrder: ActivitySortOrder;
+} {
+	return {
+		page: view.page ?? 1,
+		pageSize: view.perPage ?? ACTIVITY_LOG_DEFAULT_PER_PAGE,
+		sortOrder: view.sort?.direction === 'asc' ? 'asc' : 'desc',
+	};
 }
 
 /**
@@ -121,13 +131,27 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
  * @return The rendered list.
  */
 export default function ActivityList( { selectedId, onSelect, view, onChangeView }: Props ) {
-	const page = view.page ?? 1;
-	const perPage = view.perPage ?? ACTIVITY_LOG_DEFAULT_PER_PAGE;
+	const { page, pageSize, sortOrder } = activityQueryArgs( view );
 	const { items, totalItems, totalPages, isLoading, isFetching, error, refetch } = useActivityLog( {
 		page,
-		pageSize: perPage,
-		sortOrder: activitySortOrder( view ),
+		pageSize,
+		sortOrder,
 	} );
+
+	// Reordering has to send the reader back to page 1, and DataViews will
+	// not do it. Its `SortDirectionControl` spreads `...view` and replaces
+	// only `sort`, where the `ItemsPerPageControl` beside it sets
+	// `page: 1` — so without this, flipping to ascending on page 3 keeps
+	// page 3 and lands the reader on items 21-30 counted from the oldest
+	// end instead. That destination corresponds to nothing they asked for,
+	// and page 1 of the new order is the only answer that does.
+	const handleChangeView = useCallback(
+		( next: View ) => {
+			const reordered = ( next.sort?.direction ?? 'desc' ) !== sortOrder;
+			onChangeView( reordered ? { ...next, page: 1 } : next );
+		},
+		[ onChangeView, sortOrder ]
+	);
 
 	// DataViews shows its own "No results" whenever `data` is empty, and a
 	// failed request leaves it empty — so without this a 5xx tells the
@@ -174,7 +198,6 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				type: 'text',
 				label: __( 'Title', 'jetpack-backup-pkg' ),
 				getValue: ( { item } ) => item.title,
-				enableGlobalSearch: true,
 				enableSorting: false,
 				filterBy: false,
 			},
@@ -192,7 +215,6 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 					`${ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }${
 						item.summary ? ` ${ item.summary }` : ''
 					}`,
-				enableGlobalSearch: true,
 				enableHiding: false,
 				filterBy: false,
 			},
@@ -235,7 +257,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				data={ items }
 				fields={ fields }
 				view={ view }
-				onChangeView={ onChangeView }
+				onChangeView={ handleChangeView }
 				paginationInfo={ { totalItems, totalPages } }
 				defaultLayouts={ { list: {} } }
 				getItemId={ getRowId }

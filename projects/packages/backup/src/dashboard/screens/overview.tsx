@@ -3,7 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Text } from '@wordpress/ui';
 import ActivityDetail from '../components/activity-detail';
-import ActivityList, { activitySortOrder } from '../components/activity-list';
+import ActivityList, { activityQueryArgs } from '../components/activity-list';
 import BackupDetail from '../components/backup-detail';
 import BackupNowButton from '../components/backup-now-button';
 import BackupStatusPanel, { replacesOverview } from '../components/backup-status';
@@ -127,8 +127,9 @@ export default function OverviewScreen() {
 	// View state lives here so RightPane's `useActivityById` can
 	// subscribe to the same paginated query the list reads from.
 	const [ view, setView ] = useState< View >( INITIAL_VIEW );
-	const page = view.page ?? 1;
-	const perPage = view.perPage ?? ACTIVITY_LOG_DEFAULT_PER_PAGE;
+	// Derived by the same function `<ActivityList>` uses, so the right
+	// pane cannot ask for a different cache entry than the list filled.
+	const { page, pageSize, sortOrder } = activityQueryArgs( view );
 	// Subscribe to page 1 of the activity log so the right pane
 	// reconciles to the newest backup the moment that page resolves.
 	// Until then, `defaultSelectedId` is null and the empty-state
@@ -287,8 +288,8 @@ export default function OverviewScreen() {
 				<RightPane
 					selectedId={ selectedId }
 					page={ page }
-					pageSize={ perPage }
-					sortOrder={ activitySortOrder( view ) }
+					pageSize={ pageSize }
+					sortOrder={ sortOrder }
 				/>
 			</div>
 		</DashboardLayout>

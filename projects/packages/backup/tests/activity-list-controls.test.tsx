@@ -177,6 +177,43 @@ describe( 'the cog, before anyone touches it', () => {
 } );
 
 describe( 'the Order control', () => {
+	it( 'sends the reader back to page 1 when the order flips', async () => {
+		// DataViews will not do this itself: `SortDirectionControl` spreads
+		// `...view` and replaces only `sort`, where the `ItemsPerPageControl`
+		// next to it sets `page: 1`. Left alone, a reader on page 3 of a
+		// descending log flips to ascending and stays on page 3 — now
+		// items 21-30 counted from the oldest end, a destination that
+		// corresponds to nothing they asked for.
+		await renderAndOpenViewOptions();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Next page' } ) );
+		await waitFor( () =>
+			expect( requestedPaths().some( path => path.includes( 'page=2' ) ) ).toBe( true )
+		);
+
+		await userEvent.click( screen.getByRole( 'radio', { name: /ascending/i } ) );
+
+		await waitFor( () =>
+			expect( requestedPaths().some( path => path.includes( 'sort_order=asc' ) ) ).toBe( true )
+		);
+		const ascending = requestedPaths().filter( path => path.includes( 'sort_order=asc' ) );
+		expect( ascending ).toHaveLength( 1 );
+		expect( ascending[ 0 ] ).toContain( 'page=1' );
+		expect( ascending[ 0 ] ).not.toContain( 'page=2' );
+	} );
+
+	it( 'leaves the page alone when something other than the order changes', async () => {
+		// The reset is scoped to a reorder. Paging must not reset itself to
+		// page 1, which would make the Next button inert.
+		await renderAndOpenViewOptions();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Next page' } ) );
+
+		await waitFor( () =>
+			expect( requestedPaths().some( path => path.includes( 'page=2' ) ) ).toBe( true )
+		);
+	} );
+
 	it( 'reorders the whole log server-side rather than the rows on screen', async () => {
 		await renderAndOpenViewOptions();
 

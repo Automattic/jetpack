@@ -266,6 +266,87 @@ describe( 'the newest-backup consumers', () => {
 	} );
 } );
 
+describe( 'the default selection on an ascending list', () => {
+	it( 'resolves the newest backup even though no visible row holds it', async () => {
+		// Pinned as intended, not tolerated. The reader sees the ten oldest
+		// events with nothing highlighted while the right pane describes the
+		// newest backup — populated via the cross-page cache scan, because
+		// `useDefaultBackupRewindId` keeps its own newest-first page-1 entry.
+		//
+		// The alternative is preselecting whatever sits at the top of the
+		// visible page, which on an ascending list is the OLDEST restore
+		// point, behind a Restore button, by default. This test exists so
+		// that "fix" fails loudly rather than looking like an improvement.
+		const { result } = renderHook(
+			() => {
+				const list = useActivityLog( {
+					page: 1,
+					pageSize: ACTIVITY_LOG_DEFAULT_PER_PAGE,
+					sortOrder: 'asc',
+				} );
+				const defaultRewindId = useDefaultBackupRewindId();
+				return {
+					list,
+					defaultRewindId,
+					item: useActivityById( defaultRewindId, 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'asc' ),
+				};
+			},
+			{ wrapper: wrapper() }
+		);
+
+		await waitFor( () => expect( result.current.item ).not.toBeNull() );
+
+		// The pane resolves the newest backup…
+		expect( result.current.defaultRewindId ).toBe( NEWEST_ID );
+		expect( result.current.item ).toMatchObject( { rewindId: NEWEST_ID } );
+		// …and the list is showing rows that start from the other end.
+		expect( result.current.list.items[ 0 ] ).toMatchObject( { rewindId: OLDEST_ID } );
+	} );
+
+	it( 'leaves the selection off-screen rather than moving it onto the page', async () => {
+		// The mismatch made explicit, on a page that genuinely excludes the
+		// selection. Page 2 ascending holds neither end's newest row, so a
+		// consumer that quietly re-derived the default from the visible page
+		// would have to change one of these two assertions.
+		mockedApiFetch.mockImplementation( ( options: { path?: string } ) => {
+			const path = options?.path ?? '';
+			if ( path.includes( 'page=2' ) ) {
+				return Promise.resolve( {
+					current: { orderedItems: [ backupEntry( MIDDLE_ID, '2026-08-19T10:00:00+00:00' ) ] },
+					totalItems: 3,
+					totalPages: 2,
+				} );
+			}
+			return Promise.resolve( path.includes( 'sort_order=asc' ) ? ASCENDING : DESCENDING );
+		} );
+
+		const { result } = renderHook(
+			() => {
+				const list = useActivityLog( {
+					page: 2,
+					pageSize: ACTIVITY_LOG_DEFAULT_PER_PAGE,
+					sortOrder: 'asc',
+				} );
+				const defaultRewindId = useDefaultBackupRewindId();
+				return {
+					list,
+					defaultRewindId,
+					item: useActivityById( defaultRewindId, 2, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'asc' ),
+				};
+			},
+			{ wrapper: wrapper() }
+		);
+
+		await waitFor( () => expect( result.current.item ).not.toBeNull() );
+
+		const visibleIds = result.current.list.items.map( item =>
+			item.kind === 'backup' ? item.rewindId : item.id
+		);
+		expect( visibleIds ).not.toContain( NEWEST_ID );
+		expect( result.current.item ).toMatchObject( { rewindId: NEWEST_ID } );
+	} );
+} );
+
 describe( 'useActivityById', () => {
 	it( 'shares the list page rather than opening a second query for it', async () => {
 		const { result } = renderHook(
