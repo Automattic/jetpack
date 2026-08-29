@@ -4,7 +4,7 @@
  * Layout follows the i4 Overview frame (Free plan / Paid plan cards).
  */
 
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { AiIcon, getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink, ProgressBar, Spinner, VisuallyHidden } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
@@ -13,9 +13,6 @@ import { list } from '@wordpress/icons';
 import { Card, Link, LinkButton, Notice, Stack, Text } from '@wordpress/ui';
 import NavRow from '../components/nav-row';
 import AssistantBanner from './assistant-banner';
-// Stand-in for the Figma export of the depleted-state artwork (browser window
-// with the Jetpack mark and a prompt pill); replace the file, keep the name.
-import allRequestsUsedIllustration from './images/all-requests-used.svg';
 import buildPageThumb from './images/build-page.webp';
 import connectClaudeThumb from './images/connect-claude.webp';
 import mediaLibraryThumb from './images/media-library.webp';
@@ -76,32 +73,6 @@ const DOC_LINKS = [
 		title: __( 'Available capabilities', 'jetpack' ),
 	},
 ];
-
-/**
- * The AI sparkle cluster, copied from ai-client's aiAssistantIcon: that
- * package only exports from its root, which drags @wordpress/blocks into this
- * admin bundle for one icon, so the geometry is inlined here instead (as the
- * assistant banner does with the Jetpack mark).
- *
- * @return {object} Component markup.
- */
-function AiSparkleIcon() {
-	return (
-		<svg
-			className="jetpack-ai-overview__depleted-icon"
-			viewBox="0 0 32 32"
-			width="24"
-			height="24"
-			fill="currentColor"
-			aria-hidden="true"
-			focusable="false"
-		>
-			<path d="M9.33301 5.33325L10.4644 8.20188L13.333 9.33325L10.4644 10.4646L9.33301 13.3333L8.20164 10.4646L5.33301 9.33325L8.20164 8.20188L9.33301 5.33325Z" />
-			<path d="M21.3333 5.33333L22.8418 9.15817L26.6667 10.6667L22.8418 12.1752L21.3333 16L19.8248 12.1752L16 10.6667L19.8248 9.15817L21.3333 5.33333Z" />
-			<path d="M14.6667 13.3333L16.5523 18.1144L21.3333 20L16.5523 21.8856L14.6667 26.6667L12.781 21.8856L8 20L12.781 18.1144L14.6667 13.3333Z" />
-		</svg>
-	);
-}
 
 /**
  * The "Available requests" readout shared by the standard card and the
@@ -241,9 +212,16 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 				) }
 
 				{ ! isLoading && ! error && showDepletedUpsell && (
+					// Mirrors the standard card's two-cell grid (minus the divider):
+					// icon and pitch on the left, the same requests readout with the
+					// Upgrade button on the right.
 					<div className="jetpack-ai-overview__depleted">
 						<div className="jetpack-ai-overview__depleted-content">
-							<AiSparkleIcon />
+							{ /* The wrapper carries the layout class: AiIcon accepts no
+						     className. currentColor tracks the heading, not JP green. */ }
+							<div className="jetpack-ai-overview__depleted-icon">
+								<AiIcon size={ 28 } color="currentColor" />
+							</div>
 							<Text render={ <h2 /> } variant="heading-lg">
 								{ __( 'You’ve used all your requests', 'jetpack' ) }
 							</Text>
@@ -253,17 +231,15 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 									'jetpack'
 								) }
 							</Text>
+						</div>
+						{ /* The usage-cell primitive: eyebrow pinned top, readout
+						     bottom-anchored, exactly as in the standard card. */ }
+						<div className="jetpack-ai-overview__usage-cell">
 							<RequestsMeter usage={ usage } />
 							<LinkButton href={ upgradeUrl } className="jetpack-ai-overview__depleted-cta">
 								{ __( 'Upgrade', 'jetpack' ) }
 							</LinkButton>
 						</div>
-						{ /* Decorative: the heading carries the meaning. */ }
-						<img
-							className="jetpack-ai-overview__depleted-illustration"
-							src={ allRequestsUsedIllustration }
-							alt=""
-						/>
 					</div>
 				) }
 

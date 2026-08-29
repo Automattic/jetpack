@@ -32,7 +32,8 @@
 		}
 
 		&--plan {
-			// Same rgba as MCP Settings' @wordpress/components Card (CONFIG.surfaceBorderColor).
+			// Same rgba as MCP Settings' @wordpress/components Card
+			// (CONFIG.surfaceBorderColor).
 			border-inline-start: 1px solid rgba(0, 0, 0, 0.1);
 			padding-inline-start: var(--wpds-dimension-gap-xl, 24px);
 			margin-inline-start: var(--wpds-dimension-gap-xl, 24px);
@@ -54,7 +55,9 @@
 	}
 
 	// The depleted upsell replaces the two-cell layout once every request is
-	// used: icon, copy, meter, and button on the left, illustration right.
+	// used, mirroring its grid without the divider: icon and pitch on the
+	// left, the requests readout with the Upgrade button on the right (the
+	// right cell reuses __usage-cell above).
 	&__depleted {
 		display: flex;
 		align-items: stretch;
@@ -78,29 +81,24 @@
 		> h2 {
 			margin-block-start: var(--wpds-dimension-gap-sm, 8px);
 		}
-
-		.jetpack-ai-overview__eyebrow {
-			margin-block-start: var(--wpds-dimension-gap-lg, 16px);
-		}
 	}
 
+	// Icon pinned top, heading and copy bottom-anchored — the same rhythm the
+	// usage cell gives its eyebrow and readout, so the two columns align.
 	&__depleted-icon {
 		display: block;
+		margin-block-end: auto;
+
+		svg {
+			// Kill the inline-svg baseline gap inside the wrapper.
+			display: block;
+		}
 	}
 
 	// Doubled class beats the component's runtime-injected rules by order.
 	&__depleted-cta#{&}__depleted-cta {
 		align-self: flex-start;
-		margin-block-start: var(--wpds-dimension-gap-lg, 16px);
-	}
-
-	// Cover, not contain: the export bakes in its own framing, so cropping an
-	// edge beats letterboxing when the copy column runs taller than 45% wide.
-	&__depleted-illustration {
-		flex: 0 0 50%;
-		min-inline-size: 0;
-		max-inline-size: 100%;
-		border-radius: var(--wpds-border-radius-lg, 8px);
+		margin-block-start: var(--wpds-dimension-gap-lg, 14px);
 	}
 
 	&__muted {
@@ -161,7 +159,8 @@
 	&__video {
 		display: flex;
 		flex-direction: column;
-		// Same rgba as MCP Settings' @wordpress/components Card (CONFIG.surfaceBorderColor).
+		// Same rgba as MCP Settings' @wordpress/components Card
+		// (CONFIG.surfaceBorderColor).
 		border: 1px solid rgba(0, 0, 0, 0.1);
 		border-radius: var(--wpds-border-radius-lg, 8px);
 		overflow: hidden;
