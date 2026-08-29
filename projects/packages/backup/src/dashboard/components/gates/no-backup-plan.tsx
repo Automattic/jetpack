@@ -11,9 +11,12 @@ import UpgradeButton from './upgrade-button';
  *
  * This is the whole purchase path for a site that is known to have no
  * Backup, so it carries both ways in: buy one, or redeem one already
- * bought. The purchase link itself lives in `<UpgradeButton>`, which the
- * secondary-admin screen shares — that reader may be on a plan-less site
- * too, and their screen has no way to find out.
+ * bought. The purchase link itself lives in `<UpgradeButton>`.
+ *
+ * It is also the only screen that can carry it. Checkout needs a linked
+ * WordPress.com connection, and this gate is reached only once there is
+ * one — which is why the secondary-admin gate routes its reader through
+ * linking to here rather than offering a shortcut they cannot complete.
  *
  * @return The rendered fallback.
  */

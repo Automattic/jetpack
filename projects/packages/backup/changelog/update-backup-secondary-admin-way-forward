@@ -1,5 +1,5 @@
 Significance: patch
 Type: changed
-Comment: Modernized dashboard only, behind the flag: the secondary-admin gate now offers the Backup purchase path alongside account linking, and no longer promises backups on a site that may have no plan.
+Comment: Modernized dashboard only, behind the flag: the secondary-admin gate no longer promises backups on a site that may have no plan, and tells the reader a plan may also be needed.
 
 
