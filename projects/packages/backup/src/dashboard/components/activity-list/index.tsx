@@ -8,6 +8,7 @@ import { ACTIVITY_LOG_DEFAULT_PER_PAGE, useActivityLog } from '../../hooks/use-a
 import { isBackupItem } from '../../types/activity';
 import QueryError from '../query-error';
 import './style.scss';
+import type { ActivitySortOrder } from '../../data/api/activity-log';
 import type { ActivityItem, ActivityKind } from '../../types/activity';
 import type { Field, View } from '@wordpress/dataviews';
 
@@ -27,6 +28,25 @@ type Props = {
 	view: View;
 	onChangeView: ( next: View ) => void;
 };
+
+/**
+ * The sort direction a DataViews view is asking the server for.
+ *
+ * Exported because the Overview screen has to derive the same value for
+ * `useActivityById`: that lookup shares this list's cache entry, and the
+ * direction is part of its key.
+ *
+ * Only the direction is read. `view.sort.field` is fixed to the one
+ * sortable field (`description`, the timestamp) because WPCOM's
+ * `/activity/rewindable` sorts on the event timestamp and takes no field
+ * to sort by — so there is nothing a second sortable field could mean.
+ *
+ * @param view - DataViews view state.
+ * @return The direction to request, defaulting to newest-first.
+ */
+export function activitySortOrder( view: View ): ActivitySortOrder {
+	return view.sort?.direction === 'asc' ? 'asc' : 'desc';
+}
 
 /**
  * Returns the row's stable id for DataViews selection bookkeeping.
@@ -106,6 +126,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 	const { items, totalItems, totalPages, isLoading, isFetching, error, refetch } = useActivityLog( {
 		page,
 		pageSize: perPage,
+		sortOrder: activitySortOrder( view ),
 	} );
 
 	// DataViews shows its own "No results" whenever `data` is empty, and a
@@ -122,6 +143,18 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 		/>
 	) : undefined;
 
+	// `filterBy: false` on every field, deliberately and load-bearing.
+	//
+	// DataViews derives one filter per filterable field, and a `text`
+	// field is filterable by default. Nothing here can honour a filter —
+	// the rows are one server-paginated page and `/activity/rewindable`
+	// takes no search term — so every filter offered would be inert. The
+	// funnel is also actively harmful: opening a filter reaches a private
+	// `@wordpress/components` API that recent versions no longer lock,
+	// which drops the whole dashboard to its error boundary, and adding
+	// one resets `page` to 1 under a reader who is on page 3. Zero
+	// filters makes DataViews' `FiltersToggle` render nothing, which puts
+	// all of that out of reach.
 	const fields: Field< ActivityItem >[] = useMemo(
 		() => [
 			{
@@ -131,15 +164,26 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				render: MediaCell,
 				enableHiding: false,
 				enableSorting: false,
+				filterBy: false,
 			},
 			{
+				// Not sortable: upstream orders by event timestamp and
+				// accepts no field to sort by, so a "Sort by: Title" the
+				// server can never honour would be a label that lies.
 				id: 'title',
 				type: 'text',
 				label: __( 'Title', 'jetpack-backup-pkg' ),
 				getValue: ( { item } ) => item.title,
 				enableGlobalSearch: true,
+				enableSorting: false,
+				filterBy: false,
 			},
 			{
+				// The one sortable field, and the one the server actually
+				// orders on. `INITIAL_VIEW.sort` names it so the cog reads
+				// "Sort by: When, descending" from first open — true of the
+				// rows as served, where an unset `sort` left the native
+				// select showing its first option instead.
 				id: 'description',
 				type: 'text',
 				label: __( 'When', 'jetpack-backup-pkg' ),
@@ -150,6 +194,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 					}`,
 				enableGlobalSearch: true,
 				enableHiding: false,
+				filterBy: false,
 			},
 		],
 		[]

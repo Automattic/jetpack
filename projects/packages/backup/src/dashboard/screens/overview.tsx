@@ -3,7 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Text } from '@wordpress/ui';
 import ActivityDetail from '../components/activity-detail';
-import ActivityList from '../components/activity-list';
+import ActivityList, { activitySortOrder } from '../components/activity-list';
 import BackupDetail from '../components/backup-detail';
 import BackupNowButton from '../components/backup-now-button';
 import BackupStatusPanel, { replacesOverview } from '../components/backup-status';
@@ -22,15 +22,33 @@ import { useAnalytics } from '../hooks/use-analytics';
 import { useBackups } from '../hooks/use-backups';
 import { useRefreshActivityOnBackupComplete } from '../hooks/use-refresh-activity-on-backup-complete';
 import { isBackupItem } from '../types/activity';
+import type { ActivitySortOrder } from '../data/api/activity-log';
 import type { View } from '@wordpress/dataviews';
 
 type OverviewSearch = Record< string, unknown > & { selected?: string };
 
-const INITIAL_VIEW: View = {
+/**
+ * The list's starting view state.
+ *
+ * Exported so the control-surface tests can pin what a reader sees on
+ * first open — the seeded `sort` below is the whole of the fix for two
+ * bugs, and both of them are only visible before anyone has clicked
+ * anything.
+ */
+export const INITIAL_VIEW: View = {
 	type: 'list',
 	page: 1,
 	perPage: ACTIVITY_LOG_DEFAULT_PER_PAGE,
 	filters: [],
+	// Seeded, not left undefined, and it has to name `description` — the
+	// only field this list makes sortable, and the timestamp WordPress.com
+	// actually orders on. Two things go wrong without it. The cog's "Sort
+	// by" is a native `<select>` with no value, so it displays its first
+	// option and claims an ordering the rows do not have; and DataViews
+	// disables the whole items-per-page group until `view.sort.field` is
+	// set, freezing the list at ten rows for any reader who never opens
+	// Order (JETPACK-2298).
+	sort: { field: 'description', direction: 'desc' },
 	titleField: 'title',
 	mediaField: 'icon',
 	descriptionField: 'description',
@@ -266,7 +284,12 @@ export default function OverviewScreen() {
 					view={ view }
 					onChangeView={ setView }
 				/>
-				<RightPane selectedId={ selectedId } page={ page } pageSize={ perPage } />
+				<RightPane
+					selectedId={ selectedId }
+					page={ page }
+					pageSize={ perPage }
+					sortOrder={ activitySortOrder( view ) }
+				/>
 			</div>
 		</DashboardLayout>
 	);
@@ -284,18 +307,23 @@ export default function OverviewScreen() {
  * @param props.selectedId - Currently selected row id, or null when nothing is selected.
  * @param props.page       - The page currently shown in the list.
  * @param props.pageSize   - The per-page setting currently shown in the list.
+ * @param props.sortOrder  - The sort direction currently shown in the list.
  * @return The rendered detail card or an empty-state placeholder.
  */
 function RightPane( {
 	selectedId,
 	page,
 	pageSize,
+	sortOrder,
 }: {
 	selectedId: string | null;
 	page: number;
 	pageSize: number;
+	sortOrder: ActivitySortOrder;
 } ) {
-	const item = useActivityById( selectedId, page, pageSize );
+	// All four must match what the list asked for: this is a read of the
+	// list's own cache entry, not a second request.
+	const item = useActivityById( selectedId, page, pageSize, sortOrder );
 	if ( ! selectedId ) {
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">

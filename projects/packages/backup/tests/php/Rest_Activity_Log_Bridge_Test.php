@@ -163,6 +163,61 @@ class Rest_Activity_Log_Bridge_Test extends TestCase {
 	}
 
 	/**
+	 * The sort direction reaches WordPress.com.
+	 *
+	 * Ordering is a server concern: the dashboard holds one page of a
+	 * paginated log, so a direction that stopped at the bridge would leave
+	 * the reader's Order control reversing ten rows and calling that a
+	 * sort. Asserted on the outgoing URL for that reason.
+	 */
+	public function test_forwards_the_sort_direction() {
+		$this->arrange_wpcom( array( 'current' => array( 'orderedItems' => array() ) ) );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/site/rewindable-activity' );
+		$request->set_param( 'page', 1 );
+		$request->set_param( 'number', 10 );
+		$request->set_param( 'sort_order', 'asc' );
+		Activity_Log_Bridge::get_activity_log( $request );
+
+		$this->assertStringContainsString( 'sort_order=asc', $this->captured_url );
+	}
+
+	/**
+	 * Absent means absent, not empty.
+	 *
+	 * `array_filter` drops the key entirely when nothing asked for a
+	 * direction, so WordPress.com applies its own `desc` default. Sending
+	 * `sort_order=` instead would fail the route's own `enum`.
+	 */
+	public function test_omits_the_sort_direction_when_none_is_given() {
+		$this->arrange_wpcom( array( 'current' => array( 'orderedItems' => array() ) ) );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/site/rewindable-activity' );
+		$request->set_param( 'page', 1 );
+		$request->set_param( 'number', 10 );
+		Activity_Log_Bridge::get_activity_log( $request );
+
+		$this->assertStringNotContainsString( 'sort_order', $this->captured_url );
+	}
+
+	/**
+	 * A direction outside the enum is refused here rather than by
+	 * WordPress.com, so the reason names the parameter.
+	 *
+	 * Dispatched through the REST server on purpose: `args` validation is
+	 * the server's job, and calling the callback directly would skip the
+	 * very thing under test.
+	 */
+	public function test_rejects_a_direction_outside_the_enum() {
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/site/rewindable-activity' );
+		$request->set_param( 'sort_order', 'sideways' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+	}
+
+	/**
 	 * A success code reported as a string is a success.
 	 *
 	 * `wp_remote_retrieve_response_code()` hands back whatever the

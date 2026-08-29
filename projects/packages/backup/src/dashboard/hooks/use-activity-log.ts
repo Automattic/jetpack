@@ -2,6 +2,7 @@ import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-quer
 import { useCallback, useMemo } from '@wordpress/element';
 import {
 	fetchActivityLog,
+	type ActivitySortOrder,
 	type WpcomActivityEntry,
 	type WpcomActivityLogResponse,
 } from '../data/api/activity-log';
@@ -14,6 +15,7 @@ import type { ActivityItem } from '../types/activity';
 type Args = {
 	page: number;
 	pageSize: number;
+	sortOrder: ActivitySortOrder;
 };
 
 type Result = {
@@ -41,6 +43,15 @@ type Result = {
 export const ACTIVITY_LOG_DEFAULT_PER_PAGE = 10;
 
 /**
+ * The order the list starts in, and the only order in which "the first
+ * backup row" means "the newest backup".
+ *
+ * `useDefaultBackupRewindId` and `useHasRestorePoints` are pinned to it
+ * for that reason — see their docblocks.
+ */
+export const ACTIVITY_LOG_NEWEST_FIRST: ActivitySortOrder = 'desc';
+
+/**
  * Shared `useQuery` for a single page of the rewindable activity log.
  *
  * `keepPreviousData` keeps the previous page visible while the next
@@ -53,15 +64,21 @@ export const ACTIVITY_LOG_DEFAULT_PER_PAGE = 10;
  * to not render it. Consumers inside the gated body get `enabled: true`
  * for free, since they only mount once the connection checks pass.
  *
- * @param page     - 1-indexed page number.
- * @param pageSize - Items per page.
+ * The ordering is a query parameter, not a client-side sort: WPCOM
+ * orders the whole result set and hands back one page of it. That is why
+ * `sortOrder` is in the cache key and why the two "newest backup"
+ * consumers below must not inherit the list's value.
+ *
+ * @param page      - 1-indexed page number.
+ * @param pageSize  - Items per page.
+ * @param sortOrder - Sort direction.
  * @return The page query.
  */
-function useActivityPageQuery( page: number, pageSize: number ) {
+function useActivityPageQuery( page: number, pageSize: number, sortOrder: ActivitySortOrder ) {
 	const enabled = useCanQueryWpcom();
 	return useQuery( {
-		queryKey: keys.activityLogPage( page, pageSize ),
-		queryFn: () => fetchActivityLog( { page, number: pageSize } ),
+		queryKey: keys.activityLogPage( page, pageSize, sortOrder ),
+		queryFn: () => fetchActivityLog( { page, number: pageSize, sort_order: sortOrder } ),
 		placeholderData: keepPreviousData,
 		enabled,
 	} );
@@ -75,13 +92,14 @@ function useActivityPageQuery( page: number, pageSize: number ) {
  * does the paging, `totalItems` / `totalPages` come back in the
  * envelope, and DataViews owns the footer.
  *
- * @param args          - Query args.
- * @param args.page     - 1-indexed page number.
- * @param args.pageSize - Items per page.
+ * @param args           - Query args.
+ * @param args.page      - 1-indexed page number.
+ * @param args.pageSize  - Items per page.
+ * @param args.sortOrder - Sort direction, from the list's Order control.
  * @return Items, total items, total pages, loading, error, refetch.
  */
-export function useActivityLog( { page, pageSize }: Args ): Result {
-	const query = useActivityPageQuery( page, pageSize );
+export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
+	const query = useActivityPageQuery( page, pageSize, sortOrder );
 	const { refetch } = query;
 	// Held across the retry: React Query rewinds this query to `pending`
 	// when it refetches after a failure, so without this the reason
@@ -121,19 +139,23 @@ export function useActivityLog( { page, pageSize }: Args ): Result {
  * hook returns null and the right pane shows the "Item not found"
  * fallback until the user paginates to that page.
  *
- * @param id       - Selection id: `rewindId` for backup items, `activity_id` otherwise.
- * @param page     - The page currently shown in the list.
- * @param pageSize - The per-page setting currently shown in the list.
+ * @param id        - Selection id: `rewindId` for backup items, `activity_id` otherwise.
+ * @param page      - The page currently shown in the list.
+ * @param pageSize  - The per-page setting currently shown in the list.
+ * @param sortOrder - The sort direction currently shown in the list.
  * @return The matching item, or null when nothing in the cached page(s) matches.
  */
 export function useActivityById(
 	id: string | null,
 	page: number,
-	pageSize: number
+	pageSize: number,
+	sortOrder: ActivitySortOrder
 ): ActivityItem | null {
 	// Subscribe to the same page query the list uses so this hook
-	// re-renders the moment the list's data resolves.
-	const query = useActivityPageQuery( page, pageSize );
+	// re-renders the moment the list's data resolves. `sortOrder` is
+	// part of the cache key, so it has to follow the list's — pinning it
+	// would open a second query for rows already on screen.
+	const query = useActivityPageQuery( page, pageSize, sortOrder );
 	const queryClient = useQueryClient();
 
 	return useMemo( () => {
@@ -170,14 +192,23 @@ export function useActivityById(
  * default selection reconciles to the newest backup the moment the
  * page-1 fetch resolves.
  *
- * Always reads page 1 with the default per-page size, regardless of
- * which page the list is currently on. When the list is also on page 1
- * with the default size, TanStack dedupes — no extra fetch.
+ * Always reads page 1 with the default per-page size and newest-first
+ * ordering, regardless of what the list is currently showing. When the
+ * list is also on page 1 with the default size and default order,
+ * TanStack dedupes — no extra fetch.
+ *
+ * The ordering is pinned, not inherited, and that is the whole
+ * correctness of this hook: "the first backup row" only means "the
+ * newest backup" while the server is sorting newest-first. Following the
+ * list into ascending order would silently preselect the *oldest*
+ * restore point the reader has — a wrong default with no error to
+ * notice, on the one control in this dashboard that starts a
+ * destructive operation.
  *
  * @return The newest backup item's rewindId, or null.
  */
 export function useDefaultBackupRewindId(): string | null {
-	const query = useActivityPageQuery( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE );
+	const query = useActivityPageQuery( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, ACTIVITY_LOG_NEWEST_FIRST );
 	return useMemo( () => {
 		const items = normalizeActivityLog( query.data?.current?.orderedItems );
 		for ( const item of items ) {
@@ -193,8 +224,13 @@ export function useDefaultBackupRewindId(): string | null {
  * Whether the newest page of rewindable activity holds any backup row,
  * and whether that is known yet.
  *
- * Shares the page-1 query with `useDefaultBackupRewindId`, so it costs
- * no extra request.
+ * Shares the page-1 newest-first query with `useDefaultBackupRewindId`,
+ * so it costs no extra request — and is pinned to that ordering for a
+ * second reason of its own. This answer gates the first-run takeover
+ * panel, so it must be asked of a fixed window: reading whichever page
+ * the list happens to be showing would let paginating away from page 1
+ * report "no restore points" and replace the dashboard with the
+ * first-backup screen on a site full of backups.
  *
  * This is a second, independent opinion on "does this site have a
  * restore point". `/jetpack/v4/backups` only reports VaultPress's most
@@ -218,7 +254,7 @@ export function useHasRestorePoints(): {
 	isLoading: boolean;
 	isError: boolean;
 } {
-	const query = useActivityPageQuery( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE );
+	const query = useActivityPageQuery( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, ACTIVITY_LOG_NEWEST_FIRST );
 	const hasRestorePoints = useMemo(
 		() =>
 			normalizeActivityLog( query.data?.current?.orderedItems ).some(
