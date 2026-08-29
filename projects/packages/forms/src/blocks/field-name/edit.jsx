@@ -1,3 +1,5 @@
+import { store as blockEditorStore } from '@wordpress/block-editor';
+import { useDispatch } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackField from '../shared/components/jetpack-field.jsx';
@@ -17,6 +19,8 @@ export default function NameFieldEdit( props ) {
 
 	useFormWrapper( props );
 
+	const { __unstableMarkNextChangeAsNotPersistent } = useDispatch( blockEditorStore );
+
 	// Initialize fieldVariant for backward compatibility with existing Name field blocks.
 	useEffect( () => {
 		if ( fieldVariant ) {
@@ -30,8 +34,11 @@ export default function NameFieldEdit( props ) {
 			variant = LAST_NAME_ID;
 		}
 
+		// Backfilling an attribute the block did not have yet is not a user edit,
+		// so it must not mark the post or template holding the form as changed.
+		__unstableMarkNextChangeAsNotPersistent();
 		setAttributes( { fieldVariant: variant } );
-	}, [ fieldVariant, id, setAttributes ] );
+	}, [ fieldVariant, id, setAttributes, __unstableMarkNextChangeAsNotPersistent ] );
 
 	// Update HTML IDs and labels when transforming between variations.
 	useNameFieldTransforms( { clientId, fieldVariant } );

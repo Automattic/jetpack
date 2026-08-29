@@ -260,20 +260,40 @@ function JetpackContactFormEdit( {
 		errorType: syncedFormErrorType,
 	} = useSyncedForm( ref );
 
+	const { replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent, updateBlockAttributes } =
+		useDispatch( blockEditorStore );
+
 	// Backward compatibility for the deprecated customThankyou attribute.
 	// Older forms will have a customThankyou attribute set, but not a confirmationType attribute
 	// and not a disableSummary attribute, so we need to set it here.
 	useEffect( () => {
+		const migrated: Partial< JetpackContactFormAttributes > = {};
+
 		// Migrate redirect setting from deprecated customThankyou attribute
 		if ( customThankyou === 'redirect' && confirmationType !== 'redirect' ) {
-			setAttributes( { confirmationType: 'redirect' } );
+			migrated.confirmationType = 'redirect';
 		}
 
 		// Migrate disableSummary from deprecated customThankyou attribute
 		if ( [ 'noSummary', 'message' ].includes( customThankyou ) && ! disableSummary ) {
-			setAttributes( { disableSummary: true } );
+			migrated.disableSummary = true;
 		}
-	}, [ confirmationType, customThankyou, disableSummary, setAttributes ] );
+
+		if ( ! Object.keys( migrated ).length ) {
+			return;
+		}
+
+		// Migrating an old attribute is not a user edit, so it must not mark the
+		// post, template, or template part holding the form as having changes.
+		__unstableMarkNextChangeAsNotPersistent();
+		setAttributes( migrated );
+	}, [
+		confirmationType,
+		customThankyou,
+		disableSummary,
+		setAttributes,
+		__unstableMarkNextChangeAsNotPersistent,
+	] );
 
 	const steps = useFormSteps( clientId );
 
@@ -437,9 +457,6 @@ function JetpackContactFormEdit( {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'contact-form' );
 
-	const { replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent, updateBlockAttributes } =
-		useDispatch( blockEditorStore );
-
 	const { editEntityRecord } = useDispatch( coreStore );
 	const { setActiveStep } = useDispatch( singleStepStore );
 
@@ -557,11 +574,21 @@ function JetpackContactFormEdit( {
 
 			// Check if the field is not already required
 			if ( ! singleField.attributes?.required ) {
-				// Update the field to be required
+				/*
+				 * Nobody asked for this, so it must not count as an edit. Otherwise a
+				 * one-field form -- a footer newsletter signup, say -- opens its post,
+				 * template, or template part with unsaved changes on every load.
+				 */
+				__unstableMarkNextChangeAsNotPersistent();
 				updateBlockAttributes( singleField.clientId, { required: true } );
 			}
 		}
-	}, [ currentInnerBlocks, getInputFieldBlocks, updateBlockAttributes ] );
+	}, [
+		currentInnerBlocks,
+		getInputFieldBlocks,
+		updateBlockAttributes,
+		__unstableMarkNextChangeAsNotPersistent,
+	] );
 
 	// Helper function to get all field blocks (blocks with width attribute)
 	const getFieldBlocks = useCallback( ( blocks: typeof currentInnerBlocks ) => {
