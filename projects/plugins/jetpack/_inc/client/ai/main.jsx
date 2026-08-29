@@ -2,8 +2,10 @@
  * Root component for the Jetpack AI admin page.
  *
  * Four top-level tabs (Overview | WordPress Agent | Scheduled tasks | MCP Settings) with hash-based
- * routing. The MCP tab owns the read | write | setup sub-views, which render
- * with breadcrumbs in place of the tab bar.
+ * routing. The MCP tab owns the mcp/read | mcp/write | mcp/setup sub-views,
+ * which render with breadcrumbs in place of the page title while keeping the
+ * tab bar — with MCP Settings selected, since the first path segment names the
+ * owning tab — so top-level navigation is always available.
  *
  * Overview and WordPress Agent share an internal-testing gate. Scheduled tasks
  * is controlled independently by the ai-hub-scheduled-tasks server-side feature
@@ -14,7 +16,8 @@
 import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
+import { chevronLeft, chevronRight, Icon } from '@wordpress/icons';
 import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
@@ -32,7 +35,17 @@ import ScheduledTasks from './scheduled-tasks/index';
 // Matches the `ref` value convention used by the MCP upsell events.
 const SETTINGS_REF = 'jetpack-ai-mcp-settings';
 
-const MCP_SUB_VIEWS = [ 'read', 'write', 'setup' ];
+// Sub-views are nested under their owning tab's path segment, so the active
+// tab is always the first segment of the view key.
+const MCP_SUB_VIEWS = [ 'mcp/read', 'mcp/write', 'mcp/setup' ];
+
+// The sub-views shipped as flat top-level hashes (#/setup) before they were
+// nested; keep old bookmarks and external links working.
+const LEGACY_VIEW_ALIASES = {
+	read: 'mcp/read',
+	write: 'mcp/write',
+	setup: 'mcp/setup',
+};
 
 // Views that only exist in internal testing environments. MCP Settings ships
 // publicly, so it is not in here.
@@ -55,7 +68,8 @@ const getTabViews = () => {
 // otherwise the MCP hub. A hash pointing at a hidden view falls back too.
 const getViewFromHash = () => {
 	const tabViews = getTabViews();
-	const hash = window.location.hash.replace( /^#\//, '' );
+	const raw = window.location.hash.replace( /^#\//, '' );
+	const hash = LEGACY_VIEW_ALIASES[ raw ] ?? raw;
 	return [ ...tabViews, ...MCP_SUB_VIEWS ].includes( hash ) ? hash : tabViews[ 0 ];
 };
 
@@ -65,15 +79,15 @@ const VIEW_TITLES = {
 	features: 'WordPress Agent',
 	'scheduled-tasks': __( 'Scheduled tasks', 'jetpack' ),
 	mcp: __( 'MCP Settings', 'jetpack' ),
-	read: __( 'Read', 'jetpack' ),
-	write: __( 'Write', 'jetpack' ),
-	setup: __( 'Connect external AI agent', 'jetpack' ),
+	'mcp/read': __( 'Read', 'jetpack' ),
+	'mcp/write': __( 'Write', 'jetpack' ),
+	'mcp/setup': __( 'Connect external AI agent', 'jetpack' ),
 };
 
 const SUB_VIEW_DESCRIPTIONS = {
-	read: __( 'View your site’s content.', 'jetpack' ),
-	write: __( 'Create, update, and manage content on your site.', 'jetpack' ),
-	setup: __( 'Get instructions for connecting your external AI assistant.', 'jetpack' ),
+	'mcp/read': __( 'View your site’s content.', 'jetpack' ),
+	'mcp/write': __( 'Create, update, and manage content on your site.', 'jetpack' ),
+	'mcp/setup': __( 'Get instructions for connecting your external AI assistant.', 'jetpack' ),
 };
 
 /**
@@ -115,10 +129,41 @@ function Breadcrumbs( { view, onNavigate } ) {
 					</button>
 				</li>
 				<li>
-					<span className="jetpack-ai-admin__breadcrumb-current">{ VIEW_TITLES[ view ] }</span>
+					<span className="jetpack-ai-admin__breadcrumb-current" aria-current="page">
+						{ VIEW_TITLES[ view ] }
+					</span>
 				</li>
 			</ul>
 		</nav>
+	);
+}
+
+/**
+ * Back-link eyebrow shown above sub-view content: "‹ MCP Settings".
+ * Labelled with the parent view's title, so it works for any tab's sub-views.
+ * Deliberately quiet — small muted text with a chevron, styled in style.scss
+ * rather than as a design-system button.
+ *
+ * @param {object}   props            - Component props.
+ * @param {string}   props.label      - The parent view's title.
+ * @param {Function} props.onNavigate - Called with no args to go to the parent view.
+ * @return {object} Component markup.
+ */
+function BackEyebrow( { label, onNavigate } ) {
+	return (
+		<button
+			type="button"
+			className="jetpack-ai-admin__back-eyebrow"
+			onClick={ onNavigate }
+			aria-label={ sprintf(
+				/* translators: %s: the name of the parent screen, e.g. "MCP Settings". */
+				__( 'Back to %s', 'jetpack' ),
+				label
+			) }
+		>
+			<Icon icon={ isRTL() ? chevronRight : chevronLeft } size={ 18 } />
+			{ label }
+		</button>
 	);
 }
 
@@ -173,6 +218,9 @@ export default function App() {
 	const tabViews = getTabViews();
 	const isSubView = MCP_SUB_VIEWS.includes( view );
 	const isMcpContext = view === 'mcp' || isSubView;
+	// The first path segment names the owning tab, so sub-views keep their
+	// parent tab (MCP Settings) selected.
+	const activeTab = view.split( '/' )[ 0 ];
 
 	useEffect( () => {
 		if ( ! isLoading && hasMcpAccess && isMcpContext && ! mcpViewedRecorded.current ) {
@@ -231,12 +279,67 @@ export default function App() {
 		setView( newView );
 	}, [] );
 
+	// Set when navigation came from a control that unmounts with its view (the
+	// back eyebrow, the breadcrumb link): focus would silently drop to <body>,
+	// stranding keyboard and screen-reader users. The effect below restores it.
+	// Flag-based so browser Back/Forward never has its focus hijacked.
+	const restoreFocusRef = useRef( false );
+	const tabsRef = useRef( null );
+
+	useEffect( () => {
+		if ( ! restoreFocusRef.current ) {
+			return;
+		}
+		restoreFocusRef.current = false;
+		// Only act if the focused control really unmounted; land on the
+		// selected tab, the view's stable landmark. In the ungated MCP-only
+		// shape there is no tab bar, so there is nothing to do — no worse
+		// than the unmanaged focus it replaces.
+		const tabsElement = tabsRef.current;
+		if ( ! tabsElement ) {
+			return;
+		}
+		const { ownerDocument } = tabsElement;
+		if ( ownerDocument.activeElement === ownerDocument.body ) {
+			tabsElement.querySelector( '[role="tab"][aria-selected="true"]' )?.focus();
+		}
+	}, [ view ] );
+
 	// The breadcrumb back link mirrors the browser Back button so the history
 	// entry for the sub-view is popped rather than a new entry being pushed.
-	const navigateBack = useCallback( () => window.history.back(), [] );
+	// The view change lands asynchronously via popstate; the flag survives.
+	const navigateBack = useCallback( () => {
+		restoreFocusRef.current = true;
+		window.history.back();
+	}, [] );
 
-	// MCP navigation targets are sub-views; McpHub calls this with their keys.
-	const handleMcpNavigate = useCallback( subView => navigateToView( subView ), [ navigateToView ] );
+	// MCP navigation targets are sub-views; McpHub calls this with their bare
+	// keys ('read' | 'write' | 'setup'), which live under the mcp path segment.
+	const handleMcpNavigate = useCallback(
+		subView => navigateToView( 'mcp/' + subView ),
+		[ navigateToView ]
+	);
+
+	// Shared by the back eyebrow and the active-tab click below: a sub-view's
+	// parent is always its tab's root view. The focus flag is harmless for the
+	// tab click — the tab persists and keeps focus, so the effect no-ops.
+	const navigateToParent = useCallback( () => {
+		restoreFocusRef.current = true;
+		navigateToView( activeTab );
+	}, [ activeTab, navigateToView ] );
+
+	// Tabs never re-emit the already-selected value, so on sub-views — where
+	// the parent tab is selected but the view is deeper — a click on that tab
+	// reaches only this handler. Route it back to the tab's root view. Clicks
+	// on unselected tabs fall through to onValueChange as usual.
+	const handleTabClick = useCallback(
+		event => {
+			if ( isSubView && event.currentTarget.getAttribute( 'aria-selected' ) === 'true' ) {
+				navigateToParent();
+			}
+		},
+		[ isSubView, navigateToParent ]
+	);
 
 	return (
 		<AdminPage
@@ -249,16 +352,18 @@ export default function App() {
 			breadcrumbs={
 				isSubView ? <Breadcrumbs view={ view } onNavigate={ navigateBack } /> : undefined
 			}
-			showBottomBorder={ isSubView }
+			// The tab bar visually separates the header from the content; the
+			// border is only needed in the MCP-only shape where no tabs render.
+			showBottomBorder={ isSubView && tabViews.length === 1 }
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 		>
-			{ ! isSubView && tabViews.length > 1 && (
-				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
-					<Tabs.Root value={ view } onValueChange={ navigateToView }>
+			{ tabViews.length > 1 && (
+				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal" ref={ tabsRef }>
+					<Tabs.Root value={ activeTab } onValueChange={ navigateToView }>
 						<Tabs.List variant="minimal" aria-label={ __( 'AI sections', 'jetpack' ) }>
 							{ tabViews.map( tab => (
-								<Tabs.Tab key={ tab } value={ tab }>
+								<Tabs.Tab key={ tab } value={ tab } onClick={ handleTabClick }>
 									{ VIEW_TITLES[ tab ] }
 									{ /* Overview and Features ship behind the internal-testing gate;
 									     label them so Automatticians don't mistake them for public UI.
@@ -285,6 +390,9 @@ export default function App() {
 					view === 'scheduled-tasks' ? ' jetpack-ai-admin__content--scheduled-tasks' : ''
 				}` }
 			>
+				{ isSubView && (
+					<BackEyebrow label={ VIEW_TITLES[ activeTab ] } onNavigate={ navigateToParent } />
+				) }
 				<GlobalNotices />
 
 				{ isMcpContext && (
@@ -326,7 +434,7 @@ export default function App() {
 										showActivityLog={ ! tabViews.includes( 'overview' ) }
 									/>
 								) }
-								{ view === 'read' && (
+								{ view === 'mcp/read' && (
 									<McpRead
 										mcpAbilities={ mcpAbilities }
 										blogId={ blogId }
@@ -334,7 +442,7 @@ export default function App() {
 										onUpdate={ handleUpdate }
 									/>
 								) }
-								{ view === 'write' && (
+								{ view === 'mcp/write' && (
 									<McpWrite
 										mcpAbilities={ mcpAbilities }
 										blogId={ blogId }
@@ -342,7 +450,7 @@ export default function App() {
 										onUpdate={ handleUpdate }
 									/>
 								) }
-								{ view === 'setup' && <McpSetup /> }
+								{ view === 'mcp/setup' && <McpSetup /> }
 							</Stack>
 						) }
 					</>
