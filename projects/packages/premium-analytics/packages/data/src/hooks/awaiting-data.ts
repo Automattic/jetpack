@@ -1,37 +1,31 @@
 type PlaceholderAwareQuery = {
 	isLoading: boolean;
 	isPlaceholderData: boolean;
+	isFetching: boolean;
 };
 
 /**
  * Whether nothing on screen answers the current params — what widgets gate
  * their skeleton on.
  *
- * Broader than React Query's `isLoading`, which a range change leaves false:
- * `placeholderData` keeps the previous params' response mounted, and React
- * Query calls that a success. `isFetching` is no help either — it is equally
- * true when unchanged params are revalidated, where the numbers on screen are
- * still the right answer (WOOA7S-1934).
- *
- * @param query - A React Query result.
- * @return Whether the result has nothing valid for the current params.
+ * Neither React Query flag says this alone: `placeholderData` leaves
+ * `isLoading` false across a range change, and `isFetching` is equally true
+ * while revalidating unchanged params, whose numbers on screen are still right
+ * (WOOA7S-1934). The conjunction also releases a query the widget switched off,
+ * which holds placeholder data no fetch will replace and used to pin the
+ * skeleton for good.
  */
 export function isAwaitingData( query: PlaceholderAwareQuery ): boolean {
-	return query.isLoading || query.isPlaceholderData;
+	return query.isLoading || ( query.isPlaceholderData && query.isFetching );
 }
 
 /**
  * `isAwaitingData` folded into a result's own `isLoading`, so hooks hand widgets
- * one flag. `isPlaceholderData` stays on the result for callers that need the
- * two apart.
+ * one flag.
  *
- * Spreading costs React Query's tracked-property optimization: reading every key
- * marks every key as tracked, so the caller also re-renders on fields it never
- * uses (`isStale` flipping at `staleTime`, for one). Cheap next to a fetch, and
- * the alternative is handing widgets a flag whose name lies.
- *
- * @param query - A React Query result.
- * @return The same result with `isLoading` widened.
+ * Spreading forfeits React Query's tracked-property optimization — every key
+ * reads as tracked, so callers re-render on fields they never use. Cheap next
+ * to a fetch.
  */
 export function withAwaitedDataLoading< TQuery extends PlaceholderAwareQuery >(
 	query: TQuery

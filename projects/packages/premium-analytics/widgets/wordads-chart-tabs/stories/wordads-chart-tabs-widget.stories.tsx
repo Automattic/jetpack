@@ -1,13 +1,13 @@
 /**
  * Internal dependencies
  */
-import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
 import {
 	registerReportMocks,
 	setReportMockState,
@@ -17,31 +17,20 @@ import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import WordAdsChartTabsRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
+import type { IntervalType } from '@jetpack-premium-analytics/datetime';
 import type { Meta, StoryObj } from '@storybook/react';
+import type { ComponentType } from 'react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
 const WORDADS_CHART_TABS_RENDER_MODULE = 'storybook/wordads-chart-tabs';
 
-interface WordAdsChartTabsStoryControls {
-	withComparison: boolean;
-}
-
-function renderWordAdsChartTabs( { withComparison }: WordAdsChartTabsStoryControls ) {
-	return (
+// Mirror the header control's saved attributes. Each preset gets its own query-cache entry.
+function renderOnPreset( preset: PresetType, interval: IntervalType ) {
+	return () => (
 		<WordAdsChartTabsRender
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
-	);
-}
-
-// Distinct preset → own query-cache entry; see forceStatsMockState.
-function renderWordAdsChartTabsOnPreset( preset: PresetType ) {
-	return (
-		<WordAdsChartTabsRender
-			attributes={ { reportParams: getDefaultQueryParams( false, preset ) } }
+			attributes={ { reportParams: { ...getDefaultQueryParams( false, preset ), interval } } }
 		/>
 	);
 }
@@ -50,38 +39,26 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/WordAdsChartTabs',
 	component: WordAdsChartTabsRender,
 	tags: [ 'autodocs' ],
-	argTypes: {
-		withComparison: { control: 'boolean' },
-	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					"WordAds performance over the selected period as selectable metric tabs — Ads Served, Average CPM, and Revenue, matching the Calypso WordAds page's tabs — over a comparative line chart. Ads Served is a count; CPM and revenue are currency (WordAds pays USD). The date range and comparison come from the dashboard controls; the \"Group by\" control is the `granularity` attribute (`relevance: 'high'`), exposed by the widget host; which metric is plotted is the chart's own tab selection. WordAds stats are computed nightly, so a range ending today is clamped to end at yesterday. When comparison is on the previous period is overlaid as a same-colour dashed line and each tab shows its period-over-period delta. Data comes from the `useStatsWordAdsStats` hook (the `wordads` proxy prefix); in Storybook it is served by `registerReportMocks`. Requires WordAds to be active on the site for live data.",
+					"WordAds performance over the selected period as selectable metric tabs — Ads Served, Average CPM, and Revenue, matching the Calypso WordAds page's tabs — over a line chart. Ads Served is a count; CPM and revenue are currency (WordAds pays USD). The widget hosts its own date range and bucket-size controls in its header, saved onto the widget instance; which metric is plotted is the chart's own tab selection. WordAds stats are computed nightly, so a range ending today is clamped to end at yesterday. Data comes from the `useStatsWordAdsStats` hook (the `wordads` proxy prefix); in Storybook it is served by `registerReportMocks`. Requires WordAds to be active on the site for live data.",
 			},
 		},
 	},
-} satisfies Meta< ComponentProps< typeof WordAdsChartTabsRender > & WordAdsChartTabsStoryControls >;
+} satisfies Meta< typeof WordAdsChartTabsRender >;
 
 export default meta;
 
-type Story = StoryObj< WordAdsChartTabsStoryControls >;
+type Story = StoryObj< Record< string, never > >;
+type DashboardStory = StoryObj< WidgetDashboardWithWidgetControls >;
 
 /**
- * The widget on its own, current period only.
+ * The widget on its own, on the range its header control defaults to.
  */
 export const Default: Story = {
-	render: renderWordAdsChartTabs,
-	args: { withComparison: false },
-	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * Same close-up with the period-over-period delta and previous-period overlay.
- */
-export const WithComparison: Story = {
-	render: renderWordAdsChartTabs,
-	args: { withComparison: true },
+	render: renderOnPreset( 'last-30-days', 'day' ),
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -90,7 +67,7 @@ export const WithComparison: Story = {
  * mock is forced to never resolve for the duration of this story.
  */
 export const Loading: Story = {
-	render: () => renderWordAdsChartTabsOnPreset( 'last-90-days' ),
+	render: renderOnPreset( 'last-90-days', 'week' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
@@ -105,7 +82,7 @@ export const Loading: Story = {
  * re-runs the query — still mocked as failing while this story is active).
  */
 export const Error: Story = {
-	render: () => renderWordAdsChartTabsOnPreset( 'last-7-days' ),
+	render: renderOnPreset( 'last-7-days', 'day' ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
@@ -119,7 +96,7 @@ export const Error: Story = {
  * glyph and "No WordAds data in this period.").
  */
 export const Empty: Story = {
-	render: () => renderWordAdsChartTabsOnPreset( 'last-365-days' ),
+	render: renderOnPreset( 'last-365-days', 'month' ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
@@ -128,36 +105,30 @@ export const Empty: Story = {
 	},
 };
 
-interface WordAdsChartTabsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		WordAdsChartTabsStoryControls {}
-
-function WordAdsChartTabsDashboardStory( {
-	withComparison,
-	...dashboardArgs
-}: WordAdsChartTabsDashboardStoryProps ) {
+function WordAdsChartTabsDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
 			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ WORDADS_CHART_TABS_RENDER_MODULE }
 			renderComponent={ WordAdsChartTabsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
+			// The real header control edits this attribute; the harness renders the
+			// widget's declared header, so the story starts it where the app does.
+			attributes={ { reportParams: getDefaultQueryParams( false ) } }
 		/>
 	);
 }
 
 /**
- * Renders the real registered widget through the shared dashboard harness.
+ * Renders the real registered widget through the shared dashboard harness,
+ * including the date control the widget declares in its own header.
  */
-export const WidgetDashboardWithWidget: StoryObj< WordAdsChartTabsDashboardStoryProps > = {
+export const WidgetDashboardWithWidget: DashboardStory = {
 	render: args => <WordAdsChartTabsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
 	},
 };

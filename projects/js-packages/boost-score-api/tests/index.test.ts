@@ -31,13 +31,58 @@ describe( 'requestSpeedScores', () => {
 
 	afterEach( () => {
 		jest.restoreAllMocks();
+		jest.useRealTimers();
 	} );
 
 	it( 'should return speed scores', async () => {
 		api.post.mockResolvedValue( mockData );
 
-		const scores = await requestSpeedScores( 'https://example.com' );
+		const scores = await requestSpeedScores(
+			false,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce'
+		);
 		expect( scores ).toEqual( mockData.scores );
+		expect( api.post ).toHaveBeenCalledWith(
+			'https://example.com/wp-json/',
+			'/speed-scores',
+			{ url: 'https://example.com' },
+			'nonce'
+		);
+	} );
+
+	it( 'waits 240 seconds before giving up on a pending score', async () => {
+		jest.useFakeTimers();
+		api.post.mockResolvedValue( { status: 'pending' } );
+
+		let settled = false;
+		const request = requestSpeedScores(
+			false,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce'
+		);
+		const outcome = request.then(
+			() => {
+				settled = true;
+				return undefined;
+			},
+			error => {
+				settled = true;
+				return error;
+			}
+		);
+
+		// Let the initial request resolve as pending and start the polling timers.
+		await Promise.resolve();
+		await jest.advanceTimersByTimeAsync( 239999 );
+		expect( settled ).toBe( false );
+
+		await jest.advanceTimersByTimeAsync( 1 );
+		const error = await outcome;
+		expect( error ).toBeInstanceOf( Error );
+		expect( ( error as Error ).message ).toBe( 'Timed out while waiting for speed-score.' );
 	} );
 } );
 

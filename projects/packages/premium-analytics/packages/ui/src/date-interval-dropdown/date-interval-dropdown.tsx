@@ -43,23 +43,15 @@ function getIntervalLabel( interval: IntervalType ): string {
 			return __( 'By weeks', 'jetpack-premium-analytics-pkg' );
 		case 'month':
 			return __( 'By months', 'jetpack-premium-analytics-pkg' );
-		case 'quarter':
-			return __( 'By quarters', 'jetpack-premium-analytics-pkg' );
 		case 'year':
 			return __( 'By years', 'jetpack-premium-analytics-pkg' );
 	}
 }
 
 /**
- * The bucket size every chart on the page draws, as a glyph opening a menu of
- * the buckets the active range allows.
- *
- * The glyph is a chart rather than a clock: the control buckets what the charts
- * draw, it does not narrow the period the rest of the surface reports on.
- *
- * A range with one allowed bucket still opens a menu listing it, checked: the
- * trigger carries no text, so the menu is the only place the choice can be
- * inspected. The section header's subtitle names the active bucket.
+ * The bucket size every chart draws, as a glyph (not a clock — it buckets the
+ * charts, doesn't narrow the reported period) opening a menu of what the
+ * active range allows. Opens even with one option, since the trigger has no text.
  */
 export function DateIntervalDropdown( {
 	options,

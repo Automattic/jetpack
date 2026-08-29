@@ -3,7 +3,7 @@ import {
 	GlobalErrorProvider,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { Button } from '@jetpack-premium-analytics/externals';
+import { LinkButton } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
@@ -21,6 +21,7 @@ import { useParams } from '@wordpress/route';
 import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
+import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { PostDetailTabs, PostSummaryCard } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
@@ -30,32 +31,24 @@ import styles from './stage.module.scss';
 
 const ROUTE_FROM = route.path;
 
-// The post-detail composition is fixed (WOOA7S-1622) and laid out against the
-// small (200px) row height used by the design. Keep its grid independent from
-// the customizable main-dashboard preference so a future settings control
-// cannot stretch these tiles out of proportion.
+// Fixed composition (WOOA7S-1622): grid stays independent from the
+// customizable main-dashboard preference so it can't be stretched.
 const POST_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small };
 
 // The layout is fixed, so the change callback never fires; the dashboard
 // still requires one because it owns a staging copy internally.
 const noopLayoutChange = () => {};
 
-// The share of the header row the date filter presets can never use: the
-// summary's 400px `min-inline-size` floor plus the row's 16px gap (see
-// `.summary` and `.header` in stage.module.scss — keep the three in sync),
-// plus a 24px buffer so the panel steps down before the wrap threshold —
-// layout wraps synchronously while the measured layout flip lags a frame, so
-// equal thresholds would flash a wrapped row at every boundary.
+// = summary's min-inline-size + row gap (keep in sync with stage.module.scss)
+// + a buffer, so the panel steps down before CSS wrap — wrap is synchronous
+// but the measured flip lags a frame, so equal thresholds would flash.
 const HEADER_RESERVED_INLINE_SIZE = 440;
 
 /**
  * Premium Analytics post/page detail page stage component.
  *
- * A fixed, non-customizable page (WOOA7S-1622): each tab renders the widget
- * composition from `POST_DETAIL_TAB_LAYOUTS`, scoped to a single post/page
- * and driven by a shared date range and comparison, with its own header
- * (breadcrumb + summary card) and tab set. There is no edit mode — required
- * widgets and their sizing cannot be removed or reshaped.
+ * A fixed, non-customizable page (WOOA7S-1622): there is no edit mode, so
+ * required widgets and their sizing cannot be removed or reshaped.
  *
  * @return {JSX.Element} The post detail page.
  */
@@ -80,20 +73,16 @@ function PostDetail(): JSX.Element {
 					) => WidgetModuleRecord[] | null;
 				}
 			 )
-				// `per_page: -1` returns every widget type. Without it, core-data's
-				// default query (`per_page: 10`) caps the records at 10 and could
-				// silently drop the widgets this page's fixed layout requires.
+				// `per_page: -1` returns every widget type; core-data's default query
+				// (`per_page: 10`) could silently drop ones this fixed layout requires.
 				.getEntityRecords( 'root', 'widgetModule', { per_page: -1 } ),
 		[]
 	);
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
-	// The fixed compositions reuse registered widget types under page-local
-	// aliases so each card carries its design title — the host titles a card
-	// by its widget *type*. Each alias clones the resolved base type (render
-	// module and all) under a variant name and title; see
-	// `config/widget-variants`.
+	// The host titles a card by its widget *type*; fixed compositions reuse
+	// registered types under page-local aliases to carry the design title.
 	const pageWidgetTypes = useMemo( () => {
 		const aliases = POST_DETAIL_WIDGET_TYPE_ALIASES.flatMap( ( { baseType, variants } ) => {
 			const base = widgetTypes.find( widgetType => widgetType.name === baseType );
@@ -111,13 +100,12 @@ function PostDetail(): JSX.Element {
 		return aliases.length ? [ ...widgetTypes, ...aliases ] : widgetTypes;
 	}, [ widgetTypes ] );
 
-	// The single resource, date range, and comparison all live in the URL search
-	// params, staged and committed by the shared date-filter controller.
+	// The resource, date range, and comparison all live in the URL search params.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
+	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
 
-	// The header row hosts the panel in a shrink-to-fit slot, so the panel
-	// measures the row itself to pick its responsive layout; see the
-	// `containerElement` prop.
+	// The header row hosts the panel in a shrink-to-fit slot, so the panel measures
+	// the row itself to pick its responsive layout; see the `containerElement` prop.
 	const [ headerElement, setHeaderElement ] = useState< HTMLElement | null >( null );
 
 	const breadcrumbs = useDetailBreadcrumbs( summary.title );
@@ -137,19 +125,17 @@ function PostDetail(): JSX.Element {
 					breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
 					actions={
 						publicUrl ? (
-							<Button
+							<LinkButton
 								variant="solid"
 								tone="neutral"
 								size="compact"
-								nativeButton={ false }
-								role="link"
-								className={ styles.viewPost }
-								render={ <a href={ publicUrl } target="_blank" rel="noopener noreferrer" /> }
+								href={ publicUrl }
+								openInNewTab
 							>
 								{ summary.type === 'page'
 									? __( 'View page', 'jetpack-premium-analytics-pkg' )
 									: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
-							</Button>
+							</LinkButton>
 						) : undefined
 					}
 					className={ styles.page }
@@ -157,17 +143,12 @@ function PostDetail(): JSX.Element {
 					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
 						<div className={ styles.scrollArea }>
 							{ /*
-							 * The summary card and the date filter presets share the
-							 * header row — title on the left, presets on the right, per
-							 * the design mocks. Both are shared by every tab (same post,
-							 * same date range), so they render once above the per-tab
-							 * widget grid and scroll away with it.
+							 * The summary card and the date filter presets are shared by every
+							 * tab (same post, same date range), so they render once above the
+							 * per-tab widget grid and scroll away with it.
 							 */ }
 							<div ref={ setHeaderElement } className={ styles.header }>
 								<div className={ styles.summary }>
-									{ /* The email tabs give the shared header an email identity
-									     (envelope tile, "Email sent on …") while the title and
-									     performance window stay the post's. */ }
 									<PostSummaryCard
 										summary={ summary }
 										variant={ EMAIL_TAB_IDS.includes( activeTab ) ? 'email' : 'post' }
@@ -176,15 +157,13 @@ function PostDetail(): JSX.Element {
 								</div>
 								<div className={ styles.dateFilters }>
 									{ /*
-									 * The design has no period-over-period comparison on
-									 * this page. The panel reads that from the scope the
-									 * stage declares, which is the same declaration that
-									 * keeps the params away from the widgets; the params
-									 * themselves stay in the URL so the breadcrumb carries
-									 * them back to the dashboard.
+									 * The design has no comparison on this page. The panel reads
+									 * that from the scope the stage declares; the params themselves
+									 * stay in the URL so the breadcrumb carries them back out.
 									 */ }
 									<DateFiltersPanel
 										{ ...dateFilters }
+										{ ...dateControls }
 										containerElement={ headerElement }
 										reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
 									/>
@@ -206,11 +185,9 @@ function PostDetail(): JSX.Element {
 }
 
 /**
- * Route stage wrapper.
- *
- * The header summary fetches through React Query at the page level (widgets get
- * their own client inside each WidgetRoot), so the page mounts its own
- * AnalyticsQueryClientProvider above the component that reads it.
+ * Route stage wrapper. Mounts its own AnalyticsQueryClientProvider above
+ * PostDetail because widgets fetch through their own client inside
+ * WidgetRoot, while the header summary fetches at the page level.
  *
  * @return {JSX.Element} The post detail page.
  */
@@ -218,9 +195,8 @@ export function stage(): JSX.Element {
 	return (
 		<AnalyticsQueryClientProvider>
 			{ /*
-			 * The page names no compared period and offers no control for one, so
-			 * nothing below may fetch or draw a comparison. The params stay on the
-			 * URL so the breadcrumb carries the dashboard's state back out.
+			 * The page names no compared period, so nothing below may fetch or draw
+			 * one. The params stay on the URL for the breadcrumb to carry back out.
 			 */ }
 			<ReportScopeProvider offersComparison={ false }>
 				<PostDetail />

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { SelectField, ToggleGroupField } from '@jetpack-premium-analytics/fields';
+import { ToggleGroupField } from '@jetpack-premium-analytics/fields';
 import { chartLine } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
@@ -13,12 +13,9 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 import type { ReactElement } from 'react';
 
 /**
- * The chart types the display control offers, in segment order. One list keeps
- * every chart widget's control identical, and `satisfies` ties it to the
- * toolkit's own union so a value `MetricTabsChart` cannot draw fails to
- * compile here rather than shipping as a broken option. The label names the
- * type for assistive technology and for the segment's tooltip; the icon is
- * what the control shows.
+ * The chart types the display control offers, in segment order — one list keeps
+ * every widget's control identical. `satisfies` ties it to the toolkit's union
+ * so an unsupported type fails to compile here instead of shipping broken.
  */
 export const CHART_DISPLAY_CHART_TYPES = [
 	{ id: 'line', label: __( 'Line chart', 'jetpack-premium-analytics-pkg' ), icon: chartLine },
@@ -30,33 +27,6 @@ export const CHART_DISPLAY_CHART_TYPES = [
 }[];
 
 export type ChartDisplayChartType = ( typeof CHART_DISPLAY_CHART_TYPES )[ number ][ 'id' ];
-
-export type ChartGranularityOption = 'auto' | 'day' | 'week' | 'month';
-
-const GRANULARITY_LABELS: Record< ChartGranularityOption, () => string > = {
-	auto: () => __( 'Auto', 'jetpack-premium-analytics-pkg' ),
-	day: () => __( 'By days', 'jetpack-premium-analytics-pkg' ),
-	week: () => __( 'By weeks', 'jetpack-premium-analytics-pkg' ),
-	month: () => __( 'By months', 'jetpack-premium-analytics-pkg' ),
-};
-
-/**
- * The "Group by" attribute field (`relevance: 'high'`, so the widget host
- * renders it as an in-body dropdown). Widgets that follow the dashboard range
- * include `auto`; the detail charts pass explicit buckets only.
- */
-export function granularityAttributeField<
-	Attributes extends { granularity?: ChartGranularityOption },
->( values: readonly ChartGranularityOption[] ): WidgetAttributeField< Attributes > {
-	return {
-		id: 'granularity',
-		label: __( 'Group by', 'jetpack-premium-analytics-pkg' ),
-		type: 'text',
-		Edit: SelectField,
-		elements: values.map( value => ( { value, label: GRANULARITY_LABELS[ value ]() } ) ),
-		relevance: 'high',
-	} as WidgetAttributeField< Attributes >;
-}
 
 /**
  * The "Chart type" attribute field (`relevance: 'high'`), offering the chart

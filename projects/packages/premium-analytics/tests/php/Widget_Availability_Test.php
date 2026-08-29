@@ -45,9 +45,8 @@ class Widget_Availability_Test extends BaseTestCase {
 	/**
 	 * Reset constants and availability filters between tests.
 	 *
-	 * The support context now reaches Host::is_wpcom_platform(), which memoizes
-	 * `is_woa_site` into the process-global status cache; clearing constants alone
-	 * would leave a stale host verdict for the next test that sets Atomic ones.
+	 * The support context reaches Host::is_wpcom_platform(), which memoizes `is_woa_site` into
+	 * the process-global status cache — clearing constants alone would leave a stale host verdict.
 	 */
 	public function tear_down() {
 		Constants::clear_constants();
@@ -80,7 +79,7 @@ class Widget_Availability_Test extends BaseTestCase {
 				'category' => 'stats',
 			),
 			array(
-				'name'     => 'jpa/video-detail-highlights',
+				'name'     => 'jpa/video-detail-views-performance',
 				'category' => 'stats',
 			),
 			array(
@@ -217,19 +216,16 @@ class Widget_Availability_Test extends BaseTestCase {
 		$names = $this->available_names( false, true );
 
 		$this->assertContains( 'jpa/videopress', $names );
-		$this->assertContains( 'jpa/video-detail-highlights', $names );
+		$this->assertContains( 'jpa/video-detail-views-performance', $names );
 	}
 
 	/**
-	 * The gate and the manifests agree in both directions: a renamed widget can't
-	 * drop out of the gate, and a new video widget can't be added without joining
-	 * it.
+	 * The gate and the manifests agree in both directions: a renamed widget can't drop out of the
+	 * gate, and a new video widget can't be added without joining it.
 	 *
-	 * The second half rests on a naming heuristic, which bounds what it can catch:
-	 * a VideoPress-backed widget named without `video` would not be demanded here,
-	 * and an unrelated `video-*` widget would be demanded wrongly. Widget manifests
-	 * carry no "requires" field to key on instead; if one is ever added, this
-	 * should read that rather than the name.
+	 * The second half rests on a naming heuristic: a VideoPress widget not named with `video` would
+	 * be missed, and an unrelated `video-*` widget wrongly demanded. Widget manifests have no
+	 * "requires" field to key on instead — read that here if one is ever added.
 	 */
 	public function test_videopress_widget_types_match_the_manifest() {
 		$manifests = glob( __DIR__ . '/../../widgets/*/widget.json' );
@@ -237,9 +233,8 @@ class Widget_Availability_Test extends BaseTestCase {
 
 		$video_names = array();
 		foreach ( $manifests as $manifest ) {
-			// Assert rather than skip: a manifest silently dropped here is absent from
-			// both sides of the comparison below, so the guard would pass while the
-			// gate is missing a type — the one failure this test exists to catch.
+			// Assert rather than skip: a silently dropped manifest is absent from both sides of the
+			// comparison below, so the guard would pass while the gate is missing a type — the failure this test exists to catch.
 			$raw = file_get_contents( $manifest ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			$this->assertNotFalse( $raw, "Could not read $manifest" );
 

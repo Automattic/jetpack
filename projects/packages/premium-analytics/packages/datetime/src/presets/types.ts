@@ -28,6 +28,15 @@ export const SELECTABLE_PRESETS = [
 	PRESET_LAST_YEAR,
 ] as const;
 
+export type SelectablePresetId = ( typeof SELECTABLE_PRESETS )[ number ];
+
+/**
+ * The all-time marker. On the year surface it covers every year the surface
+ * lists; on a detail page's quick surface it runs from the resource's own start
+ * (its publish date) through today.
+ */
+export const PRESET_ALL_TIME = 'all-time' as const;
+
 /**
  * Quick presets shown as surface pills in the date-range filter.
  */
@@ -38,12 +47,17 @@ export const QUICK_SURFACE_PRESETS = [
 	PRESET_LAST_12_MONTHS,
 ] as const;
 
-export type SelectablePresetId = ( typeof SELECTABLE_PRESETS )[ number ];
+/**
+ * Quick presets of a resource detail page (post, video): the rolling windows
+ * led by all time, per the detail-page design.
+ */
+export const DETAIL_SURFACE_PRESETS = [ PRESET_ALL_TIME, ...QUICK_SURFACE_PRESETS ] as const;
 
 /**
- * The all-time marker: one range covering every year the year surface lists.
+ * Every preset a quick surface can render as a pill: the rolling windows, plus
+ * all time where the surface opts into it.
  */
-export const PRESET_ALL_TIME = 'all-time' as const;
+export type QuickSurfacePresetId = SelectablePresetId | typeof PRESET_ALL_TIME;
 
 /**
  * Prefix of the per-year preset IDs, e.g. `year-2024`.

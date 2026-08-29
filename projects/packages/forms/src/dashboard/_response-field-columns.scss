@@ -1,0 +1,117 @@
+// Form field answer columns on a single form's responses view. Answers
+// are free text, so each cell is capped to one line and reveals the rest
+// through its tooltip.
+.jp-forms__inbox__field-column {
+	display: block;
+	max-inline-size: 22em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+
+	// Muted via colour, never `opacity`: an opacity below 1 creates a
+	// stacking context, which lifts the cell into the same paint layer as
+	// the frozen columns and lets it show through them while the table is
+	// scrolled sideways.
+	&.is-empty {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	// Rating cells hold icons, not text, so the one-line clamp cannot apply.
+	&.is-rating {
+		max-inline-size: none;
+		overflow: visible;
+	}
+}
+
+// Choice answers are badges, laid out by `Stack`. All that is left here is the
+// same one-line cap the text cells get: badges clip rather than wrap, so a
+// response that ticked six boxes cannot stretch every row of the table.
+.jp-forms__inbox__field-column-badges {
+	max-inline-size: 22em;
+	overflow: hidden;
+	// `Stack` brings the flex layout but no typography: without this a badge
+	// whose label outgrows the cell wraps inside its own box and grows the
+	// whole row, which is what capping the cell is meant to prevent.
+	white-space: nowrap;
+}
+
+// Answer columns push the table wider than the viewport, so it scrolls
+// sideways. Freeze the two columns that say *who* a row belongs to — the
+// selection checkbox and the title — so a row stays attributable while its
+// answers scroll underneath. DataViews already pins the actions column to
+// the trailing edge the same way.
+// -
+// `has-field-columns` comes from `DataViews.Layout`'s className, and the
+// stage only sets it when both frozen columns are actually present.
+// `has-bulk-actions` is DataViews' own flag for the checkbox column, which
+// it drops when no row on the page has a possible bulk action — without it
+// the offset below would be wrong.
+.dataviews-view-table.has-bulk-actions.has-field-columns {
+	// Matches the background DataViews gives its own sticky actions column,
+	// so scrolled cells pass behind these rather than showing through them.
+	--jp-frozen-base: var(--wpds-color-background-surface-neutral-strong);
+	--jp-frozen-bg: var(--wp-dataviews-color-background, var(--jp-frozen-base));
+	// How far in the frozen title column starts: the width of the checkbox
+	// column beside it. DataViews exposes no way to read that width, and
+	// guessing at its padding only stays true until the padding changes — so
+	// the width is declared here instead, and the column is sized to match it
+	// below. Offset and column width then cannot drift apart, because both
+	// come from this one value.
+	--jp-frozen-offset: calc(var(--wpds-dimension-padding-2xl) + 24px);
+
+	// `<col>` cannot be made sticky — it only honours width, background,
+	// border and visibility — but width is exactly what is needed here, and
+	// sizing the column is what makes the offset above true rather than
+	// hopeful. A browser will still widen the column if its content demands
+	// it; the shared background hides the seam if that ever happens.
+	// The class is repeated deliberately. DataViews sizes its own generated
+	// columns with a selector of exactly the specificity this rule would
+	// otherwise have, so which of the two wins would come down to the order
+	// the stylesheets happen to be concatenated in — and reordering an import
+	// would silently un-pin the column.
+	col.dataviews-view-table__col-checkbox.dataviews-view-table__col-checkbox {
+		inline-size: var(--jp-frozen-offset);
+	}
+
+	th.dataviews-view-table__checkbox-column,
+	td.dataviews-view-table__checkbox-column {
+		position: sticky;
+		inset-inline-start: 0;
+		background-color: var(--jp-frozen-bg);
+	}
+
+	// The title column: the checkbox column's next sibling. DataViews gives
+	// the title column no class of its own on the header cell.
+	th.dataviews-view-table__checkbox-column + th,
+	td.dataviews-view-table__checkbox-column + td {
+		position: sticky;
+		inset-inline-start: var(--jp-frozen-offset);
+		background-color: var(--jp-frozen-bg);
+		// Breathing room so answers scrolling past never crowd the name.
+		padding-inline-end: var(--wpds-dimension-padding-2xl);
+		border-inline-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+		// Answer columns compete for width, and the browser will happily
+		// shrink this one until the address under the name is cut mid-word.
+		// Hold room for an avatar plus a typical email before they share out.
+		min-inline-size: 280px;
+	}
+
+	/*
+	 * A selected row is tinted on the `tr`, which a frozen cell's own background
+	 * would otherwise paint over — so the two frozen columns have to repeat the
+	 * tint. DataViews does exactly this for its own sticky actions column.
+	 */
+	tr.is-selected td.dataviews-view-table__checkbox-column,
+	tr.is-selected td.dataviews-view-table__checkbox-column + td {
+		background-color: var(--wpds-color-background-interactive-brand-weak-active);
+	}
+
+	// No z-index on the frozen body cells: being positioned already paints
+	// them over the ordinary cells scrolling past, while leaving them below
+	// the sticky `thead` (z-index 1). The frozen header cells need to win
+	// against their own row.
+	thead th.dataviews-view-table__checkbox-column,
+	thead th.dataviews-view-table__checkbox-column + th {
+		z-index: 2;
+	}
+}

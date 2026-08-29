@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Cache the Automattic for Agencies partner lookup for sites that have no partner.

@@ -3,8 +3,7 @@ import debug from '../../utils/debug.ts';
 import getComments from '../../utils/get-comments.ts';
 import getLabels from '../../utils/labels/get-labels.ts';
 import sendSlackMessage from '../../utils/slack/send-slack-message.ts';
-import type { OctokitClient, IssuesEvent, IssueCommentEvent } from '../../types.ts';
-import type { IssueComment } from '@octokit/webhooks-types';
+import type { OctokitClient, IssuesEvent, IssueComment, IssueCommentEvent } from '../../types.ts';
 
 /**
  * Represents the info extracted from a previous bot comment.
@@ -27,7 +26,7 @@ async function getListComment( issueComments: IssueComment[] ): Promise< ListCom
 
 	for ( const comment of issueComments ) {
 		if (
-			comment.user.login === 'github-actions[bot]' &&
+			comment.user?.login === 'github-actions[bot]' &&
 			comment.body.includes( '**Support References**' )
 		) {
 			commentInfo = {
@@ -87,7 +86,7 @@ async function getIssueReferences(
 	debug( `gather-support-references: Getting references from comments.` );
 	for ( const comment of issueComments ) {
 		if (
-			comment.user.login !== 'github-actions[bot]' ||
+			comment.user?.login !== 'github-actions[bot]' ||
 			! comment.body.includes( '**Support References**' )
 		) {
 			ticketReferences.push( ...comment.body.matchAll( referencesRegexP ) );

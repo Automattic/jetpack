@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Connection Error UI: Ensure the error allowlist is an explicit, documented contract with meaningful user-facing text for displayable errors, and add a Contact Jetpack Support link to broken-connection notices for errors where reconnecting may not fix it.

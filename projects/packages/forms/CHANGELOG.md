@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.26.0] - 2026-08-25
+### Added
+- Responses: Show each form field as a column when viewing a single form's responses. [#51448]
+
+### Changed
+- Responses: On small screens, show only the response and its actions instead of a table that scrolls sideways. [#51448]
+- Responses: On small screens, the View action now opens the response the same way tapping its title does. [#51486]
+- Show progress while a new form's editor opens, and report it when creating a form fails. [#51371]
+
+### Fixed
+- Apply the name typed when creating a form, and stop a dismissed save from reporting into a reopened dialog. [#51371]
+- Contact Form: Remove the classic-theme editor margin between a field's label and its input. [#51527]
+- Responses: Allow a single response to scroll when it is taller than the screen. [#51486]
+- Responses: Prevent an error that could stop responses from loading when a file upload field was stored without any file data. [#51485]
+
+## [7.25.0] - 2026-08-20
+### Added
+- Add a Print action to form responses, which opens the response on its own page and prints just the response. [#51368]
+- Add conditional logic to form fields, so any field can be shown or hidden based on another field's answer. Disabled by default while in testing; enable it with the forms-conditional-logic feature flag. [#50938]
+- Contact Form: Add background image support to the Form and Step blocks. [#50975]
+- Feedback author avatars: Pick a stable Color Studio background color per email for initials identity avatars via `bg_color`. [#50578]
+
+### Changed
+- Responses: Open a response on its own page from the list's View action and from both response notification email buttons, and keep the user on that page when a response is marked as spam or trashed. [#51127]
+- Update package dependencies. [#51125] [#51399]
+
+### Fixed
+- Contact Form: Make Group and Columns blocks fill the form width so nested fields render full-width. [#51266]
+- Dashboard: Keep response field icons and formatting after marking a response as spam. [#51288]
+- Dashboard: Show an explanation instead of a blank page when the dashboard assets are missing. [#51151]
+- Fix the first change made to a form after opening a page being discarded when saving. [#51393]
+- Form preview: Label the admin bar edit link "Edit Form" instead of "Edit Page". [#51235]
+- Grouped field labels: Lower the legend padding reset so themes and global styles can override it. [#51187]
+- Multistep forms: Keep step padding within the form width. [#50975]
+- Prevent a fatal error when logging webhook responses with unexpected header types. [#51156]
+- Rating field: Keep the default left-aligned, borderless rendering under the Outlined and Animated form styles. [#51126]
+- Responses: Preserve line breaks in multi-line answers. [#51369]
+- Show an empty checkbox icon next to checkbox fields the respondent left unchecked, instead of always showing a ticked one. [#51293]
+- Slider field: Keep the default label when the form uses the Outlined or Animated style, so the label no longer overlaps the slider track. [#51124]
+
 ## [7.24.0] - 2026-08-10
 ### Security
 - Contact Form: Improve sanitization of content submitted through the file field.
@@ -2626,6 +2666,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.26.0]: https://github.com/automattic/jetpack-forms/compare/v7.25.0...v7.26.0
+[7.25.0]: https://github.com/automattic/jetpack-forms/compare/v7.24.0...v7.25.0
 [7.24.0]: https://github.com/automattic/jetpack-forms/compare/v7.23.4...v7.24.0
 [7.23.4]: https://github.com/automattic/jetpack-forms/compare/v7.23.3...v7.23.4
 [7.23.3]: https://github.com/automattic/jetpack-forms/compare/v7.23.2...v7.23.3

@@ -1,10 +1,7 @@
 /**
- * External dependencies
- */
-import { localTZDate } from '@jetpack-premium-analytics/data';
-/**
  * Internal dependencies
  */
+import { toChartDate } from './chart-date';
 import type { MetricTab } from '../components';
 import type { DataFormat } from '../types';
 
@@ -54,17 +51,15 @@ function total( report: MetricReport | undefined, field: string ): number {
  */
 function toPoints( report: MetricReport | undefined, field: string ) {
 	return ( report?.data ?? [] ).map( point => ( {
-		date: localTZDate( point.date_start ),
+		date: toChartDate( point.date_start ),
 		value: Number( ( point as Record< string, unknown > )[ field ] ?? 0 ),
 	} ) );
 }
 
 /**
- * Build one metric tab from a primary/comparison report pair. The headline is
- * the period total; the previous-period total and overlay are included only when
- * comparison is on *and* the comparison request actually returned rows — while
- * that request is still loading or came back empty, its total would be `0`,
- * which would render a misleading previous-period value.
+ * Build one metric tab from a primary/comparison report pair. The previous-period
+ * total/overlay appear only when comparison is on and the comparison request
+ * actually returned rows — an empty or loading response would otherwise total to a misleading 0.
  *
  * @param options - The report pair, field, and presentation options.
  * @return The metric tab.

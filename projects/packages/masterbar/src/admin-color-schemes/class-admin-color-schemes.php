@@ -86,6 +86,19 @@ class Admin_Color_Schemes {
 	 * Registers new admin color schemes
 	 */
 	public function register_admin_color_schemes() {
+		global $_wp_admin_css_colors;
+
+		// Adds custom CSS overrides for Fresh
+		if ( isset( $_wp_admin_css_colors['fresh'] ) ) {
+			$fresh = $_wp_admin_css_colors['fresh'];
+			wp_admin_css_color(
+				'fresh',
+				$fresh->name,
+				$this->get_admin_color_scheme_url( 'fresh' ),
+				$fresh->colors,
+				$fresh->icon_colors
+			);
+		}
 
 		wp_admin_css_color(
 			'aquatic',
@@ -143,18 +156,6 @@ class Admin_Color_Schemes {
 			array(
 				'base'    => '#1d2327',
 				'focus'   => '#fff',
-				'current' => '#fff',
-			)
-		);
-
-		wp_admin_css_color(
-			'fresh',
-			__( 'Default', 'jetpack-masterbar' ),
-			$this->get_admin_color_scheme_url( 'fresh' ),
-			array( '#1d2327', '#2c3338', '#2271b1', '#72aee6' ),
-			array(
-				'base'    => '#a7aaad',
-				'focus'   => '#72aee6',
 				'current' => '#fff',
 			)
 		);

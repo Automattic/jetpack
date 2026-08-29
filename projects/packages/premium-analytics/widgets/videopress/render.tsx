@@ -2,19 +2,19 @@
  * External dependencies
  */
 import { useStatsVideoPlays } from '@jetpack-premium-analytics/data';
-import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	ReportLink,
-	VideoTitleLink,
 	WIDGET_ROW_LIMIT,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
 	calculateDelta,
 	getCombinedPeriodMax,
 	sharePercentage,
+	useWidgetNavigationSearch,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -43,35 +43,13 @@ type VideoPressWidgetProps = WidgetRenderProps< VideoPressRenderAttributes > & {
 };
 
 /**
- * Build a video row's title. Attachment rows navigate to the internal detail
- * route; rows without an ID retain the original external-link fallback.
- */
-function buildVideoTitle( row: VideoPlaysRow, search: Record< string, unknown > ): JSX.Element {
-	return (
-		<VideoTitleLink
-			id={ row.id }
-			label={ row.label }
-			link={ row.link }
-			search={ search }
-			classNames={ {
-				internal: styles.internalLink,
-				external: styles.labelLink,
-				plain: styles.labelText,
-			} }
-			title={ row.label }
-		/>
-	);
-}
-
-/**
- * Maps normalized video rows onto the shape `LeaderboardChart` expects. Shares
- * are computed against the largest value of either period so the overlay bars
- * stay proportional. Rows without a matching comparison-period value keep
- * comparison fields undefined so the chart suppresses fabricated deltas.
+ * Maps normalized video rows to `LeaderboardChart` shape. Shares are computed
+ * against the largest value of either period; rows without a comparison match
+ * keep fields undefined so the chart doesn't fabricate deltas.
  */
 function buildLeaderboardData(
 	rows: VideoPlaysRow[],
-	search: Record< string, unknown >
+	detailSearch: Record< string, unknown >
 ): LeaderboardChartData {
 	const maxPlays = getCombinedPeriodMax(
 		rows.map( row => row.plays ),
@@ -80,7 +58,11 @@ function buildLeaderboardData(
 
 	return rows.map( row => ( {
 		id: row.key,
-		label: buildVideoTitle( row, search ),
+		...buildLeaderboardRow( {
+			label: row.label,
+			media: { kind: 'none' },
+			action: { kind: 'videoLink', id: row.id, href: row.link, search: detailSearch },
+		} ),
 		currentValue: row.plays,
 		currentShare: sharePercentage( row.plays, maxPlays ),
 		previousValue: row.previousPlays,
@@ -97,14 +79,14 @@ function buildLeaderboardData(
  */
 function VideoPressReport() {
 	const { reportParams } = useWidgetRootContext();
+	const detailSearch = useWidgetNavigationSearch();
 	const statsParams = useMemo(
 		() => ( { ...reportParams, max: WIDGET_ROW_LIMIT } ),
 		[ reportParams ]
 	);
 
-	// The hook merges comparison rows in the data layer and gates
-	// `hasComparison` on at least one visible row (`maxRows`) having a matching
-	// comparison row, so the chart never fabricates vs-zero deltas.
+	// The hook merges comparison rows and gates `hasComparison` on at least one
+	// visible row having a match, so the chart never fabricates vs-zero deltas.
 	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsVideoPlays( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
@@ -113,8 +95,6 @@ function VideoPressReport() {
 	const isInitialLoading = isLoading || primary.isPending;
 
 	const rows = useMemo( () => toVideoPlaysRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
-	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
-
 	const chartData = useMemo(
 		() => buildLeaderboardData( rows, detailSearch ),
 		[ rows, detailSearch ]
@@ -124,9 +104,8 @@ function VideoPressReport() {
 		<WidgetState
 			isLoading={ isInitialLoading }
 			isFetching={ isFetching }
-			// The Stats queries carry `placeholderData`, so a failed range change keeps
-			// the prior period's rows visible; only surface the error when there is
-			// nothing to show.
+			// `placeholderData` keeps prior rows visible after a failed range change; only
+			// surface the error when nothing is on screen.
 			isError={ rows.length === 0 && isError }
 			isEmpty={ rows.length === 0 }
 			error={ {

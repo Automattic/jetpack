@@ -1,3 +1,11 @@
+@use "../../src/dashboard/admin-shell" as *;
+
+// The admin shell is per-route: this stylesheet is inlined into this
+// route's own bundle, so without this include a cold load of
+// `/restore/$rewindId` gets none of the viewport layout and the footer
+// stops short of the bottom of the page.
+@include backup-admin-shell;
+
 .jpb-restore {
 	max-width: 700px;
 	margin-inline: auto;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Admin dashboards: Continue the wp-admin menu color behind the page frame on WordPress.com and third-party admin color schemes.

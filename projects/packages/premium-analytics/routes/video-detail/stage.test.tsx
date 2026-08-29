@@ -13,14 +13,16 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
-	// Spread the real module so the report registry's tab configs, which call
-	// `defineReportTabs`, still resolve now that the registry is not mocked.
-	// `buildReportLink` and `pickReportDateParams` stay real too, so the link
-	// assertions below exercise the code that builds the href in product.
+	// Spreads the real module so the tab configs (which call `defineReportTabs`)
+	// resolve, and `buildReportLink`/`pickReportDateParams` build real hrefs below.
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 	useReportDateFilters: () => ( {
 		appliedRange: { from: new Date( 2026, 5, 1 ), to: new Date( 2026, 5, 16 ) },
+		replaceRange: () => {},
+		timeZone: 'UTC',
+		interval: 'day',
+		intervalOptions: [ 'day', 'week' ],
 	} ),
 } ) );
 
@@ -36,12 +38,9 @@ jest.mock( '@wordpress/core-data', () => ( {
 	store: {},
 } ) );
 
-// Falls through to the real module for everything but `useSelect`. Reaching the
-// externals passthrough pulls `@wordpress/components` -> `@wordpress/rich-text`
-// into the graph, whose store calls `combineReducers` at import time; a
-// `useSelect`-only mock leaves that undefined and the suite fails to load.
-// `requireActual` has to stay lazy — calling it in the factory body re-enters
-// the module while it is still initialising.
+// Falls through to the real module except `useSelect`: the externals path pulls
+// in `@wordpress/rich-text`, whose store calls `combineReducers` at import time,
+// so `requireActual` must stay lazy or it re-enters the module mid-init.
 jest.mock(
 	'@wordpress/data',
 	() =>
@@ -272,12 +271,9 @@ describe( 'video detail stage', () => {
 	} );
 
 	it( 'keeps a long unbroken title single-line-ready: full text in markup plus the hover attr', () => {
-		// Layout is out of jsdom's reach; the single-line clip is CSS
-		// (`white-space: nowrap` + ellipsis on `.title`, with the breadcrumb
-		// slot's shrink fix in stage.module.scss keeping the page from
-		// horizontal scrolling). This guards the DOM contract the clip relies
-		// on: the heading carries the full untruncated text and mirrors it in
-		// `title`, so the ellipsized line stays reachable on hover.
+		// Layout is out of jsdom's reach (the clip is CSS, `white-space: nowrap` +
+		// ellipsis, in stage.module.scss), so this guards the DOM contract it relies
+		// on: full text in the heading, mirrored in `title` for hover access.
 		const longTitle = `VID_20260731_${ 'a'.repeat( 120 ) }.mp4`;
 		mockSummary( { title: longTitle } );
 
@@ -328,9 +324,8 @@ describe( 'video detail stage', () => {
 		).toBeInTheDocument();
 	} );
 
-	// One declaration drives both halves: the panel reads it to drop the Compare
-	// control (covered in the ui package) and `WidgetRoot` reads it to strip the
-	// params. This asserts the declaration the page makes.
+	// One declaration drives both halves: the panel drops the Compare control and
+	// `WidgetRoot` strips the params. This asserts the page's declaration.
 	it( 'declares no comparison for the widgets it renders', () => {
 		mockSummary( { title: 'Launch recap' } );
 		mockSearch = {

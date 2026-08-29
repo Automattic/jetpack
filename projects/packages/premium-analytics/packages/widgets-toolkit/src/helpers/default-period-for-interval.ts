@@ -1,36 +1,42 @@
 /**
- * Default chart granularity for a dashboard interval: opens a granularity
- * control at the setting the range implies, and — until the user picks one
- * explicitly — keeps following the range.
- *
- * A widget's dropdown rarely offers every granularity, so the mapped period is
- * clamped to the coarsest one the widget does offer. That is why a quarter or
- * year range lands on `month` for a day/week/month widget but keeps `year` for
- * one that offers it.
- *
- * The clamp always falls back to the *coarsest* end of `allowed`. That is only
- * correct because every caller's set includes `day`, the finest granularity —
- * an unmapped/unsupported interval defaults to `day` before the clamp runs, so
- * the fallback is only ever reached from "too coarse". A widget whose set omits
- * `day` (e.g. `[ 'week', 'month' ]`) would clamp in the wrong direction.
+ * External dependencies
+ */
+import { getStatsPeriodFromInterval, type StatsPeriod } from '@jetpack-premium-analytics/data';
+
+/**
+ * Bucket sizes ordered finest to coarsest, so a mapped period the widget does
+ * not offer can be clamped in the right direction.
+ */
+const PERIOD_ORDER = [
+	'hour',
+	'day',
+	'week',
+	'month',
+	'year',
+] as const satisfies readonly StatsPeriod[];
+
+/**
+ * Chart granularity for a dashboard interval, clamped into what a widget supports.
+ * `allowed` is ordered finest to coarsest: a period finer than everything offered
+ * resolves to the finest, and one coarser resolves to the coarsest.
  *
  * @param interval - The dashboard-derived interval.
  * @param allowed  - The periods this widget offers, ordered finest to coarsest.
- * @return The matching selectable granularity.
+ * @return The matching granularity.
  */
-export function defaultPeriodForInterval< P extends string >(
+export function defaultPeriodForInterval< P extends StatsPeriod >(
 	interval: string | undefined,
 	allowed: readonly [ P, ...P[] ]
 ): P {
-	const mapped =
-		{
-			week: 'week',
-			month: 'month',
-			quarter: 'month',
-			year: 'year',
-		}[ interval ?? '' ] ?? 'day';
+	const mapped = getStatsPeriodFromInterval( interval );
 
-	const supported = allowed.includes( mapped as P );
+	if ( ( allowed as readonly StatsPeriod[] ).includes( mapped ) ) {
+		return mapped as P;
+	}
 
-	return supported ? ( mapped as P ) : allowed[ allowed.length - 1 ];
+	const finest = allowed[ 0 ];
+
+	return PERIOD_ORDER.indexOf( mapped ) < PERIOD_ORDER.indexOf( finest )
+		? finest
+		: allowed[ allowed.length - 1 ];
 }

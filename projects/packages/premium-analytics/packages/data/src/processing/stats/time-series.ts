@@ -11,6 +11,7 @@ import {
 	startOfYear,
 } from 'date-fns';
 import { safeParseFloat } from '../../utils/parsing';
+import { createStatsBucketWindowFilter, type StatsBucketFilter } from './bucket-window';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
@@ -114,12 +115,10 @@ function getPrimaryMetricValue( row: StatsRecord ) {
 }
 
 function getDateFnsIntervalFields( startDate: Date, endDate: Date ) {
-	// Stats interval fields are normalized calendar bucket labels, matching getStatsIntervalFields.
-	// They are not intended to be reinterpreted as site-timezone instants downstream.
 	return {
 		time_interval: format( startDate, dateFormat ),
-		date_start: `${ format( startDate, dateFormat ) }T00:00:00+00:00`,
-		date_end: `${ format( endDate, dateFormat ) }T23:59:59+00:00`,
+		date_start: formatDatePartWithTime( format( startDate, dateFormat ), '00:00:00' ),
+		date_end: formatDatePartWithTime( format( endDate, dateFormat ), '23:59:59' ),
 	};
 }
 
@@ -208,16 +207,18 @@ function getHourIntervalFields( date: string, hour: unknown ) {
 	const datePart = getDatePart( date ) ?? date;
 	const hourPart = String( Math.trunc( Number( hour ) ) || 0 ).padStart( 2, '0' );
 
-	// Like getStatsIntervalFields, these are calendar bucket labels stamped with a nominal +00:00
-	// (formatDatePartWithTime's default), not real UTC instants — the API's hour is already
-	// site-local, so a consumer must render the bucket as wall-clock rather than convert it across
-	// the site offset.
+	// Like getStatsIntervalFields, these are timezone-naive calendar bucket labels — the API's
+	// hour is already site-local, so no offset is stamped for a consumer to convert across.
 	return {
 		time_interval: `${ datePart } ${ hourPart }:00`,
 		date_start: formatDatePartWithTime( datePart, `${ hourPart }:00:00` ),
 		date_end: formatDatePartWithTime( datePart, `${ hourPart }:59:59` ),
 	};
 }
+
+// `stats/visits` packs an hourly bucket's date and hour into a single `period`,
+// where the email timeline carries the hour in its own column.
+const packedHourlyPeriod = /^(\d{4}-\d{2}-\d{2})[T ](\d{2})/;
 
 function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: string ) {
 	if ( unit === 'hour' && row.hour !== undefined && typeof rawPeriod === 'string' ) {
@@ -232,14 +233,20 @@ function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: strin
 		};
 	}
 
+	if ( unit === 'hour' && typeof rawPeriod === 'string' ) {
+		const packed = rawPeriod.match( packedHourlyPeriod );
+
+		if ( packed ) {
+			return getHourIntervalFields( packed[ 1 ], packed[ 2 ] );
+		}
+	}
+
 	return getTimeSeriesIntervalFields( rawPeriod, unit );
 }
 
 // Rebuild a summary bound from a query date when no rows came back. Rows stamp
-// `date_start`/`date_end` as full ISO 8601 with a nominal +00:00 (see
-// getStatsIntervalFields), so the query's own site-local offset can't be passed
-// through verbatim: consumers read these as wall-clock bucket labels, and a real
-// offset would be converted a second time. Mirrors getStatsSummaryIntervalFields.
+// their bounds as timezone-naive wall times, so the query's own offset cannot be
+// passed through verbatim — it would be converted, not read as a label.
 function toSummaryBound( value: string | undefined, time: string ) {
 	const datePart = getDatePart( value );
 
@@ -274,12 +281,20 @@ export function isStatsTimeSeriesPayload( payload: unknown ) {
 
 export function sanitizeStatsTimeSeriesResponse(
 	payload: unknown,
-	query?: StatsQueryParams
+	query?: StatsQueryParams,
+	keepBucket?: StatsBucketFilter
 ): StatsTimeSeriesReport {
 	const response = coerceStatsRecord( payload );
 	const unit = String( response.unit ?? query?.period ?? 'day' );
-	const rows = parseTimeSeriesRows( payload );
-	const summary = rows.reduce< Record< string, number > >( ( totals, row ) => {
+	const buckets = parseTimeSeriesRows( payload ).map( row => {
+		const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
+
+		return { row, range: getRowIntervalFields( row, rawPeriod, unit ) };
+	} );
+	// Filter before the summary, so dropped buckets inflate neither the totals nor
+	// the chart. Only an endpoint-specific sanitizer supplies a filter.
+	const kept = keepBucket ? buckets.filter( ( { range } ) => keepBucket( range ) ) : buckets;
+	const summary = kept.reduce< Record< string, number > >( ( totals, { row } ) => {
 		Object.entries( row ).forEach( ( [ key, value ] ) => {
 			if ( ! nonMetricFields.includes( key ) && typeof value === 'number' ) {
 				totals[ key ] = ( totals[ key ] ?? 0 ) + value;
@@ -288,10 +303,8 @@ export function sanitizeStatsTimeSeriesResponse(
 
 		return totals;
 	}, {} );
-	const data = rows
-		.map< StatsTimeSeriesDataPoint >( row => {
-			const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
-			const range = getRowIntervalFields( row, rawPeriod, unit );
+	const data = kept
+		.map< StatsTimeSeriesDataPoint >( ( { row, range } ) => {
 			const value = safeParseFloat( getPrimaryMetricValue( row ) );
 
 			return {
@@ -303,8 +316,7 @@ export function sanitizeStatsTimeSeriesResponse(
 			};
 		} )
 		// `stats/visits` returns buckets oldest first, `stats/subscribers` newest
-		// first, but everything downstream reads `data[0]` as the oldest bucket —
-		// starting with the summary bounds below.
+		// first, but everything downstream reads `data[0]` as the oldest.
 		.sort( ( a, b ) => compareBucketBounds( a.date_start, b.date_start ) );
 	const firstRow = data[ 0 ];
 	const lastRow = data[ data.length - 1 ];
@@ -344,14 +356,18 @@ export function sanitizeStatsEmailTimeSeriesResponse(
 	const timeline = coerceStatsRecord( coerceStatsRecord( payload ).timeline );
 	const fields = coerceStatsArray< string >( timeline.fields );
 
-	// The real hourly timeline labels its hour column ([ 'date', 'hour', '<metric>_count' ]), which
-	// the normalizer resolves into per-hour buckets. As a fallback, an unlabeled trailing hour
-	// column is named here so older/alternate payloads still resolve (matching Calypso's
-	// parseEmailChartData).
+	// Names an unlabeled trailing hour column so older/alternate payloads still
+	// resolve into per-hour buckets (matching Calypso's parseEmailChartData).
 	const normalizedTimeline =
 		timeline.unit === 'hour' && fields.length && ! fields.includes( 'hour' )
 			? { ...timeline, fields: [ ...fields, 'hour' ] }
 			: timeline;
 
-	return sanitizeStatsTimeSeriesResponse( normalizedTimeline, query );
+	// The email timeline is quantity-based and midnight-anchored, so its
+	// query opts into the bucket-window trim (see bucket-window.ts).
+	return sanitizeStatsTimeSeriesResponse(
+		normalizedTimeline,
+		query,
+		createStatsBucketWindowFilter( query )
+	);
 }

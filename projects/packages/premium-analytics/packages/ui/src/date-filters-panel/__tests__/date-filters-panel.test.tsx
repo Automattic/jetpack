@@ -1,5 +1,6 @@
 import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
-import { act, render, screen } from '@testing-library/react';
+import { DETAIL_SURFACE_PRESETS } from '@jetpack-premium-analytics/datetime';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateFiltersPanel } from '../date-filters-panel';
 import type { ComponentProps } from 'react';
@@ -188,9 +189,8 @@ describe( 'DateFiltersPanel', () => {
 		);
 	} );
 
-	// The custom trigger used to keep labelling itself with the range it held
-	// before the preset took over, putting two different ranges on screen at
-	// once (WOOA7S-1936).
+	// The custom trigger used to keep showing the pre-preset range, putting two
+	// different ranges on screen at once (WOOA7S-1936).
 	it( 'drops the custom range from the trigger once a preset takes over', () => {
 		mockContainerResize();
 		const customRange = {
@@ -218,5 +218,27 @@ describe( 'DateFiltersPanel', () => {
 		);
 
 		expect( screen.getByRole( 'button', { name: 'Custom' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the detail surface: all time first, no custom trigger', () => {
+		mockContainerResize();
+		renderPanel( {
+			presetIds: DETAIL_SURFACE_PRESETS,
+			withCustomRange: false,
+			presetId: 'all-time',
+			appliedPresetId: 'all-time',
+		} );
+
+		const toolbar = screen.getByRole( 'toolbar', { name: 'Date range' } );
+		const pills = within( toolbar ).getAllByRole( 'button' );
+		expect( pills.map( pill => pill.textContent ) ).toEqual( [
+			'All time',
+			'Last 24 hours',
+			'7 days',
+			'30 days',
+			'12 months',
+		] );
+		expect( pills[ 0 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+		expect( screen.queryByRole( 'button', { name: 'Custom' } ) ).not.toBeInTheDocument();
 	} );
 } );

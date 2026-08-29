@@ -108,9 +108,8 @@ export const WithComparison: Story = {
  * First load: the fetch is in flight, so the widget shows its loading state. The
  * mock is forced to never resolve for the duration of this story.
  *
- * Forced through `forceStatsMockState`: `stats/referrers` is answered by the
- * legacy stats mocks before the shared `setReportMockState` override can
- * intercept it.
+ * Uses `forceStatsMockState`: the legacy stats mocks answer `stats/referrers`
+ * before `setReportMockState` can intercept it.
  */
 export const Loading: Story = {
 	render: () => renderReferrersOnPreset( 'last-90-days' ),

@@ -84,13 +84,14 @@ Errors reach `onError` from two paths: the Google ChartWrapper `error` event, an
 
 ## Theme Properties
 
-The following properties can be customized via the theme system:
+The color axis range is the first series palette color, set in CSS as `--a8c-charts-color-series-1` rather than through the theme object. See [The Series Palette](?path=/docs/js-packages-charts-library-providers-globalchartsprovider--docs).
+
+The remaining properties can be customized via the theme system:
 
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `colors[0]` | `string` | `'#98C8DF'` | Primary color used for data visualization (color axis range) |
-| `backgroundColor` | `string` | `'var(--a8c-charts-color-background, var(--wpds-color-background-surface-neutral-strong, #fff))'` | Background color of the map |
-| `geoChart.featureFillColor` | `string` | `'var(--a8c-charts-color-surface-secondary, var(--wpds-color-background-surface-neutral-weak, #f4f4f4))'` | Fill color for countries without data values |
+| `backgroundColor` | `string` | `'var(--a8c-charts-color-background, #fff)'` | Background color of the map |
+| `geoChart.featureFillColor` | `string` | `'var(--a8c-charts-color-surface-secondary, #f4f4f4)'` | Fill color for countries without data values |
 
 ## Country Identification
 

@@ -9,7 +9,6 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  */
 import {
 	chartTypeAttributeField,
-	granularityAttributeField,
 	type ChartDisplayChartType,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 
@@ -17,12 +16,6 @@ import {
  * Which timeline the chart draws for the selected email.
  */
 export type EmailTimeSeriesMetric = 'opens' | 'clicks';
-
-/**
- * Chart bucket granularity. The email timeline endpoint reports daily
- * buckets; weeks and months aggregate the daily buckets client-side.
- */
-export type EmailTimeSeriesGranularity = 'day' | 'week' | 'month';
 
 /**
  * How the timeline is drawn. The shared chart-display list keeps every chart
@@ -35,42 +28,24 @@ export type EmailTimeSeriesChartType = ChartDisplayChartType;
  */
 export type EmailTimeSeriesAttributes = {
 	/**
-	 * Which timeline to draw: opens (default) or clicks. The post detail page
-	 * pins one per email tab through the tab layout, so this is not a
-	 * user-facing control — exposing it would let a pinned tab contradict its
-	 * own title.
+	 * Not a user-facing control: the post detail page pins one per email tab, and
+	 * exposing it would let a pinned tab contradict its own title.
 	 */
 	metric?: EmailTimeSeriesMetric;
-	/**
-	 * Chart bucket granularity (`relevance: 'high'`, so the host renders the
-	 * control). Defaults to `day`.
-	 */
-	granularity?: EmailTimeSeriesGranularity;
-	/**
-	 * How to draw the timeline (`relevance: 'high'`). Defaults to `line`.
-	 */
 	chartType?: EmailTimeSeriesChartType;
 };
 
 /**
- * Widget type definition.
- *
- * The opens/clicks-over-time chart from the legacy email detail page
- * (`stats-email-chart-tabs`), with the window total as the metric headline.
- * The email is scoped by the host through `reportParams.post_id` (the shared
- * single-resource "detail page" param); the timeline spans the dashboard
- * date range.
+ * Ported from the legacy email detail page's opens/clicks-over-time chart
+ * (`stats-email-chart-tabs`). The host scopes the email through
+ * `reportParams.post_id`.
  */
 export default {
 	icon: envelope,
-	attributes: [
-		granularityAttributeField( [ 'day', 'week', 'month' ] ),
-		chartTypeAttributeField(),
-	] as WidgetAttributeField< EmailTimeSeriesAttributes >[],
+	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< EmailTimeSeriesAttributes >[],
 	example: {
 		attributes: {
 			metric: 'opens',
-			granularity: 'day',
 			chartType: 'line',
 		},
 	},

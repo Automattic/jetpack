@@ -25,14 +25,8 @@ type SalesByUtmWidgetProps = {
 };
 
 /**
- * Displays order attribution data in a leaderboard chart, showing how sales are
- * distributed across different UTM parameters (source, channel, or campaign).
- *
- * Features:
- * - Multiple views: source, channel, campaign
- * - Displays data for all product types
- * - Comparison support (current vs previous period)
- * - Formatted legend labels with date ranges
+ * Order attribution data as a leaderboard chart, showing how sales split across
+ * UTM parameters (source, channel, or campaign) with comparison support.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
  *
@@ -74,9 +68,8 @@ export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 		<WidgetState
 			isLoading={ isLoading }
 			isFetching={ isFetching }
-			// The report queries keep the previous period's data as placeholders
-			// across range changes, so only surface the error when there is
-			// nothing to show.
+			// The report queries keep the previous period's data as placeholders across
+			// range changes, so only surface the error when nothing else is showing.
 			isError={ isError && ! hasData }
 			isEmpty={ chartData.length === 0 }
 			error={ {
@@ -98,7 +91,7 @@ export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 				legendLabels={ legendLabels }
 				style={
 					{
-						'--a8c--charts--leaderboard--bar--border-radius': '0 1px 1px 0',
+						'--a8c-charts-border-radius-leaderboard-bar': '0 1px 1px 0',
 					} as CSSProperties
 				}
 			/>

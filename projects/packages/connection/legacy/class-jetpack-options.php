@@ -126,6 +126,7 @@ class Jetpack_Options {
 			'identity_crisis_url_secret',          // (array) The IDC URL secret and its expiration date.
 			'identity_crisis_ip_requester',        // (array) The IDC IP address and its expiration date.
 			'dismissed_welcome_banner',            // (bool) Determines if the welcome banner has been dismissed or not.
+			'dismissed_a4a_banner',                // (bool) Determines if the Automattic for Agencies banner has been dismissed or not.
 			'recommendations_evaluation',          // (object) Catalog of recommended modules with corresponding score following successful site evaluation in Welcome Banner.
 			'dismissed_recommendations',           // (bool) Determines if the recommendations have been dismissed or not.
 			'recommendations_first_run',           // (bool) Determines if the current recommendations are the initial default auto-loaded ones (without user input).
@@ -224,7 +225,7 @@ class Jetpack_Options {
 	 * but does not apply the `jetpack_options` filter, so a filter override is not mistaken for a
 	 * stored value.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.11.0
 	 *
 	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix.
 	 *

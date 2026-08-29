@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Backup: add the storage add-on upsell and the storage help popover to the modernized dashboard. Both render only behind the dashboard modernization filter and are unreachable from the legacy dashboard, so nothing changes for users today.
+
+

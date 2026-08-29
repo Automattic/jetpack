@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Backup: show what a subscription costs on the modernized dashboard's no-plan screen, and stop the promoted-product route reading through a catalogue it could not parse. The new screen is a no-op while the modernization filter is off.
+
+

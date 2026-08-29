@@ -47,6 +47,15 @@ await jest.unstable_mockModule(
 	} )
 );
 
+await jest.unstable_mockModule(
+	'../../../../../src/blocks/shared/hooks/use-form-field-ids.js',
+	() => ( {
+		__esModule: true,
+		getFormFieldEntries: () => [],
+		default: () => [],
+	} )
+);
+
 const { withConditionalLogic } = await import(
 	'../../../../../src/blocks/shared/conditional-logic/register.jsx'
 );

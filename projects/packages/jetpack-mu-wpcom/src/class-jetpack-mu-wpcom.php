@@ -22,8 +22,12 @@ class Jetpack_Mu_Wpcom {
 	const BASE_FILE       = __FILE__;
 
 	// Themes (by template slug) and plugins (by basename) known to break with React 19.
-	const REACT_19_INCOMPATIBLE_THEMES  = array( 'divi' );
-	const REACT_19_INCOMPATIBLE_PLUGINS = array( 'wp-table-builder/wp-table-builder.php' );
+	const REACT_19_INCOMPATIBLE_THEMES  = array( 'divi', 'woodmart' );
+	const REACT_19_INCOMPATIBLE_PLUGINS = array(
+		'wp-table-builder/wp-table-builder.php',
+		'ultimate-blocks/ultimate-blocks.php',
+		'beehive-analytics/beehive-analytics.php',
+	);
 
 	/**
 	 * Initialize the class.
@@ -391,6 +395,7 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/survicate/class-survicate.php';
 		}
 		require_once __DIR__ . '/features/ai-assistant-banner/ai-assistant-banner.php';
+		require_once __DIR__ . '/features/expiry-notices/expiry-notices.php';
 		require_once __DIR__ . '/features/html-block-restricted-tags/html-block-restricted-tags.php';
 		require_once __DIR__ . '/features/marketing/marketing.php';
 		require_once __DIR__ . '/features/pages/pages.php';
@@ -760,6 +765,12 @@ class Jetpack_Mu_Wpcom {
 			if ( self::should_disable_comment_experience( $blog_id ) ) {
 				return;
 			}
+
+			if ( class_exists( '\Automattic\Jetpack\Comments\Comments' ) && \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
+				\Automattic\Jetpack\Comments\Comments::init();
+				return;
+			}
+
 			require_once __DIR__ . '/features/verbum-comments/class-verbum-comments.php';
 			new \Automattic\Jetpack\Verbum_Comments();
 		}
@@ -892,7 +903,7 @@ class Jetpack_Mu_Wpcom {
 			} elseif ( self::has_react_19_incompatible_extension() ) {
 				$is_enabled = false;
 			} else {
-				$current_segment = 2; // Segment of Atomic sites in the experiment, in %.
+				$current_segment = 10; // Segment of Atomic sites in the experiment, in %.
 				$site_segment    = $site_id % 100;
 
 				/*

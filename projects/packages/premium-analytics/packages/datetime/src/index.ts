@@ -22,7 +22,11 @@ export { getDateRangeSpan, type DateRangeSpan, type DateRangeSpanUnit } from './
 
 export { stepDateRange, canStepForward, type StepDirection } from './step-date-range';
 
+export { drillDateRange } from './drill-date-range';
+
 export { parseSiteDateTime } from './site-datetime';
+
+export { readSiteTimestamp, type SiteTimestamp, type TimestampParts } from './site-timestamp';
 
 export { siteTimeZone } from './site-time-zone';
 
@@ -49,6 +53,8 @@ export {
 	PRESET_LAST_YEAR,
 	PRESET_CUSTOM,
 	PRESET_ALL_TIME,
+	QUICK_SURFACE_PRESETS,
+	DETAIL_SURFACE_PRESETS,
 	YEAR_PRESET_PREFIX,
 
 	// Guards
@@ -63,6 +69,7 @@ export {
 
 	// Types
 	type SelectablePresetId,
+	type QuickSurfacePresetId,
 	type PrimaryPresetId,
 	type ComputablePresetId,
 	type YearPresetId,
@@ -78,6 +85,8 @@ export {
 	computePrimaryRange,
 	type DateRangePreset,
 	type YearSurfaceOptions,
+	type AllTimeRangeOptions,
+	type QuickSurfaceOptions,
 
 	// Comparison presets
 	getComparisonPresetLabel,

@@ -1,8 +1,12 @@
-import { getApiErrorCode, getApiErrorStatus, shouldRetryApiError } from '../api-error';
+import {
+	getApiErrorCode,
+	getApiErrorStatus,
+	shouldRetryApiError,
+	StatsResponseShapeError,
+} from '../api-error';
 
-// Two envelopes reach the client: our own `WP_Error` responses
-// (`{ code, message, data: { status } }`) and WPCOM pass-through errors
-// (`{ error, message }`, with the status attached separately by the fetch layer).
+// Two error envelopes reach the client: our own `WP_Error` shape
+// (`{ code, data: { status } }`) and WPCOM pass-through (`{ error, message }`).
 
 describe( 'getApiErrorStatus', () => {
 	it( 'returns status from a top-level status property', () => {
@@ -75,5 +79,15 @@ describe( 'shouldRetryApiError', () => {
 		expect( shouldRetryApiError( 0, { status: 500 } ) ).toBe( true );
 		expect( shouldRetryApiError( 2, { status: 500 } ) ).toBe( true );
 		expect( shouldRetryApiError( 3, { status: 500 } ) ).toBe( false );
+	} );
+
+	it( 'does not auto-retry a sanitizer parse failure', () => {
+		// Retrying verbatim reproduces the same unparsable response; only a
+		// manual Retry (e.g. after a redeploy) can actually change the outcome.
+		expect( shouldRetryApiError( 0, new StatsResponseShapeError( 'bad shape' ) ) ).toBe( false );
+	} );
+
+	it( 'still retries an ordinary transient failure', () => {
+		expect( shouldRetryApiError( 0, new Error( 'network error' ) ) ).toBe( true );
 	} );
 } );

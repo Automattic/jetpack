@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { parseSiteDateTime, siteTimeZone, toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { Icon, Text } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
 import { envelope as envelopeIcon, page as pageIcon, post as postIcon } from '@wordpress/icons';
@@ -14,10 +15,8 @@ import type { PostSummary } from '../../hooks';
 type PostSummaryCardProps = {
 	summary: PostSummary;
 	/**
-	 * Which identity the header carries, per the design mocks. The email tabs
-	 * describe the post's newsletter send — an envelope tile instead of the
-	 * featured image, and "Email sent on …" instead of the publish wording —
-	 * while the default post identity shows the thumbnail and publish date.
+	 * Header identity: 'email' frames the header as the newsletter send
+	 * (envelope tile, "Email sent on…") instead of the post identity.
 	 */
 	variant?: 'post' | 'email';
 	/**
@@ -60,14 +59,13 @@ export function PostSummaryCard( {
 }: PostSummaryCardProps ) {
 	const { title, type, publishedDate, imageUrl } = summary;
 
-	const publishedDateObject = publishedDate ? new Date( publishedDate ) : undefined;
-	const formattedDate =
-		publishedDateObject && isValid( publishedDateObject )
-			? format( publishedDateObject, DATE_FORMAT )
-			: undefined;
-	// The email wording reuses the publish date: WordPress.com sends the
-	// newsletter when the post publishes, and the email stats API exposes no
-	// separate send timestamp (`stats/emails/summary` returns the post date).
+	// Read and shown in the site timezone, like the Stats data the page reports on.
+	const publishedDateObject = parseSiteDateTime( publishedDate );
+	const formattedDate = publishedDateObject
+		? format( toLocalTZ( publishedDateObject, siteTimeZone() ), DATE_FORMAT )
+		: undefined;
+	// Reuses the publish date: the newsletter sends when the post publishes,
+	// and `stats/emails/summary` exposes no separate send timestamp.
 	let publishedSentence;
 	if ( formattedDate ) {
 		publishedSentence =
@@ -97,11 +95,8 @@ export function PostSummaryCard( {
 			: undefined;
 	const subtitle = [ publishedSentence, performanceSentence ].filter( Boolean ).join( ' ' );
 
-	// The email identity always shows the envelope tile — even when the post
-	// has a featured image — so the email tabs read as the newsletter send
-	// rather than the post, per the design mocks. The post identity shows the
-	// thumbnail, or a type-glyph placeholder so the type still reads at a
-	// glance without its own badge row.
+	// Email variant always shows the envelope tile, even with a featured
+	// image, so email tabs read as the newsletter send, not the post.
 	let media;
 	if ( variant === 'email' ) {
 		media = (

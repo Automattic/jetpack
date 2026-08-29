@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: stop uploading a file that was removed while its upload was still being prepared.
