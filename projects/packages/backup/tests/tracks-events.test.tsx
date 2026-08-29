@@ -324,6 +324,9 @@ describe( 'Modify schedule', () => {
 		await userEvent.click( await modifyLink() );
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_backup_schedule_modify_click' );
+		// Once, not merely at least once: a row that later grew a second click
+		// target would double-count every Modify click in Tracks, silently.
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'records nothing until the reader actually clicks', async () => {
