@@ -1,6 +1,7 @@
 <?php
 /**
- * Capabilities REST bridge — proxies WPCOM's site rewind state.
+ * Capabilities REST bridge — WPCOM's site rewind state, plus the local
+ * facts the dashboard needs in the same breath.
  *
  * @package automattic/jetpack-backup-plugin
  */
@@ -16,16 +17,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Returns what the modernized dashboard is allowed to show: the site's
- * WordPress.com backup capabilities (`hasBackupPlan`, `hasScan`), which
- * back the `<Gates>` decision tree, plus `isStandalonePluginActive`,
- * which is decided here on the site rather than upstream.
+ * Returns what the modernized dashboard is allowed to show.
  *
- * The mixture is deliberate. This is the one request the dashboard always
- * makes before it renders a body, so a gate carried here costs no round
- * trip of its own and is settled before anything it gates could flash on
- * screen. Anything added alongside must be named so it cannot be mistaken
- * for a WordPress.com value.
+ * Two halves, and the response shape keeps them apart. The top level is
+ * WordPress.com's answer projected into the flags `<Gates>` reads —
+ * `hasBackupPlan`, `hasScan`. Everything under `local` was decided here
+ * on the site and never left it.
+ *
+ * The mixture is deliberate: this is the one request the dashboard always
+ * makes before it renders a body, so a fact carried here costs no round
+ * trip of its own and is settled before anything depending on it could
+ * flash on screen.
+ *
+ * The nesting is what keeps that honest. A naming convention would ask
+ * every future addition to remember the rule; a branch makes provenance
+ * structural, so a reader can see at a glance which half a value came
+ * from and nothing local can be mistaken for something WordPress.com
+ * said. Add locally-derived values under `local`, never beside the two
+ * projections.
  */
 class Capabilities_Bridge {
 
@@ -57,8 +66,9 @@ class Capabilities_Bridge {
 	 * the `capabilities` key is missing entirely, which produced a false
 	 * "no plan" gate for plans that do include Backup.
 	 *
-	 * `isStandalonePluginActive` rides along on the same response and is
-	 * decided locally; the class docblock says why it lives here.
+	 * The `local` branch rides along on the same response and is decided
+	 * here rather than upstream; the class docblock says why it lives on
+	 * this route and why it is nested.
 	 *
 	 * @return \WP_REST_Response|WP_Error The decoded capabilities, or WP_Error on failure.
 	 */
@@ -140,10 +150,13 @@ class Capabilities_Bridge {
 
 		return rest_ensure_response(
 			array(
-				'hasBackupPlan'            => in_array( 'backup', $capabilities, true ),
-				'hasScan'                  => in_array( 'scan', $capabilities, true ),
-				// Local, not upstream. See `is_standalone_plugin_active()`.
-				'isStandalonePluginActive' => self::is_standalone_plugin_active(),
+				'hasBackupPlan' => in_array( 'backup', $capabilities, true ),
+				'hasScan'       => in_array( 'scan', $capabilities, true ),
+				// Decided here, not upstream. See the class docblock for why
+				// these live in their own branch.
+				'local'         => array(
+					'isStandalonePluginActive' => self::is_standalone_plugin_active(),
+				),
 			)
 		);
 	}

@@ -125,8 +125,19 @@ type Result = {
 	 * renders whenever this is non-null cannot get the order wrong.
 	 */
 	reason: ReviewReason | null;
-	/** Record the reader's refusal. A no-op when there is no prompt. */
+	/**
+	 * Record the reader's refusal. A no-op when there is no prompt, and
+	 * while a previous refusal is still being written.
+	 */
 	dismiss: () => void;
+	/**
+	 * True while a dismissal write is in flight.
+	 *
+	 * Exposed because the card stays on screen until the server confirms,
+	 * which also leaves its button live — so the caller has to be able to
+	 * tell the reader that the first click was heard. See `dismiss`.
+	 */
+	isDismissing: boolean;
 };
 
 /**
@@ -163,7 +174,7 @@ export function useReviewRequest(): Result {
 	// below `<Gates>`, which does not render a body until that read has
 	// resolved.
 	const { data: capabilities } = useCapabilities( { enabled: canQueryWpcom } );
-	const gateOpen = capabilities?.isStandalonePluginActive === true;
+	const gateOpen = capabilities?.local?.isStandalonePluginActive === true;
 
 	const restores = useQuery( {
 		queryKey: keys.recentRestores(),
@@ -196,7 +207,7 @@ export function useReviewRequest(): Result {
 	} );
 
 	const queryClient = useQueryClient();
-	const { mutate } = useMutation( {
+	const { mutate, isPending: isDismissing } = useMutation( {
 		mutationFn: ( reason: ReviewReason ) => dismissReviewRequest( reason ),
 		// Only on success, which is the point. The legacy dashboard hid the
 		// card as soon as the request was sent, so a failed write took the
@@ -209,11 +220,16 @@ export function useReviewRequest(): Result {
 	} );
 
 	const dismiss = useCallback( () => {
-		if ( candidate === null ) {
+		// Refuse a second write while the first is still going. Fixing
+		// legacy's unconfirmed dismissal means the card no longer vanishes
+		// on click, so on a slow connection nothing visibly happens and the
+		// reader clicks again. This is the write half only — what keeps
+		// Tracks from hearing one refusal twice is the caller's latch.
+		if ( candidate === null || isDismissing ) {
 			return;
 		}
 		mutate( candidate );
-	}, [ candidate, mutate ] );
+	}, [ candidate, isDismissing, mutate ] );
 
 	// `undefined` covers both "still asking" and "the ask failed", and both
 	// mean the same thing here: we cannot confirm this reader has not
@@ -223,5 +239,6 @@ export function useReviewRequest(): Result {
 	return {
 		reason: candidate !== null && ! isDismissed ? candidate : null,
 		dismiss,
+		isDismissing,
 	};
 }

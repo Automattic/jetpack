@@ -52,8 +52,13 @@ describe( 'fetchRecentRestores', () => {
 	test.each( [
 		[ 'finished', true ],
 		[ 'FINISHED', true ],
-		// Settled, but not a restore anyone should be asked to praise.
-		[ 'success', false ],
+		// Both spellings, because the collection route maps nothing and
+		// `Restore_Bridge::STATUS_MAP` already equates these two. Pinning
+		// this to `finished` alone would silently kill the review prompt's
+		// restore trigger on any site whose upstream says `success`.
+		[ 'success', true ],
+		// Settled and not a failure, but not a restore to ask anyone to
+		// praise either — kept distinct here as `STATUS_MAP` keeps it.
 		[ 'success-with-errors', false ],
 		[ 'fail', false ],
 		[ 'aborted', false ],

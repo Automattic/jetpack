@@ -134,13 +134,17 @@ class Rest_Capabilities_Bridge_Test extends TestCase {
 		$this->assertNotInstanceOf( WP_Error::class, $response );
 		$this->assertSame(
 			array(
-				'hasBackupPlan'            => $has_backup,
-				'hasScan'                  => $has_scan,
-				// Local rather than upstream, and false in a package test
-				// run: nothing here defines the standalone plugin's
+				'hasBackupPlan' => $has_backup,
+				'hasScan'       => $has_scan,
+				// Decided on the site rather than upstream, which is why it
+				// sits in its own branch — and false in a package test run,
+				// since nothing here defines the standalone plugin's
 				// constant. Asserted as part of the whole payload so a key
-				// added later cannot slip in unnoticed.
-				'isStandalonePluginActive' => false,
+				// added later cannot slip in unnoticed, on either side of
+				// the provenance split.
+				'local'         => array(
+					'isStandalonePluginActive' => false,
+				),
 			),
 			$response->get_data()
 		);
@@ -308,7 +312,7 @@ class Rest_Capabilities_Bridge_Test extends TestCase {
 
 		$response = Capabilities_Bridge::get_capabilities();
 
-		$this->assertFalse( $response->get_data()['isStandalonePluginActive'] );
+		$this->assertFalse( $response->get_data()['local']['isStandalonePluginActive'] );
 	}
 
 	/**
@@ -330,6 +334,6 @@ class Rest_Capabilities_Bridge_Test extends TestCase {
 
 		$response = Capabilities_Bridge::get_capabilities();
 
-		$this->assertTrue( $response->get_data()['isStandalonePluginActive'] );
+		$this->assertTrue( $response->get_data()['local']['isStandalonePluginActive'] );
 	}
 }

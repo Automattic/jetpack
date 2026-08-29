@@ -627,4 +627,97 @@ class Jetpack_Backup_Test extends TestCase {
 			),
 		);
 	}
+
+	/**
+	 * The dismissal route refuses a reason `Jetpack_Options` cannot store.
+	 *
+	 * The option name is built by appending this parameter to
+	 * `dismissed_backup_review_`, and `Jetpack_Options` recognises exactly
+	 * two of those. Anything else falls through its allowlist to a
+	 * `trigger_error()` and is stored nowhere — so without the enum the
+	 * route answers 200 for a dismissal it did not record, and on a site
+	 * with `display_errors` on the warning is printed ahead of the JSON,
+	 * leaving a body the client cannot parse.
+	 *
+	 * @param string $option_name The reason to send.
+	 * @dataProvider provide_unstorable_review_reasons
+	 */
+	#[DataProvider( 'provide_unstorable_review_reasons' )]
+	public function test_dismissal_route_refuses_an_unstorable_reason( $option_name ) {
+		$this->sign_in_as_connected_admin();
+
+		rest_get_server();
+		Jetpack_Backup::register_rest_routes();
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/site/dismissed-review-request' );
+		$request->set_body_params(
+			array(
+				'option_name'    => $option_name,
+				'should_dismiss' => false,
+			)
+		);
+		$response = rest_do_request( $request );
+
+		$this->assertSame( 400, $response->get_status(), $option_name );
+	}
+
+	/**
+	 * Reasons the route must refuse.
+	 *
+	 * @return array
+	 */
+	public static function provide_unstorable_review_reasons() {
+		return array(
+			// The shape a third prompt would arrive in if someone added one
+			// without also adding the option name upstream.
+			'a reason nobody registered' => array( 'scan' ),
+			'empty'                      => array( '' ),
+			// Not an injection risk — the value is concatenated into an
+			// option name that is then allowlisted — but it has no business
+			// reaching that concatenation at all.
+			'a path'                     => array( '../../etc/passwd' ),
+		);
+	}
+
+	/**
+	 * Both reasons the dashboard actually sends are accepted, and an
+	 * un-dismissed prompt reads as `false`.
+	 *
+	 * The client treats anything that is not literally `false` as dismissed,
+	 * so this pins the one answer that lets the card render at all.
+	 *
+	 * @param string $option_name The reason to send.
+	 * @dataProvider provide_review_reasons
+	 */
+	#[DataProvider( 'provide_review_reasons' )]
+	public function test_dismissal_route_accepts_the_reasons_the_dashboard_sends( $option_name ) {
+		$this->sign_in_as_connected_admin();
+
+		rest_get_server();
+		Jetpack_Backup::register_rest_routes();
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/site/dismissed-review-request' );
+		$request->set_body_params(
+			array(
+				'option_name'    => $option_name,
+				'should_dismiss' => false,
+			)
+		);
+		$response = rest_do_request( $request );
+
+		$this->assertSame( 200, $response->get_status(), $option_name );
+		$this->assertFalse( $response->get_data(), $option_name );
+	}
+
+	/**
+	 * The two reasons the review prompt can carry.
+	 *
+	 * @return array
+	 */
+	public static function provide_review_reasons() {
+		return array(
+			'restore' => array( 'restore' ),
+			'backups' => array( 'backups' ),
+		);
+	}
 }

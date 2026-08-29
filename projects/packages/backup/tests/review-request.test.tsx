@@ -6,11 +6,25 @@
 // collection and the other reads the backup list, and the dismissal is a
 // third endpoint keyed on which trigger fired.
 //
-// Every "the card stays away" assertion is paired with something that
-// *did* render — the activity list's own row, or the dismissal request
-// never being made. A bare `queryByText(...).not.toBeInTheDocument()`
-// passes just as happily when the stage threw, the endpoints were
-// mis-mocked, or the copy was reworded.
+// EVERY "the card stays away" assertion in this file is paired with an
+// outside witness, and any test added here must keep that up. A bare
+// `queryByText( … ).not.toBeInTheDocument()` is decorative: it passes
+// just as happily when the stage threw, when the endpoints were
+// mis-mocked, or when the copy was reworded — and, proved by mutation,
+// it keeps passing when the plugin gate is flipped to fail *open*. Only
+// the `dismissalCalls` assertion on the following line caught that.
+//
+// The two witnesses used here:
+//
+//   - `renderSettledOverview()` waits for the activity list's own row,
+//     which proves the stage mounted, the endpoints answered, and the
+//     dashboard reached the state where the prompt would have rendered.
+//   - `dismissalCalls` records every request to the dismissal route, so
+//     a test can say not just "no card" but *why* — the gate refused
+//     before anything was asked, versus the trigger never fired, versus
+//     the server said it was already dismissed.
+//
+// A negative assertion with neither is vacuous. Add one.
 
 const mockRecordEvent = jest.fn();
 
@@ -132,6 +146,20 @@ function restoreRow( daysAgo: number, status = 'finished' ) {
 	};
 }
 
+/**
+ * How many times the dismissal was reported to Tracks.
+ *
+ * Counted rather than asserted with `toHaveBeenCalledTimes`, because the
+ * Overview screen records its own page view through the same mock.
+ *
+ * @return The number of `jetpack_backup_dismiss_review_click` events.
+ */
+function dismissEventCount() {
+	return mockRecordEvent.mock.calls.filter(
+		( [ event ] ) => event === 'jetpack_backup_dismiss_review_click'
+	).length;
+}
+
 type Options = {
 	/**
 	 * Whether the capabilities response reports the standalone plugin.
@@ -147,6 +175,8 @@ type Options = {
 	dismissalReadFails?: boolean;
 	/** Make the dismissal write reject. */
 	dismissalWriteFails?: boolean;
+	/** Never settle the dismissal write, so it stays in flight. */
+	dismissalWriteHangs?: boolean;
 };
 
 /** Every dismissal request the stage made, in order. */
@@ -162,6 +192,7 @@ let dismissalCalls: Array< { option_name: string; should_dismiss: boolean } > = 
  * @param options.dismissed           - What the dismissal read answers, per reason.
  * @param options.dismissalReadFails  - Make the dismissal read reject.
  * @param options.dismissalWriteFails - Make the dismissal write reject.
+ * @param options.dismissalWriteHangs - Never settle the dismissal write.
  */
 function mockEndpoints( {
 	standalonePlugin = true,
@@ -170,6 +201,7 @@ function mockEndpoints( {
 	dismissed = {},
 	dismissalReadFails = false,
 	dismissalWriteFails = false,
+	dismissalWriteHangs = false,
 }: Options = {} ) {
 	mockApiFetch.mockImplementation(
 		( o: { path?: string; data?: { option_name: string; should_dismiss: boolean } } ) => {
@@ -177,7 +209,7 @@ function mockEndpoints( {
 			if ( path.includes( '/site/capabilities' ) ) {
 				const capabilities: Record< string, unknown > = { hasBackupPlan: true, hasScan: false };
 				if ( standalonePlugin !== 'absent' ) {
-					capabilities.isStandalonePluginActive = standalonePlugin;
+					capabilities.local = { isStandalonePluginActive: standalonePlugin };
 				}
 				return Promise.resolve( capabilities );
 			}
@@ -185,6 +217,9 @@ function mockEndpoints( {
 				const data = o.data as { option_name: string; should_dismiss: boolean };
 				dismissalCalls.push( data );
 				if ( data.should_dismiss ) {
+					if ( dismissalWriteHangs ) {
+						return new Promise( () => {} );
+					}
 					return dismissalWriteFails
 						? Promise.reject( new Error( 'Could not save the dismissal.' ) )
 						: Promise.resolve( true );
@@ -293,6 +328,19 @@ describe( 'review prompt — trigger A, a recent restore', () => {
 			'href',
 			expect.stringContaining( 'jetpack-backup-new-review' )
 		);
+	} );
+
+	// The collection route maps nothing — it `json_decode`s WordPress.com's
+	// body and returns it — and the sibling status route's `STATUS_MAP`
+	// equates `success` with `finished`. Matching only `finished` would
+	// mean this trigger never fires for anyone, silently, if upstream
+	// spells it the other way.
+	it( 'asks when the restore reports the other success spelling', async () => {
+		mockEndpoints( { restores: [ restoreRow( 3, 'success' ) ] } );
+
+		await renderSettledOverview();
+
+		await expect( screen.findByText( RESTORE_QUESTION ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'stays away once the restore is older than 15 days', async () => {
@@ -430,6 +478,58 @@ describe( 'review prompt — dismissal', () => {
 		await waitFor( () =>
 			expect( dismissalCalls ).toContainEqual( { option_name: 'restore', should_dismiss: true } )
 		);
+		expect( screen.getByText( RESTORE_QUESTION ) ).toBeInTheDocument();
+	} );
+
+	// Fixing legacy bug 3 has a cost: the card no longer vanishes on click,
+	// so on a slow connection nothing visibly happens and the reader clicks
+	// again. Unguarded that is a second POST and — worse — a second refusal
+	// reported for one decision.
+	//
+	// Asserts the outcome, not one mechanism. Three things hold it up (the
+	// disabled button, the report-once latch, and `dismiss()`'s own
+	// refusal), so removing any single one leaves this green; removing all
+	// three does not. That redundancy is deliberate, and the `aria-disabled`
+	// assertion is what pins the one of them the reader can actually see.
+	it( 'ignores further clicks while the refusal is still being written', async () => {
+		mockEndpoints( { restores: [ restoreRow( 1 ) ], dismissalWriteHangs: true } );
+
+		await renderSettledOverview();
+		await expect( screen.findByText( RESTORE_QUESTION ) ).resolves.toBeInTheDocument();
+
+		const button = screen.getByRole( 'button', { name: 'Maybe later' } );
+		await userEvent.click( button );
+		await userEvent.click( button );
+		await userEvent.click( button );
+
+		const writes = dismissalCalls.filter( call => call.should_dismiss );
+		expect( writes ).toHaveLength( 1 );
+		expect( dismissEventCount() ).toBe( 1 );
+		// And the reader can see why nothing else happened.
+		expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
+	} );
+
+	// A retry is not a second decision. The write is allowed to be
+	// attempted again — that is the whole point of leaving the card up when
+	// it fails — but Tracks must not read one refusal as several, which
+	// would show as a step change in dismissal rate at the flag flip.
+	it( 'reports one refusal however many times the failing write is retried', async () => {
+		mockEndpoints( { restores: [ restoreRow( 1 ) ], dismissalWriteFails: true } );
+
+		await renderSettledOverview();
+		await expect( screen.findByText( RESTORE_QUESTION ) ).resolves.toBeInTheDocument();
+
+		const button = screen.getByRole( 'button', { name: 'Maybe later' } );
+		await userEvent.click( button );
+		await userEvent.click( button );
+		await userEvent.click( button );
+
+		await waitFor( () =>
+			expect( dismissalCalls.filter( call => call.should_dismiss ).length ).toBeGreaterThan( 1 )
+		);
+		expect( dismissEventCount() ).toBe( 1 );
+		// The witness: the card is still up, which is what makes retrying
+		// possible and is the behaviour the single event is measured against.
 		expect( screen.getByText( RESTORE_QUESTION ) ).toBeInTheDocument();
 	} );
 

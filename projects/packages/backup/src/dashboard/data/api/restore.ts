@@ -75,20 +75,32 @@ const SETTLED_ROW_STATUSES = new Set( [
 ] );
 
 /**
- * The spelling in that same vocabulary that means the restore worked.
+ * Spellings in that same vocabulary that mean the restore worked.
  *
- * One value rather than a set, and deliberately narrow. The legacy
- * dashboard's review prompt matched exactly this string, and every other
- * spelling in `SETTLED_ROW_STATUSES` either says the restore failed or —
- * like `success-with-errors` — says it half worked, which is not a state
- * to follow with "was it easy to restore your site?".
+ * Both, not just `finished`, and the pair is not a guess: the status
+ * route's own `Restore_Bridge::STATUS_MAP` maps `success` to `finished`,
+ * so WordPress.com is already known to say it both ways on this resource
+ * family. `GET /jetpack/v4/restores` does no mapping at all — it
+ * `json_decode`s WordPress.com's body and returns it — so whichever
+ * spelling upstream picks arrives here raw. `SETTLED_ROW_STATUSES` above
+ * hedges the same way for the same reason.
  *
- * An unrecognised spelling therefore counts as *not* succeeded. That is
- * the opposite default from `settled` above, and for the same reason:
- * each fails towards the harmless answer. There, the harmless answer is
- * "keep waiting"; here it is "do not ask this person for a review".
+ * Matching only `finished` would be wrong in a way nothing could see. If
+ * upstream says `success`, no restore ever reads as successful, the
+ * review prompt's restore trigger never fires for any site, and there is
+ * no error and no complaint — an absent nudge generates neither.
+ *
+ * `success-with-errors` stays out deliberately. A restore that completed
+ * but not cleanly is not a moment to follow with "was it easy to restore
+ * your site?", and `STATUS_MAP` likewise keeps it distinct from both
+ * neighbours rather than folding it into either.
+ *
+ * An unrecognised spelling counts as *not* succeeded. That is the
+ * opposite default from `settled` above, and for the same reason: each
+ * fails towards the harmless answer. There, the harmless answer is "keep
+ * waiting"; here it is "do not ask this person for a review".
  */
-const SUCCEEDED_ROW_STATUS = 'finished';
+const SUCCEEDED_ROW_STATUSES = new Set( [ 'finished', 'success' ] );
 
 /**
  * One row of `GET /jetpack/v4/restores` — the last ten restores, any state.
@@ -99,7 +111,7 @@ const SUCCEEDED_ROW_STATUS = 'finished';
  * just started, and recovery would fail for the whole session.
  *
  * `settled` and `succeeded` are the quarantined readings of the row's
- * `status` — see `SETTLED_ROW_STATUSES` and `SUCCEEDED_ROW_STATUS`. The
+ * `status` — see `SETTLED_ROW_STATUSES` and `SUCCEEDED_ROW_STATUSES`. The
  * raw spelling is deliberately not carried any further than this file.
  */
 export type RecentRestore = {
@@ -290,7 +302,7 @@ export async function fetchRecentRestores(): Promise< RecentRestore[] | null > {
 			settled:
 				typeof row.status === 'string' && SETTLED_ROW_STATUSES.has( row.status.toLowerCase() ),
 			succeeded:
-				typeof row.status === 'string' && row.status.toLowerCase() === SUCCEEDED_ROW_STATUS,
+				typeof row.status === 'string' && SUCCEEDED_ROW_STATUSES.has( row.status.toLowerCase() ),
 		} ) )
 		.filter( row => row.restore_id > 0 );
 }

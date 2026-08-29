@@ -1,5 +1,5 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import { createInterpolateElement, useCallback } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Card, Link, Stack, Text } from '@wordpress/ui';
 import { useAnalytics } from '../../hooks/use-analytics';
@@ -51,17 +51,41 @@ function reviewQuestion( reason: ReviewReason ): string {
  * @return The rendered prompt, or nothing.
  */
 export default function ReviewRequest() {
-	const { reason, dismiss } = useReviewRequest();
+	const { reason, dismiss, isDismissing } = useReviewRequest();
 	const { tracks } = useAnalytics();
 
 	const trackReviewClick = useCallback( () => {
 		tracks.recordEvent( 'jetpack_backup_new_review_click' );
 	}, [ tracks ] );
 
+	// Which prompt this reader has already been recorded as refusing.
+	//
+	// The write can legitimately be attempted more than once — a failed
+	// dismissal leaves the card up precisely so the reader can try again —
+	// but a retry is not a second decision, and reporting it as one
+	// inflates the dismissal rate at the flag flip in a way that reads as
+	// behaviour and is not. The same hazard `screens/overview.tsx` guards
+	// the page view against.
+	//
+	// A ref rather than module state, and keyed on the reason: the two
+	// prompts are two separate refusals, and each deserves its own event.
+	const reportedRefusalFor = useRef< ReviewReason | null >( null );
+
+	// No in-flight check of its own: `disabled` below already stops a
+	// second click reaching this handler, the latch above already stops a
+	// second event, and `dismiss()` already refuses a second write. A
+	// fourth guard here would be the only one no test could distinguish
+	// from the others.
 	const onDismiss = useCallback( () => {
-		tracks.recordEvent( 'jetpack_backup_dismiss_review_click' );
+		if ( reason === null ) {
+			return;
+		}
+		if ( reportedRefusalFor.current !== reason ) {
+			reportedRefusalFor.current = reason;
+			tracks.recordEvent( 'jetpack_backup_dismiss_review_click' );
+		}
 		dismiss();
-	}, [ dismiss, tracks ] );
+	}, [ dismiss, reason, tracks ] );
 
 	if ( reason === null ) {
 		return null;
@@ -97,8 +121,22 @@ export default function ReviewRequest() {
 				 * A button, not legacy's `<a role="button" href="#">`. It does
 				 * not navigate, and the anchor spelling needed a
 				 * `preventDefault` to stop it trying to.
+				 *
+				 * Disabled while the refusal is being written. `@wordpress/ui`'s
+				 * Button defaults to `focusableWhenDisabled`, so this marks it
+				 * `aria-disabled` and keeps it in the tab order rather than
+				 * taking the native attribute — and it does suppress the
+				 * click, so this is the visible half and the first guard at
+				 * once. Without it the card just sits there after a click,
+				 * which is what makes a reader click again.
 				 */ }
-				<Button variant="minimal" tone="neutral" size="small" onClick={ onDismiss }>
+				<Button
+					variant="minimal"
+					tone="neutral"
+					size="small"
+					disabled={ isDismissing }
+					onClick={ onDismiss }
+				>
 					{ __( 'Maybe later', 'jetpack-backup-pkg' ) }
 				</Button>
 			</Stack>
