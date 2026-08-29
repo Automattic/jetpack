@@ -32,9 +32,17 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => mockSearch(),
 	useNavigate: () => mockNavigate,
 	useParams: () => mockParams(),
-	// Unlike the bare `<a { ...rest }>` mock the other suites use, this one
-	// models `search`: the real Link renders it into the href rather than
-	// onto the DOM node, and the href is exactly what these tests are about.
+	// Models `search`, which the real Link renders into the href rather
+	// than onto the DOM node — and the href is what these tests are about.
+	//
+	// The suites still using a bare `<a { ...rest }>` mock get away with it
+	// only because their `ls` fixtures carry no `id`, so `search` stays
+	// undefined and React drops it. Give one of those fixtures an id and
+	// the object reaches a DOM node, and `@wordpress/jest-console` fails
+	// the suite on React's unknown-prop warning —
+	// `restore-label-scope.test.tsx` and
+	// `switching-backups-resets-detail.test.tsx` needed ids, so they carry
+	// this same mock now.
 	Link: ( {
 		children,
 		to,
@@ -77,11 +85,36 @@ const ITEM: BackupActivityItem = {
 
 // `ZjU6L3dwLWNvbmZpZy5waHA=` decodes to `f5:/wp-config.php`, and
 // `ZjI6L3JlYWRtZS5odG1s` to `f2:/readme.html` — the volume-prefixed
-// manifest paths upstream identifies entries by. The `=` padding is here
-// on purpose: it is the character a query-string round trip is most
-// likely to mangle.
+// manifest paths upstream identifies entries by. Base64 padding and all,
+// since that is what the real ids look like; the serializer itself is
+// mocked out here, so these do not exercise a URL round trip.
 const WP_CONFIG_ID = 'ZjU6L3dwLWNvbmZpZy5waHA=';
 const README_ID = 'ZjI6L3JlYWRtZS5odG1s';
+// A directory id, which is itself a comma-joined token pair (`base64("r2:")
+// + "," + base64("f2:/")`). It is why the include list is one comma-joined
+// string upstream flattens, rather than a list of discrete values.
+const THEMES_DIR_ID = 'cjI6,ZjI6Lw==';
+
+/**
+ * The root `ls` listing each test renders against. Reassigned before the
+ * few tests that need a different tree — an id-less entry, or a folder.
+ */
+let lsContents: Record< string, Record< string, unknown > >;
+
+const TWO_FILES = {
+	'wp-config.php': {
+		type: 'file',
+		period: '1786644531',
+		manifest_path: 'f5:/wp-config.php',
+		id: WP_CONFIG_ID,
+	},
+	'readme.html': {
+		type: 'file',
+		period: '1786644531',
+		manifest_path: 'f2:/readme.html',
+		id: README_ID,
+	},
+};
 
 /** Every box in the shared category checklist, by its accessible name. */
 const ITEM_LABELS = [
@@ -97,6 +130,7 @@ beforeEach( () => {
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
 
+	lsContents = TWO_FILES;
 	mockApiFetch.mockReset();
 	mockApiFetch.mockImplementation( ( o: { path?: string } ) => {
 		const path = o?.path ?? '';
@@ -104,22 +138,7 @@ beforeEach( () => {
 			return Promise.resolve( { hasBackupPlan: true, hasScan: false } );
 		}
 		if ( path.includes( '/rewind/backup/ls' ) ) {
-			return Promise.resolve( {
-				contents: {
-					'wp-config.php': {
-						type: 'file',
-						period: '1786644531',
-						manifest_path: 'f5:/wp-config.php',
-						id: WP_CONFIG_ID,
-					},
-					'readme.html': {
-						type: 'file',
-						period: '1786644531',
-						manifest_path: 'f2:/readme.html',
-						id: README_ID,
-					},
-				},
-			} );
+			return Promise.resolve( { contents: lsContents } );
 		}
 		if ( path.includes( '/backups/download/' ) ) {
 			return Promise.resolve( { id: 4242 } );
@@ -196,6 +215,76 @@ describe( 'Download link carrying the file selection', () => {
 			'/restore/1786644531.123'
 		);
 	} );
+
+	// A ticked folder whose children were never expanded is ONE unit, not
+	// an enumeration: upstream takes the folder's own id and pulls the
+	// whole subtree. Both the label and the link depend on that rule, and
+	// nothing pinned it before.
+	it( 'sends one entry for a ticked folder nobody expanded', async () => {
+		lsContents = {
+			themes: { type: 'dir', has_children: true, id: THEMES_DIR_ID },
+			'wp-config.php': TWO_FILES[ 'wp-config.php' ],
+		};
+		render(
+			<QueryClientProvider>
+				<BackupDetail item={ ITEM } />
+			</QueryClientProvider>
+		);
+		await expect(
+			screen.findByRole( 'button', { name: 'Folder: themes' }, SETTLE )
+		).resolves.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select themes' } ) );
+
+		const link = await screen.findByRole( 'link', { name: /Download 1 selected item/ } );
+		const href = link.getAttribute( 'href' ) ?? '';
+		expect( new URLSearchParams( href.slice( href.indexOf( '?' ) ) ).get( 'files' ) ).toBe(
+			THEMES_DIR_ID
+		);
+	} );
+
+	// The label and the link are built from the same list on purpose. An
+	// entry upstream gave no `id` can be ticked in the tree and cannot be
+	// named in a request — so counting ticked rows instead would promise
+	// "Download 1 selected item" over a link carrying nothing, and hand
+	// back a whole-site archive. That is the wrong-promise failure
+	// JETPACK-2305 removes from Restore.
+	it( 'does not promise a scope for entries the link cannot carry', async () => {
+		lsContents = {
+			// No `id`, as upstream is free to return.
+			'orphan.php': { type: 'file', period: '1786644531', manifest_path: 'f5:/orphan.php' },
+			'wp-config.php': TWO_FILES[ 'wp-config.php' ],
+		};
+		render(
+			<QueryClientProvider>
+				<BackupDetail item={ ITEM } />
+			</QueryClientProvider>
+		);
+		await expect(
+			screen.findByRole( 'button', { name: 'File: orphan.php' }, SETTLE )
+		).resolves.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select orphan.php' } ) );
+
+		// The tree still shows it as selected — that is the row's truth.
+		expect( screen.getByRole( 'checkbox', { name: 'Select orphan.php' } ) ).toBeChecked();
+		// The action does not claim a scope it cannot deliver.
+		expect( screen.getByRole( 'link', { name: /Download backup/ } ) ).toHaveAttribute(
+			'href',
+			'/download/1786644531.123'
+		);
+		expect( screen.queryByText( /Download \d+ selected item/ ) ).not.toBeInTheDocument();
+
+		// And it recovers: ticking a nameable entry alongside counts only
+		// that one, so the label and the link agree again.
+		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select wp-config.php' } ) );
+
+		const link = await screen.findByRole( 'link', { name: /Download 1 selected item/ } );
+		const href = link.getAttribute( 'href' ) ?? '';
+		expect( new URLSearchParams( href.slice( href.indexOf( '?' ) ) ).get( 'files' ) ).toBe(
+			WP_CONFIG_ID
+		);
+	} );
 } );
 
 describe( 'Download screen without a file selection', () => {
@@ -212,6 +301,29 @@ describe( 'Download screen without a file selection', () => {
 			expect( screen.getByRole( 'checkbox', { name: label } ) ).toBeChecked();
 		}
 
+		// The other half of "unchanged": the waiting state the selection
+		// path jumps straight into must not appear here. Without this the
+		// no-selection path could start auto-generating and every
+		// assertion above would still pass.
+		expect( screen.queryByText( 'Preparing download…' ) ).not.toBeInTheDocument();
+		expect( postCalls() ).toHaveLength( 0 );
+	} );
+
+	// A `files` param naming nothing is not a selection. Commas alone can
+	// survive a hand-edited or truncated URL, and treating that as a
+	// selection would skip the checklist and submit with no way back.
+	it.each( [
+		[ 'empty', '' ],
+		[ 'commas only', ',,' ],
+	] )( 'treats a %s files param as no selection', async ( _label, files ) => {
+		mockSearch.mockReturnValue( { files } );
+
+		render( <DownloadStage /> );
+
+		await expect(
+			screen.findByRole( 'button', { name: /Generate download/ }, SETTLE )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Preparing download…' ) ).not.toBeInTheDocument();
 		expect( postCalls() ).toHaveLength( 0 );
 	} );
 } );

@@ -40,27 +40,11 @@ export const EMPTY_FILE_SELECTION: FileSelection = {
 	deselected: new Set(),
 };
 
-/**
- * What the current selection amounts to, reported up to the parent.
- *
- * `count` and `ids` describe the same leaves but need not be the same
- * length: an entry upstream gave no `id` still counts as selected in the
- * tree, and simply cannot be named in a download request.
- */
-export type SelectionSummary = {
-	/** Selected leaves in the loaded tree — see `collectSelectedInLoadedTree`. */
-	count: number;
-	/** Their opaque `ls` entry ids, in tree order, skipping any entry without one. */
-	ids: string[];
-};
-
-export const EMPTY_SELECTION_SUMMARY: SelectionSummary = { count: 0, ids: [] };
-
 type Props = {
 	rewindId: string;
 	selection: FileSelection;
 	onSelectionChange: ( next: FileSelection ) => void;
-	onSelectionSummaryChange?: ( summary: SelectionSummary ) => void;
+	onSelectionIdsChange?: ( ids: string[] ) => void;
 };
 
 /**
@@ -335,18 +319,18 @@ function collectSelectedInLoadedTree(
  * buttons can swap between "Download backup" and "Download N selected
  * files" using the same `FileSelection` shape that this tree drives.
  *
- * @param props                          - Component props.
- * @param props.rewindId                 - The selected backup's rewindId; surfaced as a data attribute today, the future REST hook will use it.
- * @param props.selection                - Current selection state (selected + deselected sets).
- * @param props.onSelectionChange        - Called with the next state when any row toggles.
- * @param props.onSelectionSummaryChange - Called whenever the visible-selected leaves change, with their count and their `ls` entry ids.
+ * @param props                      - Component props.
+ * @param props.rewindId             - The selected backup's rewindId; surfaced as a data attribute today, the future REST hook will use it.
+ * @param props.selection            - Current selection state (selected + deselected sets).
+ * @param props.onSelectionChange    - Called with the next state when any row toggles.
+ * @param props.onSelectionIdsChange - Called whenever the selected leaves change, with the `ls` entry ids a download request could name them by.
  * @return The rendered tree.
  */
 export default function FileBrowser( {
 	rewindId,
 	selection,
 	onSelectionChange,
-	onSelectionSummaryChange,
+	onSelectionIdsChange,
 }: Props ) {
 	const [ openFile, setOpenFile ] = useState< FileNodeFile | null >( null );
 	const {
@@ -423,20 +407,28 @@ export default function FileBrowser( {
 		[ selected, deselected, loadedChildren, onSelectionChange ]
 	);
 
-	const summary = useMemo< SelectionSummary >( () => {
-		const leaves = collectSelectedInLoadedTree( roots, selection, loadedChildren );
-		return {
-			count: leaves.length,
-			ids: leaves
+	const selectedLeaves = useMemo(
+		() => collectSelectedInLoadedTree( roots, selection, loadedChildren ),
+		[ roots, selection, loadedChildren ]
+	);
+	// The header below counts the tree, so it counts every selected leaf.
+	// The ids reported upward are what a *request* can name, which is not
+	// always the same list — an entry upstream gave no `id` is genuinely
+	// selected here and genuinely unnameable there. The caller labels its
+	// Download action from the ids for exactly that reason; see
+	// `backup-detail`.
+	const selectedCount = selectedLeaves.length;
+	const selectedIds = useMemo(
+		() =>
+			selectedLeaves
 				.map( leaf => leaf.id )
 				.filter( ( id ): id is string => typeof id === 'string' && id !== '' ),
-		};
-	}, [ roots, selection, loadedChildren ] );
-	const selectedCount = summary.count;
+		[ selectedLeaves ]
+	);
 
 	useEffect( () => {
-		onSelectionSummaryChange?.( summary );
-	}, [ summary, onSelectionSummaryChange ] );
+		onSelectionIdsChange?.( selectedIds );
+	}, [ selectedIds, onSelectionIdsChange ] );
 
 	// The selection summary's checkbox doubles as a "select all / clear"
 	// toggle: clicking it with anything selected clears both sets,

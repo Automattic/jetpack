@@ -1,13 +1,13 @@
 import { dateI18n } from '@wordpress/date';
-import { useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cloud, download as downloadIcon, rotateLeft } from '@wordpress/icons';
 import { Link } from '@wordpress/route';
 import { Card, Stack, Text } from '@wordpress/ui';
-import FileBrowser, { EMPTY_FILE_SELECTION, EMPTY_SELECTION_SUMMARY } from '../file-browser';
+import FileBrowser, { EMPTY_FILE_SELECTION } from '../file-browser';
 import './style.scss';
 import type { BackupActivityItem } from '../../types/activity';
-import type { FileSelection, SelectionSummary } from '../file-browser';
+import type { FileSelection } from '../file-browser';
 
 type Props = {
 	item: BackupActivityItem;
@@ -15,11 +15,14 @@ type Props = {
 
 /**
  * Returns the appropriate "Download" header-label given how many items
- * the visitor has selected in the file browser. With zero selections we
- * default to the whole-backup download; otherwise we count the selected
- * items (files + folders) currently visible in the loaded tree.
+ * the visitor has selected in the file browser. With zero we default to
+ * the whole-backup download.
  *
- * @param count - Number of currently selected items.
+ * The count is of *nameable* items — the entries the link can actually
+ * carry — not of ticked rows. The two differ only when upstream gave an
+ * entry no id, and in that case the whole-backup label is the true one.
+ *
+ * @param count - Number of selected items the download request can name.
  * @return Localized button label.
  */
 function downloadLabel( count: number ): string {
@@ -50,18 +53,35 @@ function downloadLabel( count: number ): string {
  */
 export default function BackupDetail( { item }: Props ) {
 	const [ selection, setSelection ] = useState< FileSelection >( EMPTY_FILE_SELECTION );
-	// The summary drives the Download action only — Restore beside it is
+	// The ids drive the Download action only — Restore beside it is
 	// deliberately untouched by the selection, see its call site.
 	//
-	// `count` tracks how many opaque server-side download units the
-	// current selection covers — files plus folders whose contents
-	// haven't been loaded yet (each treated as one unit). Loaded
-	// folders contribute via their leaves, not themselves;
-	// indeterminate folders don't add to the count. FileBrowser owns
-	// the loaded children, so it reports the summary back here for the
-	// Download label to swap between "Download backup" and "Download %d
-	// selected item". `ids` names those same units for the request.
-	const [ summary, setSummary ] = useState< SelectionSummary >( EMPTY_SELECTION_SUMMARY );
+	// One id per opaque server-side download unit the current selection
+	// covers: files, plus folders whose contents haven't been loaded yet
+	// (each of those is one unit standing for its whole subtree). Loaded
+	// folders contribute via their leaves, not themselves; indeterminate
+	// folders contribute only the selected descendants beneath them.
+	// FileBrowser owns the loaded children, so it reports the list here.
+	//
+	// The label and the link are both built from this one list, and that
+	// is deliberate rather than incidental. The tree can hold a selected
+	// entry upstream gave no `id`, which no request can name — counting
+	// the tree instead would label the action "Download 1 selected item"
+	// beside a link carrying nothing, and hand the reader a whole-site
+	// archive they were told was scoped. That is the wrong-promise
+	// failure JETPACK-2305 removes from Restore; it must not appear here.
+	const [ selectedIds, setSelectedIds ] = useState< string[] >( [] );
+
+	// FileBrowser rebuilds the array on every recompute, so a plain
+	// setter would re-render this subtree on selections that changed
+	// nothing. Returning `prev` unchanged lets React bail out instead.
+	const handleSelectionIdsChange = useCallback( ( next: string[] ) => {
+		setSelectedIds( prev =>
+			prev.length === next.length && prev.every( ( id, index ) => id === next[ index ] )
+				? prev
+				: next
+		);
+	}, [] );
 
 	// Comma-joined into one string rather than repeated params, because
 	// that is the form upstream's `include_path_list` takes — and it has
@@ -72,8 +92,8 @@ export default function BackupDetail( { item }: Props ) {
 	// exactly as it did before. JETPACK-2321 turns what arrives on the
 	// Download screen into the granular request.
 	const downloadSearch = useMemo(
-		() => ( summary.ids.length > 0 ? { files: summary.ids.join( ',' ) } : undefined ),
-		[ summary.ids ]
+		() => ( selectedIds.length > 0 ? { files: selectedIds.join( ',' ) } : undefined ),
+		[ selectedIds ]
 	);
 
 	return (
@@ -112,7 +132,7 @@ export default function BackupDetail( { item }: Props ) {
 							className="jpb-backup-detail__download"
 						>
 							<Icon icon={ downloadIcon } size={ 18 } />
-							{ downloadLabel( summary.count ) }
+							{ downloadLabel( selectedIds.length ) }
 						</Link>
 						{ /*
 						 * Deliberately not labelled from the file selection, and its
@@ -152,7 +172,7 @@ export default function BackupDetail( { item }: Props ) {
 						rewindId={ item.rewindId }
 						selection={ selection }
 						onSelectionChange={ setSelection }
-						onSelectionSummaryChange={ setSummary }
+						onSelectionIdsChange={ handleSelectionIdsChange }
 					/>
 				</div>
 			</Card.Content>
