@@ -18,6 +18,31 @@ class WPCOM_Features {
 	 */
 	public const EXCLUDE_PLANS = 'exclude_plans';
 
+	/**
+	 * Sticker marking a site that has switched from legacy features to 2026 feature gating
+	 * after plan upgrade/downgrade. One-way change.
+	 */
+	public const STICKER_FEATURE_GATING_2026 = 'feature-gating-2026';
+
+	/**
+	 * Sticker marking a site that stays on the pre-2026 feature gating regardless of its blog ID.
+	 * Only needed for staging sites since they could be created after the cutoff.
+	 */
+	public const STICKER_PRE_FEATURE_GATING_2026 = 'pre-feature-gating-2026';
+
+	/**
+	 * The original pricing-differentiation sticker. Used for identifying sites with new features
+	 * which were created before the cutoff, as part of an experiment.
+	 */
+	public const STICKER_GATING_BUSINESS_Q1 = 'gating-business-q1';
+
+	/**
+	 * First blog ID guaranteed to carry `gating-business-q1` from creation, after
+	 * https://github.a8c.com/Automattic/wpcom/pull/236726. Using blog ID since we can't get
+	 * the blog creation date on WPCloud sites.
+	 */
+	public const FEATURE_GATING_2026_CUTOFF_BLOG_ID = 256966305;
+
 	/*
 	 * Private const for every mapped purchase, sorted by product_id.
 	 */
@@ -1905,6 +1930,96 @@ class WPCOM_Features {
 	}
 
 	/**
+	 * Resolve the WordPress.com blog ID to check stickers and the gating cutoff against.
+	 *
+	 * @param int|null $blog_id Blog ID, or null to resolve from the environment.
+	 *
+	 * @return int
+	 */
+	private static function resolve_blog_id( $blog_id = null ) {
+		if ( null !== $blog_id ) {
+			return (int) $blog_id;
+		}
+
+		if ( function_exists( '_wpcom_get_current_blog_id' ) ) {
+			return (int) _wpcom_get_current_blog_id();
+		}
+
+		return (int) get_current_blog_id();
+	}
+
+	/**
+	 * Whether a site carries a blog sticker, on Simple or in WPCOMSH.
+	 *
+	 * `$blog_id` is ignored on WoW, WPCOMSH reads Atomic Persistent Data, there is no way to read
+	 * another site's from there. A caller that needs a specific site's stickers has to establish
+	 * that it is the current site first, e.g `is_legacy_gating_site()`.
+	 *
+	 * @param string   $sticker Sticker slug.
+	 * @param int|null $blog_id Blog ID, or null to resolve from the environment. Ignored on Atomic.
+	 *
+	 * @return bool
+	 */
+	private static function site_has_sticker( $sticker, $blog_id = null ) {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+			return (bool) wpcomsh_is_site_sticker_active( $sticker );
+		}
+
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return (bool) has_blog_sticker( $sticker, self::resolve_blog_id( $blog_id ) );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether a site is still on the pre-2026 feature gating.
+	 *
+	 * 1. A legacy site that switches to new features is never legacy again.
+	 * 2. `pre-feature-gating-2026` wins over `gating-business-q1`, because a staging site cloned
+	 *    from a legacy production site could have both: the creation hook stickers every new blog,
+	 *    and the staging hook then marks it as mirroring a legacy site.
+	 * 3. `gating-business-q1` covers the ~2.0M sites below the cutoff that are already on the new
+	 *    gating -- the Jan-Jun experiment cohort plus everything `POST /sites/new` stickered
+	 *    between June and August 2026. "No sticker" is not the same as "old site".
+	 * 4. Otherwise the blog ID decides.
+	 *
+	 * @param int $blog_id Blog ID. Required: pass the site being asked about, never a guess.
+	 *
+	 * @return bool
+	 */
+	public static function is_legacy_gating_site( $blog_id ) {
+		$blog_id = (int) $blog_id;
+
+		// On WoW the sticker checks read the current site's persistent data.
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && $blog_id !== self::resolve_blog_id() ) {
+			if ( function_exists( '_doing_it_wrong' ) ) {
+				_doing_it_wrong(
+					__METHOD__,
+					'Atomic sites cannot resolve stickers for a site other than the current one.',
+					'' // No version.
+				);
+			}
+
+			return true;
+		}
+
+		if ( self::site_has_sticker( self::STICKER_FEATURE_GATING_2026, $blog_id ) ) {
+			return false;
+		}
+
+		if ( self::site_has_sticker( self::STICKER_PRE_FEATURE_GATING_2026, $blog_id ) ) {
+			return true;
+		}
+
+		if ( self::site_has_sticker( self::STICKER_GATING_BUSINESS_Q1, $blog_id ) ) {
+			return false;
+		}
+
+		return $blog_id < self::FEATURE_GATING_2026_CUTOFF_BLOG_ID;
+	}
+
+	/**
 	 * The products definition array ($products_map) may contain 1st-level sub-arrays with 'before' and/or 'after' keys
 	 * used to restrict access to a feature based on when the purchase was made. If the $purchase is included in
 	 * $products_map, and it was purchased within the defined date range (if a date range is defined), return true.
@@ -1946,13 +2061,7 @@ class WPCOM_Features {
 			// Check if sticker requirement exists.
 			$required_sticker = $product_definition['required_sticker'] ?? null;
 			if ( $required_sticker ) {
-				if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
-					// Fallback for Atomic sites
-					$purchase_eligible_by_sticker = wpcomsh_is_site_sticker_active( $required_sticker );
-				} elseif ( function_exists( 'has_blog_sticker' ) ) {
-					$blog_id                    ??= get_current_blog_id();
-					$purchase_eligible_by_sticker = has_blog_sticker( $required_sticker, $blog_id );
-				}
+				$purchase_eligible_by_sticker = self::site_has_sticker( $required_sticker, $blog_id );
 				// Remove the sticker key so $product_definition is clean for in_array_recursive search.
 				unset( $product_definition['required_sticker'] );
 			} else {
@@ -1962,14 +2071,7 @@ class WPCOM_Features {
 			// Check if sticker_not_present requirement exists (feature only available when sticker is NOT present).
 			$sticker_not_present = $product_definition['sticker_not_present'] ?? null;
 			if ( $sticker_not_present ) {
-				$has_sticker = false;
-				if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
-					// Fallback for Atomic sites
-					$has_sticker = wpcomsh_is_site_sticker_active( $sticker_not_present );
-				} elseif ( function_exists( 'has_blog_sticker' ) ) {
-					$blog_id   ??= get_current_blog_id();
-					$has_sticker = has_blog_sticker( $sticker_not_present, $blog_id );
-				}
+				$has_sticker = self::site_has_sticker( $sticker_not_present, $blog_id );
 				// Only eligible if the sticker is NOT present.
 				$purchase_eligible_by_sticker = $purchase_eligible_by_sticker && ! $has_sticker;
 				// Remove the sticker key so $product_definition is clean for in_array_recursive search.
