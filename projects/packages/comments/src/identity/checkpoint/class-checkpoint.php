@@ -106,7 +106,7 @@ class Checkpoint {
 		 */
 		return (string) apply_filters(
 			'jetpack_comment_identity_connect_url',
-			'https://public-api.wordpress.com/comments/identity/connect'
+			'https://public-api.wordpress.com/connect/'
 		);
 	}
 
@@ -146,6 +146,9 @@ class Checkpoint {
 		}
 
 		$params['signature'] = hash_hmac( 'sha256', implode( "\n", $parts ), (string) $token->secret );
+
+		// Selects the handler behind /connect/ and nothing more, so not signed.
+		$params['comment_identity'] = '1';
 
 		return array(
 			'url'       => add_query_arg( array_map( 'rawurlencode', $params ), self::connect_url() ),
