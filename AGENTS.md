@@ -179,7 +179,7 @@ An entry only lands in the CHANGELOG of the project it was added to. A PR confin
 
 **When a change to a package or js-package is user-facing — a new block, new or changed UI, a behavior change, a bug fix someone would notice — add an entry to each plugin whose own users would notice it, on top of the project's own entry.** That is usually a subset of the plugins that bundle the project, and often just one. Write each one from that plugin's user's perspective; the wording rarely needs to be identical.
 
-Over-reporting is not free. A file under `projects/plugins/<plugin>/changelog/` requests review from that plugin's CODEOWNERS, so an unnecessary entry pings a team with nothing to review — and it puts a line about a product the plugin does not ship into a changelog and `readme.txt` that its users do read.
+Over-reporting is not free: it puts a line about a product the plugin does not ship into a changelog and `readme.txt` that its users do read.
 
 Prefix each plugin's entry with the product the shared project backs — `Premium Analytics:` for `packages/premium-analytics`, `Search:` for `packages/search` — so readers of a plugin changelog that bundles many products can place the change. The exception is a plugin named for that same product (`plugins/premium-analytics`, `plugins/search`): there the prefix would only repeat the plugin's own name, so leave it off (or use a narrower component prefix), as in the example below.
 
@@ -192,10 +192,16 @@ jp dependencies list js-packages/components --add-dependents --extra build --no-
 
 Then narrow that list. A widely-shared js-package can list well over a dozen plugins; add an entry for one only when a user of *that plugin* could notice the change. Skip it when:
 
-- **The change belongs to another product and this plugin only hosts the shell.** A change to a My Jetpack product card, or to a package behind one such as `js-packages/boost-score-api`, belongs in the changelogs of the plugins that ship that product. Every other plugin renders the card only for someone who already has that product installed, and they read about it in that product's changelog.
-- **The plugin never reaches the changed code.** `js-packages/components` is a build dependency of nearly every plugin in the monorepo, but `DiffViewer` is imported by exactly one file, in `plugins/protect`. Grep the changed symbol under `projects/plugins/<plugin>/` before adding an entry for it.
-- **It is reachable only under conditions the plugin never creates** — a module it does not register, a plan or product it does not sell, or a host it does not run on, such as the WordPress.com Simple and Atomic paths in `packages/masterbar`.
-- **The plugin's changelog has no site-owner audience.** `starter-plugin` is a scaffolding template, and `beta`, `debug-helper` and `inspect` are internal tools; their changelogs are not a product record.
+- **The change belongs to another product and this plugin only contains it via a My Jetpack product card.** A change to a My Jetpack product card, or to a package behind one such as `js-packages/boost-score-api`, belongs in the changelogs of the plugins that ship that product. Every other plugin renders the card only for someone who already has that product installed, and they read about it in that product's changelog.
+- **The plugin never reaches the changed code.** `js-packages/components` is a build dependency of nearly every plugin in the monorepo, but `DiffViewer` reaches only `plugins/protect` and `plugins/jetpack`.
+- **It is reachable only under conditions the plugin never creates** — a module it does not register, a plan or product it does not sell, or a host it does not run on. Check the gate rather than the dependency, because the same code can qualify for one plugin and not another: the WordPress.com-only paths in `packages/masterbar` never run on a self-hosted site, but they are the whole reason `plugins/wpcomsh` bundles the package.
+- **The plugin's changelog is not a product record.** `starter-plugin` is a scaffolding template and `debug-helper` says on the tin that it is not for production use; nobody reads either changelog to find out what changed on their site. Keep this one narrow — `beta` runs on real sites, so a change its users would notice does belong in its changelog.
+
+To settle that second case, grep the plugin *and* every project it bundles. A plugin that is little more than a loader for a package still ships everything that package imports, so grepping `projects/plugins/<plugin>/` on its own reports code as unreachable when it is not — that makes `DiffViewer` look like a `plugins/protect` exclusive, when `js-packages/scan` imports it too and so puts it in `plugins/jetpack` as well:
+
+```bash
+grep -rl DiffViewer $( jp dependencies list plugins/protect --add-dependencies --extra build --no-dev | sed 's!^!projects/!' )
+```
 
 Then add one entry per plugin that survives. Each project defines its own types — `plugins/jetpack` uses `major` | `enhancement` | `compat` | `bugfix` | `other`:
 
@@ -207,7 +213,7 @@ jp changelog add plugins/jetpack -s minor -t enhancement -e "Search: Add a Searc
 
 **The non-interactive form never prompts for this.** Naming a project (`jp changelog add <project> -s … -t … -e …`) disables the indirect-plugin check, so dependent plugins are silently skipped; only bare `jp changelog add` offers to write those entries for you. Using the non-interactive form means adding the plugin entries yourself — or running `jp changelog add --check-indirect-plugins` afterwards to be asked.
 
-**And the prompt it does show is all-or-nothing.** It offers every indirectly-affected plugin as a single list and, on a `yes`, writes the entry to all of them. When only some of them qualify, answer `no` and add those entries yourself with the non-interactive form.
+**And the prompt it does show is all-or-nothing.** It lists every indirectly-affected plugin at once and asks a single yes/no. A `yes` hands the whole list to the same prompts the main run uses, which choose between one shared entry and individual wording — never between plugins. When only some of the list qualifies, answer `no` and add those entries yourself with the non-interactive form.
 
 The project's own entry alone is correct when nothing is observable to a site owner — internal refactors, tests, tooling, type fixes — and when the only people who can observe it are already covered by a plugin that has its own entry.
 
