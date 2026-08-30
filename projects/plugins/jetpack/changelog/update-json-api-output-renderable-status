@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+JSON API: Coerce upstream error statuses that WordPress can't render (508, Cloudflare 52x) to 502, so a proxied error never silently returns 200.
