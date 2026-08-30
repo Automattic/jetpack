@@ -37,8 +37,8 @@ class WPCOM_Features {
 	public const STICKER_GATING_BUSINESS_Q1 = 'gating-business-q1';
 
 	/**
-	 * First blog ID guaranteed to carry `gating-business-q1` from creation, after
-	 * https://github.a8c.com/Automattic/wpcom/pull/236726. Using blog ID since we can't get
+	 * First blog ID guaranteed to carry `gating-business-q1` from creation, after the universal
+	 * creation hook was deployed. Using blog ID since we can't get
 	 * the blog creation date on WPCloud sites.
 	 */
 	public const FEATURE_GATING_2026_CUTOFF_BLOG_ID = 256966305;

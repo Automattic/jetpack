@@ -44,8 +44,8 @@ class WpcomFeaturesLegacyGatingTest extends WP_UnitTestCase {
 		if ( ! self::stickers_are_writable() ) {
 			$this->markTestSkipped(
 				'These tests write blog stickers into Atomic Persistent Data, which only the mock in tests/lib/mocks supports. '
-				. 'On a real Atomic host the platform defines Atomic_Persistent_Data first and its stickers are read-only, which is '
-				. 'why this file is excluded from the "wpcloud" suite. Run it in the monorepo instead: '
+				. 'On a real Atomic host the platform defines Atomic_Persistent_Data first and its stickers are read-only, so this test '
+				. 'is skipped there. Run it in the monorepo instead: '
 				. 'jp docker phpunit wpcomsh -- --filter=WpcomFeaturesLegacyGatingTest'
 			);
 		}
