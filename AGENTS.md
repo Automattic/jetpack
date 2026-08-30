@@ -177,7 +177,7 @@ Two gates enforce this, both running `tools/check-changelogger-use.php`: the pre
 
 An entry only lands in the CHANGELOG of the project it was added to. A PR confined to a shared project — a PHP package under `projects/packages/`, a JS package under `projects/js-packages/`, or any other non-plugin project — therefore reaches that project's CHANGELOG and nowhere else: the plugins that bundle it get, at most, the generic "Update package dependencies." line the release tooling files under "Other changes", which is never copied to `readme.txt`. Users, release posts, and support documentation read the plugin changelog, so the change is invisible to them.
 
-**When a change to a package or js-package is user-facing — a new block, new or changed UI, a behavior change, a bug fix someone would notice — add an entry to each plugin whose own users would notice it, on top of the project's own entry.** That is usually a subset of the plugins that bundle the project, and often just one. Write each one from that plugin's user's perspective; the wording rarely needs to be identical.
+**When a change to a package or js-package is user-facing — a new block, new or changed UI, a behavior change, a bug fix someone would notice — add an entry to each plugin whose own users would notice it, on top of the project's own entry.** That is usually a subset of the plugins that bundle the project, sometimes just one — though a change to something a shared dashboard renders can legitimately reach most of them. Write each one from that plugin's user's perspective; the wording rarely needs to be identical.
 
 Over-reporting is not free: it puts a line about a product the plugin does not ship into a changelog and `readme.txt` that its users do read.
 
@@ -195,13 +195,16 @@ Then narrow that list. A widely-shared js-package can list well over a dozen plu
 - **The change belongs to another product and this plugin only contains it via a My Jetpack product card.** A change to a My Jetpack product card, or to a package behind one such as `js-packages/boost-score-api`, belongs in the changelogs of the plugins that ship that product. Every other plugin renders the card only for someone who already has that product installed, and they read about it in that product's changelog.
 - **The plugin never reaches the changed code.** `js-packages/components` is a build dependency of nearly every plugin in the monorepo, but `DiffViewer` reaches only `plugins/protect` and `plugins/jetpack`.
 - **It is reachable only under conditions the plugin never creates** — a module it does not register, a plan or product it does not sell, or a host it does not run on. Check the gate rather than the dependency, because the same code can qualify for one plugin and not another: the WordPress.com-only paths in `packages/masterbar` never run on a self-hosted site, but they are the whole reason `plugins/wpcomsh` bundles the package.
-- **The plugin's changelog is not a product record.** `starter-plugin` is a scaffolding template and `debug-helper` says on the tin that it is not for production use; nobody reads either changelog to find out what changed on their site. Keep this one narrow — `beta` runs on real sites, so a change its users would notice does belong in its changelog.
+- **The plugin's changelog is not a product record.** `starter-plugin` is a scaffolding template and `mu-wpcom-plugin` is a test harness for `packages/jetpack-mu-wpcom`; nobody reads either changelog to find out what changed on their site. Keep this one narrow: it is about those two, not about any plugin you have not heard of.
 
-To settle that second case, grep the plugin *and* every project it bundles. A plugin that is little more than a loader for a package still ships everything that package imports, so grepping `projects/plugins/<plugin>/` on its own reports code as unreachable when it is not — that makes `DiffViewer` look like a `plugins/protect` exclusive, when `js-packages/scan` imports it too and so puts it in `plugins/jetpack` as well:
+To settle the reachability case, work backwards from the code rather than forwards from the plugin. Grepping `projects/plugins/<plugin>/` alone misses a plugin that is little more than a loader for a package, and grepping its whole dependency closure always matches, since the project that defines the symbol is in every dependent's closure. Find the projects that import it, then ask which plugins bundle *those*:
 
 ```bash
-grep -rl DiffViewer $( jp dependencies list plugins/protect --add-dependencies --extra build --no-dev | sed 's!^!projects/!' )
+grep -rl DiffViewer projects/ --include='*.ts' --include='*.tsx' --include='*.jsx' | grep -v node_modules
+jp dependencies list js-packages/scan plugins/protect --add-dependents --extra build --no-dev | grep '^plugins/'
 ```
+
+The first turns up `plugins/protect` and `js-packages/scan`; the second turns that second hit into `plugins/jetpack`, which grepping the plugin directory would never have found.
 
 Then add one entry per plugin that survives. Each project defines its own types — `plugins/jetpack` uses `major` | `enhancement` | `compat` | `bugfix` | `other`:
 
@@ -215,7 +218,7 @@ jp changelog add plugins/jetpack -s minor -t enhancement -e "Search: Add a Searc
 
 **And the prompt it does show is all-or-nothing.** It lists every indirectly-affected plugin at once and asks a single yes/no. A `yes` hands the whole list to the same prompts the main run uses, which choose between one shared entry and individual wording — never between plugins. When only some of the list qualifies, answer `no` and add those entries yourself with the non-interactive form.
 
-The project's own entry alone is correct when nothing is observable to a site owner — internal refactors, tests, tooling, type fixes — and when the only people who can observe it are already covered by a plugin that has its own entry.
+The project's own entry alone is correct only when nothing is observable to a site owner: internal refactors, tests, tooling, type fixes.
 
 ### Interactive Mode
 
