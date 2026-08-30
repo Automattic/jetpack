@@ -2,12 +2,6 @@
 # Please fire off a PR to this file to own #
 #  or disavow any section of the codebase. #
 ############################################
-#
-# If a rule here owns a whole project, follow it with `<project>/composer.lock`
-# and `<project>/changelog` lines that have no owner. Any PR touching a shared
-# package rewrites both in every dependent plugin, and neither needs your team's
-# review. A PR that also touches your source still requests you, through those
-# source files.
 
 # Stuff that affects the whole monorepo
 
@@ -65,13 +59,10 @@
 
 # Packages
 /projects/packages/premium-analytics @Automattic/jetpack-stats 
-/projects/packages/premium-analytics/composer.lock # No owner - too noisy on cross-project PRs
 /projects/packages/premium-analytics/changelog # No owner - too noisy on cross-project PRs
 /projects/packages/stats @Automattic/jetpack-stats
-/projects/packages/stats/composer.lock # No owner - too noisy on cross-project PRs
 /projects/packages/stats/changelog # No owner - too noisy on cross-project PRs
 /projects/packages/stats-admin @Automattic/jetpack-stats
-/projects/packages/stats-admin/composer.lock # No owner - too noisy on cross-project PRs
 /projects/packages/stats-admin/changelog # No owner - too noisy on cross-project PRs
 /projects/packages/search/src/wpes @Automattic/prometheus
 /projects/packages/connection/src @Automattic/jetpack-connection
@@ -85,14 +76,10 @@
 # Plugins
 
 /projects/plugins/premium-analytics @Automattic/jetpack-stats 
-/projects/plugins/premium-analytics/composer.lock # No owner - too noisy on cross-project PRs
 /projects/plugins/premium-analytics/changelog # No owner - too noisy on cross-project PRs
 /projects/plugins/stats @Automattic/jetpack-stats
-/projects/plugins/stats/composer.lock # No owner - too noisy on cross-project PRs
 /projects/plugins/stats/changelog # No owner - too noisy on cross-project PRs
 /projects/plugins/boost @Automattic/jetpack-boost
-/projects/plugins/boost/composer.lock # No owner - too noisy on cross-project PRs
-/projects/plugins/boost/changelog # No owner - too noisy on cross-project PRs
 
 # Functionality that is important to our partners
 /projects/plugins/jetpack/class.jetpack-cli.php @Automattic/jetpack-infinity
