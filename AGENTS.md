@@ -192,19 +192,19 @@ jp dependencies list js-packages/components --add-dependents --extra build --no-
 
 Then narrow that list. A widely-shared js-package can list well over a dozen plugins; add an entry for one only when a user of *that plugin* could notice the change. Skip it when:
 
-- **The change belongs to another product and this plugin only contains it via a My Jetpack product card.** A change to a My Jetpack product card, or to a package behind one such as `js-packages/boost-score-api`, belongs in the changelogs of the plugins that ship that product. Every other plugin renders the card only for someone who already has that product installed, and they read about it in that product's changelog.
-- **The plugin never reaches the changed code.** `js-packages/components` is a build dependency of nearly every plugin in the monorepo, but `DiffViewer` reaches only `plugins/protect` and `plugins/jetpack`.
+- **The change belongs to another product and this plugin only contains it via a My Jetpack product card.** A change to a My Jetpack product card belongs in the changelogs of the plugins that ship that product. Every other plugin renders the card only for someone who already has that product, and they read about it in that product's changelog. Check that the card really is the only route, though: `js-packages/boost-score-api` sits behind the Boost card, but `plugins/jetpack` also calls it straight from At a Glance, so a change there reaches Jetpack plugin users too.
+- **The plugin never reaches the changed code.** `js-packages/components` is a build dependency of nearly every plugin in the monorepo, but `DiffViewer` reaches only `plugins/protect`.
 - **It is reachable only under conditions the plugin never creates** — a module it does not register, a plan or product it does not sell, or a host it does not run on. Check the gate rather than the dependency, because the same code can qualify for one plugin and not another: the WordPress.com-only paths in `packages/masterbar` never run on a self-hosted site, but they are the whole reason `plugins/wpcomsh` bundles the package.
 - **The plugin's changelog is not a product record.** `starter-plugin` is a scaffolding template and `mu-wpcom-plugin` is a test harness for `packages/jetpack-mu-wpcom`; nobody reads either changelog to find out what changed on their site. Keep this one narrow: it is about those two, not about any plugin you have not heard of.
 
 To settle the reachability case, work backwards from the code rather than forwards from the plugin. Grepping `projects/plugins/<plugin>/` alone misses a plugin that is little more than a loader for a package, and grepping its whole dependency closure always matches, since the project that defines the symbol is in every dependent's closure. Find the projects that import it, then ask which plugins bundle *those*:
 
 ```bash
-grep -rl DiffViewer projects/ --include='*.ts' --include='*.tsx' --include='*.jsx' | grep -v node_modules
+grep -rl DiffViewer projects/ | grep -vE 'node_modules|/build/'
 jp dependencies list js-packages/scan plugins/protect --add-dependents --extra build --no-dev | grep '^plugins/'
 ```
 
-The first turns up `plugins/protect` and `js-packages/scan`; the second turns that second hit into `plugins/jetpack`, which grepping the plugin directory would never have found.
+What that gives you is a shortlist, not an answer. Bundling a project is not the same as rendering its code, which is the distinction the whole section turns on, so finish the job by hand. `DiffViewer` is the cautionary case: the second command returns `plugins/protect` and `plugins/jetpack`, but `js-packages/scan` uses `DiffViewer` only inside `ThreatModal`, and `packages/scan` — how `plugins/jetpack` reaches that package at all — imports `ThreatsDataViews` and `ThreatSeverityBadge` from it and never `ThreatModal`. So a `DiffViewer` change is noticeable in `plugins/protect` alone.
 
 Then add one entry per plugin that survives. Each project defines its own types — `plugins/jetpack` uses `major` | `enhancement` | `compat` | `bugfix` | `other`:
 
