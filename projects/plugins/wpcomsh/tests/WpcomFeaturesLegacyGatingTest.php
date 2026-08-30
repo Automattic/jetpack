@@ -41,6 +41,15 @@ class WpcomFeaturesLegacyGatingTest extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		if ( ! self::stickers_are_writable() ) {
+			$this->markTestSkipped(
+				'These tests write blog stickers into Atomic Persistent Data, which only the mock in tests/lib/mocks supports. '
+				. 'On a real Atomic host the platform defines Atomic_Persistent_Data first and its stickers are read-only, which is '
+				. 'why this file is excluded from the "wpcloud" suite. Run it in the monorepo instead: '
+				. 'jp docker phpunit wpcomsh -- --filter=WpcomFeaturesLegacyGatingTest'
+			);
+		}
+
 		$this->set_wpcom_blog_id( self::LEGACY_BLOG_ID );
 	}
 
@@ -51,11 +60,27 @@ class WpcomFeaturesLegacyGatingTest extends WP_UnitTestCase {
 	 * anywhere else in the suite that reads a sticker -- into confusing passes.
 	 */
 	public function tear_down() {
-		Atomic_Persistent_Data::delete( 'site_sticker_' . WPCOM_Features::STICKER_FEATURE_GATING_2026 );
-		Atomic_Persistent_Data::delete( 'site_sticker_' . WPCOM_Features::STICKER_PRE_FEATURE_GATING_2026 );
-		Atomic_Persistent_Data::delete( 'site_sticker_' . WPCOM_Features::STICKER_GATING_BUSINESS_Q1 );
+		if ( self::stickers_are_writable() ) {
+			Atomic_Persistent_Data::delete( 'site_sticker_' . WPCOM_Features::STICKER_FEATURE_GATING_2026 );
+			Atomic_Persistent_Data::delete( 'site_sticker_' . WPCOM_Features::STICKER_PRE_FEATURE_GATING_2026 );
+			Atomic_Persistent_Data::delete( 'site_sticker_' . WPCOM_Features::STICKER_GATING_BUSINESS_Q1 );
+		}
 
 		parent::tear_down();
+	}
+
+	/**
+	 * Whether the persistent-data mock -- the only implementation stickers can be written to -- is
+	 * the loaded `Atomic_Persistent_Data`.
+	 *
+	 * The mock in tests/lib/mocks only declares itself when nothing else has claimed the class
+	 * name, so on a host that supplies its own (an Atomic sandbox, where the platform defines it
+	 * before the bootstrap runs) these tests have no way to arrange the state they assert on.
+	 *
+	 * @return bool
+	 */
+	private static function stickers_are_writable() {
+		return method_exists( 'Atomic_Persistent_Data', 'set' ) && method_exists( 'Atomic_Persistent_Data', 'delete' );
 	}
 
 	/**
