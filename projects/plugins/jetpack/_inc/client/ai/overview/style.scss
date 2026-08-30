@@ -54,6 +54,13 @@
 		}
 	}
 
+	// The depleted card breathes more than the standard one — 32px per the
+	// mock. A literal: the wpds padding scale stops at 2xl (24px). The ui
+	// Card reads this token for its own padding.
+	&__card--depleted {
+		--wp-ui-card-padding: 32px;
+	}
+
 	// The depleted upsell replaces the two-cell layout once every request is
 	// used, mirroring its grid without the divider: icon and pitch on the
 	// left, the requests readout with the Upgrade button on the right (the

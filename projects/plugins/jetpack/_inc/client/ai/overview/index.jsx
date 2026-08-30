@@ -197,7 +197,9 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 		!! upgradeUrl;
 
 	return (
-		<Card.Root>
+		// The depleted upsell breathes more than the standard card; the
+		// modifier widens the ui Card's own padding token.
+		<Card.Root className={ showDepletedUpsell ? 'jetpack-ai-overview__card--depleted' : undefined }>
 			<Card.Content>
 				{ isLoading && (
 					<div className="jetpack-ai-overview__loading">
