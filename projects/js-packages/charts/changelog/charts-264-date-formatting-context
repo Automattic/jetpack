@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Render every date label in a host-supplied locale and time zone, set on GlobalChartsProvider. Both default to the browser's, as before.

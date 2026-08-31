@@ -575,6 +575,23 @@ export type CompleteChartTheme = Required< ChartTheme > & {
  */
 export type TickResolution = 'hour' | 'day' | 'week' | 'month' | 'year';
 
+/**
+ * The locale and time zone every date the library prints is rendered in, set
+ * once by the host on `GlobalChartsProvider`.
+ *
+ * Both halves are plain strings the host resolves for itself, so a non-WordPress
+ * consumer needs no WordPress package to supply them. Both are optional and
+ * default to the JavaScript runtime's own — the viewer's browser locale and
+ * browser time zone — which is what every version before this one used
+ * unconditionally.
+ */
+export type ChartFormatting = {
+	/** BCP-47 language tag, e.g. `de-DE`. Defaults to the runtime's locale. */
+	locale?: string;
+	/** IANA time zone name, e.g. `Asia/Tokyo`. Defaults to the runtime's zone. */
+	timeZone?: string;
+};
+
 export type AxisOptions = {
 	orientation?: OrientationType;
 	numTicks?: number;
