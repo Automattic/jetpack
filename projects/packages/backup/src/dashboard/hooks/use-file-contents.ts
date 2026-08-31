@@ -39,7 +39,7 @@ function encodeManifestPath( manifestPath: string ): string {
  *
  * @param filePeriod   - The file's own snapshot timestamp (from /ls `period`).
  * @param manifestPath - The volume-prefixed manifest path (from /ls `manifest_path`, e.g. `f5:/wp-config.php`). Base64-encoded before sending.
- * @param enabled      - When false, the query is skipped (e.g. binary mime types).
+ * @param enabled      - When false, the query is skipped (an extension the preview card cannot render).
  * @return Content + loading state.
  */
 export function useFileContents(

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+File upload field: Cancel in-flight uploads and release previews when the form is reset.

@@ -9,7 +9,6 @@
 /* Hosts the WidgetState (or the no-video prompt); its `.root` wrapper fills
    this box so the list can scroll within the widget frame. */
 .content {
-	position: relative;
 	display: flex;
 	flex-direction: column;
 	flex: 1 1 0;

@@ -93,7 +93,7 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the loading state on first load even when empty', () => {
@@ -103,9 +103,9 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
-		// Nothing above it is busy either: a busy ancestor could hold this status back
-		// until unmount, silencing the one announcement a first load owes.
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
+		// `aria-busy` is reserved for a revalidation with numbers still on screen;
+		// a first load has nothing to hold back.
 		expect( screen.queryAllByRole( 'generic', { busy: true } ) ).toHaveLength( 0 );
 	} );
 
@@ -119,7 +119,7 @@ describe( 'WidgetState', () => {
 		);
 
 		elapseFetchDelay();
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect( screen.queryAllByRole( 'generic', { busy: true } ) ).toHaveLength( 0 );
 	} );
 
@@ -132,7 +132,7 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps the empty state on screen through a refetch that drags on', () => {
@@ -153,7 +153,7 @@ describe( 'WidgetState', () => {
 		// Still the right answer for these params, so a revalidation has nothing
 		// to correct.
 		expect( screen.getByText( 'No posts here.' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the caller loading override instead of the default skeleton', () => {
@@ -163,7 +163,7 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		expect( screen.getByText( 'override' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the caller loading override out of a refetch, however long it drags on', () => {
@@ -273,10 +273,10 @@ describe( 'WidgetState', () => {
 				{ CONTENT }
 			</WidgetState>
 		);
-		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
-		// Not busy either: nothing changed on screen, so announcing an update would
-		// interrupt a reader over a change a sighted one never sees.
+		// Not busy either: the fetch delay has not elapsed, so a revalidation this
+		// brief is never marked at all.
 		expect( screen.queryAllByRole( 'generic', { busy: true } ) ).toHaveLength( 0 );
 	} );
 
@@ -289,7 +289,7 @@ describe( 'WidgetState', () => {
 		elapseFetchDelay();
 		// A long revalidation changes only `aria-busy` — no skeleton at all,
 		// hidden or otherwise.
-		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 		expect( screen.getAllByRole( 'generic', { busy: true } ) ).toHaveLength( 1 );
 		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
 	} );
@@ -505,6 +505,6 @@ describe( 'WidgetState', () => {
 		);
 		expect( screen.getByText( 'Failed.' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 	} );
 } );

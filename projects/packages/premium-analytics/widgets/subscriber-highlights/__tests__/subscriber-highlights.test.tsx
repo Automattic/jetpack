@@ -88,7 +88,7 @@ describe( 'SubscriberHighlightsWidget', () => {
 
 		render( <SubscriberHighlightsWidget attributes={ {} } /> );
 
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Total subscribers' ) ).not.toBeInTheDocument();
 		expect(
 			screen.queryByText( "We couldn't load subscriber highlights. Please try again in a moment." )

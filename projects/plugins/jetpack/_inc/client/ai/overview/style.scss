@@ -88,6 +88,7 @@
 
 	// The titled sections sit 48px under the preceding card: the outer
 	// stack's 24px gap plus this margin.
+	&__quick-start,
 	&__videos,
 	&__docs {
 		display: flex;
@@ -96,6 +97,7 @@
 		margin-block-start: var(--wpds-dimension-gap-xl, 24px);
 	}
 
+	&__quick-start-grid,
 	&__video-grid {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));

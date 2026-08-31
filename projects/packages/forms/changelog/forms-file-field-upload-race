@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+File upload field: Stop uploading a file that was removed while its upload was still being prepared.
