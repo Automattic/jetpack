@@ -76,10 +76,8 @@ export default function ToggleGroupField< Item >( {
 	}
 
 	const iconOptions = hasIconOptions( elements );
-	// A value matching no option leaves every segment unpressed, while the
-	// consumer keeps drawing its own default. The first option stands in as the
-	// rendered selection, as it does in `SelectField`; nothing is written until
-	// the user picks one.
+	// No matching option leaves every segment visually unpressed while the
+	// consumer's default stands in — as in `SelectField`, nothing writes until picked.
 	const selectedValue = elements.some( element => element.value === value )
 		? value
 		: elements[ 0 ].value;
@@ -90,9 +88,8 @@ export default function ToggleGroupField< Item >( {
 			label={ label }
 			help={ description }
 			hideLabelFromVision={ hideLabelFromVision }
-			// Segments stretch only where the control owns a full form row and
-			// reads as text. Icon segments are square, and inline in a widget
-			// header the control sizes to its content.
+			// Full-row text segments stretch (isBlock); icon segments are square, and
+			// an inline widget-header control sizes to its content instead.
 			isBlock={ ! iconOptions && ! hideLabelFromVision }
 			value={ selectedValue }
 			onChange={ onValueChange }

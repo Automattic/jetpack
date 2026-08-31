@@ -34,7 +34,7 @@
 		"@babel/preset-react": "7.29.7",
 		"@babel/preset-typescript": "7.29.7",
 		"@cerner/duplicate-package-checker-webpack-plugin": "2.3.0",
-		"@pmmmwh/react-refresh-webpack-plugin": "0.6.2",
+		"@pmmmwh/react-refresh-webpack-plugin": "0.6.3",
 		"@wordpress/browserslist-config": "6.51.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "6.53.0",
 		"babel-loader": "10.0.0",
@@ -54,13 +54,13 @@
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"webpack": "5.107.2",
 		"webpack-cli": "7.2.1",
-		"webpack-dev-server": "5.2.6"
+		"webpack-dev-server": "6.0.0"
 	},
 	"peerDependencies": {
 		"@babel/core": "^7.0.0",
 		"@babel/runtime": "7.29.7",
 		"webpack": "^5.104.1",
-		"webpack-dev-server": "^5.2.6"
+		"webpack-dev-server": "^6.0.0"
 	},
 	"peerDependenciesMeta": {
 		"@babel/core": {

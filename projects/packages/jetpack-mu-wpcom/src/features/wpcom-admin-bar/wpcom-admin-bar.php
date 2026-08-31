@@ -10,6 +10,7 @@
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 
 // The $icon-color variable for admin color schemes.
@@ -521,10 +522,21 @@ add_action( 'admin_bar_menu', 'wpcom_add_site_badges_and_plan', 35 );
  * (priority 30) has added the `site-name` node and either `dashboard` (front end)
  * or `view-site` (wp-admin), so this shows in both contexts.
  *
+ * `view_stats` is not a proxy for the module being on: the Stats package registers
+ * its `map_meta_cap` handler on any wp-admin request, so an administrator keeps the
+ * capability after the module is switched off, while `admin.php?page=stats` stops
+ * being registered. Linking there then renders "Sorry, you are not allowed to access
+ * this page", so check the module too. `is_active()` short-circuits to true on Simple,
+ * where the module can't be switched off; it only narrows anything on Atomic.
+ *
  * @param WP_Admin_Bar $wp_admin_bar Admin bar instance.
  */
 function wpcom_add_stats_to_site_menu( $wp_admin_bar ) {
-	if ( ( ! $wp_admin_bar->get_node( 'dashboard' ) && ! $wp_admin_bar->get_node( 'view-site' ) ) || ! current_user_can( 'view_stats' ) ) {
+	if (
+		( ! $wp_admin_bar->get_node( 'dashboard' ) && ! $wp_admin_bar->get_node( 'view-site' ) )
+		|| ! current_user_can( 'view_stats' )
+		|| ! ( new Modules() )->is_active( 'stats' )
+	) {
 		return;
 	}
 

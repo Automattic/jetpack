@@ -54,11 +54,9 @@ function pickFeaturedImageUrl( media: StatsRecord ): string {
 }
 
 /**
- * Reduce a core `/wp/v2/posts` response (an array of posts) to the first post's
- * headline fields and its embedded featured image. Content is read locally so it
- * resolves regardless of site privacy; the post's views, likes, and comments
- * come from the Stats post endpoint. Returns null when the site has no published
- * post.
+ * Reduce a core `/wp/v2/posts` response to the first post's headline fields and
+ * its embedded featured image. Read locally so it resolves regardless of site
+ * privacy; views, likes, and comments come from the Stats post endpoint.
  */
 export function sanitizeLatestPostResponse( response: unknown ): LatestPostResponse {
 	const [ first ] = coerceStatsArray( response );

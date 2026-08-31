@@ -138,20 +138,15 @@ export type DateFiltersPanelProps = {
 
 	/**
 	 * Element to measure for the responsive layout instead of the panel's own
-	 * root. Required when the panel sits in a shrink-to-fit slot (e.g. sharing
-	 * a header row with a title): there the root's width follows the panel's
-	 * own content, so self-measurement could neither collapse when narrow nor
-	 * expand back when widened. Callers whose panel fills its container should
-	 * omit it.
+	 * root. Required in a shrink-to-fit slot (e.g. a shared header row), where
+	 * the root's width follows the panel's own content and can't self-measure.
 	 */
 	containerElement?: HTMLElement | null;
 
 	/**
-	 * Inline space in the measured container that is never available to the
-	 * panel — e.g. a title's minimum share on a shared header row. Subtracted
-	 * from the measured width before resolving the responsive layout, so the
-	 * panel steps down while its row-mates still have their minimum, instead
-	 * of only once the whole container is narrower than the panel itself.
+	 * Inline space in the measured container never available to the panel —
+	 * e.g. a title's minimum share on a shared header row. Subtracted before
+	 * resolving layout, so the panel steps down before the row-mates lose theirs.
 	 */
 	reservedInlineSize?: number;
 };
@@ -193,9 +188,8 @@ export function DateFiltersPanel( {
 	reservedInlineSize = 0,
 }: DateFiltersPanelProps ) {
 	/*
-	 * Read rather than taken as a prop: the same declaration keeps the params
-	 * away from the widgets, so a header can never offer a comparison nothing
-	 * below will read, or hide one the widgets are still fetching.
+	 * Read rather than a prop, so this and the widgets share one declaration —
+	 * a header can never offer a comparison the widgets below aren't fetching.
 	 */
 	const { offersComparison } = useReportScope();
 
@@ -223,11 +217,9 @@ export function DateFiltersPanel( {
 	const comparisonEnabled = !! validatedComparisonPresetId;
 
 	/*
-	 * Track whether the primary picker popover is open so the comparison label
-	 * mirrors it: while the picker is open it previews the draft range, but once
-	 * closed without Apply it reverts to the applied range (just like the
-	 * picker's own trigger). Without this, the comparison label would keep
-	 * showing the un-applied draft's derived range.
+	 * Tracks whether the picker popover is open so the comparison label mirrors
+	 * it: previews the draft range while open, reverts to applied when closed
+	 * (like the picker's own trigger) — otherwise it'd show a stale draft.
 	 */
 	const [ isPrimaryPickerOpen, setIsPrimaryPickerOpen ] = useState( false );
 	const comparisonSourceRange = isPrimaryPickerOpen ? range : appliedRange ?? range;
@@ -259,12 +251,9 @@ export function DateFiltersPanel( {
 	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
 		const entry = entries[ 0 ];
 		if ( entry ) {
-			// Flushed synchronously: ResizeObserver fires between layout and
-			// paint, so committing here keeps a resized slot and its label form
-			// in the same frame. Ceiled, so a slot sized by the published width
-			// compares equal to it; on an external measure the ceil can
-			// overhang by under a pixel, absorbed by the row's shrinkable
-			// trigger.
+			// Flushed synchronously: ResizeObserver fires between layout and paint,
+			// so this keeps the resize and its label form in the same frame.
+			// Ceiled so a slot sized by the published width compares equal.
 			flushSync( () => {
 				setContainerWidth( Math.ceil( entry.contentRect.width ) );
 			} );
@@ -274,13 +263,9 @@ export function DateFiltersPanel( {
 	const setObserverRef = useResizeObserver< HTMLElement >( handleResize );
 
 	/*
-	 * Measure the caller's container when there is one, the panel's own root
-	 * otherwise (the body only until the ref lands). A flex slot follows the
-	 * panel's own content and needs `containerElement`; a slot sized from the
-	 * rig's intrinsic width measures honestly on its own.
-	 *
-	 * The setter doubles as the detach: `useResizeObserver` unobserves only
-	 * when called with `null`.
+	 * Measures the caller's container when given one, else the panel's own root
+	 * (body until the ref lands). The setter also detaches: `useResizeObserver`
+	 * unobserves only when called with `null`.
 	 */
 	useEffect( () => {
 		setObserverRef( containerElement ?? rootElement ?? document.body );
@@ -357,12 +342,9 @@ export function DateFiltersPanel( {
 	);
 
 	/*
-	 * Same arrangement as the other two: built once, rendered in the row and in
-	 * the probe.
-	 *
-	 * Read from the applied range, not the staged one. The arrows sit outside
-	 * the picker and commit on click, so a range being drafted must not decide
-	 * whether the forward one is there.
+	 * Built once, rendered in the row and the probe, like the other controls.
+	 * Reads the applied range, not staged: the arrows commit on click, so a
+	 * drafted range must not decide whether the forward step is available.
 	 */
 	const navigationControl = useMemo( () => {
 		if ( ! onStep ) {
@@ -398,11 +380,9 @@ export function DateFiltersPanel( {
 		setFullRowWidth( width );
 	}, [] );
 
-	// Measured, so the boundary follows the active locale rather than a
-	// breakpoint picked for English, and moves with the comparison control:
-	// adding one takes room the presets give back. The caller-reserved share
-	// (see `reservedInlineSize`) is subtracted first, so on a shared header
-	// row the panel steps down while its row-mates keep their minimum.
+	// Measured, so the boundary follows the active locale, not an English
+	// breakpoint, and shifts as the comparison control is added or removed.
+	// The reserved share is subtracted first, so row-mates keep their minimum.
 	const labelMode = useMemo(
 		() =>
 			resolvePresetLabelMode(

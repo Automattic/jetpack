@@ -92,6 +92,14 @@ The `$$next-version$$` placeholder is automatically replaced with the correct ve
 - Use BEM-like naming conventions
 - Use CSS logical properties instead of physical direction/dimension mappings to make styles RTL-aware by default (reference: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Logical_Properties)
 
+### Comments
+
+One sentence, at most two lines — the summary rule the WordPress documentation standards
+already impose on our PHP, applied to JavaScript too. Anything past it must carry a why, a
+gotcha, or provenance. Omit what the signature already says, and prefer a clearer name over a
+comment explaining a bad one. If reading the comment costs as much as reading the code, delete
+it. Never invent rationale: a comment that contradicts the code is worse than no comment.
+
 ## Testing
 
 ```bash

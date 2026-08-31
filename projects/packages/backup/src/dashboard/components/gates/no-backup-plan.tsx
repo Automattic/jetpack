@@ -37,7 +37,7 @@ export default function NoBackupPlanScreen() {
 	return (
 		<Card className="jpb-gates__card">
 			<Stack direction="column" gap="md" align="center">
-				<Text variant="heading-md" render={ <h3 /> }>
+				<Text variant="heading-md" render={ <h2 /> }>
 					{ __( "This site doesn't have an active Backup plan", 'jetpack-backup-pkg' ) }
 				</Text>
 				<Notice status="info" isDismissible={ false }>

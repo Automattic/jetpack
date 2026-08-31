@@ -2,12 +2,8 @@
 /**
  * Dashboard Layout: Premium Analytics server-side defaults.
  *
- * Premium Analytics owns its dashboard, so it ships its own default layout
- * rather than relying on the core dashboard endpoint (which is Gutenberg-only
- * and returns the core dashboard's widgets). The default is served on the
- * `dashboardSection` REST shape and a per-dashboard `default-layout` route; the
- * frontend reads it from the section entity, so there is no server-seeded
- * preference.
+ * Ships its own default layout rather than the core dashboard endpoint (Gutenberg-only, returns
+ * core's widgets); the frontend reads the default from the section entity, so nothing is server-seeded.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -290,24 +286,22 @@ function get_dashboard_default_section_layouts() {
 				4,
 				1
 			),
-			// Row 2: lifetime totals. Full width until Most popular time joins
-			// the row (WOOA7S-2019); WOOA7S-2009 then settles the arrangement.
+			// Row 2: the at-a-glance cards, as the design pairs them. All three are
+			// two rows tall so their display-sized figures fit without scrolling: a
+			// 1x1 tile is 200px, which the two-field cards overflow. WOOA7S-2009
+			// settles the final widths.
 			get_dashboard_default_widget_instance(
 				'default-all-time-stats-widget-instance',
 				'jpa/all-time-stats',
 				1,
-				4,
-				1,
+				2,
+				2,
 				array(
 					// The design shows three totals; the widget's own default adds
 					// Comments, which the comment leaderboards below already cover.
 					'metrics' => array( 'views', 'visitors', 'posts' ),
 				)
 			),
-			// Row 3: most popular day. Two rows tall so both fields fit without
-			// scrolling; a 1x1 tile is 200px, which the two display-sized figures
-			// overflow. The design shares this row with All-time stats and Most
-			// popular time, which WOOA7S-2009 arranges once WOOA7S-2019 lands.
 			get_dashboard_default_widget_instance(
 				'default-most-popular-day-widget-instance',
 				'jpa/most-popular-day',
@@ -315,95 +309,101 @@ function get_dashboard_default_section_layouts() {
 				1,
 				2
 			),
-			// Row 4: posting-activity heatmap.
+			get_dashboard_default_widget_instance(
+				'default-most-popular-time-widget-instance',
+				'jpa/most-popular-time',
+				3,
+				1,
+				2
+			),
+			// Row 3: posting-activity heatmap.
 			get_dashboard_default_widget_instance(
 				'default-posting-activity-widget-instance',
 				'jpa/posting-activity',
-				3,
+				4,
 				4,
 				1
 			),
-			// Row 5: the two post spotlights.
+			// Row 4: the two post spotlights.
 			get_dashboard_default_widget_instance(
 				'default-latest-post-widget-instance',
 				'jpa/latest-post',
-				4,
+				5,
 				2,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-popular-post-widget-instance',
 				'jpa/popular-post',
-				5,
+				6,
 				2,
 				2
 			),
-			// Row 6: the period totals and the weekday and hour-of-day
+			// Row 5: the period totals and the weekday and hour-of-day
 			// distributions.
 			get_dashboard_default_widget_instance(
 				'default-total-views-widget-instance',
 				'jpa/total-views',
-				6,
+				7,
 				1,
 				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-total-visitors-widget-instance',
 				'jpa/total-visitors',
-				7,
+				8,
 				1,
 				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-popular-days-widget-instance',
 				'jpa/popular-days',
-				8,
+				9,
 				1,
 				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-popular-hours-widget-instance',
 				'jpa/popular-hours',
-				9,
+				10,
 				1,
 				1
 			),
-			// Row 7: daily views heatmap. Two rows tall, as in the prototype: the
-			// cells are sized from the tile's height, and only at this height do they
-			// grow wide enough to label each day with its view count.
+			// Row 6: daily views heatmap. Two rows tall, as in the prototype: cells are sized
+			// from the tile's height, and only here do they fit each day's view count.
 			get_dashboard_default_widget_instance(
 				'default-traffic-views-activity-widget-instance',
 				'jpa/traffic-views-activity',
-				10,
+				11,
 				4,
 				2
 			),
-			// Row 8: the comment leaderboards, shares, and tags.
+			// Row 7: the comment leaderboards, shares, and tags.
 			get_dashboard_default_widget_instance(
 				'default-most-commented-posts-widget-instance',
 				'jpa/most-commented-posts',
-				11,
+				12,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-most-commented-authors-widget-instance',
 				'jpa/most-commented-authors',
-				12,
+				13,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-shares-widget-instance',
 				'jpa/shares',
-				13,
+				14,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-tags-widget-instance',
 				'jpa/tags',
-				14,
+				15,
 				1,
 				2
 			),
@@ -571,9 +571,8 @@ function get_dashboard_default_section_id_for( $dashboard_name ) {
 /**
  * Seeds the bundled default layouts for the Premium Analytics dashboard tabs.
  *
- * Only contributes to the known Premium Analytics dashboard and tab aliases;
- * other dashboards are left untouched so the filter can be reused if more
- * dashboards are added later.
+ * Only contributes to known Premium Analytics dashboard/tab aliases, leaving other dashboards
+ * untouched so the filter stays reusable if more dashboards are added later.
  *
  * @param array  $dashboard_layout Default layout from earlier callbacks.
  * @param string $dashboard_name   Identifier of the dashboard receiving the

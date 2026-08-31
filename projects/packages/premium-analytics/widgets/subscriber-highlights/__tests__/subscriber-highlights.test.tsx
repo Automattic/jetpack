@@ -48,10 +48,8 @@ describe( 'SubscriberHighlightsWidget', () => {
 	} );
 
 	it( 'maps each subscriber count to its matching tile', async () => {
-		// Distinct sub-1000 values so the `useMultipliers` formatter leaves them
-		// unabbreviated, and `social_followers` is omitted so the `?? 0` fallback
-		// renders. The `Free` tile reads `email_subscribers`, so a mis-wired field
-		// (or a dropped fallback) changes this sequence and fails the test.
+		// Distinct sub-1000 values so `useMultipliers` leaves them unabbreviated,
+		// and `social_followers` is omitted so the `?? 0` fallback renders.
 		mockApiFetch.mockResolvedValue( {
 			counts: {
 				total_subscribers: 428,

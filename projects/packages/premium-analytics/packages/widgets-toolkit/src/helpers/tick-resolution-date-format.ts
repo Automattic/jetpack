@@ -5,12 +5,9 @@ import type { TickResolution } from '@jetpack-premium-analytics/externals';
 import type { DateFormatName } from '@jetpack-premium-analytics/formatters';
 
 /**
- * How precisely a label has to name a point for the bucket size it was drawn at.
- *
- * A bucket is identified by the finest field its size varies in: a date alone
- * names 24 hourly buckets and so identifies none of them, while it names a daily
- * one exactly. Anything coarser than a day is still named by its date, since the
- * range covered is what the axis and legend already spell out.
+ * How precisely a label must name a point for its bucket size. A date alone
+ * names 24 hourly buckets (so identifies none) but a daily one exactly;
+ * anything coarser stays date-named since the axis/legend already cover the range.
  */
 const DATE_FORMAT_FOR_RESOLUTION: Partial< Record< TickResolution, DateFormatName > > = {
 	hour: 'dateTime',

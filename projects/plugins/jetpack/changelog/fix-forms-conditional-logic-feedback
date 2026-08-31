@@ -1,4 +1,5 @@
 Significance: patch
-Type: bugfix
+Type: other
+Comment: Conditional logic is behind the forms-conditional-logic feature flag, off by default, so this fix is not reachable by Jetpack users yet.
 
-Forms: Name a checkbox by its own label when building conditional logic, keep a value typed before the field was chosen, and show an unticked checkbox as "No" rather than a blank.
+

@@ -106,10 +106,9 @@ export function DateRangePopoverContent( {
 	};
 
 	/*
-	 * First click starts a new range, second click completes it. The computed
-	 * range from `onSelect` is ignored in favor of the clicked day, since
-	 * react-day-picker never restarts a complete range on click; it only moves
-	 * the nearest endpoint.
+	 * First click starts a new range, second completes it. Uses the clicked day,
+	 * not `onSelect`'s computed range: react-day-picker never restarts a
+	 * complete range on click, it only moves the nearest endpoint.
 	 */
 	const handleCalendarSelect = ( _nextRange: DateRange | undefined, triggerDate: Date ) => {
 		if ( draftRange?.from && ! draftRange.to ) {

@@ -22,20 +22,13 @@ export type EmailMetric = 'opens' | 'clicks';
  * through to `render.tsx`.
  */
 export type EmailsAttributes = {
-	/**
-	 * Which rate to display. Defaults to `opens`.
-	 */
 	metric?: EmailMetric;
 };
 
 /**
- * Widget type definition.
- *
- * Ported from the Jetpack Stats "Emails" module. Lists the most recently sent
- * emails with their open and click rates. The displayed rate is the `metric`
- * attribute (`relevance: 'high'`), so the widget host renders its control.
- * The summary endpoint reports across the whole lifetime of the site, so
- * there is no date range or comparison period.
+ * Ported from the Jetpack Stats "Emails" module. The summary endpoint reports
+ * across the whole lifetime of the site, so there is no date range or
+ * comparison period.
  */
 export default {
 	icon: envelope,

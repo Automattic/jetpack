@@ -28,10 +28,8 @@ export type DateFormatName =
 /**
  * An instant to render, such as a `TZDate` or a timestamp.
  *
- * Narrower than what `dateI18n` accepts, to keep strings out: a date-only
- * string such as `'2026-01-01'` is read as browser-local midnight, so it
- * renders as the previous day for anyone ahead of the site. Parse site-local
- * strings with `parseSiteDateTime` first.
+ * Narrower than `dateI18n` accepts: a date-only string is read as browser-local
+ * midnight, so parse site-local strings with `parseSiteDateTime` first.
  */
 type DateInput = Date | number;
 
@@ -83,20 +81,12 @@ function formatFor( name: DateFormatName ): string {
 /**
  * Format a date in the site's locale and timezone.
  *
- * Month and weekday names come from WordPress's own translation tables, and
- * the ordering from the site's `date_format` option, so dates match the rest
- * of wp-admin rather than the browser's locale.
+ * Month and weekday names come from WordPress's translation tables and the
+ * ordering from `date_format`, so dates match wp-admin rather than the browser.
  *
  * @param date - The instant to render. See `DateInput`.
  * @param name - Named format. Defaults to `'medium'`.
  * @return The formatted date.
- *
- * @example
- * formatDate( date )                  // 'June 21, 2025'           — or '21 de junio de 2025'
- * formatDate( date, 'compact' )       // 'Jun 21, 2025'            — or '21 de jun de 2025'
- * formatDate( date, 'compactNoYear' ) // 'Jun 21'                  — or '21 de jun'
- * formatDate( date, 'short' )         // 'June 21'                 — or '21 de junio'
- * formatDate( date, 'full' )          // 'Saturday, June 21, 2025' — or 'sábado, 21 de junio de 2025'
  */
 export const formatDate = ( date: DateInput, name: DateFormatName = 'medium' ): string =>
 	dateI18n( formatFor( name ), date );
@@ -113,6 +103,19 @@ export const formatWeekday = ( weekday: number ): string => {
 	return weekdays[ weekday ] ?? '';
 };
 
+/**
+ * Return a full weekday name in the site's locale, from a Monday-first index.
+ *
+ * Stats payloads and weekday buckets count from Monday; the WordPress locale
+ * table counts from Sunday. Keeping that offset here means a caller cannot get
+ * it the wrong way round.
+ *
+ * @param weekday - Monday-based weekday index (`0` = Monday).
+ * @return The localized full weekday name.
+ */
+export const formatMondayFirstWeekday = ( weekday: number ): string =>
+	formatWeekday( ( weekday + 1 ) % 7 );
+
 /** 12-hour clock tokens, zero-padded and not. */
 const TWELVE_HOUR_TOKENS = new Set( [ 'g', 'h' ] );
 
@@ -128,12 +131,9 @@ const LOWERCASE_MERIDIEM_TOKENS = new Set( [ 'a' ] );
 /**
  * Render an hour of the day the way the site's locale names one.
  *
- * `Intl` is asked for the hour rather than an hour-only pattern being derived
- * from `time_format`, which names minutes these buckets never carry. It also
- * supplies the unit a locale attaches to a bare hour (`19 Uhr`, `19時`), which
- * no subset of the site's format spells out. Only the clock's length and the
- * meridiem's case are still read from `time_format`: those are the site's
- * choice, not the locale's.
+ * `Intl` supplies the unit a locale attaches to a bare hour (`19 Uhr`, `19時`),
+ * which no subset of `time_format` spells out. Only the clock's length and the
+ * meridiem's case are read from `time_format` — those are the site's choice.
  *
  * @param hour - Site-local hour, 0–23.
  * @return The localized hour label, e.g. `7 pm`, `19`, or `19時`.

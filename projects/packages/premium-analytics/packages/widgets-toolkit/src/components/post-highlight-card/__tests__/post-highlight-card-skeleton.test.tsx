@@ -12,7 +12,7 @@ describe( 'PostHighlightCardSkeleton', () => {
 		render( <PostHighlightCardSkeleton /> );
 
 		expect( screen.getAllByTestId( 'skeleton-title-line' ) ).toHaveLength( 2 );
-		// Latest post and Popular post both render views, likes, and comments.
+		// Latest post and Most popular post both render views, likes, and comments.
 		expect( screen.getAllByTestId( 'skeleton-stat' ) ).toHaveLength( 3 );
 	} );
 

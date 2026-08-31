@@ -4039,6 +4039,7 @@ class Contact_Form_Plugin {
 	 * Exports data to Google Drive, based on POST data.
 	 *
 	 * @see Contact_Form_Plugin::get_feedback_entries_from_post
+	 * @return never
 	 */
 	public function export_to_gdrive() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verification is done on validate_export_to_gdrive_request function
@@ -4050,7 +4051,6 @@ class Contact_Form_Plugin {
 				403,
 				JSON_UNESCAPED_SLASHES
 			);
-			return;
 		}
 
 		$grunion     = self::init();

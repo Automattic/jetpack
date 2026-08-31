@@ -172,10 +172,9 @@ function RollingDateControls( {
 	}, [ committed ] );
 
 	/*
-	 * Mirrors `useReportDateFilters`: a comparison change commits on its own, so
-	 * it moves the subtitle right away. Not while a primary edit is staged,
-	 * though — then it rides along and both land on Apply, so tweaking the
-	 * comparison never commits an un-applied primary draft.
+	 * Mirrors `useReportDateFilters`: a comparison change commits on its own and
+	 * moves the subtitle right away, unless a primary edit is staged — then it
+	 * rides along and both land on Apply.
 	 */
 	const handleComparisonChange = useCallback(
 		( _range: PanelDateRange | undefined, nextPresetId?: ComparisonPresetId ) => {

@@ -54,11 +54,8 @@ function Dashboard(): JSX.Element {
 	const [ gridSettings ] = useDashboardGridSettings();
 
 	/*
-	 * Only a section whose data reaches WordPress.com through the analytics full
-	 * sync has incomplete numbers; the rest read data it already holds. The
-	 * watcher runs at the dashboard level rather than inside the notice below, so
-	 * the sync starts as soon as the dashboard opens instead of only once that
-	 * section is visited.
+	 * The watcher runs at the dashboard level, not inside the notice below, so the
+	 * sync starts as soon as the dashboard opens rather than when the section is visited.
 	 */
 	const isSyncFinished = isPremiumAnalyticsInitialSyncFinished();
 	const sectionsAwaitSync = sections.some( section =>
@@ -99,38 +96,32 @@ function Dashboard(): JSX.Element {
 					) => WidgetModuleRecord[] | null;
 				}
 			 )
-				// `per_page: -1` returns every widget type. Without it, core-data's default
-				// query (`per_page: 10`) caps the mapped records at 10, silently hiding any
-				// widget past the tenth from the "Add widget" gallery.
+				// `per_page: -1` returns every widget type; core-data's default query
+				// (`per_page: 10`) would silently hide any widget past the tenth.
 				.getEntityRecords( 'root', 'widgetModule', { per_page: -1 } ),
 		[]
 	);
 
 	const [ editMode, setEditMode ] = useState( false );
 
-	// Only the widgets this section renders need their metadata resolved at
-	// boot; the complete registry is what the widget picker lists, so it can
-	// wait for edit mode. `null` until the sections resolve — the layout is
-	// empty until then, and this hook runs on those renders too, below the
-	// spinner returned further down. See `useWidgetTypesWithI18n`.
+	// Only the widgets this section renders need metadata at boot; the full registry
+	// waits for edit mode. `null` until sections resolve, since the layout is empty until then.
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules, {
 		visibleNames: hasResolvedSections ? layout.map( widget => widget.type ) : null,
 		includeAll: editMode,
 	} );
 
 	/*
-	 * Date-range state lives in the URL search params. The shared controller
-	 * stages edits locally and commits atomically on Apply (or immediately for
-	 * comparison changes), so widgets re-fetch only on commit.
+	 * Date-range state lives in the URL search params; the controller stages edits
+	 * locally and commits on Apply, so widgets re-fetch only on commit.
 	 */
 	const dateFilters = useReportDateFilters( '/' );
 
 	const activeSectionRecord = sections.find( section => section.slug === activeSection );
 
 	/*
-	 * Which date filter the active section's header shows. Also reconciles the
-	 * preset in the URL with that filter's surface, so a section switch never
-	 * leaves the visible control unable to represent the selection.
+	 * Also reconciles the preset in the URL with the resolved surface, so a section
+	 * switch never leaves the visible control unable to represent the selection.
 	 */
 	const dateFilterSurface = useSectionDateFilter( activeSectionRecord, dateFilters );
 
@@ -145,12 +136,8 @@ function Dashboard(): JSX.Element {
 		activeSectionRecord?.date_filter_options?.with_header_date_control ?? true;
 
 	/*
-	 * The subtitle states what the widgets are currently showing, so it follows
-	 * the applied range and comparison rather than the picker's staged draft:
-	 * it must not move while an edit is open, only once Apply commits it.
-	 *
-	 * A header without the comparison control must not announce one, and a
-	 * header that does not own the date control must not announce the range.
+	 * The subtitle follows the applied range, not the picker's staged draft, since it
+	 * states what the widgets show; a header missing a control must not announce it.
 	 */
 	const comparisonPresetId = showComparison ? dateFilters.appliedComparisonPresetId : undefined;
 	const comparisonRange = showComparison ? dateFilters.appliedComparisonRange : undefined;
@@ -165,8 +152,7 @@ function Dashboard(): JSX.Element {
 			comparisonPresetId,
 			comparisonRange,
 			// The interval control renders as a glyph, so the subtitle is where
-			// the active bucket is readable. Both surfaces that render a header
-			// control carry it.
+			// the active bucket is readable.
 			interval: dateFilters.appliedInterval,
 		} );
 	}, [
@@ -179,9 +165,8 @@ function Dashboard(): JSX.Element {
 	] );
 
 	/*
-	 * The year surface applies on click — it has no Apply step of its own — so
-	 * stage and commit together, the way the quick presets do inside
-	 * `DateRangeFilter`.
+	 * The year surface applies on click — no Apply step of its own — so stage and
+	 * commit together, the way the quick presets do inside `DateRangeFilter`.
 	 */
 	const { onChange: onDateChange, onApply: onDateApply } = dateFilters;
 	const selectYear = useCallback(
@@ -192,13 +177,10 @@ function Dashboard(): JSX.Element {
 		[ onDateChange, onDateApply ]
 	);
 
-	// Container element for the date filters panel responsive layout.
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
-	// The sections carry each section's default layout, so until the entity
-	// resolves the layout above is transiently empty. WidgetDashboard treats an
-	// empty layout as "no widgets" and force-opens edit mode, so it must not
-	// mount before the sections exist.
+	// WidgetDashboard treats a transiently-empty layout as "no widgets" and
+	// force-opens edit mode, so it must not mount before the sections resolve.
 	if ( ! hasResolvedSections ) {
 		return (
 			<Stack justify="center" align="center" className={ styles.loading }>
@@ -208,10 +190,8 @@ function Dashboard(): JSX.Element {
 	}
 
 	/*
-	 * The date controls belong to the active section: the tab panels unmount
-	 * when they lose focus, so only the active section's header is ever rendered
-	 * and one set of controls is enough. A section that opts out of the header
-	 * control renders none at all — its widgets host their own.
+	 * Tab panels unmount when unfocused, so only the active section's header renders
+	 * and one set of controls suffices; an opted-out section renders none at all.
 	 */
 	let dateControls: JSX.Element | null = null;
 
@@ -219,18 +199,13 @@ function Dashboard(): JSX.Element {
 		dateControls =
 			dateFilterSurface === DATE_FILTER_YEAR ? (
 				/*
-				 * The year surface carries the interval control but no comparison.
-				 * Composed here rather than inside `DateYearFilter`, which stays the
-				 * preset surface alone.
+				 * The interval control is composed here rather than inside
+				 * `DateYearFilter`, which stays the preset surface alone.
 				 */
 				<Stack direction="row" align="center" gap="sm">
 					{ /*
-					 * `startYear` is left out on purpose: nothing in this package knows how
-					 * far back the site's data goes yet (`getStoreInfo()` is still a stub),
-					 * so the surface falls back to `DEFAULT_YEAR_SURFACE_COUNT` — six years,
-					 * which is the window the design shows. Pass the site's oldest year of
-					 * content here once a source for it exists, so a younger site stops
-					 * offering years it has nothing to show for.
+					 * `startYear` is omitted: `getStoreInfo()` is still a stub, so nothing here
+					 * knows how far back data goes; the surface falls back to `DEFAULT_YEAR_SURFACE_COUNT`.
 					 */ }
 					<DateYearFilter
 						value={ dateFilters.appliedPresetId }
@@ -247,9 +222,8 @@ function Dashboard(): JSX.Element {
 				</Stack>
 			) : (
 				/*
-				 * The dashboard's widgets are charts bucketed by the interval. The
-				 * report pages mount this same panel over records tables, which are
-				 * not, so the control is asked for rather than implied by the props.
+				 * Report pages mount this same panel over records tables, which have no
+				 * interval, so the control is asked for rather than implied.
 				 */
 				<DateFiltersPanel { ...dateFilters } withIntervalControl />
 			);
@@ -258,11 +232,8 @@ function Dashboard(): JSX.Element {
 	return (
 		<GlobalErrorProvider>
 			{ /*
-			 * The same answer the header uses to decide whether to render the
-			 * comparison control, declared once for the widgets below: hiding
-			 * the control does not strip the params, and a widget reading them
-			 * straight off the URL would show a comparison this section's
-			 * reader has no way to see or switch off.
+			 * Declared once for widgets below: hiding the control doesn't strip the params,
+			 * so a widget reading them off the URL could show a comparison the reader can't see.
 			 */ }
 			<ReportScopeProvider offersComparison={ showComparison }>
 				<WidgetDashboard

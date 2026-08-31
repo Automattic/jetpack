@@ -37,11 +37,8 @@ type PostTrafficActivityRenderAttributes = PostTrafficActivityAttributes &
 type PostTrafficActivityWidgetProps = WidgetRenderProps< PostTrafficActivityRenderAttributes >;
 
 /**
- * Sizing the page to the card: one page shows as many whole week columns as
- * fit at the design's cell width. The cell is the design's 64px; the gap and
- * the month-label header height come from the shared layout helper, so the
- * grid metrics are stated once. The weekday-label gutter is the chart's own,
- * so `fitWeekColumns` owns it.
+ * One page shows as many whole week columns as fit at the design's cell width.
+ * Gap and header height come from the shared layout helper, not restated here.
  */
 const CELL_WIDTH = 64;
 const MIN_PAGE_WEEKS = 4;
@@ -70,10 +67,9 @@ const MIN_CELL_HEIGHT = 8;
 const GRID_VERTICAL_OVERHEAD = CALENDAR_HEATMAP_HEADER_HEIGHT + 7 * CALENDAR_HEATMAP_CELL_GAP;
 
 /**
- * Cell height that keeps the whole grid — month-label header row included —
- * inside the measured chart area, capped at the design's 42px. A fixed cap
- * alone overflows short tiles, and the content's centering then pushes the
- * month labels above the scroll origin where they clip.
+ * Cell height that keeps the whole grid inside the measured chart area. A fixed
+ * cap alone overflows short tiles, and centering then pushes the month labels
+ * above the scroll origin where they clip.
  */
 function cellHeightForArea( height: number ): number {
 	if ( ! height ) {
@@ -87,11 +83,8 @@ function cellHeightForArea( height: number ): number {
 }
 
 /**
- * Renders one page of the post's daily views as a calendar heatmap. Ranges
- * longer than one page grow floating pager arrows over the chart's edges,
- * stepping through the range; without a post scope (e.g. the widget added
- * outside a post detail page) the query never enables and the empty state
- * shows.
+ * Renders one page of the post's daily views as a calendar heatmap. Without a
+ * post scope the query never enables and the empty state shows.
  */
 function PostTrafficActivityInner() {
 	const { reportParams } = useWidgetRootContext();
@@ -122,9 +115,8 @@ function PostTrafficActivityInner() {
 		refetch,
 	} = usePostTrafficActivity( postId, reportParams, weeksForWidth( width ) * 7 );
 
-	// The height the tile offers the grid. Only the cell height reads it — the
-	// page span stays width-derived, so paging cannot feed back into the
-	// measurement and oscillate.
+	// Only the cell height reads this; the page span stays width-derived, so
+	// paging cannot feed back into the measurement and oscillate.
 	const [ chartAreaRef, chartAreaSize ] = useElementSize< HTMLDivElement >();
 	const maxCellHeight = cellHeightForArea( chartAreaSize.height );
 
@@ -136,11 +128,8 @@ function PostTrafficActivityInner() {
 	const from = toDay( reportParams.from );
 	const to = toDay( reportParams.to );
 
-	// Blank cells split by what the blank means: a day inside the range really had
-	// no views, while the filler days padding the grid before the range start were
-	// masked rather than measured, so "No views" there could be false. Cells map
-	// back to `days` by grid position — the page start is week-aligned, so
-	// `column * 7 + row` indexes the flat series.
+	// Filler days before the range start are masked, not measured — "No views"
+	// would be false there; the week-aligned start makes `column * 7 + row` the flat index.
 	const renderCellTooltip = useCallback(
 		( { value, cellLabel, row, column }: HeatmapTooltipData ) => {
 			const day = days[ column * 7 + row ];
@@ -191,14 +180,11 @@ function PostTrafficActivityInner() {
 					renderLoading={ <HeatmapSkeleton /> }
 				>
 					<div className={ styles.content }>
-						{ /* The unresponsive chart export: the capped grid is
-						     content-sized and the page span is derived from the widget's
-						     own measurement, so the responsive wrapper's full-height
-						     measuring container would only break the centered grid. */ }
+						{ /* The unresponsive export: the grid is content-sized already, so
+						     the responsive wrapper would only break the centered grid. */ }
 						<div ref={ chartAreaRef } className={ styles.chartArea }>
-							{ /* The arrows float over the grid's edges on hover; they only
-							     exist when the range exceeds one page (and only in the ready
-							     state, where the grid they step is visible). */ }
+							{ /* Arrows only exist when the range exceeds one page, and only in
+							     the ready state where the grid they step is visible. */ }
 							<CalendarHeatmapPagerOverlay
 								pager={ isPaged ? { canShowOlder, canShowNewer, showOlder, showNewer } : undefined }
 								className={ styles.chartHost }
@@ -208,11 +194,8 @@ function PostTrafficActivityInner() {
 									rowLabels={ rowLabels }
 									primaryColor="var(--wp-admin-theme-color, #3858e9)"
 									withTooltips
-									// Cap cells at the design's 64px width; the page span is
-									// already sized to the card, so tracks never need to
-									// shrink below it. The height cap follows the measured
-									// area so short tiles get flatter cells, not a clipped
-									// month-label row.
+									// The page span is already sized to the card, so width tracks
+									// never need to shrink below the design's 64px.
 									maxCellWidth={ 64 }
 									maxCellHeight={ maxCellHeight }
 									renderTooltip={ renderCellTooltip }

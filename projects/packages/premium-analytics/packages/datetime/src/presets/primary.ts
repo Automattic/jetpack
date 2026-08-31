@@ -103,18 +103,12 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 		getShortLabel: () =>
 			/* translators: abbreviation for "Last 24 hours". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
 			_x( '24H', 'short date range preset', 'jetpack-premium-analytics-pkg' ),
-		// Snapped to the hour rather than taken from the raw instant. The range
-		// ends up in `start_date`/`end_date`, which are sent verbatim and form
-		// part of the request's React Query key: off a raw `now` every widget
-		// (and every remount) resolves a different millisecond, so identical
-		// requests never dedupe and never hit the cache. The hour is the natural
-		// granularity — this is the only preset that buckets hourly — and the
-		// open-ended `endOfHour` keeps the in-progress hour visible, matching how
-		// `today` runs to `endOfToday`.
+		// Snapped to the hour rather than the raw instant: the range is sent
+		// verbatim and forms part of the request's React Query key, so off a raw
+		// `now` identical requests never dedupe or hit the cache.
 		//
 		// `subHours` counts elapsed time, so the window spans 24 real hours even
-		// across a DST transition, where the local clock reads 23 or 25 hour
-		// labels over the same span.
+		// across a DST transition.
 		getRange: ( { now } ) => ( {
 			from: subHours( startOfHour( now ), 23 ),
 			to: endOfHour( now ),
@@ -468,15 +462,13 @@ export function getYearSurfacePresets(
 }
 
 /**
- * Compute the absolute date range (as Date objects) for a given
- * preset ID in the specified timezone.
+ * Compute the absolute date range for a preset ID in the given timezone.
  *
  * @param presetId - A valid computable preset identifier.
  * @param timeZone - IANA timezone string.
  * @param options  - All-time options; only read for the all-time preset,
  *                 whose start is a property of the surface, not of the ID.
- * @return The computed { from, to } Date range, or undefined
- *         if the preset is not recognized.
+ * @return The computed range, or undefined if the preset is not recognized.
  */
 export function computePrimaryRange(
 	presetId: ComputablePresetId,

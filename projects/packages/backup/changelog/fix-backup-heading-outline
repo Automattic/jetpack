@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Backup: fix the modernized dashboard's heading outline, which jumped from the page title straight to level 3 and skipped a level on every screen. No-op when the modernization filter is off.
+
+
