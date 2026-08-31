@@ -32,13 +32,10 @@ type DownloadSearch = Record< string, unknown > & { files?: string };
  * `/jetpack/v4/backups/download/$rewindId` bridge; the success branch
  * surfaces the signed download URL as a link.
  *
- * The screen has two modes, decided by whether the reader arrived with a
- * file selection. Without one it asks which of the six categories to
- * include, as it always has. With one it asks nothing and starts
- * building the archive, because upstream models `paths` as one *of* those
- * six categories rather than a filter across them — a request naming
- * files cannot also name categories, so the checklist would be offering
- * choices the request has no way to express.
+ * Two modes, decided by whether the reader arrived with a file selection. With
+ * one, the category checklist is skipped: upstream models `paths` as one *of*
+ * the six categories rather than a filter across them, so a request naming files
+ * cannot also name categories.
  *
  * @return The rendered Download screen.
  */
@@ -56,21 +53,14 @@ export default function DownloadScreen() {
 	// nothing — see `hasSelectedItems`.
 	const hasSelection = hasSelectedItems( items );
 
-	// Kept as the one string it arrived as. That string is already the
-	// exact `include_path_list` value JETPACK-2321 has to forward, and
-	// splitting it here would be both something 2321 must undo and wrong
-	// besides: a single `ls` entry id can contain a comma, so the pieces
-	// between commas are not entries. Only whether it names anything is
-	// read today, which needs no split.
+	// Kept as one string: it is already the `include_path_list` value
+	// JETPACK-2321 forwards, and a single `ls` entry id can contain a comma, so
+	// the pieces between commas are not entries.
 	const files = typeof search.files === 'string' ? search.files : '';
 	const hasFileSelection = files.replace( /,/g, '' ) !== '';
 
-	// A `useRef` rather than the module latch the Overview screen uses for
-	// its page view: there, a second *mount* means the same visit and must
-	// not be recorded twice; here, a second mount means the reader
-	// navigated to Download again and does want a second archive. The ref
-	// exists only to keep StrictMode's double-invoked effect from asking
-	// for two.
+	// A ref, not Overview's module latch: a second mount here means the reader
+	// came back for a second archive. This only stops StrictMode asking twice.
 	const hasAutoStarted = useRef( false );
 	useEffect( () => {
 		if ( ! hasFileSelection || hasAutoStarted.current || ! isValidRewindId( rewindId ) ) {
@@ -185,22 +175,10 @@ export default function DownloadScreen() {
 						</>
 					) }
 					{ /*
-					 * One block for the whole wait, so the heading does not
-					 * unmount and remount underneath the reader when the POST
-					 * resolves. A reader who arrived with files ticked enters it
-					 * immediately — the effect above has already asked for the
-					 * archive, and there is no checklist to show them.
-					 *
-					 * The spinner covers only the window before there is a
-					 * download id to poll; `useDownload` enters `progress` the
-					 * moment the POST resolves, so the bar below takes over from
-					 * there and does sit at 0% while WPCOM has the job queued.
-					 *
-					 * The spinner is left unnamed on purpose. `@wordpress/components`
-					 * ships it as `role="presentation"`, the text above is its
-					 * label, and giving it an `aria-label` would both defeat that
-					 * role — a global ARIA attribute cancels `presentation` — and
-					 * announce the same sentence twice.
+					 * One block for the whole wait, so the heading does not remount when
+					 * the POST resolves. The spinner covers only the window before there
+					 * is a download id to poll, and is left unnamed: it ships as
+					 * `role="presentation"`, which an `aria-label` would cancel.
 					 */ }
 					{ isPreparing && (
 						<Stack direction="column" gap="sm">

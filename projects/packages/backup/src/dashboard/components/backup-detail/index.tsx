@@ -53,23 +53,11 @@ function downloadLabel( count: number ): string {
  */
 export default function BackupDetail( { item }: Props ) {
 	const [ selection, setSelection ] = useState< FileSelection >( EMPTY_FILE_SELECTION );
-	// The ids drive the Download action only — Restore beside it is
-	// deliberately untouched by the selection, see its call site.
-	//
-	// One id per opaque server-side download unit the current selection
-	// covers: files, plus folders whose contents haven't been loaded yet
-	// (each of those is one unit standing for its whole subtree). Loaded
-	// folders contribute via their leaves, not themselves; indeterminate
-	// folders contribute only the selected descendants beneath them.
-	// FileBrowser owns the loaded children, so it reports the list here.
-	//
-	// The label and the link are both built from this one list, and that
-	// is deliberate rather than incidental. The tree can hold a selected
-	// entry upstream gave no `id`, which no request can name — counting
-	// the tree instead would label the action "Download 1 selected item"
-	// beside a link carrying nothing, and hand the reader a whole-site
-	// archive they were told was scoped. That is the wrong-promise
-	// failure JETPACK-2305 removes from Restore; it must not appear here.
+	// Download only; Restore beside it is deliberately untouched by the selection.
+	// One id per server-side download unit: files, plus unloaded folders standing
+	// for their subtrees. Label and link are both built from this one list — the
+	// tree can hold a selected entry upstream gave no `id`, so counting the tree
+	// would promise a scoped download over a link carrying nothing.
 	const [ selectedIds, setSelectedIds ] = useState< string[] >( [] );
 
 	// FileBrowser rebuilds the array on every recompute, so a plain

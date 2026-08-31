@@ -1,22 +1,9 @@
-// The file browser's selection has to survive the trip to the Download
-// screen, and the Download screen has to act on it.
-//
-// Both halves are one behaviour. The detail pane relabels its Download
-// action from the selection — "Download 3 selected items" — but until now
-// the link carried only the rewind id, so the selection was dropped on
-// navigation and the screen seeded the whole-site checklist regardless.
-//
-// What travels is not the display path. It is the opaque `id` off each
-// `/rewind/backup/ls` entry (base64 of a volume-prefixed manifest path),
-// comma-joined, because that is the form upstream's `include_path_list`
-// takes — and it has to be a string, since a single id can itself contain
-// a comma.
-//
-// The screen behaviour follows from the upstream shape: granular download
-// is `types: { paths: true }`, one *of* the six categories rather than a
-// filter across them. A request naming files cannot also name categories,
-// so with a selection the checklist is not merely redundant — it offers
-// choices the request cannot express, and is skipped.
+// The file browser's selection has to survive the trip to the Download screen,
+// and the screen has to act on it. What travels is the opaque per-entry `id`
+// from `/rewind/backup/ls`, comma-joined as one string, since an id can itself
+// contain a comma. The checklist is skipped when files are named because
+// upstream models `paths` as one *of* the six categories, not a filter across
+// them — so a request naming files cannot also name categories.
 
 const mockApiFetch = jest.fn();
 const mockSearch = jest.fn< Record< string, unknown >, [] >();
@@ -32,17 +19,10 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => mockSearch(),
 	useNavigate: () => mockNavigate,
 	useParams: () => mockParams(),
-	// Models `search`, which the real Link renders into the href rather
-	// than onto the DOM node — and the href is what these tests are about.
-	//
-	// The suites still using a bare `<a { ...rest }>` mock get away with it
-	// only because their `ls` fixtures carry no `id`, so `search` stays
-	// undefined and React drops it. Give one of those fixtures an id and
-	// the object reaches a DOM node, and `@wordpress/jest-console` fails
-	// the suite on React's unknown-prop warning —
-	// `restore-label-scope.test.tsx` and
-	// `switching-backups-resets-detail.test.tsx` needed ids, so they carry
-	// this same mock now.
+	// Models `search`, which the real Link renders into the href rather than onto
+	// the DOM node. A bare `<a { ...rest }>` mock only survives while the `ls`
+	// fixtures carry no `id`; give one an id and the object reaches a DOM node
+	// and `@wordpress/jest-console` fails the suite on React's unknown-prop warning.
 	Link: ( {
 		children,
 		to,
@@ -264,12 +244,9 @@ describe( 'Download link carrying the file selection', () => {
 		);
 	} );
 
-	// The label and the link are built from the same list on purpose. An
-	// entry upstream gave no `id` can be ticked in the tree and cannot be
-	// named in a request — so counting ticked rows instead would promise
-	// "Download 1 selected item" over a link carrying nothing, and hand
-	// back a whole-site archive. That is the wrong-promise failure
-	// JETPACK-2305 removes from Restore.
+	// Label and link come from the same list: an entry upstream gave no `id` is
+	// tickable but unnameable, so counting ticked rows would promise a scoped
+	// download over a link carrying nothing (the JETPACK-2305 failure).
 	it( 'does not promise a scope for entries the link cannot carry', async () => {
 		lsContents = {
 			// No `id`, as upstream is free to return.
@@ -382,17 +359,9 @@ describe( 'Download screen with a file selection', () => {
 		expect( posts[ 0 ]?.path ).toContain( '/backups/download/1786644531.123' );
 	} );
 
-	// The wait has two frames, and the handover is the whole of it: a
-	// spinner only until there is a download id to poll, then the bar.
-	//
-	// StrictMode is load-bearing, not decoration. The archive is asked for
-	// from a mount effect, and React Query detaches the mutation observer
-	// on StrictMode's simulated unmount without ever reattaching it — so
-	// the settle never reaches the hook and `isPending` stays true for
-	// good, while the mutation's own `onSuccess` still lands the id and
-	// starts the poll. That is the shape this screen shipped in: a healthy
-	// poll climbing behind a spinner that never became a bar. Drop the
-	// wrapper and this test passes either way.
+	// StrictMode is load-bearing: its simulated unmount detaches React Query's
+	// mutation observer and never reattaches it, latching `isPending` true while
+	// `onSuccess` still lands the id. Drop the wrapper and this passes either way.
 	it( 'hands the wait over to the progress bar once the poll answers', async () => {
 		render(
 			<StrictMode>
@@ -414,13 +383,8 @@ describe( 'Download screen with a file selection', () => {
 		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
 	} );
 
-	// The same latch that hid the bar also hid the ending. `isPending` was
-	// read above every other branch, so a frozen one shadowed `success`
-	// and `failed` too: the archive could finish, signed URL and all, and
-	// the screen would still be sitting on the spinner with nothing to
-	// click. Reported as "upon finishing, the spinner remains there and
-	// nothing happened" — the same defect as the missing bar, one branch
-	// further on.
+	// The same latch hid the ending: `isPending` was read above every other
+	// branch, so a frozen one shadowed `success` and `failed` too.
 	it( 'shows the finished archive rather than staying on the spinner', async () => {
 		render(
 			<StrictMode>

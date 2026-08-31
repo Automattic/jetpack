@@ -411,12 +411,9 @@ export default function FileBrowser( {
 		() => collectSelectedInLoadedTree( roots, selection, loadedChildren ),
 		[ roots, selection, loadedChildren ]
 	);
-	// The header below counts the tree, so it counts every selected leaf.
-	// The ids reported upward are what a *request* can name, which is not
-	// always the same list — an entry upstream gave no `id` is genuinely
-	// selected here and genuinely unnameable there. The caller labels its
-	// Download action from the ids for exactly that reason; see
-	// `backup-detail`.
+	// The header counts every selected leaf; the ids reported upward are only what
+	// a request can name. An entry upstream gave no `id` is in the first list and
+	// not the second, which is why the caller labels from the ids.
 	const selectedCount = selectedLeaves.length;
 	const selectedIds = useMemo(
 		() =>

@@ -71,12 +71,9 @@ export function useDownload( rewindId: string ): Result {
 		resetMutation();
 	}, [ resetMutation ] );
 
-	// `downloadId` is read before `isInitiating` deliberately. A mutation
-	// started from a mount effect can leave `isPending` latched true for
-	// good: StrictMode's remount detaches the observer from the in-flight
-	// mutation and never reattaches it, so the settle never reaches this
-	// hook — while the mutation's own `onSuccess` still lands the id. The
-	// id is the honest signal that the POST is done; `isPending` is not.
+	// `downloadId` is read before `isInitiating`: StrictMode's remount detaches
+	// the observer from the in-flight mutation and never reattaches it, so
+	// `isPending` latches true while `onSuccess` still lands the id.
 	let state: DownloadState = { phase: 'idle' };
 	if ( errorMessage ) {
 		state = { phase: 'error', message: errorMessage };
