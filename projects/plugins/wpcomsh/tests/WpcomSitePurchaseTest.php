@@ -5,7 +5,8 @@
  * Covers the half of WPCOM_Site_Purchase that actually executes on an Atomic site: the purchases
  * synced into Atomic Persistent Data, read back through wpcom_get_site_purchases(). The Simple-site
  * half, and the billing lookup behind the accessors, are covered on the WordPress.com side, where
- * the billing code-base exists to be asked.
+ * the billing code-base exists to be asked -- except for how a store row is read, which is the
+ * same code wherever it runs and is exercised directly here.
  *
  * @package wpcomsh
  */
@@ -99,5 +100,43 @@ class WpcomSitePurchaseTest extends WP_UnitTestCase {
 		$this->assertCount( 2, $purchases );
 		$this->assertSame( '', $purchases[0]->product_slug );
 		$this->assertSame( 'business-bundle', $purchases[1]->product_slug );
+	}
+
+	/**
+	 * The Simple-site rows are served from an object cache shared across requests, which has been
+	 * seen to hand back arrays rather than the rows the store query returned. An array still
+	 * carries the whole row, so it must produce the same purchase.
+	 */
+	public function test_a_store_row_is_read_in_either_shape() {
+		$row = array(
+			'product_slug'           => 'business-bundle',
+			'product_id'             => '1008',
+			'billing_product_slug'   => 'wp-bundle-business',
+			'product_type'           => 'bundle',
+			'subscribed_date'        => '2026-04-12T18:55:02+00:00',
+			'expiry_date'            => '2027-04-12T00:00:00+00:00',
+			'subscription_id'        => '42',
+			'user_allows_auto_renew' => true,
+		);
+
+		$from_array = WPCOM_Site_Purchase::from_store_row( $row, 1 );
+
+		$this->assertEquals( WPCOM_Site_Purchase::from_store_row( (object) $row, 1 ), $from_array );
+		$this->assertSame( 'business-bundle', $from_array->product_slug );
+		$this->assertSame( '42', $from_array->subscription_id );
+		$this->assertTrue( $from_array->auto_renew );
+	}
+
+	/**
+	 * Feature checks read the rows on nearly every request, so a row of the wrong shape must
+	 * degrade rather than take the site down: missing and malformed fields fall back to their
+	 * defaults.
+	 */
+	public function test_a_malformed_store_row_does_not_fatal() {
+		$purchase = WPCOM_Site_Purchase::from_store_row( array( 'product_slug' => array( 'not-a-string' ) ), 1 );
+
+		$this->assertSame( '', $purchase->product_slug );
+		$this->assertSame( '', $purchase->expiry_date );
+		$this->assertFalse( $purchase->auto_renew );
 	}
 }
