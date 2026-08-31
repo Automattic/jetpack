@@ -139,6 +139,6 @@ export function usePostSummary( postId: number ): PostSummary {
 		// post types core data cannot resolve.
 		url: url ?? carriedUrl,
 		isLoading,
-		isError: isError === true,
+		isError,
 	};
 }
