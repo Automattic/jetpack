@@ -131,7 +131,8 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 		text-align: center;
 	}
 
-	/* One row, so the shared edge is the tile to the left. */
+	/* One row, so the shared edge moves to the tile's leading side. The
+	 * block-start reset is undone again by the two-column query below. */
 	.tile + .tile {
 		border-block-start: 0;
 		border-inline-start: $metric-tile-grid-divider;
@@ -186,9 +187,22 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 		padding-inline: var(--wpds-dimension-padding-lg);
 	}
 
+	/* An odd count leaves the last row half empty. A box needed no neighbour to
+	 * look finished, but a rule does: the row's divider would stop dead at the
+	 * midpoint. Give the trailing tile the whole row instead, which also spares
+	 * a lone tile from rendering at half the width it has. */
+	.tile:last-child:nth-child(odd) {
+		grid-column: 1 / -1;
+	}
+
 	/* Two columns: a tile's neighbour in document order is no longer the one it
 	 * shares an edge with, so position decides. Every second tile starts a
-	 * column edge, everything past the first row starts a row edge. */
+	 * column edge, everything past the first row starts a row edge.
+	 *
+	 * Order-dependent: `.tile + .tile` and `.tile:nth-child(n + 3)` have equal
+	 * specificity, so the row rules below win over the wide block's
+	 * `border-block-start: 0` only because this query comes later in the file.
+	 * Moving the two @container blocks past each other drops every row rule. */
 	.tile + .tile {
 		border-inline-start: 0;
 	}
