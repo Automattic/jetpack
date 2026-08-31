@@ -3611,9 +3611,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param string|bool $value Value to check.
+	 * @param mixed $value Value to check.
 	 *
-	 * @return bool|array
+	 * @return mixed The value as submitted, or an array holding only 'administrator' when it is empty.
 	 */
 	public static function sanitize_stats_allowed_roles( $value ) {
 		if ( empty( $value ) ) {
