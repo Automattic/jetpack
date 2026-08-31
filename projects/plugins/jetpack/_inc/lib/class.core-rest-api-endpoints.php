@@ -3203,18 +3203,35 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param string|bool     $value Value to check.
+	 * @param mixed           $value Value to check.
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 * @param string          $param Name of the parameter passed to endpoint holding $value.
 	 *
 	 * @return bool|WP_Error
 	 */
 	public static function validate_stats_roles( $value, $request, $param ) {
+		// An empty value clears the setting; sanitize_stats_allowed_roles() falls back to 'administrator'.
+		if ( empty( $value ) ) {
+			return true;
+		}
+
+		// Enforce the schema's list-of-strings contract before array_intersect() below sees the value.
+		if ( ! is_array( $value ) || count( array_filter( $value, 'is_string' ) ) !== count( $value ) ) {
+			return new WP_Error(
+				'invalid_param',
+				sprintf(
+					/* Translators: Placeholder is a parameter name. */
+					esc_html__( '%s must be an array of user roles.', 'jetpack' ),
+					$param
+				)
+			);
+		}
+
 		if ( ! function_exists( 'get_editable_roles' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/user.php';
 		}
 		$editable_roles = array_keys( get_editable_roles() );
-		if ( ! empty( $value ) && ! array_intersect( $editable_roles, $value ) ) {
+		if ( ! array_intersect( $editable_roles, $value ) ) {
 			return new WP_Error(
 				'invalid_param',
 				sprintf(
