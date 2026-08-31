@@ -220,6 +220,10 @@ class File_Browser_Bridge {
 	 * WPCOM's signed-URL stream endpoint doesn't send CORS headers, so
 	 * the browser can't fetch it directly.
 	 *
+	 * Answers `content`, `is_text` and `truncated`. `content` is null
+	 * unless `is_text`, and `truncated` says the cap cut the body short —
+	 * neither condition is a failure, so both come back with a 200.
+	 *
 	 * VaultPress stores file content per the file's own snapshot
 	 * `period` — the timestamp when the file last changed — not by the
 	 * parent backup's rewindId. Files don't get re-snapshotted every
@@ -353,7 +357,68 @@ class File_Browser_Bridge {
 			);
 		}
 
-		return rest_ensure_response( array( 'content' => wp_remote_retrieve_body( $stream_response ) ) );
+		$body = wp_remote_retrieve_body( $stream_response );
+
+		// A body at the cap is reported truncated even in the rare case where
+		// the file ends exactly there — the transport cannot tell the two apart.
+		$truncated = strlen( $body ) >= self::PREVIEW_MAX_BYTES;
+		if ( $truncated ) {
+			$body = self::drop_partial_trailing_character( $body );
+		}
+
+		// Bytes that are not text must never go out as `content`: the REST
+		// server's `wp_json_encode()` sanity fallback re-encodes invalid UTF-8
+		// into `?`, so a 200 would hand the reader a corrupted file as if it
+		// were the real one.
+		$is_text = self::is_text( $body );
+
+		return rest_ensure_response(
+			array(
+				'content'   => $is_text ? $body : null,
+				'is_text'   => $is_text,
+				'truncated' => $truncated,
+			)
+		);
+	}
+
+	/**
+	 * Whether a fetched body can be shown in a text preview.
+	 *
+	 * A NUL byte is valid UTF-8 but does not occur in text, so rejecting it
+	 * also catches UTF-16 and the binaries that happen to decode cleanly.
+	 *
+	 * @param string $body The fetched body.
+	 * @return bool
+	 */
+	private static function is_text( $body ) {
+		if ( false !== strpos( $body, "\0" ) ) {
+			return false;
+		}
+		// mbstring is not guaranteed on every host, and a `//u` pattern fails
+		// to match on invalid UTF-8, which is the same verdict.
+		return function_exists( 'mb_check_encoding' )
+			? mb_check_encoding( $body, 'UTF-8' )
+			: 1 === preg_match( '//u', $body );
+	}
+
+	/**
+	 * Drop a character the byte cap cut in half.
+	 *
+	 * The transport counts bytes, so the cut can land inside a multi-byte
+	 * sequence and leave a text file looking like binary. A UTF-8 character
+	 * is at most four bytes, so at most three can be left over.
+	 *
+	 * @param string $body The capped body.
+	 * @return string
+	 */
+	private static function drop_partial_trailing_character( $body ) {
+		for ( $dropped = 0; $dropped < 3 && '' !== $body; $dropped++ ) {
+			if ( self::is_text( $body ) ) {
+				break;
+			}
+			$body = substr( $body, 0, -1 );
+		}
+		return $body;
 	}
 
 	/**
