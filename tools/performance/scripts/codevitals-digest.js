@@ -196,7 +196,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	const TOKEN = /^\*+$/.test( rawToken ) ? '' : rawToken;
 	const CHANNEL = ( env.SLACK_CHANNEL_ID || '' ).trim();
 	const DRY_RUN = /^(1|true|yes)$/i.test( ( env.DRY_RUN || '' ).trim() ); // trimmed: a pasted "true " must still never post live
-	const MAX_LINES = 40; // Slack rejects >50 blocks/message; 40 lines + up to 10 wrapper/warning blocks = 50 exactly (audited — do not add a block without re-counting)
+	const MAX_LINES = 39; // Slack rejects >50 blocks/message; 39 lines + up to 11 wrapper/warning blocks (header, dashboard link, 4 warnings, regression header, overflow, late, pending, suppressed) = 50 exactly. The 'worst week' test pins all 11 — do not add a block without re-counting.
 	// LIMIT is a newest-N slice. Numeric limits NEVER set meta.isDownsampled (the server computes
 	// it from the slice length, so it is structurally false here) and silently drop the OLDEST
 	// points, the window edge. 1000 is ~5x the observed 15-day volume; the coverage assertion
@@ -213,8 +213,10 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	const detectMs = 2 * windowMs;
 	const SKEW_MS = 864e5; // clock-skew allowance; a further-future measuredAt is malformed data, and one such point would pin the staleness clock into the future
 	const commitLink = h => `<https://github.com/${ repoPath }/commit/${ h }|${ h.slice( 0, 8 ) }>`;
-	const chartUrl = k =>
-		`${ CHART_BASE }/public/${ repoPath }/metrics?metric=${ encodeURIComponent( k ) }`;
+	// The repo's public metrics page — the anonymous CodeVitals route (`/repos/:owner/:repo` is
+	// the authenticated one, useless in a channel link).
+	const dashboardUrl = `${ CHART_BASE }/public/${ repoPath }/metrics`;
+	const chartUrl = k => `${ dashboardUrl }?metric=${ encodeURIComponent( k ) }`;
 	const get = url => fetch( url, { redirect: 'error', signal: AbortSignal.timeout( 30000 ) } ); // a hung API must fail the build, not park the agent — and a redirect off the validated origin (e.g. an https→http downgrade) must fail loud, never be followed silently
 	// undici buries the useful failure reason in error.cause ("unexpected redirect" from a
 	// misconfigured origin: www.codevitals.run 301s the API). Without it every network failure
@@ -821,6 +823,15 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		{
 			type: 'header',
 			text: { type: 'plain_text', text: `📊 ${ repoTitle } CodeVitals — weekly digest` },
+		},
+		// A header block is plain_text only, so the title itself cannot carry the link. This
+		// context line does instead, and it is the ONLY link a clean week's digest has: with no
+		// regressions there are no commit or chart links to follow.
+		{
+			type: 'context',
+			elements: [
+				mrkdwn( `📈 <${ dashboardUrl }|Open the ${ esc( repoTitle ) } CodeVitals dashboard>` ),
+			],
 		},
 	];
 
