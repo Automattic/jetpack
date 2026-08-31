@@ -96,9 +96,34 @@ The `$$next-version$$` placeholder is automatically replaced with the correct ve
 
 One sentence, at most two lines — the summary rule the WordPress documentation standards
 already impose on our PHP, applied to JavaScript too. Anything past it must carry a why, a
-gotcha, or provenance. Omit what the signature already says, and prefer a clearer name over a
-comment explaining a bad one. If reading the comment costs as much as reading the code, delete
-it. Never invent rationale: a comment that contradicts the code is worse than no comment.
+gotcha, or a durable pointer (an issue or upstream bug link), **and must fit in two more
+lines**. The budget is per comment, not per file: three separate traps in one function get three
+short comments, not one essay. "It is all rationale" does not buy more room, because the
+comments worth cutting are always all rationale. Omit what the signature already says, and
+prefer a clearer name over a comment explaining a bad one. If reading the comment costs as much
+as reading the code, delete it. Never invent rationale: a comment that contradicts the code is
+worse than no comment.
+
+The same budget applies to test files, where it is most often missed: no file-header essays, and
+no per-test narration the test name already carries.
+
+Five shapes exceed the budget however well they explain themselves:
+
+- **Design essays** — the alternative you rejected, the paragraph arguing why the code is shaped
+  this way, what a trade-off costs. That is PR-description or issue material, not code. A
+  one-line warning is a gotcha and stays: `// Do not reorder: bar() reads what foo() sets.`
+- **A mechanic explained on one member of a list** whose siblings share it. Say it once above the
+  list, or not at all.
+- **A block that would survive copy-paste verbatim into another file.** That is domain
+  background, not a comment.
+- **Provenance that rots** — upstream file-and-line citations, "before this PR…", benchmark
+  numbers, mutation-testing counts. A stable link survives; a line number does not.
+- **The same explanation in more than one place.** Put it in the file that owns the thing,
+  nowhere else. N copies drift independently, so a reader cannot tell which is current.
+
+Keep every functional annotation regardless: `@param`, `@return`, `@covers`, `translators:`,
+`phpcs:ignore`, `eslint-disable`, `@ts-expect-error`. Those are required tooling or load-bearing
+code, not prose.
 
 ## Testing
 
