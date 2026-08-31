@@ -2145,9 +2145,10 @@ test( 'the dashboard link sits under the header, clean week included', async () 
 
 // Slack rejects a >50-block message outright, so the worst week is the one that loses the whole
 // digest. MAX_LINES is hand-audited against the wrapper blocks around it; this pins that
-// arithmetic by rendering every wrapper at once. An exact count, not a ceiling: an off-by-one
-// the other way means MAX_LINES is leaving usable lines on the table.
-test( 'the worst week renders exactly 50 blocks, the Slack ceiling', async () => {
+// arithmetic by rendering every wrapper at once. Asserted as an exact count rather than a
+// ceiling, so that BOTH a new wrapper block and a raised MAX_LINES have to come back through
+// this test and re-count, not just the ones that happen to cross 50.
+test( 'the worst week stays inside the 50-block Slack ceiling', async () => {
 	const r = await runDigest( 'blockflood' );
 	assert.strictEqual( r.code, 1, r.err ); // degraded signal: read failure, dropped id, malformed, stale
 	const payload = JSON.parse( r.out.slice( r.out.indexOf( '{' ) ) );
@@ -2174,7 +2175,11 @@ test( 'the worst week renders exactly 50 blocks, the Slack ceiling', async () =>
 			`${ needle } missing from:\n${ texts.join( '\n' ) }`
 		);
 	}
-	assert.strictEqual( payload.blocks.length, 50, texts.join( '\n' ) );
+	// 35 regression lines + these 11 wrappers = 46, four blocks below Slack's hard 50. The
+	// headroom is deliberate: it is the margin a future wrapper block can be added into without
+	// the digest silently becoming unpostable in exactly the week it matters most.
+	assert.strictEqual( payload.blocks.length, 46, texts.join( '\n' ) );
+	assert.ok( payload.blocks.length <= 50, 'Slack rejects a message over 50 blocks' );
 } );
 
 // ---- direct invocation (child processes on purpose: the exit-code contract itself) ----

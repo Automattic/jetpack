@@ -196,7 +196,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	const TOKEN = /^\*+$/.test( rawToken ) ? '' : rawToken;
 	const CHANNEL = ( env.SLACK_CHANNEL_ID || '' ).trim();
 	const DRY_RUN = /^(1|true|yes)$/i.test( ( env.DRY_RUN || '' ).trim() ); // trimmed: a pasted "true " must still never post live
-	const MAX_LINES = 39; // Slack rejects >50 blocks/message; 39 lines + up to 11 wrapper/warning blocks (header, dashboard link, 4 warnings, regression header, overflow, late, pending, suppressed) = 50 exactly. The 'worst week' test pins all 11 — do not add a block without re-counting.
+	const MAX_LINES = 35; // Slack rejects >50 blocks/message; 35 lines + the 11 wrapper blocks around them = 46, leaving 4 blocks of headroom (pinned by the 'worst week' test)
 	// LIMIT is a newest-N slice. Numeric limits NEVER set meta.isDownsampled (the server computes
 	// it from the slice length, so it is structurally false here) and silently drop the OLDEST
 	// points, the window edge. 1000 is ~5x the observed 15-day volume; the coverage assertion
