@@ -74,9 +74,9 @@ class Widget_Sections_Test extends TestCase {
 			}
 		}
 
-		// Collected rather than asserted in the loop: every seeded type is
-		// unscoped today, so a per-instance assertion would run zero times and
-		// PHPUnit would rightly call the test risky.
+		// Collected rather than asserted in the loop so the shape survives either
+		// state of the scope map: a per-instance assertion runs zero times the
+		// moment nothing seeded is scoped, and PHPUnit rightly calls that risky.
 		$this->assertSame( array(), $violations );
 		$this->assertNotEmpty( $layouts, 'The default layouts are the input; an empty set would pass vacuously.' );
 	}
