@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Activity Log: Show every connection error in one notice, each with the account it affects, and link to Site Health when a firewall is blocking WordPress.com.
+Connection: Show every connection error in one notice, each with the account it affects, and link to Site Health when a firewall is blocking WordPress.com.
