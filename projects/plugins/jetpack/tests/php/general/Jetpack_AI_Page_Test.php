@@ -45,6 +45,9 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks' );
 		remove_all_filters( 'jetpack_is_connection_ready' );
 		remove_all_filters( 'jetpack_offline_mode' );
+		Jetpack_Options::delete_option( 'tos_agreed' );
+		Jetpack_Options::delete_option( 'user_tokens' );
+		wp_set_current_user( 0 );
 		remove_all_actions( 'admin_print_scripts-jetpack_page_jetpack-ai' );
 		remove_all_actions( 'admin_print_styles-jetpack_page_jetpack-ai' );
 		remove_all_actions( 'load-jetpack_page_jetpack-ai' );
@@ -509,6 +512,113 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 
 		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
 		$this->assertStringNotContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
+	}
+
+	/**
+	 * The Tracks sender is enqueued once tracking is consented to.
+	 */
+	public function test_tracks_script_is_enqueued_with_tracking_consent() {
+		delete_option( 'jetpack_offline_mode' );
+		Jetpack_Options::update_option( 'tos_agreed', true );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$this->assertTrue( wp_script_is( 'jp-tracks', 'registered' ) );
+		$this->assertTrue( wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+	}
+
+	/**
+	 * The sender stays out without tracking consent.
+	 */
+	public function test_tracks_script_stays_out_without_tracking_consent() {
+		Jetpack_Options::update_option( 'tos_agreed', false );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$this->assertFalse( wp_script_is( 'jp-tracks', 'registered' ) );
+		$this->assertFalse( wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+	}
+
+	/**
+	 * Offline mode never talks to WordPress.com, consented or not.
+	 */
+	public function test_tracks_script_is_not_enqueued_in_offline_mode() {
+		Jetpack_Options::update_option( 'tos_agreed', true );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$this->assertFalse( wp_script_is( 'jp-tracks', 'registered' ) );
+		$this->assertFalse( wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+	}
+
+	/**
+	 * The tracksUserData slot is null without a linked WordPress.com account,
+	 * even when consent lets the identity lookup actually run.
+	 */
+	public function test_tracks_user_data_is_null_without_a_linked_account() {
+		delete_option( 'jetpack_offline_mode' );
+		Jetpack_Options::update_option( 'tos_agreed', true );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertArrayHasKey( 'tracksUserData', $settings );
+		$this->assertNull( $settings['tracksUserData'] );
+	}
+
+	/**
+	 * The tracksUserData slot is null in offline mode — the lookup could call WordPress.com.
+	 */
+	public function test_tracks_user_data_is_null_in_offline_mode() {
+		Jetpack_Options::update_option( 'tos_agreed', true );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertNull( $settings['tracksUserData'] );
+	}
+
+	/**
+	 * The tracksUserData slot names the linked WordPress.com account.
+	 */
+	public function test_tracks_user_data_names_the_linked_account() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'tracks_identity_user',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		delete_option( 'jetpack_offline_mode' );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		Jetpack_Options::update_option( 'user_tokens', array( $user_id => "dummy.usertoken.$user_id" ) );
+		set_transient(
+			"jetpack_connected_user_data_$user_id",
+			array(
+				'ID'          => 777,
+				'login'       => 'wpcomuser',
+				'email'       => 'wpcomuser@example.com',
+				'user_locale' => 'en',
+			)
+		);
+
+		try {
+			$settings = $this->get_injected_settings();
+
+			$this->assertSame(
+				array(
+					'userid'   => 777,
+					'username' => 'wpcomuser',
+				),
+				$settings['tracksUserData']
+			);
+		} finally {
+			delete_transient( "jetpack_connected_user_data_$user_id" );
+		}
 	}
 
 	/**
