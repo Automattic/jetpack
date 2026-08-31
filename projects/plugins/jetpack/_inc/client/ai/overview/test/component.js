@@ -74,8 +74,9 @@ describe( 'normalizeUsage', () => {
 		expect( usage.requestsCount ).toBeNull();
 		expect( usage.requestsLimit ).toBeNull();
 		expect( usage.requestsAvailable ).toBeNull();
-		// The card falls back to the period's real usage on this tier.
+		// The card falls back to real usage on this tier.
 		expect( usage.periodRequestsCount ).toBe( 340 );
+		expect( usage.allTimeRequestsCount ).toBe( 950 );
 		// The plan name can only come from the purchase; "Unlimited" would
 		// just repeat the requests cell.
 		expect( usage.planLabel ).toBeNull();
@@ -117,6 +118,7 @@ describe( 'normalizeUsage', () => {
 			expect( usage.requestsLimit ).toBeNull();
 			expect( usage.requestsAvailable ).toBeNull();
 			expect( usage.periodRequestsCount ).toBeNull();
+			expect( usage.allTimeRequestsCount ).toBeNull();
 			expect( usage.unlimited ).toBe( false );
 			expect( usage.showUpgrade ).toBe( false );
 			expect( usage.planLabel ).toBeNull();

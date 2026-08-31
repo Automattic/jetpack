@@ -8,7 +8,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink, ProgressBar, Spinner, VisuallyHidden } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
-import { sprintf, __, _n } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import { connection, list } from '@wordpress/icons';
 import { Card, Link, LinkButton, Notice, Stack, Text } from '@wordpress/ui';
 import NavRow from '../components/nav-row';
@@ -115,22 +115,19 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 	// authoritative for the tier, so an expired purchase cannot relabel Free.
 	const planLabel = ( ! usage.isFree && planName ) || usage.planLabel;
 	const hasNumbers = usage.requestsAvailable !== null && usage.requestsLimit > 0;
-	// A fair-usage cap applies on every plan, so the card shows the
-	// period's real usage on the uncapped tier.
+	// A fair-usage cap applies on every plan, so the uncapped tier shows real
+	// usage — this period and all-time — matching the My Jetpack AI page.
 	const hasPeriodCount = usage.unlimited && usage.periodRequestsCount !== null;
 	// One translatable sentence for screen readers; the visible value/limit
 	// pair and the meter are its visual restatements.
 	const srSummary = usage.unlimited
 		? hasPeriodCount &&
+		  usage.allTimeRequestsCount !== null &&
 		  sprintf(
-				/* translators: %d: requests used in the current period. */
-				_n(
-					'%d request used this period',
-					'%d requests used this period',
-					usage.periodRequestsCount,
-					'jetpack'
-				),
-				usage.periodRequestsCount
+				/* translators: %1$d: requests used in the current period. %2$d: requests used all-time. */
+				__( 'Requests used: %1$d this period, %2$d all-time', 'jetpack' ),
+				usage.periodRequestsCount,
+				usage.allTimeRequestsCount
 		  )
 		: hasNumbers &&
 		  sprintf(
@@ -162,32 +159,75 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 				{ ! isLoading && ! error && (
 					<div className="jetpack-ai-overview__usage">
 						<div className="jetpack-ai-overview__usage-cell">
-							<Text render={ <p /> } variant="heading-sm" className="jetpack-ai-overview__eyebrow">
-								{ usage.unlimited
-									? __( 'Requests this period', 'jetpack' )
-									: __( 'Available requests', 'jetpack' ) }
-							</Text>
-							{ /* Its own paragraph, padded with spaces — clipped text glues
-						     onto the neighboring heading in some screen readers. */ }
-							{ srSummary && <VisuallyHidden as="p">{ ` ${ srSummary } ` }</VisuallyHidden> }
-							<Stack
-								direction="row"
-								justify="space-between"
-								align="baseline"
-								// With a hidden summary sentence in place, the loose value
-								// and limit nodes would only be read as fragments.
-								aria-hidden={ srSummary ? 'true' : undefined }
-							>
-								{ usage.unlimited ? (
+							{ usage.unlimited ? (
+								<>
+									{ /* Its own paragraph, padded with spaces — clipped text glues
+								     onto the neighboring heading in some screen readers. */ }
+									{ srSummary && <VisuallyHidden as="p">{ ` ${ srSummary } ` }</VisuallyHidden> }
+									<Stack
+										direction="row"
+										gap="xl"
+										className="jetpack-ai-overview__stats"
+										// With a hidden summary sentence in place, the loose
+										// stat nodes would only be read as fragments.
+										aria-hidden={ srSummary ? 'true' : undefined }
+									>
+										<div className="jetpack-ai-overview__stat">
+											<Text
+												render={ <p /> }
+												variant="heading-sm"
+												className="jetpack-ai-overview__eyebrow"
+											>
+												{ __( 'Requests this period', 'jetpack' ) }
+											</Text>
+											<Text
+												render={ <p /> }
+												variant="heading-xl"
+												className="jetpack-ai-overview__requests-value"
+											>
+												{ hasPeriodCount ? usage.periodRequestsCount : '—' }
+											</Text>
+										</div>
+										{ usage.allTimeRequestsCount !== null && (
+											<div className="jetpack-ai-overview__stat">
+												<Text
+													render={ <p /> }
+													variant="heading-sm"
+													className="jetpack-ai-overview__eyebrow"
+												>
+													{ __( 'All-time', 'jetpack' ) }
+												</Text>
+												<Text
+													render={ <p /> }
+													variant="heading-xl"
+													className="jetpack-ai-overview__requests-value"
+												>
+													{ usage.allTimeRequestsCount }
+												</Text>
+											</div>
+										) }
+									</Stack>
+								</>
+							) : (
+								<>
 									<Text
 										render={ <p /> }
-										variant="heading-xl"
-										className="jetpack-ai-overview__requests-value"
+										variant="heading-sm"
+										className="jetpack-ai-overview__eyebrow"
 									>
-										{ hasPeriodCount ? usage.periodRequestsCount : '—' }
+										{ __( 'Available requests', 'jetpack' ) }
 									</Text>
-								) : (
-									<>
+									{ /* Its own paragraph, padded with spaces — clipped text glues
+								     onto the neighboring heading in some screen readers. */ }
+									{ srSummary && <VisuallyHidden as="p">{ ` ${ srSummary } ` }</VisuallyHidden> }
+									<Stack
+										direction="row"
+										justify="space-between"
+										align="baseline"
+										// With a hidden summary sentence in place, the loose value
+										// and limit nodes would only be read as fragments.
+										aria-hidden={ srSummary ? 'true' : undefined }
+									>
 										<Text
 											render={ <p /> }
 											variant="heading-xl"
@@ -204,18 +244,18 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 												{ usage.requestsLimit }
 											</Text>
 										) }
-									</>
-								) }
-							</Stack>
-							{ showMeter && (
-								// The bar only restates the visible numbers, so it is
-								// decorative — screen readers get "8 of 20" from the text
-								// (VoiceOver reads a named bar's label and percent again).
-								<ProgressBar
-									aria-hidden="true"
-									className="jetpack-ai-overview__meter"
-									value={ meterValue }
-								/>
+									</Stack>
+									{ showMeter && (
+										// The bar only restates the visible numbers, so it is
+										// decorative — screen readers get "8 of 20" from the text
+										// (VoiceOver reads a named bar's label and percent again).
+										<ProgressBar
+											aria-hidden="true"
+											className="jetpack-ai-overview__meter"
+											value={ meterValue }
+										/>
+									) }
+								</>
 							) }
 						</div>
 

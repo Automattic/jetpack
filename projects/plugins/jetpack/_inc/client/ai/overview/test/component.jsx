@@ -84,15 +84,18 @@ describe( 'AiOverview', () => {
 		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
 	} );
 
-	test( 'unlimited tier: shows the period count instead of an Unlimited claim', async () => {
+	test( 'unlimited tier: shows period and all-time counts instead of an Unlimited claim', async () => {
 		apiFetch.mockResolvedValueOnce( unlimitedPayload() );
 
 		render( <AiOverview { ...PROPS } /> );
 
-		// The card reports the period's actual usage with no meter. Without a
-		// purchase date there is still no renewal line, and no Upgrade.
+		// The card reports actual usage — this period and all-time, like the
+		// My Jetpack AI page — with no meter. Without a purchase date there
+		// is still no renewal line, and no Upgrade.
 		await expect( screen.findByText( '340' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Requests this period' ) ).toBeInTheDocument();
+		expect( screen.getByText( '950' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'All-time' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Unlimited' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'progressbar', { hidden: true } ) ).not.toBeInTheDocument();
@@ -100,37 +103,28 @@ describe( 'AiOverview', () => {
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'unlimited a11y: one hidden sentence carries the period count', async () => {
+	test( 'unlimited a11y: one hidden sentence carries both counts', async () => {
 		apiFetch.mockResolvedValueOnce( unlimitedPayload() );
 
 		render( <AiOverview { ...PROPS } /> );
 
 		await expect( screen.findByText( '340' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( '340 requests used this period' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( 'Requests used: 340 this period, 950 all-time' )
+		).toBeInTheDocument();
 	} );
 
-	test( 'unlimited a11y: a single request reads in the singular', async () => {
-		apiFetch.mockResolvedValueOnce( {
-			...unlimitedPayload(),
-			'usage-period': { 'requests-count': 1, 'next-start': '2026-09-01' },
-		} );
-
-		render( <AiOverview { ...PROPS } /> );
-
-		await expect( screen.findByText( '1' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( '1 request used this period' ) ).toBeInTheDocument();
-	} );
-
-	test( 'unlimited tier: a payload without a period count renders a dash', async () => {
+	test( 'unlimited tier: a payload without a period count renders a dash, keeping all-time', async () => {
 		apiFetch.mockResolvedValueOnce( { ...unlimitedPayload(), 'usage-period': undefined } );
 
 		render( <AiOverview { ...PROPS } /> );
 
 		await expect( screen.findByText( '—' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( '950' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Unlimited' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'progressbar', { hidden: true } ) ).not.toBeInTheDocument();
-		// With no count there is nothing to summarize: no stale hidden sentence.
-		expect( screen.queryByText( /requests? used this period/ ) ).not.toBeInTheDocument();
+		// With no period count there is no summary sentence to go stale.
+		expect( screen.queryByText( /Requests used:/ ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'plan name: the purchase name labels a paid state', async () => {
@@ -376,7 +370,9 @@ describe( 'AiOverview', () => {
 
 		render( <AiOverview { ...PROPS } /> );
 
-		await expect( screen.findByText( 'Walkthrough videos' ) ).resolves.toBeInTheDocument();
+		// Settle the usage fetch first: its loading Spinner is also
+		// role="presentation" and would be caught by the query below.
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 
 		// The artwork is decorative — the card's title carries the meaning —
 		// so the images are alt-empty and queried by role="presentation".

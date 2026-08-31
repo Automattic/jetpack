@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-AI: Show the period's real request count on the Overview usage card instead of an Unlimited claim.
+AI: Show real request usage on the Overview card instead of an Unlimited claim.

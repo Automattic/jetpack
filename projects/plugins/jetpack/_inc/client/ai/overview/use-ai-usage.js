@@ -42,7 +42,7 @@ export function anchorDateToUtc( value ) {
  * AVAILABLE (limit − used), so that is derived here.
  *
  * @param {object} data - Raw endpoint payload (dash-cased keys).
- * @return {object} { unlimited, isFree, requestsCount, requestsLimit, requestsAvailable, periodRequestsCount, planLabel, showUpgrade }
+ * @return {object} { unlimited, isFree, requestsCount, requestsLimit, requestsAvailable, periodRequestsCount, allTimeRequestsCount, planLabel, showUpgrade }
  */
 export function normalizeUsage( data ) {
 	const currentTier = data?.[ 'current-tier' ] ?? null;
@@ -70,9 +70,10 @@ export function normalizeUsage( data ) {
 			? Math.max( 0, requestsLimit - requestsCount )
 			: null;
 
-	// The uncapped tier's payload still carries the period's real usage;
-	// the card shows that.
+	// The uncapped tier's payload still carries real usage — this period and
+	// all-time — and the card shows those, like the My Jetpack AI page.
 	const periodRequestsCount = data?.[ 'usage-period' ]?.[ 'requests-count' ] ?? null;
+	const allTimeRequestsCount = data?.[ 'requests-count' ] ?? null;
 
 	// Free is upgradable by definition, whatever the payload says about tiers.
 	const showUpgrade =
@@ -91,6 +92,7 @@ export function normalizeUsage( data ) {
 		requestsLimit,
 		requestsAvailable,
 		periodRequestsCount,
+		allTimeRequestsCount,
 		planLabel,
 		showUpgrade,
 	};
