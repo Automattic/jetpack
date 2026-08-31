@@ -374,8 +374,8 @@ describe( 'EmailTimeSeriesWidget', () => {
 		} );
 
 		// The previous range's "no activity" is not an answer about this one, so
-		// it gives way to an announced skeleton.
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		// it gives way to the skeleton.
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect(
 			screen.queryByText( 'No activity for this email in this period.' )
 		).not.toBeInTheDocument();

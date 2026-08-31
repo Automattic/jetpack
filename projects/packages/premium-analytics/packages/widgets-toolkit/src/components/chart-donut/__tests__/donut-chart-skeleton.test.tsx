@@ -8,10 +8,10 @@ import { render, screen } from '@testing-library/react';
 import { DonutChartSkeleton } from '../donut-chart-skeleton';
 
 describe( 'DonutChartSkeleton', () => {
-	it( "draws the design's ring and four legend rows inside a status region", () => {
+	it( "draws the design's ring and four legend rows", () => {
 		render( <DonutChartSkeleton /> );
 
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'skeleton-ring' ) ).toBeInTheDocument();
 		expect( screen.getAllByTestId( 'skeleton-legend-row' ) ).toHaveLength( 4 );
 	} );
@@ -21,8 +21,8 @@ describe( 'DonutChartSkeleton', () => {
 		// parent would place the label beside it in the row layout.
 		render( <DonutChartSkeleton /> );
 
-		const status = screen.getByRole( 'status' );
+		const root = screen.getByTestId( 'widget-skeleton' );
 		// eslint-disable-next-line testing-library/no-node-access -- the wrapper is the assertion: the shape must be one element beside the hidden label.
-		expect( status.children ).toHaveLength( 2 );
+		expect( root.children ).toHaveLength( 2 );
 	} );
 } );
