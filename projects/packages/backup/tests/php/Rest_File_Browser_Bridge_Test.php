@@ -608,10 +608,8 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 	 * A body cut mid-character by the byte cap loses the half-written character and
 	 * comes back marked truncated.
 	 *
-	 * The transport counts bytes with no idea where characters begin: 65,535 ASCII bytes
-	 * followed by U+65E5 is 65,538, and the cut at 65,536 keeps the lead byte and drops
-	 * its two continuations. Left in place that lone byte makes a perfectly good text
-	 * file fail the UTF-8 check and report as unpreviewable.
+	 * Left in place, the lone lead byte the cut keeps would fail the UTF-8 check and
+	 * report a perfectly good text file as unpreviewable.
 	 */
 	public function test_file_content_drops_the_character_the_byte_cap_cut_in_half() {
 		$this->assert_preview_cap_is_testable();
@@ -637,9 +635,8 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 	 * A body that fills the cap without being cut mid-character is still marked
 	 * truncated, and keeps every byte.
 	 *
-	 * The flag is what the card renders its "preview truncated" line off, and the two
-	 * halves are independent: an implementation that only flagged the mid-character case
-	 * would leave a clipped ASCII file looking complete.
+	 * An implementation that only flagged the mid-character case would leave a clipped
+	 * ASCII file looking complete.
 	 */
 	public function test_file_content_marks_a_body_that_fills_the_cap_as_truncated() {
 		$this->assert_preview_cap_is_testable();
@@ -686,10 +683,8 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 	/**
 	 * Bytes that are not UTF-8 text, as the REST server would serve them.
 	 *
-	 * `wp_json_encode()`'s sanity fallback re-encodes invalid UTF-8 through
-	 * `mb_convert_encoding()`, so the second `json_encode()` succeeds and the serve
-	 * error branch never runs: a latin-1 or binary file came back HTTP 200 with its
-	 * bytes replaced by `?` and nothing anywhere saying so.
+	 * `wp_json_encode()`'s sanity fallback re-encodes invalid UTF-8 rather than failing,
+	 * so the serve error branch never runs and the `?`-substituted body goes out as 200.
 	 *
 	 * @param string $label What kind of body this is.
 	 * @param string $body  Raw bytes the storage host answered with.
