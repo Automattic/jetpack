@@ -64,18 +64,35 @@ class Jetpack_Backup_Test extends TestCase {
 	private $http_requests = 0;
 
 	/**
+	 * Locale reported to the code under test.
+	 *
+	 * @var string
+	 */
+	private $locale = 'en_US';
+
+	/**
 	 * Undo the request mocking. Done here rather than after each assertion so
 	 * that a failing assertion cannot leak a filter into the next test.
+	 *
+	 * WorDBless keeps the database between tests in this class, so a warmed
+	 * promoted-product transient would otherwise answer a later test before
+	 * it reached the transport.
 	 */
 	protected function tearDown(): void {
 		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
 		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_unreachable' ) );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ) );
+		remove_filter( 'locale', array( $this, 'mock_locale' ) );
 		wp_set_current_user( 0 );
+
+		foreach ( array( 'en_US', $this->locale ) as $locale ) {
+			delete_transient( Jetpack_Backup::PROMOTED_PRODUCT_TRANSIENT_PREFIX . sanitize_key( $locale ) );
+		}
 
 		$this->wpcom_status  = 200;
 		$this->wpcom_body    = '{}';
 		$this->http_requests = 0;
+		$this->locale        = 'en_US';
 
 		parent::tearDown();
 	}
@@ -449,6 +466,97 @@ class Jetpack_Backup_Test extends TestCase {
 	}
 
 	/**
+	 * A no-plan screen rendered twice costs the site one catalogue request.
+	 */
+	public function test_promoted_product_info_serves_a_second_read_from_cache() {
+		add_filter( 'pre_http_request', array( $this, 'mock_request_as_product_catalogue' ), 10, 3 );
+
+		$first  = Jetpack_Backup::get_backup_promoted_product_info();
+		$second = Jetpack_Backup::get_backup_promoted_product_info();
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_request_as_product_catalogue' ) );
+
+		$this->assertSame( 1, $this->http_requests );
+		$this->assertEquals( $first, $second );
+		$this->assertSame( 539.4, $second->cost );
+	}
+
+	/**
+	 * Neither failure is cached, so an outage cannot hold the no-plan screen
+	 * priceless past its own duration.
+	 *
+	 * @param string      $error_code The error code the failing call reports.
+	 * @param int|string  $status     Status for the failing response.
+	 * @param string|null $body      Body for the failing response, or null for the well-formed catalogue.
+	 * @dataProvider provide_uncacheable_failures
+	 */
+	#[DataProvider( 'provide_uncacheable_failures' )]
+	public function test_promoted_product_info_does_not_cache_a_failure( $error_code, $status, $body ) {
+		$this->catalogue_status = $status;
+		$this->catalogue_body   = $body;
+		add_filter( 'pre_http_request', array( $this, 'mock_request_as_product_catalogue' ), 10, 3 );
+
+		$failed = Jetpack_Backup::get_backup_promoted_product_info();
+
+		$this->catalogue_status = 200;
+		$this->catalogue_body   = null;
+
+		$recovered = Jetpack_Backup::get_backup_promoted_product_info();
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_request_as_product_catalogue' ) );
+
+		$this->assertInstanceOf( WP_Error::class, $failed, $error_code );
+		$this->assertSame( $error_code, $failed->get_error_code() );
+		$this->assertSame( 2, $this->http_requests, $error_code );
+		$this->assertIsObject( $recovered, $error_code );
+		$this->assertSame( 539.4, $recovered->cost, $error_code );
+	}
+
+	/**
+	 * The two failures the route distinguishes, as error code, status, body.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_uncacheable_failures() {
+		return array(
+			'a non-200'         => array( 'failed_to_fetch_data', 503, null ),
+			'an unreadable 200' => array( 'promoted_product_unreadable', 200, '{"jetpack_scan":{"cost":10}}' ),
+		);
+	}
+
+	/**
+	 * The catalogue is priced and translated per locale, which is a query arg
+	 * on the request — one shared key would serve one reader's language to
+	 * another.
+	 */
+	public function test_promoted_product_info_caches_per_locale() {
+		add_filter( 'pre_http_request', array( $this, 'mock_request_as_product_catalogue' ), 10, 3 );
+
+		Jetpack_Backup::get_backup_promoted_product_info();
+
+		$this->locale = 'pt_BR';
+		add_filter( 'locale', array( $this, 'mock_locale' ) );
+
+		Jetpack_Backup::get_backup_promoted_product_info();
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_request_as_product_catalogue' ) );
+
+		$this->assertSame( 2, $this->http_requests );
+		$this->assertStringContainsString( 'locale=pt_BR', $this->captured_url );
+		$this->assertNotFalse( get_transient( Jetpack_Backup::PROMOTED_PRODUCT_TRANSIENT_PREFIX . 'en_us' ) );
+		$this->assertNotFalse( get_transient( Jetpack_Backup::PROMOTED_PRODUCT_TRANSIENT_PREFIX . 'pt_br' ) );
+	}
+
+	/**
+	 * Report the configured locale.
+	 *
+	 * @return string
+	 */
+	public function mock_locale() {
+		return $this->locale;
+	}
+
+	/**
 	 * Mock the product catalogue endpoint.
 	 *
 	 * @param false  $preempt     Short-circuit value (unused).
@@ -458,6 +566,7 @@ class Jetpack_Backup_Test extends TestCase {
 	 */
 	public function mock_request_as_product_catalogue( $preempt, $parsed_args, $url ) {
 		$this->captured_url = (string) $url;
+		++$this->http_requests;
 
 		$body = $this->catalogue_body;
 
