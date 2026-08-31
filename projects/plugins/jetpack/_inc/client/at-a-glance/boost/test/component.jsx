@@ -1,8 +1,3 @@
-/**
- * The At a Glance Boost card must not ask for a speed score until the site's
- * plugin data has settled, and never for a site that already runs Boost.
- * Renders the real connected card over the real root reducer.
- */
 import { jest } from '@jest/globals';
 import { render as rtlRender, act } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -54,9 +49,9 @@ jest.mock( 'lib/analytics', () => ( {
 const BOOST_PLUGINS_DATA = { 'jetpack-boost/jetpack-boost.php': { active: true } };
 
 /**
- * State for an online, connected site; plugins data is left to the real reducer.
+ * Builds initial state.
  *
- * @return {object} Initial redux state.
+ * @return {object} Initial state.
  */
 function buildInitialState() {
 	return {
@@ -79,7 +74,7 @@ function buildInitialState() {
 }
 
 /**
- * Build a store over the real root reducer and render the connected card.
+ * Renders the connected card.
  *
  * @param {object} store - Redux store.
  * @return {import('@testing-library/react').RenderResult} Render result.
@@ -144,7 +139,6 @@ describe( 'DashBoost speed-score gating', () => {
 
 	test( 'a flag latched by an earlier failed fetch does not decide while a refetch is in flight', () => {
 		const store = createStore( rootReducer, buildInitialState(), applyMiddleware( thunk ) );
-		// An earlier route's fetch failed (flag latched true, items empty), and a refetch is in flight.
 		store.dispatch( { type: JETPACK_PLUGINS_DATA_FETCH } );
 		store.dispatch( { type: JETPACK_PLUGINS_DATA_FETCH_FAIL } );
 		store.dispatch( { type: JETPACK_PLUGINS_DATA_FETCH } );
@@ -180,7 +174,6 @@ describe( 'DashBoost speed-score gating', () => {
 			store.dispatch( { type: JETPACK_PLUGINS_DATA_FETCH_RECEIVE, pluginsData: {} } );
 		} );
 
-		// Bars are visible and the request is in flight: every committed frame must be a loading frame.
 		expect( mockScoreBarRenders.length ).toBeGreaterThan( 0 );
 		expect( mockScoreBarRenders.filter( r => ! r.isLoading ) ).toHaveLength( 0 );
 

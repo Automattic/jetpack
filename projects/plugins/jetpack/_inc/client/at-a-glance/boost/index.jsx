@@ -123,11 +123,6 @@ const DashBoost = ( {
 	const hasDecided = useRef( false );
 
 	useEffect( () => {
-		// getSpeedScores() skips sites that already have Boost, but isBoostInstalled and
-		// isBoostActive both read false until the plugin data arrives. Deciding before then
-		// starts a speed score run on every Boost site, which nobody ever sees.
-		// A flag left true by an earlier settled fetch must not decide from stale items,
-		// so wait out any in-flight refetch; the ref keeps the decision one-shot.
 		if ( hasDecided.current || ! hasFetchedPluginsData || fetchingPluginsData ) {
 			return;
 		}

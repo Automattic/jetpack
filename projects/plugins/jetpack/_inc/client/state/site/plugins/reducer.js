@@ -22,7 +22,7 @@ const initialRequestsState = {
 const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_PLUGINS_DATA_FETCH:
-			// hasFetchedPluginsData deliberately stays set here: consumers treat it as a one-shot latch.
+			// Preserve this flag during refetches; it is a one-shot latch.
 			return Object.assign( {}, state, {
 				isFetchingPluginsData: true,
 			} );
@@ -55,10 +55,7 @@ export function isFetchingPluginsData( state ) {
 }
 
 /**
- * Returns true once a plugin data request has come back, whether it succeeded
- * or failed. Until then `items` is empty, so isPluginInstalled() and
- * isPluginActive() answer false for every plugin and cannot be told apart from
- * a site that genuinely has none.
+ * Returns true after a plugin data request finishes.
  *
  * @param {object} state - Global state tree
  * @return {boolean} - Whether plugin data has been fetched
