@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
+import { ReportScopeProvider, chartInterval } from '@jetpack-premium-analytics/data';
 import { megaphone } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTabsChart,
@@ -9,13 +9,13 @@ import {
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
-	defaultPeriodForInterval,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { DEFAULT_REPORT_PARAMS } from './default-report-params';
+import { WORDADS_GRAIN } from './grain';
 import styles from './style.module.css';
 import useWordAdsChart, { type WordAdsPeriod } from './use-wordads-chart';
 import type { WordAdsChartTabsAttributes } from './widget';
@@ -28,18 +28,9 @@ const DATA_FORMAT = {
 	options: { useMultipliers: true, decimals: 0 },
 };
 
-// Ordered finest to coarsest, as `defaultPeriodForInterval` requires. Unlike the
-// traffic and subscribers charts, this one supports year.
-const WORDADS_PERIODS = [
-	'day',
-	'week',
-	'month',
-	'year',
-] as const satisfies readonly WordAdsPeriod[];
-
 function WordAdsChartTabsInner() {
 	const { reportParams } = useWidgetRootContext();
-	const period: WordAdsPeriod = defaultPeriodForInterval( reportParams.interval, WORDADS_PERIODS );
+	const period: WordAdsPeriod = chartInterval( reportParams, WORDADS_GRAIN.periods );
 
 	const { metrics, isLoading, isFetching, isError, isEmpty, refetch } = useWordAdsChart(
 		reportParams,
