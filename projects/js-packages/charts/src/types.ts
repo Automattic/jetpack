@@ -389,11 +389,13 @@ export type ChartTheme = {
 	/** Length of axis ticks in pixels */
 	tickLength: number;
 	/**
-	 * @deprecated Reads nowhere and paints nothing — `defaultTheme` sets it to an empty string and no chart consults it. Set `--a8c-charts-color-grid` for the gridlines.
+	 * Set `--a8c-charts-color-grid` for the gridlines.
+	 *
+	 * @deprecated Do not drop this field without replacing it. Nothing in this package consults it, but `buildChartTheme` seeds `y.left/right.axisLine.stroke` and `y.*.tickLine.stroke` from it, and `defaultTheme`'s empty string is the only thing leaving the y axis unpainted — deleting the field hands those a black `#222` instead. CHARTS-263 replaces it with visx's own `yAxisLineStyles`/`yTickLineStyles` and a pair of catalog roles.
 	 */
 	gridColor?: string;
 	/**
-	 * @deprecated Reads nowhere and paints nothing — `defaultTheme` sets it to an empty string and no chart consults it. Charts follow the host's theme through the catalog rather than a dark-mode field of their own.
+	 * @deprecated Paints nothing, and unlike `gridColor` is safe to delete: `buildChartTheme` seeds `x.*.axisLine.stroke` from it, but spreads `xAxisLineStyles` over the top and `defaultTheme` always carries that stroke. Charts follow the host's theme through the catalog rather than a dark-mode field of their own.
 	 */
 	gridColorDark?: string;
 	/** Styles for x-axis tick lines */
