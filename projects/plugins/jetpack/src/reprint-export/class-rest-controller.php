@@ -63,12 +63,11 @@ class REST_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Opens the 60-minute export window without rotating the secret.
+	 * Opens the export window without rotating the secret, so a client holding
+	 * a valid one can re-arm a lapsed window.
 	 *
-	 * Purpose-built enable endpoint: a client that already holds a valid
-	 * secret can re-open a lapsed window without minting a new one. The
-	 * route is only registered when the feature is available, so a 404
-	 * here doubles as the client's "is Reprint export available?" probe.
+	 * Registered only where the feature is available, so a 404 doubles as the
+	 * client's availability probe.
 	 *
 	 * @return WP_REST_Response The unix timestamp the window was opened at.
 	 */
@@ -80,11 +79,10 @@ class REST_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Rotates the shared secret.
+	 * Rotates the shared secret and returns it.
 	 *
-	 * Generates a cryptographically random 64-character hex secret, stores it
-	 * in a WordPress option (autoload disabled), and returns it. The caller
-	 * uses this secret to authenticate export requests via HMAC.
+	 * Raw CSPRNG bytes rather than wp_generate_password(), which is filterable
+	 * and falls back to a non-CSPRNG path. This is an HMAC key, not a password.
 	 *
 	 * @return WP_REST_Response The new secret on success, or a 500 error.
 	 */
@@ -121,10 +119,9 @@ class REST_Controller extends WP_REST_Controller {
 			return false;
 		}
 
-		// On multisite, network administrator only. The export takes every table
-		// in the database and everything under ABSPATH, so a subsite
-		// administrator would walk away with every other site's users, content
-		// and uploads. Their role says nothing about network-wide access.
+		// Network administrator only: the export takes every table and everything
+		// under ABSPATH, so a subsite administrator would leave with every other
+		// site's users, content and uploads.
 		if ( is_multisite() ) {
 			return is_super_admin( $user->ID );
 		}

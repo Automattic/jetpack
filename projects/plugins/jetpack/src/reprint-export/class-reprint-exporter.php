@@ -3,10 +3,6 @@
  * HMAC-authenticated, time-limited Reprint export for Pressable and Atomic
  * sites.
  *
- * Jetpack is the only copy of this on a site: wpcomsh's unreleased Reprint
- * exporter is removed in the same change, so nothing else serves an export or
- * shares the options below.
- *
  * @package automattic/jetpack
  */
 
@@ -63,15 +59,10 @@ class Reprint_Exporter {
 	/**
 	 * Blocks writes to the two export options from anywhere but this class.
 	 *
-	 * Anyone who can set both options can export the whole site: they pick the
-	 * secret, so they can sign their own requests. Plugins do sometimes ship
-	 * bugs that let a request write any option, and this keeps such a bug from
-	 * turning into a copy of the database.
-	 *
-	 * We allow the write based on where it came from, not on who is logged in.
-	 * A capability check would not help, because the usual version of this bug
-	 * is a form with a missing nonce: the request runs in an administrator's
-	 * own session, so any check of the current user says yes.
+	 * Whoever sets both can export the whole site, since they pick the secret
+	 * and can then sign their own requests. Allowed by where the write came
+	 * from, not by who is logged in: the usual arbitrary-option-write bug is a
+	 * form missing its nonce, running in an administrator's own session.
 	 */
 	public static function protect_options() {
 		foreach ( array( self::SECRET_OPTION, self::ENABLED_OPTION ) as $option ) {
@@ -79,8 +70,8 @@ class Reprint_Exporter {
 			add_filter( "pre_update_option_{$option}", array( __CLASS__, 'veto_foreign_update' ), PHP_INT_MAX, 2 );
 		}
 
-		// add_option() offers no filter that can cancel the write — only actions
-		// either side of the insert — so stopping the request is the only lever.
+		// add_option() has no filter that can cancel a write, only actions either
+		// side of the insert, so stopping the request is the only lever.
 		add_action( 'add_option', array( __CLASS__, 'veto_foreign_add' ), 10, 1 );
 	}
 
@@ -117,12 +108,12 @@ class Reprint_Exporter {
 	}
 
 	/**
-	 * Whether this write is ours, or WP-CLI, which already has database access.
+	 * Whether this write is made by the exporter.
 	 *
 	 * @return bool
 	 */
 	private static function is_own_option_write() {
-		return self::$writing_own_options || Constants::is_true( 'WP_CLI' );
+		return self::$writing_own_options;
 	}
 
 	/**
@@ -144,13 +135,11 @@ class Reprint_Exporter {
 	/**
 	 * Discards any stored export credentials.
 	 *
-	 * Called on plugin activation and on both connection transitions.
-	 * protect_options() only refuses writes made while it is registered, and it
-	 * is not registered while Jetpack is inactive or while the site is neither
-	 * connected nor in offline mode. Clearing at each of those boundaries means
-	 * anything planted during a gap is gone by the time the gap closes. Each
-	 * hook fires for one site, so this is per-blog on multisite without walking
-	 * the network. It costs a legitimate client one rotation.
+	 * Writes made while Jetpack is inactive or disconnected escape
+	 * protect_options(), so clear at each of those boundaries — activation and
+	 * both connection transitions — and anything planted during a gap is gone
+	 * before the gap closes. Costs a real client one rotation. Per-blog on
+	 * multisite, since each hook fires for one site.
 	 */
 	public static function discard_credentials() {
 		delete_option( self::SECRET_OPTION );
@@ -179,8 +168,8 @@ class Reprint_Exporter {
 	/**
 	 * Whether Reprint export support is available on the current site.
 	 *
-	 * Defaults to true on Pressable and WordPress.com (Atomic) hosts and false
-	 * elsewhere. The filter can override this value.
+	 * Pressable and WordPress.com (Atomic) only. The filter can switch it off
+	 * there; it cannot switch it on anywhere else.
 	 *
 	 * @return bool
 	 */
@@ -231,15 +220,11 @@ class Reprint_Exporter {
 			return;
 		}
 
-		// The export client may run in a browser — Playground, for one — from
-		// deployments we do not know ahead of time, so any origin is allowed.
-		// Origin is not a security boundary here: every request needs the HMAC
-		// secret whatever it came from, and a wildcard origin cannot carry
-		// credentials, so a hostile page has nothing to borrow.
-		//
-		// Preflights run before HMAC because browsers send them without
-		// credentials, and before the window check so a client whose window has
-		// lapsed can still reach the 409 below.
+		// Any origin: the client may run in a browser (Playground) from
+		// deployments we cannot know ahead of time, and origin is no boundary
+		// when every request needs the HMAC secret anyway. Preflights come
+		// before HMAC because browsers send them without credentials, and
+		// before the window check so a lapsed client can reach the 409 below.
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( $_SERVER['REQUEST_METHOD'] ) : '';
 		if ( 'OPTIONS' === $request_method ) {
@@ -251,9 +236,8 @@ class Reprint_Exporter {
 			return;
 		}
 
-		// A closed window answers nothing to a caller without a valid signature:
-		// an idle site stays indistinguishable from one that never had the
-		// feature. Only a caller holding the secret learns the difference.
+		// Without a valid signature a closed window answers nothing, so an idle
+		// site stays indistinguishable from one that never had the feature.
 		$window_open = self::is_export_window_open();
 
 		$secret = get_option( self::SECRET_OPTION, '' );
@@ -274,17 +258,15 @@ class Reprint_Exporter {
 			return;
 		}
 
-		// Signature checks out, so tell the client which of the two states it is
-		// in: the site still has the exporter and only needs re-arming, rather
-		// than having lost it.
+		// Signature checks out, so say which state this is: still here, only
+		// needing re-arming, rather than gone.
 		if ( ! $window_open ) {
 			$this->error( 409, 'Export window closed. Re-open it via POST /jetpack/v4/reprint/enable-export.' );
 			return;
 		}
 
-		// A Reprint export happens over many separate requests and a full
-		// export can take longer than an hour. Keep the export window open
-		// while a client is actively exporting.
+		// An export spans many requests and can run past the hour, so keep the
+		// window open while a client is working.
 		self::open_export_window();
 
 		try {

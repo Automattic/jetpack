@@ -384,15 +384,20 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * WP-CLI can write, since shell access already implies database access.
+	 * WP-CLI does not bypass the guard while Jetpack is loaded.
+	 *
+	 * An operator who needs a raw option write can explicitly skip Jetpack.
 	 */
-	public function test_wp_cli_can_write() {
+	public function test_wp_cli_does_not_bypass_guard() {
+		Reprint_Exporter::store_secret( 'the-real-secret' );
 		Reprint_Exporter::protect_options();
 		Constants::set_constant( 'WP_CLI', true );
 
 		update_option( Reprint_Exporter::SECRET_OPTION, 'set-from-cli' );
+		update_option( Reprint_Exporter::ENABLED_OPTION, time() );
 
-		$this->assertSame( 'set-from-cli', get_option( Reprint_Exporter::SECRET_OPTION ) );
+		$this->assertSame( 'the-real-secret', get_option( Reprint_Exporter::SECRET_OPTION ) );
+		$this->assertFalse( get_option( Reprint_Exporter::ENABLED_OPTION ) );
 	}
 
 	/**
