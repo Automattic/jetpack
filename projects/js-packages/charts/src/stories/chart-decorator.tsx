@@ -1,14 +1,15 @@
 import { setLocale } from '@automattic/number-formatters';
-import { privateApis as themePrivateApis } from '@wordpress/theme';
+import { ThemeProvider } from '@wordpress/theme';
 import { useEffect, useRef, useCallback } from 'react';
 import { GlobalChartsProvider } from '../providers';
-import { CHART_THEME_MAP, DEFAULT_ACCENT_COLOR } from './theme-config';
-import { unlock } from './unlock';
+import {
+	CHART_THEME_MAP,
+	DEFAULT_ACCENT_COLOR,
+	NO_ADMIN_COLOR_SCHEME,
+	WP_ADMIN_COLOR_SCHEMES,
+} from './theme-config';
 import type { Decorator } from '@storybook/react';
-
-const { ThemeProvider } = unlock( themePrivateApis ) as {
-	ThemeProvider: typeof import('@wordpress/theme').ThemeProvider;
-};
+import type { CSSProperties } from 'react';
 
 /**
  * Generic StoryArgs type that extends any chart component props with themeName
@@ -17,6 +18,7 @@ const { ThemeProvider } = unlock( themePrivateApis ) as {
 export type ChartStoryArgs< T = Record< string, unknown > > = T & {
 	themeName?: string;
 	accentColor?: string;
+	adminColorScheme?: string;
 	containerWidth?: string;
 	containerHeight?: string;
 	showOffsetTestButtons?: boolean;
@@ -89,6 +91,7 @@ export const chartDecorator: Decorator = ( Story, context ) => {
 				) }
 				<div
 					ref={ containerRef }
+					data-testid="chart-story-container"
 					style={ {
 						resize: args.resize || 'both',
 						overflow: 'auto',
@@ -120,24 +123,49 @@ const isValidHexColor = ( color: string ): boolean => {
 };
 
 /**
+ * Reproduces a wp-admin color scheme for the subtree below it.
+ *
+ * One declaration, and it is the same one WordPress makes: `admin-schemes.css` sets
+ * `--wp-admin-theme-color` on `body.admin-color-<scheme>`. The palette's slot 1 names that
+ * variable first, so this is enough to exercise the whole path Storybook otherwise cannot —
+ * every story renders a `ThemeProvider`, and without a scheme set the admin color it publishes
+ * is whatever the provider's accent is.
+ *
+ * @param scheme - A key of `WP_ADMIN_COLOR_SCHEMES`, or `NO_ADMIN_COLOR_SCHEME`.
+ * @return The wrapper's inline custom property, or undefined to leave the page as it is.
+ */
+const adminColorSchemeStyle = ( scheme: string ): CSSProperties | undefined => {
+	const color = WP_ADMIN_COLOR_SCHEMES[ scheme ];
+
+	if ( scheme === NO_ADMIN_COLOR_SCHEME || ! color ) {
+		return undefined;
+	}
+
+	return { '--wp-admin-theme-color': color } as CSSProperties;
+};
+
+/**
  * Provider wrapper for Storybook chart stories
  * Handles theme setup, WPDS ThemeProvider, locale initialization, and GlobalChartsProvider.
  * Always wraps in ThemeProvider to mirror the real WordPress environment where
  * design-system tokens are expected to be available.
- * @param root0             - Props object
- * @param root0.children    - Child components to render
- * @param root0.themeName   - Theme name to apply
- * @param root0.accentColor - Accent color fed to WPDS ThemeProvider as primary seed
+ * @param root0                  - Props object
+ * @param root0.children         - Child components to render
+ * @param root0.themeName        - Theme name to apply
+ * @param root0.accentColor      - Accent color fed to WPDS ThemeProvider as primary seed
+ * @param root0.adminColorScheme - wp-admin color scheme to simulate, or `none`
  * @return JSX element with chart environment setup and GlobalChartsProvider
  */
 const StoryChartProvider = ( {
 	children,
 	themeName = 'default',
 	accentColor = DEFAULT_ACCENT_COLOR,
+	adminColorScheme = NO_ADMIN_COLOR_SCHEME,
 }: {
 	children: React.ReactNode;
 	themeName?: string;
 	accentColor?: string;
+	adminColorScheme?: string;
 } ) => {
 	// Initialize number formatters with browser locale for Storybook
 	// In WordPress, @automattic/number-formatters automatically uses the WordPress user locale
@@ -155,9 +183,14 @@ const StoryChartProvider = ( {
 	const sanitizedAccentColor = isValidHexColor( accentColor ) ? accentColor : DEFAULT_ACCENT_COLOR;
 	const themeProviderColor = themeName === 'custom' ? { primary: sanitizedAccentColor } : undefined;
 
-	// Force GlobalChartsProvider to remount when accent color changes for custom theme
-	// This ensures CSS variables are re-resolved after the DOM updates
-	const providerKey = themeName === 'custom' ? `custom-${ sanitizedAccentColor }` : themeName;
+	// Force GlobalChartsProvider to remount when the accent color or the simulated admin scheme
+	// changes. The palette is resolved once per provider in a layout effect, so without a remount
+	// the seeds would keep the values they had when the wrapper first mounted.
+	const providerKey = [
+		themeName,
+		themeName === 'custom' ? sanitizedAccentColor : '',
+		adminColorScheme,
+	].join( '-' );
 
 	return (
 		<ThemeProvider color={ themeProviderColor }>
@@ -168,7 +201,9 @@ const StoryChartProvider = ( {
 			*/ }
 			<div
 				style={ {
-					fontFamily: 'var(--wpds-font-family-body, sans-serif)',
+					fontFamily:
+						'var(--wpds-typography-font-family-body, -apple-system, system-ui, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif)',
+					...adminColorSchemeStyle( adminColorScheme ),
 				} }
 			>
 				<GlobalChartsProvider key={ providerKey } theme={ theme }>
@@ -192,9 +227,14 @@ export const simpleChartDecorator: Decorator = ( Story, { args } ) => {
 	const storyArgs = args as unknown as ChartStoryArgs;
 	const themeName = storyArgs.themeName;
 	const accentColor = storyArgs.accentColor;
+	const adminColorScheme = storyArgs.adminColorScheme;
 
 	return (
-		<StoryChartProvider themeName={ themeName } accentColor={ accentColor }>
+		<StoryChartProvider
+			themeName={ themeName }
+			accentColor={ accentColor }
+			adminColorScheme={ adminColorScheme }
+		>
 			<Story />
 		</StoryChartProvider>
 	);

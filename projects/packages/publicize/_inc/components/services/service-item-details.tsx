@@ -1,5 +1,5 @@
-import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { Disabled } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import clsx from 'clsx';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
@@ -22,7 +22,7 @@ export type ServicesItemDetailsProps = {
  * @return {import('react').ReactNode} Service item details component
  */
 export function ServiceItemDetails( { service, serviceConnections }: ServicesItemDetailsProps ) {
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const isSmall = useViewportMatch( 'small', '<' );
 
 	const { deletingConnections, updatingConnections } = useSelect( select => {
 		const { getDeletingConnections, getUpdatingConnections } = select( socialStore );

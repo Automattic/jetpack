@@ -1,3 +1,4 @@
+import { GoogleDataTableColumnRoleType } from '../../../types';
 import GeoChart from '../geo-chart';
 import { geoChartMetaArgs, geoChartStoryArgs } from './config';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -5,6 +6,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 const meta: Meta< typeof GeoChart > = {
 	...geoChartMetaArgs,
 	title: 'JS Packages/Charts Library/Charts/Geo Chart/Tooltips',
+	component: geoChartMetaArgs.component, // Make eslint happy.
 };
 
 export default meta;
@@ -14,7 +16,11 @@ export const HTML: Story = {
 	args: {
 		...geoChartStoryArgs,
 		data: [
-			[ 'Country', 'Orders', { type: 'string', role: 'tooltip', p: { html: true } } ],
+			[
+				'Country',
+				'Orders',
+				{ type: 'string', role: GoogleDataTableColumnRoleType.tooltip, p: { html: true } },
+			],
 			[ 'United States', 1000, '<b>United States</b><br/>1,000 orders' ],
 			[ 'Canada', 500, '<b>Canada</b><br/>500 orders' ],
 			[ 'United Kingdom', 450, '<b>United Kingdom</b><br/>450 orders' ],
@@ -41,7 +47,7 @@ export const PlainText: Story = {
 	args: {
 		...geoChartStoryArgs,
 		data: [
-			[ 'Country', 'Orders', { type: 'string', role: 'tooltip' } ],
+			[ 'Country', 'Orders', { type: 'string', role: GoogleDataTableColumnRoleType.tooltip } ],
 			[ 'United States', 1000, 'United States: 1,000 orders (40% of total)' ],
 			[ 'Canada', 500, 'Canada: 500 orders (20% of total)' ],
 			[ 'United Kingdom', 450, 'United Kingdom: 450 orders (18% of total)' ],
@@ -55,7 +61,11 @@ export const Complex: Story = {
 	args: {
 		...geoChartStoryArgs,
 		data: [
-			[ 'Country', 'Orders', { type: 'string', role: 'tooltip', p: { html: true } } ],
+			[
+				'Country',
+				'Orders',
+				{ type: 'string', role: GoogleDataTableColumnRoleType.tooltip, p: { html: true } },
+			],
 			[
 				'United States',
 				1000,

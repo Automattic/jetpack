@@ -9,28 +9,13 @@ import { decodeEntities } from '@wordpress/html-entities';
  * Internal dependencies
  */
 import { isCollectionFormatField } from '../components/inspector/utils.ts';
+import { getResponseStatusFilter } from '../constants.ts';
 import { useDashboardSearchParams } from '../router/dashboard-search-params-context.tsx';
 import { store as dashboardStore } from '../store/index.js';
 /**
  * Types
  */
 import type { FormResponse, ResponseField, ResponseFields } from '../../types/index.ts';
-
-/**
- * Helper function to get the status filter to apply from the URL.
- * This is the only way to filter the data by `status`.
- *
- * Note: When Central Form Management (CFM) is enabled, the UI can expose a
- * "Folder" DataViews filter that syncs its value to the URL `status` param.
- *
- * @param {string} urlStatus - The current status from the URL.
- * @return {string} The status filter to apply.
- */
-function getStatusFilter( urlStatus ) {
-	// Only allow specific status values.
-	const statusFilter = [ 'inbox', 'spam', 'trash' ].includes( urlStatus ) ? urlStatus : 'inbox';
-	return statusFilter === 'inbox' ? 'draft,publish' : statusFilter;
-}
 
 const formatFieldName = fieldName => {
 	const match = fieldName.match( /^(\d+_)?(.*)/i );
@@ -130,7 +115,7 @@ export default function useInboxData( options: UseInboxDataOptions = {} ): UseIn
 	const [ searchParams ] = useDashboardSearchParams();
 	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
 	const urlStatus = options.status ?? searchParams.get( 'status' );
-	const statusFilter = getStatusFilter( urlStatus );
+	const statusFilter = getResponseStatusFilter( urlStatus );
 
 	const {
 		selectedResponsesCount,
@@ -248,6 +233,9 @@ export default function useInboxData( options: UseInboxDataOptions = {} ): UseIn
 		if ( currentQuery?.parent ) {
 			params.parent = currentQuery.parent;
 		}
+		if ( currentQuery?.source ) {
+			params.source = currentQuery.source;
+		}
 		if ( currentQuery?.before ) {
 			params.before = currentQuery.before;
 		}
@@ -256,6 +244,9 @@ export default function useInboxData( options: UseInboxDataOptions = {} ): UseIn
 		}
 		if ( currentQuery?.is_unread !== undefined ) {
 			params.is_unread = currentQuery.is_unread;
+		}
+		if ( currentQuery?.is_test !== undefined ) {
+			params.is_test = currentQuery.is_test;
 		}
 
 		return params;

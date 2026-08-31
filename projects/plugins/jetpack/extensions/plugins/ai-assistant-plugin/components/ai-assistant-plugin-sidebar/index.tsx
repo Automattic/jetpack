@@ -14,14 +14,7 @@ import {
 	usePlanType,
 } from '@automattic/jetpack-shared-extension-utils';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
-import {
-	PanelBody,
-	PanelRow,
-	BaseControl,
-	Button,
-	ExternalLink,
-	Notice,
-} from '@wordpress/components';
+import { PanelBody, PanelRow, BaseControl, Button, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import {
@@ -31,6 +24,7 @@ import {
 } from '@wordpress/editor';
 import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import debugFactory from 'debug';
 import { ComponentType, useCallback, useMemo } from 'react';
 /**
@@ -49,6 +43,7 @@ import {
 	PLACEMENT_JETPACK_SIDEBAR,
 	PLACEMENT_PRE_PUBLISH,
 } from './constants';
+import { useSidebarOpenFromUrl } from './open-sidebar-from-url';
 import Upgrade from './upgrade';
 import './style.scss';
 /**
@@ -148,7 +143,6 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
-
 			{ isPostEmpty && (
 				<PanelRow className="jetpack-ai-sidebar__warning-content">
 					<Notice isDismissible={ false } status="warning">
@@ -156,7 +150,6 @@ const JetpackAndSettingsContent = ( {
 					</Notice>
 				</PanelRow>
 			) }
-
 			{ canWriteBriefBeEnabled() && isBreveAvailable && (
 				<PanelRow>
 					<BaseControl __nextHasNoMarginBottom={ true }>
@@ -167,7 +160,6 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
-
 			{ isAITitleOptimizationAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true }>
@@ -176,7 +168,6 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
-
 			{ ( imageGenerationHandler || isAIFeaturedImageAvailable ) && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true }>
@@ -197,14 +188,12 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
-
 			<PanelRow className="jetpack-ai-sidebar__feature-section">
 				<BaseControl __nextHasNoMarginBottom={ true }>
 					<BaseControl.VisualLabel>{ __( 'Get Feedback', 'jetpack' ) }</BaseControl.VisualLabel>
 					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
 				</BaseControl>
 			</PanelRow>
-
 			{ requireUpgrade && ! isUsagePanelAvailable && (
 				<PanelRow>
 					<Upgrade placement={ placement } type={ upgradeType } upgradeUrl={ checkoutUrl } />
@@ -215,30 +204,29 @@ const JetpackAndSettingsContent = ( {
 					<UsagePanel placement={ placement } />
 				</PanelRow>
 			) }
-
 			<PanelRow className="jetpack-ai-sidebar__external-link">
-				<ExternalLink href={ productPageUrl }>
+				<Link openInNewTab href={ productPageUrl }>
 					{ __( 'Learn more about Jetpack AI', 'jetpack' ) }
-				</ExternalLink>
+				</Link>
 			</PanelRow>
-
 			<PanelRow className="jetpack-ai-sidebar__external-link">
-				<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-ai-feedback">
+				<Link openInNewTab href="https://jetpack.com/redirect/?source=jetpack-ai-feedback">
 					{ __( 'Give us feedback', 'jetpack' ) }
-				</ExternalLink>
+				</Link>
 			</PanelRow>
-
 			<PanelRow className="jetpack-ai-sidebar__external-link">
-				<ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines">
+				<Link openInNewTab href="https://jetpack.com/redirect/?source=ai-guidelines">
 					{ __( 'AI guidelines', 'jetpack' ) }
-				</ExternalLink>
+				</Link>
 			</PanelRow>
-
 			{ canWriteBriefBeEnabled() && ! isBreveAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__external-link">
-					<ExternalLink href="https://jetpack.com/support/publish-better-content-with-write-brief-with-ai/">
+					<Link
+						openInNewTab
+						href="https://jetpack.com/support/publish-better-content-with-write-brief-with-ai/"
+					>
 						{ __( 'Update on Write Brief (Beta)', 'jetpack' ) }
-					</ExternalLink>
+					</Link>
 				</PanelRow>
 			) }
 		</>
@@ -260,6 +248,9 @@ export default function AiAssistantPluginSidebar() {
 	}, [] );
 
 	const planType = usePlanType( currentTier );
+
+	// A post-new.php?openSidebar=jetpack-ai-assistant URL asks for the sidebar to start open.
+	const sidebarOpenRequested = useSidebarOpenFromUrl();
 
 	// If the post type is not viewable, do not render my plugin.
 	if ( ! isViewable ) {
@@ -283,7 +274,7 @@ export default function AiAssistantPluginSidebar() {
 			<JetpackPluginSidebar>
 				<PanelBody
 					title={ title }
-					initialOpen={ false }
+					initialOpen={ sidebarOpenRequested }
 					onToggle={ isOpen => {
 						isOpen && panelToggleTracker( PLACEMENT_JETPACK_SIDEBAR );
 					} }

@@ -244,14 +244,6 @@
 									name: 'content',
 								},
 								{
-									label: 'Pre-generate CRM data',
-									name: 'jpcrm-populate-crm-data',
-								},
-								{
-									label: 'Pre-generate CRM Woo data',
-									name: 'jpcrm-populate-woo-data',
-								},
-								{
 									label: '<code>xmlrpc.php</code> unavailable',
 									name: 'blockxmlrpc',
 								},
@@ -408,12 +400,6 @@
 				if ( input.value ) {
 					query.push( encodeURIComponent( input.name ) + '=' + encodeURIComponent( input.value ) );
 				} else {
-					if (
-						input.name === 'jpcrm-populate-crm-data' ||
-						input.value === 'jpcrm-populate-woo-data'
-					) {
-						query.push( encodeURIComponent( 'jpcrm' ) );
-					}
 					query.push( encodeURIComponent( input.name ) );
 				}
 			} );
@@ -521,27 +507,10 @@
 		 */
 		function updateLink() {
 			const $link = $( '#jetpack-beta-branch-link' );
-			const [ url, query ] = getLink();
+			const [ url ] = getLink();
 
 			if ( url.match( /[?&]branch(es\.[^&=]*)?=/ ) ) {
-				if (
-					query.includes( 'jpcrm-populate-crm-data' ) &&
-					! url.match( /[?&]branches\.zero-bs-crm/ )
-				) {
-					// /jpcrm-populate-crm-data/
-					$link
-						.attr( 'href', null )
-						.text( 'Select the Jetpack CRM plugin in order to populate with CRM data' );
-				} else if (
-					query.includes( 'jpcrm-populate-woo-data' ) &&
-					! query.includes( 'woocommerce' )
-				) {
-					$link
-						.attr( 'href', null )
-						.text( 'Select the WooCommerce plugin in order to populate with CRM Woo data' );
-				} else {
-					$link.attr( 'href', url ).text( url );
-				}
+				$link.attr( 'href', url ).text( url );
 			} else {
 				$link.attr( 'href', null ).text( 'Select at least one plugin to test' );
 			}

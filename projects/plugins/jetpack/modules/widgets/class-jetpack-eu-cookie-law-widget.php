@@ -255,11 +255,11 @@ To find out more, including how to control cookies, see here:',
 			$instance = array();
 			$defaults = $this->defaults();
 
-			$instance['hide']         = $this->filter_value( isset( $new_instance['hide'] ) ? $new_instance['hide'] : '', $this->hide_options );
-			$instance['text']         = $this->filter_value( isset( $new_instance['text'] ) ? $new_instance['text'] : '', $this->text_options );
-			$instance['color-scheme'] = $this->filter_value( isset( $new_instance['color-scheme'] ) ? $new_instance['color-scheme'] : '', $this->color_scheme_options );
-			$instance['policy-url']   = $this->filter_value( isset( $new_instance['policy-url'] ) ? $new_instance['policy-url'] : '', $this->policy_url_options );
-			$instance['position']     = $this->filter_value( isset( $new_instance['position'] ) ? $new_instance['position'] : '', $this->position_options );
+			$instance['hide']         = $this->filter_value( $new_instance['hide'] ?? '', $this->hide_options );
+			$instance['text']         = $this->filter_value( $new_instance['text'] ?? '', $this->text_options );
+			$instance['color-scheme'] = $this->filter_value( $new_instance['color-scheme'] ?? '', $this->color_scheme_options );
+			$instance['policy-url']   = $this->filter_value( $new_instance['policy-url'] ?? '', $this->policy_url_options );
+			$instance['position']     = $this->filter_value( $new_instance['position'] ?? '', $this->position_options );
 
 			if ( isset( $new_instance['hide-timeout'] ) ) {
 				// Time can be a value between 3 and 1000 seconds.

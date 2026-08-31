@@ -151,9 +151,13 @@ class Options {
 	/**
 	 * Default Stats related options.
 	 *
+	 * Exposed so consumers (e.g. the Abilities API surface) can introspect
+	 * each option's default value and infer its type without redeclaring
+	 * a parallel allow-list of bool/array fields.
+	 *
 	 * @return array
 	 */
-	protected static function get_defaults() {
+	public static function get_defaults() {
 		return array(
 			'admin_bar'                => true,
 			'roles'                    => array( 'administrator' ),
@@ -166,6 +170,7 @@ class Options {
 			'odyssey_stats_changed_at' => 0,
 			'notices'                  => array(),
 			'views'                    => 0,
+			'honor_cookie_consent'     => false,
 		);
 	}
 }

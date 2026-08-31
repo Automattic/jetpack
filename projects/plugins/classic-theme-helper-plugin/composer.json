@@ -11,19 +11,14 @@
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev"
 	},
-	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev"
-	},
 	"autoload": {
 		"classmap": [
 			"src/"
 		]
 	},
 	"scripts": {
-		"test-coverage": "pnpm concurrently --names js 'pnpm:test-coverage'",
-		"test-js": [
-			"pnpm run test"
-		],
+		"test-js": "pnpm run test",
+		"test-js-coverage": "pnpm run test-coverage",
 		"build-development": [
 			"pnpm run build"
 		],

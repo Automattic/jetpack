@@ -47,7 +47,6 @@ class Jetpack_Token_Subscription_Service extends Abstract_Token_Subscription_Ser
 	 */
 	public function get_key() {
 		if ( ( new Host() )->is_wpcom_simple() ) {
-			// phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
 			return defined( 'EARN_JWT_SIGNING_KEY' ) ? EARN_JWT_SIGNING_KEY : false;
 		}
 		$token = ( new Tokens() )->get_access_token();

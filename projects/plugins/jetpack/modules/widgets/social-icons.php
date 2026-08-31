@@ -444,7 +444,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		$args = wp_parse_args( $args, $defaults );
 
 		// Define an icon.
-		if ( false === array_key_exists( 'icon', $args ) ) {
+		if ( ! array_key_exists( 'icon', $args ) ) {
 			return esc_html__( 'Please define an SVG icon filename.', 'jetpack' );
 		}
 

@@ -1,15 +1,9 @@
 /**
  * External dependencies
  */
-import {
-	Text,
-	Button,
-	useBreakpointMatch,
-	LoadingPlaceholder,
-	ProgressBar,
-	ThemeProvider,
-} from '@automattic/jetpack-components';
-import { Dropdown } from '@wordpress/components';
+import { Text, Button, LoadingPlaceholder, ThemeProvider } from '@automattic/jetpack-components';
+import { Dropdown, ProgressBar } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { gmdateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import {
@@ -141,11 +135,7 @@ const UploadingThumbnail = ( {
 
 	return (
 		<div className={ clsx( styles[ 'custom-thumbnail' ], { [ styles[ 'is-row' ] ]: isRow } ) }>
-			<ProgressBar
-				className={ styles[ 'progress-bar' ] }
-				size="small"
-				progress={ uploadProgress }
-			/>
+			<ProgressBar value={ Math.min( uploadProgress * 100, 100 ) } />
 			<Text variant={ isRow ? 'body-extra-small' : 'body' } className={ styles[ 'upload-text' ] }>
 				{ infoText }
 			</Text>
@@ -195,7 +185,7 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 		},
 		ref
 	) => {
-		const [ isSmall ] = useBreakpointMatch( 'sm' );
+		const isSmall = useViewportMatch( 'small', '<' );
 		const busy = loading || uploading || deleting || updating;
 
 		// Mapping thumbnail (Ordered by priority)

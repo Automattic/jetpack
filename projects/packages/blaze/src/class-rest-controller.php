@@ -26,33 +26,70 @@ class REST_Controller {
 	public static $namespace = 'jetpack/v4/blaze';
 
 	/**
+	 * Connection manager object.
+	 *
+	 * @var \Automattic\Jetpack\Connection\Manager
+	 */
+	private $connection;
+
+	/**
+	 * Creates the REST_Controller object.
+	 *
+	 * @param \Automattic\Jetpack\Connection\Manager $connection The connection manager object.
+	 */
+	public function __construct( $connection = null ) {
+		$this->connection = $connection ?? new Connection_Manager();
+	}
+
+	/**
+	 * Registers the REST routes on the `rest_api_init` hook.
+	 *
+	 * Instantiated here, rather than eagerly, so the controller class only loads
+	 * on requests that reach `rest_api_init`. Static so the callback can be
+	 * unregistered.
+	 *
+	 * @access public
+	 */
+	public static function register() {
+		( new self() )->register_rest_routes();
+	}
+
+	/**
 	 * Registers the REST routes.
 	 *
 	 * @access public
-	 * @static
 	 */
 	public function register_rest_routes() {
 		$site_id = $this->get_site_id();
-		if ( is_wp_error( $site_id ) ) {
-			return;
+
+		if ( ! is_wp_error( $site_id ) ) {
+			register_rest_route(
+				static::$namespace,
+				'eligibility',
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'blaze_eligibility' ),
+					'permission_callback' => array( $this, 'can_user_view_blaze_settings' ),
+				)
+			);
+
+			register_rest_route(
+				static::$namespace,
+				'dashboard',
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'is_dashboard_enabled' ),
+					'permission_callback' => array( $this, 'can_user_view_blaze_settings' ),
+				)
+			);
 		}
 
 		register_rest_route(
 			static::$namespace,
-			'eligibility',
+			'active-campaigns',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'blaze_eligibility' ),
-				'permission_callback' => array( $this, 'can_user_view_blaze_settings' ),
-			)
-		);
-
-		register_rest_route(
-			static::$namespace,
-			'dashboard',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'is_dashboard_enabled' ),
+				'callback'            => array( $this, 'get_active_campaigns' ),
 				'permission_callback' => array( $this, 'can_user_view_blaze_settings' ),
 			)
 		);
@@ -98,6 +135,20 @@ class REST_Controller {
 	}
 
 	/**
+	 * Get active Blaze campaign status for the site.
+	 *
+	 * @return array
+	 */
+	public function get_active_campaigns() {
+		$site_id = $this->get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return Blaze::get_active_campaigns_status( 0 );
+		}
+
+		return Blaze::get_active_campaigns_status( $site_id );
+	}
+
+	/**
 	 * Check if the current user is connected.
 	 * On WordPress.com Simple, it is always connected.
 	 *
@@ -108,8 +159,7 @@ class REST_Controller {
 			return true;
 		}
 
-		$connection = new Connection_Manager();
-		return $connection->is_connected() && $connection->is_user_connected();
+		return $this->connection->is_connected() && $this->connection->is_user_connected();
 	}
 
 	/**

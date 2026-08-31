@@ -11,6 +11,13 @@ export default {
 	mode: jetpackWebpackConfig.mode,
 	entry: {
 		'jetpack-form-editor': path.join( __dirname, '..', 'src/form-editor/index.tsx' ),
+		// Split out so the guide does not ship to every block editor screen
+		// along with the editor bundle. See welcome-guide/bootstrap.tsx.
+		'jetpack-form-welcome-guide': path.join(
+			__dirname,
+			'..',
+			'src/form-editor/welcome-guide/bootstrap.tsx'
+		),
 	},
 	output: {
 		...jetpackWebpackConfig.output,
@@ -25,15 +32,6 @@ export default {
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
 			fs: false,
-			'@wordpress/admin-ui/build-style/style.css': path.join(
-				__dirname,
-				'..',
-				'node_modules',
-				'@wordpress',
-				'admin-ui',
-				'build-style',
-				'style.css'
-			),
 		},
 	},
 	externals: {
@@ -54,10 +52,23 @@ export default {
 				includeNodeModules: [ '@automattic/', 'debug/' ],
 			} ),
 
+			// Workarounds for non-extracted `@wordpress/*` packages.
+			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
+
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
 				extensions: [ 'css', 'sass', 'scss' ],
-				extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
+				extraLoaders: [
+					{
+						loader: 'postcss-loader',
+						options: {
+							postcssOptions: {
+								config: path.join( __dirname, '..', 'postcss.config.js' ),
+							},
+						},
+					},
+					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
+				],
 			} ),
 
 			// Allow importing .svg files as raw HTML strings via `?raw` query.

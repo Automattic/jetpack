@@ -683,6 +683,15 @@ abstract class SAL_Post {
 	}
 
 	/**
+	 * Returns true if the post has a password set, regardless of whether the current user can view or receive the password value.
+	 *
+	 * @return bool
+	 */
+	public function get_has_password(): bool {
+		return strlen( (string) $this->post->post_password ) > 0;
+	}
+
+	/**
 	 * Returns an object representing a post's parent, and false if it doesn't have one.
 	 *
 	 * @return object|bool
@@ -945,7 +954,7 @@ abstract class SAL_Post {
 
 		$file      = basename( wp_get_attachment_url( $media_item->ID ) );
 		$file_info = pathinfo( $file );
-		$ext       = isset( $file_info['extension'] ) ? $file_info['extension'] : '';
+		$ext       = $file_info['extension'] ?? '';
 
 		$response = array(
 			'ID'          => $media_item->ID,

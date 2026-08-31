@@ -12,8 +12,9 @@ import { store as noticesStore } from '@wordpress/notices';
  * Internal dependencies
  */
 import { notSpam, spam } from '../../icons/index.ts';
+import { deleteResponse, saveResponse } from '../../response-records.ts';
 import { store as dashboardStore } from '../../store/index.js';
-import { updateMenuCounter, updateMenuCounterOptimistically, withTimeout } from '../utils.js';
+import { getFormsMenuBadgeSlug, getMenuBadgeCount, withTimeout } from '../utils.js';
 import { optimisticallyUpdateUnreadCount, processStatusChange } from './process-status-change';
 import { defaultView } from './views.js';
 /**
@@ -36,6 +37,9 @@ const getCountQueryParams = ( currentQuery: QueryParams ): QueryParams => {
 	if ( currentQuery?.parent ) {
 		queryParams.parent = currentQuery.parent;
 	}
+	if ( currentQuery?.source ) {
+		queryParams.source = currentQuery.source;
+	}
 	if ( currentQuery?.before ) {
 		queryParams.before = currentQuery.before;
 	}
@@ -44,6 +48,9 @@ const getCountQueryParams = ( currentQuery: QueryParams ): QueryParams => {
 	}
 	if ( currentQuery?.is_unread !== undefined ) {
 		queryParams.is_unread = currentQuery.is_unread;
+	}
+	if ( currentQuery?.is_test !== undefined ) {
+		queryParams.is_test = currentQuery.is_test;
 	}
 
 	return queryParams;
@@ -245,8 +252,7 @@ export const markAsSpamAction: Action = {
 			const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 				items,
 				newStatus: 'spam',
-				apiCall: ( id: number ) =>
-					saveEntityRecord( 'postType', 'feedback', { id, status: 'spam' } ),
+				apiCall: ( id: number ) => saveResponse( saveEntityRecord, { id, status: 'spam' } ),
 				editEntityRecord,
 				updateCountsOptimistically,
 				queryParams,
@@ -387,8 +393,7 @@ export const markAsNotSpamAction: Action = {
 			const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 				items,
 				newStatus: 'publish',
-				apiCall: ( id: number ) =>
-					saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } ),
+				apiCall: ( id: number ) => saveResponse( saveEntityRecord, { id, status: 'publish' } ),
 				editEntityRecord,
 				updateCountsOptimistically,
 				queryParams,
@@ -518,8 +523,7 @@ export const restoreAction: Action = {
 			const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 				items,
 				newStatus,
-				apiCall: ( id: number ) =>
-					saveEntityRecord( 'postType', 'feedback', { id, status: newStatus } ),
+				apiCall: ( id: number ) => saveResponse( saveEntityRecord, { id, status: newStatus } ),
 				editEntityRecord,
 				updateCountsOptimistically,
 				queryParams,
@@ -651,7 +655,7 @@ export const moveToTrashAction: Action = {
 				items,
 				newStatus: 'trash',
 				apiCall: ( id: number ) =>
-					deleteEntityRecord( 'postType', 'feedback', id, {}, { throwOnError: true } ),
+					deleteResponse( deleteEntityRecord, id, {}, { throwOnError: true } ),
 				editEntityRecord,
 				updateCountsOptimistically,
 				queryParams,
@@ -769,7 +773,7 @@ export const deleteAction: Action = {
 
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
-				deleteEntityRecord( 'postType', 'feedback', id, { force: true }, { throwOnError: true } )
+				deleteResponse( deleteEntityRecord, id, { force: true }, { throwOnError: true } )
 			)
 		);
 
@@ -861,7 +865,7 @@ export const markAsReadAction: Action = {
 
 					// Immediately update menu counters optimistically to avoid delays, but only for inbox
 					if ( status === 'publish' ) {
-						updateMenuCounterOptimistically( -1 );
+						window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), getMenuBadgeCount() - 1 );
 					}
 				}
 
@@ -873,7 +877,7 @@ export const markAsReadAction: Action = {
 				} )
 					.then( ( { count } ) => {
 						// Update menu counter with accurate count from server.
-						updateMenuCounter( count );
+						window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), count );
 					} )
 					.catch( () => {
 						// Revert the change in the store if the server update fails.
@@ -884,7 +888,10 @@ export const markAsReadAction: Action = {
 
 							// Revert the optimistic change in the sidebar.
 							if ( status === 'publish' ) {
-								updateMenuCounterOptimistically( 1 );
+								window.jetpackMenuBadges?.setCount(
+									getFormsMenuBadgeSlug(),
+									getMenuBadgeCount() + 1
+								);
 							}
 						}
 
@@ -976,7 +983,7 @@ export const markAsUnreadAction: Action = {
 
 					// Immediately update menu counters optimistically to avoid delays, but only for inbox
 					if ( status === 'publish' ) {
-						updateMenuCounterOptimistically( 1 );
+						window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), getMenuBadgeCount() + 1 );
 					}
 				}
 
@@ -988,7 +995,7 @@ export const markAsUnreadAction: Action = {
 				} )
 					.then( ( { count } ) => {
 						// Update menu counter with accurate count from server.
-						updateMenuCounter( count );
+						window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), count );
 					} )
 					.catch( () => {
 						// Revert the change in the store if the server update fails.
@@ -999,7 +1006,10 @@ export const markAsUnreadAction: Action = {
 
 							// Revert the optimistic change in the sidebar.
 							if ( status === 'publish' ) {
-								updateMenuCounterOptimistically( -1 );
+								window.jetpackMenuBadges?.setCount(
+									getFormsMenuBadgeSlug(),
+									getMenuBadgeCount() - 1
+								);
 							}
 						}
 

@@ -44,7 +44,7 @@ class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertStringContainsString( '<iframe width="100%" height="450"', $shortcode_content );
-		$this->assertStringContainsString( 'w.soundcloud.com/player/?url=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F156661852&auto_play=false&hide_related=false&visual=true', $shortcode_content );
+		$this->assertStringContainsString( 'w.soundcloud.com/player/?url=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F156661852&#038;auto_play=false&#038;hide_related=false&#038;visual=true', $shortcode_content );
 	}
 
 	public function test_shortcodes_implicit_non_visual() {
@@ -53,7 +53,7 @@ class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertStringContainsString( '<iframe width="100%" height="450"', $shortcode_content );
-		$this->assertStringContainsString( 'w.soundcloud.com/player/?url=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F156661852&auto_play=false&hide_related=false', $shortcode_content );
+		$this->assertStringContainsString( 'w.soundcloud.com/player/?url=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F156661852&#038;auto_play=false&#038;hide_related=false', $shortcode_content );
 	}
 
 	public function test_shortcodes_explicit_non_visual() {
@@ -62,7 +62,7 @@ class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertStringContainsString( '<iframe width="100%" height="450"', $shortcode_content );
-		$this->assertStringContainsString( 'w.soundcloud.com/player/?url=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F156661852&auto_play=false&hide_related=false', $shortcode_content );
+		$this->assertStringContainsString( 'w.soundcloud.com/player/?url=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F156661852&#038;auto_play=false&#038;hide_related=false', $shortcode_content );
 	}
 
 	/**
@@ -76,7 +76,7 @@ class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertStringContainsString( '<iframe width="100%" height="166"', $shortcode_content );
-		$this->assertStringContainsString( 'w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fclosetorgan%2Fpaul-is-dead&width=false&height=false&auto_play=false&hide_related=false&visual=false&show_comments=false&color=false&show_user=false&show_reposts=false', $shortcode_content );
+		$this->assertStringContainsString( 'w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fclosetorgan%2Fpaul-is-dead&#038;width=false&#038;height=false&#038;auto_play=false&#038;hide_related=false&#038;visual=false&#038;show_comments=false&#038;color=false&#038;show_user=false&#038;show_reposts=false', $shortcode_content );
 	}
 
 	/**
@@ -90,7 +90,7 @@ class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertStringContainsString( '<iframe width="100%" height="450"', $shortcode_content );
-		$this->assertStringContainsString( 'w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fclosetorgan%2Fsets%2Fsmells-like-lynx-africa-private&width=false&height=false&auto_play=false&hide_related=false&visual=false&show_comments=false&color=false&show_user=false&show_reposts=false', $shortcode_content );
+		$this->assertStringContainsString( 'w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fclosetorgan%2Fsets%2Fsmells-like-lynx-africa-private&#038;width=false&#038;height=false&#038;auto_play=false&#038;hide_related=false&#038;visual=false&#038;show_comments=false&#038;color=false&#038;show_user=false&#038;show_reposts=false', $shortcode_content );
 	}
 
 	/**
@@ -104,7 +104,7 @@ class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertStringContainsString( '<iframe width="100%" height="450"', $shortcode_content );
-		$this->assertStringContainsString( 'w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fclosetorgan%2Fsets%2Fsmells-like-lynx-africa-private&width=false&height=false&auto_play=false&hide_related=false&visual=false&show_comments=false&show_user=false&show_reposts=false&color=00cc11', $shortcode_content );
+		$this->assertStringContainsString( 'w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fclosetorgan%2Fsets%2Fsmells-like-lynx-africa-private&#038;width=false&#038;height=false&#038;auto_play=false&#038;hide_related=false&#038;visual=false&#038;show_comments=false&#038;show_user=false&#038;show_reposts=false&#038;color=00cc11', $shortcode_content );
 	}
 
 	/**

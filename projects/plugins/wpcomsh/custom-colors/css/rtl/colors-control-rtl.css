@@ -328,98 +328,13 @@ a.revert {
 }
 
 
-/* =Color Palettes
------------------------------------------------ */
-.colour-lovers {
-	float: right;
-	margin: 0 0 18px 18px;
-	height: 50px;
-	width: 72px;
-	position: relative;
-	border-radius: 2px;
-	overflow: hidden;
-}
-
-.colour-lovers:nth-of-type(3) {
-	margin-left: 0;
-}
-
-.colour-lovers li {
-	width: 20%;
-	height: 100%;
-}
-
 /* Displays theme color palettes of < five colors */
-.colour-lovers.items-1 li {
-	width: 100%;
-}
-
-.colour-lovers.items-2 li {
-	width: 50%;
-}
-
-.colour-lovers.items-3 li {
-	width: 33.3333%;
-}
-
-.colour-lovers.items-4 li {
-	width: 25%;
-}
-
-.colour-lovers:hover {
-	cursor: pointer;
-}
-
-.colour-lovers li:hover {
-	opacity: 1;
-}
-
-.colour-lovers:active {
-	opacity: 0.5;
-}
-
-#colourlovers-palettes-container {
-	clear: both;
-	padding: 20px 0 20px;
-	margin-left: -30px;
-}
-
-#colourlovers-palettes-container h3 {
-	font-size: 14px;
-}
-
 .color-picker .button:hover {
 	cursor: pointer;
 }
 
 .color-picker .button:active {
 	padding-top: 3px;
-}
-
-.color-picker #colourlovers-palettes-container .previous,
-.color-picker #colourlovers-palettes-container .next {
-	margin-top: 10px;
-}
-
-/*.color-picker .previous {
-	margin-left: 10px;
-}*/
-
-/* Theme featured palettes */
-.colour-lovers.featured::before {
-	content: "Featured";
-	background: #000;
-	color: #fff;
-	display: block;
-	font-size: 10px;
-	opacity: 0.7;
-	position: absolute;
-	bottom: 5px;
-	left: 0;
-	right: 0;
-	text-indent: 5px;
-	line-height: 1.5;
-	padding-bottom: 1px;
 }
 
 /* Generate from header image */
@@ -436,37 +351,6 @@ a.revert {
 #the-pattern-picker {
 	margin: 0 -20px;
 	padding: 0 20px 10px;
-}
-
-#colourlovers-patterns {
-	border-bottom: none;
-	margin: 0 -18px 10px;
-	min-height: 50px;
-}
-
-#colourlovers-patterns li {
-	float: right;
-	border-radius: 2px;
-	height: 50px;
-	margin-bottom: 10px;
-	margin-right: 18px;
-	overflow: hidden;
-	padding: 0;
-	width: 72px;
-}
-
-#colourlovers-patterns img {
-	cursor: pointer;
-	width: 72px;
-}
-
-#colourlovers-patterns::after {
-	content: ".";
-	display: block;
-	height: 0;
-	clear: both;
-	visibility: hidden;
-	zoom: 1;
 }
 
 #more-patterns,
@@ -517,10 +401,6 @@ input#iris {
 /*
  * Free Mode
  */
-.free-mode #colourlovers-palettes .color-grid:not(.featured) {
-	display: none;
-}
-
 .free-mode #the-pattern-picker {
 	display: none;
 }
@@ -750,14 +630,12 @@ input#iris {
 ----------------------------------------------- */
 
 .nux #color-grid,
-.nux #colourlovers-palettes-container h3,
 .nux #more-palettes {
 	display: none !important;
 }
 
 /* only show theme palettes */
-.nux .color-grid:not(.featured),
-.nux .colour-lovers.featured::before {
+.nux .color-grid:not(.featured) {
 	display: none;
 }
 

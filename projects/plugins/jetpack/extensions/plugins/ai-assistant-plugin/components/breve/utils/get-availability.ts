@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { wordpressPlansStore } from '@automattic/jetpack-shared-extension-utils/store/wordpress-com';
+import { wordpressPlansStore } from '@automattic/jetpack-shared-stores';
 import { select } from '@wordpress/data';
 import { store as editPostStore } from '@wordpress/edit-post';
 /**

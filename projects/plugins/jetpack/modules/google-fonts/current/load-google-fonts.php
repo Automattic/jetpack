@@ -19,7 +19,7 @@ if ( ! class_exists( 'Jetpack_Google_Font_Face' ) ) {
 /**
  * Gets the Google Fonts data
  *
- * @return object[] The collection data of the Google Fonts.
+ * @return array|null The collection data of the Google Fonts.
  */
 function jetpack_get_google_fonts_data() {
 	/**
@@ -91,8 +91,8 @@ function jetpack_get_google_fonts_data() {
 /**
  * Gets the map of the available Google Fonts
  *
- * @param object[] $google_fonts_data The collection data of the Google Fonts.
- * @return object[] The map of the the available Google Fonts.
+ * @param array $google_fonts_data The collection data of the Google Fonts.
+ * @return array The map of the the available Google Fonts.
  */
 function jetpack_get_available_google_fonts_map( $google_fonts_data ) {
 	$jetpack_google_fonts_list = array_map(

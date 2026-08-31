@@ -1,17 +1,10 @@
 /**
  * External dependencies
  */
-import {
-	AdminPage,
-	Button,
-	Col,
-	Container,
-	Text,
-	TermsOfService,
-} from '@automattic/jetpack-components';
+import { AdminPage, Col, Container, TermsOfService } from '@automattic/jetpack-components';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { LinkButton } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect } from 'react';
 /**
@@ -27,6 +20,7 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
 import ProductDetailCard from '../product-detail-card';
 import ProductDetailTable from '../product-detail-table';
+import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
 import styles from './style.module.scss';
 
 /**
@@ -80,7 +74,7 @@ export default function ProductInterstitial( {
 
 	const { isUpgradableByBundle, pricingForUi, isTieredPricing } = detail;
 	const { recordEvent } = useAnalytics();
-	const { onClickGoBack } = useGoBack( { slug } );
+	const { onClickGoBack } = useGoBack( { slug, fallback: '/products' } );
 	const myJetpackCheckoutUri = getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
@@ -173,7 +167,10 @@ export default function ProductInterstitial( {
 						if ( ! needsPurchase ) {
 							// for free products, we still initiate the site connection
 							handleRegisterSite().then( postRegisterRedirectUri => {
-								if ( ! postRegisterRedirectUri ) {
+								if (
+									! postRegisterRedirectUri &&
+									! reloadIfActivationChangesAdminMenu( slug, productName )
+								) {
 									// Fall back to the My Jetpack overview page.
 									return navigateToMyJetpackOverviewPage();
 								}
@@ -197,34 +194,29 @@ export default function ProductInterstitial( {
 			activate,
 			handleRegisterSite,
 			navigateToMyJetpackOverviewPage,
+			productName,
 		]
 	);
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ false }>
+		<AdminPage
+			showBackground={ false }
+			breadcrumbs={
+				<GoBackLink
+					onClick={ onClickGoBack }
+					to="/products"
+					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
+				/>
+			}
+			actions={
+				existingLicenseKeyUrl ? (
+					<LinkButton size="compact" variant="outline" href={ existingLicenseKeyUrl }>
+						{ __( 'Use license key', 'jetpack-my-jetpack' ) }
+					</LinkButton>
+				) : null
+			}
+		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-				<Col className={ styles[ 'product-interstitial__header' ] }>
-					<GoBackLink onClick={ onClickGoBack } />
-					{ existingLicenseKeyUrl && (
-						<Text variant="body-small">
-							{ createInterpolateElement(
-								__(
-									'Already have an existing plan or license key? <a>Click here to get started</a>.',
-									'jetpack-my-jetpack'
-								),
-								{
-									a: (
-										<Button
-											className={ styles[ 'product-interstitial__license-activation-link' ] }
-											href={ existingLicenseKeyUrl }
-											variant="link"
-										/>
-									),
-								}
-							) }
-						</Text>
-					) }
-				</Col>
 				<Col>
 					{ isTieredPricing ? (
 						<ProductDetailTable

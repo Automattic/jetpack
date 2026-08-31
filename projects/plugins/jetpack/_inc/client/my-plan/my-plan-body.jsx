@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
-import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -69,7 +69,7 @@ class MyPlanBody extends Component {
 	};
 
 	render() {
-		let planCard = '';
+		let planCard;
 		const planClass = 'offline' !== this.props.plan ? getPlanClass( this.props.plan ) : 'offline';
 		const isPlanPremiumOrBetter = [
 			'is-premium-plan',
@@ -104,13 +104,14 @@ class MyPlanBody extends Component {
 						<h3 className="jp-landing__plan-features-title">{ title }</h3>
 						<p>{ description }</p>
 						<Button onClick={ this.handleButtonClickForTracking( 'view_backup_dash' ) } compact rna>
-							<ExternalLink
+							<Link
+								openInNewTab
 								href={ getRedirectUrl( 'calypso-activity-log', {
 									site: this.props.blogID ?? this.props.siteRawUrl,
 								} ) }
 							>
 								{ __( 'View your backups', 'jetpack' ) }
-							</ExternalLink>
+							</Link>
 						</Button>
 					</div>
 				</div>
@@ -147,20 +148,21 @@ class MyPlanBody extends Component {
 								compact
 								rna
 							>
-								<ExternalLink
+								<Link
+									openInNewTab
 									href={ getRedirectUrl( 'calypso-activity-log', {
 										site: this.props.blogID ?? this.props.siteRawUrl,
 									} ) }
 								>
 									{ __( 'View your security activity', 'jetpack' ) }
-								</ExternalLink>
+								</Link>
 							</Button>
 						</div>
 					</div>
 				);
 			}
 
-			let description = '';
+			let description;
 			switch ( planClass ) {
 				case 'is-personal-plan':
 					description = __(
@@ -206,9 +208,9 @@ class MyPlanBody extends Component {
 								compact
 								rna
 							>
-								<ExternalLink href={ getRedirectUrl( 'vaultpress-dashboard' ) }>
+								<Link openInNewTab href={ getRedirectUrl( 'vaultpress-dashboard' ) }>
 									{ __( 'View your security dashboard', 'jetpack' ) }
-								</ExternalLink>
+								</Link>
 							</Button>
 						) : (
 							<Button
@@ -216,14 +218,15 @@ class MyPlanBody extends Component {
 								compact
 								rna
 							>
-								<ExternalLink
+								<Link
+									openInNewTab
 									href={ getRedirectUrl( 'calypso-plugins-setup', {
 										site: this.props.blogID ?? this.props.siteRawUrl,
 										query: 'only=vaultpress',
 									} ) }
 								>
 									{ __( 'View settings', 'jetpack' ) }
-								</ExternalLink>
+								</Link>
 							</Button>
 						) }
 					</div>
@@ -377,14 +380,15 @@ class MyPlanBody extends Component {
 										compact
 										rna
 									>
-										<ExternalLink
+										<Link
+											openInNewTab
 											href={ getRedirectUrl( 'calypso-plugins-setup', {
 												site: this.props.blogID ?? this.props.siteRawUrl,
 												query: 'only=akismet',
 											} ) }
 										>
 											{ __( 'View settings', 'jetpack' ) }
-										</ExternalLink>
+										</Link>
 									</Button>
 								) }
 							</div>
@@ -462,13 +466,14 @@ class MyPlanBody extends Component {
 									compact
 									rna
 								>
-									<ExternalLink
+									<Link
+										openInNewTab
 										href={ getRedirectUrl( 'calypso-activity-log', {
 											site: this.props.blogID ?? this.props.siteRawUrl,
 										} ) }
 									>
 										{ __( 'View your site activity', 'jetpack' ) }
-									</ExternalLink>
+									</Link>
 								</Button>
 							</div>
 						</div>
@@ -498,13 +503,14 @@ class MyPlanBody extends Component {
 											compact
 											rna
 										>
-											<ExternalLink
+											<Link
+												openInNewTab
 												href={ getRedirectUrl( 'wpcom-ads-earnings', {
 													site: this.props.blogID ?? this.props.siteRawUrl,
 												} ) }
 											>
 												{ __( 'View your earnings', 'jetpack' ) }
-											</ExternalLink>
+											</Link>
 										</Button>
 									) : (
 										<Button
@@ -547,13 +553,14 @@ class MyPlanBody extends Component {
 										compact
 										rna
 									>
-										<ExternalLink
+										<Link
+											openInNewTab
 											href={ getRedirectUrl( 'calypso-marketing-traffic', {
 												site: this.props.blogID ?? this.props.siteRawUrl,
 											} ) }
 										>
 											{ __( 'Configure Google Analytics', 'jetpack' ) }
-										</ExternalLink>
+										</Link>
 									</Button>
 								</div>
 							</div>
@@ -585,13 +592,14 @@ class MyPlanBody extends Component {
 												compact
 												rna
 											>
-												<ExternalLink
+												<Link
+													openInNewTab
 													href={ getRedirectUrl( 'calypso-edit-posts', {
 														site: this.props.blogID ?? this.props.siteRawUrl,
 													} ) }
 												>
 													{ __( 'Schedule posts', 'jetpack' ) }
-												</ExternalLink>
+												</Link>
 											</Button>
 										) : (
 											<Button
@@ -651,13 +659,14 @@ class MyPlanBody extends Component {
 									compact
 									rna
 								>
-									<ExternalLink
+									<Link
+										openInNewTab
 										href={ getRedirectUrl( 'calypso-settings-security', {
 											site: this.props.blogID ?? this.props.siteRawUrl,
 										} ) }
 									>
 										{ __( 'Set up your site security', 'jetpack' ) }
-									</ExternalLink>
+									</Link>
 								</Button>
 							</div>
 						</div>
@@ -710,13 +719,14 @@ class MyPlanBody extends Component {
 									) }
 								</p>
 								<Button onClick={ this.handleButtonClickForTracking( 'free_themes' ) } compact rna>
-									<ExternalLink
+									<Link
+										openInNewTab
 										href={ getRedirectUrl( 'calypso-themes', {
 											site: this.props.blogID ?? this.props.siteRawUrl,
 										} ) }
 									>
 										{ __( 'Explore themes', 'jetpack' ) }
-									</ExternalLink>
+									</Link>
 								</Button>
 							</div>
 						</div>
@@ -749,13 +759,14 @@ class MyPlanBody extends Component {
 											compact
 											rna
 										>
-											<ExternalLink
+											<Link
+												openInNewTab
 												href={ getRedirectUrl( 'calypso-marketing-connections', {
 													site: this.props.blogID ?? this.props.siteRawUrl,
 												} ) }
 											>
 												{ __( 'Start sharing', 'jetpack' ) }
-											</ExternalLink>
+											</Link>
 										</Button>
 									) : (
 										<Button
@@ -797,13 +808,14 @@ class MyPlanBody extends Component {
 									compact
 									rna
 								>
-									<ExternalLink
+									<Link
+										openInNewTab
 										href={ getRedirectUrl( 'calypso-activity-log', {
 											site: this.props.blogID ?? this.props.siteRawUrl,
 										} ) }
 									>
 										{ __( 'View your site activity', 'jetpack' ) }
-									</ExternalLink>
+									</Link>
 								</Button>
 							</div>
 						</div>
@@ -831,9 +843,9 @@ class MyPlanBody extends Component {
 									compact
 									rna
 								>
-									<ExternalLink href={ getRedirectUrl( 'jetpack-support' ) }>
+									<Link openInNewTab href={ getRedirectUrl( 'jetpack-support' ) }>
 										{ __( 'Search support docs', 'jetpack' ) }
-									</ExternalLink>
+									</Link>
 								</Button>
 							</div>
 						</div>

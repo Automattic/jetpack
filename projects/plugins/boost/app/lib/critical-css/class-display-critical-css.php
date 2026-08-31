@@ -101,17 +101,45 @@ class Display_Critical_CSS {
 		$critical_css = $this->css;
 
 		if ( ! $critical_css ) {
-			// phpcs:ignore Universal.CodeAnalysis.ConstructorDestructorReturn.ReturnValueFound -- This is not a PHP 4 constructor, that only applies to non-namespaced classes.
 			return false;
 		}
 
 		echo '<style id="jetpack-boost-critical-css">';
 
-		// Ensure no </style> tag (or any HTML tags) in output.
+		// Ensure the CSS cannot terminate the style element early.
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo wp_strip_all_tags( $critical_css );
+		echo self::neutralize_style_closing_tags( $critical_css );
 
 		echo '</style>';
+	}
+
+	/**
+	 * Neutralize any closing </style tag so CSS can be printed inside a <style>
+	 * element without breaking out of it.
+	 *
+	 * This is NOT a general-purpose CSS sanitizer: it does exactly one thing,
+	 * which is to stop the CSS from terminating the surrounding <style> element.
+	 * It deliberately avoids wp_strip_all_tags(), which corrupts valid CSS values
+	 * that contain markup - e.g. `background-image: url("data:image/svg+xml,<svg ...></svg>")`.
+	 *
+	 * Per the HTML rawtext tokenizer, a <style> element can only be terminated by
+	 * the literal sequence `</style` (case-insensitive). Escaping its forward slash
+	 * to `<\/style` defeats the tokenizer - `</` must be immediately followed by the
+	 * tag name, and `<\` is treated as literal text - so the markup stays inert. The
+	 * replacement string contains no `</style` substring, so a single left-to-right
+	 * pass cannot reconstruct the sequence (including from nested input like
+	 * `<</style/style`), and the transform is idempotent.
+	 *
+	 * Inside CSS strings and url() tokens `\/` is a valid escape for `/`, so
+	 * legitimate quoted values keep their meaning. (A literal `</style` outside a
+	 * quoted string does not occur in well-formed CSS; the security guarantee takes
+	 * priority there regardless.)
+	 *
+	 * @param string $css CSS to neutralize.
+	 * @return string CSS that cannot terminate the surrounding <style> element.
+	 */
+	public static function neutralize_style_closing_tags( $css ) {
+		return str_ireplace( '</style', '<\/style', $css );
 	}
 
 	/**

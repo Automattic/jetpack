@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Make the data package hooks barrel canonical; no exported API change
+
+

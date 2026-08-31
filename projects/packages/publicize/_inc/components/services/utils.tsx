@@ -1,18 +1,17 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
-import { Badge } from '@automattic/ui';
-import '@automattic/ui/style.css';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import connectionsFacebook from '../../assets/connections-facebook.webp';
-import connectionsInstagramBusiness from '../../assets/connections-instagram-business.webp';
-import connectionsLinkedin from '../../assets/connections-linkedin.webp';
-import connectionsNextdoor from '../../assets/connections-nextdoor.webp';
-import connectionsThreads from '../../assets/connections-threads.webp';
-import connectionsTumblr from '../../assets/connections-tumblr.webp';
+import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { ConnectionService } from '../../types';
+import { assetUrl } from '../../utils';
 import { ServiceUiDetails } from './types';
-import { XNotice } from './x-notice';
+
+const connectionsFacebook = assetUrl( 'connections-facebook.webp' );
+const connectionsInstagramBusiness = assetUrl( 'connections-instagram-business.webp' );
+const connectionsLinkedin = assetUrl( 'connections-linkedin.webp' );
+const connectionsNextdoor = assetUrl( 'connections-nextdoor.webp' );
+const connectionsThreads = assetUrl( 'connections-threads.webp' );
+const connectionsTumblr = assetUrl( 'connections-tumblr.webp' );
 
 /**
  * Get the UI details for a given service.
@@ -22,13 +21,12 @@ import { XNotice } from './x-notice';
  * @return The UI details for the service.
  */
 export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiDetails {
-	const badgeNew = <Badge intent="info">{ __( 'New', 'jetpack-publicize-pkg' ) }</Badge>;
-
 	switch ( id ) {
 		case 'bluesky':
 			return {
 				needsCustomInputs: true,
 				icon: props => <SocialServiceIcon serviceName="bluesky" { ...props } />,
+				accountType: _x( 'Profile', 'social account type', 'jetpack-publicize-pkg' ),
 				description: __( 'Share with your network.', 'jetpack-publicize-pkg' ),
 				examples: [
 					() => (
@@ -44,6 +42,7 @@ export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiD
 		case 'facebook':
 			return {
 				icon: props => <SocialServiceIcon serviceName="facebook" { ...props } />,
+				accountType: _x( 'Page', 'social account type', 'jetpack-publicize-pkg' ),
 				description: __( 'Share to your pages', 'jetpack-publicize-pkg' ),
 				examples: [
 					() => (
@@ -69,6 +68,8 @@ export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiD
 		case 'instagram-business':
 			return {
 				icon: props => <SocialServiceIcon serviceName="instagram" { ...props } />,
+				shortLabel: __( 'Instagram', 'jetpack-publicize-pkg' ),
+				accountType: _x( 'Business', 'social account type', 'jetpack-publicize-pkg' ),
 				description: __( 'Share to your Instagram Business account.', 'jetpack-publicize-pkg' ),
 				examples: [
 					() => (
@@ -103,7 +104,8 @@ export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiD
 							) }
 							<br />
 							<br />
-							<ExternalLink
+							<Link
+								openInNewTab
 								className="instagram-business__help-link"
 								href="https://jetpack.com/redirect/?source=jetpack-social-instagram-business-help"
 							>
@@ -111,7 +113,7 @@ export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiD
 									'Learn how to convert & link your Instagram account.',
 									'jetpack-publicize-pkg'
 								) }
-							</ExternalLink>
+							</Link>
 						</>
 					),
 					() => (
@@ -126,6 +128,7 @@ export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiD
 		case 'linkedin':
 			return {
 				icon: props => <SocialServiceIcon serviceName="linkedin" { ...props } />,
+				accountType: _x( 'Profile / Company', 'social account type', 'jetpack-publicize-pkg' ),
 				description: __( 'Share with your LinkedIn community.', 'jetpack-publicize-pkg' ),
 				examples: [
 					() => (
@@ -152,6 +155,7 @@ export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiD
 			return {
 				needsCustomInputs: true,
 				icon: props => <SocialServiceIcon serviceName="mastodon" { ...props } />,
+				accountType: _x( 'Profile', 'social account type', 'jetpack-publicize-pkg' ),
 				description: __( 'Share with your network.', 'jetpack-publicize-pkg' ),
 				examples: [
 					() => (
@@ -168,6 +172,7 @@ export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiD
 		case 'nextdoor':
 			return {
 				icon: props => <SocialServiceIcon serviceName="nextdoor" { ...props } />,
+				accountType: _x( 'Profile', 'social account type', 'jetpack-publicize-pkg' ),
 				description: __( 'Share on communities', 'jetpack-publicize-pkg' ),
 				examples: [
 					() => (
@@ -193,6 +198,7 @@ export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiD
 		case 'threads':
 			return {
 				icon: props => <SocialServiceIcon serviceName="threads" { ...props } />,
+				accountType: _x( 'Profile', 'social account type', 'jetpack-publicize-pkg' ),
 				description: __( 'Share posts to your Threads feed.', 'jetpack-publicize-pkg' ),
 				examples: [
 					() => (
@@ -215,6 +221,7 @@ export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiD
 		case 'tumblr':
 			return {
 				icon: props => <SocialServiceIcon serviceName="tumblr-alt" { ...props } />,
+				accountType: _x( 'Page', 'social account type', 'jetpack-publicize-pkg' ),
 				description: __( 'Share to your Tumblr blog.', 'jetpack-publicize-pkg' ),
 				examples: [
 					() => (
@@ -233,24 +240,6 @@ export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiD
 							src={ connectionsTumblr }
 							alt={ __( 'Add Tumblr connection', 'jetpack-publicize-pkg' ) }
 						/>
-					),
-				],
-			};
-
-		case 'x':
-			return {
-				icon: props => <SocialServiceIcon serviceName="x" { ...props } />,
-				badges: [ badgeNew ],
-				description: __( 'Share with your X network.', 'jetpack-publicize-pkg' ),
-				examples: [
-					() => (
-						<>
-							{ __(
-								'You asked, we listened. You can share to X directly from your Jetpack site again.',
-								'jetpack-publicize-pkg'
-							) }
-							<XNotice />
-						</>
 					),
 				],
 			};

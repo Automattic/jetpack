@@ -1,40 +1,104 @@
-import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import type { IconType } from '@wordpress/components';
+import { Button, Link, LinkButton } from '@wordpress/ui';
 import type { FC, MouseEvent } from 'react';
 
 export type SecondaryButtonProps = {
 	href?: string;
-	size?: 'normal' | 'small';
+	size?: 'normal' | 'compact';
 	variant?: 'primary' | 'secondary' | 'link' | 'tertiary';
-	weight?: 'bold' | 'regular';
 	label?: string;
 	shouldShowButton?: () => boolean;
-	onClick?: ( () => void ) | ( ( e: MouseEvent< HTMLButtonElement > ) => void );
+	onClick?: ( () => void ) | ( ( e: MouseEvent< HTMLElement > ) => void );
 	isExternalLink?: boolean;
-	icon?: IconType;
-	iconSize?: number;
 	disabled?: boolean;
 	isLoading?: boolean;
+	loadingAnnouncement?: string;
 	className?: string;
+	id?: string;
 	'aria-labelledby'?: string;
 };
 
-// SecondaryButton component
+const variantMap = {
+	primary: 'solid',
+	secondary: 'outline',
+	tertiary: 'minimal',
+	link: 'unstyled',
+} as const;
+
+const sizeMap = {
+	normal: 'default',
+	compact: 'compact',
+} as const;
+
+type UiButtonVariant = ( typeof variantMap )[ keyof typeof variantMap ];
+
 const SecondaryButton: FC< SecondaryButtonProps > = props => {
-	const { shouldShowButton = () => true, ...buttonProps } = {
-		size: 'small' as const,
-		variant: 'secondary' as const,
-		weight: 'regular' as const,
-		label: __( 'Learn more', 'jetpack-my-jetpack' ),
-		...props,
-	};
+	const {
+		shouldShowButton = () => true,
+		size = 'compact',
+		variant = 'secondary',
+		label = __( 'Learn more', 'jetpack-my-jetpack' ),
+		href,
+		onClick,
+		isExternalLink,
+		disabled,
+		isLoading,
+		loadingAnnouncement,
+		className,
+		id,
+		'aria-labelledby': ariaLabelledBy,
+	} = props;
 
 	if ( ! shouldShowButton() ) {
-		return false;
+		return null;
 	}
 
-	return <Button { ...buttonProps }>{ buttonProps.label }</Button>;
+	if ( variant === 'link' && href ) {
+		return (
+			<Link
+				id={ id }
+				href={ href }
+				openInNewTab={ isExternalLink }
+				onClick={ onClick }
+				className={ className }
+				aria-labelledby={ ariaLabelledBy }
+			>
+				{ label }
+			</Link>
+		);
+	}
+
+	const mappedVariant: UiButtonVariant = variantMap[ variant ];
+
+	const sharedProps = {
+		variant: mappedVariant,
+		size: sizeMap[ size ],
+		onClick,
+		className,
+		id,
+		'aria-labelledby': ariaLabelledBy,
+	};
+
+	// A loading or disabled control isn't navigable, so keep a real Button for
+	// the spinner / disabled chrome. Otherwise LinkButton owns href natively.
+	if ( href && ! isLoading && ! disabled ) {
+		return (
+			<LinkButton { ...sharedProps } href={ href } openInNewTab={ isExternalLink }>
+				{ label }
+			</LinkButton>
+		);
+	}
+
+	return (
+		<Button
+			{ ...sharedProps }
+			disabled={ disabled }
+			loading={ isLoading }
+			loadingAnnouncement={ loadingAnnouncement }
+		>
+			{ label }
+		</Button>
+	);
 };
 
 export default SecondaryButton;

@@ -1,9 +1,11 @@
 module.exports = {
 	transform: {
-		'\\.[jt]sx?$': [
+		'\\.m?[jt]sx?$': [
 			require.resolve( 'babel-jest' ),
 			{
-				presets: [ require.resolve( '@babel/preset-typescript' ) ],
+				presets: [
+					[ require.resolve( '@babel/preset-typescript' ), { allowDeclareFields: true } ],
+				],
 			},
 		],
 	},

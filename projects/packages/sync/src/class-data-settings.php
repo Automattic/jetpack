@@ -223,7 +223,7 @@ class Data_Settings {
 	 */
 	private function add_filters_for_enabled_module( $module, $filters_settings ) {
 		$module_mapping     = self::MODULE_FILTER_MAPPING;
-		$filters_for_module = isset( $module_mapping[ $module ] ) ? $module_mapping[ $module ] : array();
+		$filters_for_module = $module_mapping[ $module ] ?? array();
 
 		foreach ( $filters_for_module as $filter ) {
 			if ( isset( $filters_settings[ $filter ] ) ) {
@@ -242,7 +242,7 @@ class Data_Settings {
 	 */
 	private function add_filters_for_disabled_module( $module ) {
 		$module_mapping     = self::MODULE_FILTER_MAPPING;
-		$filters_for_module = isset( $module_mapping[ $module ] ) ? $module_mapping[ $module ] : array();
+		$filters_for_module = $module_mapping[ $module ] ?? array();
 
 		foreach ( $filters_for_module as $filter ) {
 			$this->add_custom_filter_setting( $filter, array() );

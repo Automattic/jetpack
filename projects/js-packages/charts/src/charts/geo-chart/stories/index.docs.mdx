@@ -69,13 +69,20 @@ The simplest geo chart requires data, width, and height. The `data` prop uses Go
 **Layout & Dimensions:**
 - **`width`**: Width of the chart in pixels. When omitted, fills parent container width
 - **`height`**: Height of the chart in pixels. When omitted, fills parent container height (parent must have explicit height)
-- **`aspectRatio`**: Height as a fraction of width (e.g., `0.625` = 62.5% height). When provided, height is calculated from width
+- **`aspectRatio`**: Height-to-width ratio (e.g. `0.625`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
 - **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
 - **`resizeDebounceTime`**: Debounce delay for resize events in ms (default: `300`)
+
+**Map Scope:**
+- **`region`**: Region to display — `'world'` (default) or an ISO 3166-1 alpha-2 country code (e.g., `'US'`)
+- **`resolution`**: Map resolution — `'countries'` (default), `'provinces'` (use with a specific region), or `'metros'` (US only)
 
 **Styling & Customization:**
 - **`className`**: Additional CSS class name for custom styling
 - **`renderPlaceholder`**: Custom render function for the loading placeholder
+
+**Error Handling:**
+- **`onError`**: Callback fired when Google Charts emits a chart error, including draw errors rendered into the chart container (e.g. a missing map file)
 
 For detailed prop information and type definitions, see the [Geo Chart API Reference](./?path=/docs/js-packages-charts-library-charts-geo-chart-api-reference--docs).
 
@@ -282,14 +289,24 @@ Add custom styles using the `className` prop:
 
 ## Theming Integration
 
-Geo Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+Geo Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+
+**The color axis range comes from the first palette custom property, not the theme object:**
+
+<Source
+	language="css"
+	code={ `.a8c-charts-scope {
+		--a8c-charts-color-series-1: #FF6B6B;
+	}` }
+/>
+
+Everything else is set by wrapping your chart in `GlobalChartsProvider` and passing a theme object with the properties you want to override to the `theme` prop:
 
 <Source
 	language="tsx"
 	code={ `import { GlobalChartsProvider, GeoChart, type ChartTheme } from '@automattic/charts';
 
 	const customTheme: ChartTheme = {
-		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1'],
 		backgroundColor: '#f5f5f5',
 		geoChart: {
 			featureFillColor: '#e0e0e0',
@@ -308,7 +325,6 @@ Geo Charts integrate seamlessly with the chart theming system. The default theme
 
 The chart uses the following theme properties:
 
-- **`colors[0]`**: Primary color for data visualization (used for color axis range)
 - **`backgroundColor`**: Background color for the map
 - **`geoChart.featureFillColor`**: Fill color for countries without data
 
@@ -323,7 +339,7 @@ Like other charts in this library, GeoChart supports responsive sizing. By defau
 		<GeoChart data={ordersByCountry} />
 	</div>
 
-	// Use aspect ratio - height calculated from width
+	// Use aspect ratio - height from width, contained if the parent is shorter
 	<div style={{ width: '100%' }}>
 		<GeoChart data={ordersByCountry} aspectRatio={0.625} />
 	</div>

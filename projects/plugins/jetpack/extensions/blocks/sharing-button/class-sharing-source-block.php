@@ -499,7 +499,7 @@ class Share_Email_Block extends Sharing_Source_Block {
 	 * @param WP_Post $post Post object.
 	 * @param array   $post_data Array of information about the post we're sharing.
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public function process_request( $post, array $post_data ) {
 		$is_ajax = false;
@@ -527,8 +527,6 @@ class Share_Email_Block extends Sharing_Source_Block {
 			wp_safe_redirect( get_permalink( $post->ID ) . '?shared=email&msg=fail' );
 			exit( 0 );
 		}
-
-		wp_die();
 	}
 }
 
@@ -712,7 +710,7 @@ class Share_Pinterest_Block extends Sharing_Source_Block {
 	 * @return string
 	 */
 	public function get_external_url( $post ) {
-		$url = 'https://www.pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&media=' . rawurlencode( $this->get_image( $post ) ) . '&description=' . rawurlencode( $post->post_title );
+		$url = 'https://www.pinterest.com/pin/create/link/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&media=' . rawurlencode( $this->get_image( $post ) ) . '&description=' . rawurlencode( $post->post_title );
 
 		/**
 		 * Filters the Pinterest share URL used in sharing button output.

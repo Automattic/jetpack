@@ -163,6 +163,17 @@ export default class DomEventHandler extends Component {
 	};
 
 	handleSubmit = event => {
+		// Don't intercept submissions targeting third-party domains. A form can
+		// contain an input named "s" without being a WordPress search form (e.g.
+		// ActiveCampaign sign-up embeds), so only intercept same-origin forms.
+		try {
+			if ( new URL( event.target.action ).origin !== window.location.origin ) {
+				return;
+			}
+		} catch {
+			return;
+		}
+
 		event.preventDefault();
 		this.handleInput.flush();
 

@@ -1,9 +1,9 @@
-import { useExperimentWithAuth } from '@automattic/jetpack-explat';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
-import CelebrateLaunchModal from '../../../common/celebrate-launch/celebrate-launch-modal';
-import { useLaunchSiteMutation } from '../../../common/hooks';
+import { useSiteLaunchGatingVariant } from '../../../common/hooks';
+import PreLaunchSiteModal from '../../../common/pre-launch-site-modal';
+import { shouldShowPreLaunchModal } from '../../../common/should-show-pre-launch-modal';
 import { wpcomTrackEvent } from '../../../common/tracks';
 import SitePreviewLink from '../site-preview-link';
 import type { SitePreviewLinkObject } from '../site-preview-link';
@@ -20,12 +20,11 @@ interface Props {
 	wpcomComingSoon: number;
 	wpcomPublicComingSoon: number;
 	siteDomain: string;
-	sitePlan?: { product_slug: string };
+	sitePlan?: { product_slug: string; product_name?: string };
 	hasCustomDomain: boolean;
 }
 
 const LaunchSite = ( {
-	blogId,
 	homeUrl,
 	siteTitle,
 	isUnlaunchedSite,
@@ -39,14 +38,10 @@ const LaunchSite = ( {
 	sitePlan,
 	hasCustomDomain,
 }: Props ) => {
-	const [ , experimentData ] = useExperimentWithAuth(
-		'calypso_standardized_site_launch_gating_202603_v1'
-	);
-	const [ showCelebrateLaunchModal, setShowCelebrateLaunchModal ] = useState( false );
+	const [ , variant ] = useSiteLaunchGatingVariant();
+	const [ showPreLaunchModal, setShowPreLaunchModal ] = useState( false );
 
-	const { mutate: launchSite, isPending } = useLaunchSiteMutation( blogId, () =>
-		setShowCelebrateLaunchModal( true )
-	);
+	const qualifiesForPreLaunch = shouldShowPreLaunchModal( { sitePlan, hasCustomDomain } );
 
 	// isPrivateAndUnlaunched means it is an unlaunched coming soon v1 site
 	const isPrivateAndUnlaunched = -1 === blogPublic && isUnlaunchedSite;
@@ -77,12 +72,21 @@ const LaunchSite = ( {
 	const handleLaunchClick = () => {
 		wpcomTrackEvent( 'wpcom_settings_reading_launch_site_button_click' );
 
-		if ( experimentData?.variationName === 'ungated_site_launch' ) {
-			launchSite();
-			return;
+		// Site launch gating: 'semi_gated_site_launch' is the shipped default. The other
+		// branches are scaffolding for future experiments; see useSiteLaunchGatingVariant.
+		switch ( variant ) {
+			case 'semi_gated_site_launch':
+			case null:
+			default:
+				// Qualifying sites confirm via the pre-launch modal; everyone else
+				// goes straight to the launch flow, preserving today's behavior.
+				if ( qualifiesForPreLaunch ) {
+					wpcomTrackEvent( 'wpcom_launch_site_pre_launch_modal_shown' );
+					setShowPreLaunchModal( true );
+					return;
+				}
+				window.location.href = launchUrl;
 		}
-
-		window.location.href = launchUrl;
 	};
 
 	return (
@@ -92,7 +96,6 @@ const LaunchSite = ( {
 				className="button is-secondary"
 				type="button"
 				style={ { marginTop: '0.5em' } }
-				disabled={ isPending }
 				onClick={ handleLaunchClick }
 			>
 				{ __( 'Launch site', 'jetpack-mu-wpcom' ) }
@@ -113,16 +116,14 @@ const LaunchSite = ( {
 					}
 				/>
 			) }
-			{ showCelebrateLaunchModal && (
-				<CelebrateLaunchModal
+			{ showPreLaunchModal && (
+				<PreLaunchSiteModal
+					siteName={ siteTitle }
 					siteDomain={ siteDomain }
-					siteUrl={ homeUrl }
-					sitePlan={ sitePlan }
-					hasCustomDomain={ hasCustomDomain }
-					onRequestClose={ () => {
-						setShowCelebrateLaunchModal( false );
-						window.location.reload();
-					} }
+					homeUrl={ homeUrl }
+					planName={ sitePlan?.product_name || __( 'Paid plan', 'jetpack-mu-wpcom' ) }
+					launchUrl={ launchUrl }
+					onClose={ () => setShowPreLaunchModal( false ) }
 				/>
 			) }
 		</>

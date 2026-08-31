@@ -19,6 +19,17 @@ use WorDBless\BaseTestCase;
  */
 #[CoversClass( Feedback_Source::class )]
 class Feedback_Source_Test extends BaseTestCase {
+
+	/**
+	 * Put back the globals get_current() reads, so these tests can't leak a
+	 * source into whatever runs next.
+	 */
+	public function tear_down() {
+		$GLOBALS['post'] = null;
+		unset( $GLOBALS['grunion_block_template_part_id'], $GLOBALS['grunion_block_template_id'] );
+		parent::tear_down();
+	}
+
 	/**
 	 * Test constructor with invalid ID (0 or negative)
 	 */
@@ -299,6 +310,55 @@ class Feedback_Source_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A fresh Feedback_Source is not a test submission by default.
+	 */
+	public function test_is_test_defaults_to_false() {
+		$entry = new Feedback_Source( 0, 'Test Title' );
+
+		$this->assertFalse( $entry->is_test() );
+	}
+
+	/**
+	 * The set_is_test setter flips the flag both ways.
+	 */
+	public function test_set_is_test_flips_the_flag() {
+		$entry = new Feedback_Source( 0, 'Test Title' );
+		$entry->set_is_test( true );
+
+		$this->assertTrue( $entry->is_test() );
+
+		$entry->set_is_test( false );
+		$this->assertFalse( $entry->is_test() );
+	}
+
+	/**
+	 * When flagged as test, serialize includes is_test and round-trips through from_serialized.
+	 */
+	public function test_is_test_round_trips_through_serialize() {
+		$entry = new Feedback_Source( 0, 'Preview Title', 1 );
+		$entry->set_is_test( true );
+
+		$serialized = $entry->serialize();
+
+		$this->assertArrayHasKey( 'is_test', $serialized );
+		$this->assertTrue( $serialized['is_test'] );
+
+		$restored = Feedback_Source::from_serialized( $serialized );
+		$this->assertTrue( $restored->is_test() );
+	}
+
+	/**
+	 * Serialize omits the is_test key entirely when the flag is not set,
+	 * so existing serialized payloads are not affected.
+	 */
+	public function test_serialize_omits_is_test_when_false() {
+		$entry      = new Feedback_Source( 0, 'Normal Title' );
+		$serialized = $entry->serialize();
+
+		$this->assertArrayNotHasKey( 'is_test', $serialized );
+	}
+
+	/**
 	 * Test constructor overwrites ID when post is not public
 	 */
 	public function test_constructor_overwrites_id_for_non_public_post() {
@@ -316,5 +376,65 @@ class Feedback_Source_Test extends BaseTestCase {
 		// ID should be reset to 0 for non-public posts
 		$this->assertSame( $post_id, $entry->get_id() );
 		$this->assertEquals( 'Fallback Title', $entry->get_title() );
+	}
+
+	/**
+	 * With no widget attribute and neither template global set, the source of a
+	 * form is the post being viewed.
+	 */
+	public function test_get_current_falls_back_to_the_post_being_viewed() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Source Post',
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+
+		// The current post is read from the `$post` global; tear_down() clears it.
+		$GLOBALS['post'] = get_post( $post_id );
+
+		$source = Feedback_Source::get_current( array() );
+
+		$this->assertSame( $post_id, $source->get_id(), 'The source should be the post being viewed.' );
+		$this->assertSame( 'single', $source->get_source_type() );
+		$this->assertSame( 1, $source->get_page_number(), 'A null $page global should read as page 1.' );
+	}
+
+	/**
+	 * A form in a widget is attributed to the widget, not to whatever post the
+	 * widget happens to appear on.
+	 */
+	public function test_get_current_attributes_a_form_in_a_widget_to_the_widget() {
+		$source = Feedback_Source::get_current( array( 'widget' => 'text-3' ) );
+
+		$this->assertSame( 'text-3', $source->get_id() );
+		$this->assertSame( 'widget', $source->get_source_type() );
+	}
+
+	/**
+	 * A form in a block template part is attributed to the template part. The ID
+	 * comes from a render-scoped global rather than a shortcode attribute, which
+	 * is what stops post content from claiming to be an admin-authored template.
+	 */
+	public function test_get_current_attributes_a_form_in_a_template_part_to_the_template_part() {
+		$GLOBALS['grunion_block_template_part_id'] = 'twentytwentyfive//footer';
+
+		$source = Feedback_Source::get_current( array() );
+
+		$this->assertSame( 'twentytwentyfive//footer', $source->get_id() );
+		$this->assertSame( 'block_template_part', $source->get_source_type() );
+	}
+
+	/**
+	 * The same for a form in a block template.
+	 */
+	public function test_get_current_attributes_a_form_in_a_template_to_the_template() {
+		$GLOBALS['grunion_block_template_id'] = 'twentytwentyfive//home';
+
+		$source = Feedback_Source::get_current( array() );
+
+		$this->assertSame( 'twentytwentyfive//home', $source->get_id() );
+		$this->assertSame( 'block_template', $source->get_source_type() );
 	}
 }

@@ -123,8 +123,8 @@ fi
 # Update the "Stable tag" in the tag if it's not a beta version.
 if [[ "$TAG" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
 	if [[ -n "$CI" ]]; then
-		echo "::group::Checking out new tag"
-		svn up "tags/$TAG"
+		echo "::group::Checking out new tag readme.txt"
+		svn up --parents "tags/$TAG/readme.txt"
 		echo '::endgroup::'
 		sed -i -e "s/^Stable tag: .*/Stable tag: $TAG/" "tags/$TAG/readme.txt"
 		echo "::group::Committing to SVN"
@@ -133,7 +133,7 @@ if [[ "$TAG" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
 	else
 		echo "----"
 		echo "Not running in CI, skipping tag \"Stable tag\" update"
-		echo "  svn up \"tags/$TAG\""
+		echo "  svn up --parents \"tags/$TAG/readme.txt\""
 		echo "  sed -i -e \"s/^Stable tag: .*/Stable tag: $TAG/\" \"tags/$TAG/readme.txt\""
 		echo "  svn commit -m \"Updating stable tag in version $TAG\" --no-auth-cache --non-interactive  --username \"\$WPSVN_USERNAME\" --password \"\$WPSVN_PASSWORD\""
 		echo "----"

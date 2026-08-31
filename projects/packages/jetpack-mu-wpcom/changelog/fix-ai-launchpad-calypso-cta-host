@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI Launchpad: navigate Calypso-relative task CTAs to wordpress.com instead of the site host.

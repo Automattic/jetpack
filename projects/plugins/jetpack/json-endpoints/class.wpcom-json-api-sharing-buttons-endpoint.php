@@ -193,9 +193,9 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 		if ( is_a( $all_buttons[ $button_id ], 'Share_Custom' ) ) {
 			// Replace options for existing custom button
 			$options         = $updated_service->get_options();
-			$name            = isset( $button['name'] ) ? $button['name'] : $options['name'];
-			$url             = isset( $button['URL'] ) ? $button['URL'] : $options['url'];
-			$icon            = isset( $button['icon'] ) ? $button['icon'] : $options['icon'];
+			$name            = $button['name'] ?? $options['name'];
+			$url             = $button['URL'] ?? $options['url'];
+			$icon            = $button['icon'] ?? $options['icon'];
 			$updated_service = new Share_Custom(
 				$service_id,
 				array(

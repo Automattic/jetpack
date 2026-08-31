@@ -128,4 +128,127 @@ class Utility_Functions_Test extends BaseTestCase {
 		$this->assertSame( 1, $video_info->display_embed );
 		$this->assertSame( 1, $video_info->privacy_setting ); // 1 = Private
 	}
+
+	/**
+	 * Test videopress_is_finished_processing returns false when no VideoPress meta is present.
+	 */
+	public function test_videopress_is_finished_processing_without_meta() {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_title'     => 'Test video',
+			)
+		);
+
+		$this->assertFalse( videopress_is_finished_processing( $post_id ) );
+	}
+
+	/**
+	 * Test videopress_is_finished_processing returns the stored finish timestamp when present.
+	 */
+	public function test_videopress_is_finished_processing_returns_timestamp() {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_title'     => 'Test video',
+			)
+		);
+
+		$finish_time = time();
+		wp_update_attachment_metadata(
+			$post_id,
+			array(
+				'videopress' => array(
+					'finished' => $finish_time,
+				),
+			)
+		);
+
+		$this->assertSame( $finish_time, videopress_is_finished_processing( $post_id ) );
+	}
+
+	/**
+	 * Test that video_image_url_by_guid returns null without warnings when no
+	 * post matches the guid.
+	 *
+	 * The videopress_get_post_by_guid() helper returns false (not a WP_Error)
+	 * when no post is found. The function previously only guarded against
+	 * WP_Error and then dereferenced false ($post->ID), raising "Attempt to read
+	 * property on false" and "array offset on false" warnings.
+	 */
+	public function test_video_image_url_by_guid_returns_null_for_unknown_guid() {
+		$this->assertNull( video_image_url_by_guid( 'nonexistent-guid', 'jpg' ) );
+	}
+
+	/**
+	 * Test that video_image_url_by_guid returns null without warnings when the
+	 * attachment is found but has no usable poster metadata.
+	 *
+	 * When wp_get_attachment_metadata() returns false (no metadata stored), or
+	 * the metadata lacks videopress['poster'], reading
+	 * $meta['videopress']['poster'] previously raised "Trying to access array
+	 * offset on false" / "Undefined array key" warnings.
+	 */
+	public function test_video_image_url_by_guid_returns_null_for_missing_poster_metadata() {
+		// Attachment with a guid but no stored metadata: wp_get_attachment_metadata() returns false.
+		$no_meta_guid = 'guid-without-metadata';
+		$no_meta_id   = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_status'    => 'inherit',
+				'post_title'     => 'VideoPress video without metadata',
+			)
+		);
+		// Prime the guid->ID lookup cache directly, since the meta_query lookup is not supported by the test DB.
+		set_transient( 'videopress_get_post_id_by_guid_' . $no_meta_guid, $no_meta_id, HOUR_IN_SECONDS );
+
+		$this->assertNull( video_image_url_by_guid( $no_meta_guid, 'jpg' ) );
+
+		// Attachment whose metadata exists but lacks a videopress poster.
+		$partial_guid = 'guid-with-partial-metadata';
+		$partial_id   = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_status'    => 'inherit',
+				'post_title'     => 'VideoPress video with partial metadata',
+			)
+		);
+		wp_update_attachment_metadata( $partial_id, array( 'videopress' => array( 'finished' => false ) ) );
+		set_transient( 'videopress_get_post_id_by_guid_' . $partial_guid, $partial_id, HOUR_IN_SECONDS );
+
+		$this->assertNull( video_image_url_by_guid( $partial_guid, 'jpg' ) );
+	}
+
+	/**
+	 * Test that videopress_update_meta_data returns false without warnings when
+	 * the stored videopress metadata has no guid.
+	 *
+	 * Attachment metadata can contain a `videopress` key without a `guid` (e.g.
+	 * a video still being processed). Building the request URL from $info->guid
+	 * previously raised an "Undefined property: stdClass::$guid" warning.
+	 */
+	public function test_videopress_update_meta_data_without_guid_returns_false() {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_title'     => 'Processing video',
+			)
+		);
+
+		wp_update_attachment_metadata(
+			$post_id,
+			array(
+				'videopress' => array(
+					'finished' => false,
+				),
+			)
+		);
+
+		$this->assertFalse( videopress_update_meta_data( $post_id ) );
+	}
 }

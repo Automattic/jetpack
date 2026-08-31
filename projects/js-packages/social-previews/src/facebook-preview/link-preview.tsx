@@ -1,8 +1,9 @@
 import { __ } from '@wordpress/i18n';
 import { TYPE_ARTICLE } from '../constants';
 import { baseDomain } from '../helpers';
+import { MediaImage } from '../shared/media-image';
 import CustomText from './custom-text';
-import { facebookTitle } from './helpers';
+import { facebookTitle, facebookDescription } from './helpers';
 import FacebookPostActions from './post/actions';
 import FacebookPostHeader from './post/header';
 import type { FacebookPreviewProps } from './types';
@@ -14,7 +15,9 @@ export type FacebookLinkPreviewProps = Omit< FacebookPreviewProps, 'imageMode' >
 export const FacebookLinkPreview: React.FC< FacebookLinkPreviewProps > = ( {
 	url,
 	title,
+	description,
 	image,
+	imageFocalPoint,
 	user,
 	customText,
 	type,
@@ -30,7 +33,11 @@ export const FacebookLinkPreview: React.FC< FacebookLinkPreviewProps > = ( {
 					{ ( image || isArticle ) && (
 						<div className="facebook-preview__image is-landscape">
 							{ image && (
-								<img src={ image } alt={ __( 'Facebook Preview Thumbnail', 'social-previews' ) } />
+								<MediaImage
+									src={ image }
+									alt={ __( 'Facebook Preview Thumbnail', 'social-previews' ) }
+									focalPoint={ imageFocalPoint }
+								/>
 							) }
 						</div>
 					) }
@@ -39,6 +46,13 @@ export const FacebookLinkPreview: React.FC< FacebookLinkPreviewProps > = ( {
 							<div className="facebook-preview__url">{ baseDomain( url ) }</div>
 							<div className="facebook-preview__title">
 								{ facebookTitle( title ) || baseDomain( url ) }
+							</div>
+							<div className="facebook-preview__description">
+								{ description && facebookDescription( description ) }
+								{ isArticle &&
+									! description &&
+									// translators: Default description for a Facebook post
+									__( 'Visit the post for more.', 'social-previews' ) }
 							</div>
 						</div>
 					</div>

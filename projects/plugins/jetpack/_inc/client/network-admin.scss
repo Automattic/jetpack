@@ -1,0 +1,18 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// These pages mount `AdminPage` and need the shared viewport-pinned layout
+// (fixed `#wpbody-content`, scrollable middle, pinned `JetpackFooter`). The
+// body classes differ between real Network Admin and the single-site preview,
+// so target both. The `.network-admin` qualifier keeps the real-multisite
+// selectors from matching the single-site Jetpack dashboard/settings pages,
+// which share the same page slugs.
+
+// Real multisite : `Jetpack_Network::add_network_admin_menu()`
+// Single-site    : `tools/docker/mu-plugins/0-sandbox.php`
+body.network-admin.toplevel_page_jetpack,
+body.network-admin.jetpack_page_jetpack-settings,
+body.toplevel_page_jetpack-network-sites,
+body.jp-network_page_jetpack-network-settings {
+
+	@include jetpack-admin-page-layout;
+}

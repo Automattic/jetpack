@@ -1,14 +1,14 @@
 import { useContext, useMemo, forwardRef } from 'react';
-import { SingleChartContext } from '../../charts/private/single-chart-context';
+import { ChartInstanceContext } from '../../charts/private/chart-instance-context';
 import { GlobalChartsContext } from '../../providers';
 import { BaseLegend } from './private';
 import type { LegendProps } from './types';
-import type { ChartType } from '../../types';
-import type { LegendShape } from '@visx/legend/lib/types';
+import type { ChartType, LegendShape } from '../../types';
 
 const defaultShapeByChartType: Partial<
 	Record< ChartType, Extract< LegendShape< unknown, unknown >, string > >
 > = {
+	area: 'rect',
 	line: 'line',
 	bar: 'rect',
 	pie: 'circle',
@@ -20,11 +20,11 @@ export const Legend = forwardRef< HTMLDivElement, LegendProps >(
 	( { chartId, items, shape, ...props }, ref ) => {
 		// Get context but don't throw if it doesn't exist
 		const context = useContext( GlobalChartsContext );
-		const singleChartContext = useContext( SingleChartContext );
+		const chartInstanceContext = useContext( ChartInstanceContext );
 
 		// When chartId is used, it is standalone mode
-		// When chartId is not provided, we use the context's chartId, meaning it is in a single chart context
-		const contextChartId = chartId ?? singleChartContext?.chartId;
+		// When chartId is not provided, we use the context's chartId, meaning it is inside a chart instance
+		const contextChartId = chartId ?? chartInstanceContext?.chartId;
 
 		const chartData = useMemo(
 			() => ( contextChartId && context ? context.getChartData( contextChartId ) : undefined ),

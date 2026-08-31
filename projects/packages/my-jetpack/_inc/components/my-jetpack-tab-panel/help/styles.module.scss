@@ -32,23 +32,11 @@
 }
 
 .footer {
-	width: 100vw;
-	margin-inline-start: calc(-50vw + 50%);
-	background: var(--studio-white, #fff);
+	background: var(--wpds-color-background-surface-neutral-strong);
 
 	/* Center the content within the full-width background */
 	display: flex;
 	justify-content: center;
-
-	// 1128 + 3rem (96px) = 1224px + 64px (no idea what that is) = 1288px
-	@media (max-width: 1288px) {
-		// I have to hardcode --max-container-width because
-		// media queries don't work with CSS variables
-		margin-inline-start: -3rem; // Match the parent's padding-inline
-		margin-inline-end: -3rem;
-		width: calc(100% + 6rem); // Compensate for the negative margins
-		padding-inline: 3rem;
-	}
 
 	section {
 		max-width: 35rem;
@@ -70,8 +58,12 @@
 
 	@include parent.full-width-container;
 
-	@media ( max-width: 1288px ) {
-		padding-inline: 0;
+	// Match `.tab-content-wrapper`'s gutter so the footer content stays aligned
+	// with the cards above. (The previous `padding-inline: 0` relied on the
+	// wrapper's padding, which no longer applies now the footer renders outside
+	// `.my-jetpack-tab-panel-inner`.)
+	@media ( max-width: gb.$break-medium ) {
+		padding-inline: 1.5rem;
 	}
 }
 

@@ -6,6 +6,9 @@ const mockGetContext = jest.fn();
 const mockGetConfig = jest.fn();
 const mockGetElement = jest.fn();
 const mockWithSyncEvent = jest.fn( callback => callback );
+// Contributed by modules/form/view.js, not by this module. Declared once at module scope because
+// the store mock only runs on the single dynamic import; `jest.clearAllMocks()` resets its calls.
+const mockUpdateField = jest.fn();
 
 await jest.unstable_mockModule( '@wordpress/interactivity', () => ( {
 	store: mockStore,
@@ -18,7 +21,7 @@ await jest.unstable_mockModule( '@wordpress/interactivity', () => ( {
 // Mock libphonenumber-js
 const mockParsePhoneNumber = jest.fn();
 const mockAsYouType = jest.fn();
-await jest.unstable_mockModule( 'libphonenumber-js', () => ( {
+await jest.unstable_mockModule( 'libphonenumber-js/min/es6', () => ( {
 	__esModule: true,
 	default: mockParsePhoneNumber,
 	AsYouType: mockAsYouType,
@@ -119,9 +122,18 @@ describe( 'Phone Field View', () => {
 		} );
 		mockAsYouType.mockImplementation( () => mockAsYouTypeInstance );
 
-		// Capture store configuration
+		/*
+		 * Capture store configuration.
+		 *
+		 * `updateField` is contributed by modules/form/view.js, not by this module, so it has to be
+		 * merged in the way the real shared store would supply it. Leaving it out made these tests
+		 * depend on an earlier test assigning it onto the module-singleton `actions` object, which
+		 * leaks across the whole file: run any Country selection or Keyboard navigation test on its
+		 * own and it failed with "actions.updateField is not a function".
+		 */
 		mockStore.mockImplementation( ( namespace, config ) => {
 			storeConfig = config;
+			config.actions.updateField = mockUpdateField;
 			return { actions: config.actions, callbacks: config.callbacks };
 		} );
 
@@ -260,10 +272,6 @@ describe( 'Phone Field View', () => {
 				target: { value: '555-123-4567' },
 			};
 
-			// Mock actions.updateField
-			const mockUpdateField = jest.fn();
-			storeConfig.actions.updateField = mockUpdateField;
-
 			// With ensureInitialized, the handler should self-heal by querying
 			// the DOM for refs and initializing, rather than throwing.
 			storeConfig.actions.phoneNumberInputHandler( mockEvent );
@@ -288,6 +296,44 @@ describe( 'Phone Field View', () => {
 			expect( mockContext.phoneCountryCode ).toBe( 'GB' );
 			expect( mockContext.countryPrefix ).toBe( '+44' );
 			expect( mockContext.comboboxOpen ).toBe( false );
+		} );
+
+		test( 'committing a country revalidates the field', () => {
+			mockContext.fieldId = 'test-phone';
+			mockContext.phoneNumber = '721234567';
+			mockContext.filtered = { code: 'FR', value: '+33', flag: '🇫🇷', country: 'France' };
+			mockContext.allCountries = [
+				{ code: 'US', value: '+1', flag: '🇺🇸', country: 'United States', selected: true },
+				{ code: 'FR', value: '+33', flag: '🇫🇷', country: 'France', selected: false },
+			];
+			mockContext.filteredCountries = [ ...mockContext.allCountries ];
+
+			storeConfig.actions.phoneCountryChangeHandler();
+
+			// Without this the number keeps the `invalid_phone` it earned under the old country.
+			expect( mockUpdateField ).toHaveBeenCalledWith( 'test-phone', '721234567', false );
+		} );
+
+		test( 'arrowing through the list does not revalidate or clear a shown error', () => {
+			mockContext.fieldId = 'test-phone';
+			mockContext.phoneNumber = '721234567';
+			mockContext.comboboxOpen = true;
+			mockContext.allCountries = [
+				{ code: 'US', value: '+1', flag: '🇺🇸', country: 'United States', selected: true },
+				{ code: 'FR', value: '+33', flag: '🇫🇷', country: 'France', selected: false },
+			];
+			mockContext.filteredCountries = [ ...mockContext.allCountries ];
+
+			storeConfig.actions.phoneComboboxKeydownHandler( {
+				key: 'ArrowDown',
+				preventDefault: jest.fn(),
+			} );
+
+			/*
+			 * Highlighting is not committing. `updateField` defaults `showFieldError` to false, so
+			 * revalidating here would hide an error that is still true of the typed number.
+			 */
+			expect( mockUpdateField ).not.toHaveBeenCalled();
 		} );
 
 		test( 'filtering logic works correctly', () => {

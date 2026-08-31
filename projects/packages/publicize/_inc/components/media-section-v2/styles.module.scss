@@ -1,10 +1,13 @@
 /**
  * Styles for the unified media section
- * Featured image styles adapted from @wordpress/editor post-featured-image
  */
 
 .media-section {
 	margin-bottom: 16px;
+
+	.preview {
+		margin-top: 1rem;
+	}
 }
 
 .description {
@@ -14,34 +17,39 @@
 	margin-block: 0;
 }
 
+// Dropdown wrapper — always fills its parent width
+.dropdownMenu {
+	width: 100%;
+	margin-top: 1rem;
+}
+
+// The Select button inside the dropdown toggle
 .selectButton {
 	width: 100%;
 	justify-content: center;
 }
 
-.editTemplateButton {
-	margin-top: 1rem;
-}
-
-.dropdownMenu {
-	margin-top: 1rem;
+// Row of buttons below the preview (Select + optional Edit)
+.actions {
+	display: flex;
+	gap: 8px;
 	width: 100%;
-}
+	margin-top: 8px;
 
-// Featured image styles (copied from Gutenberg for stability)
-.container {
-	position: relative;
+	// Inside the actions row, dropdown and buttons share space equally
+	.dropdownMenu {
+		flex: 1;
+		width: auto;
+		margin-top: 0;
+	}
 
-	&:hover,
-	&:focus,
-	&:focus-within {
-
-		.actions {
-			opacity: 1;
-		}
+	.action {
+		flex: 1;
+		justify-content: center;
 	}
 }
 
+// Media preview
 .preview {
 	width: 100%;
 	padding: 0;
@@ -65,20 +73,8 @@
 	object-position: 50% 50%;
 }
 
-.actions {
-	bottom: 0;
-	opacity: 0;
-	padding: 8px;
-	position: absolute;
-	transition: opacity 50ms ease-out;
-	width: 100%;
-
-	.action {
-		flex-grow: 1;
-		justify-content: center;
-		backdrop-filter: blur(16px) saturate(180%);
-		background: rgba(255, 255, 255, 0.75);
-	}
+.focal-point {
+	margin-block: 1rem;
 }
 
 .custom-media-toggle {

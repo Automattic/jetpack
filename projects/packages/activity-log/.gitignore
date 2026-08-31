@@ -1,0 +1,8 @@
+wordpress
+node_modules
+vendor
+jetpack_vendor
+.cache
+build
+build-module
+/routes/**/.content-entry.js

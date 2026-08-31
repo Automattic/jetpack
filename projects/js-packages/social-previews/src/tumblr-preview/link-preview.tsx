@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { baseDomain } from '../helpers';
+import { MediaImage } from '../shared/media-image';
 import { tumblrTitle } from './helpers';
 import TumblrPostActions from './post/actions';
 import TumblrPostHeader from './post/header';
@@ -12,6 +13,7 @@ export const TumblrLinkPreview: React.FC< TumblrPreviewProps > = ( {
 	image,
 	user,
 	url,
+	imageFocalPoint,
 } ) => {
 	return (
 		<div className="tumblr-preview__post">
@@ -20,10 +22,11 @@ export const TumblrLinkPreview: React.FC< TumblrPreviewProps > = ( {
 				<div className="tumblr-preview__window">
 					{ image && (
 						<div className="tumblr-preview__window-top">
-							<img
+							<MediaImage
 								className="tumblr-preview__image"
 								src={ image }
 								alt={ __( 'Tumblr preview thumbnail', 'social-previews' ) }
+								focalPoint={ imageFocalPoint }
 							/>
 							{ title && (
 								<div className="tumblr-preview__overlay">

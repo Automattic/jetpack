@@ -2,7 +2,12 @@
  * Types for the unified media section component
  */
 
-import type { AttachedMedia, JetpackSocialOptions, SIGSettings } from '../../utils/types';
+import type {
+	AttachedMedia,
+	FocalPoint,
+	JetpackSocialOptions,
+	SIGSettings,
+} from '../../utils/types';
 
 /**
  * Media source types
@@ -95,9 +100,12 @@ export interface MediaSectionV2Props {
 	onMediaChange?: ( updates: Partial< JetpackSocialOptions > ) => void;
 
 	/**
-	 * Whether to force media as attachment.
+	 * Controls the "Share as attachment" toggle.
+	 * 'visible' (default): toggle is rendered and user-controlled.
+	 * 'hidden': toggle is not rendered; attachment mode is implied by the selected source.
+	 * Per-network customization passes 'hidden' so the dropdown alone decides media behavior.
 	 */
-	forceAsAttachment?: boolean;
+	attachmentToggleMode?: 'visible' | 'hidden';
 }
 
 /**
@@ -135,9 +143,42 @@ export interface MediaSourceMenuProps {
 	featuredImageId?: number;
 
 	/**
+	 * Whether to surface the "Default" option in the dropdown. Only used by per-network
+	 * customization, where the attachment toggle is hidden and the dropdown alone decides
+	 * media behavior — Default is the link-preview-only choice.
+	 */
+	includeDefaultOption?: boolean;
+
+	/**
 	 * Optional children render function that receives open function
 	 */
 	children?: ( { open }: { open: () => void } ) => React.ReactNode;
+}
+
+/**
+ * Props for MediaFocalPoint component
+ */
+export interface MediaFocalPointProps {
+	/**
+	 * URL of the image to pick the focal point on
+	 */
+	url: string;
+
+	/**
+	 * The current focal point (both axes 0-1).
+	 */
+	value: FocalPoint;
+
+	/**
+	 * Called with the rounded focal point when the user commits it (release,
+	 * click, or keyboard).
+	 */
+	onChange: ( point: FocalPoint ) => void;
+
+	/**
+	 * Called with the rounded focal point while dragging, before it is committed.
+	 */
+	onDrag?: ( point: FocalPoint ) => void;
 }
 
 /**
@@ -153,25 +194,4 @@ export interface MediaPreviewProps {
 	 * Whether the preview is in loading state
 	 */
 	isLoading?: boolean;
-
-	/**
-	 * Callback to replace the media
-	 */
-	onReplace?: () => void;
-
-	/**
-	 * Callback to remove the media
-	 */
-	onRemove?: () => void;
-
-	/**
-	 * Whether the actions are disabled
-	 */
-	disabled?: boolean;
-
-	/**
-	 * Whether to show the remove button. Defaults to true.
-	 * Set to false for auto-detected media like featured image fallback.
-	 */
-	showRemove?: boolean;
 }

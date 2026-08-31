@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix view_stats capability check for users with multiple roles by checking all roles instead of only the first.

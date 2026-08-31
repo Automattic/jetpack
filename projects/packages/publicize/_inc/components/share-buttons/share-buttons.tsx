@@ -1,16 +1,16 @@
-import { SocialServiceIcon, Button, Text, CopyToClipboard } from '@automattic/jetpack-components';
+import { SocialServiceIcon, Text, CopyToClipboard } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import { availableNetworks } from './available-networks';
 import styles from './styles.module.scss';
 import { useShareButtonText } from './useShareButtonText';
-import type { ComponentProps, JSX, MouseEvent } from 'react';
+import type { JSX, MouseEvent } from 'react';
 
 export type ShareButtonsProps = {
 	buttonStyle?: 'icon' | 'text' | 'icon-text';
-	buttonVariant?: ComponentProps< typeof Button >[ 'variant' ];
 };
 
 /**
@@ -20,7 +20,7 @@ export type ShareButtonsProps = {
  *
  * @return {JSX.Element} - Rendered component
  */
-export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButtonsProps ) {
+export function ShareButtons( { buttonStyle = 'icon' }: ShareButtonsProps ) {
 	const prepareText = useShareButtonText();
 
 	const { recordEvent } = useAnalytics();
@@ -62,41 +62,47 @@ export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButt
 			{ availableNetworks.map( ( { label, networkName, url } ) => {
 				const href = prepareText( url );
 
-				const icon =
-					'icon' === buttonStyle ? <SocialServiceIcon serviceName={ networkName } /> : null;
-
 				const text = sprintf(
 					/* translators: %s is the name of a social network, e.g. Twitter. */
 					__( 'Share on %s', 'jetpack-publicize-pkg' ),
 					label
 				);
 
+				// `@wordpress/ui`'s Button is not a link, so render it as an anchor and
+				// keep the anchor-specific props (incl. the `HTMLAnchorElement` onClick)
+				// on the rendered `<a>`.
+				const renderLink = (
+					<a
+						href={ href }
+						target="_blank"
+						rel="noopener noreferrer"
+						onClick={ getOnClick( href, { network: networkName } ) }
+					/>
+				);
+
 				return (
 					<div className={ styles.container } key={ networkName }>
-						<Button
-							icon={ icon }
-							variant={ buttonVariant }
-							aria-label={ text }
-							href={ href }
-							target="_blank"
-							rel="noopener noreferrer"
-							onClick={ getOnClick( href, { network: networkName } ) }
-							className={ 'icon' === buttonStyle ? styles[ networkName ] : 'has-text' }
-						>
-							{ 'icon' === buttonStyle ? null : (
-								<>
-									{ 'icon-text' === buttonStyle && (
-										<SocialServiceIcon
-											className={ styles[ networkName ] }
-											serviceName={ networkName }
-										/>
-									) }
-									<Text className={ styles.label } component="span">
-										{ text }
-									</Text>
-								</>
-							) }
-						</Button>
+						{ 'icon' === buttonStyle ? (
+							<Button
+								aria-label={ text }
+								className={ clsx( styles[ 'icon-button' ], styles[ networkName ] ) }
+								render={ renderLink }
+							>
+								<SocialServiceIcon serviceName={ networkName } />
+							</Button>
+						) : (
+							<Button aria-label={ text } className="has-text" render={ renderLink }>
+								{ 'icon-text' === buttonStyle && (
+									<SocialServiceIcon
+										className={ styles[ networkName ] }
+										serviceName={ networkName }
+									/>
+								) }
+								<Text className={ styles.label } component="span">
+									{ text }
+								</Text>
+							</Button>
+						) }
 					</div>
 				);
 			} ) }
@@ -106,7 +112,6 @@ export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButt
 					onCopy={ onCopy }
 					textToCopy={ textToCopy }
 					className={ 'icon' === buttonStyle ? styles.clipboard : ' has-text' }
-					variant={ buttonVariant }
 				>
 					{ 'icon' === buttonStyle ? null : (
 						<Text className={ styles.label } component="span">

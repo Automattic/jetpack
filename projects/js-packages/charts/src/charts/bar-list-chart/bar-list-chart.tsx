@@ -3,7 +3,8 @@ import { Group } from '@visx/group';
 import { createScale, scaleBand } from '@visx/scale';
 import { Text, type TextProps } from '@visx/text';
 import { useContext, useMemo } from 'react';
-import { GlobalChartsContext, GlobalChartsProvider } from '../../providers';
+import { GlobalChartsContext, GlobalChartsProvider, useGlobalChartsContext } from '../../providers';
+import { isValidHexColor, lightenHexColor } from '../../utils';
 import { BarChartUnresponsive } from '../bar-chart';
 import { withResponsive } from '../private/with-responsive';
 import type { SeriesData } from '../..';
@@ -211,6 +212,14 @@ const getDefaultYOffset = (
 	return -( barThickness + GAP_BETWEEN_BARS );
 };
 
+// How far a single-series bar fill travels from white toward the series color.
+//
+// With one series the label is drawn *on* the bar, so the fill is a text background and has to keep
+// contrast with `--a8c-charts-color-label`. At full strength the catalog seed `#3858e9` leaves
+// `#1e1e1e` at 2.97:1; this puts it at 9.0:1. Multi-series bars keep full strength — the label is
+// lifted clear of them, so nothing is read against the fill.
+const BAR_TINT_TOWARD_SERIES = 0.4;
+
 const BarListChartInternal: FC< BarListChartProps > = ( {
 	data,
 	width,
@@ -224,6 +233,35 @@ const BarListChartInternal: FC< BarListChartProps > = ( {
 	},
 	...rest
 } ) => {
+	const { getElementStyles } = useGlobalChartsContext();
+
+	// A series carrying its own stroke is left alone — the consumer asked for that exact color.
+	const tintedData = useMemo( () => {
+		if ( data.length > 1 ) {
+			return data;
+		}
+
+		return data.map( ( series, index ) => {
+			if ( series.options?.stroke ) {
+				return series;
+			}
+
+			const { color } = getElementStyles( { data: series, index } );
+
+			if ( ! isValidHexColor( color ) ) {
+				return series;
+			}
+
+			return {
+				...series,
+				options: {
+					...series.options,
+					stroke: lightenHexColor( color, 1 - BAR_TINT_TOWARD_SERIES ),
+				},
+			};
+		} );
+	}, [ data, getElementStyles ] );
+
 	const chartOptions = useMemo( () => {
 		const isMultiSeries = data.length > 1;
 
@@ -260,7 +298,7 @@ const BarListChartInternal: FC< BarListChartProps > = ( {
 		<BarChartUnresponsive
 			orientation="horizontal"
 			gridVisibility={ 'none' }
-			data={ data }
+			data={ tintedData }
 			width={ width }
 			height={ height }
 			margin={ margin }

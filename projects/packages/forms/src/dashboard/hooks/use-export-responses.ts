@@ -2,8 +2,8 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { formatNumber } from '@automattic/number-formatters';
+import { useViewportMatch } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback, useEffect } from '@wordpress/element';
@@ -32,7 +32,7 @@ type ExportHookReturn = {
  * @return {ExportHookReturn} The export modal state and actions.
  */
 export default function useExportResponses(): ExportHookReturn {
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 	const [ showExportModal, setShowExportModal ] = useState( false );
 	const closeModal = useCallback( () => setShowExportModal( false ), [ setShowExportModal ] );
 	const [ autoConnectGdrive, setAutoConnectGdrive ] = useState( false );
@@ -89,6 +89,10 @@ export default function useExportResponses(): ExportHookReturn {
 			data.append( 'post', currentQuery.parent || 'all' );
 			data.append( 'search', currentQuery.search || '' );
 			data.append( 'status', currentQuery.status );
+
+			if ( currentQuery.source ) {
+				data.append( 'source', currentQuery.source );
+			}
 
 			if ( currentQuery.before && currentQuery.after ) {
 				data.append( 'before', currentQuery.before );

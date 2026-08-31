@@ -31,7 +31,7 @@ class Image_Guide_Proxy {
 		}
 
 		// Validate URL and fetch.
-		$proxy_url = filter_var( wp_unslash( isset( $_POST['proxy_url'] ) ? $_POST['proxy_url'] : null ), FILTER_VALIDATE_URL );
+		$proxy_url = filter_var( wp_unslash( $_POST['proxy_url'] ?? '' ), FILTER_VALIDATE_URL );
 		if ( ! wp_http_validate_url( $proxy_url ) ) {
 			wp_send_json_error( 'Invalid URL', 400, JSON_UNESCAPED_SLASHES );
 		}

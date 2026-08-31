@@ -18,6 +18,23 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 require_once __DIR__ . '/../vendor/autoload.php';
 
+// PHP 8.0 polyfill: WordPress core polyfills str_contains() at runtime (WP 5.9+),
+// but the unit suite runs without WordPress, so PHP <= 7.4 needs it here for the
+// production code paths under test that call it.
+if ( ! function_exists( 'str_contains' ) ) {
+	/**
+	 * Polyfill for PHP 8.0's str_contains().
+	 *
+	 * @param string $haystack String to search in.
+	 * @param string $needle   Substring to search for.
+	 * @return bool Whether $haystack contains $needle.
+	 * @suppress PhanRedefineFunctionInternal -- Guarded polyfill for PHP < 8.0.
+	 */
+	function str_contains( $haystack, $needle ) {
+		return '' === $needle || false !== strpos( $haystack, $needle );
+	}
+}
+
 // Additional functions that brain/monkey doesn't currently define.
 if ( ! function_exists( 'wp_unslash' ) ) {
 	/**

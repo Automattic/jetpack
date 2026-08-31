@@ -1,5 +1,8 @@
 const mockOrigDebug = jest.requireActual( 'debug' );
 const mockDebug = jest.fn();
+// The plugin only builds a code frame when the debug instance is enabled, so
+// these tests have to present an enabled one to exercise the messages below.
+mockDebug.enabled = true;
 jest.mock( 'debug', () => {
 	return name => {
 		if ( name.startsWith( '@automattic/babel-plugin-replace-textdomain' ) ) {
@@ -157,6 +160,153 @@ pluginTester( {
 			},
 		},
 
+		{
+			title: 'Import alias: replaces domain',
+			setup,
+			code: `import { __ as __alias } from '@wordpress/i18n';\n__alias( 'Hello', 'old-domain' );`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+			},
+		},
+		{
+			title: 'Import alias: injects missing domain',
+			setup,
+			code: `import { __ as __alias } from '@wordpress/i18n';\n__alias( 'Hello' );`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+			},
+		},
+		{
+			title: 'Import alias: custom i18nModule',
+			setup,
+			code: `import { __ as __alias } from 'my-i18n';\n__alias( 'Hello', 'old-domain' );`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+				i18nModule: 'my-i18n',
+			},
+		},
+		{
+			title: 'Import alias: ignores non-i18n imports',
+			setup,
+			code: `import { __ as __alias } from 'other-module';\n__alias( 'Hello', 'old-domain' );`,
+			output: `import { __ as __alias } from 'other-module';\n__alias('Hello', 'old-domain');`,
+			snapshot: false,
+			pluginOptions: {
+				textdomain: 'new-domain',
+			},
+		},
+		{
+			title: 'Import alias: ignores global variables with no binding',
+			setup,
+			code: `__alias( 'Hello', 'old-domain' );`,
+			output: `__alias('Hello', 'old-domain');`,
+			snapshot: false,
+			pluginOptions: {
+				textdomain: 'new-domain',
+			},
+		},
+		{
+			title: 'Import alias: ignores field accesses with same name',
+			setup,
+			code: `import { __ as __alias } from '@wordpress/i18n';\nfoo.__alias( 'Hello', 'old-domain' );`,
+			output: `import { __ as __alias } from '@wordpress/i18n';\nfoo.__alias('Hello', 'old-domain');`,
+			snapshot: false,
+			pluginOptions: {
+				textdomain: 'new-domain',
+			},
+		},
+		{
+			title: 'Import alias: ignores shadowed variables',
+			setup,
+			code: `import { __ as __alias } from '@wordpress/i18n';\nfunction f( __alias ) {\n\treturn __alias( 'Hello', 'old-domain' );\n}`,
+			output: `import { __ as __alias } from '@wordpress/i18n';\nfunction f(__alias) {\n\treturn __alias('Hello', 'old-domain');\n}`,
+			snapshot: false,
+			pluginOptions: {
+				textdomain: 'new-domain',
+			},
+		},
+
+		// `requireI18nSource`: provenance checking for bundled output.
+		{
+			title: 'requireI18nSource: ignores a member call on a non-i18n binding',
+			setup,
+			code: `const cache = new Map();\ncache.__( 'key' );`,
+			output: `const cache = new Map();\ncache.__('key');`,
+			snapshot: false,
+			pluginOptions: {
+				textdomain: 'new-domain',
+				requireI18nSource: true,
+			},
+		},
+		{
+			title: 'requireI18nSource: ignores a locally defined function',
+			setup,
+			code: `function __( s ) {\n\treturn s;\n}\n__( 'key' );`,
+			output: `function __(s) {\n\treturn s;\n}\n__('key');`,
+			snapshot: false,
+			pluginOptions: {
+				textdomain: 'new-domain',
+				requireI18nSource: true,
+			},
+		},
+		{
+			title: 'requireI18nSource: stamps esbuild externalized output',
+			setup,
+			// The shape esbuild emits for an externalized `@wordpress/i18n`.
+			code:
+				`var require_i18n = __commonJS( {\n` +
+				`\t"package-external:@wordpress/i18n"( exports, module ) {\n` +
+				`\t\tmodule.exports = window.wp.i18n;\n` +
+				`\t}\n` +
+				`} );\n` +
+				`var import_i18n3 = __toESM( require_i18n(), 1 );\n` +
+				`x = (0, import_i18n3.__)( 'Hello' );`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+				requireI18nSource: true,
+			},
+		},
+		{
+			title: 'requireI18nSource: stamps the minified externalized shape',
+			setup,
+			// Same chain after minification: every name is mangled, only the
+			// `window.wp.i18n` read survives as a marker.
+			code: `var Te=Ht((a,b)=>{b.exports=window.wp.i18n;});var Ri=f(Te(),1);x=(0,Ri.__)("Hi");`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+				requireI18nSource: true,
+			},
+		},
+		{
+			title: 'requireI18nSource: stamps a require() of the i18n module',
+			setup,
+			code: `const i18n = require( '@wordpress/i18n' );\ni18n.__( 'Hello' );`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+				requireI18nSource: true,
+			},
+		},
+		{
+			title: 'requireI18nSource: stamps an import of the i18n module',
+			setup,
+			code: `import { __ } from '@wordpress/i18n';\n__( 'Hello' );`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+				requireI18nSource: true,
+			},
+		},
+		{
+			title: 'requireI18nSource: stamps when the callee source is unknown',
+			setup,
+			// No binding for `e` — an unrecognised shape must keep stamping
+			// rather than silently leaving a bundle untranslated.
+			code: `x = (0, e.__)( 'Hello' );`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+				requireI18nSource: true,
+			},
+		},
+
 		// Invalid option handling.
 		{
 			title: 'Bad options: missing textdomain',
@@ -173,6 +323,16 @@ pluginTester( {
 			},
 			snapshot: false,
 			error: 'The `textdomain` option is set to an invalid value.',
+		},
+		{
+			title: 'Bad options: bad i18nModule',
+			fixture: 'fixtures/simple.js',
+			pluginOptions: {
+				textdomain: 'foo',
+				i18nModule: 123,
+			},
+			snapshot: false,
+			error: 'The `i18nModule` option must be a string.',
 		},
 		{
 			title: 'Bad options: bad functions',

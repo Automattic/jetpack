@@ -5,6 +5,111 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.1.2 - 2026-08-06
+### Changed
+- Update dependencies.
+
+## 4.1.1 - 2026-07-31
+### Changed
+- Update dependencies.
+
+## 4.1.0 - 2026-07-27
+### Added
+- Add `PnpmDeterministicChunkIds` plugin. [#50758]
+
+### Changed
+- Update package dependencies. [#50751]
+
+## 4.0.1 - 2026-07-22
+### Changed
+- Update package dependencies. [#50683]
+
+## 4.0.0 - 2026-07-20
+### Changed
+- Update package dependencies. [#50529]
+
+### Removed
+- Remove ForkTSCheckerPlugin and the fork-ts-checker-webpack-plugin dependency. Use tsgo or tsdown to build TypeScript packages instead. [#50526]
+
+## 3.11.4 - 2026-07-15
+### Changed
+- Update package dependencies. [#50510]
+
+## 3.11.3 - 2026-07-13
+### Changed
+- Internal updates.
+
+## 3.11.2 - 2026-07-09
+### Changed
+- Update package dependencies. [#50236]
+
+## 3.11.1 - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## 3.11.0 - 2026-06-26
+### Added
+- Add `/targets` entry point, which returns the configured browserslist targets, defaulting to `@wordpress/browserslist-config` rather than browserslist's own defaults. [#49977]
+
+### Changed
+- Update babel configurations in preparation for v8. The biggest visible change is that consumers should be sure to set `targets` at the top level of their config if not configuring `browserslist` already. [#49977]
+
+## 3.10.1 - 2026-06-23
+### Changed
+- Update package dependencies. [#49831]
+
+## 3.10.0 - 2026-06-22
+### Added
+- Add webpack cache setup function. [#49174]
+- Externalize the `jetpack-shared-stores` package so the shared data stores resolve to a single bundle. [#49494]
+
+### Changed
+- Update package dependencies. [#49691] [#49732] [#49757]
+
+## 3.9.4 - 2026-06-15
+### Changed
+- Update package dependencies. [#49631]
+
+## 3.9.3 - 2026-06-09
+### Changed
+- Update package dependencies. [#49273]
+
+## 3.9.2 - 2026-06-08
+### Changed
+- Update dependencies.
+
+## 3.9.1 - 2026-06-03
+### Changed
+- Update dependencies.
+
+## 3.9.0 - 2026-06-02
+### Changed
+- Remove use of `.npmrc` environment variable for setting condition names. The "jetpack:src" condition is now always added. [#49314]
+
+## 3.8.7 - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+
+## 3.8.6 - 2026-05-19
+### Changed
+- Update package dependencies. [#48910]
+
+## 3.8.5 - 2026-05-13
+### Changed
+- Remove the generateI18nVariants helper from replace-textdomain Babel config. [#48355]
+
+## 3.8.4 - 2026-05-11
+### Changed
+- Build: Remove the @wordpress/admin-ui CSS bundle workaround from the default request map. [#48410]
+
+## 3.8.3 - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## 3.8.2 - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
 ## 3.8.1 - 2026-04-09
 ### Changed
 - Update package dependencies. [#47890] [#47998]

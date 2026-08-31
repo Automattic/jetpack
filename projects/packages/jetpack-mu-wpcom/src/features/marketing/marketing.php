@@ -163,7 +163,7 @@ function wpcom_display_marketing_tools_page() {
 				'Take our free introductory course about search engine optimization (SEO) and learn how to improve your site or blog for both search engines and humans.',
 				'jetpack-mu-wpcom'
 			),
-			'action'      => __( 'Register now', 'jetpack-mu-wpcom' ),
+			'action'      => __( 'Watch the course', 'jetpack-mu-wpcom' ),
 			'icon'        => plugins_url( 'images/rocket.svg', __FILE__ ),
 			'url'         => 'https://wordpress.com/support/courses/seo/',
 			'event'       => 'calypso_marketing_tools_seo_course_button_click',
@@ -187,7 +187,6 @@ function wpcom_display_marketing_tools_page() {
 				<p><?php esc_html_e( "We've added premium plugins to boost your site's capabilities. From bookings and subscriptions to email marketing and SEO tools, we have you covered.", 'jetpack-mu-wpcom' ); ?></p>
 				<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $domain . '?ref=wpcom-marketing-tools' ); ?>" class="button button-primary">
 					<?php esc_html_e( 'Get started', 'jetpack-mu-wpcom' ); ?>
-					<span class="dashicons dashicons-arrow-right-alt"></span>
 				</a>
 			</div>
 			<div class="wpcom-marketing-tools-premium-plugins__image">

@@ -2,7 +2,6 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { useBreakpointMatch } from '@automattic/jetpack-components';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import {
@@ -10,6 +9,7 @@ import {
 	Button,
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { store as coreDataStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useMemo, useState, useCallback, useRef } from '@wordpress/element';
@@ -18,7 +18,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { useNavigate } from '@wordpress/route';
-import { Badge, Stack } from '@wordpress/ui';
+import { Badge } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -33,6 +33,7 @@ import EmptyTrashConfirmationModal from '../../components/empty-trash-button/con
 import ExportResponsesButton from '../../components/export-responses/button';
 import ExportResponsesModal from '../../components/export-responses/modal';
 import { FormNameModal } from '../../components/form-name-modal';
+import { CreateFormModal } from '../../components/form-name-modal/create-form-modal';
 import { getFormStatusLabel } from '../../constants';
 import useCreateForm from '../../hooks/use-create-form';
 import useEmptySpam from '../../hooks/use-empty-spam';
@@ -62,7 +63,8 @@ type UsePageHeaderDetailsProps = {
 type UsePageHeaderDetailsReturn = {
 	ariaLabel: string;
 	breadcrumbs: ReactNode;
-	title?: ReactNode;
+	title?: string;
+	visual: ReactNode;
 	badges?: ReactNode;
 	subtitle: ReactNode;
 	actions?: ReactNode;
@@ -98,7 +100,7 @@ export default function usePageHeaderDetails(
 	}, [ sourceId ] );
 
 	// Detect mobile viewport
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 	const navigate = useNavigate();
 
 	// Mutually-exclusive screen flags.
@@ -458,12 +460,7 @@ export default function usePageHeaderDetails(
 		trackAction,
 	] );
 
-	const WrapWithJetpackLogo = ( { children }: { children: ReactNode } ) => (
-		<Stack align="center" gap="xs">
-			<JetpackLogo showText={ false } width={ 20 } />
-			{ children }
-		</Stack>
-	);
+	const visual = <JetpackLogo showText={ false } height={ 20 } />;
 
 	const ariaLabel = useMemo( () => {
 		if ( isSingleFormScreen ) {
@@ -475,10 +472,10 @@ export default function usePageHeaderDetails(
 
 	const title = useMemo( () => {
 		if ( isSingleFormScreen ) {
-			return null;
+			return undefined;
 		}
 		// "Forms" is a product name, do not translate.
-		return <WrapWithJetpackLogo>Forms</WrapWithJetpackLogo>;
+		return 'Forms';
 	}, [ isSingleFormScreen ] );
 
 	const breadcrumbs = useMemo( () => {
@@ -487,14 +484,12 @@ export default function usePageHeaderDetails(
 		}
 
 		return (
-			<WrapWithJetpackLogo>
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Forms', 'jetpack-forms' ), to: '/forms' },
-						{ label: formTitle || __( 'Form responses', 'jetpack-forms' ) },
-					] }
-				/>
-			</WrapWithJetpackLogo>
+			<Breadcrumbs
+				items={ [
+					{ label: __( 'Forms', 'jetpack-forms' ), to: '/forms' },
+					{ label: formTitle || __( 'Form responses', 'jetpack-forms' ) },
+				] }
+			/>
 		);
 	}, [ isSingleFormScreen, formTitle ] );
 
@@ -654,15 +649,11 @@ export default function usePageHeaderDetails(
 				// Include modals when on mobile
 				...( isCreateFormModalOpen
 					? [
-							<FormNameModal
+							<CreateFormModal
 								key="create-form-modal"
 								isOpen={ isCreateFormModalOpen }
 								onClose={ closeCreateFormModal }
 								onSave={ handleCreateFormSave }
-								title={ __( 'Create form', 'jetpack-forms' ) }
-								primaryButtonLabel={ __( 'Create', 'jetpack-forms' ) }
-								secondaryButtonLabel={ __( 'Cancel', 'jetpack-forms' ) }
-								placeholder={ __( 'Enter form title', 'jetpack-forms' ) }
 							/>,
 					  ]
 					: [] ),
@@ -884,5 +875,5 @@ export default function usePageHeaderDetails(
 		trackExportClickResponsesList,
 	] );
 
-	return { ariaLabel, breadcrumbs, title, badges, subtitle, actions };
+	return { ariaLabel, breadcrumbs, title, visual, badges, subtitle, actions };
 }

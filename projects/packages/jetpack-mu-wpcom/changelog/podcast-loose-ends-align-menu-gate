@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+WP.com admin menu: delegate the Podcast untangle gate to Podcast::is_enabled() so the menu honors the same default as the rest of the package.

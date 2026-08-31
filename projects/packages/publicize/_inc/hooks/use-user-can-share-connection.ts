@@ -9,9 +9,15 @@ import { useSelect } from '@wordpress/data';
  */
 export function useUserCanShareConnection() {
 	return useSelect( select => {
-		const { getUser } = select( coreStore );
-
 		const { current_user } = getScriptData().user;
+
+		const isEditorOrAbove = current_user.capabilities?.edit_others_posts;
+
+		if ( undefined !== isEditorOrAbove ) {
+			return isEditorOrAbove;
+		}
+
+		const { getUser } = select( coreStore );
 
 		// Only the editors and above can mark a connection as shared
 		return Boolean( getUser( current_user.id )?.capabilities?.edit_others_posts );

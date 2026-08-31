@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix double dash typo that was incorrectly converted into a comparison operator in DAL3 ObjectLayer.

@@ -41,6 +41,9 @@ return [
 	// Set true to strip descriptions and unrecognized tags from the phpdoc.
 	'strip-docs' => false,
 
+	// Set true to strip descriptions, but keep unrecognized tags (which may include descriptions).
+	'strip-docs-keep-tags' => false,
+
 	// Path which `files` are relative to. Defaults to the directory containing the definition file,
 	// and if it's relative it's relative to that.
 	'basedir' => '.',

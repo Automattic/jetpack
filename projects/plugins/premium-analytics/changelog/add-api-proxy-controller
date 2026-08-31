@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update package dependencies to bundle the analytics API proxy REST controller.

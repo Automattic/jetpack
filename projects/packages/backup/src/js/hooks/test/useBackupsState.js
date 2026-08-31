@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { BACKUP_STATE } from '../../constants';
 import useBackupsState from '../useBackupsState';
@@ -138,6 +138,27 @@ jest.mock( '@wordpress/data', () => ( {
 describe( 'useBackupsState', () => {
 	let dispatchMock;
 
+	/**
+	 * Point `useSelect` at a store, defaulting to "loaded, not fetching, no
+	 * failure" so each test states only what it is actually about.
+	 *
+	 * @param {object} overrides - Selectors to replace.
+	 */
+	const mockStore = ( overrides = {} ) => {
+		useSelect.mockImplementation( selector => {
+			if ( typeof selector === 'function' ) {
+				return selector( () => ( {
+					getBackups: () => fixtures.no_backups,
+					isFetchingBackups: () => false,
+					hasLoadedBackups: () => true,
+					hasBackupsFetchFailed: () => false,
+					...overrides,
+				} ) );
+			}
+			return [];
+		} );
+	};
+
 	beforeEach( () => {
 		dispatchMock = {
 			getBackups: jest.fn(),
@@ -147,20 +168,11 @@ describe( 'useBackupsState', () => {
 
 	afterEach( () => {
 		jest.clearAllMocks();
+		jest.useRealTimers();
 	} );
 
 	it( 'backupState should be NO_BACKUPS when the site has no backups', async () => {
-		// Provide a mock implementation for useSelect
-		useSelect.mockImplementation( selector => {
-			if ( typeof selector === 'function' ) {
-				return selector( () => ( {
-					getBackups: () => fixtures.no_backups,
-					isFetchingBackups: () => false,
-					hasLoadedBackups: () => true,
-				} ) );
-			}
-			return [];
-		} );
+		mockStore( { getBackups: () => fixtures.no_backups } );
 
 		const { result } = renderHook( () => useBackupsState() );
 
@@ -170,16 +182,7 @@ describe( 'useBackupsState', () => {
 	} );
 
 	it( 'backupState should be NO_BACKUPS_RETRY when last backup has a retry state', async () => {
-		useSelect.mockImplementation( selector => {
-			if ( typeof selector === 'function' ) {
-				return selector( () => ( {
-					getBackups: () => fixtures.no_backups_retry,
-					isFetchingBackups: () => false,
-					hasLoadedBackups: () => true,
-				} ) );
-			}
-			return [];
-		} );
+		mockStore( { getBackups: () => fixtures.no_backups_retry } );
 
 		const { result } = renderHook( () => useBackupsState() );
 
@@ -189,16 +192,7 @@ describe( 'useBackupsState', () => {
 	} );
 
 	it( 'backupState should be COMPLETE when last backup has finished successfully', async () => {
-		useSelect.mockImplementation( selector => {
-			if ( typeof selector === 'function' ) {
-				return selector( () => ( {
-					getBackups: () => fixtures.complete,
-					isFetchingBackups: () => false,
-					hasLoadedBackups: () => true,
-				} ) );
-			}
-			return [];
-		} );
+		mockStore( { getBackups: () => fixtures.complete } );
 
 		const { result } = renderHook( () => useBackupsState() );
 
@@ -208,16 +202,7 @@ describe( 'useBackupsState', () => {
 	} );
 
 	it( 'backupState should be NO_GOOD_BACKUPS when last backup finished with no stats', async () => {
-		useSelect.mockImplementation( selector => {
-			if ( typeof selector === 'function' ) {
-				return selector( () => ( {
-					getBackups: () => fixtures.no_good_backups,
-					isFetchingBackups: () => false,
-					hasLoadedBackups: () => true,
-				} ) );
-			}
-			return [];
-		} );
+		mockStore( { getBackups: () => fixtures.no_good_backups } );
 
 		const { result } = renderHook( () => useBackupsState() );
 
@@ -227,16 +212,7 @@ describe( 'useBackupsState', () => {
 	} );
 
 	it( 'backupState should be NO_GOOD_BACKUPS when last backup finished as discarded', async () => {
-		useSelect.mockImplementation( selector => {
-			if ( typeof selector === 'function' ) {
-				return selector( () => ( {
-					getBackups: () => fixtures.discarded,
-					isFetchingBackups: () => false,
-					hasLoadedBackups: () => true,
-				} ) );
-			}
-			return [];
-		} );
+		mockStore( { getBackups: () => fixtures.discarded } );
 
 		const { result } = renderHook( () => useBackupsState() );
 
@@ -246,15 +222,39 @@ describe( 'useBackupsState', () => {
 	} );
 
 	it( 'backupState should be COMPLETE by selecting the latest non-discarded finished backup', async () => {
-		useSelect.mockImplementation( selector => {
-			if ( typeof selector === 'function' ) {
-				return selector( () => ( {
-					getBackups: () => fixtures.complete_and_discarded,
-					isFetchingBackups: () => false,
-					hasLoadedBackups: () => true,
-				} ) );
-			}
-			return [];
+		mockStore( { getBackups: () => fixtures.complete_and_discarded } );
+
+		const { result } = renderHook( () => useBackupsState() );
+
+		await waitFor( () => {
+			expect( result.current.backupState ).toBe( BACKUP_STATE.COMPLETE );
+		} );
+	} );
+
+	// The regression this state exists to prevent. An empty list and a failed
+	// read both arrive here as `backups: []` with `loaded: true`, so before
+	// the `fetchFailed` flag a WordPress.com blip reported NO_BACKUPS and a
+	// paying customer was shown the first-run "your first backup will be
+	// ready soon" screen.
+	it( 'backupState should be FETCH_FAILED when the read failed with nothing loaded', async () => {
+		mockStore( {
+			getBackups: () => fixtures.no_backups,
+			hasBackupsFetchFailed: () => true,
+		} );
+
+		const { result } = renderHook( () => useBackupsState() );
+
+		await waitFor( () => {
+			expect( result.current.backupState ).toBe( BACKUP_STATE.FETCH_FAILED );
+		} );
+	} );
+
+	// A blip on a poll tick must not throw away a screen that is already
+	// showing real backups. The error state is only for having nothing.
+	it( 'keeps reporting COMPLETE when a later read fails but a list is loaded', async () => {
+		mockStore( {
+			getBackups: () => fixtures.complete,
+			hasBackupsFetchFailed: () => true,
 		} );
 
 		const { result } = renderHook( () => useBackupsState() );
@@ -262,5 +262,38 @@ describe( 'useBackupsState', () => {
 		await waitFor( () => {
 			expect( result.current.backupState ).toBe( BACKUP_STATE.COMPLETE );
 		} );
+	} );
+
+	// The deliberate half of the poll decision: a failed read waits to be
+	// asked rather than retrying a failing WordPress.com once a second.
+	it( 'stops polling after a failed read', () => {
+		jest.useFakeTimers();
+		mockStore( {
+			getBackups: () => fixtures.no_backups,
+			hasBackupsFetchFailed: () => true,
+		} );
+
+		renderHook( () => useBackupsState() );
+
+		act( () => {
+			jest.advanceTimersByTime( 10000 );
+		} );
+
+		expect( dispatchMock.getBackups ).not.toHaveBeenCalled();
+	} );
+
+	// The control for the test above: without it, that one would pass even if
+	// the hook had stopped polling entirely.
+	it( 'keeps polling while the site is waiting for its first backup', () => {
+		jest.useFakeTimers();
+		mockStore( { getBackups: () => fixtures.no_backups } );
+
+		renderHook( () => useBackupsState() );
+
+		act( () => {
+			jest.advanceTimersByTime( 10000 );
+		} );
+
+		expect( dispatchMock.getBackups ).toHaveBeenCalled();
 	} );
 } );

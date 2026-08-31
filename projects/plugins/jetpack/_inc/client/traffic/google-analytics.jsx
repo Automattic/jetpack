@@ -1,7 +1,8 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { Component } from 'react';
 import { FormFieldset, FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -107,6 +108,7 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 					{ ! this.props.isUnavailableInOfflineMode( 'google-analytics' ) && (
 						<SettingsGroup hasChild>
 							<ToggleControl
+								__nextHasNoMarginBottom={ true }
 								checked={ this.isActive() }
 								disabled={ this.isSaving() }
 								onChange={ this.toggleActive }
@@ -136,7 +138,8 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 												__( '<link>Learn more</link> to find your Measurement ID.', 'jetpack' ),
 												{
 													link: (
-														<ExternalLink
+														<Link
+															openInNewTab
 															href={ getRedirectUrl( 'wpcom-support-google-analytics', {
 																anchor: 'step-2-get-your-measurement-id',
 															} ) }
@@ -148,6 +151,7 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 									</FormFieldset>
 									<FormFieldset>
 										<ToggleControl
+											__nextHasNoMarginBottom={ true }
 											checked={ this.getOptionValue( 'anonymize_ip' ) }
 											onChange={ this.onToggleChange( 'anonymize_ip' ) }
 											disabled={ this.isSaving() }
@@ -165,7 +169,8 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 														),
 														{
 															link: (
-																<ExternalLink
+																<Link
+																	openInNewTab
 																	href={ getRedirectUrl(
 																		'wpcom-support-google-analytics-anonymize-ip'
 																	) }

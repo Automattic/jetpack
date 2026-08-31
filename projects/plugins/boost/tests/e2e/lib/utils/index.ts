@@ -1,4 +1,4 @@
-import { TestUtils } from '_jetpack-e2e-commons/utils/index';
+import { TestUtils } from '@automattic/_jetpack-e2e-commons/utils/index';
 import {
 	executeJetpackBoostCommand,
 	activateBoostModule,

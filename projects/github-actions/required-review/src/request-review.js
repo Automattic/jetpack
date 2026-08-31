@@ -40,6 +40,6 @@ export async function requestReview( teams ) {
 		} );
 		core.info( `Requested review(s) from ${ teams }` );
 	} catch ( err ) {
-		throw new Error( `Unable to request review.\n  Error: ${ err }` );
+		throw new Error( `Unable to request review.\n  Error: ${ err }`, { cause: err } );
 	}
 }

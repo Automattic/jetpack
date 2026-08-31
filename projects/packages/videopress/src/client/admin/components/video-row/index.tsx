@@ -1,14 +1,10 @@
 /**
  * External dependencies
  */
-import {
-	Text,
-	Button,
-	useBreakpointMatch,
-	LoadingPlaceholder,
-} from '@automattic/jetpack-components';
+import { Text, Button, LoadingPlaceholder } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import { dateI18n } from '@wordpress/date';
-import { sprintf, __ } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useState, useRef, useEffect } from 'react';
@@ -18,7 +14,6 @@ import { useState, useRef, useEffect } from 'react';
 import privateIcon from '../../../components/icons/crossed-eye-icon';
 import { usePermission } from '../../hooks/use-permission';
 import useVideo from '../../hooks/use-video';
-import Checkbox from '../checkbox';
 import PublishFirstVideoPopover from '../publish-first-video-popover';
 import { ConnectVideoQuickActions } from '../video-quick-actions';
 import VideoThumbnail from '../video-thumbnail';
@@ -50,7 +45,7 @@ const Stats = ( {
 	isPrivate?: boolean;
 	loading?: boolean;
 } ) => {
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const isSmall = useViewportMatch( 'small', '<' );
 	const durationLabel = __( 'Duration', 'jetpack-videopress-pkg' );
 	const playsLabel = __( 'Plays', 'jetpack-videopress-pkg' );
 	const privacyLabel = __( 'Privacy', 'jetpack-videopress-pkg' );
@@ -103,7 +98,6 @@ const Stats = ( {
 export const VideoRow = ( {
 	id,
 	className = '',
-	checked = false,
 	title,
 	titleAdornment = null,
 	thumbnail,
@@ -113,10 +107,8 @@ export const VideoRow = ( {
 	plays,
 	isPrivate,
 	onActionClick,
-	onSelect,
 	showActionButton = true,
 	showQuickActions = true,
-	showCheckbox = true,
 	loading = false,
 	uploading = false,
 	processing = false,
@@ -128,12 +120,10 @@ export const VideoRow = ( {
 	isLocalVideo = false,
 }: VideoRowProps ) => {
 	const textRef = useRef( null );
-	const checkboxRef = useRef( null );
 
 	const { canPerformAction } = usePermission();
 
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
-	const [ keyPressed, setKeyDown ] = useState( false );
+	const isSmall = useViewportMatch( 'small', '<' );
 	const [ expanded, setExpanded ] = useState( false );
 	const [ anchor, setAnchor ] = useState( null );
 
@@ -155,19 +145,6 @@ export const VideoRow = ( {
 
 	const hoverDisabled = isSmall || loading || disabled;
 
-	const isSpaceOrEnter = code => code === 'Space' || code === 'Enter';
-
-	const wrapperAriaLabel = sprintf(
-		/* translators: 1 Video title, 2 Video duration, 3 Video upload date */
-		__(
-			'Video: %1$s, Duration: %2$s, Upload Date: %3$s. Click to edit details.',
-			'jetpack-videopress-pkg'
-		),
-		title,
-		durationInMinutesAndSeconds,
-		uploadDateFormatted
-	);
-
 	const handleClickWithStopPropagation = callback => event => {
 		event.stopPropagation();
 		callback?.( event );
@@ -183,30 +160,9 @@ export const VideoRow = ( {
 		</Button>
 	);
 
-	const handleInfoWrapperClick = e => {
+	const handleInfoWrapperClick = () => {
 		if ( canExpand ) {
 			setExpanded( current => ! current );
-		} else {
-			handleClick( e );
-		}
-	};
-
-	const handleClick = e => {
-		if ( e.target !== checkboxRef.current ) {
-			checkboxRef?.current?.click();
-		}
-	};
-
-	const handleKeyDown = e => {
-		if ( isSpaceOrEnter( e?.code ) ) {
-			setKeyDown( true );
-		}
-	};
-
-	const handleKeyUp = e => {
-		if ( isSpaceOrEnter( e?.code ) ) {
-			setKeyDown( false );
-			handleClick( e );
 		}
 	};
 
@@ -218,15 +174,9 @@ export const VideoRow = ( {
 
 	return (
 		<div
-			role="button"
-			tabIndex={ 0 }
-			onKeyDown={ isSmall ? null : handleKeyDown }
-			onKeyUp={ isSmall ? null : handleKeyUp }
-			aria-label={ wrapperAriaLabel }
 			className={ clsx(
 				styles[ 'video-row' ],
 				{
-					[ styles.pressed ]: keyPressed,
 					[ styles.disabled ]: disabled,
 					[ styles[ 'hover-disabled' ] ]: hoverDisabled,
 				},
@@ -234,18 +184,6 @@ export const VideoRow = ( {
 			) }
 			ref={ setAnchor }
 		>
-			{ showCheckbox && (
-				<div className={ clsx( { [ styles[ 'checkbox-wrapper-small' ] ]: isSmall } ) }>
-					<Checkbox
-						ref={ checkboxRef }
-						checked={ checked && ! loading }
-						tabIndex={ -1 }
-						onChange={ onSelect }
-						disabled={ loading }
-					/>
-				</div>
-			) }
-
 			<div
 				className={ clsx( styles[ 'video-data-wrapper' ], {
 					[ styles.small ]: isSmall,

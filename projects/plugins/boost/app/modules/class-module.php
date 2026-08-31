@@ -62,6 +62,15 @@ class Module {
 	}
 
 	/**
+	 * Name of the wp_options option that stores this module's status.
+	 *
+	 * @return string
+	 */
+	public function get_status_option_name() {
+		return Status::get_option_name( $this->get_slug() );
+	}
+
+	/**
 	 * If the module has any submodules, this method will return an array of Module instances for each submodule.
 	 */
 	public function get_submodules() {
@@ -148,12 +157,25 @@ class Module {
 	 * @return bool True if the module is enabled, false otherwise.
 	 */
 	public function is_enabled() {
-		$always_on = is_subclass_of( $this->feature, 'Automattic\Jetpack_Boost\Contracts\Is_Always_On' );
-		if ( $always_on ) {
+		if ( $this->is_always_on() ) {
 			return true;
 		}
 
 		return $this->status->get();
+	}
+
+	/**
+	 * Check if the module's feature implements Is_Always_On.
+	 *
+	 * Always-on modules cannot be disabled: is_enabled() short-circuits to true
+	 * for them regardless of the persisted option, so writes via update() are
+	 * silently overridden. Callers writing module state should bail before the
+	 * write rather than letting on-disk state diverge from runtime state.
+	 *
+	 * @return bool
+	 */
+	public function is_always_on(): bool {
+		return is_subclass_of( $this->feature, 'Automattic\Jetpack_Boost\Contracts\Is_Always_On' );
 	}
 
 	/**

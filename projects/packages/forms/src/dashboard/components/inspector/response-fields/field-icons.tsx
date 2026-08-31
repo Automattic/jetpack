@@ -7,6 +7,7 @@
  */
 
 import { envelope, globe, mobile, unseen, upload } from '@wordpress/icons';
+import checkboxUncheckedIcon from '../../../../blocks/field-checkbox/icon-unchecked.jsx';
 import checkboxIcon from '../../../../blocks/field-checkbox/icon.jsx';
 import consentIcon from '../../../../blocks/field-consent/icon.jsx';
 import dateIcon from '../../../../blocks/field-date/icon.jsx';
@@ -47,6 +48,37 @@ export const fieldIcons: Partial< Record< FieldType, JSX.Element > > = {
 	telephone: mobile,
 	text: textIcon.src,
 	textarea: textareaIcon.src,
-	time: timeIcon,
+	time: timeIcon.src,
 	url: globe,
+};
+
+/**
+ * Icon shown for a checkbox the respondent left unchecked.
+ *
+ * A checkbox field's icon reflects the answer, not just the type, so it can't
+ * live in the type-keyed map above.
+ */
+export const checkboxUncheckedFieldIcon: JSX.Element = checkboxUncheckedIcon.src;
+
+/**
+ * Whether a submitted value means the respondent ticked the box.
+ *
+ * An unticked box submits an empty value, and some stored responses use an
+ * explicit "No". The ticked value is a translated string ( "Yes" ), so this
+ * tests for emptiness and the "no" sentinel rather than matching "yes".
+ *
+ * Must agree with `Feedback_Field::is_checked_value()` in PHP.
+ *
+ * @param value - The submitted value.
+ * @return True when the box was ticked.
+ */
+export const isCheckedValue = ( value: unknown ): boolean => {
+	if ( Array.isArray( value ) ) {
+		return value.length > 0;
+	}
+	if ( value === null || value === undefined ) {
+		return false;
+	}
+	const normalized = String( value ).trim().toLowerCase();
+	return normalized !== '' && normalized !== '0' && normalized !== 'no';
 };

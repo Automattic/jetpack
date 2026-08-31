@@ -1,10 +1,9 @@
 import { Tooltip, TooltipContext } from '@visx/xychart';
-import { useContext, useEffect, useCallback, useMemo } from 'react';
+import clsx from 'clsx';
+import { useContext, useEffect, useCallback, useMemo, useRef } from 'react';
+import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
 import type { SeriesData, DataPointDate } from '../../types';
-import type {
-	TooltipProps as BaseTooltipProps,
-	RenderTooltipParams,
-} from '@visx/xychart/lib/components/Tooltip';
+import type { RenderTooltipParams, XyChartTooltipProps } from '../../visx/types';
 import type { ReactNode } from 'react';
 
 // Type for flattened tooltip data used in individual mode
@@ -17,7 +16,7 @@ export type FlattenedTooltipData = {
 
 // Enhanced tooltip with keyboard navigation and accessibility
 interface AccessibleTooltipProps
-	extends Omit< BaseTooltipProps< DataPointDate >, 'renderTooltip' > {
+	extends Omit< XyChartTooltipProps< DataPointDate >, 'renderTooltip' > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	selectedIndex?: number | undefined;
 	tooltipRef?: ( element: HTMLDivElement | null ) => void;
@@ -80,12 +79,23 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 		return flattened;
 	}, [ series, mode ] );
 
+	// Tracks whether this effect opened a tooltip, so it only closes its own.
+	const hasKeyboardSelection = useRef( false );
+
 	// Handle tooltip highlighting for keyboard navigation
 	useEffect( () => {
 		if ( selectedIndex === undefined ) {
-			tooltipContext?.hideTooltip();
+			// visx debounces the hide and cancels only the most recently scheduled one,
+			// so hiding on every run leaves earlier hides pending. One of those lands
+			// mid-navigation and closes the tooltip the user is reading.
+			if ( hasKeyboardSelection.current ) {
+				hasKeyboardSelection.current = false;
+				tooltipContext?.hideTooltip();
+			}
 			return;
 		}
+
+		hasKeyboardSelection.current = true;
 
 		if ( mode === 'group' ) {
 			// Show all series at the selected data point index in single tooltip.
@@ -131,7 +141,7 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 						tabIndex={ -1 }
 						role="tooltip"
 						aria-atomic="true"
-						className={ keyboardFocusedClassName }
+						className={ clsx( CHART_SCOPE_CLASS, keyboardFocusedClassName ) }
 						data-testid={ `chart-tooltip-${ selectedIndex }` }
 						key={ `chart-tooltip-${ selectedIndex }` }
 					>
@@ -141,7 +151,7 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 			}
 
 			return (
-				<div role="tooltip" aria-live="polite">
+				<div className={ CHART_SCOPE_CLASS } role="tooltip" aria-live="polite">
 					{ tooltipContent }
 				</div>
 			);
@@ -162,6 +172,11 @@ interface UseKeyboardNavigationProps {
 	 * Total number of navigation points (length of tooltip data array)
 	 */
 	totalPoints: number;
+	/**
+	 * Called with the selected index on Enter or Space, so a chart can treat the
+	 * keyboard selection the way it treats a click.
+	 */
+	onActivate?: ( index: number ) => void;
 }
 
 export const useKeyboardNavigation = ( {
@@ -171,6 +186,7 @@ export const useKeyboardNavigation = ( {
 	setIsNavigating,
 	chartRef,
 	totalPoints,
+	onActivate,
 }: UseKeyboardNavigationProps ) => {
 	// Focus the tooltip as soon as it is rendered
 	const tooltipRef = useCallback(
@@ -227,9 +243,11 @@ export const useKeyboardNavigation = ( {
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
 				chartRef.current?.focus();
+			} else if ( ( event.key === 'Enter' || event.key === ' ' ) && selectedIndex !== undefined ) {
+				onActivate?.( selectedIndex );
 			}
 		},
-		[ totalPoints, selectedIndex, setSelectedIndex, setIsNavigating, chartRef ]
+		[ totalPoints, selectedIndex, setSelectedIndex, setIsNavigating, chartRef, onActivate ]
 	);
 
 	return {
@@ -242,4 +260,3 @@ export const useKeyboardNavigation = ( {
 
 // Re-export the base Tooltip for backwards compatibility
 export { Tooltip };
-export type { BaseTooltipProps };

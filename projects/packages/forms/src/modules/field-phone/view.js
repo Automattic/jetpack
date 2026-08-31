@@ -5,7 +5,7 @@ import {
 	getElement,
 	withSyncEvent as originalWithSyncEvent,
 } from '@wordpress/interactivity';
-import parsePhoneNumber, { AsYouType } from 'libphonenumber-js';
+import parsePhoneNumber, { AsYouType } from 'libphonenumber-js/min/es6';
 import { countries } from '../../blocks/field-telephone/country-list.js';
 import { isEmptyValue } from '../../contact-form/js/validate-helper.js';
 const NAMESPACE = 'jetpack/form';
@@ -112,29 +112,54 @@ const updateSelection = selectedCountry => {
 	} ) );
 };
 
+/**
+ * Revalidate the field after the visitor commits to a country.
+ *
+ * `fullPhoneNumber` is the only value `validators.phone` judges, so without this a number that was
+ * invalid for the previous country keeps its stale `invalid_phone` after the visitor picks the
+ * country that makes it valid, and the error blocks submission until the input is touched again.
+ *
+ * Only the paths that commit call this. `updateSelection()` also runs while the visitor merely
+ * arrows through the list, and revalidating there would reset `showFieldError` on every keypress,
+ * hiding an error that is still true of the number they have typed.
+ */
+const revalidateAfterCountryCommit = () => {
+	const context = getContext();
+
+	actions.updateField(
+		context.fieldId,
+		context.phoneNumber,
+		context.fields?.[ context.fieldId ]?.showFieldError ?? false
+	);
+};
+
 const { actions } = store( NAMESPACE, {
 	state: {
 		validators: {
 			phone: ( value, isRequired ) => {
-				const context = getContext();
+				// Defaults matter here: this validator also runs from `registerField()`, which is
+				// scoped to the field wrapper rather than to the phone wrapper that provides these
+				// keys, so during registration they are all undefined. See the scope contract on
+				// `validate()` in ../form/view.js.
+				const {
+					phoneNumber = '',
+					fullPhoneNumber = '',
+					showCountrySelector = false,
+				} = getContext();
 
-				if ( isEmptyValue( context.phoneNumber ) && isRequired ) {
+				if ( isEmptyValue( phoneNumber ) && isRequired ) {
 					// this is not triggering any error, but then no other input does either
 					return 'is_required';
 				}
-				if ( ! isRequired && isEmptyValue( context.phoneNumber ) ) {
+				if ( ! isRequired && isEmptyValue( phoneNumber ) ) {
 					// No need to validate anything.
 					return 'yes';
 				}
 
 				// from this point on, we discard the value as we
 				// use our internal full phone number state getter:
-				value = context.fullPhoneNumber;
-				if (
-					context.showCountrySelector ||
-					value.indexOf( '+' ) === 0 ||
-					value.indexOf( '00' ) === 0
-				) {
+				value = fullPhoneNumber;
+				if ( showCountrySelector || value.indexOf( '+' ) === 0 || value.indexOf( '00' ) === 0 ) {
 					const internationalNumber = parsePhoneNumber( value );
 					if ( ! internationalNumber || ! internationalNumber.isValid() ) {
 						return 'invalid_phone';
@@ -192,6 +217,7 @@ const { actions } = store( NAMESPACE, {
 			// this context.filtered is from the template iterator
 			context.selectedCountry = { ...context.filtered };
 			updateSelection( context.selectedCountry );
+			revalidateAfterCountryCommit();
 			context.comboboxOpen = false;
 			phoneInputRefs[ context.fieldId ]?.focus?.();
 		},
@@ -225,6 +251,7 @@ const { actions } = store( NAMESPACE, {
 						context.filteredCountries[ 0 ];
 					context.selectedCountry = selectedCountry;
 					updateSelection( context.selectedCountry );
+					revalidateAfterCountryCommit();
 					context.comboboxOpen = false;
 					// Focus on the ref input
 					phoneInputRefs[ context.fieldId ]?.focus?.();

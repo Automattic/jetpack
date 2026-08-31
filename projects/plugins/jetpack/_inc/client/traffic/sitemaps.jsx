@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -24,7 +24,8 @@ export class Sitemaps extends Component {
 					copied={ __( 'Copied!', 'jetpack' ) }
 					prompt={ __( 'Highlight and copy the following text to your clipboard:', 'jetpack' ) }
 				/>
-				<ExternalLink
+				<Link
+					openInNewTab
 					// eslint-disable-next-line react/jsx-no-bind
 					onClick={ trackSitemapUrl }
 					rel="noopener noreferrer"
@@ -63,8 +64,8 @@ export class Sitemaps extends Component {
 					<ModuleToggle
 						slug="sitemaps"
 						compact
+						disabled={ this.props.isSavingAnyOption( 'sitemaps' ) }
 						activated={ this.props.getOptionValue( 'sitemaps' ) }
-						toggling={ this.props.isSavingAnyOption( 'sitemaps' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
 						<span className="jp-form-toggle-explanation">

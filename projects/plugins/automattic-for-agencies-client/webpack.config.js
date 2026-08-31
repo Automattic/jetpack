@@ -4,7 +4,7 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 module.exports = [
 	{
 		entry: {
-			index: './src/js/index.js',
+			index: './src/js/index.jsx',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
@@ -32,6 +32,9 @@ module.exports = [
 				jetpackWebpackConfig.TranspileRule( {
 					includeNodeModules: [ '@automattic/jetpack-' ],
 				} ),
+
+				// Workarounds for non-extracted `@wordpress/*` packages.
+				...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {

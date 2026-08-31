@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Custom CSS: stop PHP 8 fatal when LESS input contains a stray closing brace.

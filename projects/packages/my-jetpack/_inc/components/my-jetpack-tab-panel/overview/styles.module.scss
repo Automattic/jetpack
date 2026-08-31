@@ -10,23 +10,11 @@
 }
 
 .footer {
-	width: 100vw;
-	margin-inline-start: calc(-50vw + 50%);
-	background: var(--studio-white, #fff);
+	background: var(--wpds-color-background-surface-neutral-strong);
 
 	/* Center the content within the full-width background */
 	display: flex;
 	justify-content: center;
-
-	// 1128 + 3rem (96px) = 1224px + 64px (no idea what that is) = 1288px
-	@media ( max-width: 1288px ) {
-		// I have to hardcode --max-container-width
-		// because media queries don't work with CSS variables
-		margin-inline-start: -3rem; // Match the parent's padding-inline
-		margin-inline-end: -3rem;
-		width: calc(100% + 6rem); // Compensate for the negative margins
-		padding-inline: 3rem;
-	}
 }
 
 .footer-inner {
@@ -37,6 +25,32 @@
 	padding-inline: 3rem;
 
 	@include parent.full-width-container;
+
+	a,
+	a.components-external-link,
+	.components-button.is-link {
+		// TODO: use theme provider to set the color consistently
+		color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+
+		text-decoration: none;
+
+		:hover:not(:disabled, [aria-disabled="true"]) {
+			text-decoration: underline;
+			text-decoration-thickness: 1.5px;
+		}
+
+		&:focus {
+			box-shadow: none;
+			outline-width: 0;
+		}
+
+		&:focus-visible {
+			border-radius: 2px;
+			box-shadow: none;
+			outline: 1.5px solid currentColor;
+			outline-offset: 3px;
+		}
+	}
 }
 
 .footer-container {

@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.11] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [0.3.10] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [0.3.9] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
 ## [0.3.8] - 2025-09-08
 ### Changed
 - Internal updates.
@@ -84,6 +96,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Initial release (improved helper script installer logging). [#34297]
 
+[0.3.11]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.3.10...v0.3.11
+[0.3.10]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.3.9...v0.3.10
+[0.3.9]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.3.8...v0.3.9
 [0.3.8]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.3.7...v0.3.8
 [0.3.7]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.3.6...v0.3.7
 [0.3.6]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.3.5...v0.3.6

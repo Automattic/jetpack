@@ -93,6 +93,7 @@ test_begin "Tag D3 with old main"
 init_repo
 assert_commits origin/main F D3 E
 
+# shellcheck disable=SC2034
 TAGS=( tagB1 tagB2 tagB3 )
 test_begin "Tags B1, B2, B3 with old main"
 init_repo

@@ -1,19 +1,17 @@
 import {
 	CheckmarkIcon,
 	getIconBySlug,
-	StarIcon,
-	Text,
-	H3,
-	Alert,
+	Text as JetpackText,
 	TermsOfService,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { getCurrencyObject } from '@automattic/number-formatters';
-import { ExternalLink } from '@wordpress/components';
+import { Notice } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, check, plus } from '@wordpress/icons';
+import { Icon, check, plus, starFilled } from '@wordpress/icons';
+import { Link, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useState, useEffect } from 'react';
+import { Fragment, useCallback, useState, useEffect } from 'react';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
@@ -42,17 +40,16 @@ function Price( { value, currency, isOld } ) {
 		[ styles[ 'is-old' ] ]: isOld,
 	} );
 
-	return (
-		<Text className={ classNames } variant="headline-medium" component="p">
-			<Text component="sup" variant="title-medium">
-				{ priceObject.symbol }
-			</Text>
+	const SupSymbol = <sup>{ priceObject.symbol }</sup>;
+	const SupFraction = <sup>{ priceObject.fraction }</sup>;
+	const PriceTag = (
+		<p>
+			<Text render={ SupSymbol } variant="heading-xl"></Text>
 			{ priceObject.integer }
-			<Text component="sup" variant="title-medium">
-				{ priceObject.fraction }
-			</Text>
-		</Text>
+			<Text render={ SupFraction } variant="heading-xl"></Text>
+		</p>
 	);
+	return <Text className={ classNames } variant="heading-2xl" render={ PriceTag }></Text>;
 }
 
 /**
@@ -297,20 +294,38 @@ const ProductDetailCard = ( {
 		>
 			{ isBundleUpsell && (
 				<div className={ styles[ 'card-header' ] }>
-					<StarIcon className={ styles[ 'product-bundle-icon' ] } size={ 16 } />
-					<Text variant="label">{ __( 'Popular upgrade', 'jetpack-my-jetpack' ) }</Text>
+					<Icon icon={ starFilled } className={ styles[ 'product-bundle-icon' ] } size={ 16 } />
+					<Text
+						variant="body-sm"
+						style={ { margin: 0 } }
+						render={ <p>{ __( 'Popular upgrade', 'jetpack-my-jetpack' ) }</p> }
+					></Text>
 				</div>
 			) }
-
 			<div className={ styles.container }>
 				{ isBundleUpsell && <div className={ styles[ 'product-bundle-icons' ] }>{ icons }</div> }
 				<ProductIcon slug={ slug } />
 
-				<H3>{ productMoniker }</H3>
+				<Text
+					variant="heading-2xl"
+					style={ {
+						margin: '0 0 var(--wpds-dimension-gap-xl, 24px)',
+					} }
+					render={ <h2>{ productMoniker }</h2> }
+				></Text>
 				{ isProductLoading ? (
 					<LoadingBlock width="100%" height="75px" spaceBelow />
 				) : (
-					<Text mb={ 3 }>{ longDescription }</Text>
+					<>
+						<Text
+							variant="body-lg"
+							style={ {
+								margin: 0,
+								marginBottom: 'var(--wpds-dimension-gap-xl, 24px)',
+							} }
+							render={ <p>{ longDescription }</p> }
+						></Text>
+					</>
 				) }
 
 				{ isProductLoading ? (
@@ -322,10 +337,22 @@ const ProductDetailCard = ( {
 						} ) }
 					>
 						{ features.map( ( feature, id ) => (
-							<Text component="li" key={ `feature-${ id }` } variant="body">
-								<Icon icon={ check } size={ 24 } />
-								{ feature }
-							</Text>
+							<Fragment key={ `feature-${ id }` }>
+								{ /* Inline bottom margin rather than the `.features li` rule: an inline
+								   style on Text wins over the stylesheet class, so the row gap lives here. */ }
+								<Text
+									variant="body-lg"
+									style={ {
+										margin: '0 0 var(--wpds-dimension-gap-sm, 8px)',
+									} }
+									render={
+										<li>
+											<Icon icon={ check } size={ 24 } />
+											{ feature }
+										</li>
+									}
+								></Text>
+							</Fragment>
 						) ) }
 					</ul>
 				) }
@@ -340,29 +367,52 @@ const ProductDetailCard = ( {
 								<Price value={ price } currency={ currencyCode } isOld={ true } />
 							) }
 						</div>
-						<Text className={ styles[ 'price-description' ] }>{ priceDescription }</Text>
+						<Text
+							className={ styles[ 'price-description' ] }
+							variant="body-lg"
+							style={ {
+								margin: '0 0 var(--wpds-dimension-gap-xl, 24px)',
+							} }
+							render={ <p>{ priceDescription }</p> }
+						></Text>
 					</>
 				) }
 
-				{ isFree && <H3>{ __( 'Free', 'jetpack-my-jetpack' ) }</H3> }
+				{ isFree && (
+					<>
+						<Text
+							variant="heading-2xl"
+							style={ {
+								margin: '0 0 var(--wpds-dimension-gap-xl, 24px)',
+							} }
+							render={ <h2>{ __( 'Free', 'jetpack-my-jetpack' ) }</h2> }
+						></Text>
+					</>
+				) }
 
 				{ cantInstallPlugin && (
-					<Alert>
-						<Text>
-							{ sprintf(
-								// translators: %s is the plugin name.
-								__(
-									"Due to your server settings, we can't automatically install the plugin for you. Please manually install the %s plugin.",
-									'jetpack-my-jetpack'
-								),
-								productMoniker
-							) }
-							&nbsp;
-							<ExternalLink href={ `https://wordpress.org/plugins/${ pluginSlug }` }>
-								{ __( 'Get plugin', 'jetpack-my-jetpack' ) }
-							</ExternalLink>
-						</Text>
-					</Alert>
+					<Notice status="warning" isDismissible={ false }>
+						<Text
+							variant="body-lg"
+							style={ { margin: 0 } }
+							render={
+								<p>
+									{ sprintf(
+										// translators: %s is the plugin name.
+										__(
+											"Due to your server settings, we can't automatically install the plugin for you. Please manually install the %s plugin.",
+											'jetpack-my-jetpack'
+										),
+										productMoniker
+									) }
+									&nbsp;
+									<Link openInNewTab href={ `https://wordpress.org/plugins/${ pluginSlug }` }>
+										{ __( 'Get plugin', 'jetpack-my-jetpack' ) }
+									</Link>
+								</p>
+							}
+						></Text>
+					</Notice>
 				) }
 
 				{ ! hideTOS && (
@@ -414,11 +464,12 @@ const ProductDetailCard = ( {
 						{ disclaimers.map( ( disclaimer, id ) => {
 							const { text, link_text = null, url = null } = disclaimer;
 
-							return (
-								<Text key={ `disclaimer-${ id }` } component="p" variant="body-small">
+							const disclaimerBody = (
+								<>
 									{ `${ text } ` }
 									{ url && link_text && (
-										<ExternalLink
+										<Link
+											openInNewTab
 											// Ignoring rule so I can pass ID to analytics in order to tell which disclaimer was clicked if there is more than one
 											/* eslint-disable react/jsx-no-bind */
 											onClick={ () => disclaimerClickHandler( id ) }
@@ -427,9 +478,21 @@ const ProductDetailCard = ( {
 											rel="noopener noreferrer"
 										>
 											{ link_text }
-										</ExternalLink>
+										</Link>
 									) }
-								</Text>
+								</>
+							);
+
+							return (
+								<Fragment key={ `disclaimer-${ id }` }>
+									<Text
+										variant="body-sm"
+										style={ {
+											margin: 0,
+										} }
+										render={ <p>{ disclaimerBody }</p> }
+									></Text>
+								</Fragment>
 							);
 						} ) }
 					</div>
@@ -438,14 +501,23 @@ const ProductDetailCard = ( {
 				{ isBundleUpsell && hasPaidPlanForProduct && (
 					<div className={ styles[ 'product-has-required-plan' ] }>
 						<CheckmarkIcon size={ 36 } />
-						<Text>{ __( 'Active on your site', 'jetpack-my-jetpack' ) }</Text>
+						<Text
+							variant="body-lg"
+							style={ { margin: 0 } }
+							render={ <p>{ __( 'Active on your site', 'jetpack-my-jetpack' ) }</p> }
+						></Text>
 					</div>
 				) }
 
 				{ supportingInfo && (
-					<Text className={ styles[ 'supporting-info' ] } variant="body-extra-small">
-						{ supportingInfo }
-					</Text>
+					<>
+						<Text
+							className={ styles[ 'supporting-info' ] }
+							variant="body-sm"
+							style={ { margin: 0 } }
+							render={ <p>{ supportingInfo }</p> }
+						></Text>
+					</>
 				) }
 			</div>
 		</div>
@@ -485,8 +557,14 @@ const ProductDetailCardButton = ( {
 		onClick();
 	};
 
+	// NOTE: intentionally NOT migrated to @wordpress/ui Text. This is not a
+	// typography use — Text is overloaded here as a render-passthrough that
+	// forwards button props (onClick, isLoading, disabled, isPrimary) to the
+	// `component` (ProductDetailButton). @wordpress/ui Text's `render` prop
+	// does not forward arbitrary props to the rendered element, so this site
+	// belongs to the Button migration track, not the Text one.
 	return (
-		<Text
+		<JetpackText
 			component={ component }
 			onClick={ handleClick }
 			isLoading={ shouldShowLoadingState }
@@ -496,7 +574,7 @@ const ProductDetailCardButton = ( {
 			variant="body"
 		>
 			{ label }
-		</Text>
+		</JetpackText>
 	);
 };
 

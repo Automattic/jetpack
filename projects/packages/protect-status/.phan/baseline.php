@@ -9,17 +9,13 @@
  */
 return [
     // # Issue statistics:
-    // PhanPluginDuplicateConditionalNullCoalescing : 10+ occurrences
     // PhanTypeMismatchArgument : 3 occurrences
-    // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-plan.php' => ['PhanTypeMismatchReturnProbablyReal'],
-        'src/class-protect-status.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'src/class-scan-status.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'src/class-status.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument'],
+        'src/class-status.php' => ['PhanTypeMismatchArgument'],
         'tests/php/Scan_Status_Test.php' => ['PhanTypeMismatchArgument'],
         'tests/php/Status_Test.php' => ['PhanTypeMismatchArgument'],
     ],

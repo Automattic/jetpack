@@ -1,9 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { formatNumber } from '@automattic/number-formatters';
-import { ExternalLink } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
 import { isOdysseyStatsEnabled } from 'state/initial-state';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../shared/analytics-url';
 
 class DashStatsBottom extends Component {
 	statsBottom() {
@@ -47,6 +48,10 @@ class DashStatsBottom extends Component {
 
 	render() {
 		const s = this.statsBottom()[ 0 ];
+		// Null only where the dashboard is the analytics UI and this user cannot open it.
+		const analyticsUrl = hasAnalyticsDashboard()
+			? getAnalyticsUrl( { view: 'dashboard' } )
+			: this.props.siteAdminUrl + 'admin.php?page=stats';
 
 		return (
 			<div>
@@ -98,37 +103,32 @@ class DashStatsBottom extends Component {
 					<div className="jp-at-a-glance__stats-ctas">
 						{
 							// Only show link for non-atomic Jetpack sites.
-							createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
-								button: (
-									<Button
-										href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
-										onClick={ this.trackViewDetailedStats }
-										primary
-									/>
-								),
-							} )
+							analyticsUrl &&
+								createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
+									button: (
+										<Button href={ analyticsUrl } onClick={ this.trackViewDetailedStats } primary />
+									),
+								} )
 						}
 						{ this.props.isLinked &&
 							! this.props.isOdysseyStatsEnabled && // Only show if Odyssey Stats is disabled
-							createInterpolateElement(
-								__( '<ExternalLink>View on WordPress.com</ExternalLink>', 'jetpack' ),
-								{
-									ExternalLink: (
-										<ExternalLink
-											onClick={ this.trackViewWpcomStats }
-											href={ getRedirectUrl( 'calypso-stats-insights', {
-												site: this.props.siteRawUrl,
-											} ) }
-											rel="noopener noreferrer"
-											target="_blank"
-											className={ clsx(
-												'jp-at-a-glance__stats-ctas-wpcom-stats',
-												this.props.className
-											) }
-										/>
-									),
-								}
-							) }
+							createInterpolateElement( __( '<Link>View on WordPress.com</Link>', 'jetpack' ), {
+								Link: (
+									<Link
+										openInNewTab
+										onClick={ this.trackViewWpcomStats }
+										href={ getRedirectUrl( 'calypso-stats-insights', {
+											site: this.props.siteRawUrl,
+										} ) }
+										rel="noopener noreferrer"
+										target="_blank"
+										className={ clsx(
+											'jp-at-a-glance__stats-ctas-wpcom-stats',
+											this.props.className
+										) }
+									/>
+								),
+							} ) }
 					</div>
 				</div>
 			</div>

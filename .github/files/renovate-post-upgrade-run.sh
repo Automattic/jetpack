@@ -8,14 +8,15 @@ fi
 
 docker pull --quiet ghcr.io/automattic/jetpack-wordpress-dev:latest
 
-# Work around https://github.com/fabiospampinato/atomically/issues/13 by extracting /etc/passwd from the container and appending the entry for $EUID to it.
+# Create an entry in the container's /etc/passwd for $EUID.
 TMPFILE=$( mktemp )
 function cleanup {
 	rm -f "$TMPFILE"
 }
 trap cleanup exit
 chmod 0644 "$TMPFILE"
-docker run --rm ghcr.io/automattic/jetpack-wordpress-dev:latest cat /etc/passwd > "$TMPFILE"
-getent passwd $EUID >> "$TMPFILE"
+docker run --rm ghcr.io/automattic/jetpack-wordpress-dev:latest cat /etc/passwd | grep -v "^[^:]*:[^:]*:$EUID:" > "$TMPFILE"
+echo "renovate:x:$EUID:$EUID::/home/renovate:/bin/bash" >> $TMPFILE
 
-docker run --rm --workdir "$PWD" --user $EUID --volume "$TMPFILE":/etc/passwd --volume /tmp/:/tmp/ --volume /tmp/dummy-log:/var/log/php ghcr.io/automattic/jetpack-wordpress-dev:latest /tmp/monorepo/.github/files/renovate-post-upgrade.sh "$@"
+mkdir -p /tmp/homedir
+docker run --rm --workdir "$PWD" --user $EUID --volume "$TMPFILE":/etc/passwd --volume /tmp/:/tmp/ --volume /tmp/dummy-log:/var/log/php --volume /tmp/homedir:/home/renovate ghcr.io/automattic/jetpack-wordpress-dev:latest /tmp/monorepo/.github/files/renovate-post-upgrade.sh "$@"

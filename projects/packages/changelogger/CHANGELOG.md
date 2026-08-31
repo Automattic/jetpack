@@ -3,12 +3,29 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.0] - 2026-08-26
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+## [6.0.17] - 2026-06-15
+### Changed
+- Internal updates.
+
+## [6.0.16] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [6.0.15] - 2026-05-19
+### Changed
+- Internal updates.
+
 ## [6.0.14] - 2026-02-12
 ### Changed
 - Internal updates.
 
 ### Fixed
 - Tests: Fix tests for PHPUnit 12.5.11 breakage.
+
 ## [6.0.13] - 2026-02-02
 ### Changed
 - Update package dependencies. [#46836]
@@ -325,6 +342,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[7.0.0]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.17...7.0.0
+[6.0.17]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.16...6.0.17
+[6.0.16]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.15...6.0.16
+[6.0.15]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.14...6.0.15
 [6.0.14]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.13...6.0.14
 [6.0.13]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.12...6.0.13
 [6.0.12]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.11...6.0.12

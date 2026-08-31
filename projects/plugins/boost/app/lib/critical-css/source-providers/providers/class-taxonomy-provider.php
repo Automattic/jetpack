@@ -35,7 +35,6 @@ class Taxonomy_Provider extends Provider {
 	 */
 	const MIN_SUCCESS_URLS = 5;
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_critical_source_urls( $context_posts = array() ) {
 		$results = array();
@@ -65,7 +64,6 @@ class Taxonomy_Provider extends Provider {
 		return $results;
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_current_storage_keys() {
 		if ( ! is_category() && ! is_tax() ) {
@@ -80,7 +78,6 @@ class Taxonomy_Provider extends Provider {
 		return array( self::$name . '_' . get_queried_object()->taxonomy );
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_keys() {
 		return array_keys(
@@ -93,9 +90,8 @@ class Taxonomy_Provider extends Provider {
 		);
 	}
 
-	// phpcs:ignore
 	/** @inheritdoc */
-	public static function describe_key( $provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	public static function describe_key( $provider_key ) {
 		$taxonomy = substr( $provider_key, strlen( static::$name ) + 1 );
 
 		switch ( $taxonomy ) {
@@ -107,9 +103,8 @@ class Taxonomy_Provider extends Provider {
 		}
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
-	public static function get_edit_url( $_provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	public static function get_edit_url( $_provider_key ) {
 		return null;
 	}
 
@@ -169,7 +164,6 @@ class Taxonomy_Provider extends Provider {
 		return ( new \WP_Term_Query( $args ) )->terms;
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_success_ratio() {
 		return static::MIN_SUCCESS_URLS / static::MAX_URLS;

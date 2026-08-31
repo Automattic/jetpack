@@ -111,7 +111,7 @@ async function getMilestoneDates(
 		// Spaces between words.
 		.join( ' ' );
 
-	let pluginMessage = '';
+	let pluginMessage;
 	if ( ! releaseDate ) {
 		pluginMessage = `No scheduled milestone found for this plugin.`;
 	} else if ( plugin === 'jetpack' ) {
@@ -163,12 +163,9 @@ async function buildMilestoneInfo(
 	for await ( const plugin of plugins ) {
 		const nextMilestone = await getNextValidMilestone( octokit, owner, repo, plugin );
 		debug( `check-description: Milestone found: ${ JSON.stringify( nextMilestone ) }` );
-
-		if ( 'crm' !== plugin ) {
-			debug( `check-description: getting milestone info for ${ plugin }` );
-			const info = await getMilestoneDates( plugin, nextMilestone );
-			pluginInfo += info;
-		}
+		debug( `check-description: getting milestone info for ${ plugin }` );
+		const info = await getMilestoneDates( plugin, nextMilestone );
+		pluginInfo += info;
 	}
 
 	return pluginInfo;
@@ -196,7 +193,7 @@ async function getCheckComment(
 	const comments = await getComments( octokit, owner, repo, number );
 	for ( const comment of comments ) {
 		if (
-			comment.user.login === 'github-actions[bot]' &&
+			comment.user?.login === 'github-actions[bot]' &&
 			comment.body.includes( '**Thank you for your PR!**' )
 		) {
 			commentID = comment.id;
@@ -511,6 +508,11 @@ async function checkDescription(
 	payload: PullRequestEvent,
 	octokit: OctokitClient
 ): Promise< void > {
+	if ( ! payload.pull_request.user ) {
+		debug( `check-description: No user supplied in pull_request event. Aborting.` );
+		return;
+	}
+
 	const {
 		number,
 		user: { login: author },
@@ -532,6 +534,11 @@ async function checkDescription(
 		( author === 'matticbot' || author === 'github-actions[bot]' )
 	) {
 		debug( `check-description: Automated stub update, skipping` );
+		return;
+	}
+
+	if ( ref === 'update/pnpm_and_composer_lock_files' && author === 'matticbot' ) {
+		debug( `check-description: Automated lock file update, skipping` );
 		return;
 	}
 

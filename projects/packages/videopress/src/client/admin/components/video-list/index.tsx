@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
 import { Tooltip } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { Icon, info, cautionFilled as warning } from '@wordpress/icons';
 import clsx from 'clsx';
-import { useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -17,7 +17,6 @@ import {
 } from '../../../state/constants';
 import { usePlan } from '../../hooks/use-plan';
 import useVideos from '../../hooks/use-videos';
-import Checkbox from '../checkbox';
 import ConnectVideoRow, { LocalVideoRow, Stats } from '../video-row';
 import VideoRowError from '../video-row/error';
 import styles from './style.module.scss';
@@ -36,18 +35,7 @@ const VideoList = ( {
 	loading = false,
 	onVideoDetailsClick,
 }: VideoListProps ) => {
-	const [ selected, setSelected ] = useState( [] );
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
-	const allSelected = selected?.length === videos?.length;
-	const showCheckbox = false; // TODO: implement bulk actions
-
-	const handleAll = checked => {
-		if ( checked ) {
-			setSelected( videos.map( ( _, i ) => i ) );
-		} else {
-			setSelected( [] );
-		}
-	};
+	const isSmall = useViewportMatch( 'small', '<' );
 
 	const handleClickWithIndex = ( index, callback ) => () => {
 		callback?.( videos[ index ] );
@@ -57,7 +45,6 @@ const VideoList = ( {
 		<div className={ styles.list }>
 			<div className={ styles.header }>
 				<div className={ styles[ 'title-wrapper' ] }>
-					{ showCheckbox && <Checkbox checked={ allSelected } onChange={ handleAll } /> }
 					<Text>{ __( 'Title', 'jetpack-videopress-pkg' ) }</Text>
 				</div>
 				{ ! isSmall && (
@@ -81,7 +68,6 @@ const VideoList = ( {
 					<ConnectVideoRow
 						key={ video?.guid ?? video?.id }
 						id={ video?.id }
-						checked={ selected.includes( index ) }
 						title={ video.title }
 						thumbnail={ video?.posterImage } // TODO: we should use thumbnail when the API is ready https://github.com/Automattic/jetpack/issues/26319
 						duration={ hideDuration ? null : video.duration }
@@ -90,18 +76,9 @@ const VideoList = ( {
 						uploadDate={ video.uploadDate }
 						showQuickActions={ ! video?.uploading && showQuickActions }
 						showActionButton={ ! video?.uploading && showActionButton }
-						showCheckbox={ showCheckbox }
 						className={ styles.row }
 						onActionClick={ handleClickWithIndex( index, onVideoDetailsClick ) }
 						loading={ loading }
-						onSelect={ check =>
-							setSelected( current => {
-								if ( check ) {
-									return [ ...current, index ];
-								}
-								return current.filter( idx => idx !== index );
-							} )
-						}
 					/>
 				);
 			} ) }
@@ -116,21 +93,10 @@ export const LocalVideoList = ( {
 	uploading = false,
 	onActionClick,
 }: LocalVideoListProps ) => {
-	const [ selected, setSelected ] = useState( [] );
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
-	const allSelected = selected?.length === videos?.length;
-	const showCheckbox = false; // TODO: implement bulk actions
+	const isSmall = useViewportMatch( 'small', '<' );
 	const { hasVideoPressPurchase } = usePlan();
 	const { uploadedVideoCount, isFetching } = useVideos();
-	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading?.length > 0;
-
-	const handleAll = checked => {
-		if ( checked ) {
-			setSelected( videos.map( ( _, i ) => i ) );
-		} else {
-			setSelected( [] );
-		}
-	};
+	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading;
 
 	const handleClickWithIndex = index => () => {
 		onActionClick?.( videos[ index ] );
@@ -178,7 +144,6 @@ export const LocalVideoList = ( {
 		<div className={ styles.list }>
 			<div className={ styles.header }>
 				<div className={ styles[ 'title-wrapper' ] }>
-					{ showCheckbox && <Checkbox checked={ allSelected } onChange={ handleAll } /> }
 					<Text>{ __( 'Title', 'jetpack-videopress-pkg' ) }</Text>
 				</div>
 				{ ! isSmall && (
@@ -203,7 +168,6 @@ export const LocalVideoList = ( {
 						title={ video.title }
 						showActionButton={ showActionButton }
 						showQuickActions={ showQuickActions }
-						showCheckbox={ showCheckbox }
 						uploadDate={ video.uploadDate }
 						onActionClick={ handleClickWithIndex( index ) }
 						actionButtonLabel={ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }

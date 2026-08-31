@@ -84,7 +84,7 @@ domReady( function () {
 					const selected_newsletter_categories =
 						form.querySelector( 'input[name=selected_newsletter_categories]' )?.value ?? '';
 
-					show_iframe( {
+					const params = {
 						email,
 						post_id,
 						tier_id,
@@ -95,7 +95,9 @@ domReady( function () {
 						post_access_level: form.dataset.post_access_level,
 						display: 'alternate',
 						selected_newsletter_categories,
-					} ).then( () => {
+					};
+
+					show_iframe( params ).then( () => {
 						// Allows hiding other modals when the subscription modal/iframe shows up, e.g. hiding the subscription overlay modal
 						form.dispatchEvent( new Event( 'subscription-modal-loaded' ) );
 

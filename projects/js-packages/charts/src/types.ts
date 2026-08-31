@@ -1,21 +1,104 @@
-import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
-import type { ConnectorProps } from '@visx/annotation/lib/components/Connector';
-import type { LabelProps } from '@visx/annotation/lib/components/Label';
-import type { LineSubjectProps } from '@visx/annotation/lib/components/LineSubject';
+import type {
+	CircleSubjectProps,
+	ConnectorProps,
+	LabelProps,
+	LineSubjectProps,
+} from '@visx/annotation';
 import type { AxisScale, Orientation, TickFormatter, AxisRendererProps } from '@visx/axis';
-import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
-import type { TextProps } from '@visx/text/lib/Text';
+import type { TextProps } from '@visx/text';
 import type { EventHandlerParams, GlyphProps, GridStyles, LineStyles } from '@visx/xychart';
-import type { GapSize } from '@wordpress/theme';
-import type { CSSProperties, PointerEvent, ReactNode } from 'react';
-import type { GoogleDataTableColumn, GoogleDataTableRow } from 'react-google-charts';
+import type {
+	ComponentClass,
+	CSSProperties,
+	FC,
+	MouseEvent,
+	PointerEvent,
+	ReactElement,
+	ReactNode,
+} from 'react';
 
 type ValueOf< T > = T[ keyof T ];
 
 export type Optional< T, K extends keyof T > = Pick< Partial< T >, K > & Omit< T, K >;
 
+/**
+ * Mirrors the WordPress Design System gap token scale used by the WordPress UI Stack.
+ */
+export type GapSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+
+export type LegendShapeLabel< Data, Output, ExtraAttributes = object > = {
+	datum: Data;
+	index: number;
+	text: string;
+	value?: Output;
+} & ExtraAttributes;
+
+export type LegendShapeRenderProps< Data, Output > = {
+	width?: string | number;
+	height?: string | number;
+	label: LegendShapeLabel< Data, Output >;
+	item: Data;
+	itemIndex: number;
+	fill?: string;
+	size?: string | number;
+	style?: CSSProperties;
+};
+
+export type LegendShape< Data, Output > =
+	| 'rect'
+	| 'circle'
+	| 'line'
+	| FC< LegendShapeRenderProps< Data, Output > >
+	| ComponentClass< LegendShapeRenderProps< Data, Output > >;
+
+export type GoogleDataTableColumnType =
+	| 'string'
+	| 'number'
+	| 'boolean'
+	| 'date'
+	| 'datetime'
+	| 'timeofday';
+
+export enum GoogleDataTableColumnRoleType {
+	annotation = 'annotation',
+	annotationText = 'annotationText',
+	certainty = 'certainty',
+	emphasis = 'emphasis',
+	interval = 'interval',
+	scope = 'scope',
+	style = 'style',
+	tooltip = 'tooltip',
+	domain = 'domain',
+}
+
+export type GoogleDataTableColumn =
+	| {
+			type: GoogleDataTableColumnType;
+			label?: string;
+			role?: GoogleDataTableColumnRoleType;
+			pattern?: string;
+			p?: Record< string, unknown >;
+			id?: string;
+	  }
+	| string;
+
+export type GoogleDataTableCell =
+	| {
+			v?: unknown;
+			f?: string;
+			p?: Record< string, unknown >;
+	  }
+	| string
+	| number
+	| boolean
+	| Date
+	| null;
+
+export type GoogleDataTableRow = GoogleDataTableCell[];
+
 export type ChartType =
+	| 'area'
 	| 'bar'
 	| 'conversion-funnel'
 	| 'leaderboard'
@@ -100,7 +183,7 @@ export type LeaderboardEntry = {
 	/**
 	 * Human-readable name (e.g., 'Direct') or a JSX element (e.g., <h4>Direct</h4>)
 	 */
-	label: string | JSX.Element;
+	label: string | ReactElement;
 
 	/**
 	 * Value of the entry
@@ -108,9 +191,10 @@ export type LeaderboardEntry = {
 	currentValue: number;
 
 	/**
-	 * Value of the entry in the previous period
+	 * Value of the entry in the previous period. Omit when this row has no
+	 * matching comparison-period value.
 	 */
-	previousValue: number;
+	previousValue?: number;
 
 	/**
 	 * Width of current bar, as % of the current value
@@ -118,19 +202,46 @@ export type LeaderboardEntry = {
 	currentShare: number;
 
 	/**
-	 * Width of previous bar, as % of the current value
+	 * Width of previous bar, as % of the current value. Omit when this row has
+	 * no matching comparison-period value.
 	 */
-	previousShare: number;
+	previousShare?: number;
 
 	/**
-	 * Delta of the entry
+	 * Delta of the entry. Omit when the percentage change is unavailable, such
+	 * as when the row has no comparison value or its previous value is zero.
 	 */
-	delta: number;
+	delta?: number;
 
 	/**
 	 * Optional color for the entry's image/icon
 	 */
 	imageColor?: string;
+
+	/**
+	 * Optional click handler. When provided, the entire row becomes an
+	 * interactive `<button>`: clickable and keyboard-focusable (Enter/Space),
+	 * with a chevron affordance revealed on hover/focus. The consumer
+	 * decides what the action does (e.g. drill-down). Rows without onClick are
+	 * inert and render unchanged.
+	 *
+	 * For links or other interactive affordances (external-link icons, info
+	 * tooltips), put them in the `label` render prop instead of using onClick —
+	 * a row is either a button (onClick) or carries interactive label content,
+	 * never both, since interactive elements cannot be nested in HTML.
+	 */
+	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+
+	/**
+	 * Optional accessible name for the interactive row's `<button>`. Only applies
+	 * when `onClick` is set — without it the row renders as a Fragment with no
+	 * element to receive `aria-label`. By default the button derives its name from
+	 * its rendered content (label text plus the formatted value), which is the
+	 * right outcome for plain-text labels. Set this when the `label` is JSX whose
+	 * text content does not yield a clean name on its own — e.g. an image-only
+	 * label — to give assistive tech a deterministic, human-readable name.
+	 */
+	ariaLabel?: string;
 };
 
 export type GradientStop = {
@@ -141,8 +252,8 @@ export type GradientStop = {
 
 export type SeriesDataOptions = {
 	gradient?: {
-		from: string;
-		to: string;
+		from?: string;
+		to?: string;
 		fromOpacity?: number;
 		toOpacity?: number;
 		stops?: GradientStop[];
@@ -158,6 +269,16 @@ export type SeriesData = {
 	label: string;
 	data: DataPointDate[] | DataPoint[];
 	options?: SeriesDataOptions;
+};
+
+/**
+ * Visual styling for a bar series of a given semantic type (e.g. 'comparison').
+ * `widthFactor` is the bar width relative to the primary bar slot (1.5 = 150%);
+ * `opacity` sets the shadow translucency.
+ */
+export type BarStyles = {
+	widthFactor?: number;
+	opacity?: number;
 };
 
 export type MultipleDataPointsDate = {
@@ -184,7 +305,7 @@ export type DataPointPercentage = {
 	 */
 	valueDisplay?: string;
 	/**
-	 * Color code for the segment, by default colours are taken from the theme but this property can overrides it
+	 * Color code for the segment, by default colors are taken from the theme but this property can overrides it
 	 */
 	color?: string;
 	/**
@@ -214,8 +335,14 @@ export type ChartTheme = {
 	labelBackgroundColor?: string;
 	/** Text color for labels */
 	labelTextColor?: string;
-	/** Array of colors used for data visualization */
-	colors: string[];
+	/**
+	 * Series palette seeds. Entry N publishes `--a8c-charts-color-series-{N+1}`; entries past the fifth are ignored.
+	 *
+	 * Optional so the deprecation is actionable: a consumer writing a full theme literal can now stop setting it. `CompleteChartTheme` is `Required< ChartTheme >`, so `defaultTheme` must still carry one.
+	 *
+	 * @deprecated Set the `--a8c-charts-color-series-1` … `-5` custom properties inside the provider tree instead, or `options.stroke` on a series for a single one. See `TOKENS.md`. Removed in CHARTS-227.
+	 */
+	colors?: string[];
 	/** Optional CSS styles for grid lines */
 	gridStyles?: GridStyles;
 	/** Length of axis ticks in pixels */
@@ -258,7 +385,7 @@ export type ChartTheme = {
 		/** Gap between columns in the leaderboard grid */
 		columnGap?: number;
 		/** Spacing between label and progress bars */
-		labelSpacing?: number;
+		labelSpacing?: GapSize;
 		/** Primary color for current period bars */
 		primaryColor?: string;
 		/** Secondary color for comparison period bars */
@@ -280,6 +407,9 @@ export type ChartTheme = {
 	lineChart?: {
 		lineStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles > >;
 	};
+	barChart?: {
+		barStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, BarStyles > >;
+	};
 	/** Sparkline specific settings */
 	sparkline?: {
 		/** Margin around the sparkline chart */
@@ -291,6 +421,21 @@ export type ChartTheme = {
 		};
 		/** Stroke width for the sparkline line */
 		strokeWidth?: number;
+	};
+	/**
+	 * HeatmapChart settings. Cell gap, radius, value size and the selection ring come from
+	 * WPDS tokens in CSS, so only the scale color and the compact sizing live here.
+	 */
+	heatmapChart?: {
+		/**
+		 * Color the cell scale interpolates toward at the highest value (prop > this >
+		 * palette `colors[0]`), fed to CSS `color-mix`. Omit to use the palette color.
+		 */
+		primaryColor?: string;
+		/** Gap in px between cells in compact mode */
+		compactCellGap?: number;
+		/** Fixed square cell size in px for compact mode */
+		compactCellSize?: number;
 	};
 };
 
@@ -312,20 +457,45 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	lineChart: {
 		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles >;
 	};
+	barChart: {
+		barStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, BarStyles >;
+	};
 	legend: Required< NonNullable< ChartTheme[ 'legend' ] > >;
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
 		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
 	};
+	heatmapChart: Omit< Required< NonNullable< ChartTheme[ 'heatmapChart' ] > >, 'primaryColor' > &
+		Pick< NonNullable< ChartTheme[ 'heatmapChart' ] >, 'primaryColor' >;
 };
+
+/**
+ * Bucket resolution of time-series data, as known by the caller (e.g. a
+ * granularity selector), for consumers that don't need to infer it.
+ */
+export type TickResolution = 'hour' | 'day' | 'week' | 'month' | 'year';
 
 export type AxisOptions = {
 	orientation?: OrientationType;
 	numTicks?: number;
+	/**
+	 * Explicit tick values for the axis. When set, takes precedence over `numTicks`
+	 * so callers can force a specific axis (e.g. integer-only steps on a sparse chart).
+	 */
+	tickValues?: ScaleInput< AxisScale >[];
 	axisClassName?: string;
 	axisLineClassName?: string;
 	labelClassName?: string;
 	tickClassName?: string;
 	tickFormat?: TickFormatter< ScaleInput< AxisScale > >;
+	/**
+	 * Bucket resolution of the data, set on whichever axis carries the dates.
+	 * When set, the automatic tick formatter derives tick formats from it
+	 * directly instead of inferring the resolution from point spacing. For
+	 * daily-or-finer buckets the overall time span still constrains the choice —
+	 * e.g. hourly buckets spanning more than a week get date ticks, since hour
+	 * ticks would be unreadable at that span. Ignored when `tickFormat` is set.
+	 */
+	tickResolution?: TickResolution;
 	/**
 	 * Whether to display this axis. Defaults to true.
 	 */
@@ -351,7 +521,12 @@ export type AxisOptions = {
 export type ScaleOptions = {
 	type?: ScaleType;
 	zero?: boolean;
-	domain?: [ number, number ];
+	/**
+	 * Extends the scale's domain to nice round values. Pass `false` together with
+	 * an explicit `domain` to keep the tick values you set exactly.
+	 */
+	nice?: boolean;
+	domain?: [ number, number ] | [ Date, Date ];
 	range?: [ number, number ];
 	/**
 	 * For band scale, shortcut for setting `paddingInner` and `paddingOuter` to the same value.
@@ -455,6 +630,34 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 };
 
 /**
+ * Legend config for charts built from `SeriesData` (line, bar, area). Adds `collapseGroups` on top
+ * of the shared config. It is intentionally absent from the base `ChartLegendConfig` so point-based
+ * charts (pie, semi-circle pie) — whose data points carry `group` only to coordinate colors — can't
+ * set it.
+ */
+export type SeriesChartLegendConfig = ChartLegendConfig< SeriesData[] > & {
+	/**
+	 * Collapse series that share a `group` into a single legend item, labelled by the group's
+	 * primary series (its first non-comparison member). Off by default, so every series keeps its
+	 * own item. Combines with `interactive`: a collapsed item toggles every series in its group, an
+	 * uncollapsed one toggles only its own.
+	 */
+	collapseGroups?: boolean;
+};
+
+/**
+ * Initial visibility options for charts built from labelled series.
+ */
+export interface SeriesVisibilityProps {
+	/**
+	 * Series labels to hide from the first defined value. User changes persist until
+	 * the chart remounts or its ID changes; later values for the same ID are ignored.
+	 * Omit to retain the provider's existing visibility for the chart ID.
+	 */
+	defaultHiddenSeries?: readonly string[];
+}
+
+/**
  * Base properties shared across all chart components
  */
 export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > = {
@@ -510,6 +713,16 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 */
 	onPointerOut?: ( event: PointerEvent< Element > ) => void;
 	/**
+	 * Callback for Enter or Space on the point keyboard navigation has selected:
+	 * the keyboard counterpart of a click. `index` is the point's position in its
+	 * series and `key` the series label.
+	 */
+	onDatumActivate?: ( params: {
+		datum: DataPoint | DataPointDate;
+		index: number;
+		key: string;
+	} ) => void;
+	/**
 	 * Whether to show tooltips on hover. False by default.
 	 */
 	withTooltips?: boolean;
@@ -549,40 +762,6 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 			y?: AxisOptions;
 		};
 	};
-};
-
-/**
- * Properties for grid components
- */
-export type GridProps = {
-	/**
-	 * Width of the grid in pixels
-	 */
-	width: number;
-	/**
-	 * Height of the grid in pixels
-	 */
-	height: number;
-	/**
-	 * Grid visibility. x is default.
-	 */
-	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
-	/**
-	 * X-axis scale for the grid
-	 * TODO: Fix any type after resolving visx scale type issues
-	 */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	xScale: any;
-	/**
-	 * Y-axis scale for the grid
-	 * TODO: Fix any type after resolving visx scale type issues
-	 */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	yScale: any;
-	/**
-	 * Top offset for the grid
-	 */
-	top?: number;
 };
 
 /**

@@ -28,6 +28,27 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	private $manager;
 
 	/**
+	 * The URL of the last HTTP request intercepted by the user-data endpoint filter.
+	 *
+	 * @var string|null
+	 */
+	private $intercepted_url = null;
+
+	/**
+	 * The arguments of the last HTTP request intercepted by the user-data endpoint filter.
+	 *
+	 * @var array|null
+	 */
+	private $intercepted_args = null;
+
+	/**
+	 * The canned response the user-data endpoint filter returns for a matching request.
+	 *
+	 * @var array|\WP_Error|null
+	 */
+	private $http_response = null;
+
+	/**
 	 * Initialize the hooks to reset memoized connection properties.
 	 *
 	 * @beforeClass
@@ -736,5 +757,464 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 				2,
 			),
 		);
+	}
+
+	/**
+	 * Test that registering an external storage provider after is_connected() resets the cached status.
+	 */
+	public function test_registering_provider_invalidates_stale_is_connected() {
+		// Ensure clean state: no blog id, no token in DB.
+		\Jetpack_Options::delete_option( 'id' );
+		\Jetpack_Options::delete_option( 'blog_token' );
+		$this->reset_connection_status();
+
+		// First call: no provider, no DB data → false.
+		$this->assertFalse( $this->manager->is_connected() );
+
+		// Register a provider that supplies blog id and token.
+		$provider = new class() implements \Automattic\Jetpack\Connection\Storage_Provider_Interface {
+			public function is_available() {
+				return true;
+			}
+			public function should_handle( $option_name ) {
+				return in_array( $option_name, array( 'blog_token', 'id' ), true );
+			}
+			public function get( $option_name ) {
+				if ( 'id' === $option_name ) {
+					return 12345;
+				}
+				if ( 'blog_token' === $option_name ) {
+					return 'test.token';
+				}
+				return null;
+			}
+			public function get_environment_id() {
+				return 'test-invalidation';
+			}
+		};
+
+		try {
+			// This should fire jetpack_external_storage_provider_registered,
+			// which resets the memoized is_connected value.
+			External_Storage::register_provider( $provider );
+
+			// Next call should re-evaluate with the provider and return true.
+			$this->assertTrue( $this->manager->is_connected() );
+		} finally {
+			// Clean up: remove provider and reset init_fired.
+			$reflection = new \ReflectionClass( External_Storage::class );
+
+			$prop = $reflection->getProperty( 'provider' );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$prop->setAccessible( true );
+			}
+			$prop->setValue( null, null );
+
+			$init_fired = $reflection->getProperty( 'init_fired' );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$init_fired->setAccessible( true );
+			}
+			$init_fired->setValue( null, false );
+
+			$this->reset_connection_status();
+		}
+	}
+
+	/**
+	 * Test that the transport of the incoming request being verified defaults to XML-RPC
+	 * and is detected as REST for REST endpoint requests.
+	 */
+	public function test_get_current_request_transport() {
+		$reflection = new \ReflectionClass( $this->manager );
+		$method     = $reflection->getMethod( 'get_current_request_transport' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$default_transport = $method->invoke( $this->manager );
+
+		// Simulate a dispatched REST API request. In a real REST request the REST_REQUEST
+		// constant is set instead; the filter is the only way to toggle the state in-process.
+		add_filter( 'wp_is_rest_endpoint', '__return_true' );
+		$rest_transport = $method->invoke( $this->manager );
+		remove_filter( 'wp_is_rest_endpoint', '__return_true' );
+
+		// Before REST dispatch (e.g. signature verification triggered by an early
+		// determine_current_user call), REST requests are recognized by their URL.
+		$original_server        = $_SERVER;
+		$original_get           = $_GET;
+		$_SERVER['REQUEST_URI'] = '/wp-json/jetpack/v4/connection/status?token=abc';
+		$early_rest_transport   = $method->invoke( $this->manager );
+
+		$_SERVER['REQUEST_URI']          = '/index.php';
+		$_GET['rest_route']              = '/jetpack/v4/connection/status';
+		$plain_permalinks_rest_transport = $method->invoke( $this->manager );
+
+		$_SERVER = $original_server;
+		$_GET    = $original_get;
+
+		$this->assertSame( Error_Handler::ERROR_TYPE_XMLRPC, $default_transport );
+		$this->assertSame( Error_Handler::ERROR_TYPE_REST, $rest_transport );
+		$this->assertSame( Error_Handler::ERROR_TYPE_REST, $early_rest_transport, 'A REST-prefixed request path must be labeled rest even before REST dispatch state exists.' );
+		$this->assertSame( Error_Handler::ERROR_TYPE_REST, $plain_permalinks_rest_transport, 'A rest_route query argument must be labeled rest even before REST dispatch state exists.' );
+	}
+
+	/**
+	 * Test that errors from outgoing requests through `Client::remote_request()` are stored
+	 * with the transport derived from the target endpoint and the 'outgoing' direction.
+	 *
+	 * @dataProvider outgoing_request_transport_provider
+	 *
+	 * @param string $url                The request URL.
+	 * @param string $expected_type      The expected stored error_type.
+	 */
+	#[DataProvider( 'outgoing_request_transport_provider' )]
+	public function test_remote_request_labels_outgoing_errors( $url, $expected_type ) {
+		$this->set_up_connected_user();
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$error_response = function () {
+			return array(
+				'body'     => '{"error":"unknown_token","message":"It looks like your Jetpack connection is broken."}',
+				'response' => array(
+					'code'    => 403,
+					'message' => 'Forbidden',
+				),
+				'headers'  => array(),
+			);
+		};
+		add_filter( 'pre_http_request', $error_response );
+
+		Client::remote_request(
+			array(
+				'url'     => $url,
+				'method'  => 'POST',
+				'user_id' => 0,
+			),
+			'request-body'
+		);
+
+		$verified_errors = Error_Handler::get_instance()->get_verified_errors();
+
+		// Clean up before asserting, so a failed assertion cannot leak state into other tests.
+		remove_filter( 'pre_http_request', $error_response );
+		remove_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		Error_Handler::get_instance()->delete_all_errors();
+
+		$this->assertArrayHasKey( 'unknown_token', $verified_errors );
+		$error = reset( $verified_errors['unknown_token'] );
+		$this->assertSame( $expected_type, $error['error_type'] );
+		$this->assertSame( Error_Handler::DIRECTION_OUTGOING, $error['error_direction'] );
+	}
+
+	/**
+	 * Test that a `Jetpack_Signature` error surfaced during incoming signature verification
+	 * is normalized into the standard error data shape and stored with the incoming
+	 * direction. Uses a stale timestamp, which makes `sign_current_request()` return an
+	 * `invalid_signature` WP_Error carrying its own signature_details but no type/direction.
+	 */
+	public function test_verify_xml_rpc_signature_normalizes_signature_errors() {
+		// Snapshot the superglobals: the test environment pre-populates some $_SERVER keys
+		// (e.g. HTTP_HOST) that later tests rely on, so they must be restored, not unset.
+		$original_server = $_SERVER;
+		$original_get    = $_GET;
+
+		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
+		\Jetpack_Options::update_option( 'blog_token', 'blogkey.blogsecret' );
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$_GET['token']     = 'blogkey:1:0';
+		$_GET['signature'] = 'irrelevant';
+		$_GET['timestamp'] = (string) ( time() - DAY_IN_SECONDS );
+		$_GET['nonce']     = 'testnonce1';
+
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_SERVER['HTTP_HOST']      = 'example.org';
+		$_SERVER['REQUEST_URI']    = '/';
+
+		$result        = $this->manager->verify_xml_rpc_signature();
+		$stored_errors = Error_Handler::get_instance()->get_stored_errors();
+
+		// Clean up before asserting, so a failed assertion cannot leak state into other tests.
+		$_SERVER = $original_server;
+		$_GET    = $original_get;
+		remove_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		Error_Handler::get_instance()->delete_all_errors();
+		\Jetpack_Options::delete_option( 'blog_token' );
+
+		$this->assertFalse( $result );
+		$this->assertArrayHasKey( 'invalid_signature', $stored_errors );
+		$error = $stored_errors['invalid_signature']['0'];
+		$this->assertSame( Error_Handler::ERROR_TYPE_XMLRPC, $error['error_type'] );
+		$this->assertSame( Error_Handler::DIRECTION_INCOMING, $error['error_direction'] );
+		$this->assertSame( 'blogkey:1:0', $error['error_data']['token'] );
+		// The URL normalized by Jetpack_Signature (scheme://host:port form, port empty for
+		// defaults) must win the merge, proving the signature error's own signature_details
+		// were preserved over the Manager-built ones.
+		$this->assertSame( 'http://example.org:/', $error['error_data']['url'] );
+	}
+
+	/**
+	 * Test that a `Jetpack_Signature` error carrying NO error data at all is normalized and
+	 * stored. A blog token with an empty secret chunk passes token retrieval but makes
+	 * `Jetpack_Signature::sign_request()` return `invalid_secret` with no data — before the
+	 * normalization, such errors were silently unstorable by `wp_error_to_array()`.
+	 */
+	public function test_verify_xml_rpc_signature_stores_dataless_signature_errors() {
+		$original_server = $_SERVER;
+		$original_get    = $_GET;
+
+		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
+		\Jetpack_Options::update_option( 'blog_token', 'blogkey.' );
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$_GET['token']     = 'blogkey:1:0';
+		$_GET['signature'] = 'irrelevant';
+		$_GET['timestamp'] = (string) time();
+		$_GET['nonce']     = 'testnonce2';
+
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_SERVER['HTTP_HOST']      = 'example.org';
+		$_SERVER['REQUEST_URI']    = '/';
+
+		$result        = $this->manager->verify_xml_rpc_signature();
+		$stored_errors = Error_Handler::get_instance()->get_stored_errors();
+
+		// Clean up before asserting, so a failed assertion cannot leak state into other tests.
+		$_SERVER = $original_server;
+		$_GET    = $original_get;
+		remove_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		Error_Handler::get_instance()->delete_all_errors();
+		\Jetpack_Options::delete_option( 'blog_token' );
+
+		$this->assertFalse( $result );
+		$this->assertArrayHasKey( 'invalid_secret', $stored_errors );
+		$error = $stored_errors['invalid_secret']['0'];
+		$this->assertSame( Error_Handler::ERROR_TYPE_XMLRPC, $error['error_type'] );
+		$this->assertSame( Error_Handler::DIRECTION_INCOMING, $error['error_direction'] );
+		// With no signature_details of its own, the error is attributed via the
+		// Manager-built details from the request superglobals.
+		$this->assertSame( 'blogkey:1:0', $error['error_data']['token'] );
+	}
+
+	/**
+	 * Data provider for test_remote_request_labels_outgoing_errors.
+	 *
+	 * @return array
+	 */
+	public static function outgoing_request_transport_provider() {
+		return array(
+			'xmlrpc endpoint' => array(
+				'https://jetpack.wordpress.com/xmlrpc.php',
+				Error_Handler::ERROR_TYPE_XMLRPC,
+			),
+			'rest endpoint'   => array(
+				'https://public-api.wordpress.com/wpcom/v2/sites/1234/jetpack-wpcom-user-data',
+				Error_Handler::ERROR_TYPE_REST,
+			),
+		);
+	}
+
+	/**
+	 * Set up a connected blog and user so a signed request can be built as $user_id.
+	 *
+	 * @param int $user_id The local user id to connect.
+	 * @return int The connected user id.
+	 */
+	private function set_up_connected_user( $user_id = 2 ) {
+		// A fully-qualified API base is required for the request URL to be signable.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'blogkey.blogsecret' );
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => "userkey.usersecret.$user_id" ) );
+		\Jetpack_Options::update_option( 'master_user', $user_id );
+
+		return $user_id;
+	}
+
+	/**
+	 * Intercept the outgoing request to the jetpack-wpcom-user-data endpoint and
+	 * return the canned response, recording the request URL and args.
+	 *
+	 * @param false|array $response The preempted response.
+	 * @param array       $args     The request arguments.
+	 * @param string      $url      The request URL.
+	 * @return false|array
+	 */
+	public function intercept_user_data_request( $response, $args, $url ) {
+		if ( false !== strpos( $url, 'jetpack-wpcom-user-data' ) ) {
+			$this->intercepted_url  = $url;
+			$this->intercepted_args = $args;
+			return $this->http_response;
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Test that `get_connected_user_data()` fetches the connected user data from the
+	 * WordPress.com REST endpoint and caches the decoded payload.
+	 */
+	public function test_get_connected_user_data_fetches_from_rest_endpoint() {
+		$user_id = $this->set_up_connected_user();
+
+		$payload = array(
+			'ID'                => 99,
+			'login'             => 'wpcom_user',
+			'email'             => 'wpcom@example.com',
+			'display_name'      => 'WPCOM User',
+			'text_direction'    => 'ltr',
+			'site_count'        => 3,
+			'jetpack_connect'   => '',
+			'color_scheme'      => 'classic-dark',
+			'sidebar_collapsed' => false,
+			'user_locale'       => 'en_US',
+			'user_currency'     => 'USD',
+		);
+
+		$this->http_response = array(
+			'body'     => wp_json_encode( $payload, JSON_UNESCAPED_SLASHES ),
+			'response' => array(
+				'code'    => 200,
+				'message' => 'OK',
+			),
+			'headers'  => array(),
+		);
+
+		add_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10, 3 );
+
+		$result = $this->manager->get_connected_user_data( $user_id );
+
+		$cached           = get_transient( "jetpack_connected_user_data_$user_id" );
+		$requested_url    = $this->intercepted_url;
+		$requested_method = $this->intercepted_args['method'] ?? null;
+
+		remove_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10 );
+		delete_transient( "jetpack_connected_user_data_$user_id" );
+
+		$this->assertSame( $payload, $result );
+		$this->assertSame( $payload, $cached );
+		$this->assertStringContainsString( '/wpcom/v2/sites/1234/jetpack-wpcom-user-data', (string) $requested_url );
+		$this->assertSame( 'GET', $requested_method );
+	}
+
+	/**
+	 * Test that a cached transient is returned without making an HTTP request.
+	 */
+	public function test_get_connected_user_data_returns_cached_value() {
+		$user_id = $this->set_up_connected_user();
+
+		$cached = array(
+			'ID'    => 5,
+			'login' => 'cached_user',
+		);
+		set_transient( "jetpack_connected_user_data_$user_id", $cached, DAY_IN_SECONDS );
+
+		add_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10, 3 );
+
+		$result        = $this->manager->get_connected_user_data( $user_id );
+		$requested_url = $this->intercepted_url;
+
+		remove_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10 );
+		delete_transient( "jetpack_connected_user_data_$user_id" );
+
+		$this->assertSame( $cached, $result );
+		// No HTTP request should have been attempted.
+		$this->assertNull( $requested_url );
+	}
+
+	/**
+	 * Test that a failed fetch returns false and caches an `error` sentinel, so
+	 * the failing request is not repeated on every call.
+	 *
+	 * @dataProvider get_connected_user_data_error_responses
+	 *
+	 * @param array|\WP_Error $http_response The canned HTTP response for the request.
+	 */
+	#[DataProvider( 'get_connected_user_data_error_responses' )]
+	public function test_get_connected_user_data_returns_false_on_error_response( $http_response ) {
+		$user_id = $this->set_up_connected_user();
+
+		$this->http_response = $http_response;
+
+		add_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10, 3 );
+
+		$result        = $this->manager->get_connected_user_data( $user_id );
+		$cached        = get_transient( "jetpack_connected_user_data_$user_id" );
+		$requested_url = $this->intercepted_url;
+
+		// A repeated call must be served the cached failure without a new request.
+		$this->intercepted_url = null;
+		$repeat_result         = $this->manager->get_connected_user_data( $user_id );
+		$repeat_requested_url  = $this->intercepted_url;
+
+		remove_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10 );
+		delete_transient( "jetpack_connected_user_data_$user_id" );
+
+		$this->assertFalse( $result );
+		$this->assertStringContainsString( 'jetpack-wpcom-user-data', (string) $requested_url );
+		// Failures are cached briefly with an 'error' sentinel so a failing
+		// request is not retried on every call.
+		$this->assertSame( 'error', $cached );
+		$this->assertFalse( $repeat_result );
+		$this->assertNull( $repeat_requested_url );
+	}
+
+	/**
+	 * Data provider for test_get_connected_user_data_returns_false_on_error_response.
+	 *
+	 * @return array
+	 */
+	public static function get_connected_user_data_error_responses() {
+		return array(
+			'transport error (WP_Error)' => array(
+				new \WP_Error( 'http_request_failed', 'Request blocked.' ),
+			),
+			'non-200 response'           => array(
+				array(
+					'body'     => wp_json_encode(
+						array(
+							'error'   => 'unknown_token',
+							'message' => 'Invalid token.',
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+					'response' => array(
+						'code'    => 403,
+						'message' => 'Forbidden',
+					),
+					'headers'  => array(),
+				),
+			),
+			'200 with malformed body'    => array(
+				array(
+					'body'     => 'not-json',
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+					'headers'  => array(),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Test that no request is made and false is returned when the user is not connected.
+	 */
+	public function test_get_connected_user_data_returns_false_when_user_not_connected() {
+		add_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10, 3 );
+
+		$result        = $this->manager->get_connected_user_data( 999 );
+		$requested_url = $this->intercepted_url;
+
+		remove_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10 );
+
+		$this->assertFalse( $result );
+		// No HTTP request should have been attempted for an unconnected user.
+		$this->assertNull( $requested_url );
 	}
 }

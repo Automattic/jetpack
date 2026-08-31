@@ -3,6 +3,7 @@ import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import process from 'process';
+import { fileURLToPath } from 'url';
 import util from 'util';
 import chalk from 'chalk';
 import chokidar from 'chokidar';
@@ -187,6 +188,18 @@ export async function rsyncInit( argv ) {
 					disableGlobbing: true,
 					ignoreInitial: true,
 					depth: 0,
+					/*
+					 * On macOS, chokidar 4 (which no longer bundles fsevents) opens one fs.watch
+					 * kqueue descriptor per watched path. With the thousands of paths we watch, that
+					 * makes later child_process spawns fail with EBADF, which crashes the watch.
+					 * See https://github.com/paulmillr/chokidar/issues/1452. Polling avoids the
+					 * per-path descriptors; it's more expensive, so only use it where it's needed.
+					 */
+					...( process.platform === 'darwin' && {
+						usePolling: true,
+						interval: 500,
+						binaryInterval: 1000,
+					} ),
 				} );
 
 				// Always watch the plugin base dir.
@@ -445,7 +458,8 @@ async function addVendorFilesToPathSet( source, paths ) {
  * @return {object} As from `tmp.fileSync()`.
  */
 async function createFilterFile( paths ) {
-	const tmpFile = tmp.fileSync();
+	// Set `detachDescriptor` to let the WriteStream close the FD.
+	const tmpFile = tmp.fileSync( { detachDescriptor: true } );
 
 	// Wrap the tmpFile fd in a stream.
 	const tmpStream = createWriteStream( null, { fd: tmpFile.fd } );
@@ -592,7 +606,10 @@ async function rsyncToDest( source, dest, password = null ) {
 		// When RSYNC_PROXY_SOCKET is set, use the rsh-proxy script to route SSH through the host
 		// This enables support for Secure Enclave SSH keys that can't be forwarded into Docker
 		if ( process.env.RSYNC_PROXY_SOCKET ) {
-			rsyncArgs.push( '--rsh=/workspace/tools/docker/bin/rsync-rsh-proxy.sh' );
+			const rshProxy = fileURLToPath(
+				new URL( '../../docker/bin/rsync-rsh-proxy.sh', import.meta.url )
+			);
+			rsyncArgs.push( `--rsh=${ rshProxy }` );
 		}
 
 		rsyncArgs.push( source, dest );

@@ -1,36 +1,36 @@
 @use "$css/main/variables";
 
-.breadcrumbs :global(.admin-ui-breadcrumbs__list) {
-	min-height: auto;
+.breadcrumbs {
+	display: flex;
+	align-items: center;
+	list-style: none;
+	padding: 0;
+	margin: 0;
 
 	li {
 		display: flex;
 		align-items: center;
 		margin-bottom: 0;
+		flex-shrink: 0;
 	}
+
+	li:last-child {
+		flex-shrink: 1;
+		min-width: 0;
+	}
+}
+
+.separator {
+	color: var(--wpds-color-stroke-surface-neutral);
+	margin: 0 var(--wpds-dimension-gap-sm);
+	user-select: none;
 }
 
 .breadcrumb-current {
-	display: inline;
-	font-size: inherit;
-	font-weight: inherit;
-	line-height: inherit;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 	margin: 0;
-}
-
-.breadcrumb-link {
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	color: inherit;
-	text-decoration: none;
-
-	&:hover,
-	&:focus,
-	&:active {
-		color: inherit;
-		text-decoration: underline;
-	}
 }
 
 .header {

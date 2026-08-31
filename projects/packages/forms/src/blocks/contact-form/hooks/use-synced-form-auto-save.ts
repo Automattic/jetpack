@@ -3,7 +3,7 @@
  * Changes are staged (not saved to DB) so they can be picked up by the form editor.
  */
 
-import { serialize } from '@wordpress/blocks';
+import { serialize, type Block } from '@wordpress/blocks';
 import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 import { createSyncedFormBlock, serializeSyncedForm } from '../util/form-sync.ts';
@@ -12,8 +12,14 @@ interface UseSyncedFormAutoSaveParams {
 	ref?: number;
 	syncedForm: { content?: { raw?: string } } | null;
 	attributes: Record< string, unknown >;
-	currentInnerBlocks: unknown[];
+	currentInnerBlocks: Block[];
 	isSyncingRef: React.MutableRefObject< boolean >;
+	/**
+	 * Changes when `useSyncedFormLoader` finishes a sync — see that hook for why it has
+	 * to be a render-triggering value. Used only as an effect dependency, so the
+	 * baseline below is captured from the loaded-but-unedited form.
+	 */
+	syncGeneration: number;
 	editEntityRecord: (
 		kind: string,
 		name: string,
@@ -48,7 +54,7 @@ export function captureBaseline(
 	syncedForm: { content?: { raw?: string } } | null,
 	isSyncing: boolean,
 	attributes: Record< string, unknown >,
-	currentInnerBlocks: unknown[],
+	currentInnerBlocks: Block[],
 	baselineRef: React.MutableRefObject< { ref: number; serialized: string } | null >
 ): string | null {
 	// Not ready yet - need ref and syncedForm, and sync must be complete
@@ -79,7 +85,7 @@ export function captureBaseline(
 export function stageFormEdits(
 	ref: number,
 	attributes: Record< string, unknown >,
-	currentInnerBlocks: unknown[],
+	currentInnerBlocks: Block[],
 	editEntityRecord: UseSyncedFormAutoSaveParams[ 'editEntityRecord' ]
 ): void {
 	// Create block once and reuse for both serialization and staging
@@ -110,6 +116,7 @@ export function useSyncedFormAutoSave( {
 	attributes,
 	currentInnerBlocks,
 	isSyncingRef,
+	syncGeneration,
 	editEntityRecord,
 }: UseSyncedFormAutoSaveParams ): UseSyncedFormAutoSaveResult {
 	const pendingTimeoutRef = useRef< ReturnType< typeof setTimeout > | null >( null );
@@ -128,6 +135,8 @@ export function useSyncedFormAutoSave( {
 		if ( ! ref ) {
 			return;
 		}
+		const hadBaseline = baselineRef.current?.ref === ref;
+
 		// Only capture baseline after sync completes to ensure it reflects synced content
 		const baseline = captureBaseline(
 			ref,
@@ -138,8 +147,9 @@ export function useSyncedFormAutoSave( {
 			baselineRef
 		);
 
-		// Not ready or no changes - don't stage
-		if ( ! baseline ) {
+		// Not ready - don't stage. A baseline captured on this very run was serialized
+		// from the arguments below, so it would compare equal; skip the second pass.
+		if ( ! baseline || ! hadBaseline ) {
 			return;
 		}
 
@@ -163,7 +173,15 @@ export function useSyncedFormAutoSave( {
 			clearTimeout( timeoutId );
 			pendingTimeoutRef.current = null;
 		};
-	}, [ currentInnerBlocks, ref, syncedForm, editEntityRecord, attributes, isSyncingRef ] );
+	}, [
+		currentInnerBlocks,
+		ref,
+		syncedForm,
+		editEntityRecord,
+		attributes,
+		isSyncingRef,
+		syncGeneration,
+	] );
 
 	const flushPendingSave = useCallback( () => {
 		if ( ! ref ) {

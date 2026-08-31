@@ -136,7 +136,7 @@ class Videopress_Attachment_Metadata {
 	 * @param array|\WP_Error $result The result returned by the client.
 	 */
 	private static function validate_result( $result ) {
-		$response_code = isset( $result['response']['code'] ) ? $result['response']['code'] : 500;
+		$response_code = $result['response']['code'] ?? 500;
 
 		// When Client::wpcom_json_api_request_as_blog is called in WPCOM, bad response codes are not converted to WP_Error.
 		// Because of this, we need to manually check the response code to check if the direct API call is 200 (OK).

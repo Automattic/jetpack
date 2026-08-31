@@ -218,6 +218,116 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that should_load returns false on network admin pages.
+	 *
+	 * Note: is_network_admin() reads $GLOBALS['current_screen']->in_admin( 'network' )
+	 * when a screen is set, so we set a -network-suffixed hook to put WP_Screen
+	 * into network admin mode.
+	 */
+	public function test_should_load_returns_false_on_network_admin() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard-network' );
+		$this->create_and_login_user();
+
+		$this->assertTrue( is_network_admin() );
+		$this->assertFalse( $this->call_private_method( 'should_load' ) );
+	}
+
+	/**
+	 * Tests that should_load returns false on user admin pages.
+	 */
+	public function test_should_load_returns_false_on_user_admin() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard-user' );
+		$this->create_and_login_user();
+
+		$this->assertTrue( is_user_admin() );
+		$this->assertFalse( $this->call_private_method( 'should_load' ) );
+	}
+
+	/**
+	 * Tests that should_load returns false when WP_NETWORK_ADMIN is set via constant
+	 * (the branch hit on real /wp-admin/network/* requests before current_screen exists).
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_should_load_returns_false_when_wp_network_admin_constant_set() {
+		define( 'WP_ADMIN', true );
+		define( 'WP_NETWORK_ADMIN', true );
+		$this->create_and_login_user();
+
+		$this->assertFalse( $this->call_private_method( 'should_load' ) );
+	}
+
+	/**
+	 * Tests that should_load returns false when WP_USER_ADMIN is set via constant.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_should_load_returns_false_when_wp_user_admin_constant_set() {
+		define( 'WP_ADMIN', true );
+		define( 'WP_USER_ADMIN', true );
+		$this->create_and_login_user();
+
+		$this->assertFalse( $this->call_private_method( 'should_load' ) );
+	}
+
+	/**
+	 * Tests that should_load returns false on a P2 site detected via stylesheet.
+	 *
+	 * Note: get_wpcom_site_id() returns 0 off-wpcom, so we set IS_WPCOM to
+	 * route through get_current_blog_id() and surface a non-zero id.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_should_load_returns_false_on_p2_site_via_stylesheet() {
+		if ( ! defined( 'IS_WPCOM' ) ) {
+			define( 'IS_WPCOM', true );
+		}
+
+		add_filter( 'stylesheet', static fn () => 'pub/p2-2020' );
+
+		$this->set_admin_context();
+		$this->create_and_login_user();
+
+		$this->assertFalse( $this->call_private_method( 'should_load' ) );
+	}
+
+	/**
+	 * Tests that should_load returns false when WPForTeams reports a P2 site.
+	 *
+	 * Brain Monkey can't redefine namespaced WP / mu-wpcom functions that this code path
+	 * touches (the test bootstrap loads them before Patchwork), so we eval a namespace
+	 * block to declare the WPForTeams stub and use @runInSeparateProcess for isolation.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_should_load_returns_false_on_p2_site_via_wpforteams() {
+		if ( ! defined( 'IS_WPCOM' ) ) {
+			define( 'IS_WPCOM', true );
+		}
+
+		eval( 'namespace WPForTeams { function is_wpforteams_site( $blog_id ) { return true; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+
+		$this->set_admin_context();
+		$this->create_and_login_user();
+
+		$this->assertFalse( $this->call_private_method( 'should_load' ) );
+	}
+
+	/**
 	 * Data provider for English locale variant tests.
 	 *
 	 * @return \Iterator
@@ -316,6 +426,110 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'atomic', $traits['site_type'] );
 	}
 
+	/**
+	 * Tests that get_visitor_traits returns is_big_sky_site = 'false' when neither sticker is set.
+	 *
+	 * Runs in a separate process so the absence of has_blog_sticker is not coupled to other
+	 * tests in this file that may eval one in.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_visitor_traits_returns_is_big_sky_site_false_by_default() {
+		global $pagenow;
+		$pagenow = 'index.php';
+		$this->set_admin_context();
+		$this->create_and_login_user();
+
+		$traits = $this->call_private_method( 'get_visitor_traits' );
+
+		$this->assertSame( 'false', $traits['is_big_sky_site'] );
+	}
+
+	/**
+	 * Tests that get_visitor_traits returns is_big_sky_site = 'true' when the big-sky-enabled sticker is set.
+	 *
+	 * Note: is_big_sky_site() returns false off-wpcom (get_wpcom_blog_id() is falsy), so we
+	 * set IS_WPCOM to route through get_current_blog_id() and surface a non-zero id. We then
+	 * eval a global-namespace has_blog_sticker stub that wpcom_has_blog_sticker proxies to;
+	 * Brain Monkey can't redefine wpcom_has_blog_sticker here because mu-wpcom's test
+	 * bootstrap loads utils.php before Patchwork.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_visitor_traits_returns_is_big_sky_site_true_for_big_sky_enabled_sticker() {
+		if ( ! defined( 'IS_WPCOM' ) ) {
+			define( 'IS_WPCOM', true );
+		}
+
+		eval( 'namespace { function has_blog_sticker( $sticker, $blog_id ) { return $sticker === "big-sky-enabled"; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+
+		global $pagenow;
+		$pagenow = 'index.php';
+		$this->set_admin_context();
+		$this->create_and_login_user();
+
+		$traits = $this->call_private_method( 'get_visitor_traits' );
+
+		$this->assertSame( 'true', $traits['is_big_sky_site'] );
+	}
+
+	/**
+	 * Tests that get_visitor_traits returns is_big_sky_site = 'true' when the big-sky-free-trial sticker is set.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_visitor_traits_returns_is_big_sky_site_true_for_big_sky_free_trial_sticker() {
+		if ( ! defined( 'IS_WPCOM' ) ) {
+			define( 'IS_WPCOM', true );
+		}
+
+		eval( 'namespace { function has_blog_sticker( $sticker, $blog_id ) { return $sticker === "big-sky-free-trial"; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+
+		global $pagenow;
+		$pagenow = 'index.php';
+		$this->set_admin_context();
+		$this->create_and_login_user();
+
+		$traits = $this->call_private_method( 'get_visitor_traits' );
+
+		$this->assertSame( 'true', $traits['is_big_sky_site'] );
+	}
+
+	/**
+	 * Tests that is_big_sky_site short-circuits to false when no blog ID is available.
+	 *
+	 * Covers the get_wpcom_blog_id() === false path. Without IS_WPCOM / IS_ATOMIC the
+	 * helper returns false, so the guard fires before the sticker check. has_blog_sticker
+	 * is eval'd to return true so a regression that removes the guard would make this
+	 * assertion fail.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_visitor_traits_returns_is_big_sky_site_false_when_blog_id_unavailable() {
+		eval( 'namespace { function has_blog_sticker( $sticker, $blog_id ) { return true; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+
+		global $pagenow;
+		$pagenow = 'index.php';
+		$this->set_admin_context();
+		$this->create_and_login_user();
+
+		$traits = $this->call_private_method( 'get_visitor_traits' );
+
+		$this->assertSame( 'false', $traits['is_big_sky_site'] );
+	}
+
 	// ---- enqueue_scripts() tests ----
 
 	/**
@@ -346,6 +560,8 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 	 * Tests that enqueue_scripts registers the script and includes expected inline JS.
 	 */
 	public function test_enqueue_scripts_registers_script_with_expected_inline_js() {
+		global $wp_scripts;
+
 		$this->enqueue_survicate_scripts();
 
 		$this->assertTrue( wp_script_is( 'wpcom-survicate', 'enqueued' ) );
@@ -357,6 +573,10 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'SurvicateReady', $inline_script );
 		$this->assertStringContainsString( 'setVisitorTraits', $inline_script );
 		$this->assertStringContainsString( 'test@example.com', $inline_script );
+		$this->assertStringContainsString( 'automattic/help-center', $inline_script );
+		$this->assertStringContainsString( 'survey_displayed', $inline_script );
+
+		$this->assertContains( 'wp-data', $wp_scripts->registered['wpcom-survicate']->deps );
 	}
 
 	// ---- Singleton tests ----

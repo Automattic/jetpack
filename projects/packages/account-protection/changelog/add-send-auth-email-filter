@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add `jetpack_account_protection_send_auth_email` filter to allow custom handling of the verification email.

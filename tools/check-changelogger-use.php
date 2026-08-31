@@ -144,13 +144,7 @@ if ( $maybe_merge ) {
 // Find projects that use changelogger, and read the relevant config.
 $changelogger_projects = array();
 foreach ( glob( 'projects/*/*/composer.json' ) as $file ) {
-	$data = json_decode( file_get_contents( $file ), true );
-	if ( 'projects/packages/changelogger/composer.json' !== $file &&
-		! isset( $data['require']['automattic/jetpack-changelogger'] ) &&
-		! isset( $data['require-dev']['automattic/jetpack-changelogger'] )
-	) {
-		continue;
-	}
+	$data  = json_decode( file_get_contents( $file ), true );
 	$data  = $data['extra']['changelogger'] ?? array();
 	$data += array(
 		'changelog'   => 'CHANGELOG.md',

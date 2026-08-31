@@ -4,15 +4,17 @@
 	margin-top: 24px;
 	margin-bottom: 16px;
 
-	.progress-bar {
+	// WP ProgressBar Track
+	> div {
 		height: 100%;
-		border-radius: 12px; /* stylelint-disable-line scales/radii */
+		width: 100%;
+		border-radius: 12px;
 		background-color: var(--jp-gray-5);
 
-		.progress-bar__progress {
+		// WP ProgressBar Indicator (the progress fill)
+		> div {
 			// Unless we're 100% full, the left side of the bar
 			// is rounded and the right side is flat
-			/* stylelint-disable-next-line scales/radii */
 			border-radius: 12px 0 0 12px;
 
 			// We always expect some amount of used storage,
@@ -26,36 +28,24 @@
 			max-width: calc(100% - 12px);
 		}
 
-		&.no-warning {
-
-			.progress-bar__progress {
-				background-color: var(--jp-black);
-			}
+		&.no-warning > div {
+			background-color: var(--jp-black);
 		}
 
-		&.yellow-warning {
-
-			.progress-bar__progress {
-				background-color: var(--jp-yellow-20);
-			}
+		&.yellow-warning > div {
+			background-color: var(--jp-yellow-20);
 		}
 
-		&.red-warning {
-
-			.progress-bar__progress {
-				background-color: var(--jp-red-40);
-			}
+		&.red-warning > div {
+			background-color: var(--jp-red-40);
 		}
 
 		// When the bar is full, we can show the filled portion
 		// at full width, with a rounded right side
-		&.full-warning {
-
-			.progress-bar__progress {
-				max-width: initial;
-				background-color: var(--jp-red-40);
-				border-radius: 12px; /* stylelint-disable-line scales/radii */
-			}
+		&.full-warning > div {
+			max-width: initial;
+			background-color: var(--jp-red-40);
+			border-radius: 12px;
 		}
 	}
 }

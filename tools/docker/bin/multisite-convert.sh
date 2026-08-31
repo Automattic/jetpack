@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if ! $(wp core is-installed); then
+if ! wp core is-installed; then
 	echo
 	echo "WordPress has to be installed first. To install, run:"
 	echo

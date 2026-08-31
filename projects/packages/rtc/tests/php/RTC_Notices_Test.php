@@ -30,29 +30,15 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	private $user_id;
 
 	/**
-	 * Second test user ID (editor) to satisfy the 2-user minimum check.
-	 *
-	 * @var int
-	 */
-	private $second_user_id;
-
-	/**
 	 * Set up before each test.
 	 */
 	public function set_up(): void {
 		parent::set_up();
-		$this->user_id        = wp_insert_user(
+		$this->user_id = wp_insert_user(
 			array(
 				'user_login' => 'rtc_test_user',
 				'user_pass'  => 'password',
 				'role'       => 'administrator',
-			)
-		);
-		$this->second_user_id = wp_insert_user(
-			array(
-				'user_login' => 'rtc_test_editor',
-				'user_pass'  => 'password',
-				'role'       => 'editor',
 			)
 		);
 		wp_set_current_user( $this->user_id );
@@ -89,30 +75,26 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down(): void {
 		global $wp_scripts, $wp_styles;
-		$wp_scripts = $this->original_wp_scripts; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wp_styles  = $this->original_wp_styles; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_scripts = $this->original_wp_scripts;
+		$wp_styles  = $this->original_wp_styles;
 
 		wp_set_current_user( 0 );
 		wp_delete_user( $this->user_id );
-		wp_delete_user( $this->second_user_id );
 
 		remove_all_filters( 'jetpack_rtc_max_peers_per_room' );
 		remove_all_filters( 'jetpack_rtc_enabled' );
-		remove_all_filters( 'jetpack_rtc_enable_welcome_notice' );
 		remove_all_filters( 'jetpack_rtc_enable_limit_notices' );
-		remove_all_filters( 'users_pre_query' );
 
 		delete_option( 'wp_enable_real_time_collaboration' );
 		delete_option( 'wp_collaboration_enabled' );
 
-		// Clean up any user options and transients left by tests.
-		delete_user_option( $this->user_id, REST_RTC_Notices::OPTION_KEY );
+		// Clean up any transients left by tests.
 		delete_transient( REST_RTC_Notices::JOIN_REQUEST_OPTION . '_' . 999999 );
 
 		// Reset the REST server so stale route registrations don't leak
 		// into other test classes.
 		global $wp_rest_server;
-		$wp_rest_server = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_rest_server = null;
 
 		parent::tear_down();
 	}
@@ -136,72 +118,6 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertSame( 5, RTC::get_max_peers_per_room() );
-	}
-
-	/**
-	 * Tests that welcome notice is not dismissed by default.
-	 */
-	public function test_welcome_notice_not_dismissed_by_default() {
-		$this->assertFalse( REST_RTC_Notices::is_dismissed() );
-	}
-
-	/**
-	 * Tests that welcome notice can be dismissed via user meta.
-	 */
-	public function test_welcome_notice_dismiss_persists() {
-		update_user_option( $this->user_id, REST_RTC_Notices::OPTION_KEY, 'dismissed' );
-
-		$this->assertTrue( REST_RTC_Notices::is_dismissed() );
-	}
-
-	/**
-	 * Tests that welcome notice dismiss is per-user.
-	 */
-	public function test_welcome_notice_dismiss_is_per_user() {
-		$other_user_id = wp_insert_user(
-			array(
-				'user_login' => 'rtc_test_user_2',
-				'user_pass'  => 'password',
-				'role'       => 'editor',
-			)
-		);
-
-		update_user_option( $this->user_id, REST_RTC_Notices::OPTION_KEY, 'dismissed' );
-
-		wp_set_current_user( $other_user_id );
-		$this->assertFalse( REST_RTC_Notices::is_dismissed() );
-
-		wp_set_current_user( $this->user_id );
-		$this->assertTrue( REST_RTC_Notices::is_dismissed() );
-
-		wp_delete_user( $other_user_id );
-	}
-
-	/**
-	 * Tests the dismiss REST endpoint.
-	 */
-	public function test_dismiss_rest_endpoint() {
-		$controller = new REST_RTC_Notices();
-		$response   = $controller->dismiss_notice();
-		$data       = $response->get_data();
-
-		$this->assertTrue( $data['success'] );
-		$this->assertTrue( REST_RTC_Notices::is_dismissed() );
-	}
-
-	/**
-	 * Tests the status REST endpoint.
-	 */
-	public function test_status_rest_endpoint() {
-		$controller = new REST_RTC_Notices();
-
-		$response = $controller->get_status();
-		$this->assertFalse( $response->get_data()['dismissed'] );
-
-		$controller->dismiss_notice();
-
-		$response = $controller->get_status();
-		$this->assertTrue( $response->get_data()['dismissed'] );
 	}
 
 	/**
@@ -260,16 +176,6 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		$this->assertCount( 0, $response->get_data()['requests'] );
 
 		wp_delete_post( $post_id, true );
-	}
-
-	/**
-	 * Tests that permission check requires login.
-	 */
-	public function test_permission_requires_login() {
-		wp_set_current_user( 0 );
-		$controller = new REST_RTC_Notices();
-
-		$this->assertFalse( $controller->check_permission() );
 	}
 
 	/**
@@ -368,8 +274,6 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 
 		$routes = rest_get_server()->get_routes();
 
-		$this->assertArrayHasKey( '/wpcom/v2/rtc-notices/dismiss', $routes );
-		$this->assertArrayHasKey( '/wpcom/v2/rtc-notices/status', $routes );
 		$this->assertArrayHasKey( '/wpcom/v2/rtc-notices/join-request', $routes );
 		$this->assertArrayHasKey( '/wpcom/v2/rtc-notices/join-requests', $routes );
 		$this->assertArrayHasKey( '/wpcom/v2/rtc-notices/join-requests/clear', $routes );
@@ -407,34 +311,11 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Reset scripts/styles to a fresh state for enqueue tests.
-	 *
-	 * Also stubs the editor-count query because WorDBless cannot evaluate
-	 * role-based WP_User_Query meta queries (LIKE on wp_capabilities fails
-	 * in its SQLite layer).
 	 */
 	private function reset_scripts(): void {
 		global $wp_scripts, $wp_styles;
-		$wp_scripts = new \WP_Scripts(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wp_styles  = new \WP_Styles(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-
-		add_filter( 'users_pre_query', array( $this, 'stub_editor_query' ), 10, 2 );
-	}
-
-	/**
-	 * Short-circuit WP_User_Query to return 2 fake user IDs.
-	 *
-	 * WorDBless cannot run any user DB queries (its SQLite layer
-	 * does not support the meta LIKE clauses used for role/capability
-	 * lookups). This filter bypasses the query entirely so the
-	 * editor-count guard in the enqueue function passes.
-	 *
-	 * @param array|null     $results Null to run the real query.
-	 * @param \WP_User_Query $query   The query instance (by reference).
-	 * @return array Fake user ID list.
-	 */
-	public function stub_editor_query( $results, $query ) {
-		$query->total_users = 2;
-		return array( 1, 2 );
+		$wp_scripts = new \WP_Scripts();
+		$wp_styles  = new \WP_Styles();
 	}
 
 	/**
@@ -494,9 +375,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'jetpackRtcNotices', $inline );
 		$this->assertStringContainsString( '"assetsUrl"', $inline );
 		$this->assertStringContainsString( '"isAdmin"', $inline );
-		$this->assertStringContainsString( '"welcomeDismissed"', $inline );
 		$this->assertStringContainsString( '"maxPeersPerRoom"', $inline );
-		$this->assertStringContainsString( '"enableWelcomeNotice"', $inline );
 		$this->assertStringContainsString( '"enableLimitNotices"', $inline );
 	}
 }

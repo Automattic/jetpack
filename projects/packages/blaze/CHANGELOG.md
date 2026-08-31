@@ -5,6 +5,97 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.5] - 2026-08-25
+### Changed
+- Update dependencies. [#51438]
+
+## [0.28.4] - 2026-08-20
+### Changed
+- Update dependencies. [#51190]
+
+## [0.28.3] - 2026-08-10
+### Changed
+- Update package dependencies. [#50509]
+
+## [0.28.2] - 2026-08-03
+### Changed
+- Update dependencies. [#50841]
+
+## [0.28.1] - 2026-07-27
+### Changed
+- Update dependencies. [#50719]
+- Update package dependencies. [#50751]
+
+## [0.28.0] - 2026-07-20
+### Changed
+- Rename the Advertising menu to Blaze Ads, move it under the Jetpack (or WooCommerce Marketing) menu, and leave a temporary migration notice at the old Tools location. [#49584]
+- Update package dependencies. [#50529]
+
+### Fixed
+- Avoid a duplicate Blaze Ads menu when the standalone Blaze Ads plugin is active, and point campaign/promote links (and the legacy advertising URL) at the standalone's page so they resolve and preserve their deep-link route. [#49584]
+
+## [0.27.27] - 2026-07-13
+### Changed
+- Update package dependencies. [#49272]
+
+## [0.27.26] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## [0.27.25] - 2026-06-29
+### Changed
+- Internal updates.
+
+## [0.27.24] - 2026-06-25
+### Changed
+- Defer Blaze REST controller instantiation so the controller classes only load on REST API requests. [#49803]
+- Update package dependencies. [#49831]
+
+## [0.27.23] - 2026-06-22
+### Changed
+- Add active campaign status checks. [#49610]
+- Update package dependencies. [#49631] [#49691] [#49757]
+
+## [0.27.22] - 2026-06-15
+### Changed
+- Update package dependencies. [#49273]
+
+## [0.27.21] - 2026-06-08
+### Changed
+- Update dependencies. [#49354]
+
+## [0.27.20] - 2026-06-01
+### Changed
+- Update package dependencies. [#48404]
+
+## [0.27.19] - 2026-05-25
+### Changed
+- Update package dependencies. [#48405]
+
+## [0.27.18] - 2026-05-19
+### Changed
+- Update dependencies. [#48778]
+
+## [0.27.17] - 2026-05-11
+### Changed
+- Update dependencies. [#47038]
+
+## [0.27.16] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [0.27.15] - 2026-04-27
+### Changed
+- Update dependencies. [#47038]
+
+## [0.27.14] - 2026-04-20
+### Changed
+- Update package dependencies. [#48106] [#48141]
+
+## [0.27.13] - 2026-04-15
+### Changed
+- Update package dependencies. [#47907]
+
 ## [0.27.12] - 2026-04-09
 ### Changed
 - Update package dependencies. [#47890] [#47998]
@@ -811,6 +902,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.28.5]: https://github.com/automattic/jetpack-blaze/compare/v0.28.4...v0.28.5
+[0.28.4]: https://github.com/automattic/jetpack-blaze/compare/v0.28.3...v0.28.4
+[0.28.3]: https://github.com/automattic/jetpack-blaze/compare/v0.28.2...v0.28.3
+[0.28.2]: https://github.com/automattic/jetpack-blaze/compare/v0.28.1...v0.28.2
+[0.28.1]: https://github.com/automattic/jetpack-blaze/compare/v0.28.0...v0.28.1
+[0.28.0]: https://github.com/automattic/jetpack-blaze/compare/v0.27.27...v0.28.0
+[0.27.27]: https://github.com/automattic/jetpack-blaze/compare/v0.27.26...v0.27.27
+[0.27.26]: https://github.com/automattic/jetpack-blaze/compare/v0.27.25...v0.27.26
+[0.27.25]: https://github.com/automattic/jetpack-blaze/compare/v0.27.24...v0.27.25
+[0.27.24]: https://github.com/automattic/jetpack-blaze/compare/v0.27.23...v0.27.24
+[0.27.23]: https://github.com/automattic/jetpack-blaze/compare/v0.27.22...v0.27.23
+[0.27.22]: https://github.com/automattic/jetpack-blaze/compare/v0.27.21...v0.27.22
+[0.27.21]: https://github.com/automattic/jetpack-blaze/compare/v0.27.20...v0.27.21
+[0.27.20]: https://github.com/automattic/jetpack-blaze/compare/v0.27.19...v0.27.20
+[0.27.19]: https://github.com/automattic/jetpack-blaze/compare/v0.27.18...v0.27.19
+[0.27.18]: https://github.com/automattic/jetpack-blaze/compare/v0.27.17...v0.27.18
+[0.27.17]: https://github.com/automattic/jetpack-blaze/compare/v0.27.16...v0.27.17
+[0.27.16]: https://github.com/automattic/jetpack-blaze/compare/v0.27.15...v0.27.16
+[0.27.15]: https://github.com/automattic/jetpack-blaze/compare/v0.27.14...v0.27.15
+[0.27.14]: https://github.com/automattic/jetpack-blaze/compare/v0.27.13...v0.27.14
+[0.27.13]: https://github.com/automattic/jetpack-blaze/compare/v0.27.12...v0.27.13
 [0.27.12]: https://github.com/automattic/jetpack-blaze/compare/v0.27.11...v0.27.12
 [0.27.11]: https://github.com/automattic/jetpack-blaze/compare/v0.27.10...v0.27.11
 [0.27.10]: https://github.com/automattic/jetpack-blaze/compare/v0.27.9...v0.27.10

@@ -1,10 +1,10 @@
 === Jetpack VaultPress Backup ===
 Contributors: automattic, bjorsch, fgiannar, initsogar, jeherve, jwebbdev, kraftbj, macbre, pypt, samiff, sermitr, williamvianas
 Tags: jetpack, backup, restore
-Requires at least: 6.8
-Requires PHP: 7.2
-Tested up to: 6.9
-Stable tag: 3.7.1
+Requires at least: 7.0
+Requires PHP: 7.4
+Tested up to: 7.1
+Stable tag: 3.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -175,10 +175,19 @@ No, Jetpack VaultPress Backup does not currently support split site or split hom
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 3.7.1 - 2025-11-20
+### 3.9 - 2026-08-11
+#### Added
+- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed.
+
+#### Changed
+- General: Update composer.lock files.
+- General: Update minimum WordPress version to 6.9.
+- Tested up to WordPress 7.0.
+- Update composer.lock files.
+- Updated package dependencies.
+
 #### Fixed
-- Jetpack: Remove getIconColor functions for block icons.
-- My Jetpack: Fix expiring renewal prompt to show all products.
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active.
 
 --------
 

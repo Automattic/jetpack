@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-cd $(dirname "${BASH_SOURCE[0]}")/..
+cd "$(dirname "${BASH_SOURCE[0]}")"/..
 BASE=$PWD
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
@@ -118,13 +118,14 @@ spin
 debug "Fetching PHP package versions"
 
 init_changelogger
+# shellcheck disable=SC2120
 function get_packages {
 	local PKGS
 	if [[ -z "$1" ]]; then
 		PACKAGES='{}'
 		PKGS=( "$BASE"/projects/packages/*/composer.json )
 	elif [[ "$1" == packages/* ]]; then
-		PKGS=( "$BASE"/projects/$1/composer.json )
+		PKGS=( "$BASE/projects/$1/composer.json" )
 	else
 		PKGS=()
 	fi
@@ -301,7 +302,7 @@ while [[ ${#PIDS[@]} -gt 0 ]]; do
 	if ! wait -fn -p P "${!PIDS[@]}"; then
 		EXIT=1
 	fi
-	unset PIDS[$P]
+	unset "PIDS[$P]"
 done
 
 spinclear

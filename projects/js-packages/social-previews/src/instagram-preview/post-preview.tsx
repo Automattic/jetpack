@@ -2,6 +2,8 @@ import { __ } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
 import { AvatarWithFallback } from '../avatar-with-fallback';
 import { preparePreviewText } from '../helpers';
+import { ExpandableText } from '../shared/expandable-text';
+import { MediaImage } from '../shared/media-image';
 import { FEED_TEXT_MAX_LENGTH } from './constants';
 import { Bookmark as BookmarkIcon } from './icons/bookmark';
 import { Comment as CommentIcon } from './icons/comment';
@@ -50,11 +52,11 @@ function useInstagramAspectRatio() {
  */
 export function InstagramPostPreview( {
 	image,
+	imageFocalPoint,
 	media,
 	name,
 	profileImage,
 	caption,
-	url,
 }: InstagramPreviewProps ) {
 	const username = name || 'username';
 	const mediaItem = media?.[ 0 ];
@@ -96,7 +98,13 @@ export function InstagramPostPreview( {
 							) }
 						</div>
 					) : (
-						<img className="instagram-preview__media--image" src={ image } alt="" { ...imgProps } />
+						<MediaImage
+							className="instagram-preview__media--image"
+							src={ image }
+							alt=""
+							focalPoint={ imageFocalPoint }
+							{ ...imgProps }
+						/>
 					) }
 				</div>
 				<div className="instagram-preview__content">
@@ -116,17 +124,14 @@ export function InstagramPostPreview( {
 						&nbsp;
 						{ caption ? (
 							<div className="instagram-preview__content--text">
-								{ preparePreviewText( caption, {
-									platform: 'instagram',
-									maxChars: FEED_TEXT_MAX_LENGTH,
-								} ) }
-								{ media && url && (
-									<>
-										<br />
-										<br />
-										{ url }
-									</>
-								) }
+								<ExpandableText text={ caption }>
+									{ visibleText =>
+										preparePreviewText( visibleText, {
+											platform: 'instagram',
+											maxChars: FEED_TEXT_MAX_LENGTH,
+										} )
+									}
+								</ExpandableText>
 							</div>
 						) : null }
 					</div>

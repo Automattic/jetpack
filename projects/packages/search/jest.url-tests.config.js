@@ -12,12 +12,16 @@ module.exports = {
 	// Keep other settings from base config
 	transform: {
 		...baseConfig.transform,
-		'\\.[jt]sx?$': require( 'jetpack-js-tools/jest/babel-jest-config-factory.js' )(
+		'\\.m?[jt]sx?$': require( 'jetpack-js-tools/jest/babel-jest-config-factory.js' )(
 			require.resolve
 		),
 	},
 	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,
+		// The blocks build externalizes this bare specifier to the
+		// `jetpack-search/store` Script Module; Jest has no such resolver,
+		// so point it at the real store source.
+		'^jetpack-search/store$': '<rootDir>/src/search-blocks/store/index.js',
 		'tiny-lru/lib/tiny-lru.esm$': '<rootDir>/src/instant-search/lib/test-helpers/tiny-lru.mock.js',
 		'instant-search/components/gridicon':
 			'<rootDir>/src/instant-search/components/gridicon/index.jsx',

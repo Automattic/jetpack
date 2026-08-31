@@ -2,7 +2,7 @@ import * as decoding from 'lib0/decoding';
 import * as encoding from 'lib0/encoding';
 import * as awarenessProtocol from 'y-protocols/awareness';
 import * as syncProtocol from 'y-protocols/sync';
-import { PingHubBridge, pixel } from './pinghub-bridge';
+import { PingHubBridge, logConnectionEvent } from './pinghub-bridge';
 import type { Awareness, ConnectionStatus } from '@wordpress/sync';
 import type * as Y from 'yjs';
 
@@ -188,6 +188,10 @@ class PingHubConnection {
 			return;
 		}
 		this.reconnectAttempts++;
+		logConnectionEvent( 'reconnecting', {
+			attempt: this.reconnectAttempts,
+			delay_ms: this.reconnectDelay,
+		} );
 		this.reconnectTimer = setTimeout( () => {
 			this.reconnectTimer = null;
 			if ( rooms.has( this.room ) ) {
@@ -231,8 +235,6 @@ class PingHubConnection {
 			const update = awarenessProtocol.encodeAwarenessUpdate( this.awareness, [ this.clientId ] );
 			this.broadcastAwareness( update );
 		}
-
-		pixel( 'pinghub.rtc.room_peers', this.awareness.getStates().size, 'ms' );
 	};
 
 	/**
@@ -346,9 +348,6 @@ class PingHubConnection {
 	} ): void => {
 		if ( ! this.connected ) {
 			return;
-		}
-		if ( added.length > 0 ) {
-			pixel( 'pinghub.rtc.room_peers', this.awareness.getStates().size, 'ms' );
 		}
 		const changed = added.concat( updated ).concat( removed );
 		const update = awarenessProtocol.encodeAwarenessUpdate( this.awareness, changed );

@@ -1,0 +1,420 @@
+// Jetpack admin-page layout mixin.
+
+// Standardizes the layout of a Jetpack wp-admin page so <AdminPage> controls
+// the full content area: fixed Jetpack header at the top, the middle section
+// scrolls internally, JetpackFooter pinned at the bottom. No window-level
+// scroll; nothing leaks outside the scope.
+
+// Usage:
+
+//   @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+//   :global {
+//     body.jetpack_page_my-jetpack { @include jetpack-admin-page-layout; }
+//   }
+
+// Selector hooks this mixin relies on (all stable, not CSS-Modules hashed):
+
+//   wp-admin shell:          #wpcontent, #wpbody-content, #wpfooter
+//   <AdminPage> root:        .jp-admin-page   (added unconditionally by the
+//                                              <AdminPage> component from
+//                                              @automattic/jetpack-components)
+//   admin-ui's <Page>:       .jp-admin-page__page   (className passed through
+//                                                    by <AdminPage>; admin-ui
+//                                                    2.0.0 forwards it onto
+//                                                    the page's outer node)
+//   admin-ui's header:       <header> element rendered by admin-ui's <Page>
+//                            inside `.jp-admin-page__page` (no class hooks —
+//                            we anchor structurally to the HTML5 element)
+//   <JetpackFooter>:         .jetpack-footer
+//   Tabs wrapper convention: .jp-admin-page-tabs   (consumer-applied div that
+//                                                   wraps `@wordpress/ui`
+//                                                   `Tabs.List`; see the
+//                                                   "Tabs strip" section
+//                                                   below)
+
+// Implementation note — `postcss-custom-properties` with `preserve: false`:
+// several consumer packages in this monorepo (publicize, videopress, search,
+// jetpack plugin) resolve `var()` to its fallback at build time. That rules
+// out *runtime-toggled* custom properties (you can't use a CSS var to flip
+// `<AdminPage>`'s margin between the legacy and the new layout, because the
+// fallback wins before the override can reach it). It does NOT rule out
+// `var(--name, <fallback>)` used purely for readability and forward-
+// compatibility on size values — the compiled output is identical to
+// inlining the fallback. This mixin uses `var(--wp-admin-bar-height, …)`
+// (mirroring `projects/packages/forms/src/dashboard/inbox/style.scss`) so
+// the intent stays legible, and so packages that don't run the `preserve:
+// false` plugin can override the var at runtime. Immutable sizes (sidebar
+// widths, viewport breakpoints) use SCSS variables — they can't change at
+// runtime and there's no need to pay the custom-property indirection.
+
+// wp-admin chrome constants (see wp-admin.css).
+$jp-sidebar-width-expanded: 160px;             // default sidebar
+$jp-sidebar-width-folded: 36px;                // .folded preference OR .auto-fold class
+$jp-sidebar-width-nav-unification: 272px;      // body.is-nav-unification (WP.com wp-admin)
+$jp-admin-bar-height-desktop: 32px;
+$jp-admin-bar-height-mobile: 46px;
+
+// Viewport breakpoints WP itself uses:
+//   ≤ 960px → WP toggles `.auto-fold` on <body>, narrows the sidebar to 36px
+//   ≤ 782px → sidebar goes off-canvas (0) regardless of .folded/.auto-fold
+// We mirror these breakpoints because WP's body-class state is not always
+// in sync with the rendered viewport (the `auto-fold` class can stay stale
+// after a narrow → wide window resize).
+// WP.com's "nav-unification" (body.is-nav-unification) keeps the sidebar at
+// 272px above the auto-fold breakpoint; below 960px it narrows to 36px like
+// vanilla wp-admin, and below 782px it goes off-canvas.
+$jp-breakpoint-auto-fold: 960px;
+$jp-breakpoint-mobile: 782px;
+
+@mixin jetpack-admin-page-layout {
+	// ── wp-admin chrome resets ────────────────────────────────────────
+	#wpcontent {
+		padding-left: 0;
+	}
+
+	// wp-admin's footer floats at the very bottom via `position: absolute`;
+	// we replace it with a pinned JetpackFooter inside the scope.
+	#wpfooter {
+		display: none;
+	}
+
+	// `#screen-meta-links` (the "Screen Options" / "Help" tabs container) is
+	// always emitted by core's admin header, even when empty. Core CSS gives
+	// it `margin: 0 10px 20px 0`, and on WP.com (`is-nav-unification`) the
+	// wpcom toolbar adds extra buttons + margins. With `#wpbody-content`
+	// flipped to `position: fixed` flex, that bottom margin reserves a 20px
+	// slot at the top of the column and pushes `.jp-admin-page` down. None of
+	// our React admin pages register screen-options or help tabs, so hide it.
+	// (`#screen-meta` itself stays alone — core defaults it to `display:none`
+	// and toggles it on click; we never trigger that here.)
+	#screen-meta-links {
+		display: none;
+	}
+
+	// ── Viewport-pinned content column ────────────────────────────────
+	// `position: fixed` pins the content column to the viewport. The
+	// sidebar (`#adminmenumain`) is left untouched — it can grow past
+	// viewport; the window will scroll for it without disturbing the
+	// fixed content column. This is the pattern Calypso adopted in
+	// wp-calypso#109899 for its own admin pages.
+
+	// We intentionally do NOT constrain `#adminmenuwrap` with
+	// `overflow-y: auto` here: any overflow on a sidebar ancestor clips
+	// the absolutely-positioned `.wp-submenu` flyouts that appear on
+	// hover in both folded AND expanded modes (for parent menus whose
+	// submenu isn't auto-expanded). Letting the window scroll for a tall
+	// sidebar is the acceptable tradeoff.
+	#wpbody-content {
+		box-sizing: border-box;
+		position: fixed;
+		top: var(--wp-admin-bar-height, #{$jp-admin-bar-height-desktop});
+		left: $jp-sidebar-width-expanded;
+		right: 0;
+		bottom: 0;
+		// wp-admin core sets `width: 100%` on #wpbody-content (common.css).
+		// With `position: fixed`, that resolves to 100% of the viewport and
+		// overrides `right: 0`, making the column extend past the viewport
+		// by the sidebar width. `width: auto` lets left+right size it.
+		width: auto;
+		padding-bottom: 0;          // wp-admin default is 65px (clears #wpfooter).
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+	}
+
+	// `.folded` is the user's persistent "Collapse menu" preference; WP
+	// keeps it set at every viewport width, so we match it unconditionally.
+	&.folded #wpbody-content {
+		left: $jp-sidebar-width-folded;
+	}
+
+	// `.auto-fold` is WP JS state, gated to narrow-desktop widths. Scope
+	// our match to the same media range WP uses in wp-admin.css, otherwise
+	// a stale `.auto-fold` class (WP doesn't always remove it on resize)
+	// would mis-offset the column at wide viewports where the sidebar has
+	// rebounded to 160px.
+	@media (max-width: #{$jp-breakpoint-auto-fold}) {
+
+		&.auto-fold #wpbody-content {
+			left: $jp-sidebar-width-folded;
+		}
+	}
+
+	// WP.com's wp-admin sets `body.is-nav-unification` and renders a 272px
+	// sidebar (instead of wp-admin's default 160px) at expanded widths.
+	// Below the auto-fold breakpoint the sidebar narrows to 36px like
+	// vanilla wp-admin (core's `.auto-fold` rule wins by higher specificity),
+	// and `.folded` (user preference) always narrows to 36px — both of those
+	// cases are already covered above. The only state that needs adjusting
+	// is the expanded default at ≥ 961px. The `:not(.folded)` guard lets
+	// the `.folded` rule keep winning at wide widths on nav-unification too.
+	@media (min-width: #{$jp-breakpoint-auto-fold + 1px}) {
+
+		&.is-nav-unification:not(.folded) #wpbody-content {
+			left: $jp-sidebar-width-nav-unification;
+		}
+	}
+
+	// Every ancestor of <AdminPage> inside #wpbody-content must participate
+	// in the flex chain, or the column collapses at the first non-flex
+	// wrapper. Some pages mount their React tree with an extra wrapper in
+	// between (e.g. ThemeProvider from @automattic/jetpack-components adds
+	// a `display: block` div); `:has()` targets the whole chain regardless
+	// of depth. `min-width: 0` + `min-height: 0` let flex items shrink on
+	// both axes (defaults to content size which can cause overflow).
+	// `:not(:has(.boot-layout__stage))` stops the chain at the boot stage. A
+	// `@wordpress/boot` dashboard mounts <AdminPage> inside `.boot-layout__stage`,
+	// and the containers above it — `.boot-layout`, `.boot-layout__surfaces`
+	// (boot's stage|inspector flex ROW), and boot's `display: contents`
+	// theme-provider wrapper — own that side-by-side layout. Flex-columning them
+	// would stack the inspector below the page and collapse boot's surfaces gap.
+	// Those ancestors all *contain* `.boot-layout__stage`, so the guard drops
+	// them while still flexing the stage (and anything below it) that the
+	// footer-pin chain needs. On non-boot pages nothing matches
+	// `.boot-layout__stage`, so the guard is always true and behavior is
+	// unchanged.
+	#wpbody-content :has(.jp-admin-page):not(:has(.boot-layout__stage)) {
+		flex: 1 1 auto;
+		min-height: 0;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+	}
+
+	// ── <AdminPage> root ──────────────────────────────────────────────
+	// Neutralize the legacy -20px shift and make AdminPage a flex child
+	// that fills its parent column.
+
+	// `overflow: visible` is enforced here because consumers that drop a
+	// className with `overflow-x: hidden` on the <AdminPage> root (e.g. to
+	// clip a stray horizontal overflow) would silently turn `.jp-admin-page`
+	// into a scroll container: any unspecified `overflow-y: visible` on the
+	// same element gets promoted to `overflow-y: auto` by the browser when
+	// the other axis is `hidden`/`scroll`/`clip`. With `.jp-admin-page` as
+	// a scroll container, wheel events past the inner middle's end propagate
+	// to it and the entire page (header + middle + footer) shifts up under
+	// the fixed `#wpbody-content`, exposing blank space below the footer.
+	// The intended scroll surface is the inner middle (defined further
+	// down); the inner middle clips horizontal overflow with `overflow:
+	// auto` already, and `#wpbody-content` is the ultimate `overflow:
+	// hidden` boundary, so consumer-side horizontal clipping isn't needed
+	// at this level.
+	.jp-admin-page {
+		margin-left: 0;
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+		min-height: 0;
+		min-width: 0;
+		overflow: visible;
+	}
+
+	// ── admin-ui Page internals ───────────────────────────────────────
+	// admin-ui ships its page node with `height: 100%`, which fills its
+	// parent's computed height. Paired with our flex chain, the element
+	// becomes a viewport-fitted flex column.
+
+	// admin-ui 2.0.0 moved internals to CSS Modules (no `.admin-ui-page*`
+	// class hooks anymore). We pass `className="jp-admin-page__page"` from
+	// <AdminPage>; admin-ui forwards it onto the page's outer node. The
+	// page's <Header> is always rendered as the first child of that node, so
+	// we anchor structurally to `> :first-child` instead of a class. We used
+	// to target `> header`, but @wordpress/admin-ui 2.1.0 (Gutenberg PR
+	// WordPress/gutenberg#78001, "Fix nested landmark in header") removed
+	// `render={ <header /> }` from the page header's Stack so the rendered
+	// element changed from `<header>` to `<div>`. `:first-child` matches
+	// regardless of element type, keeping us forward-compatible with 2.1+
+	// AND backward-compatible with 2.0's `<header>`.
+	.jp-admin-page__page {
+		flex: 1 1 auto;
+		min-height: 0;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.jp-admin-page__page > :first-child {
+		flex-shrink: 0;              // pinned at top of the flex column.
+	}
+
+	// When the page hosts a tabs strip, drop the header's bottom border AND
+	// its bottom padding so the strip sits flush against the header. The
+	// strip's own hairline becomes the only divider between header and tab
+	// content. Same `:has()` pattern used elsewhere in this mixin to react
+	// to the page's content shape.
+	.jp-admin-page__page:has(.jp-admin-page-tabs) > :first-child {
+		border-bottom: none;
+		padding-bottom: 0;
+	}
+
+	// The scrollable middle. <AdminPage> does not pass `hasPadding` to
+	// admin-ui's <Page>, so admin-ui's content wrapper is not rendered —
+	// children drop in as direct descendants of the page node. Target
+	// anything that isn't the header or the footer.
+
+	// `overflow: auto` (both axes) lets any child wider than the column
+	// (dashboard grids with fixed column widths, wide tables, `100vw`
+	// descendants) scroll horizontally inside the middle instead of
+	// dragging the whole window into a horizontal scrollbar.
+
+	// `<AdminPage>` (title-branch) wraps children in
+	// `<Container fluid horizontalSpacing={0}><Col>{children}</Col></Container>`
+	// — that outer Container is `display: grid` and the single Col is a
+	// grid cell. Without intervention, the chain breaks here: any inner
+	// flex sizing on the consumer's wrapper (`flex: 1 1 auto; min-height: 0`)
+	// is inert under a non-flex parent, so DataViews-style pages let their
+	// content grow to its natural size and the outer Container scrolls
+	// the whole thing — instead of letting the consumer's own internal
+	// scroll surface (e.g. `.dataviews-layout__container`) handle it.
+	// Force the outer Container/Col pair to flex column so consumers can
+	// fill their bounded slot. Form-style pages keep working: their
+	// children stay content-sized (default `flex: 0 1 auto`) and any
+	// overflow still falls back to Container's `overflow: auto`.
+	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) {
+		flex: 1 1 auto;
+		min-height: 0;
+		min-width: 0;
+		overflow: auto;
+		display: flex;
+		flex-direction: column;
+
+		> * {
+			flex: 1 1 auto;
+			min-height: 0;
+			min-width: 0;
+			display: flex;
+			flex-direction: column;
+		}
+	}
+
+	// ── <JetpackFooter> pinned at the bottom ─────────────────────────
+	.jetpack-footer {
+		flex-shrink: 0;
+	}
+
+	// ── Tabs strip (`@wordpress/ui` Tabs hosted inside the page) ─────
+	// Consumers that render `Tabs.List` from `@wordpress/ui` inside an
+	// AdminPage should wrap it in `<div class="jp-admin-page-tabs">`.
+	// The wrapper exists because `Tabs.List` ships with `width: fit-content`
+	// (so its tabs don't stretch to fill the row); a `border-bottom` on the
+	// list shrinks to the tabs' width. The wrapper takes the full block
+	// width of the panel area, so the hairline spans the column.
+
+	// `position: sticky` pins the strip to the top of the scrollable middle
+	// (`.jp-admin-page__page > :not(header):not(.jetpack-footer)`),
+	// which is the local opt-in equivalent of admin-ui's native sticky
+	// header — disabled globally by `<AdminPage>` per JETPACK-1386. Pinning
+	// the tabs strip here keeps cross-section navigation accessible while
+	// content scrolls underneath.
+
+	// Surface + hairline use the same `--wpds-*` design tokens that
+	// `@wordpress/admin-ui` applies to its page header, so the tabs strip
+	// reads as a visual continuation of the page header and tracks any
+	// future token (theme/dark-mode) changes automatically.
+	.jp-admin-page-tabs {
+		position: sticky;
+		top: 0;
+		z-index: 10;
+		background: var(--wpds-color-background-surface-neutral-strong);
+		border-bottom: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+
+		// Align the first tab's start edge with the page header's title.
+		// admin-ui's page header sits at `padding-inline: 2xl` (24px); the
+		// `@wordpress/ui` tab buttons ship with their own `padding-inline:
+		// lg` (16px). Add the `sm` (8px) difference here on the wrapper so
+		// `lg + sm = 2xl` at the button's content edge — without touching
+		// the tab button's own padding.
+		padding-inline: var(--wpds-dimension-padding-sm, 8px);
+	}
+
+	// Opt-in modifier for hosts that render `<Tabs.List variant="minimal">`.
+	// Minimal tabs ship with `padding-inline: 0`, so the wrapper has to
+	// provide the full 2xl itself to keep the first tab flush with the
+	// header start.
+	.jp-admin-page-tabs--minimal {
+		padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+	}
+
+	// Re-apply `--wpds-typography-font-size-md` from an unlayered selector.
+	// `@wordpress/ui` declares the token inside `@layer wp-ui-components`,
+	// but wp-admin core ships an unlayered `button { font-size: inherit }`
+	// reset that always wins layered rules. Remove once upstream wires
+	// `Tabs.Tab` into `@wordpress/ui`'s `global-css-defense` module.
+	.jp-admin-page-tabs [role="tab"] {
+		font-size: var(--wpds-typography-font-size-md, 13px);
+	}
+
+	// ── Mobile: admin bar grows to 46px; sidebar goes off-canvas ─────
+	// Match `.folded` and `.auto-fold` explicitly: both outrank the bare
+	// `#wpbody-content` selector on specificity, so the media query needs
+	// equal specificity for `left: 0` to win over the desktop fold rules.
+	@media (max-width: #{$jp-breakpoint-mobile}) {
+
+		#wpbody-content,
+		&.folded #wpbody-content,
+		&.auto-fold #wpbody-content {
+			top: var(--wp-admin-bar-height, #{$jp-admin-bar-height-mobile});
+			left: 0;                 // sidebar slides out of flow at this width.
+		}
+
+		.jp-admin-page {
+			margin-left: 0;          // override legacy -10px @ ≤782px too.
+		}
+	}
+}
+
+// Same chrome as `jetpack-admin-page-layout` plus defensive resets for
+// wp-admin globals that leak into the modernized wp-build dashboards.
+
+// Why a separate mixin: every dashboard that uses `jetpack-admin-page-layout`
+// today predates the wp-build pipeline, hosts its UI in legacy markup, and
+// silently depends on wp-admin's global rules (`ul li { margin-bottom }`,
+// `a { text-decoration: underline }`). wp-build dashboards mount
+// `@wordpress/admin-ui` 2.x components — including `<Breadcrumbs>` —
+// whose semantic markup (`<nav aria-label="Breadcrumbs"><ul><li><a>…`)
+// collides with those defaults. Layering the resets into the existing
+// mixin would silently change every non-wp-build dashboard's rendering;
+// keeping the resets in a wp-build-only mixin contains the blast radius
+// while still letting every wp-build dashboard share a single fix.
+
+// Usage:
+
+//   @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+//   :global {
+//     body.jetpack_page_my-jetpack {
+//       @include jetpack-admin-page-layout-wp-build;
+//     }
+//   }
+@mixin jetpack-admin-page-layout-wp-build {
+
+	@include jetpack-admin-page-layout;
+
+	// admin-ui's `<Breadcrumbs>` renders semantic `<ul>/<li>/<a>` so it
+	// inherits two wp-admin globals that misbehave inside the header:
+	//   `ul li { margin-bottom: 6px }` inflates the breadcrumb `<ul>`'s
+	//     box ~3px below the text baseline; the `header-content` Stack
+	//     in admin-ui's `<Page>` then centers the visual slot
+	//     (JetpackLogo) to the `<ul>`'s geometric midpoint, so the logo
+	//     ends up sitting below the breadcrumbs label.
+	//   `a { text-decoration: underline }` forces an always-on underline
+	//     on the linked parent breadcrumb, contradicting admin-ui's
+	//     `<Link tone="neutral">` which is designed to render plain at
+	//     rest and underline only on hover/focus.
+	// Scope to the breadcrumbs nav so the surrounding admin page's
+	// other lists / anchors keep wp-admin's defaults.
+	nav[aria-label="Breadcrumbs"] {
+
+		li {
+			margin: 0;
+		}
+
+		a {
+			text-decoration: none;
+		}
+
+		a:hover,
+		a:focus-visible {
+			text-decoration: underline;
+		}
+	}
+}

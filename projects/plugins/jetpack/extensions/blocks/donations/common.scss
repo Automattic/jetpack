@@ -1,11 +1,17 @@
 // Common styles for both views (editor and frontend).
+// Surfaces (backgrounds, text colors, typography) defer to the active theme
+// by inheriting from the surrounding context. Per-state colors (active tab,
+// selected amount) are rendered via a per-instance scoped <style> element
+// because the postcss build inlines var() fallbacks at compile time.
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .wp-block-jetpack-donations {
-
-	.donations__container {
-		border: 1px solid gb.$gray-400;
-	}
+	// Default border. User-set border (via the Border style support) renders as
+	// an inline style on this element, which wins on specificity.
+	border: 1px solid gb.$gray-400;
+	// Clip children to any user-set border-radius; without this, tab corners
+	// extend past the rounded outer corners.
+	overflow: hidden;
 
 	.donations__nav {
 		display: flex;
@@ -17,11 +23,10 @@
 		display: inline-block;
 		flex: 1;
 		text-align: center;
-		font-size: 16px;
 		padding: 12px;
 		border-inline-start: 1px solid gb.$gray-400;
-		background: gb.$white;
-		color: gb.$gray-900;
+		background: transparent;
+		color: inherit;
 		cursor: pointer;
 
 		@include gb.break-small() {
@@ -69,13 +74,12 @@
 	.donations__amount {
 		display: inline-block;
 		padding: 16px 24px;
-		background-color: gb.$white;
-		color: gb.$gray-900;
+		background-color: transparent;
+		color: inherit;
 		border: 1px solid gb.$gray-400;
 		margin-inline-end: 8px;
 		margin-bottom: 8px;
 		font-weight: 600;
-		font-size: 16px;
 		white-space: nowrap;
 
 		&.has-error {
@@ -104,5 +108,41 @@
 	.donations__donate-button-wrapper,
 	.donations__donate-button {
 		margin: 0;
+	}
+
+	// Pop-up display mode: suppress the default border — the block wrapper is
+	// larger than just the trigger button, so a border here looks wrong.
+	// User-set borders in In-page mode are handled via the per-instance <style>.
+	&.is-display-modal {
+		border: none;
+	}
+
+	// "Buttons" style variation: render the frequency selectors as a row of
+	// pill-shaped buttons instead of edge-to-edge tabs. Per-state colors and
+	// tab dimensions set in the inspector still apply on top of these rules.
+	&.is-style-buttons {
+
+		.donations__nav {
+			border-bottom: none;
+			gap: 8px;
+			padding: 16px 16px 0;
+
+			@include gb.break-small() {
+				gap: 12px;
+				padding: 24px 24px 0;
+			}
+		}
+
+		.donations__nav-item {
+			border: 1px solid gb.$gray-400;
+			border-radius: 9999px;
+		}
+
+		// Restore the inline-start border that the default style strips off
+		// the first item — every pill needs a full border.
+		.donations__nav-item:first-child {
+			border-inline-start: 1px solid gb.$gray-400;
+		}
+
 	}
 }

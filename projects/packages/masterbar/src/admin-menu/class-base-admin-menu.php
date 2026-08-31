@@ -151,7 +151,6 @@ abstract class Base_Admin_Menu {
 			$menu_item[6] = $icon;
 		}
 
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		unset( $menu[ $menu_position ] );
 		if ( $position ) {
 			$menu_position = $position;

@@ -4,6 +4,7 @@ import { GlobalChartsProvider } from '../global-charts-provider';
 import { useChartId } from '../hooks/use-chart-id';
 import { useChartRegistration } from '../hooks/use-chart-registration';
 import { useGlobalChartsContext } from '../hooks/use-global-charts-context';
+import { defaultTheme } from '../themes';
 import type { BaseLegendItem } from '../../../components/legend';
 import type { ChartTheme, SeriesData } from '../../../types';
 import type { GlobalChartsContextValue } from '../types';
@@ -1165,10 +1166,12 @@ describe( 'ChartContext', () => {
 				legendShape: 'rect',
 			} );
 
-			// Should get theme legend shape styles, not line styles
+			// Should get theme legend shape styles (not line styles), with the comparison bar
+			// opacity layered on so the swatch matches the translucent comparison bar.
 			expect( styles.shapeStyles ).toEqual( {
 				fill: '#LEGEND1',
 				stroke: '#BORDER1',
+				opacity: 0.5,
 			} );
 		} );
 	} );
@@ -1724,6 +1727,148 @@ describe( 'ChartContext', () => {
 
 			// Should have empty set after all series are visible
 			expect( hidden.size ).toBe( 0 );
+		} );
+
+		it( 'setSeriesVisibility sets state absolutely rather than toggling', () => {
+			let contextValue: GlobalChartsContextValue;
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			act( () => {
+				contextValue.setSeriesVisibility( 'test-chart', 'Series 1', false );
+			} );
+			expect( contextValue.isSeriesVisible( 'test-chart', 'Series 1' ) ).toBe( false );
+
+			// Calling it again with the same value must not flip it back.
+			act( () => {
+				contextValue.setSeriesVisibility( 'test-chart', 'Series 1', false );
+			} );
+			expect( contextValue.isSeriesVisible( 'test-chart', 'Series 1' ) ).toBe( false );
+
+			act( () => {
+				contextValue.setSeriesVisibility( 'test-chart', 'Series 1', true );
+			} );
+			expect( contextValue.isSeriesVisible( 'test-chart', 'Series 1' ) ).toBe( true );
+		} );
+
+		it( 'setChartHiddenSeries replaces the hidden set rather than merging into it', () => {
+			let contextValue: GlobalChartsContextValue;
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			act( () => {
+				contextValue.setChartHiddenSeries( 'test-chart', [ 'Series 1', 'Series 2' ] );
+			} );
+			expect( contextValue.getHiddenSeries( 'test-chart' ) ).toEqual(
+				new Set( [ 'Series 1', 'Series 2' ] )
+			);
+
+			act( () => {
+				contextValue.setChartHiddenSeries( 'test-chart', [ 'Series 2' ] );
+			} );
+			expect( contextValue.isSeriesVisible( 'test-chart', 'Series 1' ) ).toBe( true );
+			expect( contextValue.isSeriesVisible( 'test-chart', 'Series 2' ) ).toBe( false );
+
+			act( () => {
+				contextValue.setChartHiddenSeries( 'test-chart', [] );
+			} );
+			expect( contextValue.getHiddenSeries( 'test-chart' ) ).toEqual( new Set() );
+		} );
+
+		it( 'setChartHiddenSeries leaves other charts alone', () => {
+			let contextValue: GlobalChartsContextValue;
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			act( () => {
+				contextValue.setChartHiddenSeries( 'chart-a', [ 'Series 1' ] );
+				contextValue.setChartHiddenSeries( 'chart-b', [ 'Series 2' ] );
+			} );
+
+			expect( contextValue.isSeriesVisible( 'chart-a', 'Series 1' ) ).toBe( false );
+			expect( contextValue.isSeriesVisible( 'chart-a', 'Series 2' ) ).toBe( true );
+			expect( contextValue.isSeriesVisible( 'chart-b', 'Series 2' ) ).toBe( false );
+		} );
+
+		it( 'a redundant setSeriesVisibility write does not change context identity or re-render', () => {
+			let contextValue: GlobalChartsContextValue;
+			let childUpdateTally = 0;
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				childUpdateTally++;
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			act( () => {
+				contextValue.setSeriesVisibility( 'test-chart', 'Series 1', false );
+			} );
+			const isSeriesVisibleAfterFirstWrite = contextValue.isSeriesVisible;
+			const tallyAfterFirstWrite = childUpdateTally;
+
+			// Redundant write: the series is already hidden, so this must be a no-op.
+			act( () => {
+				contextValue.setSeriesVisibility( 'test-chart', 'Series 1', false );
+			} );
+
+			expect( contextValue.isSeriesVisible ).toBe( isSeriesVisibleAfterFirstWrite );
+			expect( childUpdateTally ).toBe( tallyAfterFirstWrite );
+		} );
+
+		it( 'setting an already-empty hidden set does not create then delete a Map entry', () => {
+			let contextValue: GlobalChartsContextValue;
+			let childUpdateTally = 0;
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				childUpdateTally++;
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const tallyBeforeWrite = childUpdateTally;
+			const isSeriesVisibleBefore = contextValue.isSeriesVisible;
+
+			// This chart has no hidden-series entry at all yet.
+			act( () => {
+				contextValue.setChartHiddenSeries( 'test-chart', [] );
+			} );
+
+			expect( childUpdateTally ).toBe( tallyBeforeWrite );
+			expect( contextValue.isSeriesVisible ).toBe( isSeriesVisibleBefore );
 		} );
 	} );
 
@@ -2531,6 +2676,15 @@ describe( 'ChartContext', () => {
 				// Colors should remain stable
 				expect( afterRerenderColor ).toBe( initialColor );
 				expect( afterRerenderColor ).toBe( '#ff0000' );
+			} );
+		} );
+	} );
+
+	describe( 'defaultTheme', () => {
+		it( 'exposes default barChart comparison styles', () => {
+			expect( defaultTheme.barChart.barStyles.comparison ).toEqual( {
+				widthFactor: 1.5,
+				opacity: 0.5,
 			} );
 		} );
 	} );

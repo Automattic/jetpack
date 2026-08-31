@@ -9,4 +9,9 @@ export type MediaDetails = {
 		height: number;
 		sourceUrl: string;
 	};
+	previewData?: {
+		width: number;
+		height: number;
+		sourceUrl: string;
+	};
 };

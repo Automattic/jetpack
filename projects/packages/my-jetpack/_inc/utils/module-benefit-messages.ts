@@ -19,6 +19,10 @@ function getModuleBenefitMessages(): Record< JetpackModuleSlug, string > {
 			'Your login page now has rate-limiting and secure authentication safeguards.',
 			'jetpack-my-jetpack'
 		),
+		ai: __(
+			'You can now generate and edit content, images, and more with Jetpack AI in the editor.',
+			'jetpack-my-jetpack'
+		),
 		blaze: __(
 			'You can now promote your posts across millions of sites in the WordPress.com and Tumblr ad network.',
 			'jetpack-my-jetpack'
@@ -85,6 +89,10 @@ function getModuleBenefitMessages(): Record< JetpackModuleSlug, string > {
 		),
 		photon: __(
 			'Your site now loads images faster with automatic resizing from our global CDN.',
+			'jetpack-my-jetpack'
+		),
+		podcast: __(
+			'You can now publish, manage, and grow your podcast right from your site.',
 			'jetpack-my-jetpack'
 		),
 		'post-by-email': __(

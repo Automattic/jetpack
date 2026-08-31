@@ -263,8 +263,8 @@ class Listener {
 		$is_importing    = Settings::is_importing();
 
 		foreach ( $args_array as $args ) {
-			$previous_end = isset( $args['previous_end'] ) ? $args['previous_end'] : null;
-			$args         = isset( $args['ids'] ) ? $args['ids'] : $args;
+			$previous_end = $args['previous_end'] ?? null;
+			$args         = $args['ids'] ?? $args;
 
 			/**
 			 * Modify or reject the data within an action before it is enqueued locally.
@@ -480,10 +480,10 @@ class Listener {
 
 		$actor = array(
 			'wpcom_user_id'    => null,
-			'external_user_id' => isset( $user->ID ) ? $user->ID : null,
-			'display_name'     => isset( $user->display_name ) ? $user->display_name : null,
-			'user_email'       => isset( $user->user_email ) ? $user->user_email : null,
-			'user_roles'       => isset( $user->roles ) ? $user->roles : null,
+			'external_user_id' => $user->ID ?? null,
+			'display_name'     => $user->display_name ?? null,
+			'user_email'       => $user->user_email ?? null,
+			'user_roles'       => $user->roles ?? null,
 			'translated_role'  => $translated_role ? $translated_role : null,
 			'is_cron'          => defined( 'DOING_CRON' ) ? DOING_CRON : false,
 			'is_rest'          => defined( 'REST_API_REQUEST' ) ? REST_API_REQUEST : false,

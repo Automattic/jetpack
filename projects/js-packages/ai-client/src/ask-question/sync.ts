@@ -51,7 +51,7 @@ export default async function askQuestionSync(
 	 */
 	const URL = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query';
 
-	let token = null;
+	let token;
 
 	try {
 		token = ( await requestJwt() ).token;

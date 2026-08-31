@@ -73,7 +73,6 @@ class User_Admin extends Base_Admin {
 		add_action( 'admin_post_jetpack_invite_user_to_wpcom', array( $this, 'invite_user_to_wpcom' ) );
 		add_action( 'admin_post_jetpack_revoke_invite_user_to_wpcom', array( $this, 'handle_request_revoke_invite' ) );
 		add_action( 'admin_post_jetpack_resend_invite_user_to_wpcom', array( $this, 'handle_request_resend_invite' ) );
-		add_action( 'admin_print_styles-users.php', array( $this, 'jetpack_user_table_styles' ) );
 		add_filter( 'users_list_table_query_args', array( $this, 'set_user_query' ), 100, 1 );
 		add_action( 'admin_print_styles-user-new.php', array( $this, 'jetpack_new_users_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -1179,10 +1178,10 @@ class User_Admin extends Base_Admin {
 			$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
 			return sprintf(
 				'<span tabindex="0" role="tooltip" aria-label="%4$s: %3$s" class="jetpack-sso-invitation-tooltip-icon sso-disconnected-user">
-					<a href="%1$s" class="jetpack-sso-invitation sso-disconnected-user">%2$s</a>
 					<span class="sso-disconnected-user-icon dashicons dashicons-warning">
 						<span class="jetpack-sso-invitation-tooltip jetpack-sso-td-tooltip">%3$s</span>
 					</span>
+					<a href="%1$s" class="jetpack-sso-invitation sso-disconnected-user">%2$s</a>
 				</span>',
 				add_query_arg(
 					array(
@@ -1222,75 +1221,89 @@ class User_Admin extends Base_Admin {
 	}
 
 	/**
-	 * Style the Jetpack user rows and columns.
+	 * Enqueue the styles for the Jetpack user rows and columns.
 	 */
 	public function jetpack_user_table_styles() {
-		?>
-	<style>
-		#the-list tr:has(.sso-disconnected-user) {
-			background: #F5F1E1;
-		}
-		#the-list tr:has(.sso-pending-invite) {
-			background: #E9F0F5;
-		}
-		.jetpack-sso-invitation {
-			background: none;
-			border: none;
-			color: #50575e;
-			padding: 0;
-			text-align: unset;
-		}
-		.jetpack-sso-invitation.sso-disconnected-user {
-			color: #0073aa;
-			cursor: pointer;
-			text-decoration: underline;
-		}
-		.jetpack-sso-invitation.sso-disconnected-user:hover,
-		.jetpack-sso-invitation.sso-disconnected-user:focus,
-		.jetpack-sso-invitation.sso-disconnected-user:active {
-			color: #0096dd;
-		}
+		$handle = 'jetpack-sso-users-styles';
 
-		.sso-disconnected-user-icon {
-			margin-left: 4px;
-			cursor: pointer;
-			background: gray;
-			border-radius: 10px;
-		}
+		// No src: the handle only carries the inline CSS below.
+		wp_register_style( $handle, false, array(), Package_Version::PACKAGE_VERSION );
+		wp_enqueue_style( $handle );
 
-		.sso-disconnected-user-icon.dashicons {
-			font-size: 1rem;
-			height: 1rem;
-			width: 1rem;
-			background-color: #9D6E00;
-			color: #F5F1E1;
-		}
-		.jetpack-sso-invitation-tooltip-icon{
-			position: relative;
-			cursor: pointer;
-		}
-		.jetpack-sso-td-tooltip {
-			left: -256px;
-		}
-		.jetpack-sso-invitation-tooltip {
-			position: absolute;
-			background: #f6f7f7;
-			top: -85px;
-			width: 250px;
-			padding: 7px;
-			color: #3c434a;
-			font-size: .75rem;
-			line-height: 17px;
-			text-align: left;
-			margin: 0;
-			display: none;
-			border-radius: 4px;
-			font-family: sans-serif;
-			box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.1);
-		}
+		$css = <<<'CSS'
+#the-list tr:has(.sso-disconnected-user) {
+	background: #F5F1E1;
+}
 
-	</style>
-		<?php
+#the-list tr:has(.sso-pending-invite) {
+	background: #E9F0F5;
+}
+
+.jetpack-sso-invitation {
+	background: none;
+	border: none;
+	color: #50575e;
+	padding: 0;
+	text-align: unset;
+}
+
+.jetpack-sso-invitation.sso-disconnected-user {
+	color: #0073aa;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.jetpack-sso-invitation.sso-disconnected-user:hover,
+.jetpack-sso-invitation.sso-disconnected-user:focus,
+.jetpack-sso-invitation.sso-disconnected-user:active {
+	color: #0096dd;
+}
+
+.sso-disconnected-user-icon {
+	cursor: pointer;
+	background: gray;
+	border-radius: 10px;
+}
+
+.sso-disconnected-user-icon.dashicons {
+	font-size: 1rem;
+	height: 1rem;
+	width: 1rem;
+	background-color: #9D6E00;
+	color: #F5F1E1;
+}
+
+.jetpack-sso-invitation-tooltip-icon {
+	position: relative;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	column-gap: 6px;
+}
+
+.jetpack-sso-td-tooltip {
+	left: -256px;
+}
+
+.jetpack-sso-invitation-tooltip {
+	position: absolute;
+	background: #f6f7f7;
+	top: -85px;
+	width: 250px;
+	padding: 7px;
+	color: #3c434a;
+	font-size: .75rem;
+	line-height: 17px;
+	text-align: left;
+	margin: 0;
+	display: none;
+	border-radius: 4px;
+	font-family: sans-serif;
+	box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.1);
+}
+CSS;
+
+		wp_add_inline_style( $handle, $css );
 	}
 
 	/**
@@ -1304,6 +1317,9 @@ class User_Admin extends Base_Admin {
 		}
 
 		parent::enqueue_scripts( $hook );
+
+		$this->jetpack_user_table_styles();
+
 		// Enqueue the SSO users script.
 		Assets::register_script(
 			'jetpack-sso-users',

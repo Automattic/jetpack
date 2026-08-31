@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Debug Tools
  * Description: Give me a Jetpack connection, and I'll break it every way possible.
  * Author: Automattic
- * Version: 2.2.4
+ * Version: 2.2.5
  * Text Domain: jetpack
  *
  * @package automattic/jetpack-debug-helper.
@@ -32,7 +32,7 @@ define( 'JETPACK_DEBUG_HELPER_BASE_PLUGIN_FILE', __FILE__ );
  * The plugin version.
  * Increase that if you do any edits to ensure refreshing the cached assets.
  */
-define( 'JETPACK_DEBUG_HELPER_VERSION', '2.2.4' );
+define( 'JETPACK_DEBUG_HELPER_VERSION', '2.2.5' );
 
 /**
  * Include file names from the modules directory here.
@@ -83,6 +83,11 @@ $jetpack_dev_debug_modules = array(
 		'name'        => 'Jetpack Protect Helper',
 		'description' => 'Allows you to force different results for the Jetpack Protect plugin to make it easier to develop it.',
 	),
+	'social-helper'             => array(
+		'file'        => 'class-social-helper.php',
+		'name'        => 'Jetpack Social Helper',
+		'description' => 'Simulates Jetpack Social edge cases: broken connections, unsupported services, missing profile pictures, long handles, and more.',
+	),
 	'scan-helper'               => array(
 		'file'        => 'class-scan-helper.php',
 		'name'        => 'Jetpack Scan Helper',
@@ -117,6 +122,11 @@ $jetpack_dev_debug_modules = array(
 		'file'        => 'class-xmlrpc-blocker.php',
 		'name'        => 'Broken XML-RPC',
 		'description' => 'Break XML-RPC API any way you want.',
+	),
+	'package-provenance'        => array(
+		'file'        => 'class-package-provenance-helper.php',
+		'name'        => 'Package Provenance',
+		'description' => 'Admin-bar badge with WP + Gutenberg versions and a floating panel showing which runtime (core, Gutenberg, wp-build polyfills, app) serves each WordPress package on the current screen.',
 	),
 );
 

@@ -1,4 +1,5 @@
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
+import path from 'node:path';
 import { chalkStderr } from 'chalk';
 import ignore from 'ignore';
 import {
@@ -21,6 +22,7 @@ infrastructureFileSets.base = new Set( [
 	'.github/versions.sh',
 	// If pnpm stuff changed, we should build/test everything since we can't know what the change will affect.
 	'pnpm-lock.yaml',
+	'pnpm-workspace.yaml',
 ] );
 infrastructureFileSets.test = new Set( [
 	...infrastructureFileSets.base,
@@ -106,6 +108,7 @@ export function builder( yargs ) {
 			describe: 'Ignore the monorepo root.',
 			type: 'boolean',
 		} )
+		.option( 'dev', { type: 'boolean', hidden: true } )
 		.option( 'no-dev', {
 			describe: 'Do not consider dev dependencies.',
 			type: 'boolean',
@@ -122,6 +125,7 @@ export function builder( yargs ) {
  * @param {object} argv - the arguments passed.
  */
 export async function handler( argv ) {
+	const debug = argv.v ? m => console.error( chalkStderr.blue( m ) ) : () => {};
 	let deps = await getDependencies( process.cwd(), argv.extra, argv.dev === false );
 
 	if ( argv.ignoreRoot ) {
@@ -163,7 +167,6 @@ export async function handler( argv ) {
 		);
 		const projset = new Set( argv.projects );
 		const ig = ignore().add( ignoreFiles );
-		const debug = argv.v ? m => console.error( chalkStderr.blue( m ) ) : () => {};
 		for ( const file of stdout.split( '\n' ).filter( v => v.length ) ) {
 			if ( infrastructureFiles.has( file ) ) {
 				debug( `Diff touches infrastructure file ${ file }, considering all projects as changed.` );
@@ -190,6 +193,31 @@ export async function handler( argv ) {
 				}
 			}
 		}
+
+		// If this is for a build or tests, add js-packages/storybook if any project having stories is touched.
+		// This will help catch changes that work fine in the project but break the storybook build.
+		if (
+			argv.addDependents &&
+			( argv.extra === 'build' || argv.extra === 'test' ) &&
+			! projset.has( 'js-packages/storybook' )
+		) {
+			const tmpdeps = filterDeps( deps, [ ...projset ], { dependencies: false, dependents: true } );
+			const { projects: storybookProjects } = await import(
+				path.join( process.cwd(), 'projects/js-packages/storybook/storybook/projects.js' )
+			);
+			for ( const p of storybookProjects ) {
+				const m = p.match( /(?:^|\/)projects\/([^/]+\/[^/]+)(?:$|\/)/ );
+				if ( m && tmpdeps.has( m[ 1 ] ) ) {
+					const touched = projset.has( m[ 1 ] ) ? 'touched' : 'indirectly touched';
+					debug(
+						`Adding js-packages/storybook for ${ argv.extra } because ${ m[ 1 ] } is ${ touched }.`
+					);
+					projset.add( 'js-packages/storybook' );
+					break;
+				}
+			}
+		}
+
 		argv.projects = [ ...projset ];
 
 		// If the diff touched nothing, we output nothing.

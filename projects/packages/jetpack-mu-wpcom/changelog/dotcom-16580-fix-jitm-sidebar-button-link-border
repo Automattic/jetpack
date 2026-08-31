@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+JITM sidebar upsell + Daily Writing Prompt: restore flat button-link styling when `.button` and `.button-link` classes combine under WP 7.0's updated stylesheet order.

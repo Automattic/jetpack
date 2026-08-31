@@ -561,9 +561,12 @@ class Queue {
 		);
 
 		if ( $checkout_value ) {
-			list( $checkout_id, $timestamp ) = explode( ':', $checkout_value );
-			if ( (int) $timestamp > time() ) {
-				return $checkout_id;
+			$parts = explode( ':', $checkout_value, 2 );
+			if ( count( $parts ) === 2 ) {
+				list( $checkout_id, $timestamp ) = $parts;
+				if ( (int) $timestamp > time() ) {
+					return $checkout_id;
+				}
 			}
 		}
 

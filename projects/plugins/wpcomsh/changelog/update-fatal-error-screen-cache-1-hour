@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Fatal error screen: extend telemetry dedup windows from 5 minutes to 1 hour.

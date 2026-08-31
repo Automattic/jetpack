@@ -438,23 +438,24 @@ abstract class Blocked_Login_Page {
 	 * Get the HTML recovery form.
 	 */
 	public function get_html_recovery_form() {
-		ob_start(); ?>
-		<div>
+		// Build the markup as a string instead of using output buffering. Calling
+		// ob_start() while PHP is executing an output-buffer handler (e.g. a page
+		// cache or compression handler) raises a fatal: "Cannot use output buffering
+		// in output buffering display handlers".
+		return sprintf(
+			'<div>
 			<form method="post" action="?jetpack-protect-recovery=true">
-				<?php wp_nonce_field( 'bypass-protect' ); ?> 
-				<p><label for="email"><?php esc_html_e( 'Your email', 'jetpack-waf' ); ?><br/></label>
+				%1$s
+				<p><label for="email">%2$s<br/></label>
 					<input type="email" name="email" class="text-input"/>
-					<input type="submit" class="button"
-						value="<?php esc_attr_e( 'Send email', 'jetpack-waf' ); ?>"/>
+					<input type="submit" class="button" value="%3$s"/>
 				</p>
 			</form>
-		</div>
-
-		<?php
-		$contents = ob_get_contents();
-		ob_end_clean();
-
-		return $contents;
+		</div>',
+			wp_nonce_field( 'bypass-protect', '_wpnonce', true, false ),
+			esc_html__( 'Your email', 'jetpack-waf' ),
+			esc_attr__( 'Send email', 'jetpack-waf' )
+		);
 	}
 
 	/**
@@ -479,7 +480,7 @@ abstract class Blocked_Login_Page {
 		}
 		?>
 		<!DOCTYPE html>
-		<html xmlns="http://www.w3.org/1999/xhtml" 
+		<html xmlns="http://www.w3.org/1999/xhtml"
 		<?php
 		if ( function_exists( 'language_attributes' ) && function_exists( 'is_rtl' ) ) {
 			language_attributes();
@@ -702,7 +703,7 @@ abstract class Blocked_Login_Page {
 				?>
 			</style>
 		</head>
-		<body id="error-page" <?php echo $rtl_class; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>> 
+		<body id="error-page" <?php echo $rtl_class; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<h1 id="error-title"><?php echo esc_html( $title ); ?></h1>
 			<div id="error-message">
 				<svg id="image" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 250 134">

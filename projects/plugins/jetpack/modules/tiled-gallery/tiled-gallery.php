@@ -72,7 +72,7 @@ class Jetpack_Tiled_Gallery {
 			array(
 				'order'     => 'ASC',
 				'orderby'   => 'menu_order ID',
-				'id'        => isset( $post->ID ) ? $post->ID : 0,
+				'id'        => $post->ID ?? 0,
 				'include'   => '',
 				'exclude'   => '',
 				'type'      => '',

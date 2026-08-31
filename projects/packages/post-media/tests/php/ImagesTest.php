@@ -321,6 +321,81 @@ class ImagesTest extends BaseTestCase {
 	}
 
 	/**
+	 * Test if WooCommerce product gallery images are extracted from product meta.
+	 *
+	 * @since 0.1.4
+	 */
+	public function test_from_gallery_includes_woocommerce_product_gallery_images() {
+		$img_dimensions = array(
+			'width'  => 300,
+			'height' => 250,
+		);
+		$alt_text       = 'An image in a WooCommerce product gallery';
+
+		$post_id  = $this->create_post(
+			array(
+				'post_type' => 'product',
+			)
+		);
+		$img_urls = array();
+
+		foreach ( array( 'product-gallery-image.jpg', 'product-gallery-image-2.jpg' ) as $img_name ) {
+			$attachment_id = $this->create_attachment(
+				$img_name,
+				$post_id,
+				array(
+					'post_mime_type' => 'image/jpeg',
+				)
+			);
+			wp_update_attachment_metadata( $attachment_id, $img_dimensions );
+			update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt_text );
+
+			$img_urls[ $attachment_id ] = wp_get_attachment_url( $attachment_id );
+		}
+
+		update_post_meta( $post_id, '_product_image_gallery', implode( ',', array_keys( $img_urls ) ) );
+
+		$images = Images::from_gallery( $post_id );
+
+		$this->assertCount( 2, $images );
+		$img_urls = array_values( $img_urls );
+		$this->assertEquals( $img_urls[0], $images[0]['src'] );
+		$this->assertEquals( 300, $images[0]['src_width'] );
+		$this->assertEquals( 250, $images[0]['src_height'] );
+		$this->assertEquals( $alt_text, $images[0]['alt_text'] );
+		$this->assertEquals( $img_urls[1], $images[1]['src'] );
+		$this->assertEquals( 300, $images[1]['src_width'] );
+		$this->assertEquals( 250, $images[1]['src_height'] );
+	}
+
+	/**
+	 * Test if WooCommerce product gallery meta is ignored for non-product posts.
+	 *
+	 * @since 0.1.4
+	 */
+	public function test_from_gallery_ignores_woocommerce_product_gallery_meta_for_non_products() {
+		$post_id       = $this->create_post();
+		$attachment_id = $this->create_attachment(
+			'post-gallery-image.jpg',
+			$post_id,
+			array(
+				'post_mime_type' => 'image/jpeg',
+			)
+		);
+
+		wp_update_attachment_metadata(
+			$attachment_id,
+			array(
+				'width'  => 300,
+				'height' => 250,
+			)
+		);
+		update_post_meta( $post_id, '_product_image_gallery', (string) $attachment_id );
+
+		$this->assertEmpty( Images::from_gallery( $post_id ) );
+	}
+
+	/**
 	 * @author scotchfield
 	 * @author Alda Vigdís <alda.vigdis@automattic.com>
 	 * @since jetpack-3.2

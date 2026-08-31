@@ -1,9 +1,8 @@
-import { Button, Text } from '@automattic/jetpack-components';
 import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
-import { ExternalLink } from '@wordpress/components';
 import { dateI18n, getDate } from '@wordpress/date';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
+import { Link, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
@@ -109,22 +108,22 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 
 		if ( isExpiringSoon ) {
 			return (
-				<Button href={ renewUrl } isExternalLink={ true } variant="link" weight="regular">
+				<Link href={ renewUrl } openInNewTab>
 					{ __( 'Renew subscription', 'jetpack-my-jetpack' ) }
-				</Button>
+				</Link>
 			);
 		}
 
 		return (
-			<Button href={ managePurchaseUrl } isExternalLink={ true } variant="link" weight="regular">
+			<Link href={ managePurchaseUrl } openInNewTab>
 				{ __( 'Resume subscription', 'jetpack-my-jetpack' ) }
-			</Button>
+			</Link>
 		);
 	}, [ isExpiringPurchase, isExpiringSoon, managePurchaseUrl, renewUrl ] );
 
 	if ( isLifetimePurchase( purchase ) ) {
 		return (
-			<Text variant="body" className={ styles[ 'expire-date' ] }>
+			<Text variant="body-md" className={ styles[ 'expire-date' ] }>
 				<span className={ styles[ 'expire-date--with-icon' ] }>
 					{ __( 'Never Expires', 'jetpack-my-jetpack' ) }
 				</span>
@@ -135,7 +134,7 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 
 	return (
 		<>
-			<Text variant="body" className={ clsx( styles[ 'expire-date' ], expiryMessageClassName ) }>
+			<Text variant="body-md" className={ clsx( styles[ 'expire-date' ], expiryMessageClassName ) }>
 				{ expiryMessage() }
 			</Text>
 			{ isExpiringPurchase && <Text>{ expiryAction() }</Text> }
@@ -208,22 +207,20 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 		recordEvent( 'jetpack_myjetpack_activate_license_click' );
 	}, [ recordEvent ] );
 
-	let activateLicenceDescription: string;
+	/*
+	 * Avoid ternary as code minification will break translation function. :(
+	 * The unconditional initialiser is what keeps the two _x() calls separate. Collapsing
+	 * them fails the I18nCheckPlugin with "msgid argument is not a string literal", and
+	 * since that plugin only runs on production builds, it surfaces in CI rather than dev.
+	 */
+	let activateLicenceDescription: string = _x(
+		'Activate a license',
+		'Activate a license button text',
+		'jetpack-my-jetpack'
+	);
 	if ( ! isUserConnected ) {
 		activateLicenceDescription = _x(
 			'Activate a license (requires a user connection)',
-			'Activate a license button text',
-			'jetpack-my-jetpack'
-		);
-	} else if ( numberOfPurchases > 0 ) {
-		activateLicenceDescription = _x(
-			'Activate a new license',
-			'Activate a new license button text',
-			'jetpack-my-jetpack'
-		);
-	} else {
-		activateLicenceDescription = _x(
-			'Activate a license',
 			'Activate a license button text',
 			'jetpack-my-jetpack'
 		);
@@ -235,47 +232,36 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 		<ul className={ styles[ 'actions-list' ] }>
 			{ numberOfPurchases > 0 && (
 				<li className={ styles[ 'actions-list-item' ] }>
-					<ExternalLink onClick={ planManageClickHandler } href={ getManageYourPlanUrl() }>
+					<Link openInNewTab onClick={ planManageClickHandler } href={ getManageYourPlanUrl() }>
 						{ planManageDescription }
-					</ExternalLink>
+					</Link>
 				</li>
 			) }
 			{ numberOfPurchases > 0 && (
 				<li className={ styles[ 'actions-list-item' ] }>
-					<Button
+					<Link
 						onClick={ viewIncludedFeaturesClickHandler }
 						href={ getMyJetpackUrl( '#/products?filter=included' ) }
-						variant="link"
-						weight="regular"
 					>
 						{ __( 'View included features', 'jetpack-my-jetpack' ) }
-					</Button>
+					</Link>
 				</li>
 			) }
 			{ ! hasComplete && (
 				<li className={ styles[ 'actions-list-item' ] }>
-					<Button
-						onClick={ planPurchaseClickHandler }
-						href={ getPurchasePlanUrl() }
-						weight="regular"
-						variant="link"
-						isExternalLink={ true }
-					>
+					<Link onClick={ planPurchaseClickHandler } href={ getPurchasePlanUrl() } openInNewTab>
 						{ planPurchaseDescription }
-					</Button>
+					</Link>
 				</li>
 			) }
-
 			{ ! hasComplete && loadAddLicenseScreen && (
 				<li className={ styles[ 'actions-list-item' ] }>
-					<Button
+					<Link
 						onClick={ activateLicenseClickHandler }
 						href={ isUserConnected ? getMyJetpackUrl( '#/add-license' ) : getUserConnectionUrl() }
-						variant="link"
-						weight="regular"
 					>
 						{ activateLicenceDescription }
-					</Button>
+					</Link>
 				</li>
 			) }
 		</ul>
@@ -325,7 +311,7 @@ const PlansSection: FC = () => {
 									/>
 								</svg>
 							</h4>
-							<Text variant="body" className={ clsx( styles[ 'expire-date' ] ) }>
+							<Text variant="body-md" className={ clsx( styles[ 'expire-date' ] ) }>
 								{ __( 'Free', 'jetpack-my-jetpack' ) }
 							</Text>
 						</section>

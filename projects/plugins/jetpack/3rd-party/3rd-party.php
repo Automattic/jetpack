@@ -22,6 +22,11 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\load_3rd_party_compat_filters', 
  */
 function load_3rd_party_compat_filters() {
 
+	// ActivityPub
+	if ( Constants::is_defined( 'ACTIVITYPUB_PLUGIN_VERSION' ) ) {
+		require_once JETPACK__PLUGIN_DIR . '/3rd-party/activitypub.php';
+	}
+
 	// bbPress
 	if ( function_exists( 'bbpress' ) ) {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/bbpress.php';

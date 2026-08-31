@@ -14,9 +14,9 @@ class Jetpack_Top_Posts_Helper {
 	/**
 	 * Returns user's top posts.
 	 *
-	 * @param int    $period       Period of days to draw stats from.
-	 * @param int    $items_count  Optional. Number of items to display.
-	 * @param string $types        Optional. Content types to include.
+	 * @param int|string $period      Period of days to draw stats from, or 'all-time'.
+	 * @param int        $items_count Optional. Number of items to display.
+	 * @param string     $types       Optional. Content types to include.
 	 * @return array
 	 */
 	public static function get_top_posts( $period, $items_count = null, $types = null ) {
@@ -56,15 +56,41 @@ class Jetpack_Top_Posts_Helper {
 			$data = array( 'summary' => array( 'postviews' => array() ) );
 		}
 
-		// Remove posts that have subsequently been deleted.
-		$data['summary']['postviews'] = array_filter(
-			$data['summary']['postviews'],
-			function ( $item ) {
-				return get_post_status( $item['id'] ) === 'publish';
-			}
-		);
+		$acceptable_types = $is_rendering_block ? explode( ',', $types ) : array();
 
-		$posts_retrieved = is_countable( $data['summary']['postviews'] ) ? count( $data['summary']['postviews'] ) : 0;
+		// Remove posts that have subsequently been deleted. The endpoint can return more
+		// entries than the `max` we asked for, so stop there, then keep only further ones
+		// the block can render, so its type filter is never starved.
+		$published  = array();
+		$renderable = 0;
+
+		foreach ( (array) ( $data['summary']['postviews'] ?? array() ) as $item ) {
+			$capped = $is_rendering_block && count( $published ) >= $posts_to_obtain_count;
+
+			if ( $capped && $renderable >= $items_count ) {
+				break;
+			}
+			if ( get_post_status( $item['id'] ) !== 'publish' ) {
+				continue;
+			}
+
+			$can_render = $is_rendering_block
+				&& ! empty( $item['public'] )
+				&& in_array( $item['type'] ?? '', $acceptable_types, true );
+
+			if ( $capped && ! $can_render ) {
+				continue;
+			}
+
+			$published[] = $item;
+
+			if ( $can_render ) {
+				++$renderable;
+			}
+		}
+
+		$data['summary']['postviews'] = $published;
+		$posts_retrieved              = count( $published );
 
 		// Fallback to random posts if user does not have enough top content.
 		if ( $posts_retrieved < $posts_to_obtain_count ) {
@@ -96,6 +122,11 @@ class Jetpack_Top_Posts_Helper {
 		$top_posts = array();
 
 		foreach ( $data['summary']['postviews'] as $post ) {
+			// Non-public entries are discarded, so skip their thumbnail lookups entirely.
+			if ( empty( $post['public'] ) ) {
+				continue;
+			}
+
 			$post_id   = $post['id'];
 			$thumbnail = get_the_post_thumbnail_url( $post_id );
 
@@ -107,26 +138,40 @@ class Jetpack_Top_Posts_Helper {
 				}
 			}
 
-			if ( $post['public'] ) {
-				$top_posts[] = array(
-					'id'        => $post_id,
-					'author'    => get_the_author_meta( 'display_name', get_post_field( 'post_author', $post_id ) ), // @phan-suppress-current-line PhanTypeMismatchArgument @phan-suppress-current-line UnusedSuppression -- Fixed in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this suppression when we drop WP <6.9.
-					'context'   => get_the_category( $post_id ) ? get_the_category( $post_id ) : get_the_tags( $post_id ),
-					'href'      => $post['href'],
-					'date'      => get_the_date( '', $post_id ),
-					'title'     => $post['title'],
-					'type'      => $post['type'],
-					'public'    => $post['public'],
-					'views'     => isset( $post['views'] ) ? $post['views'] : 0,
-					'thumbnail' => $thumbnail,
-				);
-			}
+			$top_post = array(
+				'id'        => $post_id,
+				'author'    => get_the_author_meta( 'display_name', get_post_field( 'post_author', $post_id ) ),
+				'context'   => get_the_category( $post_id ) ? get_the_category( $post_id ) : get_the_tags( $post_id ),
+				// Use the local permalink to avoid stale values from the Stats API.
+				'href'      => get_permalink( $post_id ),
+				'date'      => get_the_date( '', $post_id ),
+				'title'     => $post['title'],
+				'type'      => $post['type'] ?? '',
+				'public'    => $post['public'],
+				'views'     => $post['views'] ?? 0,
+				'thumbnail' => $thumbnail,
+			);
+
+			/**
+			 * Allows modifying the title of each individual post returned by the Top Posts helper.
+			 *
+			 * Applies to both the Top Posts block's front-end output and the REST
+			 * response used by the block editor preview.
+			 *
+			 * @module stats
+			 *
+			 * @since 15.8
+			 *
+			 * @param string $post_title Post title.
+			 * @param array  $top_post   Information about the post.
+			 */
+			$top_post['title'] = apply_filters( 'jetpack_top_posts_item_title', $top_post['title'], $top_post );
+
+			$top_posts[] = $top_post;
 		}
 
 		// This applies for rendering the block front-end, but not for editing it.
 		if ( $is_rendering_block ) {
-			$acceptable_types = explode( ',', $types );
-
 			$top_posts = array_filter(
 				$top_posts,
 				function ( $item ) use ( $acceptable_types ) {

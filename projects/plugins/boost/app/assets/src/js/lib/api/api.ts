@@ -54,7 +54,8 @@ async function sendRequest(
 					'jetpack-boost'
 				),
 				JSON.stringify( errorInfo )
-			)
+			),
+			{ cause: error }
 		);
 	}
 

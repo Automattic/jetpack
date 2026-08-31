@@ -55,11 +55,11 @@ class WPCOM_JSON_API_Get_Option_Endpoint extends Jetpack_JSON_API_Endpoint {
 	 */
 	public function validate_input( $object ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$query_args        = $this->query_args();
-		$this->option_name = isset( $query_args['option_name'] ) ? $query_args['option_name'] : false;
+		$this->option_name = $query_args['option_name'] ?? false;
 		if ( ! $this->option_name ) {
 			return new WP_Error( 'option_name_not_set', __( 'You must specify an option_name', 'jetpack' ) );
 		}
-		$this->site_option = isset( $query_args['site_option'] ) ? $query_args['site_option'] : false;
+		$this->site_option = $query_args['site_option'] ?? false;
 
 		/**
 		 * Filter the list of options that are manageable via the JSON API.

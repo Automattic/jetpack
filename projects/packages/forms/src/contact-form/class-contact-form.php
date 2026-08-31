@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
+use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\JWT;
 use Automattic\Jetpack\Sync\Settings;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -138,11 +139,31 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public $has_verified_jwt = false;
 
 	/**
+	 * Whether the current submission originated from an authenticated form preview.
+	 *
+	 * When true, the resulting feedback is marked as a test submission — Akismet
+	 * is skipped, the notification email is annotated, and the response is
+	 * excluded from the default CSV export.
+	 *
+	 * @var bool
+	 */
+	private $is_preview_submission = false;
+
+	/**
 	 * The source of the feedback entry.
 	 *
 	 * @var Feedback_Source
 	 */
 	private $source;
+
+	/**
+	 * Cached map of field id to conditional-logic visibility for this submission.
+	 *
+	 * Null until resolved. Shared by validation and storage so the two cannot disagree.
+	 *
+	 * @var array|null
+	 */
+	private $resolved_field_visibility = null;
 
 	/**
 	 * The reference ID for the contact form.
@@ -335,6 +356,121 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Determine whether a form is configured to collect its responses anywhere.
+	 *
+	 * A form "collects responses" when submissions are delivered to at least one
+	 * destination: emailed to a recipient, saved to the responses dashboard, or
+	 * routed to an active data integration. When all three are off, submissions
+	 * are silently dropped.
+	 *
+	 * This must run on the RAW block attributes (as authored), not the values
+	 * merged with Contact_Form's runtime defaults — e.g. `jetpackCRM` defaults to
+	 * `true` at render time but is only "on" when explicitly enabled on the form.
+	 *
+	 * Keep this in sync with the JS helper `isCollectingResponses()` in
+	 * blocks/contact-form/util/is-collecting-responses.ts.
+	 *
+	 * @since 7.23.0
+	 *
+	 * @param mixed $attributes Raw contact-form block attributes. Non-arrays are
+	 *                          treated as collecting (no warning).
+	 * @return bool True when the form has at least one response destination.
+	 */
+	public static function is_collecting_responses( $attributes ) {
+		if ( ! is_array( $attributes ) ) {
+			return true;
+		}
+
+		// Email destination: on by default. A blank or invalid recipient is not a
+		// dead end — submissions fall back to the site admin email at send time —
+		// so email being on always counts as a real destination.
+		$email_active = self::attribute_is_truthy( $attributes, 'emailNotifications', true );
+
+		// Saving to the responses dashboard: on by default.
+		$saving_active = self::attribute_is_truthy( $attributes, 'saveResponses', true );
+
+		// Integrations that actually persist or route the submission. Akismet
+		// (spam filtering) and Google Drive (exports already-saved responses) are
+		// intentionally excluded — neither is an independent destination.
+		//
+		// Webhooks (`postToUrl`/`webhooks`) are also excluded: they only fire when
+		// the form author has `manage_options` (see
+		// Jetpack_Forms::should_honor_content_destinations()), so whether they're a
+		// real destination depends on author capability, not the attributes alone.
+		// This shared helper is intentionally context-free so PHP and JS agree, so
+		// counting them here would wrongly silence the warning for editor-authored
+		// forms whose webhook never runs.
+		$integration_active = self::attribute_is_truthy( $attributes, 'jetpackCRM', false )
+			|| ! empty( $attributes['mailpoet']['enabledForForm'] )
+			|| ! empty( $attributes['hostingerReach']['enabledForForm'] )
+			|| (
+				! empty( $attributes['salesforceData']['sendToSalesforce'] )
+				&& ! empty( $attributes['salesforceData']['organizationId'] )
+			);
+
+		return $email_active || $saving_active || $integration_active;
+	}
+
+	/**
+	 * Normalize a possibly-boolean-or-string block attribute to a boolean.
+	 *
+	 * Toggle attributes arrive as JS booleans from the editor but are persisted
+	 * as `'yes'`/`'no'` strings in some contexts, so both forms must be handled.
+	 *
+	 * @since 7.23.0
+	 *
+	 * @param array  $attributes Block attributes.
+	 * @param string $key        Attribute name.
+	 * @param bool   $default    Value to use when the attribute is absent.
+	 * @return bool
+	 */
+	private static function attribute_is_truthy( $attributes, $key, $default ) {
+		if ( ! array_key_exists( $key, $attributes ) ) {
+			return $default;
+		}
+
+		$value = $attributes[ $key ];
+
+		if ( is_bool( $value ) ) {
+			return $value;
+		}
+
+		if ( is_string( $value ) ) {
+			return ! in_array( strtolower( trim( $value ) ), array( '', 'no', 'false', '0' ), true );
+		}
+
+		return (bool) $value;
+	}
+
+	/**
+	 * Render an admin-only notice when a form isn't collecting responses.
+	 *
+	 * Shown on the live front-end form and in form previews, but only to users
+	 * who can manage forms (`edit_pages`) — never to visitors.
+	 *
+	 * @since 7.23.0
+	 *
+	 * @param array $attributes Raw contact-form block attributes.
+	 * @return string Notice HTML, or an empty string.
+	 */
+	private static function render_not_collecting_notice( $attributes ) {
+		if ( ! current_user_can( 'edit_pages' ) ) {
+			return '';
+		}
+
+		if ( self::is_collecting_responses( $attributes ) ) {
+			return '';
+		}
+
+		wp_enqueue_style( 'jetpack-form-status-notice' );
+
+		return sprintf(
+			'<div class="jetpack-form-status-notice jetpack-form-status-notice--warning jetpack-form-not-collecting-notice"><p>%s</p></div>',
+			esc_html__( 'Only you can see this. This form isn’t collecting responses. Turn on email notifications or response storage in form settings.', 'jetpack-forms' )
+		);
+	}
+
+	/**
 	 * Construction function.
 	 *
 	 * @param array  $attributes - the attributes.
@@ -461,6 +597,90 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// $this->body and $this->fields have been setup.  We no longer need the contact-field shortcode.
 		Contact_Form_Plugin::$using_contact_form_field = false;
+
+		$this->apply_initial_field_visibility();
+	}
+
+	/**
+	 * Whether the current request is submitting this form.
+	 *
+	 * Normal submissions are identified by their action, ID, and hash. JWT submissions omit
+	 * the action, but the plugin validates their token before constructing and validating the
+	 * form, so the matching ID and hash identify the submitted form here.
+	 *
+	 * @return bool
+	 */
+	public function is_current_submission() {
+		if ( ! isset( $_POST['contact-form-id'] ) || ! isset( $_POST['contact-form-hash'] ) || ! is_string( $_POST['contact-form-hash'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+			return false;
+		}
+
+		$form_id   = sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+		$form_hash = sanitize_text_field( wp_unslash( $_POST['contact-form-hash'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+
+		if ( (string) $this->get_attribute( 'id' ) !== $form_id || ! hash_equals( $this->hash, $form_hash ) ) {
+			return false;
+		}
+
+		if ( isset( $_POST['jetpack_contact_form_jwt'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- JWT validation happens before form validation.
+			return true;
+		}
+
+		return isset( $_POST['action'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+			&& 'grunion-contact-form' === sanitize_text_field( wp_unslash( $_POST['action'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+	}
+
+	/**
+	 * Mark conditionally hidden fields as hidden in the rendered markup.
+	 *
+	 * Without this the server sends every field visible and the browser hides them once the
+	 * interactivity store hydrates, so the visitor sees the hidden fields flash on screen
+	 * first. The class applied here is the same one the client toggles, so the first paint
+	 * already matches what the client will compute and nothing moves.
+	 *
+	 * This runs after the whole form is parsed. It cannot happen while fields render: they
+	 * are parsed one at a time, so a rule referring to a field further down the form would be
+	 * resolved against a form that does not exist yet.
+	 *
+	 * Public so it can be exercised directly; it is idempotent and safe to call again.
+	 *
+	 * @return void
+	 */
+	public function apply_initial_field_visibility() {
+		if ( empty( $this->body ) || ! Jetpack_Forms::is_conditional_logic_enabled() ) {
+			return;
+		}
+
+		// Deliberately not get_resolved_field_visibility(): that caches for the submission, and
+		// this runs while the form is still being built. Seeding the cache here would hand a
+		// render-time answer to validation and storage later on.
+		$visibility = $this->compute_field_visibility();
+		$hidden     = array();
+
+		foreach ( $visibility as $field_id => $is_visible ) {
+			if ( false === $is_visible ) {
+				$hidden[ $field_id ] = true;
+			}
+		}
+
+		if ( empty( $hidden ) ) {
+			return;
+		}
+
+		$processor = new \WP_HTML_Tag_Processor( $this->body );
+
+		// Matches the element the runtime hides, which is not always the one carrying
+		// data-jp-field-id: an inset label puts the width class on an outer wrapper, and
+		// hiding the inner div there leaves the wrapper holding its slot in the row.
+		while ( $processor->next_tag( array( 'tag_name' => 'DIV' ) ) ) {
+			$field_id = $processor->get_attribute( 'data-jp-visibility-root' );
+
+			if ( null !== $field_id && isset( $hidden[ $field_id ] ) ) {
+				$processor->add_class( 'jetpack-field--conditionally-hidden' );
+			}
+		}
+
+		$this->body = $processor->get_updated_html();
 	}
 	/**
 	 * Get the instance of the contact form from a JWT token.
@@ -528,7 +748,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 
 			// Determine which cipher was used (stored in JWT or default to GCM)
-			$cipher = isset( $data['cipher'] ) ? $data['cipher'] : 'aes-256-gcm';
+			$cipher = $data['cipher'] ?? 'aes-256-gcm';
 
 			// Check if the cipher is available on this server
 			$available_cipher_methods = array_map( 'strtolower', openssl_get_cipher_methods() );
@@ -617,6 +837,25 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	public function set_source( $source ) {
 		$this->source = $source;
+	}
+
+	/**
+	 * Flag whether the current submission originated from an authenticated form preview.
+	 *
+	 * @param bool $is_preview_submission Whether the submission came from form preview.
+	 * @return void
+	 */
+	public function set_is_preview_submission( $is_preview_submission ) {
+		$this->is_preview_submission = (bool) $is_preview_submission;
+	}
+
+	/**
+	 * Whether the current submission is a test submission coming from form preview.
+	 *
+	 * @return bool
+	 */
+	public function is_preview_submission() {
+		return $this->is_preview_submission;
 	}
 
 	/**
@@ -1009,6 +1248,53 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Get the default recipient email address for the editor, together with the rule that produced it.
+	 *
+	 * The editor needs to explain why an address is being suggested, not merely what it is, so the
+	 * resolution branch is returned alongside the address instead of being discarded.
+	 *
+	 * @param mixed|null $post Optional post data (object or array).
+	 *
+	 * @return array{to: string, source: string} The address, and its source: 'post_author' or 'site_admin'.
+	 *
+	 * @since 7.24.0
+	 */
+	public static function get_default_to_with_source( $post = null ) {
+		$site_admin = array(
+			'to'     => get_option( 'admin_email' ),
+			'source' => 'site_admin',
+		);
+
+		if ( empty( $post ) ) {
+			return $site_admin;
+		}
+
+		$post_author_id = self::get_post_property( $post, 'post_author' );
+		$post_id        = self::get_post_property( $post, 'ID' );
+		$post_author    = get_user( $post_author_id );
+
+		// Check that the user has edit permissions for this blog and has an email address
+		if ( empty( $post_author ) || empty( $post_author->user_email ) ) {
+			return $site_admin;
+		}
+
+		// Check that the user is still a member of the blog.
+		if ( ! is_user_member_of_blog( $post_author_id ) ) {
+			return $site_admin;
+		}
+
+		// Check that the author can still edit the post or page.
+		if ( user_can( $post_author_id, 'edit_post', $post_id ) ) {
+			return array(
+				'to'     => $post_author->user_email,
+				'source' => 'post_author',
+			);
+		}
+
+		return $site_admin;
+	}
+
+	/**
 	 * Get the default recipient email address for the contact form based on post data.
 	 *
 	 * This is used when we load the post or page in the editor, and we don't have the post author ID directly.
@@ -1018,32 +1304,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string The default recipient email address.
 	 */
 	public static function get_default_to_for_editor( $post = null ) {
-		$default_to = get_option( 'admin_email' );
+		$resolved = self::get_default_to_with_source( $post );
 
-		if ( empty( $post ) ) {
-			return $default_to;
-		}
-
-		$post_author_id = self::get_post_property( $post, 'post_author' );
-		$post_id        = self::get_post_property( $post, 'ID' );
-		$post_author    = get_user( $post_author_id );
-
-		// Check that the user has edit permissions for this blog and has an email address
-		if ( empty( $post_author ) || empty( $post_author->user_email ) ) {
-			return $default_to;
-		}
-
-		// Check that the user is still a member of the blog.
-		if ( ! is_user_member_of_blog( $post_author_id ) ) {
-			return $default_to;
-		}
-
-		// Check that the author can still edit the post or page.
-		if ( user_can( $post_author_id, 'edit_post', $post_id ) ) {
-			return $post_author->user_email;
-		}
-
-		return $default_to;
+		return $resolved['to'];
 	}
 
 	/**
@@ -1165,6 +1428,26 @@ class Contact_Form extends Contact_Form_Shortcode {
 				),
 			)
 		);
+
+		// The icon SVG fills with currentColor. On desktop it inherits the item's full-brightness text color, so
+		// it renders brighter than the native admin bar icons -- core dims those to rgba(240,246,252,0.6) via
+		// `.ab-icon::before` rules our SVG can't match. Fade it to 0.6 opacity to match, and restore full opacity
+		// on hover/focus; using opacity (not a hardcoded color) keeps the hover state tracking the user's admin
+		// color scheme accent, like the native icons. On mobile (<=782px) core instead dims the item's own text
+		// color, which the SVG already inherits, so reset opacity to 1 there to avoid dimming the icon twice.
+		//
+		// The <=782px block also handles core hiding every non-allowlisted top-level item on mobile: re-show ours
+		// and size the icon to the native touch target (52px box, centered 28px glyph). The `.ab-icon` sizing uses
+		// !important because the SVG carries its desktop sizing in an inline style attribute that otherwise wins.
+		echo '<style>' .
+			'#wpadminbar #wp-admin-bar-jetpack-forms .ab-icon{opacity:0.6;}' .
+			'#wpadminbar #wp-admin-bar-jetpack-forms:hover .ab-icon,' .
+			'#wpadminbar #wp-admin-bar-jetpack-forms .ab-item:focus .ab-icon{opacity:1;}' .
+			'@media screen and (max-width: 782px){' .
+			'#wpadminbar li#wp-admin-bar-jetpack-forms{display:block;}' .
+			'#wpadminbar li#wp-admin-bar-jetpack-forms>.ab-item{display:flex;align-items:center;justify-content:center;width:52px;padding:0;}' .
+			'#wpadminbar li#wp-admin-bar-jetpack-forms .ab-icon{width:28px!important;height:28px!important;top:0!important;margin:0!important;opacity:1;}' .
+			'}</style>';
 	}
 
 	/**
@@ -1244,14 +1527,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$config = array(
-			'error_types'    => array(
+			'error_types'     => array(
 				'is_required'        => __( 'This field is required.', 'jetpack-forms' ),
 				'invalid_form_empty' => __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
 				'invalid_form'       => __( 'Please fill out the form correctly.', 'jetpack-forms' ),
 				'network_error'      => __( 'Connection issue while submitting the form. Check that you are connected to the Internet and try again.', 'jetpack-forms' ),
-				'preview_mode'       => __( 'Form submissions are disabled in preview mode.', 'jetpack-forms' ),
 			),
-			'admin_ajax_url' => admin_url( 'admin-ajax.php' ),
+			'admin_ajax_url'  => admin_url( 'admin-ajax.php' ),
+			// Translated here because the interactivity module is a script module with no
+			// i18n dependency, and the string has to match what was rendered server-side.
+			'unchecked_label' => __( 'No', 'jetpack-forms' ),
 		);
 		wp_interactivity_config( 'jetpack/form', $config );
 		\wp_enqueue_script_module(
@@ -1281,7 +1566,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		&& isset( $_GET['contact-form-sent'] )
 		&& isset( $_GET['contact-form-hash'] )
 		&& is_string( $_GET['contact-form-hash'] )
-		&& hash_equals( $form->hash, wp_unslash( $_GET['contact-form-hash'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		&& hash_equals( $form->hash, wp_unslash( $_GET['contact-form-hash'] ) );
 
 		$feedback_id           = 0;
 		$is_reload_nonce_valid = false;
@@ -1333,11 +1618,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'elementId'               => $element_id,
 			'isSingleInputForm'       => $is_single_input_form,
 			'isForcedHorizontal'      => $is_forced_horizontal,
+			'conditionalLogic'        => $form->get_conditional_logic_context(),
 		);
 
 		if ( $is_multistep ) {
 			$multistep_context = array(
-				'currentStep' => isset( $_GET[ $id . '-step' ] ) ? absint( $_GET[ $id . '-step' ] ) : 1, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				'currentStep' => isset( $_GET[ $id . '-step' ] ) ? absint( $_GET[ $id . '-step' ] ) : 1,
 				'maxSteps'    => $max_steps,
 				'direction'   => 'forward', // Default direction for animations
 				'transition'  => $form->get_attribute( 'stepTransition' ) ? $form->get_attribute( 'stepTransition' ) : 'fade-slide', // Transition style for step animations
@@ -1356,6 +1642,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			id='contact-form-$id'
 			class='{$container_classes_string}'
 			data-wp-interactive='jetpack/form' " . wp_interactivity_data_wp_context( $context ) . "
+			data-wp-on--focusin=\"actions.trackFirstInteraction\"
 			data-wp-watch--scroll-to-wrapper=\"callbacks.scrollToWrapper\"
 		>\n";
 
@@ -1444,6 +1731,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$r .= '<input type="submit" style="display: none;" />';
 			}
 			$r .= "<input type='hidden' name='jetpack_contact_form_jwt' value='" . esc_attr( $form->get_jwt() ) . "' />\n";
+			// Left empty on purpose: the view script fills this in on submit. An empty
+			// value is stored as null so "never interacted with" stays distinguishable
+			// from "filled out in under a second".
+			$r .= "<input type='hidden' name='" . esc_attr( Feedback::FORM_FILL_DURATION_FIELD ) . "' value='' />\n";
 			$r .= $form->body;
 
 			if ( $is_multistep ) {
@@ -1532,6 +1823,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$r .= '</div>';
+
+		// Surface an admin-only warning above the form when nothing will capture its responses.
+		$r = self::render_not_collecting_notice( $attributes ) . $r;
 
 		/**
 		 * Filter the contact form, allowing plugins to modify the HTML.
@@ -1666,11 +1960,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$images = self::get_images( $field_data['value'] );
 			$files  = self::get_files( $field_data['value'] );
 			$rating = self::get_rating( $field_data['value'] );
-			$type   = isset( $field_data['type'] ) ? $field_data['type'] : 'text';
+			$type   = $field_data['type'] ?? 'text';
 
 			$formatted_submission_data[] = array(
 				'label'          => Util::maybe_add_colon_to_label( $field_data['label'] ),
-				'value'          => self::maybe_transform_value( $field_data['value'] ),
+				'value'          => self::get_submission_display_value( $field_data['value'], $type ),
+				// The submitted answer, kept beside the label the summary prints. The checkbox
+				// icon is chosen from it: `is_checked_value()` recognizes only the ASCII `no`
+				// sentinel, so a translated "No" would read as ticked in every locale whose
+				// word for it is not "no".
+				'rawValue'       => $field_data['value'],
 				'images'         => $images,
 				'url'            => $url,
 				'files'          => $files,
@@ -1681,6 +1980,29 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		return $formatted_submission_data;
+	}
+
+	/**
+	 * The value a submitted field shows in the confirmation summary.
+	 *
+	 * An unticked checkbox submits nothing, so it arrives empty and the summary drew the
+	 * label over a blank line. The email renderer has always said "No" here.
+	 *
+	 * Mirrored by `getSubmissionDisplayValue()` in src/modules/form/helpers.js, which formats
+	 * the same data for an AJAX submission; the two must produce the same string or the
+	 * summary changes as the Interactivity API hydrates it.
+	 *
+	 * @param mixed  $value The submitted value.
+	 * @param string $type  The field type.
+	 *
+	 * @return mixed The value to display.
+	 */
+	private static function get_submission_display_value( $value, $type ) {
+		if ( 'checkbox' === $type && ! Feedback_Field::is_checked_value( $value ) ) {
+			return __( 'No', 'jetpack-forms' );
+		}
+
+		return self::maybe_transform_value( $value );
 	}
 
 	/**
@@ -1717,7 +2039,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'rating' ) {
 			$rating     = isset( $value['rating'] ) ? (int) $value['rating'] : 0;
 			$max_rating = isset( $value['maxRating'] ) ? (int) $value['maxRating'] : 5;
-			$icon_style = isset( $value['iconStyle'] ) ? $value['iconStyle'] : 'stars';
+			$icon_style = $value['iconStyle'] ?? 'stars';
 
 			// Generate translated screen reader text.
 			$icon_label = 'hearts' === $icon_style
@@ -1736,13 +2058,37 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Get the icon key for a submitted field.
+	 *
+	 * Checkbox fields reflect the respondent's answer, so an unchecked box gets
+	 * the empty-square icon rather than the ticked one. Every other field type
+	 * keys off the type alone. Mirrors `getFieldTypeIconKey()` in
+	 * src/modules/form/field-type-icons.js, which must resolve to the same key
+	 * for AJAX submissions.
+	 *
+	 * @param string $field_type The field type.
+	 * @param mixed  $value      The submitted value.
+	 *
+	 * @return string The icon key.
+	 */
+	private static function get_field_type_icon_key( $field_type, $value = null ) {
+		if ( 'checkbox' === $field_type && ! Feedback_Field::is_checked_value( $value ) ) {
+			return 'checkbox:unchecked';
+		}
+
+		return $field_type;
+	}
+
+	/**
 	 * Get the SVG icon for a field type.
 	 *
 	 * @param string $field_type The field type.
+	 * @param mixed  $value      The submitted value, for field types whose icon
+	 *                           depends on the answer as well as the type.
 	 *
 	 * @return string The SVG icon HTML.
 	 */
-	private static function get_field_type_icon( $field_type ) {
+	private static function get_field_type_icon( $field_type, $value = null ) {
 		// Reject field types that don't fit the expected 'field-{type}' naming
 		// convention. Valid types are non-empty strings of lowercase letters,
 		// digits, and hyphens starting with a letter.
@@ -1760,11 +2106,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$block_dir = $type_exceptions[ $field_type ] ?? 'field-' . $field_type;
 
+		// State variants live alongside the base icon as 'icon-{variant}.svg'.
+		$icon_name = 'checkbox:unchecked' === self::get_field_type_icon_key( $field_type, $value )
+			? 'icon-unchecked'
+			: 'icon';
+
 		// Cache loaded SVG content to avoid re-reading files.
 		static $icon_cache = array();
 
-		if ( ! isset( $icon_cache[ $block_dir ] ) ) {
-			$svg_file = dirname( __DIR__ ) . '/blocks/' . $block_dir . '/icon.svg';
+		$cache_key = $block_dir . '/' . $icon_name;
+
+		if ( ! isset( $icon_cache[ $cache_key ] ) ) {
+			$svg_file = dirname( __DIR__ ) . '/blocks/' . $block_dir . '/' . $icon_name . '.svg';
 			$svg      = '';
 
 			if ( file_exists( $svg_file ) ) {
@@ -1774,13 +2127,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( $svg ) {
 				$svg = trim( $svg );
 
-				$icon_cache[ $block_dir ] = $svg;
+				$icon_cache[ $cache_key ] = $svg;
 			} else {
-				$icon_cache[ $block_dir ] = '';
+				$icon_cache[ $cache_key ] = '';
 			}
 		}
 
-		return $icon_cache[ $block_dir ];
+		return $icon_cache[ $cache_key ];
 	}
 
 	/**
@@ -1914,16 +2267,19 @@ class Contact_Form extends Contact_Form_Shortcode {
 					$has_files      = ! empty( $submission['files'] );
 					$has_rating     = ! empty( $submission['rating'] );
 					$show_plain_val = ! $has_url && ! $has_images && ! $has_files && ! $has_rating;
-					$field_type     = isset( $submission['type'] ) ? $submission['type'] : 'text';
+					$field_type     = $submission['type'] ?? 'text';
 
 					$html .= '<div data-wp-each-child class="jetpack_forms_contact-form-success-summary">';
 
 					// field-name-wrapper: contains icon and label.
 					$html .= '<div class="field-name-wrapper">';
-					// field-type-icon: rendered based on field type.
+					// field-type-icon: rendered based on field type and, for checkboxes, the answer.
 					// The data-rendered-type attribute enables hydration optimization by allowing
 					// the JS callback to skip re-rendering when the icon is already correct.
-					$html .= '<div class="field-type-icon" data-wp-watch="callbacks.watchFieldTypeIcon" data-rendered-type="' . esc_attr( $field_type ) . '">' . self::get_field_type_icon( $field_type ) . '</div>';
+					// The raw answer, not the printed label -- see `rawValue` above.
+					$field_value = $submission['rawValue'] ?? '';
+					$icon_key    = self::get_field_type_icon_key( $field_type, $field_value );
+					$html       .= '<div class="field-type-icon" data-wp-watch="callbacks.watchFieldTypeIcon" data-rendered-type="' . esc_attr( $icon_key ) . '">' . self::get_field_type_icon( $field_type, $field_value ) . '</div>';
 					// field-name: always present.
 					$html .= '<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . esc_html( $submission['label'] ) . '</div>';
 					$html .= '</div>'; // Close field-name-wrapper.
@@ -2183,7 +2539,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$file_links = array();
 			foreach ( $files as $file ) {
 				if ( ! empty( $file['file_id'] ) ) {
-					$file_name = isset( $file['name'] ) ? $file['name'] : __( 'Attached file', 'jetpack-forms' );
+					$file_name = $file['name'] ?? __( 'Attached file', 'jetpack-forms' );
 					$file_size = isset( $file['size'] ) ? size_format( $file['size'] ) : '';
 
 					$html = esc_html( $file_name );
@@ -2317,7 +2673,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// Don't try to parse contact form fields if not inside a contact form (????)
 		if ( ! Contact_Form_Plugin::$using_contact_form_field ) {
-			$type = isset( $attributes['type'] ) ? $attributes['type'] : null;
+			$type = $attributes['type'] ?? null;
 
 			if ( $type === 'checkbox-multiple' || $type === 'radio' ) {
 				preg_match_all( '/' . get_shortcode_regex() . '/s', $content, $matches );
@@ -2396,15 +2752,26 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( // phpcs:disable WordPress.Security.NonceVerification.Missing
 			! isset( $_POST['jetpack_contact_form_jwt'] )
-			&&
-			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
-			&&
-			isset( $_POST['contact-form-id'] ) && (string) $form->get_attribute( 'id' ) === $_POST['contact-form-id']
-			&&
-			isset( $_POST['contact-form-hash'] ) && is_string( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, wp_unslash( $_POST['contact-form-hash'] ) )
+			&& $form->is_current_submission()
 		) { // phpcs:enable
 			// If we're processing a POST submission for this contact form, validate the field value so we can show errors as necessary.
-			$field->validate();
+			//
+			// A field carrying conditional logic is skipped here. Whether it is visible depends
+			// on the answers to other fields, and fields are appended to $form->fields as they
+			// parse — at this point the form is still incomplete, so the question cannot be
+			// answered correctly. Validating anyway records an error against a field the visitor
+			// may never see, which leaves the form permanently unsubmittable: the error is real
+			// to has_errors(), but invisible on screen and impossible to clear.
+			//
+			// Contact_Form::validate() re-validates every field once the form is fully parsed,
+			// and skips the ones conditional logic resolves as hidden, so nothing is lost by
+			// deferring: a visible field still gets its error, just a moment later.
+			$defer_to_full_form_validation = Jetpack_Forms::is_conditional_logic_enabled()
+				&& $field->has_conditional_logic();
+
+			if ( ! $defer_to_full_form_validation ) {
+				$field->validate();
+			}
 		}
 
 		// Output HTML
@@ -2602,6 +2969,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$response = Feedback::from_submission( $_POST, $this ); // phpcs:Ignore WordPress.Security.NonceVerification.Missing
 		$response->set_source( $this->get_source() );
+
+		// If the submission came from an authenticated form preview, flag the
+		// feedback as a test submission. The rest of the pipeline reads the
+		// flag from the feedback (which also travels into the serialized
+		// post_content via Feedback_Source).
+		if ( $this->is_preview_submission ) {
+			$response->mark_as_test();
+		}
+		$is_test_submission = $response->is_test();
+
 		$plugin = Contact_Form_Plugin::init();
 
 		$id                  = $this->get_attribute( 'id' );
@@ -2692,9 +3069,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$spam           = '';
 		$akismet_values = $plugin->prepare_for_akismet( $akismet_vars );
 
-		// Is it spam?
-		/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
-		$is_spam = apply_filters( 'jetpack_contact_form_is_spam', false, $akismet_values );
+		// Is it spam? Test submissions (from form preview) skip Akismet entirely —
+		// the form owner is explicitly running a test and we don't want Akismet
+		// to learn from synthetic data or bounce the submission.
+		if ( $is_test_submission ) {
+			$is_spam = false;
+		} else {
+			/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
+			$is_spam = apply_filters( 'jetpack_contact_form_is_spam', false, $akismet_values );
+		}
 		if ( is_wp_error( $is_spam ) ) { // WP_Error to abort
 			return $is_spam; // abort
 		} elseif ( $is_spam === true ) {  // TRUE to flag a spam
@@ -2790,6 +3173,22 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$entry_values = $response->get_entry_values();
 
+		// Prefix the subject with [TEST] for test submissions so the form owner
+		// can immediately tell this email came from a preview-mode submission.
+		if ( $is_test_submission ) {
+			/**
+			 * Filter the subject prefix applied to test (preview) feedback emails.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 7.19.0
+			 *
+			 * @param string $prefix Default subject prefix for test submissions.
+			 */
+			$test_prefix          = apply_filters( 'jetpack_forms_test_subject_prefix', '[TEST] ' );
+			$contact_form_subject = $test_prefix . $contact_form_subject;
+		}
+
 		/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject, $all_values );
 
@@ -2879,6 +3278,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 			update_post_meta( $post_id, '_feedback_akismet_values', $this->addslashes_deep( $akismet_values ) );
 		}
 
+		// Integrations must not see a field the visitor was never shown. MailPoet in
+		// particular reads this payload directly for explicit consent and the subscriber's
+		// email, so a forged POST naming a hidden consent field could otherwise subscribe
+		// someone off a question that was never on screen.
+		$visible_fields = $this->fields;
+		foreach ( $this->get_resolved_field_visibility() as $field_id => $is_visible ) {
+			if ( false === $is_visible ) {
+				unset( $visible_fields[ $field_id ] );
+			}
+		}
+
 		/**
 		 * Fires after the feedback post for the contact form submission has been inserted.
 		 *
@@ -2887,11 +3297,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @since 8.6.0
 		 *
 		 * @param integer $post_id The post id that contains the contact form data.
-		 * @param array   $this->fields An array containg the form's Contact_Form_Field objects.
+		 * @param array   $visible_fields The form's Contact_Form_Field objects, less any that
+		 *                                conditional logic hid from the visitor.
 		 * @param boolean $is_spam Whether the form submission has been identified as spam.
 		 * @param array   $entry_values The feedback entry values.
 		 */
-		do_action( 'grunion_after_feedback_post_inserted', $post_id, $this->fields, $is_spam, $entry_values );
+		do_action( 'grunion_after_feedback_post_inserted', $post_id, $visible_fields, $is_spam, $entry_values );
 
 		// Build the complete email content via the renderer.
 		$context_data = array(
@@ -2901,6 +3312,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'comment_author_email' => $comment_author_email,
 			'comment_author_ip'    => $comment_author_ip,
 			'is_spam'              => $is_spam,
+			'is_test'              => $is_test_submission,
 			'feedback_status'      => $feedback_status,
 		);
 		$email        = Feedback_Email_Renderer::build_email_content( $post_id, $this, $response, $context_data );
@@ -2935,6 +3347,25 @@ class Contact_Form extends Contact_Form_Shortcode {
 		} else {
 			// Filter is null (default), use emailNotifications attribute
 			$send_email = ( $this->get_attribute( 'emailNotifications' ) !== 'no' );
+		}
+
+		// Test submissions always send the notification email (so the form
+		// owner can verify their email flow end-to-end) regardless of the
+		// emailNotifications attribute. Site admins who want to opt out can
+		// return false from the filter below.
+		if ( $is_test_submission ) {
+			/**
+			 * Filter whether test (preview) submissions should trigger the notification email.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 7.19.0
+			 *
+			 * @param bool     $send     Whether to send the test submission email. Default true.
+			 * @param int      $post_id  The feedback post ID.
+			 * @param Feedback $response The feedback response object.
+			 */
+			$send_email = apply_filters( 'jetpack_forms_send_test_feedback_email', true, $post_id, $response );
 		}
 
 		/**
@@ -3342,12 +3773,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// For URL fields, extract the display text value (original user input without auto-added protocol).
 		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'url' ) {
 			// Prefer displayValue (raw input) over url (which may have https:// prepended).
-			return isset( $value['displayValue'] ) ? $value['displayValue'] : ( isset( $value['url'] ) ? $value['url'] : '' );
+			return $value['displayValue'] ?? ( $value['url'] ?? '' );
 		}
 
 		// For rating fields, return the displayValue (e.g., "3/5") for text fallback.
 		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'rating' ) {
-			return isset( $value['displayValue'] ) ? $value['displayValue'] : '';
+			return $value['displayValue'] ?? '';
 		}
 
 		// For file upload fields, we want to show the file name and size
@@ -3528,8 +3959,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	public function validate() {
 		$has_value = false;
+		// A field hidden by conditional logic was never shown to the visitor, so validating it
+		// would block submission on an error they cannot see or clear — most visibly when the
+		// hidden field is also required.
+		$visibility = $this->get_resolved_field_visibility();
+
 		// Validate the form fields before processing the form.
-		foreach ( $this->fields as $field ) {
+		foreach ( $this->fields as $field_id => $field ) {
+			if ( isset( $visibility[ $field_id ] ) && false === $visibility[ $field_id ] ) {
+				continue;
+			}
+
 			$field->validate();
 			if ( ! $has_value && $field->has_value() ) {
 				$has_value = true;
@@ -3544,6 +3984,118 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( ! empty( $ref_id ) ) {
 			$this->validate_ref( $ref_id );
 		}
+	}
+
+	/**
+	 * Build the form-level conditional-logic context handed to the front end.
+	 *
+	 * Two maps rather than one: `types` covers every field, because any of them may be the
+	 * subject of a rule, while `logic` covers only the few that carry conditions. Emitting
+	 * types solely for fields that have logic would leave the evaluator unable to resolve the
+	 * subject of most rules, and it ignores rules whose subject it cannot type.
+	 *
+	 * Returns an empty array when no field uses conditional logic, so the common case adds
+	 * nothing to the page.
+	 *
+	 * @return array Either an empty array or `array( 'types' => ..., 'logic' => ... )`.
+	 */
+	public function get_conditional_logic_context() {
+		if ( ! Jetpack_Forms::is_conditional_logic_enabled() ) {
+			return array();
+		}
+
+		$types   = array();
+		$logic   = array();
+		$formats = array();
+
+		foreach ( $this->fields as $field_id => $field ) {
+			$types[ $field_id ] = $field->get_attribute( 'type' );
+
+			$date_format = $field->get_attribute( 'dateformat' );
+			if ( ! empty( $date_format ) ) {
+				$formats[ $field_id ] = $date_format;
+			}
+
+			$field_logic = $field->get_attribute( 'conditionallogic' );
+			if ( is_array( $field_logic ) && ! empty( $field_logic['enabled'] ) ) {
+				$logic[ $field_id ] = $field_logic;
+			}
+		}
+
+		if ( empty( $logic ) ) {
+			return array();
+		}
+
+		return array(
+			'types'   => $types,
+			'logic'   => $logic,
+			// Only date fields appear here; everything else compares without a format.
+			'formats' => $formats,
+		);
+	}
+
+	/**
+	 * Resolve which fields are visible for the current submission.
+	 *
+	 * Computed once and cached: validation and storage both consult it, and letting them
+	 * resolve separately would risk them disagreeing about whether a field was shown.
+	 *
+	 * @return array Map of field id to bool visibility.
+	 */
+	public function get_resolved_field_visibility() {
+		if ( null !== $this->resolved_field_visibility ) {
+			return $this->resolved_field_visibility;
+		}
+
+		// With the feature off every field is visible, so validation and storage behave
+		// exactly as they did before conditional logic existed. This is the single choke
+		// point for the runtime: callers do not need their own flag checks.
+		if ( ! Jetpack_Forms::is_conditional_logic_enabled() ) {
+			$this->resolved_field_visibility = array();
+
+			return $this->resolved_field_visibility;
+		}
+
+		$this->resolved_field_visibility = $this->compute_field_visibility();
+
+		return $this->resolved_field_visibility;
+	}
+
+	/**
+	 * Resolve which fields are visible, without caching.
+	 *
+	 * @return array Map of field id to bool visibility.
+	 */
+	private function compute_field_visibility() {
+		if ( ! Jetpack_Forms::is_conditional_logic_enabled() ) {
+			return array();
+		}
+
+		if ( ! is_array( $this->fields ) || empty( $this->fields ) ) {
+			return array();
+		}
+
+		$descriptors = array();
+		$values      = array();
+
+		foreach ( $this->fields as $field_id => $field ) {
+			$descriptors[ $field_id ] = array(
+				'logic'  => $field->get_attribute( 'conditionallogic' ),
+				'type'   => $field->get_attribute( 'type' ),
+				// A date field's value is written in its own format, and the comparison has
+				// to read it the same way the datepicker wrote it.
+				'format' => $field->get_attribute( 'dateformat' ),
+			);
+
+			// Resolve the value exactly as the field itself does when rendering: submitted
+			// value first, then a `?field_id=value` query parameter, then the configured
+			// default, then the logged-in user's details. Reading $_POST alone would make a
+			// prefilled form resolve against an empty one, so a field the visitor can already
+			// see satisfying a condition would render hidden and then flash into view.
+			$values[ $field_id ] = $field->get_conditional_logic_value();
+		}
+
+		return Conditional_Logic::resolve_visibility( $descriptors, $values );
 	}
 
 	/**

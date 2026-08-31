@@ -407,11 +407,15 @@ class Launchpad_Task_Lists {
 	 * Allows a function to be called to determine if a task should be visible.
 	 * For instance: we don't even want to show the verify_email task if it's already done.
 	 *
+	 * Public so callers that build their own task lists from the catalog (e.g. the
+	 * AI Launchpad REST controller) can apply the same visibility gate as build(),
+	 * mirroring the public load_calypso_path().
+	 *
 	 * @param Task        $task_definition A task definition.
 	 * @param string|null $launchpad_context Optional. Screen in which launchpad is loading.
 	 * @return boolean True if task is visible, false if not.
 	 */
-	protected function is_visible( $task_definition, $launchpad_context = null ) {
+	public function is_visible( $task_definition, $launchpad_context = null ) {
 		if ( empty( $task_definition ) ) {
 			return false;
 		}
@@ -440,7 +444,7 @@ class Launchpad_Task_Lists {
 		$built_task['disabled']     = $this->is_task_disabled( $task );
 		$built_task['subtitle']     = $this->load_subtitle( $task );
 		$built_task['badge_text']   = $this->load_value_from_callback( $task, 'badge_text_callback' );
-		$built_task['isLaunchTask'] = isset( $task['isLaunchTask'] ) ? $task['isLaunchTask'] : false;
+		$built_task['isLaunchTask'] = $task['isLaunchTask'] ?? false;
 		$extra_data                 = $this->load_extra_data( $task );
 
 		if ( is_array( $extra_data ) && array() !== $extra_data ) {
@@ -548,11 +552,15 @@ class Launchpad_Task_Lists {
 	/**
 	 * Helper function to load the Calypso path for a task.
 	 *
+	 * Public so other features (e.g. the AI Launchpad REST controller) can resolve
+	 * a task's CTA path through the same builder + validation rather than copying
+	 * it, and reuse this instance's cached site slug.
+	 *
 	 * @param Task        $task A task definition.
 	 * @param string|null $launchpad_context Optional. Screen where Launchpad is loading.
 	 * @return string|null
 	 */
-	private function load_calypso_path( $task, $launchpad_context = null ) {
+	public function load_calypso_path( $task, $launchpad_context = null ) {
 		if ( null === $this->site_slug ) {
 			$this->site_slug = wpcom_get_site_slug();
 		}
@@ -623,7 +631,7 @@ class Launchpad_Task_Lists {
 		// as it continues to calculate the callback which falls back to the option: ∞.
 		$statuses    = get_option( 'launchpad_checklist_tasks_statuses', array() );
 		$key         = $this->get_task_key( $task );
-		$is_complete = isset( $statuses[ $key ] ) ? $statuses[ $key ] : false;
+		$is_complete = $statuses[ $key ] ?? false;
 
 		return (bool) $this->load_value_from_callback( $task, 'is_complete_callback', $is_complete );
 	}
@@ -636,7 +644,7 @@ class Launchpad_Task_Lists {
 	 * @return string The task key to use.
 	 */
 	public function get_task_key( $task ) {
-		return isset( $task['id_map'] ) ? $task['id_map'] : $task['id'];
+		return $task['id_map'] ?? $task['id'];
 	}
 
 	/**
@@ -832,7 +840,21 @@ class Launchpad_Task_Lists {
 	public function mark_task_complete_if_active( $task_id ) {
 		// Ensure that the task is an active one
 		$active_tasks_by_task_id = wp_list_filter( $this->get_active_tasks(), array( 'id' => $task_id ) );
-		if ( empty( $active_tasks_by_task_id ) ) {
+		$is_active               = ! empty( $active_tasks_by_task_id );
+
+		/**
+		 * Filters whether a task counts as active for completion.
+		 *
+		 * `get_active_tasks()` only knows about the site's `site_intent` task list.
+		 * Features that select their own task set outside that list (the AI
+		 * Launchpad) hook this to let their tasks complete.
+		 *
+		 * @param bool   $is_active Whether the task is active per the site_intent task list.
+		 * @param string $task_id   The task being completed.
+		 */
+		$is_active = apply_filters( 'wpcom_launchpad_is_task_active_for_completion', $is_active, $task_id );
+
+		if ( ! $is_active ) {
 			return false;
 		}
 

@@ -44,6 +44,20 @@
 	.jetpack-block-nudge {
 		max-width: none;
 	}
+
+	// Trigger button preview (pop-up display mode).
+	.donations__trigger-button {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		cursor: default;
+		pointer-events: none;
+	}
+
+	.donations__trigger-icon {
+		flex-shrink: 0;
+		fill: currentColor;
+	}
 }
 
 .jetpack-donations__currency-toggle {
@@ -55,4 +69,108 @@
 
 .jetpack-donations__currency-popover .components-popover__content {
 	min-width: 130px;
+}
+
+// Spacing between sibling sections inside our panels. The first non-title
+// child (e.g. the first ToolsPanel) sits flush; subsequent siblings get a
+// consistent gap.
+.jp-donations-style-panel.components-panel__body > :nth-child(n+3) {
+	margin-block-start: 24px;
+}
+
+// Remove dividing border lines on controls inside our panels. Some controls
+// (notably BorderBoxControl, BorderRadiusControl, BoxControl) ship with their
+// own border-top / border-bottom that read as a dividing line above the
+// settings — standard core panels don't draw such a line.
+.jp-donations-style-panel.components-panel__body > *:not(.components-panel__body-title) {
+	border-top: 0;
+	border-bottom: 0;
+}
+
+// Icon picker grid in the Display panel.
+.jetpack-donations__icon-picker {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 4px;
+	margin-block-start: 4px;
+
+	.jetpack-donations__icon-option {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		min-height: 36px;
+		padding: 4px;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		background: transparent;
+		cursor: pointer;
+
+		&:hover {
+			border-color: #1e1e1e;
+		}
+
+		&.is-pressed,
+		&.is-pressed:hover {
+			border-color: var(--wp-components-color-foreground, #1e1e1e);
+		}
+
+		svg {
+			display: block;
+		}
+	}
+}
+
+// Make labels inside our custom style panels inherit text color from the
+// inspector sidebar (`.interface-complementary-area`) instead of the
+// component default grey, matching the auto-rendered supports panels.
+.jp-donations-style-panel.components-panel__body {
+
+	.components-base-control__label,
+	.components-input-control__label,
+	.components-toggle-group-control__label,
+	.components-box-control__label,
+	.components-border-box-control__label,
+	.components-border-control__label {
+		color: inherit;
+	}
+
+	// Hide the inner ToolsPanel section heading on non-color panels (the
+	// parent PanelBody title already labels the whole section). The colors
+	// panel keeps its header so users see a "COLORS" label above the rows
+	// like the standard Color block-support panel.
+	.components-tools-panel:not(.color-block-support-panel)
+	.components-tools-panel-header {
+		display: none;
+	}
+
+	// Inside the colors panel header, hide just the per-panel kebab menu
+	// (we provide a panel-level Reset button at the bottom instead).
+	.color-block-support-panel
+	.components-tools-panel-header
+	.components-dropdown-menu {
+		display: none;
+	}
+
+	// Right-align the panel-level Reset button in the bottom PanelRow.
+	.components-panel__row {
+		justify-content: flex-end;
+	}
+
+	// The ToolsPanel emotion-styled wrapper applies its own 16px padding;
+	// the PanelBody already provides outer padding, so the inner panel adds
+	// extra space. Drop it here.
+	.components-tools-panel {
+		padding: 0;
+	}
+
+	// Compound color row labels (Active Tab / Inactive Tab / Tab Border /
+	// Selected Amount) are clipped by core CSS at `calc(100% - 44px)` with
+	// ellipsis. Show the full label.
+	.block-editor-panel-color-gradient-settings__color-name {
+		max-width: none;
+		overflow: visible;
+		white-space: normal;
+		text-overflow: clip;
+	}
 }

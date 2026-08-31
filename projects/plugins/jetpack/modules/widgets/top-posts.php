@@ -299,7 +299,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 		$instance = wp_parse_args( (array) $instance, static::defaults() );
 
-		$title = isset( $instance['title'] ) ? $instance['title'] : false;
+		$title = $instance['title'] ?? false;
 		if ( false === $title ) {
 			$title = $this->default_title;
 		}

@@ -5,6 +5,72 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 6.1.0 - 2026-08-12
+### Added
+- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed. [#51157]
+
+## 6.0.0 - 2026-08-11
+### Added
+- Account Protection: Add additional context to "Verify your identity" page to reduce user confusion. [#50338]
+
+### Changed
+- Unify layout of Jetpack admin pages. [#48109]
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- Firewall: Add accessible names to the Brute force protection, Block IP addresses, and Trusted IP addresses toggles. [#48277]
+- General: Update minimum WordPress version to 6.9. [#49021]
+- Internal: Migrate Notice usages to @wordpress/ui. [#48173]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Components: Migrate `ToggleControl` to @wordpress/components [#49694]
+- Protect: Normalize page tabs onto shared minimal variant. Bump @wordpress/ui to 0.13.0. [#48964]
+- Protect: Migrate Status indicator to @wordpress/ui Text. [#48711]
+- Protect: Remove translation wrappers from the "Protect" product name. [#48520]
+- Protect now reports its threat count to the central menu-badges registry instead of writing admin-menu markup directly. [#50190]
+- Remove Jetpack color overrides on core WordPress components. [#47317]
+- Replace deprecated jetpack-components Spinner with WordPress Core Spinner. [#47451]
+- Replace Gridicon with Icon and named icon exports from `@wordpress/icons`. [#48537]
+- Replace internal ContextualUpgradeTrigger upgrade prompts with @wordpress/ui Notice composition. Internal refactor with a Notice-style visual refresh. [#48909]
+- Tested up to WordPress 7.0. [#48114]
+- Update composer.lock files. [#49415]
+- Update package dependencies. [#48735] [#47907] [#48064] [#48106] [#48141] [#48404] [#48405] [#48683] [#49218] [#49272] [#49273] [#49379] [#49448] [#49492] [#49631] [#49638] [#49691] [#49757] [#49831] [#50097] [#50183] [#50436] [#50509] [#50510] [#50529] [#50582] [#50751] [#50753] [#50792] [#51008] [#51125]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names. [#49272]
+
+### Fixed
+- Firewall: Fix "Enable Firewall" notice CTA missing loading/disabled state, which let users double-click and toggle the WAF back off. [#48389]
+- Firewall: Show 0 instead of NaN on the stat cards when there are no blocked requests. [#49282]
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active. [#49994]
+- Protect: Fix route changes in Chrome when scroll APIs return promises. [#50465]
+- Switch to wp/ui Text for wrapping account protection settings [#49367]
+
+## 5.0.0 - 2026-04-11
+### Security
+- WAF: Fix issue that potentially allowed bypassing WAF rules. [#47692]
+
+### Added
+- Add `jetpack_account_protection_send_auth_email` filter to allow custom handling of the verification email. [#48003]
+- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
+- IDC: Add revalidation for IDCs. [#46268]
+
+### Changed
+- Dependencies: Update lock file to keep root requirements in sync. [#47418]
+- Migrate admin page header to use unified header pattern. [#47313]
+- My Jetpack: Check red bubble notification async when cache is not available. [#46396]
+- Remove translated product names from admin page headers and footers. [#47313]
+- Replace license activation link with a "Use license key" button in the header actions area. [#47434]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update composer.lock. [#46686]
+- Update dependencies. [#47472]
+- Update design of the sidebar upsell. [#47909]
+- Update package dependencies. [#46143] [#46430] [#46456] [#46512] [#46552] [#46647] [#46785] [#46854] [#47002] [#47021] [#47099] [#47173] [#47285] [#47300] [#47371] [#47496] [#47505] [#47684] [#47825] [#47890] [#47998]
+
+### Removed
+- General: Update minimum WordPress version to 6.8. [#46801]
+
+### Fixed
+- Admin Page: Restore border on header component. [#47425]
+- Constrain license activation link width on mobile to prevent header overflow. [#47431]
+- Ensure proper flags are used with `json_encode()`. [#46117]
+- Fix TypeScript errors detected by tsgo. [#47419] [#47409]
+
 ## 4.4.1 - 2025-11-21
 ### Added
 - Tested up to WordPress 6.9. [#45571]

@@ -32,7 +32,6 @@
 @include meta.load-css( "../components/foldable-card/style2" );
 @include meta.load-css( "../components/footer/style" );
 @include meta.load-css( "../components/dev-card/style" );
-@include meta.load-css( "../components/loading-placeholder/style" );
 @include meta.load-css( "../components/jetpack-notices/style" );
 @include meta.load-css( "../components/masthead/style" );
 @include meta.load-css( "../components/module-settings/style" );
@@ -45,8 +44,6 @@
 @include meta.load-css( "../components/settings-card/style" );
 @include meta.load-css( "../components/settings-group/style" );
 @include meta.load-css( "../components/apps-card/style" );
-@include meta.load-css( "../components/upgrade-notice-content/style" );
-@include meta.load-css( "../components/jetpack-dialogue-modern/style" );
 @include meta.load-css( "../components/about-page/style" );
 
 // Page Templates

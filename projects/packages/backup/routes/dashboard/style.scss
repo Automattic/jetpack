@@ -1,0 +1,47 @@
+// Route-level styles for the modernized Backup dashboard.
+// Per-component styles live alongside each component under
+// src/dashboard/components/*.
+
+@use "sass:meta";
+@use "@wordpress/base-styles/breakpoints";
+@use "../../src/dashboard/admin-shell" as *;
+
+// Pull in the bundled DataViews stylesheet. `@wordpress/dataviews` ships
+// its CSS in `build-style/style.css` rather than auto-injecting it from
+// the JS entry, so we explicitly @include it once at the route level
+// (mirrors VideoPress's `routes/library/style.scss`). Without this the
+// list-layout primary action button falls back to wp-admin's default
+// browser button styling and shows as a visible artifact in every row.
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+// Pin the wp-admin content column to the viewport and turn its inner
+// flex chain into "fixed header + scrollable middle + pinned footer".
+// Shared with every other route — see `admin-shell.scss` for why it
+// cannot live in one route's stylesheet.
+@include backup-admin-shell;
+
+.jpb-overview {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 16px;
+	width: 100%;
+
+	// At desktop widths, switch to the side-by-side activity-list + detail
+	// pane. Below this the two cells stack vertically; the grid's minimums
+	// (360px + 400px + 16px gap) would otherwise overflow the dashboard body
+	// on tablet and force horizontal scrolling.
+	@media (min-width: #{ (breakpoints.$break-large + 1) }) {
+		grid-template-columns: minmax(360px, 1fr) minmax(400px, 1.5fr);
+		min-height: 600px;
+	}
+
+	&__detail--empty {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 200px;
+		background-color: var(--wp-components-color-background-secondary, #f7f7f7);
+		border-radius: 8px;
+		padding: 24px;
+	}
+}

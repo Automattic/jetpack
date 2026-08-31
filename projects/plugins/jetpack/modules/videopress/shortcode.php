@@ -63,7 +63,7 @@ class VideoPress_Shortcode {
 		/**
 		 * We only accept GUIDs as a first unnamed argument.
 		 */
-		$guid = isset( $attr[0] ) ? $attr[0] : null;
+		$guid = $attr[0] ?? null;
 
 		if ( isset( $attr['postid'] ) ) {
 			$guid = get_post_meta( $attr['postid'], 'videopress_guid', true );

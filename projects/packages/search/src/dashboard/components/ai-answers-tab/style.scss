@@ -1,0 +1,60 @@
+@use "scss/variables";
+
+.jp-search-ai-answers-tab {
+	width: 100%;
+}
+
+.jp-search-ai-answers-tab__upsell {
+	background-color: variables.$jp-white-off;
+	border-bottom: 1px solid variables.$jp-gray;
+	padding: 2.5em 0;
+
+	.jp-search-ai-answers-tab__upsell-heading {
+		font-size: variables.$font-title-small;
+		font-weight: 600;
+		line-height: 1.25;
+		margin: 0 0 1em;
+		color: variables.$jp-black;
+	}
+
+	.jp-search-ai-answers-tab__upsell-bullets {
+		list-style: disc;
+		margin: 0 0 1.5em 1.5em;
+		padding: 0;
+
+		li {
+			font-size: 1em;
+			line-height: 1.6;
+			margin-bottom: 0.4em;
+			color: variables.$jp-black-80;
+		}
+	}
+}
+
+.jp-search-ai-answers-tab__settings {
+	background-color: variables.$jp-white;
+	padding: 2.5em 0;
+
+	&.jp-search-ai-answers-tab__settings--gated {
+		opacity: 0.5;
+		pointer-events: none;
+	}
+}
+
+.jp-search-ai-answers-tab__actions {
+	display: flex;
+	align-items: center;
+	gap: 1em;
+}
+
+.jp-search-ai-answers-tab__error {
+	color: variables.$jp-red-error;
+	font-size: 0.875em;
+	margin: 0;
+}
+
+.jp-search-ai-answers-tab__saved {
+	color: variables.$jp-green-primary;
+	font-size: 0.9375em;
+	font-weight: 500;
+}

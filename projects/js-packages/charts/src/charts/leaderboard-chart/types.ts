@@ -51,10 +51,20 @@ export interface LeaderboardChartProps
 	loading?: boolean;
 
 	/**
+	 * Show only complete rows that fit the chart height instead of scrolling.
+	 *
+	 * Requires a container that constrains the chart's height; otherwise every
+	 * row fits. Refits are debounced with the parent resize on the responsive
+	 * export, so `LeaderboardChartUnresponsive` tracks a live drag more closely.
+	 * @default false
+	 */
+	fitRows?: boolean;
+
+	/**
 	 * Custom styling for the chart container
 	 */
 	style?: React.CSSProperties & {
-		'--a8c--charts--leaderboard--bar--border-radius'?: string;
+		'--a8c-charts-border-radius-leaderboard-bar'?: string;
 	};
 
 	/**

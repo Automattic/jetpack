@@ -107,8 +107,110 @@
 		}
 	}
 
+	.donations__range-error {
+		display: none;
+		color: gb.$alert-red;
+		font-size: 0.875em;
+		margin-block-end: 8px;
+
+		&.is-visible {
+			display: block;
+		}
+	}
+
 	.donations__donate-button.is-disabled {
 		pointer-events: none;
 		opacity: 0.2;
 	}
+
+	// Sticky Pop-up mode: fix the trigger button to the bottom corner of the
+	// viewport so it stays visible as visitors scroll. The modal overlay sits
+	// at z-index 100000 so it always floats above the sticky button.
+	&.is-display-modal.is-sticky {
+		position: fixed;
+		bottom: 24px;
+		inset-inline-end: 24px;
+		z-index: 9999;
+	}
+
+	// Trigger button: icon + text inline.
+	.donations__trigger-button {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.donations__trigger-icon {
+		flex-shrink: 0;
+		fill: currentColor;
+	}
+
+	// Modal overlay: covers viewport, blurred backdrop.
+	.donations__modal-overlay {
+		position: fixed;
+		inset: 0;
+		z-index: 100000;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: rgba(0, 0, 0, 0.45);
+		backdrop-filter: blur(5px);
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	// Modal dialog container — clips to border-radius; border/radius set via
+	// build_custom_styles when the block has border settings configured.
+	.donations__modal-dialog {
+		position: relative;
+		width: 90%;
+		max-width: 640px;
+		max-height: 90vh;
+		overflow: hidden;
+		background: var(--wp--style--color--background, #fff);
+		box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+
+		@media (max-width: 600px) {
+			width: 92%;
+		}
+	}
+
+	.donations__modal-content {
+		overflow-y: auto;
+		max-height: 90vh;
+		padding: 40px;
+		box-sizing: border-box;
+
+		@media (max-width: 600px) {
+			padding: 24px 20px;
+		}
+	}
+
+	// Close button: X in upper-right corner.
+	.donations__modal-close {
+		position: absolute;
+		inset-block-start: 12px;
+		inset-inline-end: 12px;
+		background: transparent;
+		border: none;
+		cursor: pointer;
+		padding: 6px;
+		line-height: 1;
+		color: inherit;
+		font-size: 18px;
+		opacity: 0.6;
+		border-radius: 4px;
+
+		&:hover,
+		&:focus-visible {
+			opacity: 1;
+		}
+	}
+}
+
+// Prevent body scroll when modal is open.
+body.donations-modal-open {
+	overflow: hidden;
 }

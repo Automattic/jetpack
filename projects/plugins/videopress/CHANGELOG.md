@@ -4,6 +4,88 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 3.4.1 - 2026-08-26
+### Added
+- Add a first-run welcome modal to the dashboard. [#51520]
+
+### Changed
+- General: Update minimum WordPress version to 7.0. [#51370]
+- My Jetpack: Show what Paid Stats actually adds — UTM tracking, device stats, and region & city locations — instead of commercial use. [#51410]
+- Redesign the video details page: group details into one card in a wider layout, move the player and settings into a side column, and add thumbnail tiles, collapsible sections, and an Add to content action. [#51480]
+- Tested up to WordPress 7.1. [#51370]
+
+### Removed
+- Updated PHP version requirements to PHP 7.4 or newer. [#51515]
+
+### Fixed
+- Charts: draw labels at the design system's font weight and size. [#51452]
+- Connection: Update wording for some connection error notices. [#51360]
+- Fix a timeout error when updating a video poster from the media library. [#51479]
+- Fix private video playback authorization for videos embedded through synced patterns and Video Playlist blocks, let private videos preview in the block editor canvas, load live metadata for private playlist entries for authorized viewers, and show a lock placeholder on playlist thumbnails of private videos the viewer cannot access. [#51569]
+- My Jetpack: always label the license activation link 'Activate a license'. It previously read 'Activate a new license' on sites with a plan, even when no licenses had been activated. [#51283]
+- My Jetpack: Stop the Stats dashboard from asking which plan you want again after Start for Free was already chosen. [#51413]
+
+## 3.4 - 2026-08-19
+### Changed
+- Update package dependencies. [#51399]
+
+### Fixed
+- Connection: Stop showing a duplicate account notice when your WordPress.com email differs from your site email only in letter case. [#51285]
+
+## 3.3 - 2026-08-13
+### Added
+- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed. [#51224]
+
+### Changed
+- Update dependencies. [#50473]
+- Update package dependencies. [#50510] [#50529] [#50751]
+
+## 3.2 - 2026-07-09
+### Added
+- Add a site-level setting to turn off auto-generated subtitles. [#50014]
+- Add presentation to the player iframe allow list to enable casting from embeds. [#50215]
+- Resumable video uploads are now verified as they arrive, instead of re-reading the whole file once the upload completes. [#50054]
+
+### Changed
+- Dashboard: Release modernized VideoPress dashboard. [#49023]
+- Remove unneeded development and documentation files from the published plugin. [#49014]
+- Update composer.lock files. [#48743] [#49415]
+- Update minimum WordPress version to 6.9. [#49021]
+- Update package dependencies. [#48735] [#49793] [#48405] [#49218] [#49273] [#49492] [#49631] [#49691] [#49757] [#49831] [#50097] [#50183]
+
+### Fixed
+- Fix admin page crash on video upload/delete when the free-plan upgrade nudge is shown. [#49340]
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active. [#49994]
+- Fix the media library "Edit video details" link so it opens the modernized dashboard. Old links now redirect to the new location. [#50323]
+- Fix the post-connection redirect so the modernized dashboard returns users to the VideoPress page instead of a 404. [#49168]
+- Load VideoPress Overview stats even when the Jetpack Stats module is inactive. [#50326]
+
+## 3.1 - 2026-05-14
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Update package dependencies. [#48106]
+
+### Fixed
+- Prevent the "Add new video" button from disappearing on the admin dashboard after the first video is uploaded. [#48690]
+- VideoPress admin: Add padding around the Settings section, make the hero full width on medium screens, and remove an empty pagination placeholder below the video library. [#48131]
+
+## 3.0 - 2026-04-16
+### Changed
+- Tested up to WordPress 7.0. [#48114]
+- Update package dependencies. [#48064]
+
+## 2.9 - 2026-04-10
+### Changed
+- Dependencies: Update lock file to keep root requirements in sync. [#47418]
+- Remove header border-bottom from the admin page for a cleaner unified header appearance. [#47313]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update dependencies. [#47472]
+- Update design of the sidebar upsell. [#47909]
+- Update package dependencies. [#47002] [#47021] [#47099] [#47173] [#47285] [#47300] [#47371] [#47496] [#47505] [#47684] [#47825] [#47890] [#47998]
+
+### Fixed
+- Admin Page: Restore border on header component. [#47425]
+
 ## 2.8 - 2026-02-04
 ### Added
 - Adding Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]

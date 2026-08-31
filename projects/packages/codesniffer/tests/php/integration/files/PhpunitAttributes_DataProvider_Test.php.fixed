@@ -61,7 +61,7 @@ class AnnotationsTest extends TestCase {
 		UsedClass::x();
 	}
 
-	#[DataProviderExternal()]
+	#[DataProviderExternal]
 	#[DataProviderExternal( 42, 42 )]
 	public function bad() {
 	}

@@ -29,7 +29,7 @@ export default function RecordMeter( {
 	return (
 		<div className="jp-search-record-meter jp-search-dashboard-wrap" data-testid="record-meter">
 			<div className="jp-search-dashboard-row">
-				<div className="jp-search-record-meter__content lg-col-span-12 md-col-span-6 sm-col-span-4">
+				<div className="jp-search-record-meter__content lg-col-span-12 md-col-span-8 sm-col-span-4">
 					<h2>
 						{
 							/* translators: 'Your search index' is a breakdown of the site's indexed post type content,

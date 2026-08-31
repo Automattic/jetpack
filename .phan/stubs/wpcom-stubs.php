@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit b7440f2dced65e4646dafbd77b637472677a4de3.
+ * Stubs automatically generated from WordPress.com commit 0df31ec7c9f4fa83103606c5fa6444b3fdf440b5.
  */
 
 namespace {
@@ -125,7 +125,8 @@ namespace {
      * @param string $message
      * @param string|null $docker_image_tag
      * @param string|null $guid
-     * @param array|null $job
+     * @param string|null $format
+     * @param object|null $job
      * @param array $additional_params
      */
     function videopress_log($feature, $message, $docker_image_tag, $guid, $format, $job = \null, $additional_params = array())
@@ -156,7 +157,7 @@ namespace {
         {
         }
         /**
-         * @deprecated 
+         * @deprecated
          * @param int $user_id
          * @param int $blog_id
          * @param false $ids_only
@@ -277,6 +278,12 @@ namespace {
         static function init()
         {
         }
+        /**
+         * @param int $keyring_token_id
+         * @param bool $force_external_users_refetch
+         * @param bool $force_connection_test
+         * @return array|false
+         */
         public function get_keyring_connection_item($keyring_token_id, $force_external_users_refetch = \false, $force_connection_test = \false)
         {
         }
@@ -288,15 +295,40 @@ namespace {
         public function get_external_services_list($type = \false, $blog_id = \false)
         {
         }
+        /**
+         * @param string $service
+         * @return array|false
+         */
         public function get_external_service_item($service)
         {
         }
         public function delete_keyring_connection($keyring_connection_id)
         {
         }
+        /**
+         * @param int $keyring_token_id
+         * @return bool
+         */
+        public function has_failing_cached_connection_test($keyring_token_id)
+        {
+        }
+        /**
+         * @param string $request_id
+         * @param int|null $blog_id
+         * @param bool $delete
+         * @return array|false
+         */
+        public function get_last_keyring_token_details($request_id, $blog_id = \null, $delete = \true)
+        {
+        }
     }
     abstract class ExternalMediaService
     {
+        /**
+         * @param string $service_name
+         * @param int $user_id
+         * @return Keyring_Access_Token|string|false
+         */
         public static function get_service_token($service_name, $user_id)
         {
         }
@@ -518,6 +550,21 @@ namespace {
         {
         }
     }
+    /**
+     * @return array{quota: int, used: int, remaining: int, resetsAt: string}
+     */
+    function posts_to_podcast_get_usage(int $blog_id, ?int $now = \null): array
+    {
+    }
+    /**
+     * @return array{id:int, queued_at:int}|null
+     */
+    function posts_to_podcast_get_active_job_record(int $blog_id): ?array
+    {
+    }
+    function posts_to_podcast_get_job_result(int $job_id): ?int
+    {
+    }
     class Publicize_Actions
     {
         /**
@@ -692,6 +739,14 @@ namespace {
     {
     }
     function wpcom_actionbar_enqueue_scripts()
+    {
+    }
+    /**
+     * @param int|array $job_id
+     * @param string $prefix
+     * @return string|array|false
+     */
+    function get_job_status($job_id, $prefix = 'wpj_')
     {
     }
     /**
@@ -874,6 +929,16 @@ namespace {
     function is_simple_site_redirect($blog_id = 0)
     {
     }
+    class Email_Preview_Guard
+    {
+        /**
+         * @param string $email
+         * @return true|WP_Error
+         */
+        public static function check($email)
+        {
+        }
+    }
     class Subscription_Mailer extends \WordPressMailer
     {
         public function __construct(\Blog_Subscriber $subscriber, $use_wp = \true, $locale_type = self::USER_LOCALE, $woocommerce_email_renderer = \null)
@@ -993,6 +1058,7 @@ namespace {
     {
         var $name = \false;
         var $meta = array();
+        var $unique_id = \false;
         /**
          * @param int $window
          * @return bool
@@ -1088,7 +1154,7 @@ namespace {
     /**
      * @param  string $url
      * @return string
-     * @internal 
+     * @internal
      */
     function staticize_subdomain($url)
     {
@@ -1158,7 +1224,7 @@ namespace {
     {
     }
     /**
-     * @deprecated 
+     * @deprecated
      * @return bool
     */
     function wpcom_is_jetpack_search_supported($blog_id)
@@ -1177,7 +1243,17 @@ namespace {
     {
     }
     /**
-     * @phan-return mixed
+     * @param int|false $site_id
+     * @param int $blog_id
+     * @param string $table
+     * @param string $field
+     * @param string|false $end_date
+     * @param int $num_days
+     * @param string $and
+     * @param int $limit
+     * @param bool $summarize
+     * @param bool $rollup
+     * @return array
      */
     function stats_get_daily_history($site_id, $blog_id, $table, $field, $end_date = \false, $num_days = 1, $and = '', $limit = 0, $summarize = \false, $rollup = \false)
     {
@@ -1424,7 +1500,6 @@ namespace {
     }
     class WPCOM_Feature_Flags
     {
-        const GLOBAL_STYLES_ON_PERSONAL_PLAN = 'GLOBAL_STYLES_ON_PERSONAL_PLAN';
         public static function get_features(): array
         {
         }
@@ -1695,9 +1770,31 @@ namespace Newsletter_Categories {
 namespace Publicize {
     /**
      * @param int $blog_id
-     * @return array
+     * @return bool
      */
-    function get_x_usage(int $blog_id = 0): array
+    function is_message_templates_enabled($blog_id = 0)
+    {
+    }
+    /**
+     * @param int $blog_id
+     * @return bool
+     */
+    function can_use_per_connection_templates($blog_id = 0): bool
+    {
+    }
+    /**
+     * @param \WP_Post $post
+     * @param array $items
+     * @param array $post_intent
+     * @return array<int, array<string, mixed>>
+     */
+    function render_messages(\WP_Post $post, array $items, array $post_intent = array()): array
+    {
+    }
+    /**
+     * @return array<string, array{title:string}>
+     */
+    function get_supported_placeholders(): array
     {
     }
 }

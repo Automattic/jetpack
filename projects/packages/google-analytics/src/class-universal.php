@@ -140,8 +140,7 @@ class Universal {
 			return $command_array;
 		}
 
-		// @phan-suppress-next-line PhanPluginDuplicateConditionalNullCoalescing
-		$order_id = isset( $wp->query_vars['order-received'] ) ? $wp->query_vars['order-received'] : 0;
+		$order_id = $wp->query_vars['order-received'] ?? 0;
 		if ( 0 === (int) $order_id ) {
 			return $command_array;
 		}
@@ -213,8 +212,7 @@ class Universal {
 	public function maybe_track_hpos_purchases( $command_array ) {
 		global $wp;
 
-		// @phan-suppress-next-line PhanPluginDuplicateConditionalNullCoalescing
-		$order_id = isset( $wp->query_vars['order-received'] ) ? $wp->query_vars['order-received'] : 0;
+		$order_id = $wp->query_vars['order-received'] ?? 0;
 		if ( 0 === (int) $order_id ) {
 			return $command_array;
 		}

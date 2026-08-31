@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-BASE=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
+BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 [[ -d coverage ]] && find coverage -type d -empty -delete
 if [[ ! -d coverage ]]; then
@@ -11,7 +11,7 @@ if [[ ! -d coverage ]]; then
 fi
 
 echo '::group::Copy coverage into artifacts'
-tar --owner=0 --group=0 --xz -cvvf artifacts/coverage.tar.xz coverage
+tar --owner=0 --group=0 --xz -cvvf "artifacts/coverage-$COVERAGE_GROUP.tar.xz" coverage
 echo '::endgroup::'
 
 TMP_DIR=$( mktemp -d )
@@ -50,7 +50,7 @@ if [[ -n "$TMP" ]]; then
 
 	echo "::group::Creating JS coverage summary"
 	mkdir "$TMP_DIR/js"
-	cp artifacts/js-combined.json "$TMP_DIR/js"
+	cp -v artifacts/js-combined.json "$TMP_DIR/js"
 	pnpm --filter=./.github/files/coverage-munger/ exec nyc report --no-exclude-after-remap --report-dir="$TMP_DIR" --temp-dir="$TMP_DIR/js" --reporter=json-summary
 	jq -r 'to_entries[] | select( .key != "total" ) | [ .key, .value.lines.total, .value.lines.covered ] | @tsv' "$TMP_DIR/coverage-summary.json" > "$TMP_DIR/js-summary.tsv"
 	echo '::endgroup::'
@@ -59,6 +59,7 @@ else
 	touch "$TMP_DIR/js-summary.tsv"
 fi
 
-echo "::group::Combining coverage summaries"
-sort "$TMP_DIR/php-summary.tsv" "$TMP_DIR/js-summary.tsv" > artifacts/summary.tsv
+echo "::group::Saving coverage summary"
+# Name the summary per coverage group so downloading with `merge-multiple` doesn't clobber summaries from other groups. The publish job merges them.
+cp -v "$TMP_DIR/$COVERAGE_GROUP-summary.tsv" "artifacts/summary-$COVERAGE_GROUP.tsv"
 echo '::endgroup::'

@@ -727,6 +727,45 @@ class Replicastore implements Replicastore_Interface {
 	}
 
 	/**
+	 * Delete metadata with a certain key and value for all objects.
+	 *
+	 * @access public
+	 *
+	 * @param string $type       Meta type.
+	 * @param string $meta_key   Meta key.
+	 * @param mixed  $meta_value Meta value to match.
+	 */
+	public function delete_metadata_by_key_value( $type, $meta_key, $meta_value ) {
+		global $wpdb;
+
+		$table = _get_meta_table( $type );
+		if ( ! $table ) {
+			return false;
+		}
+
+		if ( '' === $meta_value || null === $meta_value || false === $meta_value ) {
+			return false;
+		}
+
+		$column     = sanitize_key( $type . '_id' );
+		$meta_value = maybe_serialize( $meta_value );
+
+		$object_ids = $wpdb->get_col( $wpdb->prepare( 'SELECT DISTINCT %i FROM %i WHERE meta_key = %s AND meta_value = %s', $column, $table, $meta_key, $meta_value ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct replica query is needed to identify caches invalidated below.
+		$wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Direct replica mutation.
+			$table,
+			array(
+				'meta_key'   => $meta_key,
+				'meta_value' => $meta_value,
+			),
+			array( '%s', '%s' )
+		);
+
+		foreach ( $object_ids as $object_id ) {
+			wp_cache_delete( $object_id, $type . '_meta' );
+		}
+	}
+
+	/**
 	 * Retrieve value of a constant based on the constant name.
 	 *
 	 * We explicitly return null instead of false if the constant doesn't exist.
@@ -873,7 +912,6 @@ class Replicastore implements Replicastore_Interface {
 		if ( ! $t || is_wp_error( $t ) ) {
 			return $t;
 		}
-		// @phan-suppress-next-line PhanAccessMethodInternal @phan-suppress-current-line UnusedSuppression -- Fixed in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this suppression when we drop WP <6.9.
 		return get_terms( $taxonomy );
 	}
 

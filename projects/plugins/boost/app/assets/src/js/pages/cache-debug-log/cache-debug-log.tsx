@@ -1,18 +1,29 @@
+import { Button } from '@wordpress/components';
+import { check, copy } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
-import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
-import styles from './cache-debug-log.module.scss';
-import clsx from 'clsx';
-import { CopyToClipboard, JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
-import { useDebugLog } from '$features/page-cache/lib/stores';
+import { Link, Text } from '@wordpress/ui';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
+import clsx from 'clsx';
+import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
+import { useDebugLog } from '$features/page-cache/lib/stores';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import {
-	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import styles from './cache-debug-log.module.scss';
 
 const CacheDebugLog = () => {
 	const [ { data: debugLog } ] = useDebugLog();
 	const navigate = useNavigate();
+	const [ hasCopied, setHasCopied ] = useState( false );
+	const copyTimer = useRef< ReturnType< typeof setTimeout > | undefined >();
+
+	useEffect( () => {
+		// Clear the "Copied!" reset timer on unmount.
+		return () => {
+			if ( copyTimer.current ) {
+				clearTimeout( copyTimer.current );
+			}
+		};
+	}, [] );
 
 	const handleBack = ( e: React.MouseEvent ) => {
 		e.preventDefault();
@@ -23,27 +34,39 @@ const CacheDebugLog = () => {
 		navigate( '/' );
 	};
 
+	const handleCopy = () => {
+		navigator.clipboard.writeText( debugLog || '' );
+		setHasCopied( true );
+		if ( copyTimer.current ) {
+			clearTimeout( copyTimer.current );
+		}
+		copyTimer.current = setTimeout( () => setHasCopied( false ), 3000 );
+	};
+
+	// Kept as a variable (and reused as the aria-label) so the minifier can't
+	// collapse the two `__()` calls into `__( cond ? a : b, … )`, which breaks
+	// the i18n string extraction in production builds.
+	const copyLabel = __( 'Copy to clipboard', 'jetpack-boost' );
+
 	const breadcrumbs = (
-		<nav aria-label={ __( 'Breadcrumbs', 'jetpack-boost' ) } className={ styles.breadcrumbs }>
-			<HStack
-				as="ul"
-				className="admin-ui-breadcrumbs__list"
-				spacing={ 0 }
-				justify="flex-start"
-				alignment="center"
-			>
+		<nav aria-label={ __( 'Breadcrumbs', 'jetpack-boost' ) }>
+			<ul className={ styles.breadcrumbs }>
 				<li>
-					<a href="#/" onClick={ handleBack } className={ styles[ 'breadcrumb-link' ] }>
-						<JetpackLogo showText={ false } height={ 20 } />
-						{ 'Boost' /** "Boost" is a product name, do not translate. */ }
-					</a>
+					<Text variant="body-lg">
+						<Link tone="neutral" href="#/" onClick={ handleBack }>
+							{ 'Boost' /** "Boost" is a product name, do not translate. */ }
+						</Link>
+					</Text>
+					<Text variant="body-lg" aria-hidden="true" className={ styles.separator }>
+						/
+					</Text>
 				</li>
 				<li>
-					<h1 className={ styles[ 'breadcrumb-current' ] }>
+					<Text variant="heading-lg" className={ styles[ 'breadcrumb-current' ] }>
 						{ __( 'Cache debug log', 'jetpack-boost' ) }
-					</h1>
+					</Text>
 				</li>
-			</HStack>
+			</ul>
 		</nav>
 	);
 
@@ -55,21 +78,20 @@ const CacheDebugLog = () => {
 						<div id="jp-admin-notices" className="jetpack-boost-jitm-card" />
 						<header className={ styles.header }>
 							<h3>{ __( 'Jetpack Boost Cache Log Viewer', 'jetpack-boost' ) }</h3>
-							<CopyToClipboard
-								buttonStyle="icon-text"
-								className={ styles[ 'copy-button' ] }
-								textToCopy={ debugLog || '' }
+							<Button
 								variant="link"
-								weight="regular"
+								className={ styles[ 'copy-button' ] }
+								icon={ hasCopied ? check : copy }
+								onClick={ handleCopy }
+								aria-label={ copyLabel }
 							>
-								{ __( 'Copy to clipboard', 'jetpack-boost' ) }
-							</CopyToClipboard>
+								{ hasCopied ? __( 'Copied!', 'jetpack-boost' ) : copyLabel }
+							</Button>
 						</header>
 
 						<pre className={ styles[ 'log-text' ] }>{ debugLog }</pre>
 					</div>
 				</div>
-				<JetpackFooter />
 			</div>
 		</BoostAdminPage>
 	);

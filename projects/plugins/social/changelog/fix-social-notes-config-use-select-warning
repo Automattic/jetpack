@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix useSelect warning for notesConfig on Social admin page.

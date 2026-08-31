@@ -1,5 +1,6 @@
-import { ActionButton, JetpackLogo } from '@automattic/jetpack-components';
+import { JetpackLogo } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { useCallback, useState } from 'react';
 import { usePartnerCouponRedemption } from '../../hooks.js';
@@ -61,7 +62,7 @@ const RedeemPartnerCouponPostConnection = props => {
 		return null;
 	}
 
-	let logoComponent = null;
+	let logoComponent;
 
 	if ( partnerCoupon.partner.logo ) {
 		logoComponent = (
@@ -127,14 +128,13 @@ const RedeemPartnerCouponPostConnection = props => {
 
 					<div className="jetpack-redeem-partner-coupon-post-connection__actions">
 						<div>
-							<ActionButton
-								label={ sprintf(
+							<Button onClick={ onClick }>
+								{ sprintf(
 									/* translators: %s: Name of a Jetpack product. */
 									__( 'Redeem %s', 'jetpack-partner-coupon' ),
 									partnerCoupon.product.title
 								) }
-								onClick={ onClick }
-							/>
+							</Button>
 						</div>
 						<div>
 							<button

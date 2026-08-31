@@ -3,8 +3,8 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import debugFactory from 'debug';
 import { useEffect, useState, useMemo } from 'react';
-import { getCalypsoOrigin } from '@automattic/jetpack-connection';
 import useConnection from '../../components/use-connection';
+import getCalypsoOrigin from '../../helpers/get-calypso-origin';
 import { STORE_ID } from '../../state/store.jsx';
 import type { UseProductCheckoutWorkflowProps } from './types';
 

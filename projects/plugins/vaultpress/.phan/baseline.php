@@ -10,7 +10,6 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredClassMethod : 15+ occurrences
-    // PhanPluginSimplifyExpressionBool : 8 occurrences
     // PhanUndeclaredConstant : 8 occurrences
     // PhanTypeMismatchArgument : 7 occurrences
     // PhanTypeMismatchArgumentNullableInternal : 6 occurrences
@@ -18,8 +17,6 @@ return [
     // PhanPluginUnreachableCode : 5 occurrences
     // PhanTypeArraySuspiciousNullable : 5 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 5 occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
-    // PhanCommentParamWithoutRealParam : 3 occurrences
     // PhanTypeMismatchDimFetch : 3 occurrences
     // PhanUndeclaredFunction : 3 occurrences
     // PhanDeprecatedFunction : 2 occurrences
@@ -39,12 +36,12 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'class.vaultpress-database.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgumentInternal', 'PhanTypeNonVarPassByRef', 'PhanTypeObjectUnsetDeclaredProperty', 'PhanUndeclaredConstant'],
-        'class.vaultpress-filesystem.php' => ['PhanPluginNeverReturnMethod', 'PhanPluginSimplifyExpressionBool', 'PhanPluginUnreachableCode', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeNonVarPassByRef', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredVariable'],
-        'class.vaultpress-hotfixes.php' => ['PhanDeprecatedFunction', 'PhanPluginSimplifyExpressionBool', 'PhanRedefineFunction', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypePossiblyInvalidDimOffset'],
+        'class.vaultpress-database.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgumentInternal', 'PhanTypeNonVarPassByRef', 'PhanTypeObjectUnsetDeclaredProperty', 'PhanUndeclaredConstant'],
+        'class.vaultpress-filesystem.php' => ['PhanPluginNeverReturnMethod', 'PhanPluginUnreachableCode', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeNonVarPassByRef', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredVariable'],
+        'class.vaultpress-hotfixes.php' => ['PhanDeprecatedFunction', 'PhanRedefineFunction', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypePossiblyInvalidDimOffset'],
         'cron-tasks.php' => ['PhanRedefineFunction'],
-        'vaultpress.php' => ['PhanAccessMethodProtected', 'PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateExpressionAssignment', 'PhanPluginNeverReturnMethod', 'PhanPluginSimplifyExpressionBool', 'PhanPluginUnreachableCode', 'PhanTypeArraySuspiciousNullable', 'PhanTypeExpectedObjectPropAccessButGotNull', 'PhanTypeInvalidRightOperandOfNumericOp', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDimFetch', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod', 'PhanUndeclaredVariable'],
-        'vp-scanner.php' => ['PhanCommentParamWithoutRealParam', 'PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredFunction'],
+        'vaultpress.php' => ['PhanAccessMethodProtected', 'PhanDeprecatedFunction', 'PhanPluginDuplicateExpressionAssignment', 'PhanPluginNeverReturnMethod', 'PhanPluginUnreachableCode', 'PhanTypeArraySuspiciousNullable', 'PhanTypeExpectedObjectPropAccessButGotNull', 'PhanTypeInvalidRightOperandOfNumericOp', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDimFetch', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod', 'PhanUndeclaredVariable'],
+        'vp-scanner.php' => ['PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredFunction'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

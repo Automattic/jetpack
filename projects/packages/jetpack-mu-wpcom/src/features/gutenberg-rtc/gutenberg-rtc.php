@@ -84,12 +84,7 @@ function wpcom_enable_rtc() {
 
 	$has_needed_gutenberg_version = defined( 'GUTENBERG_VERSION' ) && is_string( GUTENBERG_VERSION ) && version_compare( (string) GUTENBERG_VERSION, '22.7.0', '>=' );
 
-	// WordPress 7.0+ includes RTC support in core.
-	// strtok strips beta/RC suffixes (e.g. "7.0-beta1" → "7.0") so pre-release versions match.
-	global $wp_version;
-	$has_needed_wp_version = version_compare( strtok( $wp_version, '-' ), '7.0', '>=' );
-
-	if ( ! $has_needed_gutenberg_version && ! $has_needed_wp_version ) {
+	if ( ! $has_needed_gutenberg_version ) {
 		return false;
 	}
 
@@ -119,22 +114,6 @@ function wpcom_rtc_providers( $providers ) {
 	return $providers;
 }
 add_filter( 'jetpack_rtc_providers', 'wpcom_rtc_providers' );
-
-/**
- * Disable the RTC welcome notice on P2 sites.
- *
- * @param bool $is_enabled Whether the welcome notice is enabled.
- * @return bool
- */
-function wpcom_rtc_enable_welcome_notice( $is_enabled ) {
-	// The RTC welcome notice is too noisy for P2 sites.
-	if ( function_exists( '\WPForTeams\is_wpforteams_site' ) && \WPForTeams\is_wpforteams_site( get_current_blog_id() ) ) {
-		return false;
-	}
-
-	return $is_enabled;
-}
-add_filter( 'jetpack_rtc_enable_welcome_notice', 'wpcom_rtc_enable_welcome_notice' );
 
 add_filter( 'jetpack_rtc_enable_limit_notices', '__return_false', 99 );
 

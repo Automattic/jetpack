@@ -27,7 +27,7 @@ await jest.unstable_mockModule(
 // Mock libphonenumber-js
 const mockParsePhoneNumber = jest.fn();
 
-await jest.unstable_mockModule( 'libphonenumber-js', () => ( {
+await jest.unstable_mockModule( 'libphonenumber-js/min/es6', () => ( {
 	__esModule: true,
 	parsePhoneNumber: mockParsePhoneNumber,
 } ) );

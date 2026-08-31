@@ -1,0 +1,21 @@
+.root {
+	inline-size: 10px;
+	block-size: 10px;
+	flex-shrink: 0;
+	border-radius: 50%;
+}
+
+// The `-weak` tokens are the vivid indicator colors; the plain
+// `fg-content-*` tokens are the darkest text shades (near-black) and read
+// as black on a status dot.
+.ok {
+	background: var(--wpds-color-foreground-content-success-weak);
+}
+
+.warn {
+	background: var(--wpds-color-foreground-content-warning-weak);
+}
+
+.err {
+	background: var(--wpds-color-foreground-content-error-weak);
+}

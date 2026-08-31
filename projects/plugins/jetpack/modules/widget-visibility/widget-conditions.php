@@ -668,9 +668,9 @@ class Jetpack_Widget_Conditions {
 	 */
 	public static function widget_update( $instance, $new_instance, $old_instance ) {
 		$conditions              = array();
-		$conditions['action']    = isset( $new_instance['conditions']['action'] ) ? $new_instance['conditions']['action'] : null;
+		$conditions['action']    = $new_instance['conditions']['action'] ?? null;
 		$conditions['match_all'] = ! empty( $new_instance['conditions']['match_all'] ) ? '1' : '0';
-		$conditions['rules']     = isset( $new_instance['conditions']['rules'] ) ? $new_instance['conditions']['rules'] : array();
+		$conditions['rules']     = $new_instance['conditions']['rules'] ?? array();
 
 		if ( isset( $new_instance['conditions']['rules_major'] ) ) {
 			foreach ( $new_instance['conditions']['rules_major'] as $index => $major_rule ) {
@@ -680,8 +680,8 @@ class Jetpack_Widget_Conditions {
 
 				$conditions['rules'][] = array(
 					'major'        => $major_rule,
-					'minor'        => isset( $new_instance['conditions']['rules_minor'][ $index ] ) ? $new_instance['conditions']['rules_minor'][ $index ] : '',
-					'has_children' => isset( $new_instance['conditions']['page_children'][ $index ] ) ? true : false,
+					'minor'        => $new_instance['conditions']['rules_minor'][ $index ] ?? '',
+					'has_children' => isset( $new_instance['conditions']['page_children'][ $index ] ),
 				);
 			}
 		}
@@ -865,7 +865,7 @@ class Jetpack_Widget_Conditions {
 		if ( empty( $instance['content'] ) ) {
 			return $instance;
 		}
-		$content = self::normalize_widget_content( isset( $instance['content'] ) ? $instance['content'] : null );
+		$content = self::normalize_widget_content( $instance['content'] ?? null );
 
 		if ( false === $content || ! has_blocks( $content ) ) {
 			// No visibility found.

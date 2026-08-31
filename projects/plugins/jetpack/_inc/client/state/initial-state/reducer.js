@@ -859,16 +859,6 @@ export function isWpAdminSubscriberManagementEnabled( state ) {
 }
 
 /**
- * Returns true if the wp-admin Newsletter settings page is enabled.
- *
- * @param {object} state - Global state tree.
- * @return {boolean} True if the Newsletter settings page is enabled.
- */
-export function isWpAdminNewsletterSettingsEnabled( state ) {
-	return !! state.jetpack.initialState.isWpAdminNewsletterSettingsEnabled;
-}
-
-/**
  * Check if the Sharing block is available on the site.
  *
  * @param {object} state - Global state tree.
@@ -936,4 +926,28 @@ export function subscriptionSiteEditSupported( state ) {
  */
 export function isSeoEnhancerAvailable( state ) {
 	return 'ai_seo_enhancer_enabled' in state.jetpack.initialState.getModules[ 'seo-tools' ].options;
+}
+
+/**
+ * Returns whether Jetpack AI is effectively enabled, as the server computed it
+ * through the full gate chain. Defaults to true when absent so the UI never
+ * reports AI off on its own authority.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} Whether Jetpack AI is effectively enabled.
+ */
+export function isAiEnabled( state ) {
+	return state.jetpack.initialState.isAiEnabled ?? true;
+}
+
+/**
+ * Returns whether the AI SEO feature is effectively enabled, as the server
+ * computed it (its own toggle plus the AI gates). Defaults to true when absent
+ * so the UI never reports the feature off on its own authority.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} Whether the AI SEO feature is effectively enabled.
+ */
+export function isAiSeoEnabled( state ) {
+	return state.jetpack.initialState.isAiSeoEnabled ?? true;
 }

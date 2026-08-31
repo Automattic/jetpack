@@ -1,0 +1,29 @@
+.content {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+}
+
+/* The default tile is two rows tall, where both highlights fit. Resized down to
+ * one row the display figures outgrow the body, so scroll rather than clip.
+ * The design's switch to horizontal stacking at narrow widths is shared with
+ * Most popular day and lands with it in WOOA7S-2035. */
+.root {
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.label {
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+.value {
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+.caption {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+

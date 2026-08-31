@@ -127,7 +127,12 @@ class Jetpack_SEO {
 			$tags['og:title'] = $custom_title;
 		}
 
-		$post_custom_description = Jetpack_SEO_Posts::get_post_custom_description( get_post() );
+		// On archives and a latest-posts homepage, get_post() returns the first post in
+		// the loop, whose description does not represent the page being viewed. Only use
+		// the per-post custom description when we are actually on that singular post/page.
+		$post_custom_description = is_singular()
+			? Jetpack_SEO_Posts::get_post_custom_description( get_post() )
+			: '';
 		$front_page_meta         = Jetpack_SEO_Utils::get_front_page_meta_description();
 
 		if ( class_exists( 'woocommerce' ) && is_shop() ) {
@@ -199,7 +204,7 @@ class Jetpack_SEO {
 			$meta['description'] = sprintf(
 				/* translators: first property is an user's display name, the second is the site's title. */
 				_x( 'Read all of the posts by %1$s on %2$s', 'Read all of the posts by Author Name on Blog Title', 'jetpack' ),
-				isset( $obj->display_name ) ? $obj->display_name : __( 'the author', 'jetpack' ),
+				$obj->display_name ?? __( 'the author', 'jetpack' ),
 				get_bloginfo( 'title' )
 			);
 		} elseif ( is_tag() || is_category() || is_tax() ) {

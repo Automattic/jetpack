@@ -37,7 +37,7 @@ jobs:
       comment_id: ${{ steps.check-test-reminder-comment.outputs.result }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       # For pull requests, list-changed-projects.sh needs the merge base.
       # But it doesn't have to be checked out.
@@ -71,33 +71,30 @@ jobs:
             WPCOM=$( jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)' wpcom.txt )
             NONWPCOM=$( jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)' non-wpcom.txt )
 
-            MATRIX=$( jq -nc --arg WPCOM "$WPCOM" --arg NONWPCOM "$NONWPCOM" '[
-              {
-                what: "wpcom",
+            MATRIX=$( jq -nc --arg WPCOM "$WPCOM" --arg NONWPCOM "$NONWPCOM" '{
+              wpcom: {
                 changed: $WPCOM,
               },
-              {
-                what: "non-wpcom",
+              nonwpcom: {
                 changed: $NONWPCOM,
               }
-            ]' )
+            }' )
             echo "build-matrix=$MATRIX" >> "$GITHUB_OUTPUT"
           else
             CHANGED="$(EXTRA=build .github/files/list-changed-projects.sh)"
             echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
 
-            MATRIX=$( jq -nc --arg CHANGED "$CHANGED" '[
-              {
-                what: "all",
+            MATRIX=$( jq -nc --arg CHANGED "$CHANGED" '{
+              all: {
                 changed: $CHANGED,
               }
-            ]' )
+            }' )
             echo "build-matrix=$MATRIX" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Check if a WordPress.com test reminder comment is needed.
         id: check-test-reminder-comment
-        uses: actions/github-script@v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
@@ -107,44 +104,31 @@ jobs:
             const data = await checkTestPendingComment( github, context, core );
             return data;
 
-  build:
-    name: Build ${{ matrix.what }} projects
+  # Have to manually matrix with yaml anchors, because `update_wpcom_mirrors` needs to depend on only `build_wpcom` and that's not possible with normal matrixing.
+  build_all:
+    name: Build all projects
     runs-on: ubuntu-latest
     needs: prepare
+    if: ${{ fromJson( needs.prepare.outputs.build_matrix ).all }}
     env:
-      FILENAME: partial-build-${{ matrix.what }}.tar.xz
-      CHANGED: ${{ matrix.changed }}
+      FILENAME: partial-build-all.tar.xz
+      CHANGED: ${{ fromJson( needs.prepare.outputs.build_matrix ).all.changed }}
       # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
       BUILD_BASE: /tmp/jetpack-build
-    permissions:
-      # .github/actions/turnstile
-      actions: read
-      # actions/checkout, actions/upload-artifact
-      contents: read
-      # push-to-mirrors uses secrets.API_TOKEN_GITHUB, so no need for permissions
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson( needs.prepare.outputs.build_matrix ) }}
+    timeout-minutes: 30  # 2026-08-18: Successful runs take ~18 minutes.
 
-    # We don't set a job-level timeout because the turnstyle step may take arbitrarily long.
-
-    steps:
-      - uses: actions/checkout@v6
-        timeout-minutes: 1  # 2026-04-07: Successful runs seem to take a few seconds
+    steps: &build_steps
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
-        timeout-minutes: 3  # 2026-04-07: Successful runs seem to take ~30 seconds
 
       - name: Pnpm install
-        timeout-minutes: 5  # 2025-11-20: The pnpm install may take a few minutes on cache miss.
         run: pnpm install
 
       # We need the tree (but not the blob) for packages that will have -alpha version numbers so the timestamp appending works right.
       # We also need the tree for js-packages/social-logos/src/svg so the font build will work right.
       - name: Deepen tree for packages
-        timeout-minutes: 1  # 2026-04-07: Successful runs seem to take a few seconds
         run: |
           mapfile -t PROJECTS < <(jq -r 'to_entries[] | select( .value ) | .key' <<<"$CHANGED")
           if [[ ${#PROJECTS[@]} -gt 0 ]]; then
@@ -176,7 +160,6 @@ jobs:
           fi
 
       - name: Build changed projects
-        timeout-minutes: 25  # 2026-04-07: Successful runs seem to take ~15 minutes.
         run: |
           mapfile -t PROJECTS < <(jq -r 'to_entries[] | select( .value ) | .key' <<<"$CHANGED")
           if [[ ${#PROJECTS[@]} -eq 0 ]]; then
@@ -188,16 +171,11 @@ jobs:
           fi
 
       - name: Create archive
-        timeout-minutes: 5  # 2026-04-07: Takes a minute or two.
         run: |
           tar --owner=0 --group=0 --xz -cvvf "$FILENAME" -C "$BUILD_BASE" --transform 's,^\.,build,' .
 
-          # In case the "Push wpcom projects" below runs, it'll want a modified mirrors.txt
-          printf '%s\n' Automattic/jetpack-production Automattic/jetpack-mu-wpcom-plugin > "$BUILD_BASE/mirrors.txt"
-
       - name: Store build as artifact
-        uses: actions/upload-artifact@v7
-        timeout-minutes: 5  # 2026-04-07: Should take just a few seconds.
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           path: ${{ env.FILENAME }}
           retention-days: 1
@@ -205,28 +183,37 @@ jobs:
           compression-level: 0
           archive: false
 
-      - name: Wait for prior instances of the workflow to finish
-        if: github.event_name == 'push' && github.repository == 'Automattic/jetpack' && matrix.what == 'wpcom'
-        continue-on-error: true  # Let the artifact still be processed if the push fails. The later `update_mirrors` job will retry.
-        uses: ./.github/actions/turnstile
+  build_wpcom:
+    name: Build wpcom projects
+    runs-on: ubuntu-latest
+    needs: prepare
+    if: ${{ fromJson( needs.prepare.outputs.build_matrix ).wpcom }}
+    env:
+      FILENAME: partial-build-wpcom.tar.xz
+      CHANGED: ${{ fromJson( needs.prepare.outputs.build_matrix ).wpcom.changed }}
+      # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
+      BUILD_BASE: /tmp/jetpack-build
+    timeout-minutes: 25  # 2026-08-18: Successful runs take ~13 minutes.
+    steps: *build_steps
 
-      - name: Push wpcom projects
-        if: github.event_name == 'push' && github.repository == 'Automattic/jetpack' && matrix.what == 'wpcom'
-        continue-on-error: true  # Let the artifact still be processed if the push fails. The later `update_mirrors` job will retry.
-        uses: ./projects/github-actions/push-to-mirrors
-        with:
-          source-directory: ${{ github.workspace }}
-          token: ${{ secrets.API_TOKEN_GITHUB }}
-          upstream-ref-since: '2024-04-10' # No point in checking 12 years of earlier commits from before we started adding "Upstream-Ref".
-          username: matticbot
-          working-directory: ${{ env.BUILD_BASE }}
-        timeout-minutes: 10  # 2025-11-06: Successful runs seem to take a minute or two.
+  build_nonwpcom:
+    name: Build non-wpcom projects
+    runs-on: ubuntu-latest
+    needs: prepare
+    if: ${{ fromJson( needs.prepare.outputs.build_matrix ).nonwpcom }}
+    env:
+      FILENAME: partial-build-nonwpcom.tar.xz
+      CHANGED: ${{ fromJson( needs.prepare.outputs.build_matrix ).nonwpcom.changed }}
+      # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
+      BUILD_BASE: /tmp/jetpack-build
+    timeout-minutes: 25  # 2026-08-18: Successful runs seem to take ~13 minutes.
+    steps: *build_steps
 
   merge_artifacts:
     name: Merge build artifacts
     runs-on: ubuntu-latest
     timeout-minutes: 10  # 2026-04-07: Should take a minute or two.
-    needs: [ prepare, build ]
+    needs: [ prepare, build_all, build_wpcom, build_nonwpcom ]
     permissions:
       # actions/checkout, actions/upload-artifact, actions/download-artifact
       contents: read
@@ -235,13 +222,22 @@ jobs:
     env:
       BUILD_BASE: ${{ github.workspace }}/build
 
+    # Have to check the probably-skipped build jobs manually, by default GH will skip this job if any of them skipped.
+    if: >
+      ! cancelled() &&
+      needs.prepare.result == 'success' &&
+      ( needs.build_all.result == 'success' || needs.build_all.result == 'skipped' ) &&
+      ( needs.build_wpcom.result == 'success' || needs.build_wpcom.result == 'skipped' ) &&
+      ( needs.build_nonwpcom.result == 'success' || needs.build_nonwpcom.result == 'skipped' ) &&
+      ( needs.build_all.result == 'success' || needs.build_wpcom.result == 'success' || needs.build_nonwpcom.result == 'success' )
+
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: monorepo
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: partial-build-*.tar.xz
           merge-multiple: true
@@ -366,7 +362,7 @@ jobs:
 
       # 2026-03-02: Temporarily upload the artifact twice, under both old and new names, as we update things using the old name.
       - name: Store build as artifact (old)
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: jetpack-build
           path: build.tar.xz
@@ -375,7 +371,7 @@ jobs:
           # Already compressed.
           compression-level: 0
       - name: Store build as artifact (new)
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           path: jetpack-build.tar.xz
           # Retain trunk builds for 7 days so we can manually download for branch comparisons. Branch builds only need one day so the beta builder can slurp it up to distribute.
@@ -386,7 +382,7 @@ jobs:
 
       - name: Store plugins.tsv as artifact
         if: steps.plugins.outputs.any == 'true'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           path: ${{ env.BUILD_BASE }}/plugins.tsv
           # We don't really care about this artifact, its presence is a flag to the post-build job.
@@ -394,7 +390,7 @@ jobs:
           archive: false
 
       - name: Create plugins artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: steps.plugin-zips.outputs.any-built == 'true'
         with:
           name: plugins
@@ -406,7 +402,7 @@ jobs:
 
       - name: Update reminder with testing instructions
         id: update-reminder-comment
-        uses: actions/github-script@v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name && fromJSON(needs.prepare.outputs.comment_id)['commentId'] != 0 }}
         env:
           BRANCH_NAME: ${{ github.head_ref }}
@@ -416,46 +412,185 @@ jobs:
             const { checkTestReminderComment } = require('./monorepo/.github/files/build-reminder-comment/check-test-reminder-comment.js')
             await checkTestReminderComment( github, context, core );
 
-  update_mirrors:
-    name: Push to mirror repos
+  # GitHub provides no way to make sure the `update_wpcom_mirrors` jobs run in merge order.
+  # So we poll for the previous commit's Build run, and only let our `update_wpcom_mirrors` get queued when that run's `update_wpcom_mirrors` is already queued.
+  await_update_wpcom_mirrors:
+    name: Wait for previous commit wpcom-mirrors push
     runs-on: ubuntu-latest
-    needs: merge_artifacts
-    permissions:
-      # .github/actions/turnstile
-      actions: read
-      # actions/checkout, actions/download-artifact
-      contents: read
-      # push-to-mirrors uses secrets.API_TOKEN_GITHUB, so no need for permissions
-
+    needs: [ build_wpcom ]
     if: github.event_name == 'push' && github.repository == 'Automattic/jetpack'
+    # No timeout, might take arbitrary amounts of time.
+    permissions:
+      # Polling
+      actions: read
+      # actions/checkout
+      contents: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      AWAIT_JOB_NAME: 'Push wpcom plugins to mirror repos'
+      BUILD_JOB_NAMES: '[ "Build wpcom projects" ]'
 
-    # Not setting a job-level timeout because it would be kind of pointless with the blocking step. Set a step timeout for all other steps instead.
+    steps: &await_mirrors_steps
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 2
+          # We don't need any files for this check, just the tree. A non-cone sparse checkout with a custom filter does the trick.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: .
+          filter: 'tree:0'
+
+      - name: Wait for previous commit to queue
+        run: |
+          # First, get the previous commit sha
+          SHA=$( git log -1 --format='%H' HEAD^ || true )
+          [[ -z "$SHA" ]] && { echo "🤷 Failed to fetch previous commit sha. May as well go for it."; exit 0; }
+
+          # Look up the run for that sha
+          JSON=$( gh api -X GET "/repos/$GITHUB_REPOSITORY/actions/workflows/build.yml/runs" -F event=push -F head_sha="$SHA" --jq '.workflow_runs[0]' || true )
+          RUN_ID=$( jq '.id // empty' <<<"$JSON" || true )
+          [[ -z "$RUN_ID" ]] && { echo "🤷 Failed to find build run for $SHA. May as well go for it."; exit 0; }
+          echo "Watching run https://github.com/$GITHUB_REPOSITORY/actions/runs/$RUN_ID"
+          CONCLUSION=$( jq '.conclusion // null' <<<"$JSON" || true )
+          if [[ "$CONCLUSION" != "null" ]]; then
+            echo "🎉 Workflow for $SHA already concluded ($CONCLUSION). No need to wait on it."
+            exit 0
+          fi
+
+          # To avoid spending too much rate limit, we only re-check the run status after 15 minutes and then every 5 thereafter.
+          NEXTRUNCHECK=$( jq '[ now + 5 * 60, ( .created_at | 15 * 60 + fromdateiso8601 ) ] | max | round' <<<"$JSON" || true )
+
+          # Now poll the run until the target job name shows up
+          BADCT=0
+          while true; do
+            JSON=$( gh api -X GET "/repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/jobs" -F filter=latest -F per_page=100 || true )
+            if ! jq -e '.jobs' <<<"$JSON" &>/dev/null; then
+              BADCT=$(( BADCT + 1 ))
+              if [[ $BADCT -ge 3 ]]; then
+                echo "🤷 Repeated bad JSON. Giving up."
+                exit 0
+              fi
+              echo "⏱️ Bad JSON. Will retry."
+              sleep 30
+              continue
+            fi
+            BADCT=0
+            if jq -e --arg NAME "$AWAIT_JOB_NAME" '.jobs[] | select( .name == $NAME )' <<<"$JSON" &>/dev/null; then
+              echo "🎉 Found the \"$AWAIT_JOB_NAME\" job!"
+              exit 0
+            fi
+
+            # No job yet. Figure out how long to sleep, and maybe check that the watched job is still running at all.
+            if [[ $NEXTRUNCHECK -le $EPOCHSECONDS ]]; then
+              JSON2=$( gh api -X GET "/repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID" || true )
+              if ! jq -e '.id // empty' <<<"$JSON2" &>/dev/null; then
+                echo "Bad JSON when re-checking run conclusion. Will try again later."
+              else
+                CONCLUSION=$( jq '.conclusion // null' <<<"$JSON2" || true )
+                if [[ "$CONCLUSION" != "null" ]]; then
+                  echo "🤷 Workflow $RUN_ID for $SHA has concluded ($CONCLUSION), despite no \"$AWAIT_JOB_NAME\" being found. May as well go ahead."
+                  exit 0
+                fi
+                NEXTRUNCHECK=$(( EPOCHSECONDS + 5 * 60 ))
+              fi
+            fi
+            DELAY=$( jq --argjson BUILDS "$BUILD_JOB_NAMES" '.jobs | map( select( .name as $N | $BUILDS | index( $N ) ) | .started_at | fromdateiso8601 ) | max // now | 10 * 60 - ( now - . ) | round' <<<"$JSON" || true )
+            [[ "$DELAY" =~ ^[0-9]+$ ]] || DELAY=30
+            [[ "$DELAY" -ge 30 ]] || DELAY=30
+            [[ "$DELAY" -le 120 ]] || DELAY=120
+            echo "⏱️ No \"$AWAIT_JOB_NAME\" job yet, waiting $DELAY seconds"
+            sleep "$DELAY"
+          done
+
+  update_wpcom_mirrors:
+    name: Push wpcom plugins to mirror repos
+    runs-on: ubuntu-latest
+    needs: [ await_update_wpcom_mirrors ]
+    if: github.event_name == 'push' && github.repository == 'Automattic/jetpack'
+    concurrency:
+      group: build-push_wpcom
+      queue: max
+    timeout-minutes: 10  # 2026-05-21: Successful runs seem to take a few minutes
+
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: monorepo
-        timeout-minutes: 1  # 2025-11-06: Successful runs seem to take a few seconds
 
       - name: Download build artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: partial-build-wpcom.tar.xz
+      - name: Extract build archive
+        run: tar --xz -xvvf partial-build-wpcom.tar.xz build
+      - name: Filter mirrors.txt
+        run: |
+          # We only want to push certain plugins here.
+          grep -Fx -e 'Automattic/jetpack-production' -e 'Automattic/jetpack-mu-wpcom-plugin' build/mirrors.txt > build/mirrors.txt.tmp || true
+          mv build/mirrors.txt.tmp build/mirrors.txt
+
+      - name: Push changed projects
+        uses: ./monorepo/projects/github-actions/push-to-mirrors
+        with:
+          source-directory: ${{ github.workspace }}/monorepo
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+          upstream-ref-since: '2024-04-10' # No point in checking 12 years of earlier commits from before we started adding "Upstream-Ref".
+          username: matticbot
+          working-directory: ${{ github.workspace }}/build
+
+  # Ditto for `update_all_mirrors`.
+  await_update_all_mirrors:
+    name: Wait for previous commit all-mirrors push
+    runs-on: ubuntu-latest
+    needs: [ merge_artifacts ]
+    # Have to check success manually, GitHub's default sees that merge_artifacts depends on a build job that skipped and skips otherwise. 🙄
+    if: >
+      ! cancelled() &&
+      github.event_name == 'push' && github.repository == 'Automattic/jetpack' &&
+      needs.merge_artifacts.result == 'success'
+    # No timeout, might take arbitrary amounts of time.
+    permissions:
+      # Polling
+      actions: read
+      # actions/checkout
+      contents: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      AWAIT_JOB_NAME: 'Push to mirror repos'
+      BUILD_JOB_NAMES: '[ "Build all projects", "Build wpcom projects", "Build non-wpcom projects" ]'
+    steps: *await_mirrors_steps
+
+  update_all_mirrors:
+    name: Push to mirror repos
+    runs-on: ubuntu-latest
+    needs: [ prepare, merge_artifacts, await_update_all_mirrors ]
+    concurrency:
+      group: build-push_all
+      queue: max
+    timeout-minutes: 10  # 2026-05-21: Successful runs seem to take a few minutes
+
+    # Have to check success manually, GitHub's default sees that merge_artifacts depends on a build job that skipped and skips otherwise. 🙄
+    if: >
+      ! cancelled() &&
+      github.event_name == 'push' && github.repository == 'Automattic/jetpack' &&
+      needs.merge_artifacts.result == 'success'
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          path: monorepo
+
+      - name: Download build artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: jetpack-build.tar.xz
-        timeout-minutes: 2  # 2025-11-06: Successful runs normally take a few seconds
       - name: Extract build archive
         run: tar --xz -xvvf jetpack-build.tar.xz build
-      - name: Reorder mirrors.txt
+      - name: Filter mirrors.txt
+        if: ${{ fromJson( needs.prepare.outputs.build_matrix ).wpcom }}
         run: |
-          # Pull certain plugins to the top.
-          : > build/mirrors.txt.tmp
-          grep -Fx 'Automattic/jetpack-production' build/mirrors.txt >> build/mirrors.txt.tmp || true
-          grep -Fx 'Automattic/jetpack-mu-wpcom-plugin' build/mirrors.txt >> build/mirrors.txt.tmp || true
-          grep -vFx --file build/mirrors.txt.tmp build/mirrors.txt >> build/mirrors.txt.tmp || true
-          diff -su build/mirrors.txt build/mirrors.txt.tmp || true
+          # Skip the plugins pushed by update_wpcom_mirrors, if it was supposed to have run.
+          grep -vFx -e 'Automattic/jetpack-production' -e 'Automattic/jetpack-mu-wpcom-plugin' build/mirrors.txt > build/mirrors.txt.tmp || true
           mv build/mirrors.txt.tmp build/mirrors.txt
-        timeout-minutes: 1  # 2026-04-09: Successful runs should take just a few seconds
-
-      - name: Wait for prior instances of the workflow to finish
-        uses: ./monorepo/.github/actions/turnstile
 
       - name: Push changed projects
         uses: ./monorepo/projects/github-actions/push-to-mirrors

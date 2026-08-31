@@ -8,8 +8,9 @@ import {
 	Container,
 	GlobalNotices,
 	Notice,
-	useBreakpointMatch,
 } from '@automattic/jetpack-components';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -32,9 +33,10 @@ import { useQueryParameter } from '../../hooks/use-query-parameter';
 import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
-import { MY_JETPACK_SECTION_OVERVIEW } from '../my-jetpack-tab-panel/constants';
-import { isValidMyJetpackSection } from '../my-jetpack-tab-panel/utils';
+import { useReplayPendingNotice } from '../my-jetpack-tab-panel/products/pending-notice';
+import { getDefaultMyJetpackSection, isValidMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
+import buildOptionalMenuItems from './build-optional-menu-items';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, title, options } ) => {
@@ -48,7 +50,7 @@ const GlobalNotice = ( { message, title, options } ) => {
 		} );
 	}, [ options.id, recordEvent, options?.tracksArgs ] );
 
-	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
+	const isBiggerThanMedium = useViewportMatch( 'large' );
 
 	const actionButtons = options.actions?.map( action => {
 		return (
@@ -76,16 +78,19 @@ const GlobalNotice = ( { message, title, options } ) => {
  */
 export default function MyJetpackScreen() {
 	useNotificationWatcher();
+	// Replay a success notice persisted before a product toggle reloaded the page.
+	useReplayPendingNotice();
 	const {
 		// no prettier please
 		adminUrl,
 		sandboxedDomain,
 		isDevVersion,
 		userIsAdmin,
+		isJetpackPluginActive,
 	} = getMyJetpackWindowInitialState();
 
 	const { isSectionVisible } = useEvaluationRecommendations();
-	const { apiRoot, apiNonce } = useMyJetpackConnection();
+	const { apiRoot, apiNonce, isSiteConnected } = useMyJetpackConnection();
 	const { currentNotice } = useContext( NoticeContext );
 	const {
 		message: noticeMessage,
@@ -117,7 +122,7 @@ export default function MyJetpackScreen() {
 	// Determine current tab
 	const currentTab = isValidMyJetpackSection( params.section )
 		? params.section
-		: MY_JETPACK_SECTION_OVERVIEW;
+		: getDefaultMyJetpackSection();
 
 	useLayoutEffect( () => {
 		let customTracksData = {};
@@ -161,12 +166,17 @@ export default function MyJetpackScreen() {
 		return null;
 	}
 
-	const resetOptionsMenuItem = {
-		label: 'Reset options (devs)',
-		role: 'button',
-		onClick: () => resetJetpackOptions(),
-		onKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
-	};
+	const optionalMenuItems = buildOptionalMenuItems( {
+		adminUrl,
+		isDevVersion,
+		userIsAdmin,
+		isSiteConnected,
+		isJetpackPluginActive,
+		isSimpleSite: isSimpleSite(),
+		onModulesClick: () => recordEvent( 'jetpack_myjetpack_footer_link_click', { link: 'modules' } ),
+		onResetClick: () => resetJetpackOptions(),
+		onResetKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
+	} );
 
 	return (
 		<AdminPage
@@ -175,7 +185,7 @@ export default function MyJetpackScreen() {
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			title="Jetpack"
-			optionalMenuItems={ isDevVersion && userIsAdmin ? [ resetOptionsMenuItem ] : [] }
+			optionalMenuItems={ optionalMenuItems }
 			className={ styles[ 'my-jetpack-screen' ] }
 			showBottomBorder={ false }
 		>

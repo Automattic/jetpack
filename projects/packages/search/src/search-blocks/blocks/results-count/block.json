@@ -1,0 +1,14 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack-search/results-count",
+	"version": "0.1.0",
+	"title": "Results Count",
+	"category": "jetpack-search",
+	"description": "Displays the results count. Powered by Jetpack Search.",
+	"supports": { "html": false, "interactivity": true },
+	"textdomain": "jetpack-search-pkg",
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/results-count.js",
+	"style": "file:../../../../build/search-blocks/results-count.css"
+}

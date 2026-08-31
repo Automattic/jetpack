@@ -24,8 +24,7 @@ function update_tag {
 	fi
 }
 
-cd $(dirname "${BASH_SOURCE[0]}")/../..
-BASE="$PWD"
+cd "$(dirname "${BASH_SOURCE[0]}")"/../..
 
 # If this commit is creating a new project, we need to create the tag so future runs don't break.
 echo "Checking for new projects..."

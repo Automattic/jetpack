@@ -4,7 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.2",
+		"php": ">=7.4",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-plans": "@dev",
@@ -13,7 +13,6 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},
@@ -29,12 +28,8 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-		],
-		"test-php": [
-			"@composer phpunit"
-		]
+		"test-php": "@composer phpunit",
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 	},
 	"repositories": [
 		{

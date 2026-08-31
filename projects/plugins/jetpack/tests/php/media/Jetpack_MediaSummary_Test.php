@@ -85,6 +85,50 @@ class Jetpack_MediaSummary_Test extends WP_UnitTestCase {
 	public function shortcode_nop() { }
 
 	/**
+	 * By default, clean_text() strips http(s) URLs from the text.
+	 */
+	public function test_mediasummary_clean_text_strips_urls_by_default() {
+		$content = 'Check this out https://example.com/page and more.';
+
+		$this->assertEquals( 'Check this out and more.', Jetpack_Media_Summary::clean_text( $content ) );
+	}
+
+	/**
+	 * When $preserve_urls is true, clean_text() keeps http(s) URLs but still collapses whitespace and trims.
+	 */
+	public function test_mediasummary_clean_text_preserves_urls_when_requested() {
+		$content = 'Check this out https://example.com/page and more.';
+
+		$this->assertEquals( $content, Jetpack_Media_Summary::clean_text( $content, true ) );
+
+		// URL preservation is the only behavior change: whitespace is still collapsed and trimmed.
+		$messy = '  Visit   https://example.com/x   now  ';
+		$this->assertEquals( 'Visit https://example.com/x now', Jetpack_Media_Summary::clean_text( $messy, true ) );
+	}
+
+	/**
+	 * The get_excerpt() method strips URLs by default but keeps them when $preserve_urls is true.
+	 */
+	public function test_mediasummary_get_excerpt_preserve_urls() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_excerpt' => 'Visit https://example.com today',
+			)
+		);
+		$post    = get_post( $post_id );
+
+		$this->assertEquals(
+			'Visit today',
+			Jetpack_Media_Summary::get_excerpt( $post->post_content, $post->post_excerpt, 16, 256, $post )
+		);
+
+		$this->assertEquals(
+			'Visit https://example.com today',
+			Jetpack_Media_Summary::get_excerpt( $post->post_content, $post->post_excerpt, 16, 256, $post, true )
+		);
+	}
+
+	/**
 	 * @author scotchfield
 	 * @since 3.2
 	 */

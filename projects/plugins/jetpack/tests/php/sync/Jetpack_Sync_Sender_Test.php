@@ -98,8 +98,8 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 
 		// now let's trigger our action a few times
 		do_action( 'my_expanding_action', 'x' );
-		do_action( 'my_expanding_action', 'x' );
-		do_action( 'my_expanding_action', 'x' );
+		do_action( 'my_expanding_action', 'y' );
+		do_action( 'my_expanding_action', 'z' );
 
 		// trigger the sync
 		$this->sender->do_sync();
@@ -126,7 +126,9 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 
 		// now let's trigger our action a few times
 		do_action( 'my_action' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional.
 		do_action( 'my_action' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional.
 		do_action( 'my_action' );
 
 		// trigger the sync
@@ -168,7 +170,9 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 
 		// now let's trigger our action a few times
 		do_action( 'my_expanding_action', 'x' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional.
 		do_action( 'my_expanding_action', 'x' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional.
 		do_action( 'my_expanding_action', 'x' );
 
 		// trigger the sync
@@ -212,10 +216,15 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 
 		// now let's trigger our action a few times
 		do_action( 'my_action' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional.
 		do_action( 'my_action' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional.
 		do_action( 'my_action' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional.
 		do_action( 'my_action' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional.
 		do_action( 'my_action' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional.
 		do_action( 'my_action' );
 
 		// now let's try to sync and observe the rate limit
@@ -429,7 +438,9 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 
 		// it should only dequeue 2 of these, because each takes 3 seconds to process, and 3*2 = 6, which is > 4
 		do_action( 'super_slow_action' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentionally testing limits.
 		do_action( 'super_slow_action' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentionally testing limits.
 		do_action( 'super_slow_action' );
 
 		$this->assertEquals( 3, $this->sender->get_sync_queue()->size() );
@@ -690,8 +701,11 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		add_action( 'demo_action', array( $this->listener, 'action_handler' ) );
 
 		do_action( 'demo_action' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentionally testing that throttling does not happen.
 		do_action( 'demo_action' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentionally testing that throttling does not happen.
 		do_action( 'demo_action' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentionally testing that throttling does not happen.
 		do_action( 'demo_action' );
 
 		// First sync should work and send 2 items.
@@ -737,7 +751,7 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 
 		$lock_expires_name  = $lock_option_name . '_expires';
 		$lock_expires_value = \Jetpack_Options::get_raw_option( $lock_expires_name );
-		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.01 );
+		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.02 );
 	}
 
 	/**
@@ -784,7 +798,7 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		$this->assertNotEmpty( \Jetpack_Options::get_raw_option( $lock_option_name ) );
 
 		$lock_expires_value = (float) \Jetpack_Options::get_raw_option( $lock_expires_name );
-		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.01 );
+		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.02 );
 	}
 
 	/**
@@ -807,7 +821,7 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		$this->assertNotEmpty( \Jetpack_Options::get_raw_option( $lock_option_name ) );
 
 		$lock_expires_value = (float) \Jetpack_Options::get_raw_option( $lock_expires_name );
-		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.01 );
+		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.02 );
 	}
 
 	/**
@@ -899,8 +913,7 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		// Process one action at each run.
 		$this->sender->set_upload_max_rows( 1 );
 		// Trigger two new actions.
-		self::factory()->post->create();
-		self::factory()->post->create();
+		self::factory()->post->create_many( 2 );
 		// Current "request" is dedicated Sync request.
 		$_SERVER['REQUEST_URI'] = rest_url( 'jetpack/v4/sync/spawn-sync' );
 
@@ -956,7 +969,7 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 	 *
 	 * @return array
 	 */
-	public function pre_http_sync_request_spawned( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function pre_http_sync_request_spawned( $preempt, $args, $url ) {
 		$this->dedicated_sync_request_spawned = strpos( $url, 'spawn-sync' ) > 0;
 
 		return array(

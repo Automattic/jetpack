@@ -118,6 +118,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 							'type'     => 'integer',
 							'required' => false,
 						),
+						'description'             => array(
+							'type'     => 'string',
+							'required' => false,
+						),
 					),
 				),
 			)
@@ -186,6 +190,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 						),
 						'tier'                    => array(
 							'type'     => 'integer',
+							'required' => false,
+						),
+						'description'             => array(
+							'type'     => 'string',
 							'required' => false,
 						),
 					),
@@ -260,7 +268,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 */
 	public function list_products( WP_REST_Request $request ) {
 		$is_editable = isset( $request['is_editable'] ) ? (bool) $request['is_editable'] : null;
-		$type        = isset( $request['type'] ) ? $request['type'] : null;
+		$type        = $request['type'] ?? null;
 
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			require_lib( 'memberships' );
@@ -518,8 +526,8 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 */
 	private function get_payload_for_product( WP_REST_Request $request ) {
 		$is_editable             = isset( $request['is_editable'] ) ? (bool) $request['is_editable'] : null;
-		$type                    = isset( $request['type'] ) ? $request['type'] : null;
-		$tier                    = isset( $request['tier'] ) ? $request['tier'] : null;
+		$type                    = $request['type'] ?? null;
+		$tier                    = $request['tier'] ?? null;
 		$buyer_can_change_amount = isset( $request['buyer_can_change_amount'] ) && (bool) $request['buyer_can_change_amount'];
 		$interval                = $request['interval'];
 
@@ -548,6 +556,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		// If we pass directly the value "null", it will break the argument validation.
 		if ( null !== $is_editable ) {
 			$payload['is_editable'] = $is_editable;
+		}
+
+		if ( isset( $request['description'] ) ) {
+			$payload['description'] = $request['description'];
 		}
 
 		return $payload;

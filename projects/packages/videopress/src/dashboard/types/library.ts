@@ -1,0 +1,57 @@
+import type { VideoTextTrack } from '../../client/lib/video-tracks/types';
+
+export type LibraryItemType = 'videopress' | 'local';
+export type LibraryItemPrivacy = 'public' | 'private' | 'site-default';
+// `upload.status` doubles as the row's single in-flight-operation slot:
+// 'deleting' isn't an upload state, but riding this channel means every
+// render site that keys interactivity off `status === 'idle'` (title link,
+// thumbnail button, action eligibility) handles it without extra plumbing.
+export type UploadStatus = 'idle' | 'uploading' | 'promoting' | 'deleting' | 'failed';
+export type VideoRating = 'G' | 'PG-13' | 'R';
+// null when the orientation is unknown (missing dimensions) or square.
+export type VideoOrientation = 'landscape' | 'portrait' | null;
+
+// Why an upload failed, in the only terms the row has space to say it.
+export type UploadFailureReason = 'connection' | 'other';
+
+export interface UploadState {
+	status: UploadStatus;
+	progress: number;
+	// Only set on a failed upload.
+	failureReason?: UploadFailureReason;
+}
+
+export interface LibraryItem {
+	id: string;
+	guid: string;
+	type: LibraryItemType;
+	title: string;
+	filename: string;
+	thumbnailUrl: string | null;
+	durationSeconds: number;
+	uploadDate: string;
+	privacy: LibraryItemPrivacy;
+	isPrivate: boolean;
+	fileSizeBytes: number;
+	upload: UploadState;
+	description: string;
+	rating: VideoRating;
+	displayEmbed: boolean;
+	allowDownloads: boolean;
+	shortcode: string;
+	sourceUrl?: string;
+	// The best browser-playable MP4 rendition (dvd → std → hd). Preferred over
+	// `sourceUrl` for playback: the original upload may be an HEVC .mov most
+	// browsers can't decode. Undefined until the transcode ladder is ready.
+	playbackUrl?: string;
+	isProcessing: boolean;
+	orientation: VideoOrientation;
+	tracks: VideoTextTrack[];
+}
+
+export type VideoDetailsPatch = Partial<
+	Pick<
+		LibraryItem,
+		'title' | 'description' | 'privacy' | 'displayEmbed' | 'allowDownloads' | 'rating'
+	>
+>;

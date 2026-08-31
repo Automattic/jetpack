@@ -1,0 +1,49 @@
+/**
+ * External dependencies
+ */
+import { calendar } from '@jetpack-premium-analytics/icons';
+import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import { BOOKINGS_FILTER } from '../../helpers';
+import { TopPerformingProductLeaderboardWidget } from './top-performing-product-leaderboard-widget';
+
+export type TopPerformingBookingsWidgetProps = {
+	/**
+	 * Maximum number of bookings to display
+	 */
+	limit?: number;
+};
+
+/**
+ * Displays the top-performing booking products by net revenue in a leaderboard format.
+ * Shows product images, names, and revenue with comparison to previous period.
+ *
+ * Filters to: booking, bookable-event, and bookable-service product types.
+ *
+ * Features:
+ * - Automatic booking product data fetching
+ * - Product image loading
+ * - Revenue-based ranking
+ * - Comparison support
+ *
+ * Must be used within a WidgetRoot which provides reportParams via context.
+ *
+ * @param props       - Component props
+ * @param props.limit - Maximum number of bookings to display (default: 5)
+ */
+export function TopPerformingBookingsWidget( { limit = 5 }: TopPerformingBookingsWidgetProps ) {
+	return (
+		<TopPerformingProductLeaderboardWidget
+			limit={ limit }
+			filter={ BOOKINGS_FILTER }
+			emptyStateIcon={ calendar }
+			emptyStateText={ __( 'No booking sales in this period.', 'jetpack-premium-analytics-pkg' ) }
+			errorText={ __(
+				"We couldn't load bookings data. Please try again in a moment.",
+				'jetpack-premium-analytics-pkg'
+			) }
+		/>
+	);
+}

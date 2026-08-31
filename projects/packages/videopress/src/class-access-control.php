@@ -55,7 +55,7 @@ class Access_Control {
 	 * @return string|int|false
 	 */
 	public function get_subscription_plan_id( $guid ) {
-		return isset( $this->guids_to_subscriptions[ $guid ] ) ? $this->guids_to_subscriptions[ $guid ] : false;
+		return $this->guids_to_subscriptions[ $guid ] ?? false;
 	}
 
 	/**
@@ -256,6 +256,224 @@ class Access_Control {
 	}
 
 	/**
+	 * How long the per-post GUID list stays cached.
+	 *
+	 * @var int
+	 */
+	const GUID_CACHE_EXPIRATION = 12 * HOUR_IN_SECONDS;
+
+	/**
+	 * Maximum number of synced-pattern (wp_block) refs resolved per scan.
+	 *
+	 * @var int
+	 */
+	const MAX_PATTERN_REFS = 20;
+
+	/**
+	 * Build and cache the list of VideoPress GUIDs present in a post.
+	 *
+	 * Scans the post content for VideoPress video and playlist blocks, shortcodes, and
+	 * URLs, then caches the GUID list in a transient for fast lookup during authorization
+	 * checks. Synced pattern (core/block) refs are resolved manually: parse_blocks() does
+	 * NOT expand them — their content lives in the referenced wp_block post and is only
+	 * expanded by WordPress at render time.
+	 *
+	 * @param int $post_id The post ID to scan.
+	 * @return array Array of VideoPress GUIDs found in the post.
+	 */
+	public static function build_and_cache_post_guids( $post_id ) {
+		if ( empty( $post_id ) ) {
+			return array();
+		}
+
+		$post_id       = absint( $post_id );
+		$transient_key = "videopress_guids_{$post_id}";
+
+		// Check if already cached.
+		$cached_guids = get_transient( $transient_key );
+		if ( false !== $cached_guids ) {
+			return (array) $cached_guids;
+		}
+
+		$post = get_post( $post_id );
+		if ( ! $post instanceof WP_Post || empty( $post->post_content ) ) {
+			set_transient( $transient_key, array(), self::GUID_CACHE_EXPIRATION );
+			return array();
+		}
+
+		$visited_refs = array();
+		$guids        = self::collect_guids_from_content( $post->post_content, $visited_refs );
+
+		// Cache and return unique GUIDs.
+		$unique_guids = array_values( array_unique( array_filter( $guids ) ) );
+		set_transient( $transient_key, $unique_guids, self::GUID_CACHE_EXPIRATION );
+
+		return $unique_guids;
+	}
+
+	/**
+	 * Ensure the given rendered GUIDs are present in a post's cached GUID list.
+	 *
+	 * Called from block render callbacks, where the block has already been expanded by
+	 * WordPress (synced patterns, templates, template parts, widget areas…): the render
+	 * itself is proof the video is embedded in the page being served for this post, so
+	 * the GUID can be added even when the static content scan cannot see it.
+	 *
+	 * @param int             $post_id The post ID the block is rendering on.
+	 * @param string|string[] $guids   The GUID(s) being rendered.
+	 */
+	public static function ensure_post_guids_cached( $post_id, $guids ) {
+		$post_id = absint( $post_id );
+		$guids   = array_filter( (array) $guids, 'is_string' );
+		if ( ! $post_id || ! $guids ) {
+			return;
+		}
+
+		$cached  = self::build_and_cache_post_guids( $post_id );
+		$missing = array_diff( $guids, $cached );
+		if ( $missing ) {
+			set_transient(
+				"videopress_guids_{$post_id}",
+				array_values( array_merge( $cached, $missing ) ),
+				self::GUID_CACHE_EXPIRATION
+			);
+		}
+	}
+
+	/**
+	 * Collect VideoPress GUIDs from a chunk of post content: blocks (with synced pattern
+	 * refs resolved recursively), VideoPress URLs, and legacy shortcodes.
+	 *
+	 * @param string $content      The post content to scan.
+	 * @param array  $visited_refs Accumulator of wp_block ref ids already resolved, keyed by id.
+	 * @return array Array of VideoPress GUIDs found.
+	 */
+	private static function collect_guids_from_content( $content, &$visited_refs ) {
+		$guids = self::collect_guids_from_blocks( parse_blocks( $content ), $visited_refs );
+
+		// Scan for VideoPress URLs (oEmbed, core/embed, core/video sources).
+		if ( preg_match_all( '#https?://[^\s"\'<>)]+#i', $content, $matches ) ) {
+			foreach ( $matches[0] as $url ) {
+				$guid = Utils::extract_videopress_guid_from_url( $url );
+				if ( $guid ) {
+					$guids[] = $guid;
+				}
+			}
+		}
+
+		// Scan for [videopress] and [wpvideo] shortcodes.
+		$pattern = get_shortcode_regex( array( 'videopress', 'wpvideo' ) );
+		$count   = preg_match_all( '/' . $pattern . '/', $content, $matches, PREG_SET_ORDER );
+		if ( false !== $count && $count > 0 ) {
+			foreach ( $matches as $match ) {
+				$atts = shortcode_parse_atts( $match[3] );
+				// Only the positional argument identifies the video; named attributes must not satisfy the binding check.
+				if ( is_array( $atts ) && isset( $atts[0] ) && is_string( $atts[0] ) ) {
+					$guids[] = $atts[0];
+				}
+			}
+		}
+
+		return $guids;
+	}
+
+	/**
+	 * Recursively collect VideoPress GUIDs from parsed blocks.
+	 *
+	 * Handles videopress/video blocks, videopress/playlist entries, and synced patterns:
+	 * a core/block ref is resolved by loading the referenced wp_block post and scanning
+	 * its content, mirroring render_block_core_block()'s constraints (published, unlocked
+	 * wp_block posts only) with a visited guard against cycles.
+	 *
+	 * @param array $blocks       Array of parsed blocks.
+	 * @param array $visited_refs Accumulator of wp_block ref ids already resolved, keyed by id.
+	 * @return array Array of VideoPress GUIDs found.
+	 */
+	private static function collect_guids_from_blocks( $blocks, &$visited_refs ) {
+		$guids = array();
+
+		foreach ( $blocks as $block ) {
+			$block_name  = $block['blockName'] ?? null;
+			$attrs       = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : array();
+			$attr_guid   = $attrs['guid'] ?? null;
+			$attr_videos = $attrs['videos'] ?? null;
+			$attr_ref    = $attrs['ref'] ?? null;
+
+			// A VideoPress video block with a GUID.
+			if ( 'videopress/video' === $block_name && is_string( $attr_guid ) ) {
+				$guids[] = $attr_guid;
+			}
+
+			// A VideoPress playlist block: each entry carries its own GUID.
+			if ( 'videopress/playlist' === $block_name && is_array( $attr_videos ) ) {
+				foreach ( $attr_videos as $entry ) {
+					if ( is_array( $entry ) && isset( $entry['guid'] ) && is_string( $entry['guid'] ) ) {
+						$guids[] = $entry['guid'];
+					}
+				}
+			}
+
+			// A synced pattern: resolve the wp_block ref, which parse_blocks() leaves unexpanded.
+			if ( 'core/block' === $block_name && ! empty( $attr_ref ) ) {
+				$ref = absint( $attr_ref );
+				if ( $ref && ! isset( $visited_refs[ $ref ] ) && count( $visited_refs ) < self::MAX_PATTERN_REFS ) {
+					$visited_refs[ $ref ] = true;
+
+					$pattern = get_post( $ref );
+					if (
+						$pattern instanceof WP_Post
+						&& 'wp_block' === $pattern->post_type
+						&& 'publish' === $pattern->post_status
+						&& empty( $pattern->post_password )
+						&& ! empty( $pattern->post_content )
+					) {
+						$guids = array_merge( $guids, self::collect_guids_from_content( $pattern->post_content, $visited_refs ) );
+					}
+				}
+			}
+
+			// Recursively check inner blocks.
+			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
+				$guids = array_merge( $guids, self::collect_guids_from_blocks( $block['innerBlocks'], $visited_refs ) );
+			}
+		}
+
+		return $guids;
+	}
+
+	/**
+	 * Check if a post contains a VideoPress GUID, using the cached GUID list for fast lookup.
+	 *
+	 * Used to prevent the embedded post id — which arrives from request input — from being
+	 * treated as an authorization context when it has no relationship to the requested video.
+	 * Matching the attachment id itself is not treated as proof of embedding: attachment ids
+	 * are enumerable via the media REST route and would otherwise provide a second path around
+	 * this check whenever the attachment has no parent and falls back to the `read` capability.
+	 *
+	 * @param int    $embedded_post_id The post id to check.
+	 * @param string $guid             The video guid to find.
+	 *
+	 * @return bool
+	 */
+	private function post_embeds_videopress_guid_cached( $embedded_post_id, $guid ) {
+		if ( empty( $embedded_post_id ) || empty( $guid ) ) {
+			return false;
+		}
+
+		// Try fast lookup from cache.
+		$transient_key = "videopress_guids_{$embedded_post_id}";
+		$cached_guids  = get_transient( $transient_key );
+
+		if ( false !== $cached_guids ) {
+			return in_array( $guid, (array) $cached_guids, true );
+		}
+
+		// Cache miss: build and cache the GUID list, then check.
+		$guids = self::build_and_cache_post_guids( $embedded_post_id );
+		return in_array( $guid, $guids, true );
+	}
+
+	/**
 	 * Determines if the current user can view the provided video. Only ever gets fired if site-wide private videos are enabled.
 	 *
 	 * Filterable for 3rd party plugins.
@@ -288,10 +506,25 @@ class Access_Control {
 			return false;
 		}
 
+		/*
+		 * Default missing privacy_setting to SITE_DEFAULT to avoid an
+		 * undefined-property warning and make the site-level fallback explicit.
+		 */
+		$privacy_setting = $video_info->privacy_setting ?? VIDEOPRESS_PRIVACY::SITE_DEFAULT;
+
+		$embedded_post_id = (int) $embedded_post_id;
+		if (
+			$embedded_post_id
+			&& VIDEOPRESS_PRIVACY::IS_PUBLIC !== $privacy_setting
+			&& ! $this->post_embeds_videopress_guid_cached( $embedded_post_id, $guid )
+		) {
+			$embedded_post_id = 0;
+		}
+
 		$is_user_authed = false;
 
 		// Determine if video is public, private or use site default.
-		switch ( $video_info->privacy_setting ) {
+		switch ( $privacy_setting ) {
 			case VIDEOPRESS_PRIVACY::IS_PUBLIC:
 				$is_user_authed = true;
 				break;

@@ -5,6 +5,263 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.0.0] - 2026-08-26
+### Changed
+- Cache the WordPress.com site record briefly so the site endpoint does not make a request per read. [#51146]
+
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+## [8.12.0] - 2026-08-25
+### Changed
+- Enqueue the connection owner notice script through `wp_add_inline_script()` instead of printing a script element. [#51461]
+- Enqueue the Users screen connection column CSS through `wp_add_inline_style()` instead of printing a style element. [#51459]
+- SSO: Enqueue the login and user-admin styles through `wp_add_inline_style()` instead of printing style elements. [#51460]
+
+### Deprecated
+- Deprecate `Users_Connection_Admin::add_connection_column_styles()`; the Users screen column CSS is enqueued as an inline style now. [#51459]
+- SSO: Deprecate `print_inline_admin_css()` in favour of `enqueue_login_styles()`. [#51460]
+
+## [8.11.0] - 2026-08-20
+### Added
+- Error UI: Document displayable connection errors and identify cases where consumers should offer a support link. [#51360]
+
+### Fixed
+- Terms of Service: Avoid a redundant per-request database query on sites without a persistent object cache. [#50965]
+
+## [8.10.4] - 2026-08-19
+### Changed
+- Tracking: Sanitize the event name, event properties, user agent, IP address, and language recorded with Tracks events. [#51316]
+
+### Fixed
+- Report errors from XML-RPC faults, which were invisible to the existing intake. We also remove invalid_signature from the displayable error codes as it is not actionable. [#51208]
+
+## [8.10.3] - 2026-08-14
+### Fixed
+- Account status: Do not report an account mismatch when the WordPress.com email and the site email differ only in letter case. [#51285]
+
+## [8.10.2] - 2026-08-13
+### Security
+- Connection: Leave another user's broken-token error out of the connection error data, so the reconnect CTA is no longer offered against a token it cannot restore. [#51034]
+
+### Changed
+- Connection: Warn a secondary admin that reconnecting on the connection owner's behalf transfers ownership and disconnects every other user. [#51034]
+
+### Fixed
+- Connection: Stop displaying connection owner errors that refer to a previous owner. [#51034]
+
+## [8.10.1] - 2026-08-12
+### Fixed
+- Report connection errors that happen while signing an outgoing request, record the specific reason the token could not be loaded, and store the request body hash with them. [#51116]
+
+## [8.10.0] - 2026-08-11
+### Added
+- Add a site data endpoint so plugins without the Jetpack plugin can read the WordPress.com site record. [#51057]
+- Connection Health: Surface the blocked-request connection failure (host blocking WordPress.com requests) as a verified connection error with an admin notice, and re-check the connection daily on the heartbeat cron. [#51145]
+
+### Fixed
+- Error Handler: Prevent a fatal error when a request runs during a plugin update and an older version of the Error_Handler class is already loaded. [#51173]
+
+## [8.9.0] - 2026-08-06
+### Changed
+- Error Handler: Standardize the stored connection error structure with explicit error type and direction fields. [#50992]
+
+## [8.8.2] - 2026-08-03
+### Changed
+- Update dependencies. [#50674]
+
+## [8.8.1] - 2026-07-31
+### Added
+- Connection: Expose the connection-error audience (site/owner/user) to the Jetpack dashboard so error notices can be tailored to the viewer.
+
+### Changed
+- Connection: Fetch connected user data from WordPress.com over REST instead of XML-RPC.
+
+### Fixed
+- Connection: cache wpcom.getUser XML-RPC failures briefly in get_connected_user_data().
+
+## [8.8.0] - 2026-07-27
+### Added
+- Show non-owner admins who needs to reconnect instead of a reconnect button when connection ownership is locked. [#50662]
+
+### Changed
+- Update package dependencies. [#50751]
+
+## [8.7.10] - 2026-07-22
+### Changed
+- Update dependencies. [#50674]
+
+## [8.7.9] - 2026-07-20
+### Changed
+- Heartbeat: Report the site environment stats (WordPress/PHP versions, site configuration, etc.) for all connected sites. [#50006]
+- Update dependencies. [#50551]
+- Update package dependencies. [#50529]
+
+## [8.7.8] - 2026-07-13
+### Changed
+- Internal updates.
+
+## [8.7.7] - 2026-07-09
+### Changed
+- Route the is_usable_domain() IP check through Utils::ip_is_public(), so reserved and special-use ranges (CGNAT, link-local/cloud-metadata, multicast, and similar) are rejected consistently with the rest of the codebase. [#50175]
+
+## [8.7.6] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## [8.7.5] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [8.7.4] - 2026-06-25
+### Changed
+- Heartbeat: Report the missing connection owner and XML-RPC error stats for all connected sites. [#49922]
+
+## [8.7.3] - 2026-06-24
+### Changed
+- Reduce per-request memory footprint on connected sites by deferring package version tracking to request shutdown. [#49803]
+
+## [8.7.2] - 2026-06-23
+### Changed
+- Update package dependencies. [#49831]
+
+### Fixed
+- Connection: Do not offer to reconnect when the site is blocking WordPress.com's connection test (e.g. firewall/WAF). [#49655]
+
+## [8.7.1] - 2026-06-22
+### Changed
+- Update package dependencies. [#49691] [#49757]
+
+## [8.7.0] - 2026-06-15
+### Added
+- Connectors: Surface Jetpack Safe Mode (Identity Crisis) state and resolution options in the connector card. [#49486]
+
+### Changed
+- Update package dependencies. [#49631]
+
+### Fixed
+- Connectors: Add cache-busting version to the connector card script module so updated assets are served after changes. [#49486]
+- Identity Crisis: Fix confirming Safe Mode again after clearing it from the admin bar, which could silently fail when the safe_mode_confirmed option was stale in a persistent object cache. [#49486]
+- Identity Crisis: Prevent the migrate (Update address) action from failing with a false "Could not delete sync error option" error when the sync_error_idc option is stale in cache. [#49486]
+
+## [8.6.1] - 2026-06-15
+### Changed
+- Internal updates.
+
+## [8.6.0] - 2026-06-09
+### Added
+- SSO: Validate user tokens during SSO login to detect and replace stale tokens after database migration. [#47567]
+
+### Changed
+- Update package dependencies. [#49273]
+
+## [8.5.6] - 2026-06-08
+### Changed
+- Update dependencies. [#48834]
+
+## [8.5.5] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [8.5.4] - 2026-06-05
+### Changed
+- Internal updates.
+
+## [8.5.3] - 2026-06-03
+### Changed
+- Internal updates.
+
+## [8.5.2] - 2026-06-02
+### Changed
+- Update dependencies. [#48834]
+
+## [8.5.1] - 2026-06-01
+### Changed
+- Connectors: Disable the ability to connect/disconnect from the Connectors card while the site is in offline mode. [#49305]
+
+## [8.5.0] - 2026-06-01
+### Added
+- Connection: Migrate `connection/test` and `connection/test-wpcom` REST endpoints from Jetpack plugin. [#49198]
+
+### Changed
+- Exclude additional unneeded files from the Composer package. [#49014]
+- Jetpack Connection Health: Migrate tests from Jetpack plugin to Connection package. [#47837]
+- Users List: Use dynamic connector logo and tooltip based on connected plugin families. [#49093]
+
+## [8.4.0] - 2026-05-25
+### Added
+- Abilities: Opt `jetpack/get-connection-status` into the MCP tool surface (meta.mcp public tool). [#49113]
+- Abilities API: Add `jetpack/get-connection-status` read ability. [#48735]
+
+### Changed
+- Abilities: Align the shared `jetpack` ability-category description with the Jetpack plugin's registrar so the visible text is consistent regardless of which subpackage registers first. [#48735]
+- Abilities: Point `jetpack/get-connection-status` `registration_url` at the WP 7.0+ Connectors screen when available. [#48735]
+- Abilities: Rename `jetpack/get-connection-status` `site_connected` output field to `site_registered` to match site-registration terminology. [#48735]
+- Abilities: Tighten `jetpack/get-connection-status` permission to `current_user_can( 'jetpack_admin_page' )`. [#48735]
+
+## [8.3.7] - 2026-05-21
+### Added
+- Connection: Signal to Calypso that the site already has a connection owner so the authorize page can show appropriate content for secondary user connections. [#48904]
+
+### Changed
+- Connection: Show the Jetpack icon beside the Connected label in the WordPress.com account column on the Users screen. [#48951]
+- Connectors: Show shorter, role-appropriate connect prompt for secondary user connections when the site already has a connection owner. [#48904]
+- Update package dependencies. [#48405]
+
+### Fixed
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+
+## [8.3.6] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [8.3.5] - 2026-05-14
+### Changed
+- Connection: Include the comma-separated list of connection-using plugin slugs on every authorize URL, not only those built by the connectors card flow. [#48713]
+- Update dependencies. [#48778]
+
+## [8.3.4] - 2026-05-11
+### Changed
+- Update dependencies. [#46383]
+
+## [8.3.3] - 2026-05-04
+### Added
+- Connector: Forward `from` and `plugins` parameters to the register and authorize_url REST endpoints, and expose connectedPlugins to the connectors card before registration. [#48318]
+
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+### Fixed
+- Connector card: Fix description padding not reserving space in Chrome, reset connecting state on back-button navigation, use text label instead of busy stripes on link-style disconnect button. [#48482]
+- Connector card: Honor redirect parameter after already-authorized webhook. [#48482]
+- SSO: Render the single sign-on login button on the recovery mode landing page. [#48340]
+
+## [8.3.2] - 2026-04-27
+### Added
+- Connectors: Add `jetpack_connection_plugin_logos` filter to allow third-party plugins to register a custom SVG logo on the Connectors card. [#48146]
+
+### Changed
+- Document `jpTracksContext` as intentional minimal Tracks-specific global. [#48096]
+- Rebrand connector to Jetpack connection. [#48146]
+
+### Fixed
+- Populate `blog_id` in `JetpackScriptData` and `jpTracksContext` so Tracks events include `blog_id`. [#48096]
+
+## [8.3.1] - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
+## [8.3.0] - 2026-04-15
+### Added
+- Add hooks for external storage provider registration: `jetpack_external_storage_init` fires before the first storage read, and `jetpack_external_storage_provider_registered` fires after a provider is registered (invalidating cached connection status). [#48022]
+
+### Fixed
+- Ensure connector card modals and links are accessible. [#47969]
+
+## [8.2.2] - 2026-04-10
+### Changed
+- Update dependencies. [#46383]
+
 ## [8.2.1] - 2026-04-09
 ### Changed
 - Update package dependencies. [#47890] [#47998]
@@ -1778,6 +2035,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[9.0.0]: https://github.com/Automattic/jetpack-connection/compare/v8.12.0...v9.0.0
+[8.12.0]: https://github.com/Automattic/jetpack-connection/compare/v8.11.0...v8.12.0
+[8.11.0]: https://github.com/Automattic/jetpack-connection/compare/v8.10.4...v8.11.0
+[8.10.4]: https://github.com/Automattic/jetpack-connection/compare/v8.10.3...v8.10.4
+[8.10.3]: https://github.com/Automattic/jetpack-connection/compare/v8.10.2...v8.10.3
+[8.10.2]: https://github.com/Automattic/jetpack-connection/compare/v8.10.1...v8.10.2
+[8.10.1]: https://github.com/Automattic/jetpack-connection/compare/v8.10.0...v8.10.1
+[8.10.0]: https://github.com/Automattic/jetpack-connection/compare/v8.9.0...v8.10.0
+[8.9.0]: https://github.com/Automattic/jetpack-connection/compare/v8.8.2...v8.9.0
+[8.8.2]: https://github.com/Automattic/jetpack-connection/compare/v8.8.1...v8.8.2
+[8.8.1]: https://github.com/Automattic/jetpack-connection/compare/v8.8.0...v8.8.1
+[8.8.0]: https://github.com/Automattic/jetpack-connection/compare/v8.7.10...v8.8.0
+[8.7.10]: https://github.com/Automattic/jetpack-connection/compare/v8.7.9...v8.7.10
+[8.7.9]: https://github.com/Automattic/jetpack-connection/compare/v8.7.8...v8.7.9
+[8.7.8]: https://github.com/Automattic/jetpack-connection/compare/v8.7.7...v8.7.8
+[8.7.7]: https://github.com/Automattic/jetpack-connection/compare/v8.7.6...v8.7.7
+[8.7.6]: https://github.com/Automattic/jetpack-connection/compare/v8.7.5...v8.7.6
+[8.7.5]: https://github.com/Automattic/jetpack-connection/compare/v8.7.4...v8.7.5
+[8.7.4]: https://github.com/Automattic/jetpack-connection/compare/v8.7.3...v8.7.4
+[8.7.3]: https://github.com/Automattic/jetpack-connection/compare/v8.7.2...v8.7.3
+[8.7.2]: https://github.com/Automattic/jetpack-connection/compare/v8.7.1...v8.7.2
+[8.7.1]: https://github.com/Automattic/jetpack-connection/compare/v8.7.0...v8.7.1
+[8.7.0]: https://github.com/Automattic/jetpack-connection/compare/v8.6.1...v8.7.0
+[8.6.1]: https://github.com/Automattic/jetpack-connection/compare/v8.6.0...v8.6.1
+[8.6.0]: https://github.com/Automattic/jetpack-connection/compare/v8.5.6...v8.6.0
+[8.5.6]: https://github.com/Automattic/jetpack-connection/compare/v8.5.5...v8.5.6
+[8.5.5]: https://github.com/Automattic/jetpack-connection/compare/v8.5.4...v8.5.5
+[8.5.4]: https://github.com/Automattic/jetpack-connection/compare/v8.5.3...v8.5.4
+[8.5.3]: https://github.com/Automattic/jetpack-connection/compare/v8.5.2...v8.5.3
+[8.5.2]: https://github.com/Automattic/jetpack-connection/compare/v8.5.1...v8.5.2
+[8.5.1]: https://github.com/Automattic/jetpack-connection/compare/v8.5.0...v8.5.1
+[8.5.0]: https://github.com/Automattic/jetpack-connection/compare/v8.4.0...v8.5.0
+[8.4.0]: https://github.com/Automattic/jetpack-connection/compare/v8.3.7...v8.4.0
+[8.3.7]: https://github.com/Automattic/jetpack-connection/compare/v8.3.6...v8.3.7
+[8.3.6]: https://github.com/Automattic/jetpack-connection/compare/v8.3.5...v8.3.6
+[8.3.5]: https://github.com/Automattic/jetpack-connection/compare/v8.3.4...v8.3.5
+[8.3.4]: https://github.com/Automattic/jetpack-connection/compare/v8.3.3...v8.3.4
+[8.3.3]: https://github.com/Automattic/jetpack-connection/compare/v8.3.2...v8.3.3
+[8.3.2]: https://github.com/Automattic/jetpack-connection/compare/v8.3.1...v8.3.2
+[8.3.1]: https://github.com/Automattic/jetpack-connection/compare/v8.3.0...v8.3.1
+[8.3.0]: https://github.com/Automattic/jetpack-connection/compare/v8.2.2...v8.3.0
+[8.2.2]: https://github.com/Automattic/jetpack-connection/compare/v8.2.1...v8.2.2
 [8.2.1]: https://github.com/Automattic/jetpack-connection/compare/v8.2.0...v8.2.1
 [8.2.0]: https://github.com/Automattic/jetpack-connection/compare/v8.1.0...v8.2.0
 [8.1.0]: https://github.com/Automattic/jetpack-connection/compare/v8.0.5...v8.1.0

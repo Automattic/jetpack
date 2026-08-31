@@ -656,7 +656,7 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		 *
 		 * @return array
 		 */
-		public function get_menu_item_loop_markup( $field = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		public function get_menu_item_loop_markup( $field = null ) {
 			_deprecated_function( __FUNCTION__, 'jetpack-14.3' );
 			return $this->new_instance->get_menu_item_loop_markup( $field );
 		}

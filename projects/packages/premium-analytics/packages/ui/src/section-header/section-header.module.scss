@@ -1,0 +1,140 @@
+// Width at which the title and the date controls stop fitting side by side.
+// Tunable.
+$section-header-stacked-max-inline-size: 720px;
+
+// Floor under the truncating title, so the controls cannot squeeze it into
+// nothing. Tunable.
+$section-header-title-min-inline-size: 320px;
+
+/*
+ * Carries the query and nothing else: a container cannot answer a query about
+ * its own size, so the grid it switches has to be a descendant. A container
+ * query because this header renders at widths the viewport does not describe:
+ * a section panel on the dashboard, a report page's own column.
+ */
+.container {
+	container-type: inline-size;
+}
+
+.layout {
+	display: grid;
+
+	/*
+	 * The title and the controls share one row. The controls track is capped at
+	 * its max-content, so the controls render at their natural width and a long
+	 * title truncates instead of costing them labels; the title track takes what
+	 * is left, floored so the controls cannot squeeze it into nothing. Only once
+	 * the title sits at that floor does the controls track compress, and the
+	 * panel adapts internally.
+	 */
+	grid-template-columns: minmax($section-header-title-min-inline-size, 1fr) minmax(0, max-content);
+	align-items: center;
+
+	// Column gap only: in the stacked layout the controls row carries its
+	// spacing as its own padding.
+	column-gap: var(--wpds-dimension-gap-sm);
+	row-gap: 0;
+
+	.title {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+}
+
+/*
+ * Condenses the header into a compact bar as it pins: the title drops a step
+ * on the type scale.
+ *
+ * The surface, not this component, knows where the header pins, so it opts in
+ * by publishing a `--section-header-pin` view timeline whose `exit` phase
+ * opens at the pin point (see the dashboard's pin marker in
+ * `routes/dashboard/stage.module.scss`). Progress-driven, so it follows the
+ * scroll in both directions.
+ *
+ * The @supports gate is load-bearing: without scroll-driven animation
+ * support, the `animation` shorthand would run as a 0s time animation and its
+ * `both` fill would freeze the header in the condensed state. Inside the gate
+ * an unresolved timeline (a surface that publishes no marker) leaves the
+ * animation inert, which is the resting layout.
+ */
+@supports (animation-timeline: --section-header-pin) {
+
+	.condensing {
+
+		// Buys no height: the row is floored by the date controls beside it.
+		// What changes is what the pinned band reads as.
+		.title {
+			animation: condense-title linear both;
+			animation-timeline: --section-header-pin;
+			animation-range: exit;
+		}
+	}
+
+	// Scroll-driven, but still chrome moving under the reader.
+	@media (prefers-reduced-motion: reduce) {
+
+		.condensing .title {
+			animation: none;
+		}
+	}
+}
+
+@keyframes condense-title {
+
+	to {
+		font-size: var(--wpds-typography-font-size-xl);
+		line-height: var(--wpds-typography-line-height-xl);
+	}
+}
+
+.controls {
+	min-inline-size: 0;
+	justify-content: flex-end;
+
+	/*
+	 * The panel fills the cell, so the end-anchoring happens inside its row
+	 * rather than through the cell's alignment. Scoped to the panel: the
+	 * slot's other occupant is the year surface's row, which keeps its
+	 * natural width and is anchored by the cell above.
+	 */
+	:global(.date-filters-panel__row) {
+		justify-content: flex-end;
+	}
+
+	/*
+	 * Sized from the panel's published full-labels width, so the column can
+	 * grow back after the presets abbreviate. The track's 0 minimum keeps the
+	 * squeeze unaffected.
+	 */
+	:global(.date-filters-panel) {
+		inline-size: var(--date-filters-panel-full-row-width, auto);
+		max-inline-size: 100%;
+	}
+}
+
+@container (max-width: #{$section-header-stacked-max-inline-size}) {
+
+	.layout {
+		grid-template-columns: minmax(0, 1fr);
+
+		// A column of its own with nothing competing for it: the title wraps
+		// rather than spending lines it does not have to.
+		.title {
+			overflow: visible;
+			text-overflow: clip;
+			white-space: normal;
+		}
+	}
+
+	// A row of its own now, reading from the same edge as the title, so it
+	// carries its row spacing as padding.
+	.controls {
+		justify-content: flex-start;
+		padding-block-start: var(--wpds-dimension-gap-sm);
+
+		:global(.date-filters-panel__row) {
+			justify-content: flex-start;
+		}
+	}
+}

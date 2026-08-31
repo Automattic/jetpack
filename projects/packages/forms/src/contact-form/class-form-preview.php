@@ -35,7 +35,7 @@ class Form_Preview {
 	 *
 	 * @var string
 	 */
-	const PREVIEW_NONCE_QUERY_VAR = 'preview_nonce';
+	const PREVIEW_NONCE_QUERY_VAR = 'jetpack_form_preview_nonce';
 
 	/**
 	 * Flag to track if we're in preview mode.
@@ -246,6 +246,9 @@ class Form_Preview {
 		// Add preview mode script variable.
 		add_action( 'wp_head', array( __CLASS__, 'add_preview_mode_script' ) );
 
+		// Relabel the admin bar's edit link.
+		add_action( 'wp_before_admin_bar_render', array( __CLASS__, 'relabel_admin_bar_edit_link' ) );
+
 		// Hook the_content filter to render the form.
 		add_filter(
 			'the_content',
@@ -295,6 +298,12 @@ class Form_Preview {
 	/**
 	 * Render the form preview content.
 	 *
+	 * The rendered markup flows through the normal block pipeline, which
+	 * embeds a signed JWT carrying the form's serialized source. Because
+	 * Feedback_Source::get_current() reads Form_Preview::is_preview_mode()
+	 * at render time, the JWT issued here travels to submission with
+	 * `is_test: true` baked into its source — no hidden nonce fields needed.
+	 *
 	 * @param WP_Post|null $form The form post.
 	 * @return string The rendered content.
 	 */
@@ -307,17 +316,44 @@ class Form_Preview {
 
 		// Add preview banner.
 		$output .= '<div class="jetpack-form-preview-banner">';
-		$output .= esc_html__( 'This is a preview. Form submissions are disabled.', 'jetpack-forms' );
+		$output .= esc_html__( 'This is a preview. Submissions are saved as test responses.', 'jetpack-forms' );
 		$output .= '</div>';
 
 		// Parse and render the form blocks.
 		$blocks = parse_blocks( $form->post_content );
-
 		foreach ( $blocks as $block ) {
 			$output .= render_block( $block );
 		}
 
 		return $output;
+	}
+
+	/**
+	 * Relabel the admin bar's "Edit Page" link as "Edit Form" during a form preview.
+	 *
+	 * The preview sets up a fake `page` post object so themes render it like any
+	 * other singular view, which means core labels the edit link with the page post
+	 * type's `edit_item` label. The link itself already points at the form editor,
+	 * since it is built from the form's real post ID.
+	 *
+	 * Runs on `wp_before_admin_bar_render`, which core documents as the way to
+	 * manipulate existing nodes without depending on an `admin_bar_menu` priority.
+	 */
+	public static function relabel_admin_bar_edit_link() {
+		global $wp_admin_bar;
+
+		// Only relabel a node core actually added: `add_node()` on an unknown id
+		// would create a new orphan node, promoted to a top-level unlinked item.
+		if ( ! is_object( $wp_admin_bar ) || ! $wp_admin_bar->get_node( 'edit' ) ) {
+			return;
+		}
+
+		$wp_admin_bar->add_node(
+			array(
+				'id'    => 'edit',
+				'title' => __( 'Edit Form', 'jetpack-forms' ),
+			)
+		);
 	}
 
 	/**

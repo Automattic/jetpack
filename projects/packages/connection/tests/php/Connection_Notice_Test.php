@@ -14,6 +14,12 @@ use PHPUnit\Framework\TestCase;
  * The nonce handler tests.
  */
 class Connection_Notice_Test extends TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
+
+	/**
+	 * Handle of the script that drives the "choose new owner" form.
+	 */
+	const OWNER_SCRIPT_HANDLE = 'jetpack-connection-owner-notice';
 
 	/**
 	 * Database query filter.
@@ -53,11 +59,13 @@ class Connection_Notice_Test extends TestCase {
 
 		$notice = new Connection_Notice();
 
-		$this->expectOutputRegex( '#Connect to WordPress.com#i' );
-
-		$this->expectOutputRegex( '#https:\/\/jetpack\.wordpress\.com\/jetpack\.authorize\/1\/\?response_type=code#i' ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
-
+		ob_start();
 		$notice->delete_user_update_connection_owner_notice();
+		$output = ob_get_clean();
+
+		$this->assertMatchesRegularExpression( '#Connect to WordPress.com#i', $output );
+		$this->assertMatchesRegularExpression( '#https:\/\/jetpack\.wordpress\.com\/jetpack\.authorize\/1\/\?response_type=code#i', $output ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+		$this->assertFalse( wp_script_is( self::OWNER_SCRIPT_HANDLE, 'enqueued' ) );
 
 		\Jetpack_Options::update_option( 'user_tokens', $tokens );
 	}
@@ -68,10 +76,44 @@ class Connection_Notice_Test extends TestCase {
 	public function test_delete_user_change_owner_notice() {
 		$notice = new Connection_Notice();
 
-		$this->expectOutputRegex( '#Set new connection owner#i' );
-		$this->expectOutputRegex( '#' . preg_quote( 'http://example.org/index.php?rest_route=/jetpack/v4/connection/owner', '#' ) . '#i' );
-
+		ob_start();
 		$notice->delete_user_update_connection_owner_notice();
+		$output = ob_get_clean();
+
+		$this->assertMatchesRegularExpression( '#Set new connection owner#i', $output );
+		$this->assertStringNotContainsString( '<script', $output );
+
+		$this->assertTrue( wp_script_is( self::OWNER_SCRIPT_HANDLE, 'enqueued' ) );
+
+		$inline_script = implode( '', (array) wp_scripts()->get_data( self::OWNER_SCRIPT_HANDLE, 'after' ) );
+		$this->assertStringContainsString( 'http://example.org/index.php?rest_route=/jetpack/v4/connection/owner', $inline_script );
+		$this->assertStringContainsString( 'jp-switch-connection-owner', $inline_script );
+	}
+
+	/**
+	 * A translation is attacker-adjacent input: it must reach the script as a JSON literal, so that
+	 * quotes, backslashes or newlines in it cannot terminate the string and break the script.
+	 */
+	public function test_delete_user_change_owner_notice_encodes_the_fallback_message() {
+		$translation = 'Backslash \\ and "quotes" and a' . "\n" . 'newline.';
+
+		$filter = function ( $translated, $text ) use ( $translation ) {
+			return 'Something went wrong. Please try again.' === $text ? $translation : $translated;
+		};
+		add_filter( 'gettext', $filter, 10, 2 );
+
+		$notice = new Connection_Notice();
+
+		ob_start();
+		$notice->delete_user_update_connection_owner_notice();
+		ob_end_clean();
+
+		remove_filter( 'gettext', $filter, 10 );
+
+		$inline_script = implode( '', (array) wp_scripts()->get_data( self::OWNER_SCRIPT_HANDLE, 'after' ) );
+
+		$this->assertSame( 1, preg_match( '/message \|\| ([^\n]+);/', $inline_script, $matches ) );
+		$this->assertSame( esc_html( $translation ), json_decode( $matches[1] ) );
 	}
 
 	/**
@@ -152,6 +194,9 @@ class Connection_Notice_Test extends TestCase {
 		parent::tearDown();
 
 		global $current_screen;
+
+		wp_dequeue_script( self::OWNER_SCRIPT_HANDLE );
+		wp_deregister_script( self::OWNER_SCRIPT_HANDLE );
 
 		delete_transient( 'jetpack_connected_user_data_' . get_current_user_id() );
 

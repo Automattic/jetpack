@@ -26,15 +26,6 @@ export default {
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
 			fs: false,
-			'@wordpress/admin-ui/build-style/style.css': path.join(
-				__dirname,
-				'..',
-				'node_modules',
-				'@wordpress',
-				'admin-ui',
-				'build-style',
-				'style.css'
-			),
 		},
 	},
 	externals: {
@@ -62,6 +53,14 @@ export default {
 			jetpackWebpackConfig.CssRule( {
 				extensions: [ 'css', 'sass', 'scss' ],
 				extraLoaders: [
+					{
+						loader: 'postcss-loader',
+						options: {
+							postcssOptions: {
+								config: path.join( __dirname, '..', 'postcss.config.js' ),
+							},
+						},
+					},
 					{
 						loader: 'sass-loader',
 						options: {
@@ -94,7 +93,6 @@ export default {
 				requestMap: {
 					// Bundle the package with our assets until WP core exposes wp-admin-ui.
 					'@wordpress/admin-ui': { external: false },
-					'@wordpress/admin-ui/build-style/style.css': { external: false },
 					// Bundle jetpack-connection since it's used by IntegrationsModal
 					'@automattic/jetpack-connection': { external: false },
 				},

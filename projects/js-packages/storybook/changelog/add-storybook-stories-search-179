@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Storybook Vite plugin: resolve bare `store` and `store/` imports for search dashboard stories.

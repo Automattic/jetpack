@@ -1,9 +1,9 @@
 import FoldingElement from '$features/critical-css/folding-element/folding-element';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { getRedirectUrl, Notice } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { Notice, Link } from '@wordpress/ui';
 import { useLcpState } from '../lib/stores/lcp-state';
 import { LcpErrorDetails } from '../lib/stores/lcp-state-types';
 import styles from './error-details.module.scss';
@@ -70,6 +70,25 @@ const PageError = ( { url, error }: PageErrorProps ) => {
 			);
 		}
 
+		if ( type === 'page-navigated' ) {
+			return meta?.finalUrl
+				? createInterpolateElement(
+						/* translators: <url /> is replaced with the URL the page redirected to. */
+						__(
+							'This page redirected to <url /> during analysis, so Boost could not measure its LCP. Remove it from your Cornerstone Pages, or make sure it loads without redirecting.',
+							'jetpack-boost'
+						),
+						// Pass finalUrl as a React text child, not interpolated into the markup string,
+						// so a redirect target containing `<`/`>` renders as inert text instead of
+						// corrupting the createInterpolateElement token structure.
+						{ url: <strong>{ meta.finalUrl }</strong> }
+				  )
+				: __(
+						'This page redirected during analysis, so Boost could not measure its LCP. Remove it from your Cornerstone Pages, or make sure it loads without redirecting.',
+						'jetpack-boost'
+				  );
+		}
+
 		return sprintf(
 			/* translators: %s is the error type */
 			__(
@@ -82,8 +101,9 @@ const PageError = ( { url, error }: PageErrorProps ) => {
 
 	return (
 		<li className={ styles.summary__row }>
-			{ getErrorLabel( error ) } ({ url }){ ' ' }
-			<ExternalLink
+			{ getErrorLabel( error ) }({ url }){ ' ' }
+			<Link
+				openInNewTab
 				href={ getRedirectUrl( 'jetpack-boost-lcp-errors', {
 					anchor: error?.type,
 				} ) }
@@ -94,7 +114,7 @@ const PageError = ( { url, error }: PageErrorProps ) => {
 				} }
 			>
 				{ __( 'Learn more', 'jetpack-boost' ) }
-			</ExternalLink>
+			</Link>
 		</li>
 	);
 };
@@ -122,38 +142,37 @@ export const ErrorDetails = () => {
 	);
 
 	return (
-		<Notice
-			level="warning"
-			hideCloseButton={ true }
-			title={ __( 'LCP Optimization issues', 'jetpack-boost' ) }
-		>
-			<div className={ styles.summary }>
-				{ sprintf(
-					// translators: %d is a number of pages which failed to be optimized
-					_n(
-						'%d page could not be optimized.',
-						'%d pages could not be optimized.',
-						errorMessages.length,
-						'jetpack-boost'
-					),
-					errorMessages.length
-				) }
-			</div>
-			<FoldingElement
-				labelExpandedText={ __( 'View details', 'jetpack-boost' ) }
-				labelCollapsedText={ __( 'Hide details', 'jetpack-boost' ) }
-				onExpand={ ( isExpanded: boolean ) => {
-					if ( isExpanded ) {
-						recordBoostEvent( 'lcp_error_details_expanded', {} );
-					}
-				} }
-			>
-				<ul className={ styles.summary__list }>
-					{ errorMessages.map( ( { error, url }, index ) => (
-						<PageError url={ url } error={ error } key={ index } />
-					) ) }
-				</ul>
-			</FoldingElement>
-		</Notice>
+		<Notice.Root intent="warning">
+			<Notice.Title>{ __( 'LCP Optimization issues', 'jetpack-boost' ) }</Notice.Title>
+			<Notice.Description>
+				<div className={ styles.summary }>
+					{ sprintf(
+						// translators: %d is a number of pages which failed to be optimized
+						_n(
+							'%d page could not be optimized.',
+							'%d pages could not be optimized.',
+							errorMessages.length,
+							'jetpack-boost'
+						),
+						errorMessages.length
+					) }
+				</div>
+				<FoldingElement
+					labelExpandedText={ __( 'View details', 'jetpack-boost' ) }
+					labelCollapsedText={ __( 'Hide details', 'jetpack-boost' ) }
+					onExpand={ ( isExpanded: boolean ) => {
+						if ( isExpanded ) {
+							recordBoostEvent( 'lcp_error_details_expanded', {} );
+						}
+					} }
+				>
+					<ul className={ styles.summary__list }>
+						{ errorMessages.map( ( { error, url }, index ) => (
+							<PageError url={ url } error={ error } key={ index } />
+						) ) }
+					</ul>
+				</FoldingElement>
+			</Notice.Description>
+		</Notice.Root>
 	);
 };

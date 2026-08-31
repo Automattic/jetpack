@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
+BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)
 source "$BASE/tools/includes/chalk-lite.sh"
 
 # Print help and exit.
@@ -76,7 +76,7 @@ nvm install && nvm use
 
 # Install our requirements
 info "Checking Bash version..."
-if [[ -z "${BASH_VERSINFO}" || -z "${BASH_VERSINFO[0]}" || ${BASH_VERSINFO[0]} -lt 4 ]]; then
+if [[ -z "${BASH_VERSINFO[0]}" || ${BASH_VERSINFO[0]} -lt 4 ]]; then
 	brew install bash
 fi
 
@@ -86,30 +86,27 @@ if ! command -v jq &>/dev/null; then
 	brew install jq
 fi
 
+source .github/versions.sh
+
 info "Checking if pnpm is installed..."
 if ! command -v pnpm &>/dev/null; then
 	info "Installing pnpm"
-	# Don't use https://get.pnpm.io/install.sh, that doesn't play nice with different shells.
-	# And corepack will likely lose pnpm every time nvm installs a new node version.
-	curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
-fi
-if [[ -z "$( pnpm bin --global )" ]]; then
+	curl -fsSL https://get.pnpm.io/install.sh | PNPM_VERSION=$PNPM_VERSION sh -
+elif [[ -z "$( pnpm bin --global )" ]]; then
 	info "Setting up pnpm"
 	if ! pnpm setup; then
 		warn 'pnpm has no bin dir set, and `pnpm setup` failed. Linking the Jetpack CLI may fail.'
-	else
-		# Try to read PNPM_HOME from the login shell after `pnpm setup`, as pnpm probably changed it.
-		P=$( "$SHELL" -i -c 'echo $PNPM_HOME' ) || true
-		if [[ -n "$P" ]]; then
-			export PNPM_HOME="$P"
-			if [[ ":$PATH:" != *":$PNPM_HOME:"* ]]; then
-				export PATH="$PNPM_HOME:$PATH"
-			fi
-		fi
+	fi
+fi
+# Try to read PNPM_HOME from the login shell after `pnpm setup`, as pnpm probably changed it.
+P=$( "$SHELL" -i -c 'echo $PNPM_HOME' ) || true
+if [[ -n "$P" ]]; then
+	export PNPM_HOME="$P"
+	if [[ ":$PATH:" != *":$PNPM_HOME/bin:"* ]]; then
+		export PATH="$PNPM_HOME/bin:$PATH"
 	fi
 fi
 
-source .github/versions.sh
 info "Installing and linking PHP $PHP_VERSION"
 brew install php@$PHP_VERSION
 brew link php@$PHP_VERSION
@@ -127,7 +124,6 @@ if ! command -v composer &>/dev/null; then
 	fi
 
 	php composer-setup.php --version=$COMPOSER_VERSION --quiet
-	RESULT=$?
 	rm composer-setup.php
 	sudo mkdir -p /usr/local/bin
 	sudo mv composer.phar /usr/local/bin/composer

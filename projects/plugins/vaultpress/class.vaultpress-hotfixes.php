@@ -310,7 +310,7 @@ class VaultPress_kses {
 						{
 						$working = 1;
 						$mode = 0;
-						if(false === array_key_exists($attrname, $attrarr)) {
+						if ( ! array_key_exists( $attrname, $attrarr ) ) {
 							$attrarr[$attrname] = array ('name' => $attrname, 'value' => '', 'whole' => $attrname, 'vless' => 'y');
 						}
 						$attr = preg_replace('/^\s+/', '', $attr);
@@ -327,7 +327,7 @@ class VaultPress_kses {
 						if ( in_array(strtolower($attrname), $uris) )
 							$thisval = VaultPress_kses::wp_kses_bad_protocol($thisval, $allowed_protocols);
 
-						if(false === array_key_exists($attrname, $attrarr)) {
+						if ( ! array_key_exists( $attrname, $attrarr ) ) {
 							$attrarr[$attrname] = array ('name' => $attrname, 'value' => $thisval, 'whole' => "$attrname=\"$thisval\"", 'vless' => 'n');
 						}
 						$working = 1;
@@ -343,7 +343,7 @@ class VaultPress_kses {
 						if ( in_array(strtolower($attrname), $uris) )
 							$thisval = VaultPress_kses::wp_kses_bad_protocol($thisval, $allowed_protocols);
 
-						if(false === array_key_exists($attrname, $attrarr)) {
+						if ( ! array_key_exists( $attrname, $attrarr ) ) {
 							$attrarr[$attrname] = array ('name' => $attrname, 'value' => $thisval, 'whole' => "$attrname='$thisval'", 'vless' => 'n');
 						}
 						$working = 1;
@@ -359,7 +359,7 @@ class VaultPress_kses {
 						if ( in_array(strtolower($attrname), $uris) )
 							$thisval = VaultPress_kses::wp_kses_bad_protocol($thisval, $allowed_protocols);
 
-						if(false === array_key_exists($attrname, $attrarr)) {
+						if ( ! array_key_exists( $attrname, $attrarr ) ) {
 							$attrarr[$attrname] = array ('name' => $attrname, 'value' => $thisval, 'whole' => "$attrname=\"$thisval\"", 'vless' => 'n');
 						}
 						# We add quotes to conform to W3C's HTML spec.
@@ -378,10 +378,11 @@ class VaultPress_kses {
 			}
 		} # while
 
-		if ($mode == 1 && false === array_key_exists($attrname, $attrarr))
+		if ( $mode === 1 && ! array_key_exists( $attrname, $attrarr ) ) {
 			# special case, for when the attribute list ends with a valueless
 			# attribute like "selected"
 			$attrarr[$attrname] = array ('name' => $attrname, 'value' => '', 'whole' => $attrname, 'vless' => 'y');
+		}
 
 		return $attrarr;
 	}

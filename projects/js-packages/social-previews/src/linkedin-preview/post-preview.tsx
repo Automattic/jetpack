@@ -1,6 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { AvatarWithFallback } from '../avatar-with-fallback';
 import { baseDomain, getTitleFromDescription, preparePreviewText } from '../helpers';
+import { ExpandableText } from '../shared/expandable-text';
+import { MediaImage } from '../shared/media-image';
 import { FEED_TEXT_MAX_LENGTH } from './constants';
 import LinkedInPostActions from './post/actions';
 import { LinkedInPreviewProps } from './types';
@@ -15,6 +17,7 @@ import './style.scss';
  */
 export function LinkedInPostPreview( {
 	image,
+	imageFocalPoint,
 	jobTitle,
 	name,
 	profileImage,
@@ -67,12 +70,16 @@ export function LinkedInPostPreview( {
 					{ description ? (
 						<div className="linkedin-preview__caption">
 							<span>
-								{ preparePreviewText( description, {
-									platform: 'linkedin',
-									maxChars: FEED_TEXT_MAX_LENGTH,
-								} ) }
+								<ExpandableText text={ description }>
+									{ visibleText =>
+										preparePreviewText( visibleText, {
+											platform: 'linkedin',
+											maxChars: FEED_TEXT_MAX_LENGTH,
+										} )
+									}
+								</ExpandableText>
 							</span>
-							{ hasMedia && url && (
+							{ hasMedia && url && ! description.includes( url ) && (
 								<>
 									{ ' - ' }
 									<a href={ url } rel="nofollow noopener noreferrer" target="_blank">
@@ -104,7 +111,12 @@ export function LinkedInPostPreview( {
 							<div className="linkedin-preview__article-card">
 								{ image ? (
 									<div className="linkedin-preview__article-card--image">
-										<img src={ image } alt="" />
+										<MediaImage
+											className="linkedin-preview__image"
+											src={ image }
+											alt=""
+											focalPoint={ imageFocalPoint }
+										/>
 									</div>
 								) : null }
 								<div className="linkedin-preview__article-card--details">

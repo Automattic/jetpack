@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
-import { Text, LoadingPlaceholder } from '@automattic/jetpack-components';
+import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
 import { arrowUp, arrowDown, Icon } from '@wordpress/icons';
+import { Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 /**

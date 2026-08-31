@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize\Social_Image_Generator;
 
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
+use Automattic\Jetpack\Publicize\Publicize;
 
 /**
  * Class for setting up Social Image Generator-related functionality.
@@ -25,11 +26,12 @@ class Setup {
 		// We're using the `wp_after_insert_post` hook because we need access to the updated post meta. By using the default priority
 		// of 10 we make sure that our code runs before Sync processes the post.
 		add_action( 'wp_after_insert_post', array( $this, 'generate_token_on_save' ), 10, 3 );
-		add_action( 'rest_api_init', array( new REST_Token_Controller(), 'register_routes' ) );
+		add_action( 'jetpack_social_sig_warm_image', array( $this, 'warm_social_image' ) );
+		add_action( 'rest_api_init', array( REST_Token_Controller::class, 'register' ) );
 
 		// Flagged to be removed after deprecation.
 		// @deprecated 0.38.3
-		add_action( 'rest_api_init', array( new REST_Settings_Controller(), 'register_routes' ) );
+		add_action( 'rest_api_init', array( REST_Settings_Controller::class, 'register' ) );
 	}
 
 	/**
@@ -54,6 +56,47 @@ class Setup {
 		}
 
 		$post_settings->update_setting( 'token', sanitize_text_field( $token ) );
+
+		$this->sync_attached_media( $post_settings->post_id );
+	}
+
+	/**
+	 * Point the shared attachment at the post's current generated image.
+	 *
+	 * When the post shares the generated image as an attachment, attached_media holds a
+	 * plain URL instead of being derived from the token at render time like the OG tag is.
+	 * It therefore goes stale whenever the token changes — most visibly after a template
+	 * edit, which shares the previous template's image. This runs alongside the
+	 * authoritative token write so the two can't drift, including when the editor closes
+	 * before its debounced preview ever produced a token.
+	 *
+	 * @param int $post_id Post whose attachment should follow the generated image.
+	 */
+	private function sync_attached_media( $post_id ) {
+		$options = get_post_meta( $post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, true );
+
+		if ( ! is_array( $options ) || ( $options['media_source'] ?? '' ) !== 'sig' ) {
+			return;
+		}
+
+		// A non-empty id means real library media, which must not be replaced.
+		if ( ! isset( $options['attached_media'][0] ) || ! empty( $options['attached_media'][0]['id'] ) ) {
+			return;
+		}
+
+		$url = get_image_url( $post_id );
+
+		if ( empty( $url ) || ( $options['attached_media'][0]['url'] ?? '' ) === $url ) {
+			return;
+		}
+
+		$options['attached_media'][0] = array(
+			'id'   => 0,
+			'url'  => $url,
+			'type' => 'image/png',
+		);
+
+		update_post_meta( $post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, $options );
 	}
 
 	/**
@@ -94,7 +137,7 @@ class Setup {
 		if (
 			! $update &&
 			'auto-draft' === $post->post_status &&
-			$settings->get_settings()['socialImageGeneratorSettings']['enabled'] &&
+			! empty( $settings->get_settings()['socialImageGeneratorSettings']['enabled'] ) &&
 			empty( $post_settings->get_settings( true ) ) &&
 			'jetpack-social-note' !== $post->post_type
 		) {
@@ -111,5 +154,55 @@ class Setup {
 		}
 
 		$this->generate_token( $post_settings );
+
+		// Prime the Social Image Generator cache out-of-band right after publish.
+		// SIG renders the preview image on the first request to its URL, so a post
+		// shared immediately after publishing can race that cold render and end up
+		// with no preview image (notably on X, which does not retry). Warming the
+		// URL here means the image is already rendered and edge-cached before any
+		// crawler fetches it. Scheduled rather than inline so it never delays the
+		// publish request itself.
+		if (
+			'publish' === $post->post_status &&
+			! wp_next_scheduled( 'jetpack_social_sig_warm_image', array( $post_id ) )
+		) {
+			wp_schedule_single_event( time(), 'jetpack_social_sig_warm_image', array( $post_id ) );
+		}
+	}
+
+	/**
+	 * Warm the edge cache for a post's generated social image.
+	 *
+	 * Runs from a scheduled single event (see generate_token_on_save) so it never
+	 * blocks the publish request. Issues one blocking request to the same URL the
+	 * Open Graph tags expose, which forces the on-demand render and lets the full
+	 * response populate the edge cache before a crawler fetches it.
+	 *
+	 * @param int $post_id Post ID whose social image should be primed.
+	 */
+	public function warm_social_image( $post_id ) {
+		$post_settings = new Post_Settings( $post_id );
+
+		if ( ! $post_settings->is_enabled() ) {
+			return;
+		}
+
+		$image_url = get_image_url( $post_id );
+
+		if ( empty( $image_url ) ) {
+			return;
+		}
+
+		// Blocking so the rendered response travels back through the edge cache and
+		// is stored; redirection is followed to the final image URL the crawler hits.
+		wp_remote_get(
+			$image_url,
+			array(
+				'timeout'     => 15,
+				'redirection' => 5,
+				'blocking'    => true,
+				'user-agent'  => 'WordPress.com Social Image Generator cache warmer',
+			)
+		);
 	}
 }

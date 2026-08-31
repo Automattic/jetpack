@@ -21,7 +21,7 @@ require_once __DIR__ . '/data/admin-menu.php';
  *
  * @covers Automattic\Jetpack\Masterbar\Domain_Only_Admin_Menu
  */
-#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 #[CoversClass( Domain_Only_Admin_Menu::class )]
 class Domain_Only_Admin_Menu_Test extends TestCase {
 

@@ -5,6 +5,122 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.15] - 2026-08-25
+### Changed
+- Internal updates.
+
+## [4.3.14] - 2026-08-20
+### Changed
+- Update package dependencies. [#51399]
+
+## [4.3.13] - 2026-08-11
+### Changed
+- Update dependencies. [#50841]
+
+## [4.3.12] - 2026-08-10
+### Changed
+- Update package dependencies. [#50509] [#51008]
+
+## [4.3.11] - 2026-08-03
+### Fixed
+- Load JS translation catalogs and stamp the package text domain on the wp-build dashboard bundles. [#50762]
+
+## [4.3.10] - 2026-07-27
+### Changed
+- Update dependencies. [#50719]
+- Update package dependencies. [#50751] [#50753]
+
+## [4.3.9] - 2026-07-20
+### Changed
+- Update package dependencies. [#50510] [#50529] [#50582]
+
+## [4.3.8] - 2026-07-13
+### Changed
+- Update package dependencies. [#49272]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
+## [4.3.7] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183] [#50212]
+
+## [4.3.6] - 2026-06-29
+### Changed
+- Update package dependencies. [#49271]
+
+## [4.3.5] - 2026-06-25
+### Changed
+- Update package dependencies. [#49831]
+
+### Fixed
+- Dashboard: Align component props with the `@wordpress/ui` 0.15 API. [#49795]
+
+## [4.3.4] - 2026-06-22
+### Changed
+- Update package dependencies. [#49631] [#49691] [#49757]
+
+## [4.3.3] - 2026-06-15
+### Changed
+- Update package dependencies. [#49273] [#49492]
+
+## [4.3.2] - 2026-06-08
+### Changed
+- Update dependencies. [#49354]
+
+### Fixed
+- Include the routes directory in the TypeScript config so dashboard route files type-check correctly. [#49368]
+
+## [4.3.1] - 2026-06-01
+### Changed
+- Update package dependencies. [#48404] [#49152]
+
+## [4.3.0] - 2026-05-25
+### Added
+- Abilities: Register Jetpack Backup abilities (overview, list, restores, run-backup) for WP 6.9+. [#48329]
+
+### Changed
+- Abilities: Rename slugs to `list-*` / `request-*` and register via the package's `actions.php`. [#48329]
+- Update package dependencies. [#48405] [#49012]
+
+### Fixed
+- Abilities: Accept fractional numeric strings in `parse_timestamp()`. [#48329]
+- Abilities: Drop dead branch in `map_event_status()` that returned the same value as the default case. [#48329]
+- Abilities: Terminate `jetpack-backup/list-backups` pagination on an empty page, not on a page shorter than `per_page`. [#48329]
+- Abilities: Report failure of `jetpack-backup/request-backup` when WordPress.com answers 200 with `{ success: false }` instead of claiming the backup was enqueued. [#48329]
+- Abilities: Replace PHP 7.4+ arrow function with a closure and initialize `$score` to support PHP 7.2. [#48329]
+
+## [4.2.56] - 2026-05-19
+### Changed
+- Build: Run webpack and wp-build scripts concurrently. [#48794]
+- Exclude development files from production builds. [#47365]
+- Update package dependencies. [#48696]
+
+## [4.2.55] - 2026-05-11
+### Changed
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+
+## [4.2.54] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [4.2.53] - 2026-04-27
+### Changed
+- Update dependencies. [#46758]
+
+## [4.2.52] - 2026-04-20
+### Changed
+- Adopt the shared Jetpack admin-page-layout mixin on the Backup admin page: pinned header, scrolling middle, pinned footer, no window-level scroll. [#48109]
+- Storage meter: Migrate ProgressBar to @wordpress/components; preserve color-by-usage-level styling via scoped CSS. [#48206]
+- Update package dependencies. [#48106] [#48126] [#48141]
+
+## [4.2.51] - 2026-04-15
+### Changed
+- Update package dependencies. [#47907]
+- Update purchases endpoint from v1.1 /sites/$site/purchases to v1.2 /upgrades?site=$site. [#48035]
+
+## [4.2.50] - 2026-04-11
+### Changed
+- Update package dependencies. [#47890] [#47998]
+
 ## [4.2.49] - 2026-04-06
 ### Changed
 - Replace @automattic/jetpack-components Button with @wordpress/components Button in BackupNowButton component. [#47418]
@@ -1081,6 +1197,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[4.3.15]: https://github.com/Automattic/jetpack-backup/compare/v4.3.14...v4.3.15
+[4.3.14]: https://github.com/Automattic/jetpack-backup/compare/v4.3.13...v4.3.14
+[4.3.13]: https://github.com/Automattic/jetpack-backup/compare/v4.3.12...v4.3.13
+[4.3.12]: https://github.com/Automattic/jetpack-backup/compare/v4.3.11...v4.3.12
+[4.3.11]: https://github.com/Automattic/jetpack-backup/compare/v4.3.10...v4.3.11
+[4.3.10]: https://github.com/Automattic/jetpack-backup/compare/v4.3.9...v4.3.10
+[4.3.9]: https://github.com/Automattic/jetpack-backup/compare/v4.3.8...v4.3.9
+[4.3.8]: https://github.com/Automattic/jetpack-backup/compare/v4.3.7...v4.3.8
+[4.3.7]: https://github.com/Automattic/jetpack-backup/compare/v4.3.6...v4.3.7
+[4.3.6]: https://github.com/Automattic/jetpack-backup/compare/v4.3.5...v4.3.6
+[4.3.5]: https://github.com/Automattic/jetpack-backup/compare/v4.3.4...v4.3.5
+[4.3.4]: https://github.com/Automattic/jetpack-backup/compare/v4.3.3...v4.3.4
+[4.3.3]: https://github.com/Automattic/jetpack-backup/compare/v4.3.2...v4.3.3
+[4.3.2]: https://github.com/Automattic/jetpack-backup/compare/v4.3.1...v4.3.2
+[4.3.1]: https://github.com/Automattic/jetpack-backup/compare/v4.3.0...v4.3.1
+[4.3.0]: https://github.com/Automattic/jetpack-backup/compare/v4.2.56...v4.3.0
+[4.2.56]: https://github.com/Automattic/jetpack-backup/compare/v4.2.55...v4.2.56
+[4.2.55]: https://github.com/Automattic/jetpack-backup/compare/v4.2.54...v4.2.55
+[4.2.54]: https://github.com/Automattic/jetpack-backup/compare/v4.2.53...v4.2.54
+[4.2.53]: https://github.com/Automattic/jetpack-backup/compare/v4.2.52...v4.2.53
+[4.2.52]: https://github.com/Automattic/jetpack-backup/compare/v4.2.51...v4.2.52
+[4.2.51]: https://github.com/Automattic/jetpack-backup/compare/v4.2.50...v4.2.51
+[4.2.50]: https://github.com/Automattic/jetpack-backup/compare/v4.2.49...v4.2.50
 [4.2.49]: https://github.com/Automattic/jetpack-backup/compare/v4.2.48...v4.2.49
 [4.2.48]: https://github.com/Automattic/jetpack-backup/compare/v4.2.47...v4.2.48
 [4.2.47]: https://github.com/Automattic/jetpack-backup/compare/v4.2.46...v4.2.47

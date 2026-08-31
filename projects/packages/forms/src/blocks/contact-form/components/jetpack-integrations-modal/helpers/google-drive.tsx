@@ -1,5 +1,6 @@
 import { Button, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import GoogleSheetsIcon from '../../../../../icons/google-sheets.tsx';
 import GoogleDriveConnectButton from '../components/google-drive-connect-button.tsx';
 import GoogleDriveDisconnectButton from '../components/google-drive-disconnect-button.tsx';
@@ -60,9 +61,9 @@ export function buildGoogleDriveCard( {
 							{ __( 'View form responses', 'jetpack-forms' ) }
 						</Button>
 					) : (
-						<Button variant="link" href={ responsesUrl } target="_blank" rel="noopener noreferrer">
+						<Link openInNewTab href={ responsesUrl }>
 							{ __( 'View form responses', 'jetpack-forms' ) }
-						</Button>
+						</Link>
 					) }
 					<span>|</span>
 					<GoogleDriveDisconnectButton

@@ -4,17 +4,22 @@ packages:
   - projects/plugins/*/tests/e2e
   - tools/cli
   - tools/e2e-commons
+  - tools/e2e-commons/no-lighthouse
   - tools/js-tools
   - tools/performance
   - .github/files/coverage-munger
 
 engineStrict: true
-managePackageManagerVersions: false
+pmOnFail: ignore
 preferWorkspacePackages: true
+
+# Feature is buggy in pnpm 11.5, e.g. https://github.com/pnpm/pnpm/issues/12100.
+optimisticRepeatInstall: false
 
 # Be strict about peer deps
 autoInstallPeers: false
 dedupePeerDependents: false
+dedupePeers: false
 strictPeerDependencies: true
 
 # No hoisting by default.
@@ -30,13 +35,12 @@ minimumReleaseAgeExclude:
   - '@automattic/*'
   - '@woocommerce/*'
   - '@wordpress/*'
+  - 'gridicons'
+  - 'i18n-calypso'
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
   - chokidar@4.0.3
-
-  # https://github.com/reduxjs/reselect/issues/752
-  - reselect@5.1.1
 
   # Packages where newer majors have provenance but we're still on an older one.
   - rollup@3.30.0
@@ -65,8 +69,10 @@ blockExoticSubdeps: true
 
 # Some optional dependencies we don't actually need.
 ignoredOptionalDependencies:
-  - sass-embedded-all-unknown
-  - sass-embedded-unknown-all
+  - '@oxc-parser/binding-wasm32-wasi' # https://github.com/oxc-project/oxc/issues/21038
+  - '@rolldown/binding-wasm32-wasi' # https://github.com/rolldown/rolldown/issues/8974
+  - sass-embedded-all-unknown # Brings in `sass`; platforms we support should have a binary package instead of this.
+  - sass-embedded-unknown-all # Brings in `sass`; platforms we support should have a binary package instead of this.
 
 # Dependencies needing patching.
 patchedDependencies:
@@ -75,6 +81,9 @@ patchedDependencies:
   # See also https://github.com/WordPress/gutenberg/issues/39619
   react-autosize-textarea: .pnpm-patches/react-autosize-textarea.patch
 
-  # uuid up to v11 had CommonJS files with ESM content too.
-  # No bug report, because it's already fixed in the latest versions.
-  "uuid@<11": .pnpm-patches/uuid.patch
+  # The wp-admin page template delegates boot init modules to initSinglePage(),
+  # but WordPress cores bundling an older @wordpress/boot (e.g. WP 7.0) ignore
+  # the option, so init modules never run there. The patch runs them in the
+  # inline bootstrap instead. Remove once the template runs init modules itself
+  # upstream (or Jetpack's WP floor ships a boot with initModules support).
+  "@wordpress/build": .pnpm-patches/@wordpress__build.patch

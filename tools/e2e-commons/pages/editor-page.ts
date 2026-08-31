@@ -64,7 +64,7 @@ export default class EditorPage extends Editor {
 		if ( target !== 'Settings' ) {
 			await this.openMoreOptionsMenu();
 
-			button = this.page.getByRole( 'menuitemcheckbox', { name: target } );
+			button = this.page.getByRole( 'menuitemcheckbox', { name: target, exact: true } );
 		}
 
 		if ( await this.#targetIsOpen( button ) ) {

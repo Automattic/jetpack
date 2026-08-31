@@ -2,8 +2,7 @@
 import { extensionToLang } from '@@codemirrorLanguageData@@';
 // @ts-expect-error No types.
 import * as wpBlockEditor from '@wordpress/block-editor';
-// @ts-expect-error No types.
-import * as wpBlocks from '@wordpress/blocks';
+import { registerBlockStyle } from '@wordpress/blocks';
 import {
 	Button,
 	Dropdown,
@@ -35,8 +34,6 @@ const {
 	useBlockProps,
 	withColors,
 }: Window[ 'wp' ][ 'blockEditor' ] = wpBlockEditor;
-
-const { registerBlockStyle }: Window[ 'wp' ][ 'blocks' ] = wpBlocks;
 
 const LINE_NUMBER_START_MIN = 0;
 const LINE_NUMBER_START_MAX = 10_000;
@@ -596,15 +593,12 @@ function blockStyle( attributes: Attributes ): BlockStyleProperties {
  *
  * `[` is HTML encoded to prevent shortcodes from being processed.
  *
- * A numeric encoding is used for `&` as a workaround for
- * {@link https://core.trac.wordpress.org/ticket/63630|Trac 63630}.
- * The issue should be fixed in WordPress 6.9.
  * @param content - Original content.
  * @return Encoded content.
  */
 function htmlEncode( content: string ): string {
 	return content
-		.replaceAll( '&', '&#38;' )
+		.replaceAll( '&', '&amp;' )
 		.replaceAll( '<', '&lt;' )
 		.replaceAll( '>', '&gt;' )
 		.replaceAll( '[', '&#91;' )

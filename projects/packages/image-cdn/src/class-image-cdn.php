@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Class for photon functionality.
  *
@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Image_CDN;
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.7.24';
+	const PACKAGE_VERSION = '0.7.29';
 
 	/**
 	 * Singleton.
@@ -212,7 +212,7 @@ final class Image_CDN {
 	public static function filter_photon_noresize_thumbnail_urls( $sizes ) {
 		foreach ( $sizes as $size => $url ) {
 			$parts     = explode( '?', $url );
-			$arguments = isset( $parts[1] ) ? $parts[1] : array();
+			$arguments = $parts[1] ?? array();
 
 			$sizes[ $size ] = Image_CDN_Core::cdn_url( $url, wp_parse_args( $arguments ) );
 		}
@@ -234,10 +234,10 @@ final class Image_CDN {
 			return $data;
 		}
 		$sizes_already_exist = (
-			true === is_array( $data )
-			&& true === array_key_exists( 'sizes', $data )
-			&& true === is_array( $data['sizes'] )
-			&& false === empty( $data['sizes'] )
+			is_array( $data )
+			&& array_key_exists( 'sizes', $data )
+			&& is_array( $data['sizes'] )
+			&& ! empty( $data['sizes'] )
 		);
 		if ( $sizes_already_exist ) {
 			return $data;
@@ -530,7 +530,7 @@ final class Image_CDN {
 
 					// Basic check on returned post object.
 					if ( is_object( $attachment ) && ! is_wp_error( $attachment ) && 'attachment' === $attachment->post_type ) {
-						$src_per_wp = wp_get_attachment_image_src( $attachment_id, isset( $size ) ? $size : 'full' );
+						$src_per_wp = wp_get_attachment_image_src( $attachment_id, $size ?? 'full' );
 
 						if ( self::validate_image_url( $src_per_wp[0] ) ) {
 							$src          = $src_per_wp[0];
@@ -668,7 +668,7 @@ final class Image_CDN {
 						$processor->remove_attribute( 'width' );
 						$processor->remove_attribute( 'height' );
 					} else {
-						$resize_args = isset( $args['resize'] ) ? $args['resize'] : false;
+						$resize_args = $args['resize'] ?? false;
 						if ( false === $resize_args ) {
 							$resize_args = ( ! $resize_args && isset( $args['fit'] ) )
 								? $args['fit']

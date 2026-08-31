@@ -16,8 +16,30 @@ export const baseDomain: Formatter = url => {
 	return slashIndex === -1 ? withoutProtocol : withoutProtocol.substring( 0, slashIndex );
 };
 
+/**
+ * Counts Unicode codepoints rather than UTF-16 code units, so an emoji like 🚀
+ * is one character (matching PHP `mb_strlen`) rather than two. Lets the JS
+ * preview's truncation align with the backend's logical-char counting.
+ *
+ * @param text - The string to measure.
+ * @return The codepoint count.
+ */
+const codepointLength = ( text: string ): number => Array.from( text ).length;
+
+/**
+ * Slices a string by Unicode codepoints rather than UTF-16 code units, so
+ * surrogate pairs (most emoji) are never split mid-character.
+ *
+ * @param text  - The string to slice.
+ * @param start - Start index, in codepoints.
+ * @param end   - End index, in codepoints (exclusive).
+ * @return The sliced string.
+ */
+const codepointSlice = ( text: string, start: number, end?: number ): string =>
+	Array.from( text ).slice( start, end ).join( '' );
+
 export const shortEnough: ( n: number ) => ConditionalFormatter = limit => title =>
-	title.length <= limit ? title : false;
+	codepointLength( title ) <= limit ? title : false;
 
 export const truncatedAtSpace: ( a: number, b: number ) => ConditionalFormatter =
 	( lower, upper ) => fullTitle => {
@@ -30,7 +52,7 @@ export const truncatedAtSpace: ( a: number, b: number ) => ConditionalFormatter 
 	};
 
 export const hardTruncation: ( n: number ) => Formatter = limit => title =>
-	title.slice( 0, limit ).concat( '…' );
+	codepointSlice( title, 0, limit ).concat( '…' );
 
 export const firstValid: ( ...args: ConditionalFormatter[] ) => NullableFormatter =
 	( ...predicates ) =>
@@ -102,7 +124,95 @@ type PreviewTextOptions = {
 	hyperlinkUrls?: boolean;
 	hyperlinkHashtags?: boolean;
 	hashtagDomain?: string;
+	/**
+	 * Editor hyperlinks to render as links over the matching body text. Only
+	 * passed for the networks whose APIs support inline links (Bluesky, Tumblr).
+	 */
+	hyperlinks?: Hyperlink[];
 };
+
+/**
+ * An editor hyperlink: the visible anchor text and the URL it points to.
+ */
+export type Hyperlink = {
+	text: string;
+	href: string;
+	/**
+	 * Zero-based index of this anchor among identical occurrences of `text` in
+	 * the content, so repeated texts link the right duplicate. Defaults to 0.
+	 */
+	occurrence?: number;
+};
+
+// Collapses whitespace runs to a single space so anchor text matches the sanitized body text.
+const collapseWhitespace = ( text: string ): string => text.replace( /\s+/g, ' ' ).trim();
+
+// Counts the occurrences of `needle` in `haystack`, scanning from each match's next character.
+const countOccurrences = ( haystack: string, needle: string ): number => {
+	let count = 0;
+
+	for (
+		let pos = haystack.indexOf( needle );
+		pos !== -1;
+		pos = haystack.indexOf( needle, pos + 1 )
+	) {
+		count++;
+	}
+
+	return count;
+};
+
+// Index of the zero-based `n`-th occurrence of `needle` in `haystack`, or -1.
+const nthIndexOf = ( haystack: string, needle: string, n: number ): number => {
+	let pos = haystack.indexOf( needle );
+
+	while ( pos !== -1 && n > 0 ) {
+		n--;
+		pos = haystack.indexOf( needle, pos + 1 );
+	}
+
+	return pos;
+};
+
+/**
+ * Extracts `(text, href)` pairs from `<a href="…">text</a>` in HTML, skipping
+ * autolinks (text already equals the URL) and non-http(s) hrefs. Mirrors the
+ * backend `ExtractorUtils::get_anchor_links_from_html` so the preview links the
+ * same anchors the published share will.
+ *
+ * @param html - Raw post content HTML.
+ * @return The editor hyperlinks found, in document order.
+ */
+export function parseHyperlinks( html: string ): Hyperlink[] {
+	if ( ! html ) {
+		return [];
+	}
+
+	const doc = document.implementation.createHTMLDocument( '' );
+	doc.body.innerHTML = html;
+
+	const links: Hyperlink[] = [];
+
+	for ( const anchor of Array.from( doc.body.querySelectorAll( 'a[href]' ) ) ) {
+		const href = anchor.getAttribute( 'href' ) ?? '';
+		const text = collapseWhitespace( anchor.textContent ?? '' );
+
+		if ( ! /^https?:\/\//i.test( href ) || '' === text || text === href ) {
+			continue;
+		}
+
+		// Record which duplicate of `text` this anchor covers, by counting the
+		// identical occurrences in the plain text before the anchor.
+		const range = doc.createRange();
+		range.selectNodeContents( doc.body );
+		range.setEndBefore( anchor );
+		const occurrence = countOccurrences( collapseWhitespace( range.toString() ), text );
+
+		links.push( { text, href, occurrence } );
+	}
+
+	return links;
+}
 
 export const hashtagUrlMap = {
 	twitter: 'https://twitter.com/hashtag/%1$s',
@@ -130,6 +240,7 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 		hyperlinkHashtags = true,
 		// Instagram doesn't support hyperlink URLs at the moment.
 		hyperlinkUrls = 'instagram' !== platform,
+		hyperlinks,
 	} = options;
 
 	let result = stripHtmlTags( text );
@@ -139,7 +250,7 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 	// That is why "\s*"
 	result = result.replaceAll( /(?:\s*[\n\r]){2,}/g, '\n\n' );
 
-	if ( maxChars && result.length > maxChars ) {
+	if ( maxChars && codepointLength( result ) > maxChars ) {
 		result = hardTruncation( maxChars )( result );
 	}
 
@@ -152,25 +263,34 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 	}
 
 	const componentMap: Record< string, React.ReactElement > = {};
+	const replacements: Array< { start: number; end: number; value: string } > = [];
+	const overlapsReplacement = ( start: number, end: number ) =>
+		replacements.some( replacement => start < replacement.end && replacement.start < end );
 
 	if ( hyperlinkUrls ) {
 		// Convert URLs to hyperlinks.
 		// TODO: Use a better regex here to match the URLs without protocol.
-		const urls = result.match( /(https?:\/\/\S+)/g ) || [];
+		const urls = [ ...result.matchAll( /https?:\/\/\S+/g ) ];
 
 		/**
 		 * BEFORE:
 		 * result = 'Check out this cool site: https://wordpress.org and this one: https://wordpress.com'
 		 */
-		urls.forEach( ( url, index ) => {
+		urls.forEach( ( match, index ) => {
+			const url = match[ 0 ];
+			const start = match.index ?? 0;
+
 			// Add the element to the component map.
 			componentMap[ `Link${ index }` ] = (
 				<a href={ url } rel="noopener noreferrer" target="_blank">
 					{ url }
 				</a>
 			);
-			// Replace the URL with the component placeholder.
-			result = result.replace( url, `<Link${ index } />` );
+			replacements.push( {
+				start,
+				end: start + url.length,
+				value: `<Link${ index } />`,
+			} );
 		} );
 		/**
 		 * AFTER:
@@ -189,7 +309,7 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 		 * For example, we don't want to match the hash in the URL.
 		 * Thus we need to match the whitespace character before the hashtag or the beginning of the string.
 		 */
-		const hashtags = result.matchAll( /(^|\s)#(\w+)/g );
+		const hashtags = [ ...result.matchAll( /(^|\s)#(\w+)/g ) ];
 
 		const hashtagUrl = hashtagUrlMap[ platform ];
 
@@ -198,7 +318,15 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 		 * result = `#breaking text with a #hashtag on the #web
 		 * with a url https://github.com/Automattic/wp-calypso#security that has a hash in it`
 		 */
-		[ ...hashtags ].forEach( ( [ fullMatch, whitespace, hashtag ], index ) => {
+		hashtags.forEach( ( match, index ) => {
+			const [ , whitespace, hashtag ] = match;
+			const start = ( match.index ?? 0 ) + whitespace.length;
+			const end = start + hashtag.length + 1;
+
+			if ( overlapsReplacement( start, end ) ) {
+				return;
+			}
+
 			const url = sprintf( hashtagUrl, hashtag, options.hashtagDomain );
 
 			// Add the element to the component map.
@@ -208,8 +336,7 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 				</a>
 			);
 
-			// Replace the hashtag with the component placeholder.
-			result = result.replace( fullMatch, `${ whitespace }<Hashtag${ index } />` );
+			replacements.push( { start, end, value: `<Hashtag${ index } />` } );
 		} );
 		/**
 		 * AFTER:
@@ -222,6 +349,42 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 		 * Hashtag2: <a href="https://twitter.com/hashtag/web" ...>#web</a>
 		 * }
 		 */
+	}
+
+	// Render editor hyperlinks: resolve occurrences against the original plain
+	// message, before URL and hashtag placeholders remove matching text. Anchors
+	// that were truncated away or overlap another link are skipped.
+	if ( hyperlinks?.length ) {
+		hyperlinks.forEach( ( { text: anchorText, href, occurrence = 0 }, index ) => {
+			if ( ! anchorText ) {
+				return;
+			}
+
+			const pos = nthIndexOf( result, anchorText, occurrence );
+
+			if ( pos === -1 ) {
+				return;
+			}
+
+			const end = pos + anchorText.length;
+			if ( overlapsReplacement( pos, end ) ) {
+				return;
+			}
+
+			const token = `Hyperlink${ index }`;
+			componentMap[ token ] = <a href={ href } rel="noopener noreferrer" target="_blank" />;
+			replacements.push( {
+				start: pos,
+				end,
+				value: `<${ token }>${ anchorText }</${ token }>`,
+			} );
+		} );
+	}
+
+	// Insert right-to-left so every range remains relative to the plain message.
+	replacements.sort( ( a, b ) => b.start - a.start );
+	for ( const { start, end, value } of replacements ) {
+		result = result.slice( 0, start ) + value + result.slice( end );
 	}
 
 	// Convert newlines to <br> tags.

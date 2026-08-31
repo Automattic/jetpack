@@ -34,7 +34,7 @@ class Request {
 				// Set the cookies and get parameters for the current request. Sometimes these arrays are modified by WordPress or other plugins.
 				// We need to cache them here so they can be used for the cache key later. We don't need to sanitize them, as they are only used for comparison.
 				array(
-					'cookies' => $_COOKIE, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+					'cookies' => $_COOKIE,
 					'get'     => $_GET,    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 				)
 			);
@@ -97,10 +97,8 @@ class Request {
 
 		// Check if the query parameters `jb-disable-modules` or `jb-generate-critical-css` exist.
 		$request_parameters = $this->get_parameters();
-		$query_params       = isset( $request_parameters['get'] ) ? $request_parameters['get'] : array();
-		if ( isset( $query_params ) &&
-			( isset( $query_params['jb-disable-modules'] ) || isset( $query_params['jb-generate-critical-css'] ) )
-		) {
+		$query_params       = $request_parameters['get'] ?? array();
+		if ( isset( $query_params['jb-disable-modules'] ) || isset( $query_params['jb-generate-critical-css'] ) ) {
 			return true;
 		}
 
@@ -211,7 +209,6 @@ class Request {
 		 */
 		$accept_headers = apply_filters( 'jetpack_boost_cache_accept_headers', array( 'application/json', 'application/activity+json', 'application/ld+json' ) );
 		$accept_headers = array_map( 'strtolower', $accept_headers );
-		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- $accept is checked and set below.
 		$accept = isset( $_SERVER['HTTP_ACCEPT'] ) ? strtolower( filter_var( $_SERVER['HTTP_ACCEPT'] ) ) : '';
 

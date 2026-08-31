@@ -4,6 +4,14 @@ const data = {
 	google_analytics_enabled: false,
 	google_analytics_key: null,
 };
+
+/**
+ * Returns a configuration value.
+ *
+ * @param {string} key - Configuration key.
+ * @return {*} Configuration value.
+ * @throws {Error} If the key does not exist.
+ */
 function config( key ) {
 	if ( key in data ) {
 		return data[ key ];

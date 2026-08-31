@@ -36,6 +36,13 @@ export function usePerNetworkCustomization() {
 	}, [] );
 
 	const syncConnections = useCallback( () => {
+		/*
+		 * Don't sync on paid sites — server-side defaults handle the templates.
+		 */
+		if ( hasSocialPaidFeatures() ) {
+			return;
+		}
+
 		// Copy global settings to each connection.
 		// Per-network mode forces attachment, so we need to populate attached_media for all sources.
 		connections.forEach( connection => {

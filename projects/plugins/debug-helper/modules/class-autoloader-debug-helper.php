@@ -1,4 +1,4 @@
-<?php // phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_print_r
+<?php
 /**
  * Plugin Name: Autoloader Debugger
  * Description: View current autoloader classmaps and cache settings.
@@ -254,7 +254,7 @@ class Autoloader_Debug_Helper {
 	 * Display a notice if necessary.
 	 */
 	public function display_notice() {
-		switch ( isset( $_GET['idc_notice'] ) ? $_GET['idc_notice'] : null ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		switch ( $_GET['idc_notice'] ?? null ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			case self::STORED_SUCCESS_NOTICE_TYPE:
 				return $this->admin_notice__stored_success();
 

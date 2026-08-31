@@ -66,7 +66,7 @@ The simplest sparkline requires only a `data` prop with an array of numeric valu
 - **`width`** (default: `100`): Width of the sparkline in pixels
 - **`height`** (default: `40`): Height of the sparkline in pixels
 - **`margin`** (default: `{2,2,2,2}`): Margin around the chart
-- **`aspectRatio`**: Height as a fraction of width. When omitted, fills parent container height
+- **`aspectRatio`**: Height-to-width ratio (e.g. `0.3`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
 - **`maxWidth`** (default: `1200`): Maximum width constraint for responsive charts
 - **`resizeDebounceTime`** (default: `300`): Debounce delay for resize events in ms
 
@@ -187,14 +187,25 @@ Disable the gradient for a cleaner line-only appearance, or customize it:
 
 ## Theming Integration
 
-Sparklines integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+Sparklines integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+
+**The line color comes from the first palette custom property, not the theme object.** Use the `color` prop to override a single sparkline:
+
+<Source
+	language="css"
+	code={ `.a8c-charts-scope {
+		--a8c-charts-color-series-1: #FF6B6B;
+	}` }
+/>
+
+Everything else is set by wrapping your chart in `GlobalChartsProvider` and passing a theme object with the properties you want to override to the `theme` prop:
 
 <Source
 	language="tsx"
 	code={ `import { GlobalChartsProvider, Sparkline, type ChartTheme } from '@automattic/charts';
 
 	const customTheme: ChartTheme = {
-		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
+		sparkline: { strokeWidth: 2 },
 	};
 
 	<GlobalChartsProvider theme={customTheme}>
@@ -215,7 +226,7 @@ The default `Sparkline` export includes responsive behavior. By default, it **fi
 		<Sparkline data={[10, 15, 12, 18, 22, 25]} color="#9C27B0" />
 	</div>
 
-	// Use aspect ratio - height calculated from width
+	// Use aspect ratio - height from width, contained if the parent is shorter
 	<div style={{ width: '100%', maxWidth: '200px' }}>
 		<Sparkline data={[10, 15, 12, 18, 22, 25]} color="#9C27B0" aspectRatio={0.3} />
 	</div>` }

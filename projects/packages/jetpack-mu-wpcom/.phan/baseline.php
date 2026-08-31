@@ -11,7 +11,6 @@ return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 15+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 15+ occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 9 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
     // PhanUndeclaredClassMethod : 6 occurrences
     // PhanTypeMismatchReturnProbablyReal : 4 occurrences
@@ -23,7 +22,6 @@ return [
     // PhanUndeclaredFunction : 2 occurrences
     // PhanNonClassMethodCall : 1 occurrence
     // PhanNoopArrayAccess : 1 occurrence
-    // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanRedefineFunction : 1 occurrence
     // PhanTypeArraySuspiciousNullable : 1 occurrence
     // PhanTypeComparisonToArray : 1 occurrence
@@ -38,14 +36,11 @@ return [
         'src/features/block-patterns/class-wpcom-block-patterns-utils.php' => ['PhanTypeMismatchReturnNullable'],
         'src/features/coming-soon/coming-soon.php' => ['PhanTypeArraySuspicious'],
         'src/features/coming-soon/fallback-coming-soon-page.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument'],
-        'src/features/error-reporting/error-reporting.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'src/features/launchpad/class-launchpad-task-lists.php' => ['PhanNoopArrayAccess', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
+        'src/features/launchpad/class-launchpad-task-lists.php' => ['PhanNoopArrayAccess', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
         'src/features/launchpad/launchpad-task-definitions.php' => ['PhanTypeComparisonToArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn', 'PhanTypePossiblyInvalidDimOffset'],
         'src/features/launchpad/launchpad.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/features/marketplace-products-updater/class-marketplace-products-updater.php' => ['PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturn'],
-        'src/features/media/heif-support.php' => ['PhanPluginSimplifyExpressionBool'],
         'src/features/verbum-comments/class-verbum-comments.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunction'],
-        'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-launchpad.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-site-migration-migrate-guru-key.php' => ['PhanUndeclaredClassMethod'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-site-migration-wpcom-migration-key.php' => ['PhanUndeclaredClassMethod'],
         'tests/lib/functions-wordpress.php' => ['PhanRedefineFunction'],

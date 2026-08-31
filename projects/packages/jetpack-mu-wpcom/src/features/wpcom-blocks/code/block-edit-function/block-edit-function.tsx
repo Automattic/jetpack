@@ -34,11 +34,9 @@ const { RichTextData } = window.wp.richText;
 function EditCodeMirror( props: EditBlockProps ) {
 	const { attributes, isSelected, setAttributes, insertBlocksAfter, onRemove } = props;
 
-	const ref: React.RefObject< HTMLDivElement > = React.useRef( null );
-	const viewRef: React.MutableRefObject< import('@codemirror/view').EditorView | undefined > =
-		React.useRef( undefined );
-	const currentLanguageRef: React.MutableRefObject< LanguageSupport | undefined > =
-		React.useRef( undefined );
+	const ref = React.useRef< HTMLDivElement >( null );
+	const viewRef = React.useRef< import('@codemirror/view').EditorView >( undefined );
+	const currentLanguageRef = React.useRef< LanguageSupport >( undefined );
 	const trailingNewlineCounterRef = React.useRef( 0 );
 
 	const { getBlockOrder } = useSelect( blockEditorStore, [] );
@@ -258,7 +256,7 @@ function EditCodeMirror( props: EditBlockProps ) {
 						// We're in the process of inserting the third trailing newline.
 						if ( isTrailingNewlineInsertion && trailingNewlineCounterRef.current >= 2 ) {
 							// Move into a new default block.
-							insertBlocksAfter( createBlock( getDefaultBlockName() ) );
+							insertBlocksAfter( createBlock( getDefaultBlockName()! ) );
 
 							// Update the document to remove the previous two newlines.
 							const startState = transaction.startState;

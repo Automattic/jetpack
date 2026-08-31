@@ -3,7 +3,6 @@
  */
 import {
 	AdminPage,
-	Button,
 	Col,
 	Container,
 	PricingTable,
@@ -11,13 +10,12 @@ import {
 	PricingTableHeader,
 	PricingTableItem,
 	ProductPrice,
-	Text,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { getScriptData, getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button, LinkButton } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -33,6 +31,7 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
 import { getProductConfigs } from './config';
 import ProductInterstitial from './product-interstitial';
+import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
 import styles from './style.module.scss';
 
 /**
@@ -47,7 +46,7 @@ export default function PricingInterstitial( { slug } ) {
 	const { detail, isLoading: isProductLoading } = useProduct( slug );
 	const { detail: bundleDetail, isLoading: isBundleLoading } = useProduct( config?.bundle );
 	const { recordEvent } = useAnalytics();
-	const { onClickGoBack } = useGoBack( { slug } );
+	const { onClickGoBack } = useGoBack( { slug, fallback: '/products' } );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
 	const myJetpackCheckoutUri = getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
@@ -219,7 +218,7 @@ export default function PricingInterstitial( { slug } ) {
 									if ( postRegisterRedirectUri ) {
 										// Redirect to the product's admin page
 										window.location.href = postRegisterRedirectUri;
-									} else {
+									} else if ( ! reloadIfActivationChangesAdminMenu( slug, product?.title ) ) {
 										// Fall back to the My Jetpack overview page.
 										return navigateToMyJetpackOverviewPage();
 									}
@@ -380,39 +379,38 @@ export default function PricingInterstitial( { slug } ) {
 	const currencyCode = productPricing?.currencyCode || bundlePricing?.currencyCode || 'USD';
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ false }>
+		<AdminPage
+			showBackground={ false }
+			breadcrumbs={
+				<GoBackLink
+					onClick={ handleGoBack }
+					to="/products"
+					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
+				/>
+			}
+			actions={
+				<LinkButton
+					size="compact"
+					variant="outline"
+					href={ getMyJetpackUrl( '#/add-license' ) }
+					onClick={ handleLicenseActivationClick }
+				>
+					{ __( 'Use license key', 'jetpack-my-jetpack' ) }
+				</LinkButton>
+			}
+		>
 			<Container
 				className={ styles.interstitialContainer }
 				horizontalSpacing={ 3 }
 				horizontalGap={ 2 }
 			>
-				<Col className={ styles[ 'product-interstitial__header' ] }>
-					<GoBackLink onClick={ handleGoBack } />
-					<Text variant="body-small">
-						{ createInterpolateElement(
-							__(
-								'Already have an existing plan or license key? <a>Click here to get started</a>.',
-								'jetpack-my-jetpack'
-							),
-							{
-								a: (
-									<Button
-										className={ styles[ 'product-interstitial__license-activation-link' ] }
-										href={ getMyJetpackUrl( '#/add-license' ) }
-										variant="link"
-										onClick={ handleLicenseActivationClick }
-									/>
-								),
-							}
-						) }
-					</Text>
-				</Col>
 				<Col>
 					<PricingTable
 						title={ config.title }
 						items={ config.features }
 						showIntroOfferDisclaimer={ false }
 						headerLogo={ config.logo ? <config.logo height={ 32 } /> : null }
+						breakpoint="xlarge"
 					>
 						{ config.tiers.free && (
 							<PricingTableColumn className={ styles[ 'pricing-column' ] }>
@@ -425,10 +423,10 @@ export default function PricingInterstitial( { slug } ) {
 										variant="simple"
 									/>
 									<Button
-										fullWidth
-										variant="secondary"
+										className={ styles[ 'tier-cta' ] }
+										variant="outline"
 										onClick={ handleFreeActivation }
-										isLoading={ loadingButton === 'free' }
+										loading={ loadingButton === 'free' }
 										disabled={ buttonsDisabled }
 									>
 										{ config.tiers.free.cta }
@@ -462,9 +460,9 @@ export default function PricingInterstitial( { slug } ) {
 									<Spinner className={ styles.spinner } />
 								) }
 								<Button
-									fullWidth
+									className={ styles[ 'tier-cta' ] }
 									onClick={ handleGetProduct }
-									isLoading={ loadingButton === 'paid' }
+									loading={ loadingButton === 'paid' }
 									disabled={ buttonsDisabled }
 								>
 									{ config.tiers.paid.cta }
@@ -493,10 +491,10 @@ export default function PricingInterstitial( { slug } ) {
 									<Spinner className={ styles.spinner } />
 								) }
 								<Button
-									fullWidth
-									variant="secondary"
+									className={ styles[ 'tier-cta' ] }
+									variant="outline"
 									onClick={ handleGetBundle }
-									isLoading={ loadingButton === 'bundle' }
+									loading={ loadingButton === 'bundle' }
 									disabled={ buttonsDisabled || isBundleLoading }
 								>
 									{ config.tiers.bundle.cta }

@@ -74,19 +74,28 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 	/**
 	 * Retrieves per-status counts for the jetpack_form post type.
 	 *
-	 * Uses wp_count_posts() which returns all status counts in a single query.
+	 * Users who can edit others' forms (e.g. admins and editors) receive
+	 * site-wide counts via wp_count_posts(). Users who cannot (e.g. authors)
+	 * receive counts scoped to the forms they authored, so aggregate counts of
+	 * other users' forms are not leaked.
 	 *
 	 * @return \WP_REST_Response Response object with status counts.
 	 */
 	public function get_status_counts() {
-		$counts = wp_count_posts( Contact_Form::POST_TYPE );
+		$post_type_object = get_post_type_object( $this->post_type );
 
-		$publish = (int) ( $counts->publish ?? 0 );
-		$draft   = (int) ( $counts->draft ?? 0 );
-		$pending = (int) ( $counts->pending ?? 0 );
-		$future  = (int) ( $counts->future ?? 0 );
-		$private = (int) ( $counts->{'private'} ?? 0 );
-		$trash   = (int) ( $counts->trash ?? 0 );
+		if ( $post_type_object && current_user_can( $post_type_object->cap->edit_others_posts ) ) {
+			$counts = (array) wp_count_posts( Contact_Form::POST_TYPE );
+		} else {
+			$counts = $this->get_status_counts_for_author( get_current_user_id() );
+		}
+
+		$publish = (int) ( $counts['publish'] ?? 0 );
+		$draft   = (int) ( $counts['draft'] ?? 0 );
+		$pending = (int) ( $counts['pending'] ?? 0 );
+		$future  = (int) ( $counts['future'] ?? 0 );
+		$private = (int) ( $counts['private'] ?? 0 );
+		$trash   = (int) ( $counts['trash'] ?? 0 );
 
 		return rest_ensure_response(
 			array(
@@ -99,6 +108,45 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'trash'   => $trash,
 			)
 		);
+	}
+
+	/**
+	 * Count forms authored by a specific user, grouped by post status.
+	 *
+	 * The wp_count_posts() function cannot be scoped by author (its second argument is a
+	 * permission level, not query args), so a direct query is used to mirror its
+	 * shape while restricting results to a single author. The result is
+	 * user-scoped and computed by a single grouped aggregate run once per request
+	 * (the dashboard preloads this endpoint), so it is intentionally not cached --
+	 * unlike get_entries_count_by_form_id(), whose lookup is shared across forms
+	 * and benefits from a short-lived cache.
+	 *
+	 * @param int $author_id User ID to scope the counts to.
+	 * @return array<string,int> Map of post_status => count.
+	 */
+	private function get_status_counts_for_author( int $author_id ): array {
+		global $wpdb;
+
+		// Intentionally uncached: the result is user-scoped and computed once per request.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT post_status, COUNT(1) AS num_posts
+				FROM {$wpdb->posts}
+				WHERE post_type = %s
+				  AND post_author = %d
+				GROUP BY post_status",
+				Contact_Form::POST_TYPE,
+				$author_id
+			)
+		);
+
+		$counts = array();
+		foreach ( (array) $rows as $row ) {
+			$counts[ $row->post_status ] = (int) $row->num_posts;
+		}
+
+		return $counts;
 	}
 
 	/**
@@ -209,6 +257,83 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Attach the `is_collecting_responses` flag to admin (edit-context) responses.
+	 *
+	 * Exposed on both the forms list and single-form fetches so the dashboard can
+	 * warn about forms that drop their submissions. Only added for the `edit`
+	 * context, which is permission-gated to users who can manage forms.
+	 *
+	 * @since 7.23.0
+	 *
+	 * @param \WP_Post         $item    Post object.
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response
+	 */
+	public function prepare_item_for_response( $item, $request ) {
+		$response = parent::prepare_item_for_response( $item, $request );
+
+		if ( 'edit' === $request->get_param( 'context' ) && isset( $item->ID ) ) {
+			$data                            = $response->get_data();
+			$data['is_collecting_responses'] = $this->is_form_collecting_responses( (int) $item->ID );
+			$response->set_data( $data );
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Whether a stored form is configured to collect its responses anywhere.
+	 *
+	 * Parses the form's block content and applies the shared detection rule.
+	 * Returns true (no warning) when the form has no contact-form block to read.
+	 *
+	 * @since 7.23.0
+	 *
+	 * @param int $form_id Form (jetpack_form) post ID.
+	 * @return bool
+	 */
+	private function is_form_collecting_responses( int $form_id ): bool {
+		$post = get_post( $form_id );
+		if ( ! $post instanceof \WP_Post || '' === $post->post_content ) {
+			return true;
+		}
+
+		foreach ( parse_blocks( $post->post_content ) as $block ) {
+			$attributes = $this->find_contact_form_attributes( $block );
+			if ( null !== $attributes ) {
+				return Contact_Form::is_collecting_responses( $attributes );
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Recursively locate the first jetpack/contact-form block's attributes.
+	 *
+	 * @since 7.23.0
+	 *
+	 * @param array $block A parsed block.
+	 * @return array|null The block attributes, or null when not found.
+	 */
+	private function find_contact_form_attributes( array $block ): ?array {
+		if ( isset( $block['blockName'] ) && 'jetpack/contact-form' === $block['blockName'] ) {
+			return isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : array();
+		}
+
+		if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
+			foreach ( $block['innerBlocks'] as $inner_block ) {
+				$attributes = $this->find_contact_form_attributes( $inner_block );
+				if ( null !== $attributes ) {
+					return $attributes;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Batch compute feedback counts for a list of form IDs.
 	 *
 	 * @param int[] $form_ids Form IDs to count entries for.
@@ -276,7 +401,6 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$feedback_type = Feedback::POST_TYPE;
 		$operator      = $this->has_responses_filter ? 'EXISTS' : 'NOT EXISTS';
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$subquery = $wpdb->prepare(
 			"SELECT 1 FROM {$wpdb->posts} AS feedback
 			WHERE feedback.post_parent = {$wpdb->posts}.ID

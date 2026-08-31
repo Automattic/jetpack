@@ -1,8 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { PanelBody, Button, ExternalLink } from '@wordpress/components';
+import { PanelBody } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { getSocialAdminPageUrl } from '../../utils';
 
 export const Placeholder = () => {
@@ -37,13 +38,13 @@ export const Placeholder = () => {
 					'jetpack-publicize-pkg'
 				) }
 			</p>
-			<Button onClick={ enablePublicizeModule } variant="link" href={ getSocialAdminPageUrl() }>
+			<Link href={ getSocialAdminPageUrl() } onClick={ enablePublicizeModule }>
 				{ __( 'Activate Jetpack Social', 'jetpack-publicize-pkg' ) }
-			</Button>
+			</Link>
 			<div className="components-placeholder__learn-more">
-				<ExternalLink href={ getRedirectUrl( 'jetpack-support-publicize' ) }>
+				<Link openInNewTab href={ getRedirectUrl( 'jetpack-support-publicize' ) }>
 					{ __( 'Learn more', 'jetpack-publicize-pkg' ) }
-				</ExternalLink>
+				</Link>
 			</div>
 		</PanelBody>
 	);

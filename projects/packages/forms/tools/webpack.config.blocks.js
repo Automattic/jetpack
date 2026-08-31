@@ -4,7 +4,6 @@
 
 import path from 'path';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
-import autoprefixer from 'autoprefixer';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 
 const __dirname = import.meta.dirname;
@@ -31,6 +30,8 @@ const sharedWebpackConfig = {
 	output: {
 		...jetpackWebpackConfig.output,
 		path: path.join( __dirname, '../dist/blocks' ),
+		// We need a more unique uniqueName here so ai-form-plugin's `dependOn` doesn't get confused with modules from other builds in the package.
+		uniqueName: jetpackWebpackConfig.output.uniqueName + '/blocks',
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
@@ -59,13 +60,15 @@ const sharedWebpackConfig = {
 				includeNodeModules: [
 					'@automattic/',
 					'debug/',
-					'gridicons/',
 					'punycode/',
 					'query-string/',
 					'split-on-first/',
 					'strict-uri-encode/',
 				],
 			} ),
+
+			// Workarounds for non-extracted `@wordpress/*` packages.
+			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
@@ -74,8 +77,9 @@ const sharedWebpackConfig = {
 					{
 						loader: 'postcss-loader',
 						options: {
-							// postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
-							postcssOptions: { plugins: [ autoprefixer ] },
+							postcssOptions: {
+								config: path.join( __dirname, '..', 'postcss.config.js' ),
+							},
 						},
 					},
 					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },

@@ -56,6 +56,9 @@ const sharedWebpackConfig = {
 				],
 			} ),
 
+			// Workarounds for non-extracted `@wordpress/*` packages.
+			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
+
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
 				extensions: [ 'css', 'sass', 'scss' ],
@@ -63,7 +66,12 @@ const sharedWebpackConfig = {
 					{
 						loader: 'postcss-loader',
 						options: {
-							postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
+							postcssOptions: {
+								plugins: [
+									require( '@wordpress/theme/postcss-plugins/postcss-ds-token-fallbacks' ).default,
+									require( 'autoprefixer' ),
+								],
+							},
 						},
 					},
 					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },

@@ -120,8 +120,6 @@ export class DashConnections extends Component {
 			<ConnectButton asBanner connectUser={ true } from="connection-settings" />
 		);
 
-		let cardContent = '';
-
 		if ( this.props.isOfflineMode ) {
 			// return nothing if this is an account connection card
 			return (
@@ -146,6 +144,8 @@ export class DashConnections extends Component {
 				</div>
 			);
 		}
+
+		let cardContent;
 
 		if ( ! this.props.isLinked ) {
 			cardContent = <div className="jp-connection-settings__info">{ LinkUnlinkBtn }</div>;

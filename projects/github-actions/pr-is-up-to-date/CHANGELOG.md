@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.9] - 2026-05-20
+### Fixed
+- Set `maintenance.auto` (instead of `gc.auto`) for compatibility with git 2.54.0. If for some reason you're still on git <2.30, you should upgrade that. [#49009]
+
+## [2.0.8] - 2026-05-08
+### Fixed
+- Fix detection of parent commits in shallow handling. [#48649] [#48651]
+
 ## [2.0.7] - 2026-02-04
 ### Fixed
 - Fail the workflow if updating the GitHub status fails. [#46021]
@@ -70,6 +78,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
+[2.0.9]: https://github.com/Automattic/action-pr-is-up-to-date/compare/v2.0.8...v2.0.9
+[2.0.8]: https://github.com/Automattic/action-pr-is-up-to-date/compare/v2.0.7...v2.0.8
 [2.0.7]: https://github.com/Automattic/action-pr-is-up-to-date/compare/v2.0.6...v2.0.7
 [2.0.6]: https://github.com/Automattic/action-pr-is-up-to-date/compare/v2.0.5...v2.0.6
 [2.0.5]: https://github.com/Automattic/action-pr-is-up-to-date/compare/v2.0.4...v2.0.5

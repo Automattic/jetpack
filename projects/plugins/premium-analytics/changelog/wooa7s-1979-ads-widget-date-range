@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Ads: Move the date range into the WordAds card's own header, and drop the section header's date filter.

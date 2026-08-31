@@ -1,6 +1,8 @@
 .cache/
+/build/
 src/build/
 src/build-module/
+/routes/**/.content-entry.js
 src/**/*.d.ts
 src/**/*.tsbuildinfo
 vendor/

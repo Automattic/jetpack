@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Survicate: skip loading on internal P2 sites and network/user admin pages, and emit an is_big_sky_site visitor trait so Big Sky users can be excluded via Survicate's targeting UI.

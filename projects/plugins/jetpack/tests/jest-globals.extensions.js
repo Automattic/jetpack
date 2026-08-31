@@ -1,12 +1,13 @@
-// Needed to use transpiled generator functions.
-// See: https://babeljs.io/docs/en/babel-polyfill for details.
-require( 'regenerator-runtime/runtime' );
-
 // Mock this that's usually set by automattic/jetpack-connection.
 window.JP_CONNECTION_INITIAL_STATE = {
 	userConnectionData: {
 		currentUser: {
-			wpcomUser: { Id: 99999, login: 'bobsacramento', display_name: 'Bob Sacrmaneto' },
+			wpcomUser: {
+				ID: 99999,
+				login: 'bobsacramento',
+				display_name: 'Bob Sacramento',
+				avatar: false,
+			},
 		},
 	},
 };

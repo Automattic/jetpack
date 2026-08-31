@@ -4,6 +4,7 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"automattic/jetpack-activity-log": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-config": "@dev",
@@ -15,7 +16,6 @@
 		"automattic/jetpack-sync": "@dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/phpunit-select-config": "@dev",
 		"yoast/phpunit-polyfills": "^4.0.0"
 	},
@@ -28,12 +28,8 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-		],
-		"test-php": [
-			"@composer phpunit"
-		],
+		"test-php": "@composer phpunit",
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
 		"build-production": "pnpm run build-production",
 		"build-development": "pnpm run build"
 	},
@@ -66,7 +62,7 @@
 	},
 	"config": {
 		"sort-packages": true,
-		"autoloader-suffix": "b462338fb66be23595d68a93345c9e3d_jetpack_searchⓥ5_2_2",
+		"autoloader-suffix": "b462338fb66be23595d68a93345c9e3d_jetpack_searchⓥ7_1_0",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true,

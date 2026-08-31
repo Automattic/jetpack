@@ -156,6 +156,11 @@ function wpcom_enqueue_launch_button_assets() {
 		true
 	);
 
+	// Load the translations to avoid wp.i18n overwriting server-side translations
+	// with English strings, and in general make it possible to use translations
+	// in JS.
+	wp_set_script_translations( 'adminbar-launch-button', 'jetpack-mu-wpcom' );
+
 	$bundles      = function_exists( 'wpcom_get_site_purchases' ) ? wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) ) : array();
 	$current_plan = array_pop( $bundles );
 
@@ -163,6 +168,7 @@ function wpcom_enqueue_launch_button_assets() {
 		array(
 			'blogId'          => get_current_blog_id(),
 			'siteUrl'         => home_url(),
+			'siteName'        => get_bloginfo( 'name' ),
 			'siteDomain'      => wp_parse_url( home_url(), PHP_URL_HOST ),
 			'sitePlan'        => $current_plan,
 			'hasCustomDomain' => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'custom-domain' ),

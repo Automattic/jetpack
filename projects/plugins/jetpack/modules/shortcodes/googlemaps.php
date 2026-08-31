@@ -92,28 +92,52 @@ function jetpack_googlemaps_shortcode( $atts ) {
 	$height = 350;
 
 	if ( preg_match( '!^https?://(www|maps|mapsengine)\.google(\.co|\.com)?(\.[a-z]+)?/.*?(\?.+)!i', $params, $match ) ) {
-		$params = str_replace( '&amp;amp;', '&amp;', $params );
-		$params = str_replace( '&amp;', '&', $params );
-		parse_str( $params, $arg );
-
-		if ( isset( $arg['hq'] ) ) {
-			unset( $arg['hq'] );
+		$url_parts = wp_parse_url( $params );
+		if ( ! is_array( $url_parts ) || empty( $url_parts['host'] ) ) {
+			return '';
 		}
 
-		$url = '';
-		foreach ( (array) $arg as $key => $value ) {
-			if ( 'w' === $key ) {
-				$percent = ( str_ends_with( $value, '%' ) ) ? '%' : '';
-				$width   = (int) $value . $percent;
-			} elseif ( 'h' === $key ) {
-				$height = (int) $value;
-			} else {
-				$key  = str_replace( '_', '.', $key );
-				$url .= esc_attr( "$key=$value&amp;" );
+		$base_url     = ( $url_parts['scheme'] ?? 'https' ) . '://' . $url_parts['host'] . ( $url_parts['path'] ?? '' );
+		$query_string = $url_parts['query'] ?? '';
+
+		// Convert separator-position `&amp;` (and `&amp;amp;` etc.) to `&` so parse_str() can split parameters,
+		// but leave entity-encoded ampersands inside values alone — those are handled after parse_str().
+		$query_string = preg_replace( '/&(?:amp;)+(?=[a-zA-Z_][a-zA-Z0-9_]*=)/', '&', $query_string );
+
+		// Any `&amp;` left at this point sits inside a value. Encode the leading `&` so parse_str() does not
+		// split on it; the trailing `amp;` is decoded back to `&` after parse_str() runs.
+		$query_string = str_replace( '&amp;', '%26amp;', $query_string );
+
+		parse_str( $query_string, $arg );
+
+		unset( $arg['hq'] );
+
+		if ( isset( $arg['w'] ) ) {
+			$w_value = (string) $arg['w'];
+			$percent = str_ends_with( $w_value, '%' ) ? '%' : '';
+			$width   = (int) $w_value . $percent;
+			unset( $arg['w'] );
+		}
+
+		if ( isset( $arg['h'] ) ) {
+			$height = (int) $arg['h'];
+			unset( $arg['h'] );
+		}
+
+		// Restore parse_str()'s underscore-mangled keys (e.g. `f.q` → `f_q` → `f.q`) and decode any
+		// HTML entities that survived inside values, so http_build_query() encodes the real characters.
+		$rebuilt = array();
+		foreach ( $arg as $key => $value ) {
+			$key = str_replace( '_', '.', (string) $key );
+			if ( is_string( $value ) ) {
+				$value = preg_replace( '/&(?:amp;)+/', '&', $value );
 			}
+			$rebuilt[ $key ] = $value;
 		}
-		$url = substr( $url, 0, -5 );
 
+		$query = http_build_query( $rebuilt, '', '&amp;', PHP_QUERY_RFC3986 );
+
+		$url = $base_url . ( '' !== $query ? '?' . $query : '' );
 		$url = str_replace( 'http://', 'https://', $url );
 
 		$css_class = 'googlemaps';

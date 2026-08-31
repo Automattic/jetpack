@@ -308,14 +308,14 @@ function jetpack_boost_build_minify_output( $request_uri ) {
 			}
 
 			// If filename indicates it's already minified, don't minify it again.
-			if ( ! preg_match( '/\.min\.css$/', $fullpath ) ) {
+			if ( ! jetpack_boost_page_optimize_is_already_minified( $fullpath ) ) {
 				// Minify CSS.
 				$buf = Minify::css( $buf );
 			}
 			$output .= "$buf";
 		} else {
 			// If filename indicates it's already minified, don't minify it again.
-			if ( ! preg_match( '/\.min\.js$/', $fullpath ) ) {
+			if ( ! jetpack_boost_page_optimize_is_already_minified( $fullpath ) ) {
 				// Minify JS
 				$buf = Minify::js( $buf );
 			}

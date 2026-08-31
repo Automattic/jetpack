@@ -44,20 +44,16 @@ test.describe( 'Concatenate JS and CSS', () => {
 			await page.goto( '/' );
 		} );
 
-		await expect( async () => {
-			// This script is enqueued via a helper plugin.
-			expect(
-				( await page.locator( '#e2e-script-one-js' ).count() ) > 0,
-				'JS concatenation shouldn`t occur when the module is inactive'
-			).toBeTruthy();
-		} ).toPass();
-		await expect( async () => {
-			// This style is enqueued via a helper plugin.
-			expect(
-				( await page.locator( '#e2e-style-one-css' ).count() ) > 0,
-				'CSS concatenation shouldn`t occur when the module is inactive'
-			).toBeTruthy();
-		} ).toPass();
+		// This script is enqueued via a helper plugin.
+		await expect(
+			page.locator( '#e2e-script-one-js' ).first(),
+			'JS concatenation shouldn`t occur when the module is inactive'
+		).toBeAttached();
+		// This style is enqueued via a helper plugin.
+		await expect(
+			page.locator( '#e2e-style-one-css' ).first(),
+			'CSS concatenation shouldn`t occur when the module is inactive'
+		).toBeAttached();
 	} );
 
 	test( 'Meta information should be visible when the modules are active', async ( {
@@ -85,23 +81,19 @@ test.describe( 'Concatenate JS and CSS', () => {
 			await page.goto( '/' );
 		} );
 
-		await expect( async () => {
-			// e2e-script-one and e2e-script-two are enqueued by a helper plugin. When concatenation is enabled,
-			// they should be concatenated into a single script.
-			const count = await page
-				.locator( '[data-handles*="e2e-script-one"][data-handles*="e2e-script-two"]' )
-				.count();
-			expect( count, 'JS Concatenation occurs when module is active' ).toBeGreaterThan( 0 );
-		} ).toPass( { timeout: 10000 } );
+		// e2e-script-one and e2e-script-two are enqueued by a helper plugin. When concatenation is enabled,
+		// they should be concatenated into a single script.
+		await expect(
+			page.locator( '[data-handles*="e2e-script-one"][data-handles*="e2e-script-two"]' ).first(),
+			'JS Concatenation occurs when module is active'
+		).toBeAttached();
 
-		await expect( async () => {
-			// e2e-style-one and e2e-style-two are enqueued by a helper plugin. When concatenation is enabled,
-			// they should be concatenated into a single style.
-			const count = await page
-				.locator( '[data-handles*="e2e-style-one"][data-handles*="e2e-style-two"]' )
-				.count();
-			expect( count, 'CSS Concatenation occurs when module is active' ).toBeGreaterThan( 0 );
-		} ).toPass( { timeout: 10000 } );
+		// e2e-style-one and e2e-style-two are enqueued by a helper plugin. When concatenation is enabled,
+		// they should be concatenated into a single style.
+		await expect(
+			page.locator( '[data-handles*="e2e-style-one"][data-handles*="e2e-style-two"]' ).first(),
+			'CSS Concatenation occurs when module is active'
+		).toBeAttached();
 	} );
 
 	test( 'Assets that are excluded by default shouldn`t be concatenated', async ( {
@@ -116,16 +108,16 @@ test.describe( 'Concatenate JS and CSS', () => {
 			await page.goto( '/' );
 		} );
 
-		await expect( async () => {
-			// jQuery is enqueued by a helper plugin.
-			const count = await page.locator( '#jquery-core-js' ).count();
-			expect( count, 'jQuery should not be concatenated' ).toBeGreaterThan( 0 );
-		} ).toPass( { timeout: 10000 } );
+		// jQuery is enqueued by a helper plugin.
+		await expect(
+			page.locator( '#jquery-core-js' ).first(),
+			'jQuery should not be concatenated'
+		).toBeAttached();
 
-		await expect( async () => {
-			// Admin bar stylesheet is enqueued by default when logged-in.
-			const count = await page.locator( '#admin-bar-css' ).count();
-			expect( count, 'Admin bar stylesheet should not be concatenated' ).toBeGreaterThan( 0 );
-		} ).toPass( { timeout: 10000 } );
+		// Admin bar stylesheet is enqueued by default when logged-in.
+		await expect(
+			page.locator( '#admin-bar-css' ).first(),
+			'Admin bar stylesheet should not be concatenated'
+		).toBeAttached();
 	} );
 } );

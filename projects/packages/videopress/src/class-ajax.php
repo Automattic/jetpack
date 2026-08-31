@@ -79,7 +79,7 @@ class AJAX {
 	 *
 	 * This is used for both logged in and logged out users.
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public function wp_ajax_videopress_get_playback_jwt() {
 		$guid             = filter_input( INPUT_POST, 'guid' );
@@ -93,13 +93,11 @@ class AJAX {
 		if ( empty( $guid ) || ! $this->is_valid_guid( $guid ) ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 			wp_send_json_error( array( 'message' => __( 'need a guid', 'jetpack-videopress-pkg' ) ), null, JSON_UNESCAPED_SLASHES );
-			return;
 		}
 
 		if ( ! $this->is_current_user_authed_for_video( $guid, $embedded_post_id, $selected_plan_id ) ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 			wp_send_json_error( array( 'message' => __( 'You cannot view this video.', 'jetpack-videopress-pkg' ) ), null, JSON_UNESCAPED_SLASHES );
-			return;
 		}
 
 		$token = $this->request_jwt_from_wpcom( $guid );
@@ -107,13 +105,11 @@ class AJAX {
 		if ( empty( $token ) ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress playback JWT. Please try again later. (empty upload token)', 'jetpack-videopress-pkg' ) ), null, JSON_UNESCAPED_SLASHES );
-			return;
 		}
 
 		if ( is_wp_error( $token ) ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload JWT. Please try again later.', 'jetpack-videopress-pkg' ) ), null, JSON_UNESCAPED_SLASHES );
-			return;
 		}
 
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
@@ -170,9 +166,14 @@ class AJAX {
 	/**
 	 * Ajax method that is used by the VideoPress uploader to get a token to upload a file to the wpcom api.
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public function wp_ajax_videopress_get_upload_jwt() {
+		if ( ! current_user_can( 'upload_files' ) ) {
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to upload files.', 'jetpack-videopress-pkg' ) ), null, JSON_UNESCAPED_SLASHES );
+		}
+
 		$video_blog_id = $this->get_videopress_blog_id();
 		$args          = array(
 			'method' => 'POST',
@@ -183,7 +184,6 @@ class AJAX {
 		if ( is_wp_error( $result ) ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload JWT. Please try again later.', 'jetpack-videopress-pkg' ) ), null, JSON_UNESCAPED_SLASHES );
-			return;
 		}
 
 		$response = json_decode( $result['body'], true );
@@ -191,7 +191,6 @@ class AJAX {
 		if ( empty( $response['upload_token'] ) ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload JWT. Please try again later. (empty upload token)', 'jetpack-videopress-pkg' ) ), null, JSON_UNESCAPED_SLASHES );
-			return;
 		}
 
 		$response['upload_action_url'] = videopress_make_resumable_upload_path( $video_blog_id );
@@ -203,10 +202,43 @@ class AJAX {
 	/**
 	 * Ajax method that is used by the VideoPress uploader to get a token to upload a file to the wpcom api.
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public function wp_ajax_videopress_get_upload_token() {
+		if ( ! current_user_can( 'upload_files' ) ) {
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to upload files.', 'jetpack-videopress-pkg' ) ), null, JSON_UNESCAPED_SLASHES );
+		}
+
 		$video_blog_id = $this->get_videopress_blog_id();
+
+		// On WordPress.com the classic `sites/{id}/media/token` (rest/v1.1) endpoint
+		// isn't reachable in-process (WPCOM_API_Direct only dispatches WP-REST routes),
+		// so mint the token via VideoPressToken, which has its own IS_WPCOM branch that
+		// mints locally. `get_videopress_blog_id()` is the current blog on Simple, matching
+		// the minted token. The self-hosted remote path below is left unchanged.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			try {
+				$upload_token = VideoPressToken::videopress_onetime_upload_token();
+			} catch ( Upload_Exception $e ) {
+				// Explicit 200: identical to the null default (admin-ajax errors
+				// ride the success:false envelope), but typed as the phpdoc wants.
+				wp_send_json_error( array( 'message' => $e->getMessage() ), 200, JSON_UNESCAPED_SLASHES );
+			}
+
+			// `upload_action_url` (from `videopress_make_media_upload_path()`) is omitted:
+			// that helper isn't loaded in the Simple admin-ajax context, and only the
+			// legacy upload-form flow reads it — the track/poster consumers use the token
+			// and blog id, not the URL.
+			wp_send_json_success(
+				array(
+					'upload_token'   => $upload_token,
+					'upload_blog_id' => $video_blog_id,
+				),
+				200,
+				JSON_UNESCAPED_SLASHES
+			);
+		}
 
 		$args = array(
 			'method' => 'POST',
@@ -218,7 +250,6 @@ class AJAX {
 		if ( is_wp_error( $result ) ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack-videopress-pkg' ) ), null, JSON_UNESCAPED_SLASHES );
-			return;
 		}
 
 		$response = json_decode( $result['body'], true );
@@ -226,7 +257,6 @@ class AJAX {
 		if ( empty( $response['upload_token'] ) ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack-videopress-pkg' ) ), null, JSON_UNESCAPED_SLASHES );
-			return;
 		}
 
 		$response['upload_action_url'] = videopress_make_media_upload_path( $video_blog_id );
@@ -238,13 +268,12 @@ class AJAX {
 	/**
 	 * Ajax action to update the video transcoding status from the WPCOM API.
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public function wp_ajax_update_transcoding_status() {
 		if ( ! isset( $_POST['post_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Informational AJAX response.
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 			wp_send_json_error( array( 'message' => __( 'A valid post_id is required.', 'jetpack-videopress-pkg' ) ), null, JSON_UNESCAPED_SLASHES );
-			return;
 		}
 
 		$post_id = (int) $_POST['post_id']; // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -252,7 +281,6 @@ class AJAX {
 		if ( ! videopress_update_meta_data( $post_id ) ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 			wp_send_json_error( array( 'message' => __( 'That post does not have a VideoPress video associated to it.', 'jetpack-videopress-pkg' ) ), null, JSON_UNESCAPED_SLASHES );
-			return;
 		}
 
 		wp_send_json_success(

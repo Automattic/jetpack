@@ -1,5 +1,4 @@
 
-@use "@wordpress/base-styles/breakpoints";
 @use "@wordpress/base-styles/variables";
 
 .jp-forms__inbox-response-meta {
@@ -7,7 +6,7 @@
 	padding: variables.$grid-unit-30 variables.$grid-unit-20;
 
 	// Multiple variables as fallback until style tokens are available everywhere.
-	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, var(--jp-forms-border-color, #e0e0e0));
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral);
 }
 
 .jp-forms__inbox-response-meta-from {

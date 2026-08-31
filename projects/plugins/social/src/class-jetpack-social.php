@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Current_Plan;
@@ -93,6 +94,9 @@ class Jetpack_Social {
 			'plugins_loaded',
 			function () {
 				My_Jetpack_Initializer::init();
+				// Activity Log. Idempotent, so it no-ops when the Jetpack plugin
+				// already initialized the package on this request.
+				Jetpack_Activity_Log::initialize();
 			}
 		);
 
@@ -184,15 +188,6 @@ class Jetpack_Social {
 	 */
 	public function should_enqueue_block_editor_scripts() {
 		return is_admin() && $this->is_connected() && self::is_publicize_active() && $this->is_supported_post();
-	}
-
-	/**
-	 * Main plugin settings page.
-	 */
-	public function plugin_settings_page() {
-		?>
-			<div id="jetpack-social-root"></div>
-		<?php
 	}
 
 	/**

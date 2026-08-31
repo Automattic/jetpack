@@ -77,7 +77,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			}
 
 			foreach ( $crons as $cron_name => $cron ) {
-				$interval  = isset( $schedules[ $cron['interval'] ]['display'] ) ? $schedules[ $cron['interval'] ]['display'] : $cron['interval'];
+				$interval  = $schedules[ $cron['interval'] ]['display'] ?? $cron['interval'];
 				$runs_next = $scheduler->check_cron( $cron_name );
 				$status    = $runs_next ? sprintf( 'Scheduled - Runs Next at %s GMT', gmdate( 'Y-m-d H:i:s', $runs_next ) ) : 'Not Scheduled';
 

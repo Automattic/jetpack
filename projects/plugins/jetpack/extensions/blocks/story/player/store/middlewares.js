@@ -16,13 +16,12 @@ export default function applyMiddlewares( store ) {
 				'Other middleware would not be applied to this dispatch.'
 		);
 	};
-	let chain = [];
 
 	const middlewareAPI = {
 		getState: store.getState,
 		dispatch: ( ...args ) => enhancedDispatch( ...args ),
 	};
-	chain = middlewares.map( middleware => middleware( middlewareAPI ) );
+	const chain = middlewares.map( middleware => middleware( middlewareAPI ) );
 
 	enhancedDispatch = chain.reduceRight( ( a, func ) => func( a ), store.dispatch );
 

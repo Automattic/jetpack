@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
+BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
 . "$BASE/tools/includes/plugin-functions.sh"
@@ -147,7 +147,8 @@ function jsver {
 		JSON=$(jq --tab --arg v "$3" "if $2 then $2 |= \$v else . end" "$1")
 		if [[ "$JSON" != "$(<"$FILE")" ]]; then
 			# Update atomically (with mv) to avoid partial writes to composer.json or package.json breaking parallel builds.
-			local TMPFILE=$( mktemp "$FILE-XXXXXXXX" )
+			local TMPFILE
+			TMPFILE=$( mktemp "$FILE-XXXXXXXX" )
 			echo "$JSON" > "$TMPFILE"
 			chmod 0664 "$TMPFILE"
 			mv -f "$TMPFILE" "$FILE"

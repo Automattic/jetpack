@@ -1,17 +1,12 @@
 /**
  * External dependencies
  */
-import {
-	AdminPage,
-	Col,
-	Container,
-	JetpackLogo,
-	getRedirectUrl,
-} from '@automattic/jetpack-components';
+import { AdminPage, Col, Container, getRedirectUrl } from '@automattic/jetpack-components';
 import { formatNumberCompact } from '@automattic/number-formatters';
-import { Button, Card, ExternalLink } from '@wordpress/components';
+import { Button, Card } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, check, shield, login } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect } from 'react';
 /**
@@ -39,7 +34,7 @@ import styles from './style.module.scss';
  * @return {object} React component for the product page
  */
 export default function ProtectProductPage() {
-	const { onClickGoBack } = useGoBack( { slug: 'protect' } );
+	const { onClickGoBack } = useGoBack( { slug: 'protect', fallback: '/products' } );
 	const { detail, isLoading: isLoadingProduct } = useProduct( 'protect' );
 	const { isSiteConnected } = useMyJetpackConnection();
 	const { recordEvent } = useAnalytics();
@@ -87,26 +82,17 @@ export default function ProtectProductPage() {
 	const securityFeaturesUrl = getRedirectUrl( 'jetpack-security' );
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ true }>
+		<AdminPage
+			showBackground={ true }
+			breadcrumbs={
+				<GoBackLink
+					onClick={ onClickGoBack }
+					to="/products"
+					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
+				/>
+			}
+		>
 			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 2 }>
-				{ /* Header Section */ }
-				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
-					<div className={ styles[ 'product-interstitial__section-wrapper-wide' ] }>
-						<GoBackLink onClick={ onClickGoBack } reload={ false } />
-					</div>
-					<div
-						className={ clsx(
-							styles[ 'product-interstitial__section-wrapper-wide' ],
-							styles[ 'product-interstitial__product-header' ]
-						) }
-					>
-						<JetpackLogo />
-						<div className={ styles[ 'product-interstitial__product-header-name' ] }>
-							{ __( 'Protect', 'jetpack-my-jetpack' ) }
-						</div>
-					</div>
-				</Col>
-
 				{ /* Hero Section */ }
 				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
 					<div className={ styles[ 'product-interstitial__hero-section' ] }>
@@ -288,12 +274,12 @@ export default function ProtectProductPage() {
 						</div>
 
 						<p>
-							<ExternalLink href={ scanVsProtectUrl }>
+							<Link openInNewTab href={ scanVsProtectUrl }>
 								{ __(
 									'Learn more about the difference between Protect and Scan',
 									'jetpack-my-jetpack'
 								) }
-							</ExternalLink>
+							</Link>
 						</p>
 					</div>
 				</Col>
@@ -315,9 +301,9 @@ export default function ProtectProductPage() {
 								<Button variant="primary" onClick={ handleUpgradeClick }>
 									{ __( 'Secure your site', 'jetpack-my-jetpack' ) }
 								</Button>
-								<ExternalLink href={ securityFeaturesUrl }>
+								<Link openInNewTab href={ securityFeaturesUrl }>
 									{ __( 'Learn more about Jetpack Security', 'jetpack-my-jetpack' ) }
-								</ExternalLink>
+								</Link>
 							</div>
 						</div>
 					</Col>

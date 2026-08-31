@@ -11,11 +11,6 @@ p {
 }
 // Override WordPress component styles
 .jb-dashboard {
-	--wp-admin-theme-color: #{variables.$jetpack_green_50};
-	--wp-admin-theme-link-color: #{variables.$gray_90};
-	--wp-admin-theme-color-darker-10: #{variables.$jetpack_green_60};
-	--wp-admin-theme-color-darker-20: #{variables.$jetpack_green_70};
-
 	--font-headline-medium: 48px;
 	--font-title-medium: 24px;
 	--font-body-small: 14px;
@@ -75,25 +70,6 @@ p {
 		font-size: 24px;
 	}
 
-	button.secondary,
-	a.button-secondary {
-		color: variables.$primary-black;
-		background: none;
-		border: 1px solid variables.$primary-black;
-		padding: 8px 24px;
-		border-radius: 3px;
-		font-weight: 600;
-		cursor: pointer;
-		font-size: 16px;
-		line-height: 24px;
-
-		&:hover {
-			background: variables.$gray_0;
-			border-color: variables.$primary-black;
-			color: variables.$primary-black;
-		}
-	}
-
 	// Override WP styles for panel header.
 	.components-panel__body-title .components-button:hover:not(:disabled,[aria-disabled="true"]),
 	.components-panel__body-title .components-button[aria-expanded="true"] {
@@ -107,14 +83,6 @@ p {
 }
 
 // Reset WP-Admin styles for boost dashboard
-.jetpack_page_jetpack-boost #wpcontent {
-	min-height: 100vh;
-}
-
 .jetpack_page_jetpack-boost #jb-admin-settings {
-	background: #fff;
-}
-
-.jetpack_page_jetpack-boost #dolly {
 	background: #fff;
 }

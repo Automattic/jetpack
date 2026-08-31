@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Write: warn when opening posts with formatting that Write cannot preserve (unsupported block types, styling attributes, non-video embeds, or classic editor content)

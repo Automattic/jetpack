@@ -112,7 +112,7 @@ class WPCOM_JSON_API_Bulk_Update_Comments_Endpoint extends WPCOM_JSON_API_Endpoi
 				$result['results'] = $this->bulk_delete_comments( $comment_ids );
 			}
 		} else {
-			$status            = isset( $input['status'] ) ? $input['status'] : '';
+			$status            = $input['status'] ?? '';
 			$result['results'] = $this->bulk_update_comments_status( $comment_ids, $status );
 		}
 

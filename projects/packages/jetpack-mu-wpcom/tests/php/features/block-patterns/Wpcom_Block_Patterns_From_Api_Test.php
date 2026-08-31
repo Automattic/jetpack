@@ -65,6 +65,9 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 		$mock->method( 'remote_get' )
 			->willReturn( $pattern_mock_response );
 
+		$mock->method( 'remote_get_as_user' )
+			->willReturn( $pattern_mock_response );
+
 		$mock->method( 'cache_get' )
 			->willReturn( $cache_get );
 
@@ -82,42 +85,51 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 
 	/**
 	 *  Tests that we're making a request where there are no cached patterns.
+	 *
+	 *  Two calls are expected: one for the default dotcompatterns source and one for the GutenPen source.
 	 */
 	public function test_patterns_request_succeeds_with_empty_cache() {
 		$utils_mock              = $this->createBlockPatternsUtilsMock( array( $this->pattern_mock_object ) );
 		$block_patterns_from_api = new Wpcom_Block_Patterns_From_Api( $utils_mock );
 
-		$utils_mock->expects( $this->once() )
+		$utils_mock->expects( $this->exactly( 2 ) )
 			->method( 'cache_add' )
-			->with( $this->stringContains( 'key-largo' ), array( $this->pattern_mock_object ), 'ptk_patterns', 5 * MINUTE_IN_SECONDS );
+			->with( $this->anything(), array( $this->pattern_mock_object ), 'ptk_patterns', 5 * MINUTE_IN_SECONDS );
 
 		$this->assertEquals( array( 'a8c/' . $this->pattern_mock_object['name'] => true ), $block_patterns_from_api->register_patterns() );
 	}
 
 	/**
-	 *  Tests that we're making a request
+	 *  Tests that we're making a request.
+	 *
+	 *  Dotcompatterns is fetched anonymously via remote_get; GutenPen is fetched as the current
+	 *  user via remote_get_as_user.
 	 */
 	public function test_patterns_site_editor_source_site() {
 		$utils_mock              = $this->createBlockPatternsUtilsMock( array( $this->pattern_mock_object ) );
 		$block_patterns_from_api = new Wpcom_Block_Patterns_From_Api( $utils_mock );
 
 		$utils_mock->expects( $this->once() )
-			->method( 'remote_get' )
-			->willReturn( 'https://public-api.wordpress.com/rest/v1/ptk/patterns/fr?post_type=wp_block' );
+			->method( 'remote_get' );
+
+		$utils_mock->expects( $this->once() )
+			->method( 'remote_get_as_user' );
 
 		$this->assertEquals( array( 'a8c/' . $this->pattern_mock_object['name'] => true ), $block_patterns_from_api->register_patterns() );
 	}
 
 	/**
 	 *  Tests that we're NOT making a request where there ARE cached patterns.
+	 *
+	 *  Two cache_get calls are expected: one for the default dotcompatterns source and one for the GutenPen source.
 	 */
 	public function test_patterns_request_succeeds_with_set_cache() {
 		$utils_mock              = $this->createBlockPatternsUtilsMock( array( $this->pattern_mock_object ), array( $this->pattern_mock_object ) );
 		$block_patterns_from_api = new Wpcom_Block_Patterns_From_Api( $utils_mock );
 
-		$utils_mock->expects( $this->once() )
+		$utils_mock->expects( $this->exactly( 2 ) )
 			->method( 'cache_get' )
-			->with( $this->stringContains( 'key-largo' ), 'ptk_patterns' );
+			->with( $this->anything(), 'ptk_patterns' );
 
 		$utils_mock->expects( $this->never() )
 			->method( 'cache_add' );
@@ -127,6 +139,10 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 
 	/**
 	 *  Tests that we're making a request where we're overriding the source site.
+	 *
+	 *  The override rewrites the `site` query arg on the dotcompatterns PTK URL. The GutenPen
+	 *  endpoint is dedicated and does not take a `site` arg, so the override only influences its
+	 *  cache behavior (disables caching for that fetch).
 	 */
 	public function test_patterns_request_succeeds_with_override_source_site() {
 		$example_site = function () {
@@ -143,6 +159,10 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 		$utils_mock->expects( $this->once() )
 			->method( 'remote_get' )
 			->with( 'https://public-api.wordpress.com/rest/v1/ptk/patterns/fr?site=dotcom&post_type=wp_block' );
+
+		$utils_mock->expects( $this->once() )
+			->method( 'remote_get_as_user' )
+			->with( '/gutenpen/patterns' );
 
 		$this->assertEquals( array( 'a8c/' . $this->pattern_mock_object['name'] => true ), $block_patterns_from_api->register_patterns() );
 

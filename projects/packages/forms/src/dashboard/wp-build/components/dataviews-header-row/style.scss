@@ -1,19 +1,13 @@
 @use "@wordpress/base-styles/variables";
 
 .jp-forms-dataviews__view-actions {
-	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral);
 	padding-inline: 20px;
 	overflow-x: auto;
 	width: 100%;
 	box-sizing: border-box;
 	container-type: inline-size;
 	flex-shrink: 0;
-
-	@container (width < 500px) {
-		--wp-ui-stack-justify: flex-start;
-		flex-direction: column;
-		align-items: flex-start;
-	}
 
 	> div:not(:empty) {
 		min-height: 48px;
@@ -35,4 +29,3 @@
 	margin-inline-start: 4px;
 	vertical-align: middle;
 }
-

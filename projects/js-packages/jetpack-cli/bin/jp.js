@@ -301,7 +301,7 @@ const initJetpack = async () => {
 
 		console.log( '3. jp docker install' );
 	} catch ( error ) {
-		throw new Error( `Failed to initialize Jetpack: ${ error.message }` );
+		throw new Error( `Failed to initialize Jetpack: ${ error.message }`, { cause: error } );
 	}
 };
 
@@ -613,7 +613,6 @@ const main = async () => {
 						[ 'pnpm', 'jetpack', 'docker', 'config' ],
 						{
 							stdio: 'inherit',
-							shell: true,
 							cwd: monorepoRoot,
 						}
 					);
@@ -730,7 +729,6 @@ const main = async () => {
 
 				const result = spawnSync( 'docker', composeArgs, {
 					stdio: 'inherit',
-					shell: true,
 					cwd: resolve( monorepoRoot, 'tools/docker' ),
 					env: envVars,
 				} );

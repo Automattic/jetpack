@@ -15,11 +15,11 @@ import * as React from 'react';
  */
 import { notSpam, spam } from '../../src/dashboard/icons';
 import { defaultView } from '../../src/dashboard/inbox/stage/views.js';
-import {
-	updateMenuCounter,
-	updateMenuCounterOptimistically,
-} from '../../src/dashboard/inbox/utils';
+import { getFormsMenuBadgeSlug, getMenuBadgeCount } from '../../src/dashboard/inbox/utils';
+import { deleteResponse, saveResponse } from '../../src/dashboard/response-records';
 import { store as dashboardStore } from '../../src/dashboard/store';
+import { buildResponseLink } from '../response/pinned-view.ts';
+import printIcon from './print-icon.tsx';
 /**
  * Types
  */
@@ -28,8 +28,11 @@ import type {
 	QueryParams,
 	Registry,
 	Action,
+	ReportingAction,
 } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../src/types/index.ts';
+import type { PinnedViewQuery } from '../response/pinned-view.ts';
+import type { UseNavigateResult } from '@wordpress/route';
 /**
  * Helper function to extract count-relevant query params from the current query.
  *
@@ -287,30 +290,32 @@ export const BULK_ACTIONS = {
 	markAsNotSpam: 'mark_as_not_spam',
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type NavigateFunction = ( options: any ) => void;
-
-type SearchParams = {
-	[ key: string ]: string | string[] | undefined;
-};
-
-type ActionWithDestructive = Action & {
-	isDestructive?: boolean;
-};
+// The router's own navigate type, rather than `( options: any ) => void`. Note what
+// this does and does not buy: it checks the options shape (a misspelled `to` fails),
+// but not path *values* — the route tree isn't registered as a type in this build, so
+// `to` widens to `string` and a typo'd path still compiles. Same limitation the
+// `search` cast in `routes/response/breadcrumbs.tsx` works around.
+type NavigateFunction = UseNavigateResult< string >;
 
 type GetActionsParams = {
 	navigate: NavigateFunction;
-	searchParams: SearchParams;
+	// When supplied, View selects the response instead of navigating to the
+	// standalone page. The caller decides when that applies.
+	onSelectResponse?: ( id: string ) => void;
+	// The list query in effect, pinned onto links to the standalone response page
+	// so its prev/next walks this exact sequence. See `routes/response/pinned-view.ts`.
+	pinnedView?: PinnedViewQuery | null;
 };
 
 type GetActionsReturn = {
 	viewAction: Action;
+	printAction: Action;
 	editFormAction: Action;
-	markAsSpamAction: Action;
-	markAsNotSpamAction: Action;
-	restoreAction: Action;
-	moveToTrashAction: Action;
-	deleteAction: ActionWithDestructive;
+	markAsSpamAction: ReportingAction;
+	markAsNotSpamAction: ReportingAction;
+	restoreAction: ReportingAction;
+	moveToTrashAction: ReportingAction;
+	deleteAction: ReportingAction;
 	markAsReadAction: Action;
 	markAsUnreadAction: Action;
 };
@@ -325,7 +330,11 @@ type GetRowActionsParams = GetActionsParams & {
  * @param {GetActionsParams} params - Parameters for generating actions.
  * @return {GetActionsReturn} Object containing the actions.
  */
-export function getActions( { navigate, searchParams }: GetActionsParams ): GetActionsReturn {
+export function getActions( {
+	navigate,
+	onSelectResponse,
+	pinnedView,
+}: GetActionsParams ): GetActionsReturn {
 	const viewAction: Action = {
 		id: 'view-response',
 		isPrimary: true,
@@ -337,13 +346,45 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 				multiple: items.length > 1,
 			} );
 
-			const ids = items.map( item => item.id.toString() );
-			navigate( {
-				search: {
-					...searchParams,
-					responseIds: ids,
-				},
+			const [ item ] = items;
+
+			if ( ! item ) {
+				return;
+			}
+
+			if ( onSelectResponse ) {
+				onSelectResponse( String( item.id ) );
+				return;
+			}
+
+			// Open the standalone single response page rather than the inspector panel.
+			// Router types aren't registered in this build; same cast as breadcrumbs.tsx.
+			navigate( buildResponseLink( item.id, pinnedView ) as unknown as never );
+		},
+	};
+
+	const printAction: Action = {
+		id: 'print-response',
+		isPrimary: false,
+		icon: <Icon icon={ printIcon } />,
+		label: __( 'Print', 'jetpack-forms' ),
+		supportsBulk: false,
+		async callback( items ) {
+			jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+				action: 'print-response',
+				multiple: false,
 			} );
+
+			const [ item ] = items;
+
+			if ( ! item ) {
+				return;
+			}
+
+			// The standalone page owns the print stylesheet and consumes `print=1`
+			// once the response is on screen.
+			// Router types aren't registered in this build; same cast as breadcrumbs.tsx.
+			navigate( buildResponseLink( item.id, pinnedView, { print: 1 } ) as unknown as never );
 		},
 	};
 
@@ -370,7 +411,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 		},
 	};
 
-	const markAsSpamAction: Action = {
+	const markAsSpamAction: ReportingAction = {
 		id: 'mark-as-spam',
 		isPrimary: true,
 		icon: <Icon icon={ spam } />,
@@ -420,8 +461,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 				const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 					items,
 					newStatus: 'spam',
-					apiCall: ( id: number ) =>
-						saveEntityRecord( 'postType', 'feedback', { id, status: 'spam' } ),
+					apiCall: ( id: number ) => saveResponse( saveEntityRecord, { id, status: 'spam' } ),
 					editEntityRecord,
 					updateCountsOptimistically,
 					queryParams,
@@ -498,6 +538,8 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 						BULK_ACTIONS.markAsSpam
 					);
 				}
+
+				return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 			} finally {
 				if ( waitForRecordsPromise ) {
 					await waitForRecordsPromise;
@@ -510,7 +552,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 		},
 	};
 
-	const markAsNotSpamAction: Action = {
+	const markAsNotSpamAction: ReportingAction = {
 		id: 'mark-as-not-spam',
 		isPrimary: true,
 		icon: <Icon icon={ notSpam } />,
@@ -560,8 +602,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 				const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 					items,
 					newStatus: 'publish',
-					apiCall: ( id: number ) =>
-						saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } ),
+					apiCall: ( id: number ) => saveResponse( saveEntityRecord, { id, status: 'publish' } ),
 					editEntityRecord,
 					updateCountsOptimistically,
 					queryParams,
@@ -630,6 +671,8 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 						BULK_ACTIONS.markAsNotSpam
 					);
 				}
+
+				return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 			} finally {
 				if ( waitForRecordsPromise ) {
 					await waitForRecordsPromise;
@@ -642,7 +685,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 		},
 	};
 
-	const restoreAction: Action = {
+	const restoreAction: ReportingAction = {
 		id: 'restore',
 		isPrimary: true,
 		icon: <Icon icon={ backup } />,
@@ -693,8 +736,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 				const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 					items,
 					newStatus,
-					apiCall: ( id: number ) =>
-						saveEntityRecord( 'postType', 'feedback', { id, status: newStatus } ),
+					apiCall: ( id: number ) => saveResponse( saveEntityRecord, { id, status: newStatus } ),
 					editEntityRecord,
 					updateCountsOptimistically,
 					queryParams,
@@ -749,7 +791,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 						removeNotice( 'restore-action' );
 					}
 
-					return;
+					return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 				}
 
 				// There is at least one failure.
@@ -757,6 +799,8 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 
 				removeNotice( 'restore-action' );
 				createErrorNotice( errorMessage, { type: 'snackbar' } );
+
+				return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 			} finally {
 				if ( waitForRecordsPromise ) {
 					await waitForRecordsPromise;
@@ -769,7 +813,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 		},
 	};
 
-	const moveToTrashAction: Action = {
+	const moveToTrashAction: ReportingAction = {
 		id: 'move-to-trash',
 		isPrimary: true,
 		icon: <Icon icon={ trash } />,
@@ -822,7 +866,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 					items,
 					newStatus: 'trash',
 					apiCall: ( id: number ) =>
-						deleteEntityRecord( 'postType', 'feedback', id, {}, { throwOnError: true } ),
+						deleteResponse( deleteEntityRecord, id, {}, { throwOnError: true } ),
 					editEntityRecord,
 					updateCountsOptimistically,
 					queryParams,
@@ -889,7 +933,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 						removeNotice( 'move-to-trash-action' );
 					}
 
-					return;
+					return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 				}
 
 				// There is at least one failure.
@@ -897,6 +941,8 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 
 				removeNotice( 'move-to-trash-action' );
 				createErrorNotice( errorMessage, { type: 'snackbar' } );
+
+				return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 			} finally {
 				if ( waitForRecordsPromise ) {
 					await waitForRecordsPromise;
@@ -909,7 +955,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 		},
 	};
 
-	const deleteAction: ActionWithDestructive = {
+	const deleteAction: ReportingAction = {
 		id: 'delete',
 		isPrimary: true,
 		icon: <Icon icon={ trash } />,
@@ -936,11 +982,14 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 
 			const promises = await Promise.allSettled(
 				items.map( ( { id } ) =>
-					deleteEntityRecord( 'postType', 'feedback', id, { force: true }, { throwOnError: true } )
+					deleteResponse( deleteEntityRecord, id, { force: true }, { throwOnError: true } )
 				)
 			);
 
 			const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
+			// Every settled promise is either fulfilled or rejected, so the failures are
+			// the remainder — no need to filter the list a second time.
+			const numberOfErrors = promises.length - itemsUpdated.length;
 
 			// If there is at least one successful update, invalidate the cache for filters.
 			if ( itemsUpdated.length ) {
@@ -948,7 +997,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 				invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'trash' );
 			}
 
-			if ( itemsUpdated.length === items.length ) {
+			if ( numberOfErrors === 0 ) {
 				// Every request was successful.
 				const successMessage =
 					items.length === 1
@@ -986,14 +1035,12 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 
 				const hashString = hashParams.toString();
 				window.location.hash = hashString ? `${ hashBase }?${ hashString }` : hashBase;
-
-				return;
+			} else {
+				// There is at least one failure.
+				createErrorNotice( getGenericErrorMessage( numberOfErrors ), { type: 'snackbar' } );
 			}
-			// There is at least one failure.
-			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
-			const errorMessage = getGenericErrorMessage( numberOfErrors );
 
-			createErrorNotice( errorMessage, { type: 'snackbar' } );
+			return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 		},
 	};
 
@@ -1028,7 +1075,10 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 
 						// Immediately update menu counters optimistically to avoid delays, but only for inbox
 						if ( status === 'publish' ) {
-							updateMenuCounterOptimistically( -1 );
+							window.jetpackMenuBadges?.setCount(
+								getFormsMenuBadgeSlug(),
+								getMenuBadgeCount() - 1
+							);
 						}
 					}
 
@@ -1041,7 +1091,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 						.then( ( response: unknown ) => {
 							const { count } = response as { count: number };
 							// Update menu counter with accurate count from server.
-							updateMenuCounter( count );
+							window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), count );
 						} )
 						.catch( () => {
 							// Revert the change in the store if the server update fails.
@@ -1052,7 +1102,10 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 
 								// Revert the optimistic change in the sidebar.
 								if ( status === 'publish' ) {
-									updateMenuCounterOptimistically( 1 );
+									window.jetpackMenuBadges?.setCount(
+										getFormsMenuBadgeSlug(),
+										getMenuBadgeCount() + 1
+									);
 								}
 							}
 
@@ -1144,7 +1197,10 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 
 						// Immediately update menu counters optimistically to avoid delays, but only for inbox
 						if ( status === 'publish' ) {
-							updateMenuCounterOptimistically( 1 );
+							window.jetpackMenuBadges?.setCount(
+								getFormsMenuBadgeSlug(),
+								getMenuBadgeCount() + 1
+							);
 						}
 					}
 
@@ -1157,7 +1213,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 						.then( ( response: unknown ) => {
 							const { count } = response as { count: number };
 							// Update menu counter with accurate count from server.
-							updateMenuCounter( count );
+							window.jetpackMenuBadges?.setCount( getFormsMenuBadgeSlug(), count );
 						} )
 						.catch( () => {
 							// Revert the change in the store if the server update fails.
@@ -1168,7 +1224,10 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 
 								// Revert the optimistic change in the sidebar.
 								if ( status === 'publish' ) {
-									updateMenuCounterOptimistically( -1 );
+									window.jetpackMenuBadges?.setCount(
+										getFormsMenuBadgeSlug(),
+										getMenuBadgeCount() - 1
+									);
 								}
 							}
 
@@ -1224,6 +1283,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 
 	return {
 		viewAction,
+		printAction,
 		editFormAction,
 		markAsSpamAction,
 		markAsNotSpamAction,
@@ -1239,15 +1299,17 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
  * Get actions configuration for form responses DataViews.
  *
  * @param {GetRowActionsParams} params - Parameters for generating actions.
- * @return {ActionWithDestructive[]} Array of action configurations.
+ * @return {Action[]} Array of action configurations.
  */
 export function getRowActions( {
 	navigate,
-	searchParams,
 	view,
-}: GetRowActionsParams ): ActionWithDestructive[] {
+	onSelectResponse,
+	pinnedView,
+}: GetRowActionsParams ): Action[] {
 	const {
 		viewAction,
+		printAction,
 		editFormAction,
 		markAsSpamAction,
 		markAsNotSpamAction,
@@ -1256,20 +1318,25 @@ export function getRowActions( {
 		deleteAction,
 		markAsReadAction,
 		markAsUnreadAction,
-	} = getActions( {
-		navigate,
-		searchParams,
-	} );
+	} = getActions( { navigate, onSelectResponse, pinnedView } );
 
 	switch ( view ) {
 		case 'trash':
-			return [ viewAction, restoreAction, deleteAction, markAsUnreadAction, editFormAction ];
+			return [
+				viewAction,
+				restoreAction,
+				deleteAction,
+				markAsUnreadAction,
+				printAction,
+				editFormAction,
+			];
 		case 'spam':
 			return [
 				viewAction,
 				markAsNotSpamAction,
 				moveToTrashAction,
 				markAsUnreadAction,
+				printAction,
 				editFormAction,
 			];
 		default: // inbox
@@ -1279,6 +1346,7 @@ export function getRowActions( {
 				markAsSpamAction,
 				moveToTrashAction,
 				markAsUnreadAction,
+				printAction,
 				editFormAction,
 			];
 	}

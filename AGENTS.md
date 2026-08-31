@@ -43,6 +43,12 @@ jp install plugins/jetpack        # Install project dependencies
 jp clean plugins/jetpack          # Clean build artifacts
 jp docker up -d                   # Start Docker environment
 jp docker install                 # Install WordPress in Docker
+# In a git worktree, run `tools/docker/bin/seed-worktree-env.sh` once BEFORE `jp docker up`.
+# It writes a unique COMPOSE_PROJECT_NAME + free ports to tools/docker/.env (which `jp docker up`
+# reads) so worktrees don't clobber the primary jetpack_dev or each other. Without it, every
+# bare `up` shares jetpack_dev on the default ports. The script is idempotent and a no-op in the
+# primary checkout, so it's safe to run before every `up`.
+# See tools/docker/README.md § "Parallel development environments", or use the `/work-on` skill end-to-end.
 jp phan                           # Run PHP static analysis
 ```
 
@@ -58,21 +64,10 @@ Use `jp generate` to create new projects:
 
 Detailed guidelines are in `docs/coding-guidelines.md`.
 
-### Naming Conventions
-
-- Use WordPress naming conventions for functions and classes
-- Prefix global PHP functions and hooks with `jetpack_`
-- Use lowercase with underscores for PHP functions
-- Follow WordPress React component naming patterns
-- Use BEM-like naming for SCSS
-
 ### PHP Standards
 
-- Follow WordPress PHP Coding Standards
-- Use proper WordPress prefix for functions and classes
-- Implement WordPress nonce verification for form handling and AJAX
-- Follow WordPress database operations best practices (`$wpdb` prepared statements)
-- Structure plugin hooks logically
+- Prefix global PHP functions and hooks with `jetpack_`
+- WordPress PHP Coding Standards apply and are enforced by PHPCS (see "Linting & Formatting" below), including nonce verification on form/AJAX handlers and `$wpdb` prepared statements
 
 #### Version Annotations
 
@@ -87,11 +82,9 @@ The `$$next-version$$` placeholder is automatically replaced with the correct ve
 
 ### JavaScript & React Standards
 
-- Write modern ES6+ code following WordPress JS standards
 - Importing from `react` directly is fine. `@wordpress/element` also works but is no longer required — follow the convention used in the package you're working in
 - Use WordPress data stores (`@wordpress/data`) for state management
 - Use `@wordpress/i18n` for translations with an appropriate unique text domain
-- Follow WordPress component lifecycle patterns and accessibility guidelines
 - When using TypeScript with Webpack, use `@babel/preset-typescript` rather than `ts-loader`
 
 ### CSS / SCSS
@@ -99,21 +92,30 @@ The `$$next-version$$` placeholder is automatically replaced with the correct ve
 - Use BEM-like naming conventions
 - Use CSS logical properties instead of physical direction/dimension mappings to make styles RTL-aware by default (reference: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Logical_Properties)
 
+### Comments
+
+One sentence, at most two lines — the summary rule the WordPress documentation standards
+already impose on our PHP, applied to JavaScript too. Anything past it must carry a why, a
+gotcha, or provenance. Omit what the signature already says, and prefer a clearer name over a
+comment explaining a bad one. If reading the comment costs as much as reading the code, delete
+it. Never invent rationale: a comment that contradicts the code is worse than no comment.
+
 ## Testing
 
 ```bash
-jp test php <project> -v    # PHPUnit tests (verbose)
-jp test js <project>        # Jest tests
-jp test coverage <project>  # Generate coverage report
+jp test php <project> -v          # PHPUnit tests (verbose)
+jp test js <project>              # Jest tests
+jp test php-coverage <project>    # Generate PHP coverage report
+jp test js-coverage <project>     # Generate JS coverage report
 ```
 
 ### Testing Prerequisites
 
 - **Packages** (`jp test php packages/...`, `jp test js packages/...`): Work immediately with no extra setup. The monorepo Docker container handles everything.
-- **Plugins**: Some plugins use mocked WordPress environments (WorDBless/Brain Monkey) and their tests work immediately via `jp test php`. Others (notably `plugins/jetpack`, `plugins/crm`, `plugins/wpcomsh`) require a full WordPress test environment:
+- **Plugins**: Some plugins use mocked WordPress environments (WorDBless/Brain Monkey) and their tests work immediately via `jp test php`. Others (notably `plugins/jetpack` and `plugins/wpcomsh`) require a full WordPress test environment:
   1. `jp docker up -d` — Start Docker WordPress containers
   2. `jp docker install` — Install WordPress in Docker
-  Then run: `jp docker phpunit <target>` where `<target>` can be `jetpack`, `jp-multisite`, `crm`, `wpcomsh`, or `jp-wpcomsh` (see `jp docker phpunit --help` for the full list).
+  Then run: `jp docker phpunit <target>` where `<target>` can be `jetpack`, `jp-multisite`, `wpcomsh`, or `jp-wpcomsh` (see `jp docker phpunit --help` for the full list).
 - If you've modified package versions or dependencies between monorepo packages, run `tools/fixup-project-versions.sh` to update lock files before testing.
 - If a project's `composer.json` doesn't define `test-js`, the JS test step is skipped automatically — this is normal, not an error.
 
@@ -125,13 +127,12 @@ After modifying a project, run its tests and static analysis:
 jp test php <project>           # PHP tests
 jp test js <project>            # JS tests (skipped if not defined)
 jp phan <project>               # Static analysis
-jp test coverage <project>      # Generate coverage report (optional)
 ```
 
 ### PHP Testing
 
-- `jp test php` works for most projects. A few plugins that require a full WordPress copy (`plugins/jetpack`, `plugins/crm`, `plugins/wpcomsh`) use `jp docker phpunit` instead.
-- **PHP version matrix**: CI runs PHP tests against every supported version from 7.2 to 8.5 (see `.github/versions.sh` for current values). When fixing an issue on one PHP version, ensure the fix is compatible with all supported versions — don't use syntax or functions unavailable in PHP 7.2 unless the project's `composer.json` requires a higher minimum.
+- `jp test php` works for most projects. A few plugins that require a full WordPress copy (`plugins/jetpack` and `plugins/wpcomsh`) use `jp docker phpunit` instead.
+- **PHP version matrix**: CI runs PHP tests against every supported version from 7.4 to 8.5 (see `.github/versions.sh` for current values). When fixing an issue on one PHP version, ensure the fix is compatible with all supported versions — don't use syntax or functions unavailable in PHP 7.4 unless the project's `composer.json` requires a higher minimum.
 - `jp test php` does not support passthrough options like `--filter`. To filter tests in Docker-based projects, use: `jp docker phpunit jetpack -- --filter=Jetpack_Sync_Post_Test` or `jp docker phpunit jetpack -- --group jetpack-sync`
 - PHP testing approaches vary by project:
   - Some packages use basic PHPUnit with `yoast/phpunit-polyfills` (no WordPress-specific testing)
@@ -152,19 +153,62 @@ See `docs/automated-testing.md` for full testing guidelines.
 
 See `projects/packages/my-jetpack/_inc/components/connection-status-card/test/component.tsx` for a representative example.
 
+## Linting & Formatting
+
+Run from the monorepo root:
+
+```bash
+pnpm run lint-changed             # ESLint, changed files only (fastest)
+pnpm run lint                     # ESLint, everything
+pnpm run lint-style               # Stylelint (CSS/SCSS)
+pnpm run typecheck                # TypeScript, every project that defines it
+composer phpcs:changed            # PHPCS on changed files
+composer phpcs:lint               # PHPCS, everything
+composer phpcs:fix                # PHPCS autofix (phpcbf)
+composer phpcs:compatibility      # PHP cross-version compatibility
+```
+
+- `composer php:lint` is a PHP **syntax** check (parallel-lint), NOT PHPCS. The other `php:*` composer scripts (`php:autofix`, `php:changed`, `php:lint:errors`, `php:requirelist`) are deprecated aliases that print a warning — use the `phpcs:*` names.
+- Watch the runner: `pnpm run php:lint` is PHPCS (it forwards to `composer phpcs:lint`), while `composer php:lint` is the syntax check. Same name, opposite tool. Prefer the `composer phpcs:*` names above, which are unambiguous.
+- A husky **pre-commit hook** runs most of this on staged files and rewrites them in place: Prettier, `eslint --fix`, `stylelint --fix`, and `phpcs:fix`, plus `phpcs:compatibility`, `shellcheck`, and repo consistency checks. It fails the commit on anything left unfixed, so expect files to be reformatted and re-staged under you.
+- A husky **pre-push hook** blocks the push on two things the pre-commit hook does not check: filename collisions that only break case-insensitive filesystems, and missing changelog entries (see "Changelog Entries" below). On a TTY the changelog check offers to run `jp changelog add` for you and commits the result as a separate `changelog` commit, then asks you to push again — so a push can leave you one commit ahead of where you thought you were.
+- **post-checkout / post-merge** hooks don't run anything; they just print a `jp install ...` line when lock files changed. Run it, or builds pick up stale dependencies.
+- `jp draft enable` relaxes both hooks for work in progress — ESLint tolerates up to 100 warnings, PHPCS failures stop blocking, and the pre-push changelog gate is skipped. `jp draft disable` restores them.
+
 ## Changelog Entries
 
 Every PR touching `/projects` MUST include a changelog file in the project's `changelog/` directory. Changes outside `/projects` (e.g., `tools/`, `docs/`, `.github/`) do NOT need changelog entries.
 
-### AI-Generated Changelog Entries
+Two gates enforce this, both running `tools/check-changelogger-use.php`: the pre-push hook (see "Linting & Formatting" above) and the `linting.yml` CI job. The repo-gardening bot also comments on the PR listing any projects still missing entries. There is no AI-generated-changelog checkbox in the PR template — that feature was removed. Write the entries yourself, with `jp changelog add`.
 
-The PR template includes a checkbox: "Generate changelog entries for this PR (using AI)." When checked, a CI workflow uses AI to generate and commit changelog entries automatically. This workflow only runs for pull requests from branches in this repository (not from forks).
+### User-Facing Changes Outside a Plugin Also Need Plugin Entries
 
-**When filling out a PR description:**
-- Do NOT check this box if changelog files already exist in `changelog/` directories for the affected projects.
-- Do NOT check this box if you have already created changelog entries (e.g., via `jp changelog add`).
-- Only check this box if the PR needs changelog entries and you want them auto-generated.
-- When in doubt, leave it unchecked -- the bot will flag missing entries.
+An entry only lands in the CHANGELOG of the project it was added to. A PR confined to a shared project — a PHP package under `projects/packages/`, a JS package under `projects/js-packages/`, or any other non-plugin project — therefore reaches that project's CHANGELOG and nowhere else: the plugins that bundle it get, at most, the generic "Update package dependencies." line the release tooling files under "Other changes", which is never copied to `readme.txt`. Users, release posts, and support documentation read the plugin changelog, so the change is invisible to them.
+
+**When a change to a package or js-package is user-facing — a new block, new or changed UI, a behavior change, a bug fix someone would notice — add a changelog entry to every plugin that ships it, on top of the project's own entry.** Write each one from that plugin's user's perspective; the wording rarely needs to be identical.
+
+Prefix each plugin's entry with the product the shared project backs — `Premium Analytics:` for `packages/premium-analytics`, `Search:` for `packages/search` — so readers of a plugin changelog that bundles many products can place the change. The exception is a plugin named for that same product (`plugins/premium-analytics`, `plugins/search`): there the prefix would only repeat the plugin's own name, so leave it off (or use a narrower component prefix), as in the example below.
+
+List the plugins that ship a project (works the same for `packages/…` and `js-packages/…`):
+
+```bash
+jp dependencies list packages/search --add-dependents --extra build --no-dev | grep '^plugins/'
+jp dependencies list js-packages/components --add-dependents --extra build --no-dev | grep '^plugins/'
+```
+
+A widely-shared js-package can list a dozen plugins. Add entries to the ones where the change is actually reachable by that plugin's users, not to every dependent by reflex.
+
+Then add one entry per plugin. Each project defines its own types — `plugins/jetpack` uses `major` | `enhancement` | `compat` | `bugfix` | `other`:
+
+```bash
+jp changelog add packages/search -s minor -t added       -e "Add a Search Results block."
+jp changelog add plugins/search  -s minor -t added       -e "Add a Search Results block."
+jp changelog add plugins/jetpack -s minor -t enhancement -e "Search: Add a Search Results block."
+```
+
+**The non-interactive form never prompts for this.** Naming a project (`jp changelog add <project> -s … -t … -e …`) disables the indirect-plugin check, so dependent plugins are silently skipped; only bare `jp changelog add` offers to write those entries for you. Using the non-interactive form means adding the plugin entries yourself — or running `jp changelog add --check-indirect-plugins` afterwards to be asked.
+
+The project's own entry alone is correct only when nothing is observable to a site owner: internal refactors, tests, tooling, type fixes.
 
 ### Interactive Mode
 
@@ -224,14 +268,24 @@ PR descriptions MUST follow the template in `.github/PULL_REQUEST_TEMPLATE.md` �
 gh pr create --title "Title" --body-file pr-body.md --label "[Status] Needs Review" --label "Enhancement" --assignee @me
 ```
 
+### Re-running CI Checks
+
+Most CI checks can be re-run with the usual `gh` commands (e.g. `gh run rerun <run-id> --failed`, or `gh pr checks`).
+
+The exception is the **WordPress.com Tests** check (the TeamCity `JetpackPreFlightChecks_BasicChecks` build). It cannot be restarted via the GitHub UI or the `gh` CLI. When that check fails on something unrelated to your change, re-trigger it with the context-a8c command:
+
+```
+/context-a8c:rerun-jetpack-preflight <PR-number>
+```
+
 ## Code Review Guidelines
 
 When reviewing code, check for:
 - Adherence to `docs/coding-guidelines.md`
-- Inconsistent naming conventions and typos
-- Missing documentation for public APIs
-- Missing explanations for complex or non-obvious logic
-- Inefficient algorithms
+- User-facing changes in a package or js-package missing changelog entries in the plugins that ship it (see "User-Facing Changes Outside a Plugin Also Need Plugin Entries" above) — CI only checks the directly-touched project, so this gap is reviewer-only
+- Missing documentation for public APIs, or missing explanations for non-obvious logic
+- Typos in user-facing strings, comments, and docs — PHPCS and ESLint check naming and formatting, not spelling, so this needs human eyes
+- Performance hazards that no sniff catches: uncached `wp_remote_*` calls, queries inside loops, `meta_query`/`tax_query`/`orderby => rand` on large tables, and newly autoloaded options. `WordPress.DB.SlowDBQuery` is excluded from the Jetpack ruleset as too noisy, so this is reviewer-only
 - CSS/SCSS files not using logical properties for RTL
 
 Do NOT suggest modifying `$$next-version$$` placeholders — these are intentionally used and replaced during release.
@@ -247,9 +301,23 @@ Before introducing new dependencies:
 ## Common Pitfalls
 
 - **Do NOT edit WordPress core files** — all changes must be in plugins/packages
-- **Do NOT modify `$$next-version$$` placeholders** — they are replaced automatically at release time
-- **Reuse monorepo packages** before adding external dependencies — check `projects/packages/` and `projects/js-packages/` first
 - **Git merge conflicts**: after resolving, use `git commit --no-edit --no-verify` — pre-commit hooks can make unintended changes to merge commit files
+- **Do NOT hand-edit generated Phan stubs** — `.phan/stubs/wpcom-stubs.php` (and other generated stub files) are regenerated from the wpcom repo; any manual edit is overwritten. See *Referencing wpcom-only symbols from Jetpack* below.
+
+## Referencing wpcom-only symbols from Jetpack (Phan stubs)
+
+When Jetpack code calls a class or function that ships only from wpcom (not present in this repo), Phan flags `PhanUndeclared{Class,ClassMethod,Function}`. Do NOT just silence it permanently. See also `docs/monorepo.md` § Static Analysis → *Referencing wpcom-only symbols*. The correct order is:
+
+1. **Add the symbol to the wpcom stub definitions** — `bin/teamcity-builds/jetpack-stubs/stub-defs.php` in the wpcom repo. This is the source that Jetpack's `.phan/stubs/wpcom-stubs.php` is regenerated from.
+2. **Get the regenerated stubs merged into Jetpack first** — triggering the *Jetpack Staging → Update WPCOM Stubs* job in TeamCity opens a "phan: Update wpcom stubs" PR. Land that before your feature PR.
+3. **Rebase your feature PR** on trunk so it picks up the new stubs.
+4. **Remove the suppression** — the symbol is now declared, so Phan passes without it.
+
+An inline `@phan-suppress-next-line <Rule> -- <reason>` is acceptable ONLY as a temporary bridge until step 2 lands, and MUST carry a `-- <reason>` justification.
+
+**Gotchas:**
+- The "phan: Update wpcom stubs" PR is machine-generated and gets rebased/recreated on every job run — never hand-edit it, your changes will be overwritten.
+- `.phan/stubs/wpcom-stubs.php` is likewise generated (its header says so). Never edit it directly to add a symbol — add it to `stub-defs.php` in wpcom instead.
 
 ## Maintaining This File
 

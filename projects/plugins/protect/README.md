@@ -25,12 +25,6 @@ Be aware that a request to the server will be made in all admin pages! Use it on
 
 Run `pnpm run storybook:dev` in `projects/js-packages/storybook` to get started.
 
-### React Query Browser Tools
-
-This project also includes [React Query Devtools](https://tanstack.com/query/latest/docs/framework/react/devtools).
-
-Whenever the application is running in development mode (i.e. via `jetpack watch`), the tools will be available in the plugin via a floating icon in the bottom right corner.
-
 ## Contribute
 
 Please refer to the [Contribute](https://github.com/Automattic/jetpack/blob/trunk/readme.md#contribute) section in the README.md file at the root of the repository.

@@ -5,6 +5,306 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.48.0] - 2026-08-26
+### Added
+- Dashboard: Add a first-run onboarding modal. [#51520]
+- Dashboard: Switch between the first-run and returning-user tab order from a single first-run state. [#51520]
+
+### Changed
+- Dashboard: Align the welcome modal with the design system: derive the media band's control colors from a ThemeProvider seed, use the dialog's own type scale, and the Jetpack brand token for the card icons. [#51567]
+- Dashboard: Rebuild the welcome modal around the brand artwork band, replacing the two-tab layout. [#51520]
+
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+### Fixed
+- Dashboard: stop greeting people who already have videos as new when they arrive on a video link in a fresh browser. [#51520]
+- Fix private video playback authorization for videos embedded through synced patterns and Video Playlist blocks, let private videos preview in the block editor canvas, load live metadata for private playlist entries for authorized viewers, and show a lock placeholder on playlist thumbnails of private videos the viewer cannot access. [#51569]
+- Welcome modal: load the artwork behind the intro film instead of falling back to a flat colour. [#51520]
+
+## [0.47.2] - 2026-08-25
+### Added
+- Video details: Move the add-to-content action into the page header, where it can now create a new page as well as a new post. [#51480]
+
+### Changed
+- Update dependencies. [#51456]
+- Video details: Group the title, description and chapters into a single card, and show the title in the page heading as you type it. [#51480]
+- Video details: Show the current thumbnail beside the control that replaces it, and give subtitles a section of their own. [#51480]
+- Video details: Widen the screen and show the video's settings beside a preview of the video rather than below it. [#51480]
+
+### Fixed
+- Fix a timeout error when updating a video poster from the media library. [#51479]
+
+## [0.47.1] - 2026-08-20
+### Changed
+- Update dependencies. [#49464]
+
+## [0.47.0] - 2026-08-19
+### Added
+- Add a Video Playlist block. [#51332]
+
+### Changed
+- Chapters editor: move the chapter list into a side panel beside the preview and timeline. [#51147]
+- Update package dependencies. [#51399]
+
+### Fixed
+- Fix: Private VideoPress videos in synced patterns intermittently fail authorization by caching GUID lists at render time for fast O(1) lookup during token requests. [#51398]
+
+## [0.46.0] - 2026-08-13
+### Added
+- Show the free-plan upgrade notice on the Library and Settings tabs once the free video upload has been used. [#51186]
+
+### Changed
+- Update package dependencies. [#51125]
+
+## [0.45.0] - 2026-08-10
+### Security
+- Improve escaping of block attributes rendered into inline styles.
+- Restrict the site information endpoint to administrators.
+- Verify per-attachment permissions when uploading or promoting a video.
+- Verify per-video access before issuing a playback token via the REST endpoint.
+- Verify per-video permissions on the poster endpoint.
+- Verify per-video permissions when updating video metadata.
+
+### Added
+- Chapters: Add an Editor tab with a Chapters tool to the video dashboard and a chapter manager modal in the block editor, behind a feature flag that is off by default. [#50986]
+
+### Changed
+- Dashboard: Update the admin page subtitle copy. [#51062]
+- Update package dependencies. [#50509] [#51008]
+
+### Fixed
+- Dashboard: Fix the blank Library page on right-to-left locales caused by a missing RTL stylesheet. [#51111]
+- Dashboard: Prevent a fatal error on the VideoPress page when the WordPress.com pricing request fails on a disconnected site. [#50986]
+- Editor: Fix the age gate so the birth date can be submitted and lowering a video's rating removes the gate. [#51069]
+
+## [0.44.0] - 2026-08-03
+### Added
+- Library: Allow selecting multiple video files from the Upload video button for bulk uploading. [#50794]
+
+### Fixed
+- Block: Fix selecting an existing local video from the media library on WordPress.com Simple (promote in place instead of the unreachable videopress/v1 upload), and stop the error screen's Retry from crashing when there is no file to restart. [#50844]
+- Dashboard: Fix cramped spacing in the Chapters help modal and let long dialog content scroll. [#50968]
+- Library: Allow multi-selecting local videos; Upload to VideoPress works as a bulk action and Delete covers local rows. [#50840]
+- Load JS translation catalogs and stamp the package text domain on the wp-build dashboard bundles. [#50762]
+- Video block: Keep preview-on-hover poster and title customization in sync with the player API. [#50702]
+
+## [0.43.0] - 2026-07-27
+### Added
+- Admin menu: Keep the VideoPress item under the Jetpack menu when VideoPress is not active, linking to the My Jetpack page to activate it. [#50740]
+- Library: Show an orientation indicator icon on each video in the dashboard library. [#50793]
+- Allow promoting existing local videos to VideoPress on WordPress.com Simple via an in-process wpcom/v2 endpoint. [#50611]
+
+### Changed
+- Update package dependencies. [#50751] [#50753] [#50792]
+- Make Library the default dashboard screen and move stats to a Stats tab. [#50698]
+
+## [0.42.0] - 2026-07-20
+### Added
+- Library: Show live transcoding progress on processing videos after upload. [#50550]
+- Library: Show live upload progress when uploading a video from the media library to VideoPress. [#50550]
+- Make the modernized VideoPress dashboard fully functional on WordPress.com Simple: server-side library filtering (video-only, privacy, type), stats and settings rerouted to WPCOM-reachable endpoints, and storage/features queries gated off unmappable routes. [#50410]
+- Play videos directly on the library's video details page via an embedded VideoPress player, replacing the static thumbnail. [#50511]
+- Surface the modernized VideoPress dashboard on WordPress.com Simple sites (menu + boot), with a Simple-aware media-library mapping. [#50410]
+- Video details: Show the video player while a video is processing, reporting live transcoding progress, instead of a static placeholder. [#50550]
+
+### Changed
+- Dashboard on WordPress.com Simple: Drop a redundant access-check branch and de-duplicate the wp-build dashboard load and menu-callback selection. [#50410]
+- Dashboard on WordPress.com Simple: Filter the library on the server by privacy and VideoPress/local type, fixing truncated filtered results, inexact pagination totals, and the free-tier upload count. [#50410]
+- Update package dependencies. [#50510] [#50529] [#50582]
+
+### Fixed
+- Dashboard: Show a retryable error notice when video stats fail to load, and stop the "still processing" library poll after 15 minutes. [#50410]
+- Dashboard: Show the "make all videos private" toggle read-only on WordPress.com Simple and private Atomic sites, where the value is resolved server-side. [#50410]
+- Fix "Could not obtain a VideoPress upload token" when setting a video thumbnail from a frame on WordPress.com Simple sites. [#50410]
+- Fix "You do not have permission to upload files" when publishing or deleting a subtitle track from the VideoPress dashboard on WordPress.com Simple sites. [#50410]
+- Fix VideoPress dashboard dialogs (thumbnail picker, chapters help) rendering behind the admin sidebar on WordPress.com. [#50410]
+
+## [0.41.0] - 2026-07-13
+### Added
+- Captions: Add a shared manager for uploading, drafting, editing, publishing, and deleting caption tracks. [#49336]
+
+### Changed
+- Captions: Surface outcome and async error messages as snackbars, keeping only form-validation errors as an inline notice. [#50430]
+- Media Library: Reuse the attachment title, description and caption for the VideoPress video when promoting a video with the "Upload to VideoPress" action, instead of only the file name. [#50427]
+
+### Fixed
+- Captions: Fix the caption manager failing to load on WordPress.com Simple sites by setting Webpack's public path explicitly. [#50417]
+- Decode HTML entities in video titles so they no longer display as raw entities (e.g. `&#8217;`) in the dashboard library and video details header. [#50429]
+
+## [0.40.0] - 2026-07-09
+### Added
+- Resumable video uploads are now verified as they arrive, instead of re-reading the whole file once the upload completes. [#50054]
+
+### Changed
+- Update package dependencies. [#49272]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
+### Fixed
+- Guard the block banner icon render with isValidElement so a non-element icon prop no longer trips the @wordpress/icons type check. [#49272]
+- Load VideoPress Overview stats even when the Jetpack Stats module is inactive. [#50326]
+- Fix the media library "Edit video details" link so it opens the modernized dashboard. Old links now redirect to the new location. [#50323]
+
+## [0.39.0] - 2026-07-06
+### Added
+- Add presentation to the player iframe allow list to enable casting from embeds. [#50215]
+- Add a site-level setting to turn off auto-generated subtitles. [#50014]
+
+### Changed
+- Dashboard: Release modernized VideoPress dashboard. [#49023]
+- Internal: Enable real typechecking on the package. [#49205]
+- Update package dependencies. [#50097] [#50183] [#50212]
+
+## [0.38.2] - 2026-06-29
+### Security
+- Fix an issue where the media library Heartbeat handler exposed processing status for attachments the current user is not allowed to edit. [#49931]
+
+### Changed
+- Update package dependencies. [#49271]
+
+## [0.38.1] - 2026-06-25
+### Changed
+- Defer loading the VideoPress REST API endpoint classes until a REST request is served, reducing the per-request PHP/opcache footprint. [#49806]
+- Improve performance when receiving resumable video uploads. [#49666]
+- Update package dependencies. [#49831]
+
+## [0.38.0] - 2026-06-22
+### Added
+- Add a native Divi 5 module alongside the existing Divi 4 module, with configurable player settings and support for migrating legacy layouts. [#49669]
+- Allow changing privacy (public, private, site default) for multiple videos at once from the new Library. [#49474]
+- Show a "Deleting" progress state on library rows and the video details page during deletion. [#49558]
+
+### Changed
+- Update package dependencies. [#49631] [#49638] [#49691] [#49757]
+- Persist Library view settings (layout, columns, sort, per-page) per-user across reloads. [#49475]
+
+### Fixed
+- Fix a WP Admin fatal error when using the VideoPress Divi extension with Divi Builder on PHP 8+. [#49668]
+- Prevent PHP warnings for videos with incomplete metadata. [#49621]
+- Add padding to the "Processing" badge in the video details view. [#49693]
+- Truncate long video titles and filenames in the library grid and table, and clamp them in the video details breadcrumb. [#49561]
+
+## [0.37.0] - 2026-06-15
+### Added
+- Add drag-and-drop video upload to the new library, with upload progress and a notice when the single-video plan limit is reached. [#49358]
+- Open a video's details from the library grid by clicking the thumbnail or title, with a hover "Edit details" affordance and full keyboard support. [#49472]
+
+### Changed
+- Update package dependencies. [#49273] [#49492]
+
+## [0.36.13] - 2026-06-08
+### Changed
+- Update dependencies. [#49354]
+- Update package dependencies. [#49379]
+
+### Fixed
+- Fix admin page crash on video upload/delete when the free-plan upgrade nudge is shown. [#49340]
+- Fix a TypeScript error in the library route's DataViews default layouts. [#49368]
+- Restructure the free-plan upgrade notice into a balanced heads-up line, an upsell pitch, and a concise "Upgrade" button. [#49400]
+
+## [0.36.12] - 2026-06-01
+### Changed
+- Exclude additional unneeded files from the Composer package. [#49014]
+- Internal: Prepare types for React 19. [#49204]
+- Update package dependencies. [#48404] [#49152]
+
+### Fixed
+- Fix the post-connection redirect so the modernized dashboard returns users to the VideoPress page instead of a 404. [#49168]
+
+## [0.36.11] - 2026-05-25
+### Changed
+- Migrate dashboard tabs from default to minimal variant and align via the shared `jp-admin-page-tabs--minimal` wrapper modifier. [#48964]
+- Update package dependencies. [#48405] [#49012]
+- Replace internal `ContextualUpgradeTrigger` upgrade prompts with `@wordpress/ui` `Notice` composition. [#48909]
+
+### Fixed
+- Fix duplicate Jetpack logo rendering in the Edit Video page header. [#48962]
+- Phan: Address `PhanPluginDuplicateConditionalNullCoalescing` violations. [#48887]
+
+## [0.36.10] - 2026-05-19
+### Added
+- Add free-tier notice, disabled upload controls, and a storage meter to the modernized dashboard. [#48843]
+
+### Changed
+- Exclude development files from production builds. [#47365]
+
+### Fixed
+- Use the stored processing-completion timestamp for `finish_date_gmt` instead of the current time. [#48886]
+
+## [0.36.9] - 2026-05-14
+### Added
+- Comment: Add a user-signed REST proxy for VideoPress stats and seeds the modernized dashboard's React initial state behind the existing modernization filter. [#48817]
+- Comment: Add the modernized Overview screen behind the existing modernization filter. [#48682]
+- Comment: Add the modernized Video details screen behind the existing modernization filter. [#48669]
+
+### Changed
+- Update package dependencies. [#48695] [#48696]
+
+## [0.36.8] - 2026-05-11
+### Added
+- VideoPress: Add Library tab as a DataViews grid with table alternate and mocked uploads, all behind the existing modernization filter. [#48586]
+- VideoPress: Add shared chrome with Overview/Library/Settings tabs and a working Restrict access toggle, all behind the existing modernization filter. [#48510]
+
+### Changed
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- VideoPress: Remove translation wrappers from the "VideoPress" product name. [#48519]
+
+### Fixed
+- VideoPress: Fix the "Add new video" button disappearing on the admin dashboard after the first video is uploaded. [#48690]
+
+## [0.36.7] - 2026-05-04
+### Changed
+- Components: migrate Tier 1 `jetpack-components` to `@wordpress/components` and `@wordpress/icons` (no user-facing change). [#48378]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+### Fixed
+- Avoid undefined property warning when video info has no privacy_setting. [#48379]
+- Fix corrupt resumable uploads triggering a fatal error. [#48332]
+- Fix runaway render loop on the admin library page when paginating on WordPress 7.0. [#48411]
+
+## [0.36.6] - 2026-04-27
+### Changed
+- Update package dependencies. [#48302]
+- VideoPress: Refine how the embedded post context is resolved when requesting playback tokens. [#48204]
+
+### Fixed
+- Fix PHP warning when video info lookup returns false on WordPress.com. [#48226]
+- Fix upsell incorrectly shown to legacy Jetpack Security plan customers who have unlimited (not 1TB) VideoPress storage. [#48295]
+
+## [0.36.5] - 2026-04-20
+### Changed
+- Admin dashboard: Migrate video storage meter and video thumbnail upload progress to @wordpress/components ProgressBar; drop unused progressBarClassName prop. [#48191]
+- Adopt the shared Jetpack admin-page-layout mixin on the VideoPress admin page: pinned header, scrolling middle, pinned footer, no window-level scroll. [#48109]
+- Swap the site-settings Video Privacy toggle to WordPress CheckboxControl for native rendering and accessibility. [#48175]
+- Update package dependencies. [#48106] [#48126] [#48141]
+- Video Thumbnail: Remove Jetpack color override on loading spinner. [#47317]
+
+### Removed
+- Remove unused custom Checkbox component and the hidden per-row selection UI that relied on it. [#48175]
+
+### Fixed
+- VideoPress Admin: Add padding around the Settings section, make the hero full width on medium screens, and remove an empty pagination placeholder below the video library. [#48131]
+
+## [0.36.4] - 2026-04-16
+### Fixed
+- Fix block editor errors when used with Gutenberg 23.0.0+, where the SandBox component no longer defaults to same-origin. [#48117]
+
+## [0.36.3] - 2026-04-15
+### Security
+- Ensure only users who can upload media can request VideoPress upload tokens via AJAX. [#47683]
+
+### Changed
+- Clean up postMessage bridge code: use specific targetOrigin values, add origin checks to message listeners, remove unused legacy token bridge, and add unit tests. [#47436]
+- Update package dependencies. [#47907]
+
+### Fixed
+- Fix poster image not saving when selected during video upload. [#47725]
+- Fix stuck loading state on video card after deleting a video. [#48107]
+
+## [0.36.2] - 2026-04-10
+### Changed
+- Update package dependencies. [#47890]
+
 ## [0.36.1] - 2026-04-06
 ### Changed
 - Update admin page footer design. [#47840]
@@ -1894,6 +2194,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.48.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.47.2...v0.48.0
+[0.47.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.47.1...v0.47.2
+[0.47.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.47.0...v0.47.1
+[0.47.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.46.0...v0.47.0
+[0.46.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.45.0...v0.46.0
+[0.45.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.44.0...v0.45.0
+[0.44.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.43.0...v0.44.0
+[0.43.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.42.0...v0.43.0
+[0.42.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.41.0...v0.42.0
+[0.41.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.40.0...v0.41.0
+[0.40.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.39.0...v0.40.0
+[0.39.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.38.2...v0.39.0
+[0.38.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.38.1...v0.38.2
+[0.38.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.38.0...v0.38.1
+[0.38.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.37.0...v0.38.0
+[0.37.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.13...v0.37.0
+[0.36.13]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.12...v0.36.13
+[0.36.12]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.11...v0.36.12
+[0.36.11]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.10...v0.36.11
+[0.36.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.9...v0.36.10
+[0.36.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.8...v0.36.9
+[0.36.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.7...v0.36.8
+[0.36.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.6...v0.36.7
+[0.36.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.5...v0.36.6
+[0.36.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.4...v0.36.5
+[0.36.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.3...v0.36.4
+[0.36.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.2...v0.36.3
+[0.36.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.1...v0.36.2
 [0.36.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.0...v0.36.1
 [0.36.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.6...v0.36.0
 [0.35.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.5...v0.35.6

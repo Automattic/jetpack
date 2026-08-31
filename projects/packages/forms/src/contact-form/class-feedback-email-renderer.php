@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Jetpack_Tracks_Event;
@@ -91,7 +92,9 @@ class Feedback_Email_Renderer {
 	 *   'comment_author'       => string  Author name.
 	 *   'comment_author_email' => string  Author email.
 	 *   'comment_author_ip'    => string  Author IP address.
-	 *   'is_spam'              => bool    Whether submission is spam.
+	 *   'is_spam'              => bool    Whether submission is spam. Suppresses the
+	 *                                    Mark-as-spam button, which would otherwise
+	 *                                    link to a page with nothing to confirm.
 	 *   'feedback_status'      => string  Post status of the feedback.
 	 *
 	 * @return array{title: string, message: string} The email title and rendered HTML message.
@@ -102,7 +105,8 @@ class Feedback_Email_Renderer {
 		$comment_author       = $context_data['comment_author'];
 		$comment_author_email = $context_data['comment_author_email'];
 		$comment_author_ip    = $context_data['comment_author_ip'];
-		$is_spam              = $context_data['is_spam'];
+		$is_spam              = ! empty( $context_data['is_spam'] );
+		$is_test              = ! empty( $context_data['is_test'] );
 		$feedback_status      = $context_data['feedback_status'];
 
 		/**
@@ -159,22 +163,47 @@ class Feedback_Email_Renderer {
 			esc_url( $url )
 		);
 
-		// Get the status of the feedback.
-		$status = $is_spam ? 'spam' : 'inbox';
-
-		// Build the dashboard URL with the status and the feedback's post id if we have a post id.
+		// Build the dashboard URL for the feedback's post id if we have one. The
+		// single response page shows the response whatever its status, so the
+		// destination no longer depends on whether this submission was spam.
 		$dashboard_url           = '';
 		$mark_as_spam_url        = '';
 		$footer_mark_as_spam_url = '';
 
-		if ( $feedback_status !== 'jp-temp-feedback' ) {
-			$dashboard_url           = Forms_Dashboard::get_forms_admin_url( $status, $post_id );
-			$mark_as_spam_url        = self::add_mark_as_spam_to_url( $dashboard_url );
-			$footer_mark_as_spam_url = sprintf(
-				'<a href="%1$s">%2$s</a>',
-				esc_url( $mark_as_spam_url ),
-				__( 'Mark as spam', 'jetpack-forms' )
-			);
+		/**
+		 * Filters whether to show action buttons in notification emails.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 7.20.0
+		 *
+		 * @param bool $show Whether to show the action buttons. Default true.
+		 */
+		$show_email_actions = apply_filters( 'jetpack_forms_email_show_actions', true );
+
+		if ( $feedback_status !== 'jp-temp-feedback' && $show_email_actions ) {
+			// Both buttons open the response on its own page. "Mark as spam" adds a
+			// parameter that opens a confirmation dialog there, so the destructive
+			// step is never taken on the strength of an email click alone.
+			$dashboard_url = Forms_Dashboard::get_single_response_admin_url( $post_id );
+			// Test responses don't get a Mark-as-spam link in the email — marking
+			// a test entry as spam from email is confusing and the form owner can
+			// always do it from the dashboard if they want. Neither do submissions
+			// that already sit outside the inbox: sites can mail spam via
+			// `grunion_still_email_spam`, and a disallowed-list hit is emailed with
+			// `$feedback_status = 'trash'` while `$is_spam` stays false. The single
+			// response page has nothing to confirm for either, so the button would
+			// land somewhere that silently does nothing.
+			$is_already_filed = $is_spam || in_array( $feedback_status, array( 'spam', 'trash' ), true );
+
+			if ( ! $is_test && ! $is_already_filed ) {
+				$mark_as_spam_url        = self::add_mark_as_spam_to_url( $dashboard_url );
+				$footer_mark_as_spam_url = sprintf(
+					'<a href="%1$s">%2$s</a>',
+					esc_url( $mark_as_spam_url ),
+					__( 'Mark as spam', 'jetpack-forms' )
+				);
+			}
 		}
 
 		$footer = implode(
@@ -209,23 +238,40 @@ class Feedback_Email_Renderer {
 		// Use fully table-based layout for maximum email client compatibility - no display:inline-block.
 		$actions = '';
 		if ( $dashboard_url ) {
-			$actions = sprintf(
-				'<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="button-table" align="center" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin: 0 auto;">
-					<tr>
-						<td class="button-cell" width="50%%" style="text-align: right; padding-right: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-							<a href="%1$s" class="action-button action-button-secondary" style="display: inline-block; background-color: transparent; color: %5$s; border: 1px solid #1e1e1e; border-radius: 4px; font-size: ' . self::FONT_SIZE_BUTTON . '; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%2$s</a>
-						</td>
-						<td class="button-cell" width="50%%" style="text-align: left; padding-left: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-							<a href="%3$s" class="action-button action-button-primary" style="display: inline-block; background-color: #3858e9; color: #ffffff; border-radius: 4px; font-size: ' . self::FONT_SIZE_BUTTON . '; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%4$s</a>
-						</td>
-					</tr>
-				</table>',
-				esc_url( $mark_as_spam_url ),
-				__( 'Mark as spam', 'jetpack-forms' ),
-				esc_url( $dashboard_url ),
-				__( 'View in dashboard', 'jetpack-forms' ),
-				self::LINK_COLOR
-			);
+			if ( ! $mark_as_spam_url ) {
+				// Only "View in dashboard", centered. Keyed on the URL rather than on
+				// why it is missing, so every suppression path renders one button
+				// instead of an empty `href`.
+				$actions = sprintf(
+					'<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="button-table" align="center" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin: 0 auto;">
+						<tr>
+							<td class="button-cell" style="text-align: center; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
+								<a href="%1$s" class="action-button action-button-primary" style="display: inline-block; background-color: #3858e9; color: #ffffff; border-radius: 4px; font-size: ' . self::FONT_SIZE_BUTTON . '; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%2$s</a>
+							</td>
+						</tr>
+					</table>',
+					esc_url( $dashboard_url ),
+					__( 'View in dashboard', 'jetpack-forms' )
+				);
+			} else {
+				$actions = sprintf(
+					'<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="button-table" align="center" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin: 0 auto;">
+						<tr>
+							<td class="button-cell" width="50%%" style="text-align: right; padding-right: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
+								<a href="%1$s" class="action-button action-button-secondary" style="display: inline-block; background-color: transparent; color: %5$s; border: 1px solid #1e1e1e; border-radius: 4px; font-size: ' . self::FONT_SIZE_BUTTON . '; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%2$s</a>
+							</td>
+							<td class="button-cell" width="50%%" style="text-align: left; padding-left: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
+								<a href="%3$s" class="action-button action-button-primary" style="display: inline-block; background-color: #3858e9; color: #ffffff; border-radius: 4px; font-size: ' . self::FONT_SIZE_BUTTON . '; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%4$s</a>
+							</td>
+						</tr>
+					</table>',
+					esc_url( $mark_as_spam_url ),
+					__( 'Mark as spam', 'jetpack-forms' ),
+					esc_url( $dashboard_url ),
+					__( 'View in dashboard', 'jetpack-forms' ),
+					self::LINK_COLOR
+				);
+			}
 		}
 
 		// Build respondent info for the new email template.
@@ -241,11 +287,21 @@ class Feedback_Email_Renderer {
 			$form_title = Contact_Form::get_post_property( $form->current_post, 'post_title' );
 		}
 
+		// Test responses don't have a real source page; surface them as
+		// "Form preview" in the metadata table to match the dashboard.
+		if ( $is_test ) {
+			$source_label = __( 'Form preview', 'jetpack-forms' );
+			$source_url   = '';
+		} else {
+			$source_label = $form_title;
+			$source_url   = $url;
+		}
+
 		// Build metadata for the new email template.
 		$metadata = array(
 			'date'           => $time,
-			'source'         => $form_title,
-			'source_url'     => $url,
+			'source'         => $source_label,
+			'source_url'     => $source_url,
 			'device'         => $response->get_browser(),
 			'ip'             => $comment_author_ip,
 			'ip_flag'        => $response->get_country_flag(),
@@ -264,12 +320,38 @@ class Feedback_Email_Renderer {
 		 */
 		$message = apply_filters( 'contact_form_message', implode( '', $message ), $message );
 
+		// Render a prominent TEST SUBMISSION banner when this came from a form
+		// preview, so the form owner can immediately tell that this response is
+		// a synthetic test. It is injected at the very top of the email so the
+		// rest of the body still looks like a normal submission email.
+		$banner = $is_test ? self::build_test_submission_banner() : '';
+
 		// This is called after `contact_form_message`, in order to preserve back-compat.
-		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions, $respondent_info, $metadata );
+		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions, $respondent_info, $metadata, $banner );
 
 		return array(
 			'title'   => $title,
 			'message' => $message,
+		);
+	}
+
+	/**
+	 * Build the HTML banner inserted at the top of a test-submission email body.
+	 *
+	 * Uses inline styles and a nested table layout for email-client compatibility.
+	 * Mirrors the @wordpress/ui Notice component (warning intent): warm amber fill,
+	 * 1px amber border with 8px radius, decorative info icon, 13px/20px body copy.
+	 *
+	 * @return string
+	 */
+	private static function build_test_submission_banner() {
+		return sprintf(
+			'<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%%" class="test-submission-banner" style="border-collapse: collapse; margin: 0 0 24px 0;">
+				<tr>
+					<td class="test-submission-banner-cell" style="padding: 12px; background-color: #fff7e0; border: 1px solid #d0b381; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; color: #2e1900; font-size: 13px; line-height: 20px;">%s</td>
+				</tr>
+			</table>',
+			esc_html__( 'Test response via form preview.', 'jetpack-forms' )
 		);
 	}
 
@@ -319,12 +401,16 @@ class Feedback_Email_Renderer {
 	public static function get_compiled_form_for_email( $feedback_id, $form ) {
 		$compiled_form    = array();
 		$field_collection = array();
+		$raw_values       = array();
 		$response         = Feedback::get( $feedback_id );
 
 		if ( $response instanceof Feedback ) {
 			// Get both formats: 'all' for backward-compat filter, 'collection' for type-aware rendering.
 			$compiled_form    = $response->get_compiled_fields( 'email', 'all' );
 			$field_collection = $response->get_compiled_fields( 'email_html', 'collection' );
+			// The collection's 'value' is already rendered HTML, but a checkbox's
+			// icon depends on the underlying answer, so keep the raw values too.
+			$raw_values = $response->get_compiled_fields( 'email', 'key-value' );
 		}
 
 		/**
@@ -366,7 +452,8 @@ class Feedback_Email_Renderer {
 			// No filter customization — use new type-aware rendering.
 			$compiled_form = array();
 			foreach ( $field_collection as $field_data ) {
-				$compiled_form[] = self::format_field_for_email( $field_data );
+				$field_key       = $field_data['key'] ?? '';
+				$compiled_form[] = self::format_field_for_email( $field_data, $raw_values[ $field_key ] ?? null );
 			}
 		}
 
@@ -376,10 +463,18 @@ class Feedback_Email_Renderer {
 	/**
 	 * Get the icon name for a given field type.
 	 *
-	 * @param string $type The field type.
+	 * @param string $type  The field type.
+	 * @param mixed  $value The submitted value, for field types whose icon
+	 *                      depends on the answer as well as the type.
 	 * @return string The icon name.
 	 */
-	private static function get_field_icon_name( $type ) {
+	private static function get_field_icon_name( $type, $value = null ) {
+		// A checkbox reflects the respondent's answer: an unticked box gets the
+		// empty-square variant rather than the ticked one.
+		if ( 'checkbox' === $type && ! Feedback_Field::is_checked_value( $value ) ) {
+			return 'field-checkbox-unchecked';
+		}
+
 		$map = array(
 			'text'              => 'field-text',
 			'name'              => 'field-text',
@@ -412,15 +507,17 @@ class Feedback_Email_Renderer {
 	 * and produces a table row with an icon, label, and type-specific value.
 	 *
 	 * @param array $field_data Field data with keys: label, value, type, id, key, meta.
+	 * @param mixed $raw_value  The underlying (unrendered) value, for field types
+	 *                          whose icon depends on the answer as well as the type.
 	 * @return string HTML for the field row.
 	 */
-	private static function format_field_for_email( $field_data ) {
+	private static function format_field_for_email( $field_data, $raw_value = null ) {
 		$label = $field_data['label'] ?? '';
 		$value = $field_data['value'] ?? '';
 		$type  = $field_data['type'] ?? 'text';
 
 		$safe_label = Contact_Form::escape_and_sanitize_field_label( $label );
-		$icon_name  = self::get_field_icon_name( $type );
+		$icon_name  = self::get_field_icon_name( $type, $raw_value );
 		$icon_url   = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/' . $icon_name . '@2x.png';
 
 		// Value is already rendered as HTML by Feedback_Field::get_render_email_html_value().
@@ -529,10 +626,11 @@ class Feedback_Email_Renderer {
 	 * @param string $actions - HTML for actions displayed in the email.
 	 * @param array  $respondent_info - Optional. Respondent information array with 'name', 'email', 'avatar'.
 	 * @param array  $metadata - Optional. Metadata array with 'date', 'source', 'source_url', 'device', 'ip', 'ip_flag', 'logged_in_user' (with display_name, username, id).
+	 * @param string $banner - Optional. HTML banner inserted at the very top of the email body (above the title).
 	 *
 	 * @return string
 	 */
-	public static function wrap_message_in_html_tags( $title, $body, $footer, $actions = '', $respondent_info = array(), $metadata = array() ) {
+	public static function wrap_message_in_html_tags( $title, $body, $footer, $actions = '', $respondent_info = array(), $metadata = array(), $banner = '' ) {
 		// Don't do anything if the message was already wrapped in HTML tags
 		// That could have be done by a plugin via filters.
 		if ( str_contains( $body, '<html' ) ) {
@@ -544,13 +642,23 @@ class Feedback_Email_Renderer {
 
 		// The hash is just used to anonymize the admin email and have a unique identifier for the event.
 		// The secret key used could have been a random string, but it's better to use the version number to make it easier to track.
-		$event = new Jetpack_Tracks_Event(
-			(object) array(
-				'_en' => 'jetpack_forms_email_open',
-				'_ui' => hash_hmac( 'md5', get_option( 'admin_email' ), JETPACK__VERSION ),
-				'_ut' => 'anon',
-			)
+		$event_props = array(
+			'_en'             => 'jetpack_forms_email_open',
+			'_ui'             => hash_hmac( 'md5', get_option( 'admin_email' ), JETPACK__VERSION ),
+			'_ut'             => 'anon',
+			'jetpack_version' => JETPACK__VERSION,
 		);
+
+		// Tracks promotes `blog_id` to the top-level `blogid` column; sending it as `blogid` leaves it
+		// as an ordinary event property and the column stays empty. Only send the site ID when the site
+		// is connected: an empty value would have Tracks record the property as a string, which makes it
+		// unusable for analysis.
+		$blog_id = Manager::get_site_id( true );
+		if ( $blog_id ) {
+			$event_props['blog_id'] = $blog_id;
+		}
+
+		$event = new Jetpack_Tracks_Event( (object) $event_props );
 
 		$tracking_pixel = '<img src="' . $event->build_pixel_url() . '" alt="" width="1" height="1" />';
 
@@ -627,7 +735,8 @@ class Feedback_Email_Renderer {
 			$actions,
 			$powered_by_html,
 			$respondent_html,
-			$metadata_html
+			$metadata_html,
+			$banner
 		);
 
 		// Inject print styles into <body> for Outlook.com compatibility (it strips <head> styles

@@ -1,9 +1,11 @@
 import { Sparkline } from '../';
-import { chartDecorator } from '../../../stories/chart-decorator';
-import type { SparklineProps } from '../types';
+import { chartDecorator, type ChartStoryArgs } from '../../../stories/chart-decorator';
+import { themeArgTypes } from '../../../stories/theme-config';
 import type { Meta, StoryObj } from '@storybook/react';
 
-const meta: Meta< SparklineProps > = {
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof Sparkline > >;
+
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts Library/Charts/Sparkline',
 	component: Sparkline,
 	parameters: {
@@ -61,12 +63,13 @@ const meta: Meta< SparklineProps > = {
 			description: 'Enable entry animation on initial render',
 			table: { category: 'Visual Style' },
 		},
+		...themeArgTypes,
 	},
 };
 
 export default meta;
 
-type Story = StoryObj< typeof Sparkline >;
+type Story = StoryObj< StoryArgs >;
 
 // Sample data
 const defaultData = [ 10, 15, 12, 18, 22, 25, 23, 28 ];
@@ -80,8 +83,7 @@ export const Default: Story = {
 		data: defaultData,
 		width: 120,
 		height: 48,
-		color: '#4CAF50',
-		containerHeight: 100,
+		containerHeight: '100px',
 	},
 };
 
@@ -194,7 +196,7 @@ export const Dashboard: Story = {
 		);
 	},
 	args: {
-		containerHeight: 150,
+		containerHeight: '150px',
 	},
 };
 

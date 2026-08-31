@@ -73,7 +73,12 @@ Additionally, tests also live in the Jetpack plugin (`projects/plugins/jetpack/t
 jetpack test php plugins/jetpack --testsuite=sync -v
 ```
 
-You can also run tests directly in the Docker environment, which is useful for targeting a specific test class or method with `--filter`:
+You can also run tests directly in the Docker environment, which is useful for targeting a specific test class or method with `--filter`. Before running Docker-based tests, ensure the environment is up:
+
+```bash
+jp docker up -d       # Start Docker WordPress containers
+jp docker install     # Install WordPress in Docker (first time only)
+```
 
 ```bash
 # Run all sync tests in the Jetpack plugin via Docker
@@ -96,10 +101,19 @@ When adding new behaviour, **always add a corresponding test**. Sync has no UI â
 
 When contributing to the Sync package, follow the Jetpack monorepo's standard PR process.
 
+**Changelog entry required**: Every PR touching this package must include a changelog file in `changelog/`:
+
+```bash
+jp changelog add packages/sync -s patch -t fixed -e "Sync: Description of change."
+```
+
+**WPcom coordination**: If your change alters the structure of synced data (event names, argument shape, or new data types), flag this in your PR description. A coordinated WPcom-side update is required before the change can safely ship.
+
 ## Agent-Specific Guidelines
 
 ### Quality Checklist
 - [ ] Tests pass: `jetpack test php packages/sync` and `jetpack test php plugins/jetpack --testsuite=sync`
+- [ ] Static analysis passes: `jp phan packages/sync`
 - [ ] Both sender paths (regular + dedicated) considered
 - [ ] Queue logic changes consider both the `sync` queue and the full sync path (`Full_Sync_Immediately` sends without a queue)
 - [ ] No changes to what data is silently dropped without explicit justification
@@ -111,6 +125,9 @@ Adding a new item to the whitelist in this package controls whether it gets sent
 
 **Custom post types must be registered via sync**
 Custom post types must be registered through callables/config sync, or posts will land in `jps_non-reg` status on the cache site.
+
+**Callable whitelist values must not instantiate objects at registration**
+The callable whitelist is rebuilt on every request, but callables are only invoked at send time. Use function-name strings, static `array( 'Class', 'method' )` references, or closures that defer construction to invocation time â€” never `array( new Object(), 'method' )`. Also beware: values failing `is_callable()` are silently skipped (never synced, no error logged), so a typo'd or later-removed method goes unnoticed; cover whitelist entries with a test that invokes them.
 
 **Both test suites must pass**
 Tests live in this package (`tests/php/`) and in the Jetpack plugin (`projects/plugins/jetpack/tests/php/sync/`). Running only one can miss regressions.

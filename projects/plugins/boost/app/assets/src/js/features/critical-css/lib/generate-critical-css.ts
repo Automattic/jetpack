@@ -43,7 +43,7 @@ interface ProviderCallbacks {
 
 interface GeneratorCallbacks extends ProviderCallbacks {
 	onError: ( error: Error ) => void; // Called when the generator fails with a critical error.
-	onFinished: () => void; // Called when the generator is finished, regardless of success or failure.
+	onFinished: ( succeeded: boolean ) => void; // Called when the generator is finished, regardless of success or failure.
 }
 
 class ProviderCssSaveError extends Error {
@@ -77,12 +77,14 @@ export function runLocalGenerator(
 ) {
 	const abort = new AbortController();
 
+	let succeeded = true;
 	generateCriticalCss( providers, viewports, proxyNonce, callbacks, abort.signal )
 		.catch( err => {
+			succeeded = false;
 			callbacks.onError( standardizeError( err ) );
 		} )
 		.finally( () => {
-			callbacks.onFinished();
+			callbacks.onFinished( succeeded );
 		} );
 
 	return abort;
@@ -179,7 +181,17 @@ async function createBrowserInterface(
 
 /**
  * Generate Critical CSS for the specified Provider Keys, sending each block
- * to the server. Throws on error or cancellation.
+ * to the server. Per-provider generation errors are recorded against the
+ * offending provider and do not stop the remaining providers from generating.
+ *
+ * Throws only on failures that aren't tied to a single provider's generation
+ * step, e.g. the generator library failing to load. A failure to persist a
+ * provider's CSS (setProviderCss rejecting) is caught and recorded as that
+ * provider's error, so the run continues. By contrast, the setProviderErrors
+ * calls are awaited without a local catch: if recording a provider's error
+ * itself rejects (e.g. the data-sync REST call fails), the rejection
+ * propagates and aborts the whole run. That is deliberate -- when Boost can't
+ * even persist the error state, failing loudly beats silently dropping it.
  *
  * @param {Object}      providers            - Set of URLs to use for each provider key
  * @param {Viewport[]}  viewports            - Viewports to use when generating Critical CSS.
@@ -217,6 +229,10 @@ async function generateForKeys(
 	let stepsFailed = 0;
 	let maxSize = 0;
 
+	// Track provider index for monotonic progress calculation.
+	const totalProviders = providers.length;
+	let providerIndex = 0;
+
 	// Run through each set of URLs.
 	for ( const { urls, success_ratio, key } of providers ) {
 		if ( signal.aborted ) {
@@ -229,7 +245,8 @@ async function generateForKeys(
 				urls,
 				viewports,
 				progressCallback: ( step: number, total: number ) => {
-					callbacks.setProviderProgress( step / total );
+					// Use absolute progress across all providers to prevent backward jumps.
+					callbacks.setProviderProgress( ( providerIndex + step / total ) / totalProviders );
 				},
 				filters: {
 					atRules: keepAtRule,
@@ -250,9 +267,6 @@ async function generateForKeys(
 			} catch ( err ) {
 				providerFailed = err;
 			}
-
-			// Reset local progress whenever a provider is finished to prevent progress bar jank.
-			callbacks.setProviderProgress( 0 );
 
 			if ( providerFailed instanceof Error ) {
 				throw new ProviderCssSaveError( providerFailed.message );
@@ -308,11 +322,17 @@ async function generateForKeys(
 					recordBoostEvent( 'critical_css_url_error', eventProps );
 				}
 			} else {
+				// Swallow errors caused by cancelling the process.
+				if ( signal.aborted ) {
+					return;
+				}
+
+				stepsFailed++;
 				const stdError = standardizeError( err );
 				const type =
 					( 'type' in stdError && typeof stdError.type === 'string' && stdError.type ) || 'unknown';
 
-				// Track showstopper Critical CSS generation error.
+				// Track unexpected per-provider Critical CSS generation error.
 				const eventProps = {
 					time: Date.now() - startTime,
 					provider_key: key,
@@ -322,8 +342,26 @@ async function generateForKeys(
 
 				recordBoostEvent( 'critical_css_failure', eventProps );
 
-				throw err;
+				// Record the error against this provider, and continue generating
+				// Critical CSS for the remaining providers. The stored type is the
+				// catch-all 'UnknownError' (a valid CriticalCssErrorType) rather than
+				// the analytics `type` above, which may be 'unknown' or some other
+				// value that isn't a recognized member.
+				await callbacks.setProviderErrors(
+					key,
+					urls.map( url => ( {
+						url,
+						message: stdError.message,
+						type: 'UnknownError',
+						meta: {},
+					} ) )
+				);
 			}
+		} finally {
+			// Always increment provider index and update boundary progress,
+			// even when the provider encountered errors.
+			providerIndex++;
+			callbacks.setProviderProgress( providerIndex / totalProviders );
 		}
 	}
 

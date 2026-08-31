@@ -9,6 +9,9 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+require_once __DIR__ . '/class-utility.php';
+
+use Automattic\Jetpack\Forms\Dashboard\Dashboard;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -683,6 +686,178 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Both email action buttons open the standalone single response page.
+	 *
+	 * "Mark as spam" differs only by the `mark_as_spam` trigger, which opens a
+	 * confirmation dialog on that page — the destructive step is never taken on the
+	 * strength of an email click alone. Dropping that parameter would look like a
+	 * harmless de-duplication of two now-identical URLs while actually removing the
+	 * confirmation, so pin it here.
+	 */
+	public function test_build_email_content_action_urls_target_single_response_page() {
+		add_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'Name'  => 'Test User',
+				'Email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User'
+		);
+
+		$form     = new Contact_Form( array(), '' );
+		$response = Feedback::get( $post_id );
+
+		$context_data = array(
+			'time'                 => current_time( 'mysql' ),
+			'url'                  => 'https://example.com',
+			'comment_author'       => 'Test User',
+			'comment_author_email' => 'test@example.com',
+			'comment_author_ip'    => '127.0.0.1',
+			'is_spam'              => false,
+			'feedback_status'      => 'publish',
+		);
+
+		$result = Feedback_Email_Renderer::build_email_content( $post_id, $form, $response, $context_data );
+
+		remove_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		// "View in dashboard" points at the standalone single response page — and
+		// must NOT carry the trigger. Matched to the closing quote, because the view
+		// URL is a strict prefix of the spam one: a plain "contains" assertion would
+		// pass even if both buttons were armed.
+		$this->assertMatchesRegularExpression(
+			'#href="' . preg_quote( esc_url( Dashboard::get_single_response_admin_url( $post_id ) ), '#' ) . '"#',
+			$result['message'],
+			'View in dashboard must link to the single response page without the mark_as_spam trigger.'
+		);
+
+		// "Mark as spam" points at the same page and carries the trigger. Asserted by
+		// shape rather than by rebuilding `add_mark_as_spam_to_url()`, which embeds
+		// the flag inside the encoded `p` path for wp-build URLs.
+		$this->assertMatchesRegularExpression(
+			'#href="[^"]*p=%2Fresponse%2F' . $post_id . '[^"]*mark_as_spam[^"]*"#',
+			$result['message'],
+			'Mark as spam must open the single response page with its confirmation trigger.'
+		);
+
+		// It must never lose the trigger and become a plain "view" link — that would
+		// mark the response as spam with no confirmation, or not at all.
+		$this->assertDoesNotMatchRegularExpression(
+			'#href="[^"]*p=%2Fresponses%2Finbox[^"]*mark_as_spam#',
+			$result['message'],
+			'Mark as spam should no longer route through the responses list.'
+		);
+	}
+
+	/**
+	 * A submission already flagged as spam gets no Mark-as-spam button.
+	 *
+	 * Sites can mail spam submissions via `$send_even_if_spam`. The button would
+	 * link to a page that deliberately shows no confirmation for an
+	 * already-spam response, leaving the trigger armed in the URL.
+	 */
+	public function test_build_email_content_omits_mark_as_spam_for_spam_submission() {
+		add_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'Name'  => 'Test User',
+				'Email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User'
+		);
+
+		$form     = new Contact_Form( array(), '' );
+		$response = Feedback::get( $post_id );
+
+		$context_data = array(
+			'time'                 => current_time( 'mysql' ),
+			'url'                  => 'https://example.com',
+			'comment_author'       => 'Test User',
+			'comment_author_email' => 'test@example.com',
+			'comment_author_ip'    => '127.0.0.1',
+			'is_spam'              => true,
+			'feedback_status'      => 'publish',
+		);
+
+		$result = Feedback_Email_Renderer::build_email_content( $post_id, $form, $response, $context_data );
+
+		remove_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		$this->assertStringNotContainsString(
+			'mark_as_spam',
+			$result['message'],
+			'A spam submission must not be emailed a Mark as spam link.'
+		);
+
+		// Asserting the URL token is absent is not enough: suppressing the URL while
+		// still rendering the button emits `<a href="">Mark as spam</a>`, which the
+		// token assertion happily passes. Pin the button and the empty href too.
+		$this->assertStringNotContainsString(
+			'href=""',
+			$result['message'],
+			'Suppressing the Mark as spam URL must suppress its button, not leave an empty href.'
+		);
+		$this->assertDoesNotMatchRegularExpression(
+			'#<a[^>]*class="[^"]*action-button[^"]*"[^>]*>\s*' . preg_quote( __( 'Mark as spam', 'jetpack-forms' ), '#' ) . '\s*</a>#',
+			$result['message'],
+			'The Mark as spam button must not render for a submission that is already filed.'
+		);
+
+		// The View in dashboard button is still offered.
+		$this->assertStringContainsString(
+			esc_url( Dashboard::get_single_response_admin_url( $post_id ) ),
+			$result['message']
+		);
+	}
+
+	/**
+	 * A disallowed-list hit is emailed with `trash` status and no Mark-as-spam button.
+	 *
+	 * `$is_spam` stays false for these, so keying the suppression on that flag alone
+	 * would leave the button pointing at a page with nothing to confirm.
+	 */
+	public function test_build_email_content_omits_mark_as_spam_for_trashed_submission() {
+		add_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'Name'  => 'Test User',
+				'Email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User'
+		);
+
+		$form     = new Contact_Form( array(), '' );
+		$response = Feedback::get( $post_id );
+
+		$context_data = array(
+			'time'                 => current_time( 'mysql' ),
+			'url'                  => 'https://example.com',
+			'comment_author'       => 'Test User',
+			'comment_author_email' => 'test@example.com',
+			'comment_author_ip'    => '127.0.0.1',
+			'is_spam'              => false,
+			'feedback_status'      => 'trash',
+		);
+
+		$result = Feedback_Email_Renderer::build_email_content( $post_id, $form, $response, $context_data );
+
+		remove_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		$this->assertStringNotContainsString( 'mark_as_spam', $result['message'] );
+		$this->assertStringNotContainsString( 'href=""', $result['message'] );
+		$this->assertStringContainsString(
+			esc_url( Dashboard::get_single_response_admin_url( $post_id ) ),
+			$result['message']
+		);
+	}
+
+	/**
 	 * Invoke a private static method on Feedback_Field via reflection.
 	 *
 	 * @param string $method_name The method name.
@@ -728,5 +903,54 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 		Contact_Form::add_plain_text_alternative( $mailer );
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		return $mailer->AltBody;
+	}
+
+	/**
+	 * Invoke the private icon-name mapper.
+	 *
+	 * @param string $type  Field type.
+	 * @param mixed  $value Raw submitted value.
+	 * @return string
+	 */
+	private function invoke_get_field_icon_name( $type, $value = null ) {
+		$method = new \ReflectionMethod( Feedback_Email_Renderer::class, 'get_field_icon_name' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( null, $type, $value );
+	}
+
+	/**
+	 * The email icon has to follow the answer too, otherwise the icon contradicts
+	 * the "No" chip rendered next to it.
+	 */
+	public function test_get_field_icon_name_reflects_the_checkbox_answer() {
+		$this->assertSame( 'field-checkbox', $this->invoke_get_field_icon_name( 'checkbox', 'Yes' ) );
+		$this->assertSame( 'field-checkbox-unchecked', $this->invoke_get_field_icon_name( 'checkbox', '' ) );
+		$this->assertSame( 'field-checkbox-unchecked', $this->invoke_get_field_icon_name( 'checkbox', 'No' ) );
+	}
+
+	/**
+	 * Other field types keep their type-based icon regardless of the value.
+	 */
+	public function test_get_field_icon_name_is_unchanged_for_other_types() {
+		$this->assertSame( 'field-consent', $this->invoke_get_field_icon_name( 'consent', '' ) );
+		$this->assertSame( 'field-multiple-choice', $this->invoke_get_field_icon_name( 'checkbox-multiple', '' ) );
+		$this->assertSame( 'field-text', $this->invoke_get_field_icon_name( 'nonsense', '' ) );
+	}
+
+	/**
+	 * Every icon name the mapper can return must have a rasterized PNG shipped
+	 * alongside it — a missing file renders as a broken image in the email.
+	 */
+	public function test_every_icon_name_has_a_shipped_png() {
+		$dir = dirname( __DIR__, 3 ) . '/src/contact-form/images/field-icons/';
+
+		foreach ( array( 'checkbox', 'checkbox-multiple', 'consent', 'text' ) as $type ) {
+			foreach ( array( '', 'Yes' ) as $value ) {
+				$name = $this->invoke_get_field_icon_name( $type, $value );
+				$this->assertFileExists( $dir . $name . '@2x.png' );
+			}
+		}
 	}
 }

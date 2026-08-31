@@ -25,12 +25,11 @@ export { default as AutomatticBylineLogo } from './components/automattic-byline-
 export { default as AutomatticIconLogo } from './components/automattic-icon-logo/index.tsx';
 export { default as AutomatticForAgenciesLogo } from './components/automattic-for-agencies-logo/index.tsx';
 export { default as JetpackFooter } from './components/jetpack-footer/index.tsx';
-export { default as Spinner } from './components/spinner/index.tsx';
-export { default as Gridicon } from './components/gridicon/index.tsx';
+export { default as Gravatar } from './components/gravatar/index.tsx';
+export type { GravatarProps } from './components/gravatar/index.tsx';
 export { default as IconTooltip } from './components/icon-tooltip/index.tsx';
 export { default as ActionButton } from './components/action-button/index.tsx';
 export { default as PricingCard } from './components/pricing-card/index.tsx';
-export { default as NumberSlider } from './components/number-slider/index.tsx';
 export { default as AdminSection } from './components/admin-section/basic/index.tsx';
 export { default as AdminSectionHero } from './components/admin-section/hero/index.tsx';
 export { default as AdminPage } from './components/admin-page/index.tsx';
@@ -38,7 +37,6 @@ export { default as DecorativeCard } from './components/decorative-card/index.ts
 export { default as Col } from './components/layout/col/index.tsx';
 export { default as Testimonials } from './components/testimonials/index.tsx';
 export { default as Container } from './components/layout/container/index.tsx';
-export { default as useBreakpointMatch } from './components/layout/use-breakpoint-match/index.ts';
 export { default as CopyToClipboard } from './components/copy-to-clipboard/index.tsx';
 export * from './components/icons/index.tsx';
 export { default as SplitButton } from './components/split-button/index.tsx';
@@ -51,7 +49,6 @@ export { default as Button } from './components/button/index.tsx';
 export type { ButtonProps } from './components/button/types.ts';
 export { default as LoadingPlaceholder } from './components/loading-placeholder/index.tsx';
 export { default as TermsOfService } from './components/terms-of-service/index.tsx';
-export { default as Badge } from './components/badge/index.tsx';
 export { default as Chip } from './components/chip/index.tsx';
 export {
 	default as PricingTable,

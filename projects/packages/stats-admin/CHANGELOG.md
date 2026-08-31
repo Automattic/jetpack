@@ -5,6 +5,81 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.34.0 - 2026-08-25
+### Added
+- Add a filter for the post list table's views column link. [#51357]
+
+### Changed
+- Make the Blaze package a development-only dependency. [#51462]
+
+## 0.33.0 - 2026-08-20
+### Added
+- Show the Stats dashboard before the site is connected to WordPress.com, so a plan can be picked and the site connected from there. [#51200]
+
+### Changed
+- Load the post list Stats column CSS through the stylesheet queue. [#51353]
+- Load the Stats dashboard bootstrap script through the script queue. [#51355]
+- Update dependencies. [#51190]
+
+### Fixed
+- Return a clear error instead of a server error when a stats request is made before the site is connected to WordPress.com. [#51200]
+
+## 0.32.1 - 2026-08-10
+### Security
+- Cast the quick-edit post ID to an integer before requesting its view counts. [#51049]
+
+## 0.32.0 - 2026-08-03
+### Fixed
+- Stats Dashboard: Declare `wp-components` as a stylesheet dependency, so the dashboard's own component styling (Button, Card, Modal, etc.) no longer relies on another admin feature enqueuing it as a side effect, and is emitted in the correct cascade order. [#50881]
+
+## 0.31.11 - 2026-07-27
+### Changed
+- Update dependencies. [#50719]
+
+## 0.31.10 - 2026-07-20
+### Changed
+- Update dependencies. [#44736]
+
+## 0.31.9 - 2026-07-13
+### Changed
+- Internal updates.
+
+## 0.31.8 - 2026-07-06
+### Changed
+- Internal updates.
+
+## 0.31.7 - 2026-06-25
+### Changed
+- Defer Stats Admin REST controller instantiation so the controller class only loads on REST API requests. [#49803]
+
+## 0.31.6 - 2026-06-15
+### Changed
+- Internal updates.
+
+## 0.31.5 - 2026-06-08
+### Changed
+- Internal updates.
+
+## 0.31.4 - 2026-05-25
+### Fixed
+- Phan: Address `PhanPluginDuplicateConditionalNullCoalescing` violations. [#48887]
+
+## 0.31.3 - 2026-05-19
+### Changed
+- Internal updates.
+
+## 0.31.2 - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## 0.31.1 - 2026-04-15
+### Changed
+- Update purchases endpoint from v1.1 /sites/$site/purchases to v1.2 /upgrades?site=$site. [#48035]
+
+## 0.31.0 - 2026-04-10
+### Added
+- Add GET endpoint for retrieving spam site referrers. [#47566]
+
 ## 0.30.9 - 2026-03-23
 ### Fixed
 - Hide stats column for non-public post types in the WP Admin post list. [#47704]

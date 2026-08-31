@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Tour Kit: drop the react-popper and @popperjs/core dependencies, which were only used by the now-removed tour UI. This unblocks the React 19 upgrade, since react-popper is archived and pinned to React 18.

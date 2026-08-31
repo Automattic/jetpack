@@ -54,14 +54,14 @@ function jetpack_masterbar_hide_profile_fields( $user ) {
 			var nameInfo                    = document.querySelector( '.user-first-name-wrap' ).closest( 'table' );
 			var nameInfoWpcomLink           = document.createElement( 'div' );
 				nameInfoWpcomLink.className = 'notice inline notice-large notice-warning';
-				nameInfoWpcomLink.innerHTML = '<?php echo wp_kses( $name_info_wpcom_link_message, $wp_kses_rule ); ?>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				nameInfoWpcomLink.innerHTML = '<?php echo wp_kses( $name_info_wpcom_link_message, $wp_kses_rule ); ?>';
 			nameInfo.parentNode.insertBefore( nameInfoWpcomLink, nameInfo.nextSibling );
 
 			// Contact Info.
 			var contactInfo                    = document.querySelector( '.user-email-wrap' ).closest( 'table' );
 			var contactInfoWpcomLink           = document.createElement( 'div' );
 				contactInfoWpcomLink.className = 'notice inline notice-large notice-warning';
-				contactInfoWpcomLink.innerHTML = '<?php echo wp_kses( $contact_info_wpcom_link_message, $wp_kses_rule ); ?>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				contactInfoWpcomLink.innerHTML = '<?php echo wp_kses( $contact_info_wpcom_link_message, $wp_kses_rule ); ?>';
 			contactInfo.parentNode.insertBefore( contactInfoWpcomLink, contactInfo.nextSibling );
 		});
 

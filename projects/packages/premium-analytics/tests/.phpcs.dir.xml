@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<ruleset>
+	<rule ref="Jetpack-Tests" />
+	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
+		<exclude name="VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable"/>
+	</rule>
+</ruleset>
