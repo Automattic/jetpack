@@ -24,7 +24,24 @@ export default function AiAnswersTab() {
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
 
-	const { isAiAnswersEnabled, isInstantSearchEnabled, setAiAnswersEnabled } = useSearchSettings();
+	const {
+		isAiAnswersEnabled,
+		isInstantSearchEnabled,
+		isAiMasterEnabled,
+		isAiAnswersSaved,
+		setAiAnswersEnabled,
+	} = useSearchSettings();
+
+	// While the master switch is off the reported value is gated to false, so show
+	// the saved choice instead of misreporting it back as off.
+	const isToggleChecked = isAiMasterEnabled ? isAiAnswersEnabled : isAiAnswersSaved;
+
+	// Locked while the master is off, matching the AI Features view: the saved
+	// choice is shown but not editable. With the master on but Instant Search
+	// off, the toggle stays usable only to turn an already-enabled feature off.
+	const isToggleDisabled =
+		! isAiMasterEnabled || ( ! isInstantSearchEnabled && ! isAiAnswersEnabled );
+	const isAiAnswersActive = isAiMasterEnabled && isAiAnswersEnabled && isInstantSearchEnabled;
 
 	const { run: sendToCart } = useProductCheckoutWorkflow( {
 		productSlug: 'jetpack_search',
@@ -94,7 +111,20 @@ export default function AiAnswersTab() {
 							className="jp-search-ai-answers-tab__settings-inner lg-col-span-8 md-col-span-6 sm-col-span-4"
 						>
 							{ isLoading && <p>{ __( 'Loading…', 'jetpack-search-pkg' ) }</p> }
-							{ supportsInstantSearch && ! isInstantSearchEnabled && (
+							{ supportsInstantSearch && ! isAiMasterEnabled && (
+								<Notice.Root intent="warning">
+									<Notice.Title>
+										{ __( 'Jetpack AI is turned off for this site.', 'jetpack-search-pkg' ) }
+									</Notice.Title>
+									<Notice.Description>
+										{ __(
+											'Your AI Answers setting is saved and will apply again when AI is turned back on.',
+											'jetpack-search-pkg'
+										) }
+									</Notice.Description>
+								</Notice.Root>
+							) }
+							{ supportsInstantSearch && isAiMasterEnabled && ! isInstantSearchEnabled && (
 								<Notice.Root intent="warning">
 									<Notice.Title>
 										{ __(
@@ -109,10 +139,10 @@ export default function AiAnswersTab() {
 							) }
 							<ToggleControl
 								label={ __( 'Enable AI Answers', 'jetpack-search-pkg' ) }
-								checked={ isAiAnswersEnabled }
+								checked={ isToggleChecked }
 								onChange={ setAiAnswersEnabled }
 								className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"
-								disabled={ ! isInstantSearchEnabled && ! isAiAnswersEnabled }
+								disabled={ isToggleDisabled }
 							/>
 
 							{ ! isLoading && ! isUnavailable && (
@@ -124,13 +154,13 @@ export default function AiAnswersTab() {
 										onChange={ setContent }
 										placeholder={ DEFAULT_PERSONALITY }
 										rows={ 10 }
-										disabled={ isSaving || ! isAiAnswersEnabled || ! isInstantSearchEnabled }
+										disabled={ isSaving || ! isAiAnswersActive }
 									/>
 									<div className="jp-search-ai-answers-tab__actions">
 										<Button
 											variant="solid"
 											onClick={ savePersonality }
-											disabled={ isSaving || ! isAiAnswersEnabled || ! isInstantSearchEnabled }
+											disabled={ isSaving || ! isAiAnswersActive }
 										>
 											{ isSaving ? savingLabel : saveLabel }
 										</Button>

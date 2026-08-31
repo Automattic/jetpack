@@ -1,11 +1,7 @@
 /**
- * Pure geometry for the calendar heatmap widgets.
- *
- * Given the tile's available width and height, this decides the cell size, how
- * many week columns to render, and the exact pixel rectangle the heatmap should
- * occupy. It is intentionally dependency-free (no React, no charts imports) so it
- * can be lifted into `@automattic/charts` later; the adaptive component owns the
- * trimming policy around it.
+ * Pure geometry for the calendar heatmap widgets: given the tile's width/height,
+ * decides cell size, column count, and the exact heatmap rectangle. Deliberately
+ * dependency-free (no React/charts) so it can move into `@automattic/charts` later.
  */
 
 export type CalendarHeatmapLayoutInput = {
@@ -61,14 +57,9 @@ const isPositiveFinite = ( value: number ): boolean => Number.isFinite( value ) 
 const isNonNegativeFinite = ( value: number ): boolean => Number.isFinite( value ) && value >= 0;
 
 /**
- * Allowance for the chart's weekday-label column.
- *
- * The chart lays that column out as an `auto` grid track sized by its own label
- * text, so the real width is not knowable before layout. Measured at 27.34px —
- * the widest label ("Wed") at the track's 11px font plus its 4px inline-end
- * padding — rounded up here for the font differences across platforms. The
- * labels come from `format( date, 'EEE' )` with no locale, so they are always
- * English and do not vary by site language.
+ * Allowance for the chart's weekday-label column (an `auto` grid track sized by
+ * its own text). Measured at 27.34px — widest label "Wed" at 11px font + 4px
+ * padding — rounded up for font variance across platforms; labels are locale-invariant.
  */
 const ROW_LABEL_WIDTH = 32;
 const COMPACT_CELL_SIZE = 11;
@@ -87,21 +78,15 @@ export type FitWeekColumnsInput = {
 };
 
 /**
- * How many whole week columns a width can draw at a fixed cell size. The
- * arithmetic is shared; each caller keeps its own cell metrics.
- *
- * A column costs a cell plus a gap: the grid is `auto repeat(n, …)`, so n columns
- * carry n gaps, counting the one before the first column.
- * `computeCalendarHeatmapLayout` keeps its own arithmetic. It sizes the cell from
- * the height first, so it cannot start from a fixed cell, and it counts n-1 gaps
- * — a different model of the same grid, so the two are not interchangeable.
+ * How many whole week columns a width can draw at a fixed cell size (grid is
+ * `auto repeat(n, …)`, so n columns carry n gaps). Not interchangeable with
+ * `computeCalendarHeatmapLayout`, which sizes from height first and counts n-1 gaps.
  */
 export function fitWeekColumns( input: FitWeekColumnsInput ): number {
 	const { availWidth, cellWidth, cellGap, minColumns = 0 } = input;
 
-	// Normalized rather than trusted: `minColumns` is the one input that leaves
-	// through both branches, so a NaN or fractional value would reach the caller
-	// and size a data request with it.
+	// Normalized rather than trusted: `minColumns` leaves through both branches, so a
+	// NaN or fractional value would reach the caller and size a data request with it.
 	const floorColumns = isNonNegativeFinite( minColumns ) ? Math.floor( minColumns ) : 0;
 
 	// Guard every metric the arithmetic touches: an unchecked one divides by zero
@@ -121,11 +106,9 @@ export function fitWeekColumns( input: FitWeekColumnsInput ): number {
 }
 
 /**
- * How many compact cells a width can hold, ignoring how many the range has.
- *
- * Compact cell dimensions provide a stable proxy for the most week columns worth
- * planning for at this width. Adaptive cells can shrink further in very short
- * tiles, so this is a request-sizing heuristic rather than a layout invariant.
+ * How many compact cells a width can hold, ignoring how many the range has —
+ * a stable proxy for request sizing. Adaptive cells can shrink further in very
+ * short tiles, so this is a heuristic, not a layout invariant.
  */
 export function compactCalendarHeatmapCapacity( availWidth: number ): number {
 	return fitWeekColumns( {
@@ -135,19 +118,16 @@ export function compactCalendarHeatmapCapacity( availWidth: number ): number {
 	} );
 }
 
-const CELL_GAP = 4;
-const HEADER_HEIGHT = 16;
+// Exported for widgets that mirror the chart's non-compact grid geometry (e.g.
+// deriving a cell height from a measured tile), so the metrics are stated once.
+export const CELL_GAP = 4;
+export const HEADER_HEIGHT = 16;
 const DEFAULT_LEGEND_HEIGHT = 44;
 
 /**
- * Computes the calendar-heatmap layout for a tile.
- *
- * Height drives the cell size; width drives the column count. The grid fills the
- * tile in both directions: the cells take the height, and the width left over by
- * an integer column count goes back into the cells rather than showing as a gap.
- * `aspectRatio` therefore sets the cell's shape before that last adjustment, not
- * after. When even the minimum column count will not fit, the whole cell is scaled
- * down instead of scrolling.
+ * Computes the calendar-heatmap layout for a tile. Height drives cell size,
+ * width drives column count, and leftover width from an integer column count
+ * goes back into the cells rather than showing as a gap. Never scrolls — an unfit minimum shrinks the cell instead.
  */
 export function computeCalendarHeatmapLayout(
 	input: CalendarHeatmapLayoutInput
@@ -177,9 +157,8 @@ export function computeCalendarHeatmapLayout(
 
 	const safeMaxCellHeight = isPositiveFinite( maxCellHeight ) ? maxCellHeight : Infinity;
 
-	// The rows always take the height (minus overhead and inter-row gaps), whatever
-	// the width turns out to allow — a narrow tile must not leave the lower two
-	// thirds of a tall widget empty.
+	// The rows always take the height (minus overhead and gaps), whatever the width
+	// allows — a narrow tile must not leave the lower two-thirds of a tall widget empty.
 	const heightForRows = availHeight - HEADER_HEIGHT - legendHeight - ( rows - 1 ) * CELL_GAP;
 	const cellHeight = Math.max( 0, Math.min( heightForRows / rows, safeMaxCellHeight ) );
 
@@ -203,13 +182,9 @@ export function computeCalendarHeatmapLayout(
 		dataColumns === undefined ? fitColumns : Math.min( fitColumns, dataColumns )
 	);
 
-	// The width is what limited the column count whenever the grid draws at least as
-	// many columns as the target cell would fit — including the narrow tile forced up
-	// to `minColumns`. Then the columns share out the whole width: an integer count
-	// otherwise leaves up to a cell of it as a band at the edge, and a tile too narrow
-	// for the minimum needs the cells narrower than the ratio rather than shorter than
-	// the tile. A grid trimmed to its data keeps the ratio instead, or a few weeks
-	// would stretch across the whole tile.
+	// Width-limited (columns >= fitColumns, incl. minColumns forcing) shares leftover
+	// width across cells, which can widen past the ratio; data-limited (fewer weeks
+	// than fit) keeps the exact ratio so a short range doesn't stretch to fill the tile.
 	const cellWidth =
 		columns >= fitColumns
 			? Math.max( 0, ( availWidth - ROW_LABEL_WIDTH - ( columns - 1 ) * CELL_GAP ) / columns )

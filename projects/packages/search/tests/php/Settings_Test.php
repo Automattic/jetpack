@@ -13,6 +13,13 @@ use Automattic\Jetpack\Search\TestCase as Search_TestCase;
  * Unit tests for the Settings class.
  */
 class Settings_Test extends Search_TestCase {
+	use Toggles_Ai_Master;
+
+	public function tearDown(): void {
+		$this->remove_ai_master_filters();
+		parent::tearDown();
+	}
+
 	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();
 		// Instantiating Settings hooks settings_register onto admin_init and
@@ -28,6 +35,35 @@ class Settings_Test extends Search_TestCase {
 		$setting = $registered[ Options::OPTION_PREFIX . 'ai_answers_enabled' ];
 		$this->assertEquals( 'boolean', $setting['type'] );
 		$this->assertFalse( $setting['default'] );
+	}
+
+	public function test_ai_answers_setting_persists_while_the_ai_master_is_off() {
+		// The AI feature-settings endpoint writes feature choices even while the
+		// master is off so they survive it; this option follows the same contract
+		// as the other AI feature options. Enforcement lives in is_enabled().
+		$this->turn_ai_master_off();
+
+		update_option( Options::OPTION_PREFIX . 'ai_answers_enabled', true );
+
+		$this->assertTrue( (bool) get_option( Options::OPTION_PREFIX . 'ai_answers_enabled', false ) );
+		$this->assertFalse( AI_Answers::is_enabled() );
+	}
+
+	public function test_ai_answers_setting_can_still_be_turned_off_while_the_ai_master_is_off() {
+		update_option( Options::OPTION_PREFIX . 'ai_answers_enabled', true );
+		$this->turn_ai_master_off();
+
+		update_option( Options::OPTION_PREFIX . 'ai_answers_enabled', false );
+
+		$this->assertFalse( (bool) get_option( Options::OPTION_PREFIX . 'ai_answers_enabled', false ) );
+	}
+
+	public function test_ai_answers_setting_can_be_turned_on_while_the_ai_master_is_on() {
+		$this->turn_ai_master_on();
+
+		update_option( Options::OPTION_PREFIX . 'ai_answers_enabled', true );
+
+		$this->assertTrue( (bool) get_option( Options::OPTION_PREFIX . 'ai_answers_enabled', false ) );
 	}
 
 	public function test_settings_register_registers_result_format() {

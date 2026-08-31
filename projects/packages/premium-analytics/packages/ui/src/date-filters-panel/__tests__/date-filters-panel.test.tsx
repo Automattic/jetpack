@@ -1,4 +1,6 @@
-import { act, render, screen } from '@testing-library/react';
+import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
+import { DETAIL_SURFACE_PRESETS } from '@jetpack-premium-analytics/datetime';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateFiltersPanel } from '../date-filters-panel';
 import type { ComponentProps } from 'react';
@@ -72,6 +74,20 @@ function renderPanel( props: Partial< ComponentProps< typeof DateFiltersPanel > 
 }
 
 describe( 'DateFiltersPanel', () => {
+	// The control follows the surface's declared scope rather than a prop, so a
+	// header can never offer a comparison the widgets below are stripping.
+	it( 'offers the comparison control by default', () => {
+		renderPanel();
+
+		expect( screen.getByRole( 'button', { name: 'Compare' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides the comparison control on a surface that offers none', () => {
+		render( <ReportScopeProvider offersComparison={ false }>{ panel() }</ReportScopeProvider> );
+
+		expect( screen.queryByRole( 'button', { name: 'Compare' } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'publishes the full-labels row width on its root', () => {
 		mockContainerResize();
 		const { container } = renderPanel();
@@ -89,7 +105,7 @@ describe( 'DateFiltersPanel', () => {
 		const { resizeTo } = mockContainerResize();
 		renderPanel();
 
-		expect( screen.getByText( 'Last 30 days' ) ).toBeInTheDocument();
+		expect( screen.getByText( '30 days' ) ).toBeInTheDocument();
 
 		resizeTo( mockFullRowWidth - 100 );
 
@@ -104,7 +120,7 @@ describe( 'DateFiltersPanel', () => {
 		resizeTo( mockFullRowWidth + 100 );
 
 		expect( screen.queryByText( '30D' ) ).not.toBeInTheDocument();
-		expect( screen.getByText( 'Last 30 days' ) ).toBeInTheDocument();
+		expect( screen.getByText( '30 days' ) ).toBeInTheDocument();
 	} );
 
 	it( 'subtracts the reserved share from an external measure', () => {
@@ -173,9 +189,8 @@ describe( 'DateFiltersPanel', () => {
 		);
 	} );
 
-	// The custom trigger used to keep labelling itself with the range it held
-	// before the preset took over, putting two different ranges on screen at
-	// once (WOOA7S-1936).
+	// The custom trigger used to keep showing the pre-preset range, putting two
+	// different ranges on screen at once (WOOA7S-1936).
 	it( 'drops the custom range from the trigger once a preset takes over', () => {
 		mockContainerResize();
 		const customRange = {
@@ -203,5 +218,27 @@ describe( 'DateFiltersPanel', () => {
 		);
 
 		expect( screen.getByRole( 'button', { name: 'Custom' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the detail surface: all time first, no custom trigger', () => {
+		mockContainerResize();
+		renderPanel( {
+			presetIds: DETAIL_SURFACE_PRESETS,
+			withCustomRange: false,
+			presetId: 'all-time',
+			appliedPresetId: 'all-time',
+		} );
+
+		const toolbar = screen.getByRole( 'toolbar', { name: 'Date range' } );
+		const pills = within( toolbar ).getAllByRole( 'button' );
+		expect( pills.map( pill => pill.textContent ) ).toEqual( [
+			'All time',
+			'Last 24 hours',
+			'7 days',
+			'30 days',
+			'12 months',
+		] );
+		expect( pills[ 0 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+		expect( screen.queryByRole( 'button', { name: 'Custom' } ) ).not.toBeInTheDocument();
 	} );
 } );

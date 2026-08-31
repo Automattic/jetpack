@@ -1323,6 +1323,81 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * Place a fixture `search-blocks-editor/register-blocks.asset.php` at the
+	 * path `enqueue_editor_assets()` reads, without clobbering a real Build.
+	 * Returns a cleanup callback that restores the prior state (original
+	 * contents, or removal of anything this created).
+	 *
+	 * @param array $asset Asset array to write.
+	 * @return callable Cleanup callback.
+	 */
+	private function stub_editor_asset_file( array $asset ): callable {
+		$dir  = Package::get_installed_path() . 'build/search-blocks-editor';
+		$file = $dir . '/register-blocks.asset.php';
+
+		$created_dirs = array();
+		foreach ( array( Package::get_installed_path() . 'build', $dir ) as $d ) {
+			if ( ! is_dir( $d ) ) {
+				mkdir( $d );
+				$created_dirs[] = $d;
+			}
+		}
+
+		$had_file = file_exists( $file );
+		$original = $had_file ? file_get_contents( $file ) : null;
+		$export   = var_export( $asset, true );
+		file_put_contents( $file, "<?php return $export;\n" );
+
+		return static function () use ( $file, $had_file, $original, $created_dirs ) {
+			if ( $had_file ) {
+				file_put_contents( $file, $original );
+			} elseif ( file_exists( $file ) ) {
+				unlink( $file );
+			}
+			foreach ( array_reverse( $created_dirs ) as $d ) {
+				// Only directories this fixture created, and only while
+				// empty — scandir() returns just '.' and '..' for an empty
+				// dir, so guard on that instead of silencing rmdir().
+				if ( is_dir( $d ) && 2 === count( scandir( $d ) ) ) {
+					rmdir( $d );
+				}
+			}
+		};
+	}
+
+	/**
+	 * `enqueue_editor_assets()` must wire up `wp_set_script_translations()`
+	 * for the register-blocks bundle, or every `__()` call in the editor
+	 * settings panel silently renders in English regardless of site locale —
+	 * `block.json`'s `editorScript` auto-wiring doesn't apply here since this
+	 * bundle is enqueued manually, not declared per-block. Stub the asset
+	 * file so this passes in CI's PHP-only test job, which has no JS build.
+	 */
+	public function test_enqueue_editor_assets_sets_script_translations() {
+		$cleanup = $this->stub_editor_asset_file(
+			array(
+				'dependencies' => array(),
+				'version'      => 'test-editor-version',
+			)
+		);
+
+		$handle = 'jetpack-search-blocks-register';
+		try {
+			Search_Blocks::enqueue_editor_assets();
+
+			$this->assertTrue( wp_script_is( $handle, 'registered' ), "$handle must be registered before its translations can be set" );
+			$this->assertSame(
+				'jetpack-search-pkg',
+				wp_scripts()->registered[ $handle ]->textdomain,
+				'enqueue_editor_assets must call wp_set_script_translations() with the jetpack-search-pkg domain'
+			);
+		} finally {
+			wp_deregister_script( $handle );
+			$cleanup();
+		}
+	}
+
+	/**
 	 * The `wp_body_open` registration itself stays unconditional (SEARCH-299)
 	 * — the module gate lives inside the callback instead.
 	 */
@@ -1381,9 +1456,7 @@ class Search_Blocks_Test extends TestCase {
 	private function registered_script_modules(): array {
 		$modules  = wp_script_modules();
 		$property = new \ReflectionProperty( $modules, 'registered' );
-		// PHP 7.2–8.0 require setAccessible(true) to read a private prop via
-		// Reflection; 8.1 made it a no-op and 8.5 deprecates the call. Gate
-		// on the version so the package's PHP 7.2–8.5 matrix stays green.
+		// @todo Remove this call once we no longer need to support PHP <8.1.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$property->setAccessible( true );
 		}
@@ -3369,9 +3442,7 @@ class Search_Blocks_Test extends TestCase {
 	 */
 	private function invoke_protected( string $method, ...$args ) {
 		$ref = new \ReflectionMethod( Search_Blocks::class, $method );
-		// setAccessible() became a no-op in 8.1 and was deprecated in 8.5,
-		// but the package supports PHP 7.2+ where the call is still required
-		// for ReflectionMethod::invoke() to reach a protected method.
+		// @todo Remove this call once we no longer need to support PHP <8.1.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$ref->setAccessible( true );
 		}

@@ -174,7 +174,7 @@ function NewsletterPrePublishSettingsPanel( { accessLevel, showPreviewModal } ) 
 						{ __( 'Audience:', 'jetpack' ) }
 						{ accessLevel && (
 							<span className={ 'jetpack-subscribe-post-publish-panel__heading' }>
-								{ accessOptions[ accessLevel ].panelHeading }
+								{ accessOptions[ accessLevel ].label }
 							</span>
 						) }
 					</>

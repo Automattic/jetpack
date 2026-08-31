@@ -19,23 +19,33 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		pointsAreWallClocks,
 	}: {
 		metrics: {
 			key: string;
 			label: string;
 			value: number;
 			current: { date: Date; value: number }[];
+			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
+		pointsAreWallClocks?: boolean;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
-			data-metric-count={ metrics.length }
-			data-metric-label={ metrics[ 0 ]?.label }
-			data-metric-total={ String( metrics[ 0 ]?.value ) }
-			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
-			data-first-date={ metrics[ 0 ]?.current[ 0 ]?.date.toISOString() }
 			data-chart-type={ String( chartType ) }
+			data-wall-clocks={ String( pointsAreWallClocks ) }
+			data-metrics={ JSON.stringify(
+				metrics.map( metric => ( {
+					key: metric.key,
+					label: metric.label,
+					value: metric.value,
+					format: metric.dataFormat?.type,
+					values: metric.current.map( point => point.value ),
+					firstDate: metric.current[ 0 ]?.date.toISOString(),
+					days: metric.current.map( point => point.date.getDate() ),
+				} ) )
+			) }
 		/>
 	),
 } ) );
@@ -45,6 +55,22 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
+
+type ChartedMetric = {
+	key: string;
+	label: string;
+	value: number;
+	format?: string;
+	values: number[];
+	firstDate?: string;
+};
+
+/**
+ * Parse the mocked chart's serialized metric tabs.
+ */
+function chartedMetrics( chart: HTMLElement ): ChartedMetric[] {
+	return JSON.parse( chart.getAttribute( 'data-metrics' ) ?? '[]' );
+}
 
 // Raw `stats/post/{id}` shape: the daily view history as [date, views] pairs.
 const STATS_POST_RESPONSE = {
@@ -66,6 +92,16 @@ const WINDOW_PARAMS = {
 	post_id: 779,
 };
 
+// 28 days, the shortest window allowing a weekly interval: `WidgetRoot` coerces
+// an interval the range disallows away before the widget ever sees it.
+const WEEKLY_WINDOW_PARAMS = {
+	...DEFAULT_PARAMS,
+	from: '2026-06-22T00:00:00.000+08:00',
+	to: '2026-07-19T23:59:59.999+08:00',
+	interval: 'week',
+	post_id: 779,
+};
+
 describe( 'PostViewsWidget', () => {
 	beforeEach( () => {
 		// The data package's query client is a module-level singleton; drop its
@@ -80,14 +116,15 @@ describe( 'PostViewsWidget', () => {
 		render( <PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-metric-count', '1' );
-		expect( chart ).toHaveAttribute( 'data-metric-label', 'Views' );
+		const metrics = chartedMetrics( chart );
+		expect( metrics ).toHaveLength( 1 );
+		expect( metrics[ 0 ].label ).toBe( 'Views' );
 		// One point per calendar day of the 7-day window, zero-filled around the
 		// two in-window days; the 6/25 day falls outside the window.
-		expect( chart ).toHaveAttribute( 'data-values', '0,5,0,7,0,0,0' );
+		expect( metrics[ 0 ].values ).toEqual( [ 0, 5, 0, 7, 0, 0, 0 ] );
 		// The metric headline is the window total, and the chart type
 		// defaults to line.
-		expect( chart ).toHaveAttribute( 'data-metric-total', '12' );
+		expect( metrics[ 0 ].value ).toBe( 12 );
 		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
@@ -95,9 +132,8 @@ describe( 'PostViewsWidget', () => {
 	} );
 
 	it( 'anchors bucket days at site-local midnight so negative-offset sites keep the calendar day', async () => {
-		// A UTC-12 site: a date-only bucket key parsed as UTC midnight would
-		// render as the previous day once formatted in the site timezone. The
-		// point instant must be the key's site-local midnight instead.
+		// On a UTC-12 site, a date-only bucket key parsed as UTC midnight would
+		// render as the previous day once formatted in the site timezone.
 		const defaultSettings = getSettings();
 		setSettings( {
 			...defaultSettings,
@@ -111,23 +147,21 @@ describe( 'PostViewsWidget', () => {
 
 			const chart = await screen.findByTestId( 'metric-tabs-chart' );
 			// 2026-07-01 site-local midnight at UTC-12 is 2026-07-01T12:00:00Z.
-			expect( chart ).toHaveAttribute( 'data-first-date', '2026-07-01T12:00:00.000Z' );
+			expect( chartedMetrics( chart )[ 0 ].firstDate ).toBe( '2026-07-01T12:00:00.000Z' );
 		} finally {
 			setSettings( defaultSettings );
 		}
 	} );
 
-	it( 'buckets views into ISO weeks for the week granularity', async () => {
+	it( 'buckets views into ISO weeks when the page interval is weekly', async () => {
 		mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
 
-		render(
-			<PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS, granularity: 'week' } } />
-		);
+		render( <PostViewsWidget attributes={ { reportParams: WEEKLY_WINDOW_PARAMS } } /> );
 
-		// 2026-07-01 (Wed) → 2026-07-07 spans two ISO weeks: Mon 6/29 (5 + 7
-		// views) and Mon 7/6 (zero).
+		// 2026-06-22 → 2026-07-19 spans four ISO weeks: Mon 6/22 (9 views),
+		// Mon 6/29 (5 + 7), Mon 7/6 and Mon 7/13 (zero).
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-values', '12,0' );
+		expect( chartedMetrics( chart )[ 0 ].values ).toEqual( [ 9, 12, 0, 0 ] );
 	} );
 
 	it( 'draws bars when the chartType attribute says so', async () => {
@@ -147,10 +181,8 @@ describe( 'PostViewsWidget', () => {
 				attributes={ {
 					reportParams: {
 						...WINDOW_PARAMS,
-						// Comparison params pass through the post detail URL untouched
-						// (dashboard state survives the round trip), so a widget
-						// receiving them must neither draw an overlay nor change the
-						// primary series — the page renders no comparison.
+						// Comparison params pass through the post detail URL untouched, so
+						// a widget receiving them must still render no comparison.
 						comp: '1',
 						compare_from: '2026-06-24T00:00:00.000+08:00',
 						compare_to: '2026-06-30T23:59:59.999+08:00',
@@ -160,9 +192,10 @@ describe( 'PostViewsWidget', () => {
 		);
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-metric-count', '1' );
-		expect( chart ).toHaveAttribute( 'data-metric-label', 'Views' );
-		expect( chart ).toHaveAttribute( 'data-values', '0,5,0,7,0,0,0' );
+		const metrics = chartedMetrics( chart );
+		expect( metrics ).toHaveLength( 1 );
+		expect( metrics[ 0 ].label ).toBe( 'Views' );
+		expect( metrics[ 0 ].values ).toEqual( [ 0, 5, 0, 7, 0, 0, 0 ] );
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 	} );
 

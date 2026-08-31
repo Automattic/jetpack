@@ -12,6 +12,7 @@ import { store as noticesStore } from '@wordpress/notices';
  * Internal dependencies
  */
 import { notSpam, spam } from '../../icons/index.ts';
+import { deleteResponse, saveResponse } from '../../response-records.ts';
 import { store as dashboardStore } from '../../store/index.js';
 import { getFormsMenuBadgeSlug, getMenuBadgeCount, withTimeout } from '../utils.js';
 import { optimisticallyUpdateUnreadCount, processStatusChange } from './process-status-change';
@@ -251,8 +252,7 @@ export const markAsSpamAction: Action = {
 			const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 				items,
 				newStatus: 'spam',
-				apiCall: ( id: number ) =>
-					saveEntityRecord( 'postType', 'feedback', { id, status: 'spam' } ),
+				apiCall: ( id: number ) => saveResponse( saveEntityRecord, { id, status: 'spam' } ),
 				editEntityRecord,
 				updateCountsOptimistically,
 				queryParams,
@@ -393,8 +393,7 @@ export const markAsNotSpamAction: Action = {
 			const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 				items,
 				newStatus: 'publish',
-				apiCall: ( id: number ) =>
-					saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } ),
+				apiCall: ( id: number ) => saveResponse( saveEntityRecord, { id, status: 'publish' } ),
 				editEntityRecord,
 				updateCountsOptimistically,
 				queryParams,
@@ -524,8 +523,7 @@ export const restoreAction: Action = {
 			const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 				items,
 				newStatus,
-				apiCall: ( id: number ) =>
-					saveEntityRecord( 'postType', 'feedback', { id, status: newStatus } ),
+				apiCall: ( id: number ) => saveResponse( saveEntityRecord, { id, status: newStatus } ),
 				editEntityRecord,
 				updateCountsOptimistically,
 				queryParams,
@@ -657,7 +655,7 @@ export const moveToTrashAction: Action = {
 				items,
 				newStatus: 'trash',
 				apiCall: ( id: number ) =>
-					deleteEntityRecord( 'postType', 'feedback', id, {}, { throwOnError: true } ),
+					deleteResponse( deleteEntityRecord, id, {}, { throwOnError: true } ),
 				editEntityRecord,
 				updateCountsOptimistically,
 				queryParams,
@@ -775,7 +773,7 @@ export const deleteAction: Action = {
 
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
-				deleteEntityRecord( 'postType', 'feedback', id, { force: true }, { throwOnError: true } )
+				deleteResponse( deleteEntityRecord, id, { force: true }, { throwOnError: true } )
 			)
 		);
 

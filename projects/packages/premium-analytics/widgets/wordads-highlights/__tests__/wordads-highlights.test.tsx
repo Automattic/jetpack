@@ -17,9 +17,8 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-// total_earnings − total_amount_owed = paid, so Earnings/$1,200.00,
-// Paid/$900.00, Outstanding/$300.00 pin both the field wiring and the
-// subtraction.
+// total_earnings − total_amount_owed = paid; these fixture values pin both
+// the field wiring and the subtraction (Earnings $1,200, Paid $900, Outstanding $300).
 const EARNINGS_RESPONSE = {
 	earnings: {
 		total_earnings: 1200,
@@ -52,9 +51,8 @@ describe( 'WordAdsHighlightsWidget', () => {
 
 		await expect( screen.findByText( 'Earnings' ) ).resolves.toBeInTheDocument();
 
-		// Tiles render in a fixed order: Earnings, Paid, Outstanding. Reading the
-		// currency values in document order pins the field-to-tile wiring and the
-		// paid subtraction (1200 − 300 = 900).
+		// Tiles render in a fixed order (Earnings, Paid, Outstanding); reading values
+		// in document order pins the field-to-tile wiring and the subtraction.
 		const values = screen.getAllByText( /^\$[\d,]+\.\d{2}$/ ).map( el => el.textContent );
 		expect( values ).toEqual( [ '$1,200.00', '$900.00', '$300.00' ] );
 	} );
@@ -89,9 +87,8 @@ describe( 'WordAdsHighlightsWidget', () => {
 	} );
 
 	it( 'renders a zero balance as $0.00 rather than an empty state', async () => {
-		// A site that just enabled WordAds: the endpoint reports no totals, which
-		// the sanitizer resolves to real zeros. That is data — a zero balance is a
-		// valid amount, not an absence of earnings.
+		// A newly enabled site: the endpoint reports no totals, which the sanitizer
+		// resolves to real zeros — a valid amount, not an absence of earnings.
 		mockApiFetch.mockResolvedValue( { earnings: {} } );
 
 		render( <WordAdsHighlightsWidget attributes={ {} } /> );
@@ -102,16 +99,13 @@ describe( 'WordAdsHighlightsWidget', () => {
 		expect( values ).toEqual( [ '$0.00', '$0.00', '$0.00' ] );
 	} );
 
-	it( 'shows the loading overlay while the earnings request is pending', () => {
+	it( 'shows the loading skeleton while the earnings request is pending', () => {
 		// A promise that never settles keeps the query in its loading state.
 		mockApiFetch.mockReturnValue( new Promise( () => {} ) );
 
-		const { container } = render( <WordAdsHighlightsWidget attributes={ {} } /> );
+		render( <WordAdsHighlightsWidget attributes={ {} } /> );
 
-		// WidgetLoadingOverlay renders a WP Spinner (role="presentation", no
-		// accessible name), so the class is the only stable handle for it.
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- No accessible role/text on the spinner to query.
-		expect( container.querySelector( '.components-spinner' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Earnings' ) ).not.toBeInTheDocument();
 	} );
 

@@ -66,10 +66,12 @@ describe( 'dashboard route.beforeLoad', () => {
 		await expect( beforeLoad( settledSearch ) ).rejects.toMatchObject( { to: '/connect' } );
 	} );
 
-	it( 'redirects to /syncing before the initial sync finishes', async () => {
+	// Only the store section's data waits on the analytics sync, so an unfinished
+	// sync must not hold back the site sections.
+	it( 'loads the dashboard before the initial sync finishes', async () => {
 		( isPremiumAnalyticsInitialSyncFinished as jest.Mock ).mockReturnValueOnce( false );
 
-		await expect( beforeLoad( settledSearch ) ).rejects.toMatchObject( { to: '/syncing' } );
+		await expect( beforeLoad( settledSearch ) ).resolves.toBeUndefined();
 	} );
 
 	it( 're-seeds the date params when they are missing', async () => {
@@ -87,10 +89,8 @@ describe( 'dashboard route.beforeLoad', () => {
 	} );
 
 	it( 'registers dashboardSection even when a detail-page entry already registered widgetModule', async () => {
-		// Regression for the empty edit-mode dashboard: reloading on a detail
-		// page registered `widgetModule` alone, and the dashboard's old guard
-		// then skipped `dashboardSection` entirely, so the stage resolved zero
-		// sections and force-opened an empty edit-mode canvas.
+		// Regression: reloading on a detail page had registered `widgetModule` alone,
+		// so the old guard skipped `dashboardSection`, force-opening an empty canvas.
 		mockGetEntityConfig.mockImplementation( ( _kind: string, name: string ) =>
 			name === 'widgetModule' ? {} : undefined
 		);

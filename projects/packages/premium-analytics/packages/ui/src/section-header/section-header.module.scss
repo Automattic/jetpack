@@ -4,7 +4,7 @@ $section-header-stacked-max-inline-size: 720px;
 
 // Floor under the truncating title, so the controls cannot squeeze it into
 // nothing. Tunable.
-$section-header-title-min-inline-size: 200px;
+$section-header-title-min-inline-size: 320px;
 
 /*
  * Carries the query and nothing else: a container cannot answer a query about
@@ -20,21 +20,18 @@ $section-header-title-min-inline-size: 200px;
 	display: grid;
 
 	/*
-	 * Row one is the title and the controls; the subtitle spans a row of its own
-	 * below. The controls track is capped at its max-content, so the controls
-	 * render at their natural width and a long title truncates instead of
-	 * costing them labels; the title track takes what is left, floored so the
-	 * controls cannot squeeze it into nothing. Only once the title sits at that
-	 * floor does the controls track compress, and the panel adapts internally.
-	 * The subtitle crosses the flexible track, so its length cannot inflate the
-	 * controls track either.
+	 * The title and the controls share one row. The controls track is capped at
+	 * its max-content, so the controls render at their natural width and a long
+	 * title truncates instead of costing them labels; the title track takes what
+	 * is left, floored so the controls cannot squeeze it into nothing. Only once
+	 * the title sits at that floor does the controls track compress, and the
+	 * panel adapts internally.
 	 */
 	grid-template-columns: minmax($section-header-title-min-inline-size, 1fr) minmax(0, max-content);
 	align-items: center;
 
-	// Column gap only: the rows carry their spacing as their own padding, so
-	// the condensing subtitle can take it along. A row gap belongs to the
-	// track and would stay behind as a band under the title.
+	// Column gap only: in the stacked layout the controls row carries its
+	// spacing as its own padding.
 	column-gap: var(--wpds-dimension-gap-sm);
 	row-gap: 0;
 
@@ -43,26 +40,17 @@ $section-header-title-min-inline-size: 200px;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
-
-	// A row wrapper rather than the text itself: condensing animates the grid
-	// row, and the padding is the row spacing it gives back on the way out.
-	.subtitleRow {
-		grid-column: 1 / -1;
-		padding-block-start: var(--wpds-dimension-gap-sm);
-	}
 }
 
 /*
- * Condenses the header into a compact bar as it pins: the subtitle fades and
- * gives its row back, and the title drops a step on the type scale.
+ * Condenses the header into a compact bar as it pins: the title drops a step
+ * on the type scale.
  *
  * The surface, not this component, knows where the header pins, so it opts in
  * by publishing a `--section-header-pin` view timeline whose `exit` phase
  * opens at the pin point (see the dashboard's pin marker in
  * `routes/dashboard/stage.module.scss`). Progress-driven, so it follows the
- * scroll in both directions; the short range bounds the per-frame layout cost
- * of animating the grid row, and `fr` interpolation collapses the row without
- * measuring the subtitle text.
+ * scroll in both directions.
  *
  * The @supports gate is load-bearing: without scroll-driven animation
  * support, the `animation` shorthand would run as a 0s time animation and its
@@ -73,19 +61,6 @@ $section-header-title-min-inline-size: 200px;
 @supports (animation-timeline: --section-header-pin) {
 
 	.condensing {
-
-		.subtitleRow {
-			display: grid;
-			grid-template-rows: 1fr;
-			animation: condense-subtitle linear both;
-			animation-timeline: --section-header-pin;
-			animation-range: exit;
-
-			> .subtitle {
-				min-block-size: 0;
-				overflow: hidden;
-			}
-		}
 
 		// Buys no height: the row is floored by the date controls beside it.
 		// What changes is what the pinned band reads as.
@@ -99,19 +74,9 @@ $section-header-title-min-inline-size: 200px;
 	// Scroll-driven, but still chrome moving under the reader.
 	@media (prefers-reduced-motion: reduce) {
 
-		.condensing .subtitleRow,
 		.condensing .title {
 			animation: none;
 		}
-	}
-}
-
-@keyframes condense-subtitle {
-
-	to {
-		grid-template-rows: 0fr;
-		opacity: 0;
-		padding-block-start: 0;
 	}
 }
 
@@ -162,16 +127,9 @@ $section-header-title-min-inline-size: 200px;
 		}
 	}
 
-	// One column, so source order would leave the controls between the title and
-	// the subtitle describing it.
-	.subtitleRow {
-		order: 1;
-	}
-
-	// Last row, reading from the same edge as the title. A row of its own now,
-	// so it carries its row spacing as padding the way the subtitle does.
+	// A row of its own now, reading from the same edge as the title, so it
+	// carries its row spacing as padding.
 	.controls {
-		order: 2;
 		justify-content: flex-start;
 		padding-block-start: var(--wpds-dimension-gap-sm);
 

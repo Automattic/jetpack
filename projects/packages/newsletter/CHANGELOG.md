@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.7] - 2026-08-25
+### Changed
+- Update dependencies. [#51423]
+
+## [0.12.6] - 2026-08-20
+### Changed
+- Update dependencies. [#51423]
+
+## [0.12.5] - 2026-08-20
+### Changed
+- Update package dependencies. [#51190] [#51399]
+
+### Fixed
+- Make newsletter settings save feedback consistent and allow sender settings to save with Enter. [#51261]
+- Newsletter: Fix a fatal error on the settings page caused by Gutenberg removing a private API that DataViews toggle and radio fields relied on. [#51363]
+- Normalize spacing in Newsletter settings cards. [#51264]
+
 ## [0.12.4] - 2026-08-10
 ### Changed
 - Update package dependencies. [#50509] [#51008]
@@ -319,6 +336,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.12.7]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.6...v0.12.7
+[0.12.6]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.5...v0.12.6
+[0.12.5]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.4...v0.12.5
 [0.12.4]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.3...v0.12.4
 [0.12.3]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.2...v0.12.3
 [0.12.2]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.1...v0.12.2

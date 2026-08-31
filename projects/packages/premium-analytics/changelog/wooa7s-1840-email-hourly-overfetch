@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Email timeline: request the smallest hourly window the endpoint can serve and trim the chart and totals to the selected window.

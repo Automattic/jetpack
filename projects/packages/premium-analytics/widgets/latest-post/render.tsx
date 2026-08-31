@@ -4,11 +4,12 @@
 import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	PostHighlightCard,
+	type PostHighlightCardMetric,
+	PostHighlightCardSkeleton,
+	type ReportParamsFieldAttributes,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
-	type PostHighlightCardMetric,
-	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -26,10 +27,6 @@ type LatestPostRenderAttributes = LatestPostAttributes & Partial< ReportParamsFi
 type LatestPostWidgetProps = WidgetRenderProps< LatestPostRenderAttributes >;
 
 /**
- * Fetches the site's latest post (with its metrics) through `useLatestPost` and
- * hands it to the shared `PostHighlightCard`, with loading, error, and empty
- * states handled by `<WidgetState>`.
- *
  * Every tile is a lifetime total, so no tile carries an aggregation note.
  */
 function LatestPostReport() {
@@ -71,6 +68,7 @@ function LatestPostReport() {
 				icon: postList,
 				description: __( 'Publish a post to see its stats here.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <PostHighlightCardSkeleton /> }
 		>
 			{ post && (
 				<PostHighlightCard

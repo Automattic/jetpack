@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Deprecate Jetpack::get_stat_data() and Jetpack::check_identity_crisis() in favor of their Connection package equivalents.

@@ -10,6 +10,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
@@ -47,6 +48,7 @@ class WPCOM_REST_API_V2_Endpoint_Agent_Guidelines_AI_Test extends Jetpack_REST_T
 		$this->deactivate_ai_module_for_test();
 		remove_filter( 'jetpack_ai_enabled', '__return_false' );
 		remove_filter( 'jetpack_ai_enabled', '__return_true' );
+		Constants::clear_single_constant( 'WPCOM_IS_VIP_ENV' );
 
 		parent::tear_down();
 	}
@@ -129,6 +131,41 @@ class WPCOM_REST_API_V2_Endpoint_Agent_Guidelines_AI_Test extends Jetpack_REST_T
 			self::ROUTE,
 			$routes,
 			'The suggest-guidelines route must not register when Jetpack AI is disabled.'
+		);
+	}
+
+	public function test_route_registers_on_vip_site() {
+		/*
+		 * WordPress VIP sites define WPCOM_IS_VIP_ENV, which
+		 * is_enabled_for_content_guidelines() accepts as a supported platform —
+		 * no jetpack_ai_enabled filter needed.
+		 */
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+
+		$routes = $this->register_routes_on_fresh_server();
+
+		$this->assertArrayHasKey(
+			self::ROUTE,
+			$routes,
+			'The suggest-guidelines route must register on a WordPress VIP site by default.'
+		);
+	}
+
+	public function test_route_absent_on_vip_site_when_ai_disabled() {
+		/*
+		 * VIP forces jetpack_ai_enabled off in Jetpack Private Mode (default on
+		 * non-production environments) — the platform default must not override
+		 * that site-wide disable.
+		 */
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		$routes = $this->register_routes_on_fresh_server();
+
+		$this->assertArrayNotHasKey(
+			self::ROUTE,
+			$routes,
+			'The suggest-guidelines route must not register on a VIP site when Jetpack AI is disabled.'
 		);
 	}
 }

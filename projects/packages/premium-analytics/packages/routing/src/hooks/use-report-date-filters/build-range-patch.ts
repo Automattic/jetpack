@@ -3,12 +3,13 @@
  */
 import { resolveIntervalForRange, type ReportQueryParams } from '@jetpack-premium-analytics/data';
 import {
+	endOfDayTZ,
 	isSelectablePreset,
+	siteTimeZone,
 	type ComparisonPresetId,
 	type DateRange,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
-import { endOfDay } from 'date-fns';
 /**
  * Internal dependencies
  */
@@ -67,23 +68,21 @@ export function buildRangePatch( {
 
 	if ( nextRange?.from && nextRange.to ) {
 		/*
-		 * Preset and exact ranges are authoritative: rolling windows end at
-		 * the current time, not at a day boundary. Calendar and manual edits
-		 * stage midnight `to` dates, so only those are adjusted to the end of
-		 * the day.
+		 * Preset/exact ranges are authoritative and skip end-of-day adjustment;
+		 * calendar edits stage midnight `to`, adjusted to the *site's* end of day —
+		 * date-fns' bare `endOfDay` would use the browser's and stretch the range.
 		 */
 		const rangeFrom = encodeDateToSearchParam( nextRange.from );
 		const rangeTo = encodeDateToSearchParam(
-			exactRange || isSelectablePreset( nextPresetId ) ? nextRange.to : endOfDay( nextRange.to )
+			exactRange || isSelectablePreset( nextPresetId )
+				? nextRange.to
+				: endOfDayTZ( nextRange.to, siteTimeZone() )
 		);
 		patch.from = rangeFrom;
 		patch.to = rangeTo;
 
-		/*
-		 * The interval carries across the change and the new range's rules
-		 * decide: a bucket it still allows survives, one it does not coerces to
-		 * the finest allowed.
-		 */
+		// The interval carries across the change; the new range's rules decide
+		// whether it survives or coerces to the finest allowed.
 		patch.interval = resolveIntervalForRange(
 			nextPresetId,
 			rangeFrom,

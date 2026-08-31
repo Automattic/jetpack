@@ -388,6 +388,26 @@ class REST_Controller {
 			);
 		}
 
+		// AI Answers cannot be turned on while the site-wide Jetpack AI switch is
+		// off. Turning it off stays allowed, so a saved choice can still be cleared.
+		if ( true === $ai_answers_enabled && ! AI_Answers::is_master_enabled() ) {
+			return new WP_Error(
+				'rest_invalid_arguments',
+				esc_html__( 'AI Answers cannot be enabled while Jetpack AI is turned off for this site.', 'jetpack-search-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// AI Answers runs inside Instant Search, so enabling it requires Instant
+		// Search on — either already, or turned on by this same request.
+		if ( true === $ai_answers_enabled && true !== $instant_search_enabled && ! $this->search_module->is_instant_search_enabled() ) {
+			return new WP_Error(
+				'rest_invalid_arguments',
+				esc_html__( 'AI Answers cannot be enabled while Instant Search is off.', 'jetpack-search-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		// `experience` is the canonical source of truth and writes the legacy booleans in lockstep.
 		// Reject requests that mix it with any other settings field so callers don't silently
 		// lose those fields — the `experience` branch in update_settings() early-returns and
@@ -442,6 +462,8 @@ class REST_Controller {
 			'swap_classic_to_inline_search'        => $this->search_module->is_swap_classic_to_inline_search(),
 			'experience'                           => $this->search_module->get_experience(),
 			'ai_answers_enabled'                   => AI_Answers::is_enabled(),
+			'ai_answers_saved'                     => AI_Answers::is_saved_on(),
+			'ai_master_enabled'                    => AI_Answers::is_master_enabled(),
 			'search_suggestions_enabled'           => (bool) get_option( 'jetpack_search_suggestions_enabled', false ),
 			'override_woocommerce_search_template' => Search_Blocks::woocommerce_search_template_override_enabled(),
 		);

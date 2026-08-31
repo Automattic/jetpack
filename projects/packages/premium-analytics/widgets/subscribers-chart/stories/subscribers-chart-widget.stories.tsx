@@ -78,7 +78,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'Subscriber growth over time. The date range and previous-period comparison follow the dashboard picker; the "Group by" control is the `granularity` attribute and the "Chart type" control is the `chartType` attribute (both `relevance: \'high\'`), exposed by the widget host; which metric is plotted is the chart\'s own tab selection. When comparison is on, the previous period is overlaid as a same-colour dashed line and the headline shows the period-over-period delta. The Paid subscribers tab renders only when the site has paid subscribers. Data comes from `useStatsSubscribersReport`; in Storybook it is served by `registerReportMocks`.',
+					"Subscriber growth over time. The date range, previous-period comparison, and bucket size follow the dashboard controls; the \"Chart type\" control is the `chartType` attribute (`relevance: 'high'`), exposed by the widget host; which metric is plotted is the chart's own tab selection. When comparison is on, the previous period is overlaid as a same-colour dashed line and the headline shows the period-over-period delta. The Paid subscribers tab renders only when the site has paid subscribers. Data comes from `useStatsSubscribersReport`; in Storybook it is served by `registerReportMocks`.",
 			},
 		},
 	},
@@ -126,11 +126,6 @@ export const BarChartWithComparison: Story = {
 	decorators: [ withWidgetCanvas ],
 };
 
-/**
- * First load: the fetch is in flight, so the widget shows its loading state (the
- * metric tabs over the chart's loading overlay). The mock is forced to never
- * resolve for the duration of this story.
- */
 export const Loading: Story = {
 	render: () => renderSubscribersChartOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.

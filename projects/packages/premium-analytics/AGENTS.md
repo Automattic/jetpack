@@ -57,6 +57,18 @@ jetpack build --deps packages/premium-analytics
 wp-build-polyfills, assets) must already be built. `jetpack build --deps` builds
 them first — use it after merging trunk or when charts exports look stale.
 
+### Storybook serves the built artifact of some internal packages
+
+Storybook's Vite config maps bare `@jetpack-premium-analytics/*` imports to `src/`, but that only
+takes effect for packages whose `package.json` declares no `module` field (`datetime`,
+`formatters`, `icons`, `routing`). The rest — `data`, `externals`, `fields`, `init`, `site-sync`,
+`ui`, `widgets-toolkit` — point `module` at `build-module/index.mjs`, and Storybook loads that
+artifact instead, so an edit to their source is invisible there until it is rebuilt. A newly added
+export surfaces as `The requested module '…/build-module/index.mjs' does not provide an export
+named 'X'`, and a changed one silently renders the old behaviour. Run `pnpm run build` (or
+`jetpack build --deps packages/premium-analytics`) before trusting what Storybook shows for those
+packages.
+
 Add a route: create `routes/<name>/package.json` (with `route.path` + `route.page`) and a
 `stage.tsx` exporting `stage()`; rebuild — routes are auto-discovered.
 
@@ -121,22 +133,33 @@ and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the pa
 
 ### Route guards must use the shared site-readiness helpers
 
-Every route's `beforeLoad` that checks connection or sync state must call
+Every route's `beforeLoad` that checks connection state, and every sync check, must call
 `isPremiumAnalyticsSiteConnected()` / `isPremiumAnalyticsInitialSyncFinished()` from
 `routes/site-readiness.ts` — never read `getScriptData()?.connection?.connectionStatus?.isRegistered`
 or `getScriptData()?.premium_analytics?.initial_full_sync_finished` directly. Simple has no Jetpack
 connection, so a direct read silently evaluates to "not connected" there.
 
-That's more than one broken route: it's a redirect loop. `/connect` and `/syncing` already go
-through the shared helpers and treat Simple as connected and synced, so if a route added later
-skips the helpers, Simple hits that route, gets redirected to `/connect`, and `/connect` — seeing
-Simple as already connected — immediately redirects back to `/`. From the user's side this looks
-like "the page just bounces to the dashboard," with nothing in the console pointing at the cause.
-This shipped once (Automattic/jetpack#50266): the `/reports/$report` route was left reading script
-data directly when the other four routes were migrated to the shared helpers, so it fell out of
-sync with `/connect`'s guard and the two routes bounced traffic between each other on Simple.
+That's more than one broken route: it's a redirect loop. `/connect` already goes through the
+shared helper and treats Simple as connected, so if a route added later skips the helpers, Simple
+hits that route, gets redirected to `/connect`, and `/connect` — seeing Simple as already
+connected — immediately redirects back to `/`. From the user's side this looks like "the page just
+bounces to the dashboard," with nothing in the console pointing at the cause. This shipped once
+(Automattic/jetpack#50266): the `/reports/$report` route was left reading script data directly
+when the other four routes were migrated to the shared helpers, so it fell out of sync with
+`/connect`'s guard and the two routes bounced traffic between each other on Simple.
 
-Adding a new route with a connection/sync guard: grep `routes/` for
+### Initial analytics sync must not block rendering
+
+The initial analytics full sync must not gate routes, sections, or widgets. A section that depends
+on synchronized data declares `requires_sync` in its server-provided configuration; never infer
+that dependency from the section slug in the SPA.
+
+Monitor and start the sync from the dashboard stage whenever any available section requires it,
+independent of the active section. Do not start it when no available section requires it. Use
+`isPremiumAnalyticsInitialSyncFinished()` for readiness checks so WordPress.com Simple remains
+supported.
+
+Adding a new route with a connection guard: grep `routes/` for
 `isPremiumAnalyticsSiteConnected` first and copy that shape — don't re-derive the check from
 script data.
 
@@ -187,15 +210,6 @@ See Automattic/jetpack#50266 for the PR that established this contract.
   `@jetpack-premium-analytics/widgets-toolkit` instead. See `packages/externals/README.md`.
 
 ## Comments and documentation
-
-Code explains what; comments explain why. Keep them minimal.
-
-- Document non-obvious rules, constraints, invariants, risks, and workarounds — not names,
-  types, or signatures. Prefer a clearer name over an explanatory comment.
-- Private functions do not need a docstring by default. One sentence is usually enough.
-- Never invent rationale. Treat a stale comment as a bug: one that contradicts the code is
-  worse than no comment at all.
-- All source code comments must be in English.
 
 Load-bearing here and easy to delete by mistake: the `max = 0` semantics, the
 `undefined`-not-`0` comparison rules, `safeHttpUrl` guards (including the ones explaining why a
@@ -295,7 +309,7 @@ export default function MyWidget( {
 }: WidgetRenderProps< MyWidgetRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<MyWidgetInner max={ attributes.max } />
+			<MyWidgetInner view={ attributes.view } />
 		</WidgetRoot>
 	);
 }
@@ -312,7 +326,7 @@ latter's `[key: string]: never` index signature collapses composed host fields s
 Dashboard state is read inside the component wrapped by `<WidgetRoot>`:
 
 ```tsx
-function MyWidgetInner( { max }: { max?: number } ) {
+function MyWidgetInner( { view }: { view?: string } ) {
 	const { reportParams } = useWidgetRootContext();
 	// Fetch data with hooks that accept reportParams.
 }
@@ -366,6 +380,9 @@ as Storybook controls.
 UI. Widgets without mapped comparison rows omit the story and the `withComparison` control. Their
 `WidgetDashboardWithWidget` story should still pass comparison report params by default, so the
 widget is covered against crashing or inventing deltas when the host supplies comparison dates.
+A widget that hosts its own date control still injects `reportParams` — its stories start
+where the header control would — but passes them without comparison, because the widget
+scopes itself with `offersComparison={ false }`. See `.agents/rules/widgets.md`.
 
 The shared imports, helpers, and `meta`:
 
@@ -596,16 +613,17 @@ const items = report?.data?.[ 0 ]?.items ?? [];
 Date-range conversion (`from`/`to` → `period`/`end_date`/`days`) is handled inside
 the query factory — do not do it in the widget or the view hook.
 
-**`max` semantics**
+**Row count**
 
-`max = 0` means "all rows" — but only where the widget caps rows _after_ fetching,
-via `limitStatsRows()`. Use `slice( 0, max > 0 ? max : undefined )`, never
-`slice( 0, max )` (the latter returns an empty array when `max` is 0).
+Stats list widgets request `WIDGET_ROW_LIMIT` from
+`@jetpack-premium-analytics/widgets-toolkit`. Do not add per-widget defaults or
+user-editable row counts; report pages handle larger result sets with pagination.
+This rule covers Stats widgets only — the store widgets under
+`packages/widgets-toolkit/src/widgets/` predate it and set their own limits.
 
-Where `max` is instead passed straight to the endpoint as a request param, it is a
-page size and `0` carries no "all rows" meaning — clamp it to the widget's own
-default. `widgets/subscribers-list/render.tsx` is the current example: its
-`stats/followers` request is paginated, so it falls back to 6.
+In helpers that cap rows after fetching, `max = 0` means "all rows". Use
+`slice( 0, max > 0 ? max : undefined )`, not `slice( 0, max )`. Endpoint request
+parameters treat `max` as a page size, so `0` does not mean "all rows" there.
 
 **Loading / error / empty state**
 
@@ -619,11 +637,11 @@ interpolated into a shared frame) so translators see the whole sentence:
 
 ```tsx
 <WidgetState
-	isLoading={ isLoading }            // first load, no data yet
+	isLoading={ isLoading }            // nothing on screen answers the current params
 	isError={ isError }
 	isEmpty={ data.length === 0 }
-	// isFetching is optional: a background refetch shows a non-blocking busy overlay
-	// over the existing rows instead of hiding them.
+	// Optional: marks the widget busy while unchanged params revalidate.
+	isFetching={ isFetching }
 	error={ describeError( error, {
 		retryDescription: __( "We couldn't load search terms. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ),
 		onRetry: refetch,
@@ -634,10 +652,25 @@ interpolated into a shared frame) so translators see the whole sentence:
 </WidgetState>
 ```
 
-`<WidgetState>` derives one state (error → loading → empty → ready, plus a busy overlay while
-`isFetching` and data are shown) and swaps only the content area. Notes:
+`<WidgetState>` derives one state (error → loading → empty → ready) and swaps only the content
+area. Notes:
 
 - Expose `refetch` from the data/view hook so the error state's Retry can re-run the query.
+- The loading state defaults to `GenericSkeleton`. Pass a content-specific shape through
+  `renderLoading` when needed, and build new shapes on `SkeletonRoot`.
+- **Pass the hook's `isLoading` straight through — never `isLoading && ! hasData`.** The hooks
+  widen it to "nothing on screen answers the current params", which covers a range change: the
+  queries carry `placeholderData`, so the previous range's numbers stay mounted. A `&& ! hasData`
+  guard sees those and cancels the skeleton, leaving one period's figures under another period's
+  heading.
+- `isFetching` draws nothing — it only marks the widget `aria-busy`. A revalidation of unchanged
+  params leaves the right numbers on screen, and blanking them reports a refresh nobody asked for
+  (WOOA7S-1934). Nothing unmounts, so children keep their own state and keyboard focus.
+- Every other branch _does_ unmount the children, and a drill-down reaches the skeleton by
+  definition (it changes the params). `<WidgetState>` catches the focus that would otherwise fall
+  to `<body>` and parks it on its own root, so the next Tab continues from the widget instead of
+  the top of the page. Widgets need do nothing for this, but drill-down rows must be real
+  focusable controls for it to have anything to catch.
 - When a view hook masks `isError` (e.g. `rows.length === 0 && isError` to keep placeholder
   rows), gate `error` with the same predicate (`error: showError ? error : null`) so the two
   fields can't disagree.
@@ -731,11 +764,19 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
 - Widget title: use the framed widget host header via the widget definition/title/icon. Do not
   add a second in-widget `<Text variant="heading-md" render={ <h3 /> }>` title for framed Stats
   widgets.
-- View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }`
-- Leaderboard row height: custom labels should produce a stable 36px row height. For the common
-  `<Text>` label case, `padding: var(--wpds-dimension-padding-sm)` is enough when the text
-  line-height plus vertical padding yields 36px. Use `min-height: 36px` when the label content
-  or typography does not naturally produce that height.
+- View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }`.
+  `widgets/tags` is the one exception — it passes `useMultipliers: false` because compacting
+  ("1,240" → "1K") was reported as a data mismatch against the Jetpack Stats module it is read
+  beside (WOOA7S-2018). Report tables already print in full, so the widgets are the outliers;
+  whether the rest follow is a product call to raise, not a refactor to do. It is not free: the
+  leaderboard grid is `minmax(0, 1fr) auto`, so the wider value permanently takes width from the
+  label — at the 370px tile a long name ellipsizes where the compact form left it room.
+- Leaderboard rows: spread `buildLeaderboardRow()` into the chart entry — it carries the
+  drill-down `onClick`/`ariaLabel` that a bare `<LeaderboardRow>` label silently drops. Use
+  `<LeaderboardRow>` directly only outside a chart, as `widgets/tags` does for its drilled-in
+  member list. A hand-written copy drifts from the shared row box. `video-detail-embeds` is the
+  one exception, a plain list rather than a leaderboard, and matches the shared row's 36px height
+  and `padding-inline` by hand — not the rest of `.row`.
 - Loading / error / empty state: render through `<WidgetState>` (see "Loading / error / empty
   state" above), not `LeaderboardChart`'s `emptyStateText` or a hand-rolled `data.length === 0`
   branch. Empty uses a neutral glyph distinct from the error icon.

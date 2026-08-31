@@ -1,0 +1,24 @@
+// A sibling of `.jpb-overview` rather than a child: that element is a
+// two-column grid at >= 961px, so a third child would be auto-placed.
+.jpb-next-scheduled-backup {
+	// `Text` renders a `<span>`, and vertical margins do not apply to an
+	// inline box. `margin-block-end` still computes to 16px, so reading the
+	// computed style alone would say this was working.
+	display: block;
+
+	// And why the element stays a `<span>`: `@wordpress/ui`'s global-CSS
+	// defense is unlayered and matches `p` at (0,1,1), outranking a plain
+	// class selector and dropping this margin silently. 16px rather than
+	// legacy's 24px because the storage section below carries its own.
+	margin-block-end: 16px;
+
+	// Stands in for the line while the reads are in flight, so the storage
+	// section is not pushed down when they land. A sibling class rather than
+	// a descendant: the skeleton replaces this element, so the two are never
+	// in the DOM together.
+	&__placeholder {
+		block-size: 16px;
+		inline-size: 260px;
+		margin-block-end: 16px;
+	}
+}

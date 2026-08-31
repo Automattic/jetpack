@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Agents_Manager;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT;
 use Automattic\Jetpack\Constants;
 
 /**
@@ -19,7 +20,7 @@ class Agents_Manager {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.9.4';
+	const PACKAGE_VERSION = '0.10.0';
 
 	/**
 	 * Help Center URL for disconnected variants.
@@ -814,7 +815,7 @@ class Agents_Manager {
 	 */
 	public function register_rest_api() {
 		( new WP_REST_Agents_Manager_Persisted_Open_State() )->register_rest_route();
-		( new WP_REST_Jetpack_AI_JWT() )->register_rest_route();
+		( new REST_Jetpack_AI_JWT() )->register_rest_route();
 	}
 
 	/**

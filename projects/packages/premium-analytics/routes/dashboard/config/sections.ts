@@ -31,19 +31,10 @@ export type DashboardSection = {
 	label: string;
 
 	/**
-	 * Translated section heading, deliberately not the tab label: the `Traffic`
-	 * tab heads its section `Site traffic`. Read it through
-	 * `resolveSectionHeading`. Optional for the same reason as `date_filter`
-	 * below.
+	 * Translated section heading, deliberately not the tab label. Read it through
+	 * `resolveSectionHeading`. Optional for the same reason as `date_filter` below.
 	 */
 	title?: string | null;
-
-	/**
-	 * Translated section description, rendered as the page subtitle while this
-	 * section is active. Missing or `null` renders no subtitle — there is no
-	 * default copy behind it.
-	 */
-	description?: string | null;
 
 	/**
 	 * Sort order (ascending).
@@ -51,14 +42,9 @@ export type DashboardSection = {
 	order: number;
 
 	/**
-	 * Which date filter this section's header offers. Server-registered per
-	 * section, so a section reporting on whole history can ask for the year
-	 * surface while the rest keep the rolling date-range picker.
-	 *
-	 * Optional because the field can genuinely be absent: WPCOM's public-api
-	 * registers this route from its own checkout, so a Simple site can be served
-	 * a sections payload built before the field existed. A missing value means
-	 * the date-range surface.
+	 * Which date filter this section's header offers, registered per section on
+	 * the server. Optional because a Simple site's public-api route may serve a
+	 * payload built before this field existed; a missing value means the range surface.
 	 */
 	date_filter?: DateFilterSurface;
 
@@ -67,6 +53,13 @@ export type DashboardSection = {
 	 * the same reason as `date_filter` above; absent means every control.
 	 */
 	date_filter_options?: DateFilterOptions;
+
+	/**
+	 * Whether the section's data only reaches WordPress.com through the analytics
+	 * full sync, so it shows sync progress until that sync has finished once.
+	 * Optional for the same reason as `date_filter` above; absent means no wait.
+	 */
+	requires_sync?: boolean;
 
 	/**
 	 * Bundled default widget layout, consumed by the reset action.
@@ -91,6 +84,21 @@ export function resolveSectionHeading( section: DashboardSection ): string {
 	// `||` rather than `??`: an empty string is a registrant meaning "none", and
 	// heading the section with it would render an `<h2>` with no accessible name.
 	return section.title || section.label;
+}
+
+/**
+ * Whether a section's data is still waiting on the analytics full sync, so its
+ * widgets show incomplete numbers.
+ *
+ * @param section        - The section to render.
+ * @param isSyncFinished - Whether the analytics initial full sync has finished.
+ * @return Whether the section is still waiting on the sync.
+ */
+export function isSectionAwaitingSync(
+	section: DashboardSection,
+	isSyncFinished: boolean
+): boolean {
+	return !! section.requires_sync && ! isSyncFinished;
 }
 
 /**

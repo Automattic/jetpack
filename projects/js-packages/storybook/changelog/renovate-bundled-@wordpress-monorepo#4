@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Resolve @wordpress/data and @wordpress/notices to a single copy, so stores register and select against the same registry regardless of how pnpm lays out peer instantiations.

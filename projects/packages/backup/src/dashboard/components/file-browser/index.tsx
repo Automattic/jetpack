@@ -1,19 +1,24 @@
 import { CheckboxControl, Spinner } from '@wordpress/components';
-import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+// The upstream names don't describe what they draw: `file` is a folder
+// glyph, `page` is a document one, and there is no `folder` export.
+// `tests/file-browser-icons.test.tsx` holds these aliases in place.
 import {
 	Icon,
 	chevronRight,
 	chevronDown,
-	file as fileIcon,
-	category as folderIcon,
+	file as folderIcon,
+	page as fileIcon,
 } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
 import { useFileTree } from '../../hooks/use-file-tree';
 import { isFolder } from '../../types/file-tree';
 import FileInfoCard from '../file-info-card';
+import QueryError from '../query-error';
 import './style.scss';
 import type { FileNode, FileNodeFile } from '../../types/file-tree';
+import type { MouseEvent } from 'react';
 
 /**
  * Tree-checkbox selection state.
@@ -322,7 +327,13 @@ export default function FileBrowser( {
 	onSelectionCountChange,
 }: Props ) {
 	const [ openFile, setOpenFile ] = useState< FileNodeFile | null >( null );
-	const { children: rootsData, isLoading: rootsLoading } = useFileTree( rewindId, null );
+	const {
+		children: rootsData,
+		isLoading: rootsLoading,
+		error: rootsError,
+		isFetching: rootsFetching,
+		refetch: refetchRoots,
+	} = useFileTree( rewindId, null );
 	const roots = useMemo< FileNode[] >( () => rootsData ?? [], [ rootsData ] );
 	const { selected, deselected } = selection;
 
@@ -416,7 +427,37 @@ export default function FileBrowser( {
 		} );
 	}, [ selected.size, roots, onSelectionChange ] );
 
-	const closeInfoCard = useCallback( () => setOpenFile( null ), [] );
+	// Closing the card unmounts the element that currently holds focus, which
+	// drops focus to `<body>` and sends the next Tab back to the top of the
+	// document — on a deep tree, every row again. Moving focus in and handing
+	// it back are one contract, so the opener is recorded on the way in.
+	const openerRef = useRef< HTMLButtonElement | null >( null );
+	const openInfoCard = useCallback( ( file: FileNodeFile, opener: HTMLButtonElement ) => {
+		openerRef.current = opener;
+		setOpenFile( file );
+	}, [] );
+	const closeInfoCard = useCallback( () => {
+		setOpenFile( null );
+		openerRef.current?.focus();
+	}, [] );
+
+	// A failed root tree is indistinguishable from a backup that contains
+	// nothing: `children` is null either way, so the tree renders empty
+	// under a "0 items selected" header that invites the reader to select
+	// from it. Replace the whole browser rather than just the tree — the
+	// selection header is meaningless without a tree to select from.
+	if ( rootsError ) {
+		return (
+			<div className="jpb-file-browser" data-rewind-id={ rewindId }>
+				<QueryError
+					title={ __( "We couldn't load this backup's files.", 'jetpack-backup-pkg' ) }
+					error={ rootsError }
+					onRetry={ refetchRoots }
+					isRetrying={ rootsFetching }
+				/>
+			</div>
+		);
+	}
 
 	return (
 		<div className="jpb-file-browser" data-rewind-id={ rewindId }>
@@ -450,7 +491,7 @@ export default function FileBrowser( {
 								rewindId={ rewindId }
 								selection={ selection }
 								onToggle={ toggleAt }
-								onOpenFile={ setOpenFile }
+								onOpenFile={ openInfoCard }
 								onRegisterChildren={ registerChildren }
 							/>
 						) ) }
@@ -469,7 +510,7 @@ type NodeRowProps = {
 	rewindId: string;
 	selection: FileSelection;
 	onToggle: ( path: string, effectiveBefore: boolean ) => void;
-	onOpenFile: ( file: FileNodeFile ) => void;
+	onOpenFile: ( file: FileNodeFile, opener: HTMLButtonElement ) => void;
 	onRegisterChildren: ( path: string, children: FileNode[] ) => void;
 };
 
@@ -505,7 +546,10 @@ function NodeRow( {
 }: NodeRowProps ) {
 	const [ open, setOpen ] = useState( false );
 	const nodeIsFolder = isFolder( node );
-	const { children, isLoading } = useFileTree( rewindId, open && nodeIsFolder ? node.path : null );
+	const { children, isLoading, error } = useFileTree(
+		rewindId,
+		open && nodeIsFolder ? node.path : null
+	);
 	const { selected, deselected } = selection;
 
 	// Effective check: own positive > own negative > inherited positive.
@@ -532,11 +576,17 @@ function NodeRow( {
 		[ onToggle, node.path, isEffectivelySelected ]
 	);
 	const handleToggleOpen = useCallback( () => setOpen( v => ! v ), [] );
-	const handleOpenFile = useCallback( () => {
-		if ( ! nodeIsFolder ) {
-			onOpenFile( node as FileNodeFile );
-		}
-	}, [ onOpenFile, node, nodeIsFolder ] );
+	// Names the region the toggle expands, so `aria-expanded` has something
+	// to refer to. Per row, because every folder owns its own children.
+	const childrenId = useId();
+	const handleOpenFile = useCallback(
+		( event: MouseEvent< HTMLButtonElement > ) => {
+			if ( ! nodeIsFolder ) {
+				onOpenFile( node as FileNodeFile, event.currentTarget );
+			}
+		},
+		[ onOpenFile, node, nodeIsFolder ]
+	);
 
 	// Register the loaded children with the FileBrowser parent once
 	// they've actually resolved for this folder. The gate skips the
@@ -560,42 +610,117 @@ function NodeRow( {
 
 	return (
 		<div>
-			<div className={ rowClassName } style={ { paddingLeft: 12 + depth * 16 } }>
+			<div className={ rowClassName } style={ { paddingInlineStart: 12 + depth * 16 } }>
+				{ /*
+				 * No `label`: `CheckboxControl` renders its `<label>` only under
+				 * `label && …`, so both an empty string and an omitted prop emit
+				 * no label element and leave the input unnamed — which is what
+				 * made every row announce as a bare "checkbox". The name has to
+				 * come through `aria-label` instead, and it names what the box
+				 * selects rather than repeating the row's own label.
+				 */ }
 				<CheckboxControl
 					checked={ isEffectivelySelected }
 					indeterminate={ isIndeterminate }
 					onChange={ handleToggleSelected }
-					label=""
+					aria-label={ sprintf(
+						/* translators: %s: file or folder name. */
+						__( 'Select %s', 'jetpack-backup-pkg' ),
+						node.name
+					) }
 					__nextHasNoMarginBottom
 				/>
 				{ nodeIsFolder ? (
-					<button type="button" className="jpb-file-browser__toggle" onClick={ handleToggleOpen }>
+					// The glyphs are `aria-hidden`, so the folder/file distinction they
+					// carry visually has to be spelled out for assistive tech.
+					<button
+						type="button"
+						className="jpb-file-browser__toggle"
+						aria-expanded={ open }
+						// Points at the wrapper below, which only exists while open.
+						// `aria-controls` referencing an absent id is the documented
+						// behaviour for a collapsed disclosure, and is what every
+						// assistive-tech implementation expects here.
+						aria-controls={ childrenId }
+						aria-label={ sprintf(
+							/* translators: %s: folder name. */
+							__( 'Folder: %s', 'jetpack-backup-pkg' ),
+							node.name
+						) }
+						onClick={ handleToggleOpen }
+					>
 						<Icon icon={ open ? chevronDown : chevronRight } size={ 16 } />
 						<Icon icon={ folderIcon } size={ 18 } />
 						<span>{ node.name }</span>
 					</button>
 				) : (
-					<button type="button" className="jpb-file-browser__file" onClick={ handleOpenFile }>
+					<button
+						type="button"
+						className="jpb-file-browser__file"
+						aria-label={ sprintf(
+							/* translators: %s: file name. */
+							__( 'File: %s', 'jetpack-backup-pkg' ),
+							node.name
+						) }
+						onClick={ handleOpenFile }
+					>
 						<Icon icon={ fileIcon } size={ 18 } />
 						<span>{ node.name }</span>
 					</button>
 				) }
 			</div>
 			{ open && nodeIsFolder && (
-				<div className="jpb-file-browser__children">
+				<div className="jpb-file-browser__children" id={ childrenId }>
 					{ isLoading && (
-						<div className="jpb-file-browser__loading" style={ { paddingLeft: 28 + depth * 16 } }>
+						<div
+							className="jpb-file-browser__loading"
+							style={ { paddingInlineStart: 28 + depth * 16 } }
+						>
 							<Spinner />
 						</div>
 					) }
-					{ ! isLoading && ( children ?? [] ).length === 0 && (
-						<div className="jpb-file-browser__empty" style={ { paddingLeft: 44 + depth * 16 } }>
+					{ /*
+					 * A folder whose fetch failed also has no children, so
+					 * without this branch it reports itself as empty — the
+					 * reader is told the folder contains nothing rather than
+					 * that we couldn't look inside it.
+					 */ }
+					{ ! isLoading && error && (
+						// `alert` rather than `status`: the reader asked for this
+						// folder and got nothing back, so it is worth interrupting.
+						// Both states are announced because each replaces content the
+						// reader is waiting on, and a silent swap reads as a folder
+						// that never finished opening.
+						<div
+							role="alert"
+							className="jpb-file-browser__error"
+							style={ { paddingInlineStart: 44 + depth * 16 } }
+						>
 							{
-								/* translators: shown inside an expanded folder in the backup file browser when the folder contains no files. */
-								__( 'Empty', 'jetpack-backup-pkg' )
+								/* translators: shown inside an expanded folder in the backup file browser when its contents could not be fetched. */
+								__( "Couldn't load this folder.", 'jetpack-backup-pkg' )
 							}
 						</div>
 					) }
+					{ /*
+					 * Mounted unconditionally, holding text only once the folder
+					 * has settled. A polite live region inserted *together with*
+					 * its content is the case assistive tech handles least
+					 * consistently — NVDA with Chrome routinely says nothing — and
+					 * the requirement is that the region be in the accessibility
+					 * tree before its content changes. The error above does not
+					 * need this: an inserted `role="alert"` is announced reliably.
+					 */ }
+					<div
+						role="status"
+						className="jpb-file-browser__empty"
+						style={ { paddingInlineStart: 44 + depth * 16 } }
+					>
+						{ ! isLoading && ! error && ( children ?? [] ).length === 0
+							? /* translators: shown inside an expanded folder in the backup file browser when the folder contains no files. */
+							  __( 'Empty', 'jetpack-backup-pkg' )
+							: '' }
+					</div>
 					{ ! isLoading &&
 						( children ?? [] ).map( ( child, index ) => (
 							<NodeRow

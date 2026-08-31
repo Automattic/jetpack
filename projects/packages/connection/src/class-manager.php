@@ -30,6 +30,16 @@ use WP_User;
  */
 class Manager {
 	/**
+	 * Prefix of the transient holding the cached WordPress.com site record. The blog ID is
+	 * appended so a reconnect to a different site cannot read the previous site's record.
+	 *
+	 * @since 9.0.0
+	 *
+	 * @var string
+	 */
+	const SITE_DATA_TRANSIENT_PREFIX = 'jetpack_site_data_';
+
+	/**
 	 * A copy of the raw POST data for signature verification purposes.
 	 *
 	 * @var string
@@ -527,9 +537,12 @@ class Manager {
 			$token->add_data( $this->build_connection_error_data( $signature_details, $error_type, $error_direction ) );
 			return $token;
 		} elseif ( ! $token ) {
+			// `get_access_token()` explains itself for every case but one: it returns a bare
+			// `false` when the tokens are locked (Tokens::is_locked()). The lock is
+			// one-shot and self-healing.
 			return new \WP_Error(
-				'unknown_token',
-				sprintf( 'Token %s:%s:%d does not exist', $token_key, $version, $user_id ),
+				'tokens_locked',
+				sprintf( 'Tokens are locked; %s:%s:%d could not be verified', $token_key, $version, $user_id ),
 				$this->build_connection_error_data( $signature_details, $error_type, $error_direction )
 			);
 		}
@@ -568,6 +581,8 @@ class Manager {
 
 		$signature_details['url'] = $jetpack_signature->current_request_url;
 
+		// This path currently can't ever be true, unless a new path is added resulting
+		// in $signature 'false', null or an empty string. Leaving for additional security.
 		if ( ! $signature ) {
 			return new \WP_Error(
 				'could_not_sign',
@@ -989,7 +1004,30 @@ class Manager {
 	}
 
 	/**
+	 * Drop the cached WordPress.com site record.
+	 *
+	 * A caller that fetched the record by another route holds something newer than the cache can,
+	 * and `jetpack_site_data_fetched` fires on a cached read too. The cached copy has to go, or it
+	 * keeps announcing the older record and undoes what that caller stored.
+	 *
+	 * @since 9.0.0
+	 *
+	 * @return void
+	 */
+	public static function delete_cached_site_data() {
+		$site_id = \Jetpack_Options::get_option( 'id' );
+
+		if ( $site_id ) {
+			delete_transient( self::SITE_DATA_TRANSIENT_PREFIX . $site_id );
+		}
+	}
+
+	/**
 	 * Fetch the site's own record from the WordPress.com `/sites/%d` endpoint.
+	 *
+	 * The result is cached briefly. Every plugin that bundles this package serves this route, and
+	 * the Jetpack dashboard requests it on mount, so an uncached read means a blocking round trip
+	 * per render.
 	 *
 	 * @since 8.10.0
 	 *
@@ -1002,13 +1040,94 @@ class Manager {
 			return new WP_Error( 'site_id_missing', '', array( 'api_error_code' => 'site_id_missing' ) );
 		}
 
+		$sandbox_secret = null;
+
+		// An array cookie (`store_sandbox[]=`) carries no secret to send, and `filter_var()` turns
+		// it into `false`.
+		if ( isset( $_COOKIE['store_sandbox'] ) && is_string( $_COOKIE['store_sandbox'] ) ) {
+			// Keep only RFC 6265 cookie-octets so the value cannot break out of the Cookie header.
+			$sandbox_secret = preg_replace( '/[^\x21-\x7E]|[";,\\\\]/', '', filter_var( wp_unslash( $_COOKIE['store_sandbox'] ) ) );
+
+			// An empty cookie, or one the sanitizer strips to nothing, is not a sandbox secret.
+			// Counting it as one opts the request out of the cache with no sandbox to reach.
+			if ( '' === $sandbox_secret ) {
+				$sandbox_secret = null;
+			}
+		}
+
+		// A sandboxed request must neither read the shared cache nor seed it with sandbox data.
+		$sandboxed     = null !== $sandbox_secret;
+		$transient_key = self::SITE_DATA_TRANSIENT_PREFIX . $site_id;
+
+		// WordPress.com itself requests this route right after a purchase, for the side effect of
+		// the `jetpack_site_data_fetched` consumers storing the new plan. Those requests arrive
+		// signed with a connection token, which no browser request carries. A cached read would
+		// hand that refresh the pre-purchase record and turn it into a no-op, so a signed request
+		// always reads from WordPress.com and replaces the cache with the record it fetched.
+		$signed = Rest_Authentication::is_signed_with_blog_token() || Rest_Authentication::is_signed_with_user_token();
+
+		$result = ( $sandboxed || $signed ) ? false : get_transient( $transient_key );
+
+		// Only the array shape stored below can be served. A `pre_transient_*` filter or a damaged
+		// object cache entry can hand back anything, and a non-array would throw on
+		// `$result['body']` for every request until the entry expired, so it reads as a miss.
+		if ( ! is_array( $result ) ) {
+			$result = $this->fetch_connected_site_data( $site_id, $sandbox_secret );
+
+			// A signed read that failed must not replace a still-usable cached record with the failure.
+			if ( ! $sandboxed && ! ( $signed && isset( $result['error'] ) ) ) {
+				// Failures expire sooner so an outage recovers without waiting out a full success window.
+				set_transient(
+					$transient_key,
+					$result,
+					isset( $result['error'] ) ? 2 * MINUTE_IN_SECONDS : 5 * MINUTE_IN_SECONDS
+				);
+			}
+		}
+
+		if ( isset( $result['error'] ) ) {
+			return new WP_Error( 'site_data_fetch_failed', '', $result['error'] );
+		}
+
+		/**
+		 * Fires after the site record was served, whether it was fetched or read from the cache.
+		 *
+		 * Consumers that cache anything derived from the record, such as the current plan,
+		 * can refresh it here.
+		 *
+		 * This fires on a cached read too, so a consumer stays in step with every request that
+		 * serves the record rather than only the ones that reached WordPress.com.
+		 *
+		 * The record is passed as an array rather than the object this method returns, so that a
+		 * listener cannot mutate the instance that becomes the REST response.
+		 *
+		 * @since 9.0.0
+		 *
+		 * @param array $record The decoded site record from the WordPress.com `/sites/%d` endpoint.
+		 */
+		do_action( 'jetpack_site_data_fetched', json_decode( $result['body'], true ) );
+
+		return json_decode( $result['body'] );
+	}
+
+	/**
+	 * Request the site record from WordPress.com.
+	 *
+	 * Returns a cacheable array rather than the decoded record so that both outcomes survive a
+	 * round trip through a transient.
+	 *
+	 * @since 9.0.0
+	 *
+	 * @param int         $site_id        The WordPress.com blog ID.
+	 * @param string|null $sandbox_secret Sanitized store sandbox cookie value, or null when not sandboxed.
+	 * @return array Either `array( 'body' => string )` or `array( 'error' => array )`.
+	 */
+	private function fetch_connected_site_data( $site_id, $sandbox_secret ) {
 		$args = array( 'headers' => array() );
 
 		// Allow use a store sandbox. Internal ref: PCYsg-IA-p2.
-		if ( isset( $_COOKIE ) && isset( $_COOKIE['store_sandbox'] ) ) {
-			// Keep only RFC 6265 cookie-octets so the value cannot break out of the Cookie header.
-			$secret                    = preg_replace( '/[^\x21-\x7E]|[";,\\\\]/', '', filter_var( wp_unslash( $_COOKIE['store_sandbox'] ) ) );
-			$args['headers']['Cookie'] = "store_sandbox=$secret;";
+		if ( null !== $sandbox_secret ) {
+			$args['headers']['Cookie'] = "store_sandbox=$sandbox_secret;";
 		}
 
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ) . '?force=wpcom', '1.1', $args );
@@ -1027,36 +1146,19 @@ class Manager {
 				$error_info['api_error_code'] = is_string( $data->error ) ? wp_strip_all_tags( $data->error ) : null;
 			}
 
-			return new WP_Error( 'site_data_fetch_failed', '', $error_info );
+			return array( 'error' => $error_info );
 		}
 
 		if ( ! is_object( $data ) ) {
-			return new WP_Error(
-				'site_data_fetch_failed',
-				'',
-				array(
+			return array(
+				'error' => array(
 					'api_error_code' => 'invalid_body',
 					'api_http_code'  => 200,
-				)
+				),
 			);
 		}
 
-		/**
-		 * Fires after the site record was fetched from WordPress.com.
-		 *
-		 * Consumers that cache anything derived from the record, such as the current plan,
-		 * can refresh it here.
-		 *
-		 * The record is passed as an array rather than the object this method returns, so that a
-		 * listener cannot mutate the instance that becomes the REST response.
-		 *
-		 * @since 8.10.0
-		 *
-		 * @param array $record The decoded site record from the WordPress.com `/sites/%d` endpoint.
-		 */
-		do_action( 'jetpack_site_data_fetched', json_decode( $body, true ) );
-
-		return $data;
+		return array( 'body' => $body );
 	}
 
 	/**
@@ -2059,6 +2161,9 @@ class Manager {
 		// Delete cached connected user data.
 		$transient_key = 'jetpack_connected_user_data_' . get_current_user_id();
 		delete_transient( $transient_key );
+
+		// Delete the cached site record, which a later connection must not serve.
+		self::delete_cached_site_data();
 
 		// Delete all XML-RPC errors.
 		Error_Handler::get_instance()->delete_all_errors();

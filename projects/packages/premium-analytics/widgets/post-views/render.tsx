@@ -1,12 +1,14 @@
 /**
  * External dependencies
  */
-import { toPostId } from '@jetpack-premium-analytics/data';
+import { STATS_CHART_BUCKET_PERIODS, toPostId } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
+	defaultPeriodForInterval,
 	useWidgetRootContext,
 	type MetricTab,
 	type ReportParamsFieldAttributes,
@@ -18,7 +20,8 @@ import { __ } from '@wordpress/i18n';
  */
 import styles from './style.module.css';
 import usePostViews from './use-post-views';
-import type { PostViewsAttributes, PostViewsChartType, PostViewsGranularity } from './widget';
+
+import type { PostViewsAttributes, PostViewsChartType } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type PostViewsRenderAttributes = PostViewsAttributes & Partial< ReportParamsFieldAttributes >;
@@ -30,8 +33,6 @@ const DATA_FORMAT = {
 };
 
 type PostViewsInnerProps = {
-	/** The granularity attribute: the chart's bucket size. */
-	granularity: PostViewsGranularity;
 	/** How the views series is drawn. `MetricTabsChart` owns the default. */
 	chartType?: PostViewsChartType;
 };
@@ -40,19 +41,19 @@ type PostViewsInnerProps = {
  * Without a post scope (e.g. the widget added outside a post detail page) the
  * query never enables and the empty state shows.
  */
-function PostViewsInner( { granularity, chartType }: PostViewsInnerProps ) {
+function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
+	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 
-	const { current, isLoading, isFetching, isError, hasData, refetch } = usePostViews(
+	const { current, isLoading, isFetching, isError, refetch } = usePostViews(
 		postId,
 		reportParams,
-		granularity
+		period
 	);
 
-	// One "Views" metric: the headline is the window total (views are summed
-	// per bucket, so the sum of buckets is the range's views). The post detail
-	// page has no comparison control, so there is no previous series.
+	// The post detail page has no comparison control, so there is no previous
+	// series, and the headline is just the sum of the window's buckets.
 	const metricTabs = useMemo< MetricTab[] >(
 		() => [
 			{
@@ -67,10 +68,8 @@ function PostViewsInner( { granularity, chartType }: PostViewsInnerProps ) {
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ isLoading && ! hasData }
-				// `isFetching` is deliberately not passed: the chart renders its
-				// own scoped overlay below, so WidgetState's full-widget one
-				// would double up and cover the metric headline.
+				isLoading={ isLoading }
+				isFetching={ isFetching }
 				isError={ isError }
 				isEmpty={ postId <= 0 }
 				error={ {
@@ -87,12 +86,14 @@ function PostViewsInner( { granularity, chartType }: PostViewsInnerProps ) {
 						'jetpack-premium-analytics-pkg'
 					),
 				} }
+				// The chart is the whole content here, so its block replaces the
+				// generic stacked lines.
+				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
 				<MetricTabsChart
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
-					loading={ isFetching }
 				/>
 			</WidgetState>
 		</div>
@@ -100,15 +101,12 @@ function PostViewsInner( { granularity, chartType }: PostViewsInnerProps ) {
 }
 
 export default function PostViews( { attributes = {} }: PostViewsWidgetProps ) {
-	// Coerce unknown persisted values to the defaults.
-	const attrGranularity = attributes?.granularity;
-	const granularity =
-		attrGranularity === 'week' || attrGranularity === 'month' ? attrGranularity : 'day';
+	// Coerce unknown persisted values to the default.
 	const chartType = attributes?.chartType === 'bar' ? 'bar' : 'line';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<PostViewsInner granularity={ granularity } chartType={ chartType } />
+			<PostViewsInner chartType={ chartType } />
 		</WidgetRoot>
 	);
 }

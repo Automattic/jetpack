@@ -65,12 +65,6 @@ beforeEach( () => {
 } );
 
 describe( 'normalizeReportParams', () => {
-	/*
-	 * Scenario 1 – Fresh load (no params in URL)
-	 * The user visits /dashboard with no query string.
-	 * Expected: defaults kick in, preset "last-30-days" is used,
-	 * and default comparison is applied.
-	 */
 	it( 'applies defaults with preset and comparison on fresh load', () => {
 		const result = normalizeReportParams();
 
@@ -86,11 +80,6 @@ describe( 'normalizeReportParams', () => {
 		expect( result.compare_to ).toBe( DEFAULTS_WITH_COMPARISON.compare_to );
 	} );
 
-	/*
-	 * Scenario 2 – Same-day reload with preset
-	 * The URL has preset=last-30-days and from/to that match today's
-	 * computation. The dates are still fresh → no redirect needed.
-	 */
 	it( 'returns same dates when preset range is still fresh', () => {
 		const result = normalizeReportParams( {
 			from: FRESH_FROM,
@@ -133,11 +122,6 @@ describe( 'normalizeReportParams', () => {
 		expect( result.interval ).toBe( 'week' );
 	} );
 
-	/*
-	 * Scenario 3 – Next-day reload with stale dates
-	 * The URL has yesterday's dates but the same preset.
-	 * computeDateRangeFromPreset returns fresh dates → redirect.
-	 */
 	it( 'recalculates dates when preset range is stale', () => {
 		const result = normalizeReportParams( {
 			from: STALE_FROM,
@@ -152,11 +136,6 @@ describe( 'normalizeReportParams', () => {
 		expect( mockComputeRange ).toHaveBeenCalledWith( 'last-30-days' );
 	} );
 
-	/*
-	 * Scenario 4 – Custom range (no preset)
-	 * The user picked explicit from/to dates without a preset.
-	 * The dates should be used as-is, no recalculation.
-	 */
 	it( 'uses explicit dates as-is when no preset is set', () => {
 		const customFrom = '2026-01-01T00:00:00.000-05:00';
 		const customTo = '2026-01-31T23:59:59.999-05:00';
@@ -188,11 +167,6 @@ describe( 'normalizeReportParams', () => {
 		expect( mockComputeRange ).not.toHaveBeenCalled();
 	} );
 
-	/*
-	 * Scenario 5 – Preset with stale comparison enabled
-	 * The URL has a stale preset and comparison params.
-	 * Primary range is recalculated; comparison is preserved from URL.
-	 */
 	it( 'recalculates primary but preserves comparison from URL', () => {
 		const compFrom = '2025-12-20T00:00:00.000-05:00';
 		const compTo = '2026-01-18T23:59:59.999-05:00';
@@ -217,12 +191,9 @@ describe( 'normalizeReportParams', () => {
 		expect( result.compare_preset ).toBe( 'previous-period' );
 	} );
 
-	/*
-	 * Scenario 5b – Comparison flag arrives as a number
-	 * The router JSON-parses search values, so a URL written without JSON
-	 * quoting (hand-edited or from an older link builder) delivers comp as the
-	 * number 1. It must still enable comparison, normalized back to '1'.
-	 */
+	// The router JSON-parses search values, so an unquoted URL (hand-edited or
+	// from an older link builder) can deliver comp as the number 1, which must
+	// still enable comparison, normalized back to '1'.
 	it( 'accepts a numeric comp flag from an unquoted URL', () => {
 		const compFrom = '2025-12-20T00:00:00.000-05:00';
 		const compTo = '2026-01-18T23:59:59.999-05:00';
@@ -243,11 +214,6 @@ describe( 'normalizeReportParams', () => {
 		expect( result.compare_to ).toBe( compTo );
 	} );
 
-	/*
-	 * Scenario 6 – Preset without comparison
-	 * The URL has a stale preset but comparison is disabled.
-	 * Primary is recalculated; comparison params are absent.
-	 */
 	it( 'recalculates primary with no comparison when comp is absent', () => {
 		const result = normalizeReportParams( {
 			from: STALE_FROM,

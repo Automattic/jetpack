@@ -8,6 +8,7 @@ import {
 import { customer } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTileGrid,
+	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
 	type DataFormat,
@@ -28,10 +29,8 @@ import {
 } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-// The subscribers/counts endpoint reports current totals and is not
-// period-scoped, so the widget ignores the dashboard date range. Report params
-// are still accepted at the WidgetRoot boundary (and Storybook may inject them)
-// so the host contract holds.
+// The subscribers/counts endpoint is not period-scoped, so the widget ignores
+// the dashboard date range; report params still flow to WidgetRoot for the host contract.
 type SubscriberHighlightsRenderAttributes = SubscriberHighlightsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type SubscriberHighlightsWidgetProps = WidgetRenderProps< SubscriberHighlightsRenderAttributes >;
@@ -57,11 +56,9 @@ const TILE_CONFIG: Record<
 };
 
 /**
- * Fetches the subscriber counts through the designated `useStatsSubscribersCounts`
- * Stats hook and renders the totals as a `MetricTileGrid`, with the loading /
- * error / empty states rendered through `<WidgetState>`. The counts module has
- * no comparison period, so each tile shows a bare formatted count. Which tiles
- * appear is controlled by the `metrics` attribute.
+ * Renders subscriber counts as tiles via `<WidgetState>`. The counts module has
+ * no comparison period, so each tile shows a bare count; `metrics` controls which
+ * tiles appear.
  */
 function SubscriberHighlightsReport( {
 	metrics = DEFAULT_SUBSCRIBER_METRICS,
@@ -89,9 +86,8 @@ function SubscriberHighlightsReport( {
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
-				// The query keeps the prior response via `placeholderData`, so a failed
-				// refetch leaves the tiles on screen; only surface the error when there
-				// is nothing to show.
+				// `placeholderData` keeps the prior tiles on screen, so a transient
+				// refetch failure should not replace them with an error.
 				isError={ isError && ! hasCounts }
 				isEmpty={ ! hasCounts }
 				error={ {
@@ -105,6 +101,7 @@ function SubscriberHighlightsReport( {
 					icon: customer,
 					description: __( 'No subscriber counts available yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <MetricTileGridSkeleton tiles={ tiles.length } /> }
 			>
 				{ tiles.length === 0 ? (
 					<Text className={ styles.placeholder }>

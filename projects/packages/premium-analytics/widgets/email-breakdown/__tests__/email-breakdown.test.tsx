@@ -2,12 +2,14 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
+import { WIDGET_ROW_LIMIT } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
 import EmailBreakdownWidget from '../render';
+import emailBreakdownWidgetType from '../widget';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -40,9 +42,8 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-// Raw WPCOM fieldless all-time shapes the email breakdown sanitizer reads. Each
-// per-breakdown endpoint returns only its own payload key, mirroring Calypso
-// fetching `link` and `user-content-link` separately and merging.
+// Raw WPCOM fieldless all-time shapes the sanitizer reads. Each endpoint
+// returns only its own payload key, as in Calypso.
 const COUNTRY_RESPONSE = {
 	countries: {
 		data: [
@@ -56,9 +57,8 @@ const COUNTRY_RESPONSE = {
 	},
 };
 
-// `some-other-internal` aggregates into the catch-all row and outranks every other
-// row by value, so the fixture proves that row is pinned last across the merge
-// rather than just landing there.
+// `some-other-internal` aggregates into the catch-all row and outranks every
+// other row, so the fixture proves that row is pinned last, not merely sorted last.
 const INTERNAL_LINKS_RESPONSE = {
 	links: {
 		data: [
@@ -134,7 +134,21 @@ describe( 'EmailBreakdownWidget', () => {
 	} );
 
 	it( 'renders the country map from all rows while capping the adjacent leaderboard', async () => {
-		mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
+		const rowCount = WIDGET_ROW_LIMIT + 1;
+		mockApiFetch.mockResolvedValue( {
+			countries: {
+				data: Array.from( { length: rowCount }, ( _, index ) => [
+					`C${ index }`,
+					rowCount - index,
+				] ),
+			},
+			'countries-info': Object.fromEntries(
+				Array.from( { length: rowCount }, ( _, index ) => [
+					`C${ index }`,
+					{ country_full: `Country ${ index }` },
+				] )
+			),
+		} );
 
 		render(
 			<EmailBreakdownWidget
@@ -142,16 +156,18 @@ describe( 'EmailBreakdownWidget', () => {
 					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
 					view: 'countries',
 					metric: 'clicks',
-					max: 1,
 					showMap: true,
 				} }
 			/>
 		);
 
-		await expect( screen.findByText( 'United States' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'United Kingdom' ) ).not.toBeInTheDocument();
+		await expect( screen.findByText( 'Country 0' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( `Country ${ rowCount - 1 }` ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'email-breakdown-map' ) ).toBeInTheDocument();
-		expect( screen.getByTestId( 'geo-chart' ) ).toHaveAttribute( 'data-row-count', '2' );
+		expect( screen.getByTestId( 'geo-chart' ) ).toHaveAttribute(
+			'data-row-count',
+			String( rowCount )
+		);
 	} );
 
 	it( 'does not mount the country map below the map breakpoint', async () => {
@@ -197,9 +213,8 @@ describe( 'EmailBreakdownWidget', () => {
 		const otherRow = screen.getByText( 'Other' );
 		expect( otherRow ).toBeInTheDocument();
 
-		// The catch-all row stays pinned last after the two breakdowns are merged
-		// and re-sorted, even though it holds the highest value. The two nodes sit in
-		// separate rows, so the position mask is exactly PRECEDING or FOLLOWING.
+		// The catch-all row stays pinned last despite holding the highest value.
+		// Separate rows, so the position mask is exactly PRECEDING or FOLLOWING.
 		expect( otherRow.compareDocumentPosition( link ) ).toBe( Node.DOCUMENT_POSITION_PRECEDING );
 
 		// The links view fetches both clicks breakdowns, matching Calypso.
@@ -213,10 +228,8 @@ describe( 'EmailBreakdownWidget', () => {
 	} );
 
 	it( 'shows the error state when one of the two links-view queries fails on first load', async () => {
-		// The `link` breakdown fails (non-retryable 403 so React Query surfaces the
-		// error immediately) while `user-content-link` succeeds. Half a merged list
-		// with no error would silently hide the internal link types, so the widget
-		// must surface the error (with Retry) instead of the incomplete rows.
+		// 403 is non-retryable, so React Query surfaces the error immediately. Half
+		// a merged list with no error would silently hide the internal link types.
 		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
 			path.includes( '/user-content-link' )
 				? Promise.resolve( USER_CONTENT_LINKS_RESPONSE )
@@ -294,5 +307,15 @@ describe( 'EmailBreakdownWidget', () => {
 		// The label still renders so the row is visible, but not as an anchor.
 		await expect( screen.findByText( unsafeUrl ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /alert/ } ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'EmailBreakdown widget type', () => {
+	it( 'declares no drawer-only attribute, so the host renders no settings button', () => {
+		// Mirrors the host's predicate: the settings button appears as soon as any
+		// attribute is not exposed inline (`relevance: 'high'`).
+		expect(
+			emailBreakdownWidgetType.attributes.every( attribute => attribute.relevance === 'high' )
+		).toBe( true );
 	} );
 } );

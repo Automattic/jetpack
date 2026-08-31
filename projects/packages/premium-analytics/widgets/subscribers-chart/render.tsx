@@ -3,6 +3,7 @@
  */
 import {
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -25,7 +26,6 @@ import useSubscribersChart, {
 import {
 	SUBSCRIBERS_CHART_METRICS,
 	type SubscribersChartAttributes,
-	type SubscribersChartGranularity,
 	type SubscribersChartMetricId,
 	type SubscribersChartType,
 } from './widget';
@@ -46,9 +46,8 @@ const DATA_FORMAT = {
 	options: { useMultipliers: true, decimals: 0 },
 };
 
-// Ordered finest to coarsest, as `defaultPeriodForInterval` requires. Mirrors
-// `getStatsPeriodFromInterval` + `toSubscribersUnit` in the data layer, narrowed
-// to the dropdown's options.
+// Mirrors `getStatsPeriodFromInterval` + `toSubscribersUnit` in the data layer,
+// narrowed to the dropdown's options.
 const SUBSCRIBERS_PERIODS = [
 	'day',
 	'week',
@@ -104,30 +103,23 @@ function buildMetrics( state: SubscribersChartState ): MetricTab[] {
 
 type SubscribersChartInnerProps = {
 	/**
-	 * Selected granularity; `auto` follows the dashboard range.
-	 */
-	granularity: SubscribersChartGranularity;
-	/**
 	 * How to draw the selected metric. `MetricTabsChart` owns the default.
 	 */
 	chartType?: SubscribersChartType;
 };
 
 /**
- * The "Group by" control is the `granularity` attribute and the "Chart type"
- * control is the `chartType` attribute (both `relevance: 'high'`), rendered by
- * the widget host. Which metric is plotted is the chart's own tab selection.
+ * The bucket size follows the dashboard's chart interval control, clamped to
+ * what this chart supports. The "Chart type" control is the `chartType`
+ * attribute (`relevance: 'high'`), rendered by the widget host. Which metric is
+ * plotted is the chart's own tab selection.
  */
-function SubscribersChartInner( { granularity, chartType }: SubscribersChartInnerProps ) {
+function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	// `auto` means "follow the dashboard range"; an explicit value sticks
-	// across range changes. This keeps a wide range from staying stuck on
-	// `day` granularity (and blowing up the bucket count) while the user
-	// hasn't picked a granularity themselves.
-	const period: SubscribersPeriod =
-		granularity === 'auto'
-			? defaultPeriodForInterval( reportParams.interval, SUBSCRIBERS_PERIODS )
-			: granularity;
+	const period: SubscribersPeriod = defaultPeriodForInterval(
+		reportParams.interval,
+		SUBSCRIBERS_PERIODS
+	);
 
 	const state = useSubscribersChart( reportParams, period );
 	const metricTabs = useMemo( () => buildMetrics( state ), [ state ] );
@@ -137,10 +129,7 @@ function SubscribersChartInner( { granularity, chartType }: SubscribersChartInne
 		<div className={ styles.root }>
 			<WidgetState
 				isLoading={ state.isLoading }
-				// `isFetching` is deliberately not passed: the chart renders its own
-				// scoped overlay below, so WidgetState's full-widget one would double
-				// up and cover the metric tabs.
-				//
+				isFetching={ state.isFetching }
 				// The query keeps prior data via `placeholderData`, so a transient
 				// refetch failure keeps the chart visible; only surface the error
 				// when there is nothing to show.
@@ -159,26 +148,14 @@ function SubscribersChartInner( { granularity, chartType }: SubscribersChartInne
 					icon: customer,
 					description: __( 'No subscriber data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
-				// First load keeps the widget's chart-shaped skeleton (the metric tabs
-				// over the chart's own loading overlay) instead of the default overlay.
-				renderLoading={
-					<MetricTabsChart
-						metrics={ metricTabs }
-						dataFormat={ DATA_FORMAT }
-						chartType={ chartType }
-						loading
-						groupLabel={ groupLabel }
-					/>
-				}
+				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
-				{ /* Background refetches keep the overlay scoped to the chart area so
-				     the metric tabs stay usable, matching the pre-WidgetState behavior. */ }
 				<MetricTabsChart
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
-					loading={ state.isFetching }
 					groupLabel={ groupLabel }
+					pointsAreWallClocks
 				/>
 			</WidgetState>
 		</div>
@@ -189,11 +166,9 @@ export default function SubscribersChart( {
 	attributes = {},
 	setError,
 }: SubscribersChartWidgetProps ) {
-	const granularity = attributes.granularity ?? 'auto';
-
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<SubscribersChartInner granularity={ granularity } chartType={ attributes.chartType } />
+			<SubscribersChartInner chartType={ attributes.chartType } />
 		</WidgetRoot>
 	);
 }

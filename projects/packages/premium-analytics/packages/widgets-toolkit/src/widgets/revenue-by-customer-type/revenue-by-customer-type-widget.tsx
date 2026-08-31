@@ -5,7 +5,7 @@ import { useReportCustomers, type FilterCondition } from '@jetpack-premium-analy
 import { customer } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { BarChart, WidgetState } from '../../components';
+import { BarChart, BarChartSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
@@ -48,11 +48,10 @@ function CustomerTypeRevenueWidget( { filter }: CustomerTypeRevenueWidgetProps )
 
 	return (
 		<WidgetState
-			isLoading={ isLoading && ! hasData }
+			isLoading={ isLoading }
 			isFetching={ isFetching }
-			// The report queries keep the previous period's data as placeholders
-			// across range changes, so only surface the error when there is
-			// nothing to show.
+			// The report queries keep placeholders from the previous period across
+			// range changes, so only surface the error when nothing is left to show.
 			isError={ isError && ! hasData }
 			isEmpty={ isEmptyChartData( chartData ) }
 			error={ {
@@ -66,6 +65,7 @@ function CustomerTypeRevenueWidget( { filter }: CustomerTypeRevenueWidgetProps )
 				icon: customer,
 				description: __( 'No customer revenue in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <BarChartSkeleton columns={ 2 } /> }
 		>
 			<BarChart
 				chartData={ chartData }

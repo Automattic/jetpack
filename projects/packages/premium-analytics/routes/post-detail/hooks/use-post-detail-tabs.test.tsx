@@ -77,12 +77,10 @@ function mockSearch( section: string ) {
 		committed: { section },
 		staged: { section },
 		effective: { section },
-		isSyncing: false,
 		isDirty: false,
 		stage,
 		commit,
 		revert: jest.fn(),
-		cancelAutoCommit: jest.fn(),
 	} );
 
 	return { stage, commit };
@@ -95,31 +93,21 @@ describe( 'usePostDetailTabs', () => {
 		mockRouteSearch = {};
 	} );
 
-	it( 'injects comparison-stripped report params into every layout entry', () => {
+	// The stage declares the no-comparison invariant once; this layout carries no
+	// injected params (see stage.test.tsx for what widgets actually read).
+	it( 'returns the tab’s fixed layout untouched', () => {
 		mockSearch( 'post-traffic' );
 		mockRouteSearch = {
 			from: '2026-07-01',
 			to: '2026-07-07',
-			interval: 'day',
-			post_id: String( POST_ID ),
 			comp: '1',
 			compare_from: '2026-06-24',
-			compare_to: '2026-06-30',
-			compare_preset: 'previous-period',
 		};
 
 		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
 
 		expect( result.current.layout.length ).toBeGreaterThan( 0 );
-		for ( const widget of result.current.layout ) {
-			const attributes = widget.attributes as { reportParams?: unknown } | undefined;
-			expect( attributes?.reportParams ).toEqual( {
-				from: '2026-07-01',
-				to: '2026-07-07',
-				interval: 'day',
-				post_id: String( POST_ID ),
-			} );
-		}
+		expect( result.current.layout ).toEqual( POST_DETAIL_TAB_LAYOUTS[ 'post-traffic' ] );
 	} );
 
 	it( 'falls back from a hidden tab and replaces the URL', async () => {
@@ -147,7 +135,7 @@ describe( 'usePostDetailTabs', () => {
 		}
 	} );
 
-	it( 'exposes the email tabs and selects their fixed layouts', () => {
+	it( 'exposes the email tabs for a post sent to subscribers', () => {
 		const { stage, commit } = mockSearch( 'email-clicks' );
 
 		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
@@ -158,19 +146,71 @@ describe( 'usePostDetailTabs', () => {
 			'email-clicks',
 		] );
 		expect( result.current.activeTab ).toBe( 'email-clicks' );
-		// The hook overlays each fixed entry with the comparison-stripped
-		// reportParams (empty here — the mocked route search is empty).
-		expect( result.current.layout ).toEqual(
-			POST_DETAIL_TAB_LAYOUTS[ 'email-clicks' ].map( widget => ( {
-				...widget,
-				attributes: {
-					...( widget.attributes as Record< string, unknown > | undefined ),
-					reportParams: {},
-				},
-			} ) )
-		);
 		expect( stage ).not.toHaveBeenCalled();
 		expect( commit ).not.toHaveBeenCalled();
+	} );
+
+	it( 'pins the email tabs’ widgets to the given report params', () => {
+		mockSearch( 'email-opens' );
+		mockRouteSearch = { from: '2026-07-01', to: '2026-07-07', post_id: String( POST_ID ) };
+		const pinned = {
+			post_id: POST_ID,
+			preset: 'all-time' as const,
+			from: '2026-06-22',
+			to: '2026-08-28',
+			interval: 'week' as const,
+		};
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID, pinned ) );
+
+		const fixed = POST_DETAIL_TAB_LAYOUTS[ 'email-opens' ];
+		expect( result.current.layout ).toHaveLength( fixed.length );
+		result.current.layout.forEach( ( widget, index ) => {
+			const attributes = fixed[ index ].attributes as Record< string, unknown > | undefined;
+			expect( widget ).toEqual( {
+				...fixed[ index ],
+				attributes: { ...attributes, reportParams: pinned },
+			} );
+		} );
+		// The fixed composition itself is left alone.
+		expect(
+			fixed.some( widget => 'reportParams' in ( ( widget.attributes as object ) ?? {} ) )
+		).toBe( false );
+	} );
+
+	it( 'mounts the fixed email layout when the pinned params can no longer resolve', () => {
+		mockSearch( 'email-clicks' );
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID, undefined, true ) );
+
+		// The widgets mount and surface their own error states, instead of the
+		// tab staying permanently blank with no Retry (summary request failed).
+		expect( result.current.activeTab ).toBe( 'email-clicks' );
+		expect( result.current.layout ).toEqual( POST_DETAIL_TAB_LAYOUTS[ 'email-clicks' ] );
+	} );
+
+	it( 'gives an email tab no layout until its report params are known', () => {
+		mockSearch( 'email-clicks' );
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
+
+		expect( result.current.activeTab ).toBe( 'email-clicks' );
+		expect( result.current.layout ).toEqual( [] );
+	} );
+
+	it( 'leaves the traffic layout untouched when email report params are given', () => {
+		mockSearch( 'post-traffic' );
+		const pinned = {
+			post_id: POST_ID,
+			preset: 'all-time' as const,
+			from: '2026-06-22',
+			to: '2026-08-28',
+			interval: 'week' as const,
+		};
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID, pinned ) );
+
+		expect( result.current.layout ).toEqual( POST_DETAIL_TAB_LAYOUTS[ 'post-traffic' ] );
 	} );
 
 	it( 'hides the email tabs for a post never sent to subscribers', async () => {
@@ -218,9 +258,8 @@ describe( 'usePostDetailTabs', () => {
 
 		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
 
-		// The tabs stay hidden (fail closed), but the URL keeps the deep link:
-		// a failed request doesn't tell us whether the post has email stats,
-		// and a later successful refetch can still settle it.
+		// Fail closed: tabs stay hidden, but the URL keeps the deep link since
+		// a later successful refetch can still settle whether email stats exist.
 		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [ 'post-traffic' ] );
 		expect( result.current.activeTab ).toBe( 'post-traffic' );
 		expect( stage ).not.toHaveBeenCalled();

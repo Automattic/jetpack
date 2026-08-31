@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Forms\ContactForm\Form_Preview;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
@@ -204,6 +205,10 @@ class Contact_Form_Block {
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
 		$features['form-webhooks']  = Current_Plan::supports( 'form-webhooks' );
 
+		// Bridges the jetpack-feature-flags registration to the editor, so JS `hasFeatureFlag()`
+		// and PHP `Feature_Flags::is_enabled()` answer from one source under one name.
+		$features[ Jetpack_Forms::CONDITIONAL_LOGIC_FLAG ] = Jetpack_Forms::is_conditional_logic_enabled();
+
 		return self::register_central_form_management_default( $features );
 	}
 
@@ -342,7 +347,6 @@ class Contact_Form_Block {
 				),
 				'uses_context' => array(
 					'jetpack/field-required',
-					'jetpack/field-date-format',
 				),
 			)
 		);
@@ -506,10 +510,7 @@ class Contact_Form_Block {
 			'jetpack/field-date',
 			array(
 				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_date' ),
-				'provides_context' => array(
-					'jetpack/field-required'    => 'required',
-					'jetpack/field-date-format' => 'dateFormat',
-				),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
@@ -1152,6 +1153,9 @@ class Contact_Form_Block {
 				'akismetUrl'           => $akismet_key_url,
 				'assetsUrl'            => Jetpack_Forms::assets_url(),
 				'isMailPoetEnabled'    => Jetpack_Forms::is_mailpoet_enabled(),
+				// So the file field's "Maximum files" control offers exactly what the site will honour,
+				// including when a filter has raised the ceiling.
+				'maxFilesLimit'        => Contact_Form_Field::get_file_field_max_files_limit(),
 			),
 		);
 

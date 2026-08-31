@@ -125,11 +125,28 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	/**
+	 * Whether the rebuilt Jetpack Comments form has taken over from this one.
+	 *
+	 * Guarded because this file and the jetpack-comments package can land in
+	 * either order on a staged deploy.
+	 *
+	 * @return bool
+	 */
+	private static function new_comments_enabled() {
+		return class_exists( '\Automattic\Jetpack\Comments\Comments' )
+			&& \Automattic\Jetpack\Comments\Comments::is_enabled();
+	}
+
+	/**
 	 * Setup actions for methods in this class
 	 *
 	 * @since 1.4
 	 */
 	protected function setup_actions() {
+		if ( self::new_comments_enabled() ) {
+			return;
+		}
+
 		parent::setup_actions();
 
 		// Selfishly remove everything from the existing comment form.
@@ -153,6 +170,10 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since 1.6.2
 	 */
 	protected function setup_filters() {
+		if ( self::new_comments_enabled() ) {
+			return;
+		}
+
 		parent::setup_filters();
 
 		add_filter( 'comment_post_redirect', array( $this, 'capture_comment_post_redirect_to_reload_parent_frame' ), 100 );
@@ -166,6 +187,10 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * In order for comments to work properly for password-protected posts we need to set `wp-postpass` cookie to SameSite none.
 	 */
 	public function manage_post_cookie() {
+		if ( headers_sent() ) {
+			return;
+		}
+
 		$postpass_cookie_key = 'wp-postpass_' . COOKIEHASH;
 
 		if ( empty( $_COOKIE[ $postpass_cookie_key ] ) ) {
@@ -177,7 +202,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		if ( empty( $_COOKIE['verbum-wp-postpass'] ) || ( $_COOKIE['verbum-wp-postpass'] !== $postpass_cookie_value ) ) {
 			$expire = apply_filters( 'post_password_expires', time() + 10 * DAY_IN_SECONDS );
 
-			jetpack_shim_setcookie(
+			setcookie(
 				$postpass_cookie_key,
 				$postpass_cookie_value,
 				array(
@@ -186,10 +211,11 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 					'path'     => '/',
 					'domain'   => COOKIE_DOMAIN,
 					'secure'   => is_ssl(),
+					'httponly' => false, // phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse -- @todo Can this be set true?
 				)
 			);
 
-			jetpack_shim_setcookie(
+			setcookie(
 				'verbum-wp-postpass',
 				$postpass_cookie_value,
 				array(
@@ -198,6 +224,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 					'path'     => '/',
 					'domain'   => COOKIE_DOMAIN,
 					'secure'   => is_ssl(),
+					'httponly' => false, // phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse -- @todo Can this be set true?
 				)
 			);
 		}

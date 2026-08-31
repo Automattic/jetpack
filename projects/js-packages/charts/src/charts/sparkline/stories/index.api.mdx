@@ -180,8 +180,9 @@ import { GlobalChartsProvider } from '@automattic/charts';
 </GlobalChartsProvider>
 ```
 
+The default line color, used when the `color` prop is not provided, is the first series palette color — set in CSS as `--a8c-charts-color-series-1`, not through the theme object.
+
 **Theme Properties Used:**
-- `colors[0]`: Default line color (when `color` prop not provided)
 - `backgroundColor`: Default gradient `to` color
 
 ## TypeScript Usage

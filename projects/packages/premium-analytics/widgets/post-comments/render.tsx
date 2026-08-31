@@ -6,6 +6,7 @@ import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	SubscriberList,
+	SubscriberListSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -59,13 +60,13 @@ function PostCommentsInner() {
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ isLoading && ! data }
+				isLoading={ isLoading }
 				isFetching={ isFetching }
-				// The query keeps prior data via `placeholderData`, so a transient
-				// refetch failure keeps the comments visible; only surface the error
-				// when there is nothing to show.
+				// `placeholderData` keeps the prior comments on screen, so a transient
+				// refetch failure should not replace them with an error.
 				isError={ ! data && isError }
 				isEmpty={ isEmpty }
+				renderLoading={ <SubscriberListSkeleton rows={ COMMENTS_SHOWN } /> }
 				error={ {
 					description: __(
 						"We couldn't load these comments. Please try again in a moment.",

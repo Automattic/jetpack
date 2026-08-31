@@ -8,6 +8,7 @@ import {
 import {
 	BOOKINGS_FILTER,
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
 	buildTimeSeriesChartData,
@@ -202,10 +203,8 @@ function StorePerformanceContent() {
 		() => [ generalReport, bookingsReport, visitorsReport, conversionReport, customersReport ],
 		[ generalReport, bookingsReport, visitorsReport, conversionReport, customersReport ]
 	);
-	// Gate the error per report — each metric tab has its own report, so a failed
-	// one must surface an error rather than render as an empty chart beside the
-	// others. Placeholder data keeps a report's rows on a transient refetch failure,
-	// so a report with data is not errored.
+	// Gate the error per report so a failed one surfaces beside the others' charts
+	// instead of rendering empty; placeholder data spares a report that still has rows.
 	const isError = reports.some( report => report.isError && ! report.hasData );
 	// Retry re-runs every metric report, not only the failed one.
 	const refetch = useCallback(
@@ -310,13 +309,14 @@ function StorePerformanceContent() {
 		[ enrichedMetrics, dataSources ]
 	);
 
-	const isInitialLoading = reports.some( report => report.isLoading && ! report.hasData );
+	const isInitialLoading = reports.some( report => report.isLoading );
 	const isFetching = reports.some( report => report.isFetching );
 
 	return (
 		<div className={ styles.widgetRoot }>
 			<WidgetState
 				isLoading={ isInitialLoading }
+				isFetching={ isFetching }
 				isError={ isError }
 				// The tabs are fixed, so there is always something to render: the only
 				// empty state this widget ever had was "no metric selected".
@@ -328,23 +328,11 @@ function StorePerformanceContent() {
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
-				// First load keeps the widget's chart-shaped skeleton (the metric tabs
-				// over the chart's own loading overlay) instead of the default overlay.
-				renderLoading={
-					<MetricTabsChart
-						metrics={ metricTabs }
-						dataFormat={ DEFAULT_DATA_FORMAT }
-						loading
-						groupLabel={ __( 'Store metric', 'jetpack-premium-analytics-pkg' ) }
-					/>
-				}
+				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
-				{ /* Background refetches keep the overlay scoped to the chart area so
-				     the metric tabs stay usable, matching the pre-WidgetState behavior. */ }
 				<MetricTabsChart
 					metrics={ metricTabs }
 					dataFormat={ DEFAULT_DATA_FORMAT }
-					loading={ isFetching }
 					groupLabel={ __( 'Store metric', 'jetpack-premium-analytics-pkg' ) }
 				/>
 			</WidgetState>

@@ -103,9 +103,8 @@ function renderStorePerformanceOnPreset( preset: SelectablePresetId ) {
 	);
 }
 
-// Every report endpoint behind the widget's metrics (net sales/orders, bookings,
-// visitors, conversion rate, customers). State stories force all of them so no
-// metric report resolves with data.
+// Every report endpoint behind the widget's metrics. State stories force all of
+// them so no metric report resolves with data.
 const STORE_PERFORMANCE_ENDPOINTS = [
 	'orders/by-date',
 	'orders-by-product-type/by-date',

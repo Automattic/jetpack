@@ -12,10 +12,7 @@ import { redirect } from '@wordpress/route';
  * Internal dependencies
  */
 import { ensureDashboardEntities } from '../dashboard-entities';
-import {
-	isPremiumAnalyticsInitialSyncFinished,
-	isPremiumAnalyticsSiteConnected,
-} from '../site-readiness';
+import { isPremiumAnalyticsSiteConnected, isVideoPressAvailable } from '../site-readiness';
 
 type VideoDetailParams = { videoId?: string };
 type VideoDetailSearch = Record< string, string | undefined >;
@@ -33,8 +30,8 @@ function isValidVideoId( value: string | undefined ): value is string {
 /**
  * Route lifecycle for the video detail page.
  *
- * The page is available only to connected sites after the initial analytics
- * sync, and only for positive integer attachment IDs.
+ * The page is available only to connected sites running VideoPress, and only
+ * for positive integer attachment IDs.
  */
 export const route = {
 	beforeLoad: async ( {
@@ -45,8 +42,10 @@ export const route = {
 			throw redirect( { to: '/connect' } );
 		}
 
-		if ( ! isPremiumAnalyticsInitialSyncFinished() ) {
-			throw redirect( { to: '/syncing' } );
+		// Kept apart from the id check below: an unsupported site and a malformed id
+		// are different events, even though both currently land on the dashboard.
+		if ( ! isVideoPressAvailable() ) {
+			throw redirect( { to: '/' } );
 		}
 
 		const videoId = params?.videoId;
@@ -60,10 +59,9 @@ export const route = {
 
 		if ( needsDateSeed || needsPostSeed ) {
 			/*
-			 * Warm the core `site` record before the stage renders, so
-			 * `useSiteHomeUrl()` has it. A rejection here shouldn't error the
-			 * whole page, so fall through to the seed. The seed's own dates do
-			 * not depend on this; they resolve from the WordPress date settings.
+			 * Warm the core `site` record for `useSiteHomeUrl()`. A rejection
+			 * shouldn't error the whole page, and the seed's own dates don't
+			 * depend on it, so fall through.
 			 */
 			try {
 				await ensureCoreSettingsReady();
@@ -83,11 +81,8 @@ export const route = {
 
 			/*
 			 * Comparison params ride along untouched: this page renders no
-			 * comparison (the stage strips them from the reportParams it injects
-			 * into its widgets), but the dashboard link and
-			 * "Back to Videos" carry the URL state back out, so stripping them
-			 * here would silently lose the user's comparison settings on a
-			 * Dashboard → Video → Dashboard round trip.
+			 * comparison, but the dashboard link and "Back to Videos" carry the URL
+			 * state back out, so stripping them would lose the setting on a round trip.
 			 */
 
 			throw redirect( {
@@ -95,8 +90,7 @@ export const route = {
 				/*
 				 * The router is built dynamically, so `/video/$videoId` has no
 				 * statically-typed params/search schema (tanstack widens them to
-				 * `never`). Cast the same way the routing package does when it
-				 * writes the URL.
+				 * `never`); cast as the routing package does when it writes the URL.
 				 */
 				params: { videoId } as unknown as never,
 				replace: true,

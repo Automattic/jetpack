@@ -34,9 +34,6 @@ export type LegendLabels = {
 export type LeaderboardChartProps = {
 	className?: string;
 
-	/**
-	 * Leaderboard data (label, currentValue, previousValue, currentShare, previousShare, delta)
-	 */
 	data: LeaderboardChartData;
 
 	loading?: boolean;
@@ -58,25 +55,21 @@ export type LeaderboardChartProps = {
 	emptyStateText?: string;
 
 	style?: React.CSSProperties & {
-		'--a8c--charts--leaderboard--bar--border-radius'?: string;
+		'--a8c-charts-border-radius-leaderboard-bar'?: string;
 	};
 
 	/**
-	 * Show only complete rows that fit the widget height instead of scrolling.
-	 *
-	 * Defaults to `true` here, unlike the underlying charts prop, because widgets
-	 * sit in fixed-height tiles. Pass `false` to keep the list scrollable.
+	 * Show only complete rows that fit the widget height instead of scrolling. Defaults
+	 * to `true` here, unlike the underlying charts prop, because widgets sit in
+	 * fixed-height tiles.
 	 * @default true
 	 */
 	fitRows?: boolean;
 };
 
 /**
- * "Top X by Y" ranking chart wrapping `LeaderboardChartUnresponsive` with the
- * package's formatting and styling.
- *
- * Must render inside a `GlobalChartsProvider`: colors, theme, and element
- * styles are read from that context.
+ * "Top X by Y" ranking chart wrapping `LeaderboardChartUnresponsive`. Must render
+ * inside a `GlobalChartsProvider`: colors, theme, and element styles come from it.
  */
 export function LeaderboardChart( {
 	className,
@@ -102,15 +95,8 @@ export function LeaderboardChart( {
 		[ dataFormat ]
 	);
 
-	/**
-	 * Bar color for overlay-label mode.
-	 *
-	 * The label sits on top of the bar, so the bar needs to read as a faint
-	 * tint of the primary color. We can't pass a translucent color through the
-	 * chart's `primaryColor` prop — it resolves the value via getElementStyles,
-	 * which strips the alpha channel. Instead we pre-blend the primary with
-	 * white to produce the opaque equivalent of an 8% alpha fill.
-	 */
+	// A translucent `primaryColor` would not survive `getElementStyles`, which strips
+	// the alpha channel, so pre-blend with white to the opaque equivalent of an 8% fill.
 	const barColor = useMemo( () => {
 		if ( ! withOverlayLabel ) {
 			return undefined;
@@ -127,7 +113,7 @@ export function LeaderboardChart( {
 			return undefined;
 		}
 		return {
-			'--a8c--charts--leaderboard--bar--border-radius': barBorderRadius,
+			'--a8c-charts-border-radius-leaderboard-bar': barBorderRadius,
 			...style,
 		} as React.CSSProperties;
 	}, [ theme, style ] );

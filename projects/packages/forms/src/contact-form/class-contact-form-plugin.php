@@ -569,6 +569,33 @@ class Contact_Form_Plugin {
 			unset( $atts['defaultValue'] );
 		}
 
+		// Serialize the conditionalLogic object so it survives the shortcode roundtrip.
+		// Only emit when explicitly enabled to keep the shortcode and frontend context lean.
+		//
+		// JSON_HEX_TAG matters as much as JSON_HEX_AMP here: this lands in `post_content` as
+		// shortcode text and is decoded back in Contact_Form_Field, and KSES rewrites a bare
+		// `<` on the way in. A rule comparing against a value containing `<` would come back
+		// as unparseable JSON and silently drop the field's whole condition.
+		if ( isset( $atts['conditionalLogic'] ) ) {
+			$logic = $atts['conditionalLogic'];
+			if ( is_array( $logic ) && ! empty( $logic['enabled'] ) ) {
+				$json = \wp_json_encode( $logic, JSON_UNESCAPED_SLASHES | JSON_HEX_AMP | JSON_HEX_TAG );
+
+				// The rules are a JSON array, so the value contains `[` and `]`. WordPress's
+				// shortcode attribute pattern excludes both, so as shortcode text the value is
+				// cut short and the attribute is dropped entirely -- leaving a field that is
+				// still required but no longer conditional, which blocks submission on a
+				// question the visitor cannot see. Numeric entities survive the pattern and
+				// are turned back by the html_entity_decode() in Contact_Form_Field.
+				$atts['conditionallogic'] = str_replace(
+					array( '[', ']' ),
+					array( '&#91;', '&#93;' ),
+					(string) $json
+				);
+			}
+			unset( $atts['conditionalLogic'] );
+		}
+
 		// Process inner blocks to shortcode attributes.
 		if ( $block && ! empty( $block->parsed_block['innerBlocks'] ) ) {
 			// Only apply the block style classes to the field wrapper if the field is one of the new inner block types.
@@ -808,7 +835,7 @@ class Contact_Form_Plugin {
 					$input_attrs          = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
 					$atts['inputclasses'] = isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
 					$atts['inputstyles']  = $input_attrs['style'] ?? null;
-					$atts['iconStyle']    = $atts['iconStyle'] ?? $inner_block['attrs']['iconStyle'] ?? 'stars';
+					$atts['iconStyle']  ??= $inner_block['attrs']['iconStyle'] ?? 'stars';
 					continue;
 				}
 
@@ -1617,6 +1644,25 @@ class Contact_Form_Plugin {
 				return $validation_error;
 			}
 
+			// Bind the posted `contact-form-id` to the form the JWT was signed for. The JWT
+			// authenticates the form's source, but the posted id is a separate, unsigned field;
+			// without this a submission could present one form's signed token while claiming a
+			// different id, leaving the two out of sync for anything downstream that reads the
+			// raw id. For a single-post form the posted id is the source post id (optionally
+			// suffixed for multiple forms on a page, e.g. `5-2`), so compare on the integer id.
+			//
+			// Only apply this when the source is an actual post: a form rendered with no post in
+			// scope has source id 0 (and a non-numeric posted id like `jp-form`), which is not a
+			// mismatch to reject. This mirrors validate_parent_post()'s `is_numeric && > 0` guard.
+			$source    = $form->get_source();
+			$source_id = $source->get_id();
+
+			if ( 'single' === $source->get_source_type() && is_numeric( $source_id ) && (int) $source_id > 0 ) {
+				if ( (int) $id !== (int) $source_id ) {
+					return Form_Submission_Error::system_error( 'form_id_mismatch_post', __( 'Form ID mismatch.', 'jetpack-forms' ) );
+				}
+			}
+
 			$form->validate();
 
 			if ( $form->has_errors() ) {
@@ -1848,6 +1894,17 @@ class Contact_Form_Plugin {
 		if ( ! $form ) {
 			return Form_Submission_Error::system_error( 'form_not_found', __( 'Form not found.', 'jetpack-forms' ) );
 		}
+
+		// Conditional fields cannot be validated while the form is still being parsed: a rule's
+		// subject may not exist yet, so `parse_contact_field()` defers them. Something has to
+		// validate them once the whole form is known, and on this path nothing did -- the JWT
+		// branch calls `validate()` above, but this one went straight to `has_errors()`. A
+		// required conditional field left empty, an invalid email or an out-of-allow-list choice
+		// would all be stored unchecked.
+		//
+		// Fields that were validated at parse time early-return once `is_error()` is set, so
+		// this is idempotent for everything else.
+		$form->validate();
 
 		if ( $form->has_errors() ) {
 			return $form->errors;
@@ -3199,8 +3256,7 @@ class Contact_Form_Plugin {
 		/**
 		 * Print CSV headers
 		 */
-		// @todo When we drop support for PHP <7.4, consider passing empty-string for `$escape` here for better spec compatibility.
-		fputcsv( $output, $fields, ',', '"', '\\' );
+		fputcsv( $output, $fields, ',', '"', '' );
 
 		/**
 		 * Print rows to the output.
@@ -3219,8 +3275,7 @@ class Contact_Form_Plugin {
 			/**
 			 * Output the complete CSV row
 			 */
-			// @todo When we drop support for PHP <7.4, consider passing empty-string for `$escape` here for better spec compatibility.
-			fputcsv( $output, $current_row, ',', '"', '\\' );
+			fputcsv( $output, $current_row, ',', '"', '' );
 		}
 
 		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
@@ -3263,10 +3318,12 @@ class Contact_Form_Plugin {
 													<!-- /wp:jetpack/contact-form -->';
 		}
 
+		$form_title = isset( $_POST['formTitle'] ) ? sanitize_text_field( wp_unslash( $_POST['formTitle'] ) ) : '';
+
 		$post_id = wp_insert_post(
 			array(
 				'post_type'    => 'page',
-				'post_title'   => '',
+				'post_title'   => $form_title,
 				'post_content' => $pattern_content,
 			)
 		);
@@ -3982,6 +4039,7 @@ class Contact_Form_Plugin {
 	 * Exports data to Google Drive, based on POST data.
 	 *
 	 * @see Contact_Form_Plugin::get_feedback_entries_from_post
+	 * @return never
 	 */
 	public function export_to_gdrive() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verification is done on validate_export_to_gdrive_request function
@@ -3993,7 +4051,6 @@ class Contact_Form_Plugin {
 				403,
 				JSON_UNESCAPED_SLASHES
 			);
-			return;
 		}
 
 		$grunion     = self::init();

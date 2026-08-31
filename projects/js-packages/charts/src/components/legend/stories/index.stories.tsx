@@ -1,7 +1,11 @@
 import { Meta, StoryObj } from '@storybook/react';
+import { Button } from '@wordpress/components';
+import { Stack } from '@wordpress/ui';
+import { useCallback } from 'react';
 import { BarChart } from '../../../charts/bar-chart';
 import { LineChart } from '../../../charts/line-chart';
 import { PieChart } from '../../../charts/pie-chart';
+import { useGlobalChartsContext } from '../../../providers';
 import {
 	simpleChartDecorator,
 	ChartStoryArgs,
@@ -168,6 +172,77 @@ const InteractiveLegendComponent = () => (
 );
 export const InteractiveLegend: Story = {
 	render: () => <InteractiveLegendComponent />,
+};
+
+const PROGRAMMATIC_VISIBILITY_CHART_ID = 'programmatic-visibility-demo';
+const PROGRAMMATIC_VISIBILITY_SERIES_LABELS = lineChartData.map( series => series.label );
+
+const ProgrammaticVisibilityComponent = () => {
+	const { isSeriesVisible, toggleSeriesVisibility } = useGlobalChartsContext();
+	const allSeriesVisible = PROGRAMMATIC_VISIBILITY_SERIES_LABELS.every( label =>
+		isSeriesVisible( PROGRAMMATIC_VISIBILITY_CHART_ID, label )
+	);
+	const allSeriesHidden = PROGRAMMATIC_VISIBILITY_SERIES_LABELS.every(
+		label => ! isSeriesVisible( PROGRAMMATIC_VISIBILITY_CHART_ID, label )
+	);
+
+	const setSeriesVisible = useCallback(
+		( labels: string[], visible: boolean ) => {
+			labels.forEach( label => {
+				if ( isSeriesVisible( PROGRAMMATIC_VISIBILITY_CHART_ID, label ) !== visible ) {
+					toggleSeriesVisibility( PROGRAMMATIC_VISIBILITY_CHART_ID, label );
+				}
+			} );
+		},
+		[ isSeriesVisible, toggleSeriesVisibility ]
+	);
+	const hideDesktop = useCallback(
+		() => setSeriesVisible( [ 'Desktop' ], false ),
+		[ setSeriesVisible ]
+	);
+	const hideAll = useCallback(
+		() => setSeriesVisible( PROGRAMMATIC_VISIBILITY_SERIES_LABELS, false ),
+		[ setSeriesVisible ]
+	);
+	const showAll = useCallback(
+		() => setSeriesVisible( PROGRAMMATIC_VISIBILITY_SERIES_LABELS, true ),
+		[ setSeriesVisible ]
+	);
+
+	return (
+		<Stack direction="column" gap="md">
+			<Stack direction="row" gap="sm">
+				<Button
+					variant="secondary"
+					disabled={ ! isSeriesVisible( PROGRAMMATIC_VISIBILITY_CHART_ID, 'Desktop' ) }
+					onClick={ hideDesktop }
+				>
+					Hide Desktop
+				</Button>
+				<Button variant="secondary" disabled={ allSeriesHidden } onClick={ hideAll }>
+					Hide all
+				</Button>
+				<Button variant="secondary" disabled={ allSeriesVisible } onClick={ showAll }>
+					Show all
+				</Button>
+			</Stack>
+			<LineChart
+				chartId={ PROGRAMMATIC_VISIBILITY_CHART_ID }
+				data={ lineChartData }
+				showLegend
+				width={ 600 }
+				height={ 300 }
+				withGradientFill={ false }
+				withLegendGlyph={ false }
+				legend={ { interactive: false } }
+				rescaleYOnVisibilityChange={ false }
+			/>
+		</Stack>
+	);
+};
+
+export const ProgrammaticVisibility: Story = {
+	render: () => <ProgrammaticVisibilityComponent />,
 };
 
 // Story showing a real-world dashboard layout with centralized legends

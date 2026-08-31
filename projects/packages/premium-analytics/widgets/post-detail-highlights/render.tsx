@@ -5,6 +5,7 @@ import { toPostId } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTileGrid,
+	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -35,13 +36,9 @@ const ALL_TIME_NOTE = () =>
 	__( 'All-time total — this metric has no per-post history.', 'jetpack-premium-analytics-pkg' );
 
 /**
- * Without a post scope (e.g. the widget added outside a post detail page) the
- * query never enables and the empty state shows.
- *
- * Views is period-scoped with a period-over-period delta when comparison is
- * on. Comments and likes are lifetime totals: when comparison is on their
- * `previousValue` is `null` — the tile keeps the comparison layout but shows
- * no fabricated delta.
+ * Without a post scope the query never enables and the empty state shows.
+ * Comments and likes are lifetime totals, so under comparison their
+ * `previousValue` is `null` — the tile keeps the layout but fabricates no delta.
  */
 function PostDetailHighlightsInner() {
 	const { reportParams } = useWidgetRootContext();
@@ -93,11 +90,10 @@ function PostDetailHighlightsInner() {
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ isLoading && ! hasData }
+				isLoading={ isLoading }
 				isFetching={ isFetching }
-				// As with `isLoading` above: the highlights stay on screen through a
-				// transient refetch failure, so only surface the error when there is
-				// nothing to show.
+				// The highlights stay on screen through a transient refetch failure, so
+				// only surface the error when there is nothing to show.
 				isError={ ! hasData && isError }
 				isEmpty={ postId <= 0 }
 				error={ {
@@ -114,6 +110,7 @@ function PostDetailHighlightsInner() {
 						'jetpack-premium-analytics-pkg'
 					),
 				} }
+				renderLoading={ <MetricTileGridSkeleton tiles={ tiles.length } /> }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 			</WidgetState>

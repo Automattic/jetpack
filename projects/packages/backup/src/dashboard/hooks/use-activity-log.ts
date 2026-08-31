@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import {
 	fetchActivityLog,
 	type WpcomActivityEntry,
@@ -8,6 +8,7 @@ import {
 import { normalizeActivityLog } from '../data/normalize/activity-log';
 import { keys } from '../data/query-client';
 import { useCanQueryWpcom } from './use-connection';
+import { useStickyError } from './use-sticky-error';
 import type { ActivityItem } from '../types/activity';
 
 type Args = {
@@ -20,7 +21,15 @@ type Result = {
 	totalItems: number;
 	totalPages: number;
 	isLoading: boolean;
+	/**
+	 * True while a refetch is in flight. Distinct from `isLoading`, which
+	 * React Query defines as `isPending && isFetching` — a query in the
+	 * error state is never pending, so `isLoading` stays false for the
+	 * whole duration of a retry.
+	 */
+	isFetching: boolean;
 	error: Error | null;
+	refetch: () => void;
 };
 
 /**
@@ -69,22 +78,35 @@ function useActivityPageQuery( page: number, pageSize: number ) {
  * @param args          - Query args.
  * @param args.page     - 1-indexed page number.
  * @param args.pageSize - Items per page.
- * @return Items, total items, total pages, loading, error.
+ * @return Items, total items, total pages, loading, error, refetch.
  */
 export function useActivityLog( { page, pageSize }: Args ): Result {
 	const query = useActivityPageQuery( page, pageSize );
+	const { refetch } = query;
+	// Held across the retry: React Query rewinds this query to `pending`
+	// when it refetches after a failure, so without this the reason
+	// disappears the moment the reader clicks the retry button.
+	const error = useStickyError( query.error, query.isFetching );
 
 	const items = useMemo(
 		() => normalizeActivityLog( query.data?.current?.orderedItems ),
 		[ query.data ]
 	);
 
+	// Wrapped so callers can hand it straight to `onClick` without
+	// returning a floating promise from the event handler.
+	const retry = useCallback( () => {
+		refetch();
+	}, [ refetch ] );
+
 	return {
 		items,
 		totalItems: query.data?.totalItems ?? items.length,
 		totalPages: query.data?.totalPages ?? Math.max( 1, Math.ceil( items.length / pageSize ) ),
 		isLoading: query.isLoading,
-		error: query.error ?? null,
+		isFetching: query.isFetching,
+		error,
+		refetch: retry,
 	};
 }
 
@@ -165,6 +187,46 @@ export function useDefaultBackupRewindId(): string | null {
 		}
 		return null;
 	}, [ query.data ] );
+}
+
+/**
+ * Whether the newest page of rewindable activity holds any backup row,
+ * and whether that is known yet.
+ *
+ * Shares the page-1 query with `useDefaultBackupRewindId`, so it costs
+ * no extra request.
+ *
+ * This is a second, independent opinion on "does this site have a
+ * restore point". `/jetpack/v4/backups` only reports VaultPress's most
+ * recent handful of rows, and scan-only rows are filtered out of that
+ * window — so it can say "nothing usable" for a site that still has
+ * perfectly good restore points a little further back. The activity log
+ * is paginated over the full retention window and does not have that
+ * blind spot.
+ *
+ * `isError` is reported separately from `isLoading` because callers must
+ * treat the two the same way and React Query does not. A failed query is
+ * not loading and holds no rows, so `hasRestorePoints` comes back a
+ * confident `false` for a question that was never actually answered —
+ * which is indistinguishable, to a caller reading only the first two
+ * values, from a site that genuinely has no restore points.
+ *
+ * @return Whether a restore point is visible, whether the answer has loaded, and whether asking failed.
+ */
+export function useHasRestorePoints(): {
+	hasRestorePoints: boolean;
+	isLoading: boolean;
+	isError: boolean;
+} {
+	const query = useActivityPageQuery( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE );
+	const hasRestorePoints = useMemo(
+		() =>
+			normalizeActivityLog( query.data?.current?.orderedItems ).some(
+				item => item.kind === 'backup'
+			),
+		[ query.data ]
+	);
+	return { hasRestorePoints, isLoading: query.isLoading, isError: query.isError };
 }
 
 /**

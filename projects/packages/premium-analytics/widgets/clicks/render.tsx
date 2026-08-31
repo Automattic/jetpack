@@ -11,7 +11,9 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
@@ -214,18 +216,11 @@ export function ClicksLeaderboard( {
 	);
 }
 
-type ClicksInnerProps = {
-	/**
-	 * Maximum rows to display. 0 means all rows returned by the API.
-	 */
-	max: number;
-};
-
 /**
  * Clicks widget inner component. Reads report params from WidgetRoot context
  * and renders the leaderboard, with drill-down into a link's child clicks.
  */
-function ClicksInner( { max }: ClicksInnerProps ) {
+function ClicksInner() {
 	const { reportParams } = useWidgetRootContext();
 	const {
 		drillDownItem: selectedClickLabel,
@@ -234,11 +229,11 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 	} = useWidgetDrillDown< string >();
 	const statsParams = {
 		...reportParams,
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} as StatsReportParams;
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } = useStatsClicks(
 		statsParams,
-		{ maxRows: max }
+		{ maxRows: WIDGET_ROW_LIMIT }
 	);
 
 	const rows = useMemo(
@@ -253,12 +248,9 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 	const activeRows = isDrillDown ? selectedClick.children ?? [] : rows;
 	const withComparison = isDrillDown ? !! selectedClick?.childrenHaveComparison : hasComparison;
 
-	// The view already falls back to the top list when the selected link is
-	// missing or no longer drillable (no children); clear the stored selection
-	// too once data has settled without a drillable match, so stale state
-	// can't resurface on a later refetch (WOOA7S-1666). In-flight fetches keep
-	// placeholder rows and errors aren't settled data, so a valid selection
-	// survives refetches and transient failures.
+	// Clear the stored selection only once data has settled without a drillable
+	// match, so it can't resurface on a later refetch (WOOA7S-1666) and a valid
+	// selection survives in-flight fetches and transient failures.
 	useEffect( () => {
 		if ( selectedClickLabel && ! isDrillDown && ! isLoading && ! isFetching && ! isError ) {
 			clearSelectedClick();
@@ -286,10 +278,8 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
-				// The Stats queries carry `placeholderData: previousData => previousData`, so a
-				// failed range change keeps the prior period's rows while `isError` flips true.
-				// Only surface the error when there's nothing to show, so a transient refetch
-				// failure doesn't replace populated rows with the error state.
+				// `placeholderData` keeps the prior period's rows on screen while `isError`
+				// flips true, so a transient refetch failure should not replace them.
 				isError={ rows.length === 0 && isError }
 				isEmpty={ activeRows.length === 0 }
 				error={ {
@@ -303,6 +293,7 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 					icon: link,
 					description: __( 'No clicks in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<ClicksLeaderboard
 					rows={ activeRows }
@@ -319,12 +310,10 @@ function ClicksInner( { max }: ClicksInnerProps ) {
  * comes from the shared dashboard date picker via WidgetRoot.
  */
 export default function ClicksWidget( { attributes = {} }: ClicksWidgetProps ) {
-	const max = attributes?.max ?? 10;
-
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<ClicksInner max={ max } />
+				<ClicksInner />
 				<WidgetFooter>
 					<ReportLink report="clicks" />
 				</WidgetFooter>

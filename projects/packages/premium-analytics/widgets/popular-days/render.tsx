@@ -1,17 +1,16 @@
 /**
  * External dependencies
  */
-import { Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import {
 	describeError,
-	Sparkline,
+	MetricSparklineSkeleton,
+	PeakDistribution,
 	WidgetRoot,
 	WidgetState,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -30,11 +29,6 @@ type PopularDaysWidgetProps = WidgetRenderProps< PopularDaysRenderAttributes > &
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
-// `decimals: 0` would round 166,900 to "167K"; the prototype's secondary figure
-// keeps the digit ("166.9k").
-const ABBREVIATED_VIEWS_OPTIONS = { useMultipliers: true, decimals: 1 };
-const PLAIN_VIEWS_OPTIONS = { decimals: 0 };
-
 function PopularDaysReport() {
 	const { buckets, peak, isLoading, isFetching, isError, error, refetch } = usePopularDays();
 
@@ -43,22 +37,8 @@ function PopularDaysReport() {
 	const points = useMemo( () => buckets.map( bucket => bucket.average ), [ buckets ] );
 
 	// `placeholderData` keeps the prior response on a transient refetch failure,
-	// so the error only surfaces when there is nothing left to show. `error` is
-	// gated on the same predicate so the two cannot disagree.
+	// so the error only surfaces when there is nothing left to show.
 	const showError = isError && ! peak;
-
-	const views = peak?.average ?? 0;
-	const exactViews = formatMetricValue( views, 'number', PLAIN_VIEWS_OPTIONS );
-	const formattedViews = formatMetricValue(
-		views,
-		'number',
-		views >= 1000 ? ABBREVIATED_VIEWS_OPTIONS : PLAIN_VIEWS_OPTIONS
-	);
-
-	/* translators: %s is a number of views, e.g. "166.9k". */
-	const viewsTemplate = __( '%s views', 'jetpack-premium-analytics-pkg' );
-	const viewsLabel = sprintf( viewsTemplate, formattedViews );
-	const exactViewsLabel = sprintf( viewsTemplate, exactViews );
 
 	return (
 		<div className={ styles.root }>
@@ -82,31 +62,13 @@ function PopularDaysReport() {
 					icon: calendar,
 					description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <MetricSparklineSkeleton withHeadlineCount /> }
 			>
-				<div className={ styles.body }>
-					<div className={ styles.headline }>
-						{ /* Not `MetricValue`: it pins a 20px line-height at any font size, which
-						    clips 32px glyphs. `heading-2xl` pairs 32px with 40px. */ }
-						<Text variant="heading-2xl">{ peak?.label }</Text>
-						<Text variant="body-md" className={ styles.views } title={ exactViews }>
-							{ viewsLabel === exactViewsLabel ? (
-								viewsLabel
-							) : (
-								<>
-									{ /* `title` is not reliably announced, so the abbreviation is hidden
-									    from assistive tech and the exact figure read in its place. */ }
-									<span aria-hidden="true">{ viewsLabel }</span>
-									<VisuallyHidden>{ exactViewsLabel }</VisuallyHidden>
-								</>
-							) }
-						</Text>
-					</div>
-					<div className={ styles.chart }>
-						{ /* `withResponsive` caps width at 1200px by default, stranding space on a
-						    wider card. */ }
-						<Sparkline data={ points } maxWidth={ Infinity } />
-					</div>
-				</div>
+				<PeakDistribution
+					label={ peak?.label ?? '' }
+					value={ peak?.average ?? 0 }
+					points={ points }
+				/>
 			</WidgetState>
 		</div>
 	);

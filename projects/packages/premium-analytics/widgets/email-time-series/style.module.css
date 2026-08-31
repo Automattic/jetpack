@@ -1,7 +1,4 @@
-/* Positioned anchor so WidgetState's overlay (position: absolute; inset: 0)
-   resolves against the widget body, not the host frame. */
 .root {
-	position: relative;
 	display: flex;
 	flex-direction: column;
 	height: 100%;
