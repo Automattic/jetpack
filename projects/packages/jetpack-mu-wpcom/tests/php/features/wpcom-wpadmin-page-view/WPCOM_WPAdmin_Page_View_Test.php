@@ -80,4 +80,36 @@ class WPCOM_WPAdmin_Page_View_Test extends TestCase {
 			array( false, null, null ),
 		);
 	}
+
+	/**
+	 * Tests that only a Location response header marks a request as having rendered no screen.
+	 *
+	 * @dataProvider wpcom_admin_screen_rendered_provider
+	 *
+	 * @param string[] $headers  Response headers, as returned by headers_list().
+	 * @param bool     $expected Whether the request should count as a rendered screen.
+	 */
+	#[DataProvider( 'wpcom_admin_screen_rendered_provider' )]
+	public function test_wpcom_admin_screen_rendered( $headers, $expected ) {
+		$this->assertSame( $expected, wpcom_admin_screen_rendered( $headers ) );
+	}
+
+	/**
+	 * Data provider for test_wpcom_admin_screen_rendered.
+	 *
+	 * PHP echoes the caller's casing back from header() and not every redirect goes through
+	 * wp_redirect(), while matching the header name anywhere in the string would treat
+	 * X-Content-Location as a redirect and drop real screens out of the denominator.
+	 *
+	 * @return array
+	 */
+	public static function wpcom_admin_screen_rendered_provider() {
+		return array(
+			'rendered screen'      => array( array( 'Content-Type: text/html; charset=UTF-8', 'X-Frame-Options: SAMEORIGIN' ), true ),
+			'headerless response'  => array( array(), true ),
+			'wp_redirect'          => array( array( 'Content-Type: text/html; charset=UTF-8', 'Location: /wp-admin/edit.php' ), false ),
+			'lowercased by caller' => array( array( 'location: /wp-admin/' ), false ),
+			'location in a name'   => array( array( 'X-Content-Location: /wp-admin/' ), true ),
+		);
+	}
 }

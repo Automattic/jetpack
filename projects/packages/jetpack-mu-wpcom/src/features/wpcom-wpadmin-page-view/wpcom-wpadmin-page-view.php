@@ -167,3 +167,108 @@ function get_account_age_in_days() {
 
 	return ( time() - strtotime( $current_user->user_registered ) ) / DAY_IN_SECONDS;
 }
+
+/**
+ * Watch a request that resolved an admin screen, so it can be counted once the response settles.
+ *
+ * @param \WP_Screen $screen The screen WordPress resolved for this request.
+ */
+function wpcom_admin_screen_watch_request( $screen ) {
+	if ( ! wpcom_admin_screen_is_countable( $screen ) ) {
+		return;
+	}
+
+	// Deferred to shutdown because a redirect is only knowable once the response headers have
+	// settled, and admin_init has by then populated the user types below. Named callback so the
+	// second set_current_screen() in admin-header.php cannot register it twice.
+	add_action( 'shutdown', __NAMESPACE__ . '\wpcom_admin_screen_record' );
+}
+add_action( 'current_screen', __NAMESPACE__ . '\wpcom_admin_screen_watch_request' );
+
+/**
+ * Whether wpcom_admin_page_view could also have reported this request. An exclusion on one side
+ * but not the other makes the coverage percentage a measure of the disagreement between the two
+ * events rather than of the tracking gap.
+ *
+ * @param \WP_Screen $screen The screen WordPress resolved for this request.
+ * @return bool
+ */
+function wpcom_admin_screen_is_countable( $screen ) {
+	// Atomic's only server-side delivery is a blocking 1s HTTP request per page view, which is
+	// too expensive to run on every admin screen.
+	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+		return false;
+	}
+
+	if ( ! $screen instanceof \WP_Screen ) {
+		return false;
+	}
+
+	// set_current_screen() also runs for a handful of admin-ajax actions, which render no page.
+	if ( wp_doing_ajax() ) {
+		return false;
+	}
+
+	if ( ! is_user_logged_in() ) {
+		return false;
+	}
+
+	return ! do_not_track_a11ns();
+}
+
+/**
+ * A redirecting request renders no screen; the one it points at records itself. Counting both
+ * would inflate the denominator on every admin POST, since those all end in a redirect.
+ *
+ * @param string[] $headers Response headers, as returned by headers_list().
+ * @return bool
+ */
+function wpcom_admin_screen_rendered( array $headers ) {
+	foreach ( $headers as $header ) {
+		if ( 0 === stripos( $header, 'location:' ) ) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/**
+ * Record one Tracks event per rendered admin screen.
+ *
+ * @return void
+ */
+function wpcom_admin_screen_record() {
+	if ( ! wpcom_admin_screen_rendered( headers_list() ) ) {
+		return;
+	}
+
+	$screen = get_current_screen();
+	if ( ! $screen instanceof \WP_Screen ) {
+		return;
+	}
+
+	global $current_blog;
+	if ( ! $current_blog instanceof \WP_Site ) {
+		return;
+	}
+
+	// Called instead of wpcom_record_tracks_event() because that helper tests for
+	// tracks_record_event() before require_lib() has had a chance to define it, and so drops
+	// events whenever nothing else loaded the lib first.
+	require_lib( 'tracks/client' );
+
+	// Property names and value shapes are copied from wpcom_admin_page_view so that the two
+	// events join per screen without a translation step in the query.
+	tracks_record_event(
+		wp_get_current_user(),
+		'wpcom_admin_screen',
+		array(
+			'from_page'       => $screen->id,
+			'is_block_editor' => $screen->is_block_editor ? 'true' : 'false',
+			'source'          => 'wp-admin',
+			'blog_id'         => (string) $current_blog->blog_id,
+			'user_type'       => implode( ',', \WPCOM_User::get_types() ),
+		)
+	);
+}

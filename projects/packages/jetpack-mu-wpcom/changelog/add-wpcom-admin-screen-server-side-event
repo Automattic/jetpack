@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+wp-admin: Record a server-side page view event alongside the existing client-side one.
