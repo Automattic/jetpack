@@ -60,7 +60,13 @@ export function InstagramPostPreview( {
 }: InstagramPreviewProps ) {
 	const username = name || 'username';
 	const mediaItem = media?.[ 0 ];
+	const isVideo = !! mediaItem?.type.startsWith( 'video/' );
 	const { aspectRatio, isLoading, imgProps } = useInstagramAspectRatio();
+
+	// Only an <img> fires the handler that clears `isLoading`. Without this guard a
+	// video item — or a post with no media at all — would stay `visibility: hidden`
+	// forever.
+	const isAwaitingImage = isLoading && ( mediaItem ? ! isVideo : !! image );
 
 	const mediaStyle = aspectRatio ? { aspectRatio: `${ aspectRatio }` } : undefined;
 
@@ -79,12 +85,12 @@ export function InstagramPostPreview( {
 					</div>
 				</div>
 				<div
-					className={ `instagram-preview__media ${ isLoading ? 'is-loading' : '' }` }
+					className={ `instagram-preview__media ${ isAwaitingImage ? 'is-loading' : '' }` }
 					style={ mediaStyle }
 				>
 					{ mediaItem ? (
 						<div className="instagram-preview__media-item">
-							{ mediaItem.type.startsWith( 'video/' ) ? (
+							{ isVideo ? (
 								<video controls={ false } className="instagram-preview__media--video">
 									<source src={ mediaItem.url } type={ mediaItem.type } />
 								</video>

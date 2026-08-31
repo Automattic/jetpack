@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { AvatarWithFallback } from '../avatar-with-fallback';
 import { baseDomain, getTitleFromDescription, preparePreviewText } from '../helpers';
 import { ExpandableText } from '../shared/expandable-text';
@@ -16,6 +16,7 @@ import './style.scss';
  * @return The LinkedIn post preview component.
  */
 export function LinkedInPostPreview( {
+	articleReadTime = 5,
 	image,
 	imageFocalPoint,
 	jobTitle,
@@ -125,6 +126,12 @@ export function LinkedInPostPreview( {
 									</span>
 									<span className="linkedin-preview__article-card--domain">
 										{ baseDomain( url ) }
+										{ ' \u2022 ' }
+										{ sprintf(
+											// translators: %d is the number of minutes it takes to read the article
+											__( '%d min read', 'social-previews' ),
+											articleReadTime
+										) }
 									</span>
 								</div>
 							</div>
