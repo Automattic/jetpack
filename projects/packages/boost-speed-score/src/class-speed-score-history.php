@@ -147,15 +147,11 @@ class Speed_Score_History {
 	}
 
 	/**
-	 * Bring the latest history entry's timestamp up to date.
+	 * Move the latest entry's timestamp to now without changing its scores.
 	 *
-	 * Used when a speed score run completes and returns the same scores as the run before it.
-	 * The entry itself does not change, but the timestamp has to move, because every reader of
-	 * it asks when the score was last measured rather than when it last changed. Without this,
-	 * the timestamp of a site whose scores keep repeating freezes and the score looks stale
+	 * Used when a run completes with the same scores as before: no new entry is pushed, but
+	 * staleness is measured by the timestamp, so it has to move or repeating scores look stale
 	 * forever.
-	 *
-	 * Does nothing when there is no history yet.
 	 *
 	 * @since $$next-version$$
 	 */

@@ -255,7 +255,7 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	}
 
 	/**
-	 * Read a history entry, failing the test rather than the assertion if it is missing.
+	 * Read a history entry, failing the test if it is missing.
 	 *
 	 * @param Speed_Score_History $history The history to read from.
 	 * @param int                 $offset  How far back from the latest entry to look.
@@ -315,7 +315,7 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	}
 
 	/**
-	 * Touching the latest entry must not drag the history option into the autoload set.
+	 * The touch rewrites the option, and must keep the non-autoload flag the push wrote.
 	 */
 	public function test_touching_the_latest_entry_does_not_autoload_the_option() {
 		$scores = array(
@@ -350,7 +350,7 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	}
 
 	/**
-	 * A run that comes back with different scores still pushes a new entry.
+	 * The touch path added for repeating scores must not swallow runs whose scores changed.
 	 */
 	public function test_changed_scores_push_a_new_entry() {
 		$old_timestamp = time() - 3 * DAY_IN_SECONDS;
@@ -395,7 +395,7 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	}
 
 	/**
-	 * A site with no history at all records its first entry, exactly as before.
+	 * With no previous entry there is nothing to compare against, so the first run always pushes.
 	 */
 	public function test_an_empty_history_records_the_first_run() {
 		$scores = array(
@@ -412,11 +412,9 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	}
 
 	/**
-	 * Boost_Abilities defends against history entries whose scores are stdClass rather than an
-	 * array, so such entries may exist on long lived sites. An object can never compare equal to
-	 * the array the API returns today, which would leave the run permanently pushing and never
-	 * touching. Check that it converges instead: one push to replace the legacy entry, and
-	 * touches from then on.
+	 * Boost_Abilities defends against stdClass scores, so such history entries exist on long
+	 * lived sites, and an object never equals the array the API returns — a legacy entry would
+	 * otherwise be pushed forever. Check that one push replaces it and touches follow.
 	 */
 	public function test_legacy_object_scores_converge_on_touching() {
 		$scores = array(
@@ -434,19 +432,18 @@ class Speed_Score_Request_Test extends Base_TestCase {
 			)
 		);
 
-		// The stored object cannot match the array from the API, so this run pushes.
 		$this->poll_with_scores( $scores );
 		$this->assertSame( 2, $this->stored_history()->count() );
 
-		// Age the entry that push just wrote. Without this the push alone leaves the history
-		// fresh, and the assertion below would pass whether or not the touch happened.
+		// Age the entry the push wrote: without this the history stays fresh and the assertion
+		// below passes whether or not the touch happened.
 		$entries = $this->options[ $this->history_option_name() ];
 
 		$entries[ count( $entries ) - 1 ]['timestamp'] = time() - 3 * DAY_IN_SECONDS;
 		$this->seed_history( $entries );
 		$this->assertTrue( $this->stored_history()->is_stale() );
 
-		// The latest entry is a plain array now, so this run touches it rather than pushing.
+		// The replacement entry is a plain array, so this run touches instead of pushing.
 		$this->poll_with_scores( $scores );
 
 		$history = $this->stored_history();
@@ -455,9 +452,8 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	}
 
 	/**
-	 * Entries saved before the theme was recorded have no theme key. Reading one used to raise
-	 * an undefined array key warning, which this suite fails on. The run should treat the theme
-	 * as changed and push, quietly.
+	 * Reading a theme-less legacy entry used to raise an undefined array key warning, which
+	 * this suite fails on. The run should treat the theme as changed and push.
 	 */
 	public function test_a_legacy_entry_without_a_theme_pushes_quietly() {
 		$scores = array(
@@ -515,7 +511,7 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	}
 
 	/**
-	 * An empty history has nothing to touch, so touch_latest() writes nothing at all.
+	 * The empty-history touch must not create the option as a side effect.
 	 */
 	public function test_touching_an_empty_history_writes_nothing() {
 		$history = $this->stored_history();
