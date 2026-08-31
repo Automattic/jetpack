@@ -76,12 +76,12 @@ class Speed_Score_Request extends Cacheable {
 	/**
 	 * Constructor.
 	 *
-	 * @param string $url The URL to get the Speed Scores for.
-	 * @param array  $active_modules Active modules.
-	 * @param null   $created When the Speed Scores request was created, in seconds since epoch.
-	 * @param string $status Status of the Speed Scores request.
-	 * @param null   $error The Speed Scores error.
-	 * @param string $client A string identifying where the request was made from.
+	 * @param string         $url The URL to get the Speed Scores for.
+	 * @param array          $active_modules Active modules.
+	 * @param int|float|null $created When the Speed Scores request was created, in seconds since epoch.
+	 * @param string         $status Status of the Speed Scores request.
+	 * @param null           $error The Speed Scores error.
+	 * @param string         $client A string identifying where the request was made from.
 	 */
 	public function __construct( $url, $active_modules = array(), $created = null, $status = 'pending', $error = null, $client = null ) {
 		$this->set_cache_id( self::generate_cache_id_from_url( $url ) );

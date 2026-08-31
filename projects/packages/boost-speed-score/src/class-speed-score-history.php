@@ -104,7 +104,7 @@ class Speed_Score_History {
 	 *
 	 * All speed score before this timestamp are considered stale.
 	 *
-	 * @return array
+	 * @return int
 	 */
 	public static function get_stale_timestamp() {
 		$last_stale_marker = Transient::get( static::STALE_TRANSIENT_KEY, 0 );
