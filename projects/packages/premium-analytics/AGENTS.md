@@ -211,15 +211,6 @@ See Automattic/jetpack#50266 for the PR that established this contract.
 
 ## Comments and documentation
 
-Code explains what; comments explain why. Keep them minimal.
-
-- Document non-obvious rules, constraints, invariants, risks, and workarounds — not names,
-  types, or signatures. Prefer a clearer name over an explanatory comment.
-- Private functions do not need a docstring by default. One sentence is usually enough.
-- Never invent rationale. Treat a stale comment as a bug: one that contradicts the code is
-  worse than no comment at all.
-- All source code comments must be in English.
-
 Load-bearing here and easy to delete by mistake: the `max = 0` semantics, the
 `undefined`-not-`0` comparison rules, `safeHttpUrl` guards (including the ones explaining why a
 URL needs _no_ guard), import-boundary notes (WOOA7S-1836), and the WPCOM Simple route guards.
