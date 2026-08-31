@@ -22,6 +22,10 @@ const SELECTION_HINT_ID = 'jpb-restore__selection-hint';
  * shared item checklist, and a Confirm button. Submit drives a real
  * state machine over the `/jetpack/v4/rewind/to/$rewindId` bridge.
  *
+ * Every `ProgressBar` below is given an `aria-label`, for the reason
+ * recorded in `tests/progress-bar-names.test.tsx`; the `<Text>` beside
+ * each one never reaches the bar's accessible name.
+ *
  * @return The rendered Restore screen.
  */
 export default function RestoreScreen() {
@@ -193,13 +197,18 @@ export default function RestoreScreen() {
 							<Text>
 								{ __( 'Your restore is queued and will begin shortly…', 'jetpack-backup-pkg' ) }
 							</Text>
-							<ProgressBar />
+							<ProgressBar
+								aria-label={ __( 'Waiting for your restore to begin', 'jetpack-backup-pkg' ) }
+							/>
 						</Stack>
 					) }
 					{ state.phase === 'progress' && (
 						<Stack direction="column" gap="sm">
 							<Text>{ __( 'Restoring…', 'jetpack-backup-pkg' ) }</Text>
-							<ProgressBar value={ state.percent } />
+							<ProgressBar
+								value={ state.percent }
+								aria-label={ __( 'Restoring your site', 'jetpack-backup-pkg' ) }
+							/>
 						</Stack>
 					) }
 					{ state.phase === 'success' && (
@@ -254,7 +263,9 @@ export default function RestoreScreen() {
 									{ state.detail }
 								</Text>
 							) }
-							<ProgressBar />
+							<ProgressBar
+								aria-label={ __( 'Checking whether your restore started', 'jetpack-backup-pkg' ) }
+							/>
 						</Stack>
 					) }
 					{ /*
