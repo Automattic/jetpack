@@ -317,59 +317,6 @@ describe( 'usePopularPost', () => {
 			expect( ranking ).toContain( 'days=365' );
 		} );
 
-		it( 'ranks over a range the caller passes instead', async () => {
-			mockEndpoints();
-
-			// The card has no date control today, so nothing passes one. The
-			// parameter is the seam for giving it one: a control the card owns and
-			// whose window its title can still honestly claim — never the section
-			// filter, which is what pinning the default keeps it clear of.
-			const { result } = renderHook(
-				() =>
-					usePopularPost( {
-						preset: 'last-30-days',
-						from: '2026-07-28T00:00:00.000+00:00',
-						to: '2026-08-26T23:59:59.999+00:00',
-						interval: 'day',
-					} ),
-				{ wrapper }
-			);
-
-			await waitFor( () => expect( result.current.post?.id ).toBe( 7 ) );
-
-			const ranking = decodeURIComponent( topPostsRequestPaths()[ 0 ] );
-
-			expect( ranking ).toContain( 'start_date=2026-07-28T00:00:00' );
-			expect( ranking ).toContain( 'days=30' );
-			// Reported back as given, so the detail link follows the card's window
-			// wherever that window came from.
-			expect( result.current.range.preset ).toBe( 'last-30-days' );
-		} );
-
-		it( 'accepts a custom range, which carries no preset', async () => {
-			mockEndpoints();
-
-			// The shape a date control produces once the reader picks their own
-			// dates: `normalizeReportParams` leaves the preset undefined there, so a
-			// range type that demanded one could not express it.
-			const { result } = renderHook(
-				() =>
-					usePopularPost( {
-						from: '2026-03-01T00:00:00.000+00:00',
-						to: '2026-03-31T23:59:59.999+00:00',
-						interval: 'day',
-					} ),
-				{ wrapper }
-			);
-
-			await waitFor( () => expect( result.current.post?.id ).toBe( 7 ) );
-
-			expect( decodeURIComponent( topPostsRequestPaths()[ 0 ] ) ).toContain(
-				'start_date=2026-03-01T00:00:00'
-			);
-			expect( result.current.range.preset ).toBeUndefined();
-		} );
-
 		it( 'draws the window in the site zone, not at UTC midnight', async () => {
 			// The Stats endpoints resolve these to a local calendar day, so the
 			// offset is load-bearing: with the boundaries computed at UTC instead,
@@ -427,8 +374,8 @@ describe( 'usePopularPost', () => {
 		expect( topPostsRequestPaths() ).toHaveLength( 1 );
 
 		// Nothing the dashboard re-renders the widget for — a new date range, a
-		// comparison toggle — reaches the request: the card passes no range, so it
-		// keeps ranking over its default window.
+		// comparison toggle — reaches the request: the card reads no host params,
+		// so it keeps ranking over its own window.
 		rerender();
 
 		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );

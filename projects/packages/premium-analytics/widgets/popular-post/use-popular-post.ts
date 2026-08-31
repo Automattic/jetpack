@@ -2,11 +2,10 @@
  * External dependencies
  */
 import {
-	computeDateRangeFromPreset,
+	getDefaultQueryParams,
 	postContentQuery,
 	useStatsPost,
 	useStatsQuery,
-	resolveIntervalForRange,
 	useStatsTopPosts,
 	type LatestPostResponse,
 	type ReportParams,
@@ -42,42 +41,15 @@ export type PopularPostWithMetrics = {
 };
 
 /**
- * A ranking window, as the shared report date params — the same fields a date
- * control produces, so one can be handed straight to the hook. `preset` is
- * optional for the same reason it is on `ReportParams`: a custom range has
- * none, and the detail page's own params carry only the dates in that case.
+ * The window the card ranked over, as the date fields of the shared report
+ * params — the shape the detail page's route takes.
  */
 export type PopularPostRange = Pick< ReportParams, 'from' | 'to' | 'preset' | 'interval' >;
 
-// The window the card ranks over while it carries no date control of its own.
-// Named rather than inlined so giving it one later is a change of caller.
-const POPULAR_POST_DEFAULT_PRESET = PRESET_LAST_12_MONTHS;
-
-/**
- * Resolved per call rather than once, so the window is never older than the
- * render that reads it. `last-12-months` is a built-in preset, so it always
- * resolves; the empty fallback exists only to satisfy the type. It disables the
- * ranking query rather than silently widening the window, which the card would
- * show as its empty state — wrong, but only reachable if the preset itself
- * stopped resolving.
- */
-function resolveDefaultRange(): PopularPostRange {
-	const { from, to } = computeDateRangeFromPreset( POPULAR_POST_DEFAULT_PRESET ) ?? {
-		from: '',
-		to: '',
-	};
-
-	return {
-		preset: POPULAR_POST_DEFAULT_PRESET,
-		from,
-		to,
-		// Resolved rather than hardcoded so the range is a complete report window:
-		// the params type requires an interval, and the detail page the card links
-		// to would settle on this one anyway. (It reseeds the URL regardless — its
-		// redirect also fires on the missing `post_id`, which a link cannot carry.)
-		interval: resolveIntervalForRange( POPULAR_POST_DEFAULT_PRESET, from, to ),
-	};
-}
+// The window the card ranks over, pinned to the period its title names rather
+// than following the dashboard's range, which would make that title false the
+// moment the section filter moved.
+const POPULAR_POST_PRESET = PRESET_LAST_12_MONTHS;
 
 export type UsePopularPostResult = {
 	post: PopularPostWithMetrics | null;
@@ -94,33 +66,19 @@ export type UsePopularPostResult = {
 };
 
 /**
- * The site's most-viewed post of a single window. The window only picks the
+ * The site's most-viewed post of the last 12 months. The window only picks the
  * winner: every displayed metric is an all-time total from `stats/post`, so the
  * three tiles cannot measure different periods.
  *
- * Defaults to the last 12 months — the period the card's title names — rather
- * than the dashboard's range, which would make that title false the moment the
- * section filter moved. `range` overrides it, for the day the card carries a
- * window of its own: `widgets/annual-highlights/` is the shape to copy, a
- * `relevance: 'high'` attribute the host renders in this widget's frame header,
- * which is how a card gets its own control in a section that keeps its header
- * one. Whatever is passed has to be a window the card's title can honestly
- * claim, so it is that control's range, not the section filter's.
- *
  * Only a ranking failure surfaces as an error; a failing content or metrics
  * request degrades to no image and unknown counts.
- *
- * @param range - The window to rank over. Defaults to the last 12 months.
  */
-export function usePopularPost( range?: PopularPostRange ): UsePopularPostResult {
-	// Down to primitives first, so a caller building the object inline does not
-	// re-key the report query on every render.
-	const { preset, from, to, interval } = range ?? resolveDefaultRange();
+export function usePopularPost(): UsePopularPostResult {
+	// Resolved per render rather than once at module load, so the window is never
+	// older than the render that reads it.
+	const { preset, from, to, interval } = getDefaultQueryParams( false, POPULAR_POST_PRESET );
 
-	const activeRange = useMemo(
-		() => ( { preset, from, to, interval } ),
-		[ preset, from, to, interval ]
-	);
+	const range = useMemo( () => ( { preset, from, to, interval } ), [ preset, from, to, interval ] );
 
 	// `interval` rides along because the params type requires it; it describes the
 	// destination's chart, not this request. It cannot reach the API either way:
@@ -202,7 +160,7 @@ export function usePopularPost( range?: PopularPostRange ): UsePopularPostResult
 
 	return {
 		post,
-		range: activeRange,
+		range,
 		isLoading,
 		isFetching,
 		isError,
