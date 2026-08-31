@@ -1,30 +1,13 @@
-// A progress bar has to say what it is measuring.
+// Each of the six progress bars has to say what it is measuring.
 //
-// This header is the one place the mechanism below is written down; the
-// bars themselves carry only what is specific to their own screen and
-// point here.
+// The trap: `ProgressBar` supplies a generic "Loading …" `aria-label` and
+// spreads caller props after it, so a bare `<ProgressBar />` is labelled — just
+// not usefully — and any test that finds *a* progressbar passes against it. The
+// `<Text>` beside each bar never reaches the accessible name.
 //
-// `@wordpress/components`' `ProgressBar` supplies an `aria-label` of its
-// own — a generic "Loading …" — and spreads the caller's props after it.
-// So a bare `<ProgressBar />` is not unlabelled, which is the trap: it
-// is labelled with a name that identifies neither the operation nor the
-// phase, and any test that merely finds *a* progressbar passes against
-// it. The `<Text>` beside each bar ("Restoring…", "Preparing download…")
-// is not associated with it and never reaches the accessible name.
-//
-// Six bars across the Overview, Restore and Download screens, each
-// measuring something different. These tests pin the name each one
-// exposes.
-//
-// Caveat worth knowing, and the same one `storage-meter.test.tsx` records
-// for the storage meter: these routes externalize `@wordpress/components`
-// to the `wp-components` handle, so the `<ProgressBar>` that runs in
-// wp-admin is WordPress core's, not the version pinned here and resolved
-// by jest. The override holds because the implementation spreads caller
-// props *after* its own hardcoded `aria-label` — prop-spread ordering,
-// which is not a documented contract. If core ever reverses it, all six
-// bars silently go back to announcing themselves as loading indicators
-// and these tests will not notice.
+// These routes externalize `@wordpress/components`, so wp-admin runs core's
+// copy, not the one jest resolves. The override rests on that prop-spread
+// ordering, which is not a documented contract.
 
 const mockApiFetch = jest.fn();
 
