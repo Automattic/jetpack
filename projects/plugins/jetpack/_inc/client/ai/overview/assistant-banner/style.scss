@@ -106,16 +106,19 @@
 		}
 	}
 
-	// The card row scrolls horizontally, bleeding through the banner's
-	// inline-end padding so a cut-off card signals more content (the padding
-	// is taken back inside so the last card still stops short of the edge).
+	// The card row scrolls horizontally, bleeding through the banner's inline
+	// padding on both sides so scrolled-off cards clip at the banner's edges
+	// (a cut-off card signals more content). The padding is taken back inside
+	// so resting cards keep the 40px inset, and scroll-padding makes the snap
+	// positions honor that inset instead of the bled edge.
 	&__cards {
 		display: flex;
 		gap: 16px;
 		margin: 0;
-		margin-inline-end: -40px;
+		margin-inline: -40px;
 		padding: 0;
-		padding-inline-end: 40px;
+		padding-inline: 40px;
+		scroll-padding-inline: 40px;
 		list-style: none;
 		overflow-x: auto;
 		scroll-snap-type: x proximity;
@@ -194,7 +197,7 @@
 	&__video-frame {
 		aspect-ratio: 16 / 9;
 		border-radius: 8px;
-    	overflow: hidden;
+		overflow: hidden;
 
 		iframe {
 			display: block;
@@ -209,7 +212,7 @@
 	// The Button defaults assume a light background.
 	&__dismiss#{&}__dismiss {
 		position: absolute;
-		inset-block-start: 10px;
+		inset-block-start: 18px;
 		inset-inline-end: 21px;
 		color: #fff;
 

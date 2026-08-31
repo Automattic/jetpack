@@ -26,14 +26,14 @@ import './style.scss';
 // connector's install page, through the redirect service.
 const QUICK_START = [
 	{
-		slug: 'jetpack-ai-hub-overview-quick-start-claude',
-		title: __( 'Connect Claude', 'jetpack' ),
-		description: __( 'Give Claude access to your site by installing the connector.', 'jetpack' ),
-	},
-	{
 		slug: 'jetpack-ai-hub-overview-quick-start-chatgpt',
 		title: __( 'Connect ChatGPT', 'jetpack' ),
 		description: __( 'Give ChatGPT access to your site by installing the connector.', 'jetpack' ),
+	},
+	{
+		slug: 'jetpack-ai-hub-overview-quick-start-claude',
+		title: __( 'Connect Claude', 'jetpack' ),
+		description: __( 'Give Claude access to your site by installing the connector.', 'jetpack' ),
 	},
 ];
 

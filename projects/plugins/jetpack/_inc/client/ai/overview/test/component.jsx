@@ -520,7 +520,7 @@ describe( 'AiOverview', () => {
 		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'heading', { level: 2, name: 'Quick start' } ) ).toBeInTheDocument();
 
-		// The frame's Quick start row: Connect Claude / Connect ChatGPT, each a
+		// The frame's Quick start row: Connect ChatGPT / Connect Claude, each a
 		// nav row whose destination lives in the redirect service.
 		const slugByName = {
 			'Connect Claude': 'jetpack-ai-hub-overview-quick-start-claude',

@@ -35,9 +35,13 @@ describe( 'AssistantBanner', () => {
 		for ( const { label } of CAPABILITIES ) {
 			expect( screen.getByText( label ) ).toBeInTheDocument();
 		}
+		// Video cards get a popup button; link cards (href/cta) get an anchor.
 		expect( screen.getAllByRole( 'button', { name: 'Watch video' } ) ).toHaveLength(
-			CAPABILITIES.length
+			CAPABILITIES.filter( ( { videoUrl } ) => videoUrl ).length
 		);
+		for ( const { cta, href } of CAPABILITIES.filter( capability => capability.href ) ) {
+			expect( screen.getByRole( 'link', { name: cta } ) ).toHaveAttribute( 'href', href );
+		}
 		expect( screen.getByRole( 'button', { name: 'Previous' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Next' } ) ).toBeInTheDocument();
 	} );

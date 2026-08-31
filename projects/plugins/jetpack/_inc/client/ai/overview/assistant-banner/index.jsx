@@ -33,9 +33,10 @@ import './style.scss';
 const PREFERENCE_SCOPE = 'jetpack/ai';
 const PREFERENCE_NAME = 'assistantBannerDismissed';
 
-// Things you can do with Jetpack AI, shown in the banner's carousel. Each
-// card's "Watch video" opens the demo in a popup. The embeds are the same
-// VideoPress videos the My Jetpack AI product page uses.
+// Things you can do with Jetpack AI, shown in the banner's carousel. Cards
+// with a `videoUrl` get a "Watch video" CTA that opens the demo in a popup
+// (the embeds are the same VideoPress videos the My Jetpack AI product page
+// uses); cards with an `href`/`cta` link out instead.
 // Exported for the tests, which drive their assertions off this list.
 export const CAPABILITIES = [
 	{
@@ -56,10 +57,8 @@ export const CAPABILITIES = [
 		key: 'connect-agents',
 		icon: connection,
 		label: __( 'Connect your Claude or ChatGPT to your website.', 'jetpack' ),
-		// TODO: replace placeholder video — no agent-connection demo exists
-		// yet, so the general "Discover Jetpack AI" hero stands in.
-		videoUrl:
-			'https://video.wordpress.com/embed/whyeZF1t?posterUrl=https%3A%2F%2Fjetpack.com%2Fwp-content%2Fuploads%2F2024%2F09%2Fthumbnail-1.png',
+		cta: __( 'Connect your agent', 'jetpack' ),
+		href: '#/mcp',
 	},
 	{
 		key: 'content-feedback',
@@ -210,24 +209,37 @@ function CapabilityCarousel() {
 				/>
 			</div>
 			<ul className="jetpack-ai-overview-banner__cards" ref={ listRef } onScroll={ updateArrows }>
-				{ CAPABILITIES.map( capability => (
-					<li className="jetpack-ai-overview-banner__card" key={ capability.key }>
-						<Icon
-							className="jetpack-ai-overview-banner__card-icon"
-							icon={ capability.icon }
-							size={ 24 }
-						/>
-						<span className="jetpack-ai-overview-banner__card-text">{ capability.label }</span>
-						<button
-							type="button"
-							className="jetpack-ai-overview-banner__card-cta"
-							onClick={ () => openVideo( capability ) }
-						>
-							{ __( 'Watch video', 'jetpack' ) }
+				{ CAPABILITIES.map( capability => {
+					const ctaContent = (
+						<>
+							{ capability.href ? capability.cta : __( 'Watch video', 'jetpack' ) }
 							<Icon icon={ isRTL() ? chevronLeft : chevronRight } size={ 16 } />
-						</button>
-					</li>
-				) ) }
+						</>
+					);
+					return (
+						<li className="jetpack-ai-overview-banner__card" key={ capability.key }>
+							<Icon
+								className="jetpack-ai-overview-banner__card-icon"
+								icon={ capability.icon }
+								size={ 24 }
+							/>
+							<span className="jetpack-ai-overview-banner__card-text">{ capability.label }</span>
+							{ capability.href ? (
+								<a className="jetpack-ai-overview-banner__card-cta" href={ capability.href }>
+									{ ctaContent }
+								</a>
+							) : (
+								<button
+									type="button"
+									className="jetpack-ai-overview-banner__card-cta"
+									onClick={ () => openVideo( capability ) }
+								>
+									{ ctaContent }
+								</button>
+							) }
+						</li>
+					);
+				} ) }
 			</ul>
 			{ activeVideo && (
 				<Modal
