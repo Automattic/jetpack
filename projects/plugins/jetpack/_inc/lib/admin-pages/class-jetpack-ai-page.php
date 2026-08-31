@@ -215,8 +215,10 @@ class Jetpack_AI_Page {
 		// the approach used by jetpack-mu-wpcom for the sidebar Activity Log link.
 		$site_host         = wp_parse_url( home_url(), PHP_URL_HOST );
 		$activity_log_site = ( is_string( $site_host ) && '' !== $site_host ) ? $site_host : $site_suffix;
-		// On Atomic link to WPCOM activity log; on self-hosted link to the local wp-admin page.
-		$activity_log_url = ( new Host() )->is_woa_site()
+		// On WordPress.com (Simple and Atomic) link to the WPCOM activity log —
+		// matching the wpcom admin menu, which hides the local Jetpack Activity
+		// Log page there. On self-hosted link to the local wp-admin page.
+		$activity_log_url = ( new Host() )->is_wpcom_platform()
 			? 'https://wordpress.com/activity-log/' . $activity_log_site
 			: admin_url( 'admin.php?page=jetpack-activity-log' );
 
@@ -287,11 +289,19 @@ class Jetpack_AI_Page {
 
 		$show_gated_views = ! empty( $config['showGatedViews'] );
 
-		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array(
+		$plan_info = array(
 			'name'       => '',
 			'renews_on'  => '',
 			'auto_renew' => true,
 		);
+		if ( $show_gated_views ) {
+			// The host integration may precompute the plan the platform-native
+			// way — My Jetpack's signed purchase lookup cannot run on
+			// WordPress.com Simple, so its mu-wpcom configure() supplies this.
+			$plan_info = isset( $config['planInfo'] ) && is_array( $config['planInfo'] )
+				? array_merge( $plan_info, $config['planInfo'] )
+				: self::get_ai_plan_info();
+		}
 
 		$settings = array(
 			'blogId'           => $blog_id ? (int) $blog_id : 0,

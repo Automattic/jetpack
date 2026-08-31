@@ -338,6 +338,36 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Hosts can precompute the Overview plan info — WordPress.com Simple
+	 * answers from its own store because My Jetpack's signed purchase lookup
+	 * cannot run there. A partial answer merges over the empty shape, and the
+	 * host's showGatedViews decision alone opens the views, with no
+	 * internal-testing environment in play.
+	 */
+	public function test_plan_info_can_be_supplied_by_the_host() {
+		add_filter(
+			'jetpack_ai_admin_config',
+			function ( $config ) {
+				$config['showGatedViews'] = true;
+				$config['planInfo']       = array(
+					'name'      => 'Business',
+					'renews_on' => '2027-08-30 00:00:00',
+				);
+
+				return $config;
+			}
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['showFeaturesView'] );
+		$this->assertSame( 'Business', $settings['planName'] );
+		$this->assertSame( '2027-08-30 00:00:00', $settings['planRenewsOn'] );
+		// The key the host left out keeps its default.
+		$this->assertTrue( $settings['planAutoRenew'] );
+	}
+
+	/**
 	 * The Scheduled tasks experience is registered as a default-off feature flag.
 	 */
 	public function test_scheduled_tasks_feature_flag_is_registered() {
