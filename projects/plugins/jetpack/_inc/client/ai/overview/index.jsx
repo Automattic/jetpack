@@ -92,7 +92,7 @@ const DOC_LINKS = [
 
 /**
  * The "Available requests" readout shared by the standard card and the
- * depleted upsell: eyebrow, one hidden translatable summary sentence, the
+ * upsell: eyebrow, one hidden translatable summary sentence, the
  * decorative value/limit pair, and the decorative meter.
  *
  * @param {object} props       - Component props.
@@ -175,11 +175,13 @@ function RequestsMeter( { usage } ) {
 }
 
 /**
- * The requests/plan card per the i4 components: requests over a meter on the
- * left, plan + upgrade-or-renewal on the right. Once every request is used
- * (and an upgrade can actually be offered), the whole card swaps to an upsell
- * notice instead. Loading and error states stay inside the card so the rest
- * of the Overview renders immediately.
+ * The requests/plan card. Whenever an upgrade can actually be offered the
+ * card renders as an upsell: icon and pitch on the left, the requests readout
+ * with the Upgrade button on the right — with harder copy once every request
+ * is used. Without an upgrade to offer it falls back to the i4 two-cell
+ * layout: requests over a meter on the left, plan + renewal on the right.
+ * Loading and error states stay inside the card so the rest of the Overview
+ * renders immediately.
  *
  * @param {object}  props                 - Component props.
  * @param {string}  props.upgradeUrl      - Upgrade destination (shared with the MCP upsell).
@@ -202,20 +204,17 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 	// authoritative for the tier, so an expired purchase cannot relabel Free.
 	const planLabel = ( ! usage.isFree && planName ) || usage.planLabel;
 	const hasNumbers = usage.requestsAvailable !== null && usage.requestsLimit > 0;
-	// Out of requests, the whole card becomes the upsell notice — but only
-	// when an upgrade can actually be offered: its copy is a pitch for the
-	// button, so without one the plain card's zero tells the story instead.
-	const showDepletedUpsell =
-		! usage.unlimited &&
-		hasNumbers &&
-		usage.requestsAvailable === 0 &&
-		usage.showUpgrade &&
-		!! upgradeUrl;
+	// The upsell copy is a pitch for the button, so it only shows when an
+	// upgrade can actually be offered; otherwise the plain two-cell card
+	// tells the story instead.
+	const showUpsell = usage.showUpgrade && !! upgradeUrl;
+	// Out of requests, the pitch hardens from "before you run out" to "you ran out".
+	const isDepleted = ! usage.unlimited && hasNumbers && usage.requestsAvailable === 0;
 
 	return (
-		// The depleted upsell breathes more than the standard card; the
-		// modifier widens the ui Card's own padding token.
-		<Card.Root className={ showDepletedUpsell ? 'jetpack-ai-overview__card--depleted' : undefined }>
+		// The upsell breathes more than the standard card; the modifier widens
+		// the ui Card's own padding token.
+		<Card.Root className={ showUpsell ? 'jetpack-ai-overview__card--upsell' : undefined }>
 			<Card.Content>
 				{ isLoading && (
 					<div className="jetpack-ai-overview__loading">
@@ -229,39 +228,46 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 					</Notice.Root>
 				) }
 
-				{ ! isLoading && ! error && showDepletedUpsell && (
+				{ ! isLoading && ! error && showUpsell && (
 					// Mirrors the standard card's two-cell grid (minus the divider):
 					// icon and pitch on the left, the same requests readout with the
 					// Upgrade button on the right.
-					<div className="jetpack-ai-overview__depleted">
-						<div className="jetpack-ai-overview__depleted-content">
+					<div className="jetpack-ai-overview__upsell">
+						<div className="jetpack-ai-overview__upsell-content">
 							{ /* The wrapper carries the layout class: AiIcon accepts no
 						     className. currentColor tracks the heading, not JP green. */ }
-							<div className="jetpack-ai-overview__depleted-icon">
+							<div className="jetpack-ai-overview__upsell-icon">
 								<AiIcon size={ 28 } color="currentColor" />
 							</div>
 							<Text render={ <h2 /> } variant="heading-lg">
-								{ __( 'You’ve used all your requests', 'jetpack' ) }
+								{ isDepleted
+									? __( 'You’ve used all your requests', 'jetpack' )
+									: __( 'Upgrade Jetpack AI Assistant', 'jetpack' ) }
 							</Text>
 							<Text render={ <p /> } variant="body-md" className="jetpack-ai-overview__muted">
-								{ __(
-									'Upgrade to keep drafting, rewriting, and illustrating without leaving the editor.',
-									'jetpack'
-								) }
+								{ isDepleted
+									? __(
+											'Upgrade to keep drafting, rewriting, and illustrating without leaving the editor.',
+											'jetpack'
+									  )
+									: __(
+											'Draft, rewrite, and illustrate posts without leaving the editor. Upgrade before you run out.',
+											'jetpack'
+									  ) }
 							</Text>
 						</div>
 						{ /* The usage-cell primitive: eyebrow pinned top, readout
 						     bottom-anchored, exactly as in the standard card. */ }
 						<div className="jetpack-ai-overview__usage-cell">
 							<RequestsMeter usage={ usage } />
-							<LinkButton href={ upgradeUrl } className="jetpack-ai-overview__depleted-cta">
+							<LinkButton href={ upgradeUrl } className="jetpack-ai-overview__upsell-cta">
 								{ __( 'Upgrade', 'jetpack' ) }
 							</LinkButton>
 						</div>
 					</div>
 				) }
 
-				{ ! isLoading && ! error && ! showDepletedUpsell && (
+				{ ! isLoading && ! error && ! showUpsell && (
 					<div className="jetpack-ai-overview__usage">
 						<div className="jetpack-ai-overview__usage-cell">
 							<RequestsMeter usage={ usage } />
@@ -282,11 +288,6 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 									>
 										{ planLabel }
 									</Text>
-								) }
-								{ usage.showUpgrade && upgradeUrl && (
-									<LinkButton href={ upgradeUrl } size="compact">
-										{ __( 'Upgrade', 'jetpack' ) }
-									</LinkButton>
 								) }
 								{ ! usage.showUpgrade && renewsOnDisplay && (
 									<Text

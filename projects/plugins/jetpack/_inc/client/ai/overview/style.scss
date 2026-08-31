@@ -54,18 +54,18 @@
 		}
 	}
 
-	// The depleted card breathes more than the standard one — 32px per the
+	// The upsell card breathes more than the standard one — 32px per the
 	// mock. A literal: the wpds padding scale stops at 2xl (24px). The ui
 	// Card reads this token for its own padding.
-	&__card--depleted {
+	&__card--upsell {
 		--wp-ui-card-padding: 32px;
 	}
 
-	// The depleted upsell replaces the two-cell layout once every request is
-	// used, mirroring its grid without the divider: icon and pitch on the
+	// The upsell replaces the two-cell layout whenever an upgrade is on
+	// offer, mirroring its grid without the divider: icon and pitch on the
 	// left, the requests readout with the Upgrade button on the right (the
 	// right cell reuses __usage-cell above).
-	&__depleted {
+	&__upsell {
 		display: flex;
 		align-items: stretch;
 		gap: var(--wpds-dimension-gap-xl, 24px);
@@ -76,7 +76,7 @@
 		}
 	}
 
-	&__depleted-content {
+	&__upsell-content {
 		flex: 1;
 		min-inline-size: 0;
 		display: flex;
@@ -92,7 +92,7 @@
 
 	// Icon pinned top, heading and copy bottom-anchored — the same rhythm the
 	// usage cell gives its eyebrow and readout, so the two columns align.
-	&__depleted-icon {
+	&__upsell-icon {
 		display: block;
 		margin-block-end: auto;
 
@@ -103,7 +103,7 @@
 	}
 
 	// Doubled class beats the component's runtime-injected rules by order.
-	&__depleted-cta#{&}__depleted-cta {
+	&__upsell-cta#{&}__upsell-cta {
 		align-self: flex-start;
 		margin-block-start: var(--wpds-dimension-gap-lg, 14px);
 	}
@@ -133,7 +133,7 @@
 	// The frame gives the requests number a taller line box than the plan name,
 	// which one shared heading-xl variant cannot express. Two classes, because the
 	// variant's runtime-injected line-height rule outranks a lone class in order.
-	&__depleted &__requests-value,
+	&__upsell &__requests-value,
 	&__usage &__requests-value {
 		line-height: var(--wpds-typography-line-height-xl, 32px);
 	}

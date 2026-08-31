@@ -49,7 +49,7 @@ const renewalLine = expected => ( _, el ) =>
 	el?.classList?.contains( 'jetpack-ai-overview__renewal' ) && el.textContent === expected;
 
 describe( 'AiOverview', () => {
-	test( 'free tier: renders remaining requests against the free limit per the i4 card', async () => {
+	test( 'free tier: renders remaining requests against the free limit', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
 		render( <AiOverview { ...PROPS } /> );
@@ -60,7 +60,29 @@ describe( 'AiOverview', () => {
 		expect( screen.getByText( '20' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Available requests' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Free' ) ).toBeInTheDocument();
+	} );
+
+	test( 'upsell: with requests left, the card pitches upgrading before they run out', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		// Same layout as the depleted state, softer copy: the upsell shows
+		// whenever an upgrade is on offer, not just at zero.
+		await expect(
+			screen.findByRole( 'heading', { level: 2, name: 'Upgrade Jetpack AI Assistant' } )
+		).resolves.toBeInTheDocument();
+		expect(
+			screen.getByText(
+				'Draft, rewrite, and illustrate posts without leaving the editor. Upgrade before you run out.'
+			)
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/upgrade'
+		);
+		// The Plan cell yields to the pitch, as in the depleted state.
+		expect( screen.queryByText( 'Free' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'meter a11y: decorative bar, the text carries the counts', async () => {
@@ -77,7 +99,7 @@ describe( 'AiOverview', () => {
 		expect( screen.getByText( '8 of 20 requests available' ) ).toBeInTheDocument();
 	} );
 
-	test( 'depleted: the upsell notice replaces the whole card at zero requests', async () => {
+	test( 'depleted: the copy hardens at zero requests', async () => {
 		apiFetch.mockResolvedValueOnce( depletedPayload() );
 
 		render( <AiOverview { ...PROPS } /> );
@@ -101,8 +123,12 @@ describe( 'AiOverview', () => {
 			'href',
 			'https://example.com/upgrade'
 		);
-		// The Plan cell is gone — the mock's notice replaces the whole card.
+		// The Plan cell is gone — the upsell replaces the whole card.
 		expect( screen.queryByText( 'Free' ) ).not.toBeInTheDocument();
+		// The depleted state keeps its own, harder pitch.
+		expect(
+			screen.queryByRole( 'heading', { name: 'Upgrade Jetpack AI Assistant' } )
+		).not.toBeInTheDocument();
 	} );
 
 	test( 'depleted: without an upgrade to offer, the standard card stays', async () => {
@@ -160,7 +186,9 @@ describe( 'AiOverview', () => {
 	test( 'plan name: a free tier stays Free even with a stale purchase name', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
-		render( <AiOverview { ...PROPS } planName="Jetpack Complete" /> );
+		// No upgradeUrl: the standard card (with its Plan cell) renders, which
+		// is where a stale purchase name could mislabel the tier.
+		render( <AiOverview { ...PROPS } upgradeUrl={ undefined } planName="Jetpack Complete" /> );
 
 		// The usage endpoint owns the tier; an expired purchase must not
 		// relabel a free site as paid.
