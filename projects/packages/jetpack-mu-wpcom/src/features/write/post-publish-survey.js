@@ -1,0 +1,282 @@
+/**
+ * Write — one-question post-publish survey (front-end wiring).
+ *
+ * Gated server-side; see post-publish-survey.php. Choosing an answer records it to
+ * Tracks at once and opens an optional free-text box; the stored response is
+ * written once, on send or on the way out, so an answer is never lost to a writer
+ * who types nothing and closes the card.
+ *
+ * On a Coming Soon site the post-publish checklist owns this screen first, so the
+ * survey waits for that card to go away rather than stacking on top of it.
+ */
+( function () {
+	const config = window.wpcomWritePostPublishSurvey || {};
+	const CHECKLIST_SELECTOR = '.wpcom-write-ppc';
+
+	/**
+	 * Record a Tracks event using the same global queue the Write editor uses.
+	 *
+	 * @param {string} event   - Event name.
+	 * @param {object} [props] - Optional event properties.
+	 */
+	function recordEvent( event, props ) {
+		window._tkq = window._tkq || [];
+		window._tkq.push( [ 'recordEvent', event, props || {} ] );
+	}
+
+	/**
+	 * Remove the post-publish marker from the URL without reloading, so the card
+	 * doesn't reappear on refresh or back-navigation.
+	 */
+	function cleanMarkerFromUrl() {
+		if ( ! config.marker || ! window.history || ! window.history.replaceState ) {
+			return;
+		}
+		try {
+			const url = new URL( window.location.href );
+			if ( ! url.searchParams.has( config.marker ) ) {
+				return;
+			}
+			url.searchParams.delete( config.marker );
+			window.history.replaceState( null, '', url.href );
+		} catch {
+			// Leave the URL as-is if it can't be parsed.
+		}
+	}
+
+	/**
+	 * Run a callback once the post-publish checklist is off the screen.
+	 *
+	 * The checklist removes its overlay on dismiss, so watching for that removal is
+	 * enough.
+	 *
+	 * @param {Function} callback - Invoked when the screen is free.
+	 */
+	function whenChecklistDismissed( callback ) {
+		const checklist = document.querySelector( CHECKLIST_SELECTOR );
+		if ( ! checklist || typeof MutationObserver === 'undefined' ) {
+			callback();
+			return;
+		}
+
+		const observer = new MutationObserver( function () {
+			if ( ! document.querySelector( CHECKLIST_SELECTOR ) ) {
+				observer.disconnect();
+				callback();
+			}
+		} );
+		observer.observe( document.body, { childList: true, subtree: true } );
+	}
+
+	/**
+	 * Find the card, wire its controls, and reveal it at the right moment.
+	 */
+	function init() {
+		const overlay = document.querySelector( '.wpcom-write-pps' );
+		if ( ! overlay ) {
+			return;
+		}
+
+		const card = overlay.querySelector( '.wpcom-write-pps__card' );
+		const commentWrap = overlay.querySelector( '.wpcom-write-pps__comment' );
+		const commentInput = overlay.querySelector( '.wpcom-write-pps__comment-input' );
+		const thanks = overlay.querySelector( '.wpcom-write-pps__thanks' );
+		const previouslyFocused = overlay.ownerDocument.activeElement;
+
+		let selectedAnswer = '';
+		let submitted = false;
+
+		/**
+		 * POST the response to admin-ajax. Fire-and-forget: a failed write costs one
+		 * survey answer and must never block the card.
+		 *
+		 * @param {boolean} [duringUnload] - Use keepalive, for a submit made on the way out.
+		 */
+		function submitResponse( duringUnload ) {
+			if ( submitted || ! selectedAnswer ) {
+				return;
+			}
+			submitted = true;
+
+			const body = new URLSearchParams();
+			body.set( 'action', 'wpcom_write_submit_survey' );
+			body.set( 'nonce', config.nonce || '' );
+			body.set( 'answer', selectedAnswer );
+			body.set( 'comment', commentInput ? commentInput.value : '' );
+			body.set( 'response_id', config.responseId || '' );
+			body.set( 'source', config.source || '' );
+
+			try {
+				fetch( config.ajaxUrl, {
+					method: 'POST',
+					credentials: 'same-origin',
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+					body: body.toString(),
+					keepalive: !! duringUnload,
+				} ).catch( function () {
+					// The answer is already in Tracks; nothing useful to do here.
+				} );
+			} catch {
+				// Same.
+			}
+		}
+
+		/**
+		 * Remove the card, tidy the URL, drop listeners, and restore focus.
+		 */
+		function dismiss() {
+			document.removeEventListener( 'keydown', onKeydown );
+			window.removeEventListener( 'pagehide', onPageHide );
+			if ( overlay.parentNode ) {
+				overlay.parentNode.removeChild( overlay );
+			}
+			cleanMarkerFromUrl();
+			if (
+				previouslyFocused &&
+				typeof previouslyFocused.focus === 'function' &&
+				document.contains( previouslyFocused )
+			) {
+				previouslyFocused.focus();
+			}
+		}
+
+		/**
+		 * Flush any chosen answer before the card goes away.
+		 */
+		function submitAndDismiss() {
+			submitResponse();
+			dismiss();
+		}
+
+		/**
+		 * Catch an answer chosen but never sent, when the writer navigates away.
+		 */
+		function onPageHide() {
+			submitResponse( true );
+		}
+
+		/**
+		 * The card's focusable controls, in DOM order.
+		 *
+		 * @return {HTMLElement[]} Enabled buttons and inputs within the card.
+		 */
+		function focusable() {
+			return Array.prototype.slice
+				.call( overlay.querySelectorAll( 'button:not([disabled]), textarea:not([disabled])' ) )
+				.filter( function ( el ) {
+					return el.offsetParent !== null;
+				} );
+		}
+
+		/**
+		 * Close on Escape and keep Tab focus trapped within the dialog.
+		 *
+		 * @param {KeyboardEvent} event - The keydown event.
+		 */
+		function onKeydown( event ) {
+			if ( event.key === 'Escape' ) {
+				recordEvent( 'wpcom_write_first_publish_survey_dismissed', {
+					answered: selectedAnswer ? '1' : '0',
+				} );
+				submitAndDismiss();
+				return;
+			}
+			if ( event.key !== 'Tab' ) {
+				return;
+			}
+			const items = focusable();
+			if ( ! items.length ) {
+				return;
+			}
+			const first = items[ 0 ];
+			const last = items[ items.length - 1 ];
+			const active = overlay.ownerDocument.activeElement;
+			if ( event.shiftKey ) {
+				if ( active === first || ! overlay.contains( active ) ) {
+					last.focus();
+					event.preventDefault();
+				}
+			} else if ( active === last || ! overlay.contains( active ) ) {
+				first.focus();
+				event.preventDefault();
+			}
+		}
+
+		overlay.querySelectorAll( '[data-wpcom-write-pps-answer]' ).forEach( function ( button ) {
+			button.addEventListener( 'click', function () {
+				selectedAnswer = button.getAttribute( 'data-wpcom-write-pps-answer' ) || '';
+
+				overlay.querySelectorAll( '[data-wpcom-write-pps-answer]' ).forEach( function ( other ) {
+					other.classList.toggle( 'is-selected', other === button );
+					other.setAttribute( 'aria-pressed', other === button ? 'true' : 'false' );
+				} );
+
+				// Recorded the moment it's made: this half segments against the
+				// wpcom_write_editor_* funnel and can't wait on the writer typing.
+				recordEvent( 'wpcom_write_first_publish_survey_response', {
+					answer: selectedAnswer,
+					variant: config.variant || '',
+					entry_point: config.source || '',
+					response_id: config.responseId || '',
+				} );
+
+				if ( commentWrap ) {
+					commentWrap.removeAttribute( 'hidden' );
+				}
+				if ( commentInput ) {
+					commentInput.focus();
+				}
+			} );
+		} );
+
+		const send = overlay.querySelector( '[data-wpcom-write-pps-send]' );
+		if ( send ) {
+			send.addEventListener( 'click', function () {
+				recordEvent( 'wpcom_write_first_publish_survey_comment_sent', {
+					response_id: config.responseId || '',
+				} );
+				submitResponse();
+				if ( thanks ) {
+					thanks.removeAttribute( 'hidden' );
+				}
+				if ( commentWrap ) {
+					commentWrap.setAttribute( 'hidden', '' );
+				}
+				window.setTimeout( dismiss, 1200 );
+			} );
+		}
+
+		overlay.querySelectorAll( '[data-wpcom-write-pps-dismiss]' ).forEach( function ( el ) {
+			el.addEventListener( 'click', function () {
+				recordEvent( 'wpcom_write_first_publish_survey_dismissed', {
+					answered: selectedAnswer ? '1' : '0',
+				} );
+				submitAndDismiss();
+			} );
+		} );
+
+		whenChecklistDismissed( function () {
+			overlay.removeAttribute( 'hidden' );
+			recordEvent( 'wpcom_write_first_publish_survey_shown', {
+				variant: config.variant || '',
+				entry_point: config.source || '',
+				response_id: config.responseId || '',
+			} );
+
+			// Focus the card rather than an answer button, so Enter doesn't arm a choice.
+			if ( card ) {
+				card.setAttribute( 'tabindex', '-1' );
+				card.focus();
+			}
+
+			document.addEventListener( 'keydown', onKeydown );
+			window.addEventListener( 'pagehide', onPageHide );
+		} );
+	}
+
+	if ( document.readyState === 'loading' ) {
+		document.addEventListener( 'DOMContentLoaded', init );
+	} else {
+		init();
+	}
+} )();
