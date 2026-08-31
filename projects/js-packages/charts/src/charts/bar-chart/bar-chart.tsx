@@ -128,6 +128,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	animation,
 	children,
 	gap = 'md',
+	onPointerDown,
+	onPointerUp,
+	onDatumActivate,
 } ) => {
 	const legendInteractive = legend.interactive ?? false;
 	const legendCollapseGroups = legend.collapseGroups ?? false;
@@ -196,16 +199,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		Math.max( 0, ...primarySeriesForNav.map( s => s.data?.length || 0 ) ) *
 		primarySeriesForNav.length;
 
-	// Use the keyboard navigation hook
-	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
-		selectedIndex,
-		setSelectedIndex,
-		isNavigating,
-		setIsNavigating,
-		chartRef,
-		totalPoints,
-	} );
-
 	// Add visibility information from the shared legend state.
 	const seriesWithVisibility = useMemo(
 		() =>
@@ -243,6 +236,37 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		() => primaryEntries.map( ( { series } ) => series ),
 		[ primaryEntries ]
 	);
+
+	// Walks the selected index the way the highlight style does — series-major
+	// within each data point — so the bar handed on is the one outlined.
+	const activateSelectedBar = useCallback(
+		( index: number ) => {
+			const primaryCount = primaryEntries.length;
+
+			if ( ! primaryCount ) {
+				return;
+			}
+
+			const dataPointIndex = Math.floor( index / primaryCount );
+			const series = primaryEntries[ index % primaryCount ]?.series;
+			const datum = series?.data[ dataPointIndex ];
+
+			if ( series && datum ) {
+				onDatumActivate?.( { datum, index: dataPointIndex, key: series.label } );
+			}
+		},
+		[ primaryEntries, onDatumActivate ]
+	);
+
+	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
+		selectedIndex,
+		setSelectedIndex,
+		isNavigating,
+		setIsNavigating,
+		chartRef,
+		totalPoints,
+		onActivate: activateSelectedBar,
+	} );
 
 	const comparisonEntries = useMemo( () => {
 		const primaryByGroup = new Map< string | undefined, { label: string; index: number } >(
@@ -575,6 +599,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										xScale={ xScale }
 										yScale={ yScale }
 										horizontal={ horizontal }
+										onPointerDown={ onPointerDown }
+										onPointerUp={ onPointerUp }
 										pointerEventsDataKey="nearest"
 									>
 										{ ! allSeriesHidden && (

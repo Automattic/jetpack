@@ -9,10 +9,8 @@ import { ReportMetricWidget } from '../report-metric';
 import type { ComparativeLineChartSeries } from '../../chart-comparative-line/types';
 import type { ReportMetricWidgetProps } from '../report-metric';
 
-// The chart underneath draws SVG through a provider jsdom cannot lay out.
-// Standing it in for a prop recorder keeps this test on what this component
-// decides: how the series are labelled and styled, and which value each period
-// contributes.
+// The chart underneath draws SVG through a provider jsdom cannot lay out, so stand
+// it in for a prop recorder.
 const mockMetricComparisonSpy = jest.fn();
 
 jest.mock( '../../../widgets/metric-comparison', () => ( {
@@ -50,14 +48,7 @@ type MetricComparisonProps = {
 const METRIC_KEY = 'visitors';
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 
-/**
- * Build one period's report payload.
- *
- * @param range - The period's inclusive bounds, as `YYYY-MM-DD`.
- * @param total - The period's summary value.
- * @param daily - One value per day in the period.
- * @return A report payload shaped like the one `useReport` returns.
- */
+/** Build one period's report payload, shaped like the one `useReport` returns. */
 function reportFor( range: [ string, string ], total: number, daily: number[] ) {
 	return {
 		summary: { date_start: range[ 0 ], date_end: range[ 1 ], [ METRIC_KEY ]: total },
@@ -73,12 +64,7 @@ function reportFor( range: [ string, string ], total: number, daily: number[] ) 
 const PRIMARY = reportFor( [ '2026-02-01', '2026-02-03' ], 60, [ 10, 20, 30 ] );
 const COMPARISON = reportFor( [ '2026-01-01', '2026-01-03' ], 30, [ 5, 10, 15 ] );
 
-/**
- * Assemble the `data` prop, defaulting every flag to a loaded, healthy report.
- *
- * @param overrides - The parts of the hook result this test cares about.
- * @return A complete `useReport` result.
- */
+/** Assemble the `data` prop, defaulting every flag to a loaded, healthy report. */
 function hookResult(
 	overrides: Partial< ReportMetricWidgetProps[ 'data' ] > = {}
 ): ReportMetricWidgetProps[ 'data' ] {
@@ -95,12 +81,7 @@ function hookResult(
 	};
 }
 
-/**
- * Render the widget and return the props the chart was called with.
- *
- * @param props - Overrides for the widget's props.
- * @return The recorded chart props.
- */
+/** Render the widget and return the props the chart was called with. */
 function renderWidget( props: Partial< ReportMetricWidgetProps > = {} ): MetricComparisonProps {
 	render(
 		<ReportMetricWidget

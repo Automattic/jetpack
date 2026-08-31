@@ -48,10 +48,18 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-// Raw WPCOM email timeline shape (`stats_fields=timeline`): a matrix nested
-// under `timeline`, one daily row per bucket. 2026-07-04/05 fall in one ISO
-// week (Mon 2026-06-29) and 2026-07-06 opens the next, so weekly grouping
-// collapses the three rows into two buckets (15 and 7).
+// The data layer trims buckets to the requested window, so a default
+// (today-relative) preset would trim these fixed July dates away.
+const JULY_WEEK_PARAMS = {
+	...getDefaultQueryParams( false ),
+	preset: undefined,
+	from: '2026-07-01T00:00:00.000+08:00',
+	to: '2026-07-07T23:59:59.999+08:00',
+};
+
+// Raw WPCOM `stats_fields=timeline` shape. 2026-07-04/05 fall in one ISO week
+// and 2026-07-06 opens the next, so weekly grouping collapses the three rows
+// into two buckets (15 and 7).
 const OPENS_TIMELINE_RESPONSE = {
 	timeline: {
 		unit: 'day',
@@ -78,7 +86,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		render(
 			<EmailTimeSeriesWidget
 				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
 					metric: 'opens',
 				} }
 			/>
@@ -87,8 +95,6 @@ describe( 'EmailTimeSeriesWidget', () => {
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chart ).toHaveAttribute( 'data-metric-label', 'Total opens' );
 		expect( chart ).toHaveAttribute( 'data-values', '10,5,7' );
-		// The metric headline is the window total, and the chart type
-		// defaults to line.
 		expect( chart ).toHaveAttribute( 'data-metric-total', '22' );
 		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
 
@@ -111,7 +117,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 			render(
 				<EmailTimeSeriesWidget
 					attributes={ {
-						reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+						reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
 						metric: 'opens',
 					} }
 				/>
@@ -143,7 +149,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		render(
 			<EmailTimeSeriesWidget
 				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
 					metric: 'clicks',
 				} }
 			/>
@@ -157,6 +163,53 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( requestedPath ).toContain( 'stats/clicks/emails/1234' );
 	} );
 
+	it( 'draws exactly the selected hourly window from a midnight-anchored payload', async () => {
+		// The endpoint anchors hourly buckets on the start day's midnight and returns
+		// `quantity` buckets forward, so a last-24-hours window arrives as 33 buckets
+		// from hour 0 and the widget must chart only the 24 in-window ones.
+		mockApiFetch.mockResolvedValue( {
+			timeline: {
+				unit: 'hour',
+				fields: [ 'date', 'hour', 'opens_count' ],
+				data: [
+					...Array.from( { length: 24 }, ( _, hour ) => [ '2026-07-04', hour, hour ] ),
+					...Array.from( { length: 9 }, ( _, hour ) => [ '2026-07-05', hour, hour ] ),
+				],
+			},
+		} );
+
+		render(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-07-04T09:00:00.000+08:00',
+						to: '2026-07-05T08:59:59.999+08:00',
+						interval: 'hour',
+						post_id: 1234,
+					},
+					metric: 'opens',
+				} }
+			/>
+		);
+
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		const values = String( chart.getAttribute( 'data-values' ) ).split( ',' );
+		expect( values ).toHaveLength( 24 );
+		expect( values[ 0 ] ).toBe( '9' );
+		expect( values[ 23 ] ).toBe( '8' );
+		// Hours 9–23 of day one plus 0–8 of day two.
+		expect( chart ).toHaveAttribute( 'data-metric-total', '276' );
+
+		const requestedPath = String( mockApiFetch.mock.calls[ 0 ][ 0 ].path );
+		const requestParams = new URLSearchParams( requestedPath.split( '?' )[ 1 ] );
+		expect( requestParams.get( 'quantity' ) ).toBe( '33' );
+		// The trim window is sanitizer-only and must never reach the API.
+		expect( requestParams.get( 'window_start' ) ).toBeNull();
+		expect( requestParams.get( 'window_end' ) ).toBeNull();
+	} );
+
 	it( 'ignores comparison report params: one request, single series', async () => {
 		mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
 
@@ -168,10 +221,9 @@ describe( 'EmailTimeSeriesWidget', () => {
 						preset: undefined,
 						from: '2026-07-01T00:00:00.000+08:00',
 						to: '2026-07-07T23:59:59.999+08:00',
-						// Comparison params pass through the post detail URL untouched
-						// (dashboard state survives the round trip), so a widget
-						// receiving them must neither fetch a second window nor draw
-						// an overlay — the page renders no comparison.
+						// The post detail URL carries comparison params through untouched,
+						// but the page renders no comparison, so the widget must neither
+						// fetch a second window nor draw an overlay.
 						comp: '1',
 						compare_from: '2026-06-24T00:00:00.000+08:00',
 						compare_to: '2026-06-30T23:59:59.999+08:00',
@@ -186,7 +238,6 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-metric-count', '1' );
 		expect( chart ).toHaveAttribute( 'data-values', '10,5,7' );
 
-		// One request, scoped to the primary window only.
 		const requestedDates = mockApiFetch.mock.calls.map( call =>
 			new URLSearchParams( String( call[ 0 ].path ).split( '?' )[ 1 ] ).get( 'date' )
 		);
@@ -199,7 +250,15 @@ describe( 'EmailTimeSeriesWidget', () => {
 		render(
 			<EmailTimeSeriesWidget
 				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), interval: 'week', post_id: 1234 },
+					// A 35-day window (weekly needs >= 28 days) covering both ISO weeks.
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-06-08T00:00:00.000+08:00',
+						to: '2026-07-12T23:59:59.999+08:00',
+						interval: 'week',
+						post_id: 1234,
+					},
 					metric: 'opens',
 				} }
 			/>
@@ -315,8 +374,8 @@ describe( 'EmailTimeSeriesWidget', () => {
 		} );
 
 		// The previous range's "no activity" is not an answer about this one, so
-		// it gives way to an announced skeleton.
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		// it gives way to the skeleton.
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect(
 			screen.queryByText( 'No activity for this email in this period.' )
 		).not.toBeInTheDocument();

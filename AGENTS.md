@@ -92,6 +92,14 @@ The `$$next-version$$` placeholder is automatically replaced with the correct ve
 - Use BEM-like naming conventions
 - Use CSS logical properties instead of physical direction/dimension mappings to make styles RTL-aware by default (reference: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Logical_Properties)
 
+### Comments
+
+One sentence, at most two lines — the summary rule the WordPress documentation standards
+already impose on our PHP, applied to JavaScript too. Anything past it must carry a why, a
+gotcha, or provenance. Omit what the signature already says, and prefer a clearer name over a
+comment explaining a bad one. If reading the comment costs as much as reading the code, delete
+it. Never invent rationale: a comment that contradicts the code is worse than no comment.
+
 ## Testing
 
 ```bash
@@ -124,7 +132,7 @@ jp phan <project>               # Static analysis
 ### PHP Testing
 
 - `jp test php` works for most projects. A few plugins that require a full WordPress copy (`plugins/jetpack` and `plugins/wpcomsh`) use `jp docker phpunit` instead.
-- **PHP version matrix**: CI runs PHP tests against every supported version from 7.2 to 8.5 (see `.github/versions.sh` for current values). When fixing an issue on one PHP version, ensure the fix is compatible with all supported versions — don't use syntax or functions unavailable in PHP 7.2 unless the project's `composer.json` requires a higher minimum.
+- **PHP version matrix**: CI runs PHP tests against every supported version from 7.4 to 8.5 (see `.github/versions.sh` for current values). When fixing an issue on one PHP version, ensure the fix is compatible with all supported versions — don't use syntax or functions unavailable in PHP 7.4 unless the project's `composer.json` requires a higher minimum.
 - `jp test php` does not support passthrough options like `--filter`. To filter tests in Docker-based projects, use: `jp docker phpunit jetpack -- --filter=Jetpack_Sync_Post_Test` or `jp docker phpunit jetpack -- --group jetpack-sync`
 - PHP testing approaches vary by project:
   - Some packages use basic PHPUnit with `yoast/phpunit-polyfills` (no WordPress-specific testing)

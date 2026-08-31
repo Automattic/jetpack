@@ -51,7 +51,6 @@ export {
 	type LeaderboardRowChartProps,
 	type LeaderboardRowMedia,
 	type LeaderboardRowProps,
-	type LeaderboardRowVariant,
 	BarChart,
 	BarChartSkeleton,
 	type BarChartProps,
@@ -85,7 +84,6 @@ export {
 	type PostDetailLinkProps,
 	LeaderboardPostLabel,
 	type LeaderboardPostLabelProps,
-	type LeaderboardPostLabelVariant,
 	PostHighlightCard,
 	PostHighlightCardSkeleton,
 	type PostHighlightCardMetric,
@@ -137,7 +135,6 @@ export {
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
 	AnnualHighlightsSkeleton,
-	type AnnualHighlightsSkeletonProps,
 	GenericSkeleton,
 	HeatmapSkeleton,
 	MetricSparklineSkeleton,
@@ -154,7 +151,7 @@ export { COLOR_GRAY_100, WIDGET_ROW_LIMIT } from './constants';
 /**
  * Widget edit fields
  */
-export { ReportParamsField, type ReportParamsFieldAttributes } from './fields';
+export type { ReportParamsFieldAttributes } from './fields';
 
 /**
  * Helpers and utilities
@@ -260,13 +257,9 @@ export {
 export type { MetricKey, OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './types';
 
 /**
- * Charts passthrough
- *
- * Widgets must import chart components from here, never from
- * `@automattic/charts` directly: the toolkit is a shared script module, so
- * charts is bundled once instead of once per widget. The toolkit itself takes
- * charts from `@jetpack-premium-analytics/externals`, which is where the
- * library is actually compiled in.
+ * Charts passthrough. Widgets must import chart components from here, never
+ * from `@automattic/charts` directly: the toolkit bundles charts once instead
+ * of once per widget, itself sourcing them from `@jetpack-premium-analytics/externals`.
  */
 export {
 	GeoChart,
@@ -285,10 +278,8 @@ export {
 } from '@jetpack-premium-analytics/externals';
 
 /**
- * UI passthrough
- *
- * Widgets must import these from here, never from
- * `@jetpack-premium-analytics/ui` directly: the toolkit is a shared script
- * module, so the ui package is bundled once instead of once per widget.
+ * UI passthrough. Widgets must import these from here, never from
+ * `@jetpack-premium-analytics/ui` directly: the toolkit bundles the ui package
+ * once instead of once per widget.
  */
 export { safeHttpUrl } from '@jetpack-premium-analytics/ui';

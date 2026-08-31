@@ -177,16 +177,16 @@ describe( 'getSectionSubtitle', () => {
 				getSectionSubtitle( {
 					range: { from: at( 2021, 1, 1 ), to: endOf( 2026, 7, 30 ) },
 					presetId: 'all-time',
-					interval: 'quarter',
+					interval: 'year',
 				} )
-			).toBe( 'January 1, 2021 – July 30, 2026 (quarterly)' );
+			).toBe( 'January 1, 2021 – July 30, 2026 (yearly)' );
 		} );
 
 		it( 'stays out of the copy on a surface carrying no interval control', () => {
 			const subtitle = getSectionSubtitle( { range: currentYearRange( 7 ) } );
 
 			expect( subtitle ).toContain( '(7 days)' );
-			expect( subtitle ).not.toMatch( /hourly|daily|weekly|monthly|quarterly|yearly/ );
+			expect( subtitle ).not.toMatch( /hourly|daily|weekly|monthly|yearly/ );
 		} );
 
 		it( 'stays inside the parenthetical, ahead of the comparison', () => {
@@ -203,10 +203,9 @@ describe( 'getSectionSubtitle', () => {
 
 	describe( 'the year surface', () => {
 		/*
-		 * `all-time` and the running year both start on a calendar boundary and
-		 * end at the end of today, so the day they are read on decides the unit.
-		 * These are one selection each, read on three days: mid-month, on a month
-		 * boundary, and on a year boundary.
+		 * `all-time` and the running year start on a calendar boundary and end at
+		 * the end of today, so the day they're read on decides the unit — each is
+		 * one selection, read on three days: mid-month, month-end, year-end.
 		 */
 		const READ_ON = [
 			[ 'mid-month', endOf( 2026, 7, 30 ) ],

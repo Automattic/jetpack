@@ -14,7 +14,7 @@ use WP_Error;
  * and includes all helper functions for triggering an update elsewhere
  */
 class Historically_Active_Modules {
-	public const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
+	public const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'jetpack_update_historically_active_modules';
 
 	/**
 	 * Register the REST API routes.

@@ -24,18 +24,12 @@ const CELL_ASPECT_RATIO = 61 / 40;
 // Labelled cells narrower than this have no room for a number.
 const VALUE_MIN_CELL_WIDTH = 30;
 
-/**
- * The props to spread onto `HeatmapChartUnresponsive`.
- *
- * The cells are sized to the exact rectangle they fill, so the grid never
- * overflows the tile. The dimensions are absent while the tile is unmeasured.
- */
+/** The props to spread onto `HeatmapChartUnresponsive`. Dimensions are absent while the tile is unmeasured. */
 type AdaptiveCalendarHeatmapChartBaseProps = {
 	/** The columns that fit, oldest first. */
 	data: HeatmapColumn[];
 	rowLabels: string[];
 	className: string;
-	/** Adaptive heatmaps always use measured cells, never fixed compact cells. */
 	compact?: never;
 };
 
@@ -54,9 +48,8 @@ export type AdaptiveCalendarHeatmapProps = {
 	 */
 	period: CalendarHeatmapWindow;
 	/**
-	 * Renders the chart. `pager` exists only while the period holds more week
-	 * columns than the tile draws; pass it to `CalendarHeatmapPagerOverlay` so
-	 * the extra weeks are reachable instead of silently dropped.
+	 * `pager` exists only while the period holds more week columns than the tile
+	 * draws; pass it to `CalendarHeatmapPagerOverlay` or those weeks are silently dropped.
 	 */
 	children: (
 		chartProps: AdaptiveCalendarHeatmapChartProps,
@@ -65,17 +58,8 @@ export type AdaptiveCalendarHeatmapProps = {
 };
 
 /**
- * Fits a calendar heatmap to the tile it is given.
- *
- * The tile's height picks the cell size and its width picks how many week columns
- * it shows. The grid always ends on the period's last day. A period with fewer
- * weeks than the width can draw is opened backwards with filler columns so the
- * tile still fills; one with more is paged — the newest page first, a window of
- * whole columns at a time — through the `pager` handed to the children. Both
- * widgets share this, so they stay consistent as the dashboard is resized.
- *
- * It renders the measured tile wrapper and hands the caller the chart props to
- * spread, leaving the widget to own its data, states, and tooltip.
+ * Fits a calendar heatmap to the tile it is given, leaving the widget to own its
+ * data, states, and tooltip.
  *
  * @param props            - Component props.
  * @param props.valueByDay - Value per `yyyy-MM-dd`.
@@ -97,10 +81,8 @@ export function AdaptiveCalendarHeatmap( {
 		[ valueByDay, period ]
 	);
 
-	// The tile's capacity, settled before the data is considered: the height picks
-	// the cell size and the width divides by it. `dataColumns` is deliberately
-	// omitted — this is how many columns the tile could draw, not how many the
-	// period has.
+	// `dataColumns` is deliberately omitted: this is how many columns the tile
+	// could draw, not how many the period has.
 	const fitColumns = useMemo(
 		() =>
 			computeCalendarHeatmapLayout( {
@@ -112,10 +94,8 @@ export function AdaptiveCalendarHeatmap( {
 		[ size.width, size.height ]
 	);
 
-	// A period with fewer weeks than the tile fits opens backwards into filler
-	// columns, so the grid fills its tile without the request reaching outside the
-	// period (WOOA7S-1963). `gridSpan` never narrows the grid, so a period longer
-	// than the tile passes through untouched and is trimmed below instead.
+	// A short period opens backwards into filler columns to fill the tile without
+	// reaching outside it (WOOA7S-1963); a long period passes through untouched.
 	const { data: heatmapData, rowLabels } = useMemo( () => {
 		const gridStart = resolveCalendarHeatmapGridStart( period.endDate, fitColumns );
 
@@ -125,15 +105,8 @@ export function AdaptiveCalendarHeatmap( {
 		);
 	}, [ daySeries, period.endDate, fitColumns ] );
 
-	// Height picks the cell size, width the column count, and the grid is sized to
-	// the rectangle it occupies — so it fills the tile without ever overflowing it.
-	//
-	// The chart's own `compact` mode is deliberately not used. Its cell size is
-	// fixed by the chart theme (11px square, 2px gap), which needs ~104px of body
-	// height once the month-label header is counted; a one-row dashboard tile only
-	// offers ~86px, so the grid overflowed and `overflow: hidden` sliced the month
-	// labels off the top and the last weekday row off the bottom. Sizing every tile
-	// lets the cells shrink to fit instead.
+	// `compact` mode isn't used: its theme-fixed cells need ~104px and a one-row
+	// tile offers ~86px, so `overflow: hidden` sliced off labels and the last row.
 	const { columns, sizingProps } = useMemo( () => {
 		const layout = computeCalendarHeatmapLayout( {
 			availWidth: size.width,
@@ -141,8 +114,7 @@ export function AdaptiveCalendarHeatmap( {
 			dataColumns: heatmapData.length,
 			aspectRatio: CELL_ASPECT_RATIO,
 			// Neither heatmap draws a legend; the default allowance would shrink every
-			// cell to reserve room for one. A caller adding a
-			// `HeatmapChartUnresponsive.Legend` child has to reserve it here.
+			// cell to reserve room for one. A `.Legend` child has to reserve it here.
 			legendHeight: 0,
 		} );
 
@@ -162,11 +134,8 @@ export function AdaptiveCalendarHeatmap( {
 		};
 	}, [ size.width, size.height, heatmapData.length ] );
 
-	// Pages step back whole windows from the range end; a new period or a
-	// resized page span restarts at the newest page, mirroring the post-detail
-	// pager's reset on its page span — otherwise a stale offset reopens an
-	// unpredictable page after a widen-and-narrow round trip. Adjusted during
-	// render, not in an effect, so no frame paints at the stale offset.
+	// A new period/span restarts at the newest page, or a stale offset reopens an
+	// unpredictable one; adjusted during render (not an effect) so no stale frame paints.
 	const [ pageOffset, setPageOffset ] = useState( 0 );
 	const [ pageContext, setPageContext ] = useState( { period, columns } );
 	if (
@@ -186,9 +155,8 @@ export function AdaptiveCalendarHeatmap( {
 	const offset = Math.min( pageOffset, maxOffset );
 
 	const chartProps = useMemo( () => {
-		// Trimming drops the oldest columns — the filler first, and only then the
-		// period's own earliest weeks. `slice( -0 )` returns the whole array, so an
-		// unmeasured or collapsed tile leaves the grid intact.
+		// `slice( -0 )` returns the whole array, so an unmeasured or collapsed tile
+		// leaves the grid intact rather than emptying it.
 		let data = heatmapData.slice( -columns );
 		if ( isPaged && offset > 0 ) {
 			const start = Math.max( 0, total - ( offset + 1 ) * columns );
@@ -203,9 +171,8 @@ export function AdaptiveCalendarHeatmap( {
 		};
 	}, [ heatmapData, rowLabels, columns, sizingProps, isPaged, offset, total ] );
 
-	// Step from the clamped `offset`, never the raw state: the two could only
-	// drift while `columns` changed, which resets the offset above, but stepping
-	// the displayed page keeps the arrows honest even if that coupling changes.
+	// Step from the clamped `offset`, never the raw state, so the arrows stay honest
+	// even if the reset above stops covering every drift.
 	const showOlder = useCallback(
 		() => setPageOffset( Math.min( offset + 1, maxOffset ) ),
 		[ offset, maxOffset ]

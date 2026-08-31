@@ -11,7 +11,9 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { reports } from '@jetpack-premium-analytics/icons';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
@@ -43,16 +45,24 @@ type TrafficChartInnerProps = {
 };
 
 /**
- * The bucket size follows the dashboard's chart interval control, clamped to
- * what this chart supports. The "Chart type" control is the `chartType`
- * attribute (`relevance: 'high'`), rendered by the widget host. Which metric is
- * plotted is the chart's own tab selection.
+ * The bucket size follows the dashboard's chart interval control, clamped to what
+ * this chart supports; which metric is plotted is the chart's own tab selection.
  */
 function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const period: TrafficChartGranularity = defaultPeriodForInterval(
 		reportParams.interval,
 		TRAFFIC_PERIODS
+	);
+
+	// Bound to whichever route hosts the widget, the same way `reportParams` are.
+	const { drillDown } = useReportDateFilters();
+
+	// Names the bucket size drawn, not the page interval: a year page interval
+	// clamps to months here, and the click must open the bar it hit.
+	const openBucket = useCallback(
+		( date: Date ) => drillDown( date, period ),
+		[ drillDown, period ]
 	);
 
 	const {
@@ -64,8 +74,7 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 	} = useTrafficChart( reportParams, period );
 	const groupLabel = __( 'Traffic metric', 'jetpack-premium-analytics-pkg' );
 	// A metric the endpoint can't serve at this bucket size carries its own
-	// explanation, so it must not count towards emptiness and let the empty state
-	// hide that explanation.
+	// explanation, so it must not count toward emptiness and hide that message.
 	const servedMetrics = metricTabs.filter( metric => ! metric.unavailable );
 
 	return (
@@ -76,9 +85,8 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 				// `useTrafficChart` already gates `isError` per query on that query
 				// having no rows, so a transient refetch failure keeps the chart.
 				isError={ isError }
-				// `[].every()` is true, so the length test is what keeps a chart whose
-				// every metric is unavailable out of the empty state, which would
-				// replace those explanations with "no data".
+				// `[].every()` is true, so the length check keeps an all-unavailable chart
+				// out of the empty state, which would replace those explanations with "no data".
 				isEmpty={
 					servedMetrics.length > 0 && servedMetrics.every( metric => metric.current.length === 0 )
 				}
@@ -102,6 +110,7 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 					groupLabel={ groupLabel }
 					tickResolution={ period }
 					pointsAreWallClocks
+					onDatumClick={ openBucket }
 				/>
 			</WidgetState>
 		</div>

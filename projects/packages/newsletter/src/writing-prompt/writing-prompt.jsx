@@ -17,7 +17,7 @@ import {
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { arrowLeft, arrowRight } from '@wordpress/icons';
-import { Button, IconButton, Link, Stack, Text } from '@wordpress/ui';
+import { IconButton, Link, LinkButton, Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 
 export default () => {
@@ -55,12 +55,11 @@ export default () => {
 
 	const goToPrevious = useCallback( () => setIndex( current => current - 1 ), [] );
 	const goToNext = useCallback( () => setIndex( current => current + 1 ), [] );
-	const postAnswer = useCallback( () => {
+	const recordPostAnswerClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_newsletter_writing_prompt_post_answer_click', {
 			site_type: siteType,
 			prompt_id: prompts[ index ].id,
 		} );
-		document.location = `post-new.php?answer_prompt=${ prompts[ index ].id }`;
 	}, [ prompts, index, siteType ] );
 	const recordViewResponsesClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_newsletter_writing_prompt_view_responses_click', {
@@ -136,9 +135,14 @@ export default () => {
 						</Stack>
 					</Stack>
 					<Stack direction="row" justify="space-between" align="center" gap="sm" wrap="wrap">
-						<Button variant="outline" size="compact" onClick={ postAnswer }>
+						<LinkButton
+							variant="outline"
+							size="compact"
+							href={ `post-new.php?answer_prompt=${ prompt.id }` }
+							onClick={ recordPostAnswerClick }
+						>
 							{ __( 'Post your answer', 'jetpack-newsletter' ) }
-						</Button>
+						</LinkButton>
 						{ prompt.answered_users_sample.length > 0 && (
 							<Stack
 								className="wpcom-daily-writing-prompt--answered-users"

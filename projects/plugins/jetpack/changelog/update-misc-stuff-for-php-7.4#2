@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Remove some code that was for PHP <7.4 compat, and update a comment to drop reference to unsupported PHP versions.
+
+

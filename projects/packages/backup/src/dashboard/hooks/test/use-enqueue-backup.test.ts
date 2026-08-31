@@ -40,11 +40,11 @@ describe( 'useEnqueueBackup', () => {
 		);
 	} );
 
-	// `enqueue_backup()` returns bare `null` for every non-200 from WPCOM,
-	// which WordPress serves as HTTP 200 — so the request resolves and
-	// nothing throws. The legacy button has no rejection handler and
-	// discards the body, so it reports "Backup enqueued" and then polls
-	// for a backup that was never queued.
+	// `enqueue_backup()` returns bare `null` for a WPCOM reply it cannot
+	// decode, which WordPress serves as HTTP 200 — so the request
+	// resolves and nothing throws. The legacy button discards the body,
+	// so it still reports "Backup enqueued" and then polls for a backup
+	// that was never queued.
 	it( 'reports a null body as a failure, not a success', async () => {
 		mockedApiFetch.mockResolvedValue( null );
 		const { wrapper } = makeWrapper();

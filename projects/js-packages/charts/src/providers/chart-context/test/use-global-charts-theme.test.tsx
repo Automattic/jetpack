@@ -27,7 +27,14 @@ describe( 'useGlobalChartsTheme', () => {
 
 			const { result } = renderHook( () => useGlobalChartsTheme(), { wrapper } );
 
-			expect( result.current.colors ).toEqual( [ '#FF0000', '#00FF00', '#0000FF' ] );
+			// `theme.colors` publishes the palette's theme layers, so the merged theme holds catalog pointers rather than the consumer's literals. Each keeps its consumer color as the pointer's terminal literal, for SSR and jsdom.
+			expect( result.current.colors ).toEqual( [
+				'var(--a8c-charts-color-series-1, #FF0000)',
+				'var(--a8c-charts-color-series-2, #00FF00)',
+				'var(--a8c-charts-color-series-3, #0000FF)',
+				'var(--a8c-charts-color-series-4)',
+				'var(--a8c-charts-color-series-5)',
+			] );
 			// Other properties should still come from default theme
 			expect( result.current.backgroundColor ).toBe( defaultTheme.backgroundColor );
 			expect( result.current.gridStyles ).toEqual( defaultTheme.gridStyles );

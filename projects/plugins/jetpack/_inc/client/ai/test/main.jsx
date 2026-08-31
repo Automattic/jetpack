@@ -9,15 +9,14 @@ import App from '../main';
 // main.jsx imports the webpack-aliased 'lib/analytics', which doesn't resolve
 // under jest — provide it virtually. (jest.mock is hoisted above the imports.)
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
+jest.mock( '@automattic/jetpack-ai-client', () => ( { requestJwt: jest.fn() } ) );
 
 // Both settings hooks fetch through @wordpress/api-fetch; stub it so nothing
 // hits the network and each test controls the GET/POST responses.
 jest.mock( '@wordpress/api-fetch' );
 
-// main.jsx uses Tabs as nav-only (no Tabs.Panel), which trips the design
-// system's async a11y validation — a console.error the shared jest-console
-// setup treats as a test failure. Swap only Tabs for inert passthroughs; the
-// real Notice/Stack are kept because the assertions below rely on them.
+// Swap Tabs for inert passthroughs; the real Notice/Stack are kept because
+// the assertions below rely on them.
 jest.mock( '@wordpress/ui', () => {
 	const actual = jest.requireActual( '@wordpress/ui' );
 	const { createElement } = require( 'react' );
@@ -27,7 +26,12 @@ jest.mock( '@wordpress/ui', () => {
 			createElement( tag, null, children );
 	return {
 		...actual,
-		Tabs: { Root: passthrough( 'div' ), List: passthrough( 'div' ), Tab: passthrough( 'button' ) },
+		Tabs: {
+			Root: passthrough( 'div' ),
+			List: passthrough( 'div' ),
+			Tab: passthrough( 'button' ),
+			Panel: passthrough( 'div' ),
+		},
 	};
 } );
 
@@ -98,6 +102,7 @@ beforeEach( () => {
 afterEach( () => {
 	// Tests that exercise the internal-testing flag set this global.
 	delete window.jetpackAiSettings;
+	delete window.__agentsManagerActions;
 	// The @wordpress/notices store is module-global: drain it so a snackbar
 	// created in one test cannot re-animate into the next test's render.
 	select( noticesStore )
@@ -123,7 +128,6 @@ describe( 'AI admin page (main.jsx)', () => {
 		// AiFeatures never mounts: no feature toggle, no upgrade badge, no action link.
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Requires upgrade' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Try it out in the editor' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
 	} );
 
@@ -214,6 +218,35 @@ describe( 'AI admin page (main.jsx)', () => {
 		await expect( screen.findAllByText( 'A12s only' ) ).resolves.toHaveLength( 2 );
 	} );
 
+	test( 'scheduled tasks flag: exposes the gated hash route and Figma empty state', async () => {
+		window.jetpackAiSettings = {
+			featureFlags: { 'ai-hub-scheduled-tasks': true },
+		};
+		window.location.hash = '#/scheduled-tasks';
+		window.__agentsManagerActions = {
+			// The sandbox's agents manager currently exposes readiness as a boolean.
+			isReady: true,
+			chatNavigate: jest.fn(),
+			setChatDocked: jest.fn(),
+			setChatOpen: jest.fn(),
+		};
+		mockApiFetch();
+
+		render( <App /> );
+
+		await expect(
+			screen.findByText( 'Schedule tasks for repeated work' )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Scheduled tasks' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'A12s only' ) ).not.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Create a task' } ) );
+		expect( window.__agentsManagerActions.chatNavigate ).toHaveBeenCalledWith( '/' );
+		expect( window.__agentsManagerActions.setChatDocked ).not.toHaveBeenCalled();
+		expect( window.__agentsManagerActions.setChatOpen ).toHaveBeenCalledWith( true );
+		delete window.__agentsManagerActions;
+	} );
+
 	test( 'no internal-testing flag: no A12s only badge renders', async () => {
 		// Without the flag the gate hides the Features view entirely (MCP-only
 		// shape), so the internal-testing label must not appear anywhere.
@@ -263,6 +296,20 @@ describe( 'AI admin page (main.jsx)', () => {
 		} );
 
 		await waitFor( () => expect( mcpViewCount() ).toBe( 1 ) );
+	} );
+
+	test( 'MCP sub-views: the breadcrumb root reads Jetpack AI', async () => {
+		mockApiFetch( {
+			mcpGet: { has_mcp_access: true, mcp_abilities: { account: { some_tool: {} }, sites: [] } },
+		} );
+
+		window.location.hash = '#/read';
+		render( <App /> );
+
+		await expect(
+			screen.findByRole( 'button', { name: 'Jetpack AI' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'AI' } ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'a11n gate: without showFeaturesView the page is MCP-only with no tab bar', async () => {
@@ -342,7 +389,11 @@ describe( 'AI admin page (main.jsx)', () => {
 		render( <App /> );
 
 		// Landing view is Overview; the row renders there and nowhere else.
-		const rows = await screen.findAllByRole( 'link', { name: /Activity log/ } );
+		// Wait on the cheap text query: polling a role+name query re-computes
+		// accessible names on every mutation and starves the 1s budget on a
+		// loaded CI runner.
+		await expect( screen.findByText( 'Activity log', IGNORE_A11Y ) ).resolves.toBeInTheDocument();
+		const rows = screen.getAllByRole( 'link', { name: /Activity log/ } );
 		expect( rows ).toHaveLength( 1 );
 		expect( rows[ 0 ] ).toHaveAttribute( 'href', 'https://example.com/activity' );
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Restore the Integrations button in the Form block toolbar when the settings sidebar is closed.

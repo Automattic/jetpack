@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show a real failure message when your backup status cannot be read, instead of the "your first backup will be ready soon" screen, and let the "Back up now" button recover when a backup could not be queued.

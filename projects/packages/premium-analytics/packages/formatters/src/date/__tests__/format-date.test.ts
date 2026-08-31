@@ -6,7 +6,7 @@ import { setSettings } from '@wordpress/date';
  * Internal dependencies
  */
 import { EN_US_SETTINGS, ES_ES_SETTINGS, settingsFor } from '../__fixtures__/wp-date-settings';
-import { formatDate, formatWeekday } from '../format-date';
+import { formatDate, formatMondayFirstWeekday, formatWeekday } from '../format-date';
 
 // Midnight UTC, matching the fixtures' timezone, so no day shift is in play.
 const JUNE_21 = new Date( '2025-06-21T00:00:00+00:00' );
@@ -84,5 +84,14 @@ describe( 'formatDate', () => {
 		setSettings( EN_US_SETTINGS );
 
 		expect( formatDate( JUNE_21, 'dateTime' ) ).toBe( 'June 21, 2025 12:00 am' );
+	} );
+} );
+
+describe( 'formatMondayFirstWeekday', () => {
+	it( 'reads index 0 as Monday and 6 as Sunday', () => {
+		// The offset is the whole point of the helper: a missing or reversed one
+		// still yields a real weekday name, so both ends are pinned.
+		expect( formatMondayFirstWeekday( 0 ) ).toBe( 'Monday' );
+		expect( formatMondayFirstWeekday( 6 ) ).toBe( 'Sunday' );
 	} );
 } );

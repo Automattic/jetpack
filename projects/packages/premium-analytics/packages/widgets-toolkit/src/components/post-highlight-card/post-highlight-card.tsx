@@ -39,10 +39,9 @@ export type PostHighlightCardMetric = {
 	value: number | undefined;
 
 	/**
-	 * Caveat about how the value is aggregated, e.g. that it is an all-time total
-	 * while its neighbours are scoped to the dashboard's date range. Shown as a
-	 * hover tooltip on the tile and mirrored as visually hidden text for
-	 * assistive technology.
+	 * Caveat about how the value is aggregated (e.g. an all-time total among
+	 * date-scoped neighbours). Shown as a hover tooltip and mirrored as
+	 * visually hidden text for assistive technology.
 	 */
 	note?: string;
 };
@@ -157,14 +156,9 @@ function PostHighlightMetric( {
 }
 
 /**
- * Presentational card highlighting a single post: its title (linking to the
- * published post), its publish date, a row of metric tiles, and its featured
- * image when present.
- *
- * Shared by the "Latest post" and "Popular post" widgets. It renders only the
- * populated state — loading, error, and empty belong to the calling widget's
- * `<WidgetState>` — and adapts to the dashboard cell size through the container
- * queries in its stylesheet.
+ * Presentational card for a single post: title, publish date, metric tiles,
+ * and an optional featured image. Renders only the populated state — the
+ * calling widget owns loading/error/empty via `<WidgetState>`.
  *
  * @param {PostHighlightCardProps} props - The component props.
  * @return The rendered card.

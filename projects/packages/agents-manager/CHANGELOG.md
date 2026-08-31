@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-08-26
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
 ## [0.9.5] - 2026-08-19
 ### Changed
 - Update package dependencies. [#51399]
@@ -121,6 +125,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Agents Manager: Allow overriding variant and sectionName through filters [#49283]
 - Initial version, extracted from Jetpack MU WPCOM to its own package for external consumption. [#49202]
 
+[0.10.0]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.9.5...v0.10.0
 [0.9.5]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.9.4...v0.9.5
 [0.9.4]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.9.3...v0.9.4
 [0.9.3]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.9.2...v0.9.3

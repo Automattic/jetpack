@@ -26,7 +26,9 @@ function render() {
 	if ( ! container ) {
 		return;
 	}
-	WPElement.createRoot( container ).render( <App /> );
+
+	container.jetpackAiRoot ??= WPElement.createRoot( container );
+	container.jetpackAiRoot.render( <App /> );
 }
 
 render();

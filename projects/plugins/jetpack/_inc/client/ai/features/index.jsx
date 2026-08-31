@@ -22,7 +22,8 @@ const { seoSettingsUrl } = window?.jetpackAiSettings ?? {};
 
 // Per the design, a row's action link depends on the toggle state: enabled
 // features invite you to try them (AI SEO opens its settings), disabled ones
-// link to documentation via registered Jetpack Redirects handlers.
+// link to documentation via registered Jetpack Redirects handlers. A row with
+// a single `action` shows that link in both states.
 const SECTIONS = [
 	{
 		key: 'content',
@@ -35,13 +36,10 @@ const SECTIONS = [
 					'Draft, rewrite, translate, and adjust tone for your content right in the block editor.',
 					'jetpack'
 				),
-				enabledAction: {
-					label: __( 'Try it out in the editor', 'jetpack' ),
-					// The arg asks the ai-assistant-plugin sidebar to open itself
-					// once the editor loads (same convention as openSidebar=global-styles).
-					href: 'post-new.php?openSidebar=jetpack-ai-assistant',
-				},
-				disabledAction: {
+				// Docs in both states for now. The editor link
+				// (post-new.php?openSidebar=jetpack-ai-assistant) returns with the
+				// sidebar agent; its editor-side handler is still in place.
+				action: {
 					label: __( 'Learn more', 'jetpack' ),
 					href: getRedirectUrl( 'jetpack-ai-settings-writing-assistant-learn-more' ),
 					external: true,
@@ -110,7 +108,8 @@ const SECTIONS = [
 				),
 				enabledAction: {
 					label: __( 'Open Search Settings', 'jetpack' ),
-					href: 'admin.php?page=jetpack-search',
+					// The toggle lives on the Search dashboard's AI tab, not Overview.
+					href: 'admin.php?page=jetpack-search#/ai-answers',
 				},
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
@@ -172,7 +171,7 @@ function FeatureRow( {
 		[ feature.key, onChange ]
 	);
 
-	const action = checked ? feature.enabledAction : feature.disabledAction;
+	const action = ( checked ? feature.enabledAction : feature.disabledAction ) ?? feature.action;
 	// The toggle keeps showing the SAVED value but can't be used while the
 	// connection gate fails (no feature can load without it), while the master
 	// switch is off (the saved choice returns when master does), or while the
@@ -305,7 +304,10 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 							'Your feature settings are saved and will apply again when AI is turned back on.',
 							'jetpack'
 						) }{ ' ' }
-						<Link href="admin.php?page=my-jetpack">
+						<Link
+							href="admin.php?page=my-jetpack#/products"
+							className="jetpack-ai-features__notice-link"
+						>
 							{ __( 'Manage in My Jetpack', 'jetpack' ) }
 						</Link>
 					</Notice.Description>
