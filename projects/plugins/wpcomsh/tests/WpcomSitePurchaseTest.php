@@ -133,10 +133,33 @@ class WpcomSitePurchaseTest extends WP_UnitTestCase {
 	 * defaults.
 	 */
 	public function test_a_malformed_store_row_does_not_fatal() {
-		$purchase = WPCOM_Site_Purchase::from_store_row( array( 'product_slug' => array( 'not-a-string' ) ), 1 );
+		$purchase = WPCOM_Site_Purchase::from_store_row(
+			array(
+				'product_slug'           => array( 'not-a-string' ),
+				// An ordinary cast reads this as `true`, which would have the purchase claim
+				// auto-renew is on off the back of unreadable data.
+				'user_allows_auto_renew' => array( 'not-a-bool' ),
+			),
+			1
+		);
 
 		$this->assertSame( '', $purchase->product_slug );
 		$this->assertSame( '', $purchase->expiry_date );
 		$this->assertFalse( $purchase->auto_renew );
+		$this->assertFalse( $purchase->user_allows_auto_renew );
+	}
+
+	/**
+	 * A cached entry that is not a row at all cannot be a purchase, but must not be a fatal
+	 * either: it builds an empty one, which matches no feature.
+	 */
+	public function test_a_store_row_that_is_not_a_row_builds_an_empty_purchase() {
+		foreach ( array( 'not-a-row', null, 42 ) as $not_a_row ) {
+			$purchase = WPCOM_Site_Purchase::from_store_row( $not_a_row, 1 );
+
+			$this->assertSame( '', $purchase->product_slug );
+			$this->assertSame( '', $purchase->subscription_id );
+			$this->assertFalse( $purchase->auto_renew );
+		}
 	}
 }

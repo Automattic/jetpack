@@ -168,11 +168,13 @@ class WPCOM_Site_Purchase {
 	 * Takes the row in whichever shape it arrives, and treats every field as optional. The rows
 	 * are served from an object cache shared across requests, which has been seen to hand back
 	 * arrays rather than the objects the store query returned; an array still carries the whole
-	 * row, so it is read rather than dropped. This sits behind a feature check, on nearly every
+	 * row, so it is read rather than dropped, and an entry that is not a row at all builds an empty
+	 * purchase, which matches no feature. This sits behind a feature check, on nearly every
 	 * request, where being strict about the shape costs the whole site a fatal.
 	 *
-	 * @param object|array $row     A row as returned by _wpcom_features_get_simple_site_purchases().
-	 * @param int          $blog_id The blog the row belongs to.
+	 * @param mixed $row     A row as returned by _wpcom_features_get_simple_site_purchases(), in
+	 *                       whichever shape it was handed back.
+	 * @param int   $blog_id The blog the row belongs to.
 	 */
 	public static function from_store_row( $row, int $blog_id ): self {
 		$row      = (object) $row;
@@ -186,7 +188,7 @@ class WPCOM_Site_Purchase {
 		$purchase->subscribed_date        = self::text( $row->subscribed_date ?? null );
 		$purchase->expiry_date            = self::text( $row->expiry_date ?? null );
 		$purchase->subscription_id        = self::text( $row->subscription_id ?? null );
-		$purchase->user_allows_auto_renew = (bool) ( $row->user_allows_auto_renew ?? false );
+		$purchase->user_allows_auto_renew = self::flag( $row->user_allows_auto_renew ?? null );
 		$purchase->auto_renew             = $purchase->user_allows_auto_renew;
 
 		return $purchase;
@@ -213,13 +215,26 @@ class WPCOM_Site_Purchase {
 		$purchase->expiry_date            = self::text( $entry->expiry_date ?? null );
 		$purchase->subscription_id        = self::text( $entry->subscription_id ?? null );
 		$purchase->ownership_id           = is_scalar( $entry->ownership_id ?? null ) ? (string) $entry->ownership_id : null;
-		$purchase->user_allows_auto_renew = (bool) ( $entry->auto_renew ?? false );
+		$purchase->user_allows_auto_renew = self::flag( $entry->auto_renew ?? null );
 		$purchase->auto_renew             = $purchase->user_allows_auto_renew;
 
 		$purchase->might_still_auto_renew        = is_bool( $entry->might_still_auto_renew ?? null ) ? $entry->might_still_auto_renew : null;
 		$purchase->first_auto_renew_attempt_date = is_string( $entry->first_auto_renew_attempt_date ?? null ) ? $entry->first_auto_renew_attempt_date : null;
 
 		return $purchase;
+	}
+
+	/**
+	 * Coerces a value to a bool, defaulting anything that is not a scalar.
+	 *
+	 * Sibling of text(), for the same reason: an ordinary cast reads a non-empty array or object
+	 * as `true`, so a field of the wrong shape would arrive claiming auto-renew is on rather than
+	 * defaulting away like every other field.
+	 *
+	 * @param mixed $value Value read off a store row or a decoded payload.
+	 */
+	private static function flag( $value ): bool {
+		return is_scalar( $value ) && (bool) $value;
 	}
 
 	/**
