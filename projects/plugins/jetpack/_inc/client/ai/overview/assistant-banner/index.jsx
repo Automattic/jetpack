@@ -99,12 +99,11 @@ function getAudienceProps() {
 }
 
 /**
- * The mock's mark: the Jetpack circle-and-bolt recolored — an accent-colored
- * disc (fill set in the stylesheet, keyed to the accent custom property) with
- * the glyph "cut out" by painting it in the banner's base indigo (a solid
- * approximation, since the aurora backdrop is a gradient).
- * jetpack-components' JetpackIcon hardcodes white polygons, so the same
- * geometry is inlined here.
+ * The mock's mark: the Jetpack circle-and-bolt recolored — bright green disc
+ * with the glyph cut out in the banner's dark green. jetpack-components'
+ * JetpackIcon hardcodes white polygons, so the same geometry is inlined here
+ * with the fills the banner needs. Colors are sampled from the announcement
+ * mock, like everything else on the banner.
  *
  * @return {object} Component markup.
  */
@@ -118,9 +117,9 @@ function AiLogoMark() {
 			aria-hidden="true"
 			focusable="false"
 		>
-			<path d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z" />
-			<polygon fill="#0b0d33" points="15,19 7,19 15,3" />
-			<polygon fill="#0b0d33" points="17,29 17,13 25,13" />
+			<path fill="#48ff50" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z" />
+			<polygon fill="#003010" points="15,19 7,19 15,3" />
+			<polygon fill="#003010" points="17,29 17,13 25,13" />
 		</svg>
 	);
 }
@@ -286,6 +285,7 @@ export default function AssistantBanner() {
 
 	return (
 		<div className="jetpack-ai-overview-banner">
+			<div className="jetpack-ai-overview-banner__glow" aria-hidden="true" />
 			<div className="jetpack-ai-overview-banner__intro">
 				<AiLogoMark />
 				<div className="jetpack-ai-overview-banner__intro-text">
