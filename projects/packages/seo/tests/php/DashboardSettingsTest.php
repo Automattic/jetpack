@@ -32,7 +32,6 @@ class DashboardSettingsTest extends TestCase {
 	 * @var string[]
 	 */
 	private $options = array(
-		'blog_public',
 		Initializer::SITEMAP_ENABLED_OPTION,
 		Initializer::CANONICAL_ENABLED_OPTION,
 		Dashboard_Data::AI_SEO_ENHANCER_OPTION,
@@ -52,6 +51,15 @@ class DashboardSettingsTest extends TestCase {
 	private $user_ids = array();
 
 	/**
+	 * `blog_public` as the bootstrap left it, restored rather than deleted — it's a
+	 * core option other suites in this package rely on, so clobbering it leaks state.
+	 * Null when the option was absent.
+	 *
+	 * @var mixed
+	 */
+	private $original_blog_public;
+
+	/**
 	 * Register the package's REST surface the way `Initializer::init()` does, then
 	 * rebuild the REST server so core's settings controller picks the settings up
 	 * (it reads the registry when it registers its route, at priority 99).
@@ -61,6 +69,7 @@ class DashboardSettingsTest extends TestCase {
 
 		\Jetpack_Options::delete_option( 'active_modules' );
 		\Jetpack_SEO_Utils::$enabled = true;
+		$this->original_blog_public  = get_option( 'blog_public', null );
 
 		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
 		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
@@ -92,6 +101,12 @@ class DashboardSettingsTest extends TestCase {
 		}
 		foreach ( $this->options as $option ) {
 			delete_option( $option );
+		}
+		unregister_setting( 'reading', 'blog_public' );
+		if ( null === $this->original_blog_public ) {
+			delete_option( 'blog_public' );
+		} else {
+			update_option( 'blog_public', $this->original_blog_public );
 		}
 		foreach ( $this->user_ids as $user_id ) {
 			wp_delete_user( $user_id );
