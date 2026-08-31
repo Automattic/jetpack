@@ -70,9 +70,9 @@ describe( 'DateComparisonDropdown', () => {
 		expect( onClear ).toHaveBeenCalled();
 	} );
 
-	// Clearing what is already clear stages a patch of nothing, which leaves the
-	// picker's Apply enabled and inert (WOOA7S-2039).
-	it( 'does not clear a comparison that is already off', async () => {
+	// A URL can carry a comparison whose preset the trigger cannot name — the
+	// widgets still compare, so the menu has to stay the way out (WOOA7S-2039).
+	it( 'clears a comparison the trigger cannot name', async () => {
 		const onClear = jest.fn();
 		const user = userEvent.setup();
 
@@ -88,6 +88,6 @@ describe( 'DateComparisonDropdown', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Compare' } ) );
 		await user.click( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) );
 
-		expect( onClear ).not.toHaveBeenCalled();
+		expect( onClear ).toHaveBeenCalled();
 	} );
 } );

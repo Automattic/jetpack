@@ -30,8 +30,7 @@ function renderStagedValue( initial: Params = { preset: 'last-30-days' } ) {
 			const onCommit = useCallback( ( staged: Params, patch: Partial< Params > ) => {
 				commits.push( staged );
 				patches.push( patch );
-				// Dropping the `undefined` keys is what makes this a faithful store:
-				// the URL binding serializes them away, so a value staged as
+				// The URL binding serializes `undefined` away, so a value staged as
 				// `undefined` never round-trips back as a key.
 				setCommitted(
 					Object.fromEntries( Object.entries( staged ).filter( ( [ , v ] ) => v !== undefined ) )
@@ -169,6 +168,29 @@ describe( 'useStagedValue', () => {
 
 		expect( result.current.isDirty ).toBe( false );
 		expect( commits ).toHaveLength( 0 );
+	} );
+
+	// A patch it drops entirely must not publish a new draft: the identity
+	// travels into `effective` and re-renders every widget reading it.
+	it( 'leaves the draft alone when the whole patch is dropped', () => {
+		const { result } = renderStagedValue();
+		const before = result.current.staged;
+
+		act( () => result.current.stage( { interval: undefined } ) );
+
+		expect( result.current.staged ).toBe( before );
+	} );
+
+	// Clearing a key staged earlier in the same draft is the same no-op reached
+	// the long way round: the draft is back to the committed value, so Apply
+	// must go back to disabled rather than commit an unchanged URL.
+	it( 'stops reading as dirty once a staged key is cleared again', () => {
+		const { result } = renderStagedValue();
+
+		act( () => result.current.stage( { interval: 'week' } ) );
+		act( () => result.current.stage( { interval: undefined } ) );
+
+		expect( result.current.isDirty ).toBe( false );
 	} );
 
 	// The other half of the same rule: staging an explicit `undefined` is how a

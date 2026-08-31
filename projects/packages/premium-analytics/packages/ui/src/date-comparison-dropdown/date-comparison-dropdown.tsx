@@ -74,17 +74,13 @@ export function DateComparisonDropdown( {
 	const handleSelect = useCallback(
 		( value: string ) => {
 			if ( value === NO_COMPARISON_VALUE ) {
-				// Clearing a comparison that is already off stages a patch of nothing,
-				// which leaves the picker's Apply enabled and inert (WOOA7S-2039).
-				if ( enabled ) {
-					onClear();
-				}
+				onClear();
 				return;
 			}
 
 			onPresetChange( value as ComparisonPresetId );
 		},
-		[ enabled, onClear, onPresetChange ]
+		[ onClear, onPresetChange ]
 	);
 
 	/*
