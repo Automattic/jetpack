@@ -144,10 +144,13 @@ class Reprint_Exporter {
 	/**
 	 * Discards any stored export credentials.
 	 *
-	 * Called on plugin activation. protect_options() can only refuse writes
-	 * made while Jetpack is running, so anything sitting in these options at
-	 * activation was written while it was not — which means it did not come
-	 * from here. Throwing it away costs a legitimate client one rotation.
+	 * Called on plugin activation and on both connection transitions.
+	 * protect_options() only refuses writes made while it is registered, and it
+	 * is not registered while Jetpack is inactive or while the site is neither
+	 * connected nor in offline mode. Clearing at each of those boundaries means
+	 * anything planted during a gap is gone by the time the gap closes. Each
+	 * hook fires for one site, so this is per-blog on multisite without walking
+	 * the network. It costs a legitimate client one rotation.
 	 */
 	public static function discard_credentials() {
 		delete_option( self::SECRET_OPTION );

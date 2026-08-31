@@ -744,6 +744,7 @@ class Jetpack {
 		add_action( 'jetpack_site_registered', array( $this, 'activate_default_modules_on_site_register' ) );
 		add_action( 'jetpack_site_registered', array( $this, 'handle_unique_registrations_stats' ) );
 		add_action( 'jetpack_site_registered', array( Reader_Link::class, 'activate_on_connection' ), 9 );
+		add_action( 'jetpack_site_registered', array( \Automattic\Jetpack\Reprint_Export\Reprint_Exporter::class, 'discard_credentials' ) );
 
 		// Actions for Manager::authorize().
 		add_action( 'jetpack_authorize_starting', array( $this, 'authorize_starting' ) );
@@ -3454,6 +3455,8 @@ p {
 	 */
 	public static function jetpack_site_disconnected() {
 		Identity_Crisis::clear_all_idc_options();
+
+		\Automattic\Jetpack\Reprint_Export\Reprint_Exporter::discard_credentials();
 
 		// Delete all the sync related data. Since it could be taking up space.
 		Sender::get_instance()->uninstall();

@@ -426,6 +426,54 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Activation throws away credentials too.
+	 *
+	 * Covers the wiring in Jetpack::plugin_activation(), which the unit test
+	 * for discard_credentials() does not reach.
+	 */
+	public function test_activation_discards_planted_credentials() {
+		$this->plant_option( Reprint_Exporter::SECRET_OPTION, 'planted-while-deactivated' );
+		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() );
+		$this->assertTrue( Reprint_Exporter::is_export_window_open(), 'Fixture must look usable before activation.' );
+
+		Jetpack::plugin_activation( false );
+
+		$this->assertFalse( get_option( Reprint_Exporter::SECRET_OPTION ) );
+		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
+	}
+
+	/**
+	 * Connecting the site throws away credentials it did not mint.
+	 *
+	 * The guard is not registered while the site is neither connected nor in
+	 * offline mode, so a planted secret can survive that window. Clearing on
+	 * the transition means it is gone by the time the endpoint could serve.
+	 */
+	public function test_connecting_discards_planted_credentials() {
+		$this->plant_option( Reprint_Exporter::SECRET_OPTION, 'planted-while-disconnected' );
+		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() );
+		$this->assertTrue( Reprint_Exporter::is_export_window_open(), 'Fixture must look usable before connecting.' );
+
+		do_action( 'jetpack_site_registered' );
+
+		$this->assertFalse( get_option( Reprint_Exporter::SECRET_OPTION ) );
+		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
+	}
+
+	/**
+	 * Disconnecting throws them away too, so the ungated window starts empty.
+	 */
+	public function test_disconnecting_discards_credentials() {
+		Reprint_Exporter::store_secret( 'a-secret' );
+		Reprint_Exporter::open_export_window();
+
+		Jetpack::jetpack_site_disconnected();
+
+		$this->assertFalse( get_option( Reprint_Exporter::SECRET_OPTION ) );
+		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
+	}
+
+	/**
 	 * The REST route is registered.
 	 */
 	public function test_rest_route_registered() {
@@ -464,8 +512,14 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 
 	/**
 	 * An administrative user-token signature can access the export secret.
+	 *
+	 * Single site only: on multisite the administrator role is per-subsite and
+	 * says nothing about the network, so the rule there is different — see
+	 * test_permission_check_denies_subsite_administrator().
 	 */
 	public function test_permission_check_allows_administrative_user_token() {
+		$this->skipWithMultisite();
+
 		$user_id = $this->factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 		$this->set_jetpack_rest_authentication_type( 'user' );
@@ -497,6 +551,42 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 
 		$this->assertTrue( user_can( $user_id, 'manage_options' ), 'Fixture must hold manage_options for this test to mean anything.' );
 		$this->assertFalse( ( new REST_Controller() )->permission_check() );
+	}
+
+	/**
+	 * On multisite, a subsite administrator is refused.
+	 *
+	 * The export takes every table in the database and everything under
+	 * ABSPATH, so a subsite administrator would obtain every other site's
+	 * users, content and uploads.
+	 */
+	public function test_permission_check_denies_subsite_administrator() {
+		$this->skipWithoutMultisite();
+
+		$user_id = $this->factory()->user->create( array( 'role' => 'administrator' ) );
+		$this->assertFalse( is_super_admin( $user_id ), 'Fixture must not be a network administrator.' );
+
+		wp_set_current_user( $user_id );
+		$this->set_jetpack_rest_authentication_type( 'user' );
+
+		$this->assertFalse( ( new REST_Controller() )->permission_check() );
+	}
+
+	/**
+	 * On multisite, a network administrator is allowed.
+	 */
+	public function test_permission_check_allows_network_administrator() {
+		$this->skipWithoutMultisite();
+
+		$user_id = $this->factory()->user->create( array( 'role' => 'administrator' ) );
+		grant_super_admin( $user_id );
+
+		wp_set_current_user( $user_id );
+		$this->set_jetpack_rest_authentication_type( 'user' );
+
+		$this->assertTrue( ( new REST_Controller() )->permission_check() );
+
+		revoke_super_admin( $user_id );
 	}
 
 	/**

@@ -107,8 +107,7 @@ class REST_Controller extends WP_REST_Controller {
 	 * Deliberately a role check, not a capability one. This hands out a secret
 	 * that streams the whole database and file tree, and no capability says
 	 * that — `manage_options` is the closest, but plugins grant it to shop
-	 * managers and the like. The multisite guard matters: off multisite,
-	 * is_super_admin() is a `delete_users` capability test.
+	 * managers and the like.
 	 *
 	 * @return bool
 	 */
@@ -122,7 +121,14 @@ class REST_Controller extends WP_REST_Controller {
 			return false;
 		}
 
-		return in_array( 'administrator', $user->roles, true )
-			|| ( is_multisite() && is_super_admin( $user->ID ) );
+		// On multisite, network administrator only. The export takes every table
+		// in the database and everything under ABSPATH, so a subsite
+		// administrator would walk away with every other site's users, content
+		// and uploads. Their role says nothing about network-wide access.
+		if ( is_multisite() ) {
+			return is_super_admin( $user->ID );
+		}
+
+		return in_array( 'administrator', $user->roles, true );
 	}
 }
