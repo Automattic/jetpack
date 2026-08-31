@@ -131,8 +131,7 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 		text-align: center;
 	}
 
-	/* One row, so the shared edge moves to the tile's leading side. The
-	 * block-start reset is undone again by the two-column query below. */
+	/* One row, so the shared edge moves to the tile's leading side. */
 	.tile + .tile {
 		border-block-start: 0;
 		border-inline-start: $metric-tile-grid-divider;
@@ -170,8 +169,9 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	}
 }
 
-/* Wide and tall: a balanced two-column grid of large centered tiles. Resets the
- * one-row flow set above so tiles wrap into rows again. */
+/* Wide and tall: a balanced two-column grid of large centered tiles, the last
+ * one taking the whole row when the count is odd. Resets the one-row flow set
+ * above so tiles wrap into rows again. */
 @container (min-inline-size: #{$widget-wide-min-inline-size}) and (min-block-size: #{$metric-tile-grid-grid-min-block-size}) {
 
 	.grid {
@@ -196,19 +196,20 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	}
 
 	/* Two columns: a tile's neighbour in document order is no longer the one it
-	 * shares an edge with, so position decides. Every second tile starts a
-	 * column edge, everything past the first row starts a row edge.
-	 *
-	 * Order-dependent: `.tile + .tile` and `.tile:nth-child(n + 3)` have equal
-	 * specificity, so the row rules below win over the wide block's
-	 * `border-block-start: 0` only because this query comes later in the file.
-	 * Moving the two @container blocks past each other drops every row rule. */
-	.tile + .tile {
+	 * shares an edge with, so position decides. Column two is always an even
+	 * child, and the first row is always the first two. Each pair covers every
+	 * tile, so this block states both edges outright rather than patching over
+	 * what the one-row query left behind. */
+	.tile:nth-child(odd) {
 		border-inline-start: 0;
 	}
 
 	.tile:nth-child(even) {
 		border-inline-start: $metric-tile-grid-divider;
+	}
+
+	.tile:nth-child(-n + 2) {
+		border-block-start: 0;
 	}
 
 	.tile:nth-child(n + 3) {

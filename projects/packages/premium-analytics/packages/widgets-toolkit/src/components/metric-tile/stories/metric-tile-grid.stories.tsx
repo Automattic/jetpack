@@ -53,7 +53,8 @@ const meta = {
 					'own layout — no column count needed. A narrow cell renders compact rows (icon ' +
 					'and label on the left, value on the right); a wide but short cell spreads the ' +
 					'tiles across a single row; a wide and tall cell uses a balanced two-column grid ' +
-					'of large centered tiles.',
+					'of large centered tiles, the last one taking the whole row when the tile count ' +
+					'is odd.',
 			},
 		},
 	},
