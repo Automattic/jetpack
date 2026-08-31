@@ -35,13 +35,16 @@ $tile-value-inline-size: 70%;
 	min-block-size: 0;
 }
 
-/* Narrow: one full-width row per metric, as the loaded grid's single column. */
+/* Narrow: one full-width row per metric, as the loaded grid's single column.
+ * The loaded grid runs flush and spaces its rows with each tile's block
+ * padding, so the stand-ins do the same rather than with a gap of their own -
+ * otherwise the rows shift when the data lands. */
 .tiles {
 	display: flex;
 	flex: 1 1 auto;
 	flex-direction: column;
 	justify-content: safe center;
-	gap: var(--wpds-dimension-gap-sm);
+	gap: 0;
 	min-block-size: 0;
 	overflow: hidden;
 }
@@ -52,6 +55,7 @@ $tile-value-inline-size: 70%;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--wpds-dimension-gap-md);
+	padding-block: var(--wpds-dimension-padding-sm);
 }
 
 .label {
@@ -75,15 +79,20 @@ $tile-value-inline-size: 70%;
 	.tiles {
 		flex-flow: row wrap;
 		align-content: safe center;
-		gap: var(--wpds-dimension-gap-xl);
+		gap: 0;
 	}
 
+	/* Same swap as the narrow rows: the loaded tiles sit flush and hold each
+	 * other off with inline padding, so a stand-in column lines up with the
+	 * column it replaces. */
 	.tile {
 		flex: 1 1 0;
 		flex-direction: column;
 		justify-content: unset;
 		gap: 0;
 		min-inline-size: $tile-min-inline-size;
+		padding-block: var(--wpds-dimension-padding-md);
+		padding-inline: var(--wpds-dimension-padding-md);
 	}
 
 	.label {

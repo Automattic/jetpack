@@ -205,7 +205,12 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	 * shares an edge with, so position decides. Column two is always an even
 	 * child, and the first row is always the first two. Each pair covers every
 	 * tile, so this block states both edges outright rather than patching over
-	 * what the one-row query left behind. */
+	 * what the one-row query left behind.
+	 *
+	 * Counting children only holds while every tile is rendered and laid out in
+	 * order, which the grid guarantees today - it maps `tiles` straight into
+	 * `.grid` and puts nothing else there. A consumer that hid a tile through
+	 * the public `className` prop would move the rules onto the wrong edges. */
 	.tile:nth-child(odd) {
 		border-inline-start: 0;
 	}

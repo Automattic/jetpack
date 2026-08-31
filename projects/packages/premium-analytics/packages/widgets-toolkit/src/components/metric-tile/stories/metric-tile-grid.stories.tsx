@@ -100,9 +100,8 @@ export const WideShortRoomy: Story = {
 };
 
 /**
- * Three tiles: the layout still balances without an awkward orphan — one row when
- * short, and when tall a two-column grid whose trailing tile takes the last row
- * rather than leaving half of it empty.
+ * Three tiles in a tall cell: an odd count still balances, because the trailing
+ * tile takes the last row rather than leaving half of it empty.
  */
 export const ThreeTiles: Story = {
 	args: { tiles: TILES.slice( 0, 3 ), dataFormat: COUNT_FORMAT },
