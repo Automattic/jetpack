@@ -36,9 +36,11 @@ $tile-value-inline-size: 70%;
 }
 
 /* Narrow: one full-width row per metric, as the loaded grid's single column.
- * The loaded grid runs flush and spaces its rows with each tile's block
- * padding, so the stand-ins do the same rather than with a gap of their own -
- * otherwise the rows shift when the data lands. */
+ * The loaded grid runs flush and gives a row its height with the tile's own
+ * block padding, so the stand-ins do the same rather than carrying a gap
+ * instead. That matches a row's height, not its position: the loaded grid
+ * stretches its rows over the whole body and this stays a centred block, so in
+ * a cell with slack the two still sit at different heights. */
 .tiles {
 	display: flex;
 	flex: 1 1 auto;
@@ -79,7 +81,6 @@ $tile-value-inline-size: 70%;
 	.tiles {
 		flex-flow: row wrap;
 		align-content: safe center;
-		gap: 0;
 	}
 
 	/* Same swap as the narrow rows: the loaded tiles sit flush and hold each
