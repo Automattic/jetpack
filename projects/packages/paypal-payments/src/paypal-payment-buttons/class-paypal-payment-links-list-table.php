@@ -133,7 +133,7 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 			return;
 		}
 
-		$this->items = $result['items'] ?? array();
+		$this->items = $result['resources'] ?? array();
 
 		// Extract next page token from HATEOAS links if present.
 		if ( isset( $result['links'] ) && is_array( $result['links'] ) ) {
@@ -151,11 +151,10 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 			}
 		}
 
-		$total_items = isset( $result['total_items'] ) ? (int) $result['total_items'] : count( $this->items );
-
+		// PayPal paginates by cursor and returns no total, so count what this page holds.
 		$this->set_pagination_args(
 			array(
-				'total_items' => $total_items,
+				'total_items' => count( $this->items ),
 				'per_page'    => self::PER_PAGE,
 			)
 		);

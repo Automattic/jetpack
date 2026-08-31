@@ -53,7 +53,7 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 	 */
 	public function test_prepare_items_populates_items_on_success() {
 		$this->set_up_connected_state();
-		$this->mock_list_response( $this->get_sample_items(), 2 );
+		$this->mock_list_response( $this->get_sample_items() );
 
 		$table = new PayPal_Payment_Links_List_Table();
 		$table->prepare_items();
@@ -87,7 +87,7 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 	 */
 	public function test_prepare_items_handles_empty_response() {
 		$this->set_up_connected_state();
-		$this->mock_list_response( array(), 0 );
+		$this->mock_list_response( array() );
 
 		$table = new PayPal_Payment_Links_List_Table();
 		$table->prepare_items();
@@ -105,9 +105,8 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 		$this->mock_http_response(
 			200,
 			array(
-				'items'       => $this->get_sample_items(),
-				'total_items' => 50,
-				'links'       => array(
+				'resources' => $this->get_sample_items(),
+				'links'     => array(
 					array(
 						'rel'  => 'self',
 						'href' => 'https://api.paypal.com/v1/checkout/payment-resources?page_size=20',
@@ -131,7 +130,7 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 	 */
 	public function test_prepare_items_no_next_page_token_on_last_page() {
 		$this->set_up_connected_state();
-		$this->mock_list_response( $this->get_sample_items(), 2 );
+		$this->mock_list_response( $this->get_sample_items() );
 
 		$table = new PayPal_Payment_Links_List_Table();
 		$table->prepare_items();
@@ -312,16 +311,14 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 	/**
 	 * Mock a list_resources API response.
 	 *
-	 * @param array $items       The items to return.
-	 * @param int   $total_items Total items count.
+	 * @param array $items The items to return.
 	 */
-	private function mock_list_response( $items, $total_items ) {
+	private function mock_list_response( $items ) {
 		$this->mock_http_response(
 			200,
 			array(
-				'items'       => $items,
-				'total_items' => $total_items,
-				'links'       => array(
+				'resources' => $items,
+				'links'     => array(
 					array(
 						'rel'  => 'self',
 						'href' => 'https://api.paypal.com/v1/checkout/payment-resources?page_size=20',
