@@ -56,7 +56,7 @@ import type { StatsReportParams } from '../stats-query';
 jest.mock( '@wordpress/api-fetch' );
 
 // `localTZDate()` defaults to the site zone, so pin it rather than letting the
-// machine timezone decide the WordAds "yesterday" clamp.
+// machine timezone decide the WordAds "today" clamp.
 setSettings( {
 	...getSettings(),
 	timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
@@ -1212,9 +1212,9 @@ describe( 'Stats query factories', () => {
 		);
 	} );
 
-	it( 'clamps the WordAds window end to yesterday, keeping it anchored to the range start', () => {
-		// The window stays anchored to the range start: the unavailable trailing
-		// bucket is dropped rather than the whole window shifting earlier.
+	it( 'keeps every bucket of a WordAds window ending today', () => {
+		// The endpoint honors an end of today, so the range asks for the bucket count
+		// its header covers; today's bucket is empty until the nightly run lands.
 		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
 
 		try {
@@ -1228,8 +1228,34 @@ describe( 'Stats query factories', () => {
 				expect.arrayContaining( [
 					expect.objectContaining( {
 						unit: 'day',
-						date: '2026-06-14',
-						quantity: 6,
+						date: '2026-06-15',
+						quantity: 7,
+					} ),
+				] )
+			);
+		} finally {
+			jest.useRealTimers();
+		}
+	} );
+
+	it( 'clamps a future WordAds window end to today, keeping it anchored to the range start', () => {
+		// The window stays anchored to the range start: the unavailable trailing
+		// buckets are dropped rather than the whole window shifting earlier.
+		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
+
+		try {
+			expect(
+				statsWordAdsStatsQuery( {
+					from: '2026-06-09',
+					to: '2026-06-20',
+					interval: 'day',
+				} ).queryKey
+			).toEqual(
+				expect.arrayContaining( [
+					expect.objectContaining( {
+						unit: 'day',
+						date: '2026-06-15',
+						quantity: 7,
 					} ),
 				] )
 			);
@@ -1268,36 +1294,10 @@ describe( 'Stats query factories', () => {
 		}
 	} );
 
-	it( 'leaves a WordAds window ending exactly yesterday unclamped', () => {
+	it( 'leaves an offset-bearing WordAds window ending today unclamped', () => {
 		// Why the clamp compares calendar days: the raw offset-bearing string sorts
-		// after the bare `yesterday` it starts with, so a range already ending on
-		// yesterday would clamp and silently lose a bucket.
-		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
-
-		try {
-			expect(
-				statsWordAdsStatsQuery( {
-					from: '2026-06-08T00:00:00.000-07:00',
-					to: '2026-06-14T23:59:59.999-07:00',
-					interval: 'day',
-				} ).queryKey
-			).toEqual(
-				expect.arrayContaining( [
-					expect.objectContaining( {
-						unit: 'day',
-						date: '2026-06-14T23:59:59.999-07:00',
-						quantity: 7,
-					} ),
-				] )
-			);
-		} finally {
-			jest.useRealTimers();
-		}
-	} );
-
-	it( 'clamps an offset-bearing WordAds window end to yesterday, keyed off its calendar day', () => {
-		// The clamp fires, so `date` becomes the locally built bare `yesterday`;
-		// both the comparison and the bucket count key off the calendar day.
+		// after the bare `today` it starts with, so a range already ending on today
+		// would clamp and silently lose a bucket.
 		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
 
 		try {
@@ -1311,13 +1311,80 @@ describe( 'Stats query factories', () => {
 				expect.arrayContaining( [
 					expect.objectContaining( {
 						unit: 'day',
-						date: '2026-06-14',
-						quantity: 6,
+						date: '2026-06-15T23:59:59.000-07:00',
+						quantity: 7,
 					} ),
 				] )
 			);
 		} finally {
 			jest.useRealTimers();
+		}
+	} );
+
+	// Each unit counts buckets its own way, so pin every one of them on a day where
+	// clamping the end back to yesterday would drop the whole trailing bucket.
+	it.each( [
+		{ interval: 'week', now: '2026-06-01', from: '2026-05-11', quantity: 4 },
+		{ interval: 'month', now: '2026-06-01', from: '2026-01-01', quantity: 6 },
+		{ interval: 'year', now: '2026-01-01', from: '2024-01-01', quantity: 3 },
+	] )(
+		'keeps the trailing $interval bucket of a WordAds window ending today',
+		( { interval, now, from, quantity } ) => {
+			jest.useFakeTimers().setSystemTime( new Date( `${ now }T12:00:00Z` ) );
+
+			try {
+				expect(
+					statsWordAdsStatsQuery( { from, to: now, interval } as StatsReportParams ).queryKey
+				).toEqual(
+					expect.arrayContaining( [
+						expect.objectContaining( { unit: interval, date: now, quantity } ),
+					] )
+				);
+			} finally {
+				jest.useRealTimers();
+			}
+		}
+	);
+
+	it( 'falls back to a default WordAds bucket count without a range start', () => {
+		// Reachable: an end with no start still passes `enabled`, so the request goes out.
+		expect(
+			statsWordAdsStatsQuery( { to: '2026-06-10', interval: 'day' } as StatsReportParams ).queryKey
+		).toEqual(
+			expect.arrayContaining( [
+				expect.objectContaining( { unit: 'day', date: '2026-06-10', quantity: 30 } ),
+			] )
+		);
+
+		expect(
+			statsWordAdsStatsQuery( { to: '2026-06-10', interval: 'year' } as StatsReportParams ).queryKey
+		).toEqual( expect.arrayContaining( [ expect.objectContaining( { quantity: 10 } ) ] ) );
+	} );
+
+	it( 'clamps the WordAds window end against the site timezone, not the machine clock', () => {
+		// 02:00 UTC on the 16th is still the 15th in Los Angeles, so the 16th is future.
+		const settings = getSettings();
+		setSettings( {
+			...settings,
+			timezone: { string: 'America/Los_Angeles', offset: -7, offsetFormatted: '-7', abbr: 'PDT' },
+		} );
+		jest.useFakeTimers().setSystemTime( new Date( '2026-06-16T02:00:00Z' ) );
+
+		try {
+			expect(
+				statsWordAdsStatsQuery( {
+					from: '2026-06-09',
+					to: '2026-06-16',
+					interval: 'day',
+				} ).queryKey
+			).toEqual(
+				expect.arrayContaining( [
+					expect.objectContaining( { unit: 'day', date: '2026-06-15', quantity: 7 } ),
+				] )
+			);
+		} finally {
+			jest.useRealTimers();
+			setSettings( settings );
 		}
 	} );
 
