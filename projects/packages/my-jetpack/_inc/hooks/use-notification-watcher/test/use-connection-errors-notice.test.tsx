@@ -34,6 +34,7 @@ jest.mock( '@automattic/jetpack-connection', () => {
 			( error: string ) => `There was an error reconnecting Jetpack. Error: ${ error }`
 		),
 		getConnectionErrorDetails: actual.getConnectionErrorDetails,
+		formatConnectionErrorDetailLine: actual.formatConnectionErrorDetailLine,
 		// Stubbed rather than taken from the package: the real one pulls in
 		// `@wordpress/ui`, which is exactly the import-time graph this factory exists
 		// to keep out. What matters here is that the notice renders it when asked.

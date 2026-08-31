@@ -57,10 +57,13 @@ export {
 
 /**
  * Connection-error presentation. The notice copy lives here so every consumer
- * describes the same error the same way; `getConnectionErrorDetails` is the one
- * consumers with their own notice system need, the rest are its parts.
+ * describes the same error the same way.
  */
-export * from './hooks/use-connection-error-notice/error-details.ts';
+export {
+	isConnectionErrorMap,
+	getConnectionErrorDetails,
+	formatConnectionErrorDetailLine,
+} from './hooks/use-connection-error-notice/error-details';
 
 /**
  * Public type contract for connection-error consumers. Forwarded via `export *`

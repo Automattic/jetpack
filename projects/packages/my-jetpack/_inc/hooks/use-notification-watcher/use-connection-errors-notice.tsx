@@ -1,6 +1,7 @@
 import { Col, Text } from '@automattic/jetpack-components';
 import {
 	ConnectionErrorSupportLink,
+	formatConnectionErrorDetailLine,
 	getReconnectErrorMessage,
 	useConnectionErrorNotice,
 	type ConnectionErrorObject,
@@ -127,7 +128,7 @@ const useConnectionErrorsNotice = (
 										variant="body-small"
 										mb={ index === group.detailLines.length - 1 ? 0 : 1 }
 									>
-										{ `- ${ line.text }` }
+										{ formatConnectionErrorDetailLine( line ) }
 									</Text>
 								) ) }
 							</Text>
