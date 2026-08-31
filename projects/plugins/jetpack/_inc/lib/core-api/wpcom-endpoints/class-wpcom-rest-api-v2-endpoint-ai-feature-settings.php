@@ -12,11 +12,8 @@
  *
  * Unlike the MCP settings endpoint, nothing here proxies to WPCOM: the
  * settings are site-local wp_options, so the endpoint works the same on
- * Atomic and self-hosted sites. On WordPress.com Simple the route does not
- * register at all — Simple keeps the existing wp.com settings contract, and
- * with core settings REST also refusing these options there, the new
- * per-feature options stay unwritten on Simple while the reused SEO/Search
- * options keep their existing owning surfaces.
+ * every host. On WordPress.com Simple it is the only writable surface for
+ * these options — core settings REST refuses them there.
  *
  * @package automattic/jetpack
  */
@@ -65,15 +62,11 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 	/**
 	 * Register routes.
 	 *
-	 * Not on WordPress.com Simple: the per-feature toggles and their write
-	 * endpoint apply to Atomic and self-hosted sites only, while Simple keeps
-	 * the existing wp.com settings contract.
+	 * Registered on every host, WordPress.com Simple included: the Hub's
+	 * WordPress Agent view reads and writes through this route wherever the
+	 * page loads (see the file header for Simple).
 	 */
 	public function register_routes() {
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			return;
-		}
-
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,

@@ -370,20 +370,67 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	}
 
 	/**
-	 * On WordPress.com Simple the route must not register: Simple keeps the
-	 * existing wp.com settings contract, and the per-feature toggles apply to
-	 * Atomic and self-hosted sites only.
+	 * The route registers on WordPress.com Simple too: the Hub's WordPress
+	 * Agent view reads and writes through it wherever the page loads, and on
+	 * Simple it is the only writable surface for the options.
 	 */
-	public function test_route_is_not_registered_on_wpcom_simple() {
-		// Control: rebuilding the server off-Simple re-registers the route,
-		// proving the rebuild below exercises registration at all.
-		$this->rebuild_rest_server();
-		$this->assertArrayHasKey( self::ROUTE, $this->server->get_routes() );
-
+	public function test_route_is_registered_on_wpcom_simple() {
 		Constants::set_constant( 'IS_WPCOM', true );
 		$this->rebuild_rest_server();
 
-		$this->assertArrayNotHasKey( self::ROUTE, $this->server->get_routes() );
+		$this->assertArrayHasKey( self::ROUTE, $this->server->get_routes() );
+	}
+
+	/**
+	 * On WordPress.com Simple the master switch is the jetpack_ai_enabled
+	 * option: POST writes it, GET reports it, and the jetpack_ai_enabled
+	 * filter every load point consults follows — with no internal-testing
+	 * scoping, since the controls always apply on Simple.
+	 */
+	public function test_post_master_switch_on_wpcom_simple() {
+		wp_set_current_user( self::$admin_id );
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->rebuild_rest_server();
+
+		$this->assertTrue( $this->dispatch( 'GET' )->get_data()['master_enabled'], 'Precondition: the master defaults on.' );
+
+		$data = $this->dispatch( 'POST', array( 'master_enabled' => false ) )->get_data();
+
+		$this->assertFalse( $data['master_enabled'] );
+		$this->assertFalse( (bool) get_option( Jetpack_AI_Settings::MASTER_OPTION, true ), 'The setter routed the write to the option, the master store on Simple.' );
+		$this->assertFalse( Jetpack_AI_Settings::is_master_enabled() );
+		$this->assertFalse( apply_filters( 'jetpack_ai_enabled', true ) );
+	}
+
+	/**
+	 * On WordPress.com Simple the per-feature toggles write their options and
+	 * the load-point predicate honors them — the same partial-POST semantics
+	 * as everywhere else, with no internal-testing scoping.
+	 */
+	public function test_post_features_on_wpcom_simple() {
+		wp_set_current_user( self::$admin_id );
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->rebuild_rest_server();
+
+		$data = $this->dispatch(
+			'POST',
+			array(
+				'features' => array(
+					'writing_assistant' => false,
+					'ai_seo'            => array( 'enabled' => false ),
+				),
+			)
+		)->get_data();
+
+		$this->assertFalse( $data['features']['writing_assistant']['enabled'] );
+		$this->assertFalse( $data['features']['ai_seo']['enabled'] );
+		// Untouched keys keep their defaults.
+		$this->assertTrue( $data['features']['image_editor']['enabled'] );
+
+		// The options actually changed and the load points read them on Simple.
+		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) );
+		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'ai_seo' ) );
+		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'image_editor' ) );
 	}
 
 	/**
