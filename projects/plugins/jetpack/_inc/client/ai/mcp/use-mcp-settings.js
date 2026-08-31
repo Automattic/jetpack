@@ -87,7 +87,7 @@ export function prepareWpcomMcpUpdate( update ) {
  * @param {object}  [options]      - Hook options.
  * @param {boolean} [options.skip] - Skip the fetch and expose empty state (for callers
  *                                 that know the request cannot succeed).
- * @return {{ isLoading: boolean, isSaving: boolean, mcpAbilities: Object|null, error: string|null, updateMcpAbilities: Function }} MCP settings state and updater.
+ * @return {{ isLoading: boolean, savingToolIds: Set, mcpAbilities: Object|null, hasMcpAccess: boolean|null, error: string|null, updateMcpAbilities: Function }} MCP settings state and updater.
  */
 export function useMcpSettings( { skip = false } = {} ) {
 	const { blogId = 0, mcpSettingsApi = DEFAULT_API } = window?.jetpackAiSettings ?? {};
