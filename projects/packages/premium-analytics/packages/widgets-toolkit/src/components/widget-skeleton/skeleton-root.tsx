@@ -14,9 +14,8 @@ export interface SkeletonRootProps {
 }
 
 /**
- * Deliberately not a live region: a `role="status"` mounting with its text already
- * in place is never announced, so the one it carried was inert. The hidden label
- * stays for a reader who navigates onto the widget; `WidgetState` owns `aria-busy`.
+ * Not a live region: a `role="status"` mounting with its text already in place is
+ * announced inconsistently at best, so the label only serves a reader who lands on it.
  */
 export function SkeletonRoot( { children }: SkeletonRootProps ) {
 	return (

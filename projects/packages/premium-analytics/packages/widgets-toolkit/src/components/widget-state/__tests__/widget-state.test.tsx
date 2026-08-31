@@ -275,8 +275,8 @@ describe( 'WidgetState', () => {
 		);
 		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
-		// Not busy either: nothing changed on screen, so announcing an update would
-		// interrupt a reader over a change a sighted one never sees.
+		// Not busy either: the fetch delay has not elapsed, so a revalidation this
+		// brief is never marked at all.
 		expect( screen.queryAllByRole( 'generic', { busy: true } ) ).toHaveLength( 0 );
 	} );
 

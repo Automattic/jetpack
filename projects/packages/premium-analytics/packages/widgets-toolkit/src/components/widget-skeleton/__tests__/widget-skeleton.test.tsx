@@ -15,10 +15,14 @@ describe( 'SkeletonRoot', () => {
 			</SkeletonRoot>
 		);
 
-		// A `role="status"` mounting with its text already in place is never
-		// announced, so the label is only there for a reader who navigates onto it.
-		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
-		expect( screen.getByTestId( 'widget-skeleton' ) ).toHaveTextContent( 'Loading' );
+		const root = screen.getByTestId( 'widget-skeleton' );
+		// Both halves matter, and `role` alone does not cover the first: any of these
+		// attributes would make the placeholder speak on mount.
+		expect( root ).not.toHaveAttribute( 'role' );
+		expect( root ).not.toHaveAttribute( 'aria-live' );
+		expect( root ).not.toHaveAttribute( 'aria-busy' );
+		expect( root ).not.toHaveAttribute( 'aria-hidden' );
+		expect( root ).toHaveTextContent( 'Loading' );
 		expect( screen.getByTestId( 'shape' ) ).toBeInTheDocument();
 	} );
 
