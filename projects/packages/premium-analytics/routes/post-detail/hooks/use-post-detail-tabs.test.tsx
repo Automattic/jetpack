@@ -180,6 +180,17 @@ describe( 'usePostDetailTabs', () => {
 		).toBe( false );
 	} );
 
+	it( 'mounts the fixed email layout when the pinned params can no longer resolve', () => {
+		mockSearch( 'email-clicks' );
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID, undefined, true ) );
+
+		// The widgets mount and surface their own error states, instead of the
+		// tab staying permanently blank with no Retry (summary request failed).
+		expect( result.current.activeTab ).toBe( 'email-clicks' );
+		expect( result.current.layout ).toEqual( POST_DETAIL_TAB_LAYOUTS[ 'email-clicks' ] );
+	} );
+
 	it( 'gives an email tab no layout until its report params are known', () => {
 		mockSearch( 'email-clicks' );
 

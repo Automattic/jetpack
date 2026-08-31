@@ -40,9 +40,17 @@ import type { PostDetailTabId } from '../config';
  *
  * @param postId            - The scoped post ID (0/NaN disables the email-tab check).
  * @param emailReportParams - The report params pinned on the email tabs, once known.
+ * @param emailScopeBlocked - The pinned params can no longer resolve (the summary
+ *                          failed): mount the fixed layout unmodified so the
+ *                          widgets surface their own error states instead of the
+ *                          tab staying permanently blank.
  * @return Visible tabs, the active tab and layout, and the active-tab setter.
  */
-export function usePostDetailTabs( postId: number, emailReportParams?: ReportParams ) {
+export function usePostDetailTabs(
+	postId: number,
+	emailReportParams?: ReportParams,
+	emailScopeBlocked = false
+) {
 	const opens = useStatsEmailOpensBreakdown( postId, 'rate', { enabled: postId > 0 } );
 	const summary = ( opens.data as StatsEmailBreakdown | undefined )?.summary;
 	const hasEmailStats = Number( summary?.total_sends ?? 0 ) > 0;
@@ -86,7 +94,7 @@ export function usePostDetailTabs( postId: number, emailReportParams?: ReportPar
 		}
 
 		if ( ! emailReportParams ) {
-			return [];
+			return emailScopeBlocked ? fixed : [];
 		}
 
 		return fixed.map( widget => ( {
@@ -96,7 +104,7 @@ export function usePostDetailTabs( postId: number, emailReportParams?: ReportPar
 				reportParams: emailReportParams,
 			},
 		} ) );
-	}, [ activeTab, isEmailTab, emailReportParams ] );
+	}, [ activeTab, isEmailTab, emailReportParams, emailScopeBlocked ] );
 
 	return {
 		tabs,

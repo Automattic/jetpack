@@ -64,13 +64,19 @@ function PostDetail(): JSX.Element {
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
 
-	// The email tabs report over the send's lifetime rather than the URL range
-	// (WOOA7S-1945): their widgets take these params in place of the URL's.
+	// The email tabs report over the first 30 days after the send rather than
+	// the URL range (WOOA7S-1945): their widgets take these params in place of
+	// the URL's.
 	const emailScope = useEmailTabScope( postId, dateControls.allTimeStart, dateFilters.timeZone );
+
+	// With the summary failed the publish day will never arrive, so the email
+	// tabs mount their fixed layout and let each widget surface its own error.
+	const emailScopeBlocked = ! emailScope && ! summary.isLoading && summary.isError;
 
 	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs(
 		postId,
-		emailScope?.reportParams
+		emailScope?.reportParams,
+		emailScopeBlocked
 	);
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
 
@@ -159,14 +165,14 @@ function PostDetail(): JSX.Element {
 							<div ref={ setHeaderElement } className={ styles.header }>
 								<div className={ styles.summary }>
 									{ /* The email tabs give the header an email identity and report over
-									     the send's lifetime; the title stays the post's. */ }
+									     the send window; the title stays the post's. */ }
 									<PostSummaryCard
 										summary={ summary }
 										variant={ isEmailTab ? 'email' : 'post' }
 										performanceRange={ isEmailTab ? emailScope?.range : dateFilters.appliedRange }
 									/>
 								</div>
-								{ /* The email tabs are pinned to the send's lifetime, so the filter
+								{ /* The email tabs are pinned to the send window, so the filter
 								     would only suggest a choice they do not offer; the range stays in
 								     the URL so the Post traffic tab keeps its selection. */ }
 								{ ! isEmailTab && (

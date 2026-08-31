@@ -226,7 +226,7 @@ describe( 'post detail stage', () => {
 			'2026-06-22T00:00:00.000Z'
 		);
 		// The tabs hook receives the pinned params for the email tabs' widgets.
-		expect( mockUsePostDetailTabs ).toHaveBeenCalledWith( 41, mockEmailScope.reportParams );
+		expect( mockUsePostDetailTabs ).toHaveBeenCalledWith( 41, mockEmailScope.reportParams, false );
 	} );
 
 	it( 'reports the traffic tab over the applied URL range', () => {

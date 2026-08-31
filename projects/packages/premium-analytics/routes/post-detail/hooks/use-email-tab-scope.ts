@@ -6,6 +6,7 @@ import {
 	PRESET_ALL_TIME,
 	computePrimaryRange,
 	endOfDayTZ,
+	type DateRange,
 } from '@jetpack-premium-analytics/datetime';
 import { encodeDateToSearchParam } from '@jetpack-premium-analytics/routing';
 import { useMemo } from '@wordpress/element';
@@ -24,7 +25,7 @@ export const EMAIL_SEND_WINDOW_DAYS = 30;
  */
 export type EmailTabScope = {
 	/** The send window: the publish day through day 30, or today if sooner. */
-	range: { from: Date; to: Date };
+	range: Required< DateRange >;
 	/** The same window as widget report params, replacing the URL's. */
 	reportParams: ReportParams;
 };
