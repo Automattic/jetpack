@@ -775,33 +775,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function get_openai_jwt() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', '\Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT::get_jwt' );
 
-		$blog_id = \Jetpack_Options::get_option( 'id' );
-
-		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
-			"/sites/$blog_id/jetpack-openai-query/jwt",
-			'2',
-			array(
-				'method'  => 'POST',
-				'headers' => array( 'Content-Type' => 'application/json; charset=utf-8' ),
-			),
-			wp_json_encode( array(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
-			'wpcom'
-		);
+		$response = ( new REST_Jetpack_AI_JWT() )->get_jwt();
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
 
-		$json = json_decode( wp_remote_retrieve_body( $response ) );
-
-		if ( ! isset( $json->token ) ) {
-			return new WP_Error( 'no-token', 'No token returned from WPCOM' );
-		}
-
-		return array(
-			'token'   => $json->token,
-			'blog_id' => $blog_id,
-		);
+		// Pre-deprecation callers expect the raw array, not a WP_REST_Response.
+		return $response->get_data();
 	}
 
 	/**
