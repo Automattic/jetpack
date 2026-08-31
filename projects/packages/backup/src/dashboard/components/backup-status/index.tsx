@@ -98,10 +98,8 @@ export function ContactSupportLine() {
  * states renders as DataViews' bare "No results" — leaving a site whose
  * backups are failing indistinguishable from a healthy new one.
  *
- * Legacy's closing sentence, offering "backup management on Jetpack.com"
- * (`js/components/Backups.jsx:374`), is deliberately gone: it points at
- * `cloud.jetpack.com/backup`, which is the screen this dashboard replaces
- * (JETPACK-2329).
+ * Legacy's closing "backup management on Jetpack.com" is deliberately gone: it
+ * points at the screen this dashboard replaces (JETPACK-2329).
  *
  * @param props          - Component props.
  * @param props.state    - Derived backup state.

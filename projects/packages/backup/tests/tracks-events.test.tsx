@@ -80,9 +80,7 @@ function mockEndpointsForButton() {
 /**
  * Answer the two routes `<NextScheduledBackup>` reads before it renders.
  *
- * It renders nothing without a readable hour, and nothing while WordPress.com
- * says backups have stopped — so a bare mock leaves no link to click and the
- * test would pass by finding neither the link nor the event.
+ * Without both, there is no link to click and the test passes vacuously.
  */
 function mockEndpointsForSchedule() {
 	mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
@@ -304,8 +302,7 @@ describe( 'Modify schedule', () => {
 	/**
 	 * The "Modify" link, once the two reads behind the line have landed.
 	 *
-	 * Matched on a fragment of its name: `Link` appends an "(opens in a new tab)"
-	 * indicator to anything with `openInNewTab`.
+	 * Matched on a name fragment: `Link` appends "(opens in a new tab)".
 	 *
 	 * @return The anchor.
 	 */
@@ -313,11 +310,8 @@ describe( 'Modify schedule', () => {
 		return screen.findByRole( 'link', { name: /Modify/ } );
 	}
 
-	// JETPACK-2329. Legacy records this on the "Modify" link beside the
-	// next-backup line (`js/components/next-scheduled-backup.tsx:29-31`). The link
-	// and the event were held back together when that line was ported, so they
-	// come back together — otherwise the only measurement of readers leaving for
-	// `cloud.jetpack.com/settings` is silently missing.
+	// JETPACK-2329. Legacy records this on the same link, and it is the only
+	// measurement of readers leaving for `cloud.jetpack.com/settings`.
 	it( 'records the reader leaving for the schedule settings', async () => {
 		await renderScheduleLine();
 

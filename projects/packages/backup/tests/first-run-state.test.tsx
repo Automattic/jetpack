@@ -231,10 +231,8 @@ describe( 'BackupStatusPanel', () => {
 		);
 	} );
 
-	// JETPACK-2329. The panel used to close on "…get familiar with your backup
-	// management on Jetpack.com", pointing at `cloud.jetpack.com/backup` — the
-	// Backup home this dashboard replaces. Legacy still ships that sentence
-	// (`js/components/Backups.jsx:374`), so this is what stops it coming back as
+	// JETPACK-2329. Legacy still closes on "…backup management on Jetpack.com",
+	// pointing at the screen this dashboard replaces; this stops it returning as
 	// missing parity.
 	it( 'sends a waiting site nowhere, having nothing to offer that this page does not', () => {
 		const { rerender } = render( <BackupStatusPanel state="no-backups" progress={ 0 } /> );

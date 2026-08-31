@@ -299,9 +299,7 @@ function scheduleLine(): Promise< HTMLElement > {
 /**
  * The "Modify" link that follows the sentence, once it has arrived.
  *
- * Matched on a fragment of its name: `Link` appends an "(opens in a new tab)"
- * indicator to anything with `openInNewTab`, so the accessible name is never
- * just the label.
+ * Matched on a name fragment: `Link` appends "(opens in a new tab)".
  *
  * @return The anchor.
  */
@@ -312,10 +310,8 @@ function modifyLink(): Promise< HTMLElement > {
 /**
  * The row holding the sentence and the link.
  *
- * A layout container with no role and no accessible name, so its class is the
- * only handle — the same escape hatch the storage suites use. It is what the
- * Overview places, so the placement assertions are about this and not about the
- * sentence nested inside it.
+ * No role and no accessible name, so its class is the only handle — the same
+ * escape hatch the storage suites use.
  *
  * @return The row, or null before it has rendered.
  */

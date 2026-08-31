@@ -64,11 +64,9 @@ export default function NextScheduledBackup() {
 	const modifyUrl = getRedirectUrl( 'backup-plugin-schedule-time-setting', site ? { site } : {} );
 
 	return (
-		// The row is the `Text`, rendered as a `<div>`, so the sentence and the link are
-		// sized together the way legacy sizes its row — a link left to inherit wp-admin's
-		// 13px would sit a step larger than the caption beside it. A `<div>` rather than a
-		// `<p>` because `@wordpress/ui`'s global-CSS defense is unlayered and matches `p`
-		// at (0,1,1), which would drop the class-selector margin below silently.
+		// The `Text` is the row, so sentence and link are sized together rather than the
+		// link inheriting wp-admin's 13px. A `<div>` not a `<p>`: `@wordpress/ui`'s
+		// unlayered global-CSS defense matches `p` at (0,1,1) and drops the margin below.
 		<Text variant="body-sm" className="jpb-next-scheduled-backup" render={ <div /> }>
 			{ /* Only the sentence is de-emphasized; a muted link would read as a
 			     disabled one. */ }
