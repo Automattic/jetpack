@@ -102,11 +102,11 @@ class Brute_Force_Protection {
 	public $last_response;
 
 	/**
-	 * Block login with math, default is 1.
+	 * Block login with math, default is 0.
 	 *
 	 * @var int
 	 */
-	private $block_login_with_math;
+	private $block_login_with_math = 0;
 
 	/**
 	 * Singleton implementation
@@ -142,6 +142,7 @@ class Brute_Force_Protection {
 
 		// This is a backup in case $pagenow fails for some reason.
 		add_action( 'login_form', array( $this, 'check_login_ability' ), 1 );
+		add_action( 'login_form', array( $this, 'render_login_attempt_token' ), 2 );
 
 		// Runs a script every day to clean up expired transients so they don't
 		// clog up our users' databases.
@@ -599,26 +600,41 @@ class Brute_Force_Protection {
 	 *
 	 * If we are using our math fallback, authenticate via math-fallback.php
 	 *
-	 * @param string $user     - the user.
+	 * @param mixed  $user     - the current authentication result.
 	 * @param string $username - the username.
 	 * @param string $password - the password.
 	 *
-	 * @return string $user
+	 * @return mixed $user
 	 */
 	public function check_preauth( $user = 'Not Used By Protect', $username = 'Not Used By Protect', $password = 'Not Used By Protect' ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$login_attempt_allowed = ( new Brute_Force_Protection_Login_Attempt_Token( $this ) )->consume();
+
+		// Always refresh Protect's decision so a hard block remains authoritative. The token only
+		// prevents a newly introduced soft/math fallback from replacing an in-flight credential POST.
 		$allow_login = $this->check_login_ability( true );
 		$use_math    = $this->get_transient( 'brute_use_math' );
 
-		if ( ! $allow_login ) {
+		if ( ! $allow_login && ! $login_attempt_allowed ) {
 			$this->block_with_math();
 		}
 
-		if ( ( 1 == $use_math || 1 == $this->block_login_with_math ) && isset( $_POST['log'] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual, WordPress.Security.NonceVerification.Missing -- POST request just determines if we use math authentication.
+		if ( ( 1 === (int) $use_math || 1 === $this->block_login_with_math ) && isset( $_POST['log'] ) && ! $login_attempt_allowed ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- POST request just determines if we use math authentication.
 
 			Brute_Force_Protection_Math_Authenticate::math_authenticate();
 		}
 
 		return $user;
+	}
+
+	/**
+	 * Add a token to a login form that Protect has already approved.
+	 */
+	public function render_login_attempt_token() {
+		if ( 1 === $this->block_login_with_math || $this->get_transient( 'brute_use_math' ) ) {
+			return;
+		}
+
+		( new Brute_Force_Protection_Login_Attempt_Token( $this ) )->render_field();
 	}
 
 	/**
@@ -1123,6 +1139,55 @@ class Brute_Force_Protection {
 		}
 
 		return set_transient( $transient, $value, $expiration );
+	}
+
+	/**
+	 * Atomically add a durable claim for a login attempt token.
+	 *
+	 * The claim intentionally remains in the options table when an external object
+	 * cache is active. Its unique option name is the source of truth for single use,
+	 * so selective cache eviction cannot make an approved token reusable.
+	 *
+	 * @param string $claim_name Claim name. Expected to not be SQL-escaped. Must be
+	 *                           45 characters or fewer in length.
+	 * @param int    $expiration Time until expiration in seconds.
+	 *
+	 * @return bool Whether the claim was added.
+	 */
+	public function add_login_attempt_claim( $claim_name, $expiration ) {
+		if ( is_multisite() && ! is_main_site() ) {
+			switch_to_blog( $this->get_main_blog_id() );
+			$return = $this->add_login_attempt_claim_for_current_site( $claim_name, $expiration );
+			restore_current_blog();
+
+			return $return;
+		}
+
+		return $this->add_login_attempt_claim_for_current_site( $claim_name, $expiration );
+	}
+
+	/**
+	 * Atomically add a durable login attempt claim on the current site.
+	 *
+	 * @param string $claim_name Claim name.
+	 * @param int    $expiration Time until expiration in seconds.
+	 *
+	 * @return bool Whether the claim was added.
+	 */
+	private function add_login_attempt_claim_for_current_site( $claim_name, $expiration ) {
+		$option_name = '_transient_' . $claim_name;
+		if ( ! add_option( $option_name, 1, '', false ) ) {
+			return false;
+		}
+
+		$timeout_name = '_transient_timeout_' . $claim_name;
+		if ( $expiration && ! add_option( $timeout_name, time() + $expiration, '', false ) ) {
+			delete_option( $option_name );
+			delete_option( $timeout_name );
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
