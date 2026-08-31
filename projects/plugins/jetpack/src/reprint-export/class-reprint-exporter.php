@@ -21,19 +21,19 @@ use Automattic\Jetpack\Status\Host;
 class Reprint_Exporter {
 
 	/**
-	 * Option holding the per-site HMAC shared secret.
+	 * Jetpack-specific option holding the per-site HMAC shared secret.
 	 *
 	 * @var string
 	 */
-	const SECRET_OPTION = 'reprint_exporter_secret';
+	const SECRET_OPTION = 'jetpack_reprint_exporter_secret';
 
 	/**
-	 * Option holding the unix timestamp of the last time the export window
-	 * was opened. The window is a sliding 60-minute one.
+	 * Jetpack-specific option holding the unix timestamp of the last time the
+	 * export window was opened. The window is a sliding 60-minute one.
 	 *
 	 * @var string
 	 */
-	const ENABLED_OPTION = 'reprint_exporter_enabled';
+	const ENABLED_OPTION = 'jetpack_reprint_exporter_enabled';
 
 	/**
 	 * Clock-skew tolerance, in seconds, allowed for HMAC signatures.
@@ -128,15 +128,14 @@ class Reprint_Exporter {
 	/**
 	 * Writes one of the export options with the guard held open.
 	 *
-	 * @param string    $option   Option name.
-	 * @param mixed     $value    Value to store.
-	 * @param bool|null $autoload Whether to autoload the option.
+	 * @param string $option   Option name.
+	 * @param mixed  $value    Value to store.
 	 * @return bool Whether the value was changed.
 	 */
-	private static function write_option( $option, $value, $autoload = null ) {
+	private static function write_option( $option, $value ) {
 		self::$writing_own_options = true;
 		try {
-			return update_option( $option, $value, $autoload );
+			return update_option( $option, $value, false );
 		} finally {
 			self::$writing_own_options = false;
 		}
@@ -149,7 +148,7 @@ class Reprint_Exporter {
 	 * @return bool Whether the secret was stored.
 	 */
 	public static function store_secret( $secret ) {
-		return self::write_option( self::SECRET_OPTION, $secret, false );
+		return self::write_option( self::SECRET_OPTION, $secret );
 	}
 
 	/**
@@ -170,7 +169,7 @@ class Reprint_Exporter {
 	 * @return bool
 	 */
 	public static function is_available() {
-		$available = Constants::is_true( 'IS_PRESSABLE' ) || ( new Host() )->is_atomic_platform();
+		$available = Constants::is_true( 'IS_PRESSABLE' ) || ( new Host() )->is_woa_site();
 
 		/**
 		 * Filters whether Jetpack Reprint export support is available on the
