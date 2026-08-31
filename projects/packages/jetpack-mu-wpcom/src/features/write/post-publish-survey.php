@@ -30,6 +30,10 @@ const WPCOM_WRITE_SURVEY_ID = 'write-first-publish';
 
 /**
  * User meta recording that the survey has been shown, so it appears only once.
+ *
+ * Written when the card is actually revealed, not when it renders: on a Coming
+ * Soon site the checklist owns the screen first, and its launch CTA navigates
+ * away without dismissing, so a render is no evidence the writer saw anything.
  */
 const WPCOM_WRITE_SURVEY_SHOWN_META = '_wpcom_write_first_publish_survey_shown';
 
@@ -227,9 +231,6 @@ function wpcom_write_render_post_publish_survey() {
 	$strings        = wpcom_write_get_survey_strings( $is_write_first );
 	$answers        = wpcom_write_get_survey_answers( $is_write_first );
 
-	// Marked on render, not on submit: a writer who navigates away without
-	// answering has still had their turn.
-	update_user_meta( get_current_user_id(), WPCOM_WRITE_SURVEY_SHOWN_META, time() );
 	?>
 	<div class="wpcom-write-pps" role="dialog" aria-modal="true" aria-labelledby="wpcom-write-pps-question" hidden>
 		<div class="wpcom-write-pps__backdrop" data-wpcom-write-pps-dismiss></div>
@@ -306,6 +307,28 @@ function wpcom_write_store_survey_response( $responses ) {
 
 	return ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response );
 }
+
+/**
+ * Record that the survey card was revealed to this user.
+ *
+ * Fired by the card on reveal so the once-per-user gate closes on a card the
+ * writer actually saw. Best-effort: a dropped request costs one repeat showing,
+ * which is the better failure.
+ *
+ * @return void
+ */
+function wpcom_write_ajax_mark_survey_shown() {
+	check_ajax_referer( WPCOM_WRITE_SURVEY_NONCE, 'nonce' );
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error( array( 'reason' => 'forbidden' ), 403, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+	}
+
+	update_user_meta( get_current_user_id(), WPCOM_WRITE_SURVEY_SHOWN_META, time() );
+
+	wp_send_json_success( null, 200, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+}
+add_action( 'wp_ajax_wpcom_write_survey_shown', 'wpcom_write_ajax_mark_survey_shown' );
 
 /**
  * Build the response payload stored against the survey.

@@ -87,25 +87,14 @@
 		let submitted = false;
 
 		/**
-		 * POST the response to admin-ajax. Fire-and-forget: a failed write costs one
-		 * survey answer and must never block the card.
+		 * POST to admin-ajax. Fire-and-forget: a failed write costs one survey
+		 * answer and must never block the card.
 		 *
-		 * @param {boolean} [duringUnload] - Use keepalive, for a submit made on the way out.
+		 * @param {URLSearchParams} body           - Form body; the nonce is added here.
+		 * @param {boolean}         [duringUnload] - Use keepalive, for a send on the way out.
 		 */
-		function submitResponse( duringUnload ) {
-			if ( submitted || ! selectedAnswer ) {
-				return;
-			}
-			submitted = true;
-
-			const body = new URLSearchParams();
-			body.set( 'action', 'wpcom_write_submit_survey' );
+		function post( body, duringUnload ) {
 			body.set( 'nonce', config.nonce || '' );
-			body.set( 'answer', selectedAnswer );
-			body.set( 'comment', commentInput ? commentInput.value : '' );
-			body.set( 'response_id', config.responseId || '' );
-			body.set( 'source', config.source || '' );
-
 			try {
 				fetch( config.ajaxUrl, {
 					method: 'POST',
@@ -119,6 +108,36 @@
 			} catch {
 				// Same.
 			}
+		}
+
+		/**
+		 * Close the once-per-user gate, now that the card is on screen.
+		 */
+		function markShown() {
+			const body = new URLSearchParams();
+			body.set( 'action', 'wpcom_write_survey_shown' );
+			post( body );
+		}
+
+		/**
+		 * Store the chosen answer and any free text, at most once.
+		 *
+		 * @param {boolean} [duringUnload] - Use keepalive, for a send on the way out.
+		 */
+		function submitResponse( duringUnload ) {
+			if ( submitted || ! selectedAnswer ) {
+				return;
+			}
+			submitted = true;
+
+			const body = new URLSearchParams();
+			body.set( 'action', 'wpcom_write_submit_survey' );
+			body.set( 'answer', selectedAnswer );
+			body.set( 'comment', commentInput ? commentInput.value : '' );
+			body.set( 'response_id', config.responseId || '' );
+			body.set( 'source', config.source || '' );
+
+			post( body, duringUnload );
 		}
 
 		/**
@@ -257,6 +276,7 @@
 
 		whenChecklistDismissed( function () {
 			overlay.removeAttribute( 'hidden' );
+			markShown();
 			recordEvent( 'wpcom_write_first_publish_survey_shown', {
 				variant: config.variant || '',
 				entry_point: config.source || '',

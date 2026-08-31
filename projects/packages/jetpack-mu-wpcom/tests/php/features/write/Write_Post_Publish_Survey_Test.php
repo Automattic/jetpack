@@ -161,9 +161,12 @@ class Write_Post_Publish_Survey_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Rendering records the impression, so the next publish doesn't ask again.
+	 * Rendering must NOT record the impression. On a Coming Soon site the card
+	 * renders behind the post-publish checklist, whose launch CTA navigates away
+	 * without dismissing — so those writers would burn their one showing on a
+	 * card they never saw.
 	 */
-	public function test_render_marks_the_survey_as_shown() {
+	public function test_render_does_not_mark_the_survey_as_shown() {
 		$this->make_survey_eligible();
 
 		ob_start();
@@ -171,8 +174,36 @@ class Write_Post_Publish_Survey_Test extends \WorDBless\BaseTestCase {
 		$markup = ob_get_clean();
 
 		$this->assertStringContainsString( 'wpcom-write-pps', $markup );
+		$this->assertEmpty( get_user_meta( $this->admin_id, WPCOM_WRITE_SURVEY_SHOWN_META, true ) );
+		$this->assertTrue( wpcom_write_should_show_post_publish_survey() );
+	}
+
+	/**
+	 * Revealing the card is what closes the gate, so it appears exactly once.
+	 */
+	public function test_reveal_marks_the_survey_as_shown() {
+		$this->make_survey_eligible();
+		$this->set_valid_nonce();
+
+		$response = $this->capture_ajax_json( 'wpcom_write_ajax_mark_survey_shown' );
+
+		$this->assertTrue( $response['success'] );
 		$this->assertNotEmpty( get_user_meta( $this->admin_id, WPCOM_WRITE_SURVEY_SHOWN_META, true ) );
 		$this->assertFalse( wpcom_write_should_show_post_publish_survey() );
+	}
+
+	/**
+	 * A viewer who could not submit the survey cannot close their gate either.
+	 */
+	public function test_reveal_mark_rejects_a_user_without_manage_options() {
+		wp_set_current_user( $this->subscriber_id );
+		$this->set_valid_nonce();
+
+		$response = $this->capture_ajax_json( 'wpcom_write_ajax_mark_survey_shown' );
+
+		$this->assertFalse( $response['success'] );
+		$this->assertSame( 'forbidden', $response['data']['reason'] );
+		$this->assertEmpty( get_user_meta( $this->subscriber_id, WPCOM_WRITE_SURVEY_SHOWN_META, true ) );
 	}
 
 	/**
