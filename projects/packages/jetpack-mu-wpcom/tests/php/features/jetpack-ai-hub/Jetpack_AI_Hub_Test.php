@@ -57,20 +57,22 @@ class Jetpack_AI_Hub_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The integration uses the native site-scoped WordPress.com MCP endpoint.
+	 * The integration uses the native site-scoped WordPress.com MCP endpoint,
+	 * shows every view — the load filter is the gate on Simple — and reports
+	 * the current user connected.
 	 */
 	public function test_configures_native_wpcom_mcp_api() {
 		$this->load_integration();
 
 		$config = configure(
 			array(
-				'showGatedViews'  => true,
+				'showGatedViews'  => false,
 				'isUserConnected' => false,
 				'mcpSettingsApi'  => array(),
 			)
 		);
 
-		$this->assertFalse( $config['showGatedViews'] );
+		$this->assertTrue( $config['showGatedViews'] );
 		$this->assertTrue( $config['isUserConnected'] );
 		$this->assertSame(
 			array(
@@ -78,6 +80,51 @@ class Jetpack_AI_Hub_Test extends BaseTestCase {
 				'format' => 'wpcom',
 			),
 			$config['mcpSettingsApi']
+		);
+	}
+
+	/**
+	 * Without the WordPress.com store available the plan info degrades to the
+	 * empty shape rather than erroring — the Overview card then shows no plan.
+	 */
+	public function test_plan_info_degrades_without_the_wpcom_store() {
+		$this->load_integration();
+
+		$config = configure( array() );
+
+		$this->assertSame(
+			array(
+				'name'       => '',
+				'renews_on'  => '',
+				'auto_renew' => true,
+			),
+			$config['planInfo']
+		);
+	}
+
+	/**
+	 * The plan info comes from the WordPress.com store: the site's `bundle`
+	 * purchase carries the dates, and the store product list names it — with
+	 * the brand prefix trimmed the way the upstream page trims it.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_plan_info_reads_the_wpcom_store() {
+		$this->load_integration();
+		require_once __DIR__ . '/fixtures/wpcom-store-fakes.php';
+
+		$info = get_plan_info();
+
+		$this->assertSame(
+			array(
+				'name'       => 'Business',
+				'renews_on'  => '2027-08-30 00:00:00',
+				'auto_renew' => false,
+			),
+			$info
 		);
 	}
 
