@@ -525,9 +525,8 @@ class Jetpack_Backup_Test extends TestCase {
 	}
 
 	/**
-	 * The catalogue is priced and translated per locale, which is a query arg
-	 * on the request — one shared key would serve one reader's language to
-	 * another.
+	 * The catalogue is localized by the `locale` query arg, so one shared key
+	 * would serve one reader's language to another.
 	 */
 	public function test_promoted_product_info_caches_per_locale() {
 		add_filter( 'pre_http_request', array( $this, 'mock_request_as_product_catalogue' ), 10, 3 );
