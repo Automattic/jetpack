@@ -285,6 +285,48 @@ class Write_Post_Publish_Survey_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Free text is exported to CSV downstream, where a leading =, +, -, @, tab or
+	 * CR is evaluated as a formula. Each is neutralized before storage.
+	 */
+	public function test_response_payload_neutralizes_csv_formulas() {
+		foreach ( array( '=', '+', '-', '@', "\t", "\r" ) as $trigger ) {
+			$payload = wpcom_write_build_survey_response(
+				'easier',
+				$trigger . 'HYPERLINK("https://example.invalid")',
+				wp_generate_uuid4(),
+				'',
+				false
+			);
+
+			$this->assertSame(
+				"'" . $trigger . 'HYPERLINK("https://example.invalid")',
+				$payload['comment']['text'],
+				"Leading '{$trigger}' should be escaped."
+			);
+		}
+	}
+
+	/**
+	 * Ordinary prose is stored untouched — the escape must not tax every response.
+	 */
+	public function test_response_payload_leaves_ordinary_prose_alone() {
+		$prose   = 'The toolbar covered my text on mobile.';
+		$payload = wpcom_write_build_survey_response( 'harder', $prose, wp_generate_uuid4(), '', false );
+
+		$this->assertSame( $prose, $payload['comment']['text'] );
+	}
+
+	/**
+	 * A multi-byte opening character cannot collide with the ASCII triggers.
+	 */
+	public function test_response_payload_leaves_multibyte_prose_alone() {
+		$prose   = '— it was harder than the block editor';
+		$payload = wpcom_write_build_survey_response( 'harder', $prose, wp_generate_uuid4(), '', false );
+
+		$this->assertSame( $prose, $payload['comment']['text'] );
+	}
+
+	/**
 	 * An empty comment is omitted rather than stored as an empty answer.
 	 */
 	public function test_response_payload_omits_an_empty_comment() {

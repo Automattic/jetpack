@@ -354,6 +354,30 @@ function wpcom_write_ajax_mark_survey_shown() {
 add_action( 'wp_ajax_wpcom_write_survey_shown', 'wpcom_write_ajax_mark_survey_shown' );
 
 /**
+ * Neutralize a leading spreadsheet-formula character in free text.
+ *
+ * The stored responses are exported to CSV downstream, where a cell beginning
+ * `=`, `+`, `-`, `@`, tab or CR is evaluated as a formula by spreadsheet apps.
+ * Prefixing with an apostrophe is the standard defence and is reversible — a
+ * consumer that doesn't need it can strip the leading quote.
+ *
+ * Byte-wise on purpose: a multi-byte leading character starts with a byte above
+ * 0x7F and can never collide with these ASCII triggers.
+ *
+ * @param string $text Sanitized free text.
+ * @return string Text safe to place in a CSV cell.
+ */
+function wpcom_write_neutralize_csv_formula( $text ) {
+	if ( '' === $text ) {
+		return $text;
+	}
+
+	$triggers = array( '=', '+', '-', '@', "\t", "\r" );
+
+	return in_array( $text[0], $triggers, true ) ? "'" . $text : $text;
+}
+
+/**
  * Build the response payload stored against the survey.
  *
  * Answers are stored as a preset slug, or array( 'text' => … ) for prose — the
@@ -383,7 +407,8 @@ function wpcom_write_build_survey_response( $answer, $comment, $response_id, $so
 	$comment = mb_substr( $comment, 0, WPCOM_WRITE_SURVEY_MAX_COMMENT_LENGTH );
 
 	if ( '' !== $comment ) {
-		$responses['comment'] = array( 'text' => $comment );
+		// Capped first, so the escape prefix is never what gets truncated away.
+		$responses['comment'] = array( 'text' => wpcom_write_neutralize_csv_formula( $comment ) );
 	}
 
 	return $responses;
