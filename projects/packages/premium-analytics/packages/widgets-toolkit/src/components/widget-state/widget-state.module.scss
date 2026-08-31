@@ -68,7 +68,6 @@
 }
 
 .loading {
-	position: relative;
 	block-size: 100%;
 
 	// Same rationale as `.state`: no floor, so a short tile's loading box stays
@@ -78,7 +77,6 @@
 
 .root,
 .content {
-	position: relative;
 	block-size: 100%;
 }
 

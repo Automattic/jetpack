@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Drop the widget stylesheet position anchors left over from WidgetLoadingOverlay; no user-facing change.
+
+
