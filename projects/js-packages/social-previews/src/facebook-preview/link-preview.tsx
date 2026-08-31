@@ -10,7 +10,10 @@ import type { FacebookPreviewProps } from './types';
 
 import './style.scss';
 
-export type FacebookLinkPreviewProps = Omit< FacebookPreviewProps, 'imageMode' >;
+// `imageMode` is still accepted so existing callers (the SEO front-page preview
+// passes imageMode="landscape") keep working, but it is no longer read: Facebook's
+// current link card is always landscape.
+export type FacebookLinkPreviewProps = FacebookPreviewProps;
 
 export const FacebookLinkPreview: React.FC< FacebookLinkPreviewProps > = ( {
 	url,
