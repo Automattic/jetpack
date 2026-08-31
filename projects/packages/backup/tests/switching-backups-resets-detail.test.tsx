@@ -17,7 +17,24 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => mockSearch(),
 	useNavigate: () => mockNavigate,
 	useParams: () => ( {} ),
-	Link: ( { children, ...rest }: { children: React.ReactNode } ) => <a { ...rest }>{ children }</a>,
+	// `search` is folded into the href rather than spread onto the node: the
+	// Download action carries the file selection there now, and React would
+	// warn about an object-valued attribute on an `<a>` — which
+	// `@wordpress/jest-console` turns into a suite failure.
+	Link: ( {
+		children,
+		to,
+		search,
+		...rest
+	}: {
+		children: React.ReactNode;
+		to: string;
+		search?: Record< string, string >;
+	} ) => (
+		<a href={ search ? `${ to }?${ new URLSearchParams( search ).toString() }` : to } { ...rest }>
+			{ children }
+		</a>
+	),
 } ) );
 
 // Imports must come after the jest.mock factories above.
@@ -95,7 +112,14 @@ beforeEach( () => {
 			// Both backups carry the same root file — the same file
 			// surviving between backups is the ordinary case, not an edge
 			// one.
-			return Promise.resolve( { contents: { 'wp-config.php': { type: 'file', period: '123' } } } );
+			// `id` is what a granular download names the entry by. The
+			// Download label counts nameable entries, so without it the
+			// selection this suite tracks would be invisible.
+			return Promise.resolve( {
+				contents: {
+					'wp-config.php': { type: 'file', period: '123', id: 'ZjU6L3dwLWNvbmZpZy5waHA=' },
+				},
+			} );
 		}
 		return Promise.resolve( {} );
 	} );
