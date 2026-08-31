@@ -323,9 +323,9 @@ class Speed_Score_Request extends Cacheable {
 					'theme'     => $current_theme,
 				)
 			);
-		} else {
-			// Nothing to record, but a run did complete just now. Move the timestamp so the
-			// score is not treated as stale and measured all over again on the next page load.
+		} elseif ( $this->created >= Speed_Score_History::get_stale_timestamp() ) {
+			// A run that completed with unchanged scores still counts as a fresh measurement,
+			// unless the site changed after it was dispatched — those scores predate the change.
 			$history->touch_latest();
 		}
 	}

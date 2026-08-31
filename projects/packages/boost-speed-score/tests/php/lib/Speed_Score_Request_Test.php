@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Boost_Speed_Score\Tests\Lib;
 
 use Automattic\Jetpack\Boost_Core\Contracts\Boost_API_Client;
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
+use Automattic\Jetpack\Boost_Core\Lib\Transient;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Request;
 use Automattic\Jetpack\Boost_Speed_Score\Tests\Base_TestCase;
@@ -479,6 +480,38 @@ class Speed_Score_Request_Test extends Base_TestCase {
 
 		$this->assertSame( 2, $history->count() );
 		$this->assertSame( 'Twenty Twenty-Four', $this->entry_at( $history )['theme'] );
+	}
+
+	/**
+	 * A stale marker raised after the run was dispatched must survive the run completing with
+	 * unchanged scores, because those scores predate the site change that raised the marker.
+	 */
+	public function test_a_stale_marker_raised_mid_run_is_not_overwritten() {
+		$scores = array(
+			'mobile'  => 50,
+			'desktop' => 70,
+		);
+
+		$this->seed_history( array( $this->entry( $scores, time() - 3 * DAY_IN_SECONDS ) ) );
+
+		// The run was dispatched five minutes ago; the site changed one minute ago.
+		$this->options[ Transient::key( Speed_Score_History::STALE_TRANSIENT_KEY ) ] = array(
+			'expire' => time() + DAY_IN_SECONDS,
+			'data'   => time() - 60,
+		);
+
+		$this->api_response = array(
+			'status' => 'success',
+			'scores' => $scores,
+		);
+
+		$request = new Speed_Score_Request( self::URL, array(), time() - 300 );
+		$this->assertTrue( $request->poll_update() );
+
+		$history = $this->stored_history();
+
+		$this->assertSame( 1, $history->count(), 'No entry should have been added.' );
+		$this->assertTrue( $history->is_stale(), 'Scores measured before the site change must stay stale.' );
 	}
 
 	/**
