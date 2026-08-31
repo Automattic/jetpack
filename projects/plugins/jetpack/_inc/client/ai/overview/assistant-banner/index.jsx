@@ -125,6 +125,50 @@ function AiLogoMark() {
 }
 
 /**
+ * One things-you-can-do card: icon, label, and a CTA that either links out
+ * or opens the capability's demo video.
+ *
+ * @param {object}   props             - Component props.
+ * @param {object}   props.capability  - Entry from CAPABILITIES.
+ * @param {Function} props.onOpenVideo - Called with the capability to open its video.
+ * @return {object} Component markup.
+ */
+function CapabilityCard( { capability, onOpenVideo } ) {
+	const handleOpen = useCallback( () => onOpenVideo( capability ), [ onOpenVideo, capability ] );
+
+	const ctaContent = (
+		<>
+			{ capability.href ? capability.cta : __( 'Watch video', 'jetpack' ) }
+			<Icon icon={ isRTL() ? chevronLeft : chevronRight } size={ 16 } />
+		</>
+	);
+
+	return (
+		<li className="jetpack-ai-overview-banner__card">
+			<Icon
+				className="jetpack-ai-overview-banner__card-icon"
+				icon={ capability.icon }
+				size={ 24 }
+			/>
+			<span className="jetpack-ai-overview-banner__card-text">{ capability.label }</span>
+			{ capability.href ? (
+				<a className="jetpack-ai-overview-banner__card-cta" href={ capability.href }>
+					{ ctaContent }
+				</a>
+			) : (
+				<button
+					type="button"
+					className="jetpack-ai-overview-banner__card-cta"
+					onClick={ handleOpen }
+				>
+					{ ctaContent }
+				</button>
+			) }
+		</li>
+	);
+}
+
+/**
  * Capability carousel: a scroll-snapping row of things-you-can-do cards
  * steered by round previous/next buttons. The row itself scrolls (touch,
  * trackpad, scroll-wheel all work); the buttons page it one card at a time
@@ -187,6 +231,10 @@ function CapabilityCarousel() {
 		list.scrollBy( { left: step * direction, behavior: 'smooth' } );
 	}, [] );
 
+	const scrollPrev = useCallback( () => scrollByCard( -1 ), [ scrollByCard ] );
+	const scrollNext = useCallback( () => scrollByCard( 1 ), [ scrollByCard ] );
+	const closeVideo = useCallback( () => setActiveVideo( null ), [] );
+
 	return (
 		<div className="jetpack-ai-overview-banner__carousel">
 			<div className="jetpack-ai-overview-banner__carousel-nav">
@@ -194,7 +242,7 @@ function CapabilityCarousel() {
 					className="jetpack-ai-overview-banner__carousel-arrow"
 					icon={ isRTL() ? chevronRight : chevronLeft }
 					label={ __( 'Previous', 'jetpack' ) }
-					onClick={ () => scrollByCard( -1 ) }
+					onClick={ scrollPrev }
 					disabled={ ! canPrev }
 					accessibleWhenDisabled
 				/>
@@ -202,48 +250,24 @@ function CapabilityCarousel() {
 					className="jetpack-ai-overview-banner__carousel-arrow"
 					icon={ isRTL() ? chevronLeft : chevronRight }
 					label={ __( 'Next', 'jetpack' ) }
-					onClick={ () => scrollByCard( 1 ) }
+					onClick={ scrollNext }
 					disabled={ ! canNext }
 					accessibleWhenDisabled
 				/>
 			</div>
 			<ul className="jetpack-ai-overview-banner__cards" ref={ listRef } onScroll={ updateArrows }>
-				{ CAPABILITIES.map( capability => {
-					const ctaContent = (
-						<>
-							{ capability.href ? capability.cta : __( 'Watch video', 'jetpack' ) }
-							<Icon icon={ isRTL() ? chevronLeft : chevronRight } size={ 16 } />
-						</>
-					);
-					return (
-						<li className="jetpack-ai-overview-banner__card" key={ capability.key }>
-							<Icon
-								className="jetpack-ai-overview-banner__card-icon"
-								icon={ capability.icon }
-								size={ 24 }
-							/>
-							<span className="jetpack-ai-overview-banner__card-text">{ capability.label }</span>
-							{ capability.href ? (
-								<a className="jetpack-ai-overview-banner__card-cta" href={ capability.href }>
-									{ ctaContent }
-								</a>
-							) : (
-								<button
-									type="button"
-									className="jetpack-ai-overview-banner__card-cta"
-									onClick={ () => openVideo( capability ) }
-								>
-									{ ctaContent }
-								</button>
-							) }
-						</li>
-					);
-				} ) }
+				{ CAPABILITIES.map( capability => (
+					<CapabilityCard
+						key={ capability.key }
+						capability={ capability }
+						onOpenVideo={ openVideo }
+					/>
+				) ) }
 			</ul>
 			{ activeVideo && (
 				<Modal
 					title={ activeVideo.label }
-					onRequestClose={ () => setActiveVideo( null ) }
+					onRequestClose={ closeVideo }
 					className="jetpack-ai-overview-banner__video-modal"
 				>
 					<div className="jetpack-ai-overview-banner__video-frame">

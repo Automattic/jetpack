@@ -24,7 +24,7 @@
 		// The blue stop sits at 72%, not 100%: at 100% pure blue only exists on
 		// the circle's outer rim, where the blur and the disc edge wash it out.
 		// Ending early gives the blur a solid band of blue to spread.
-		background: linear-gradient(270deg, #48FF50 0%, #108642 47.18%, #2E38FA 100%);
+		background: linear-gradient(270deg, #48ff50 0%, #108642 47.18%, #2e38fa 100%);
 		filter: blur(40px);
 		opacity: 0.6;
 		pointer-events: none;
@@ -68,7 +68,7 @@
 		margin: 0;
 		font-size: 13px;
 		font-weight: 400;
-		line-height: var(--_gcd-p-line-height,1.5);
+		line-height: var(--_gcd-p-line-height, 1.5);
 		color: var(--jp-green-mint);
 	}
 

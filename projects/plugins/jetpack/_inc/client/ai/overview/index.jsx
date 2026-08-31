@@ -242,7 +242,11 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 							<Text render={ <h2 /> } variant="heading-lg">
 								{ isDepleted
 									? __( 'You’ve used all your requests', 'jetpack' )
-									: __( 'Upgrade Jetpack AI Assistant', 'jetpack' ) }
+									: __(
+											'Upgrade Jetpack AI Assistant',
+											'jetpack',
+											/* dummy arg to avoid bad minification */ 0
+									  ) }
 							</Text>
 							<Text render={ <p /> } variant="body-md" className="jetpack-ai-overview__muted">
 								{ isDepleted
@@ -252,7 +256,8 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 									  )
 									: __(
 											'Draft, rewrite, and illustrate posts without leaving the editor. Upgrade before you run out.',
-											'jetpack'
+											'jetpack',
+											/* dummy arg to avoid bad minification */ 0
 									  ) }
 							</Text>
 						</div>
