@@ -22,6 +22,7 @@ const initialRequestsState = {
 const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_PLUGINS_DATA_FETCH:
+			// hasFetchedPluginsData deliberately stays set here: consumers treat it as a one-shot latch.
 			return Object.assign( {}, state, {
 				isFetchingPluginsData: true,
 			} );

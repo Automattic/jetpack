@@ -10,7 +10,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import InfoPopover from 'components/info-popover';
 import PluginInstallSection from 'components/plugin-install-section';
@@ -57,7 +57,7 @@ const DashBoost = ( {
 } ) => {
 	const isSiteOffline = siteConnectionStatus === 'offline';
 
-	const [ isLoading, setIsLoading ] = useState( false );
+	const [ isLoading, setIsLoading ] = useState( true );
 	const [ isInstalling, setIsInstalling ] = useState( false );
 	const [ isActivating, setIsActivating ] = useState( false );
 	const [ speedLetterGrade, setSpeedLetterGrade ] = useState( 'C' );
@@ -81,11 +81,13 @@ const DashBoost = ( {
 			getScoreLetter( latestSpeedScores.scores.mobile, latestSpeedScores.scores.desktop )
 		);
 		setDaysSinceTested( calculateDaysSince( latestSpeedScores.timestamp * 1000 ) );
+		setIsLoading( false );
 	};
 
 	const getSpeedScores = async () => {
 		// Don't get speed scores if site is offline or the user already has boost
 		if ( isSiteOffline || hasBoost ) {
+			setIsLoading( false );
 			return;
 		}
 
@@ -118,13 +120,18 @@ const DashBoost = ( {
 		}
 	};
 
+	const hasDecided = useRef( false );
+
 	useEffect( () => {
 		// getSpeedScores() skips sites that already have Boost, but isBoostInstalled and
 		// isBoostActive both read false until the plugin data arrives. Deciding before then
 		// starts a speed score run on every Boost site, which nobody ever sees.
-		if ( ! hasFetchedPluginsData ) {
+		// A flag left true by an earlier settled fetch must not decide from stale items,
+		// so wait out any in-flight refetch; the ref keeps the decision one-shot.
+		if ( hasDecided.current || ! hasFetchedPluginsData || fetchingPluginsData ) {
 			return;
 		}
+		hasDecided.current = true;
 
 		// Use cache scores if they are less than 21 days old.
 		if ( latestSpeedScores && calculateDaysSince( latestSpeedScores.timestamp * 1000 ) < 21 ) {
@@ -134,7 +141,7 @@ const DashBoost = ( {
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ hasFetchedPluginsData ] );
+	}, [ hasFetchedPluginsData, fetchingPluginsData ] );
 
 	const getSpeedScoreText = () => {
 		switch ( speedLetterGrade ) {
