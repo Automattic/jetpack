@@ -9,6 +9,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT;
 use Automattic\Jetpack\Connection\SSO;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Plugins_Installer;
@@ -72,21 +73,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$site_endpoint          = new Jetpack_Core_API_Site_Endpoint();
 		$widget_endpoint        = new Jetpack_Core_API_Widget_Endpoint();
 
-		/**
-		 * TODO: Move me somewhere that makes more sense.
-		 * Also give me permissions that aren't awful.
-		 */
-		register_rest_route(
-			'jetpack/v4',
-			'jetpack-ai-jwt',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::get_openai_jwt',
-				'permission_callback' => function () {
-					return ( new Connection_Manager( 'jetpack' ) )->is_user_connected() && current_user_can( 'edit_posts' );
-				},
-			)
-		);
+		// My Jetpack and Agents Manager register the same controller; its guard keeps the route registered once.
+		( new REST_Jetpack_AI_JWT() )->register_rest_route();
 
 		register_rest_route(
 			'jetpack/v4',
@@ -778,9 +766,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 	/**
 	 * Ask WPCOM for a JWT token to use for OpenAI conversations.
-	 * TODO: Clean me up. This is ugly hack code.
+	 *
+	 * @deprecated since $$next-version$$
+	 * @see Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT::get_jwt()
+	 *
+	 * @return array|WP_Error The token and blog ID, or the error from WPCOM.
 	 */
 	public static function get_openai_jwt() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', '\Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT::get_jwt' );
+
 		$blog_id = \Jetpack_Options::get_option( 'id' );
 
 		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
