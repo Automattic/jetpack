@@ -40,8 +40,8 @@ export const route = {
 			}
 
 			/*
-			 * Overlay `normalizeReportParams` onto `params`, not replace it — a raw
-			 * default would force `comp=1` onto a custom deep-link and drop `section`.
+			 * Overlay `normalizeReportParams` onto `params`, not replace it, so
+			 * passthrough params like `section` survive the seed.
 			 */
 			const seeded: Record< string, unknown > = {
 				...params,
