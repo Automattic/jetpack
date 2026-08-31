@@ -17,6 +17,8 @@ const ROLE_FOR_FIELD: Array< [ string, ( theme: Partial< ChartTheme > ) => strin
 		[ '--a8c-charts-color-axis', theme => theme.xAxisLineStyles?.stroke ],
 		[ '--a8c-charts-color-tick', theme => theme.xTickLineStyles?.stroke ],
 		[ '--a8c-charts-color-label-axis', theme => theme.svgLabelSmall?.fill ],
+		[ '--a8c-charts-color-label-background', theme => theme.labelBackgroundColor ],
+		[ '--a8c-charts-color-label-on-fill', theme => theme.labelTextColor ],
 		...Array.from(
 			{ length: SERIES_SLOT_COUNT },
 			( _, index ): [ string, ( theme: Partial< ChartTheme > ) => string | undefined ] => [

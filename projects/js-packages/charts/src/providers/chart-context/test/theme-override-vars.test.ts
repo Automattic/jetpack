@@ -29,6 +29,8 @@ describe( 'themeOverrideVars', () => {
 				xAxisLineStyles: { stroke: '#333' },
 				xTickLineStyles: { stroke: '#444' },
 				svgLabelSmall: { fill: '#555' },
+				labelBackgroundColor: '#556',
+				labelTextColor: '#557',
 				colors: [ '#661', '#662', '#663', '#664', '#665' ],
 			} )
 		).toEqual( {
@@ -38,6 +40,8 @@ describe( 'themeOverrideVars', () => {
 				'--a8c-charts-color-axis-theme': '#333',
 				'--a8c-charts-color-tick-theme': '#444',
 				'--a8c-charts-color-label-axis-theme': '#555',
+				'--a8c-charts-color-label-background-theme': '#556',
+				'--a8c-charts-color-label-on-fill-theme': '#557',
 				'--a8c-charts-color-series-1-theme': '#661',
 				'--a8c-charts-color-series-2-theme': '#662',
 				'--a8c-charts-color-series-3-theme': '#663',
@@ -50,6 +54,8 @@ describe( 'themeOverrideVars', () => {
 				'--a8c-charts-color-axis',
 				'--a8c-charts-color-tick',
 				'--a8c-charts-color-label-axis',
+				'--a8c-charts-color-label-background',
+				'--a8c-charts-color-label-on-fill',
 				'--a8c-charts-color-series-1',
 				'--a8c-charts-color-series-2',
 				'--a8c-charts-color-series-3',
@@ -66,6 +72,8 @@ describe( 'themeOverrideVars', () => {
 			xAxisLineStyles: { stroke: '#333' },
 			xTickLineStyles: { stroke: '#444' },
 			svgLabelSmall: { fill: '#555' },
+			labelBackgroundColor: '#556',
+			labelTextColor: '#557',
 			colors: [ '#661', '#662', '#663', '#664', '#665' ],
 		} );
 

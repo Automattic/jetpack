@@ -67,7 +67,7 @@ It doesn't, because a mapped field publishes a role read by exactly the elements
 
 The consequence: `--a8c-charts-color-label` moves every label, but no single role repaints the chart background and the floating surfaces together.
 
-`gridStyles.stroke`, `xAxisLineStyles.stroke` and `xTickLineStyles.stroke` need no narrow role — nothing outside the element each names reads their role.
+`gridStyles.stroke`, `xAxisLineStyles.stroke`, `xTickLineStyles.stroke`, `labelBackgroundColor` and `labelTextColor` need no narrow role — nothing outside the element each names reads their role.
 
 ### The SVG bridge
 
