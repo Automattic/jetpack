@@ -3,7 +3,7 @@ import {
 	GlobalErrorProvider,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { Button, LinkButton, Stack } from '@jetpack-premium-analytics/externals';
+import { Button, IconButton, LinkButton, Stack } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
@@ -18,9 +18,14 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { moreVertical, pencil } from '@wordpress/icons';
+import { backup, moreVertical, pencil } from '@wordpress/icons';
 import { useParams } from '@wordpress/route';
-import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
+import {
+	DEFAULT_GRID,
+	ROW_HEIGHT_PRESETS,
+	WidgetDashboard,
+	type DashboardWidget,
+} from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
@@ -90,10 +95,52 @@ function PostDetail(): JSX.Element {
 	);
 
 	const [ isCustomizing, setIsCustomizing ] = useState( false );
+
+	/*
+	 * Customize edits are staged here and written to preferences only on Save,
+	 * so Cancel is a real cancel. The dashboard's own auto-save commits through
+	 * `onLayoutChange` while editing, which lands in this draft, not in storage.
+	 * `draftIsReset` marks a draft produced by Reset: saving it deletes the
+	 * stored entry instead of writing a copy of the fixed composition, so a
+	 * reset tab keeps following the composition as it evolves.
+	 */
+	const [ draft, setDraft ] = useState< DashboardWidget[] | null >( null );
+	const [ draftIsReset, setDraftIsReset ] = useState( false );
+
 	// Entering customize swaps the header actions, which unmounts the menu and
 	// closes its popover; no explicit onClose needed.
-	const startCustomizing = useCallback( () => setIsCustomizing( true ), [] );
-	const stopCustomizing = useCallback( () => setIsCustomizing( false ), [] );
+	const startCustomizing = useCallback( () => {
+		setDraft( null );
+		setDraftIsReset( false );
+		setIsCustomizing( true );
+	}, [] );
+
+	const stageDraft = useCallback( ( nextLayout: DashboardWidget[] ) => {
+		setDraft( nextLayout );
+		setDraftIsReset( false );
+	}, [] );
+
+	const resetDraft = useCallback( () => {
+		setDraft( fixedLayout );
+		setDraftIsReset( true );
+	}, [ fixedLayout ] );
+
+	const cancelCustomizing = useCallback( () => {
+		setDraft( null );
+		setDraftIsReset( false );
+		setIsCustomizing( false );
+	}, [] );
+
+	const saveCustomizing = useCallback( () => {
+		if ( draftIsReset ) {
+			resetLayout();
+		} else if ( draft ) {
+			setLayout( draft );
+		}
+		setDraft( null );
+		setDraftIsReset( false );
+		setIsCustomizing( false );
+	}, [ draft, draftIsReset, resetLayout, setLayout ] );
 
 	const onEditChange = useCallback(
 		( nextEditMode: boolean ) => {
@@ -160,28 +207,48 @@ function PostDetail(): JSX.Element {
 				widgetTypes={ pageWidgetTypes }
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
 				resolveWidgetModule={ resolveWidgetModuleWithI18n }
-				layout={ layout }
-				onLayoutChange={ setLayout }
+				layout={ isCustomizing && draft ? draft : layout }
+				onLayoutChange={ stageDraft }
 				gridSettings={ POST_DETAIL_GRID }
 				editMode={ isCustomizing }
 				onEditChange={ onEditChange }
 			>
 				<Page
 					visual={ <StatsPageIcon /> }
-					breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
+					breadcrumbs={
+						isCustomizing ? (
+							<Stack direction="row" align="center" gap="sm">
+								<StatsBreadcrumbs items={ breadcrumbs } />
+								<span className={ styles.customizingBadge }>
+									{ __( 'Customizing', 'jetpack-premium-analytics-pkg' ) }
+								</span>
+							</Stack>
+						) : (
+							<StatsBreadcrumbs items={ breadcrumbs } />
+						)
+					}
 					actions={
 						isCustomizing ? (
 							<Stack direction="row" align="center" gap="sm">
-								<Button
-									variant="outline"
+								<IconButton
+									icon={ backup }
+									label={ __( 'Reset to default', 'jetpack-premium-analytics-pkg' ) }
+									variant="minimal"
+									tone="neutral"
 									size="compact"
-									disabled={ ! hasCustomLayout }
-									onClick={ resetLayout }
-								>
-									{ __( 'Reset to default', 'jetpack-premium-analytics-pkg' ) }
+									disabled={ ! hasCustomLayout && draft === null }
+									onClick={ resetDraft }
+								/>
+								<Button variant="minimal" size="compact" onClick={ cancelCustomizing }>
+									{ __( 'Cancel', 'jetpack-premium-analytics-pkg' ) }
 								</Button>
-								<Button variant="solid" size="compact" onClick={ stopCustomizing }>
-									{ __( 'Done', 'jetpack-premium-analytics-pkg' ) }
+								<Button
+									variant="solid"
+									size="compact"
+									disabled={ draft === null }
+									onClick={ saveCustomizing }
+								>
+									{ __( 'Save', 'jetpack-premium-analytics-pkg' ) }
 								</Button>
 							</Stack>
 						) : (
