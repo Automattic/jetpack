@@ -95,3 +95,107 @@ describe( 'ReportRecordsTable', () => {
 		);
 	} );
 } );
+
+interface NumberedRow {
+	id: string;
+	label: string;
+}
+
+const NUMBERED_FIELDS: Field< NumberedRow >[] = [
+	{ id: 'label', label: 'Label', getValue: ( { item } ) => item.label },
+];
+
+/**
+ * Rows labelled `Row 1`…`Row n`.
+ *
+ * @param count - How many to build.
+ * @return The rows.
+ */
+function numberedRows( count: number ): NumberedRow[] {
+	return Array.from( { length: count }, ( _, index ) => ( {
+		id: String( index + 1 ),
+		label: `Row ${ index + 1 }`,
+	} ) );
+}
+
+/**
+ * Render the table over `count` rows, ten to a page.
+ *
+ * @param count - How many rows to render.
+ * @return The testing-library render result.
+ */
+function renderNumbered( count: number ) {
+	return render(
+		<ReportRecordsTable< NumberedRow >
+			data={ numberedRows( count ) }
+			fields={ NUMBERED_FIELDS }
+			getItemId={ item => item.id }
+			perPageSizes={ [ 10 ] }
+		/>
+	);
+}
+
+/**
+ * Re-render the table over a different number of rows, as a refetch would.
+ *
+ * @param rerender - The render result's `rerender`.
+ * @param count    - How many rows the new result has.
+ */
+function rerenderNumbered( rerender: ( ui: React.ReactElement ) => void, count: number ) {
+	rerender(
+		<ReportRecordsTable< NumberedRow >
+			data={ numberedRows( count ) }
+			fields={ NUMBERED_FIELDS }
+			getItemId={ item => item.id }
+			perPageSizes={ [ 10 ] }
+		/>
+	);
+}
+
+describe( 'ReportRecordsTable pagination', () => {
+	it( 'falls back to the last page when a refetch leaves the current one out of range', () => {
+		// The report page keys this table by tab, not by date range, so the
+		// reader's page survives a range change. A smaller result would otherwise
+		// slice to nothing and DataViews would render its "no results" state over
+		// rows that exist, with the pagination hidden so there is no way back.
+		const { rerender } = renderNumbered( 25 );
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dependency of this package.
+		fireEvent.click( screen.getByRole( 'button', { name: /next page/i } ) );
+		expect( screen.getByText( 'Row 11' ) ).toBeInTheDocument();
+
+		rerenderNumbered( rerender, 8 );
+
+		expect( screen.getByText( 'Row 1' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Row 8' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the pagination controls agreeing with the rows it fell back to', () => {
+		const { rerender } = renderNumbered( 25 );
+
+		const next = screen.getByRole( 'button', { name: /next page/i } );
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dependency of this package.
+		fireEvent.click( next );
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dependency of this package.
+		fireEvent.click( next );
+		expect( screen.getByText( 'Row 21' ) ).toBeInTheDocument();
+
+		rerenderNumbered( rerender, 12 );
+
+		expect( screen.getByText( 'Row 11' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'combobox', { name: /page/i } ) ).toHaveValue( '2' );
+	} );
+
+	it( 'leaves a page that is still in range alone', () => {
+		const { rerender } = renderNumbered( 25 );
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dependency of this package.
+		fireEvent.click( screen.getByRole( 'button', { name: /next page/i } ) );
+		expect( screen.getByText( 'Row 11' ) ).toBeInTheDocument();
+
+		rerenderNumbered( rerender, 22 );
+
+		expect( screen.getByText( 'Row 11' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Row 1' ) ).not.toBeInTheDocument();
+	} );
+} );

@@ -3,13 +3,13 @@
  */
 import {
 	DataViews,
-	filterSortAndPaginate,
 	type Action,
 	type Field,
 	type SupportedLayouts,
 	type View,
 } from '@jetpack-premium-analytics/externals';
-import { useCallback, useMemo, useState } from 'react';
+import { usePaginatedView } from '@jetpack-premium-analytics/ui';
+import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -135,15 +135,16 @@ export function ReportRecordsTable< Item >( {
 		[ onChangeView ]
 	);
 
-	const { data: pageItems, paginationInfo } = useMemo(
-		() => filterSortAndPaginate( data, view, fields ),
-		[ data, view, fields ]
-	);
+	const {
+		view: effectiveView,
+		data: pageItems,
+		paginationInfo,
+	} = usePaginatedView( data, view, fields );
 
 	return (
 		<ReportPageSection className={ styles.root }>
 			<GenericDataViews< Item >
-				view={ view }
+				view={ effectiveView }
 				onChangeView={ handleChangeView }
 				fields={ fields }
 				data={ pageItems }
