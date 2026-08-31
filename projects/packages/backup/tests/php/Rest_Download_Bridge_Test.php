@@ -267,6 +267,9 @@ class Rest_Download_Bridge_Test extends TestCase {
 			),
 			$sent['types']
 		);
+		// A category download names no paths, which is the other half of
+		// the pairing the granular tests below assert.
+		$this->assertArrayNotHasKey( 'include_path_list', $sent );
 	}
 
 	/**
@@ -544,5 +547,205 @@ class Rest_Download_Bridge_Test extends TestCase {
 
 		$this->assertSame( 'failed', $failed['status'] );
 		$this->assertSame( 'Archive expired', $failed['error'] );
+	}
+
+	/**
+	 * A granular download reaches WordPress.com as `types: { paths: true }`
+	 * plus the entry ids, and nothing else.
+	 *
+	 * Dispatched from a JSON body rather than a hand-built request, so the
+	 * route's own schema is part of what passes.
+	 */
+	public function test_initiate_forwards_a_path_list_with_the_paths_type() {
+		$this->arrange_wpcom( array( 'downloadId' => 7 ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/1786663613.9425' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'types'             => array( 'paths' => true ),
+					'include_path_list' => array( 'cjI6', 'ZjI6Lw==' ),
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame(
+			array(
+				'rewindId'          => '1786663613.9425',
+				'types'             => array( 'paths' => true ),
+				'include_path_list' => array( 'cjI6', 'ZjI6Lw==' ),
+			),
+			(array) $this->captured_body
+		);
+		// An array, not the comma-joined string upstream also takes: that
+		// branch sanitises before splitting, so `"a, b"` arrives as `" b"`.
+		$this->assertStringContainsString(
+			'"include_path_list":["cjI6","ZjI6Lw=="]',
+			$this->captured_request_args[0]['body']
+		);
+	}
+
+	/**
+	 * A path list sent beside anything but `types: { paths: true }` is
+	 * refused before it reaches the network.
+	 *
+	 * Nothing upstream catches this. VaultPress reads the lists only for
+	 * the `paths` type, so the mismatch answers 200 and builds a full-site
+	 * archive over a request that named three files.
+	 *
+	 * @param string $label Case description.
+	 * @param mixed  $types The `types` parameter to send, or null to omit it.
+	 * @dataProvider provide_types_that_cannot_carry_a_path_list
+	 */
+	#[DataProvider( 'provide_types_that_cannot_carry_a_path_list' )]
+	public function test_initiate_refuses_a_path_list_without_the_paths_type( $label, $types ) {
+		$this->arrange_wpcom( array( 'downloadId' => 1 ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/123' );
+		$request->set_param( 'rewind_id', '123' );
+		if ( null !== $types ) {
+			$request->set_param( 'types', $types );
+		}
+		$request->set_param( 'include_path_list', array( 'cjI6' ) );
+		$response = Download_Bridge::initiate_download( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $response, $label );
+		$this->assertSame( 'path_list_needs_paths_type', $response->get_error_code(), $label );
+		$this->assertSame( 400, $response->get_error_data()['status'], $label );
+		$this->assertNull( $this->captured_body, $label );
+	}
+
+	/**
+	 * Every `types` a path list must not travel with.
+	 *
+	 * `omitted` is the dangerous one: an absent `types` is upstream's
+	 * shorthand for all six categories, so it is the case that silently
+	 * returns the whole site.
+	 *
+	 * @return array<string, array{0: string, 1: mixed}>
+	 */
+	public static function provide_types_that_cannot_carry_a_path_list() {
+		return array(
+			'omitted'            => array( 'omitted', null ),
+			'another category'   => array( 'another category', array( 'sqls' => true ) ),
+			'paths plus another' => array(
+				'paths plus another',
+				array(
+					'paths' => true,
+					'sqls'  => true,
+				),
+			),
+			'paths turned off'   => array( 'paths turned off', array( 'paths' => false ) ),
+		);
+	}
+
+	/**
+	 * `exclude_path_list` is under the same rule, and is registered so a
+	 * request carrying it fails loudly rather than losing it silently.
+	 */
+	public function test_initiate_refuses_an_exclude_list_without_the_paths_type() {
+		$this->arrange_wpcom( array( 'downloadId' => 1 ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/123' );
+		$request->set_param( 'rewind_id', '123' );
+		$request->set_param( 'types', array( 'uploads' => true ) );
+		$request->set_param( 'exclude_path_list', array( 'cjI6' ) );
+		$response = Download_Bridge::initiate_download( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'path_list_needs_paths_type', $response->get_error_code() );
+		$this->assertNull( $this->captured_body );
+	}
+
+	/**
+	 * The mirror image: `paths` with nothing to scope it by is refused,
+	 * because upstream reads that as the whole site too.
+	 *
+	 * @param string $label   Case description.
+	 * @param mixed  $include The `include_path_list` to send, or null to omit it.
+	 * @dataProvider provide_path_lists_that_name_nothing
+	 */
+	#[DataProvider( 'provide_path_lists_that_name_nothing' )]
+	public function test_initiate_refuses_the_paths_type_without_a_path_list( $label, $include ) {
+		$this->arrange_wpcom( array( 'downloadId' => 1 ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/123' );
+		$request->set_param( 'rewind_id', '123' );
+		$request->set_param( 'types', array( 'paths' => true ) );
+		if ( null !== $include ) {
+			$request->set_param( 'include_path_list', $include );
+		}
+		$response = Download_Bridge::initiate_download( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $response, $label );
+		$this->assertSame( 'paths_type_needs_path_list', $response->get_error_code(), $label );
+		$this->assertSame( 400, $response->get_error_data()['status'], $label );
+		$this->assertNull( $this->captured_body, $label );
+	}
+
+	/**
+	 * Every path list that names no entry.
+	 *
+	 * @return array<string, array{0: string, 1: mixed}>
+	 */
+	public static function provide_path_lists_that_name_nothing() {
+		return array(
+			'omitted'       => array( 'omitted', null ),
+			'empty list'    => array( 'empty list', array() ),
+			'blank entries' => array( 'blank entries', array( '', '   ' ) ),
+		);
+	}
+
+	/**
+	 * A keyed object of ids never reaches the callback.
+	 *
+	 * Unregistered parameters are not stripped — WordPress only skips
+	 * *validating* them — so without the schema this would be silently
+	 * flattened to its values and forwarded as a list.
+	 */
+	public function test_a_keyed_path_list_is_rejected_by_the_schema() {
+		$this->arrange_wpcom( array( 'downloadId' => 1 ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/123' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'types'             => array( 'paths' => true ),
+					'include_path_list' => array( 'first' => 'cjI6' ),
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		$data = $response->get_data();
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $data['code'] );
+		$this->assertArrayHasKey( 'include_path_list', $data['data']['params'] );
+		$this->assertNull( $this->captured_body );
+	}
+
+	/**
+	 * Entries are trimmed and blanks dropped, so a stray space cannot
+	 * become part of an id.
+	 */
+	public function test_initiate_trims_the_path_list() {
+		$this->arrange_wpcom( array( 'downloadId' => 9 ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/123' );
+		$request->set_param( 'rewind_id', '123' );
+		$request->set_param( 'types', array( 'paths' => true ) );
+		$request->set_param( 'include_path_list', array( ' cjI6 ', '', 'ZjI6Lw==' ) );
+		Download_Bridge::initiate_download( $request );
+
+		$sent = (array) $this->captured_body;
+		$this->assertSame( array( 'cjI6', 'ZjI6Lw==' ), $sent['include_path_list'] );
 	}
 }

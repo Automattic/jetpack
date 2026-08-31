@@ -1,4 +1,5 @@
-import { apiCall, apiPath, requireTypes } from './_helpers';
+import { __ } from '@wordpress/i18n';
+import { ApiError, apiCall, apiPath, requireTypes } from './_helpers';
 import type { RestoreItems } from '../../types/restore';
 
 export type InitiateDownloadResponse = {
@@ -49,6 +50,59 @@ export async function initiateDownload(
 		path: apiPath( `/backups/download/${ rewindId }` ),
 		method: 'POST',
 		data: { types: requireTypes( types ) },
+	} );
+}
+
+/**
+ * The `ls` entry ids carried in a `?files=` param.
+ *
+ * The comma is upstream's own separator — a folder's `ls` id is the
+ * joined ids of the manifest entries it covers — so splitting yields
+ * exactly the entries upstream's comma-string branch would.
+ *
+ * @param files - The comma-joined `?files=` value.
+ * @return One trimmed, non-empty entry per id.
+ */
+export function splitFileSelection( files: string ): string[] {
+	return files
+		.split( ',' )
+		.map( part => part.trim() )
+		.filter( Boolean );
+}
+
+/**
+ * Initiate a download scoped to named files.
+ *
+ * `types: { paths: true }` and nothing else: upstream reads
+ * `include_path_list` only for the `paths` type and validates neither
+ * half, so a list beside any other category answers 200 with the
+ * whole-site archive.
+ *
+ * Sent as an array because upstream trims array entries individually,
+ * while its comma-string branch sanitises the whole string first and
+ * leaves the space in `"a, b"` on the second entry.
+ *
+ * @param  rewindId - The backup's rewind id, in full.
+ * @param  files    - The comma-joined `ls` entry ids the file browser produced.
+ * @throws {ApiError} When the selection names no entry.
+ * @return The download id.
+ */
+export async function initiateFileDownload(
+	rewindId: string,
+	files: string
+): Promise< InitiateDownloadResponse > {
+	const paths = splitFileSelection( files );
+	if ( ! paths.length ) {
+		throw new ApiError(
+			'no_files_selected',
+			__( 'Select at least one file to download.', 'jetpack-backup-pkg' )
+		);
+	}
+
+	return apiCall< InitiateDownloadResponse >( {
+		path: apiPath( `/backups/download/${ rewindId }` ),
+		method: 'POST',
+		data: { types: { paths: true }, include_path_list: paths },
 	} );
 }
 
