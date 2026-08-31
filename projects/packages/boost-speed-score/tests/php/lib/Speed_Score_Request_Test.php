@@ -57,9 +57,10 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	protected function set_up() {
 		parent::set_up();
 
-		$this->options    = array();
-		$this->autoload   = array();
-		$this->theme_name = 'Twenty Twenty-Four';
+		$this->options      = array();
+		$this->autoload     = array();
+		$this->theme_name   = 'Twenty Twenty-Four';
+		$this->api_response = array();
 
 		// Name aware, unlike the stub in Speed_Score_History_Test. This test touches more than
 		// one option, so a single shared value would hide which one was written.
@@ -143,7 +144,12 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	 */
 	private function set_api_client( $client ) {
 		$property = new \ReflectionProperty( Boost_API::class, 'api_client' );
-		$property->setAccessible( true );
+
+		// Required to reach the private property before PHP 8.1, a deprecated no-op from 8.5.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+
 		$property->setValue( null, $client );
 	}
 
