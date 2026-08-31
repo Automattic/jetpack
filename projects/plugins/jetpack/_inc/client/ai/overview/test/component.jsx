@@ -89,10 +89,8 @@ describe( 'AiOverview', () => {
 
 		render( <AiOverview { ...PROPS } /> );
 
-		// The backend has no real "unlimited" — a fair-usage cap applies to every
-		// plan — so the card reports the period's actual usage instead of claiming
-		// (JETPACK-2384). No meter: there is no limit to draw it against. Without
-		// a purchase date there is still no renewal line, and no Upgrade.
+		// The card reports the period's actual usage with no meter. Without a
+		// purchase date there is still no renewal line, and no Upgrade.
 		await expect( screen.findByText( '340' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Requests this period' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Unlimited' ) ).not.toBeInTheDocument();
@@ -111,6 +109,18 @@ describe( 'AiOverview', () => {
 		expect( screen.getByText( '340 requests used this period' ) ).toBeInTheDocument();
 	} );
 
+	test( 'unlimited a11y: a single request reads in the singular', async () => {
+		apiFetch.mockResolvedValueOnce( {
+			...unlimitedPayload(),
+			'usage-period': { 'requests-count': 1, 'next-start': '2026-09-01' },
+		} );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect( screen.findByText( '1' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( '1 request used this period' ) ).toBeInTheDocument();
+	} );
+
 	test( 'unlimited tier: a payload without a period count renders a dash', async () => {
 		apiFetch.mockResolvedValueOnce( { ...unlimitedPayload(), 'usage-period': undefined } );
 
@@ -119,6 +129,8 @@ describe( 'AiOverview', () => {
 		await expect( screen.findByText( '—' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Unlimited' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'progressbar', { hidden: true } ) ).not.toBeInTheDocument();
+		// With no count there is nothing to summarize: no stale hidden sentence.
+		expect( screen.queryByText( /requests? used this period/ ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'plan name: the purchase name labels a paid state', async () => {

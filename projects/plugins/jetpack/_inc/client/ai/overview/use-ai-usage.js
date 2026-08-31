@@ -70,9 +70,8 @@ export function normalizeUsage( data ) {
 			? Math.max( 0, requestsLimit - requestsCount )
 			: null;
 
-	// The "unlimited" tier has no limit to count against, but its payload still
-	// carries the period's real usage — the card shows that instead of claiming
-	// Unlimited, since a fair-usage cap applies to every plan (JETPACK-2384).
+	// The uncapped tier's payload still carries the period's real usage;
+	// the card shows that.
 	const periodRequestsCount = data?.[ 'usage-period' ]?.[ 'requests-count' ] ?? null;
 
 	// Free is upgradable by definition, whatever the payload says about tiers.

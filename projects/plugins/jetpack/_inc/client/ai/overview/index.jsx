@@ -8,7 +8,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink, ProgressBar, Spinner, VisuallyHidden } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
-import { sprintf, __ } from '@wordpress/i18n';
+import { sprintf, __, _n } from '@wordpress/i18n';
 import { connection, list } from '@wordpress/icons';
 import { Card, Link, LinkButton, Notice, Stack, Text } from '@wordpress/ui';
 import NavRow from '../components/nav-row';
@@ -115,9 +115,8 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 	// authoritative for the tier, so an expired purchase cannot relabel Free.
 	const planLabel = ( ! usage.isFree && planName ) || usage.planLabel;
 	const hasNumbers = usage.requestsAvailable !== null && usage.requestsLimit > 0;
-	// The backend reports a legacy "unlimited" tier for every paid state while
-	// a fair-usage cap still applies (JETPACK-2384), so the card shows the
-	// period's real usage instead of claiming Unlimited over a full meter.
+	// A fair-usage cap applies on every plan, so the card shows the
+	// period's real usage on the uncapped tier.
 	const hasPeriodCount = usage.unlimited && usage.periodRequestsCount !== null;
 	// One translatable sentence for screen readers; the visible value/limit
 	// pair and the meter are its visual restatements.
@@ -125,7 +124,12 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 		? hasPeriodCount &&
 		  sprintf(
 				/* translators: %d: requests used in the current period. */
-				__( '%d requests used this period', 'jetpack' ),
+				_n(
+					'%d request used this period',
+					'%d requests used this period',
+					usage.periodRequestsCount,
+					'jetpack'
+				),
 				usage.periodRequestsCount
 		  )
 		: hasNumbers &&
@@ -135,9 +139,8 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 				usage.requestsAvailable,
 				usage.requestsLimit
 		  );
-	// No limit, no meter: with nothing to draw the bar against, a meter could
-	// only overstate. normalizeUsage floors availability at 0 and it can never
-	// exceed the limit, so the ratio needs no clamping here.
+	// normalizeUsage floors availability at 0 and it can never exceed the
+	// limit, so the ratio needs no clamping here.
 	const showMeter = ! usage.unlimited && hasNumbers;
 	const meterValue = ( usage.requestsAvailable / usage.requestsLimit ) * 100;
 
