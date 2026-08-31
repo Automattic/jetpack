@@ -206,6 +206,12 @@
 			);
 		}
 
+		function prefersReducedMotion() {
+			return (
+				!! window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches
+			);
+		}
+
 		function scrollToElement( el, container, callback ) {
 			if ( ! el || ! container ) {
 				if ( callback ) {
@@ -299,6 +305,7 @@
 			stripHTML: stripHTML,
 			emitEvent: emitEvent,
 			isTouch: isTouch,
+			prefersReducedMotion: prefersReducedMotion,
 		};
 	} )();
 
@@ -307,6 +314,12 @@
 	/////////////////////////////////////
 	function init() {
 		var commentInterval;
+		// Rendered comments per attachment, kept for the lifetime of one overlay session.
+		var commentsCache = {};
+		// Attachment IDs with a comments request in flight, to prevent overlapping fetches.
+		var commentsFetching = {};
+		// Comments the server returns per page; mirrors the `number` arg in get_attachment_comments().
+		var COMMENTS_PER_PAGE = 10;
 		var screenPadding;
 		var originalOverflow;
 		var originalHOverflow;
@@ -602,6 +615,18 @@
 						}
 						if ( response.comment_status === 'approved' ) {
 							updatePostResults( jetpackCarouselStrings.comment_approved, true );
+							/*
+							Reflect the new comment in the badge total straight away. The refetch
+							below only returns the first page, so on attachments with a full page
+							of comments it cannot see the increment on its own. Bump the slide the
+							comment was posted to -- captured as `attachmentId` -- not whichever
+							slide happens to be current when this async response lands.
+							*/
+							var postedSlide = getSlideByAttachmentId( attachmentId );
+							if ( postedSlide ) {
+								postedSlide.attrs.commentsCount =
+									( parseInt( postedSlide.attrs.commentsCount, 10 ) || 0 ) + 1;
+							}
 						} else if ( response.comment_status === 'unapproved' ) {
 							updatePostResults( jetpackCarouselStrings.comment_unapproved, true );
 						} else {
@@ -609,7 +634,11 @@
 							updatePostResults( jetpackCarouselStrings.comment_post_error, false );
 						}
 						clearCommentTextAreaValue();
-						fetchComments( attachmentId );
+						// The new comment invalidates whatever we cached for this attachment.
+						delete commentsCache[ attachmentId ];
+						// Force past the in-flight guard so a still-pending first page can't
+						// suppress this refresh.
+						fetchComments( attachmentId, undefined, true );
 						submit.value = jetpackCarouselStrings.post_comment;
 						domUtil.hide( spinner );
 						form.classList.remove( 'jp-carousel-is-disabled' );
@@ -680,6 +709,17 @@
 					commentsContainer.classList.toggle( 'jp-carousel-show' );
 					if ( commentsContainer.classList.contains( 'jp-carousel-show' ) ) {
 						extraInfoContainer.classList.add( 'jp-carousel-show' );
+						// The panel is only now on screen, so this is when the comments are worth fetching.
+						var current = carousel.currentSlide;
+						if ( current ) {
+							var currentCache = commentsCache[ current.attrs.attachmentId ];
+							if ( ! currentCache ) {
+								fetchComments( current.attrs.attachmentId );
+							} else if ( currentCache.hasMore ) {
+								// Cached page is already shown; re-arm paging for the rest.
+								scheduleNextCommentsPage( current.attrs.attachmentId, currentCache.nextOffset );
+							}
+						}
 					} else {
 						extraInfoContainer.classList.remove( 'jp-carousel-show' );
 					}
@@ -779,6 +819,15 @@
 			}
 		}
 
+		function getSlideByAttachmentId( attachmentId ) {
+			for ( var i = 0; i < carousel.slides.length; i++ ) {
+				if ( carousel.slides[ i ].attrs.attachmentId === attachmentId ) {
+					return carousel.slides[ i ];
+				}
+			}
+			return null;
+		}
+
 		function selectSlideAtIndex( index ) {
 			if ( ! index || index < 0 || index > carousel.slides.length ) {
 				index = 0;
@@ -814,7 +863,7 @@
 
 			if ( Number( jetpackCarouselStrings.display_comments ) === 1 ) {
 				testCommentsOpened( carousel.slides[ index ].attrs.commentsOpened );
-				fetchComments( attachmentId );
+				showCommentsForSlide( current );
 				domUtil.hide( carousel.info.querySelector( '#jp-carousel-comment-post-results' ) );
 			}
 
@@ -863,6 +912,8 @@
 			swiper.destroy();
 			// Clear slide data for DOM garbage collection.
 			carousel.slides = [];
+			commentsCache = {};
+			commentsFetching = {};
 			carousel.currentSlide = undefined;
 			carousel.gallery.innerHTML = '';
 
@@ -956,6 +1007,19 @@
 				args.maxHeight = args.maxHeight * window.devicePixelRatio;
 			}
 
+			/*
+			`maxWidth`/`maxHeight` now describe the device resolution. Anything beyond that is
+			headroom for zooming, so only the zoom request asks for it. The multiplier is folded
+			in here -- ahead of the size checks below -- so the zoom rendition keeps its extra
+			resolution even when the unzoomed one is already covered by `data-large-file`.
+			Without it, every slide would fetch ~4x the pixels the screen can show.
+			*/
+			var headroom = args.zoomHeadroom || 1;
+			if ( headroom > 1 ) {
+				args.maxWidth = args.maxWidth * headroom;
+				args.maxHeight = args.maxHeight * headroom;
+			}
+
 			if ( largeWidth >= args.maxWidth || largeHeight >= args.maxHeight ) {
 				return args.largeFile;
 			}
@@ -973,9 +1037,8 @@
 				// If we have a really large image load a smaller version
 				// that is closer to the viewable size
 				if ( args.origWidth > args.maxWidth || args.origHeight > args.maxHeight ) {
-					// @2x the max sizes so we get a high enough resolution for zooming.
-					args.origMaxWidth = args.maxWidth * 2;
-					args.origMaxHeight = args.maxHeight * 2;
+					args.origMaxWidth = args.maxWidth;
+					args.origMaxHeight = args.maxHeight;
 					// Add the fit arg to the list of Photon args.
 					sanitizedUrl.searchParams.set( 'fit', args.origMaxWidth + ',' + args.origMaxHeight );
 				}
@@ -1215,17 +1278,106 @@
 			}
 		}
 
-		function fetchComments( attachmentId, offset ) {
-			var shouldClear = offset === undefined;
-			var commentsIndicator = carousel.info.querySelector(
+		function isCommentsPanelOpen() {
+			var wrapper = carousel.info.querySelector( '.jp-carousel-comments-wrapper' );
+			return !! wrapper && wrapper.classList.contains( 'jp-carousel-show' );
+		}
+
+		function updateCommentsIndicator( count ) {
+			var indicator = carousel.info.querySelector(
 				'.jp-carousel-icon-comments .jp-carousel-has-comments-indicator'
 			);
 
-			commentsIndicator.classList.remove( 'jp-carousel-show' );
+			if ( ! indicator ) {
+				return;
+			}
+
+			if ( count > 0 ) {
+				indicator.innerText = count;
+				indicator.classList.add( 'jp-carousel-show' );
+			} else {
+				indicator.classList.remove( 'jp-carousel-show' );
+			}
+		}
+
+		/**
+		 * Show what we already know about a slide's comments, and fetch the rest only if the
+		 * comments panel is actually on screen. The comment list used to be re-fetched from
+		 * admin-ajax on every single slide change, even though it is hidden by default.
+		 * @param {object} slide - The slide being shown.
+		 */
+		function showCommentsForSlide( slide ) {
+			var attachmentId = slide.attrs.attachmentId;
+			var comments = carousel.info.querySelector( '.jp-carousel-comments' );
+			var cached = commentsCache[ attachmentId ];
+
+			clearInterval( commentInterval );
+			domUtil.hide( carousel.info.querySelector( '#jp-carousel-comments-loading' ) );
+
+			if ( cached ) {
+				comments.innerHTML = cached.html;
+				updateCommentsIndicator( cached.count );
+				domUtil.show( comments );
+				/*
+				Resume paging if the cached run ended on a full page, so returning to a slide
+				does not strand the comments past the first page. Only while the panel is on
+				screen, mirroring the fresh-fetch path below.
+				*/
+				if ( cached.hasMore && isCommentsPanelOpen() ) {
+					scheduleNextCommentsPage( attachmentId, cached.nextOffset );
+				}
+				return;
+			}
+
+			comments.innerHTML = '';
+			domUtil.hide( comments );
+			// The server tells us the count up front, so the badge costs no request.
+			updateCommentsIndicator( parseInt( slide.attrs.commentsCount, 10 ) || 0 );
+
+			if ( isCommentsPanelOpen() ) {
+				fetchComments( attachmentId );
+			}
+		}
+
+		/**
+		 * Fetch the next page of comments once the reader scrolls near the bottom.
+		 * @param {string} attachmentId - The attachment whose comments are shown.
+		 * @param {number} nextOffset   - Offset of the page to load next.
+		 */
+		function scheduleNextCommentsPage( attachmentId, nextOffset ) {
+			clearInterval( commentInterval );
+			commentInterval = setInterval( function () {
+				if ( carousel.container.scrollTop + 150 > window.innerHeight ) {
+					clearInterval( commentInterval );
+					fetchComments( attachmentId, nextOffset );
+				}
+			}, 300 );
+		}
+
+		function fetchComments( attachmentId, offset, force ) {
+			var shouldClear = offset === undefined;
 
 			clearInterval( commentInterval );
 
 			if ( ! attachmentId ) {
+				return;
+			}
+
+			/*
+			The comments UI is shared and only ever shows the current slide, so a request for
+			any other slide (e.g. a post-submit refetch after the reader has navigated on) must
+			not touch it.
+			*/
+			if ( ! carousel.currentSlide || carousel.currentSlide.attrs.attachmentId !== attachmentId ) {
+				return;
+			}
+
+			/*
+			One request per attachment at a time, so a reopen mid-flight can't double-load.
+			`force` (a post-submit refresh) supersedes instead: the newest request is recorded
+			below and any older one's response bails on the identity check.
+			*/
+			if ( commentsFetching[ attachmentId ] && ! force ) {
 				return;
 			}
 
@@ -1243,6 +1395,14 @@
 			}
 
 			var xhr = new XMLHttpRequest();
+			// Record this as the live request for the attachment; a later `force` fetch replaces it.
+			commentsFetching[ attachmentId ] = xhr;
+
+			// True while `xhr` is still the attachment's live request (not superseded).
+			var isLiveRequest = function () {
+				return commentsFetching[ attachmentId ] === xhr;
+			};
+
 			var url =
 				jetpackCarouselStrings.ajaxurl +
 				'?action=get_attachment_comments' +
@@ -1255,12 +1415,38 @@
 			xhr.open( 'GET', url );
 			xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
 
-			var onError = function () {
+			// Reveal the comments and clear the loading state; callers gate this themselves.
+			var revealComments = function () {
 				domUtil.fadeIn( comments );
 				domUtil.fadeOut( commentsLoading );
 			};
 
+			// Network-level failure (fires without onload); guard it like a late response.
+			var onError = function () {
+				// A newer (forced) request has superseded this one; leave the UI to it.
+				if ( ! isLiveRequest() ) {
+					return;
+				}
+				delete commentsFetching[ attachmentId ];
+
+				// Only touch the shared UI if this attachment is still on screen.
+				if (
+					! carousel.currentSlide ||
+					carousel.currentSlide.attrs.attachmentId !== attachmentId
+				) {
+					return;
+				}
+				revealComments();
+			};
+
 			xhr.onload = function () {
+				// A newer (forced) request has superseded this one; drop its result.
+				if ( ! isLiveRequest() ) {
+					return;
+				}
+				// The request is done, whatever the outcome below.
+				delete commentsFetching[ attachmentId ];
+
 				// Ignore the results if they arrive late and we're now on a different slide.
 				if (
 					! carousel.currentSlide ||
@@ -1278,7 +1464,9 @@
 				}
 
 				if ( ! isSuccess || ! data || ! Array.isArray( data ) ) {
-					return onError();
+					// Already past the identity/current-slide guards above.
+					revealComments();
+					return;
 				}
 
 				if ( shouldClear ) {
@@ -1287,6 +1475,11 @@
 
 				for ( var i = 0; i < data.length; i++ ) {
 					var entry = data[ i ];
+					// Skip anything already on screen: a page can be requested twice if the
+					// reader re-opens a slide while its previous request is still in flight.
+					if ( comments.querySelector( '#jp-carousel-comment-' + entry.id ) ) {
+						continue;
+					}
 					var comment = document.createElement( 'div' );
 					comment.classList.add( 'jp-carousel-comment' );
 					comment.setAttribute( 'id', 'jp-carousel-comment-' + entry.id );
@@ -1304,22 +1497,43 @@
 						entry.content +
 						'</div>';
 					comments.appendChild( comment );
-
-					// Set the interval to check for a new page of comments.
-					clearInterval( commentInterval );
-					commentInterval = setInterval( function () {
-						if ( carousel.container.scrollTop + 150 > window.innerHeight ) {
-							fetchComments( attachmentId, offset + 10 );
-							clearInterval( commentInterval );
-						}
-					}, 300 );
 				}
+
+				/*
+				A full page back means there may be more; watch for a scroll to the bottom to
+				load the next one. A short page means we have reached the end.
+				*/
+				var hasMore = data.length >= COMMENTS_PER_PAGE;
+				var nextOffset = offset + COMMENTS_PER_PAGE;
+				if ( hasMore ) {
+					scheduleNextCommentsPage( attachmentId, nextOffset );
+				}
+
+				/*
+				The endpoint returns at most one page, so prefer the server's total where we
+				have it and only count what we rendered as a fallback.
+				*/
+				var rendered = comments.querySelectorAll( '.jp-carousel-comment' ).length;
+				var count = Math.max(
+					parseInt( carousel.currentSlide.attrs.commentsCount, 10 ) || 0,
+					rendered
+				);
 
 				if ( data.length > 0 ) {
 					domUtil.show( comments );
-					commentsIndicator.innerText = data.length;
-					commentsIndicator.classList.add( 'jp-carousel-show' );
+					updateCommentsIndicator( count );
 				}
+
+				/*
+				Keep what we rendered for as long as the overlay is open, so going back to a
+				slide costs nothing -- including where to resume paging from.
+				*/
+				commentsCache[ attachmentId ] = {
+					html: comments.innerHTML,
+					count: count,
+					hasMore: hasMore,
+					nextOffset: nextOffset,
+				};
 
 				domUtil.hide( commentsLoading );
 			};
@@ -1366,8 +1580,14 @@
 			fullImage.addEventListener(
 				'load',
 				function () {
-					// Cached by this point, so swapping it in is effectively instant.
-					image.src = attrs.src;
+					/*
+					If the visitor zoomed while this was still downloading, a larger rendition
+					is already in place -- don't downgrade it back to the fit-to-screen src.
+					*/
+					if ( ! image.hasAttribute( 'data-zoom-loaded' ) ) {
+						// Cached by this point, so swapping it in is effectively instant.
+						image.src = attrs.src;
+					}
 					image.style.filter = '';
 				},
 				{ once: true }
@@ -1382,6 +1602,28 @@
 			);
 
 			fullImage.src = attrs.src;
+		}
+
+		/**
+		 * Swap in a higher-resolution rendition now that the visitor is zoomed in.
+		 *
+		 * The zoomed-out slide only ever loads what the screen can actually show. The browser
+		 * keeps painting the image it already has until this one decodes, so the picture
+		 * sharpens rather than blanking.
+		 * @param {object} slide - The slide being zoomed.
+		 */
+		function loadZoomImage( slide ) {
+			if ( ! slide || ! slide.attrs.zoomSrc || slide.attrs.zoomSrc === slide.attrs.src ) {
+				return;
+			}
+
+			var image = slide.el.querySelector( 'img' );
+			if ( ! image || image.hasAttribute( 'data-zoom-loaded' ) ) {
+				return;
+			}
+
+			image.setAttribute( 'data-zoom-loaded', 1 );
+			image.src = slide.attrs.zoomSrc;
 		}
 
 		function preloadAdjacentImages( currentIndex ) {
@@ -1512,6 +1754,7 @@
 					originalElement: item,
 					attachmentId: attrID,
 					commentsOpened: item.getAttribute( 'data-comments-opened' ) || '0',
+					commentsCount: item.getAttribute( 'data-comments-count' ) || '0',
 					imageMeta: domUtil.getJSONAttribute( item, 'data-image-meta' ) || {},
 					title: item.getAttribute( 'data-image-title' ) || '',
 					desc: item.getAttribute( 'data-image-description' ) || '',
@@ -1539,14 +1782,26 @@
 				if ( typeof wpcom !== 'undefined' && wpcom.carousel && wpcom.carousel.generateImgSrc ) {
 					attrs.src = wpcom.carousel.generateImgSrc( item, max );
 				} else {
-					attrs.src = selectBestImageUrl( {
-						origFile: attrs.src,
-						origWidth: attrs.origWidth,
-						origHeight: attrs.origHeight,
-						maxWidth: max.width,
-						maxHeight: max.height,
-						largeFile: attrs.largeFile,
-					} );
+					var urlArgs = function ( zoomHeadroom ) {
+						// A fresh object each time: selectBestImageUrl() mutates what it is given.
+						return {
+							origFile: attrs.src,
+							origWidth: attrs.origWidth,
+							origHeight: attrs.origHeight,
+							maxWidth: max.width,
+							maxHeight: max.height,
+							largeFile: attrs.largeFile,
+							zoomHeadroom: zoomHeadroom,
+						};
+					};
+
+					/*
+					The zoom rendition is kept aside until the visitor actually zooms. On sources
+					that cannot serve a larger one it comes back identical to `src`, and nothing
+					ever happens.
+					*/
+					attrs.zoomSrc = selectBestImageUrl( urlArgs( 2 ) );
+					attrs.src = selectBestImageUrl( urlArgs( 1 ) );
 				}
 
 				// Set the final src.
@@ -1659,6 +1914,8 @@
 
 			domUtil.emitEvent( carousel.overlay, 'jp_carousel.beforeOpen' );
 			carousel.gallery.innerHTML = '';
+			commentsCache = {};
+			commentsFetching = {};
 
 			// Need to set the overlay manually to block or swiper does't initialise properly.
 			carousel.overlay.style.opacity = 1;
@@ -1668,6 +1925,11 @@
 
 			swiper = new window.JetpackSwiper( '.jp-carousel-swiper-container', {
 				centeredSlides: true,
+				/*
+				Swiper's 300ms default is most of what makes slide-to-slide feel slow. Keep a
+				visible movement -- the slide is a real affordance on touch -- but a shorter one.
+				*/
+				speed: domUtil.prefersReducedMotion() ? 0 : 250,
 				zoom: true,
 				loop: carousel.slides.length > 1,
 				// Turn off interactions and hide navigation arrows if there is only one slide.
@@ -1702,6 +1964,7 @@
 
 			swiper.on( 'zoomChange', function ( swiper, scale ) {
 				if ( scale > 1 ) {
+					loadZoomImage( carousel.currentSlide );
 					carousel.overlay.classList.add( 'jp-carousel-hide-controls' );
 				}
 
