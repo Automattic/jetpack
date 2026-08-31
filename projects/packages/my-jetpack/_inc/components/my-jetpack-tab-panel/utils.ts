@@ -1,6 +1,8 @@
 import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import {
+	MY_JETPACK_SECTION_CUSTOMIZE,
 	MY_JETPACK_SECTION_HELP,
 	MY_JETPACK_SECTION_OVERVIEW,
 	MY_JETPACK_SECTION_PRODUCTS,
@@ -16,6 +18,7 @@ type TabPanelProps = ComponentProps< typeof TabPanel >;
  * @return The sections for the My Jetpack tab panel.
  */
 export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
+	const adminMenuCustomization = getMyJetpackWindowInitialState( 'adminMenuCustomization' );
 	const tabs = [
 		{
 			name: MY_JETPACK_SECTION_OVERVIEW,
@@ -25,6 +28,14 @@ export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
 			name: MY_JETPACK_SECTION_PRODUCTS,
 			title: __( 'Products', 'jetpack-my-jetpack' ),
 		},
+		...( adminMenuCustomization?.featureEnabled
+			? [
+					{
+						name: MY_JETPACK_SECTION_CUSTOMIZE,
+						title: __( 'Customize', 'jetpack-my-jetpack' ),
+					},
+			  ]
+			: [] ),
 		{
 			name: MY_JETPACK_SECTION_HELP,
 			title: __( 'Help', 'jetpack-my-jetpack' ),

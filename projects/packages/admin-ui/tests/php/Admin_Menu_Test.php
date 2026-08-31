@@ -91,7 +91,11 @@ class Admin_Menu_Test extends TestCase {
 		$submenu = array();
 		delete_option( 'jetpack_active_plan' );
 		delete_option( 'jetpack_site_products' );
+		delete_option( 'jetpack_admin_menu_layout' );
 		update_option( 'jetpack_options', array( 'id' => 123456 ) );
+		if ( self::$admin_user_id ) {
+			delete_user_meta( self::$admin_user_id, 'jetpack_admin_menu_layout' );
+		}
 		$connection = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
 			->disableOriginalConstructor()
 			->getMock();
@@ -99,6 +103,9 @@ class Admin_Menu_Test extends TestCase {
 		$connection->method( 'is_user_connected' )->willReturn( true );
 		Admin_Menu::set_connection_manager( $connection );
 		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_filters( 'jetpack_admin_menu_customization_enabled' );
+		remove_all_filters( 'jetpack_admin_menu_customization_default_enabled' );
+		remove_all_filters( 'jetpack_admin_menu_customization_active' );
 		if ( class_exists( '\Automattic\Jetpack\Status\Cache' ) ) {
 			\Automattic\Jetpack\Status\Cache::clear();
 		}
@@ -335,6 +342,476 @@ class Admin_Menu_Test extends TestCase {
 		$first = Admin_Menu::get_top_level_menu_item_slug();
 
 		$this->assertSame( 'menu_2', $first );
+	}
+
+	/**
+	 * Metadata passed to add_menu is normalized and exposed for customization.
+	 *
+	 * @return void
+	 */
+	public function test_add_menu_accepts_customization_metadata() {
+		Admin_Menu::add_menu(
+			'Jetpack Forms',
+			'Forms',
+			'edit_pages',
+			'jetpack-forms-admin',
+			'__return_null',
+			10,
+			array(
+				'id'           => 'forms',
+				'group'        => 'create',
+				'group_label'  => 'Create',
+				'order'        => 20,
+				'customizable' => true,
+			)
+		);
+
+		$items = Admin_Menu::get_registered_menu_items();
+
+		$this->assertSame( 'forms', $items[0]['metadata']['id'] );
+		$this->assertSame( 'create', $items[0]['metadata']['group'] );
+		$this->assertSame( 'Create', $items[0]['metadata']['group_label'] );
+		$this->assertSame( 20, $items[0]['metadata']['order'] );
+		$this->assertTrue( $items[0]['metadata']['customizable'] );
+	}
+
+	/**
+	 * The customization model combines real registrations with the product catalog.
+	 *
+	 * @return void
+	 */
+	public function test_customization_model_includes_registered_state_and_product_slugs() {
+		wp_set_current_user( self::$admin_user_id );
+		Admin_Menu::add_menu( 'Jetpack Forms', 'Forms', 'edit_pages', 'jetpack-forms-admin', '__return_null', 10 );
+		Admin_Menu::add_menu(
+			'VideoPress',
+			'VideoPress',
+			'edit_pages',
+			'admin.php?page=my-jetpack#/add-videopress',
+			'__return_null',
+			20
+		);
+
+		$model = Admin_Menu::get_customization_model( self::$admin_user_id );
+		$items = array();
+		foreach ( $model['items'] as $item ) {
+			$items[ $item['id'] ] = $item;
+		}
+
+		$this->assertTrue( $items['forms']['registered'] );
+		$this->assertSame( 'jetpack-forms', $items['forms']['productSlug'] );
+		$this->assertFalse( $items['ai']['registered'] );
+		$this->assertSame( 'jetpack-ai', $items['ai']['productSlug'] );
+		$this->assertFalse( $items['akismet-anti-spam']['registered'] );
+		$this->assertSame( 'anti-spam', $items['akismet-anti-spam']['productSlug'] );
+		$this->assertTrue( $items['videopress']['registered'] );
+		$this->assertSame( 'videopress', $items['videopress']['productSlug'] );
+		$this->assertArrayNotHasKey( 'admin-php-page-my-jetpack-add-videopress', $items );
+		$this->assertArrayHasKey( 'search', $items );
+	}
+
+	/**
+	 * Legacy behavior remains unchanged while customization is unavailable.
+	 *
+	 * @return void
+	 */
+	public function test_customization_metadata_does_not_change_legacy_order() {
+		wp_set_current_user( self::$admin_user_id );
+
+		Admin_Menu::add_menu(
+			'Scan',
+			'Scan',
+			'manage_options',
+			'jetpack-scan',
+			'__return_null',
+			1,
+			array(
+				'id'    => 'scan',
+				'group' => 'protect',
+				'order' => 30,
+			)
+		);
+		Admin_Menu::add_menu(
+			'Forms',
+			'Forms',
+			'edit_pages',
+			'jetpack-forms-admin',
+			'__return_null',
+			10,
+			array(
+				'id'    => 'forms',
+				'group' => 'create',
+				'order' => 10,
+			)
+		);
+
+		do_action( 'admin_menu' );
+
+		$this->assertSame( array( 'jetpack-scan', 'jetpack-forms-admin' ), $this->get_registered_submenu_slugs() );
+	}
+
+	/**
+	 * Settings remains the last normal submenu item in legacy ordering.
+	 *
+	 * @return void
+	 */
+	public function test_settings_is_last_normal_submenu_item_in_legacy_order() {
+		wp_set_current_user( self::$admin_user_id );
+
+		Admin_Menu::add_menu( 'Settings', 'Settings', 'manage_options', 'admin.php?page=jetpack#/settings', '__return_null', 1 );
+		Admin_Menu::add_menu( 'Backup', 'Backup', 'manage_options', 'jetpack-backup', '__return_null', 50 );
+		Admin_Menu::add_menu( 'Activity Log', 'Activity Log', 'manage_options', 'jetpack-activity-log', '__return_null', 100 );
+
+		do_action( 'admin_menu' );
+
+		$this->assertSame(
+			array(
+				'jetpack-backup',
+				'jetpack-activity-log',
+				'admin.php?page=jetpack#/settings',
+			),
+			$this->get_registered_submenu_slugs()
+		);
+	}
+
+	/**
+	 * Active customization alphabetizes products between protected anchors.
+	 *
+	 * @return void
+	 */
+	public function test_customization_active_uses_alphabetical_product_order() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter( 'jetpack_admin_menu_customization_enabled', '__return_true' );
+		Admin_Menu::update_site_menu_layout( array( 'enabled' => true ) );
+
+		Admin_Menu::add_menu( 'Settings', 'Settings', 'manage_options', 'admin.php?page=jetpack#/settings', '__return_null', 2 );
+		Admin_Menu::add_menu( 'Scan', 'Scan', 'manage_options', 'jetpack-scan', '__return_null', 1 );
+		Admin_Menu::add_menu( 'Forms', 'Forms', 'edit_pages', 'jetpack-forms-admin', '__return_null', 10 );
+		Admin_Menu::add_menu( 'My Jetpack', 'My Jetpack', 'edit_posts', 'my-jetpack', '__return_null', -1 );
+
+		do_action( 'admin_menu' );
+
+		$this->assertSame(
+			array( 'my-jetpack', 'jetpack-forms-admin', 'jetpack-scan', 'admin.php?page=jetpack#/settings' ),
+			$this->get_registered_submenu_slugs()
+		);
+		$this->assertSubmenuItemHasClass( 'my-jetpack', 'jetpack-admin-menu-item-id-my-jetpack' );
+		$this->assertSubmenuItemHasClass( 'jetpack-forms-admin', 'jetpack-admin-menu-separator-start' );
+		$this->assertSubmenuItemHasClass( 'admin.php?page=jetpack#/settings', 'jetpack-admin-menu-separator-start' );
+	}
+
+	/**
+	 * Base separators are omitted when no on-site products are registered.
+	 *
+	 * @return void
+	 */
+	public function test_customization_omits_base_separators_without_products() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter( Admin_Menu::CUSTOMIZATION_FEATURE_FILTER, '__return_true' );
+		Admin_Menu::update_site_menu_layout( array( 'enabled' => true ) );
+
+		Admin_Menu::add_menu( 'My Jetpack', 'My Jetpack', 'edit_posts', 'my-jetpack', '__return_null', 1 );
+		Admin_Menu::add_menu( 'Settings', 'Settings', 'manage_options', 'admin.php?page=jetpack#/settings', '__return_null', 2 );
+		Admin_Menu::add_menu(
+			'Jetpack Manage',
+			'Jetpack Manage',
+			'manage_options',
+			'https://cloud.jetpack.com',
+			'__return_null',
+			3,
+			array(
+				'id'       => 'jetpack-manage',
+				'external' => true,
+			)
+		);
+
+		do_action( 'admin_menu' );
+
+		$settings = $this->get_submenu_item( 'admin.php?page=jetpack#/settings' );
+		$this->assertNotNull( $settings );
+		$this->assertStringNotContainsString( 'jetpack-admin-menu-separator-start', $settings[4] ?? '' );
+	}
+
+	/**
+	 * A titled custom separator decorates the following product item.
+	 *
+	 * @return void
+	 */
+	public function test_customization_renders_titled_custom_separator() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter( Admin_Menu::CUSTOMIZATION_FEATURE_FILTER, '__return_true' );
+		Admin_Menu::update_site_menu_layout(
+			array(
+				'enabled'    => true,
+				'items'      => array(
+					'forms' => array( 'order' => 10 ),
+					'scan'  => array( 'order' => 30 ),
+				),
+				'separators' => array(
+					'security' => array(
+						'title' => 'Security',
+						'order' => 20,
+					),
+				),
+			)
+		);
+		Admin_Menu::add_menu( 'Forms', 'Forms', 'edit_pages', 'jetpack-forms-admin', '__return_null', 2 );
+		Admin_Menu::add_menu( 'Scan', 'Scan', 'manage_options', 'jetpack-scan', '__return_null', 1 );
+
+		do_action( 'admin_menu' );
+
+		$this->assertSubmenuItemHasClass( 'jetpack-scan', 'jetpack-admin-menu-separator-start' );
+		$this->assertSubmenuTitleContains( 'jetpack-scan', 'jetpack-admin-menu-separator-label' );
+		$this->assertSubmenuTitleContains( 'jetpack-scan', 'Security' );
+	}
+
+	/**
+	 * Titled separators keep the WordPress hover indicator beside the menu item only.
+	 *
+	 * @return void
+	 */
+	public function test_titled_separator_hover_indicator_excludes_separator_label() {
+		$stylesheet = file_get_contents( dirname( __DIR__, 2 ) . '/src/admin-ui-upgrade-menu.scss' );
+
+		$this->assertIsString( $stylesheet );
+		$this->assertStringContainsString(
+			"&:hover,\n\t&:focus {\n\t\tbox-shadow: none;",
+			$stylesheet
+		);
+		$this->assertStringContainsString(
+			'.jetpack-admin-menu-item-label::before',
+			$stylesheet
+		);
+	}
+
+	/**
+	 * An untitled custom separator renders a divider without title markup.
+	 *
+	 * @return void
+	 */
+	public function test_customization_renders_untitled_custom_separator_without_label() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter( Admin_Menu::CUSTOMIZATION_FEATURE_FILTER, '__return_true' );
+		Admin_Menu::update_site_menu_layout(
+			array(
+				'enabled'    => true,
+				'items'      => array(
+					'forms' => array( 'order' => 10 ),
+					'scan'  => array( 'order' => 30 ),
+				),
+				'separators' => array(
+					'security' => array(
+						'title' => '',
+						'order' => 20,
+					),
+				),
+			)
+		);
+		Admin_Menu::add_menu( 'Forms', 'Forms', 'edit_pages', 'jetpack-forms-admin', '__return_null', 2 );
+		Admin_Menu::add_menu( 'Scan', 'Scan', 'manage_options', 'jetpack-scan', '__return_null', 1 );
+
+		do_action( 'admin_menu' );
+
+		$scan = $this->get_submenu_item( 'jetpack-scan' );
+		$this->assertNotNull( $scan );
+		$this->assertStringContainsString( 'jetpack-admin-menu-separator-start', $scan[4] ?? '' );
+		$this->assertStringNotContainsString( 'jetpack-admin-menu-separator-label', $scan[0] );
+	}
+
+	/**
+	 * Saved product order takes precedence over the alphabetical fallback.
+	 *
+	 * @return void
+	 */
+	public function test_customization_uses_saved_product_order() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter( Admin_Menu::CUSTOMIZATION_FEATURE_FILTER, '__return_true' );
+		Admin_Menu::update_site_menu_layout(
+			array(
+				'enabled' => true,
+				'items'   => array(
+					'scan'  => array( 'order' => 10 ),
+					'forms' => array( 'order' => 20 ),
+				),
+			)
+		);
+		Admin_Menu::add_menu( 'Forms', 'Forms', 'edit_pages', 'jetpack-forms-admin', '__return_null', 1 );
+		Admin_Menu::add_menu( 'Scan', 'Scan', 'manage_options', 'jetpack-scan', '__return_null', 2 );
+
+		do_action( 'admin_menu' );
+
+		$this->assertSame( array( 'jetpack-scan', 'jetpack-forms-admin' ), $this->get_registered_submenu_slugs() );
+	}
+
+	/**
+	 * Settings anchors Jetpack Manage and other off-site items below products.
+	 *
+	 * @return void
+	 */
+	public function test_customization_keeps_off_site_items_after_settings() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter( Admin_Menu::CUSTOMIZATION_FEATURE_FILTER, '__return_true' );
+		Admin_Menu::update_site_menu_layout( array( 'enabled' => true ) );
+
+		Admin_Menu::add_menu( 'Another Tool', 'Another Tool', 'manage_options', 'https://example.com/tool', '__return_null', 1, array( 'external' => true ) );
+		Admin_Menu::add_menu( 'Settings', 'Settings', 'manage_options', 'admin.php?page=jetpack#/settings', '__return_null', 2 );
+		Admin_Menu::add_menu( 'Forms', 'Forms', 'edit_pages', 'jetpack-forms-admin', '__return_null', 3 );
+		Admin_Menu::add_menu(
+			'Jetpack Manage',
+			'Jetpack Manage',
+			'manage_options',
+			'https://cloud.jetpack.com',
+			'__return_null',
+			4,
+			array(
+				'id'       => 'jetpack-manage',
+				'external' => true,
+			)
+		);
+		Admin_Menu::add_menu( 'My Jetpack', 'My Jetpack', 'edit_posts', 'my-jetpack', '__return_null', 5 );
+
+		do_action( 'admin_menu' );
+
+		$this->assertSame(
+			array( 'my-jetpack', 'jetpack-forms-admin', 'admin.php?page=jetpack#/settings', 'https://cloud.jetpack.com', 'https://example.com/tool' ),
+			$this->get_registered_submenu_slugs()
+		);
+	}
+
+	/**
+	 * Settings remains the last normal submenu item when customization is active.
+	 *
+	 * @return void
+	 */
+	public function test_settings_is_last_normal_submenu_item_when_customization_active() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter( 'jetpack_admin_menu_customization_enabled', '__return_true' );
+		Admin_Menu::update_site_menu_layout(
+			array(
+				'enabled' => true,
+				'items'   => array(
+					'settings'     => array(
+						'group' => 'manage',
+						'order' => 1,
+					),
+					'activity-log' => array(
+						'group' => 'utility',
+						'order' => 999,
+					),
+				),
+			)
+		);
+
+		Admin_Menu::add_menu( 'Settings', 'Settings', 'manage_options', 'admin.php?page=jetpack#/settings', '__return_null', 1 );
+		Admin_Menu::add_menu( 'Activity Log', 'Activity Log', 'manage_options', 'jetpack-activity-log', '__return_null', 100 );
+
+		do_action( 'admin_menu' );
+
+		$this->assertSame(
+			array(
+				'jetpack-activity-log',
+				'admin.php?page=jetpack#/settings',
+			),
+			$this->get_registered_submenu_slugs()
+		);
+
+		$all_slugs      = $this->get_registered_submenu_slugs_including_upgrade();
+		$settings_index = array_search( 'admin.php?page=jetpack#/settings', $all_slugs, true );
+		$upgrade_index  = $this->get_upgrade_submenu_index( $all_slugs );
+
+		$this->assertNotFalse( $settings_index, 'Expected Settings submenu item to be registered.' );
+		$this->assertNotNull( $upgrade_index, 'Expected the upgrade menu item to be registered.' );
+		$this->assertLessThan( $upgrade_index, $settings_index, 'Expected Settings to appear above the upgrade menu item.' );
+	}
+
+	/**
+	 * Rollout cohorts can default to the recommended menu without a saved option.
+	 *
+	 * @return void
+	 */
+	public function test_default_enabled_filter_activates_customization_without_saved_option() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter( 'jetpack_admin_menu_customization_enabled', '__return_true' );
+		add_filter( 'jetpack_admin_menu_customization_default_enabled', '__return_true' );
+
+		$this->assertTrue( Admin_Menu::is_customization_active() );
+	}
+
+	/**
+	 * A personal layout activates customization without requiring a site default.
+	 *
+	 * @return void
+	 */
+	public function test_personal_layout_activates_customization_without_site_default() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter( Admin_Menu::CUSTOMIZATION_FEATURE_FILTER, '__return_true' );
+		Admin_Menu::update_user_menu_layout(
+			array(
+				'items' => array(
+					'scan' => array( 'order' => 10 ),
+				),
+			),
+			self::$admin_user_id
+		);
+
+		$this->assertTrue( Admin_Menu::is_customization_active() );
+	}
+
+	/**
+	 * Custom separators are normalized before persistence.
+	 *
+	 * @return void
+	 */
+	public function test_menu_layout_sanitizes_custom_separators() {
+		$layout = Admin_Menu::sanitize_menu_layout(
+			array(
+				'separators' => array(
+					'Custom-Section!' => array(
+						'title' => '<b>Protect</b>',
+						'order' => '30',
+					),
+				),
+			)
+		);
+
+		$this->assertSame(
+			array(
+				'custom-section' => array(
+					'id'    => 'custom-section',
+					'title' => 'Protect',
+					'order' => 30,
+				),
+			),
+			$layout['separators']
+		);
+	}
+
+	/**
+	 * User preferences can hide customizable items without affecting access control.
+	 *
+	 * @return void
+	 */
+	public function test_user_layout_can_hide_customizable_items() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter( 'jetpack_admin_menu_customization_enabled', '__return_true' );
+		Admin_Menu::update_site_menu_layout( array( 'enabled' => true ) );
+		Admin_Menu::update_user_menu_layout(
+			array(
+				'items' => array(
+					'scan' => array(
+						'hidden' => true,
+					),
+				),
+			),
+			self::$admin_user_id
+		);
+
+		Admin_Menu::add_menu( 'Scan', 'Scan', 'manage_options', 'jetpack-scan', '__return_null', 1 );
+		Admin_Menu::add_menu( 'Backup', 'Backup', 'manage_options', 'jetpack-backup', '__return_null', 7 );
+
+		do_action( 'admin_menu' );
+
+		$this->assertSame( array( 'jetpack-backup' ), $this->get_registered_submenu_slugs() );
 	}
 
 	/**
@@ -700,5 +1177,105 @@ class Admin_Menu_Test extends TestCase {
 			}
 		);
 		$this->assertEmpty( $found, 'Expected the upgrade menu item to be absent.' );
+	}
+
+	/**
+	 * Gets currently registered Jetpack submenu slugs, excluding the upgrade item.
+	 *
+	 * @return array
+	 */
+	private function get_registered_submenu_slugs() {
+		global $submenu;
+		$slugs = array_column( $submenu['jetpack'] ?? array(), 2 );
+
+		return array_values(
+			array_filter(
+				$slugs,
+				function ( $slug ) {
+					return 'jetpack' !== $slug && false === strpos( $slug, Admin_Menu::UPGRADE_MENU_SLUG );
+				}
+			)
+		);
+	}
+
+	/**
+	 * Gets currently registered Jetpack submenu slugs, including the upgrade item.
+	 *
+	 * @return array
+	 */
+	private function get_registered_submenu_slugs_including_upgrade() {
+		global $submenu;
+		$slugs = array_column( $submenu['jetpack'] ?? array(), 2 );
+
+		return array_values(
+			array_filter(
+				$slugs,
+				function ( $slug ) {
+					return 'jetpack' !== $slug;
+				}
+			)
+		);
+	}
+
+	/**
+	 * Gets the index of the upgrade item from a submenu slug list.
+	 *
+	 * @param array $slugs Registered submenu slugs.
+	 * @return int|null
+	 */
+	private function get_upgrade_submenu_index( $slugs ) {
+		foreach ( $slugs as $index => $slug ) {
+			if ( false !== strpos( $slug, Admin_Menu::UPGRADE_MENU_SLUG ) ) {
+				return $index;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Asserts a submenu item has a CSS class.
+	 *
+	 * @param string $menu_slug The menu slug.
+	 * @param string $class     The expected class.
+	 * @return void
+	 */
+	private function assertSubmenuItemHasClass( $menu_slug, $class ) {
+		$item = $this->get_submenu_item( $menu_slug );
+
+		$this->assertNotNull( $item, 'Expected submenu item to be registered.' );
+		$this->assertStringContainsString( $class, $item[4] ?? '' );
+	}
+
+	/**
+	 * Asserts a submenu item title contains text.
+	 *
+	 * @param string $menu_slug The menu slug.
+	 * @param string $text      Expected title text.
+	 * @return void
+	 */
+	private function assertSubmenuTitleContains( $menu_slug, $text ) {
+		$item = $this->get_submenu_item( $menu_slug );
+
+		$this->assertNotNull( $item, 'Expected submenu item to be registered.' );
+		$this->assertStringContainsString( $text, $item[0] );
+	}
+
+	/**
+	 * Gets a Jetpack submenu item by slug.
+	 *
+	 * @param string $menu_slug The menu slug.
+	 * @return array|null
+	 */
+	private function get_submenu_item( $menu_slug ) {
+		global $submenu;
+
+		foreach ( $submenu['jetpack'] ?? array() as $item ) {
+			if ( isset( $item[2] ) && $item[2] === $menu_slug ) {
+				return $item;
+			}
+		}
+
+		return null;
 	}
 }

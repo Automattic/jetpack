@@ -462,6 +462,44 @@ type VideopressData = {
 	videoCount: number;
 };
 
+type AdminMenuCustomizationItem = {
+	id: string;
+	label: string;
+	menuSlug: string;
+	order: number;
+	hasSavedOrder: boolean;
+	customizable: boolean;
+	hidden: boolean;
+	external: boolean;
+};
+
+type AdminMenuCustomizationItemPreference = {
+	hidden?: boolean;
+	order?: number;
+};
+
+type AdminMenuCustomizationSeparator = {
+	id: string;
+	title: string;
+	order: number;
+};
+
+type AdminMenuCustomizationLayout = {
+	enabled?: boolean;
+	items: Record< string, AdminMenuCustomizationItemPreference >;
+	separators: Record< string, AdminMenuCustomizationSeparator >;
+};
+
+type AdminMenuCustomizationModel = {
+	featureEnabled: boolean;
+	active: boolean;
+	hasPersonalLayout: boolean;
+	siteLayout: AdminMenuCustomizationLayout;
+	userLayout: AdminMenuCustomizationLayout;
+	separators: Record< string, AdminMenuCustomizationSeparator >;
+	items: AdminMenuCustomizationItem[];
+};
+
 interface Window {
 	myJetpackInitialState?: {
 		siteSuffix: string;
@@ -492,6 +530,7 @@ interface Window {
 			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
 		};
+		adminMenuCustomization?: AdminMenuCustomizationModel;
 		purchaseToken: string;
 		lifecycleStats: {
 			historicallyActiveModules: JetpackModule[];

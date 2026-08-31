@@ -27,6 +27,32 @@ $page_suffix = Admin_Menu::add_menu(
 add_action( 'load-' . $page_suffix, 'my_plugin_do_stuff_on_page_load' );
 
 ```
+
+Menu items may also include optional customization metadata as the final parameter:
+
+```PHP
+Admin_Menu::add_menu(
+	__( 'Jetpack Forms', 'jetpack-forms' ),
+	__( 'Forms', 'jetpack-forms' ),
+	'edit_pages',
+	'jetpack-forms-admin',
+	'__return_null',
+	10,
+	array(
+		'id'          => 'forms',
+		'group'       => 'create',
+		'group_label' => __( 'Create', 'jetpack-admin-ui' ),
+		'order'       => 20,
+	)
+);
+```
+
+The customized menu remains behind filters for rollout:
+
+- `jetpack_admin_menu_customization_enabled` makes the feature available.
+- `jetpack_admin_menu_customization_default_enabled` lets new installs or rollout cohorts default to the recommended layout.
+- `jetpack_admin_menu_customization_active` can override the saved active state for host-specific rollout logic.
+
 ## Security
 
 Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
@@ -34,4 +60,3 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 ## License
 
 admin-ui is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
-
