@@ -197,12 +197,14 @@ Then narrow that list. A widely-shared js-package can list well over a dozen plu
 - **It is reachable only under conditions the plugin never creates** — a module it does not register, a plan or product it does not sell, or a host it does not run on. Check the gate rather than the dependency, because the same code can qualify for one plugin and not another: the WordPress.com-only paths in `packages/masterbar` never run on a self-hosted site, but they are the whole reason `plugins/wpcomsh` bundles the package.
 - **The plugin's changelog is not a product record.** `starter-plugin` is a scaffolding template and `mu-wpcom-plugin` is a test harness for `packages/jetpack-mu-wpcom`; nobody reads either changelog to find out what changed on their site. Keep this one narrow: it is about those two, not about any plugin you have not heard of.
 
-To settle the reachability case, work backwards from the code rather than forwards from the plugin. Grepping `projects/plugins/<plugin>/` alone misses a plugin that is little more than a loader for a package, and grepping its whole dependency closure always matches, since the project that defines the symbol is in every dependent's closure. Find the projects that import it, then ask which plugins bundle *those*:
+To settle the reachability case, work backwards from the code rather than forwards from the plugin. Grepping `projects/plugins/<plugin>/` alone misses a plugin that is little more than a loader for a package, and grepping its whole dependency closure always matches, since the project that defines the symbol is in every dependent's closure. Find the projects that import it, then ask which plugins bundle *those* — every one except the project that defines the symbol, which is in the grep output too and would hand back its full set of dependents:
 
 ```bash
-grep -rl DiffViewer projects/ | grep -vE 'node_modules|/build/'
+git grep -l DiffViewer -- projects/
 jp dependencies list js-packages/scan plugins/protect --add-dependents --extra build --no-dev | grep '^plugins/'
 ```
+
+Use `git grep`, not `grep -r`. A checkout you have built or run `composer install` in carries the symbol in webpack caches and in `vendor/composer/*classmap.php`, and those classmaps name every class in a plugin's whole dependency closure — so `grep -r` on a PHP symbol hands back every dependent plugin, which is the answer this section exists to talk you out of.
 
 What that gives you is a shortlist, not an answer. Bundling a project is not the same as rendering its code, which is the distinction the whole section turns on, so finish the job by hand. `DiffViewer` is the cautionary case: the second command returns `plugins/protect` and `plugins/jetpack`, but `js-packages/scan` uses `DiffViewer` only inside `ThreatModal`, and `packages/scan` — how `plugins/jetpack` reaches that package at all — imports `ThreatsDataViews` and `ThreatSeverityBadge` from it and never `ThreatModal`. So a `DiffViewer` change is noticeable in `plugins/protect` alone.
 
