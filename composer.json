@@ -19,7 +19,7 @@
 		"php-stubs/wordpress-tests-stubs": ">=7.0",
 		"php-stubs/wp-cli-stubs": "^2.10 || dev-master",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
-		"sirbrillig/phpcs-changed": "^2.11.5",
+		"sirbrillig/phpcs-changed": "^2.11.5 || ^3.0.0",
 		"squizlabs/php_codesniffer": "^3.6.2 || ^4.0.0"
 	},
 	"scripts": {
