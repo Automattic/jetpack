@@ -8,6 +8,12 @@
 body.jetpack_page_jetpack-ai {
 
 	@include jetpack-admin-page-layout;
+
+	// Cards fill with the neutral-strong (white) surface token; give the page
+	// the plain neutral background so cards read as cards, per the AI Hub designs.
+	.jp-admin-page {
+		background-color: var(--wpds-color-background-surface-neutral, #fcfcfc);
+	}
 }
 
 .jetpack-ai-admin {
