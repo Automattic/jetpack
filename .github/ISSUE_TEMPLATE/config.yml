@@ -3,3 +3,6 @@ contact_links:
   - name: Ask a support question
     url: http://jetpack.com/contact-support/
     about: This issue tracker is not for support. If you have questions about one of our plugins, you can contact us here.
+  - name: WP Super Cache bug reports and feature requests
+    url: https://github.com/Automattic/wp-super-cache/issues
+    about: WP Super Cache moved to its own repository - please file issues there.
