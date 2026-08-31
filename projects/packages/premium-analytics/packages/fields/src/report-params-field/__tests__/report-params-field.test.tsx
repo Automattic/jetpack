@@ -89,14 +89,15 @@ describe( 'createReportParamsField', () => {
 	it( 'offers no bucket control by default', () => {
 		renderField();
 
-		expect( screen.queryByRole( 'button', { name: 'Chart interval' } ) ).not.toBeInTheDocument();
+		// Prefix, not the whole name: the trigger appends the active bucket.
+		expect( screen.queryByRole( 'button', { name: /^Chart interval/ } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'offers the bucket control when asked for it', async () => {
 		renderField( true );
 
 		await expect(
-			screen.findByRole( 'button', { name: 'Chart interval' } )
+			screen.findByRole( 'button', { name: /^Chart interval/ } )
 		).resolves.toBeInTheDocument();
 	} );
 
@@ -154,7 +155,7 @@ describe( 'createReportParamsField', () => {
 		const user = userEvent.setup();
 		const { latest } = renderField( true );
 
-		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
 		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Weeks' } ) );
 
 		expect( latest() ).toEqual( expect.objectContaining( { interval: 'week' } ) );
@@ -183,7 +184,7 @@ describe( 'createReportParamsField', () => {
 		renderField( true );
 
 		await user.click( screen.getByRole( 'button', { name: /24 hours/i } ) );
-		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
 
 		await expect(
 			screen.findByRole( 'menuitemradio', { name: 'Hours' } )
@@ -243,7 +244,7 @@ describe( 'createReportParamsField', () => {
 		renderField( true );
 
 		await draftShortRange( user, 3 );
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( screen.getByRole( 'button', { name: /^Chart interval/ } ) );
 
 		await expect(
 			screen.findByRole( 'menuitemradio', { name: 'Hours' } )
@@ -256,7 +257,7 @@ describe( 'createReportParamsField', () => {
 		const { saved, latest } = renderField( true );
 
 		await draftShortRange( user, 3 );
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( screen.getByRole( 'button', { name: /^Chart interval/ } ) );
 		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Hours' } ) );
 
 		expect( saved ).toHaveLength( 0 );
@@ -273,14 +274,14 @@ describe( 'createReportParamsField', () => {
 		const { saved } = renderField( true );
 
 		await draftShortRange( user, 3 );
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( screen.getByRole( 'button', { name: /^Chart interval/ } ) );
 		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Hours' } ) );
 
 		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
 
 		expect( saved ).toHaveLength( 0 );
 
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( screen.getByRole( 'button', { name: /^Chart interval/ } ) );
 
 		await expect(
 			screen.findByRole( 'menuitemradio', { name: 'Weeks' } )
@@ -333,7 +334,7 @@ describe( 'createReportParamsField', () => {
 		await draftShortRange( user, 3 );
 		await setFromOutside( { preset: 'last-7-days', interval: 'day' } );
 
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( screen.getByRole( 'button', { name: /^Chart interval/ } ) );
 
 		await expect(
 			screen.findByRole( 'menuitemradio', { name: 'Days' } )

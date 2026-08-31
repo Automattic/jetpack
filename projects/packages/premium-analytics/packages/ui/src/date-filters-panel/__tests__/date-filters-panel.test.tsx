@@ -182,7 +182,7 @@ describe( 'DateFiltersPanel', () => {
 		} );
 
 		const comparison = screen.getByRole( 'button', { name: 'Compare' } );
-		const chartInterval = screen.getByRole( 'button', { name: 'Chart interval' } );
+		const chartInterval = screen.getByRole( 'button', { name: 'Chart interval: Days' } );
 
 		expect( comparison.compareDocumentPosition( chartInterval ) ).toBe(
 			Node.DOCUMENT_POSITION_FOLLOWING

@@ -11,8 +11,9 @@ describe( 'DateIntervalDropdown', () => {
 			<DateIntervalDropdown options={ [ 'day', 'week' ] } value="day" onChange={ onChange } />
 		);
 
-		// Named by its tooltip: the trigger carries no text of its own.
-		const trigger = screen.getByRole( 'button', { name: 'Chart interval' } );
+		// The tooltip is where the active bucket is readable: the trigger
+		// carries no text of its own.
+		const trigger = screen.getByRole( 'button', { name: 'Chart interval: Days' } );
 		expect( trigger ).toHaveTextContent( '' );
 
 		await user.click( trigger );
@@ -34,7 +35,7 @@ describe( 'DateIntervalDropdown', () => {
 
 		render( <DateIntervalDropdown options={ [ 'hour' ] } value="hour" onChange={ jest.fn() } /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Chart interval: Hours' } ) );
 
 		// Visible and checked rather than hidden or disabled, so the interval
 		// stays inspectable on a range with nothing to choose between.
@@ -50,10 +51,16 @@ describe( 'DateIntervalDropdown', () => {
 			<DateIntervalDropdown options={ [ 'month', 'year' ] } value="day" onChange={ jest.fn() } />
 		);
 
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Chart interval: Days' } ) );
 
 		await expect( screen.findAllByRole( 'menuitemradio' ) ).resolves.toHaveLength( 2 );
 		expect( screen.getByRole( 'menuitemradio', { name: 'Months' } ) ).not.toBeChecked();
 		expect( screen.getByRole( 'menuitemradio', { name: 'Years' } ) ).not.toBeChecked();
+	} );
+
+	it( 'names the trigger without a bucket when there is no active one', () => {
+		render( <DateIntervalDropdown options={ [ 'day', 'week' ] } onChange={ jest.fn() } /> );
+
+		expect( screen.getByRole( 'button', { name: 'Chart interval' } ) ).toBeVisible();
 	} );
 } );
