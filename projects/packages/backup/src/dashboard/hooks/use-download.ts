@@ -71,11 +71,15 @@ export function useDownload( rewindId: string ): Result {
 		resetMutation();
 	}, [ resetMutation ] );
 
+	// `downloadId` is read before `isInitiating` deliberately. A mutation
+	// started from a mount effect can leave `isPending` latched true for
+	// good: StrictMode's remount detaches the observer from the in-flight
+	// mutation and never reattaches it, so the settle never reaches this
+	// hook — while the mutation's own `onSuccess` still lands the id. The
+	// id is the honest signal that the POST is done; `isPending` is not.
 	let state: DownloadState = { phase: 'idle' };
 	if ( errorMessage ) {
 		state = { phase: 'error', message: errorMessage };
-	} else if ( isInitiating ) {
-		state = { phase: 'submitting' };
 	} else if ( statusQuery.data?.status === 'finished' && statusQuery.data.url ) {
 		state = {
 			phase: 'success',
@@ -107,16 +111,17 @@ export function useDownload( rewindId: string ): Result {
 				statusQuery.error.message ||
 				__( 'Lost connection while preparing download.', 'jetpack-backup-pkg' ),
 		};
-	} else if ( downloadId !== null && statusQuery.data ) {
+	} else if ( downloadId !== null ) {
 		state = {
 			// `progress` is already 0–100 — WPCOM coerces it to an
 			// integer, which a 0–1 float could not survive. Multiplying by
-			// 100 fed the ProgressBar values up to 10000.
+			// 100 fed the ProgressBar values up to 10000. Absent until the
+			// first poll answers, which is the bar's 0% opening frame.
 			phase: 'progress',
-			percent: statusQuery.data.progress ?? 0,
+			percent: statusQuery.data?.progress ?? 0,
 		};
-	} else if ( downloadId !== null ) {
-		state = { phase: 'progress', percent: 0 };
+	} else if ( isInitiating ) {
+		state = { phase: 'submitting' };
 	}
 
 	return { state, submit, reset };

@@ -60,8 +60,9 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { StrictMode } from 'react';
 import { stage as DownloadStage } from '../routes/download/stage';
 import BackupDetail from '../src/dashboard/components/backup-detail';
 import { queryClient } from '../src/dashboard/data/query-client';
@@ -101,6 +102,12 @@ const THEMES_DIR_ID = 'cjI6,ZjI6Lw==';
  */
 let lsContents: Record< string, Record< string, unknown > >;
 
+/**
+ * What the status poll answers with. Reassigned mid-test to let a
+ * download finish, which is the only way to reach the success branch.
+ */
+let downloadStatus: Record< string, unknown >;
+
 const TWO_FILES = {
 	'wp-config.php': {
 		type: 'file',
@@ -131,6 +138,14 @@ beforeEach( () => {
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
 
 	lsContents = TWO_FILES;
+	downloadStatus = {
+		id: 4242,
+		status: 'running',
+		progress: 36,
+		url: '',
+		valid_until: '',
+		error: '',
+	};
 	mockApiFetch.mockReset();
 	mockApiFetch.mockImplementation( ( o: { path?: string } ) => {
 		const path = o?.path ?? '';
@@ -139,6 +154,12 @@ beforeEach( () => {
 		}
 		if ( path.includes( '/rewind/backup/ls' ) ) {
 			return Promise.resolve( { contents: lsContents } );
+		}
+		// Ordered before the initiate branch: the poll path is a suffix of
+		// the initiate path, so a single `/backups/download/` test would
+		// answer the poll with the initiate payload and no `status` at all.
+		if ( path.includes( '/backups/download/' ) && path.includes( '/status' ) ) {
+			return Promise.resolve( downloadStatus );
 		}
 		if ( path.includes( '/backups/download/' ) ) {
 			return Promise.resolve( { id: 4242 } );
@@ -359,6 +380,80 @@ describe( 'Download screen with a file selection', () => {
 		const posts = postCalls();
 		expect( posts ).toHaveLength( 1 );
 		expect( posts[ 0 ]?.path ).toContain( '/backups/download/1786644531.123' );
+	} );
+
+	// The wait has two frames, and the handover is the whole of it: a
+	// spinner only until there is a download id to poll, then the bar.
+	//
+	// StrictMode is load-bearing, not decoration. The archive is asked for
+	// from a mount effect, and React Query detaches the mutation observer
+	// on StrictMode's simulated unmount without ever reattaching it — so
+	// the settle never reaches the hook and `isPending` stays true for
+	// good, while the mutation's own `onSuccess` still lands the id and
+	// starts the poll. That is the shape this screen shipped in: a healthy
+	// poll climbing behind a spinner that never became a bar. Drop the
+	// wrapper and this test passes either way.
+	it( 'hands the wait over to the progress bar once the poll answers', async () => {
+		render(
+			<StrictMode>
+				<DownloadStage />
+			</StrictMode>
+		);
+
+		// The bar arrives at 0% — its opening frame, while WPCOM still has
+		// the job queued — so waiting on the element alone would pass on a
+		// bar that never took a number from the poll. The polled value is
+		// the assertion that matters.
+		const bar = await screen.findByRole( 'progressbar', undefined, SETTLE );
+		// A number, not a string: `toHaveValue` on `<progress>` reads
+		// `element.value`, which the DOM has already coerced.
+		await waitFor( () => expect( bar ).toHaveValue( 36 ), SETTLE );
+		// The spinner is the state the bar replaces, so its departure is
+		// half the behaviour. `Spinner` renders an explicit
+		// `role="presentation"`, which is the handle on it.
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+	} );
+
+	// The same latch that hid the bar also hid the ending. `isPending` was
+	// read above every other branch, so a frozen one shadowed `success`
+	// and `failed` too: the archive could finish, signed URL and all, and
+	// the screen would still be sitting on the spinner with nothing to
+	// click. Reported as "upon finishing, the spinner remains there and
+	// nothing happened" — the same defect as the missing bar, one branch
+	// further on.
+	it( 'shows the finished archive rather than staying on the spinner', async () => {
+		render(
+			<StrictMode>
+				<DownloadStage />
+			</StrictMode>
+		);
+
+		// Wait for a live poll first, so the flip below lands on a screen
+		// that is genuinely waiting rather than one still mid-POST.
+		await expect(
+			screen.findByRole( 'progressbar', undefined, SETTLE )
+		).resolves.toBeInTheDocument();
+
+		downloadStatus = {
+			id: 4242,
+			status: 'finished',
+			progress: 100,
+			url: 'https://example.com/archive.zip',
+			valid_until: '2026-09-04T00:00:00+00:00',
+			error: '',
+		};
+
+		const link = await screen.findByRole( 'link', { name: 'Download the file' }, SETTLE );
+		expect( link ).toHaveAttribute( 'href', 'https://example.com/archive.zip' );
+		// `Notice` also speaks its text through `wp.a11y.speak`, which
+		// mirrors the string into a live region — so an unscoped query
+		// matches twice. The visible notice is the one under assertion.
+		expect(
+			screen.getByText( 'Your download is ready.', {
+				ignore: '.a11y-speak-region, script, style',
+			} )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'does not start when the rewind id is malformed', async () => {

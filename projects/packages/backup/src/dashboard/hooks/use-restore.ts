@@ -117,10 +117,18 @@ function deriveState( input: DeriveInput ): RestoreState {
 	if ( errorMessage ) {
 		return { phase: 'error', message: errorMessage };
 	}
-	if ( isPending ) {
-		return { phase: 'submitting' };
-	}
+	// `startedRewindId` is read before `isPending`, so a stale `isPending`
+	// cannot shadow an accepted restore. React Query detaches a
+	// MutationObserver from its in-flight mutation on unsubscribe and
+	// never reattaches it, latching `isPending` true for good if the
+	// screen remounts mid-submit — while the mutation's own callbacks
+	// still record the acceptance here. Restore only submits on a click
+	// today, so this is defence rather than a live bug; `useDownload`
+	// shipped the reachable version of it.
 	if ( startedRewindId === null ) {
+		if ( isPending ) {
+			return { phase: 'submitting' };
+		}
 		// Nothing of our own, and we may not yet know whether the site has
 		// a restore running from somewhere else. Withholding the form is
 		// the whole point: see `useAdoptedRestore`.
