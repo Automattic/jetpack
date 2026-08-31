@@ -3,7 +3,7 @@ import {
 	GlobalErrorProvider,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { LinkButton } from '@jetpack-premium-analytics/externals';
+import { Button, LinkButton, Stack } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
@@ -13,10 +13,12 @@ import {
 	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
 import { Page } from '@wordpress/admin-ui';
+import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { moreVertical, pencil } from '@wordpress/icons';
 import { useParams } from '@wordpress/route';
 import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
@@ -25,7 +27,12 @@ import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { PostDetailTabs, PostSummaryCard } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
-import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
+import {
+	useEmailTabScope,
+	usePostDetailTabLayout,
+	usePostDetailTabs,
+	usePostSummary,
+} from './hooks';
 import { route } from './package.json';
 import styles from './stage.module.scss';
 
@@ -34,10 +41,6 @@ const ROUTE_FROM = route.path;
 // Fixed composition (WOOA7S-1622): grid stays independent from the
 // customizable main-dashboard preference so it can't be stretched.
 const POST_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small };
-
-// The layout is fixed, so the change callback never fires; the dashboard
-// still requires one because it owns a staging copy internally.
-const noopLayoutChange = () => {};
 
 // = summary's min-inline-size + row gap (keep in sync with stage.module.scss)
 // + a buffer, so the panel steps down before CSS wrap — wrap is synchronous
@@ -73,10 +76,36 @@ function PostDetail(): JSX.Element {
 	// tabs mount their fixed layout and let each widget surface its own error.
 	const emailScopeBlocked = ! emailScope && ! summary.isLoading && summary.isError;
 
-	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs(
-		postId,
-		emailScope?.reportParams,
-		emailScopeBlocked
+	const {
+		tabs,
+		activeTab,
+		setActiveTab,
+		layout: fixedLayout,
+	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked );
+
+	// The stored per-tab arrangement, layered over the fixed composition.
+	const { layout, setLayout, resetLayout, hasCustomLayout } = usePostDetailTabLayout(
+		activeTab,
+		fixedLayout
+	);
+
+	const [ isCustomizing, setIsCustomizing ] = useState( false );
+	// Entering customize swaps the header actions, which unmounts the menu and
+	// closes its popover; no explicit onClose needed.
+	const startCustomizing = useCallback( () => setIsCustomizing( true ), [] );
+	const stopCustomizing = useCallback( () => setIsCustomizing( false ), [] );
+
+	const onEditChange = useCallback(
+		( nextEditMode: boolean ) => {
+			// An empty layout makes the dashboard request edit mode on its own (its
+			// empty state invites customization); a detail tab is only empty while
+			// the email gate resolves, so that request is ignored here.
+			if ( nextEditMode && layout.length === 0 ) {
+				return;
+			}
+			setIsCustomizing( nextEditMode );
+		},
+		[ layout ]
 	);
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
 
@@ -132,26 +161,63 @@ function PostDetail(): JSX.Element {
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
 				resolveWidgetModule={ resolveWidgetModuleWithI18n }
 				layout={ layout }
-				onLayoutChange={ noopLayoutChange }
+				onLayoutChange={ setLayout }
 				gridSettings={ POST_DETAIL_GRID }
+				editMode={ isCustomizing }
+				onEditChange={ onEditChange }
 			>
 				<Page
 					visual={ <StatsPageIcon /> }
 					breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
 					actions={
-						publicUrl ? (
-							<LinkButton
-								variant="solid"
-								tone="neutral"
-								size="compact"
-								href={ publicUrl }
-								openInNewTab
-							>
-								{ summary.type === 'page'
-									? __( 'View page', 'jetpack-premium-analytics-pkg' )
-									: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
-							</LinkButton>
-						) : undefined
+						isCustomizing ? (
+							<Stack direction="row" align="center" gap="sm">
+								<Button
+									variant="outline"
+									size="compact"
+									disabled={ ! hasCustomLayout }
+									onClick={ resetLayout }
+								>
+									{ __( 'Reset to default', 'jetpack-premium-analytics-pkg' ) }
+								</Button>
+								<Button variant="solid" size="compact" onClick={ stopCustomizing }>
+									{ __( 'Done', 'jetpack-premium-analytics-pkg' ) }
+								</Button>
+							</Stack>
+						) : (
+							<Stack direction="row" align="center" gap="sm">
+								{ publicUrl ? (
+									<LinkButton
+										variant="solid"
+										tone="neutral"
+										size="compact"
+										href={ publicUrl }
+										openInNewTab
+									>
+										{ summary.type === 'page'
+											? __( 'View page', 'jetpack-premium-analytics-pkg' )
+											: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
+									</LinkButton>
+								) : null }
+								{ /* The page's configurations menu (STATS-428): Customize lives here
+								     rather than as a standalone button, per the design's single menu.
+								     Usage/Settings/Feedback join it when the dashboard adopts the
+								     same menu. */ }
+								<DropdownMenu
+									icon={ moreVertical }
+									label={ __( 'Page options', 'jetpack-premium-analytics-pkg' ) }
+									popoverProps={ { placement: 'bottom-end' } }
+								>
+									{ () => (
+										<MenuGroup>
+											<MenuItem icon={ pencil } iconPosition="left" onClick={ startCustomizing }>
+												{ __( 'Customize', 'jetpack-premium-analytics-pkg' ) }
+											</MenuItem>
+										</MenuGroup>
+									) }
+								</DropdownMenu>
+							</Stack>
+						)
 					}
 					className={ styles.page }
 				>

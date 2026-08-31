@@ -1,10 +1,17 @@
 import { useReportScope } from '@jetpack-premium-analytics/data';
-import { render, screen, within } from '@testing-library/react';
-import { usePostDetailTabs, usePostSummary } from './hooks';
+import { act, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { usePostDetailTabLayout, usePostDetailTabs, usePostSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
 
 let mockSearch: Record< string, unknown > = {};
+
+// The dashboard props the stage handed to the (mocked) WidgetDashboard.
+let mockDashboardProps: {
+	editMode?: boolean;
+	onEditChange?: ( next: boolean ) => void;
+} = {};
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -69,7 +76,18 @@ function MockScopeProbe() {
 }
 
 jest.mock( '@wordpress/widget-dashboard', () => {
-	const WidgetDashboard = ( { children }: { children: ReactNode } ) => <>{ children }</>;
+	const WidgetDashboard = ( {
+		children,
+		editMode,
+		onEditChange,
+	}: {
+		children: ReactNode;
+		editMode?: boolean;
+		onEditChange?: ( next: boolean ) => void;
+	} ) => {
+		mockDashboardProps = { editMode, onEditChange };
+		return <>{ children }</>;
+	};
 	WidgetDashboard.Widgets = () => <MockScopeProbe />;
 
 	return {
@@ -154,6 +172,12 @@ const mockEmailScope = {
 
 jest.mock( './hooks', () => ( {
 	usePostSummary: jest.fn(),
+	usePostDetailTabLayout: jest.fn( () => ( {
+		layout: [ { uuid: 'card', type: 'jpa/card' } ],
+		setLayout: () => {},
+		resetLayout: () => {},
+		hasCustomLayout: false,
+	} ) ),
 	useEmailTabScope: jest.fn( () => mockEmailScope ),
 	usePostDetailTabs: jest.fn( () => ( {
 		// The active tab mounts the panel carrying the widget grid.
@@ -169,6 +193,7 @@ jest.mock( './hooks', () => ( {
 
 const mockUsePostSummary = usePostSummary as jest.Mock;
 const mockUsePostDetailTabs = usePostDetailTabs as jest.Mock;
+const mockUseTabLayout = usePostDetailTabLayout as jest.Mock;
 
 /**
  * Stub the post summary hook, defaulting to a resolved post with a public URL.
@@ -235,6 +260,68 @@ describe( 'post detail stage', () => {
 		render( stage() );
 
 		expect( screen.getByTestId( 'performance-from' ) ).toHaveTextContent( 'none' );
+	} );
+
+	it( 'offers Customize in a page options menu and enters customize mode', async () => {
+		const user = userEvent.setup();
+		mockSummary();
+
+		render( stage() );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+
+		// The header swaps to the customize actions and the dashboard is editing.
+		expect( screen.getByRole( 'button', { name: 'Done' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Reset to default' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /^View post/ } ) ).not.toBeInTheDocument();
+		expect( mockDashboardProps.editMode ).toBe( true );
+
+		await user.click( screen.getByRole( 'button', { name: 'Done' } ) );
+		expect( screen.queryByRole( 'button', { name: 'Done' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /^View post/ } ) ).toBeInTheDocument();
+		expect( mockDashboardProps.editMode ).toBe( false );
+	} );
+
+	it( 'enables Reset to default only over a stored arrangement, and resets through it', async () => {
+		const user = userEvent.setup();
+		const resetLayout = jest.fn();
+		mockUseTabLayout.mockReturnValue( {
+			layout: [ { uuid: 'card', type: 'jpa/card' } ],
+			setLayout: () => {},
+			resetLayout,
+			hasCustomLayout: true,
+		} );
+		mockSummary();
+
+		render( stage() );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+
+		const reset = screen.getByRole( 'button', { name: 'Reset to default' } );
+		expect( reset ).toBeEnabled();
+		await user.click( reset );
+		expect( resetLayout ).toHaveBeenCalled();
+	} );
+
+	it( 'ignores the dashboard\u2019s empty-layout edit request while a tab has no layout', () => {
+		mockUseTabLayout.mockReturnValue( {
+			layout: [],
+			setLayout: () => {},
+			resetLayout: () => {},
+			hasCustomLayout: false,
+		} );
+		mockSummary();
+
+		render( stage() );
+
+		// An empty layout makes the real dashboard request edit mode (its empty
+		// state invites customization); the stage must not let a pending email
+		// gate open the customize chrome.
+		act( () => mockDashboardProps.onEditChange?.( true ) );
+
+		expect( screen.queryByRole( 'button', { name: 'Done' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'puts a View post action in the page header, opening the live post in a new tab', () => {
