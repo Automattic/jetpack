@@ -61,7 +61,7 @@ const addWpPkgDep = async ( pkg, fromPkg, ver, deplist ) => {
  */
 async function fixDeps( pkg ) {
 	// Deps tend to get outdated due to a slow release cycle.
-	// So change `^` to `>=` and hope any breaking changes will not really break.
+	// So change `^` to `>=` to avoid many duplicate packages (most are dependency-extracted in the build anyway), and hope any breaking changes will not really break.
 	if (
 		pkg.name === '@automattic/api-core' ||
 		pkg.name === '@automattic/components' ||
@@ -81,11 +81,8 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Pins ~30 `@wordpress/*` deps to exact versions, which installs a second old copy
-	// of most of Gutenberg alongside ours — `@wordpress/data` and its registry included.
-	// Relax the pins so pnpm reuses the copies already here. Safe because these are all
-	// externalized to `wp-*` script handles at build time: the installed version never
-	// ships, so it decides resolution but not what runs.
+	// WooCommerce packages pin `@wordpress/*` deps to versions from the lowest Core version the plugin supports.
+	// Change to `>=` to avoid many duplicate packages (most are dependency-extracted in the build anyway), and hope any breaking changes will not really break.
 	if ( pkg.name === '@woocommerce/email-editor' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@wordpress/' ) ) {
