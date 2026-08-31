@@ -918,6 +918,36 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that the Ask AI node meta carries the deployed build version for REST consumers.
+	 */
+	public function test_ai_chat_button_meta_includes_deployed_version() {
+		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
+
+		$force_variant = static function () {
+			return 'wp-admin';
+		};
+		add_filter( 'agents_manager_variant', $force_variant );
+		// Seed the cached asset metadata so no fetch is attempted.
+		set_transient(
+			'agents-manager-asset-wp-admin.asset.json',
+			array(
+				'version'      => 'abc123',
+				'dependencies' => array(),
+			)
+		);
+
+		$wp_admin_bar = new \WP_Admin_Bar();
+		$wp_admin_bar->initialize();
+		$this->agents_manager->add_ai_chat_button( $wp_admin_bar );
+
+		$node = $wp_admin_bar->get_node( 'agents-manager-ai-chat' );
+		$this->assertSame( 'wp-admin:abc123', $node->meta['version'] ?? null );
+
+		remove_filter( 'agents_manager_variant', $force_variant );
+		delete_transient( 'agents-manager-asset-wp-admin.asset.json' );
+	}
+
+	/**
 	 * Tests that the full UI mount target belongs to Ask AI rather than Help.
 	 */
 	public function test_ai_chat_button_owns_full_ui_mount_target() {
