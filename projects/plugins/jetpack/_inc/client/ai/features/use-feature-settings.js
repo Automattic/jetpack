@@ -17,7 +17,7 @@ const ENDPOINT = '/wpcom/v2/jetpack-ai/feature-settings';
 /**
  * Hook that loads and exposes the Jetpack AI feature settings for the current site.
  *
- * @param {boolean} enabled Whether the gated AI views can use these settings.
+ * @param {boolean} enabled - Whether the gated AI views can use these settings.
  * @return {{ isLoading: boolean, savingKeys: Set, settings: Object|null, error: string|null, updateSettings: Function }} Feature settings state and updater. `error` reports a load failure only.
  */
 export function useFeatureSettings( enabled = true ) {
