@@ -2,6 +2,7 @@ import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Link, Notice, Stack, Text } from '@wordpress/ui';
 import { getReconnectErrorMessage } from '../../helpers/get-reconnect-error-message';
+import { formatConnectionErrorDetailLine } from '../../hooks/use-connection-error-notice/error-details';
 import ConnectionErrorSupportLink from '../connection-error-support-link';
 import styles from './styles.module.scss';
 import type { ConnectionErrorNoticeProps } from './types';
@@ -106,7 +107,7 @@ function ConnectionErrorNotice( {
 						>
 							{ group.detailLines.map( line => (
 								<Text render={ <li /> } key={ line.key } variant="body-sm">
-									{ `- ${ line.text }` }
+									{ formatConnectionErrorDetailLine( line ) }
 								</Text>
 							) ) }
 						</Stack>

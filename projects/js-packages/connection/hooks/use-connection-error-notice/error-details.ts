@@ -177,6 +177,19 @@ export function getConnectionErrorDetailLines(
 }
 
 /**
+ * Render one detail line as it appears in a notice.
+ *
+ * Kept separate from `text` so the line itself stays the plain scope name: a
+ * renderer that can use real list markers should take `text` and skip this.
+ *
+ * @param {ConnectionErrorDetailLine} line - The line to render.
+ * @return {string} The line text, with its marker.
+ */
+export function formatConnectionErrorDetailLine( line: ConnectionErrorDetailLine ): string {
+	return `- ${ line.text }`;
+}
+
+/**
  * Whether the notice title names the error's scope. When it does, the detail
  * line below it must not repeat it.
  *
