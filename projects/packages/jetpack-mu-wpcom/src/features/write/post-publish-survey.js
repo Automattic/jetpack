@@ -25,26 +25,6 @@
 	}
 
 	/**
-	 * Remove the post-publish marker from the URL without reloading, so the card
-	 * doesn't reappear on refresh or back-navigation.
-	 */
-	function cleanMarkerFromUrl() {
-		if ( ! config.marker || ! window.history || ! window.history.replaceState ) {
-			return;
-		}
-		try {
-			const url = new URL( window.location.href );
-			if ( ! url.searchParams.has( config.marker ) ) {
-				return;
-			}
-			url.searchParams.delete( config.marker );
-			window.history.replaceState( null, '', url.href );
-		} catch {
-			// Leave the URL as-is if it can't be parsed.
-		}
-	}
-
-	/**
 	 * Run a callback once the post-publish checklist is off the screen.
 	 *
 	 * The checklist removes its overlay on dismiss, so watching for that removal is
@@ -149,7 +129,6 @@
 			if ( overlay.parentNode ) {
 				overlay.parentNode.removeChild( overlay );
 			}
-			cleanMarkerFromUrl();
 			if (
 				previouslyFocused &&
 				typeof previouslyFocused.focus === 'function' &&

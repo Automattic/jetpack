@@ -200,7 +200,6 @@ function wpcom_write_enqueue_post_publish_survey_assets() {
 		'wpcom-write-post-publish-survey',
 		'wpcomWritePostPublishSurvey',
 		array(
-			'marker'     => WPCOM_WRITE_PUBLISHED_MARKER,
 			// admin-ajax because a Simple site serves no REST API at its own hostname.
 			'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
 			'nonce'      => wp_create_nonce( WPCOM_WRITE_SURVEY_NONCE ),
@@ -208,7 +207,6 @@ function wpcom_write_enqueue_post_publish_survey_assets() {
 			'responseId' => wp_generate_uuid4(),
 			'variant'    => $is_write_first ? 'write_first' : 'returning',
 			'source'     => wpcom_write_survey_source(),
-			'maxLength'  => WPCOM_WRITE_SURVEY_MAX_COMMENT_LENGTH,
 		)
 	);
 }
