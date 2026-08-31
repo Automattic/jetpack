@@ -9,9 +9,10 @@ import { ExternalLink, ProgressBar, Spinner, VisuallyHidden } from '@wordpress/c
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
-import { list } from '@wordpress/icons';
+import { connection, list } from '@wordpress/icons';
 import { Card, Link, LinkButton, Notice, Stack, Text } from '@wordpress/ui';
 import NavRow from '../components/nav-row';
+import { EVENTS, recordAiHubEvent, useRecordOnce } from '../tracks';
 import AssistantBanner from './assistant-banner';
 import buildPageThumb from './images/build-page.webp';
 import connectClaudeThumb from './images/connect-claude.webp';
@@ -20,6 +21,21 @@ import optimizeSiteThumb from './images/optimize-site.webp';
 import { normalizeUsage, useAiUsage } from './use-ai-usage';
 
 import './style.scss';
+
+// Quick start cards from the i4 Overview frame: each is a nav row to the
+// connector's install page, through the redirect service.
+const QUICK_START = [
+	{
+		slug: 'jetpack-ai-hub-overview-quick-start-claude',
+		title: __( 'Connect Claude', 'jetpack' ),
+		description: __( 'Give Claude access to your site by installing the connector.', 'jetpack' ),
+	},
+	{
+		slug: 'jetpack-ai-hub-overview-quick-start-chatgpt',
+		title: __( 'Connect ChatGPT', 'jetpack' ),
+		description: __( 'Give ChatGPT access to your site by installing the connector.', 'jetpack' ),
+	},
+];
 
 // Lessons from the "Use AI agents with WordPress.com" course; each card links
 // to its lesson page (no inline player). Durations are the live lesson
@@ -334,6 +350,9 @@ export default function AiOverview( {
 } ) {
 	const hostBlocked = hostAllowsAi === false;
 	const userUnlinked = isUserConnected === false;
+	useRecordOnce( EVENTS.VIEWED, { tab: 'overview' } );
+	const recordLinkClick = ( linkType, slug ) => () =>
+		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: linkType, link: slug } );
 	return (
 		<Stack direction="column" gap="xl">
 			<AssistantBanner />
@@ -347,21 +366,17 @@ export default function AiOverview( {
 			{ !! blogId && ! hostBlocked && userUnlinked && (
 				// The usage endpoint proxies as the current user, so without a
 				// linked account the fetch can only fail — say so instead.
-				<Card.Root>
-					<Card.Content>
-						<Notice.Root intent="warning">
-							<Notice.Title>
-								{ __( 'Your WordPress.com account isn’t connected.', 'jetpack' ) }
-							</Notice.Title>
-							<Notice.Description>
-								{ __( 'Connect your account to see your AI usage.', 'jetpack' ) }{ ' ' }
-								<Link href="admin.php?page=my-jetpack#/connection">
-									{ __( 'Connect account', 'jetpack' ) }
-								</Link>
-							</Notice.Description>
-						</Notice.Root>
-					</Card.Content>
-				</Card.Root>
+				<Notice.Root intent="warning">
+					<Notice.Title>
+						{ __( 'Your WordPress.com account isn’t connected.', 'jetpack' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ __( 'Connect your account to see your AI usage.', 'jetpack' ) }{ ' ' }
+						<Link href="admin.php?page=my-jetpack#/connection">
+							{ __( 'Connect account', 'jetpack' ) }
+						</Link>
+					</Notice.Description>
+				</Notice.Root>
 			) }
 			{ !! blogId && ! hostBlocked && ! userUnlinked && (
 				<UsageCard
@@ -374,21 +389,17 @@ export default function AiOverview( {
 			{ ! blogId && (
 				// Disconnected: skip the fetch (it can only fail) and explain
 				// the actual problem instead of a fetch error.
-				<Card.Root>
-					<Card.Content>
-						<Notice.Root intent="warning">
-							<Notice.Title>
-								{ __( 'Jetpack is not connected to WordPress.com.', 'jetpack' ) }
-							</Notice.Title>
-							<Notice.Description>
-								{ __( 'Connect the site to see your AI usage.', 'jetpack' ) }{ ' ' }
-								<Link href="admin.php?page=my-jetpack#/connection">
-									{ __( 'Connect Jetpack', 'jetpack' ) }
-								</Link>
-							</Notice.Description>
-						</Notice.Root>
-					</Card.Content>
-				</Card.Root>
+				<Notice.Root intent="warning">
+					<Notice.Title>
+						{ __( 'Jetpack is not connected to WordPress.com.', 'jetpack' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ __( 'Connect the site to see your AI usage.', 'jetpack' ) }{ ' ' }
+						<Link href="admin.php?page=my-jetpack#/connection">
+							{ __( 'Connect Jetpack', 'jetpack' ) }
+						</Link>
+					</Notice.Description>
+				</Notice.Root>
 			) }
 
 			{ showActivityLog && activityLogUrl && (
@@ -408,6 +419,27 @@ export default function AiOverview( {
 				</Card.Root>
 			) }
 
+			<div className="jetpack-ai-overview__quick-start">
+				<Text render={ <h2 /> } variant="heading-lg">
+					{ __( 'Quick start', 'jetpack' ) }
+				</Text>
+				<div className="jetpack-ai-overview__quick-start-grid">
+					{ QUICK_START.map( ( { slug, title, description } ) => (
+						<Card.Root key={ slug } className="jetpack-ai-overview__row-card">
+							<NavRow
+								icon={ connection }
+								title={ title }
+								description={ description }
+								href={ getRedirectUrl( slug ) }
+								onClick={ recordLinkClick( 'quick_start', slug ) }
+								tone="neutral"
+								external
+							/>
+						</Card.Root>
+					) ) }
+				</div>
+			</div>
+
 			<div className="jetpack-ai-overview__videos">
 				<Text render={ <h2 /> } variant="heading-lg">
 					{ __( 'Walkthrough videos', 'jetpack' ) }
@@ -420,6 +452,7 @@ export default function AiOverview( {
 							key={ slug }
 							target="_blank"
 							rel="noopener noreferrer"
+							onClick={ recordLinkClick( 'video', slug ) }
 						>
 							{ /* Decorative: the card's title carries the meaning. */ }
 							<img

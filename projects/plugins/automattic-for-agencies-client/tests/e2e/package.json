@@ -24,10 +24,6 @@
 		"playwright-ctrf-json-reporter": "^0.0.26"
 	},
 	"ci": {
-		"targets": [
-			"plugins/automattic-for-agencies-client",
-			"tools/e2e-commons"
-		],
 		"pluginSlug": "automattic-for-agencies-client",
 		"mirrorName": "jetpack-automattic-for-agencies-client"
 	}

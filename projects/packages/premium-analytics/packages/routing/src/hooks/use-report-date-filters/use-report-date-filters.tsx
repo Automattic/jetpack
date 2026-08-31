@@ -18,6 +18,7 @@ import { useCallback, useMemo } from 'react';
  * Internal dependencies
  */
 import { decodeDateSearchParam, encodeDateToSearchParam } from '../../search/date-range';
+import { hasPrimaryDateDraft } from '../../search/report-params';
 import { useStagedSearch } from '../use-staged-search';
 import { buildRangePatch, type ReportQuerySearchParams } from './build-range-patch';
 import type {
@@ -58,8 +59,8 @@ export type ReportDateFilters = {
 	appliedInterval: IntervalType;
 
 	/**
-	 * The intervals the applied range allows, finest first — what the control
-	 * lists.
+	 * The intervals the range being edited allows, finest first — what the
+	 * control lists.
 	 */
 	intervalOptions: IntervalType[];
 
@@ -73,11 +74,9 @@ export type ReportDateFilters = {
 	onStep: ( direction: StepDirection ) => void;
 
 	/**
-	 * Open the chart bucket containing a date: narrow the applied window to that
-	 * bucket, which drops the reading to the next finer interval.
-	 *
-	 * `interval` is the bucket size the chart drew, for a chart that clamps the
-	 * applied interval into the sizes it offers. Defaults to the applied one.
+	 * Open the chart bucket containing a date, narrowing to the next finer
+	 * interval. `interval` is the bucket size the chart drew; defaults to the
+	 * applied interval.
 	 */
 	drillDown: ( date: Date, interval?: IntervalType ) => void;
 
@@ -87,14 +86,9 @@ export type ReportDateFilters = {
 	timeZone: string;
 
 	/**
-	 * Stage a primary range change and commit it in the same tick, replacing the
-	 * current history entry instead of pushing one.
-	 *
-	 * For range changes the page makes on the user's behalf rather than in
-	 * response to a date edit — reconciling the preset with what the current
-	 * screen can show, for instance. Those must not leave a Back step, or Back
-	 * would return to the state that triggered the reconciliation and be
-	 * corrected straight back out of.
+	 * Stage and commit a range change without pushing a history entry — for
+	 * programmatic reconciliation (not a direct date edit), so Back can't loop
+	 * into the state that triggered the reconciliation.
 	 */
 	replaceRange: ( range: DateRange, presetId: PrimaryPresetId ) => void;
 };
@@ -170,13 +164,9 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 	);
 
 	/*
-	 * The applied comparison, for surfaces that describe what the widgets are
-	 * actually showing rather than what the picker is drafting. A comparison
-	 * change normally commits on its own, but it rides along uncommitted when a
-	 * primary edit is already staged, so this cannot read `effective`.
-	 *
-	 * Gated on the same predicate the report params run through, so a surface
-	 * can never announce a comparison the widgets did not request.
+	 * Applied, not staged: a comparison commits on its own but can ride
+	 * uncommitted alongside a staged primary edit, so this can't read `effective`.
+	 * Gated like the report params, so it never shows an unrequested comparison.
 	 */
 	const { appliedComparisonPresetId, appliedComparisonRange } = useMemo( () => {
 		if ( ! hasComparisonEnabled( committed ) ) {
@@ -195,27 +185,28 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 		};
 	}, [ committed, timeZone ] );
 
-	/*
-	 * Whether the primary picker holds an un-applied edit. The comparison and
-	 * interval controls commit on their own, so both check this first rather
-	 * than committing a range draft along with their own change.
-	 */
-	const hasPrimaryDraft =
-		effective.from !== committed.from ||
-		effective.to !== committed.to ||
-		effective.preset !== committed.preset;
+	const hasPrimaryDraft = hasPrimaryDateDraft( committed, effective );
 
-	/*
-	 * The buckets the interval control lists, and the one it checks. Both read
-	 * the applied range: the control sits outside the picker, so a range being
-	 * drafted must not reshape the menu, and resolving the value through the
-	 * same range that produced the options keeps the checked item a listed one.
-	 */
+	// Listed and checked against the range being edited — see
+	// `getAllowedIntervalsForPreset` for why the draft and not the applied window.
 	const intervalOptions = useMemo(
-		() => getAllowedIntervalsForPreset( appliedPresetId, committed.from ?? '', committed.to ?? '' ),
-		[ appliedPresetId, committed.from, committed.to ]
+		() => getAllowedIntervalsForPreset( presetId, effective.from ?? '', effective.to ?? '' ),
+		[ presetId, effective.from, effective.to ]
 	);
 
+	const interval = useMemo(
+		() =>
+			resolveIntervalForRange(
+				presetId,
+				effective.from ?? '',
+				effective.to ?? '',
+				effective.interval
+			),
+		[ presetId, effective.from, effective.to, effective.interval ]
+	);
+
+	// What the widgets are drawing, for the surfaces that describe them rather
+	// than the picker — the chart the drill-down reads its buckets from.
 	const appliedInterval = useMemo(
 		() =>
 			resolveIntervalForRange(
@@ -227,24 +218,10 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 		[ appliedPresetId, committed.from, committed.to, committed.interval ]
 	);
 
-	// The staged value, so the check mark moves on the click that stages it even
-	// when a primary draft keeps that click from committing.
-	const interval = useMemo(
-		() =>
-			resolveIntervalForRange(
-				appliedPresetId,
-				committed.from ?? '',
-				committed.to ?? '',
-				effective.interval
-			),
-		[ appliedPresetId, committed.from, committed.to, effective.interval ]
-	);
-
 	/**
-	 * Comparison changes commit immediately — but only when the primary date
-	 * isn't mid-edit. If a primary edit is staged but not yet applied, the
-	 * comparison change rides along and commits together on Apply, so tweaking
-	 * the comparison never commits an un-applied primary draft.
+	 * Comparison changes commit immediately, unless a primary edit is staged —
+	 * then it rides along and commits with it on Apply, so a comparison tweak
+	 * never commits an un-applied primary draft.
 	 */
 	const onComparisonChange = useCallback(
 		( nextComparisonRange: DateRange | undefined, nextComparisonPresetId?: ComparisonPresetId ) => {
@@ -278,11 +255,9 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 	);
 
 	/*
-	 * Commits on click and pushes a history entry, so Back undoes the step and
-	 * the stepped window survives a reload as real URL state.
-	 *
-	 * Steps the applied range, not the staged one: the arrows sit outside the
-	 * picker, so stepping is not the gesture that applies someone's open draft.
+	 * Commits and pushes a history entry so Back undoes the step. Steps the
+	 * applied range, not the staged one — the arrows sit outside the picker,
+	 * so stepping must not apply an open draft.
 	 */
 	const onStep = useCallback(
 		( direction: StepDirection ) => {
@@ -308,21 +283,16 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 	);
 
 	/*
-	 * Commits on click and pushes a history entry, like `onStep`, so Back is the
-	 * way out of a drill-down and the narrowed window survives a reload.
-	 *
-	 * Reads the applied range rather than the staged one: the chart draws what
-	 * is applied, so the bucket the user clicked belongs to that window, not to
-	 * a draft the picker is holding. The same goes for the interval, unless the
-	 * chart names the size it actually drew.
+	 * Commits and pushes a history entry, like `onStep`, so Back exits a
+	 * drill-down. Reads the applied range/interval, not the staged one: the
+	 * chart draws what's applied, so the click belongs to that window.
 	 */
 	const drillDown = useCallback(
 		( date: Date, bucketInterval: IntervalType = appliedInterval ) => {
 			/*
-			 * `drillDateRange` closes a bucket on the clock of the date handed to it,
-			 * so the click is re-anchored in the site's zone first. A caller may pass
-			 * a plain instant, which would otherwise cut the bucket on the browser's
-			 * clock and open the wrong day west or east of the site.
+			 * Re-anchored to the site zone first: `drillDateRange` closes a bucket
+			 * on the clock of the date passed in, and a plain instant would cut it
+			 * on the browser's clock instead.
 			 */
 			const drilled = drillDateRange( toLocalTZ( date, timeZone ), bucketInterval, new Date() );
 

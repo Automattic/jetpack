@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: validate a required phone field with a default country against what the input actually shows, so it can no longer be submitted empty.

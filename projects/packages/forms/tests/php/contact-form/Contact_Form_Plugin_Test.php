@@ -315,6 +315,40 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The block's `maxfiles` attribute has to survive the trip into the shortcode the field
+	 * renders as, or the editor setting silently does nothing.
+	 *
+	 * The name is lowercase to match the PHP side, where shortcode_atts() reads an all-lowercase
+	 * list of defaults. Camel case would survive this particular path anyway, because WordPress
+	 * lowercases attribute names as it parses the shortcode text back — so this pins the name as
+	 * much as the plumbing.
+	 */
+	public function test_gutenblock_render_field_file_carries_max_files() {
+		$block = array(
+			'blockName'   => 'jetpack/field-file',
+			'attrs'       => array( 'maxfiles' => 3 ),
+			'innerBlocks' => array(
+				array(
+					'blockName' => 'jetpack/label',
+					'attrs'     => array( 'label' => 'Attachments' ),
+				),
+				array(
+					'blockName' => 'jetpack/dropzone',
+					'attrs'     => array(),
+				),
+			),
+		);
+
+		$output = Contact_Form_Plugin::gutenblock_render_field_file(
+			array( 'maxfiles' => 3 ),
+			'',
+			new WP_Block( $block )
+		);
+
+		$this->assertStringContainsString( 'maxfiles="3"', $output );
+	}
+
+	/**
 	 * Tests the render output of gutenblock_render_field_radio.
 	 */
 	public function test_gutenblock_gutenblock_render_field_radio() {
@@ -717,6 +751,98 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when processing the form submission with invalid JWT.' );
 		$this->assertEquals( 'invalid_jwt', $result->get_error_code(), 'Expected the error code to be "invalid_jwt".' );
 		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
+	}
+
+	public function test_process_form_rejects_zero_form_id_with_jwt() {
+		$this->setup_token_test( null, 'Test User' );
+
+		// A valid signed token, but the posted id does not identify the signed form.
+		$_POST['contact-form-id'] = '0';
+
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->process_form_submission();
+
+		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when the posted id does not match the signed source.' );
+		$this->assertEquals( 'form_id_mismatch_post', $result->get_error_code(), 'Expected the error code to be "form_id_mismatch_post".' );
+		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
+	}
+
+	public function test_process_form_rejects_foreign_form_id_with_jwt() {
+		$this->setup_token_test( null, 'Test User' );
+
+		// Another real post is still not the source the token was signed for.
+		$other_post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Another Post',
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+		$this->assertGreaterThan( 0, $other_post_id, 'Failed to create the second post the test relies on.' );
+		$_POST['contact-form-id'] = (string) $other_post_id;
+
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->process_form_submission();
+
+		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error for a form id that is not the signed source.' );
+		$this->assertEquals( 'form_id_mismatch_post', $result->get_error_code(), 'Expected the error code to be "form_id_mismatch_post".' );
+
+		wp_delete_post( $other_post_id, true );
+	}
+
+	public function test_process_form_accepts_no_post_context_with_jwt() {
+		/*
+		 * A form rendered with no post in scope signs a ('single', 0) source and
+		 * posts a non-numeric id ('jp-form'). The id gate must not treat that as a
+		 * mismatch -- there is no post to bind to. Mirrors validate_parent_post().
+		 *
+		 * setUp() has already nulled the $post global, and tearDown() restores the
+		 * $post global, $_POST and the current user, so there is nothing to save or
+		 * clean up here. Submit as a logged-out visitor, the way the JWT path runs.
+		 */
+		wp_set_current_user( 0 );
+
+		$form                              = new Contact_Form( array( 'to' => 'test@example.com' ), "[contact-field label='Name' type='name' required='1'/]" );
+		$_POST['jetpack_contact_form_jwt'] = $form->get_jwt();
+		$_POST['contact-form-hash']        = $form->hash;
+		$_POST['contact-form-id']          = 'jp-form';
+
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->process_form_submission();
+
+		// It should fall through to normal validation (Name is required and empty),
+		// not be rejected by the id gate.
+		$this->assertInstanceOf( Form_Submission_Error::class, $result );
+		$this->assertNotEquals( 'form_id_mismatch_post', $result->get_error_code(), 'A form with no post in scope must not be rejected by the id gate.' );
+	}
+
+	public function test_process_form_accepts_non_post_source_mismatch_with_jwt() {
+		/*
+		 * A widget (non-post) source is never bound to a post id, whatever the
+		 * posted contact-form-id is.
+		 *
+		 * setUp() has already nulled the $post global, and tearDown() restores the
+		 * $post global, $_POST and the current user, so there is nothing to save or
+		 * clean up here. Submit as a logged-out visitor, the way the JWT path runs.
+		 */
+		wp_set_current_user( 0 );
+
+		$form                              = new Contact_Form(
+			array(
+				'to'     => 'test@example.com',
+				'widget' => 'text-2',
+			),
+			"[contact-field label='Name' type='name' required='1'/]"
+		);
+		$_POST['jetpack_contact_form_jwt'] = $form->get_jwt();
+		$_POST['contact-form-hash']        = $form->hash;
+		$_POST['contact-form-id']          = 'widget-does-not-match';
+
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->process_form_submission();
+
+		$this->assertInstanceOf( Form_Submission_Error::class, $result );
+		$this->assertNotEquals( 'form_id_mismatch_post', $result->get_error_code(), 'A non-post source must not be bound to a post id.' );
 	}
 
 	public function test_process_form_with_deleted_parent_post() {

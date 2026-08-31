@@ -168,6 +168,7 @@ function wpcom_enqueue_launch_button_assets() {
 		array(
 			'blogId'          => get_current_blog_id(),
 			'siteUrl'         => home_url(),
+			'siteName'        => get_bloginfo( 'name' ),
 			'siteDomain'      => wp_parse_url( home_url(), PHP_URL_HOST ),
 			'sitePlan'        => $current_plan,
 			'hasCustomDomain' => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'custom-domain' ),

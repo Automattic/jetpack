@@ -34,31 +34,20 @@ const MIN_TAB_WIDTH = 120;
 
 /**
  * How far (px) the pointer may travel between down and up and still count as a
- * click. Above it the gesture is a drag — a zoom selection, or a slip on the
- * way up — and must not drill the dashboard to a date the reader was only
- * passing over.
+ * click. Above it the gesture is a drag and must not drill the dashboard.
  */
 const CLICK_DRAG_TOLERANCE_PX = 6;
 
-/**
- * The pointer-event payload both comparative charts report, carrying the datum
- * nearest the pointer.
- */
+/** The pointer-event payload both comparative charts report. */
 type ChartPointerParams = Parameters<
 	NonNullable< ComponentProps< typeof ComparativeLineChart >[ 'onPointerUp' ] >
 >[ 0 ];
 
-/**
- * The keyboard activation payload both comparative charts report, carrying the
- * datum keyboard navigation had selected.
- */
+/** The keyboard activation payload both comparative charts report. */
 type ChartActivateParams = Parameters<
 	NonNullable< ComponentProps< typeof ComparativeLineChart >[ 'onDatumActivate' ] >
 >[ 0 ];
 
-/**
- * A single time-series point for a metric.
- */
 export interface MetricTabDatum {
 	date: Date;
 	value: number;
@@ -85,11 +74,9 @@ export interface MetricTab {
 	/** Optional explanatory text, surfaced as the card's tooltip. */
 	description?: string;
 	/**
-	 * Key of the metric to draw beside this one, hidden until the reader reveals
-	 * it from the legend. Pairs are declared per metric rather than derived, so
-	 * a widget decides which of its metrics are worth comparing. A key naming no
-	 * metric in the list, the metric itself, or a metric that is `unavailable` at
-	 * the current bucket size, is ignored.
+	 * Key of the metric to draw beside this one, hidden until the reader reveals it
+	 * from the legend. A key naming no metric in the list, the metric itself, or an
+	 * `unavailable` metric, is ignored.
 	 */
 	counterpartKey?: string;
 	/**
@@ -127,10 +114,9 @@ export interface MetricTabsChartProps {
 	 */
 	tickResolution?: TickResolution;
 	/**
-	 * Whether each point's date is a Stats bucket's wall clock (as `toChartDate`
-	 * builds them) rather than a real instant. Wall clocks are re-anchored via
-	 * `fromChartDate` before a label reads them; instants must be read as they
-	 * are, hence the opt-in. Full rationale in `chart-date.ts`.
+	 * Whether each point's date is a Stats bucket's wall clock rather than a real
+	 * instant; wall clocks are re-anchored via `fromChartDate` before a label reads
+	 * them. Full rationale in `chart-date.ts`.
 	 */
 	pointsAreWallClocks?: boolean;
 	/**
@@ -149,16 +135,9 @@ type ReadPointDate = ( date: Date ) => Date;
 const asInstant: ReadPointDate = date => date;
 
 /**
- * Build the chart series for a metric: the current period plus, when present,
- * the previous period as a same-`group` (same colour) `comparison` series. The
- * current period is labelled by metric name, which is what the collapsed legend
- * item reads; the section header names the dates.
- *
- * The comparison series' options differ by chart type. A line needs its area
- * fill suppressed so only the current period is filled — but that same
- * transparent gradient would erase the bar chart's shadow bar, which is a fill
- * rather than a stroke. Bars therefore carry `type` alone and let the charts
- * theme resolve the shadow's colour and width factor.
+ * Build the chart series for a metric: current period plus, when present, the
+ * previous period as a same-`group` comparison series. A line needs its area
+ * fill suppressed — that gradient would erase the bar chart's shadow fill.
  *
  * @param metric    - The metric to draw.
  * @param chartType - How the metric is drawn.
@@ -197,13 +176,8 @@ function buildSeries(
 
 /**
  * The chart for a single metric — the current period with its previous-period
- * overlay, drawn as lines or bars. `compactWhenShort` lets the chart degrade to
- * a sparkline (dropping its axis, grid, and legend) on short tiles instead of
- * squashing its labels on top of each other.
- *
- * A `counterpart` is drawn alongside the metric but seeded hidden, so the
- * legend offers it as a one-click comparison. Its previous period is seeded
- * with it, which is why revealing the item brings the whole overlay back.
+ * overlay, drawn as lines or bars. A `counterpart` is drawn alongside it but
+ * seeded hidden, so the legend offers it as a one-click comparison.
  *
  * @return The chart for the metric.
  */
@@ -248,11 +222,8 @@ function MetricChart( {
 
 	const reportDatum = useCallback(
 		( datum: unknown ) => {
-			/*
-			 * `alignSeriesDates` rewrites a comparison point's date to the primary
-			 * point it is drawn under, so whichever series the gesture resolves to,
-			 * its datum carries the current-period date.
-			 */
+			// `alignSeriesDates` rewrites a comparison point's date to the primary point
+			// it is drawn under, so either series' datum carries the current-period date.
 			const date = ( datum as { date?: unknown } | undefined )?.date;
 
 			if ( date instanceof Date ) {
@@ -304,11 +275,8 @@ function MetricChart( {
 		  }
 		: {};
 
-	// Resolve each series' colour + line style from the chart theme so the chart
-	// lines and the tooltip glyphs share the same styling — including the dashed
-	// pattern on the previous-period series. Bars resolve their own styles inside
-	// `ComparativeBarChart`, since the shadow's geometry comes from the theme's
-	// bar styles rather than these line styles.
+	// Resolved from the chart theme so the lines and the tooltip glyphs match. Bars
+	// resolve their own inside `ComparativeBarChart`, off the theme's bar styles.
 	const seriesStyles = useSeriesStyles( series );
 	const resolvedDataFormat = metric.dataFormat ?? dataFormat;
 
@@ -349,10 +317,8 @@ function MetricChart( {
 }
 
 /**
- * A metric's card face: its label over the headline value and delta, or over a
- * placeholder when the metric has nothing to report at this bucket size. Shared
- * by the tab, single-metric, and dropdown-trigger layouts so the three cannot
- * drift apart.
+ * A metric's card face, shared by the tab, single-metric, and dropdown-trigger
+ * layouts so the three cannot drift apart.
  *
  * @return The card's content.
  */
@@ -367,19 +333,16 @@ function MetricTabContent( {
 	fontSize?: ComponentProps< typeof MetricWithComparison >[ 'fontSize' ];
 	withDescription?: boolean;
 } ) {
-	// The unavailable reason has no other channel here, so it is always exposed.
-	// The description is not: as a tab it already rides on `title`, and inside the
-	// dropdown trigger a hidden node would join the button's accessible name and
-	// be announced on every focus.
+	// The description is opt-in: a tab already carries it on `title`, and in the
+	// dropdown trigger a hidden node would join the button's accessible name.
 	const note = metric.unavailable ?? ( withDescription ? metric.description : undefined );
 
 	return (
 		<span className={ styles.tabContent }>
 			<Text className={ styles.tabLabel }>{ metric.label }</Text>
 			{ metric.unavailable ? (
-				// Sized off the same token as the value it stands in for — the tab and
-				// trigger layouts ask for different ones, so a fixed size reads a step
-				// too large in one of them. `MetricWithComparison`'s own default.
+				// Sized off the same token as the value it stands in for: the tab and
+				// trigger layouts ask for different ones, so a fixed size misreads in one.
 				<span
 					className={ styles.unavailableValue }
 					style={
@@ -410,21 +373,9 @@ function MetricTabContent( {
 }
 
 /**
- * A metric switcher over a comparative chart: a row of selectable cards
- * (each a headline value + period-over-period delta) built on `@wordpress/ui`
- * `Tabs`, and below them the selected metric's current period with its
- * previous-period overlay, drawn as lines or bars per `chartType`. Reused by
- * Stats time-series widgets (subscribers chart, traffic chart) — the consumer
- * supplies the per-metric data and headline values; this owns selection, series
- * building, and layout.
- *
- * A metric naming another through `counterpartKey` is drawn with that metric
- * beside it, seeded hidden so the legend offers it as a one-click comparison.
- * The legend names the metrics; the dates the chart covers are the section
- * header's job.
- *
- * Responsive: on narrow tiles the tabs collapse into a dropdown whose trigger
- * is the selected metric's card; on short tiles the chart degrades to a sparkline.
+ * A metric switcher over a comparative chart: a row of selectable cards and, below
+ * them, the selected metric's chart. The consumer supplies the per-metric data;
+ * this owns selection, series building, and layout.
  *
  * @param {MetricTabsChartProps} props - The component props.
  * @return The metric tabs + chart.
@@ -444,9 +395,8 @@ export function MetricTabsChart( {
 	const readPointDate = pointsAreWallClocks ? fromChartDate : asInstant;
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 
-	// The chart seeds its hidden series once per chart ID, so the ID has to name
-	// the metric: switching metrics swaps which of a pair is hidden, and a stable
-	// ID would leave the chart showing the previous selection's hidden set.
+	// The chart seeds its hidden series once per chart ID, so a stable ID would leave
+	// the chart showing the previous selection's hidden set.
 	const chartIdBase = useId();
 	const chartIdFor = useCallback(
 		( metric: MetricTab ) => `${ chartIdBase }-${ metric.key }`,
@@ -460,23 +410,19 @@ export function MetricTabsChart( {
 
 			const counterpart = metrics.find( candidate => candidate.key === metric.counterpartKey );
 
-			// A counterpart with nothing to report at this bucket size would reach
-			// the legend as a series the request never asked for, and reveal as a
-			// flat zero line.
+			// A counterpart with nothing to report at this bucket size would reveal as
+			// a flat zero line for a series the request never asked for.
 			return counterpart?.unavailable ? undefined : counterpart;
 		},
 		[ metrics ]
 	);
 
-	// Controlled open state: the dashboard's focusable drag-sortable wrapper
-	// closes the popup (reason 'none') right after it opens, so we open on
-	// click, drop 'none' closes, and close explicitly on selection. Real closes
-	// (outside press, Escape) carry a specific reason and pass through.
+	// Controlled open state: the drag-sortable wrapper closes the popup (reason
+	// 'none') right after it opens, so those closes are dropped; selection closes it explicitly.
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
 
-	// Tabs↔dropdown flips are debounced: each flip remounts the header + chart
-	// subtree, and during a drag-resize the width oscillates around grid snap
-	// boundaries fast enough to freeze the page and abort the gesture.
+	// Flips are debounced: each remounts the header + chart subtree, and a drag-resize
+	// oscillates the width around grid snap boundaries fast enough to freeze the page.
 	const [ width, setWidth ] = useState< number >();
 	const hasMeasuredRef = useRef( false );
 	const flipTimerRef = useRef< ReturnType< typeof setTimeout > >();
@@ -497,7 +443,6 @@ export function MetricTabsChart( {
 	useEffect( () => () => clearTimeout( flipTimerRef.current ), [] );
 	const useDropdown = width !== undefined && width < metrics.length * MIN_TAB_WIDTH;
 
-	// Fall back to the first metric if the selected one is no longer present.
 	const activeMetric = metrics.find( metric => metric.key === selectedKey ) ?? metrics[ 0 ];
 
 	const handleValueChange = useCallback(
@@ -555,18 +500,16 @@ export function MetricTabsChart( {
 		return (
 			<div ref={ measureRef } className={ styles.root }>
 				<div className={ styles.header }>
-					{ /* Stops pointer-down from starting a widget drag and opens the select
-					     on click (see `isDropdownOpen`). Mouse-only supplement — keyboard
-					     users open the select through the trigger button itself. */ }
+					{ /* Stops pointer-down from starting a widget drag. Mouse-only supplement —
+					     keyboard users open the select through the trigger button itself. */ }
 					{ /* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */ }
 					<div
 						className={ styles.picker }
 						onPointerDown={ event => event.stopPropagation() }
 						onMouseDown={ event => event.stopPropagation() }
 						onClick={ event => {
-							// React bubbles portaled popup events through the component tree,
-							// so option clicks land here too; reopening on them would undo the
-							// close-on-select. Only treat clicks inside the wrapper as opens.
+							// React bubbles portaled popup events through the component tree, so
+							// option clicks land here too and would undo the close-on-select.
 							if ( event.currentTarget.contains( event.target as Node ) ) {
 								setIsDropdownOpen( true );
 							}

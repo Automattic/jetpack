@@ -9,6 +9,7 @@ import BackupNowButton from '../components/backup-now-button';
 import BackupStatusPanel, { replacesOverview } from '../components/backup-status';
 import BackupStatusBanner, { BackupTroubleBanner } from '../components/backup-status/banner';
 import DashboardLayout from '../components/dashboard-layout';
+import NextScheduledBackup from '../components/next-scheduled-backup';
 import QueryError from '../components/query-error';
 import StorageSpace from '../components/storage-space';
 import {
@@ -227,6 +228,25 @@ export default function OverviewScreen() {
 			 * loading, so the terminal case still reports immediately.
 			 */ }
 			{ ! restorePointsLoading && <BackupTroubleBanner state={ backupsState } /> }
+			{ /*
+			 * When the next one runs, above the storage section because that is the
+			 * order legacy reads in.
+			 *
+			 * Legacy's `COMPLETE` gate, widened to include `in-progress`: legacy takes
+			 * the line down for the length of every run, where reporting both facts
+			 * side by side is the call `summarizeBackups` already made.
+			 *
+			 * `replacesOverview` above is not enough to arrange this. Its veto is up
+			 * whenever restore points are loading or errored, not only when the site
+			 * has them, and it has no branch at all for `error` or `loading` — so
+			 * without this gate a site with an undecodable backups read promised a next
+			 * run directly under "We couldn't check your site's backup status."
+			 *
+			 * The component self-hides on the other half of legacy's gate.
+			 */ }
+			{ ( backupsState === 'complete' || backupsState === 'in-progress' ) && (
+				<NextScheduledBackup />
+			) }
 			{ /*
 			 * Above the list, and a sibling of the grid for the same
 			 * reason the banners are. It answers a question the list

@@ -1,0 +1,10 @@
+{
+	"extends": "./tsconfig.json",
+	"include": [ "./src" ],
+	"compilerOptions": {
+		// Without rootDir, a bare tsgo emit nests output under build/src/, breaking
+		// package.json's main/types paths for this npm-autopublished package. The
+		// "include only" guidance in docs/monorepo.md does not apply here.
+		"rootDir": "./src"
+	}
+}

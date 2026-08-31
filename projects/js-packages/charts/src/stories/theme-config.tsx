@@ -7,12 +7,19 @@ import type { ChartTheme } from '../types';
 export const DEFAULT_ACCENT_COLOR = '#4a19ab';
 
 /**
- * Custom theme using a CSS variable set by `ThemeProvider` for dynamic color generation.
- * The `--wpds-color-foreground-interactive-brand` token is set by wrapping
- * the component tree in a WPDS `ThemeProvider` with a `color.primary` seed.
+ * Custom theme demonstrating that the series palette needs no configuration to follow a
+ * `ThemeProvider`.
+ *
+ * Moving the `accentColor` control moves the whole palette — the seeded series directly, and the
+ * generated ones because they derive from it.
+ *
+ * It reaches the palette through `--wp-admin-theme-color`, which `ThemeProvider` writes from
+ * its `color.primary` seed as a legacy wp-admin override, and which slot 1 reads first — not
+ * through the `--wpds-*` ramp it also emits. So setting `adminColorScheme` to anything but
+ * `none` publishes a closer `--wp-admin-theme-color` and the accent control stops driving the
+ * palette. That is the documented cascade, not a bug.
  */
 export const customTheme: ChartTheme = {
-	colors: [ 'var(--wpds-color-foreground-interactive-brand)' ],
 	seriesLineStyles: [
 		{},
 		{
@@ -31,6 +38,9 @@ export const customTheme: ChartTheme = {
 /**
  * Theme that uses a variety of color formats (hex, RGB, RGBA, HSL, named)
  * to demonstrate and test color normalization support.
+ *
+ * One color per format, and exactly as many as there are palette slots: a sixth entry would
+ * be dropped with a console warning without covering a format the first five miss.
  */
 export const mixedColorFormatsTheme: ChartTheme = {
 	colors: [
@@ -39,8 +49,6 @@ export const mixedColorFormatsTheme: ChartTheme = {
 		'hsl(48, 96%, 53%)',
 		'rgba(38, 70, 83, 0.9)',
 		'steelblue',
-		'hsl(280, 60%, 50%)',
-		'rgb(244, 162, 97)',
 	],
 	backgroundColor: 'hsl(0, 0%, 98%)',
 	gridColor: 'rgba(0, 0, 0, 0.1)',
@@ -63,6 +71,27 @@ export const mixedColorFormatsTheme: ChartTheme = {
 		negativeChangeColor: 'hsl(0, 70%, 50%)',
 	},
 } as ChartTheme;
+
+/**
+ * The `--wp-admin-theme-color` each WordPress admin color scheme publishes, copied from
+ * `@wordpress/base-styles`' `admin-schemes.css`.
+ *
+ * `fresh` and `default` have no `admin-color-*` block of their own and take the `:root` value,
+ * so they are absent here rather than duplicated.
+ */
+export const WP_ADMIN_COLOR_SCHEMES: Record< string, string > = {
+	light: '#007cba',
+	modern: '#3858e9',
+	blue: '#437aa8',
+	coffee: '#916745',
+	ectoplasm: '#646c3e',
+	midnight: '#cf4339',
+	ocean: '#567958',
+	sunrise: '#ad631e',
+};
+
+/** The `adminColorScheme` value meaning "leave the design system in charge". */
+export const NO_ADMIN_COLOR_SCHEME = 'none';
 
 /**
  * Centralized theme map for all chart stories
@@ -91,9 +120,18 @@ export const themeArgTypes = {
 		table: { category: 'Theme' },
 		if: { arg: 'themeName', eq: 'custom' },
 	},
+	adminColorScheme: {
+		control: { type: 'select' as const },
+		options: [ NO_ADMIN_COLOR_SCHEME, ...Object.keys( WP_ADMIN_COLOR_SCHEMES ) ],
+		defaultValue: NO_ADMIN_COLOR_SCHEME,
+		description:
+			'Simulate a wp-admin color scheme by setting --wp-admin-theme-color, the way admin-schemes.css does. The series palette reads it first, so series colors follow the scheme.',
+		table: { category: 'Theme' },
+	},
 };
 
 export const sharedThemeArgs = {
 	themeName: 'default',
 	accentColor: DEFAULT_ACCENT_COLOR,
+	adminColorScheme: NO_ADMIN_COLOR_SCHEME,
 } as const;

@@ -2,7 +2,11 @@
  * External dependencies
  */
 import AdminPage from '@automattic/jetpack-components/admin-page';
+import useConnectionErrorNotice, {
+	ConnectionError,
+} from '@automattic/jetpack-connection/use-connection-error-notice';
 import { Breadcrumbs } from '@wordpress/admin-ui';
+import { Stack } from '@wordpress/ui';
 import VideoNav, { type VideoNavTab } from '../video-nav';
 import './style.scss';
 import type { ReactNode } from 'react';
@@ -54,6 +58,8 @@ export default function VideoLayout( {
 	confirmNavigation,
 	children,
 }: Props ) {
+	const { hasConnectionError } = useConnectionErrorNotice();
+
 	return (
 		<AdminPage
 			breadcrumbs={
@@ -63,6 +69,11 @@ export default function VideoLayout( {
 			}
 			actions={ actions }
 		>
+			{ hasConnectionError && (
+				<Stack direction="column">
+					<ConnectionError />
+				</Stack>
+			) }
 			<VideoNav
 				videoId={ videoId }
 				activeTab={ activeTab }

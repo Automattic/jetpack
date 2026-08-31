@@ -26,11 +26,9 @@ const makeItems = ( count: number ): SubscriberListItem[] =>
 	} ) );
 
 /**
- * Mocks the element geometry that JSDOM does not calculate.
- *
- * The roster root is the measured box and the footer takes room from the rows,
- * mirroring the stylesheet: the root is clamped to the tile, `.list` flexes,
- * and `.more` does not shrink.
+ * Mocks the element geometry JSDOM does not calculate: the roster root is the
+ * measured box, and the footer takes room from the rows, mirroring the
+ * stylesheet (root clamped to tile, `.list` flexes, `.more` does not shrink).
  *
  * @param tileHeight - Starting height of the roster root.
  * @return Handle for resizing the roster and restoring the globals.

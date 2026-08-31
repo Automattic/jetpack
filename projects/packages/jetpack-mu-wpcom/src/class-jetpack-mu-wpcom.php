@@ -22,8 +22,12 @@ class Jetpack_Mu_Wpcom {
 	const BASE_FILE       = __FILE__;
 
 	// Themes (by template slug) and plugins (by basename) known to break with React 19.
-	const REACT_19_INCOMPATIBLE_THEMES  = array( 'divi' );
-	const REACT_19_INCOMPATIBLE_PLUGINS = array( 'wp-table-builder/wp-table-builder.php' );
+	const REACT_19_INCOMPATIBLE_THEMES  = array( 'divi', 'woodmart' );
+	const REACT_19_INCOMPATIBLE_PLUGINS = array(
+		'wp-table-builder/wp-table-builder.php',
+		'ultimate-blocks/ultimate-blocks.php',
+		'beehive-analytics/beehive-analytics.php',
+	);
 
 	/**
 	 * Initialize the class.
@@ -899,7 +903,7 @@ class Jetpack_Mu_Wpcom {
 			} elseif ( self::has_react_19_incompatible_extension() ) {
 				$is_enabled = false;
 			} else {
-				$current_segment = 5; // Segment of Atomic sites in the experiment, in %.
+				$current_segment = 10; // Segment of Atomic sites in the experiment, in %.
 				$site_segment    = $site_id % 100;
 
 				/*

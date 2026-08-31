@@ -19,6 +19,7 @@ import userEvent from '@testing-library/user-event';
 import BackupNowButton from '../src/dashboard/components/backup-now-button';
 import BackupStatusPanel, { replacesOverview } from '../src/dashboard/components/backup-status';
 import BackupStatusBanner from '../src/dashboard/components/backup-status/banner';
+import { keys } from '../src/dashboard/data/query-client';
 import type { ReactNode } from 'react';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
@@ -211,14 +212,15 @@ describe( 'BackupNowButton', () => {
 	it( 'renders nothing on a site with no plan', async () => {
 		mockEndpoints( { hasBackupPlan: false } );
 
-		const { container } = renderWithClient( <BackupNowButton /> );
+		const { container, client } = renderWithClient( <BackupNowButton /> );
 
-		// Settle on the capabilities answer having arrived, rather than on
-		// a timer — then confirm the button stayed away.
+		// Settle on the capabilities answer reaching the cache, not on the
+		// request having been issued — then confirm the button stayed away.
+		// Waiting on the call returns while the query is still pending, and
+		// the button is empty then for the loading reason, so the no-plan
+		// state this test is named for would never be reached.
 		await waitFor( () =>
-			expect( mockApiFetch ).toHaveBeenCalledWith(
-				expect.objectContaining( { path: '/jetpack/v4/site/capabilities' } )
-			)
+			expect( client.getQueryState( keys.capabilities() )?.status ).toBe( 'success' )
 		);
 		expect( container ).toBeEmptyDOMElement();
 	} );

@@ -302,6 +302,17 @@ class Form_Editor {
 				array(
 					'isEligible'         => $is_eligible,
 					'isCoreGuidePending' => self::is_core_welcome_guide_pending( $preferences ),
+
+					/*
+					 * Build-dir URL for the guide's artwork. The bundle sets
+					 * webpack's publicPath from this because `'auto'` misresolves
+					 * the images on WordPress.com Simple, where JS concatenation
+					 * rewrites the script URL auto-detection reads. Derived the
+					 * same way register_script() resolves the script URL above.
+					 */
+					'assetsUrl'          => trailingslashit(
+						Assets::normalize_path( plugins_url( '../../dist/form-editor', __FILE__ ) )
+					),
 				),
 				JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
 			) . ';',

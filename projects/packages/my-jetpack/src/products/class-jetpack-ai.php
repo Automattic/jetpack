@@ -519,9 +519,20 @@ class Jetpack_Ai extends Module_Product {
 	/**
 	 * Get the URL where the user manages the product
 	 *
+	 * Pre-release gate: the Jetpack AI Hub's gated views are limited to
+	 * internal testing environments, so only they land there — everyone else
+	 * keeps the My Jetpack product page. Drop the gate when the views go public.
+	 *
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
+		if (
+			function_exists( 'jetpack_is_internal_testing_environment' ) &&
+			jetpack_is_internal_testing_environment()
+		) {
+			return admin_url( 'admin.php?page=jetpack-ai' );
+		}
+
 		return admin_url( 'admin.php?page=my-jetpack#/jetpack-ai' );
 	}
 

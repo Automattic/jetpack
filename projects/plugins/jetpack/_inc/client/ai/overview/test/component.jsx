@@ -1,12 +1,27 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings as getDateSettings, setSettings as setDateSettings } from '@wordpress/date';
+import analytics from 'lib/analytics';
 import AiOverview from '../index';
 import { depletedPayload, freePayload, tieredPayload, unlimitedPayload } from './fixtures';
 
 // The usage hook fetches through @wordpress/api-fetch; stub it so nothing
 // hits the network and each test controls the response.
 jest.mock( '@wordpress/api-fetch' );
+// The component imports the webpack-aliased 'lib/analytics', which does not
+// resolve under jest; provide it virtually.
+jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
+
+const callsFor = eventName =>
+	analytics.tracks.recordEvent.mock.calls
+		.filter( call => call[ 0 ] === eventName )
+		.map( call => call[ 1 ] );
+
+// jsdom does not implement navigation; cancel the anchors' default action so
+// clicks still reach React's handlers without a jsdom "not implemented" error.
+const cancelNavigation = event => event.preventDefault();
+beforeEach( () => document.addEventListener( 'click', cancelNavigation ) );
 
 // The assistant banner imports the webpack-aliased 'lib/analytics', which
 // doesn't resolve under jest — provide it virtually.
@@ -14,6 +29,7 @@ jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { 
 
 afterEach( () => {
 	jest.resetAllMocks();
+	document.removeEventListener( 'click', cancelNavigation );
 } );
 
 const PROPS = {
@@ -275,6 +291,8 @@ describe( 'AiOverview', () => {
 		render( <AiOverview { ...PROPS } /> );
 
 		const row = await screen.findByRole( 'link', { name: /Activity log/ } );
+		// Same-site row: no new tab, unlike the external Quick start cards.
+		expect( row ).not.toHaveAttribute( 'target' );
 		expect( row ).toHaveAttribute( 'href', 'https://example.com/activity' );
 	} );
 
@@ -444,6 +462,95 @@ describe( 'AiOverview', () => {
 		for ( const [ name, slug ] of Object.entries( slugByName ) ) {
 			const link = screen.getByRole( 'link', { name: new RegExp( name ) } );
 			expect( link ).toHaveAttribute( 'href', expect.stringContaining( slug ) );
+		}
+	} );
+	test( 'tracks: records the overview view once on mount', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+		expect( callsFor( 'jetpack_ai_hub_viewed' ) ).toEqual( [
+			{ site_type: 'jetpack', is_a11n: 'false', is_test: 'false', tab: 'overview' },
+		] );
+	} );
+
+	test( 'tracks: a video card click records the video slug', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'link', { name: /Connect your site to Claude/ } ) );
+		expect( callsFor( 'jetpack_ai_hub_link_click' ) ).toEqual( [
+			{
+				site_type: 'jetpack',
+				is_a11n: 'false',
+				is_test: 'false',
+				link_type: 'video',
+				link: 'jetpack-ai-hub-overview-video-connect-claude',
+			},
+		] );
+	} );
+
+	test( 'tracks: a quick start card click records the connector slug', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'link', { name: /Connect ChatGPT/ } ) );
+		expect( callsFor( 'jetpack_ai_hub_link_click' ) ).toEqual( [
+			{
+				site_type: 'jetpack',
+				is_a11n: 'false',
+				is_test: 'false',
+				link_type: 'quick_start',
+				link: 'jetpack-ai-hub-overview-quick-start-chatgpt',
+			},
+		] );
+	} );
+
+	test( 'quick start: renders the two connector cards through the redirect service', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		// Settle the usage fetch so it cannot update state after the test body.
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { level: 2, name: 'Quick start' } ) ).toBeInTheDocument();
+
+		// The frame's Quick start row: Connect Claude / Connect ChatGPT, each a
+		// nav row whose destination lives in the redirect service.
+		const slugByName = {
+			'Connect Claude': 'jetpack-ai-hub-overview-quick-start-claude',
+			'Connect ChatGPT': 'jetpack-ai-hub-overview-quick-start-chatgpt',
+		};
+		for ( const [ name, slug ] of Object.entries( slugByName ) ) {
+			const card = screen.getByRole( 'link', { name: new RegExp( name ) } );
+			expect( card ).toHaveAttribute( 'href', expect.stringContaining( slug ) );
+		}
+		expect(
+			screen.getByText( 'Give Claude access to your site by installing the connector.' )
+		).toBeInTheDocument();
+		expect(
+			screen.getByText( 'Give ChatGPT access to your site by installing the connector.' )
+		).toBeInTheDocument();
+	} );
+
+	test( 'quick start: each card opens in a new tab and says so', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+
+		for ( const title of [ 'Connect Claude', 'Connect ChatGPT' ] ) {
+			const card = screen.getByRole( 'link', {
+				name: new RegExp( `${ title }.*\\(opens in a new tab\\)` ),
+			} );
+			expect( card ).toHaveAttribute( 'target', '_blank' );
+			expect( card ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 		}
 	} );
 } );

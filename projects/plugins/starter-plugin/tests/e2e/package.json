@@ -28,10 +28,6 @@
 		"playwright-ctrf-json-reporter": "^0.0.26"
 	},
 	"ci": {
-		"targets": [
-			"plugins/starter-plugin",
-			"tools/e2e-commons"
-		],
 		"pluginSlug": "jetpack-starter-plugin",
 		"mirrorName": "jetpack-starter-plugin"
 	}

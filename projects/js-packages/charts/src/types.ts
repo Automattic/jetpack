@@ -305,7 +305,7 @@ export type DataPointPercentage = {
 	 */
 	valueDisplay?: string;
 	/**
-	 * Color code for the segment, by default colours are taken from the theme but this property can overrides it
+	 * Color code for the segment, by default colors are taken from the theme but this property can overrides it
 	 */
 	color?: string;
 	/**
@@ -335,8 +335,14 @@ export type ChartTheme = {
 	labelBackgroundColor?: string;
 	/** Text color for labels */
 	labelTextColor?: string;
-	/** Array of colors used for data visualization */
-	colors: string[];
+	/**
+	 * Series palette seeds. Entry N publishes `--a8c-charts-color-series-{N+1}`; entries past the fifth are ignored.
+	 *
+	 * Optional so the deprecation is actionable: a consumer writing a full theme literal can now stop setting it. `CompleteChartTheme` is `Required< ChartTheme >`, so `defaultTheme` must still carry one.
+	 *
+	 * @deprecated Set the `--a8c-charts-color-series-1` … `-5` custom properties inside the provider tree instead, or `options.stroke` on a series for a single one. See `TOKENS.md`. Removed in CHARTS-227.
+	 */
+	colors?: string[];
 	/** Optional CSS styles for grid lines */
 	gridStyles?: GridStyles;
 	/** Length of axis ticks in pixels */
@@ -626,7 +632,7 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 /**
  * Legend config for charts built from `SeriesData` (line, bar, area). Adds `collapseGroups` on top
  * of the shared config. It is intentionally absent from the base `ChartLegendConfig` so point-based
- * charts (pie, semi-circle pie) — whose data points carry `group` only to coordinate colours — can't
+ * charts (pie, semi-circle pie) — whose data points carry `group` only to coordinate colors — can't
  * set it.
  */
 export type SeriesChartLegendConfig = ChartLegendConfig< SeriesData[] > & {

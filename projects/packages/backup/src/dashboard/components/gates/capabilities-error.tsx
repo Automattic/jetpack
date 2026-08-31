@@ -28,7 +28,7 @@ export default function CapabilitiesErrorScreen( { error, onRetry, isRetrying = 
 	return (
 		<Card className="jpb-gates__card">
 			<Stack direction="column" gap="md" align="center">
-				<Text variant="heading-md" render={ <h3 /> }>
+				<Text variant="heading-md" render={ <h2 /> }>
 					{ __( "We couldn't load your backup details", 'jetpack-backup-pkg' ) }
 				</Text>
 				<Notice status="error" isDismissible={ false }>

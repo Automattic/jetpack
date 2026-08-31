@@ -1,10 +1,7 @@
 /**
- * Pin the site timezone to UTC so day-bound math is deterministic regardless
- * of the machine timezone running the tests. `siteTimeZone()` is the leaf
- * every timezone read resolves through, so stubbing it alone pins paths a
- * barrel stub cannot reach (the interval rules get `localTZDate` through a
- * relative import, not the `data` barrel) while keeping the real range and
- * interval implementations under test.
+ * Pin the site timezone to UTC for deterministic day-bound math. Stubs
+ * `siteTimeZone()` directly rather than the `datetime` barrel: the interval
+ * rules import `localTZDate` via a relative path a barrel stub can't reach.
  */
 jest.mock( '@jetpack-premium-analytics/datetime', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/datetime' ),

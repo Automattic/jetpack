@@ -13,6 +13,8 @@
  * here; see Form_Editor::enqueue_admin_scripts().
  */
 
+// Must run before any image module evaluates its URL. See public-path.ts.
+import './public-path';
 import { registerPlugin } from '@wordpress/plugins';
 import { FormWelcomeGuide, JETPACK_FORM_WELCOME_GUIDE } from './index';
 

@@ -55,20 +55,12 @@ function getInclusiveDayCount( from: Date, to: Date ): number {
 }
 
 /**
- * Returns a comparison DateRange (as Date objects) derived from a reference range
- * and a given preset.
+ * Returns a comparison DateRange derived from a reference range and a preset.
  *
- * - This function is pure and has no side effects.
- * - It does not apply any timezone adjustments; day boundaries are resolved in
- *   the frame of the incoming dates (pass TZDate instances for site-local math).
- * - Day-aligned references (midnight to end of day) produce day-aligned
- *   comparison ranges. Sub-day references (rolling windows like the last 24
- *   hours) mirror the exact window instead.
- * - Comparison ranges match the reference duration, except that whole-month
- *   `previous-month` and `previous-year` ranges preserve calendar boundaries.
- *   Whole months are detected from the range shape alone, so a rolling window
- *   that happens to land on one (April 1-30 from a "last 30 days" preset) also
- *   compares calendar-to-calendar, against all 31 days of March.
+ * - Day boundaries are resolved in the frame of the incoming dates; pass TZDate
+ *   instances for site-local math.
+ * - Whole months are detected from the range shape alone, so a rolling window
+ *   that happens to land on one also compares calendar-to-calendar.
  *
  * @param reference - The reference range to compare against (must include both `from` and `to`).
  * @param presetId  - One of the supported preset identifiers.
@@ -89,17 +81,15 @@ export function getComparisonRangeFromPreset(
 		refFrom.getTime() === startOfDay( refFrom ).getTime() &&
 		refTo.getTime() === endOfDay( refTo ).getTime();
 
-	// Sub-day windows shift only their end, then rebuild `from` from the
-	// original duration: calendar shifts clamp day-of-month (Mar 31 - 1 month
-	// = Feb 28) and would otherwise shrink or collapse the window.
+	// Sub-day windows shift only their end, then rebuild `from` from the original
+	// duration: a calendar shift clamps day-of-month and would collapse the window.
 	if ( ! isDayAligned ) {
 		const windowMs = differenceInMilliseconds( refTo, refFrom );
 		let to: Date;
 
 		if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {
-			// Both ends are inclusive, so the window lasts `windowMs + 1`. Shifting
-			// by `windowMs` alone lands `to` on `refFrom` itself, inside the
-			// reference window, which reads one bucket late at hourly granularity.
+			// Both ends are inclusive, so the window lasts `windowMs + 1`; shifting
+			// by `windowMs` alone lands `to` inside the reference window.
 			to = subMilliseconds( refTo, windowMs + 1 );
 		} else if ( presetId === COMPARISON_PREVIOUS_MONTH ) {
 			to = subMonths( refTo, 1 );

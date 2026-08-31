@@ -16,7 +16,7 @@ export default function SecondaryAdminScreen() {
 	return (
 		<Card className="jpb-gates__card">
 			<Stack direction="column" gap="md" align="center">
-				<Text variant="heading-md" render={ <h3 /> }>
+				<Text variant="heading-md" render={ <h2 /> }>
 					{ __( 'Link your account to view backups', 'jetpack-backup-pkg' ) }
 				</Text>
 				<Text>

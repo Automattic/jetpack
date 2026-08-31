@@ -1,4 +1,10 @@
-export { formatDate, formatHourOfDay, formatWeekday, type DateFormatName } from './format-date';
+export {
+	formatDate,
+	formatHourOfDay,
+	formatMondayFirstWeekday,
+	formatWeekday,
+	type DateFormatName,
+} from './format-date';
 export {
 	formatDateRange,
 	formatDateRangeCompact,

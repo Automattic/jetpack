@@ -81,6 +81,9 @@ const SLIDES = [
  */
 export const WELCOME_GUIDE_IMAGES = SLIDES.map( slide => slide.image );
 
+/** How many slides the guide has, without building them. */
+export const SLIDE_COUNT = SLIDES.length;
+
 /**
  * Builds the welcome guide pages.
  *

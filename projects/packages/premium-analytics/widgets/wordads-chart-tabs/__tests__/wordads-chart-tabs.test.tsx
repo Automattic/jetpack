@@ -3,16 +3,19 @@
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { render, renderHook, waitFor } from '@testing-library/react';
+import { render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
 import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
 import WordAdsChartTabsWidget from '../render';
 import useWordAdsChart from '../use-wordads-chart';
+import wordAdsChartTabsWidget, { type WordAdsChartTabsAttributes } from '../widget';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
-import type { ReactNode } from 'react';
+import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
+import type { ComponentType, ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -60,9 +63,8 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-// Raw WPCOM `wordads/stats` matrix shape: two monthly buckets, so the summary
-// totals impressions (2000) and revenue (9.75), and CPM is the weighted average
-// revenue / impressions * 1000 = 4.875.
+// Raw WPCOM `wordads/stats` matrix: two monthly buckets, summing to impressions
+// 2000 / revenue 9.75, with CPM the weighted average 4.875.
 const PRIMARY_RESPONSE = {
 	unit: 'month',
 	fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
@@ -238,10 +240,8 @@ describe( 'WordAdsChartTabsWidget', () => {
 	} );
 
 	/*
-	 * The Ads default layout saves this widget with no attributes, and
-	 * `WidgetRoot` falls back to the URL for a missing `reportParams` — the
-	 * section date state this widget no longer follows. The fallback in
-	 * `render.tsx` must win over the URL.
+	 * The Ads default layout saves this widget with no attributes; `render.tsx`'s
+	 * own fallback must win over WidgetRoot's URL fallback for a missing `reportParams`.
 	 */
 	it( 'ignores the URL range for an instance saved without report params', async () => {
 		setMockRouteSearch( { from: '2020-01-01', to: '2020-01-31', interval: 'month' } );
@@ -253,9 +253,8 @@ describe( 'WordAdsChartTabsWidget', () => {
 		expect( requestedPath ).not.toContain( 'date=2020-01-31' );
 	} );
 
-	// The widget scopes itself with `offersComparison={ false }`, so `WidgetRoot`
-	// strips the comparison params before the chart fetches — stripped params
-	// must mean no second request, not a request with the dates removed.
+	// `offersComparison={ false }` makes `WidgetRoot` strip comparison params before
+	// the fetch — that must mean no second request, not one with the dates removed.
 	it( 'issues one request even when its attributes carry a comparison', async () => {
 		render(
 			<WordAdsChartTabsWidget
@@ -274,5 +273,94 @@ describe( 'WordAdsChartTabsWidget', () => {
 
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
+	} );
+} );
+
+describe( 'WordAdsChartTabsWidget date control', () => {
+	type FieldProps = DataFormControlProps< WordAdsChartTabsAttributes >;
+
+	// Only the DataForm plumbing is cast away, so `data` stays type-checked and a
+	// renamed attribute breaks the build rather than passing silently.
+	function renderDateControl( props: Pick< FieldProps, 'data' | 'onChange' > ) {
+		const [ { Edit } ] = wordAdsChartTabsWidget.attributes;
+		const Field = Edit as ComponentType< FieldProps >;
+
+		render( <Field { ...( props as FieldProps ) } /> );
+	}
+
+	it( 'offers no window shorter than the report can fill', async () => {
+		const user = userEvent.setup();
+		const onChange = jest.fn();
+
+		renderDateControl( {
+			data: { reportParams: { preset: 'last-30-days', interval: 'day' } },
+			onChange,
+		} );
+
+		const toolbar = screen.getByRole( 'toolbar', { name: 'Date range' } );
+
+		expect(
+			within( toolbar )
+				.getAllByRole( 'button' )
+				.map( button => button.textContent )
+		).toEqual( [ '7 days', '30 days', '12 months', 'Custom' ] );
+		expect( screen.getByRole( 'button', { name: '30 days' } ) ).toHaveAttribute(
+			'aria-pressed',
+			'true'
+		);
+
+		await user.click( screen.getByRole( 'button', { name: '7 days' } ) );
+
+		expect( onChange ).toHaveBeenCalledWith( {
+			reportParams: expect.objectContaining( { preset: 'last-7-days' } ),
+		} );
+	} );
+
+	it( 'moves an instance saved on the last 24 hours onto an offered window', () => {
+		const onChange = jest.fn();
+
+		renderDateControl( {
+			data: { reportParams: { preset: 'last-24-hours', interval: 'hour' } },
+			onChange,
+		} );
+
+		expect( onChange ).toHaveBeenCalledWith( {
+			reportParams: expect.objectContaining( { preset: 'last-30-days' } ),
+		} );
+	} );
+
+	// The menu and `render.tsx` read the same grain, so this fails if the widget
+	// stops handing it over.
+	it( 'offers no bucket the chart cannot draw', async () => {
+		const user = userEvent.setup();
+
+		// Two to six days is the window that puts hours on offer.
+		renderDateControl( {
+			data: {
+				reportParams: { from: '2026-06-01', to: '2026-06-03T23:59:59', interval: 'day' },
+			},
+			onChange: jest.fn(),
+		} );
+
+		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+
+		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
+			'By days',
+		] );
+	} );
+
+	it( 'offers months alone on its longest window', async () => {
+		const user = userEvent.setup();
+
+		renderDateControl( {
+			data: { reportParams: { preset: 'last-12-months', interval: 'month' } },
+			onChange: jest.fn(),
+		} );
+
+		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+
+		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
+			'By months',
+		] );
 	} );
 } );

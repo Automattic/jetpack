@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Charts: take the series palette from the charts package instead of seeding it locally.

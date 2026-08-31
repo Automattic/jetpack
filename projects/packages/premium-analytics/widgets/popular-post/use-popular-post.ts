@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	getDefaultQueryParams,
 	postContentQuery,
 	useStatsPost,
 	useStatsQuery,
@@ -9,6 +10,7 @@ import {
 	type LatestPostResponse,
 	type ReportParams,
 } from '@jetpack-premium-analytics/data';
+import { PRESET_LAST_12_MONTHS } from '@jetpack-premium-analytics/datetime';
 import { useMemo } from 'react';
 
 // Only regular posts qualify as a "Popular post": the Stats top-posts report
@@ -38,8 +40,24 @@ export type PopularPostWithMetrics = {
 	commentCount: number | undefined;
 };
 
+/**
+ * The window the card ranked over, as the date fields of the shared report
+ * params — the shape the detail page's route takes.
+ */
+export type PopularPostRange = Pick< ReportParams, 'from' | 'to' | 'preset' | 'interval' >;
+
+// The window the card ranks over, pinned to the period its title names rather
+// than following the dashboard's range, which would make that title false the
+// moment the section filter moved.
+const POPULAR_POST_PRESET = PRESET_LAST_12_MONTHS;
+
 export type UsePopularPostResult = {
 	post: PopularPostWithMetrics | null;
+	/**
+	 * The window the winner was ranked over. The card's detail link opens on it,
+	 * so the post's own page reports on the period the card's title names.
+	 */
+	range: PopularPostRange;
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
@@ -48,24 +66,29 @@ export type UsePopularPostResult = {
 };
 
 /**
- * The site's most-viewed post for the selected date range. The range only picks
- * the winner: every displayed metric is an all-time total from `stats/post`, so
- * the three tiles cannot measure different periods.
+ * The site's most-viewed post of the last 12 months. The window only picks the
+ * winner: every displayed metric is an all-time total from `stats/post`, so the
+ * three tiles cannot measure different periods.
  *
  * Only a ranking failure surfaces as an error; a failing content or metrics
  * request degrades to no image and unknown counts.
  */
-export function usePopularPost( reportParams: ReportParams ): UsePopularPostResult {
-	const statsParams = useMemo( () => {
-		// Comparison params would fetch a second report this widget never renders.
-		const primaryParams = { ...reportParams, max: POPULAR_POST_REQUEST_MAX };
-		delete primaryParams.comp;
-		delete primaryParams.compare_from;
-		delete primaryParams.compare_to;
-		delete primaryParams.compare_preset;
+export function usePopularPost(): UsePopularPostResult {
+	// Resolved per render rather than once at module load, so the window is never
+	// older than the render that reads it.
+	const { preset, from, to, interval } = getDefaultQueryParams( false, POPULAR_POST_PRESET );
 
-		return primaryParams;
-	}, [ reportParams ] );
+	const range = useMemo( () => ( { preset, from, to, interval } ), [ preset, from, to, interval ] );
+
+	// `interval` rides along because the params type requires it; it describes the
+	// destination's chart, not this request. It cannot reach the API either way:
+	// the param mapper does derive a `period` from it, but the query layer
+	// overwrites that with `day` for any window carrying no explicit `period`, and
+	// `interval` itself is absent from the stats param allow-list and the key.
+	const statsParams = useMemo(
+		() => ( { from, to, interval, max: POPULAR_POST_REQUEST_MAX } ),
+		[ from, to, interval ]
+	);
 
 	// Ranking, post-type filtering, and the single-row cap all live in the data
 	// layer's merge helper (see AGENTS.md), so the widget just takes the winner.
@@ -135,5 +158,13 @@ export function usePopularPost( reportParams: ReportParams ): UsePopularPostResu
 		  }
 		: null;
 
-	return { post, isLoading, isFetching, isError, error: topPostsResult.error, refetch };
+	return {
+		post,
+		range,
+		isLoading,
+		isFetching,
+		isError,
+		error: topPostsResult.error,
+		refetch,
+	};
 }

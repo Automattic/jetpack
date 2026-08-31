@@ -10,9 +10,8 @@ import './date-interval-dropdown.scss';
 
 type DateIntervalDropdownProps = {
 	/**
-	 * The buckets the active range allows, finest first. Derived from the range
-	 * rather than fixed, so the menu can never offer one the range would coerce
-	 * away.
+	 * The buckets to list, finest first. Derived upstream from the range and, for
+	 * a widget that owns its control, from what its chart draws.
 	 */
 	options: readonly IntervalType[];
 
@@ -49,15 +48,9 @@ function getIntervalLabel( interval: IntervalType ): string {
 }
 
 /**
- * The bucket size every chart on the page draws, as a glyph opening a menu of
- * the buckets the active range allows.
- *
- * The glyph is a chart rather than a clock: the control buckets what the charts
- * draw, it does not narrow the period the rest of the surface reports on.
- *
- * A range with one allowed bucket still opens a menu listing it, checked: the
- * trigger carries no text, so the menu is the only place the choice can be
- * inspected. The section header's subtitle names the active bucket.
+ * The bucket size every chart draws, as a glyph (not a clock — it buckets the
+ * charts, doesn't narrow the reported period) opening a menu of what the
+ * active range allows. Opens even with one option, since the trigger has no text.
  */
 export function DateIntervalDropdown( {
 	options,

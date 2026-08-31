@@ -112,7 +112,7 @@ class Products_Rest_Test extends TestCase {
 	}
 
 	/**
-	 * Test that My Jetpack registers the jetpack-ai-jwt endpoint via Agents Manager.
+	 * Test that My Jetpack registers the jetpack-ai-jwt endpoint from the Connection package.
 	 */
 	public function test_jetpack_ai_jwt_route_is_registered() {
 		$routes = rest_get_server()->get_routes();

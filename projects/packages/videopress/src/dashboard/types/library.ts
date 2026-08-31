@@ -11,9 +11,14 @@ export type VideoRating = 'G' | 'PG-13' | 'R';
 // null when the orientation is unknown (missing dimensions) or square.
 export type VideoOrientation = 'landscape' | 'portrait' | null;
 
+// Why an upload failed, in the only terms the row has space to say it.
+export type UploadFailureReason = 'connection' | 'other';
+
 export interface UploadState {
 	status: UploadStatus;
 	progress: number;
+	// Only set on a failed upload.
+	failureReason?: UploadFailureReason;
 }
 
 export interface LibraryItem {
