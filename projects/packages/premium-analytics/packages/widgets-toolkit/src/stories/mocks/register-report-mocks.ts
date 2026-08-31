@@ -1392,6 +1392,11 @@ function buildWordAdsStatsResponse( query: URLSearchParams ) {
 			period = bucket.toISOString().slice( 0, 10 );
 		}
 
+		// A day bucket for today has no figures until the nightly WordAds run lands.
+		if ( unit === 'day' && period >= new Date().toISOString().slice( 0, 10 ) ) {
+			return [ period, 0, 0, 0 ];
+		}
+
 		const absDay = Math.floor( bucket.getTime() / DAY_MS );
 		const trend = ( absDay - anchorDay ) * 3;
 		const wave = 200 * Math.sin( absDay / 9 ) + 80 * Math.cos( absDay / 13 );
