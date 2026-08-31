@@ -225,13 +225,22 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						<Stack direction="column" gap="lg">
 							<ToggleControl
 								label={ __( 'Allow search engines to index this site', 'jetpack-seo' ) }
-								help={ __(
-									'Turning this off asks search engines to stop indexing your site — Google and Bing honor it, others ignore it. Same setting as Settings → Reading.',
-									'jetpack-seo'
-								) }
+								help={
+									local.site_is_private
+										? __(
+												'Your site is private, so search engines cannot see it at all. Make it public in your site visibility settings to change this.',
+												'jetpack-seo'
+										  )
+										: __(
+												'Turning this off asks search engines to stop indexing your site — Google and Bing honor it, others ignore it. Same setting as Settings → Reading.',
+												'jetpack-seo'
+										  )
+								}
 								checked={ local.search_engines_visible }
 								onChange={ next => commit( { search_engines_visible: next } ) }
-								disabled={ isSaving }
+								// A private site is unpublished, not de-indexed. Turning this on would
+								// have to publish it, which is not this surface's decision to make.
+								disabled={ isSaving || local.site_is_private }
 								__nextHasNoMarginBottom
 							/>
 							<Stack direction="column" gap="xs">
