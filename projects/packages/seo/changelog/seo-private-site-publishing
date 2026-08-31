@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop the search-engine indexing toggle from publishing a private or coming-soon site.
