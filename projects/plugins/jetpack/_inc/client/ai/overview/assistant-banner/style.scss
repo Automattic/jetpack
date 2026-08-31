@@ -2,36 +2,53 @@
 
 .jetpack-ai-overview-banner {
 	position: relative;
-	padding: 28px 34px;
+	padding: 40px;
 	border-radius: 12px;
 	background-color: #003010;
 	overflow: hidden; // Clips the glow to the rounded corners.
 
-	// Decorative glow, straight from the Figma spec: a blurred circle filled
-	// with a horizontal blue-into-green gradient, anchored past the top-right
-	// corner so only its lower arc dips into the banner (the banner's
-	// overflow does the masking). The circle's size and offsets were fitted
-	// against the design mock pixel-by-pixel; the gradient reads
-	// left-to-right regardless of writing direction, which is fine for a
-	// non-semantic smear.
+	// Decorative glow: a large blurred circle filled with a horizontal
+	// green-into-blue gradient, sitting right-of-center and spanning nearly
+	// the banner's full height (the banner's overflow clips the spill). The
+	// size, offsets, and opacity were eyeballed against the carousel mock —
+	// the heavy blur plus the opacity keep it a soft wash rather than a
+	// vivid disc. The gradient reads left-to-right regardless of writing
+	// direction, which is fine for a non-semantic smear.
 	&__glow {
 		position: absolute;
-		inset-block-start: -156px;
-		inset-inline-end: 80px;
-		inline-size: 210px;
-		block-size: 210px;
+		inset-block-start: -120px;
+		inset-inline-end: 150px;
+		inline-size: 300px;
+		block-size: 300px;
 		border-radius: 50%;
-		background: linear-gradient(270deg, #48ff50 0%, #108642 47.18%, #2e38fa 100%);
-		filter: blur(19.3324px);
+		// The blue stop sits at 72%, not 100%: at 100% pure blue only exists on
+		// the circle's outer rim, where the blur and the disc edge wash it out.
+		// Ending early gives the blur a solid band of blue to spread.
+		background: linear-gradient(90deg, #48ff50 0%, #108642 47.18%, rgba(46, 56, 250) 72%);
+		filter: blur(40px);
+		opacity: 0.45;
 		pointer-events: none;
 	}
 
 	// Content sits above the glow.
-	&__logo,
-	&__title,
-	&__description,
+	&__intro,
+	&__carousel,
 	&__dismiss {
 		position: relative;
+	}
+
+	// All intro spacing comes from grid gaps, none from margins: 16px between
+	// the logo and the text block, 6px between title and description (two
+	// nested grids because gaps within one grid are uniform).
+	&__intro {
+		display: grid;
+		justify-items: start;
+		gap: 22px;
+	}
+
+	&__intro-text {
+		display: grid;
+		gap: 10px;
 	}
 
 	&__logo {
@@ -42,19 +59,158 @@
 	// sampled pixels); the subtext is the pure-white one, not the other way
 	// around.
 	&__title {
-		margin-block: 16px 0;
-		font-size: 21px;
+		margin: 0;
+		font-size: 22px;
 		font-weight: 500;
 		line-height: 28px;
 		color: #daffdc;
 	}
 
 	&__description {
-		margin-block: 6px 0;
+		margin: 0;
 		font-size: 13px;
 		font-weight: 400;
 		line-height: 18px;
 		color: #fff;
+	}
+
+	&__carousel {
+		margin-block-start: 24px;
+	}
+
+	&__carousel-nav {
+		display: flex;
+		gap: 8px;
+		margin-block-end: 24px;
+	}
+
+	// Round outline buttons per the mock. Doubled class beats the Button
+	// component's own rules by specificity; its defaults assume a light
+	// background, hence the explicit colors for every state.
+	&__carousel-arrow#{&}__carousel-arrow {
+		inline-size: 36px;
+		block-size: 36px;
+		min-inline-size: 36px;
+		padding: 0;
+		justify-content: center;
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		border-radius: 50%;
+		color: #fff;
+		// The Button's focus outline color reads this wpds token (falling back
+		// to the admin theme blue, which clashes with the dark banner) — see
+		// .components-button:focus:not(:active) in the wp-components styles.
+		// stylelint-disable-next-line plugin-wpds/no-setting-wpds-custom-properties -- overriding the token is the only hook the Button exposes for its focus ring color.
+		--wpds-color-stroke-focus: #fff;
+
+		&:hover,
+		&:active,
+		&:focus {
+			color: #fff;
+		}
+
+		&[aria-disabled="true"],
+		&[aria-disabled="true"]:hover {
+			border-color: rgba(255, 255, 255, 0.15);
+			color: rgba(255, 255, 255, 0.4);
+			background: transparent;
+		}
+	}
+
+	// The card row scrolls horizontally, bleeding through the banner's
+	// inline-end padding so a cut-off card signals more content (the padding
+	// is taken back inside so the last card still stops short of the edge).
+	&__cards {
+		display: flex;
+		gap: 16px;
+		margin: 0;
+		margin-inline-end: -34px;
+		padding: 0;
+		padding-inline-end: 34px;
+		list-style: none;
+		overflow-x: auto;
+		scroll-snap-type: x proximity;
+		// The row is steered by the arrow buttons; a scrollbar under the
+		// cards would double the affordance and break the mock.
+		scrollbar-width: none;
+
+		&::-webkit-scrollbar {
+			display: none;
+		}
+	}
+
+	&__card {
+		flex: 0 0 auto;
+		inline-size: 200px;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+		margin: 0;
+		padding: 20px;
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		border-radius: 8px;
+		background: rgba(255, 255, 255, 0.06);
+		scroll-snap-align: start;
+	}
+
+	// Decorative glyph above each card's text, matching the CTA's pale green
+	// so the cards scan as icon → text → action.
+	&__card-icon {
+		fill: #daffdc;
+	}
+
+	&__card-text {
+		font-size: 13px;
+		font-weight: 400;
+		line-height: 18px;
+		color: #fff;
+	}
+
+	// The auto margin bottom-anchors the CTA so it lines up across cards of
+	// unequal text length (the row's stretch equalizes card heights). The CTA
+	// is a plain button element, hence the resets.
+	&__card-cta {
+		display: inline-flex;
+		align-items: center;
+		gap: 2px;
+		margin-block-start: auto;
+		padding: 0;
+		border: 0;
+		background: none;
+		cursor: pointer;
+		font-size: 13px;
+		font-weight: 600;
+		line-height: 18px;
+		text-decoration: none;
+		// The bright green from the glow gradient and the logo disc.
+		color: #daffdc;
+
+		&:hover,
+		&:active,
+		&:focus {
+			color: #daffdc;
+		}
+
+		svg {
+			fill: currentColor;
+		}
+	}
+
+	// The popup is sized by its 16:9 video: the modal's own frame provides the
+	// chrome, this just caps the width and shapes the iframe.
+	&__video-modal {
+		inline-size: min(720px, 90vw);
+	}
+
+	&__video-frame {
+		aspect-ratio: 16 / 9;
+
+		iframe {
+			display: block;
+			inline-size: 100%;
+			block-size: 100%;
+			border: 0;
+		}
 	}
 
 	// White X in the top-right, its center level with the logo row (28px from
