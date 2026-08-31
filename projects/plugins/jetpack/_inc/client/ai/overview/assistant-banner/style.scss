@@ -1,41 +1,25 @@
 // Assistant announcement banner.
 
 .jetpack-ai-overview-banner {
+	// Accent for the title, card icons, and card CTAs: a pale lavender picked
+	// to sit at the same weight the old mint (#daffdc) did, now echoing the
+	// backdrop's purple bloom. One dial to retune them all.
+	--jetpack-ai-banner-accent: #d5d6ff;
+
 	position: relative;
 	padding: 40px;
-	border-radius: 12px;
-	background-color: #003010;
-	overflow: hidden; // Clips the glow to the rounded corners.
-
-	// Decorative glow: a large blurred circle filled with a horizontal
-	// green-into-blue gradient, sitting right-of-center and spanning nearly
-	// the banner's full height (the banner's overflow clips the spill). The
-	// size, offsets, and opacity were eyeballed against the carousel mock —
-	// the heavy blur plus the opacity keep it a soft wash rather than a
-	// vivid disc. The gradient reads left-to-right regardless of writing
-	// direction, which is fine for a non-semantic smear.
-	&__glow {
-		position: absolute;
-		inset-block-start: -120px;
-		inset-inline-end: 150px;
-		inline-size: 300px;
-		block-size: 300px;
-		border-radius: 50%;
-		// The blue stop sits at 72%, not 100%: at 100% pure blue only exists on
-		// the circle's outer rim, where the blur and the disc edge wash it out.
-		// Ending early gives the blur a solid band of blue to spread.
-		background: linear-gradient(90deg, #48ff50 0%, #108642 47.18%, rgba(46, 56, 250) 72%);
-		filter: blur(40px);
-		opacity: 0.45;
-		pointer-events: none;
-	}
-
-	// Content sits above the glow.
-	&__intro,
-	&__carousel,
-	&__dismiss {
-		position: relative;
-	}
+	border-radius: 8px;
+	// Aurora backdrop matching the demo videos: a deep indigo base washed by
+	// a purple bloom in the top-left and a green one rising from the
+	// bottom-right, with a faint green tint up the trailing edge. The blooms
+	// anchor to corners, so they mirror correctly in RTL along with the
+	// content. Colors are sampled from the video frames.
+	background-color: #0b0d33;
+	background-image:
+		radial-gradient(90% 130% at 0% 0%, rgba(150, 70, 190, 0.45) 0%, transparent 60%),
+		radial-gradient(75% 110% at 100% 100%, rgba(100, 220, 110, 0.6) 0%, transparent 55%),
+		radial-gradient(50% 80% at 100% 0%, rgba(100, 220, 140, 0.2) 0%, transparent 50%);
+	overflow: hidden; // Clips the blooms to the rounded corners.
 
 	// All intro spacing comes from grid gaps, none from margins: 16px between
 	// the logo and the text block, 6px between title and description (two
@@ -53,17 +37,23 @@
 
 	&__logo {
 		display: block;
+
+		// The disc follows the accent property; var() doesn't work in SVG
+		// presentation attributes, so the fill lives here instead of on the
+		// path. The glyph cut-out keeps its inline base-indigo fill.
+		path {
+			fill: var(--jetpack-ai-banner-accent);
+		}
 	}
 
-	// The pale green is the mock's heading fill (a flat #daffdc plateau in the
-	// sampled pixels); the subtext is the pure-white one, not the other way
-	// around.
+	// The heading is pure white; the subtext takes the accent, not the other
+	// way around.
 	&__title {
 		margin: 0;
 		font-size: 22px;
 		font-weight: 500;
 		line-height: 28px;
-		color: #daffdc;
+		color: #fff;
 	}
 
 	&__description {
@@ -71,7 +61,7 @@
 		font-size: 13px;
 		font-weight: 400;
 		line-height: 18px;
-		color: #fff;
+		color: var(--jetpack-ai-banner-accent);
 	}
 
 	&__carousel {
@@ -123,9 +113,9 @@
 		display: flex;
 		gap: 16px;
 		margin: 0;
-		margin-inline-end: -34px;
+		margin-inline-end: -40px;
 		padding: 0;
-		padding-inline-end: 34px;
+		padding-inline-end: 40px;
 		list-style: none;
 		overflow-x: auto;
 		scroll-snap-type: x proximity;
@@ -153,10 +143,10 @@
 		scroll-snap-align: start;
 	}
 
-	// Decorative glyph above each card's text, matching the CTA's pale green
-	// so the cards scan as icon → text → action.
+	// Decorative glyph above each card's text, matching the CTA's accent so
+	// the cards scan as icon → text → action.
 	&__card-icon {
-		fill: #daffdc;
+		fill: var(--jetpack-ai-banner-accent);
 	}
 
 	&__card-text {
@@ -182,13 +172,12 @@
 		font-weight: 600;
 		line-height: 18px;
 		text-decoration: none;
-		// The bright green from the glow gradient and the logo disc.
-		color: #daffdc;
+		color: var(--jetpack-ai-banner-accent);
 
 		&:hover,
 		&:active,
 		&:focus {
-			color: #daffdc;
+			color: var(--jetpack-ai-banner-accent);
 		}
 
 		svg {
@@ -199,11 +188,13 @@
 	// The popup is sized by its 16:9 video: the modal's own frame provides the
 	// chrome, this just caps the width and shapes the iframe.
 	&__video-modal {
-		inline-size: min(720px, 90vw);
+		inline-size: min(960px, 90vw);
 	}
 
 	&__video-frame {
 		aspect-ratio: 16 / 9;
+		border-radius: 8px;
+    	overflow: hidden;
 
 		iframe {
 			display: block;
