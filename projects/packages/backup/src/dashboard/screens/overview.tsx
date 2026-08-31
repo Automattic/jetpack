@@ -14,6 +14,7 @@ import QueryError from '../components/query-error';
 import StorageSpace from '../components/storage-space';
 import {
 	ACTIVITY_LOG_DEFAULT_PER_PAGE,
+	ACTIVITY_LOG_NEWEST_FIRST,
 	useActivityById,
 	useDefaultBackupRewindId,
 	useHasRestorePoints,
@@ -48,7 +49,7 @@ export const INITIAL_VIEW: View = {
 	// disables the whole items-per-page group until `view.sort.field` is
 	// set, freezing the list at ten rows for any reader who never opens
 	// Order (JETPACK-2298).
-	sort: { field: 'description', direction: 'desc' },
+	sort: { field: 'description', direction: ACTIVITY_LOG_NEWEST_FIRST },
 	titleField: 'title',
 	mediaField: 'icon',
 	descriptionField: 'description',

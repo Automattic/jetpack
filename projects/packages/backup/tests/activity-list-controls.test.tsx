@@ -13,9 +13,10 @@
 //     so a reader who never opened Order was stuck at ten rows.
 //
 // The last one is the reason this file drives the real DataViews rather
-// than asserting on `INITIAL_VIEW` directly: `disabled={ ! view.sort
-// .field }` is dataviews' own wiring, and only a render proves the seed
-// reaches it.
+// than resting on `INITIAL_VIEW` alone: `disabled={ ! view.sort.field }`
+// is dataviews' own wiring, and only a render proves the seed reaches
+// it. The seed itself is still asserted directly where a rendered
+// control cannot distinguish it — see the first cog test.
 
 const mockApiFetch = jest.fn();
 
@@ -30,6 +31,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import ActivityList from '../src/dashboard/components/activity-list';
+import { ACTIVITY_LOG_NEWEST_FIRST } from '../src/dashboard/hooks/use-activity-log';
 import { INITIAL_VIEW } from '../src/dashboard/screens/overview';
 import type { View } from '@wordpress/dataviews';
 
@@ -136,12 +138,24 @@ describe( 'the filter affordance', () => {
 } );
 
 describe( 'the cog, before anyone touches it', () => {
+	// Two assertions because the rendered control cannot stand in for the
+	// seed: with `enableSorting: false` on the title field, "When" is the
+	// only option left, and a valueless native <select> reports its first
+	// option — so `sortBy.value` reads `description` even with
+	// `INITIAL_VIEW.sort` deleted. The symptom and the seed need pinning
+	// separately.
 	it( 'names the ordering the rows are actually in', async () => {
+		expect( INITIAL_VIEW.sort ).toEqual( {
+			field: 'description',
+			direction: ACTIVITY_LOG_NEWEST_FIRST,
+		} );
+
 		await renderAndOpenViewOptions();
 
 		const sortBy = screen.getByLabelText( 'Sort by' ) as HTMLSelectElement;
 		// `description` is the "When" column — the event timestamp, which is
-		// what WordPress.com orders on. The bug was this reading "Title".
+		// what WordPress.com orders on. The bug was this reading "Title",
+		// which is fixed by `enableSorting: false` rather than by the seed.
 		expect( sortBy.value ).toBe( 'description' );
 		expect( sortBy.selectedOptions[ 0 ] ).toHaveTextContent( 'When' );
 	} );
