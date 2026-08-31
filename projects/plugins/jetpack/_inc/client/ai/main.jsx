@@ -141,6 +141,7 @@ export default function App() {
 		planRenewsOn,
 		planAutoRenew,
 		isUserConnected,
+		showFeaturesView = false,
 	} = window?.jetpackAiSettings ?? {};
 	const [ view, setView ] = useState( getViewFromHash );
 	// Save feedback goes through the shared GlobalNotices snackbars (the
@@ -156,7 +157,7 @@ export default function App() {
 		settings: aiSettings,
 		error: aiSettingsError,
 		updateSettings: updateAiSettings,
-	} = useFeatureSettings();
+	} = useFeatureSettings( showFeaturesView );
 
 	// The hash is the single source of truth for the current view: popstate
 	// covers back/forward, hashchange covers direct hash edits and links.
