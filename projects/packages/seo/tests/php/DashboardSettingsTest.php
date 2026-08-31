@@ -74,8 +74,8 @@ class DashboardSettingsTest extends TestCase {
 	protected function tearDown(): void {
 		remove_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
 		remove_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
-		remove_action( 'added_option', array( Dashboard_Data::class, 'after_setting_write' ) );
-		remove_action( 'updated_option', array( Dashboard_Data::class, 'after_setting_write' ) );
+		remove_action( 'add_option_' . Dashboard_Data::FRONT_PAGE_META_OPTION, array( Dashboard_Data::class, 'after_setting_write' ) );
+		remove_action( 'update_option_' . Dashboard_Data::FRONT_PAGE_META_OPTION, array( Dashboard_Data::class, 'after_setting_write' ) );
 		remove_filter( 'register_setting_args', array( Dashboard_Data::class, 'force_setting_args' ), 10 );
 		remove_all_filters( 'jetpack_get_available_standalone_modules' );
 		remove_all_filters( 'jetpack_disable_seo_tools' );
@@ -542,10 +542,59 @@ class DashboardSettingsTest extends TestCase {
 
 		// And Atomic — WordPress.com, but not Simple — is not gated by it even without
 		// the entitlement. That's the case a wider copy of this rule got wrong.
+		//
+		// The site has to actually be Atomic for this to prove anything: merely clearing
+		// `IS_WPCOM` makes `is_wpcom_platform()` false too, so the assertion passes under
+		// the very bug it names. Verified by mutation — with `is_wpcom_simple()` widened
+		// to `is_wpcom_platform()`, this block fails and the one above still passes.
 		Constants::clear_single_constant( 'IS_WPCOM' );
+		Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 1 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', 'wpcomsh/wpcomsh.php' );
+		\Automattic\Jetpack\Status\Cache::clear();
+		$this->assertTrue( ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform(), 'The site must read as Atomic for this assertion to mean anything.' );
+
 		\Wpcom_Test_Features::$entitled = array();
 		self::reset_active_plan_cache();
 		$this->assertTrue( $enabled() );
+
+		Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
+		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+		Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
+		\Automattic\Jetpack\Status\Cache::clear();
+	}
+
+	/**
+	 * The front page description the Settings field shows, on a site that doesn't load
+	 * `Jetpack_SEO_Utils` — WordPress.com Simple. Reading it through `class_exists()`
+	 * returned `''` for every Simple site, so the field rendered blank over a live
+	 * description. Reached directly, because the suite always loads a stand-in helper.
+	 */
+	public function test_front_page_description_without_the_plugin_helper() {
+		$description = function () {
+			$method = new \ReflectionMethod( Dashboard_Data::class, 'get_front_page_meta_description_without_helper' );
+			// Required to invoke a private method on PHP < 8.1 (a no-op from 8.1 on).
+			if ( PHP_VERSION_ID < 80100 ) {
+				$method->setAccessible( true );
+			}
+			return $method->invoke( null );
+		};
+
+		// SEO on: the modern option wins, and falls back to the legacy one.
+		update_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, 'Legacy description.' );
+		$this->assertSame( 'Legacy description.', $description() );
+
+		update_option( Dashboard_Data::FRONT_PAGE_META_OPTION, 'Modern description.' );
+		$this->assertSame( 'Modern description.', $description() );
+
+		// SEO off for this site: the legacy option is what the front end reads, so it is
+		// what the field has to show — even with a modern value stored. (Re-set here
+		// because writing the modern option above correctly deletes the superseded
+		// legacy one, which is what `after_setting_write()` is for.)
+		update_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, 'Legacy description.' );
+		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+		$this->assertSame( 'Legacy description.', $description() );
+		remove_all_filters( 'jetpack_disable_seo_tools' );
 	}
 
 	/**
@@ -593,6 +642,155 @@ class DashboardSettingsTest extends TestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertTrue( get_option( Initializer::SITEMAP_ENABLED_OPTION ) );
 		$this->assertEmpty( \Jetpack_Options::get_option( 'active_modules' ) );
+	}
+
+	/**
+	 * ...and can be turned back off there, which is the half that didn't work.
+	 *
+	 * With no row yet stored, `update_option( $option, false )` matched the `false` a
+	 * missing option reads back as, so WordPress short-circuited and wrote nothing —
+	 * while the route's read-back still agreed and reported success. The dashboard then
+	 * re-read, found no row, and fell back to asking the module, which reports active
+	 * unconditionally on WordPress.com. The toggle snapped straight back on.
+	 *
+	 * WordPress.com Simple is always in that state: the durable options are seeded by a
+	 * Jetpack-plugin upgrade hook that never runs there, and the toggle starts on — so
+	 * "off" was the only move available and the only one that silently failed.
+	 */
+	public function test_sitemap_setting_saves_off_without_a_module_to_switch() {
+		// The shape WordPress.com Simple is always in: the module reports active, but
+		// isn't present to switch, and no durable option has been stored yet. (`is_active()`
+		// returns true unconditionally under the real `IS_WPCOM` constant, which a test
+		// can't define; forcing the same answer through the filter it applies last
+		// reproduces the condition without it.)
+		add_filter( 'jetpack_active_modules', array( $this, 'force_sitemaps_and_canonical_active' ) );
+		$this->act_as( 'administrator' );
+
+		// The precondition that makes the bug reachable: with nothing stored, the
+		// dashboard reports the sitemap on, from the module state alone.
+		$this->assertTrue( Dashboard_Data::get_settings_data()['sitemap_active'] );
+
+		$response = $this->update_modules( array( 'sitemap_active' => false ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertFalse( Dashboard_Data::get_settings_data()['sitemap_active'] );
+
+		remove_filter( 'jetpack_active_modules', array( $this, 'force_sitemaps_and_canonical_active' ) );
+	}
+
+	/**
+	 * The same for canonical URLs, which shares the code path.
+	 */
+	public function test_canonical_setting_saves_off_without_a_module_to_switch() {
+		add_filter( 'jetpack_active_modules', array( $this, 'force_sitemaps_and_canonical_active' ) );
+		$this->act_as( 'administrator' );
+
+		$this->assertTrue( Dashboard_Data::get_settings_data()['canonical_active'] );
+
+		$response = $this->update_modules( array( 'canonical_active' => false ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertFalse( Dashboard_Data::get_settings_data()['canonical_active'] );
+
+		remove_filter( 'jetpack_active_modules', array( $this, 'force_sitemaps_and_canonical_active' ) );
+	}
+
+	/**
+	 * Report both module-backed settings as active regardless of what's stored or
+	 * available, the way WordPress.com does.
+	 *
+	 * @return string[]
+	 */
+	public function force_sitemaps_and_canonical_active() {
+		return array( 'sitemaps', 'canonical-urls' );
+	}
+
+	/**
+	 * Add wpcomsh's private-site module suppression callback.
+	 */
+	private function suppress_modules_for_private_site() {
+		if ( ! function_exists( '\Private_Site\filter_jetpack_active_modules' ) ) {
+			require_once __DIR__ . '/files/wpcomsh-private-site-filter.php';
+		}
+
+		add_filter( 'jetpack_active_modules', '\Private_Site\filter_jetpack_active_modules' );
+	}
+
+	/**
+	 * A private or coming-soon Atomic site can still switch the sitemap on.
+	 *
+	 * Wpcomsh strips `sitemaps` and `verification-tools` from `jetpack_active_modules`
+	 * on those sites, so verifying the switch through `Modules::is_active()` reported
+	 * failure for a module that had switched correctly: the route answered 500 on a save
+	 * that worked, and skipped the durable option. The Jetpack plugin works around the
+	 * same filter in `Jetpack::is_module_active_for_seo_option()`.
+	 */
+	public function test_sitemap_setting_saves_on_a_private_site() {
+		$this->make_modules_available( array( 'sitemaps' ) );
+		$this->suppress_modules_for_private_site();
+		$this->act_as( 'administrator' );
+
+		$response = $this->update_modules( array( 'sitemap_active' => true ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertTrue( get_option( Initializer::SITEMAP_ENABLED_OPTION ) );
+		// The module really is switched on in the site's own list; only the filtered
+		// report hides it.
+		$this->assertContains( 'sitemaps', (array) \Jetpack_Options::get_option( 'active_modules' ) );
+
+		remove_filter( 'jetpack_active_modules', '\Private_Site\filter_jetpack_active_modules' );
+	}
+
+	/**
+	 * ...while a module that genuinely won't switch is still an error. Only wpcomsh's
+	 * own callback is lifted, so every other filter still counts.
+	 */
+	public function test_module_that_will_not_switch_still_errors_alongside_the_private_site_filter() {
+		$this->make_modules_available( array( 'sitemaps' ) );
+		$this->suppress_modules_for_private_site();
+		add_filter( 'jetpack_active_modules', array( $this, 'hold_sitemaps_inactive' ) );
+		$this->act_as( 'administrator' );
+
+		$response = $this->update_modules( array( 'sitemap_active' => true ) );
+
+		$this->assertSame( 500, $response->get_status() );
+		$this->assertSame( 'jetpack_seo_module_toggle_failed', $response->get_data()['code'] );
+
+		remove_filter( 'jetpack_active_modules', array( $this, 'hold_sitemaps_inactive' ) );
+		remove_filter( 'jetpack_active_modules', '\Private_Site\filter_jetpack_active_modules' );
+	}
+
+	/**
+	 * Hold the sitemaps module inactive whatever the stored state says.
+	 *
+	 * @param array $modules Active module slugs.
+	 * @return array
+	 */
+	public function hold_sitemaps_inactive( $modules ) {
+		return array_values( array_diff( (array) $modules, array( 'sitemaps' ) ) );
+	}
+
+	/**
+	 * The legacy front-page description is only dropped once the modern one is live.
+	 *
+	 * On a site where Jetpack's SEO output is off, the legacy option is still what the
+	 * front end reads, so deleting it would take down a live description. The guard on
+	 * that delete had no test: removing it left every assertion green.
+	 */
+	public function test_legacy_front_page_description_survives_while_seo_is_disabled() {
+		$this->act_as( 'administrator' );
+		update_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, 'Legacy description.' );
+		\Jetpack_SEO_Utils::$enabled = false;
+
+		update_option( Dashboard_Data::FRONT_PAGE_META_OPTION, 'Modern description.' );
+
+		$this->assertSame( 'Legacy description.', get_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION ) );
+
+		// And once SEO output is live, the superseded legacy value does go.
+		\Jetpack_SEO_Utils::$enabled = true;
+		update_option( Dashboard_Data::FRONT_PAGE_META_OPTION, 'Newer description.' );
+
+		$this->assertFalse( get_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, false ) );
 	}
 
 	/**
@@ -802,8 +1000,10 @@ class DashboardSettingsTest extends TestCase {
 
 	/**
 	 * A value that is neither a bare code nor a parsable tag isn't a verification code
-	 * at all, so it clears the field rather than being stored as junk — matching what
-	 * `jetpack_verification_validate()` does on sites that load it.
+	 * at all, so it is refused and whatever was already stored is kept. The old
+	 * `/jetpack/v4/settings` route rejected the same input with a 400 and left the
+	 * saved code alone; overwriting a working code with an empty string because of a
+	 * bad paste is the worse of the two failures.
 	 */
 	public function test_verification_codes_reject_unparsable_values() {
 		$this->act_as( 'administrator' );
@@ -820,8 +1020,27 @@ class DashboardSettingsTest extends TestCase {
 
 		$stored = get_option( Dashboard_Data::VERIFICATION_CODES_OPTION );
 
-		$this->assertSame( '', $stored['bing'] );
-		$this->assertSame( '', $stored['yandex'] );
+		// Kept, not wiped.
+		$this->assertSame( 'bing-code', $stored['bing'] );
+		// Nothing was stored for a service that had no code to begin with.
+		$this->assertArrayNotHasKey( 'yandex', $stored );
+	}
+
+	/**
+	 * An empty string is a deliberate clear, not a failed parse, so it still empties
+	 * the field.
+	 */
+	public function test_verification_codes_can_still_be_cleared() {
+		$this->act_as( 'administrator' );
+		update_option( Dashboard_Data::VERIFICATION_CODES_OPTION, array( 'bing' => 'bing-code' ) );
+
+		$this->save_settings(
+			array(
+				Dashboard_Data::VERIFICATION_CODES_OPTION => array( 'bing' => '' ),
+			)
+		);
+
+		$this->assertSame( '', get_option( Dashboard_Data::VERIFICATION_CODES_OPTION )['bing'] );
 	}
 
 	/**

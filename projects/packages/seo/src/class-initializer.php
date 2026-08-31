@@ -246,7 +246,7 @@ class Initializer {
 			// plugin can add from anywhere up to the end of `init`. Priority 5 is after all
 			// of those and before core builds the settings route at 99.
 			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
-			// Package-owned route for the module toggle that has no option behind it.
+			// Package-owned route for the three settings whose write switches a Jetpack module.
 			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
 			// Package-owned route for the site-level Schema settings (see the controller).
 			add_action( 'rest_api_init', array( Schema_Settings_Controller::class, 'register_routes' ) );

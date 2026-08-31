@@ -173,10 +173,10 @@ export function useSettingsForm(): SettingsForm {
 				isDismissible: false,
 			} );
 
-			// Sequential, not parallel: both endpoints can end up mutating Jetpack's
-			// shared `active_modules` option (the settings write reconciles the sitemap
-			// and canonical modules), and two overlapping read-modify-writes of it would
-			// let the later one drop the earlier one's change.
+			// Sequential, not parallel: the module writes switch Jetpack modules and can
+			// be refused, and the re-read below has to see a settled server state to
+			// reconcile against. Overlapping the two would race that read, and a failure
+			// in one would leave the client unable to say what the other had landed.
 			Promise.resolve()
 				.then( () =>
 					Object.keys( corePayload ).length > 0
