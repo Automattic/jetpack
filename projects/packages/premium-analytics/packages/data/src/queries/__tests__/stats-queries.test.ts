@@ -586,9 +586,8 @@ describe( 'Stats query factories', () => {
 		] );
 	} );
 
-	// `stats/tags` is the one stats endpoint that rewrites `max < 1` back to its
-	// default of 10, so a `0` is left off the request rather than sent as a value
-	// the server would silently change.
+	// The endpoint rewrites `max < 1` back to its default of 10 rather than reading
+	// it as "all rows", so a `0` must not reach it.
 	it( 'leaves a non-positive tags max off the request', () => {
 		expect( statsTagsQuery( { max: 0 } ).queryKey ).toEqual( [
 			'stats',
@@ -618,10 +617,8 @@ describe( 'Stats query factories', () => {
 		] );
 	} );
 
-	// WPCOM declares `max` as the endpoint's only query parameter and strips the
-	// rest before the handler runs, so a date would change the cache key without
-	// changing a single row. `StatsTagsParams` already rejects one; spreading a
-	// wider object past that check is how this covers the untyped caller.
+	// A date would change the cache key without changing a row. `StatsTagsParams`
+	// already rejects one, so this spreads past the type to cover untyped callers.
 	it( 'never sends a date on the tags query, whatever the selected period', () => {
 		const tagsQueryKey = ( period: Record< string, unknown > ) =>
 			statsTagsQuery( { max: 10, ...period } ).queryKey;

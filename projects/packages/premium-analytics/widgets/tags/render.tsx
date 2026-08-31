@@ -168,11 +168,10 @@ function TagsInner() {
 							data={ leaderboardData }
 							withOverlayLabel
 							showLegend={ false }
-							// Exact counts rather than the leaderboards' usual compact form:
-							// this widget is read side by side with the same module in
-							// Jetpack Stats, where a tag with 1,240 views reads "1,240".
-							// Compacting to whole thousands would show it as "1K" and read
-							// as a data mismatch rather than as rounding.
+							// Exact counts, not the leaderboards' usual compact form: this
+							// widget is read beside the same module in Jetpack Stats, where
+							// 1,240 views reads "1,240". Compacted to "1K" it looks like a
+							// data mismatch rather than like rounding.
 							dataFormat={ {
 								type: 'number',
 								options: { useMultipliers: false, decimals: 0 },

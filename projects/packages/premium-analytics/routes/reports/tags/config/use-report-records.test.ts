@@ -52,9 +52,6 @@ describe( 'useTagsReportRecords', () => {
 		jest.clearAllMocks();
 	} );
 
-	// `max` is the endpoint's only query parameter and anything below 1 is floored
-	// back to its default of 10, so the report has to name a number to list more
-	// rows than the widget does.
 	it( 'requests more rows than the endpoint would return by default', () => {
 		renderHook( () => useTagsReportRecords() );
 

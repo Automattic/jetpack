@@ -104,9 +104,9 @@ describe( 'SelectField', () => {
 		const control = sizeControl( { data: { size: 10 }, onChange } );
 
 		// `hidden: true` because in jsdom, with no layout to position the popup
-		// against, the mounted options stay hidden even once opened. The options
-		// mount a tick after the click, so this has to wait for them rather than
-		// query once — a synchronous read passes alone and fails under load.
+		// against, the mounted options stay hidden even once opened. They also mount
+		// a tick after the click, so a synchronous read passes alone but fails under
+		// load — wait for them.
 		await userEvent.click( control );
 		await userEvent.click( await screen.findByRole( 'option', { name: 'Twenty', hidden: true } ) );
 

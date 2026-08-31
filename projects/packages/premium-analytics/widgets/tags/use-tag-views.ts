@@ -84,11 +84,9 @@ interface TagViewsState {
  * Fetch the most visited tags and categories for the Tags & categories widget
  * via the shared Stats data layer.
  *
- * Delegates fetching, caching, and normalization to `useStatsTags` from
- * `@jetpack-premium-analytics/data`, then maps the normalized rows onto the
- * leaderboard shape and trims to `max`. The `stats/tags` endpoint reports the
- * seven days ending yesterday, with no comparison and no date parameters, so
- * rows carry current-period views only and the report params never reach it.
+ * Delegates to `useStatsTags`, then maps the normalized rows onto the leaderboard
+ * shape and trims to `max`. Single period, no comparison: `stats/tags` takes no
+ * date parameters, so the dashboard's date filter never reaches this widget.
  */
 export default function useTagViews( { max }: UseTagViewsArgs ): TagViewsState {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsTags( { max } );
