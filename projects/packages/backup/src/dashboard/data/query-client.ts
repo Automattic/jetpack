@@ -77,4 +77,9 @@ export const keys = {
 	// The site's recent restores, not one restore's status: read to
 	// recover an id WordPress.com accepted but did not return.
 	recentRestores: () => [ 'backup', 'recent-restores' ] as const,
+	// Whether one review prompt has been dismissed. Keyed on the reason
+	// because the two prompts are dismissed independently — declining to
+	// review after a restore must not also spend the backups prompt — and
+	// the server stores them under separate options for the same reason.
+	reviewDismissal: ( reason: string ) => [ 'backup', 'review-dismissal', reason ] as const,
 };

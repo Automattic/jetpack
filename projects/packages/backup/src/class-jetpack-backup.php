@@ -384,6 +384,13 @@ class Jetpack_Backup {
 					'option_name'    => array(
 						'required' => true,
 						'type'     => 'string',
+						// The two names `Jetpack_Options` recognises. Anything else
+						// falls through its allowlist to a `trigger_error()` and is
+						// stored nowhere, so an unlisted reason would dismiss
+						// nothing while answering as though it had — and on a site
+						// with `display_errors` on, the warning is printed ahead of
+						// the JSON and the response no longer parses.
+						'enum'     => array( 'restore', 'backups' ),
 					),
 					'should_dismiss' => array(
 						'required' => true,

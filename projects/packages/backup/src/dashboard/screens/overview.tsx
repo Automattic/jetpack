@@ -11,6 +11,7 @@ import BackupStatusBanner, { BackupTroubleBanner } from '../components/backup-st
 import DashboardLayout from '../components/dashboard-layout';
 import NextScheduledBackup from '../components/next-scheduled-backup';
 import QueryError from '../components/query-error';
+import ReviewRequest from '../components/review-request';
 import StorageSpace from '../components/storage-space';
 import {
 	ACTIVITY_LOG_DEFAULT_PER_PAGE,
@@ -259,6 +260,13 @@ export default function OverviewScreen() {
 			 * pair of requests and no layout.
 			 */ }
 			<StorageSpace />
+			{ /*
+			 * Only on this path, never beside the takeover panel: the restore
+			 * trigger can still fire on a site whose backups have since broken, and
+			 * that reader is the wrong one to ask. Below the storage section, which
+			 * a reader whose storage is full needs to read first.
+			 */ }
+			<ReviewRequest />
 			<div className="jpb-overview">
 				<ActivityList
 					selectedId={ selectedId }
