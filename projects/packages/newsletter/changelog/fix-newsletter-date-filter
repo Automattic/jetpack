@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent unsupported date filtering on the Subscribers page.
