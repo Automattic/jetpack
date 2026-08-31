@@ -317,10 +317,9 @@ class Jetpack_AI_Sidebar {
 	 * UI feature flag for Draft Assist: turning an empty new post or page into a first draft.
 	 *
 	 * Exposed only in internal testing environments while the feature is in development.
-	 * Governs both halves of the feature: the editor entry point (the /draft placeholder
-	 * offered on an empty post) and the client-side ability that writes the generated
-	 * draft into the open post. No plan gate: the draft is written into a post the user
-	 * can already edit.
+	 * Governs both halves of the feature: the sidebar suggestion offered on an empty post
+	 * and the client-side ability that writes the generated draft into the open post.
+	 * No plan gate: the draft is written into a post the user can already edit.
 	 *
 	 * @return bool
 	 */
