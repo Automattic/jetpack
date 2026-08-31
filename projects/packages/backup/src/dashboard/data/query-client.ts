@@ -4,26 +4,40 @@ import type { ActivitySortOrder } from './api/activity-log';
 const STALE_TIME_DEFAULT_MS = 30_000;
 const GC_TIME_DEFAULT_MS = 5 * 60_000;
 
+const CLIENT_KEY = '__jetpackBackupQueryClient' as const;
+
+declare global {
+	interface Window {
+		[ CLIENT_KEY ]?: QueryClient;
+	}
+}
+
 /**
- * Module-scope QueryClient for the modernized Backup dashboard.
+ * The one QueryClient every route of the modernized Backup dashboard renders against.
  *
- * Each wp-build route is its own JS bundle and ends up with its own
- * copy of this module, so the cache is per-route — it does NOT survive
- * Overview ↔ Restore ↔ Download navigation. The screens don't depend on
- * cross-route cache reuse today (each derives its rewindId from the
- * URL), so this is fine; revisit if a future screen needs to read cache
- * a sibling route populated.
+ * Parked on `window` because each wp-build route bundles its own copy of this module: a
+ * module-scope client gave every Overview ↔ Restore ↔ Download hop a cold cache.
+ *
+ * @return The shared client, created on first use.
  */
-export const queryClient = new QueryClient( {
-	defaultOptions: {
-		queries: {
-			staleTime: STALE_TIME_DEFAULT_MS,
-			gcTime: GC_TIME_DEFAULT_MS,
-			retry: 1,
-			refetchOnWindowFocus: false,
-		},
-	},
-} );
+function sharedClient(): QueryClient {
+	if ( ! window[ CLIENT_KEY ] ) {
+		window[ CLIENT_KEY ] = new QueryClient( {
+			defaultOptions: {
+				queries: {
+					staleTime: STALE_TIME_DEFAULT_MS,
+					gcTime: GC_TIME_DEFAULT_MS,
+					retry: 1,
+					refetchOnWindowFocus: false,
+				},
+			},
+		} );
+	}
+
+	return window[ CLIENT_KEY ];
+}
+
+export const queryClient = sharedClient();
 
 /**
  * Stable cache keys for each query the dashboard issues.
