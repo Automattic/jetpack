@@ -221,20 +221,32 @@ function wpcom_admin_screen_is_countable( $screen ) {
 /**
  * Whether wpcom_admin_page_view had any chance to run on this screen.
  *
- * Some screens never fire admin_footer, which the client event hangs off: media-upload.php renders
- * through wp_iframe(), press-this.php renders standalone, and the Customizer has its own footer
- * hook, which wpcom_maybe_track_customizer() answers only for a request that is neither a Calypso
- * frame nor a link in from the frontend. Counting a screen the client event cannot reach would
- * depress the ratio instead of measuring it.
+ * Some screens never fire admin_footer, which the client event hangs off: media-upload.php goes
+ * through wp_iframe(), async-upload.php and press-this.php render their own output and exit, the
+ * dashboard index-*stuff fragments answer background requests, and the Customizer has its own
+ * footer hook, which wpcom_maybe_track_customizer() answers only for a request that is neither a
+ * Calypso frame nor a link in from the frontend. Excluding these by route rather than by response
+ * headers matters because an error on one of them is re-sent as HTML by wp_die(). Counting a
+ * screen the client event cannot reach would depress the ratio instead of measuring it.
  *
  * @param string $screen_id The resolved screen id.
  * @param array  $query     Query parameters, as in $_GET.
  * @return bool
  */
 function wpcom_admin_screen_has_client_counterpart( $screen_id, array $query ) {
+	// admin.php skips admin-header.php for a noheader request, so nothing reaches admin_footer
+	// either. The importers poll in this shape.
+	if ( isset( $query['noheader'] ) ) {
+		return false;
+	}
+
 	// Not IFRAME_REQUEST: update.php and the install screens define that too, and do reach
 	// admin_footer through iframe_footer().
-	if ( in_array( $screen_id, array( 'media-upload', 'press-this' ), true ) ) {
+	if ( in_array(
+		$screen_id,
+		array( 'media-upload', 'async-upload', 'press-this', 'index-hotstuff', 'index-yourstuff' ),
+		true
+	) ) {
 		return false;
 	}
 
@@ -311,6 +323,14 @@ function wpcom_admin_screen_record() {
 	// tracks_record_event() before require_lib() has had a chance to define it, and so drops
 	// events whenever nothing else loaded the lib first.
 	require_lib( 'tracks/client' );
+
+	// tracks_record_event() falls back to a blocking one-second pixel request when the async spool
+	// or its daemon is missing, which is the same per-page-view cost that keeps this event off
+	// Atomic. Drop the event rather than let a Tracks outage slow every admin screen.
+	// @phan-suppress-next-line PhanUndeclaredClassMethod -- WPCOM_Tracks_Client is wpcom-only and not yet carried in .phan/stubs/wpcom-stubs.php.
+	if ( ! class_exists( 'WPCOM_Tracks_Client' ) || ! \WPCOM_Tracks_Client::can_do_async() ) {
+		return;
+	}
 
 	// Property names and value shapes are copied from wpcom_admin_page_view so that the two
 	// events join per screen without a translation step in the query.

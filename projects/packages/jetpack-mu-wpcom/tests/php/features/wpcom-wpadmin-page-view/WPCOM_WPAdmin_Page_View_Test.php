@@ -108,6 +108,9 @@ class WPCOM_WPAdmin_Page_View_Test extends TestCase {
 			'ordinary screen'        => array( 'edit', array(), true ),
 			'media upload iframe'    => array( 'media-upload', array(), false ),
 			'press this'             => array( 'press-this', array(), false ),
+			'async upload'           => array( 'async-upload', array(), false ),
+			'dashboard fragment'     => array( 'index-hotstuff', array(), false ),
+			'noheader poll'          => array( 'import', array( 'noheader' => 'true' ), false ),
 			'customizer'             => array( 'customize', array(), true ),
 			'customizer in calypso'  => array( 'customize', array( 'calypso' => '1' ), false ),
 			'customizer from a link' => array( 'customize', array( 'url' => 'https://example.com' ), false ),
@@ -134,8 +137,9 @@ class WPCOM_WPAdmin_Page_View_Test extends TestCase {
 	 * wp_redirect(), while matching the header name anywhere in the string would treat
 	 * X-Content-Location as a redirect and drop real screens out of the denominator.
 	 *
-	 * The download and fragment cases each isolate one guard: export.php sends an attachment as
-	 * text/html would otherwise be accepted, and async-upload.php sends text/plain.
+	 * The download and fragment cases each isolate one guard: export.php sends an attachment that
+	 * would otherwise be accepted as text/html, and a non-HTML body is not a screen. Routes known
+	 * to render no footer are excluded before this runs, so these cover unpredictable responses.
 	 *
 	 * @return array
 	 */
