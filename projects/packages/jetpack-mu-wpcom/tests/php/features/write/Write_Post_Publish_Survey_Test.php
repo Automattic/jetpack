@@ -397,6 +397,41 @@ class Write_Post_Publish_Survey_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A stored response closes the gate even if the shown-ping never landed.
+	 * That ping is fire-and-forget, so it is not the authoritative record.
+	 */
+	public function test_survey_hidden_after_a_response_was_stored() {
+		$this->make_survey_eligible();
+		update_user_meta( $this->admin_id, WPCOM_WRITE_SURVEY_SUBMITTED_META, time() );
+
+		$this->assertFalse( wpcom_write_should_show_post_publish_survey() );
+	}
+
+	/**
+	 * A replayed submission is refused before it reaches the store. Nonces are
+	 * valid for their full lifetime and are not single-use, so the once-per-user
+	 * rule has to bind on the write path, not only on the render path.
+	 *
+	 * The 409-vs-500 distinction is the assertion: 500 is the store being
+	 * unavailable under test, which proves the request got that far, while 409
+	 * proves it short-circuited first.
+	 */
+	public function test_submission_is_refused_once_a_response_is_stored() {
+		$this->make_survey_eligible();
+		$this->set_valid_nonce();
+		$_POST['answer'] = 'easier';
+
+		$first = $this->capture_ajax_json( 'wpcom_write_ajax_submit_survey' );
+		$this->assertSame( 'store_failed', $first['data']['reason'] );
+
+		update_user_meta( $this->admin_id, WPCOM_WRITE_SURVEY_SUBMITTED_META, time() );
+
+		$second = $this->capture_ajax_json( 'wpcom_write_ajax_submit_survey' );
+		$this->assertFalse( $second['success'] );
+		$this->assertSame( 'already_submitted', $second['data']['reason'] );
+	}
+
+	/**
 	 * Invoke an ajax handler and return its JSON envelope as an array.
 	 *
 	 * WordPress's wp_send_json_* echoes the response then calls wp_die(); force the

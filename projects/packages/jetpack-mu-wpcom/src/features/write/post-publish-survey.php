@@ -38,6 +38,15 @@ const WPCOM_WRITE_SURVEY_ID = 'write-first-publish';
 const WPCOM_WRITE_SURVEY_SHOWN_META = '_wpcom_write_first_publish_survey_shown';
 
 /**
+ * User meta recording that a response has been stored.
+ *
+ * The authoritative record of "asked and answered". The shown meta above is a
+ * best-effort ping that can be lost to a dropped request, which would otherwise
+ * let the same writer be surveyed — and stored — twice.
+ */
+const WPCOM_WRITE_SURVEY_SUBMITTED_META = '_wpcom_write_first_publish_survey_submitted';
+
+/**
  * Nonce action guarding the survey submission.
  */
 const WPCOM_WRITE_SURVEY_NONCE = 'wpcom_write_survey';
@@ -96,7 +105,15 @@ function wpcom_write_should_show_post_publish_survey() {
 		return false;
 	}
 
-	if ( get_user_meta( get_current_user_id(), WPCOM_WRITE_SURVEY_SHOWN_META, true ) ) {
+	$user_id = get_current_user_id();
+
+	if ( get_user_meta( $user_id, WPCOM_WRITE_SURVEY_SHOWN_META, true ) ) {
+		return false;
+	}
+
+	// Also honoured here, so a lost shown-ping doesn't re-offer a card whose
+	// submission would then be rejected with nothing to show for it.
+	if ( get_user_meta( $user_id, WPCOM_WRITE_SURVEY_SUBMITTED_META, true ) ) {
 		return false;
 	}
 
@@ -399,11 +416,19 @@ function wpcom_write_ajax_submit_survey() {
 	$response_id = isset( $_POST['response_id'] ) ? sanitize_text_field( wp_unslash( $_POST['response_id'] ) ) : '';
 	$source      = isset( $_POST['source'] ) ? sanitize_key( wp_unslash( $_POST['source'] ) ) : '';
 
+	// Once per user is enforced here, not only on the render path: nonces replay
+	// for their full lifetime, and a lost shown-ping can re-offer the card.
+	if ( get_user_meta( get_current_user_id(), WPCOM_WRITE_SURVEY_SUBMITTED_META, true ) ) {
+		wp_send_json_error( array( 'reason' => 'already_submitted' ), 409, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+	}
+
 	$responses = wpcom_write_build_survey_response( $answer, $comment, $response_id, $source, $is_write_first );
 
 	if ( ! wpcom_write_store_survey_response( $responses ) ) {
 		wp_send_json_error( array( 'reason' => 'store_failed' ), 500, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
 	}
+
+	update_user_meta( get_current_user_id(), WPCOM_WRITE_SURVEY_SUBMITTED_META, time() );
 
 	wp_send_json_success( null, 200, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
 }
