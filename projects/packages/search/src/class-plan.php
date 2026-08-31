@@ -38,6 +38,19 @@ class Plan {
 	protected static $update_plan_hook_initialized = false;
 
 	/**
+	 * WPCOM blog IDs for which a live plan check has already been attempted
+	 * this request. Lets ensure_plan_info_populated() avoid stacking a second
+	 * attempt behind one that just ran moments earlier in the same request
+	 * (e.g. activate_plan()'s own fallback fetch, immediately followed by
+	 * Module_Control::activate()). Keyed by blog ID rather than a bare flag
+	 * so a fetch for one site doesn't suppress one for another in the same
+	 * process (e.g. switch_to_blog() loops).
+	 *
+	 * @var array<int|string, true>
+	 */
+	protected static $fetch_attempted_this_request = array();
+
+	/**
 	 * Init hooks for updating plan info
 	 */
 	public function init_hooks() {
@@ -53,7 +66,8 @@ class Plan {
 	 * Refresh plan info stored in options
 	 */
 	public function get_plan_info_from_wpcom() {
-		$blog_id  = Jetpack_Options::get_option( 'id' );
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		self::$fetch_attempted_this_request[ (string) $blog_id ] = true;
 		$response = Client::wpcom_json_api_request_as_blog(
 			'/sites/' . $blog_id . '/jetpack-search/plan',
 			'2',
@@ -91,6 +105,19 @@ class Plan {
 	 */
 	public function has_jetpack_search_product() {
 		return (bool) get_option( 'has_jetpack_search_product' );
+	}
+
+	/**
+	 * Force a single live WPCOM check, bypassing the backoff, if the plan info cache is empty.
+	 */
+	public function ensure_plan_info_populated() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		if ( ! empty( self::$fetch_attempted_this_request[ (string) $blog_id ] ) ) {
+			return;
+		}
+		if ( false === get_option( self::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY ) ) {
+			$this->get_plan_info( true );
+		}
 	}
 
 	/**
