@@ -592,9 +592,13 @@ describe( 'Stats query factories', () => {
 		} as StatsReportParams );
 
 		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
+		// `summarize` and `period` are derived from `days` before it is dropped, so
+		// they belong here: moving the omission any earlier would silently lose them.
 		expect( query.queryKey[ 5 ] ).toMatchObject( {
 			start_date: '2026-06-01',
 			date: '2026-06-07',
+			period: 'day',
+			summarize: 1,
 		} );
 	} );
 
@@ -718,11 +722,15 @@ describe( 'Stats query factories', () => {
 			interval: 'week',
 		} );
 
-		// A leaked `period=week` would make the endpoint count the range in weeks
-		// and stop returning one row per post.
+		// A leaked `period=week` would make the endpoint recount the window in weeks
+		// instead of the requested days.
 		expect( query.queryKey ).toEqual(
 			expect.arrayContaining( [
-				expect.objectContaining( { period: 'day', start_date: '2026-01-01' } ),
+				expect.objectContaining( {
+					period: 'day',
+					start_date: '2026-01-01',
+					date: '2026-06-07',
+				} ),
 			] )
 		);
 	} );

@@ -1,4 +1,3 @@
 Significance: patch
 Type: changed
-
-Stats: stop sending the unsupported `days` parameter on list-endpoint requests.
+Comment: Drop a parameter the list endpoints discard. The request changes; the response, and so everything a reader sees, does not.

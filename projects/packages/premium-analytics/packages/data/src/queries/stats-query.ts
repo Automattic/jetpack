@@ -58,9 +58,8 @@ type StatsSanitizer< TData = unknown > = ( response: unknown, params?: StatsQuer
 type StatsReportQuerySettings = {
 	/**
 	 * Query params derived from the shared report range that this endpoint does not accept.
-	 * WPCOM intersects the query string with the endpoint's declared parameters, so an
-	 * undeclared one is dropped before the handler runs — omitting it here only keeps the
-	 * request URL and the proxy cache key honest.
+	 * WPCOM drops params an endpoint does not declare, so this changes nothing server-side —
+	 * it only keeps the request URL and the proxy cache key honest.
 	 */
 	omitParams?: readonly ( keyof StatsQueryParamFields )[];
 };
@@ -186,9 +185,8 @@ export function statsReportQuery< TSanitizer extends StatsSanitizerKey >(
 	const statsParams = reportParamsToStatsQueryParams( params );
 	const reportParams = {
 		...statsParams,
-		// The summarized window is `period` × `days`, so the dashboard's chart
-		// interval must not leak in as the period — `period=week` with `days=189`
-		// would cover 189 weeks.
+		// A leaked chart interval would make the endpoint recount the window in
+		// weeks or months instead of the requested days.
 		...( params.period === undefined ? { period: 'day' as const } : {} ),
 		...extraParams,
 		...( statsParams.summarize === undefined &&
@@ -199,6 +197,8 @@ export function statsReportQuery< TSanitizer extends StatsSanitizerKey >(
 	};
 	const queryParams: StatsQueryParams = { ...reportParams };
 
+	// Runs after `summarize` is derived above: that derivation reads `days`, which
+	// the list endpoints omit.
 	for ( const param of settings?.omitParams ?? [] ) {
 		delete queryParams[ param ];
 	}
