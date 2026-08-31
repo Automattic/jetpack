@@ -37,6 +37,16 @@ const sitemapBlockedHelp = __(
 	'Allow search engines to index this site to generate a sitemap.',
 	'jetpack-seo'
 );
+const indexingHelp = __(
+	'Turning this off asks search engines to stop indexing your site — Google and Bing honor it, others ignore it. Same setting as Settings → Reading.',
+	'jetpack-seo'
+);
+// Shown when the site is unpublished: on WordPress.com a private or coming-soon
+// site isn't hidden from search by a setting, so no SEO toggle can reveal it.
+const indexingPrivateHelp = __(
+	'Your site is private, so search engines cannot see it at all. Make it public in your site visibility settings to change this.',
+	'jetpack-seo'
+);
 const sitemapViewLabel = __( 'View sitemap', 'jetpack-seo' );
 // Figures are what search *displays*, not a limit we enforce — the field is
 // deliberately uncapped. Google measures a pixel width (920px desktop / 680px
@@ -225,17 +235,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						<Stack direction="column" gap="lg">
 							<ToggleControl
 								label={ __( 'Allow search engines to index this site', 'jetpack-seo' ) }
-								help={
-									local.site_is_private
-										? __(
-												'Your site is private, so search engines cannot see it at all. Make it public in your site visibility settings to change this.',
-												'jetpack-seo'
-										  )
-										: __(
-												'Turning this off asks search engines to stop indexing your site — Google and Bing honor it, others ignore it. Same setting as Settings → Reading.',
-												'jetpack-seo'
-										  )
-								}
+								help={ local.site_is_private ? indexingPrivateHelp : indexingHelp }
 								checked={ local.search_engines_visible }
 								onChange={ next => commit( { search_engines_visible: next } ) }
 								// A private site is unpublished, not de-indexed. Turning this on would
