@@ -19,22 +19,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Returns what the modernized dashboard is allowed to show.
  *
- * Two halves, and the response shape keeps them apart. The top level is
- * WordPress.com's answer projected into the flags `<Gates>` reads —
- * `hasBackupPlan`, `hasScan`. Everything under `local` was decided here
- * on the site and never left it.
- *
- * The mixture is deliberate: this is the one request the dashboard always
- * makes before it renders a body, so a fact carried here costs no round
- * trip of its own and is settled before anything depending on it could
- * flash on screen.
- *
- * The nesting is what keeps that honest. A naming convention would ask
- * every future addition to remember the rule; a branch makes provenance
- * structural, so a reader can see at a glance which half a value came
- * from and nothing local can be mistaken for something WordPress.com
- * said. Add locally-derived values under `local`, never beside the two
- * projections.
+ * Two halves kept apart by the response shape: the top level projects
+ * WordPress.com's answer into the flags `<Gates>` reads, while everything under
+ * `local` was decided on the site. They ride together because this is the one
+ * request every screen makes before rendering a body. Add locally-derived
+ * values under `local`, never beside the projections.
  */
 class Capabilities_Bridge {
 
@@ -164,30 +153,11 @@ class Capabilities_Bridge {
 	/**
 	 * Whether the standalone Jetpack VaultPress Backup plugin is active.
 	 *
-	 * Answered on the server because the modernized page emits no
-	 * backup-specific global to read it from — `enqueue_admin_scripts()`
-	 * returns before `JPBACKUP_INITIAL_STATE` is rendered on the wp-build
-	 * path — and because a gate the client never decides cannot be
-	 * bypassed from the client either.
-	 *
-	 * `JETPACK_BACKUP_PLUGIN_DIR` is defined in exactly one place,
-	 * `jetpack-backup.php` in the standalone plugin, so it tracks *plugin
-	 * activation* and stays correct on a site where both plugins are
-	 * active and the autoloader resolved the Jetpack copy of this package.
-	 *
-	 * Note what is deliberately not used: the `connectedPlugins` list in
-	 * `JP_CONNECTION_INITIAL_STATE`. The `jetpack-backup` slug there is
-	 * registered by `Jetpack_Backup::initialize()`, which belongs to the
-	 * package and not to the plugin — so the moment the Jetpack plugin
-	 * gains a Backup page it will register the slug too, and the list will
-	 * report the standalone plugin as present on precisely the site that
-	 * does not have it.
-	 *
-	 * This is true on every site that can reach the modernized dashboard
-	 * today, since the dashboard ships only in the standalone plugin. It
-	 * is written now because the dashboard is intended to reach the
-	 * Jetpack plugin, where asking the reader to review the Backup plugin
-	 * makes no sense.
+	 * Answered on the server: the modernized page emits no backup-specific global
+	 * to read, and a gate the client never decides cannot be bypassed from it.
+	 * `JETPACK_BACKUP_PLUGIN_DIR` tracks *plugin* activation, unlike the
+	 * `jetpack-backup` slug in `connectedPlugins`, which the package registers
+	 * and so would report the plugin present on the one site that lacks it.
 	 *
 	 * @return bool True when the standalone Backup plugin is active.
 	 */

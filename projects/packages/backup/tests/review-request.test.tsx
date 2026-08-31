@@ -1,30 +1,11 @@
 // JETPACK-2302 (K1) — the review prompt on the modernized dashboard.
 //
-// Rendered through the real Overview stage rather than the component in
-// isolation, because most of what can go wrong here is wiring: the gate
-// arrives on the capabilities response, one trigger reads the restores
-// collection and the other reads the backup list, and the dismissal is a
-// third endpoint keyed on which trigger fired.
-//
-// EVERY "the card stays away" assertion in this file is paired with an
-// outside witness, and any test added here must keep that up. A bare
-// `queryByText( … ).not.toBeInTheDocument()` is decorative: it passes
-// just as happily when the stage threw, when the endpoints were
-// mis-mocked, or when the copy was reworded — and, proved by mutation,
-// it keeps passing when the plugin gate is flipped to fail *open*. Only
-// the `dismissalCalls` assertion on the following line caught that.
-//
-// The two witnesses used here:
-//
-//   - `renderSettledOverview()` waits for the activity list's own row,
-//     which proves the stage mounted, the endpoints answered, and the
-//     dashboard reached the state where the prompt would have rendered.
-//   - `dismissalCalls` records every request to the dismissal route, so
-//     a test can say not just "no card" but *why* — the gate refused
-//     before anything was asked, versus the trigger never fired, versus
-//     the server said it was already dismissed.
-//
-// A negative assertion with neither is vacuous. Add one.
+// Driven through the real Overview stage because most of what can go wrong here
+// is wiring. Every "the card stays away" assertion is paired with an outside
+// witness, and new ones must keep that up: a bare `not.toBeInTheDocument()`
+// passes when the stage threw and — proved by mutation — when the plugin gate
+// fails open. `renderSettledOverview()` witnesses the mount, `dismissalCalls`
+// witnesses which of the three refusals happened.
 
 const mockRecordEvent = jest.fn();
 
@@ -481,16 +462,9 @@ describe( 'review prompt — dismissal', () => {
 		expect( screen.getByText( RESTORE_QUESTION ) ).toBeInTheDocument();
 	} );
 
-	// Fixing legacy bug 3 has a cost: the card no longer vanishes on click,
-	// so on a slow connection nothing visibly happens and the reader clicks
-	// again. Unguarded that is a second POST and — worse — a second refusal
-	// reported for one decision.
-	//
-	// Asserts the outcome, not one mechanism. Three things hold it up (the
-	// disabled button, the report-once latch, and `dismiss()`'s own
-	// refusal), so removing any single one leaves this green; removing all
-	// three does not. That redundancy is deliberate, and the `aria-disabled`
-	// assertion is what pins the one of them the reader can actually see.
+	// The card no longer vanishes on click, so a slow connection invites a second
+	// click — and a second refusal reported for one decision. Three guards hold
+	// this up, so it asserts the outcome rather than any one of them.
 	it( 'ignores further clicks while the refusal is still being written', async () => {
 		mockEndpoints( { restores: [ restoreRow( 1 ) ], dismissalWriteHangs: true } );
 

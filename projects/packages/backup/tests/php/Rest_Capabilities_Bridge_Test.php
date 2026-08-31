@@ -297,15 +297,9 @@ class Rest_Capabilities_Bridge_Test extends TestCase {
 	/**
 	 * Without the standalone plugin's constant, the gate is closed.
 	 *
-	 * This is the case the gate exists for and the only one a package test
-	 * run reproduces naturally: the package loaded, the plugin absent. The
-	 * review prompt asks the reader to review the Backup *plugin*, so it
-	 * must not render on a site that only has the package — which is what
-	 * a Backup page inside the Jetpack plugin will be.
-	 *
-	 * Note this is not merely "the constant is undefined here": nothing in
-	 * the package can define it, so no reordering of these tests and no
-	 * future package-side change can quietly open the gate.
+	 * The case the gate exists for, and the one a package test run reproduces
+	 * naturally: package loaded, plugin absent. Nothing in the package can define
+	 * the constant, so no test ordering can quietly open the gate.
 	 */
 	public function test_gate_is_closed_without_the_standalone_plugin() {
 		$this->arrange_wpcom( array( 'capabilities' => array( 'backup' ) ) );
@@ -318,10 +312,8 @@ class Rest_Capabilities_Bridge_Test extends TestCase {
 	/**
 	 * With the constant defined, the gate is open.
 	 *
-	 * Run in a child process because `define()` cannot be undone: setting
-	 * the constant in the shared process would silently open the gate for
-	 * every test that runs after this one, including the closed-gate test
-	 * above, whichever order PHPUnit picks.
+	 * Run in a child process because `define()` cannot be undone, and the shared
+	 * process would leave the gate open for every later test.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled

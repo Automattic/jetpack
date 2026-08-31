@@ -24,17 +24,9 @@ const MS_PER_DAY = 86_400_000;
 /**
  * Whether the site's last restore worked and is recent enough to ask about.
  *
- * The age is measured against the browser's clock, which is the only
- * clock this side of the wire has. A machine set minutes fast or slow
- * shifts the boundary by minutes; nothing here is precise enough for
- * that to matter, and there is no cheap server-side alternative. Note
- * this is the one comparison in the restores data that *does* use the
- * local clock — `pickLiveRestore` deliberately does not, because there a
- * skewed clock loses a running restore.
- *
- * An unparseable timestamp answers false. Legacy reached the same
- * conclusion by accident (`NaN < 15` is false); here it is deliberate,
- * and it is the fail-closed direction.
+ * Measured against the browser clock — minutes of skew do not matter here,
+ * unlike in `pickLiveRestore`, which avoids it because skew loses a running
+ * restore. An unparseable timestamp answers false, the fail-closed direction.
  *
  * @param restores - The restores collection, newest first, or null when the read failed.
  * @return True when the newest restore succeeded within the window.
@@ -62,17 +54,10 @@ export function hasRecentSuccessfulRestore(
 /**
  * Whether the site's last five backups all produced a usable restore point.
  *
- * The predicate is `isUsableBackup`, the same one the rest of the
- * dashboard decides "is this backup any good" with, rather than a second
- * reading written here. That is a deliberate difference from legacy,
- * whose review trigger checked status and stats but not `discarded` —
- * even though legacy's own definition of a good backup does. A site whose
- * oldest backups are being aged out is now told so on this very screen,
- * and asking that reader whether they enjoy the peace of mind would put
- * two contradictory messages side by side.
- *
- * The length check is not redundant: `[].every()` is true, so a site with
- * three good backups would otherwise qualify on a run of five.
+ * Uses `isUsableBackup` rather than legacy's own reading, which ignored
+ * `discarded` — so a site being told its backups are aging out is no longer
+ * also asked about its peace of mind. The length check is not redundant:
+ * `[].every()` is true.
  *
  * @param backups - Normalized backups, newest first.
  * @return True when the newest five are all usable.
@@ -87,15 +72,9 @@ export function hasReviewableBackupRun( backups: Backup[] ): boolean {
 /**
  * Which review prompt this site has earned, if any.
  *
- * Restore wins when both apply, as in legacy. It is the more specific
- * thing to have just happened, and the reader who restored a site
- * remembers doing it.
- *
- * Both triggers ask the same question in two ways: has the product
- * visibly worked for you? That principle matters more than the numbers.
- * The run-of-five rule replaced a "you have been subscribed for 90 days"
- * test in 2022, moving deliberately from tenure to demonstrated value; a
- * future revision should keep that and is free to change 15 and 5.
+ * Restore wins when both apply, as in legacy — it is the more specific thing to
+ * have just happened. Both triggers ask whether the product has visibly worked;
+ * the 15 and 5 are tuning, that principle is not.
  *
  * @param restores - The restores collection, or null/undefined when unread.
  * @param backups  - Normalized backups, newest first.
@@ -143,30 +122,10 @@ type Result = {
 /**
  * Everything the review prompt needs to decide whether to appear.
  *
- * Three things have to line up, and the order matters because each is
- * cheaper than the next.
- *
- * **The plugin gate.** The card asks the reader to review the standalone
- * Jetpack VaultPress Backup plugin, so it must not render on a site that
- * does not have it — which a Backup page inside the Jetpack plugin will
- * be. The answer comes from the server on the capabilities response the
- * dashboard has already read by the time this mounts, so it costs
- * nothing and cannot be bypassed from here. See `Capabilities_Bridge`.
- *
- * **The triggers.** See `pickReviewReason`.
- *
- * **The dismissal**, which is read for the winning reason only. On a site
- * where both triggers fire, declining the restore prompt therefore takes
- * the card off screen until that restore ages out — the backups trigger is
- * never consulted. That is legacy's behaviour, kept deliberately: someone
- * who just said "maybe later" should not be asked the same favour again in
- * different words.
- *
- * Everything unknown reads as "do not prompt". A pending or failed
- * capabilities read, a pending or failed dismissal read, and a restores
- * read still in flight all keep the card off screen. The cost of that is
- * a card that appears a moment late; the cost of the other direction is
- * asking someone who already said no.
+ * Three gates, cheapest first: the standalone-plugin flag the capabilities
+ * response already carries, then `pickReviewReason`, then the dismissal for the
+ * winning reason only — so declining one trigger silences the other, as in
+ * legacy. Anything unknown or still in flight reads as "do not prompt".
  *
  * @return The prompt to show and the way to decline it.
  */

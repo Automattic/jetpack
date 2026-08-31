@@ -261,17 +261,10 @@ export default function OverviewScreen() {
 			 */ }
 			<StorageSpace />
 			{ /*
-			 * Only on this path, never beside the takeover panel. That panel
-			 * renders when the site has no restore point to show, and asking
-			 * someone whose backups have not worked to review the plugin is
-			 * the wrong question — the restore trigger could still fire there
-			 * on a site whose backups broke after a successful restore.
-			 *
-			 * A sibling of the grid for the same reason the banners are, and
-			 * below the storage section because a reader whose storage is
-			 * full needs to read that first. The component decides for itself
-			 * whether there is anything to ask, so on the overwhelming
-			 * majority of loads this costs no layout.
+			 * Only on this path, never beside the takeover panel: the restore
+			 * trigger can still fire on a site whose backups have since broken, and
+			 * that reader is the wrong one to ask. Below the storage section, which
+			 * a reader whose storage is full needs to read first.
 			 */ }
 			<ReviewRequest />
 			<div className="jpb-overview">

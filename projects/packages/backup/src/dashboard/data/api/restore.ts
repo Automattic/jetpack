@@ -77,28 +77,11 @@ const SETTLED_ROW_STATUSES = new Set( [
 /**
  * Spellings in that same vocabulary that mean the restore worked.
  *
- * Both, not just `finished`, and the pair is not a guess: the status
- * route's own `Restore_Bridge::STATUS_MAP` maps `success` to `finished`,
- * so WordPress.com is already known to say it both ways on this resource
- * family. `GET /jetpack/v4/restores` does no mapping at all — it
- * `json_decode`s WordPress.com's body and returns it — so whichever
- * spelling upstream picks arrives here raw. `SETTLED_ROW_STATUSES` above
- * hedges the same way for the same reason.
- *
- * Matching only `finished` would be wrong in a way nothing could see. If
- * upstream says `success`, no restore ever reads as successful, the
- * review prompt's restore trigger never fires for any site, and there is
- * no error and no complaint — an absent nudge generates neither.
- *
- * `success-with-errors` stays out deliberately. A restore that completed
- * but not cleanly is not a moment to follow with "was it easy to restore
- * your site?", and `STATUS_MAP` likewise keeps it distinct from both
- * neighbours rather than folding it into either.
- *
- * An unrecognised spelling counts as *not* succeeded. That is the
- * opposite default from `settled` above, and for the same reason: each
- * fails towards the harmless answer. There, the harmless answer is "keep
- * waiting"; here it is "do not ask this person for a review".
+ * Both, because `Restore_Bridge::STATUS_MAP` maps `success` to `finished` while
+ * `GET /jetpack/v4/restores` returns WordPress.com's body unmapped. Matching
+ * only `finished` would silence the review prompt's restore trigger site-wide
+ * with nothing to notice. `success-with-errors` stays out, and an unrecognised
+ * spelling counts as not succeeded — the harmless direction here is not asking.
  */
 const SUCCEEDED_ROW_STATUSES = new Set( [ 'finished', 'success' ] );
 

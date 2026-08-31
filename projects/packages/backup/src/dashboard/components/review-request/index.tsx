@@ -10,19 +10,11 @@ import type { ReviewReason } from '../../data/api/review-request';
 /**
  * The question that opens the prompt.
  *
- * Two whole returns rather than one string chosen by a ternary. A `__()`
- * call whose argument is a conditional is a msgid-extraction hazard: the
- * minifier factors the shared call out and leaves `__( cond ? a : b )`,
- * which is no longer a string literal for the extractor to find.
- *
- * Both msgids are legacy's, character for character, so they arrive
- * already translated rather than waiting a GlotPress cycle.
- *
- * The backups line asserts *real-time* backups unconditionally, which may
- * be wrong for a site on a daily-backup tier. That is unverified, and it
- * is legacy's wording — so it is ported as-is rather than quietly
- * reworded here. If it is wrong it is wrong in legacy today too, and
- * fixing it is a copy change with a translation cost, not a port.
+ * Two whole returns, not one `__()` over a ternary: the minifier factors the
+ * shared call out and leaves a non-literal msgid the extractor cannot read.
+ * Both msgids are legacy's character for character, so they arrive already
+ * translated — including the backups line's unconditional "real-time", which is
+ * ported as-is rather than reworded at a translation cost.
  *
  * @param reason - Why the reader is being asked.
  * @return The question to show.
@@ -38,15 +30,9 @@ function reviewQuestion( reason: ReviewReason ): string {
 /**
  * Asks a reader the product has visibly worked for to review the plugin.
  *
- * Renders nothing unless `useReviewRequest` says there is a prompt to
- * show; that hook owns the whole decision, including the gate that keeps
- * this off a site without the standalone Backup plugin.
- *
- * The destination is the redirect service rather than a wordpress.org URL
- * written here, so the target stays maintainable outside this repo. It is
- * outbound but points at the plugin's own review page rather than
- * Calypso, so the rule about linking this dashboard into Calypso does not
- * reach it.
+ * `useReviewRequest` owns the whole decision, including the standalone-plugin
+ * gate. The destination goes through the redirect service so the wordpress.org
+ * target stays maintainable outside this repo.
  *
  * @return The rendered prompt, or nothing.
  */
@@ -58,17 +44,10 @@ export default function ReviewRequest() {
 		tracks.recordEvent( 'jetpack_backup_new_review_click' );
 	}, [ tracks ] );
 
-	// Which prompt this reader has already been recorded as refusing.
-	//
-	// The write can legitimately be attempted more than once — a failed
-	// dismissal leaves the card up precisely so the reader can try again —
-	// but a retry is not a second decision, and reporting it as one
-	// inflates the dismissal rate at the flag flip in a way that reads as
-	// behaviour and is not. The same hazard `screens/overview.tsx` guards
-	// the page view against.
-	//
-	// A ref rather than module state, and keyed on the reason: the two
-	// prompts are two separate refusals, and each deserves its own event.
+	// Which prompt this reader has already been recorded as refusing. A failed
+	// dismissal leaves the card up so they can retry, but a retry is not a second
+	// decision and reporting it as one inflates the rate at the flag flip. Keyed
+	// on the reason, since the two prompts are separate refusals.
 	const reportedRefusalFor = useRef< ReviewReason | null >( null );
 
 	// No in-flight check of its own: `disabled` below already stops a
@@ -118,17 +97,10 @@ export default function ReviewRequest() {
 					</Text>
 				</Stack>
 				{ /*
-				 * A button, not legacy's `<a role="button" href="#">`. It does
-				 * not navigate, and the anchor spelling needed a
-				 * `preventDefault` to stop it trying to.
-				 *
-				 * Disabled while the refusal is being written. `@wordpress/ui`'s
-				 * Button defaults to `focusableWhenDisabled`, so this marks it
-				 * `aria-disabled` and keeps it in the tab order rather than
-				 * taking the native attribute — and it does suppress the
-				 * click, so this is the visible half and the first guard at
-				 * once. Without it the card just sits there after a click,
-				 * which is what makes a reader click again.
+				 * A button, not legacy's `<a role="button" href="#">`, which needed a
+				 * `preventDefault` to stop it navigating. `@wordpress/ui`'s Button
+				 * defaults to `focusableWhenDisabled`, so disabling marks it
+				 * `aria-disabled`, keeps it focusable, and still suppresses the click.
 				 */ }
 				<Button
 					variant="minimal"

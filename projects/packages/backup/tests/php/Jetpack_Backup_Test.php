@@ -631,13 +631,9 @@ class Jetpack_Backup_Test extends TestCase {
 	/**
 	 * The dismissal route refuses a reason `Jetpack_Options` cannot store.
 	 *
-	 * The option name is built by appending this parameter to
-	 * `dismissed_backup_review_`, and `Jetpack_Options` recognises exactly
-	 * two of those. Anything else falls through its allowlist to a
-	 * `trigger_error()` and is stored nowhere — so without the enum the
-	 * route answers 200 for a dismissal it did not record, and on a site
-	 * with `display_errors` on the warning is printed ahead of the JSON,
-	 * leaving a body the client cannot parse.
+	 * A reason outside `Jetpack_Options`' allowlist reaches a `trigger_error()`
+	 * and is stored nowhere, so without the enum the route answers 200 for a
+	 * dismissal it did not record — and prints a warning ahead of the JSON.
 	 *
 	 * @param string $option_name The reason to send.
 	 * @dataProvider provide_unstorable_review_reasons
@@ -683,8 +679,7 @@ class Jetpack_Backup_Test extends TestCase {
 	 * Both reasons the dashboard actually sends are accepted, and an
 	 * un-dismissed prompt reads as `false`.
 	 *
-	 * The client treats anything that is not literally `false` as dismissed,
-	 * so this pins the one answer that lets the card render at all.
+	 * The client treats anything but a literal `false` as dismissed.
 	 *
 	 * @param string $option_name The reason to send.
 	 * @dataProvider provide_review_reasons
