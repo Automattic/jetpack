@@ -586,11 +586,23 @@ describe( 'Stats query factories', () => {
 		] );
 	} );
 
-	it( 'passes supported tags params through query keys', () => {
-		const query = statsTagsQuery( {
-			to: '2026-06-07',
-			max: 10,
-		} );
+	// The endpoint rewrites `max < 1` back to its default of 10 rather than reading
+	// it as "all rows", so a `0` must not reach it.
+	it( 'leaves a non-positive tags max off the request', () => {
+		expect( statsTagsQuery( { max: 0 } ).queryKey ).toEqual( [
+			'stats',
+			'tags',
+			'1.1',
+			'stats/tags',
+			'GET',
+			{},
+			undefined,
+			'tags',
+		] );
+	} );
+
+	it( 'passes max through tags query keys', () => {
+		const query = statsTagsQuery( { max: 10 } );
 
 		expect( query.enabled ).toBe( true );
 		expect( query.queryKey ).toEqual( [
@@ -599,13 +611,21 @@ describe( 'Stats query factories', () => {
 			'1.1',
 			'stats/tags',
 			'GET',
-			{
-				date: '2026-06-07',
-				max: 10,
-			},
+			{ max: 10 },
 			undefined,
 			'tags',
 		] );
+	} );
+
+	// A date would change the cache key without changing a row. `StatsTagsParams`
+	// already rejects one, so this spreads past the type to cover untyped callers.
+	it( 'never sends a date on the tags query, whatever the selected period', () => {
+		const tagsQueryKey = ( period: Record< string, unknown > ) =>
+			statsTagsQuery( { max: 10, ...period } ).queryKey;
+		const maxOnly = [ 'stats', 'tags', '1.1', 'stats/tags', 'GET', { max: 10 }, undefined, 'tags' ];
+
+		expect( tagsQueryKey( { to: '2026-01-31T23:59:59.999-08:00' } ) ).toEqual( maxOnly );
+		expect( tagsQueryKey( { date: '2026-06-30', period: 'year', days: 365 } ) ).toEqual( maxOnly );
 	} );
 
 	it( 'builds devices query keys from the selected device property', () => {
