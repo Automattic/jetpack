@@ -319,6 +319,24 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( createButton ).toBeEnabled();
 		} );
 
+		it( 'disables Create Button when the description is too long', async () => {
+			render(
+				<Edit
+					attributes={ {
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+						productDescription: 'x'.repeat( 257 ),
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await expect( screen.findByText( /Create Button/ ) ).resolves.toBeInTheDocument();
+			const createButton = screen.getByText( /Create Button/ );
+			expect( createButton ).toBeDisabled();
+		} );
+
 		it( 'submits create request with correct data', async () => {
 			const user = userEvent.setup();
 

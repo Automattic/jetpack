@@ -321,6 +321,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	const isFormValid =
 		! validationErrors.productName &&
 		! validationErrors.price &&
+		! validationErrors.productDescription &&
 		! validationErrors.currencyCode &&
 		variantErrors.length === 0;
 
