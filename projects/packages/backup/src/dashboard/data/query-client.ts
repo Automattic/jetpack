@@ -16,7 +16,7 @@ declare global {
  * The one QueryClient every route of the modernized Backup dashboard renders against.
  *
  * Parked on `window` because each wp-build route bundles its own copy of this module: a
- * module-scope client gave every Overview ↔ Restore ↔ Download hop a cold cache.
+ * module-scope client left every route with its own cache, cold on first arrival.
  *
  * @return The shared client, created on first use.
  */
