@@ -135,7 +135,7 @@ describe( 'usePostDetailTabs', () => {
 		}
 	} );
 
-	it( 'exposes the email tabs and selects their fixed layouts', () => {
+	it( 'exposes the email tabs for a post sent to subscribers', () => {
 		const { stage, commit } = mockSearch( 'email-clicks' );
 
 		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
@@ -146,9 +146,71 @@ describe( 'usePostDetailTabs', () => {
 			'email-clicks',
 		] );
 		expect( result.current.activeTab ).toBe( 'email-clicks' );
-		expect( result.current.layout ).toEqual( POST_DETAIL_TAB_LAYOUTS[ 'email-clicks' ] );
 		expect( stage ).not.toHaveBeenCalled();
 		expect( commit ).not.toHaveBeenCalled();
+	} );
+
+	it( 'pins the email tabs’ widgets to the given report params', () => {
+		mockSearch( 'email-opens' );
+		mockRouteSearch = { from: '2026-07-01', to: '2026-07-07', post_id: String( POST_ID ) };
+		const pinned = {
+			post_id: POST_ID,
+			preset: 'all-time' as const,
+			from: '2026-06-22',
+			to: '2026-08-28',
+			interval: 'week' as const,
+		};
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID, pinned ) );
+
+		const fixed = POST_DETAIL_TAB_LAYOUTS[ 'email-opens' ];
+		expect( result.current.layout ).toHaveLength( fixed.length );
+		result.current.layout.forEach( ( widget, index ) => {
+			const attributes = fixed[ index ].attributes as Record< string, unknown > | undefined;
+			expect( widget ).toEqual( {
+				...fixed[ index ],
+				attributes: { ...attributes, reportParams: pinned },
+			} );
+		} );
+		// The fixed composition itself is left alone.
+		expect(
+			fixed.some( widget => 'reportParams' in ( ( widget.attributes as object ) ?? {} ) )
+		).toBe( false );
+	} );
+
+	it( 'mounts the fixed email layout when the pinned params can no longer resolve', () => {
+		mockSearch( 'email-clicks' );
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID, undefined, true ) );
+
+		// The widgets mount and surface their own error states, instead of the
+		// tab staying permanently blank with no Retry (summary request failed).
+		expect( result.current.activeTab ).toBe( 'email-clicks' );
+		expect( result.current.layout ).toEqual( POST_DETAIL_TAB_LAYOUTS[ 'email-clicks' ] );
+	} );
+
+	it( 'gives an email tab no layout until its report params are known', () => {
+		mockSearch( 'email-clicks' );
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
+
+		expect( result.current.activeTab ).toBe( 'email-clicks' );
+		expect( result.current.layout ).toEqual( [] );
+	} );
+
+	it( 'leaves the traffic layout untouched when email report params are given', () => {
+		mockSearch( 'post-traffic' );
+		const pinned = {
+			post_id: POST_ID,
+			preset: 'all-time' as const,
+			from: '2026-06-22',
+			to: '2026-08-28',
+			interval: 'week' as const,
+		};
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID, pinned ) );
+
+		expect( result.current.layout ).toEqual( POST_DETAIL_TAB_LAYOUTS[ 'post-traffic' ] );
 	} );
 
 	it( 'hides the email tabs for a post never sent to subscribers', async () => {

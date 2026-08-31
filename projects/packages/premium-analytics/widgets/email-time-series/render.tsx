@@ -51,8 +51,8 @@ const METRIC_FIELDS: Record< EmailTimeSeriesMetric, 'opens_count' | 'clicks_coun
 
 function metricLabel( metric: EmailTimeSeriesMetric ): string {
 	return metric === 'clicks'
-		? __( 'Total clicks', 'jetpack-premium-analytics-pkg' )
-		: __( 'Total opens', 'jetpack-premium-analytics-pkg' );
+		? __( 'Clicks', 'jetpack-premium-analytics-pkg' )
+		: __( 'Opens', 'jetpack-premium-analytics-pkg' );
 }
 
 type EmailTimeSeriesReportProps = {

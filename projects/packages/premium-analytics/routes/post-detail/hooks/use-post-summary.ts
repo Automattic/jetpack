@@ -27,6 +27,8 @@ export type PostSummary = {
 	url?: string;
 	/** Whether the underlying stats request is still resolving. */
 	isLoading: boolean;
+	/** Whether the underlying stats request failed. */
+	isError: boolean;
 };
 
 /**
@@ -72,7 +74,7 @@ function useCarriedPostUrl(): string | undefined {
 export function usePostSummary( postId: number ): PostSummary {
 	// The header only needs the post row, so scope the query to the `post` field
 	// instead of pulling the full stats payload.
-	const { data, isLoading } = useStatsPost( { postId, fields: [ 'post' ] } );
+	const { data, isLoading, isError } = useStatsPost( { postId, fields: [ 'post' ] } );
 	const post = data?.post;
 	const type = post?.post_type;
 
@@ -137,5 +139,6 @@ export function usePostSummary( postId: number ): PostSummary {
 		// post types core data cannot resolve.
 		url: url ?? carriedUrl,
 		isLoading,
+		isError,
 	};
 }
