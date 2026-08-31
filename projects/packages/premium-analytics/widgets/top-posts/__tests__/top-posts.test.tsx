@@ -327,9 +327,9 @@ describe( 'TopPostsWidget', () => {
 		await waitFor( () =>
 			expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument()
 		);
-		// March's rows do not answer a question about May, so they give way to an
-		// announced skeleton.
-		await expect( screen.findByRole( 'status' ) ).resolves.toBeInTheDocument();
+		// March's rows do not answer a question about May, so they give way to the
+		// skeleton.
+		await expect( screen.findByTestId( 'widget-skeleton' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /^Hello World Post$/ } ) ).not.toBeInTheDocument();
 
 		// Once the new range settles, the export returns.

@@ -8,19 +8,17 @@ import { render, screen } from '@testing-library/react';
 import { GenericSkeleton, SkeletonRoot } from '../index';
 
 describe( 'SkeletonRoot', () => {
-	it( 'announces the loading region to assistive tech', () => {
+	it( 'labels the placeholder without making it a live region', () => {
 		render(
 			<SkeletonRoot>
 				<div data-testid="shape" />
 			</SkeletonRoot>
 		);
 
-		const status = screen.getByRole( 'status' );
-		// Not busy: `aria-busy` on the region itself tells assistive tech to hold
-		// the very announcement this region exists to make, and the node never
-		// clears it — it is unmounted when the data arrives.
-		expect( status ).not.toHaveAttribute( 'aria-busy' );
-		expect( status ).toHaveTextContent( 'Loading' );
+		// A `role="status"` mounting with its text already in place is never
+		// announced, so the label is only there for a reader who navigates onto it.
+		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toHaveTextContent( 'Loading' );
 		expect( screen.getByTestId( 'shape' ) ).toBeInTheDocument();
 	} );
 
@@ -31,7 +29,7 @@ describe( 'SkeletonRoot', () => {
 			</SkeletonRoot>
 		);
 
-		const root = screen.getByRole( 'status' );
+		const root = screen.getByTestId( 'widget-skeleton' );
 		// eslint-disable-next-line testing-library/no-node-access -- child order is the assertion.
 		const children = Array.from( root.children );
 		expect( children ).toHaveLength( 2 );
@@ -40,10 +38,10 @@ describe( 'SkeletonRoot', () => {
 } );
 
 describe( 'GenericSkeleton', () => {
-	it( 'renders four placeholder lines inside a status region', () => {
+	it( 'renders four placeholder lines', () => {
 		render( <GenericSkeleton /> );
 
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect( screen.getAllByTestId( 'skeleton-line' ) ).toHaveLength( 4 );
 	} );
 } );

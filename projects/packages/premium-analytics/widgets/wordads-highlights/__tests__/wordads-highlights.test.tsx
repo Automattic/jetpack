@@ -105,7 +105,7 @@ describe( 'WordAdsHighlightsWidget', () => {
 
 		render( <WordAdsHighlightsWidget attributes={ {} } /> );
 
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Earnings' ) ).not.toBeInTheDocument();
 	} );
 

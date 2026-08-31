@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widget skeletons: drop the inert status live region.
