@@ -533,16 +533,36 @@ describe( 'review prompt — dismissal', () => {
 		expect( screen.getByText( RESTORE_QUESTION ) ).toBeInTheDocument();
 	} );
 
-	// Two independent dismissals, not one. Declining after a restore must
-	// not spend the backups prompt, and the server stores them under two
-	// different options for the same reason.
-	it( 'still asks about backups on a site that dismissed the restore prompt', async () => {
+	// The dismissal is keyed per reason, so a stored `restore` refusal does
+	// not answer the backups question. Note this site has no restore at all
+	// — the case where both triggers fire is the next test, and differs.
+	it( 'asks about backups when only the unrelated restore prompt was dismissed', async () => {
 		mockEndpoints( { backups: goodRun(), dismissed: { restore: true } } );
 
 		await renderSettledOverview();
 
 		await expect( screen.findByText( BACKUPS_QUESTION ) ).resolves.toBeInTheDocument();
 		expect( dismissalCalls ).toEqual( [ { option_name: 'backups', should_dismiss: false } ] );
+	} );
+
+	// Restore wins when both fire, and only the winner's dismissal is read
+	// — so declining it silences the card until that restore ages out. This
+	// is legacy's behaviour and `useReviewRequest` documents it; the test is
+	// here so that changing it has to be deliberate.
+	it( 'asks nothing more on a site that declined the restore prompt while both triggers fire', async () => {
+		mockEndpoints( {
+			restores: [ restoreRow( 1 ) ],
+			backups: goodRun(),
+			dismissed: { restore: true },
+		} );
+
+		await renderSettledOverview();
+
+		expect( screen.queryByText( RESTORE_QUESTION ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( BACKUPS_QUESTION ) ).not.toBeInTheDocument();
+		// The witness: the backups trigger was never even asked about, which
+		// is what distinguishes this from the card being suppressed earlier.
+		expect( dismissalCalls ).toEqual( [ { option_name: 'restore', should_dismiss: false } ] );
 	} );
 } );
 

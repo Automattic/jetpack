@@ -155,9 +155,12 @@ type Result = {
  *
  * **The triggers.** See `pickReviewReason`.
  *
- * **The dismissal**, which is per reason. Declining after a restore
- * leaves the backups prompt available, because they are two different
- * questions and the server stores them under two different options.
+ * **The dismissal**, which is read for the winning reason only. On a site
+ * where both triggers fire, declining the restore prompt therefore takes
+ * the card off screen until that restore ages out — the backups trigger is
+ * never consulted. That is legacy's behaviour, kept deliberately: someone
+ * who just said "maybe later" should not be asked the same favour again in
+ * different words.
  *
  * Everything unknown reads as "do not prompt". A pending or failed
  * capabilities read, a pending or failed dismissal read, and a restores
