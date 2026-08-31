@@ -22,13 +22,7 @@ export type WpcomActivityLogResponse = {
 	itemsPerPage?: number;
 };
 
-/**
- * Ordering the rewindable activity log can be asked for.
- *
- * Direction only. WPCOM's `/activity/rewindable` sorts on the event
- * timestamp and accepts no field to sort by, so there is nothing here to
- * widen into an `orderby` — see the bridge's `sort_order` arg.
- */
+/** Direction only: WPCOM sorts on the event timestamp and accepts no field. */
 export type ActivitySortOrder = 'asc' | 'desc';
 
 type FetchArgs = {

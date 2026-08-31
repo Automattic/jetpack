@@ -32,16 +32,8 @@ type Props = {
 /**
  * The query a DataViews view is asking the server for.
  *
- * Every value the activity-log query is keyed on, derived in one place.
- * Exported because the Overview screen has to derive the *same* three for
- * `useActivityById`: that lookup shares this list's cache entry, and all
- * three are part of its key, so two copies of this arithmetic are two
- * things that can drift into a second, needless request.
- *
- * Only the sort *direction* is read. `view.sort.field` is fixed to the
- * one sortable field (`description`, the timestamp) because WPCOM's
- * `/activity/rewindable` sorts on the event timestamp and takes no field
- * to sort by — so there is nothing a second sortable field could mean.
+ * Exported so Overview derives the same cache key for `useActivityById` instead
+ * of repeating the arithmetic and drifting into a second, needless request.
  *
  * @param view - DataViews view state.
  * @return The page, page size and direction to request.
@@ -138,13 +130,9 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 		sortOrder,
 	} );
 
-	// Reordering has to send the reader back to page 1, and DataViews will
-	// not do it. Its `SortDirectionControl` spreads `...view` and replaces
-	// only `sort`, where the `ItemsPerPageControl` beside it sets
-	// `page: 1` — so without this, flipping to ascending on page 3 keeps
-	// page 3 and lands the reader on items 21-30 counted from the oldest
-	// end instead. That destination corresponds to nothing they asked for,
-	// and page 1 of the new order is the only answer that does.
+	// DataViews' `SortDirectionControl` spreads `...view` and replaces only
+	// `sort`, so without this a reorder strands the reader on page 3 of an
+	// ordering they have not seen the start of.
 	const handleChangeView = useCallback(
 		( next: View ) => {
 			const reordered = ( next.sort?.direction ?? 'desc' ) !== sortOrder;
@@ -167,18 +155,11 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 		/>
 	) : undefined;
 
-	// `filterBy: false` on every field, deliberately and load-bearing.
-	//
-	// DataViews derives one filter per filterable field, and a `text`
-	// field is filterable by default. Nothing here can honour a filter —
-	// the rows are one server-paginated page and `/activity/rewindable`
-	// takes no search term — so every filter offered would be inert. The
-	// funnel is also actively harmful: opening a filter reaches a private
-	// `@wordpress/components` API that recent versions no longer lock,
-	// which drops the whole dashboard to its error boundary, and adding
-	// one resets `page` to 1 under a reader who is on page 3. Zero
-	// filters makes DataViews' `FiltersToggle` render nothing, which puts
-	// all of that out of reach.
+	// Every field opts out of filtering, and all but `description` out of sorting:
+	// `/activity/rewindable` takes no search term and orders only on the event
+	// timestamp, so any other control would be a label the server cannot honour.
+	// Zero filters also keeps `FiltersToggle` unrendered, and with it a private
+	// `@wordpress/components` API that drops the dashboard to its error boundary.
 	const fields: Field< ActivityItem >[] = useMemo(
 		() => [
 			{
@@ -191,9 +172,6 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				filterBy: false,
 			},
 			{
-				// Not sortable: upstream orders by event timestamp and
-				// accepts no field to sort by, so a "Sort by: Title" the
-				// server can never honour would be a label that lies.
 				id: 'title',
 				type: 'text',
 				label: __( 'Title', 'jetpack-backup-pkg' ),
@@ -202,11 +180,6 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				filterBy: false,
 			},
 			{
-				// The one sortable field, and the one the server actually
-				// orders on. `INITIAL_VIEW.sort` names it so the cog reads
-				// "Sort by: When, descending" from first open — true of the
-				// rows as served, where an unset `sort` left the native
-				// select showing its first option instead.
 				id: 'description',
 				type: 'text',
 				label: __( 'When', 'jetpack-backup-pkg' ),

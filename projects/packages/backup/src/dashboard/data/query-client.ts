@@ -59,9 +59,8 @@ export const keys = {
 	// query-filter root to scan all cached pages (e.g. when looking up
 	// a row by id across pages).
 	activityLogRoot: () => [ 'backup', 'activity-log' ] as const,
-	// Per-page key. `(page, pageSize, sortOrder)` is everything that
-	// distinguishes one fetch from another, so all three must be in the
-	// key — page 1 ascending and page 1 descending are different rows.
+	// All three distinguish one fetch from another: page 1 ascending and page 1
+	// descending are different rows.
 	activityLogPage: ( page: number, pageSize: number, sortOrder: ActivitySortOrder ) =>
 		[ 'backup', 'activity-log', { page, pageSize, sortOrder } ] as const,
 	fileTree: ( rewindId: string, folderPath: string | null ) =>

@@ -42,13 +42,7 @@ type Result = {
  */
 export const ACTIVITY_LOG_DEFAULT_PER_PAGE = 10;
 
-/**
- * The order the list starts in, and the only order in which "the first
- * backup row" means "the newest backup".
- *
- * `useDefaultBackupRewindId` and `useHasRestorePoints` are pinned to it
- * for that reason — see their docblocks.
- */
+/** The order the list starts in, and the only one where the first backup row is the newest. */
 export const ACTIVITY_LOG_NEWEST_FIRST: ActivitySortOrder = 'desc';
 
 /**
@@ -64,10 +58,8 @@ export const ACTIVITY_LOG_NEWEST_FIRST: ActivitySortOrder = 'desc';
  * to not render it. Consumers inside the gated body get `enabled: true`
  * for free, since they only mount once the connection checks pass.
  *
- * The ordering is a query parameter, not a client-side sort: WPCOM
- * orders the whole result set and hands back one page of it. That is why
- * `sortOrder` is in the cache key and why the two "newest backup"
- * consumers below must not inherit the list's value.
+ * WPCOM sorts the whole result set server-side, so `sortOrder` is part of the
+ * cache key rather than something applied to the page after it arrives.
  *
  * @param page      - 1-indexed page number.
  * @param pageSize  - Items per page.
@@ -133,17 +125,9 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
  * rewindable activity, falling through to any other cached pages of
  * the same family if not found.
  *
- * Selection happens by clicking a row, so a clicked item is guaranteed
- * to be in the page that's currently rendered. Two cases are not
- * clicks, and both rely on the cache scan below. A bookmarked
- * `?selected=` URL may name a row on a page nothing has loaded, and
- * this hook returns null so the right pane shows "Item not found" until
- * the reader paginates to it. And the first-load default selection is
- * pinned to the newest backup whatever the list is sorted by, so on an
- * ascending list it names a row that is genuinely off-screen — there the
- * scan finds it in the pinned page-1 entry `useDefaultBackupRewindId`
- * populated, and the pane is right even though no row is highlighted.
- * See that hook for why that trade is the intended one.
+ * A clicked row is always in the rendered page; the cache scan covers the two
+ * selections that are not clicks — a bookmarked `?selected=` on a page nothing
+ * has loaded, and the newest-backup default pinned by the hook below.
  *
  * @param id        - Selection id: `rewindId` for backup items, `activity_id` otherwise.
  * @param page      - The page currently shown in the list.
@@ -157,10 +141,8 @@ export function useActivityById(
 	pageSize: number,
 	sortOrder: ActivitySortOrder
 ): ActivityItem | null {
-	// Subscribe to the same page query the list uses so this hook
-	// re-renders the moment the list's data resolves. `sortOrder` is
-	// part of the cache key, so it has to follow the list's — pinning it
-	// would open a second query for rows already on screen.
+	// Follows the list's `sortOrder`: it is part of the cache key, so pinning it
+	// here would open a second query for rows already on screen.
 	const query = useActivityPageQuery( page, pageSize, sortOrder );
 	const queryClient = useQueryClient();
 
@@ -198,33 +180,10 @@ export function useActivityById(
  * default selection reconciles to the newest backup the moment the
  * page-1 fetch resolves.
  *
- * Always reads page 1 with the default per-page size and newest-first
- * ordering, regardless of what the list is currently showing. When the
- * list is also on page 1 with the default size and default order,
- * TanStack dedupes — no extra fetch.
- *
- * The ordering is pinned, not inherited, and that is the whole
- * correctness of this hook: "the first backup row" only means "the
- * newest backup" while the server is sorting newest-first. Following the
- * list into ascending order would silently preselect the *oldest*
- * restore point the reader has — a wrong default with no error to
- * notice, on the one control in this dashboard that starts a
- * destructive operation.
- *
- * The accepted consequence: on an ascending list, the row this returns
- * is usually not one of the rows on screen. The reader sees the ten
- * oldest events with nothing highlighted, while the right pane shows the
- * newest backup's detail card. `useActivityById` resolves it through its
- * cross-page cache scan, so the pane is populated and correct — it is
- * simply describing a row the list is not currently showing.
- *
- * That is deliberate, and the better of two bad options. Preselecting
- * whatever happens to be at the top of the visible page would put the
- * oldest restore point behind a Restore button by default, which is the
- * failure this pinning exists to prevent. Please do not "fix" the
- * missing highlight by making this follow the list; if the mismatch is
- * ever worth closing, close it by clearing the selection when it falls
- * off the visible page, never by changing what "default" means.
+ * Always page 1, newest-first, whatever the list is showing: inheriting an
+ * ascending sort would preselect the *oldest* restore point behind the Restore
+ * button. The cost is that an ascending list highlights no row, since the
+ * selection is off-screen; `useActivityById` still resolves it from the cache.
  *
  * @return The newest backup item's rewindId, or null.
  */
@@ -245,13 +204,9 @@ export function useDefaultBackupRewindId(): string | null {
  * Whether the newest page of rewindable activity holds any backup row,
  * and whether that is known yet.
  *
- * Shares the page-1 newest-first query with `useDefaultBackupRewindId`,
- * so it costs no extra request — and is pinned to that ordering for a
- * second reason of its own. This answer gates the first-run takeover
- * panel, so it must be asked of a fixed window: reading whichever page
- * the list happens to be showing would let paginating away from page 1
- * report "no restore points" and replace the dashboard with the
- * first-backup screen on a site full of backups.
+ * Shares the pinned page-1 query with `useDefaultBackupRewindId`, so it costs
+ * no extra request. Pinned because it gates the first-run takeover: read off
+ * the list's own page, paginating away would claim the site has no backups.
  *
  * This is a second, independent opinion on "does this site have a
  * restore point". `/jetpack/v4/backups` only reports VaultPress's most

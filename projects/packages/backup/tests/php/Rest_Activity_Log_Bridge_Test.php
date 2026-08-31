@@ -165,10 +165,8 @@ class Rest_Activity_Log_Bridge_Test extends TestCase {
 	/**
 	 * The sort direction reaches WordPress.com.
 	 *
-	 * Ordering is a server concern: the dashboard holds one page of a
-	 * paginated log, so a direction that stopped at the bridge would leave
-	 * the reader's Order control reversing ten rows and calling that a
-	 * sort. Asserted on the outgoing URL for that reason.
+	 * Asserted on the outgoing URL: the dashboard holds one page of a paginated
+	 * log, so a direction that stopped at the bridge would only sort ten rows.
 	 */
 	public function test_forwards_the_sort_direction() {
 		$this->arrange_wpcom( array( 'current' => array( 'orderedItems' => array() ) ) );
@@ -185,9 +183,8 @@ class Rest_Activity_Log_Bridge_Test extends TestCase {
 	/**
 	 * Absent means absent, not empty.
 	 *
-	 * `array_filter` drops the key entirely when nothing asked for a
-	 * direction, so WordPress.com applies its own `desc` default. Sending
-	 * `sort_order=` instead would fail the route's own `enum`.
+	 * `array_filter` drops the key so WordPress.com applies its own `desc`
+	 * default; sending `sort_order=` would fail the route's `enum`.
 	 */
 	public function test_omits_the_sort_direction_when_none_is_given() {
 		$this->arrange_wpcom( array( 'current' => array( 'orderedItems' => array() ) ) );
@@ -201,12 +198,9 @@ class Rest_Activity_Log_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * A direction outside the enum is refused here rather than by
-	 * WordPress.com, so the reason names the parameter.
+	 * A direction outside the enum is refused here, not by WordPress.com.
 	 *
-	 * Dispatched through the REST server on purpose: `args` validation is
-	 * the server's job, and calling the callback directly would skip the
-	 * very thing under test.
+	 * Dispatched through the REST server because `args` validation is its job.
 	 */
 	public function test_rejects_a_direction_outside_the_enum() {
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/site/rewindable-activity' );

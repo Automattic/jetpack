@@ -1,19 +1,7 @@
-// JETPACK-2297 — `sort_order` reaches the bridge, and the four consumers
-// of `useActivityPageQuery` do not all follow the list into it.
-//
-// That last half is the whole point of this file. Three of the four
-// consumers take the direction from the list's view state; two must stay
-// pinned to newest-first no matter what the list is showing, because
-// they ask "what is the newest backup?" and "does this site have any
-// restore points?" — questions whose answers are read off the *first*
-// row, which only means "newest" while the server is sorting descending.
-//
-// Nothing in the running dashboard would report getting this wrong. The
-// default selection would silently become the oldest restore point the
-// reader has, on the one control that starts a destructive operation,
-// and the first-run takeover would appear on a site full of backups. So
-// the inversion is asserted directly here rather than left to a
-// screen-level test to notice.
+// JETPACK-2297 — `sort_order` reaches the bridge, and the two consumers that
+// read "the first row" stay pinned to newest-first whatever the list shows.
+// Nothing in the running dashboard reports getting that inversion wrong, so it
+// is asserted here rather than left to a screen-level test.
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
@@ -51,11 +39,8 @@ function backupEntry( rewindId: string, when: string ) {
 	};
 }
 
-// Two pages of the same three backups, in the two orders the server can
-// return them. The rewind ids deliberately differ at position 0: a
-// consumer that follows the list into ascending order reads NEWEST_ID
-// where it should read OLDEST_ID, and vice versa, so every assertion
-// below fails loudly rather than coincidentally passing.
+// The rewind ids differ at position 0 on purpose: a consumer that follows the
+// list into ascending order reads the wrong end and fails loudly.
 const NEWEST_ID = '1786600000';
 const MIDDLE_ID = '1786500000';
 const OLDEST_ID = '1786400000';
@@ -148,8 +133,7 @@ describe( 'useActivityLog', () => {
 
 		await waitFor( () => expect( result.current.items ).toHaveLength( 3 ) );
 
-		// Ordering is the server's job: these are the rows as served, not a
-		// client-side re-sort of a descending page.
+		// The rows as served — there is no client-side re-sort.
 		expect( requestedPaths()[ 0 ] ).toContain( 'sort_order=asc' );
 		expect( result.current.items[ 0 ] ).toMatchObject( { rewindId: OLDEST_ID } );
 	} );
@@ -170,9 +154,8 @@ describe( 'useActivityLog', () => {
 		await waitFor( () =>
 			expect( result.current.items[ 0 ] ).toMatchObject( { rewindId: OLDEST_ID } )
 		);
-		// Two distinct requests, because the direction is part of the cache
-		// key. Only one page of a multi-page log is ever in hand, so a
-		// client-side flip would reverse ten rows and call it a sort.
+		// Two requests: the direction is part of the cache key, and only one page
+		// of a multi-page log is ever in hand.
 		expect( requestedPaths() ).toHaveLength( 2 );
 		expect( requestedPaths()[ 1 ] ).toContain( 'sort_order=asc' );
 	} );
@@ -180,10 +163,8 @@ describe( 'useActivityLog', () => {
 
 describe( 'the newest-backup consumers', () => {
 	it( 'still finds the newest backup while the list is sorted ascending', async () => {
-		// The single most important assertion in this change. Both hooks
-		// read the first backup row of page 1; if either inherited the
-		// list's ascending order it would read OLDEST_ID here and nothing
-		// in the dashboard would say so.
+		// Both hooks read the first backup row of page 1: inheriting the list's
+		// ascending order would silently give them OLDEST_ID.
 		const { result } = renderHook(
 			() => ( {
 				list: useActivityLog( {
@@ -206,8 +187,8 @@ describe( 'the newest-backup consumers', () => {
 		expect( result.current.defaultRewindId ).toBe( NEWEST_ID );
 		expect( result.current.restorePoints.hasRestorePoints ).toBe( true );
 
-		// Proof the pinning is real rather than the mock returning one body:
-		// two requests went out, in opposite directions.
+		// Two requests in opposite directions — the pinning is real, not the mock
+		// returning one body.
 		const paths = requestedPaths();
 		expect( paths ).toHaveLength( 2 );
 		expect( paths.filter( p => p.includes( 'sort_order=asc' ) ) ).toHaveLength( 1 );
@@ -236,9 +217,8 @@ describe( 'the newest-backup consumers', () => {
 	} );
 
 	it( 'does not report a site as having no restore points when the list pages away', async () => {
-		// `useHasRestorePoints` gates the first-run takeover panel. Reading
-		// whichever page the list happens to be on would let page 2 of an
-		// ascending list answer "nothing here" and replace the dashboard.
+		// This gates the first-run takeover: read off the list's own page, page 2
+		// of an ascending list would answer "nothing here" and replace the dashboard.
 		mockedApiFetch.mockImplementation( ( options: { path?: string } ) => {
 			const path = options?.path ?? '';
 			if ( path.includes( 'page=2' ) ) {
@@ -268,15 +248,9 @@ describe( 'the newest-backup consumers', () => {
 
 describe( 'the default selection on an ascending list', () => {
 	it( 'resolves the newest backup even though no visible row holds it', async () => {
-		// Pinned as intended, not tolerated. The reader sees the ten oldest
-		// events with nothing highlighted while the right pane describes the
-		// newest backup — populated via the cross-page cache scan, because
-		// `useDefaultBackupRewindId` keeps its own newest-first page-1 entry.
-		//
-		// The alternative is preselecting whatever sits at the top of the
-		// visible page, which on an ascending list is the OLDEST restore
-		// point, behind a Restore button, by default. This test exists so
-		// that "fix" fails loudly rather than looking like an improvement.
+		// The intended trade: an ascending list highlights no row, and the pane is
+		// still right via the cross-page cache scan. Re-deriving the default from
+		// the visible page would put the oldest restore point behind Restore.
 		const { result } = renderHook(
 			() => {
 				const list = useActivityLog( {
@@ -304,10 +278,8 @@ describe( 'the default selection on an ascending list', () => {
 	} );
 
 	it( 'leaves the selection off-screen rather than moving it onto the page', async () => {
-		// The mismatch made explicit, on a page that genuinely excludes the
-		// selection. Page 2 ascending holds neither end's newest row, so a
-		// consumer that quietly re-derived the default from the visible page
-		// would have to change one of these two assertions.
+		// Page 2 ascending holds neither end's newest row, so re-deriving the
+		// default from the visible page would have to change one of these.
 		mockedApiFetch.mockImplementation( ( options: { path?: string } ) => {
 			const path = options?.path ?? '';
 			if ( path.includes( 'page=2' ) ) {
@@ -364,8 +336,7 @@ describe( 'useActivityById', () => {
 		await waitFor( () => expect( result.current.item ).not.toBeNull() );
 
 		expect( result.current.item ).toMatchObject( { rewindId: MIDDLE_ID } );
-		// One ascending request between the two of them. Pinning this hook
-		// to `desc` would have fetched the same rows a second time.
+		// One ascending request between them: pinning this hook would refetch.
 		expect( requestedPaths() ).toEqual( [ expect.stringContaining( 'sort_order=asc' ) ] );
 	} );
 } );

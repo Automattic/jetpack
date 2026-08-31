@@ -60,9 +60,8 @@ class Activity_Log_Bridge {
 						'type'        => 'integer',
 						'minimum'     => 1,
 					),
-					// Direction only. WPCOM's `get_stream_args()` sorts on
-					// `ts_utc` and takes no field, so there is no `orderby`
-					// to declare here and none to offer in the UI.
+					// Direction only: WPCOM's `get_stream_args()` sorts on `ts_utc`
+					// and takes no field, so there is no `orderby` to declare.
 					'sort_order' => array(
 						'description' => __( 'Sort direction.', 'jetpack-backup-pkg' ),
 						'type'        => 'string',

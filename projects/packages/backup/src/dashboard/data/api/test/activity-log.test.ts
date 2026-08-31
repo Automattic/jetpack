@@ -29,9 +29,8 @@ describe( 'fetchActivityLog', () => {
 	} );
 
 	it( 'omits the direction when none is asked for', async () => {
-		// The bridge and WordPress.com both default to `desc`. Sending an
-		// empty `sort_order` would fail the route's `enum` validation with a
-		// 400 rather than falling through to that default.
+		// An empty `sort_order` fails the route's `enum` validation with a 400
+		// rather than falling through to the shared `desc` default.
 		await fetchActivityLog( { page: 1, number: 10 } );
 
 		expect( requestedPath() ).not.toContain( 'sort_order' );

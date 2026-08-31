@@ -29,26 +29,16 @@ import type { View } from '@wordpress/dataviews';
 type OverviewSearch = Record< string, unknown > & { selected?: string };
 
 /**
- * The list's starting view state.
- *
- * Exported so the control-surface tests can pin what a reader sees on
- * first open — the seeded `sort` below is the whole of the fix for two
- * bugs, and both of them are only visible before anyone has clicked
- * anything.
+ * The list's starting view state, exported so tests can pin what a reader sees first.
  */
 export const INITIAL_VIEW: View = {
 	type: 'list',
 	page: 1,
 	perPage: ACTIVITY_LOG_DEFAULT_PER_PAGE,
 	filters: [],
-	// Seeded, not left undefined, and it has to name `description` — the
-	// only field this list makes sortable, and the timestamp WordPress.com
-	// actually orders on. Two things go wrong without it. The cog's "Sort
-	// by" is a native `<select>` with no value, so it displays its first
-	// option and claims an ordering the rows do not have; and DataViews
-	// disables the whole items-per-page group until `view.sort.field` is
-	// set, freezing the list at ten rows for any reader who never opens
-	// Order (JETPACK-2298).
+	// Seeding `sort` is the fix for JETPACK-2298: left undefined, the cog's "Sort
+	// by" select shows its first option whatever the real order, and DataViews
+	// disables items-per-page until `view.sort.field` is set.
 	sort: { field: 'description', direction: ACTIVITY_LOG_NEWEST_FIRST },
 	titleField: 'title',
 	mediaField: 'icon',
@@ -128,8 +118,8 @@ export default function OverviewScreen() {
 	// View state lives here so RightPane's `useActivityById` can
 	// subscribe to the same paginated query the list reads from.
 	const [ view, setView ] = useState< View >( INITIAL_VIEW );
-	// Derived by the same function `<ActivityList>` uses, so the right
-	// pane cannot ask for a different cache entry than the list filled.
+	// Same derivation `<ActivityList>` uses, so the right pane reads the cache
+	// entry the list filled rather than opening its own.
 	const { page, pageSize, sortOrder } = activityQueryArgs( view );
 	// Subscribe to page 1 of the activity log so the right pane
 	// reconciles to the newest backup the moment that page resolves.
@@ -323,8 +313,7 @@ function RightPane( {
 	pageSize: number;
 	sortOrder: ActivitySortOrder;
 } ) {
-	// All four must match what the list asked for: this is a read of the
-	// list's own cache entry, not a second request.
+	// All four must match the list's arguments — this reads its cache entry.
 	const item = useActivityById( selectedId, page, pageSize, sortOrder );
 	if ( ! selectedId ) {
 		return (

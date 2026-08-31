@@ -1,22 +1,7 @@
-// JETPACK-2297 + JETPACK-2298 — the activity list's cog and funnel, as a
-// reader finds them on first open.
-//
-// Everything here is asserted *before* any interaction with the sort
-// controls, because that is where all three bugs lived:
-//
-//   - the funnel offered filters nothing could honour, and opening one
-//     dropped the whole dashboard to its error boundary;
-//   - "Sort by" displayed "Title" over date-ordered rows, because an
-//     unset `view.sort` leaves a native <select> showing its first
-//     option;
-//   - items-per-page was disabled until something set `view.sort.field`,
-//     so a reader who never opened Order was stuck at ten rows.
-//
-// The last one is the reason this file drives the real DataViews rather
-// than resting on `INITIAL_VIEW` alone: `disabled={ ! view.sort.field }`
-// is dataviews' own wiring, and only a render proves the seed reaches
-// it. The seed itself is still asserted directly where a rendered
-// control cannot distinguish it — see the first cog test.
+// JETPACK-2297 + JETPACK-2298 — the activity list's cog and funnel on first
+// open, before any interaction, which is where all three bugs lived. Drives the
+// real DataViews rather than `INITIAL_VIEW` alone because the items-per-page
+// gating is dataviews' own wiring, and only a render proves the seed reaches it.
 
 const mockApiFetch = jest.fn();
 
@@ -124,26 +109,21 @@ describe( 'the filter affordance', () => {
 		);
 		await waitFor( () => expect( requestedPaths().length ).toBeGreaterThan( 0 ) );
 
-		// `filterBy: false` on every field leaves DataViews no filters to
-		// offer, so `FiltersToggle` renders nothing — which is what puts the
-		// `ValidatedText` crash out of reach, and stops a filter click
-		// resetting a reader on page 3 back to page 1.
+		// `filterBy: false` on every field leaves DataViews nothing to offer, so
+		// `FiltersToggle` renders nothing and the `ValidatedText` crash is
+		// unreachable.
 		expect( screen.queryByRole( 'button', { name: /add filter/i } ) ).not.toBeInTheDocument();
 
-		// The witness. Without it this assertion would pass just as well
-		// against a list that failed to render any chrome at all — which is
-		// how a "renders nothing" test keeps passing for the wrong reason.
+		// Witness: without it the assertion above passes against a list that
+		// rendered no chrome at all.
 		expect( screen.getByRole( 'button', { name: 'View options' } ) ).toBeVisible();
 	} );
 } );
 
 describe( 'the cog, before anyone touches it', () => {
-	// Two assertions because the rendered control cannot stand in for the
-	// seed: with `enableSorting: false` on the title field, "When" is the
-	// only option left, and a valueless native <select> reports its first
-	// option — so `sortBy.value` reads `description` even with
-	// `INITIAL_VIEW.sort` deleted. The symptom and the seed need pinning
-	// separately.
+	// Two assertions: with only one sortable field left, a valueless <select>
+	// reports `description` anyway, so the rendered control cannot witness the
+	// seed and the two need pinning separately.
 	it( 'names the ordering the rows are actually in', async () => {
 		expect( INITIAL_VIEW.sort ).toEqual( {
 			field: 'description',
@@ -153,9 +133,7 @@ describe( 'the cog, before anyone touches it', () => {
 		await renderAndOpenViewOptions();
 
 		const sortBy = screen.getByLabelText( 'Sort by' ) as HTMLSelectElement;
-		// `description` is the "When" column — the event timestamp, which is
-		// what WordPress.com orders on. The bug was this reading "Title",
-		// which is fixed by `enableSorting: false` rather than by the seed.
+		// `description` is the "When" column. The bug was this reading "Title".
 		expect( sortBy.value ).toBe( 'description' );
 		expect( sortBy.selectedOptions[ 0 ] ).toHaveTextContent( 'When' );
 	} );
@@ -163,8 +141,8 @@ describe( 'the cog, before anyone touches it', () => {
 	it( 'does not offer a sort field the server cannot honour', async () => {
 		await renderAndOpenViewOptions();
 
-		// `/activity/rewindable` takes a direction and no field, so "When"
-		// is the only truthful option. Title is `enableSorting: false`.
+		// `/activity/rewindable` takes a direction and no field, so "When" is the
+		// only truthful option.
 		const options = Array.from(
 			( screen.getByLabelText( 'Sort by' ) as HTMLSelectElement ).options
 		).map( option => option.textContent );
@@ -172,10 +150,8 @@ describe( 'the cog, before anyone touches it', () => {
 	} );
 
 	it( 'lets a reader change the page size without touching Order first', async () => {
-		// JETPACK-2298. dataviews disables the whole items-per-page group
-		// while `view.sort.field` is unset; seeding `INITIAL_VIEW.sort` is
-		// what unblocks it. Asserted through the rendered control because
-		// that gating is dataviews' wiring, not ours.
+		// JETPACK-2298: dataviews disables items-per-page while `view.sort.field`
+		// is unset, so this has to go through the rendered control.
 		await renderAndOpenViewOptions();
 
 		const twenty = screen.getByRole( 'radio', { name: '20' } );
@@ -193,11 +169,7 @@ describe( 'the cog, before anyone touches it', () => {
 describe( 'the Order control', () => {
 	it( 'sends the reader back to page 1 when the order flips', async () => {
 		// DataViews will not do this itself: `SortDirectionControl` spreads
-		// `...view` and replaces only `sort`, where the `ItemsPerPageControl`
-		// next to it sets `page: 1`. Left alone, a reader on page 3 of a
-		// descending log flips to ascending and stays on page 3 — now
-		// items 21-30 counted from the oldest end, a destination that
-		// corresponds to nothing they asked for.
+		// `...view` and replaces only `sort`, stranding a reader on page 3.
 		await renderAndOpenViewOptions();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Next page' } ) );
@@ -235,9 +207,8 @@ describe( 'the Order control', () => {
 
 		await userEvent.click( screen.getByRole( 'radio', { name: /ascending/i } ) );
 
-		// The list holds one page of forty items, so flipping it locally
-		// would reorder ten rows and mislabel that a sort. A new request is
-		// the only correct answer.
+		// The list holds one page of forty items, so a local flip would reorder ten
+		// rows and call that a sort.
 		await waitFor( () =>
 			expect( requestedPaths().some( path => path.includes( 'sort_order=asc' ) ) ).toBe( true )
 		);
