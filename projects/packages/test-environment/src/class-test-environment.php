@@ -71,9 +71,10 @@ class Test_Environment {
 	/**
 	 * Remove a directory, recursively.
 	 *
+	 * @private
 	 * @param string $dir Directory to remove.
 	 */
-	private static function rmrf( $dir ) {
+	public static function rmrf( $dir ) {
 		if ( ! file_exists( $dir ) ) {
 			return;
 		}
