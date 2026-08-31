@@ -17,9 +17,9 @@ function formatNumber( value: number ): string {
 }
 
 /**
- * Format a per-post average for display. Comments, likes and images average
- * below one on most sites, so the decimal carries the whole signal and a whole
- * number keeps its trailing `.0`.
+ * Format a per-post average for display. Legacy's `formatTableValue` allowlists
+ * `avg_comments` and `avg_likes` for one decimal; images follow them by
+ * analogy, legacy having never rendered that column.
  *
  * @param value - The average to format.
  * @return The formatted average.
