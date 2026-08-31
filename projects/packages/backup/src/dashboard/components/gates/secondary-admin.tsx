@@ -5,9 +5,8 @@ import LicenseKeyLink from './license-key-link';
 
 /**
  * My Jetpack's account-link screen, for the reasons in `not-connected.tsx`.
- * Deep-linked past its landing page, which puts "Connect account" below the
- * product grid; `skip_pricing` because this reader may already be entitled,
- * and the no-plan gate sells to the ones who are not.
+ * Deep-linked past the landing page, and `skip_pricing` because the no-plan gate
+ * already sells to the readers who need it.
  */
 const JETPACK_CONNECT_USER_URL = 'admin.php?page=my-jetpack#/connection?skip_pricing=true';
 
@@ -15,16 +14,10 @@ const JETPACK_CONNECT_USER_URL = 'admin.php?page=my-jetpack#/connection?skip_pri
  * Fallback shown when the current user is an admin but isn't personally
  * linked to a WordPress.com account on this site.
  *
- * This screen cannot know whether the site has a Backup plan: the gate
- * reaches it from connection state alone, and the capabilities bridge
- * would answer 403 without a user connection. So every claim leads with
- * its condition — a flat "you'll see this site's backups" is false on a
- * plan-less site, and a later hedge does not retract it.
- *
- * No purchase button, deliberately: checkout requires a linked
- * connection, so one here would hand this reader a flow they cannot
- * finish. Linking is the way forward for both readers — once linked, a
- * plan-less site lands on the no-plan gate and its working upsell.
+ * This screen cannot know whether the site has a Backup plan — the gate reaches
+ * it from connection state alone — so every claim leads with its condition. No
+ * purchase button either: checkout needs a linked connection, and linking is the
+ * way forward for both readers.
  *
  * @return The rendered fallback.
  */

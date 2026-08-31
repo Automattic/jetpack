@@ -1,18 +1,8 @@
-// JETPACK-2311 H4 — a secondary admin on a site with no Backup plan had
-// no way forward.
-//
-// The gate answers `secondary-admin` from connection state alone, before
-// anything is known about the plan, and deliberately so: without a user
-// connection the capabilities bridge can only answer 403. This screen
-// therefore never learns whether the site has a plan — and it used to
-// assume one, promising backups that may not exist and offering no other
-// way off the page. Legacy was no better: a bare `<h2>` with no actions.
-//
-// The fix is the screen, not the gate: every claim now leads with its
-// condition. A purchase button here was considered and rejected, because
-// checkout requires a linked connection and would hand this reader a flow
-// they cannot finish. Its absence is pinned below, because nothing else
-// would notice it coming back.
+// JETPACK-2311 H4 — a secondary admin on a site with no Backup plan had no way
+// forward. The gate answers from connection state alone, so this screen never
+// learns whether the site has a plan and every claim has to lead with its
+// condition. The absence of a purchase button is pinned below, since checkout
+// needs a linked connection and nothing else would notice one coming back.
 
 const mockApiFetch = jest.fn();
 
@@ -51,12 +41,8 @@ describe( 'Secondary-admin gate', () => {
 		}
 	} );
 
-	// Verified against a live My Jetpack: `#/connection` renders a screen whose
-	// single primary action is "Connect your user account", while the landing
-	// page this used to reach shows the product grid with the connection
-	// section below it. The query lives inside the hash on purpose — the
-	// router re-parses the fragment, so `skip_pricing` reaches it even though
-	// PHP never sees it.
+	// The query lives inside the hash on purpose: My Jetpack's router re-parses
+	// the fragment, so `skip_pricing` reaches it even though PHP never sees it.
 	it( "sends the reader into the account-link flow, not My Jetpack's landing page", () => {
 		render( <SecondaryAdminScreen /> );
 

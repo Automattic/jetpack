@@ -6,18 +6,10 @@ import { useSiteSuffix } from '../../hooks/use-connection';
 /**
  * The way in for someone who has not bought Backup yet.
  *
- * Only the no-plan gate renders this: checkout needs a linked
- * WordPress.com connection, so the secondary-admin gate deliberately does
- * not — see the note there.
- *
- * Reuses legacy's redirect slug and label rather than a URL and string
- * written here, so the destination stays maintained outside this repo and
- * the label arrives already translated. Same tab, as legacy did: an
- * upgrade flow that opens a new one strands the page it started from.
- *
- * No Tracks event yet — the modernized page registers no Tracks client at
- * all, so legacy's `jetpack_backup_plugin_upgrade_click` has nowhere to
- * go until H1b lands one.
+ * Only the no-plan gate renders this: checkout needs a linked WordPress.com
+ * connection, which the secondary-admin gate cannot assume. Reuses legacy's
+ * redirect slug and label, so the destination stays maintained outside this repo
+ * and the label arrives already translated.
  *
  * @return The rendered button.
  */
