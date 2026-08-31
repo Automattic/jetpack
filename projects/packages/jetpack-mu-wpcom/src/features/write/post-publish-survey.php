@@ -305,7 +305,6 @@ function wpcom_write_store_survey_response( $responses ) {
 		require_lib( 'marketing/survey' );
 
 		if ( class_exists( 'Marketing_Survey' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only lib loaded via require_lib(); stub to follow, see AGENTS.md.
 			$result = \Marketing_Survey::submit_survey( $blog_id, $user_id, WPCOM_WRITE_SURVEY_ID, $responses );
 
 			return ! empty( $result['success'] );
