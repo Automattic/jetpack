@@ -101,6 +101,9 @@ class WPCOM_WPAdmin_Page_View_Test extends TestCase {
 	 * wp_redirect(), while matching the header name anywhere in the string would treat
 	 * X-Content-Location as a redirect and drop real screens out of the denominator.
 	 *
+	 * The download and fragment cases each isolate one guard: export.php sends an attachment as
+	 * text/html would otherwise be accepted, and async-upload.php sends text/plain.
+	 *
 	 * @return array
 	 */
 	public static function wpcom_admin_screen_rendered_provider() {
@@ -110,6 +113,8 @@ class WPCOM_WPAdmin_Page_View_Test extends TestCase {
 			'wp_redirect'          => array( array( 'Content-Type: text/html; charset=UTF-8', 'Location: /wp-admin/edit.php' ), false ),
 			'lowercased by caller' => array( array( 'location: /wp-admin/' ), false ),
 			'location in a name'   => array( array( 'X-Content-Location: /wp-admin/' ), true ),
+			'attachment download'  => array( array( 'Content-Type: text/html; charset=UTF-8', 'Content-Disposition: attachment; filename=export.xml' ), false ),
+			'non-html fragment'    => array( array( 'Content-Type: text/plain; charset=UTF-8' ), false ),
 		);
 	}
 }

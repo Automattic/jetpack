@@ -178,9 +178,9 @@ function wpcom_admin_screen_watch_request( $screen ) {
 		return;
 	}
 
-	// Deferred to shutdown because a redirect is only knowable once the response headers have
-	// settled, and admin_init has by then populated the user types below. Named callback so the
-	// second set_current_screen() in admin-header.php cannot register it twice.
+	// Deferred to shutdown because what the response turned out to be is only knowable once its
+	// headers have settled, and admin_init has by then populated the user types below. Named
+	// callback so a request that resolves its screen more than once still records one event.
 	add_action( 'shutdown', __NAMESPACE__ . '\wpcom_admin_screen_record' );
 }
 add_action( 'current_screen', __NAMESPACE__ . '\wpcom_admin_screen_watch_request' );
@@ -204,8 +204,15 @@ function wpcom_admin_screen_is_countable( $screen ) {
 		return false;
 	}
 
-	// set_current_screen() also runs for a handful of admin-ajax actions, which render no page.
-	if ( wp_doing_ajax() ) {
+	// Not is_admin(): it defers to the screen we were just handed, which reports itself as being
+	// in the admin for every set_current_screen() caller, REST endpoints included.
+	if ( ! defined( 'WP_ADMIN' ) || ! WP_ADMIN ) {
+		return false;
+	}
+
+	// admin-ajax.php defines WP_ADMIN, and REST endpoints resolve a screen to simulate an admin
+	// context. Neither renders a page.
+	if ( wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 		return false;
 	}
 
@@ -213,24 +220,50 @@ function wpcom_admin_screen_is_countable( $screen ) {
 		return false;
 	}
 
+	// The Customizer runs no admin_footer, so its client-side counterpart comes from
+	// wpcom_maybe_track_customizer(), which records nothing for a Calypso frame or a frontend link.
+	if ( 'customize' === $screen->id && ( isset( $_GET['calypso'] ) || isset( $_GET['url'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return false;
+	}
+
 	return ! do_not_track_a11ns();
 }
 
 /**
- * A redirecting request renders no screen; the one it points at records itself. Counting both
- * would inflate the denominator on every admin POST, since those all end in a redirect.
+ * Whether the response the request produced was actually an admin screen.
+ *
+ * A redirect renders nothing and the screen it points at records itself, so counting both would
+ * inflate the denominator on every admin POST. A download (export.php) or a bare fragment
+ * (async-upload.php) resolves a screen and then exits without an admin footer, so the client
+ * event never fires for it and counting it would depress the ratio the same way.
  *
  * @param string[] $headers Response headers, as returned by headers_list().
  * @return bool
  */
 function wpcom_admin_screen_rendered( array $headers ) {
+	$content_type = null;
+
 	foreach ( $headers as $header ) {
 		if ( 0 === stripos( $header, 'location:' ) ) {
 			return false;
 		}
+
+		if ( 0 === stripos( $header, 'content-disposition:' ) && false !== stripos( $header, 'attachment' ) ) {
+			return false;
+		}
+
+		if ( 0 === stripos( $header, 'content-type:' ) ) {
+			$content_type = strtolower( ltrim( substr( $header, strlen( 'content-type:' ) ) ) );
+		}
 	}
 
-	return true;
+	// A response that never got as far as a Content-Type is still countable: an early wp_die() or
+	// a fatal is precisely the traffic this event exists to measure.
+	if ( null === $content_type ) {
+		return true;
+	}
+
+	return 0 === strpos( $content_type, 'text/html' ) || 0 === strpos( $content_type, 'application/xhtml+xml' );
 }
 
 /**
