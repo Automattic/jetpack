@@ -142,6 +142,19 @@ class Reprint_Exporter {
 	}
 
 	/**
+	 * Discards any stored export credentials.
+	 *
+	 * Called on plugin activation. protect_options() can only refuse writes
+	 * made while Jetpack is running, so anything sitting in these options at
+	 * activation was written while it was not — which means it did not come
+	 * from here. Throwing it away costs a legitimate client one rotation.
+	 */
+	public static function discard_credentials() {
+		delete_option( self::SECRET_OPTION );
+		delete_option( self::ENABLED_OPTION );
+	}
+
+	/**
 	 * Stores a freshly minted shared secret.
 	 *
 	 * @param string $secret The new secret.
@@ -169,19 +182,19 @@ class Reprint_Exporter {
 	 * @return bool
 	 */
 	public static function is_available() {
-		$available = Constants::is_true( 'IS_PRESSABLE' ) || ( new Host() )->is_woa_site();
+		if ( ! ( Constants::is_true( 'IS_PRESSABLE' ) || ( new Host() )->is_woa_site() ) ) {
+			return false;
+		}
 
 		/**
 		 * Filters whether Jetpack Reprint export support is available on the
 		 * current site.
 		 *
-		 * Default: true on Pressable and WordPress.com (Atomic), false elsewhere.
-		 *
 		 * @since $$next-version$$
 		 *
 		 * @param bool $available Whether Reprint export support is available.
 		 */
-		return (bool) apply_filters( 'jetpack_reprint_export_available', $available );
+		return (bool) apply_filters( 'jetpack_reprint_export_available', true );
 	}
 
 	/**

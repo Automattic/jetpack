@@ -128,14 +128,21 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The Atomic platform alone is not enough.
+	 * WP Cloud alone is not WordPress.com.
 	 *
-	 * Host::is_woa_site() means the Atomic platform plus wpcomsh, so an Atomic
-	 * container without wpcomsh stays closed.
+	 * Every WP Cloud host satisfies is_atomic_platform(), so the gate uses
+	 * is_woa_site(), which additionally requires wpcomsh — the marker of a
+	 * WordPress.com site. Without this the gate could be widened back to the
+	 * whole of WP Cloud and no other test would notice.
 	 */
-	public function test_not_available_on_atomic_without_wpcomsh() {
+	public function test_not_available_on_wp_cloud_without_wordpress_com() {
 		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
 		Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
+		// Stated rather than assumed: the wpcomsh suite really does define this,
+		// and Constants prefers its own value over a define().
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', false );
+		Status_Cache::clear();
+
 		$this->assertFalse( Reprint_Exporter::is_available() );
 	}
 
@@ -162,11 +169,14 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The filter can force-enable the feature off Pressable.
+	 * The filter cannot switch the feature on off a supported host.
+	 *
+	 * The host check is the policy, so third-party code must not be able to
+	 * expose a full-site export on a site we do not run.
 	 */
-	public function test_filter_enables_off_pressable() {
+	public function test_filter_cannot_enable_off_supported_hosts() {
 		add_filter( 'jetpack_reprint_export_available', '__return_true' );
-		$this->assertTrue( Reprint_Exporter::is_available() );
+		$this->assertFalse( Reprint_Exporter::is_available() );
 	}
 
 	/**
@@ -265,7 +275,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	#[RunInSeparateProcess]
 	public function test_module_extras_loads_reprint_on_connected_sites() {
 		add_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
-		add_filter( 'jetpack_reprint_export_available', '__return_true' );
+		Constants::set_constant( 'IS_PRESSABLE', true );
 		add_filter(
 			'jetpack_tools_to_include',
 			static function () {
@@ -395,6 +405,24 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		update_option( Reprint_Exporter::SECRET_OPTION, 'attacker-chosen' );
 
 		$this->assertSame( 'a-secret', get_option( Reprint_Exporter::SECRET_OPTION ) );
+	}
+
+	/**
+	 * Activation throws away credentials it did not mint.
+	 *
+	 * Anything in these options at activation was written while Jetpack was
+	 * not running, so protect_options() never saw it. Discarding costs a real
+	 * client one rotation and closes the plant-then-activate sequence.
+	 */
+	public function test_discard_credentials_clears_planted_values() {
+		$this->plant_option( Reprint_Exporter::SECRET_OPTION, 'planted-by-someone-else' );
+		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() );
+		$this->assertTrue( Reprint_Exporter::is_export_window_open(), 'Fixture must look usable before activation.' );
+
+		Reprint_Exporter::discard_credentials();
+
+		$this->assertFalse( get_option( Reprint_Exporter::SECRET_OPTION ) );
+		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
 	}
 
 	/**
@@ -563,7 +591,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 * @return Reprint_Exporter_Test_Stub
 	 */
 	private function make_ready_stub() {
-		add_filter( 'jetpack_reprint_export_available', '__return_true' );
+		Constants::set_constant( 'IS_PRESSABLE', true );
 		Reprint_Exporter::open_export_window();
 		$_GET['reprint-api-jetpack'] = '1';
 		$_SERVER['REQUEST_METHOD']   = 'GET';
@@ -574,7 +602,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 * No reprint-api-jetpack query param: the handler does nothing.
 	 */
 	public function test_ignores_request_without_query_param() {
-		add_filter( 'jetpack_reprint_export_available', '__return_true' );
+		Constants::set_constant( 'IS_PRESSABLE', true );
 		Reprint_Exporter::open_export_window();
 		$stub = new Reprint_Exporter_Test_Stub();
 		$this->run_handler( $stub, $this->make_wp( '' ) );
@@ -596,7 +624,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 * Closed window: the handler does nothing.
 	 */
 	public function test_ignores_when_window_closed() {
-		add_filter( 'jetpack_reprint_export_available', '__return_true' );
+		Constants::set_constant( 'IS_PRESSABLE', true );
 		$_GET['reprint-api-jetpack'] = '1';
 		$_SERVER['REQUEST_METHOD']   = 'GET';
 		$stub                        = new Reprint_Exporter_Test_Stub();
