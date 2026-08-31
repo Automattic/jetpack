@@ -42,7 +42,6 @@ export default defineConfig( {
 		},
 	},
 	plugins: [ removeDataTestId() ],
-	// Fail loudly once @tsdown/css stops emitting these, so the suppression can be dropped.
 	onSuccess() {
 		assertNoDynamicRequire( 'dist' );
 		assertChartsScopeEmitted( 'dist' );
