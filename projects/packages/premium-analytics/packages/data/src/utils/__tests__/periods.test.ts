@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { defaultPeriodForInterval, drawableIntervals } from '../periods';
+import { chartInterval, defaultPeriodForInterval, drawableIntervals } from '../periods';
 
 // The period sets in use.
 const DAY_WEEK_MONTH = [ 'day', 'week', 'month' ] as const;
@@ -110,5 +110,43 @@ describe( 'drawableIntervals', () => {
 
 	it( 'has nothing to offer when the range allows nothing', () => {
 		expect( drawableIntervals( [], DAY_WEEK_MONTH_YEAR ) ).toEqual( [] );
+	} );
+} );
+
+describe( 'chartInterval', () => {
+	// A 3-day window: the range allows hours and days, a daily report draws days.
+	const CUSTOM_3_DAYS = {
+		preset: undefined,
+		from: '2026-08-01T00:00:00',
+		to: '2026-08-03T23:59:59',
+	} as const;
+
+	it( 'keeps a bucket the range allows and the chart draws', () => {
+		expect( chartInterval( { ...CUSTOM_3_DAYS, interval: 'day' }, DAY_WEEK_MONTH_YEAR ) ).toBe(
+			'day'
+		);
+	} );
+
+	it( 'clamps a bucket the chart cannot draw', () => {
+		expect( chartInterval( { ...CUSTOM_3_DAYS, interval: 'hour' }, DAY_WEEK_MONTH_YEAR ) ).toBe(
+			'day'
+		);
+	} );
+
+	it( 'stays inside the menu for a chart whose periods have a gap', () => {
+		// The range allows day and week; this chart skips week, so the menu is
+		// day alone. Clamping against the widget's own set would land on month,
+		// which the menu never lists.
+		const params = {
+			preset: undefined,
+			from: '2026-07-09T00:00:00',
+			to: '2026-08-07T23:59:59',
+			interval: 'week',
+		} as const;
+
+		expect( drawableIntervals( [ 'day', 'week' ], [ 'day', 'month' ] as const ) ).toEqual( [
+			'day',
+		] );
+		expect( chartInterval( params, [ 'day', 'month' ] as const ) ).toBe( 'day' );
 	} );
 } );

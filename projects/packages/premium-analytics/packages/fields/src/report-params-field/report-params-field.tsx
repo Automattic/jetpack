@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	chartInterval,
 	drawableIntervals,
 	getAllowedIntervalsForPreset,
 	getDefaultPreset,
@@ -295,11 +296,9 @@ function ReportParamsControl( {
 		return periods ? drawableIntervals( allowed, periods ) : allowed;
 	}, [ reportParams.preset, reportParams.from, reportParams.to, periods ] );
 
-	// Check what the chart draws: a stored bucket the widget clamps away is not
-	// what is on screen.
-	const interval = intervalOptions.includes( reportParams.interval )
-		? reportParams.interval
-		: intervalOptions[ 0 ];
+	// Check what the chart draws, through the call the chart itself makes: a
+	// stored bucket the widget clamps away is not what is on screen.
+	const interval = periods ? chartInterval( reportParams, periods ) : reportParams.interval;
 
 	const changeInterval = useCallback(
 		( nextInterval: IntervalType ) => {

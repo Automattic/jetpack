@@ -1,7 +1,9 @@
 /**
  * Internal dependencies
  */
+import { getAllowedIntervalsForPreset } from './interval';
 import { getStatsPeriodFromInterval, type StatsPeriod } from './stats-params';
+import type { ReportParams } from './search';
 import type { IntervalType } from '@jetpack-premium-analytics/datetime';
 
 /**
@@ -67,14 +69,37 @@ export function defaultPeriodForInterval< P extends StatsPeriod >(
 export function drawableIntervals< P extends StatsPeriod >(
 	intervals: readonly IntervalType[],
 	allowed: readonly [ P, ...P[] ]
-): IntervalType[] {
+): P[] {
 	// Membership, not the mapped period: mapping onto a period the chart offers
 	// is not the same as the chart drawing that bucket.
-	const drawable = intervals.filter( interval =>
+	const drawable = intervals.filter( ( interval ): interval is P =>
 		( allowed as readonly string[] ).includes( interval )
 	);
 
 	return drawable.length
 		? drawable
 		: [ ...new Set( intervals.map( interval => defaultPeriodForInterval( interval, allowed ) ) ) ];
+}
+
+/**
+ * The bucket a widget's chart draws for a set of report params.
+ *
+ * The control checks the item this returns and the chart draws it, both from
+ * the same params, so a menu can never check a bucket the chart is not drawing.
+ *
+ * @param params  - The report params the chart reads.
+ * @param periods - The periods this widget offers, in any order.
+ * @return The bucket the chart draws.
+ */
+export function chartInterval< P extends StatsPeriod >(
+	params: Pick< ReportParams, 'preset' | 'from' | 'to' | 'interval' >,
+	periods: readonly [ P, ...P[] ]
+): P {
+	// Both inputs are total, so the list is never empty.
+	const [ first, ...rest ] = drawableIntervals(
+		getAllowedIntervalsForPreset( params.preset, params.from ?? '', params.to ?? '' ),
+		periods
+	);
+
+	return defaultPeriodForInterval( params.interval, [ first, ...rest ] );
 }

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
+import { ReportScopeProvider, chartInterval } from '@jetpack-premium-analytics/data';
 import { megaphone } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTabsChart,
@@ -9,7 +9,6 @@ import {
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
-	defaultPeriodForInterval,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 /**
@@ -31,10 +30,7 @@ const DATA_FORMAT = {
 
 function WordAdsChartTabsInner() {
 	const { reportParams } = useWidgetRootContext();
-	const period: WordAdsPeriod = defaultPeriodForInterval(
-		reportParams.interval,
-		WORDADS_GRAIN.periods
-	);
+	const period: WordAdsPeriod = chartInterval( reportParams, WORDADS_GRAIN.periods );
 
 	const { metrics, isLoading, isFetching, isError, isEmpty, refetch } = useWordAdsChart(
 		reportParams,
