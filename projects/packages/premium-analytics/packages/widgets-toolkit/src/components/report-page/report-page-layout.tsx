@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import { DateFiltersPanel, SectionHeader, getSectionSubtitle } from '@jetpack-premium-analytics/ui';
+import { DateFiltersPanel, SectionHeader } from '@jetpack-premium-analytics/ui';
 import clsx from 'clsx';
-import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -31,20 +30,10 @@ export interface ReportPageLayoutProps {
  * @return The report page scaffold.
  */
 export function ReportPageLayout( { title, dateFilters, tabs, children }: ReportPageLayoutProps ) {
-	const appliedRange = dateFilters?.appliedRange;
-	const appliedPresetId = dateFilters?.appliedPresetId;
-
-	// The applied range, not the picker's staged draft. No interval or
-	// comparison: the header must not describe what it offers no control for.
-	const subtitle = useMemo(
-		() => getSectionSubtitle( { range: appliedRange, presetId: appliedPresetId } ),
-		[ appliedRange, appliedPresetId ]
-	);
-
 	return (
 		<div className={ styles.root }>
 			{ tabs }
-			<SectionHeader title={ title } subtitle={ subtitle }>
+			<SectionHeader title={ title }>
 				{ dateFilters ? <DateFiltersPanel { ...dateFilters } /> : null }
 			</SectionHeader>
 			<div className={ styles.sections }>{ children }</div>

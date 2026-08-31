@@ -188,7 +188,6 @@ function PostsReport(): JSX.Element {
 			tabbed
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
-			subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics-pkg' ) }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />

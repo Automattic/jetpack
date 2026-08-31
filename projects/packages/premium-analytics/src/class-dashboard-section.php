@@ -79,14 +79,6 @@ final class Dashboard_Section {
 	public $title = null;
 
 	/**
-	 * Section description, shown as the page subtitle while this section is active.
-	 *
-	 * @since 0.3.0
-	 * @var string|null
-	 */
-	public $description = null;
-
-	/**
 	 * Sort order.
 	 *
 	 * @var int
@@ -209,7 +201,6 @@ final class Dashboard_Section {
 			'slug'                => $this->slug,
 			'label'               => $this->label,
 			'title'               => $this->title,
-			'description'         => $this->description,
 			'order'               => (int) $this->order,
 			'date_filter'         => $this->date_filter,
 			'date_filter_options' => $this->date_filter_options,
@@ -238,11 +229,6 @@ final class Dashboard_Section {
 		if ( isset( $args['title'] ) ) {
 			$title       = (string) $args['title'];
 			$this->title = '' === $title ? null : $title;
-		}
-
-		if ( isset( $args['description'] ) ) {
-			$description       = (string) $args['description'];
-			$this->description = '' === $description ? null : $description;
 		}
 
 		if ( isset( $args['order'] ) ) {

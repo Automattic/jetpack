@@ -41,11 +41,6 @@ export type ReportDefinition = {
 	getTitle: () => string;
 
 	/**
-	 * Optional translated page description, resolved lazily.
-	 */
-	getDescription?: () => string;
-
-	/**
 	 * Resolve a raw `?section=` value to a section this report owns, falling back
 	 * to its default, so a shareable URL never persists a section the report can't
 	 * render. Omit for reports that have no sections.
@@ -78,8 +73,6 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		id: 'annual-insights',
 		getLabel: () => __( 'Annual insights', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'Annual insights report', 'jetpack-premium-analytics-pkg' ),
-		getDescription: () =>
-			__( 'Year-by-year publishing and engagement totals.', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './annual-insights/page' ),
 	},
 	authors: {
@@ -104,11 +97,6 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		id: 'comments',
 		getLabel: () => __( 'All comments', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'All comments report', 'jetpack-premium-analytics-pkg' ),
-		getDescription: () =>
-			__(
-				'Learn about the comments your site receives by authors, posts, and pages.',
-				'jetpack-premium-analytics-pkg'
-			),
 		resolveSection: resolveCommentsTabId,
 		load: () => import( './comments/page' ),
 	},
@@ -125,16 +113,12 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		id: 'emails',
 		getLabel: () => __( 'Emails', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'Emails report', 'jetpack-premium-analytics-pkg' ),
-		getDescription: () =>
-			__( 'Open and click performance of your latest emails.', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './emails/page' ),
 	},
 	locations: {
 		id: 'locations',
 		getLabel: () => __( 'All locations', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'All locations report', 'jetpack-premium-analytics-pkg' ),
-		getDescription: () =>
-			__( 'See where your visitors are viewing from.', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveLocationsSection,
 		load: () => import( './locations/page' ),
 	},
@@ -142,8 +126,6 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		id: 'posts',
 		getLabel: () => __( 'All pages', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'All pages report', 'jetpack-premium-analytics-pkg' ),
-		getDescription: () =>
-			__( 'All your posts and archive pages.', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveTabId,
 		load: () => import( './posts/page' ),
 	},
@@ -157,15 +139,12 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		id: 'tags',
 		getLabel: () => __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'Tags & categories report', 'jetpack-premium-analytics-pkg' ),
-		getDescription: () =>
-			__( 'Your most visited tags and categories.', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './tags/page' ),
 	},
 	videos: {
 		id: 'videos',
 		getLabel: () => __( 'Videos', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'Videos report', 'jetpack-premium-analytics-pkg' ),
-		getDescription: () => __( 'See how your videos perform.', 'jetpack-premium-analytics-pkg' ),
 		// Play counts only exist for VideoPress-hosted videos; mirrors the gate in
 		// `src/widget-type-support.php`.
 		isAvailable: isVideoPressAvailable,

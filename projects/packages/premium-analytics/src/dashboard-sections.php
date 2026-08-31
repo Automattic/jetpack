@@ -175,7 +175,6 @@ function register_default_dashboard_sections() {
 		'analytics/traffic'     => array(
 			'label'          => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
 			'title'          => __( 'Site traffic', 'jetpack-premium-analytics-pkg' ),
-			'description'    => __( 'Views, visitors, and where they came from.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 10,
 			'default_layout' => static function () {
 				return get_dashboard_default_layout_for( 'analytics/traffic' );
@@ -184,7 +183,6 @@ function register_default_dashboard_sections() {
 		'analytics/insights'    => array(
 			'label'               => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
 			'title'               => __( 'Activity insights', 'jetpack-premium-analytics-pkg' ),
-			'description'         => __( 'Longer-term patterns in your content and audience.', 'jetpack-premium-analytics-pkg' ),
 			'order'               => 20,
 			// Insights reads whole history: all time and single years instead of
 			// the rolling picker, with nothing to compare them against.
@@ -199,7 +197,6 @@ function register_default_dashboard_sections() {
 		'analytics/subscribers' => array(
 			'label'          => __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
 			'title'          => __( 'Subscribers stats', 'jetpack-premium-analytics-pkg' ),
-			'description'    => __( 'How your subscriber list is growing, and how your emails land.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 30,
 			'is_available'   => __NAMESPACE__ . '\\is_subscribers_dashboard_section_available',
 			'default_layout' => static function () {
@@ -209,7 +206,6 @@ function register_default_dashboard_sections() {
 		// Store registers no heading of its own, so it falls back to the label.
 		'woocommerce/store'     => array(
 			'label'          => __( 'Store', 'jetpack-premium-analytics-pkg' ),
-			'description'    => __( 'Sales, orders, and what your customers are buying.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 40,
 			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available_to_current_user',
 			// Nothing backfills historical orders to WordPress.com but the analytics
@@ -219,7 +215,6 @@ function register_default_dashboard_sections() {
 		),
 		'analytics/ads'         => array(
 			'label'               => __( 'Ads', 'jetpack-premium-analytics-pkg' ),
-			'description'         => __( 'How your ads are performing, and what they have earned you.', 'jetpack-premium-analytics-pkg' ),
 			'order'               => 50,
 			'is_available'        => __NAMESPACE__ . '\\is_ads_dashboard_section_available_to_current_user',
 			// Only the chart supports dates, so it owns the control. No Ads widget
@@ -324,11 +319,6 @@ function get_dashboard_section_schema() {
 			),
 			'title'               => array(
 				'description' => __( 'Translated section heading, distinct from the tab label. Null falls back to the label.', 'jetpack-premium-analytics-pkg' ),
-				'type'        => array( 'string', 'null' ),
-				'readonly'    => true,
-			),
-			'description'         => array(
-				'description' => __( 'Translated section description, shown as the page subtitle while the section is active.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => array( 'string', 'null' ),
 				'readonly'    => true,
 			),
