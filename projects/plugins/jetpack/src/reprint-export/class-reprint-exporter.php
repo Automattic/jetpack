@@ -231,21 +231,19 @@ class Reprint_Exporter {
 			return;
 		}
 
-		if ( ! self::is_export_window_open() ) {
-			return;
-		}
-
-		// HMAC authentication, not Origin, controls access to exports.
-		// Handle browser preflights before HMAC because they carry no credentials.
-		if ( ! headers_sent() ) {
-			header( 'Access-Control-Allow-Origin: *' );
-			header( 'Access-Control-Allow-Methods: GET, POST, OPTIONS' );
-			header( 'Access-Control-Allow-Headers: *' );
-		}
-
+		// The export client may run in a browser — Playground, for one — from
+		// deployments we do not know ahead of time, so any origin is allowed.
+		// Origin is not a security boundary here: every request needs the HMAC
+		// secret whatever it came from, and a wildcard origin cannot carry
+		// credentials, so a hostile page has nothing to borrow.
+		//
+		// Preflights run before HMAC because browsers send them without
+		// credentials, and before the window check so a client whose window has
+		// lapsed can still reach the 409 below.
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( $_SERVER['REQUEST_METHOD'] ) : '';
 		if ( 'OPTIONS' === $request_method ) {
+			$this->send_cors_headers();
 			if ( ! headers_sent() ) {
 				header( 'Allow: GET, POST, OPTIONS' );
 			}
@@ -253,15 +251,34 @@ class Reprint_Exporter {
 			return;
 		}
 
+		// A closed window answers nothing to a caller without a valid signature:
+		// an idle site stays indistinguishable from one that never had the
+		// feature. Only a caller holding the secret learns the difference.
+		$window_open = self::is_export_window_open();
+
 		$secret = get_option( self::SECRET_OPTION, '' );
 		if ( ! is_string( $secret ) || '' === $secret ) {
+			if ( ! $window_open ) {
+				return;
+			}
 			$this->error( 503, 'Export not configured. Please rotate the shared secret via POST /jetpack/v4/reprint/rotate-export-secret.' );
 			return;
 		}
 
 		$auth_error = $this->verify_hmac( $secret );
 		if ( null !== $auth_error ) {
+			if ( ! $window_open ) {
+				return;
+			}
 			$this->error( 403, $auth_error );
+			return;
+		}
+
+		// Signature checks out, so tell the client which of the two states it is
+		// in: the site still has the exporter and only needs re-arming, rather
+		// than having lost it.
+		if ( ! $window_open ) {
+			$this->error( 409, 'Export window closed. Re-open it via POST /jetpack/v4/reprint/enable-export.' );
 			return;
 		}
 
@@ -323,7 +340,25 @@ class Reprint_Exporter {
 	 * Seam for tests to override so they don't perform a real export.
 	 */
 	protected function serve_export() {
+		$this->send_cors_headers();
 		\Site_Export_HTTP_Server::serve( array( 'default_directory' => ABSPATH ) );
+	}
+
+	/**
+	 * Emits the CORS headers the export client needs.
+	 *
+	 * Sent only with responses we actually produce, so a request that falls
+	 * through to WordPress does not pick them up. See handle_request() for why
+	 * any origin is allowed.
+	 */
+	protected function send_cors_headers() {
+		if ( headers_sent() ) {
+			return;
+		}
+
+		header( 'Access-Control-Allow-Origin: *' );
+		header( 'Access-Control-Allow-Methods: GET, POST, OPTIONS' );
+		header( 'Access-Control-Allow-Headers: *' );
 	}
 
 	/**
@@ -333,6 +368,7 @@ class Reprint_Exporter {
 	 * @param string $message Error description.
 	 */
 	protected function error( $code, $message ) {
+		$this->send_cors_headers();
 		if ( ! headers_sent() ) {
 			http_response_code( $code );
 			header( 'Content-Type: application/json' );

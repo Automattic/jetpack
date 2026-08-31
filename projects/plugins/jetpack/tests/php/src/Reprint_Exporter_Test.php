@@ -724,6 +724,78 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A closed window with a valid signature reports 409 rather than nothing.
+	 *
+	 * Lets a client tell "the site still has the exporter, re-arm it" from "the
+	 * site no longer has it", which were the same silent response before.
+	 */
+	public function test_closed_window_returns_409_to_a_valid_signature() {
+		Constants::set_constant( 'IS_PRESSABLE', true );
+		Reprint_Exporter::store_secret( 'a-secret' );
+		$_GET['reprint-api-jetpack'] = '1';
+		$_SERVER['REQUEST_METHOD']   = 'GET';
+
+		$stub = new Reprint_Exporter_Test_Stub();
+		$body = $this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertSame( 409, $stub->error_code );
+		$this->assertStringContainsString( '"code":409', $body );
+		$this->assertSame( 'a-secret', $stub->verified_secret, 'The signature must be checked before reporting the window state.' );
+		$this->assertFalse( $stub->served );
+	}
+
+	/**
+	 * A closed window still says nothing to a caller without a valid signature.
+	 */
+	public function test_closed_window_stays_silent_without_a_valid_signature() {
+		Constants::set_constant( 'IS_PRESSABLE', true );
+		Reprint_Exporter::store_secret( 'a-secret' );
+		$_GET['reprint-api-jetpack'] = '1';
+		$_SERVER['REQUEST_METHOD']   = 'GET';
+
+		$stub             = new Reprint_Exporter_Test_Stub();
+		$stub->hmac_error = 'Invalid signature.';
+		$body             = $this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertNull( $stub->error_code );
+		$this->assertSame( '', $body );
+		$this->assertFalse( $stub->terminated );
+	}
+
+	/**
+	 * A closed window says nothing when no secret has ever been minted.
+	 */
+	public function test_closed_window_stays_silent_without_a_secret() {
+		Constants::set_constant( 'IS_PRESSABLE', true );
+		$_GET['reprint-api-jetpack'] = '1';
+		$_SERVER['REQUEST_METHOD']   = 'GET';
+
+		$stub = new Reprint_Exporter_Test_Stub();
+		$body = $this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertNull( $stub->error_code );
+		$this->assertSame( '', $body );
+	}
+
+	/**
+	 * The preflight answers even when the window is closed.
+	 *
+	 * A client whose window lapsed has to complete a preflight before it can
+	 * send the signed request that earns the 409.
+	 */
+	public function test_options_preflight_answers_when_window_closed() {
+		Constants::set_constant( 'IS_PRESSABLE', true );
+		$_GET['reprint-api-jetpack'] = '1';
+		$_SERVER['REQUEST_METHOD']   = 'OPTIONS';
+
+		$stub = new Reprint_Exporter_Test_Stub();
+		$this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertTrue( $stub->terminated );
+		$this->assertFalse( $stub->served );
+	}
+
+	/**
 	 * Not available (filter off): the handler does nothing.
 	 */
 	public function test_ignores_when_not_available() {
