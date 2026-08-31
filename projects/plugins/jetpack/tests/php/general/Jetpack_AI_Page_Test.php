@@ -10,8 +10,11 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-ai-page.php';
 
@@ -38,7 +41,15 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'agents_manager_agent_id' );
 		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
+		remove_all_filters( 'jetpack_ai_admin_config' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks' );
+		remove_all_filters( 'jetpack_is_connection_ready' );
+		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_actions( 'admin_print_scripts-jetpack_page_jetpack-ai' );
+		remove_all_actions( 'admin_print_styles-jetpack_page_jetpack-ai' );
+		remove_all_actions( 'load-jetpack_page_jetpack-ai' );
+		unset( $GLOBALS['wp_styles'] );
+		Constants::clear_constants();
 
 		parent::tear_down();
 	}
@@ -128,6 +139,130 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Create a page whose menu registration has already returned its hook.
+	 *
+	 * @return Jetpack_AI_Page
+	 */
+	private function get_page_with_registered_hook() {
+		return new class() extends Jetpack_AI_Page {
+			/**
+			 * Return the hook assigned to the Jetpack AI menu page.
+			 *
+			 * @return string
+			 */
+			public function get_page_hook() {
+				return 'jetpack_page_jetpack-ai';
+			}
+		};
+	}
+
+	/**
+	 * The standalone page registers through the shared Jetpack admin menu.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_page_hook_registers_jetpack_ai_menu() {
+		$this->assertSame( 'jetpack_page_jetpack-ai', ( new Jetpack_AI_Page() )->get_page_hook() );
+	}
+
+	/**
+	 * The standalone controller registers scripts, styles, and the page loader.
+	 */
+	public function test_add_actions_registers_standalone_page_hooks() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
+
+		$page = $this->get_page_with_registered_hook();
+		$page->add_actions();
+
+		$this->assertNotFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+		$this->assertNotFalse( has_action( 'admin_print_styles-jetpack_page_jetpack-ai', array( $page, 'admin_styles' ) ) );
+		$this->assertNotFalse( has_action( 'load-jetpack_page_jetpack-ai', array( $page, 'load_agents_manager' ) ) );
+	}
+
+	/**
+	 * Simple sites keep the Hub's own layout without the standalone base stylesheet.
+	 */
+	public function test_add_actions_skips_standalone_styles_on_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
+
+		$page = $this->get_page_with_registered_hook();
+		$page->add_actions();
+
+		$this->assertNotFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+		$this->assertFalse( has_action( 'admin_print_styles-jetpack_page_jetpack-ai', array( $page, 'admin_styles' ) ) );
+	}
+
+	/**
+	 * A disconnected site does not expose the page outside offline mode.
+	 */
+	public function test_add_actions_skips_disconnected_site() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		add_filter( 'jetpack_is_connection_ready', '__return_false', PHP_INT_MAX );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+
+		$page = new Jetpack_AI_Page();
+		$page->add_actions();
+
+		$this->assertFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+	}
+
+	/**
+	 * Offline mode does not expose the page to users without admin access.
+	 */
+	public function test_add_actions_skips_non_admin_in_offline_mode() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$page = new Jetpack_AI_Page();
+		$page->add_actions();
+
+		$this->assertFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+	}
+
+	/**
+	 * A host that cannot register the menu does not attach page-specific hooks.
+	 */
+	public function test_add_actions_stops_when_menu_registration_fails() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
+
+		$page = new class() extends Jetpack_AI_Page {
+			/**
+			 * Simulate a host declining to register the menu.
+			 *
+			 * @return false
+			 */
+			public function get_page_hook() {
+				return false;
+			}
+		};
+		$page->add_actions();
+
+		$this->assertFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+	}
+
+	/**
+	 * The standalone stylesheet keeps the legacy Jetpack style metadata.
+	 */
+	public function test_admin_styles_enqueues_legacy_jetpack_stylesheet() {
+		( new Jetpack_AI_Page() )->admin_styles();
+
+		$style = wp_styles()->registered['jetpack-admin'];
+		$min   = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
+		$this->assertTrue( wp_style_is( 'jetpack-admin', 'enqueued' ) );
+		$this->assertStringEndsWith( "css/jetpack-admin{$min}.css", $style->src );
+		$this->assertSame( 'replace', $style->extra['rtl'] );
+		$this->assertSame( $min, $style->extra['suffix'] );
+	}
+
+	/**
 	 * Outside internal testing environments the Features view flag is off.
 	 */
 	public function test_features_view_flag_is_off_by_default() {
@@ -150,6 +285,53 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 
 		$this->assertTrue( $settings['showFeaturesView'] );
 		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
+	}
+
+	/**
+	 * Hosts can hide pre-release views even in an internal testing environment.
+	 */
+	public function test_features_view_flag_can_be_filtered_by_the_host() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter(
+			'jetpack_ai_admin_config',
+			function ( $config ) {
+				$config['showGatedViews'] = false;
+
+				return $config;
+			}
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['showFeaturesView'] );
+		$this->assertSame( '', $settings['planName'] );
+	}
+
+	/**
+	 * Hosts can replace the MCP endpoint contract without copying the page.
+	 */
+	public function test_admin_settings_can_be_filtered_by_the_host() {
+		add_filter(
+			'jetpack_ai_admin_config',
+			function ( $config ) {
+				$config['mcpSettingsApi'] = array(
+					'path'   => '/wpcom/v2/sites/123/mcp-abilities',
+					'format' => 'wpcom',
+				);
+
+				return $config;
+			}
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame(
+			array(
+				'path'   => '/wpcom/v2/sites/123/mcp-abilities',
+				'format' => 'wpcom',
+			),
+			$settings['mcpSettingsApi']
+		);
 	}
 
 	/**
