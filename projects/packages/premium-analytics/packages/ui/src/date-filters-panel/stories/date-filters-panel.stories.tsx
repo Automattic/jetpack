@@ -178,12 +178,12 @@ function DateFiltersPanelStory( {
 	}, [] );
 
 	/*
-	 * The interval follows the applied range, so switching preset re-derives the
-	 * menu. A pick the new range still allows survives; one it does not falls
+	 * The interval follows the range being edited, so switching preset re-derives
+	 * the menu. A pick the new range still allows survives; one it does not falls
 	 * back to the finest allowed, the same coercion the report params apply.
 	 */
 	const [ pickedInterval, setPickedInterval ] = useState< IntervalType | undefined >( undefined );
-	const intervalOptions = getStoryIntervalOptions( committedPrimary.presetId );
+	const intervalOptions = getStoryIntervalOptions( stagedPrimary.presetId );
 	const interval = resolveStoryInterval( pickedInterval, intervalOptions );
 
 	return (

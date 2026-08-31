@@ -25,10 +25,12 @@ import {
 	decodeDateSearchParam,
 	deriveComparisonRange,
 	encodeDateToSearchParam,
+	hasPrimaryDateDraft,
+	useStagedValue,
 } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
@@ -67,6 +69,10 @@ type ReportParamsFieldOptions = {
 	withIntervalControl?: boolean;
 	grain?: ReportGrain;
 };
+
+// A widget saved before the field existed carries no params; the picker falls
+// back to the store defaults through `normalizeReportParams`.
+const NO_REPORT_PARAMS: ReportParams = {};
 
 /**
  * Build a widget-owned report params field. Called once at module scope, so the
@@ -123,39 +129,19 @@ function ReportParamsControl( {
 	grain,
 }: DataFormControlProps< Partial< ReportParamsFieldAttributes > > & ReportParamsFieldOptions ) {
 	const { presetIds, periods } = grain ?? {};
-	const [ stagedReportParams, setStagedReportParams ] = useState< ReportParams >(
-		attributes?.reportParams
+	const committed = attributes?.reportParams ?? NO_REPORT_PARAMS;
+
+	const saveReportParams = useCallback(
+		( next: ReportParams ) => onChange( { reportParams: next } ),
+		[ onChange ]
 	);
 
-	/*
-	 * `DateRangeFilter` applies a quick preset by calling `onChange` and then
-	 * `onApply` in the same tick, so the commit below cannot read the state that
-	 * `onChange` just queued — it would write the previous selection back over
-	 * the new one, leaving the widget a click behind. Mirror the staged params
-	 * into a ref that every stage updates synchronously.
-	 */
-	const stagedRef = useRef< ReportParams >( stagedReportParams );
-
-	const stage = useCallback( ( next: ReportParams ) => {
-		stagedRef.current = next;
-		setStagedReportParams( next );
-	}, [] );
-
-	/*
-	 * Realign the draft when the params change from outside this control — an
-	 * undo, a dashboard reset, another surface saving the same widget. Without
-	 * it `commit` writes the stale draft back over that change. Key on the
-	 * value, not the object: a host that builds the attribute during render
-	 * would otherwise wipe the draft on every render.
-	 */
-	const committed = attributes?.reportParams;
-	const committedKey = JSON.stringify( committed ?? null );
-
-	useEffect( () => {
-		stagedRef.current = committed;
-		setStagedReportParams( committed );
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ committedKey ] );
+	const {
+		staged: stagedReportParams,
+		stage,
+		commit,
+		revert,
+	} = useStagedValue< ReportParams >( committed, saveReportParams );
 
 	const { launchedDate } = getStoreInfo();
 	const defaultPreset = getDefaultPreset( launchedDate );
@@ -212,77 +198,55 @@ function ReportParamsControl( {
 
 	const stageDateRange = useCallback(
 		( nextRange?: DateRange, nextPresetId?: string ) => {
-			const nextReportParams = { ...stagedReportParams };
+			const patch: Partial< ReportParams > = {};
 
 			if ( nextRange?.from && nextRange?.to ) {
-				nextReportParams.from = encodeDateToSearchParam( nextRange.from );
-				nextReportParams.to = encodeDateToSearchParam(
+				patch.from = encodeDateToSearchParam( nextRange.from );
+				patch.to = encodeDateToSearchParam(
 					// The site's day boundary, not the visitor's (see build-range-patch).
 					endOfDayTZ( nextRange.to, siteTimeZone() )
 				);
 			}
 
-			if ( nextPresetId && isPrimaryPreset( nextPresetId ) ) {
-				nextReportParams.preset = nextPresetId;
-			} else if ( nextPresetId ) {
-				delete nextReportParams.preset;
+			if ( nextPresetId ) {
+				patch.preset = isPrimaryPreset( nextPresetId ) ? nextPresetId : undefined;
 			}
 
 			if ( reportParams.comp === '1' ) {
-				const derived = deriveComparisonRange( nextReportParams );
+				const derived = deriveComparisonRange( { ...stagedReportParams, ...patch } );
 				if ( derived ) {
-					nextReportParams.compare_from = derived.compare_from;
-					nextReportParams.compare_to = derived.compare_to;
+					patch.compare_from = derived.compare_from;
+					patch.compare_to = derived.compare_to;
 				}
 			}
 
-			stage( nextReportParams );
+			stage( patch );
 		},
 		[ stagedReportParams, reportParams.comp, stage ]
 	);
 
-	const isDateRangeDirty = useMemo( () => {
-		return (
-			attributes?.reportParams?.from !== stagedReportParams?.from ||
-			attributes?.reportParams?.to !== stagedReportParams?.to ||
-			attributes?.reportParams?.preset !== stagedReportParams?.preset
-		);
-	}, [
-		attributes?.reportParams?.from,
-		attributes?.reportParams?.to,
-		attributes?.reportParams?.preset,
-		stagedReportParams?.from,
-		stagedReportParams?.to,
-		stagedReportParams?.preset,
-	] );
+	const isDateRangeDirty = useMemo(
+		() => hasPrimaryDateDraft( committed, stagedReportParams ),
+		[ committed, stagedReportParams ]
+	);
 
 	const changeComparisonRange = useCallback(
 		( nextComparisonRange?: DateRange, nextComparisonPresetId?: ComparisonPresetId ) => {
-			const next = {
-				...stagedReportParams,
+			stage( {
 				compare_from: encodeDateToSearchParam( nextComparisonRange?.from ),
 				compare_to: encodeDateToSearchParam( nextComparisonRange?.to ),
 				compare_preset: nextComparisonPresetId,
 				comp: nextComparisonRange ? ( '1' as const ) : undefined,
-			};
-			stage( next );
+			} );
 
 			// Rides along with an open range draft, so changing the comparison
 			// never applies a range the user has not committed.
 			if ( ! isDateRangeDirty ) {
-				onChange( { reportParams: next } );
+				commit();
 			}
 		},
-		[ stagedReportParams, isDateRangeDirty, onChange, stage ]
+		[ isDateRangeDirty, commit, stage ]
 	);
-
-	const commit = useCallback( () => {
-		onChange( { reportParams: stagedRef.current } );
-	}, [ onChange ] );
-
-	const clear = useCallback( () => {
-		stage( attributes?.reportParams );
-	}, [ stage, attributes ] );
 
 	// Staged, not committed: a range being drafted has to reshape the menu with
 	// it, or the click is dropped on Apply.
@@ -302,31 +266,30 @@ function ReportParamsControl( {
 
 	const changeInterval = useCallback(
 		( nextInterval: IntervalType ) => {
-			const next = { ...stagedReportParams, interval: nextInterval };
-			stage( next );
+			stage( { interval: nextInterval } );
 
 			// Applies on click, the way the preset pills do — unless a range draft
 			// is open, in which case it rides along and commits on Apply.
 			if ( ! isDateRangeDirty ) {
-				onChange( { reportParams: next } );
+				commit();
 			}
 		},
-		[ stagedReportParams, isDateRangeDirty, onChange, stage ]
+		[ isDateRangeDirty, commit, stage ]
 	);
 
 	return (
 		<Stack direction="column" gap="sm">
 			<DateFiltersPanel
 				range={ range }
-				presetId={ stagedReportParams?.preset ?? reportParams.preset }
+				presetId={ stagedReportParams.preset ?? reportParams.preset }
 				appliedPresetId={ appliedParams.preset }
 				appliedRange={ appliedRange }
-				comparisonPresetId={ stagedReportParams?.compare_preset }
+				comparisonPresetId={ stagedReportParams.compare_preset }
 				onChange={ stageDateRange }
 				onComparisonChange={ changeComparisonRange }
 				onApply={ commit }
 				canApply={ isDateRangeDirty }
-				onCancel={ clear }
+				onCancel={ revert }
 				timeZone={ siteTimeZone() }
 				presetIds={ presetIds }
 				withIntervalControl={ withIntervalControl }
