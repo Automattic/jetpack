@@ -65,7 +65,7 @@
 		"automattic/jetpack-waf": "@dev",
 		"automattic/jetpack-wp-abilities": "@dev",
 		"automattic/woocommerce-analytics": "^0.17",
-		"wp-php-toolkit/reprint-server": "^0.10.4"
+		"wp-php-toolkit/reprint-server": "0.10.6"
 	},
 	"require-dev": {
 		"antecedent/patchwork": "^2.2",
