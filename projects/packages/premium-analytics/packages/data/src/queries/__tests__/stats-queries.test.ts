@@ -1192,9 +1192,9 @@ describe( 'Stats query factories', () => {
 		);
 	} );
 
-	it( 'clamps the WordAds window end to yesterday, keeping it anchored to the range start', () => {
-		// The window stays anchored to the range start: the unavailable trailing
-		// bucket is dropped rather than the whole window shifting earlier.
+	it( 'keeps every bucket of a WordAds window ending today', () => {
+		// The endpoint honors an end of today, so the range asks for the bucket count
+		// its header covers; today's bucket is empty until the nightly run lands.
 		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
 
 		try {
@@ -1208,8 +1208,34 @@ describe( 'Stats query factories', () => {
 				expect.arrayContaining( [
 					expect.objectContaining( {
 						unit: 'day',
-						date: '2026-06-14',
-						quantity: 6,
+						date: '2026-06-15',
+						quantity: 7,
+					} ),
+				] )
+			);
+		} finally {
+			jest.useRealTimers();
+		}
+	} );
+
+	it( 'clamps a future WordAds window end to today, keeping it anchored to the range start', () => {
+		// The window stays anchored to the range start: the unavailable trailing
+		// buckets are dropped rather than the whole window shifting earlier.
+		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
+
+		try {
+			expect(
+				statsWordAdsStatsQuery( {
+					from: '2026-06-09',
+					to: '2026-06-20',
+					interval: 'day',
+				} ).queryKey
+			).toEqual(
+				expect.arrayContaining( [
+					expect.objectContaining( {
+						unit: 'day',
+						date: '2026-06-15',
+						quantity: 7,
 					} ),
 				] )
 			);
@@ -1248,36 +1274,10 @@ describe( 'Stats query factories', () => {
 		}
 	} );
 
-	it( 'leaves a WordAds window ending exactly yesterday unclamped', () => {
+	it( 'leaves an offset-bearing WordAds window ending today unclamped', () => {
 		// Why the clamp compares calendar days: the raw offset-bearing string sorts
-		// after the bare `yesterday` it starts with, so a range already ending on
-		// yesterday would clamp and silently lose a bucket.
-		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
-
-		try {
-			expect(
-				statsWordAdsStatsQuery( {
-					from: '2026-06-08T00:00:00.000-07:00',
-					to: '2026-06-14T23:59:59.999-07:00',
-					interval: 'day',
-				} ).queryKey
-			).toEqual(
-				expect.arrayContaining( [
-					expect.objectContaining( {
-						unit: 'day',
-						date: '2026-06-14T23:59:59.999-07:00',
-						quantity: 7,
-					} ),
-				] )
-			);
-		} finally {
-			jest.useRealTimers();
-		}
-	} );
-
-	it( 'clamps an offset-bearing WordAds window end to yesterday, keyed off its calendar day', () => {
-		// The clamp fires, so `date` becomes the locally built bare `yesterday`;
-		// both the comparison and the bucket count key off the calendar day.
+		// after the bare `today` it starts with, so a range already ending on today
+		// would clamp and silently lose a bucket.
 		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
 
 		try {
@@ -1291,8 +1291,8 @@ describe( 'Stats query factories', () => {
 				expect.arrayContaining( [
 					expect.objectContaining( {
 						unit: 'day',
-						date: '2026-06-14',
-						quantity: 6,
+						date: '2026-06-15T23:59:59.000-07:00',
+						quantity: 7,
 					} ),
 				] )
 			);
