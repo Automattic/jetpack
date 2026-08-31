@@ -324,6 +324,9 @@ importers:
         specifier: 3.25.76
         version: 3.25.76
     devDependencies:
+      '@jest/globals':
+        specifier: 30.4.1
+        version: 30.4.1
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
