@@ -220,13 +220,36 @@ function wpcom_admin_screen_is_countable( $screen ) {
 		return false;
 	}
 
-	// The Customizer runs no admin_footer, so its client-side counterpart comes from
-	// wpcom_maybe_track_customizer(), which records nothing for a Calypso frame or a frontend link.
-	if ( 'customize' === $screen->id && ( isset( $_GET['calypso'] ) || isset( $_GET['url'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( ! wpcom_admin_screen_has_client_counterpart( $screen->id, $_GET ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return false;
 	}
 
 	return ! do_not_track_a11ns();
+}
+
+/**
+ * Whether wpcom_admin_page_view had any chance to run on this screen.
+ *
+ * Neither of these screens fires admin_footer: media-upload.php renders through wp_iframe(),
+ * which runs admin_print_footer_scripts and nothing else, and the Customizer has its own footer
+ * hook, which wpcom_maybe_track_customizer() answers only for a request that is neither a Calypso
+ * frame nor a link in from the frontend. Counting a screen the client event cannot reach would
+ * depress the ratio instead of measuring it.
+ *
+ * @param string $screen_id The resolved screen id.
+ * @param array  $query     Query parameters, as in $_GET.
+ * @return bool
+ */
+function wpcom_admin_screen_has_client_counterpart( $screen_id, array $query ) {
+	if ( 'media-upload' === $screen_id ) {
+		return false;
+	}
+
+	if ( 'customize' === $screen_id ) {
+		return ! isset( $query['calypso'] ) && ! isset( $query['url'] );
+	}
+
+	return true;
 }
 
 /**

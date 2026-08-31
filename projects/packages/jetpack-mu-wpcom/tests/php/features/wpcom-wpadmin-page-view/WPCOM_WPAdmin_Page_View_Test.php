@@ -82,6 +82,38 @@ class WPCOM_WPAdmin_Page_View_Test extends TestCase {
 	}
 
 	/**
+	 * Tests which screens the client-side event could have reported.
+	 *
+	 * @dataProvider wpcom_admin_screen_has_client_counterpart_provider
+	 *
+	 * @param string $screen_id The resolved screen id.
+	 * @param array  $query     Query parameters, as in $_GET.
+	 * @param bool   $expected  Whether the client event could have run on the screen.
+	 */
+	#[DataProvider( 'wpcom_admin_screen_has_client_counterpart_provider' )]
+	public function test_wpcom_admin_screen_has_client_counterpart( $screen_id, $query, $expected ) {
+		$this->assertSame( $expected, wpcom_admin_screen_has_client_counterpart( $screen_id, $query ) );
+	}
+
+	/**
+	 * Data provider for test_wpcom_admin_screen_has_client_counterpart.
+	 *
+	 * Counting a screen that never fires admin_footer would depress the coverage ratio the event
+	 * exists to measure, while excluding an ordinary screen would shrink the denominator itself.
+	 *
+	 * @return array
+	 */
+	public static function wpcom_admin_screen_has_client_counterpart_provider() {
+		return array(
+			'ordinary screen'        => array( 'edit', array(), true ),
+			'media upload iframe'    => array( 'media-upload', array(), false ),
+			'customizer'             => array( 'customize', array(), true ),
+			'customizer in calypso'  => array( 'customize', array( 'calypso' => '1' ), false ),
+			'customizer from a link' => array( 'customize', array( 'url' => 'https://example.com' ), false ),
+		);
+	}
+
+	/**
 	 * Tests that only a Location response header marks a request as having rendered no screen.
 	 *
 	 * @dataProvider wpcom_admin_screen_rendered_provider
