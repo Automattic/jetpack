@@ -283,6 +283,41 @@ describe( 'OnboardingModal', () => {
 		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
 	} );
 
+	it( 'clears the stored dismissal even when the consuming mount is discarded', () => {
+		// consumeWelcomeParam's replaceState wakes the router during the very
+		// render that consumes the param, and the resulting transition can
+		// discard that mount before its effects run. A throwing sibling AFTER
+		// the modal reproduces the discard: the modal's initializers run
+		// (consuming the param), the commit never happens, no effect fires.
+		// The remount must still find the dismissal cleared — an effect-based
+		// clear was skipped here, and welcome=1 opened nothing for exactly the
+		// reviewer who had dismissed the modal before.
+		mockCounts( { videoPressCount: 4, localCount: 0, isSettled: true } );
+		window.localStorage.setItem( 'jetpack-videopress-onboarding-seen-123-7', '1' );
+		window.history.replaceState( {}, '', '/wp-admin/admin.php?page=jetpack-videopress&welcome=1' );
+
+		const Discarded = () => {
+			throw new Error( 'discard the consuming render' );
+		};
+		// React reports the deliberate render error via console.error; keep
+		// the test output clean.
+		const errorSpy = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+		expect( () =>
+			render(
+				<>
+					<OnboardingModal />
+					<Discarded />
+				</>
+			)
+		).toThrow( 'discard the consuming render' );
+		errorSpy.mockRestore();
+
+		render( <OnboardingModal /> );
+
+		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
+		expect( window.localStorage.getItem( 'jetpack-videopress-onboarding-seen-123-7' ) ).toBeNull();
+	} );
+
 	it( 'strips welcome=1 from the URL so a manual reload behaves normally', () => {
 		mockCounts( { videoPressCount: 4, localCount: 0, isSettled: true } );
 		window.history.replaceState( {}, '', '/wp-admin/admin.php?page=jetpack-videopress&welcome=1' );

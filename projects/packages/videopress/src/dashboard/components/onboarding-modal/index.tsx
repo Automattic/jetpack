@@ -130,6 +130,15 @@ function consumeWelcomeParam( inRouterSearch: boolean ): boolean {
 	scope[ WELCOME_CONSUMED_FLAG ] = true;
 	scope[ WELCOME_ACTIVE_FLAG ] = true;
 
+	// The stored dismissal is forgotten HERE, synchronously with consumption,
+	// not in the consuming mount's effect. The replaceState below wakes the
+	// router mid-render, and when the resulting transition discards the
+	// consuming mount, its effects never run — so an effect-based clear was
+	// skipped on exactly the load that needed it most: a reviewer who had
+	// dismissed the modal before got `consumed` without the clear, and
+	// welcome=1 opened nothing.
+	clearDismissal();
+
 	if ( params.has( 'welcome' ) ) {
 		params.delete( 'welcome' );
 		const query = params.toString();
@@ -255,9 +264,11 @@ export default function OnboardingModal(): ReactElement | null {
 	const [ isPreview ] = useState( () => consumeWelcomeParam( search?.welcome === '1' ) );
 	const [ isWelcomeSession ] = useState( isWelcomeLoad );
 
+	// The stored flag was already cleared at consume time (see
+	// consumeWelcomeParam); this only fixes up the in-memory copy, which the
+	// initializer above read before consumption ran.
 	useEffect( () => {
 		if ( isPreview ) {
-			clearDismissal();
 			setIsDismissed( false );
 		}
 	}, [ isPreview ] );
