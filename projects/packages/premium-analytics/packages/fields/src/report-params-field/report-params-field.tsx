@@ -2,10 +2,13 @@
  * External dependencies
  */
 import {
+	chartInterval,
+	drawableIntervals,
 	getAllowedIntervalsForPreset,
 	getDefaultPreset,
 	getStoreInfo,
 	normalizeReportParams,
+	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
 import {
 	type ComparisonPresetId,
@@ -22,10 +25,14 @@ import {
 	decodeDateSearchParam,
 	deriveComparisonRange,
 	encodeDateToSearchParam,
+	hasPrimaryDateDraft,
+	useStagedValue,
 } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { __ } from '@wordpress/i18n';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /*
  * The editor lives here rather than in widgets-toolkit so widget metadata
@@ -43,34 +50,75 @@ export type ReportParamsFieldAttributes = {
 	reportParams: ReportParams;
 };
 
-type ReportParamsFieldOptions = {
-	withIntervalControl?: boolean;
+/**
+ * How fine the widget's report is. The control offers nothing the report cannot
+ * fill: a window with no data behind it, or a bucket the chart would clamp away.
+ */
+export type ReportGrain = {
+	/** The quick presets to offer, in display order. Defaults to every rolling window. */
 	presetIds?: readonly QuickSurfacePresetId[];
+
+	/**
+	 * The bucket sizes the widget's chart draws — the same list it clamps against.
+	 * Only affects the interval control.
+	 */
+	periods?: readonly [ StatsPeriod, ...StatsPeriod[] ];
 };
 
+type ReportParamsFieldOptions = {
+	withIntervalControl?: boolean;
+	grain?: ReportGrain;
+};
+
+// A widget saved before the field existed carries no params; the picker falls
+// back to the store defaults through `normalizeReportParams`.
+const NO_REPORT_PARAMS: ReportParams = {};
+
 /**
- * Build a widget-owned report params field.
+ * Build a widget-owned report params field. Called once at module scope, so the
+ * component identity is stable across renders.
  *
  * @param options                     - Field options.
  * @param options.withIntervalControl - Whether to offer the chart bucket control.
- * @param options.presetIds           - The quick presets to offer, in display
- *                                    order. Defaults to every rolling window.
+ * @param options.grain               - How fine the widget's report is.
  * @return A DataForm control component.
  */
-export function createReportParamsField( {
-	withIntervalControl,
-	presetIds,
-}: ReportParamsFieldOptions = {} ) {
+function createReportParamsField( { withIntervalControl, grain }: ReportParamsFieldOptions = {} ) {
 	return function ReportParamsFieldControl(
-		props: DataFormControlProps< ReportParamsFieldAttributes >
+		props: DataFormControlProps< Partial< ReportParamsFieldAttributes > >
 	) {
 		return (
 			<ReportParamsControl
 				{ ...props }
 				withIntervalControl={ withIntervalControl }
-				presetIds={ presetIds }
+				grain={ grain }
 			/>
 		);
+	};
+}
+
+/**
+ * The "Date range" attribute a widget declares to host its own date controls.
+ *
+ * Options travel through this factory, not the descriptor: dataviews rebuilds a
+ * normalized field from a fixed set of keys and drops the rest.
+ *
+ * @param options                     - Field options.
+ * @param options.withIntervalControl - Whether to offer the chart bucket control.
+ * @param options.grain               - How fine the widget's report is.
+ * @return The attribute descriptor.
+ */
+export function reportParamsAttributeField<
+	Attributes extends Partial< ReportParamsFieldAttributes >,
+>( options: ReportParamsFieldOptions = {} ): WidgetAttributeField< Attributes > {
+	return {
+		// Only the key needs the cast: `Attributes` is unresolved here, so TS
+		// cannot see that it carries `reportParams`.
+		id: 'reportParams' as keyof Attributes & string,
+		label: __( 'Date range', 'jetpack-premium-analytics-pkg' ),
+		// The host renders a high-relevance field in the widget's own header.
+		relevance: 'high',
+		Edit: createReportParamsField( options ),
 	};
 }
 
@@ -78,38 +126,22 @@ function ReportParamsControl( {
 	data: attributes,
 	onChange,
 	withIntervalControl,
-	presetIds,
-}: DataFormControlProps< ReportParamsFieldAttributes > & ReportParamsFieldOptions ) {
-	const [ stagedReportParams, setStagedReportParams ] = useState< ReportParams >(
-		attributes?.reportParams
+	grain,
+}: DataFormControlProps< Partial< ReportParamsFieldAttributes > > & ReportParamsFieldOptions ) {
+	const { presetIds, periods } = grain ?? {};
+	const committed = attributes?.reportParams ?? NO_REPORT_PARAMS;
+
+	const saveReportParams = useCallback(
+		( next: ReportParams ) => onChange( { reportParams: next } ),
+		[ onChange ]
 	);
 
-	/*
-	 * `DateRangeFilter` calls `onChange` then `onApply` in the same tick, so a
-	 * commit reading component state would still see the previous selection.
-	 * Mirror staged params into a ref that every stage updates synchronously.
-	 */
-	const stagedRef = useRef< ReportParams >( stagedReportParams );
-
-	const stage = useCallback( ( next: ReportParams ) => {
-		stagedRef.current = next;
-		setStagedReportParams( next );
-	}, [] );
-
-	/*
-	 * Realign the draft when params change from outside (undo, a dashboard
-	 * reset, another surface saving the same widget) — otherwise `commit` writes
-	 * the stale draft back over that change. Key on the value, not the object:
-	 * a host that rebuilds the attribute every render would wipe the draft.
-	 */
-	const committed = attributes?.reportParams;
-	const committedKey = JSON.stringify( committed ?? null );
-
-	useEffect( () => {
-		stagedRef.current = committed;
-		setStagedReportParams( committed );
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ committedKey ] );
+	const {
+		staged: stagedReportParams,
+		stage,
+		commit,
+		revert,
+	} = useStagedValue< ReportParams >( committed, saveReportParams );
 
 	const { launchedDate } = getStoreInfo();
 	const defaultPreset = getDefaultPreset( launchedDate );
@@ -166,125 +198,102 @@ function ReportParamsControl( {
 
 	const stageDateRange = useCallback(
 		( nextRange?: DateRange, nextPresetId?: string ) => {
-			const nextReportParams = { ...stagedReportParams };
+			const patch: Partial< ReportParams > = {};
 
 			if ( nextRange?.from && nextRange?.to ) {
-				nextReportParams.from = encodeDateToSearchParam( nextRange.from );
-				nextReportParams.to = encodeDateToSearchParam(
+				patch.from = encodeDateToSearchParam( nextRange.from );
+				patch.to = encodeDateToSearchParam(
 					// The site's day boundary, not the visitor's (see build-range-patch).
 					endOfDayTZ( nextRange.to, siteTimeZone() )
 				);
 			}
 
-			if ( nextPresetId && isPrimaryPreset( nextPresetId ) ) {
-				nextReportParams.preset = nextPresetId;
-			} else if ( nextPresetId ) {
-				delete nextReportParams.preset;
+			if ( nextPresetId ) {
+				patch.preset = isPrimaryPreset( nextPresetId ) ? nextPresetId : undefined;
 			}
 
 			if ( reportParams.comp === '1' ) {
-				const derived = deriveComparisonRange( nextReportParams );
+				const derived = deriveComparisonRange( { ...stagedReportParams, ...patch } );
 				if ( derived ) {
-					nextReportParams.compare_from = derived.compare_from;
-					nextReportParams.compare_to = derived.compare_to;
+					patch.compare_from = derived.compare_from;
+					patch.compare_to = derived.compare_to;
 				}
 			}
 
-			stage( nextReportParams );
+			stage( patch );
 		},
 		[ stagedReportParams, reportParams.comp, stage ]
 	);
 
-	const isDateRangeDirty = useMemo( () => {
-		return (
-			attributes?.reportParams?.from !== stagedReportParams?.from ||
-			attributes?.reportParams?.to !== stagedReportParams?.to ||
-			attributes?.reportParams?.preset !== stagedReportParams?.preset
-		);
-	}, [
-		attributes?.reportParams?.from,
-		attributes?.reportParams?.to,
-		attributes?.reportParams?.preset,
-		stagedReportParams?.from,
-		stagedReportParams?.to,
-		stagedReportParams?.preset,
-	] );
+	const isDateRangeDirty = useMemo(
+		() => hasPrimaryDateDraft( committed, stagedReportParams ),
+		[ committed, stagedReportParams ]
+	);
 
 	const changeComparisonRange = useCallback(
 		( nextComparisonRange?: DateRange, nextComparisonPresetId?: ComparisonPresetId ) => {
-			const next = {
-				...stagedReportParams,
+			stage( {
 				compare_from: encodeDateToSearchParam( nextComparisonRange?.from ),
 				compare_to: encodeDateToSearchParam( nextComparisonRange?.to ),
 				compare_preset: nextComparisonPresetId,
 				comp: nextComparisonRange ? ( '1' as const ) : undefined,
-			};
-			stage( next );
+			} );
 
 			// Rides along with an open range draft, so changing the comparison
 			// never applies a range the user has not committed.
 			if ( ! isDateRangeDirty ) {
-				onChange( { reportParams: next } );
+				commit();
 			}
 		},
-		[ stagedReportParams, isDateRangeDirty, onChange, stage ]
+		[ isDateRangeDirty, commit, stage ]
 	);
 
-	const commit = useCallback( () => {
-		onChange( { reportParams: stagedRef.current } );
-	}, [ onChange ] );
+	// Staged, not committed: a range being drafted has to reshape the menu with
+	// it, or the click is dropped on Apply.
+	const intervalOptions = useMemo( () => {
+		const allowed = getAllowedIntervalsForPreset(
+			reportParams.preset,
+			reportParams.from ?? '',
+			reportParams.to ?? ''
+		);
 
-	const clear = useCallback( () => {
-		stage( attributes?.reportParams );
-	}, [ stage, attributes ] );
+		return periods ? drawableIntervals( allowed, periods ) : allowed;
+	}, [ reportParams.preset, reportParams.from, reportParams.to, periods ] );
 
-	/*
-	 * Options and checked value both read from the staged params, so the
-	 * checked bucket is always a listed one. Reading options from the
-	 * committed range instead would offer a bucket the draft can't hold,
-	 * silently dropping the click.
-	 */
-	const intervalOptions = useMemo(
-		() =>
-			getAllowedIntervalsForPreset(
-				reportParams.preset,
-				reportParams.from ?? '',
-				reportParams.to ?? ''
-			),
-		[ reportParams.preset, reportParams.from, reportParams.to ]
-	);
+	// Check what the chart draws, through the call the chart itself makes: a
+	// stored bucket the widget clamps away is not what is on screen.
+	const interval = periods ? chartInterval( reportParams, periods ) : reportParams.interval;
 
 	const changeInterval = useCallback(
 		( nextInterval: IntervalType ) => {
-			const next = { ...stagedReportParams, interval: nextInterval };
-			stage( next );
+			stage( { interval: nextInterval } );
 
 			// Applies on click, the way the preset pills do — unless a range draft
 			// is open, in which case it rides along and commits on Apply.
 			if ( ! isDateRangeDirty ) {
-				onChange( { reportParams: next } );
+				commit();
 			}
 		},
-		[ stagedReportParams, isDateRangeDirty, onChange, stage ]
+		[ isDateRangeDirty, commit, stage ]
 	);
 
 	return (
 		<Stack direction="column" gap="sm">
 			<DateFiltersPanel
 				range={ range }
-				presetId={ stagedReportParams?.preset ?? reportParams.preset }
+				presetId={ stagedReportParams.preset ?? reportParams.preset }
 				appliedPresetId={ appliedParams.preset }
 				appliedRange={ appliedRange }
-				comparisonPresetId={ stagedReportParams?.compare_preset }
+				comparisonPresetId={ stagedReportParams.compare_preset }
 				onChange={ stageDateRange }
 				onComparisonChange={ changeComparisonRange }
 				onApply={ commit }
 				canApply={ isDateRangeDirty }
-				onCancel={ clear }
+				onCancel={ revert }
 				timeZone={ siteTimeZone() }
 				presetIds={ presetIds }
 				withIntervalControl={ withIntervalControl }
-				interval={ reportParams.interval }
+				interval={ interval }
 				intervalOptions={ intervalOptions }
 				onIntervalChange={ changeInterval }
 			/>

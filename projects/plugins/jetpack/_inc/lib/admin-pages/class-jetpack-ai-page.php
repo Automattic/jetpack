@@ -223,9 +223,9 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
 		}
 
-		// Pre-release gate for the Overview and Features views. Everything the
-		// gated views need hangs off this one flag, so opening them up to
-		// everyone is a single change here.
+		// Pre-release gate for the Overview and Features views. When opening
+		// them to everyone, also drop the matching gate in My Jetpack's
+		// Jetpack_Ai::get_manage_url() so its links land here too.
 		$show_gated_views = $is_internal_test;
 
 		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array(
@@ -245,10 +245,10 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					'apiRoot'          => esc_url_raw( rest_url() ),
 					'apiNonce'         => wp_create_nonce( 'wp_rest' ),
 					'pluginUrl'        => plugins_url( '', JETPACK__PLUGIN_FILE ),
-					// Route through the Jetpack redirect service so the upgrade
-					// destination for the MCP upsell can be retargeted without
-					// shipping a code change.
-					'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-upgrade-url-for-jetpack-sites', array( 'path' => 'jetpack_ai_yearly' ) ),
+					// The redirect entry bakes in the jetpack_ai_yearly product and
+					// a post-checkout return to this page, so both can be
+					// retargeted without shipping a code change.
+					'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-hub-upgrade' ),
 					// The purchase granting AI, for the Overview usage card — the
 					// usage endpoint cannot name it. Only looked up when a gated
 					// view can render it.

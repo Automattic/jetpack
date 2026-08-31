@@ -110,10 +110,6 @@ function AnnualInsightsReport(): JSX.Element {
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
-			subTitle={ __(
-				'Year-by-year publishing and engagement totals.',
-				'jetpack-premium-analytics-pkg'
-			) }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />

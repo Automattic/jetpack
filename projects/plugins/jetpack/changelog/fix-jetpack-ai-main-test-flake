@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Jetpack AI: stabilize the admin page test for the Overview activity log row under CI load.
+
+

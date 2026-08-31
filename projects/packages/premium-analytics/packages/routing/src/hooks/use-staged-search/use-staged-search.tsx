@@ -2,7 +2,11 @@
  * External dependencies
  */
 import { useNavigate, useSearch } from '@wordpress/route';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo } from 'react';
+/**
+ * Internal dependencies
+ */
+import { useStagedValue } from '../use-staged-value';
 
 type AnyObject = Record< string, unknown >;
 
@@ -13,13 +17,6 @@ export type UseStagedSearchOptions< TFrom extends string > = {
 	 * widget can commit on any page that hosts it.
 	 */
 	from?: TFrom;
-
-	/**
-	 * If provided, stage() will schedule an automatic debounced commit
-	 * after the given milliseconds. Those auto-commits use replace: true
-	 * to avoid polluting the browser history during continuous interaction.
-	 */
-	autoCommitDebounceMs?: number;
 };
 
 export type UseStagedSearchReturn< TSearch extends AnyObject > = {
@@ -37,8 +34,6 @@ export type UseStagedSearchReturn< TSearch extends AnyObject > = {
 	 * The effective state for rendering and data fetching.
 	 */
 	effective: TSearch;
-
-	isSyncing: boolean;
 
 	/**
 	 * Whether the staged state differs from the committed state.
@@ -59,29 +54,7 @@ export type UseStagedSearchReturn< TSearch extends AnyObject > = {
 	 * Discard local changes and return to committed snapshot.
 	 */
 	revert: () => void;
-
-	cancelAutoCommit: () => void;
 };
-
-function shallowEqual( a: AnyObject, b: AnyObject ) {
-	if ( a === b ) {
-		return true;
-	}
-
-	const ak = Object.keys( a );
-	const bk = Object.keys( b );
-	if ( ak.length !== bk.length ) {
-		return false;
-	}
-
-	for ( const k of ak ) {
-		if ( a[ k ] !== b[ k ] ) {
-			return false;
-		}
-	}
-
-	return true;
-}
 
 function mergeDefined< T extends AnyObject >( base: T, patch: Partial< T > ): T {
 	const out: AnyObject = { ...base };
@@ -94,6 +67,13 @@ function mergeDefined< T extends AnyObject >( base: T, patch: Partial< T > ): T 
 	return out as T;
 }
 
+/**
+ * `useStagedValue` bound to the URL: edits stage locally and land as one atomic
+ * navigation, so widgets re-fetch on commit and Back/Forward stays smooth.
+ *
+ * @param opts - The route binding.
+ * @return The committed, staged and effective snapshots, and their controls.
+ */
 export function useStagedSearch< TSearch extends AnyObject, TFrom extends string >(
 	opts: UseStagedSearchOptions< TFrom >
 ): UseStagedSearchReturn< TSearch > {
@@ -109,132 +89,26 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 	) as Parameters< typeof useSearch >[ 0 ];
 	const committed = useSearch( searchOptions ) as TSearch;
 
-	const [ staged, setStaged ] = useState< TSearch >( committed );
-
-	const [ isSyncing, setIsSyncing ] = useState( false );
-
-	// Buffer for not-yet-committed changes.
-	const bufferRef = useRef< Partial< TSearch > >( {} );
-
-	// Debounce timer for auto-commit.
-	const timerRef = useRef< ReturnType< typeof setTimeout > | null >( null );
-
-	/**
-	 * Mirror URL -> staged.
-	 * If URL changes (back/forward or external writes), align staged snapshot.
-	 * Also clear syncing flag after the router applies the new committed state.
+	/*
+	 * Writes the patch rather than the whole draft, and passes no `to`, so a
+	 * commit keeps the current route and every search param this hook does not
+	 * own — and avoids the remount a route change would cost.
 	 */
-	useEffect( () => {
-		setStaged( committed );
-		bufferRef.current = {};
-		if ( isSyncing ) {
-			setIsSyncing( false );
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ committed ] );
-
-	const cancelAutoCommit = useCallback( () => {
-		if ( timerRef.current ) {
-			clearTimeout( timerRef.current );
-			timerRef.current = null;
-		}
-	}, [] );
-
-	useEffect( () => {
-		return () => {
-			cancelAutoCommit();
-		};
-	}, [ cancelAutoCommit ] );
-
-	/**
-	 * Stage a local patch without touching the URL immediately.
-	 * If autoCommitDebounceMs is set, schedule a debounced replace-commit.
-	 */
-	const stage = useCallback(
-		( patch: Partial< TSearch > ) => {
-			setStaged( prev => ( { ...prev, ...patch } ) );
-			bufferRef.current = { ...bufferRef.current, ...patch };
-
-			if ( typeof opts.autoCommitDebounceMs === 'number' ) {
-				cancelAutoCommit();
-				timerRef.current = setTimeout( () => {
-					navigate( {
-						replace: true, // do not pollute history while interacting
-						viewTransition: false,
-						search: prev => ( {
-							...prev,
-							...( bufferRef.current as Partial< TSearch > ),
-						} ),
-					} );
-					timerRef.current = null;
-				}, opts.autoCommitDebounceMs );
-			}
-		},
-		[ navigate, opts.autoCommitDebounceMs, cancelAutoCommit ]
-	);
-
-	/**
-	 * Commit all staged changes in a single atomic navigate(). No `to`: keeps
-	 * the current route to avoid a heavy remount. Defaults `replace` to false so
-	 * explicit commits still push history.
-	 */
-	const commit = useCallback(
-		( commitOpts?: { replace?: boolean } ) => {
-			const patch = bufferRef.current;
-			const hasPatch = patch && Object.keys( patch ).length > 0;
-
-			cancelAutoCommit();
-
-			// If buffer is empty but staged differs from committed, compute a minimal diff
-			let diff: Partial< TSearch > | null = null;
-			if ( ! hasPatch ) {
-				const merged = {
-					...( committed as AnyObject ),
-					...( staged as AnyObject ),
-				} as TSearch;
-
-				if ( ! shallowEqual( merged as AnyObject, committed as AnyObject ) ) {
-					diff = {};
-					for ( const key in merged ) {
-						// eslint-disable-next-line no-prototype-builtins
-						if ( ( committed as AnyObject ).hasOwnProperty( key ) ) {
-							if ( ( committed as AnyObject )[ key ] !== ( staged as AnyObject )[ key ] ) {
-								( diff as AnyObject )[ key ] = ( staged as AnyObject )[ key ];
-							}
-						} else {
-							( diff as AnyObject )[ key ] = ( staged as AnyObject )[ key ];
-						}
-					}
-				}
-			}
-
-			const finalPatch = hasPatch ? ( patch as Partial< TSearch > ) : diff;
-
-			if ( ! finalPatch || Object.keys( finalPatch ).length === 0 ) {
-				return;
-			}
-
-			setIsSyncing( true );
-
+	const writeToSearch = useCallback(
+		( _staged: TSearch, patch: Partial< TSearch >, commitOpts?: { replace?: boolean } ) => {
 			navigate( {
 				replace: commitOpts?.replace ?? false, // explicit commits push into history
 				viewTransition: false,
-				search: prev => ( {
-					...prev,
-					...( finalPatch as Partial< TSearch > ),
-				} ),
+				search: prev => ( { ...prev, ...patch } ),
 			} );
-
-			// isSyncing is flipped off by the committed->staged mirror effect.
 		},
-		[ navigate, committed, staged, cancelAutoCommit ]
+		[ navigate ]
 	);
 
-	const revert = useCallback( () => {
-		cancelAutoCommit();
-		bufferRef.current = {};
-		setStaged( committed );
-	}, [ committed, cancelAutoCommit ] );
+	const { staged, isDirty, stage, commit, revert } = useStagedValue<
+		TSearch,
+		{ replace?: boolean }
+	>( committed, writeToSearch );
 
 	/**
 	 * Effective = committed merged with defined staged keys.
@@ -245,19 +119,13 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 		[ committed, staged ]
 	) as TSearch;
 
-	const isDirty =
-		Object.keys( bufferRef.current ).length > 0 &&
-		! shallowEqual( staged as AnyObject, committed as AnyObject );
-
 	return {
 		committed,
 		staged,
 		effective,
-		isSyncing,
 		isDirty,
 		stage,
 		commit,
 		revert,
-		cancelAutoCommit,
 	};
 }

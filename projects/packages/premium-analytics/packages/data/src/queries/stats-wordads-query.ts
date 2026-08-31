@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getDatePart } from '@jetpack-premium-analytics/datetime';
-import { format, subDays } from 'date-fns';
+import { format } from 'date-fns';
 /**
  * Internal dependencies
  */
@@ -35,15 +35,14 @@ export const statsWordAdsStatsQuery = (
 	const unit = String( apiParams.period ?? 'day' );
 	const { start_date: startDate } = statsParams;
 	const rangeEnd = typeof apiParams.date === 'string' ? apiParams.date : undefined;
-	// WordAds stats are computed nightly, so clamp later end dates to yesterday.
-	// Compare date parts, not the raw strings: a datetime sorts after the bare
-	// day it starts with, so a window ending exactly on yesterday would clamp too.
+	// The endpoint honors an end of today; that bucket stays empty until the nightly run.
+	const today = format( localTZDate(), 'yyyy-MM-dd' );
+	// Compare date parts, not the raw strings: a datetime sorts after the bare day
+	// it starts with, so a window ending exactly on today would clamp too.
 	const rangeEndDay = getDatePart( rangeEnd );
-	const yesterday = format( subDays( localTZDate(), 1 ), 'yyyy-MM-dd' );
-	const clampToYesterday = rangeEndDay !== undefined && rangeEndDay > yesterday;
-	const date = clampToYesterday ? yesterday : rangeEnd;
-	// The endpoint takes a bucket count and end date, not a range: derive the count
-	// from the clamped end so dropping today's bucket does not shift the start.
+	const clampToToday = rangeEndDay !== undefined && rangeEndDay > today;
+	const date = clampToToday ? today : rangeEnd;
+	// The endpoint takes a bucket count and end date, not a range.
 	const defaultQuantity = unit === 'year' ? 10 : 30;
 	const quantity =
 		params.quantity ??

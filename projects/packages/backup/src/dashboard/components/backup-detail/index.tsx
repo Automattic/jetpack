@@ -78,7 +78,7 @@ export default function BackupDetail( { item }: Props ) {
 						align="center"
 					>
 						<Icon icon={ cloud } />
-						<Text variant="heading-md" render={ <h3 /> }>
+						<Text variant="heading-md" render={ <h2 /> }>
 							{ item.title }
 						</Text>
 					</Stack>

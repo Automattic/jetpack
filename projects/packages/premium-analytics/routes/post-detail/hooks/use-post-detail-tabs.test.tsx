@@ -77,12 +77,10 @@ function mockSearch( section: string ) {
 		committed: { section },
 		staged: { section },
 		effective: { section },
-		isSyncing: false,
 		isDirty: false,
 		stage,
 		commit,
 		revert: jest.fn(),
-		cancelAutoCommit: jest.fn(),
 	} );
 
 	return { stage, commit };

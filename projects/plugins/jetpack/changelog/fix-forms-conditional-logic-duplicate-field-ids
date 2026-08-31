@@ -1,4 +1,5 @@
 Significance: patch
-Type: bugfix
+Type: other
+Comment: Conditional logic is behind the forms-conditional-logic feature flag, off by default, so this fix is not reachable by Jetpack users yet.
 
-Forms: Explain when fields share a Name/ID rather than offering them as conditional logic conditions that cannot be told apart.
+

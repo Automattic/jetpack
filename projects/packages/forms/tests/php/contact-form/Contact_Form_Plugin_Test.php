@@ -315,6 +315,40 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The block's `maxfiles` attribute has to survive the trip into the shortcode the field
+	 * renders as, or the editor setting silently does nothing.
+	 *
+	 * The name is lowercase to match the PHP side, where shortcode_atts() reads an all-lowercase
+	 * list of defaults. Camel case would survive this particular path anyway, because WordPress
+	 * lowercases attribute names as it parses the shortcode text back — so this pins the name as
+	 * much as the plumbing.
+	 */
+	public function test_gutenblock_render_field_file_carries_max_files() {
+		$block = array(
+			'blockName'   => 'jetpack/field-file',
+			'attrs'       => array( 'maxfiles' => 3 ),
+			'innerBlocks' => array(
+				array(
+					'blockName' => 'jetpack/label',
+					'attrs'     => array( 'label' => 'Attachments' ),
+				),
+				array(
+					'blockName' => 'jetpack/dropzone',
+					'attrs'     => array(),
+				),
+			),
+		);
+
+		$output = Contact_Form_Plugin::gutenblock_render_field_file(
+			array( 'maxfiles' => 3 ),
+			'',
+			new WP_Block( $block )
+		);
+
+		$this->assertStringContainsString( 'maxfiles="3"', $output );
+	}
+
+	/**
 	 * Tests the render output of gutenblock_render_field_radio.
 	 */
 	public function test_gutenblock_gutenblock_render_field_radio() {
