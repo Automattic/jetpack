@@ -314,23 +314,39 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
+	 * Whether this request is proxied by Automattic.
+	 *
+	 * @return bool
+	 */
+	private static function is_proxied_request(): bool {
+		return isset( $_SERVER['A8C_PROXIED_REQUEST'] )
+			? (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
+			: defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST;
+	}
+
+	/**
 	 * UI feature flag for the public Jetpack AI Sidebar Preview surface.
 	 *
-	 * Defaults to enabled only on WordPress.com platform sites (Simple or WoA)
-	 * that have the Big Sky plugin present and enabled. Big Sky defaults on for
-	 * Simple sites and off on WoA/Atomic. The jetpack_ai_sidebar_enabled filter
-	 * is a host-level override of that default, respected by init() and every
-	 * sidebar surface that gates on this method. Independently of the filter,
-	 * the sidebar requires at least one of its features (writing assistant or
-	 * SEO enhancer) to be enabled.
+	 * Defaults to enabled for A8C-proxied requests off the WordPress.com platform,
+	 * so Automatticians can test on connected self-hosted sites. WordPress.com
+	 * platform sites (Simple or WoA) continue to require the Big Sky plugin to be
+	 * present and enabled. Big Sky defaults on for Simple sites and off on
+	 * WoA/Atomic. The jetpack_ai_sidebar_enabled filter is a host-level override
+	 * of that default, respected by init() and every sidebar surface that gates
+	 * on this method.
+	 * Independently of the filter, the sidebar requires at least one of its
+	 * features (writing assistant or SEO enhancer) to be enabled. Actual provider
+	 * exposure remains subject to is_supported_provider_surface() and
+	 * has_ai_features(), including their connection and offline checks.
 	 *
 	 * @return bool
 	 */
 	private static function is_jetpack_ai_sidebar_preview_enabled(): bool {
-		$host = new Host();
+		$host              = new Host();
+		$is_wpcom_platform = $host->is_wpcom_platform();
 
-		$enabled = false;
-		if ( $host->is_wpcom_platform() && class_exists( 'Big_Sky' ) ) {
+		$enabled = ! $is_wpcom_platform && self::is_proxied_request();
+		if ( $is_wpcom_platform && class_exists( 'Big_Sky' ) ) {
 			$default = $host->is_wpcom_simple() ? '1' : '0';
 			$enabled = (bool) get_option( 'big_sky_enable', $default );
 		}
@@ -338,12 +354,13 @@ class Jetpack_AI_Sidebar {
 		/**
 		 * Filter to enable or disable the Jetpack AI sidebar feature.
 		 *
-		 * Defaults to true only on WordPress.com platform sites with Big Sky
-		 * present and enabled. Acts as a host-level override that can force the
-		 * sidebar on (e.g. for local development) or off, and is respected by
-		 * init() and every sidebar surface. The override cannot force the
-		 * sidebar on while the writing-assistant and SEO enhancer features are
-		 * both off — a featureless sidebar never loads.
+		 * Defaults to true for A8C-proxied requests off the WordPress.com platform,
+		 * and on WordPress.com platform sites with Big Sky present and enabled.
+		 * Acts as a host-level override that can force the sidebar on (e.g. for
+		 * local development) or off, and is respected by init() and every sidebar
+		 * surface. The override cannot force the sidebar on while the
+		 * writing-assistant and SEO enhancer features are both off — a featureless
+		 * sidebar never loads.
 		 *
 		 * @param bool $enabled Whether the Jetpack AI sidebar is enabled.
 		 */
