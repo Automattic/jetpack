@@ -97,7 +97,10 @@ export function DateIntervalDropdown( {
 						{ __( 'Chart intervals', 'jetpack-premium-analytics-pkg' ) }
 					</Menu.GroupLabel>
 					{ options.map( option => (
-						<Menu.RadioItem key={ option } value={ option }>
+						/* Radio items keep the menu open by default, for settings
+						   toggled in bunches; picking a bucket is the whole point
+						   of this one, so it closes. */
+						<Menu.RadioItem key={ option } value={ option } closeOnClick>
 							<Menu.ItemLabel>{ getIntervalLabel( option ) }</Menu.ItemLabel>
 						</Menu.RadioItem>
 					) ) }

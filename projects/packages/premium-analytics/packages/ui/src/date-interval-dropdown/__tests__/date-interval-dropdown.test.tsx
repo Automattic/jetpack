@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
 
@@ -56,6 +56,23 @@ describe( 'DateIntervalDropdown', () => {
 		await expect( screen.findAllByRole( 'menuitemradio' ) ).resolves.toHaveLength( 2 );
 		expect( screen.getByRole( 'menuitemradio', { name: 'Months' } ) ).not.toBeChecked();
 		expect( screen.getByRole( 'menuitemradio', { name: 'Years' } ) ).not.toBeChecked();
+	} );
+
+	// Base UI keeps a radio item's menu open by default, for settings toggled in
+	// bunches. Picking a bucket is the whole point of this one.
+	it( 'closes the menu once a bucket is picked', async () => {
+		const user = userEvent.setup();
+
+		render(
+			<DateIntervalDropdown options={ [ 'day', 'week' ] } value="day" onChange={ jest.fn() } />
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Chart interval: Days' } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Weeks' } ) );
+
+		await waitFor( () =>
+			expect( screen.queryByRole( 'menuitemradio', { name: 'Weeks' } ) ).not.toBeInTheDocument()
+		);
 	} );
 
 	it( 'names the trigger without a bucket when there is no active one', () => {

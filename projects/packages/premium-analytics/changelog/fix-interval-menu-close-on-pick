@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Chart interval control: close the menu when a bucket is picked.

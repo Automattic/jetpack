@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: chart interval control: close the menu when a bucket is picked.
