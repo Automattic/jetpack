@@ -11,6 +11,8 @@
 
 namespace Automattic\Jetpack\PaypalPayments;
 
+use Automattic\Jetpack\PayPal_Payments;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -230,8 +232,13 @@ class PayPal_Admin_Page {
 			'
 		);
 
+		// No file to load, so register an empty handle in the footer and hang the inline script off it.
+		$handle = 'jetpack-paypal-admin';
+		wp_register_script( $handle, false, array( 'wp-a11y' ), PayPal_Payments::PACKAGE_VERSION, true );
+		wp_enqueue_script( $handle );
+
 		wp_add_inline_script(
-			'wp-admin',
+			$handle,
 			'
 			document.addEventListener("click", function(e) {
 				if (e.target.classList.contains("paypal-copy-link")) {
