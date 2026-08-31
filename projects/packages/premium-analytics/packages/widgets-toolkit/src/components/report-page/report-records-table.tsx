@@ -139,7 +139,7 @@ export function ReportRecordsTable< Item >( {
 		view: effectiveView,
 		data: pageItems,
 		paginationInfo,
-	} = usePaginatedView( data, view, fields );
+	} = usePaginatedView( data, view, fields, handleChangeView );
 
 	return (
 		<ReportPageSection className={ styles.root }>

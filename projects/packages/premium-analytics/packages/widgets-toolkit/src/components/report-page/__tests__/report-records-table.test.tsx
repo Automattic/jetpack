@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
@@ -80,11 +81,11 @@ describe( 'ReportRecordsTable', () => {
 	it( 'reports the chosen filter value outwards', async () => {
 		mountTable();
 
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dependency of this package.
+		// eslint-disable-next-line testing-library/prefer-user-event -- the filter menu's composite warns under a real focus sequence.
 		fireEvent.click( screen.getByRole( 'button', { name: /filter/i } ) );
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dependency of this package.
+		// eslint-disable-next-line testing-library/prefer-user-event -- as above.
 		fireEvent.click( await screen.findByRole( 'menuitem', { name: 'Country' } ) );
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dependency of this package.
+		// eslint-disable-next-line testing-library/prefer-user-event -- as above.
 		fireEvent.click( await screen.findByRole( 'option', { name: 'India' } ) );
 
 		const lastView = onChangeView.mock.calls.at( -1 )?.[ 0 ] as View;
@@ -105,12 +106,7 @@ const NUMBERED_FIELDS: Field< NumberedRow >[] = [
 	{ id: 'label', label: 'Label', getValue: ( { item } ) => item.label },
 ];
 
-/**
- * Rows labelled `Row 1`…`Row n`.
- *
- * @param count - How many to build.
- * @return The rows.
- */
+/** Rows labelled `Row 1`…`Row n`. */
 function numberedRows( count: number ): NumberedRow[] {
 	return Array.from( { length: count }, ( _, index ) => ( {
 		id: String( index + 1 ),
@@ -118,82 +114,96 @@ function numberedRows( count: number ): NumberedRow[] {
 	} ) );
 }
 
-/**
- * Render the table over `count` rows, ten to a page.
- *
- * @param count - How many rows to render.
- * @return The testing-library render result.
- */
-function renderNumbered( count: number ) {
-	return render(
-		<ReportRecordsTable< NumberedRow >
-			data={ numberedRows( count ) }
-			fields={ NUMBERED_FIELDS }
-			getItemId={ item => item.id }
-			perPageSizes={ [ 10 ] }
-		/>
-	);
-}
+const numberedTable = ( count: number ) => (
+	<ReportRecordsTable< NumberedRow >
+		data={ numberedRows( count ) }
+		fields={ NUMBERED_FIELDS }
+		getItemId={ item => item.id }
+		perPageSizes={ [ 10 ] }
+	/>
+);
 
-/**
- * Re-render the table over a different number of rows, as a refetch would.
- *
- * @param rerender - The render result's `rerender`.
- * @param count    - How many rows the new result has.
- */
-function rerenderNumbered( rerender: ( ui: React.ReactElement ) => void, count: number ) {
-	rerender(
-		<ReportRecordsTable< NumberedRow >
-			data={ numberedRows( count ) }
-			fields={ NUMBERED_FIELDS }
-			getItemId={ item => item.id }
-			perPageSizes={ [ 10 ] }
-		/>
-	);
-}
+const goToPage = async ( user: ReturnType< typeof userEvent.setup >, page: number ) => {
+	for ( let step = 1; step < page; step++ ) {
+		await user.click( screen.getByRole( 'button', { name: /next page/i } ) );
+	}
+};
 
 describe( 'ReportRecordsTable pagination', () => {
-	it( 'falls back to the last page when a refetch leaves the current one out of range', () => {
+	it( 'falls back to the last page when a refetch leaves the current one out of range', async () => {
 		// The report page keys this table by tab, not by date range, so the
 		// reader's page survives a range change. A smaller result would otherwise
 		// slice to nothing and DataViews would render its "no results" state over
 		// rows that exist, with the pagination hidden so there is no way back.
-		const { rerender } = renderNumbered( 25 );
+		const user = userEvent.setup();
+		const { rerender } = render( numberedTable( 25 ) );
 
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dependency of this package.
-		fireEvent.click( screen.getByRole( 'button', { name: /next page/i } ) );
+		await goToPage( user, 2 );
 		expect( screen.getByText( 'Row 11' ) ).toBeInTheDocument();
 
-		rerenderNumbered( rerender, 8 );
+		rerender( numberedTable( 8 ) );
 
 		expect( screen.getByText( 'Row 1' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Row 8' ) ).toBeInTheDocument();
 	} );
 
-	it( 'keeps the pagination controls agreeing with the rows it fell back to', () => {
-		const { rerender } = renderNumbered( 25 );
+	it( 'keeps the pagination controls agreeing with the rows it fell back to', async () => {
+		const user = userEvent.setup();
+		const { rerender } = render( numberedTable( 25 ) );
 
-		const next = screen.getByRole( 'button', { name: /next page/i } );
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dependency of this package.
-		fireEvent.click( next );
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dependency of this package.
-		fireEvent.click( next );
+		await goToPage( user, 3 );
 		expect( screen.getByText( 'Row 21' ) ).toBeInTheDocument();
 
-		rerenderNumbered( rerender, 12 );
+		rerender( numberedTable( 12 ) );
 
 		expect( screen.getByText( 'Row 11' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'combobox', { name: /page/i } ) ).toHaveValue( '2' );
 	} );
 
-	it( 'leaves a page that is still in range alone', () => {
-		const { rerender } = renderNumbered( 25 );
+	it( 'reports the page it fell back to outwards', async () => {
+		// The page mirrors this view into its data request, so a clamp it never
+		// hears about would leave it requesting a page that is not on screen.
+		const user = userEvent.setup();
+		const reportedViews = jest.fn();
+		const withSpy = ( count: number ) => (
+			<ReportRecordsTable< NumberedRow >
+				data={ numberedRows( count ) }
+				fields={ NUMBERED_FIELDS }
+				getItemId={ item => item.id }
+				perPageSizes={ [ 10 ] }
+				onChangeView={ reportedViews }
+			/>
+		);
+		const { rerender } = render( withSpy( 25 ) );
 
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dependency of this package.
-		fireEvent.click( screen.getByRole( 'button', { name: /next page/i } ) );
+		await goToPage( user, 3 );
+		rerender( withSpy( 12 ) );
+
+		expect( reportedViews.mock.calls.at( -1 )?.[ 0 ] ).toMatchObject( { page: 2 } );
+	} );
+
+	it( 'stays where it fell back to when a later result grows again', async () => {
+		const user = userEvent.setup();
+		const { rerender } = render( numberedTable( 25 ) );
+
+		await goToPage( user, 3 );
+		rerender( numberedTable( 8 ) );
+		expect( screen.getByText( 'Row 1' ) ).toBeInTheDocument();
+
+		rerender( numberedTable( 25 ) );
+
+		expect( screen.getByText( 'Row 1' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Row 21' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'leaves a page that is still in range alone', async () => {
+		const user = userEvent.setup();
+		const { rerender } = render( numberedTable( 25 ) );
+
+		await goToPage( user, 2 );
 		expect( screen.getByText( 'Row 11' ) ).toBeInTheDocument();
 
-		rerenderNumbered( rerender, 22 );
+		rerender( numberedTable( 22 ) );
 
 		expect( screen.getByText( 'Row 11' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Row 1' ) ).not.toBeInTheDocument();

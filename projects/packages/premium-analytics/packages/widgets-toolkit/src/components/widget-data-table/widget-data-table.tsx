@@ -88,7 +88,7 @@ export function WidgetDataTable< Item >( {
 		view: effectiveView,
 		data: pageItems,
 		paginationInfo,
-	} = usePaginatedView( data, view, fields );
+	} = usePaginatedView( data, view, fields, setView );
 
 	return (
 		<div className={ styles.root }>

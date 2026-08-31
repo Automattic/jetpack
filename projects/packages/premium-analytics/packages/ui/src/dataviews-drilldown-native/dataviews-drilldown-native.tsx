@@ -4,7 +4,7 @@
 import { DataViews, filterSortAndPaginate } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -224,10 +224,9 @@ export function DataViewsDrilldownNative< Item >( {
 				? findParentIds( orderedData, getItemId, getItemParentId )
 				: NO_IDS;
 
-			// 5. Paginate the survivors, so folded children stop consuming pages.
-			//    Folding alone can't strand the reader, since removed rows follow the
-			//    folded one, but a refetch returning fewer rows can — hence the clamp,
-			//    and the clamped view going down to DataViews' own controls.
+			// 5. Paginate the survivors, so folded children stop consuming pages. A
+			//    fold removes only rows after the control the reader just clicked, so
+			//    it can't strand them; a smaller refetch can, hence the clamp.
 			const perPage = view.perPage ?? 10;
 			const totalPages = Math.max( 1, Math.ceil( visibleData.length / perPage ) );
 			const page = clampPage( view.page ?? 1, totalPages );
@@ -309,6 +308,14 @@ export function DataViewsDrilldownNative< Item >( {
 		( nextView: View ) => setView( { ...nextView, showLevels: true } ),
 		[]
 	);
+
+	// This table paginates by hand, so it writes the clamp back itself rather
+	// than through `usePaginatedView`. See that hook for why it has to.
+	useEffect( () => {
+		if ( effectiveView !== view ) {
+			setView( effectiveView );
+		}
+	}, [ effectiveView, view ] );
 
 	return (
 		<CollapseContext.Provider value={ collapseContextValue }>

@@ -23,4 +23,4 @@ export { getSectionSubtitle } from './section-header/get-section-subtitle';
 export { StaleDataNotice } from './stale-data-notice';
 export { StatsBreadcrumbs, type StatsBreadcrumbsProps } from './stats-breadcrumbs';
 export { StatsPageIcon } from './stats-page-icon';
-export { clampPage, usePaginatedView, type PaginatedView } from './use-paginated-view';
+export { usePaginatedView, type PaginatedView } from './use-paginated-view';

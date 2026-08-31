@@ -228,12 +228,7 @@ describe( 'DataViewsDrilldownNative collapse', () => {
 	} );
 } );
 
-/**
- * Flat rows labelled `Row 1`…`Row n`.
- *
- * @param count - How many to build.
- * @return The rows.
- */
+/** Flat rows labelled `Row 1`…`Row n`. */
 function flatRows( count: number ): Row[] {
 	return Array.from( { length: count }, ( _, index ) => ( {
 		id: String( index + 1 ),
@@ -282,6 +277,22 @@ describe( 'DataViewsDrilldownNative pagination', () => {
 
 		await expect( screen.findByText( 'Row 11' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'combobox', { name: /page/i } ) ).toHaveValue( '2' );
+	} );
+
+	it( 'stays where it fell back to when a later result grows again', async () => {
+		const user = userEvent.setup();
+		const { rerender } = render( flatTable( 25 ) );
+
+		await user.click( screen.getByRole( 'button', { name: 'Next page' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Next page' } ) );
+
+		rerender( flatTable( 8 ) );
+		await expect( screen.findByText( 'Row 1' ) ).resolves.toBeInTheDocument();
+
+		rerender( flatTable( 25 ) );
+
+		await expect( screen.findByText( 'Row 1' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Row 21' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'leaves a page that is still in range alone', async () => {
