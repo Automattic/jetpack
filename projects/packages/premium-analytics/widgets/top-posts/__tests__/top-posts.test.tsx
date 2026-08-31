@@ -251,6 +251,108 @@ describe( 'TopPostsWidget', () => {
 		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
 	} );
 
+	describe( 'CSV export', () => {
+		let blobs: Blob[];
+		let clickSpy: jest.SpyInstance;
+		let originalCreateObjectURL: typeof window.URL.createObjectURL;
+		let originalRevokeObjectURL: typeof window.URL.revokeObjectURL;
+
+		beforeEach( () => {
+			blobs = [];
+			originalCreateObjectURL = window.URL.createObjectURL;
+			originalRevokeObjectURL = window.URL.revokeObjectURL;
+			// jsdom defines neither, so `jest.spyOn` has nothing to wrap.
+			const createObjectURL = jest.fn( ( blob: Blob ) => {
+				blobs.push( blob );
+				return 'blob:mock';
+			} );
+			const revokeObjectURL = jest.fn();
+			window.URL.createObjectURL = createObjectURL;
+			window.URL.revokeObjectURL = revokeObjectURL;
+			// An anchor click would reach jsdom's unimplemented navigation.
+			clickSpy = jest.spyOn( HTMLAnchorElement.prototype, 'click' ).mockImplementation( () => {} );
+		} );
+
+		afterEach( () => {
+			clickSpy.mockRestore();
+			window.URL.createObjectURL = originalCreateObjectURL;
+			window.URL.revokeObjectURL = originalRevokeObjectURL;
+		} );
+
+		async function downloadCsvLines() {
+			// This package does not depend on @testing-library/user-event.
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click( await screen.findByRole( 'button', { name: /Download CSV/ } ) );
+
+			await waitFor( () => expect( blobs ).toHaveLength( 1 ) );
+
+			return ( await blobs[ 0 ].text() ).replace( '\ufeff', '' ).split( '\n' );
+		}
+
+		it( 'appends the previous-period column when a comparison is active', async () => {
+			const overlappingComparison = {
+				date: '2026-02-10',
+				days: {},
+				summary: {
+					postviews: [
+						{
+							id: 1,
+							href: 'https://example.com/hello-world/',
+							date: '2026-02-01',
+							title: 'Hello World Post',
+							type: 'post',
+							views: 20,
+						},
+					],
+					total_views: 20,
+				},
+			};
+			mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+				Promise.resolve(
+					path.includes( 'date=2026-02-10' ) ? overlappingComparison : TOP_POSTS_RESPONSE
+				)
+			);
+
+			render(
+				<TopPostsWidget
+					attributes={ {
+						reportParams: {
+							from: '2026-03-01',
+							to: '2026-03-10',
+							comp: '1',
+							compare_from: '2026-02-01',
+							compare_to: '2026-02-10',
+						},
+					} }
+				/>
+			);
+
+			const lines = await downloadCsvLines();
+
+			expect( lines[ 0 ] ).toBe( '"Title","Views","Type","URL","Views (Previous Period)"' );
+			expect( lines[ 1 ] ).toBe(
+				'"Hello World Post","42","post","https://example.com/hello-world/","20"'
+			);
+			// About Page sits outside the comparison period's top rows, which is
+			// unmeasured rather than zero views.
+			expect( lines[ 2 ] ).toBe( '"About Page","7","page","https://example.com/about/",""' );
+		} );
+
+		it( 'omits the previous-period column when no comparison is active', async () => {
+			// The default range turns the comparison on, so this range is explicit.
+			render(
+				<TopPostsWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
+			);
+
+			const lines = await downloadCsvLines();
+
+			expect( lines[ 0 ] ).toBe( '"Title","Views","Type","URL"' );
+			expect( lines[ 1 ] ).toBe(
+				'"Hello World Post","42","post","https://example.com/hello-world/"'
+			);
+		} );
+	} );
+
 	it( 'exposes the CSV export beside the report link in the widget footer', async () => {
 		render(
 			<DashboardWidgetChromeFixture>
