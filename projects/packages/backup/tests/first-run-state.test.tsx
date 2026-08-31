@@ -26,7 +26,8 @@ const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected
 const SITE = 'example.wordpress.com';
 
 /**
- * Replace the site slug the connection global reports, for one test.
+ * Override the site slug the connection global reports, for one test.
+ * The `beforeEach` restores `SITE` before the next one.
  *
  * @param siteSuffix - The slug, or undefined for a global that carries none.
  */
@@ -106,9 +107,13 @@ function entry( overrides: Record< string, unknown > = {} ) {
 beforeEach( () => {
 	mockApiFetch.mockReset();
 	mockEndpoints();
+	// `siteSuffix` is pinned here, not just where a test needs it: the
+	// spread carries the previous test's value forward, so the one test
+	// that clears it would otherwise leak `undefined` into every test below.
 	window.JP_CONNECTION_INITIAL_STATE = {
 		...window.JP_CONNECTION_INITIAL_STATE,
 		connectionStatus: CONNECTED,
+		siteSuffix: SITE,
 	} as typeof window.JP_CONNECTION_INITIAL_STATE;
 } );
 
