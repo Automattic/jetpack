@@ -288,6 +288,9 @@ describe( 'report CSV exports', () => {
 		} );
 	} );
 
+	// `avg_words` is fractional on purpose: the table renders it whole while the
+	// export stays raw, as every other average column does. A whole fixture
+	// would pass either way.
 	it( 'configures the Annual insights export', () => {
 		const rows = [
 			{
@@ -298,7 +301,7 @@ describe( 'report CSV exports', () => {
 				total_likes: 30,
 				avg_likes: 3,
 				total_words: 1000,
-				avg_words: 100,
+				avg_words: 100.4,
 				total_images: 4,
 				avg_images: 1,
 			},
@@ -310,7 +313,7 @@ describe( 'report CSV exports', () => {
 				total_likes: 36,
 				avg_likes: 3,
 				total_words: 1200,
-				avg_words: 100,
+				avg_words: 120.6,
 				total_images: 5,
 				avg_images: 1,
 			},
@@ -324,7 +327,7 @@ describe( 'report CSV exports', () => {
 			AnnualInsightsReportPage,
 			'annual-insights',
 			[ rows[ 1 ], rows[ 0 ] ],
-			[ '2026', 12, 24, 2, 36, 3, 1200, 100, 5, 1 ]
+			[ '2026', 12, 24, 2, 36, 3, 1200, 120.6, 5, 1 ]
 		);
 	} );
 
