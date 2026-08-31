@@ -96,9 +96,29 @@ The `$$next-version$$` placeholder is automatically replaced with the correct ve
 
 One sentence, at most two lines — the summary rule the WordPress documentation standards
 already impose on our PHP, applied to JavaScript too. Anything past it must carry a why, a
-gotcha, or provenance. Omit what the signature already says, and prefer a clearer name over a
-comment explaining a bad one. If reading the comment costs as much as reading the code, delete
-it. Never invent rationale: a comment that contradicts the code is worse than no comment.
+gotcha, or provenance, **and must fit in two more lines**. That budget is the rule: "it is all
+rationale" does not buy more room, because the comments worth cutting are always all rationale.
+Omit what the signature already says, and prefer a clearer name over a comment explaining a bad
+one. If reading the comment costs as much as reading the code, delete it. Never invent
+rationale: a comment that contradicts the code is worse than no comment.
+
+The same budget applies to test files, where it is most often missed: no file-header essays, and
+no per-test narration the test name already carries.
+
+Four shapes exceed the budget however well they explain themselves:
+
+- **Design essays** — the alternative you rejected, what a future reader must not "fix", what a
+  trade-off costs. That is PR-description or issue material, not code.
+- **A mechanic explained on one member of a list** whose siblings share it. Say it once above the
+  list, or not at all.
+- **A block that would survive copy-paste verbatim into another file.** That is domain
+  background, not a comment.
+- **Provenance for a decision the code already makes** — upstream file-and-line citations,
+  "before this PR…", benchmark numbers, mutation-testing counts.
+
+Keep every functional annotation regardless: `@param`, `@return`, `@covers`, `translators:`,
+`phpcs:ignore`, `eslint-disable`, `@ts-expect-error`. Those are required tooling or load-bearing
+code, not prose.
 
 ## Testing
 
