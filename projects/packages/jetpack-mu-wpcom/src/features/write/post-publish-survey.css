@@ -73,23 +73,22 @@
 	background: #f0f0f0;
 }
 
+/* Context for the question, not the headline.
+   Padded clear of the close button. */
 .wpcom-write-pps__heading {
-	margin: 0 0 4px;
-	font-size: 14px;
-	font-weight: 600;
-	color: #1e1e1e;
-}
-
-.wpcom-write-pps__intro {
+	margin: 0 0 10px;
+	padding-inline-end: 36px;
+	font-size: 13px;
 	font-weight: 400;
+	line-height: 1.4;
 	color: #6d6d6d;
 }
 
 .wpcom-write-pps__question {
-	margin: 0 0 16px;
-	font-size: 17px;
+	margin: 0 0 20px;
+	font-size: 20px;
 	font-weight: 600;
-	line-height: 1.4;
+	line-height: 1.35;
 	color: #1e1e1e;
 }
 

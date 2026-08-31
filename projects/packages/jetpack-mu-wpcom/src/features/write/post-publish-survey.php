@@ -151,7 +151,6 @@ function wpcom_write_get_survey_strings( $is_write_first ) {
 		'heading'      => $is_coming_soon
 			? __( 'Your post is saved.', 'jetpack-mu-wpcom' )
 			: __( 'Your post is live.', 'jetpack-mu-wpcom' ),
-		'intro'        => __( 'One quick question?', 'jetpack-mu-wpcom' ),
 		'question'     => $is_write_first
 			? __( 'How was it?', 'jetpack-mu-wpcom' )
 			: __( "How did writing this compare to the WordPress.com editor you've used before?", 'jetpack-mu-wpcom' ),
@@ -236,7 +235,7 @@ function wpcom_write_render_post_publish_survey() {
 		<div class="wpcom-write-pps__backdrop" data-wpcom-write-pps-dismiss></div>
 		<div class="wpcom-write-pps__card">
 			<button type="button" class="wpcom-write-pps__close" data-wpcom-write-pps-dismiss aria-label="<?php echo esc_attr( $strings['close'] ); ?>">&times;</button>
-			<p class="wpcom-write-pps__heading"><?php echo esc_html( $strings['heading'] ); ?> <span class="wpcom-write-pps__intro"><?php echo esc_html( $strings['intro'] ); ?></span></p>
+			<p class="wpcom-write-pps__heading"><?php echo esc_html( $strings['heading'] ); ?></p>
 			<h2 id="wpcom-write-pps-question" class="wpcom-write-pps__question"><?php echo esc_html( $strings['question'] ); ?></h2>
 			<div class="wpcom-write-pps__answers">
 				<?php foreach ( $answers as $slug => $label ) : ?>
