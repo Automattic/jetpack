@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Agents_Manager\WP_REST_Jetpack_AI_JWT;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
@@ -16,6 +15,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\ExPlat;
 use Automattic\Jetpack\JITMS\JITM;
@@ -606,7 +606,7 @@ class Initializer {
 		new REST_Products();
 		new REST_Purchases();
 		new REST_Zendesk_Chat();
-		( new WP_REST_Jetpack_AI_JWT() )->register_rest_route();
+		( new REST_Jetpack_AI_JWT() )->register_rest_route();
 		new REST_Recommendations_Evaluation();
 
 		Products::register_product_endpoints();
