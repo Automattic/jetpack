@@ -107,6 +107,7 @@ class WPCOM_WPAdmin_Page_View_Test extends TestCase {
 		return array(
 			'ordinary screen'        => array( 'edit', array(), true ),
 			'media upload iframe'    => array( 'media-upload', array(), false ),
+			'press this'             => array( 'press-this', array(), false ),
 			'customizer'             => array( 'customize', array(), true ),
 			'customizer in calypso'  => array( 'customize', array( 'calypso' => '1' ), false ),
 			'customizer from a link' => array( 'customize', array( 'url' => 'https://example.com' ), false ),

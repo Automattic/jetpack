@@ -168,29 +168,20 @@ function get_account_age_in_days() {
 	return ( time() - strtotime( $current_user->user_registered ) ) / DAY_IN_SECONDS;
 }
 
-/**
- * Watch a request that resolved an admin screen, so it can be counted once the response settles.
- *
- * @param \WP_Screen $screen The screen WordPress resolved for this request.
- */
-function wpcom_admin_screen_watch_request( $screen ) {
-	if ( ! wpcom_admin_screen_is_countable( $screen ) ) {
-		return;
-	}
-
-	// Deferred to shutdown because what the response turned out to be is only knowable once its
-	// headers have settled, and admin_init has by then populated the user types below. Named
-	// callback so a request that resolves its screen more than once still records one event.
+// Everything is decided at shutdown: what the response turned out to be is only knowable once its
+// headers have settled, and admin_init has by then populated the user types. Registered here
+// rather than from a current_screen callback because another callback on that hook can fatal at an
+// earlier priority, which would lose the failed request this event exists to count.
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM && defined( 'WP_ADMIN' ) && WP_ADMIN ) {
 	add_action( 'shutdown', __NAMESPACE__ . '\wpcom_admin_screen_record' );
 }
-add_action( 'current_screen', __NAMESPACE__ . '\wpcom_admin_screen_watch_request' );
 
 /**
  * Whether wpcom_admin_page_view could also have reported this request. An exclusion on one side
  * but not the other makes the coverage percentage a measure of the disagreement between the two
  * events rather than of the tracking gap.
  *
- * @param \WP_Screen $screen The screen WordPress resolved for this request.
+ * @param \WP_Screen|null $screen The screen WordPress resolved for this request, if any.
  * @return bool
  */
 function wpcom_admin_screen_is_countable( $screen ) {
@@ -230,8 +221,8 @@ function wpcom_admin_screen_is_countable( $screen ) {
 /**
  * Whether wpcom_admin_page_view had any chance to run on this screen.
  *
- * Neither of these screens fires admin_footer: media-upload.php renders through wp_iframe(),
- * which runs admin_print_footer_scripts and nothing else, and the Customizer has its own footer
+ * Some screens never fire admin_footer, which the client event hangs off: media-upload.php renders
+ * through wp_iframe(), press-this.php renders standalone, and the Customizer has its own footer
  * hook, which wpcom_maybe_track_customizer() answers only for a request that is neither a Calypso
  * frame nor a link in from the frontend. Counting a screen the client event cannot reach would
  * depress the ratio instead of measuring it.
@@ -241,7 +232,9 @@ function wpcom_admin_screen_is_countable( $screen ) {
  * @return bool
  */
 function wpcom_admin_screen_has_client_counterpart( $screen_id, array $query ) {
-	if ( 'media-upload' === $screen_id ) {
+	// Not IFRAME_REQUEST: update.php and the install screens define that too, and do reach
+	// admin_footer through iframe_footer().
+	if ( in_array( $screen_id, array( 'media-upload', 'press-this' ), true ) ) {
 		return false;
 	}
 
@@ -295,12 +288,17 @@ function wpcom_admin_screen_rendered( array $headers ) {
  * @return void
  */
 function wpcom_admin_screen_record() {
-	if ( ! wpcom_admin_screen_rendered( headers_list() ) ) {
+	// A request that fataled before the admin includes loaded has no screen to attribute anyway.
+	if ( ! function_exists( 'get_current_screen' ) ) {
 		return;
 	}
 
 	$screen = get_current_screen();
-	if ( ! $screen instanceof \WP_Screen ) {
+	if ( ! wpcom_admin_screen_is_countable( $screen ) ) {
+		return;
+	}
+
+	if ( ! wpcom_admin_screen_rendered( headers_list() ) ) {
 		return;
 	}
 
