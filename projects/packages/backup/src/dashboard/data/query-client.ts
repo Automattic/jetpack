@@ -1,4 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
+import type { ActivitySortOrder } from './api/activity-log';
 
 const STALE_TIME_DEFAULT_MS = 30_000;
 const GC_TIME_DEFAULT_MS = 5 * 60_000;
@@ -58,10 +59,10 @@ export const keys = {
 	// query-filter root to scan all cached pages (e.g. when looking up
 	// a row by id across pages).
 	activityLogRoot: () => [ 'backup', 'activity-log' ] as const,
-	// Per-page key. `(page, pageSize)` is the only thing that
-	// distinguishes one fetch from another, so both must be in the key.
-	activityLogPage: ( page: number, pageSize: number ) =>
-		[ 'backup', 'activity-log', { page, pageSize } ] as const,
+	// All three distinguish one fetch from another: page 1 ascending and page 1
+	// descending are different rows.
+	activityLogPage: ( page: number, pageSize: number, sortOrder: ActivitySortOrder ) =>
+		[ 'backup', 'activity-log', { page, pageSize, sortOrder } ] as const,
 	fileTree: ( rewindId: string, folderPath: string | null ) =>
 		[ 'backup', 'file-tree', rewindId, folderPath ] as const,
 	fileContents: ( rewindId: string, path: string ) =>
