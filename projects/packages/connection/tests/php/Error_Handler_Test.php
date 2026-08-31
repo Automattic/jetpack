@@ -1426,7 +1426,7 @@ class Error_Handler_Test extends BaseTestCase {
 		);
 
 		// Set a transient to close the gate
-		set_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token', true, HOUR_IN_SECONDS );
+		set_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token_', true, HOUR_IN_SECONDS );
 
 		// Report the error with force=true (should bypass the gate)
 		$this->error_handler->report_error( $error, true );
@@ -1437,7 +1437,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertArrayHasKey( '3', $stored_errors['invalid_token'] );
 
 		// Clean up transient only (tear_down will handle the rest)
-		delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token' );
+		delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token_' );
 	}
 
 	/**
