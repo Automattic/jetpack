@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats: stop sending the unsupported `days` parameter on list-endpoint requests.

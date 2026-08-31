@@ -56,7 +56,12 @@ export type StatsReportParams = ReportParams & StatsQueryParamFields;
 type StatsSanitizer< TData = unknown > = ( response: unknown, params?: StatsQueryParams ) => TData;
 
 type StatsReportQuerySettings = {
-	/** Query params derived from the shared report range that this endpoint does not accept. */
+	/**
+	 * Query params derived from the shared report range that this endpoint does not accept.
+	 * WPCOM intersects the query string with the endpoint's declared parameters, so an
+	 * undeclared one is dropped before the handler runs — omitting it here only keeps the
+	 * request URL and the proxy cache key honest.
+	 */
 	omitParams?: readonly ( keyof StatsQueryParamFields )[];
 };
 

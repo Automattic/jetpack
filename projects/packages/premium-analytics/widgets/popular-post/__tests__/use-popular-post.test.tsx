@@ -314,7 +314,7 @@ describe( 'usePopularPost', () => {
 			// of yesterday.
 			expect( ranking ).toContain( 'start_date=2025-08-27T00:00:00' );
 			expect( ranking ).toContain( 'date=2026-08-26T23:59:59' );
-			expect( ranking ).toContain( 'days=365' );
+			expect( ranking ).not.toContain( 'days=' );
 		} );
 
 		it( 'draws the window in the site zone, not at UTC midnight', async () => {
