@@ -1063,15 +1063,19 @@ function buildEmailSummaryResponse() {
  * @return Raw email breakdown response.
  */
 function buildEmailBreakdownResponse( requestPath: string ): unknown {
-	const breakdown = requestPath.split( '?' )[ 0 ].split( '/' ).pop() ?? '';
+	const path = requestPath.split( '?' )[ 0 ];
+	const breakdown = path.split( '/' ).pop() ?? '';
+	const isClicks = /\/clicks\/emails\//.test( path );
 
 	switch ( breakdown ) {
 		case 'country':
-			return mockEmailCountryBreakdown;
+			return isClicks
+				? scaleEmailBreakdown( mockEmailCountryBreakdown )
+				: mockEmailCountryBreakdown;
 		case 'device':
-			return mockEmailDeviceBreakdown;
+			return isClicks ? scaleEmailBreakdown( mockEmailDeviceBreakdown ) : mockEmailDeviceBreakdown;
 		case 'client':
-			return mockEmailClientBreakdown;
+			return isClicks ? scaleEmailBreakdown( mockEmailClientBreakdown ) : mockEmailClientBreakdown;
 		case 'link':
 			return mockEmailInternalLinkBreakdown;
 		case 'user-content-link':
@@ -1079,6 +1083,34 @@ function buildEmailBreakdownResponse( requestPath: string ): unknown {
 		default:
 			return {};
 	}
+}
+
+// Clicks are a fraction of opens, so the clicks breakdowns reuse the opens
+// fixtures scaled down rather than carrying a second fixture per dimension.
+const EMAIL_CLICKS_RATIO = 0.3;
+
+function scaleEmailBreakdown< Fixture extends Record< string, unknown > >(
+	fixture: Fixture
+): Fixture {
+	return Object.fromEntries(
+		Object.entries( fixture ).map( ( [ key, section ] ) => {
+			const data = ( section as { data?: unknown } )?.data;
+			if ( ! Array.isArray( data ) ) {
+				return [ key, section ];
+			}
+			return [
+				key,
+				{
+					...( section as object ),
+					data: data.map( row =>
+						Array.isArray( row ) && typeof row[ 1 ] === 'number'
+							? [ row[ 0 ], Math.round( row[ 1 ] * EMAIL_CLICKS_RATIO ) ]
+							: row
+					),
+				},
+			];
+		} )
+	) as Fixture;
 }
 
 /**
@@ -1358,6 +1390,11 @@ function buildWordAdsStatsResponse( query: URLSearchParams ) {
 		} else {
 			bucket.setUTCDate( bucket.getUTCDate() - i * stepDays );
 			period = bucket.toISOString().slice( 0, 10 );
+		}
+
+		// A day bucket for today has no figures until the nightly WordAds run lands.
+		if ( unit === 'day' && period >= new Date().toISOString().slice( 0, 10 ) ) {
+			return [ period, 0, 0, 0 ];
 		}
 
 		const absDay = Math.floor( bucket.getTime() / DAY_MS );

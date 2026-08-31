@@ -10,7 +10,15 @@ import './style.scss';
 import type { FileNodeFile } from '../../types/file-tree';
 
 /**
- * Heuristic mime-type lookup by file extension.
+ * File extensions this card can render as text, and the mime type it
+ * labels each one with.
+ *
+ * Membership is the whole previewability rule — an extension in this map
+ * previews, one outside it does not. Adding a binary format here to get
+ * a `Type:` row would therefore also send its bytes to the `<pre>`, so
+ * keep binaries out. `.svg` earns its place because the card shows the
+ * source rather than rendering the image, which also keeps a hostile SVG
+ * out of the DOM.
  *
  * Deliberately not replaced by `path-info`'s `data_type`: that field is
  * a small integer type code — the manifest path's second character —
@@ -19,7 +27,7 @@ import type { FileNodeFile } from '../../types/file-tree';
  * own extension map for exactly this decision, using `data_type` only
  * to drive granular download.
  */
-const EXT_TO_MIME: Record< string, string > = {
+const PREVIEWABLE_TEXT_TYPES: Record< string, string > = {
 	css: 'text/css',
 	csv: 'text/csv',
 	htm: 'text/html',
@@ -53,7 +61,13 @@ function mimeFromName( name: string ): string {
 		return '';
 	}
 	const ext = name.slice( idx + 1 ).toLowerCase();
-	return EXT_TO_MIME[ ext ] ?? '';
+	// Not `?? ''`: the map is an object literal, so `a.__proto__` and
+	// `a.constructor` resolve through the prototype chain to values that are
+	// neither null nor undefined. They would preview, and the non-string would
+	// reach `<dd>{ mimeType }</dd>` and throw "Objects are not valid as a React
+	// child", taking the panel down instead of showing "Preview unavailable".
+	const mime = PREVIEWABLE_TEXT_TYPES[ ext ];
+	return typeof mime === 'string' ? mime : '';
 }
 
 type Props = {
@@ -64,8 +78,8 @@ type Props = {
 /**
  * Renders the preview slot's body: a spinner while loading, the file
  * contents in a `<pre>` when available, a muted line when the fetch
- * failed, or a generic "preview unavailable" muted line for non-text
- * mime types.
+ * failed, or a generic "preview unavailable" muted line when the
+ * filename's extension is not one this card can render.
  *
  * The error branch says nothing about *why*, on purpose. It used to
  * blame blob storage having outlived the manifest entry, which was
@@ -79,7 +93,7 @@ type Props = {
  * unique render paths the linter can reason about.
  *
  * @param props             - Component props.
- * @param props.showPreview - Whether the file's mime type is renderable as text.
+ * @param props.showPreview - Whether the filename's extension is in the previewable map.
  * @param props.isLoading   - Whether the file-contents query is in flight.
  * @param props.content     - The fetched body, or null when not yet resolved.
  * @param props.error       - The fetch error, or null on success.
@@ -133,21 +147,6 @@ function PreviewBody( {
 }
 
 /**
- * Returns true when the given mime type is renderable as plain text.
- *
- * @param mime - Mime type string.
- * @return Whether the type is textual.
- */
-function isTextual( mime: string ): boolean {
-	return (
-		mime.startsWith( 'text/' ) ||
-		mime === 'application/x-php' ||
-		mime === 'application/sql' ||
-		mime === 'application/json'
-	);
-}
-
-/**
  * Side panel showing details for the currently-open file: size, hash,
  * modified timestamp, and a monospace text preview for recognized text
  * mime types.
@@ -170,7 +169,7 @@ function isTextual( mime: string ): boolean {
  */
 export default function FileInfoCard( { file, onClose }: Props ) {
 	const mimeType = mimeFromName( file.name );
-	const showPreview = mimeType ? isTextual( mimeType ) : false;
+	const showPreview = Boolean( mimeType );
 	const {
 		content,
 		isLoading: contentsLoading,
@@ -205,7 +204,7 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				justify="space-between"
 				className="jpb-file-info-card__header"
 			>
-				<Text variant="heading-sm" render={ <h4 /> }>
+				<Text variant="heading-sm" render={ <h3 /> }>
 					{ file.name }
 				</Text>
 				<Button

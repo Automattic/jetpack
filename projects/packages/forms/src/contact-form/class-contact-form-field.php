@@ -23,6 +23,51 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Contact_Form_Field extends Contact_Form_Shortcode {
 
 	/**
+	 * Number of files a file upload field accepts when its `maxfiles` attribute says nothing.
+	 *
+	 * One, so that a field authored before the setting existed keeps behaving exactly as it did.
+	 *
+	 * @var int
+	 */
+	const FILE_FIELD_DEFAULT_MAX_FILES = 1;
+
+	/**
+	 * Highest number of files a filter may raise a field to.
+	 *
+	 * Separate from FILE_FIELD_MAX_FILES_LIMIT, which bounds what an author can choose: a site that
+	 * wants more headroom than the editor offers can filter its way up to here, and no further. The
+	 * endpoint imposes no count limit of its own that refuses anything — its per-site budgets log
+	 * and alert but still store the file — so this is the only thing standing between a filter and
+	 * a single site uploading as much as it likes.
+	 *
+	 * @var int
+	 */
+	const FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT = 25;
+
+	/**
+	 * Highest number of files an author can choose for a field, whatever `maxfiles` asks for.
+	 *
+	 * This bounds how many files can be attached to a response, not how many bytes reach the site.
+	 * Each file is uploaded as soon as the visitor picks it, so by the time anything here runs the
+	 * transfer has already happened and the submission carries only references — and the upload
+	 * endpoint is reachable on its own besides. Read this as a limit on the shape of a response,
+	 * and look to the endpoint's own quotas for anything to do with volume.
+	 *
+	 * Keep in sync with `MAX_FILES_LIMIT` in `blocks/field-file/edit.jsx`, which bounds the editor
+	 * control; `test_file_field_ceiling_matches_the_editor_control` fails if they drift.
+	 *
+	 * @var int
+	 */
+	const FILE_FIELD_MAX_FILES_LIMIT = 10;
+
+	/**
+	 * Maximum size, in bytes, of a single uploaded file.
+	 *
+	 * @var int
+	 */
+	const FILE_FIELD_MAX_UPLOAD_SIZE = 20 * 1024 * 1024;
+
+	/**
 	 * The shortcode name.
 	 *
 	 * @var string
@@ -608,6 +653,30 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				if ( ! is_array( $field_value ) || empty( $field_value[0] ) ) {
 					/* translators: %s is the name of a form field */
 					$this->add_error( sprintf( __( '%s requires a file to be uploaded.', 'jetpack-forms' ), $field_label ) );
+					break;
+				}
+
+				/*
+				 * Nothing enforced the count on this side before. The limit lived only in the
+				 * browser, so a submission assembled by hand could carry as many uploaded file
+				 * IDs as it liked and every one of them would be attached to the response.
+				 */
+				$max_files = $this->get_file_field_max_files();
+
+				if ( count( $field_value ) > $max_files ) {
+					$this->add_error(
+						sprintf(
+							/* translators: 1: the name of a form field, 2: the maximum number of files it accepts. */
+							_n(
+								'%1$s accepts at most %2$d file.',
+								'%1$s accepts at most %2$d files.',
+								$max_files,
+								'jetpack-forms'
+							),
+							$field_label,
+							$max_files
+						)
+					);
 				}
 				break;
 			default:
@@ -1129,10 +1198,28 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * inputs use. Falls back to the plain instruction when the label is visible
 	 * or there is no name to give. See FORMS-694.
 	 *
+	 * @param int $max_files How many files the field accepts.
+	 *
 	 * @return string
 	 */
-	private function get_file_dropzone_aria_label() {
-		$select_file_text = __( 'Select a file to upload.', 'jetpack-forms' );
+	private function get_file_dropzone_aria_label( $max_files ) {
+		/*
+		 * The count belongs in the accessible name rather than only in the visible dropzone text,
+		 * which is an inner block the author writes and may leave saying "a file" for a field that
+		 * takes several.
+		 */
+		$select_file_text = $max_files > 1
+			? sprintf(
+				/* translators: %d: the maximum number of files the field accepts. */
+				_n(
+					'Select up to %d file to upload.',
+					'Select up to %d files to upload.',
+					$max_files,
+					'jetpack-forms'
+				),
+				$max_files
+			)
+			: __( 'Select a file to upload.', 'jetpack-forms' );
 
 		if ( ! $this->is_label_hidden_by_block_visibility() ) {
 			return $select_file_text;
@@ -1973,7 +2060,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 *
 	 * @param string $id - the field ID.
 	 * @param string $label - the field label.
-	 * @param string $class - the field CSS class.
+	 * @param string $class - unused. Kept for signature parity with the other render_*_field()
+	 *                        methods; this field writes its input inline rather than from an
+	 *                        attribute array.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param bool   $required_indicator Whether to display the required indicator.
@@ -1994,56 +2083,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		// Enqueue necessary scripts and styles.
 		$this->enqueue_file_field_assets();
 
-		// Get allowed MIME types for display in the field.
-		$accepted_file_types = array_values(
-			array(
-				'jpg|jpeg|jpe'    => 'image/jpeg',
-				'png'             => 'image/png',
-				'gif'             => 'image/gif',
-				'pdf'             => 'application/pdf',
-				'doc'             => 'application/msword',
-				'docx'            => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-				'docm'            => 'application/vnd.ms-word.document.macroEnabled.12',
-				'pot|pps|ppt'     => 'application/vnd.ms-powerpoint',
-				'pptx'            => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-				'pptm'            => 'application/vnd.ms-powerpoint.presentation.macroEnabled.12',
-				'odt'             => 'application/vnd.oasis.opendocument.text',
-				'ppsx'            => 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
-				'ppsm'            => 'application/vnd.ms-powerpoint.slideshow.macroEnabled.12',
-				'csv'             => 'text/csv',
-				'xla|xls|xlt|xlw' => 'application/vnd.ms-excel',
-				'xlsx'            => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-				'xlsm'            => 'application/vnd.ms-excel.sheet.macroEnabled.12',
-				'xlsb'            => 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
-				'key'             => 'application/vnd.apple.keynote',
-				'webp'            => 'image/webp',
-				'heic'            => 'image/heic',
-				'heics'           => 'image/heic-sequence',
-				'heif'            => 'image/heif',
-				'heifs'           => 'image/heif-sequence',
-				'asc'             => 'application/pgp-keys',
-			)
-		);
+		$accept_attribute_value = implode( ', ', self::get_file_field_accepted_mime_types() );
+		$max_files              = $this->get_file_field_max_files();
+		$max_upload_size        = self::get_file_field_max_upload_size();
 
-		$accept_attribute_value = implode( ', ', $accepted_file_types );
-
-		// Add accessibility attributes and required status if needed.
-		$input_attrs = array(
-			'type'       => 'file',
-			'class'      => 'jetpack-form-file-field ' . esc_attr( $class ),
-			'name'       => esc_attr( $id ),
-			'id'         => esc_attr( $id ),
-			'accept'     => esc_attr( $accept_attribute_value ),
-			'aria-label' => esc_attr( $label ),
-		);
-
-		if ( $required ) {
-			$input_attrs['required']      = 'required';
-			$input_attrs['aria-required'] = 'true';
-		}
-
-		$max_files       = 1; // TODO: Dynamically retrieve the max number of files using $this->get_attribute( 'maxfiles' ) if needed in the future.
-		$max_file_size   = 20 * 1024 * 1024; // 20MB
 		$file_size_units = array(
 			_x( 'B', 'unit symbol', 'jetpack-forms' ),
 			_x( 'KB', 'unit symbol', 'jetpack-forms' ),
@@ -2059,30 +2102,32 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'uploadError'        => __( 'Error uploading file', 'jetpack-forms' ),
 				'folderNotSupported' => __( 'Folder uploads are not supported', 'jetpack-forms' ),
 				// translators: %s is the formatted maximum file size.
-				'fileTooLarge'       => sprintf( __( 'File is too large. Maximum allowed size is %s.', 'jetpack-forms' ), size_format( $max_file_size ) ),
+				'fileTooLarge'       => sprintf( __( 'File is too large. Maximum allowed size is %s.', 'jetpack-forms' ), size_format( $max_upload_size ) ),
 				'invalidType'        => __( 'This file type is not allowed.', 'jetpack-forms' ),
 				'maxFiles'           => __( 'You have exceeded the number of files that you can upload.', 'jetpack-forms' ),
 				'uploadFailed'       => __( 'File upload failed, try again.', 'jetpack-forms' ),
 			),
 			'endpoint'      => $this->get_unauth_endpoint_url(),
 			'iconsPath'     => Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/',
-			'maxUploadSize' => $max_file_size,
+			'maxUploadSize' => $max_upload_size,
 		);
 
 		wp_interactivity_config( 'jetpack/field-file', $global_config );
 
+		// Only genuinely dynamic state lives in the context. The field's static configuration
+		// (`maxFiles`, `allowedMimeTypes`) travels in `fieldExtra` alongside every other field's
+		// config, and `fieldId` already comes from the wrapper that `render_field()` opens.
 		$context = array(
-			'isDropping'       => false,
-			'fieldId'          => $id,
-			'files'            => array(),
-			'allowedMimeTypes' => $accepted_file_types,
-			'maxFiles'         => $max_files, // max number of files.
-			'hasMaxFiles'      => false,
+			'isDropping' => false,
+			'files'      => array(),
+			// Field-level message that belongs to no single file — currently only the result of
+			// offering more files than the field accepts. Per-file problems stay on their preview.
+			'fileNotice' => '',
 		);
 
 		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text, array(), true, $required_indicator );
 
-		$dropzone_aria_label = $this->get_file_dropzone_aria_label();
+		$dropzone_aria_label = $this->get_file_dropzone_aria_label( $max_files );
 
 		ob_start();
 		?>
@@ -2090,28 +2135,29 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			class="jetpack-form-file-field__container"
 			id="<?php echo esc_attr( $id ); ?>"
 			name="dropzone-<?php echo esc_attr( $id ); ?>"
-			data-wp-interactive="jetpack/field-file"
 			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method ?>
 			<?php echo wp_interactivity_data_wp_context( $context ); ?>
-			data-wp-on--dragover="actions.dragOver"
-			data-wp-on--dragleave="actions.dragLeave"
-			data-wp-on--mouseleave="actions.dragLeave"
+			data-wp-on--dragover="actions.onFileDragOver"
+			data-wp-on--dragleave="actions.onFileDragLeave"
+			data-wp-on--mouseleave="actions.onFileDragLeave"
 			data-wp-on--drop="actions.fileDropped"
 			data-wp-on--jetpack-form-reset="actions.resetFiles"
 			data-is-required="<?php echo esc_attr( $required ); ?>"
 		>
-			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.hasMaxFiles">
-				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker" data-wp-on--keydown="actions.handleKeyDown" tabindex="0" role="button" aria-label="<?php echo esc_attr( $dropzone_aria_label ); ?>"></div>
+			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.isFileFieldFull">
+				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker" data-wp-on--keydown="actions.onFileDropzoneKeyDown" tabindex="0" role="button" aria-label="<?php echo esc_attr( $dropzone_aria_label ); ?>"></div>
 				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Decoded dropzone markup is filtered through an allowlist by sanitize_file_field_content(). ?>
 				<?php echo $this->sanitize_file_field_content( $this->content ); ?>
 				<input
 					type="file" class="jetpack-form-file-field"
 					accept="<?php echo esc_attr( $accept_attribute_value ); ?>"
+					<?php // Without this the picker returns one file at a time however many the field accepts; a drop already could. ?>
+					<?php echo $max_files > 1 ? 'multiple' : ''; ?>
 					data-wp-on--change="actions.fileAdded"  />
 			</div>
-			<div class="jetpack-form-file-field__preview-wrap" name="file-field-<?php echo esc_attr( $id ); ?>" data-wp-class--is-active="state.hasFiles">
+			<div class="jetpack-form-file-field__preview-wrap" name="file-field-<?php echo esc_attr( $id ); ?>" data-wp-class--is-active="state.hasFileFieldFiles">
 				<template data-wp-each--file="context.files" data-wp-key="context.file.id">
-					<div class="jetpack-form-file-field__preview" tabindex="0" data-wp-bind--aria-label="context.file.name" data-wp-init--focus="callbacks.focusElement" data-wp-class--is-error="context.file.hasError" data-wp-class--is-complete="context.file.isUploaded">
+					<div class="jetpack-form-file-field__preview" tabindex="0" data-wp-bind--aria-label="context.file.name" data-wp-init--focus="callbacks.focusFilePreview" data-wp-class--is-error="context.file.hasError" data-wp-class--is-complete="context.file.isUploaded">
 						<input type="hidden" name="<?php echo esc_attr( $id ); ?>[]" class="jetpack-form-file-field__hidden include-hidden" data-wp-bind--value='context.file.fileJson' value="">
 						<div class="jetpack-form-file-field__image-wrap" data-wp-style----progress="context.file.progress" data-wp-class--has-icon="context.file.hasIcon">
 							<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" data-wp-style--mask-image="context.file.mask"></div>
@@ -2134,6 +2180,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					</div>
 				</template>
 			</div>
+			<p class="jetpack-form-file-field__notice" role="status" data-wp-class--is-visible="state.hasFileFieldNotice" data-wp-text="context.fileNotice"></p>
 		</div>
 		<?php
 		return $field . ob_get_clean() . $this->get_error_div( $id, 'file' );
@@ -2306,6 +2353,142 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * How many files this file upload field accepts.
+	 *
+	 * Read from the block's `maxfiles` attribute and clamped rather than trusted: the value reaches
+	 * PHP as author-supplied shortcode text, and both the rendered `multiple` attribute and the
+	 * submission-time count check are derived from it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int A number between 1 and FILE_FIELD_MAX_FILES_LIMIT.
+	 */
+	private function get_file_field_max_files() {
+		$max_files = $this->get_attribute( 'maxfiles' );
+
+		if ( ! is_numeric( $max_files ) ) {
+			return self::FILE_FIELD_DEFAULT_MAX_FILES;
+		}
+
+		return max( 1, min( (int) $max_files, self::get_file_field_max_files_limit() ) );
+	}
+
+	/**
+	 * The highest number of files an author may set a single file upload field to.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int A number between 1 and FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT.
+	 */
+	public static function get_file_field_max_files_limit() {
+		/**
+		 * Filters the highest number of files an author may set a file upload field to.
+		 *
+		 * This raises the ceiling rather than setting the count. A field still takes whatever its
+		 * author chose, so one deliberately set to a single file keeps taking a single file — which
+		 * is the whole difference between offering more room and overriding everybody's choice.
+		 *
+		 * The editor's control reads the same number, so what an author is offered is what the site
+		 * will honour. A field already storing a number above the ceiling is clamped down to it, so
+		 * removing this filter returns those fields to the default rather than leaving them on a
+		 * value nothing enforces any more.
+		 *
+		 * Bounded by FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT. Nothing at the receiving end refuses a
+		 * submission for holding too many files — the endpoint's per-site budgets log and alert but
+		 * store the file regardless — so this ceiling is the only thing standing in the way.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int $limit The highest number of files an author may choose.
+		 */
+		$limit = (int) apply_filters(
+			'jetpack_forms_file_field_max_files_limit',
+			self::FILE_FIELD_MAX_FILES_LIMIT
+		);
+
+		return max( 1, min( $limit, self::FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT ) );
+	}
+
+	/**
+	 * The largest file a file upload field accepts, in bytes.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int Size in bytes.
+	 */
+	private static function get_file_field_max_upload_size() {
+		/**
+		 * Filters the largest file a file upload field accepts, in bytes.
+		 *
+		 * Deliberately not bounded by the site's own PHP upload limits. The browser sends each file
+		 * straight to the upload endpoint, so `upload_max_filesize` and `post_max_size` have nothing
+		 * to do with this transfer — clamping to them would cap the field at whatever a cheap host
+		 * allows for files that host never receives.
+		 *
+		 * The bound that does matter is the endpoint's own, which rejects anything over
+		 * FILE_FIELD_MAX_UPLOAD_SIZE. So this filter can only lower the limit, never raise it: a
+		 * larger value would have the field accept a file, show the visitor a size allowance in the
+		 * "file is too large" message that nothing can honour, and then fail the upload once they had
+		 * already waited for it. Raising the ceiling means raising it at the endpoint first.
+		 *
+		 * The result reaches the browser as the `maxUploadSize` config value, and the "file is too
+		 * large" message is built from the same number, so the two cannot disagree.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int $max_upload_size Maximum size of a single file, in bytes.
+		 */
+		$max_upload_size = (int) apply_filters(
+			'jetpack_forms_file_field_max_upload_size',
+			self::FILE_FIELD_MAX_UPLOAD_SIZE
+		);
+
+		return max( 1, min( $max_upload_size, self::FILE_FIELD_MAX_UPLOAD_SIZE ) );
+	}
+
+	/**
+	 * MIME types the file upload field accepts.
+	 *
+	 * Shared by the input's `accept` attribute and by the field's `fieldExtra` config, so the
+	 * browser-side picker filter and the client-side check can never drift apart.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string[] List of accepted MIME types.
+	 */
+	private static function get_file_field_accepted_mime_types() {
+		return array_values(
+			array(
+				'jpg|jpeg|jpe'    => 'image/jpeg',
+				'png'             => 'image/png',
+				'gif'             => 'image/gif',
+				'pdf'             => 'application/pdf',
+				'doc'             => 'application/msword',
+				'docx'            => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+				'docm'            => 'application/vnd.ms-word.document.macroEnabled.12',
+				'pot|pps|ppt'     => 'application/vnd.ms-powerpoint',
+				'pptx'            => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+				'pptm'            => 'application/vnd.ms-powerpoint.presentation.macroEnabled.12',
+				'odt'             => 'application/vnd.oasis.opendocument.text',
+				'ppsx'            => 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
+				'ppsm'            => 'application/vnd.ms-powerpoint.slideshow.macroEnabled.12',
+				'csv'             => 'text/csv',
+				'xla|xls|xlt|xlw' => 'application/vnd.ms-excel',
+				'xlsx'            => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+				'xlsm'            => 'application/vnd.ms-excel.sheet.macroEnabled.12',
+				'xlsb'            => 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
+				'key'             => 'application/vnd.apple.keynote',
+				'webp'            => 'image/webp',
+				'heic'            => 'image/heic',
+				'heics'           => 'image/heic-sequence',
+				'heif'            => 'image/heif',
+				'heifs'           => 'image/heif-sequence',
+				'asc'             => 'application/pgp-keys',
+			)
+		);
+	}
+
+	/**
 	 * Enqueues scripts and styles needed for the file field.
 	 *
 	 * @since 0.45.0
@@ -2315,10 +2498,19 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	private function enqueue_file_field_assets() {
 		$version = Constants::get_constant( 'JETPACK__VERSION' );
 
+		// extra cache busting strategy for view.js, seems they are left out of cache clearing on deploys
+		$asset_file = plugin_dir_path( __FILE__ ) . '../../dist/modules/file-field/view.asset.php';
+		$asset      = file_exists( $asset_file ) ? require $asset_file : null;
+		$version   .= $asset['version'] ?? '';
+
 		\wp_enqueue_script_module(
 			'jetpack-form-file-field',
 			plugins_url( '../../dist/modules/file-field/view.js', __FILE__ ),
-			array( '@wordpress/interactivity' ),
+			// `jp-forms-view` is not decoration: this module contributes `state.validators.file`,
+			// which `registerField()` reads at `data-wp-init` time. Loading after hydration would
+			// leave a required file field registering as valid, since the shared `validateField()`
+			// no longer has a `file` branch to fall back on. Same reason `field-phone` declares it.
+			array( '@wordpress/interactivity', 'jp-forms-view' ),
 			$version
 		);
 
@@ -3380,6 +3572,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	private function get_field_extra( $type, $extra_attrs ) {
 		if ( 'date' === $type ) {
 			return $this->get_date_format();
+		}
+
+		if ( 'file' === $type ) {
+			return array(
+				'maxFiles'         => $this->get_file_field_max_files(),
+				'allowedMimeTypes' => self::get_file_field_accepted_mime_types(),
+			);
 		}
 
 		return $extra_attrs;

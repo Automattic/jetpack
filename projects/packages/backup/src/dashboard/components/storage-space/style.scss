@@ -6,10 +6,23 @@
 	inline-size: 100%;
 	margin-block-end: 24px;
 
-	// `<Text render={ <h3 /> }>` renders a real heading, which inherits
-	// wp-admin's own `h3` margins. Reset both so the gap to the bar is
-	// this file's decision.
-	h3 {
+	// `<Text render={ <hN /> }>` renders a real heading, which inherits
+	// wp-admin's own heading margins. Reset both so the gap to the bar is
+	// this file's decision. Matched by class, not by tag: a tag selector
+	// stops matching the moment the heading's level changes, which is what
+	// happened when the outline went `h3` to `h2` — the rule died,
+	// `@wordpress/ui`'s `:is(h1,…,h6).heading` default supplied `margin: 0`,
+	// and the 12px gap to the meter vanished while the placeholder below
+	// went on reserving it. `&__heading` alone is a single class (0,1,0) and
+	// loses to that `@wordpress/ui` rule, which is (0,1,1) — `:is()` takes
+	// the specificity of its most specific argument, all type selectors here.
+	// Doubling it to `.jpb-storage-space .jpb-storage-space__heading` is
+	// (0,2,0) and wins outright: no source-order dependency, no
+	// `!important`. Same trick as `& &__bar` below. The tag selector this
+	// replaced was itself (0,1,1) — it tied and won on
+	// source order, which is why it worked and why nothing recorded that it
+	// was load-bearing.
+	& &__heading {
 		margin-block: 0 12px;
 	}
 
@@ -40,6 +53,21 @@
 		inline-size: 240px;
 		margin-block-start: 8px;
 	}
+
+	// `Stack` owns the column and its gap, so all that is left is how far
+	// the pair sits from the row above — the same 8px the readings sit
+	// from the meter.
+	&__upsell {
+		margin-block-start: 8px;
+	}
+}
+
+// Deliberately not nested inside `.jpb-storage-space`: `Popover.Popup`
+// portals its content out, so a nested selector would never match.
+.jpb-storage-space__help-popup {
+	// Without a cap the popup is as wide as its longest sentence, which on
+	// a wide screen is a single line running most of the viewport.
+	max-inline-size: 320px;
 }
 
 .jpb-storage-meter {

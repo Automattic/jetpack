@@ -211,15 +211,6 @@ See Automattic/jetpack#50266 for the PR that established this contract.
 
 ## Comments and documentation
 
-Code explains what; comments explain why. Keep them minimal.
-
-- Document non-obvious rules, constraints, invariants, risks, and workarounds — not names,
-  types, or signatures. Prefer a clearer name over an explanatory comment.
-- Private functions do not need a docstring by default. One sentence is usually enough.
-- Never invent rationale. Treat a stale comment as a bug: one that contradicts the code is
-  worse than no comment at all.
-- All source code comments must be in English.
-
 Load-bearing here and easy to delete by mistake: the `max = 0` semantics, the
 `undefined`-not-`0` comparison rules, `safeHttpUrl` guards (including the ones explaining why a
 URL needs _no_ guard), import-boundary notes (WOOA7S-1836), and the WPCOM Simple route guards.
@@ -773,7 +764,13 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
 - Widget title: use the framed widget host header via the widget definition/title/icon. Do not
   add a second in-widget `<Text variant="heading-md" render={ <h3 /> }>` title for framed Stats
   widgets.
-- View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }`
+- View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }`.
+  `widgets/tags` is the one exception — it passes `useMultipliers: false` because compacting
+  ("1,240" → "1K") was reported as a data mismatch against the Jetpack Stats module it is read
+  beside (WOOA7S-2018). Report tables already print in full, so the widgets are the outliers;
+  whether the rest follow is a product call to raise, not a refactor to do. It is not free: the
+  leaderboard grid is `minmax(0, 1fr) auto`, so the wider value permanently takes width from the
+  label — at the 370px tile a long name ellipsizes where the compact form left it room.
 - Leaderboard rows: spread `buildLeaderboardRow()` into the chart entry — it carries the
   drill-down `onClick`/`ariaLabel` that a bare `<LeaderboardRow>` label silently drops. Use
   `<LeaderboardRow>` directly only outside a chart, as `widgets/tags` does for its drilled-in

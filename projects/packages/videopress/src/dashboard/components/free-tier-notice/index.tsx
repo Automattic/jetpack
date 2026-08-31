@@ -20,6 +20,13 @@ export const FREE_TIER_AT_LIMIT_MESSAGE = __(
 	'jetpack-videopress-pkg'
 );
 
+// Stable id for the at-limit toast, so a user who keeps dropping files at the
+// limit refreshes one notice instead of stacking a column of identical black
+// bars: the notices store drops an existing notice with the same id on create.
+// Shared across surfaces on purpose — the plan is one fact, and only one of
+// these surfaces is on screen at a time.
+export const FREE_TIER_AT_LIMIT_NOTICE_ID = 'vp-upload-at-limit';
+
 /**
  * Permanent (non-dismissible) free-plan upgrade Notice. The Overview tab
  * renders it for every free-tier user with the default free-plan copy; the

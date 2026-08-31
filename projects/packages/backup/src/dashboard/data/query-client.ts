@@ -42,10 +42,18 @@ export const keys = {
 	// change rate — but the storage meter needs both, so the two are
 	// always read together.
 	sitePolicies: () => [ 'backup', 'site-policies' ] as const,
+	// The hour WordPress.com runs the site's daily backup. Its own key rather than a
+	// slice of `siteSize`: a different route, and a far longer stale time.
+	backupSchedule: () => [ 'backup', 'schedule' ] as const,
 	// The Backup product being promoted, for the no-plan screen's price.
 	// Not keyed on anything: WordPress.com picks the currency from the
 	// site, so one site only ever sees one answer.
 	promotedProduct: () => [ 'backup', 'promoted-product' ] as const,
+	// The storage add-on being offered. Keyed on both byte figures because the route
+	// derives its answer from both — the same pair that gates the query. Nulls appear
+	// in the key only while it is disabled, so no request is made under one.
+	storageAddonOffer: ( storageUsed: number | null, storageLimit: number | null ) =>
+		[ 'backup', 'storage-addon-offer', storageUsed, storageLimit ] as const,
 	// Family prefix for any rewindable-activity-log page. Use as a
 	// query-filter root to scan all cached pages (e.g. when looking up
 	// a row by id across pages).

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: remove an uploaded file from the form immediately instead of waiting for the server, so a slow connection no longer leaves the file upload field looking stuck.

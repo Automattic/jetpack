@@ -132,7 +132,7 @@ function RollingDateControls() {
 
 	// A pick the committed range no longer allows coerces to the finest bucket
 	// it does, the way the report params have it.
-	const intervalOptions = getStoryIntervalOptions( committed.presetId );
+	const intervalOptions = getStoryIntervalOptions( staged.presetId );
 
 	return (
 		<DateFiltersPanel

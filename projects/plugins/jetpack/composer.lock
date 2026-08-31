@@ -2413,11 +2413,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "241d610cbdf17bcc90c53af6b9f1dab01967de4e"
+                "reference": "1263327c84d902bafb3d4ab4a078d9f9d530d196"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
-                "automattic/jetpack-agents-manager": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-boost-speed-score": "@dev",
                 "automattic/jetpack-connection": "@dev",

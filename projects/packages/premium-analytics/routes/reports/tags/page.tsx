@@ -40,8 +40,9 @@ const sortTagCsvRows = ( a: StatsTagsItem, b: StatsTagsItem ) => b.value - a.val
 /**
  * Premium Analytics Tags & categories report page component.
  *
- * `stats/tags` returns one flat all-time list and ignores date-window params, so this page
- * has no date filters, tabs, or performance chart — just the header and records table.
+ * `stats/tags` returns one flat list over the seven days ending yesterday and ignores
+ * date-window params, so this page has no date filters, tabs, or performance chart —
+ * just the header and records table.
  *
  * @return The Tags & categories report page.
  */
