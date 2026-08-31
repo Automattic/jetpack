@@ -324,7 +324,7 @@ describe( 'report CSV exports', () => {
 			AnnualInsightsReportPage,
 			'annual-insights',
 			[ rows[ 1 ], rows[ 0 ] ],
-			[ '2026', 12, 24, 2, 36, 3, 1200, 100 ]
+			[ '2026', 12, 24, 2, 36, 3, 1200, 100, 5, 1 ]
 		);
 	} );
 
