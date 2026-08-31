@@ -274,20 +274,21 @@ class Write_Post_Publish_Survey_Test extends \WorDBless\BaseTestCase {
 	 * rather than as a preset answer key, alongside the segmenting metadata.
 	 */
 	public function test_response_payload_stores_prose_under_text() {
-		$payload = wpcom_write_build_survey_response( 'harder', 'The toolbar hid my text.', 'abc-123', 'dashboard', false );
+		$uuid    = wp_generate_uuid4();
+		$payload = wpcom_write_build_survey_response( 'harder', 'The toolbar hid my text.', $uuid, 'dashboard', false );
 
 		$this->assertSame( 'harder', $payload['experience'] );
 		$this->assertSame( array( 'text' => 'The toolbar hid my text.' ), $payload['comment'] );
 		$this->assertSame( 'returning', $payload['variant'] );
 		$this->assertSame( 'dashboard', $payload['entryPoint'] );
-		$this->assertSame( 'abc-123', $payload['responseId'] );
+		$this->assertSame( $uuid, $payload['responseId'] );
 	}
 
 	/**
 	 * An empty comment is omitted rather than stored as an empty answer.
 	 */
 	public function test_response_payload_omits_an_empty_comment() {
-		$payload = wpcom_write_build_survey_response( 'easy', '', 'abc-123', '', true );
+		$payload = wpcom_write_build_survey_response( 'easy', '', wp_generate_uuid4(), '', true );
 
 		$this->assertArrayNotHasKey( 'comment', $payload );
 		$this->assertSame( 'write_first', $payload['variant'] );
@@ -299,11 +300,56 @@ class Write_Post_Publish_Survey_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_response_payload_caps_long_free_text() {
 		$long    = str_repeat( 'a', WPCOM_WRITE_SURVEY_MAX_COMMENT_LENGTH + 500 );
-		$payload = wpcom_write_build_survey_response( 'easier', $long, 'abc-123', '', false );
+		$payload = wpcom_write_build_survey_response( 'easier', $long, wp_generate_uuid4(), '', false );
 
 		$this->assertSame(
 			WPCOM_WRITE_SURVEY_MAX_COMMENT_LENGTH,
 			strlen( $payload['comment']['text'] )
+		);
+	}
+
+	/**
+	 * A forged response ID is discarded rather than stored. It is only ever a
+	 * uuid4 we minted at render, and it round-trips through the client.
+	 */
+	public function test_response_payload_discards_a_non_uuid_response_id() {
+		$payload = wpcom_write_build_survey_response( 'easier', '', 'not-a-uuid', '', false );
+
+		$this->assertSame( '', $payload['responseId'] );
+
+		$uuid    = wp_generate_uuid4();
+		$payload = wpcom_write_build_survey_response( 'easier', '', $uuid, '', false );
+
+		$this->assertSame( $uuid, $payload['responseId'] );
+	}
+
+	/**
+	 * Every stored field is bounded, not just the free text: neither storage path
+	 * passes through the endpoint that enforces wpcom's response-size cap.
+	 */
+	public function test_response_payload_caps_the_entry_point() {
+		$payload = wpcom_write_build_survey_response( 'easier', '', '', str_repeat( 'a', 500 ), false );
+
+		$this->assertSame(
+			WPCOM_WRITE_SURVEY_MAX_SOURCE_LENGTH,
+			strlen( $payload['entryPoint'] )
+		);
+	}
+
+	/**
+	 * The single-select state is exposed from first render, not only after a
+	 * choice — otherwise the buttons change role mid-interaction.
+	 */
+	public function test_answer_buttons_expose_their_pressed_state_initially() {
+		$this->make_survey_eligible();
+
+		ob_start();
+		wpcom_write_render_post_publish_survey();
+		$markup = ob_get_clean();
+
+		$this->assertSame(
+			count( wpcom_write_get_survey_answers( false ) ),
+			substr_count( $markup, 'aria-pressed="false"' )
 		);
 	}
 

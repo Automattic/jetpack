@@ -51,6 +51,14 @@ const WPCOM_WRITE_SURVEY_NONCE = 'wpcom_write_survey';
 const WPCOM_WRITE_SURVEY_MAX_COMMENT_LENGTH = 2000;
 
 /**
+ * Maximum length of the stored entry-point token.
+ *
+ * `sanitize_key()` bounds the character set but not the length, and the value
+ * round-trips through the client, so it needs a cap of its own.
+ */
+const WPCOM_WRITE_SURVEY_MAX_SOURCE_LENGTH = 50;
+
+/**
  * Whether the current user arrived through the write-first signup flow.
  *
  * `site_creation_flow` is set to the flow name at site creation, so a site born
@@ -238,7 +246,7 @@ function wpcom_write_render_post_publish_survey() {
 			<h2 id="wpcom-write-pps-question" class="wpcom-write-pps__question"><?php echo esc_html( $strings['question'] ); ?></h2>
 			<div class="wpcom-write-pps__answers">
 				<?php foreach ( $answers as $slug => $label ) : ?>
-					<button type="button" class="wpcom-write-pps__answer" data-wpcom-write-pps-answer="<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $label ); ?></button>
+					<button type="button" class="wpcom-write-pps__answer" aria-pressed="false" data-wpcom-write-pps-answer="<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $label ); ?></button>
 				<?php endforeach; ?>
 			</div>
 			<div class="wpcom-write-pps__comment" hidden>
@@ -335,6 +343,10 @@ add_action( 'wp_ajax_wpcom_write_survey_shown', 'wpcom_write_ajax_mark_survey_sh
  * shape wpcom's response formatter reads. The trailing keys are metadata, stored
  * alongside the answers the way calypso-remove-purchase stores its own.
  *
+ * Every field is bounded here, because neither storage path passes through the
+ * endpoint that enforces wpcom's response-size cap. All of them arrive from the
+ * client, including the ID we minted and handed out at render.
+ *
  * @param string $answer         Validated answer slug.
  * @param string $comment        Optional free-text answer, already sanitized.
  * @param string $response_id    Shared ID linking this row to its Tracks event.
@@ -346,8 +358,9 @@ function wpcom_write_build_survey_response( $answer, $comment, $response_id, $so
 	$responses = array(
 		'experience' => $answer,
 		'variant'    => $is_write_first ? 'write_first' : 'returning',
-		'entryPoint' => $source,
-		'responseId' => $response_id,
+		'entryPoint' => substr( $source, 0, WPCOM_WRITE_SURVEY_MAX_SOURCE_LENGTH ),
+		// Only ever a uuid4 we generated; anything else is discarded rather than stored.
+		'responseId' => wp_is_uuid( $response_id ) ? $response_id : '',
 	);
 
 	$comment = mb_substr( $comment, 0, WPCOM_WRITE_SURVEY_MAX_COMMENT_LENGTH );

@@ -230,9 +230,13 @@
 		const send = overlay.querySelector( '[data-wpcom-write-pps-send]' );
 		if ( send ) {
 			send.addEventListener( 'click', function () {
-				recordEvent( 'wpcom_write_first_publish_survey_comment_sent', {
-					response_id: config.responseId || '',
-				} );
+				// Send is reachable with an empty box, and an empty comment is not
+				// stored — so firing this unconditionally would over-count prose.
+				if ( commentInput && commentInput.value.trim() ) {
+					recordEvent( 'wpcom_write_first_publish_survey_comment_sent', {
+						response_id: config.responseId || '',
+					} );
+				}
 				submitResponse();
 				if ( thanks ) {
 					thanks.removeAttribute( 'hidden' );
