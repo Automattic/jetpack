@@ -111,6 +111,12 @@ describe( 'drawableIntervals', () => {
 	it( 'has nothing to offer when the range allows nothing', () => {
 		expect( drawableIntervals( [], DAY_WEEK_MONTH_YEAR ) ).toEqual( [] );
 	} );
+
+	it( 'clamps both ways, so a finer-only chart lists a bucket the range excludes', () => {
+		// Pins the one-sided invariant the fallback assumes: no grain offers only
+		// buckets finer than the range allows, and this is what one would get.
+		expect( drawableIntervals( [ 'day', 'week' ], [ 'hour' ] as const ) ).toEqual( [ 'hour' ] );
+	} );
 } );
 
 describe( 'chartInterval', () => {

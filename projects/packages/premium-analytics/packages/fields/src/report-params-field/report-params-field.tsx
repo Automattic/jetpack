@@ -58,7 +58,7 @@ export type ReportGrain = {
 
 	/**
 	 * The bucket sizes the widget's chart draws — the same list it clamps against.
-	 * Only read when `withIntervalControl` is set.
+	 * Only affects the interval control.
 	 */
 	periods?: readonly [ StatsPeriod, ...StatsPeriod[] ];
 };

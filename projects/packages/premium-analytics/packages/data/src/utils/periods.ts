@@ -62,6 +62,10 @@ export function defaultPeriodForInterval< P extends StatsPeriod >(
  * allows nothing it draws — a day or less, which is offered as hours alone —
  * fall back to where the clamp lands rather than leaving the menu empty.
  *
+ * That fallback clamps both ways, so it assumes no widget offers only buckets
+ * finer than the range allows: an hours-only chart on a month-long range would
+ * list `hour`. Returning empty instead would make `chartInterval` partial.
+ *
  * @param intervals - The buckets the range allows, finest first.
  * @param allowed   - The periods this widget offers, in any order.
  * @return The buckets to list, in the order given.
