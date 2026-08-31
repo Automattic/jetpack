@@ -47,4 +47,24 @@ describe( 'useXYChartTheme', () => {
 
 		document.body.removeChild( scope );
 	} );
+
+	// The one label color that has to arrive resolved: visx paints it on a portal container appended to `document.body`, where the catalog is not declared, and concatenates it into `box-shadow: 0 1px 2px ${color}55`, which a `var()` chain would invalidate.
+	it( 'resolves the tooltip label color while the tick labels keep the pointer', () => {
+		const scope = document.createElement( 'div' );
+		scope.style.setProperty( '--a8c-charts-color-label-axis', '#0000ff' );
+		document.body.appendChild( scope );
+
+		const wrapper = ( { children }: { children: ReactNode } ) => (
+			<ChartScopeContext.Provider value={ scope }>{ children }</ChartScopeContext.Provider>
+		);
+
+		const { result } = renderHook( () => useXYChartTheme( [] ), { wrapper } );
+
+		expect( result.current.htmlLabel.color ).toBe( '#0000ff' );
+		expect( result.current.svgLabelSmall.fill ).toBe(
+			'var(--a8c-charts-color-label-axis, #1e1e1e)'
+		);
+
+		document.body.removeChild( scope );
+	} );
 } );

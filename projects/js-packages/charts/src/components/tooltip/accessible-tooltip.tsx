@@ -1,7 +1,10 @@
 import { Tooltip, TooltipContext } from '@visx/xychart';
 import clsx from 'clsx';
 import { useContext, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useGlobalChartsTheme } from '../../providers';
+import { useChartScopeElement } from '../../providers/chart-scope';
 import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
+import { resolveCssVariable } from '../../utils';
 import type { SeriesData, DataPointDate } from '../../types';
 import type { RenderTooltipParams, XyChartTooltipProps } from '../../visx/types';
 import type { ReactNode } from 'react';
@@ -45,9 +48,21 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 	keyboardFocusedClassName,
 	series = [],
 	mode = 'group',
+	verticalCrosshairStyle,
+	horizontalCrosshairStyle,
 	...props
 } ) => {
 	const tooltipContext = useContext( TooltipContext );
+	const scopeElement = useChartScopeElement();
+	const gridStroke = useGlobalChartsTheme().gridStyles?.stroke;
+
+	// visx paints the crosshairs from `theme.gridStyles.stroke`, but renders them through `@visx/tooltip`, which appends each portal container to `document.body`. That is outside the scope element the catalog is declared on, so the grid role is unset there and the chain reaches only its own fallback — a hardcoded grey, whatever the gridlines it tracks are doing. Resolving it here is what keeps the two following the same override. The scope class cannot do the job instead: visx hardcodes the crosshair portals' `className`.
+	const crosshairStroke = useMemo( () => {
+		const stroke = gridStroke ? resolveCssVariable( gridStroke, scopeElement ) : null;
+
+		// An undefined `stroke` would override visx's own value with nothing, and SVG's initial `stroke` is `none` — an unresolvable color has to leave the crosshair alone rather than erase it.
+		return stroke ? { stroke } : undefined;
+	}, [ gridStroke, scopeElement ] );
 
 	const tooltipData = useMemo( () => {
 		if ( mode !== 'individual' ) return [];
@@ -158,7 +173,14 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 		};
 	}, [ renderTooltip, selectedIndex, tooltipRef, keyboardFocusedClassName ] );
 
-	return <Tooltip { ...props } renderTooltip={ focusableRenderTooltip } />;
+	return (
+		<Tooltip
+			{ ...props }
+			verticalCrosshairStyle={ { ...crosshairStroke, ...verticalCrosshairStyle } }
+			horizontalCrosshairStyle={ { ...crosshairStroke, ...horizontalCrosshairStyle } }
+			renderTooltip={ focusableRenderTooltip }
+		/>
+	);
 };
 
 // Keyboard navigation hook for charts
