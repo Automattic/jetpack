@@ -35,9 +35,7 @@ export const statsWordAdsStatsQuery = (
 	const unit = String( apiParams.period ?? 'day' );
 	const { start_date: startDate } = statsParams;
 	const rangeEnd = typeof apiParams.date === 'string' ? apiParams.date : undefined;
-	// Clamp to today, not yesterday: the endpoint honors an end of today, and the
-	// bucket count below reads this same end, so clamping earlier loses a bucket.
-	// Today's own bucket stays empty until the nightly run lands.
+	// The endpoint honors an end of today; that bucket stays empty until the nightly run.
 	const today = format( localTZDate(), 'yyyy-MM-dd' );
 	// Compare date parts, not the raw strings: a datetime sorts after the bare day
 	// it starts with, so a window ending exactly on today would clamp too.
