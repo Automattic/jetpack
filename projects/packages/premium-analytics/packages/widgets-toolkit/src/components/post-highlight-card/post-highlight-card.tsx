@@ -39,11 +39,9 @@ export type PostHighlightCardMetric = {
 	value: number | undefined;
 
 	/**
-	 * Caveat about how the value is aggregated, e.g. that it is an all-time total
-	 * under a card title that names a period. Shown as a hover tooltip on the
-	 * tile and mirrored as visually hidden text for assistive technology — it
-	 * supplements the widget header's help note rather than replacing it, since
-	 * a tooltip reaches neither touch nor keyboard.
+	 * Caveat about how the value is aggregated (e.g. an all-time total among
+	 * date-scoped neighbours). Shown as a hover tooltip and mirrored as
+	 * visually hidden text for assistive technology.
 	 */
 	note?: string;
 };
