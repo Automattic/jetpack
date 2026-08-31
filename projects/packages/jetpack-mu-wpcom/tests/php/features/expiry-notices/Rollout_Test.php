@@ -48,6 +48,25 @@ class Rollout_Test extends \WorDBless\BaseTestCase {
 		delete_option( 'wpcom_expiry_notices_enabled' );
 	}
 
+	public function test_the_filter_still_passes_both_arguments(): void {
+		// WordPress passes a callback only as many arguments as the hook supplies,
+		// so dropping the second one would fatal any callback that declares it as
+		// required. The rollout is over but the signature outlives it.
+		$received = array();
+		add_filter(
+			'wpcom_expiry_notices_enabled',
+			static function ( $enabled, $percentage ) use ( &$received ) {
+				$received = array( $enabled, $percentage );
+				return $enabled;
+			},
+			10,
+			2
+		);
+
+		$this->assertTrue( wpcom_expiry_notices_is_enabled_for_site() );
+		$this->assertSame( array( true, 100 ), $received );
+	}
+
 	public function test_the_filter_can_still_hold_a_site_back(): void {
 		// The one remaining lever, and the one the legacy notices rely on: if
 		// this says a site is out, they must take over again.

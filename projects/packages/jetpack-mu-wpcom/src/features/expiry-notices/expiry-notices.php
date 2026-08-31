@@ -50,13 +50,16 @@ function wpcom_expiry_notices_is_enabled_for_site(): bool {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param bool $enabled Whether the site is on the new expiry notices.
+	 * @param bool $enabled    Whether the site is on the new expiry notices.
+	 * @param int  $percentage Share of sites the rollout targets. Always 100 now
+	 *                         that it is complete; passed so that callbacks
+	 *                         declaring both parameters keep working.
 	 */
-	return (bool) apply_filters( 'wpcom_expiry_notices_enabled', true );
+	return (bool) apply_filters( 'wpcom_expiry_notices_enabled', true, 100 );
 }
 
 /**
- * Load the wp-admin banner for sites in the rollout.
+ * Load the wp-admin banner, unless something has held this site back.
  *
  * On `init` rather than at file load. This file is required on `plugins_loaded`,
  * and both of the banner's own hooks fire later still, so waiting keeps the
