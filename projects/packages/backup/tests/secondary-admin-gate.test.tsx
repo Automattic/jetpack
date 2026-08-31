@@ -51,6 +51,21 @@ describe( 'Secondary-admin gate', () => {
 		}
 	} );
 
+	// Verified against a live My Jetpack: `#/connection` renders a screen whose
+	// single primary action is "Connect your user account", while the landing
+	// page this used to reach shows the product grid with the connection
+	// section below it. The query lives inside the hash on purpose — the
+	// router re-parses the fragment, so `skip_pricing` reaches it even though
+	// PHP never sees it.
+	it( "sends the reader into the account-link flow, not My Jetpack's landing page", () => {
+		render( <SecondaryAdminScreen /> );
+
+		expect( screen.getByRole( 'link', { name: /^Link my account$/ } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=my-jetpack#/connection?skip_pricing=true'
+		);
+	} );
+
 	it( 'leads with the condition rather than promising backups outright', () => {
 		// Both halves are pinned: the conditional reading of what linking
 		// gets you, and the sentence naming the no-plan case. With no

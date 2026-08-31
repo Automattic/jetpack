@@ -3,8 +3,13 @@ import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import LicenseKeyLink from './license-key-link';
 
-/** My Jetpack, for the reasons spelled out in `not-connected.tsx`. */
-const JETPACK_CONNECT_USER_URL = 'admin.php?page=my-jetpack';
+/**
+ * My Jetpack's account-link screen, for the reasons in `not-connected.tsx`.
+ * Deep-linked past its landing page, which puts "Connect account" below the
+ * product grid; `skip_pricing` because this reader may already be entitled,
+ * and the no-plan gate sells to the ones who are not.
+ */
+const JETPACK_CONNECT_USER_URL = 'admin.php?page=my-jetpack#/connection?skip_pricing=true';
 
 /**
  * Fallback shown when the current user is an admin but isn't personally
