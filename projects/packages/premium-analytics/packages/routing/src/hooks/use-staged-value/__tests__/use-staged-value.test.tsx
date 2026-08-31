@@ -30,7 +30,12 @@ function renderStagedValue( initial: Params = { preset: 'last-30-days' } ) {
 			const onCommit = useCallback( ( staged: Params, patch: Partial< Params > ) => {
 				commits.push( staged );
 				patches.push( patch );
-				setCommitted( staged );
+				// Dropping the `undefined` keys is what makes this a faithful store:
+				// the URL binding serializes them away, so a value staged as
+				// `undefined` never round-trips back as a key.
+				setCommitted(
+					Object.fromEntries( Object.entries( staged ).filter( ( [ , v ] ) => v !== undefined ) )
+				);
 			}, [] );
 
 			return { ...useStagedValue< Params >( committed, onCommit ), setCommitted };
@@ -149,5 +154,33 @@ describe( 'useStagedValue', () => {
 		act( () => result.current.stage( { preset: 'last-30-days' } ) );
 
 		expect( result.current.isDirty ).toBe( false );
+	} );
+
+	// Re-picking "No comparison" with comparison already off stages a patch of
+	// nothing. Left in the buffer it reads as dirty forever, and Apply never
+	// goes back to disabled (WOOA7S-2039).
+	it( 'ignores clearing a key the value does not carry', () => {
+		const { result, commits } = renderStagedValue();
+
+		act( () => {
+			result.current.stage( { interval: undefined } );
+			result.current.commit();
+		} );
+
+		expect( result.current.isDirty ).toBe( false );
+		expect( commits ).toHaveLength( 0 );
+	} );
+
+	// The other half of the same rule: staging an explicit `undefined` is how a
+	// caller drops a param it does hold, which the URL binding relies on.
+	it( 'still clears a key the value carries', () => {
+		const { result, patches } = renderStagedValue( { preset: 'last-30-days', interval: 'week' } );
+
+		act( () => {
+			result.current.stage( { interval: undefined } );
+			result.current.commit();
+		} );
+
+		expect( patches ).toStrictEqual( [ { interval: undefined } ] );
 	} );
 } );

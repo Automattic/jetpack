@@ -94,9 +94,25 @@ export function useStagedValue< TValue extends AnyObject, TCommitOptions = void 
 		setStaged( committed );
 	}
 
+	/*
+	 * Dropping a key the draft does not carry changes nothing, but the entry
+	 * would keep the buffer non-empty and the draft dirty forever: the store
+	 * writes back the same value, so the realign never runs (WOOA7S-2039).
+	 */
 	const stage = useCallback( ( patch: Partial< TValue > ) => {
-		stagedRef.current = { ...stagedRef.current, ...patch };
-		patchRef.current = { ...patchRef.current, ...patch };
+		const changes = Object.fromEntries(
+			Object.entries( patch ).filter(
+				( [ key, value ] ) =>
+					value !== undefined || ( stagedRef.current as AnyObject )[ key ] !== undefined
+			)
+		) as Partial< TValue >;
+
+		if ( Object.keys( changes ).length === 0 ) {
+			return;
+		}
+
+		stagedRef.current = { ...stagedRef.current, ...changes };
+		patchRef.current = { ...patchRef.current, ...changes };
 		setStaged( stagedRef.current );
 	}, [] );
 

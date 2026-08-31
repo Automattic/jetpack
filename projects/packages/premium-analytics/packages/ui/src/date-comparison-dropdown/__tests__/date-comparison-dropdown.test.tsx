@@ -69,4 +69,25 @@ describe( 'DateComparisonDropdown', () => {
 		await user.click( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) );
 		expect( onClear ).toHaveBeenCalled();
 	} );
+
+	// Clearing what is already clear stages a patch of nothing, which leaves the
+	// picker's Apply enabled and inert (WOOA7S-2039).
+	it( 'does not clear a comparison that is already off', async () => {
+		const onClear = jest.fn();
+		const user = userEvent.setup();
+
+		render(
+			<DateComparisonDropdown
+				presets={ presets }
+				enabled={ false }
+				onPresetChange={ jest.fn() }
+				onClear={ onClear }
+			/>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Compare' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) );
+
+		expect( onClear ).not.toHaveBeenCalled();
+	} );
 } );
