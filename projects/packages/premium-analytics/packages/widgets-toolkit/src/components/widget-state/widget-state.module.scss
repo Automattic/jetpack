@@ -75,6 +75,8 @@
 	min-block-size: 0;
 }
 
+// Not positioned: an absolutely positioned descendant resolves against its own
+// component's anchor, or against `WidgetRoot`'s containment.
 .root,
 .content {
 	block-size: 100%;
