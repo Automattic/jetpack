@@ -12,11 +12,14 @@ import {
 	hasSeenOnboarding,
 	saveDismissal,
 } from '../../hooks/use-first-run-state';
+import { useFreeTier } from '../../hooks/use-free-tier';
 import { useOnboardingCounts } from '../../hooks/use-onboarding-counts';
 import { useUpload } from '../../hooks/use-upload';
+import { useUploadIntake } from '../../hooks/use-upload-intake';
+import { videoFileAccept } from '../upload-dropzone/video-files';
 import IntroVideo, { INTRO_VIDEO_ASPECT, getAssetUrl } from './intro-video';
 import './style.scss';
-import type { CSSProperties, ReactElement, ReactNode } from 'react';
+import type { ChangeEvent, CSSProperties, ReactElement, ReactNode } from 'react';
 
 const LEARN_MORE_URL = 'https://jetpack.com/videopress/';
 
@@ -230,9 +233,12 @@ export default function OnboardingModal(): ReactElement | null {
 	// Observer instance, like `useFreeTier`'s: the queue lives in a shared
 	// window-scoped store, so reading it here starts nothing and owns nothing.
 	const { uploadQueue } = useUpload();
+	const intakeFiles = useUploadIntake();
+	const { isFree, isUnlimited } = useFreeTier();
 	const navigate = useNavigate();
 	const search = useSearch( { strict: false } ) as Record< string, unknown >;
 	const popupRef = useRef< HTMLDivElement >( null );
+	const filePickerRef = useRef< HTMLInputElement >( null );
 	// Resolved per render, like the film's own URL: the boot payload is a
 	// global, so reading it at module scope would bake in whatever existed when
 	// this bundle was imported.
@@ -305,19 +311,37 @@ export default function OnboardingModal(): ReactElement | null {
 		setIsDismissed( true );
 	}, [] );
 
-	// The primary CTA lands on the Library, whose empty state is the upload
-	// flow: on a true first run this is a no-op hop to the dropzone already
-	// showing. On a site whose media library holds only local videos the
-	// Library lists them instead, with its header Upload button and page-wide
-	// dropzone one gesture away.
-	const goToUpload = useCallback( () => {
-		dismiss();
-		navigate( { href: '/' } );
-	}, [ dismiss, navigate ] );
+	// The primary CTA opens the OS file picker directly — the same gesture as
+	// the Library header's "Upload video" button — rather than parking the
+	// user in front of another upload affordance. The modal stays up until a
+	// selection is actually made, so cancelling the picker costs nothing.
+	const openFilePicker = useCallback( () => {
+		filePickerRef.current?.click();
+	}, [] );
+
+	// A selection ends the first run either way: the files go through the
+	// same intake pipeline as the Library's own picker and DropZone (plan
+	// gating, notices, queueing), and the user lands on the Library, where
+	// the queued rows carry the live upload progress. A refused selection
+	// lands there too — the refusal notice must be read over the Library,
+	// not under this modal.
+	const onFilesPicked = useCallback(
+		( event: ChangeEvent< HTMLInputElement > ) => {
+			const files = Array.from( event.target.files ?? [] );
+			event.target.value = '';
+			if ( files.length === 0 ) {
+				return;
+			}
+			intakeFiles( files );
+			dismiss();
+			navigate( { href: '/' } );
+		},
+		[ intakeFiles, dismiss, navigate ]
+	);
 
 	// Lands on the Library pre-filtered to local videos, where the existing
 	// bulk "Upload to VideoPress" action does the actual moving. The user
-	// picks what migrates — the modal never starts uploads on its own, and it
+	// picks what migrates — this path never starts uploads on its own, and it
 	// stays out of plan-limit logic (the library actions own that).
 	const goToLocalLibrary = useCallback( () => {
 		dismiss();
@@ -461,7 +485,18 @@ export default function OnboardingModal(): ReactElement | null {
 					 * default for a primary action is brand tone, so this
 					 * divergence is deliberate and owned by the spec.
 					 */ }
-					<Button variant="solid" tone="neutral" onClick={ goToUpload }>
+					<input
+						ref={ filePickerRef }
+						type="file"
+						accept={ videoFileAccept() }
+						// The capped free tier can only ever host `limit` videos, so
+						// multi-select there would only produce skipped-file notices;
+						// paid and grandfathered-unlimited plans get bulk selection.
+						multiple={ ! isFree || isUnlimited }
+						style={ { display: 'none' } }
+						onChange={ onFilesPicked }
+					/>
+					<Button variant="solid" tone="neutral" onClick={ openFilePicker }>
 						{ __( 'Upload a video', 'jetpack-videopress-pkg' ) }
 					</Button>
 				</Dialog.Footer>
