@@ -14,13 +14,12 @@ import {
 	SectionTabPanel,
 	StatsBreadcrumbs,
 	StatsPageIcon,
-	getSectionSubtitle,
 } from '@jetpack-premium-analytics/ui';
 import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
@@ -136,35 +135,6 @@ function Dashboard(): JSX.Element {
 		activeSectionRecord?.date_filter_options?.with_header_date_control ?? true;
 
 	/*
-	 * The subtitle follows the applied range, not the picker's staged draft, since it
-	 * states what the widgets show; a header missing a control must not announce it.
-	 */
-	const comparisonPresetId = showComparison ? dateFilters.appliedComparisonPresetId : undefined;
-	const comparisonRange = showComparison ? dateFilters.appliedComparisonRange : undefined;
-	const sectionSubtitle = useMemo( () => {
-		if ( ! showHeaderDateControl ) {
-			return undefined;
-		}
-
-		return getSectionSubtitle( {
-			range: dateFilters.appliedRange,
-			presetId: dateFilters.appliedPresetId,
-			comparisonPresetId,
-			comparisonRange,
-			// The interval control renders as a glyph, so the subtitle is where
-			// the active bucket is readable.
-			interval: dateFilters.appliedInterval,
-		} );
-	}, [
-		showHeaderDateControl,
-		dateFilters.appliedRange,
-		dateFilters.appliedPresetId,
-		dateFilters.appliedInterval,
-		comparisonPresetId,
-		comparisonRange,
-	] );
-
-	/*
 	 * The year surface applies on click — no Apply step of its own — so stage and
 	 * commit together, the way the quick presets do inside `DateRangeFilter`.
 	 */
@@ -250,7 +220,6 @@ function Dashboard(): JSX.Element {
 					<Page
 						visual={ <StatsPageIcon /> }
 						breadcrumbs={ <StatsBreadcrumbs isRoot /> }
-						subTitle={ activeSectionRecord?.description }
 						actions={ <WidgetDashboard.Actions /> }
 						className={ styles.dashboard }
 					>
@@ -265,16 +234,12 @@ function Dashboard(): JSX.Element {
 									value={ section.slug }
 									className={ styles.content }
 								>
-									{ /* Marks where the header below comes to rest, so its subtitle
-								     starts condensing there. Measured, never seen. */ }
+									{ /* Marks where the header below comes to rest, so it starts
+								     condensing there. Measured, never seen. */ }
 									<div className={ styles.pinMarker } aria-hidden="true" />
 
 									<div ref={ setContainerElement } className={ styles.sectionHeader }>
-										<SectionHeader
-											title={ resolveSectionHeading( section ) }
-											subtitle={ sectionSubtitle }
-											condenseOnScroll
-										>
+										<SectionHeader title={ resolveSectionHeading( section ) } condenseOnScroll>
 											{ dateControls }
 										</SectionHeader>
 										{ /* Inside the pinned band, so its Retry stays reachable however

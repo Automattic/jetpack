@@ -86,7 +86,7 @@ export function DateComparisonDropdown( {
 	/*
 	 * Additive: `Compare +` until a preset is picked, then a trigger naming it —
 	 * spelled out rather than a bare `+`, since a glyph alone read as decoration.
-	 * Names the preset, not the period: the section header's subtitle covers that.
+	 * Names the preset, not the period.
 	 */
 	return (
 		<DropdownMenu

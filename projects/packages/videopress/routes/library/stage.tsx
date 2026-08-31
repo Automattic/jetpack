@@ -1,4 +1,5 @@
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
+import useConnectionErrorNotice from '@automattic/jetpack-connection/use-connection-error-notice';
 import { DropZone, Spinner, Tooltip } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
@@ -26,6 +27,7 @@ import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-
 import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
 import { createPromoteLocal } from './promote-local';
 import { planVideoDrop } from './upload-drop';
+import { classifyUploadFailure } from './upload-failure';
 import './style.scss';
 import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
 import type { SupportedLayouts, View } from '@wordpress/dataviews';
@@ -107,6 +109,10 @@ const StageInner = () => {
 		refetch,
 	} = useLibrary( view );
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
+	// Read the store's existing errors so a failed row can name the cause; the
+	// notice this dashboard already renders carries the diagnosis and the
+	// reconnect button, so the row only has to point at it.
+	const { hasConnectionError } = useConnectionErrorNotice();
 	const { paginationInfo: totalPagination } = useLibrary( TOTAL_COUNT_VIEW );
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
@@ -391,6 +397,8 @@ const StageInner = () => {
 				upload: {
 					status: u.status === 'failed' ? ( 'failed' as const ) : ( 'uploading' as const ),
 					progress: Math.round( u.progress * 100 ),
+					failureReason:
+						u.status === 'failed' ? classifyUploadFailure( u, hasConnectionError ) : undefined,
 				},
 				description: '',
 				rating: 'G' as LibraryItem[ 'rating' ],
@@ -416,7 +424,7 @@ const StageInner = () => {
 			return item;
 		} );
 		return [ ...inFlight, ...overlaid ];
-	}, [ uploadQueue, items, promotingProgress, deletingIds ] );
+	}, [ uploadQueue, items, promotingProgress, deletingIds, hasConnectionError ] );
 
 	const getItemId = useCallback( ( item: LibraryItem ) => item.id, [] );
 

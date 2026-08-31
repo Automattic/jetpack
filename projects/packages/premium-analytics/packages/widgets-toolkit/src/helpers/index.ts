@@ -51,6 +51,7 @@ export {
 	buildCsv,
 	buildCsvDateRangeFilename,
 	saveCsv,
+	withComparisonColumns,
 	type CsvColumn,
 	type CsvDateRange,
 } from './build-csv';

@@ -3,6 +3,7 @@
  */
 import {
 	useStatsEmailOpensBreakdown,
+	type ReportParams,
 	type StatsEmailBreakdown,
 } from '@jetpack-premium-analytics/data';
 /**
@@ -12,12 +13,14 @@ import { useEffect, useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { DEFAULT_TAB_ID, getPostDetailTabs, POST_DETAIL_TAB_LAYOUTS } from '../config';
+import {
+	DEFAULT_TAB_ID,
+	EMAIL_TAB_IDS,
+	getPostDetailTabs,
+	POST_DETAIL_TAB_LAYOUTS,
+} from '../config';
 import { useActiveTab } from './use-active-tab';
 import type { PostDetailTabId } from '../config';
-
-/** Tabs that only apply to posts delivered to subscribers by email. */
-const EMAIL_TAB_IDS: readonly PostDetailTabId[] = [ 'email-opens', 'email-clicks' ];
 
 /**
  * Resolves visible post-detail tabs and normalizes hidden-tab deep links.
@@ -32,10 +35,22 @@ const EMAIL_TAB_IDS: readonly PostDetailTabId[] = [ 'email-opens', 'email-clicks
  * history entry. An email-tab URL is normalized only once the gate query
  * succeeds, so a deep link survives the summary's first load or a failure.
  *
- * @param postId - The scoped post ID (0/NaN disables the email-tab check).
+ * The email tabs' widgets read the given report params instead of the URL
+ * (see `useEmailTabScope`); until those are known, an email tab has no layout.
+ *
+ * @param postId            - The scoped post ID (0/NaN disables the email-tab check).
+ * @param emailReportParams - The report params pinned on the email tabs, once known.
+ * @param emailScopeBlocked - The pinned params can no longer resolve (the summary
+ *                          failed): mount the fixed layout unmodified so the
+ *                          widgets surface their own error states instead of the
+ *                          tab staying permanently blank.
  * @return Visible tabs, the active tab and layout, and the active-tab setter.
  */
-export function usePostDetailTabs( postId: number ) {
+export function usePostDetailTabs(
+	postId: number,
+	emailReportParams?: ReportParams,
+	emailScopeBlocked = false
+) {
 	const opens = useStatsEmailOpensBreakdown( postId, 'rate', { enabled: postId > 0 } );
 	const summary = ( opens.data as StatsEmailBreakdown | undefined )?.summary;
 	const hasEmailStats = Number( summary?.total_sends ?? 0 ) > 0;
@@ -67,8 +82,29 @@ export function usePostDetailTabs( postId: number ) {
 	}, [ canNormalize, storedTab, activeTab, setActiveTab ] );
 
 	// The page's no-comparison invariant is the report scope the stage declares,
-	// so the layout is the tab's fixed one.
-	const layout = POST_DETAIL_TAB_LAYOUTS[ activeTab ];
+	// so the layout is the tab's fixed one. `WidgetRoot` prefers a widget's own
+	// `reportParams` attribute over the URL, which is how the email tabs pin
+	// their window.
+	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
+	const layout = useMemo( () => {
+		const fixed = POST_DETAIL_TAB_LAYOUTS[ activeTab ];
+
+		if ( ! isEmailTab ) {
+			return fixed;
+		}
+
+		if ( ! emailReportParams ) {
+			return emailScopeBlocked ? fixed : [];
+		}
+
+		return fixed.map( widget => ( {
+			...widget,
+			attributes: {
+				...( widget.attributes as Record< string, unknown > | undefined ),
+				reportParams: emailReportParams,
+			},
+		} ) );
+	}, [ activeTab, isEmailTab, emailReportParams, emailScopeBlocked ] );
 
 	return {
 		tabs,

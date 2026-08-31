@@ -9,6 +9,7 @@ const SUMMARY: PostSummary = {
 	imageUrl: 'https://example.com/thumb.jpg',
 	url: 'https://example.com/hello-world',
 	isLoading: false,
+	isError: false,
 };
 
 describe( 'PostSummaryCard', () => {

@@ -244,6 +244,19 @@ describe( 'Stats query factories', () => {
 		).toEqual( { period: 'day', quantity: 30, date: '2026-06-01', stats_fields: 'timeline' } );
 	} );
 
+	it( 'keeps a same-day pinned window on daily buckets', () => {
+		// A send from today pins from/to to the same day with `interval: 'day'`
+		// (see `useEmailTabScope`); the request must stay daily, not collapse
+		// to hourly buckets.
+		expect(
+			statsEmailOpensTimeSeriesQuery( 41, {
+				from: '2026-08-31',
+				to: '2026-08-31',
+				interval: 'day',
+			} ).queryKey[ 5 ]
+		).toEqual( { period: 'day', quantity: 1, date: '2026-08-31', stats_fields: 'timeline' } );
+	} );
+
 	it( 'requests 24 hourly buckets per day so multi-day hourly ranges are not truncated', () => {
 		expect(
 			statsEmailClicksTimeSeriesQuery( 41, {
