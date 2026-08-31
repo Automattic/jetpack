@@ -55,7 +55,7 @@ describe( 'useTagsReportRecords', () => {
 	it( 'requests more rows than the endpoint would return by default', () => {
 		renderHook( () => useTagsReportRecords() );
 
-		expect( mockUseStatsTags ).toHaveBeenCalledWith( { max: 100 } );
+		expect( mockUseStatsTags ).toHaveBeenCalledWith( { max: 1000 } );
 	} );
 
 	it( 'returns the normalized rows', () => {

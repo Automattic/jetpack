@@ -15,10 +15,13 @@ export function getTagRowId( item: StatsTagsItem ): string {
 }
 
 /**
- * `stats/tags` has no "all rows" value (see `StatsTagsParams`), so a report that
- * wants more than the widget's ten has to name a number.
+ * `stats/tags` has no "all rows" value (see `StatsTagsParams`), so unlike the
+ * sibling reports that send `max: 0` this one has to name a ceiling. The endpoint
+ * ranks over at most ~51 posts per day across its seven days, so a thousand groups
+ * is past what a real site produces — but it is a ceiling all the same, and the
+ * table reports whatever arrives as the total.
  */
-const TAGS_REPORT_ROW_LIMIT = 100;
+const TAGS_REPORT_ROW_LIMIT = 1000;
 
 /**
  * Fetch the Tags & categories rows.

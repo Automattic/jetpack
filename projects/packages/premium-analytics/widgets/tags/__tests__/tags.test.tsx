@@ -171,8 +171,9 @@ describe( 'TagsWidget', () => {
 
 		expect( requestedPaths ).not.toHaveLength( 0 );
 		requestedPaths.forEach( path => {
-			expect( path ).toContain( `max=${ WIDGET_ROW_LIMIT }` );
-			expect( path ).not.toContain( 'date=' );
+			const params = new URLSearchParams( path.split( '?' )[ 1 ] );
+			expect( params.get( 'max' ) ).toBe( String( WIDGET_ROW_LIMIT ) );
+			expect( params.has( 'date' ) ).toBe( false );
 		} );
 	} );
 

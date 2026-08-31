@@ -777,7 +777,9 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
   `widgets/tags` is the one exception — it passes `useMultipliers: false` because compacting
   ("1,240" → "1K") was reported as a data mismatch against the Jetpack Stats module it is read
   beside (WOOA7S-2018). Report tables already print in full, so the widgets are the outliers;
-  whether the rest follow is a product call to raise, not a refactor to do.
+  whether the rest follow is a product call to raise, not a refactor to do. It is not free: the
+  leaderboard grid is `minmax(0, 1fr) auto`, so the wider value permanently takes width from the
+  label — at the 370px tile a long name ellipsizes where the compact form left it room.
 - Leaderboard rows: spread `buildLeaderboardRow()` into the chart entry — it carries the
   drill-down `onClick`/`ariaLabel` that a bare `<LeaderboardRow>` label silently drops. Use
   `<LeaderboardRow>` directly only outside a chart, as `widgets/tags` does for its drilled-in
