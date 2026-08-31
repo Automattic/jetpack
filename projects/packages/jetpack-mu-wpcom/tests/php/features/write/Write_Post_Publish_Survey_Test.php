@@ -351,6 +351,26 @@ class Write_Post_Publish_Survey_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The cap counts characters, not bytes.
+	 *
+	 * An ASCII fixture cannot tell the two apart, so it would not notice the cap
+	 * becoming byte-based. That failure is silent and nasty: substr() can cut a
+	 * character in half, and wp_json_encode() returns false on the resulting
+	 * invalid UTF-8 — so the Atomic storage path would send an empty body and
+	 * drop the response with nothing logged.
+	 */
+	public function test_response_payload_caps_multibyte_free_text_by_character() {
+		$long    = str_repeat( 'é', WPCOM_WRITE_SURVEY_MAX_COMMENT_LENGTH + 100 );
+		$payload = wpcom_write_build_survey_response( 'easier', $long, wp_generate_uuid4(), '', false );
+
+		$this->assertSame(
+			WPCOM_WRITE_SURVEY_MAX_COMMENT_LENGTH,
+			mb_strlen( $payload['comment']['text'] )
+		);
+		$this->assertTrue( mb_check_encoding( $payload['comment']['text'], 'UTF-8' ) );
+	}
+
+	/**
 	 * A forged response ID is discarded rather than stored. It is only ever a
 	 * uuid4 we minted at render, and it round-trips through the client.
 	 */

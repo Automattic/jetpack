@@ -72,21 +72,20 @@
 		 *
 		 * @param {URLSearchParams} body           - Form body; the nonce is added here.
 		 * @param {boolean}         [duringUnload] - Use keepalive, for a send on the way out.
+		 * @return {Promise<Response>|null} The in-flight request, or null if it couldn't start.
 		 */
 		function post( body, duringUnload ) {
 			body.set( 'nonce', config.nonce || '' );
 			try {
-				fetch( config.ajaxUrl, {
+				return fetch( config.ajaxUrl, {
 					method: 'POST',
 					credentials: 'same-origin',
 					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
 					body: body.toString(),
 					keepalive: !! duringUnload,
-				} ).catch( function () {
-					// The answer is already in Tracks; nothing useful to do here.
 				} );
 			} catch {
-				// Same.
+				return null;
 			}
 		}
 
@@ -96,7 +95,11 @@
 		function markShown() {
 			const body = new URLSearchParams();
 			body.set( 'action', 'wpcom_write_survey_shown' );
-			post( body );
+			const request = post( body );
+			if ( request ) {
+				// Losing this costs one repeat showing, which the submit guard absorbs.
+				request.catch( function () {} );
+			}
 		}
 
 		/**
@@ -117,7 +120,29 @@
 			body.set( 'response_id', config.responseId || '' );
 			body.set( 'source', config.source || '' );
 
-			post( body, duringUnload );
+			const request = post( body, duringUnload );
+			if ( ! request ) {
+				return;
+			}
+
+			// The card still thanks the writer either way — a store we lost is not
+			// their problem. But a silently dropped response would otherwise be
+			// invisible, and the dataset's completeness depends on knowing the rate.
+			request
+				.then( function ( response ) {
+					if ( ! response.ok ) {
+						recordEvent( 'wpcom_write_first_publish_survey_store_failed', {
+							reason: String( response.status ),
+							response_id: config.responseId || '',
+						} );
+					}
+				} )
+				.catch( function () {
+					recordEvent( 'wpcom_write_first_publish_survey_store_failed', {
+						reason: 'network',
+						response_id: config.responseId || '',
+					} );
+				} );
 		}
 
 		/**
