@@ -9,6 +9,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Reprint_Export\Reprint_Exporter;
 use Automattic\Jetpack\Reprint_Export\REST_Controller;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use Automattic\RedefineExit\ExitException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -40,6 +41,8 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	public function tear_down() {
 		remove_role( self::TEST_ROLE );
 		Constants::clear_constants();
+		// Host::is_woa_site() memoizes, so a stale answer would leak between tests.
+		Status_Cache::clear();
 		Rest_Authentication::init()->reset_saved_auth_state();
 		wp_set_current_user( 0 );
 		remove_all_filters( 'jetpack_reprint_export_available' );
@@ -117,24 +120,45 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Available on WordPress.com (Atomic). Gated on the platform constants
-	 * rather than on wpcomsh being installed, so the check keeps working if
-	 * wpcomsh ever goes away.
+	 * Available on WordPress.com (Atomic).
 	 */
-	public function test_available_on_atomic() {
-		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
-		Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
+	public function test_available_on_woa() {
+		$this->pretend_woa();
 		$this->assertTrue( Reprint_Exporter::is_available() );
 	}
 
 	/**
-	 * The filter acts as a kill switch on Atomic too.
+	 * The Atomic platform alone is not enough.
+	 *
+	 * Host::is_woa_site() means the Atomic platform plus wpcomsh, so an Atomic
+	 * container without wpcomsh stays closed.
 	 */
-	public function test_filter_kill_switch_on_atomic() {
+	public function test_not_available_on_atomic_without_wpcomsh() {
 		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
 		Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
+		$this->assertFalse( Reprint_Exporter::is_available() );
+	}
+
+	/**
+	 * The filter acts as a kill switch on WoA too.
+	 */
+	public function test_filter_kill_switch_on_woa() {
+		$this->pretend_woa();
+		$this->assertTrue( Reprint_Exporter::is_available(), 'Fixture must be available before the filter is added.' );
+
+		Status_Cache::clear();
 		add_filter( 'jetpack_reprint_export_available', '__return_false' );
 		$this->assertFalse( Reprint_Exporter::is_available() );
+	}
+
+	/**
+	 * Sets the constants that make Host::is_woa_site() true.
+	 */
+	private function pretend_woa() {
+		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/wp-content/plugins/wpcomsh/wpcomsh.php' );
+		Status_Cache::clear();
 	}
 
 	/**
@@ -192,6 +216,28 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 
 		$this->assertSame( 0, $this->count_parse_request_hooks() );
 		$this->assertFalse( has_action( 'rest_api_init', array( Reprint_Exporter::class, 'register_rest_routes' ) ) );
+	}
+
+	/**
+	 * The option guard goes up even where the exporter itself does not.
+	 *
+	 * Asserted on the unavailable path on purpose: it pins both that
+	 * maybe_init() wires the guard up at all, and that it does so ahead of the
+	 * availability check. Every other guard test calls protect_options()
+	 * directly, so without this one the call could be dropped from maybe_init()
+	 * and nothing would fail.
+	 */
+	public function test_maybe_init_protects_the_options_even_when_unavailable() {
+		Reprint_Exporter::maybe_init();
+
+		$this->assertNotFalse( has_filter( 'pre_update_option_' . Reprint_Exporter::SECRET_OPTION, array( Reprint_Exporter::class, 'veto_foreign_update' ) ) );
+		$this->assertNotFalse( has_filter( 'pre_update_option_' . Reprint_Exporter::ENABLED_OPTION, array( Reprint_Exporter::class, 'veto_foreign_update' ) ) );
+		$this->assertNotFalse( has_action( 'add_option', array( Reprint_Exporter::class, 'veto_foreign_add' ) ) );
+
+		// And it actually bites: a foreign write is refused.
+		Reprint_Exporter::store_secret( 'the-real-secret' );
+		update_option( Reprint_Exporter::SECRET_OPTION, 'attacker-chosen' );
+		$this->assertSame( 'the-real-secret', get_option( Reprint_Exporter::SECRET_OPTION ) );
 	}
 
 	/**
