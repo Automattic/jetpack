@@ -84,18 +84,41 @@ describe( 'AiOverview', () => {
 		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
 	} );
 
-	test( 'legacy unlimited: full meter, renewal date, no upgrade', async () => {
-		apiFetch.mockResolvedValueOnce( { ...tieredPayload(), 'current-tier': { value: 1 } } );
+	test( 'unlimited tier: shows the period count instead of an Unlimited claim', async () => {
+		apiFetch.mockResolvedValueOnce( unlimitedPayload() );
 
 		render( <AiOverview { ...PROPS } /> );
 
-		// The i4 paid card shows UNLIMITED over a full meter — once — and no
-		// Upgrade. Without a purchase date there is no renewal line: the usage
-		// period's rollover is a different date and must not stand in for it.
-		await expect( screen.findAllByText( 'Unlimited' ) ).resolves.toHaveLength( 1 );
-		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
+		// The backend has no real "unlimited" — a fair-usage cap applies to every
+		// plan — so the card reports the period's actual usage instead of claiming
+		// (JETPACK-2384). No meter: there is no limit to draw it against. Without
+		// a purchase date there is still no renewal line, and no Upgrade.
+		await expect( screen.findByText( '340' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Requests this period' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Unlimited' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'progressbar', { hidden: true } ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( /Renews on/ ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'unlimited a11y: one hidden sentence carries the period count', async () => {
+		apiFetch.mockResolvedValueOnce( unlimitedPayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect( screen.findByText( '340' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( '340 requests used this period' ) ).toBeInTheDocument();
+	} );
+
+	test( 'unlimited tier: a payload without a period count renders a dash', async () => {
+		apiFetch.mockResolvedValueOnce( { ...unlimitedPayload(), 'usage-period': undefined } );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect( screen.findByText( '—' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Unlimited' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'progressbar', { hidden: true } ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'plan name: the purchase name labels a paid state', async () => {

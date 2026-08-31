@@ -42,7 +42,7 @@ export function anchorDateToUtc( value ) {
  * AVAILABLE (limit − used), so that is derived here.
  *
  * @param {object} data - Raw endpoint payload (dash-cased keys).
- * @return {object} { unlimited, isFree, requestsCount, requestsLimit, requestsAvailable, planLabel, showUpgrade }
+ * @return {object} { unlimited, isFree, requestsCount, requestsLimit, requestsAvailable, periodRequestsCount, planLabel, showUpgrade }
  */
 export function normalizeUsage( data ) {
 	const currentTier = data?.[ 'current-tier' ] ?? null;
@@ -70,6 +70,11 @@ export function normalizeUsage( data ) {
 			? Math.max( 0, requestsLimit - requestsCount )
 			: null;
 
+	// The "unlimited" tier has no limit to count against, but its payload still
+	// carries the period's real usage — the card shows that instead of claiming
+	// Unlimited, since a fair-usage cap applies to every plan (JETPACK-2384).
+	const periodRequestsCount = data?.[ 'usage-period' ]?.[ 'requests-count' ] ?? null;
+
 	// Free is upgradable by definition, whatever the payload says about tiers.
 	const showUpgrade =
 		! unlimited &&
@@ -86,6 +91,7 @@ export function normalizeUsage( data ) {
 		requestsCount,
 		requestsLimit,
 		requestsAvailable,
+		periodRequestsCount,
 		planLabel,
 		showUpgrade,
 	};

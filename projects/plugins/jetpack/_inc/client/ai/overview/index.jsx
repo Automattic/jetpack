@@ -115,10 +115,19 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 	// authoritative for the tier, so an expired purchase cannot relabel Free.
 	const planLabel = ( ! usage.isFree && planName ) || usage.planLabel;
 	const hasNumbers = usage.requestsAvailable !== null && usage.requestsLimit > 0;
+	// The backend reports a legacy "unlimited" tier for every paid state while
+	// a fair-usage cap still applies (JETPACK-2384), so the card shows the
+	// period's real usage instead of claiming Unlimited over a full meter.
+	const hasPeriodCount = usage.unlimited && usage.periodRequestsCount !== null;
 	// One translatable sentence for screen readers; the visible value/limit
 	// pair and the meter are its visual restatements.
 	const srSummary = usage.unlimited
-		? __( 'Unlimited requests', 'jetpack' )
+		? hasPeriodCount &&
+		  sprintf(
+				/* translators: %d: requests used in the current period. */
+				__( '%d requests used this period', 'jetpack' ),
+				usage.periodRequestsCount
+		  )
 		: hasNumbers &&
 		  sprintf(
 				/* translators: %1$d: requests still available. %2$d: total requests in the plan. */
@@ -126,12 +135,11 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 				usage.requestsAvailable,
 				usage.requestsLimit
 		  );
-	// normalizeUsage floors availability at 0 and it can never exceed the
-	// limit, so the ratio needs no clamping here.
-	const showMeter = usage.unlimited || hasNumbers;
-	const meterValue = usage.unlimited
-		? 100
-		: ( usage.requestsAvailable / usage.requestsLimit ) * 100;
+	// No limit, no meter: with nothing to draw the bar against, a meter could
+	// only overstate. normalizeUsage floors availability at 0 and it can never
+	// exceed the limit, so the ratio needs no clamping here.
+	const showMeter = ! usage.unlimited && hasNumbers;
+	const meterValue = ( usage.requestsAvailable / usage.requestsLimit ) * 100;
 
 	return (
 		<Card.Root>
@@ -152,7 +160,9 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 					<div className="jetpack-ai-overview__usage">
 						<div className="jetpack-ai-overview__usage-cell">
 							<Text render={ <p /> } variant="heading-sm" className="jetpack-ai-overview__eyebrow">
-								{ __( 'Available requests', 'jetpack' ) }
+								{ usage.unlimited
+									? __( 'Requests this period', 'jetpack' )
+									: __( 'Available requests', 'jetpack' ) }
 							</Text>
 							{ /* Its own paragraph, padded with spaces — clipped text glues
 						     onto the neighboring heading in some screen readers. */ }
@@ -168,10 +178,10 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 								{ usage.unlimited ? (
 									<Text
 										render={ <p /> }
-										variant="body-md"
-										className="jetpack-ai-overview__muted jetpack-ai-overview__unlimited"
+										variant="heading-xl"
+										className="jetpack-ai-overview__requests-value"
 									>
-										{ __( 'Unlimited', 'jetpack' ) }
+										{ hasPeriodCount ? usage.periodRequestsCount : '—' }
 									</Text>
 								) : (
 									<>
