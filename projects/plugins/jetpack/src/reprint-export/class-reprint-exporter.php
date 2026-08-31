@@ -335,8 +335,8 @@ class Reprint_Exporter {
 	/**
 	 * Terminates the request.
 	 *
-	 * Seam wrapping exit() so tests (which redefine exit via patchwork) can
-	 * assert termination without killing the process.
+	 * Seam wrapping exit() so a test double can record that the request ended
+	 * and still assert what happened on the way out.
 	 */
 	protected function terminate() {
 		exit;
