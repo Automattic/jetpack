@@ -328,7 +328,7 @@ function wpcom_admin_screen_record() {
 	// or its daemon is missing, which is the same per-page-view cost that keeps this event off
 	// Atomic. Drop the event rather than let a Tracks outage slow every admin screen.
 	// @phan-suppress-next-line PhanUndeclaredClassMethod -- WPCOM_Tracks_Client is wpcom-only and not yet carried in .phan/stubs/wpcom-stubs.php.
-	if ( ! class_exists( 'WPCOM_Tracks_Client' ) || ! \WPCOM_Tracks_Client::can_do_async() ) {
+	if ( ! is_callable( array( 'WPCOM_Tracks_Client', 'can_do_async' ) ) || ! \WPCOM_Tracks_Client::can_do_async() ) {
 		return;
 	}
 
