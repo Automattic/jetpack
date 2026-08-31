@@ -40,9 +40,8 @@ export default function BackupStatusBanner( { progress }: Props ) {
 				{ __( 'Your backup will be ready soon', 'jetpack-backup-pkg' ) }
 			</Text>
 			{ /*
-			 * Named: `ProgressBar` defaults to a generic `aria-label="Loading …"`,
-			 * and neither the line above nor the percentage beside it is
-			 * associated with the bar.
+			 * Named because neither the line above nor the percentage beside it
+			 * is associated with the bar — see `tests/progress-bar-names.test.tsx`.
 			 */ }
 			<ProgressBar
 				className="jpb-backup-status-banner__bar"

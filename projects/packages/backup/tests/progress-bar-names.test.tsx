@@ -1,5 +1,9 @@
 // A progress bar has to say what it is measuring.
 //
+// This header is the one place the mechanism below is written down; the
+// bars themselves carry only what is specific to their own screen and
+// point here.
+//
 // `@wordpress/components`' `ProgressBar` supplies an `aria-label` of its
 // own — a generic "Loading …" — and spreads the caller's props after it.
 // So a bare `<ProgressBar />` is not unlabelled, which is the trap: it

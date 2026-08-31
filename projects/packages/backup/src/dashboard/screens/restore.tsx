@@ -22,6 +22,10 @@ const SELECTION_HINT_ID = 'jpb-restore__selection-hint';
  * shared item checklist, and a Confirm button. Submit drives a real
  * state machine over the `/jetpack/v4/rewind/to/$rewindId` bridge.
  *
+ * Every `ProgressBar` below is given an `aria-label`, for the reason
+ * recorded in `tests/progress-bar-names.test.tsx`; the `<Text>` beside
+ * each one never reaches the bar's accessible name.
+ *
  * @return The rendered Restore screen.
  */
 export default function RestoreScreen() {
@@ -187,10 +191,6 @@ export default function RestoreScreen() {
 					 * without naming an id we can poll. Indeterminate rather than a
 					 * determinate bar pinned at 0%, which reads as a stall during the
 					 * opening seconds of every restore.
-					 *
-					 * Named, like every other bar on this screen: `ProgressBar` defaults
-					 * to a generic `aria-label="Loading …"`, and the `<Text>` beside it is
-					 * not associated with the bar.
 					 */ }
 					{ state.phase === 'queued' && (
 						<Stack direction="column" gap="sm">

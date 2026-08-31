@@ -141,13 +141,10 @@ export default function BackupStatusPanel( { state, progress }: Props ) {
 				<div className="jpb-backup-status__progress">
 					{ /*
 					 * Omitting `value` is what puts ProgressBar into its animated
-					 * indeterminate mode.
-					 *
-					 * One name serves both modes: they are the same situation to
-					 * the reader, whose first backup has not arrived either way.
-					 * Named at all because `ProgressBar` otherwise announces itself
-					 * as a generic "Loading …", and the title above is not
-					 * associated with the bar.
+					 * indeterminate mode. One name serves both: they are the same
+					 * situation to the reader, whose first backup has not arrived
+					 * either way. The title above is not associated with the bar —
+					 * see `tests/progress-bar-names.test.tsx`.
 					 */ }
 					<ProgressBar
 						className="jpb-backup-status__bar"
