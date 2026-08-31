@@ -1,7 +1,7 @@
 @use "../../styles/widget-container" as *;
 
 /* Placeholder treatment from the design prototype's highlights skeleton: flat
- * label and value stand-ins, without the loaded tile's border or type scale.
+ * label and value stand-ins, without the loaded tile's dividers or type scale.
  *
  * The prototype only draws the wide arrangement. The narrow one below mirrors
  * `metric-tile-grid.module.scss` instead, which stacks full-width rows until

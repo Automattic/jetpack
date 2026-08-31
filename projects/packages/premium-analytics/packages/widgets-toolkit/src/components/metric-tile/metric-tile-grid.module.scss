@@ -7,6 +7,11 @@ $metric-tile-grid-row-value-font-size-max: 40px;
 // The design spec pins highlight-tile values at 32px.
 $metric-tile-grid-tile-value-font-size: 32px;
 $metric-tile-grid-prominent-value-font-size-max: 44px;
+// Metrics are separated by a hairline rather than boxed, so the tiles run flush
+// and each draws the rule on the edge it shares with the one before it. The
+// grid's outer edges stay open, which is what tells the two apart. Same weak
+// stroke as WidgetFooter's rule, which sits inches away in the same card.
+$metric-tile-grid-divider: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-height-2xl) + var(--wpds-dimension-padding-2xl) + var(--wpds-dimension-padding-2xl) + var(--wpds-dimension-gap-lg));
 
 /* Size containment removes the container from auto sizing, so it must get its
@@ -23,7 +28,7 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	display: grid;
 	grid-auto-rows: minmax(var(--wpds-typography-line-height-2xl), 1fr);
 	grid-template-columns: 1fr;
-	gap: var(--wpds-dimension-gap-sm);
+	gap: 0;
 	block-size: 100%;
 	min-block-size: 0;
 }
@@ -36,9 +41,11 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	min-inline-size: 0;
 	min-block-size: 0;
 	padding-block: var(--wpds-dimension-padding-sm);
-	padding-inline: var(--wpds-dimension-padding-lg);
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
-	border-radius: var(--wpds-border-radius-lg);
+}
+
+/* Narrow: one column, so the shared edge is the row above. */
+.tile + .tile {
+	border-block-start: $metric-tile-grid-divider;
 }
 
 .header {
@@ -124,6 +131,12 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 		text-align: center;
 	}
 
+	/* One row, so the shared edge is the tile to the left. */
+	.tile + .tile {
+		border-block-start: 0;
+		border-inline-start: $metric-tile-grid-divider;
+	}
+
 	.header {
 		flex: 0 1 auto;
 		justify-content: center;
@@ -171,6 +184,21 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	.tile {
 		padding-block: var(--wpds-dimension-padding-2xl);
 		padding-inline: var(--wpds-dimension-padding-lg);
+	}
+
+	/* Two columns: a tile's neighbour in document order is no longer the one it
+	 * shares an edge with, so position decides. Every second tile starts a
+	 * column edge, everything past the first row starts a row edge. */
+	.tile + .tile {
+		border-inline-start: 0;
+	}
+
+	.tile:nth-child(even) {
+		border-inline-start: $metric-tile-grid-divider;
+	}
+
+	.tile:nth-child(n + 3) {
+		border-block-start: $metric-tile-grid-divider;
 	}
 
 	.tile .value,
