@@ -6,11 +6,25 @@ import './style.scss';
 type Props = {
 	/** What failed, in the reader's terms. */
 	title: string;
-	error: Error;
+	/**
+	 * The query's error, when there is one. Nullable because not every
+	 * failure produces one: a route that cannot decode WordPress.com's
+	 * answer still returns a bare `null` body served as HTTP 200, so the
+	 * request resolves and the caller's only evidence is its own derived
+	 * state. Those callers still
+	 * need to report the failure — they just have no detail line to add.
+	 */
+	error?: Error | null;
 	/** Refetches the failed query. Omitted when the caller has no way to retry. */
 	onRetry?: () => void;
 	/** Whether a retry is in flight. */
 	isRetrying?: boolean;
+	/**
+	 * Extra class for the notice. The base rule zeroes its margin because
+	 * its original two slots are boxes that size it themselves; a caller
+	 * that drops it into ordinary flow has to pay for its own spacing.
+	 */
+	className?: string;
 };
 
 /**
@@ -38,14 +52,25 @@ type Props = {
  * @param props.error      - The query's error.
  * @param props.onRetry    - Refetches the failed query, when the caller can.
  * @param props.isRetrying - Whether a retry is currently in flight.
+ * @param props.className  - Extra class for the notice.
  * @return The rendered error.
  */
-export default function QueryError( { title, error, onRetry, isRetrying = false }: Props ) {
+export default function QueryError( {
+	title,
+	error,
+	onRetry,
+	isRetrying = false,
+	className,
+}: Props ) {
 	return (
-		<Notice status="error" isDismissible={ false } className="jpb-query-error">
+		<Notice
+			status="error"
+			isDismissible={ false }
+			className={ [ 'jpb-query-error', className ].filter( Boolean ).join( ' ' ) }
+		>
 			<Stack direction="column" gap="sm" align="flex-start">
 				<Text>{ title }</Text>
-				{ error.message && (
+				{ error?.message && (
 					<Text variant="body-sm" className="jpb-text-muted">
 						{ error.message }
 					</Text>

@@ -1,4 +1,5 @@
-import { render, screen, within } from '@testing-library/react';
+import { DETAIL_SURFACE_PRESETS } from '@jetpack-premium-analytics/datetime';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateRangeFilter } from '../date-range-filter';
 import type { DateRange } from '../../date-range-popover';
@@ -27,6 +28,15 @@ function renderFilter( overrides: Partial< Parameters< typeof DateRangeFilter >[
 	return props;
 }
 
+/*
+ * Ariakit publishes the composite's item list — what End and the arrow keys
+ * navigate over — from inside a `requestAnimationFrame`. A run that presses a
+ * key before that frame lands navigates an empty list and focus never moves.
+ */
+function flushCompositeItems() {
+	return act( () => new Promise( resolve => requestAnimationFrame( () => resolve( null ) ) ) );
+}
+
 describe( 'DateRangeFilter', () => {
 	it( 'groups the quick presets and the custom trigger in one toolbar', () => {
 		renderFilter();
@@ -40,6 +50,7 @@ describe( 'DateRangeFilter', () => {
 	it( 'moves focus between presets and the custom trigger with arrow keys', async () => {
 		const user = userEvent.setup();
 		renderFilter();
+		await flushCompositeItems();
 
 		await user.tab();
 		expect( screen.getByRole( 'button', { name: 'Last 24 hours' } ) ).toHaveFocus();
@@ -62,5 +73,34 @@ describe( 'DateRangeFilter', () => {
 			'last-30-days'
 		);
 		expect( onApply ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'renders presets only when the surface offers no custom range', async () => {
+		const user = userEvent.setup();
+		renderFilter( { presetIds: DETAIL_SURFACE_PRESETS, withCustomRange: false } );
+		await flushCompositeItems();
+
+		const toolbar = screen.getByRole( 'toolbar', { name: 'Date range' } );
+		expect( within( toolbar ).getAllByRole( 'button' ) ).toHaveLength( 5 );
+		expect( within( toolbar ).queryByRole( 'button', { name: 'Custom' } ) ).not.toBeInTheDocument();
+
+		// The last pill ends the roving tabindex where the trigger used to.
+		await user.tab();
+		await user.keyboard( '{End}' );
+		expect( screen.getByRole( 'button', { name: '12 months' } ) ).toHaveFocus();
+	} );
+
+	it( 'highlights all time on the detail surface', () => {
+		renderFilter( {
+			presetIds: DETAIL_SURFACE_PRESETS,
+			withCustomRange: false,
+			presetId: 'all-time',
+			appliedPresetId: 'all-time',
+		} );
+
+		expect( screen.getByRole( 'button', { name: 'All time' } ) ).toHaveAttribute(
+			'aria-pressed',
+			'true'
+		);
 	} );
 } );

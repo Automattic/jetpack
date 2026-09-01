@@ -1,15 +1,7 @@
 /**
- * The close-up stories render the data-connected widget against a mocked per-post
- * `stats/<opens|clicks>/emails/<postId>/rate` response so the tiles populate without a
- * backend. `WidgetDashboardWithWidget` mounts the real dashboard with the same
- * widget.
- *
- * The widget is scoped to a single email by the host through
- * `reportParams.post_id` and to one view by the `metric` attribute (Opens or Clicks).
- *
- * The Loading / Error / Empty stories force the mock into that state with
- * `setReportMockState`; each uses a distinct `post_id` so its request has its own
- * query key and hits the override fresh rather than reading a sibling's cache.
+ * The Loading / Error / Empty stories force the mock state with
+ * `setReportMockState`; each uses a distinct `post_id` so its request has its
+ * own query key and hits the override fresh rather than a sibling's cache.
  */
 /**
  * Internal dependencies
@@ -103,9 +95,6 @@ export const ClicksView: Story = {
 	decorators: [ withWidgetCanvas ],
 };
 
-/**
- * First load with no data yet: the widget shows its loading overlay.
- */
 export const Loading: Story = {
 	render: args => renderEmailTopRow( args, 2001 ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.

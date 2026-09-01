@@ -20,16 +20,19 @@ let mockCardWidth: number | undefined;
 // Reports a later width, so a test can drive a resize rather than only a mount.
 let mockFireResize: ( ( width: number ) => void ) | undefined;
 let mockAttachRef: ( ( element: HTMLElement | null ) => void ) | undefined;
+type ResizeHandler = ( entries: { contentRect: { width: number } }[] ) => void;
+let mockResizeHandlers: ResizeHandler[] = [];
 
-// jsdom's ResizeObserver never fires, so the real hook leaves the card unmeasured
-// and the width-driven page span is unreachable from a test. Drive it directly.
+// jsdom's ResizeObserver never fires, so tests drive width via the mock; the
+// widget consumes the hook twice, so a resize broadcasts to every handler.
 jest.mock( '@wordpress/compose', () => ( {
 	...jest.requireActual( '@wordpress/compose' ),
-	useResizeObserver: ( onResize: ( entries: { contentRect: { width: number } }[] ) => void ) => {
-		mockFireResize = width => onResize( [ { contentRect: { width } } ] );
-		// One stable ref callback for the whole file. A fresh arrow per render would
-		// make React detach and re-attach on every commit, replaying the mount width
-		// and undoing whatever a test fired.
+	useResizeObserver: ( onResize: ResizeHandler ) => {
+		mockResizeHandlers.push( onResize );
+		mockFireResize = width =>
+			mockResizeHandlers.forEach( handler => handler( [ { contentRect: { width } } ] ) );
+		// A fresh arrow per render would make React re-attach on every commit,
+		// replaying the mount width and undoing whatever a test fired.
 		mockAttachRef ??= element => {
 			if ( element && mockCardWidth !== undefined ) {
 				mockFireResize?.( mockCardWidth );
@@ -42,9 +45,8 @@ jest.mock( '@wordpress/compose', () => ( {
 
 type TooltipData = { value: number | null; cellLabel?: string; row: number; column: number };
 
-// Keep visx out of jsdom while exercising the widget's tooltip renderer with
-// one cell of each kind: a pre-range filler blank, an in-range blank, and
-// singular/plural counted cells.
+// Keeps visx out of jsdom while still exercising the widget's tooltip renderer
+// with one cell of each kind.
 jest.mock( '@jetpack-premium-analytics/externals', () => {
 	const actual = jest.requireActual( '@jetpack-premium-analytics/externals' );
 
@@ -52,10 +54,13 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 		...actual,
 		HeatmapChartUnresponsive: ( {
 			renderTooltip,
+			maxCellHeight,
 		}: {
 			renderTooltip?: ( data: TooltipData ) => ReactNode;
+			maxCellHeight?: number;
 		} ) => (
 			<>
+				<div data-testid="max-cell-height">{ maxCellHeight }</div>
 				<div data-testid="tooltip-filler-blank">
 					{ renderTooltip?.( {
 						value: null,
@@ -112,6 +117,7 @@ const REPORT_PARAMS = {
 beforeEach( () => {
 	mockCardWidth = undefined;
 	mockFireResize = undefined;
+	mockResizeHandlers = [];
 	mockUsePostTrafficActivity.mockReset();
 	mockUsePostTrafficActivity.mockReturnValue( {
 		days: twoWeeksOfDays(),
@@ -142,6 +148,65 @@ describe( 'PostTrafficActivity tooltip', () => {
 
 		// The date stays in the tooltip, below the count.
 		expect( screen.getByTestId( 'tooltip-filler-blank' ) ).toHaveTextContent( 'Mon, Jul 6, 2026' );
+	} );
+} );
+
+// The cell-height cap follows the measured chart area so the grid never clips.
+// jsdom's default zero rect doubles as the unmeasured initial render.
+describe( 'PostTrafficActivity cell sizing', () => {
+	beforeEach( () => {
+		mockUsePostTrafficActivity.mockReset();
+		mockUsePostTrafficActivity.mockReturnValue( {
+			days: twoWeeksOfDays(),
+			isPaged: false,
+			canShowOlder: false,
+			canShowNewer: false,
+			showOlder: jest.fn(),
+			showNewer: jest.fn(),
+			isLoading: false,
+			isFetching: false,
+			isError: false,
+			hasData: true,
+			refetch: jest.fn(),
+		} );
+	} );
+
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
+	function mockMeasuredHeight( height: number ) {
+		jest
+			.spyOn( HTMLDivElement.prototype, 'getBoundingClientRect' )
+			.mockReturnValue( { width: 700, height } as DOMRect );
+	}
+
+	it( 'keeps the design cap while the area is unmeasured', () => {
+		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
+
+		expect( screen.getByTestId( 'max-cell-height' ) ).toHaveTextContent( '42' );
+	} );
+
+	it( 'shrinks the cells so a short tile still fits the month-label row', () => {
+		// 200px minus the 44px grid overhead leaves 156px for seven rows → 22px.
+		mockMeasuredHeight( 200 );
+		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
+
+		expect( screen.getByTestId( 'max-cell-height' ) ).toHaveTextContent( '22' );
+	} );
+
+	it( 'keeps the design cap when the tile offers more than enough height', () => {
+		mockMeasuredHeight( 600 );
+		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
+
+		expect( screen.getByTestId( 'max-cell-height' ) ).toHaveTextContent( '42' );
+	} );
+
+	it( 'clamps to the minimum readable cell on a collapsed tile', () => {
+		mockMeasuredHeight( 50 );
+		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
+
+		expect( screen.getByTestId( 'max-cell-height' ) ).toHaveTextContent( '8' );
 	} );
 } );
 

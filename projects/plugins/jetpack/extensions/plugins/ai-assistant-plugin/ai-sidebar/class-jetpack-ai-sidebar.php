@@ -14,8 +14,7 @@ namespace Automattic\Jetpack\Extensions\AiAssistantPlugin;
 
 use Automattic\Jetpack\Agents_Manager\Agents_Manager;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Current_Plan;
-use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\SEO\Ai_Seo;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -32,6 +31,7 @@ const AI_SIDEBAR_RTL_CSS_URL              = 'https://' . AM_ASSET_BASE_PATH . 'j
 const AI_SIDEBAR_PROVIDER_URL             = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
 const AI_SIDEBAR_AGENT_ID                 = 'wp-orchestrator';
 const AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION = 'ai-sidebar-toolbar-button';
+const AI_SIDEBAR_AGENT_NOTICE_EXTENSION   = 'ai-sidebar-agent-notice';
 
 /**
  * Initializes the Agents Manager package and registers the Jetpack AI
@@ -81,6 +81,9 @@ class Jetpack_AI_Sidebar {
 
 		// Let editor JS know when the Jetpack AI Sidebar toolbar button replaces the legacy AI toolbar.
 		add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'register_toolbar_button_extension' ), 99 );
+
+		// Let editor JS know when the legacy AI panel can point people at the WordPress Agent.
+		add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'register_agent_notice_extension' ), 99 );
 	}
 
 	// ──────────────────────────────────────────────────
@@ -290,59 +293,28 @@ class Jetpack_AI_Sidebar {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * UI feature flag for the SEO Enhancer suggestions (SEO title and meta description).
+	 * UI feature flag for the SEO suggestions (SEO title and meta description).
 	 *
-	 * Exposed only where the suggestions can actually be used: the SEO Enhancer
-	 * is not killed via its filter, the site's plan includes the Jetpack SEO
-	 * feature (the suggestions write to the plan-gated SEO title and meta
-	 * description fields), and SEO tools are usable on the site. Kept independent
-	 * of the Optimize Title suggestion: SEO suggestions target the SEO meta fields,
-	 * not the visible post title.
+	 * Two halves: the site can offer AI SEO at all — the package's shared gate,
+	 * the same one the AI settings row uses, so the control and the surface it
+	 * governs cannot drift — and the feature's own toggle is on. Kept independent
+	 * of the Optimize Title suggestion: SEO suggestions target the SEO meta
+	 * fields, not the visible post title.
 	 *
-	 * The user-facing ai_seo_enhancer_enabled *option* is consulted since the AI
-	 * settings page surfaced it as the SEO feature toggle: a switched-off feature
-	 * must not offer suggestions, even user-initiated ones, and even when an
-	 * external host (Big Sky, Woo) draws the sidebar.
+	 * The SEO *feature* option is consulted, not the automatic-generation one:
+	 * a switched-off feature must not offer suggestions, even user-initiated
+	 * ones, while automatic generation governs only automatic runs.
+	 *
+	 * Guarded with class_exists: the autoloader can pick an older jetpack-seo
+	 * copy from another plugin, predating the shared gate. Suggestions stay off
+	 * without it.
 	 *
 	 * @return bool
 	 */
 	private static function is_seo_suggestions_enabled(): bool {
-		return (bool) apply_filters( 'ai_seo_enhancer_enabled', true )
-			&& \Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' )
-			&& self::has_seo_feature()
-			&& self::is_seo_tools_usable();
-	}
-
-	/**
-	 * Whether the site's plan includes the Jetpack SEO feature.
-	 *
-	 * Same predicate the SEO editor panel uses to decide between the SEO fields and
-	 * the "Optimize SEO" upgrade nudge: extensions/plugins/seo/seo.php registers
-	 * availability via Jetpack_Gutenberg::set_availability_for_plan( 'advanced-seo' ),
-	 * which resolves through Current_Plan::supports(). On WordPress.com Simple and
-	 * Atomic this delegates to wpcom_site_has_feature( 'advanced-seo' ) — Business
-	 * and higher plans; on self-hosted sites every plan includes the feature.
-	 *
-	 * @return bool
-	 */
-	private static function has_seo_feature(): bool {
-		return Current_Plan::supports( 'advanced-seo' );
-	}
-
-	/**
-	 * Whether Jetpack SEO tools are usable on this site: SEO is not disabled via the
-	 * jetpack_disable_seo_tools filter — which the seo-tools module enables itself
-	 * when a conflicting SEO plugin (Yoast, AIOSEO, Rank Math, …) owns the site's
-	 * SEO — and the seo-tools module is active, since the module registers the SEO
-	 * meta fields the suggestions write to. On WordPress.com Simple the module always
-	 * reports active, so there this reduces to the filter check.
-	 *
-	 * @return bool
-	 */
-	private static function is_seo_tools_usable(): bool {
-		/** This filter is documented in modules/seo-tools/class-jetpack-seo-utils.php */
-		return ! apply_filters( 'jetpack_disable_seo_tools', false )
-			&& ( new Modules() )->is_active( 'seo-tools' );
+		return class_exists( Ai_Seo::class )
+			&& Ai_Seo::is_available()
+			&& \Jetpack_AI_Settings::is_ai_seo_enabled();
 	}
 
 	/**
@@ -517,6 +489,36 @@ class Jetpack_AI_Sidebar {
 		}
 
 		\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION );
+	}
+
+	/**
+	 * Whether the legacy AI panel should point people at the WordPress Agent.
+	 *
+	 * The notice replaces the panel, so it needs an agent to send people to. A
+	 * disconnected user gets the Agents Manager's reduced build, which has no chat.
+	 *
+	 * @return bool
+	 */
+	public static function is_agent_notice_enabled(): bool {
+		return self::should_expose_provider() && ! self::is_agents_manager_disconnected();
+	}
+
+	/**
+	 * Register the WordPress Agent notice feature.
+	 *
+	 * @return void
+	 */
+	public static function register_agent_notice_extension(): void {
+		if ( ! self::is_agent_notice_enabled() ) {
+			// Its own reason, so the payload tells this apart from the toolbar button.
+			\Jetpack_Gutenberg::set_extension_unavailable(
+				AI_SIDEBAR_AGENT_NOTICE_EXTENSION,
+				'jetpack_ai_sidebar_agent_notice_disabled'
+			);
+			return;
+		}
+
+		\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_AGENT_NOTICE_EXTENSION );
 	}
 
 	/**

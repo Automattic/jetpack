@@ -1,6 +1,7 @@
 <?php
 namespace Automattic\Jetpack\WP_Build_Polyfills\Tests;
 
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Admin_Frame;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
@@ -103,6 +104,9 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 			$threshold->setAccessible( true );
 		}
 		$threshold->setValue( null, '7.0' );
+
+		remove_action( 'admin_head', array( WP_Build_Admin_Frame::class, 'print_styles' ) );
+		remove_action( 'in_admin_header', array( WP_Build_Admin_Frame::class, 'print_script' ) );
 
 		$this->recursive_rmdir( $this->build_dir );
 
@@ -791,6 +795,16 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		global $wp_filter;
 		$this->assertArrayHasKey( 'wp_default_scripts', $wp_filter );
 		$this->assertArrayHasKey( 20, $wp_filter['wp_default_scripts']->callbacks );
+	}
+
+	/**
+	 * Test that register arms the admin frame backdrop for the request.
+	 */
+	public function test_register_arms_the_admin_frame() {
+		WP_Build_Polyfills::register( 'test-plugin', array( 'wp-notices' ) );
+
+		$this->assertSame( 10, has_action( 'admin_head', array( WP_Build_Admin_Frame::class, 'print_styles' ) ) );
+		$this->assertSame( 10, has_action( 'in_admin_header', array( WP_Build_Admin_Frame::class, 'print_script' ) ) );
 	}
 
 	/**

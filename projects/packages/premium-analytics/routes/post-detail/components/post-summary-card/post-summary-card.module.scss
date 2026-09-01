@@ -66,3 +66,17 @@
 	background: var(--wpds-color-background-surface-brand);
 	color: var(--wpds-color-foreground-interactive-brand);
 }
+
+// Sized to the title and subtitle lines they stand in for, so the pair reads as
+// text arriving rather than as two anonymous bars.
+.titlePlaceholder {
+	block-size: 38px;
+	inline-size: min(100%, 320px);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+.subtitlePlaceholder {
+	block-size: 18px;
+	inline-size: min(100%, 260px);
+	border-radius: var(--wpds-border-radius-md);
+}

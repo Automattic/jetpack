@@ -222,8 +222,10 @@ Segments automatically use theme colors, but you can override individual segment
 
 The chart includes built-in styling for labels and notes with appropriate typography hierarchy:
 
-- **Label**: Uses `--wpds-typography-font-size-lg` (default 16px), `--wpds-typography-font-weight-emphasis` (default 499), positioned above the chart
-- **Note**: Uses `--wpds-typography-font-size-md` (default 13px), positioned below the label
+- **Label**: Uses `--wpds-typography-font-size-lg` and `--wpds-typography-font-weight-emphasis`, positioned above the chart
+- **Note**: Uses `--wpds-typography-font-size-md`, positioned below the label
+
+Each resolves to the design system's value for that token.
 
 <Source
 	language="jsx"
@@ -237,19 +239,26 @@ The chart includes built-in styling for labels and notes with appropriate typogr
 
 ## Theming Integration
 
-Pie Semi Circle Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+Pie Semi Circle Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+
+**Segment colors come from the palette custom properties, not the theme object.** Set as many of the five slots as you need; an unset slot is skipped, and charts generates accessible colors beyond whatever you set:
 
 <Source
-	language="tsx"
-	code={ `import { GlobalChartsProvider, PieSemiCircleChart, type ChartTheme } from '@automattic/charts';
+	language="css"
+	code={ `.a8c-charts-scope {
+		--a8c-charts-color-series-1: #FF6B6B;
+		--a8c-charts-color-series-2: #4ECDC4;
+		--a8c-charts-color-series-3: #45B7D1;
+	}` }
+/>
 
-	const customTheme: ChartTheme = {
-		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
-	};
+Every other color works the same way — declare its catalog role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
 
-	<GlobalChartsProvider theme={customTheme}>
-		<PieSemiCircleChart data={data} />
-	</GlobalChartsProvider>` }
+<Source
+	language="css"
+	code={ `.my-dashboard {
+		--a8c-charts-color-background: #f5f5f5;
+	}` }
 />
 
 ## Responsive Behavior

@@ -1,6 +1,7 @@
 import {
 	computePrimaryRange,
 	stepDateRange,
+	DETAIL_SURFACE_PRESETS,
 	PRESET_CUSTOM,
 	type ComparisonPresetId,
 	type IntervalType,
@@ -81,7 +82,12 @@ type DateFiltersPanelStoryProps = {
 	withComparison?: boolean;
 	initialComparisonPreset?: ComparisonPresetId;
 	containerWidth?: string | number;
+	/** The detail-page surface: all time first, no custom range. */
+	detailSurface?: boolean;
 };
+
+// The day the detail story's resource was published: where its all time starts.
+const STORY_PUBLISHED_DATE = new Date( '2026-07-08T10:29:35.000Z' );
 
 /**
  * Mirrors the dashboard wiring: staged primary edits, committed on Apply (or
@@ -92,6 +98,7 @@ function DateFiltersPanelStory( {
 	withComparison = true,
 	initialComparisonPreset = 'previous-period',
 	containerWidth = '100%',
+	detailSurface = false,
 }: DateFiltersPanelStoryProps ) {
 	const initialPrimary = buildPrimaryState( initialPreset );
 
@@ -171,12 +178,12 @@ function DateFiltersPanelStory( {
 	}, [] );
 
 	/*
-	 * The interval follows the applied range, so switching preset re-derives the
-	 * menu. A pick the new range still allows survives; one it does not falls
+	 * The interval follows the range being edited, so switching preset re-derives
+	 * the menu. A pick the new range still allows survives; one it does not falls
 	 * back to the finest allowed, the same coercion the report params apply.
 	 */
 	const [ pickedInterval, setPickedInterval ] = useState< IntervalType | undefined >( undefined );
-	const intervalOptions = getStoryIntervalOptions( committedPrimary.presetId );
+	const intervalOptions = getStoryIntervalOptions( stagedPrimary.presetId );
 	const interval = resolveStoryInterval( pickedInterval, intervalOptions );
 
 	return (
@@ -193,6 +200,13 @@ function DateFiltersPanelStory( {
 				appliedPresetId={ committedPrimary.presetId }
 				appliedRange={ committedPrimary.range }
 				comparisonPresetId={ comparisonPresetId }
+				{ ...( detailSurface
+					? {
+							presetIds: DETAIL_SURFACE_PRESETS,
+							allTimeStart: STORY_PUBLISHED_DATE,
+							withCustomRange: false,
+					  }
+					: {} ) }
 				withIntervalControl
 				interval={ interval }
 				intervalOptions={ intervalOptions }
@@ -225,6 +239,17 @@ export const WithoutComparison: Story = {
 };
 
 /**
+ * The post and video detail pages' surface: all time leads the rolling windows
+ * and there is no custom-range trigger. All time runs from the resource's
+ * publish date (July 8, 2026 here) through today.
+ */
+export const DetailFilters: Story = {
+	render: () => (
+		<DateFiltersPanelStory initialPreset="all-time" withComparison={ false } detailSurface />
+	),
+};
+
+/**
  * Custom primary range with comparison to the previous period.
  */
 export const CustomRangeWithComparison: Story = {
@@ -243,33 +268,18 @@ export const AbbreviatedLabels: Story = {
 };
 
 /*
- * Translated stories.
+ * Translated stories, run through real WordPress.org language-pack strings
+ * (never invented) so the layout is reviewed against what users actually see.
+ * Locales were picked by measuring all 15 that translate the preset set.
  *
- * The panel is laid out for English, where every preset label is short. These
- * stories run it through real translations so the layout is reviewed against
- * the strings it will actually hold.
- *
- * Every translation below is taken from a shipped WordPress.org language pack,
- * never invented, so the widths are what users see rather than a guess:
- *
- * - Presets and `Custom` come from the Jetpack plugin's own pack.
- * - `Previous period` / `Previous year` come from WooCommerce, which already
- *   ships them. Jetpack does not.
- * - `All time` reuses the translation of Jetpack Stats' `All-time`. Note the
- *   hyphen: this package introduced a near-duplicate msgid, so at runtime it
- *   gets no translation at all and falls back to English.
- * - `Previous month` and `No comparison` are translated nowhere, so they stay
- *   English here too. That is today's real behavior, and it means these stories
- *   understate the comparison menu's eventual width.
- *
- * Locales were picked by measuring all 15 that translate the full preset set,
- * not by intuition. German is only 7th (1.24x English); Russian is the widest
- * by a wide margin, and CJK is narrower than English.
+ * `All time` reuses Jetpack Stats' `All-time` — note the hyphen: this package's
+ * near-duplicate msgid gets no translation at runtime and falls back to English,
+ * as do `Previous month` and `No comparison`, so these stories understate the
+ * comparison menu's eventual width.
  */
 
 /*
- * Everything from here down quotes translated strings, so a spell checker has
- * nothing useful to say about it.
+ * Everything below quotes translated strings a spell checker can't judge.
  *
  * cspell:disable
  */
@@ -322,10 +332,9 @@ const DUTCH: LocaleFixture = {
 };
 
 /*
- * The locale everyone expects to be worst, which measures 7th. Kept as the
- * control, and because it holds the widest single Latin pill
- * ("Die letzten 24 Stunden", 139px) plus the non-breaking space that German
- * and French packs use between a number and its unit.
+ * The locale everyone expects to be worst, but measures only 7th — kept as
+ * the control. Holds the widest single Latin pill ("Die letzten 24 Stunden",
+ * 139px) and the non-breaking space German/French use before a unit.
  */
 const GERMAN: LocaleFixture = {
 	name: 'German',
@@ -346,9 +355,8 @@ const GERMAN: LocaleFixture = {
 /**
  * Install a fixture's translations for the duration of one story.
  *
- * `setLocaleData` writes to the global i18n singleton, hence the cleanup: the
- * locale would otherwise leak into the next story opened. Same reason these are
- * off the autodocs page, which renders every sibling at once.
+ * `setLocaleData` writes the global i18n singleton, hence the cleanup and why
+ * these stories are off autodocs, which renders every sibling at once.
  */
 function withLocale( fixture: LocaleFixture ) {
 	return () => {
@@ -373,12 +381,9 @@ function withLocale( fixture: LocaleFixture ) {
 const LADDER_WIDTHS = [ 960, 782, 600, 360, 280 ];
 
 /**
- * One locale's bar at each reference width, so the point where it stops fitting
- * is visible rather than asserted.
- *
- * Rungs are annotated against the four preset pills alone. That is a floor: the
- * custom trigger, the comparison control, and the interval control share the
- * same line, as will the period navigation.
+ * One locale's bar at each reference width, so where it stops fitting is
+ * visible rather than asserted. Annotated against the four preset pills
+ * alone — a floor, since the trigger/comparison/interval/navigation share the line.
  */
 function WidthLadder( { fixture }: { fixture: LocaleFixture } ) {
 	return (
@@ -409,10 +414,9 @@ function WidthLadder( { fixture }: { fixture: LocaleFixture } ) {
 			) ) }
 
 			{ /*
-			 * Dragging across a boundary is the part the fixed rungs cannot show:
-			 * whether the mode settles in one state or flickers between two. Both
-			 * transitions are in reach here, full to abbreviated first and the
-			 * select further down, and where they land differs per locale.
+			 * Dragging across a boundary shows what the fixed rungs cannot: whether
+			 * the mode settles or flickers. Both transitions are reachable here —
+			 * full to abbreviated first, then the select — and differ per locale.
 			 */ }
 			<div
 				style={ {

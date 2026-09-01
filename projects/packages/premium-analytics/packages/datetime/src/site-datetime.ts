@@ -10,10 +10,9 @@ import { readSiteTimestamp } from './site-timestamp';
 /**
  * Parse a timestamp in the WordPress site timezone.
  *
- * `getDate` anchors offset-less Stats API values to the timezone configured in
- * WordPress while preserving the instant identified by offset-bearing values.
- * It shares `toLocalTZ`'s reading of which values are timestamps and which of
- * those are valid, so the two cannot disagree.
+ * `getDate` anchors offset-less Stats API values to the WordPress site timezone
+ * while preserving the instant of offset-bearing values. It shares `toLocalTZ`'s
+ * reading of validity, so the two cannot disagree.
  *
  * @param value - The raw timestamp, or a `Date`.
  * @return The instant, or `undefined` when the value is missing or malformed.

@@ -16,7 +16,10 @@ import * as React from 'react';
 import { notSpam, spam } from '../../src/dashboard/icons';
 import { defaultView } from '../../src/dashboard/inbox/stage/views.js';
 import { getFormsMenuBadgeSlug, getMenuBadgeCount } from '../../src/dashboard/inbox/utils';
+import { deleteResponse, saveResponse } from '../../src/dashboard/response-records';
 import { store as dashboardStore } from '../../src/dashboard/store';
+import { buildResponseLink } from '../response/pinned-view.ts';
+import printIcon from './print-icon.tsx';
 /**
  * Types
  */
@@ -28,6 +31,7 @@ import type {
 	ReportingAction,
 } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../src/types/index.ts';
+import type { PinnedViewQuery } from '../response/pinned-view.ts';
 import type { UseNavigateResult } from '@wordpress/route';
 /**
  * Helper function to extract count-relevant query params from the current query.
@@ -295,10 +299,17 @@ type NavigateFunction = UseNavigateResult< string >;
 
 type GetActionsParams = {
 	navigate: NavigateFunction;
+	// When supplied, View selects the response instead of navigating to the
+	// standalone page. The caller decides when that applies.
+	onSelectResponse?: ( id: string ) => void;
+	// The list query in effect, pinned onto links to the standalone response page
+	// so its prev/next walks this exact sequence. See `routes/response/pinned-view.ts`.
+	pinnedView?: PinnedViewQuery | null;
 };
 
 type GetActionsReturn = {
 	viewAction: Action;
+	printAction: Action;
 	editFormAction: Action;
 	markAsSpamAction: ReportingAction;
 	markAsNotSpamAction: ReportingAction;
@@ -319,7 +330,11 @@ type GetRowActionsParams = GetActionsParams & {
  * @param {GetActionsParams} params - Parameters for generating actions.
  * @return {GetActionsReturn} Object containing the actions.
  */
-export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
+export function getActions( {
+	navigate,
+	onSelectResponse,
+	pinnedView,
+}: GetActionsParams ): GetActionsReturn {
 	const viewAction: Action = {
 		id: 'view-response',
 		isPrimary: true,
@@ -337,8 +352,39 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 				return;
 			}
 
+			if ( onSelectResponse ) {
+				onSelectResponse( String( item.id ) );
+				return;
+			}
+
 			// Open the standalone single response page rather than the inspector panel.
-			navigate( { to: `/response/${ item.id }` } );
+			// Router types aren't registered in this build; same cast as breadcrumbs.tsx.
+			navigate( buildResponseLink( item.id, pinnedView ) as unknown as never );
+		},
+	};
+
+	const printAction: Action = {
+		id: 'print-response',
+		isPrimary: false,
+		icon: <Icon icon={ printIcon } />,
+		label: __( 'Print', 'jetpack-forms' ),
+		supportsBulk: false,
+		async callback( items ) {
+			jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+				action: 'print-response',
+				multiple: false,
+			} );
+
+			const [ item ] = items;
+
+			if ( ! item ) {
+				return;
+			}
+
+			// The standalone page owns the print stylesheet and consumes `print=1`
+			// once the response is on screen.
+			// Router types aren't registered in this build; same cast as breadcrumbs.tsx.
+			navigate( buildResponseLink( item.id, pinnedView, { print: 1 } ) as unknown as never );
 		},
 	};
 
@@ -415,8 +461,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 				const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 					items,
 					newStatus: 'spam',
-					apiCall: ( id: number ) =>
-						saveEntityRecord( 'postType', 'feedback', { id, status: 'spam' } ),
+					apiCall: ( id: number ) => saveResponse( saveEntityRecord, { id, status: 'spam' } ),
 					editEntityRecord,
 					updateCountsOptimistically,
 					queryParams,
@@ -557,8 +602,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 				const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 					items,
 					newStatus: 'publish',
-					apiCall: ( id: number ) =>
-						saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } ),
+					apiCall: ( id: number ) => saveResponse( saveEntityRecord, { id, status: 'publish' } ),
 					editEntityRecord,
 					updateCountsOptimistically,
 					queryParams,
@@ -692,8 +736,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 				const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 					items,
 					newStatus,
-					apiCall: ( id: number ) =>
-						saveEntityRecord( 'postType', 'feedback', { id, status: newStatus } ),
+					apiCall: ( id: number ) => saveResponse( saveEntityRecord, { id, status: newStatus } ),
 					editEntityRecord,
 					updateCountsOptimistically,
 					queryParams,
@@ -823,7 +866,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 					items,
 					newStatus: 'trash',
 					apiCall: ( id: number ) =>
-						deleteEntityRecord( 'postType', 'feedback', id, {}, { throwOnError: true } ),
+						deleteResponse( deleteEntityRecord, id, {}, { throwOnError: true } ),
 					editEntityRecord,
 					updateCountsOptimistically,
 					queryParams,
@@ -939,7 +982,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 
 			const promises = await Promise.allSettled(
 				items.map( ( { id } ) =>
-					deleteEntityRecord( 'postType', 'feedback', id, { force: true }, { throwOnError: true } )
+					deleteResponse( deleteEntityRecord, id, { force: true }, { throwOnError: true } )
 				)
 			);
 
@@ -1240,6 +1283,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 
 	return {
 		viewAction,
+		printAction,
 		editFormAction,
 		markAsSpamAction,
 		markAsNotSpamAction,
@@ -1257,9 +1301,15 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
  * @param {GetRowActionsParams} params - Parameters for generating actions.
  * @return {Action[]} Array of action configurations.
  */
-export function getRowActions( { navigate, view }: GetRowActionsParams ): Action[] {
+export function getRowActions( {
+	navigate,
+	view,
+	onSelectResponse,
+	pinnedView,
+}: GetRowActionsParams ): Action[] {
 	const {
 		viewAction,
+		printAction,
 		editFormAction,
 		markAsSpamAction,
 		markAsNotSpamAction,
@@ -1268,17 +1318,25 @@ export function getRowActions( { navigate, view }: GetRowActionsParams ): Action
 		deleteAction,
 		markAsReadAction,
 		markAsUnreadAction,
-	} = getActions( { navigate } );
+	} = getActions( { navigate, onSelectResponse, pinnedView } );
 
 	switch ( view ) {
 		case 'trash':
-			return [ viewAction, restoreAction, deleteAction, markAsUnreadAction, editFormAction ];
+			return [
+				viewAction,
+				restoreAction,
+				deleteAction,
+				markAsUnreadAction,
+				printAction,
+				editFormAction,
+			];
 		case 'spam':
 			return [
 				viewAction,
 				markAsNotSpamAction,
 				moveToTrashAction,
 				markAsUnreadAction,
+				printAction,
 				editFormAction,
 			];
 		default: // inbox
@@ -1288,6 +1346,7 @@ export function getRowActions( { navigate, view }: GetRowActionsParams ): Action
 				markAsSpamAction,
 				moveToTrashAction,
 				markAsUnreadAction,
+				printAction,
 				editFormAction,
 			];
 	}

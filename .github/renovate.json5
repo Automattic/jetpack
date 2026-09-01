@@ -96,6 +96,10 @@
 			matchDepTypes: [ 'action' ],
 			matchPackageNames: [ 'docker/**' ],
 		},
+		{
+			groupName: 'tsdown monorepo',
+			matchPackageNames: [ 'tsdown', '@tsdown/**' ],
+		},
 
 		// Pin GitHub Actions to digests.
 		// We'll leave major updates ungrouped though, as those likely need more individualized attention.
@@ -131,14 +135,17 @@
 				// Additional packages polyfilled by wp-build-polyfills, which need to be kept in sync with each other.
 				'@wordpress/a11y',
 				'@wordpress/boot',
-				// Bundled into the rich-text polyfill (rich-text unlocks its private
-				// APIs at module scope), so it must move in lockstep with rich-text.
-				'@wordpress/compose',
 				'@wordpress/notices',
 				'@wordpress/private-apis',
 				'@wordpress/rich-text',
 				'@wordpress/route',
 				'@wordpress/theme',
+				// Bundled into the rich-text polyfill (rich-text unlocks its private
+				// APIs at module scope), so it must move in lockstep with rich-text.
+				'@wordpress/compose',
+				// Not polyfilled, but notices' store types are generated against data's generics
+				// (notices 5.53 needs data ^10.53), so data has to move on the same train as notices.
+				'@wordpress/data',
 				// @wordpress/build is still heavily developed; its dashboards share the same bundled
 				// packages and test surface, so exercising build alongside the rest is practical.
 				'@wordpress/build',

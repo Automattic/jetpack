@@ -2,14 +2,17 @@
  * External dependencies
  */
 import {
+	WIDGET_ROW_LIMIT,
 	calculateDelta,
 	describeError,
 	getCombinedPeriodMax,
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	ReportLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
 	sharePercentage,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -18,7 +21,7 @@ import {
 import { search } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@jetpack-premium-analytics/externals';
+import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -33,13 +36,13 @@ type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes >;
 /**
  * Search Terms widget inner component. Reads report params from WidgetRoot context.
  */
-function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
+function SearchTermsInner() {
 	const { reportParams } = useWidgetRootContext();
 
 	const { data, isLoading, isFetching, isError, error, hasComparison, refetch } =
 		useSearchTermViews( {
 			reportParams,
-			max,
+			max: WIDGET_ROW_LIMIT,
 		} );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
@@ -53,11 +56,11 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 
 			return {
 				id: `${ index }-${ term.label }`,
-				label: (
-					<Stack align="center" className={ styles.itemLabel }>
-						<Text className={ styles.itemLabelText }>{ term.label }</Text>
-					</Stack>
-				),
+				...buildLeaderboardRow( {
+					label: term.label,
+					media: { kind: 'none' },
+					action: { kind: 'static' },
+				} ),
 				currentValue: term.views,
 				previousValue: previousViews,
 				currentShare: sharePercentage( term.views, maxValue ),
@@ -92,6 +95,7 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 						icon: search,
 						description: __( 'No search terms in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
 						data={ leaderboardData }
@@ -119,7 +123,7 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 export default function SearchTerms( { attributes = {} }: SearchTermsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<SearchTermsInner max={ attributes.max } />
+			<SearchTermsInner />
 		</WidgetRoot>
 	);
 }

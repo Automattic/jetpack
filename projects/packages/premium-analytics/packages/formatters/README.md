@@ -103,7 +103,7 @@ and then shifted into the site's timezone, landing on the previous day for any
 visitor ahead of the site. Parse site-local strings with `parseSiteDateTime` from
 `@jetpack-premium-analytics/datetime` first.
 
-## `formatDateRange( range? )`
+## `formatDateRange( range?, options? )`
 
 Format a date range into a human-readable string.
 Returns `''` when range or dates are missing.
@@ -143,9 +143,21 @@ translated WordPress range pattern instead:
 // '21/06/2025 – 25/06/2025'
 ```
 
-| Parameter | Type                         | Description       |
-| --------- | ---------------------------- | ----------------- |
-| `range`   | `{ from?: Date; to?: Date }` | Date range object |
+Pass `collapseSingleDay` where a window of a day or less should be named by
+the day it ends on. A day-aligned window already collapses, since both ends
+render the same date; a rolling one does not, because it straddles two calendar
+days without being about either of them in full:
+
+```typescript
+// The 24 hours ending at 3pm on June 21:
+formatDateRange( { from, to } ); // 'June 20 – 21, 2025'
+formatDateRange( { from, to }, { collapseSingleDay: true } ); // 'June 21, 2025'
+```
+
+| Parameter                   | Type                         | Default | Description                                   |
+| --------------------------- | ---------------------------- | ------- | --------------------------------------------- |
+| `range`                     | `{ from?: Date; to?: Date }` |         | Date range object                             |
+| `options.collapseSingleDay` | `boolean`                    | `false` | Name a window of a day or less by its end day |
 
 ## `formatDateRangeCompact( range? )` and `formatDateRangeMinimal( range? )`
 
@@ -181,13 +193,16 @@ one width and not another. Two things to know if you add a form:
 
 ## `formatDateRangeLong( range?, options? )`
 
-Format a date range in explicit, readable form, for prominent surfaces such as
-the section header subtitle. Returns `''` when range or dates are missing.
+Format a date range in explicit, readable form, for prominent surfaces.
+Returns `''` when range or dates are missing.
 
-The shape follows the range's own length: day-scale ranges lead with the
-weekday and omit the year while they sit in the reference year; longer ranges
-drop the weekday and always carry the year. A window of a day or less is named
-by a single date rather than two endpoints.
+The shape follows the range's own length, along two independent axes. A window
+of a week or less leads each end with its weekday, which is what makes a
+rolling window legible at a glance; past a week the weekday says where the
+window happens to start rather than what it covers, and is dropped. The year is
+carried only where it disambiguates — a range sitting entirely in the reference
+year drops it, and a longer range picks it up by straddling two. A window of a
+day or less is named by a single date rather than two endpoints.
 
 ```typescript
 formatDateRangeLong( { from, to } );
@@ -195,19 +210,22 @@ formatDateRangeLong( { from, to } );
 // today:       'Wednesday, July 29'
 // 7 days:      'Tuesday, July 21 – Monday, July 27'
 // past year:   'Tuesday, July 16, 2024 – Monday, July 22, 2024'
+// 30 days:     'July 21 – August 19'
 // 12 months:   'July 1, 2025 – June 30, 2026'
 ```
 
 Pass `calendarScale` for a selection whose scale is a property of the selection
 rather than of the dates. A calendar year still running ends at the end of
-today, so its measured unit, and with it the shape, would otherwise change from
-one day to the next:
+today, so its measured length, and with it the shape, would otherwise change
+from one day to the next — and in its first week it would even measure short
+enough to lead with a weekday:
 
 ```typescript
 formatDateRangeLong( { from, to }, { calendarScale: true } );
 // read mid-month:      'January 1, 2026 – July 30, 2026'
 // read on a month end: 'January 1, 2026 – July 31, 2026'
-// without the flag, the first of those reads 'Thursday, January 1 – Thursday, July 30'
+// read on January 3:   'January 1, 2026 – January 3, 2026'
+// without the flag, the last of those reads 'Thursday, January 1 – Saturday, January 3'
 ```
 
 | Parameter               | Type                         | Default      | Description                                   |

@@ -1,13 +1,11 @@
 /**
- * The widget ranks posts with the proxied `stats/top-posts` endpoint (covered by
- * the legacy stats mocks), then reads the winning post's content from the local
- * `/wp/v2/posts` endpoint and all three of its all-time metrics from `stats/post/{id}`
- * (both covered by the shared report mocks).
+ * `stats/top-posts` is served by the legacy stats mocks; `/wp/v2/posts` and
+ * `stats/post/{id}` by the shared report mocks.
  */
 /**
  * External dependencies
  */
-import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
@@ -35,15 +33,11 @@ registerStatsMocks();
 
 const POPULAR_POST_RENDER_MODULE = 'storybook/popular-post';
 
+// The card ranks over its own pinned last-12-months window, so every story shares
+// one query key: `forceStatsMockState` evicts the cache on both edges, which is
+// what keeps the forced-state stories isolated from each other.
 function renderPopularPost() {
 	return <PopularPostRender attributes={ { reportParams: getDefaultQueryParams() } } />;
-}
-
-// Distinct preset → own query-cache entry; see forceStatsMockState.
-function renderPopularPostOnPreset( preset: PresetType ) {
-	return (
-		<PopularPostRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />
-	);
 }
 
 const meta = {
@@ -54,7 +48,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Popular post" widget shows the site\'s most-viewed post for the dashboard\'s date range, with its publish date and its all-time views, likes, and comments. Changing the date range changes which post wins, not the totals shown for it: every tile comes from the all-time `stats/post` response, so the three cannot measure different periods. There is no `WithComparison` story: the card shows no period-over-period delta, so the dashboard story below carries the comparison report params instead.',
+					'The "Popular post (12 months)" widget shows the site\'s most-viewed post of the last 12 months, with its publish date and its all-time views, likes, and comments. The window is the widget\'s own — the dashboard date range does not change which post wins — and it only picks the winner: every tile comes from the all-time `stats/post` response, so the three cannot measure different periods. There is no `WithComparison` story: the card shows no period-over-period delta, so the dashboard story below carries the comparison report params instead.',
 			},
 		},
 	},
@@ -65,7 +59,7 @@ export default meta;
 type Story = StoryObj< Partial< ComponentProps< typeof PopularPostRender > > >;
 
 /**
- * Default — the period's most-viewed post with its all-time views, likes, and comments.
+ * Default — the last 12 months' most-viewed post with its all-time views, likes, and comments.
  *
  * The shared close-up canvas is the width of a width-1 dashboard cell, which is
  * below the card's 520px wide breakpoint: the featured image is dropped and the
@@ -82,7 +76,7 @@ export const Default: Story = {
  * state. The mock is forced to never resolve for the duration of this story.
  */
 export const Loading: Story = {
-	render: () => renderPopularPostOnPreset( 'last-90-days' ),
+	render: renderPopularPost,
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
@@ -97,7 +91,7 @@ export const Loading: Story = {
  * action, because the failure is deterministic.
  */
 export const Error: Story = {
-	render: () => renderPopularPostOnPreset( 'last-7-days' ),
+	render: renderPopularPost,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
@@ -111,7 +105,7 @@ export const Error: Story = {
  * `describeError` keeps this one retryable.
  */
 export const ErrorRetryable: Story = {
-	render: () => renderPopularPostOnPreset( 'last-12-months' ),
+	render: renderPopularPost,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
@@ -124,8 +118,7 @@ export const ErrorRetryable: Story = {
  * Resolved with no rows: the widget shows its empty state.
  */
 export const Empty: Story = {
-	// Avoid presenting the same date range as ErrorRetryable in most years.
-	render: () => renderPopularPostOnPreset( 'last-year' ),
+	render: renderPopularPost,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
@@ -135,14 +128,9 @@ export const Empty: Story = {
 };
 
 /**
- * Mounts the real `WidgetDashboard` with this single widget so it renders exactly
- * as it does in product (framed card, sizing, edit mode). Drop `widgetWidth` to 1
- * to walk the card's size ladder: below 520px wide the featured image drops out and
- * the metric row wraps. Shortening the cell below 300px also switches the card to
- * its compact type scale.
- *
- * Comparison report params are passed unconditionally, so the widget stays covered
- * against crashing or inventing deltas when the host supplies comparison dates.
+ * Mounts the real `WidgetDashboard` with this single widget. Comparison report
+ * params are passed unconditionally, so the widget stays covered against
+ * crashing or inventing deltas when the host supplies comparison dates.
  */
 function PopularPostDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (

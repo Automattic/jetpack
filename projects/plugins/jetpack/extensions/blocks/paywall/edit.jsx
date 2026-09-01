@@ -154,6 +154,9 @@ function PaywallEdit() {
 						stripeConnectUrl={ stripeConnectUrl }
 						hasTierPlans={ hasTierPlans }
 						postHasPaywallBlock={ true }
+						// The block card above this panel already explains the paywall, so the
+						// notice would only repeat the heading it sits under.
+						explainPaywallConstraint={ false }
 					/>
 				</PanelBody>
 			</InspectorControls>

@@ -104,10 +104,23 @@ class Download_Bridge {
 		$rewind_id = (string) $request->get_param( 'rewind_id' );
 		$types     = $request->get_param( 'types' );
 
+		// A supplied `types` that names nothing is refused rather than
+		// dropped. Omitting the key is not "download nothing" — WPCOM
+		// reads an absent `types` as every category, so forwarding an
+		// empty selection as an omission would hand back the full archive
+		// the caller had just excluded. `/rewind/downloads` has no
+		// server-side guard of its own, unlike the v2 restore route.
+		if ( Rest_Controller::request_names_no_types( $request ) ) {
+			return new WP_Error(
+				'no_types_selected',
+				__( 'Select at least one item to download.', 'jetpack-backup-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		$body = array( 'rewindId' => $rewind_id );
-		// Omit `types` rather than defaulting it to an empty object.
-		// WPCOM selects the enabled categories loosely, so an empty
-		// value names no category and asks for a download of nothing.
+		// Absent when the caller named no categories at all, which is how
+		// a whole-archive download is spelled upstream.
 		$named_types = Rest_Controller::named_types( $types );
 		if ( ! empty( $named_types ) ) {
 			$body['types'] = $named_types;
@@ -122,15 +135,21 @@ class Download_Bridge {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			return $response;
+			return Rest_Controller::transport_error( $response, 'download_initiate_failed' );
 		}
 
-		$status_code = wp_remote_retrieve_response_code( $response );
+		// Cast because `wp_remote_retrieve_response_code()` hands back
+		// whatever the transport put there, and a numeric string fails the
+		// strict comparison below — routing a perfectly good response into
+		// the failure branch, where `upstream_error()`'s clamp then reports
+		// it as a 500. Same reasoning at every bridge; the long version is
+		// on `Rest_Controller::upstream_error()`.
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $status_code ) {
-			return new WP_Error(
+			return Rest_Controller::upstream_error(
+				$response,
 				'download_initiate_failed',
-				__( 'Could not start the backup download.', 'jetpack-backup-pkg' ),
-				array( 'status' => is_int( $status_code ) && $status_code > 0 ? $status_code : 500 )
+				__( 'Could not start the backup download.', 'jetpack-backup-pkg' )
 			);
 		}
 
@@ -183,15 +202,16 @@ class Download_Bridge {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			return $response;
+			return Rest_Controller::transport_error( $response, 'download_status_fetch_failed' );
 		}
 
-		$status_code = wp_remote_retrieve_response_code( $response );
+		// Cast, as in `initiate_download()`.
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $status_code ) {
-			return new WP_Error(
+			return Rest_Controller::upstream_error(
+				$response,
 				'download_status_fetch_failed',
-				__( 'Could not fetch download status.', 'jetpack-backup-pkg' ),
-				array( 'status' => is_int( $status_code ) && $status_code > 0 ? $status_code : 500 )
+				__( 'Could not fetch download status.', 'jetpack-backup-pkg' )
 			);
 		}
 

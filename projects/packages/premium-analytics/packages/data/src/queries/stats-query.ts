@@ -14,6 +14,7 @@ import {
 	sanitizeStatsCommentFollowersResponse,
 	sanitizeStatsFollowersResponse,
 	sanitizeStatsCommentsResponse,
+	sanitizeStatsHourOfDayResponse,
 	sanitizeStatsInsightsResponse,
 	sanitizeStatsStreakResponse,
 	sanitizeStatsVisitsResponse,
@@ -49,14 +50,17 @@ import {
 import type { ReportParams } from '../utils/search';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
-// Including `StatsProxyParams` confuses TypeScript because it brings in a string index signature,
-// which conflicts with `ReportParams.filters`. Endpoint-specific extras reach the proxy through
-// `statsReportQuery`'s `extraParams`, not this index signature.
+// `StatsProxyParams` is deliberately left out: its string index signature conflicts
+// with `ReportParams.filters`. Extras reach the proxy through `extraParams` instead.
 export type StatsReportParams = ReportParams & StatsQueryParamFields;
 type StatsSanitizer< TData = unknown > = ( response: unknown, params?: StatsQueryParams ) => TData;
 
 type StatsReportQuerySettings = {
-	/** Query params derived from the shared report range that this endpoint does not accept. */
+	/**
+	 * Query params derived from the shared report range that this endpoint does not accept.
+	 * WPCOM drops params an endpoint does not declare, so this changes nothing server-side —
+	 * it only keeps the request URL and the proxy cache key honest.
+	 */
 	omitParams?: readonly ( keyof StatsQueryParamFields )[];
 };
 
@@ -85,6 +89,7 @@ const statsSanitizers = {
 	tags: sanitizeStatsTagsResponse,
 	utm: sanitizeStatsUtmResponse,
 	visits: sanitizeStatsVisitsResponse,
+	hourOfDay: sanitizeStatsHourOfDayResponse,
 	timeSeries: sanitizeStatsTimeSeriesResponse,
 	emailTimeSeries: sanitizeStatsEmailTimeSeriesResponse,
 	subscribers: sanitizeStatsSubscribersResponse,
@@ -180,11 +185,8 @@ export function statsReportQuery< TSanitizer extends StatsSanitizerKey >(
 	const statsParams = reportParamsToStatsQueryParams( params );
 	const reportParams = {
 		...statsParams,
-		// List reports are day-bucketed: `days` counts calendar days and the
-		// summarized window is `period` × `days`, so the dashboard's chart
-		// interval must not leak in as the period (e.g. `period=week` with
-		// `days=189` would cover 189 weeks). Callers can still force a period
-		// explicitly via `params.period`.
+		// A leaked chart interval would make the endpoint recount the window in
+		// weeks or months instead of the requested days.
 		...( params.period === undefined ? { period: 'day' as const } : {} ),
 		...extraParams,
 		...( statsParams.summarize === undefined &&
@@ -195,6 +197,8 @@ export function statsReportQuery< TSanitizer extends StatsSanitizerKey >(
 	};
 	const queryParams: StatsQueryParams = { ...reportParams };
 
+	// Runs after `summarize` is derived above: that derivation reads `days`, which
+	// the list endpoints omit.
 	for ( const param of settings?.omitParams ?? [] ) {
 		delete queryParams[ param ];
 	}

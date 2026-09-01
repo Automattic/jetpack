@@ -13,7 +13,7 @@ import {
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _x } from '@wordpress/i18n';
 import { useNavigate, useParams, useSearch } from '@wordpress/route';
@@ -32,9 +32,13 @@ import { useMarkAsSpam } from '../../src/dashboard/hooks/use-mark-as-spam.ts';
 import FormsPage from '../../src/dashboard/wp-build/components/page';
 import SingleResponseBreadcrumbs from './breadcrumbs.tsx';
 import SingleResponseActions from './page-actions.tsx';
+import pickResponseRecord from './pick-record.ts';
+import { getPinnedView } from './pinned-view.ts';
 import getResponseQuery from './query.ts';
 import repairResponseRecord from './repair-record.ts';
+import useResponseKeyboardShortcuts, { getShortcutLabel } from './use-keyboard-shortcuts.ts';
 import useResponsePageNavigation from './use-navigation.ts';
+import useResponseActions from './use-response-actions.ts';
 // Shared wp-build dashboard chrome (page layout + breadcrumb link styling). The
 // other dashboard routes load this; the single-response route needs it too so
 // the breadcrumb matches the dashboard from first paint instead of flipping
@@ -44,7 +48,7 @@ import './style.scss';
 /**
  * Types
  */
-import type { DispatchActions, SelectActions } from '../../src/dashboard/inbox/stage/types.tsx';
+import type { DispatchActions } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FileItem, FormResponse } from '../../src/types/index.ts';
 
 type PreviewFileItem = FileItem | { url: string; name: string };
@@ -87,16 +91,20 @@ function Stage(): React.JSX.Element {
 	const id = Number( params.responseId );
 	const isValidId = Number.isFinite( id ) && id > 0;
 
+	// The list this response was opened from. Prev/next walks it, the breadcrumb
+	// links back to it, and Escape returns to it. See `pinned-view.ts`.
+	const pinned = useMemo( () => getPinnedView( searchParams ), [ searchParams ] );
+
 	const { receiveEntityRecords } = useDispatch( coreStore ) as unknown as DispatchActions;
 	const [ previewFile, setPreviewFile ] = useState< PreviewFileItem | null >( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
 
 	const responseQuery = useMemo( () => getResponseQuery( id ), [ id ] );
 
-	const { response, isLoading } = useSelect(
+	const { response, hasResolved } = useSelect(
 		select => {
 			if ( ! isValidId ) {
-				return { response: null, isLoading: false };
+				return { response: null, hasResolved: true };
 			}
 
 			const core = select( coreStore );
@@ -108,7 +116,13 @@ function Stage(): React.JSX.Element {
 			const records = core.getEntityRecords( 'postType', 'feedback', responseQuery ) as
 				| FormResponse[]
 				| null;
-			const rawRecord = records?.[ 0 ];
+
+			// See `pick-record.ts` for why the list's copy is used as a stand-in.
+			const listRecords = core.getEntityRecords( 'postType', 'feedback', pinned ) as
+				| FormResponse[]
+				| null;
+			const rawRecord = pickResponseRecord( records, listRecords, id );
+
 			const edits = (
 				core as unknown as {
 					getEntityRecordEdits: ( k: string, n: string, i: number ) => object | undefined;
@@ -117,14 +131,16 @@ function Stage(): React.JSX.Element {
 
 			return {
 				response: rawRecord ? ( { ...rawRecord, ...edits } as unknown as FormResponse ) : null,
-				isLoading: ( core as unknown as SelectActions ).isResolving( 'getEntityRecords', [
-					'postType',
-					'feedback',
-					responseQuery,
-				] ),
+				// "Not found" is only honest once this response's own request has
+				// finished; before then an absent record just means it hasn't arrived.
+				hasResolved: (
+					core as unknown as {
+						hasFinishedResolution: ( s: string, a: unknown[] ) => boolean;
+					}
+				 ).hasFinishedResolution( 'getEntityRecords', [ 'postType', 'feedback', responseQuery ] ),
 			};
 		},
-		[ id, isValidId, responseQuery ]
+		[ id, isValidId, responseQuery, pinned ]
 	);
 
 	// For managed forms, resolve the actual jetpack_form post title so the
@@ -174,57 +190,77 @@ function Stage(): React.JSX.Element {
 		},
 	} );
 
-	// The dialog's save and the menu's actions are separate mutation paths on one
-	// response. Both report into this single signal — the dialog directly, the menu
-	// through `onBusyChange` — so neither can run against the other and neither can
-	// be navigated away from mid-flight.
-	const [ isMenuBusy, setIsMenuBusy ] = useState( false );
-	const isMutating = isConfirmDialogOpen || isSaving || isMenuBusy;
+	// One set of action handlers for both the three-dot menu and the keyboard, so a
+	// shortcut cannot bypass the re-entry guard or the store repair a status change
+	// from this page depends on.
+	const responseActions = useResponseActions( response, pinned, id );
 
-	const { hasPrevious, hasNext, goPrevious, goNext } = useResponsePageNavigation( id );
+	// Navigation is deliberately *not* gated on `isPending`. Marking a run of spam is
+	// the main thing this page is used for, and waiting for each request to land
+	// before the arrows come back makes that crawl. A status change is safe to walk
+	// away from: it targets the response captured when it started, and repairs that
+	// record's own cache entry when it lands, whichever response is on screen by then.
+	//
+	// The confirmation dialog is different — it is modal and describes one specific
+	// response, so moving underneath it would leave it confirming against another.
+	const isNavigationBlocked = isConfirmDialogOpen || isSaving;
 
-	// Arrow keys move between responses, matching the inbox inspector. Ignore the
-	// shortcut while typing in a field, when a modifier key is held, or while the
-	// file-preview modal is open. Only preventDefault when navigation will
-	// actually happen, so normal arrow-key page scrolling is preserved at the
-	// list edges.
-	useEffect( () => {
-		const handleKeyDown = ( event: KeyboardEvent ) => {
-			if ( event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey ) {
-				return;
-			}
-			// Navigating away while the spam confirmation is open would leave the
-			// dialog describing one response and confirming against another.
-			if ( previewFile || isConfirmDialogOpen || isSaving ) {
-				return;
-			}
-			const target = event.target as HTMLElement | null;
-			const tag = target?.tagName;
-			if (
-				tag === 'INPUT' ||
-				tag === 'TEXTAREA' ||
-				tag === 'SELECT' ||
-				target?.isContentEditable
-			) {
-				return;
-			}
-			if ( event.key === 'ArrowUp' && hasPrevious ) {
-				event.preventDefault();
-				goPrevious();
-			} else if ( event.key === 'ArrowDown' && hasNext ) {
-				event.preventDefault();
-				goNext();
-			}
-		};
+	const { hasPrevious, hasNext, goPrevious, goNext } = useResponsePageNavigation( id, pinned );
 
-		window.addEventListener( 'keydown', handleKeyDown );
-		return () => window.removeEventListener( 'keydown', handleKeyDown );
-	}, [ goPrevious, goNext, hasPrevious, hasNext, previewFile, isConfirmDialogOpen, isSaving ] );
+	// Escape both closes the actions menu and backs out to the list, so the menu's
+	// open state has to suspend the shortcuts — otherwise dismissing the menu would
+	// navigate away at the same time.
+	const [ isActionsMenuOpen, setIsActionsMenuOpen ] = useState( false );
+
+	// Keyboard shortcuts for triage: move through the list, file a response away,
+	// get back to the list. Suspended while a modal is open or a mutation is in
+	// flight — navigating away mid-change would leave the spam dialog describing one
+	// response and confirming against another.
+	//
+	// `onNext`/`onPrevious` are left unbound at the ends of the list rather than
+	// bound to a no-op, so the arrow keys still scroll the page there.
+	useResponseKeyboardShortcuts(
+		{
+			onNext: hasNext ? goNext : undefined,
+			onPrevious: hasPrevious ? goPrevious : undefined,
+			onMarkAsSpam: responseActions.markAsSpam,
+			onMoveToTrash: responseActions.moveToTrash,
+			onGoToList: responseActions.goToList,
+		},
+		{
+			isDisabled: Boolean( previewFile ) || isActionsMenuOpen || isNavigationBlocked,
+		}
+	);
 
 	// Mark the response as read when it is viewed, keeping the admin-menu unread
 	// counter in sync. The shared hook latches on a ref, which also survives the
 	// "Mark as unread" menu item on this page re-running the effect.
 	useMarkAsReadOnView( response );
+
+	// Arrives from the list's Print action. `window.print()` blocks, so it must not
+	// fire while the page is still a spinner. The ref is keyed by id because
+	// prev/next moves between responses without remounting this route.
+	const hasPrintRequest = ( searchParams as { print?: number } )?.print === 1;
+	const printedForIdRef = useRef< number | null >( null );
+
+	useEffect( () => {
+		if ( ! hasPrintRequest || ! response || ! hasResolved || printedForIdRef.current === id ) {
+			return;
+		}
+
+		printedForIdRef.current = id;
+
+		// Deliberately untimed: a deferred print would be cancelled when this effect
+		// re-runs, and `useEffect` already runs after the response is in the DOM.
+		window.print();
+
+		// `print()` blocks, so by here the dialog is closed. Drop the flag so a
+		// reload doesn't reprint.
+		navigate( {
+			search: { ...searchParams, print: undefined },
+			replace: true,
+		} );
+	}, [ hasPrintRequest, response, hasResolved, id, navigate, searchParams ] );
 
 	const handleFilePreview = useCallback(
 		( file: PreviewFileItem ) => () => {
@@ -244,7 +280,7 @@ function Stage(): React.JSX.Element {
 	const renderMessagePage = ( currentLabel: string, ariaLabel: string, child: React.ReactNode ) => (
 		<FormsPage
 			visual={ <JetpackLogo showText={ false } height={ 20 } /> }
-			breadcrumbs={ <SingleResponseBreadcrumbs currentLabel={ currentLabel } /> }
+			breadcrumbs={ <SingleResponseBreadcrumbs currentLabel={ currentLabel } pinned={ pinned } /> }
 			ariaLabel={ ariaLabel }
 			showFooter={ false }
 		>
@@ -252,12 +288,13 @@ function Stage(): React.JSX.Element {
 		</FormsPage>
 	);
 
-	// Only show the spinner when there is nothing to show. Every status change
-	// invalidates `getEntityRecords` resolutions (see `invalidateCacheAndNavigate`),
-	// which re-resolves this page's own query — without the `! response` guard the
-	// response would be replaced by a full-page spinner on each action, which is
-	// exactly what staying on the page is meant to avoid.
-	if ( isValidId && isLoading && ! response ) {
+	// Only show the spinner when there is genuinely nothing to show — which, now that
+	// the list's copy is used as a fallback, means a cold deep link rather than an
+	// ordinary click through from the list. Every status change also invalidates
+	// `getEntityRecords` resolutions (see `invalidateCacheAndNavigate`), so without
+	// the `! response` guard the response would be replaced by a full-page spinner on
+	// each action, which is exactly what staying on the page is meant to avoid.
+	if ( isValidId && ! hasResolved && ! response ) {
 		return renderMessagePage(
 			isValidId ? `#${ id }` : __( 'Response', 'jetpack-forms' ),
 			__( 'Response', 'jetpack-forms' ),
@@ -282,7 +319,11 @@ function Stage(): React.JSX.Element {
 		<FormsPage
 			visual={ <JetpackLogo showText={ false } height={ 20 } /> }
 			breadcrumbs={
-				<SingleResponseBreadcrumbs response={ response } formTitle={ formName || formTitle } />
+				<SingleResponseBreadcrumbs
+					response={ response }
+					formTitle={ formName || formTitle }
+					pinned={ pinned }
+				/>
 			}
 			badges={ <ResponseStatusBadge status={ response.status } /> }
 			subTitle={ subTitle }
@@ -296,16 +337,21 @@ function Stage(): React.JSX.Element {
 					className="jp-forms__single-response-actions"
 				>
 					<ResponseNavigation
-						hasNext={ hasNext && ! isMutating }
-						hasPrevious={ hasPrevious && ! isMutating }
+						hasNext={ hasNext && ! isNavigationBlocked }
+						hasPrevious={ hasPrevious && ! isNavigationBlocked }
 						onNext={ goNext }
 						onPrevious={ goPrevious }
+						nextShortcut={ getShortcutLabel( 'next' ) }
+						previousShortcut={ getShortcutLabel( 'previous' ) }
 						onClose={ null }
 					/>
 					<SingleResponseActions
 						response={ response }
-						isBlocked={ isConfirmDialogOpen || isSaving }
-						onBusyChange={ setIsMenuBusy }
+						responseActions={ responseActions }
+						// Combined in the menu with `responseActions.isPending`, so a second
+						// action can't be started on a response already changing.
+						isBlocked={ isNavigationBlocked }
+						onOpenChange={ setIsActionsMenuOpen }
 					/>
 				</Stack>
 			}

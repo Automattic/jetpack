@@ -244,7 +244,7 @@ Returns the default (finest allowed) interval for a preset / date range.
 - `from`: `string` - Start date
 - `to`: `string` - End date
 
-**Returns:** `IntervalType` - `'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year'`
+**Returns:** `IntervalType` - `'hour' | 'day' | 'week' | 'month' | 'year'`
 
 **Example:**
 

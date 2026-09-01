@@ -16,8 +16,8 @@
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       jetpack-boost
  * Domain Path:       /languages
- * Requires at least: 6.9
- * Requires PHP:      7.2
+ * Requires at least: 7.0
+ * Requires PHP:      7.4
  *
  * @package automattic/jetpack-boost
  */

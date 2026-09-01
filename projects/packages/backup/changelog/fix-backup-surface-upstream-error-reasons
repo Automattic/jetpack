@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Backup: surface WordPress.com's own reason when a modernized-dashboard request fails, instead of one fixed sentence per operation. A site that cannot start a restore because one is already running now says so, and the reason travels on the error for support either way. No-op when the modernization filter is off.

@@ -10,9 +10,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 /**
  * Represents a dashboard section.
  *
- * A dashboard section is the server-owned model behind a top-level dashboard
- * tab. It carries display metadata plus availability and default-layout
- * callbacks that can be extended by consumers.
+ * The server-owned model behind a top-level dashboard tab.
  */
 final class Dashboard_Section {
 
@@ -75,18 +73,10 @@ final class Dashboard_Section {
 	 * Section heading, deliberately distinct from the tab label: the tab reads
 	 * `Traffic` where the heading reads `Site traffic`. Null falls back to the label.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 * @var string|null
 	 */
 	public $title = null;
-
-	/**
-	 * Section description, shown as the page subtitle while this section is active.
-	 *
-	 * @since $$next-version$$
-	 * @var string|null
-	 */
-	public $description = null;
 
 	/**
 	 * Sort order.
@@ -96,7 +86,10 @@ final class Dashboard_Section {
 	public $order = 10;
 
 	/**
-	 * Which date filter the section's header offers, as one of self::DATE_FILTERS.
+	 * Which shape the section's date filter takes, as one of self::DATE_FILTERS.
+	 *
+	 * Shape only. Where it renders and what it supports are
+	 * self::$date_filter_options.
 	 *
 	 * @since 0.2.0
 	 * @var string
@@ -104,14 +97,30 @@ final class Dashboard_Section {
 	public $date_filter = self::DATE_FILTER_RANGE;
 
 	/**
-	 * Which optional controls the section's date filter offers.
+	 * What the section's date filter supports, and where it renders.
 	 *
-	 * @since $$next-version$$
+	 * - `with_date_comparison`: false drops the comparison param from every widget fetch in the
+	 *   section, not just the chrome.
+	 * - `with_header_date_control`: false hands the control to the section's widgets, which may
+	 *   save the range onto the widget instance rather than the URL.
+	 *
+	 * @since 0.3.0
+	 * @since $$next-version$$ Added `with_header_date_control`.
 	 * @var array
 	 */
 	public $date_filter_options = array(
-		'with_date_comparison' => true,
+		'with_date_comparison'     => true,
+		'with_header_date_control' => true,
 	);
+
+	/**
+	 * Whether the section's data only reaches WordPress.com through the analytics
+	 * full sync, so its numbers are incomplete until that sync has finished once.
+	 *
+	 * @since 0.4.0
+	 * @var bool
+	 */
+	public $requires_sync = false;
 
 	/**
 	 * Availability flag or callback.
@@ -192,10 +201,10 @@ final class Dashboard_Section {
 			'slug'                => $this->slug,
 			'label'               => $this->label,
 			'title'               => $this->title,
-			'description'         => $this->description,
 			'order'               => (int) $this->order,
 			'date_filter'         => $this->date_filter,
 			'date_filter_options' => $this->date_filter_options,
+			'requires_sync'       => $this->requires_sync,
 			'default_layout'      => $this->get_default_layout(),
 		);
 	}
@@ -222,11 +231,6 @@ final class Dashboard_Section {
 			$this->title = '' === $title ? null : $title;
 		}
 
-		if ( isset( $args['description'] ) ) {
-			$description       = (string) $args['description'];
-			$this->description = '' === $description ? null : $description;
-		}
-
 		if ( isset( $args['order'] ) ) {
 			$this->order = (int) $args['order'];
 		}
@@ -243,8 +247,13 @@ final class Dashboard_Section {
 			$options = array_merge( $this->date_filter_options, $args['date_filter_options'] );
 
 			$this->date_filter_options = array(
-				'with_date_comparison' => (bool) $options['with_date_comparison'],
+				'with_date_comparison'     => (bool) $options['with_date_comparison'],
+				'with_header_date_control' => (bool) $options['with_header_date_control'],
 			);
+		}
+
+		if ( isset( $args['requires_sync'] ) ) {
+			$this->requires_sync = (bool) $args['requires_sync'];
 		}
 
 		if ( array_key_exists( 'is_available', $args ) ) {

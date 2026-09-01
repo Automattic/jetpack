@@ -5,7 +5,7 @@ import { useReportCoupons } from '@jetpack-premium-analytics/data';
 import { coupon } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { BarChart, WidgetState } from '../../components';
+import { BarChart, BarChartSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
@@ -13,10 +13,12 @@ import { useWidgetRootContext } from '../../components/widget-root';
 import { buildSalesByCouponData, isEmptyChartData } from '../../helpers';
 import { useBarStyles } from '../common';
 
+/** Top coupons charted individually; the rest are summed into an "Other" bar. */
+const TOP_COUPON_SEGMENTS = 3;
+
 /**
- * Displays a bar chart showing coupon discount distribution.
- * Shows top 3 coupons plus "Other" segment.
- * Displays data for all product types.
+ * Bar chart of coupon discount distribution: top 3 coupons plus an "Other"
+ * segment, across all product types.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
  */
@@ -27,7 +29,8 @@ export function SalesByCouponWidget() {
 		useReportCoupons( reportParams );
 
 	const { chartData } = useMemo(
-		() => buildSalesByCouponData( primary.data, comparison.data, reportParams, 3 ),
+		() =>
+			buildSalesByCouponData( primary.data, comparison.data, reportParams, TOP_COUPON_SEGMENTS ),
 		[ primary.data, comparison.data, reportParams ]
 	);
 
@@ -35,11 +38,10 @@ export function SalesByCouponWidget() {
 
 	return (
 		<WidgetState
-			isLoading={ isLoading && ! hasData }
+			isLoading={ isLoading }
 			isFetching={ isFetching }
-			// The report queries keep the previous period's data as placeholders
-			// across range changes, so only surface the error when there is
-			// nothing to show.
+			// The report queries keep the previous period's data as placeholders across
+			// range changes, so only surface the error when nothing else is showing.
 			isError={ isError && ! hasData }
 			isEmpty={ isEmptyChartData( chartData ) }
 			error={ {
@@ -53,6 +55,7 @@ export function SalesByCouponWidget() {
 				icon: coupon,
 				description: __( 'No coupon sales in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <BarChartSkeleton columns={ TOP_COUPON_SEGMENTS + 1 } /> }
 		>
 			<BarChart
 				chartData={ chartData }

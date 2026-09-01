@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Storybook-only fix to the Area Chart composition legend story; the shipped package is unchanged.
+
+

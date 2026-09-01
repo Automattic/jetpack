@@ -39,24 +39,6 @@
 		}
 	}
 
-	// Defend @wordpress/ui Button against wp-admin's unlayered anchor styles
-	// when Button renders as an <a> via nativeButton={false} + render={<a/>}.
-	// The root cause is that @wordpress/ui has no link-button component yet, so
-	// we render a Button-as-anchor; this whole block can go once one exists:
-	// https://github.com/WordPress/gutenberg/issues/77098
-	// @wordpress/ui's component rules live inside @layer wp-ui-components and
-	// per CSS Cascade Layers unlayered wp-admin rules like `a { color, …}`
-	// override them, so the rendered anchor inherits wp-admin's link color
-	// and underline instead of the Button's intended chrome — and worse,
-	// `is-loading { color: transparent }` also loses, so the label stays
-	// visible behind the spinner. `revert-layer` short-circuits the implicit
-	// unlayered layer entirely and falls back to the @wordpress/ui-computed
-	// value, picking up `is-loading` overrides for free.
-	#my-jetpack-container a[class*="__button"] {
-		color: revert-layer;
-		text-decoration: revert-layer;
-	}
-
 	#my-jetpack-container {
 		height: 100%;
 

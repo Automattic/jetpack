@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Comments: load the rebuilt Jetpack Comments form in place of Verbum when the jetpack_comments_new_hotness filter returns true.

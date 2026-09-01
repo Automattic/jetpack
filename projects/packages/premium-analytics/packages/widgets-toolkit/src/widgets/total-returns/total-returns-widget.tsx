@@ -5,7 +5,7 @@ import { useReportOrders } from '@jetpack-premium-analytics/data';
 import { paymentReturn } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { BarChart, WidgetState } from '../../components';
+import { BarChart, BarChartSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
@@ -34,11 +34,10 @@ export function TotalReturnsWidget() {
 
 	return (
 		<WidgetState
-			isLoading={ isLoading && ! hasData }
+			isLoading={ isLoading }
 			isFetching={ isFetching }
-			// The report queries keep the previous period's data as placeholders
-			// across range changes, so only surface the error when there is
-			// nothing to show.
+			// The report queries keep the previous period's data as placeholders across
+			// range changes, so only surface the error when nothing else is showing.
 			isError={ isError && ! hasData }
 			isEmpty={ isEmptyChartData( chartData ) }
 			error={ {
@@ -52,6 +51,7 @@ export function TotalReturnsWidget() {
 				icon: paymentReturn,
 				description: __( 'No returns in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <BarChartSkeleton columns={ 2 } /> }
 		>
 			<BarChart
 				chartData={ chartData }

@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Backup: make the modernized dashboard's activity list sort for real — the Order control now reorders the whole log server-side rather than the rows on screen — remove the filter controls nothing could honour, and let the page size be changed without opening Order first. No-op when the modernization filter is off.
+
+

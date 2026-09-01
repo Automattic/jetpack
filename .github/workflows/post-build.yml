@@ -401,7 +401,7 @@ jobs:
         uses: ./.github/actions/check-run
         with:
           id: ${{ needs.setup.outputs.upgrade_check }}
-          conclusion: ${{ needs.upgrade_test.result }}
+          conclusion: ${{ case( needs.upgrade_test.result == 'abandoned', 'cancelled', needs.upgrade_test.result ) }}
           title: ${{ case( needs.upgrade_test.result == 'success', 'Tests passed', needs.upgrade_test.result == 'cancelled', 'Cancelled', 'Tests failed' ) }}
           summary: |
             ${{ env.SUMMARY }}

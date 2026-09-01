@@ -54,6 +54,37 @@ export function replacesOverview(
 }
 
 /**
+ * The one line that turns "your backups are failing" into something the
+ * reader can act on.
+ *
+ * Shared by the takeover panel and the banner rather than duplicated,
+ * because the two render in mutually exclusive situations and a reader
+ * who lands in either needs the same next step. Keeping one msgid also
+ * stops the two copies drifting apart in translation.
+ *
+ * @return The rendered support line.
+ */
+export function ContactSupportLine() {
+	const siteSuffix = useSiteSuffix();
+
+	return createInterpolateElement(
+		__( '<a>Get in touch with us</a> to get your site backups going again.', 'jetpack-backup-pkg' ),
+		{
+			a: (
+				<Link
+					openInNewTab
+					// Omitted rather than passed as undefined — see `useSiteSuffix`.
+					href={ getRedirectUrl(
+						'jetpack-contact-support',
+						siteSuffix ? { site: siteSuffix } : {}
+					) }
+				/>
+			),
+		}
+	);
+}
+
+/**
  * Full-width panel shown in place of the Overview body while the site
  * has no restore point to show.
  *
@@ -67,14 +98,15 @@ export function replacesOverview(
  * states renders as DataViews' bare "No results" — leaving a site whose
  * backups are failing indistinguishable from a healthy new one.
  *
+ * Legacy's closing "backup management on Jetpack.com" is deliberately gone: it
+ * points at the screen this dashboard replaces (JETPACK-2329).
+ *
  * @param props          - Component props.
  * @param props.state    - Derived backup state.
  * @param props.progress - Completion of the running backup, 0–100.
  * @return The rendered panel.
  */
 export default function BackupStatusPanel( { state, progress }: Props ) {
-	const siteSuffix = useSiteSuffix();
-
 	if ( state === 'no-good-backups' ) {
 		return (
 			<EmptyState.Root className="jpb-backup-status">
@@ -85,20 +117,7 @@ export default function BackupStatusPanel( { state, progress }: Props ) {
 					{ __( "We're having trouble backing up your site", 'jetpack-backup-pkg' ) }
 				</EmptyState.Title>
 				<EmptyState.Description>
-					{ createInterpolateElement(
-						__(
-							'<a>Get in touch with us</a> to get your site backups going again.',
-							'jetpack-backup-pkg'
-						),
-						{
-							a: (
-								<Link
-									openInNewTab
-									href={ getRedirectUrl( 'jetpack-contact-support', { site: siteSuffix } ) }
-								/>
-							),
-						}
-					) }
+					<ContactSupportLine />
 				</EmptyState.Description>
 			</EmptyState.Root>
 		);
@@ -125,11 +144,15 @@ export default function BackupStatusPanel( { state, progress }: Props ) {
 			</EmptyState.Title>
 			{ showProgress && (
 				<div className="jpb-backup-status__progress">
-					{ /* Omitting `value` is what puts ProgressBar into its
-					     animated indeterminate mode. */ }
+					{ /*
+					 * Omitting `value` puts ProgressBar into indeterminate mode. One name
+					 * serves both states, and the title above is not associated with the
+					 * bar — see `tests/progress-bar-names.test.tsx`.
+					 */ }
 					<ProgressBar
 						className="jpb-backup-status__bar"
 						value={ isDeterminate ? progress : undefined }
+						aria-label={ __( 'Preparing your first cloud backup', 'jetpack-backup-pkg' ) }
 					/>
 					{ isDeterminate && (
 						<Text variant="body-sm" className="jpb-text-muted">
@@ -146,22 +169,6 @@ export default function BackupStatusPanel( { state, progress }: Props ) {
 				{ __(
 					'The first backup usually takes a few minutes, so it will become available soon.',
 					'jetpack-backup-pkg'
-				) }
-			</EmptyState.Description>
-			<EmptyState.Description>
-				{ createInterpolateElement(
-					__(
-						'In the meanwhile, you can start getting familiar with your <a>backup management on Jetpack.com</a>.',
-						'jetpack-backup-pkg'
-					),
-					{
-						a: (
-							<Link
-								openInNewTab
-								href={ getRedirectUrl( 'jetpack-backup', { site: siteSuffix } ) }
-							/>
-						),
-					}
 				) }
 			</EmptyState.Description>
 		</EmptyState.Root>

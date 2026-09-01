@@ -15,13 +15,9 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for the Analytics class.
- *
- * Covers metadata names ensure_widget_registry_ready() alongside the class,
- * because test_rest_request_still_serves_the_widget_manifest exercises it on
- * purpose. Coverage is attributed to those declared units too — php-code-coverage
- * discards every executed line outside them — so leaving it off would report the
- * manifest require as dead code while a green test runs it.
+ * Tests for the Analytics class. Also covers ensure_widget_registry_ready(): only
+ * test_rest_request_still_serves_the_widget_manifest exercises it, and php-code-coverage
+ * discards lines outside declared @covers units — omitting it would mark the manifest require dead.
  *
  * @covers \Automattic\Jetpack\PremiumAnalytics\Analytics
  * @covers ::Automattic\Jetpack\PremiumAnalytics\ensure_widget_registry_ready
@@ -50,10 +46,8 @@ class Analytics_Test extends TestCase {
 	/**
 	 * Fail loudly if the fixture build leaked in from an earlier test.
 	 *
-	 * Because load_build() uses require_once and there is one fixture file, a
-	 * second load is a no-op. Without this check, dropping the process isolation would
-	 * turn every "does not load the build" assertion into a vacuous pass — the
-	 * unset() below clears the marker and nothing re-sets it, gate or no gate.
+	 * Because load_build() uses require_once, a second load is a no-op — without this check,
+	 * dropping process isolation would silently pass every "does not load the build" assertion.
 	 */
 	protected function setUp(): void {
 		parent::setUp();
@@ -84,6 +78,7 @@ class Analytics_Test extends TestCase {
 		remove_all_actions( 'rest_api_init' );
 		remove_all_actions( 'admin_menu' );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
+		remove_all_filters( 'jetpack_stats_post_list_column_url' );
 		remove_all_filters( 'rest_post_dispatch' );
 		remove_all_filters( 'jetpack_stats_transient_cleanup_prefixes' );
 		Capabilities::unregister();
@@ -157,6 +152,50 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * The post list table's views column links here once the dashboard boots.
+	 *
+	 * @param bool $wpcom_simple Whether to boot the WordPress.com Simple path.
+	 * @dataProvider provide_init_entry_points
+	 */
+	#[DataProvider( 'provide_init_entry_points' )]
+	public function test_init_claims_the_post_list_column_link( $wpcom_simple ) {
+		$this->reset_analytics_init_state();
+
+		if ( $wpcom_simple ) {
+			Analytics::init_wpcom_simple();
+		} else {
+			Analytics::init();
+		}
+
+		$this->assertNotFalse(
+			has_filter( 'jetpack_stats_post_list_column_url', array( Post_List_Link::class, 'filter_url' ) )
+		);
+	}
+
+	/**
+	 * The SPA path travels in `p`, encoded: the router reads that param and a raw
+	 * `?` inside it would read as an outer query param instead.
+	 */
+	public function test_dashboard_url_carries_the_encoded_route_in_the_p_param() {
+		$this->assertSame(
+			admin_url( 'admin.php?page=' . self::MENU_SLUG . '&p=%2Fpost%2F123' ),
+			Analytics::dashboard_url( '/post/123' )
+		);
+
+		$this->assertStringEndsWith(
+			'&p=%2Fpost%2F123%3Fsection%3Dpost-traffic',
+			Analytics::dashboard_url( '/post/123?section=post-traffic' )
+		);
+
+		// The router falls back to `/` for an absent or empty `p`, so the default
+		// has to encode a route rather than drop the param.
+		$this->assertSame(
+			admin_url( 'admin.php?page=' . self::MENU_SLUG . '&p=%2F' ),
+			Analytics::dashboard_url()
+		);
+	}
+
+	/**
 	 * The two platform entry points.
 	 *
 	 * @return array<string, array{bool}>
@@ -182,9 +221,8 @@ class Analytics_Test extends TestCase {
 	/**
 	 * Normal package bootstrap serves the dashboard support routes from the site.
 	 *
-	 * The route files themselves are loaded lazily, on rest_api_init, via
-	 * Dashboard_Support_Routes::boot_routes() - so this checks that hook is
-	 * wired, then dispatches it and confirms the routes actually land.
+	 * Routes load lazily on rest_api_init via Dashboard_Support_Routes::boot_routes(), so this
+	 * checks the hook is wired and that dispatching it actually registers the routes.
 	 */
 	public function test_init_registers_dashboard_support_routes_by_default() {
 		$this->reset_analytics_init_state();
@@ -327,17 +365,13 @@ class Analytics_Test extends TestCase {
 	/**
 	 * A REST request still gets the full widget manifest.
 	 *
-	 * Because is_admin() is false on REST, the gate skips the build there; the route
-	 * and the lazy hydration both come from boot_routes() on rest_api_init. The
-	 * fixture is staged through the manifest-path filter rather than by declaring
-	 * jpa_get_registered_widget_modules() up front, so the sentinel can only reach
-	 * the registry via the manifest require in ensure_widget_registry_ready() —
-	 * delete that require (the #49961 outage) and this test reddens.
+	 * Since is_admin() is false on REST, the build gate skips it there; the route and its lazy
+	 * hydration come from boot_routes(). The fixture is staged via the manifest-path filter so
+	 * the sentinel can only reach the registry through the require in
+	 * ensure_widget_registry_ready() — delete that require (the #49961 outage) and this reddens.
 	 *
-	 * Asserts a uniquely named sentinel rather than "the response is not empty":
-	 * the widget type registry is process-wide, so a non-empty response could be
-	 * another test's leftovers. Isolation keeps the registry and
-	 * ensure_widget_registry_ready()'s static memo clean.
+	 * Asserts a uniquely named sentinel, not "response is not empty": the widget type registry
+	 * is process-wide, so a non-empty response could be another test's leftovers.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -368,9 +402,8 @@ class Analytics_Test extends TestCase {
 
 			$response = $wp_rest_server->dispatch( new \WP_REST_Request( 'GET', '/wpcom/v2/widget-modules' ) );
 
-			// Asserted separately so a permissions regression reads as one, rather
-			// than as a missing sentinel: array_column() over an error envelope is
-			// an empty list either way.
+			// Asserted separately so a permissions regression reads as one, not a missing sentinel:
+			// array_column() over an error envelope is an empty list either way.
 			$this->assertSame( 200, $response->get_status(), 'The manifest route must authorize the test user.' );
 			$this->assertContains( 'test/rest-gate-sentinel', array_column( (array) $response->get_data(), 'name' ) );
 		} finally {
@@ -752,12 +785,10 @@ class Analytics_Test extends TestCase {
 	/**
 	 * With the build present, the menu wires the generated render callback.
 	 *
-	 * The other menu tests all run the missing-build half. This one covers the
-	 * normal path, whose failure is quiet: the render function's name is derived
-	 * from the page slug at build time, so a rename on either side swaps the
-	 * dashboard for the missing-build notice with nothing else to notice it.
-	 *
-	 * Use fixtures because the test suite does not generate build artifacts.
+	 * Unlike the missing-build tests, this covers the normal path, whose failure is quiet:
+	 * the render function name is derived from the page slug at build time, so a rename on
+	 * either side silently swaps the dashboard for the missing-build notice. Uses fixtures
+	 * since the test suite generates no build artifacts.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -832,9 +863,8 @@ class Analytics_Test extends TestCase {
 	/**
 	 * The unfiltered manifest path points at the generated build output.
 	 *
-	 * Every other test stages this path through the filter, so nothing else would
-	 * notice the default breaking - and on REST a wrong path empties the widget
-	 * registry with no error at all (the #49961 bug).
+	 * Every other test stages this path through the filter, so nothing else would notice the
+	 * default breaking — on REST, a wrong path silently empties the widget registry (#49961).
 	 */
 	public function test_widget_manifest_path_defaults_to_the_generated_manifest() {
 		// Collapse the ".." the default is built from rather than realpath()ing it:
@@ -852,11 +882,9 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * Register the admin menu from a clean menu global, with the generated render
-	 * function absent - the state _doing_it_wrong() deliberately reports, so the
-	 * call is captured rather than left to trip the suite's warning gate.
-	 * add_menu_page() only wires the render callback for a user who can reach the
-	 * page, hence the capability grant.
+	 * Register the admin menu from a clean menu global, with the generated render function absent
+	 * — the state _doing_it_wrong() deliberately reports, captured here to avoid tripping the
+	 * suite's warning gate. The capability grant lets add_menu_page() wire the render callback.
 	 *
 	 * @param string $manifest_filter Method on this class supplying the manifest path.
 	 * @return array|null The registered menu entry.
@@ -922,17 +950,14 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * A front-end request registers none of the admin render surface: no menu,
-	 * no widget import map, no CSV export script data.
+	 * A front-end request registers none of the admin render surface: no menu, no widget
+	 * import map, no CSV export script data.
 	 *
-	 * Isolated because the filters being asserted are registered at file scope
-	 * by widget-modules.php and csv-exports.php, and require_once means an
-	 * earlier test that loaded them would leave them registered for this one.
-	 *
-	 * Each assertion names its callback rather than just the hook.
-	 * Sync_Status_Tracker also filters jetpack_admin_js_script_data, and it
-	 * stays outside the gate, so a bare has_filter() on that hook is true on a
-	 * front-end request no matter what this gate does.
+	 * Isolated because widget-modules.php and csv-exports.php register these filters at file
+	 * scope via require_once, so an earlier test that loaded them would leave them registered
+	 * here. Each assertion names its callback, not just the hook: Sync_Status_Tracker also
+	 * filters jetpack_admin_js_script_data outside this gate, so a bare has_filter() there is
+	 * true regardless.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled

@@ -10,7 +10,7 @@ import { useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { Badge, Link } from '@wordpress/ui';
@@ -34,6 +34,15 @@ import IntegrationsButton from '../../components/integrations-button/index.tsx';
 import Page from '../../components/page/index.tsx';
 import TextWithFlag from '../../components/text-with-flag/index.tsx';
 import useInboxData from '../../hooks/use-inbox-data.ts';
+import useResponseFieldColumns from '../../hooks/use-response-field-columns.ts';
+import { writeColumnPreference } from '../../response-column-preferences.ts';
+import {
+	buildResponseFieldColumns,
+	getFrozenColumnsClassName,
+	getResponseTableView,
+	isSameColumnChoice,
+	keepColumnChoice,
+} from '../../response-field-columns.tsx';
 import { useDashboardSearchParams } from '../../router/dashboard-search-params-context.tsx';
 import { getPath, getItemId } from '../utils.js';
 import {
@@ -101,6 +110,11 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 		return Number.isFinite( id ) && id > 0 ? id : null;
 	}, [ parentId ] );
 	const isSingleFormView = !! parent;
+	// Every answer column currently on offer, kept in a ref because the choice is saved
+	// from `onChangeView`, which is declared before the columns hook runs.
+	const knownAnswerIdsRef = useRef( [] );
+	// Every column DataViews has a field for, for the same reason.
+	const knownFieldIdsRef = useRef( new Set() );
 
 	const dateSettings = getDateSettings();
 
@@ -170,6 +184,15 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 	);
 
 	const isInboxLoading = isLoadingData || isAkismetStatusPending;
+
+	// A form's own fields become columns, so a single form's responses can be read
+	// across at a glance. The "All responses" view spans every form and has no
+	// shared field set, so it keeps the built-in columns only.
+	const responseFieldColumns = useResponseFieldColumns( { formId: parent, records, setView } );
+
+	useEffect( () => {
+		knownAnswerIdsRef.current = responseFieldColumns.map( column => column.id );
+	}, [ responseFieldColumns ] );
 
 	useEffect( () => {
 		const _filters = view.filters?.reduce( ( accumulator, { field, value } ) => {
@@ -285,7 +308,27 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 	);
 
 	const onChangeView = useCallback(
-		newView => {
+		incomingView => {
+			let newView = keepColumnChoice(
+				incomingView,
+				view,
+				isMobileViewport,
+				knownFieldIdsRef.current
+			);
+
+			// DataViews reports a column being shown, hidden or moved through here and
+			// keeps nothing itself, so this is the only moment the choice can be saved.
+			// Only when the columns actually changed, though: this same callback carries
+			// every sort, search and page change, and saving on those would both write
+			// constantly and, while a form's responses are still loading, record an empty
+			// set of known answer columns over a choice that names several.
+			if ( ! isSameColumnChoice( newView.fields, view.fields ) ) {
+				writeColumnPreference( parent, {
+					fields: newView.fields ?? [],
+					knownAnswerIds: knownAnswerIdsRef.current,
+				} );
+			}
+
 			if ( ! isInboxStatusToggleView ) {
 				const folderValue = newView.filters?.find( filter => filter.field === 'folder' )?.value;
 				const nextFolder = [ 'inbox', 'spam', 'trash' ].includes( folderValue )
@@ -319,7 +362,16 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 			}
 			setView( newView );
 		},
-		[ isInboxStatusToggleView, setSearchParams, setSelectedResponses, setView, urlFolder ]
+		[
+			isInboxStatusToggleView,
+			isMobileViewport,
+			parent,
+			setSearchParams,
+			setSelectedResponses,
+			setView,
+			urlFolder,
+			view,
+		]
 	);
 
 	const wrapperUnread = ( isUnread, itemValue ) => {
@@ -463,6 +515,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 				enableSorting: false,
 				enableHiding: false,
 			},
+			...buildResponseFieldColumns( responseFieldColumns ),
 			{
 				id: 'date',
 				label: __( 'Date', 'jetpack-forms' ),
@@ -527,6 +580,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 			dateSettings.formats.datetime,
 			isInboxStatusToggleView,
 			isSingleFormView,
+			responseFieldColumns,
 		]
 	);
 
@@ -552,6 +606,25 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 			};
 		} );
 	}, [ isInboxStatusToggleView, setView, urlFolder ] );
+
+	const answerColumnsClassName = getFrozenColumnsClassName(
+		responseFieldColumns,
+		view,
+		isMobileViewport
+	);
+
+	// Narrow screens cannot make use of a table that scrolls sideways, so they get the
+	// response and its actions and nothing else.
+	const knownFieldIds = useMemo( () => new Set( fields.map( field => field.id ) ), [ fields ] );
+
+	useEffect( () => {
+		knownFieldIdsRef.current = knownFieldIds;
+	}, [ knownFieldIds ] );
+
+	const viewForDataViews = useMemo(
+		() => getResponseTableView( view, isMobileViewport, knownFieldIds ),
+		[ isMobileViewport, knownFieldIds, view ]
+	);
 
 	const actions = useMemo( () => {
 		const mobileViewAction = {
@@ -672,7 +745,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 				actions={ actions }
 				data={ records || EMPTY_ARRAY }
 				isLoading={ isInboxLoading }
-				view={ view }
+				view={ viewForDataViews }
 				onChangeView={ onChangeView }
 				selection={ selection }
 				onChangeSelection={ onChangeSelection }
@@ -693,7 +766,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 					isInboxStatusToggleView={ isInboxStatusToggleView }
 				/>
 				<div className="jp-forms-dataviews-layout-container">
-					<DataViews.Layout />
+					<DataViews.Layout className={ answerColumnsClassName } />
 					<DataViews.Footer />
 				</div>
 			</DataViews>

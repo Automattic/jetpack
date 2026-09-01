@@ -13,8 +13,8 @@ describe( 'Stats subscribers normalizers', () => {
 			expect.objectContaining( {
 				subscribers: 22,
 				subscribers_paid: 5,
-				date_start: '2026-06-24T00:00:00+00:00',
-				date_end: '2026-06-25T23:59:59+00:00',
+				date_start: '2026-06-24T00:00:00',
+				date_end: '2026-06-25T23:59:59',
 			} )
 		);
 		expect( result.data ).toEqual( [

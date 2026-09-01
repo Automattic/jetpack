@@ -8,6 +8,7 @@ import {
 import { megaphone } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTileGrid,
+	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
 	type DataFormat,
@@ -27,10 +28,8 @@ import {
 } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-// The wordads/earnings endpoint reports all-time totals and is not
-// period-scoped, so the widget ignores the dashboard date range. Report params
-// are still accepted at the WidgetRoot boundary (and Storybook may inject them)
-// so the host contract holds.
+// The wordads/earnings endpoint is all-time and not period-scoped, so the widget
+// ignores the dashboard date range; report params still flow to WidgetRoot for the host contract.
 type WordAdsHighlightsRenderAttributes = WordAdsHighlightsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type WordAdsHighlightsWidgetProps = WidgetRenderProps< WordAdsHighlightsRenderAttributes >;
@@ -40,11 +39,9 @@ type WordAdsHighlightsWidgetProps = WidgetRenderProps< WordAdsHighlightsRenderAt
 const CURRENCY_FORMAT: DataFormat = { type: 'currency', options: { decimals: 2 } };
 
 /**
- * Render-only config per card: the tile icon and the earnings value it shows.
- * Ids and labels are shared with the settings checkboxes via
- * `WORDADS_EARNINGS_METRICS` in `widget.ts`. "Paid" is derived — the payload
- * carries total earnings and the outstanding balance, and paid is their
- * difference — matching the Calypso WordAds Totals section.
+ * Render-only per-card config; ids/labels shared with the settings checkboxes via
+ * `WORDADS_EARNINGS_METRICS`. "Paid" is derived (earnings − outstanding balance),
+ * matching the Calypso WordAds Totals section.
  */
 const TILE_CONFIG: Record<
 	WordAdsEarningsMetricId,
@@ -59,10 +56,9 @@ const TILE_CONFIG: Record<
 };
 
 /**
- * Fetches WordAds earnings through the designated `useStatsWordAdsEarnings` hook
- * and renders the totals as a currency `MetricTileGrid`. The earnings module has
- * no comparison period, so each tile shows a bare formatted amount. Which cards
- * appear is controlled by the `metrics` attribute.
+ * Renders WordAds earnings as currency tiles. The earnings module has no
+ * comparison period, so each tile shows a bare amount; `metrics` controls which
+ * cards appear.
  */
 function WordAdsHighlightsReport( {
 	metrics = DEFAULT_WORDADS_EARNINGS_METRICS,
@@ -112,6 +108,7 @@ function WordAdsHighlightsReport( {
 						'jetpack-premium-analytics-pkg'
 					),
 				} }
+				renderLoading={ <MetricTileGridSkeleton tiles={ tiles.length } /> }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ CURRENCY_FORMAT } currencyCode="USD" />
 			</WidgetState>

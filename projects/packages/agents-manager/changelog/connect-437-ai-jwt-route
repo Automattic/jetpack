@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Deprecate `WP_REST_Jetpack_AI_JWT` in favor of `Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT`; the route now lives in the Connection package.
