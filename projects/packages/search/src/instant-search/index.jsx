@@ -13,25 +13,33 @@ import { isInCustomizer } from './lib/customize';
 import { getThemeOptions } from './lib/dom';
 import store from './store';
 
+// Localized widget config should be an array of widget objects; guard against a
+// missing, malformed, or otherwise non-array value crashing the whole page on mount.
+const normalizeWidgets = value =>
+	Array.isArray( value )
+		? value.filter( widget => widget !== null && typeof widget === 'object' )
+		: [];
+
 const injectSearchApp = () => {
+	const serverObject = window[ SERVER_OBJECT_NAME ];
+	const widgets = normalizeWidgets( serverObject.widgets );
+	const widgetsOutsideOverlay = normalizeWidgets( serverObject.widgetsOutsideOverlay );
+
 	render(
 		<Provider store={ store }>
 			<SearchApp
-				aggregations={ buildFilterAggregations( [
-					...( window[ SERVER_OBJECT_NAME ].widgets ?? [] ),
-					...( window[ SERVER_OBJECT_NAME ].widgetsOutsideOverlay ?? [] ),
-				] ) }
-				enableAnalytics={ ! window[ SERVER_OBJECT_NAME ].disableTracking }
-				hasOverlayWidgets={ !! window[ SERVER_OBJECT_NAME ].hasOverlayWidgets }
+				aggregations={ buildFilterAggregations( [ ...widgets, ...widgetsOutsideOverlay ] ) }
+				enableAnalytics={ ! serverObject.disableTracking }
+				hasOverlayWidgets={ !! serverObject.hasOverlayWidgets }
 				initialHref={ window.location.href }
 				// NOTE: initialIsVisible is only used in the customizer. See lib/customize.js.
-				initialIsVisible={ window[ SERVER_OBJECT_NAME ].showResults }
+				initialIsVisible={ serverObject.showResults }
 				isInCustomizer={ isInCustomizer() }
-				overlayOptions={ window[ SERVER_OBJECT_NAME ].overlayOptions }
-				options={ window[ SERVER_OBJECT_NAME ] }
+				overlayOptions={ serverObject.overlayOptions }
+				options={ { ...serverObject, widgets, widgetsOutsideOverlay } }
 				shouldCreatePortal
 				shouldIntegrateWithDom
-				themeOptions={ getThemeOptions( window[ SERVER_OBJECT_NAME ] ) }
+				themeOptions={ getThemeOptions( serverObject ) }
 			/>
 		</Provider>,
 		document.body
