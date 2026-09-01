@@ -37,3 +37,13 @@ test( 'drops entries that are empty objects', () => {
 test( 'drops entries that are arrays or null', () => {
 	expect( normalizeWidgets( [ [], null, validWidget ] ) ).toEqual( [ validWidget ] );
 } );
+
+test( 'drops malformed entries within a widget filters array', () => {
+	const widget = {
+		widget_id: 'widget-1',
+		filters: [ null, {}, [], { filter_id: 'category' } ],
+	};
+	expect( normalizeWidgets( [ widget ] ) ).toEqual( [
+		{ widget_id: 'widget-1', filters: [ { filter_id: 'category' } ] },
+	] );
+} );
