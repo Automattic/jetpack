@@ -78,8 +78,8 @@ type Props = {
 /**
  * Renders the preview slot's body: a spinner while loading, the file
  * contents in a `<pre>` when available, a muted line when the fetch
- * failed or the bytes turned out not to be text, or a generic "preview
- * unavailable" muted line when the filename's extension is not one this
+ * failed, or a generic "preview unavailable" muted line when the bytes
+ * turned out not to be text or the filename's extension is not one this
  * card can render.
  *
  * The error branch says nothing about *why*, on purpose. It used to
@@ -146,7 +146,7 @@ function PreviewBody( {
 	if ( ! isText ) {
 		return (
 			<Text variant="body-sm" className="jpb-text-muted">
-				{ __( 'This file is not text and cannot be previewed.', 'jetpack-backup-pkg' ) }
+				{ __( 'Preview unavailable for this file.', 'jetpack-backup-pkg' ) }
 			</Text>
 		);
 	}

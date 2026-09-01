@@ -23,7 +23,8 @@ const FILE: FileNodeFile = {
 	manifestPath: 'f5:/error.log',
 };
 
-const NOT_TEXT = 'This file is not text and cannot be previewed.';
+const UNAVAILABLE = 'Preview unavailable for this file.';
+const FETCH_FAILED = 'Preview could not be loaded for this file.';
 const TRUNCATED = 'Preview truncated: this file is too large to show in full.';
 
 /**
@@ -55,11 +56,13 @@ beforeEach( () => {
 
 describe( 'preview integrity', () => {
 	// Content is in the fixture on purpose: the verdict, not an empty payload, has
-	// to be what keeps it off screen.
-	it( 'says a file is not text rather than showing bytes flagged unreadable', async () => {
+	// to be what keeps it off screen. The `Type:` row witnesses that the extension is
+	// previewable, the other branch rendering this same line.
+	it( 'withholds bytes the bridge flagged unreadable', async () => {
 		await renderCard( { content: 'raw ? bytes', is_text: false, truncated: false } );
 
-		await expect( screen.findByText( NOT_TEXT ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( UNAVAILABLE ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Type:' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'raw ? bytes' ) ).not.toBeInTheDocument();
 	} );
 
@@ -77,19 +80,20 @@ describe( 'preview integrity', () => {
 
 		await expect( screen.findByText( 'the whole file' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( TRUNCATED ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( NOT_TEXT ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( UNAVAILABLE ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'previews a payload carrying neither verdict', async () => {
 		await renderCard( { content: 'define( "X", 1 );' } );
 
 		await expect( screen.findByText( 'define( "X", 1 );' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( NOT_TEXT ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( UNAVAILABLE ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( TRUNCATED ) ).not.toBeInTheDocument();
 	} );
 
 	// `manifestPath` is optional on an `/ls` row, so a previewable file can leave the
-	// query disabled — the state both verdicts default to the innocent answer for.
+	// query disabled — the state the truncation verdict defaults to the innocent
+	// answer for.
 	it( 'accuses nothing when the preview query never ran', async () => {
 		mockApiFetch.mockResolvedValue( {} );
 
@@ -99,11 +103,12 @@ describe( 'preview integrity', () => {
 			</QueryClientProvider>
 		);
 
-		// The `Type:` row witnesses that the extension is previewable, so an absent
-		// message here is the unresolved query and not the card refusing the file.
+		// The `Type:` row witnesses that the extension is previewable, so the neutral
+		// line below is the unresolved query and not the card refusing the file.
 		await expect( screen.findByText( 'Type:' ) ).resolves.toBeInTheDocument();
 		expect( mockApiFetch ).not.toHaveBeenCalled();
-		expect( screen.queryByText( NOT_TEXT ) ).not.toBeInTheDocument();
+		expect( screen.getByText( UNAVAILABLE ) ).toBeInTheDocument();
+		expect( screen.queryByText( FETCH_FAILED ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( TRUNCATED ) ).not.toBeInTheDocument();
 	} );
 } );
