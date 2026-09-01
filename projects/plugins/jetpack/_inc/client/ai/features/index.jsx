@@ -13,7 +13,7 @@ import { ToggleControl } from '@wordpress/components';
 import { Fragment, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Card, Link, Notice, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
-import analytics from 'lib/analytics';
+import { EVENTS, recordAiHubEvent } from '../tracks';
 
 // Server-computed target for the AI SEO row: the dedicated Jetpack SEO page
 // where it exists, the Traffic settings card otherwise. Falls back to Traffic
@@ -253,7 +253,7 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 			onUpdate( { features: { [ key ]: enabled } } ).then( saved => {
 				// Track outcomes, not attempts: a failed save changed nothing.
 				if ( saved ) {
-					analytics.tracks.recordEvent( 'jetpack_ai_feature_toggled', {
+					recordAiHubEvent( EVENTS.FEATURE_TOGGLED, {
 						feature: key,
 						enabled,
 					} );
