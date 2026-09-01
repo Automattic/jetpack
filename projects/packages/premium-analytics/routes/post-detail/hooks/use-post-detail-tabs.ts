@@ -20,7 +20,6 @@ import {
 	POST_DETAIL_TAB_LAYOUTS,
 } from '../config';
 import { useActiveTab } from './use-active-tab';
-import type { PostDetailTabId } from '../config';
 
 /**
  * Resolves visible post-detail tabs and normalizes hidden-tab deep links.
@@ -28,8 +27,11 @@ import type { PostDetailTabId } from '../config';
  * not obvious from the code below.
  *
  * Tabs without a fixed composition stay hidden. Email tabs also require
- * `total_sends` > 0 from the opens-rate summary, and fail closed: they stay
- * hidden while that query is loading or has errored.
+ * `total_sends` > 0 from the opens-rate summary, and fail closed on anything
+ * the gate query has actually answered: a zero count or an error hides them.
+ * While that query is still in flight the answer is unknown, so a URL already
+ * naming an email tab keeps its tabs — otherwise a reload would render the
+ * whole Post traffic page first and throw it away (WOOA7S-2059).
  *
  * A hidden-tab URL is replaced with the first visible tab, without adding a
  * history entry. An email-tab URL is normalized only once the gate query
@@ -55,24 +57,26 @@ export function usePostDetailTabs(
 	const summary = ( opens.data as StatsEmailBreakdown | undefined )?.summary;
 	const hasEmailStats = Number( summary?.total_sends ?? 0 ) > 0;
 
+	const [ storedTab, setActiveTab ] = useActiveTab();
+	const storedIsEmailTab = EMAIL_TAB_IDS.includes( storedTab );
+	const showEmailTabs = hasEmailStats || ( storedIsEmailTab && opens.isLoading );
+
 	const tabs = useMemo( () => {
 		const allTabs = getPostDetailTabs();
 		const withContent = allTabs.filter(
 			tab =>
 				POST_DETAIL_TAB_LAYOUTS[ tab.id ].length > 0 &&
-				( hasEmailStats || ! EMAIL_TAB_IDS.includes( tab.id ) )
+				( showEmailTabs || ! EMAIL_TAB_IDS.includes( tab.id ) )
 		);
 
 		// Keep the page renderable if all compositions are temporarily empty.
 		return withContent.length > 0 ? withContent : allTabs;
-	}, [ hasEmailStats ] );
+	}, [ showEmailTabs ] );
 
-	const [ storedTab, setActiveTab ] = useActiveTab();
 	const activeTab = tabs.find( tab => tab.id === storedTab )?.id ?? tabs[ 0 ]?.id ?? DEFAULT_TAB_ID;
 
 	// Non-email/no-scope deep links normalize immediately; a pending or
 	// failed email-tab gate holds off so a real deep link isn't destroyed.
-	const storedIsEmailTab = EMAIL_TAB_IDS.includes( storedTab as PostDetailTabId );
 	const canNormalize = ! storedIsEmailTab || postId <= 0 || opens.isSuccess;
 
 	useEffect( () => {

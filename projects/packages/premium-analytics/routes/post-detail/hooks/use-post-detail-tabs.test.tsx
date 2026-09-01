@@ -238,17 +238,40 @@ describe( 'usePostDetailTabs', () => {
 		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [ 'post-traffic' ] );
 	} );
 
-	it( 'does not rewrite an email deep link while the send summary is loading', () => {
+	it( 'shows the deep-linked email tab while the send summary is loading', () => {
 		mockEmailSends( undefined, true );
 		const { stage, commit } = mockSearch( 'email-opens' );
 
 		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
 
-		// The visible fallback renders, but the URL keeps the deep link until
-		// the gate settles.
-		expect( result.current.activeTab ).toBe( 'post-traffic' );
+		// Falling back to Post traffic here would render a whole wrong page for
+		// the reader to watch swap out (WOOA7S-2059). The URL still waits.
+		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [
+			'post-traffic',
+			'email-opens',
+			'email-clicks',
+		] );
+		expect( result.current.activeTab ).toBe( 'email-opens' );
 		expect( stage ).not.toHaveBeenCalled();
 		expect( commit ).not.toHaveBeenCalled();
+	} );
+
+	it( 'hides the deep-linked email tab once the gate reports no sends', async () => {
+		const { stage, commit } = mockSearch( 'email-opens' );
+		mockEmailSends( undefined, true );
+
+		const { result, rerender } = renderHook( () => usePostDetailTabs( POST_ID ) );
+		expect( result.current.activeTab ).toBe( 'email-opens' );
+
+		mockEmailSends( 0 );
+		rerender();
+
+		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [ 'post-traffic' ] );
+		expect( result.current.activeTab ).toBe( 'post-traffic' );
+		await waitFor( () => {
+			expect( stage ).toHaveBeenCalledWith( { section: 'post-traffic' } );
+			expect( commit ).toHaveBeenCalledWith( { replace: true } );
+		} );
 	} );
 
 	it( 'preserves an email deep link when the send summary request fails', () => {

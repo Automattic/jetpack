@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { parseSiteDateTime, siteTimeZone, toLocalTZ } from '@jetpack-premium-analytics/datetime';
-import { Icon, Text } from '@jetpack-premium-analytics/externals';
+import { Icon, Skeleton, Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
 import { envelope as envelopeIcon, page as pageIcon, post as postIcon } from '@wordpress/icons';
 import { format, isValid } from 'date-fns';
@@ -57,7 +57,7 @@ export function PostSummaryCard( {
 	variant = 'post',
 	performanceRange,
 }: PostSummaryCardProps ) {
-	const { title, type, publishedDate, imageUrl } = summary;
+	const { title, type, publishedDate, imageUrl, isLoading } = summary;
 
 	// Read and shown in the site timezone, like the Stats data the page reports on.
 	const publishedDateObject = parseSiteDateTime( publishedDate );
@@ -120,10 +120,20 @@ export function PostSummaryCard( {
 		);
 	}
 
-	return (
-		<div className={ styles.card }>
-			{ media }
-			<div className={ styles.details }>
+	// The title lands on its own request, so the header would otherwise read as
+	// blank until well after the grid has drawn (WOOA7S-2059).
+	let details;
+	if ( isLoading ) {
+		details = (
+			<>
+				<VisuallyHidden>{ __( 'Loading…', 'jetpack-premium-analytics-pkg' ) }</VisuallyHidden>
+				<Skeleton className={ styles.titlePlaceholder } />
+				<Skeleton className={ styles.subtitlePlaceholder } />
+			</>
+		);
+	} else {
+		details = (
+			<>
 				{ /* The heading ellipsizes to one line; `title` keeps the full text
 				     reachable on hover. */ }
 				<Text variant="heading-xl" render={ <h1 title={ title } /> } className={ styles.title }>
@@ -134,6 +144,15 @@ export function PostSummaryCard( {
 						{ subtitle }
 					</Text>
 				) : null }
+			</>
+		);
+	}
+
+	return (
+		<div className={ styles.card }>
+			{ media }
+			<div className={ styles.details } aria-busy={ isLoading }>
+				{ details }
 			</div>
 		</div>
 	);
