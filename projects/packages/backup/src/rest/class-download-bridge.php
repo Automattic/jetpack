@@ -55,8 +55,7 @@ class Download_Bridge {
 						'additionalProperties' => array( 'type' => 'boolean' ),
 					),
 					// Opaque `/rewind/backup/ls` entry ids, only meaningful
-					// alongside `types: { paths: true }` — see the pairing
-					// guard in `initiate_download()`.
+					// alongside `types: { paths: true }` — see `initiate_download()`.
 					'include_path_list' => array(
 						'type'  => 'array',
 						'items' => array( 'type' => 'string' ),
@@ -119,14 +118,12 @@ class Download_Bridge {
 		$include     = self::path_list( $request, 'include_path_list' );
 		$exclude     = self::path_list( $request, 'exclude_path_list' );
 
-		// VaultPress reads the path lists only for the `paths` type, and
-		// nothing between here and there checks the pairing: a list sent
-		// beside any other category answers 200 and builds a *full-site*
-		// archive, so the mismatch has to be refused here or not at all.
+		// Nothing upstream checks this pairing: VaultPress reads the path
+		// lists only for the `paths` type, so a list beside any other
+		// category answers 200 with a *full-site* archive.
 		//
-		// Gated on the include list having been *sent*, because
-		// `path_list()` trims a blank one away and a caller that names
-		// files must not fall through as one that named none.
+		// `has_param()` too: `path_list()` trims a blank list away, and a
+		// caller that named files must not fall through as one that named none.
 		if ( $include || $exclude || $request->has_param( 'include_path_list' ) ) {
 			if ( array( 'paths' ) !== array_keys( $named_types ) ) {
 				return new WP_Error(
@@ -167,9 +164,8 @@ class Download_Bridge {
 		if ( ! empty( $named_types ) ) {
 			$body['types'] = $named_types;
 		}
-		// Arrays rather than the comma-joined string upstream also accepts:
-		// that branch sanitises the whole string before splitting, so
-		// `"a, b"` reaches VaultPress as `" b"`.
+		// Arrays, not the comma-joined string upstream also takes: that branch
+		// sanitises the whole string before splitting, so `"a, b"` arrives as `" b"`.
 		if ( $include ) {
 			$body['include_path_list'] = $include;
 		}

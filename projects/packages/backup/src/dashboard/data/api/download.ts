@@ -56,9 +56,8 @@ export async function initiateDownload(
 /**
  * The `ls` entry ids carried in a `?files=` param.
  *
- * The comma is upstream's own separator — a folder's `ls` id is the
- * joined ids of the manifest entries it covers — so splitting yields
- * exactly the entries upstream's comma-string branch would.
+ * The comma is upstream's own separator: a folder's id is the joined ids
+ * of the entries it covers, so splitting yields exactly those entries.
  *
  * @param files - The comma-joined `?files=` value.
  * @return One trimmed, non-empty entry per id.
@@ -73,10 +72,8 @@ export function splitFileSelection( files: string ): string[] {
 /**
  * Initiate a download scoped to named files.
  *
- * `types: { paths: true }` and nothing else: upstream reads
- * `include_path_list` only for the `paths` type and validates neither
- * half, so a list beside any other category answers 200 with the
- * whole-site archive.
+ * `types: { paths: true }` and nothing else — the bridge refuses any other
+ * pairing, and upstream would not.
  *
  * @param  rewindId - The backup's rewind id, in full.
  * @param  files    - The comma-joined `ls` entry ids the file browser produced.

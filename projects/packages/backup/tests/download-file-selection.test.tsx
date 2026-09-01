@@ -1,7 +1,5 @@
 // The file browser's selection has to survive the trip to the Download screen,
-// and the screen has to send it. Upstream models `paths` as one *of* the six
-// categories, not a filter across them, so the request names files or
-// categories and never both.
+// and the screen has to send it.
 
 const mockApiFetch = jest.fn();
 const mockSearch = jest.fn< Record< string, unknown >, [] >();
@@ -213,8 +211,6 @@ describe( 'Download link carrying the file selection', () => {
 		const link = await screen.findByRole( 'link', { name: /Download 2 selected items/ } );
 		const href = link.getAttribute( 'href' ) ?? '';
 		const query = new URLSearchParams( href.slice( href.indexOf( '?' ) ) );
-		// One comma-joined string, not repeated params: the comma is
-		// upstream's separator, so an id may already carry one.
 		expect( query.get( 'files' ) ).toBe( `${ WP_CONFIG_ID },${ README_ID }` );
 
 		// Restore is the outside witness. It sits beside Download and looks
@@ -368,9 +364,7 @@ describe( 'Download screen with a file selection', () => {
 		expect( posts[ 0 ]?.path ).toContain( '/backups/download/1786644531.123' );
 	} );
 
-	// The pairing nothing upstream checks: VaultPress reads the path list
-	// only for the `paths` type, so a list beside any other category
-	// answers 200 and builds the whole-site archive instead.
+	// The pairing the bridge guards and upstream does not.
 	it( 'names the paths type and the entries, and no other category', async () => {
 		render( <DownloadStage /> );
 
@@ -521,7 +515,7 @@ describe( 'From the file browser to the request', () => {
 		).resolves.toBeInTheDocument();
 
 		// Three entries for two ticked rows: the folder's id is itself a
-		// comma-joined pair, and the comma is upstream's own separator.
+		// comma-joined pair.
 		expect( initiateCalls()[ 0 ]?.data ).toEqual( {
 			types: { paths: true },
 			include_path_list: [ 'cjI6', 'ZjI6Lw==', WP_CONFIG_ID ],

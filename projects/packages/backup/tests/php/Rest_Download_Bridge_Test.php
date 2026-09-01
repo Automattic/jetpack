@@ -267,8 +267,7 @@ class Rest_Download_Bridge_Test extends TestCase {
 			),
 			$sent['types']
 		);
-		// A category download names no paths, which is the other half of
-		// the pairing the granular tests below assert.
+		// A category download names no paths — the other half of the pairing.
 		$this->assertArrayNotHasKey( 'include_path_list', $sent );
 	}
 
@@ -594,10 +593,6 @@ class Rest_Download_Bridge_Test extends TestCase {
 	 * A path list sent beside anything but `types: { paths: true }` is
 	 * refused before it reaches the network.
 	 *
-	 * Nothing upstream catches this. VaultPress reads the lists only for
-	 * the `paths` type, so the mismatch answers 200 and builds a full-site
-	 * archive over a request that named three files.
-	 *
 	 * @param string $label Case description.
 	 * @param mixed  $types The `types` parameter to send, or null to omit it.
 	 * @dataProvider provide_types_that_cannot_carry_a_path_list
@@ -624,8 +619,7 @@ class Rest_Download_Bridge_Test extends TestCase {
 	 * Every `types` a path list must not travel with.
 	 *
 	 * `omitted` is the dangerous one: an absent `types` is upstream's
-	 * shorthand for all six categories, so it is the case that silently
-	 * returns the whole site.
+	 * shorthand for all six categories, not for none.
 	 *
 	 * @return array<string, array{0: string, 1: mixed}>
 	 */
@@ -666,9 +660,7 @@ class Rest_Download_Bridge_Test extends TestCase {
 	 * An include list that trims away to nothing is still an include list.
 	 *
 	 * `path_list()` drops blank entries before the guard sees them, so
-	 * gating on its result would let this through as a plain whole-archive
-	 * download: 200, and every file on the site, for a request that asked
-	 * for a file selection.
+	 * gating on its result alone would let this through as a full download.
 	 *
 	 * @param string $label   Case description.
 	 * @param mixed  $include The `include_path_list` to send.
@@ -745,9 +737,8 @@ class Rest_Download_Bridge_Test extends TestCase {
 	/**
 	 * A path list keyed by name never reaches the callback.
 	 *
-	 * Unregistered parameters are not stripped — WordPress only skips
-	 * *validating* them — so without the schema this would be silently
-	 * flattened to its values and forwarded as a list.
+	 * Without the schema this would reach WPCOM flattened to its values:
+	 * WordPress skips *validating* unregistered params, it does not strip them.
 	 */
 	public function test_a_keyed_path_list_is_rejected_by_the_schema() {
 		$this->arrange_wpcom( array( 'downloadId' => 1 ) );

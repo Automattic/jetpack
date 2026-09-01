@@ -22,8 +22,7 @@ const SELECTION_HINT_ID = 'jpb-download__selection-hint';
  * The Download route's own search params.
  *
  * `files` carries the file browser's selection as the comma-joined `ls`
- * entry ids the detail pane built; `splitFileSelection` turns it into the
- * `include_path_list` sent upstream.
+ * entry ids the detail pane built.
  */
 type DownloadSearch = Record< string, unknown > & { files?: string };
 
@@ -55,8 +54,7 @@ export default function DownloadScreen() {
 	const hasSelection = hasSelectedItems( items );
 
 	// Kept as the one string the link carried, so the request is built from
-	// exactly what the detail pane counted; `splitFileSelection` is the only
-	// place it is taken apart.
+	// exactly what the detail pane counted.
 	const files = typeof search.files === 'string' ? search.files : '';
 	const hasFileSelection = useMemo( () => splitFileSelection( files ).length > 0, [ files ] );
 
