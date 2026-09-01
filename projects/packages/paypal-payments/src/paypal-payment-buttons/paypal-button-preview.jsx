@@ -18,6 +18,7 @@
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { CURRENCY_SYMBOLS } from './currency-symbols';
+import { withPartnerAttribution } from './partner-attribution';
 import PayPalLogo from './paypal-logo';
 
 /**
@@ -62,19 +63,24 @@ function getLowestVariantPrice( variants ) {
 /**
  * Copyable payment link with a "Copy" button.
  *
- * @param {object} props             - Component props.
- * @param {string} props.paymentLink - The payment link URL.
+ * @param {object} props                      - Component props.
+ * @param {string} props.paymentLink          - The payment link URL.
+ * @param {string} props.partnerAttributionId - PayPal partner attribution (BN) code.
  * @return {Element} Payment link with copy button.
  */
-function CopyablePaymentLink( { paymentLink } ) {
+function CopyablePaymentLink( { paymentLink, partnerAttributionId } ) {
 	const [ copied, setCopied ] = useState( false );
 
 	const copiedLabel = __( 'Copied!', 'jetpack-paypal-payments' );
 	const copyLabel = __( 'Copy', 'jetpack-paypal-payments' );
 
+	// Merchants share this link directly, so it carries the same attribution
+	// code the rendered button appends.
+	const shareableLink = withPartnerAttribution( paymentLink, partnerAttributionId );
+
 	const handleCopy = () => {
 		if ( navigator.clipboard ) {
-			navigator.clipboard.writeText( paymentLink ).then( () => {
+			navigator.clipboard.writeText( shareableLink ).then( () => {
 				setCopied( true );
 				setTimeout( () => setCopied( false ), 2000 );
 			} );
@@ -86,7 +92,7 @@ function CopyablePaymentLink( { paymentLink } ) {
 			<span className="jetpack-paypal-button-preview__link-label">
 				{ __( 'Payment link:', 'jetpack-paypal-payments' ) }
 			</span>
-			<code className="jetpack-paypal-button-preview__link-url">{ paymentLink }</code>
+			<code className="jetpack-paypal-button-preview__link-url">{ shareableLink }</code>
 			<button
 				type="button"
 				className="jetpack-paypal-button-preview__copy-button"
@@ -105,15 +111,16 @@ function CopyablePaymentLink( { paymentLink } ) {
  * Renders a styled button that visually matches the PayPal-branded button
  * appearance on the frontend. Clicking is disabled in the editor.
  *
- * @param {object}  props                    - Component props.
- * @param {string}  props.productName        - Product name to display.
- * @param {string}  props.price              - Price value string.
- * @param {string}  props.currencyCode       - ISO currency code.
- * @param {string}  props.productDescription - Optional product description.
- * @param {string}  props.paymentLink        - PayPal payment URL.
- * @param {boolean} props.variantsEnabled    - Whether variants are active.
- * @param {object}  props.variants           - Variants data with dimensions.
- * @param {string}  props.imageUrl           - Optional product image URL.
+ * @param {object}  props                      - Component props.
+ * @param {string}  props.productName          - Product name to display.
+ * @param {string}  props.price                - Price value string.
+ * @param {string}  props.currencyCode         - ISO currency code.
+ * @param {string}  props.productDescription   - Optional product description.
+ * @param {string}  props.paymentLink          - PayPal payment URL.
+ * @param {boolean} props.variantsEnabled      - Whether variants are active.
+ * @param {object}  props.variants             - Variants data with dimensions.
+ * @param {string}  props.imageUrl             - Optional product image URL.
+ * @param {string}  props.partnerAttributionId - PayPal partner attribution (BN) code.
  * @return {Element} Button preview element.
  */
 export default function PayPalButtonPreview( {
@@ -125,6 +132,7 @@ export default function PayPalButtonPreview( {
 	variantsEnabled,
 	variants,
 	imageUrl,
+	partnerAttributionId,
 } ) {
 	const lowestVariantPrice = ! price && variantsEnabled ? getLowestVariantPrice( variants ) : null;
 
@@ -183,7 +191,10 @@ export default function PayPalButtonPreview( {
 			</div>
 
 			{ /* Payment link with copy button */ }
-			<CopyablePaymentLink paymentLink={ paymentLink } />
+			<CopyablePaymentLink
+				paymentLink={ paymentLink }
+				partnerAttributionId={ partnerAttributionId }
+			/>
 		</div>
 	);
 }

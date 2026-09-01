@@ -237,6 +237,8 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	const [ isConnected, setIsConnected ] = useState( false );
 	const [ environment, setEnvironment ] = useState( 'production' );
 	const [ connectionLoading, setConnectionLoading ] = useState( true );
+	// PayPal partner attribution (BN) code, appended to links we hand out.
+	const [ partnerAttributionId, setPartnerAttributionId ] = useState( '' );
 
 	// Form state.
 	const [ isCreating, setIsCreating ] = useState( false );
@@ -384,6 +386,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				setIsConnected( response.connected );
 				setEnvironment( response.environment );
 				setPartnerReferralsAvailable( !! response.partner_referrals_available );
+				setPartnerAttributionId( response.partner_attribution_id || '' );
 				// In standalone mode, skip the welcome step and go straight to manual credentials.
 				if ( ! response.connected && ! response.partner_referrals_available ) {
 					setWizardStep( 'dashboard' );
@@ -1536,6 +1539,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 						variantsEnabled={ variantsEnabled }
 						variants={ variants }
 						imageUrl={ imageUrl }
+						partnerAttributionId={ partnerAttributionId }
 					/>
 				</div>
 

@@ -1011,6 +1011,22 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * Test that connection status exposes the partner attribution code.
+	 *
+	 * The editor appends it to the payment links it copies to the clipboard.
+	 */
+	public function test_connection_status_exposes_partner_attribution_id() {
+		$result = PayPal_REST_Controller::handle_connection_status(
+			new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/connection' )
+		);
+
+		$this->assertSame(
+			PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID,
+			$result->get_data()['partner_attribution_id']
+		);
+	}
+
+	/**
 	 * Test that a line item priced only through its options is accepted.
 	 *
 	 * PayPal rejects a line item carrying unit_amount at both the product and

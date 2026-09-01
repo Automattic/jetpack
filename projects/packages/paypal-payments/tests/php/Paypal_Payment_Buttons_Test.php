@@ -369,6 +369,43 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertStringNotContainsString( 'jetpack-paypal-button__product-image', $result );
 	}
 
+	// --- Partner attribution ---
+
+	/**
+	 * Test that add_partner_attribution appends the BN code.
+	 */
+	public function test_add_partner_attribution_appends_the_bn_code() {
+		$result = PayPal_Payment_Buttons::add_partner_attribution( 'https://www.paypal.com/ncp/payment/ABC123' );
+
+		$this->assertStringContainsString(
+			'at_code=' . PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID,
+			$result
+		);
+	}
+
+	/**
+	 * Test that add_partner_attribution replaces an existing BN code rather than duplicating it.
+	 */
+	public function test_add_partner_attribution_replaces_an_existing_code() {
+		$result = PayPal_Payment_Buttons::add_partner_attribution(
+			'https://www.paypal.com/ncp/payment/ABC123?at_code=Stale&foo=bar'
+		);
+
+		$this->assertStringNotContainsString( 'Stale', $result );
+		$this->assertStringContainsString( 'foo=bar', $result );
+		$this->assertSame( 1, substr_count( $result, 'at_code=' ) );
+	}
+
+	/**
+	 * Test that add_partner_attribution leaves a non-PayPal URL alone.
+	 */
+	public function test_add_partner_attribution_ignores_non_paypal_urls() {
+		$this->assertSame(
+			'https://evil.example.com/pay',
+			PayPal_Payment_Buttons::add_partner_attribution( 'https://evil.example.com/pay' )
+		);
+	}
+
 	// --- Per-option pricing display ---
 
 	/**

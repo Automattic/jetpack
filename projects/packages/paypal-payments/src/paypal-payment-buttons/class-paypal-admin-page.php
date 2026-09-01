@@ -445,6 +445,13 @@ class PayPal_Admin_Page {
 			}
 		}
 
+		// Everything below hands this link to a buyer — opened, copied, or
+		// emailed — so it has to carry the same attribution code as the
+		// rendered button.
+		if ( '' !== $payment_link ) {
+			$payment_link = PayPal_Payment_Buttons::add_partner_attribution( $payment_link );
+		}
+
 		// --- Header ---
 		printf( '<h2>%s <span class="paypal-status-badge %s">%s</span></h2>', esc_html( $name ), esc_attr( $badge_cls ), esc_html( $status ) );
 
