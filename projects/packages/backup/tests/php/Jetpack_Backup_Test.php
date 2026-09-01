@@ -64,6 +64,13 @@ class Jetpack_Backup_Test extends TestCase {
 	private $http_requests = 0;
 
 	/**
+	 * Timeout the most recent mocked request was given.
+	 *
+	 * @var int|float|null
+	 */
+	private $captured_timeout = null;
+
+	/**
 	 * Locale reported to the code under test.
 	 *
 	 * @var string
@@ -80,6 +87,7 @@ class Jetpack_Backup_Test extends TestCase {
 	protected function tearDown(): void {
 		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
 		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_unreachable' ) );
+		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_response_recording_timeout' ) );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ) );
 		remove_filter( 'locale', array( $this, 'mock_locale' ) );
 		wp_set_current_user( 0 );
@@ -88,10 +96,13 @@ class Jetpack_Backup_Test extends TestCase {
 			delete_transient( Jetpack_Backup::PROMOTED_PRODUCT_TRANSIENT_PREFIX . sanitize_key( $locale ) );
 		}
 
-		$this->wpcom_status  = 200;
-		$this->wpcom_body    = '{}';
-		$this->http_requests = 0;
-		$this->locale        = 'en_US';
+		$this->wpcom_status     = 200;
+		$this->wpcom_body       = '{}';
+		$this->http_requests    = 0;
+		$this->locale           = 'en_US';
+		$this->captured_timeout = null;
+
+		$this->forget_rewind_state();
 
 		parent::tearDown();
 	}
@@ -295,12 +306,9 @@ class Jetpack_Backup_Test extends TestCase {
 	 * answer is acted on: it backs `GET /jetpack/v4/has-backup-plan` and the
 	 * standalone-license upsell in `jetpack_check_user_licenses()`.
 	 *
-	 * The request count is asserted because that helper memoizes a
-	 * *successful* fetch in a function static, which no test can reset. This
-	 * is the only test in the suite that drives it to a success, so the
-	 * static should still be empty when it runs — and if some later test
-	 * changes that, this assertion says so rather than passing on a cached
-	 * answer that never touched the code under test.
+	 * The request count is asserted because the helper memoizes a readable
+	 * response: without it this would pass on a cached answer left by an
+	 * earlier test rather than on the code under test.
 	 */
 	public function test_has_backup_plan_reads_a_string_status_200() {
 		$this->sign_in_as_connected_admin();
@@ -312,6 +320,66 @@ class Jetpack_Backup_Test extends TestCase {
 
 		$this->assertSame( 1, $this->http_requests );
 		$this->assertTrue( $result );
+	}
+
+	/**
+	 * A 200 that says nothing about the plan does not answer for the rest of
+	 * the request.
+	 *
+	 * It used to be cached as though it were a real read, so one unreadable
+	 * payload told every later caller in that request that the site has no
+	 * Backup plan — and that answer is acted on: it backs
+	 * `GET /jetpack/v4/has-backup-plan` and the standalone-license upsell.
+	 *
+	 * @param string $label Human-readable case name.
+	 * @param string $body  The unreadable body.
+	 * @dataProvider provide_cacheable_unreadable_states
+	 */
+	#[DataProvider( 'provide_cacheable_unreadable_states' )]
+	public function test_has_backup_plan_does_not_cache_an_unreadable_200( $label, $body ) {
+		$this->sign_in_as_connected_admin();
+		$this->wpcom_body = $body;
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
+
+		$unreadable = Jetpack_Backup::has_backup_plan();
+
+		$this->wpcom_body = '{"state":"active"}';
+		$recovered        = Jetpack_Backup::has_backup_plan();
+
+		$this->assertFalse( $unreadable, $label );
+		$this->assertSame( 2, $this->http_requests, $label );
+		$this->assertTrue( $recovered, $label );
+	}
+
+	/**
+	 * Bodies a 200 can carry that say nothing about the plan *and* decode to a
+	 * value worth caching. An empty or invalid body decodes to null, which was
+	 * never cached, so it has nothing to prove here.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_cacheable_unreadable_states() {
+		return array(
+			array( 'a JSON list', '[]' ),
+			array( 'a response without a state', '{"last_updated":"2026-09-01T22:10:23.797+00:00"}' ),
+			array( 'a bare number', '123' ),
+			array( 'a bare string', '"active"' ),
+			array( 'a bare boolean', 'true' ),
+		);
+	}
+
+	/**
+	 * The read is no longer bounded by 2 seconds, which is about twice a
+	 * healthy round trip — so ordinary latency answered "no plan".
+	 */
+	public function test_rewind_state_read_is_not_bounded_by_two_seconds() {
+		$this->sign_in_as_connected_admin();
+		$this->wpcom_status = 503;
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response_recording_timeout' ), 10, 3 );
+
+		Jetpack_Backup::has_backup_plan();
+
+		$this->assertGreaterThan( 2, $this->captured_timeout );
 	}
 
 	public function test_list_backup_events_returns_response_and_pins_backup_actions_on_success() {
@@ -533,6 +601,22 @@ class Jetpack_Backup_Test extends TestCase {
 	}
 
 	/**
+	 * Clear the memoized rewind state, which is otherwise kept for the whole
+	 * process — one readable response would answer every later test without
+	 * reaching the transport.
+	 */
+	private function forget_rewind_state() {
+		$property = new \ReflectionProperty( Jetpack_Backup::class, 'rewind_state' );
+
+		// `setAccessible()` has been a no-op since PHP 8.1 and is deprecated in 8.5.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+
+		$property->setValue( null, null );
+	}
+
+	/**
 	 * Report the configured locale.
 	 *
 	 * @return string
@@ -640,6 +724,19 @@ class Jetpack_Backup_Test extends TestCase {
 		++$this->http_requests;
 
 		return new WP_Error( 'http_request_failed', 'The request failed.' );
+	}
+
+	/**
+	 * Mock a WordPress.com request and record the timeout it was given.
+	 *
+	 * @param false $preempt     Short-circuit value (unused).
+	 * @param array $parsed_args Request args.
+	 * @return array
+	 */
+	public function mock_wpcom_response_recording_timeout( $preempt, $parsed_args ) {
+		$this->captured_timeout = $parsed_args['timeout'] ?? null;
+
+		return $this->mock_wpcom_response();
 	}
 
 	/**

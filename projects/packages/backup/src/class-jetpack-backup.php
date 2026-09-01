@@ -131,6 +131,17 @@ class Jetpack_Backup {
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_backup';
 
 	/**
+	 * Rewind state read from WordPress.com, memoized for the request.
+	 *
+	 * A class property and not a function static so tests can clear it. Only a
+	 * readable response is stored, so nothing a later call could improve on
+	 * sticks for the rest of the request.
+	 *
+	 * @var object|null
+	 */
+	private static $rewind_state = null;
+
+	/**
 	 * Constructor.
 	 */
 	public static function initialize() {
@@ -558,46 +569,61 @@ class Jetpack_Backup {
 	/**
 	 * Hits the wpcom api to check rewind status.
 	 *
-	 * @return Object|WP_Error
+	 * No timeout override. It used to be 2 seconds, roughly twice a healthy
+	 * round trip, so ordinary latency answered as a failed read; every other
+	 * WordPress.com call in this class takes the default.
+	 *
+	 * @return object|WP_Error The decoded rewind state, or a WP_Error if WordPress.com could not be read.
 	 */
 	private static function get_rewind_state_from_wpcom() {
-		static $status = null;
-
-		if ( $status !== null ) {
-			return $status;
+		if ( self::$rewind_state !== null ) {
+			return self::$rewind_state;
 		}
 
 		$site_id = Jetpack_Options::get_option( 'id' );
 
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 2 ), null, 'wpcom' );
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array(), null, 'wpcom' );
 
 		// Cast: `wp_remote_retrieve_response_code()` hands back whatever the
 		// transport put there, and a numeric-string `'200'` fails this
-		// strict comparison. The result is memoized in `$status` and read by
-		// `has_backup_plan()`, which answers false for a `WP_Error` — so a
-		// site that does have Backup is told, for the rest of the request,
-		// that it does not. That answer is acted on: it backs the
-		// `/has-backup-plan` route and the standalone-license upsell.
+		// strict comparison. `has_backup_plan()` answers false for a
+		// `WP_Error`, so a site that does have Backup would be told it does
+		// not — and that answer is acted on: it backs the `/has-backup-plan`
+		// route and the standalone-license upsell.
 		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'rewind_state_fetch_failed' );
 		}
 
-		$body   = wp_remote_retrieve_body( $response );
-		$status = json_decode( $body );
-		return $status;
+		$state = json_decode( wp_remote_retrieve_body( $response ) );
+
+		// A 200 with no `state` is a read that failed, not a site without a
+		// plan. Caching it would hold that answer for the rest of the request;
+		// refusing lets a later caller ask again and get a real one.
+		if ( ! is_object( $state ) || ! isset( $state->state ) ) {
+			return new WP_Error( 'rewind_state_unreadable' );
+		}
+
+		self::$rewind_state = $state;
+		return self::$rewind_state;
 	}
 
 	/**
 	 * Checks whether the current plan (or purchases) of the site already supports the product
 	 *
+	 * Reads rewind *state* with a blog token rather than the capability list
+	 * `REST\Capabilities_Bridge` reads: `/rewind/capabilities` answers 401 to a
+	 * blog token, and every caller here asks before a user connection exists.
+	 *
 	 * @return boolean
 	 */
 	public static function has_backup_plan() {
 		$rewind_data = static::get_rewind_state_from_wpcom();
+
 		if ( is_wp_error( $rewind_data ) ) {
 			return false;
 		}
-		return is_object( $rewind_data ) && isset( $rewind_data->state ) && 'unavailable' !== $rewind_data->state;
+
+		return 'unavailable' !== $rewind_data->state;
 	}
 
 	/**
