@@ -284,6 +284,40 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( link ).toHaveAttribute( 'href', expect.stringContaining( 'token=abc' ) );
 		} );
 
+		it( 'opens a sized window rather than a tab when the SDK is absent', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+			const open = jest.spyOn( window, 'open' ).mockReturnValue( null );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await user.click( await screen.findByRole( 'link', { name: /Connect with PayPal/i } ) );
+
+			// target="PPFrame" exists for the SDK's lightbox; without the SDK it
+			// would send the merchant to a stray browser tab instead.
+			expect( open ).toHaveBeenCalledWith(
+				expect.stringContaining( 'merchantsignup' ),
+				'PPFrame',
+				expect.stringContaining( 'width=' )
+			);
+
+			open.mockRestore();
+		} );
+
+		it( 'leaves the click to PayPal’s SDK when it is present', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+			const open = jest.spyOn( window, 'open' ).mockReturnValue( null );
+			window.PAYPAL = { apps: { Signup: { render: jest.fn() } } };
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await user.click( await screen.findByRole( 'link', { name: /Connect with PayPal/i } ) );
+
+			expect( open ).not.toHaveBeenCalled();
+
+			delete window.PAYPAL;
+			open.mockRestore();
+		} );
+
 		it( 'exposes the completion callback for the SDK to call by name', async () => {
 			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
 
