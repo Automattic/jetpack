@@ -160,16 +160,14 @@ function getGlobalStylesPostId( bundle ) {
 /**
  * The global-styles record the editor reads its design from.
  *
- * The `GET` and the `OPTIONS` are both required: the package's selector guards on
- * `undefined !== canEdit`, which comes from the `OPTIONS`, so answering the `GET`
- * alone leaves the canvas unstyled and looks identical to the id never arriving.
+ * The `GET` and the `OPTIONS` both matter, and both carry `Allow`: core-data derives the
+ * record's permissions from either response, last one winning.
  *
  * The body has to be the record WordPress.com sent, not a placeholder — the canvas
  * takes its colours from these contents.
  *
- * `Allow` decides the read path. Without `POST`/`PUT` the package reads through
- * `getEntityRecord` rather than `getEditedEntityRecord`, which is what to ship while
- * there is no save interception: the canvas paints, the Styles panel stays read-only.
+ * `can_edit` decides whether the Styles panel exists at all. Without update permission the
+ * package's sidebar returns nothing; it does not render a read-only panel.
  *
  * Only this exact id, never a pattern — the editor loads the site's own global-styles
  * record alongside ours, and that one must keep reaching the network.
@@ -185,7 +183,12 @@ function globalStylesPreloads( bundle ) {
 		return {};
 	}
 
-	const record = { body: globalStyles.record, headers: {} };
+	// A preloaded GET carries permissions as well as data: core-data reads `Allow` off the record's
+	// own response too, and reads a missing header as "nothing is permitted" rather than as silence.
+	// The GETs resolve after the OPTIONS, so omitting it here overwrites the OPTIONS answer with a
+	// flat no and the Styles panel never renders.
+	const allow = globalStyles.can_edit ? 'GET, POST, PUT' : 'GET';
+	const record = { body: globalStyles.record, headers: { Allow: allow } };
 
 	return {
 		[ `/wp/v2/global-styles/${ id }` ]: record,
@@ -194,10 +197,7 @@ function globalStylesPreloads( bundle ) {
 
 		// OPTIONS responses live under their own top-level key in the preload format.
 		OPTIONS: {
-			[ `/wp/v2/global-styles/${ id }` ]: {
-				body: {},
-				headers: { Allow: globalStyles.can_edit ? 'GET, POST, PUT' : 'GET' },
-			},
+			[ `/wp/v2/global-styles/${ id }` ]: { body: {}, headers: { Allow: allow } },
 		},
 	};
 }
@@ -238,7 +238,10 @@ function templatePreloads( bundle, templateId ) {
 	const item = templates.find( template => template?.id === templateId );
 
 	if ( item ) {
-		const record = { body: item, headers: {} };
+		// Explicitly read-only, for the reason above: the header is an assertion, not decoration.
+		// Nothing on this screen edits the template, and granting writes here would hand the
+		// editor a template it believes it may save.
+		const record = { body: item, headers: { Allow: 'GET' } };
 
 		map[ `/wp/v2/templates/${ templateId }` ] = record;
 		map[ `/wp/v2/templates/${ templateId }?context=edit` ] = record;

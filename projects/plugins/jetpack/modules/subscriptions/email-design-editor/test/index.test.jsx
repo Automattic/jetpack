@@ -576,6 +576,59 @@ describe( 'Email design editor entry point', () => {
 			expect( renderedTheErrorState() ).toBe( false );
 		} );
 
+		describe( 'the Allow header the preloaded responses carry', () => {
+			const id = 999999999;
+
+			/**
+			 * core-data derives a record's permissions from the `GET` response as well as the
+			 * `OPTIONS` one, and reads a missing header as "nothing is permitted". The `GET`s
+			 * resolve last, so dropping the header there hides the Styles panel outright.
+			 *
+			 * @param {boolean} canEdit - What WordPress.com reported for the record.
+			 * @return {object} The preload map.
+			 */
+			function mapFor( canEdit ) {
+				const bundle = bootstrapBundle( {
+					global_styles: {
+						post_id: id,
+						can_edit: canEdit,
+						record: { id, styles: {} },
+					},
+				} );
+
+				return buildPreloadMap( bundle, templateId );
+			}
+
+			it( 'grants writes on every entry for the record when it is editable', () => {
+				const map = mapFor( true );
+
+				expect( map[ `/wp/v2/global-styles/${ id }` ].headers.Allow ).toBe( 'GET, POST, PUT' );
+				expect( map[ `/wp/v2/global-styles/${ id }?context=edit` ].headers.Allow ).toBe(
+					'GET, POST, PUT'
+				);
+				expect( map[ `/wp/v2/global-styles/${ id }?context=view` ].headers.Allow ).toBe(
+					'GET, POST, PUT'
+				);
+				expect( map.OPTIONS[ `/wp/v2/global-styles/${ id }` ].headers.Allow ).toBe(
+					'GET, POST, PUT'
+				);
+			} );
+
+			it( 'grants only reads on every entry when it is not editable', () => {
+				const map = mapFor( false );
+
+				expect( map[ `/wp/v2/global-styles/${ id }` ].headers.Allow ).toBe( 'GET' );
+				expect( map[ `/wp/v2/global-styles/${ id }?context=edit` ].headers.Allow ).toBe( 'GET' );
+				expect( map.OPTIONS[ `/wp/v2/global-styles/${ id }` ].headers.Allow ).toBe( 'GET' );
+			} );
+
+			it( 'says the template is read-only rather than saying nothing', () => {
+				const map = buildPreloadMap( bootstrapBundle(), templateId );
+
+				expect( map[ `/wp/v2/templates/${ templateId }` ].headers.Allow ).toBe( 'GET' );
+			} );
+		} );
+
 		it( 'installs nothing when the bundle sends an empty collection', () => {
 			const empty = bootstrapBundle( { templates: [], global_styles: undefined } );
 
