@@ -368,4 +368,81 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$this->assertStringNotContainsString( 'jetpack-paypal-button__product-image', $result );
 	}
+
+	// --- Per-option pricing display ---
+
+	/**
+	 * Test that the cheapest option price is shown when there is no product price.
+	 */
+	public function test_render_block_shows_from_price_for_priced_variants() {
+		$attributes = array(
+			'isApiManaged'    => true,
+			'resourceId'      => 'PLB-VAR1',
+			'paymentLink'     => 'https://www.paypal.com/ncp/payment/PLB-VAR1',
+			'productName'     => 'Widget',
+			'price'           => '',
+			'currencyCode'    => 'USD',
+			'variantsEnabled' => true,
+			'variants'        => array(
+				'dimensions' => array(
+					array(
+						'name'    => 'Size',
+						'primary' => true,
+						'options' => array(
+							array(
+								'label'       => 'Large',
+								'unit_amount' => array(
+									'currency_code' => 'USD',
+									'value'         => '20.00',
+								),
+							),
+							array(
+								'label'       => 'Small',
+								'unit_amount' => array(
+									'currency_code' => 'USD',
+									'value'         => '10.00',
+								),
+							),
+						),
+					),
+				),
+			),
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'From $10.00', $result );
+	}
+
+	/**
+	 * Test that no price is shown when neither the product nor its options are priced.
+	 */
+	public function test_render_block_omits_price_when_nothing_is_priced() {
+		$attributes = array(
+			'isApiManaged'    => true,
+			'resourceId'      => 'PLB-VAR2',
+			'paymentLink'     => 'https://www.paypal.com/ncp/payment/PLB-VAR2',
+			'productName'     => 'Widget',
+			'price'           => '',
+			'currencyCode'    => 'USD',
+			'variantsEnabled' => true,
+			'variants'        => array(
+				'dimensions' => array(
+					array(
+						'name'    => 'Size',
+						'primary' => true,
+						'options' => array( array( 'label' => 'Small' ) ),
+					),
+				),
+			),
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__product-price', $result );
+	}
 }

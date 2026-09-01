@@ -16,7 +16,7 @@
  */
 
 import { useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { CURRENCY_SYMBOLS } from './currency-symbols';
 import PayPalLogo from './paypal-logo';
 
@@ -30,6 +30,33 @@ import PayPalLogo from './paypal-logo';
 function formatPrice( priceValue, currencyCode ) {
 	const symbol = CURRENCY_SYMBOLS[ currencyCode ] || currencyCode;
 	return `${ symbol }${ priceValue }`;
+}
+
+/**
+ * Find the cheapest per-option price across the variant dimensions.
+ *
+ * When the options carry their own prices there is no product-level price to
+ * show, so the preview falls back to the cheapest option.
+ *
+ * @param {object} variants - Variants data with dimensions.
+ * @return {string|null} The lowest option price, or null when none are priced.
+ */
+function getLowestVariantPrice( variants ) {
+	let lowest = null;
+
+	( variants?.dimensions || [] ).forEach( dim => {
+		( dim.options || [] ).forEach( opt => {
+			const value = `${ opt.unit_amount?.value ?? '' }`.trim();
+			if ( value === '' || isNaN( parseFloat( value ) ) ) {
+				return;
+			}
+			if ( lowest === null || parseFloat( value ) < parseFloat( lowest ) ) {
+				lowest = value;
+			}
+		} );
+	} );
+
+	return lowest;
 }
 
 /**
@@ -99,6 +126,8 @@ export default function PayPalButtonPreview( {
 	variants,
 	imageUrl,
 } ) {
+	const lowestVariantPrice = ! price && variantsEnabled ? getLowestVariantPrice( variants ) : null;
+
 	return (
 		<div className="jetpack-paypal-button-preview">
 			{ /* Product image */ }
@@ -121,6 +150,15 @@ export default function PayPalButtonPreview( {
 				{ price && (
 					<span className="jetpack-paypal-button-preview__product-price">
 						{ formatPrice( price, currencyCode ) }
+					</span>
+				) }
+				{ ! price && lowestVariantPrice && (
+					<span className="jetpack-paypal-button-preview__product-price">
+						{ sprintf(
+							/* translators: %s: formatted price, e.g. "$29.99" */
+							__( 'From %s', 'jetpack-paypal-payments' ),
+							formatPrice( lowestVariantPrice, currencyCode )
+						) }
 					</span>
 				) }
 			</div>

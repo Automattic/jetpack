@@ -29,6 +29,12 @@ const helpVariantsOff = __(
 	'Add size, color, or other product options.',
 	'jetpack-paypal-payments'
 );
+// PayPal accepts a price at the product level or the option level, never both,
+// so per-option pricing is all-or-nothing across the group.
+const helpOptionPrice = __(
+	'Price every option in this group, or leave them all empty to charge the product price.',
+	'jetpack-paypal-payments'
+);
 
 const MAX_GROUPS = 5;
 const MAX_OPTIONS = 10;
@@ -75,6 +81,38 @@ function createOption( withPricing = false, currency = 'USD' ) {
 }
 
 /**
+ * Find the primary option group — the one that carries per-option pricing.
+ *
+ * @param {object} variants - The variants data.
+ * @return {object|null} The primary dimension, or null when there isn't one.
+ */
+export function getPrimaryDimension( variants ) {
+	return variants?.dimensions?.find( dim => dim.primary ) || null;
+}
+
+/**
+ * Whether per-option pricing is in use.
+ *
+ * PayPal rejects a request that carries `unit_amount` at both the product
+ * level and the variant level, so the two are mutually exclusive: as soon as
+ * one option in the primary group has a price, the product-level price is
+ * dropped and every option must carry its own.
+ *
+ * @param {boolean} enabled  - Whether variants are enabled.
+ * @param {object}  variants - The variants data.
+ * @return {boolean} True when at least one primary option has a price.
+ */
+export function hasVariantPricing( enabled, variants ) {
+	if ( ! enabled ) {
+		return false;
+	}
+
+	const primary = getPrimaryDimension( variants );
+
+	return !! primary?.options?.some( opt => `${ opt.unit_amount?.value ?? '' }`.trim() !== '' );
+}
+
+/**
  * Validate variant data and return error messages.
  *
  * @param {boolean} enabled  - Whether variants are enabled.
@@ -87,6 +125,7 @@ export function validateVariants( enabled, variants ) {
 	}
 
 	const errors = [];
+	const perOptionPricing = hasVariantPricing( enabled, variants );
 
 	variants.dimensions.forEach( ( dim, i ) => {
 		if ( ! dim.name?.trim() ) {
@@ -111,9 +150,32 @@ export function validateVariants( enabled, variants ) {
 				);
 			}
 
-			if ( dim.primary && opt.unit_amount?.value ) {
-				const val = parseFloat( opt.unit_amount.value );
-				if ( isNaN( val ) || val < 0 ) {
+			if ( ! dim.primary ) {
+				return;
+			}
+
+			const rawValue = `${ opt.unit_amount?.value ?? '' }`.trim();
+
+			// Per-option pricing replaces the product-level price, so it is
+			// all-or-nothing: a half-filled group would leave options unpriced.
+			if ( perOptionPricing && rawValue === '' ) {
+				errors.push(
+					sprintf(
+						/* translators: 1: option label or number, 2: group name */
+						__(
+							'Price for "%1$s" in "%2$s" is required once any option in the group has its own price.',
+							'jetpack-paypal-payments'
+						),
+						opt.label || `Option ${ j + 1 }`,
+						dim.name || `#${ i + 1 }`
+					)
+				);
+				return;
+			}
+
+			if ( rawValue !== '' ) {
+				const val = parseFloat( rawValue );
+				if ( isNaN( val ) || val <= 0 ) {
 					errors.push(
 						sprintf(
 							/* translators: 1: option label or number, 2: group name */
@@ -264,9 +326,9 @@ function GroupEditor( { group, index, currencyCode, onChange, onRemove, onSetPri
 								type="number"
 								min="0.01"
 								step="0.01"
-								placeholder={ __( 'Same as base price', 'jetpack-paypal-payments' ) }
+								placeholder={ __( 'Same as product price', 'jetpack-paypal-payments' ) }
 								disabled={ disabled }
-								help={ __( 'Leave empty to use the base price.', 'jetpack-paypal-payments' ) }
+								help={ helpOptionPrice }
 							/>
 						) }
 						{ group.options.length > 1 && (

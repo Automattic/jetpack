@@ -1011,6 +1011,123 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * Test that a line item priced only through its options is accepted.
+	 *
+	 * PayPal rejects a line item carrying unit_amount at both the product and
+	 * the variant level, so the editor omits the product-level amount.
+	 */
+	public function test_create_button_accepts_variant_priced_item_without_product_price() {
+		$this->set_up_connected_admin_state();
+
+		$this->mock_http_response(
+			201,
+			array(
+				'id'           => 'PLB-VARIANT123',
+				'payment_link' => 'https://www.paypal.com/ncp/payment/VARIANT123',
+				'status'       => 'ACTIVE',
+			)
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/buttons' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'LINK' );
+		$request->set_param( 'reusable', 'MULTIPLE' );
+		$request->set_param(
+			'line_items',
+			array(
+				array(
+					'name'     => 'Widget',
+					'variants' => $this->variants_with_prices( array( '10.00', '20.00' ) ),
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_create_button( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertSame( 201, $result->get_status() );
+	}
+
+	/**
+	 * Test that a product price is still required when the options are unpriced.
+	 */
+	public function test_create_button_requires_product_price_for_unpriced_variants() {
+		$this->set_up_connected_admin_state();
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/buttons' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'LINK' );
+		$request->set_param(
+			'line_items',
+			array(
+				array(
+					'name'     => 'Widget',
+					'variants' => $this->variants_with_prices( array( '', '' ) ),
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_create_button( $request );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'missing_price', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that per-option pricing is rejected when only some options are priced.
+	 */
+	public function test_create_button_rejects_partially_priced_variants() {
+		$this->set_up_connected_admin_state();
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/buttons' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'LINK' );
+		$request->set_param(
+			'line_items',
+			array(
+				array(
+					'name'     => 'Widget',
+					'variants' => $this->variants_with_prices( array( '10.00', '' ) ),
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_create_button( $request );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'missing_variant_price', $result->get_error_code() );
+	}
+
+	/**
+	 * Build a variants structure with a single primary dimension.
+	 *
+	 * @param array $prices One price string per option; '' means "no price".
+	 * @return array Variants structure.
+	 */
+	private function variants_with_prices( array $prices ) {
+		$options = array();
+		foreach ( $prices as $i => $price ) {
+			$options[] = array(
+				'label'       => 'Option ' . ( $i + 1 ),
+				'unit_amount' => array(
+					'currency_code' => 'USD',
+					'value'         => $price,
+				),
+			);
+		}
+
+		return array(
+			'dimensions' => array(
+				array(
+					'name'    => 'Size',
+					'primary' => true,
+					'options' => $options,
+				),
+			),
+		);
+	}
+
+	/**
 	 * Mock an HTTP response for the next wp_remote_request call.
 	 *
 	 * @param int          $status_code HTTP status code.

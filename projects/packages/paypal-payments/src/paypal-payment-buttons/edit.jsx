@@ -49,7 +49,7 @@ import {
 	MAX_NAME_LENGTH,
 	MAX_DESCRIPTION_LENGTH,
 } from './validation';
-import VariantBuilder, { validateVariants } from './variant-builder';
+import VariantBuilder, { hasVariantPricing, validateVariants } from './variant-builder';
 
 /**
  * Supported currencies for the currency selector.
@@ -206,6 +206,12 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	const helpQtyOff = __( 'Fixed at 1 unit per purchase.', 'jetpack-paypal-payments' );
 	const helpTaxOn = __( 'Tax will be added at PayPal checkout.', 'jetpack-paypal-payments' );
 	const helpTaxOff = __( 'No tax collected.', 'jetpack-paypal-payments' );
+	const labelPrice = __( 'Price', 'jetpack-paypal-payments' );
+	const labelPriceOptional = __( 'Price (not used)', 'jetpack-paypal-payments' );
+	const helpPriceFromOptions = __(
+		'Each product option sets its own price, so this value is ignored.',
+		'jetpack-paypal-payments'
+	);
 
 	// Connection state.
 	const [ isConnected, setIsConnected ] = useState( false );
@@ -291,20 +297,35 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	}, [] );
 
 	/**
+	 * Whether the options group carries its own per-option prices.
+	 *
+	 * PayPal rejects a request with `unit_amount` at both the product and the
+	 * variant level, so per-option prices replace the product-level price
+	 * rather than sitting alongside it.
+	 */
+	const usesVariantPricing = useMemo(
+		() => hasVariantPricing( variantsEnabled, variants ),
+		[ variantsEnabled, variants ]
+	);
+
+	/**
 	 * Compute validation errors for all form fields.
 	 * Memoized to avoid re-computing on every render.
 	 */
 	const validationErrors = useMemo(
 		() => ( {
 			productName: validateProductName( productName ),
-			price: validatePrice( price ),
+			// The product price is only required when the options aren't priced
+			// individually. A stray value is still validated so it can't be sent
+			// half-formed if the merchant clears the per-option prices later.
+			price: usesVariantPricing && ! price ? null : validatePrice( price ),
 			productDescription: validateDescription( productDescription ),
 			currencyCode:
 				currencyCode && ! VALID_CURRENCY_CODES.has( currencyCode )
 					? __( 'Unsupported currency.', 'jetpack-paypal-payments' )
 					: null,
 		} ),
-		[ productName, price, productDescription, currencyCode ]
+		[ productName, price, productDescription, currencyCode, usesVariantPricing ]
 	);
 
 	/**
@@ -601,10 +622,17 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 			line_items: [
 				{
 					name: productName,
-					unit_amount: {
-						currency_code: currencyCode || 'USD',
-						value: price,
-					},
+					// PayPal errors with "unit_amount is specified at both product
+					// level and variant level" when both are present, so the
+					// product-level amount is dropped once options are priced.
+					...( usesVariantPricing
+						? {}
+						: {
+								unit_amount: {
+									currency_code: currencyCode || 'USD',
+									value: price,
+								},
+						  } ),
 					...( productDescription ? { description: productDescription } : {} ),
 					...( variantsEnabled && variants ? { variants } : {} ),
 					...( adjustableQuantity && maxQuantity > 1
@@ -636,6 +664,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 			returnUrl,
 			variantsEnabled,
 			variants,
+			usesVariantPricing,
 			adjustableQuantity,
 			maxQuantity,
 			customerNotes,
@@ -1466,7 +1495,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				<div className="jetpack-paypal-payment-buttons__price-row">
 					<div>
 						<TextControl
-							label={ __( 'Price', 'jetpack-paypal-payments' ) }
+							label={ usesVariantPricing ? labelPriceOptional : labelPrice }
 							value={ price || '' }
 							onChange={ value => setAttributes( { price: value } ) }
 							onBlur={ () => markTouched( 'price' ) }
@@ -1476,7 +1505,9 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 							step="0.01"
 							placeholder="29.99"
 							help={
-								touchedFields.price && validationErrors.price ? validationErrors.price : undefined
+								touchedFields.price && validationErrors.price
+									? validationErrors.price
+									: ( usesVariantPricing && helpPriceFromOptions ) || undefined
 							}
 							className={ touchedFields.price && validationErrors.price ? 'has-error' : undefined }
 						/>

@@ -552,6 +552,179 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 		);
 	}
 
+	// --- Per-option (variant) pricing ---
+
+	/**
+	 * Build a variants structure with a primary dimension.
+	 *
+	 * @param array $prices One price string per option; '' means "no price".
+	 * @return array Variants structure in block-attribute shape.
+	 */
+	private function variants_with_prices( array $prices ) {
+		$options = array();
+		foreach ( $prices as $i => $price ) {
+			$option = array( 'label' => 'Option ' . ( $i + 1 ) );
+			if ( null !== $price ) {
+				$option['unit_amount'] = array(
+					'currency_code' => 'USD',
+					'value'         => $price,
+				);
+			}
+			$options[] = $option;
+		}
+
+		return array(
+			'dimensions' => array(
+				array(
+					'name'    => 'Size',
+					'primary' => true,
+					'options' => $options,
+				),
+			),
+		);
+	}
+
+	/**
+	 * Test that variants_have_pricing detects a priced option.
+	 */
+	public function test_variants_have_pricing_detects_priced_options() {
+		$this->assertTrue(
+			PayPal_Attribute_Mapper::variants_have_pricing( $this->variants_with_prices( array( '10.00', '20.00' ) ) )
+		);
+	}
+
+	/**
+	 * Test that variants_have_pricing ignores empty and missing amounts.
+	 */
+	public function test_variants_have_pricing_ignores_unpriced_options() {
+		$this->assertFalse(
+			PayPal_Attribute_Mapper::variants_have_pricing( $this->variants_with_prices( array( '', null ) ) )
+		);
+		$this->assertFalse( PayPal_Attribute_Mapper::variants_have_pricing( null ) );
+		$this->assertFalse( PayPal_Attribute_Mapper::variants_have_pricing( array() ) );
+	}
+
+	/**
+	 * Test that a price on a non-primary dimension does not count.
+	 */
+	public function test_variants_have_pricing_ignores_non_primary_dimensions() {
+		$variants                             = $this->variants_with_prices( array( '10.00' ) );
+		$variants['dimensions'][0]['primary'] = false;
+
+		$this->assertFalse( PayPal_Attribute_Mapper::variants_have_pricing( $variants ) );
+	}
+
+	/**
+	 * Test that the product-level unit_amount is dropped when the options are priced.
+	 *
+	 * PayPal rejects a line item carrying unit_amount at both levels.
+	 */
+	public function test_attributes_to_api_request_drops_product_price_for_priced_variants() {
+		$request = PayPal_Attribute_Mapper::attributes_to_api_request(
+			array(
+				'productName'     => 'Widget',
+				'price'           => '29.99',
+				'currencyCode'    => 'USD',
+				'variantsEnabled' => true,
+				'variants'        => $this->variants_with_prices( array( '10.00', '20.00' ) ),
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'unit_amount', $request['line_items'][0] );
+		$this->assertSame(
+			'10.00',
+			$request['line_items'][0]['variants']['dimensions'][0]['options'][0]['unit_amount']['value']
+		);
+	}
+
+	/**
+	 * Test that the product-level unit_amount is kept when the options are unpriced.
+	 */
+	public function test_attributes_to_api_request_keeps_product_price_for_unpriced_variants() {
+		$request = PayPal_Attribute_Mapper::attributes_to_api_request(
+			array(
+				'productName'     => 'Widget',
+				'price'           => '29.99',
+				'currencyCode'    => 'USD',
+				'variantsEnabled' => true,
+				'variants'        => $this->variants_with_prices( array( '', '' ) ),
+			)
+		);
+
+		$this->assertSame( '29.99', $request['line_items'][0]['unit_amount']['value'] );
+		$this->assertArrayNotHasKey(
+			'unit_amount',
+			$request['line_items'][0]['variants']['dimensions'][0]['options'][0]
+		);
+	}
+
+	/**
+	 * Test that the product price is optional once the options carry their own.
+	 */
+	public function test_validate_allows_missing_price_with_variant_pricing() {
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'     => 'Widget',
+				'currencyCode'    => 'USD',
+				'variantsEnabled' => true,
+				'variants'        => $this->variants_with_prices( array( '10.00', '20.00' ) ),
+			)
+		);
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test that the product price is still required without variant pricing.
+	 */
+	public function test_validate_still_requires_price_without_variant_pricing() {
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'     => 'Widget',
+				'currencyCode'    => 'USD',
+				'variantsEnabled' => true,
+				'variants'        => $this->variants_with_prices( array( '', '' ) ),
+			)
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'missing_price', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that per-option pricing is all-or-nothing.
+	 */
+	public function test_validate_rejects_partially_priced_variants() {
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'     => 'Widget',
+				'currencyCode'    => 'USD',
+				'variantsEnabled' => true,
+				'variants'        => $this->variants_with_prices( array( '10.00', '' ) ),
+			)
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'missing_variant_price', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that an invalid per-option price is rejected.
+	 */
+	public function test_validate_rejects_invalid_variant_price() {
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'     => 'Widget',
+				'currencyCode'    => 'USD',
+				'variantsEnabled' => true,
+				'variants'        => $this->variants_with_prices( array( '10.00', '0' ) ),
+			)
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'invalid_variant_price', $result->get_error_code() );
+	}
+
 	// --- Constants ---
 
 	/**
