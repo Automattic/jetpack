@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Charts: update chart grid, axis and label colors immediately when the theme changes.

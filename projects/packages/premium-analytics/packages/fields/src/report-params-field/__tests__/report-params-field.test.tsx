@@ -337,6 +337,25 @@ describe( 'report params field', () => {
 		);
 	} );
 
+	// Re-picking the item that already has the checkmark changes nothing, so the
+	// widget must not save and Apply must stay greyed out (WOOA7S-2039).
+	it( 'saves nothing when No comparison is re-picked with none applied', async () => {
+		const user = userEvent.setup();
+		const { saved } = renderField();
+
+		await user.click( screen.getByRole( 'button', { name: /compare/i } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: 'No comparison' } ) );
+
+		expect( saved ).toHaveLength( 0 );
+
+		await openCustomRange( user );
+
+		await expect( screen.findByRole( 'button', { name: 'Apply' } ) ).resolves.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
 	// Committing the comparison on its own would apply the range draft with it.
 	it( 'holds a comparison picked mid-draft until Apply', async () => {
 		const user = userEvent.setup();

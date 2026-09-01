@@ -19,6 +19,7 @@ import { statsArchivesQuery } from '../stats-archives-query';
 import { statsClicksQuery } from '../stats-clicks-query';
 import { statsCommentFollowersQuery } from '../stats-comment-followers-query';
 import { statsCommentsQuery } from '../stats-comments-query';
+import { statsCountryViewsQuery } from '../stats-country-views-query';
 import { statsDevicesQuery } from '../stats-devices-query';
 import {
 	statsEmailClicksBreakdownQuery,
@@ -46,8 +47,10 @@ import {
 	statsSubscribersReportQuery,
 } from '../stats-subscribers-query';
 import { statsTagsQuery } from '../stats-tags-query';
+import { statsTopAuthorsQuery } from '../stats-top-authors-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import { statsUtmQuery } from '../stats-utm-query';
+import { statsVideoPlaysQuery } from '../stats-video-plays-query';
 import { statsVideoPlaysSummaryQuery } from '../stats-video-plays-summary-query';
 import { statsVisitsQuery } from '../stats-visits-query';
 import { statsWordAdsEarningsQuery, statsWordAdsStatsQuery } from '../stats-wordads-query';
@@ -244,6 +247,19 @@ describe( 'Stats query factories', () => {
 		).toEqual( { period: 'day', quantity: 30, date: '2026-06-01', stats_fields: 'timeline' } );
 	} );
 
+	it( 'keeps a same-day pinned window on daily buckets', () => {
+		// A send from today pins from/to to the same day with `interval: 'day'`
+		// (see `useEmailTabScope`); the request must stay daily, not collapse
+		// to hourly buckets.
+		expect(
+			statsEmailOpensTimeSeriesQuery( 41, {
+				from: '2026-08-31',
+				to: '2026-08-31',
+				interval: 'day',
+			} ).queryKey[ 5 ]
+		).toEqual( { period: 'day', quantity: 1, date: '2026-08-31', stats_fields: 'timeline' } );
+	} );
+
 	it( 'requests 24 hourly buckets per day so multi-day hourly ranges are not truncated', () => {
 		expect(
 			statsEmailClicksTimeSeriesQuery( 41, {
@@ -383,7 +399,6 @@ describe( 'Stats query factories', () => {
 				expect.objectContaining( {
 					date: '2026-06-07',
 					start_date: '2026-06-01',
-					days: 7,
 					summarize: 1,
 				} ),
 			] )
@@ -404,7 +419,6 @@ describe( 'Stats query factories', () => {
 				expect.objectContaining( {
 					date: '2026-06-07T23:59:59.999-07:00',
 					start_date: '2026-06-01T00:00:00.000-07:00',
-					days: 7,
 				} ),
 			] )
 		);
@@ -570,6 +584,37 @@ describe( 'Stats query factories', () => {
 		);
 	} );
 
+	// None of the list endpoints declares `days`, so WPCOM drops it before the
+	// handler runs and the window comes from `start_date` + `date` instead.
+	it.each( [
+		[ 'top-posts', statsTopPostsQuery ],
+		[ 'archives', statsArchivesQuery ],
+		[ 'top-authors', statsTopAuthorsQuery ],
+		[ 'country-views', statsCountryViewsQuery ],
+		[ 'location-views', statsLocationsQuery ],
+		[ 'video-plays', statsVideoPlaysQuery ],
+		[ 'clicks', statsClicksQuery ],
+		[ 'referrers', statsReferrersQuery ],
+		[ 'search-terms', statsSearchTermsQuery ],
+		[ 'file-downloads', statsFileDownloadsQuery ],
+	] )( 'omits the unsupported days parameter from the %s range request', ( _name, factory ) => {
+		const query = factory( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+		} as StatsReportParams );
+
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
+		// `summarize` and `period` are derived from `days` before it is dropped, so
+		// they belong here: moving the omission any earlier would silently lose them.
+		expect( query.queryKey[ 5 ] ).toMatchObject( {
+			start_date: '2026-06-01',
+			date: '2026-06-07',
+			period: 'day',
+			summarize: 1,
+		} );
+	} );
+
 	it( 'builds tags query keys for the Calypso endpoint path', () => {
 		const query = statsTagsQuery( {} );
 
@@ -690,10 +735,16 @@ describe( 'Stats query factories', () => {
 			interval: 'week',
 		} );
 
-		// `days` counts calendar days, so a leaked `period=week` would cover
-		// `days` weeks instead of the requested range.
+		// A leaked `period=week` would make the endpoint recount the window in weeks
+		// instead of the requested days.
 		expect( query.queryKey ).toEqual(
-			expect.arrayContaining( [ expect.objectContaining( { period: 'day', days: 158 } ) ] )
+			expect.arrayContaining( [
+				expect.objectContaining( {
+					period: 'day',
+					start_date: '2026-01-01',
+					date: '2026-06-07',
+				} ),
+			] )
 		);
 	} );
 
@@ -722,7 +773,6 @@ describe( 'Stats query factories', () => {
 			expect.arrayContaining( [
 				expect.objectContaining( {
 					date: '2026-06-07',
-					days: 7,
 					summarize: false,
 				} ),
 			] )

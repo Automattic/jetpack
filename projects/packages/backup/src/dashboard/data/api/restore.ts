@@ -75,6 +75,17 @@ const SETTLED_ROW_STATUSES = new Set( [
 ] );
 
 /**
+ * Spellings in that same vocabulary that mean the restore worked.
+ *
+ * Both, because `Restore_Bridge::STATUS_MAP` maps `success` to `finished` while
+ * `GET /jetpack/v4/restores` returns WordPress.com's body unmapped. Matching
+ * only `finished` would silence the review prompt's restore trigger site-wide
+ * with nothing to notice. `success-with-errors` stays out, and an unrecognised
+ * spelling counts as not succeeded — the harmless direction here is not asking.
+ */
+const SUCCEEDED_ROW_STATUSES = new Set( [ 'finished', 'success' ] );
+
+/**
  * One row of `GET /jetpack/v4/restores` — the last ten restores, any state.
  *
  * `when` is WordPress.com's own ISO-8601 timestamp and is compared only
@@ -82,15 +93,25 @@ const SETTLED_ROW_STATUSES = new Set( [
  * minutes ahead of the server would otherwise reject the restore it had
  * just started, and recovery would fail for the whole session.
  *
- * `settled` is the quarantined reading of the row's `status` — see
- * `SETTLED_ROW_STATUSES`. The raw spelling is deliberately not carried
- * any further than this file.
+ * `settled` and `succeeded` are the quarantined readings of the row's
+ * `status` — see `SETTLED_ROW_STATUSES` and `SUCCEEDED_ROW_STATUSES`. The
+ * raw spelling is deliberately not carried any further than this file.
  */
 export type RecentRestore = {
 	restore_id: number;
 	rewind_id: string;
 	when: string;
 	settled: boolean;
+	/**
+	 * Whether this restore finished and worked.
+	 *
+	 * A separate reading from `settled` rather than a refinement of it,
+	 * because the two answer different questions: `settled` is "is there
+	 * anything left to wait for", which an aborted or failed restore also
+	 * satisfies, and this is "did the site actually come back". Only the
+	 * review prompt asks the second one.
+	 */
+	succeeded: boolean;
 };
 
 /** Statuses that mean the restore is still going, or might be. */
@@ -263,6 +284,8 @@ export async function fetchRecentRestores(): Promise< RecentRestore[] | null > {
 			when: typeof row.when === 'string' ? row.when : '',
 			settled:
 				typeof row.status === 'string' && SETTLED_ROW_STATUSES.has( row.status.toLowerCase() ),
+			succeeded:
+				typeof row.status === 'string' && SUCCEEDED_ROW_STATUSES.has( row.status.toLowerCase() ),
 		} ) )
 		.filter( row => row.restore_id > 0 );
 }

@@ -163,6 +163,55 @@ class Rest_Activity_Log_Bridge_Test extends TestCase {
 	}
 
 	/**
+	 * The sort direction reaches WordPress.com.
+	 *
+	 * Asserted on the outgoing URL: the dashboard holds one page of a paginated
+	 * log, so a direction that stopped at the bridge would only sort ten rows.
+	 */
+	public function test_forwards_the_sort_direction() {
+		$this->arrange_wpcom( array( 'current' => array( 'orderedItems' => array() ) ) );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/site/rewindable-activity' );
+		$request->set_param( 'page', 1 );
+		$request->set_param( 'number', 10 );
+		$request->set_param( 'sort_order', 'asc' );
+		Activity_Log_Bridge::get_activity_log( $request );
+
+		$this->assertStringContainsString( 'sort_order=asc', $this->captured_url );
+	}
+
+	/**
+	 * Absent means absent, not empty.
+	 *
+	 * `array_filter` drops the key so WordPress.com applies its own `desc`
+	 * default; sending `sort_order=` would fail the route's `enum`.
+	 */
+	public function test_omits_the_sort_direction_when_none_is_given() {
+		$this->arrange_wpcom( array( 'current' => array( 'orderedItems' => array() ) ) );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/site/rewindable-activity' );
+		$request->set_param( 'page', 1 );
+		$request->set_param( 'number', 10 );
+		Activity_Log_Bridge::get_activity_log( $request );
+
+		$this->assertStringNotContainsString( 'sort_order', $this->captured_url );
+	}
+
+	/**
+	 * A direction outside the enum is refused here, not by WordPress.com.
+	 *
+	 * Dispatched through the REST server because `args` validation is its job.
+	 */
+	public function test_rejects_a_direction_outside_the_enum() {
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/site/rewindable-activity' );
+		$request->set_param( 'sort_order', 'sideways' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+	}
+
+	/**
 	 * A success code reported as a string is a success.
 	 *
 	 * `wp_remote_retrieve_response_code()` hands back whatever the

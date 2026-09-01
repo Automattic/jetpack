@@ -25,7 +25,7 @@ import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { PostDetailTabs, PostSummaryCard } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
-import { usePostDetailTabs, usePostSummary } from './hooks';
+import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 import styles from './stage.module.scss';
 
@@ -56,11 +56,29 @@ function PostDetail(): JSX.Element {
 	const { postId: postIdParam } = useParams( { from: ROUTE_FROM } ) as { postId?: string };
 	const postId = Number( postIdParam );
 
-	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs( postId );
-
 	const summary = usePostSummary( postId );
 
 	const publicUrl = safeHttpUrl( summary.url );
+
+	// The resource, date range, and comparison all live in the URL search params.
+	const dateFilters = useReportDateFilters( ROUTE_FROM );
+	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
+
+	// The email tabs report over the first 30 days after the send rather than
+	// the URL range (WOOA7S-1945): their widgets take these params in place of
+	// the URL's.
+	const emailScope = useEmailTabScope( postId, dateControls.allTimeStart, dateFilters.timeZone );
+
+	// With the summary failed the publish day will never arrive, so the email
+	// tabs mount their fixed layout and let each widget surface its own error.
+	const emailScopeBlocked = ! emailScope && ! summary.isLoading && summary.isError;
+
+	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs(
+		postId,
+		emailScope?.reportParams,
+		emailScopeBlocked
+	);
+	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
 
 	const widgetModules = useSelect(
 		select =>
@@ -92,6 +110,7 @@ function PostDetail(): JSX.Element {
 						...base,
 						name: variant.name,
 						title: variant.getTitle(),
+						...( variant.getHelp ? { help: variant.getHelp() } : {} ),
 						...( variant.icon ? { icon: variant.icon } : {} ),
 				  } ) )
 				: [];
@@ -99,10 +118,6 @@ function PostDetail(): JSX.Element {
 
 		return aliases.length ? [ ...widgetTypes, ...aliases ] : widgetTypes;
 	}, [ widgetTypes ] );
-
-	// The resource, date range, and comparison all live in the URL search params.
-	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
 
 	// The header row hosts the panel in a shrink-to-fit slot, so the panel measures
 	// the row itself to pick its responsive layout; see the `containerElement` prop.
@@ -149,25 +164,32 @@ function PostDetail(): JSX.Element {
 							 */ }
 							<div ref={ setHeaderElement } className={ styles.header }>
 								<div className={ styles.summary }>
+									{ /* The email tabs give the header an email identity and report over
+									     the send window; the title stays the post's. */ }
 									<PostSummaryCard
 										summary={ summary }
-										variant={ EMAIL_TAB_IDS.includes( activeTab ) ? 'email' : 'post' }
-										performanceRange={ dateFilters.appliedRange }
+										variant={ isEmailTab ? 'email' : 'post' }
+										performanceRange={ isEmailTab ? emailScope?.range : dateFilters.appliedRange }
 									/>
 								</div>
-								<div className={ styles.dateFilters }>
-									{ /*
-									 * The design has no comparison on this page. The panel reads
-									 * that from the scope the stage declares; the params themselves
-									 * stay in the URL so the breadcrumb carries them back out.
-									 */ }
-									<DateFiltersPanel
-										{ ...dateFilters }
-										{ ...dateControls }
-										containerElement={ headerElement }
-										reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
-									/>
-								</div>
+								{ /* The email tabs are pinned to the send window, so the filter
+								     would only suggest a choice they do not offer; the range stays in
+								     the URL so the Post traffic tab keeps its selection. */ }
+								{ ! isEmailTab && (
+									<div className={ styles.dateFilters }>
+										{ /*
+										 * The design has no comparison on this page. The panel reads
+										 * that from the scope the stage declares; the params themselves
+										 * stay in the URL so the breadcrumb carries them back out.
+										 */ }
+										<DateFiltersPanel
+											{ ...dateFilters }
+											{ ...dateControls }
+											containerElement={ headerElement }
+											reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
+										/>
+									</div>
+								) }
 							</div>
 							{ tabs.map( tab => (
 								<SectionTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>

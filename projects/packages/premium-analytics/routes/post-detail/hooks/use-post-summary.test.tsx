@@ -69,11 +69,13 @@ function mockEntities( records: Record< EntityKey, unknown > ) {
  *
  * @param post      - The raw post row, or `undefined` for a query with no data.
  * @param isLoading - Whether the query is still resolving.
+ * @param isError   - Whether the query failed.
  */
-function mockStatsPost( post?: Record< string, unknown >, isLoading = false ) {
+function mockStatsPost( post?: Record< string, unknown >, isLoading = false, isError = false ) {
 	mockUseStatsPost.mockReturnValue( {
 		data: post ? { post } : undefined,
 		isLoading,
+		isError,
 	} as unknown as ReturnType< typeof useStatsPost > );
 }
 
@@ -111,6 +113,7 @@ describe( 'usePostSummary', () => {
 			imageUrl: 'https://example.com/thumb.jpg',
 			url: 'https://example.com/hello-world/',
 			isLoading: false,
+			isError: false,
 		} );
 	} );
 
