@@ -99,7 +99,7 @@ export default function LocationsReportPage(): JSX.Element {
 		tab: activeTab,
 		code: '',
 	} );
-	if ( pickedCountry.tab !== activeTab ) {
+	if ( pickedCountry.tab !== activeTab && pickedCountry.code ) {
 		setPickedCountry( { tab: activeTab, code: '' } );
 	}
 	const countryFilter = pickedCountry.tab === activeTab ? pickedCountry.code : '';
