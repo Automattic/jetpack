@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Premium Analytics: add a REST route for turning the dashboard on and off for a site, authorised by a blog token or a site administrator.

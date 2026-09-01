@@ -1018,6 +1018,12 @@ class Jetpack {
 			\Automattic\Jetpack\PremiumAnalytics\Analytics::init();
 		}
 
+		// Deliberately outside the check above: this is the route that turns the flag on, so it
+		// has to answer while the dashboard is still off.
+		if ( class_exists( 'Automattic\Jetpack\PremiumAnalytics\REST\Status_Controller' ) ) {
+			\Automattic\Jetpack\PremiumAnalytics\REST\Status_Controller::register();
+		}
+
 		$config->ensure(
 			'connection',
 			array(

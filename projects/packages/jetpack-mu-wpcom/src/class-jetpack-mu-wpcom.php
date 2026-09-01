@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\PremiumAnalytics\Analytics as Premium_Analytics;
+use Automattic\Jetpack\PremiumAnalytics\REST\Status_Controller as Premium_Analytics_Status_Controller;
 
 define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
 /**
@@ -92,6 +93,7 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_premium_analytics' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_premium_analytics_status_endpoint' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_podcast' ) );
@@ -835,6 +837,16 @@ class Jetpack_Mu_Wpcom {
 		 * @param int  $blog_id WPCOM blog ID.
 		 */
 		return (bool) apply_filters( 'jetpack_premium_analytics_wpcom_simple_enabled', $enabled, $blog_id );
+	}
+
+	/**
+	 * Register the route that turns Premium Analytics on and off for a Simple site.
+	 *
+	 * Deliberately not behind should_load_wpcom_simple_premium_analytics(): this is the route that
+	 * flips that gate, so it has to answer while the dashboard is still off.
+	 */
+	public static function load_wpcom_simple_premium_analytics_status_endpoint() {
+		Premium_Analytics_Status_Controller::register();
 	}
 
 	/**
