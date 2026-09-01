@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the Jetpack Comments module (JETPACK-2407 hardening).
+ * Tests for the Jetpack Comments module.
  *
  * @package automattic/jetpack
  */
@@ -17,8 +17,8 @@ class Jetpack_Comments_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
-	 * The XSS payload from HackerOne #3955911: a stored `$1` that the old sink expanded
-	 * into the captured quote, breaking out of the avatar src attribute.
+	 * A stored `$1` that a preg_replace() sink would expand into the captured quote,
+	 * breaking out of the avatar src attribute.
 	 */
 	const XSS_AVATAR = 'https://graph.facebook.com/x?$1onerror=alert(document.domain)//';
 
