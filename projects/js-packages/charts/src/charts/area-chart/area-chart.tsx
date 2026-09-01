@@ -217,6 +217,8 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 						scaleDomain: options?.xScale?.domain as [ Date, Date ] | undefined,
 						zoomDomain: zoom.domain as [ Date, Date ] | undefined,
 						formatting,
+						// No `isSeriesRendered`: a hidden area stays mounted with a zeroed
+						// yAccessor, so it still contributes to the x domain.
 					} ),
 					y: {
 						orientation: 'left' as const,

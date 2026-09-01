@@ -177,15 +177,20 @@ export const getBucketInfo = (
 	displayResolution: getBucketResolution( sortedData, tickResolution ),
 } );
 
-// Pick the most informative tick formatter for the data's bucket resolution and
-// time span. Month-or-coarser buckets are formatted from the resolution alone —
-// they carry no day to print at any span — while finer buckets narrow with the
-// span: hours within a day, hours with day boundaries for sub-daily data
-// spanning up to a week, calendar dates within a year, otherwise years.
+/**
+ * The most informative tick format for a bucket resolution and the span on screen.
+ *
+ * @param sortedData     - Series as returned by `useChartDataTransform`.
+ * @param tickResolution - Caller-declared bucket resolution, when known.
+ * @param formatting     - Host locale and time zone.
+ * @param domain         - The effective scale domain, or undefined for the data's own extent.
+ * @return The formatter the axis labels its ticks with.
+ */
 export const getFormatter = (
 	sortedData: ReturnType< typeof useChartDataTransform >,
 	tickResolution?: TickResolution,
-	formatting: ChartFormatting = {}
+	formatting: ChartFormatting = {},
+	domain?: [ Date, Date ]
 ): TickFormat => {
 	const format = tickFormats( formatting );
 	const resolution = getBucketResolution( sortedData, tickResolution );
@@ -200,7 +205,11 @@ export const getFormatter = (
 		return format.monthOrYear;
 	}
 
-	const span = getSpan( sortedData );
+	// Narrowing by span is a readability call about what is on screen, so it reads
+	// the domain when there is one; the resolution above stays keyed on the data.
+	const span = domain
+		? { minX: domain[ 0 ].getTime(), maxX: domain[ 1 ].getTime() }
+		: getSpan( sortedData );
 	if ( ! span ) {
 		return format.date;
 	}
@@ -218,6 +227,19 @@ export const getFormatter = (
 	// Beyond a year, dates repeat often enough under tick sampling that the year
 	// is the only part worth printing.
 	return Math.abs( differenceInYears( span.maxX, span.minX ) ) <= 1 ? format.date : format.year;
+};
+
+/**
+ * The instants a set of series spans, as a scale domain.
+ *
+ * @param sortedData - Series as returned by `useChartDataTransform`.
+ * @return Earliest and latest dated point, or undefined when nothing is dated.
+ */
+export const getSeriesExtent = (
+	sortedData: ReturnType< typeof useChartDataTransform >
+): [ Date, Date ] | undefined => {
+	const span = getSpan( sortedData );
+	return span ? [ new Date( span.minX ), new Date( span.maxX ) ] : undefined;
 };
 
 // Indices of the buckets whose label carries the coarser unit.

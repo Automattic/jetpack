@@ -1,4 +1,5 @@
 import { runTestsInTimeZone } from '../../../test-utils/runtime-time-zone';
+import { dailySeries, hourlySeries } from '../../../test-utils/series-fixtures';
 import { getFormatter, getMaxTicksForWidth, getTimeAxisTickValues } from '../time-axis';
 import type { SeriesData } from '../../../types';
 
@@ -7,38 +8,6 @@ import type { SeriesData } from '../../../types';
 runTestsInTimeZone( 'America/Los_Angeles' );
 
 const TOKYO = { timeZone: 'Asia/Tokyo' };
-
-/**
- * One series of hourly points starting at `start`, `count` long.
- * @param start - ISO instant of the first point.
- * @param count - Number of points.
- * @return A single-series fixture.
- */
-const hourlySeries = ( start: string, count: number ): SeriesData[] => [
-	{
-		label: 'views',
-		data: Array.from( { length: count }, ( _, index ) => ( {
-			date: new Date( new Date( start ).getTime() + index * 60 * 60 * 1000 ),
-			value: index,
-		} ) ),
-	},
-];
-
-/**
- * One series of daily points starting at `start`, `count` long.
- * @param start - ISO instant of the first point.
- * @param count - Number of points.
- * @return A single-series fixture.
- */
-const dailySeries = ( start: string, count: number ): SeriesData[] => [
-	{
-		label: 'views',
-		data: Array.from( { length: count }, ( _, index ) => ( {
-			date: new Date( new Date( start ).getTime() + index * 24 * 60 * 60 * 1000 ),
-			value: index,
-		} ) ),
-	},
-];
 
 describe( 'getMaxTicksForWidth', () => {
 	it( 'scales with the width and never returns less than one', () => {

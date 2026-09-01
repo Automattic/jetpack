@@ -1,26 +1,10 @@
 import { runTestsInTimeZone } from '../../../test-utils/runtime-time-zone';
+import { dailySeries } from '../../../test-utils/series-fixtures';
 import { buildTimeAxisOptions } from '../time-axis-options';
-import type { SeriesData } from '../../../types';
 
 runTestsInTimeZone( 'America/Los_Angeles' );
 
 const TOKYO = { timeZone: 'Asia/Tokyo' };
-
-/**
- * One series of daily points starting at `start`, `count` long.
- * @param start - ISO instant of the first point.
- * @param count - Number of points.
- * @return A single-series fixture.
- */
-const dailySeries = ( start: string, count: number ): SeriesData[] => [
-	{
-		label: 'views',
-		data: Array.from( { length: count }, ( _, index ) => ( {
-			date: new Date( new Date( start ).getTime() + index * 24 * 60 * 60 * 1000 ),
-			value: index,
-		} ) ),
-	},
-];
 
 const build = ( overrides: Partial< Parameters< typeof buildTimeAxisOptions >[ 0 ] > = {} ) =>
 	buildTimeAxisOptions( {
@@ -107,6 +91,61 @@ describe( 'buildTimeAxisOptions', () => {
 
 		expect( axis.tickValues ).toBeUndefined();
 		expect( axis.tickFormat?.( new Date(), 0, [] ) ).toBe( 'x' );
+		expect( typeof axis.numTicks ).toBe( 'number' );
+	} );
+
+	it( 'fits a caller tickFormat to the width rather than leaving visx its fixed default', () => {
+		const isoDay = ( value: unknown ) => new Date( Number( value ) ).toISOString().slice( 0, 10 );
+
+		const narrow = build( {
+			width: 180,
+			axisOptions: { tickResolution: 'day', tickFormat: isoDay },
+		} );
+		const wide = build( {
+			width: 900,
+			axisOptions: { tickResolution: 'day', tickFormat: isoDay },
+		} );
+
+		expect( narrow.numTicks ).toBeLessThan( wide.numTicks as number );
+	} );
+
+	it( "keeps a caller's numTicks on the tickFormat branch", () => {
+		const axis = build( {
+			axisOptions: { tickResolution: 'day', tickFormat: () => 'x', numTicks: 2 },
+		} );
+
+		expect( axis.numTicks ).toBe( 2 );
+	} );
+
+	it( 'narrows the format to the zoom window on a multi-year dataset', () => {
+		const axis = build( {
+			dataSorted: dailySeries( '2023-01-01T15:00:00Z', 1100 ),
+			zoomDomain: [ new Date( '2024-03-01T15:00:00Z' ), new Date( '2024-08-01T15:00:00Z' ) ],
+		} );
+
+		const labels = new Set(
+			( axis.tickValues as Date[] ).map( tick => axis.tickFormat?.( tick, 0, [] ) )
+		);
+
+		expect( labels.size ).toBeGreaterThan( 1 );
+	} );
+
+	it( 'selects ticks only from the series the chart renders', () => {
+		const dataSorted = [
+			{ ...dailySeries( '2026-06-01T15:00:00Z', 90 )[ 0 ], label: 'hidden' },
+			{ ...dailySeries( '2026-08-01T15:00:00Z', 5 )[ 0 ], label: 'shown' },
+		];
+
+		const ticks = build( {
+			dataSorted,
+			isSeriesRendered: series => series.label === 'shown',
+		} ).tickValues as Date[];
+
+		const rendered = dataSorted[ 1 ].data.map( point => Number( point.date ) );
+		expect( ticks.length ).toBeGreaterThan( 1 );
+		for ( const tick of ticks ) {
+			expect( rendered ).toContain( tick.getTime() );
+		}
 	} );
 
 	it( "lets a caller's own tickValues win", () => {

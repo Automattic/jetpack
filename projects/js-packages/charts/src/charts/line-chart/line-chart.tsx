@@ -364,6 +364,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 						scaleDomain: options?.xScale?.domain as [ Date, Date ] | undefined,
 						zoomDomain: zoom.domain as [ Date, Date ] | undefined,
 						formatting,
+						// A hidden line is unmounted, so visx scales to the rest.
+						isSeriesRendered: series => ! hiddenSeries.has( series.label ),
 					} ),
 					y: {
 						orientation: 'left' as const,
@@ -386,7 +388,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 					...options?.yScale,
 				},
 			};
-		}, [ options, dataSorted, width, zoom.domain, stableYDomain, formatting ] );
+		}, [ options, dataSorted, width, zoom.domain, stableYDomain, formatting, hiddenSeries ] );
 
 		const bucketInfo = useMemo(
 			() => getBucketInfo( dataSorted, options?.axis?.x?.tickResolution ),
