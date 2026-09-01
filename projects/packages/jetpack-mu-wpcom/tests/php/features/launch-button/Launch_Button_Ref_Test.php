@@ -23,23 +23,48 @@ class Launch_Button_Ref_Test extends \WorDBless\BaseTestCase {
 	private $original_pagenow;
 
 	/**
+	 * Original $GLOBALS['current_screen'] value, restored after each test.
+	 *
+	 * @var WP_Screen|null
+	 */
+	private $original_current_screen;
+
+	/**
+	 * Original $_GET value, restored after each test.
+	 *
+	 * @var array
+	 */
+	private $original_get;
+
+	/**
 	 * Set up test fixtures.
 	 */
 	public function set_up() {
 		parent::set_up();
 
 		global $pagenow;
-		$this->original_pagenow = $pagenow;
-		$_GET                   = array();
+		$this->original_pagenow        = $pagenow;
+		$this->original_current_screen = $GLOBALS['current_screen'] ?? null;
+		$this->original_get            = $_GET;
+		$_GET                          = array();
 	}
 
 	/**
 	 * Restore globals touched by the tests.
+	 *
+	 * Calling set_current_screen() decides is_admin() for everything that runs afterwards, so
+	 * leaving it set here would put unrelated suites in an admin context they never asked for.
 	 */
 	public function tear_down() {
 		global $pagenow;
 		$pagenow = $this->original_pagenow;
-		$_GET    = array();
+		$_GET    = $this->original_get;
+
+		if ( $this->original_current_screen === null ) {
+			unset( $GLOBALS['current_screen'] );
+		} else {
+			$GLOBALS['current_screen'] = $this->original_current_screen;
+		}
 
 		parent::tear_down();
 	}
