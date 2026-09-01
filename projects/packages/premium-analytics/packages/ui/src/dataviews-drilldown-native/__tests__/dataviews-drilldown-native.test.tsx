@@ -91,7 +91,7 @@ describe( 'DataViewsDrilldownNative collapse', () => {
 
 		/* eslint-disable testing-library/no-node-access -- DOM order is the assertion. */
 		expect( toggle.previousSibling?.textContent ).toBe( 'Search Engines' );
-		expect( toggle.nextSibling ).not.toBeInTheDocument();
+		expect( toggle.parentElement?.lastElementChild ).toBe( toggle );
 		/* eslint-enable testing-library/no-node-access */
 	} );
 

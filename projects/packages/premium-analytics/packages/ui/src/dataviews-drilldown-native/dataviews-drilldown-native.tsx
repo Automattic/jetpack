@@ -90,8 +90,7 @@ function CollapsibleTitleCell< Item >( props: DataViewRenderFieldProps< Item > )
 	const RenderTitle = titleField?.render;
 	const title = RenderTitle ? <RenderTitle { ...props } /> : String( label ?? '' );
 
-	// The control trails the title, so a childless row needs no placeholder to
-	// stay aligned with its siblings — its title already starts at the indent.
+	// A trailing control needs no placeholder on a childless row.
 	if ( ! collapse.parentIds.has( id ) ) {
 		return <>{ title }</>;
 	}

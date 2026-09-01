@@ -5,3 +5,15 @@
 	border-radius: 50%;
 	object-fit: cover;
 }
+
+/* The drilldown clips the title cell, but its ellipsis needs inline content —
+   this row is a flex Stack, so the name carries the truncation itself. */
+.group {
+	min-inline-size: 0;
+}
+
+.name {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}

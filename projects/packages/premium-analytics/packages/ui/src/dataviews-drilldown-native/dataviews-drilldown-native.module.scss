@@ -29,7 +29,10 @@
 	display: inline-flex;
 	gap: var(--wpds-dimension-gap-xs);
 	align-items: center;
-	max-inline-size: 100%;
+
+	/* Shrink alongside DataViews' level-marker span, which keeps its layout box
+	   even when `hideLevelMarkers` hides it. */
+	min-inline-size: 0;
 }
 
 /* DataViews caps this cell and asks for an ellipsis but never clips, so a
