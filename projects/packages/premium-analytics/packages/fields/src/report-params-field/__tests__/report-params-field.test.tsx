@@ -325,7 +325,7 @@ describe( 'report params field', () => {
 		const { latest } = renderField();
 
 		await user.click( screen.getByRole( 'button', { name: /compare/i } ) );
-		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Previous period' } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: /^previous /i } ) );
 
 		expect( latest() ).toEqual(
 			expect.objectContaining( {
@@ -373,7 +373,7 @@ describe( 'report params field', () => {
 
 		await draftShortRange( user, 3 );
 		await user.click( screen.getByRole( 'button', { name: /compare/i } ) );
-		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Previous period' } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: /^previous /i } ) );
 
 		expect( saved ).toHaveLength( 0 );
 
