@@ -51,4 +51,21 @@
 			var(--wpds-border-width-xs) solid
 			var(--wpds-color-stroke-surface-neutral);
 	}
+
+	// The list stays put while the calendar arrives, so it opens from the seam
+	// rather than fading in place.
+	@media (prefers-reduced-motion: no-preference) {
+
+		.date-period-dropdown__panel > .date-range-popover-content {
+			animation: date-period-dropdown-reveal 120ms ease-out;
+		}
+	}
+}
+
+@keyframes date-period-dropdown-reveal {
+
+	from {
+		opacity: 0;
+		transform: translateX(calc(-1 * var(--wpds-dimension-size-5xs)));
+	}
 }
