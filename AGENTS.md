@@ -185,7 +185,7 @@ Run from the monorepo root:
 ```bash
 pnpm run lint-changed             # ESLint, changed files only (fastest)
 pnpm run lint                     # ESLint, everything
-pnpm run lint-style               # Stylelint (CSS/SCSS)
+pnpm run lint-style .             # Stylelint (CSS/SCSS) — needs an explicit path
 pnpm run typecheck                # TypeScript, every project that defines it
 composer phpcs:changed            # PHPCS on changed files
 composer phpcs:lint               # PHPCS, everything
