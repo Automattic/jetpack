@@ -316,17 +316,8 @@ class Jetpack_Backup_Test extends TestCase {
 
 	public function test_list_backup_events_returns_response_and_pins_backup_actions_on_success() {
 		$this->captured_url = '';
+		$this->sign_in_as_connected_admin();
 
-		$admin_id = wp_insert_user(
-			array(
-				'user_login' => 'backup_events_admin',
-				'user_pass'  => 'pass',
-				'role'       => 'administrator',
-			)
-		);
-		wp_set_current_user( $admin_id );
-
-		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10, 2 );
 		add_filter( 'pre_http_request', array( $this, 'mock_request_as_activity_collection' ), 10, 3 );
 
 		// Caller-supplied `action` must be overridden with the curated backup list.
