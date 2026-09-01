@@ -290,6 +290,61 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		);
 		$this->assertSame( 'https://example.com/return', $body['referral']['partner_config_override']['return_url'] );
 		$this->assertTrue( $body['referral']['legal_consents'][0]['granted'] );
+
+		// PayPal caps return_url at 127 characters and rejects longer ones.
+		$this->assertLessThanOrEqual( 127, strlen( $body['referral']['partner_config_override']['return_url'] ) );
+		$this->assertLessThanOrEqual(
+			127,
+			strlen( $body['referral']['partner_config_override']['return_url_description'] )
+		);
+
+		// tracking_id is 1-127 characters.
+		$this->assertGreaterThanOrEqual( 1, strlen( $body['referral']['tracking_id'] ) );
+		$this->assertLessThanOrEqual( 127, strlen( $body['referral']['tracking_id'] ) );
+	}
+
+	/**
+	 * Test that a rejected referral carries PayPal's own diagnostics.
+	 *
+	 * PayPal's message for a schema violation is always the same generic
+	 * sentence; `details` names the offending field and `debug_id` is what
+	 * PayPal support traces on, so both have to survive the hop back.
+	 */
+	public function test_generate_signup_link_surfaces_paypal_error_details() {
+		$this->set_up_connected_site();
+		$this->mock_wpcom_signup_link(
+			array(
+				'response' => array( 'code' => 400 ),
+				'body'     => wp_json_encode(
+					array(
+						'code'    => 'paypal_referral_failed',
+						'message' => 'Request is not well-formed, syntactically incorrect, or violates schema.',
+						'data'    => array(
+							'status'          => 400,
+							'paypal_error'    => 'INVALID_REQUEST',
+							'paypal_debug_id' => 'abc123def456',
+							'paypal_details'  => array(
+								array(
+									'field' => '/operations/0/api_integration_preference/rest_api_integration/first_party_details/seller_nonce',
+									'issue' => 'INVALID_STRING_LENGTH',
+								),
+							),
+						),
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+			)
+		);
+
+		$result = PayPal_Partner_Onboarding::generate_signup_link( 'https://example.com/return', 'sandbox' );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$data = $result->get_error_data();
+
+		$this->assertSame( 'INVALID_REQUEST', $data['paypal_error'] );
+		$this->assertSame( 'abc123def456', $data['paypal_debug_id'] );
+		$this->assertSame( 'INVALID_STRING_LENGTH', $data['paypal_details'][0]['issue'] );
+		$this->assertStringContainsString( 'seller_nonce', $data['paypal_details'][0]['field'] );
 	}
 
 	/**
@@ -521,66 +576,6 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	}
 
 	/**
-	 * Test that a rejected referral carries PayPal's own diagnostics.
-	 *
-	 * PayPal's message for a schema violation is always the same generic
-	 * sentence; `details` names the offending field and `debug_id` is what
-	 * PayPal support traces on, so both have to survive the hop back.
-	 */
-	public function test_generate_signup_link_surfaces_paypal_error_details() {
-		$this->set_up_connected_site();
-		$this->mock_wpcom_signup_link(
-			array(
-				'response' => array( 'code' => 400 ),
-				'body'     => wp_json_encode(
-					array(
-						'code'    => 'paypal_referral_failed',
-						'message' => 'Request is not well-formed, syntactically incorrect, or violates schema.',
-						'data'    => array(
-							'status'          => 400,
-							'paypal_error'    => 'INVALID_REQUEST',
-							'paypal_debug_id' => 'abc123def456',
-							'paypal_details'  => array(
-								array(
-									'field' => '/operations/0/api_integration_preference/rest_api_integration/first_party_details/seller_nonce',
-									'issue' => 'INVALID_STRING_LENGTH',
-								),
-							),
-						),
-					),
-					JSON_UNESCAPED_SLASHES
-				),
-			)
-		);
-
-		$result = PayPal_Partner_Onboarding::generate_signup_link( 'https://example.com/return', 'sandbox' );
-
-		$this->assertInstanceOf( \WP_Error::class, $result );
-		$data = $result->get_error_data();
-
-		$this->assertSame( 'INVALID_REQUEST', $data['paypal_error'] );
-		$this->assertSame( 'abc123def456', $data['paypal_debug_id'] );
-		$this->assertSame( 'INVALID_STRING_LENGTH', $data['paypal_details'][0]['issue'] );
-		$this->assertStringContainsString( 'seller_nonce', $data['paypal_details'][0]['field'] );
-	}
-
-	/**
-	 * Test that a missing merchant status names which half is absent.
-	 */
-	public function test_check_merchant_status_reports_which_id_is_missing() {
-		update_option( PayPal_Partner_Onboarding::PARTNER_ID_OPTION_KEY, 'PARTNER1' );
-
-		$result = PayPal_Partner_Onboarding::check_merchant_status();
-
-		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertEquals( 'paypal_no_merchant_info', $result->get_error_code() );
-
-		$data = $result->get_error_data();
-		$this->assertTrue( $data['has_partner_id'] );
-		$this->assertFalse( $data['has_merchant_id'] );
-	}
-
-	/**
 	 * Test that the merchant ID falls back to PayPal's payer_id.
 	 *
 	 * PayPal puts `merchantIdInPayPal` on the return URL but sends `authCode`
@@ -698,6 +693,22 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertEquals( 'paypal_onboarding_no_merchant_id', $result->get_error_code() );
 		$this->assertEmpty( PayPal_Partner_Onboarding::get_merchant_id() );
+	}
+
+	/**
+	 * Test that a missing merchant status names which half is absent.
+	 */
+	public function test_check_merchant_status_reports_which_id_is_missing() {
+		update_option( PayPal_Partner_Onboarding::PARTNER_ID_OPTION_KEY, 'PARTNER1' );
+
+		$result = PayPal_Partner_Onboarding::check_merchant_status();
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'paypal_no_merchant_info', $result->get_error_code() );
+
+		$data = $result->get_error_data();
+		$this->assertTrue( $data['has_partner_id'] );
+		$this->assertFalse( $data['has_merchant_id'] );
 	}
 
 	/**
