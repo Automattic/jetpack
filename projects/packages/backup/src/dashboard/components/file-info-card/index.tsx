@@ -140,10 +140,12 @@ function PreviewBody( {
 			</Text>
 		);
 	}
+	// Deliberately not the unpreviewable-extension wording: the extension said
+	// this file was previewable, and the bytes turned out not to be text.
 	if ( ! isText ) {
 		return (
 			<Text variant="body-sm" className="jpb-text-muted">
-				{ __( 'Preview unavailable for this file.', 'jetpack-backup-pkg' ) }
+				{ __( 'This file is not text and cannot be previewed.', 'jetpack-backup-pkg' ) }
 			</Text>
 		);
 	}

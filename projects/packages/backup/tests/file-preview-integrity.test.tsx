@@ -24,6 +24,7 @@ const FILE: FileNodeFile = {
 };
 
 const UNAVAILABLE = 'Preview unavailable for this file.';
+const NOT_TEXT = 'This file is not text and cannot be previewed.';
 const FETCH_FAILED = 'Preview could not be loaded for this file.';
 const TRUNCATED = 'Preview truncated: this file is too large to show in full.';
 
@@ -60,9 +61,11 @@ describe( 'preview integrity', () => {
 	it( 'withholds bytes the bridge flagged unreadable', async () => {
 		await renderCard( { content: 'raw ? bytes', is_text: false, truncated: false } );
 
-		await expect( screen.findByText( UNAVAILABLE ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( NOT_TEXT ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Type:' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'raw ? bytes' ) ).not.toBeInTheDocument();
+		// The bytes were refused, not the extension: the two say different things.
+		expect( screen.queryByText( UNAVAILABLE ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'marks a preview the bridge cut short', async () => {
@@ -79,14 +82,14 @@ describe( 'preview integrity', () => {
 
 		await expect( screen.findByText( 'the whole file' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( TRUNCATED ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( UNAVAILABLE ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( NOT_TEXT ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'previews a payload carrying neither verdict', async () => {
 		await renderCard( { content: 'define( "X", 1 );' } );
 
 		await expect( screen.findByText( 'define( "X", 1 );' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( UNAVAILABLE ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( NOT_TEXT ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( TRUNCATED ) ).not.toBeInTheDocument();
 	} );
 
@@ -106,6 +109,7 @@ describe( 'preview integrity', () => {
 		await expect( screen.findByText( 'Type:' ) ).resolves.toBeInTheDocument();
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 		expect( screen.getByText( UNAVAILABLE ) ).toBeInTheDocument();
+		expect( screen.queryByText( NOT_TEXT ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( FETCH_FAILED ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( TRUNCATED ) ).not.toBeInTheDocument();
 	} );
