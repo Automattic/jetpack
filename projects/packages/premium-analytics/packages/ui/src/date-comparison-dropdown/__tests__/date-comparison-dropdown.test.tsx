@@ -70,6 +70,53 @@ describe( 'DateComparisonDropdown', () => {
 		expect( onClear ).toHaveBeenCalled();
 	} );
 
+	it( 'marks an active comparison with a vs prefix', () => {
+		render(
+			<DateComparisonDropdown
+				presets={ presets }
+				enabled
+				presetId="previous-period"
+				onPresetChange={ jest.fn() }
+				onClear={ jest.fn() }
+			/>
+		);
+
+		expect( screen.getByText( 'vs' ) ).toBeVisible();
+	} );
+
+	it( 'leaves the additive state unprefixed', () => {
+		render(
+			<DateComparisonDropdown
+				presets={ presets }
+				enabled={ false }
+				onPresetChange={ jest.fn() }
+				onClear={ jest.fn() }
+			/>
+		);
+
+		expect( screen.queryByText( 'vs' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'spells the compared window out in the trigger tooltip', async () => {
+		const user = userEvent.setup();
+
+		render(
+			<DateComparisonDropdown
+				presets={ presets }
+				enabled
+				presetId="previous-period"
+				onPresetChange={ jest.fn() }
+				onClear={ jest.fn() }
+			/>
+		);
+
+		await user.hover( screen.getByRole( 'button', { name: 'Previous period' } ) );
+
+		await expect(
+			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
+		).resolves.toHaveTextContent( /June 1.+30, 2026/ );
+	} );
+
 	// A URL can carry a comparison whose preset the trigger cannot name — the
 	// widgets still compare, so the menu has to stay the way out (WOOA7S-2039).
 	it( 'clears a comparison the trigger cannot name', async () => {

@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
+import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { check, chevronDown, plus } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
@@ -83,54 +84,71 @@ export function DateComparisonDropdown( {
 		[ onClear, onPresetChange ]
 	);
 
+	const controlLabel = label ?? ( isComparisonActive ? compareToLabel : additiveLabel );
+
 	/*
 	 * Additive: `Compare +` until a preset is picked, then a trigger naming it —
 	 * spelled out rather than a bare `+`, since a glyph alone read as decoration.
 	 * Names the preset, not the period.
 	 */
 	return (
-		<DropdownMenu
-			className="date-comparison-dropdown"
-			icon={ isComparisonActive ? chevronDown : plus }
-			text={ selectedPreset?.shortLabel ?? additiveLabel }
-			label={ label ?? ( isComparisonActive ? compareToLabel : additiveLabel ) }
-			popoverProps={ { placement: 'bottom-start' } }
-			toggleProps={ {
-				className: clsx( 'date-comparison-dropdown__toggle', {
-					'date-comparison-dropdown__toggle--active': isComparisonActive,
-				} ),
-				iconPosition: 'right',
-				iconSize: 18,
-				// A tooltip only where the trigger's text is an abbreviation.
-				// Over the additive state it would repeat the label beneath it.
-				showTooltip: isComparisonActive,
-				// The trigger shows an abbreviation, so carry the full preset name
-				// for anyone not reading the glyphs — same as the preset pills.
-				'aria-label': selectedPreset?.label,
-			} }
-		>
-			{ ( { onClose } ) => (
-				<MenuGroup>
-					{ items.map( item => {
-						const isSelected = item.value === selectedValue;
+		<div className="date-comparison-dropdown">
+			{ selectedPreset ? (
+				<span className="date-comparison-dropdown__prefix">
+					{ _x(
+						'vs',
+						'prefix naming what a report is compared against',
+						'jetpack-premium-analytics-pkg'
+					) }
+				</span>
+			) : null }
 
-						return (
-							<MenuItem
-								key={ item.value }
-								role="menuitemradio"
-								isSelected={ isSelected }
-								icon={ isSelected ? check : undefined }
-								onClick={ () => {
-									handleSelect( item.value );
-									onClose();
-								} }
-							>
-								{ item.label }
-							</MenuItem>
-						);
-					} ) }
-				</MenuGroup>
-			) }
-		</DropdownMenu>
+			<DropdownMenu
+				className="date-comparison-dropdown__menu"
+				icon={ isComparisonActive ? chevronDown : plus }
+				text={ selectedPreset?.shortLabel ?? additiveLabel }
+				// The window the abbreviation stands for. `label` is the toggle's
+				// tooltip and the menu's name both, so the menu keeps its own.
+				label={ selectedPreset ? formatDateRange( selectedPreset.range ) : controlLabel }
+				menuProps={ { 'aria-label': controlLabel } }
+				popoverProps={ { placement: 'bottom-start' } }
+				toggleProps={ {
+					className: clsx( 'date-comparison-dropdown__toggle', {
+						'date-comparison-dropdown__toggle--active': isComparisonActive,
+					} ),
+					iconPosition: 'right',
+					iconSize: 18,
+					// A tooltip only where the trigger's text is an abbreviation.
+					// Over the additive state it would repeat the label beneath it.
+					showTooltip: isComparisonActive,
+					// The trigger shows an abbreviation, so carry the full preset name
+					// for anyone not reading the glyphs — same as the preset pills.
+					'aria-label': selectedPreset?.label,
+				} }
+			>
+				{ ( { onClose } ) => (
+					<MenuGroup>
+						{ items.map( item => {
+							const isSelected = item.value === selectedValue;
+
+							return (
+								<MenuItem
+									key={ item.value }
+									role="menuitemradio"
+									isSelected={ isSelected }
+									icon={ isSelected ? check : undefined }
+									onClick={ () => {
+										handleSelect( item.value );
+										onClose();
+									} }
+								>
+									{ item.label }
+								</MenuItem>
+							);
+						} ) }
+					</MenuGroup>
+				) }
+			</DropdownMenu>
+		</div>
 	);
 }
