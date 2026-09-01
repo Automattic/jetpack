@@ -7,14 +7,9 @@ import { useMemo } from '@wordpress/element';
  * Internal dependencies
  */
 import { buildLocationRows } from './aggregate';
+import { GEO_MODES } from './tabs';
 import type { LocationsCountryOption } from './fields';
 import type { ReportLocationsTabId } from './tabs';
-
-const GEO_MODES = {
-	countries: 'country',
-	regions: 'region',
-	cities: 'city',
-} as const;
 
 /**
  * Fetch and derive the table records for the active Locations tab.

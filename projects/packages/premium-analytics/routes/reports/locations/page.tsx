@@ -6,6 +6,7 @@ import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportCsvAction,
 	ReportErrorState,
+	ReportLocationsMap,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPageTabs,
@@ -13,6 +14,7 @@ import {
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
+	type LocationsGeoRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -23,6 +25,7 @@ import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import {
+	GEO_MODES,
 	getLocationFields,
 	getReportLocationsTabs,
 	getTabTitle,
@@ -141,6 +144,32 @@ export default function LocationsReportPage(): JSX.Element {
 		setCountryFilter( getCountryFilter( view ) );
 	}, [] );
 
+	// The map plots the rows the table already fetched, so it costs no request
+	// of its own. Rows the API left without a country cannot be placed on it.
+	const geoRows = useMemo(
+		(): LocationsGeoRow[] =>
+			records.table.rows
+				.filter( ( row ): row is LocationRow & { countryCode: string } => !! row.countryCode )
+				.map( row => ( {
+					label: row.label,
+					value: row.views,
+					countryCode: row.countryCode,
+					countryFull: row.countryFull,
+				} ) ),
+		[ records.table.rows ]
+	);
+	// Back moves the tab straight from the URL, without the change that clears the
+	// filter, so a tab that cannot be scoped must not scope the map either.
+	const focusCountry = useMemo( () => {
+		if ( ! countryFilter || ! supportsCountryFilter( activeTab ) ) {
+			return undefined;
+		}
+
+		const country = records.countries.options.find( option => option.code === countryFilter );
+
+		return { code: countryFilter, name: country?.label ?? countryFilter };
+	}, [ activeTab, countryFilter, records.countries.options ] );
+
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
 	const { getLabel } = REPORTS.locations;
@@ -167,16 +196,24 @@ export default function LocationsReportPage(): JSX.Element {
 						onRetry={ retry }
 					/>
 				) : (
-					<ReportRecordsTable< LocationRow >
-						key={ activeTab }
-						data={ records.table.rows }
-						fields={ fields }
-						getItemId={ getLocationRowId }
-						isLoading={ tableIsLoading }
-						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
-						onChangeView={ handleChangeView }
-					/>
+					<>
+						<ReportLocationsMap
+							rows={ geoRows }
+							mode={ GEO_MODES[ activeTab ] }
+							focusCountry={ focusCountry }
+							isLoading={ tableIsLoading }
+						/>
+						<ReportRecordsTable< LocationRow >
+							key={ activeTab }
+							data={ records.table.rows }
+							fields={ fields }
+							getItemId={ getLocationRowId }
+							isLoading={ tableIsLoading }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
+							onChangeView={ handleChangeView }
+						/>
+					</>
 				) }
 			</ReportPageLayout>
 		</ReportPageShell>
