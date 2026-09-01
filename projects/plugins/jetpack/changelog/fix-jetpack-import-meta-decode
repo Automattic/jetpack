@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Import: Harden post meta handling so imported values are only restored as plain data.
