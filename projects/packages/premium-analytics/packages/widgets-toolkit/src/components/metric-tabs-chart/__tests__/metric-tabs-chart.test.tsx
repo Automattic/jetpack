@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { formatDate, type DateFormatName } from '@jetpack-premium-analytics/formatters';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { setSettings } from '@wordpress/date';
 /**
@@ -11,6 +10,7 @@ import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import { MetricTabsChart } from '../metric-tabs-chart';
 import type { ComparativeLineChartSeries } from '../../chart-comparative-line/types';
 import type { MetricTab } from '../metric-tabs-chart';
+import type { DateFormatName } from '@jetpack-premium-analytics/formatters';
 
 // The charts render SVG through a provider jsdom cannot lay out, so stand them in
 // for prop recorders.
