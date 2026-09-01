@@ -15,6 +15,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -298,20 +299,24 @@ add_action( 'wp_footer', 'wpcom_write_render_post_publish_survey' );
  * @return bool True when the response was handed to the store.
  */
 function wpcom_write_store_survey_response( $responses ) {
-	$blog_id = get_current_blog_id();
-	$user_id = get_current_user_id();
-
 	if ( function_exists( 'require_lib' ) ) {
 		require_lib( 'marketing/survey' );
 
 		if ( class_exists( 'Marketing_Survey' ) ) {
-			$result = \Marketing_Survey::submit_survey( $blog_id, $user_id, WPCOM_WRITE_SURVEY_ID, $responses );
+			$result = \Marketing_Survey::submit_survey( get_current_blog_id(), get_current_user_id(), WPCOM_WRITE_SURVEY_ID, $responses );
 
 			return ! empty( $result['success'] );
 		}
 	}
 
-	if ( ! class_exists( Client::class ) ) {
+	if ( ! class_exists( Client::class ) || ! class_exists( Connection_Manager::class ) ) {
+		return false;
+	}
+
+	// The endpoint keys both its capability check and the stored row off `site_id`,
+	// and Atomic's local blog ID is 1 — it has to be the wpcom one.
+	$blog_id = Connection_Manager::get_site_id( true );
+	if ( ! $blog_id ) {
 		return false;
 	}
 
