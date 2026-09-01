@@ -6,7 +6,7 @@ import { Stack } from '@jetpack-premium-analytics/externals';
 import { customer } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { DonutChart, WidgetState } from '../../components';
+import { DonutChart, DonutChartSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
@@ -16,19 +16,10 @@ import { useSegmentStyles } from '../common';
 import styles from '../common/donut-widget.module.scss';
 
 /**
- * New vs Returning Customer Widget Component
- *
  * Displays a donut chart showing the breakdown of unique customers
  * by type (new vs returning) over the selected time period.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <NewVsReturningCustomerWidget />
- * </WidgetRoot>
- * ```
  */
 export function NewVsReturningCustomerWidget() {
 	const { reportParams } = useWidgetRootContext();
@@ -45,11 +36,10 @@ export function NewVsReturningCustomerWidget() {
 
 	return (
 		<WidgetState
-			isLoading={ isLoading && ! hasData }
+			isLoading={ isLoading }
 			isFetching={ isFetching }
-			// The report queries keep the previous period's data as placeholders
-			// across range changes, so only surface the error when there is
-			// nothing to show.
+			// The report queries keep the previous period's data as placeholders across
+			// range changes, so only surface the error when nothing else is showing.
 			isError={ isError && ! hasData }
 			isEmpty={ isEmptyPieChartData( chartData ) }
 			error={ {
@@ -63,6 +53,7 @@ export function NewVsReturningCustomerWidget() {
 				icon: customer,
 				description: __( 'No customer data in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <DonutChartSkeleton /> }
 		>
 			<Stack className={ styles.container } direction="column" align="center" justify="center">
 				<DonutChart

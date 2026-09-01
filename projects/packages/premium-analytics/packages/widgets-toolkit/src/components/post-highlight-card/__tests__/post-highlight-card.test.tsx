@@ -48,6 +48,8 @@ jest.mock( '@wordpress/route', () => {
 const props: PostHighlightCardProps = {
 	title: 'Quarterly update',
 	url: 'https://example.com/quarterly-update/',
+	// Midnight on purpose: formats in the site zone (UTC here), so this must hold
+	// on hosts west of it — a regression would show Jun 4 under `test-tz`.
 	date: '2026-06-05T00:00:00+00:00',
 	metrics: [
 		{ key: 'views', label: 'Views', value: 42 },
@@ -120,9 +122,8 @@ describe( 'PostHighlightCard', () => {
 		expect( screen.queryByText( /^Post published on/ ) ).not.toBeInTheDocument();
 	} );
 
-	// A metric whose request failed must not be shown as a real count: on a
-	// private site the Stats endpoint 403s, and "Likes 0" would be a wrong number
-	// rather than a missing one.
+	// A failed metric must not render as a real zero — e.g. a 403'd Stats request
+	// showing "Likes 0" would be a wrong count, not a missing one.
 	it( 'renders an unavailable metric as a dash, not as zero', () => {
 		render(
 			<PostHighlightCard

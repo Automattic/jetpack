@@ -6,7 +6,7 @@ import { Stack } from '@jetpack-premium-analytics/externals';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { DonutChart, WidgetState } from '../../components';
+import { DonutChart, DonutChartSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
@@ -16,21 +16,8 @@ import { useSegmentStyles } from '../common';
 import styles from '../common/donut-widget.module.scss';
 
 /**
- * Bookings by Status Widget Component
- *
- * Displays a donut chart showing bookings breakdown by status.
- * Shows the total bookings count in the center with a breakdown in the legend.
- *
- * Statuses include: Booked, Checked In, No Show, and Cancelled.
- *
- * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <BookingsByAttendanceWidget />
- * </WidgetRoot>
- * ```
+ * Donut chart of bookings by status (Booked, Checked In, No Show, Cancelled),
+ * with the total count in the center and a breakdown in the legend.
  */
 export function BookingsByAttendanceWidget() {
 	const { reportParams } = useWidgetRootContext();
@@ -47,11 +34,10 @@ export function BookingsByAttendanceWidget() {
 
 	return (
 		<WidgetState
-			isLoading={ isLoading && ! hasData }
+			isLoading={ isLoading }
 			isFetching={ isFetching }
-			// The report queries keep the previous period's data as placeholders
-			// across range changes, so only surface the error when there is
-			// nothing to show.
+			// The report queries keep placeholders from the previous period across
+			// range changes, so only surface the error when nothing is left to show.
 			isError={ isError && ! hasData }
 			isEmpty={ isEmptyPieChartData( chartData ) }
 			error={ {
@@ -65,6 +51,7 @@ export function BookingsByAttendanceWidget() {
 				icon: calendar,
 				description: __( 'No bookings in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <DonutChartSkeleton /> }
 		>
 			<Stack className={ styles.container } direction="column" align="center" justify="center">
 				<DonutChart

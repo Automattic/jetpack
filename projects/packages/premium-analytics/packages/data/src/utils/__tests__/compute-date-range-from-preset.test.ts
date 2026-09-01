@@ -2,9 +2,12 @@
  * External dependencies
  */
 import { tz } from '@date-fns/tz';
+import { getSettings, setSettings } from '@wordpress/date';
 import {
 	startOfDay,
 	endOfDay,
+	startOfHour,
+	endOfHour,
 	subDays,
 	subHours,
 	subMonths,
@@ -15,16 +18,11 @@ import {
 	endOfYear,
 } from 'date-fns';
 /**
- * Mocks – getSiteTimezone and dateToISOStringWithLocalTZ
- * depend on WordPress core store.
- * We mock them to remove that dependency.
- *
- * dateToISOStringWithLocalTZ normalizes to UTC Z-format
- * (matching native Date.toISOString) since the mock timezone
- * is +00:00 and all dates are UTC.
+ * Mocks – `dateToISOStringWithLocalTZ` normalizes to UTC Z-format (matching
+ * native Date.toISOString) so the expectations below can be plain UTC instants.
+ * The site zone itself is pinned through `setSettings` after the imports.
  */
 jest.mock( '../date', () => ( {
-	getSiteTimezone: jest.fn( () => '+00:00' ),
 	dateToISOStringWithLocalTZ: jest.fn( ( date: Date ) => new Date( date.getTime() ).toISOString() ),
 } ) );
 /**
@@ -32,13 +30,14 @@ jest.mock( '../date', () => ( {
  */
 import { computeDateRangeFromPreset } from '../preset-date-range';
 
-/*
- * Pin "now" to 2026-02-19 12:00:00 UTC for deterministic results.
- *
- * Expected dates are computed in UTC. Since TZ is mocked to +00:00,
- * computePrimaryRange runs in UTC and dateToISOStringWithLocalTZ
- * normalizes to Z-format via the mock.
- */
+// `computePrimaryRange` resolves its day bounds in the site zone, so pin it
+// rather than letting the machine timezone decide.
+setSettings( {
+	...getSettings(),
+	timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
+} );
+
+// Pin "now" to 2026-02-19 12:00:00 UTC for deterministic, timezone-independent results.
 const NOW = new Date( '2026-02-19T12:00:00.000Z' );
 const UTC = tz( '+00:00' );
 
@@ -81,12 +80,12 @@ describe( 'computeDateRangeFromPreset', () => {
 		expect( range!.to ).toBe( toZ( YESTERDAY_END ) );
 	} );
 
-	it( 'returns rolling 24-hour range for "last-24-hours"', () => {
+	it( 'returns rolling 24-hour range snapped to the hour for "last-24-hours"', () => {
 		const range = computeDateRangeFromPreset( 'last-24-hours' );
 
 		expect( range ).toBeDefined();
-		expect( range!.from ).toBe( toZ( subHours( NOW, 24 ) ) );
-		expect( range!.to ).toBe( toZ( NOW ) );
+		expect( range!.from ).toBe( toZ( subHours( startOfHour( NOW, { in: UTC } ), 23 ) ) );
+		expect( range!.to ).toBe( toZ( endOfHour( NOW, { in: UTC } ) ) );
 	} );
 
 	it( 'returns 7-day range ending yesterday for "last-7-days"', () => {
@@ -144,6 +143,22 @@ describe( 'computeDateRangeFromPreset', () => {
 		expect( range ).toBeDefined();
 		expect( range!.from ).toBe( toZ( startOfYear( lastYear, { in: UTC } ) ) );
 		expect( range!.to ).toBe( toZ( endOfYear( lastYear, { in: UTC } ) ) );
+	} );
+
+	it( 'returns the current calendar year through the end of today', () => {
+		const range = computeDateRangeFromPreset( 'year-2026' );
+
+		expect( range ).toBeDefined();
+		expect( range!.from ).toBe( toZ( startOfYear( TODAY_START, { in: UTC } ) ) );
+		expect( range!.to ).toBe( toZ( TODAY_END ) );
+	} );
+
+	it( 'returns the default year surface through the end of today for all time', () => {
+		const range = computeDateRangeFromPreset( 'all-time' );
+
+		expect( range ).toBeDefined();
+		expect( range!.from ).toBe( toZ( startOfYear( subYears( TODAY_START, 5 ), { in: UTC } ) ) );
+		expect( range!.to ).toBe( toZ( TODAY_END ) );
 	} );
 
 	it( 'returns undefined for unrecognized preset', () => {

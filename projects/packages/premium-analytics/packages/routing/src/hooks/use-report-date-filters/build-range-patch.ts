@@ -3,12 +3,13 @@
  */
 import { resolveIntervalForRange, type ReportQueryParams } from '@jetpack-premium-analytics/data';
 import {
+	endOfDayTZ,
 	isSelectablePreset,
+	siteTimeZone,
 	type ComparisonPresetId,
 	type DateRange,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
-import { endOfDay } from 'date-fns';
 /**
  * Internal dependencies
  */
@@ -18,7 +19,6 @@ import { encodeDateToSearchParam } from '../../search/date-range';
 /**
  * The report search params the date filters read and stage.
  */
-
 export type ReportQuerySearchParams = Partial<
 	ReportQueryParams & {
 		preset?: PrimaryPresetId;
@@ -28,15 +28,19 @@ export type ReportQuerySearchParams = Partial<
 >;
 
 type BuildRangePatchArgs = {
-	/**
-	 * The next primary range, when the change includes one.
-	 */
 	nextRange?: DateRange;
 
 	/**
 	 * The preset that produced `nextRange`, or 'custom' for manual edits.
 	 */
 	nextPresetId?: PrimaryPresetId;
+
+	/**
+	 * Store both ends exactly as given, skipping the end-of-day adjustment
+	 * for calendar edits. For ranges derived from an already-normalized
+	 * window, like stepping.
+	 */
+	exactRange?: boolean;
 
 	/**
 	 * The current effective search params, used to re-derive the comparison
@@ -57,29 +61,28 @@ type BuildRangePatchArgs = {
 export function buildRangePatch( {
 	nextRange,
 	nextPresetId,
+	exactRange,
 	effective,
 }: BuildRangePatchArgs ): ReportQuerySearchParams | null {
 	const patch: ReportQuerySearchParams = {};
 
 	if ( nextRange?.from && nextRange.to ) {
 		/*
-		 * Preset ranges are authoritative: rolling presets like
-		 * last-24-hours end at the current time. Calendar and manual
-		 * edits stage midnight `to` dates, so only those are adjusted
-		 * to the end of the day.
+		 * Preset/exact ranges are authoritative and skip end-of-day adjustment;
+		 * calendar edits stage midnight `to`, adjusted to the *site's* end of day —
+		 * date-fns' bare `endOfDay` would use the browser's and stretch the range.
 		 */
 		const rangeFrom = encodeDateToSearchParam( nextRange.from );
 		const rangeTo = encodeDateToSearchParam(
-			isSelectablePreset( nextPresetId ) ? nextRange.to : endOfDay( nextRange.to )
+			exactRange || isSelectablePreset( nextPresetId )
+				? nextRange.to
+				: endOfDayTZ( nextRange.to, siteTimeZone() )
 		);
 		patch.from = rangeFrom;
 		patch.to = rangeTo;
 
-		/*
-		 * The interval carries across the change and the new range's rules
-		 * decide: a bucket it still allows survives, one it does not coerces to
-		 * the finest allowed.
-		 */
+		// The interval carries across the change; the new range's rules decide
+		// whether it survives or coerces to the finest allowed.
 		patch.interval = resolveIntervalForRange(
 			nextPresetId,
 			rangeFrom,

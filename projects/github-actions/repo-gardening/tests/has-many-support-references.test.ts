@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import type { IssueComment } from '@octokit/webhooks-types';
+import type { IssueComment } from '../src/types.d.ts';
 
 // Mock @actions/core before importing the module under test.
 jest.unstable_mockModule( '@actions/core', () => ( {

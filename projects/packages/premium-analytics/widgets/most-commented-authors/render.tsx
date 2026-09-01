@@ -4,14 +4,15 @@
 import { useStatsCommentsRows } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
 	describeError,
 	sharePercentage,
-	toMaxRows,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -32,27 +33,14 @@ type MostCommentedAuthorsWidgetProps = WidgetRenderProps< MostCommentedAuthorsRe
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
-const DEFAULT_MAX = 10;
-
-interface MostCommentedAuthorsInnerProps {
-	/**
-	 * Maximum number of rows to display. `0` means all rows.
-	 */
-	max: number;
-}
-
 /**
- * Top commented authors inner component. The comment counts come from the
- * all-time `stats/comments` report, so there is no date range or comparison
- * period to read from context.
- *
- * @param {MostCommentedAuthorsInnerProps} props - The component props.
- * @return The rendered widget content.
+ * Counts come from the all-time `stats/comments` report, so there is no date
+ * range or comparison period to read from context.
  */
-function MostCommentedAuthorsInner( { max }: MostCommentedAuthorsInnerProps ) {
+function MostCommentedAuthorsInner() {
 	const { rows, isLoading, isFetching, isError, error, refetch } = useStatsCommentsRows( {
 		group: 'authors',
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
@@ -95,6 +83,7 @@ function MostCommentedAuthorsInner( { max }: MostCommentedAuthorsInnerProps ) {
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
 						data={ leaderboardData }
@@ -116,23 +105,16 @@ function MostCommentedAuthorsInner( { max }: MostCommentedAuthorsInnerProps ) {
 }
 
 /**
- * Top commented authors widget: the people who comment the most on the site,
- * ranked by comment count. Each row links to the comment management screen
- * filtered to that author when the report reports an email for them.
- *
  * One half of the Jetpack Stats "Comments" module; `jpa/most-commented-posts`
  * covers the other. Both read the same `stats/comments` response through
  * `useStatsCommentsRows`, so showing both costs a single request.
- *
- * @param {MostCommentedAuthorsWidgetProps} props - The widget render props.
- * @return The rendered Top commented authors widget.
  */
 export default function MostCommentedAuthors( {
 	attributes = {},
 }: MostCommentedAuthorsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<MostCommentedAuthorsInner max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
+			<MostCommentedAuthorsInner />
 		</WidgetRoot>
 	);
 }

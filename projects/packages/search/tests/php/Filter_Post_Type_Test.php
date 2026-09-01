@@ -67,11 +67,8 @@ class Filter_Post_Type_Test extends TestCase {
 	 * that register/unregister fixtures see fresh registry data.
 	 */
 	private function reset_searchable_cache(): void {
-		// PHP 7.2–8.0 require setAccessible(true) to read/write private
-		// statics via Reflection; PHP 8.1 made the call a no-op and 8.5
-		// emits a deprecation. Gate on the version so the package's full
-		// CI matrix (PHP 7.2 through 8.5) stays green.
 		$prop = ( new \ReflectionClass( Filter_Post_Type::class ) )->getProperty( 'searchable_cache' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$prop->setAccessible( true );
 		}

@@ -24,4 +24,5 @@ export const youtube: PodcastApp = {
 	Logo: YouTubeMusicLogo,
 	submitUrl: 'https://studio.youtube.com',
 	learnMoreUrl: 'https://support.google.com/youtube/answer/13973017',
+	submission: 'manual',
 };

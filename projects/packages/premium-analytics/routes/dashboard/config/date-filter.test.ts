@@ -1,5 +1,10 @@
 import { PRESET_ALL_TIME, toYearPresetId } from '@jetpack-premium-analytics/datetime';
-import { DATE_FILTER_RANGE, DATE_FILTER_YEAR, resolvePresetForSurface } from './date-filter';
+import {
+	DATE_FILTER_RANGE,
+	DATE_FILTER_YEAR,
+	offersDateComparison,
+	resolvePresetForSurface,
+} from './date-filter';
 
 describe( 'resolvePresetForSurface', () => {
 	describe( 'on the year surface', () => {
@@ -30,5 +35,51 @@ describe( 'resolvePresetForSurface', () => {
 				'last-30-days'
 			);
 		} );
+	} );
+} );
+
+describe( 'Date-filter surface constants', () => {
+	// An unrecognized surface silently falls back to `range`, so a typo here goes
+	// unnoticed; a PHP-side addition is only caught by `Dashboard_Section_Test`.
+	it( 'pins the surface literals the PHP constants use', () => {
+		expect( DATE_FILTER_RANGE ).toBe( 'range' );
+		expect( DATE_FILTER_YEAR ).toBe( 'year' );
+	} );
+} );
+
+describe( 'offersDateComparison', () => {
+	it( 'follows the section on the date-range surface', () => {
+		expect( offersDateComparison( DATE_FILTER_RANGE, { with_date_comparison: true } ) ).toBe(
+			true
+		);
+		expect( offersDateComparison( DATE_FILTER_RANGE, { with_date_comparison: false } ) ).toBe(
+			false
+		);
+	} );
+
+	it( 'keeps the control when the section carries no options', () => {
+		expect( offersDateComparison( DATE_FILTER_RANGE, undefined ) ).toBe( true );
+	} );
+
+	it( 'never offers it on the year surface, whatever the section says', () => {
+		expect( offersDateComparison( DATE_FILTER_YEAR, undefined ) ).toBe( false );
+		expect( offersDateComparison( DATE_FILTER_YEAR, { with_date_comparison: true } ) ).toBe(
+			false
+		);
+	} );
+
+	it( 'ignores the placement of the control', () => {
+		expect(
+			offersDateComparison( DATE_FILTER_RANGE, {
+				with_date_comparison: true,
+				with_header_date_control: false,
+			} )
+		).toBe( true );
+		expect(
+			offersDateComparison( DATE_FILTER_RANGE, {
+				with_date_comparison: false,
+				with_header_date_control: true,
+			} )
+		).toBe( false );
 	} );
 } );

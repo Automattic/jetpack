@@ -4,8 +4,9 @@
  *
  * Renders three sibling regions inside a single block wrapper:
  *  - the results list (skeleton while loading, then live results),
- *  - the empty-state message (gated by `state.showNoResults`),
- *  - the error message (gated by `state.showError`).
+ *  - the legacy empty-state message (gated by `state.showLegacyNoResults`,
+ *    so it stands down for pages carrying a `no-results` block),
+ *  - the legacy error message (gated by `state.showLegacyError`).
  *
  * The store's existing visibility flags ensure exactly one message is
  * visible at a time, so the regions can coexist without extra wiring.
@@ -102,11 +103,19 @@ if ( function_exists( 'wp_interactivity_state' ) ) {
 $is_initial_loading = Search_Blocks::is_initial_loading();
 $skeleton_count     = 'compact' === $layout ? 6 : 4;
 
+// All three messages are superseded by the `jetpack-search/no-results` block,
+// which accepts any inner blocks instead of a plain string. Kept rendering for
+// saved content that predates it — `No_Results::legacy_no_results_getter()`
+// and `legacy_error_getter()` pick the binding that hides these regions
+// wherever a block covers the case, or drop them outright when the surrounding
+// markup's coverage is already known, so the two never both show.
+//
 // `trim()` so a whitespace-only attribute (e.g. an author who saved spaces)
 // still falls back to the default copy instead of rendering a blank message.
-$no_results_message = trim( (string) ( $attrs['noResultsMessage'] ?? '' ) );
+$no_results_defaults = No_Results::default_messages();
+$no_results_message  = trim( (string) ( $attrs['noResultsMessage'] ?? '' ) );
 if ( '' === $no_results_message ) {
-	$no_results_message = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
+	$no_results_message = $no_results_defaults['unfiltered'];
 }
 
 // Filter-aware variant — shown when `state.hasActiveFilters` is true. Both
@@ -114,13 +123,16 @@ if ( '' === $no_results_message ) {
 // which `<p>` is visible without a store-side message-resolution branch.
 $no_results_with_filters_message = trim( (string) ( $attrs['noResultsWithFiltersMessage'] ?? '' ) );
 if ( '' === $no_results_with_filters_message ) {
-	$no_results_with_filters_message = __( 'No results match these filters. Try clearing some, or searching for something else.', 'jetpack-search-pkg' );
+	$no_results_with_filters_message = $no_results_defaults['filtered'];
 }
 
 $error_message = trim( (string) ( $attrs['errorMessage'] ?? '' ) );
 if ( '' === $error_message ) {
-	$error_message = __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' );
+	$error_message = $no_results_defaults['error'];
 }
+
+$legacy_no_results_getter = No_Results::legacy_no_results_getter();
+$legacy_error_getter      = No_Results::legacy_error_getter();
 ?>
 <div
 	<?php echo wp_kses_data( $wrapper_attrs ); ?>
@@ -331,9 +343,10 @@ if ( '' === $error_message ) {
 			</li>
 		</template>
 	</ul>
+	<?php if ( '' !== $legacy_no_results_getter ) : ?>
 	<div
 		class="jetpack-search-results__no-results"
-		data-wp-bind--hidden="!state.showNoResults"
+		data-wp-bind--hidden="!<?php echo esc_attr( $legacy_no_results_getter ); ?>"
 		role="status"
 		hidden
 	>
@@ -348,12 +361,15 @@ if ( '' === $error_message ) {
 		<p data-wp-bind--hidden="state.hasActiveFilters"><?php echo esc_html( $no_results_message ); ?></p>
 		<p data-wp-bind--hidden="!state.hasActiveFilters"><?php echo esc_html( $no_results_with_filters_message ); ?></p>
 	</div>
+	<?php endif; ?>
+	<?php if ( '' !== $legacy_error_getter ) : ?>
 	<div
 		class="jetpack-search-results__error"
-		data-wp-bind--hidden="!state.showError"
+		data-wp-bind--hidden="!<?php echo esc_attr( $legacy_error_getter ); ?>"
 		role="alert"
 		hidden
 	>
 		<p><?php echo esc_html( $error_message ); ?></p>
 	</div>
+	<?php endif; ?>
 </div>

@@ -109,11 +109,10 @@ class Csv_Export_Scheduler implements Registrable_Interface {
 	 * @return void
 	 */
 	public function register(): void {
-		// Register export action callback.
 		add_action( self::EXPORT_ACTION_HOOK, array( $this, 'process_export_job' ), 10, 4 );
 
-		// Register cleanup action callback. The recurring cleanup is scheduled lazily from
-		// schedule_export() (see below), so we avoid an Action Scheduler DB query on every request.
+		// The recurring cleanup is scheduled lazily from schedule_export(), so this avoids an
+		// Action Scheduler DB query on every request.
 		add_action( self::CLEANUP_HOOK, array( $this, 'cleanup_old_exports' ) );
 	}
 
@@ -127,7 +126,6 @@ class Csv_Export_Scheduler implements Registrable_Interface {
 	 * @return int|\WP_Error Action ID on success, WP_Error on failure.
 	 */
 	public function schedule_export( string $report_type, array $params, int $user_id, string $user_email ) {
-		// Validate email format.
 		if ( ! \is_email( $user_email ) ) {
 			return new \WP_Error(
 				'invalid_email',
@@ -145,7 +143,6 @@ class Csv_Export_Scheduler implements Registrable_Interface {
 			);
 		}
 
-		// Validate report type.
 		if ( ! $this->registry->is_registered( $report_type ) ) {
 			return new \WP_Error(
 				'invalid_report_type',
@@ -155,7 +152,6 @@ class Csv_Export_Scheduler implements Registrable_Interface {
 		}
 
 		try {
-			// Schedule the action.
 			// @phan-suppress-next-line PhanUndeclaredFunction -- Action Scheduler; guarded by function_exists() above.
 			$action_id = as_enqueue_async_action(
 				self::EXPORT_ACTION_HOOK,
@@ -224,40 +220,33 @@ class Csv_Export_Scheduler implements Registrable_Interface {
 				throw new \Exception( $controller->get_error_message() );
 			}
 
-			// Fetch data.
 			$data = $this->data_fetcher->fetch( $params, $controller );
 			if ( is_wp_error( $data ) ) {
 				throw new \Exception( $data->get_error_message() );
 			}
 
-			// Determine if comparison mode.
 			$is_comparison = $this->is_comparison_request( $params );
 
 			// Interval drives time-series column labels and row formatting.
 			$interval = $params['interval'] ?? null;
 
-			// Get columns.
 			$columns = $this->registry->get_columns( $report_type, $is_comparison, $interval );
 			if ( is_wp_error( $columns ) ) {
 				throw new \Exception( $columns->get_error_message() );
 			}
 
-			// Get row formatter.
 			$formatter = $this->registry->get_row_formatter( $report_type, $interval );
 			if ( is_wp_error( $formatter ) ) {
 				throw new \Exception( $formatter->get_error_message() );
 			}
 
-			// Generate filename.
 			$filename = $this->registry->build_filename( $report_type, $params );
 
-			// Generate CSV file.
 			$file_path = $this->csv_generator->generate( $data, $columns, $formatter, $filename );
 			if ( is_wp_error( $file_path ) ) {
 				throw new \Exception( $file_path->get_error_message() );
 			}
 
-			// Get report label.
 			$report_label = $this->registry->get_label( $report_type );
 			if ( is_wp_error( $report_label ) ) {
 				$report_label = $report_type;
@@ -337,7 +326,6 @@ class Csv_Export_Scheduler implements Registrable_Interface {
 			return;
 		}
 
-		// Only schedule if not already scheduled.
 		// @phan-suppress-next-line PhanUndeclaredFunction -- Action Scheduler; guarded by function_exists() above.
 		if ( false === as_next_scheduled_action( self::CLEANUP_HOOK, array(), self::ACTION_GROUP ) ) {
 			// @phan-suppress-next-line PhanUndeclaredFunction -- Action Scheduler; guarded by function_exists() above.

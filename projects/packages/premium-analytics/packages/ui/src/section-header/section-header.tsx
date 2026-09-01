@@ -1,53 +1,47 @@
 import { Stack, Text } from '@jetpack-premium-analytics/externals';
+import clsx from 'clsx';
 import { ReactNode } from 'react';
 import styles from './section-header.module.scss';
 
 type SectionHeaderProps = {
-	/**
-	 * The name of the section.
-	 */
 	title: string;
 
 	/**
-	 * Subtitle describing the active date configuration. Omit it while the
-	 * consumer has nothing to describe.
+	 * Condenses into a compact bar once it pins: the title drops a type-scale
+	 * step. Requires the surface to publish a `--section-header-pin` view
+	 * timeline; falls back to resting layout without it.
 	 */
-	subtitle?: string;
+	condenseOnScroll?: boolean;
 
 	/**
-	 * Date controls anchored to the end of the header row.
+	 * Date controls anchored to the end of the header row. Left out, the cell is
+	 * not rendered: an empty one costs a band of space in the stacked layout.
 	 */
 	children?: ReactNode;
 };
 
 /**
- * Section header for an analytics surface. The title and a slot for the date
- * controls share the first row, anchored to opposite edges; the subtitle takes
- * a row of its own below them, so its length never costs the controls width.
- *
- * Once the header is too narrow to hold those two side by side everything
- * stacks, and the subtitle returns to its place directly under the title.
- * Measured by a container query rather than against the viewport.
+ * Section header for an analytics surface: title and date controls share one
+ * row (title truncates, controls keep natural width). Below a container-query
+ * width the two stack and the title wraps.
  *
  * @param {SectionHeaderProps} props - The props for the SectionHeader component.
  * @return The section header element.
  */
-export function SectionHeader( { title, subtitle, children }: SectionHeaderProps ) {
+export function SectionHeader( { title, condenseOnScroll = false, children }: SectionHeaderProps ) {
 	return (
-		<div className={ styles.container }>
+		<div className={ clsx( styles.container, condenseOnScroll && styles.condensing ) }>
 			<div className={ styles.layout }>
-				<Text variant="heading-2xl" render={ <h2 /> }>
+				{ /* The `title` attribute is the only way back to a name the
+				     ellipsis cut off. */ }
+				<Text className={ styles.title } variant="heading-2xl" render={ <h2 title={ title } /> }>
 					{ title }
 				</Text>
 
-				<Stack direction="row" align="center" className={ styles.controls }>
-					{ children }
-				</Stack>
-
-				{ subtitle ? (
-					<Text className={ styles.subtitle } variant="body-md">
-						{ subtitle }
-					</Text>
+				{ children ? (
+					<Stack direction="row" align="center" className={ styles.controls }>
+						{ children }
+					</Stack>
 				) : null }
 			</div>
 		</div>

@@ -11,7 +11,11 @@ export type {
 	FlattenStatsLeavesOptions,
 	StatsComparisonRowContext,
 } from './utils';
-export { bucketStatsTimeSeries, getStatsChartBucketKey } from './chart-buckets';
+export {
+	bucketStatsTimeSeries,
+	getStatsChartBucketKey,
+	STATS_CHART_BUCKET_PERIODS,
+} from './chart-buckets';
 export type { StatsChartBucketPeriod } from './chart-buckets';
 export { aggregateStatsDrilldownRows } from './drilldown-rows';
 export type {
@@ -44,7 +48,9 @@ export {
 	sanitizeStatsTimeSeriesResponse,
 	sanitizeStatsEmailTimeSeriesResponse,
 } from './time-series';
+export { toStatsBucketWindowParams, windowEndHour, type StatsBucketFilter } from './bucket-window';
 export { sanitizeStatsVisitsResponse } from './visits';
+export { sanitizeStatsHourOfDayResponse } from './hour-of-day';
 export { sanitizeStatsInsightsResponse } from './insights';
 export { mergeStatsUtmComparisonRows, sanitizeStatsUtmResponse } from './utm';
 export { sanitizeStatsEmailSummaryResponse } from './email-summary';
@@ -60,11 +66,7 @@ export {
 export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse } from './tags';
 export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from './devices';
-export {
-	sanitizeStatsWordAdsStatsResponse,
-	sanitizeStatsWordAdsEarningsResponse,
-	sliceWordAdsStatsReport,
-} from './wordads';
+export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse } from './wordads';
 export { sanitizeStatsSingleVideoResponse } from './single-video';
 export { sanitizeStatsSummaryResponse } from './summary';
 export type { StatsTopPostsComparisonItem, StatsTopPostsItem } from './top-posts';
@@ -191,3 +193,4 @@ export type {
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
 } from './types';
+export type { StatsHourOfDayBucket, StatsHourOfDayReport } from './hour-of-day';

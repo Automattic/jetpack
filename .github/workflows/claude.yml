@@ -6,25 +6,31 @@ on:
   pull_request_review_comment:
     types: [created]
   issues:
-    types: [opened, assigned]
+    types: [opened]
   pull_request_review:
     types: [submitted]
 
 jobs:
   claude:
+    # Only Automattic org members may invoke Claude: this job runs with write
+    # access to repository contents, pull requests, and issues. Each clause binds
+    # the author_association check to the actor of that specific event -- the
+    # commenter for comment events, the reviewer for reviews, the opener for new
+    # issues. Checking associations across event objects would let a non-member
+    # trigger the job by commenting on a member-authored issue.
     if: |
       (
-        github.event.comment.author_association == 'MEMBER' ||
-        github.event.comment.author_association == 'OWNER' ||
-        github.event.review.author_association == 'MEMBER' ||
-        github.event.review.author_association == 'OWNER' ||
-        github.event.issue.author_association == 'MEMBER' ||
-        github.event.issue.author_association == 'OWNER'
-      ) && (
-        (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-        (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
-        (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
-        (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+        (github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment') &&
+        contains(github.event.comment.body, '@claude') &&
+        contains(fromJSON('["MEMBER", "OWNER"]'), github.event.comment.author_association)
+      ) || (
+        github.event_name == 'pull_request_review' &&
+        contains(github.event.review.body, '@claude') &&
+        contains(fromJSON('["MEMBER", "OWNER"]'), github.event.review.author_association)
+      ) || (
+        github.event_name == 'issues' &&
+        (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')) &&
+        contains(fromJSON('["MEMBER", "OWNER"]'), github.event.issue.author_association)
       )
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -42,16 +48,26 @@ jobs:
 
       - name: Run Claude Code
         id: claude
-        uses: anthropics/claude-code-action@be7b93b1907a4abad570368f3c74b6fe3807510b # v1.0.183
+        uses: anthropics/claude-code-action@6b082c41935b4c8a3b8b0ef85ba4ba4d9eeb8975 # v1.0.189
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           additional_permissions: |
             actions: read
+          # Read-only gh verbs only. The prompt is assembled from the whole
+          # issue/PR thread, including comments from people who cannot invoke
+          # this job, so a prefix glob like "Bash(gh pr *)" would let injected
+          # text reach state-changing verbs (gh pr merge, gh pr review, gh issue
+          # close). Claude posts comments and commits through the action's own
+          # MCP servers, not through gh, so this does not remove capability.
           claude_args: >-
             --max-turns 30
             --allowedTools
-            "Bash(gh issue *)"
-            "Bash(gh pr *)"
+            "Bash(gh issue view *)"
+            "Bash(gh issue list *)"
+            "Bash(gh pr view *)"
+            "Bash(gh pr diff *)"
+            "Bash(gh pr list *)"
+            "Bash(gh pr checks *)"
             "Bash(git diff *)"
             "Bash(git log *)"
             "Bash(git show *)"

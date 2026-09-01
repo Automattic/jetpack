@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { parseSiteDateTime, siteTimeZone, toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { Icon, Text } from '@jetpack-premium-analytics/externals';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -25,12 +26,9 @@ type VideoSummaryCardProps = {
 const DATE_FORMAT = 'MMM d, yyyy';
 
 /**
- * The page-header summary of the video being viewed: poster-frame thumbnail
- * (or a video-glyph placeholder, matching the post detail header's
- * missing-image treatment), title, and one line stating the publish date and
- * the applied performance window. The poster can be tokenless (unusable) for
- * private videos, so a failing image swaps itself for the placeholder, the
- * same as when no poster is returned.
+ * Page-header summary for the video: poster (or placeholder), title, publish
+ * date, and performance window. Poster URLs can be tokenless and 404 for
+ * private videos, so a failed load swaps in the placeholder.
  *
  * @param props                  - Component props.
  * @param props.summary          - The resolved video summary.
@@ -43,15 +41,15 @@ export function VideoSummaryCard( { summary, performanceRange }: VideoSummaryCar
 	const poster = posterUrl && posterUrl !== failedPosterUrl ? posterUrl : undefined;
 	const hidePoster = useCallback( () => setFailedPosterUrl( posterUrl ), [ posterUrl ] );
 
-	const publishedDateObject = publishedDate ? new Date( publishedDate ) : undefined;
-	const publishedSentence =
-		publishedDateObject && isValid( publishedDateObject )
-			? sprintf(
-					/* translators: %s: the video publish date, e.g. "Aug 19, 2025". */
-					__( 'Video published on %s.', 'jetpack-premium-analytics-pkg' ),
-					format( publishedDateObject, DATE_FORMAT )
-			  )
-			: undefined;
+	// Read and shown in the site timezone, like the Stats data the page reports on.
+	const publishedDateObject = parseSiteDateTime( publishedDate );
+	const publishedSentence = publishedDateObject
+		? sprintf(
+				/* translators: %s: the video upload date, e.g. "Aug 19, 2025". */
+				__( 'Video uploaded on %s.', 'jetpack-premium-analytics-pkg' ),
+				format( toLocalTZ( publishedDateObject, siteTimeZone() ), DATE_FORMAT )
+		  )
+		: undefined;
 
 	const { from, to } = performanceRange ?? {};
 	const performanceSentence =

@@ -45,7 +45,15 @@ jest.mock( '../../widget-root', () => ( {
 const mockUseWidgetRootContext = useWidgetRootContext as jest.Mock;
 
 beforeEach( () => {
-	mockUseWidgetRootContext.mockReturnValue( { reportParams: { from: '2026-06-01' } } );
+	mockUseWidgetRootContext.mockReturnValue( {
+		reportParams: { from: '2026-06-01' },
+		navigationParams: {
+			from: '2026-06-01',
+			comp: '1',
+			compare_from: '2026-05-01',
+			compare_to: '2026-05-31',
+		},
+	} );
 } );
 
 describe( 'LeaderboardPostLabel', () => {
@@ -59,6 +67,7 @@ describe( 'LeaderboardPostLabel', () => {
 
 		expect( url.pathname ).toBe( '/post/12' );
 		expect( url.searchParams.get( 'from' ) ).toBe( '2026-06-01' );
+		expect( url.searchParams.get( 'comp' ) ).toBe( '1' );
 		expect( url.searchParams.get( 'post_url' ) ).toBe( 'https://example.com/hello/' );
 		expect( link ).not.toHaveAttribute( 'target', '_blank' );
 	} );
@@ -66,10 +75,12 @@ describe( 'LeaderboardPostLabel', () => {
 	it( 'opens the requested detail tab when a section is given', () => {
 		render( <LeaderboardPostLabel id={ 12 } label="Newsletter" section="email-opens" /> );
 
-		expect( screen.getByRole( 'link', { name: 'Newsletter' } ) ).toHaveAttribute(
-			'href',
-			'/post/12?from=2026-06-01&section=email-opens'
-		);
+		const href = screen.getByRole( 'link', { name: 'Newsletter' } ).getAttribute( 'href' ) ?? '';
+		const url = new URL( href, 'https://example.com' );
+
+		expect( url.pathname ).toBe( '/post/12' );
+		expect( url.searchParams.get( 'section' ) ).toBe( 'email-opens' );
+		expect( url.searchParams.get( 'comp' ) ).toBe( '1' );
 	} );
 
 	it( 'falls back to the public URL when there is no post ID', () => {

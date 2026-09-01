@@ -96,6 +96,7 @@ The simplest line chart requires only a `data` prop with time-series data:
 **Legend:**
 - **`showLegend`**: Display chart legend (`false` by default)
 - **`legend`**: Legend configuration object (`ChartLegendConfig`) for controlling orientation, position, alignment, shape, interactivity, and styling
+- **`defaultHiddenSeries`**: Series labels hidden from the first defined value; later values for the same `chartId` are ignored
 - **`withLegendGlyph`**: Use custom glyphs in legend (`false` by default)
 
 **Advanced:**
@@ -521,13 +522,13 @@ Set `zoomable` to let users drag horizontally across the plot to zoom the X axis
 	/>` }
 />
 
-Zoom behaviour:
+Zoom behavior:
 
 - Disabled by default (`zoomable={false}`).
 - Only the X axis rescales; the Y axis is unaffected.
 - A selection rectangle follows the pointer while dragging.
 - Drags shorter than 6px are ignored, so a click never zooms.
-- While zoomed, a "Reset zoom" button appears in the top-right to restore the full domain.
+- While zoomed, a "Reset zoom" button appears in the top-right to restore the full domain. It is reachable with Tab and activates with Enter or Space. A "Reset zoom" tooltip shows on hover and on keyboard focus, and Escape dismisses it.
 - Series are clipped to the plot area while zoomed, so lines never overflow the axes.
 - `zoomable` chains with your own `onPointerDown`/`onPointerMove`/`onPointerUp` handlers rather than replacing them.
 
@@ -552,22 +553,32 @@ Use the composition API to add a legend by placing `<LineChart.Legend />` as a c
 
 For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
 
+Use `defaultHiddenSeries` to hide selected series initially while keeping them available through an interactive legend. The first defined list is used; later values for the same `chartId` are ignored. The defaults are seeded once per `chartId`, so a series the reader reveals stays revealed even if the chart unmounts and comes back — swapping between chart types, or a tab the chart lives in going away and returning. Only a new `chartId` seeds again.
+
+<Canvas of={ LineChartStories.WithDefaultHiddenSeries } />
+
 ## Theming Integration
 
-Line Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+Line Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+
+**Series colors come from the palette custom properties, not the theme object.** Set as many of the five slots as you need; an unset slot is skipped, and charts generates accessible colors beyond whatever you set:
 
 <Source
-	language="tsx"
-	code={ `import { GlobalChartsProvider, LineChart, type ChartTheme } from '@automattic/charts';
+	language="css"
+	code={ `.a8c-charts-scope {
+		--a8c-charts-color-series-1: #FF6B6B;
+		--a8c-charts-color-series-2: #4ECDC4;
+		--a8c-charts-color-series-3: #45B7D1;
+	}` }
+/>
 
-	const customTheme: ChartTheme = {
-		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
-		gridColor: '#E0E0E0',
-	};
+Every other color works the same way — declare its catalog role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
 
-	<GlobalChartsProvider theme={customTheme}>
-		<LineChart data={data} />
-	</GlobalChartsProvider>` }
+<Source
+	language="css"
+	code={ `.my-dashboard {
+		--a8c-charts-color-grid: #E0E0E0;
+	}` }
 />
 
 ## Responsive Behavior

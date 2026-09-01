@@ -90,11 +90,15 @@ Update mode never confirms — the candidate is already loaded by WP's normal bo
 
 ## Percentage rollout
 
-`PCG_Rollout` narrows `pcg_guard_activation` / `pcg_guard_updates` per blog. Default is **5%** — the `pcg_rollout_percentage` filter overrides it per environment:
+`PCG_Rollout` narrows `pcg_guard_activation` / `pcg_guard_updates` per blog. It defaults to **0%** here — this package rides a weekly release train, so the live percentage is owned by wpcomsh (`plugin-conflicts-guardian-rollout.php`), which can be deployed on demand when a ramp or a rollback is needed.
+
+Override it per environment with the `pcg_rollout_percentage` filter:
 
 ```php
 add_filter( 'pcg_rollout_percentage', fn () => 10 ); // 10% cohort
 ```
+
+Only Atomic sites are eligible — Simple sites can't install plugins, so the feature isn't loaded there at all.
 
 Bucketing is `crc32(blog_id) % 100`, so ramping from 10% → 50% strictly adds blogs (no reshuffling between tiers). The gate only narrows — emergency-override filters at priority > 100 on `pcg_guard_activation` / `pcg_guard_updates` can still re-enable or disable a blog.
 

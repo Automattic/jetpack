@@ -1,0 +1,187 @@
+import { render, screen } from '@testing-library/react';
+import { InnerBlocks, store as blockEditorStore } from '@wordpress/block-editor';
+import NoResultsSlotEdit from '../../../src/search-blocks/blocks/no-results/slot/edit';
+
+const mockSelectedStores = [];
+
+jest.mock( '@wordpress/block-editor', () => {
+	const mockInnerBlocks = jest.fn( () => <div data-testid="variant-inner-blocks" /> );
+	mockInnerBlocks.ButtonBlockAppender = () => null;
+	return {
+		store: { name: 'core/block-editor' },
+		useBlockProps: props => ( { ...props, className: props?.className } ),
+		InspectorControls: ( { children } ) => <div data-testid="inspector">{ children }</div>,
+		InnerBlocks: mockInnerBlocks,
+	};
+} );
+
+jest.mock( '@wordpress/i18n', () => ( {
+	__: text => text,
+} ) );
+
+let mockInnerBlockCount = 0;
+let mockInnerBlocks = [];
+// Expanded by default so the existing preview assertions read the selected
+// state; the collapsed cases opt out explicitly.
+let mockIsSelected = true;
+jest.mock( '@wordpress/data', () => ( {
+	useSelect: callback =>
+		callback( store => {
+			mockSelectedStores.push( store );
+			return {
+				getBlockCount: () => mockInnerBlockCount,
+				getBlocks: () => mockInnerBlocks,
+				isBlockSelected: () => mockIsSelected,
+				hasSelectedInnerBlock: () => false,
+			};
+		} ),
+} ) );
+
+const UNFILTERED_DEFAULT = 'No results found. Try a different search.';
+const FILTERED_DEFAULT =
+	'No results match these filters. Try clearing some, or searching for something else.';
+const ERROR_DEFAULT = 'Something went wrong. Please try again.';
+
+describe( 'NoResultsSlotEdit', () => {
+	beforeEach( () => {
+		InnerBlocks.mockClear();
+		mockInnerBlockCount = 0;
+		mockInnerBlocks = [];
+		mockIsSelected = true;
+	} );
+
+	// The canvas preview mirrors render.php's fallback, so an author can see
+	// what a visitor gets from a variant they haven't filled in yet.
+	// Selecting by store object rather than the 'core/block-editor' string
+	// keeps the dependency explicit and survives a store rename.
+	it( 'selects state through the block-editor store object', () => {
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+
+		expect( mockSelectedStores ).toContain( blockEditorStore );
+	} );
+
+	it( 'previews the filter-aware pair for an empty unscoped variant', () => {
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+
+		expect( screen.getByText( UNFILTERED_DEFAULT ) ).toBeInTheDocument();
+		expect( screen.getByText( FILTERED_DEFAULT ) ).toBeInTheDocument();
+	} );
+
+	it( 'narrows the preview to the matching message for a scoped variant', () => {
+		const { unmount } = render(
+			<NoResultsSlotEdit attributes={ { condition: 'filtered' } } clientId="v-1" />
+		);
+		expect( screen.getByText( FILTERED_DEFAULT ) ).toBeInTheDocument();
+		expect( screen.queryByText( UNFILTERED_DEFAULT ) ).not.toBeInTheDocument();
+		unmount();
+
+		render( <NoResultsSlotEdit attributes={ { condition: 'error' } } clientId="v-1" /> );
+		expect( screen.getByText( ERROR_DEFAULT ) ).toBeInTheDocument();
+		expect( screen.queryByText( UNFILTERED_DEFAULT ) ).not.toBeInTheDocument();
+	} );
+
+	// Authored content is what renders, so the preview has to get out of the
+	// way — otherwise the canvas shows copy no visitor will ever see.
+	it( 'drops the preview once the variant has inner blocks', () => {
+		mockInnerBlockCount = 1;
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+
+		expect( screen.queryByText( UNFILTERED_DEFAULT ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'variant-inner-blocks' ) ).toBeInTheDocument();
+	} );
+
+	// Every condition already has a variant, so repointing one could only
+	// duplicate a condition or vacate another — there is nothing to offer.
+	it( 'offers no control over the condition', () => {
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+
+		expect( screen.queryByTestId( 'inspector' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'radio' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'falls back to the unscoped condition for an unknown saved value', () => {
+		render( <NoResultsSlotEdit attributes={ { condition: 'bogus' } } clientId="v-1" /> );
+
+		expect( screen.getAllByText( 'Any empty search' ).length ).toBeGreaterThan( 0 );
+		expect( screen.getByText( UNFILTERED_DEFAULT ) ).toBeInTheDocument();
+	} );
+
+	// Several variants in one container look identical on the canvas without
+	// this, so the label carries the condition.
+	it( 'labels the variant with its condition on the canvas', () => {
+		render( <NoResultsSlotEdit attributes={ { condition: 'filtered' } } clientId="v-1" /> );
+
+		expect( screen.getAllByText( 'Filters are active' ).length ).toBeGreaterThan( 0 );
+	} );
+
+	// Three stacked previews push the rest of the template off-screen, and only
+	// one condition can ever be on screen for a visitor.
+	it( 'collapses an untouched variant to a single summary line', () => {
+		mockIsSelected = false;
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+
+		expect( screen.getByText( UNFILTERED_DEFAULT ) ).toBeInTheDocument();
+		// The second line and the appender are what the collapse buys back.
+		expect( screen.queryByText( FILTERED_DEFAULT ) ).not.toBeInTheDocument();
+		expect( InnerBlocks.mock.calls[ 0 ][ 0 ].renderAppender ).toBe( false );
+	} );
+
+	// The inner drop target comes from `useInnerBlocksProps`, so unmounting
+	// InnerBlocks while collapsed would make a drag onto the variant resolve to
+	// the container instead — whose `allowedBlocks` rejects everything but a
+	// variant. It stays mounted; only the appender goes.
+	it( 'keeps a drop target while collapsed', () => {
+		mockIsSelected = false;
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+
+		expect( InnerBlocks ).toHaveBeenCalled();
+		expect( screen.getByTestId( 'variant-inner-blocks' ) ).toBeInTheDocument();
+	} );
+
+	it( 'expands the variant once it is selected', () => {
+		mockIsSelected = false;
+		const { unmount } = render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+		unmount();
+
+		mockIsSelected = true;
+		InnerBlocks.mockClear();
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+
+		expect( screen.getByText( FILTERED_DEFAULT ) ).toBeInTheDocument();
+		expect( InnerBlocks.mock.calls[ 0 ][ 0 ].renderAppender ).not.toBe( false );
+	} );
+
+	// An authored variant collapses too — three stacked messages are three times
+	// the height the front end will ever use — but the row summarises the
+	// author's own copy so it still says what's inside.
+	it( 'summarises an authored variant with its own first line of copy', () => {
+		mockIsSelected = false;
+		mockInnerBlockCount = 1;
+		mockInnerBlocks = [ { attributes: { content: '<strong>Nothing</strong> matched' } } ];
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+
+		expect( screen.getByText( 'Nothing matched' ) ).toBeInTheDocument();
+		expect( screen.queryByText( UNFILTERED_DEFAULT ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'reads the summary out of a nested block', () => {
+		mockIsSelected = false;
+		mockInnerBlockCount = 1;
+		mockInnerBlocks = [
+			{ attributes: {}, innerBlocks: [ { attributes: { content: 'Buried copy' } } ] },
+		];
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+
+		expect( screen.getByText( 'Buried copy' ) ).toBeInTheDocument();
+	} );
+
+	// Hidden, not unmounted — see the drop-target note in edit.jsx.
+	it( 'keeps authored blocks mounted while collapsed', () => {
+		mockIsSelected = false;
+		mockInnerBlockCount = 1;
+		mockInnerBlocks = [ { attributes: { content: 'Authored' } } ];
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+
+		expect( screen.getByTestId( 'variant-inner-blocks' ) ).toBeInTheDocument();
+	} );
+} );

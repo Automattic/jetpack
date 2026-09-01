@@ -44,6 +44,7 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/',
 	useReportDateFilters: () => ( {} ),
 	useSectionTab: jest.fn(),
@@ -112,9 +113,8 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 } ) );
 
-// The page imports `EmptyState`/`Text` from the externals passthrough, so the
-// stubs have to replace them there; the Proxy leaves the rest of the barrel
-// intact for any other consumer in the graph.
+// Pages import `EmptyState`/`Text` from the externals passthrough, so the stubs replace them
+// there; the Proxy leaves the rest of the barrel intact for other consumers.
 jest.mock(
 	'@jetpack-premium-analytics/externals',
 	() =>
@@ -154,6 +154,7 @@ jest.mock( './comment-followers/config', () => ( {
 jest.mock( './comments/config', () => ( {
 	getCommentsFields: () => [],
 	getCommentsReportTabs: () => [ { id: 'authors', label: 'Authors' } ],
+	getTabTitle: ( id: string ) => ( id === 'authors' ? 'Authors' : id ),
 	resolveTabId: ( value: string | undefined ) => value ?? 'authors',
 	useCommentsReportRecords: jest.fn(),
 } ) );
@@ -171,6 +172,7 @@ jest.mock( './emails/config', () => ( {
 jest.mock( './locations/config', () => ( {
 	getLocationFields: () => [],
 	getReportLocationsTabs: () => [ { id: 'countries', label: 'Countries' } ],
+	getTabTitle: ( id: string ) => ( id === 'countries' ? 'Countries' : id ),
 	resolveSection: ( value: string | undefined ) => value ?? 'countries',
 	supportsCountryFilter: ( tab: string ) => tab !== 'countries',
 	useLocationsReportRecords: jest.fn(),
@@ -194,6 +196,7 @@ jest.mock( './tags/config', () => ( {
 
 jest.mock( './utm/config', () => ( {
 	getReportUtmTabs: () => [ { id: 'source-medium', label: 'Source / medium' } ],
+	getTabTitle: ( id: string ) => ( id === 'source-medium' ? 'Source / medium' : id ),
 	getUtmFields: () => [],
 	getUtmTabLabel: () => 'Source / medium',
 	resolveSection: ( value: string | undefined ) => value ?? 'source-medium',
@@ -285,6 +288,9 @@ describe( 'report CSV exports', () => {
 		} );
 	} );
 
+	// `avg_words` is fractional on purpose: the table renders it whole while the
+	// export stays raw, as every other average column does. A whole fixture
+	// would pass either way.
 	it( 'configures the Annual insights export', () => {
 		const rows = [
 			{
@@ -295,7 +301,7 @@ describe( 'report CSV exports', () => {
 				total_likes: 30,
 				avg_likes: 3,
 				total_words: 1000,
-				avg_words: 100,
+				avg_words: 100.4,
 				total_images: 4,
 				avg_images: 1,
 			},
@@ -307,7 +313,7 @@ describe( 'report CSV exports', () => {
 				total_likes: 36,
 				avg_likes: 3,
 				total_words: 1200,
-				avg_words: 100,
+				avg_words: 120.6,
 				total_images: 5,
 				avg_images: 1,
 			},
@@ -321,7 +327,7 @@ describe( 'report CSV exports', () => {
 			AnnualInsightsReportPage,
 			'annual-insights',
 			[ rows[ 1 ], rows[ 0 ] ],
-			[ '2026', 12, 24, 2, 36, 3, 1200, 100 ]
+			[ '2026', 12, 24, 2, 36, 3, 1200, 120.6, 5, 1 ]
 		);
 	} );
 

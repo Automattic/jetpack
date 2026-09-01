@@ -15,11 +15,8 @@ import { BOOKINGS_FILTER } from '../../helpers';
 import styles from './conversion-rate-widget.module.scss';
 
 /**
- * ConversionRateWidget Component
- *
- * Displays a conversion funnel visualization showing the path from
- * visitors to completed orders. Shows steps with conversion percentages
- * and comparison delta when available.
+ * Conversion funnel from visitors to completed orders, with per-step
+ * percentages and a comparison delta when one is available.
  */
 export function ConversionRateWidget( {
 	filters = [],
@@ -52,9 +49,8 @@ export function ConversionRateWidget( {
 
 		return {
 			steps: conversionData.steps || [],
-			// overallRate is a decimal (e.g., 0.0476 for 4.76%)
+			// A decimal, e.g. 0.0476 for 4.76%.
 			overallRate: conversionData.overallRate || 0,
-			// Get comparison rate as decimal
 			comparisonRate:
 				hasComparison && comparisonData?.summary ? comparisonData.summary.conversion_rate : null,
 		};
@@ -65,11 +61,10 @@ export function ConversionRateWidget( {
 
 	return (
 		<WidgetState
-			isLoading={ isLoading && ! hasData }
+			isLoading={ isLoading }
 			isFetching={ isFetching }
-			// The report queries keep the previous period's data as placeholders
-			// across range changes, so only surface the error when there is
-			// nothing to show.
+			// The report queries keep the previous period's data as placeholders across
+			// range changes, so only surface the error when nothing else is showing.
 			isError={ isError && ! hasData }
 			isEmpty={ steps.length === 0 }
 			error={ {
@@ -108,22 +103,10 @@ export function ConversionRateWidget( {
 }
 
 /**
- * Booking Conversion Rate Widget Component
+ * The conversion funnel restricted to booking product types (booking,
+ * bookable-event, bookable-service).
  *
- * A widget that displays a conversion funnel visualization showing the path from
- * visitors to completed orders for booking products only.
- *
- * This component automatically filters data to show only booking product types
- * (booking, bookable-event, bookable-service).
- *
- * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <BookingConversionRateWidget />
- * </WidgetRoot>
- * ```
+ * Must render within a WidgetRoot, which provides reportParams via context.
  */
 export function BookingConversionRateWidget() {
 	return <ConversionRateWidget filters={ [ BOOKINGS_FILTER ] } />;

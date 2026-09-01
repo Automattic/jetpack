@@ -2,15 +2,9 @@
 /**
  * Test fixture: stand-in for the generated wp-build entry point.
  *
- * Records that it was loaded so tests can assert whether Analytics::init()
- * reached the build on a given request type. The real build/ is gitignored and
- * CI runs no build step, so without this there is nothing to observe.
- *
- * Also declares the page render callback the real build generates, so the
- * "build is present" half of register_admin_menu() has something to find. The
- * name is derived from the page slug by wp-build, which is exactly why it needs
- * covering: a slug rename silently drops the menu back to the missing-build
- * notice.
+ * Records that it loaded so tests can tell whether Analytics::init() reached the build on a given
+ * request type — build/ is gitignored and CI runs no build step, so without this there's nothing
+ * to observe. Also provides the render callback and full-page interceptor, whose names depend on the page slug.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -23,3 +17,16 @@ if ( ! function_exists( 'jpa_jetpack_premium_analytics_wp_admin_render_page' ) )
 	 */
 	function jpa_jetpack_premium_analytics_wp_admin_render_page() {}
 }
+
+if ( ! function_exists( 'jpa_jetpack_premium_analytics_intercept_render' ) ) {
+	/**
+	 * Stand-in for the wp-build generated full-page interceptor.
+	 */
+	function jpa_jetpack_premium_analytics_intercept_render() {}
+}
+
+add_action( 'admin_init', 'jpa_jetpack_premium_analytics_intercept_render' );
+
+// Record the priority it went on at. Without this the removal test cannot tell
+// "hooked, then removed" from "never hooked", and would pass either way.
+$GLOBALS['jpa_test_interceptor_priority'] = has_action( 'admin_init', 'jpa_jetpack_premium_analytics_intercept_render' );

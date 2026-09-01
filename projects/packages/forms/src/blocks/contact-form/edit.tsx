@@ -56,7 +56,7 @@ import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-
 import { useFindBlockRecursively } from '../shared/hooks/use-find-block-recursively.js';
 import useFormSteps from '../shared/hooks/use-form-steps.js';
 import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes.jsx';
-import { CORE_BLOCKS, FORM_POST_TYPE } from '../shared/util/constants.js';
+import { CORE_BLOCKS, FIELD_BLOCK_PREFIX, FORM_POST_TYPE } from '../shared/util/constants.js';
 import { childBlocks } from './child-blocks.js';
 import { ConvertFormToolbar } from './components/convert-form-toolbar.tsx';
 import FormStatusNotice from './components/form-status-notice.tsx';
@@ -449,7 +449,7 @@ function JetpackContactFormEdit( {
 	);
 
 	// Sync synced form content INTO the editor (one-time on ref change)
-	const { isSyncingRef } = useSyncedFormLoader( {
+	const { isSyncingRef, syncGeneration } = useSyncedFormLoader( {
 		ref,
 		syncedFormBlocks,
 		syncedFormAttributes,
@@ -467,6 +467,7 @@ function JetpackContactFormEdit( {
 		attributes,
 		currentInnerBlocks,
 		isSyncingRef,
+		syncGeneration,
 		editEntityRecord,
 	} );
 
@@ -569,7 +570,7 @@ function JetpackContactFormEdit( {
 		const findFields = ( blockList: typeof currentInnerBlocks ) => {
 			blockList.forEach( block => {
 				// Check if block is a field (has jetpack/field- prefix)
-				if ( block.name.startsWith( 'jetpack/field-' ) ) {
+				if ( block.name.startsWith( FIELD_BLOCK_PREFIX ) ) {
 					fieldBlocks.push( block );
 				}
 				// Recursively check inner blocks (for multistep forms)
@@ -1278,11 +1279,6 @@ function JetpackContactFormEdit( {
 							setAttributes={ setAttributes }
 						/>
 					</PanelBody>
-					{ isIntegrationsEnabled && showBlockIntegrations && (
-						<Suspense fallback={ <div /> }>
-							<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
-						</Suspense>
-					) }
 					{ showWebhooks && (
 						<PanelBody
 							title={ __( 'Webhooks', 'jetpack-forms' ) }
@@ -1314,6 +1310,21 @@ function JetpackContactFormEdit( {
 						/>
 					</PanelBody>
 				</InspectorControls>
+
+				{ /* A sibling of InspectorControls, not a child of it: IntegrationControls owns
+				     its own inspector fill, and its other half -- a toolbar button and the dialog
+				     that button opens -- must stay outside one. See the component for why.
+
+				     Gated on selection because it is lazy(): rendered unconditionally, the
+				     import fires on the block's first render, pulling ~30KB gz of chunk into
+				     editor boot for a UI that nothing can reach until the block is selected.
+				     Both halves render nothing when it isn't, so this costs no behaviour. */ }
+				{ isIntegrationsEnabled && showBlockIntegrations && isFormOrChildSelected && (
+					<Suspense fallback={ <div /> }>
+						<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
+					</Suspense>
+				) }
+
 				<InspectorAdvancedControls>
 					<TextControl
 						label={ __( 'Accessible name', 'jetpack-forms' ) }

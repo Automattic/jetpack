@@ -68,10 +68,7 @@ const VIEW_TO_BREAKDOWN: Record<
 
 /**
  * Flatten the email breakdown report into leaderboard rows, keeping the
- * report's (already value-sorted) order.
- *
- * @param report - The normalized breakdown report, or undefined while loading.
- * @return The breakdown rows, without display ids.
+ * report's (already value-sorted) order. Ids are assigned by the caller.
  */
 function toRows( report: StatsEmailBreakdown | undefined ): Omit< EmailBreakdownRow, 'id' >[] {
 	const items = report?.data?.[ 0 ]?.items ?? [];
@@ -131,9 +128,6 @@ type EmailBreakdownRowsState = {
  * All hooks always run (rules of hooks) but only the queries the active view and
  * metric need are enabled; `country` is an inert placeholder dimension for the
  * links view's disabled dimension queries.
- *
- * @param {UseEmailBreakdownRowsArgs} args - Hook arguments.
- * @return The current rows/loading/error state.
  */
 export default function useEmailBreakdownRows( {
 	postId,

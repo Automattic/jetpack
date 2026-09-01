@@ -6,7 +6,7 @@ import { Stack } from '@jetpack-premium-analytics/externals';
 import { reports } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo, useCallback } from 'react';
-import { DonutChart, WidgetState } from '../../components';
+import { DonutChart, DonutChartSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
@@ -21,22 +21,9 @@ import { useSegmentStyles } from '../common';
 import styles from '../common/donut-widget.module.scss';
 
 /**
- * Orders Fulfillment Widget Component
- *
- * Displays a donut chart showing the breakdown of fulfilled vs unfulfilled
- * order counts over the selected time period.
- *
- * Makes two separate API calls with different fulfillment status filters
- * since fulfillment data is not pre-aggregated in the orders summary.
- *
- * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <OrdersFulfillmentWidget />
- * </WidgetRoot>
- * ```
+ * Donut chart of fulfilled vs unfulfilled order counts. Makes two separate API
+ * calls with different fulfillment filters, since fulfillment isn't
+ * pre-aggregated in the orders summary.
  */
 export function OrdersFulfillmentWidget() {
 	const { reportParams } = useWidgetRootContext();
@@ -92,11 +79,10 @@ export function OrdersFulfillmentWidget() {
 
 	return (
 		<WidgetState
-			isLoading={ isLoading && ! hasData }
+			isLoading={ isLoading }
 			isFetching={ isFetching }
-			// The report queries keep the previous period's data as placeholders
-			// across range changes, so only surface the error when there is
-			// nothing to show.
+			// The report queries keep placeholders from the previous period across
+			// range changes, so only surface the error when nothing is left to show.
 			isError={ isError && ! hasData }
 			isEmpty={ isEmptyPieChartData( chartData ) }
 			error={ {
@@ -110,6 +96,7 @@ export function OrdersFulfillmentWidget() {
 				icon: reports,
 				description: __( 'No orders in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <DonutChartSkeleton /> }
 		>
 			<Stack className={ styles.container } direction="column" align="center" justify="center">
 				<DonutChart

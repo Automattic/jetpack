@@ -9,9 +9,9 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchReturnProbablyReal : 7 occurrences
+    // PhanUndeclaredClassMethod : 7 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
-    // PhanUndeclaredClassMethod : 5 occurrences
+    // PhanTypeMismatchReturnProbablyReal : 5 occurrences
     // PhanCommentOverrideOnNonOverrideMethod : 4 occurrences
     // PhanNonClassMethodCall : 4 occurrences
     // PhanTypeArraySuspiciousNullable : 4 occurrences
@@ -21,10 +21,10 @@ return [
     // PhanTypeInvalidDimOffset : 2 occurrences
     // PhanUndeclaredExtendedClass : 2 occurrences
     // PhanUndeclaredMethod : 2 occurrences
-    // PhanUndeclaredMethodInCallable : 2 occurrences
     // PhanPluginUnreachableCode : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
     // PhanUndeclaredClass : 1 occurrence
+    // PhanUndeclaredMethodInCallable : 1 occurrence
     // PhanUndeclaredTypeThrowsType : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
@@ -36,7 +36,6 @@ return [
         'src/class-plan.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-stats.php' => ['PhanTypeArraySuspiciousNullable'],
         'src/class-uploader.php' => ['PhanTypeMismatchArgument'],
-        'src/class-utils.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-videopresstoken.php' => ['PhanTypeMismatchReturn'],
         'src/class-wpcom-rest-api-v2-attachment-field-videopress.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-wpcom-rest-api-v2-endpoint-videopress.php' => ['PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],

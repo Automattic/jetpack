@@ -187,14 +187,25 @@ Disable the gradient for a cleaner line-only appearance, or customize it:
 
 ## Theming Integration
 
-Sparklines integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+Sparklines integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+
+**The line color comes from the first palette custom property, not the theme object.** Use the `color` prop to override a single sparkline:
+
+<Source
+	language="css"
+	code={ `.a8c-charts-scope {
+		--a8c-charts-color-series-1: #FF6B6B;
+	}` }
+/>
+
+Everything else is set by wrapping your chart in `GlobalChartsProvider` and passing a theme object with the properties you want to override to the `theme` prop:
 
 <Source
 	language="tsx"
 	code={ `import { GlobalChartsProvider, Sparkline, type ChartTheme } from '@automattic/charts';
 
 	const customTheme: ChartTheme = {
-		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
+		sparkline: { strokeWidth: 2 },
 	};
 
 	<GlobalChartsProvider theme={customTheme}>

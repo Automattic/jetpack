@@ -33,7 +33,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 	 *
 	 * @var string[]
 	 */
-	const ALLOWED_TOP_LEVEL_NODES = array( 'wp-logo', 'site-name', 'updates', 'command-palette', 'comments', 'new-content', 'my-account' );
+	const ALLOWED_TOP_LEVEL_NODES = array( 'wp-logo', 'site-name', 'updates', 'command-palette', 'comments', 'new-content', 'my-account', 'agents-manager', 'agents-manager-ai-chat' );
 
 	/**
 	 * WPCOM_REST_API_V2_Endpoint_Admin_Bar constructor.
@@ -85,8 +85,6 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_item( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		global $wp_admin_bar;
-
 		if ( ! class_exists( 'WP_Screen' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
 		}
@@ -95,10 +93,16 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 			require_once ABSPATH . 'wp-admin/includes/screen.php';
 		}
 
+		$switched_locale = false;
+		if ( 'user' === $request->get_param( '_locale' ) ) {
+			$user_locale = get_user_locale();
+			if ( $user_locale ) {
+				$switched_locale = switch_to_locale( $user_locale );
+			}
+		}
+
 		// Simulate a wp-admin context.
 		set_current_screen( 'dashboard' );
-
-		add_filter( 'show_admin_bar', '__return_true', 999 );
 
 		// Core only adds the command palette node when its assets are enqueued,
 		// which normally happens on admin_enqueue_scripts.
@@ -106,16 +110,36 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 			wp_enqueue_command_palette_assets();
 		}
 
-		_wp_admin_bar_init();
+		$nodes          = $this->get_nodes();
+		$filtered_nodes = $this->filter_nodes( $nodes, self::ALLOWED_TOP_LEVEL_NODES );
+
+		$response = rest_ensure_response( array( 'nodes' => array_values( $filtered_nodes ) ) );
+
+		if ( $switched_locale ) {
+			restore_previous_locale();
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Builds the admin bar for the current request and returns its nodes.
+	 *
+	 * @return array Admin bar nodes.
+	 */
+	private function get_nodes() {
+		global $wp_admin_bar;
+
+		add_filter( 'show_admin_bar', '__return_true', 999 );
+		if ( ! _wp_admin_bar_init() || ! $wp_admin_bar instanceof WP_Admin_Bar ) {
+			return array();
+		}
 
 		ob_start();
 		do_action_ref_array( 'admin_bar_menu', array( &$wp_admin_bar ) );
-		ob_clean();
+		ob_end_clean();
 
-		$nodes          = $wp_admin_bar->get_nodes() ?? array();
-		$filtered_nodes = $this->filter_nodes( $nodes, self::ALLOWED_TOP_LEVEL_NODES );
-
-		return rest_ensure_response( array( 'nodes' => array_values( $filtered_nodes ) ) );
+		return $wp_admin_bar->get_nodes() ?? array();
 	}
 
 	/**

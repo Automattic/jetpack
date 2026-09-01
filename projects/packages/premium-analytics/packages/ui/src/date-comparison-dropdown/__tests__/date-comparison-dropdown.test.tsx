@@ -32,9 +32,10 @@ describe( 'DateComparisonDropdown', () => {
 			/>
 		);
 
-		// Named by its tooltip: the `+` trigger carries no text of its own.
-		const trigger = screen.getByRole( 'button', { name: 'Add comparison' } );
-		expect( trigger ).toHaveTextContent( '' );
+		// The additive state names itself, so what is on screen is also what a
+		// screen reader or a speech-input user gets.
+		const trigger = screen.getByRole( 'button', { name: 'Compare' } );
+		expect( trigger ).toHaveTextContent( 'Compare' );
 
 		await user.click( trigger );
 		expect( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) ).toBeChecked();
@@ -66,6 +67,27 @@ describe( 'DateComparisonDropdown', () => {
 
 		// The way back out is the same menu the `+` opens.
 		await user.click( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) );
+		expect( onClear ).toHaveBeenCalled();
+	} );
+
+	// A URL can carry a comparison whose preset the trigger cannot name — the
+	// widgets still compare, so the menu has to stay the way out (WOOA7S-2039).
+	it( 'clears a comparison the trigger cannot name', async () => {
+		const onClear = jest.fn();
+		const user = userEvent.setup();
+
+		render(
+			<DateComparisonDropdown
+				presets={ presets }
+				enabled={ false }
+				onPresetChange={ jest.fn() }
+				onClear={ onClear }
+			/>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Compare' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) );
+
 		expect( onClear ).toHaveBeenCalled();
 	} );
 } );

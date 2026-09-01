@@ -86,7 +86,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - if: github.event_name == 'pull_request'
-        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: filter
         with:
           list-files: json
@@ -258,7 +258,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: [ '7.2', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ]
+        php-versions: [ '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ]
         experimental: [ false ]
 
     steps:

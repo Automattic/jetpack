@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import analytics from 'lib/analytics';
 import AiFeatures from '../index';
@@ -32,7 +32,97 @@ describe( 'AiFeatures rendering', () => {
 		const toggle = screen.getByRole( 'checkbox', { name: /Writing Assistant/ } );
 		expect( toggle ).toBeChecked();
 		expect( toggle ).toBeEnabled();
-		expect( screen.getByText( 'Try it out in the editor' ) ).toBeInTheDocument();
+		const content = screen.getByRole( 'region', { name: 'Content' } );
+		expect( within( content ).getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+			'target',
+			'_blank'
+		);
+	} );
+
+	test( 'renders one Agent capabilities card with title and subtitle', () => {
+		renderFeatures();
+
+		expect(
+			screen.getByRole( 'heading', { level: 2, name: 'Agent capabilities' } )
+		).toBeInTheDocument();
+		expect(
+			screen.getByText( 'Choose what your WordPress Agent can help with across your site.' )
+		).toBeInTheDocument();
+	} );
+
+	// One divider per visible section — the first doubles as the header rule
+	// per the Figma — and the group headers are real h3s, one level below the
+	// card's h2 (the page title "AI" is the h1 above both).
+	test.each( [
+		[ 'one section', { writing_assistant: { enabled: true } }, [ 'Content' ] ],
+		[ 'two sections', null, [ 'Content', 'Search' ] ],
+		[
+			'three sections',
+			{
+				writing_assistant: { enabled: true },
+				image_editor: { enabled: true },
+				ai_search: { enabled: false, requires_upgrade: true },
+			},
+			[ 'Content', 'Media', 'Search' ],
+		],
+	] )( '%s: one divider per section, h3 group headers in order', ( _label, features, titles ) => {
+		renderFeatures( features ? { features } : {} );
+
+		expect( screen.getAllByRole( 'separator' ) ).toHaveLength( titles.length );
+		const headings = screen.getAllByRole( 'heading', { level: 3 } );
+		expect( headings.map( heading => heading.textContent ) ).toEqual( titles );
+	} );
+
+	test( 'no reported features: no empty card shell', () => {
+		// Everything else healthy — the empty payload alone must suppress the card.
+		renderFeatures( { features: {} } );
+
+		expect(
+			screen.queryByRole( 'heading', { name: 'Agent capabilities' } )
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByText( 'Choose what your WordPress Agent can help with across your site.' )
+		).not.toBeInTheDocument();
+	} );
+
+	test( 'the page notices survive the card disappearing', () => {
+		renderFeatures( { master_enabled: false, features: {} } );
+
+		// The notices live outside the card and must not go down with it.
+		expect( screen.getByText( 'Jetpack AI is turned off for this site.' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'heading', { name: 'Agent capabilities' } )
+		).not.toBeInTheDocument();
+	} );
+
+	test( 'the AI SEO row renders from the ai_seo feature key inside the SEO group', () => {
+		renderFeatures( {
+			features: {
+				writing_assistant: { enabled: true },
+				ai_seo: { enabled: true },
+			},
+		} );
+
+		const seoGroup = screen.getByRole( 'region', { name: 'SEO' } );
+		const toggle = within( seoGroup ).getByRole( 'checkbox', { name: /AI SEO/ } );
+		expect( toggle ).toBeChecked();
+		expect( toggle ).toBeEnabled();
+	} );
+
+	test( 'the upgrade badge sits inside the Search group', () => {
+		renderFeatures();
+
+		// Each group is a region named by its h3, so the badge's placement is
+		// part of the accessibility tree, not just visual layout.
+		const searchGroup = screen.getByRole( 'region', { name: 'Search' } );
+		expect(
+			within( searchGroup ).getByRole( 'button', { name: 'Requires upgrade' } )
+		).toBeInTheDocument();
+		expect(
+			within( screen.getByRole( 'region', { name: 'Content' } ) ).queryByRole( 'button', {
+				name: 'Requires upgrade',
+			} )
+		).not.toBeInTheDocument();
 	} );
 
 	test( 'requires_upgrade: badge shown, toggle disabled but visible, Learn more kept', () => {
@@ -42,7 +132,8 @@ describe( 'AiFeatures rendering', () => {
 		const toggle = screen.getByRole( 'checkbox', { name: /AI Search/ } );
 		expect( toggle ).toBeDisabled();
 		expect( toggle ).not.toBeChecked();
-		expect( screen.getByText( 'Learn more' ) ).toBeInTheDocument();
+		const searchGroup = screen.getByRole( 'region', { name: 'Search' } );
+		expect( within( searchGroup ).getByText( 'Learn more' ) ).toBeInTheDocument();
 	} );
 
 	test( 'no Search entitlement: the badge popover names the upgrade remedy', async () => {
@@ -107,7 +198,7 @@ describe( 'AiFeatures rendering', () => {
 		expect( screen.getByText( 'Jetpack AI is turned off for this site.' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Manage in My Jetpack' } ) ).toHaveAttribute(
 			'href',
-			'admin.php?page=my-jetpack'
+			'admin.php?page=my-jetpack#/products'
 		);
 
 		// The saved value stays visible — the toggle must not misreport it as off.
@@ -115,7 +206,6 @@ describe( 'AiFeatures rendering', () => {
 		expect( toggle ).toBeChecked();
 		expect( toggle ).toBeDisabled();
 
-		expect( screen.queryByText( 'Try it out in the editor' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
 	} );
 
@@ -136,7 +226,7 @@ describe( 'AiFeatures rendering', () => {
 		// The connection ask comes before any upgrade messaging: without a
 		// connection the plan is unknown, so no upgrade badge may show.
 		expect( screen.queryByText( 'Requires upgrade' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Try it out in the editor' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'not connected takes precedence over the master-off notice', () => {
@@ -164,7 +254,8 @@ describe( 'AiFeatures rendering', () => {
 		const toggle = screen.getByRole( 'checkbox', { name: /Writing Assistant/ } );
 		expect( toggle ).toBeChecked();
 		expect( toggle ).toBeEnabled();
-		expect( screen.getByText( 'Try it out in the editor' ) ).toBeInTheDocument();
+		const content = screen.getByRole( 'region', { name: 'Content' } );
+		expect( within( content ).getByRole( 'link', { name: /Learn more/ } ) ).toBeInTheDocument();
 	} );
 
 	test( 'free plan: toggling a feature still saves', async () => {
@@ -318,12 +409,51 @@ describe( 'AiFeatures rendering', () => {
 			/>
 		);
 
-		// Writing Assistant is off → its action is the external "Learn more" docs link.
+		// Writing Assistant links to the docs in either state, in a new tab.
 		const learnMore = screen.getByRole( 'link', { name: /Learn more/ } );
 		expect( learnMore ).toHaveAttribute( 'target', '_blank' );
 
 		// Image Editor is on → its action is the internal "Try it out" wp-admin link.
 		const tryIt = screen.getByRole( 'link', { name: /Try it out/ } );
 		expect( tryIt ).not.toHaveAttribute( 'target' );
+	} );
+
+	test( 'action links target each feature surface', () => {
+		render(
+			<AiFeatures
+				settings={ {
+					master_enabled: true,
+					is_connected: true,
+					features: {
+						writing_assistant: { enabled: true },
+						image_editor: { enabled: true },
+						ai_search: { enabled: true },
+					},
+				} }
+				savingKeys={ new Set() }
+				onUpdate={ jest.fn() }
+			/>
+		);
+
+		// Writing Assistant links to the docs even when on, in a new tab.
+		const writingLink = screen.getByRole( 'link', { name: /Learn more/ } );
+		expect( writingLink ).toHaveAttribute(
+			'href',
+			expect.stringContaining( 'jetpack-ai-settings-writing-assistant-learn-more' )
+		);
+		expect( writingLink ).toHaveAttribute( 'target', '_blank' );
+
+		// The Image Studio bundle opens Generate mode when the Media Library
+		// URL carries ai-assistant (handled bundle-side, param then stripped).
+		expect( screen.getByRole( 'link', { name: 'Try it out' } ) ).toHaveAttribute(
+			'href',
+			'upload.php?ai-assistant'
+		);
+
+		// AI Search opens the Search dashboard on its AI tab, not Overview.
+		expect( screen.getByRole( 'link', { name: 'Open Search Settings' } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=jetpack-search#/ai-answers'
+		);
 	} );
 } );

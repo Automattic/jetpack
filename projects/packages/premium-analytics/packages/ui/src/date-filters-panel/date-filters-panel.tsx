@@ -1,33 +1,34 @@
 /**
  * External dependencies
  */
+import { useReportScope } from '@jetpack-premium-analytics/data';
 import {
 	getQuickSurfacePresets,
+	canStepForward,
 	isComparisonPresetId,
 	isPrimaryPreset,
 	type ComparisonPresetId,
 	type IntervalType,
 	type PrimaryPresetId,
+	type QuickSurfacePresetId,
+	type StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { formatDateRangeCompact } from '@jetpack-premium-analytics/formatters';
+import { formatDateRangeMinimal } from '@jetpack-premium-analytics/formatters';
 import { BaseControl } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
+import { flushSync } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useMemo, useCallback, useState, useEffect } from 'react';
+import { useMemo, useCallback, useState, useEffect, type CSSProperties } from 'react';
 /**
  * Internal dependencies
  */
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
+import { DatePeriodNavigation } from '../date-period-navigation';
 import { DateRangeFilter } from '../date-range-filter';
 import { resolvePresetLabelMode, WIDE_CALENDAR_CONTAINER_THRESHOLD } from '../date-range-layout';
-import {
-	getCommittedCustomRange,
-	getCustomTriggerLabel,
-	getCustomTriggerState,
-	type RememberedCustomRange,
-} from '../date-range-popover';
+import { getCustomTriggerLabel, getCustomTriggerState } from '../date-range-popover';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
 import { PresetRowProbe } from './preset-row-probe';
 
@@ -43,9 +44,6 @@ export type DateFiltersPanelProps = {
 	 */
 	presetId?: PrimaryPresetId;
 
-	/**
-	 * The current primary date range.
-	 */
 	range: DateRange;
 
 	/**
@@ -67,6 +65,24 @@ export type DateFiltersPanelProps = {
 	comparisonPresetId?: ComparisonPresetId;
 
 	/**
+	 * The presets rendered as pills, in display order. Defaults to the rolling
+	 * windows; a detail page leads with all time (`DETAIL_SURFACE_PRESETS`).
+	 */
+	presetIds?: readonly QuickSurfacePresetId[];
+
+	/**
+	 * Where the all-time pill starts, e.g. the resource's publish date. Only
+	 * read when `presetIds` includes all time.
+	 */
+	allTimeStart?: Date;
+
+	/**
+	 * Whether to offer the custom-range popover after the pills. On by default;
+	 * the detail pages' design has presets only.
+	 */
+	withCustomRange?: boolean;
+
+	/**
 	 * Whether to render the chart interval control. Off by default: only a
 	 * surface whose contents are bucketed by it — one carrying charts rather
 	 * than a records table — should offer it.
@@ -74,31 +90,29 @@ export type DateFiltersPanelProps = {
 	withIntervalControl?: boolean;
 
 	/**
-	 * The chart interval every widget on the page draws.
+	 * The chart interval the control shows as checked. Resolved against the range
+	 * being edited, so an open draft can move it off the applied one.
 	 */
 	interval?: IntervalType;
 
 	/**
-	 * The intervals the active range allows, finest first. Derived upstream from
-	 * the range, so the menu never offers a bucket the range would coerce away.
+	 * The buckets to list, finest first. Derived upstream from the range and, for
+	 * a widget that owns its control, from what its chart draws.
 	 */
 	intervalOptions?: readonly IntervalType[];
 
-	/**
-	 * Callback when the primary date range changes.
-	 */
 	onChange: DateRangeFilterProps[ 'onChange' ];
 
-	/**
-	 * Callback when the comparison date range changes.
-	 * Receives the calculated comparison range and the preset ID used.
-	 */
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 
-	/**
-	 * Callback when the chart interval changes.
-	 */
 	onIntervalChange?: ( interval: IntervalType ) => void;
+
+	/**
+	 * Steps the applied window backward or forward by its own length. Left out,
+	 * the navigation controls are not rendered at all: a surface whose range is
+	 * not a movable window has nowhere to step.
+	 */
+	onStep?: ( direction: StepDirection ) => void;
 
 	/**
 	 * Props for the date range popover.
@@ -111,19 +125,10 @@ export type DateFiltersPanelProps = {
 	 */
 	comparisonControlProps?: Omit< Parameters< typeof BaseControl >[ 0 ], 'children' >;
 
-	/**
-	 * Callback when the primary date range is applied.
-	 */
 	onApply: DateRangeFilterProps[ 'onApply' ];
 
-	/**
-	 * Callback when the primary date range is canceled.
-	 */
 	onCancel: DateRangeFilterProps[ 'onCancel' ];
 
-	/**
-	 * Whether the primary date range can be applied.
-	 */
 	canApply?: boolean;
 
 	/**
@@ -133,20 +138,24 @@ export type DateFiltersPanelProps = {
 	timeZone: string;
 
 	/**
-	 * Whether to render the period-over-period Compare control. Pages whose
-	 * design has no comparison (the post/email detail page) opt out; their
-	 * widgets ignore comparison params, and hiding the control keeps the UI
-	 * honest about it.
+	 * Element to measure for the responsive layout instead of the panel's own
+	 * root. Required in a shrink-to-fit slot (e.g. a shared header row), where
+	 * the root's width follows the panel's own content and can't self-measure.
 	 */
-	showComparison?: boolean;
+	containerElement?: HTMLElement | null;
+
+	/**
+	 * Inline space in the measured container never available to the panel —
+	 * e.g. a title's minimum share on a shared header row. Subtracted before
+	 * resolving layout, so the panel steps down before the row-mates lose theirs.
+	 */
+	reservedInlineSize?: number;
 };
 
 /**
- * DateFiltersPanel - Manages date range selection and comparison controls
- *
- * This component serves as the container for date filtering functionality,
- * managing both the primary date range selection and the comparison date range.
- * It owns the comparison state and delegates to child components for UI.
+ * Container for the primary date range picker and the comparison dropdown. It
+ * owns the comparison state and the responsive measurement; children only
+ * render.
  */
 export function DateFiltersPanel( {
 	presetId,
@@ -154,12 +163,16 @@ export function DateFiltersPanel( {
 	appliedPresetId,
 	appliedRange,
 	comparisonPresetId,
+	presetIds,
+	allTimeStart,
+	withCustomRange = true,
 	withIntervalControl = false,
 	interval,
 	intervalOptions,
 	onChange,
 	onComparisonChange,
 	onIntervalChange,
+	onStep,
 	rangeControlProps = {
 		label: null,
 		help: null,
@@ -172,20 +185,21 @@ export function DateFiltersPanel( {
 	onCancel,
 	canApply = true,
 	timeZone,
-	showComparison = true,
+	containerElement,
+	reservedInlineSize = 0,
 }: DateFiltersPanelProps ) {
-	/**
-	 * Validate and normalize the primary preset ID.
-	 * Only accepts built-in preset IDs (including 'custom').
-	 * Invalid/unknown values are treated as undefined, which allows
-	 * DateRangePopover to handle them gracefully (falls back to custom).
+	/*
+	 * Read rather than a prop, so this and the widgets share one declaration —
+	 * a header can never offer a comparison the widgets below aren't fetching.
 	 */
+	const { offersComparison } = useReportScope();
+
+	// Unknown values (e.g. garbage from the URL) become undefined, which
+	// DateRangePopover reads as the custom preset.
 	const validatedPresetId = useMemo( () => {
 		if ( ! presetId ) {
 			return undefined;
 		}
-		// Only accept known built-in presets
-		// Unknown/garbage values from URL are rejected to prevent UI inconsistency
 		return isPrimaryPreset( presetId ) ? presetId : undefined;
 	}, [ presetId ] );
 
@@ -197,20 +211,16 @@ export function DateFiltersPanel( {
 		return isPrimaryPreset( appliedPresetId ) ? appliedPresetId : undefined;
 	}, [ appliedPresetId ] );
 
-	// Validate and normalize the comparison preset ID
 	const validatedComparisonPresetId = useMemo( () => {
 		return isComparisonPresetId( comparisonPresetId ) ? comparisonPresetId : undefined;
 	}, [ comparisonPresetId ] );
 
-	// Derive comparison enabled state directly from validated prop
 	const comparisonEnabled = !! validatedComparisonPresetId;
 
 	/*
-	 * Track whether the primary picker popover is open so the comparison label
-	 * mirrors it: while the picker is open it previews the draft range, but once
-	 * closed without Apply it reverts to the applied range (just like the
-	 * picker's own trigger). Without this, the comparison label would keep
-	 * showing the un-applied draft's derived range.
+	 * Tracks whether the picker popover is open so the comparison label mirrors
+	 * it: previews the draft range while open, reverts to applied when closed
+	 * (like the picker's own trigger) — otherwise it'd show a stale draft.
 	 */
 	const [ isPrimaryPickerOpen, setIsPrimaryPickerOpen ] = useState( false );
 	const comparisonSourceRange = isPrimaryPickerOpen ? range : appliedRange ?? range;
@@ -227,10 +237,6 @@ export function DateFiltersPanel( {
 		[ onComparisonChange, presets ]
 	);
 
-	/**
-	 * Handles clearing the comparison completely.
-	 * Clears the selected preset and notifies parent.
-	 */
 	const clearComparison = useCallback( () => {
 		onComparisonChange( undefined, undefined );
 	}, [ onComparisonChange ] );
@@ -246,44 +252,36 @@ export function DateFiltersPanel( {
 	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
 		const entry = entries[ 0 ];
 		if ( entry ) {
-			// Floored rather than rounded, to stay on the conservative side of the
-			// probe's `Math.ceil`. Both consumers are step functions, so a raw float
-			// would only re-render on every frame of a drag.
-			setContainerWidth( Math.floor( entry.contentRect.width ) );
+			// Flushed synchronously: ResizeObserver fires between layout and paint,
+			// so this keeps the resize and its label form in the same frame.
+			// Ceiled so a slot sized by the published width compares equal.
+			flushSync( () => {
+				setContainerWidth( Math.ceil( entry.contentRect.width ) );
+			} );
 		}
 	}, [] );
 
 	const setObserverRef = useResizeObserver< HTMLElement >( handleResize );
 
-	// This panel's own root, falling back to the body only until the ref lands.
-	useEffect( () => {
-		setObserverRef( rootElement ?? document.body );
-	}, [ rootElement, setObserverRef ] );
-
 	/*
-	 * The last applied custom range, so the trigger can offer the way back to it
-	 * while a preset drives the range.
-	 *
-	 * Owned here rather than in the popover because the probe has to reproduce
-	 * the trigger's label exactly; held downstream it would measure "Custom"
-	 * against a trigger showing a formatted range. Only ever set: a preset
-	 * selection clears the committed custom range, which is the thing worth
-	 * surviving.
+	 * Measures the caller's container when given one, else the panel's own root
+	 * (body until the ref lands). The setter also detaches: `useResizeObserver`
+	 * unobserves only when called with `null`.
 	 */
-	const [ rememberedCustomRange, setRememberedCustomRange ] =
-		useState< RememberedCustomRange | null >( null );
-
 	useEffect( () => {
-		const committedCustomRange = getCommittedCustomRange( validatedAppliedPresetId, appliedRange );
+		setObserverRef( containerElement ?? rootElement ?? document.body );
 
-		if ( committedCustomRange ) {
-			setRememberedCustomRange( committedCustomRange );
-		}
-	}, [ validatedAppliedPresetId, appliedRange ] );
+		return () => setObserverRef( null );
+	}, [ containerElement, rootElement, setObserverRef ] );
 
 	// Derived through the same helpers the trigger uses, so the probe measures
-	// the string the trigger is actually showing.
+	// the string the trigger is actually showing — or nothing, on a surface
+	// that offers no custom range.
 	const customTriggerLabel = useMemo( () => {
+		if ( ! withCustomRange ) {
+			return undefined;
+		}
+
 		const committedRange = appliedRange ?? range;
 
 		return getCustomTriggerLabel( {
@@ -295,23 +293,25 @@ export function DateFiltersPanel( {
 			} ),
 			range,
 			committedRange,
-			rememberedCustomRange,
 			customLabel: __( 'Custom', 'jetpack-premium-analytics-pkg' ),
-			formatRange: formatDateRangeCompact,
+			formatRange: formatDateRangeMinimal,
 		} );
 	}, [
 		appliedRange,
 		canApply,
 		isPrimaryPickerOpen,
 		range,
-		rememberedCustomRange,
 		validatedAppliedPresetId,
 		validatedPresetId,
+		withCustomRange,
 	] );
 
 	// Labels only. The pills recompute their own ranges at selection time, so a
 	// stale memo here costs nothing.
-	const surfacePresets = useMemo( () => getQuickSurfacePresets( timeZone ), [ timeZone ] );
+	const surfacePresets = useMemo(
+		() => getQuickSurfacePresets( timeZone, { presetIds } ),
+		[ presetIds, timeZone ]
+	);
 
 	const comparisonLabel =
 		typeof comparisonControlProps.label === 'string' ? comparisonControlProps.label : undefined;
@@ -342,6 +342,26 @@ export function DateFiltersPanel( {
 		]
 	);
 
+	/*
+	 * Built once, rendered in the row and the probe, like the other controls.
+	 * Reads the applied range, not staged: the arrows commit on click, so a
+	 * drafted range must not decide whether the forward step is available.
+	 */
+	const navigationControl = useMemo( () => {
+		if ( ! onStep ) {
+			return null;
+		}
+
+		const committedRange = appliedRange ?? range;
+
+		return (
+			<DatePeriodNavigation
+				canStepForward={ canStepForward( committedRange, new Date() ) }
+				onStep={ onStep }
+			/>
+		);
+	}, [ appliedRange, onStep, range ] );
+
 	// Same arrangement as the comparison control: built once, rendered in the
 	// row and in the probe.
 	const intervalControl = useMemo(
@@ -361,60 +381,84 @@ export function DateFiltersPanel( {
 		setFullRowWidth( width );
 	}, [] );
 
-	// Measured, so the boundary follows the active locale rather than a
-	// breakpoint picked for English, and moves with the comparison control:
-	// adding one takes room the presets give back.
+	// Measured, so the boundary follows the active locale, not an English
+	// breakpoint, and shifts as the comparison control is added or removed.
+	// The reserved share is subtracted first, so row-mates keep their minimum.
 	const labelMode = useMemo(
-		() => resolvePresetLabelMode( containerWidth, fullRowWidth ),
-		[ containerWidth, fullRowWidth ]
+		() =>
+			resolvePresetLabelMode(
+				containerWidth === null ? null : containerWidth - reservedInlineSize,
+				fullRowWidth
+			),
+		[ containerWidth, fullRowWidth, reservedInlineSize ]
 	);
 
 	const isWideScreen =
 		containerWidth !== null && containerWidth >= WIDE_CALENDAR_CONTAINER_THRESHOLD;
 
+	// Published so a host can size the panel's slot from the full-labels width.
+	const rootStyle = useMemo(
+		() =>
+			fullRowWidth === null
+				? undefined
+				: ( {
+						'--date-filters-panel-full-row-width': `${ fullRowWidth }px`,
+				  } as CSSProperties ),
+		[ fullRowWidth ]
+	);
+
 	return (
-		<Stack ref={ setRootElement } className="date-filters-panel" direction="row" gap="sm">
+		<div ref={ setRootElement } className="date-filters-panel" style={ rootStyle }>
 			<PresetRowProbe
 				presets={ surfacePresets }
 				customTriggerLabel={ customTriggerLabel }
-				interval={ intervalControl }
+				navigation={ navigationControl }
 				comparison={ comparisonControl }
+				interval={ intervalControl }
 				onMeasure={ handleProbeMeasure }
 			/>
 
-			<BaseControl
-				className="date-filters-panel__primary"
-				label={ rangeControlProps.label }
-				id="date-range-popover-button"
-				help={ rangeControlProps.help }
-			>
-				<DateRangeFilter
-					presetId={ validatedPresetId }
-					range={ range }
-					appliedPresetId={ validatedAppliedPresetId }
-					appliedRange={ appliedRange }
-					onChange={ onChange }
-					onApply={ onApply }
-					onCancel={ onCancel }
-					canApply={ canApply }
-					timeZone={ timeZone }
-					labelMode={ labelMode }
-					isWideScreen={ isWideScreen }
-					rememberedCustomRange={ rememberedCustomRange }
-					onOpenChange={ setIsPrimaryPickerOpen }
-				/>
-			</BaseControl>
+			<Stack className="date-filters-panel__row" direction="row" gap="sm">
+				{ navigationControl }
 
-			{ intervalControl }
-
-			{ showComparison && (
 				<BaseControl
-					className="date-filters-panel__comparison"
-					help={ comparisonControlProps.help }
+					className="date-filters-panel__primary"
+					label={ rangeControlProps.label }
+					id="date-range-popover-button"
+					help={ rangeControlProps.help }
 				>
-					{ comparisonControl }
+					<DateRangeFilter
+						presetId={ validatedPresetId }
+						range={ range }
+						appliedPresetId={ validatedAppliedPresetId }
+						appliedRange={ appliedRange }
+						onChange={ onChange }
+						onApply={ onApply }
+						onCancel={ onCancel }
+						canApply={ canApply }
+						timeZone={ timeZone }
+						labelMode={ labelMode }
+						isWideScreen={ isWideScreen }
+						onOpenChange={ setIsPrimaryPickerOpen }
+						presetIds={ presetIds }
+						allTimeStart={ allTimeStart }
+						withCustomRange={ withCustomRange }
+					/>
 				</BaseControl>
-			) }
-		</Stack>
+
+				{ /* Comparison before the interval: it qualifies the range the
+				     presets just set, while the interval only buckets the charts. */ }
+				{ offersComparison && (
+					<BaseControl
+						className="date-filters-panel__comparison"
+						help={ comparisonControlProps.help }
+					>
+						{ comparisonControl }
+					</BaseControl>
+				) }
+
+				{ intervalControl }
+			</Stack>
+		</div>
 	);
 }

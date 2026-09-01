@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportCsvAction,
 	ReportErrorState,
@@ -17,14 +16,16 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import {
 	getLocationFields,
 	getReportLocationsTabs,
+	getTabTitle,
 	resolveSection,
 	supportsCountryFilter,
 	useLocationsReportRecords,
@@ -81,11 +82,7 @@ function getCountryFilter( view: View ): string {
  * @return The Locations report page.
  */
 export default function LocationsReportPage(): JSX.Element {
-	const search = useSearch( { from: ROUTE_FROM } ) as Record< string, string | undefined >;
-	const reportParams = useMemo(
-		() => normalizeReportParams( search as Parameters< typeof normalizeReportParams >[ 0 ] ),
-		[ search ]
-	);
+	const reportParams = useReportParams();
 	const tabs = useMemo( () => getReportLocationsTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );
 	const [ countryFilter, setCountryFilter ] = useState( '' );
@@ -129,9 +126,8 @@ export default function LocationsReportPage(): JSX.Element {
 		sort: sortLocationCsvRows,
 	} );
 
-	// A country picked on one tab does not carry to the next: the Countries tab
-	// cannot be scoped at all, and a country with regions may have no cities.
-	// The table remounts per tab, so its own filter clears alongside this.
+	// Country filter doesn't carry between tabs: Countries can't be scoped, and
+	// cities/regions vary per tab, so clear it on tab change.
 	const handleTabChange = useCallback(
 		( tab: ReportLocationsTabId ) => {
 			setCountryFilter( '' );
@@ -147,16 +143,13 @@ export default function LocationsReportPage(): JSX.Element {
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
+	const { getLabel } = REPORTS.locations;
 
 	return (
 		<ReportPageShell
 			tabbed
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={
-				<StatsBreadcrumbs
-					items={ [ { label: __( 'Locations', 'jetpack-premium-analytics-pkg' ) } ] }
-				/>
-			}
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
@@ -164,8 +157,9 @@ export default function LocationsReportPage(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
+				title={ getTabTitle( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ handleTabChange } /> }
-				filters={ <DateFiltersPanel { ...dateFilters } /> }
+				dateFilters={ dateFilters }
 			>
 				{ records.isError ? (
 					<ReportErrorState

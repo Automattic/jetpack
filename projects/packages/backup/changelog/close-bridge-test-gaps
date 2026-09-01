@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Tests only: cover the remaining File_Browser bridge branches and dispatch every bridge route through the REST server. No production code changed.
+
+

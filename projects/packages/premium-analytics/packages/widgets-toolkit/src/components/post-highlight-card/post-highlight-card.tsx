@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
+import { siteTimeZone, toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 /**
  * Internal dependencies
  */
@@ -38,10 +39,9 @@ export type PostHighlightCardMetric = {
 	value: number | undefined;
 
 	/**
-	 * Caveat about how the value is aggregated, e.g. that it is an all-time total
-	 * while its neighbours are scoped to the dashboard's date range. Shown as a
-	 * hover tooltip on the tile and mirrored as visually hidden text for
-	 * assistive technology.
+	 * Caveat about how the value is aggregated (e.g. an all-time total among
+	 * date-scoped neighbours). Shown as a hover tooltip and mirrored as
+	 * visually hidden text for assistive technology.
 	 */
 	note?: string;
 };
@@ -77,9 +77,6 @@ export type PostHighlightCardProps = {
 	 */
 	imageUrl?: string;
 
-	/**
-	 * Alternative text for the featured image.
-	 */
 	imageAlt?: string;
 
 	/**
@@ -107,7 +104,9 @@ function formatPublishDate( date: string ): string {
 		return '';
 	}
 
-	const parsed = parseISO( date );
+	// Read the instant in the site's zone: a plain `Date` would format in the
+	// visitor's, showing a late-evening post on the next day east of the site.
+	const parsed = toLocalTZ( date, siteTimeZone() );
 	const formatted = Number.isNaN( parsed.getTime() ) ? date : format( parsed, 'PP' );
 
 	return sprintf(
@@ -120,9 +119,6 @@ function formatPublishDate( date: string ): string {
 /**
  * A single labelled metric value, with an optional aggregation caveat.
  *
- * @param props            - The component props.
- * @param props.metric     - The metric to render.
- * @param props.dataFormat - Format configuration for the value.
  * @return The rendered metric tile.
  */
 function PostHighlightMetric( {
@@ -160,14 +156,9 @@ function PostHighlightMetric( {
 }
 
 /**
- * Presentational card highlighting a single post: its title (linking to the
- * published post), its publish date, a row of metric tiles, and its featured
- * image when present.
- *
- * Shared by the "Latest post" and "Popular post" widgets. It renders only the
- * populated state — loading, error, and empty belong to the calling widget's
- * `<WidgetState>` — and adapts to the dashboard cell size through the container
- * queries in its stylesheet.
+ * Presentational card for a single post: title, publish date, metric tiles,
+ * and an optional featured image. Renders only the populated state — the
+ * calling widget owns loading/error/empty via `<WidgetState>`.
  *
  * @param {PostHighlightCardProps} props - The component props.
  * @return The rendered card.

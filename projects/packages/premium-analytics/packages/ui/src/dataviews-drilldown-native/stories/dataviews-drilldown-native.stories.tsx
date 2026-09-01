@@ -157,11 +157,6 @@ const archiveRows: ArchiveRow[] = [
 	},
 ];
 
-/**
- * Build paginated referrer rows for the pagination story.
- *
- * @return The paginated referrer rows.
- */
 function buildPaginatedRows(): ReferrerRow[] {
 	const paginatedRows: ReferrerRow[] = [];
 
@@ -209,13 +204,6 @@ const referrerParentIds = new Set(
 	[ ...rows, ...PAGINATED_ROWS ].map( row => row.parentId ).filter( Boolean )
 );
 
-/**
- * Render the referrer field, bolding rows that have children.
- *
- * @param props      - The DataViews render props.
- * @param props.item - The referrer row.
- * @return The rendered referrer.
- */
 function ReferrerField( { item }: DataViewRenderFieldProps< ReferrerRow > ): JSX.Element {
 	const label = referrerParentIds.has( item.id ) ? (
 		<strong>{ item.referrer }</strong>
@@ -236,13 +224,6 @@ function ReferrerField( { item }: DataViewRenderFieldProps< ReferrerRow > ): JSX
 
 const archiveParentIds = new Set( archiveRows.map( row => row.parentId ).filter( Boolean ) );
 
-/**
- * Render the archive title field, bolding rows that have children.
- *
- * @param props      - The DataViews render props.
- * @param props.item - The archive row.
- * @return The rendered archive title.
- */
 function ArchiveTitleField( { item }: DataViewRenderFieldProps< ArchiveRow > ): JSX.Element {
 	const label = archiveParentIds.has( item.id ) ? (
 		<strong>{ item.title }</strong>
@@ -261,12 +242,6 @@ function ArchiveTitleField( { item }: DataViewRenderFieldProps< ArchiveRow > ): 
 	return label;
 }
 
-/**
- * Format an ISO date for display.
- *
- * @param value - The ISO date value.
- * @return The localized date label.
- */
 function formatDate( value: string ): string {
 	return new Date( value ).toLocaleDateString( undefined, {
 		year: 'numeric',
@@ -275,13 +250,6 @@ function formatDate( value: string ): string {
 	} );
 }
 
-/**
- * Render the date field.
- *
- * @param props      - The DataViews render props.
- * @param props.item - The referrer row.
- * @return The rendered date.
- */
 function DateField( { item }: DataViewRenderFieldProps< ReferrerRow > ): JSX.Element {
 	if ( ! item.date ) {
 		return <></>;
@@ -290,64 +258,26 @@ function DateField( { item }: DataViewRenderFieldProps< ReferrerRow > ): JSX.Ele
 	return <>{ formatDate( item.date ) }</>;
 }
 
-/**
- * Render the views field.
- *
- * @param props      - The DataViews render props.
- * @param props.item - The referrer row.
- * @return The rendered view count.
- */
 function ViewsField( { item }: DataViewRenderFieldProps< ReferrerRow > ): JSX.Element {
 	return <>{ item.views.toLocaleString() }</>;
 }
 
-/**
- * Render the archive views field.
- *
- * @param props      - The DataViews render props.
- * @param props.item - The archive row.
- * @return The rendered archive view count.
- */
 function ArchiveViewsField( { item }: DataViewRenderFieldProps< ArchiveRow > ): JSX.Element {
 	return <>{ item.views.toLocaleString() }</>;
 }
 
-/**
- * Resolve the stable row id.
- *
- * @param item - The referrer row.
- * @return The row id.
- */
 function getItemId( item: ReferrerRow ): string {
 	return item.id;
 }
 
-/**
- * Resolve the parent id for child rows.
- *
- * @param item - The referrer row.
- * @return The parent row id, if present.
- */
 function getItemParentId( item: ReferrerRow ): string | undefined {
 	return item.parentId;
 }
 
-/**
- * Resolve the stable archive row id.
- *
- * @param item - The archive row.
- * @return The row id.
- */
 function getArchiveItemId( item: ArchiveRow ): string {
 	return item.id;
 }
 
-/**
- * Resolve the parent id for archive child rows.
- *
- * @param item - The archive row.
- * @return The parent row id, if present.
- */
 function getArchiveItemParentId( item: ArchiveRow ): string | undefined {
 	return item.parentId;
 }
@@ -571,6 +501,37 @@ export const Paginated: Story = {
 			description: {
 				story:
 					'Pagination counts every row and slices the hierarchy-ordered list. Until the parent-on-page-boundary refinement lands, a deep subtree can still span pages (its child rows appear on the next page without their parent).',
+			},
+		},
+	},
+};
+
+export const Collapsible: Story = {
+	args: {
+		...Default.args,
+		collapsible: true,
+		hideLevelMarkers: true,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The local collapse layer over the static native rendering: rows with children get a chevron, and folding one drops its whole subtree from the table — including from the pagination count. Sits behind a prop so it can be dropped once core ships native collapse (WordPress/gutenberg#80360).',
+			},
+		},
+	},
+};
+
+export const CollapsedByDefault: Story = {
+	args: {
+		...Collapsible.args,
+		defaultExpanded: 'none',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Opening on the top level only, for a report whose groups are long. Searching still answers: the matches’ ancestors unfold for as long as the search is on, then fold back when it clears.',
 			},
 		},
 	},

@@ -1,39 +1,19 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { mobile } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-/**
- * Widget attributes shape.
- */
-export type DevicesAttributes = {
-	/**
-	 * Maximum rows to display (0 = all). Defaults to 5.
-	 */
-	max?: number;
-};
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type DevicesAttributes = Record< never, never >;
 
 /**
- * Devices widget type definition.
- *
- * Shows screen size breakdown (Desktop / Mobile / Tablet) via the PA proxy
- * at `stats/devices/screensize`. Date range comes from WidgetRoot's
- * reportParams (the shared dashboard date picker).
+ * Screen size breakdown, from the PA proxy at `stats/devices/screensize`.
  */
 export default {
 	icon: mobile,
-	attributes: [
-		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
-			type: 'integer',
-		},
-	] as WidgetAttributeField< DevicesAttributes >[],
+	attributes: [] as WidgetAttributeField< DevicesAttributes >[],
 	example: {
-		attributes: {
-			max: 5,
-		},
+		attributes: {},
 	},
 };

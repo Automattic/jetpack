@@ -122,6 +122,7 @@ class Jetpack_Backup {
 		Connection_Rest_Authentication::init();
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller::class, 'register_routes' ) );
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
@@ -170,15 +171,15 @@ class Jetpack_Backup {
 	 * The page to be added to submenu
 	 */
 	public static function add_wp_admin_submenu() {
-		$is_modernized = self::is_modernized();
-		$callback      = $is_modernized && function_exists( 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page' )
+		$wp_build_active = self::is_wp_build_dashboard_active();
+		$callback        = $wp_build_active
 			? 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page'
 			: array( __CLASS__, 'plugin_settings_page' );
 
-		// Gate the "VaultPress Backup" relabel behind the modernization
-		// filter so the flag-off path stays byte-identical to trunk.
-		$page_title = $is_modernized ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
-		$menu_title = $is_modernized ? 'VaultPress Backup' : 'Backup'; // Product name, do not translate.
+		// The relabel rides the modernized dashboard rather than the filter alone,
+		// so a fallback to the legacy page also falls back to the legacy title.
+		$page_title = $wp_build_active ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
+		$menu_title = $wp_build_active ? 'VaultPress Backup' : 'Backup'; // Product name, do not translate.
 
 		$page_suffix = Admin_Menu::add_menu(
 			$page_title,
@@ -200,7 +201,7 @@ class Jetpack_Backup {
 	public static function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 
-		if ( self::is_modernized() ) {
+		if ( self::is_wp_build_dashboard_active() ) {
 			// The modernized Backup overview is a focused, full-screen product
 			// surface. Suppress JITMs and other core/plugin admin notices so they
 			// don't reflow on top of the dual-pane layout. Mirrors how Jetpack
@@ -240,7 +241,7 @@ class Jetpack_Backup {
 	public static function enqueue_admin_scripts() {
 		// This callback is registered via `load-{$page_suffix}` in `add_wp_admin_submenu()`,
 		// so it only fires on the Backup admin page — no need to re-check the page here.
-		if ( self::is_modernized() ) {
+		if ( self::is_wp_build_dashboard_active() ) {
 			// The i18n loader is registered on every admin page by jetpack-assets but
 			// only enqueued when depended on; the esbuild bundles don't pull it in.
 			// Enqueue it here, before the early return, so the wp-build dashboard's
@@ -249,9 +250,14 @@ class Jetpack_Backup {
 				wp_enqueue_script( 'wp-jp-i18n-loader' );
 			}
 
-			// wp-build manages its own enqueue pipeline. The legacy script,
-			// initial state, and tracking are intentionally skipped for the
-			// wp-build dashboard.
+			// The esbuild bundles don't declare the Tracks client as a dependency
+			// either, so it never reaches the page on its own.
+			if ( self::can_use_analytics() ) {
+				Tracking::register_tracks_functions_scripts( true );
+			}
+
+			// wp-build manages its own enqueue pipeline. The legacy script and
+			// its initial state are skipped for the wp-build dashboard.
 			return;
 		}
 
@@ -378,6 +384,13 @@ class Jetpack_Backup {
 					'option_name'    => array(
 						'required' => true,
 						'type'     => 'string',
+						// The two names `Jetpack_Options` recognises. Anything else
+						// falls through its allowlist to a `trigger_error()` and is
+						// stored nowhere, so an unlisted reason would dismiss
+						// nothing while answering as though it had — and on a site
+						// with `display_errors` on, the warning is printed ahead of
+						// the JSON and the response no longer parses.
+						'enum'     => array( 'restore', 'backups' ),
 					),
 					'should_dismiss' => array(
 						'required' => true,
@@ -466,12 +479,39 @@ class Jetpack_Backup {
 	}
 
 	/**
+	 * The error a route answers with when its WordPress.com request did not come
+	 * back with a 200.
+	 *
+	 * Returning `null` instead — which these routes used to do — is served as an
+	 * HTTP 200 carrying a `null` body, so `apiFetch` resolves and nothing throws.
+	 * A WordPress.com blip then reaches the dashboard as an empty success, which
+	 * is how a paying customer ends up looking at the first-run screen. A
+	 * WP_Error makes the REST layer answer with a status, so every caller's
+	 * existing failure path runs.
+	 *
+	 * @param int $status The upstream response code, already cast to an int, or 0
+	 *                    when the request never reached WordPress.com.
+	 * @return WP_Error
+	 */
+	private static function get_failed_fetch_error( $status = 0 ) {
+		return new WP_Error(
+			'failed_to_fetch_data',
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack-backup-pkg' ),
+			array(
+				// A transport failure has no status at all, and `status_header( 0 )`
+				// emits an invalid status line — so anything falsy becomes a 500.
+				'status' => $status ? $status : 500,
+			)
+		);
+	}
+
+	/**
 	 * Get information about recent backups
 	 *
 	 * @access public
 	 * @static
 	 *
-	 * @return array An array of recent backups
+	 * @return \WP_REST_Response|WP_Error The recent backups, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function get_recent_backups() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
@@ -484,8 +524,10 @@ class Jetpack_Backup {
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return null;
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response_code );
 		}
 
 		return rest_ensure_response(
@@ -509,7 +551,14 @@ class Jetpack_Backup {
 
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 2 ), null, 'wpcom' );
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		// Cast: `wp_remote_retrieve_response_code()` hands back whatever the
+		// transport put there, and a numeric-string `'200'` fails this
+		// strict comparison. The result is memoized in `$status` and read by
+		// `has_backup_plan()`, which answers false for a `WP_Error` — so a
+		// site that does have Backup is told, for the rest of the request,
+		// that it does not. That answer is acted on: it backs the
+		// `/has-backup-plan` route and the standalone-license upsell.
+		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'rewind_state_fetch_failed' );
 		}
 
@@ -537,7 +586,7 @@ class Jetpack_Backup {
 	 * @access public
 	 * @static
 	 *
-	 * @return array An array of capabilities
+	 * @return \WP_REST_Response|WP_Error The site capabilities, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function get_backup_capabilities() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
@@ -550,8 +599,10 @@ class Jetpack_Backup {
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return null;
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response_code );
 		}
 
 		return rest_ensure_response(
@@ -565,7 +616,7 @@ class Jetpack_Backup {
 	 * @access public
 	 * @static
 	 *
-	 * @return array An array of recent restores
+	 * @return \WP_REST_Response|WP_Error The recent restores, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function get_recent_restores() {
 		$blog_id  = Jetpack_Options::get_option( 'id' );
@@ -577,8 +628,10 @@ class Jetpack_Backup {
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return null;
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response_code );
 		}
 
 		return rest_ensure_response(
@@ -643,7 +696,12 @@ class Jetpack_Backup {
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		// Cast, as everywhere else this package reads a status. Uncast, a
+		// numeric-string `'200'` discards a good activity page and the
+		// `jetpack-backup/list-backup-events` ability reports that the site
+		// has completed no backups — `unwrap_response()` flattens this
+		// `null` into an empty list, which is a claim rather than an error.
+		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
 			return null;
 		}
 
@@ -655,26 +713,46 @@ class Jetpack_Backup {
 	/**
 	 * Gets information about the currently promoted backup product.
 	 *
-	 * @return string|WP_Error A JSON object of the current backup product being promoted if the request was successful, or a WP_Error otherwise.
+	 * @return object|WP_Error The promoted product, or a WP_Error if it could not be read.
 	 */
 	public static function get_backup_promoted_product_info() {
 		$request_url   = 'https://public-api.wordpress.com/rest/v1.1/products?locale=' . get_user_locale() . '&type=jetpack';
 		$wpcom_request = wp_remote_get( esc_url_raw( $request_url ) );
-		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
-		if ( 200 === $response_code ) {
-			$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
-			return $products->{self::JETPACK_BACKUP_PROMOTED_PRODUCT};
-		} else {
-			// Something went wrong so we'll just return the response without caching.
+		// Cast: the transport may report the status as a numeric string, which
+		// a strict comparison against 200 sends down the failure path.
+		$response_code = (int) wp_remote_retrieve_response_code( $wpcom_request );
+
+		if ( 200 !== $response_code ) {
 			return new WP_Error(
 				'failed_to_fetch_data',
 				esc_html__( 'Unable to fetch the requested data.', 'jetpack-backup-pkg' ),
 				array(
-					'status'  => $response_code,
+					// A transport failure has no status at all; reporting 0 would
+					// leave the REST layer with nothing to serve.
+					'status'  => $response_code ? $response_code : 500,
 					'request' => $wpcom_request,
 				)
 			);
 		}
+
+		$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+
+		// A 200 is not a promise that the promoted product is in the body. A
+		// truncated response decodes to null, and the slug is a constant here
+		// but a catalogue entry upstream — retiring it there leaves this a 200
+		// with the key absent. Reading through either emits a PHP warning and
+		// yields null, which the route then serves as a 200 carrying `null`:
+		// indistinguishable, to a caller, from a priced answer it failed to
+		// read. Refusing says which of the two happened.
+		if ( ! is_object( $products ) || ! isset( $products->{ self::JETPACK_BACKUP_PROMOTED_PRODUCT } ) ) {
+			return new WP_Error(
+				'promoted_product_unreadable',
+				esc_html__( 'Unable to read the promoted product information.', 'jetpack-backup-pkg' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return $products->{ self::JETPACK_BACKUP_PROMOTED_PRODUCT };
 	}
 
 	/**
@@ -707,7 +785,7 @@ class Jetpack_Backup {
 	/**
 	 * Returns the result of `/upgrades` endpoint call.
 	 *
-	 * @return array of site purchases.
+	 * @return \WP_REST_Response|WP_Error The site purchases, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function get_site_current_purchases() {
 
@@ -719,8 +797,10 @@ class Jetpack_Backup {
 			return self::get_failed_fetch_error();
 		}
 
-		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
-			return self::get_failed_fetch_error();
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response_code );
 		}
 
 		return rest_ensure_response(
@@ -752,7 +832,7 @@ class Jetpack_Backup {
 	/**
 	 * Get site storage size
 	 *
-	 * @return string|WP_Error A JSON object with the site storage size if the request was successful, or a WP_Error otherwise.
+	 * @return \WP_REST_Response|WP_Error The site storage size, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function get_site_backup_size() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
@@ -765,8 +845,10 @@ class Jetpack_Backup {
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return null;
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response_code );
 		}
 
 		return rest_ensure_response(
@@ -777,8 +859,7 @@ class Jetpack_Backup {
 	/**
 	 * Get site policies from WPCOM. It includes the storage limit and activity log limit, if apply.
 	 *
-	 * @return string|WP_Error A JSON object with the site storage policies if the request was successful,
-	 *                         or a WP_Error otherwise.
+	 * @return \WP_REST_Response|WP_Error The site storage policies, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function get_site_backup_policies() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
@@ -791,8 +872,10 @@ class Jetpack_Backup {
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return null;
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response_code );
 		}
 
 		return rest_ensure_response(
@@ -886,8 +969,7 @@ class Jetpack_Backup {
 	/**
 	 * Enqueue a new backup on demand
 	 *
-	 * @return string|WP_Error A JSON object with `success` if the request was successful,
-	 * or a WP_Error otherwise.
+	 * @return \WP_REST_Response|WP_Error The enqueue result, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function enqueue_backup() {
 		$blog_id  = Jetpack_Options::get_option( 'id' );
@@ -903,8 +985,10 @@ class Jetpack_Backup {
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return null;
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response_code );
 		}
 
 		return rest_ensure_response(
@@ -915,7 +999,7 @@ class Jetpack_Backup {
 	/**
 	 * Get site backup schedule time
 	 *
-	 * @return string|WP_Error A JSON object with the backup schedule time if the request was successful, or a WP_Error otherwise.
+	 * @return \WP_REST_Response|WP_Error The backup schedule time, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function get_site_backup_schedule_time() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
@@ -928,8 +1012,10 @@ class Jetpack_Backup {
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return null;
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response_code );
 		}
 
 		return rest_ensure_response(
@@ -969,6 +1055,27 @@ class Jetpack_Backup {
 		}
 
 		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		add_action( 'admin_print_scripts', array( __CLASS__, 'render_connection_initial_state' ), 1 );
+	}
+
+	/**
+	 * Emit `window.JP_CONNECTION_INITIAL_STATE` inline on the modernized
+	 * Backup admin page.
+	 *
+	 * The modernized enqueue path short-circuits before the legacy
+	 * `Connection_Initial_State::render_script()` call, so without this
+	 * the React `<Gates>` component never sees the connection state and
+	 * sits on its loading skeleton forever. We emit the same JS payload
+	 * the legacy path emits, just outside of a registered script handle
+	 * (wp-build's handles aren't reliable here, and the global is
+	 * page-scoped — any tag setting it works).
+	 *
+	 * @return void
+	 */
+	public static function render_connection_initial_state() {
+		echo '<script id="jetpack-backup-connection-initial-state">'
+			. Connection_Initial_State::render() // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render() returns pre-escaped JSON.
+			. '</script>';
 	}
 
 	/**
@@ -1022,10 +1129,30 @@ class Jetpack_Backup {
 	/**
 	 * Returns true when the wp-build modernization filter is enabled.
 	 *
+	 * @since 4.3.14 Changed from private to public; the REST bridges gate their route registration on it.
+	 *
 	 * @return bool
 	 */
-	private static function is_modernized() {
+	public static function is_modernized() {
 		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+	}
+
+	/**
+	 * Returns true when the modernization filter is on AND the wp-build dashboard loaded.
+	 *
+	 * `build/` is gitignored, so the render function is absent in any unbuilt checkout
+	 * and in any release whose wp-build step failed. Every consumer of the modernized
+	 * surface has to agree on this, or the menu falls back to the legacy page while the
+	 * enqueue path skips the legacy script — an empty div with no JS.
+	 *
+	 * Only meaningful once `maybe_load_wp_build()` has run. It is hooked on `admin_menu`
+	 * at the same priority as `add_wp_admin_submenu()`, so registration order — not
+	 * priority — is what keeps it first. Do not reorder those two `add_action()` calls.
+	 *
+	 * @return bool
+	 */
+	private static function is_wp_build_dashboard_active() {
+		return self::is_modernized() && function_exists( 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page' );
 	}
 
 	/**

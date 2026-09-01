@@ -6,10 +6,6 @@ import { formatLegendLabels } from './format-legend-labels';
 import type { ReportDataMap, ReportParams } from '@jetpack-premium-analytics/data';
 import type { SeriesData } from '@jetpack-premium-analytics/externals';
 
-/**
- * Internal dependencies
- */
-
 export interface SalesByDeviceData {
 	chartData: SeriesData[];
 }
@@ -38,7 +34,6 @@ export function buildSalesByDeviceData(
 
 	const { data } = orderAttribution;
 
-	// Build bar chart data - current period
 	const chartData: SeriesData[] = [
 		{
 			label: primaryLabel,
@@ -49,7 +44,6 @@ export function buildSalesByDeviceData(
 		},
 	];
 
-	// Add comparison period if available
 	if ( hasComparison ) {
 		chartData.push( {
 			label: comparisonLabel,

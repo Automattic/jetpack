@@ -1,4 +1,5 @@
 export {
+	decodeDateSearchParam,
 	encodeDateToSearchParam,
 	writeDateRangeToSearch,
 	writeComparisonToSearch,

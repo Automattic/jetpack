@@ -15,15 +15,16 @@ export type PresetRowProbeProps = {
 
 	/**
 	 * The label the real trigger is showing. "Custom" versus a formatted range
-	 * differs by ~40px.
+	 * differs by ~40px. Absent when the surface offers no custom range, so the
+	 * probe leaves the trigger out of the measured row too.
 	 */
-	customTriggerLabel: string;
+	customTriggerLabel?: string;
 
 	/**
-	 * The chart interval control, as the panel renders it. A glyph, so its width
-	 * is the same fixed cost in every locale.
+	 * The period navigation, as the panel renders it. Its width moves with the
+	 * forward arrow appearing and disappearing, which the row has to absorb.
 	 */
-	interval?: ReactNode;
+	navigation?: ReactNode;
 
 	/**
 	 * The comparison control, as the panel renders it. It has no abbreviated
@@ -31,29 +32,27 @@ export type PresetRowProbeProps = {
 	 */
 	comparison?: ReactNode;
 
+	/**
+	 * The chart interval control, as the panel renders it. A glyph, so its width
+	 * is the same fixed cost in every locale.
+	 */
+	interval?: ReactNode;
+
 	/** Reports the row's natural width whenever it changes. */
 	onMeasure: ( width: number ) => void;
 };
 
 /**
- * Measures what the date-controls row needs with its labels spelled out.
- *
- * Measured in the DOM because the width depends on the font resolved for the
- * locale's script, the button padding tokens, and the group's borders.
- *
- * The presets render in their full form unconditionally: measuring the live row
- * oscillates, since shortening the labels shrinks it and the full labels then
- * look like they fit. The comparison control can be measured live because its
- * width follows the active preset rather than the label mode.
- *
- * @param {PresetRowProbeProps} props - The props for the PresetRowProbe component.
- * @return The preset row probe element.
+ * Measures the date-controls row with labels spelled out, in the DOM. Always
+ * full-length — measuring the live (possibly-abbreviated) row would oscillate.
+ * Memoized: the panel re-renders every resize step, this only moves with labels.
  */
 function PresetRowProbeComponent( {
 	presets,
 	customTriggerLabel,
-	interval,
+	navigation,
 	comparison,
+	interval,
 	onMeasure,
 }: PresetRowProbeProps ) {
 	const rowRef = useRef< HTMLDivElement >( null );
@@ -84,7 +83,7 @@ function PresetRowProbeComponent( {
 	// `max-content`, so the width only moves on a render that changes the row.
 	useLayoutEffect( () => {
 		measure();
-	}, [ measure, presets, customTriggerLabel, interval, comparison ] );
+	}, [ measure, presets, customTriggerLabel, navigation, comparison, interval ] );
 
 	// Web fonts land after first paint and shift the metrics. Insurance: the
 	// dashboard ships none today.
@@ -109,6 +108,8 @@ function PresetRowProbeComponent( {
 		// @ts-expect-error -- `inert` is valid HTML but missing from this React version's types.
 		<div className="preset-row-probe" aria-hidden="true" inert="">
 			<div className="preset-row-probe__panel" ref={ rowRef }>
+				{ navigation }
+
 				<div className="preset-row-probe__row">
 					{ presets.map( preset => (
 						<Button
@@ -122,22 +123,24 @@ function PresetRowProbeComponent( {
 							{ preset.label }
 						</Button>
 					) ) }
-					<Button
-						className="date-filters-panel-button"
-						variant="minimal"
-						tone="neutral"
-						tabIndex={ -1 }
-					>
-						{ /* Mirrors the real trigger's markup so both measure the same box. */ }
-						<span className="date-filters-panel-button__label">{ customTriggerLabel }</span>
-						<Icon className="date-filters-panel-button__caret" icon={ chevronDown } size={ 18 } />
-					</Button>
+					{ customTriggerLabel !== undefined && (
+						<Button
+							className="date-filters-panel-button"
+							variant="minimal"
+							tone="neutral"
+							tabIndex={ -1 }
+						>
+							{ /* Mirrors the real trigger's markup so both measure the same box. */ }
+							<span className="date-filters-panel-button__label">{ customTriggerLabel }</span>
+							<Icon className="date-filters-panel-button__caret" icon={ chevronDown } size={ 18 } />
+						</Button>
+					) }
 				</div>
 
 				{ /* The real controls, not mirrors: the panel hands the same elements
 				     here and to the row, so the two cannot drift. */ }
-				{ interval }
 				{ comparison }
+				{ interval }
 			</div>
 		</div>
 	);

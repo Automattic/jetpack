@@ -37,11 +37,6 @@ export interface PostHighlightsState {
 /**
  * Sum the post's daily views inside an inclusive date-only window. Date keys
  * are `YYYY-MM-DD`, so plain string comparison is chronological.
- *
- * @param days - The post's daily views.
- * @param from - The window start day.
- * @param to   - The window end day.
- * @return The summed views.
  */
 function sumViews( days: StatsPostDay[], from: string, to: string ): number {
 	let total = 0;
@@ -59,11 +54,7 @@ function sumViews( days: StatsPostDay[], from: string, to: string ): number {
  * Fetch the scoped post's highlight metrics. One `stats/post` request carries
  * everything: the daily view history (summed client-side into the primary and
  * comparison windows, so comparison needs no second request) and the lifetime
- * comment/like totals.
- *
- * @param postId       - The scoped post ID (0 disables the request).
- * @param reportParams - The dashboard date range + comparison state.
- * @return The highlight metrics and load/error state.
+ * comment/like totals. A `postId` of 0 disables the request.
  */
 export default function usePostHighlights(
 	postId: number,

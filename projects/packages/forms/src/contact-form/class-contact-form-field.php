@@ -23,11 +23,82 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Contact_Form_Field extends Contact_Form_Shortcode {
 
 	/**
+	 * Number of files a file upload field accepts when its `maxfiles` attribute says nothing.
+	 *
+	 * One, so that a field authored before the setting existed keeps behaving exactly as it did.
+	 *
+	 * @var int
+	 */
+	const FILE_FIELD_DEFAULT_MAX_FILES = 1;
+
+	/**
+	 * Highest number of files a filter may raise a field to.
+	 *
+	 * Separate from FILE_FIELD_MAX_FILES_LIMIT, which bounds what an author can choose: a site that
+	 * wants more headroom than the editor offers can filter its way up to here, and no further. The
+	 * endpoint imposes no count limit of its own that refuses anything — its per-site budgets log
+	 * and alert but still store the file — so this is the only thing standing between a filter and
+	 * a single site uploading as much as it likes.
+	 *
+	 * @var int
+	 */
+	const FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT = 25;
+
+	/**
+	 * Highest number of files an author can choose for a field, whatever `maxfiles` asks for.
+	 *
+	 * This bounds how many files can be attached to a response, not how many bytes reach the site.
+	 * Each file is uploaded as soon as the visitor picks it, so by the time anything here runs the
+	 * transfer has already happened and the submission carries only references — and the upload
+	 * endpoint is reachable on its own besides. Read this as a limit on the shape of a response,
+	 * and look to the endpoint's own quotas for anything to do with volume.
+	 *
+	 * Keep in sync with `MAX_FILES_LIMIT` in `blocks/field-file/edit.jsx`, which bounds the editor
+	 * control; `test_file_field_ceiling_matches_the_editor_control` fails if they drift.
+	 *
+	 * @var int
+	 */
+	const FILE_FIELD_MAX_FILES_LIMIT = 10;
+
+	/**
+	 * Maximum size, in bytes, of a single uploaded file.
+	 *
+	 * @var int
+	 */
+	const FILE_FIELD_MAX_UPLOAD_SIZE = 20 * 1024 * 1024;
+
+	/**
 	 * The shortcode name.
 	 *
 	 * @var string
 	 */
 	public $shortcode_name = 'contact-field';
+
+	/**
+	 * Field types that never render a style-specific label.
+	 *
+	 * These have no single labellable input — they are groups of inputs, or a
+	 * control with its own labelling — so every non-default form style falls back
+	 * to the plain default label.
+	 *
+	 * @var string[]
+	 */
+	const TYPES_WITHOUT_STYLED_LABEL = array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file' );
+
+	/**
+	 * Field types that never render an *inset* (Outlined / Animated) label.
+	 *
+	 * Their input is not a single text-like box for a label to sit inside, so an
+	 * inset label would overlap the control. Styles that render the label outside
+	 * the field, such as 'below', still apply — unlike TYPES_WITHOUT_STYLED_LABEL,
+	 * this only opts out of the inset styles.
+	 *
+	 * Keep in sync with the editor (`blocks/label/edit.jsx`) and the wrapper
+	 * exclusion list in `contact-form/css/grunion.scss`.
+	 *
+	 * @var string[]
+	 */
+	const TYPES_WITHOUT_INSET_LABEL = array( 'slider' );
 
 	/**
 	 * The parent form.
@@ -100,6 +171,34 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public $label_styles = '';
 
 	/**
+	 * Input tuple used for the cached hidden-field filter result.
+	 *
+	 * @var array|null
+	 */
+	private $hidden_field_filter_input;
+
+	/**
+	 * Cached hidden-field filter result.
+	 *
+	 * @var mixed
+	 */
+	private $hidden_field_filter_value;
+
+	/**
+	 * Description markup (help text, format hint, error div) built at the input
+	 * site but held back so an inset-label wrapper can emit it outside the
+	 * field div. Null when nothing has been deferred.
+	 *
+	 * Building it once, where the input's aria-describedby is built, is what
+	 * keeps the emitted ids and the referenced ids identical.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string|null
+	 */
+	private $deferred_descriptions = null;
+
+	/**
 	 * Constructor function.
 	 *
 	 * @param array        $attributes An associative array of shortcode attributes.  @see shortcode_atts().
@@ -134,6 +233,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'width'                        => null,
 				'consenttype'                  => null,
 				'dateformat'                   => null,
+				'helptext'                     => null,
 				'implicitconsentmessage'       => null,
 				'explicitconsentmessage'       => null,
 				'borderradius'                 => null,
@@ -177,10 +277,19 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'showotheroption'              => null,
 				// derived from block metadata for blockVisibility support
 				'labelhiddenbyblockvisibility' => null,
+				// JSON-encoded conditional logic config; decoded below.
+				'conditionallogic'             => null,
 			),
 			$attributes,
 			'contact-field'
 		);
+
+		if ( ! empty( $attributes['conditionallogic'] ) && is_string( $attributes['conditionallogic'] ) ) {
+			$decoded                        = json_decode( html_entity_decode( $attributes['conditionallogic'], ENT_COMPAT ), true );
+			$attributes['conditionallogic'] = is_array( $decoded ) ? $decoded : null;
+		} elseif ( ! is_array( $attributes['conditionallogic'] ) ) {
+			$attributes['conditionallogic'] = null;
+		}
 
 		// special default for subject field
 		if ( 'subject' === $attributes['type'] && $attributes['default'] === null && $form !== null ) {
@@ -308,6 +417,17 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return ! empty( array_filter( $field_value ) );
 		}
 		return ! empty( trim( $field_value ) );
+	}
+
+	/**
+	 * Whether this field's visibility is governed by conditional logic.
+	 *
+	 * @return bool True when the field carries an enabled conditional-logic config.
+	 */
+	public function has_conditional_logic() {
+		$logic = $this->get_attribute( 'conditionallogic' );
+
+		return is_array( $logic ) && ! empty( $logic['enabled'] );
 	}
 
 	/**
@@ -533,6 +653,30 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				if ( ! is_array( $field_value ) || empty( $field_value[0] ) ) {
 					/* translators: %s is the name of a form field */
 					$this->add_error( sprintf( __( '%s requires a file to be uploaded.', 'jetpack-forms' ), $field_label ) );
+					break;
+				}
+
+				/*
+				 * Nothing enforced the count on this side before. The limit lived only in the
+				 * browser, so a submission assembled by hand could carry as many uploaded file
+				 * IDs as it liked and every one of them would be attached to the response.
+				 */
+				$max_files = $this->get_file_field_max_files();
+
+				if ( count( $field_value ) > $max_files ) {
+					$this->add_error(
+						sprintf(
+							/* translators: 1: the name of a form field, 2: the maximum number of files it accepts. */
+							_n(
+								'%1$s accepts at most %2$d file.',
+								'%1$s accepts at most %2$d files.',
+								$max_files,
+								'jetpack-forms'
+							),
+							$field_label,
+							$max_files
+						)
+					);
 				}
 				break;
 			default:
@@ -773,6 +917,26 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return sanitize_textarea_field( wp_unslash( $_POST[ $field_id ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
 		}
 
+		// Explicit consent never renders checked, so a missing POST value must remain empty
+		// rather than falling through to a query-string or configured default.
+		if ( 'consent' === $field_type && 'explicit' === $this->get_attribute( 'consenttype' ) ) {
+			return '';
+		}
+
+		// Checkbox controls are omitted from the request when unchecked. During an actual
+		// submission that absence is the submitted value; falling through to a query-string
+		// or configured default would silently check the field again.
+		$is_checkbox_control = in_array( $field_type, array( 'checkbox', 'checkbox-multiple' ), true );
+		if ( $is_checkbox_control && $this->form && $this->form->is_current_submission() ) {
+			return '';
+		}
+
+		// Implicit consent renders as a hidden input with this value, so its computed value
+		// must match what the browser will submit from the first render onward.
+		if ( 'consent' === $field_type && 'explicit' !== $this->get_attribute( 'consenttype' ) ) {
+			return __( 'Yes', 'jetpack-forms' );
+		}
+
 		// Use the GET Field if it is available.
 		if ( isset( $_GET[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
 			if ( is_array( $_GET[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
@@ -813,6 +977,74 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Get the field value used to resolve conditional logic.
+	 *
+	 * Hidden-field filters affect the value rendered into the browser, so apply the same
+	 * filter before the server evaluates a rule that uses a hidden field as its subject.
+	 *
+	 * @return string|array Field value.
+	 */
+	public function get_conditional_logic_value() {
+		$field_type = $this->get_attribute( 'type' );
+		$field_id   = $this->get_attribute( 'id' );
+		$value      = $this->get_computed_field_value( $field_type, $field_id );
+
+		if ( 'hidden' === $field_type && ! $this->is_submitted_hidden_field_value( $field_id ) ) {
+			$value = $this->get_filtered_hidden_field_value( $value, $this->get_attribute( 'label' ), $field_id );
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Filter the value of a hidden field once per input tuple.
+	 *
+	 * Rendering and conditional logic must use the exact same filtered value. Caching also
+	 * prevents stateful filters from returning a different value on their second invocation.
+	 *
+	 * @param mixed  $value The value of the hidden field.
+	 * @param string $label The label of the hidden field.
+	 * @param string $id    The ID of the hidden field.
+	 * @return mixed The modified value of the hidden field.
+	 */
+	private function get_filtered_hidden_field_value( $value, $label, $id ) {
+		$input = array( $value, $label, $id );
+
+		if ( $input === $this->hidden_field_filter_input ) {
+			return $this->hidden_field_filter_value;
+		}
+
+		/**
+		 * Filter the value of the hidden field.
+		 *
+		 * @since 6.3.0
+		 *
+		 * @param string $value The value of the hidden field.
+		 * @param string $label The label of the hidden field.
+		 * @param string $id The ID of the hidden field.
+		 */
+		$this->hidden_field_filter_input = $input;
+		$this->hidden_field_filter_value = apply_filters( 'jetpack_forms_hidden_field_value', $value, $label, $id );
+
+		return $this->hidden_field_filter_value;
+	}
+
+	/**
+	 * Whether a hidden value came from a matching form submission.
+	 *
+	 * Hidden values rendered into the browser have already passed through the hidden-field
+	 * filter, so their submitted values must not be filtered a second time.
+	 *
+	 * @param string $id The ID of the hidden field.
+	 * @return bool Whether the submitted value should be treated as already filtered.
+	 */
+	private function is_submitted_hidden_field_value( $id ) {
+		return isset( $_POST[ $id ] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+			&& $this->form
+			&& $this->form->is_current_submission();
+	}
+
+	/**
 	 * Return the HTML for the label.
 	 *
 	 * @param string $type - the field type.
@@ -833,12 +1065,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$form_style = $this->get_form_style();
 
 		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
-			if ( ! in_array( $type, array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file' ), true ) ) {
+			if ( ! in_array( $type, self::TYPES_WITHOUT_STYLED_LABEL, true ) ) {
 				switch ( $form_style ) {
 					case 'outlined':
-						return $this->render_outline_label( $id, $label, $required, $required_field_text, $required_indicator );
+						if ( $this->type_has_inset_label( $type ) ) {
+							return $this->render_outline_label( $id, $label, $required, $required_field_text, $required_indicator );
+						}
+						break;
 					case 'animated':
-						return $this->render_animated_label( $id, $label, $required, $required_field_text, $required_indicator );
+						if ( $this->type_has_inset_label( $type ) ) {
+							return $this->render_animated_label( $id, $label, $required, $required_field_text, $required_indicator );
+						}
+						break;
 					case 'below':
 						return $this->render_below_label( $id, $label, $required, $required_field_text, $required_indicator );
 				}
@@ -960,10 +1198,28 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * inputs use. Falls back to the plain instruction when the label is visible
 	 * or there is no name to give. See FORMS-694.
 	 *
+	 * @param int $max_files How many files the field accepts.
+	 *
 	 * @return string
 	 */
-	private function get_file_dropzone_aria_label() {
-		$select_file_text = __( 'Select a file to upload.', 'jetpack-forms' );
+	private function get_file_dropzone_aria_label( $max_files ) {
+		/*
+		 * The count belongs in the accessible name rather than only in the visible dropzone text,
+		 * which is an inner block the author writes and may leave saying "a file" for a field that
+		 * takes several.
+		 */
+		$select_file_text = $max_files > 1
+			? sprintf(
+				/* translators: %d: the maximum number of files the field accepts. */
+				_n(
+					'Select up to %d file to upload.',
+					'Select up to %d files to upload.',
+					$max_files,
+					'jetpack-forms'
+				),
+				$max_files
+			)
+			: __( 'Select a file to upload.', 'jetpack-forms' );
 
 		if ( ! $this->is_label_hidden_by_block_visibility() ) {
 			return $select_file_text;
@@ -1074,7 +1330,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 					data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 					data-wp-bind--value='state.getFieldValue'
-					aria-describedby='" . esc_attr( $id ) . '-' . esc_attr( $type ) . "-error-message'
+					aria-describedby='" . esc_attr( $this->get_described_by( $id, $type ) ) . "'
 					data-wp-on--input='actions.onFieldChange'
 					data-wp-on--blur='actions.onFieldBlur'
 					data-wp-class--has-value='state.hasFieldValue'
@@ -1082,7 +1338,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					" . $class . $placeholder . '
 					' . ( $required ? "required='true' aria-required='true' " : '' ) .
 					$extra_attrs_string .
-					" />\n " . $this->get_error_div( $id, $type ) . " \n";
+					" />\n " . $this->get_field_descriptions( $id, $type ) . " \n";
 	}
 
 	/**
@@ -1096,7 +1352,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	private function get_error_div( $id, $type, $override_render = false ) {
 
-		if ( $this->has_inset_label() && ! $override_render ) {
+		if ( ! $override_render && $this->has_inset_label() ) {
 			return '';
 		}
 		return '
@@ -1110,6 +1366,166 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				</span>
 				<span data-wp-text="state.errorMessage" id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error-message"></span>
 			</div>';
+	}
+
+	/**
+	 * The author-supplied help text for this field, or null when unset.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string|null
+	 */
+	private function get_help_text() {
+		$help_text = $this->get_attribute( 'helptext' );
+
+		if ( ! is_string( $help_text ) ) {
+			return null;
+		}
+
+		$help_text = trim( $help_text );
+
+		if ( $help_text === '' ) {
+			return null;
+		}
+
+		// Contact_Form::esc_shortcode_val() encodes `,` `[` `]` `\` as decimal
+		// entities so they survive the shortcode parser, but unesc_attr() only
+		// decodes the hex forms. Other consumers emit through wp_kses_post() or
+		// into an attribute, so the browser decodes whatever is left over; this
+		// is the first to emit through esc_html() into a text node, where the
+		// leftover `&#044;` would be escaped again and shown to the visitor.
+		// Safe to decode here: the value has already been through
+		// unesc_attr()'s strip_tags(), and output is still esc_html()'d.
+		return html_entity_decode( $help_text, ENT_QUOTES );
+	}
+
+	/**
+	 * The format instruction for date fields, or null for every other type.
+	 *
+	 * Note this keys off the field's own `type` attribute, not the type passed
+	 * to the render helpers — the date field renders a `text` input.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string|null
+	 */
+	private function get_format_hint() {
+		if ( $this->get_attribute( 'type' ) !== 'date' ) {
+			return null;
+		}
+
+		$formats = self::get_date_formats();
+
+		return $formats[ $this->get_date_format() ] ?? null;
+	}
+
+	/**
+	 * The aria-describedby value for a field's input.
+	 *
+	 * The error message comes first so screen readers announce it before the
+	 * advisory text; its span is empty until there is an error, so it costs
+	 * nothing the rest of the time.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $id   - the field ID.
+	 * @param string $type - the description type (matches the emitted element ids).
+	 *
+	 * @return string
+	 */
+	private function get_described_by( $id, $type ) {
+		$ids = array( $id . '-' . $type . '-error-message' );
+
+		foreach ( $this->get_description_parts( $id, $type ) as $part ) {
+			$ids[] = $part['id'];
+		}
+
+		return implode( ' ', $ids );
+	}
+
+	/**
+	 * The advisory descriptions attached to a field, in DOM order.
+	 *
+	 * Single source for both the ids aria-describedby references and the
+	 * markup that carries them — building those separately is how they drift,
+	 * and a describedby pointing at an id that was never emitted is exactly
+	 * the failure this class already fixes elsewhere.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $id   - the field ID.
+	 * @param string $type - the description type (matches get_described_by()).
+	 *
+	 * @return array List of array( 'id' => string, 'class' => string, 'text' => string ).
+	 */
+	private function get_description_parts( $id, $type ) {
+		$parts     = array();
+		$help_text = $this->get_help_text();
+
+		if ( $help_text !== null ) {
+			$parts[] = array(
+				'id'    => $id . '-' . $type . '-help',
+				'class' => 'contact-form__field-help',
+				'text'  => $help_text,
+			);
+		}
+
+		$format_hint = $this->get_format_hint();
+
+		if ( $format_hint !== null ) {
+			$parts[] = array(
+				'id'    => $id . '-' . $type . '-format',
+				'class' => 'contact-form__field-format',
+				'text'  => $format_hint,
+			);
+		}
+
+		return $parts;
+	}
+
+	/**
+	 * Return the HTML for a field's descriptions: help text, format hint, and
+	 * the error div, in that DOM order.
+	 *
+	 * These travel together because inset-label form styles render them outside
+	 * the field wrapper. In that case the markup is deferred to
+	 * $this->deferred_descriptions and render_field() emits it, so it is only
+	 * ever built here — with the same $type the input used for its
+	 * aria-describedby.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $id   - the field ID.
+	 * @param string $type - the description type (matches get_described_by()).
+	 *
+	 * @return string HTML, or an empty string when the markup is deferred.
+	 */
+	private function get_field_descriptions( $id, $type ) {
+		$hints = '';
+
+		// Deliberately spans, not paragraphs: themes style <p> (margins, size,
+		// color) and we would have to fight those rules on every theme.
+		foreach ( $this->get_description_parts( $id, $type ) as $part ) {
+			$hints .= '<span id="' . esc_attr( $part['id'] ) . '" class="' . esc_attr( $part['class'] ) . '">'
+				. esc_html( $part['text'] ) . '</span>';
+		}
+
+		$descriptions = '';
+
+		if ( $hints !== '' ) {
+			$descriptions .= '<div class="contact-form__field-hints">' . $hints . '</div>';
+		}
+
+		// Force the error div to build even for inset labels — the deferral
+		// below decides where it lands.
+		$descriptions .= $this->get_error_div( $id, $type, true );
+
+		if ( $this->has_inset_label() ) {
+			$this->deferred_descriptions = $descriptions;
+			return '';
+		}
+
+		return $descriptions;
 	}
 
 	/**
@@ -1306,7 +1722,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					data-wp-bind--disabled='state.isSubmitting'
 					data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 					data-wp-bind--value='context.phoneNumber'
-					aria-describedby="<?php echo esc_attr( $id ); ?>-telephone-error-message"
+					aria-describedby="<?php echo esc_attr( $this->get_described_by( $id, 'telephone' ) ); ?>"
 					data-wp-on--input='actions.phoneNumberInputHandler'
 					data-wp-on--blur='actions.onFieldBlur'
 					data-wp-on--focus='actions.phoneNumberFocusHandler'
@@ -1323,7 +1739,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		<?php
 		$input = ob_get_clean();
 
-		$field = $label . $input . $this->get_error_div( $id, 'telephone' );
+		$field = $label . $input . $this->get_field_descriptions( $id, 'telephone' );
 		return $field;
 	}
 
@@ -1378,7 +1794,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						data-wp-on--input='actions.onFieldChange'
 						data-wp-on--blur='actions.onFieldBlur'
 						data-wp-class--has-value='state.hasFieldValue'
-						aria-describedby='" . esc_attr( $id ) . "-textarea-error-message'
+						aria-describedby='" . esc_attr( $this->get_described_by( $id, 'textarea' ) ) . "'
 						data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 						"
 						. $this->get_hidden_label_aria_label_attr()
@@ -1386,7 +1802,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						. $placeholder
 						. ' ' . ( $required ? "required aria-required='true'" : '' ) .
 						'>' . esc_textarea( $value )
-				. "</textarea>\n " . $this->get_error_div( $id, 'textarea' ) . "\n";
+				. "</textarea>\n " . $this->get_field_descriptions( $id, 'textarea' ) . "\n";
 		return $field;
 	}
 
@@ -1423,7 +1839,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// that use the notch html (`notched-label__leading` has a max-width of `100px` to prevent it from getting too wide).
 			// It prevents large border radius values from disrupting the look and feel of the fields.
 			if ( isset( $style_variation_attributes['border']['radius'] ) ) {
-				$options_styles          = $options_styles ?? '';
+				$options_styles        ??= '';
 				$radius                  = $style_variation_attributes['border']['radius'];
 				$has_split_radius_values = is_array( $radius );
 				$top_left_radius         = $has_split_radius_values ? $radius['topLeft'] : $radius;
@@ -1644,7 +2060,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 *
 	 * @param string $id - the field ID.
 	 * @param string $label - the field label.
-	 * @param string $class - the field CSS class.
+	 * @param string $class - unused. Kept for signature parity with the other render_*_field()
+	 *                        methods; this field writes its input inline rather than from an
+	 *                        attribute array.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param bool   $required_indicator Whether to display the required indicator.
@@ -1665,8 +2083,381 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		// Enqueue necessary scripts and styles.
 		$this->enqueue_file_field_assets();
 
-		// Get allowed MIME types for display in the field.
-		$accepted_file_types = array_values(
+		$accept_attribute_value = implode( ', ', self::get_file_field_accepted_mime_types() );
+		$max_files              = $this->get_file_field_max_files();
+		$max_upload_size        = self::get_file_field_max_upload_size();
+
+		$file_size_units = array(
+			_x( 'B', 'unit symbol', 'jetpack-forms' ),
+			_x( 'KB', 'unit symbol', 'jetpack-forms' ),
+			_x( 'MB', 'unit symbol', 'jetpack-forms' ),
+			_x( 'GB', 'unit symbol', 'jetpack-forms' ),
+		);
+
+		$global_config = array(
+			'i18n'          => array(
+				'language'           => get_bloginfo( 'language' ),
+				'fileSizeUnits'      => $file_size_units,
+				'zeroBytes'          => __( '0 Bytes', 'jetpack-forms' ),
+				'uploadError'        => __( 'Error uploading file', 'jetpack-forms' ),
+				'folderNotSupported' => __( 'Folder uploads are not supported', 'jetpack-forms' ),
+				// translators: %s is the formatted maximum file size.
+				'fileTooLarge'       => sprintf( __( 'File is too large. Maximum allowed size is %s.', 'jetpack-forms' ), size_format( $max_upload_size ) ),
+				'invalidType'        => __( 'This file type is not allowed.', 'jetpack-forms' ),
+				'maxFiles'           => __( 'You have exceeded the number of files that you can upload.', 'jetpack-forms' ),
+				'uploadFailed'       => __( 'File upload failed, try again.', 'jetpack-forms' ),
+			),
+			'endpoint'      => $this->get_unauth_endpoint_url(),
+			'iconsPath'     => Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/',
+			'maxUploadSize' => $max_upload_size,
+		);
+
+		wp_interactivity_config( 'jetpack/field-file', $global_config );
+
+		// Only genuinely dynamic state lives in the context. The field's static configuration
+		// (`maxFiles`, `allowedMimeTypes`) travels in `fieldExtra` alongside every other field's
+		// config, and `fieldId` already comes from the wrapper that `render_field()` opens.
+		$context = array(
+			'isDropping' => false,
+			'files'      => array(),
+			// Field-level message that belongs to no single file — currently only the result of
+			// offering more files than the field accepts. Per-file problems stay on their preview.
+			'fileNotice' => '',
+		);
+
+		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text, array(), true, $required_indicator );
+
+		$dropzone_aria_label = $this->get_file_dropzone_aria_label( $max_files );
+
+		ob_start();
+		?>
+		<div
+			class="jetpack-form-file-field__container"
+			id="<?php echo esc_attr( $id ); ?>"
+			name="dropzone-<?php echo esc_attr( $id ); ?>"
+			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method ?>
+			<?php echo wp_interactivity_data_wp_context( $context ); ?>
+			data-wp-on--dragover="actions.onFileDragOver"
+			data-wp-on--dragleave="actions.onFileDragLeave"
+			data-wp-on--mouseleave="actions.onFileDragLeave"
+			data-wp-on--drop="actions.fileDropped"
+			data-wp-on--jetpack-form-reset="actions.resetFiles"
+			data-is-required="<?php echo esc_attr( $required ); ?>"
+		>
+			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.isFileFieldFull">
+				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker" data-wp-on--keydown="actions.onFileDropzoneKeyDown" tabindex="0" role="button" aria-label="<?php echo esc_attr( $dropzone_aria_label ); ?>"></div>
+				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Decoded dropzone markup is filtered through an allowlist by sanitize_file_field_content(). ?>
+				<?php echo $this->sanitize_file_field_content( $this->content ); ?>
+				<input
+					type="file" class="jetpack-form-file-field"
+					accept="<?php echo esc_attr( $accept_attribute_value ); ?>"
+					<?php // Without this the picker returns one file at a time however many the field accepts; a drop already could. ?>
+					<?php echo $max_files > 1 ? 'multiple' : ''; ?>
+					data-wp-on--change="actions.fileAdded"  />
+			</div>
+			<div class="jetpack-form-file-field__preview-wrap" name="file-field-<?php echo esc_attr( $id ); ?>" data-wp-class--is-active="state.hasFileFieldFiles">
+				<template data-wp-each--file="context.files" data-wp-key="context.file.id">
+					<div class="jetpack-form-file-field__preview" tabindex="0" data-wp-bind--aria-label="context.file.name" data-wp-init--focus="callbacks.focusFilePreview" data-wp-class--is-error="context.file.hasError" data-wp-class--is-complete="context.file.isUploaded">
+						<input type="hidden" name="<?php echo esc_attr( $id ); ?>[]" class="jetpack-form-file-field__hidden include-hidden" data-wp-bind--value='context.file.fileJson' value="">
+						<div class="jetpack-form-file-field__image-wrap" data-wp-style----progress="context.file.progress" data-wp-class--has-icon="context.file.hasIcon">
+							<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" data-wp-style--mask-image="context.file.mask"></div>
+							<div class="jetpack-form-file-field__progress-bar" ></div>
+						</div>
+
+						<div class="jetpack-form-file-field__file-wrap">
+							<strong class="jetpack-form-file-field__file-name" data-wp-text="context.file.name"></strong>
+							<div class="jetpack-form-file-field__file-info" data-wp-class--is-error="context.file.error" data-wp-class--is-complete="context.file.file_id">
+								<span class="jetpack-form-file-field__file-size" data-wp-text="context.file.formattedSize"></span>
+								<span class="jetpack-form-file-field__seperator"> &middot; </span>
+								<span aria-live="polite">
+									<span class="jetpack-form-file-field__uploading"><?php esc_html_e( 'Uploading…', 'jetpack-forms' ); ?></span>
+									<span class="jetpack-form-file-field__success"><?php esc_html_e( 'Uploaded', 'jetpack-forms' ); ?></span>
+									<span class="jetpack-form-file-field__error" data-wp-text="context.file.error"></span>
+								</span>
+							</div>
+						</div>
+						<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="<?php esc_attr_e( 'Remove file', 'jetpack-forms' ); ?>" data-wp-on--click="actions.removeFile" data-wp-on--keydown="actions.removeFileKeydown" title="<?php esc_attr_e( 'Remove', 'jetpack-forms' ); ?>"> </a>
+					</div>
+				</template>
+			</div>
+			<p class="jetpack-form-file-field__notice" role="status" data-wp-class--is-visible="state.hasFileFieldNotice" data-wp-text="context.fileNotice"></p>
+		</div>
+		<?php
+		return $field . ob_get_clean() . $this->get_error_div( $id, 'file' );
+	}
+
+	/**
+	 * Sanitize the file field's inner (dropzone) content for output.
+	 *
+	 * The dropzone's inner blocks are serialized into the [contact-field] shortcode with
+	 * esc_html() (see Contact_Form::parse_contact_field()), so the stored content has to be
+	 * entity-decoded before it can render. Decoding is what makes this dangerous: an author
+	 * who cannot post raw HTML can still store entity-encoded markup in the shortcode's inner
+	 * content, which post-save KSES treats as plain text and never inspects. Decoding it would
+	 * turn that text back into live markup, so the decoded result is filtered here instead of
+	 * being echoed as-is.
+	 *
+	 * @since 7.24.0
+	 *
+	 * @param string|null $content The raw (entity-encoded) field content.
+	 *
+	 * @return string Safe HTML.
+	 */
+	private function sanitize_file_field_content( $content ) {
+		if ( ! is_string( $content ) || $content === '' ) {
+			return '';
+		}
+
+		// core/icon serializes its rotation as `rotate: 45deg`, which is not in WordPress's
+		// safe_style_css list, so safecss_filter_attr() would strip it and render the icon
+		// unrotated. Allow it just for the duration of this call.
+		$allow_rotate = static function ( $attrs ) {
+			$attrs[] = 'rotate';
+			return $attrs;
+		};
+
+		add_filter( 'safe_style_css', $allow_rotate );
+
+		try {
+			return wp_kses(
+				html_entity_decode( $content, ENT_COMPAT, 'UTF-8' ),
+				self::get_file_field_allowed_html()
+			);
+		} finally {
+			remove_filter( 'safe_style_css', $allow_rotate );
+		}
+	}
+
+	/**
+	 * Build the allowlist of HTML permitted inside the file field's dropzone.
+	 *
+	 * Starts from the standard post allowlist and adds the things the dropzone's allowed inner
+	 * blocks legitimately rely on that wp_kses_post() would otherwise drop:
+	 *
+	 * - `tabindex`, which Contact_Form_Plugin::gutenblock_render_dropzone() sets to "-1" on inner
+	 *   links and buttons so the dropzone stays a single tab stop.
+	 * - `srcset`, `sizes` and `decoding` on images, so core/image keeps serving responsive
+	 *   sources instead of silently degrading to the full-size file.
+	 * - A conservative inline SVG subset, since core/icon is an allowed inner block of the
+	 *   dropzone. Only presentational elements and attributes are listed; because wp_kses() is
+	 *   allowlist-based, event handlers and scripting constructs are dropped automatically.
+	 *
+	 * Note that wp_kses_allowed_html( 'post' ) permits `data-*` globally, so Interactivity API
+	 * directives survive this filter. Their values are store paths rather than executable code,
+	 * and removing them would also break core/image's lightbox markup, so they are left alone.
+	 *
+	 * @since 7.24.0
+	 *
+	 * @return array Allowed HTML, in wp_kses() format.
+	 */
+	private static function get_file_field_allowed_html() {
+		$allowed = wp_kses_allowed_html( 'post' );
+
+		foreach ( array( 'a', 'button' ) as $tag ) {
+			if ( isset( $allowed[ $tag ] ) && is_array( $allowed[ $tag ] ) ) {
+				$allowed[ $tag ]['tabindex'] = true;
+			}
+		}
+
+		// wp_kses() only runs its protocol check on a fixed set of URL attributes, which does not
+		// include `srcset`. That is not a script vector - srcset candidates are fetched as images,
+		// so a `javascript:` candidate never executes - and `src` is still protocol-checked.
+		if ( isset( $allowed['img'] ) && is_array( $allowed['img'] ) ) {
+			$allowed['img'] += array(
+				'srcset'   => true,
+				'sizes'    => true,
+				'decoding' => true,
+			);
+		}
+
+		// `style` is deliberately absent here: safecss_filter_attr() strips the SVG presentation
+		// properties (fill, stroke) that would justify it, while still permitting things like
+		// position:fixed. It is allowed on the root <svg> below, where block supports need it.
+		$svg_common = array(
+			'class'           => true,
+			'fill'            => true,
+			'fill-rule'       => true,
+			'clip-rule'       => true,
+			'stroke'          => true,
+			'stroke-width'    => true,
+			'stroke-linecap'  => true,
+			'stroke-linejoin' => true,
+			'opacity'         => true,
+			'transform'       => true,
+		);
+
+		$allowed['svg'] = array_merge(
+			$svg_common,
+			array(
+				'style'       => true,
+				'xmlns'       => true,
+				'viewbox'     => true,
+				'width'       => true,
+				'height'      => true,
+				'role'        => true,
+				'focusable'   => true,
+				'aria-hidden' => true,
+				'aria-label'  => true,
+			)
+		);
+
+		// Child elements: the shared presentation attributes plus each element's own geometry.
+		$svg_children = array(
+			'g'        => array(),
+			'path'     => array( 'd' ),
+			'circle'   => array( 'cx', 'cy', 'r' ),
+			'ellipse'  => array( 'cx', 'cy', 'rx', 'ry' ),
+			'line'     => array( 'x1', 'y1', 'x2', 'y2' ),
+			'polygon'  => array( 'points' ),
+			'polyline' => array( 'points' ),
+			'rect'     => array( 'x', 'y', 'width', 'height', 'rx', 'ry' ),
+		);
+
+		foreach ( $svg_children as $tag => $attrs ) {
+			$allowed[ $tag ] = $svg_common + array_fill_keys( $attrs, true );
+		}
+
+		return $allowed;
+	}
+
+	/**
+	 * Render a hidden field.
+	 *
+	 * @param string $id - the field ID.
+	 * @param string $label - the field label.
+	 * @param string $value - the value of the field.
+	 *
+	 * @return string HTML for the hidden field.
+	 */
+	private function render_hidden_field( $id, $label, $value ) {
+		if ( ! $this->is_submitted_hidden_field_value( $id ) ) {
+			$value = $this->get_filtered_hidden_field_value( $value, $label, $id );
+		}
+
+		$context = array(
+			'fieldId'         => $id,
+			'fieldType'       => 'hidden',
+			'fieldLabel'      => $label,
+			'fieldValue'      => $value,
+			'fieldIsRequired' => false,
+			'fieldExtra'      => array(),
+			'formHash'        => $this->form ? $this->form->hash : '',
+		);
+
+		$interactivity_attributes = "data-jp-field-id='" . esc_attr( $id ) . "' data-wp-interactive='jetpack/form' "
+			. wp_interactivity_data_wp_context( $context )
+			. " data-wp-init='callbacks.initializeField' data-wp-on--jetpack-form-reset='callbacks.initializeField'";
+
+		return "<input type='hidden' name='" . esc_attr( $id ) . "' id='" . esc_attr( $id )
+			. "' value='" . esc_attr( $value ) . "' " . $interactivity_attributes . " />\n";
+	}
+
+	/**
+	 * How many files this file upload field accepts.
+	 *
+	 * Read from the block's `maxfiles` attribute and clamped rather than trusted: the value reaches
+	 * PHP as author-supplied shortcode text, and both the rendered `multiple` attribute and the
+	 * submission-time count check are derived from it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int A number between 1 and FILE_FIELD_MAX_FILES_LIMIT.
+	 */
+	private function get_file_field_max_files() {
+		$max_files = $this->get_attribute( 'maxfiles' );
+
+		if ( ! is_numeric( $max_files ) ) {
+			return self::FILE_FIELD_DEFAULT_MAX_FILES;
+		}
+
+		return max( 1, min( (int) $max_files, self::get_file_field_max_files_limit() ) );
+	}
+
+	/**
+	 * The highest number of files an author may set a single file upload field to.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int A number between 1 and FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT.
+	 */
+	public static function get_file_field_max_files_limit() {
+		/**
+		 * Filters the highest number of files an author may set a file upload field to.
+		 *
+		 * This raises the ceiling rather than setting the count. A field still takes whatever its
+		 * author chose, so one deliberately set to a single file keeps taking a single file — which
+		 * is the whole difference between offering more room and overriding everybody's choice.
+		 *
+		 * The editor's control reads the same number, so what an author is offered is what the site
+		 * will honour. A field already storing a number above the ceiling is clamped down to it, so
+		 * removing this filter returns those fields to the default rather than leaving them on a
+		 * value nothing enforces any more.
+		 *
+		 * Bounded by FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT. Nothing at the receiving end refuses a
+		 * submission for holding too many files — the endpoint's per-site budgets log and alert but
+		 * store the file regardless — so this ceiling is the only thing standing in the way.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int $limit The highest number of files an author may choose.
+		 */
+		$limit = (int) apply_filters(
+			'jetpack_forms_file_field_max_files_limit',
+			self::FILE_FIELD_MAX_FILES_LIMIT
+		);
+
+		return max( 1, min( $limit, self::FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT ) );
+	}
+
+	/**
+	 * The largest file a file upload field accepts, in bytes.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int Size in bytes.
+	 */
+	private static function get_file_field_max_upload_size() {
+		/**
+		 * Filters the largest file a file upload field accepts, in bytes.
+		 *
+		 * Deliberately not bounded by the site's own PHP upload limits. The browser sends each file
+		 * straight to the upload endpoint, so `upload_max_filesize` and `post_max_size` have nothing
+		 * to do with this transfer — clamping to them would cap the field at whatever a cheap host
+		 * allows for files that host never receives.
+		 *
+		 * The bound that does matter is the endpoint's own, which rejects anything over
+		 * FILE_FIELD_MAX_UPLOAD_SIZE. So this filter can only lower the limit, never raise it: a
+		 * larger value would have the field accept a file, show the visitor a size allowance in the
+		 * "file is too large" message that nothing can honour, and then fail the upload once they had
+		 * already waited for it. Raising the ceiling means raising it at the endpoint first.
+		 *
+		 * The result reaches the browser as the `maxUploadSize` config value, and the "file is too
+		 * large" message is built from the same number, so the two cannot disagree.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int $max_upload_size Maximum size of a single file, in bytes.
+		 */
+		$max_upload_size = (int) apply_filters(
+			'jetpack_forms_file_field_max_upload_size',
+			self::FILE_FIELD_MAX_UPLOAD_SIZE
+		);
+
+		return max( 1, min( $max_upload_size, self::FILE_FIELD_MAX_UPLOAD_SIZE ) );
+	}
+
+	/**
+	 * MIME types the file upload field accepts.
+	 *
+	 * Shared by the input's `accept` attribute and by the field's `fieldExtra` config, so the
+	 * browser-side picker filter and the client-side check can never drift apart.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string[] List of accepted MIME types.
+	 */
+	private static function get_file_field_accepted_mime_types() {
+		return array_values(
 			array(
 				'jpg|jpeg|jpe'    => 'image/jpeg',
 				'png'             => 'image/png',
@@ -1695,145 +2486,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'asc'             => 'application/pgp-keys',
 			)
 		);
-
-		$accept_attribute_value = implode( ', ', $accepted_file_types );
-
-		// Add accessibility attributes and required status if needed.
-		$input_attrs = array(
-			'type'       => 'file',
-			'class'      => 'jetpack-form-file-field ' . esc_attr( $class ),
-			'name'       => esc_attr( $id ),
-			'id'         => esc_attr( $id ),
-			'accept'     => esc_attr( $accept_attribute_value ),
-			'aria-label' => esc_attr( $label ),
-		);
-
-		if ( $required ) {
-			$input_attrs['required']      = 'required';
-			$input_attrs['aria-required'] = 'true';
-		}
-
-		$max_files       = 1; // TODO: Dynamically retrieve the max number of files using $this->get_attribute( 'maxfiles' ) if needed in the future.
-		$max_file_size   = 20 * 1024 * 1024; // 20MB
-		$file_size_units = array(
-			_x( 'B', 'unit symbol', 'jetpack-forms' ),
-			_x( 'KB', 'unit symbol', 'jetpack-forms' ),
-			_x( 'MB', 'unit symbol', 'jetpack-forms' ),
-			_x( 'GB', 'unit symbol', 'jetpack-forms' ),
-		);
-
-		$global_config = array(
-			'i18n'          => array(
-				'language'           => get_bloginfo( 'language' ),
-				'fileSizeUnits'      => $file_size_units,
-				'zeroBytes'          => __( '0 Bytes', 'jetpack-forms' ),
-				'uploadError'        => __( 'Error uploading file', 'jetpack-forms' ),
-				'folderNotSupported' => __( 'Folder uploads are not supported', 'jetpack-forms' ),
-				// translators: %s is the formatted maximum file size.
-				'fileTooLarge'       => sprintf( __( 'File is too large. Maximum allowed size is %s.', 'jetpack-forms' ), size_format( $max_file_size ) ),
-				'invalidType'        => __( 'This file type is not allowed.', 'jetpack-forms' ),
-				'maxFiles'           => __( 'You have exceeded the number of files that you can upload.', 'jetpack-forms' ),
-				'uploadFailed'       => __( 'File upload failed, try again.', 'jetpack-forms' ),
-			),
-			'endpoint'      => $this->get_unauth_endpoint_url(),
-			'iconsPath'     => Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/',
-			'maxUploadSize' => $max_file_size,
-		);
-
-		wp_interactivity_config( 'jetpack/field-file', $global_config );
-
-		$context = array(
-			'isDropping'       => false,
-			'fieldId'          => $id,
-			'files'            => array(),
-			'allowedMimeTypes' => $accepted_file_types,
-			'maxFiles'         => $max_files, // max number of files.
-			'hasMaxFiles'      => false,
-		);
-
-		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text, array(), true, $required_indicator );
-
-		$dropzone_aria_label = $this->get_file_dropzone_aria_label();
-
-		ob_start();
-		?>
-		<div
-			class="jetpack-form-file-field__container"
-			id="<?php echo esc_attr( $id ); ?>"
-			name="dropzone-<?php echo esc_attr( $id ); ?>"
-			data-wp-interactive="jetpack/field-file"
-			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method ?>
-			<?php echo wp_interactivity_data_wp_context( $context ); ?>
-			data-wp-on--dragover="actions.dragOver"
-			data-wp-on--dragleave="actions.dragLeave"
-			data-wp-on--mouseleave="actions.dragLeave"
-			data-wp-on--drop="actions.fileDropped"
-			data-wp-on--jetpack-form-reset="actions.resetFiles"
-			data-is-required="<?php echo esc_attr( $required ); ?>"
-		>
-			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.hasMaxFiles">
-				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker" data-wp-on--keydown="actions.handleKeyDown" tabindex="0" role="button" aria-label="<?php echo esc_attr( $dropzone_aria_label ); ?>"></div>
-				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is intentionally unescaped as it contains block content that was previously escaped ?>
-				<?php echo html_entity_decode( $this->content, ENT_COMPAT, 'UTF-8' ); ?>
-				<input
-					type="file" class="jetpack-form-file-field"
-					accept="<?php echo esc_attr( $accept_attribute_value ); ?>"
-					data-wp-on--change="actions.fileAdded"  />
-			</div>
-			<div class="jetpack-form-file-field__preview-wrap" name="file-field-<?php echo esc_attr( $id ); ?>" data-wp-class--is-active="state.hasFiles">
-				<template data-wp-each--file="context.files" data-wp-key="context.file.id">
-					<div class="jetpack-form-file-field__preview" tabindex="0" data-wp-bind--aria-label="context.file.name" data-wp-init--focus="callbacks.focusElement" data-wp-class--is-error="context.file.hasError" data-wp-class--is-complete="context.file.isUploaded">
-						<input type="hidden" name="<?php echo esc_attr( $id ); ?>[]" class="jetpack-form-file-field__hidden include-hidden" data-wp-bind--value='context.file.fileJson' value="">
-						<div class="jetpack-form-file-field__image-wrap" data-wp-style----progress="context.file.progress" data-wp-class--has-icon="context.file.hasIcon">
-							<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" data-wp-style--mask-image="context.file.mask"></div>
-							<div class="jetpack-form-file-field__progress-bar" ></div>
-						</div>
-
-						<div class="jetpack-form-file-field__file-wrap">
-							<strong class="jetpack-form-file-field__file-name" data-wp-text="context.file.name"></strong>
-							<div class="jetpack-form-file-field__file-info" data-wp-class--is-error="context.file.error" data-wp-class--is-complete="context.file.file_id">
-								<span class="jetpack-form-file-field__file-size" data-wp-text="context.file.formattedSize"></span>
-								<span class="jetpack-form-file-field__seperator"> &middot; </span>
-								<span aria-live="polite">
-									<span class="jetpack-form-file-field__uploading"><?php esc_html_e( 'Uploading…', 'jetpack-forms' ); ?></span>
-									<span class="jetpack-form-file-field__success"><?php esc_html_e( 'Uploaded', 'jetpack-forms' ); ?></span>
-									<span class="jetpack-form-file-field__error" data-wp-text="context.file.error"></span>
-								</span>
-							</div>
-						</div>
-						<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="<?php esc_attr_e( 'Remove file', 'jetpack-forms' ); ?>" data-wp-on--click="actions.removeFile" data-wp-on--keydown="actions.removeFileKeydown" title="<?php esc_attr_e( 'Remove', 'jetpack-forms' ); ?>"> </a>
-					</div>
-				</template>
-			</div>
-		</div>
-		<?php
-		return $field . ob_get_clean() . $this->get_error_div( $id, 'file' );
-	}
-
-	/**
-	 * Render a hidden field.
-	 *
-	 * @param string $id - the field ID.
-	 * @param string $label - the field label.
-	 * @param string $value - the value of the field.
-	 *
-	 * @return string HTML for the hidden field.
-	 */
-	private function render_hidden_field( $id, $label, $value ) {
-		/**
-		 *
-		 * Filter the value of the hidden field.
-		 *
-		 * @since 6.3.0
-		 *
-		 * @param string $value The value of the hidden field.
-		 * @param string $label The label of the hidden field.
-		 * @param string $id The ID of the hidden field.
-		 *
-		 * @return string The modified value of the hidden field.
-		 */
-		$value = apply_filters( 'jetpack_forms_hidden_field_value', $value, $label, $id );
-		return "<input type='hidden' name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' value='" . esc_attr( $value ) . "' />\n";
 	}
 
 	/**
@@ -1846,10 +2498,19 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	private function enqueue_file_field_assets() {
 		$version = Constants::get_constant( 'JETPACK__VERSION' );
 
+		// extra cache busting strategy for view.js, seems they are left out of cache clearing on deploys
+		$asset_file = plugin_dir_path( __FILE__ ) . '../../dist/modules/file-field/view.asset.php';
+		$asset      = file_exists( $asset_file ) ? require $asset_file : null;
+		$version   .= $asset['version'] ?? '';
+
 		\wp_enqueue_script_module(
 			'jetpack-form-file-field',
 			plugins_url( '../../dist/modules/file-field/view.js', __FILE__ ),
-			array( '@wordpress/interactivity' ),
+			// `jp-forms-view` is not decoration: this module contributes `state.validators.file`,
+			// which `registerField()` reads at `data-wp-init` time. Loading after hydration would
+			// leave a required file field registering as valid, since the shared `validateField()`
+			// no longer has a `file` branch to fall back on. Same reason `field-phone` declares it.
+			array( '@wordpress/interactivity', 'jp-forms-view' ),
 			$version
 		);
 
@@ -1916,7 +2577,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			 * It prevents large border radius values from disrupting the look and feel of the fields.
 			 */
 			if ( isset( $style_variation_attributes['border']['radius'] ) ) {
-				$options_styles          = $options_styles ?? '';
+				$options_styles        ??= '';
 				$radius                  = $style_variation_attributes['border']['radius'];
 				$has_split_radius_values = is_array( $radius );
 				$top_left_radius         = $has_split_radius_values ? $radius['topLeft'] : $radius;
@@ -2040,7 +2701,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$aria_label = ! empty( $this->get_attribute( 'togglelabel' ) )
 			? Contact_Form_Plugin::strip_tags( $this->get_attribute( 'togglelabel' ) )
 			: __( 'Select an option', 'jetpack-forms' ); // selects don't have a default label
-		$field     .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.fieldAriaInvalid' " . $this->get_hidden_label_aria_label_attr( $aria_label ) . ">\n";
+		$field     .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.fieldAriaInvalid' aria-describedby='" . esc_attr( $this->get_described_by( $id, 'select' ) ) . "' " . $this->get_hidden_label_aria_label_attr( $aria_label ) . ">\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
 			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
@@ -2063,7 +2724,44 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= "\t</select><span class='jetpack-field-dropdown__icon'></span></span>\n";
 		$field .= "</div>\n";
 
-		return $field . $this->get_error_div( $id, 'select' );
+		return $field . $this->get_field_descriptions( $id, 'select' );
+	}
+
+	/**
+	 * The date formats the date field supports, keyed by the jQuery-style
+	 * format string stored in the `dateformat` attribute.
+	 *
+	 * WARNING: sync data with DATE_FORMATS in src/blocks/shared/util/constants.js
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array
+	 */
+	private static function get_date_formats() {
+		return array(
+			/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 12/31/2023). */
+			'mm/dd/yy' => __( 'MM/DD/YYYY', 'jetpack-forms' ),
+			/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 31/12/2023). */
+			'dd/mm/yy' => __( 'DD/MM/YYYY', 'jetpack-forms' ),
+			/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 2023-12-31). */
+			'yy-mm-dd' => __( 'YYYY-MM-DD', 'jetpack-forms' ),
+		);
+	}
+
+	/**
+	 * The field's date format key, falling back to the default.
+	 *
+	 * Shared by the visible hint and the `data-format` attribute that drives
+	 * the picker, so the two cannot disagree about which format is in effect.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	private function get_date_format() {
+		$date_format = $this->get_attribute( 'dateformat' );
+
+		return ! empty( $date_format ) ? $date_format : 'yy-mm-dd';
 	}
 
 	/**
@@ -2083,25 +2781,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public function render_date_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $required_indicator = true ) {
 		static $is_loaded = false;
 		$this->set_invalid_message( 'date', __( 'Please enter a valid date.', 'jetpack-forms' ) );
-		// WARNING: sync data with DATE_FORMATS in jetpack-field-datepicker.js
-		$formats = array(
-			'mm/dd/yy' => array(
-				/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 12/31/2023). */
-				'label' => __( 'MM/DD/YYYY', 'jetpack-forms' ),
-			),
-			'dd/mm/yy' => array(
-				/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 31/12/2023). */
-				'label' => __( 'DD/MM/YYYY', 'jetpack-forms' ),
-			),
-			'yy-mm-dd' => array(
-				/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 2023-12-31). */
-				'label' => __( 'YYYY-MM-DD', 'jetpack-forms' ),
-			),
-		);
 
-		$date_format = $this->get_attribute( 'dateformat' );
-		$date_format = isset( $date_format ) && ! empty( $date_format ) ? $date_format : 'yy-mm-dd';
-		$label       = isset( $formats[ $date_format ] ) ? $label . ' (' . $formats[ $date_format ]['label'] . ')' : $label;
+		$date_format = $this->get_date_format();
 		$extra_attrs = array( 'data-format' => $date_format );
 
 		$field  = $this->render_label( 'date', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
@@ -2166,7 +2847,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						'clear'     => __( 'Clear', 'jetpack-forms' ),
 						'close'     => __( 'Close', 'jetpack-forms' ),
 						'ariaLabel' => array(
-							'enterPicker'       => __( 'You are on a date picker input. Use the down key to focus into the date picker. Or type the date in the format MM/DD/YYYY', 'jetpack-forms' ),
 							'dayPicker'         => __( 'You are currently inside the date picker, use the arrow keys to navigate between the dates. Use tab key to jump to more controls.', 'jetpack-forms' ),
 							'monthPicker'       => __( 'You are currently inside the month picker, use the arrow keys to navigate between the months. Use the space key to select it.', 'jetpack-forms' ),
 							'yearPicker'        => __( 'You are currently inside the year picker, use the up and down arrow keys to navigate between the years. Use the space key to select it.', 'jetpack-forms' ),
@@ -2761,7 +3441,25 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'formHash'          => $this->form->hash,
 		);
 
+		// Conditional logic is not emitted per field: it cascades, so resolving it needs every
+		// field's logic and type at once. The form block emits that map once as
+		// `conditionalLogic`, and this field's wrapper reads its own entry from there.
 		$interactivity_attrs = ' data-wp-interactive="jetpack/form" ' . wp_interactivity_data_wp_context( $context ) . ' ';
+
+		// Hiding a field has to hide whichever element occupies the slot in the row, or the
+		// field disappears and leaves a hole behind it. For an inset label that is the outer
+		// wrapper, which is where the width class lives -- the inner div is inside it and
+		// carries no width of its own.
+		// data-jp-visibility-root names the element the initial server-side render stamps, so
+		// the first paint and the runtime always hide the same element. Matching on
+		// data-jp-field-id instead would stamp the inner div even when the wrapper is the one
+		// the runtime hides.
+		$visibility_attrs = " data-jp-visibility-root='" . esc_attr( $id ) . "'"
+			. ( $this->has_conditional_logic() ? " data-jp-conditional='1'" : '' )
+			. ' data-wp-class--jetpack-field--conditionally-hidden="state.isFieldHidden"'
+			// Runs whenever the field's visibility changes, so focus does not fall to <body>
+			// when the field the visitor is filling in disappears under them.
+			. ' data-wp-watch--conditional-focus="callbacks.manageConditionalFocus"';
 
 		// Fields with an inset label need an extra wrapper to show the error message below the input.
 		if ( $has_inset_label ) {
@@ -2772,11 +3470,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				array_push( $inset_label_class, 'grunion-field-width-' . $field_width . '-wrap' );
 			}
 
-			$field              .= "\n<div class='" . implode( ' ', $inset_label_class ) . "' {$interactivity_attrs} >\n";
+			$field              .= "\n<div class='" . implode( ' ', $inset_label_class ) . "' {$interactivity_attrs} {$visibility_attrs} >\n";
 			$interactivity_attrs = ''; // Reset interactivity attributes for the field wrapper.
+			$visibility_attrs    = ''; // The outer wrapper owns visibility for this layout.
 		}
 
-		$field .= "\n<div {$block_style} {$interactivity_attrs} {$shell_field_class} data-wp-init='callbacks.initializeField' data-wp-on--jetpack-form-reset='callbacks.initializeField' >\n"; // new in Jetpack 6.8.0
+		$field .= "\n<div {$block_style} {$interactivity_attrs} {$shell_field_class} data-jp-field-id='" . esc_attr( $id ) . "'{$visibility_attrs} data-wp-init='callbacks.initializeField' data-wp-on--jetpack-form-reset='callbacks.initializeField' >\n"; // new in Jetpack 6.8.0
 
 		switch ( $type ) {
 			case 'email':
@@ -2844,7 +3543,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= "\t</div>\n";
 
 		if ( $has_inset_label ) {
-			$field .= $this->get_error_div( $id, $type, true );
+			// Description-aware renderers build their markup at the input site,
+			// where the correct type is known, and defer it here. Field types
+			// that do not yet do that fall back to the plain error div. Several
+			// fields render an input whose type differs from the field type
+			// (date and url render `text`, simple telephone renders `tel`), so
+			// rebuilding it here from $type would not match the ids the input's
+			// aria-describedby references.
+			$field .= $this->deferred_descriptions ?? $this->get_error_div( $id, $type, true );
+			// Consume it, so a second render cannot replay this one's markup.
+			$this->deferred_descriptions = null;
 			// Close the extra wrapper for inset labels.
 			$field .= "\t</div>\n";
 		}
@@ -2863,8 +3571,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	private function get_field_extra( $type, $extra_attrs ) {
 		if ( 'date' === $type ) {
-			$date_format = $this->get_attribute( 'dateformat' );
-			return isset( $date_format ) && ! empty( $date_format ) ? $date_format : 'yy-mm-dd';
+			return $this->get_date_format();
+		}
+
+		if ( 'file' === $type ) {
+			return array(
+				'maxFiles'         => $this->get_file_field_max_files(),
+				'allowedMimeTypes' => self::get_file_field_accepted_mime_types(),
+			);
 		}
 
 		return $extra_attrs;
@@ -2948,7 +3662,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Checks if the field has an inset label, i.e., a label displayed inside the field instead of above.
+	 * Checks if the form style renders labels inside the field rather than above it.
+	 *
+	 * This is a property of the *style* alone: it stays true for a field type that
+	 * opts out of the inset label itself, because it also governs the extra
+	 * `.contact-form__inset-label-wrap` wrapper, which those fields still need (it
+	 * carries the field width). Use type_has_inset_label() to decide whether a given
+	 * field actually renders an inset label.
 	 *
 	 * @return boolean
 	 */
@@ -2956,6 +3676,19 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$form_style = $this->get_form_style();
 
 		return in_array( $form_style, array( 'outlined', 'animated' ), true );
+	}
+
+	/**
+	 * Checks whether a field type renders an inset label under the current form style.
+	 *
+	 * @param string $type The field type.
+	 *
+	 * @return boolean
+	 */
+	private function type_has_inset_label( $type ) {
+		return $this->has_inset_label()
+			&& ! in_array( $type, self::TYPES_WITHOUT_STYLED_LABEL, true )
+			&& ! in_array( $type, self::TYPES_WITHOUT_INSET_LABEL, true );
 	}
 
 	/**
@@ -3131,7 +3864,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$min_text_label = $extra_attrs['minLabel'] ?? '';
 		$max_text_label = $extra_attrs['maxLabel'] ?? '';
 
-		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
+		// $always_render must be true: 'slider' is excluded from inset labels in
+		// render_label(), so without it the label would be dropped entirely when the
+		// form uses the Outlined or Animated style.
+		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text, array(), true, $required_indicator );
 
 		ob_start();
 		?>
@@ -3170,6 +3906,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					data-wp-bind--value="state.getSliderValue"
 					data-wp-on--input="actions.onSliderChange"
 					data-wp-bind--aria-invalid="state.fieldAriaInvalid"
+					aria-describedby="<?php echo esc_attr( $this->get_described_by( $id, 'slider' ) ); ?>"
 					<?php echo $this->get_hidden_label_aria_label_attr(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attribute value is escaped in the helper. ?>
 				/>
 				<div
@@ -3188,7 +3925,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		<?php endif; ?>
 		<?php
 		$field .= ob_get_clean();
-		return $field . $this->get_error_div( $id, 'slider' );
+		return $field . $this->get_field_descriptions( $id, 'slider' );
 	}
 
 	/**

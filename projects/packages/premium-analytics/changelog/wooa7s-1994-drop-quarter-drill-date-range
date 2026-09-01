@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Drop the quarter bucket from drillDateRange; the interval type no longer has it (type fix, no user-facing change).

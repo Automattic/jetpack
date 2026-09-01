@@ -7,6 +7,7 @@ import {
 	type YearSurfacePresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
+import { getSettings, setSettings } from '@wordpress/date';
 import { useCallback, useRef, useState } from 'react';
 import { DateFiltersPanel } from '../../date-filters-panel';
 import { DateIntervalDropdown } from '../../date-interval-dropdown';
@@ -15,10 +16,11 @@ import {
 	resolveStoryInterval,
 } from '../../date-interval-dropdown/stories/story-interval-options';
 import { DateYearFilter } from '../../date-year-filter';
-import { getSectionSubtitle } from '../get-section-subtitle';
 import { SectionHeader } from '../section-header';
-import type { DateRange } from '../../date-filters-panel/date-filters-panel';
+import type { DateRange as PanelDateRange } from '../../date-filters-panel/date-filters-panel';
 import type { Meta, StoryObj } from '@storybook/react';
+
+const STORYBOOK_TIMEZONE = 'America/New_York';
 
 const meta: Meta< typeof SectionHeader > = {
 	title: 'Packages/Premium Analytics/UI/SectionHeader',
@@ -28,44 +30,37 @@ const meta: Meta< typeof SectionHeader > = {
 		docs: {
 			description: {
 				component:
-					'Header for an analytics surface. A **title** names the section and a ' +
-					'**subtitle** describes the active date configuration, on a row of its ' +
-					'own so its length never costs the controls width.\n\n' +
-					'The controls are a slot: the consumer passes them as `children`, keeps ' +
-					'the date state, and derives the subtitle from the *applied* range, so ' +
-					'the header stays purely presentational.',
+					'Header for an analytics surface: a **title** names the section, and the ' +
+					'date controls sit beside it on the same row.\n\n' +
+					'The controls are a slot: the consumer passes them as `children` and keeps ' +
+					'the date state, so the header stays purely presentational.',
 			},
 		},
 	},
 	argTypes: {
 		children: { control: false },
 	},
+	beforeEach: () => {
+		const settings = getSettings();
+		setSettings( {
+			...settings,
+			timezone: { ...settings.timezone, string: STORYBOOK_TIMEZONE },
+		} );
+
+		return () => setSettings( settings );
+	},
 };
 export default meta;
 
 type Story = StoryObj< typeof SectionHeader >;
 
-const STORYBOOK_TIMEZONE = 'America/New_York';
-
 type PrimaryFilterState = {
-	range: DateRange;
+	range: PanelDateRange;
 	presetId: PrimaryPresetId;
 };
 
 /**
- * The applied date configuration the subtitle describes.
- */
-type AppliedDateState = {
-	range: DateRange;
-	comparisonPresetId?: ComparisonPresetId;
-	presetId?: PrimaryPresetId;
-	interval?: IntervalType;
-};
-
-/**
  * Committed/staged seed mirroring the dashboard default: Last 30 days.
- *
- * @return The initial primary filter state.
  */
 function buildInitialPrimaryState(): PrimaryFilterState {
 	const range = computePrimaryRange( 'last-30-days', STORYBOOK_TIMEZONE );
@@ -77,14 +72,7 @@ function buildInitialPrimaryState(): PrimaryFilterState {
 }
 
 /**
- * Whether the primary picker is holding an un-applied edit.
- *
- * One predicate for two rules, the way `useReportDateFilters` has it: it gates
- * Apply, and it decides whether a comparison change commits on its own.
- *
- * @param staged    - The staged primary state.
- * @param committed - The applied primary state.
- * @return Whether the two differ.
+ * Whether the primary picker is holding an un-applied edit, which gates Apply.
  */
 function hasPrimaryDraft( staged: PrimaryFilterState, committed: PrimaryFilterState ): boolean {
 	return (
@@ -96,18 +84,10 @@ function hasPrimaryDraft( staged: PrimaryFilterState, committed: PrimaryFilterSt
 
 /**
  * Rolling date controls for the slot, wired like the dashboard: staged primary
- * edits committed on Apply. A trimmed copy of the DateFiltersPanel story
- * harness.
- *
- * @param props                 - Harness props.
- * @param props.onAppliedChange - Reports the applied configuration upward.
- * @return The wired date filters panel.
+ * edits committed on Apply, while a comparison or interval pick commits on its
+ * own. A trimmed copy of the DateFiltersPanel story harness.
  */
-function RollingDateControls( {
-	onAppliedChange,
-}: {
-	onAppliedChange: ( applied: AppliedDateState ) => void;
-} ) {
+function RollingDateControls() {
 	const initial = buildInitialPrimaryState();
 
 	const [ committed, setCommitted ] = useState( initial );
@@ -121,86 +101,38 @@ function RollingDateControls( {
 
 	const [ pickedInterval, setPickedInterval ] = useState< IntervalType | undefined >( undefined );
 
-	/**
-	 * What the interval resolves to under a given preset, so a pick the next
-	 * range no longer allows coerces on Apply rather than being carried.
-	 *
-	 * @param presetId - The preset to resolve against.
-	 * @return The active interval.
-	 */
-	const intervalFor = useCallback(
-		( presetId: PrimaryPresetId ) =>
-			resolveStoryInterval( pickedInterval, getStoryIntervalOptions( presetId ) ),
-		[ pickedInterval ]
+	const handleChange = useCallback(
+		( nextRange?: PanelDateRange, nextPresetId?: PrimaryPresetId ) => {
+			const next: PrimaryFilterState = {
+				range: nextRange ?? stagedRef.current.range,
+				presetId: nextPresetId ?? stagedRef.current.presetId,
+			};
+
+			stagedRef.current = next;
+			setStaged( next );
+		},
+		[]
 	);
-
-	const handleChange = useCallback( ( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
-		const next: PrimaryFilterState = {
-			range: nextRange ?? stagedRef.current.range,
-			presetId: nextPresetId ?? stagedRef.current.presetId,
-		};
-
-		stagedRef.current = next;
-		setStaged( next );
-	}, [] );
 
 	const handleApply = useCallback( () => {
 		setCommitted( stagedRef.current );
-		onAppliedChange( {
-			range: stagedRef.current.range,
-			presetId: stagedRef.current.presetId,
-			comparisonPresetId,
-			interval: intervalFor( stagedRef.current.presetId ),
-		} );
-	}, [ onAppliedChange, comparisonPresetId, intervalFor ] );
+	}, [] );
 
 	const handleCancel = useCallback( () => {
 		stagedRef.current = committed;
 		setStaged( committed );
 	}, [ committed ] );
 
-	/*
-	 * Mirrors `useReportDateFilters`: a comparison change commits on its own, so
-	 * it moves the subtitle right away. Not while a primary edit is staged,
-	 * though — then it rides along and both land on Apply, so tweaking the
-	 * comparison never commits an un-applied primary draft.
-	 */
 	const handleComparisonChange = useCallback(
-		( _range: DateRange | undefined, nextPresetId?: ComparisonPresetId ) => {
+		( _range: PanelDateRange | undefined, nextPresetId?: ComparisonPresetId ) => {
 			setComparisonPresetId( nextPresetId );
-
-			if ( ! hasPrimaryDraft( stagedRef.current, committed ) ) {
-				onAppliedChange( {
-					range: committed.range,
-					presetId: committed.presetId,
-					comparisonPresetId: nextPresetId,
-					interval: intervalFor( committed.presetId ),
-				} );
-			}
 		},
-		[ onAppliedChange, committed, intervalFor ]
+		[]
 	);
 
-	// Applies on click unless a primary edit is staged, in which case it lands
-	// with it — the same rule a comparison change follows.
-	const handleIntervalChange = useCallback(
-		( nextInterval: IntervalType ) => {
-			setPickedInterval( nextInterval );
-
-			if ( ! hasPrimaryDraft( stagedRef.current, committed ) ) {
-				onAppliedChange( {
-					range: committed.range,
-					presetId: committed.presetId,
-					comparisonPresetId,
-					interval: nextInterval,
-				} );
-			}
-		},
-		[ onAppliedChange, committed, comparisonPresetId ]
-	);
-
-	const canApply = hasPrimaryDraft( staged, committed );
-	const intervalOptions = getStoryIntervalOptions( committed.presetId );
+	// A pick the committed range no longer allows coerces to the finest bucket
+	// it does, the way the report params have it.
+	const intervalOptions = getStoryIntervalOptions( staged.presetId );
 
 	return (
 		<DateFiltersPanel
@@ -214,71 +146,32 @@ function RollingDateControls( {
 			intervalOptions={ intervalOptions }
 			onChange={ handleChange }
 			onComparisonChange={ handleComparisonChange }
-			onIntervalChange={ handleIntervalChange }
+			onIntervalChange={ setPickedInterval }
 			onApply={ handleApply }
 			onCancel={ handleCancel }
-			canApply={ canApply }
+			canApply={ hasPrimaryDraft( staged, committed ) }
 			timeZone={ STORYBOOK_TIMEZONE }
 		/>
 	);
 }
 
 /**
- * The year surface's own seed: all time, bucketed by the coarsest-but-one
- * interval its span allows.
- *
- * @return The initial year-surface selection.
- */
-function buildInitialYearState(): AppliedDateState {
-	const range = computePrimaryRange( PRESET_ALL_TIME, STORYBOOK_TIMEZONE );
-
-	return {
-		range: { from: range?.from, to: range?.to },
-		presetId: PRESET_ALL_TIME,
-		interval: getStoryIntervalOptions( PRESET_ALL_TIME )[ 0 ],
-	};
-}
-
-/**
  * Year-surface controls for the slot: all time plus calendar years and the
  * interval control, but no comparison, as the Insights instance specifies.
- *
- * @param props                   - Harness props.
- * @param props.containerElement  - Measured row element for responsive layout.
- * @param props.onSelectionChange - Reports the selected configuration upward.
- * @return The wired year filter.
  */
-function YearDateControls( {
-	containerElement,
-	onSelectionChange,
-}: {
-	containerElement: HTMLElement | null;
-	onSelectionChange: ( selection: AppliedDateState ) => void;
-} ) {
-	const [ selection, setSelection ] = useState< AppliedDateState >( buildInitialYearState );
+function YearDateControls( { containerElement }: { containerElement: HTMLElement | null } ) {
+	const [ presetId, setPresetId ] = useState< YearSurfacePresetId >( PRESET_ALL_TIME );
 	const [ pickedInterval, setPickedInterval ] = useState< IntervalType | undefined >( undefined );
 
-	const intervalOptions = getStoryIntervalOptions( selection.presetId );
+	// A calendar year allows finer buckets than all time, so the interval is
+	// re-resolved against the selection rather than carried.
+	const intervalOptions = getStoryIntervalOptions( presetId );
 
 	return (
 		<Stack direction="row" align="center" gap="sm">
 			<DateYearFilter
-				value={ selection.presetId }
-				onSelect={ ( range, nextPresetId: YearSurfacePresetId ) => {
-					// A calendar year allows finer buckets than all time, so the
-					// selection is re-resolved rather than carried.
-					const next: AppliedDateState = {
-						range,
-						presetId: nextPresetId,
-						interval: resolveStoryInterval(
-							pickedInterval,
-							getStoryIntervalOptions( nextPresetId )
-						),
-					};
-
-					setSelection( next );
-					onSelectionChange( next );
-				} }
+				value={ presetId }
+				onSelect={ ( _range, nextPresetId ) => setPresetId( nextPresetId ) }
 				timeZone={ STORYBOOK_TIMEZONE }
 				containerElement={ containerElement }
 			/>
@@ -286,10 +179,7 @@ function YearDateControls( {
 			<DateIntervalDropdown
 				options={ intervalOptions }
 				value={ resolveStoryInterval( pickedInterval, intervalOptions ) }
-				onChange={ nextInterval => {
-					setPickedInterval( nextInterval );
-					onSelectionChange( { ...selection, interval: nextInterval } );
-				} }
+				onChange={ setPickedInterval }
 			/>
 		</Stack>
 	);
@@ -297,35 +187,24 @@ function YearDateControls( {
 
 type SectionHeaderStoryProps = {
 	title: string;
-	subtitle?: string;
+	condenseOnScroll?: boolean;
 };
 
-function RollingSectionHeaderStory( { title }: SectionHeaderStoryProps ) {
-	const [ applied, setApplied ] = useState< AppliedDateState >( () => {
-		const initial = buildInitialPrimaryState();
-
-		return {
-			range: initial.range,
-			presetId: initial.presetId,
-			interval: getStoryIntervalOptions( initial.presetId )[ 0 ],
-		};
-	} );
-
+function RollingSectionHeaderStory( { title, condenseOnScroll }: SectionHeaderStoryProps ) {
 	return (
-		<SectionHeader title={ title } subtitle={ getSectionSubtitle( applied ) }>
-			<RollingDateControls onAppliedChange={ setApplied } />
+		<SectionHeader title={ title } condenseOnScroll={ condenseOnScroll }>
+			<RollingDateControls />
 		</SectionHeader>
 	);
 }
 
 function YearSectionHeaderStory( { title }: SectionHeaderStoryProps ) {
 	const [ container, setContainer ] = useState< HTMLDivElement | null >( null );
-	const [ applied, setApplied ] = useState< AppliedDateState >( buildInitialYearState );
 
 	return (
 		<div ref={ setContainer }>
-			<SectionHeader title={ title } subtitle={ getSectionSubtitle( applied ) }>
-				<YearDateControls containerElement={ container } onSelectionChange={ setApplied } />
+			<SectionHeader title={ title }>
+				<YearDateControls containerElement={ container } />
 			</SectionHeader>
 		</div>
 	);
@@ -335,13 +214,10 @@ function YearSectionHeaderStory( { title }: SectionHeaderStoryProps ) {
  * The **Traffic-like** instance: rolling presets, custom range, chart interval,
  * and comparison in the slot.
  *
- * The subtitle derives from the *applied* configuration, so it holds still
- * while a range edit is staged and only moves on Apply. Picking a comparison or
- * an interval moves it right away, matching how those commit on their own.
- *
- * The interval control is a glyph, so the subtitle is the only place its choice
- * is readable, and where the coercion shows: switching to a preset that
- * disallows the active bucket falls back to the finest one it allows.
+ * Range edits are staged and land on Apply; a comparison or interval pick
+ * commits on its own, the way `useReportDateFilters` has it. Switching to a
+ * preset that disallows the active bucket falls back to the finest one it
+ * allows.
  */
 export const Default: Story = {
 	args: {
@@ -351,13 +227,23 @@ export const Default: Story = {
 };
 
 /**
+ * A title long enough to overflow its track: it truncates with an ellipsis
+ * instead of wrapping or compressing the date controls, which keep their
+ * natural width for as long as the title stays above its floor.
+ */
+export const LongTitle: Story = {
+	args: {
+		title: 'Traffic for every site, network, and channel this account has ever measured',
+	},
+	render: ( { title } ) => <RollingSectionHeaderStory title={ title } />,
+};
+
+/**
  * The **Insights-like** instance: the year surface (all time plus calendar
  * years) and the chart interval in the slot.
  *
  * Per the design's instances table, this surface carries *no comparison
- * control* but does carry the interval one. Its ranges are the longest the
- * dashboard offers, so its subtitle carries no length — the years are already
- * in the range itself — and names only the bucket.
+ * control* but does carry the interval one.
  */
 export const YearSurface: Story = {
 	args: {
@@ -384,13 +270,61 @@ export const Stacked: Story = {
 	),
 };
 
+/*
+ * Story-only stand-in for what a surface provides around a pinned header: a
+ * strip to scroll past and the pin marker publishing the view timeline. The
+ * dashboard does this in `routes/dashboard/stage.module.scss`.
+ */
+const PIN_TIMELINE = '--section-header-pin';
+const PIN_MARKER_STYLE = {
+	position: 'absolute',
+	insetBlockStart: 0,
+	inlineSize: 1,
+	blockSize: 40,
+	visibility: 'hidden',
+	pointerEvents: 'none',
+	viewTimelineName: PIN_TIMELINE,
+	viewTimelineAxis: 'block',
+} as const;
+
+/**
+ * `condenseOnScroll` on a pinned header: scroll the box below, and once the
+ * header clears the strip above it and pins, the title drops a type-scale step
+ * over the next 40px. Nothing condenses while the header is still on its way
+ * up, and the effect reverses as you scroll back up. Browsers without
+ * scroll-driven animations, surfaces that publish no pin marker, and readers
+ * who asked for reduced motion all keep the resting title.
+ */
+export const CondensingOnScroll: Story = {
+	args: {
+		title: 'Site traffic',
+	},
+	render: ( { title } ) => (
+		<div style={ { blockSize: 320, overflowY: 'auto' } }>
+			<div style={ { blockSize: 48 } }>Something to scroll past, as the section tabs are.</div>
+			<div style={ { position: 'relative', timelineScope: PIN_TIMELINE } }>
+				<div style={ PIN_MARKER_STYLE } aria-hidden="true" />
+				<div
+					style={ {
+						position: 'sticky',
+						insetBlockStart: 0,
+						background: 'var(--wpds-color-background-surface-neutral-strong)',
+					} }
+				>
+					<RollingSectionHeaderStory title={ title } condenseOnScroll />
+				</div>
+				<div style={ { blockSize: 900 } } />
+			</div>
+		</div>
+	),
+};
+
 /**
  * The left half on its own: nothing in the controls slot.
  */
 export const WithoutControls: Story = {
 	args: {
 		title: 'Site traffic',
-		subtitle: 'Last 30 days',
 	},
-	render: ( { title, subtitle } ) => <SectionHeader title={ title } subtitle={ subtitle } />,
+	render: ( { title } ) => <SectionHeader title={ title } />,
 };

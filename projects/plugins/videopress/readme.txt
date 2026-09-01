@@ -1,10 +1,10 @@
 === Jetpack VideoPress  ===
 Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski, nunyvega, leogermani, cgastrell
 Tags: video, video-hosting, video-player, cdn, video-streaming
-Requires at least: 6.9
-Tested up to: 7.0
-Stable tag: 3.2
-Requires PHP: 7.2
+Requires at least: 7.0
+Tested up to: 7.1
+Stable tag: 3.4.1
+Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 The finest video hosting for WordPress. Drag and drop videos through the WordPress editor and keep the focus on your content, not the ads.
@@ -83,23 +83,24 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 3.2 - 2026-07-09
+### 3.4.1 - 2026-08-26
 #### Added
-- Add a site-level setting to turn off auto-generated subtitles.
-- Add presentation to the player iframe allow list to enable casting from embeds.
-- Resumable video uploads are now verified as they arrive, instead of re-reading the whole file once the upload completes.
+- Add a first-run welcome modal to the dashboard.
 
 #### Changed
-- Dashboard: Release modernized VideoPress dashboard.
-- Remove unneeded development and documentation files from the published plugin.
-- Update composer.lock files.
-- Update minimum WordPress version to 6.9.
-- Update package dependencies.
+- General: Update minimum WordPress version to 7.0.
+- My Jetpack: Show what Paid Stats actually adds — UTM tracking, device stats, and region & city locations — instead of commercial use.
+- Redesign the video details page: group details into one card in a wider layout, move the player and settings into a side column, and add thumbnail tiles, collapsible sections, and an Add to content action.
+- Tested up to WordPress 7.1.
+
+#### Removed
+- Updated PHP version requirements to PHP 7.4 or newer.
 
 #### Fixed
-- Fix admin page crash on video upload/delete when the free-plan upgrade nudge is shown.
-- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active.
-- Fix the media library "Edit video details" link so it opens the modernized dashboard. Old links now redirect to the new location.
-- Fix the post-connection redirect so the modernized dashboard returns users to the VideoPress page instead of a 404.
-- Load VideoPress Overview stats even when the Jetpack Stats module is inactive.
+- Charts: draw labels at the design system's font weight and size.
+- Connection: Update wording for some connection error notices.
+- Fix a timeout error when updating a video poster from the media library.
+- Fix private video playback authorization for videos embedded through synced patterns and Video Playlist blocks, let private videos preview in the block editor canvas, load live metadata for private playlist entries for authorized viewers, and show a lock placeholder on playlist thumbnails of private videos the viewer cannot access.
+- My Jetpack: always label the license activation link 'Activate a license'. It previously read 'Activate a new license' on sites with a plan, even when no licenses had been activated.
+- My Jetpack: Stop the Stats dashboard from asking which plan you want again after Start for Free was already chosen.
 

@@ -992,6 +992,7 @@ class Helper {
 			 */
 			'disableTracking'             => self::is_tracking_disabled() || apply_filters( 'jetpack_instant_search_disable_tracking', false ),
 			'aiAnswersEnabled'            => AI_Answers::is_enabled(),
+			'aiMasterEnabled'             => AI_Answers::is_master_enabled(),
 		);
 
 		/**
@@ -1010,21 +1011,21 @@ class Helper {
 	 * Default highlight fields when `highlightFields` is unset in
 	 * `jetpack_instant_search_options`. Matches instant search's JS default.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.4.0
 	 */
 	const DEFAULT_INSTANT_SEARCH_HIGHLIGHT_FIELDS = array( 'title', 'content', 'comments' );
 
 	/**
 	 * Fields added to API `fields` when searching additional blogs.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.4.0
 	 */
 	const MULTISITE_SEARCH_FIELD_NAMES = array( 'author', 'blog_name', 'blog_icon_url', 'blog_id' );
 
 	/**
 	 * Read Instant Search query-customization options from a filtered options array.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.4.0
 	 *
 	 * @param array $options Raw `jetpack_instant_search_options` value.
 	 * @return array Query options with keys:
@@ -1108,7 +1109,7 @@ class Helper {
 	 * Passing an empty array into the filter matches `Filter_Static::read_raw_entries()`
 	 * — callbacks only add keys.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.4.0
 	 *
 	 * @return array Query options with keys:
 	 *               `highlightPhraseOnly`, `highlightFilterStopwords`, `highlightFields`,
@@ -1128,7 +1129,7 @@ class Helper {
 	 *
 	 * Shared by Inline Search (Theme) and any server-side v1.3 callers.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.4.0
 	 *
 	 * @param array      $api_query_args API query arguments.
 	 * @param array|null $options        Filtered `jetpack_instant_search_options` value. Defaults to `generate_initial_javascript_state()`.
@@ -1194,7 +1195,7 @@ class Helper {
 	 *
 	 * Mirrors instant search's exact / `regex:` pattern matching.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.4.0
 	 *
 	 * @param string $query          Current search query.
 	 * @param array  $custom_results Normalized custom-results rules.

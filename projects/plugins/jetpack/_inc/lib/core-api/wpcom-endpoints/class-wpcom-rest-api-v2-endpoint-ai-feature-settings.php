@@ -23,8 +23,8 @@
 
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Search\Plan as Search_Plan;
+use Automattic\Jetpack\SEO\Ai_Seo;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -146,7 +146,10 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 		}
 
 		if ( $request->has_param( 'master_enabled' ) ) {
-			update_option( Jetpack_AI_Settings::MASTER_OPTION, (bool) $request->get_param( 'master_enabled' ) );
+			// Routes through the setter so the write lands on whichever store backs
+			// the master on this platform: the option on Simple, the `ai` module
+			// off-Simple.
+			Jetpack_AI_Settings::set_master_enabled( (bool) $request->get_param( 'master_enabled' ) );
 		}
 
 		$features = $request->get_param( 'features' );
@@ -216,9 +219,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 					'enabled'   => $stored['feature_clip'],
 					'available' => $this->is_feature_clip_available(),
 				),
-				'seo_enhancer'      => array(
-					'enabled'   => $stored['seo_enhancer'],
-					'available' => $this->is_seo_enhancer_available(),
+				'ai_seo'            => array(
+					'enabled'   => $stored['ai_seo'],
+					'available' => $this->is_ai_seo_available(),
 				),
 				'ai_search'         => array(
 					'enabled'          => $stored['ai_search'],
@@ -229,25 +232,22 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 	}
 
 	/**
-	 * Whether the AI SEO enhancer is available on this site, so the settings
-	 * page can hide its row where the feature can't run.
+	 * Whether the AI SEO row is available, so the settings page can hide it.
+	 * The row governs user-initiated suggestions as well as automatic
+	 * generation, so it follows the package's shared AI SEO gate.
 	 *
-	 * Mirrors the legacy Traffic page's gate: the feature filter, the
-	 * seo-tools module (always active on WordPress.com Simple, where
-	 * Modules::is_active() short-circuits), and the plan feature.
+	 * Guarded with class_exists: the autoloader can pick an older jetpack-seo
+	 * copy from another plugin, predating this class. Without the gate's verdict
+	 * the row is hidden rather than offered.
 	 *
 	 * @return bool
 	 */
-	private function is_seo_enhancer_available() {
-		$filter_on = (bool) apply_filters( 'ai_seo_enhancer_enabled', true );
+	private function is_ai_seo_available() {
+		if ( ! class_exists( Ai_Seo::class ) ) {
+			return false;
+		}
 
-		$module_active = class_exists( Modules::class )
-			&& ( new Modules() )->is_active( 'seo-tools' );
-
-		$plan_supports = class_exists( Current_Plan::class )
-			&& Current_Plan::supports( 'ai-seo-enhancer' );
-
-		return $filter_on && $module_active && $plan_supports;
+		return Ai_Seo::is_available();
 	}
 
 	/**

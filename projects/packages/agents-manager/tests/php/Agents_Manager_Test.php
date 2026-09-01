@@ -98,6 +98,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 				return Constants::is_true( 'A8C_PROXIED_REQUEST' );
 			}
 		);
+		Functions\when( 'is_automattician' )->justReturn( false );
 
 		$this->agents_manager = Agents_Manager::init();
 
@@ -133,6 +134,10 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		remove_action( 'next_admin_init', array( $this->agents_manager, 'enqueue_scripts' ), 1001 );
 		remove_filter( 'agents_manager_use_unified_experience', array( $this->agents_manager, 'should_use_unified_experience' ) );
 		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
+		remove_action( 'admin_bar_menu', array( $this->agents_manager, 'add_admin_bar_nodes' ), 100 );
+		remove_all_filters( 'agents_manager_use_unified_experience' );
+		remove_all_filters( 'agents_manager_enabled_in_block_editor' );
+		remove_all_filters( 'agents_manager_should_load' );
 
 		// Restore original superglobal values.
 		if ( $this->original_get_preview === null ) {
@@ -420,6 +425,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * Tests that enqueue_scripts adds script with empty providers and useUnifiedExperience false by default.
 	 */
 	public function test_enqueue_scripts_with_empty_providers() {
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( false );
+
 		// Set admin context - scripts only enqueue in admin.
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'dashboard' );
@@ -445,6 +452,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'const agentsManagerData =', $inline_script );
 		$this->assertStringContainsString( '"agentProviders":[]', $inline_script );
+		$this->assertStringContainsString( '"isA11n":false', $inline_script );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 	}
@@ -501,6 +509,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * Tests that enqueue_scripts includes useUnifiedExperience true when filter returns true.
 	 */
 	public function test_enqueue_scripts_includes_use_unified_experience_when_enabled() {
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( false );
+		Functions\when( 'is_automattician' )->justReturn( true );
+
 		// Set admin context - scripts only enqueue in admin.
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'dashboard' );
@@ -530,6 +541,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'const agentsManagerData =', $inline_script );
 		$this->assertStringContainsString( '"useUnifiedExperience":true', $inline_script );
+		$this->assertStringContainsString( '"isA11n":true', $inline_script );
 
 		// Clean up the filter.
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
@@ -669,55 +681,198 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the standalone AI chat button is added to the admin bar when the
-	 * unified experience is enabled.
+	 * Tests that each panel item carries the label and route the client renders from.
+	 *
+	 * @param string      $id         Node ID.
+	 * @param string      $menu_title Expected label.
+	 * @param string|null $route      Expected in-app route, or null for external links.
+	 * @dataProvider provide_panel_node_data
 	 */
-	public function test_ai_chat_button_registered_in_unified_experience() {
-		// Set admin context so the admin bar nodes are registered.
-		require_once ABSPATH . 'wp-admin/includes/screen.php';
-		set_current_screen( 'dashboard' );
+	#[DataProvider( 'provide_panel_node_data' )]
+	public function test_panel_nodes_carry_their_label_and_route( $id, $menu_title, $route ) {
+		$this->apply_admin_bar_context( array( 'unified' => true ) );
 
-		// Register the script so enqueue_scripts can attach its inline data.
-		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+		$node = $this->render_admin_bar()->get_node( $id );
 
-		// Enable the unified experience (priority 20 runs after the class's own filter).
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-
-		$this->agents_manager->enqueue_scripts();
-
-		$this->assertNotFalse(
-			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
-		);
-
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		$this->assertNotNull( $node );
+		$this->assertSame( $menu_title, $node->meta['menu_title'] ?? null );
+		$this->assertSame( $route, $node->meta['route'] ?? null );
 	}
 
 	/**
-	 * Tests that the standalone AI chat button is added when an integration requests
-	 * Agents Manager without enabling the unified experience.
+	 * Data provider for the panel item label and route pairs.
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: string|null}>
 	 */
-	public function test_ai_chat_button_registered_for_requested_shell_without_unified_experience() {
-		// Same admin context as the enabled case, so only the unified flag differs.
-		require_once ABSPATH . 'wp-admin/includes/screen.php';
-		set_current_screen( 'dashboard' );
-		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
-
-		// Disable the unified experience (priority 20 runs after the class's own filter).
-		add_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
-		add_filter( 'agents_manager_should_load', '__return_true' );
-
-		$this->agents_manager->enqueue_scripts();
-
-		$this->assertNotFalse(
-			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+	public static function provide_panel_node_data() {
+		return array(
+			'chat support'    => array( 'agents-manager-chat-support', 'Chat support', '/chat' ),
+			'chat history'    => array( 'agents-manager-chat-history', 'Chat history', '/history' ),
+			'support guides'  => array( 'agents-manager-support-guides', 'Support guides', '/support-guides' ),
+			'courses'         => array( 'agents-manager-courses', 'Courses', null ),
+			'product updates' => array( 'agents-manager-product-updates', 'Product updates', null ),
 		);
-		$this->assertFalse(
-			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_menu_panel' ) ),
-			'Requesting the shell must not take over the Help Center.'
+	}
+
+	/**
+	 * Tests that the Help node replaces the legacy Help Center node rather than sitting beside it.
+	 */
+	public function test_help_node_replaces_the_legacy_help_center_node() {
+		$this->apply_admin_bar_context( array( 'unified' => true ) );
+
+		// Help Center registers its own node at the default priority, below ours.
+		$help_center = static function ( $wp_admin_bar ) {
+			$wp_admin_bar->add_menu(
+				array(
+					'id'     => 'help-center',
+					'parent' => 'top-secondary',
+				)
+			);
+		};
+		add_action( 'admin_bar_menu', $help_center );
+
+		$ids = array_keys( $this->render_admin_bar()->get_nodes() ?? array() );
+
+		remove_action( 'admin_bar_menu', $help_center );
+
+		$this->assertContains( 'agents-manager', $ids );
+		$this->assertNotContains( 'help-center', $ids );
+	}
+
+	/**
+	 * Tests that the Ask AI icon label follows a locale switch within the request.
+	 *
+	 * The admin-bar endpoint switches locale for `_locale=user`, so the icon markup cannot
+	 * be built once and reused.
+	 */
+	public function test_ask_ai_icon_label_follows_a_locale_switch() {
+		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
+
+		$label  = 'Ask AI';
+		$filter = static function ( $translation, $text ) use ( &$label ) {
+			return 'Ask AI' === $text ? $label : $translation;
+		};
+		add_filter( 'gettext', $filter, 10, 2 );
+
+		$first = new \WP_Admin_Bar();
+		$first->initialize();
+		$this->agents_manager->add_ai_chat_button( $first );
+
+		$label  = 'Demander a l IA';
+		$second = new \WP_Admin_Bar();
+		$second->initialize();
+		$this->agents_manager->add_ai_chat_button( $second );
+
+		remove_filter( 'gettext', $filter, 10 );
+
+		$this->assertStringContainsString( 'aria-label="Ask AI"', $first->get_node( 'agents-manager-ai-chat' )->title );
+		$this->assertStringContainsString( 'aria-label="Demander a l IA"', $second->get_node( 'agents-manager-ai-chat' )->title );
+	}
+
+	/**
+	 * Tests that `meta.icon` is the same markup wp-admin renders, so the two cannot drift.
+	 *
+	 * @param string $id Node ID.
+	 * @dataProvider provide_icon_bearing_node_ids
+	 */
+	#[DataProvider( 'provide_icon_bearing_node_ids' )]
+	public function test_meta_icon_matches_the_rendered_icon( $id ) {
+		$this->apply_admin_bar_context( array( 'unified' => true ) );
+
+		$node = $this->render_admin_bar()->get_node( $id );
+
+		$this->assertNotNull( $node );
+		$this->assertNotEmpty( $node->meta['icon'] ?? '' );
+		$this->assertStringContainsString( $node->meta['icon'], $node->title );
+	}
+
+	/**
+	 * Data provider for the nodes that carry an icon.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function provide_icon_bearing_node_ids() {
+		return array(
+			'help'            => array( 'agents-manager' ),
+			'ask ai'          => array( 'agents-manager-ai-chat' ),
+			'chat support'    => array( 'agents-manager-chat-support' ),
+			'chat history'    => array( 'agents-manager-chat-history' ),
+			'support guides'  => array( 'agents-manager-support-guides' ),
+			'courses'         => array( 'agents-manager-courses' ),
+			'product updates' => array( 'agents-manager-product-updates' ),
+		);
+	}
+
+	/**
+	 * Tests that `menu_title` is not HTML-escaped.
+	 *
+	 * It is API data, and core escapes it again when rendering the group's aria-label.
+	 */
+	public function test_menu_title_is_not_html_escaped() {
+		$filter = static fn( $translation, $text ) => 'Ask AI' === $text ? "L'IA" : $translation;
+		add_filter( 'gettext', $filter, 10, 2 );
+
+		global $wp_admin_bar;
+		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
+		$wp_admin_bar = new \WP_Admin_Bar();
+		$wp_admin_bar->initialize();
+		$this->agents_manager->add_ai_chat_button( $wp_admin_bar );
+
+		remove_filter( 'gettext', $filter, 10 );
+
+		$this->assertSame( "L'IA", $wp_admin_bar->get_node( 'agents-manager-ai-chat' )->meta['menu_title'] );
+	}
+
+	/**
+	 * Tests that Help is registered before Ask AI, matching the wp-admin admin bar order.
+	 */
+	public function test_help_node_is_registered_before_ask_ai() {
+		$this->apply_admin_bar_context( array( 'unified' => true ) );
+
+		$ids = array_keys( $this->render_admin_bar()->get_nodes() ?? array() );
+
+		$this->assertContains( 'agents-manager', $ids );
+		$this->assertContains( 'agents-manager-ai-chat', $ids );
+		$this->assertLessThan(
+			array_search( 'agents-manager-ai-chat', $ids, true ),
+			array_search( 'agents-manager', $ids, true )
+		);
+	}
+
+	/**
+	 * Tests that the Help node links straight out only for disconnected variants.
+	 *
+	 * Drives `admin_bar_menu` so the caller's choice of argument is covered, not just the method.
+	 *
+	 * @param string|null $variant     Forced variant, or null for the connected default.
+	 * @param bool        $expect_href Whether the node should carry the Help Center URL.
+	 * @dataProvider provide_help_menu_connection_states
+	 */
+	#[DataProvider( 'provide_help_menu_connection_states' )]
+	public function test_help_menu_links_out_only_when_disconnected( $variant, $expect_href ) {
+		$this->apply_admin_bar_context(
+			array(
+				'unified' => true,
+				'variant' => $variant,
+			)
 		);
 
-		remove_filter( 'agents_manager_should_load', '__return_true' );
-		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+		$node = $this->render_admin_bar()->get_node( 'agents-manager' );
+
+		$this->assertNotNull( $node );
+		$this->assertSame( $expect_href, ! empty( $node->href ) );
+	}
+
+	/**
+	 * Data provider for the Help node connection states.
+	 *
+	 * @return array<string, array{0: string|null, 1: bool}>
+	 */
+	public static function provide_help_menu_connection_states() {
+		return array(
+			'disconnected links to the Help Center' => array( 'wp-admin-disconnected', true ),
+			'connected opens the dropdown'          => array( null, false ),
+		);
 	}
 
 	/**
@@ -740,183 +895,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertNotNull( $ai_node );
 		$this->assertStringNotContainsString( 'agents-manager-masterbar', $help_node->meta['html'] ?? '' );
 		$this->assertStringContainsString( 'agents-manager-masterbar', $ai_node->meta['html'] ?? '' );
-	}
-
-	/**
-	 * Tests that the standalone AI chat button is not added for a disconnected
-	 * Help-only variant.
-	 */
-	public function test_ai_chat_button_not_registered_for_disconnected_variant() {
-		require_once ABSPATH . 'wp-admin/includes/screen.php';
-		set_current_screen( 'dashboard' );
-		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
-
-		$variant_filter = static function () {
-			return 'wp-admin-disconnected';
-		};
-		add_filter( 'agents_manager_variant', $variant_filter );
-
-		$this->agents_manager->enqueue_scripts();
-
-		$this->assertFalse(
-			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
-		);
-
-		remove_filter( 'agents_manager_variant', $variant_filter );
-	}
-
-	/**
-	 * Puts the current request into a block-editor screen so the editor admin-bar branch is reachable.
-	 *
-	 * @param bool $enable Whether to enable Agents Manager in the block editor (block-editor-only,
-	 *                     no unified experience). Pass false to exercise the not-enabled path.
-	 */
-	private function set_up_block_editor_request( $enable = true ) {
-		require_once ABSPATH . 'wp-admin/includes/screen.php';
-		set_current_screen( 'post' );
-		$screen     = get_current_screen();
-		$reflection = new \ReflectionClass( $screen );
-		$property   = $reflection->getProperty( 'is_block_editor' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue( $screen, true );
-
-		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
-
-		if ( $enable ) {
-			add_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
-		}
-	}
-
-	/**
-	 * Tests that the Ask AI button is added when the editor admin bar is showing and Agents Manager
-	 * is enabled — independent of dev mode (here, a non-proxied request).
-	 */
-	public function test_ai_chat_button_registered_in_editor_admin_bar() {
-		$this->set_up_block_editor_request();
-
-		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
-
-		$this->agents_manager->enqueue_scripts();
-
-		$this->assertNotFalse(
-			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
-		);
-
-		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
-	}
-
-	/**
-	 * Tests that an integration-requested Gutenberg shell adds Ask AI to the editor
-	 * admin bar without taking over the Help Center.
-	 */
-	public function test_ai_chat_button_registered_in_editor_admin_bar_for_requested_shell() {
-		$this->set_up_block_editor_request( false );
-
-		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
-
-		add_filter( 'agents_manager_should_load', '__return_true' );
-
-		$this->agents_manager->enqueue_scripts();
-
-		$this->assertNotFalse(
-			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
-		);
-
-		remove_filter( 'agents_manager_should_load', '__return_true' );
-	}
-
-	/**
-	 * Tests that a classic editor admin bar receives Ask AI without the Gutenberg
-	 * omnibar experiment.
-	 */
-	public function test_ai_chat_button_registered_in_classic_editor_admin_bar() {
-		$this->set_up_block_editor_request();
-
-		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
-
-		$this->agents_manager->enqueue_scripts();
-
-		$this->assertNotFalse(
-			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
-		);
-
-		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
-	}
-
-	/**
-	 * Tests that the Ask AI button is not added to the editor admin bar when the admin
-	 * bar is hidden, even though Agents Manager is enabled.
-	 */
-	public function test_ai_chat_button_not_registered_in_editor_without_admin_bar() {
-		$this->set_up_block_editor_request();
-
-		Functions\when( 'is_admin_bar_showing' )->justReturn( false );
-
-		$this->agents_manager->enqueue_scripts();
-
-		$this->assertFalse(
-			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
-		);
-
-		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
-	}
-
-	/**
-	 * Tests that the Ask AI button is not added to the editor admin bar when Agents Manager is
-	 * not enabled, even while the admin bar is showing.
-	 */
-	public function test_ai_chat_button_not_registered_in_editor_when_not_enabled() {
-		$this->set_up_block_editor_request( false );
-
-		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
-
-		$this->agents_manager->enqueue_scripts();
-
-		$this->assertFalse(
-			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
-		);
-	}
-
-	/**
-	 * Tests that the Help "?" dropdown (its menu panel) is added to the editor admin bar in the
-	 * unified experience.
-	 */
-	public function test_help_menu_registered_in_editor_admin_bar_when_unified() {
-		$this->set_up_block_editor_request();
-
-		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
-		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-
-		$this->agents_manager->enqueue_scripts();
-
-		$this->assertNotFalse(
-			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_menu_panel' ) )
-		);
-
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
-	}
-
-	/**
-	 * Tests that the Help "?" dropdown is not added to the editor admin bar when the unified
-	 * experience is disabled (Ask AI only).
-	 */
-	public function test_help_menu_not_registered_in_editor_admin_bar_without_unified() {
-		$this->set_up_block_editor_request();
-
-		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
-		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
-
-		$this->agents_manager->enqueue_scripts();
-
-		$this->assertFalse(
-			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_menu_panel' ) )
-		);
-
-		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
 	}
 
 	/**
@@ -1561,6 +1539,24 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that a WordPress.com proxy marks the visitor as an Automattician for tracking.
+	 */
+	public function test_is_tracking_automattician_returns_true_for_wpcom_proxy() {
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
+
+		$this->assertTrue( $this->call_is_tracking_automattician() );
+	}
+
+	/**
+	 * Tests that an Atomic proxy marks the visitor as an Automattician for tracking.
+	 */
+	public function test_is_tracking_automattician_returns_true_for_atomic_proxy() {
+		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+
+		$this->assertTrue( $this->call_is_tracking_automattician() );
+	}
+
+	/**
 	 * Helper to call the private get_variant method via reflection.
 	 *
 	 * @return string|null The variant name, or null if scripts should not be loaded.
@@ -1572,6 +1568,21 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			$method->setAccessible( true );
 		}
 		return $method->invoke( $this->agents_manager );
+	}
+
+	/**
+	 * Calls the private tracking classifier.
+	 *
+	 * @return bool
+	 */
+	private function call_is_tracking_automattician() {
+		$reflection = new \ReflectionClass( Agents_Manager::class );
+		$method     = $reflection->getMethod( 'is_tracking_automattician' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		return $method->invoke( null );
 	}
 
 	/**
@@ -2850,6 +2861,277 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			'Simplified Chinese kept'       => array( 'zh_CN', 'zh-cn' ),
 			'English strips region'         => array( 'en_US', 'en' ),
 			'Empty locale falls back to en' => array( '', 'en' ),
+		);
+	}
+
+	/**
+	 * Puts the request into the context described by $ctx.
+	 *
+	 * @param array<string, mixed> $ctx Context flags from provide_admin_bar_contexts().
+	 */
+	private function apply_admin_bar_context( array $ctx = array() ) {
+		$ctx = array_merge(
+			array(
+				'screen'         => 'dashboard',
+				'block_editor'   => false,
+				'admin_bar'      => true,
+				'unified'        => false,
+				'variant'        => null,
+				'editor_enabled' => false,
+				'should_load'    => false,
+				'ciab'           => false,
+				'p2'             => false,
+				'iframe_tab'     => false,
+				'editor_user'    => false,
+			),
+			$ctx
+		);
+
+		if ( $ctx['editor_user'] ) {
+			// `WP_Admin_Bar::initialize()` indexes this by blog ID for logged-in users.
+			Functions\when( 'get_blogs_of_user' )->justReturn(
+				array( get_current_blog_id() => (object) array( 'userblog_id' => get_current_blog_id() ) )
+			);
+
+			wp_set_current_user(
+				wp_insert_user(
+					array(
+						'user_login' => 'am-editor',
+						'user_pass'  => 'password',
+						'role'       => 'editor',
+					)
+				)
+			);
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+
+		// Always stubbed: Patchwork keeps a stubbed function defined for the rest of the
+		// process, so a conditional stub would leak into later tests.
+		Functions\when( 'get_stylesheet' )->justReturn( $ctx['p2'] ? 'pub/p2-breathe' : 'twentytwentyfour' );
+
+		if ( null !== $ctx['screen'] ) {
+			set_current_screen( $ctx['screen'] );
+
+			if ( $ctx['block_editor'] ) {
+				$screen     = get_current_screen();
+				$reflection = new \ReflectionClass( $screen );
+				$property   = $reflection->getProperty( 'is_block_editor' );
+				if ( PHP_VERSION_ID < 80100 ) {
+					$property->setAccessible( true );
+				}
+				$property->setValue( $screen, true );
+			}
+		} else {
+			unset( $GLOBALS['current_screen'] );
+		}
+
+		if ( $ctx['iframe_tab'] ) {
+			$_GET['tab'] = 'plugin-information';
+		}
+
+		if ( $ctx['ciab'] ) {
+			global $wp_actions;
+			$wp_actions['next_admin_init'] = 1;
+		}
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( $ctx['admin_bar'] );
+
+		// Priority 20 runs after the class's own filter.
+		add_filter( 'agents_manager_use_unified_experience', $ctx['unified'] ? '__return_true' : '__return_false', 20 );
+
+		if ( null !== $ctx['variant'] ) {
+			$variant = $ctx['variant'];
+			add_filter( 'agents_manager_variant', static fn() => $variant );
+		}
+
+		if ( $ctx['editor_enabled'] ) {
+			add_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+		}
+
+		if ( $ctx['should_load'] ) {
+			add_filter( 'agents_manager_should_load', '__return_true' );
+		}
+	}
+
+	/**
+	 * Renders the admin bar, firing `admin_bar_menu` with no enqueue hook first — the same
+	 * conditions as the admin-bar REST endpoints.
+	 *
+	 * @return \WP_Admin_Bar The rendered admin bar.
+	 */
+	private function render_admin_bar() {
+		global $wp_admin_bar;
+
+		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
+		$wp_admin_bar = new \WP_Admin_Bar();
+		$wp_admin_bar->initialize();
+
+		do_action_ref_array( 'admin_bar_menu', array( &$wp_admin_bar ) );
+
+		return $wp_admin_bar;
+	}
+
+	/**
+	 * Renders the admin bar and returns the Agents Manager node IDs on it.
+	 *
+	 * @return string[] Sorted Agents Manager node IDs.
+	 */
+	private function render_agents_manager_nodes() {
+		$wp_admin_bar = $this->render_admin_bar();
+
+		$ids = array_values(
+			array_filter(
+				array_keys( $wp_admin_bar->get_nodes() ?? array() ),
+				static fn( $id ) => str_starts_with( (string) $id, 'agents-manager' )
+			)
+		);
+		sort( $ids );
+
+		return $ids;
+	}
+
+	/**
+	 * Locks the node set each surface renders, so a change to how the nodes are registered
+	 * cannot silently alter which of them appear.
+	 *
+	 * @param array<string, mixed> $ctx      Request context.
+	 * @param string[]             $expected Expected node IDs.
+	 * @dataProvider provide_admin_bar_contexts
+	 */
+	#[DataProvider( 'provide_admin_bar_contexts' )]
+	public function test_admin_bar_nodes_match_context( array $ctx, array $expected ) {
+		$this->apply_admin_bar_context( $ctx );
+
+		$this->assertSame( $expected, $this->render_agents_manager_nodes() );
+	}
+
+	/**
+	 * Data provider for the admin-bar node matrix.
+	 *
+	 * @return array<string, array{0: array<string, mixed>, 1: string[]}>
+	 */
+	public static function provide_admin_bar_contexts() {
+		$help    = 'agents-manager';
+		$ai_chat = 'agents-manager-ai-chat';
+		$panel   = array(
+			'agents-manager-chat-history',
+			'agents-manager-chat-support',
+			'agents-manager-courses',
+			'agents-manager-menu-panel-chat',
+			'agents-manager-menu-panel-links',
+			'agents-manager-product-updates',
+			'agents-manager-support-guides',
+		);
+
+		$unified_nodes = array_merge( array( $help, $ai_chat ), $panel );
+		sort( $unified_nodes );
+
+		return array(
+			'wp-admin, unified experience'           => array(
+				array( 'unified' => true ),
+				$unified_nodes,
+			),
+			'wp-admin, requested shell only'         => array(
+				array( 'should_load' => true ),
+				array( $ai_chat ),
+			),
+			'wp-admin, disconnected is help-only'    => array(
+				array( 'variant' => 'wp-admin-disconnected' ),
+				array( $help ),
+			),
+			'wp-admin, disconnected and unified'     => array(
+				array(
+					'variant' => 'wp-admin-disconnected',
+					'unified' => true,
+				),
+				array( $help ),
+			),
+			'front end, disconnected is help-only'   => array(
+				array(
+					'screen'      => null,
+					'editor_user' => true,
+					'should_load' => true,
+				),
+				array( $help ),
+			),
+			'editor with admin bar, unified'         => array(
+				array(
+					'screen'       => 'post',
+					'block_editor' => true,
+					'unified'      => true,
+				),
+				$unified_nodes,
+			),
+			'editor with admin bar, editor-only'     => array(
+				array(
+					'screen'         => 'post',
+					'block_editor'   => true,
+					'editor_enabled' => true,
+				),
+				array( $ai_chat ),
+			),
+			'editor with admin bar, requested shell' => array(
+				array(
+					'screen'       => 'post',
+					'block_editor' => true,
+					'should_load'  => true,
+				),
+				array( $ai_chat ),
+			),
+			'editor with admin bar, not enabled'     => array(
+				array(
+					'screen'       => 'post',
+					'block_editor' => true,
+				),
+				array(),
+			),
+			'editor without admin bar'               => array(
+				array(
+					'screen'         => 'post',
+					'block_editor'   => true,
+					'editor_enabled' => true,
+					'admin_bar'      => false,
+				),
+				array(),
+			),
+			'wp-admin, not enabled'                  => array(
+				array(),
+				array(),
+			),
+			'editor with admin bar, disconnected'    => array(
+				array(
+					'screen'       => 'post',
+					'block_editor' => true,
+					'unified'      => true,
+					'variant'      => 'gutenberg-disconnected',
+				),
+				array(),
+			),
+			'CIAB has its own Site Hub'              => array(
+				array(
+					'ciab'    => true,
+					'unified' => true,
+				),
+				array(),
+			),
+			'P2 frontend is excluded'                => array(
+				array(
+					'screen'  => null,
+					'p2'      => true,
+					'unified' => true,
+					'variant' => 'wp-admin',
+				),
+				array(),
+			),
+			'plugin information iframe is excluded'  => array(
+				array(
+					'screen'     => 'plugin-install',
+					'iframe_tab' => true,
+					'unified'    => true,
+				),
+				array(),
+			),
 		);
 	}
 }

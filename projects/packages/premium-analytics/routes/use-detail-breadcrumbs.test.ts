@@ -43,16 +43,38 @@ function expectReportLink( link: string | undefined, report: string, section?: s
 }
 
 const validOrigins = [
-	[ 'posts', 'Posts & Pages', 'archives' ],
+	[ 'posts', 'All pages', 'archives' ],
 	[ 'videos', 'Videos', undefined ],
 	[ 'emails', 'Emails', undefined ],
-	[ 'comments', 'Comments', 'posts' ],
+	[ 'comments', 'All comments', 'posts' ],
 	[ 'authors', 'Top authors', undefined ],
 	[ 'comment-followers', 'Comments Subscribers', undefined ],
-	[ 'utm', 'UTM', 'campaign' ],
+	[ 'utm', 'All UTM values', 'campaign' ],
 ] as const;
 
+/**
+ * Point the script data at a site with or without VideoPress. `videos` is only a
+ * valid origin on sites running VideoPress, and the report registry reads that
+ * from script data.
+ *
+ * @param hasVideoPress - Whether the site runs VideoPress.
+ */
+function setVideoPress( hasVideoPress: boolean ) {
+	Object.defineProperty( window, 'JetpackScriptData', {
+		configurable: true,
+		value: { premium_analytics: { has_videopress: hasVideoPress } },
+	} );
+}
+
 describe( 'useDetailBreadcrumbs', () => {
+	beforeEach( () => {
+		setVideoPress( true );
+	} );
+
+	afterAll( () => {
+		delete window.JetpackScriptData;
+	} );
+
 	it.each( validOrigins )(
 		'adds the %s report before the detail title',
 		( report, label, section ) => {
@@ -84,6 +106,17 @@ describe( 'useDetailBreadcrumbs', () => {
 		const { result } = renderHook( () => useDetailBreadcrumbs( 'Detail title' ) );
 
 		expect( result.current ).toEqual( [ { label: 'Detail title' } ] );
+	} );
+
+	// `?origin=videos` can outlive VideoPress being turned off, so an unavailable
+	// report must be as unlinkable as an unknown one — else the crumb outruns the guard.
+	it( 'drops the videos crumb on a site without VideoPress', () => {
+		setVideoPress( false );
+		mockSearch( 'videos' );
+
+		const { result } = renderHook( () => useDetailBreadcrumbs( 'A video' ) );
+
+		expect( result.current ).toEqual( [ { label: 'A video' } ] );
 	} );
 
 	// The origin is untrusted: it is a plain query param anyone can edit, so an

@@ -482,19 +482,27 @@ The component supports CSS custom properties for advanced styling:
 
 ## Theming Integration
 
-Leaderboard Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+Leaderboard Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+
+**Series colors come from the palette custom properties, not the theme object.** Set as many of the five slots as you need; an unset slot is skipped, and charts generates accessible colors beyond whatever you set:
 
 <Source
-	language="tsx"
-	code={ `import { GlobalChartsProvider, LeaderboardChart, type ChartTheme } from '@automattic/charts';
+	language="css"
+	code={ `.a8c-charts-scope {
+		--a8c-charts-color-series-1: #FF6B6B;
+	}` }
+/>
 
-	const customTheme: ChartTheme = {
-		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
-	};
+Every other color works the same way — declare its catalog role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
 
-	<GlobalChartsProvider theme={customTheme}>
-		<LeaderboardChart data={data} />
-	</GlobalChartsProvider>` }
+<Source
+	language="css"
+	code={ `.my-dashboard {
+		--a8c-charts-color-background: #f5f5f5;
+		/* The trend arrows on each row: */
+		--a8c-charts-color-trend-up: #008030;
+		--a8c-charts-color-trend-down: #cc1818;
+	}` }
 />
 
 ## Responsive Behavior

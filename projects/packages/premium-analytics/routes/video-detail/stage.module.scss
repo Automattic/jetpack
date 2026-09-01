@@ -26,6 +26,28 @@
 	// Inherited by the @wordpress/grid surfaces (grid, masonry, edit overlay),
 	// which otherwise fall back to the wider `--wpds-dimension-gap-xl`.
 	--wp-grid-gap: var(--wpds-dimension-gap-lg);
+
+	// Match the dashboard's tightened widget Card padding (#51101): the detail
+	// routes render the same widget Cards, and the roomier default otherwise
+	// clips content-sized widgets like the traffic activity heatmap
+	// (WOOA7S-1905). TODO with #51101: consider fixing upstream in Card.
+	section:first-of-type {
+		// Temporary solution. Fixed upstream https://github.com/WordPress/gutenberg/pull/80570
+		display: flex;
+		flex-direction: column;
+
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+		--wp-ui-card-header-content-margin: var(--wpds-dimension-padding-lg);
+
+		> div {
+			margin-block-start: 0;
+		}
+	}
+
+	// Overlay WidgetHeader re-declares padding to 2xl; match the Card tweak.
+	[class*="__widget-header"][class*="__overlay"] {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+	}
 }
 
 .header {
@@ -34,10 +56,10 @@
 	// mocks. Flexbox breaks lines from unshrunk sizes, and the summary's
 	// inline-size containment clamps its unshrunk size to the 400px floor —
 	// so the row wraps only when the panel's current layout no longer fits
-	// beside that floor (the compact dropdown on a phone), never because of a
+	// beside that floor (the abbreviated pills on a phone), never because of a
 	// long title. On tight single rows the summary absorbs the squeeze (title
-	// ellipsis); the panel's own step-down on narrow rows needs external
-	// measurement and ships separately (#51088). Inline padding matches the
+	// ellipsis); the panel steps down its layout as the row narrows, measured
+	// against this row via `containerElement`. Inline padding matches the
 	// widget grid; the 40px block spacing is the design's breathing room
 	// around the header.
 	display: flex;

@@ -4,6 +4,7 @@
 import {
 	useStatsPost,
 	type ReportParams,
+	type StatsChartBucketPeriod,
 	type StatsPostDay,
 } from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
@@ -16,10 +17,6 @@ import {
 	format,
 	parseISO,
 } from 'date-fns';
-/**
- * Internal dependencies
- */
-import type { PostViewsGranularity } from './widget';
 
 /**
  * One chart point: a bucket-start date and the views summed into the bucket.
@@ -61,13 +58,8 @@ type BucketWindow = {
 };
 
 /**
- * Extract a validated `YYYY-MM-DD` day from an ISO report param. The report
- * params originate from URL search params, so the shape and calendar validity
- * are both checked — `bucketDays()` feeds these to `parseISO()`/
- * `each*OfInterval()`, which throw on invalid dates.
- *
- * @param value - The ISO date-time string.
- * @return The date-only day, or undefined when missing/malformed.
+ * Extract a validated `YYYY-MM-DD` day — validated because `bucketDays()` feeds
+ * it to `parseISO()`/`each*OfInterval()`, which throw on invalid dates.
  */
 function toValidDay( value?: string ): string | undefined {
 	const day = value?.slice( 0, 10 );
@@ -83,10 +75,6 @@ function toValidDay( value?: string ): string | undefined {
  * Extract a `YYYY-MM-DD` window from ISO report params, or undefined when
  * either bound is missing/malformed. The endpoint's day keys are date-only,
  * so comparing date prefixes keeps the slice timezone-stable.
- *
- * @param from - The window's ISO start.
- * @param to   - The window's ISO end.
- * @return The date-only window.
  */
 function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
 	const fromDay = toValidDay( from );
@@ -102,14 +90,11 @@ function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
 /**
  * Build the range's calendar buckets. Each bucket keeps the calendar label
  * used by the chart while clipping its data bounds to the selected range.
- *
- * @param dayWindow - The date-only window to keep.
- * @param period    - The bucket size.
- * @return One bucket per calendar period, oldest first.
+ * Buckets are returned oldest first.
  */
 function calendarBucketWindows(
 	dayWindow: DayWindow,
-	period: PostViewsGranularity
+	period: StatsChartBucketPeriod
 ): BucketWindow[] {
 	// The URL is user-editable, so an inverted range must not reach
 	// `eachDayOfInterval()` (it throws).
@@ -139,15 +124,9 @@ function calendarBucketWindows(
 }
 
 /**
- * Sum the post's daily view history into zero-filled buckets. The endpoint
- * may omit zero-view days and the history only starts at publication, but
- * those missing values are genuine zeroes. The full history is bucketed
- * client-side because the endpoint's `weeks` field only covers a fixed recent
- * window.
- *
- * @param days    - The post's daily views, oldest first.
- * @param buckets - The bucket bounds to sum.
- * @return One point per bucket, oldest first.
+ * Sum the post's daily view history into zero-filled buckets — missing days are
+ * genuine zeroes, not gaps. Bucketed client-side since the endpoint's `weeks`
+ * field only covers a fixed recent window.
  */
 function bucketDays( days: StatsPostDay[], buckets: BucketWindow[] ): PostViewsPoint[] {
 	const totals = new Map< string, number >( buckets.map( bucket => [ bucket.date, 0 ] ) );
@@ -161,15 +140,8 @@ function bucketDays( days: StatsPostDay[], buckets: BucketWindow[] ): PostViewsP
 		}
 	}
 
-	// The endpoint's day keys are plain site-local calendar dates, so each
-	// point's instant must be that day's site-local midnight. `parseSiteDateTime`
-	// anchors the offset-less key in the site timezone; the chart's `formatDate`
-	// labels render in the same zone, so the calendar day round-trips without a
-	// TZ-induced day shift (a date-only string fed to `localTZDate` would parse
-	// as UTC midnight and read as the previous day on negative-offset sites).
-	// `bucket.date` comes from `format( start, 'yyyy-MM-dd' )`, so the parse
-	// cannot fail in practice; if it ever does, drop the point rather than
-	// fall back to a browser-local instant that reintroduces the day shift.
+	// `parseSiteDateTime` keeps the site-local day key round-tripping through the
+	// chart's same-zone labels; a null parse can't happen with `format()`-built keys.
 	return buckets.flatMap( bucket => {
 		const date = parseSiteDateTime( bucket.date );
 		return date ? [ { date, value: totals.get( bucket.date ) ?? 0 } ] : [];
@@ -177,22 +149,14 @@ function bucketDays( days: StatsPostDay[], buckets: BucketWindow[] ): PostViewsP
 }
 
 /**
- * Fetch the scoped post's view trend for the dashboard's report params. One
- * `stats/post` request carries the full daily view history; the selected
- * window is sliced from it client-side. The post detail design has no
- * period-over-period comparison, so comparison report params are ignored —
- * they ride along in the URL untouched so dashboard state survives the round
- * trip, and every widget on this page disregards them.
- *
- * @param postId       - The scoped post ID (0 disables the request).
- * @param reportParams - The dashboard date range.
- * @param period       - The selected bucket granularity (day/week/month).
- * @return The view series and load/error state.
+ * Fetch the scoped post's view trend and slice it to the report params' window
+ * client-side. A `postId` of 0 disables the request; comparison params are
+ * ignored since the post detail design has no period-over-period comparison.
  */
 export default function usePostViews(
 	postId: number,
 	reportParams: ReportParams,
-	period: PostViewsGranularity
+	period: StatsChartBucketPeriod
 ): PostViewsState {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsPost( {
 		postId,

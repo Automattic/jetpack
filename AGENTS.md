@@ -64,21 +64,10 @@ Use `jp generate` to create new projects:
 
 Detailed guidelines are in `docs/coding-guidelines.md`.
 
-### Naming Conventions
-
-- Use WordPress naming conventions for functions and classes
-- Prefix global PHP functions and hooks with `jetpack_`
-- Use lowercase with underscores for PHP functions
-- Follow WordPress React component naming patterns
-- Use BEM-like naming for SCSS
-
 ### PHP Standards
 
-- Follow WordPress PHP Coding Standards
-- Use proper WordPress prefix for functions and classes
-- Implement WordPress nonce verification for form handling and AJAX
-- Follow WordPress database operations best practices (`$wpdb` prepared statements)
-- Structure plugin hooks logically
+- Prefix global PHP functions and hooks with `jetpack_`
+- WordPress PHP Coding Standards apply and are enforced by PHPCS (see "Linting & Formatting" below), including nonce verification on form/AJAX handlers and `$wpdb` prepared statements
 
 #### Version Annotations
 
@@ -93,17 +82,48 @@ The `$$next-version$$` placeholder is automatically replaced with the correct ve
 
 ### JavaScript & React Standards
 
-- Write modern ES6+ code following WordPress JS standards
 - Importing from `react` directly is fine. `@wordpress/element` also works but is no longer required — follow the convention used in the package you're working in
 - Use WordPress data stores (`@wordpress/data`) for state management
 - Use `@wordpress/i18n` for translations with an appropriate unique text domain
-- Follow WordPress component lifecycle patterns and accessibility guidelines
 - When using TypeScript with Webpack, use `@babel/preset-typescript` rather than `ts-loader`
 
 ### CSS / SCSS
 
 - Use BEM-like naming conventions
 - Use CSS logical properties instead of physical direction/dimension mappings to make styles RTL-aware by default (reference: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Logical_Properties)
+
+### Comments
+
+One sentence, at most two lines — the summary rule the WordPress documentation standards
+already impose on our PHP, applied to JavaScript too. Anything past it must carry a why, a
+gotcha, or a durable pointer (an issue or upstream bug link), **and must fit in two more
+lines**. The budget is per comment, not per file: three separate traps in one function get three
+short comments, not one essay. "It is all rationale" does not buy more room, because the
+comments worth cutting are always all rationale. Omit what the signature already says, and
+prefer a clearer name over a comment explaining a bad one. If reading the comment costs as much
+as reading the code, delete it. Never invent rationale: a comment that contradicts the code is
+worse than no comment.
+
+The same budget applies to test files, where it is most often missed: no file-header essays, and
+no per-test narration the test name already carries.
+
+Five shapes exceed the budget however well they explain themselves:
+
+- **Design essays** — the alternative you rejected, the paragraph arguing why the code is shaped
+  this way, what a trade-off costs. That is PR-description or issue material, not code. A
+  one-line warning is a gotcha and stays: `// Do not reorder: bar() reads what foo() sets.`
+- **A mechanic explained on one member of a list** whose siblings share it. Say it once above the
+  list, or not at all.
+- **A block that would survive copy-paste verbatim into another file.** That is domain
+  background, not a comment.
+- **Provenance that rots** — upstream file-and-line citations, "before this PR…", benchmark
+  numbers, mutation-testing counts. A stable link survives; a line number does not.
+- **The same explanation in more than one place.** Put it in the file that owns the thing,
+  nowhere else. N copies drift independently, so a reader cannot tell which is current.
+
+Keep every functional annotation regardless: `@param`, `@return`, `@covers`, `translators:`,
+`phpcs:ignore`, `eslint-disable`, `@ts-expect-error`. Those are required tooling or load-bearing
+code, not prose.
 
 ## Testing
 
@@ -137,7 +157,7 @@ jp phan <project>               # Static analysis
 ### PHP Testing
 
 - `jp test php` works for most projects. A few plugins that require a full WordPress copy (`plugins/jetpack` and `plugins/wpcomsh`) use `jp docker phpunit` instead.
-- **PHP version matrix**: CI runs PHP tests against every supported version from 7.2 to 8.5 (see `.github/versions.sh` for current values). When fixing an issue on one PHP version, ensure the fix is compatible with all supported versions — don't use syntax or functions unavailable in PHP 7.2 unless the project's `composer.json` requires a higher minimum.
+- **PHP version matrix**: CI runs PHP tests against every supported version from 7.4 to 8.5 (see `.github/versions.sh` for current values). When fixing an issue on one PHP version, ensure the fix is compatible with all supported versions — don't use syntax or functions unavailable in PHP 7.4 unless the project's `composer.json` requires a higher minimum.
 - `jp test php` does not support passthrough options like `--filter`. To filter tests in Docker-based projects, use: `jp docker phpunit jetpack -- --filter=Jetpack_Sync_Post_Test` or `jp docker phpunit jetpack -- --group jetpack-sync`
 - PHP testing approaches vary by project:
   - Some packages use basic PHPUnit with `yoast/phpunit-polyfills` (no WordPress-specific testing)
@@ -158,19 +178,83 @@ See `docs/automated-testing.md` for full testing guidelines.
 
 See `projects/packages/my-jetpack/_inc/components/connection-status-card/test/component.tsx` for a representative example.
 
+## Linting & Formatting
+
+Run from the monorepo root:
+
+```bash
+pnpm run lint-changed             # ESLint, changed files only (fastest)
+pnpm run lint                     # ESLint, everything
+pnpm run lint-style               # Stylelint (CSS/SCSS)
+pnpm run typecheck                # TypeScript, every project that defines it
+composer phpcs:changed            # PHPCS on changed files
+composer phpcs:lint               # PHPCS, everything
+composer phpcs:fix                # PHPCS autofix (phpcbf)
+composer phpcs:compatibility      # PHP cross-version compatibility
+```
+
+- `composer php:lint` is a PHP **syntax** check (parallel-lint), NOT PHPCS. The other `php:*` composer scripts (`php:autofix`, `php:changed`, `php:lint:errors`, `php:requirelist`) are deprecated aliases that print a warning — use the `phpcs:*` names.
+- Watch the runner: `pnpm run php:lint` is PHPCS (it forwards to `composer phpcs:lint`), while `composer php:lint` is the syntax check. Same name, opposite tool. Prefer the `composer phpcs:*` names above, which are unambiguous.
+- A husky **pre-commit hook** runs most of this on staged files and rewrites them in place: Prettier, `eslint --fix`, `stylelint --fix`, and `phpcs:fix`, plus `phpcs:compatibility`, `shellcheck`, and repo consistency checks. It fails the commit on anything left unfixed, so expect files to be reformatted and re-staged under you.
+- A husky **pre-push hook** blocks the push on two things the pre-commit hook does not check: filename collisions that only break case-insensitive filesystems, and missing changelog entries (see "Changelog Entries" below). On a TTY the changelog check offers to run `jp changelog add` for you and commits the result as a separate `changelog` commit, then asks you to push again — so a push can leave you one commit ahead of where you thought you were.
+- **post-checkout / post-merge** hooks don't run anything; they just print a `jp install ...` line when lock files changed. Run it, or builds pick up stale dependencies.
+- `jp draft enable` relaxes both hooks for work in progress — ESLint tolerates up to 100 warnings, PHPCS failures stop blocking, and the pre-push changelog gate is skipped. `jp draft disable` restores them.
+
 ## Changelog Entries
 
 Every PR touching `/projects` MUST include a changelog file in the project's `changelog/` directory. Changes outside `/projects` (e.g., `tools/`, `docs/`, `.github/`) do NOT need changelog entries.
 
-### AI-Generated Changelog Entries
+Two gates enforce this, both running `tools/check-changelogger-use.php`: the pre-push hook (see "Linting & Formatting" above) and the `linting.yml` CI job. The repo-gardening bot also comments on the PR listing any projects still missing entries. There is no AI-generated-changelog checkbox in the PR template — that feature was removed. Write the entries yourself, with `jp changelog add`.
 
-The PR template includes a checkbox: "Generate changelog entries for this PR (using AI)." When checked, a CI workflow uses AI to generate and commit changelog entries automatically. This workflow only runs for pull requests from branches in this repository (not from forks).
+### User-Facing Changes Outside a Plugin Also Need Plugin Entries
 
-**When filling out a PR description:**
-- Do NOT check this box if changelog files already exist in `changelog/` directories for the affected projects.
-- Do NOT check this box if you have already created changelog entries (e.g., via `jp changelog add`).
-- Only check this box if the PR needs changelog entries and you want them auto-generated.
-- When in doubt, leave it unchecked -- the bot will flag missing entries.
+An entry only lands in the CHANGELOG of the project it was added to. A PR confined to a shared project — a PHP package under `projects/packages/`, a JS package under `projects/js-packages/`, or any other non-plugin project — therefore reaches that project's CHANGELOG and nowhere else: the plugins that bundle it get, at most, the generic "Update package dependencies." line the release tooling files under "Other changes", which is never copied to `readme.txt`. Users, release posts, and support documentation read the plugin changelog, so the change is invisible to them.
+
+**When a change to a package or js-package is user-facing — a new block, new or changed UI, a behavior change, a bug fix someone would notice — add an entry to each plugin whose own users would notice it, on top of the project's own entry.** That is usually a subset of the plugins that bundle the project, sometimes just one — though a change to something a shared dashboard renders can legitimately reach most of them. Write each one from that plugin's user's perspective; the wording rarely needs to be identical.
+
+Over-reporting is not free: it puts a line about a product the plugin does not ship into a changelog and `readme.txt` that its users do read.
+
+Prefix each plugin's entry with the product the shared project backs — `Premium Analytics:` for `packages/premium-analytics`, `Search:` for `packages/search` — so readers of a plugin changelog that bundles many products can place the change. The exception is a plugin named for that same product (`plugins/premium-analytics`, `plugins/search`): there the prefix would only repeat the plugin's own name, so leave it off (or use a narrower component prefix), as in the example below.
+
+Start from the plugins that bundle the project (works the same for `packages/…` and `js-packages/…`):
+
+```bash
+jp dependencies list packages/search --add-dependents --extra build --no-dev | grep '^plugins/'
+jp dependencies list js-packages/components --add-dependents --extra build --no-dev | grep '^plugins/'
+```
+
+Then narrow that list. A widely-shared js-package can list well over a dozen plugins; add an entry for one only when a user of *that plugin* could notice the change. Skip it when:
+
+- **The change belongs to another product and this plugin only contains it via a My Jetpack product card.** A change to a My Jetpack product card belongs in the changelogs of the plugins that ship that product. Every other plugin renders the card only for someone who already has that product, and they read about it in that product's changelog. Check that the card really is the only route, though: `js-packages/boost-score-api` sits behind the Boost card, but `plugins/jetpack` also calls it straight from At a Glance, so a change there reaches Jetpack plugin users too.
+- **The plugin never reaches the changed code.** `js-packages/components` is a build dependency of nearly every plugin in the monorepo, but `DiffViewer` reaches only `plugins/protect`.
+- **It is reachable only under conditions the plugin never creates** — a module it does not register, a plan or product it does not sell, or a host it does not run on. Check the gate rather than the dependency, because the same code can qualify for one plugin and not another: the WordPress.com-only paths in `packages/masterbar` never run on a self-hosted site, but they are the whole reason `plugins/wpcomsh` bundles the package.
+- **The plugin's changelog is not a product record.** `starter-plugin` is a scaffolding template, and `mu-wpcom-plugin` is the wrapper that exists so `packages/jetpack-mu-wpcom` can be deployed to WordPress.com Simple at all (it doubles as a test plugin for the package). Nobody installs either one, so nobody reads either changelog to find out what changed on their site — what a Simple site owner would notice belongs in the package's own entry. Keep this one narrow: it is about those two, not about any plugin you have not heard of.
+
+To settle the reachability case, work backwards from the code rather than forwards from the plugin. Grepping `projects/plugins/<plugin>/` alone misses a plugin that is little more than a loader for a package, and grepping its whole dependency closure always matches, since the project that defines the symbol is in every dependent's closure. Find the projects that import it, then ask which plugins bundle *those* — every one except the project that defines the symbol, which is in the grep output too and would hand back its full set of dependents. Run one `jp dependencies list` per lead rather than passing every lead to a single command: it is the lead a plugin arrives on that you then have to argue with, and merging them hides which lead carried which plugin.
+
+```bash
+git grep -l DiffViewer -- projects/ ':!*/CHANGELOG.md'
+jp dependencies list js-packages/scan --add-dependents --extra build --no-dev | grep '^plugins/'
+jp dependencies list plugins/protect --add-dependents --extra build --no-dev | grep '^plugins/'
+```
+
+Use `git grep`, not `grep -r`. A checkout you have built or run `composer install` in carries the symbol in webpack caches and in `vendor/composer/*classmap.php`, and those classmaps name every class in a plugin's whole dependency closure — so `grep -r` on a PHP symbol hands back every dependent plugin, which is the answer this section exists to talk you out of. Exclude `CHANGELOG.md` while you are there: a changelog naming the symbol is a record that a project once touched it, not a lead that it still does.
+
+What that gives you is a shortlist, not an answer. Bundling a project is not the same as rendering its code, which is the distinction the whole section turns on, so finish the job by hand, one lead at a time. `DiffViewer` is the cautionary case. The `js-packages/scan` lead offers `plugins/protect` and `plugins/jetpack` and settles neither: that package touches `DiffViewer` only inside `ThreatModal`, which is barrel-exported and then rendered by nothing outside its own story — `packages/scan`, the Jetpack plugin's only route to the package, imports `ThreatsDataViews` and `ThreatSeverityBadge` and never `ThreatModal`. `plugins/protect` survives on the other lead entirely, where it imports `DiffViewer` from `@automattic/jetpack-components` itself. So a `DiffViewer` change is noticeable in `plugins/protect` alone — but not by the route the dependency graph suggested, which is why the leads are worth keeping apart.
+
+Then add one entry per plugin that survives. Each project defines its own types — `plugins/jetpack` uses `major` | `enhancement` | `compat` | `bugfix` | `other`:
+
+```bash
+jp changelog add packages/search -s minor -t added       -e "Add a Search Results block."
+jp changelog add plugins/search  -s minor -t added       -e "Add a Search Results block."
+jp changelog add plugins/jetpack -s minor -t enhancement -e "Search: Add a Search Results block."
+```
+
+**The non-interactive form never prompts for this.** Naming a project (`jp changelog add <project> -s … -t … -e …`) disables the indirect-plugin check, so dependent plugins are silently skipped; only bare `jp changelog add` offers to write those entries for you. Using the non-interactive form means adding the plugin entries yourself — or running `jp changelog add --check-indirect-plugins` afterwards to be asked.
+
+**And the prompt it does show is all-or-nothing.** It lists every indirectly-affected plugin at once and asks a single yes/no. A `yes` hands the whole list to the same prompts the main run uses, which choose between one shared entry and individual wording — never between plugins. When only some of the list qualifies, answer `no` and add those entries yourself with the non-interactive form.
+
+The project's own entry alone is correct only when nothing is observable to a site owner: internal refactors, tests, tooling, type fixes.
 
 ### Interactive Mode
 
@@ -244,10 +328,10 @@ The exception is the **WordPress.com Tests** check (the TeamCity `JetpackPreFlig
 
 When reviewing code, check for:
 - Adherence to `docs/coding-guidelines.md`
-- Inconsistent naming conventions and typos
-- Missing documentation for public APIs
-- Missing explanations for complex or non-obvious logic
-- Inefficient algorithms
+- Changelog entries in the wrong set of plugins — a user-facing package change missing an entry in a plugin that surfaces it, or an entry added to plugins that cannot reach the change at all (see "User-Facing Changes Outside a Plugin Also Need Plugin Entries" above). CI only checks the directly-touched project, so both directions are reviewer-only
+- Missing documentation for public APIs, or missing explanations for non-obvious logic
+- Typos in user-facing strings, comments, and docs — PHPCS and ESLint check naming and formatting, not spelling, so this needs human eyes
+- Performance hazards that no sniff catches: uncached `wp_remote_*` calls, queries inside loops, `meta_query`/`tax_query`/`orderby => rand` on large tables, and newly autoloaded options. `WordPress.DB.SlowDBQuery` is excluded from the Jetpack ruleset as too noisy, so this is reviewer-only
 - CSS/SCSS files not using logical properties for RTL
 
 Do NOT suggest modifying `$$next-version$$` placeholders — these are intentionally used and replaced during release.
@@ -263,8 +347,6 @@ Before introducing new dependencies:
 ## Common Pitfalls
 
 - **Do NOT edit WordPress core files** — all changes must be in plugins/packages
-- **Do NOT modify `$$next-version$$` placeholders** — they are replaced automatically at release time
-- **Reuse monorepo packages** before adding external dependencies — check `projects/packages/` and `projects/js-packages/` first
 - **Git merge conflicts**: after resolving, use `git commit --no-edit --no-verify` — pre-commit hooks can make unintended changes to merge commit files
 - **Do NOT hand-edit generated Phan stubs** — `.phan/stubs/wpcom-stubs.php` (and other generated stub files) are regenerated from the wpcom repo; any manual edit is overwritten. See *Referencing wpcom-only symbols from Jetpack* below.
 

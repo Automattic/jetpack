@@ -11,14 +11,8 @@ import styles from './metric-delta.module.scss';
 import type { ComponentProps } from 'react';
 
 export type MetricDeltaProps = {
-	/**
-	 * The current/new value
-	 */
 	current: number;
 
-	/**
-	 * The previous/comparison value
-	 */
 	previous: number;
 
 	/**
@@ -39,9 +33,6 @@ export type MetricDeltaProps = {
 	 */
 	invertColors?: boolean;
 
-	/**
-	 * CSS class for styling
-	 */
 	className?: string;
 
 	/**
@@ -64,17 +55,16 @@ export type MetricDeltaProps = {
 };
 
 function calculatePercentageChange( current: number, previous: number ): number | null {
-	// Handle invalid inputs
 	if ( ! Number.isFinite( current ) || ! Number.isFinite( previous ) ) {
 		return null;
 	}
 
-	// Handle zero previous value
+	// A zero previous value has no defined percentage change, unless the current
+	// value is zero too.
 	if ( previous === 0 ) {
 		return current === 0 ? 0 : null;
 	}
 
-	// Calculate percentage change, rounded to integer
 	return Math.round( ( ( current - previous ) / Math.abs( previous ) ) * 100 );
 }
 
@@ -89,11 +79,9 @@ export function MetricDelta( {
 	showAbsolute = false,
 	absoluteFormat = 'number',
 }: MetricDeltaProps ) {
-	// Calculate the change
 	const absoluteChange = current - previous;
 	const percentageChange = calculatePercentageChange( current, previous );
 
-	// Handle edge cases
 	if ( percentageChange === null ) {
 		return (
 			<Stack justify={ justify } className={ clsx( styles.delta, styles.invalid, className ) }>
@@ -106,7 +94,6 @@ export function MetricDelta( {
 		return null;
 	}
 
-	// Determine display value
 	let displayValue: string;
 	if ( showAbsolute ) {
 		displayValue = formatMetricValue( absoluteChange, absoluteFormat );
@@ -117,7 +104,6 @@ export function MetricDelta( {
 		displayValue = formatMetricValue( percentageChange / 100, 'percentage' );
 	}
 
-	// Determine color based on direction and inversion
 	const isPositive =
 		( percentageChange > 0 && ! invertColors ) || ( percentageChange < 0 && invertColors );
 	const isNegative =

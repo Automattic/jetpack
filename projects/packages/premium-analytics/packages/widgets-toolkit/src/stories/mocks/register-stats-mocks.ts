@@ -1,9 +1,7 @@
 /**
- * Stats API mock middleware for Storybook.
- *
- * Intercepts `@wordpress/api-fetch` requests to the PA Stats proxy and returns
- * fixture data so Stats-backed widgets render in Storybook without a live
- * WordPress + WPCOM connection.
+ * Stats API mock middleware for Storybook: intercepts `@wordpress/api-fetch`
+ * requests to the PA Stats proxy and returns fixture data so Stats-backed
+ * widgets render without a live WordPress + WPCOM connection.
  */
 /**
  * External dependencies
@@ -358,10 +356,8 @@ const MOCK_TOP_POSTS_COMPARISON = {
 	},
 };
 
-// `stats/archives` groups archive-page views by archive type; the widget's
-// Archives view renders one aggregate row per type.
-// With skip_archives=1 (sent to both reports, mirroring the Stats card) the
-// API returns no `home` entry here — it lives in the top-posts response.
+// `stats/archives` groups views by archive type (one row per type); with
+// skip_archives=1 the API omits `home` here — it's in the top-posts response.
 const MOCK_ARCHIVES = {
 	date: '2026-06-29',
 	period: 'day',
@@ -392,11 +388,8 @@ const MOCK_ARCHIVES_COMPARISON = {
 	},
 };
 
-// Exercises every referrer shape the widget renders: a multi-source group that
-// drills down twice (group → source → domain), a single-result group (which the
-// normalizer flattens into the result itself), and childless domains with URLs
-// that render as outbound links (label + favicon), while rows with children
-// drill down.
+// Exercises every referrer shape: multi-source drill-down (group → source →
+// domain), a single-result group (flattened), and childless outbound-link domains.
 const MOCK_REFERRERS = {
 	date: '2026-06-29',
 	period: 'day',
@@ -494,9 +487,8 @@ const MOCK_REFERRERS = {
 	},
 };
 
-// The Search Engines comparison total exceeds every current-period value so the
-// combined-scale contract is visible: the widest current bar stays below 100%
-// and its width agrees with the negative delta (see getCombinedPeriodMax).
+// The comparison total exceeds every current-period value so the combined-scale
+// contract is visible: the widest bar stays under 100%, matching the negative delta.
 const MOCK_REFERRERS_COMPARISON = {
 	date: '2026-05-30',
 	period: 'day',
@@ -1065,11 +1057,8 @@ const MOCK_DEVICES_PLATFORM_COMPARISON = {
 	},
 };
 
-// Heuristic: a request whose `date` param is more than 1 day ago is treated as the
-// comparison-period request. This works for the default `last-30-days` preset (primary
-// date ~= today, comparison date ~= 30 days ago). It would misclassify a `today` preset
-// (comparison date = yesterday, daysFromToday === 1), but the stories only use the default
-// preset so this is fine in practice.
+// Heuristic: a `date` more than 1 day old is the comparison request — works for
+// the default last-30-days preset but would misclassify a `today` preset (fine here).
 function isComparisonRequest( path: string ): boolean {
 	const queryString = path.split( '?' )[ 1 ];
 	const requestDate = queryString ? new URLSearchParams( queryString ).get( 'date' ) : null;
@@ -1100,8 +1089,15 @@ function getLocationRows(
 	}
 
 	if ( geoMode === 'region' ) {
-		const countryCode = query.get( 'filter_by_country' ) || 'US';
+		const countryCode = query.get( 'filter_by_country' );
 		const regionRows = isComparison ? REGION_COMPARISON_ROWS_BY_COUNTRY : REGION_ROWS_BY_COUNTRY;
+
+		// Unfiltered, the endpoint returns the top regions worldwide.
+		if ( ! countryCode ) {
+			return Object.values( regionRows )
+				.flat()
+				.sort( ( a, b ) => b.views - a.views );
+		}
 
 		return regionRows[ countryCode ] ?? regionRows.US;
 	}
@@ -1222,12 +1218,8 @@ const statsMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOption
 		return prepareStatsMockResponse( mock, options.parse );
 	}
 
-	// Stats endpoints this middleware doesn't know may be owned by the shared
-	// report mocks (register-report-mocks.ts), including its forced-state
-	// overrides. Fall through instead of answering with an empty catch-all:
-	// story-module load order decides which mock middleware runs first, so
-	// swallowing unknown endpoints here starves the other middleware whenever
-	// this one registers later.
+	// Unknown endpoints may belong to the shared report mocks; fall through rather
+	// than swallowing them, since module load order decides which mock runs first.
 	return next( options );
 };
 

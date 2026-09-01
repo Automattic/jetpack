@@ -48,12 +48,6 @@ export type UseReportCsvExportResult< Row > = {
 /**
  * Build a report CSV action from loaded rows and the active request state.
  *
- * @param options                - Report CSV export configuration.
- * @param options.rows           - Loaded report rows.
- * @param options.filenamePrefix - Report-specific filename prefix.
- * @param options.range          - Active report date range.
- * @param options.status         - Active report request state.
- * @param options.sort           - Optional export ordering with a stable function reference.
  * @return Export visibility, rows, and filename.
  */
 export function useReportCsvExport< Row >( {

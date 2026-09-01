@@ -8,8 +8,6 @@ import type { ReactNode } from 'react';
  * Mirrors what `WidgetRoot` does in the app, where the provider lives at the
  * top of the widget tree.
  *
- * @param props          - Component props.
- * @param props.children - The subtree to render inside the provider.
  * @return The themed chart provider wrapping `children`.
  */
 const ChartThemeProvider = ( { children }: { children: ReactNode } ) => {

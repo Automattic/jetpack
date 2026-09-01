@@ -1,6 +1,7 @@
 /**
  * AI Features view — per-feature toggles for Jetpack AI, grouped by area
- * (Content, Media, SEO, Search) per the AI-Settings design.
+ * (Content, Media, SEO, Search) inside a single "Agent capabilities" card
+ * per the AI-Settings design.
  *
  * Each feature has its own on/off switch, backed by the feature-settings
  * endpoint. A disabled feature must genuinely stop loading (its assets are
@@ -9,7 +10,7 @@
 
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ToggleControl } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { Fragment, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Card, Link, Notice, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import analytics from 'lib/analytics';
@@ -21,7 +22,8 @@ const { seoSettingsUrl } = window?.jetpackAiSettings ?? {};
 
 // Per the design, a row's action link depends on the toggle state: enabled
 // features invite you to try them (AI SEO opens its settings), disabled ones
-// link to documentation via registered Jetpack Redirects handlers.
+// link to documentation via registered Jetpack Redirects handlers. A row with
+// a single `action` shows that link in both states.
 const SECTIONS = [
 	{
 		key: 'content',
@@ -34,11 +36,10 @@ const SECTIONS = [
 					'Draft, rewrite, translate, and adjust tone for your content right in the block editor.',
 					'jetpack'
 				),
-				enabledAction: {
-					label: __( 'Try it out in the editor', 'jetpack' ),
-					href: 'post-new.php',
-				},
-				disabledAction: {
+				// Docs in both states for now. The editor link
+				// (post-new.php?openSidebar=jetpack-ai-assistant) returns with the
+				// sidebar agent; its editor-side handler is still in place.
+				action: {
 					label: __( 'Learn more', 'jetpack' ),
 					href: getRedirectUrl( 'jetpack-ai-settings-writing-assistant-learn-more' ),
 					external: true,
@@ -57,7 +58,12 @@ const SECTIONS = [
 					'Generate and edit professional-quality images without leaving WordPress.',
 					'jetpack'
 				),
-				enabledAction: { label: __( 'Try it out', 'jetpack' ), href: 'upload.php' },
+				enabledAction: {
+					label: __( 'Try it out', 'jetpack' ),
+					// ai-assistant makes the Image Studio bundle open Generate mode
+					// on the Media Library (it strips the param once handled).
+					href: 'upload.php?ai-assistant',
+				},
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
 					href: getRedirectUrl( 'jetpack-ai-settings-image-editor-learn-more' ),
@@ -71,7 +77,7 @@ const SECTIONS = [
 		title: __( 'SEO', 'jetpack' ),
 		features: [
 			{
-				key: 'seo_enhancer',
+				key: 'ai_seo',
 				label: __( 'AI SEO', 'jetpack' ),
 				description: __(
 					'AI recommendations to optimize titles, meta descriptions, and content for search engines.',
@@ -102,7 +108,8 @@ const SECTIONS = [
 				),
 				enabledAction: {
 					label: __( 'Open Search Settings', 'jetpack' ),
-					href: 'admin.php?page=jetpack-search',
+					// The toggle lives on the Search dashboard's AI tab, not Overview.
+					href: 'admin.php?page=jetpack-search#/ai-answers',
 				},
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
@@ -164,7 +171,7 @@ function FeatureRow( {
 		[ feature.key, onChange ]
 	);
 
-	const action = checked ? feature.enabledAction : feature.disabledAction;
+	const action = ( checked ? feature.enabledAction : feature.disabledAction ) ?? feature.action;
 	// The toggle keeps showing the SAVED value but can't be used while the
 	// connection gate fails (no feature can load without it), while the master
 	// switch is off (the saved choice returns when master does), or while the
@@ -297,52 +304,81 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 							'Your feature settings are saved and will apply again when AI is turned back on.',
 							'jetpack'
 						) }{ ' ' }
-						<Link href="admin.php?page=my-jetpack">
+						<Link
+							href="admin.php?page=my-jetpack#/products"
+							className="jetpack-ai-features__notice-link"
+						>
 							{ __( 'Manage in My Jetpack', 'jetpack' ) }
 						</Link>
 					</Notice.Description>
 				</Notice.Root>
 			) }
-			{ sections.map( section => (
-				<Card.Root key={ section.key }>
-					<Card.Content>
-						<Stack direction="column" gap="md">
-							<div className="jetpack-ai-features__section-header">
-								<Text as="h3" weight="600">
-									{ section.title }
-								</Text>
-								{ isConnected &&
-									section.features.some( f => features[ f.key ]?.requires_upgrade ) && (
-										<Popover.Root>
-											{ /* A popover rather than a tooltip: click opens it, touch
-											     works, and screen readers announce the remedy copy —
-											     the shape agreed with design on the PR. The trigger's
-											     accessible name is its visible badge text. */ }
-											<Popover.Trigger
-												openOnHover
-												delay={ 200 }
-												closeDelay={ 200 }
-												className="jetpack-ai-features__upgrade-badge"
-											>
-												<Badge intent="informational">
-													{ __( 'Requires upgrade', 'jetpack' ) }
-												</Badge>
-											</Popover.Trigger>
-											<Popover.Popup>
-												<Popover.Arrow />
-												<VisuallyHidden render={ <Popover.Title /> }>
-													{ __( 'Requires upgrade', 'jetpack' ) }
-												</VisuallyHidden>
-												<Popover.Description>{ upgradeBadgeTooltip }</Popover.Description>
-											</Popover.Popup>
-										</Popover.Root>
-									) }
-							</div>
-							{ section.features.map( feature => renderRow( feature ) ) }
+			{ sections.length > 0 && (
+				<Card.Root className="jetpack-ai-features__card">
+					{ /* Single Card.Content, no Card.Header: the FullBleed dividers —
+					     including the one under the header — must stay direct children
+					     of Card.Content per the component's contract. */ }
+					<Card.Content className="jetpack-ai-features__card-content">
+						<Stack direction="column" gap="sm">
+							<Card.Title render={ <h2 /> }>{ __( 'Agent capabilities', 'jetpack' ) }</Card.Title>
+							<Text variant="body-sm" className="jetpack-ai-features__card-subtitle">
+								{ __(
+									'Choose what your WordPress Agent can help with across your site.',
+									'jetpack'
+								) }
+							</Text>
 						</Stack>
+						{ sections.map( section => {
+							const titleId = `jetpack-ai-features-${ section.key }-title`;
+							return (
+								<Fragment key={ section.key }>
+									<Card.FullBleed render={ <hr /> } className="jetpack-ai-features__divider" />
+									{ /* Labelled by its heading so each group is a named region —
+									     screen readers can jump between them inside the merged card. */ }
+									<Stack
+										direction="column"
+										gap="2xl"
+										render={ <section aria-labelledby={ titleId } /> }
+									>
+										<div className="jetpack-ai-features__section-header">
+											<Text variant="heading-lg" render={ <h3 id={ titleId } /> }>
+												{ section.title }
+											</Text>
+											{ isConnected &&
+												section.features.some( f => features[ f.key ]?.requires_upgrade ) && (
+													<Popover.Root>
+														{ /* A popover rather than a tooltip: click opens it, touch
+													     works, and screen readers announce the remedy copy —
+													     the shape agreed with design on the PR. The trigger's
+													     accessible name is its visible badge text. */ }
+														<Popover.Trigger
+															openOnHover
+															delay={ 200 }
+															closeDelay={ 200 }
+															className="jetpack-ai-features__upgrade-badge"
+														>
+															<Badge intent="informational">
+																{ __( 'Requires upgrade', 'jetpack' ) }
+															</Badge>
+														</Popover.Trigger>
+														<Popover.Popup>
+															<Popover.Arrow />
+															<VisuallyHidden render={ <Popover.Title /> }>
+																{ __( 'Requires upgrade', 'jetpack' ) }
+															</VisuallyHidden>
+															<Popover.Description>{ upgradeBadgeTooltip }</Popover.Description>
+														</Popover.Popup>
+													</Popover.Root>
+												) }
+										</div>
+										{ section.features.map( feature => renderRow( feature ) ) }
+									</Stack>
+								</Fragment>
+							);
+						} ) }
 					</Card.Content>
 				</Card.Root>
-			) ) }
+			) }
 		</Stack>
 	);
 }

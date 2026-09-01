@@ -25,10 +25,6 @@ type SanitizedConversionRateByDateItem = Override<
 	}
 >;
 
-/**
- * Sanitize/process a single conversion rate item by converting strings to numbers
- * and calculating the conversion rate
- */
 function sanitizeConversionRateItem(
 	item: RawConversionRateReportDataItem
 ): SanitizedConversionRateByDateItem {
@@ -53,9 +49,6 @@ function sanitizeConversionRateItem(
 	};
 }
 
-/**
- * Funnel step for conversion rate visualization
- */
 type FunnelStep = {
 	id: string;
 	label: string;
@@ -63,9 +56,6 @@ type FunnelStep = {
 	rate: number;
 };
 
-/**
- * Processed response with funnel steps and overall conversion rate
- */
 type SanitizedConversionRateByDateResponse = {
 	summary: SanitizedConversionRateByDateItem;
 	data: SanitizedConversionRateByDateItem[];
@@ -74,9 +64,6 @@ type SanitizedConversionRateByDateResponse = {
 };
 
 /**
- * Sanitize the response from the sessions/by-conversion-rate endpoint
- * Converts string values to numbers for easier calculations and charting.
- *
  * The `summary` single item has basically the same structure
  * as the `data` array items, so we can use the same mapper function for both.
  */
@@ -96,7 +83,6 @@ export const sanitizeReportConversionRateResponse = (
 
 	const sanitizedSummary = sanitizeConversionRateItem( response?.summary || defaultSummary );
 
-	// Create funnel steps from the summary data
 	const steps: FunnelStep[] = [
 		{
 			id: 'sessions',

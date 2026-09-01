@@ -65,35 +65,21 @@ beforeEach( () => {
 } );
 
 describe( 'normalizeReportParams', () => {
-	/*
-	 * Scenario 1 – Fresh load (no params in URL)
-	 * The user visits /dashboard with no query string.
-	 * Expected: defaults kick in, preset "last-30-days" is used,
-	 * and default comparison is applied.
-	 */
 	it( 'applies defaults with preset and comparison on fresh load', () => {
 		const result = normalizeReportParams();
 
-		// Preset should come from defaults.
 		expect( result.preset ).toBe( 'last-30-days' );
 		expect( mockComputeRange ).toHaveBeenCalledWith( 'last-30-days' );
 
-		// Dates should come from computeDateRangeFromPreset.
 		expect( result.from ).toBe( FRESH_FROM );
 		expect( result.to ).toBe( FRESH_TO );
 
-		// Default comparison should be applied (search is undefined
-		// → !search?.from → true → default branch).
+		// `search` is undefined → `!search?.from` → the default-comparison branch.
 		expect( result.comp ).toBe( '1' );
 		expect( result.compare_from ).toBe( DEFAULTS_WITH_COMPARISON.compare_from );
 		expect( result.compare_to ).toBe( DEFAULTS_WITH_COMPARISON.compare_to );
 	} );
 
-	/*
-	 * Scenario 2 – Same-day reload with preset
-	 * The URL has preset=last-30-days and from/to that match today's
-	 * computation. The dates are still fresh → no redirect needed.
-	 */
 	it( 'returns same dates when preset range is still fresh', () => {
 		const result = normalizeReportParams( {
 			from: FRESH_FROM,
@@ -113,9 +99,7 @@ describe( 'normalizeReportParams', () => {
 		);
 		expect( result.interval ).toBe( 'day' );
 
-		// No comparison in search → no comparison in output
-		// (search.from is present → !search.from is false
-		// → default comparison branch is skipped).
+		// `search.from` is present, so the default-comparison branch is skipped.
 		expect( result.comp ).toBeUndefined();
 	} );
 
@@ -138,11 +122,6 @@ describe( 'normalizeReportParams', () => {
 		expect( result.interval ).toBe( 'week' );
 	} );
 
-	/*
-	 * Scenario 3 – Next-day reload with stale dates
-	 * The URL has yesterday's dates but the same preset.
-	 * computeDateRangeFromPreset returns fresh dates → redirect.
-	 */
 	it( 'recalculates dates when preset range is stale', () => {
 		const result = normalizeReportParams( {
 			from: STALE_FROM,
@@ -151,18 +130,12 @@ describe( 'normalizeReportParams', () => {
 			interval: 'day',
 		} );
 
-		// Should use the fresh range from the preset, not stale URL dates.
 		expect( result.from ).toBe( FRESH_FROM );
 		expect( result.to ).toBe( FRESH_TO );
 		expect( result.preset ).toBe( 'last-30-days' );
 		expect( mockComputeRange ).toHaveBeenCalledWith( 'last-30-days' );
 	} );
 
-	/*
-	 * Scenario 4 – Custom range (no preset)
-	 * The user picked explicit from/to dates without a preset.
-	 * The dates should be used as-is, no recalculation.
-	 */
 	it( 'uses explicit dates as-is when no preset is set', () => {
 		const customFrom = '2026-01-01T00:00:00.000-05:00';
 		const customTo = '2026-01-31T23:59:59.999-05:00';
@@ -175,7 +148,6 @@ describe( 'normalizeReportParams', () => {
 		expect( result.from ).toBe( customFrom );
 		expect( result.to ).toBe( customTo );
 		expect( result.preset ).toBeUndefined();
-		// computeDateRangeFromPreset should NOT be called.
 		expect( mockComputeRange ).not.toHaveBeenCalled();
 	} );
 
@@ -195,11 +167,6 @@ describe( 'normalizeReportParams', () => {
 		expect( mockComputeRange ).not.toHaveBeenCalled();
 	} );
 
-	/*
-	 * Scenario 5 – Preset with stale comparison enabled
-	 * The URL has a stale preset and comparison params.
-	 * Primary range is recalculated; comparison is preserved from URL.
-	 */
 	it( 'recalculates primary but preserves comparison from URL', () => {
 		const compFrom = '2025-12-20T00:00:00.000-05:00';
 		const compTo = '2026-01-18T23:59:59.999-05:00';
@@ -215,23 +182,18 @@ describe( 'normalizeReportParams', () => {
 			compare_preset: 'previous-period',
 		} );
 
-		// Primary recalculated from preset.
 		expect( result.from ).toBe( FRESH_FROM );
 		expect( result.to ).toBe( FRESH_TO );
 
-		// Comparison passed through from search.
 		expect( result.comp ).toBe( '1' );
 		expect( result.compare_from ).toBe( compFrom );
 		expect( result.compare_to ).toBe( compTo );
 		expect( result.compare_preset ).toBe( 'previous-period' );
 	} );
 
-	/*
-	 * Scenario 5b – Comparison flag arrives as a number
-	 * The router JSON-parses search values, so a URL written without JSON
-	 * quoting (hand-edited or from an older link builder) delivers comp as the
-	 * number 1. It must still enable comparison, normalized back to '1'.
-	 */
+	// The router JSON-parses search values, so an unquoted URL (hand-edited or
+	// from an older link builder) can deliver comp as the number 1, which must
+	// still enable comparison, normalized back to '1'.
 	it( 'accepts a numeric comp flag from an unquoted URL', () => {
 		const compFrom = '2025-12-20T00:00:00.000-05:00';
 		const compTo = '2026-01-18T23:59:59.999-05:00';
@@ -252,11 +214,6 @@ describe( 'normalizeReportParams', () => {
 		expect( result.compare_to ).toBe( compTo );
 	} );
 
-	/*
-	 * Scenario 6 – Preset without comparison
-	 * The URL has a stale preset but comparison is disabled.
-	 * Primary is recalculated; comparison params are absent.
-	 */
 	it( 'recalculates primary with no comparison when comp is absent', () => {
 		const result = normalizeReportParams( {
 			from: STALE_FROM,
@@ -265,12 +222,10 @@ describe( 'normalizeReportParams', () => {
 			interval: 'day',
 		} );
 
-		// Primary recalculated.
 		expect( result.from ).toBe( FRESH_FROM );
 		expect( result.to ).toBe( FRESH_TO );
 
-		// No comparison in search, and search.from is present
-		// → default comparison is NOT applied.
+		// `search.from` is present, so the default comparison is not applied.
 		expect( result.comp ).toBeUndefined();
 		expect( result.compare_from ).toBeUndefined();
 		expect( result.compare_to ).toBeUndefined();
@@ -309,9 +264,7 @@ describe( 'normalizeReportParams', () => {
 			preset: 'last-30-days',
 		} );
 
-		// Preset should be cleared.
 		expect( result.preset ).toBeUndefined();
-		// Falls back to search dates.
 		expect( result.from ).toBe( STALE_FROM );
 		expect( result.to ).toBe( STALE_TO );
 	} );
@@ -366,6 +319,64 @@ describe( 'normalizeReportParams', () => {
 		} );
 
 		expect( result.post_id ).toBe( 2428 );
+	} );
+
+	/*
+	 * Scenario – a section on the year surface (all time / a single calendar
+	 * year). Its selection has to survive normalization: as dates alone, an
+	 * all-time range covering one year is indistinguishable from that year.
+	 */
+	it( 'recomputes a year preset so the current year stays fresh', () => {
+		mockComputeRange.mockReturnValueOnce( {
+			from: '2026-01-01T00:00:00.000-05:00',
+			to: FRESH_TO,
+		} );
+
+		const result = normalizeReportParams( {
+			from: '2026-01-01T00:00:00.000-05:00',
+			to: STALE_TO,
+			preset: 'year-2026',
+			interval: 'month',
+		} );
+
+		expect( result.preset ).toBe( 'year-2026' );
+		expect( mockComputeRange ).toHaveBeenCalledWith( 'year-2026' );
+		expect( result.from ).toBe( '2026-01-01T00:00:00.000-05:00' );
+		expect( result.to ).toBe( FRESH_TO );
+	} );
+
+	it( 'keeps the all-time start and refreshes its end', () => {
+		const result = normalizeReportParams( {
+			from: '2023-01-01T00:00:00.000-05:00',
+			to: STALE_TO,
+			preset: 'all-time',
+		} );
+
+		expect( result.preset ).toBe( 'all-time' );
+		expect( mockComputeRange ).toHaveBeenCalledWith( 'all-time' );
+		expect( result.from ).toBe( '2023-01-01T00:00:00.000-05:00' );
+		expect( result.to ).toBe( FRESH_TO );
+	} );
+
+	it( 'rebuilds a year preset that arrives without its range', () => {
+		mockComputeRange.mockReturnValueOnce( {
+			from: '2025-01-01T00:00:00.000-05:00',
+			to: '2025-12-31T23:59:59.999-05:00',
+		} );
+
+		const result = normalizeReportParams( { preset: 'year-2025' } );
+
+		expect( result.preset ).toBe( 'year-2025' );
+		expect( result.from ).toBe( '2025-01-01T00:00:00.000-05:00' );
+		expect( result.to ).toBe( '2025-12-31T23:59:59.999-05:00' );
+	} );
+
+	it( 'drops an all-time preset that arrives without its site-specific range', () => {
+		const result = normalizeReportParams( { preset: 'all-time' } );
+
+		expect( result.preset ).toBe( 'last-30-days' );
+		expect( result.from ).toBe( FRESH_FROM );
+		expect( mockComputeRange ).toHaveBeenCalledWith( 'last-30-days' );
 	} );
 
 	it( 'omits post_id when search has none', () => {

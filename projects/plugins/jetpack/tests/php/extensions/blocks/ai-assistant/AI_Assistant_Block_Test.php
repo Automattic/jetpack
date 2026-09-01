@@ -15,6 +15,7 @@ require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/ai-assistant/ai-assistant
  */
 class AI_Assistant_Block_Test extends WP_UnitTestCase {
 	use Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+	use \Activates_Ai_Module;
 
 	const BLOCK_NAME = 'jetpack/ai-assistant';
 
@@ -30,6 +31,11 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+		// The AI controls only take effect on internal testing environments while
+		// they are unlaunched. These tests are about what the toggles do, so put
+		// the suite where they apply; the scoping itself is pinned in
+		// Jetpack_AI_Settings_Test.
+		$this->force_master_enforcement_for_test();
 
 		Jetpack_Gutenberg::reset();
 		add_filter( 'jetpack_offline_mode', '__return_false' );
@@ -38,7 +44,9 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 		delete_option( 'jetpack_ai_enabled' );
 		delete_option( 'jetpack_ai_writing_assistant_enabled' );
 		delete_option( 'jetpack_ai_image_editor_enabled' );
-		update_option( 'jetpack_ai_enabled', 1 );
+		// Off-Simple the `ai` module is the master switch (the option is ignored
+		// there), so activate the module to put the master on.
+		$this->activate_ai_module_for_test();
 
 		$this->registered_block = WP_Block_Type_Registry::get_instance()->get_registered( self::BLOCK_NAME );
 		if ( $this->registered_block ) {
@@ -50,6 +58,7 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 	 * Clean up after each test.
 	 */
 	public function tear_down() {
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		if ( Blocks::is_registered( self::BLOCK_NAME ) ) {
 			unregister_block_type( self::BLOCK_NAME );
 		}
@@ -57,6 +66,8 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 			WP_Block_Type_Registry::get_instance()->register( $this->registered_block );
 		}
 
+		$this->deactivate_ai_module_for_test();
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		delete_option( 'jetpack_ai_enabled' );
 		delete_option( 'jetpack_ai_writing_assistant_enabled' );
 		delete_option( 'jetpack_ai_image_editor_enabled' );
@@ -95,7 +106,9 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 	 * The master toggle prevents both the block and its extensions from registering.
 	 */
 	public function test_block_and_extensions_not_registered_when_master_disabled() {
-		update_option( 'jetpack_ai_enabled', 0 );
+		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->force_master_enforcement_for_test();
+		$this->deactivate_ai_module_for_test();
 
 		AIAssistant\register_block();
 		do_action( 'jetpack_register_gutenberg_extensions' );

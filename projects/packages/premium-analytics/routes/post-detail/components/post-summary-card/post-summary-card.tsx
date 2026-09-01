@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-import { Icon, Text } from '@jetpack-premium-analytics/externals';
+import { parseSiteDateTime, siteTimeZone, toLocalTZ } from '@jetpack-premium-analytics/datetime';
+import { Icon, Skeleton, Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
-import { page as pageIcon, post as postIcon } from '@wordpress/icons';
+import { envelope as envelopeIcon, page as pageIcon, post as postIcon } from '@wordpress/icons';
 import { format, isValid } from 'date-fns';
 /**
  * Internal dependencies
@@ -13,6 +14,11 @@ import type { PostSummary } from '../../hooks';
 
 type PostSummaryCardProps = {
 	summary: PostSummary;
+	/**
+	 * Header identity: 'email' frames the header as the newsletter send
+	 * (envelope tile, "Email sent on…") instead of the post identity.
+	 */
+	variant?: 'post' | 'email';
 	/**
 	 * The committed report date range, rendered as the performance window
 	 * ("Performance from … to …") so the header states what period every
@@ -42,22 +48,40 @@ function getTypeLabel( type?: string ): string {
  *
  * @param props                  - Component props.
  * @param props.summary          - The resolved post summary.
+ * @param props.variant          - The header identity: post (default) or email.
  * @param props.performanceRange - The committed report date range.
  * @return The summary header element.
  */
-export function PostSummaryCard( { summary, performanceRange }: PostSummaryCardProps ) {
-	const { title, type, publishedDate, imageUrl } = summary;
+export function PostSummaryCard( {
+	summary,
+	variant = 'post',
+	performanceRange,
+}: PostSummaryCardProps ) {
+	const { title, type, publishedDate, imageUrl, isLoading } = summary;
 
-	const publishedDateObject = publishedDate ? new Date( publishedDate ) : undefined;
-	const publishedSentence =
-		publishedDateObject && isValid( publishedDateObject )
-			? sprintf(
-					/* translators: %1$s: "Post" or "Page". %2$s: the publish date, e.g. "Aug 19, 2025". */
-					__( '%1$s published on %2$s.', 'jetpack-premium-analytics-pkg' ),
-					getTypeLabel( type ),
-					format( publishedDateObject, DATE_FORMAT )
-			  )
-			: undefined;
+	// Read and shown in the site timezone, like the Stats data the page reports on.
+	const publishedDateObject = parseSiteDateTime( publishedDate );
+	const formattedDate = publishedDateObject
+		? format( toLocalTZ( publishedDateObject, siteTimeZone() ), DATE_FORMAT )
+		: undefined;
+	// Reuses the publish date: the newsletter sends when the post publishes,
+	// and `stats/emails/summary` exposes no separate send timestamp.
+	let publishedSentence;
+	if ( formattedDate ) {
+		publishedSentence =
+			variant === 'email'
+				? sprintf(
+						/* translators: %s: the date the newsletter was sent, e.g. "Aug 19, 2025". */
+						__( 'Email sent on %s.', 'jetpack-premium-analytics-pkg' ),
+						formattedDate
+				  )
+				: sprintf(
+						/* translators: %1$s: "Post" or "Page". %2$s: the publish date, e.g. "Aug 19, 2025". */
+						__( '%1$s published on %2$s.', 'jetpack-premium-analytics-pkg' ),
+						getTypeLabel( type ),
+						formattedDate
+				  );
+	}
 
 	const { from, to } = performanceRange ?? {};
 	const performanceSentence =
@@ -71,18 +95,45 @@ export function PostSummaryCard( { summary, performanceRange }: PostSummaryCardP
 			: undefined;
 	const subtitle = [ publishedSentence, performanceSentence ].filter( Boolean ).join( ' ' );
 
-	return (
-		<div className={ styles.card }>
-			{ imageUrl ? (
-				<img className={ styles.image } src={ imageUrl } alt="" />
-			) : (
-				// The placeholder carries the type glyph, so the type still
-				// reads at a glance without its own badge row.
-				<div className={ styles.imagePlaceholder } aria-hidden="true">
-					<Icon icon={ type === 'page' ? pageIcon : postIcon } size={ 28 } />
-				</div>
-			) }
-			<div className={ styles.details }>
+	// Email variant always shows the envelope tile, even with a featured
+	// image, so email tabs read as the newsletter send, not the post.
+	let media;
+	if ( variant === 'email' ) {
+		media = (
+			<div
+				className={ `${ styles.imagePlaceholder } ${ styles.emailTile }` }
+				aria-hidden="true"
+				data-testid="post-summary-email-tile"
+			>
+				<Icon icon={ envelopeIcon } size={ 28 } />
+			</div>
+		);
+	} else if ( imageUrl ) {
+		media = (
+			<img className={ styles.image } src={ imageUrl } alt="" data-testid="post-summary-image" />
+		);
+	} else {
+		media = (
+			<div className={ styles.imagePlaceholder } aria-hidden="true">
+				<Icon icon={ type === 'page' ? pageIcon : postIcon } size={ 28 } />
+			</div>
+		);
+	}
+
+	// The title lands on its own request, so the header would otherwise read as
+	// blank until well after the grid has drawn (WOOA7S-2059).
+	let details;
+	if ( isLoading ) {
+		details = (
+			<>
+				<VisuallyHidden>{ __( 'Loading…', 'jetpack-premium-analytics-pkg' ) }</VisuallyHidden>
+				<Skeleton className={ styles.titlePlaceholder } />
+				<Skeleton className={ styles.subtitlePlaceholder } />
+			</>
+		);
+	} else {
+		details = (
+			<>
 				{ /* The heading ellipsizes to one line; `title` keeps the full text
 				     reachable on hover. */ }
 				<Text variant="heading-xl" render={ <h1 title={ title } /> } className={ styles.title }>
@@ -93,6 +144,15 @@ export function PostSummaryCard( { summary, performanceRange }: PostSummaryCardP
 						{ subtitle }
 					</Text>
 				) : null }
+			</>
+		);
+	}
+
+	return (
+		<div className={ styles.card }>
+			{ media }
+			<div className={ styles.details } aria-busy={ isLoading }>
+				{ details }
 			</div>
 		</div>
 	);

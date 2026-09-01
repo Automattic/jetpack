@@ -15,25 +15,19 @@ import { SelectField } from '@jetpack-premium-analytics/fields';
  * Widget attributes shape.
  *
  * @property utmDimension   - UTM dimension to break down by. Defaults to 'utm_source,utm_medium'.
- * @property max            - Maximum rows to display (0 = all). Defaults to 10.
- * @property showReportLink - Whether to render the "See report" footer link. Defaults to true.
+ * @property showReportLink - Whether to render the "View all" footer link. Defaults to true.
  *                          Host compositions on terminal pages (post detail) set this to false;
  *                          it is not a user-facing control.
  */
 export type UtmInsightsAttributes = {
 	utmDimension?: StatsUtmParam;
-	max?: number;
 	showReportLink?: boolean;
 };
 
 /**
- * UTM Insights widget type definition.
- *
- * Shows traffic breakdown by UTM parameter via the PA proxy at
- * `stats/utm/{utmParam}`. The active dimension is the `utmDimension`
- * attribute (`relevance: 'high'`), so the widget host renders its
- * control. Date range comes from WidgetRoot's reportParams (the
- * shared dashboard date picker).
+ * Shows traffic breakdown by UTM parameter via `stats/utm/{utmParam}`. The
+ * active dimension is `utmDimension` (`relevance: 'high'`), so the widget
+ * host renders its control.
  */
 export default {
 	icon: megaphone,
@@ -67,16 +61,10 @@ export default {
 			],
 			relevance: 'high',
 		},
-		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
-			type: 'integer',
-		},
 	] as WidgetAttributeField< UtmInsightsAttributes >[],
 	example: {
 		attributes: {
 			utmDimension: 'utm_source,utm_medium',
-			max: 10,
 		},
 	},
 };

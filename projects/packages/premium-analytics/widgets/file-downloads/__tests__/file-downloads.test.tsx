@@ -23,9 +23,9 @@ describe( 'FileDownloadsWidget', () => {
 	} );
 
 	it( 'links to the Downloads report', () => {
-		render( <FileDownloadsWidget attributes={ { max: 10 } } /> );
+		render( <FileDownloadsWidget attributes={ {} } /> );
 
-		expect( screen.getByRole( 'link', { name: 'See report' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
 			'href',
 			expect.stringContaining( '/reports/downloads' )
 		);

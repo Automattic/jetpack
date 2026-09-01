@@ -12,11 +12,8 @@ const mockDispatch = jest.fn( () => ( {
 	createErrorNotice: mockCreateErrorNotice,
 } ) );
 
-// Override `useRegistry` only, falling through to the real module for everything else:
-// the component's import graph now reaches other consumers of `@wordpress/data`
-// (rich-text's store calls `combineReducers` at import time), which a `useRegistry`-only
-// mock breaks. The fall-through has to resolve lazily — calling `requireActual` in the
-// factory body re-enters `@wordpress/data` while it is still initialising.
+// Override `useRegistry` only — a bare mock breaks other `@wordpress/data`
+// consumers; the fall-through resolves lazily since `requireActual` re-enters mid-init.
 jest.mock(
 	'@wordpress/data',
 	() =>
@@ -36,18 +33,30 @@ describe( 'CsvDownloadButton', () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'supports a solid page action without an icon', () => {
+	it( 'renders the widget footer action as an icon named by its label', () => {
+		render( <CsvDownloadButton onDownload={ jest.fn() } /> );
+
+		const button = screen.getByRole( 'button', { name: 'Download CSV' } );
+		expect( button ).toHaveTextContent( '' );
+		// The decorative SVG is intentionally hidden from the accessibility tree.
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( button.querySelector( 'svg' ) ).not.toBeNull();
+	} );
+
+	it( 'supports a solid page action with a visible label and no icon', () => {
 		render(
 			<CsvDownloadButton
 				onDownload={ jest.fn() }
 				label="Download"
 				variant="solid"
 				showIcon={ false }
+				showLabel
 			/>
 		);
 
 		const button = screen.getByRole( 'button', { name: 'Download' } );
 		expect( button ).toHaveClass( /is-solid/ );
+		expect( button ).toHaveTextContent( 'Download' );
 		// The decorative SVG is intentionally hidden from the accessibility tree.
 		// eslint-disable-next-line testing-library/no-node-access
 		expect( button.querySelector( 'svg' ) ).toBeNull();

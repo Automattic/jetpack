@@ -15,13 +15,9 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for the Analytics class.
- *
- * Covers metadata names ensure_widget_registry_ready() alongside the class,
- * because test_rest_request_still_serves_the_widget_manifest exercises it on
- * purpose. Coverage is attributed to those declared units too — php-code-coverage
- * discards every executed line outside them — so leaving it off would report the
- * manifest require as dead code while a green test runs it.
+ * Tests for the Analytics class. Also covers ensure_widget_registry_ready(): only
+ * test_rest_request_still_serves_the_widget_manifest exercises it, and php-code-coverage
+ * discards lines outside declared @covers units — omitting it would mark the manifest require dead.
  *
  * @covers \Automattic\Jetpack\PremiumAnalytics\Analytics
  * @covers ::Automattic\Jetpack\PremiumAnalytics\ensure_widget_registry_ready
@@ -41,12 +37,17 @@ class Analytics_Test extends TestCase {
 	private $doing_it_wrong = array();
 
 	/**
+	 * _doing_it_wrong() messages captured during a test, in the same order.
+	 *
+	 * @var string[]
+	 */
+	private $doing_it_wrong_messages = array();
+
+	/**
 	 * Fail loudly if the fixture build leaked in from an earlier test.
 	 *
-	 * Because load_build() uses require_once and there is one fixture file, a
-	 * second load is a no-op. Without this check, dropping the process isolation would
-	 * turn every "does not load the build" assertion into a vacuous pass — the
-	 * unset() below clears the marker and nothing re-sets it, gate or no gate.
+	 * Because load_build() uses require_once, a second load is a no-op — without this check,
+	 * dropping process isolation would silently pass every "does not load the build" assertion.
 	 */
 	protected function setUp(): void {
 		parent::setUp();
@@ -57,7 +58,7 @@ class Analytics_Test extends TestCase {
 			'The fixture build leaked from an earlier test: process isolation is not working.'
 		);
 
-		unset( $GLOBALS['jpa_test_build_loaded'] );
+		unset( $GLOBALS['jpa_test_build_loaded'], $GLOBALS['jpa_test_interceptor_priority'] );
 	}
 
 	/**
@@ -76,8 +77,8 @@ class Analytics_Test extends TestCase {
 		remove_all_actions( 'plugins_loaded' );
 		remove_all_actions( 'rest_api_init' );
 		remove_all_actions( 'admin_menu' );
-		remove_all_actions( 'jetpack-premium-analytics_init' );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
+		remove_all_filters( 'jetpack_stats_post_list_column_url' );
 		remove_all_filters( 'rest_post_dispatch' );
 		remove_all_filters( 'jetpack_stats_transient_cleanup_prefixes' );
 		Capabilities::unregister();
@@ -151,6 +152,50 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * The post list table's views column links here once the dashboard boots.
+	 *
+	 * @param bool $wpcom_simple Whether to boot the WordPress.com Simple path.
+	 * @dataProvider provide_init_entry_points
+	 */
+	#[DataProvider( 'provide_init_entry_points' )]
+	public function test_init_claims_the_post_list_column_link( $wpcom_simple ) {
+		$this->reset_analytics_init_state();
+
+		if ( $wpcom_simple ) {
+			Analytics::init_wpcom_simple();
+		} else {
+			Analytics::init();
+		}
+
+		$this->assertNotFalse(
+			has_filter( 'jetpack_stats_post_list_column_url', array( Post_List_Link::class, 'filter_url' ) )
+		);
+	}
+
+	/**
+	 * The SPA path travels in `p`, encoded: the router reads that param and a raw
+	 * `?` inside it would read as an outer query param instead.
+	 */
+	public function test_dashboard_url_carries_the_encoded_route_in_the_p_param() {
+		$this->assertSame(
+			admin_url( 'admin.php?page=' . self::MENU_SLUG . '&p=%2Fpost%2F123' ),
+			Analytics::dashboard_url( '/post/123' )
+		);
+
+		$this->assertStringEndsWith(
+			'&p=%2Fpost%2F123%3Fsection%3Dpost-traffic',
+			Analytics::dashboard_url( '/post/123?section=post-traffic' )
+		);
+
+		// The router falls back to `/` for an absent or empty `p`, so the default
+		// has to encode a route rather than drop the param.
+		$this->assertSame(
+			admin_url( 'admin.php?page=' . self::MENU_SLUG . '&p=%2F' ),
+			Analytics::dashboard_url()
+		);
+	}
+
+	/**
 	 * The two platform entry points.
 	 *
 	 * @return array<string, array{bool}>
@@ -176,9 +221,8 @@ class Analytics_Test extends TestCase {
 	/**
 	 * Normal package bootstrap serves the dashboard support routes from the site.
 	 *
-	 * The route files themselves are loaded lazily, on rest_api_init, via
-	 * Dashboard_Support_Routes::boot_routes() - so this checks that hook is
-	 * wired, then dispatches it and confirms the routes actually land.
+	 * Routes load lazily on rest_api_init via Dashboard_Support_Routes::boot_routes(), so this
+	 * checks the hook is wired and that dispatching it actually registers the routes.
 	 */
 	public function test_init_registers_dashboard_support_routes_by_default() {
 		$this->reset_analytics_init_state();
@@ -249,6 +293,34 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * The build's full-page interceptor is unhooked.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_full_page_interceptor_is_unhooked() {
+		$this->use_fixture_build();
+		set_current_screen( self::MENU_HOOKNAME );
+
+		Analytics::init();
+		do_action( 'init' );
+
+		// Without this the assertion below passes on a fixture that never hooked the
+		// interceptor, which is the state it is supposed to detect.
+		$this->assertSame(
+			10,
+			$GLOBALS['jpa_test_interceptor_priority'] ?? null,
+			'The fixture build did not hook the interceptor, so removing it proves nothing.'
+		);
+		$this->assertFalse(
+			has_action( 'admin_init', 'jpa_jetpack_premium_analytics_intercept_render' ),
+			'The wp-build full-page interceptor is still hooked, leaving ?page=jetpack-premium-analytics renderable wherever admin_init runs without Core\'s menu access check.'
+		);
+	}
+
+	/**
 	 * The admin-ajax.php endpoint sets is_admin() true but does not get the build.
 	 *
 	 * Defining DOING_AJAX is safe here only because the test runs in its own
@@ -271,11 +343,8 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * The admin-post.php endpoint reaches the interceptor the way admin-ajax does.
-	 *
-	 * Core defines WP_ADMIN and fires admin_init there before it checks the user
-	 * is logged in, so an ungated build answers ?page=jetpack-premium-analytics
-	 * with a full dashboard page for anyone.
+	 * The admin-post.php endpoint sets is_admin() true the way admin-ajax does,
+	 * and renders no dashboard either, so it does not get the build.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -296,17 +365,13 @@ class Analytics_Test extends TestCase {
 	/**
 	 * A REST request still gets the full widget manifest.
 	 *
-	 * Because is_admin() is false on REST, the gate skips the build there; the route
-	 * and the lazy hydration both come from boot_routes() on rest_api_init. The
-	 * fixture is staged through the manifest-path filter rather than by declaring
-	 * jpa_get_registered_widget_modules() up front, so the sentinel can only reach
-	 * the registry via the manifest require in ensure_widget_registry_ready() —
-	 * delete that require (the #49961 outage) and this test reddens.
+	 * Since is_admin() is false on REST, the build gate skips it there; the route and its lazy
+	 * hydration come from boot_routes(). The fixture is staged via the manifest-path filter so
+	 * the sentinel can only reach the registry through the require in
+	 * ensure_widget_registry_ready() — delete that require (the #49961 outage) and this reddens.
 	 *
-	 * Asserts a uniquely named sentinel rather than "the response is not empty":
-	 * the widget type registry is process-wide, so a non-empty response could be
-	 * another test's leftovers. Isolation keeps the registry and
-	 * ensure_widget_registry_ready()'s static memo clean.
+	 * Asserts a uniquely named sentinel, not "response is not empty": the widget type registry
+	 * is process-wide, so a non-empty response could be another test's leftovers.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -337,9 +402,8 @@ class Analytics_Test extends TestCase {
 
 			$response = $wp_rest_server->dispatch( new \WP_REST_Request( 'GET', '/wpcom/v2/widget-modules' ) );
 
-			// Asserted separately so a permissions regression reads as one, rather
-			// than as a missing sentinel: array_column() over an error envelope is
-			// an empty list either way.
+			// Asserted separately so a permissions regression reads as one, not a missing sentinel:
+			// array_column() over an error envelope is an empty list either way.
 			$this->assertSame( 200, $response->get_status(), 'The manifest route must authorize the test user.' );
 			$this->assertContains( 'test/rest-gate-sentinel', array_column( (array) $response->get_data(), 'name' ) );
 		} finally {
@@ -360,23 +424,32 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * The full-page dashboard slug in admin is recognized as a dashboard request.
+	 * Point the manifest at a missing file.
+	 *
+	 * @return string
 	 */
-	public function test_is_dashboard_request_true_for_full_page_slug() {
-		set_current_screen( 'toplevel_page_jetpack-premium-analytics' );
-		$_GET['page'] = 'jetpack-premium-analytics';
-
-		$this->assertTrue( Analytics::is_dashboard_request() );
+	public function use_absent_widget_manifest() {
+		return __DIR__ . '/fixtures/build-entry/no-such-widgets.php';
 	}
 
 	/**
 	 * The wp-admin integrated dashboard slug in admin is recognized as a dashboard request.
 	 */
 	public function test_is_dashboard_request_true_for_wp_admin_slug() {
-		set_current_screen( 'toplevel_page_jetpack-premium-analytics' );
-		$_GET['page'] = 'jetpack-premium-analytics-wp-admin';
+		set_current_screen( self::MENU_HOOKNAME );
+		$_GET['page'] = self::MENU_SLUG;
 
 		$this->assertTrue( Analytics::is_dashboard_request() );
+	}
+
+	/**
+	 * The removed full-page slug is not a dashboard request.
+	 */
+	public function test_is_dashboard_request_false_for_full_page_slug() {
+		set_current_screen( 'toplevel_page_jetpack-premium-analytics' );
+		$_GET['page'] = 'jetpack-premium-analytics';
+
+		$this->assertFalse( Analytics::is_dashboard_request() );
 	}
 
 	/**
@@ -404,7 +477,7 @@ class Analytics_Test extends TestCase {
 	 */
 	public function test_is_dashboard_request_false_on_front_end() {
 		set_current_screen( 'front' );
-		$_GET['page'] = 'jetpack-premium-analytics';
+		$_GET['page'] = self::MENU_SLUG;
 
 		$this->assertFalse( Analytics::is_dashboard_request() );
 	}
@@ -646,6 +719,38 @@ class Analytics_Test extends TestCase {
 			array( Analytics::class . '::register_admin_menu' ),
 			$this->doing_it_wrong
 		);
+		$this->assertStringContainsString(
+			'jpa_jetpack_premium_analytics_wp_admin_render_page',
+			$this->doing_it_wrong_messages[0] ?? '',
+			'The diagnostic must name the artifact that is actually missing.'
+		);
+		$this->assertStringNotContainsString(
+			'build/widgets.php',
+			$this->doing_it_wrong_messages[0] ?? '',
+			'The manifest is staged here; naming it would send the reader to the wrong file.'
+		);
+	}
+
+	/**
+	 * A build that never ran names both artifacts in one diagnostic.
+	 *
+	 * Pins the whole sentence once, so the per-artifact tests can stay on substrings.
+	 */
+	public function test_register_admin_menu_lists_both_missing_artifacts() {
+		$this->register_admin_menu_without_build( 'use_absent_widget_manifest' );
+
+		$this->assertSame(
+			array( Analytics::class . '::register_admin_menu' ),
+			$this->doing_it_wrong,
+			'Both artifacts are reported in one diagnostic, not one per artifact.'
+		);
+		$this->assertSame(
+			'The Premium Analytics build output is incomplete: '
+				. 'the jpa_jetpack_premium_analytics_wp_admin_render_page() callback, generated under build/pages/, '
+				. 'build/widgets.php (the widget manifest). '
+				. 'The package build did not run, or ran only partially, for this deploy.',
+			$this->doing_it_wrong_messages[0] ?? ''
+		);
 	}
 
 	/**
@@ -680,10 +785,10 @@ class Analytics_Test extends TestCase {
 	/**
 	 * With the build present, the menu wires the generated render callback.
 	 *
-	 * The other menu tests all run the missing-build half. This one covers the
-	 * normal path, whose failure is quiet: the render function's name is derived
-	 * from the page slug at build time, so a rename on either side swaps the
-	 * dashboard for the missing-build notice with nothing else to notice it.
+	 * Unlike the missing-build tests, this covers the normal path, whose failure is quiet:
+	 * the render function name is derived from the page slug at build time, so a rename on
+	 * either side silently swaps the dashboard for the missing-build notice. Uses fixtures
+	 * since the test suite generates no build artifacts.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -699,14 +804,74 @@ class Analytics_Test extends TestCase {
 		$GLOBALS['menu'] = array();
 		Capabilities::register();
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 		$this->capture_doing_it_wrong();
 		Analytics::register_admin_menu();
+		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 
 		$this->assertSame( array(), $this->doing_it_wrong, 'A present build must not report a missing one.' );
 		$this->assertNotFalse(
 			has_action( self::MENU_HOOKNAME, 'jpa_jetpack_premium_analytics_wp_admin_render_page' )
 		);
+	}
+
+	/**
+	 * A missing widget manifest is reported even when the page can render.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_admin_menu_reports_a_missing_widget_manifest() {
+		$this->use_fixture_build();
+		set_current_screen( self::MENU_HOOKNAME );
+
+		Analytics::init();
+
+		$GLOBALS['menu'] = array();
+		Capabilities::register();
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
+		$this->capture_doing_it_wrong();
+		Analytics::register_admin_menu();
+		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
+		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+
+		$this->assertSame(
+			array( Analytics::class . '::register_admin_menu' ),
+			$this->doing_it_wrong,
+			'A missing widget manifest must be reported even though the page renders.'
+		);
+		$this->assertStringContainsString(
+			'build/widgets.php',
+			$this->doing_it_wrong_messages[0] ?? '',
+			'The diagnostic must name the artifact that is actually missing.'
+		);
+		$this->assertStringNotContainsString(
+			'jpa_jetpack_premium_analytics_wp_admin_render_page',
+			$this->doing_it_wrong_messages[0] ?? '',
+			'The page renders here; naming its callback would send the reader to the wrong artifact.'
+		);
+		$this->assertNotFalse(
+			has_action( self::MENU_HOOKNAME, 'jpa_jetpack_premium_analytics_wp_admin_render_page' ),
+			'Only the manifest is missing, so the page still renders through the generated callback.'
+		);
+	}
+
+	/**
+	 * The unfiltered manifest path points at the generated build output.
+	 *
+	 * Every other test stages this path through the filter, so nothing else would notice the
+	 * default breaking — on REST, a wrong path silently empties the widget registry (#49961).
+	 */
+	public function test_widget_manifest_path_defaults_to_the_generated_manifest() {
+		// Collapse the ".." the default is built from rather than realpath()ing it:
+		// build/ does not exist in a checkout that has not run the JS build.
+		$path = preg_replace( '#/[^/]+/\.\./#', '/', Analytics::widget_manifest_path() );
+
+		$this->assertSame( dirname( __DIR__, 2 ) . '/build/widgets.php', $path );
 	}
 
 	/**
@@ -717,25 +882,28 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * Register the admin menu from a clean menu global, with the generated render
-	 * function absent - the state _doing_it_wrong() deliberately reports, so the
-	 * call is captured rather than left to trip the suite's warning gate.
-	 * add_menu_page() only wires the render callback for a user who can reach the
-	 * page, hence the capability grant.
+	 * Register the admin menu from a clean menu global, with the generated render function absent
+	 * — the state _doing_it_wrong() deliberately reports, captured here to avoid tripping the
+	 * suite's warning gate. The capability grant lets add_menu_page() wire the render callback.
 	 *
+	 * @param string $manifest_filter Method on this class supplying the manifest path.
 	 * @return array|null The registered menu entry.
 	 */
-	private function register_admin_menu_without_build() {
+	private function register_admin_menu_without_build( $manifest_filter = 'use_fixture_widget_manifest' ) {
 		$GLOBALS['menu'] = array();
 
 		// Hooked by boot_shared_services() in production; add_menu_page() resolves the
 		// dashboard capability, and an unmapped one would skip the page's render hook.
 		Capabilities::register();
 
+		// Stage the manifest: unfiltered, the diagnostic would name a different set of
+		// artifacts depending on whether this checkout has run the JS build.
+		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, $manifest_filter ) );
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		$this->capture_doing_it_wrong();
 		Analytics::register_admin_menu();
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, $manifest_filter ) );
 
 		foreach ( $GLOBALS['menu'] as $item ) {
 			if ( self::MENU_SLUG === ( $item[2] ?? null ) ) {
@@ -749,17 +917,21 @@ class Analytics_Test extends TestCase {
 	/**
 	 * Capture _doing_it_wrong() calls without tripping the suite's failOnWarning gate.
 	 *
-	 * Records each triggering function name in $this->doing_it_wrong and suppresses the
+	 * Records each triggering function name and its message, and suppresses the
 	 * underlying PHP warning, so a test can assert the diagnostic fired.
 	 */
 	private function capture_doing_it_wrong() {
-		$this->doing_it_wrong = array();
+		$this->doing_it_wrong          = array();
+		$this->doing_it_wrong_messages = array();
 		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
 		add_action(
 			'doing_it_wrong_run',
-			function ( $function_name ) {
-				$this->doing_it_wrong[] = $function_name;
-			}
+			function ( $function_name, $message ) {
+				$this->doing_it_wrong[]          = $function_name;
+				$this->doing_it_wrong_messages[] = $message;
+			},
+			10,
+			2
 		);
 	}
 
@@ -778,17 +950,14 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * A front-end request registers none of the admin render surface: no menu,
-	 * no widget import map, no CSV export script data.
+	 * A front-end request registers none of the admin render surface: no menu, no widget
+	 * import map, no CSV export script data.
 	 *
-	 * Isolated because the filters being asserted are registered at file scope
-	 * by widget-modules.php and csv-exports.php, and require_once means an
-	 * earlier test that loaded them would leave them registered for this one.
-	 *
-	 * Each assertion names its callback rather than just the hook.
-	 * Sync_Status_Tracker also filters jetpack_admin_js_script_data, and it
-	 * stays outside the gate, so a bare has_filter() on that hook is true on a
-	 * front-end request no matter what this gate does.
+	 * Isolated because widget-modules.php and csv-exports.php register these filters at file
+	 * scope via require_once, so an earlier test that loaded them would leave them registered
+	 * here. Each assertion names its callback, not just the hook: Sync_Status_Tracker also
+	 * filters jetpack_admin_js_script_data outside this gate, so a bare has_filter() there is
+	 * true regardless.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -815,6 +984,13 @@ class Analytics_Test extends TestCase {
 				__NAMESPACE__ . '\\inject_csv_exports_script_data'
 			),
 			'The CSV export script data is not wired on a front-end request.'
+		);
+		$this->assertFalse(
+			has_filter(
+				'jetpack_admin_js_script_data',
+				__NAMESPACE__ . '\\inject_videopress_script_data'
+			),
+			'The VideoPress availability flag is not wired on a front-end request.'
 		);
 	}
 
@@ -871,6 +1047,13 @@ class Analytics_Test extends TestCase {
 				__NAMESPACE__ . '\\inject_csv_exports_script_data'
 			),
 			'Simple still wires the CSV export script data.'
+		);
+		$this->assertNotFalse(
+			has_filter(
+				'jetpack_admin_js_script_data',
+				__NAMESPACE__ . '\\inject_videopress_script_data'
+			),
+			'Simple still publishes the VideoPress availability flag.'
 		);
 	}
 }

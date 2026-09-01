@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Detail highlights: Scroll the stacked tiles at narrow widths instead of clipping the bottom tile out of reach.

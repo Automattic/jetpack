@@ -18,7 +18,10 @@ import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
@@ -42,18 +45,13 @@ const MOCK_POST_ID = 779;
 
 const POST_DETAIL_HIGHLIGHTS_RENDER_MODULE = 'storybook/post-detail-highlights';
 
+const POST_STATS_REQUEST_PATH = `stats/post/${ MOCK_POST_ID }`;
+
 interface PostDetailHighlightsStoryControls {
 	withComparison: boolean;
 	hasPostScope: boolean;
 }
 
-/**
- * Builds the widget attributes: report params with the post scope the detail
- * page seeds from its URL when `hasPostScope` is on.
- *
- * @param {PostDetailHighlightsStoryControls} controls - The story controls.
- * @return The widget attributes.
- */
 function getPostDetailHighlightsAttributes( {
 	withComparison,
 	hasPostScope,
@@ -68,12 +66,6 @@ function getPostDetailHighlightsAttributes( {
 	};
 }
 
-/**
- * Renders the data-connected widget with the composed attributes.
- *
- * @param {PostDetailHighlightsStoryControls} controls - The story controls.
- * @return The rendered widget.
- */
 function renderPostDetailHighlights( controls: PostDetailHighlightsStoryControls ) {
 	return (
 		<PostDetailHighlightsRender attributes={ getPostDetailHighlightsAttributes( controls ) } />
@@ -142,6 +134,55 @@ export const NoPostScope: Story = {
 	decorators: [ withWidgetCanvas ],
 };
 
+/**
+ * Loading — the first fetch is still in flight, so the tiles show their
+ * skeleton. The mock is forced to never resolve for this story.
+ */
+export const Loading: Story = {
+	render: renderPostDetailHighlights,
+	args: { withComparison: false, hasPostScope: true },
+	// Off the shared autodocs page — path-keyed override; see setReportMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( POST_STATS_REQUEST_PATH, 'loading' );
+		return () => setReportMockState( POST_STATS_REQUEST_PATH, null );
+	},
+};
+
+/**
+ * Error — the fetch failed with a 403 and there is nothing cached to keep on
+ * screen, so the widget shows its error copy with a Retry action.
+ */
+export const Error: Story = {
+	render: renderPostDetailHighlights,
+	args: { withComparison: false, hasPostScope: true },
+	// Off the shared autodocs page — path-keyed override; see setReportMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( POST_STATS_REQUEST_PATH, 'error' );
+		return () => setReportMockState( POST_STATS_REQUEST_PATH, null );
+	},
+};
+
+/**
+ * Empty — a scoped post with no recorded activity: every tile reads 0. The
+ * widget's empty state covers only a missing post scope (see NoPostScope), so
+ * this is what a data-free post actually looks like.
+ */
+export const Empty: Story = {
+	render: renderPostDetailHighlights,
+	args: { withComparison: false, hasPostScope: true },
+	// Off the shared autodocs page — path-keyed override; see setReportMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( POST_STATS_REQUEST_PATH, 'empty' );
+		return () => setReportMockState( POST_STATS_REQUEST_PATH, null );
+	},
+};
+
 interface PostDetailHighlightsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		PostDetailHighlightsStoryControls {}
@@ -149,9 +190,6 @@ interface PostDetailHighlightsDashboardStoryProps
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders
  * exactly as it does in product (framed card, sizing, host environment).
- *
- * @param {PostDetailHighlightsDashboardStoryProps} props - The dashboard story controls.
- * @return The widget mounted inside the real dashboard.
  */
 function PostDetailHighlightsDashboardStory( {
 	withComparison,

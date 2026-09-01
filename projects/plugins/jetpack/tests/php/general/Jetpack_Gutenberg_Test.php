@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -45,6 +46,12 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		// These action causing issues in tests in WPCOM context. Since we are not using any real block here,
 		// and we are testing block availability with block stubs - we are safe to remove these actions for these tests.
 		remove_all_actions( 'jetpack_register_gutenberg_extensions' );
+
+		// Constants::$set_constants is a process-global static, so an override leaked by
+		// another test file (e.g. one that throws between set_constant and its cleanup)
+		// would otherwise flip block loading for whichever test here runs first.
+		Constants::clear_single_constant( 'REST_REQUEST' );
+		Constants::clear_single_constant( 'REST_API_REQUEST' );
 	}
 
 	/**
@@ -52,6 +59,9 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		parent::tear_down();
+
+		Constants::clear_single_constant( 'REST_REQUEST' );
+		Constants::clear_single_constant( 'REST_API_REQUEST' );
 
 		Jetpack_Gutenberg::reset();
 		remove_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
@@ -234,7 +244,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			array(
 				'https://foo@127.0.0.1 @calendar.google.com',
 				// The fix for https://bugs.php.net/bug.php?id=77423 changed the behavior here.
-				// It's included in PHP 8.0.1, 7.4.14, 7.3.26, and distros might have backported it to
+				// It's included in PHP 8.0.1, 7.4.14, and distros might have backported it to
 				// out-of-support versions too, so just expect either option.
 				self::logicalOr( self::isFalse(), self::equalTo( 'https://calendar.google.com/' ) ),
 			),
@@ -539,6 +549,22 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Set the private static Jetpack_Gutenberg::$preset_cache (the decoded index.json),
+	 * so a test can control the `no-post-editor` preset without touching the real file.
+	 *
+	 * @param mixed $value Value to set (an object mirroring index.json, or null to clear).
+	 */
+	private function set_preset_cache( $value ) {
+		$prop = new ReflectionProperty( Jetpack_Gutenberg::class, 'preset_cache' );
+		// setAccessible() is a no-op (and deprecated) since PHP 8.1; only needed for older versions.
+		// @todo Remove this guard once we no longer need to support PHP < 8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
+		$prop->setValue( null, $value );
+	}
+
+	/**
 	 * Invoke the private static Jetpack_Gutenberg::load_and_register_deferred_block().
 	 *
 	 * @param string $feature Block feature name.
@@ -611,6 +637,56 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Create a throwaway editor-only extension fixture under extensions/extended-blocks.
+	 *
+	 * Mirrors the shape of a real editor-only extension such as
+	 * extensions/extended-blocks/core-video/core-video.php: the file registers an
+	 * availability callback on `jetpack_register_gutenberg_extensions`, which is the
+	 * hook get_availability() fires. The extension name is not in
+	 * Jetpack_Gutenberg::$frontend_editor_extensions, so load_block_editor_extensions()
+	 * includes it only in a block-editor context.
+	 *
+	 * The name is suffixed with the current PID for the same reason as
+	 * create_lazy_fixture_block(): php-normal and php-multisite run concurrently in
+	 * the same checkout.
+	 *
+	 * @param string $name Extension name; the PID suffix is appended.
+	 *
+	 * @return array Fixture data: the final `slug` and the `dir`/`file` paths.
+	 */
+	private function create_fixture_editor_extension( $name ) {
+		$name .= '-' . getmypid();
+		$dir   = JETPACK__PLUGIN_DIR . 'extensions/extended-blocks/' . $name;
+		$file  = $dir . '/' . $name . '.php';
+		wp_mkdir_p( $dir );
+
+		file_put_contents(
+			$file,
+			"<?php\nadd_action( 'jetpack_register_gutenberg_extensions', function () { \\Jetpack_Gutenberg::set_extension_available( '{$name}' ); } );\n"
+		);
+
+		return array(
+			'slug' => $name,
+			'dir'  => $dir,
+			'file' => $file,
+		);
+	}
+
+	/**
+	 * Remove a throwaway editor-only extension fixture.
+	 *
+	 * @param array $fixture Fixture data from create_fixture_editor_extension().
+	 */
+	private function remove_fixture_editor_extension( $fixture ) {
+		if ( file_exists( $fixture['file'] ) ) {
+			unlink( $fixture['file'] );
+		}
+		if ( is_dir( $fixture['dir'] ) ) {
+			rmdir( $fixture['dir'] );
+		}
+	}
+
+	/**
 	 * Non-web contexts (empty REQUEST_URI: WP-CLI, test runs) load blocks eagerly.
 	 */
 	public function test_is_block_editor_context_is_true_without_request_uri() {
@@ -659,6 +735,49 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
 		$_SERVER['REQUEST_URI'] = '/?rest_route=/wp/v2/block-types';
 		$this->assertTrue( $this->invoke_is_block_editor_context() );
+		$_SERVER['REQUEST_URI'] = $saved;
+	}
+
+	/**
+	 * WordPress.com Simple dispatches proxied wpcom/v2 requests (e.g. the GutenbergKit
+	 * editor-assets endpoint) through a public API that filters `rest_url_prefix` to an
+	 * empty string, so the URL checks collapse to an unmatchable '//' root and cannot
+	 * see them. They are identified by the REST_API_REQUEST constant, which Simple's
+	 * API entry points define before wp-load.php runs.
+	 *
+	 * Without this, editor-only extensions (e.g. extended-blocks/core-video) are skipped
+	 * and their plan availability never reaches the editor.
+	 */
+	public function test_is_block_editor_context_is_true_for_wpcom_rest_api_request() {
+		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/sample-page/';
+		Constants::set_constant( 'REST_API_REQUEST', true );
+		$this->assertTrue( $this->invoke_is_block_editor_context() );
+		$_SERVER['REQUEST_URI'] = $saved;
+	}
+
+	/**
+	 * Core defines REST_REQUEST during parse_request, after this check normally runs,
+	 * but it must still be honored if the constant is already set.
+	 */
+	public function test_is_block_editor_context_is_true_for_rest_request_constant() {
+		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/sample-page/';
+		Constants::set_constant( 'REST_REQUEST', true );
+		$this->assertTrue( $this->invoke_is_block_editor_context() );
+		$_SERVER['REQUEST_URI'] = $saved;
+	}
+
+	/**
+	 * A constant that is set but falsey must not be treated as a REST request. This is
+	 * the one case where Constants::is_true() differs from the defined() && CONST form
+	 * the gate used before.
+	 */
+	public function test_is_block_editor_context_is_false_for_falsey_rest_constant() {
+		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/sample-page/';
+		Constants::set_constant( 'REST_API_REQUEST', false );
+		$this->assertFalse( $this->invoke_is_block_editor_context() );
 		$_SERVER['REQUEST_URI'] = $saved;
 	}
 
@@ -1026,8 +1145,13 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		$saved_uri              = $_SERVER['REQUEST_URI'] ?? null;
 		$_SERVER['REQUEST_URI'] = '/sample-page/';
 
+		/*
+		 * blog-stats is a lazy block that is NOT in the `no-post-editor` preset, so it
+		 * still defers on a front-end request (unlike no-post-editor blocks — see
+		 * test_load_independent_blocks_never_defers_no_post_editor_blocks).
+		 */
 		$lazy_filter = static function () {
-			return array( 'business-hours' );
+			return array( 'blog-stats' );
 		};
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 		add_filter( 'jetpack_gutenberg', '__return_true' );
@@ -1038,7 +1162,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			Jetpack_Gutenberg::load_independent_blocks();
 
 			$this->assertArrayHasKey(
-				'business-hours',
+				'blog-stats',
 				$this->get_deferred_blocks(),
 				'A lazy block should be deferred on a front-end request.'
 			);
@@ -1051,6 +1175,56 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			remove_filter( 'jetpack_set_available_extensions', $lazy_filter, 99 );
 			remove_filter( 'jetpack_offline_mode', '__return_true' );
 			remove_filter( 'jetpack_gutenberg', '__return_true' );
+			Jetpack_Gutenberg::reset();
+			if ( null !== $saved_uri ) {
+				$_SERVER['REQUEST_URI'] = $saved_uri;
+			} else {
+				unset( $_SERVER['REQUEST_URI'] );
+			}
+		}
+	}
+
+	/**
+	 * A lazy block that also ships in the `no-post-editor` preset must NOT be deferred on
+	 * a plain front-end request. Front-end block editors (e.g. P2) render the inserter
+	 * there with is_block_editor_context() false, so a deferred block would be reported
+	 * unavailable by get_availability() and vanish from the inserter. A lazy block outside
+	 * the preset still defers.
+	 */
+	public function test_load_independent_blocks_never_defers_no_post_editor_blocks() {
+		$saved_uri              = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/sample-page/';
+
+		// Two lazy blocks; only business-hours is (mocked as) in the no-post-editor preset.
+		$lazy_filter = static function () {
+			return array( 'business-hours', 'blog-stats' );
+		};
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_gutenberg', '__return_true' );
+		add_filter( 'jetpack_set_available_extensions', $lazy_filter, 99 );
+		Jetpack_Gutenberg::reset();
+		$this->set_preset_cache( (object) array( 'no-post-editor' => array( 'business-hours' ) ) );
+
+		try {
+			Jetpack_Gutenberg::load_independent_blocks();
+			$deferred = $this->get_deferred_blocks();
+
+			$this->assertArrayNotHasKey(
+				'business-hours',
+				$deferred,
+				'A no-post-editor block must not be deferred; front-end editors like P2 need it registered.'
+			);
+			$this->assertArrayHasKey(
+				'blog-stats',
+				$deferred,
+				'A lazy block outside the no-post-editor preset should still be deferred.'
+			);
+		} finally {
+			remove_filter( 'pre_render_block', array( 'Jetpack_Gutenberg', 'lazy_register_deferred_block' ), 10 );
+			remove_filter( 'jetpack_set_available_extensions', $lazy_filter, 99 );
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			remove_filter( 'jetpack_gutenberg', '__return_true' );
+			$this->set_preset_cache( null );
 			Jetpack_Gutenberg::reset();
 			if ( null !== $saved_uri ) {
 				$_SERVER['REQUEST_URI'] = $saved_uri;
@@ -1092,6 +1266,123 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			} else {
 				unset( $_SERVER['REQUEST_URI'] );
 			}
+		}
+	}
+
+	/**
+	 * Run load_block_editor_extensions() against a fixture extension and return its
+	 * entry from get_availability().
+	 *
+	 * Drives the whole observable chain rather than the gate predicate alone:
+	 * load_block_editor_extensions() -> include of the extension file ->
+	 * its jetpack_register_gutenberg_extensions callback -> get_availability(),
+	 * which is the structure Jetpack_Editor_Initial_State hands to the editor.
+	 *
+	 * Note: load_block_editor_extensions() globs and include_once's every real
+	 * extension file too (the jetpack_set_available_extensions filter narrows only
+	 * get_availability()'s output, not the include loop). Isolation therefore relies
+	 * on set_up()'s remove_all_actions( 'jetpack_register_gutenberg_extensions' ) plus
+	 * this filter, which ignores whatever those real extensions register.
+	 *
+	 * @param string $slug Fixture extension slug to expose and look up.
+	 *
+	 * @return array|null The availability entry for $slug, or null if absent.
+	 */
+	private function get_availability_after_loading_extensions( $slug ) {
+		$extensions_filter = static function () use ( $slug ) {
+			return array( $slug );
+		};
+
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_gutenberg', '__return_true' );
+		add_filter( 'jetpack_set_available_extensions', $extensions_filter, 99 );
+		Jetpack_Gutenberg::reset();
+
+		try {
+			Jetpack_Gutenberg::load_block_editor_extensions();
+
+			$availability = Jetpack_Gutenberg::get_availability();
+
+			return $availability[ $slug ] ?? null;
+		} finally {
+			remove_filter( 'jetpack_set_available_extensions', $extensions_filter, 99 );
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			remove_filter( 'jetpack_gutenberg', '__return_true' );
+			Jetpack_Gutenberg::reset();
+		}
+	}
+
+	/**
+	 * On a WordPress.com Simple REST request, an editor-only extension is loaded and
+	 * reaches get_availability() as available.
+	 *
+	 * This is the integration counterpart to
+	 * test_is_block_editor_context_is_true_for_wpcom_rest_api_request: that test proves
+	 * the predicate flips, this one proves the extension actually reaches the editor.
+	 * Without REST_API_REQUEST detection, extensions/extended-blocks/core-video is never
+	 * included, so available_blocks['core/video'] never reaches the editor and the
+	 * upgrade nudge silently disappears.
+	 */
+	public function test_wpcom_rest_api_request_loads_editor_only_extension() {
+		$fixture   = $this->create_fixture_editor_extension( 'zz-editor-extension-rest-fixture' );
+		$saved_uri = $_SERVER['REQUEST_URI'] ?? null;
+
+		// A front-end URL: only the REST_API_REQUEST constant should open the eager path.
+		$_SERVER['REQUEST_URI'] = '/sample-page/';
+		Constants::set_constant( 'REST_API_REQUEST', true );
+
+		try {
+			$entry = $this->get_availability_after_loading_extensions( $fixture['slug'] );
+
+			$this->assertIsArray( $entry, 'The fixture extension should appear in get_availability().' );
+			$this->assertTrue(
+				$entry['available'],
+				'An editor-only extension should be available on a WordPress.com Simple REST request.'
+			);
+		} finally {
+			Constants::clear_single_constant( 'REST_API_REQUEST' );
+			if ( null !== $saved_uri ) {
+				$_SERVER['REQUEST_URI'] = $saved_uri;
+			} else {
+				unset( $_SERVER['REQUEST_URI'] );
+			}
+			$this->remove_fixture_editor_extension( $fixture );
+		}
+	}
+
+	/**
+	 * The counterpart negative case: on a plain front-end request an editor-only
+	 * extension is not loaded, so it never becomes available.
+	 *
+	 * Without this the positive test above would pass even if the front-end skip in
+	 * load_block_editor_extensions() stopped working entirely.
+	 *
+	 * Uses its own fixture name because load_block_editor_extensions() includes the
+	 * file with include_once; reusing the positive test's name could leave its
+	 * already-registered callback in place within the same process.
+	 */
+	public function test_frontend_request_does_not_load_editor_only_extension() {
+		$fixture   = $this->create_fixture_editor_extension( 'zz-editor-extension-frontend-fixture' );
+		$saved_uri = $_SERVER['REQUEST_URI'] ?? null;
+
+		$_SERVER['REQUEST_URI'] = '/sample-page/';
+
+		try {
+			$entry = $this->get_availability_after_loading_extensions( $fixture['slug'] );
+
+			$this->assertIsArray( $entry, 'The fixture extension should still be listed in get_availability().' );
+			$this->assertFalse(
+				$entry['available'],
+				'An editor-only extension should not be loaded on a plain front-end request.'
+			);
+			$this->assertSame( 'missing_module', $entry['unavailable_reason'] );
+		} finally {
+			if ( null !== $saved_uri ) {
+				$_SERVER['REQUEST_URI'] = $saved_uri;
+			} else {
+				unset( $_SERVER['REQUEST_URI'] );
+			}
+			$this->remove_fixture_editor_extension( $fixture );
 		}
 	}
 

@@ -11,9 +11,7 @@ import './view.scss';
 
 if ( typeof window !== 'undefined' ) {
 	domReady( () => {
-		const blocksArray = Array.from(
-			document.querySelectorAll( '.wp-block-newspack-blocks-carousel' )
-		);
+		const blocksArray = Array.from( document.querySelectorAll( '.wp-block-newspack-blocks-carousel' ) );
 		blocksArray.forEach( block => {
 			// Initialize Swiper only when the carousel becomes visible.
 			const observer = new IntersectionObserver(

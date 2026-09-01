@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Restore PHP 7.2 compatibility for the Activity Log admin page.

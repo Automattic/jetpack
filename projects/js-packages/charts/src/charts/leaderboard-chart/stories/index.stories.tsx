@@ -19,7 +19,7 @@ import {
 	extractLegendConfig,
 	type LegendStoryControls,
 } from '../../../stories/legend-config';
-import { formatMetricValue, hexToRgba } from '../../../utils';
+import { formatMetricValue, lightenHexColor } from '../../../utils';
 import { SUBPIXEL_TOLERANCE } from '../hooks';
 import LeaderboardChart, { LeaderboardChartUnresponsive } from '../leaderboard-chart';
 import type { ChartLegendConfig, LeaderboardEntry } from '../../../types';
@@ -179,6 +179,7 @@ export const WithOverlayLabel: Story = {
 		data: sampleData,
 		withOverlayLabel: true,
 	},
+	render: args => <LeaderboardChartWithOverlayLabel { ...args } />,
 };
 
 const zeroChangeData: LeaderboardEntry[] = sampleData.map( ( entry, index ) =>
@@ -298,6 +299,7 @@ export const MissingComparisonRowsWithOverlayLabel: Story = {
 			'--a8c-charts-border-radius-leaderboard-bar': '4px',
 		},
 	},
+	render: args => <LeaderboardChartWithOverlayLabel { ...args } />,
 	parameters: {
 		docs: {
 			description: {
@@ -343,7 +345,7 @@ export const Interactive: Story = {
 			'--a8c-charts-border-radius-leaderboard-bar': '4px',
 		},
 	},
-	render: args => <LeaderboardChartWithOverlayLabelImage { ...args } />,
+	render: args => <LeaderboardChartWithOverlayLabel { ...args } />,
 	parameters: {
 		docs: {
 			description: {
@@ -363,6 +365,7 @@ export const MixedInteractivity: Story = {
 		withComparison: true,
 		withOverlayLabel: true,
 	},
+	render: args => <LeaderboardChartWithOverlayLabel { ...args } />,
 	parameters: {
 		docs: {
 			description: {
@@ -560,16 +563,21 @@ export const AdvancedFormatting: Story = {
 	},
 };
 
-const LeaderboardChartWithOverlayLabelImage = ( args: StoryArgs ) => {
+// How far the overlay-label bar travels from white toward the series color.
+//
+// The label is drawn on the bar, so at full strength the series color competes with the label text for contrast. Blended rather than passed as `rgba()`: `primaryColor` cannot carry alpha, since `resolveColor` normalizes every override through `normalizeColorToHex`, whose `formatHex()` drops it.
+const OVERLAY_LABEL_BAR_TINT = 0.08;
+
+const LeaderboardChartWithOverlayLabel = ( args: StoryArgs ) => {
 	const { getElementStyles } = useGlobalChartsContext();
 	const { color: primaryColor } = getElementStyles( {
 		index: 0,
 		overrideColor: args.primaryColor,
 	} );
 
-	const primaryColorWithAlpha = hexToRgba( primaryColor, 0.08 );
+	const tintedPrimaryColor = lightenHexColor( primaryColor, 1 - OVERLAY_LABEL_BAR_TINT );
 
-	return <LeaderboardChart { ...args } primaryColor={ primaryColorWithAlpha } />;
+	return <LeaderboardChart { ...args } primaryColor={ tintedPrimaryColor } />;
 };
 
 export const OverlayLabelWithImage: Story = {
@@ -591,7 +599,7 @@ export const OverlayLabelWithImage: Story = {
 			'--a8c-charts-border-radius-leaderboard-bar': '4px',
 		},
 	},
-	render: args => <LeaderboardChartWithOverlayLabelImage { ...args } />,
+	render: args => <LeaderboardChartWithOverlayLabel { ...args } />,
 };
 
 export const WithLegend: Story = {

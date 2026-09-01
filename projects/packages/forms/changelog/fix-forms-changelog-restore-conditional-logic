@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Restore the conditional logic entry to the 7.25.0 CHANGELOG section; it was dropped when that release was cut. Documentation only, no code change.
+
+

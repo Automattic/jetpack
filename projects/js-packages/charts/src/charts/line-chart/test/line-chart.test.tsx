@@ -1,12 +1,14 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlyphDiamond } from '@visx/glyph';
 import { createElement, createRef } from 'react';
 import { GlobalChartsProvider, defaultTheme } from '../../../providers';
+import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
 import LineChart, { LineChartUnresponsive } from '../line-chart';
-import type { SingleChartRef } from '../../private/single-chart-context';
+import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
+import type { ChartInstanceRef } from '../../private/chart-instance-context';
 
 // Mock useElementSize to return non-zero dimensions in jsdom so charts render
 const mockRefCallback = jest.fn();
@@ -498,6 +500,57 @@ describe( 'LineChart', () => {
 			expect( ticks.length ).toBeGreaterThan( 1 );
 		} );
 
+		test( 'keeps the derived month formatter when tickFormat is passed as undefined.', () => {
+			renderWithTheme( {
+				width: 800,
+				options: { axis: { x: { tickFormat: undefined } } },
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10 },
+							{ date: new Date( '2024-04-01' ), value: 20 },
+							{ date: new Date( '2024-07-01' ), value: 30 },
+							{ date: new Date( '2024-10-01' ), value: 40 },
+							{ date: new Date( '2025-03-01' ), value: 50 },
+						],
+					},
+				],
+			} );
+
+			// January is absent: formatMonthOrYearTick renders it as the year instead.
+			const ticks = screen.getAllByText( /^(Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/ );
+			expect( ticks.length ).toBeGreaterThan( 1 );
+			expect(
+				screen.queryByText( /^(February|March|April|June|July|August|September|October)$/ )
+			).not.toBeInTheDocument();
+		} );
+
+		test( 'honors an explicit tickFormat over the derived formatter.', () => {
+			renderWithTheme( {
+				width: 800,
+				options: {
+					axis: {
+						x: {
+							tickFormat: ( date: Date | number ) =>
+								`tick-${ new Date( Number( date ) ).getUTCMonth() }`,
+						},
+					},
+				},
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10 },
+							{ date: new Date( '2024-07-01' ), value: 30 },
+						],
+					},
+				],
+			} );
+
+			expect( screen.getAllByText( /^tick-\d+$/ ).length ).toBeGreaterThan( 0 );
+		} );
+
 		test( 'renders ticks in year format.', () => {
 			renderWithTheme( {
 				width: 800,
@@ -902,7 +955,7 @@ describe( 'LineChart', () => {
 
 	describe( 'Chart Ref Interface', () => {
 		test( 'exposes getScales method via ref', () => {
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			renderUnwrappedWithTheme( {}, 'default', ref );
 
 			expect( ref.current?.getScales() ).toBeDefined();
@@ -911,7 +964,7 @@ describe( 'LineChart', () => {
 		} );
 
 		test( 'exposes getChartDimensions method via ref', () => {
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			renderUnwrappedWithTheme( { width: 800, height: 400 }, 'default', ref );
 
 			const dimensions = ref.current?.getChartDimensions();
@@ -1097,6 +1150,53 @@ describe( 'LineChart', () => {
 
 				await user.tab();
 				expect( chart ).toHaveFocus();
+			} );
+		} );
+
+		describe( 'Activation', () => {
+			const SERIES_A = {
+				label: 'Series A',
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 10 },
+					{ date: new Date( '2024-01-02' ), value: 20 },
+				],
+				options: {},
+			};
+			const SERIES_B = {
+				label: 'Series B',
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 15 },
+					{ date: new Date( '2024-01-02' ), value: 25 },
+				],
+				options: {},
+			};
+
+			// Navigation steps through x positions; the first series names the point.
+			test( 'Enter hands the selected point to onDatumActivate', async () => {
+				const user = userEvent.setup();
+				const onDatumActivate = jest.fn();
+				renderWithTheme( { data: [ SERIES_A, SERIES_B ], onDatumActivate } );
+
+				screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}{ArrowRight}{Enter}' );
+
+				expect( onDatumActivate ).toHaveBeenCalledTimes( 1 );
+				expect( onDatumActivate ).toHaveBeenCalledWith( {
+					datum: SERIES_A.data[ 1 ],
+					index: 1,
+					key: 'Series A',
+				} );
+			} );
+
+			test( 'Enter with no point selected activates nothing', async () => {
+				const user = userEvent.setup();
+				const onDatumActivate = jest.fn();
+				renderWithTheme( { data: [ SERIES_A ], onDatumActivate } );
+
+				screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+				await user.keyboard( '{Enter}' );
+
+				expect( onDatumActivate ).not.toHaveBeenCalled();
 			} );
 		} );
 
@@ -1298,7 +1398,7 @@ describe( 'LineChart', () => {
 			expect( buttons ).toHaveLength( 0 );
 		} );
 
-		it( 'shows all series when chartId is missing even if legendInteractive is true', () => {
+		it( 'shows all series when nothing has been hidden', () => {
 			render(
 				<GlobalChartsProvider>
 					<LineChartUnresponsive
@@ -1316,6 +1416,136 @@ describe( 'LineChart', () => {
 			legendItems.forEach( item => {
 				expect( item ).toHaveAttribute( 'aria-pressed', 'true' );
 			} );
+		} );
+
+		it( 'hides a series programmatically when the legend is not interactive', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-line"
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.queryByText( /all series are hidden/i ) ).not.toBeInTheDocument();
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-programmatic-line', 'Series A' );
+				context.toggleSeriesVisibility( 'test-programmatic-line', 'Series B' );
+			} );
+
+			expect( screen.getByText( /all series are hidden/i ) ).toBeInTheDocument();
+		} );
+
+		it( 'omits the click instruction when the legend cannot be clicked', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-empty-copy-line"
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-empty-copy-line', 'Series A' );
+			} );
+
+			expect( screen.getByText( 'All series are hidden.' ) ).toBeInTheDocument();
+			expect( screen.queryByText( /click legend items/i ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'pins the value axis across a programmatic hide when rescaleYOnVisibilityChange is false', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+			const ref = createRef< ChartInstanceRef >();
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-pin-line"
+						rescaleYOnVisibilityChange={ false }
+						ref={ ref }
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 200, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const before = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( before ).toBeDefined();
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-programmatic-pin-line', 'Series B' );
+			} );
+
+			const after = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( after ).toEqual( before );
 		} );
 	} );
 
@@ -1521,6 +1751,131 @@ describe( 'LineChart', () => {
 			expect(
 				screen.getByText( /all series are hidden.*click legend items to show data/i )
 			).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'defaultHiddenSeries', () => {
+		it( 'renders a series hidden when named in defaultHiddenSeries', () => {
+			render(
+				<GlobalChartsProvider>
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						showLegend={ true }
+						legend={ { interactive: true } }
+						chartId="test-default-hidden-line"
+						defaultHiddenSeries={ [ 'Series B' ] }
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const items = screen.getAllByRole( 'button' );
+			expect( items[ 0 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+			expect( items[ 1 ] ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
+
+		it( 'lets the user reveal a series seeded hidden', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						showLegend={ true }
+						legend={ { interactive: true } }
+						chartId="test-default-hidden-reveal-line"
+						defaultHiddenSeries={ [ 'Series B' ] }
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			await user.click( screen.getAllByRole( 'button' )[ 1 ] );
+
+			expect( screen.getAllByRole( 'button' )[ 1 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
+
+		it( 'keeps a revealed series visible after a data change', async () => {
+			// Matters specifically at chart level: useChartRegistration unregisters and
+			// re-registers whenever legendItems change, which a data prop change triggers.
+			// A hook-level harness has no registration at all, so it can't catch a
+			// regression where re-registration re-triggers the seeding effect.
+			const user = userEvent.setup();
+			const chartId = 'test-default-hidden-data-change-line';
+
+			const makeData = ( seriesAValue: number ) => [
+				{
+					label: 'Series A',
+					data: [ { date: new Date( '2024-01-01' ), value: seriesAValue, label: 'Jan 1' } ],
+					options: {},
+				},
+				{
+					label: 'Series B',
+					data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+					options: {},
+				},
+			];
+
+			const { rerender } = render(
+				<GlobalChartsProvider>
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						showLegend={ true }
+						legend={ { interactive: true } }
+						chartId={ chartId }
+						defaultHiddenSeries={ [ 'Series B' ] }
+						data={ makeData( 10 ) }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			await user.click( screen.getAllByRole( 'button' )[ 1 ] );
+			expect( screen.getAllByRole( 'button' )[ 1 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+
+			rerender(
+				<GlobalChartsProvider>
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						showLegend={ true }
+						legend={ { interactive: true } }
+						chartId={ chartId }
+						defaultHiddenSeries={ [ 'Series B' ] }
+						data={ makeData( 30 ) }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.getAllByRole( 'button' )[ 1 ] ).toHaveAttribute( 'aria-pressed', 'true' );
 		} );
 	} );
 } );

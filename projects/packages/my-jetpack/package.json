@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "5.41.1",
+	"version": "6.0.0",
 	"private": true,
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
@@ -52,21 +52,21 @@
 		"@tanstack/react-query": "5.101.2",
 		"@wordpress/api-fetch": "7.51.0",
 		"@wordpress/components": "37.0.0",
-		"@wordpress/compose": "8.4.0",
+		"@wordpress/compose": "8.6.0",
 		"@wordpress/data": "10.51.0",
-		"@wordpress/dataviews": "17.3.0",
+		"@wordpress/dataviews": "18.0.0",
 		"@wordpress/date": "5.51.0",
 		"@wordpress/element": "8.3.0",
 		"@wordpress/i18n": "6.24.0",
-		"@wordpress/icons": "15.3.0",
-		"@wordpress/theme": "1.1.0",
-		"@wordpress/ui": "0.19.0",
+		"@wordpress/icons": "15.4.0",
+		"@wordpress/theme": "1.2.0",
+		"@wordpress/ui": "0.20.0",
 		"@wordpress/url": "4.51.0",
 		"clsx": "2.1.1",
 		"debug": "4.4.3",
 		"gridicons": "3.4.3",
 		"prop-types": "15.8.1",
-		"react-router": "7.18.0"
+		"react-router": "7.18.2"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
@@ -83,7 +83,7 @@
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/browserslist-config": "6.51.0",
 		"autoprefixer": "10.4.20",
-		"concurrently": "10.0.3",
+		"concurrently": "10.0.5",
 		"jest": "30.4.2",
 		"postcss": "8.5.23",
 		"postcss-loader": "8.2.0",
@@ -96,6 +96,6 @@
 		"typescript": "6.0.3",
 		"webpack": "5.107.2",
 		"webpack-cli": "7.2.1",
-		"webpack-dev-server": "5.2.6"
+		"webpack-dev-server": "6.0.0"
 	}
 }
