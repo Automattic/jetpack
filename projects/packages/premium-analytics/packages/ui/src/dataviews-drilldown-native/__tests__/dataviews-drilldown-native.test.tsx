@@ -85,6 +85,16 @@ describe( 'DataViewsDrilldownNative collapse', () => {
 		expect( screen.queryByRole( 'button', { name: 'Bing' } ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'puts the toggle after the title', () => {
+		renderTable( { collapsible: true } );
+		const toggle = screen.getByRole( 'button', { name: 'Search Engines' } );
+
+		/* eslint-disable testing-library/no-node-access -- DOM order is the assertion. */
+		expect( toggle.previousSibling?.textContent ).toBe( 'Search Engines' );
+		expect( toggle.nextSibling ).not.toBeInTheDocument();
+		/* eslint-enable testing-library/no-node-access */
+	} );
+
 	it( 'names the toggle from the row value when the field has no getValue', () => {
 		// DataViews' own default: a field without `getValue` reads `item[field.id]`.
 		const bare: Field< Row >[] = [
