@@ -181,7 +181,7 @@ export default function DownloadScreen() {
 					 */ }
 					{ isPreparing && (
 						<Stack direction="column" gap="sm">
-							<Text>{ __( 'Preparing download…', 'jetpack-backup-pkg' ) }</Text>
+							<Text role="status">{ __( 'Preparing download…', 'jetpack-backup-pkg' ) }</Text>
 							{ state.phase === 'progress' ? (
 								<ProgressBar
 									value={ state.percent }

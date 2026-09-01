@@ -88,6 +88,25 @@ describe( 'the Restore screen during a running restore', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
+	it( 'announces that the restore started, and only that line', async () => {
+		arrange( 0, 'Checking remote files: 22396' );
+		render( <RestoreStage /> );
+
+		await startRestore();
+		// Wait for the phase first: the idle branch's own `role="status"` is still
+		// mounted, empty, until the submission settles.
+		await expect(
+			screen.findByText( '0% complete', undefined, SETTLE )
+		).resolves.toBeInTheDocument();
+
+		// Exact, not `toHaveTextContent`: that matches a substring on any ancestor,
+		// so it passes with the role moved onto the whole block — which is the
+		// re-announce-every-poll regression this scoping exists to prevent.
+		await expect( screen.findByRole( 'status', undefined, SETTLE ) ).resolves.toHaveTextContent(
+			/^Restoring…$/
+		);
+	} );
+
 	// Both figures, so a hardcoded `0%` cannot pass: the preflight pins it at
 	// zero, but the readout has to track the real value once it moves.
 	it.each( [ 0, 42 ] )( 'reports %i%% complete beside the bar', async percent => {

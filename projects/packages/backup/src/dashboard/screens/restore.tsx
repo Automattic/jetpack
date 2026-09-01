@@ -204,7 +204,11 @@ export default function RestoreScreen() {
 					) }
 					{ state.phase === 'progress' && (
 						<Stack direction="column" gap="sm">
-							<Text>{ __( 'Restoring…', 'jetpack-backup-pkg' ) }</Text>
+							{ /*
+							 * Scoped to this line, not the block: the percentage and message
+							 * below change on every 5s poll and would re-announce with it.
+							 */ }
+							<Text role="status">{ __( 'Restoring…', 'jetpack-backup-pkg' ) }</Text>
 							<ProgressBar
 								value={ state.percent }
 								aria-label={ __( 'Restoring your site', 'jetpack-backup-pkg' ) }

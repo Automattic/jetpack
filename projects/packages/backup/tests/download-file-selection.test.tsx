@@ -352,6 +352,17 @@ describe( 'Download screen with a file selection', () => {
 		expect( screen.queryByRole( 'button', { name: /Generate download/ } ) ).not.toBeInTheDocument();
 	} );
 
+	// The bare role query is unambiguous: the checklist branch that carries the
+	// screen's other `role="status"` never renders alongside a file selection.
+	it( 'announces that the archive is being prepared, and only that line', async () => {
+		render( <DownloadStage /> );
+
+		// Exact, for the reason given in `restore-progress-message.test.tsx`.
+		await expect( screen.findByRole( 'status', undefined, SETTLE ) ).resolves.toHaveTextContent(
+			/^Preparing download…$/
+		);
+	} );
+
 	it( 'asks WordPress.com for the archive once, without being clicked', async () => {
 		render( <DownloadStage /> );
 
