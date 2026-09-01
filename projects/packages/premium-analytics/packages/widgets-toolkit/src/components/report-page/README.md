@@ -38,11 +38,19 @@ const label = __( 'All pages' );
   the section header, and stacked sections.
   `ReportPageSection` is the bordered card each section renders in.
 
+- **`ReportChartSection`** — a chart in its own card, with the footer control
+  that collapses it. Every chart above a records table renders through it, so
+  the toggle reads and behaves the same on every report. The collapsed state
+  lasts as long as the section stays mounted: hiding a chart is a per-visit
+  preference, not a stored one.
 - **`ReportPerformanceChart`** — the multi-metric visits chart
   (Views/Visitors/Comments/Likes via `useStatsVisits` `stat_fields`), with a
-  metric show/hide menu, the time-bucket selector (owned by the page — it
-  changes the query), and a collapse toggle. With exactly one visible metric
-  and comparison data, the previous period draws as a dashed overlay.
+  metric show/hide menu and the time-bucket selector (owned by the page — it
+  changes the query). With exactly one visible metric and comparison data, the
+  previous period draws as a dashed overlay.
+- **`ReportLocationsMap`** — the Locations report's map of views by location,
+  over the rows the records table already fetched. It renders the shared
+  `LocationsGeoChart`, which the Locations dashboard widget also uses.
 - **`ReportRecordsTable`** — a Core DataViews table over the module's
   summarized rows; search, sorting, column config, and pagination run
   client-side via `filterSortAndPaginate`.
