@@ -1,0 +1,132 @@
+import { runTestsInTimeZone } from '../../../test-utils/runtime-time-zone';
+import { buildTimeAxisOptions } from '../time-axis-options';
+import type { SeriesData } from '../../../types';
+
+runTestsInTimeZone( 'America/Los_Angeles' );
+
+const TOKYO = { timeZone: 'Asia/Tokyo' };
+
+/**
+ * One series of daily points starting at `start`, `count` long.
+ * @param start - ISO instant of the first point.
+ * @param count - Number of points.
+ * @return A single-series fixture.
+ */
+const dailySeries = ( start: string, count: number ): SeriesData[] => [
+	{
+		label: 'views',
+		data: Array.from( { length: count }, ( _, index ) => ( {
+			date: new Date( new Date( start ).getTime() + index * 24 * 60 * 60 * 1000 ),
+			value: index,
+		} ) ),
+	},
+];
+
+const build = ( overrides: Partial< Parameters< typeof buildTimeAxisOptions >[ 0 ] > = {} ) =>
+	buildTimeAxisOptions( {
+		dataSorted: dailySeries( '2026-08-01T15:00:00Z', 30 ),
+		width: 600,
+		axisOptions: { tickResolution: 'day' },
+		scaleDomain: undefined,
+		zoomDomain: undefined,
+		formatting: TOKYO,
+		...overrides,
+	} );
+
+describe( 'buildTimeAxisOptions', () => {
+	it( 'selects tick values instead of leaving the count to d3', () => {
+		const axis = build();
+
+		expect( Array.isArray( axis.tickValues ) ).toBe( true );
+		expect( ( axis.tickValues as Date[] ).length ).toBeGreaterThan( 1 );
+	} );
+
+	it( 'confines tick values to the zoom window', () => {
+		const zoomDomain: [ Date, Date ] = [
+			new Date( '2026-08-10T15:00:00Z' ),
+			new Date( '2026-08-14T15:00:00Z' ),
+		];
+
+		const ticks = build( { zoomDomain } ).tickValues as Date[];
+
+		expect( ticks.length ).toBeGreaterThan( 0 );
+		for ( const tick of ticks ) {
+			expect( tick.getTime() ).toBeGreaterThanOrEqual( zoomDomain[ 0 ].getTime() );
+			expect( tick.getTime() ).toBeLessThanOrEqual( zoomDomain[ 1 ].getTime() );
+		}
+	} );
+
+	it( 'prefers the zoom window over a caller scale domain', () => {
+		const scaleDomain: [ Date, Date ] = [
+			new Date( '2026-08-01T15:00:00Z' ),
+			new Date( '2026-08-30T15:00:00Z' ),
+		];
+		const zoomDomain: [ Date, Date ] = [
+			new Date( '2026-08-10T15:00:00Z' ),
+			new Date( '2026-08-12T15:00:00Z' ),
+		];
+
+		const ticks = build( { scaleDomain, zoomDomain } ).tickValues as Date[];
+
+		for ( const tick of ticks ) {
+			expect( tick.getTime() ).toBeLessThanOrEqual( zoomDomain[ 1 ].getTime() );
+		}
+	} );
+
+	it( 'confines tick values to a caller scale domain when there is no zoom', () => {
+		const scaleDomain: [ Date, Date ] = [
+			new Date( '2026-08-05T15:00:00Z' ),
+			new Date( '2026-08-08T15:00:00Z' ),
+		];
+
+		const ticks = build( { scaleDomain } ).tickValues as Date[];
+
+		for ( const tick of ticks ) {
+			expect( tick.getTime() ).toBeGreaterThanOrEqual( scaleDomain[ 0 ].getTime() );
+			expect( tick.getTime() ).toBeLessThanOrEqual( scaleDomain[ 1 ].getTime() );
+		}
+	} );
+
+	it( 'caps the selection at a caller numTicks', () => {
+		const axis = build( { axisOptions: { tickResolution: 'day', numTicks: 3 } } );
+
+		expect( ( axis.tickValues as Date[] ).length ).toBeLessThanOrEqual( 3 );
+	} );
+
+	it( 'caps the selection by width when no numTicks is given', () => {
+		const narrow = build( { width: 180 } ).tickValues as Date[];
+		const wide = build( { width: 900 } ).tickValues as Date[];
+
+		expect( narrow.length ).toBeLessThan( wide.length );
+	} );
+
+	it( 'selects nothing when the caller supplies its own tickFormat', () => {
+		const axis = build( {
+			axisOptions: { tickResolution: 'day', tickFormat: () => 'x' },
+		} );
+
+		expect( axis.tickValues ).toBeUndefined();
+		expect( axis.tickFormat?.( new Date(), 0, [] ) ).toBe( 'x' );
+	} );
+
+	it( "lets a caller's own tickValues win", () => {
+		const mine = [ new Date( '2026-08-05T15:00:00Z' ) ];
+
+		const axis = build( { axisOptions: { tickResolution: 'day', tickValues: mine } } );
+
+		expect( axis.tickValues ).toBe( mine );
+	} );
+
+	it( 'labels ticks in the host time zone', () => {
+		// 2026-08-02T15:30Z is Aug 2 in Los Angeles and Aug 3 in Tokyo.
+		const axis = build( { formatting: { locale: 'de-DE', timeZone: 'Asia/Tokyo' } } );
+
+		expect( axis.tickFormat?.( new Date( '2026-08-02T15:30:00Z' ), 0, [] ) ).toBe( '3. Aug.' );
+	} );
+
+	it( 'falls back to the runtime locale and zone when no formatting is supplied', () => {
+		const axis = build( { formatting: {} } );
+
+		expect( axis.tickFormat?.( new Date( '2026-08-02T15:30:00Z' ), 0, [] ) ).toBe( 'Aug 2' );
+	} );
+} );
