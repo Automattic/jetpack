@@ -12,6 +12,36 @@
  */
 
 /**
+ * Prevent General Settings from overwriting Jetpack AI settings it does not render.
+ *
+ * Remove this after Simple sites run a Jetpack version that registers these
+ * options outside the general settings group.
+ *
+ * @param array $allowed_options Allowed options grouped by settings page.
+ * @return array
+ */
+function jetpack_mu_wpcom_exclude_jetpack_ai_settings_from_general_options( $allowed_options ) {
+	if ( ! isset( $allowed_options['general'] ) || ! is_array( $allowed_options['general'] ) ) {
+		return $allowed_options;
+	}
+
+	$jetpack_ai_options = array(
+		'jetpack_ai_enabled',
+		'jetpack_ai_writing_assistant_enabled',
+		'jetpack_ai_image_editor_enabled',
+		'jetpack_ai_feature_clip_enabled',
+		'jetpack_ai_seo_enabled',
+	);
+
+	$allowed_options['general'] = array_values( array_diff( $allowed_options['general'], $jetpack_ai_options ) );
+
+	return $allowed_options;
+}
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	add_filter( 'allowed_options', 'jetpack_mu_wpcom_exclude_jetpack_ai_settings_from_general_options', 20 );
+}
+
+/**
  * Conditionally load the jetpack-mu-wpcom package.
  *
  * JETPACK_MU_WPCOM_LOAD_VIA_BETA_PLUGIN=true will load the package via the Jetpack Beta Tester plugin, not wpcomsh.
