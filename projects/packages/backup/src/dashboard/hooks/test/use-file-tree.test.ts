@@ -72,9 +72,8 @@ describe( 'toFileNode', () => {
 	// unsendable however carefully the tree tracked it.
 	test.each( [
 		[ 'file', file( { id: 'ZjY6L2luZGV4LnBocA==' } ), 'ZjY6L2luZGV4LnBocA==' ],
-		// `cjI6,ZjI6Lw==` is a real fixture shape: an id can contain a
-		// comma, which is why the include list is a comma-joined string
-		// upstream flattens rather than a list of discrete values.
+		// A folder id: two entry ids joined on upstream's own separator,
+		// not one value that contains a comma.
 		[ 'folder', file( { type: 'dir', id: 'cjI6,ZjI6Lw==' } ), 'cjI6,ZjI6Lw==' ],
 	] )( 'carries the ls entry id through for a %s', ( _label, raw, expected ) => {
 		expect( toFileNode( 'index.php', raw as WpcomFileNode, '/' ) ).toMatchObject( {
