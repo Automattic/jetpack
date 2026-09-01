@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings as getDateSettings, setSettings as setDateSettings } from '@wordpress/date';
 import analytics from 'lib/analytics';
@@ -9,6 +10,9 @@ import { depletedPayload, freePayload, tieredPayload, unlimitedPayload } from '.
 // The usage hook fetches through @wordpress/api-fetch; stub it so nothing
 // hits the network and each test controls the response.
 jest.mock( '@wordpress/api-fetch' );
+// The card announces the start and the end of the usage fetch through
+// @wordpress/a11y's persistent live regions; stub it so both are assertable.
+jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ) );
 // The component imports the webpack-aliased 'lib/analytics', which does not
 // resolve under jest; provide it virtually.
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
@@ -289,12 +293,15 @@ describe( 'AiOverview', () => {
 		expect( upgrade ).toHaveAttribute( 'href', 'https://example.com/upgrade' );
 	} );
 
-	test( 'loading: the usage card shows a spinner while docs and activity render immediately', () => {
+	test( 'loading: the usage card shows a skeleton while docs and activity render immediately', () => {
 		// A held promise keeps the usage fetch in flight for the whole test.
 		apiFetch.mockReturnValueOnce( new Promise( () => {} ) );
 
 		render( <AiOverview { ...PROPS } /> );
 
+		// The placeholder bars are decorative (Skeleton sets aria-hidden), so the
+		// loading state is announced rather than mounted as a live region.
+		expect( speak ).toHaveBeenCalledWith( 'Loading your AI usage…', 'polite' );
 		// The remote usage call must not block the static sections.
 		expect( screen.getByRole( 'link', { name: /Activity log/ } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /MCP integration guide/ } ) ).toBeInTheDocument();
@@ -580,5 +587,74 @@ describe( 'AiOverview', () => {
 			expect( card ).toHaveAttribute( 'target', '_blank' );
 			expect( card ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 		}
+	} );
+	test( 'loading: announces the usage summary once the fetch lands', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+		// Removing a live region announces nothing, so completion has to be spoken.
+		expect( speak ).toHaveBeenCalledWith( '8 of 20 requests available', 'polite' );
+	} );
+
+	test( 'loading: a site that already names a plan gets the standard placeholder', () => {
+		// A held promise keeps the usage fetch in flight for the whole test.
+		apiFetch.mockReturnValueOnce( new Promise( () => {} ) );
+
+		const { container } = render( <AiOverview { ...PROPS } planName="Jetpack Complete" /> );
+
+		// showUpsell needs the response, so the shape is guessed from the props.
+		// A named plan means no upgrade is being sold, and the placeholder must not
+		// promise a tall upsell the card will then collapse out of.
+		/* eslint-disable testing-library/no-container, testing-library/no-node-access --
+		   The placeholder bars are decorative and aria-hidden, so Testing Library
+		   has no query that reaches them; the layout class is the only handle. */
+		expect( container.querySelector( '.jetpack-ai-overview__card--upsell' ) ).toBeNull();
+		expect( container.querySelector( '.jetpack-ai-overview__usage' ) ).not.toBeNull();
+		/* eslint-enable testing-library/no-container, testing-library/no-node-access */
+	} );
+
+	test( 'section order: the activity log sits below the walkthrough videos', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+
+		const videos = screen.getByRole( 'heading', { level: 2, name: 'Walkthrough videos' } );
+		const activityLog = screen.getByRole( 'link', { name: /Activity log/ } );
+		const docs = screen.getByRole( 'heading', { level: 2, name: 'Documentation' } );
+
+		// DOCUMENT_POSITION_FOLLOWING === 4.
+		expect( videos.compareDocumentPosition( activityLog ) ).toBe( 4 );
+		expect( activityLog.compareDocumentPosition( docs ) ).toBe( 4 );
+	} );
+
+	test( 'quick start: each connector row carries its own mark', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+
+		// A missing icon entry still renders the row, just with nothing in the icon
+		// slot, so the mark itself has to be asserted. It is decorative and
+		// aria-hidden by design, so Testing Library has no query that reaches it.
+		/* eslint-disable testing-library/no-node-access */
+		const marks = [ 'Connect ChatGPT', 'Connect Claude' ].map( name =>
+			screen.getByRole( 'link', { name: new RegExp( name ) } ).querySelector( 'svg' )
+		);
+
+		for ( const mark of marks ) {
+			// Inset on a 28px canvas rather than the icons' usual 24px grid.
+			expect( mark ).toHaveAttribute( 'viewBox', '-4 -4 32 32' );
+			expect( mark ).toHaveAttribute( 'width', '28' );
+		}
+
+		// The two rows must not share one mark.
+		const paths = marks.map( mark => mark.querySelector( 'path' ).getAttribute( 'd' ) );
+		/* eslint-enable testing-library/no-node-access */
+		expect( paths[ 0 ] ).not.toBe( paths[ 1 ] );
 	} );
 } );

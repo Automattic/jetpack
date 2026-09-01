@@ -1,9 +1,95 @@
 .jetpack-ai-overview {
 
-	&__loading {
-		display: flex;
-		justify-content: center;
-		padding-block: var(--wpds-dimension-padding-lg, 16px);
+	// Loading state. The bars sit in the loaded card's own grid, and each one
+	// reserves its whole line box through symmetric margins while painting at
+	// text weight — so the column is exactly as tall as the copy it stands in
+	// for without the placeholders reading as slabs. The line boxes are the ui
+	// Text variants' own, which pair a font size with a *smaller* line-height
+	// token: heading-lg and body-md are 20px, heading-sm is 16px. Skeleton
+	// brings its own pulse, reduced-motion and forced-colors handling; only
+	// geometry belongs here.
+	&__skeleton-icon {
+		// Matches <AiIcon size={ 28 } /> in the loaded card. No 28px token exists
+		// (size-sm is 24, size-md 32), so this tracks the component, not the scale.
+		inline-size: 28px;
+		block-size: 28px;
+		border-radius: var(--wpds-border-radius-md, 4px);
+	}
+
+	// Bar thickness sits a little under each variant's font size — enough to
+	// read as a line of text, not as a filled box. The margins are the leftover
+	// half-leading, so the outer height is the line box exactly.
+	&__skeleton-line {
+		// Fully rounded ends: at text weight a pill reads as a line of copy,
+		// where a 4px corner reads as a small box.
+		border-radius: 999px;
+
+		// heading-lg: a 20px line box, plus the 8px the real <h2> carries above it.
+		&--title {
+			inline-size: 52%;
+			block-size: 14px;
+			margin-block: 3px;
+			margin-block-start: calc(3px + var(--wpds-dimension-gap-sm, 8px));
+		}
+
+		// The copy is a single two-line body-md paragraph — 20px a line, so 40px —
+		// but it takes two bars with the column's 8px gap between them. 16px each.
+		&--copy {
+			block-size: 10px;
+			margin-block: 3px;
+		}
+
+		// Roughly where the real second line ends.
+		&--copy-short {
+			inline-size: 76%;
+		}
+
+		// heading-sm: a 16px line box. Pinned to the top of the cell exactly as the
+		// real eyebrow is, so the readout below it stays bottom-anchored.
+		&--eyebrow {
+			inline-size: 44%;
+			block-size: 8px;
+			margin-block: 4px;
+			margin-block-end: auto;
+		}
+
+		// heading-xl, which this file lifts to a 32px line box (see __requests-value
+		// below). Narrow, because the number it stands in for is two digits.
+		&--value {
+			inline-size: 18%;
+			block-size: 20px;
+			margin-block: 6px;
+		}
+	}
+
+	// The meter runs the full width under the number. Unlike the real one it
+	// keeps the column's gap: the live meter tucks up 8px into the whitespace
+	// under the digits' baseline, but a placeholder bar has no whitespace to
+	// tuck into, so the same pull would sit it on top of the bar above.
+	&__skeleton-meter {
+		block-size: 4px;
+		// Pill, as above — at 4px the radius only softens the ends.
+		border-radius: 999px;
+	}
+
+	// Stands in for the Upgrade button: the ui Button's own default height, and
+	// a gap-sized margin that takes back the pull the real meter above it has.
+	&__skeleton-cta {
+		inline-size: 88px;
+		block-size: var(--wpds-dimension-size-lg, 40px);
+		margin-block-start: var(--wpds-dimension-gap-sm, 8px);
+		border-radius: var(--wpds-border-radius-sm, 2px);
+	}
+
+	// The resolved card fades up in place of the skeleton it replaces, so the
+	// text arrives rather than snapping in.
+	&__fade-in {
+
+		@media (prefers-reduced-motion: no-preference) {
+			animation:
+				jetpack-ai-overview-fade-in var(--wpds-motion-duration-lg, 300ms)
+				var(--wpds-motion-easing-balanced, cubic-bezier(0.4, 0, 0.2, 1));
+		}
 	}
 
 	// The i4 usage card: two equal cells split by a hairline divider —
@@ -105,7 +191,7 @@
 	// Doubled class beats the component's runtime-injected rules by order.
 	&__upsell-cta#{&}__upsell-cta {
 		align-self: flex-start;
-		margin-block-start: var(--wpds-dimension-gap-lg, 14px);
+		margin-block-start: var(--wpds-dimension-gap-lg, 16px);
 	}
 
 	&__muted {
@@ -235,5 +321,16 @@
 		overflow: hidden;
 		background-color: var(--wpds-color-background-interactive-neutral-weak-active, #ededed);
 		--wp-components-color-foreground: var(--wpds-color-foreground-interactive-brand, #3858e9);
+	}
+}
+
+@keyframes jetpack-ai-overview-fade-in {
+
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
 	}
 }

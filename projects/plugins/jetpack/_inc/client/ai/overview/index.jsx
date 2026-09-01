@@ -5,15 +5,17 @@
  */
 
 import { AiIcon, getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink, ProgressBar, Spinner, VisuallyHidden } from '@wordpress/components';
+import { speak } from '@wordpress/a11y';
+import { ExternalLink, ProgressBar, VisuallyHidden } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
-import { connection, list } from '@wordpress/icons';
-import { Card, Link, LinkButton, Notice, Stack, Text } from '@wordpress/ui';
+import { list } from '@wordpress/icons';
+import { Card, Link, LinkButton, Notice, Skeleton, Stack, Text } from '@wordpress/ui';
 import NavRow from '../components/nav-row';
 import { EVENTS, recordAiHubEvent, useRecordOnce } from '../tracks';
 import AssistantBanner from './assistant-banner';
+import { chatGptIcon, claudeIcon } from './connector-icons';
 import buildPageThumb from './images/build-page.webp';
 import connectClaudeThumb from './images/connect-claude.webp';
 import mediaLibraryThumb from './images/media-library.webp';
@@ -29,11 +31,13 @@ const QUICK_START = [
 		slug: 'jetpack-ai-hub-overview-quick-start-chatgpt',
 		title: __( 'Connect ChatGPT', 'jetpack' ),
 		description: __( 'Give ChatGPT access to your site by installing the connector.', 'jetpack' ),
+		icon: chatGptIcon,
 	},
 	{
 		slug: 'jetpack-ai-hub-overview-quick-start-claude',
 		title: __( 'Connect Claude', 'jetpack' ),
 		description: __( 'Give Claude access to your site by installing the connector.', 'jetpack' ),
+		icon: claudeIcon,
 	},
 ];
 
@@ -91,6 +95,83 @@ const DOC_LINKS = [
 ];
 
 /**
+ * The one sentence that states usage in words. Screen readers get this instead
+ * of the loose value/limit pair, and it is also what gets announced when the
+ * fetch lands. Separate returns rather than a ternary: terser merges
+ * `cond ? __( 'a' ) : __( 'b' )` into one call with a non-literal msgid, which
+ * fails the i18n check at build time.
+ *
+ * @param {object} usage - Normalized usage from normalizeUsage().
+ * @return {string} The summary, or '' when there are no numbers to state.
+ */
+function usageSummary( usage ) {
+	if ( usage.unlimited ) {
+		return __( 'Unlimited requests', 'jetpack' );
+	}
+	if ( usage.requestsAvailable === null || ! ( usage.requestsLimit > 0 ) ) {
+		return '';
+	}
+	return sprintf(
+		/* translators: %1$d: requests still available. %2$d: total requests in the plan. */
+		__( '%1$d of %2$d requests available', 'jetpack' ),
+		usage.requestsAvailable,
+		usage.requestsLimit
+	);
+}
+
+/**
+ * Placeholder for the upsell layout: icon and pitch on the left, requests
+ * readout and Upgrade button on the right. Reuses the loaded card's own grid
+ * classes, and every bar reserves its whole line box, so the card is already
+ * the height it will be once the text arrives.
+ *
+ * @return {object} Component markup.
+ */
+function UpsellSkeleton() {
+	return (
+		<div className="jetpack-ai-overview__upsell">
+			<div className="jetpack-ai-overview__upsell-content">
+				<div className="jetpack-ai-overview__upsell-icon">
+					<Skeleton className="jetpack-ai-overview__skeleton-icon" />
+				</div>
+				<Skeleton className="jetpack-ai-overview__skeleton-line jetpack-ai-overview__skeleton-line--title" />
+				<Skeleton className="jetpack-ai-overview__skeleton-line jetpack-ai-overview__skeleton-line--copy" />
+				<Skeleton className="jetpack-ai-overview__skeleton-line jetpack-ai-overview__skeleton-line--copy jetpack-ai-overview__skeleton-line--copy-short" />
+			</div>
+			<div className="jetpack-ai-overview__usage-cell">
+				<Skeleton className="jetpack-ai-overview__skeleton-line jetpack-ai-overview__skeleton-line--eyebrow" />
+				<Skeleton className="jetpack-ai-overview__skeleton-line jetpack-ai-overview__skeleton-line--value" />
+				<Skeleton className="jetpack-ai-overview__skeleton-meter" />
+				<Skeleton className="jetpack-ai-overview__skeleton-cta" />
+			</div>
+		</div>
+	);
+}
+
+/**
+ * Placeholder for the standard two-cell layout: requests over the meter on the
+ * left, plan on the right. Used whenever no upgrade can be offered, so those
+ * sites do not watch a tall upsell-shaped card collapse into a short one.
+ *
+ * @return {object} Component markup.
+ */
+function UsageSkeleton() {
+	return (
+		<div className="jetpack-ai-overview__usage">
+			<div className="jetpack-ai-overview__usage-cell">
+				<Skeleton className="jetpack-ai-overview__skeleton-line jetpack-ai-overview__skeleton-line--eyebrow" />
+				<Skeleton className="jetpack-ai-overview__skeleton-line jetpack-ai-overview__skeleton-line--value" />
+				<Skeleton className="jetpack-ai-overview__skeleton-meter" />
+			</div>
+			<div className="jetpack-ai-overview__usage-cell jetpack-ai-overview__usage-cell--plan">
+				<Skeleton className="jetpack-ai-overview__skeleton-line jetpack-ai-overview__skeleton-line--eyebrow" />
+				<Skeleton className="jetpack-ai-overview__skeleton-line jetpack-ai-overview__skeleton-line--value" />
+			</div>
+		</div>
+	);
+}
+
+/**
  * The "Available requests" readout shared by the standard card and the
  * upsell: eyebrow, one hidden translatable summary sentence, the
  * decorative value/limit pair, and the decorative meter.
@@ -103,15 +184,7 @@ function RequestsMeter( { usage } ) {
 	const hasNumbers = usage.requestsAvailable !== null && usage.requestsLimit > 0;
 	// One translatable sentence for screen readers; the visible value/limit
 	// pair and the meter are its visual restatements.
-	const srSummary = usage.unlimited
-		? __( 'Unlimited requests', 'jetpack' )
-		: hasNumbers &&
-		  sprintf(
-				/* translators: %1$d: requests still available. %2$d: total requests in the plan. */
-				__( '%1$d of %2$d requests available', 'jetpack' ),
-				usage.requestsAvailable,
-				usage.requestsLimit
-		  );
+	const srSummary = usageSummary( usage );
 	// normalizeUsage floors availability at 0 and it can never exceed the
 	// limit, so the ratio needs no clamping here.
 	const showMeter = usage.unlimited || hasNumbers;
@@ -210,17 +283,42 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 	const showUpsell = usage.showUpgrade && !! upgradeUrl;
 	// Out of requests, the pitch hardens from "before you run out" to "you ran out".
 	const isDepleted = ! usage.unlimited && hasNumbers && usage.requestsAvailable === 0;
+	// Which shape to hold while the fetch is in flight. showUpsell needs the
+	// response, so this is the best guess available before it: an upsell needs
+	// somewhere to upgrade to, and a site that already names a paid plan is
+	// usually not being sold one. Guessing wrong costs a resize, which is why
+	// the fallback is the standard card rather than the taller upsell.
+	const expectUpsell = !! upgradeUrl && ! planName;
+	const srSummary = usageSummary( usage );
+
+	// A live region that mounts with its text already inside it is not reliably
+	// announced, and removing one announces nothing at all — so the region lives
+	// in @wordpress/a11y, which keeps its own, and both ends of the fetch get
+	// spoken. Errors are left alone: Notice announces those itself.
+	useEffect( () => {
+		if ( isLoading ) {
+			speak( __( 'Loading your AI usage…', 'jetpack' ), 'polite' );
+			return;
+		}
+		if ( error || ! srSummary ) {
+			return;
+		}
+		speak( srSummary, 'polite' );
+	}, [ isLoading, error, srSummary ] );
 
 	return (
 		// The upsell breathes more than the standard card; the modifier widens
 		// the ui Card's own padding token.
-		<Card.Root className={ showUpsell ? 'jetpack-ai-overview__card--upsell' : undefined }>
+		<Card.Root
+			className={
+				// The upsell's wider padding belongs to whichever shape is on screen,
+				// the placeholder included — otherwise the card resizes as the fetch
+				// lands even when the layout does not change.
+				( isLoading ? expectUpsell : showUpsell ) ? 'jetpack-ai-overview__card--upsell' : undefined
+			}
+		>
 			<Card.Content>
-				{ isLoading && (
-					<div className="jetpack-ai-overview__loading">
-						<Spinner />
-					</div>
-				) }
+				{ isLoading && ( expectUpsell ? <UpsellSkeleton /> : <UsageSkeleton /> ) }
 
 				{ ! isLoading && error && (
 					<Notice.Root intent="error">
@@ -232,7 +330,7 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 					// Mirrors the standard card's two-cell grid (minus the divider):
 					// icon and pitch on the left, the same requests readout with the
 					// Upgrade button on the right.
-					<div className="jetpack-ai-overview__upsell">
+					<div className="jetpack-ai-overview__upsell jetpack-ai-overview__fade-in">
 						<div className="jetpack-ai-overview__upsell-content">
 							{ /* The wrapper carries the layout class: AiIcon accepts no
 						     className. currentColor tracks the heading, not JP green. */ }
@@ -273,7 +371,7 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 				) }
 
 				{ ! isLoading && ! error && ! showUpsell && (
-					<div className="jetpack-ai-overview__usage">
+					<div className="jetpack-ai-overview__usage jetpack-ai-overview__fade-in">
 						<div className="jetpack-ai-overview__usage-cell">
 							<RequestsMeter usage={ usage } />
 						</div>
@@ -408,32 +506,16 @@ export default function AiOverview( {
 				</Notice.Root>
 			) }
 
-			{ showActivityLog && activityLogUrl && (
-				// The row pads itself, so it sits directly in the card —
-				// Card.FullBleed's negative margins would cancel that padding.
-				<Card.Root className="jetpack-ai-overview__row-card">
-					<NavRow
-						icon={ list }
-						title={ __( 'Activity log', 'jetpack' ) }
-						description={ __(
-							'Review recent actions taken by AI agents on your site.',
-							'jetpack'
-						) }
-						href={ activityLogUrl }
-						tone="neutral"
-					/>
-				</Card.Root>
-			) }
-
 			<div className="jetpack-ai-overview__quick-start">
 				<Text render={ <h2 /> } variant="heading-lg">
 					{ __( 'Quick start', 'jetpack' ) }
 				</Text>
 				<div className="jetpack-ai-overview__quick-start-grid">
-					{ QUICK_START.map( ( { slug, title, description } ) => (
+					{ QUICK_START.map( ( { slug, title, description, icon } ) => (
 						<Card.Root key={ slug } className="jetpack-ai-overview__row-card">
 							<NavRow
-								icon={ connection }
+								icon={ icon }
+								iconSize={ 28 }
 								title={ title }
 								description={ description }
 								href={ getRedirectUrl( slug ) }
@@ -484,6 +566,23 @@ export default function AiOverview( {
 					) ) }
 				</div>
 			</div>
+
+			{ showActivityLog && activityLogUrl && (
+				// The row pads itself, so it sits directly in the card —
+				// Card.FullBleed's negative margins would cancel that padding.
+				<Card.Root className="jetpack-ai-overview__row-card">
+					<NavRow
+						icon={ list }
+						title={ __( 'Activity log', 'jetpack' ) }
+						description={ __(
+							'Review recent actions taken by AI agents on your site.',
+							'jetpack'
+						) }
+						href={ activityLogUrl }
+						tone="neutral"
+					/>
+				</Card.Root>
+			) }
 
 			<div className="jetpack-ai-overview__docs">
 				<Text render={ <h2 /> } variant="heading-lg">
