@@ -306,10 +306,14 @@ export function createDesignSaveMiddleware( id ) {
 			data: { design: options.data ?? {} },
 		} );
 
-		// The route answers with a read-back rather than an echo: sanitizing drops anything outside
-		// the theme.json schema, so a save can succeed into invisibility. Hand core-data what was
-		// actually stored, so the panel shows what survived.
-		return { id, ...( saved && 'object' === typeof saved ? saved : {} ) };
+		// The route answers with an envelope — `{ blog_id, design, discarded }` — around a read-back
+		// of what was stored, since sanitizing drops anything outside the theme.json schema. Unwrap
+		// it: core-data takes what comes back as the record itself, and the canvas is drawn by
+		// merging that record's `styles` and `settings` over the theme, so handing back the envelope
+		// leaves both undefined and the canvas snaps to its pre-edit design.
+		const design = saved?.design ?? {};
+
+		return { id, settings: design.settings ?? {}, styles: design.styles ?? {} };
 	};
 }
 

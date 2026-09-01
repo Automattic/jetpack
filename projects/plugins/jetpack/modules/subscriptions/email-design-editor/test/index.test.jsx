@@ -656,7 +656,12 @@ describe( 'Email design editor entry point', () => {
 
 		it( 'sends the design to WordPress.com rather than to the site', async () => {
 			const next = jest.fn();
-			mockApiFetch.mockResolvedValueOnce( { styles: { color: { background: '#c0ffee' } } } );
+			// The shape WordPress.com actually answers with: a read-back wrapped in an envelope.
+			mockApiFetch.mockResolvedValueOnce( {
+				blog_id: 12345,
+				design: { styles: { color: { background: '#c0ffee' } }, settings: {} },
+				discarded: false,
+			} );
 
 			const result = await createDesignSaveMiddleware( ourId )(
 				{
@@ -674,11 +679,46 @@ describe( 'Email design editor entry point', () => {
 				data: { design: { styles: { color: { background: '#c0ffee' } } } },
 			} );
 
-			// What comes back is a read-back of what was stored, carrying the id core-data expects.
+			// core-data takes this as the record itself, and the canvas is drawn from its `styles`
+			// and `settings`. Handing back the envelope leaves both undefined and the canvas snaps
+			// to its pre-edit design.
 			expect( result ).toEqual( {
 				id: ourId,
+				settings: {},
 				styles: { color: { background: '#c0ffee' } },
 			} );
+		} );
+
+		it( 'hands back what was stored, not what was sent', async () => {
+			// Sanitizing drops anything outside the theme.json schema, so the read-back can differ
+			// from the submission. The panel has to show what survived.
+			mockApiFetch.mockResolvedValueOnce( {
+				blog_id: 12345,
+				design: { styles: { color: { background: '#ffffff' } }, settings: {} },
+				discarded: false,
+			} );
+
+			const result = await createDesignSaveMiddleware( ourId )(
+				{
+					path: `/wp/v2/global-styles/${ ourId }`,
+					method: 'PUT',
+					data: { styles: { color: { background: 'color-mix(in srgb, #fff 50%, #000)' } } },
+				},
+				jest.fn()
+			);
+
+			expect( result.styles ).toEqual( { color: { background: '#ffffff' } } );
+		} );
+
+		it( 'survives an envelope carrying no design', async () => {
+			mockApiFetch.mockResolvedValueOnce( { blog_id: 12345, design: null, discarded: true } );
+
+			const result = await createDesignSaveMiddleware( ourId )(
+				{ path: `/wp/v2/global-styles/${ ourId }`, method: 'PUT', data: {} },
+				jest.fn()
+			);
+
+			expect( result ).toEqual( { id: ourId, settings: {}, styles: {} } );
 		} );
 
 		it.each( [ 'POST', 'PUT', 'PATCH' ] )( 'catches a %s', async method => {
