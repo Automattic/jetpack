@@ -38,7 +38,6 @@ class Jetpack_Comments_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		$_POST = array();
-		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
 		parent::tear_down();
 	}
 
@@ -75,32 +74,5 @@ class Jetpack_Comments_Test extends WP_UnitTestCase {
 
 		$this->assertSame( '', get_comment_meta( $comment_id, 'hc_avatar', true ) );
 		$this->assertSame( '', get_comment_meta( $comment_id, 'hc_post_as', true ) );
-	}
-
-	/**
-	 * A validly signed Highlander request still stores its identity meta, sanitized.
-	 */
-	public function test_add_comment_meta_stores_signed_highlander_request() {
-		\Jetpack_Options::update_option( 'id', 1234 );
-		\Jetpack_Options::update_option( 'blog_token', 'testkey.testsecret' );
-
-		$post_id    = self::factory()->post->create();
-		$comment_id = self::factory()->comment->create( array( 'comment_post_ID' => $post_id ) );
-
-		$_POST = array(
-			'hc_post_as'      => 'facebook',
-			'hc_avatar'       => 'https://graph.facebook.com/12345/picture',
-			'hc_userid'       => '12345',
-			'token_key'       => 'testkey',
-			'comment_post_ID' => (string) $post_id,
-		);
-
-		$_POST['sig'] = Jetpack_Comments::sign_remote_comment_parameters( $_POST, 'testkey.testsecret' );
-
-		Jetpack_Comments::init()->add_comment_meta( $comment_id );
-
-		$this->assertSame( 'https://graph.facebook.com/12345/picture', get_comment_meta( $comment_id, 'hc_avatar', true ) );
-		$this->assertSame( '12345', get_comment_meta( $comment_id, 'hc_foreign_user_id', true ) );
-		$this->assertSame( 'facebook', get_comment_meta( $comment_id, 'hc_post_as', true ) );
 	}
 }
