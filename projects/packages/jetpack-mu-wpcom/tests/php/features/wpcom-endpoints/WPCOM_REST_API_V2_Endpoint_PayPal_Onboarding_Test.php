@@ -233,6 +233,33 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	}
 
 	/**
+	 * Test that an incomplete environment names the constants that are absent.
+	 *
+	 * "not configured" on its own sends whoever is provisioning the environment
+	 * hunting through three constant names to find the one they missed.
+	 */
+	public function test_incomplete_credentials_name_the_missing_constants() {
+		// Only the partner merchant ID is set for sandbox, so the API credentials
+		// are the missing half.
+		Constants::set_constant( 'PAYPAL_BUTTONS_SANDBOX_PARTNER_MERCHANT_ID', 'SANDBOX_PARTNER' );
+
+		$result = $this->endpoint->generate_signup_link( $this->signup_link_request( 'sandbox' ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'platform_credentials_invalid', $result->get_error_code() );
+		$this->assertStringContainsString( 'PAYPAL_BUTTONS_SANDBOX_CLIENT_ID', $result->get_error_message() );
+		$this->assertStringContainsString(
+			'PAYPAL_BUTTONS_SANDBOX_CLIENT_SECRET',
+			$result->get_error_message()
+		);
+		// The one that is set is not reported as missing.
+		$this->assertStringNotContainsString(
+			'PAYPAL_BUTTONS_SANDBOX_PARTNER_MERCHANT_ID',
+			$result->get_error_message()
+		);
+	}
+
+	/**
 	 * Test that a signup link is refused when the partner merchant ID is missing.
 	 *
 	 * It is Automattic's own PayPal account ID, not anything onboarding returns,

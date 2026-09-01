@@ -301,63 +301,74 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 		$constants = self::PLATFORM_CREDENTIAL_CONSTANTS[ $environment ] ?? array();
 
 		$credentials = array();
+		$missing     = array();
+
 		foreach ( $constants as $key => $constant_name ) {
 			$value = Constants::get_constant( $constant_name );
 			if ( is_string( $value ) && '' !== $value ) {
 				$credentials[ $key ] = $value;
+			} else {
+				$missing[] = $constant_name;
 			}
 		}
 
-		if ( isset( $credentials['client_id'] ) && isset( $credentials['client_secret'] ) ) {
-			/*
-			 * The partner merchant ID is Automattic's own PayPal account ID, not
-			 * anything onboarding returns -- PayPal hands back the *seller's* ID.
-			 * Both are path segments in every call the site makes once onboarding
-			 * finishes (`/v1/customer/partners/{partner}/merchant-integrations/
-			 * {seller}`), so without it the referral link still opens and the
-			 * seller still completes the PayPal flow, and then credential
-			 * retrieval and every status check quietly fail. That surfaced far
-			 * from its cause, as "Merchant integration info not available", so
-			 * refuse to hand out a signup link that cannot be completed.
-			 */
-			if ( ! isset( $credentials['partner_merchant_id'] ) ) {
-				return new WP_Error(
-					'platform_partner_merchant_id_missing',
-					sprintf(
-						'PayPal platform credentials for the %1$s environment are missing the partner merchant ID (%2$s). Onboarding cannot be completed without it.',
-						$environment,
-						$constants['partner_merchant_id'] ?? 'partner merchant ID constant'
-					),
-					array( 'status' => 500 )
-				);
-			}
-
+		if ( empty( $missing ) ) {
 			return $credentials;
 		}
 
 		/*
-		 * Separate "nothing is provisioned here at all" from "this environment is not
-		 * provisioned". The option this replaced could tell them apart because one
-		 * value held every environment; per-environment constants cannot, so look at
-		 * the whole set. The second message is the actionable one, and it is what a
-		 * sandbox-only configuration hits when asked for production.
+		 * Separate "nothing is provisioned here at all" from "this environment is
+		 * not provisioned". The option this replaced could tell them apart because
+		 * one value held every environment; per-environment constants cannot, so
+		 * look at the whole set. The second message is the actionable one, and it
+		 * is what a sandbox-only configuration hits when asked for production.
 		 */
+		$anything_provisioned = false;
 		foreach ( self::PLATFORM_CREDENTIAL_CONSTANTS as $environment_constants ) {
 			foreach ( $environment_constants as $constant_name ) {
 				$value = Constants::get_constant( $constant_name );
 				if ( is_string( $value ) && '' !== $value ) {
-					return new WP_Error(
-						'platform_credentials_invalid',
-						sprintf( 'PayPal platform credentials for %s environment are not configured.', $environment ),
-						array( 'status' => 500 )
-					);
+					$anything_provisioned = true;
+					break 2;
 				}
 			}
 		}
 
+		if ( ! $anything_provisioned ) {
+			return new WP_Error(
+				'platform_credentials_missing',
+				'PayPal platform credentials are not configured on WordPress.com. Please contact the Jetpack team.',
+				array( 'status' => 500 )
+			);
+		}
+
+		/*
+		 * Name the constants that are absent. "not configured" on its own sends
+		 * whoever is provisioning the environment hunting through three names to
+		 * find which one they missed.
+		 *
+		 * The partner merchant ID keeps its own code: it is Automattic's own
+		 * PayPal account ID rather than an API credential, it is easy to overlook
+		 * because the referral link is generated without it, and the flow only
+		 * breaks later -- when the seller has already finished onboarding.
+		 */
+		$partner_constant  = $constants['partner_merchant_id'] ?? '';
+		$only_partner_id   = array( $partner_constant ) === $missing;
+		$error_code        = $only_partner_id
+			? 'platform_partner_merchant_id_missing'
+			: 'platform_credentials_invalid';
+		$missing_explained = $only_partner_id
+			? 'Onboarding cannot be completed without it.'
+			: 'Onboarding cannot be started without them.';
+
 		return new WP_Error(
-			'platform_credentials_missing',
-			'PayPal platform credentials are not configured on WordPress.com. Please contact the Jetpack team.',
+			$error_code,
+			sprintf(
+				'PayPal platform credentials for the %1$s environment are incomplete. Missing: %2$s. %3$s',
+				$environment,
+				implode( ', ', $missing ),
+				$missing_explained
+			),
 			array( 'status' => 500 )
 		);
 	}
