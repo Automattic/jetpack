@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Comments: Fix the comment form getting stuck after posting on sites that show the subscribe prompt.
