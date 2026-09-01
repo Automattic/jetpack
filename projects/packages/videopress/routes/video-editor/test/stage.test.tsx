@@ -302,7 +302,7 @@ describe( 'video-editor stage', () => {
 
 		render( <Stage />, { wrapper: createTestWrapper( mockTestClient ) } );
 
-		expect( screen.getByText( "We couldn't find that video." ) ).toBeInTheDocument();
+		expect( screen.getByText( 'We couldn’t find that video.' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'chapters-preview-video' ) ).not.toBeInTheDocument();
 		// Guarded ahead of the media fetch, so no request escapes either.
 		expect( getApiFetchMock() ).not.toHaveBeenCalled();
@@ -322,7 +322,7 @@ describe( 'video-editor stage', () => {
 		render( <Stage />, { wrapper: createTestWrapper( mockTestClient ) } );
 
 		await expect(
-			screen.findByText( "We couldn't find that video." )
+			screen.findByText( 'We couldn’t find that video.' )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByTestId( 'chapters' ) ).not.toBeInTheDocument();
 	} );

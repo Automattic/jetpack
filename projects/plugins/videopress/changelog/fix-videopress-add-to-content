@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Adding a video to a post or page now inserts the video instead of creating an empty draft.
