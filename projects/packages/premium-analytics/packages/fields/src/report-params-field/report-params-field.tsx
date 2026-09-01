@@ -217,6 +217,9 @@ function ReportParamsControl( {
 				if ( derived ) {
 					patch.compare_from = derived.compare_from;
 					patch.compare_to = derived.compare_to;
+					// May differ from the active preset: a preset the new range no
+					// longer offers falls back to the previous period.
+					patch.compare_preset = derived.compare_preset;
 				}
 			}
 

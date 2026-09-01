@@ -256,16 +256,95 @@ describe( 'getComparisonRangeFromPreset', () => {
 			expect( comparison?.to?.getMonth() ).toBe( 1 );
 		} );
 
-		it( 'still mirrors the reference length for previous-period', () => {
+		/*
+		 * The previous period of a whole-months window steps back by the month
+		 * count (WOOA7S-2028): a 31-day shift would put March against a window
+		 * straddling January and February.
+		 */
+		it( 'sets a whole month against the whole month before it for previous-period', () => {
 			const march = {
 				from: new Date( 2026, 2, 1, 0, 0, 0, 0 ),
 				to: new Date( 2026, 2, 31, 23, 59, 59, 999 ),
 			};
 
 			expect( getComparisonRangeFromPreset( march, 'previous-period' ) ).toEqual( {
-				from: new Date( 2026, 0, 29, 0, 0, 0, 0 ),
+				from: new Date( 2026, 1, 1, 0, 0, 0, 0 ),
 				to: new Date( 2026, 1, 28, 23, 59, 59, 999 ),
 			} );
+		} );
+
+		/*
+		 * A 365-day shift of a calendar year would land on Jan 2 across leap
+		 * 2024; the month-count step keeps calendar years whole.
+		 */
+		it( 'sets a calendar year against the previous calendar year for previous-period', () => {
+			const year2025 = {
+				from: new Date( 2025, 0, 1, 0, 0, 0, 0 ),
+				to: new Date( 2025, 11, 31, 23, 59, 59, 999 ),
+			};
+
+			expect( getComparisonRangeFromPreset( year2025, 'previous-period' ) ).toEqual( {
+				from: new Date( 2024, 0, 1, 0, 0, 0, 0 ),
+				to: new Date( 2024, 11, 31, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		/*
+		 * Whole months are detected by round trip, not calendar alignment, so
+		 * the rolling last-12-months window (mid-month to mid-month) also steps
+		 * back by its month count.
+		 */
+		it( 'steps a rolling 12-month window back by its month count for previous-period', () => {
+			const last12Months = {
+				from: new Date( 2025, 7, 31, 0, 0, 0, 0 ),
+				to: new Date( 2026, 7, 30, 23, 59, 59, 999 ),
+			};
+
+			expect( getComparisonRangeFromPreset( last12Months, 'previous-period' ) ).toEqual( {
+				from: new Date( 2024, 7, 31, 0, 0, 0, 0 ),
+				to: new Date( 2025, 7, 30, 23, 59, 59, 999 ),
+			} );
+		} );
+	} );
+
+	describe( 'previous-week', () => {
+		it( 'shifts a day-aligned range back seven days on day bounds', () => {
+			const yesterday = {
+				from: new Date( 2026, 7, 30, 0, 0, 0, 0 ),
+				to: new Date( 2026, 7, 30, 23, 59, 59, 999 ),
+			};
+
+			expect( getComparisonRangeFromPreset( yesterday, 'previous-week' ) ).toEqual( {
+				from: new Date( 2026, 7, 23, 0, 0, 0, 0 ),
+				to: new Date( 2026, 7, 23, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		it( 'keeps the time of day for a rolling window', () => {
+			const rolling = {
+				from: new Date( 2026, 6, 9, 14, 30, 0, 0 ),
+				to: new Date( 2026, 6, 10, 14, 29, 59, 999 ),
+			};
+
+			expect( getComparisonRangeFromPreset( rolling, 'previous-week' ) ).toEqual( {
+				from: new Date( 2026, 6, 2, 14, 30, 0, 0 ),
+				to: new Date( 2026, 6, 3, 14, 29, 59, 999 ),
+			} );
+		} );
+
+		/*
+		 * For a 7-day range the week shift equals the previous period — the
+		 * reason the options builder lists only one of them.
+		 */
+		it( 'matches the previous period exactly at seven days', () => {
+			const week = {
+				from: new Date( 2026, 5, 1, 0, 0, 0, 0 ),
+				to: new Date( 2026, 5, 7, 23, 59, 59, 999 ),
+			};
+
+			expect( getComparisonRangeFromPreset( week, 'previous-week' ) ).toEqual(
+				getComparisonRangeFromPreset( week, 'previous-period' )
+			);
 		} );
 	} );
 } );

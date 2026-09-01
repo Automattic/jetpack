@@ -3,7 +3,7 @@
  */
 import { type IntervalType } from '@jetpack-premium-analytics/datetime';
 import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { chartBar, check } from '@wordpress/icons';
 
 import './date-interval-dropdown.scss';
@@ -22,7 +22,7 @@ type DateIntervalDropdownProps = {
 
 	/**
 	 * Names the trigger, as its tooltip and its accessible name. Defaults to
-	 * "Chart interval".
+	 * "Chart interval", plus the active bucket when there is one.
 	 */
 	label?: string;
 
@@ -48,6 +48,22 @@ function getIntervalLabel( interval: IntervalType ): string {
 }
 
 /**
+ * Name the trigger for its tooltip and accessible name. It carries the active
+ * bucket because the section header subtitle, which used to read it back, is gone.
+ */
+function getTriggerLabel( value?: IntervalType ): string {
+	if ( ! value ) {
+		return __( 'Chart interval', 'jetpack-premium-analytics-pkg' );
+	}
+
+	return sprintf(
+		/* translators: %s: the active chart interval, e.g. "By days". */
+		__( 'Chart interval: %s', 'jetpack-premium-analytics-pkg' ),
+		getIntervalLabel( value )
+	);
+}
+
+/**
  * The bucket size every chart draws, as a glyph (not a clock — it buckets the
  * charts, doesn't narrow the reported period) opening a menu of what the
  * active range allows. Opens even with one option, since the trigger has no text.
@@ -62,12 +78,12 @@ export function DateIntervalDropdown( {
 		<DropdownMenu
 			className="date-interval-dropdown"
 			icon={ chartBar }
-			label={ label ?? __( 'Chart interval', 'jetpack-premium-analytics-pkg' ) }
+			label={ label ?? getTriggerLabel( value ) }
 			popoverProps={ { placement: 'bottom-end' } }
 			toggleProps={ { className: 'date-interval-dropdown__toggle' } }
 		>
 			{ ( { onClose } ) => (
-				<MenuGroup>
+				<MenuGroup label={ __( 'Chart interval', 'jetpack-premium-analytics-pkg' ) }>
 					{ options.map( option => {
 						const isSelected = option === value;
 

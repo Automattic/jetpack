@@ -77,7 +77,7 @@
 		"@babel/core": "7.29.7",
 		"@babel/runtime": "7.29.7",
 		"@types/canvas-confetti": "1.9.0",
-		"@types/react": "18.3.28",
+		"@types/react": "18.3.31",
 		"@wordpress/base-styles": "13.0.0",
 		"@wordpress/browserslist-config": "6.54.0",
 		"@wordpress/build": "0.22.0",
