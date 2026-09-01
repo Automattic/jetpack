@@ -214,9 +214,9 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 			);
 
 			$actions['delete'] = sprintf(
-				'<a href="%s" class="submitdelete" onclick="return confirm(%s);">%s</a>',
+				'<a href="%s" class="submitdelete paypal-delete-link" data-confirm="%s">%s</a>',
 				esc_url( $delete_url ),
-				wp_json_encode( __( 'Are you sure you want to delete this payment link? This cannot be undone.', 'jetpack-paypal-payments' ), JSON_HEX_TAG | JSON_HEX_AMP ),
+				esc_attr__( 'This will permanently delete your payment link. Any links, QR codes, or embedded buttons using this payment will stop working and cannot be recovered.', 'jetpack-paypal-payments' ),
 				esc_html__( 'Delete', 'jetpack-paypal-payments' )
 			);
 		}
