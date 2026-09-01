@@ -1,10 +1,12 @@
 /**
  * Connect-account callout for a connected site whose current user has no
- * WordPress.com connection. Mirrors the upsell card, action changed to connect.
+ * WordPress.com connection.
  */
 
+import { speak } from '@wordpress/a11y';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { useEffect } from 'react';
 import illustrationUrl from './upsell-illustration.svg';
 import './style.scss';
 
@@ -14,6 +16,11 @@ import './style.scss';
  * @return {object} Component markup.
  */
 export default function McpConnectCallout() {
+	// Announce like the notice this replaces: the design system does it via speak().
+	useEffect( () => {
+		speak( __( 'A user connection lets agents securely act on your behalf.', 'jetpack' ) );
+	}, [] );
+
 	return (
 		<div className="jetpack-ai-mcp__upsell-callout">
 			<div className="jetpack-ai-mcp__upsell-callout-content">

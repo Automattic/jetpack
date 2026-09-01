@@ -325,7 +325,6 @@ describe( 'AI admin page (main.jsx)', () => {
 				'href',
 				'admin.php?page=my-jetpack#/connection'
 			);
-			// The connect card must not carry the upsell's plan pitch.
 			expect(
 				screen.queryByText( 'Upgrade your plan to give external AI agents access to your site.' )
 			).not.toBeInTheDocument();
