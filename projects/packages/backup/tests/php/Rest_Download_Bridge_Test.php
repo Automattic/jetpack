@@ -663,6 +663,47 @@ class Rest_Download_Bridge_Test extends TestCase {
 	}
 
 	/**
+	 * An include list that trims away to nothing is still an include list.
+	 *
+	 * `path_list()` drops blank entries before the guard sees them, so
+	 * gating on its result would let this through as a plain whole-archive
+	 * download: 200, and every file on the site, for a request that asked
+	 * for a file selection.
+	 *
+	 * @param string $label   Case description.
+	 * @param mixed  $include The `include_path_list` to send.
+	 * @dataProvider provide_include_lists_that_survive_into_nothing
+	 */
+	#[DataProvider( 'provide_include_lists_that_survive_into_nothing' )]
+	public function test_initiate_refuses_a_blank_path_list_without_the_paths_type( $label, $include ) {
+		$this->arrange_wpcom( array( 'downloadId' => 1 ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/1786663613.9425' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode( array( 'include_path_list' => $include ), JSON_UNESCAPED_SLASHES )
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status(), $label );
+		$this->assertSame( 'path_list_needs_paths_type', $response->get_data()['code'], $label );
+		$this->assertNull( $this->captured_body, $label );
+	}
+
+	/**
+	 * Every include list that reaches the guard empty.
+	 *
+	 * @return array<string, array{0: string, 1: mixed}>
+	 */
+	public static function provide_include_lists_that_survive_into_nothing() {
+		return array(
+			'blank entries' => array( 'blank entries', array( '  ', '' ) ),
+			'empty list'    => array( 'empty list', array() ),
+		);
+	}
+
+	/**
 	 * The mirror image: `paths` with nothing to scope it by is refused,
 	 * because upstream reads that as the whole site too.
 	 *

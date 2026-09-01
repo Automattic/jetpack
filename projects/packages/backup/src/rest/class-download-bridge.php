@@ -123,7 +123,11 @@ class Download_Bridge {
 		// nothing between here and there checks the pairing: a list sent
 		// beside any other category answers 200 and builds a *full-site*
 		// archive, so the mismatch has to be refused here or not at all.
-		if ( $include || $exclude ) {
+		//
+		// Gated on the include list having been *sent*, because
+		// `path_list()` trims a blank one away and a caller that names
+		// files must not fall through as one that named none.
+		if ( $include || $exclude || $request->has_param( 'include_path_list' ) ) {
 			if ( array( 'paths' ) !== array_keys( $named_types ) ) {
 				return new WP_Error(
 					'path_list_needs_paths_type',
@@ -131,7 +135,9 @@ class Download_Bridge {
 					array( 'status' => 400 )
 				);
 			}
-		} elseif ( isset( $named_types['paths'] ) ) {
+		}
+
+		if ( ! $include && ! $exclude && isset( $named_types['paths'] ) ) {
 			// The mirror image, and just as silent upstream: `paths` with
 			// nothing to scope it by yields an archive of everything.
 			return new WP_Error(
