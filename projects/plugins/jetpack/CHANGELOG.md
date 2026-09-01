@@ -65,6 +65,7 @@
 - Admin dashboards: Continue the wp-admin menu color behind the page frame on WordPress.com and third-party admin color schemes. [#51619]
 - Admin dashboards: Keep the page header and content in view when the wp-admin menu is taller than the window. [#51696]
 - AI: Render scheduled task results as Markdown. [#51319]
+- AI: Prevent saving the General Settings page from turning off Jetpack AI features. [#51833]
 - Backup: Fix the backup overview ability reporting no storage usage, storage limit or backup time. [#51684]
 - Backup: Show a failure message when your backup status cannot be read, rather than the screen that says your first backup is on its way, and let the "Back up now" button recover when a backup could not be queued. [#51625]
 - Backup: Show storage usage and the plan limit the right way round when the interface is translated. [#51664]

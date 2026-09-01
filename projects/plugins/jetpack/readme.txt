@@ -389,6 +389,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Admin dashboards: Continue the wp-admin menu color behind the page frame on WordPress.com and third-party admin color schemes.
 - Admin dashboards: Keep the page header and content in view when the wp-admin menu is taller than the window.
 - AI: Render scheduled task results as Markdown.
+- AI: Prevent saving the General Settings page from turning off Jetpack AI features.
 - Backup: Fix the backup overview ability reporting no storage usage, storage limit or backup time.
 - Backup: Show a failure message when your backup status cannot be read, rather than the screen that says your first backup is on its way, and let the "Back up now" button recover when a backup could not be queued.
 - Backup: Show storage usage and the plan limit the right way round when the interface is translated.
