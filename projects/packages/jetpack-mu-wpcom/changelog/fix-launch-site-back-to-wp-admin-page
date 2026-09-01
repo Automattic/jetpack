@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Launch site: point the launch flow back at the wp-admin page it was started from.
