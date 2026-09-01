@@ -65,6 +65,11 @@ class Configuration_Test extends TestCase {
 	 *
 	 * If this test fails because you changed the config: the change must ship together
 	 * with the matching WPCOM change, then update the pin here.
+	 *
+	 * The `table` values pin the suffix but not where the prefix comes from: the
+	 * expectation is built from the same `$wpdb->prefix` as the code under test, and
+	 * single-site test environments cannot tell `prefix` from `base_prefix`, so a swap
+	 * to `base_prefix` would pass here and only surface on multisite.
 	 */
 	public function test_checksum_table_config_matches_the_wpcom_pin() {
 		$configuration = new class() extends Configuration {
@@ -84,37 +89,48 @@ class Configuration_Test extends TestCase {
 				"Table '{$name}' must gate on an is_table_enabled_callback."
 			);
 			unset( $tables[ $name ]['is_table_enabled_callback'] );
+			// Key order carries no meaning in these config maps; normalize it so a
+			// pure reorder does not read as drift.
+			ksort( $tables[ $name ] );
 		}
+		ksort( $tables );
 
 		global $wpdb;
-		$this->assertSame(
-			array(
-				'wc_order_stats'          => array(
-					'table'                => "{$wpdb->prefix}wc_order_stats",
-					'range_field'          => 'order_id',
-					'key_fields'           => array( 'order_id' ),
-					'checksum_fields'      => array( 'date_paid', 'date_completed', 'total_sales' ),
-					'checksum_text_fields' => array( 'status' ),
-				),
-				'wc_order_product_lookup' => array(
-					'table'           => "{$wpdb->prefix}wc_order_product_lookup",
-					'range_field'     => 'order_id',
-					'key_fields'      => array( 'order_id', 'order_item_id' ),
-					'checksum_fields' => array( 'product_id', 'variation_id', 'product_qty', 'product_net_revenue', 'date_created' ),
-				),
-				'wc_order_coupon_lookup'  => array(
-					'table'           => "{$wpdb->prefix}wc_order_coupon_lookup",
-					'range_field'     => 'order_id',
-					'key_fields'      => array( 'order_id', 'coupon_id' ),
-					'checksum_fields' => array( 'discount_amount', 'date_created' ),
-				),
-				'wc_order_tax_lookup'     => array(
-					'table'           => "{$wpdb->prefix}wc_order_tax_lookup",
-					'range_field'     => 'order_id',
-					'key_fields'      => array( 'order_id', 'tax_rate_id' ),
-					'checksum_fields' => array( 'order_tax', 'total_tax', 'shipping_tax', 'date_created' ),
-				),
+		$expected = array(
+			'wc_order_stats'          => array(
+				'table'                => "{$wpdb->prefix}wc_order_stats",
+				'range_field'          => 'order_id',
+				'key_fields'           => array( 'order_id' ),
+				'checksum_fields'      => array( 'date_paid', 'date_completed', 'total_sales' ),
+				'checksum_text_fields' => array( 'status' ),
 			),
+			'wc_order_product_lookup' => array(
+				'table'           => "{$wpdb->prefix}wc_order_product_lookup",
+				'range_field'     => 'order_id',
+				'key_fields'      => array( 'order_id', 'order_item_id' ),
+				'checksum_fields' => array( 'product_id', 'variation_id', 'product_qty', 'product_net_revenue', 'date_created' ),
+			),
+			'wc_order_coupon_lookup'  => array(
+				'table'           => "{$wpdb->prefix}wc_order_coupon_lookup",
+				'range_field'     => 'order_id',
+				'key_fields'      => array( 'order_id', 'coupon_id' ),
+				'checksum_fields' => array( 'discount_amount', 'date_created' ),
+			),
+			'wc_order_tax_lookup'     => array(
+				'table'           => "{$wpdb->prefix}wc_order_tax_lookup",
+				'range_field'     => 'order_id',
+				'key_fields'      => array( 'order_id', 'tax_rate_id' ),
+				'checksum_fields' => array( 'order_tax', 'total_tax', 'shipping_tax', 'date_created' ),
+			),
+		);
+		foreach ( $expected as &$config ) {
+			ksort( $config );
+		}
+		unset( $config );
+		ksort( $expected );
+
+		$this->assertSame(
+			$expected,
 			$tables,
 			'The checksum table config changed. WPCOM mirrors it field-for-field; ship the matching ' .
 			'WPCOM change first (jetpack_wpcom_sync_checksum_allowed_tables), then update this pin.'
