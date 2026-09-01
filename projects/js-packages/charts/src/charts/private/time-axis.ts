@@ -328,6 +328,64 @@ export const getBandTickValues = (
 	return best.map( index => domain[ index ] );
 };
 
+/**
+ * The most x-axis ticks a chart of this width has room for.
+ *
+ * Extracted from `guessOptimalNumTicks`, which line and area charts no longer
+ * need now that they select tick values rather than asking d3 for a count.
+ *
+ * @param chartWidth - Chart width in pixels.
+ * @return A tick budget of at least one.
+ */
+export const getMaxTicksForWidth = ( chartWidth: number ): number =>
+	Math.max( 1, Math.floor( chartWidth / X_TICK_WIDTH ) );
+
+/**
+ * Tick values for a continuous time axis, chosen from the points it draws.
+ *
+ * Selected, never constructed: a local time that does not exist cannot be a
+ * data point, so DST gaps and overlaps need no special case.
+ *
+ * @param sortedData    - Series as returned by `useChartDataTransform`.
+ * @param domain        - The effective scale domain, or undefined for all data.
+ * @param tickFormatter - The formatter the ticks will be labelled with.
+ * @param maxTicks      - The most ticks the axis has room for.
+ * @return Tick dates, or null when no series carries a usable date.
+ */
+export const getTimeAxisTickValues = (
+	sortedData: ReturnType< typeof useChartDataTransform >,
+	domain: [ Date, Date ] | undefined,
+	tickFormatter: TickFormat,
+	maxTicks: number
+): Date[] | null => {
+	const byTimestamp = new Map< number, Date >();
+
+	for ( const series of sortedData ) {
+		for ( const point of series.data ) {
+			const date = ( point as { date?: Date } ).date;
+			if ( date instanceof Date && Number.isFinite( date.getTime() ) ) {
+				byTimestamp.set( date.getTime(), date );
+			}
+		}
+	}
+
+	if ( ! byTimestamp.size ) {
+		return null;
+	}
+
+	const min = domain?.[ 0 ]?.getTime();
+	const max = domain?.[ 1 ]?.getTime();
+	const visible = [ ...byTimestamp.keys() ]
+		.sort( ( a, b ) => a - b )
+		.filter(
+			timestamp =>
+				( min === undefined || timestamp >= min ) && ( max === undefined || timestamp <= max )
+		)
+		.map( timestamp => byTimestamp.get( timestamp ) as Date );
+
+	return getBandTickValues( visible, tickFormatter, maxTicks );
+};
+
 // Estimate the largest number of x-axis ticks that fit without producing
 // consecutive duplicate labels under the given formatter. Used so the axis
 // adapts to the data's resolution rather than picking a fixed count.
