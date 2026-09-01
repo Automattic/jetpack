@@ -44,6 +44,11 @@ jest.mock( '@wordpress/blocks', () => ( {
 
 jest.mock( '@wordpress/block-editor', () => ( { useBlockProps: () => ( {} ) } ) );
 
+// The real stores rather than mocks. Mocking `@wordpress/data` wholesale drops `combineReducers`,
+// which `@wordpress/components` needs at import time by way of `@wordpress/rich-text`.
+const { select, dispatch } = jest.requireActual( '@wordpress/data' );
+const { store: noticesStore } = jest.requireActual( '@wordpress/notices' );
+
 const ELEMENT_ID = 'jetpack-email-design-editor';
 
 /**
@@ -163,6 +168,10 @@ describe( 'Email design editor entry point', () => {
 		mockCreatePreloadingMiddleware.mockClear();
 		mockRegisterBlockType.mockClear();
 		mockGetBlockType.mockReset();
+		// By type: `removeAllNotices()` defaults to the `default` type and would leave the
+		// snackbar the save path creates, so it would leak into the next test.
+		dispatch( noticesStore ).removeAllNotices( 'snackbar' );
+		dispatch( noticesStore ).removeAllNotices( 'default' );
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( bootstrapBundle() );
 		jest.spyOn( console, 'error' ).mockImplementation( () => {} );
@@ -795,6 +804,40 @@ describe( 'Email design editor entry point', () => {
 			);
 
 			expect( result.styles ).toEqual( { color: { background: '#ffffff' } } );
+		} );
+
+		it( 'tells the creator when the save kept nothing', async () => {
+			mockApiFetch.mockResolvedValueOnce( { blog_id: 1, design: null, discarded: true } );
+
+			await createDesignSaveMiddleware( ourId )(
+				{ path: `/wp/v2/global-styles/${ ourId }`, method: 'PUT', data: { styles: {} } },
+				jest.fn()
+			);
+
+			// Without this the panel goes clean and the creator is told it saved, while the stored
+			// design no longer holds what they set.
+			expect( select( noticesStore ).getNotices() ).toEqual( [
+				expect.objectContaining( {
+					status: 'error',
+					content: expect.stringContaining( 'could not be saved' ),
+					type: 'snackbar',
+				} ),
+			] );
+		} );
+
+		it( 'stays quiet when the design was kept', async () => {
+			mockApiFetch.mockResolvedValueOnce( {
+				blog_id: 1,
+				design: { styles: { color: { background: '#c0ffee' } }, settings: {} },
+				discarded: false,
+			} );
+
+			await createDesignSaveMiddleware( ourId )(
+				{ path: `/wp/v2/global-styles/${ ourId }`, method: 'PUT', data: {} },
+				jest.fn()
+			);
+
+			expect( select( noticesStore ).getNotices() ).toEqual( [] );
 		} );
 
 		it( 'survives an envelope carrying no design', async () => {
