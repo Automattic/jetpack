@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\Group;
+
 require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 /**
@@ -12,6 +14,32 @@ require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
  */
 class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
+	/**
+	 * A WP.com site ID carried by the request token, deliberately distinct from
+	 * the local `$GLOBALS['blog_id']`. `site_ID` is serialized from this token
+	 * value (not the local blog), so a distinct number proves the field follows
+	 * the token rather than coincidentally matching the local blog ID.
+	 *
+	 * @var int
+	 */
+	private const WPCOM_SITE_ID = 1234567;
+
+	/**
+	 * An admin user ID, used to authorize write requests.
+	 *
+	 * @var int
+	 */
+	private static $admin_user_id;
+
+	/**
+	 * Create fixtures once, before any tests in the class have run.
+	 *
+	 * @param WP_UnitTest_Factory $factory A factory object.
+	 */
+	public static function wpSetUpBeforeClass( $factory ) {
+		self::$admin_user_id = $factory->user->create( array( 'role' => 'administrator' ) );
+	}
 
 	/**
 	 * Inserts globals needed to initialize the endpoint.
@@ -37,6 +65,19 @@ class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 		$this->set_globals();
 
 		WPCOM_JSON_API::init()->token_details = array( 'blog_id' => $blog_id );
+	}
+
+	/**
+	 * Reset shared API singleton state after each test.
+	 */
+	public function tear_down() {
+		$api                = WPCOM_JSON_API::init();
+		$api->token_details = array();
+		$api->post_body     = null;
+		$api->content_type  = null;
+		wp_set_current_user( 0 );
+
+		parent::tear_down();
 	}
 
 	/**
@@ -69,6 +110,86 @@ class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 		$updated_input = $this->invoke_method( $endpoint, 'untrash_post', array( $post, $input ) );
 		// Tests that we remove the slug id it contains the '__trashed' suffix.
 		$this->assertEmpty( $updated_input );
+	}
+
+	/**
+	 * The create endpoint (`POST /sites/%s/posts/new`) must serialize `site_ID`
+	 * as an integer, matching its documented `(int) The site ID.` contract.
+	 *
+	 * `site_ID` is emitted from `$post->site->get_id()`, which returns the
+	 * request token's `blog_id` verbatim. On create/update requests that value
+	 * is a string, so without the `(int)` cast in
+	 * `WPCOM_JSON_API_Post_v1_1_Endpoint::render_response_keys()` the response
+	 * leaks a quoted string. We reproduce that by giving the token a string
+	 * `blog_id`; this assertion fails on the unfixed serializer.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_create_post_returns_site_id_as_an_integer() {
+		wp_set_current_user( self::$admin_user_id );
+
+		$response = $this->write_via_endpoint(
+			'/sites/' . self::WPCOM_SITE_ID . '/posts/new',
+			0,
+			array(
+				'title'  => 'Created in test',
+				'status' => 'draft',
+			)
+		);
+
+		$this->assertIsArray( $response );
+		$this->assertArrayHasKey( 'site_ID', $response );
+		$this->assertIsInt( $response['site_ID'] );
+		$this->assertSame( self::WPCOM_SITE_ID, $response['site_ID'] );
+	}
+
+	/**
+	 * The update endpoint (`POST /sites/%s/posts/%d`) must serialize `site_ID`
+	 * as an integer, for the same reason and via the same inherited
+	 * `get_post_by()` -> `render_response_keys()` path as create.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_update_post_returns_site_id_as_an_integer() {
+		wp_set_current_user( self::$admin_user_id );
+
+		$post_id = $this->get_post();
+
+		$response = $this->write_via_endpoint(
+			'/sites/' . self::WPCOM_SITE_ID . '/posts/' . $post_id,
+			$post_id,
+			array( 'title' => 'Updated in test' )
+		);
+
+		$this->assertIsArray( $response );
+		$this->assertArrayHasKey( 'site_ID', $response );
+		$this->assertIsInt( $response['site_ID'] );
+		$this->assertSame( self::WPCOM_SITE_ID, $response['site_ID'] );
+	}
+
+	/**
+	 * Drive the update endpoint's `callback()` for a create or update request,
+	 * forcing the string `blog_id` token condition that makes `site_ID` leak as
+	 * a string on the unfixed serializer.
+	 *
+	 * @param string $path    The request path (ending in `/new` to create).
+	 * @param int    $post_id The post ID (0 when creating).
+	 * @param array  $input   The request body fields.
+	 * @return array|WP_Error The endpoint response.
+	 */
+	private function write_via_endpoint( $path, $post_id, array $input ) {
+		$api = WPCOM_JSON_API::init();
+
+		// Jetpack_Site::get_id() returns $this->platform->token->blog_id verbatim.
+		// A string value mirrors the create/update request condition, and it is the
+		// WP.com site ID, distinct from the local $GLOBALS['blog_id'] used for routing.
+		$api->token_details = array( 'blog_id' => (string) self::WPCOM_SITE_ID );
+		$api->content_type  = 'application/json';
+		$api->post_body     = (string) wp_json_encode( $input, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+
+		return $this->get_endpoint()->callback( $path, self::WPCOM_SITE_ID, $post_id );
 	}
 
 	/**
