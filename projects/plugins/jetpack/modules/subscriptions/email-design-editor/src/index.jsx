@@ -103,10 +103,11 @@ export function buildEditorConfig( bundle, data ) {
 		urls,
 		userEmail,
 
-		// A gate, not a data source: null makes the package generate no canvas CSS at
-		// all, while any valid id paints the whole theme. Nothing reads the record's
-		// contents — the design arrives merged into `editor_theme`. Bundle first because
-		// it is a WordPress.com post id; the page stays a fallback. See NL-871.
+		// Dereferenced, not merely a flag: null makes the package generate no canvas CSS at all,
+		// and any valid id has its record fetched — which the preload answers. The record's
+		// `styles` and `settings` are merged last over `editor_theme`, which is what paints the
+		// canvas while editing. Bundle first because it is a WordPress.com post id; the page stays
+		// a fallback. See NL-871.
 		globalStylesPostId: getGlobalStylesPostId( bundle ) ?? globalStylesPostId ?? null,
 	};
 }
