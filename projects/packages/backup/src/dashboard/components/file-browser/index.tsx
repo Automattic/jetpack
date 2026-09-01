@@ -44,7 +44,7 @@ type Props = {
 	rewindId: string;
 	selection: FileSelection;
 	onSelectionChange: ( next: FileSelection ) => void;
-	onSelectionCountChange?: ( count: number ) => void;
+	onSelectionIdsChange?: ( ids: string[] ) => void;
 };
 
 /**
@@ -261,7 +261,8 @@ function propagateSelectUp(
 }
 
 /**
- * Counts effectively-selected leaves in the loaded subtree of `roots`.
+ * Collects the effectively-selected leaves in the loaded subtree of
+ * `roots`, in tree order.
  *
  * A "leaf" here is what the server would download as one opaque unit:
  * a file, or a folder whose children we haven't loaded yet (whatever
@@ -271,18 +272,23 @@ function propagateSelectUp(
  * descendants underneath them — neither the partial folder nor the
  * deselected branches count.
  *
+ * A ticked but unexpanded folder is therefore one entry standing for
+ * however many files it holds. That is what upstream wants — the same
+ * shape Calypso builds — so this list is both the label's count and the
+ * download's include list.
+ *
  * @param roots          - Top-level nodes to start from.
  * @param selection      - Current selection sets.
  * @param loadedChildren - Map of folder path → loaded children list.
- * @return Count of effectively-selected leaves.
+ * @return The effectively-selected leaf nodes.
  */
-function countSelectedInLoadedTree(
+function collectSelectedInLoadedTree(
 	roots: FileNode[],
 	selection: FileSelection,
 	loadedChildren: ReadonlyMap< string, FileNode[] >
-): number {
+): FileNode[] {
 	const { selected, deselected } = selection;
-	let count = 0;
+	const leaves: FileNode[] = [];
 	const walk = ( nodes: FileNode[], inheritedSelected: boolean ) => {
 		for ( const node of nodes ) {
 			const ownSelected = selected.has( node.path );
@@ -295,12 +301,12 @@ function countSelectedInLoadedTree(
 			} else if ( eff ) {
 				// File, or a folder whose contents we haven't loaded:
 				// the server treats either as a single downloadable unit.
-				count += 1;
+				leaves.push( node );
 			}
 		}
 	};
 	walk( roots, false );
-	return count;
+	return leaves;
 }
 
 /**
@@ -313,18 +319,18 @@ function countSelectedInLoadedTree(
  * buttons can swap between "Download backup" and "Download N selected
  * files" using the same `FileSelection` shape that this tree drives.
  *
- * @param props                        - Component props.
- * @param props.rewindId               - The selected backup's rewindId; surfaced as a data attribute today, the future REST hook will use it.
- * @param props.selection              - Current selection state (selected + deselected sets).
- * @param props.onSelectionChange      - Called with the next state when any row toggles.
- * @param props.onSelectionCountChange - Called whenever the visible-selected leaf count changes.
+ * @param props                      - Component props.
+ * @param props.rewindId             - The selected backup's rewindId; surfaced as a data attribute today, the future REST hook will use it.
+ * @param props.selection            - Current selection state (selected + deselected sets).
+ * @param props.onSelectionChange    - Called with the next state when any row toggles.
+ * @param props.onSelectionIdsChange - Called whenever the selected leaves change, with the `ls` entry ids a download request could name them by.
  * @return The rendered tree.
  */
 export default function FileBrowser( {
 	rewindId,
 	selection,
 	onSelectionChange,
-	onSelectionCountChange,
+	onSelectionIdsChange,
 }: Props ) {
 	const [ openFile, setOpenFile ] = useState< FileNodeFile | null >( null );
 	const {
@@ -401,14 +407,25 @@ export default function FileBrowser( {
 		[ selected, deselected, loadedChildren, onSelectionChange ]
 	);
 
-	const selectedCount = useMemo(
-		() => countSelectedInLoadedTree( roots, selection, loadedChildren ),
+	const selectedLeaves = useMemo(
+		() => collectSelectedInLoadedTree( roots, selection, loadedChildren ),
 		[ roots, selection, loadedChildren ]
+	);
+	// The header counts every selected leaf; the ids reported upward are only what
+	// a request can name. An entry upstream gave no `id` is in the first list and
+	// not the second, which is why the caller labels from the ids.
+	const selectedCount = selectedLeaves.length;
+	const selectedIds = useMemo(
+		() =>
+			selectedLeaves
+				.map( leaf => leaf.id )
+				.filter( ( id ): id is string => typeof id === 'string' && id !== '' ),
+		[ selectedLeaves ]
 	);
 
 	useEffect( () => {
-		onSelectionCountChange?.( selectedCount );
-	}, [ selectedCount, onSelectionCountChange ] );
+		onSelectionIdsChange?.( selectedIds );
+	}, [ selectedIds, onSelectionIdsChange ] );
 
 	// The selection summary's checkbox doubles as a "select all / clear"
 	// toggle: clicking it with anything selected clears both sets,

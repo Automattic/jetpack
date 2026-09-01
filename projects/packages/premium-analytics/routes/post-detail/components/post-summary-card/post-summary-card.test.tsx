@@ -9,6 +9,7 @@ const SUMMARY: PostSummary = {
 	imageUrl: 'https://example.com/thumb.jpg',
 	url: 'https://example.com/hello-world',
 	isLoading: false,
+	isError: false,
 };
 
 describe( 'PostSummaryCard', () => {
@@ -27,5 +28,28 @@ describe( 'PostSummaryCard', () => {
 		// The envelope tile replaces the featured image even when one exists.
 		expect( screen.getByTestId( 'post-summary-email-tile' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'post-summary-image' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'holds the title and subtitle lines while the summary resolves', () => {
+		render( <PostSummaryCard summary={ { ...SUMMARY, title: undefined, isLoading: true } } /> );
+
+		expect( screen.getByText( 'Loading…' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'heading', { level: 1 } ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /Post published on/ ) ).not.toBeInTheDocument();
+	} );
+
+	// The state an email-tab deep link opens on: the tab fixes the identity, so
+	// the envelope tile is already right while the title is still loading.
+	it( 'keeps the email identity while the summary resolves', () => {
+		render(
+			<PostSummaryCard
+				summary={ { ...SUMMARY, title: undefined, isLoading: true } }
+				variant="email"
+			/>
+		);
+
+		expect( screen.getByTestId( 'post-summary-email-tile' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Loading…' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /Email sent on/ ) ).not.toBeInTheDocument();
 	} );
 } );

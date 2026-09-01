@@ -16,26 +16,54 @@ use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-require_once __DIR__ . '/class.jetpack-admin-page.php';
 require_once dirname( __DIR__ ) . '/class-jetpack-ai-feature-flags.php';
 
 /**
  * Builds the Jetpack AI admin page and its sidebar menu entry.
  */
-class Jetpack_AI_Page extends Jetpack_Admin_Page {
+class Jetpack_AI_Page {
 
 	/**
-	 * Hide the "AI" sidebar entry when Jetpack is not yet connected.
-	 * Other Jetpack products follow the same convention.
+	 * Register the page and its page-specific hooks.
 	 *
-	 * @var bool
+	 * The AI Hub owns its full React layout, so it does not need the legacy
+	 * Jetpack_Admin_Page lifecycle. Keeping this controller independent also
+	 * lets WordPress.com Simple load the same page without replacing its
+	 * request-wide Jetpack_Admin_Page compatibility stub.
 	 */
-	protected $dont_show_if_not_active = true;
+	public function add_actions() {
+		$is_offline_mode = ( new Status() )->is_offline_mode();
+
+		if ( ! current_user_can( 'manage_options' ) && ( $is_offline_mode || ! Jetpack::is_connection_ready() ) ) {
+			return;
+		}
+
+		if ( ! Jetpack::is_connection_ready() && ! $is_offline_mode ) {
+			return;
+		}
+
+		$hook = $this->get_page_hook();
+		if ( ! $hook ) {
+			return;
+		}
+
+		add_action( 'admin_print_scripts-' . $hook, array( $this, 'page_admin_scripts' ) );
+
+		// Preserve the standalone Jetpack page's existing base stylesheet. Simple
+		// never loaded it for the Hub because it conflicts with wpcom admin pages.
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			add_action( 'admin_print_styles-' . $hook, array( $this, 'admin_styles' ) );
+		}
+
+		$this->add_page_actions( $hook );
+	}
 
 	/**
 	 * Register the "AI" submenu under the Jetpack top-level menu.
@@ -61,6 +89,17 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	 */
 	public function add_page_actions( $hook ) {
 		add_action( 'load-' . $hook, array( $this, 'load_agents_manager' ) );
+	}
+
+	/**
+	 * Enqueue the stylesheet historically supplied by Jetpack_Admin_Page.
+	 */
+	public function admin_styles() {
+		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
+		wp_enqueue_style( 'jetpack-admin', plugins_url( "css/jetpack-admin{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons', 'jetpack-connection' ), JETPACK__VERSION . '-20121016' );
+		wp_style_add_data( 'jetpack-admin', 'rtl', 'replace' );
+		wp_style_add_data( 'jetpack-admin', 'suffix', $min );
 	}
 
 	/**
@@ -155,14 +194,6 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * No additional styles needed: AdminPage from @automattic/jetpack-components
-	 * owns the full layout and does not need the wrap_ui admin.css / style.min.css
-	 * bundle (which zeroes out #wpcontent padding and conflicts with AdminPage's
-	 * margin-left compensation).
-	 */
-	public function additional_styles() {}
-
-	/**
 	 * Enqueue scripts and styles for the AI admin page.
 	 */
 	public function page_admin_scripts() {
@@ -177,7 +208,8 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 		}
 
 		$blog_id     = Connection_Manager::get_site_id( true );
-		$site_suffix = ( new Status() )->get_site_suffix();
+		$status      = new Status();
+		$site_suffix = $status->get_site_suffix();
 		// Use the plain hostname for the Atomic activity log URL — get_site_suffix() can
 		// include '::' for subdirectory installs, which would break the URL. This matches
 		// the approach used by jetpack-mu-wpcom for the sidebar Activity Log link.
@@ -219,14 +251,41 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 		);
 
 		wp_set_script_translations( 'jetpack-ai-admin', 'jetpack' );
+
+		// The Tracks sender (w.js); without it, queued events never leave the
+		// browser. Consent-gated like the other surfaces that load it.
+		$can_send_tracks = ( new Tracking( 'jetpack', new Connection_Manager() ) )->should_enable_tracking( new Terms_Of_Service(), $status );
+		if ( $can_send_tracks ) {
+			Tracking::register_tracks_functions_scripts( true );
+		}
+
 		if ( $show_scheduled_tasks_view ) {
 			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
 		}
 
-		// Pre-release gate for the Overview and Features views. When opening
-		// them to everyone, also drop the matching gate in My Jetpack's
-		// Jetpack_Ai::get_manage_url() so its links land here too.
-		$show_gated_views = $is_internal_test;
+		/**
+		 * Filters the host-specific AI Hub configuration.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $config AI Hub host configuration.
+		 */
+		$config = apply_filters(
+			'jetpack_ai_admin_config',
+			array(
+				// Pre-release gate for the Overview and Features views. When opening
+				// them to everyone, also drop the matching gate in My Jetpack's
+				// Jetpack_Ai::get_manage_url() so its links land here too.
+				'showGatedViews'  => $is_internal_test,
+				'isUserConnected' => ( new Connection_Manager() )->is_user_connected(),
+				'mcpSettingsApi'  => array(
+					'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',
+					'format' => 'jetpack',
+				),
+			)
+		);
+
+		$show_gated_views = ! empty( $config['showGatedViews'] );
 
 		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array(
 			'name'       => '',
@@ -234,45 +293,51 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			'auto_renew' => true,
 		);
 
+		$settings = array(
+			'blogId'           => $blog_id ? (int) $blog_id : 0,
+			'activityLogUrl'   => $activity_log_url,
+			'seoSettingsUrl'   => $seo_settings_url,
+			'siteAdminUrl'     => admin_url(),
+			'apiRoot'          => esc_url_raw( rest_url() ),
+			'apiNonce'         => wp_create_nonce( 'wp_rest' ),
+			'pluginUrl'        => plugins_url( '', JETPACK__PLUGIN_FILE ),
+			// The redirect entry bakes in the jetpack_ai_yearly product and
+			// a post-checkout return to this page, so both can be
+			// retargeted without shipping a code change.
+			'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-hub-upgrade' ),
+			// The purchase granting AI, for the Overview usage card — the
+			// usage endpoint cannot name it. Only looked up when a gated
+			// view can render it.
+			'planName'         => $plan_info['name'],
+			// The plan's own renewal date, matching My Jetpack — the
+			// usage-period rollover is a different, monthly date.
+			'planRenewsOn'     => $plan_info['renews_on'],
+			// The same date reads "Renews on" or "Expires on" depending on
+			// auto-renew, matching My Jetpack and the wpcom subscriptions page.
+			'planAutoRenew'    => $plan_info['auto_renew'],
+			'showFeaturesView' => $show_gated_views,
+			// The tab and its Agents Manager sidebar ship disabled by default.
+			'featureFlags'     => array(
+				Jetpack_AI_Feature_Flags::SCHEDULED_TASKS => $show_scheduled_tasks_view,
+			),
+			// The usage endpoint proxies as the current user, which needs
+			// their own WordPress.com account linked — not just the site.
+			'isUserConnected'  => ! empty( $config['isUserConnected'] ),
+			// Tracks audience properties for the jetpack_mcp_* events, per the
+			// Tracks standards for AI product events (AIINT-586). The client
+			// sends them as the strings 'true'/'false' (AIINT-576).
+			'isA11n'           => self::is_current_user_automattician(),
+			'isTest'           => $is_internal_test,
+			// Identity for Tracks; the lookup can call WordPress.com on a
+			// cache miss, so it shares the sender's guard.
+			'tracksUserData'   => $can_send_tracks ? self::get_tracks_user_data() : null,
+			'mcpSettingsApi'   => $config['mcpSettingsApi'],
+		);
+
 		wp_add_inline_script(
 			'jetpack-ai-admin',
 			'var jetpackAiSettings = ' . wp_json_encode(
-				array(
-					'blogId'           => $blog_id ? (int) $blog_id : 0,
-					'activityLogUrl'   => $activity_log_url,
-					'seoSettingsUrl'   => $seo_settings_url,
-					'siteAdminUrl'     => admin_url(),
-					'apiRoot'          => esc_url_raw( rest_url() ),
-					'apiNonce'         => wp_create_nonce( 'wp_rest' ),
-					'pluginUrl'        => plugins_url( '', JETPACK__PLUGIN_FILE ),
-					// The redirect entry bakes in the jetpack_ai_yearly product and
-					// a post-checkout return to this page, so both can be
-					// retargeted without shipping a code change.
-					'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-hub-upgrade' ),
-					// The purchase granting AI, for the Overview usage card — the
-					// usage endpoint cannot name it. Only looked up when a gated
-					// view can render it.
-					'planName'         => $plan_info['name'],
-					// The plan's own renewal date, matching My Jetpack — the
-					// usage-period rollover is a different, monthly date.
-					'planRenewsOn'     => $plan_info['renews_on'],
-					// The same date reads "Renews on" or "Expires on" depending on
-					// auto-renew, matching My Jetpack and the wpcom subscriptions page.
-					'planAutoRenew'    => $plan_info['auto_renew'],
-					'showFeaturesView' => $show_gated_views,
-					// The tab and its Agents Manager sidebar ship disabled by default.
-					'featureFlags'     => array(
-						Jetpack_AI_Feature_Flags::SCHEDULED_TASKS => $show_scheduled_tasks_view,
-					),
-					// The usage endpoint proxies as the current user, which needs
-					// their own WordPress.com account linked — not just the site.
-					'isUserConnected'  => ( new Connection_Manager() )->is_user_connected(),
-					// Tracks audience properties for the jetpack_mcp_* events, per the
-					// Tracks standards for AI product events (AIINT-586). The client
-					// sends them as the strings 'true'/'false' (AIINT-576).
-					'isA11n'           => self::is_current_user_automattician(),
-					'isTest'           => $is_internal_test,
-				),
+				$settings,
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
 			'before'
@@ -299,6 +364,24 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			plugins_url( '_inc/build/jetpack-ai-admin.css', JETPACK__PLUGIN_FILE ),
 			array( 'wp-components' ),
 			$script_version
+		);
+	}
+
+	/**
+	 * Connected-user identity for Tracks; null when no WordPress.com account is
+	 * linked. Two keys only, so email and locale stay out of the page HTML.
+	 *
+	 * @return array{userid:int, username:string}|null
+	 */
+	private static function get_tracks_user_data() {
+		$identity = \Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+		if ( ! is_array( $identity ) || ! isset( $identity['userid'] ) || ! isset( $identity['username'] ) ) {
+			return null;
+		}
+
+		return array(
+			'userid'   => (int) $identity['userid'],
+			'username' => (string) $identity['username'],
 		);
 	}
 

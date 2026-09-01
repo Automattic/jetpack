@@ -87,6 +87,7 @@ class Jetpack_Mu_Wpcom {
 
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_jetpack_ai' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
@@ -133,6 +134,24 @@ class Jetpack_Mu_Wpcom {
 		 * @since 0.1.2
 		 */
 		do_action( 'jetpack_mu_wpcom_initialized' );
+	}
+
+	/**
+	 * Load the Jetpack AI Hub integration on WordPress.com Simple sites.
+	 */
+	public static function load_wpcom_simple_jetpack_ai() {
+		/**
+		 * Filters whether WordPress.com Simple should register the Jetpack AI Hub.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $load Whether to load the AI Hub integration.
+		 */
+		if ( ! apply_filters( 'jetpack_mu_wpcom_load_jetpack_ai_hub', false ) ) {
+			return;
+		}
+
+		require_once __DIR__ . '/features/jetpack-ai-hub/jetpack-ai-hub.php';
 	}
 
 	/**

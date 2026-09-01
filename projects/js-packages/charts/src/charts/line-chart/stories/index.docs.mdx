@@ -572,19 +572,13 @@ Line Charts integrate seamlessly with the chart theming system. The default them
 	}` }
 />
 
-Everything else is set by wrapping your chart in `GlobalChartsProvider` and passing a theme object with the properties you want to override to the `theme` prop:
+Every other color works the same way — declare its catalog role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
 
 <Source
-	language="tsx"
-	code={ `import { GlobalChartsProvider, LineChart, type ChartTheme } from '@automattic/charts';
-
-	const customTheme: ChartTheme = {
-		gridStyles: { stroke: '#E0E0E0' },
-	};
-
-	<GlobalChartsProvider theme={customTheme}>
-		<LineChart data={data} />
-	</GlobalChartsProvider>` }
+	language="css"
+	code={ `.my-dashboard {
+		--a8c-charts-color-grid: #E0E0E0;
+	}` }
 />
 
 ## Responsive Behavior

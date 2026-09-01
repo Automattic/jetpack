@@ -819,6 +819,7 @@ describe( 'pickLiveRestore', () => {
 		rewind_id: REWIND_ID,
 		when: '2026-08-20T10:00:00+00:00',
 		settled: false,
+		succeeded: false,
 		...over,
 	} );
 

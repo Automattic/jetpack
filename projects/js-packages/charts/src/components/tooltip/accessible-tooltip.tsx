@@ -1,7 +1,10 @@
 import { Tooltip, TooltipContext } from '@visx/xychart';
 import clsx from 'clsx';
 import { useContext, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useGlobalChartsTheme } from '../../providers';
+import { useChartScopeElement } from '../../providers/chart-scope';
 import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
+import { resolveCssVariable } from '../../utils';
 import type { SeriesData, DataPointDate } from '../../types';
 import type { RenderTooltipParams, XyChartTooltipProps } from '../../visx/types';
 import type { ReactNode } from 'react';
@@ -45,9 +48,21 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 	keyboardFocusedClassName,
 	series = [],
 	mode = 'group',
+	verticalCrosshairStyle,
+	horizontalCrosshairStyle,
 	...props
 } ) => {
 	const tooltipContext = useContext( TooltipContext );
+	const scopeElement = useChartScopeElement();
+	const gridStroke = useGlobalChartsTheme().gridStyles?.stroke;
+
+	// The crosshair is painted in a portal outside the scope, so it needs a resolved color; see TOKENS.md#the-svg-bridge.
+	const crosshairStroke = useMemo( () => {
+		const stroke = gridStroke ? resolveCssVariable( gridStroke, scopeElement ) : null;
+
+		// Passing `stroke: undefined` would erase the crosshair: it overrides visx's own value, and SVG's initial `stroke` is `none`.
+		return stroke ? { stroke } : undefined;
+	}, [ gridStroke, scopeElement ] );
 
 	const tooltipData = useMemo( () => {
 		if ( mode !== 'individual' ) return [];
@@ -158,7 +173,14 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 		};
 	}, [ renderTooltip, selectedIndex, tooltipRef, keyboardFocusedClassName ] );
 
-	return <Tooltip { ...props } renderTooltip={ focusableRenderTooltip } />;
+	return (
+		<Tooltip
+			{ ...props }
+			verticalCrosshairStyle={ { ...crosshairStroke, ...verticalCrosshairStyle } }
+			horizontalCrosshairStyle={ { ...crosshairStroke, ...horizontalCrosshairStyle } }
+			renderTooltip={ focusableRenderTooltip }
+		/>
+	);
 };
 
 // Keyboard navigation hook for charts
