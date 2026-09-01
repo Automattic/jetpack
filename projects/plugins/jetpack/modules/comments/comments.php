@@ -178,7 +178,9 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 		add_filter( 'comment_post_redirect', array( $this, 'capture_comment_post_redirect_to_reload_parent_frame' ), 100 );
 		add_filter( 'comment_duplicate_trigger', array( $this, 'capture_comment_duplicate_trigger' ), 100 );
-		add_filter( 'get_avatar', array( $this, 'get_avatar' ), 10, 4 );
+		// Set the social avatar URL and let core build and escape the <img>. The old get_avatar
+		// filter spliced the URL into a preg_replace() replacement, where a stored `$1` became the quote.
+		add_filter( 'pre_get_avatar_data', array( $this, 'set_comment_avatar_data' ), 10, 2 );
 		// Fix comment reply link when `comment_registration` is required.
 		add_filter( 'comment_reply_link', array( $this, 'comment_reply_link' ), 10, 4 );
 	}
@@ -231,34 +233,52 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	/**
-	 * Get the comment avatar from Gravatar or Twitter/Facebook.
+	 * Serve a stored social avatar for a comment.
 	 *
-	 * Leaving the Twitter reference for legacy comments even though support is no longer offered.
+	 * Sets the avatar URL and lets core render and escape the <img>, replacing a get_avatar
+	 * filter that rewrote built markup with a backreference-expanding preg_replace().
 	 *
-	 * @since 1.4
-	 *
-	 * @param string $avatar  Current avatar URL.
-	 * @param string $comment Comment for the avatar.
-	 * @param int    $size    Size of the avatar.
-	 *
-	 * @return string New avatar
+	 * @param array $args        Avatar data being assembled.
+	 * @param mixed $id_or_email What the avatar was requested for.
+	 * @return array
 	 */
-	public function get_avatar( $avatar, $comment, $size ) {
-		if ( ! isset( $comment->comment_post_ID ) || ! isset( $comment->comment_ID ) ) {
-			// it's not a comment - bail.
-			return $avatar;
+	public function set_comment_avatar_data( $args, $id_or_email ) {
+		if ( ! $id_or_email instanceof WP_Comment || isset( $args['url'] ) ) {
+			return $args;
 		}
 
-		// Detect whether it's a Facebook avatar.
-		$foreign_avatar          = get_comment_meta( $comment->comment_ID, 'hc_avatar', true );
-		$foreign_avatar_hostname = wp_parse_url( $foreign_avatar, PHP_URL_HOST );
-		if ( ! $foreign_avatar_hostname ||
-			! preg_match( '/\.?(graph\.facebook\.com|twimg\.com)$/', $foreign_avatar_hostname ) ) {
-			return $avatar;
+		$foreign_avatar = get_comment_meta( $id_or_email->comment_ID, 'hc_avatar', true );
+		if ( ! is_string( $foreign_avatar ) || '' === $foreign_avatar ) {
+			return $args;
 		}
 
-		// Return the Facebook or Twitter avatar.
-		return preg_replace( '#src=([\'"])[^\'"]+\\1#', 'src=\\1' . esc_url( set_url_scheme( $this->photon_avatar( $foreign_avatar, $size ), 'https' ) ) . '\\1', $avatar );
+		$hostname = wp_parse_url( $foreign_avatar, PHP_URL_HOST );
+		if ( ! is_string( $hostname ) || ! $this->is_foreign_avatar_host( $hostname ) ) {
+			return $args;
+		}
+
+		$size = isset( $args['size'] ) ? (int) $args['size'] : 96;
+
+		$args['url']          = set_url_scheme( $this->photon_avatar( $foreign_avatar, $size ), 'https' );
+		$args['found_avatar'] = true;
+
+		return $args;
+	}
+
+	/**
+	 * Whether a stored avatar host is one we serve (Facebook or Twitter/X), matched on a real boundary.
+	 *
+	 * @param string $hostname Host parsed from the stored avatar URL.
+	 * @return bool
+	 */
+	private function is_foreign_avatar_host( $hostname ) {
+		foreach ( array( 'graph.facebook.com', 'twimg.com' ) as $allowed ) {
+			if ( $hostname === $allowed || str_ends_with( $hostname, ".{$allowed}" ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -680,9 +700,7 @@ HTML;
 			wp_die( esc_html__( 'Nonce verification failed.', 'jetpack' ), 400 );
 		}
 
-		if ( is_string( $post_array['hc_avatar'] ) && str_contains( $post_array['hc_avatar'], '.gravatar.com' ) ) {
-			$post_array['hc_avatar'] = htmlentities( $post_array['hc_avatar'], ENT_COMPAT );
-		}
+		$post_array = self::highlander_signed_payload( $post_array );
 
 		$blog_token = ( new Tokens() )->get_access_token( false, $post_array['token_key'] );
 		if ( ! $blog_token || is_wp_error( $blog_token ) ) {
@@ -769,6 +787,53 @@ HTML;
 	/** Capabilities **********************************************************/
 
 	/**
+	 * Rebuild the request array wpcom signed, so its HMAC can be reproduced here.
+	 *
+	 * wpcom HTML-encodes a Gravatar avatar URL before signing, so the same encoding
+	 * has to be applied or the signature never matches for a Gravatar identity.
+	 *
+	 * @param array $post_array Stripslashed $_POST.
+	 * @return array
+	 */
+	private static function highlander_signed_payload( $post_array ) {
+		if ( isset( $post_array['hc_avatar'] ) && is_string( $post_array['hc_avatar'] ) && str_contains( $post_array['hc_avatar'], '.gravatar.com' ) ) {
+			$post_array['hc_avatar'] = htmlentities( $post_array['hc_avatar'], ENT_COMPAT );
+		}
+		return $post_array;
+	}
+
+	/**
+	 * Whether the current request carries a valid Highlander signature.
+	 *
+	 * The HMAC over the hc_* identity fields is otherwise only verified in
+	 * pre_comment_on_post(), which fires on wp-comments-post.php alone. Re-checking here
+	 * covers every other producer that reaches the comment_post action, including
+	 * Carousel's unauthenticated wp_ajax_nopriv_post_attachment_comment endpoint.
+	 *
+	 * @return bool
+	 */
+	private function highlander_post_is_signed() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- The HMAC signature below is the verification; this path has no nonce.
+		$post_array = self::highlander_signed_payload( stripslashes_deep( $_POST ) );
+
+		if ( empty( $post_array['sig'] ) || ! is_string( $post_array['sig'] ) || empty( $post_array['token_key'] ) ) {
+			return false;
+		}
+
+		$blog_token = ( new Tokens() )->get_access_token( false, $post_array['token_key'] );
+		if ( ! $blog_token || is_wp_error( $blog_token ) ) {
+			return false;
+		}
+
+		$check = self::sign_remote_comment_parameters( $post_array, $blog_token->secret );
+		if ( is_wp_error( $check ) ) {
+			return false;
+		}
+
+		return hash_equals( $check, $post_array['sig'] );
+	}
+
+	/**
 	 * Add some additional comment meta after comment is saved about what
 	 * service the comment is from, the avatar, user_id, etc...
 	 *
@@ -777,29 +842,35 @@ HTML;
 	 * @param int $comment_id The comment ID.
 	 */
 	public function add_comment_meta( $comment_id ) {
+		// The hc_* identity fields are only trustworthy on a signed request. pre_comment_on_post()
+		// verifies that, but only on wp-comments-post.php, so re-check every other comment_post producer.
+		if ( ! $this->highlander_post_is_signed() ) {
+			return;
+		}
+
 		$comment_meta = array();
 
-		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Signature verified in highlander_post_is_signed() above.
 		switch ( $this->is_highlander_comment_post() ) {
 			case 'facebook':
 				$comment_meta['hc_post_as']         = 'facebook';
-				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? filter_var( wp_unslash( $_POST['hc_avatar'] ) ) : null;
-				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? filter_var( wp_unslash( $_POST['hc_userid'] ) ) : null;
+				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? esc_url_raw( wp_unslash( $_POST['hc_avatar'] ) ) : null;
+				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? sanitize_text_field( wp_unslash( $_POST['hc_userid'] ) ) : null;
 				break;
 
 			// phpcs:ignore WordPress.WP.CapitalPDangit
 			case 'wordpress':
 				// phpcs:ignore WordPress.WP.CapitalPDangit
 				$comment_meta['hc_post_as']         = 'wordpress';
-				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? filter_var( wp_unslash( $_POST['hc_avatar'] ) ) : null;
-				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? filter_var( wp_unslash( $_POST['hc_userid'] ) ) : null;
-				$comment_meta['hc_wpcom_id_sig']    = isset( $_POST['hc_wpcom_id_sig'] ) ? filter_var( wp_unslash( $_POST['hc_wpcom_id_sig'] ) ) : null; // since 1.9.
+				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? esc_url_raw( wp_unslash( $_POST['hc_avatar'] ) ) : null;
+				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? sanitize_text_field( wp_unslash( $_POST['hc_userid'] ) ) : null;
+				$comment_meta['hc_wpcom_id_sig']    = isset( $_POST['hc_wpcom_id_sig'] ) ? sanitize_text_field( wp_unslash( $_POST['hc_wpcom_id_sig'] ) ) : null; // since 1.9.
 				break;
 
 			case 'jetpack':
 				$comment_meta['hc_post_as']         = 'jetpack';
-				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? filter_var( wp_unslash( $_POST['hc_avatar'] ) ) : null;
-				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? filter_var( wp_unslash( $_POST['hc_userid'] ) ) : null;
+				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? esc_url_raw( wp_unslash( $_POST['hc_avatar'] ) ) : null;
+				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? sanitize_text_field( wp_unslash( $_POST['hc_userid'] ) ) : null;
 				break;
 
 		}
