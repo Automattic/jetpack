@@ -188,6 +188,30 @@ describe( 'comparison options', () => {
 		] );
 	} );
 
+	it( 'reads a two-year custom range in years', () => {
+		const twoYears = daysRange( [ 2024, 0, 1 ], [ 2025, 11, 31 ] );
+
+		expect( labels( twoYears ) ).toEqual( [ 'Previous 2 years' ] );
+		expect( getComparisonOptions( twoYears )[ 0 ].range ).toEqual(
+			daysRange( [ 2022, 0, 1 ], [ 2023, 11, 31 ] )
+		);
+	} );
+
+	it( 'reads a drilled single hour as the previous hour', () => {
+		const hour = {
+			from: new Date( 2026, 7, 31, 14, 0, 0, 0 ),
+			to: new Date( 2026, 7, 31, 14, 59, 59, 999 ),
+		};
+
+		const options = getComparisonOptions( hour );
+
+		expect( options[ 0 ].label ).toBe( 'Previous hour' );
+		expect( options[ 0 ].range ).toEqual( {
+			from: new Date( 2026, 7, 31, 13, 0, 0, 0 ),
+			to: new Date( 2026, 7, 31, 13, 59, 59, 999 ),
+		} );
+	} );
+
 	it( 'labels every option and gives each a trigger abbreviation', () => {
 		for ( const option of getComparisonOptions( daysRange( [ 2026, 7, 30 ], [ 2026, 7, 30 ] ) ) ) {
 			expect( option.label ).toBeTruthy();
