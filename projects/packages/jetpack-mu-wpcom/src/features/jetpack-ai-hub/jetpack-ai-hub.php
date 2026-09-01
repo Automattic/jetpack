@@ -28,8 +28,7 @@ function configure( $config ) {
 	// Simple users are WordPress.com users by construction, so the usage
 	// endpoint can always proxy as the current user.
 	$config['isUserConnected'] = true;
-	// The Overview plan card, answered the WordPress.com-native way — the
-	// upstream My Jetpack purchase lookup cannot run on Simple.
+	// The Overview plan card — get_plan_info() says why Simple answers it.
 	$config['planInfo']       = get_plan_info();
 	$config['mcpSettingsApi'] = array(
 		'path'   => '/wpcom/v2/sites/' . $blog_id . '/mcp-abilities',
@@ -45,9 +44,8 @@ function configure( $config ) {
  *
  * Answered from the WordPress.com store — the site's plan purchase, named
  * via the product list — because My Jetpack's purchase lookup signs a
- * blog-token request Simple sites cannot make. All-or-nothing like the
- * upstream lookup: a plan that cannot be named reports the empty shape
- * rather than dates without a name.
+ * blog-token request Simple sites cannot make. All-or-nothing like upstream:
+ * a plan that cannot be named reports the empty shape.
  *
  * @return array{name: string, renews_on: string, auto_renew: bool}
  */
@@ -62,8 +60,8 @@ function get_plan_info() {
 		return $info;
 	}
 
-	// A site can hold several plan rows (a lapsed plan beside the current
-	// one); the expiry-notices picker already selects the latest-expiring.
+	// The store returns active subscriptions only; the expiry-notices picker
+	// selects the latest-expiring plan row if several are active at once.
 	$plan = Expiry_Data::pick_primary_plan_purchase( wpcom_get_site_purchases() );
 	if ( ! is_object( $plan ) ) {
 		return $info;
@@ -74,16 +72,11 @@ function get_plan_info() {
 		return $info;
 	}
 
-	// An unparseable expiry ('0000-00-00…' marks never-expiring subscriptions)
-	// is no date, not an expired plan; a parseable past one means it lapsed.
-	$expiry_ts = strtotime( (string) ( $plan->expiry_date ?? '' ) );
-	if ( false !== $expiry_ts && $expiry_ts < time() ) {
-		return $info;
-	}
-
 	// Raw store name; the Hub page trims the brand prefixes in one place.
-	$info['name']      = $name;
-	$info['renews_on'] = false === $expiry_ts ? '' : (string) $plan->expiry_date;
+	$info['name'] = $name;
+	// Always an ISO8601 string: the store normalizer rewrites empty and
+	// '0000-00-00' (never-expiring) expiries before they reach purchases.
+	$info['renews_on'] = (string) ( $plan->expiry_date ?? '' );
 	// Absent means unknown, not off — and Simple store rows historically carry
 	// the flag as user_allows_auto_renew, with auto_renew as its alias.
 	$info['auto_renew'] = (bool) ( $plan->user_allows_auto_renew ?? $plan->auto_renew ?? true );

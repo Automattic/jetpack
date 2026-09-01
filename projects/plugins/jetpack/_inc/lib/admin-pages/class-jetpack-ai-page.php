@@ -284,16 +284,21 @@ class Jetpack_AI_Page {
 				// Pre-release gate for the Overview and Features views. When opening
 				// them to everyone, also drop the matching gate in My Jetpack's
 				// Jetpack_Ai::get_manage_url() so its links land here too.
-				'showGatedViews'  => $is_internal_test,
+				'showGatedViews'    => $is_internal_test,
 				// Whether the gated views carry the internal-audience badge: on by
 				// default only when the internal gate is why they show, so a host
 				// that opens them (Simple) does not ship the badge to customers.
-				'gatedViewsBadge' => $is_internal_test,
-				'isUserConnected' => ( new Connection_Manager() )->is_user_connected(),
-				'mcpSettingsApi'  => array(
+				'gatedViewsBadge'   => $is_internal_test,
+				'isUserConnected'   => ( new Connection_Manager() )->is_user_connected(),
+				'mcpSettingsApi'    => array(
 					'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',
 					'format' => 'jetpack',
 				),
+				// Link targets the Features view cannot compute host-aware itself.
+				// Empty means the surface does not exist here; the view hides the link.
+				'seoSettingsUrl'    => $seo_settings_url,
+				'searchSettingsUrl' => $is_simple ? '' : 'admin.php?page=jetpack-search#/ai-answers',
+				'myJetpackUrl'      => $is_simple ? '' : 'admin.php?page=my-jetpack#/products',
 			)
 		);
 
@@ -305,9 +310,8 @@ class Jetpack_AI_Page {
 			'auto_renew' => true,
 		);
 		if ( $show_gated_views ) {
-			// The host integration may precompute the plan the platform-native
-			// way — My Jetpack's signed purchase lookup cannot run on
-			// WordPress.com Simple, so its mu-wpcom configure() supplies this.
+			// A host may precompute the plan platform-natively (WordPress.com
+			// Simple's mu-wpcom configure() does — see its get_plan_info()).
 			$plan_info = isset( $config['planInfo'] ) && is_array( $config['planInfo'] )
 				? array_merge( $plan_info, $config['planInfo'] )
 				: self::get_ai_plan_info();
@@ -320,7 +324,7 @@ class Jetpack_AI_Page {
 		$settings = array(
 			'blogId'              => $blog_id ? (int) $blog_id : 0,
 			'activityLogUrl'      => $activity_log_url,
-			'seoSettingsUrl'      => $seo_settings_url,
+			'seoSettingsUrl'      => (string) ( $config['seoSettingsUrl'] ?? '' ),
 			'siteAdminUrl'        => admin_url(),
 			'apiRoot'             => esc_url_raw( rest_url() ),
 			'apiNonce'            => wp_create_nonce( 'wp_rest' ),
@@ -343,11 +347,8 @@ class Jetpack_AI_Page {
 			// Label the gated tabs as internal-only wherever that is still why
 			// they show — a host that opened them keeps the badge off.
 			'showGatedViewsBadge' => $show_gated_views && ! empty( $config['gatedViewsBadge'] ),
-			// Row-action targets the Features view cannot compute host-aware
-			// itself. Empty means the surface does not exist here (Simple), and
-			// the view hides the link.
-			'searchSettingsUrl'   => $is_simple ? '' : 'admin.php?page=jetpack-search#/ai-answers',
-			'myJetpackUrl'        => $is_simple ? '' : 'admin.php?page=my-jetpack#/products',
+			'searchSettingsUrl'   => (string) ( $config['searchSettingsUrl'] ?? '' ),
+			'myJetpackUrl'        => (string) ( $config['myJetpackUrl'] ?? '' ),
 			// The tab and its Agents Manager sidebar ship disabled by default.
 			'featureFlags'        => array(
 				Jetpack_AI_Feature_Flags::SCHEDULED_TASKS => $show_scheduled_tasks_view,

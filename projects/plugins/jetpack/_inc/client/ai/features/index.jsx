@@ -15,13 +15,12 @@ import { __ } from '@wordpress/i18n';
 import { Badge, Card, Link, Notice, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import analytics from 'lib/analytics';
 
-// Server-computed link targets, read at call time (not module scope) so the
-// injected page data is honoured wherever this mounts. A missing key keeps
-// the wp-admin default (tests, older payloads); an explicit empty string
-// means the surface does not exist on this host and the link is hidden.
+// Server-computed link targets, read at call time so the injected page data
+// is honoured wherever this mounts. Missing key = wp-admin default (tests,
+// older payloads); explicit '' = surface absent on this host, link hidden.
 const getLinkTargets = () => {
 	const {
-		seoSettingsUrl,
+		seoSettingsUrl = 'admin.php?page=jetpack#/traffic',
 		searchSettingsUrl = 'admin.php?page=jetpack-search#/ai-answers',
 		myJetpackUrl = 'admin.php?page=my-jetpack#/products',
 	} = window?.jetpackAiSettings ?? {};
@@ -29,10 +28,8 @@ const getLinkTargets = () => {
 };
 
 // Per the design, a row's action link depends on the toggle state: enabled
-// features invite you to try them (AI SEO opens its settings), disabled ones
-// link to documentation via registered Jetpack Redirects handlers. A row with
-// a single `action` shows that link in both states; a row whose settings
-// surface does not exist on this host gets no enabled-state link at all.
+// features invite you to try them, disabled ones link to documentation. A
+// single `action` shows in both states; a missing enabledAction shows none.
 export const getSections = ( { seoSettingsUrl, searchSettingsUrl } ) => [
 	{
 		key: 'content',
@@ -92,10 +89,12 @@ export const getSections = ( { seoSettingsUrl, searchSettingsUrl } ) => [
 					'AI recommendations to optimize titles, meta descriptions, and content for search engines.',
 					'jetpack'
 				),
-				enabledAction: {
-					label: __( 'Open SEO Settings', 'jetpack' ),
-					href: seoSettingsUrl || 'admin.php?page=jetpack#/traffic',
-				},
+				enabledAction: seoSettingsUrl
+					? {
+							label: __( 'Open SEO Settings', 'jetpack' ),
+							href: seoSettingsUrl,
+					  }
+					: undefined,
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
 					href: getRedirectUrl( 'jetpack-ai-settings-seo-learn-more' ),

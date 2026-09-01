@@ -319,10 +319,11 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		add_filter(
 			'jetpack_ai_admin_config',
 			function ( $config ) {
-				$config['mcpSettingsApi'] = array(
+				$config['mcpSettingsApi']    = array(
 					'path'   => '/wpcom/v2/sites/123/mcp-abilities',
 					'format' => 'wpcom',
 				);
+				$config['searchSettingsUrl'] = 'https://example.com/search-settings';
 
 				return $config;
 			}
@@ -337,14 +338,14 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 			),
 			$settings['mcpSettingsApi']
 		);
+		// The link targets ride the same filter, so hosts can retarget them.
+		$this->assertSame( 'https://example.com/search-settings', $settings['searchSettingsUrl'] );
 	}
 
 	/**
-	 * Hosts can precompute the Overview plan info — WordPress.com Simple
-	 * answers from its own store because My Jetpack's signed purchase lookup
-	 * cannot run there. A partial answer merges over the empty shape, and the
-	 * host's showGatedViews decision alone opens the views, with no
-	 * internal-testing environment in play.
+	 * Hosts can precompute the Overview plan info: a partial answer merges
+	 * over the empty shape, and the host's showGatedViews decision alone
+	 * opens the views — no internal-testing environment in play.
 	 */
 	public function test_plan_info_can_be_supplied_by_the_host() {
 		add_filter(

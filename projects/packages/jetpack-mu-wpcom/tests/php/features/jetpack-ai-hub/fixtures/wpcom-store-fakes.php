@@ -11,8 +11,8 @@
 
 /**
  * Fake of the WordPress.com purchases lookup, in the Simple store-row shape
- * (`user_allows_auto_renew`, no product_name): a non-plan purchase, a lapsed
- * plan, and the current plan.
+ * (active rows only, ISO8601 dates, `user_allows_auto_renew`, no
+ * product_name): a non-plan purchase, a superseded plan row, and the plan.
  *
  * @return object[]
  */
@@ -25,13 +25,13 @@ function wpcom_get_site_purchases() {
 		(object) array(
 			'product_type'           => 'bundle',
 			'product_id'             => '1009',
-			'expiry_date'            => '2020-01-01 00:00:00',
+			'expiry_date'            => '2026-10-01T00:00:00+00:00',
 			'user_allows_auto_renew' => true,
 		),
 		(object) array(
 			'product_type'           => 'bundle',
 			'product_id'             => '1008',
-			'expiry_date'            => '2027-08-30 00:00:00',
+			'expiry_date'            => '2027-08-30T00:00:00+00:00',
 			'user_allows_auto_renew' => false,
 		),
 	);
