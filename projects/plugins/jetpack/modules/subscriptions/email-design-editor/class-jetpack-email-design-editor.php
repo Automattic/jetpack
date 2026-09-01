@@ -167,6 +167,10 @@ class Jetpack_Email_Design_Editor {
 	 *       here the way `Jetpack_Scan::load_wp_build()` does, or gate the page on 7.1. NL-839 (j).
 	 */
 	private static function enqueue_block_editor_assets() {
+		// Named rather than built from a post: there is no post here, and `get_block_categories()`
+		// hands whatever it gets to filters that type-hint the context.
+		$context = new WP_Block_Editor_Context( array( 'name' => 'jetpack/email-design' ) );
+
 		wp_enqueue_media();
 
 		do_action( 'enqueue_block_assets' );
@@ -177,7 +181,7 @@ class Jetpack_Email_Design_Editor {
 
 		wp_add_inline_script(
 			'wp-blocks',
-			sprintf( 'wp.blocks.setCategories( %s );', wp_json_encode( get_block_categories( get_post() ), self::JSON_FLAGS ) ),
+			sprintf( 'wp.blocks.setCategories( %s );', wp_json_encode( get_block_categories( $context ), self::JSON_FLAGS ) ),
 			'after'
 		);
 		wp_add_inline_script(
@@ -220,22 +224,76 @@ class Jetpack_Email_Design_Editor {
 	 * WordPress.com strips both from the bootstrap bundle, because there they would name
 	 * WordPress.com's own asset URLs and push them into the site's canvas.
 	 *
-	 * @todo `allowedIframeStyleHandles` is what keeps the site's own CSS out of the canvas;
-	 *       without it the canvas paints the site's styles, not the email's. Mirror the
-	 *       package's `Settings_Controller::get_allowed_iframe_style_handles()`. NL-839 (b).
-	 *
 	 * @return array
 	 */
 	private static function get_iframe_asset_settings() {
-		$settings = array();
-
-		// Private, but it is what core's own block editors call to resolve the assets an
-		// iframed canvas needs. Absent before WP 6.3.
-		if ( function_exists( '_wp_get_iframed_editor_assets' ) ) {
-			$settings['__unstableResolvedAssets'] = _wp_get_iframed_editor_assets();
+		// Absent before WP 6.3, and private, but it is what core's own block editors call to
+		// resolve the assets an iframed canvas needs.
+		if ( ! function_exists( '_wp_get_iframed_editor_assets' ) ) {
+			return array();
 		}
 
-		return $settings;
+		$handles = self::get_allowed_iframe_style_handles();
+
+		return array(
+			'__unstableResolvedAssets'  => self::get_resolved_assets( $handles ),
+			'allowedIframeStyleHandles' => $handles,
+		);
+	}
+
+	/**
+	 * The stylesheet handles the canvas is allowed to keep.
+	 *
+	 * Mirrors the package's `Settings_Controller::get_allowed_iframe_style_handles()`. An empty
+	 * list is not a no-op: the client strips every stylesheet not named here, so omitting this
+	 * leaves the canvas painted in the site's own styles rather than the email's.
+	 *
+	 * @return string[]
+	 */
+	private static function get_allowed_iframe_style_handles() {
+		$handles = array(
+			'wp-components-css',
+			'wp-reset-editor-styles-css',
+			'wp-block-library-css',
+			'wp-block-editor-content-css',
+			'wp-edit-blocks-css',
+		);
+
+		foreach ( WP_Block_Type_Registry::get_instance()->get_all_registered() as $block ) {
+			if ( empty( $block->supports['email'] ) ) {
+				continue;
+			}
+
+			foreach ( array_merge( $block->style_handles, $block->editor_style_handles ) as $handle ) {
+				$handles[] = $handle . '-css';
+			}
+		}
+
+		return $handles;
+	}
+
+	/**
+	 * The iframe assets, trimmed to the allowed handles.
+	 *
+	 * @param string[] $allowed Handles to keep.
+	 * @return array The `_wp_get_iframed_editor_assets()` shape, with `styles` filtered.
+	 */
+	private static function get_resolved_assets( array $allowed ) {
+		$assets = _wp_get_iframed_editor_assets();
+		$kept   = array();
+
+		foreach ( explode( "\n", (string) $assets['styles'] ) as $asset ) {
+			foreach ( $allowed as $handle ) {
+				if ( str_contains( $asset, $handle ) ) {
+					$kept[] = $asset;
+					break;
+				}
+			}
+		}
+
+		$assets['styles'] = implode( "\n", $kept );
+
+		return $assets;
 	}
 
 	/**
