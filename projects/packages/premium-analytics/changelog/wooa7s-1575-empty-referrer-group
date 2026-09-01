@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Referrers: treat a group with an empty results list as an external-link row.
