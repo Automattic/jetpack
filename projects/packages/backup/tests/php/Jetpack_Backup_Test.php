@@ -514,9 +514,6 @@ class Jetpack_Backup_Test extends TestCase {
 		);
 	}
 
-	/**
-	 * The request carries the locale, so the key has to as well.
-	 */
 	public function test_promoted_product_info_caches_per_locale() {
 		add_filter( 'pre_http_request', array( $this, 'mock_request_as_product_catalogue' ), 10, 3 );
 
