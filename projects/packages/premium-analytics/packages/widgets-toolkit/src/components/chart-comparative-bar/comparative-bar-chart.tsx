@@ -4,6 +4,7 @@
 import {
 	BarChart,
 	Stack,
+	getBucketInfo,
 	useGlobalChartsContext,
 	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
@@ -142,7 +143,9 @@ export function ComparativeBarChart( {
 	onPointerUp,
 	onDatumActivate,
 }: ComparativeBarChartProps ) {
-	const tooltipDateFormat = dateFormatForResolution( tickResolution );
+	const tooltipDateFormat = dateFormatForResolution(
+		getBucketInfo( series, tickResolution ).displayResolution
+	);
 	const fallbackChartId = useId();
 	const chartId = providedChartId ?? fallbackChartId;
 	const { getElementStyles } = useGlobalChartsContext();

@@ -1,7 +1,12 @@
 /**
  * External dependencies
  */
-import { LineChart, Stack, type TickResolution } from '@jetpack-premium-analytics/externals';
+import {
+	LineChart,
+	Stack,
+	getBucketInfo,
+	type TickResolution,
+} from '@jetpack-premium-analytics/externals';
 import {
 	formatDate,
 	formatMetricValue,
@@ -157,7 +162,9 @@ export function ComparativeLineChart( {
 	onPointerUp,
 	onDatumActivate,
 }: ComparativeLineChartProps ) {
-	const tooltipDateFormat = dateFormatForResolution( tickResolution );
+	const tooltipDateFormat = dateFormatForResolution(
+		getBucketInfo( series, tickResolution ).displayResolution
+	);
 	// The measured Stack fills its container (flex), so its height is independent
 	// of whether the axis/legend are shown — no measure/hide feedback loop.
 	const [ chartAreaHeight, setChartAreaHeight ] = useState( Infinity );

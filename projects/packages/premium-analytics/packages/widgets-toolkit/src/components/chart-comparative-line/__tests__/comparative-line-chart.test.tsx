@@ -29,6 +29,8 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 
 	return {
 		LineChart,
+		// The real classifier: this is what the tooltip format now follows.
+		getBucketInfo: jest.requireActual( '@automattic/charts' ).getBucketInfo,
 		LineShape: () => null,
 		RectShape: () => null,
 		// The wrapper measures this element, so the stand-in must take the ref.
@@ -66,6 +68,18 @@ const SERIES: ComparativeLineChartSeries[] = [
 		group: 'views',
 		data: [
 			{ date: JULY_1, value: 100 },
+			{ date: JULY_2, value: 200 },
+		],
+	},
+];
+
+// An hour apart, so the library reads the series as hourly on its own.
+const HOURLY_SERIES: ComparativeLineChartSeries[] = [
+	{
+		label: 'July',
+		group: 'views',
+		data: [
+			{ date: new Date( '2026-07-02T04:00:00Z' ), value: 100 },
 			{ date: JULY_2, value: 200 },
 		],
 	},
@@ -247,6 +261,28 @@ describe( 'ComparativeLineChart', () => {
 		);
 
 		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( 'July 2, 2026 2:00 pm' );
+	} );
+
+	// Most widgets declare no resolution, so reading the caller's prop alone left
+	// an hourly series naming all 24 of a day's points with the same date.
+	it( 'adds the hour for an hourly series that declares no resolution', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		render( <ComparativeLineChart series={ HOURLY_SERIES } dataFormat={ DATA_FORMAT } /> );
+
+		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( 'July 2, 2026 2:00 pm' );
+	} );
+
+	it( 'lets a declared resolution override what the data looks like', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		render(
+			<ComparativeLineChart
+				series={ HOURLY_SERIES }
+				dataFormat={ DATA_FORMAT }
+				tickResolution="day"
+			/>
+		);
+
+		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( 'July 2, 2026' );
 	} );
 
 	// How a point's date reads is the caller's to decide; which format names it
