@@ -254,8 +254,16 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		$nonce = PayPal_OAuth::decrypt( $stored );
 		$this->assertNotFalse( $nonce, 'The stored nonce should decrypt with the site key.' );
 
-		// PayPal requires the seller nonce to be 43-128 characters.
-		$this->assertGreaterThanOrEqual( 43, strlen( $nonce ) );
+		/*
+		 * PayPal's schema sets minLength 44 / maxLength 128 on seller_nonce and
+		 * rejects anything shorter with a bare "violates schema" 400. Its own
+		 * field description says "43-128", which is what this assertion used to
+		 * allow — and the generator produced exactly 43, so every real referral
+		 * failed while the test passed. Assert the enforced bound, not the prose.
+		 */
+		$this->assertGreaterThanOrEqual( 44, strlen( $nonce ) );
+		$this->assertLessThanOrEqual( 128, strlen( $nonce ) );
+		$this->assertMatchesRegularExpression( '/^[a-zA-Z0-9\-_:]+$/', $nonce );
 
 		$body = (array) json_decode( end( $requests )['args']['body'], true );
 		$sent = $body['referral']['operations'][0]['api_integration_preference']['rest_api_integration']['first_party_details']['seller_nonce'];
