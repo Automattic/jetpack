@@ -234,6 +234,95 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 	} );
 
+	describe( 'Connect with PayPal (Partner Referrals)', () => {
+		/**
+		 * Reply to the connection check with platform mode, so the welcome step
+		 * with the "Connect with PayPal" button renders.
+		 *
+		 * @param {object} signupResponse - What the signup-link route returns.
+		 */
+		function mockPlatformMode( signupResponse ) {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( {
+						connected: false,
+						environment: 'sandbox',
+						partner_referrals_available: true,
+					} );
+				}
+				if ( path.endsWith( '/onboarding/signup-link' ) ) {
+					return Promise.resolve( signupResponse );
+				}
+				return Promise.resolve( {} );
+			} );
+		}
+
+		afterEach( () => {
+			document.querySelectorAll( '[data-paypal-partner-js]' ).forEach( el => el.remove() );
+		} );
+
+		it( 'renders PayPal\u2019s onboarding link in minibrowser mode', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( {
+				action_url: 'https://www.sandbox.paypal.com/merchantsignup/partner/onboardingentry?token=abc',
+			} );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await user.click(
+				await screen.findByRole( 'button', { name: /Connect with PayPal/i } )
+			);
+
+			const link = await screen.findByRole( 'link', { name: /Continue to PayPal/i } );
+
+			/*
+			 * PayPal hands over the auth code only through the SDK's callback,
+			 * and only when the link opts into the minibrowser display mode.
+			 * Both are what make onboarding completable at all.
+			 */
+			expect( link ).toHaveAttribute( 'data-paypal-button', 'true' );
+			expect( link ).toHaveAttribute(
+				'data-paypal-onboard-complete',
+				'jetpackPayPalOnboardComplete'
+			);
+			expect( link.getAttribute( 'href' ) ).toContain( 'displayMode=minibrowser' );
+			expect( link.getAttribute( 'href' ) ).toContain( 'token=abc' );
+		} );
+
+		it( 'exposes the completion callback for the SDK to call by name', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await screen.findByRole( 'button', { name: /Connect with PayPal/i } );
+
+			// The SDK resolves the callback off `window` by name, so it cannot
+			// be a closure passed to the script.
+			expect( typeof window.jetpackPayPalOnboardComplete ).toBe( 'function' );
+		} );
+
+		it( 'exchanges the auth code when the SDK reports completion', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await screen.findByRole( 'button', { name: /Connect with PayPal/i } );
+
+			window.jetpackPayPalOnboardComplete( 'AUTH_CODE_1', 'SHARED_ID_1' );
+
+			await new Promise( resolve => setTimeout( resolve, 0 ) );
+
+			expect( apiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					path: expect.stringContaining( '/onboarding/complete' ),
+					method: 'POST',
+					data: expect.objectContaining( {
+						auth_code: 'AUTH_CODE_1',
+						shared_id: 'SHARED_ID_1',
+					} ),
+				} )
+			);
+		} );
+	} );
+
 	describe( 'Legacy Block', () => {
 		it( 'shows legacy message for paste-code blocks', async () => {
 			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
