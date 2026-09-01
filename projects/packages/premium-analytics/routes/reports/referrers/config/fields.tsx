@@ -82,9 +82,15 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 			render: ( { item } ) => {
 				const safeUrl = safeHttpUrl( item.link );
 				const label = (
-					<Stack render={ <span /> } direction="row" gap="sm" align="center">
+					<Stack
+						render={ <span /> }
+						className={ styles.group }
+						direction="row"
+						gap="sm"
+						align="center"
+					>
 						<ReferrerFavicon icon={ item.icon } />
-						<span>{ item.label }</span>
+						<span className={ styles.label }>{ item.label }</span>
 					</Stack>
 				);
 

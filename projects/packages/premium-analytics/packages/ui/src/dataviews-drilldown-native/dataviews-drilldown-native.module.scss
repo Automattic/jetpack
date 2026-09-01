@@ -30,8 +30,7 @@
 	gap: var(--wpds-dimension-gap-xs);
 	align-items: center;
 
-	/* Shrink alongside DataViews' level-marker span, which keeps its layout box
-	   even when `hideLevelMarkers` hides it. */
+	/* A flex item's `min-width: auto` would otherwise pin this to its content. */
 	min-inline-size: 0;
 }
 
