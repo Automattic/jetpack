@@ -791,7 +791,7 @@ HTML;
 		// The hc_* identity fields are only trustworthy on a signed request. pre_comment_on_post() checks
 		// that, but only on wp-comments-post.php, so re-check here for any other producer that reaches
 		// comment_post (e.g. Carousel's unauthenticated post_attachment_comment endpoint).
-		if ( ! isset( $post_array['sig'], $post_array['token_key'] ) || ! is_string( $post_array['sig'] ) ) {
+		if ( ! isset( $post_array['sig'] ) || ! isset( $post_array['token_key'] ) || ! is_string( $post_array['sig'] ) ) {
 			return;
 		}
 		if ( isset( $post_array['hc_avatar'] ) && is_string( $post_array['hc_avatar'] ) && str_contains( $post_array['hc_avatar'], '.gravatar.com' ) ) {
