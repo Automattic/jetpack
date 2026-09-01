@@ -93,7 +93,7 @@
 		"@testing-library/react": "16.3.2",
 		"@testing-library/user-event": "^14.5.2",
 		"@types/jest": "30.0.0",
-		"@types/react": "18.3.28",
+		"@types/react": "18.3.31",
 		"@types/react-dom": "18.3.7",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/browserslist-config": "6.51.0",

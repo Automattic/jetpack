@@ -43,4 +43,4 @@ export {
 	type QuickSurfaceOptions,
 } from './primary';
 
-export { getComparisonPresetLabel, getComparisonPresetConfigs } from './comparison';
+export { getComparisonOptions, type ComparisonOption } from './comparison';

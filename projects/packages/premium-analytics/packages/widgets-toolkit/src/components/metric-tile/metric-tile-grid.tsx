@@ -139,7 +139,8 @@ function MetricTileValue( {
  *
  * - narrow: a single column of compact rows (icon and label left, value right);
  * - wide but short: a single row of centered tiles (columns follow tile count);
- * - wide and tall: a balanced two-column grid of large centered tiles.
+ * - wide and tall: a balanced two-column grid of large centered tiles, the last
+ *   one taking the whole row when the tile count is odd.
  *
  * The grid is a size container, so it takes no height of its own: render it
  * inside a definite-height flex column (or a `height: 100%` chain) or it

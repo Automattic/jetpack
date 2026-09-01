@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Jetpack AI: Send usage events from Jetpack AI Hub on self-hosted sites.

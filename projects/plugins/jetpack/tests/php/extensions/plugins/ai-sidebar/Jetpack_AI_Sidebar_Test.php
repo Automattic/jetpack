@@ -133,6 +133,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_abilities_script' ), 201 );
 		remove_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_patch_jetpack_ai_sidebar_preview_data' ), 250 );
 		remove_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ), 99 );
+		remove_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_agent_notice_extension' ), 99 );
 	}
 
 	/**
@@ -141,7 +142,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * @return array
 	 */
 	public static function get_sidebar_extension_allowlist() {
-		return array( AiAssistantPlugin\AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION );
+		return array(
+			AiAssistantPlugin\AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION,
+			AiAssistantPlugin\AI_SIDEBAR_AGENT_NOTICE_EXTENSION,
+		);
 	}
 
 	/**
@@ -365,6 +369,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
 			'register_toolbar_button_extension should be hooked by default.'
 		);
+		$this->assertNotFalse(
+			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_agent_notice_extension' ) ),
+			'register_agent_notice_extension should be hooked by default.'
+		);
 	}
 
 	/**
@@ -385,6 +393,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertFalse(
 			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
 			'register_toolbar_button_extension should not be hooked when filter is false.'
+		);
+		$this->assertFalse(
+			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_agent_notice_extension' ) ),
+			'register_agent_notice_extension should not be hooked when filter is false.'
 		);
 	}
 
@@ -407,6 +419,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertFalse(
 			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
 			'register_toolbar_button_extension should not be hooked when the preview gate is false.'
+		);
+		$this->assertFalse(
+			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_agent_notice_extension' ) ),
+			'register_agent_notice_extension should not be hooked when the preview gate is false.'
 		);
 	}
 
@@ -440,6 +456,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertNotFalse(
 			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
 			'register_toolbar_button_extension should be hooked when filter is true.'
+		);
+		$this->assertNotFalse(
+			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_agent_notice_extension' ) ),
+			'register_agent_notice_extension should be hooked when filter is true.'
 		);
 	}
 
@@ -757,6 +777,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
 			'register_toolbar_button_extension should not be hooked when master is off.'
 		);
+		$this->assertFalse(
+			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_agent_notice_extension' ) ),
+			'register_agent_notice_extension should not be hooked when master is off.'
+		);
 	}
 
 	/**
@@ -795,6 +819,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertFalse(
 			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
 			'register_toolbar_button_extension should not be hooked when both sidebar features are off.'
+		);
+		$this->assertFalse(
+			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_agent_notice_extension' ) ),
+			'register_agent_notice_extension should not be hooked when both sidebar features are off.'
 		);
 	}
 
@@ -956,6 +984,159 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$availability = \Jetpack_Gutenberg::get_availability()[ AiAssistantPlugin\AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION ];
 		$this->assertFalse( $availability['available'] );
 		$this->assertSame( 'jetpack_ai_sidebar_feature_disabled', $availability['unavailable_reason'] );
+	}
+
+	// ──────────────────────────────────────────────────
+	// WordPress Agent notice tests
+	// ──────────────────────────────────────────────────
+
+	/**
+	 * Test that the agent notice is enabled on a supported editor surface.
+	 */
+	public function test_agent_notice_enabled_on_supported_editor_surface() {
+		$this->set_block_editor_screen();
+
+		$this->assertTrue( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
+	}
+
+	/**
+	 * With no agent to point at, the notice must stay off.
+	 */
+	public function test_agent_notice_disabled_when_sidebar_is_off() {
+		$this->set_block_editor_screen();
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
+
+		$this->assertFalse( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
+	}
+
+	/**
+	 * A disconnected user cannot reach the agent, so the notice must stay off.
+	 */
+	public function test_agent_notice_disabled_when_agents_manager_variant_is_disconnected() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_disconnected_variant' ) );
+
+		$this->assertFalse( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
+	}
+
+	/**
+	 * Test that the notice stays on for a connected variant.
+	 */
+	public function test_agent_notice_enabled_when_agents_manager_variant_is_connected() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_variant' ) );
+
+		$this->assertTrue( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
+	}
+
+	/**
+	 * The notice replaces a post editor panel, so it must stay off where no
+	 * editor is running.
+	 */
+	public function test_agent_notice_disabled_outside_the_editor() {
+		$this->set_unsupported_admin_screen();
+
+		$this->assertFalse( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
+	}
+
+	/**
+	 * Test that the notice is enabled in the page editor.
+	 */
+	public function test_agent_notice_enabled_in_page_editor() {
+		$this->set_page_block_editor_screen();
+
+		$this->assertTrue( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
+	}
+
+	/**
+	 * Test that the notice is enabled in the site editor.
+	 */
+	public function test_agent_notice_enabled_in_site_editor() {
+		$this->set_site_editor_screen();
+
+		$this->assertTrue( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
+	}
+
+	/**
+	 * With no AI features on the site there is nothing to redirect people from.
+	 */
+	public function test_agent_notice_disabled_without_ai_features() {
+		$this->set_block_editor_screen();
+		$this->deactivate_ai_module_for_test();
+
+		$this->assertFalse( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
+	}
+
+	/**
+	 * Unlike the toolbar button, the notice does not follow the writing assistant
+	 * toggle. It reports where the AI panel went, which is worth saying wherever
+	 * the sidebar loads — here, on SEO alone.
+	 */
+	public function test_agent_notice_ignores_the_writing_assistant_toggle() {
+		$this->set_block_editor_screen();
+		$this->activate_seo_tools_module();
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+		update_option( 'ai_seo_enhancer_enabled', 1 );
+
+		$notice_enabled = Jetpack_AI_Sidebar::is_agent_notice_enabled();
+		$button_enabled = Jetpack_AI_Sidebar::is_toolbar_button_enabled();
+
+		delete_option( 'jetpack_ai_writing_assistant_enabled' );
+		delete_option( 'ai_seo_enhancer_enabled' );
+
+		$this->assertTrue( $notice_enabled, 'The notice should survive the writing assistant toggle.' );
+		$this->assertFalse( $button_enabled, 'The toolbar button should follow it, unlike the notice.' );
+	}
+
+	/**
+	 * Test that the active sidebar registers the agent notice feature.
+	 */
+	public function test_register_agent_notice_extension_marks_feature_available() {
+		$this->set_block_editor_screen();
+		$this->enable_sidebar_extension_availability_checks();
+
+		Jetpack_AI_Sidebar::register_agent_notice_extension();
+
+		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_NOTICE_EXTENSION ) );
+	}
+
+	/**
+	 * Test that an inactive sidebar registers the agent notice as unavailable.
+	 */
+	public function test_register_agent_notice_extension_marks_feature_unavailable_when_sidebar_is_off() {
+		$this->set_block_editor_screen();
+		$this->enable_sidebar_extension_availability_checks();
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
+
+		Jetpack_AI_Sidebar::register_agent_notice_extension();
+
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_NOTICE_EXTENSION ) );
+		$availability = \Jetpack_Gutenberg::get_availability()[ AiAssistantPlugin\AI_SIDEBAR_AGENT_NOTICE_EXTENSION ];
+		$this->assertFalse( $availability['available'] );
+		$this->assertSame( 'jetpack_ai_sidebar_agent_notice_disabled', $availability['unavailable_reason'] );
+	}
+
+	/**
+	 * The editor reads availability from the extensions manifest, so an entry
+	 * missing from index.json never reaches Jetpack_Editor_Initial_State.
+	 */
+	public function test_agent_notice_extension_is_declared_in_the_manifest() {
+		$manifest = (array) json_decode(
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			file_get_contents( JETPACK__PLUGIN_DIR . 'extensions/index.json' ),
+			true
+		);
+
+		$this->assertArrayHasKey( 'production', $manifest );
+		$this->assertContains(
+			AiAssistantPlugin\AI_SIDEBAR_AGENT_NOTICE_EXTENSION,
+			$manifest['production'],
+			'The agent notice must be listed in extensions/index.json to be reported as available.'
+		);
 	}
 
 	/**
