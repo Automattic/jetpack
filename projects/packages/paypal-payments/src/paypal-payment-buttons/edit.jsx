@@ -571,35 +571,48 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					`width=${ width },height=${ height },left=${ left },top=${ top },scrollbars=yes`
 				);
 
-				// Poll for popup close (PayPal redirects back to return_url in the popup).
 				const pollTimer = setInterval( () => {
+					// The merchant closed it themselves, or PayPal did.
+					if ( ! popup || popup.closed ) {
+						clearInterval( pollTimer );
+						checkOnboardingStatus();
+						return;
+					}
+
 					/*
-					 * Once PayPal redirects the popup to our own return URL it is
-					 * same-origin again and its query string readable. That is where
-					 * `merchantIdInPayPal` lives — reading it from the postMessage
-					 * instead left the merchant ID empty and the site unable to
-					 * report its integration status. Accessing `location` while the
-					 * popup is still on paypal.com throws, so this stays guarded.
+					 * PayPal redirects the popup to our return URL when onboarding
+					 * finishes. That lands it back on our own origin, so its
+					 * location becomes readable again — which is both how we learn
+					 * the flow is done and where `merchantIdInPayPal` arrives (it
+					 * rides on the redirect, not on the postMessage).
+					 *
+					 * Close it here: PayPal does not close it for us, so left alone
+					 * the popup just sits on a wp-admin screen that the merchant has
+					 * to dismiss by hand, looking like the flow stalled.
+					 *
+					 * Reading `location` while the popup is still on paypal.com
+					 * throws, and a freshly opened about:blank reports an empty
+					 * host, so both are handled rather than assumed away.
 					 */
 					try {
-						if ( popup && ! popup.closed && popup.location.host === window.location.host ) {
-							const merchantId = new URLSearchParams( popup.location.search ).get(
-								'merchantIdInPayPal'
-							);
-							if ( merchantId ) {
-								merchantIdRef.current = merchantId;
-							}
+						if ( popup.location.host !== window.location.host ) {
+							return;
 						}
+
+						const merchantId = new URLSearchParams( popup.location.search ).get(
+							'merchantIdInPayPal'
+						);
+						if ( merchantId ) {
+							merchantIdRef.current = merchantId;
+						}
+
+						clearInterval( pollTimer );
+						popup.close();
+						checkOnboardingStatus();
 					} catch {
 						// Still on a PayPal origin — its location is not readable yet.
 					}
-
-					if ( ! popup || popup.closed ) {
-						clearInterval( pollTimer );
-						// Check if onboarding completed by checking connection status.
-						checkOnboardingStatus();
-					}
-				}, 500 );
+				}, 250 );
 			} )
 			.catch( err => {
 				setIsGeneratingSignupLink( false );
@@ -629,8 +642,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					data: {
 						auth_code: event.data.authCode,
 						shared_id: event.data.sharedId,
-						merchant_id_in_paypal:
-							event.data.merchantIdInPayPal || merchantIdRef.current || '',
+						merchant_id_in_paypal: event.data.merchantIdInPayPal || merchantIdRef.current || '',
 					},
 				} )
 					.then( () => {
