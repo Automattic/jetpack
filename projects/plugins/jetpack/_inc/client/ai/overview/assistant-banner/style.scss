@@ -10,9 +10,9 @@
 	// Decorative glow: a large blurred circle filled with a horizontal
 	// green-into-blue gradient, sitting right-of-center and spanning nearly
 	// the banner's full height (the banner's overflow clips the spill). The
-	// size, offsets, and opacity were eyeballed against the carousel mock —
-	// the heavy blur plus the opacity keep it a soft wash rather than a
-	// vivid disc. The gradient reads left-to-right regardless of writing
+	// size, offsets, and opacity were eyeballed against the announcement
+	// mock — the heavy blur plus the opacity keep it a soft wash rather than
+	// a vivid disc. The gradient reads left-to-right regardless of writing
 	// direction, which is fine for a non-semantic smear.
 	&__glow {
 		position: absolute;
@@ -32,7 +32,6 @@
 
 	// Content sits above the glow.
 	&__intro,
-	&__carousel,
 	&__dismiss {
 		position: relative;
 	}
@@ -70,149 +69,6 @@
 		font-weight: 400;
 		line-height: var(--_gcd-p-line-height, 1.5);
 		color: var(--jp-green-mint);
-	}
-
-	&__carousel {
-		margin-block-start: 24px;
-	}
-
-	&__carousel-nav {
-		display: flex;
-		gap: 8px;
-		margin-block-end: 24px;
-	}
-
-	// Round outline buttons per the mock. Doubled class beats the Button
-	// component's own rules by specificity; its defaults assume a light
-	// background, hence the explicit colors for every state.
-	&__carousel-arrow#{&}__carousel-arrow {
-		inline-size: 36px;
-		block-size: 36px;
-		min-inline-size: 36px;
-		padding: 0;
-		justify-content: center;
-		border: 1px solid rgba(255, 255, 255, 0.3);
-		border-radius: 50%;
-		color: #fff;
-		// The Button's focus outline color reads this wpds token (falling back
-		// to the admin theme blue, which clashes with the dark banner) — see
-		// .components-button:focus:not(:active) in the wp-components styles.
-		// stylelint-disable-next-line plugin-wpds/no-setting-wpds-custom-properties -- overriding the token is the only hook the Button exposes for its focus ring color.
-		--wpds-color-stroke-focus: #fff;
-
-		&:hover,
-		&:active,
-		&:focus {
-			color: #fff;
-		}
-
-		&[aria-disabled="true"],
-		&[aria-disabled="true"]:hover {
-			border-color: rgba(255, 255, 255, 0.15);
-			color: rgba(255, 255, 255, 0.4);
-			background: transparent;
-		}
-	}
-
-	// The card row scrolls horizontally, bleeding through the banner's inline
-	// padding on both sides so scrolled-off cards clip at the banner's edges
-	// (a cut-off card signals more content). The padding is taken back inside
-	// so resting cards keep the 40px inset, and scroll-padding makes the snap
-	// positions honor that inset instead of the bled edge.
-	&__cards {
-		display: flex;
-		gap: 16px;
-		margin: 0;
-		margin-inline: -40px;
-		padding: 0;
-		padding-inline: 40px;
-		scroll-padding-inline: 40px;
-		list-style: none;
-		overflow-x: auto;
-		scroll-snap-type: x proximity;
-		// The row is steered by the arrow buttons; a scrollbar under the
-		// cards would double the affordance and break the mock.
-		scrollbar-width: none;
-
-		&::-webkit-scrollbar {
-			display: none;
-		}
-	}
-
-	&__card {
-		flex: 0 0 auto;
-		inline-size: 200px;
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 12px;
-		margin: 0;
-		padding: 20px;
-		border: 1px solid rgba(255, 255, 255, 0.12);
-		border-radius: 8px;
-		background: rgba(255, 255, 255, 0.06);
-		scroll-snap-align: start;
-	}
-
-	// Decorative glyph above each card's text, matching the CTA's mint so the
-	// cards scan as icon → text → action.
-	&__card-icon {
-		fill: var(--jp-green-mint);
-	}
-
-	&__card-text {
-		font-size: 13px;
-		font-weight: 400;
-		line-height: 18px;
-		color: #fff;
-	}
-
-	// The auto margin bottom-anchors the CTA so it lines up across cards of
-	// unequal text length (the row's stretch equalizes card heights). The CTA
-	// is a plain button element, hence the resets.
-	&__card-cta {
-		display: inline-flex;
-		align-items: center;
-		gap: 2px;
-		margin-block-start: auto;
-		padding: 0;
-		border: 0;
-		background: none;
-		cursor: pointer;
-		font-size: 13px;
-		font-weight: 600;
-		line-height: 18px;
-		text-decoration: none;
-		color: var(--jp-green-mint);
-
-		&:hover,
-		&:active,
-		&:focus {
-			color: var(--jp-green-mint);
-		}
-
-		svg {
-			fill: currentColor;
-		}
-	}
-
-	// The popup is sized by its 16:9 video: the modal's own frame provides the
-	// chrome, this just caps the width and shapes the iframe.
-	&__video-modal {
-		inline-size: min(960px, 90vw);
-	}
-
-	&__video-frame {
-		aspect-ratio: 16 / 9;
-		border-radius: 8px;
-		overflow: hidden;
-
-		iframe {
-			display: block;
-			inline-size: 100%;
-			block-size: 100%;
-			border: 0;
-		}
 	}
 
 	// White X in the top-right, its center level with the logo row (28px from
