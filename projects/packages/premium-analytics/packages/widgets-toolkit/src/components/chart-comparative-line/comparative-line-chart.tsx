@@ -110,8 +110,7 @@ export type ComparativeLineChartProps = {
 
 	/**
 	 * Renders a point's date for a tooltip row, in the named format this chart
-	 * picked for it. Callers whose points are wall clocks (see `chart-date.ts`)
-	 * pass a variant that re-anchors them first; defaults to `formatDate`.
+	 * picked for it. Defaults to `formatDate`.
 	 */
 	formatTooltipDate?: ( date: Date, format: DateFormatName ) => string;
 

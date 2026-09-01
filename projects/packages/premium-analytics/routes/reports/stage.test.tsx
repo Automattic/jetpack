@@ -21,6 +21,7 @@ jest.mock( '@jetpack-premium-analytics/externals', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	GlobalChartsProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
+	siteChartFormatting: () => ( {} ),
 	useChartTheme: () => ( {} ),
 } ) );
 

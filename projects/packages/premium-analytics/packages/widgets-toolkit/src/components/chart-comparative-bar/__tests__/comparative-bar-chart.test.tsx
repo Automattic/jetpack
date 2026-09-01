@@ -268,8 +268,8 @@ describe( 'ComparativeBarChart', () => {
 		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'July 2, 2026 2:00 pm' );
 	} );
 
-	// How a point's date is read is the caller's to decide — Stats buckets are
-	// wall clocks rather than instants — while which format names it stays here.
+	// How a point's date reads is the caller's to decide; which format names it
+	// stays here.
 	it( 'hands the point and the format it picked to a caller-supplied formatter', () => {
 		const formatTooltipDate = jest.fn( () => 'the bucket' );
 		render(

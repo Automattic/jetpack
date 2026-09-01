@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Show chart dates in the site's timezone and locale instead of the browser's.
