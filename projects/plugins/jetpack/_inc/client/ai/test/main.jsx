@@ -207,15 +207,27 @@ describe( 'AI admin page (main.jsx)', () => {
 
 	test( 'internal-testing flag: every gated tab carries an A12s only badge', async () => {
 		// Overview and Features are both gated to internal testing environments;
-		// when the injected flag says we are in one, each tab must say so —
-		// Automatticians should not mistake either view for public UI. MCP
-		// Settings ships publicly, so it must not be labelled.
-		window.jetpackAiSettings = { showFeaturesView: true };
+		// when the injected flags say the gate (not a host) opened them, each
+		// tab must say so — Automatticians should not mistake either view for
+		// public UI. MCP Settings ships publicly, so it must not be labelled.
+		window.jetpackAiSettings = { showFeaturesView: true, showGatedViewsBadge: true };
 		mockApiFetch();
 
 		render( <App /> );
 
 		await expect( screen.findAllByText( 'A12s only' ) ).resolves.toHaveLength( 2 );
+	} );
+
+	test( 'host-opened views: the tabs show with no A12s only badge', async () => {
+		// A host that opens the gated views for real users (WordPress.com
+		// Simple) does not inject the badge flag — no internal label ships.
+		window.jetpackAiSettings = { showFeaturesView: true };
+		mockApiFetch();
+
+		render( <App /> );
+
+		await expect( screen.findByText( 'Overview' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'A12s only' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'scheduled tasks flag: exposes the gated hash route and Figma empty state', async () => {

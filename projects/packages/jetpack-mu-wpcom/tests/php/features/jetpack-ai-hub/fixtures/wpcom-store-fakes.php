@@ -10,8 +10,9 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- the fixture mirrors two store surfaces that ship together.
 
 /**
- * Fake of the WordPress.com purchases lookup: one non-plan purchase and one
- * `bundle` (the site's plan), mirroring the store row shape.
+ * Fake of the WordPress.com purchases lookup, in the Simple store-row shape
+ * (`user_allows_auto_renew`, no product_name): a non-plan purchase, a lapsed
+ * plan, and the current plan.
  *
  * @return object[]
  */
@@ -22,16 +23,22 @@ function wpcom_get_site_purchases() {
 			'product_id'   => '9',
 		),
 		(object) array(
-			'product_type' => 'bundle',
-			'product_id'   => '1008',
-			'expiry_date'  => '2027-08-30 00:00:00',
-			'auto_renew'   => false,
+			'product_type'           => 'bundle',
+			'product_id'             => '1009',
+			'expiry_date'            => '2020-01-01 00:00:00',
+			'user_allows_auto_renew' => true,
+		),
+		(object) array(
+			'product_type'           => 'bundle',
+			'product_id'             => '1008',
+			'expiry_date'            => '2027-08-30 00:00:00',
+			'user_allows_auto_renew' => false,
 		),
 	);
 }
 
 /**
- * Fake of the WordPress.com store product list, naming the plan product.
+ * Fake of the WordPress.com store product list, naming the plan products.
  */
 class Store_Product_List {
 	/**
@@ -42,6 +49,7 @@ class Store_Product_List {
 	public static function get_from_cache() {
 		return array(
 			1008 => array( 'product_name' => 'WordPress.com Business' ),
+			1009 => array( 'product_name' => 'WordPress.com Personal' ),
 		);
 	}
 }

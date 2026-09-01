@@ -34,8 +34,8 @@ const SETTINGS_REF = 'jetpack-ai-mcp-settings';
 
 const MCP_SUB_VIEWS = [ 'read', 'write', 'setup' ];
 
-// Views that only exist in internal testing environments. MCP Settings ships
-// publicly, so it is not in here.
+// Views behind the host's gate (internal testing off WordPress.com Simple;
+// Simple opens them via its load filter). MCP Settings ships publicly.
 const GATED_VIEWS = [ 'overview', 'features' ];
 
 // Read at call time, not module scope, so the flag reflects the injected page data.
@@ -267,14 +267,15 @@ export default function App() {
 							{ tabViews.map( tab => (
 								<Tabs.Tab key={ tab } value={ tab }>
 									{ VIEW_TITLES[ tab ] }
-									{ /* Overview and Features ship behind the internal-testing gate;
-									     label them so Automatticians don't mistake them for public UI.
-									     Remove with the gate. */ }
-									{ GATED_VIEWS.includes( tab ) && (
-										<Badge intent="medium" className="jetpack-ai-admin__tab-badge">
-											{ __( 'A12s only', 'jetpack' ) }
-										</Badge>
-									) }
+									{ /* The badge marks tabs shown only by the internal-testing
+									     gate; hosts that open them for real users (Simple) inject
+									     the flag as false. Remove with the gate. */ }
+									{ GATED_VIEWS.includes( tab ) &&
+										!! window?.jetpackAiSettings?.showGatedViewsBadge && (
+											<Badge intent="medium" className="jetpack-ai-admin__tab-badge">
+												{ __( 'A12s only', 'jetpack' ) }
+											</Badge>
+										) }
 								</Tabs.Tab>
 							) ) }
 						</Tabs.List>

@@ -67,12 +67,14 @@ class Jetpack_AI_Hub_Test extends BaseTestCase {
 		$config = configure(
 			array(
 				'showGatedViews'  => false,
+				'gatedViewsBadge' => true,
 				'isUserConnected' => false,
 				'mcpSettingsApi'  => array(),
 			)
 		);
 
 		$this->assertTrue( $config['showGatedViews'] );
+		$this->assertFalse( $config['gatedViewsBadge'], 'Host-opened views must not carry the internal-audience badge.' );
 		$this->assertTrue( $config['isUserConnected'] );
 		$this->assertSame(
 			array(
@@ -103,9 +105,9 @@ class Jetpack_AI_Hub_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The plan info comes from the WordPress.com store: the site's `bundle`
-	 * purchase carries the dates, and the store product list names it — with
-	 * the brand prefix trimmed the way the upstream page trims it.
+	 * The plan info comes from the WordPress.com store: the current (not the
+	 * lapsed) plan purchase carries the dates in the Simple row shape, and the
+	 * store product list names it — raw, the Hub page owns the brand trim.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -120,7 +122,7 @@ class Jetpack_AI_Hub_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'name'       => 'Business',
+				'name'       => 'WordPress.com Business',
 				'renews_on'  => '2027-08-30 00:00:00',
 				'auto_renew' => false,
 			),

@@ -287,6 +287,8 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertTrue( $settings['showFeaturesView'] );
+		// Internal-gated views are labelled for their internal audience.
+		$this->assertTrue( $settings['showGatedViewsBadge'] );
 		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
 	}
 
@@ -350,7 +352,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 			function ( $config ) {
 				$config['showGatedViews'] = true;
 				$config['planInfo']       = array(
-					'name'      => 'Business',
+					'name'      => 'WordPress.com Business',
 					'renews_on' => '2027-08-30 00:00:00',
 				);
 
@@ -361,10 +363,32 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertTrue( $settings['showFeaturesView'] );
+		// Host-opened views carry no internal-audience badge.
+		$this->assertFalse( $settings['showGatedViewsBadge'] );
+		// The brand prefix is trimmed at the merge point for every producer.
 		$this->assertSame( 'Business', $settings['planName'] );
 		$this->assertSame( '2027-08-30 00:00:00', $settings['planRenewsOn'] );
 		// The key the host left out keeps its default.
 		$this->assertTrue( $settings['planAutoRenew'] );
+	}
+
+	/**
+	 * The Features view's link targets follow the host: wp-admin pages where
+	 * they exist, empty (hidden link) or the wordpress.com surface on Simple.
+	 */
+	public function test_link_targets_follow_the_host() {
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( 'admin.php?page=jetpack-search#/ai-answers', $settings['searchSettingsUrl'] );
+		$this->assertSame( 'admin.php?page=my-jetpack#/products', $settings['myJetpackUrl'] );
+		$this->assertStringContainsString( 'admin.php?page=jetpack#/traffic', $settings['seoSettingsUrl'] );
+
+		Constants::set_constant( 'IS_WPCOM', true );
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( '', $settings['searchSettingsUrl'] );
+		$this->assertSame( '', $settings['myJetpackUrl'] );
+		$this->assertStringStartsWith( 'https://wordpress.com/marketing/traffic/', $settings['seoSettingsUrl'] );
 	}
 
 	/**
