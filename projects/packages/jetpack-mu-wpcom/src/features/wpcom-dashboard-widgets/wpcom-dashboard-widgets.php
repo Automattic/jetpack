@@ -8,6 +8,42 @@
 use Automattic\Jetpack\Connection\Client;
 
 /**
+ * Warm the WordPress.com site-purchases cache early on Simple-site Dashboard loads.
+ *
+ * On Simple sites (IS_WPCOM), wpcom_get_site_purchases() reads the store DB behind
+ * an object-cache lock (see wpcomsh functions-wpcom-features.php). When the cache is
+ * cold and a request loses that build lock, the losing request registers a
+ * 'wpcom_simple_skip_purchase_lookup' filter that forces every *subsequent* purchase
+ * lookup in the same request to return an empty set. The Dashboard resolves several
+ * feature/purchase values while assembling widgets, so a poisoned request leaves the
+ * launch celebration modal (and the other widgets) with sitePlan: null and
+ * hasCustomDomain: false even on paid, custom-domain sites.
+ *
+ * Resolving the purchases here, on 'init' before any of those consumers run, lets this
+ * request be the one that builds and caches them, so the later lookups read warm data.
+ * A no-op on Atomic (purchases come from persistent data there, and this is IS_WPCOM-gated)
+ * and on non-Dashboard requests.
+ *
+ * @return void
+ */
+function wpcom_dashboard_widgets_prime_site_purchases_cache() {
+	if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+		return;
+	}
+
+	if ( ! is_admin() || 'index.php' !== ( $GLOBALS['pagenow'] ?? '' ) ) {
+		return;
+	}
+
+	if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
+		return;
+	}
+
+	wpcom_get_site_purchases();
+}
+add_action( 'init', 'wpcom_dashboard_widgets_prime_site_purchases_cache', 1 );
+
+/**
  * Load all wpcom dashboard widgets.
  */
 function load_wpcom_dashboard_widgets() {

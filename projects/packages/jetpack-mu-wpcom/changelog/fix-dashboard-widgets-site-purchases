@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard widgets: Prime the site purchases cache on Simple sites so plan and custom-domain data is populated correctly.
