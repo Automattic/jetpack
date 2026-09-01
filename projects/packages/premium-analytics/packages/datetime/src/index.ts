@@ -89,6 +89,6 @@ export {
 	type QuickSurfaceOptions,
 
 	// Comparison presets
-	getComparisonPresetLabel,
-	getComparisonPresetConfigs,
+	getComparisonOptions,
+	type ComparisonOption,
 } from './presets';
