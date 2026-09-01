@@ -580,9 +580,8 @@ export type TickResolution = 'hour' | 'day' | 'week' | 'month' | 'year';
  */
 export type BucketInfo = {
 	/**
-	 * The bucket the series has. Only reports `'week'` when a caller declared
-	 * it: seven-day spacing is indistinguishable from sparse daily data, so
-	 * inference cannot recover it.
+	 * The bucket the series has. Only reports `'week'` when declared: seven-day
+	 * spacing is indistinguishable from sparse daily data.
 	 */
 	bucket: TickResolution;
 	/** The classification tick formats are keyed on. `'week'` reads as `'day'`. */

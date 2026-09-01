@@ -11,10 +11,8 @@ jest.mock( '../../../hooks/use-element-size', () => ( {
 	useElementSize: () => [ mockRefCallback, 500, 300 ],
 } ) );
 
-// Captures the `filteredRenderTooltip` closure AreaChart builds for
-// `AccessibleTooltip`, so both of its branches can be called directly: visx's
-// `TooltipProvider` always sets `datumByKey` whenever it opens a tooltip, so
-// the early-return branch is unreachable through a simulated interaction.
+// Captures AreaChart's `filteredRenderTooltip` so its early-return branch can be
+// called directly: visx always sets `datumByKey` when it opens a tooltip.
 type CapturedRenderTooltip = ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 let capturedRenderTooltip: CapturedRenderTooltip | undefined;
 jest.mock( '../../../components/tooltip', () => ( {
