@@ -77,8 +77,9 @@ describe( 'Private Site -- Logged out Access', () => {
 		expect( index.name ).toBe( 'Private Site' );
 		expect( index.description ).toBe( '' );
 		expect( index.namespaces ).toStrictEqual( [] );
-		expect( index.routes ).toStrictEqual( [] );
+		expect( index.routes ).toStrictEqual( {} );
 		expect( index ).toHaveProperty( 'authentication' );
+		expect( Array.isArray( index.authentication ) ).toBe( false ); // a map, an object even when empty
 		expect( index ).not.toHaveProperty( '_links' );
 		expect( index ).not.toHaveProperty( 'site_icon' );
 		expect( index ).not.toHaveProperty( 'timezone_string' );

@@ -185,7 +185,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 		$this->assertSame( '', $data['description'] );
 		$this->assertSame( 0, $data['gmt_offset'] );
 		$this->assertSame( array(), $data['namespaces'] );
-		$this->assertSame( array(), $data['routes'] );
+		$this->assertEquals( new \stdClass(), $data['routes'], 'routes is a map: empty must be {} (an object), not []' );
 		// The raw site name and _links (help, active-theme) must not survive the trim.
 		$this->assertNotSame( 'Secret Site Name', $data['name'] );
 		$this->assertSame( array(), $result->get_links() );
@@ -204,6 +204,19 @@ class PrivateSiteTest extends WP_UnitTestCase {
 
 		$this->assertSame( $expected, $data['authentication'] );
 		$this->assertArrayHasKey( 'application-passwords', $data['authentication'] );
+	}
+
+	/**
+	 * `authentication` is a map, so an empty one (no SSL, no auth plugins) must still serialize as an
+	 * object, not `[]` -- core seeds it as an empty array, which would otherwise encode as `[]`.
+	 */
+	public function test_rest_index_serializes_empty_authentication_as_an_object() {
+		wp_set_current_user( 0 );
+		$response = new WP_REST_Response( array( 'authentication' => array() ) );
+
+		$auth = \Private_Site\rest_index( $response )->get_data()['authentication'];
+
+		$this->assertEquals( new \stdClass(), $auth, 'empty authentication must be {} (an object), not []' );
 	}
 
 	/**
@@ -232,7 +245,7 @@ class PrivateSiteTest extends WP_UnitTestCase {
 			'authorize-application.php',
 			$data['authentication']['application-passwords']['endpoints']['authorization']
 		);
-		$this->assertSame( array(), $data['routes'], 'the index is still stripped for unauthenticated visitors' );
+		$this->assertEquals( new \stdClass(), $data['routes'], 'the index is still stripped for unauthenticated visitors' );
 	}
 
 	/**

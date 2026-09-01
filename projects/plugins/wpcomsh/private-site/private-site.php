@@ -602,6 +602,11 @@ function rest_index( $response ) {
 
 	$data = $response->get_data();
 
+	// `authentication` and `routes` are maps: an empty PHP array would serialize as [], so coerce
+	// each to an object so clients that read them as objects (or validate a schema) don't break. A
+	// populated `authentication` stays an array -- non-empty string-keyed arrays already encode as {}.
+	$authentication = empty( $data['authentication'] ) ? (object) array() : $data['authentication'];
+
 	// Allowlist. Anything not named here is intentionally withheld.
 	return new WP_REST_Response(
 		array(
@@ -611,8 +616,8 @@ function rest_index( $response ) {
 			'home'           => home_url(),
 			'gmt_offset'     => 0,
 			'namespaces'     => array(),
-			'authentication' => $data['authentication'] ?? array(),
-			'routes'         => array(),
+			'authentication' => $authentication,
+			'routes'         => (object) array(),
 		)
 	);
 }
