@@ -233,32 +233,25 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	}
 
 	/**
-	 * Test that a signup link is still generated when only the client credentials
-	 * are configured, with no partner merchant ID.
+	 * Test that a signup link is refused when the partner merchant ID is missing.
+	 *
+	 * It is Automattic's own PayPal account ID, not anything onboarding returns,
+	 * and it is a path segment in every call made after the seller finishes. A
+	 * link generated without it leads the seller through the whole PayPal flow
+	 * and then fails to retrieve their credentials, so refuse it up front rather
+	 * than surfacing the problem later as a missing merchant integration.
 	 */
-	public function test_signup_link_is_generated_without_a_partner_merchant_id() {
+	public function test_signup_link_is_refused_without_a_partner_merchant_id() {
 		$this->set_platform_credentials( 'sandbox', 'sandbox_platform_id', 'sandbox_platform_secret' );
-		$this->mock_http_routes(
-			array(
-				'/v1/oauth2/token'               => $this->token_response(),
-				'/v2/customer/partner-referrals' => $this->http_response(
-					201,
-					array(
-						'links' => array(
-							array(
-								'rel'  => 'action_url',
-								'href' => 'https://www.sandbox.paypal.com/merchantsignup/x',
-							),
-						),
-					)
-				),
-			)
-		);
 
 		$result = $this->endpoint->generate_signup_link( $this->signup_link_request() );
 
-		$this->assertNotInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'https://www.sandbox.paypal.com/merchantsignup/x', $result->get_data()['action_url'] );
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'platform_partner_merchant_id_missing', $result->get_error_code() );
+		$this->assertStringContainsString(
+			'PAYPAL_BUTTONS_SANDBOX_PARTNER_MERCHANT_ID',
+			$result->get_error_message()
+		);
 	}
 
 	// --- Token exchange ---
@@ -332,34 +325,6 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 
 		$this->assertNotInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'SANDBOX_PARTNER', $result->get_data()['partner_merchant_id'] );
-	}
-
-	/**
-	 * Test that a missing partner merchant ID degrades to an empty string.
-	 */
-	public function test_partner_merchant_id_defaults_to_empty_string() {
-		$this->set_platform_credentials( 'sandbox', 'sandbox_platform_id', 'sandbox_platform_secret' );
-		$this->mock_http_routes(
-			array(
-				'/v1/oauth2/token'               => $this->token_response(),
-				'/v2/customer/partner-referrals' => $this->http_response(
-					201,
-					array(
-						'links' => array(
-							array(
-								'rel'  => 'action_url',
-								'href' => 'https://www.sandbox.paypal.com/merchantsignup/x',
-							),
-						),
-					)
-				),
-			)
-		);
-
-		$result = $this->endpoint->generate_signup_link( $this->signup_link_request( 'sandbox' ) );
-
-		$this->assertNotInstanceOf( WP_Error::class, $result );
-		$this->assertSame( '', $result->get_data()['partner_merchant_id'] );
 	}
 
 	// --- Referral creation ---
@@ -530,6 +495,48 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 		$this->assertSame( 'paypal_referral_failed', $result->get_error_code() );
 		$this->assertSame( 'Tracking ID already used.', $result->get_error_message() );
 		$this->assertSame( 422, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * Test that PayPal's diagnostics survive a rejected referral.
+	 *
+	 * PayPal answers every schema violation with the same generic sentence, so
+	 * the message alone says nothing about what was wrong. `details` names the
+	 * offending field and `debug_id` is what PayPal support traces on — dropping
+	 * them leaves a caller with an unexplained 400.
+	 */
+	public function test_referral_error_details_are_passed_through() {
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'               => $this->token_response(),
+				'/v2/customer/partner-referrals' => $this->http_response(
+					400,
+					array(
+						'name'     => 'INVALID_REQUEST',
+						'message'  => 'Request is not well-formed, syntactically incorrect, or violates schema.',
+						'debug_id' => 'abc123def456',
+						'details'  => array(
+							array(
+								'field'       => '/operations/0/api_integration_preference/rest_api_integration/first_party_details/seller_nonce',
+								'issue'       => 'INVALID_STRING_LENGTH',
+								'description' => 'The value of a field does not conform to the expected length.',
+							),
+						),
+					)
+				),
+			)
+		);
+
+		$result = $this->endpoint->generate_signup_link( $this->signup_link_request() );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+
+		$data = $result->get_error_data();
+		$this->assertSame( 'INVALID_REQUEST', $data['paypal_error'] );
+		$this->assertSame( 'abc123def456', $data['paypal_debug_id'] );
+		$this->assertSame( 'INVALID_STRING_LENGTH', $data['paypal_details'][0]['issue'] );
+		$this->assertStringContainsString( 'seller_nonce', $data['paypal_details'][0]['field'] );
 	}
 
 	/**
