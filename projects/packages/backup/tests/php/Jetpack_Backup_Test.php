@@ -74,9 +74,8 @@ class Jetpack_Backup_Test extends TestCase {
 	 * Undo the request mocking. Done here rather than after each assertion so
 	 * that a failing assertion cannot leak a filter into the next test.
 	 *
-	 * WorDBless keeps the database between tests in this class, so a warmed
-	 * promoted-product transient would otherwise answer a later test before
-	 * it reached the transport.
+	 * The database survives between tests here, so a warmed promoted-product
+	 * transient would answer a later test before it reached the transport.
 	 */
 	protected function tearDown(): void {
 		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
@@ -482,12 +481,12 @@ class Jetpack_Backup_Test extends TestCase {
 	}
 
 	/**
-	 * Neither failure is cached, so an outage cannot hold the no-plan screen
-	 * priceless past its own duration.
+	 * Neither failure is cached, so an outage cannot leave the no-plan screen
+	 * without a price for longer than it lasts.
 	 *
 	 * @param string      $error_code The error code the failing call reports.
 	 * @param int|string  $status     Status for the failing response.
-	 * @param string|null $body      Body for the failing response, or null for the well-formed catalogue.
+	 * @param string|null $body       Body for the failing response, or null for the well-formed catalogue.
 	 * @dataProvider provide_uncacheable_failures
 	 */
 	#[DataProvider( 'provide_uncacheable_failures' )]
@@ -525,8 +524,7 @@ class Jetpack_Backup_Test extends TestCase {
 	}
 
 	/**
-	 * The catalogue is localized by the `locale` query arg, so one shared key
-	 * would serve one reader's language to another.
+	 * The request carries the locale, so the key has to as well.
 	 */
 	public function test_promoted_product_info_caches_per_locale() {
 		add_filter( 'pre_http_request', array( $this, 'mock_request_as_product_catalogue' ), 10, 3 );

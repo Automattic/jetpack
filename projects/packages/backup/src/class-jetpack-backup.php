@@ -80,9 +80,8 @@ class Jetpack_Backup {
 	/**
 	 * Transient key prefix for the cached promoted product.
 	 *
-	 * Suffixed with the locale, because the locale is a query arg on the
-	 * catalogue request — one shared key would serve one reader's language
-	 * to another.
+	 * Suffixed with the locale: it is a query arg on the catalogue request, so
+	 * one shared key would serve one reader's language to another.
 	 *
 	 * @var string
 	 */
@@ -734,8 +733,7 @@ class Jetpack_Backup {
 	/**
 	 * Gets information about the currently promoted backup product.
 	 *
-	 * Answers from a per-locale transient when one is warm; only a product
-	 * that was actually read is ever stored.
+	 * Answers from a per-locale transient when one is warm; failures are not cached.
 	 *
 	 * @return object|WP_Error The promoted product, or a WP_Error if it could not be read.
 	 */
@@ -786,9 +784,8 @@ class Jetpack_Backup {
 
 		$product = $products->{ self::JETPACK_BACKUP_PROMOTED_PRODUCT };
 
-		// Only a product that was read is cached: storing either failure above
-		// would keep the no-plan screen priceless for hours after
-		// WordPress.com recovered.
+		// Must stay below both guards: a cached failure would leave the no-plan
+		// screen without a price for the whole TTL after WordPress.com recovered.
 		set_transient( $transient_key, $product, self::PROMOTED_PRODUCT_CACHE_TTL );
 
 		return $product;
