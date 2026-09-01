@@ -1,0 +1,7 @@
+// The package's celebration modal fills its URL card with
+// `var(--studio-blue-5)`, a Calypso global that isn't defined outside Calypso,
+// so the card would render with no background here. Supply it from the Color
+// Studio palette. Mirrors the override in pre-launch-site-modal.scss.
+.celebration-modal {
+	--studio-blue-5: #f7f8fe;
+}

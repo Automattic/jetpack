@@ -2,6 +2,8 @@ import CelebrationModal from '@automattic/site-launch-modals/celebration-modal';
 import { useEffect } from 'react';
 import { wpcomTrackEvent } from '../tracks';
 
+import './celebrate-launch-modal.scss';
+
 /**
  * CelebrateLaunchModal component
  *
