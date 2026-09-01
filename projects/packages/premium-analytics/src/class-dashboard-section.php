@@ -105,7 +105,7 @@ final class Dashboard_Section {
 	 *   save the range onto the widget instance rather than the URL.
 	 *
 	 * @since 0.3.0
-	 * @since $$next-version$$ Added `with_header_date_control`.
+	 * @since 0.5.0 Added `with_header_date_control`.
 	 * @var array
 	 */
 	public $date_filter_options = array(
