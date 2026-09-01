@@ -364,7 +364,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		queryKey: keys.recentRestores(),
 		queryFn: fetchRecentRestores,
 		enabled: recovering && enabled,
-		refetchInterval: recovering && enabled ? POLL_INTERVAL_MS : false,
+		refetchInterval: recovering ? POLL_INTERVAL_MS : false,
 	} );
 
 	const recoveredId = useMemo( () => {

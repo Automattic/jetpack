@@ -71,8 +71,7 @@ export function useDownload( rewindId: string, enabled = true ): Result {
 		queryKey: keys.downloadStatus( rewindId, effectiveDownloadId ),
 		queryFn: () => fetchDownloadStatus( rewindId, effectiveDownloadId ),
 		enabled: downloadId !== null && enabled,
-		refetchInterval: query =>
-			query.state.data?.status === 'running' && enabled ? POLL_INTERVAL_MS : false,
+		refetchInterval: query => ( query.state.data?.status === 'running' ? POLL_INTERVAL_MS : false ),
 	} );
 
 	const submit = useCallback(

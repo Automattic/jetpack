@@ -33,8 +33,7 @@ export default function RestoreScreen() {
 	const { rewindId } = useParams( { from: '/restore/$rewindId' } );
 	const gate = useGateState();
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
-	// This screen's body renders below `<Gates>`, but its hooks run above it, so
-	// the reads need the verdict passed in rather than the tree to withhold them.
+
 	const { state, submit, reset, adopted } = useRestore( rewindId, gate.status === 'ready' );
 	const handleConfirm = useCallback( () => submit( items ), [ submit, items ] );
 	// An empty checklist would restore *everything* rather than nothing —

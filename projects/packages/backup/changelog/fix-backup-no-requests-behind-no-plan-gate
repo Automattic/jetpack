@@ -1,5 +1,5 @@
 Significance: patch
 Type: fixed
-Comment: Backup: stop the modernized dashboard querying WordPress.com on a site with no Backup plan or no connection. Its Overview, Restore and Download screens read the activity log, the backup list, the site size and the restores collection, polled three of those, and asked for a download archive to be built. No-op when the modernization filter is off.
+Comment: Backup: stop the modernized dashboard querying WordPress.com on a site with no Backup plan or no connection. Its Overview, Restore and Download screens read the activity log, the backup list, the site size and the restores collection, polled some of those and a running restore's and download's progress, and asked for a download archive to be built. No-op when the modernization filter is off.
 
 

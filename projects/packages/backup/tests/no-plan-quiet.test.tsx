@@ -180,8 +180,6 @@ beforeEach( () => {
 		if ( path === STATUS_PATH ) {
 			return Promise.resolve( RUNNING_STATUS );
 		}
-		// Ordered before the initiate branch: the poll path extends the initiate
-		// path, so the reverse order would answer the poll with `{ id }` alone.
 		if ( path.startsWith( DOWNLOAD_STATUS_PATH ) ) {
 			return Promise.resolve( RUNNING_DOWNLOAD );
 		}
@@ -349,8 +347,7 @@ describe( 'The Restore screen across a gate flip', () => {
 		const posts = () => mockApiFetch.mock.calls.filter( ( [ o ] ) => o?.method === 'POST' ).length;
 		expect( posts() ).toBe( 1 );
 
-		// ready -> no-plan -> ready, the shape a failed capabilities refetch and a
-		// retry produce.
+		// ready -> no-plan -> ready, the shape a plan lapsing mid-session produces.
 		hasBackupPlan = false;
 		await act( async () => {
 			await queryClient.invalidateQueries( { queryKey: keys.capabilities() } );
@@ -453,8 +450,7 @@ describe( 'The Download screen across a gate flip', () => {
 		).resolves.toBeInTheDocument();
 		expect( asked( DOWNLOAD_PATH ) ).toBe( 1 );
 
-		// ready -> no-plan -> ready, the shape a failed capabilities refetch and a
-		// retry produce.
+		// ready -> no-plan -> ready, the shape a plan lapsing mid-session produces.
 		hasBackupPlan = false;
 		await act( async () => {
 			await queryClient.invalidateQueries( { queryKey: keys.capabilities() } );
@@ -475,6 +471,11 @@ describe( 'The Download screen across a gate flip', () => {
 			screen.findByRole( 'progressbar', { name: PREPARING }, SETTLE )
 		).resolves.toBeInTheDocument();
 
+		// The bar alone only proves `downloadId` survived; the count proves the poll
+		// restarted rather than staying parked.
+		const resumed = asked( DOWNLOAD_STATUS_PATH );
+		await pollTicks( 2 );
+		expect( asked( DOWNLOAD_STATUS_PATH ) ).toBeGreaterThan( resumed );
 		expect( asked( DOWNLOAD_PATH ) ).toBe( 1 );
 	} );
 } );

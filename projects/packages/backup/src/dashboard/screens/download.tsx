@@ -49,8 +49,6 @@ export default function DownloadScreen() {
 	// param no route declares.
 	const search = useSearch( { strict: false } ) as DownloadSearch;
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
-	// This screen's body renders below `<Gates>`, but its hooks run above it, so the
-	// reads and the auto-submit take the verdict rather than the tree withholding them.
 	const isGateReady = gate.status === 'ready';
 	const { state, submit, submitFiles, reset } = useDownload( rewindId, isGateReady );
 	const handleGenerate = useCallback( () => submit( items ), [ submit, items ] );
