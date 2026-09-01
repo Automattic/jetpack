@@ -69,7 +69,7 @@ const GenericDataViews = DataViews as unknown as < Item >( props: {
 } ) => ReturnType< typeof DataViews >;
 
 /**
- * The title field's cell with the fold control prepended. Module-level on
+ * The title field's cell with the fold control appended. Module-level on
  * purpose: a `render` rebuilt per render would remount the cell and take the
  * focused toggle with it.
  */
@@ -89,16 +89,22 @@ function CollapsibleTitleCell< Item >( props: DataViewRenderFieldProps< Item > )
 	// the dotted-path default a field without one gets upstream.
 	const label = props.field.getValue( { item: props.item } );
 	const RenderTitle = titleField?.render;
+	const title = RenderTitle ? <RenderTitle { ...props } /> : String( label ?? '' );
+
+	// A trailing control needs no placeholder on a childless row.
+	if ( ! collapse.parentIds.has( id ) ) {
+		return <>{ title }</>;
+	}
 
 	return (
 		<span className={ styles.titleCell }>
+			<span className={ styles.titleContent }>{ title }</span>
 			<DrilldownToggle
 				label={ label ? String( label ) : __( 'Toggle group', 'jetpack-premium-analytics-pkg' ) }
 				expanded={ collapse.isExpanded( id ) }
 				disabled={ collapse.forcedIds.has( id ) }
-				onToggle={ collapse.parentIds.has( id ) ? () => collapse.onToggle( id ) : undefined }
+				onToggle={ () => collapse.onToggle( id ) }
 			/>
-			{ RenderTitle ? <RenderTitle { ...props } /> : String( label ?? '' ) }
 		</span>
 	);
 }
