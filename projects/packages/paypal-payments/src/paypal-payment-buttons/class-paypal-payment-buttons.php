@@ -315,12 +315,28 @@ class PayPal_Payment_Buttons {
 			);
 		}
 
+		// When the product options carry their own prices, there is no
+		// product-level price to show — fall back to the cheapest option.
 		$price_html = '';
 		if ( ! empty( $price ) ) {
 			$price_html = sprintf(
 				'<span class="jetpack-paypal-button__product-price">%s</span>',
 				esc_html( self::format_price( $price, $currency ) )
 			);
+		} elseif ( $variants_enabled ) {
+			$lowest = self::get_lowest_variant_price( $variants );
+			if ( null !== $lowest ) {
+				$price_html = sprintf(
+					'<span class="jetpack-paypal-button__product-price">%s</span>',
+					esc_html(
+						sprintf(
+							/* translators: %s: formatted price, e.g. "$29.99" */
+							__( 'From %s', 'jetpack-paypal-payments' ),
+							self::format_price( $lowest, $currency )
+						)
+					)
+				);
+			}
 		}
 
 		// Build variant options display.
@@ -429,6 +445,41 @@ class PayPal_Payment_Buttons {
 			esc_html__( 'PayPal (opens in a new tab)', 'jetpack-paypal-payments' ),
 			self::get_paypal_logo_svg()
 		);
+	}
+
+	/**
+	 * Find the cheapest per-option price in a variants structure.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array|null $variants Variants structure from the block attributes.
+	 * @return string|null The lowest option price, or null when none are priced.
+	 */
+	private static function get_lowest_variant_price( $variants ) {
+		if ( ! is_array( $variants ) || empty( $variants['dimensions'] ) || ! is_array( $variants['dimensions'] ) ) {
+			return null;
+		}
+
+		$lowest = null;
+
+		foreach ( $variants['dimensions'] as $dimension ) {
+			if ( empty( $dimension['options'] ) || ! is_array( $dimension['options'] ) ) {
+				continue;
+			}
+
+			foreach ( $dimension['options'] as $option ) {
+				$value = is_array( $option ) ? trim( (string) ( $option['unit_amount']['value'] ?? '' ) ) : '';
+				if ( '' === $value || ! is_numeric( $value ) ) {
+					continue;
+				}
+
+				if ( null === $lowest || (float) $value < (float) $lowest ) {
+					$lowest = $value;
+				}
+			}
+		}
+
+		return $lowest;
 	}
 
 	/**

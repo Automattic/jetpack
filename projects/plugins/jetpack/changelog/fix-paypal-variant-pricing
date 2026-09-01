@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+PayPal Payment Buttons: fix an error from PayPal when product options have their own prices. The product price is now optional in that case, and every option in the group must be priced.

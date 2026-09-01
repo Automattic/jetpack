@@ -752,6 +752,17 @@ class PayPal_REST_Controller {
 			$attributes['currencyCode'] = $first_item['unit_amount']['currency_code'] ?? 'USD';
 		}
 
+		// Per-option prices stand in for the product-level price, so the
+		// validator needs them to know a missing `unit_amount` is legitimate.
+		if ( ! empty( $first_item['variants'] ) && is_array( $first_item['variants'] ) ) {
+			$attributes['variantsEnabled'] = true;
+			$attributes['variants']        = $first_item['variants'];
+
+			if ( ! isset( $attributes['currencyCode'] ) ) {
+				$attributes['currencyCode'] = self::get_variant_currency( $first_item['variants'] );
+			}
+		}
+
 		if ( ! empty( $first_item['description'] ) ) {
 			$attributes['productDescription'] = $first_item['description'];
 		}
@@ -774,6 +785,29 @@ class PayPal_REST_Controller {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Read the currency from the first priced variant option.
+	 *
+	 * Used when a line item has no product-level `unit_amount` because its
+	 * options carry their own prices.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $variants Variants structure from the request.
+	 * @return string The currency code, defaulting to USD.
+	 */
+	private static function get_variant_currency( $variants ) {
+		foreach ( ( $variants['dimensions'] ?? array() ) as $dimension ) {
+			foreach ( ( $dimension['options'] ?? array() ) as $option ) {
+				if ( '' !== trim( (string) ( $option['unit_amount']['value'] ?? '' ) ) ) {
+					return $option['unit_amount']['currency_code'] ?? 'USD';
+				}
+			}
+		}
+
+		return 'USD';
 	}
 
 	/**
@@ -839,9 +873,11 @@ class PayPal_REST_Controller {
 							'type'     => 'string',
 							'required' => false,
 						),
+						// Not required: omitted when the product options carry
+						// their own per-option prices.
 						'unit_amount'         => array(
 							'type'       => 'object',
-							'required'   => true,
+							'required'   => false,
 							'properties' => array(
 								'currency_code' => array(
 									'type'     => 'string',
@@ -978,16 +1014,27 @@ class PayPal_REST_Controller {
 
 		foreach ( $line_items as $item ) {
 			$clean_item = array(
-				'name'        => isset( $item['name'] ) ? sanitize_text_field( $item['name'] ) : '',
-				'unit_amount' => array(
+				'name' => isset( $item['name'] ) ? sanitize_text_field( $item['name'] ) : '',
+			);
+
+			// Variants (product options with optional per-option pricing).
+			if ( ! empty( $item['variants'] ) && is_array( $item['variants'] ) ) {
+				$clean_item['variants'] = self::sanitize_variants( $item['variants'] );
+			}
+
+			// PayPal rejects a line item that specifies `unit_amount` at both the
+			// product level and the variant level, so per-option prices replace
+			// the product-level price rather than sitting alongside it.
+			if ( ! PayPal_Attribute_Mapper::variants_have_pricing( $clean_item['variants'] ?? null ) ) {
+				$clean_item['unit_amount'] = array(
 					'currency_code' => isset( $item['unit_amount']['currency_code'] )
 						? sanitize_text_field( $item['unit_amount']['currency_code'] )
 						: 'USD',
 					'value'         => isset( $item['unit_amount']['value'] )
 						? sanitize_text_field( $item['unit_amount']['value'] )
 						: '0.00',
-				),
-			);
+				);
+			}
 
 			// Optional fields.
 			if ( ! empty( $item['description'] ) ) {
@@ -995,11 +1042,6 @@ class PayPal_REST_Controller {
 			}
 			if ( ! empty( $item['quantity'] ) ) {
 				$clean_item['quantity'] = (string) max( 1, absint( $item['quantity'] ) );
-			}
-
-			// Variants (product options with optional per-option pricing).
-			if ( ! empty( $item['variants'] ) && is_array( $item['variants'] ) ) {
-				$clean_item['variants'] = self::sanitize_variants( $item['variants'] );
 			}
 
 			// Adjustable quantity configuration.
@@ -1083,16 +1125,20 @@ class PayPal_REST_Controller {
 						$clean_opt = array(
 							'label' => isset( $option['label'] ) ? sanitize_text_field( $option['label'] ) : '',
 						);
-						// Per-option pricing (only on primary dimension).
-						if ( ! empty( $option['unit_amount'] ) && is_array( $option['unit_amount'] ) ) {
-							$clean_opt['unit_amount'] = array(
-								'currency_code' => isset( $option['unit_amount']['currency_code'] )
-									? sanitize_text_field( $option['unit_amount']['currency_code'] )
-									: 'USD',
-								'value'         => isset( $option['unit_amount']['value'] )
-									? sanitize_text_field( $option['unit_amount']['value'] )
-									: '0.00',
-							);
+						// Per-option pricing, on the primary dimension only. The
+						// editor sends an empty value for un-priced options —
+						// that's "no price", not a price of zero, and passing it
+						// through would make PayPal see variant-level pricing.
+						if ( $clean_dim['primary'] && ! empty( $option['unit_amount'] ) && is_array( $option['unit_amount'] ) ) {
+							$value = trim( sanitize_text_field( (string) ( $option['unit_amount']['value'] ?? '' ) ) );
+							if ( '' !== $value ) {
+								$clean_opt['unit_amount'] = array(
+									'currency_code' => isset( $option['unit_amount']['currency_code'] )
+										? sanitize_text_field( $option['unit_amount']['currency_code'] )
+										: 'USD',
+									'value'         => $value,
+								);
+							}
 						}
 						$clean_opts[] = $clean_opt;
 					}

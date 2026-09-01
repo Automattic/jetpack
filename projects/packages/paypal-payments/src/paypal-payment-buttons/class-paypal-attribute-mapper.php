@@ -96,21 +96,27 @@ class PayPal_Attribute_Mapper {
 	 */
 	public static function attributes_to_api_request( array $attributes ) {
 		$line_item = array(
-			'name'        => sanitize_text_field( $attributes['productName'] ?? '' ),
-			'unit_amount' => array(
-				'currency_code' => sanitize_text_field( $attributes['currencyCode'] ?? 'USD' ),
-				'value'         => sanitize_text_field( $attributes['price'] ?? '0.00' ),
-			),
+			'name' => sanitize_text_field( $attributes['productName'] ?? '' ),
 		);
-
-		// Optional line item fields.
-		if ( ! empty( $attributes['productDescription'] ) ) {
-			$line_item['description'] = sanitize_text_field( $attributes['productDescription'] );
-		}
 
 		// Product variants (dimensions with options).
 		if ( ! empty( $attributes['variantsEnabled'] ) && ! empty( $attributes['variants']['dimensions'] ) ) {
 			$line_item['variants'] = self::sanitize_variants( $attributes['variants'] );
+		}
+
+		// PayPal errors with "unit_amount is specified at both product level and
+		// variant level" when both are present, so per-option prices replace the
+		// product-level price rather than sitting alongside it.
+		if ( ! self::variants_have_pricing( $line_item['variants'] ?? null ) ) {
+			$line_item['unit_amount'] = array(
+				'currency_code' => sanitize_text_field( $attributes['currencyCode'] ?? 'USD' ),
+				'value'         => sanitize_text_field( $attributes['price'] ?? '0.00' ),
+			);
+		}
+
+		// Optional line item fields.
+		if ( ! empty( $attributes['productDescription'] ) ) {
+			$line_item['description'] = sanitize_text_field( $attributes['productDescription'] );
 		}
 
 		// Adjustable quantity (WOOPTP-170).
@@ -315,8 +321,14 @@ class PayPal_Attribute_Mapper {
 			);
 		}
 
-		// Required: price.
-		if ( ! isset( $attributes['price'] ) || '' === $attributes['price'] ) {
+		// Required: price — unless the product options carry their own prices,
+		// in which case PayPal takes the amount from the options instead.
+		$uses_variant_pricing = ! empty( $attributes['variantsEnabled'] )
+			&& self::variants_have_pricing( $attributes['variants'] ?? null );
+
+		$has_price = isset( $attributes['price'] ) && '' !== $attributes['price'];
+
+		if ( ! $has_price && ! $uses_variant_pricing ) {
 			return new WP_Error(
 				'missing_price',
 				__( 'Price is required.', 'jetpack-paypal-payments' ),
@@ -324,12 +336,19 @@ class PayPal_Attribute_Mapper {
 			);
 		}
 
-		if ( ! self::is_valid_price( $attributes['price'] ) ) {
+		if ( $has_price && ! self::is_valid_price( $attributes['price'] ) ) {
 			return new WP_Error(
 				'invalid_price',
 				__( 'Price must be a valid positive number (e.g., "29.99").', 'jetpack-paypal-payments' ),
 				array( 'status' => 400 )
 			);
+		}
+
+		if ( $uses_variant_pricing ) {
+			$variant_price_error = self::validate_variant_pricing( $attributes['variants'] );
+			if ( is_wp_error( $variant_price_error ) ) {
+				return $variant_price_error;
+			}
 		}
 
 		// Required: currency code.
@@ -461,6 +480,81 @@ class PayPal_Attribute_Mapper {
 	}
 
 	/**
+	 * Whether a variants structure carries per-option pricing.
+	 *
+	 * PayPal rejects a line item that specifies `unit_amount` at both the
+	 * product level and the variant level, so the two are mutually exclusive.
+	 * Once any option in the primary dimension has its own amount, the
+	 * product-level amount must be omitted.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array|null $variants Variants structure (block or API shape).
+	 * @return bool True when at least one option carries its own amount.
+	 */
+	public static function variants_have_pricing( $variants ) {
+		if ( empty( $variants['dimensions'] ) || ! is_array( $variants['dimensions'] ) ) {
+			return false;
+		}
+
+		foreach ( $variants['dimensions'] as $dimension ) {
+			if ( empty( $dimension['primary'] ) || empty( $dimension['options'] ) || ! is_array( $dimension['options'] ) ) {
+				continue;
+			}
+
+			foreach ( $dimension['options'] as $option ) {
+				if ( '' !== trim( (string) ( $option['unit_amount']['value'] ?? '' ) ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Validate per-option pricing.
+	 *
+	 * Per-option prices replace the product-level price, so they are
+	 * all-or-nothing: every option in the primary dimension must carry a
+	 * valid amount once any of them does.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array|null $variants Variants structure (block or API shape).
+	 * @return true|WP_Error True when valid, WP_Error otherwise.
+	 */
+	private static function validate_variant_pricing( $variants ) {
+		foreach ( ( $variants['dimensions'] ?? array() ) as $dimension ) {
+			if ( empty( $dimension['primary'] ) ) {
+				continue;
+			}
+
+			foreach ( ( $dimension['options'] ?? array() ) as $option ) {
+				$value = trim( (string) ( $option['unit_amount']['value'] ?? '' ) );
+
+				if ( '' === $value ) {
+					return new WP_Error(
+						'missing_variant_price',
+						__( 'Every product option must have a price when any option in the group has one.', 'jetpack-paypal-payments' ),
+						array( 'status' => 400 )
+					);
+				}
+
+				if ( ! self::is_valid_price( $value ) ) {
+					return new WP_Error(
+						'invalid_variant_price',
+						__( 'Product option prices must be valid positive numbers (e.g., "29.99").', 'jetpack-paypal-payments' ),
+						array( 'status' => 400 )
+					);
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Sanitize and validate a variants structure for the PayPal API.
 	 *
 	 * Enforces: max 5 dimensions, max 10 options per dimension,
@@ -506,12 +600,16 @@ class PayPal_Attribute_Mapper {
 					continue;
 				}
 
-				// Only primary dimension can have per-option pricing.
+				// Only the primary dimension can have per-option pricing, and an
+				// empty value is "no price" rather than a price of nothing.
 				if ( $dim['primary'] && ! empty( $option['unit_amount'] ) && is_array( $option['unit_amount'] ) ) {
-					$opt['unit_amount'] = array(
-						'currency_code' => sanitize_text_field( $option['unit_amount']['currency_code'] ?? 'USD' ),
-						'value'         => sanitize_text_field( $option['unit_amount']['value'] ?? '' ),
-					);
+					$value = trim( sanitize_text_field( (string) ( $option['unit_amount']['value'] ?? '' ) ) );
+					if ( '' !== $value ) {
+						$opt['unit_amount'] = array(
+							'currency_code' => sanitize_text_field( $option['unit_amount']['currency_code'] ?? 'USD' ),
+							'value'         => $value,
+						);
+					}
 				}
 
 				$dim['options'][] = $opt;
