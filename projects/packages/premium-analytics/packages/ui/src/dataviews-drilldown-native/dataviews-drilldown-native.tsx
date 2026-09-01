@@ -98,7 +98,7 @@ function CollapsibleTitleCell< Item >( props: DataViewRenderFieldProps< Item > )
 
 	return (
 		<span className={ styles.titleCell }>
-			{ title }
+			<span className={ styles.titleContent }>{ title }</span>
 			<DrilldownToggle
 				label={ label ? String( label ) : __( 'Toggle group', 'jetpack-premium-analytics-pkg' ) }
 				expanded={ collapse.isExpanded( id ) }

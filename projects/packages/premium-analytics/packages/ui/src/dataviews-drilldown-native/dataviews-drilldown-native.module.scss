@@ -29,4 +29,14 @@
 	display: inline-flex;
 	gap: var(--wpds-dimension-gap-xs);
 	align-items: center;
+	max-inline-size: 100%;
+}
+
+/* DataViews caps this cell and asks for an ellipsis but never clips, so a
+   long title would otherwise push the fold control out of the clipped card. */
+.titleContent {
+	min-inline-size: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
