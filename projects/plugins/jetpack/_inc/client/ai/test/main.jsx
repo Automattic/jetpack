@@ -302,7 +302,7 @@ describe( 'AI admin page (main.jsx)', () => {
 	} );
 
 	describe( 'MCP view: connect card', () => {
-		const CONNECT_CARD_TEXT = 'Connect your account to let agents securely act on your behalf.';
+		const CONNECT_CARD_TEXT = 'A user connection lets agents securely act on your behalf.';
 		const UPSELL_CTA = 'Upgrade plan';
 
 		beforeEach( () => {

@@ -27,7 +27,7 @@ export default function McpConnectCallout() {
 					) }
 				</p>
 				<p className="jetpack-ai-mcp__upsell-callout-description">
-					{ __( 'Connect your account to let agents securely act on your behalf.', 'jetpack' ) }
+					{ __( 'A user connection lets agents securely act on your behalf.', 'jetpack' ) }
 				</p>
 				<Button variant="primary" href="admin.php?page=my-jetpack#/connection">
 					{ __( 'Connect your user account', 'jetpack' ) }
