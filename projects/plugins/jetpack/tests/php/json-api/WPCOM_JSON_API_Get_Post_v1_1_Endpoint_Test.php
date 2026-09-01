@@ -244,11 +244,11 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint_Test extends WP_UnitTestCase { // ph
 	 * documented '(int) The site ID.' contract.
 	 *
 	 * The render_response_keys() serializer emits site_ID from
-	 * $post->site->get_id(). For a Jetpack_Site that returns the request token's
-	 * blog_id verbatim, and on create/update requests that value is a string —
-	 * so without an explicit (int) cast those endpoints leaked a quoted string
-	 * while reads returned a number. We reproduce that condition by giving the
-	 * token a string blog_id.
+	 * $post->site->get_id(), which returns the request token's blog_id verbatim.
+	 * That blog_id originates from Jetpack_Options::get_option( 'id' ) and is
+	 * commonly a string, so without an explicit (int) cast the serializer leaked a
+	 * quoted string. We reproduce that condition by giving the token a string
+	 * blog_id.
 	 *
 	 * @group json-api
 	 */

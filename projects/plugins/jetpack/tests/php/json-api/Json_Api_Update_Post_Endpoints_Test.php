@@ -33,6 +33,13 @@ class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 	private static $admin_user_id;
 
 	/**
+	 * Saved $_SERVER superglobal.
+	 *
+	 * @var array
+	 */
+	private $pre_globals;
+
+	/**
 	 * Create fixtures once, before any tests in the class have run.
 	 *
 	 * @param WP_UnitTest_Factory $factory A factory object.
@@ -62,6 +69,7 @@ class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 
 		parent::set_up();
 
+		$this->pre_globals = $_SERVER;
 		$this->set_globals();
 
 		WPCOM_JSON_API::init()->token_details = array( 'blog_id' => $blog_id );
@@ -76,6 +84,8 @@ class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 		$api->post_body     = null;
 		$api->content_type  = null;
 		wp_set_current_user( 0 );
+
+		$_SERVER = $this->pre_globals;
 
 		parent::tear_down();
 	}
@@ -117,8 +127,9 @@ class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 	 * as an integer, matching its documented `(int) The site ID.` contract.
 	 *
 	 * `site_ID` is emitted from `$post->site->get_id()`, which returns the
-	 * request token's `blog_id` verbatim. On create/update requests that value
-	 * is a string, so without the `(int)` cast in
+	 * request token's `blog_id` verbatim. That `blog_id` comes from
+	 * `Jetpack_Options::get_option( 'id' )` and is commonly a string, so without
+	 * the `(int)` cast in
 	 * `WPCOM_JSON_API_Post_v1_1_Endpoint::render_response_keys()` the response
 	 * leaks a quoted string. We reproduce that by giving the token a string
 	 * `blog_id`; this assertion fails on the unfixed serializer.
@@ -183,8 +194,9 @@ class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 		$api = WPCOM_JSON_API::init();
 
 		// Jetpack_Site::get_id() returns $this->platform->token->blog_id verbatim.
-		// A string value mirrors the create/update request condition, and it is the
-		// WP.com site ID, distinct from the local $GLOBALS['blog_id'] used for routing.
+		// The token blog_id comes from Jetpack_Options::get_option( 'id' ) and is
+		// commonly a string; using one here (the WP.com site ID, distinct from the
+		// local $GLOBALS['blog_id'] used for routing) exercises the (int) cast.
 		$api->token_details = array( 'blog_id' => (string) self::WPCOM_SITE_ID );
 		$api->content_type  = 'application/json';
 		$api->post_body     = (string) wp_json_encode( $input, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
