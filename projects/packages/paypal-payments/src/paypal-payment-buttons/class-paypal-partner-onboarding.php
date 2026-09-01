@@ -417,8 +417,34 @@ class PayPal_Partner_Onboarding {
 			);
 		}
 
+		/*
+		 * Resolve the merchant ID.
+		 *
+		 * PayPal delivers `merchantIdInPayPal` as a query parameter on the return
+		 * URL, while `authCode` and `sharedId` arrive by postMessage. A caller
+		 * that only reads the postMessage has no merchant ID to pass, so prefer
+		 * the `payer_id` PayPal just returned with the credentials — it is the
+		 * same value, comes straight from the API, and PayPal recommends it as
+		 * the way to identify a merchant.
+		 *
+		 * Storing an empty value here is what left the site "connected" but
+		 * unable to report its own merchant status.
+		 */
+		$merchant_id = sanitize_text_field( $merchant_id_in_paypal );
+		if ( '' === $merchant_id && ! empty( $creds_data['payer_id'] ) ) {
+			$merchant_id = sanitize_text_field( $creds_data['payer_id'] );
+		}
+
+		if ( '' === $merchant_id ) {
+			return new \WP_Error(
+				'paypal_onboarding_no_merchant_id',
+				__( 'PayPal did not return a merchant ID for this account. Please try connecting again.', 'jetpack-paypal-payments' ),
+				array( 'status' => 502 )
+			);
+		}
+
 		// Store the merchant ID and onboarding method.
-		update_option( self::MERCHANT_ID_OPTION_KEY, sanitize_text_field( $merchant_id_in_paypal ), false );
+		update_option( self::MERCHANT_ID_OPTION_KEY, $merchant_id, false );
 		update_option( self::ONBOARDING_METHOD_OPTION_KEY, 'partner_referrals', false );
 
 		// Clean up the seller nonce — it's single-use.

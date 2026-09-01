@@ -521,6 +521,126 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	}
 
 	/**
+	 * Test that the merchant ID falls back to PayPal's payer_id.
+	 *
+	 * PayPal puts `merchantIdInPayPal` on the return URL but sends `authCode`
+	 * and `sharedId` by postMessage, so a caller that only sees the postMessage
+	 * has no merchant ID to pass. The credentials response carries the same
+	 * value as `payer_id`, which is what PayPal recommends identifying a
+	 * merchant by.
+	 */
+	public function test_complete_onboarding_falls_back_to_payer_id_for_merchant_id() {
+		$this->set_up_partner_state();
+		set_transient(
+			PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY,
+			PayPal_OAuth::encrypt( 'seller_nonce_value' ),
+			1800
+		);
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                    => $this->http_response(
+					200,
+					array(
+						'access_token' => 'seller_token',
+						'expires_in'   => 3600,
+					)
+				),
+				'/merchant-integrations/credentials/' => $this->http_response(
+					200,
+					array(
+						'client_id'     => 'merchant_client_id',
+						'client_secret' => 'merchant_client_secret',
+						'payer_id'      => 'PAYERID123',
+					)
+				),
+				'/v1/checkout/payment-resources'      => $this->http_response( 200, array( 'items' => array() ) ),
+			)
+		);
+
+		$result = PayPal_Partner_Onboarding::complete_onboarding( 'auth_code', 'shared_id', '' );
+
+		$this->assertTrue( $result );
+		$this->assertSame( 'PAYERID123', PayPal_Partner_Onboarding::get_merchant_id() );
+	}
+
+	/**
+	 * Test that an explicit merchant ID wins over payer_id.
+	 */
+	public function test_complete_onboarding_prefers_the_supplied_merchant_id() {
+		$this->set_up_partner_state();
+		set_transient(
+			PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY,
+			PayPal_OAuth::encrypt( 'seller_nonce_value' ),
+			1800
+		);
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                    => $this->http_response(
+					200,
+					array(
+						'access_token' => 'seller_token',
+						'expires_in'   => 3600,
+					)
+				),
+				'/merchant-integrations/credentials/' => $this->http_response(
+					200,
+					array(
+						'client_id'     => 'merchant_client_id',
+						'client_secret' => 'merchant_client_secret',
+						'payer_id'      => 'PAYERID123',
+					)
+				),
+				'/v1/checkout/payment-resources'      => $this->http_response( 200, array( 'items' => array() ) ),
+			)
+		);
+
+		$result = PayPal_Partner_Onboarding::complete_onboarding( 'auth_code', 'shared_id', 'MERCHANT1' );
+
+		$this->assertTrue( $result );
+		$this->assertSame( 'MERCHANT1', PayPal_Partner_Onboarding::get_merchant_id() );
+	}
+
+	/**
+	 * Test that onboarding fails rather than storing an empty merchant ID.
+	 *
+	 * Storing an empty value left the site connected but unable to report its
+	 * own integration status, which surfaced much later as "Merchant
+	 * integration info not available".
+	 */
+	public function test_complete_onboarding_rejects_a_missing_merchant_id() {
+		$this->set_up_partner_state();
+		set_transient(
+			PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY,
+			PayPal_OAuth::encrypt( 'seller_nonce_value' ),
+			1800
+		);
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                    => $this->http_response(
+					200,
+					array(
+						'access_token' => 'seller_token',
+						'expires_in'   => 3600,
+					)
+				),
+				'/merchant-integrations/credentials/' => $this->http_response(
+					200,
+					array(
+						'client_id'     => 'merchant_client_id',
+						'client_secret' => 'merchant_client_secret',
+					)
+				),
+			)
+		);
+
+		$result = PayPal_Partner_Onboarding::complete_onboarding( 'auth_code', 'shared_id', '' );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'paypal_onboarding_no_merchant_id', $result->get_error_code() );
+		$this->assertEmpty( PayPal_Partner_Onboarding::get_merchant_id() );
+	}
+
+	/**
 	 * Test that an account without Payment Links access fails the final validation step.
 	 */
 	public function test_complete_onboarding_reports_missing_api_access() {
