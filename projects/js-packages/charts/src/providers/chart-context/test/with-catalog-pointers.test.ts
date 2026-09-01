@@ -11,6 +11,8 @@ describe( 'withCatalogPointers', () => {
 			xAxisLineStyles: { stroke: '#333' },
 			xTickLineStyles: { stroke: '#444' },
 			svgLabelSmall: { fill: '#555' },
+			labelBackgroundColor: '#556',
+			labelTextColor: '#557',
 		} as Partial< ChartTheme > );
 
 		const result = withCatalogPointers( merged, [
@@ -19,6 +21,8 @@ describe( 'withCatalogPointers', () => {
 			'--a8c-charts-color-axis',
 			'--a8c-charts-color-tick',
 			'--a8c-charts-color-label-axis',
+			'--a8c-charts-color-label-background',
+			'--a8c-charts-color-label-on-fill',
 		] );
 
 		expect( result.backgroundColor ).toBe( defaultTheme.backgroundColor );
@@ -26,6 +30,8 @@ describe( 'withCatalogPointers', () => {
 		expect( result.xAxisLineStyles.stroke ).toBe( defaultTheme.xAxisLineStyles.stroke );
 		expect( result.xTickLineStyles.stroke ).toBe( defaultTheme.xTickLineStyles.stroke );
 		expect( result.svgLabelSmall.fill ).toBe( defaultTheme.svgLabelSmall.fill );
+		expect( result.labelBackgroundColor ).toBe( defaultTheme.labelBackgroundColor );
+		expect( result.labelTextColor ).toBe( defaultTheme.labelTextColor );
 
 		expect( merged.backgroundColor ).toBe( '#111' );
 		expect( merged.gridStyles.stroke ).toBe( '#222' );
