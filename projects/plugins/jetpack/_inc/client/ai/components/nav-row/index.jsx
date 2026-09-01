@@ -15,6 +15,10 @@ import './style.scss';
  *
  * @param {object}   props               - Component props.
  * @param {object}   props.icon          - Icon from the WordPress icons package.
+ * @param {number}   [props.iconSize]    - Rendered size of the leading icon. Defaults to the
+ *                                       24px grid the WordPress icons are drawn on; connector
+ *                                       marks pass 28 so their inset artwork reads at the
+ *                                       same weight.
  * @param {string}   props.title         - Row title.
  * @param {string}   [props.description] - Row description.
  * @param {string}   [props.href]        - Link target; renders an anchor when set.
@@ -25,7 +29,16 @@ import './style.scss';
  *                                       takes the design system token.
  * @return {object} Component markup.
  */
-export default function NavRow( { icon, title, description, href, onClick, external, tone } ) {
+export default function NavRow( {
+	icon,
+	iconSize = 24,
+	title,
+	description,
+	href,
+	onClick,
+	external,
+	tone,
+} ) {
 	// Only the element and its props differ between the two forms: an anchor
 	// when there is a destination, a button otherwise.
 	const Tag = href ? 'a' : 'button';
@@ -39,7 +52,7 @@ export default function NavRow( { icon, title, description, href, onClick, exter
 	return (
 		<Tag className={ className } { ...tagProps }>
 			<span className="jetpack-ai-nav-row__icon">
-				<Icon icon={ icon } size={ 24 } />
+				<Icon icon={ icon } size={ iconSize } />
 			</span>
 			<span className="jetpack-ai-nav-row__text">
 				<Text render={ <p /> } variant="heading-lg" className="jetpack-ai-nav-row__title">

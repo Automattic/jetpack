@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+AI Hub: name the "Connect external AI agent" row with its action alone, so its description is announced as a description rather than folded into the control's accessible name.

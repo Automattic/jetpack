@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+AI Overview: replace the usage card's spinner with a skeleton placeholder that holds the card's height, announce both ends of the usage fetch, move the activity log below the walkthrough videos, and give the Quick start rows the ChatGPT and Claude marks.
