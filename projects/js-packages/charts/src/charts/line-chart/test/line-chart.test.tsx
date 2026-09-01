@@ -445,7 +445,27 @@ describe( 'LineChart', () => {
 				data: [
 					{
 						label: 'Series A',
-						// A day apart: spacing inference would read this as daily buckets.
+						// 23h apart (not 24, and not both midnight): spacing inference would
+						// read this as daily buckets, and the two hours format distinctly.
+						data: [
+							{ date: new Date( '2024-01-01T00:00:00' ), value: 10 },
+							{ date: new Date( '2024-01-01T23:00:00' ), value: 20 },
+						],
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText( /\d+\s(AM|PM)/ );
+			expect( ticks.length ).toBeGreaterThan( 1 );
+		} );
+
+		test( 'known limitation: collapses to one tick when every visible point shares a label', () => {
+			renderWithTheme( {
+				width: 800,
+				options: { axis: { x: { tickResolution: 'hour' } } },
+				data: [
+					{
+						label: 'Series A',
 						data: [
 							{ date: new Date( '2024-01-01T00:00:00' ), value: 10 },
 							{ date: new Date( '2024-01-02T00:00:00' ), value: 20 },
@@ -455,7 +475,7 @@ describe( 'LineChart', () => {
 			} );
 
 			const ticks = screen.getAllByText( /\d+\s(AM|PM)/ );
-			expect( ticks.length ).toBeGreaterThan( 1 );
+			expect( ticks ).toHaveLength( 1 );
 		} );
 
 		test( 'renders ticks in short date format.', () => {

@@ -1,6 +1,6 @@
 import { getFormatter, getMaxTicksForWidth, getTimeAxisTickValues } from './time-axis';
 import type { useChartDataTransform } from '../../hooks';
-import type { AxisOptions, ChartFormatting } from '../../types';
+import type { AxisOptions, ChartFormatting, OrientationType } from '../../types';
 
 type BuildTimeAxisOptionsArgs = {
 	/** Series as returned by `useChartDataTransform`. */
@@ -29,7 +29,7 @@ type BuildTimeAxisOptionsArgs = {
  * @param args.scaleDomain - The caller's `options.xScale.domain`.
  * @param args.zoomDomain  - The chart's current zoom window, when zoomed.
  * @param args.formatting  - Host locale and time zone.
- * @return Options ready to spread into the chart's `axis.x`.
+ * @return Options ready to spread into the chart's `axis.x`; `orientation` is always set.
  */
 export const buildTimeAxisOptions = ( {
 	dataSorted,
@@ -38,7 +38,7 @@ export const buildTimeAxisOptions = ( {
 	scaleDomain,
 	zoomDomain,
 	formatting,
-}: BuildTimeAxisOptionsArgs ): AxisOptions => {
+}: BuildTimeAxisOptionsArgs ): AxisOptions & { orientation: OrientationType } => {
 	const { tickResolution, tickFormat, ...rest } = axisOptions ?? {};
 	const ownFormatter = getFormatter( dataSorted, tickResolution, formatting );
 	const formatter = tickFormat || ownFormatter;

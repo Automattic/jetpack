@@ -38,7 +38,8 @@ import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-in
 import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
-import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
+import { getCurveType } from '../private/time-axis';
+import { buildTimeAxisOptions } from '../private/time-axis-options';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
 import styles from './line-chart.module.scss';
@@ -324,18 +325,16 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 		} );
 
 		const chartOptions = useMemo( () => {
-			const { tickResolution, tickFormat, ...xAxisOptions } = options?.axis?.x ?? {};
-			const formatter = tickFormat || getFormatter( dataSorted, tickResolution, formatting );
-
 			return {
 				axis: {
-					x: {
-						orientation: 'bottom' as const,
-						numTicks: guessOptimalNumTicks( dataSorted, width, formatter ),
-						tickFormat: formatter,
-						display: true,
-						...xAxisOptions,
-					},
+					x: buildTimeAxisOptions( {
+						dataSorted,
+						width,
+						axisOptions: options?.axis?.x,
+						scaleDomain: options?.xScale?.domain as [ Date, Date ] | undefined,
+						zoomDomain: zoom.domain as [ Date, Date ] | undefined,
+						formatting,
+					} ),
 					y: {
 						orientation: 'left' as const,
 						numTicks: 4,
