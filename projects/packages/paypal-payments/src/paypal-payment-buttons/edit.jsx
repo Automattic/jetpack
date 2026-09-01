@@ -37,7 +37,7 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API; stable ConfirmDialog not yet exported by @wordpress/components.
 	__experimentalConfirmDialog as ConfirmDialog,
 } from '@wordpress/components';
-import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
+import { useState, useEffect, useCallback, useMemo, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import metadata from './block.json';
 import PayPalButtonPreview from './paypal-button-preview';
@@ -253,6 +253,14 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	// button — that block keeps its attributes, so the wizard has to be opened
 	// explicitly rather than by the usual "no button yet" path.
 	const [ showReconnect, setShowReconnect ] = useState( false );
+
+	/*
+	 * PayPal splits the onboarding result across two channels: `authCode` and
+	 * `sharedId` arrive by postMessage, while `merchantIdInPayPal` is a query
+	 * parameter on the return URL the popup lands on. Hold the latter here so
+	 * whichever channel reports first, the completion call has both halves.
+	 */
+	const merchantIdRef = useRef( '' );
 
 	// Edit/preview mode toggle. Start in preview if button already exists.
 	const [ isEditing, setIsEditing ] = useState( ! ( isApiManaged && resourceId && paymentLink ) );
@@ -565,6 +573,27 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 
 				// Poll for popup close (PayPal redirects back to return_url in the popup).
 				const pollTimer = setInterval( () => {
+					/*
+					 * Once PayPal redirects the popup to our own return URL it is
+					 * same-origin again and its query string readable. That is where
+					 * `merchantIdInPayPal` lives — reading it from the postMessage
+					 * instead left the merchant ID empty and the site unable to
+					 * report its integration status. Accessing `location` while the
+					 * popup is still on paypal.com throws, so this stays guarded.
+					 */
+					try {
+						if ( popup && ! popup.closed && popup.location.host === window.location.host ) {
+							const merchantId = new URLSearchParams( popup.location.search ).get(
+								'merchantIdInPayPal'
+							);
+							if ( merchantId ) {
+								merchantIdRef.current = merchantId;
+							}
+						}
+					} catch {
+						// Still on a PayPal origin — its location is not readable yet.
+					}
+
 					if ( ! popup || popup.closed ) {
 						clearInterval( pollTimer );
 						// Check if onboarding completed by checking connection status.
@@ -600,7 +629,8 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					data: {
 						auth_code: event.data.authCode,
 						shared_id: event.data.sharedId,
-						merchant_id_in_paypal: event.data.merchantIdInPayPal || '',
+						merchant_id_in_paypal:
+							event.data.merchantIdInPayPal || merchantIdRef.current || '',
 					},
 				} )
 					.then( () => {
