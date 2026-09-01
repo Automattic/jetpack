@@ -40,6 +40,18 @@
 	&--connected {
 		background: #00a32a;
 	}
+
+	&--disconnected {
+		background: #cc1818;
+	}
+}
+
+// Back-out affordance shown above the wizard when reconnecting from a block
+// that still holds a payment button.
+.jetpack-paypal-payment-buttons__reconnect-header {
+	display: flex;
+	justify-content: flex-end;
+	margin-block-end: 8px;
 }
 
 .jetpack-paypal-payment-buttons__sandbox-badge {
