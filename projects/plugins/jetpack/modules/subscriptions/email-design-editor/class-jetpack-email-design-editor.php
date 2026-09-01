@@ -180,6 +180,10 @@ class Jetpack_Email_Design_Editor {
 			#wpfooter { display: none; }
 			#' . self::HANDLE . ' {
 				position: fixed;
+				/* Above #adminmenuwrap (9990) and below #wpadminbar (100000): the editor paints
+				   notices and popovers against the viewport, so without this they land behind
+				   the admin menu. */
+				z-index: 9991;
 				inset-block: var(--wp-admin--admin-bar--height, 32px) 0;
 				inset-inline: 160px 0;
 			}
