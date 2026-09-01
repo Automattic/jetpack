@@ -265,6 +265,12 @@ If any file under `projects/` changed, delegate to `.agents/skills/jetpack-chang
 ## Phase 9 — Self-review
 
 - Read `git diff trunk..HEAD` end to end. Flag dead code, overfitting, drift from the Phase 2 plan.
+- Run `git diff origin/trunk...HEAD | awk -f .agents/skills/jetpack-review-pr/scripts/comment-rot.awk`
+  for duplicated explanations and rotting provenance. Neither shape is visible from the file you
+  typed it in, and neither is a question of length — a one-line "before this PR…" note counts.
+  Candidates, not verdicts: name the copy that owns the explanation and cut the rest, or replace
+  the provenance with the invariant behind it. (`origin/trunk`, not `trunk`: a stale local ref
+  silently widens the diff to other people's commits.)
 - If `/simplify` is available in the user's environment, invoke it.
 - Re-run Phase 6 gates if code moved. Re-run Phase 7 browser check if a UI file moved.
 
