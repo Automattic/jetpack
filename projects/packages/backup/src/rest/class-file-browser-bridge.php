@@ -220,9 +220,8 @@ class File_Browser_Bridge {
 	 * WPCOM's signed-URL stream endpoint doesn't send CORS headers, so
 	 * the browser can't fetch it directly.
 	 *
-	 * Answers `content`, `is_text` and `truncated`. `content` is null
-	 * unless `is_text`, and `truncated` says the cap cut the body short —
-	 * neither condition is a failure, so both come back with a 200.
+	 * Answers `content`, `is_text` and `truncated`; `content` is null unless
+	 * `is_text`. A binary or capped body is not an error — both answer 200.
 	 *
 	 * VaultPress stores file content per the file's own snapshot
 	 * `period` — the timestamp when the file last changed — not by the

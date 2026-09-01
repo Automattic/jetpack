@@ -587,8 +587,7 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 	 * @return array<string, mixed>
 	 */
 	private static function served( $response ) {
-		// The flag is `WP_REST_Server::serve_request()`'s own, so this encodes the
-		// payload the way the server really would.
+		// `JSON_UNESCAPED_SLASHES` is `WP_REST_Server::serve_request()`'s own flag.
 		return json_decode( wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES ), true );
 	}
 
@@ -725,14 +724,13 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * Bodies the storage host can answer with that no `<pre>` should be shown.
+	 * Bodies the storage host can answer with that must never reach a `<pre>`.
 	 *
 	 * @return array<string, array{0: string, 1: string}>
 	 */
 	public static function provide_bodies_that_are_not_text() {
 		return array(
-			// The exact sequence from the report: `\xC3\x28` is a lead byte followed by
-			// something that cannot continue it.
+			// `\xC3\x28`: a lead byte followed by something that cannot continue it.
 			'latin-1 text' => array( 'latin-1 text', "valid \xC3\x28 tail" ),
 			'a PNG header' => array( 'a PNG header', "\x89PNG\r\n\x1A\n\x00\x00\x00\rIHDR" ),
 			// Valid UTF-8 byte for byte, so the NUL check is the only thing that

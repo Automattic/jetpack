@@ -3,9 +3,8 @@ import { apiCall, apiPath } from './_helpers';
 /**
  * The bridge's preview payload.
  *
- * `content` is null unless `is_text`: bytes that are not UTF-8 text would
- * reach the browser with the invalid ones replaced by `?`, so the bridge
- * withholds them rather than serve a corrupted file as the real one.
+ * `content` is null unless `is_text`: the bridge withholds bytes it cannot
+ * serve as text rather than let them reach the browser corrupted.
  */
 export type FileContentsResponse = {
 	content: string | null;

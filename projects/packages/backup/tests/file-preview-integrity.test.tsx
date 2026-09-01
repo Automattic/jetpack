@@ -55,9 +55,8 @@ beforeEach( () => {
 } );
 
 describe( 'preview integrity', () => {
-	// Content is in the fixture on purpose: the verdict, not an empty payload, has
-	// to be what keeps it off screen. The `Type:` row witnesses that the extension is
-	// previewable, the other branch rendering this same line.
+	// Content is in the fixture on purpose: the verdict, not an empty payload, has to
+	// be what keeps it off screen. `Type:` witnesses that the extension is previewable.
 	it( 'withholds bytes the bridge flagged unreadable', async () => {
 		await renderCard( { content: 'raw ? bytes', is_text: false, truncated: false } );
 
@@ -92,8 +91,7 @@ describe( 'preview integrity', () => {
 	} );
 
 	// `manifestPath` is optional on an `/ls` row, so a previewable file can leave the
-	// query disabled — the state the truncation verdict defaults to the innocent
-	// answer for.
+	// query disabled — the state the hook's innocent defaults are there for.
 	it( 'accuses nothing when the preview query never ran', async () => {
 		mockApiFetch.mockResolvedValue( {} );
 

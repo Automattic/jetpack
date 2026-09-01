@@ -77,10 +77,7 @@ type Props = {
 
 /**
  * Renders the preview slot's body: a spinner while loading, the file
- * contents in a `<pre>` when available, a muted line when the fetch
- * failed, or a generic "preview unavailable" muted line when the bytes
- * turned out not to be text or the filename's extension is not one this
- * card can render.
+ * contents in a `<pre>`, or a muted line when there is nothing to show.
  *
  * The error branch says nothing about *why*, on purpose. It used to
  * blame blob storage having outlived the manifest entry, which was
@@ -159,9 +156,8 @@ function PreviewBody( {
 	}
 	return (
 		<>
-			{ /* Above the `<pre>` rather than after it: this whole panel is the
-			     scroll container, so a note underneath would only be reachable
-			     by scrolling past the very content it is warning about. */ }
+			{ /* Above the `<pre>`, not after: the panel is the scroll container, so
+			     a note below is reachable only past the content it warns about. */ }
 			{ truncated && (
 				<Text
 					variant="body-sm"
