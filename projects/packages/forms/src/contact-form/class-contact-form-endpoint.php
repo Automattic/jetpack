@@ -7,15 +7,14 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\External_Connections;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
+use Automattic\Jetpack\Forms\Integrations\Built_In_Integrations;
+use Automattic\Jetpack\Forms\Integrations\Integration_Registry;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
-use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 use WP_Error;
 use WP_Query;
 use WP_REST_Request;
@@ -52,91 +51,17 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return array Filtered list of supported integrations
 	 */
 	private function get_supported_integrations() {
-		$supported_integrations = array(
-			'akismet'      => array(
-				'type'                    => 'plugin',
-				'file'                    => 'akismet/akismet.php',
-				'settings_url'            => 'admin.php?page=akismet-key-config',
-				'marketing_redirect_slug' => 'org-spam',
-				'title'                   => __( 'Akismet Spam Protection', 'jetpack-forms' ),
-				'subtitle'                => __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ),
-				'active_tooltip'          => __( 'This form is protected with Akismet spam protection.', 'jetpack-forms' ),
-				// Overriding this may automatically enable/disable the integration when editing a form.
-				'enabled_by_default'      => false,
-				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/akismet.svg',
-			),
-			'zero-bs-crm'  => array(
-				'type'                    => 'plugin',
-				'file'                    => 'zero-bs-crm/ZeroBSCRM.php',
-				'settings_url'            => 'admin.php?page=zerobscrm-plugin-settings',
-				'marketing_redirect_slug' => 'org-crm',
-				'title'                   => __( 'Jetpack CRM', 'jetpack-forms' ),
-				'subtitle'                => __( 'Store contact form submissions in your CRM', 'jetpack-forms' ),
-				'active_tooltip'          => __( 'Jetpack CRM is connected for this form.', 'jetpack-forms' ),
-				// Overriding this may automatically enable/disable the integration when editing a form.
-				'enabled_by_default'      => false,
-				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/zero-bs-crm.svg',
-			),
-			'salesforce'   => array(
-				'type'                    => 'service',
-				'file'                    => null,
-				'settings_url'            => null,
-				'marketing_redirect_slug' => null,
-				'title'                   => __( 'Salesforce', 'jetpack-forms' ),
-				'subtitle'                => __( 'Send form contacts to Salesforce', 'jetpack-forms' ),
-				'active_tooltip'          => __( 'Salesforce is connected for this form.', 'jetpack-forms' ),
-				// Overriding this may automatically enable/disable the integration when editing a form.
-				'enabled_by_default'      => false,
-				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/salesforce.svg',
-			),
-			'google-drive' => array(
-				'type'                    => 'service',
-				'file'                    => null,
-				'settings_url'            => null,
-				'marketing_redirect_slug' => null,
-				'title'                   => __( 'Google Sheets', 'jetpack-forms' ),
-				'subtitle'                => __( 'Export form responses to Google Sheets.', 'jetpack-forms' ),
-				'active_tooltip'          => __( 'Google Sheets is connected for this form.', 'jetpack-forms' ),
-				// Overriding this may automatically enable/disable the integration when editing a form.
-				'enabled_by_default'      => false,
-				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/google-drive.svg',
-			),
-			'mailpoet'     => array(
-				'type'                    => 'plugin',
-				'file'                    => 'mailpoet/mailpoet.php',
-				'settings_url'            => 'admin.php?page=mailpoet-homepage',
-				'marketing_redirect_slug' => 'org-mailpoet',
-				'title'                   => __( 'MailPoet email marketing', 'jetpack-forms' ),
-				'subtitle'                => __( 'Send newsletters and marketing emails directly from your site.', 'jetpack-forms' ),
-				'active_tooltip'          => __( 'MailPoet is connected for this form.', 'jetpack-forms' ),
-				// Overriding this may automatically enable/disable the integration when editing a form.
-				'enabled_by_default'      => false,
-				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/mailpoet.svg',
-			),
-		);
+		Built_In_Integrations::register();
 
-		// Conditionally add Hostinger Reach integration behind feature flag.
-		if ( Jetpack_Forms::is_hostinger_reach_enabled() ) {
-			$supported_integrations['hostinger-reach'] = array(
-				'type'                    => 'plugin',
-				'file'                    => 'hostinger-reach/hostinger-reach.php',
-				'settings_url'            => 'admin.php?page=hostinger-reach#/home',
-				'marketing_redirect_slug' => 'hostinger-reach',
-				'title'                   => __( 'Hostinger Reach', 'jetpack-forms' ),
-				'subtitle'                => __( 'Send newsletters and marketing emails via Hostinger Reach.', 'jetpack-forms' ),
-				'active_tooltip'          => __( 'Hostinger Reach is connected for this form.', 'jetpack-forms' ),
-				// Overriding this may automatically enable/disable the integration when editing a form.
-				'enabled_by_default'      => false,
-				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/hostinger-reach.svg',
-			);
-		}
+		$supported_integrations = Integration_Registry::available();
 
 		/**
 		 * Filters the list of supported integrations available in Jetpack Forms.
 		 *
-		 * Use this filter to add, modify, or remove integrations. Removing an
-		 * integration here will prevent it from being returned by the REST
-		 * integrations endpoints and from being displayed in the UI.
+		 * Prefer jetpack_forms_register_integration() for adding an integration: it accepts
+		 * behavior and UI as well as the presentation keys below, and does not depend on the
+		 * filter running at the right moment. This filter remains supported for removing or
+		 * adjusting integrations.
 		 *
 		 * @since 6.4.0
 		 *
@@ -152,7 +77,27 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		 *                            - enabled_by_default (bool)      : Whether the integration is enabled by default on new forms.
 		 *                            - icon_url (string|null)         : Absolute URL to an icon to display in the UI.
 		 */
-		return apply_filters( 'jetpack_forms_supported_integrations', $supported_integrations );
+		$supported_integrations = apply_filters( 'jetpack_forms_supported_integrations', $supported_integrations );
+
+		if ( ! is_array( $supported_integrations ) ) {
+			return array();
+		}
+
+		// An integration added through the filter supplies only the presentation keys, so fill
+		// in the rest and let every consumer read the same shape.
+		foreach ( $supported_integrations as $slug => $config ) {
+			$supported_integrations[ $slug ] = Integration_Registry::normalize( (array) $config );
+		}
+
+		// Registration order carries no meaning, so present them in a stable, predictable one.
+		uasort(
+			$supported_integrations,
+			static function ( $a, $b ) {
+				return strnatcasecmp( $a['title'], $b['title'] );
+			}
+		);
+
+		return $supported_integrations;
 	}
 
 	/**
@@ -206,7 +151,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/integrations/(?P<slug>[\w-]+)',
+			$this->rest_base . '/integrations/(?P<slug>[\w-]+(?:/[\w-]+)?)',
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_single_integration_status' ),
@@ -226,7 +171,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/integrations/(?P<slug>[\w-]+)',
+			$this->rest_base . '/integrations/(?P<slug>[\w-]+(?:/[\w-]+)?)',
 			array(
 				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => array( $this, 'disable_integration' ),
@@ -1602,18 +1547,13 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$status['settingsUrl'] = esc_url( Redirect::get_url( $config['settings_url'] ) );
 		}
 
-		// Override base shape for specific services.
-		switch ( $slug ) {
-			case 'google-drive':
-				$user_id               = get_current_user_id();
-				$jetpack_connected     = ( new Host() )->is_wpcom_simple() || ( new Connection_Manager( 'jetpack-forms' ) )->is_user_connected( $user_id );
-				$status['isConnected'] = $jetpack_connected && Google_Drive::has_valid_connection();
-				$status['settingsUrl'] = External_Connections::get_connect_url( $slug );
-				break;
-			case 'salesforce':
-				// No overrides needed for now; keep defaults.
-				break;
-			// Add other service cases as needed.
+		// Each integration reports its own connection state.
+		if ( ! empty( $config['status_callback'] ) && is_callable( $config['status_callback'] ) ) {
+			$reported = call_user_func( $config['status_callback'], $status, $slug );
+
+			if ( is_array( $reported ) ) {
+				$status = $reported;
+			}
 		}
 
 		return $status;

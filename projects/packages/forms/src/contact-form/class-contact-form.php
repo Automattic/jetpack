@@ -554,6 +554,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'emailNotifications'     => 'yes',
 			'notificationRecipients' => array(), // Array of user IDs who should receive form response notifications.
 			'webhooks'               => array(), // Array of webhooks to send the form data to.
+			'integrations'           => array(), // Per-form integration settings, keyed by integration slug.
 			'disableGoBack'          => $attributes['disableGoBack'] ?? false,
 			'disableSummary'         => $attributes['disableSummary'] ?? false,
 			'formTitle'              => $attributes['formTitle'] ?? '',

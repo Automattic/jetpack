@@ -93,4 +93,11 @@ export default {
 		type: 'array',
 		default: [],
 	},
+	// Per-form settings for integrations, keyed by integration slug. Integrations registered
+	// before this container existed keep their own top-level attribute instead; which storage
+	// an integration uses is declared in jetpack_forms_register_integration().
+	integrations: {
+		type: 'object',
+		default: {},
+	},
 };
