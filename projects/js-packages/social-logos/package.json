@@ -35,7 +35,7 @@
 		"prop-types": "^15.8.1"
 	},
 	"devDependencies": {
-		"@types/react": "18.3.28",
+		"@types/react": "18.3.31",
 		"@types/react-dom": "18.3.7",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"glob": "13.0.6",
