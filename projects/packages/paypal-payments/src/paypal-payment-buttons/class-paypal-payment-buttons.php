@@ -708,6 +708,7 @@ class PayPal_Payment_Buttons {
 	 */
 	public static function init_admin() {
 		PayPal_Admin_Page::init();
+		PayPal_Email_Sender::init();
 	}
 
 	/**
