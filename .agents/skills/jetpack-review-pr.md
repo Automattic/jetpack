@@ -1,6 +1,6 @@
 ---
 description: Review a Jetpack pull request for bugs, security, performance, convention compliance, and test coverage
-allowed-tools: Bash(gh pr view:*), Bash(gh pr diff:*), Bash(gh pr list:*), Bash(gh auth:*), Bash(jp test:*), Bash(jp docker:*), Bash(jp phan:*), Bash(jp build:*), Bash(jp install:*), Bash(git fetch:*), Bash(git worktree:*), Bash(git branch:*), Bash(git log:*), Bash(git diff:*), Bash(git rev-parse:*), Bash(grep:*), Bash(timeout:*), Bash(mktemp:*), Read, Glob, Grep, Agent
+allowed-tools: Bash(gh pr view:*), Bash(gh pr diff:*), Bash(gh pr list:*), Bash(gh auth:*), Bash(jp test:*), Bash(jp docker:*), Bash(jp phan:*), Bash(jp build:*), Bash(jp install:*), Bash(git fetch:*), Bash(git worktree:*), Bash(git branch:*), Bash(git log:*), Bash(git diff:*), Bash(git rev-parse:*), Bash(grep:*), Bash(awk:*), Bash(timeout:*), Bash(mktemp:*), Read, Glob, Grep, Agent
 ---
 
 Review a Jetpack pull request for code quality, bugs, security, performance, Jetpack conventions, and test adequacy.
@@ -129,6 +129,7 @@ Note: `AGENTS.md` is already loaded in your context via the CLAUDE.md `@AGENTS.m
 | Backward compat | yes | yes | yes |
 | Cross-package version skew (optional-sibling calls) | yes | yes | yes |
 | Phan suppressions / baseline growth (from diff) | yes | yes | yes |
+| Comment repetition / provenance rot (from diff) | yes | yes | yes |
 | Error handling | no | yes | yes |
 | Feature gating | no | yes | yes |
 | HTML / a11y / RTL | no | if has_html/has_css | yes |
@@ -252,6 +253,66 @@ gh pr diff <PR> | grep -nE '^\+.*@phan-(suppress|file-suppress)'
 - Error messages should explain what happened AND what to do
 - No jargon or internal naming in user-facing strings
 - Suggest concrete alternatives matching existing project conventions
+
+---
+
+#### Comment repetition and provenance rot (all depths — diff-visible, needs no file reading)
+
+`AGENTS.md` § Comments already names both shapes and is in your context. Apply it; do not restate
+it in the review. The one thing to hold on to here: **neither shape has anything to do with
+length.** A duplicated rationale and a "before this PR…" note are routinely one line, comfortably
+inside any budget. "It is only a line or two" is therefore never a reason to discharge one of
+these — judge the claim the comment makes, not the room it takes.
+
+- **The same explanation in more than one place.** N copies drift independently, so a reader
+  cannot tell which one is current.
+- **Provenance that rots.** True when written and silently false later: the tree's former state,
+  an alternative this PR rejected, upstream file-and-line citations, benchmark numbers, counts.
+
+Get the candidate list, then judge each entry — the script decides nothing:
+
+```bash
+gh pr diff <PR> | awk -f .agents/skills/jetpack-review-pr/scripts/comment-rot.awk
+```
+
+Run this from the **monorepo root**, not from the thorough-depth `mktemp -d` worktree: it reads
+the diff from `gh`, so it needs no checkout of the PR, and the PR's head may predate the script.
+`awk -f <script> -v show_rules=1 </dev/null` prints the rot signals it matches on.
+
+*Repeated explanation* — the report groups identical comment lines and lists every site:
+
+- **Discard** — boilerplate that slipped past the substance floor, or two mirrors that genuinely
+  have to be read independently (a TS type describing a payload its PHP producer also documents).
+- **`[suggestion]`** — the default, and it is only a review if it names the owner. AGENTS.md's
+  tie-break is the file that owns the thing: the implementation over its tests, the source of
+  truth over its mirror, the shared helper over each of its callers. Say which copy stays, then
+  say what the other sites get instead — usually nothing, occasionally a four-word pointer.
+  "This is duplicated" with no proposed cut is not a finding.
+- **`[blocker]`** — the copies have already drifted and now contradict each other. One of them is
+  wrong about the code and a reader has no way to tell which.
+
+*Provenance that rots* — the report gives the whole comment, the signal that fired, and a range:
+
+- **Discard** — a durable pointer (an issue or PR link, an upstream permalink pinned to a tag or
+  SHA) or a number the code actually enforces rather than an observation about it.
+- **`[suggestion]`** — the default. Give the replacement, not just the objection: keep the
+  invariant, cut the history. "Calling this inside the while loop caused ~20 flushes per file"
+  becomes "Once per file, not per batch — flushing here wipes the options group." Same warning,
+  no expiry date.
+- **`[blocker]`** — it has already rotted: the cited line, count, or behaviour is wrong at this
+  SHA, so the comment now misleads.
+
+Known limitations — all three are silent failures, so keep reading the diff yourself:
+
+- **Verbatim only** (after normalising case, punctuation and whitespace). Paraphrase is not
+  detected, deliberately: the same mechanism explained once in a docblock and again at the call
+  site in different words scores about 0.2 on token overlap, and a near-duplicate threshold low
+  enough to catch it pairs up any two comments in the same subsystem.
+- **Added comments are only compared with each other.** A fresh copy of an explanation that
+  already exists in the tree is invisible. At thorough depth, grep a distinctive fragment:
+  `grep -rn "<six distinctive words>" projects/`.
+- **Whole-line comments in code files only.** Trailing `foo(); // note` is skipped, as are `.md`,
+  `.json`, changelog entries, and vendored or generated trees.
 
 ---
 
@@ -407,6 +468,7 @@ Review depth: **<depth>** (<lines> lines, <N> projects)
 ### RTL Issues
 ### Translation Issues
 ### Copy Review
+### Comment Repetition / Provenance Rot
 ### Code Simplicity / WordPress Reuse
 ### Dependency Changes
 ### PHP / WordPress Version Compatibility
