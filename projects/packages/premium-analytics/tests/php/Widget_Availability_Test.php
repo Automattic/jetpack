@@ -232,45 +232,14 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The gate and the manifests agree in both directions: a renamed widget can't drop out of the
-	 * gate, and a new video widget can't be added without joining it.
+	 * Every widget type name declared by a `widgets/*` manifest.
 	 *
-	 * The second half rests on a naming heuristic: a VideoPress widget not named with `video` would
-	 * be missed, and an unrelated `video-*` widget wrongly demanded. Widget manifests have no
-	 * "requires" field to key on instead — read that here if one is ever added.
+	 * Asserts rather than skips a bad manifest: one silently dropped is absent from both sides
+	 * of a gate-vs-manifest comparison, so the guard would pass while the gate misses a type.
+	 *
+	 * @return string[] Declared widget type names.
 	 */
-	public function test_videopress_widget_types_match_the_manifest() {
-		$manifests = glob( __DIR__ . '/../../widgets/*/widget.json' );
-		$this->assertNotEmpty( $manifests, 'No widget manifests found — the glob path is wrong.' );
-
-		$video_names = array();
-		foreach ( $manifests as $manifest ) {
-			// Assert rather than skip: a silently dropped manifest is absent from both sides of the
-			// comparison below, so the guard would pass while the gate is missing a type — the failure this test exists to catch.
-			$raw = file_get_contents( $manifest ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			$this->assertNotFalse( $raw, "Could not read $manifest" );
-
-			$widget = json_decode( $raw, true );
-			$this->assertIsArray( $widget, "Malformed manifest: $manifest" );
-			$this->assertArrayHasKey( 'name', $widget, "Manifest declares no name: $manifest" );
-
-			if ( str_contains( $widget['name'], 'video' ) ) {
-				$video_names[] = $widget['name'];
-			}
-		}
-
-		$gated = VIDEOPRESS_WIDGET_TYPES;
-		sort( $gated );
-		sort( $video_names );
-
-		$this->assertSame( $gated, $video_names, 'Every video widget must be listed in VIDEOPRESS_WIDGET_TYPES.' );
-	}
-
-	/**
-	 * Every held plan-usage type names a real manifest, so a renamed or moved widget
-	 * cannot lift the hold while the absence assertions above stay green.
-	 */
-	public function test_plan_usage_widget_types_match_the_manifest() {
+	private function manifest_widget_names() {
 		$manifests = glob( __DIR__ . '/../../widgets/*/widget.json' );
 		$this->assertNotEmpty( $manifests, 'No widget manifests found — the glob path is wrong.' );
 
@@ -285,6 +254,41 @@ class Widget_Availability_Test extends BaseTestCase {
 
 			$names[] = $widget['name'];
 		}
+
+		return $names;
+	}
+
+	/**
+	 * The gate and the manifests agree in both directions: a renamed widget can't drop out of the
+	 * gate, and a new video widget can't be added without joining it.
+	 *
+	 * The second half rests on a naming heuristic: a VideoPress widget not named with `video` would
+	 * be missed, and an unrelated `video-*` widget wrongly demanded. Widget manifests have no
+	 * "requires" field to key on instead — read that here if one is ever added.
+	 */
+	public function test_videopress_widget_types_match_the_manifest() {
+		$video_names = array_values(
+			array_filter(
+				$this->manifest_widget_names(),
+				static function ( $name ) {
+					return str_contains( $name, 'video' );
+				}
+			)
+		);
+
+		$gated = VIDEOPRESS_WIDGET_TYPES;
+		sort( $gated );
+		sort( $video_names );
+
+		$this->assertSame( $gated, $video_names, 'Every video widget must be listed in VIDEOPRESS_WIDGET_TYPES.' );
+	}
+
+	/**
+	 * Every held plan-usage type names a real manifest, so a renamed or moved widget
+	 * cannot lift the hold while the absence assertions above stay green.
+	 */
+	public function test_plan_usage_widget_types_match_the_manifest() {
+		$names = $this->manifest_widget_names();
 
 		foreach ( PLAN_USAGE_WIDGET_TYPES as $held ) {
 			$this->assertContains( $held, $names, "$held is held back but no manifest declares it." );
