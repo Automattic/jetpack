@@ -40,6 +40,13 @@ describe( 'DateComparisonDropdown', () => {
 		await user.click( trigger );
 		expect( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) ).toBeChecked();
 
+		// The options lead and "No comparison" closes the menu as the way out.
+		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
+			'Previous period',
+			'Previous month',
+			'No comparison',
+		] );
+
 		await user.click( screen.getByRole( 'menuitemradio', { name: 'Previous month' } ) );
 		expect( onPresetChange ).toHaveBeenCalledWith( 'previous-month' );
 	} );
