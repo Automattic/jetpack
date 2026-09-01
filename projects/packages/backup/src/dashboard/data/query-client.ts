@@ -37,6 +37,8 @@ function sharedClient(): QueryClient {
 	return window[ CLIENT_KEY ];
 }
 
+// Each route also bundles its own react-query, so sentinels compared by identity —
+// `skipToken`, `isCancelledError` — never match against a client another route created.
 export const queryClient = sharedClient();
 
 /**
