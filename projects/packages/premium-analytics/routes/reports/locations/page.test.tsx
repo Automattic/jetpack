@@ -455,6 +455,20 @@ describe( 'LocationsReportPage', () => {
 			expect( lastMapProps().focusCountry ).toBeUndefined();
 		} );
 
+		// Not keyed by tab, so whatever the user did to it — collapsing it, most of
+		// all — survives the switch.
+		it( 'keeps the same map mounted across a tab change', () => {
+			mockTabState( 'regions' );
+			mockRecords();
+
+			render( <LocationsReportPage /> );
+			const map = screen.getByTestId( 'locations-map' );
+
+			selectTab( 'cities' );
+
+			expect( screen.getByTestId( 'locations-map' ) ).toBe( map );
+		} );
+
 		it( 'drops the map with the table when the report fails', () => {
 			mockRecords( { isError: true } );
 
