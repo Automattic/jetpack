@@ -1078,13 +1078,45 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['blockTransformations'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['blockToolbarButton'] );
 		// SEO suggestions stay off because the seo-tools module and plan gate are
-		// not satisfied in this test.
+		// not satisfied in this test. Draft Assist is still gated on an internal
+		// testing environment, which the suite runs as, so it is exposed here.
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['generateFeedback'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['excerptSuggestion'] );
+		$this->assertSame( true, $data['jetpackAiSidebar']['features']['draftAssist'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['chatHistory'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['supportGuides'] );
+	}
+
+	/**
+	 * Draft Assist follows the AI writing assistant opt-out.
+	 *
+	 * The project requires that this is never shown to someone who has turned
+	 * generative AI off. Every other writing feature here is ANDed with
+	 * writing_assistant; Draft Assist was the one exception, so a user who turned the
+	 * writing assistant off but kept SEO Enhancer on still got it.
+	 */
+	public function test_draft_assist_follows_the_writing_assistant_opt_out() {
+		$this->set_block_editor_screen();
+
+		// SEO stays on deliberately. has_enabled_sidebar_features() is an OR, so with
+		// both toggles off the sidebar data is never added at all and there is nothing
+		// to assert about. The hole this covers is the user who keeps SEO Enhancer and
+		// turns the writing assistant off — they still got Draft Assist.
+		$this->activate_seo_tools_module();
+		update_option( 'jetpack_ai_seo_enabled', 1 );
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+
+		try {
+			$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+			$this->assertArrayHasKey( 'jetpackAiSidebar', $data, 'SEO alone should still expose the sidebar.' );
+			$this->assertSame( false, $data['jetpackAiSidebar']['features']['draftAssist'] );
+		} finally {
+			delete_option( 'jetpack_ai_writing_assistant_enabled' );
+			delete_option( 'jetpack_ai_seo_enabled' );
+		}
 	}
 
 	/**
@@ -1106,7 +1138,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Released suggestions are exposed to eligible users. The test plan supports
 	 * advanced-seo, the seo-tools module is activated, and the SEO feature
 	 * toggle from the AI settings page is switched on so the SEO suggestions
-	 * gate is satisfied.
+	 * gate is satisfied. Draft Assist rides along: it is still gated on an
+	 * internal testing environment, which the suite runs as.
 	 */
 	public function test_add_agents_manager_data_exposes_released_features() {
 		$this->set_block_editor_screen();
@@ -1122,6 +1155,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['excerptSuggestion'] );
+		$this->assertSame( true, $data['jetpackAiSidebar']['features']['draftAssist'] );
 	}
 
 	/**
@@ -1282,6 +1316,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 				$features['optimizeTitleSuggestion'] = false;
 				$features['seoSuggestions']          = false;
 				$features['excerptSuggestion']       = false;
+				$features['draftAssist']             = false;
 				return $features;
 			}
 		);
@@ -1298,6 +1333,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertFalse( $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
 		$this->assertFalse( $data['jetpackAiSidebar']['features']['seoSuggestions'] );
 		$this->assertFalse( $data['jetpackAiSidebar']['features']['excerptSuggestion'] );
+		$this->assertFalse( $data['jetpackAiSidebar']['features']['draftAssist'] );
 	}
 
 	/**
@@ -1317,6 +1353,26 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
+	}
+
+	/**
+	 * The generic preview features filter can still disable Draft Assist inside a
+	 * testing environment (the gate raises the floor, not the ceiling).
+	 */
+	public function test_add_agents_manager_data_preview_features_filter_can_disable_draft_assist_in_testing_environment() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter(
+			'jetpack_ai_sidebar_preview_features',
+			function ( $features ) {
+				$features['draftAssist'] = false;
+				return $features;
+			}
+		);
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['draftAssist'] );
 	}
 
 	/**
