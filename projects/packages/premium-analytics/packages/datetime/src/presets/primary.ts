@@ -38,6 +38,8 @@ import {
 	isYearSurfacePresetId,
 	toYearPresetId,
 	type ComputablePresetId,
+	MENU_SURFACE_PRESETS,
+	MENU_SURFACE_PRESET_GROUPS,
 	type QuickSurfacePresetId,
 	type SelectablePresetId,
 	type PrimaryPresetId,
@@ -473,6 +475,49 @@ export function getYearSurfacePresets(
 		},
 		...years,
 	];
+}
+
+/**
+ * Options of the period menu: which periods it offers, and where its all-time
+ * entry starts.
+ */
+export type MenuSurfaceOptions = AllTimeRangeOptions & {
+	/**
+	 * The presets to offer, filtered against the menu's own order. Defaults to
+	 * every selectable preset; a surface that can anchor one adds all time.
+	 */
+	presetIds?: readonly QuickSurfacePresetId[];
+};
+
+/**
+ * Presets for the period menu, grouped by scale.
+ *
+ * The grouping is the menu's, not the caller's: `presetIds` only says what is
+ * offered, and a group left with nothing is dropped rather than rendered empty.
+ *
+ * @param timeZone - IANA timezone string (e.g., 'America/New_York')
+ * @param options  - Which presets to offer, and the all-time anchor.
+ * @return The groups in display order, each in the menu's own order.
+ */
+export function getMenuSurfacePresetGroups(
+	timeZone: string,
+	options: MenuSurfaceOptions = {}
+): DateRangePreset< QuickSurfacePresetId >[][] {
+	const offered = new Set< string >( options.presetIds ?? MENU_SURFACE_PRESETS );
+	const presetsById = new Map< string, DateRangePreset< QuickSurfacePresetId > >(
+		getQuickSurfacePresets( timeZone, {
+			...options,
+			presetIds: [ ...offered ] as readonly QuickSurfacePresetId[],
+		} ).map( preset => [ preset.id, preset ] )
+	);
+
+	return MENU_SURFACE_PRESET_GROUPS.map( group =>
+		group
+			.map( id => presetsById.get( id ) )
+			.filter(
+				( preset ): preset is DateRangePreset< QuickSurfacePresetId > => preset !== undefined
+			)
+	).filter( group => group.length > 0 );
 }
 
 /**
