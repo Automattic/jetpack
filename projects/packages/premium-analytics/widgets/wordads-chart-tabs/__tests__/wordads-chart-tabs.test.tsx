@@ -342,7 +342,7 @@ describe( 'WordAdsChartTabsWidget date control', () => {
 			onChange: jest.fn(),
 		} );
 
-		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
 
 		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
 			'By days',
@@ -357,7 +357,7 @@ describe( 'WordAdsChartTabsWidget date control', () => {
 			onChange: jest.fn(),
 		} );
 
-		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
 
 		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
 			'By months',

@@ -108,14 +108,15 @@ describe( 'report params field', () => {
 	it( 'offers no bucket control by default', () => {
 		renderField();
 
-		expect( screen.queryByRole( 'button', { name: 'Chart interval' } ) ).not.toBeInTheDocument();
+		// Prefix, not the whole name: the trigger appends the active bucket.
+		expect( screen.queryByRole( 'button', { name: /^Chart interval/ } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'offers the bucket control when asked for it', async () => {
 		renderField( true );
 
 		await expect(
-			screen.findByRole( 'button', { name: 'Chart interval' } )
+			screen.findByRole( 'button', { name: /^Chart interval/ } )
 		).resolves.toBeInTheDocument();
 	} );
 
@@ -181,7 +182,7 @@ describe( 'report params field', () => {
 		const user = userEvent.setup();
 		const { latest } = renderField( true );
 
-		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
 		await user.click( await screen.findByRole( 'menuitemradio', { name: 'By weeks' } ) );
 
 		expect( latest() ).toEqual( expect.objectContaining( { interval: 'week' } ) );
@@ -210,7 +211,7 @@ describe( 'report params field', () => {
 		renderField( true );
 
 		await user.click( screen.getByRole( 'button', { name: /24 hours/i } ) );
-		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
 
 		await expect(
 			screen.findByRole( 'menuitemradio', { name: 'By hours' } )
@@ -270,7 +271,7 @@ describe( 'report params field', () => {
 		renderField( true );
 
 		await draftShortRange( user, 3 );
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( screen.getByRole( 'button', { name: /^Chart interval/ } ) );
 
 		await expect(
 			screen.findByRole( 'menuitemradio', { name: 'By hours' } )
@@ -283,7 +284,7 @@ describe( 'report params field', () => {
 		const { saved, latest } = renderField( true );
 
 		await draftShortRange( user, 3 );
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( screen.getByRole( 'button', { name: /^Chart interval/ } ) );
 		await user.click( await screen.findByRole( 'menuitemradio', { name: 'By hours' } ) );
 
 		expect( saved ).toHaveLength( 0 );
@@ -300,14 +301,14 @@ describe( 'report params field', () => {
 		const { saved } = renderField( true );
 
 		await draftShortRange( user, 3 );
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( screen.getByRole( 'button', { name: /^Chart interval/ } ) );
 		await user.click( await screen.findByRole( 'menuitemradio', { name: 'By hours' } ) );
 
 		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
 
 		expect( saved ).toHaveLength( 0 );
 
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( screen.getByRole( 'button', { name: /^Chart interval/ } ) );
 
 		await expect(
 			screen.findByRole( 'menuitemradio', { name: 'By weeks' } )
@@ -379,7 +380,7 @@ describe( 'report params field', () => {
 		await draftShortRange( user, 3 );
 		await setFromOutside( { preset: 'last-7-days', interval: 'day' } );
 
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( screen.getByRole( 'button', { name: /^Chart interval/ } ) );
 
 		await expect(
 			screen.findByRole( 'menuitemradio', { name: 'By days' } )
@@ -398,7 +399,7 @@ describe( 'buckets the widget cannot draw', () => {
 
 		// Two to six days is the window that puts hours on offer.
 		await draftShortRange( user, 3 );
-		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
 
 		await expect(
 			screen.findByRole( 'menuitemradio', { name: 'By days' } )
@@ -414,7 +415,7 @@ describe( 'buckets the widget cannot draw', () => {
 			reportParams: { preset: 'last-24-hours', interval: 'hour' },
 		} );
 
-		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
 
 		await expect(
 			screen.findByRole( 'menuitemradio', { name: 'By days' } )
