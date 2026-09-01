@@ -29,6 +29,10 @@ describe( 'formatDate', () => {
 			expect( formatDate( JUNE_21, 'short' ) ).toBe( 'June 21' );
 		} );
 
+		it( 'formats "monthYear" as the site format without its day', () => {
+			expect( formatDate( JUNE_21, 'monthYear' ) ).toBe( 'June 2025' );
+		} );
+
 		it( 'formats "year"', () => {
 			expect( formatDate( JUNE_21, 'year' ) ).toBe( '2025' );
 		} );
@@ -59,6 +63,10 @@ describe( 'formatDate', () => {
 			expect( formatDate( JUNE_21, 'short' ) ).toBe( '21 de junio' );
 		} );
 
+		it( 'drops the leading "<day> de" for "monthYear"', () => {
+			expect( formatDate( JUNE_21, 'monthYear' ) ).toBe( 'junio de 2025' );
+		} );
+
 		it( 'keeps "iso" untranslated so it stays machine-readable', () => {
 			expect( formatDate( JUNE_21, 'iso' ) ).toBe( '2025-06-21' );
 		} );
@@ -72,6 +80,12 @@ describe( 'formatDate', () => {
 		setSettings( settingsFor( 'year-only-test', 'Y' ) );
 
 		expect( formatDate( JUNE_21, 'short' ) ).toBe( '2025' );
+	} );
+
+	it( 'falls back to the site format when removing the day leaves nothing', () => {
+		setSettings( settingsFor( 'day-only-test', 'j' ) );
+
+		expect( formatDate( JUNE_21, 'monthYear' ) ).toBe( '21' );
 	} );
 
 	it( 'does not add a second weekday when the site format already names one', () => {
