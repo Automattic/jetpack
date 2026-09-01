@@ -27,13 +27,10 @@ import { useActiveTab } from './use-active-tab';
  * not obvious from the code below.
  *
  * Tabs without a fixed composition stay hidden. Email tabs also require
- * `total_sends` > 0 from the opens-rate summary, and fail closed on anything
- * the gate query has actually answered: a zero count or an error hides them.
- * Until it answers, a URL already naming an email tab keeps its tabs —
- * otherwise a reload would render the whole Post traffic page first and throw
- * it away (WOOA7S-2059). "Answered" is success-or-error rather than
- * `! isLoading`, which also goes false whenever the retryer pauses (a
- * background tab, an offline blip) and would flip the page back and forth.
+ * `total_sends` > 0 from the opens-rate summary, and fail closed once the gate
+ * query answers: a zero count or an error hides them. Until it answers, a URL
+ * already naming an email tab keeps its tabs, so a reload doesn't render the
+ * whole Post traffic page first and throw it away (WOOA7S-2059).
  *
  * A hidden-tab URL is replaced with the first visible tab, without adding a
  * history entry. An email-tab URL is normalized only once the gate query
@@ -61,6 +58,8 @@ export function usePostDetailTabs(
 
 	const [ storedTab, setActiveTab ] = useActiveTab();
 	const storedIsEmailTab = EMAIL_TAB_IDS.includes( storedTab );
+	// Success-or-error, not `! isLoading`: that also goes false while the retryer
+	// is paused (background tab, offline blip), flipping the page back and forth.
 	const gateAnswered = opens.isSuccess || opens.isError;
 	const showEmailTabs = hasEmailStats || ( storedIsEmailTab && postId > 0 && ! gateAnswered );
 
