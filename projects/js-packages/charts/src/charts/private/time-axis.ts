@@ -3,7 +3,7 @@ import { scaleTime } from '@visx/scale';
 import { differenceInHours, differenceInYears } from 'date-fns';
 import { createDateFormatter, createZonedClock } from '../../utils/date-formatting';
 import type { useChartDataTransform } from '../../hooks';
-import type { ChartFormatting, TickResolution } from '../../types';
+import type { BucketInfo, ChartFormatting, TickResolution } from '../../types';
 import type { CurveType } from '../line-chart/types';
 
 // Approximate min pixel width for an x-axis tick label.
@@ -161,6 +161,21 @@ export const getBucketResolution = (
 	// any yearly one (365 days at least).
 	return spacingInHours < 12 * MONTHLY_SPACING_HOURS ? 'month' : 'year';
 };
+
+/**
+ * How this data was classified, for consumers that render their own labels.
+ *
+ * @param sortedData     - Series as returned by `useChartDataTransform`.
+ * @param tickResolution - Caller-declared bucket resolution, when known.
+ * @return The declared or inferred bucket, and the resolution formats key on.
+ */
+export const getBucketInfo = (
+	sortedData: ReturnType< typeof useChartDataTransform >,
+	tickResolution?: TickResolution
+): BucketInfo => ( {
+	bucket: tickResolution ?? getBucketResolution( sortedData ),
+	displayResolution: getBucketResolution( sortedData, tickResolution ),
+} );
 
 // Pick the most informative tick formatter for the data's bucket resolution and
 // time span. Month-or-coarser buckets are formatted from the resolution alone —

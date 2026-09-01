@@ -576,6 +576,20 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 export type TickResolution = 'hour' | 'day' | 'week' | 'month' | 'year';
 
 /**
+ * How a chart classified the buckets of the data it's drawing.
+ */
+export type BucketInfo = {
+	/**
+	 * The bucket the series has. Only reports `'week'` when a caller declared
+	 * it: seven-day spacing is indistinguishable from sparse daily data, so
+	 * inference cannot recover it.
+	 */
+	bucket: TickResolution;
+	/** The classification tick formats are keyed on. `'week'` reads as `'day'`. */
+	displayResolution: Exclude< TickResolution, 'week' >;
+};
+
+/**
  * The locale and time zone the time axis and the built-in tooltips render dates
  * in, set once by the host on `GlobalChartsProvider`.
  *
