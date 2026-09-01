@@ -60,11 +60,19 @@ class Import_Post_Meta_Object_Injection_Test extends WP_UnitTestCase {
 	 * rebuilt on every later read.
 	 */
 	public function test_object_payload_is_not_stored_as_object() {
-		$this->import_meta( array( 'evil_meta' => 'O:8:"stdClass":1:{s:8:"filename";s:9:"/tmp/pwned";}' ) );
+		$payload = 'O:8:"stdClass":1:{s:8:"filename";s:10:"/tmp/pwned";}';
+
+		// A payload whose declared string lengths are wrong does not decode at all, which would
+		// make every assertion below pass against unpatched code. Pin that it is really an object.
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- checking the fixture, not untrusted input.
+		$this->assertInstanceOf( stdClass::class, unserialize( $payload ), 'Fixture must decode to an object.' );
+
+		$this->import_meta( array( 'evil_meta' => $payload ) );
 
 		$stored = get_post_meta( $this->post_id, 'evil_meta', true );
 
 		$this->assertNotInstanceOf( stdClass::class, $stored );
+		$this->assertNotInstanceOf( '__PHP_Incomplete_Class', $stored, 'Disallowing classes alone still yields an object.' );
 		$this->assertFalse( is_object( $stored ), 'Imported meta was restored as a live PHP object.' );
 	}
 
