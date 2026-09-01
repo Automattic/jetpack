@@ -105,6 +105,9 @@ function loadPartnerScript( environment ) {
 		const script = document.createElement( 'script' );
 		script.src = src;
 		script.async = true;
+		// PayPal's own snippets give the tag this id; some SDK builds look
+		// themselves up by it.
+		script.id = 'paypal-js';
 		script.dataset.paypalPartnerJs = src;
 		script.addEventListener( 'load', () => {
 			script.dataset.loaded = 'true';
@@ -444,7 +447,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	 */
 	// Track whether Partner Referrals (Connect with PayPal button) is available.
 	// Requires platform-level credentials — not available in standalone mode.
-	const [ , setPartnerReferralsAvailable ] = useState( false );
+	const [ partnerReferralsAvailable, setPartnerReferralsAvailable ] = useState( false );
 
 	useEffect( () => {
 		apiFetch( { path: `${ API_BASE }/connection` } )
@@ -611,12 +614,14 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	}, [ completeOnboarding ] );
 
 	/**
-	 * Handle "Connect with PayPal" Partner Referrals flow.
+	 * Fetch the referral link.
 	 *
-	 * Fetches the referral link, then hands it to PayPal's SDK, which renders
-	 * the lightbox and reports the auth code back through our callback.
+	 * Kept separate from any click handler: PayPal's SDK turns the link itself
+	 * into the button, so the link has to exist before the merchant clicks
+	 * anything. Their click then lands on the SDK's own handler as a real user
+	 * gesture, which is what reliably opens the lightbox.
 	 */
-	const handleConnectWithPayPal = useCallback( () => {
+	const fetchSignupLink = useCallback( () => {
 		setConnectError( null );
 		setIsGeneratingSignupLink( true );
 
@@ -633,25 +638,53 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		} )
 			.then( response => {
 				// `displayMode=minibrowser` is what makes PayPal render the flow
-				// in the SDK's lightbox and report back through the callback,
-				// rather than treating this as a plain redirect.
+				// in the SDK's lightbox and report the auth code back through the
+				// callback, rather than treating this as a plain redirect.
 				const url = new URL( response.action_url );
 				url.searchParams.set( 'displayMode', 'minibrowser' );
 				setSignupUrl( url.toString() );
 			} )
 			.catch( err => {
-				setIsGeneratingSignupLink( false );
 				setConnectError( getUserFriendlyError( err ) );
+			} )
+			.finally( () => {
+				setIsGeneratingSignupLink( false );
 			} );
 	}, [ environment ] );
 
 	/**
-	 * Once a referral link exists, load PayPal's SDK and open its lightbox.
+	 * Prepare the referral link as soon as the welcome step is on screen.
+	 */
+	useEffect( () => {
+		if (
+			connectionLoading ||
+			isConnected ||
+			! partnerReferralsAvailable ||
+			wizardStep !== 'welcome' ||
+			signupUrl ||
+			isGeneratingSignupLink
+		) {
+			return;
+		}
+
+		fetchSignupLink();
+	}, [
+		connectionLoading,
+		isConnected,
+		partnerReferralsAvailable,
+		wizardStep,
+		signupUrl,
+		isGeneratingSignupLink,
+		fetchSignupLink,
+	] );
+
+	/**
+	 * Load PayPal's SDK once the link it binds to is on the page.
 	 *
-	 * The SDK binds to anchors carrying `data-paypal-button`, so the link has to
-	 * be in the DOM before `render()` runs. The click is a convenience: the
-	 * anchor stays visible, so if the lightbox does not open the merchant can
-	 * start the flow themselves rather than being stuck.
+	 * partner.js scans for `[data-paypal-button]` as it runs, so it is appended
+	 * from an effect -- after the anchor has been committed to the DOM -- rather
+	 * than alongside it. `render()` covers the case where the script was already
+	 * loaded for an earlier attempt and will not rescan on its own.
 	 */
 	useEffect( () => {
 		if ( ! signupUrl ) {
@@ -662,24 +695,19 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 
 		loadPartnerScript( environment )
 			.then( () => {
-				if ( cancelled ) {
-					return;
+				if ( ! cancelled ) {
+					window.PAYPAL?.apps?.Signup?.render();
 				}
-				setIsGeneratingSignupLink( false );
-				window.PAYPAL?.apps?.Signup?.render();
-				signupLinkRef.current?.click();
 			} )
 			.catch( () => {
-				if ( cancelled ) {
-					return;
+				if ( ! cancelled ) {
+					setConnectError(
+						__(
+							'Could not load PayPal’s onboarding window. Please try again, or enter your API credentials manually.',
+							'jetpack-paypal-payments'
+						)
+					);
 				}
-				setIsGeneratingSignupLink( false );
-				setConnectError(
-					__(
-						'Could not load PayPal’s onboarding window. Please try again, or enter your API credentials manually.',
-						'jetpack-paypal-payments'
-					)
-				);
 			} );
 
 		return () => {
@@ -1178,24 +1206,14 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 								/>
 							</div>
 							<div className="jetpack-paypal-wizard__actions">
-								{ ! signupUrl && (
-									<Button
-										variant="primary"
-										onClick={ handleConnectWithPayPal }
-										isBusy={ isGeneratingSignupLink || isCompletingOnboarding }
-										disabled={ isGeneratingSignupLink || isCompletingOnboarding }
-									>
-										{ connectWithPayPalLabel }
-									</Button>
-								) }
 								{ /*
-								 * PayPal's SDK binds its lightbox to this anchor by the
-								 * data attributes, and reports the auth code back through
-								 * the named callback. It stays visible after the automatic
-								 * click so the merchant can reopen the window if they
-								 * dismiss it, or start the flow if it never opened.
+								 * Once the referral link exists this *is* the button:
+								 * PayPal's SDK binds its lightbox to the anchor by these
+								 * data attributes and reports the auth code back through
+								 * the named callback. The merchant's own click is what
+								 * opens it, so it stays a real user gesture.
 								 */ }
-								{ signupUrl && (
+								{ signupUrl ? (
 									<a
 										ref={ signupLinkRef }
 										href={ signupUrl }
@@ -1204,8 +1222,17 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 										target="PPFrame"
 										className="components-button is-primary"
 									>
-										{ __( 'Continue to PayPal', 'jetpack-paypal-payments' ) }
+										{ connectWithPayPalLabel }
 									</a>
+								) : (
+									<Button
+										variant="primary"
+										onClick={ fetchSignupLink }
+										isBusy={ isGeneratingSignupLink || isCompletingOnboarding }
+										disabled={ isGeneratingSignupLink || isCompletingOnboarding }
+									>
+										{ connectWithPayPalLabel }
+									</Button>
 								) }
 							</div>
 							{ connectError && (

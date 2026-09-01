@@ -8,7 +8,7 @@
  * @package
  */
 
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Edit from '../../../src/paypal-payment-buttons/edit';
 // apiFetch mock — controls what the component receives from the REST API.
@@ -237,7 +237,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 	describe( 'Connect with PayPal (Partner Referrals)', () => {
 		/**
 		 * Reply to the connection check with platform mode, so the welcome step
-		 * with the "Connect with PayPal" button renders.
+		 * with the "Connect with PayPal" flow renders.
 		 *
 		 * @param {object} signupResponse - What the signup-link route returns.
 		 */
@@ -257,23 +257,15 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 		}
 
-		afterEach( () => {
-			document.querySelectorAll( '[data-paypal-partner-js]' ).forEach( el => el.remove() );
-		} );
-
-		it( 'renders PayPal\u2019s onboarding link in minibrowser mode', async () => {
-			const user = userEvent.setup();
+		it( 'renders PayPal’s onboarding link in minibrowser mode', async () => {
 			mockPlatformMode( {
-				action_url: 'https://www.sandbox.paypal.com/merchantsignup/partner/onboardingentry?token=abc',
+				action_url:
+					'https://www.sandbox.paypal.com/merchantsignup/partner/onboardingentry?token=abc',
 			} );
 
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
-			await user.click(
-				await screen.findByRole( 'button', { name: /Connect with PayPal/i } )
-			);
-
-			const link = await screen.findByRole( 'link', { name: /Continue to PayPal/i } );
+			const link = await screen.findByRole( 'link', { name: /Connect with PayPal/i } );
 
 			/*
 			 * PayPal hands over the auth code only through the SDK's callback,
@@ -285,15 +277,20 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				'data-paypal-onboard-complete',
 				'jetpackPayPalOnboardComplete'
 			);
-			expect( link.getAttribute( 'href' ) ).toContain( 'displayMode=minibrowser' );
-			expect( link.getAttribute( 'href' ) ).toContain( 'token=abc' );
+			expect( link ).toHaveAttribute(
+				'href',
+				expect.stringContaining( 'displayMode=minibrowser' )
+			);
+			expect( link ).toHaveAttribute( 'href', expect.stringContaining( 'token=abc' ) );
 		} );
 
 		it( 'exposes the completion callback for the SDK to call by name', async () => {
 			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
 
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
-			await screen.findByRole( 'button', { name: /Connect with PayPal/i } );
+			await expect(
+				screen.findByRole( 'link', { name: /Connect with PayPal/i } )
+			).resolves.toBeVisible();
 
 			// The SDK resolves the callback off `window` by name, so it cannot
 			// be a closure passed to the script.
@@ -304,21 +301,23 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
 
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
-			await screen.findByRole( 'button', { name: /Connect with PayPal/i } );
+			await expect(
+				screen.findByRole( 'link', { name: /Connect with PayPal/i } )
+			).resolves.toBeVisible();
 
 			window.jetpackPayPalOnboardComplete( 'AUTH_CODE_1', 'SHARED_ID_1' );
 
-			await new Promise( resolve => setTimeout( resolve, 0 ) );
-
-			expect( apiFetch ).toHaveBeenCalledWith(
-				expect.objectContaining( {
-					path: expect.stringContaining( '/onboarding/complete' ),
-					method: 'POST',
-					data: expect.objectContaining( {
-						auth_code: 'AUTH_CODE_1',
-						shared_id: 'SHARED_ID_1',
-					} ),
-				} )
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith(
+					expect.objectContaining( {
+						path: expect.stringContaining( '/onboarding/complete' ),
+						method: 'POST',
+						data: expect.objectContaining( {
+							auth_code: 'AUTH_CODE_1',
+							shared_id: 'SHARED_ID_1',
+						} ),
+					} )
+				)
 			);
 		} );
 	} );
