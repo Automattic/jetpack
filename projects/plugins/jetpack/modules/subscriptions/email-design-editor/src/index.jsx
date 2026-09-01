@@ -29,6 +29,9 @@ const TEMPLATE_POST_TYPE = 'wp_template';
 // and `data:` would execute rather than navigate.
 const NAVIGABLE_PROTOCOLS = [ 'http:', 'https:' ];
 
+// A save arrives as any of these, depending on whether core-data creates or updates.
+const WRITE_METHODS = [ 'POST', 'PUT', 'PATCH' ];
+
 /**
  * Check that a URL the editor will navigate to is one the browser can navigate to.
  *
@@ -273,6 +276,44 @@ export function getTemplateId( bundle ) {
 }
 
 /**
+ * Catch the Styles panel's save and send it to WordPress.com instead.
+ *
+ * The editor writes a core-data `globalStyles` entity, but the design is stored in a WordPress.com
+ * blog option rather than a post, so the write has to be re-addressed to the bootstrap route.
+ *
+ * Matched on this one record's exact path and nothing else. The editor also holds the *site's* own
+ * global-styles record, at edit context, so anything broader would push the site's design through
+ * the email endpoint — and would look correct while doing it on Simple, where the site and the
+ * shadow blog are the same database.
+ *
+ * @param {number} id - The global-styles id the bundle named.
+ * @return {Function} An `apiFetch` middleware.
+ */
+export function createDesignSaveMiddleware( id ) {
+	const target = `/wp/v2/global-styles/${ id }`;
+
+	return async ( options, next ) => {
+		const path = 'string' === typeof options.path ? options.path.split( '?' )[ 0 ] : '';
+		const method = ( options.method || 'GET' ).toUpperCase();
+
+		if ( target !== path || ! WRITE_METHODS.includes( method ) ) {
+			return next( options );
+		}
+
+		const saved = await apiFetch( {
+			path: BOOTSTRAP_PATH,
+			method: 'POST',
+			data: { design: options.data ?? {} },
+		} );
+
+		// The route answers with a read-back rather than an echo: sanitizing drops anything outside
+		// the theme.json schema, so a save can succeed into invisibility. Hand core-data what was
+		// actually stored, so the panel shows what survived.
+		return { id, ...( saved && 'object' === typeof saved ? saved : {} ) };
+	};
+}
+
+/**
  * What the screen shows when it could not load.
  *
  * The design lives on another site, so without this "nothing appeared" and "your
@@ -322,6 +363,10 @@ export async function mountEmailDesignEditor() {
 		const config = buildEditorConfig( bundle, data );
 		const postId = getTemplateId( bundle );
 		const preload = buildPreloadMap( bundle, postId );
+
+		if ( config.globalStylesPostId ) {
+			apiFetch.use( createDesignSaveMiddleware( config.globalStylesPostId ) );
+		}
 
 		if ( preload ) {
 			// Registered last so it runs first: api-fetch applies middlewares right to

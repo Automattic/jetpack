@@ -562,7 +562,7 @@ describe( 'Email design editor entry point', () => {
 			expect( preloadedMap() ).not.toHaveProperty( '/wp/v2/templates' );
 		} );
 
-		it( 'installs nothing when the bundle carries neither half', async () => {
+		it( 'preloads nothing when the bundle carries neither half', async () => {
 			mockApiFetch.mockResolvedValue(
 				bootstrapBundle( { templates: undefined, global_styles: undefined } )
 			);
@@ -572,8 +572,12 @@ describe( 'Email design editor entry point', () => {
 
 			// WordPress.com does not send these yet. The editor must still mount rather than
 			// the entry throwing on a key that is not there.
-			expect( mockUse ).not.toHaveBeenCalled();
+			expect( mockCreatePreloadingMiddleware ).not.toHaveBeenCalled();
 			expect( renderedTheErrorState() ).toBe( false );
+
+			// The save middleware still installs: the page named a record even though the
+			// bundle carried none, and a write to it is still ours to catch.
+			expect( mockUse ).toHaveBeenCalledTimes( 1 );
 		} );
 
 		describe( 'the Allow header the preloaded responses carry', () => {
@@ -643,6 +647,100 @@ describe( 'Email design editor entry point', () => {
 				'/wp/v2/templates?context=edit',
 				'/wp/v2/templates?context=view',
 			] );
+		} );
+	} );
+
+	describe( 'when the Styles panel saves', () => {
+		const { createDesignSaveMiddleware } = jest.requireActual( '../src/index' );
+		const ourId = 999999999;
+
+		it( 'sends the design to WordPress.com rather than to the site', async () => {
+			const next = jest.fn();
+			mockApiFetch.mockResolvedValueOnce( { styles: { color: { background: '#c0ffee' } } } );
+
+			const result = await createDesignSaveMiddleware( ourId )(
+				{
+					path: `/wp/v2/global-styles/${ ourId }`,
+					method: 'PUT',
+					data: { styles: { color: { background: '#c0ffee' } } },
+				},
+				next
+			);
+
+			expect( next ).not.toHaveBeenCalled();
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: '/wpcom/v2/email-editor-bootstrap',
+				method: 'POST',
+				data: { design: { styles: { color: { background: '#c0ffee' } } } },
+			} );
+
+			// What comes back is a read-back of what was stored, carrying the id core-data expects.
+			expect( result ).toEqual( {
+				id: ourId,
+				styles: { color: { background: '#c0ffee' } },
+			} );
+		} );
+
+		it.each( [ 'POST', 'PUT', 'PATCH' ] )( 'catches a %s', async method => {
+			mockApiFetch.mockResolvedValueOnce( {} );
+
+			await createDesignSaveMiddleware( ourId )(
+				{ path: `/wp/v2/global-styles/${ ourId }`, method, data: {} },
+				jest.fn()
+			);
+
+			expect( mockApiFetch ).toHaveBeenCalled();
+		} );
+
+		it( "leaves a write to the site's own record alone", async () => {
+			const next = jest.fn( () => 'went to the network' );
+
+			const result = await createDesignSaveMiddleware( ourId )(
+				{ path: '/wp/v2/global-styles/59', method: 'PUT', data: { styles: {} } },
+				next
+			);
+
+			// The regression this middleware exists to avoid: the site's design must never be
+			// routed through the email endpoint, which would look correct on Simple while doing it.
+			expect( mockApiFetch ).not.toHaveBeenCalled();
+			expect( next ).toHaveBeenCalled();
+			expect( result ).toBe( 'went to the network' );
+		} );
+
+		it( 'leaves reads of our own record alone', async () => {
+			const next = jest.fn( () => 'went to the preload' );
+
+			const result = await createDesignSaveMiddleware( ourId )(
+				{ path: `/wp/v2/global-styles/${ ourId }?context=edit`, method: 'GET' },
+				next
+			);
+
+			expect( mockApiFetch ).not.toHaveBeenCalled();
+			expect( result ).toBe( 'went to the preload' );
+		} );
+
+		it( 'catches the write whatever query string it carries', async () => {
+			const next = jest.fn();
+			mockApiFetch.mockResolvedValueOnce( {} );
+
+			await createDesignSaveMiddleware( ourId )(
+				{ path: `/wp/v2/global-styles/${ ourId }?_locale=user`, method: 'PUT', data: {} },
+				next
+			);
+
+			expect( next ).not.toHaveBeenCalled();
+		} );
+
+		it( 'does not match an id that merely starts the same', async () => {
+			const next = jest.fn();
+
+			await createDesignSaveMiddleware( 99 )(
+				{ path: '/wp/v2/global-styles/991', method: 'PUT', data: {} },
+				next
+			);
+
+			expect( mockApiFetch ).not.toHaveBeenCalled();
+			expect( next ).toHaveBeenCalled();
 		} );
 	} );
 
