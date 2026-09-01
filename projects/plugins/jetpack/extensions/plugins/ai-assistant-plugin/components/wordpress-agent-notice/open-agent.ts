@@ -18,6 +18,27 @@ export const AGENTS_MANAGER_READY_EVENT = 'agents-manager-ready';
 // The Agents Manager registers this store on the shared wp.data registry.
 const AGENTS_MANAGER_STORE = 'automattic/agents-manager';
 
+// The Agents Manager injects a bare `const agentsManagerData` global rather
+// than a window property; some hosts assign `window.agentsManagerData` instead.
+// A bare identifier read resolves either through the scope chain, and the
+// typeof guard keeps it safe when neither exists.
+declare const agentsManagerData:
+	| { jetpackAiSidebar?: { agentNoticeActionAvailable?: boolean } }
+	| undefined;
+
+/**
+ * Whether the server considers the notice's action button actionable: the site
+ * has a working, connected agent to open, not merely one it is eligible for.
+ *
+ * @return {boolean} True once there is a working agent to send people to.
+ */
+export function isAgentActionAvailable(): boolean {
+	return (
+		typeof agentsManagerData !== 'undefined' &&
+		!! agentsManagerData?.jetpackAiSidebar?.agentNoticeActionAvailable
+	);
+}
+
 type AgentsManagerSelect = {
 	getIsOpen?: () => boolean;
 	getIsMinimized?: () => boolean;

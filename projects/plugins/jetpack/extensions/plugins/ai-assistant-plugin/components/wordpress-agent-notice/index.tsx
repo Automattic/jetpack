@@ -18,6 +18,7 @@ import { Notice } from '@wordpress/ui';
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import bigSkyIcon from './big-sky-icon';
 import {
+	isAgentActionAvailable,
 	resumeWordPressAgentChat,
 	setWordPressAgentChatOpen,
 	useIsWordPressAgentChatVisible,
@@ -107,6 +108,10 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 	const { tracks } = useAnalytics();
 	const { set } = useDispatch( preferencesStore );
 	const eventProperties = useEventProperties( placement );
+	// The setup supports opening a chat (server-side) and one has actually mounted
+	// (client-side) — both are needed, since eligible-but-not-yet-enabled sites hit
+	// this component too, and a chat mounted for a different provider is not this one.
+	const canOpenAgent = isAgentActionAvailable();
 	const isAgentReady = useIsWordPressAgentReady();
 	const isChatOnScreen = useIsWordPressAgentChatVisible();
 
@@ -136,27 +141,29 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 			style={ { gridTemplateColumns: 'auto minmax(0, 1fr) auto' } }
 		>
 			<Notice.Description>
-				{ createInterpolateElement(
-					// translators: <icon/> is the WordPress Agent's icon. "Agent" is the label on an editor toolbar button.
-					__(
-						'AI tools have moved to the WordPress Agent. Look for the <label>"<icon/>Agent"</label> button at the top of the screen.',
-						'jetpack'
-					),
-					{
-						label: <span style={ { whiteSpace: 'nowrap' } } />,
-						icon: (
-							<Icon
-								icon={ bigSkyIcon }
-								size={ 16 }
-								style={ { verticalAlign: 'text-bottom', marginInlineEnd: '0.25em' } }
-							/>
-						),
-					}
-				) }
+				{ canOpenAgent
+					? createInterpolateElement(
+							// translators: <icon/> is the WordPress Agent's icon. "Agent" is the label on an editor toolbar button.
+							__(
+								'AI tools have moved to the WordPress Agent. Look for the <label>"<icon/>Agent"</label> button at the top of the screen.',
+								'jetpack'
+							),
+							{
+								label: <span style={ { whiteSpace: 'nowrap' } } />,
+								icon: (
+									<Icon
+										icon={ bigSkyIcon }
+										size={ 16 }
+										style={ { verticalAlign: 'text-bottom', marginInlineEnd: '0.25em' } }
+									/>
+								),
+							}
+					  )
+					: __( 'AI tools have moved to the WordPress Agent.', 'jetpack' ) }
 			</Notice.Description>
 
 			<Notice.Actions>
-				{ isAgentReady && (
+				{ canOpenAgent && isAgentReady && (
 					<Button
 						variant="secondary"
 						icon={ bigSkyIcon }
