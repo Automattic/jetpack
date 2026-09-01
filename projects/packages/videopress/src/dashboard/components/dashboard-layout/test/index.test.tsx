@@ -25,6 +25,12 @@ jest.mock( '../../onboarding-modal', () => ( {
 	__esModule: true,
 	default: () => null,
 } ) );
+// The upload pill reads the shared queue through react-query; it has a suite
+// of its own and no QueryClientProvider here.
+jest.mock( '../../upload-pill', () => ( {
+	__esModule: true,
+	default: () => null,
+} ) );
 
 const mockUseNavigate = useNavigate as jest.Mock;
 const mockConnectionError = ConnectionError as jest.Mock;
