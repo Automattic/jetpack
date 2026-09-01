@@ -709,6 +709,60 @@ describe( 'Email design editor entry point', () => {
 			} );
 		} );
 
+		it( 'sends only the design, not the record it came from', async () => {
+			mockApiFetch.mockResolvedValueOnce( { blog_id: 1, design: {}, discarded: false } );
+
+			await createDesignSaveMiddleware( ourId )(
+				{
+					path: `/wp/v2/global-styles/${ ourId }`,
+					method: 'PUT',
+					data: {
+						// core-data hands over its whole record.
+						id: ourId,
+						title: { rendered: 'Email styles' },
+						_links: { self: [] },
+						version: 3,
+						isGlobalStylesUserThemeJSON: true,
+						styles: { color: { background: '#c0ffee' } },
+						settings: { color: { palette: { custom: [] } } },
+					},
+				},
+				jest.fn()
+			);
+
+			// The sentinel id is not a theme.json key, so it is dropped on the way through — and
+			// sending it makes every save look like it lost a property.
+			expect( mockApiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					data: {
+						design: {
+							styles: { color: { background: '#c0ffee' } },
+							settings: { color: { palette: { custom: [] } } },
+						},
+					},
+				} )
+			);
+		} );
+
+		it( 'omits a half the panel did not send', async () => {
+			mockApiFetch.mockResolvedValueOnce( { blog_id: 1, design: {}, discarded: false } );
+
+			await createDesignSaveMiddleware( ourId )(
+				{
+					path: `/wp/v2/global-styles/${ ourId }`,
+					method: 'PUT',
+					data: { id: ourId, styles: { color: { text: '#003300' } } },
+				},
+				jest.fn()
+			);
+
+			expect( mockApiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					data: { design: { styles: { color: { text: '#003300' } } } },
+				} )
+			);
+		} );
+
 		it( 'hands back what was stored, not what was sent', async () => {
 			// Sanitizing drops anything outside the theme.json schema, so the read-back can differ
 			// from the submission. The panel has to show what survived.

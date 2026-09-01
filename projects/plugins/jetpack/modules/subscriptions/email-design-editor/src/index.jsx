@@ -350,10 +350,21 @@ export function createDesignSaveMiddleware( id ) {
 			return next( options );
 		}
 
+		// Only the theme.json halves: core-data hands over its whole record, and its `id` is the
+		// sentinel that stands in for a post that does not exist. Sanitizing drops it either way,
+		// but sending it makes every save look like it lost a property to anything comparing what
+		// was sent against what was stored. `version` and `isGlobalStylesUserThemeJSON` are the
+		// store's to set, so they are not ours to send.
+		const { styles, settings } = options.data ?? {};
+		const submitted = {
+			...( undefined === styles ? {} : { styles } ),
+			...( undefined === settings ? {} : { settings } ),
+		};
+
 		const saved = await apiFetch( {
 			path: BOOTSTRAP_PATH,
 			method: 'POST',
-			data: { design: options.data ?? {} },
+			data: { design: submitted },
 		} );
 
 		// The route answers with an envelope — `{ blog_id, design, discarded }` — around a read-back
