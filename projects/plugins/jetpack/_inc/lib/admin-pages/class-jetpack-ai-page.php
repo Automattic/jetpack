@@ -185,7 +185,7 @@ class Jetpack_AI_Page {
 	/**
 	 * Whether the Scheduled tasks tab and its Agents Manager sidebar are enabled.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.2
 	 *
 	 * @return bool
 	 */
@@ -266,7 +266,7 @@ class Jetpack_AI_Page {
 		/**
 		 * Filters the host-specific AI Hub configuration.
 		 *
-		 * @since $$next-version$$
+		 * @since 16.2
 		 *
 		 * @param array $config AI Hub host configuration.
 		 */

@@ -100,7 +100,7 @@ class AI_Answers {
 	 * with `true` reads that verdict without depending on the plugin. Sites with
 	 * no gate registered (e.g. standalone Search) report on.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.0.0
 	 *
 	 * @return bool
 	 */
@@ -140,7 +140,7 @@ class AI_Answers {
 	 * the source of truth, unreferenceable from standalone installs. Computed
 	 * rather than filtered so no plugin can flip a gate that must hold.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.0.0
 	 *
 	 * @return bool True when Jetpack AI is on, or when the site has no master switch.
 	 */
@@ -172,7 +172,7 @@ class AI_Answers {
 	 * The dashboard shows this while the master switch is off, so a saved choice
 	 * isn't misreported back to the user as off.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.0.0
 	 *
 	 * @return bool
 	 */
@@ -196,7 +196,7 @@ class AI_Answers {
 	 * to the WP_AI_SUPPORT constant on WordPress versions that predate it.
 	 * Mirrors the Jetpack plugin's Jetpack_AI_Settings::host_allows_ai().
 	 *
-	 * @since $$next-version$$
+	 * @since 8.0.0
 	 *
 	 * @return bool
 	 */
