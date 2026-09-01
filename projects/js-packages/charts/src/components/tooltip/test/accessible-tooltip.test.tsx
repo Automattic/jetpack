@@ -1,16 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import LineChart from '../../../charts/line-chart/line-chart';
+import { LineChartUnresponsive } from '../../../charts/line-chart/line-chart';
 import { GlobalChartsProvider } from '../../../providers';
+import { ChartScopeContext } from '../../../providers/chart-scope';
+import type { ReactNode } from 'react';
 
-jest.mock( '../../../hooks/use-element-size', () => ( {
-	useElementSize: () => [ jest.fn(), 500, 300 ],
-} ) );
-
-// A real chart is the harness rather than the subject: the crosshairs only render once visx has a data context and an open tooltip, and `AccessibleTooltip` is where every xychart tooltip in this package goes through.
-const chart = (
-	<GlobalChartsProvider>
-		<LineChart
+// A real chart is the harness rather than the subject: the crosshairs render only once visx has a data context and an open tooltip. The unresponsive export is what lets the test own the scope element — `withResponsive` otherwise provides its own wrapper as the scope.
+const renderChart = ( scope?: HTMLElement ) => {
+	const chart = (
+		<LineChartUnresponsive
 			width={ 500 }
 			height={ 300 }
 			data={ [
@@ -27,22 +25,44 @@ const chart = (
 			withTooltipCrosshairs={ { showVertical: true } }
 			withGradientFill={ false }
 		/>
-	</GlobalChartsProvider>
-);
+	);
+
+	const scoped: ReactNode = scope ? (
+		<ChartScopeContext.Provider value={ scope }>{ chart }</ChartScopeContext.Provider>
+	) : (
+		chart
+	);
+
+	return render( <GlobalChartsProvider>{ scoped }</GlobalChartsProvider> );
+};
+
+const openTooltip = async () => {
+	const user = userEvent.setup();
+
+	screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+	await user.keyboard( '{ArrowRight}' );
+
+	// eslint-disable-next-line testing-library/no-node-access -- visx owns the crosshair and hardcodes its class name, so there is no attribute to reach it by.
+	return document.querySelector( '.visx-crosshair-vertical line' );
+};
 
 describe( 'AccessibleTooltip', () => {
-	// visx renders each crosshair in a portal on `document.body`, outside the scope element that declares the catalog, so a `var()` chain handed to it there can only ever reach its own fallback rather than following the gridlines it tracks.
-	it( 'gives the crosshair a resolved color rather than the catalog pointer', async () => {
-		const user = userEvent.setup();
+	// The crosshair is painted in a portal outside the scope element; see TOKENS.md § The SVG bridge.
+	it( 'reads the grid role from the scope element', async () => {
+		const scope = document.createElement( 'div' );
+		scope.style.setProperty( '--a8c-charts-color-grid', 'rgb(1, 2, 3)' );
+		document.body.appendChild( scope );
 
-		render( chart );
+		renderChart( scope );
 
-		screen.getByRole( 'grid', { name: /line chart/i } ).focus();
-		await user.keyboard( '{ArrowRight}' );
+		await expect( openTooltip() ).resolves.toHaveAttribute( 'stroke', 'rgb(1, 2, 3)' );
 
-		// eslint-disable-next-line testing-library/no-node-access -- visx owns the crosshair and hardcodes its class name, so there is no attribute to reach it by.
-		const crosshair = document.querySelector( '.visx-crosshair-vertical line' );
+		document.body.removeChild( scope );
+	} );
 
-		expect( crosshair ).toHaveAttribute( 'stroke', '#dbdbdb' );
+	it( 'falls back to the catalog default when the role is unset', async () => {
+		renderChart();
+
+		await expect( openTooltip() ).resolves.toHaveAttribute( 'stroke', '#dbdbdb' );
 	} );
 } );
