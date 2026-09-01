@@ -582,8 +582,8 @@ class Rest_Download_Bridge_Test extends TestCase {
 			),
 			(array) $this->captured_body
 		);
-		// An array, not the comma-joined string upstream also takes: that
-		// branch sanitises before splitting, so `"a, b"` arrives as `" b"`.
+		// A JSON array on the wire rather than an object, which is what
+		// `path_list()` rebuilding the entries as a PHP list buys.
 		$this->assertStringContainsString(
 			'"include_path_list":["cjI6","ZjI6Lw=="]',
 			$this->captured_request_args[0]['body']
@@ -702,7 +702,7 @@ class Rest_Download_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * A keyed object of ids never reaches the callback.
+	 * A path list keyed by name never reaches the callback.
 	 *
 	 * Unregistered parameters are not stripped — WordPress only skips
 	 * *validating* them — so without the schema this would be silently

@@ -78,10 +78,6 @@ export function splitFileSelection( files: string ): string[] {
  * half, so a list beside any other category answers 200 with the
  * whole-site archive.
  *
- * Sent as an array because upstream trims array entries individually,
- * while its comma-string branch sanitises the whole string first and
- * leaves the space in `"a, b"` on the second entry.
- *
  * @param  rewindId - The backup's rewind id, in full.
  * @param  files    - The comma-joined `ls` entry ids the file browser produced.
  * @throws {ApiError} When the selection names no entry.
