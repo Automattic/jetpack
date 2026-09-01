@@ -464,7 +464,37 @@ label that has to agree with the axis:
 Outside a provider it returns an empty object rather than throwing, so both
 halves fall back to the runtime's own.
 
+### useChartRegistration
+
+Register custom charts with the global context:
+
+<Source
+	language="tsx"
+	code={ `import { useChartRegistration } from '@automattic/charts';
+
+	function CustomChart( { data, chartId } ) {
+		// Register this chart with the global context
+		useChartRegistration( {
+			chartId: chartId || 'custom-chart',
+			legendItems: data.map( item => ( {
+				label: item.label,
+				color: item.color
+			} ) ),
+			chartType: 'custom-chart',
+			isDataValid: data.length > 0,
+			metadata: { customProperty: 'value' }
+		} );
+
+		return <div>{ /* Chart implementation */ }</div>;
+	}` }
+/>
+
+## Date Bucket Classification
+
 ### getBucketInfo
+
+Unlike the hooks above, this is a plain function — it reads no context and
+needs no `GlobalChartsProvider`.
 
 `LineChart` and `AreaChart` classify a series' time bucket to pick their axis
 and tooltip formats. `getBucketInfo( data, tickResolution? )` exposes that
@@ -530,31 +560,6 @@ and close over the result:
 				options={ { axis: { x: { tickResolution, tickFormat } } } }
 			/>
 		);
-	}` }
-/>
-
-### useChartRegistration
-
-Register custom charts with the global context:
-
-<Source
-	language="tsx"
-	code={ `import { useChartRegistration } from '@automattic/charts';
-
-	function CustomChart( { data, chartId } ) {
-		// Register this chart with the global context
-		useChartRegistration( {
-			chartId: chartId || 'custom-chart',
-			legendItems: data.map( item => ( {
-				label: item.label,
-				color: item.color
-			} ) ),
-			chartType: 'custom-chart',
-			isDataValid: data.length > 0,
-			metadata: { customProperty: 'value' }
-		} );
-
-		return <div>{ /* Chart implementation */ }</div>;
 	}` }
 />
 
