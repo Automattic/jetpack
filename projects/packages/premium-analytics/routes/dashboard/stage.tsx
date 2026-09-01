@@ -147,8 +147,6 @@ function Dashboard(): JSX.Element {
 		[ onDateChange, onDateApply ]
 	);
 
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
-
 	// WidgetDashboard treats a transiently-empty layout as "no widgets" and
 	// force-opens edit mode, so it must not mount before the sections resolve.
 	if ( ! hasResolvedSections ) {
@@ -181,7 +179,6 @@ function Dashboard(): JSX.Element {
 						value={ dateFilters.appliedPresetId }
 						onSelect={ selectYear }
 						timeZone={ dateFilters.timeZone }
-						containerElement={ containerElement }
 					/>
 
 					<DateIntervalDropdown
@@ -238,7 +235,7 @@ function Dashboard(): JSX.Element {
 								     condensing there. Measured, never seen. */ }
 									<div className={ styles.pinMarker } aria-hidden="true" />
 
-									<div ref={ setContainerElement } className={ styles.sectionHeader }>
+									<div className={ styles.sectionHeader }>
 										<SectionHeader title={ resolveSectionHeading( section ) } condenseOnScroll>
 											{ dateControls }
 										</SectionHeader>

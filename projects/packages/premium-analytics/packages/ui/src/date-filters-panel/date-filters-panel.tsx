@@ -3,7 +3,6 @@
  */
 import { useReportScope } from '@jetpack-premium-analytics/data';
 import {
-	getQuickSurfacePresets,
 	canStepForward,
 	isComparisonPresetId,
 	isPrimaryPreset,
@@ -14,29 +13,22 @@ import {
 	type StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { formatDateRangeNatural } from '@jetpack-premium-analytics/formatters';
 import { BaseControl } from '@wordpress/components';
-import { useResizeObserver } from '@wordpress/compose';
-import { flushSync } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { useMemo, useCallback, useState, useEffect, type CSSProperties } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
+import { DatePeriodDropdown } from '../date-period-dropdown';
 import { DatePeriodNavigation } from '../date-period-navigation';
-import { DateRangeFilter } from '../date-range-filter';
-import { resolvePresetLabelMode, WIDE_CALENDAR_CONTAINER_THRESHOLD } from '../date-range-layout';
-import { getCustomTriggerLabel, getCustomTriggerState } from '../date-range-popover';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
-import { PresetRowProbe } from './preset-row-probe';
 
 import './date-filters-panel.scss';
 
-type DateRangeFilterProps = Parameters< typeof DateRangeFilter >[ 0 ];
+type DatePeriodDropdownProps = Parameters< typeof DatePeriodDropdown >[ 0 ];
 
-export type DateRange = DateRangeFilterProps[ 'range' ];
+export type DateRange = DatePeriodDropdownProps[ 'range' ];
 
 export type DateFiltersPanelProps = {
 	/**
@@ -101,7 +93,7 @@ export type DateFiltersPanelProps = {
 	 */
 	intervalOptions?: readonly IntervalType[];
 
-	onChange: DateRangeFilterProps[ 'onChange' ];
+	onChange: DatePeriodDropdownProps[ 'onChange' ];
 
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 
@@ -125,9 +117,9 @@ export type DateFiltersPanelProps = {
 	 */
 	comparisonControlProps?: Omit< Parameters< typeof BaseControl >[ 0 ], 'children' >;
 
-	onApply: DateRangeFilterProps[ 'onApply' ];
+	onApply: DatePeriodDropdownProps[ 'onApply' ];
 
-	onCancel: DateRangeFilterProps[ 'onCancel' ];
+	onCancel: DatePeriodDropdownProps[ 'onCancel' ];
 
 	canApply?: boolean;
 
@@ -136,26 +128,11 @@ export type DateFiltersPanelProps = {
 	 * Required for proper date/time handling.
 	 */
 	timeZone: string;
-
-	/**
-	 * Element to measure for the responsive layout instead of the panel's own
-	 * root. Required in a shrink-to-fit slot (e.g. a shared header row), where
-	 * the root's width follows the panel's own content and can't self-measure.
-	 */
-	containerElement?: HTMLElement | null;
-
-	/**
-	 * Inline space in the measured container never available to the panel —
-	 * e.g. a title's minimum share on a shared header row. Subtracted before
-	 * resolving layout, so the panel steps down before the row-mates lose theirs.
-	 */
-	reservedInlineSize?: number;
 };
 
 /**
  * Container for the primary date range picker and the comparison dropdown. It
- * owns the comparison state and the responsive measurement; children only
- * render.
+ * owns the comparison state; children only render.
  */
 export function DateFiltersPanel( {
 	presetId,
@@ -185,8 +162,6 @@ export function DateFiltersPanel( {
 	onCancel,
 	canApply = true,
 	timeZone,
-	containerElement,
-	reservedInlineSize = 0,
 }: DateFiltersPanelProps ) {
 	/*
 	 * Read rather than a prop, so this and the widgets share one declaration —
@@ -240,78 +215,6 @@ export function DateFiltersPanel( {
 	const clearComparison = useCallback( () => {
 		onComparisonChange( undefined, undefined );
 	}, [ onComparisonChange ] );
-
-	/*
-	 * Single source of truth for the responsive layout: measure the container
-	 * once here and derive both `labelMode` and `isWideScreen`. Children never
-	 * measure; both are forwarded to the ones that need them.
-	 */
-	const [ containerWidth, setContainerWidth ] = useState< number | null >( null );
-	const [ rootElement, setRootElement ] = useState< HTMLElement | null >( null );
-
-	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
-		const entry = entries[ 0 ];
-		if ( entry ) {
-			// Flushed synchronously: ResizeObserver fires between layout and paint,
-			// so this keeps the resize and its label form in the same frame.
-			// Ceiled so a slot sized by the published width compares equal.
-			flushSync( () => {
-				setContainerWidth( Math.ceil( entry.contentRect.width ) );
-			} );
-		}
-	}, [] );
-
-	const setObserverRef = useResizeObserver< HTMLElement >( handleResize );
-
-	/*
-	 * Measures the caller's container when given one, else the panel's own root
-	 * (body until the ref lands). The setter also detaches: `useResizeObserver`
-	 * unobserves only when called with `null`.
-	 */
-	useEffect( () => {
-		setObserverRef( containerElement ?? rootElement ?? document.body );
-
-		return () => setObserverRef( null );
-	}, [ containerElement, rootElement, setObserverRef ] );
-
-	// Derived through the same helpers the trigger uses, so the probe measures
-	// the string the trigger is actually showing — or nothing, on a surface
-	// that offers no custom range.
-	const customTriggerLabel = useMemo( () => {
-		if ( ! withCustomRange ) {
-			return undefined;
-		}
-
-		const committedRange = appliedRange ?? range;
-
-		return getCustomTriggerLabel( {
-			triggerState: getCustomTriggerState( {
-				presetId: validatedPresetId,
-				appliedPresetId: validatedAppliedPresetId,
-				canApply,
-				isOpen: isPrimaryPickerOpen,
-			} ),
-			range,
-			committedRange,
-			customLabel: __( 'Custom', 'jetpack-premium-analytics-pkg' ),
-			formatRange: formatDateRangeNatural,
-		} );
-	}, [
-		appliedRange,
-		canApply,
-		isPrimaryPickerOpen,
-		range,
-		validatedAppliedPresetId,
-		validatedPresetId,
-		withCustomRange,
-	] );
-
-	// Labels only. The pills recompute their own ranges at selection time, so a
-	// stale memo here costs nothing.
-	const surfacePresets = useMemo(
-		() => getQuickSurfacePresets( timeZone, { presetIds } ),
-		[ presetIds, timeZone ]
-	);
 
 	const comparisonLabel =
 		typeof comparisonControlProps.label === 'string' ? comparisonControlProps.label : undefined;
@@ -376,48 +279,8 @@ export function DateFiltersPanel( {
 		[ withIntervalControl, interval, intervalOptions, onIntervalChange ]
 	);
 
-	const [ fullRowWidth, setFullRowWidth ] = useState< number | null >( null );
-	const handleProbeMeasure = useCallback( ( width: number ) => {
-		setFullRowWidth( width );
-	}, [] );
-
-	// Measured, so the boundary follows the active locale, not an English
-	// breakpoint, and shifts as the comparison control is added or removed.
-	// The reserved share is subtracted first, so row-mates keep their minimum.
-	const labelMode = useMemo(
-		() =>
-			resolvePresetLabelMode(
-				containerWidth === null ? null : containerWidth - reservedInlineSize,
-				fullRowWidth
-			),
-		[ containerWidth, fullRowWidth, reservedInlineSize ]
-	);
-
-	const isWideScreen =
-		containerWidth !== null && containerWidth >= WIDE_CALENDAR_CONTAINER_THRESHOLD;
-
-	// Published so a host can size the panel's slot from the full-labels width.
-	const rootStyle = useMemo(
-		() =>
-			fullRowWidth === null
-				? undefined
-				: ( {
-						'--date-filters-panel-full-row-width': `${ fullRowWidth }px`,
-				  } as CSSProperties ),
-		[ fullRowWidth ]
-	);
-
 	return (
-		<div ref={ setRootElement } className="date-filters-panel" style={ rootStyle }>
-			<PresetRowProbe
-				presets={ surfacePresets }
-				customTriggerLabel={ customTriggerLabel }
-				navigation={ navigationControl }
-				comparison={ comparisonControl }
-				interval={ intervalControl }
-				onMeasure={ handleProbeMeasure }
-			/>
-
+		<div className="date-filters-panel">
 			<Stack className="date-filters-panel__row" direction="row" gap="sm">
 				{ navigationControl }
 
@@ -427,18 +290,19 @@ export function DateFiltersPanel( {
 					id="date-range-popover-button"
 					help={ rangeControlProps.help }
 				>
-					<DateRangeFilter
-						presetId={ validatedPresetId }
+					<DatePeriodDropdown
+						presetId={ validatedAppliedPresetId ?? validatedPresetId }
+						appliedRange={ appliedRange ?? range }
 						range={ range }
-						appliedPresetId={ validatedAppliedPresetId }
-						appliedRange={ appliedRange }
+						onSelect={ ( nextRange, nextPresetId ) => {
+							onChange( nextRange, nextPresetId );
+							onApply();
+						} }
 						onChange={ onChange }
 						onApply={ onApply }
 						onCancel={ onCancel }
 						canApply={ canApply }
 						timeZone={ timeZone }
-						labelMode={ labelMode }
-						isWideScreen={ isWideScreen }
 						onOpenChange={ setIsPrimaryPickerOpen }
 						presetIds={ presetIds }
 						allTimeStart={ allTimeStart }

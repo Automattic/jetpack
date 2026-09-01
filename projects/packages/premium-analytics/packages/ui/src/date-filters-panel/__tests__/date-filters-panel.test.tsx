@@ -1,53 +1,9 @@
 import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { DETAIL_SURFACE_PRESETS } from '@jetpack-premium-analytics/datetime';
-import { act, render, screen, within } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateFiltersPanel } from '../date-filters-panel';
 import type { ComponentProps } from 'react';
-
-// The width the mocked measuring rig reports for the full-labels row.
-const mockFullRowWidth = 600;
-
-jest.mock( '../preset-row-probe', () => ( {
-	PresetRowProbe: ( { onMeasure }: { onMeasure: ( width: number ) => void } ) => {
-		const { useEffect } = jest.requireActual( 'react' );
-		useEffect( () => onMeasure( mockFullRowWidth ), [ onMeasure ] );
-		return null;
-	},
-} ) );
-
-/**
- * Replace the global no-op ResizeObserver stub with one that hands back its
- * callbacks, so a test can report a width the way the browser would, and
- * records what it was told to stop observing.
- *
- * @return `resizeTo`, which reports a width to every live observer, and the
- *         list of unobserved elements.
- */
-function mockContainerResize() {
-	const callbacks: ResizeObserverCallback[] = [];
-	const unobserved: Element[] = [];
-
-	globalThis.ResizeObserver = class {
-		constructor( callback: ResizeObserverCallback ) {
-			callbacks.push( callback );
-		}
-		observe() {}
-		unobserve( element: Element ) {
-			unobserved.push( element );
-		}
-		disconnect() {}
-	} as unknown as typeof ResizeObserver;
-
-	const resizeTo = ( width: number ) =>
-		act( () => {
-			callbacks.forEach( callback =>
-				callback( [ { contentRect: { width } } as ResizeObserverEntry ], {} as ResizeObserver )
-			);
-		} );
-
-	return { resizeTo, unobserved };
-}
 
 const PRESET_RANGE = {
 	from: new Date( '2026-07-01T00:00:00.000Z' ),
@@ -88,62 +44,7 @@ describe( 'DateFiltersPanel', () => {
 		expect( screen.queryByRole( 'button', { name: 'Compare' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'publishes the full-labels row width on its root', () => {
-		mockContainerResize();
-		const { container } = renderPanel();
-
-		// The contract under test is inline style on the component's root box,
-		// which has no user-facing semantics to query.
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-		const root = container.querySelector( '.date-filters-panel' ) as HTMLElement;
-		expect( root.style.getPropertyValue( '--date-filters-panel-full-row-width' ) ).toBe(
-			`${ mockFullRowWidth }px`
-		);
-	} );
-
-	it( 'abbreviates the presets when the measured width is under the full row', () => {
-		const { resizeTo } = mockContainerResize();
-		renderPanel();
-
-		expect( screen.getByText( '30 days' ) ).toBeInTheDocument();
-
-		resizeTo( mockFullRowWidth - 100 );
-
-		expect( screen.getByText( '30D' ) ).toBeInTheDocument();
-	} );
-
-	it( 'recovers the full labels when the width comes back', () => {
-		const { resizeTo } = mockContainerResize();
-		renderPanel();
-
-		resizeTo( mockFullRowWidth - 100 );
-		resizeTo( mockFullRowWidth + 100 );
-
-		expect( screen.queryByText( '30D' ) ).not.toBeInTheDocument();
-		expect( screen.getByText( '30 days' ) ).toBeInTheDocument();
-	} );
-
-	it( 'subtracts the reserved share from an external measure', () => {
-		const { resizeTo } = mockContainerResize();
-		renderPanel( { containerElement: document.body, reservedInlineSize: 200 } );
-
-		resizeTo( mockFullRowWidth + 100 );
-
-		expect( screen.getByText( '30D' ) ).toBeInTheDocument();
-	} );
-
-	it( 'stops observing on unmount', () => {
-		const { unobserved } = mockContainerResize();
-		const external = document.createElement( 'div' );
-		const { unmount } = renderPanel( { containerElement: external } );
-
-		unmount();
-
-		expect( unobserved ).toContain( external );
-	} );
-
 	it( 'steps the applied window from the navigation arrows', async () => {
-		mockContainerResize();
 		const onStep = jest.fn();
 		const user = userEvent.setup();
 
@@ -164,7 +65,6 @@ describe( 'DateFiltersPanel', () => {
 	} );
 
 	it( 'renders no period navigation without onStep', () => {
-		mockContainerResize();
 		renderPanel();
 
 		expect( screen.queryByRole( 'button', { name: 'Previous period' } ) ).not.toBeInTheDocument();
@@ -173,7 +73,6 @@ describe( 'DateFiltersPanel', () => {
 	// The comparison qualifies the range the presets just set; the interval only
 	// buckets the charts. Reading order follows that, so it is worth pinning.
 	it( 'places the comparison before the chart interval', () => {
-		mockContainerResize();
 		renderPanel( {
 			withIntervalControl: true,
 			intervalOptions: [ 'day', 'week' ],
@@ -189,10 +88,9 @@ describe( 'DateFiltersPanel', () => {
 		);
 	} );
 
-	// The custom trigger used to keep showing the pre-preset range, putting two
+	// The trigger used to keep showing the pre-preset range, putting two
 	// different ranges on screen at once (WOOA7S-1936).
-	it( 'drops the custom range from the trigger once a preset takes over', () => {
-		mockContainerResize();
+	it( 'names the applied preset on the trigger once one takes over', () => {
 		const customRange = {
 			from: new Date( '2026-01-30T00:00:00.000Z' ),
 			to: new Date( '2026-08-05T23:59:59.999Z' ),
@@ -206,7 +104,8 @@ describe( 'DateFiltersPanel', () => {
 			canApply: false,
 		} );
 
-		expect( screen.queryByRole( 'button', { name: 'Custom' } ) ).not.toBeInTheDocument();
+		// The separator is the locale's, thin spaces and all, so match around it.
+		expect( screen.getByRole( 'button', { name: /Jan 30.+Aug 5/ } ) ).toBeInTheDocument();
 
 		rerender(
 			panel( {
@@ -217,11 +116,11 @@ describe( 'DateFiltersPanel', () => {
 			} )
 		);
 
-		expect( screen.getByRole( 'button', { name: 'Custom' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Last 30 days' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the detail surface: all time first, no custom trigger', () => {
-		mockContainerResize();
+	it( 'renders the detail surface: all time offered, no custom range', async () => {
+		const user = userEvent.setup();
 		renderPanel( {
 			presetIds: DETAIL_SURFACE_PRESETS,
 			withCustomRange: false,
@@ -229,16 +128,14 @@ describe( 'DateFiltersPanel', () => {
 			appliedPresetId: 'all-time',
 		} );
 
-		const toolbar = screen.getByRole( 'toolbar', { name: 'Date range' } );
-		const pills = within( toolbar ).getAllByRole( 'button' );
-		expect( pills.map( pill => pill.textContent ) ).toEqual( [
-			'All time',
-			'Last 24 hours',
-			'7 days',
-			'30 days',
-			'12 months',
-		] );
-		expect( pills[ 0 ] ).toHaveAttribute( 'aria-pressed', 'true' );
-		expect( screen.queryByRole( 'button', { name: 'Custom' } ) ).not.toBeInTheDocument();
+		await user.click( screen.getByRole( 'button', { name: 'All time' } ) );
+
+		const menu = screen.getByRole( 'menu', { name: 'Period' } );
+		expect(
+			within( menu )
+				.getAllByRole( 'menuitemradio' )
+				.map( item => item.textContent )
+		).toEqual( [ 'Last 24 hours', 'Last 7 days', 'Last 30 days', 'Last 12 months', 'All time' ] );
+		expect( screen.getByRole( 'menuitemradio', { name: 'All time' } ) ).toBeChecked();
 	} );
 } );

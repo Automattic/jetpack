@@ -12,7 +12,6 @@ import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-prem
 import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
 import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -41,12 +40,6 @@ const VIDEO_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small
 const noopLayoutChange = () => {};
 
 // The share of the header row the presets can never use: the summary's
-// `min-inline-size` floor plus the row gap (see `.summary` and `.header` in
-// stage.module.scss — keep them in sync), plus a buffer so the panel steps down
-// before the wrap threshold — wrapping is synchronous while the measured flip
-// lags a frame, so equal thresholds would flash a wrapped row at every boundary.
-const HEADER_RESERVED_INLINE_SIZE = 440;
-
 /**
  * Premium Analytics video detail page shell.
  *
@@ -81,7 +74,6 @@ function VideoDetail(): JSX.Element {
 
 	// The header row hosts the panel in a shrink-to-fit slot, so the panel measures
 	// the row itself to pick its responsive layout; see the `containerElement` prop.
-	const [ headerElement, setHeaderElement ] = useState< HTMLElement | null >( null );
 
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );
@@ -153,7 +145,7 @@ function VideoDetail(): JSX.Element {
 					 * The presets render in every summary state, so the range stays
 					 * adjustable while the video loads or errors.
 					 */ }
-					<div ref={ setHeaderElement } className={ styles.header }>
+					<div className={ styles.header }>
 						{ summaryContent ? <div className={ styles.summary }>{ summaryContent }</div> : null }
 						<div className={ styles.dateFilters }>
 							{ /*
@@ -161,12 +153,7 @@ function VideoDetail(): JSX.Element {
 							 * from the scope the stage declares, which is the same declaration
 							 * that keeps the params away from the widgets.
 							 */ }
-							<DateFiltersPanel
-								{ ...dateFilters }
-								{ ...dateControls }
-								containerElement={ headerElement }
-								reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
-							/>
+							<DateFiltersPanel { ...dateFilters } { ...dateControls } />
 						</div>
 					</div>
 					{ canRenderWidgets ? (
