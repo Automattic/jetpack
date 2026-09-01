@@ -5,11 +5,14 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 require_once __DIR__ . '/../../../../modules/comments/comments.php';
 
 /**
- * @covers Jetpack_Comments
+ * @covers \Jetpack_Comments
  */
+#[CoversClass( Jetpack_Comments::class )]
 class Jetpack_Comments_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -91,6 +94,7 @@ class Jetpack_Comments_Test extends WP_UnitTestCase {
 			'token_key'       => 'testkey',
 			'comment_post_ID' => (string) $post_id,
 		);
+
 		$_POST['sig'] = Jetpack_Comments::sign_remote_comment_parameters( $_POST, 'testkey.testsecret' );
 
 		Jetpack_Comments::init()->add_comment_meta( $comment_id );
