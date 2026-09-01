@@ -1,0 +1,106 @@
+// Dark-green AI banner shell. Colors are hardcoded because neither consumer
+// page is wrapped in Jetpack's ThemeProvider, so the --jp-* tokens are absent.
+// isolation keeps the z-indexes inside the banner from competing with sticky
+// page headers (also z-index: 1, earlier in the DOM) — without it the banner
+// text paints over the header when scrolled underneath.
+.jetpack-ai-banner {
+	position: relative;
+	isolation: isolate;
+	background: #003010;
+	border-radius: 8px;
+	padding: 32px;
+	overflow: hidden;
+	min-block-size: 220px;
+	display: flex;
+	align-items: flex-start;
+	box-sizing: border-box;
+}
+
+.jetpack-ai-banner__content {
+	position: relative;
+	z-index: 1;
+	// Forces the text onto its own compositor layer. Without this, Chromium
+	// lets the glyphs escape the wp-admin scroll container's rounded clip and
+	// draw over the sticky header / admin bar when the banner straddles the
+	// scrollport's top edge.
+	transform: translateZ(0);
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	max-inline-size: 520px;
+}
+
+.jetpack-ai-banner__title {
+	color: #daffdc;
+	font-size: 24px;
+	line-height: 40px;
+	font-weight: 500;
+	margin: 0;
+}
+
+.jetpack-ai-banner__description {
+	color: #daffdc;
+	font-size: 13px;
+	line-height: 20px;
+	margin: 0;
+}
+
+.jetpack-ai-banner__actions {
+	display: flex;
+	gap: 8px;
+	margin-block-start: 16px;
+}
+
+// Primary CTA: bright green per the design; !important beats the Button
+// component's own variant colors.
+.jetpack-ai-banner__cta {
+	background-color: #48ff50 !important;
+	color: #003010 !important;
+	border-color: #48ff50 !important;
+
+	&:hover {
+		background-color: #3de046 !important;
+		border-color: #3de046 !important;
+	}
+}
+
+.jetpack-ai-banner__close-text {
+	color: #48ff50 !important;
+
+	&:hover {
+		color: #3de046 !important;
+	}
+}
+
+.jetpack-ai-banner__close {
+	position: absolute;
+	inset-block-start: 8px;
+	inset-inline-end: 8px;
+	z-index: 1;
+	color: #fff !important;
+
+	&:hover {
+		color: #daffdc !important;
+	}
+}
+
+.jetpack-ai-banner__orb {
+	position: absolute;
+	border-radius: 50%;
+	pointer-events: none;
+	inline-size: 180px;
+	block-size: 180px;
+	background: linear-gradient(to right, #04c, #48ff50);
+	// Shared by both orbs so the top glow and the bottom sphere line up
+	// on the same vertical axis.
+	inset-inline-end: 56px;
+
+	&--top {
+		inset-block-start: -96px;
+		filter: blur(25px);
+	}
+
+	&--bottom {
+		inset-block-end: -96px;
+	}
+}

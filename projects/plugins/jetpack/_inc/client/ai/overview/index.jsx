@@ -458,55 +458,59 @@ export default function AiOverview( {
 	const recordLinkClick = ( linkType, slug ) => () =>
 		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: linkType, link: slug } );
 	return (
-		<Stack direction="column" gap="xl">
+		<Stack direction="column" gap="3xl">
 			<AssistantBanner />
-			{ !! blogId && hostBlocked && (
-				<Notice.Root intent="warning">
-					<Notice.Description>
-						{ __( 'AI has been turned off for this site.', 'jetpack' ) }
-					</Notice.Description>
-				</Notice.Root>
-			) }
-			{ !! blogId && ! hostBlocked && userUnlinked && (
-				// The usage endpoint proxies as the current user, so without a
-				// linked account the fetch can only fail — say so instead.
-				<Notice.Root intent="warning">
-					<Notice.Title>
-						{ __( 'Your WordPress.com account isn’t connected.', 'jetpack' ) }
-					</Notice.Title>
-					<Notice.Description>
-						{ __( 'Connect your account to see your AI usage.', 'jetpack' ) }{ ' ' }
-						<Link href="admin.php?page=my-jetpack#/connection">
-							{ __( 'Connect account', 'jetpack' ) }
-						</Link>
-					</Notice.Description>
-				</Notice.Root>
-			) }
-			{ !! blogId && ! hostBlocked && ! userUnlinked && (
-				<UsageCard
-					upgradeUrl={ upgradeUrl }
-					planName={ planName }
-					planRenewsOn={ planRenewsOn }
-					planAutoRenew={ planAutoRenew }
-				/>
-			) }
-			{ ! blogId && (
-				// Disconnected: skip the fetch (it can only fail) and explain
-				// the actual problem instead of a fetch error.
-				<Notice.Root intent="warning">
-					<Notice.Title>
-						{ __( 'Jetpack is not connected to WordPress.com.', 'jetpack' ) }
-					</Notice.Title>
-					<Notice.Description>
-						{ __( 'Connect the site to see your AI usage.', 'jetpack' ) }{ ' ' }
-						<Link href="admin.php?page=my-jetpack#/connection">
-							{ __( 'Connect Jetpack', 'jetpack' ) }
-						</Link>
-					</Notice.Description>
-				</Notice.Root>
-			) }
+			{ /* The banner, connection notices, and usage card share a tighter
+			     rhythm than the titled sections below. */ }
+			<Stack direction="column" gap="xl">
+				{ !! blogId && hostBlocked && (
+					<Notice.Root intent="warning">
+						<Notice.Description>
+							{ __( 'AI has been turned off for this site.', 'jetpack' ) }
+						</Notice.Description>
+					</Notice.Root>
+				) }
+				{ !! blogId && ! hostBlocked && userUnlinked && (
+					// The usage endpoint proxies as the current user, so without a
+					// linked account the fetch can only fail — say so instead.
+					<Notice.Root intent="warning">
+						<Notice.Title>
+							{ __( 'Your WordPress.com account isn’t connected.', 'jetpack' ) }
+						</Notice.Title>
+						<Notice.Description>
+							{ __( 'Connect your account to see your AI usage.', 'jetpack' ) }{ ' ' }
+							<Link href="admin.php?page=my-jetpack#/connection">
+								{ __( 'Connect account', 'jetpack' ) }
+							</Link>
+						</Notice.Description>
+					</Notice.Root>
+				) }
+				{ !! blogId && ! hostBlocked && ! userUnlinked && (
+					<UsageCard
+						upgradeUrl={ upgradeUrl }
+						planName={ planName }
+						planRenewsOn={ planRenewsOn }
+						planAutoRenew={ planAutoRenew }
+					/>
+				) }
+				{ ! blogId && (
+					// Disconnected: skip the fetch (it can only fail) and explain
+					// the actual problem instead of a fetch error.
+					<Notice.Root intent="warning">
+						<Notice.Title>
+							{ __( 'Jetpack is not connected to WordPress.com.', 'jetpack' ) }
+						</Notice.Title>
+						<Notice.Description>
+							{ __( 'Connect the site to see your AI usage.', 'jetpack' ) }{ ' ' }
+							<Link href="admin.php?page=my-jetpack#/connection">
+								{ __( 'Connect Jetpack', 'jetpack' ) }
+							</Link>
+						</Notice.Description>
+					</Notice.Root>
+				) }
+			</Stack>
 
-			<div className="jetpack-ai-overview__quick-start">
+			<Stack direction="column" gap="lg">
 				<Text render={ <h2 /> } variant="heading-lg">
 					{ __( 'Quick start', 'jetpack' ) }
 				</Text>
@@ -526,9 +530,9 @@ export default function AiOverview( {
 						</Card.Root>
 					) ) }
 				</div>
-			</div>
+			</Stack>
 
-			<div className="jetpack-ai-overview__videos">
+			<Stack direction="column" gap="lg">
 				<Text render={ <h2 /> } variant="heading-lg">
 					{ __( 'Walkthrough videos', 'jetpack' ) }
 				</Text>
@@ -565,7 +569,7 @@ export default function AiOverview( {
 						</a>
 					) ) }
 				</div>
-			</div>
+			</Stack>
 
 			{ showActivityLog && activityLogUrl && (
 				// The row pads itself, so it sits directly in the card —
@@ -584,7 +588,7 @@ export default function AiOverview( {
 				</Card.Root>
 			) }
 
-			<div className="jetpack-ai-overview__docs">
+			<Stack direction="column" gap="lg">
 				<Text render={ <h2 /> } variant="heading-lg">
 					{ __( 'Documentation', 'jetpack' ) }
 				</Text>
@@ -595,7 +599,7 @@ export default function AiOverview( {
 						</ExternalLink>
 					) ) }
 				</Stack>
-			</div>
+			</Stack>
 		</Stack>
 	);
 }

@@ -29,6 +29,31 @@ describe( 'AssistantBanner', () => {
 		expect( screen.getByRole( 'button', { name: 'Dismiss' } ) ).toBeInTheDocument();
 	} );
 
+	test( 'CTA links to MCP settings and records the click', async () => {
+		render( <AssistantBanner /> );
+
+		const cta = screen.getByRole( 'link', { name: 'Connect your agent' } );
+		expect( cta ).toHaveAttribute( 'href', '#/mcp' );
+
+		await userEvent.click( cta );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_ai_hub_assistant_banner_cta_click',
+			{ is_a11n: 'false', is_test: 'false' }
+		);
+		// Navigating to MCP settings is not a dismissal — the banner stays.
+		expect( screen.getByText( 'Your site now has an assistant.' ) ).toBeInTheDocument();
+	} );
+
+	test( 'Close dismisses like the corner X', async () => {
+		render( <AssistantBanner /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Close' } ) );
+
+		expect( screen.queryByText( 'Your site now has an assistant.' ) ).not.toBeInTheDocument();
+		expect( select( preferencesStore ).get( 'jetpack/ai', 'assistantBannerDismissed' ) ).toBe(
+			true
+		);
+	} );
+
 	test( 'renders nothing when already dismissed', () => {
 		dispatch( preferencesStore ).set( 'jetpack/ai', 'assistantBannerDismissed', true );
 

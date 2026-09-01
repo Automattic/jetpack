@@ -2,13 +2,13 @@ import { select } from '@wordpress/data';
 import { createRoot, createElement } from '@wordpress/element';
 import BlockSuggestionActions from '../components/block-suggestion-actions';
 import BlockSuggestionButtons from '../components/block-suggestion-buttons';
-import EmptyStateBanner from '../components/empty-state-banner';
 import ReadMoreLink from '../components/read-more-link';
 import SectionGenerateButton from '../components/section-generate-button';
 import SuggestAllButton from '../components/suggest-all-button';
 import SuggestionActions from '../components/suggestion-actions';
 import SuggestionBadge from '../components/suggestion-badge';
 import UpgradeNotice from '../components/upgrade-notice';
+import WelcomeBanner from '../components/welcome-banner';
 import { VALID_SECTIONS } from '../constants';
 import { getBlockModalTextarea, startDraftTracking } from './drafts';
 
@@ -221,7 +221,7 @@ function runAll() {
 		UpgradeNotice
 	);
 
-	// Empty state banner.
+	// Welcome banner.
 	inject(
 		'banner',
 		() => {
@@ -234,7 +234,7 @@ function runAll() {
 				  }
 				: null;
 		},
-		EmptyStateBanner
+		WelcomeBanner
 	);
 
 	// Per-section injections. Sections are matched by the stable `data-slug`
