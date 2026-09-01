@@ -14,26 +14,11 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as preferencesStore } from '@wordpress/preferences';
-import analytics from 'lib/analytics';
 import AiBanner from '../../../../shared/components/ai-banner';
+import { recordAiHubEvent } from '../../tracks';
 
 const PREFERENCE_SCOPE = 'jetpack/ai';
 const PREFERENCE_NAME = 'assistantBannerDismissed';
-
-/**
- * Audience properties per the AI-product Tracks standards, encoded as
- * 'true'/'false' strings — same shape as mcp/tracks.js, which is documented
- * as jetpack_mcp_*-only and so not reused here.
- *
- * @return {object} Tracks audience properties.
- */
-function getAudienceProps() {
-	const { isA11n = false, isTest = false } = window?.jetpackAiSettings ?? {};
-	return {
-		is_a11n: isA11n ? 'true' : 'false',
-		is_test: isTest ? 'true' : 'false',
-	};
-}
 
 /**
  * Dismissible assistant announcement banner.
@@ -51,11 +36,11 @@ export default function AssistantBanner() {
 		// The store updates synchronously (banner hides at once); the layer
 		// persists in the background.
 		set( PREFERENCE_SCOPE, PREFERENCE_NAME, true );
-		analytics.tracks.recordEvent( 'jetpack_ai_hub_assistant_banner_dismiss', getAudienceProps() );
+		recordAiHubEvent( 'jetpack_ai_hub_assistant_banner_dismiss' );
 	}, [ set ] );
 
 	const handleCtaClick = useCallback( () => {
-		analytics.tracks.recordEvent( 'jetpack_ai_hub_assistant_banner_cta_click', getAudienceProps() );
+		recordAiHubEvent( 'jetpack_ai_hub_assistant_banner_cta_click' );
 	}, [] );
 
 	if ( dismissed ) {

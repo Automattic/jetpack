@@ -38,7 +38,7 @@ describe( 'AssistantBanner', () => {
 		await userEvent.click( cta );
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_ai_hub_assistant_banner_cta_click',
-			{ is_a11n: 'false', is_test: 'false' }
+			{ site_type: 'jetpack', is_a11n: 'false', is_test: 'false' }
 		);
 		// Navigating to MCP settings is not a dismissal — the banner stays.
 		expect( screen.getByText( 'Your site now has an assistant.' ) ).toBeInTheDocument();
@@ -72,7 +72,7 @@ describe( 'AssistantBanner', () => {
 		);
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_ai_hub_assistant_banner_dismiss',
-			{ is_a11n: 'false', is_test: 'false' }
+			{ site_type: 'jetpack', is_a11n: 'false', is_test: 'false' }
 		);
 	} );
 } );
