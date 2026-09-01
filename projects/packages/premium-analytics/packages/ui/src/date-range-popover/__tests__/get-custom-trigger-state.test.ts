@@ -1,4 +1,18 @@
-import { getCustomTriggerLabel, getCustomTriggerState } from '../get-custom-trigger-state';
+import {
+	getCustomTriggerLabel,
+	getCustomTriggerRange,
+	getCustomTriggerState,
+} from '../get-custom-trigger-state';
+
+const stagedRange = {
+	from: new Date( '2026-07-05T00:00:00.000Z' ),
+	to: new Date( '2026-07-10T23:59:59.000Z' ),
+};
+
+const committedRange = {
+	from: new Date( '2026-06-01T00:00:00.000Z' ),
+	to: new Date( '2026-06-30T23:59:59.000Z' ),
+};
 
 describe( 'getCustomTriggerState', () => {
 	it( 'returns idle when a preset is applied and there is no custom draft', () => {
@@ -73,16 +87,6 @@ describe( 'getCustomTriggerLabel', () => {
 	const formatRange = ( { from, to }: { from?: Date; to?: Date } ) =>
 		`${ from?.toISOString() ?? '' }–${ to?.toISOString() ?? '' }`;
 
-	const stagedRange = {
-		from: new Date( '2026-07-05T00:00:00.000Z' ),
-		to: new Date( '2026-07-10T23:59:59.000Z' ),
-	};
-
-	const committedRange = {
-		from: new Date( '2026-06-01T00:00:00.000Z' ),
-		to: new Date( '2026-06-30T23:59:59.000Z' ),
-	};
-
 	it( 'shows the staged range while a custom draft is open', () => {
 		expect(
 			getCustomTriggerLabel( {
@@ -119,5 +123,25 @@ describe( 'getCustomTriggerLabel', () => {
 				formatRange,
 			} )
 		).toBe( customLabel );
+	} );
+} );
+
+describe( 'getCustomTriggerRange', () => {
+	it( 'holds the staged range while a custom draft is open', () => {
+		expect(
+			getCustomTriggerRange( { triggerState: 'staged', range: stagedRange, committedRange } )
+		).toBe( stagedRange );
+	} );
+
+	it( 'holds the committed range once the custom draft is applied', () => {
+		expect(
+			getCustomTriggerRange( { triggerState: 'applied', range: stagedRange, committedRange } )
+		).toBe( committedRange );
+	} );
+
+	it( 'holds no range while a preset drives one', () => {
+		expect(
+			getCustomTriggerRange( { triggerState: 'idle', range: committedRange, committedRange } )
+		).toBeUndefined();
 	} );
 } );

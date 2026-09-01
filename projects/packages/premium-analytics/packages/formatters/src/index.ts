@@ -6,6 +6,7 @@ export {
 	formatDateRange,
 	formatDateRangeCompact,
 	formatDateRangeMinimal,
+	formatDateRangeNatural,
 	formatDateRangeLong,
 	type DateFormatName,
 } from './date';

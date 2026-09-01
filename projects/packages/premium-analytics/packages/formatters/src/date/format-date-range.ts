@@ -110,3 +110,97 @@ export const formatDateRangeMinimal = ( range?: DateRange ): string => {
 
 	return formatRange( isCurrentYear ? 'compactNoYear' : 'compact', range );
 };
+
+/** A site-local calendar date, as the parts a boundary check compares. */
+type CalendarDate = {
+	year: number;
+	month: number;
+	day: number;
+};
+
+/**
+ * Read a date as its site-local calendar parts.
+ *
+ * Through the ISO form, since the `Date` getters answer in the browser's
+ * timezone and would name a different day for anyone offset from the site.
+ *
+ * @param date - The instant to read.
+ * @return Its year, 1-based month, and day of the month.
+ */
+function toCalendarDate( date: Date ): CalendarDate {
+	const [ year, month, day ] = formatDate( date, 'iso' ).split( '-' ).map( Number );
+
+	return { year, month, day };
+}
+
+/**
+ * The length of a calendar month.
+ *
+ * @param date - Any date in the month.
+ * @return Its number of days.
+ */
+function getMonthLength( date: CalendarDate ): number {
+	// Day zero of the next month is the last day of this one.
+	return new Date( Date.UTC( date.year, date.month, 0 ) ).getUTCDate();
+}
+
+/**
+ * Whether the range covers one calendar month, first day to last.
+ *
+ * @param from - The range's start, in calendar parts.
+ * @param to   - The range's end, in calendar parts.
+ * @return Whether the range is that month.
+ */
+function isWholeMonth( from: CalendarDate, to: CalendarDate ): boolean {
+	return (
+		from.year === to.year &&
+		from.month === to.month &&
+		from.day === 1 &&
+		to.day === getMonthLength( to )
+	);
+}
+
+/**
+ * Whether the range covers one calendar year, January 1 to December 31.
+ *
+ * @param from - The range's start, in calendar parts.
+ * @param to   - The range's end, in calendar parts.
+ * @return Whether the range is that year.
+ */
+function isWholeYear( from: CalendarDate, to: CalendarDate ): boolean {
+	return (
+		from.year === to.year && from.month === 1 && from.day === 1 && to.month === 12 && to.day === 31
+	);
+}
+
+/**
+ * Format a date range as the period it names, where it names one.
+ *
+ * A range covering exactly one calendar month or year reads as that month or
+ * year, and anything else falls back to `formatDateRangeMinimal`. Both forms
+ * keep the year, the current one included: this label is the only thing naming
+ * the period on the control it sits on.
+ *
+ * @param range - The range to format.
+ * @return The formatted range, or `''` when `range`, `from`, or `to` is missing.
+ */
+export const formatDateRangeNatural = ( range?: DateRange ): string => {
+	const { from, to } = range ?? {};
+
+	if ( ! from || ! to ) {
+		return '';
+	}
+
+	const start = toCalendarDate( from );
+	const end = toCalendarDate( to );
+
+	if ( isWholeYear( start, end ) ) {
+		return formatDate( from, 'year' );
+	}
+
+	if ( isWholeMonth( start, end ) ) {
+		return formatDate( from, 'monthYear' );
+	}
+
+	return formatDateRangeMinimal( range );
+};
