@@ -599,20 +599,33 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The owned options are registered (register_setting on init). The master
-	 * option must stay OUT of core settings REST: off-Simple the module is the
-	 * master (a core-REST write would only clobber the legacy opt-out value),
-	 * and the dedicated feature-settings endpoint is the real writable surface.
+	 * The owned options are registered (register_setting on init) in their own
+	 * group so saving Settings > General cannot clear fields that form does not
+	 * contain. The master option must stay OUT of core settings REST: off-Simple
+	 * the module is the master (a core-REST write would only clobber the legacy
+	 * opt-out value), and the dedicated feature-settings endpoint is the real
+	 * writable surface.
 	 */
 	public function test_options_are_registered() {
+		global $new_allowed_options;
+
 		Jetpack_AI_Settings::register_settings();
 
 		$registered = get_registered_settings();
+		$options    = array( Jetpack_AI_Settings::MASTER_OPTION );
+		foreach ( Jetpack_AI_Settings::OWNED_FEATURES as $feature ) {
+			$options[] = Jetpack_AI_Settings::FEATURE_OPTIONS[ $feature ];
+		}
 
-		$this->assertArrayHasKey( 'jetpack_ai_enabled', $registered );
-		$this->assertArrayHasKey( 'jetpack_ai_writing_assistant_enabled', $registered );
-		$this->assertArrayHasKey( 'jetpack_ai_image_editor_enabled', $registered );
-		$this->assertArrayHasKey( 'jetpack_ai_seo_enabled', $registered );
+		foreach ( $options as $option ) {
+			$this->assertArrayHasKey( $option, $registered );
+			$this->assertSame( 'jetpack_ai', $registered[ $option ]['group'] );
+			$this->assertContains( $option, $new_allowed_options['jetpack_ai'] ?? array() );
+		}
+		$this->assertEmpty(
+			array_intersect( $options, $new_allowed_options['general'] ?? array() ),
+			'Jetpack AI settings must not be submitted with the General Settings form.'
+		);
 		$this->assertArrayNotHasKey( 'jetpack_ai_image_label_enabled', $registered );
 
 		$this->assertFalse( $registered['jetpack_ai_enabled']['show_in_rest'], 'The master option is never exposed over core settings REST.' );
