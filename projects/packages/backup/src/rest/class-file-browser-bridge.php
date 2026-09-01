@@ -394,11 +394,9 @@ class File_Browser_Bridge {
 		if ( false !== strpos( $body, "\0" ) ) {
 			return false;
 		}
-		// mbstring is not guaranteed on every host, and a `//u` pattern fails
-		// to match on invalid UTF-8, which is the same verdict.
-		return function_exists( 'mb_check_encoding' )
-			? mb_check_encoding( $body, 'UTF-8' )
-			: 1 === preg_match( '//u', $body );
+		// A `//u` pattern fails to match on exactly the bytes `json_encode()`
+		// rejects, and unlike mbstring, PCRE cannot be absent from a host.
+		return 1 === preg_match( '//u', $body );
 	}
 
 	/**

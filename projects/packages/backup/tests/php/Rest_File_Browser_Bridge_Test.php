@@ -608,14 +608,19 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 	 * A body cut mid-character by the byte cap loses the half-written character and
 	 * comes back marked truncated.
 	 *
-	 * Left in place, the lone lead byte the cut keeps would fail the UTF-8 check and
-	 * report a perfectly good text file as unpreviewable.
+	 * Left in place, the bytes the cut keeps would fail the UTF-8 check and report a
+	 * perfectly good text file as unpreviewable.
+	 *
+	 * @param string $character A multi-byte character the cap lands inside of.
+	 * @param int    $kept      How many of its bytes survive the cut.
+	 * @dataProvider provide_characters_the_cap_cuts
 	 */
-	public function test_file_content_drops_the_character_the_byte_cap_cut_in_half() {
+	#[DataProvider( 'provide_characters_the_cap_cuts' )]
+	public function test_file_content_drops_the_character_the_byte_cap_cut_in_half( $character, $kept ) {
 		$this->assert_preview_cap_is_testable();
 
-		$whole = str_repeat( 'a', File_Browser_Bridge::PREVIEW_MAX_BYTES - 1 );
-		$cut   = substr( $whole . "\xE6\x97\xA5", 0, File_Browser_Bridge::PREVIEW_MAX_BYTES );
+		$whole = str_repeat( 'a', File_Browser_Bridge::PREVIEW_MAX_BYTES - $kept );
+		$cut   = substr( $whole . $character, 0, File_Browser_Bridge::PREVIEW_MAX_BYTES );
 
 		$this->arrange_wpcom_answers(
 			array(
@@ -629,6 +634,20 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 		$this->assertTrue( $served['truncated'] );
 		$this->assertTrue( $served['is_text'] );
 		$this->assertSame( $whole, $served['content'] );
+	}
+
+	/**
+	 * Every count of leftover bytes a cut can produce, up to the three a four-byte
+	 * character leaves — the count the repair loop's own bound is set to.
+	 *
+	 * @return array<string, array{0: string, 1: int}>
+	 */
+	public static function provide_characters_the_cap_cuts() {
+		return array(
+			'one byte of three'   => array( "\xE6\x97\xA5", 1 ),
+			'two bytes of four'   => array( "\xF0\x9F\x92\xA9", 2 ),
+			'three bytes of four' => array( "\xF0\x9F\x92\xA9", 3 ),
+		);
 	}
 
 	/**
