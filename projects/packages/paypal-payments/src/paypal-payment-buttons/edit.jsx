@@ -85,12 +85,19 @@ const ONBOARD_CALLBACK_NAME = 'jetpackPayPalOnboardComplete';
 /**
  * Load PayPal's onboarding SDK, reusing the tag if it is already on the page.
  *
- * @param {string} environment - 'sandbox' or 'production'.
+ * The document matters. This block is apiVersion 3, so the editor canvas is an
+ * iframe and the connect link lives in *that* document, while this module runs
+ * in the parent. partner.js only scans its own document for the anchors it
+ * binds to, so loading it into the parent leaves the link untouched and the
+ * browser falls back to opening `target="PPFrame"` as a stray tab.
+ *
+ * @param {string}   environment - 'sandbox' or 'production'.
+ * @param {Document} doc         - The document the connect link belongs to.
  * @return {Promise} Resolves once the SDK is ready.
  */
-function loadPartnerScript( environment ) {
+function loadPartnerScript( environment, doc ) {
 	const src = PARTNER_JS_URLS[ environment ] || PARTNER_JS_URLS.production;
-	const existing = document.querySelector( `script[data-paypal-partner-js="${ src }"]` );
+	const existing = doc.querySelector( `script[data-paypal-partner-js="${ src }"]` );
 
 	if ( existing ) {
 		return existing.dataset.loaded === 'true'
@@ -102,7 +109,7 @@ function loadPartnerScript( environment ) {
 	}
 
 	return new Promise( ( resolve, reject ) => {
-		const script = document.createElement( 'script' );
+		const script = doc.createElement( 'script' );
 		script.src = src;
 		script.async = true;
 		// PayPal's own snippets give the tag this id; some SDK builds look
@@ -116,7 +123,7 @@ function loadPartnerScript( environment ) {
 		script.addEventListener( 'error', () =>
 			reject( new Error( 'PayPal onboarding script failed to load.' ) )
 		);
-		document.body.appendChild( script );
+		doc.body.appendChild( script );
 	} );
 }
 
@@ -605,11 +612,21 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	 * Expose the completion callback for PayPal's SDK to call by name.
 	 */
 	useEffect( () => {
-		window[ ONBOARD_CALLBACK_NAME ] = ( authCode, sharedId ) =>
-			completeOnboarding( authCode, sharedId );
+		const callback = ( authCode, sharedId ) => completeOnboarding( authCode, sharedId );
+		window[ ONBOARD_CALLBACK_NAME ] = callback;
+
+		// The link's document may be the editor iframe; the effect that loads
+		// the SDK copies this across once that link exists.
+		const linkWindow = signupLinkRef.current?.ownerDocument?.defaultView;
+		if ( linkWindow && linkWindow !== window ) {
+			linkWindow[ ONBOARD_CALLBACK_NAME ] = callback;
+		}
 
 		return () => {
 			delete window[ ONBOARD_CALLBACK_NAME ];
+			if ( linkWindow && linkWindow !== window ) {
+				delete linkWindow[ ONBOARD_CALLBACK_NAME ];
+			}
 		};
 	}, [ completeOnboarding ] );
 
@@ -744,7 +761,10 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	 */
 	const handleSignupLinkClick = useCallback(
 		event => {
-			if ( window.PAYPAL?.apps?.Signup ) {
+			// Look where the SDK actually loaded: the editor iframe, not here.
+			const linkWindow = event.currentTarget.ownerDocument?.defaultView;
+
+			if ( linkWindow?.PAYPAL?.apps?.Signup || window.PAYPAL?.apps?.Signup ) {
 				// The SDK owns this link: let it open its lightbox.
 				return;
 			}
@@ -768,12 +788,28 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 			return;
 		}
 
+		const link = signupLinkRef.current;
+		if ( ! link ) {
+			return;
+		}
+
+		/*
+		 * The connect link lives in the editor's iframe, so the SDK has to be
+		 * loaded into that document and the callback has to hang off that
+		 * window: the SDK resolves the name against whichever realm it runs in.
+		 */
+		const linkDocument = link.ownerDocument;
+		const linkWindow = linkDocument.defaultView;
 		let cancelled = false;
 
-		loadPartnerScript( environment )
+		if ( linkWindow && linkWindow !== window ) {
+			linkWindow[ ONBOARD_CALLBACK_NAME ] = window[ ONBOARD_CALLBACK_NAME ];
+		}
+
+		loadPartnerScript( environment, linkDocument )
 			.then( () => {
 				if ( ! cancelled ) {
-					window.PAYPAL?.apps?.Signup?.render();
+					linkWindow?.PAYPAL?.apps?.Signup?.render();
 				}
 			} )
 			.catch( () => {
