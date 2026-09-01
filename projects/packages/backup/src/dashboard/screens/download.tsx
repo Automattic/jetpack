@@ -10,6 +10,7 @@ import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { splitFileSelection } from '../data/api/download';
 import { useDownload } from '../hooks/use-download';
+import { useGateState } from '../hooks/use-gate-state';
 import { DEFAULT_RESTORE_ITEMS, hasSelectedItems } from '../types/restore';
 import { isValidRewindId, rewindIdToIso } from '../types/rewind-id';
 
@@ -41,13 +42,15 @@ type DownloadSearch = Record< string, unknown > & { files?: string };
  */
 export default function DownloadScreen() {
 	const { rewindId } = useParams( { from: '/download/$rewindId' } );
+	const gate = useGateState();
 	// `strict: false` is the unvalidated read, and it is the whole option:
 	// passing `from` as well would send it down the route-id lookup that
 	// throws on a mismatch, which is the opposite of what is wanted for a
 	// param no route declares.
 	const search = useSearch( { strict: false } ) as DownloadSearch;
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
-	const { state, submit, submitFiles, reset } = useDownload( rewindId );
+	const isGateReady = gate.status === 'ready';
+	const { state, submit, submitFiles, reset } = useDownload( rewindId, isGateReady );
 	const handleGenerate = useCallback( () => submit( items ), [ submit, items ] );
 	// An empty checklist would ask WPCOM for the *whole* archive, not for
 	// nothing — see `hasSelectedItems`.
@@ -62,12 +65,17 @@ export default function DownloadScreen() {
 	// came back for a second archive. This only stops StrictMode asking twice.
 	const hasAutoStarted = useRef( false );
 	useEffect( () => {
-		if ( ! hasFileSelection || hasAutoStarted.current || ! isValidRewindId( rewindId ) ) {
+		if (
+			! isGateReady ||
+			! hasFileSelection ||
+			hasAutoStarted.current ||
+			! isValidRewindId( rewindId )
+		) {
 			return;
 		}
 		hasAutoStarted.current = true;
 		submitFiles( files );
-	}, [ hasFileSelection, rewindId, submitFiles, files ] );
+	}, [ isGateReady, hasFileSelection, rewindId, submitFiles, files ] );
 
 	// With a file selection there is no checklist to send the reader back
 	// to, so a failed attempt has to re-submit rather than return to a
