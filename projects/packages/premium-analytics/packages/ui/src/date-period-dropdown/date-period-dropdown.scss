@@ -25,22 +25,7 @@
 		}
 	}
 
-	// The calendar opens beside the list rather than replacing it, so the panel
-	// is the row holding both.
-	&__panel {
-		display: flex;
-		align-items: flex-start;
-	}
-
-	// Owned here rather than by the calendar: it is the seam between the panel's
-	// two halves, and the calendar has no other neighbour.
-	&__panel > .date-range-popover-content {
-		border-inline-start:
-			var(--wpds-border-width-xs) solid
-			var(--wpds-color-stroke-surface-neutral);
-	}
-
-	// The only part that gives when the row runs short.
+	// The only part that gives when the trigger runs short.
 	&__label {
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -50,5 +35,20 @@
 	&__glyph,
 	&__caret {
 		flex: 0 0 auto;
+	}
+
+	// The calendar opens beside the list rather than replacing it, so the panel
+	// is the row holding both.
+	&__panel {
+		display: flex;
+		align-items: flex-start;
+	}
+
+	// Owned here rather than by the calendar: it is the seam between the
+	// panel's two halves, and the calendar has no other neighbour.
+	&__panel > .date-range-popover-content {
+		border-inline-start:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral);
 	}
 }

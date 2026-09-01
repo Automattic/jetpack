@@ -1,5 +1,11 @@
+jest.mock( '@wordpress/compose', () => ( {
+	...jest.requireActual( '@wordpress/compose' ),
+	useMediaQuery: jest.fn( () => false ),
+} ) );
+
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useMediaQuery } from '@wordpress/compose';
 import { DatePeriodDropdown } from '../date-period-dropdown';
 
 const JULY_2026 = {
@@ -185,5 +191,28 @@ describe( 'DatePeriodDropdown custom range', () => {
 
 		expect( onSelect ).toHaveBeenCalledTimes( 1 );
 		expect( onCancel ).not.toHaveBeenCalled();
+	} );
+} );
+
+describe( 'DatePeriodDropdown calendar width', () => {
+	afterEach( () => jest.mocked( useMediaQuery ).mockReturnValue( false ) );
+
+	it( 'draws one month where the window has no room for two', async () => {
+		const user = userEvent.setup();
+		renderDropdown( { presetId: 'custom' } );
+
+		await openMenu( user, 'July 2026' );
+
+		expect( screen.getAllByRole( 'grid' ) ).toHaveLength( 1 );
+	} );
+
+	it( 'draws two months where the window has room', async () => {
+		jest.mocked( useMediaQuery ).mockReturnValue( true );
+		const user = userEvent.setup();
+		renderDropdown( { presetId: 'custom' } );
+
+		await openMenu( user, 'July 2026' );
+
+		expect( screen.getAllByRole( 'grid' ) ).toHaveLength( 2 );
 	} );
 } );

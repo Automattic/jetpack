@@ -11,12 +11,14 @@ import {
 import { Button, Icon } from '@jetpack-premium-analytics/externals';
 import { formatDateRange, formatDateRangeNatural } from '@jetpack-premium-analytics/formatters';
 import { Dropdown, MenuGroup, MenuItem, NavigableMenu, Tooltip } from '@wordpress/components';
+import { useMediaQuery } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { calendar, check, chevronDown } from '@wordpress/icons';
 import { useCallback, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { WIDE_PERIOD_MENU_THRESHOLD } from '../date-range-layout';
 import { DateRangePopoverContent, type DateRange } from '../date-range-popover';
 import './date-period-dropdown.scss';
 
@@ -79,11 +81,6 @@ type DatePeriodDropdownProps = {
 	 * Whether the staged range differs from the applied one.
 	 */
 	canApply: boolean;
-
-	/**
-	 * Wide layout: show two calendar months instead of one.
-	 */
-	isWideScreen?: boolean;
 };
 
 /**
@@ -102,8 +99,10 @@ export function DatePeriodDropdown( {
 	onApply,
 	onCancel,
 	canApply,
-	isWideScreen = false,
 }: DatePeriodDropdownProps ) {
+	// The menu floats free of the row it opens from, so the window is what says
+	// whether a second month fits beside the list.
+	const isWideScreen = useMediaQuery( `(min-width: ${ WIDE_PERIOD_MENU_THRESHOLD }px)` );
 	const groups = useMemo(
 		() => getMenuSurfacePresetGroups( timeZone, { presetIds, startDate: allTimeStart } ),
 		[ allTimeStart, presetIds, timeZone ]
@@ -235,7 +234,7 @@ export function DatePeriodDropdown( {
 								onClose();
 							} }
 							canApply={ canApply }
-							isWideScreen={ isWideScreen }
+							isWideScreen={ !! isWideScreen }
 							timeZone={ timeZone }
 						/>
 					) }
