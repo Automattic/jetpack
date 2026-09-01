@@ -15,6 +15,35 @@ const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plug
 /**
  * Internal variables
  */
+// NL-839 proof of concept: resolve @woocommerce/email-editor from a local
+// WooCommerce checkout rather than adding it as a dependency of this branch.
+// Everything used from it is already published, so a real version would depend
+// on the package properly. Defaults to a sibling checkout of this monorepo.
+const woocommerceCheckout =
+	process.env.WOOCOMMERCE_CHECKOUT || path.join( __dirname, '../../../../../woocommerce' );
+const woocommerceEmailEditorPath = fs.existsSync(
+	path.join( woocommerceCheckout, 'packages/js/email-editor/build-module/index.js' )
+)
+	? path.join( woocommerceCheckout, 'packages/js/email-editor' )
+	: null;
+
+if ( ! woocommerceEmailEditorPath ) {
+	// Say so loudly. The extension is dropped from the bundle below, but
+	// extensions/index.json is copied to the build verbatim, so it still lists
+	// newsletter-styles — the PHP then registers everything and reports the
+	// extension available while no JS exists to render it. That combination
+	// looks healthy from the server side and fails silently in the browser.
+	// eslint-disable-next-line no-console
+	console.warn(
+		'\n[newsletter-styles] No WooCommerce checkout found at:\n' +
+			`  ${ woocommerceCheckout }\n` +
+			'Skipping the newsletter email design extension. Builds produced without it\n' +
+			'cannot render the email design screen, even though the PHP side will behave\n' +
+			'as though it is present. Set WOOCOMMERCE_CHECKOUT to a checkout whose\n' +
+			'packages/js/email-editor has been built if you need this extension.\n'
+	);
+}
+
 const editorSetup = path.join( __dirname, '../extensions', 'editor' );
 const viewSetup = path.join( __dirname, '../extensions', 'view' );
 const blockEditorDirectories = [ 'plugins', 'blocks' ];
@@ -54,7 +83,14 @@ function presetProductionExtensions( type, inputDir, presetBlocks ) {
 
 const presetPath = path.join( __dirname, '../extensions', 'index.json' );
 const presetIndex = require( presetPath );
-const presetProductionBlocks = presetIndex.production || [];
+const presetProductionBlocks = ( presetIndex.production || [] ).filter(
+	// NL-839 proof of concept: without a local WooCommerce checkout there is no
+	// @woocommerce/email-editor to import, so drop the extension rather than
+	// fail everyone else's build. This is also why CI and release builds carry
+	// none of the package's weight — they have no checkout, so the extension
+	// never enters the bundle.
+	block => block !== 'newsletter-styles' || woocommerceEmailEditorPath
+);
 const presetNoPostEditorBlocks = presetIndex[ 'no-post-editor' ] || [];
 
 const presetExperimentalBlocks = [
@@ -134,10 +170,38 @@ const sharedWebpackConfig = {
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,
+		alias: {
+			...jetpackWebpackConfig.resolve.alias,
+			// NL-839 proof of concept. Point WOOCOMMERCE_CHECKOUT at your
+			// WooCommerce checkout; without one the alias is dropped and the
+			// extension is filtered out of the build above.
+			...( woocommerceEmailEditorPath
+				? { '@woocommerce/email-editor': woocommerceEmailEditorPath }
+				: {} ),
+		},
 	},
 	node: {},
 	plugins: [
+		new webpack.DefinePlugin( {
+			// `@woocommerce/email-editor` leaves this identifier for the
+			// consumer to substitute at bundle time. Without it the package
+			// falls back to the `woocommerce` text domain, so every string in
+			// the editor would look for translations we do not ship.
+			__i18n_text_domain__: JSON.stringify( 'jetpack' ),
+		} ),
 		...jetpackWebpackConfig.StandardPlugins( {
+			DependencyExtractionPlugin: {
+				requestMap: {
+					// Not a WordPress script handle: the package has no
+					// `wpScript` flag, so core never registers
+					// `wp-global-styles-engine` and `wp.globalStylesEngine`
+					// does not exist at runtime. Bundle it instead of
+					// externalizing it, or the panel's typography screens
+					// throw. `null` (rather than undefined) is what stops the
+					// plugin cascading to its own default.
+					'@wordpress/global-styles-engine': { external: null },
+				},
+			},
 			MiniCssExtractPlugin: {
 				// This is a bit of a hack to handle simple cases of `import( './file.css' )` in block editor scripts.
 				// If we're ever able to get rid of the monolithic editor.js files, this should go away in favor

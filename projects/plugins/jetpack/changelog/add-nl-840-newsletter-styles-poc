@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Newsletter: add a proof of concept for a newsletter email design screen, running the WooCommerce email editor in wp-admin. Behind a development constant; no change for users.
