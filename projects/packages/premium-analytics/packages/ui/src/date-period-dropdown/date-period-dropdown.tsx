@@ -81,6 +81,19 @@ type DatePeriodDropdownProps = {
 	 * Whether the staged range differs from the applied one.
 	 */
 	canApply: boolean;
+
+	/**
+	 * Whether to offer Custom range. On by default; the detail pages' design has
+	 * common periods only.
+	 */
+	withCustomRange?: boolean;
+
+	/**
+	 * Notifies the parent as the menu opens and closes, so it can mirror the
+	 * draft-while-open behaviour for related controls (the comparison label,
+	 * which follows the primary range).
+	 */
+	onOpenChange?: ( isOpen: boolean ) => void;
 };
 
 /**
@@ -99,6 +112,8 @@ export function DatePeriodDropdown( {
 	onApply,
 	onCancel,
 	canApply,
+	withCustomRange = true,
+	onOpenChange,
 }: DatePeriodDropdownProps ) {
 	// The menu floats free of the row it opens from, so the window is what says
 	// whether a second month fits beside the list.
@@ -124,9 +139,10 @@ export function DatePeriodDropdown( {
 			closedByActionRef.current = false;
 			// Opened on an applied custom range, the menu lands on the calendar:
 			// nothing in the list names that range.
-			setIsEditingCustom( isOpen && presetId === PRESET_CUSTOM );
+			setIsEditingCustom( isOpen && withCustomRange && presetId === PRESET_CUSTOM );
+			onOpenChange?.( isOpen );
 		},
-		[ onCancel, presetId ]
+		[ onCancel, onOpenChange, presetId, withCustomRange ]
 	);
 
 	/*
@@ -207,16 +223,18 @@ export function DatePeriodDropdown( {
 						) ) }
 
 						{ /* Opens the calendar beside the list rather than closing the menu. */ }
-						<MenuGroup>
-							<MenuItem
-								role="menuitemradio"
-								isSelected={ presetId === PRESET_CUSTOM }
-								icon={ presetId === PRESET_CUSTOM ? check : undefined }
-								onClick={ () => setIsEditingCustom( true ) }
-							>
-								{ __( 'Custom range', 'jetpack-premium-analytics-pkg' ) }
-							</MenuItem>
-						</MenuGroup>
+						{ withCustomRange && (
+							<MenuGroup>
+								<MenuItem
+									role="menuitemradio"
+									isSelected={ presetId === PRESET_CUSTOM }
+									icon={ presetId === PRESET_CUSTOM ? check : undefined }
+									onClick={ () => setIsEditingCustom( true ) }
+								>
+									{ __( 'Custom range', 'jetpack-premium-analytics-pkg' ) }
+								</MenuItem>
+							</MenuGroup>
+						) }
 					</NavigableMenu>
 
 					{ isEditingCustom && (
