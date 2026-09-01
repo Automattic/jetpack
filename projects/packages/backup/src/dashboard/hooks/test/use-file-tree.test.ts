@@ -65,4 +65,20 @@ describe( 'toFileNode', () => {
 			path: '/wp-content/mu-plugins',
 		} );
 	} );
+
+	// The display `path` is ours; `id` is upstream's, and it is the only
+	// value a granular download can name an entry by. This transform used
+	// to drop it from both branches, which left the file selection
+	// unsendable however carefully the tree tracked it.
+	test.each( [
+		[ 'file', file( { id: 'ZjY6L2luZGV4LnBocA==' } ), 'ZjY6L2luZGV4LnBocA==' ],
+		// `cjI6,ZjI6Lw==` is a real fixture shape: an id can contain a
+		// comma, which is why the include list is a comma-joined string
+		// upstream flattens rather than a list of discrete values.
+		[ 'folder', file( { type: 'dir', id: 'cjI6,ZjI6Lw==' } ), 'cjI6,ZjI6Lw==' ],
+	] )( 'carries the ls entry id through for a %s', ( _label, raw, expected ) => {
+		expect( toFileNode( 'index.php', raw as WpcomFileNode, '/' ) ).toMatchObject( {
+			id: expected,
+		} );
+	} );
 } );

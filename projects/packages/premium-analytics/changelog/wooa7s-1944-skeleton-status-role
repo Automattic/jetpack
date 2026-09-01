@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Widget skeletons: stop exposing the loading placeholder as a status region.

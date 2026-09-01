@@ -117,10 +117,13 @@ function deriveState( input: DeriveInput ): RestoreState {
 	if ( errorMessage ) {
 		return { phase: 'error', message: errorMessage };
 	}
-	if ( isPending ) {
-		return { phase: 'submitting' };
-	}
+	// `startedRewindId` is read before `isPending`: React Query never reattaches a
+	// MutationObserver detached mid-flight, so a remount latches `isPending` true
+	// while the mutation's own callbacks still record the acceptance.
 	if ( startedRewindId === null ) {
+		if ( isPending ) {
+			return { phase: 'submitting' };
+		}
 		// Nothing of our own, and we may not yet know whether the site has
 		// a restore running from somewhere else. Withholding the form is
 		// the whole point: see `useAdoptedRestore`.

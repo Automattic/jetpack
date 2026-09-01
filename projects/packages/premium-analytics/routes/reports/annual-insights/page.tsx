@@ -33,6 +33,8 @@ const RECORDS_VIEW = {
 			avg_likes: { align: 'end' as const },
 			total_words: { align: 'end' as const },
 			avg_words: { align: 'end' as const },
+			total_images: { align: 'end' as const },
+			avg_images: { align: 'end' as const },
 		},
 	},
 };
@@ -88,6 +90,14 @@ function AnnualInsightsReport(): JSX.Element {
 			{
 				label: __( 'Avg words per post', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => row.avg_words,
+			},
+			{
+				label: __( 'Total images', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.total_images,
+			},
+			{
+				label: __( 'Avg images per post', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.avg_images,
 			},
 		],
 		[]

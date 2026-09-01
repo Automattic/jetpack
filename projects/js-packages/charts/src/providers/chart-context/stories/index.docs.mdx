@@ -144,71 +144,49 @@ The context respects explicit color overrides while maintaining group stability 
 
 ### Theme Structure
 
-The Global Charts Context uses a comprehensive theme system that controls all visual aspects of charts:
+**Colors are CSS, not JS.** Every color a chart paints has a `--a8c-charts-color-*` catalog role behind it, declared anywhere inside the provider tree. The closest declaration wins, so scope a rule to one dashboard, or to `.a8c-charts-scope` to reach every chart on the page:
+
+<Source
+	language="css"
+	code={ `.my-dashboard {
+		/* Chart background and label plates */
+		--a8c-charts-color-background: #fff;
+		--a8c-charts-color-label-background: transparent;
+		--a8c-charts-color-label-on-fill: #ffffff;
+
+		/* Grid, axis, ticks and their labels */
+		--a8c-charts-color-grid: #dbdbdb;
+		--a8c-charts-color-axis: #dbdbdb;
+		--a8c-charts-color-tick: #dbdbdb;
+		--a8c-charts-color-label-axis: #1e1e1e;
+
+		/* Every label at once, legend included */
+		--a8c-charts-color-label: #1e1e1e;
+
+		/* Trend figures, on the leaderboard and funnel */
+		--a8c-charts-color-trend-up: #008030;
+		--a8c-charts-color-trend-neutral: #707070;
+		--a8c-charts-color-trend-down: #cc1818;
+
+		/* Floating surfaces: the funnel plate, the geo dataless fill */
+		--a8c-charts-color-surface-secondary: #f4f4f4;
+	}` }
+/>
+
+Series colors work the same way, through the five `--a8c-charts-color-series-*` slots. See [The Series Palette](#the-series-palette).
+
+The `theme` prop's matching color fields are deprecated and will be removed; `TOKENS.md` maps each one to the role that replaces it. What stays on `theme` is everything with no role behind it — `tickLength`, stroke widths, font weights, the heatmap's compact sizing, the annotation geometry:
 
 <Source
 	language="tsx"
-	code={ `const customTheme: ChartTheme = {
-		// Series colors are not set here — they come from the five
-		// --a8c-charts-color-series-* properties. See "The Series Palette".
-
-    	// Chart background and labels
-		backgroundColor: 'var(--a8c-charts-color-background, #fff)',
-		labelBackgroundColor: 'transparent',
-		labelTextColor: '#FFFFFF',
-
-		// Grid and axis styling
-		gridStyles: {
-			stroke: 'var(--a8c-charts-color-grid, #dbdbdb)',
-			strokeWidth: 1,
-		},
-		xAxisLineStyles: { stroke: 'var(--a8c-charts-color-grid, #dbdbdb)', strokeWidth: 1 },
-
-		// Legend appearance
-		legend: {
-			labelStyles: {
-				color: 'var(--a8c-charts-color-label, #1e1e1e)',
-			},
-		},
-
-		// Chart-specific theming
-		leaderboardChart: {
-			primaryColor: '#006DAB',
-			secondaryColor: '#98C8DF',
-			// [negative, neutral, positive]
-			deltaColors: [
-				'var(--a8c-charts-color-trend-down, #cc1818)',
-				'var(--a8c-charts-color-trend-neutral, #707070)',
-				'var(--a8c-charts-color-trend-up, #008030)',
-			],
-		},
-
-		conversionFunnelChart: {
-			primaryColor: '#006DAB',
-			backgroundColor: 'var(--a8c-charts-color-surface-secondary, #f4f4f4)',
-		}
-	};
-
-	<GlobalChartsProvider theme={ customTheme }>
-		{ /* All charts inherit these styles */ }
+	code={ `<GlobalChartsProvider theme={ { tickLength: 6 } }>
+		{ /* All charts inherit this */ }
 	</GlobalChartsProvider>` }
 />
 
 ### Theme Inheritance and Merging
 
-Themes are merged with the default theme, so you only need to specify the properties you want to customize:
-
-<Source
-	language="tsx"
-	code={ `// Only customize the grid - everything else uses defaults
-	const softGrid = {
-		gridStyles: { stroke: '#E0E0E0' }
-	};
-
-	<GlobalChartsProvider theme={ softGrid }>
-		{ /* Charts use a custom grid but default colors, legends, etc. */ }
-	</GlobalChartsProvider>` }
-/>
+Themes are merged with the default theme, so you only need to specify the properties you want to customize.
 
 A field you leave out doesn't fall back to a separate JS default value — it falls through to the catalog default, because `defaultTheme` holds a `--a8c-charts-*` pointer for every color rather than a literal. Omitting a color is therefore how you opt into design-system theming, not how you opt out of theming.
 
@@ -398,7 +376,7 @@ Resolve at this element rather than at `document.documentElement` or at the prov
 
 ### useGlobalChartsTheme
 
-Access just the theme when you only need styling information:
+Access just the theme when you only need the non-color settings — sizing, weights, tick length. For colors, declare the catalog role on your own element instead: it inherits from the provider wrapper, so it already carries whatever the charts beside it are using, and it keeps following an override the theme snapshot would miss.
 
 <Source
 	language="tsx"
@@ -408,13 +386,21 @@ Access just the theme when you only need styling information:
 		const theme = useGlobalChartsTheme();
 
 		return (
-			<div style={ {
-				backgroundColor: theme.backgroundColor,
-				color: theme.legend?.labelStyles?.color
-			} }>
+			<div
+				className="my-panel"
+				style={ { paddingInline: theme.tickLength } }
+			>
 				Styled using global chart theme
 			</div>
 		);
+	}` }
+/>
+
+<Source
+	language="css"
+	code={ `.my-panel {
+		background: var(--a8c-charts-color-background, #fff);
+		color: var(--a8c-charts-color-label, #1e1e1e);
 	}` }
 />
 

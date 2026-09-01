@@ -6,7 +6,7 @@ import { dateI18n, getSettings } from '@wordpress/date';
  * Internal dependencies
  */
 import { intlLocale } from './elide-range';
-import { hasToken, withShortMonth, withWeekday, withoutYear } from './php-format';
+import { hasToken, withShortMonth, withWeekday, withoutDay, withoutYear } from './php-format';
 
 /** Fixed because this format backs form values and query parameters. */
 const ISO_FORMAT = 'Y-m-d';
@@ -19,6 +19,7 @@ export type DateFormatName =
 	| 'compact'
 	| 'compactNoYear'
 	| 'short'
+	| 'monthYear'
 	| 'year'
 	| 'iso'
 	| 'full'
@@ -65,6 +66,10 @@ function formatFor( name: DateFormatName ): string {
 
 	if ( name === 'short' ) {
 		return withoutYearFormat;
+	}
+
+	if ( name === 'monthYear' ) {
+		return withoutDay( siteFormat ) || siteFormat;
 	}
 
 	if ( name === 'full' ) {

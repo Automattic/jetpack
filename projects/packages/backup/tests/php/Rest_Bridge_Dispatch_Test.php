@@ -114,6 +114,12 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 				array(
 					'hasBackupPlan' => true,
 					'hasScan'       => true,
+					// Decided on the site, not upstream — hence its own branch —
+					// and false without the standalone plugin's constant, which
+					// nothing in a package test run defines.
+					'local'         => array(
+						'isStandalonePluginActive' => false,
+					),
 				),
 			),
 			'/jetpack/v4/site/rewindable-activity'   => array(

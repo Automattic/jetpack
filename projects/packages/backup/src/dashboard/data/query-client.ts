@@ -1,4 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
+import type { ActivitySortOrder } from './api/activity-log';
 
 const STALE_TIME_DEFAULT_MS = 30_000;
 const GC_TIME_DEFAULT_MS = 5 * 60_000;
@@ -58,10 +59,10 @@ export const keys = {
 	// query-filter root to scan all cached pages (e.g. when looking up
 	// a row by id across pages).
 	activityLogRoot: () => [ 'backup', 'activity-log' ] as const,
-	// Per-page key. `(page, pageSize)` is the only thing that
-	// distinguishes one fetch from another, so both must be in the key.
-	activityLogPage: ( page: number, pageSize: number ) =>
-		[ 'backup', 'activity-log', { page, pageSize } ] as const,
+	// All three distinguish one fetch from another: page 1 ascending and page 1
+	// descending are different rows.
+	activityLogPage: ( page: number, pageSize: number, sortOrder: ActivitySortOrder ) =>
+		[ 'backup', 'activity-log', { page, pageSize, sortOrder } ] as const,
 	fileTree: ( rewindId: string, folderPath: string | null ) =>
 		[ 'backup', 'file-tree', rewindId, folderPath ] as const,
 	fileContents: ( rewindId: string, path: string ) =>
@@ -77,4 +78,9 @@ export const keys = {
 	// The site's recent restores, not one restore's status: read to
 	// recover an id WordPress.com accepted but did not return.
 	recentRestores: () => [ 'backup', 'recent-restores' ] as const,
+	// Whether one review prompt has been dismissed. Keyed on the reason
+	// because the two prompts are dismissed independently — declining to
+	// review after a restore must not also spend the backups prompt — and
+	// the server stores them under separate options for the same reason.
+	reviewDismissal: ( reason: string ) => [ 'backup', 'review-dismissal', reason ] as const,
 };

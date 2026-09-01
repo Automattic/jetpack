@@ -88,9 +88,7 @@ export function normalizeReportParams(
 	search?: NormalizeReportParamsArgType,
 	defaultPreset?: PresetType
 ): ReportParams {
-	const defaults = defaultPreset
-		? getDefaultQueryParams( true, defaultPreset )
-		: getDefaultQueryParams( true );
+	const defaults = getDefaultQueryParams( false, defaultPreset );
 
 	let preset: ReportPresetId | undefined;
 	if (
@@ -140,16 +138,12 @@ export function normalizeReportParams(
 		...( postId > 0 ? { post_id: postId } : {} ),
 	};
 
+	// Comparison only ever comes from the URL. A fresh load carries none: the
+	// dashboard compares nothing until the user picks a comparison.
 	if ( search && hasComparisonEnabled( search ) ) {
 		normalized.compare_from = search.compare_from;
 		normalized.compare_to = search.compare_to;
 		normalized.compare_preset = search.compare_preset;
-		normalized.comp = '1';
-	} else if ( ! search?.from && hasComparisonEnabled( defaults ) ) {
-		// Fresh load (missing primary params) - apply default comparison
-		normalized.compare_from = defaults.compare_from;
-		normalized.compare_to = defaults.compare_to;
-		normalized.compare_preset = defaults.compare_preset;
 		normalized.comp = '1';
 	}
 

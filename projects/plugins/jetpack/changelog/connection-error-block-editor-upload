@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress: Say when a video upload from the Video block failed because of a Jetpack connection problem, instead of only "Failed to upload your video".

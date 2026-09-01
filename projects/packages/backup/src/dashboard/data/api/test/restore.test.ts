@@ -49,6 +49,27 @@ describe( 'fetchRecentRestores', () => {
 		expect( rows?.[ 0 ].settled ).toBe( settled );
 	} );
 
+	test.each( [
+		[ 'finished', true ],
+		[ 'FINISHED', true ],
+		// Both spellings, because the collection route maps nothing and
+		// `Restore_Bridge::STATUS_MAP` already equates these two. Pinning
+		// this to `finished` alone would silently kill the review prompt's
+		// restore trigger on any site whose upstream says `success`.
+		[ 'success', true ],
+		// Settled and not a failure, but not a restore to ask anyone to
+		// praise either — kept distinct here as `STATUS_MAP` keeps it.
+		[ 'success-with-errors', false ],
+		[ 'fail', false ],
+		[ 'aborted', false ],
+		[ 'running', false ],
+		[ 'a-spelling-nobody-has-seen', false ],
+	] )( 'reads status %p as succeeded=%p', async ( status, succeeded ) => {
+		respondWith( [ { restore_id: 1, rewind_id: '1786512000.11', when: '', status } ] );
+		const rows = await fetchRecentRestores();
+		expect( rows?.[ 0 ].succeeded ).toBe( succeeded );
+	} );
+
 	test( 'treats a non-string status as not settled', async () => {
 		// Unknown means adoptable, and the confirmation decides. Guessing
 		// the other way would make an unrecognised spelling of "running"
