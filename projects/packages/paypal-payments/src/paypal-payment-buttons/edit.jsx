@@ -679,6 +679,83 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	] );
 
 	/**
+	 * Open the referral link in a sized window and close it on the way back.
+	 *
+	 * Only used when PayPal's SDK is not there to take the click. Without it the
+	 * link's `target="PPFrame"` -- which exists so the SDK can point it at the
+	 * lightbox it creates -- sends the merchant to a stray browser tab instead.
+	 */
+	const openSignupWindow = useCallback( url => {
+		const width = 600;
+		const height = 700;
+		const left = ( window.screen.width - width ) / 2;
+		const top = ( window.screen.height - height ) / 2;
+
+		const popup = window.open(
+			url,
+			'PPFrame',
+			`width=${ width },height=${ height },left=${ left },top=${ top },scrollbars=yes`
+		);
+
+		if ( ! popup ) {
+			return;
+		}
+
+		const pollTimer = setInterval( () => {
+			if ( popup.closed ) {
+				clearInterval( pollTimer );
+				return;
+			}
+
+			/*
+			 * PayPal returns the merchant to our own origin when they finish,
+			 * which makes the window's location readable again. Close it there:
+			 * PayPal does not, and it would otherwise sit on a wp-admin screen.
+			 * Reading `location` while it is still on paypal.com throws.
+			 */
+			try {
+				if ( popup.location.host !== window.location.host ) {
+					return;
+				}
+
+				clearInterval( pollTimer );
+				popup.close();
+
+				/*
+				 * The seller finished at PayPal, but the auth code only ever
+				 * arrives through the SDK callback -- which is not running, or
+				 * this window would never have opened. Say so rather than
+				 * leaving the wizard looking like it is still working.
+				 */
+				setConnectError(
+					__(
+						'PayPal’s onboarding window could not be loaded, so the connection could not be completed automatically. Please enter your API credentials manually.',
+						'jetpack-paypal-payments'
+					)
+				);
+			} catch {
+				// Still on a PayPal origin — its location is not readable yet.
+			}
+		}, 250 );
+	}, [] );
+
+	/**
+	 * Take the click only when PayPal's SDK has not.
+	 */
+	const handleSignupLinkClick = useCallback(
+		event => {
+			if ( window.PAYPAL?.apps?.Signup ) {
+				// The SDK owns this link: let it open its lightbox.
+				return;
+			}
+
+			event.preventDefault();
+			openSignupWindow( signupUrl );
+		},
+		[ signupUrl, openSignupWindow ]
+	);
+
+	/**
 	 * Load PayPal's SDK once the link it binds to is on the page.
 	 *
 	 * partner.js scans for `[data-paypal-button]` as it runs, so it is appended
@@ -1221,6 +1298,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 										data-paypal-onboard-complete={ ONBOARD_CALLBACK_NAME }
 										target="PPFrame"
 										className="components-button is-primary"
+										onClick={ handleSignupLinkClick }
 									>
 										{ connectWithPayPalLabel }
 									</a>
