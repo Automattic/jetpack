@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Media API: Check permissions on the target post before attaching a media item to it.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Reader: Sanitize repost data taken from the URL before it is inserted into the editor.

@@ -167,7 +167,21 @@ class WPCOM_JSON_API_Update_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		}
 
 		if ( isset( $input['parent_id'] ) ) {
-			$insert['post_parent'] = $input['parent_id'];
+			$parent_id = (int) $input['parent_id'];
+
+			/*
+			 * Attaching media to a post is an edit of that post, so it takes `edit_post` on
+			 * the target, as core's WP_REST_Attachments_Controller does for the same field.
+			 * Without this a caller attaches their own media to any post on the site.
+			 *
+			 * Zero is exempt: it detaches the item rather than naming a target, and
+			 * `edit_post` fails closed on 0, which would make detaching impossible.
+			 */
+			if ( $parent_id && ! current_user_can( 'edit_post', $parent_id ) ) {
+				return new WP_Error( 'unauthorized', 'User cannot edit the parent post', 403 );
+			}
+
+			$insert['post_parent'] = $parent_id;
 		}
 
 		if ( isset( $input['alt'] ) ) {
