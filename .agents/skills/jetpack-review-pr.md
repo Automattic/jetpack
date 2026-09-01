@@ -307,7 +307,9 @@ gh pr diff <PR> | awk -f .agents/skills/jetpack-review-pr/scripts/comment-budget
 ```
 
 It prints `path:line<TAB>N prose lines (M total)` for blocks over 4 prose lines. `line` is where
-*this PR's* added prose starts, which is mid-block when the PR edited an existing comment.
+*this PR's* added prose starts, which is mid-block when the PR edited an existing comment. It reads
+code files only — a `*` or `#` means something else in Markdown, `readme.txt` and CSS — so prose in
+docs never appears and still needs your eyes.
 
 - **Discard** — within budget once scaffolding is excluded, or a license header, generated file,
   or vendored code.
